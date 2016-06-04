@@ -1,0 +1,27 @@
+{
+  "manifest_version": 2,
+  "name": "Floccus (OwnCloud Sync)",
+  "version": "1.0",
+  "description": "Sync your browsers via ownCloud (currently only bookmarks supported; in development)",
+  "icons": {
+    "48": "icons/logo.png"
+  },
+
+  "applications": {
+    "gecko": {
+      "id": "floccus@handmadeideas.org",
+      "strict_min_version": "45.0"
+    }
+  },
+
+ "permissions": [
+    "https://*/*"
+  , "alarms"
+  , "bookmarks"
+  , "storage"
+  ],
+
+  "background": {
+    "scripts": ["background-script.js"]
+  }
+}
