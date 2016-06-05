@@ -7,7 +7,7 @@ Historically this was once possible using [the mozilla sync owncloud app](https:
  - [ ] Syncing bookmarks *(works one way; blocked by [owncloud/bookmarks#218](https://github.com/owncloud/bookmarks/pull/218); perhaps M. Lindhout's approach is better)*
  - [ ] Syncing History
 
-I'm trying to use the WebExtensions API as much as possible in order to support both Firefox and Chromium.
+Tested to work in both Firefox and Chromium.
 
 ## Prior art
  * [OwnCloud Bookmarks for chrome](https://chrome.google.com/webstore/detail/owncloud-bookmarks/eomolhpeokmbnincelpkagpapjpeeckc?hl=en-US), which adds its own interface for owncloud's Bookmarks app and *only* "syncs" those bookmarks.
