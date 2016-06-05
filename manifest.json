@@ -21,7 +21,11 @@
   , "storage"
   ],
 
+  "options_ui": {
+    "page": "src/options.html"
+  },
+
   "background": {
-    "scripts": ["background-script.js"]
+    "page": "src/background.html"
   }
 }

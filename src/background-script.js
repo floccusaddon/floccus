@@ -1,3 +1,5 @@
+(function(browser) {
+
 adapters = {}
 
 // OWNCLOUD ADAPTER
@@ -56,6 +58,8 @@ browser.storage.local.get('notFirstRun')
     }
   , notFirstRun: true
   })
+  
+  browser.runtime.openOptionsPage()
 })
 
 // sync regularly
@@ -144,3 +148,12 @@ const bookmarks = {
   }
 }
 
+})((function(){
+  if ('undefined' === typeof browser && 'undefined' !== typeof chrome) {
+    var b = new ChromePromise()
+    b.alarms = chrome.alarms // Don't promisify alarms -- don't make sense, yo!
+    return b
+  }else{
+    return browser
+  }
+})())
