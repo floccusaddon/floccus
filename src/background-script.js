@@ -11,9 +11,9 @@ adapters.owncloud = {
     .then(d => {
       var server = d.owncloud
       console.log('Fetching bookmarks', server)
-      return fetch(server.url + "/index.php/apps/bookmarks/public/rest/v1/bookmark?user="
-      + encodeURI(server.username)
-      + "&password=" + encodeURI(server.password)
+      return fetch(server.url + "/index.php/apps/bookmarks/public/rest/v1/bookmark"
+      + "?user=" + encodeURIComponent(server.username)
+      + "&password=" + encodeURIComponent(server.password)
       )
     })
     .then(response => {
@@ -22,7 +22,49 @@ adapters.owncloud = {
     })
   }
 , createBookmark(node) {
-    return Promise.resolve()
+    // This is a hack. Until the following issue is resolved:
+    // https://github.com/owncloud/bookmarks/pull/218
+    var owncloud
+    return browser.storage.local.get('owncloud')
+    // 1. Get ourselves a CSRF token
+    .then(d => {
+      owncloud = d.owncloud
+      return fetch(owncloud.url+'/index.php/apps/bookmarks/bookmarklet?output=popup&url='+encodeURIComponent(node.url)+'&title=', {
+        credentials: 'include'
+      , headers: {
+          Authorization: 'basic '+btoa(owncloud.username+':'+owncloud.password)
+        }
+      })
+    })
+    .then(res => {
+      if (res.status !== 200) return Promise.reject(new Error('Signing into owncloud for creating a bookmark failed'))
+      return res.text()
+    })
+    .then(src => {
+      var parser = new DOMParser()
+        , doc = parser.parseFromString(src, "text/html")
+      return Promise.resolve(doc.head.dataset.requesttoken)
+    })
+    // 2. Now create the bookmark
+    .then(token => {
+      var body = new FormData()
+      body.append('url', node.url)
+      body.append('title', node.title)
+      return fetch(owncloud.url+'/index.php/apps/bookmarks/bookmark', {
+        method: 'POST'
+      , body
+      , credentials: 'include' // Send cookies!
+      , headers: {
+          Authorization: 'basic '+btoa(owncloud.username+':'+owncloud.password)
+        , requesttoken: token
+        }
+      })
+    })
+    .then(res => {
+      console.log(res)
+      if (res.status !== 200) return Promise.reject(new Error('Signing into owncloud for creating a bookmark failed'))
+      return Promise.resolve()
+    })
   }
 , removeBookmark(localId) {
     return Promise.resolve()
@@ -90,11 +132,13 @@ const bookmarks = {
           if (localId = mappings.URLToId[obj.url]) {
             // known to mappings: UPDATE
             received[localId] = true
+            console.log('UPDATE', localId, obj)
             return browser.bookmarks.update(localId, obj)
           }else{
             // Not yet known: CREATE
             return browser.bookmarks.create({parentId: localRoot, title: obj.title, url: obj.url})
             .then(bookmark => {
+              console.log('CREATE', bookmark.id, obj)
               received[bookmark.id] = true
               mappings.URLToId[obj.url] = bookmark.id
               mappings.IdToURL[bookmark.id] = obj.url
@@ -109,6 +153,7 @@ const bookmarks = {
       for (var localId in mappings.IdToURL) {
         if (!received[localId]) {
           // If a bookmark was deleted on the server, we delete it as well
+          console.log('DELETE', localId, mappings.IdToURL[localId])
           removals.push(browser.bookmarks.remove(localId))
           delete mappings.URLToId[mappings.IdToURL[localId]]
           delete mappings.IdToURL[localId]
@@ -129,9 +174,20 @@ const bookmarks = {
         })
       )
       .then(bookmarks => {
-        return bookmarks
-        .filter(bookmark => !!bookmark.NOTFOUND)
-        .map(bookmark => bookmarks.adapter.removeBookmark(bookmark.NOTFOUND))
+        return Promise.all(
+          bookmarks
+          .filter(bookmark => !!bookmark.NOTFOUND)
+          .map(bookmark => {
+            var localId = bookmark.NOTFOUND
+            console.log('SERVERDELETE', localId, mappings.IdToURL[localId])
+            return bookmarks.adapter.removeBookmark(localId)
+            .then(() => {
+              delete mappings.URLToId[mappings.IdToURL[localId]]
+              delete mappings.IdToURL[localId]
+              return Promise.resolve()
+            }, (e)=> console.warn)
+          })
+        )
       })
     })
     .then(() => {
@@ -140,8 +196,16 @@ const bookmarks = {
       .then(children => {
         return Promise.all(
           children
-          .filter(bookmark => !!mappings.IdToURL[bookmark.id])
-          .map(bookmark => bookmarks.adapter.createBookmark(bookmark))
+          .filter(bookmark => !mappings.IdToURL[bookmark.id])
+          .map(bookmark => {
+            console.log('SERVERCREATE', bookmark.id, bookmark.url)
+            return bookmarks.adapter.createBookmark(bookmark)
+            .then(()=> {
+              mappings.IdToURL[bookmark.id] = bookmark.url
+              mappings.URLToId[bookmark.url] = bookmark.id
+              return Promise.resolve()
+            }, (e) => console.warn)
+          })
         )
       })
     })
