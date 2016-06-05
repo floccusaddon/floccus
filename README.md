@@ -1,13 +1,16 @@
-# Floccus
+# Cirrus Floccus
 The goal of this project is to build a browser extension that syncs your browser data with [OwnCloud](http://owncloud.org).
 
 Historically this was once possible using [the mozilla sync owncloud app](https://github.com/owncloudarchive/mozilla_sync). However, Mozilla <del>did a Google</del> tried to improve Firefox Sync and dropped support for the old API. If you're into history, read [the owncloud issue on the topic](https://github.com/owncloudarchive/mozilla_sync/issues/33).
 
 ### Status
- - [ ] Syncing bookmarks *(works one way; blocked by [owncloud/bookmarks#218](https://github.com/owncloud/bookmarks/pull/218); perhaps M. Lindhout's approach is better)*
+ - [x] Syncing bookmarks
  - [ ] Syncing History
 
 Tested to work in both Firefox and Chromium.
+
+### Roadmap
+I will explore alternatives to ownCloud's default Bookmark app, mostly because it's not very elegant to access until [owncloud/bookmarks#218](https://github.com/owncloud/bookmarks/pull/218) is in. One alternative that would be very rewarding due to its interoperability appeal / standards compatibility is using WebDAV as a syncing backend.
 
 ## Prior art
  * [OwnCloud Bookmarks for chrome](https://chrome.google.com/webstore/detail/owncloud-bookmarks/eomolhpeokmbnincelpkagpapjpeeckc?hl=en-US), which adds its own interface for owncloud's Bookmarks app and *only* "syncs" those bookmarks.
