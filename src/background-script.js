@@ -117,14 +117,39 @@ const bookmarks = {
     var mappings 
       , localRoot
       , received = {}
-    return Promise.all([
-      bookmarks.adapter.pullBookmarks()
-    , browser.storage.local.get(['bookmarks.localRoot', 'bookmarks.mappings'])
-    ])
-    .then(([json, d]) => {
+    return Promise.resolve()
+    .then(() => browser.storage.local.get(['bookmarks.localRoot', 'bookmarks.mappings']))
+    .then(d => {
       mappings = d['bookmarks.mappings']
       localRoot = d['bookmarks.localRoot']
-      
+    })
+    .then(() => {
+      // In the mappings but not in the tree: SERVERDELETE
+      return Promise.all(
+        Object.keys(mappings.IdToURL).map(localId => {
+          return browser.bookmarks.get(localId)
+          .then(node => node, er => {NOTFOUND: localId})
+        })
+      )
+      .then(bookmarks => {
+        return Promise.all(
+          bookmarks
+          .filter(bookmark => !!bookmark.NOTFOUND)
+          .map(bookmark => {
+            var localId = bookmark.NOTFOUND
+            console.log('SERVERDELETE', localId, mappings.IdToURL[localId])
+            return bookmarks.adapter.removeBookmark(localId)
+            .then(() => {
+              delete mappings.URLToId[mappings.IdToURL[localId]]
+              delete mappings.IdToURL[localId]
+              return Promise.resolve()
+            }, (e)=> console.warn)
+          })
+        )
+      })
+    })
+    .then(() => bookmarks.adapter.pullBookmarks())
+    .then(json => { 
       // Update known ones and create new ones
       return Promise.all(
         json.map(obj => {
@@ -160,35 +185,7 @@ const bookmarks = {
         }
       }
 
-      return Promise.all([
-        browser.storage.local.set({'bookmarks.mappings': mappings})
-      , Promise.all(removals)
-      ])
-    })
-    .then(() => {
-      // In the mappings but not in the tree: SERVERDELETE
-      return Promise.all(
-        Object.keys(mappings.IdToURL).map(localId => {
-          return browser.bookmarks.get(localId)
-          .then(node => node, er => {NOTFOUND: localId})
-        })
-      )
-      .then(bookmarks => {
-        return Promise.all(
-          bookmarks
-          .filter(bookmark => !!bookmark.NOTFOUND)
-          .map(bookmark => {
-            var localId = bookmark.NOTFOUND
-            console.log('SERVERDELETE', localId, mappings.IdToURL[localId])
-            return bookmarks.adapter.removeBookmark(localId)
-            .then(() => {
-              delete mappings.URLToId[mappings.IdToURL[localId]]
-              delete mappings.IdToURL[localId]
-              return Promise.resolve()
-            }, (e)=> console.warn)
-          })
-        )
-      })
+      return Promise.all(removals)
     })
     .then(() => {
       // In the tree yet not in the mappings: SERVERCREATE
@@ -208,6 +205,9 @@ const bookmarks = {
           })
         )
       })
+    })
+    .then(() => {
+      return browser.storage.local.set({'bookmarks.mappings': mappings})
     })
   }
 }
