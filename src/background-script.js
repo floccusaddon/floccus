@@ -128,25 +128,17 @@ const bookmarks = {
       return Promise.all(
         Object.keys(mappings.IdToURL).map(localId => {
           return browser.bookmarks.get(localId)
-          .then(node => node, er => {NOTFOUND: localId})
-        })
-      )
-      .then(bookmarks => {
-        return Promise.all(
-          bookmarks
-          .filter(bookmark => !!bookmark.NOTFOUND)
-          .map(bookmark => {
-            var localId = bookmark.NOTFOUND
+          .then(node => node, er => {
             console.log('SERVERDELETE', localId, mappings.IdToURL[localId])
             return bookmarks.adapter.removeBookmark(localId)
             .then(() => {
               delete mappings.URLToId[mappings.IdToURL[localId]]
               delete mappings.IdToURL[localId]
               return Promise.resolve()
-            }, (e)=> console.warn)
+            }, (e)=> console.warn) 
           })
-        )
-      })
+        })
+      )
     })
     .then(() => bookmarks.adapter.pullBookmarks())
     .then(json => { 
