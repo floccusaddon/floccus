@@ -174,18 +174,20 @@ const bookmarks = {
     })
     .then(() => {
       // removed on the server: DELETE
-      var removals = []
-      for (var localId in mappings.IdToURL) {
-        if (!received[localId]) {
-          // If a bookmark was deleted on the server, we delete it as well
-          console.log('DELETE', localId, mappings.IdToURL[localId])
-          removals.push(browser.bookmarks.remove(localId))
-          delete mappings.URLToId[mappings.IdToURL[localId]]
-          delete mappings.IdToURL[localId]
-        }
-      }
-
-      return Promise.all(removals)
+      return Promise.all(
+        Object.keys(mappings.IdToURL).map(localId => {
+          if (!received[localId]) {
+            // If a bookmark was deleted on the server, we delete it as well
+            console.log('DELETE', localId, mappings.IdToURL[localId])
+            return browser.bookmarks.remove(localId)
+            .then(() => {
+              delete mappings.URLToId[mappings.IdToURL[localId]]
+              delete mappings.IdToURL[localId]
+              return Promise.resolve()
+            })
+          }
+        })
+      )
     })
     .then(() => {
       // In the tree yet not in the mappings: SERVERCREATE
