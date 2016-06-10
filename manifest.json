@@ -1,9 +1,9 @@
 {
   "manifest_version": 2,
-  "name": "Floccus (ownCloud Sync for Chrome/Firefox)",
+  "name": "Floccus (ownCloud Sync)",
   "short_name": "Floccus",
   "version": "1.0.0",
-  "description": "Sync your Firefox/Chrome with ownCloud (currently only bookmarks; more to come)",
+  "description": "Sync your browser with ownCloud (currently only bookmarks; more to come)",
   "icons": {
     "48": "icons/logo.png"
   },
