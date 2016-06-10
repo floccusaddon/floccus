@@ -9,8 +9,16 @@ Historically this was once possible using [the mozilla sync owncloud app](https:
 
 Tested to work in both Firefox and Chromium.
 
+## Installation
+
+### Chrome
+Not in the web store yet.
+
+### Firefox
+Once it's approved you will be able to [install it on AMO](https://addons.mozilla.org/en-US/firefox/addon/floccus/)
+
 ### Roadmap
-I will explore alternatives to ownCloud's default Bookmark app, mostly because it's not very elegant to access until [owncloud/bookmarks#218](https://github.com/owncloud/bookmarks/pull/218) is in. One alternative that would be very rewarding due to its interoperability appeal / standards compatibility is using WebDAV as a syncing backend.
+Clearly, owncloud's default bookmarks app is rather rudimentary. The [roadmap for version 2](https://github.com/marcelklehr/floccus/issues/1) comprises end-to-end encryption and support for syncing browsing history.
 
 ## Prior art
  * [OwnCloud Bookmarks for chrome](https://chrome.google.com/webstore/detail/owncloud-bookmarks/eomolhpeokmbnincelpkagpapjpeeckc?hl=en-US), which basically acts as a proxy to the Owncloud Bookmarks app -- it doesn't integrate the bookmarks into the browser experience.
