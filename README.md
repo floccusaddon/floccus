@@ -14,10 +14,12 @@ Tested to work in both Firefox and Chromium.
 ### Chrome
 Not in the web store yet.
 
-### Firefox
-Once it's approved you will be able to [install it on AMO](https://addons.mozilla.org/en-US/firefox/addon/floccus/)
+You can still install it by [downloading the Chrome package](https://github.com/marcelklehr/floccus/releases/download/v1.0.1/floccus.crx) and dropping it into Chrome's extension page.
 
-### Roadmap
+### Firefox
+You can [install it on AMO](https://addons.mozilla.org/en-US/firefox/addon/floccus/).
+
+## Roadmap
 Clearly, owncloud's default bookmarks app is rather rudimentary. The [roadmap for version 2](https://github.com/marcelklehr/floccus/issues/1) comprises end-to-end encryption and support for syncing browsing history.
 
 ## Prior art
