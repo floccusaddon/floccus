@@ -26,6 +26,15 @@
     "page": "src/options.html"
   },
 
+	"browser_action": {
+		"browser_style": true,
+		"default_icon": {
+			"48": "icons/logo.png"
+		},
+		"default_title": "Open Floccus options",
+		"default_popup": "src/options.html"
+	},
+
   "background": {
     "page": "src/background.html"
   }
