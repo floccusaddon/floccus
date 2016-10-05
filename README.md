@@ -31,6 +31,9 @@ Clearly, owncloud's default bookmarks app is rather rudimentary. The [roadmap fo
 ## What's with the name?
 [Cirrus floccus](https://en.wikipedia.org/wiki/Cirrus_floccus) is a type of cloud, that <del>can sync your browser data</del> looks very nice.
 
+## Building
+Firefox expects a zip, for chrome do the following: https://developer.chrome.com/extensions/packaging (private key necessary!)
+
 ## License
 (c) 2016 by Marcel Klehr
 MPL 2.0
