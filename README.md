@@ -14,7 +14,7 @@ Tested to work in both Firefox and Chromium.
 ### Chrome
 Not in the web store yet.
 
-You can still install it by [downloading the Chrome package](https://github.com/marcelklehr/floccus/releases/download/v1.0.1/floccus.crx) and dropping it into Chrome's extension page.
+You can still install it by [downloading the Chrome package from the latest release](https://github.com/marcelklehr/floccus/releases/) and dropping it into Chrome's extension page.
 
 ### Firefox
 You can [install it on AMO](https://addons.mozilla.org/en-US/firefox/addon/floccus/).
