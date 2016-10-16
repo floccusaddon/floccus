@@ -7,7 +7,7 @@ Historically this was once possible using [the mozilla sync owncloud app](https:
  - [x] Syncing bookmarks (with the Bookmarks app, no folders :/)
  - [ ] Syncing History
 
-Tested to work in both Firefox and Chromium.
+Tested to work in both Firefox and Chromium. Doesn't work in Firefox for Android [yet](http://arewewebextensionsyet.com).
 
 ## Installation
 
