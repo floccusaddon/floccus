@@ -78,25 +78,14 @@ browser.storage.local.get('notFirstRun')
 .then(d => { 
   if (d.notFirstRun) return
   
-  // Create Owncloud bookmarks folder
-  browser.bookmarks.getTree()
-  .then(parentNode => browser.bookmarks.create({title: 'Owncloud', parentId: parentNode.id}))
-  .then(bookmark => browser.storage.local.set({'bookmarks.localRoot': bookmark.id}))
-  .catch(err => console.warn)
+  // Create Owncloud bookmarks folder and mappings
+  bookmarks.init()
 
   browser.storage.local.set({
     'owncloud': {
       url: 'https://yourowncloud'
     , username: 'your username'
     , password: 'shhh!'
-    }
-  , 'bookmarks.lastState': {
-      lastChanged: 0
-    , lastSerialized: ''
-    }
-  , 'bookmarks.mappings': {
-      URLToId: {}
-    , IdToURL: {}
     }
   , notFirstRun: true
   })
@@ -123,6 +112,11 @@ const bookmarks = {
       mappings = d['bookmarks.mappings']
       localRoot = d['bookmarks.localRoot']
     })
+    .then(() => browser.bookmarks.get(localRoot))
+    .then(
+      () => {}
+    , (er) => bookmarks.init()
+    )
     .then(() => {
       // In the mappings but not in the tree: SERVERDELETE
       return Promise.all(
@@ -203,6 +197,18 @@ const bookmarks = {
     .then(() => {
       return browser.storage.local.set({'bookmarks.mappings': mappings})
     })
+  }
+, init() {
+    return browser.bookmarks.getTree()
+    .then(parentNode => browser.bookmarks.create({title: 'Owncloud', parentId: parentNode.id}))
+    .then(bookmark => browser.storage.local.set({'bookmarks.localRoot': bookmark.id}))
+    .then(() => browser.storage.local.set({
+      'bookmarks.mappings': {
+        URLToId: {}
+      , IdToURL: {}
+      }
+    }))
+    .catch(err => console.warn)
   }
 }
 
