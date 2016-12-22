@@ -4,10 +4,11 @@ The goal of this project is to build a browser extension that syncs your browser
 Historically this was once possible using [the mozilla sync owncloud app](https://github.com/owncloudarchive/mozilla_sync). However, Mozilla <del>did a Google</del> tried to improve Firefox Sync and dropped support for the old API. If you're into history, read [the owncloud issue on the topic](https://github.com/owncloudarchive/mozilla_sync/issues/33).
 
 ### Status
- - [x] Syncing bookmarks (with the Bookmarks app, no folders :/)
+ - [ ] Syncing bookmarks
  - [ ] Syncing History
 
 Tested to work in both Firefox and Chromium. Doesn't work in Firefox for Android [yet](http://arewewebextensionsyet.com).
+An update to nextcloud/bookmarks broke this extension, recently. I've submitted a [pull request](https://github.com/nextcloud/bookmarks/pull/322) to allow proper CRUD access from the public API.
 
 ## Installation
 
