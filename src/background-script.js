@@ -11,10 +11,12 @@ adapters.owncloud = {
     .then(d => {
       var server = d.owncloud
       console.log('Fetching bookmarks', server)
-      return fetch(server.url + "/index.php/apps/bookmarks/public/rest/v1/bookmark"
-      + "?user=" + encodeURIComponent(server.username)
-      + "&password=" + encodeURIComponent(server.password)
-      + "&select=id"
+      return fetch(server.url + "/index.php/apps/bookmarks/bookmark?select=id&page=-1"
+      , {
+        headers: {
+          Authorization: 'basic '+btoa(owncloud.username+':'+owncloud.password)
+        }
+      }
       )
     })
     .then(response => {
@@ -34,10 +36,9 @@ adapters.owncloud = {
       var body = new FormData()
       body.append('url', node.url)
       body.append('title', node.title)
-      return fetch(owncloud.url+'/index.php/apps/bookmarks/public/rest/v1/bookmark', {
+      return fetch(owncloud.url+'/index.php/apps/bookmarks/bookmark', {
         method: 'POST'
       , body
-      , credentials: 'include' // Send cookies!
       , headers: {
           Authorization: 'basic '+btoa(owncloud.username+':'+owncloud.password)
         }
@@ -57,9 +58,8 @@ adapters.owncloud = {
     return browser.storage.local.get('owncloud')
     .then(d => {
       owncloud = d
-      return fetch(owncloud.url+'/index.php/apps/bookmarks/public/rest/v1/bookmark/'+remoteId, {
+      return fetch(owncloud.url+'/index.php/apps/bookmarks/bookmark/'+remoteId, {
         method: 'DELETE'
-      , credentials: 'include' // Send cookies!
       , headers: {
           Authorization: 'basic '+btoa(owncloud.username+':'+owncloud.password)
         }
