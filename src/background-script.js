@@ -11,7 +11,7 @@ adapters.owncloud = {
     .then(d => {
       var server = d.owncloud
       console.log('Fetching bookmarks', server)
-      return fetch(server.url + "/index.php/apps/bookmarks/bookmark?select=id&page=-1"
+      return fetch(server.url + "/index.php/apps/bookmarks/public/rest/v2/bookmark?select=id&page=-1"
       , {
         headers: {
           Authorization: 'basic '+btoa(owncloud.username+':'+owncloud.password)
@@ -36,7 +36,7 @@ adapters.owncloud = {
       var body = new FormData()
       body.append('url', node.url)
       body.append('title', node.title)
-      return fetch(owncloud.url+'/index.php/apps/bookmarks/bookmark', {
+      return fetch(owncloud.url+'/index.php/apps/bookmarks/public/rest/v2/bookmark', {
         method: 'POST'
       , body
       , headers: {
