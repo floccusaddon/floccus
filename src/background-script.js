@@ -11,7 +11,7 @@ adapters.owncloud = {
     .then(d => {
       var server = d.owncloud
       console.log('Fetching bookmarks', server)
-      return fetch(server.url + "/index.php/apps/bookmarks/public/rest/v2/bookmark?select=id&page=-1"
+      return fetch(server.url + "/index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1"
       , {
         headers: {
           Authorization: 'basic '+btoa(server.username+':'+server.password)
@@ -145,7 +145,10 @@ const bookmarks = {
             received[localId] = true
             console.log('UPDATE', localId, obj)
             // XXX: Check lastmodified
-            return browser.bookmarks.update(localId, obj)
+            return browser.bookmarks.update(localId, {
+              title: obj.title
+            , url: obj.url
+            })
           }else{
             // Not yet known: CREATE
             return browser.bookmarks.create({parentId: localRoot, title: obj.title, url: obj.url})
