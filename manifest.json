@@ -1,9 +1,9 @@
 {
   "manifest_version": 2,
-  "name": "Floccus (owncloud/nextcloud Sync)",
+  "name": "Floccus (nextcloud Sync)",
   "short_name": "Floccus",
-  "version": "1.1.2",
-  "description": "Sync your browser with ownCloud (currently only bookmarks; more to come)",
+  "version": "1.2.0",
+  "description": "Sync your browser with nextcloud (currently only bookmarks; more to come)",
   "icons": {
     "48": "icons/logo.png"
   },
