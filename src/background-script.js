@@ -24,8 +24,9 @@ adapters.owncloud = {
       else return response.json()
     })
     .then((json) => {
+      if ('success' !== json.status) return Promise.reject(json.data)
       console.log(json)
-      return json
+      return json.data
     })
   }
 , createBookmark(node) {
