@@ -8,7 +8,6 @@ Historically this was once possible using [the mozilla sync owncloud app](https:
  - [ ] Syncing History
 
 Tested to work in both Firefox and Chromium. Doesn't work in Firefox for Android [yet](http://arewewebextensionsyet.com).
-**An update to nextcloud/bookmarks broke this extension, recently. I'm working with the maintainer of the app to resolve this issue.**
 
 ## Installation
 
