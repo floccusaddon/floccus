@@ -52,8 +52,6 @@ adapters.owncloud = {
     .catch((er) => console.log(er))
   }
 , removeBookmark(remoteId) {
-    return Promise.resolve()
-    
     return browser.storage.local.get('owncloud')
     .then(d => {
       var server = d.owncloud
