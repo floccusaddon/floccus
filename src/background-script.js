@@ -94,7 +94,7 @@ browser.storage.local.get('notFirstRun')
 })
 
 // sync regularly
-browser.alarms.create('sync', {periodInMinutes: .5})
+browser.alarms.create('sync', {periodInMinutes: 25})
 browser.alarms.onAlarm.addListener(alarm => {
   bookmarks.sync()
   .catch(err => console.warn(err))
