@@ -55,7 +55,7 @@ adapters.owncloud = {
     return browser.storage.local.get('owncloud')
     .then(d => {
       var server = d.owncloud
-      return fetch(server.url+'/index.php/apps/bookmarks/bookmark/'+remoteId, {
+      return fetch(server.url+'/index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
         method: 'DELETE'
       , headers: {
           Authorization: 'basic '+btoa(server.username+':'+server.password)
