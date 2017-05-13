@@ -7,7 +7,7 @@ Historically this was once possible using [the mozilla sync owncloud app](https:
  - [x] Syncing bookmarks
  - [ ] Syncing History
 
-Tested to work in both Firefox and Chromium. Doesn't work in Firefox for Android [yet](http://arewewebextensionsyet.com).
+Tested to work in both Firefox and Chromium. Doesn't work in Firefox for Android [yet](http://arewewebextensionsyet.com). Requires nextcloud bookmarks app with at least version 0.10.
 
 ## Installation
 
