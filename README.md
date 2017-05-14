@@ -19,6 +19,8 @@ You can still install it by [downloading the Chrome package from the latest rele
 ### Firefox
 You can [install it on AMO](https://addons.mozilla.org/en-US/firefox/addon/floccus/).
 
+(Beware that AMO has to review all new releases, though, so you might need to wait a bit before you can install the latest release on firefox.)
+
 ## Roadmap
 Clearly, owncloud's default bookmarks app is rather rudimentary. The [roadmap for version 2](https://github.com/marcelklehr/floccus/issues/1) comprises end-to-end encryption and support for syncing browsing history.
 
@@ -37,3 +39,9 @@ Firefox expects a zip, for chrome do the following: https://developer.chrome.com
 ## License
 (c) 2016 by Marcel Klehr
 MPL 2.0
+
+## Changelog
+v1.2.0
+
+ - Switched to the new nc-bookmarks v2 API
+ - Increased sync interval, to reduce cpu load
