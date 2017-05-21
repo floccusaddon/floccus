@@ -29,7 +29,8 @@ export default class NextcloudAdapter {
       return json.data
     })
   }
-, createBookmark(node) {
+
+  createBookmark(node) {
     return Promise.resolve()
     .then(d => {
       var body = new FormData()
@@ -50,7 +51,8 @@ export default class NextcloudAdapter {
     })
     .catch((er) => console.log(er))
   }
-, removeBookmark(remoteId) {
+
+  removeBookmark(remoteId) {
     return Promise.resolve()
     .then(d => {
       return fetch(this.server.url+'/index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
