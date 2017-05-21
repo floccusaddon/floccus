@@ -1,4 +1,5 @@
-import * as Storage from './Storage.js'
+import default as Storage from './Storage'
+import default as browser from './browser-api'
 
 export default class Account {
   
@@ -85,7 +86,8 @@ export default class Account {
         })
       )
     })
-    .then(() => {
+    .then(() => this.getMappings())
+    .then((mappings) => {
       // In the tree yet not in the mappings: SERVERCREATE
       return browser.bookmarks.getChildren(localRoot)
       .then(children => {

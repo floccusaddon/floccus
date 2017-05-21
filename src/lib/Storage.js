@@ -1,3 +1,5 @@
+import default as browser from './browser-api'
+
 export default class Storage {
 
   constructor(id) {

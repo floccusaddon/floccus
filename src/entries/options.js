@@ -1,4 +1,4 @@
-(function(browser) {
+import default as browser from '../lib/browser-api'
 
 browser.storage.local.get('owncloud')
 .then(d => {
@@ -17,11 +17,3 @@ document.querySelector('#submit').addEventListener('click', () => {
     }
   })
 })
-
-})((function(){
-  if ('undefined' === typeof browser && 'undefined' !== typeof chrome) {
-    return new ChromePromise()
-  }else{
-    return browser
-  }
-})())

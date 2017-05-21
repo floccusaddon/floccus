@@ -1,5 +1,6 @@
-(function(browser) {
-
+import default as browser from '../lib/browser-api'
+import default as Account from '../lib/Account'
+import default as NextcloudAdapter from '../lib/adapter-nextcloud'
 
 // FIRST RUN
 // Set up some things on first run
@@ -12,6 +13,7 @@ browser.storage.local.get('notFirstRun')
 })
 
 
+// SYNC LOOP
 // sync regularly
 browser.alarms.create('sync', {periodInMinutes: 25})
 browser.alarms.onAlarm.addListener(alarm => {
@@ -25,13 +27,3 @@ browser.alarms.onAlarm.addListener(alarm => {
     }
   })
 })
-
-})((function(){
-  if ('undefined' === typeof browser && 'undefined' !== typeof chrome) {
-    var b = new ChromePromise()
-    b.alarms = chrome.alarms // Don't promisify alarms -- don't make sense, yo!
-    return b
-  }else{
-    return browser
-  }
-})())
