@@ -2,13 +2,33 @@
 <html>
 <head>
   <title>Floccus options</title>
+  <style>
+  .account {
+    border-radius: 0.5cm;
+    border: 1px grey solid;
+    background: lightblue;
+  }
+  .account table {
+    border: none;
+  }
+  </style>
 </head>
 <body>
-<p><label>Owncloud server URL: <input type="text" id="url"/></label></p>
-<p><label>Owncloud user name: <input type="text" id="username"/></label></p>
-<p><label>Owncloud password: <input type="password" id="password"/></label></p>
-<p><button type="submit" id="submit">Save</button></p>
-<script src="../lib/chrome-promise.js"></script>
-<script src="./options.js"></script>
+<template id="account">
+  <div class="account">
+  <form>
+  <table>
+  <tr><td><label for=url"">Nextcloud server URL:</label></td><td><input type="text" class="url" name="url"/></td></tr>
+  <tr><td><label for="username">User name:</label></td><td><input type="text" class="username" name="password"/></td></tr>
+  <tr><td><label for="password">Password:</label></td><td><input type="password" class="password" name="password"/></label></td></tr>
+  <table>
+  </form>
+  </div>
+</template>
+<div id="accounts">
+
+</div>
+<script src="../../lib/chrome-promise.js"></script>
+<script src="../js/options.js"></script>
 </body>
 </html>
