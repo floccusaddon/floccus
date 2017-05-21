@@ -7,7 +7,7 @@ export default class Storage {
   }
   
   changeEntry(entryName, fn) {
-    return browser.storage.local.get(entryName))
+    return browser.storage.local.get(entryName)
     .then(d => {
       entry = d[entryName]
       entry = fn(entry)
@@ -27,11 +27,11 @@ export default class Storage {
   }
   
   setLocalRoot(localId) {
-   return browser.storage.local.set({`bookmarks[${this.accountId}].localRoot`: localId}) 
+    return browser.storage.local.set({[`bookmarks[${this.accountId}].localRoot`]: localId}) 
   }
 
   initMappings() {
-    return browser.storage.local.set({`bookmarks[${this.accountId}].mappings`: {
+    return browser.storage.local.set({[`bookmarks[${this.accountId}].mappings`]: {
         ServerToLocal: {}
       , LocalToServer: {}
       }})
@@ -42,7 +42,7 @@ export default class Storage {
   }
 
   removeFromMappings(localId) {
-    return this.changeEntry(`bookmarks[${this.accountId}].mappings`), (mappings) => {
+    return this.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
       delete mappings.ServerToLocal[mappings.LocalToServer[localId]]
       delete mappings.LocalToServer[localId]
       return mappings
@@ -50,7 +50,7 @@ export default class Storage {
   }
   
   addToMappings(localId, remoteId) {
-    return this.changeEntry(`bookmarks[${this.accountId}].mappings`), (mappings) => {
+    return this.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
       mappings.LocalToServer[localId] = remoteId
       mappings.ServerToLocal[removeId] = localId
       return mappings

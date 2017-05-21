@@ -46,7 +46,7 @@ export default class Account {
         })
       )
     })
-    .then(() => Promise.all([bookmarks.adapter.pullBookmarks(), this.getMappings()])
+    .then(() => Promise.all([bookmarks.adapter.pullBookmarks(), this.getMappings()]))
     .then(data => {
       var [json, mappings] = data
       // Update known ones and create new ones
@@ -97,7 +97,7 @@ export default class Account {
           .map(bookmark => {
             console.log('SERVERCREATE', bookmark.id, bookmark.url)
             return bookmarks.adapter.createBookmark(bookmark)
-            .then(() => this.storage.addToMappings(bookmark.id), (e) => console.warn)
+            .then(() => this.storage.addToMappings(bookmark.id), (e) => console.warn(e))
           })
         )
       })
