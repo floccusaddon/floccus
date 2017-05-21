@@ -1,6 +1,6 @@
-import default as browser from '../lib/browser-api'
-import default as Account from '../lib/Account'
-import default as NextcloudAdapter from '../lib/adapter-nextcloud'
+import browser from '../lib/browser-api'
+import Account from '../lib/Account'
+import NextcloudAdapter from '../lib/adapter-nextcloud'
 
 // FIRST RUN
 // Set up some things on first run

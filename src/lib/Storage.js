@@ -1,4 +1,4 @@
-import default as browser from './browser-api'
+import browser from './browser-api'
 
 export default class Storage {
 

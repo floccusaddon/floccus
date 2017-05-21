@@ -1,5 +1,5 @@
-import default as Storage from './Storage'
-import default as browser from './browser-api'
+import Storage from './Storage'
+import browser from './browser-api'
 
 export default class Account {
   

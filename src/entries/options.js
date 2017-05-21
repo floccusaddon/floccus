@@ -1,4 +1,4 @@
-import default as browser from '../lib/browser-api'
+import browser from '../lib/browser-api'
 
 function render() {
   browser.storage.local.get('accounts')
