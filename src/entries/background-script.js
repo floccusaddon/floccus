@@ -7,32 +7,24 @@
 browser.storage.local.get('notFirstRun')
 .then(d => { 
   if (d.notFirstRun) return
-  
-  // Create Owncloud bookmarks folder and mappings
-  bookmarks.init()
-
-  browser.storage.local.set({
-    'owncloud': {
-      url: 'https://yourowncloud'
-    , username: 'your username'
-    , password: 'shhh!'
-    }
-  , notFirstRun: true
-  })
-  
+  browser.storage.local.set({notFirstRun: true})
   browser.runtime.openOptionsPage()
 })
+
 
 // sync regularly
 browser.alarms.create('sync', {periodInMinutes: 25})
 browser.alarms.onAlarm.addListener(alarm => {
-  bookmarks.sync()
-  .catch(err => console.warn(err))
+  browser.storage.local.get('accounts')
+  .then((d) => {
+    var accounts = d['accounts']
+    for (var accountId in accounts) {
+      var account = new Account(accountId, new NextcloudAdapter(accounts[accountId]))
+      account.sync()
+      .catch(err => console.warn(err))
+    }
+  })
 })
-
-
-adapters = {}
-
 
 })((function(){
   if ('undefined' === typeof browser && 'undefined' !== typeof chrome) {
