@@ -4,24 +4,53 @@ function render() {
   browser.storage.local.get('accounts')
   .then((d) => {
     var accounts = d['accounts']
-    var template = document.querySelector('template#account').firstChild
+    console.log(accounts)
+    var $template = document.querySelector('template#account').content.querySelector('.account')
+    var $accounts = document.querySelector('#accounts')
+    $accounts.innerHTML = ''
     Object.keys(accounts).forEach(accountId => {
       // create new account element
-      template.querySelector('.url').value = accounts[accountId].url
-      template.querySelector('.username').value = accounts[accountsId].username
-      template.querySelector('.password').value = accounts[accountsId].password
-      var newAccount = document.importNode(template, true)
-      document.querySelector('#accounts').appendNode(newAccount)
+      $template.querySelector('.url').value = accounts[accountId].url
+      $template.querySelector('.username').value = accounts[accountId].username
+      $template.querySelector('.password').value = accounts[accountId].password
+      var $newAccount = document.importNode($template, true)
+      $accounts.append($newAccount)
       // setup change listener
-      newAccount.firstChild.addEventListener('change', () => {
-        accounts[accountId] = {
-          url: newAccount.querySelector('.url').value
-        , username: newAccount.querySelector('.username').value
-        , password: newAccount.querySelector('.password').value
+      const onchange = () => {
+        delete accounts[accountId]
+        var account = {
+          url: $newAccount.querySelector('.url').value
+        , username: $newAccount.querySelector('.username').value
+        , password: $newAccount.querySelector('.password').value
         }
+        accountId = account.username+'@'+account.url
+        accounts[accountId] = account
         browser.storage.local.set({accounts: accounts}) 
+      }
+      $newAccount.querySelector('.url').addEventListener('change', onchange)
+      $newAccount.querySelector('.username').addEventListener('change', onchange)
+      $newAccount.querySelector('.password').addEventListener('change', onchange)
+      $newAccount.querySelector('.remove').addEventListener('click', () => {
+        delete accounts[accountId] 
+        browser.storage.local.set({accounts: accounts}) 
+        .then(() => render())
       })
     })
   })
 }
 
+document.querySelector('#addaccount').addEventListener('click', () => { 
+  browser.storage.local.get('accounts')
+  .then((d) => {
+    var accounts = d['accounts']
+    var account = {
+      url: 'example.com'
+    , username: 'bob'
+    , password: 'sssh'
+    }
+    accounts[account.username+'@'+account.url] = account
+    return browser.storage.local.set({accounts: accounts})
+  })
+  .then(() => render())
+})
+render()

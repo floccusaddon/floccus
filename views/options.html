@@ -4,12 +4,17 @@
   <title>Floccus options</title>
   <style>
   .account {
-    border-radius: 0.5cm;
     border: 1px grey solid;
     background: lightblue;
   }
   .account table {
     border: none;
+  }
+  .account input {
+    width: 100%;
+    border: 1px grey solid;
+    background: white;
+    color: #444;
   }
   </style>
 </head>
@@ -21,6 +26,7 @@
   <tr><td><label for=url"">Nextcloud server URL:</label></td><td><input type="text" class="url" name="url"/></td></tr>
   <tr><td><label for="username">User name:</label></td><td><input type="text" class="username" name="password"/></td></tr>
   <tr><td><label for="password">Password:</label></td><td><input type="password" class="password" name="password"/></label></td></tr>
+  <tr><td></td><td><a href="#" class="remove">Delete</a></td></tr>
   <table>
   </form>
   </div>
@@ -28,6 +34,7 @@
 <div id="accounts">
 
 </div>
+<input type="button" id="addaccount" value="Add account" />
 <script src="../../lib/chrome-promise.js"></script>
 <script src="../js/options.js"></script>
 </body>
