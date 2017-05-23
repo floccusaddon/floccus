@@ -7,6 +7,8 @@ Historically this was once possible using [the mozilla sync owncloud app](https:
  - [x] Syncing bookmarks
  - [ ] Syncing History
 
+Currently you can setup one nextcloud account only and floccus will create a bookmarks folder whose contents will be synced with your nextcloud bookmarks. It cannot handle folders, yet. You can move the synced folder anywhere, however.
+
 Tested to work in both Firefox and Chromium. Doesn't work in Firefox for Android [yet](http://arewewebextensionsyet.com). Requires nextcloud bookmarks app with at least version 0.10.
 
 ## Installation
