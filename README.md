@@ -23,9 +23,6 @@ You can [install it on AMO](https://addons.mozilla.org/en-US/firefox/addon/flocc
 
 (Beware that AMO has to review all new releases, though, so you might need to wait a bit before you can install the latest release on firefox.)
 
-## Roadmap
-Clearly, owncloud's default bookmarks app is rather rudimentary. The [roadmap for version 2](https://github.com/marcelklehr/floccus/issues/1) comprises end-to-end encryption and support for syncing browsing history.
-
 ## Prior art
  * [OwnCloud Bookmarks for chrome](https://chrome.google.com/webstore/detail/owncloud-bookmarks/eomolhpeokmbnincelpkagpapjpeeckc?hl=en-US), which basically acts as a proxy to the Owncloud Bookmarks app -- it doesn't integrate the bookmarks into the browser experience.
  * [OwnCloud 8 Bookmarks for chrome](https://chrome.google.com/webstore/detail/owncloud-8-bookmarks/efdanaldnkagmbmcngfpnjfgmgjhbjhm?hl=en-US), which basically does the same thing as the above: it has a few more features, but a less attractive UI
