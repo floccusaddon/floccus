@@ -23,7 +23,7 @@
   ],
 
   "options_ui": {
-    "page": "src/options.html"
+    "page": "dist/html/options.html"
   },
 
 	"browser_action": {
@@ -32,10 +32,10 @@
 			"48": "icons/logo.png"
 		},
 		"default_title": "Open Floccus options",
-		"default_popup": "src/options.html"
+		"default_popup": "dist/html/options.html"
 	},
 
   "background": {
-    "page": "src/background.html"
+    "page": "dist/html/background.html"
   }
 }
