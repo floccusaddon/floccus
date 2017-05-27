@@ -46,7 +46,7 @@ export default class Account {
         })
       )
     })
-    .then(() => Promise.all([bookmarks.adapter.pullBookmarks(), this.getMappings()]))
+    .then(() => Promise.all([this.adapter.pullBookmarks(), this.storage.getMappings()]))
     .then(data => {
       var [json, mappings] = data
       // Update known ones and create new ones
@@ -72,7 +72,7 @@ export default class Account {
         })
       )
     })
-    .then(() => this.getMappings())
+    .then(() => this.storage.getMappings())
     .then((mappings) => {
       // removed on the server: DELETE
       return Promise.all(
@@ -86,7 +86,7 @@ export default class Account {
         })
       )
     })
-    .then(() => this.getMappings())
+    .then(() => this.storage.getMappings())
     .then((mappings) => {
       // In the tree yet not in the mappings: SERVERCREATE
       return browser.bookmarks.getChildren(localRoot)
@@ -96,7 +96,7 @@ export default class Account {
           .filter(bookmark => !mappings.LocalToServer[bookmark.id])
           .map(bookmark => {
             console.log('SERVERCREATE', bookmark.id, bookmark.url)
-            return bookmarks.adapter.createBookmark(bookmark)
+            return this.adapter.createBookmark(bookmark)
             .then(() => this.storage.addToMappings(bookmark.id), (e) => console.warn(e))
           })
         )
