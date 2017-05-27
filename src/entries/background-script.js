@@ -21,9 +21,23 @@ browser.alarms.onAlarm.addListener(alarm => {
   .then((d) => {
     var accounts = d['accounts']
     for (var accountId in accounts) {
-      var account = new Account(accountId, new NextcloudAdapter(accounts[accountId]))
-      account.sync()
+      syncAccount(accountId)
       .catch(err => console.warn(err))
     }
   })
 })
+
+var syncing = {}
+window.syncAccount = function(accountId) {
+  if (syncing[accountId]) return syncing[accountId];
+  return syncing[accountId] = browser.storage.local.get('accounts')
+  .then((d) => {
+    var accounts = d['accounts']
+    var account = new Account(accountId, new NextcloudAdapter(accounts[accountId]))
+    return account.sync()
+  })
+  .then(() => {delete syncing[accountId]}, (er) => {
+    delete syncing[accountId]
+    return Promise.reject(er)
+  })
+}

@@ -35,6 +35,12 @@ function render() {
         browser.storage.local.set({accounts: accounts}) 
         .then(() => render())
       })
+      $newAccount.querySelector('.forceSync').addEventListener('click', () => {
+        $newAccount.querySelector('.forceSync').classList.add('disabled')
+        browser.runtime.getBackgroundPage()
+        .then((background) => background.syncAccount(accountId))
+        .then(() => render())
+      })
     })
   })
 }
