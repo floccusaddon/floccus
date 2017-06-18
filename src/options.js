@@ -1,4 +1,9 @@
 (function(browser) {
+  var bookmarks = client(browser);
+
+  document.getElementById('sync').addEventListener('click', () => {
+    bookmarks.sync();
+  });
 
 browser.storage.local.get('owncloud')
 .then(d => {
