@@ -1,10 +1,55 @@
+/* @jsx h */
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
+
+import URL from 'url'
+import * as path from 'path'
+import h from 'virtual-dom'
 
 export default class NextcloudAdapter {
 
   constructor(server) {
     this.server = server
+    this.server.url = this.normalizeServerURL(server.url)
+  }
+
+  renderOptions(ctl) {
+    let data = this.getData()
+    return <div class="account">
+      <form>
+      <table>
+      <tr>
+        <td><label for="url">Nextcloud server URL:</label></td>
+        <td><input value={data.url} type="text" class="url" name="url" onchange={(e) => ctl.update({...data, url: e.target.value})}/></td>
+      </tr>
+      <tr>
+        <td><label for="username">User name:</label></td>
+        <td><input value={data.username} type="text" class="username" name="password" onchange={(e) => ctl.update({...data, username: e.target.value})}/></td>
+      </tr>
+      <tr>
+        <td><label for="password">Password:</label></td>
+        <td><input value={data.password} type="password" class="password" name="password" onchange={(e) => ctl.update({...data, password: e.target.value})}/></td></tr>
+      <tr><td></td><td>
+        <a href="#" class="remove" onclick={() => ctl.delete()}>Delete</a>
+        <a href="#" class="forceSync" onclick={() => ctl.sync()}>force Sync</a>
+      </td></tr>
+      </table>
+      </form>
+    </div>
+  }
+
+  getData() {
+    return JSON.parse(JSON.stringify(this.server))
+  }
+  
+  getLabel() {
+    let data = this.getData()
+    return data.username + '@' + data.url
+  }
+
+  normalizeServerURL(input) {
+    let url = new URL(input)
+    return url.origin + path.dirname(url.pathname.substr(0, url.pathname.indexOf('index.php')))
   }
 
   pullBookmarks() {

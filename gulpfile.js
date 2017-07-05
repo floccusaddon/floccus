@@ -11,7 +11,7 @@ gulp.task('js', function () {
       file.contents = browserify(file.path, {
 				debug: true,
  			})
-      .transform(babelify, {presets: ["es2015"]}) 
+      .transform(babelify, {presets: ["es2015"], plugins: ["transform-object-rest-spread", "syntax-jsx", "transform-react-jsx"]}) 
       .bundle()
     }))
     .pipe(gulp.dest('./dist/js'));

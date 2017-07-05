@@ -1,6 +1,6 @@
 import browser from './browser-api'
 
-export default class Storage {
+export default class AccountStorage {
 
   constructor(id) {
     this.accountId = id
@@ -19,6 +19,26 @@ export default class Storage {
     return browser.storage.local.get(entryName)
     .then(d => {
       return d[entryName]
+    })
+  }
+  
+  getAccountData() {
+    return this.getEntry(`accounts`, () => {
+      return accounts[this.accountId]
+    })
+  }
+  
+  setAccountData(data) {
+    return this.changeEntry(`bookmarks[${this.accountId}]`, (accounts) => {
+      accounts[this.accountId] = data
+      return accounts
+    })
+  }
+  
+  deleteAccountData() {
+    return this.changeEntry(`bookmarks[${this.accountId}]`, (accounts) => {
+      delete accounts[this.accountId]
+      return accounts
     })
   }
 

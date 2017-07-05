@@ -1,62 +1,38 @@
 import browser from '../lib/browser-api'
+import {h, diff, patch} from 'virtual-dom'
 
-function render() {
+var tree = h('div#accounts')
+  , rootNode = document.querySelector('#accounts')
+
+function triggerRender() {
   browser.storage.local.get('accounts')
   .then((d) => {
-    var accounts = d['accounts']
+    let accounts = d['accounts']
     console.log(accounts)
-    var $template = document.querySelector('template#account').content.querySelector('.account')
-    var $accounts = document.querySelector('#accounts')
-    $accounts.innerHTML = ''
-    Object.keys(accounts).forEach(accountId => {
-      // create new account element
-      $template.querySelector('.url').value = accounts[accountId].url
-      $template.querySelector('.username').value = accounts[accountId].username
-      $template.querySelector('.password').value = accounts[accountId].password
-      var $newAccount = document.importNode($template, true)
-      $accounts.append($newAccount)
-      // setup change listener
-      const onchange = () => {
-        delete accounts[accountId]
-        var account = {
-          url: $newAccount.querySelector('.url').value
-        , username: $newAccount.querySelector('.username').value
-        , password: $newAccount.querySelector('.password').value
-        }
-        accountId = account.username+'@'+account.url
-        accounts[accountId] = account
-        browser.storage.local.set({accounts: accounts}) 
-      }
-      $newAccount.querySelector('.url').addEventListener('change', onchange)
-      $newAccount.querySelector('.username').addEventListener('change', onchange)
-      $newAccount.querySelector('.password').addEventListener('change', onchange)
-      $newAccount.querySelector('.remove').addEventListener('click', () => {
-        delete accounts[accountId] 
-        browser.storage.local.set({accounts: accounts}) 
-        .then(() => render())
-      })
-      $newAccount.querySelector('.forceSync').addEventListener('click', () => {
-        $newAccount.querySelector('.forceSync').classList.add('disabled')
+    let newTree = render(accounts)
+    let patches = diff(tree, newTree)
+    rootNode = patch(rootNode, patches)
+    tree = newTree
+  })
+}
+
+function render(accounts) {
+  return Object.keys(accounts)
+  .map(Account.get)
+  .map(account => {
+    return account.renderOptions({
+      delete: account.delete().then(() => triggerRender())
+    , sync: () => {
         browser.runtime.getBackgroundPage()
-        .then((background) => background.syncAccount(accountId))
-        .then(() => render())
-      })
+        .then((background) => background.syncAccount(account.id))
+        .then(() => triggerRender())
+      }
+    , update: (data) => {
+        account.setData(data)
+        .then(() => triggerRender())
+      }
     })
   })
 }
 
-document.querySelector('#addaccount').addEventListener('click', () => { 
-  browser.storage.local.get('accounts')
-  .then((d) => {
-    var accounts = d['accounts']
-    var account = {
-      url: 'example.com'
-    , username: 'bob'
-    , password: 'sssh'
-    }
-    accounts[account.username+'@'+account.url] = account
-    return browser.storage.local.set({accounts: accounts})
-  })
-  .then(() => render())
-})
-render()
+triggerRender()

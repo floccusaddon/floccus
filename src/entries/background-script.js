@@ -1,6 +1,6 @@
 import browser from '../lib/browser-api'
 import Account from '../lib/Account'
-import NextcloudAdapter from '../lib/adapter-nextcloud'
+import NextcloudAdapter from '../lib/adapters/Nextcloud'
 
 // FIRST RUN
 // Set up some things on first run
@@ -30,14 +30,16 @@ browser.alarms.onAlarm.addListener(alarm => {
 var syncing = {}
 window.syncAccount = function(accountId) {
   if (syncing[accountId]) return syncing[accountId];
-  return syncing[accountId] = browser.storage.local.get('accounts')
-  .then((d) => {
-    var accounts = d['accounts']
-    var account = new Account(accountId, new NextcloudAdapter(accounts[accountId]))
+  syncing[accountId] = true
+  Account.get(accountId)
+  .then((account) => {
     return account.sync()
   })
-  .then(() => {delete syncing[accountId]}, (er) => {
-    delete syncing[accountId]
-    return Promise.reject(er)
-  })
+  .then(
+    () => {delete syncing[accountId]},
+    (er) => {
+      delete syncing[accountId]
+      return Promise.reject(er)
+    }
+  )
 }

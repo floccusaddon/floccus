@@ -1,18 +1,64 @@
-import Storage from './Storage'
+import AccountStorage from './AccountStorage'
+import Adapter from './Adapter'
 import browser from './browser-api'
 
 export default class Account {
+
+  static get(id) {
+    let storage = new AccountStorage(id)
+    storage.getAccountData()
+    .then((data) => {
+        return new Account(id, storage, Adapter.factory(data))
+    })
+  }
   
-  constructor(accountId, adapter) {
-    this.adapter = adapter
-    this.accountId = accountId
-    this.storage = new Storage(this.accountId)
+  static create(data) {
+    let id = Math.floor(Math.random()*10000000000)
+    let storage = new AccountStorage(id)
+    
+    return storage.setAccountData(data)
+    .then((data) => {
+        return new Account(id, storage, Adapter.factory(data))
+    })
+    .then((account) => {
+      return account.init()
+    })
+  }
+  
+  constructor(id, storageAdapter, serverAdapter) {
+    this.server = serverAdapter
+    this.id = id
+    this.storage = storageAdapter
+  }
+
+  delete() {
+    return this.storage.deleteAccountData()
+  }
+
+  getLabel() {
+    return this.server.getLabel()
+  }
+
+  getData() {
+    return this.server.getData() 
+  }
+  
+  setData(data) {
+     this.server = Adapter.factory(data)
+     return Promise.resolve()
+     .then(() => {
+       return this.storage.setAccountData(data)
+     })
+  }
+  
+  renderOptions(ctl) {
+    return this.server.renderOptions(ctl) 
   }
 
   init() {
     return browser.bookmarks.getTree()
     .then(parentNode => browser.bookmarks.create({
-      title: 'Nextcloud ('+this.accountId+')'
+      title: 'Nextcloud ('+this.getLabel()+')'
     , parentId: parentNode.id
     }))
     .then(bookmark => this.storage.setLocalRoot(bookmark.id))
@@ -40,13 +86,13 @@ export default class Account {
           return browser.bookmarks.get(localId)
           .then(node => node, er => {
             console.log('SERVERDELETE', localId, mappings.LocalToServer[localId])
-            return this.adapter.removeBookmark(mappings.LocalToServer[localId])
+            return this.server.removeBookmark(mappings.LocalToServer[localId])
             .then(() => this.removeFromMappings(localId)) 
           })
         })
       )
     })
-    .then(() => Promise.all([this.adapter.pullBookmarks(), this.storage.getMappings()]))
+    .then(() => Promise.all([this.server.pullBookmarks(), this.storage.getMappings()]))
     .then(data => {
       var [json, mappings] = data
       // Update known ones and create new ones
@@ -96,7 +142,7 @@ export default class Account {
           .filter(bookmark => !mappings.LocalToServer[bookmark.id])
           .map(bookmark => {
             console.log('SERVERCREATE', bookmark.id, bookmark.url)
-            return this.adapter.createBookmark(bookmark)
+            return this.server.createBookmark(bookmark)
             .then(() => this.storage.addToMappings(bookmark.id), (e) => console.warn(e))
           })
         )
