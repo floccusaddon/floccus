@@ -49,7 +49,8 @@ export default class NextcloudAdapter {
 
   normalizeServerURL(input) {
     let url = new URL(input)
-    return url.origin + path.dirname(url.pathname.substr(0, url.pathname.indexOf('index.php')))
+    let indexLoc = url.pathname.indexOf('index.php')
+    return url.origin + url.pathname.substr(0, ~indexLoc? indexLoc : null)
   }
 
   pullBookmarks() {
