@@ -28,6 +28,7 @@
     "through2": "^2.0.3"
   },
   "dependencies": {
+    "dom-delegator": "^13.1.0",
     "virtual-dom": "^2.1.1"
   }
 }

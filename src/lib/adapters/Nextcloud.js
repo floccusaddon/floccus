@@ -1,10 +1,14 @@
-/* @jsx h */
+/* @jsx el */
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
 
-import URL from 'url'
-import * as path from 'path'
-import h from 'virtual-dom'
+const {h} = require('virtual-dom')
+
+function el(el, props, ...children) {
+return h(el, props, children);
+};
+
+const url = require('url')
 
 export default class NextcloudAdapter {
 
@@ -15,23 +19,23 @@ export default class NextcloudAdapter {
 
   renderOptions(ctl) {
     let data = this.getData()
-    return <div class="account">
+    return <div className="account">
       <form>
       <table>
       <tr>
         <td><label for="url">Nextcloud server URL:</label></td>
-        <td><input value={data.url} type="text" class="url" name="url" onchange={(e) => ctl.update({...data, url: e.target.value})}/></td>
+        <td><input value={data.url} type="text" className="url" name="url" ev-keydown={(e) => ctl.update({...data, url: e.target.value})}/></td>
       </tr>
       <tr>
         <td><label for="username">User name:</label></td>
-        <td><input value={data.username} type="text" class="username" name="password" onchange={(e) => ctl.update({...data, username: e.target.value})}/></td>
+        <td><input value={data.username} type="text" className="username" name="password" ev-keydown={(e) => ctl.update({...data, username: e.target.value})}/></td>
       </tr>
       <tr>
         <td><label for="password">Password:</label></td>
-        <td><input value={data.password} type="password" class="password" name="password" onchange={(e) => ctl.update({...data, password: e.target.value})}/></td></tr>
+        <td><input value={data.password} type="password" className="password" name="password" ev-keydown={(e) => ctl.update({...data, password: e.target.value})}/></td></tr>
       <tr><td></td><td>
-        <a href="#" class="remove" onclick={() => ctl.delete()}>Delete</a>
-        <a href="#" class="forceSync" onclick={() => ctl.sync()}>force Sync</a>
+        <a href="#" className="remove" ev-click={() => ctl.delete()}>Delete</a>
+        <a href="#" className="forceSync" ev-click={() => ctl.sync()}>force Sync</a>
       </td></tr>
       </table>
       </form>
@@ -48,9 +52,9 @@ export default class NextcloudAdapter {
   }
 
   normalizeServerURL(input) {
-    let url = new URL(input)
-    let indexLoc = url.pathname.indexOf('index.php')
-    return url.origin + url.pathname.substr(0, ~indexLoc? indexLoc : null)
+    let serverURL = url.parse(input)
+    let indexLoc = serverURL.pathname.indexOf('index.php')
+    return serverURL.protocol + '//' + serverURL.host + serverURL.pathname.substr(0, ~indexLoc? indexLoc : null)
   }
 
   pullBookmarks() {

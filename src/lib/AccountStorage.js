@@ -9,7 +9,7 @@ export default class AccountStorage {
   changeEntry(entryName, fn) {
     return browser.storage.local.get(entryName)
     .then(d => {
-      entry = d[entryName]
+      var entry = d[entryName]
       entry = fn(entry)
       return browser.storage.local.set({[entryName]: entry})
     })
@@ -23,20 +23,21 @@ export default class AccountStorage {
   }
   
   getAccountData() {
-    return this.getEntry(`accounts`, () => {
+    return this.getEntry(`accounts`).then((accounts) => {
       return accounts[this.accountId]
     })
   }
   
   setAccountData(data) {
-    return this.changeEntry(`bookmarks[${this.accountId}]`, (accounts) => {
+    return this.changeEntry(`accounts`, (accounts) => {
+      accounts = accounts || {}
       accounts[this.accountId] = data
       return accounts
     })
   }
   
   deleteAccountData() {
-    return this.changeEntry(`bookmarks[${this.accountId}]`, (accounts) => {
+    return this.changeEntry(`accounts`, (accounts) => {
       delete accounts[this.accountId]
       return accounts
     })

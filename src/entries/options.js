@@ -1,5 +1,8 @@
 import browser from '../lib/browser-api'
+import Account from '../lib/Account'
 import {h, diff, patch} from 'virtual-dom'
+
+require('dom-delegator')()
 
 var tree = h('div#accounts')
   , rootNode = document.querySelector('#accounts')
@@ -8,6 +11,12 @@ function triggerRender() {
   browser.storage.local.get('accounts')
   .then((d) => {
     let accounts = d['accounts']
+    return Promise.all(
+      Object.keys(accounts)
+      .map(Account.get)
+    )
+  })
+  .then((accounts) => {
     console.log(accounts)
     let newTree = render(accounts)
     let patches = diff(tree, newTree)
@@ -17,11 +26,11 @@ function triggerRender() {
 }
 
 function render(accounts) {
-  return Object.keys(accounts)
-  .map(Account.get)
-  .map(account => {
+  return h('div#accounts', accounts.map(account => {
     return account.renderOptions({
-      delete: account.delete().then(() => triggerRender())
+      delete: () => {
+        account.delete().then(() => triggerRender())
+      }
     , sync: () => {
         browser.runtime.getBackgroundPage()
         .then((background) => background.syncAccount(account.id))
@@ -32,7 +41,12 @@ function render(accounts) {
         .then(() => triggerRender())
       }
     })
-  })
+  }))
 }
 
+
+document.querySelector('#addaccount').addEventListener('click', () => {
+  Account.create({type: 'nextcloud', url: 'http://example.org', username: 'bob', password: 'password'})
+  .then(() => triggerRender())
+})
 triggerRender()

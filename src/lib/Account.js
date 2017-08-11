@@ -6,7 +6,7 @@ export default class Account {
 
   static get(id) {
     let storage = new AccountStorage(id)
-    storage.getAccountData()
+    return storage.getAccountData()
     .then((data) => {
         return new Account(id, storage, Adapter.factory(data))
     })
@@ -17,7 +17,7 @@ export default class Account {
     let storage = new AccountStorage(id)
     
     return storage.setAccountData(data)
-    .then((data) => {
+    .then(() => {
         return new Account(id, storage, Adapter.factory(data))
     })
     .then((account) => {
