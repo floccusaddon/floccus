@@ -19,28 +19,13 @@ export default class NextcloudAdapter {
   renderOptions(ctl) {
     let data = this.getData()
     let onchangeURL = (e) => {
-      clearTimeout(timer)
       ctl.update({...data, url: e.target.value, valid: null})
     }
     let onchangeUsername = (e) => {
-      clearTimeout(timer)
       ctl.update({...data, username: e.target.value, valid: null})
     }
     let onchangePassword = (e) => {
-      clearTimeout(timer)
       ctl.update({...data, password: e.target.value, valid: null})
-    }
-    var timer 
-    if (data.valid === null) {
-      timer = setTimeout(() => {
-        this.pullBookmarks()
-        .then((json) => {
-          ctl.update({...data, valid: true})
-        })
-        .catch(() => {
-          ctl.update({...data, valid: false})
-        })
-      }, 1000)
     }
     return <div className="account">
       <form>
@@ -57,7 +42,7 @@ export default class NextcloudAdapter {
         <td><label for="password">Password:</label></td>
         <td><input value={new InputInitializeHook(data.password)} type="password" className="password" name="password" ev-keydown={onchangePassword} ev-blur={onchangePassword}/></td></tr>
       <tr><td></td><td>
-        <span className="tag status">{data.valid == true? '✓ valid' : (data.valid == false? '✘ invalid' : '… checking')}</span>
+        <span className="tag status">{data.valid == true? '✓ connected' : (data.valid == false? '✘ error' : '… checking')}</span>
         <a href="#" className="tag remove" ev-click={() => ctl.delete()}>Delete</a>
         <a href="#" className="tag forceSync" ev-click={() => ctl.sync()}>force Sync</a>
       </td></tr>

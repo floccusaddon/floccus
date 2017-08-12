@@ -64,7 +64,28 @@ export default class Account {
   }
   
   renderOptions(ctl) {
-    return this.server.renderOptions(ctl) 
+    let originalData = this.getData()
+    var timer 
+    if (originalData.valid === null) {
+      timer = setTimeout(() => {
+        this.server.pullBookmarks()
+        .then((json) => {
+          ctl.update({...originalData, valid: true})
+        })
+        .catch(() => {
+          ctl.update({...originalData, valid: false})
+        })
+      }, 1000)
+    }
+    return this.server.renderOptions({
+      ...ctl,
+      update: (data) => {
+        clearTimeout(timer)
+        if (JSON.stringify(data) != JSON.stringify(originalData)) {
+          ctl.update({...data, valid: null})
+        }
+      }
+    }) 
   }
 
   init() {
