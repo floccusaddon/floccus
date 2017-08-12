@@ -50,6 +50,18 @@ export default class Account {
        return this.storage.setAccountData(data)
      })
   }
+
+  getLocalRoot() {
+    return this.storage.getLocalRoot()
+  }
+
+  hasBookmark(localId) {
+    return Promise.resolve()
+    .then(() => this.storage.getMappings())
+    .then((mappings) => {
+        return Object.keys(mappings.LocalToServer).some(id => localId === id)
+    })
+  }
   
   renderOptions(ctl) {
     return this.server.renderOptions(ctl) 

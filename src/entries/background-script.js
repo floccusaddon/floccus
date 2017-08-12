@@ -28,19 +28,46 @@ browser.alarms.onAlarm.addListener(alarm => {
   })
 })
 
+const onchange = (localId, details) => {
+  browser.storage.local.get('accounts')
+  .then((d) => {
+    var accounts = d['accounts']
+    Object.keys(accounts).forEach(accountId => {
+      Account.get(accountId)
+      .then((account) => {
+        return Promise.all([
+          account.hasBookmark(localId),
+          account.getLocalRoot()
+        ])
+      })
+      .then(data => {
+        let [hasBookmark, localRoot] = data
+        if (!syncing[accountId] && (hasBookmark || details.parentId === localRoot)) syncAccount(accountId)
+      })
+    })
+  }) 
+}
+browser.bookmarks.onChanged.addListener(onchange)
+browser.bookmarks.onMoved.addListener(onchange)
+browser.bookmarks.onRemoved.addListener(onchange)
+browser.bookmarks.onCreated.addListener(onchange)
+
 var syncing = {}
+  , next = {}
 window.syncAccount = function(accountId) {
-  if (syncing[accountId]) return syncing[accountId];
+  if (syncing[accountId]) {
+    next[accountId] = () => syncAccount(accountId)
+    return
+  }
   syncing[accountId] = true
   Account.get(accountId)
   .then((account) => {
     return account.sync()
   })
-  .then(
-    () => {delete syncing[accountId]},
-    (er) => {
-      delete syncing[accountId]
-      return Promise.reject(er)
-    }
-  )
+  .then(() => {delete syncing[accountId]})
+  .catch((er) => {
+    delete syncing[accountId]
+    console.error(er)
+  })
+  .then(() => next[accountId] && next[accountId]())
 }
