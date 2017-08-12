@@ -19,20 +19,23 @@ export default class NextcloudAdapter {
 
   renderOptions(ctl) {
     let data = this.getData()
+    let onchangeURL = (e) => ctl.update({...data, url: e.target.value})
+    let onchangeUsername = (e) => ctl.update({...data, username: e.target.value})
+    let onchangePassword = (e) => ctl.update({...data, password: e.target.value})
     return <div className="account">
       <form>
       <table>
       <tr>
         <td><label for="url">Nextcloud server URL:</label></td>
-        <td><input value={data.url} type="text" className="url" name="url" ev-keydown={(e) => ctl.update({...data, url: e.target.value})}/></td>
+        <td><input value={data.url} type="text" className="url" name="url" ev-keyup={onchangeURL} ev-blur={onchangeURL}/></td>
       </tr>
       <tr>
         <td><label for="username">User name:</label></td>
-        <td><input value={data.username} type="text" className="username" name="password" ev-keydown={(e) => ctl.update({...data, username: e.target.value})}/></td>
+        <td><input value={data.username} type="text" className="username" name="password" ev-keyup={onchangeUsername} ev-blur={onchangeUsername}/></td>
       </tr>
       <tr>
         <td><label for="password">Password:</label></td>
-        <td><input value={data.password} type="password" className="password" name="password" ev-keydown={(e) => ctl.update({...data, password: e.target.value})}/></td></tr>
+        <td><input value={data.password} type="password" className="password" name="password" ev-keydown={onchangePassword} ev-blur={onchangePassword}/></td></tr>
       <tr><td></td><td>
         <a href="#" className="remove" ev-click={() => ctl.delete()}>Delete</a>
         <a href="#" className="forceSync" ev-click={() => ctl.sync()}>force Sync</a>
