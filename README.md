@@ -44,8 +44,3 @@ Firefox expects a zip, for chrome do the following: https://developer.chrome.com
 (c) 2016 by Marcel Klehr
 MPL 2.0
 
-## Changelog
-v1.2.0
-
- - Switched to the new nc-bookmarks v2 API
- - Increased sync interval, to reduce cpu load
