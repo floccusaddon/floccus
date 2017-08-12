@@ -112,7 +112,7 @@ export default class Account {
             return browser.bookmarks.create({parentId: localRoot, title: obj.title, url: obj.url})
             .then(bookmark => {
               console.log('CREATE', bookmark.id, obj)
-              return this.storage.addToMappings(bookmark.id)
+              return this.storage.addToMappings(bookmark.id, obj.id)
             })
           }
         })
@@ -143,7 +143,7 @@ export default class Account {
           .map(bookmark => {
             console.log('SERVERCREATE', bookmark.id, bookmark.url)
             return this.server.createBookmark(bookmark)
-            .then(() => this.storage.addToMappings(bookmark.id), (e) => console.warn(e))
+            .then((serverMark) => this.storage.addToMappings(bookmark.id, remoteMark.id), (e) => console.warn(e))
           })
         )
       })

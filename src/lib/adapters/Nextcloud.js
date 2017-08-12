@@ -97,7 +97,11 @@ export default class NextcloudAdapter {
     .then(res => {
       console.log(res)
       if (res.status !== 200) return Promise.reject(new Error('Signing into owncloud for creating a bookmark failed'))
-      return Promise.resolve()
+      return res.json()
+    })
+    .then((json) => {
+      if (json.status != 'success') return Promise.reject(new Error('nextcloud API returned error'))
+      return Promise.resolve(json.item)
     })
     .catch((er) => console.log(er))
   }
