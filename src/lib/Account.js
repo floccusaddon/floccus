@@ -146,7 +146,7 @@ export default class Account {
           .map(bookmark => {
             console.log('SERVERCREATE', bookmark.id, bookmark.url)
             return this.server.createBookmark(bookmark)
-            .then((serverMark) => this.storage.addToMappings(bookmark.id, remoteMark.id), (e) => console.warn(e))
+            .then((serverMark) => this.storage.addToMappings(bookmark.id, serverMark.id), (e) => console.warn(e))
           })
         )
       })
