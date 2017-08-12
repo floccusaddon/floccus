@@ -73,7 +73,7 @@ export default class AccountStorage {
   addToMappings(localId, remoteId) {
     return this.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
       mappings.LocalToServer[localId] = remoteId
-      mappings.ServerToLocal[removeId] = localId
+      mappings.ServerToLocal[remoteId] = localId
       return mappings
     })
   }
