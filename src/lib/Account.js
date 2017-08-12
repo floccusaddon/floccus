@@ -88,7 +88,7 @@ export default class Account {
           .then(node => node, er => {
             console.log('SERVERDELETE', localId, mappings.LocalToServer[localId])
             return this.server.removeBookmark(mappings.LocalToServer[localId])
-            .then(() => this.removeFromMappings(localId)) 
+            .then(() => this.storage.removeFromMappings(localId)) 
           })
         })
       )
@@ -130,7 +130,7 @@ export default class Account {
             // If a bookmark was deleted on the server, we delete it as well
             console.log('DELETE', localId, mappings.LocalToServer[localId])
             return browser.bookmarks.remove(localId)
-            .then(() => this.removeFromMappings(localId))
+            .then(() => this.storage.removeFromMappings(localId))
           }
         })
       )
