@@ -6,9 +6,10 @@ require('dom-delegator')()
 
 var tree = h('div#accounts')
   , rootNode = document.querySelector('#accounts')
-
+  , rendering = false
 function triggerRender() {
-  browser.storage.local.get('accounts')
+  if (rendering) return rendering.then(triggerRender)
+  rendering = browser.storage.local.get('accounts')
   .then((d) => {
     let accounts = d['accounts']
     return Promise.all(
@@ -22,6 +23,7 @@ function triggerRender() {
     let patches = diff(tree, newTree)
     rootNode = patch(rootNode, patches)
     tree = newTree
+    rendering = false
   })
 }
 
