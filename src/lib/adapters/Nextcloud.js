@@ -14,7 +14,6 @@ export default class NextcloudAdapter {
 
   constructor(server) {
     this.server = server
-    this.server.url = this.normalizeServerURL(server.url)
   }
 
   renderOptions(ctl) {
@@ -75,7 +74,7 @@ export default class NextcloudAdapter {
     return Promise.resolve()
     .then(d => {
       console.log('Fetching bookmarks', this.server)
-      return fetch(this.server.url + "/index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1"
+      return fetch(this.normalizeServerURL(this.server.url) + "/index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1"
       , {
         headers: {
           Authorization: 'basic '+btoa(this.server.username+':'+this.server.password)
@@ -100,7 +99,7 @@ export default class NextcloudAdapter {
       var body = new FormData()
       body.append('url', node.url)
       body.append('title', node.title)
-      return fetch(this.server.url+'/index.php/apps/bookmarks/public/rest/v2/bookmark', {
+      return fetch(this.normalizeServerURL(this.server.url)+'/index.php/apps/bookmarks/public/rest/v2/bookmark', {
         method: 'POST'
       , body
       , headers: {
@@ -123,7 +122,7 @@ export default class NextcloudAdapter {
   removeBookmark(remoteId) {
     return Promise.resolve()
     .then(d => {
-      return fetch(this.server.url+'/index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
+      return fetch(this.normalizeServerURL(this.server.url)+'/index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
         method: 'DELETE'
       , headers: {
           Authorization: 'basic '+btoa(this.server.username+':'+this.server.password)
