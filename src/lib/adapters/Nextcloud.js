@@ -18,33 +18,44 @@ export default class NextcloudAdapter {
 
   renderOptions(ctl) {
     let data = this.getData()
-    let onchangeURL = (e) => ctl.update({...data, url: e.target.value, valid: null})
-    let onchangeUsername = (e) => ctl.update({...data, username: e.target.value, valid: null})
-    let onchangePassword = (e) => ctl.update({...data, password: e.target.value, valid: null})
-    
+    let onchangeURL = (e) => {
+      clearTimeout(timer)
+      ctl.update({...data, url: e.target.value, valid: null})
+    }
+    let onchangeUsername = (e) => {
+      clearTimeout(timer)
+      ctl.update({...data, username: e.target.value, valid: null})
+    }
+    let onchangePassword = (e) => {
+      clearTimeout(timer)
+      ctl.update({...data, password: e.target.value, valid: null})
+    }
+    var timer 
     if (data.valid === null) {
-      this.pullBookmarks()
-      .then((json) => {
-        ctl.update({...data, valid: true})
-      })
-      .catch(() => {
-        ctl.update({...data, valid: false})
-      })
+      timer = setTimeout(() => {
+        this.pullBookmarks()
+        .then((json) => {
+          ctl.update({...data, valid: true})
+        })
+        .catch(() => {
+          ctl.update({...data, valid: false})
+        })
+      }, 1000)
     }
     return <div className="account">
       <form>
       <table>
       <tr>
         <td><label for="url">Nextcloud server URL:</label></td>
-        <td><input value={data.url} type="text" className="url" name="url" ev-keyup={onchangeURL} ev-blur={onchangeURL}/></td>
+        <td><input value={new InputInitializeHook(data.url)} type="text" className="url" name="url" ev-keyup={onchangeURL} ev-blur={onchangeURL}/></td>
       </tr>
       <tr>
         <td><label for="username">User name:</label></td>
-        <td><input value={data.username} type="text" className="username" name="password" ev-keyup={onchangeUsername} ev-blur={onchangeUsername}/></td>
+        <td><input value={new InputInitializeHook(data.username)} type="text" className="username" name="password" ev-keyup={onchangeUsername} ev-blur={onchangeUsername}/></td>
       </tr>
       <tr>
         <td><label for="password">Password:</label></td>
-        <td><input value={data.password} type="password" className="password" name="password" ev-keydown={onchangePassword} ev-blur={onchangePassword}/></td></tr>
+        <td><input value={new InputInitializeHook(data.password)} type="password" className="password" name="password" ev-keydown={onchangePassword} ev-blur={onchangePassword}/></td></tr>
       <tr><td></td><td>
         <span className="tag status">{data.valid == true? '✓ valid' : (data.valid == false? '✘ invalid' : '… checking')}</span>
         <a href="#" className="tag remove" ev-click={() => ctl.delete()}>Delete</a>
@@ -135,5 +146,13 @@ export default class NextcloudAdapter {
       return Promise.resolve()
     })
     .catch((er) => console.log(er))
+  }
+}
+
+class InputInitializeHook {
+  constructor(initStr){this.initStr = initStr}
+  hook(node, propertyName, previousValue) { 
+    if ('undefined' != typeof previousValue) return
+    node[propertyName] = this.initStr
   }
 }
