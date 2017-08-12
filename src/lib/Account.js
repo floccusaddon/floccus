@@ -68,6 +68,7 @@ export default class Account {
   
   sync() {
     var localRoot
+      , received = {}
     return Promise.resolve()
     .then(() => this.storage.getLocalRoot())
     .then(root => {
@@ -98,8 +99,9 @@ export default class Account {
       // Update known ones and create new ones
       return Promise.all(
         json.map(obj => {
-          var localId
-          if (localId = mappings.ServerToLocal[obj.id]) {
+          var localId = mappings.ServerToLocal[obj.id]
+          if (localId) {
+            received[localId] = true
             // known to mappings: UPDATE
             console.log('UPDATE', localId, obj)
             // XXX: Check lastmodified
@@ -112,6 +114,7 @@ export default class Account {
             return browser.bookmarks.create({parentId: localRoot, title: obj.title, url: obj.url})
             .then(bookmark => {
               console.log('CREATE', bookmark.id, obj)
+              received[bookmark.id] = true
               return this.storage.addToMappings(bookmark.id, obj.id)
             })
           }
