@@ -37,7 +37,18 @@ Floccus will sync your bookmarks every 25mins, so you'll have to wait a bit unti
 ## What's with the name?
 [Cirrus floccus](https://en.wikipedia.org/wiki/Cirrus_floccus) is a type of cloud, that <del>can sync your browser data</del> looks very nice.
 
-## Building
+## Development
+### Setting up a dev environment
+ * Clone this repository.
+ * Install node.js and npm
+ * In the root of your floccus repo, run `npm install && npm install -g gulp`
+ * Run `gulp` to build
+ * Install firefox developer edition and prepare it as follows: https://developer.mozilla.org/en-US/Add-ons/Setting_up_extension_development_environment
+
+### Building
+* `gulp`
+
+### Releasing
 Firefox expects a zip, for chrome do the following: https://developer.chrome.com/extensions/packaging (private key necessary!)
 
 ## License
