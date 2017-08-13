@@ -1,5 +1,5 @@
-# Cirrus Floccus
-The goal of this project is to build a browser extension that syncs your browser data with [OwnCloud](http://owncloud.org).
+# ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/icons/logo.png) Cirrus Floccus
+The goal of this project is to build a browser extension that syncs your browser data with [Nextcloud](http://nextcloud.com).
 
 Historically this was once possible using [the mozilla sync owncloud app](https://github.com/owncloudarchive/mozilla_sync). However, Mozilla <del>did a Google</del> tried to improve Firefox Sync and dropped support for the old API. If you're into history, read [the owncloud issue on the topic](https://github.com/owncloudarchive/mozilla_sync/issues/33).
 
