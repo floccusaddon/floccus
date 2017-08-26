@@ -26,7 +26,7 @@ You can [install it on AMO](https://addons.mozilla.org/en-US/firefox/addon/flocc
 ## Usage
 After installation you'll be asked to enter the url and credentials to your nextcloud account. (If not, click on the new floccus icon in the browser toolbar.)
 
-Floccus will sync your bookmarks every 25mins, so you'll have to wait a bit until the bookmarks folder is created. Afterwards you should find the bookmarks from nextcloud inside a new folder titled "Owncloud". You can rename and move this folder at will. Don't create any folders within, though, as that is not supported, yet.
+Floccus will sync your bookmarks every 25mins, so you'll have to wait a bit until the bookmarks folder is created. Afterwards you should find the bookmarks from nextcloud inside a new folder titled "Owncloud" (I know, I know, this will change in the next release). You can rename and move this folder at will. Don't create any folders within, though, as that is not supported, yet.
 
 ## Prior art
  * [OwnCloud Bookmarks for chrome](https://chrome.google.com/webstore/detail/owncloud-bookmarks/eomolhpeokmbnincelpkagpapjpeeckc?hl=en-US), which basically acts as a proxy to the Owncloud Bookmarks app -- it doesn't integrate the bookmarks into the browser experience.
