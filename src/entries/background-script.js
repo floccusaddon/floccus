@@ -56,7 +56,10 @@ var syncing = {}
   , next = {}
 window.syncAccount = function(accountId) {
   if (syncing[accountId]) {
-    next[accountId] = () => syncAccount(accountId)
+    next[accountId] = () => {
+      delete next[accountId]
+      syncAccount(accountId)
+    }
     return
   }
   syncing[accountId] = true
