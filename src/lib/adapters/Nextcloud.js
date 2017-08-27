@@ -42,9 +42,9 @@ export default class NextcloudAdapter {
         <td><label for="password">Password:</label></td>
         <td><input value={new InputInitializeHook(data.password)} type="password" className="password" name="password" ev-keydown={onchangePassword} ev-blur={onchangePassword}/></td></tr>
       <tr><td></td><td>
-        <span className="tag status">{data.valid == true? '✓ connected' : (data.valid == false? '✘ error' : '… checking')}</span>
-        <a href="#" className="tag remove" ev-click={() => ctl.delete()}>Delete</a>
-        <a href="#" className="tag forceSync" ev-click={() => ctl.sync()}>force Sync</a>
+        <span className="status">{data.valid == true? '✓ connected' : (data.valid == false? '✘ error' : '… checking')}</span>
+        <a href="#" className="btn remove" ev-click={() => ctl.delete()}>Delete</a>
+        <a href="#" className="btn forceSync" ev-click={() => ctl.sync()}>force Sync</a>
       </td></tr>
       </table>
       </form>

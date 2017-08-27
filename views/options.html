@@ -9,8 +9,8 @@
     font-family: sans-serif;
   }
   .account {
-    border: 1px grey solid;
-    background: lightblue;
+    border-bottom: 1px #08d solid;
+    margin-bottom: 5px;
   }
   .account table {
     border: none;
@@ -23,30 +23,48 @@
   .account td:first-child {
     width: 4cm;
     text-align: right;
+    color: #08d;
   }
   .account input {
     width: 90%;
-    border: 1px grey solid;
+    padding: .1cm;
+    border: 1px #08d solid;
+    border-radius: .1cm;
     background: white;
     color: #444;
   }
   .account .disabled {
     color: #444;
   }
-  .account .tag {
+  .account .status {
     display: inline-block;
     margin: .1cm;
     padding: .1cm;
     color: #08d;
+  }
+  .btn {
+    display: inline-block;
+    margin: .1cm;
+    padding: .1cm;
+    color: #08d;
+    text-decoration: none;
+    background-color: white;
     border-color: #08d;
     border: 1px solid;
-    border-radius: .2cm;
+    border-radius: .1cm;
+  }
+  .btn:hover {
+    background-color: #08d;
+    color: white;
+  }
+  .btn#addaccount {
+    width: 100%;
   }
   </style>
 </head>
 <body>
 <div id="accounts"></div>
-<input type="button" id="addaccount" value="Add account" />
+<input type="button" class="btn" id="addaccount" value="Add account" />
 <script src="../../lib/chrome-promise.js"></script>
 <script src="../js/options.js"></script>
 </body>
