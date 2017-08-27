@@ -100,6 +100,7 @@ export default class Account {
   }
   
   sync() {
+    this.setData({...this.getData(), syncing: true})
     var localRoot
       , received = {}
     return Promise.resolve()
@@ -183,6 +184,9 @@ export default class Account {
           })
         )
       })
+    })
+    .then(() => {
+      this.setData({...this.getData(), syncing: false})
     })
   }
 }

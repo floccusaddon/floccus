@@ -33,9 +33,6 @@
     background: white;
     color: #444;
   }
-  .account .disabled {
-    color: #444;
-  }
   .account .status {
     display: inline-block;
     margin: .1cm;
@@ -56,6 +53,12 @@
   .btn:hover {
     background-color: #08d;
     color: white;
+  }
+  .btn.disabled {
+    color: #666 !important;
+    border-color: #666;
+    background-color: white !important;
+    cursor: default;
   }
   .btn#addaccount {
     width: 100%;
