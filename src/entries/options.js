@@ -35,7 +35,10 @@ function render(accounts) {
       }
     , sync: () => {
         browser.runtime.getBackgroundPage()
-        .then((background) => background.syncAccount(account.id))
+        .then((background) => {
+          background.syncAccount(account.id)
+          triggerRender()
+        })
         .then(() => triggerRender())
       }
     , update: (data) => {
@@ -51,4 +54,8 @@ document.querySelector('#addaccount').addEventListener('click', () => {
   Account.create({type: 'nextcloud', url: 'http://example.org', username: 'bob', password: 'password'})
   .then(() => triggerRender())
 })
+
 triggerRender()
+setTimeout(() => {
+  triggerRender()
+}, 500)
