@@ -58,9 +58,9 @@ window.syncAccount = function(accountId) {
   if (syncing[accountId]) {
     next[accountId] = () => {
       delete next[accountId]
-      syncAccount(accountId)
+      return syncAccount(accountId)
     }
-    return
+    return Promise.resolve()
   }
   syncing[accountId] = true
   Account.get(accountId)
