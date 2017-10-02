@@ -73,7 +73,7 @@ export default class NextcloudAdapter {
       return fetch(this.normalizeServerURL(this.server.url) + "/index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1"
       , {
         headers: {
-          Authorization: 'basic '+btoa(this.server.username+':'+this.server.password)
+          Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
         }
       }
       )
@@ -99,7 +99,7 @@ export default class NextcloudAdapter {
         method: 'POST'
       , body
       , headers: {
-          Authorization: 'basic '+btoa(this.server.username+':'+this.server.password)
+          Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
         }
       })
     })
@@ -121,7 +121,7 @@ export default class NextcloudAdapter {
       return fetch(this.normalizeServerURL(this.server.url)+'/index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
         method: 'DELETE'
       , headers: {
-          Authorization: 'basic '+btoa(this.server.username+':'+this.server.password)
+          Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
         }
       })
     })
