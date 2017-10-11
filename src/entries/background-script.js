@@ -23,7 +23,6 @@ browser.alarms.onAlarm.addListener(alarm => {
     var accounts = d['accounts']
     for (var accountId in accounts) {
       syncAccount(accountId)
-      .catch(err => console.warn(err))
     }
   })
 })
@@ -63,14 +62,14 @@ window.syncAccount = function(accountId) {
     return Promise.resolve()
   }
   syncing[accountId] = true
-  Account.get(accountId)
+  return Account.get(accountId)
   .then((account) => {
     return account.sync()
   })
   .then(() => {delete syncing[accountId]})
-  .catch((er) => {
+  .catch((error) => {
     delete syncing[accountId]
-    console.error(er)
+    console.error(error)
   })
   .then(() => next[accountId] && next[accountId]())
 }

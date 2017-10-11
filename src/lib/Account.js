@@ -188,5 +188,8 @@ export default class Account {
     .then(() => {
       this.setData({...this.getData(), syncing: false})
     })
+    .catch((err) => {
+      return this.setData({...this.getData(), error: err.message, syncing: false}) 
+    })
   }
 }
