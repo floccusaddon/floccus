@@ -4,25 +4,19 @@ import browser from './browser-api'
 
 export default class Account {
 
-  static get(id) {
+  static async get(id) {
     let storage = new AccountStorage(id)
-    return storage.getAccountData()
-    .then((data) => {
-        return new Account(id, storage, Adapter.factory(data))
-    })
+    let data = await storage.getAccountData()
+    return new Account(id, storage, Adapter.factory(data))
   }
   
-  static create(data) {
+  static async create(data) {
     let id = Math.floor(Math.random()*10000000000)
     let storage = new AccountStorage(id)
     
-    return storage.setAccountData(data)
-    .then(() => {
-        return new Account(id, storage, Adapter.factory(data))
-    })
-    .then((account) => {
-      return account.init()
-    })
+    await storage.setAccountData(data)
+    let account = new Account(id, storage, Adapter.factory(data))
+    await account.init()
   }
   
   constructor(id, storageAdapter, serverAdapter) {
@@ -31,42 +25,38 @@ export default class Account {
     this.storage = storageAdapter
   }
 
-  delete() {
-    return this.storage.deleteAccountData()
+  async delete() {
+    await this.storage.deleteAccountData()
   }
 
-  getLabel() {
-    return this.server.getLabel()
+  async getLabel() {
+    return await this.server.getLabel()
   }
 
-  getData() {
-    return this.server.getData() 
+  async getData() {
+    return await this.server.getData() 
   }
   
-  setData(data) {
-     this.server = Adapter.factory(data)
-     return Promise.resolve()
-     .then(() => {
-       return this.storage.setAccountData(data)
-     })
+  async setData(data) {
+    this.server = Adapter.factory(data)
+    await this.storage.setAccountData(data)
   }
 
-  getLocalRoot() {
-    return this.storage.getLocalRoot()
+  async getLocalRoot() {
+    await this.storage.getLocalRoot()
   }
 
-  hasBookmark(localId) {
-    return Promise.resolve()
-    .then(() => this.storage.getMappings())
-    .then((mappings) => {
-        return Object.keys(mappings.LocalToServer).some(id => localId === id)
-    })
+  async hasBookmark(localId) {
+    let mappings = await this.storage.getMappings()
+    return Object.keys(mappings.LocalToServer)
+      .some(id => localId === id)
   }
   
   renderOptions(ctl) {
     let originalData = this.getData()
     var timer 
     if (originalData.valid === null) {
+      // auto revalidate connection every second
       timer = setTimeout(() => {
         this.server.pullBookmarks()
         .then((json) => {
@@ -88,108 +78,91 @@ export default class Account {
     }) 
   }
 
-  init() {
-    return browser.bookmarks.getTree()
-    .then(parentNode => browser.bookmarks.create({
+  async init() {
+    let parentNode = await browser.bookmarks.getTree()
+    let bookmark = await browser.bookmarks.create({
       title: 'Nextcloud ('+this.getLabel()+')'
     , parentId: parentNode.id
-    }))
-    .then(bookmark => this.storage.setLocalRoot(bookmark.id))
-    .then(() => this.storage.initMappings())
-    .catch(err => console.warn)
+    })
+    await this.storage.setLocalRoot(bookmark.id)
+    await this.storage.initMappings()
   }
   
-  sync() {
-    this.setData({...this.getData(), syncing: true})
-    var localRoot
-      , received = {}
-    return Promise.resolve()
-    .then(() => this.storage.getLocalRoot())
-    .then(root => {
-      localRoot = root
-    })
-    .then(() => browser.bookmarks.get(localRoot))
-    .then(
-      () => {}
-    , (er) => this.init()
-    )
-    .then(() => this.storage.getMappings())
-    .then((mappings) => {
+  async sync() {
+    try {
+      await this.setData({...this.getData(), syncing: true})
+      let received = {}
+      try {
+        let localRoot = await this.storage.getLocalRoot()
+        await browser.bookmarks.get(localRoot)
+      }catch(e) {
+        await this.init()
+      }
+      
+      let mappings = await this.storage.getMappings()
       // In the mappings but not in the tree: SERVERDELETE
-      return Promise.all(
-        Object.keys(mappings.LocalToServer).map(localId => {
-          return browser.bookmarks.get(localId)
-          .then(node => node, er => {
+      await Promise.all(
+        Object.keys(mappings.LocalToServer).map(async localId => {
+          try {
+            await await browser.bookmarks.get(localId)
+          }catch(e) {
             console.log('SERVERDELETE', localId, mappings.LocalToServer[localId])
-            return this.server.removeBookmark(mappings.LocalToServer[localId])
-            .then(() => this.storage.removeFromMappings(localId)) 
-          })
+            await this.server.removeBookmark(mappings.LocalToServer[localId])
+            await this.storage.removeFromMappings(localId)
+          }
         })
       )
-    })
-    .then(() => Promise.all([this.server.pullBookmarks(), this.storage.getMappings()]))
-    .then(data => {
-      var [json, mappings] = data
+      var json
+      ;[json, mappings] = await Promise.all([this.server.pullBookmarks(), this.storage.getMappings()])
       // Update known ones and create new ones
-      return Promise.all(
-        json.map(obj => {
+      await Promise.all(
+        json.map(async obj => {
           var localId = mappings.ServerToLocal[obj.id]
           if (localId) {
             received[localId] = true
             // known to mappings: UPDATE
             console.log('UPDATE', localId, obj)
             // XXX: Check lastmodified
-            return browser.bookmarks.update(localId, {
+            await browser.bookmarks.update(localId, {
               title: obj.title
             , url: obj.url
             })
           }else{
             // Not yet known: CREATE
-            return browser.bookmarks.create({parentId: localRoot, title: obj.title, url: obj.url})
-            .then(bookmark => {
-              console.log('CREATE', bookmark.id, obj)
-              received[bookmark.id] = true
-              return this.storage.addToMappings(bookmark.id, obj.id)
-            })
+            let bookmark = await browser.bookmarks.create({parentId: localRoot, title: obj.title, url: obj.url})
+            console.log('CREATE', bookmark.id, obj)
+            received[bookmark.id] = true
+            await this.storage.addToMappings(bookmark.id, obj.id)
           }
         })
       )
-    })
-    .then(() => this.storage.getMappings())
-    .then((mappings) => {
+      mappings = await this.storage.getMappings()
       // removed on the server: DELETE
-      return Promise.all(
-        Object.keys(mappings.LocalToServer).map(localId => {
+      await Promise.all(
+        Object.keys(mappings.LocalToServer).map(async localId => {
           if (!received[localId]) {
             // If a bookmark was deleted on the server, we delete it as well
             console.log('DELETE', localId, mappings.LocalToServer[localId])
-            return browser.bookmarks.remove(localId)
-            .then(() => this.storage.removeFromMappings(localId))
+            await browser.bookmarks.remove(localId)
+            await this.storage.removeFromMappings(localId)
           }
         })
       )
-    })
-    .then(() => this.storage.getMappings())
-    .then((mappings) => {
+      mappings = await this.storage.getMappings()
       // In the tree yet not in the mappings: SERVERCREATE
-      return browser.bookmarks.getChildren(localRoot)
-      .then(children => {
-        return Promise.all(
-          children
-          .filter(bookmark => !mappings.LocalToServer[bookmark.id])
-          .map(bookmark => {
-            console.log('SERVERCREATE', bookmark.id, bookmark.url)
-            return this.server.createBookmark(bookmark)
-            .then((serverMark) => this.storage.addToMappings(bookmark.id, serverMark.id), (e) => console.warn(e))
-          })
-        )
-      })
-    })
-    .then(() => {
-      this.setData({...this.getData(), error: null, syncing: false})
-    })
-    .catch((err) => {
+      let children = await browser.bookmarks.getChildren(localRoot)
+      await Promise.all(
+        children
+        .filter(bookmark => !mappings.LocalToServer[bookmark.id])
+        .map(async bookmark => {
+          console.log('SERVERCREATE', bookmark.id, bookmark.url)
+          let serverMark = await this.server.createBookmark(bookmark)
+          await this.storage.addToMappings(bookmark.id, serverMark.id)
+        })
+      )
+      await this.setData({...this.getData(), error: null, syncing: false})
+    } catch(e) {
       return this.setData({...this.getData(), error: err.message, syncing: false}) 
-    })
+    }
   }
 }
