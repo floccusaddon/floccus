@@ -16,7 +16,7 @@ export default class Account {
     
     await storage.setAccountData(data)
     let account = new Account(id, storage, Adapter.factory(data))
-    await account.init()
+    return account
   }
   
   constructor(id, storageAdapter, serverAdapter) {
@@ -29,8 +29,8 @@ export default class Account {
     await this.storage.deleteAccountData()
   }
 
-  async getLabel() {
-    return await this.server.getLabel()
+  getLabel() {
+    return this.server.getLabel()
   }
 
   async getData() {
