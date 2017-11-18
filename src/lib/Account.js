@@ -94,7 +94,7 @@ export default class Account {
       await this.setData({...this.getData(), syncing: true})
       try {
         localRoot = await this.storage.getLocalRoot()
-        await browser.bookmarks.get(localRoot)
+        await browser.bookmarks.getSubTree(localRoot)
       }catch(e) {
         await this.init()
         localRoot = await this.storage.getLocalRoot()
@@ -120,7 +120,7 @@ export default class Account {
       Object.keys(mappings.LocalToServer)
       .map(async localId => {
         try {
-          await await browser.bookmarks.get(localId)
+          await await browser.bookmarks.getSubTree(localId)
         }catch(e) {
           console.log('SERVERDELETE', localId, mappings.LocalToServer[localId])
           await this.server.removeBookmark(mappings.LocalToServer[localId])
@@ -135,24 +135,25 @@ export default class Account {
     var received = {}
     // Update known ones and create new ones
     for (var i=0; i < json.length; i++) {
-      let obj = json[i]
-      let localId = mappings.ServerToLocal[obj.id]
-      let path = Account.getBookmarkPath(obj)
-      let parentId = await Account.mkdirpBookmarkPath(path, localRoot)
+      let serverMark = json[i]
+      let localId = mappings.ServerToLocal[serverMark.id]
+      let parentId = await Account.mkdirpBookmarkPath(serverMark.path, localRoot)
       if (localId) {
         received[localId] = true
-        // known to mappings: UPDATE
-        let bookmark = await browser.bookmarks.get(localId)
-        if (bm.dateGroupModified < obj.lastmodified) {
-          console.log('LOCALUPDATE', localId, obj)
+        // known to mappings: (LOCAL|SERVER)UPDATE
+        
+        let bookmark = await browser.bookmarks.getSubTree(localId)
+        if (bookmark.dateGroupModified < serverMark.lastmodified) {
+          // LOCALUPDATE
+          console.log('LOCALUPDATE', localId, serverMark)
           await browser.bookmarks.update(localId, {
-            title: obj.title
-          , url: obj.url
+            title: serverMark.title
+          , url: serverMark.url
           })
           await browser.bookmarks.move(localId, {parentId})
         }else {
           // SERVERUPDATE
-          let serverMark = await this.server.updateBookmark({
+          await this.server.updateBookmark({
             ...bookmark
           , path: path
           , title: bookmark.title
@@ -160,11 +161,12 @@ export default class Account {
           })
         }
       }else{
-        // Not yet known: CREATE
-        let bookmark = await browser.bookmarks.create({parentId, title: obj.title, url: obj.url})
-        console.log('CREATE', bookmark.id, obj)
+        // Not yet known:
+        // CREATE
+        let bookmark = await browser.bookmarks.create({parentId, title: serverMark.title, url: serverMark.url})
+        console.log('CREATE', bookmark.id, serverMark)
         received[bookmark.id] = true
-        await this.storage.addToMappings(bookmark.id, obj.id)
+        await this.storage.addToMappings(bookmark.id, serverMark.id)
       }
     }
     return received
@@ -208,7 +210,7 @@ export default class Account {
   }
 
   static async getAllDescendants(localId) {
-    var tree = await browser.bookmarks.get(localId)
+    var tree = await browser.bookmarks.getSubTree(localId)
     return recurse(tree)
     const recurse = (root) => {
       if (!root.children) return [root]
@@ -220,27 +222,28 @@ export default class Account {
  
   static async getPathFromLocalId(localId, rootId) {
     if (localId === rootId) return '/'
-    let bm = await browser.bookmarks.get(localId)
+    let bm = await browser.bookmarks.getSubTree(localId)
     return (await Account.getPathfromLocalId(bm.id, rootId)) + encodeURIComponent(bm.title)+'/'
   }
 
   static async mkdirpBookmarkPath(path, rootId) {
-    let root = await browser.bookmarks.get(rootId)
+    let root = await browser.bookmarks.getSubTree(rootId)
     let pathSegment = path.split('/')[1]
     let nextPath = path.substr(('/'+pathSegment).length)
     let title = decodeURIComponent(pathSegment)
 
-    if (!root.children) {
-      if (path == '/') return root
-      else throw new Error('given path root is not a folder')
-    } else {
-      let child
-      child = root.children
-        .filter(bm => bm.title == title)
-        .filter(bm => !!bm.children)
-        [0]
-      if (!child) child = await browser.bookmarks.create({parentId: rootId, title})
-      return await Account.mkdirpBookmarkPath(nextPath, child.id)
+    if (!Array.isArray(root.children)) {
+      throw new Error('given path root is not a folder')
     }
+    if (path == '/') {
+      return root.id
+    }
+    let child
+    child = root.children
+      .filter(bm => bm.title == title)
+      .filter(bm => !!bm.children)
+      [0]
+    if (!child) child = await browser.bookmarks.create({parentId: rootId, title})
+    return await Account.mkdirpBookmarkPath(nextPath, child.id)
   }
 }
