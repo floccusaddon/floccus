@@ -94,8 +94,9 @@ export default class Account {
       await this.setData({...this.getData(), syncing: true})
       try {
         localRoot = await this.storage.getLocalRoot()
-        await browser.bookmarks.getSubTree(localRoot)
+        ;(await browser.bookmarks.getSubTree(localRoot))[0]
       }catch(e) {
+        console.log(e)
         await this.init()
         localRoot = await this.storage.getLocalRoot()
       }
@@ -120,7 +121,7 @@ export default class Account {
       Object.keys(mappings.LocalToServer)
       .map(async localId => {
         try {
-          await await browser.bookmarks.getSubTree(localId)
+          ;(await browser.bookmarks.getSubTree(localId))[0]
         }catch(e) {
           console.log('SERVERDELETE', localId, mappings.LocalToServer[localId])
           await this.server.removeBookmark(mappings.LocalToServer[localId])
@@ -137,12 +138,11 @@ export default class Account {
     for (var i=0; i < json.length; i++) {
       let serverMark = json[i]
       let localId = mappings.ServerToLocal[serverMark.id]
-      let parentId = await Account.mkdirpBookmarkPath(serverMark.path, localRoot)
       if (localId) {
         received[localId] = true
         // known to mappings: (LOCAL|SERVER)UPDATE
         
-        let bookmark = await browser.bookmarks.getSubTree(localId)
+        let bookmark = (await browser.bookmarks.getSubTree(localId))[0]
         if (bookmark.dateGroupModified < serverMark.lastmodified) {
           // LOCALUPDATE
           console.log('LOCALUPDATE', localId, serverMark)
@@ -150,12 +150,13 @@ export default class Account {
             title: serverMark.title
           , url: serverMark.url
           })
+          let parentId = await Account.mkdirpBookmarkPath(serverMark.path, localRoot)
           await browser.bookmarks.move(localId, {parentId})
         }else {
           // SERVERUPDATE
-          await this.server.updateBookmark({
+          await this.server.updateBookmark(serverMark.id, {
             ...bookmark
-          , path: path
+          , path: Account.getPathFromLocalId(bookmark.parentId, localRoot)
           , title: bookmark.title
           , url: bookmark.url
           })
@@ -163,6 +164,7 @@ export default class Account {
       }else{
         // Not yet known:
         // CREATE
+        let parentId = await Account.mkdirpBookmarkPath(serverMark.path, localRoot)
         let bookmark = await browser.bookmarks.create({parentId, title: serverMark.title, url: serverMark.url})
         console.log('CREATE', bookmark.id, serverMark)
         received[bookmark.id] = true
@@ -191,7 +193,7 @@ export default class Account {
   async sync_createOnServer(localRoot) {
     let mappings = await this.storage.getMappings()
     // In the tree yet not in the mappings: SERVERCREATE
-    let desc = await this.getAllDescendants(localRoot)
+    let desc = await Account.getAllDescendants(localRoot)
     await Promise.all(
       desc
       .filter(bookmark => !mappings.LocalToServer[bookmark.id])
@@ -210,24 +212,24 @@ export default class Account {
   }
 
   static async getAllDescendants(localId) {
-    var tree = await browser.bookmarks.getSubTree(localId)
-    return recurse(tree)
+    var tree = (await browser.bookmarks.getSubTree(localId))[0]
     const recurse = (root) => {
       if (!root.children) return [root]
       return root.children
         .map(recurse)
         .reduce((desc1, desc2) => desc1.concat(desc2))
     }
+    return recurse(tree)
   }
  
   static async getPathFromLocalId(localId, rootId) {
     if (localId === rootId) return '/'
-    let bm = await browser.bookmarks.getSubTree(localId)
+    let bm = (await browser.bookmarks.getSubTree(localId))[0]
     return (await Account.getPathfromLocalId(bm.id, rootId)) + encodeURIComponent(bm.title)+'/'
   }
 
   static async mkdirpBookmarkPath(path, rootId) {
-    let root = await browser.bookmarks.getSubTree(rootId)
+    let root = (await browser.bookmarks.getSubTree(rootId))[0]
     let pathSegment = path.split('/')[1]
     let nextPath = path.substr(('/'+pathSegment).length)
     let title = decodeURIComponent(pathSegment)
