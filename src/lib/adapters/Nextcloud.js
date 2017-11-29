@@ -179,55 +179,42 @@ export default class NextcloudAdapter {
   }
   
   updateBookmark(remoteId, node) {
-    return Promise.resolve()
-    .then(() => {
-      return fetch(this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
+    let getRes = await fetch(this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
         headers: {
           Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
         }
       })
     })
-    .then(res => {
-      console.log(res)
-      if (res.status !== 200) return Promise.reject(new Error('Signing into owncloud for updating a bookmark failed'))
-      return res.json()
-    })
-    .then((json) => {
-      if (json.status != 'success') return Promise.reject(new Error('nextcloud API returned error'))
-      return Promise.resolve(json.item)
-    })
-    .then(bm => {
-      var body = new FormData()
-      body.append('url', node.url)
-      body.append('title', node.title)
-      body.append('item[tags]', 
-        bm.tags
-        .filter(tag => tag.indexOf('__floccus-path:') != 0)
-        .concat(node.tags)
-        .concat(['__floccus-path:'+bm.path])
-      )
-      return fetch(this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
-        method: 'PUT'
-      , body
-      , headers: {
-          Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
-        }
-      })
-    })
-    .then(res => {
-      console.log(res)
-      if (res.status !== 200) return Promise.reject(new Error('Signing into owncloud for updating a bookmark failed'))
-      return res.json()
-    })
-    .then((json) => {
-      if (json.status != 'success') return Promise.reject(new Error('nextcloud API returned error'))
-      let bm = {
-        ...json.item
-      , path: NextcloudAdapter.getPathFromServerMark(json.item)
+    console.log(getRes)
+    if (getRes.status !== 200) return Promise.reject(new Error('Signing into owncloud for updating a bookmark failed'))
+    let getJson = await getRes.json()
+    if (getJson.status != 'success') return Promise.reject(new Error('nextcloud API returned error'))
+    let bm = getJson.item
+
+    let body = new FormData()
+    body.append('url', node.url)
+    body.append('title', node.title)
+    body.append('item[tags]', 
+      bm.tags
+      .filter(tag => tag.indexOf('__floccus-path:') != 0)
+      .concat(node.tags)
+      .concat(['__floccus-path:'+bm.path])
+    )
+    let putRes = await fetch(this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
+      method: 'PUT'
+    , body
+    , headers: {
+        Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
       }
-      return Promise.resolve(json.item)
     })
-    .catch((er) => console.log(er))
+    console.log(putRes)
+    if (putRes.status !== 200) return Promise.reject(new Error('Signing into owncloud for updating a bookmark failed'))
+    let putJson = await putRes.json()
+    if (putJson.status != 'success') return Promise.reject(new Error('nextcloud API returned error'))
+    return bm = {
+      ...json.item
+    , path: NextcloudAdapter.getPathFromServerMark(json.item)
+    }
   }
 
   removeBookmark(remoteId) {
