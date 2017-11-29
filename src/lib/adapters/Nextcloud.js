@@ -85,34 +85,70 @@ export default class NextcloudAdapter {
     })
   }
 
-  pullBookmarks() {
-    return Promise.resolve()
-    .then(d => {
-      console.log('Fetching bookmarks', this.server)
-      return fetch(this.normalizeServerURL(this.server.url) + "index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1"
-      , {
-        headers: {
-          Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
-        }
+  async pullBookmarks() {
+    console.log('Fetching bookmarks', this.server)
+    let response = await fetch(this.normalizeServerURL(this.server.url) + "index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1"
+    , {
+      headers: {
+        Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
       }
-      )
+    }
+    )
+    
+    if (response.status !== 200) throw new Error('Failed to retrieve bookmarks from ownCloud')
+    
+    let json = await response.json()
+    
+    if ('success' !== json.status) throw new Error('Fetch failed:'+JSON.stringify(json))
+   
+   // for every bm without a path tag, add one
+    let bmsWithoutPath = json.data
+    .filter(bm => bm.tags.every(tag => tag.indexOf('__floccus-path:') != 0))
+    
+    for (var i=0; i < bmsWithoutPath.length; i++) {
+      let bm = bmsWithoutPath[i]
+      await this.updateBookmark(bm.id, {...bm, tags: [...bm.tags, '__floccus-path:/']})
+    }
+
+    let bookmarks = json.data
+    .map(bm => {
+      return {
+        ...bm
+      , tags: bm.tags.filter(tag => tag.indexOf('__floccus-path:') != 0)
+      , path: NextcloudAdapter.getPathFromServerMark(bm)
+      }
     })
-    .then(response => {
-      if (response.status !== 200) return Promise.reject(new Error('Failed to retrieve bookmarks from ownCloud'))
-      else return response.json()
-    })
-    .then((json) => {
-      if ('success' !== json.status) return Promise.reject(json.data)
-      console.log(json)
-      return json.data
-      .map(bm => {
-        return {
-          ...bm
-        , tags: bm.tags.filter(tag => tag.indexOf('__floccus-path:') != 0)
-        , path: NextcloudAdapter.getPathFromServerMark(bm)
-        }
-      })
-    })
+    console.log(bookmarks)
+    return bookmarks
+  }
+  
+  async getBookmark(id) {
+    console.log('Fetching bookmark', this.server)
+    let response = await fetch(this.normalizeServerURL(this.server.url) + "index.php/apps/bookmarks/public/rest/v2/bookmark/"+id
+    , {
+      headers: {
+        Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
+      }
+    }
+    )
+    
+    if (response.status !== 200) throw new Error('Failed to retrieve bookmark from ownCloud')
+    
+    let json = await response.json()
+    
+    if ('success' !== json.status) throw new Error('Fetch failed:'+JSON.stringify(json))
+   
+    // for every bm without a path tag, add one
+    let bm = json.item
+    if (bm.tags.every(tag => tag.indexOf('__floccus-path:') != 0)) {
+      await this.updateBookmark(bm.id, {...bm, tags: [...bm.tags, '__floccus-path:/']})
+    }
+    
+    return {
+      ...bm
+    , tags: bm.tags.filter(tag => tag.indexOf('__floccus-path:') != 0)
+    , path: NextcloudAdapter.getPathFromServerMark(bm)
+    }
   }
 
   createBookmark(bm) {
