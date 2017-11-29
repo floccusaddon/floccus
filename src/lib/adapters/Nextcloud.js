@@ -178,12 +178,11 @@ export default class NextcloudAdapter {
     .catch((er) => console.log(er))
   }
   
-  updateBookmark(remoteId, node) {
+  async updateBookmark(remoteId, node) {
     let getRes = await fetch(this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
-        headers: {
-          Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
-        }
-      })
+      headers: {
+        Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
+      }
     })
     console.log(getRes)
     if (getRes.status !== 200) return Promise.reject(new Error('Signing into owncloud for updating a bookmark failed'))
