@@ -40,7 +40,11 @@ export default class Adapter {
   createBookmark() {
     throw new Error('Not implemented')
   }
-   
+  
+  updateBookmark() {
+    throw new Error('Not implemented')
+  }
+  
   removeBookmark() {
     throw new Error('Not implemented')
   }
