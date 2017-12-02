@@ -143,9 +143,15 @@ export default class Account {
         // known to mappings: (LOCAL|SERVER)UPDATE
         
         let bookmark = (await browser.bookmarks.getSubTree(localId))[0]
+        if (serverMark.url === bookmark.url
+          && serverMark.title === bookmark.title
+          && serverMark.path === await Account.getPathFromLocalId(bookmark.parentId, localRoot)
+        ) {
+          continue
+        }
         if (bookmark.dateGroupModified < serverMark.lastmodified) {
           // LOCALUPDATE
-          console.log('LOCALUPDATE', localId, serverMark)
+          console.log('LOCALUPDATE', localId, bookmark, serverMark)
           await browser.bookmarks.update(localId, {
             title: serverMark.title
           , url: serverMark.url
@@ -154,9 +160,10 @@ export default class Account {
           await browser.bookmarks.move(localId, {parentId})
         }else {
           // SERVERUPDATE
+          console.log('SERVERUPDATE', localId, bookmark, serverMark)
           await this.server.updateBookmark(serverMark.id, {
             ...bookmark
-          , path: Account.getPathFromLocalId(bookmark.parentId, localRoot)
+          , path: await Account.getPathFromLocalId(bookmark.parentId, localRoot)
           , title: bookmark.title
           , url: bookmark.url
           })
@@ -224,8 +231,10 @@ export default class Account {
  
   static async getPathFromLocalId(localId, rootId) {
     if (localId === rootId) return '/'
-    let bm = (await browser.bookmarks.getSubTree(localId))[0]
-    return (await Account.getPathfromLocalId(bm.id, rootId)) + encodeURIComponent(bm.title)+'/'
+    let bms = await browser.bookmarks.getSubTree(localId)
+    let bm = bms[0]
+    let path = await Account.getPathFromLocalId(bm.parentId, rootId)
+    return path + encodeURIComponent(bm.title)+'/'
   }
 
   static async mkdirpBookmarkPath(path, rootId) {
