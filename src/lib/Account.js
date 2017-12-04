@@ -16,7 +16,7 @@ export default class Account {
     
     await storage.setAccountData(data)
     let account = new Account(id, storage, Adapter.factory(data))
-    await account.init()
+    return account
   }
   
   constructor(id, storageAdapter, serverAdapter) {
@@ -29,12 +29,12 @@ export default class Account {
     await this.storage.deleteAccountData()
   }
 
-  async getLabel() {
-    return await this.server.getLabel()
+  getLabel() {
+    return this.server.getLabel()
   }
 
-  async getData() {
-    return await this.server.getData() 
+  getData() {
+    return this.server.getData() 
   }
   
   async setData(data) {
@@ -90,13 +90,15 @@ export default class Account {
   
   async sync() {
     try {
+      var localRoot
       await this.setData({...this.getData(), syncing: true})
       let received = {}
       try {
-        let localRoot = await this.storage.getLocalRoot()
-        await browser.bookmarks.get(localRoot)
+        localRoot = await this.storage.getLocalRoot()
+        await browser.bookmarks.getSubTree(localRoot)
       }catch(e) {
         await this.init()
+        localRoot = await this.storage.getLocalRoot()
       }
       
       let mappings = await this.storage.getMappings()
@@ -104,7 +106,7 @@ export default class Account {
       await Promise.all(
         Object.keys(mappings.LocalToServer).map(async localId => {
           try {
-            await await browser.bookmarks.get(localId)
+            await browser.bookmarks.getSubTree(localId)
           }catch(e) {
             console.log('SERVERDELETE', localId, mappings.LocalToServer[localId])
             await this.server.removeBookmark(mappings.LocalToServer[localId])
@@ -154,6 +156,7 @@ export default class Account {
       await Promise.all(
         children
         .filter(bookmark => !mappings.LocalToServer[bookmark.id])
+        .filter(bookmark => bookmark.type === 'bookmark')
         .map(async bookmark => {
           console.log('SERVERCREATE', bookmark.id, bookmark.url)
           let serverMark = await this.server.createBookmark(bookmark)
@@ -161,7 +164,7 @@ export default class Account {
         })
       )
       await this.setData({...this.getData(), error: null, syncing: false})
-    } catch(e) {
+    } catch(err) {
       return this.setData({...this.getData(), error: err.message, syncing: false}) 
     }
   }
