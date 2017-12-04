@@ -18,7 +18,6 @@
   "homepage": "https://github.com/marcelklehr/floccus#readme",
   "devDependencies": {
     "babel-plugin-syntax-jsx": "^6.18.0",
-    "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-es2015": "^6.24.1",
@@ -29,7 +28,6 @@
     "through2": "^2.0.3"
   },
   "dependencies": {
-    "babel-polyfill": "^6.20.0",
     "dom-delegator": "^13.1.0",
     "virtual-dom": "^2.1.1"
   }

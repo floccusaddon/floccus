@@ -3,9 +3,7 @@ var browserify = require('browserify');
 var babelify = require('babelify');
 var tap = require('gulp-tap');
 
-gulp.task('js', ['src', 'polyfill'])
-
-gulp.task('src', function () {
+gulp.task('js', function () {
   return gulp.src('src/entries/*.js', {read: false}) // no need of reading file because browserify does.
     // transform file objects using gulp-tap plugin
     .pipe(tap(function (file) {
@@ -22,10 +20,6 @@ gulp.task('src', function () {
       .bundle()
     }))
     .pipe(gulp.dest('./dist/js'));
-})
-
-gulp.task('polyfill', function() {
-  return gulp.src('./node_modules/babel-polyfill/dist/polyfill.js').pipe(gulp.dest('./dist/js/'))
 })
 
 gulp.task('html', function() {
