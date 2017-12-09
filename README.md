@@ -7,7 +7,7 @@ Historically this was once possible using [the mozilla sync owncloud app](https:
  - [x] Syncing bookmarks
  - [ ] Syncing History
 
-Currently you can setup one nextcloud account only and floccus will create a bookmarks folder whose contents will be synced with your nextcloud bookmarks. It cannot handle folders, yet. You can move the synced folder anywhere, however.
+Currently you can setup multiple nextcloud accounts and floccus will create bookmarks folders whose contents will be synced with the nextcloud bookmarks account. It cannot handle folders, yet. (This is planned, though.) You can move the synced folders anywhere and rename them at will, however.
 
 Tested to work in both Firefox and Chromium. Doesn't work in Firefox for Android [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility). Requires nextcloud bookmarks app with at least version 0.10.
 
@@ -24,10 +24,11 @@ You can [install it on AMO](https://addons.mozilla.org/en-US/firefox/addon/flocc
 (Beware that AMO has to review all new releases, though, so you might need to wait a bit before you can install the latest release on firefox.)
 
 ## Usage
-After installation you'll be asked to enter the url and credentials to your nextcloud account. (If not, click on the new floccus icon in the browser toolbar.)
+After installation the options pane will pop up allowing you to create accounts and edit their settings. You will be able to access this pane at all times by clicking the floccus icon in the browser toolbar.
 
-Currently, floccus only syncs bookmarks with nextcloud that are inside a specific folder in your browser. It doesn't sync all of the bookmarks in your browser, partly because you might want to have multiple accounts to sync with and also because sadly floccus doesn't support folders, yet. So, the floccus folder should be inside the "Other bookmarks" (or similar) folder in your browser, it should be titled "Nextcloud (user@your.nextcloud.tld)", and putting bookmarks into it should make them appear on the server and vice versa. 
-You can rename and move this folder at will. Don't create any folders within, though, as that is not supported, yet.
+For every account that you connect floccus to it will create a new folder that will act like a Dropbox for your bookmarks: Put them in there to have them be synced with nextcloud. After connecting your accounts, these folders should be inside the "Other bookmarks" (or similar) folder in your browser, they should be titled "Nextcloud (user@your.nextcloud.tld)".
+
+Floccus doesn't sync all of the bookmarks in your browser, partly because you should be able to have multiple accounts with different bookmarks to sync with and also because sadly floccus doesn't support folders, yet. You can rename and move this folder at will. Don't create any folders within, though, as that is not supported, yet.
 
 ## Prior art
  * [OwnCloud Bookmarks for chrome](https://chrome.google.com/webstore/detail/owncloud-bookmarks/eomolhpeokmbnincelpkagpapjpeeckc?hl=en-US), which basically acts as a proxy to the Owncloud Bookmarks app -- it doesn't integrate the bookmarks into the browser experience.
@@ -53,6 +54,6 @@ You can rename and move this folder at will. Don't create any folders within, th
 Firefox expects a zip, for chrome do the following: https://developer.chrome.com/extensions/packaging (private key necessary!)
 
 ## License
-(c) 2016 by Marcel Klehr
+(c) 2016-2017 by Marcel Klehr
 MPL 2.0
 
