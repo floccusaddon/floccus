@@ -1,5 +1,4 @@
 # ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/icons/logo.png) Cirrus Floccus
-<a href="https://liberapay.com/marcelklehr/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
 The goal of this project is to build a browser extension that syncs your browser data with [Nextcloud](http://nextcloud.com).
 
 Historically this was once possible using [the mozilla sync owncloud app](https://github.com/owncloudarchive/mozilla_sync). However, Mozilla <del>did a Google</del> tried to improve Firefox Sync and dropped support for the old API. If you're into history, read [the owncloud issue on the topic](https://github.com/owncloudarchive/mozilla_sync/issues/33).
@@ -39,6 +38,11 @@ Floccus doesn't sync all of the bookmarks in your browser, partly because you sh
 
 ## What's with the name?
 [Cirrus floccus](https://en.wikipedia.org/wiki/Cirrus_floccus) is a type of cloud, that <del>can sync your browser data</del> looks very nice.
+
+## Support
+If you'd like to support the creating and maintainance of this software, consider donating.
+
+<a href="https://liberapay.com/marcelklehr/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
 
 ## Development
 ### Setting up a dev environment
