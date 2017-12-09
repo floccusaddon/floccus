@@ -16,8 +16,8 @@
    sodipodi:docname="logo.svg"
    inkscape:version="0.92.1 r15371"
    inkscape:export-filename="/home/marcel/code/floccus/icons/logo.png"
-   inkscape:export-xdpi="1024"
-   inkscape:export-ydpi="1024">
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <metadata
      id="metadata12">
     <rdf:RDF>
@@ -45,7 +45,7 @@
      id="namedview8"
      showgrid="false"
      inkscape:zoom="4.9166667"
-     inkscape:cx="24.20339"
+     inkscape:cx="-15.661017"
      inkscape:cy="24"
      inkscape:window-x="0"
      inkscape:window-y="27"
