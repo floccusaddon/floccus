@@ -54,28 +54,36 @@ export default class Account {
   
   renderOptions(ctl) {
     let originalData = this.getData()
-    var timer 
+     
     if (originalData.valid === null) {
-      // auto revalidate connection every second
-      timer = setTimeout(() => {
+      if (this.optionsDebounceTimer) clearTimeout(this.optionsDebounceTimer)
+      this.optionsDebounceTimer = setTimeout(() => {
         this.server.pullBookmarks()
         .then((json) => {
-          ctl.update({...originalData, valid: true})
+          // If things were changed while we were checking, just abort
+          if (JSON.stringify(this.getData()) !== JSON.stringify(originalData)) return
+          ctl.update({...originalData, valid: true, error: false})
         })
         .catch(() => {
+          // If things were changed while we were checking, just abort
+          if (JSON.stringify(this.getData()) !== JSON.stringify(originalData)) return
           ctl.update({...originalData, valid: false})
         })
       }, 1000)
     }
-    return this.server.renderOptions({
+    
+    var debouncedCtl = {
       ...ctl,
       update: (data) => {
-        clearTimeout(timer)
-        if (JSON.stringify(data) != JSON.stringify(originalData)) {
-          ctl.update({...data, valid: null})
-        }
+        if (JSON.stringify(data) === JSON.stringify(originalData)) return
+        ctl.update({
+            ...data
+          , valid: null
+        })
       }
-    }) 
+    }
+    
+    return this.server.renderOptions(debouncedCtl) 
   }
 
   async init() {
