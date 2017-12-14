@@ -1,4 +1,7 @@
-##v1.3
+## v1.3.1
+ - Options panel: Fix automated connectivity check
+
+##v1.3.0
  - Major Refactoring by modularizing code base
  - UI polishing
  - Add 'force sync' feature
