@@ -109,7 +109,7 @@ export default class Account {
         localRoot = await this.storage.getLocalRoot()
       }
       
-      let mappings = await this.storage.getMappings()
+      var mappings = await this.storage.getMappings()
       // In the mappings but not in the tree: SERVERDELETE
       await Promise.all(
         Object.keys(mappings.LocalToServer).map(async localId => {
@@ -164,7 +164,7 @@ export default class Account {
       await Promise.all(
         children
         .filter(bookmark => !mappings.LocalToServer[bookmark.id])
-        .filter(bookmark => bookmark.type === 'bookmark')
+        .filter(bookmark => !!bookmark.url)
         .map(async bookmark => {
           console.log('SERVERCREATE', bookmark.id, bookmark.url)
           let serverMark = await this.server.createBookmark(bookmark)
