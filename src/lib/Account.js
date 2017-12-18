@@ -43,7 +43,7 @@ export default class Account {
   }
 
   async getLocalRoot() {
-    await this.storage.getLocalRoot()
+    return await this.storage.getLocalRoot()
   }
 
   async hasBookmark(localId) {
