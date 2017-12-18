@@ -19,13 +19,13 @@ export default class NextcloudAdapter {
   renderOptions(ctl) {
     let data = this.getData()
     let onchangeURL = (e) => {
-      ctl.update({...data, url: e.target.value, valid: null})
+      ctl.update({...data, url: e.target.value})
     }
     let onchangeUsername = (e) => {
-      ctl.update({...data, username: e.target.value, valid: null})
+      ctl.update({...data, username: e.target.value})
     }
     let onchangePassword = (e) => {
-      ctl.update({...data, password: e.target.value, valid: null})
+      ctl.update({...data, password: e.target.value})
     }
     return <div className="account">
       <form>
@@ -47,17 +47,11 @@ export default class NextcloudAdapter {
             '↻ Syncing...' :
             (data.error?
               <span title={data.error}>✘ Error!</span> :
-              (data.valid == true?
-                '✓ connected' :
-                (data.valid == false?
-                  '✘ couldn\'t connect' :
-                  '… checking'
-                )
-              )
+                '✓ all good'
             )
         }</span>
         <a href="#" className="btn remove" ev-click={() => ctl.delete()}>Delete</a>
-        <a href="#" className={'btn forceSync '+(data.syncing || !data.valid? 'disabled' : '')} ev-click={() => (!data.syncing && data.valid) && ctl.sync()}>force Sync</a>
+        <a href="#" className={'btn forceSync '+(data.syncing? 'disabled' : '')} ev-click={() => !data.syncing && ctl.sync()}>force Sync</a>
       </td></tr>
       </table>
       </form>

@@ -54,36 +54,16 @@ export default class Account {
   
   renderOptions(ctl) {
     let originalData = this.getData()
-     
-    if (originalData.valid === null) {
-      if (this.optionsDebounceTimer) clearTimeout(this.optionsDebounceTimer)
-      this.optionsDebounceTimer = setTimeout(() => {
-        this.server.pullBookmarks()
-        .then((json) => {
-          // If things were changed while we were checking, just abort
-          if (JSON.stringify(this.getData()) !== JSON.stringify(originalData)) return
-          ctl.update({...originalData, valid: true, error: false})
-        })
-        .catch(() => {
-          // If things were changed while we were checking, just abort
-          if (JSON.stringify(this.getData()) !== JSON.stringify(originalData)) return
-          ctl.update({...originalData, valid: false})
-        })
-      }, 1000)
-    }
     
-    var debouncedCtl = {
+    var modifiedCtl = {
       ...ctl,
       update: (data) => {
         if (JSON.stringify(data) === JSON.stringify(originalData)) return
-        ctl.update({
-            ...data
-          , valid: null
-        })
+        ctl.update(data)
       }
     }
     
-    return this.server.renderOptions(debouncedCtl) 
+    return this.server.renderOptions(modifiedCtl) 
   }
 
   async init() {
