@@ -1,7 +1,12 @@
+## v1.3.2
+ - Remove automated options validation (much better to just try force sync and see the error)
+ - Fix options rendering
+ - Fix bookmarks not showing up on the server in some situations
+
 ## v1.3.1
  - Options panel: Fix automated connectivity check
 
-##v1.3.0
+## v1.3.0
  - Major Refactoring by modularizing code base
  - UI polishing
  - Add 'force sync' feature

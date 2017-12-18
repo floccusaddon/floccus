@@ -26,7 +26,7 @@ You can [install it on AMO](https://addons.mozilla.org/en-US/firefox/addon/flocc
 ## Usage
 After installation the options pane will pop up allowing you to create accounts and edit their settings. You will be able to access this pane at all times by clicking the floccus icon in the browser toolbar.
 
-For every account that you connect floccus to it will create a new folder that will act like a Dropbox for your bookmarks: Put them in there to have them be synced with nextcloud. After connecting your accounts, these folders should be inside the "Other bookmarks" (or similar) folder in your browser, they should be titled "Nextcloud (user@your.nextcloud.tld)".
+For every account that you connect floccus to, it will create a new folder the first time it is synced. This folder will act like a Dropbox for your bookmarks: Put them in there to have them be synced with nextcloud. After connecting your accounts, these folders should be inside the "Other bookmarks" (or similar) folder in your browser, they should be titled "Nextcloud (user@your.nextcloud.tld)".
 
 Floccus doesn't sync all of the bookmarks in your browser, partly because you should be able to have multiple accounts with different bookmarks to sync with and also because sadly floccus doesn't support folders, yet. You can rename and move this folder at will. Don't create any folders within, though, as that is not supported, yet.
 
