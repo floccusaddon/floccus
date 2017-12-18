@@ -56,6 +56,6 @@ document.querySelector('#addaccount').addEventListener('click', () => {
 })
 
 triggerRender()
-setTimeout(() => {
+setInterval(() => {
   triggerRender()
 }, 500)
