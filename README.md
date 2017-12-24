@@ -28,7 +28,7 @@ After installation the options pane will pop up allowing you to create accounts 
 
 For every account that you connect floccus to, it will create a new folder the first time it is synced. This folder will act like a Dropbox for your bookmarks: Put them in there to have them be synced with nextcloud. After connecting your accounts, these folders should be inside the "Other bookmarks" (or similar) folder in your browser, they should be titled "Nextcloud (user@your.nextcloud.tld)".
 
-Floccus doesn't sync all of the bookmarks in your browser, partly because you should be able to have multiple accounts with different bookmarks to sync with and also because sadly floccus doesn't support folders, yet. You can rename and move this folder at will. Don't create any folders within, though, as that is not supported, yet.
+Floccus doesn't sync all of the bookmarks in your browser, because you should be able to have multiple accounts with different bookmarks to sync with. You can rename and move this folder at will.
 
 ## Prior art
  * [OwnCloud Bookmarks for chrome](https://chrome.google.com/webstore/detail/owncloud-bookmarks/eomolhpeokmbnincelpkagpapjpeeckc?hl=en-US), which basically acts as a proxy to the Owncloud Bookmarks app -- it doesn't integrate the bookmarks into the browser experience.
