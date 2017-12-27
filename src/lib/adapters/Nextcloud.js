@@ -76,6 +76,7 @@ export default class NextcloudAdapter {
     , host: serverURL.host
     , port: serverURL.port
     , pathname: serverURL.pathname.substr(0, ~indexLoc? indexLoc : undefined)
+                + (!~indexLoc && serverURL.pathname[serverURL.pathname.length-1] !== '/'? '/' : '')
     })
   }
 
