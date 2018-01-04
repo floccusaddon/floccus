@@ -1,3 +1,6 @@
+## v1.3.3
+ - Fix normalizeUrl: Automatically add trailing slash
+
 ## v1.3.2
  - Remove automated options validation (much better to just try force sync and see the error)
  - Fix options rendering
