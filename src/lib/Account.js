@@ -1,5 +1,6 @@
 import AccountStorage from './AccountStorage'
 import Adapter from './Adapter'
+import Tree from './Tree'
 import browser from './browser-api'
 
 export default class Account {
@@ -7,7 +8,9 @@ export default class Account {
   static async get(id) {
     let storage = new AccountStorage(id)
     let data = await storage.getAccountData()
-    return new Account(id, storage, Adapter.factory(data))
+    let localRoot = await storage.getLocalRoot()
+    let tree = new Tree(localRoot, storage)
+    return new Account(id, storage, Adapter.factory(data), tree)
   }
   
   static async create(data) {
@@ -19,10 +22,11 @@ export default class Account {
     return account
   }
   
-  constructor(id, storageAdapter, serverAdapter) {
+  constructor(id, storageAdapter, serverAdapter, treeAdapter) {
     this.server = serverAdapter
     this.id = id
     this.storage = storageAdapter
+    this.tree = treeAdapter
   }
 
   async delete() {
@@ -74,27 +78,27 @@ export default class Account {
     })
     await this.storage.setLocalRoot(bookmark.id)
     await this.storage.initMappings()
+    await this.storage.initCache()
+    this.tree = new Tree(bookmark.id, this.storage)
   }
   
   async sync() {
     try {
-      var localRoot
       await this.setData({...this.getData(), syncing: true})
       try {
-        localRoot = await this.storage.getLocalRoot()
+        let localRoot = await this.storage.getLocalRoot()
         await browser.bookmarks.getSubTree(localRoot)
       }catch(e) {
         console.log(e)
         await this.init()
-        localRoot = await this.storage.getLocalRoot()
       }
 
       // main sync steps:
      
       await this.sync_deleteFromServer()
-      let received = await this.sync_update(localRoot)
+      let received = await this.sync_update()
       await this.sync_deleteFromTree(received)
-      await this.sync_createOnServer(localRoot)
+      await this.sync_createOnServer()
 
       await this.setData({...this.getData(), error: null, syncing: false})
     } catch(e) {
@@ -109,61 +113,52 @@ export default class Account {
       Object.keys(mappings.LocalToServer)
       .map(async localId => {
         try {
-          ;(await browser.bookmarks.getSubTree(localId))[0]
+          await this.tree.getBookmarkByLocalId(localId)
         }catch(e) {
           console.log('SERVERDELETE', localId, mappings.LocalToServer[localId])
           await this.server.removeBookmark(mappings.LocalToServer[localId])
           await this.storage.removeFromMappings(localId)
+          await this.storage.removeFromCache(localId)
         }
       })
     )
   }
 
-  async sync_update(localRoot) {
-    var [json, mappings] = await Promise.all([this.server.pullBookmarks(), this.storage.getMappings()])
+  async sync_update() {
+    var [serverMarks, cache] = await Promise.all([this.server.pullBookmarks(), this.storage.getCache()])
     var received = {}
     // Update known ones and create new ones
-    for (var i=0; i < json.length; i++) {
-      let serverMark = json[i]
-      let localId = mappings.ServerToLocal[serverMark.id]
-      if (localId) {
-        received[localId] = true
+    for (var i=0; i < serverMarks.length; i++) {
+      let serverMark = serverMarks[i]
+      if (await this.tree.getLocalIdOf(serverMark)) {
         // known to mappings: (LOCAL|SERVER)UPDATE
+        received[serverMark.localId] = serverMark // .localId is only avaiable after Tree#getLocalIdOf(...)
+
+        let localMark = await this.tree.getBookmarkByLocalId(serverMark.localId)
+        let treeHash = await localMark.hash()
+        let serverHash = await serverMark.hash()
+        let cacheHash = cache[serverMark.localId]
         
-        let bookmark = (await browser.bookmarks.getSubTree(localId))[0]
-        if (serverMark.url === bookmark.url
-          && serverMark.title === bookmark.title
-          && serverMark.path === await Account.getPathFromLocalId(bookmark.parentId, localRoot)
-        ) {
+        if (treeHash === serverHash) {
           continue
         }
-        if (bookmark.dateGroupModified < serverMark.lastmodified) {
+        
+        if (treeHash === cacheHash) {
           // LOCALUPDATE
-          console.log('LOCALUPDATE', localId, bookmark, serverMark)
-          await browser.bookmarks.update(localId, {
-            title: serverMark.title
-          , url: serverMark.url
-          })
-          let parentId = await Account.mkdirpBookmarkPath(serverMark.path, localRoot)
-          await browser.bookmarks.move(localId, {parentId})
+          await this.tree.updateNode(serverMark)
+          await this.storage.addToCache(serverMark.localId, serverHash)
         }else {
           // SERVERUPDATE
-          console.log('SERVERUPDATE', localId, bookmark, serverMark)
-          await this.server.updateBookmark(serverMark.id, {
-            ...bookmark
-          , path: await Account.getPathFromLocalId(bookmark.parentId, localRoot)
-          , title: bookmark.title
-          , url: bookmark.url
-          })
+          console.log('SERVERUPDATE', localMark, serverMark)
+          await this.server.updateBookmark(serverMark.id, localMark)
+          // await this.storage.addToCache(serverMark.localId, treeHash) // is already correct
         }
       }else{
         // Not yet known:
         // CREATE
-        let parentId = await Account.mkdirpBookmarkPath(serverMark.path, localRoot)
-        let bookmark = await browser.bookmarks.create({parentId, title: serverMark.title, url: serverMark.url})
-        console.log('CREATE', bookmark.id, serverMark)
-        received[bookmark.id] = true
-        await this.storage.addToMappings(bookmark.id, serverMark.id)
+        const node = await this.tree.createNode(serverMark)
+        await this.storage.addToCache(node.id, await serverMark.hash())
+        received[node.id] = serverMark
       }
     }
     return received
@@ -177,72 +172,26 @@ export default class Account {
       Object.keys(mappings.LocalToServer).map(async localId => {
         if (!received[localId]) {
           // If a bookmark was deleted on the server, we delete it as well
-          console.log('DELETE', localId, mappings.LocalToServer[localId])
-          await browser.bookmarks.remove(localId)
-          await this.storage.removeFromMappings(localId)
+          await this.tree.removeNode(await this.tree.getBookmarkByLocalId(localId))
+          await this.storage.removeFromCache(localId)
         }
       })
     )
   }
 
-  async sync_createOnServer(localRoot) {
+  async sync_createOnServer() {
     let mappings = await this.storage.getMappings()
     // In the tree yet not in the mappings: SERVERCREATE
-    let desc = await Account.getAllDescendants(localRoot)
+    let nodes = await this.tree.getAllNodes()
     await Promise.all(
-      desc
-      .filter(bookmark => !mappings.LocalToServer[bookmark.id])
-      .map(async bookmark => {
-        console.log('SERVERCREATE', bookmark.id, bookmark.url)
-        let path = await Account.getPathFromLocalId(bookmark.id, localRoot)
-        let serverMark = await this.server.createBookmark({
-          ...bookmark
-        , path: path
-        , title: bookmark.title
-        , url: bookmark.url
-        })
-        await this.storage.addToMappings(bookmark.id, serverMark.id)
+      nodes
+      .filter(node => !mappings.LocalToServer[node.id])
+      .map(async node => {
+        console.log('SERVERCREATE', node.id, node.url)
+        let serverMark = await this.server.createBookmark(await this.tree.getBookmarkByLocalId(node.id))
+        await this.storage.addToMappings(node.id, serverMark.id)
+        await this.storage.addToCache(node.id, await serverMark.hash())
       })
     )
-  }
-
-  static async getAllDescendants(localId) {
-    var tree = (await browser.bookmarks.getSubTree(localId))[0]
-    const recurse = (root) => {
-      if (!root.children) return [root]
-      return root.children
-        .map(recurse)
-        .reduce((desc1, desc2) => desc1.concat(desc2))
-    }
-    return recurse(tree)
-  }
- 
-  static async getPathFromLocalId(localId, rootId) {
-    if (localId === rootId) return '/'
-    let bms = await browser.bookmarks.getSubTree(localId)
-    let bm = bms[0]
-    let path = await Account.getPathFromLocalId(bm.parentId, rootId)
-    return path + encodeURIComponent(bm.title)+'/'
-  }
-
-  static async mkdirpBookmarkPath(path, rootId) {
-    let root = (await browser.bookmarks.getSubTree(rootId))[0]
-    let pathSegment = path.split('/')[1]
-    let nextPath = path.substr(('/'+pathSegment).length)
-    let title = decodeURIComponent(pathSegment)
-
-    if (!Array.isArray(root.children)) {
-      throw new Error('given path root is not a folder')
-    }
-    if (path == '/') {
-      return root.id
-    }
-    let child
-    child = root.children
-      .filter(bm => bm.title == title)
-      .filter(bm => !!bm.children)
-      [0]
-    if (!child) child = await browser.bookmarks.create({parentId: rootId, title})
-    return await Account.mkdirpBookmarkPath(nextPath, child.id)
-  }
+  } 
 }

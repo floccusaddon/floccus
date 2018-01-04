@@ -1,7 +1,7 @@
 /* @jsx el */
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
-
+import Bookmark from '../Bookmark'
 const {h} = require('virtual-dom')
 
 function el(el, props, ...children) {
@@ -113,12 +113,10 @@ export default class NextcloudAdapter {
 
     let bookmarks = json.data
     .map(bm => {
-      return {
-        ...bm
-      , tags: bm.tags.filter(tag => tag.indexOf('__floccus-path:') != 0)
-      , path: NextcloudAdapter.getPathFromServerMark(bm)
-      }
+      return new Bookmark(bm.id, null, bm.url, bm.title, NextcloudAdapter.getPathFromServerMark(bm))
+      // tags: bm.tags.filter(tag => tag.indexOf('__floccus-path:') != 0)
     })
+
     console.log(bookmarks)
     return bookmarks
   }
@@ -149,11 +147,9 @@ export default class NextcloudAdapter {
       })
     }
     
-    return {
-      ...bm
-    , tags: bm.tags.filter(tag => tag.indexOf('__floccus-path:') != 0)
-    , path: NextcloudAdapter.getPathFromServerMark(bm)
-    }
+    let bookmark = new Bookmark(bm.id, null, bm.url, bm.title, NextcloudAdapter.getPathFromServerMark(bm))
+    bookmark.tags = bm.tags
+    return bookmark  
   }
 
   createBookmark(bm) {
@@ -162,7 +158,7 @@ export default class NextcloudAdapter {
       var body = new FormData()
       body.append('url', bm.url)
       body.append('title', bm.title)
-      body.append('item[tags]i[]', '__floccus-path:'+bm.path)
+      body.append('item[tags][]', '__floccus-path:'+bm.path)
       return fetch(this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark', {
         method: 'POST'
       , body
@@ -178,21 +174,22 @@ export default class NextcloudAdapter {
     })
     .then((json) => {
       if (json.status != 'success') return Promise.reject(new Error('nextcloud API returned error'))
-      return Promise.resolve(json.item)
+      bm.id = json.item.id
+      return Promise.resolve(bm)
     })
     .catch((er) => console.log(er))
   }
   
-  async updateBookmark(remoteId, node) {
+  async updateBookmark(remoteId, newBm) {
     let bm = await this.getBookmark(remoteId, false)
 
     let body = new URLSearchParams()
-    body.append('url', node.url)
-    body.append('title', node.title)
+    body.append('url', newBm.url)
+    body.append('title', newBm.title)
     bm.tags
     .filter(tag => tag.indexOf('__floccus-path:') != 0)
-    .concat(node.tags || [])
-    .concat(['__floccus-path:'+node.path])
+    .concat(newBm.tags || [])
+    .concat(['__floccus-path:'+newBm.path])
     .forEach((tag) => body.append('item[tags][]', tag))
     
     let putRes = await fetch(this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
@@ -206,10 +203,7 @@ export default class NextcloudAdapter {
     if (putRes.status !== 200) return Promise.reject(new Error('Signing into owncloud for updating a bookmark failed'))
     let putJson = await putRes.json()
     if (putJson.status != 'success') return Promise.reject(new Error('nextcloud API returned error'))
-    return bm = {
-      ...putJson.item
-    , path: NextcloudAdapter.getPathFromServerMark(putJson.item)
-    }
+    return new Bookmark(remoteId, null, putJson.item.url, putJson.item.title, NextcloudAdapter.getPathFromServerMark(putJson.item))
   }
 
   removeBookmark(remoteId) {

@@ -50,6 +50,28 @@ export default class AccountStorage {
   setLocalRoot(localId) {
     return browser.storage.local.set({[`bookmarks[${this.accountId}].localRoot`]: localId}) 
   }
+  
+  initCache() {
+    return browser.storage.local.set({[`bookmarks[${this.accountId}].cache`]: {} })
+  }
+
+  getCache() {
+    return this.getEntry(`bookmarks[${this.accountId}].cache`)
+  }
+  
+  removeFromCache(localId) {
+    return this.changeEntry(`bookmarks[${this.accountId}].cache`, (cache) => {
+      delete cache[localId]
+      return cache
+    })
+  }
+  
+  addToCache(localId, hash) {
+    return this.changeEntry(`bookmarks[${this.accountId}].cache`, (cache) => {
+      cache[localId] = hash
+      return cache
+    })
+  }
 
   initMappings() {
     return browser.storage.local.set({[`bookmarks[${this.accountId}].mappings`]: {
