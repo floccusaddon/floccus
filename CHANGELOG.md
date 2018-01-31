@@ -1,3 +1,6 @@
+## v1.3.4
+ - Fix normalizeURL: The relevant commit somehow didn't make it into the release builds
+
 ## v1.3.3
  - Fix normalizeUrl: Automatically add trailing slash
 
