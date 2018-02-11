@@ -74,6 +74,9 @@ export default class Tree {
   
   async getPathFromLocalId(localId) {
     if (localId === this.rootId) return '/'
+    if (!localId) {
+      throw new Error('Bookmark is not inside floccus folder anymore')
+    }
     let bms = await browser.bookmarks.getSubTree(localId)
     let bm = bms[0]
     let path = await this.getPathFromLocalId(bm.parentId)
@@ -116,5 +119,4 @@ export default class Tree {
     }
     return recurse(tree)
   }
-
 }
