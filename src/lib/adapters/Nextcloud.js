@@ -10,6 +10,8 @@ return h(el, props, children);
 
 const url = require('url')
 
+const TAG_PREFIX = 'floccus:'
+
 export default class NextcloudAdapter {
 
   constructor(server) {
@@ -98,7 +100,7 @@ export default class NextcloudAdapter {
    
    // for every bm without a path tag, add one
     let bmsWithoutPath = json.data
-    .filter(bm => bm.tags.every(tag => tag.indexOf('__floccus-path:') != 0))
+    .filter(bm => bm.tags.every(tag => tag.indexOf(TAG_PREFIX) != 0))
     
     for (var i=0; i < bmsWithoutPath.length; i++) {
       let bm = bmsWithoutPath[i]
@@ -140,10 +142,9 @@ export default class NextcloudAdapter {
    
     // for every bm without a path tag, add one
     let bm = json.item
-    if (autoupdate && bm.tags.every(tag => tag.indexOf('__floccus-path:') != 0)) {
+    if (autoupdate && bm.tags.every(tag => tag.indexOf(TAG_PREFIX) != 0)) {
       await this.updateBookmark(bm.id, {
         ...bm
-      , tags: bm.tags.filter(tag => tag.indexOf('__floccus-path:') != 0)
       , path: '/'
       })
     }
@@ -159,7 +160,7 @@ export default class NextcloudAdapter {
       var body = new FormData()
       body.append('url', bm.url)
       body.append('title', bm.title)
-      body.append('item[tags][]', '__floccus-path:'+bm.path)
+      body.append('item[tags][]', TAG_PREFIX+bm.path)
       return fetch(this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark', {
         method: 'POST'
       , body
@@ -188,9 +189,9 @@ export default class NextcloudAdapter {
     body.append('url', newBm.url)
     body.append('title', newBm.title)
     bm.tags
-    .filter(tag => tag.indexOf('__floccus-path:') != 0)
+    .filter(tag => (tag.indexOf(TAG_PREFIX) != 0 && tag.indexOf('__floccus-path:') != 0)) // __floccus-path: is depecrated, but we still remove it from the filters here, so it's automatically removed
     .concat(newBm.tags || [])
-    .concat(['__floccus-path:'+newBm.path])
+    .concat([TAG_PREFIX+newBm.path])
     .forEach((tag) => body.append('item[tags][]', tag))
     
     let putRes = await fetch(this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
