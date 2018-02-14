@@ -84,21 +84,23 @@ export default class NextcloudAdapter {
 
   async pullBookmarks() {
     console.log('Fetching bookmarks', this.server)
-    let response = await fetch(this.normalizeServerURL(this.server.url) + "index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1"
-    , {
+    const getUrl = this.normalizeServerURL(this.server.url) + "index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1"
+    let response = await fetch(getUrl, {
       headers: {
         Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
       }
+    })
+    
+    if (response.status !== 200) {
+      throw new Error('Failed to retrieve bookmarks from ownCloud')
     }
-    )
-    
-    if (response.status !== 200) throw new Error('Failed to retrieve bookmarks from ownCloud')
-    
+
     let json = await response.json()
-    
-    if ('success' !== json.status) throw new Error('Fetch failed:'+JSON.stringify(json))
-   
-   // for every bm without a path tag, add one
+    if ('success' !== json.status) {
+      throw new Error('Fetch failed:'+JSON.stringify(json))
+   }
+
+    // for every bm without a path tag, add one
     let bmsWithoutPath = json.data
     .filter(bm => bm.tags.every(tag => tag.indexOf(TAG_PREFIX) != 0))
     
@@ -126,20 +128,22 @@ export default class NextcloudAdapter {
   
   async getBookmark(id, autoupdate) {
     console.log('Fetching single bookmark', this.server)
-    let response = await fetch(this.normalizeServerURL(this.server.url) + "index.php/apps/bookmarks/public/rest/v2/bookmark/"+id
-    , {
+    const getUrl = this.normalizeServerURL(this.server.url) + "index.php/apps/bookmarks/public/rest/v2/bookmark/"+id
+    let response = await fetch(getUrl, {
       headers: {
         Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
       }
+    })
+    
+    if (response.status !== 200) {
+      throw new Error('Failed to retrieve bookmark from ownCloud')
     }
-    )
-    
-    if (response.status !== 200) throw new Error('Failed to retrieve bookmark from ownCloud')
-    
+
     let json = await response.json()
-    
-    if ('success' !== json.status) throw new Error('Fetch failed:'+JSON.stringify(json))
-   
+    if ('success' !== json.status) {
+      throw new Error('Fetch failed:'+JSON.stringify(json))
+    }
+
     // for every bm without a path tag, add one
     let bm = json.item
     if (autoupdate && bm.tags.every(tag => tag.indexOf(TAG_PREFIX) != 0)) {
@@ -154,32 +158,31 @@ export default class NextcloudAdapter {
     return bookmark  
   }
 
-  createBookmark(bm) {
-    return Promise.resolve()
-    .then(d => {
-      var body = new FormData()
-      body.append('url', bm.url)
-      body.append('title', bm.title)
-      body.append('item[tags][]', TAG_PREFIX+bm.path)
-      return fetch(this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark', {
-        method: 'POST'
-      , body
-      , headers: {
-          Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
-        }
-      })
+  async createBookmark(bm) {
+    let body = new FormData()
+    body.append('url', bm.url)
+    body.append('title', bm.title)
+    body.append('item[tags][]', TAG_PREFIX+bm.path)
+    const createUrl = this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark'
+    const res = await fetch(creatUrl, {
+      method: 'POST'
+    , body
+    , headers: {
+        Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
+      }
     })
-    .then(res => {
-      console.log(res)
-      if (res.status !== 200) return Promise.reject(new Error('Signing into owncloud for creating a bookmark failed'))
-      return res.json()
-    })
-    .then((json) => {
-      if (json.status != 'success') return Promise.reject(new Error('nextcloud API returned error'))
-      bm.id = json.item.id
-      return Promise.resolve(bm)
-    })
-    .catch((er) => console.log(er))
+      
+    console.log(res)
+    
+    if (res.status !== 200) {
+      throw new Error('Signing into owncloud for creating a bookmark failed')
+    }
+    const json = res.json()
+    if (json.status != 'success') {
+      throw new Error('nextcloud API returned error')
+    }
+    bm.id = json.item.id
+    return bm
   }
   
   async updateBookmark(remoteId, newBm) {
@@ -188,42 +191,53 @@ export default class NextcloudAdapter {
     let body = new URLSearchParams()
     body.append('url', newBm.url)
     body.append('title', newBm.title)
+    
+    newBm.tags = newBm.tags
+    .filter(tag => (tag.indexOf(TAG_PREFIX) != 0 && tag.indexOf('__floccus-path:') != 0)) // __floccus-path: is depecrated, but we still remove it from the filters here, so it's automatically removed
+
     bm.tags
     .filter(tag => (tag.indexOf(TAG_PREFIX) != 0 && tag.indexOf('__floccus-path:') != 0)) // __floccus-path: is depecrated, but we still remove it from the filters here, so it's automatically removed
     .concat(newBm.tags || [])
     .concat([TAG_PREFIX+newBm.path])
     .forEach((tag) => body.append('item[tags][]', tag))
     
-    let putRes = await fetch(this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
+    let updateUrl = this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId
+    let putRes = await fetch(updateUrl, {
       method: 'PUT'
     , body
     , headers: {
         Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
       }
     })
+
     console.log(putRes)
-    if (putRes.status !== 200) return Promise.reject(new Error('Signing into owncloud for updating a bookmark failed'))
+    
+    if (putRes.status !== 200) {
+      throw new Error('Signing into owncloud for updating a bookmark failed')
+    }
+    
     let putJson = await putRes.json()
-    if (putJson.status != 'success') return Promise.reject(new Error('nextcloud API returned error'))
+    if (putJson.status != 'success') {
+      throw new Error('nextcloud API returned error')
+    }
+    
     return new Bookmark(remoteId, null, putJson.item.url, putJson.item.title, NextcloudAdapter.getPathFromServerMark(putJson.item))
   }
 
-  removeBookmark(remoteId) {
-    return Promise.resolve()
-    .then(d => {
-      return fetch(this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId, {
-        method: 'DELETE'
-      , headers: {
-          Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
-        }
-      })
+  async removeBookmark(remoteId) {
+    const delUrl = this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId
+    let res = await fetch(delUrl, {
+      method: 'DELETE'
+    , headers: {
+        Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
+      }
     })
-    .then(res => {
-      console.log(res)
-      if (res.status !== 200) return Promise.reject(new Error('Signing into owncloud for removing a bookmark failed'))
-      return Promise.resolve()
-    })
-    .catch((er) => console.log(er))
+
+    console.log(res)
+    
+    if (res.status !== 200) {
+      throw new Error('Signing into owncloud for removing a bookmark failed')
+    }
   }
   
   static getPathFromServerMark(bm) {
