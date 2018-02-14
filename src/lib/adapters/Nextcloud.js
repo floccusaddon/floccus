@@ -192,7 +192,7 @@ export default class NextcloudAdapter {
     body.append('url', newBm.url)
     body.append('title', newBm.title)
     
-    newBm.tags = newBm.tags
+    newBm.tags = !newBm.tags? [] : newBm.tags
     .filter(tag => (tag.indexOf(TAG_PREFIX) != 0 && tag.indexOf('__floccus-path:') != 0)) // __floccus-path: is depecrated, but we still remove it from the filters here, so it's automatically removed
 
     bm.tags
