@@ -154,7 +154,7 @@ export default class NextcloudAdapter {
     }
     
     let bookmark = new Bookmark(bm.id, null, bm.url, bm.title, NextcloudAdapter.getPathFromServerMark(bm))
-    bookmark.tags = Nextcloudadapter.filterPathTagFromTags(bm.tags)
+    bookmark.tags = NextcloudAdapter.filterPathTagFromTags(bm.tags)
     return bookmark  
   }
 
