@@ -106,7 +106,7 @@ export default class Tree {
       .filter(bm => !!bm.children)
       [0]
     if (!child) child = await browser.bookmarks.create({parentId: rootId, title})
-    return await Bookmark.mkdirpPath(nextPath, child.id)
+    return await Tree.mkdirpPath(nextPath, child.id)
   }
   
   async getAllNodes() {
