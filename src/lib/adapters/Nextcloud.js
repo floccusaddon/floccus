@@ -154,7 +154,7 @@ export default class NextcloudAdapter {
     }
     
     let bookmark = new Bookmark(bm.id, null, bm.url, bm.title, NextcloudAdapter.getPathFromServerMark(bm))
-    bookmark.tags = bm.tags
+    bookmark.tags = Nextcloudadapter.filterPathTagFromTags(bm.tags)
     return bookmark  
   }
 
@@ -191,14 +191,10 @@ export default class NextcloudAdapter {
     let body = new URLSearchParams()
     body.append('url', newBm.url)
     body.append('title', newBm.title)
-    
-    newBm.tags = !newBm.tags? [] : newBm.tags
-    .filter(tag => (tag.indexOf(TAG_PREFIX) != 0 && tag.indexOf('__floccus-path:') != 0)) // __floccus-path: is depecrated, but we still remove it from the filters here, so it's automatically removed
 
     bm.tags
-    .filter(tag => (tag.indexOf(TAG_PREFIX) != 0 && tag.indexOf('__floccus-path:') != 0)) // __floccus-path: is depecrated, but we still remove it from the filters here, so it's automatically removed
     .concat(newBm.tags || [])
-    .concat([TAG_PREFIX+newBm.path])
+    .concat([NextcloudAdapter.convertPathToTag(newBm.path)])
     .forEach((tag) => body.append('item[tags][]', tag))
     
     let updateUrl = this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId
@@ -241,12 +237,29 @@ export default class NextcloudAdapter {
   }
   
   static getPathFromServerMark(bm) {
-    return !bm.tags? null
-      : bm.tags
-        .filter(tag => tag.indexOf('__floccus-path:') == 0)
-        .concat(['__floccus-path:/']) // default
+    return this.convertTagToPath(this.getPathTagFromTags(bm.tags))
+  }
+
+  static filterPathTagFromTags(tags) {
+    return ( tags || [] )
+        .filter(tag => (tag.indexOf(TAG_PREFIX) != 0 && tag.indexOf('__floccus-path:') != 0)) // __floccus-path: is depecrated, but we still remove it from the filters here, so it's automatically removed
+  }
+
+  static getPathTagFromTags(tags) {
+    return ( tags || [] )
+        .filter(tag => (tag.indexOf(TAG_PREFIX) == 0 && tag.indexOf('__floccus-path:') != 0))
+        .concat([this.convertPathToTag('/')]) // default
         [0]
-        .substr('__floccus-path:'.length)
+  }
+
+  static convertPathToTag(path) {
+    return TAG_PREFIX + path.split('/').join('>')
+  }
+  
+  static convertTagToPath(tag) {
+    return tag.substr(TAG_PREFIX.length)
+              .split('>')
+              .join('/')
   }
 }
 
