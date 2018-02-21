@@ -109,7 +109,7 @@ export default class NextcloudAdapter {
       try {
         await this.updateBookmark(bm.id, {
           ...bm
-        , path: '/'
+        , path: NextcloudAdapter.getPathFromServerMark(bm)
         })
       }catch(e) {
         console.log(e)
@@ -149,7 +149,7 @@ export default class NextcloudAdapter {
     if (autoupdate && bm.tags.every(tag => tag.indexOf(TAG_PREFIX) != 0)) {
       await this.updateBookmark(bm.id, {
         ...bm
-      , path: '/'
+        , path: NextcloudAdapter.getPathFromServerMark(bm)
       })
     }
     
@@ -193,7 +193,7 @@ export default class NextcloudAdapter {
     body.append('title', newBm.title)
 
     bm.tags
-    .concat(newBm.tags || [])
+    .concat(NextcloudAdapter.filterPathTagFromTags(newBm.tags))
     .concat([NextcloudAdapter.convertPathToTag(newBm.path)])
     .forEach((tag) => body.append('item[tags][]', tag))
     
@@ -247,7 +247,7 @@ export default class NextcloudAdapter {
 
   static getPathTagFromTags(tags) {
     return ( tags || [] )
-        .filter(tag => (tag.indexOf(TAG_PREFIX) == 0 && tag.indexOf('__floccus-path:') != 0))
+        .filter(tag => (tag.indexOf(TAG_PREFIX) == 0 || tag.indexOf('__floccus-path:') == 0))
         .concat([this.convertPathToTag('/')]) // default
         [0]
   }
@@ -257,7 +257,9 @@ export default class NextcloudAdapter {
   }
   
   static convertTagToPath(tag) {
-    return tag.substr(TAG_PREFIX.length)
+    const old_prefix = '__floccus-path:'
+    return tag.indexOf(old_prefix) === 0? tag.substr(old_prefix.length)
+          : tag.substr(TAG_PREFIX.length)
               .split('>')
               .join('/')
   }
