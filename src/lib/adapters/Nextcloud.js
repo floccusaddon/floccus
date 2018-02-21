@@ -164,7 +164,7 @@ export default class NextcloudAdapter {
     body.append('title', bm.title)
     body.append('item[tags][]', TAG_PREFIX+bm.path)
     const createUrl = this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark'
-    const res = await fetch(creatUrl, {
+    const res = await fetch(createUrl, {
       method: 'POST'
     , body
     , headers: {
