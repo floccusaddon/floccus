@@ -88,7 +88,6 @@ export default class Tree {
 
     return '/' + (await Promise.all(
       ancestors
-      .slice(0, ancestors.length-1)
       .map(async ancestor => { 
         let bms = await browser.bookmarks.getSubTree(localId)
         let bm = bms[0]
