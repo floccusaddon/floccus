@@ -18,7 +18,7 @@ function triggerRender() {
     )
   })
   .then((accounts) => {
-    console.log(accounts)
+    console.log('Rendering accounts', accounts)
     let newTree = render(accounts)
     let patches = diff(tree, newTree)
     rootNode = patch(rootNode, patches)

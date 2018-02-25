@@ -122,7 +122,7 @@ export default class NextcloudAdapter {
       // tags: bm.tags.filter(tag => tag.indexOf('__floccus-path:') != 0)
     })
 
-    console.log(bookmarks)
+    console.log('Received bookmarks from server', bookmarks)
     return bookmarks
   }
   
@@ -177,7 +177,7 @@ export default class NextcloudAdapter {
     if (res.status !== 200) {
       throw new Error('Signing into owncloud for creating a bookmark failed')
     }
-    const json = res.json()
+    const json = await res.json()
     if (json.status != 'success') {
       throw new Error('nextcloud API returned error')
     }

@@ -50,10 +50,18 @@ export default class Account {
     return await this.storage.getLocalRoot()
   }
 
-  async hasBookmark(localId) {
+  async tracksBookmark(localId) {
+    if (!(await this.isInitialized())) return false
     let mappings = await this.storage.getMappings()
     return Object.keys(mappings.LocalToServer)
       .some(id => localId === id)
+  }
+  
+  async containsBookmark(localId, ancestors) {
+    if (!(await this.isInitialized())) return false
+    if (await this.storage.isGlobalAccount()) return true
+    ancestors = ancestors || await Tree.getIdPathFromLocalId(localId)
+    return !!~ancestors.indexOf(await this.storage.getLocalRoot())
   }
   
   renderOptions(ctl) {
@@ -71,25 +79,37 @@ export default class Account {
   }
 
   async init() {
+    console.log('initializing account '+this.id)
     let parentNode = await browser.bookmarks.getTree()
+    let bookmarksBar = parentNode[0].children[0]
     let bookmark = await browser.bookmarks.create({
       title: 'Nextcloud ('+this.getLabel()+')'
-    , parentId: parentNode.id
+    , parentId: bookmarksBar.id
     })
     await this.storage.setLocalRoot(bookmark.id)
     await this.storage.initMappings()
     await this.storage.initCache()
     this.tree = new Tree(bookmark.id, this.storage)
   }
+
+  async isInitialized() {
+    try {
+      let localRoot = await this.storage.getLocalRoot()
+      if (localRoot === "-1" && await this.storage.isGlobalAccount()) {
+        return true
+      }
+      await browser.bookmarks.getSubTree(localRoot)
+      return true
+    }catch(e) {
+      console.log('Apparently not initialized, because:', e)
+      return false
+    }
+  }
   
   async sync() {
     try {
       await this.setData({...this.getData(), syncing: true})
-      try {
-        let localRoot = await this.storage.getLocalRoot()
-        await browser.bookmarks.getSubTree(localRoot)
-      }catch(e) {
-        console.log(e)
+      if (!(await this.isInitialized())) {
         await this.init()
       }
 
@@ -102,6 +122,7 @@ export default class Account {
 
       await this.setData({...this.getData(), error: null, syncing: false})
     } catch(e) {
+      console.error('Syncing failed with', e)
       await this.setData({...this.getData(), error: e.message, syncing: false}) 
     }
   }
@@ -193,5 +214,49 @@ export default class Account {
         await this.storage.addToCache(node.id, await serverMark.hash())
       })
     )
-  } 
+  }
+
+  static async getAccountsInfo() {
+    const d = await browser.storage.local.get('accounts')
+    var accounts = d['accounts']
+    
+    accounts = await Promise.all(
+      Object.keys(accounts)
+      .map(accountId => Account.get(accountId))
+    )
+
+    // Get the global account
+    const globalAccId = await AccountStorage.getGlobalAccount()
+    var globalAcc
+
+    return {
+      accounts: await Promise.all(
+        accounts
+        .filter(account => {
+          if (globalAccId === account.id) {
+            globalAcc = account
+            return false
+          }
+          return true
+        })
+        .map(async account => {
+          return {account,localRoot: await account.getLocalRoot()}
+        })
+      )
+    , globalAccount: globalAcc
+    }
+  }
+  
+  static async getAccountContainingLocalId(local, ancestors, accountsInfo) {
+    ancestors = ancestors || await Tree.getIdPathFromLocalId(localId)
+    accountsInfo = accountsInfo || await this.getAccountsInfo() 
+    var account = accountsInfo.accounts
+    .map(({account, localRoot}) => ({account, index: ancestors.indexOf(localRoot)}))
+    .reduce((acc1, acc2) => {
+      if (acc1.index > acc2.index) return acc1
+      else return acc2
+    }, {account: null, index: -1}).account
+
+    return account || accountsInfo.globalAccount
+  }
 }

@@ -6,7 +6,7 @@ export default class AccountStorage {
     this.accountId = id
   }
   
-  changeEntry(entryName, fn) {
+  static changeEntry(entryName, fn) {
     return browser.storage.local.get(entryName)
     .then(d => {
       var entry = d[entryName]
@@ -15,21 +15,37 @@ export default class AccountStorage {
     })
   }
 
-  getEntry(entryName) {
+  static getEntry(entryName) {
     return browser.storage.local.get(entryName)
     .then(d => {
       return d[entryName]
     })
   }
+
+  static async getGlobalAccount() {
+    const accounts = this.getEntry(`accounts`)
+    return Object.keys(accounts)
+    .filter(accountId => accounts[accountId].global)
+    [0]
+  }
+
+  async isGlobalAccount() {
+    return (await AccountStorage.getGlobalAccount()) === this.accountId
+  }
+  
+  async setGlobal(trueOrNotTrue) {
+    const acc = await this.getAccountData()
+    await this.setAccountData({...acc, global: trueOrNotTrue})
+  }
   
   getAccountData() {
-    return this.getEntry(`accounts`).then((accounts) => {
+    return AccountStorage.getEntry(`accounts`).then((accounts) => {
       return accounts[this.accountId]
     })
   }
   
   setAccountData(data) {
-    return this.changeEntry(`accounts`, (accounts) => {
+    return AccountStorage.changeEntry(`accounts`, (accounts) => {
       accounts = accounts || {}
       accounts[this.accountId] = data
       return accounts
@@ -37,14 +53,14 @@ export default class AccountStorage {
   }
   
   deleteAccountData() {
-    return this.changeEntry(`accounts`, (accounts) => {
+    return AccountStorage.changeEntry(`accounts`, (accounts) => {
       delete accounts[this.accountId]
       return accounts
     })
   }
 
   getLocalRoot() {
-    return this.getEntry(`bookmarks[${this.accountId}].localRoot`)
+    return AccountStorage.getEntry(`bookmarks[${this.accountId}].localRoot`)
   }
   
   setLocalRoot(localId) {
@@ -56,18 +72,18 @@ export default class AccountStorage {
   }
 
   getCache() {
-    return this.getEntry(`bookmarks[${this.accountId}].cache`)
+    return AccountStorage.getEntry(`bookmarks[${this.accountId}].cache`)
   }
   
   removeFromCache(localId) {
-    return this.changeEntry(`bookmarks[${this.accountId}].cache`, (cache) => {
+    return AccountStorage.changeEntry(`bookmarks[${this.accountId}].cache`, (cache) => {
       delete cache[localId]
       return cache
     })
   }
   
   addToCache(localId, hash) {
-    return this.changeEntry(`bookmarks[${this.accountId}].cache`, (cache) => {
+    return AccountStorage.changeEntry(`bookmarks[${this.accountId}].cache`, (cache) => {
       cache[localId] = hash
       return cache
     })
@@ -81,11 +97,11 @@ export default class AccountStorage {
   }
   
   getMappings() {
-    return this.getEntry(`bookmarks[${this.accountId}].mappings`)
+    return AccountStorage.getEntry(`bookmarks[${this.accountId}].mappings`)
   }
 
   removeFromMappings(localId) {
-    return this.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
+    return AccountStorage.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
       delete mappings.ServerToLocal[mappings.LocalToServer[localId]]
       delete mappings.LocalToServer[localId]
       return mappings
@@ -93,10 +109,11 @@ export default class AccountStorage {
   }
   
   addToMappings(localId, remoteId) {
-    return this.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
+    return AccountStorage.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
       mappings.LocalToServer[localId] = remoteId
       mappings.ServerToLocal[remoteId] = localId
       return mappings
     })
   }
+
 }

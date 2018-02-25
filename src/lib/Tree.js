@@ -1,5 +1,6 @@
 import browser from './browser-api'
 import Bookmark from './Bookmark'
+import Account from './Account'
 
 export default class Tree {
   constructor(rootId, storage) {
@@ -28,7 +29,7 @@ export default class Tree {
       throw new Error('trying to create a node for a bookmark that already has one')
     }
 
-    const parentId = await Tree.mkdirpPath(bookmark.path, this.rootId)
+    const parentId = await this.mkdirpPath(bookmark.path)
 		const node = await browser.bookmarks.create({parentId, title: bookmark.title, url: bookmark.url})
     await this.storage.addToMappings(node.id, bookmark.id)
     return node
@@ -73,22 +74,35 @@ export default class Tree {
   }
   
   async getPathFromLocalId(localId) {
-    if (localId === this.rootId) return '/'
-    if (!localId) {
-      throw new Error('Bookmark is not inside floccus folder anymore')
-    }
-    let bms = await browser.bookmarks.getSubTree(localId)
-    let bm = bms[0]
-    let path = await this.getPathFromLocalId(bm.parentId)
+    var ancestors = await Tree.getIdPathFromLocalId(localId)
     
-    return path + encodeURIComponent(bm.title)+'/'
+    const containingAccount = await Account.getAccountContainingLocalId(localId, ancestors) 
+    if (this.storage.accountId !== containingAccount.id) {
+      throw new Error('This Bookmark does not belong to the current account')
+    }
+    
+    if (this.root !== '-1') {
+      // Non-global account
+      ancestors = ancestors.slice(ancestors.indexOf(this.rootId)+1)
+    }
+
+    return '/' + (await Promise.all(
+      ancestors
+      .slice(0, ancestors.length-1)
+      .map(async ancestor => { 
+        let bms = await browser.bookmarks.getSubTree(localId)
+        let bm = bms[0]
+        return encodeURIComponent(bm.title)
+      })
+    )).join('/')
   }
 
   async mkdirpPath(path) {
-    return await Tree.mkdirpPath(path, this.rootId)
+    const accountsInfo = await Account.getAccountsInfo()
+    return await Tree.mkdirpPath(path, this.rootId, accountsInfo)
   }
 
-  static async mkdirpPath(path, rootId) {
+  static async mkdirpPath(path, rootId, accountsInfo) {
     let root = (await browser.bookmarks.getSubTree(rootId))[0]
     let pathSegment = path.split('/')[1]
     let nextPath = path.substr(('/'+pathSegment).length)
@@ -106,17 +120,37 @@ export default class Tree {
       .filter(bm => !!bm.children)
       [0]
     if (!child) child = await browser.bookmarks.create({parentId: rootId, title})
-    return await Tree.mkdirpPath(nextPath, child.id)
+    if (accountsInfo.accounts.some(acc => acc.localRoot === child.id)) {
+      throw new Error('New path conflicts with existing nested floccus folder. Aborting.')
+    }
+    return await Tree.mkdirpPath(nextPath, child.id, accountsInfo)
   }
   
   async getAllNodes() {
-    var tree = (await browser.bookmarks.getSubTree(this.rootId))[0]
+    const tree = (await browser.bookmarks.getSubTree(this.rootId))[0]
+    const accountsInfo = await Account.getAccountsInfo()
     const recurse = (root) => {
+      if (accountsInfo.accounts.some(acc => acc.localRoot === root.id && root.id !== this.rootId)) {
+        // This is the root folder of a different account
+        // (the user has apparently nested them *facepalm* -- how nice of us to take care of that)
+        return []
+      }
       if (!root.children) return [root]
       return root.children
         .map(recurse)
         .reduce((desc1, desc2) => desc1.concat(desc2), [])
     }
     return recurse(tree)
+  }
+
+  static async getIdPathFromLocalId(localId, path) {
+    path = path || []
+    if (!localId) {
+      return path
+    }
+    path.unshift(localId)
+    let bms = await browser.bookmarks.getSubTree(localId)
+    let bm = bms[0]
+    return await this.getIdPathFromLocalId(bm.parentId, path)
   }
 }

@@ -1,6 +1,7 @@
 import browser from '../lib/browser-api'
 import Account from '../lib/Account'
-import NextcloudAdapter from '../lib/adapters/Nextcloud'
+import AccountStorage from '../lib/AccountStorage'
+import Tree from '../lib/Tree'
 
 // FIRST RUN
 // Set up some things on first run
@@ -27,24 +28,40 @@ browser.alarms.onAlarm.addListener(alarm => {
   })
 })
 
-const onchange = (localId, details) => {
-  browser.storage.local.get('accounts')
-  .then((d) => {
-    var accounts = d['accounts']
-    Object.keys(accounts).forEach(accountId => {
-      Account.get(accountId)
-      .then((account) => {
-        return Promise.all([
-          account.hasBookmark(localId),
-          account.getLocalRoot()
-        ])
-      })
-      .then(data => {
-        let [hasBookmark, localRoot] = data
-        if (!syncing[accountId] && (hasBookmark || details.parentId === localRoot)) syncAccount(accountId)
-      })
+const onchange = async (localId, details) => {
+
+  const accountsInfo = await Account.getAccountsInfo()
+
+  // Check which accounts contain the bookmark and which used to contain (track) it
+  var trackingAccountsFilter = await Promise.all(
+    accountsInfo.accounts
+    .map(async accountInfo => {
+      return (await accountInfo.account.tracksBookmark(localId))
     })
-  }) 
+  )
+
+  const accountsToSync = accountsInfo.accounts
+  // Filter out any accounts that are not tracking the bookmark
+  .filter((account, i) => (trackingAccountsFilter[i]))
+  // Filter out any accounts that are presently syncing
+  .filter(accountInfo => !syncing[accountInfo.account.id])
+  
+  // We should now sync all accounts that are involved in this change (2 at max)
+  accountsToSync.forEach((accountInfo) => {
+    syncAccount(accountInfo.account.id)
+  })
+
+  var ancestors
+  try {
+    ancestors = await Tree.getIdPathFromLocalId(localId)
+  }catch(e) {
+    return
+  }
+
+  const containingAccount = await Account.getAccountContainingLocalId(localId, ancestors, accountsInfo)
+  if (containingAccount && !syncing[containingAccount.id] && !accountsToSync.some(acc => acc.account.id === containingAccount.id)) {
+    syncAccount(containingAccount.id)
+  }
 }
 browser.bookmarks.onChanged.addListener(onchange)
 browser.bookmarks.onMoved.addListener(onchange)
