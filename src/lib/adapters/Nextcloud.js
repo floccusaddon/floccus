@@ -18,7 +18,7 @@ export default class NextcloudAdapter {
     this.server = server
   }
 
-  renderOptions(ctl) {
+  renderOptions(ctl, rootPath) {
     let data = this.getData()
     let onchangeURL = (e) => {
       ctl.update({...data, url: e.target.value})
@@ -52,8 +52,34 @@ export default class NextcloudAdapter {
                 '✓ all good'
             )
         }</span>
-        <a href="#" className="btn remove" ev-click={() => ctl.delete()}>Delete</a>
+        <a href="#" className="btn openOptions" ev-click={(e) => {
+          var options = e.target.nextSibling.nextSibling
+          if (options.classList.contains('open'))
+            options.classList.remove('open')
+          else
+            !data.syncing && options.classList.add('open')
+        }}>Options</a>
         <a href="#" className={'btn forceSync '+(data.syncing? 'disabled' : '')} ev-click={() => !data.syncing && ctl.sync()}>force Sync</a>
+        <div className="options">
+          <formgroup>
+            <h4>Sync options</h4>
+            <p>
+              <label>Synchronized folder:
+                <input type="text" disabled value={rootPath} />
+              </label><br/>
+              <a href="" title="Reset synchronized folder to create a new one" className={'btn resetRoot '+(data.syncing? 'disabled' : '')} ev-click={() => {
+                !data.syncing && ctl.update({...data, localRoot: null})
+              }}>Reset</a>
+              <a href="#" title="Set an existing folder to sync" className={'btn chooseRoot '+(data.syncing? 'disabled' : '')} ev-click={(e) => {
+                ctl.pickFolder()
+              }}>Choose folder</a>
+            </p>
+          </formgroup>
+          <formgroup>
+            <h4>Remove account</h4>
+            <a href="#" className="btn remove" ev-click={() => ctl.delete()}>Delete this account</a>
+          </formgroup>
+        </div>
       </td></tr>
       </table>
       </form>
@@ -162,7 +188,7 @@ export default class NextcloudAdapter {
     let body = new FormData()
     body.append('url', bm.url)
     body.append('title', bm.title)
-    body.append('item[tags][]', TAG_PREFIX+bm.path)
+    body.append('item[tags][]', NextcloudAdapter.convertPathToTag(bm.path))
     const createUrl = this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark'
     const res = await fetch(createUrl, {
       method: 'POST'

@@ -29,26 +29,25 @@ browser.alarms.onAlarm.addListener(alarm => {
 })
 
 const onchange = async (localId, details) => {
-
-  const accountsInfo = await Account.getAccountsInfo()
+  const allAccounts = await Account.getAllAccounts()
 
   // Check which accounts contain the bookmark and which used to contain (track) it
   var trackingAccountsFilter = await Promise.all(
-    accountsInfo.accounts
-    .map(async accountInfo => {
-      return (await accountInfo.account.tracksBookmark(localId))
+    allAccounts
+    .map(async account => {
+      return (await account.tracksBookmark(localId))
     })
   )
 
-  const accountsToSync = accountsInfo.accounts
+  const accountsToSync = allAccounts
   // Filter out any accounts that are not tracking the bookmark
   .filter((account, i) => (trackingAccountsFilter[i]))
   // Filter out any accounts that are presently syncing
-  .filter(accountInfo => !syncing[accountInfo.account.id])
+  .filter(account => !syncing[account.id])
   
   // We should now sync all accounts that are involved in this change (2 at max)
-  accountsToSync.forEach((accountInfo) => {
-    syncAccount(accountInfo.account.id)
+  accountsToSync.forEach((account) => {
+    syncAccount(account.id)
   })
 
   var ancestors
@@ -58,8 +57,8 @@ const onchange = async (localId, details) => {
     return
   }
 
-  const containingAccount = await Account.getAccountContainingLocalId(localId, ancestors, accountsInfo)
-  if (containingAccount && !syncing[containingAccount.id] && !accountsToSync.some(acc => acc.account.id === containingAccount.id)) {
+  const containingAccount = await Account.getAccountContainingLocalId(localId, ancestors, allAccounts)
+  if (containingAccount && !syncing[containingAccount.id] && !accountsToSync.some(acc => acc.id === containingAccount.id)) {
     syncAccount(containingAccount.id)
   }
 }

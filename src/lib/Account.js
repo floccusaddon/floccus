@@ -8,7 +8,7 @@ export default class Account {
   static async get(id) {
     let storage = new AccountStorage(id)
     let data = await storage.getAccountData()
-    let localRoot = await storage.getLocalRoot()
+    let localRoot = data.localRoot
     let tree = new Tree(localRoot, storage)
     return new Account(id, storage, Adapter.factory(data), tree)
   }
@@ -46,10 +46,6 @@ export default class Account {
     await this.storage.setAccountData(data)
   }
 
-  async getLocalRoot() {
-    return await this.storage.getLocalRoot()
-  }
-
   async tracksBookmark(localId) {
     if (!(await this.isInitialized())) return false
     let mappings = await this.storage.getMappings()
@@ -61,10 +57,10 @@ export default class Account {
     if (!(await this.isInitialized())) return false
     if (await this.storage.isGlobalAccount()) return true
     ancestors = ancestors || await Tree.getIdPathFromLocalId(localId)
-    return !!~ancestors.indexOf(await this.storage.getLocalRoot())
+    return !!~ancestors.indexOf(this.getData().localRoot)
   }
   
-  renderOptions(ctl) {
+  renderOptions(ctl, rootPath) {
     let originalData = this.getData()
     
     var modifiedCtl = {
@@ -75,26 +71,32 @@ export default class Account {
       }
     }
     
-    return this.server.renderOptions(modifiedCtl) 
+    return this.server.renderOptions(modifiedCtl, rootPath) 
   }
 
   async init() {
     console.log('initializing account '+this.id)
-    let parentNode = await browser.bookmarks.getTree()
-    let bookmarksBar = parentNode[0].children[0]
-    let bookmark = await browser.bookmarks.create({
-      title: 'Nextcloud ('+this.getLabel()+')'
-    , parentId: bookmarksBar.id
-    })
-    await this.storage.setLocalRoot(bookmark.id)
+    const accData = this.getData()
+    try {
+      await browser.bookmarks.getSubTree(accData.localRoot)
+    } catch(e) {
+      let parentNode = await browser.bookmarks.getTree()
+      let bookmarksBar = parentNode[0].children[0]
+      let bookmark = await browser.bookmarks.create({
+        title: 'Nextcloud ('+this.getLabel()+')'
+      , parentId: bookmarksBar.id
+      })
+      accData.localRoot = bookmark.id
+      await this.setData(accData)
+    }
     await this.storage.initMappings()
     await this.storage.initCache()
-    this.tree = new Tree(bookmark.id, this.storage)
+    this.tree = new Tree(accData.localRoot, this.storage)
   }
 
   async isInitialized() {
     try {
-      let localRoot = await this.storage.getLocalRoot()
+      let localRoot = this.getData().localRoot
       if (localRoot === "-1" && await this.storage.isGlobalAccount()) {
         return true
       }
@@ -216,7 +218,7 @@ export default class Account {
     )
   }
 
-  static async getAccountsInfo() {
+  static async getAllAccounts() {
     const d = await browser.storage.local.get('accounts')
     var accounts = d['accounts']
     
@@ -225,38 +227,20 @@ export default class Account {
       .map(accountId => Account.get(accountId))
     )
 
-    // Get the global account
-    const globalAccId = await AccountStorage.getGlobalAccount()
-    var globalAcc
-
-    return {
-      accounts: await Promise.all(
-        accounts
-        .filter(account => {
-          if (globalAccId === account.id) {
-            globalAcc = account
-            return false
-          }
-          return true
-        })
-        .map(async account => {
-          return {account,localRoot: await account.getLocalRoot()}
-        })
-      )
-    , globalAccount: globalAcc
-    }
+    return accounts
   }
   
-  static async getAccountContainingLocalId(local, ancestors, accountsInfo) {
+  static async getAccountContainingLocalId(localId, ancestors, allAccounts) {
     ancestors = ancestors || await Tree.getIdPathFromLocalId(localId)
-    accountsInfo = accountsInfo || await this.getAccountsInfo() 
-    var account = accountsInfo.accounts
-    .map(({account, localRoot}) => ({account, index: ancestors.indexOf(localRoot)}))
+    allAccounts = allAccounts || await this.getAllAccounts() 
+    var account = allAccounts
+    .map((account) => ({account, index: ancestors.indexOf(account.getData().localRoot)}))
+    .filter((acc) => acc.index !== -1)
     .reduce((acc1, acc2) => {
       if (acc1.index > acc2.index) return acc1
       else return acc2
     }, {account: null, index: -1}).account
 
-    return account || accountsInfo.globalAccount
+    return account
   }
 }

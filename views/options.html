@@ -8,9 +8,19 @@
     font-size: .35cm !important;
     font-family: sans-serif;
   }
+
+  #app {
+    width: 500px;
+  }
+
   .account {
     border-bottom: 1px #08d solid;
     margin-bottom: 5px;
+    color: #444;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    color: #08d;
+    margin-bottom: .2cm;
   }
   .account table {
     border: none;
@@ -25,7 +35,8 @@
     text-align: right;
     color: #08d;
   }
-  .account input {
+  .account input[type="password"],
+  .account input[type="text"] {
     width: 90%;
     padding: .1cm;
     border: 1px #08d solid;
@@ -35,13 +46,22 @@
   }
   .account .status {
     display: inline-block;
-    margin: .1cm;
+    margin: .1cm .1cm .1cm 0;
     padding: .1cm;
     color: #08d;
   }
+  .account .options {
+    display: none;
+    margin: .2cm;
+    padding-left: .3cm;
+    border-left: 1px solid #08d;
+  }
+  .account .options.open {
+    display: block;
+  }
   .btn {
     display: inline-block;
-    margin: .1cm;
+    margin: .1cm .1cm .1cm 0;
     padding: .1cm;
     color: #08d;
     text-decoration: none;
@@ -63,11 +83,60 @@
   .btn#addaccount {
     width: 100%;
   }
+
+  #overlay {
+    position: absolute;
+    top:0; bottom:0; right:0; left:0;
+    background: rgba(130, 130, 130, .6);
+  }
+  #picker {
+    position: absolute;
+    top: .5cm;
+    right: .5cm;
+    bottom: .5cm;
+    left: .5cm;
+    padding: .1cm;
+    background: white;
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+  #picker .item {
+    padding: .1cm;
+  }
+  #picker .item .label {
+    color: #08d;
+    padding: .2cm;
+    cursor: pointer;
+    position: relative;
+  }
+  #picker .item .label .choose {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  #picker .item .label:hover .choose {
+    display: inline-block;
+    float: right;
+  }
+  #picker .item.folder.open > .label,
+  #picker .item .label:hover {
+    background: #08d;
+    color: white;
+    border-radius: .1cm;
+  }
+  #picker .item.folder .children {
+    display: none;
+  }
+  #picker .item.folder.open > .children {
+    display: block;
+    padding: .2cm 0 0 .2cm;
+    border-left: 1px #08d solid;
+  }
   </style>
 </head>
 <body>
-<div id="accounts"></div>
-<input type="button" class="btn" id="addaccount" value="Add account" />
+<div id="app"></div>
 <script src="../js/polyfill.js"></script>
 <script src="../../lib/chrome-promise.js"></script>
 <script src="../js/options.js"></script>

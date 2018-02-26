@@ -58,14 +58,6 @@ export default class AccountStorage {
       return accounts
     })
   }
-
-  getLocalRoot() {
-    return AccountStorage.getEntry(`bookmarks[${this.accountId}].localRoot`)
-  }
-  
-  setLocalRoot(localId) {
-    return browser.storage.local.set({[`bookmarks[${this.accountId}].localRoot`]: localId}) 
-  }
   
   initCache() {
     return browser.storage.local.set({[`bookmarks[${this.accountId}].cache`]: {} })

@@ -77,31 +77,39 @@ export default class Tree {
     var ancestors = await Tree.getIdPathFromLocalId(localId)
     
     const containingAccount = await Account.getAccountContainingLocalId(localId, ancestors) 
-    if (this.storage.accountId !== containingAccount.id) {
+    if (!containingAccount || this.storage.accountId !== containingAccount.id) {
       throw new Error('This Bookmark does not belong to the current account')
     }
+    return Tree.getPathFromLocalId(localId, ancestors, this.rootId)
+  }
+  
+  static async getPathFromLocalId(localId, ancestors, relativeToRoot) {
+    ancestors = ancestors || await Tree.getIdPathFromLocalId(localId)
     
-    if (this.root !== '-1') {
-      // Non-global account
-      ancestors = ancestors.slice(ancestors.indexOf(this.rootId)+1)
+    if (relativeToRoot) {
+      ancestors = ancestors.slice(ancestors.indexOf(relativeToRoot)+1)
     }
 
     return '/' + (await Promise.all(
       ancestors
       .map(async ancestor => { 
-        let bms = await browser.bookmarks.getSubTree(localId)
-        let bm = bms[0]
-        return encodeURIComponent(bm.title)
+        try {
+          let bms = await browser.bookmarks.getSubTree(ancestor)
+          let bm = bms[0]
+          return encodeURIComponent(bm.title)
+        }catch(e) {
+          return 'Error!'
+        }
       })
     )).join('/')
   }
 
   async mkdirpPath(path) {
-    const accountsInfo = await Account.getAccountsInfo()
-    return await Tree.mkdirpPath(path, this.rootId, accountsInfo)
+    const allAccounts = await Account.getAllAccounts()
+    return await Tree.mkdirpPath(path, this.rootId, allAccounts)
   }
 
-  static async mkdirpPath(path, rootId, accountsInfo) {
+  static async mkdirpPath(path, rootId, allAccounts) {
     let root = (await browser.bookmarks.getSubTree(rootId))[0]
     let pathSegment = path.split('/')[1]
     let nextPath = path.substr(('/'+pathSegment).length)
@@ -110,7 +118,7 @@ export default class Tree {
     if (!Array.isArray(root.children)) {
       throw new Error('given path root is not a folder')
     }
-    if (path == '/') {
+    if (path === '/' || path === "") {
       return root.id
     }
     let child
@@ -119,17 +127,17 @@ export default class Tree {
       .filter(bm => !!bm.children)
       [0]
     if (!child) child = await browser.bookmarks.create({parentId: rootId, title})
-    if (accountsInfo.accounts.some(acc => acc.localRoot === child.id)) {
+    if (allAccounts.some(acc => acc.getData().localRoot === child.id)) {
       throw new Error('New path conflicts with existing nested floccus folder. Aborting.')
     }
-    return await Tree.mkdirpPath(nextPath, child.id, accountsInfo)
+    return await Tree.mkdirpPath(nextPath, child.id, allAccounts)
   }
   
   async getAllNodes() {
     const tree = (await browser.bookmarks.getSubTree(this.rootId))[0]
-    const accountsInfo = await Account.getAccountsInfo()
+    const allAccounts = await Account.getAllAccounts()
     const recurse = (root) => {
-      if (accountsInfo.accounts.some(acc => acc.localRoot === root.id && root.id !== this.rootId)) {
+      if (allAccounts.some(acc => acc.getData().localRoot === root.id && root.id !== this.rootId)) {
         // This is the root folder of a different account
         // (the user has apparently nested them *facepalm* -- how nice of us to take care of that)
         return []
