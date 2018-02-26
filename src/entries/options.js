@@ -94,10 +94,10 @@ function renderAccounts(accounts) {
 }
 function renderPicker(cb, tree) {
   return <div id="overlay" ev-click={function(e) {
-    if (e.target !== this) return
+    if (e.target.id !== 'overlay') return
     state.view = 'accounts'
-    trigerRender()
-  }}><div id="picker">{tree.children.map(renderTree.bind(null, cb))}</div></div>
+    triggerRender()
+  }}><div id="picker">{tree.id? renderTree(cb, tree) : tree.children.map(renderTree.bind(null, cb))}</div></div>
 }
 function renderTree(cb, tree) {
   return !tree.children? '' :
@@ -109,7 +109,7 @@ function renderTree(cb, tree) {
         item.classList.remove('open')
       else
         item.classList.add('open')
-    }}>{tree.title}<span className="choose btn" ev-click={() => cb(tree.id)}>✓</span></div>
+    }}>{tree.title || <i>Untitled folder</i>}<span className="choose btn" ev-click={() => cb(tree.id)}>✓</span></div>
       { tree.children.filter(child => !!child.children).length?
         <div className="children">
             {tree.children.map(renderTree.bind(null, cb))}
