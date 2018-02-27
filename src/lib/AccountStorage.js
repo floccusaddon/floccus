@@ -22,22 +22,6 @@ export default class AccountStorage {
     })
   }
 
-  static async getGlobalAccount() {
-    const accounts = this.getEntry(`accounts`)
-    return Object.keys(accounts)
-    .filter(accountId => accounts[accountId].global)
-    [0]
-  }
-
-  async isGlobalAccount() {
-    return (await AccountStorage.getGlobalAccount()) === this.accountId
-  }
-  
-  async setGlobal(trueOrNotTrue) {
-    const acc = await this.getAccountData()
-    await this.setAccountData({...acc, global: trueOrNotTrue})
-  }
-  
   getAccountData() {
     return AccountStorage.getEntry(`accounts`).then((accounts) => {
       return accounts[this.accountId]
