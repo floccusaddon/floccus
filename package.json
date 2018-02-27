@@ -31,6 +31,7 @@
   "dependencies": {
     "babel-polyfill": "^6.20.0",
     "dom-delegator": "^13.1.0",
+    "humanize-duration": "^3.12.1",
     "virtual-dom": "^2.1.1"
   }
 }
