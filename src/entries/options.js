@@ -86,10 +86,10 @@ function renderAccounts(accounts) {
         }, account[$rootPath])
       })
     }</div>
-    <input type="button" className="btn" id="addaccount" value="Add account" ev-click={() => {
+    <a href="" className="btn" id="addaccount" ev-click={() => {
       Account.create({type: 'nextcloud', url: 'http://example.org', username: 'bob', password: 'password'})
       .then(() => triggerRender())
-    }} />
+    }}>Add account</a>
   </div>
 }
 function renderPicker(cb, tree) {

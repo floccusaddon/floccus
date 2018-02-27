@@ -50,7 +50,7 @@ export default class NextcloudAdapter {
             '↻ Syncing...' :
             (data.error?
               <span title={data.error}>✘ Error!</span> :
-              <span title={'Last synchronized: ' + (data.lastSync? humanizeDuration(Date.now() - data.lastSync, {largest: 1}) + ' ago' : 'never')}>✓ all good</span>
+              <span title={'Last synchronized: ' + (data.lastSync? humanizeDuration(Date.now() - data.lastSync, {largest: 1, round: true}) + ' ago' : 'never')}>✓ all good</span>
             )
         }</span>
         <a href="#" className="btn openOptions" ev-click={(e) => {
@@ -66,18 +66,14 @@ export default class NextcloudAdapter {
         <a href="#" className={'btn forceSync '+(data.syncing? 'disabled' : '')} ev-click={() => !data.syncing && ctl.sync()}>Sync now</a>
         <div className="options">
           <formgroup>
-            <h4>Sync options</h4>
-            <p>
-              <label>Synchronized folder:
-                <input type="text" disabled value={rootPath} />
-              </label><br/>
-              <a href="" title="Reset synchronized folder to create a new one" className={'btn resetRoot '+(data.syncing? 'disabled' : '')} ev-click={() => {
-                !data.syncing && ctl.update({...data, localRoot: null})
-              }}>Reset</a>
-              <a href="#" title="Set an existing folder to sync" className={'btn chooseRoot '+(data.syncing? 'disabled' : '')} ev-click={(e) => {
-                ctl.pickFolder()
-              }}>Choose folder</a>
-            </p>
+            <h4>Sync folder</h4>
+            <input type="text" disabled value={rootPath} /><br/>
+            <a href="" title="Reset synchronized folder to create a new one" className={'btn resetRoot '+(data.syncing? 'disabled' : '')} ev-click={() => {
+              !data.syncing && ctl.update({...data, localRoot: null})
+            }}>Reset</a>
+            <a href="#" title="Set an existing folder to sync" className={'btn chooseRoot '+(data.syncing? 'disabled' : '')} ev-click={(e) => {
+              ctl.pickFolder()
+            }}>Choose folder</a>
           </formgroup>
           <formgroup>
             <h4>Remove account</h4>

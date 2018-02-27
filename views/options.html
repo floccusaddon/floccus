@@ -5,7 +5,7 @@
   <title>Floccus options</title>
   <style>
   body {
-    font-size: .35cm !important;
+    font-size: .38cm !important;
     font-family: sans-serif;
   }
 
@@ -14,13 +14,13 @@
   }
 
   .account {
-    border-bottom: 1px #08d solid;
-    padding: .4cm;
+    border-bottom: 1px #3893cc solid;
+    padding: .4cm 0;
     margin-bottom: .4cm;
     color: #444;
   }
   h1, h2, h3, h4, h5, h6 {
-    color: #08d;
+    color: #3893cc;
     margin-bottom: .2cm;
   }
   .account table {
@@ -32,15 +32,15 @@
     width: auto;
   }
   .account td:first-child {
-    width: 4cm;
+    width: 4.5cm;
     text-align: right;
-    color: #08d;
+    color: #3893cc;
   }
   .account input[type="password"],
   .account input[type="text"] {
     width: 90%;
-    padding: .1cm;
-    border: 1px #08d solid;
+    font-size: .38cm !important;
+    border: 1px #3893cc solid;
     border-radius: .1cm;
     background: white;
     color: #444;
@@ -49,41 +49,44 @@
     display: inline-block;
     margin: .1cm .1cm .1cm 0;
     padding: .1cm;
-    color: #08d;
+    color: #3893cc;
   }
   .account .options {
     display: none;
     margin: .2cm;
     padding-left: .3cm;
-    border-left: 1px solid #08d;
+    border-left: 1px solid #3893cc;
   }
   .account .options.open {
     display: block;
   }
+  .account input[type="text"],
+  .account input[type="password"],
+  #picker .item .label,
+  .btn {
+    padding: .15cm;
+  }
   .btn {
     display: inline-block;
     margin: .1cm .1cm .1cm 0;
-    padding: .1cm;
-    color: #08d;
+    color: white;
     text-decoration: none;
-    background-color: white;
-    border-color: #08d;
-    border: 1px solid;
+    text-align: center;
+    background-color: #53a9df;
     border-radius: .1cm;
   }
   .btn.active,
   .btn:hover {
-    background-color: #08d;
+    background-color: #68b4e3;
     color: white;
   }
   .btn.disabled {
-    color: #666 !important;
-    border-color: #666;
-    background-color: white !important;
+    color: white !important;
+    background-color: #999 !important;
     cursor: default;
   }
   .btn#addaccount {
-    width: 100%;
+    width: 95%;
   }
 
   #overlay {
@@ -106,8 +109,7 @@
     padding: .1cm;
   }
   #picker .item .label {
-    color: #08d;
-    padding: .2cm;
+    color: #3893cc;
     cursor: pointer;
     position: relative;
   }
@@ -123,7 +125,7 @@
   }
   #picker .item.folder.open > .label,
   #picker .item .label:hover {
-    background: #08d;
+    background: #68b4e3;
     color: white;
     border-radius: .1cm;
   }
