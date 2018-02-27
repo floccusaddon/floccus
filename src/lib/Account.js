@@ -122,7 +122,7 @@ export default class Account {
       await this.sync_deleteFromTree(received)
       await this.sync_createOnServer()
 
-      await this.setData({...this.getData(), error: null, syncing: false})
+      await this.setData({...this.getData(), error: null, syncing: false, lastSync: Date.now()})
     } catch(e) {
       console.error('Syncing failed with', e)
       await this.setData({...this.getData(), error: e.message, syncing: false}) 

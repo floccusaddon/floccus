@@ -2,6 +2,7 @@
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
 import Bookmark from '../Bookmark'
+import humanizeDuration from 'humanize-duration'
 const {h} = require('virtual-dom')
 
 function el(el, props, ...children) {
@@ -49,17 +50,20 @@ export default class NextcloudAdapter {
             '↻ Syncing...' :
             (data.error?
               <span title={data.error}>✘ Error!</span> :
-                '✓ all good'
+              <span title={'Last synchronized: ' + (data.lastSync? humanizeDuration(Date.now() - data.lastSync, {largest: 1}) + ' ago' : 'never')}>✓ all good</span>
             )
         }</span>
         <a href="#" className="btn openOptions" ev-click={(e) => {
           var options = e.target.nextSibling.nextSibling
-          if (options.classList.contains('open'))
+          if (options.classList.contains('open')) {
+            e.target.classList.remove('active')
             options.classList.remove('open')
-          else
-            !data.syncing && options.classList.add('open')
+          }else if(!data.syncing) {
+            e.target.classList.add('active')
+            options.classList.add('open')
+          }
         }}>Options</a>
-        <a href="#" className={'btn forceSync '+(data.syncing? 'disabled' : '')} ev-click={() => !data.syncing && ctl.sync()}>force Sync</a>
+        <a href="#" className={'btn forceSync '+(data.syncing? 'disabled' : '')} ev-click={() => !data.syncing && ctl.sync()}>Sync now</a>
         <div className="options">
           <formgroup>
             <h4>Sync options</h4>
