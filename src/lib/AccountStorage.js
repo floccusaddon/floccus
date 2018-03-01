@@ -69,6 +69,8 @@ export default class AccountStorage {
     return browser.storage.local.set({[`bookmarks[${this.accountId}].mappings`]: {
         ServerToLocal: {}
       , LocalToServer: {}
+      , UrlToLocal: {}
+      , LocalToUrl: {}
       }})
   }
   
@@ -80,14 +82,18 @@ export default class AccountStorage {
     return AccountStorage.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
       delete mappings.ServerToLocal[mappings.LocalToServer[localId]]
       delete mappings.LocalToServer[localId]
+      delete mappings.UrlToLocal[mappings.LocalToUrl[localId]]
+      delete mappings.LocalToUrl[localId]
       return mappings
     })
   }
   
-  addToMappings(localId, remoteId) {
+  addToMappings(bookmark) {
     return AccountStorage.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
-      mappings.LocalToServer[localId] = remoteId
-      mappings.ServerToLocal[remoteId] = localId
+      mappings.LocalToServer[bookmark.localId] = bookmark.id
+      mappings.ServerToLocal[bookmark.id] = bookmark.localId
+      mappings.UrlToLocal[bookmark.url] = bookmark.localId
+      mappings.LocalToUrl[bookmark.localId] = bookmark.url
       return mappings
     })
   }

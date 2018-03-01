@@ -116,11 +116,15 @@ export default class Account {
       }
 
       // main sync steps:
-     
+      
+      // Deletes things we've known but that are no longer there locally
       await this.sync_deleteFromServer()
-      let received = await this.sync_update()
-      await this.sync_deleteFromTree(received)
+      // Server handles existing URLs that we think are new, client handles new URLs that are bookmarked twice locally
       await this.sync_createOnServer()
+      // Goes through server's list and updates creates things locally as needed 
+      let received = await this.sync_update()
+      // deletes everything locally that is not new but doesn't exist on the server anymore
+      await this.sync_deleteFromTree(received)
 
       await this.setData({...this.getData(), error: null, syncing: false, lastSync: Date.now()})
     } catch(e) {
@@ -146,9 +150,36 @@ export default class Account {
       })
     )
   }
+  
+  async sync_createOnServer() {
+    let mappings = await this.storage.getMappings()
+    // In the tree yet not in the mappings: SERVERCREATE
+    let nodes = await this.tree.getAllNodes()
+    await Promise.all(
+      nodes
+      .filter(node => !mappings.LocalToServer[node.id])
+      .map(async node => {
+        if (mappings.UrlToLocal[node.url]) {
+          console.error('The same URL is bookmarked twice locally:', node.url)
+          throw new Error('The same URL is bookmarked twice locally: "'+node.url+'". Delete one of the two.')
+        }
+        console.log('SERVERCREATE', node.id, node.url)
+        let serverMark = await this.server.createBookmark(await this.tree.getBookmarkByLocalId(node.id))
+        serverMark.localId = node.id
+        await this.storage.addToMappings(serverMark)
+        await this.storage.addToCache(node.id, await serverMark.hash())
+      })
+    )
+  }
 
   async sync_update() {
-    var [serverMarks, cache] = await Promise.all([this.server.pullBookmarks(), this.storage.getCache()])
+    var [
+      serverMarks
+    , cache
+    ] = await Promise.all([
+      this.server.pullBookmarks()
+    , this.storage.getCache()
+    ])
     var received = {}
     // Update known ones and create new ones
     for (var i=0; i < serverMarks.length; i++) {
@@ -158,8 +189,7 @@ export default class Account {
         received[serverMark.localId] = serverMark // .localId is only avaiable after Tree#getLocalIdOf(...)
 
         let localMark = await this.tree.getBookmarkByLocalId(serverMark.localId)
-        let treeHash = await localMark.hash()
-        let serverHash = await serverMark.hash()
+        let [treeHash, serverHash] = await Promise.all([localMark.hash(), serverMark.hash()])
         let cacheHash = cache[serverMark.localId]
         
         if (treeHash === serverHash) {
@@ -198,22 +228,6 @@ export default class Account {
           await this.tree.removeNode(await this.tree.getBookmarkByLocalId(localId))
           await this.storage.removeFromCache(localId)
         }
-      })
-    )
-  }
-
-  async sync_createOnServer() {
-    let mappings = await this.storage.getMappings()
-    // In the tree yet not in the mappings: SERVERCREATE
-    let nodes = await this.tree.getAllNodes()
-    await Promise.all(
-      nodes
-      .filter(node => !mappings.LocalToServer[node.id])
-      .map(async node => {
-        console.log('SERVERCREATE', node.id, node.url)
-        let serverMark = await this.server.createBookmark(await this.tree.getBookmarkByLocalId(node.id))
-        await this.storage.addToMappings(node.id, serverMark.id)
-        await this.storage.addToCache(node.id, await serverMark.hash())
       })
     )
   }

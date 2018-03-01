@@ -31,7 +31,8 @@ export default class Tree {
 
     const parentId = await this.mkdirpPath(bookmark.path)
 		const node = await browser.bookmarks.create({parentId, title: bookmark.title, url: bookmark.url})
-    await this.storage.addToMappings(node.id, bookmark.id)
+    bookmark.localId = node.id
+    await this.storage.addToMappings(bookmark)
     return node
   }
 
