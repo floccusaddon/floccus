@@ -58,7 +58,7 @@ export default class NextcloudAdapter {
           if (options.classList.contains('open')) {
             e.target.classList.remove('active')
             options.classList.remove('open')
-          }else if(!data.syncing) {
+          }else {
             e.target.classList.add('active')
             options.classList.add('open')
           }
