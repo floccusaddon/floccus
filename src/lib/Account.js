@@ -2,6 +2,9 @@ import AccountStorage from './AccountStorage'
 import Adapter from './Adapter'
 import Tree from './Tree'
 import browser from './browser-api'
+import ParallelArray from 'parallel-array'
+
+const BATCH_SIZE = 5
 
 export default class Account {
 
@@ -97,9 +100,6 @@ export default class Account {
   async isInitialized() {
     try {
       let localRoot = this.getData().localRoot
-      if (localRoot === "-1" && await this.storage.isGlobalAccount()) {
-        return true
-      }
       await browser.bookmarks.getSubTree(localRoot)
       return true
     }catch(e) {
@@ -136,40 +136,38 @@ export default class Account {
   async sync_deleteFromServer() {
     let mappings = await this.storage.getMappings()
     // In the mappings but not in the tree: SERVERDELETE
-    await Promise.all(
-      Object.keys(mappings.LocalToServer)
-      .map(async localId => {
-        try {
-          await this.tree.getBookmarkByLocalId(localId)
-        }catch(e) {
-          console.log('SERVERDELETE', localId, mappings.LocalToServer[localId])
-          await this.server.removeBookmark(mappings.LocalToServer[localId])
-          await this.storage.removeFromMappings(localId)
-          await this.storage.removeFromCache(localId)
-        }
-      })
-    )
+    await ParallelArray.from(Object.keys(mappings.LocalToServer))
+    .asyncForEach(async localId => {
+      try {
+        await this.tree.getBookmarkByLocalId(localId)
+      }catch(e) {
+        console.log('SERVERDELETE', localId, mappings.LocalToServer[localId])
+        await this.server.removeBookmark(mappings.LocalToServer[localId])
+        await this.storage.removeFromMappings(localId)
+        await this.storage.removeFromCache(localId)
+      }
+    }, BATCH_SIZE)
   }
   
   async sync_createOnServer() {
     let mappings = await this.storage.getMappings()
     // In the tree yet not in the mappings: SERVERCREATE
     let nodes = await this.tree.getAllNodes()
-    await Promise.all(
+    await ParallelArray.from(
       nodes
       .filter(node => !mappings.LocalToServer[node.id])
-      .map(async node => {
-        if (mappings.UrlToLocal[node.url]) {
-          console.error('The same URL is bookmarked twice locally:', node.url)
-          throw new Error('The same URL is bookmarked twice locally: "'+node.url+'". Delete one of the two.')
-        }
-        console.log('SERVERCREATE', node.id, node.url)
-        let serverMark = await this.server.createBookmark(await this.tree.getBookmarkByLocalId(node.id))
-        serverMark.localId = node.id
-        await this.storage.addToMappings(serverMark)
-        await this.storage.addToCache(node.id, await serverMark.hash())
-      })
     )
+    .asyncForEach(async node => {
+      if (mappings.UrlToLocal[node.url]) {
+        console.error('The same URL is bookmarked twice locally:', node.url)
+        throw new Error('The same URL is bookmarked twice locally: "'+node.url+'". Delete one of the two.')
+      }
+      console.log('SERVERCREATE', node.id, node.url)
+      let serverMark = await this.server.createBookmark(await this.tree.getBookmarkByLocalId(node.id))
+      serverMark.localId = node.id
+      await this.storage.addToMappings(serverMark)
+      await this.storage.addToCache(node.id, await serverMark.hash())
+    }, BATCH_SIZE)
   }
 
   async sync_update() {
@@ -182,8 +180,8 @@ export default class Account {
     ])
     var received = {}
     // Update known ones and create new ones
-    for (var i=0; i < serverMarks.length; i++) {
-      let serverMark = serverMarks[i]
+    await ParallelArray.from(serverMarks)
+    .asyncForEach(async serverMark => {
       if (await this.tree.getLocalIdOf(serverMark)) {
         // known to mappings: (LOCAL|SERVER)UPDATE
         received[serverMark.localId] = serverMark // .localId is only avaiable after Tree#getLocalIdOf(...)
@@ -193,7 +191,7 @@ export default class Account {
         let cacheHash = cache[serverMark.localId]
         
         if (treeHash === serverHash) {
-          continue
+          return
         }
         
         if (treeHash === cacheHash) {
@@ -213,23 +211,22 @@ export default class Account {
         await this.storage.addToCache(node.id, await serverMark.hash())
         received[node.id] = serverMark
       }
-    }
+    }, /*parallel batch size:*/1)
     return received
   }
 
   async sync_deleteFromTree(received) {
     let mappings = await this.storage.getMappings()
     // removed on the server: DELETE
-    await Promise.all(
-      // local bookmarks are only in the mappings if they have been added to the server successfully!
-      Object.keys(mappings.LocalToServer).map(async localId => {
-        if (!received[localId]) {
-          // If a bookmark was deleted on the server, we delete it as well
-          await this.tree.removeNode(await this.tree.getBookmarkByLocalId(localId))
-          await this.storage.removeFromCache(localId)
-        }
-      })
-    )
+    await ParallelArray.from(Object.keys(mappings.LocalToServer))
+    // local bookmarks are only in the mappings if they have been added to the server successfully, so we never delete new ones!
+    .asyncForEach(async localId => {
+      if (!received[localId]) {
+        // If a bookmark was deleted on the server, we delete it as well
+        await this.tree.removeNode(await this.tree.getBookmarkByLocalId(localId))
+        await this.storage.removeFromCache(localId)
+      }
+    }, BATCH_SIZE)
   }
 
   static async getAllAccounts() {
