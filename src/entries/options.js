@@ -27,7 +27,9 @@ function triggerRender() {
       .map(async (acc) => {
         const localRoot = acc.getData().localRoot
         try {
-          acc[$rootPath] = localRoot? decodeURIComponent(await Tree.getPathFromLocalId(localRoot)) : '*newly created*'
+          acc[$rootPath] = localRoot
+            ? decodeURIComponent(await Tree.getPathFromLocalId(localRoot))
+            : '*newly created*'
         } catch(e) {
           acc[$rootPath] = '*newly created*'
         }
