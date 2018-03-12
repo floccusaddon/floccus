@@ -89,7 +89,7 @@ export default class NextcloudAdapter {
   getData() {
     return JSON.parse(JSON.stringify(this.server))
   }
-  
+
   getLabel() {
     let data = this.getData()
     return data.username + '@' + data.url
@@ -116,7 +116,7 @@ export default class NextcloudAdapter {
         Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
       }
     })
-    
+
     if (response.status !== 200) {
       throw new Error('Failed to retrieve bookmarks from ownCloud')
     }
@@ -129,7 +129,7 @@ export default class NextcloudAdapter {
     // for every bm without a path tag, add one
     let bmsWithoutPath = json.data
     .filter(bm => bm.tags.every(tag => tag.indexOf(TAG_PREFIX) != 0))
-    
+
     for (var i=0; i < bmsWithoutPath.length; i++) {
       let bm = bmsWithoutPath[i]
       try {
@@ -151,7 +151,7 @@ export default class NextcloudAdapter {
     console.log('Received bookmarks from server', bookmarks)
     return bookmarks
   }
-  
+
   async getBookmark(id, autoupdate) {
     console.log('Fetching single bookmark', this.server)
     const getUrl = this.normalizeServerURL(this.server.url) + "index.php/apps/bookmarks/public/rest/v2/bookmark/"+id
@@ -160,7 +160,7 @@ export default class NextcloudAdapter {
         Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
       }
     })
-    
+
     if (response.status !== 200) {
       throw new Error('Failed to retrieve bookmark from ownCloud')
     }
@@ -178,10 +178,10 @@ export default class NextcloudAdapter {
         , path: NextcloudAdapter.getPathFromServerMark(bm)
       })
     }
-    
+
     let bookmark = new Bookmark(bm.id, null, bm.url, bm.title, NextcloudAdapter.getPathFromServerMark(bm))
     bookmark.tags = NextcloudAdapter.filterPathTagFromTags(bm.tags)
-    return bookmark  
+    return bookmark
   }
 
   async createBookmark(bm) {
@@ -197,9 +197,9 @@ export default class NextcloudAdapter {
         Authorization: 'Basic '+btoa(this.server.username+':'+this.server.password)
       }
     })
-      
+
     console.log(res)
-    
+
     if (res.status !== 200) {
       throw new Error('Signing into owncloud for creating a bookmark failed')
     }
@@ -210,7 +210,7 @@ export default class NextcloudAdapter {
     bm.id = json.item.id
     return bm
   }
-  
+
   async updateBookmark(remoteId, newBm) {
     let bm = await this.getBookmark(remoteId, false)
 
@@ -222,7 +222,7 @@ export default class NextcloudAdapter {
     .concat(NextcloudAdapter.filterPathTagFromTags(newBm.tags))
     .concat([NextcloudAdapter.convertPathToTag(newBm.path)])
     .forEach((tag) => body.append('item[tags][]', tag))
-    
+
     let updateUrl = this.normalizeServerURL(this.server.url)+'index.php/apps/bookmarks/public/rest/v2/bookmark/'+remoteId
     let putRes = await fetch(updateUrl, {
       method: 'PUT'
@@ -233,16 +233,16 @@ export default class NextcloudAdapter {
     })
 
     console.log(putRes)
-    
+
     if (putRes.status !== 200) {
       throw new Error('Signing into owncloud for updating a bookmark failed')
     }
-    
+
     let putJson = await putRes.json()
     if (putJson.status != 'success') {
       throw new Error('nextcloud API returned error')
     }
-    
+
     return new Bookmark(remoteId, null, putJson.item.url, putJson.item.title, NextcloudAdapter.getPathFromServerMark(putJson.item))
   }
 
@@ -256,12 +256,12 @@ export default class NextcloudAdapter {
     })
 
     console.log(res)
-    
+
     if (res.status !== 200) {
       throw new Error('Signing into owncloud for removing a bookmark failed')
     }
   }
-  
+
   static getPathFromServerMark(bm) {
     return this.convertTagToPath(this.getPathTagFromTags(bm.tags))
   }
@@ -281,7 +281,7 @@ export default class NextcloudAdapter {
   static convertPathToTag(path) {
     return TAG_PREFIX + path.split('/').join('>')
   }
-  
+
   static convertTagToPath(tag) {
     const old_prefix = '__floccus-path:'
     return tag.indexOf(old_prefix) === 0? tag.substr(old_prefix.length)
@@ -293,7 +293,7 @@ export default class NextcloudAdapter {
 
 class InputInitializeHook {
   constructor(initStr){this.initStr = initStr}
-  hook(node, propertyName, previousValue) { 
+  hook(node, propertyName, previousValue) {
     if ('undefined' != typeof previousValue) return
     node[propertyName] = this.initStr
   }

@@ -7,7 +7,7 @@ import Tree from '../lib/Tree'
 // Set up some things on first run
 
 browser.storage.local.get('notFirstRun')
-.then(d => { 
+.then(d => {
   if (d.notFirstRun) return
   browser.storage.local.set({notFirstRun: true})
   browser.storage.local.set({accounts: {}})
@@ -44,7 +44,7 @@ const onchange = async (localId, details) => {
   .filter((account, i) => (trackingAccountsFilter[i]))
   // Filter out any accounts that are presently syncing
   .filter(account => !syncing[account.id])
-  
+
   // We should now sync all accounts that are involved in this change (2 at max)
   accountsToSync.forEach((account) => {
     syncAccount(account.id)

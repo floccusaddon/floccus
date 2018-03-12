@@ -5,7 +5,7 @@ export default class AccountStorage {
   constructor(id) {
     this.accountId = id
   }
-  
+
   static changeEntry(entryName, fn) {
     return browser.storage.local.get(entryName)
     .then(d => {
@@ -27,7 +27,7 @@ export default class AccountStorage {
       return accounts[this.accountId]
     })
   }
-  
+
   setAccountData(data) {
     return AccountStorage.changeEntry(`accounts`, (accounts) => {
       accounts = accounts || {}
@@ -35,14 +35,14 @@ export default class AccountStorage {
       return accounts
     })
   }
-  
+
   deleteAccountData() {
     return AccountStorage.changeEntry(`accounts`, (accounts) => {
       delete accounts[this.accountId]
       return accounts
     })
   }
-  
+
   initCache() {
     return browser.storage.local.set({[`bookmarks[${this.accountId}].cache`]: {} })
   }
@@ -50,14 +50,14 @@ export default class AccountStorage {
   getCache() {
     return AccountStorage.getEntry(`bookmarks[${this.accountId}].cache`)
   }
-  
+
   removeFromCache(localId) {
     return AccountStorage.changeEntry(`bookmarks[${this.accountId}].cache`, (cache) => {
       delete cache[localId]
       return cache
     })
   }
-  
+
   addToCache(localId, hash) {
     return AccountStorage.changeEntry(`bookmarks[${this.accountId}].cache`, (cache) => {
       cache[localId] = hash
@@ -73,7 +73,7 @@ export default class AccountStorage {
       , LocalToUrl: {}
       }})
   }
-  
+
   getMappings() {
     return AccountStorage.getEntry(`bookmarks[${this.accountId}].mappings`)
   }
@@ -87,7 +87,7 @@ export default class AccountStorage {
       return mappings
     })
   }
-  
+
   addToMappings(bookmark) {
     return AccountStorage.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
       mappings.LocalToServer[bookmark.localId] = bookmark.id

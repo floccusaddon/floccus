@@ -17,7 +17,7 @@ export default class Tree {
     bookmark.localId = localId
     return localId
   }
-  
+
   async getIdFromLocalId(localId) {
     return (await this.storage.getMappings()).LocalToServer[localId]
   }
@@ -38,11 +38,11 @@ export default class Tree {
 
   async updateNode(bookmark) {
 		console.log('LOCALUPDATE', bookmark)
-    
+
     if (!(await this.getLocalIdOf(bookmark))) {
       throw new Error('trying to remove a node of a bookmark that has none')
     }
-		
+
     await browser.bookmarks.update(bookmark.localId, {
 			title: bookmark.title
 		, url: bookmark.url
@@ -53,7 +53,7 @@ export default class Tree {
 
   async removeNode(bookmark) {
 		console.log('DELETE', bookmark)
-    
+
     if (!(await this.getLocalIdOf(bookmark))) {
       throw new Error('trying to remove a node of a bookmark that has none')
     }
@@ -73,27 +73,27 @@ export default class Tree {
     }
     return new Bookmark(id, localId, node.url, node.title, path)
   }
-  
+
   async getPathFromLocalId(localId) {
     var ancestors = await Tree.getIdPathFromLocalId(localId)
-    
-    const containingAccount = await Account.getAccountContainingLocalId(localId, ancestors) 
+
+    const containingAccount = await Account.getAccountContainingLocalId(localId, ancestors)
     if (!containingAccount || this.storage.accountId !== containingAccount.id) {
       throw new Error('This Bookmark does not belong to the current account')
     }
     return Tree.getPathFromLocalId(localId, ancestors, this.rootId)
   }
-  
+
   static async getPathFromLocalId(localId, ancestors, relativeToRoot) {
     ancestors = ancestors || await Tree.getIdPathFromLocalId(localId)
-    
+
     if (relativeToRoot) {
       ancestors = ancestors.slice(ancestors.indexOf(relativeToRoot)+1)
     }
 
     return '/' + (await Promise.all(
       ancestors
-      .map(async ancestor => { 
+      .map(async ancestor => {
         try {
           let bms = await browser.bookmarks.getSubTree(ancestor)
           let bm = bms[0]
@@ -133,7 +133,7 @@ export default class Tree {
     }
     return await Tree.mkdirpPath(nextPath, child.id, allAccounts)
   }
-  
+
   async getAllNodes() {
     const tree = (await browser.bookmarks.getSubTree(this.rootId))[0]
     const allAccounts = await Account.getAllAccounts()

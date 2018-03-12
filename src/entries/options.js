@@ -19,7 +19,7 @@ function triggerRender() {
   rendering = (async () => {
     const d = await Promise.all([
       Account.getAllAccounts()
-    , browser.bookmarks.getTree() 
+    , browser.bookmarks.getTree()
     ])
 
     await Promise.all(
@@ -33,7 +33,7 @@ function triggerRender() {
         }
       })
     )
-    
+
     let newTree = render({accounts: d[0], tree: d[1][0]})
     let patches = diff(tree, newTree)
     rootNode = patch(rootNode, patches)

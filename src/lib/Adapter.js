@@ -24,15 +24,15 @@ export default class Adapter {
   getLabel() {
     throw new Error('Not implemented')
   }
-  
+
   renderOptions() {
     throw new Error('Not implemented')
   }
-  
+
   pullBookmarks() {
     throw new Error('Not implemented')
   }
-  
+
   getBookmark() {
     throw new Error('Not implemented')
   }
@@ -40,11 +40,11 @@ export default class Adapter {
   createBookmark() {
     throw new Error('Not implemented')
   }
-  
+
   updateBookmark() {
     throw new Error('Not implemented')
   }
-  
+
   removeBookmark() {
     throw new Error('Not implemented')
   }
