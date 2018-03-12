@@ -87,7 +87,8 @@
   }
   .btn#addaccount {
     width: 95%;
-    margin-left: .1cm;
+    margin: .4cm .3cm;
+    margin-top: .2cm;
   }
 
   #overlay {
@@ -129,6 +130,12 @@
     background: #68b4e3;
     color: white;
     border-radius: .1cm;
+  }
+  #picker .item:not(.open) > .label::before {
+    content: '➕ ';
+  }
+  #picker .item.open > .label::before {
+    content: '➖ ';
   }
   #picker .item.folder .children {
     display: none;
