@@ -15,16 +15,16 @@ export default class Account {
     let tree = new Tree(localRoot, storage)
     return new Account(id, storage, Adapter.factory(data), tree)
   }
-  
+
   static async create(data) {
     let id = Math.floor(Math.random()*10000000000)
     let storage = new AccountStorage(id)
-    
+
     await storage.setAccountData(data)
     let account = new Account(id, storage, Adapter.factory(data))
     return account
   }
-  
+
   constructor(id, storageAdapter, serverAdapter, treeAdapter) {
     this.server = serverAdapter
     this.id = id
@@ -41,9 +41,9 @@ export default class Account {
   }
 
   getData() {
-    return this.server.getData() 
+    return this.server.getData()
   }
-  
+
   async setData(data) {
     this.server = Adapter.factory(data)
     await this.storage.setAccountData(data)
@@ -55,17 +55,17 @@ export default class Account {
     return Object.keys(mappings.LocalToServer)
       .some(id => localId === id)
   }
-  
+
   async containsBookmark(localId, ancestors) {
     if (!(await this.isInitialized())) return false
     if (await this.storage.isGlobalAccount()) return true
     ancestors = ancestors || await Tree.getIdPathFromLocalId(localId)
     return !!~ancestors.indexOf(this.getData().localRoot)
   }
-  
+
   renderOptions(ctl, rootPath) {
     let originalData = this.getData()
-    
+
     var modifiedCtl = {
       ...ctl,
       update: (data) => {
@@ -73,8 +73,8 @@ export default class Account {
         ctl.update(data)
       }
     }
-    
-    return this.server.renderOptions(modifiedCtl, rootPath) 
+
+    return this.server.renderOptions(modifiedCtl, rootPath)
   }
 
   async init() {
@@ -107,7 +107,7 @@ export default class Account {
       return false
     }
   }
-  
+
   async sync() {
     try {
       await this.setData({...this.getData(), syncing: true})
@@ -116,12 +116,12 @@ export default class Account {
       }
 
       // main sync steps:
-      
+
       // Deletes things we've known but that are no longer there locally
       await this.sync_deleteFromServer()
       // Server handles existing URLs that we think are new, client handles new URLs that are bookmarked twice locally
       await this.sync_createOnServer()
-      // Goes through server's list and updates creates things locally as needed 
+      // Goes through server's list and updates creates things locally as needed
       let received = await this.sync_update()
       // deletes everything locally that is not new but doesn't exist on the server anymore
       await this.sync_deleteFromTree(received)
@@ -129,7 +129,7 @@ export default class Account {
       await this.setData({...this.getData(), error: null, syncing: false, lastSync: Date.now()})
     } catch(e) {
       console.error('Syncing failed with', e)
-      await this.setData({...this.getData(), error: e.message, syncing: false}) 
+      await this.setData({...this.getData(), error: e.message, syncing: false})
     }
   }
 
@@ -148,7 +148,7 @@ export default class Account {
       }
     }, BATCH_SIZE)
   }
-  
+
   async sync_createOnServer() {
     let mappings = await this.storage.getMappings()
     // In the tree yet not in the mappings: SERVERCREATE
@@ -189,11 +189,11 @@ export default class Account {
         let localMark = await this.tree.getBookmarkByLocalId(serverMark.localId)
         let [treeHash, serverHash] = await Promise.all([localMark.hash(), serverMark.hash()])
         let cacheHash = cache[serverMark.localId]
-        
+
         if (treeHash === serverHash) {
           return
         }
-        
+
         if (treeHash === cacheHash) {
           // LOCALUPDATE
           await this.tree.updateNode(serverMark)
@@ -225,6 +225,7 @@ export default class Account {
         // If a bookmark was deleted on the server, we delete it as well
         await this.tree.removeNode(await this.tree.getBookmarkByLocalId(localId))
         await this.storage.removeFromCache(localId)
+        await this.storage.removeFromMappings(localId)
       }
     }, BATCH_SIZE)
   }
@@ -232,7 +233,7 @@ export default class Account {
   static async getAllAccounts() {
     const d = await browser.storage.local.get('accounts')
     var accounts = d['accounts']
-    
+
     accounts = await Promise.all(
       Object.keys(accounts)
       .map(accountId => Account.get(accountId))
@@ -240,10 +241,10 @@ export default class Account {
 
     return accounts
   }
-  
+
   static async getAccountContainingLocalId(localId, ancestors, allAccounts) {
     ancestors = ancestors || await Tree.getIdPathFromLocalId(localId)
-    allAccounts = allAccounts || await this.getAllAccounts() 
+    allAccounts = allAccounts || await this.getAllAccounts()
     var account = allAccounts
     .map((account) => ({account, index: ancestors.indexOf(account.getData().localRoot)}))
     .filter((acc) => acc.index !== -1)
