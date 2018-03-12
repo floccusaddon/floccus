@@ -106,7 +106,7 @@ function renderTree(cb, tree) {
   <div className={'item ' + (tree.children? 'folder' : '')}>
     <div className="label" ev-click={(e) => {
       if (!tree.children.filter(child => !!child.children).length) return
-      var item = e.target.parentNode
+      var item = e.currentTarget.parentNode
       if (item.classList.contains('open'))
         item.classList.remove('open')
       else
