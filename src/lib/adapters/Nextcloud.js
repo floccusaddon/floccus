@@ -118,7 +118,7 @@ export default class NextcloudAdapter {
     })
 
     if (response.status !== 200) {
-      throw new Error('Failed to retrieve bookmarks from ownCloud')
+      throw new Error('Failed to retrieve bookmarks from server')
     }
 
     let json = await response.json()
@@ -162,7 +162,7 @@ export default class NextcloudAdapter {
     })
 
     if (response.status !== 200) {
-      throw new Error('Failed to retrieve bookmark from ownCloud')
+      throw new Error('Failed to retrieve bookmark from server: id=' + id)
     }
 
     let json = await response.json()
@@ -201,11 +201,11 @@ export default class NextcloudAdapter {
     console.log(res)
 
     if (res.status !== 200) {
-      throw new Error('Signing into owncloud for creating a bookmark failed')
+      throw new Error('Creating a bookmark on the server failed: '+ bm.url)
     }
     const json = await res.json()
     if (json.status != 'success') {
-      throw new Error('nextcloud API returned error')
+      throw new Error('Server API returned error')
     }
     bm.id = json.item.id
     return bm
@@ -235,7 +235,7 @@ export default class NextcloudAdapter {
     console.log(putRes)
 
     if (putRes.status !== 200) {
-      throw new Error('Signing into owncloud for updating a bookmark failed')
+      throw new Error('Updating a bookmark on the server failed: ' + newBm.url)
     }
 
     let putJson = await putRes.json()
@@ -258,7 +258,7 @@ export default class NextcloudAdapter {
     console.log(res)
 
     if (res.status !== 200) {
-      throw new Error('Signing into owncloud for removing a bookmark failed')
+      throw new Error('Removing a bookmark on the server failed. remoteId=' + remoteId)
     }
   }
 

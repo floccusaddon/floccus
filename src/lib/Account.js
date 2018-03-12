@@ -110,6 +110,7 @@ export default class Account {
 
   async sync() {
     try {
+      console.log('Starting sync process for account ' + this.getLabel())
       await this.setData({...this.getData(), syncing: true})
       if (!(await this.isInitialized())) {
         await this.init()
@@ -127,6 +128,7 @@ export default class Account {
       await this.sync_deleteFromTree(received)
 
       await this.setData({...this.getData(), error: null, syncing: false, lastSync: Date.now()})
+      console.log('Successfully ended sync process for account ' + this.getLabel())
     } catch(e) {
       console.error('Syncing failed with', e)
       await this.setData({...this.getData(), error: e.message, syncing: false})
