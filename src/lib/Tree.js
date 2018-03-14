@@ -49,12 +49,16 @@ export default class Tree {
       throw new Error('trying to remove a node of a bookmark that has none')
     }
 
+    const lastIdPath = await Tree.getIdPathFromLocalId(bookmark.localId)
+
     await browser.bookmarks.update(bookmark.localId, {
       title: bookmark.title
       , url: bookmark.url
     })
     const parentId = await this.mkdirpPath(bookmark.path)
     await browser.bookmarks.move(bookmark.localId, {parentId})
+
+    await Tree.removeOrphanedParents(lastIdPath)
   }
 
   async removeNode (bookmark) {
@@ -64,8 +68,12 @@ export default class Tree {
       throw new Error('trying to remove a node of a bookmark that has none')
     }
 
+    const idPath = await Tree.getIdPathFromLocalId(bookmark.localId)
+
     await browser.bookmarks.remove(bookmark.localId)
     await this.storage.removeFromMappings(bookmark.localId)
+
+    await Tree.removeOrphanedParents(idPath)
   }
 
   async getBookmarkByLocalId (localId) {
@@ -168,5 +176,17 @@ export default class Tree {
     let bms = await browser.bookmarks.getSubTree(localId)
     let bm = bms[0]
     return this.getIdPathFromLocalId(bm.parentId, path)
+  }
+
+  static async removeOrphanedParents (idPath) {
+    idPath.pop() // remove actual child
+    var i = idPath.length - 1
+    do {
+      var parentFolder = (await browser.bookmarks.getSubTree(idPath[i]))[0]
+      if (parentFolder.children && !parentFolder.children.length) {
+        await browser.bookmarks.remove(idPath[i])
+      }
+      i--
+    } while (i > 0 && parentFolder.children && !parentFolder.children.length)
   }
 }
