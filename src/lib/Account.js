@@ -204,7 +204,7 @@ export default class Account {
           // SERVERUPDATE
           console.log('SERVERUPDATE', localMark, serverMark)
           await this.server.updateBookmark(serverMark.id, localMark)
-          // await this.storage.addToCache(serverMark.localId, treeHash) // is already correct
+          await this.storage.addToCache(serverMark.localId, treeHash)
         }
       }else{
         // Not yet known:
