@@ -282,7 +282,7 @@ export default class NextcloudAdapter {
     return TAG_PREFIX + reverseStr(path)
       .split(/[/](?![\\])/)
       .reverse()
-      .map(str => reverseStr(str).replace('>', '\\>'))
+      .map(str => reverseStr(str).replace(/>/g, '\\>'))
       .join('>')
   }
 
@@ -291,7 +291,7 @@ export default class NextcloudAdapter {
     return reverseStr(tag.substr(TAG_PREFIX.length))
       .split(/>(?![\\])/)
       .reverse()
-      .map(str => reverseStr(str).replace('\\>', '>'))
+      .map(str => reverseStr(str).replace(/\\>/g, '>'))
       .join('/')
   }
 }

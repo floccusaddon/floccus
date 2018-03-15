@@ -111,7 +111,7 @@ export default class Tree {
           try {
             let bms = await browser.bookmarks.getSubTree(ancestor)
             let bm = bms[0]
-            return bm.title.replace('/', '\\/')
+            return bm.title.replace(/[/]/g, '\\/')
           } catch (e) {
             return 'Error!'
           }
@@ -131,7 +131,7 @@ export default class Tree {
       .reverse()
       .map(str => reverseStr(str))
     let pathSegment = pathArr[1]
-    let title = pathSegment.replace('\\/', '/')
+    let title = pathSegment.replace(/[\\][/]/g, '/')
 
     if (!Array.isArray(root.children)) {
       throw new Error('given path root is not a folder')
