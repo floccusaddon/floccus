@@ -1,6 +1,6 @@
 /* @jsx el */
-function el(el, props, ...children) {
-return h(el, props, children);
+function el (el, props, ...children) {
+  return h(el, props, children)
 };
 import browser from '../lib/browser-api'
 import Account from '../lib/Account'
@@ -14,26 +14,26 @@ var tree = h('div#app')
   , rootNode = document.querySelector('#app')
   , rendering = false
 
-function triggerRender() {
+function triggerRender () {
   if (rendering) return rendering.then(triggerRender)
   rendering = (async () => {
     const d = await Promise.all([
       Account.getAllAccounts()
-    , browser.bookmarks.getTree()
+      , browser.bookmarks.getTree()
     ])
 
     await Promise.all(
       d[0]
-      .map(async (acc) => {
-        const localRoot = acc.getData().localRoot
-        try {
-          acc[$rootPath] = localRoot
-            ? decodeURIComponent(await Tree.getPathFromLocalId(localRoot))
-            : '*newly created*'
-        } catch(e) {
-          acc[$rootPath] = '*newly created*'
-        }
-      })
+        .map(async (acc) => {
+          const localRoot = acc.getData().localRoot
+          try {
+            acc[$rootPath] = localRoot
+              ? decodeURIComponent(await Tree.getPathFromLocalId(localRoot))
+              : '*newly created*'
+          } catch (e) {
+            acc[$rootPath] = '*newly created*'
+          }
+        })
     )
 
     let newTree = render({accounts: d[0], tree: d[1][0]})
@@ -46,21 +46,21 @@ function triggerRender() {
 
 var state = {
   view: 'accounts'
-, pickerOpenedFor: null
+  , pickerOpenedFor: null
 }
-function render(data) {
+function render (data) {
   return <div id="app">{[
     renderAccounts(data.accounts)
-  , state.view === 'picker'? renderPicker((nodeId) => {
+    , state.view === 'picker' ? renderPicker((nodeId) => {
       var account = data.accounts.filter((a) => a.id === state.pickerOpenedFor)[0]
       state.view = 'accounts'
       account.setData({...(account.getData()), localRoot: nodeId})
-      .then(() => account.init())
-      .then(triggerRender)
+        .then(() => account.init())
+        .then(triggerRender)
     }, data.tree) : ''
   ]}</div>
 }
-function renderAccounts(accounts) {
+function renderAccounts (accounts) {
   return <div>
     <div id="accounts">{
       accounts.map(account => {
@@ -68,19 +68,19 @@ function renderAccounts(accounts) {
           delete: () => {
             account.delete().then(() => triggerRender())
           }
-        , sync: () => {
+          , sync: () => {
             browser.runtime.getBackgroundPage()
-            .then((background) => {
-              background.syncAccount(account.id)
-              triggerRender()
-            })
-            .then(() => triggerRender())
+              .then((background) => {
+                background.syncAccount(account.id)
+                triggerRender()
+              })
+              .then(() => triggerRender())
           }
-        , update: (data) => {
+          , update: (data) => {
             account.setData(data)
-            .then(() => triggerRender())
+              .then(() => triggerRender())
           }
-        , pickFolder: () => {
+          , pickFolder: () => {
             state.view = 'picker'
             state.pickerOpenedFor = account.id
             triggerRender()
@@ -90,34 +90,34 @@ function renderAccounts(accounts) {
     }</div>
     <a href="" className="btn" id="addaccount" ev-click={() => {
       Account.create({type: 'nextcloud', url: 'http://example.org', username: 'bob', password: 'password'})
-      .then(() => triggerRender())
+        .then(() => triggerRender())
     }}>Add account</a>
   </div>
 }
-function renderPicker(cb, tree) {
-  return <div id="overlay" ev-click={function(e) {
+function renderPicker (cb, tree) {
+  return <div id="overlay" ev-click={function (e) {
     if (e.target.id !== 'overlay') return
     state.view = 'accounts'
     triggerRender()
-  }}><div id="picker">{tree.id? renderTree(cb, tree) : tree.children.map(renderTree.bind(null, cb))}</div></div>
+  }}><div id="picker">{tree.id ? renderTree(cb, tree) : tree.children.map(renderTree.bind(null, cb))}</div></div>
 }
-function renderTree(cb, tree) {
-  return !tree.children? '' :
-  <div className={'item ' + (tree.children? 'folder' : '')}>
-    <div className="label" ev-click={(e) => {
-      if (!tree.children.filter(child => !!child.children).length) return
-      var item = e.currentTarget.parentNode
-      if (item.classList.contains('open'))
-        item.classList.remove('open')
-      else
-        item.classList.add('open')
-    }}>{tree.title || <i>Untitled folder</i>}<span className="choose btn" ev-click={() => cb(tree.id)}>✓</span></div>
-      { tree.children.filter(child => !!child.children).length?
-        <div className="children">
-            {tree.children.map(renderTree.bind(null, cb))}
+function renderTree (cb, tree) {
+  return !tree.children ? ''
+    : <div className={'item ' + (tree.children ? 'folder' : '')}>
+      <div className="label" ev-click={(e) => {
+        if (!tree.children.filter(child => !!child.children).length) return
+        var item = e.currentTarget.parentNode
+        if (item.classList.contains('open'))
+          item.classList.remove('open')
+        else
+          item.classList.add('open')
+      }}>{tree.title || <i>Untitled folder</i>}<span className="choose btn" ev-click={() => cb(tree.id)}>✓</span></div>
+      { tree.children.filter(child => !!child.children).length
+        ? <div className="children">
+          {tree.children.map(renderTree.bind(null, cb))}
         </div>
-      : ''}
-  </div>
+        : ''}
+    </div>
 }
 
 triggerRender()

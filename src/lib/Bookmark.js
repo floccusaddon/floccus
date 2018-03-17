@@ -8,7 +8,7 @@ export default class Bookmark {
   }
 
   async hash () {
-    return await Bookmark.sha256(JSON.stringify({
+    return Bookmark.sha256(JSON.stringify({
       url: this.url
       , title: this.title
       , path: this.path

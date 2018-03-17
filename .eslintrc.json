@@ -7,7 +7,10 @@
         }
     },
     "env": {
-      "browser": true
+      "browser": true,
+      "es6": true,
+      "webextensions": true,
+      "commonjs": true
     },
     "rules": {
         "arrow-spacing": ["error", { "before": true, "after": true }],
