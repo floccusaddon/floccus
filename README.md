@@ -33,7 +33,7 @@ You can setup multiple nextcloud accounts and select a bookmark folder for each 
 If you want to sync all bookmarks in your browser you need to select the topmost untitled folder in the folder picker.
 If something goes wrong during the sync process the floccus icon will sport a red exclamation mark. In the options pane you can then hover over the status text to get more information about the error.
 
-#### Limitations
+### Limitations
  * Note that currently you cannot sync the same folder with multiple accounts in order to avoid data corruption. If you sync the root folder with one account and sync a sub folder with a different account, that sub-folder will not be synced with the account connected to the root folder anymore.
  * Floccus yields an error if you attempt to sync a folder with duplicate bookmarks (two or more bookmarks of the same URL). Remove one of the bookmarks for floccus to resume normal functionality.
 
