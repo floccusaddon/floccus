@@ -1,6 +1,6 @@
 {
   "name": "floccus",
-  "version": "1.3.4",
+  "version": "2.0.0",
   "description": "The goal of this project is to build a browser extension that syncs your browser data with [OwnCloud](http://owncloud.org).",
   "main": "index.js",
   "scripts": {
@@ -31,6 +31,8 @@
   "dependencies": {
     "babel-polyfill": "^6.20.0",
     "dom-delegator": "^13.1.0",
+    "humanize-duration": "^3.12.1",
+    "parallel-array": "^1.1.0",
     "virtual-dom": "^2.1.1"
   }
 }

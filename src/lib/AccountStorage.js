@@ -1,79 +1,98 @@
 import browser from './browser-api'
 
 export default class AccountStorage {
-
-  constructor(id) {
+  constructor (id) {
     this.accountId = id
   }
-  
-  changeEntry(entryName, fn) {
+
+  static changeEntry (entryName, fn) {
     return browser.storage.local.get(entryName)
-    .then(d => {
-      var entry = d[entryName]
-      entry = fn(entry)
-      return browser.storage.local.set({[entryName]: entry})
-    })
+      .then(d => {
+        var entry = d[entryName]
+        entry = fn(entry)
+        return browser.storage.local.set({[entryName]: entry})
+      })
   }
 
-  getEntry(entryName) {
+  static getEntry (entryName) {
     return browser.storage.local.get(entryName)
-    .then(d => {
-      return d[entryName]
-    })
+      .then(d => {
+        return d[entryName]
+      })
   }
-  
-  getAccountData() {
-    return this.getEntry(`accounts`).then((accounts) => {
+
+  getAccountData () {
+    return AccountStorage.getEntry(`accounts`).then((accounts) => {
       return accounts[this.accountId]
     })
   }
-  
-  setAccountData(data) {
-    return this.changeEntry(`accounts`, (accounts) => {
+
+  setAccountData (data) {
+    return AccountStorage.changeEntry(`accounts`, (accounts) => {
       accounts = accounts || {}
       accounts[this.accountId] = data
       return accounts
     })
   }
-  
-  deleteAccountData() {
-    return this.changeEntry(`accounts`, (accounts) => {
+
+  deleteAccountData () {
+    return AccountStorage.changeEntry(`accounts`, (accounts) => {
       delete accounts[this.accountId]
       return accounts
     })
   }
 
-  getLocalRoot() {
-    return this.getEntry(`bookmarks[${this.accountId}].localRoot`)
-  }
-  
-  setLocalRoot(localId) {
-    return browser.storage.local.set({[`bookmarks[${this.accountId}].localRoot`]: localId}) 
+  initCache () {
+    return browser.storage.local.set({[`bookmarks[${this.accountId}].cache`]: {} })
   }
 
-  initMappings() {
+  getCache () {
+    return AccountStorage.getEntry(`bookmarks[${this.accountId}].cache`)
+  }
+
+  removeFromCache (localId) {
+    return AccountStorage.changeEntry(`bookmarks[${this.accountId}].cache`, (cache) => {
+      delete cache[localId]
+      return cache
+    })
+  }
+
+  addToCache (localId, hash) {
+    return AccountStorage.changeEntry(`bookmarks[${this.accountId}].cache`, (cache) => {
+      cache[localId] = hash
+      return cache
+    })
+  }
+
+  initMappings () {
     return browser.storage.local.set({[`bookmarks[${this.accountId}].mappings`]: {
-        ServerToLocal: {}
+      ServerToLocal: {}
       , LocalToServer: {}
-      }})
-  }
-  
-  getMappings() {
-    return this.getEntry(`bookmarks[${this.accountId}].mappings`)
+      , UrlToLocal: {}
+      , LocalToUrl: {}
+    }})
   }
 
-  removeFromMappings(localId) {
-    return this.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
+  getMappings () {
+    return AccountStorage.getEntry(`bookmarks[${this.accountId}].mappings`)
+  }
+
+  removeFromMappings (localId) {
+    return AccountStorage.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
       delete mappings.ServerToLocal[mappings.LocalToServer[localId]]
       delete mappings.LocalToServer[localId]
+      delete mappings.UrlToLocal[mappings.LocalToUrl[localId]]
+      delete mappings.LocalToUrl[localId]
       return mappings
     })
   }
-  
-  addToMappings(localId, remoteId) {
-    return this.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
-      mappings.LocalToServer[localId] = remoteId
-      mappings.ServerToLocal[remoteId] = localId
+
+  addToMappings (bookmark) {
+    return AccountStorage.changeEntry(`bookmarks[${this.accountId}].mappings`, (mappings) => {
+      mappings.LocalToServer[bookmark.localId] = bookmark.id
+      mappings.ServerToLocal[bookmark.id] = bookmark.localId
+      mappings.UrlToLocal[bookmark.url] = bookmark.localId
+      mappings.LocalToUrl[bookmark.localId] = bookmark.url
       return mappings
     })
   }
