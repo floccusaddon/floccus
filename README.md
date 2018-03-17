@@ -34,8 +34,8 @@ If you want to sync all bookmarks in your browser you need to select the topmost
 If something goes wrong during the sync process the floccus icon will sport a red exclamation mark. In the options pane you can then hover over the status text to get more information about the error.
 
 #### Limitations
-Note that currently you cannot sync the same folder with multiple accounts in order to avoid data corruption. If you sync the root folder with one account and sync a sub folder with a different account, that sub-folder will not be synced with the account connected to the root folder anymore.
-Floccus yields an error if you attempt to sync a folder with duplicate bookmarks (two or more bookmarks of the same URL). Remove one of the bookmarks for floccus to resume normal functionality.
+ * Note that currently you cannot sync the same folder with multiple accounts in order to avoid data corruption. If you sync the root folder with one account and sync a sub folder with a different account, that sub-folder will not be synced with the account connected to the root folder anymore.
+ * Floccus yields an error if you attempt to sync a folder with duplicate bookmarks (two or more bookmarks of the same URL). Remove one of the bookmarks for floccus to resume normal functionality.
 
 ## What's with the name?
 [Cirrus floccus](https://en.wikipedia.org/wiki/Cirrus_floccus) is a type of cloud, that <del>can sync your browser data</del> looks very nice.
@@ -62,5 +62,5 @@ All contributions, code, feedback and strategic advice, are welcome. If you have
 Firefox expects a zip, for chrome do the following: https://developer.chrome.com/extensions/packaging (private key necessary!)
 
 ## License
-(c) Marcel Klehr
+(c) Marcel Klehr  
 MPL-2.0 (see LICENSE.txt)
