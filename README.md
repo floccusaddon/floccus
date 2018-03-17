@@ -27,7 +27,7 @@ You can [install it via AMO](https://addons.mozilla.org/en-US/firefox/addon/floc
 ### Firefox for Android
 Floccus is not supported by Firefox for Android, [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility).
 
-### Usage
+## Usage
 After installation the options pane will pop up allowing you to create accounts and edit their settings. You will be able to access this pane at all times by clicking the floccus icon in the browser tool bar.
 You can setup multiple nextcloud accounts and select a bookmark folder for each that should be synced with that account. Floccus will keep the bookmarks in sync with your nextcloud whenever you add or change them and will also sync periodically to pull the latest changes from the server.
 If you want to sync all bookmarks in your browser you need to select the topmost untitled folder in the folder picker.
