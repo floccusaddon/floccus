@@ -48,7 +48,7 @@ class Controller {
 
     // Set up the alarms
 
-    browser.alarms.create('syncAllAccounts', {periodInMinutes: 25})
+    browser.alarms.create('syncAllAccounts', {periodInMinutes: 15})
     browser.alarms.onAlarm.addListener(alarm => {
       this.alarms[alarm.name]()
     })
