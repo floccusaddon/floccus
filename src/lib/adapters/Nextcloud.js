@@ -185,6 +185,9 @@ export default class NextcloudAdapter {
   }
 
   async createBookmark (bm) {
+    if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
+      return false
+    }
     let body = new FormData()
     body.append('url', bm.url)
     body.append('title', bm.title)
@@ -212,6 +215,10 @@ export default class NextcloudAdapter {
   }
 
   async updateBookmark (remoteId, newBm) {
+    if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(newBm.url).protocol)) {
+      return false
+    }
+
     let bm = await this.getBookmark(remoteId, false)
 
     let body = new URLSearchParams()

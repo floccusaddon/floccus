@@ -165,6 +165,10 @@ export default class Account {
         }
         console.log('SERVERCREATE', node.id, node.url)
         let serverMark = await this.server.createBookmark(await this.tree.getBookmarkByLocalId(node.id))
+        if (!serverMark) {
+          // ignore this bookmark as it's not supported by the server
+          return
+        }
         serverMark.localId = node.id
         await this.storage.addToMappings(serverMark)
         await this.storage.addToCache(node.id, await serverMark.hash())
@@ -202,7 +206,15 @@ export default class Account {
           } else {
           // SERVERUPDATE
             console.log('SERVERUPDATE', localMark, serverMark)
-            await this.server.updateBookmark(serverMark.id, localMark)
+            let couldHandle = await this.server.updateBookmark(serverMark.id, localMark)
+            if (!couldHandle) {
+              // if the protocol is not supported updateBookmark returns false
+              // and we ignore it
+              await this.server.removeBookmark(localMark.id)
+              await this.storage.removeFromMappings(localMark.localId)
+              await this.storage.removeFromCache(localMark.localId)
+              return
+            }
             await this.storage.addToCache(serverMark.localId, treeHash)
           }
         } else {
