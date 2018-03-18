@@ -20,7 +20,7 @@ Not in the web store [yet](https://github.com/marcelklehr/floccus/issues/51).
 You can still install it by [downloading the Chrome package from the latest release](https://github.com/marcelklehr/floccus/releases/) and dropping it into Chrome's extension page.
 
 #### Updating from 1.x to v2.0
-It is recommended to remove all your accounts before updating floccus and reconnecting them again, in order to prevent unforeseen problems!
+It is recommended to remove all of your bookmarks from your accounts before updating floccus, deleting them and after updating to reconnect them again, in order to prevent unforeseen problems!
 
 ### Firefox
 You can [install it via AMO](https://addons.mozilla.org/en-US/firefox/addon/floccus/).
@@ -28,7 +28,7 @@ You can [install it via AMO](https://addons.mozilla.org/en-US/firefox/addon/floc
 (Note that AMO has to review all new releases, though, so you might need to wait a bit before you can install the latest release on firefox.)
 
 #### Updating from 1.x to v2.0
-It is recommended to remove all your accounts before updating floccus and reconnecting them again, in order to prevent unforeseen problems! 
+It is recommended to remove all of your bookmarks from your accounts before updating floccus, deleting them and after updating to reconnect them again, in order to prevent unforeseen problems!
 
 ### Firefox for Android
 Floccus is not supported by Firefox for Android, [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility).
