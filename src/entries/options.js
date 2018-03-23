@@ -92,6 +92,7 @@ function renderAccounts (accounts) {
       Account.create({type: 'nextcloud', url: 'http://example.org', username: 'bob', password: 'password'})
         .then(() => triggerRender())
     }}>Add account</a>
+    <div><a className="btn" href="./test.html">run tests</a></div>
   </div>
 }
 function renderPicker (cb, tree) {

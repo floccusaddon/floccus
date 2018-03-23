@@ -86,6 +86,10 @@ export default class NextcloudAdapter {
     </div>
   }
 
+  setData(data) {
+    this.server = data
+  }
+
   getData () {
     return JSON.parse(JSON.stringify(this.server))
   }

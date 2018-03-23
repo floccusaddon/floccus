@@ -1,4 +1,5 @@
 import NextcloudAdapter from './adapters/Nextcloud'
+import FakeAdapter from './adapters/Fake'
 
 export default class Adapter {
   static factory (data) {
@@ -6,6 +7,9 @@ export default class Adapter {
     switch (data.type) {
       case 'nextcloud':
         adapter = new NextcloudAdapter(data)
+        break
+      case 'fake':
+        adapter = new FakeAdapter(data)
         break
       default:
         throw new Error('Unknown account type')
@@ -15,6 +19,10 @@ export default class Adapter {
 
   constructor () {
     throw new Error('Cannot instantiate abstract class')
+  }
+
+  setData () {
+    throw new Error('Not implemented')
   }
 
   getData () {

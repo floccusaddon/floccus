@@ -16,7 +16,7 @@ export default class Account {
   }
 
   static async create (data) {
-    let id = Math.floor(Math.random() * 10000000000)
+    let id = '' + Math.floor(Math.random() * 10000000000)
     let storage = new AccountStorage(id)
 
     await storage.setAccountData(data)
@@ -44,7 +44,7 @@ export default class Account {
   }
 
   async setData (data) {
-    this.server = Adapter.factory(data)
+    this.server.setData(data)
     await this.storage.setAccountData(data)
   }
 
