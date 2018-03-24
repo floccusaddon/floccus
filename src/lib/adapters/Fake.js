@@ -50,7 +50,7 @@ export default class FakeAdapter {
 
     const highestId = Array.from(this.db.keys()).reduce((highestId, bm) => {
       return highestId < bm.id ? bm.id : highestId
-    }, -1)
+    }, 0)
     bm.id = highestId + 1
     this.db.set(bm.id, {
       id: bm.id
