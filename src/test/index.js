@@ -170,7 +170,25 @@ describe('Floccus', function () {
       await account.sync() // propage update
       expect(await account.tree.getAllNodes()).to.have.lengthOf(0)
       const tree = (await browser.bookmarks.getSubTree(localRoot))[0]
-      expect(tree.children).to.have.lengthOf(0)
+      expect(tree.children).to.have.lengthOf(0) // should remove orphaned folders
+    })
+    it('should be ok if both server and local bookmark are removed', async function () {
+      console.log(this.test.title)
+      var adapter = account.server
+      expect(await adapter.pullBookmarks()).to.have.lengthOf(0)
+      const serverMark = await adapter.createBookmark({title: 'url', url: 'http://ur.l/', path: '/foo/bar'})
+      expect(await adapter.pullBookmarks()).to.have.lengthOf(1)
+
+      await account.sync() // propage creation
+      expect(await account.tree.getAllNodes()).to.have.lengthOf(1)
+
+      await adapter.removeBookmark(serverMark.id)
+      await browser.bookmarks.remove((await account.tree.getAllNodes())[0].id)
+      await account.sync() // propage update
+
+      expect(account.getData().error).to.not.be.ok
+      expect(await account.tree.getAllNodes()).to.have.lengthOf(0)
+      expect(await adapter.pullBookmarks()).to.be.empty
     })
   })
 })
