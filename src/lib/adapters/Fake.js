@@ -77,7 +77,6 @@ export default class FakeAdapter {
   }
 
   async removeBookmark (remoteId) {
-    await this.getBookmark(remoteId, false)
     this.db.delete(remoteId)
   }
 }
