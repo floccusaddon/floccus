@@ -73,7 +73,7 @@ export default class Tree {
     await browser.bookmarks.remove(bookmark.localId)
     await this.storage.removeFromMappings(bookmark.localId)
 
-    await Tree.removeOrphanedParents(idPath)
+    await Tree.removeOrphanedParents(idPath, this.rootId)
   }
 
   async getBookmarkByLocalId (localId) {
@@ -178,15 +178,19 @@ export default class Tree {
     return this.getIdPathFromLocalId(bm.parentId, path)
   }
 
-  static async removeOrphanedParents (idPath) {
+  static async removeOrphanedParents (idPath, rootId) {
     idPath.pop() // remove actual child
     var i = idPath.length - 1
+      , removed = false
     do {
       var parentFolder = (await browser.bookmarks.getSubTree(idPath[i]))[0]
-      if (parentFolder.children && !parentFolder.children.length) {
+      if (parentFolder.id !== rootId && parentFolder.children && !parentFolder.children.length) {
         await browser.bookmarks.remove(idPath[i])
+        removed = true
+      } else {
+        removed = false
       }
       i--
-    } while (i > 0 && parentFolder.children && !parentFolder.children.length)
+    } while (i > 0 && removed)
   }
 }
