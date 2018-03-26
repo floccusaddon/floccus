@@ -1,3 +1,8 @@
+## v2.0.1
+ - FIX: Don't remove folders beyond the sync folder when the last bookmark is remove
+ - FIX: Declare incompatibility with Fx < v57
+ - FIX: Improve error reporting
+
 ## v2.0.0
  - NEW: Sync folder hierarchy
  - NEW: Allow custom folders to be chosen for syncing

@@ -54,9 +54,17 @@ class Controller {
     })
 
     window.syncAccount = (accountId) => this.syncAccount(accountId)
+    this.setEnabled(true)
+  }
+
+  setEnabled(enabled) {
+    this.enabled = enabled
   }
 
   async onchange (localId, details) {
+    if (!this.enabled) {
+      return
+    }
     const allAccounts = await Account.getAllAccounts()
 
     // Check which accounts contain the bookmark and which used to contain (track) it
@@ -94,6 +102,9 @@ class Controller {
   }
 
   syncAccount (accountId) {
+    if (!this.enabled) {
+      return
+    }
     if (this.syncing[accountId]) {
       return this.syncing[accountId].then(() => {
         return this.syncAccount(accountId)
@@ -148,4 +159,4 @@ class Controller {
   }
 }
 
-var controller = new Controller()
+window.controller = new Controller()
