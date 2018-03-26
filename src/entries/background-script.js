@@ -12,7 +12,7 @@ const STATUS_ALLGOOD = Symbol('allgood')
 
 browser.storage.local.get('notFirstRun')
   .then(d => {
-    //if (d.notFirstRun) return
+    if (d.notFirstRun) return
     browser.storage.local.set({notFirstRun: true})
     browser.storage.local.set({accounts: {}})
     browser.runtime.openOptionsPage()
