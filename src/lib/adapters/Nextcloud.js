@@ -49,12 +49,12 @@ export default class NextcloudAdapter {
               data.syncing === true
                 ? '↻ Syncing...'
                 : (data.error
-                  ? <span title={data.error}>✘ Error!</span>
-                  : <span title={'Last synchronized: ' + (data.lastSync ? humanizeDuration(Date.now() - data.lastSync, {largest: 1, round: true}) + ' ago' : 'never')}>✓ all good</span>
+                  ? <span>✘ Error!</span>
+                  : <span>✓ all good</span>
                 )
             }</span>
             <a href="#" className="btn openOptions" ev-click={(e) => {
-              var options = e.target.nextSibling.nextSibling
+              var options = e.target.parentNode.querySelector('.options')
               if (options.classList.contains('open')) {
                 e.target.classList.remove('active')
                 options.classList.remove('open')
@@ -64,6 +64,9 @@ export default class NextcloudAdapter {
               }
             }}>Options</a>
             <a href="#" className={'btn forceSync ' + (data.syncing ? 'disabled' : '')} ev-click={() => !data.syncing && ctl.sync()}>Sync now</a>
+            <div className="status-details">{data.error
+              ? data.error
+              : 'Last synchronized: ' + (data.lastSync ? humanizeDuration(Date.now() - data.lastSync, {largest: 1, round: true}) + ' ago' : 'never')}</div>
             <div className="options">
               <formgroup>
                 <h4>Sync folder</h4>
@@ -115,12 +118,20 @@ export default class NextcloudAdapter {
   async pullBookmarks () {
     console.log('Fetching bookmarks', this.server)
     const getUrl = this.normalizeServerURL(this.server.url) + 'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
-    let response = await fetch(getUrl, {
-      headers: {
-        Authorization: 'Basic ' + btoa(this.server.username + ':' + this.server.password)
-      }
-    })
+    var response
+    try {
+      response = await fetch(getUrl, {
+        headers: {
+          Authorization: 'Basic ' + btoa(this.server.username + ':' + this.server.password)
+        }
+      })
+    } catch (e) {
+      throw new Error('Network error: Check your network connection and your account details')
+    }
 
+    if (response.status === 401) {
+      throw new Error('Couldn\'t authenticate for removing bookmarks from the server.')
+    }
     if (response.status !== 200) {
       throw new Error('Failed to retrieve bookmarks from server')
     }
@@ -159,12 +170,20 @@ export default class NextcloudAdapter {
   async getBookmark (id, autoupdate) {
     console.log('Fetching single bookmark', this.server)
     const getUrl = this.normalizeServerURL(this.server.url) + 'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id
-    let response = await fetch(getUrl, {
-      headers: {
-        Authorization: 'Basic ' + btoa(this.server.username + ':' + this.server.password)
-      }
-    })
+    var response
+    try {
+      response = await fetch(getUrl, {
+        headers: {
+          Authorization: 'Basic ' + btoa(this.server.username + ':' + this.server.password)
+        }
+      })
+    } catch (e) {
+      throw new Error('Network error: Check your network connection and your account details')
+    }
 
+    if (response.status === 401) {
+      throw new Error('Couldn\'t authenticate for retrieving a bookmark from the server.')
+    }
     if (response.status !== 200) {
       throw new Error('Failed to retrieve bookmark from server: id=' + id)
     }
@@ -197,16 +216,24 @@ export default class NextcloudAdapter {
     body.append('title', bm.title)
     body.append('item[tags][]', NextcloudAdapter.convertPathToTag(bm.path))
     const createUrl = this.normalizeServerURL(this.server.url) + 'index.php/apps/bookmarks/public/rest/v2/bookmark'
-    const res = await fetch(createUrl, {
-      method: 'POST'
-      , body
-      , headers: {
-        Authorization: 'Basic ' + btoa(this.server.username + ':' + this.server.password)
-      }
-    })
+    var res
+    try {
+      res = await fetch(createUrl, {
+        method: 'POST'
+        , body
+        , headers: {
+          Authorization: 'Basic ' + btoa(this.server.username + ':' + this.server.password)
+        }
+      })
+    } catch (e) {
+      throw new Error('Network error: Check your network connection and your account details')
+    }
 
     console.log(res)
 
+    if (res.status === 401) {
+      throw new Error('Couldn\'t authenticate for creating a bookmark on the server.')
+    }
     if (res.status !== 200) {
       throw new Error('Creating a bookmark on the server failed: ' + bm.url)
     }
@@ -235,16 +262,24 @@ export default class NextcloudAdapter {
       .forEach((tag) => body.append('item[tags][]', tag))
 
     let updateUrl = this.normalizeServerURL(this.server.url) + 'index.php/apps/bookmarks/public/rest/v2/bookmark/' + remoteId
-    let putRes = await fetch(updateUrl, {
-      method: 'PUT'
-      , body
-      , headers: {
-        Authorization: 'Basic ' + btoa(this.server.username + ':' + this.server.password)
-      }
-    })
+    var putRes
+    try {
+      putRes = await fetch(updateUrl, {
+        method: 'PUT'
+        , body
+        , headers: {
+          Authorization: 'Basic ' + btoa(this.server.username + ':' + this.server.password)
+        }
+      })
+    } catch (e) {
+      throw new Error('Network error: Check your network connection and your account details')
+    }
 
     console.log(putRes)
 
+    if (putRes.status === 401) {
+      throw new Error('Couldn\'t authenticate for updating a bookmark on the server.')
+    }
     if (putRes.status !== 200) {
       throw new Error('Updating a bookmark on the server failed: ' + newBm.url)
     }
@@ -259,15 +294,23 @@ export default class NextcloudAdapter {
 
   async removeBookmark (remoteId) {
     const delUrl = this.normalizeServerURL(this.server.url) + 'index.php/apps/bookmarks/public/rest/v2/bookmark/' + remoteId
-    let res = await fetch(delUrl, {
-      method: 'DELETE'
-      , headers: {
-        Authorization: 'Basic ' + btoa(this.server.username + ':' + this.server.password)
-      }
-    })
+    var res
+    try {
+      res = await fetch(delUrl, {
+        method: 'DELETE'
+        , headers: {
+          Authorization: 'Basic ' + btoa(this.server.username + ':' + this.server.password)
+        }
+      })
+    } catch (e) {
+      throw new Error('Network error: Check your network connection and your account details')
+    }
 
     console.log(res)
 
+    if (res.status === 401) {
+      throw new Error('Couldn\'t authenticate for removing a bookmark on the server.')
+    }
     if (res.status !== 200) {
       throw new Error('Removing a bookmark on the server failed. remoteId=' + remoteId)
     }
