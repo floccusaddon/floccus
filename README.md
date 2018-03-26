@@ -55,7 +55,7 @@ The goals of this piece of software
  * (eventual) consistency is more important than intention preservation (i.e. when ever a mistake happens during sync, it's guaranteed to be eventually consistent on all sites)
 
 
-### Limitations
+### Current status and Limitations
 The WebExtensions bookmarks API has a few limitations:
 
 1. No support for batching or transactions
@@ -67,12 +67,12 @@ The WebExtensions bookmarks API has a few limitations:
 
 Nonetheless, I've chosen to utilize the WebExtensions API for implementing this sync client. As I'm aware, this decision has (at least) the following consequences:
 1. No transaction support (\#1) leads to bad performance
-2. No support for transactions (\#1) also can potentially cause intermediate states to be synced. However, all necessary precautions are taken to prevent this and even in the case that this happens, all sites will be eventually consistent, allowing you to resolve the problem.
-3. Due to the modification of GUIDs (\#2), usage of Firefox Sync along with floccus is discouraged.
+2. No support for transactions (\#1) also can potentially cause intermediate states to be synced. However, all necessary precautions are taken to prevent this and even in the case that this happens, all sites will be eventually consistent, allowing you to manually resolve possible problems after the fact.
+3. Due to the modification of GUIDs (\#2), usage of Firefox Sync along with Floccus is discouraged.
 4. The incomplete data format (\#3) is an open problem, but doesn't impact the synchronization of the remaining accessible data.
-5. The inability to exclude folders from sync in 3rd-party extensions (\#4) is a problem, but manageable when users are able to manually choose folders to ignore.
-6. The lack of safe write operations (\#5) can be dealt with similarly to the missing transaction support.
-7. In order to avoid syncing prematurely (\#6) floccus can employ a timeout to wait until all pending bookmarks operations are done.
+5. The inability to exclude folders from sync in 3rd-party extensions (\#4) is a problem, but manageable when users are able to manually choose folders to ignore. (Currently not implemented)
+6. The lack of safe write operations (\#5) can be dealt with similarly to the missing transaction support: Changes made during sync could lead to an unintended but consistent state, which can be resolved manually. Additionally, precautions are taken to prevent this.
+7. In order to avoid syncing prematurely (\#6) floccus can employ a timeout to wait until all pending bookmarks operations are done. (Currently not implemented.)
 
 ## What's with the name?
 [Cirrus floccus](https://en.wikipedia.org/wiki/Cirrus_floccus) is a type of cloud, that <del>can sync your browser data</del> looks very nice.
