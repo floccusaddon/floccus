@@ -156,7 +156,7 @@ export default class Account {
     let nodes = await this.tree.getAllNodes()
     await ParallelArray.from(
       nodes
-        .filter(node => !mappings.LocalToServer[node.id])
+        .filter(node => typeof mappings.LocalToServer[node.id] === 'undefined')
     )
       .asyncForEach(async node => {
         if (mappings.UrlToLocal[node.url]) {
@@ -179,15 +179,17 @@ export default class Account {
     var [
       serverMarks
       , cache
+      , mappings
     ] = await Promise.all([
       this.server.pullBookmarks()
       , this.storage.getCache()
+      , this.storage.getMappings() // For detecting duplicates
     ])
     var received = {}
     // Update known ones and create new ones
     await ParallelArray.from(serverMarks)
       .asyncForEach(async serverMark => {
-        if (await this.tree.getLocalIdOf(serverMark)) {
+        if (typeof (await this.tree.getLocalIdOf(serverMark)) !== 'undefined') {
         // known to mappings: (LOCAL|SERVER)UPDATE
           received[serverMark.localId] = serverMark // .localId is only avaiable after Tree#getLocalIdOf(...)
 
@@ -220,6 +222,10 @@ export default class Account {
         } else {
         // Not yet known:
         // CREATE
+          if (mappings.UrlToLocal[serverMark.url]) {
+            console.error('Trying to create a URL that is already bookmarked. This shouldn\'t happen! Please tell the developer about this! url=' + serverMark.url)
+            throw new Error('Trying to create a URL that is already bookmarked. This shouldn\'t happen! Please tell the developer about this! url=' + serverMark.url)
+          }
           const node = await this.tree.createNode(serverMark)
           await this.storage.addToCache(node.id, await serverMark.hash())
           received[node.id] = serverMark
