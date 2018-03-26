@@ -89,7 +89,7 @@ export default class NextcloudAdapter {
     </div>
   }
 
-  setData(data) {
+  setData (data) {
     this.server = data
   }
 
