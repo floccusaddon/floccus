@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Floccus (nextcloud Sync)",
   "short_name": "Floccus",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Sync your browser with nextcloud (currently only bookmarks; more to come)",
   "icons": {
     "48": "icons/logo.png"
