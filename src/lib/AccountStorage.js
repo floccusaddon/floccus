@@ -5,13 +5,27 @@ export default class AccountStorage {
     this.accountId = id
   }
 
-  static changeEntry (entryName, fn) {
-    return browser.storage.local.get(entryName)
-      .then(d => {
-        var entry = d[entryName]
-        entry = fn(entry)
-        return browser.storage.local.set({[entryName]: entry})
-      })
+  static async getAsyncLock (entryName) {
+    if (!this.synchronized) {
+      this.synchronized = {}
+    }
+    if (this.synchronized[entryName]) {
+      await this.synchronized[entryName]
+    }
+    var releaseLock
+    this.synchronized[entryName] = new Promise((r) => (releaseLock = r))
+    return releaseLock
+  }
+
+  static async changeEntry (entryName, fn) {
+    const release = await this.getAsyncLock(entryName)
+
+    const d = await browser.storage.local.get(entryName)
+    var entry = d[entryName]
+    entry = fn(entry)
+    await browser.storage.local.set({[entryName]: entry})
+
+    release()
   }
 
   static getEntry (entryName) {
