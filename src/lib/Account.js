@@ -55,13 +55,6 @@ export default class Account {
       .some(id => localId === id)
   }
 
-  async containsBookmark (localId, ancestors) {
-    if (!(await this.isInitialized())) return false
-    if (await this.storage.isGlobalAccount()) return true
-    ancestors = ancestors || await Tree.getIdPathFromLocalId(localId)
-    return !!~ancestors.indexOf(this.getData().localRoot)
-  }
-
   renderOptions (ctl, rootPath) {
     let originalData = this.getData()
 
@@ -84,11 +77,11 @@ export default class Account {
     } catch (e) {
       let parentNode = await browser.bookmarks.getTree()
       let bookmarksBar = parentNode[0].children[0]
-      let bookmark = await browser.bookmarks.create({
+      let node = await browser.bookmarks.create({
         title: 'Nextcloud (' + this.getLabel() + ')'
         , parentId: bookmarksBar.id
       })
-      accData.localRoot = bookmark.id
+      accData.localRoot = node.id
       await this.setData(accData)
     }
     await this.storage.initMappings()
@@ -117,14 +110,17 @@ export default class Account {
 
       // main sync steps:
 
+      let mappings = await this.storage.getMappings()
       // Deletes things we've known but that are no longer there locally
-      await this.sync_deleteFromServer()
+      await this.sync_deleteFromServer(mappings)
       // Server handles existing URLs that we think are new, client handles new URLs that are bookmarked twice locally
-      await this.sync_createOnServer()
-      // Goes through server's list and updates creates things locally as needed
-      let received = await this.sync_update()
+      await this.sync_createOnServer(mappings)
+
+      let serverList = await this.server.pullBookmarks()
       // deletes everything locally that is not new but doesn't exist on the server anymore
-      await this.sync_deleteFromTree(received)
+      await this.sync_deleteFromTree(serverList)
+      // Goes through server's list and updates creates things locally as needed
+      await this.sync_update(serverList)
 
       await this.setData({...this.getData(), error: null, syncing: false, lastSync: Date.now()})
       console.log('Successfully ended sync process for account ' + this.getLabel())
@@ -134,8 +130,7 @@ export default class Account {
     }
   }
 
-  async sync_deleteFromServer () {
-    let mappings = await this.storage.getMappings()
+  async sync_deleteFromServer (mappings) {
     // In the mappings but not in the tree: SERVERDELETE
     await ParallelArray.from(Object.keys(mappings.LocalToServer))
       .asyncForEach(async localId => {
@@ -150,8 +145,7 @@ export default class Account {
       }, BATCH_SIZE)
   }
 
-  async sync_createOnServer () {
-    let mappings = await this.storage.getMappings()
+  async sync_createOnServer (mappings) {
     // In the tree yet not in the mappings: SERVERCREATE
     let nodes = await this.tree.getAllNodes()
     await ParallelArray.from(
@@ -175,24 +169,40 @@ export default class Account {
       }, BATCH_SIZE)
   }
 
-  async sync_update () {
+  async sync_deleteFromTree (serverList) {
+    const received = {}
+    serverList.forEach((bm) => (received[bm.id] = true))
+
+    const mappings = await this.storage.getMappings()
+
+    // removed on the server: DELETE
+    await ParallelArray.from(Object.keys(mappings.ServerToLocal))
+    // local bookmarks are only in the mappings if they have been added to the server successfully, so we never delete new ones!
+      .asyncForEach(async id => {
+        if (!received[id]) {
+        // If a bookmark was deleted on the server, we delete it as well
+          let localId = mappings.ServerToLocal[id]
+          await this.tree.removeNode(await this.tree.getBookmarkByLocalId(localId))
+          await this.storage.removeFromCache(localId)
+          await this.storage.removeFromMappings(localId)
+        }
+      }, /* parallel batch size: */1)
+  }
+
+  async sync_update (serverMarks) {
     var [
-      serverMarks
-      , cache
+      cache
       , mappings
     ] = await Promise.all([
-      this.server.pullBookmarks()
-      , this.storage.getCache()
+      this.storage.getCache()
       , this.storage.getMappings() // For detecting duplicates
     ])
-    var received = {}
     // Update known ones and create new ones
     await ParallelArray.from(serverMarks)
       .asyncForEach(async serverMark => {
-        if (typeof (await this.tree.getLocalIdOf(serverMark)) !== 'undefined') {
+        serverMark.localId = mappings.ServerToLocal[serverMark.id]
+        if (serverMark.localId) {
         // known to mappings: (LOCAL|SERVER)UPDATE
-          received[serverMark.localId] = serverMark // .localId is only avaiable after Tree#getLocalIdOf(...)
-
           let localMark = await this.tree.getBookmarkByLocalId(serverMark.localId)
           let [treeHash, serverHash] = await Promise.all([localMark.hash(), serverMark.hash()])
           let cacheHash = cache[serverMark.localId]
@@ -228,25 +238,8 @@ export default class Account {
           }
           const node = await this.tree.createNode(serverMark)
           await this.storage.addToCache(node.id, await serverMark.hash())
-          received[node.id] = serverMark
         }
       }, /* parallel batch size: */1)
-    return received
-  }
-
-  async sync_deleteFromTree (received) {
-    let mappings = await this.storage.getMappings()
-    // removed on the server: DELETE
-    await ParallelArray.from(Object.keys(mappings.LocalToServer))
-    // local bookmarks are only in the mappings if they have been added to the server successfully, so we never delete new ones!
-      .asyncForEach(async localId => {
-        if (!received[localId]) {
-        // If a bookmark was deleted on the server, we delete it as well
-          await this.tree.removeNode(await this.tree.getBookmarkByLocalId(localId))
-          await this.storage.removeFromCache(localId)
-          await this.storage.removeFromMappings(localId)
-        }
-      }, BATCH_SIZE)
   }
 
   static async getAllAccounts () {
