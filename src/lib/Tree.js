@@ -126,6 +126,13 @@ export default class Tree {
 
   static async mkdirpPath (path, rootId, allAccounts) {
     let root = (await browser.bookmarks.getSubTree(rootId))[0]
+    if (!Array.isArray(root.children)) {
+      throw new Error('given path root is not a folder')
+    }
+    if (path === '/' || path === '') {
+      return root.id
+    }
+
     let pathArr = reverseStr(path)
       .split(/[/](?![\\])/)
       .reverse()
@@ -133,12 +140,6 @@ export default class Tree {
     let pathSegment = pathArr[1]
     let title = pathSegment.replace(/[\\][/]/g, '/')
 
-    if (!Array.isArray(root.children)) {
-      throw new Error('given path root is not a folder')
-    }
-    if (path === '/' || path === '') {
-      return root.id
-    }
     let child
     child = root.children
       .filter(bm => bm.title === title)
