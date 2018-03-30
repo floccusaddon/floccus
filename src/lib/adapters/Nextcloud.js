@@ -3,7 +3,8 @@
 // All owncloud specifc stuff goes in here
 import Bookmark from '../Bookmark'
 import humanizeDuration from 'humanize-duration'
-import ParallelArray from 'parallel-array'
+const Parallel = require('async-parallel')
+
 const {h} = require('virtual-dom')
 
 function el (el, props, ...children) {
@@ -146,8 +147,8 @@ export default class NextcloudAdapter {
     let bmsWithoutPath = json.data
       .filter(bm => bm.tags.every(tag => tag.indexOf(TAG_PREFIX) !== 0))
 
-    await ParallelArray.from(bmsWithoutPath)
-      .asyncForEach(async (bm) => {
+    await Parallel.each(bmsWithoutPath,
+      async (bm) => {
         try {
           await this.updateBookmark(bm.id, {
             ...bm
@@ -156,7 +157,9 @@ export default class NextcloudAdapter {
         } catch (e) {
           console.log(e)
         }
-      }, 5)
+      },
+      /* parallel: */ 5
+    )
 
     let bookmarks = json.data
       .map(bm => {

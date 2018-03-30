@@ -2,7 +2,7 @@ import AccountStorage from './AccountStorage'
 import Adapter from './Adapter'
 import Tree from './Tree'
 import browser from './browser-api'
-import ParallelArray from 'parallel-array'
+const Parallel = require('async-parallel')
 
 const BATCH_SIZE = 5
 
@@ -132,8 +132,8 @@ export default class Account {
 
   async sync_deleteFromServer (mappings) {
     // In the mappings but not in the tree: SERVERDELETE
-    await ParallelArray.from(Object.keys(mappings.LocalToServer))
-      .asyncForEach(async localId => {
+    await Parallel.each(Object.keys(mappings.LocalToServer),
+      async localId => {
         try {
           await this.tree.getBookmarkByLocalId(localId)
         } catch (e) {
@@ -142,17 +142,17 @@ export default class Account {
           await this.storage.removeFromMappings(localId)
           await this.storage.removeFromCache(localId)
         }
-      }, BATCH_SIZE)
+      },
+      BATCH_SIZE
+    )
   }
 
   async sync_createOnServer (mappings) {
     // In the tree yet not in the mappings: SERVERCREATE
     let nodes = await this.tree.getAllNodes()
-    await ParallelArray.from(
-      nodes
-        .filter(node => typeof mappings.LocalToServer[node.id] === 'undefined')
-    )
-      .asyncForEach(async node => {
+    await Parallel.each(
+      nodes.filter(node => typeof mappings.LocalToServer[node.id] === 'undefined'),
+      async node => {
         if (mappings.UrlToLocal[node.url]) {
           console.error('The same URL is bookmarked twice locally:', node.url)
           throw new Error('The same URL is bookmarked twice locally: "' + node.url + '". Delete one of the two.')
@@ -166,7 +166,9 @@ export default class Account {
         serverMark.localId = node.id
         await this.storage.addToMappings(serverMark)
         await this.storage.addToCache(node.id, await serverMark.hash())
-      }, BATCH_SIZE)
+      },
+      BATCH_SIZE
+    )
   }
 
   async sync_deleteFromTree (serverList) {
@@ -176,9 +178,9 @@ export default class Account {
     const mappings = await this.storage.getMappings()
 
     // removed on the server: DELETE
-    await ParallelArray.from(Object.keys(mappings.ServerToLocal))
+    await Parallel.each(Object.keys(mappings.ServerToLocal),
     // local bookmarks are only in the mappings if they have been added to the server successfully, so we never delete new ones!
-      .asyncForEach(async id => {
+      async id => {
         if (!received[id]) {
         // If a bookmark was deleted on the server, we delete it as well
           let localId = mappings.ServerToLocal[id]
@@ -198,8 +200,8 @@ export default class Account {
       , this.storage.getMappings() // For detecting duplicates
     ])
     // Update known ones and create new ones
-    await ParallelArray.from(serverMarks)
-      .asyncForEach(async serverMark => {
+    await Parallel.each(serverMarks,
+      async serverMark => {
         serverMark.localId = mappings.ServerToLocal[serverMark.id]
         if (serverMark.localId) {
         // known to mappings: (LOCAL|SERVER)UPDATE
@@ -239,7 +241,9 @@ export default class Account {
           const node = await this.tree.createNode(serverMark)
           await this.storage.addToCache(node.id, await serverMark.hash())
         }
-      }, /* parallel batch size: */1)
+      },
+      /* parallel batch size: */1
+    )
   }
 
   static async getAllAccounts () {
