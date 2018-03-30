@@ -1,3 +1,10 @@
+## v2.0.2
+ - FIX: Add write lock for account storage
+ - FIX: Refactor sync process to avoid creating duplicates
+ - FIX: mkdirpPath: Fix break condition
+ - FIX: Speed up initial tag population
+ - FIX: Use more stable parallel execution helper tool
+
 ## v2.0.1
  - FIX: Don't remove folders beyond the sync folder when the last bookmark is remove
  - FIX: Declare incompatibility with Fx < v57
