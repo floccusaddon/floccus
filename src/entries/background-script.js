@@ -7,17 +7,6 @@ const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')
 const STATUS_ALLGOOD = Symbol('allgood')
 
-// FIRST RUN
-// Set up some things on first run
-
-browser.storage.local.get('notFirstRun')
-  .then(d => {
-    if (d.notFirstRun) return
-    browser.storage.local.set({notFirstRun: true})
-    browser.storage.local.set({accounts: {}})
-    browser.runtime.openOptionsPage()
-  })
-
 class AlarmManger {
   constructor (ctl) {
     this.ctl = ctl
@@ -55,10 +44,20 @@ class Controller {
 
     window.syncAccount = (accountId) => this.syncAccount(accountId)
     this.setEnabled(true)
+
+    browser.storage.local.get('notFirstRun')
+    .then((d) => d.notFirstRun || this.firstRun())
+    .catch(() => this.firstRun())
   }
 
-  setEnabled(enabled) {
+  setEnabled (enabled) {
     this.enabled = enabled
+  }
+
+  firstRun () {
+    browser.storage.local.set({notFirstRun: true})
+    browser.storage.local.set({accounts: {}})
+    browser.runtime.openOptionsPage()
   }
 
   async onchange (localId, details) {
