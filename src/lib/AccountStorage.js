@@ -20,7 +20,7 @@ export default class AccountStorage {
   static async changeEntry (entryName, fn) {
     const release = await this.getAsyncLock(entryName)
 
-    const d = await browser.storage.local.get(entryName)
+    const d = await browser.storage.local.get({[entryName]: {}}) // default: {}
     var entry = d[entryName]
     entry = fn(entry)
     await browser.storage.local.set({[entryName]: entry})
@@ -29,7 +29,7 @@ export default class AccountStorage {
   }
 
   static getEntry (entryName) {
-    return browser.storage.local.get(entryName)
+    return browser.storage.local.get({[entryName]: {}}) // default: {}
       .then(d => {
         return d[entryName]
       })
