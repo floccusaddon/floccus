@@ -125,8 +125,15 @@ export default class Account {
       await this.setData({...this.getData(), error: null, syncing: false, lastSync: Date.now()})
       console.log('Successfully ended sync process for account ' + this.getLabel())
     } catch (e) {
-      console.error('Syncing failed with', e)
-      await this.setData({...this.getData(), error: e.message, syncing: false})
+      if (e.list) {
+        var combinedMessage = e.list.map(e => e.message, console.log(e)).join('\n')
+        console.error('Syncing failed with', combinedMessage)
+        await this.setData({...this.getData(), error: combinedMessage, syncing: false})
+      } else {
+        console.log(e)
+        console.error('Syncing failed with', e)
+        await this.setData({...this.getData(), error: e.message, syncing: false})
+      }
     }
   }
 
