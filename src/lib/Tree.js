@@ -176,6 +176,9 @@ export default class Tree {
     path.unshift(localId)
     let bms = await browser.bookmarks.getSubTree(localId)
     let bm = bms[0]
+    if (bm.parentId === localId) {
+      return path // might be that the root is circular
+    }
     return this.getIdPathFromLocalId(bm.parentId, path)
   }
 
