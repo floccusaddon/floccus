@@ -9,12 +9,18 @@ export default class AccountStorage {
     if (!this.synchronized) {
       this.synchronized = {}
     }
-    if (this.synchronized[entryName]) {
-      await this.synchronized[entryName]
-    }
-    var releaseLock
+    const oldLock = this.synchronized[entryName]
+    let releaseLock
     this.synchronized[entryName] = new Promise((r) => (releaseLock = r))
-    return releaseLock
+
+    if (oldLock) {
+      await oldLock
+    }
+
+    return () => {
+      this.synchronized[entryName] = null
+      releaseLock()
+    }
   }
 
   static async changeEntry (entryName, fn) {

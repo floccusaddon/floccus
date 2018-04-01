@@ -1,3 +1,5 @@
+import murmur2 from 'murmur2js'
+
 export default class Bookmark {
   constructor (id, localId, url, title, path) {
     this.id = id
@@ -8,11 +10,14 @@ export default class Bookmark {
   }
 
   async hash () {
-    return Bookmark.sha256(JSON.stringify({
-      url: this.url
-      , title: this.title
-      , path: this.path
-    }))
+    if (!this.hashValue) {
+      this.hashValue = Bookmark.murmur2(JSON.stringify({
+        url: this.url
+        , title: this.title
+        , path: this.path
+      }))
+    }
+    return this.hashValue
   }
 
   static async sha256 (message) {
@@ -21,5 +26,9 @@ export default class Bookmark {
     const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert ArrayBuffer to Array
     const hashHex = hashArray.map(b => ('00' + b.toString(16)).slice(-2)).join('') // convert bytes to hex string
     return hashHex
+  }
+
+  static murmur2 (message) {
+    return murmur2(message)
   }
 }

@@ -287,10 +287,10 @@ describe('Floccus', function () {
         expect(bookmarksAfterSyncing).to.have.lengthOf(1)
         expect(bookmarksAfterSyncing[0].path).to.equal('/')
 
-        const bookmark1AfterSyncing = (await account1.tree.getAllNodes())[0]
-        expect((await account1.tree.getBookmarkByLocalId(bookmark1AfterSyncing.id)).path).to.equal('/')
-        const bookmark2AfterSyncing = (await account2.tree.getAllNodes())[0]
-        expect((await account2.tree.getBookmarkByLocalId(bookmark2AfterSyncing.id)).path).to.equal('/')
+        await account1.tree.load()
+        await account2.tree.load()
+        expect(account1.tree.getBookmarkByLocalId(bookmark1.id).path).to.equal('/')
+        expect(account2.tree.getBookmarkByLocalId(bookmark2.id).path).to.equal('/')
       })
     })
   })
