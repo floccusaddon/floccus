@@ -1,6 +1,5 @@
 import browser from '../lib/browser-api'
 import Account from '../lib/Account'
-import AccountStorage from '../lib/AccountStorage'
 import Tree from '../lib/Tree'
 
 const STATUS_ERROR = Symbol('error')
@@ -46,8 +45,8 @@ class Controller {
     this.setEnabled(true)
 
     browser.storage.local.get('notFirstRun')
-    .then((d) => d.notFirstRun || this.firstRun())
-    .catch(() => this.firstRun())
+      .then((d) => d.notFirstRun || this.firstRun())
+      .catch(() => this.firstRun())
   }
 
   setEnabled (enabled) {
