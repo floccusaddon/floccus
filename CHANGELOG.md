@@ -1,3 +1,8 @@
+## v2.0.3
+ - FIX: Display error messages of multiple errors
+ - FIX: Add resource locking to fix race conditions and allow more concurrency (should fix remaining issues related to creation of duplicates)
+ - FIX: Refactor to only read from tree once
+
 ## v2.0.2
  - FIX: Add write lock for account storage
  - FIX: Refactor sync process to avoid creating duplicates
