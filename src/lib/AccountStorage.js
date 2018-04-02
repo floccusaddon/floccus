@@ -1,37 +1,20 @@
 import browser from './browser-api'
+import AsyncLock from 'async-lock'
+
+const storageLock = new AsyncLock()
 
 export default class AccountStorage {
   constructor (id) {
     this.accountId = id
   }
 
-  static async getAsyncLock (entryName) {
-    if (!this.synchronized) {
-      this.synchronized = {}
-    }
-    const oldLock = this.synchronized[entryName]
-    let releaseLock
-    this.synchronized[entryName] = new Promise((r) => (releaseLock = r))
-
-    if (oldLock) {
-      await oldLock
-    }
-
-    return () => {
-      this.synchronized[entryName] = null
-      releaseLock()
-    }
-  }
-
   static async changeEntry (entryName, fn) {
-    const release = await this.getAsyncLock(entryName)
-
-    const d = await browser.storage.local.get({[entryName]: {}}) // default: {}
-    var entry = d[entryName]
-    entry = fn(entry)
-    await browser.storage.local.set({[entryName]: entry})
-
-    release()
+    await storageLock.acquire(entryName, async () => {
+      const d = await browser.storage.local.get({[entryName]: {}}) // default: {}
+      var entry = d[entryName]
+      entry = fn(entry)
+      await browser.storage.local.set({[entryName]: entry})
+    })
   }
 
   static getEntry (entryName) {

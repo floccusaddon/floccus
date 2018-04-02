@@ -32,6 +32,7 @@
     "through2": "^2.0.3"
   },
   "dependencies": {
+    "async-lock": "^1.1.2",
     "async-parallel": "^1.2.3",
     "babel-polyfill": "^6.20.0",
     "dom-delegator": "^13.1.0",

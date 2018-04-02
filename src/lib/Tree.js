@@ -1,7 +1,9 @@
 import browser from './browser-api'
 import Bookmark from './Bookmark'
 import Account from './Account'
+import AsyncLock from 'async-lock'
 
+const treeLock = new AsyncLock()
 const reverseStr = (str) => str.split('').reverse().join('')
 
 export default class Tree {
@@ -167,15 +169,7 @@ export default class Tree {
   }
 
   static async mkdirpPath (path, rootId, allAccounts) {
-    const releaseLock = await this.getAsyncLock(rootId)
-
-    let root = (await browser.bookmarks.getSubTree(rootId))[0]
-    if (!Array.isArray(root.children)) {
-      releaseLock()
-      throw new Error('given path root is not a folder')
-    }
     if (path === '/' || path === '') {
-      releaseLock()
       return rootId
     }
 
@@ -186,14 +180,18 @@ export default class Tree {
     let pathSegment = pathArr[1]
     let title = pathSegment.replace(/[\\][/]/g, '/')
 
-    let child
-    child = root.children
-      .filter(bm => bm.title === title)
-      .filter(bm => !!bm.children)[0]
-    if (!child) {
-      child = await browser.bookmarks.create({parentId: rootId, title})
-    }
-    releaseLock()
+    let child = await treeLock.acquire(rootId, async () => {
+      let root = (await browser.bookmarks.getSubTree(rootId))[0]
+      if (!Array.isArray(root.children)) {
+        throw new Error('given path root is not a folder')
+      }
+
+      child = root.children
+        .filter(bm => bm.title === title)
+        .filter(bm => !!bm.children)[0]
+      if (child) return child
+      return browser.bookmarks.create({parentId: rootId, title})
+    })
     if (allAccounts.some(acc => acc.getData().localRoot === child.id)) {
       throw new Error('New path conflicts with existing nested floccus folder. Aborting.')
     }
@@ -212,23 +210,5 @@ export default class Tree {
       return path // might be that the root is circular
     }
     return this.getIdPathFromLocalId(bm.parentId, path)
-  }
-
-  static async getAsyncLock (entryName) {
-    if (!this.synchronized) {
-      this.synchronized = {}
-    }
-    const oldLock = this.synchronized[entryName]
-    let releaseLock
-    this.synchronized[entryName] = new Promise((r) => (releaseLock = r))
-
-    if (oldLock) {
-      await oldLock
-    }
-
-    return () => {
-      this.synchronized[entryName] = null
-      releaseLock()
-    }
   }
 }
