@@ -1,3 +1,6 @@
+## v2.0.4
+ - FIX: getAllAccounts didn't have a fallback for the initial loading of the extension
+
 ## v2.0.3
  - FIX: Display error messages of multiple errors
  - FIX: Add resource locking to fix race conditions and allow more concurrency (should fix remaining issues related to creation of duplicates)
