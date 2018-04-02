@@ -4,7 +4,7 @@ import Tree from './Tree'
 import browser from './browser-api'
 const Parallel = require('async-parallel')
 
-const BATCH_SIZE = 5
+const BATCH_SIZE = 10
 
 export default class Account {
   static async get (id) {
@@ -248,7 +248,7 @@ export default class Account {
           await this.storage.addToCache(node.id, await serverMark.hash())
         }
       },
-      /* parallel batch size: */1
+      BATCH_SIZE
     )
   }
 

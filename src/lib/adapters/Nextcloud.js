@@ -158,7 +158,7 @@ export default class NextcloudAdapter {
           console.log(e)
         }
       },
-      /* parallel: */ 5
+      /* parallel: */ 10
     )
 
     let bookmarks = json.data
