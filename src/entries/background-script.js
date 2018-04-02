@@ -1,6 +1,7 @@
 import browser from '../lib/browser-api'
 import Account from '../lib/Account'
 import Tree from '../lib/Tree'
+import packageJson from '../../package.json'
 
 const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')
@@ -47,6 +48,18 @@ class Controller {
     browser.storage.local.get('notFirstRun')
       .then((d) => d.notFirstRun || this.firstRun())
       .catch(() => this.firstRun())
+
+    browser.storage.local.get('currentVersion')
+      .then(async currentVersion => {
+        if (packageJson.version === currentVersion) return
+        const accounts = await Account.getAllAccounts()
+        await Promise.all(
+          accounts.map(account => account.init())
+        )
+        await browser.storage.local.set({
+          currentVersion: packageJson.version
+        })
+      })
   }
 
   setEnabled (enabled) {
@@ -54,8 +67,6 @@ class Controller {
   }
 
   firstRun () {
-    browser.storage.local.set({notFirstRun: true})
-    browser.storage.local.set({accounts: {}})
     browser.runtime.openOptionsPage()
   }
 
