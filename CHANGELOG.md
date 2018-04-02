@@ -1,3 +1,6 @@
+## v2.0.5
+ - FIX: Display sync folder path
+
 ## v2.0.4
  - FIX: getAllAccounts didn't have a fallback for the initial loading of the extension
 
