@@ -258,7 +258,7 @@ export default class Account {
   }
 
   static async getAllAccounts () {
-    const d = await browser.storage.local.get('accounts')
+    const d = await browser.storage.local.get({'accounts': {}})
     var accounts = d['accounts']
 
     accounts = await Promise.all(
