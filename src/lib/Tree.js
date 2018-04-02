@@ -163,6 +163,27 @@ export default class Tree {
     return recurse(tree)
   }
 
+  static async getPathFromLocalId (localId, ancestors, relativeToRoot) {
+    ancestors = ancestors || await Tree.getIdPathFromLocalId(localId)
+
+    if (relativeToRoot) {
+      ancestors = ancestors.slice(ancestors.indexOf(relativeToRoot) + 1)
+    }
+
+    return '/' + (await Promise.all(
+      ancestors
+        .map(async ancestor => {
+          try {
+            let bms = await browser.bookmarks.getSubTree(ancestor)
+            let bm = bms[0]
+            return bm.title.replace(/[/]/g, '\\/')
+          } catch (e) {
+            return 'Error!'
+          }
+        })
+    )).join('/')
+  }
+
   async mkdirpPath (path) {
     const allAccounts = await Account.getAllAccounts()
     return Tree.mkdirpPath(path, this.rootId, allAccounts)
