@@ -48,7 +48,7 @@ export default class NextcloudAdapter {
             <td><input value={new InputInitializeHook(data.password)} type="password" className="password" name="password" ev-keydown={onchangePassword} ev-blur={onchangePassword}/></td></tr>
           <tr><td></td><td>
             <span className="status">{
-              data.syncing === true
+              data.syncing
                 ? '↻ Syncing...'
                 : (data.error
                   ? <span>✘ Error!</span>
@@ -68,7 +68,9 @@ export default class NextcloudAdapter {
             <a href="#" className={'btn forceSync ' + (data.syncing ? 'disabled' : '')} ev-click={() => !data.syncing && ctl.sync()}>Sync now</a>
             <div className="status-details">{data.error
               ? data.error
-              : 'Last synchronized: ' + (data.lastSync ? humanizeDuration(Date.now() - data.lastSync, {largest: 1, round: true}) + ' ago' : 'never')}</div>
+              : data.syncing === 'initial'
+                ? 'Syncing from scratch. This may take a longer than usual...'
+                : 'Last synchronized: ' + (data.lastSync ? humanizeDuration(Date.now() - data.lastSync, {largest: 1, round: true}) + ' ago' : 'never')}</div>
             <div className="options">
               <formgroup>
                 <h4>Sync folder</h4>

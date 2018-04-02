@@ -112,6 +112,11 @@ export default class Account {
 
       let mappings = await this.storage.getMappings()
       await this.tree.load(mappings)
+
+      if (Object.keys(mappings.LocalToServer).length === 0 && this.tree.getAllBookmarks().length !== 0) {
+        await this.setData({...this.getData(), syncing: 'initial'})
+      }
+
       // Deletes things we've known but that are no longer there locally
       await this.sync_deleteFromServer(mappings)
       // Server handles existing URLs that we think are new, client handles new URLs that are bookmarked twice locally
