@@ -15,9 +15,9 @@ Historically this was once possible using [the mozilla sync app](https://github.
 For this to work with your Nextcloud server, you need at least version v0.11 of the Bookmarks app installed. Once you've done that you can continue to install floccus in your browser as follows.
 
 ### Chrome
-Not in the web store [yet](https://github.com/marcelklehr/floccus/issues/51).
+You can [install it via the Chrome Web store](https://chrome.google.com/webstore/detail/floccus-nextcloud-sync/fnaicdffflnofjppbagibeoednhnbjhg)
 
-You can still install it by [downloading the Chrome package from the latest release](https://github.com/marcelklehr/floccus/releases/) and dropping it into Chrome's extension page.
+Alternatively, you can still install it by [downloading the Chrome package from the latest release](https://github.com/marcelklehr/floccus/releases/) and dropping it into Chrome's extension page.
 
 #### Updating from 1.x to v2.0
 It is recommended to remove all of your bookmarks from your accounts before updating floccus, deleting them and after updating to reconnect them again, in order to prevent unforeseen problems!
