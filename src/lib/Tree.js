@@ -130,7 +130,7 @@ export default class Tree {
       if (!node.children) {
         return
       }
-      const descendantPath = parentPath + '/' + node.title.replace('/', '\\/')
+      const descendantPath = parentPath + '/' + node.title.replace(/[/]/g, '\\/')
 
       await Promise.all(
         node.children
