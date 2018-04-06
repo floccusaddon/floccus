@@ -28,6 +28,7 @@
     "chai-as-promised": "^7.1.1",
     "gulp": "^3.9.1",
     "gulp-tap": "^1.0.1",
+    "gulp-zip": "^4.1.0",
     "mocha": "^5.0.4",
     "through2": "^2.0.3"
   },
