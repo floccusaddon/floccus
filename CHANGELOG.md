@@ -1,3 +1,8 @@
+## v2.0.6
+ - FIX: Correctly escape paths in tags
+ - FIX: Wait a certain time before starting sync when detecting changes
+ - FIX: first run routine was called on every startup
+
 ## v2.0.5
  - FIX: Display sync folder path
 
