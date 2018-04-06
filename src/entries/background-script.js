@@ -47,13 +47,9 @@ class Controller {
     window.syncAccount = (accountId) => this.syncAccount(accountId)
     this.setEnabled(true)
 
-    browser.storage.local.get('notFirstRun')
-      .then((d) => d.notFirstRun || this.firstRun())
-      .catch(() => this.firstRun())
-
     browser.storage.local.get('currentVersion')
-      .then(async currentVersion => {
-        if (packageJson.version === currentVersion) return
+      .then(async d => {
+        if (packageJson.version === d.currentVersion) return
         const accounts = await Account.getAllAccounts()
         await Promise.all(
           accounts.map(account => account.init())
@@ -61,15 +57,12 @@ class Controller {
         await browser.storage.local.set({
           currentVersion: packageJson.version
         })
+        browser.runtime.openOptionsPage()
       })
   }
 
   setEnabled (enabled) {
     this.enabled = enabled
-  }
-
-  firstRun () {
-    browser.runtime.openOptionsPage()
   }
 
   async onchange (localId, details) {
