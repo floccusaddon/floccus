@@ -344,6 +344,8 @@ export default class NextcloudAdapter {
       .reverse()
       .map(str => reverseStr(str).replace(/>/g, '\\>'))
       .join('>')
+      .replace(/%2C/g, '%252C')
+      .replace(/,/g, '%2C') // encodeURIComponent(',') == '%2C'
   }
 
   static convertTagToPath (tag) {
@@ -353,6 +355,8 @@ export default class NextcloudAdapter {
       .reverse()
       .map(str => reverseStr(str).replace(/\\>/g, '>'))
       .join('/')
+      .replace(/%2C/g, ',') // encodeURIComponent(',') == '%2C'
+      .replace(/%252C/g, '%2C')
   }
 }
 
