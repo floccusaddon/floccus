@@ -108,7 +108,7 @@ class Controller {
     if (containingAccount &&
       !this.syncing[containingAccount.id] &&
       !accountsToSync.some(acc => acc.id === containingAccount.id)) {
-      this.sceduleSyncAccount(containingAccount.id)
+      this.scheduleSyncAccount(containingAccount.id)
     }
   }
 
