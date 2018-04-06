@@ -2,11 +2,29 @@ var gulp = require('gulp')
 var browserify = require('browserify')
 var babelify = require('babelify')
 var tap = require('gulp-tap')
+var zip = require('gulp-zip')
+
+const VERSION = require('./package.json').version
+const paths = {
+  zip: [
+    'dist/*'
+    , 'icons/*'
+    , 'views/*'
+    , 'CHANGELOG.md'
+    , 'README.md'
+    , 'manifest.json'
+    , 'package.json'
+    , 'LICENSE.txt'
+  ]
+  , views: './views/*.html'
+  , entries: 'src/entries/*.js'
+  , js: 'src/*'
+}
 
 gulp.task('default', ['html', 'js', '3rd-party'])
 
 gulp.task('js', function () {
-  return gulp.src('src/entries/*.js', {read: false}) // no need of reading file because browserify does.
+  return gulp.src(paths.entries, {read: false}) // no need of reading file because browserify does.
     // transform file objects using gulp-tap plugin
     .pipe(tap(function (file) {
       // replace file contents with browserify's bundle stream
@@ -28,7 +46,7 @@ gulp.task('js', function () {
 })
 
 gulp.task('html', function () {
-  return gulp.src('./views/*.html').pipe(gulp.dest('./dist/html/'))
+  return gulp.src(paths.views).pipe(gulp.dest('./dist/html/'))
 })
 
 gulp.task('3rd-party', ['polyfill', 'mocha'])
@@ -44,4 +62,23 @@ gulp.task('mochajs', function () {
 })
 gulp.task('mochacss', function () {
   return gulp.src('./node_modules/mocha/mocha.css').pipe(gulp.dest('./dist/css/'))
+})
+
+gulp.task('release', ['zip', 'xpi'])
+
+gulp.task('zip', ['default'], function () {
+  gulp.src(paths.zip)
+    .pipe(zip(`floccus-build-v${VERSION}.zip`))
+    .pipe(gulp.dest('../'))
+})
+
+gulp.task('xpi', ['default'], function () {
+  gulp.src(paths.zip)
+    .pipe(zip(`floccus-build-v${VERSION}.xpi`))
+    .pipe(gulp.dest('../'))
+})
+
+gulp.task('watch', function () {
+  gulp.watch(paths.js, ['js'])
+  gulp.watch(paths.views, ['html'])
 })

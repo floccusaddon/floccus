@@ -1,7 +1,7 @@
 {
   "name": "floccus",
-  "version": "2.0.5",
-  "description": "The goal of this project is to build a browser extension that syncs your browser data with [OwnCloud](http://owncloud.org).",
+  "version": "2.0.6",
+  "description": "Sync your bookmarks with nextcloud",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -28,6 +28,7 @@
     "chai-as-promised": "^7.1.1",
     "gulp": "^3.9.1",
     "gulp-tap": "^1.0.1",
+    "gulp-zip": "^4.1.0",
     "mocha": "^5.0.4",
     "through2": "^2.0.3"
   },

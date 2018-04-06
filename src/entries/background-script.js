@@ -6,6 +6,7 @@ import packageJson from '../../package.json'
 const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')
 const STATUS_ALLGOOD = Symbol('allgood')
+const INACTIVITY_TIMEOUT = 1000 * 60
 
 class AlarmManger {
   constructor (ctl) {
@@ -26,6 +27,7 @@ class AlarmManger {
 class Controller {
   constructor () {
     this.syncing = {}
+    this.schedule = {}
 
     this.alarms = new AlarmManger(this)
 
@@ -45,13 +47,9 @@ class Controller {
     window.syncAccount = (accountId) => this.syncAccount(accountId)
     this.setEnabled(true)
 
-    browser.storage.local.get('notFirstRun')
-      .then((d) => d.notFirstRun || this.firstRun())
-      .catch(() => this.firstRun())
-
     browser.storage.local.get('currentVersion')
-      .then(async currentVersion => {
-        if (packageJson.version === currentVersion) return
+      .then(async d => {
+        if (packageJson.version === d.currentVersion) return
         const accounts = await Account.getAllAccounts()
         await Promise.all(
           accounts.map(account => account.init())
@@ -59,15 +57,12 @@ class Controller {
         await browser.storage.local.set({
           currentVersion: packageJson.version
         })
+        browser.runtime.openOptionsPage()
       })
   }
 
   setEnabled (enabled) {
     this.enabled = enabled
-  }
-
-  firstRun () {
-    browser.runtime.openOptionsPage()
   }
 
   async onchange (localId, details) {
@@ -92,7 +87,7 @@ class Controller {
 
     // We should now sync all accounts that are involved in this change (2 at max)
     accountsToSync.forEach((account) => {
-      this.syncAccount(account.id)
+      this.scheduleSyncAccount(account.id)
     })
 
     var ancestors
@@ -106,8 +101,15 @@ class Controller {
     if (containingAccount &&
       !this.syncing[containingAccount.id] &&
       !accountsToSync.some(acc => acc.id === containingAccount.id)) {
-      this.syncAccount(containingAccount.id)
+      this.scheduleSyncAccount(containingAccount.id)
     }
+  }
+
+  scheduleSyncAccount (accountId) {
+    if (this.schedule[accountId]) {
+      clearTimeout(this.schedule[accountId])
+    }
+    this.schedule[accountId] = setTimeout(() => this.syncAccount(accountId), INACTIVITY_TIMEOUT)
   }
 
   syncAccount (accountId) {
