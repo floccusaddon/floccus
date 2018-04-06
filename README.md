@@ -75,7 +75,7 @@ Nonetheless, I've chosen to utilize the WebExtensions API for implementing this 
 4. The incomplete data format (\#3) is an open problem, but doesn't impact the synchronization of the remaining accessible data.
 5. The inability to exclude folders from sync in 3rd-party extensions (\#4) is a problem, but manageable when users are able to manually choose folders to ignore. (Currently not implemented)
 6. The lack of safe write operations (\#5) can be dealt with similarly to the missing transaction support: Changes made during sync could lead to an unintended but consistent state, which can be resolved manually. Additionally, precautions are taken to prevent this.
-7. In order to avoid syncing prematurely (\#6) floccus can employ a timeout to wait until all pending bookmarks operations are done. (Currently not implemented.)
+7. In order to avoid syncing prematurely (\#6) floccus employs a timeout to wait until all pending bookmarks operations are done.
 
 ## What's with the name?
 [Cirrus floccus](https://en.wikipedia.org/wiki/Cirrus_floccus) is a type of cloud, that <del>can sync your browser data</del> looks very nice.

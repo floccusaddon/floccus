@@ -6,6 +6,7 @@ import packageJson from '../../package.json'
 const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')
 const STATUS_ALLGOOD = Symbol('allgood')
+const INACTIVITY_TIMEOUT = 1000 * 60
 
 class AlarmManger {
   constructor (ctl) {
@@ -26,6 +27,7 @@ class AlarmManger {
 class Controller {
   constructor () {
     this.syncing = {}
+    this.schedule = {}
 
     this.alarms = new AlarmManger(this)
 
@@ -92,7 +94,7 @@ class Controller {
 
     // We should now sync all accounts that are involved in this change (2 at max)
     accountsToSync.forEach((account) => {
-      this.syncAccount(account.id)
+      this.scheduleSyncAccount(account.id)
     })
 
     var ancestors
@@ -106,8 +108,15 @@ class Controller {
     if (containingAccount &&
       !this.syncing[containingAccount.id] &&
       !accountsToSync.some(acc => acc.id === containingAccount.id)) {
-      this.syncAccount(containingAccount.id)
+      this.sceduleSyncAccount(containingAccount.id)
     }
+  }
+
+  scheduleSyncAccount (accountId) {
+    if (this.schedule[accountId]) {
+      clearTimeout(this.schedule[accountId])
+    }
+    this.schedule[accountId] = setTimeout(() => this.syncAccount(accountId), INACTIVITY_TIMEOUT)
   }
 
   syncAccount (accountId) {
