@@ -39,14 +39,14 @@ Floccus is not supported by Firefox for Android, [yet](https://developer.mozilla
 
 
 ## Usage
-After installation the options pane will pop up allowing you to create accounts and edit their settings. You will be able to access this pane at all times by clicking the floccus icon in the browser tool bar.
-You can setup multiple nextcloud accounts and select a bookmark folder for each that should be synced with that account. Floccus will keep the bookmarks in sync with your nextcloud whenever you add or change them and will also sync periodically to pull the latest changes from the server.
-If you want to sync all bookmarks in your browser you need to select the topmost untitled folder in the folder picker.
-If something goes wrong during the sync process the floccus icon will sport a red exclamation mark. In the options pane you can then hover over the status text to get more information about the error.
+ * **The options panel**; After installation the options pane will pop up allowing you to create accounts and edit their settings. You will be able to access this pane at all times by clicking the floccus icon in the browser tool bar.
+ * **Your accounts**: You can setup multiple nextcloud accounts and select a bookmark folder for each, that should be synced with that account. Floccus will keep the bookmarks in sync with your nextcloud whenever you add or change them and will also sync periodically to pull the latest changes from the server.
+ * **Syncing the root folder**: If you want to sync all bookmarks in your browser you need to select the topmost untitled folder in the folder picker. Syncing the root folder across browsers from different vendors is not possible currently, as the main bookmark folders (like "Other bookmarks") are hardcoded and different for each browser vendor.
 
 ### Limitations
  * Note that currently you cannot sync the same folder with multiple nextcloud accounts in order to avoid data corruption. If you sync the root folder with one account and sync a sub folder with a different account, that sub-folder will not be synced with the account connected to the root folder anymore.
  * Floccus yields an error if you attempt to sync a folder with duplicate bookmarks (two or more bookmarks of the same URL). Remove one of the bookmarks for floccus to resume normal functionality.
+ * Syncing the root folder across browsers from different vendors is not possible currently, as the main bookmark folders (like "Other bookmarks") are hardcoded and different for each browser vendor.
 
 ## Goals and Limitations aka. Is this a good idea?
 As there have been debates about whether this software product is a good idea, I've made a little section here with my considerations.
