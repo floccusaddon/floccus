@@ -5,7 +5,7 @@
 
 <a href="https://liberapay.com/marcelklehr/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
 
-The goal of this project is to build a browser extension that syncs your browser data with [Nextcloud](http://nextcloud.com).
+The goal of this project is to build a browser extension that syncs your browser data with the open source sync and share server [Nextcloud](https://nextcloud.com).
 
 Historically this was once possible using [the mozilla sync app](https://github.com/owncloudarchive/mozilla_sync). However, it's [not very easy anymore](https://github.com/owncloudarchive/mozilla_sync/issues/33) to run your own sync server and it still would only work with firefox.
 
