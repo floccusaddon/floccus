@@ -17,13 +17,10 @@ var tree = h('div#app')
 function triggerRender () {
   if (rendering) return rendering.then(triggerRender)
   rendering = (async () => {
-    const d = await Promise.all([
-      Account.getAllAccounts()
-      , browser.bookmarks.getTree()
-    ])
+    const accounts = await Account.getAllAccounts()
 
     await Promise.all(
-      d[0]
+      accounts
         .map(async (acc) => {
           const localRoot = acc.getData().localRoot
           try {
@@ -36,7 +33,12 @@ function triggerRender () {
         })
     )
 
-    let newTree = render({accounts: d[0], tree: d[1][0]})
+    let bmTree
+    if (state.view === 'picker') {
+      bmTree = (await browser.bookmarks.getTree())[0]
+    }
+
+    let newTree = render({accounts, tree: bmTree})
     let patches = diff(tree, newTree)
     rootNode = patch(rootNode, patches)
     tree = newTree
