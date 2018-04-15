@@ -24,13 +24,16 @@ export default class NextcloudAdapter {
   renderOptions (ctl, rootPath) {
     let data = this.getData()
     let onchangeURL = (e) => {
-      ctl.update({...data, url: e.target.value})
+      if (this.saveTimeout) clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => ctl.update({...data, url: e.target.value}), 300)
     }
     let onchangeUsername = (e) => {
-      ctl.update({...data, username: e.target.value})
+      if (this.saveTimeout) clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => ctl.update({...data, username: e.target.value}), 300)
     }
     let onchangePassword = (e) => {
-      ctl.update({...data, password: e.target.value})
+      if (this.saveTimeout) clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => ctl.update({...data, password: e.target.value}), 300)
     }
     return <div className="account">
       <form>
