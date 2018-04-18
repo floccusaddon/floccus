@@ -83,12 +83,16 @@ export default class NextcloudAdapter {
                   !data.syncing && ctl.update({...data, localRoot: null})
                 }}>Reset</a>
                 <a href="#" title="Set an existing folder to sync" className={'btn chooseRoot ' + (data.syncing ? 'disabled' : '')} ev-click={(e) => {
+                  e.preventDefault()
                   ctl.pickFolder()
                 }}>Choose folder</a>
               </formgroup>
               <formgroup>
                 <h4>Remove account</h4>
-                <a href="#" className="btn remove" ev-click={() => ctl.delete()}>Delete this account</a>
+                <a href="#" className="btn remove" ev-click={(e) => {
+                  e.preventDefault()
+                  ctl.delete()
+                }}>Delete this account</a>
               </formgroup>
             </div>
           </td></tr>
