@@ -59,6 +59,7 @@ export default class NextcloudAdapter {
                 )
             }</span>
             <a href="#" className="btn openOptions" ev-click={(e) => {
+              e.preventDefault()
               var options = e.target.parentNode.querySelector('.options')
               if (options.classList.contains('open')) {
                 e.target.classList.remove('active')
