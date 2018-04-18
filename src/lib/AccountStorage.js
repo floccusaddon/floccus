@@ -1,4 +1,5 @@
 import browser from './browser-api'
+import Cryptography from './Crypto'
 import AsyncLock from 'async-lock'
 
 const storageLock = new AsyncLock()
@@ -24,16 +25,29 @@ export default class AccountStorage {
       })
   }
 
-  getAccountData () {
-    return AccountStorage.getEntry(`accounts`).then((accounts) => {
-      return accounts[this.accountId]
-    })
+  async getAccountData (key) {
+    let accounts = await AccountStorage.getEntry(`accounts`)
+    let data = accounts[this.accountId]
+    if (key) {
+      data.password = await Cryptography.decryptAES(key, data.iv, data.password)
+    }
+    return data
   }
 
-  setAccountData (data) {
+  async setAccountData (data, key) {
+    let encData = data
+    if (key) {
+      if (!data.iv) {
+        data.iv = Array.from(Cryptography.getRandomBytes(16))
+      }
+      encData = {
+        ...data
+        , password: await Cryptography.encryptAES(key, data.iv, data.password)
+      }
+    }
     return AccountStorage.changeEntry(`accounts`, (accounts) => {
       accounts = accounts || {}
-      accounts[this.accountId] = data
+      accounts[this.accountId] = encData
       return accounts
     })
   }
