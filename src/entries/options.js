@@ -113,9 +113,15 @@ function renderAccounts (accounts, secured) {
         .then(() => triggerRender())
     }}>Add account</a>
     <div className="security">
-      <label><input type="checkbox" checked={secured} ev-click={() => {
-        state.view = 'set_key'
-        triggerRender()
+      <label><input type="checkbox" checked={secured} ev-click={(e) => {
+        if (e.currentTarget.checked) {
+          state.view = 'set_key'
+          triggerRender()
+        } else {
+          browser.runtime.getBackgroundPage()
+            .then((background) => background.controller.unsetKey())
+            .then(() => triggerRender())
+        }
       }} /> Secure your credentials with a passphrase (entered on browser start)</label>
     </div>
     <a className="test-link" href="./test.html">run tests</a>

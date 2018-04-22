@@ -98,6 +98,16 @@ export default class Controller {
     this.setEnabled(true)
   }
 
+  async unsetKey () {
+    if (!this.unlocked) {
+      throw new Error('Cannot disable encryption without unlocking first')
+    }
+    let accounts = await Account.getAllAccounts()
+    this.key = null
+    await browser.storage.local.set({accountsLocked: null})
+    await Promise.all(accounts.map(a => a.setData(a.getData())))
+  }
+
   async onchange (localId, details) {
     if (!this.enabled) {
       return
