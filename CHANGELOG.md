@@ -1,3 +1,7 @@
+## v2.1.0
+ - NEW: Allow using an extension key to secure entered credentials
+ - FIX: Various fixes for Firefox
+
 ## v2.0.6
  - FIX: Correctly escape paths in tags
  - FIX: Wait a certain time before starting sync when detecting changes

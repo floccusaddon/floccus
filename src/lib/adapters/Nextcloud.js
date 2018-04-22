@@ -24,13 +24,16 @@ export default class NextcloudAdapter {
   renderOptions (ctl, rootPath) {
     let data = this.getData()
     let onchangeURL = (e) => {
-      ctl.update({...data, url: e.target.value})
+      if (this.saveTimeout) clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => ctl.update({...data, url: e.target.value}), 300)
     }
     let onchangeUsername = (e) => {
-      ctl.update({...data, username: e.target.value})
+      if (this.saveTimeout) clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => ctl.update({...data, username: e.target.value}), 300)
     }
     let onchangePassword = (e) => {
-      ctl.update({...data, password: e.target.value})
+      if (this.saveTimeout) clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => ctl.update({...data, password: e.target.value}), 300)
     }
     return <div className="account">
       <form>
@@ -56,6 +59,7 @@ export default class NextcloudAdapter {
                 )
             }</span>
             <a href="#" className="btn openOptions" ev-click={(e) => {
+              e.preventDefault()
               var options = e.target.parentNode.querySelector('.options')
               if (options.classList.contains('open')) {
                 e.target.classList.remove('active')
@@ -79,12 +83,16 @@ export default class NextcloudAdapter {
                   !data.syncing && ctl.update({...data, localRoot: null})
                 }}>Reset</a>
                 <a href="#" title="Set an existing folder to sync" className={'btn chooseRoot ' + (data.syncing ? 'disabled' : '')} ev-click={(e) => {
+                  e.preventDefault()
                   ctl.pickFolder()
                 }}>Choose folder</a>
               </formgroup>
               <formgroup>
                 <h4>Remove account</h4>
-                <a href="#" className="btn remove" ev-click={() => ctl.delete()}>Delete this account</a>
+                <a href="#" className="btn remove" ev-click={(e) => {
+                  e.preventDefault()
+                  ctl.delete()
+                }}>Delete this account</a>
               </formgroup>
             </div>
           </td></tr>

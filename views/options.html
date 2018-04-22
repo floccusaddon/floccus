@@ -36,8 +36,8 @@
     text-align: right;
     color: #3893cc;
   }
-  .account input[type="password"],
-  .account input[type="text"] {
+  input[type="password"],
+  input[type="text"] {
     width: 90%;
     font-size: .38cm !important;
     border: 1px #3893cc solid;
@@ -65,8 +65,8 @@
   .account .options.open {
     display: block;
   }
-  .account input[type="text"],
-  .account input[type="password"],
+  input[type="text"],
+  input[type="password"],
   #picker .item .label,
   .btn {
     padding: .15cm;
@@ -90,10 +90,14 @@
     background-color: #999 !important;
     cursor: default;
   }
-  .btn#addaccount {
+  .btn#addaccount,
+  .security {
     width: 95%;
     margin: .4cm .3cm;
     margin-top: .2cm;
+  }
+  label {
+    color: #68b4e3;
   }
   .test-link:link {
     display: block;
@@ -101,23 +105,26 @@
     float: right;
     font-size: .2cm;
     color: #3893cc !important;
-}
+  }
 
   #overlay {
     position: absolute;
     top:0; bottom:0; right:0; left:0;
     background: rgba(130, 130, 130, .6);
   }
-  #picker {
+  #overlay > * {
     position: absolute;
     top: .5cm;
     right: .5cm;
     bottom: .5cm;
     left: .5cm;
-    padding: .1cm;
+    padding: .5cm;
     background: white;
     overflow-y: scroll;
     overflow-x: hidden;
+  }
+  #picker {
+    padding: .1cm;
   }
   #picker .item {
     padding: .1cm;
@@ -156,6 +163,9 @@
     display: block;
     padding: .2cm 0 0 .2cm;
     border-left: 1px #08d solid;
+  }
+  #setKey input {
+    margin-bottom: .1cm;
   }
   </style>
 </head>

@@ -9,7 +9,8 @@ const BATCH_SIZE = 10
 export default class Account {
   static async get (id) {
     let storage = new AccountStorage(id)
-    let data = await storage.getAccountData()
+    let background = await browser.runtime.getBackgroundPage()
+    let data = await storage.getAccountData(background.controller.key)
     let localRoot = data.localRoot
     let tree = new Tree(storage, localRoot)
     return new Account(id, storage, Adapter.factory(data), tree)
@@ -45,7 +46,8 @@ export default class Account {
 
   async setData (data) {
     this.server.setData(data)
-    await this.storage.setAccountData(data)
+    let background = await browser.runtime.getBackgroundPage()
+    await this.storage.setAccountData(data, background.controller.key)
   }
 
   async tracksBookmark (localId) {

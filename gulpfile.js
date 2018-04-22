@@ -7,14 +7,12 @@ var zip = require('gulp-zip')
 const VERSION = require('./package.json').version
 const paths = {
   zip: [
-    'dist/*'
-    , 'icons/*'
-    , 'views/*'
-    , 'CHANGELOG.md'
-    , 'README.md'
-    , 'manifest.json'
-    , 'package.json'
-    , 'LICENSE.txt'
+    '**'
+    , '!src/**'
+    , '!node_modules/**'
+    , '!img/**'
+    , '!ISSUE_TEMPLATE.md'
+    , '!gulpfile.js'
   ]
   , views: './views/*.html'
   , entries: 'src/entries/*.js'
