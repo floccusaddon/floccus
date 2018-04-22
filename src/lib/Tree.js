@@ -138,7 +138,7 @@ export default class Tree {
       )
 
       const newNode = (await browser.bookmarks.getSubTree(node.id))[0]
-      if (!newNode.children.length && node.id !== this.rootId) {
+      if (!newNode.children.length && node.id !== this.rootId && parentPath !== '/') {
         console.log('Remove orphaned folder: ' + descendantPath)
         await browser.bookmarks.remove(node.id)
       }
