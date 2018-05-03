@@ -109,7 +109,13 @@ function renderAccounts (accounts, secured) {
       })
     }</div>
     <a href="" className="btn" id="addaccount" ev-click={() => {
-      Account.create({type: 'nextcloud', url: 'http://example.org', username: 'bob', password: 'password'})
+      Account.create({
+        type: 'nextcloud'
+        , url: 'http://example.org'
+        , username: 'bob'
+        , password: 'password'
+        , serverRoot: ''
+      })
         .then(() => triggerRender())
     }}>Add account</a>
     <div className="security">
