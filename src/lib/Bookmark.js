@@ -9,6 +9,10 @@ export default class Bookmark {
     this.path = path
   }
 
+  getLocalPath (serverRoot) {
+    return this.path.substr(serverRoot.length)
+  }
+
   async hash () {
     if (!this.hashValue) {
       this.hashValue = Bookmark.murmur2(JSON.stringify({

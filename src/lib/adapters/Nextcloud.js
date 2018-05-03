@@ -24,17 +24,29 @@ export default class NextcloudAdapter {
 
   renderOptions (ctl, rootPath) {
     let data = this.getData()
+    const saveTimeout = 1000
     let onchangeURL = (e) => {
       if (this.saveTimeout) clearTimeout(this.saveTimeout)
-      this.saveTimeout = setTimeout(() => ctl.update({...data, url: e.target.value}), 300)
+      this.saveTimeout = setTimeout(() => ctl.update({...data, url: e.target.value}), saveTimeout)
     }
     let onchangeUsername = (e) => {
       if (this.saveTimeout) clearTimeout(this.saveTimeout)
-      this.saveTimeout = setTimeout(() => ctl.update({...data, username: e.target.value}), 300)
+      this.saveTimeout = setTimeout(() => ctl.update({...data, username: e.target.value}), saveTimeout)
     }
     let onchangePassword = (e) => {
       if (this.saveTimeout) clearTimeout(this.saveTimeout)
-      this.saveTimeout = setTimeout(() => ctl.update({...data, password: e.target.value}), 300)
+      this.saveTimeout = setTimeout(() => ctl.update({...data, password: e.target.value}), saveTimeout)
+    }
+    let onchangeServerRoot = (e) => {
+      if (this.saveTimeout) clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => {
+        let val = e.target.value
+        if (val[val.length - 1] === '/') {
+          val = val.substr(0,  val.length - 1)
+          e.target.value = val
+        }
+        ctl.update({...data, serverRoot: e.target.value})
+      }, saveTimeout)
     }
     return <div className="account">
       <form>
@@ -45,11 +57,16 @@ export default class NextcloudAdapter {
           </tr>
           <tr>
             <td><label for="username">User name:</label></td>
-            <td><input value={new InputInitializeHook(data.username)} type="text" className="username" name="password" ev-keyup={onchangeUsername} ev-blur={onchangeUsername}/></td>
+            <td><input value={new InputInitializeHook(data.username)} type="text" className="username" name="username" ev-keyup={onchangeUsername} ev-blur={onchangeUsername}/></td>
           </tr>
           <tr>
             <td><label for="password">Password:</label></td>
-            <td><input value={new InputInitializeHook(data.password)} type="password" className="password" name="password" ev-keydown={onchangePassword} ev-blur={onchangePassword}/></td></tr>
+            <td><input value={new InputInitializeHook(data.password)} type="password" className="password" name="password" ev-keydown={onchangePassword} ev-blur={onchangePassword}/></td>
+          </tr>
+          <tr>
+            <td><label for="serverRoot">Server path:</label></td>
+            <td><input value={new InputInitializeHook(data.serverRoot || '')} type="text" className="serverRoot" name="serverRoot" placeholder="Default: Root folder" ev-keyup={onchangeServerRoot} ev-blur={onchangeServerRoot}/></td>
+          </tr>
           <tr><td></td><td>
             <span className="status">{
               data.syncing
@@ -79,7 +96,7 @@ export default class NextcloudAdapter {
             <div className="options">
               <formgroup>
                 <h4>Sync folder</h4>
-                <input type="text" disabled value={rootPath} /><br/>
+                <input type="text" disabled placeholder="*Root folder*" value={rootPath} /><br/>
                 <a href="" title="Reset synchronized folder to create a new one" className={'btn resetRoot ' + (data.syncing ? 'disabled' : '')} ev-click={() => {
                   !data.syncing && ctl.update({...data, localRoot: null})
                 }}>Reset</a>
