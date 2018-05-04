@@ -65,7 +65,7 @@ export default class NextcloudAdapter {
           </tr>
           <tr>
             <td><label for="serverRoot">Server path:</label></td>
-            <td><input value={new InputInitializeHook(data.serverRoot || '')} type="text" className="serverRoot" name="serverRoot" placeholder="Default: Root folder" ev-keyup={onchangeServerRoot} ev-blur={onchangeServerRoot}/></td>
+            <td><input value={new InputInitializeHook(data.serverRoot || '')} type="text" className="serverRoot" name="serverRoot" placeholder="Example: /my/subfolder  Default: root folder" ev-keyup={onchangeServerRoot} ev-blur={onchangeServerRoot}/></td>
           </tr>
           <tr><td></td><td>
             <span className="status">{
