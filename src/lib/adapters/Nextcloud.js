@@ -65,7 +65,7 @@ export default class NextcloudAdapter {
           </tr>
           <tr>
             <td><label for="serverRoot">Server path:</label></td>
-            <td><input value={new InputInitializeHook(data.serverRoot || '')} type="text" className="serverRoot" name="serverRoot" placeholder="Example: /my/subfolder  Default: root folder" ev-keyup={onchangeServerRoot} ev-blur={onchangeServerRoot}/></td>
+            <td><input value={new InputInitializeHook(data.serverRoot || '')} type="text" className="serverRoot" name="serverRoot" placeholder="Default: root folder  Example: /my/subfolder" ev-keyup={onchangeServerRoot} ev-blur={onchangeServerRoot}/></td>
           </tr>
           <tr><td></td><td>
             <span className="status">{
@@ -360,7 +360,7 @@ export default class NextcloudAdapter {
   static getPathTagFromTags (tags) {
     return (tags || [])
       .filter(tag => tag.indexOf(TAG_PREFIX) === 0)
-      .concat([this.convertPathToTag('/')])[0]
+      .concat([this.convertPathToTag('')])[0]
   }
 
   static convertPathToTag (path) {
