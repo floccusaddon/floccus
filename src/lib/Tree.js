@@ -175,7 +175,7 @@ export default class Tree {
       ancestors
         .map(async ancestor => {
           try {
-            let bms = await browser.bookmarks.getSubTree(ancestor)
+            let bms = await browser.bookmarks.get(ancestor)
             let bm = bms[0]
             return bm.title.replace(/[/]/g, '\\/')
           } catch (e) {
