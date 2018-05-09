@@ -186,7 +186,6 @@ export default class Account {
           return
         }
         serverMark.localId = bookmark.localId
-        await this.tree.updateNode(serverMark)
         await this.storage.addToMappings(serverMark)
         await this.storage.addToCache(serverMark.localId, await serverMark.hash())
       },
