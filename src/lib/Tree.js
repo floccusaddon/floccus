@@ -7,8 +7,9 @@ const treeLock = new AsyncLock()
 const reverseStr = (str) => str.split('').reverse().join('')
 
 export default class Tree {
-  constructor (storage, rootId) {
+  constructor (storage, rootId, serverRoot) {
     this.rootId = rootId
+    this.serverRoot = serverRoot
     this.storage = storage
   }
 
@@ -48,14 +49,14 @@ export default class Tree {
           , node.id
           , node.url
           , node.title
-          , parentPath || '/' // only root has a trailing slash
+          , parentPath
         )
         return
       }
-      const descendantPath = (parentPath || '') + '/' + node.title.replace(/[/]/g, '\\/') // other paths don't have a trailing slash
+      const descendantPath = parentPath + '/' + node.title.replace(/[/]/g, '\\/') // other paths don't have a trailing slash
       node.children.map((node) => recurse(node, descendantPath))
     }
-    tree.children.forEach(node => recurse(node))
+    tree.children.forEach(node => recurse(node, this.serverRoot))
   }
 
   getBookmarkByLocalId (localId) {
@@ -79,7 +80,7 @@ export default class Tree {
       throw new Error('trying to create a node for a bookmark that already has one')
     }
 
-    const parentId = await this.mkdirpPath(bookmark.path)
+    const parentId = await this.mkdirpPath(bookmark.getLocalPath(this.serverRoot))
     const node = await browser.bookmarks.create({
       parentId
       , title: bookmark.title
@@ -102,7 +103,7 @@ export default class Tree {
       title: bookmark.title
       , url: bookmark.url
     })
-    const parentId = await this.mkdirpPath(bookmark.path)
+    const parentId = await this.mkdirpPath(bookmark.getLocalPath(this.serverRoot))
     await browser.bookmarks.move(bookmark.localId, {parentId})
   }
 
@@ -170,11 +171,11 @@ export default class Tree {
       ancestors = ancestors.slice(ancestors.indexOf(relativeToRoot) + 1)
     }
 
-    return '/' + (await Promise.all(
+    return (await Promise.all(
       ancestors
         .map(async ancestor => {
           try {
-            let bms = await browser.bookmarks.getSubTree(ancestor)
+            let bms = await browser.bookmarks.get(ancestor)
             let bm = bms[0]
             return bm.title.replace(/[/]/g, '\\/')
           } catch (e) {
@@ -225,7 +226,7 @@ export default class Tree {
       return path
     }
     path.unshift(localId)
-    let bms = await browser.bookmarks.getSubTree(localId)
+    let bms = await browser.bookmarks.get(localId)
     let bm = bms[0]
     if (bm.parentId === localId) {
       return path // might be that the root is circular

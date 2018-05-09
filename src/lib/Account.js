@@ -11,8 +11,7 @@ export default class Account {
     let storage = new AccountStorage(id)
     let background = await browser.runtime.getBackgroundPage()
     let data = await storage.getAccountData(background.controller.key)
-    let localRoot = data.localRoot
-    let tree = new Tree(storage, localRoot)
+    let tree = new Tree(storage, data.localRoot, data.serverRoot)
     return new Account(id, storage, Adapter.factory(data), tree)
   }
 
@@ -64,6 +63,10 @@ export default class Account {
       ...ctl
       , update: (data) => {
         if (JSON.stringify(data) === JSON.stringify(originalData)) return
+        if (originalData.serverRoot !== data.serverRoot) {
+          this.storage.initCache()
+          this.storage.initMappings()
+        }
         ctl.update(data)
       }
     }
@@ -88,7 +91,7 @@ export default class Account {
     }
     await this.storage.initMappings()
     await this.storage.initCache()
-    this.tree = new Tree(this.storage, accData.localRoot)
+    this.tree = new Tree(this.storage, accData.localRoot, accData.serverRoot)
   }
 
   async isInitialized () {
@@ -124,7 +127,10 @@ export default class Account {
       // Server handles existing URLs that we think are new, client handles new URLs that are bookmarked twice locally
       await this.sync_createOnServer(mappings)
 
-      let serverList = await this.server.pullBookmarks()
+      let serverRoot = this.getData().serverRoot
+      let serverList = (await this.server.pullBookmarks())
+        .filter(bm => serverRoot ? bm.path.indexOf(serverRoot) === 0 : true)
+
       // deletes everything locally that is not new but doesn't exist on the server anymore
       await this.sync_deleteFromTree(serverList)
       // Goes through server's list and updates creates things locally as needed
@@ -179,9 +185,10 @@ export default class Account {
           // ignore this bookmark as it's not supported by the server
           return
         }
-        bookmark.id = serverMark.id
-        await this.storage.addToMappings(bookmark)
-        await this.storage.addToCache(bookmark.localId, await serverMark.hash())
+        serverMark.localId = bookmark.localId
+        await this.tree.updateNode(serverMark)
+        await this.storage.addToMappings(serverMark)
+        await this.storage.addToCache(serverMark.localId, await serverMark.hash())
       },
       BATCH_SIZE
     )
