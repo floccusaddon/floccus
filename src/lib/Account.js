@@ -185,9 +185,10 @@ export default class Account {
           // ignore this bookmark as it's not supported by the server
           return
         }
-        bookmark.id = serverMark.id
-        await this.storage.addToMappings(bookmark)
-        await this.storage.addToCache(bookmark.localId, await serverMark.hash())
+        serverMark.localId = bookmark.localId
+        await this.tree.updateNode(serverMark)
+        await this.storage.addToMappings(serverMark)
+        await this.storage.addToCache(serverMark.localId, await serverMark.hash())
       },
       BATCH_SIZE
     )
