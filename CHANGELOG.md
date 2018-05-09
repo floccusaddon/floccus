@@ -1,3 +1,8 @@
+## v2.2.0
+ - NEW: Map local sync folder to a specific server-side folder
+ - FIX: Performance improvements for Firefox
+ - FIX: Race condition removed that would cause issues because same account would be synced twice in parallel
+
 ## v2.1.0
  - NEW: Allow using an extension key to secure entered credentials
  - FIX: Various fixes for Firefox
