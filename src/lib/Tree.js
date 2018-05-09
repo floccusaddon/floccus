@@ -199,7 +199,7 @@ export default class Tree {
       .split(/[/](?![\\])/)
       .reverse()
       .map(str => reverseStr(str))
-    let pathSegment = pathArr[0]
+    let pathSegment = pathArr[1]
     let title = pathSegment.replace(/[\\][/]/g, '/')
 
     let child = await treeLock.acquire(rootId, async () => {
@@ -217,7 +217,7 @@ export default class Tree {
     if (allAccounts.some(acc => acc.getData().localRoot === child.id)) {
       throw new Error('New path conflicts with existing nested floccus folder. Aborting.')
     }
-    return Tree.mkdirpPath(pathArr.slice(2).join('/'), child.id, allAccounts)
+    return Tree.mkdirpPath('/' + pathArr.slice(2).join('/'), child.id, allAccounts)
   }
 
   static async getIdPathFromLocalId (localId, path) {

@@ -22,7 +22,7 @@ describe('Floccus', function () {
   describe('Account', function () {
     var account
     beforeEach('set up dummy account', async function () {
-      account = await Account.create({type: 'fake', username: 'foo', url: 'http://ba.r'})
+      account = await Account.create({type: 'fake', username: 'foo', url: 'http://ba.r', serverRoot: ''})
     })
     afterEach('clean up dummy account', async function () {
       if (account) await account.delete()
@@ -33,7 +33,7 @@ describe('Floccus', function () {
     })
     it('should save and restore an account', async function () {
       console.log(this.test.title)
-      const newData = {type: 'fake', username: 'bar', url: 'https://fo.o'}
+      const newData = {type: 'fake', username: 'bar', url: 'https://fo.o', serverRoot: ''}
       await account.setData(newData)
       expect(account.getData()).to.deep.equal(newData)
 
@@ -55,7 +55,7 @@ describe('Floccus', function () {
     context('with one client', function () {
       var account
       beforeEach('set up dummy account', async function () {
-        account = await Account.create({type: 'fake', username: 'foo', url: 'http://ba.r'})
+        account = await Account.create({type: 'fake', username: 'foo', url: 'http://ba.r', serverRoot: ''})
         await account.init()
       })
       afterEach('clean up dummy account', async function () {
@@ -202,9 +202,9 @@ describe('Floccus', function () {
     context('with two clients', function () {
       var account1, account2
       beforeEach('set up dummy accounts', async function () {
-        account1 = await Account.create({type: 'fake', username: 'foo', url: 'http://ba.r'})
+        account1 = await Account.create({type: 'fake', username: 'foo', url: 'http://ba.r', serverRoot: ''})
         await account1.init()
-        account2 = await Account.create({type: 'fake', username: 'foo', url: 'http://ba.r'})
+        account2 = await Account.create({type: 'fake', username: 'foo', url: 'http://ba.r', serverRoot: ''})
         await account2.init()
 
         // Wrire both accounts to the same fake db
@@ -285,12 +285,12 @@ describe('Floccus', function () {
 
         const bookmarksAfterSyncing = await adapter.pullBookmarks()
         expect(bookmarksAfterSyncing).to.have.lengthOf(1)
-        expect(bookmarksAfterSyncing[0].path).to.equal('/')
+        expect(bookmarksAfterSyncing[0].path).to.equal('')
 
         await account1.tree.load()
         await account2.tree.load()
-        expect(account1.tree.getBookmarkByLocalId(bookmark1.id).path).to.equal('/')
-        expect(account2.tree.getBookmarkByLocalId(bookmark2.id).path).to.equal('/')
+        expect(account1.tree.getBookmarkByLocalId(bookmark1.id).path).to.equal('')
+        expect(account2.tree.getBookmarkByLocalId(bookmark2.id).path).to.equal('')
       })
     })
   })
