@@ -1,3 +1,6 @@
+## v2.2.1
+ - FIX: Add default value for server path setting
+
 ## v2.2.0
  - NEW: Map local sync folder to a specific server-side folder
  - FIX: Performance improvements for Firefox
