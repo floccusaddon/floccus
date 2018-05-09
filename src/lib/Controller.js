@@ -27,7 +27,6 @@ class AlarmManger {
 
 export default class Controller {
   constructor () {
-    this.syncing = {}
     this.schedule = {}
 
     this.alarms = new AlarmManger(this)
@@ -126,7 +125,7 @@ export default class Controller {
     // Filter out any accounts that are not tracking the bookmark
       .filter((account, i) => (trackingAccountsFilter[i]))
       // Filter out any accounts that are presently syncing
-      .filter(account => !this.syncing[account.id])
+      .filter(account => !account.getData().syncing)
 
     // We should now sync all accounts that are involved in this change (2 at max)
     accountsToSync.forEach((account) => {
@@ -142,7 +141,7 @@ export default class Controller {
 
     const containingAccount = await Account.getAccountContainingLocalId(localId, ancestors, allAccounts)
     if (containingAccount &&
-      !this.syncing[containingAccount.id] &&
+      !containingAccount.getData().syncing &&
       !accountsToSync.some(acc => acc.id === containingAccount.id)) {
       this.scheduleSyncAccount(containingAccount.id)
     }
@@ -155,29 +154,21 @@ export default class Controller {
     this.schedule[accountId] = setTimeout(() => this.syncAccount(accountId), INACTIVITY_TIMEOUT)
   }
 
-  syncAccount (accountId) {
+  async syncAccount (accountId) {
     if (!this.enabled) {
       return
     }
-    if (this.syncing[accountId]) {
-      return this.syncing[accountId].then(() => {
-        return this.syncAccount(accountId)
-      })
+    let account = await Account.get(accountId)
+    if (account.getData().syncing) {
+      return
     }
-    this.syncing[accountId] = Account.get(accountId)
-      .then((account) => {
-        setTimeout(() => this.updateBadge(), 500)
-        return account.sync()
-      })
-      .then(() => {
-        this.syncing[accountId] = false
-        this.updateBadge()
-      }, (error) => {
-        console.error(error)
-        this.syncing[accountId] = false
-        this.updateBadge()
-      })
-    return this.syncing[accountId]
+    setTimeout(() => this.updateBadge(), 500)
+    try {
+      await account.sync()
+    } catch (error) {
+      console.error(error)
+    }
+    this.updateBadge()
   }
 
   async updateBadge () {
