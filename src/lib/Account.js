@@ -129,7 +129,7 @@ export default class Account {
 
       let serverRoot = this.getData().serverRoot
       let serverList = (await this.server.pullBookmarks())
-        .filter(bm => bm.path.indexOf(serverRoot) === 0)
+        .filter(bm => serverRoot ? bm.path.indexOf(serverRoot) === 0 : true)
 
       // deletes everything locally that is not new but doesn't exist on the server anymore
       await this.sync_deleteFromTree(serverList)
