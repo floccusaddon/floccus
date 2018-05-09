@@ -11,6 +11,9 @@ export default class Account {
     let storage = new AccountStorage(id)
     let background = await browser.runtime.getBackgroundPage()
     let data = await storage.getAccountData(background.controller.key)
+    if (typeof data.serverRoot !== 'string') {
+      data.serverRoot = ''
+    }
     let tree = new Tree(storage, data.localRoot, data.serverRoot)
     return new Account(id, storage, Adapter.factory(data), tree)
   }
