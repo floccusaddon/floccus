@@ -1,3 +1,6 @@
+## v2.2.2
+ - FIX: Overtake canonical URLs from server
+
 ## v2.2.1
  - FIX: Add default value for server path setting
 

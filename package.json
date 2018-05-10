@@ -1,6 +1,6 @@
 {
   "name": "floccus",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Sync your bookmarks with nextcloud",
   "main": "index.js",
   "scripts": {
