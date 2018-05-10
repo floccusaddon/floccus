@@ -134,6 +134,9 @@ export default class Account {
       let serverList = (await this.server.pullBookmarks())
         .filter(bm => serverRoot ? bm.path.indexOf(serverRoot) === 0 : true)
 
+      mappings = await this.storage.getMappings()
+      await this.tree.load(mappings)
+
       // deletes everything locally that is not new but doesn't exist on the server anymore
       await this.sync_deleteFromTree(serverList)
       // Goes through server's list and updates creates things locally as needed
@@ -188,9 +191,9 @@ export default class Account {
           // ignore this bookmark as it's not supported by the server
           return
         }
-        serverMark.localId = bookmark.localId
-        await this.storage.addToMappings(serverMark)
-        await this.storage.addToCache(serverMark.localId, await serverMark.hash())
+        bookmark.id = serverMark.id
+        await this.storage.addToMappings(bookmark)
+        await this.storage.addToCache(bookmark.localId, await bookmark.hash())
       },
       BATCH_SIZE
     )
