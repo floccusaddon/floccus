@@ -1,4 +1,5 @@
 import Bookmark from '../Bookmark'
+import humanizeDuration from 'humanize-duration'
 
 const url = require('url')
 
@@ -78,5 +79,92 @@ export default class WebDavAdapter {
 
   async removeBookmark (remoteId) {
     this.db.delete(remoteId)
+  }
+
+  renderOptions (ctl, rootPath) {
+    let data = this.getData()
+    let onchangeURL = (e) => {
+      if (this.saveTimeout) clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => ctl.update({...data, url: e.target.value}), 300)
+    }
+    let onchangeUsername = (e) => {
+      if (this.saveTimeout) clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => ctl.update({...data, username: e.target.value}), 300)
+    }
+    let onchangePassword = (e) => {
+      if (this.saveTimeout) clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => ctl.update({...data, password: e.target.value}), 300)
+    }
+    let onchangeBookmarkFile = (e) => {
+      if (this.saveTimeout) clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => ctl.update({...data, bookmark_file: e.target.value}), 300)
+    }
+    return <div className="account">
+      <form>
+        <table>
+          <tr>
+            <td><label for="url">WebDav server URL:</label></td>
+            <td><input value={new InputInitializeHook(data.url)} type="text" className="url" name="url" ev-keyup={onchangeURL} ev-blur={onchangeURL}/></td>
+          </tr>
+          <tr>
+            <td><label for="username">User name:</label></td>
+            <td><input value={new InputInitializeHook(data.username)} type="text" className="username" name="password" ev-keyup={onchangeUsername} ev-blur={onchangeUsername}/></td>
+          </tr>
+          <tr>
+            <td><label for="password">Password:</label></td>
+            <td><input value={new InputInitializeHook(data.password)} type="password" className="password" name="password" ev-keydown={onchangePassword} ev-blur={onchangePassword}/></td></tr>
+          <tr>
+            <td><label for="bookmark_file">Bookmark File:</label></td>
+            <td><input value={new InputInitializeHook(data.bookmark_file)} type="text" className="text" name="bookmark_file" ev-keydown={onchangePassword} ev-blur={onchangeBookmarkFile}/></td></tr>
+          <tr><td></td><td>
+            <span className="status">{
+              data.syncing
+                ? '↻ Syncing...'
+                : (data.error
+                  ? <span>✘ Error!</span>
+                  : <span>✓ all good</span>
+                )
+            }</span>
+            <a href="#" className="btn openOptions" ev-click={(e) => {
+              e.preventDefault()
+              var options = e.target.parentNode.querySelector('.options')
+              if (options.classList.contains('open')) {
+                e.target.classList.remove('active')
+                options.classList.remove('open')
+              } else {
+                e.target.classList.add('active')
+                options.classList.add('open')
+              }
+            }}>Options</a>
+            <a href="#" className={'btn forceSync ' + (data.syncing ? 'disabled' : '')} ev-click={() => !data.syncing && ctl.sync()}>Sync now</a>
+            <div className="status-details">{data.error
+              ? data.error
+              : data.syncing === 'initial'
+                ? 'Syncing from scratch. This may take a longer than usual...'
+                : 'Last synchronized: ' + (data.lastSync ? humanizeDuration(Date.now() - data.lastSync, {largest: 1, round: true}) + ' ago' : 'never')}</div>
+            <div className="options">
+              <formgroup>
+                <h4>Sync folder</h4>
+                <input type="text" disabled value={rootPath} /><br/>
+                <a href="" title="Reset synchronized folder to create a new one" className={'btn resetRoot ' + (data.syncing ? 'disabled' : '')} ev-click={() => {
+                  !data.syncing && ctl.update({...data, localRoot: null})
+                }}>Reset</a>
+                <a href="#" title="Set an existing folder to sync" className={'btn chooseRoot ' + (data.syncing ? 'disabled' : '')} ev-click={(e) => {
+                  e.preventDefault()
+                  ctl.pickFolder()
+                }}>Choose folder</a>
+              </formgroup>
+              <formgroup>
+                <h4>Remove account</h4>
+                <a href="#" className="btn remove" ev-click={(e) => {
+                  e.preventDefault()
+                  ctl.delete()
+                }}>Delete this account</a>
+              </formgroup>
+            </div>
+          </td></tr>
+        </table>
+      </form>
+    </div>
   }
 }
