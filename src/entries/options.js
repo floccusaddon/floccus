@@ -111,11 +111,11 @@ function renderAccounts (accounts, secured) {
     <a href="" className="btn" id="addaccount" ev-click={() => {
       Account.create({type: 'nextcloud', url: 'http://example.org', username: 'bob', password: 'password'})
         .then(() => triggerRender())
-    }}>Add Nextcloud account</a>
+    }}>Add Nextcloud Account</a>
     <a href="" className="btn" id="addaccountwebdav" ev-click={() => {
       Account.create({type: 'webdav', url: 'http://example.org', username: 'bob', password: 'password', bookmark_file: '/bookmarks.json'})
         .then(() => triggerRender())
-    }}>Add Webdav account</a>
+    }}>Add Webdav Account</a>
     <div className="security">
       <label><input type="checkbox" checked={secured} ev-click={(e) => {
         if (e.currentTarget.checked) {

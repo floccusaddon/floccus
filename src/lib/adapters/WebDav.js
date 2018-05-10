@@ -1,5 +1,14 @@
+/* @jsx el */
+
+import InputInitializeHook from '../InputInitializeHook'
 import Bookmark from '../Bookmark'
 import humanizeDuration from 'humanize-duration'
+
+const {h} = require('virtual-dom')
+
+function el (el, props, ...children) {
+  return h(el, props, children)
+};
 
 const url = require('url')
 
