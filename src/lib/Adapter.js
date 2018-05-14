@@ -1,5 +1,6 @@
 import NextcloudAdapter from './adapters/Nextcloud'
 import FakeAdapter from './adapters/Fake'
+import WebDavAdapter from './adapters/WebDav'
 
 export default class Adapter {
   static factory (data) {
@@ -10,6 +11,9 @@ export default class Adapter {
         break
       case 'fake':
         adapter = new FakeAdapter(data)
+        break
+      case 'webdav':
+        adapter = new WebDavAdapter(data)
         break
       default:
         throw new Error('Unknown account type')
