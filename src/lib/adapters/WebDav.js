@@ -14,8 +14,14 @@ const url = require('url')
 
 export default class WebDavAdapter {
   constructor (server) {
+    console.log('Webdav constructor');
+    console.log(server);
+
     this.server = server
     this.db = new Map()
+
+    console.log ("THIS");
+    console.log (this);
   }
 
   setData (data) {
@@ -40,6 +46,8 @@ export default class WebDavAdapter {
       })
 
     console.log('Received bookmarks from server', bookmarks)
+console.log ("THIS");
+console.log (this);
     return bookmarks
   }
 
@@ -54,6 +62,7 @@ export default class WebDavAdapter {
   }
 
   async createBookmark (bm) {
+    console.log('Create single bookmark', bm, this.server)
     if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
       return false
     }
@@ -68,10 +77,13 @@ export default class WebDavAdapter {
       , title: bm.title
       , path: bm.path
     })
+console.log ("THIS");
+console.log (this);
     return bm
   }
 
   async updateBookmark (remoteId, newBm) {
+    console.log('Update bookmark', newBM, remoteId, this.server)
     if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(newBm.url).protocol)) {
       return false
     }
@@ -83,11 +95,16 @@ export default class WebDavAdapter {
       , title: newBm.title
       , path: newBm.path
     })
+console.log ("THIS");
+console.log (this);
     return new Bookmark(remoteId, null, newBm.url, newBm.title, newBm.path)
   }
 
   async removeBookmark (remoteId) {
+    console.log('Remove bookmark', remoteId, this.server)
     this.db.delete(remoteId)
+console.log ("THIS");
+console.log (this);
   }
 
   renderOptions (ctl, rootPath) {
