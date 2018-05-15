@@ -14,6 +14,7 @@ export default class Adapter {
         break
       case 'webdav':
         adapter = new WebDavAdapter(data)
+//        adapter = WebDavAdapter.getMultiton (data);
         break
       default:
         throw new Error('Unknown account type')
