@@ -267,7 +267,7 @@ export default class Account {
           await this.storage.addToCache(node.id, await serverMark.hash())
         }
       },
-      BATCH_SIZE
+      1 // concurrency
     )
   }
 
