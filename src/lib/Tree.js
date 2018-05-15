@@ -138,8 +138,8 @@ export default class Tree {
           .map((node) => recurse(descendantPath, node))
       )
 
-      const newNode = (await browser.bookmarks.getSubTree(node.id))[0]
-      if (!newNode.children.length && node.id !== this.rootId && parentPath !== '/') {
+      const children = await browser.bookmarks.getChildren(node.id)
+      if (!children.length && node.id !== this.rootId && parentPath !== '/') {
         console.log('Remove orphaned folder: ' + descendantPath)
         await browser.bookmarks.remove(node.id)
       }
@@ -203,15 +203,14 @@ export default class Tree {
     let title = pathSegment.replace(/[\\][/]/g, '/')
 
     let child = await treeLock.acquire(rootId, async () => {
-      let root = (await browser.bookmarks.getSubTree(rootId))[0]
-      if (!Array.isArray(root.children)) {
-        throw new Error('given path root is not a folder')
+      let children = await browser.bookmarks.getChildren(rootId)
+      let childrenWithRightName = children.filter(bm => bm.title === title)
+      for (var i = 0; i < childrenWithRightName.length; i++) {
+        let subChildren = await browser.bookmarks.getChildren(childrenWithRightName[i].id)
+        if (subChildren.length) {
+          return childrenWithRightName[i]
+        }
       }
-
-      child = root.children
-        .filter(bm => bm.title === title)
-        .filter(bm => !!bm.children)[0]
-      if (child) return child
       return browser.bookmarks.create({parentId: rootId, title})
     })
     if (allAccounts.some(acc => acc.getData().localRoot === child.id)) {
