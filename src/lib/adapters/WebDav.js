@@ -20,7 +20,7 @@ function getServerKey (server) {
     key = key + "," + server.bookmark_file;
     key = key + "," + server.port;
 
-    return key; 
+    return key;
 }
 
 var WebDavAdapters = new Map ();
@@ -33,15 +33,13 @@ export default class WebDavAdapter {
         this.server = server;
         this.db = new Map();
 
-/*
         this.webdav_config = {
             'host': this.server.url,
-            'username': username,
-            'password': password,
+            'username': this.server.username,
+            'password': this.server.password,
         };
 
-        this.webdav = new nl.sara.webdav.Client (webdav_config, this.server.isHttps, this.server.port);
-*/
+        this.webdav = new nl.sara.webdav.Client (this.webdav_config, this.server.isHttps, this.server.port);
 
         console.log ("THIS");
         console.log (this);
@@ -66,23 +64,11 @@ export default class WebDavAdapter {
         return wda;
     }
 
-/*
     webdav_put_callback (wdStatus, wdBody, wdHeaders) {
         console.log ("webdav_put_callback: Status: " + wdStatus);
         this.wdPromise.resolve ();
         return;
     }
-
-    async syncComplete () {
-        console.log ("WebDav: Copying JSON file to server");
-        let bookmarksAsJSON = this.getBookmarksAsJSON ();
-
-        this.webdav.put (this.server.bookmark_file, webdav_put_callback, bookmarsAsJSON, 'application/json');
-        this.wdPromise = new Promise ();
-
-        await this.wdPromise;
-    }
-*/
 
     setData (data) {
         this.server = data
@@ -104,7 +90,7 @@ export default class WebDavAdapter {
         for (var i = 0; i < values.length; ++i)
         {
             let value = values [i];
-            bookmarksList.push ( 
+            bookmarksList.push (
                 {
                     idx: i,
                     path: value.path,
@@ -114,6 +100,29 @@ export default class WebDavAdapter {
         }
 
         return JSON.stringify (bookmarksList, null, 4);
+    }
+
+    async syncComplete () {
+        console.log ("WebDav: Copying JSON file to server");
+        this.bookmarksAsJSON = this.getBookmarksAsJSON ();
+
+        console.log ("path :" + this.server.bookmark_file + ":");
+        console.log ("BODY");
+        console.log (this.bookmarksAsJSON);
+
+        let fullUrl = this.server.bookmark_file;
+
+        console.log ("fullURL :" + fullUrl + ":");
+
+        await new Promise (
+            (resolve, reject) => {
+                this.webdav.put (fullUrl,
+                    (wdStatus, wdBody, wdHeaders) => {
+                        console.log ("webdav_put_callback: Status: " + wdStatus);
+                        resolve (wdStatus);
+                    }, this.bookmarksAsJSON, 'application/json', []);
+            }
+        );
     }
 
     async pullBookmarks () {
