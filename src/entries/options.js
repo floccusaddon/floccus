@@ -119,7 +119,7 @@ function renderAccounts (accounts, secured) {
         .then(() => triggerRender())
     }}>Add Nextcloud Account</a>
     <a href="" className="btn" id="addaccountwebdav" ev-click={() => {
-      Account.create({type: 'webdav', url: 'http://example.org', username: 'bob', password: 'password', bookmark_file: '/bookmarks.json'})
+      Account.create({type: 'webdav', url: 'http://example.org', username: 'bob', port: 443, password: 'password', bookmark_file: '/bookmarks.json'})
         .then(() => triggerRender())
     }}>Add Webdav Account</a>
     <div className="security">
