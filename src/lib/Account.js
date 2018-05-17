@@ -28,6 +28,9 @@ export default class Account {
   }
 
   static async create (data) {
+console.log ("Account.create: 001");
+console.log (data);
+
     let id = '' + Math.floor(Math.random() * 10000000000)
     let storage = new AccountStorage(id)
 
@@ -161,6 +164,9 @@ export default class Account {
       await this.tree.removeOrphanedFolders()
 
       await this.setData({...this.getData(), error: null, syncing: false, lastSync: Date.now()})
+
+      await this.server.syncComplete ();
+
       console.log('Successfully ended sync process for account ' + this.getLabel())
     } catch (e) {
       if (e.list) {
