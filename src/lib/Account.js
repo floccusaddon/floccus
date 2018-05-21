@@ -8,6 +8,13 @@ const BATCH_SIZE = 10
 
 export default class Account {
   static async get (id) {
+    if (!this.cache) {
+      this.cache = {}
+    }
+    if (this.cache[id]) {
+      this.cache[id].updateFromStorage()
+      return this.cache[id]
+    }
     let storage = new AccountStorage(id)
     let background = await browser.runtime.getBackgroundPage()
     let data = await storage.getAccountData(background.controller.key)
@@ -15,7 +22,9 @@ export default class Account {
       data.serverRoot = ''
     }
     let tree = new Tree(storage, data.localRoot, data.serverRoot)
-    return new Account(id, storage, Adapter.factory(data), tree)
+    let account = new Account(id, storage, Adapter.factory(data), tree)
+    this.cache[id] = account
+    return account
   }
 
   static async create (data) {
@@ -50,6 +59,12 @@ export default class Account {
     this.server.setData(data)
     let background = await browser.runtime.getBackgroundPage()
     await this.storage.setAccountData(data, background.controller.key)
+  }
+
+  async updateFromStorage () {
+    let background = await browser.runtime.getBackgroundPage()
+    let data = await this.storage.getAccountData(background.controller.key)
+    this.server.setData(data)
   }
 
   async tracksBookmark (localId) {
@@ -110,6 +125,7 @@ export default class Account {
 
   async sync () {
     try {
+      if (this.getData().syncing) return
       console.log('Starting sync process for account ' + this.getLabel())
       await this.setData({...this.getData(), syncing: true})
       if (!(await this.isInitialized())) {
