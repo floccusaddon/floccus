@@ -1,3 +1,6 @@
+## v2.2.3
+ - FIX: Debounce sync task to avoid peculiar failures
+
 ## v2.2.2
  - FIX: Overtake canonical URLs from server
 
