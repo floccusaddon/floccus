@@ -125,6 +125,9 @@ export default class Account {
 
   async sync () {
     try {
+      if ('syncStart' in this.server)
+        await this.server.syncStart ();
+
       if (this.getData().syncing || this.syncing) return
       console.log('Starting sync process for account ' + this.getLabel())
       this.syncing = true
