@@ -18,7 +18,16 @@ function getServerKey (server) {
     key = key + "," + server.url;
     key = key + "," + server.username;
     key = key + "," + server.bookmark_file;
-    key = key + "," + server.port;
+
+    return key;
+}
+
+function getBookmarkKey (bm) {
+    let key = "";
+
+    key = bm.path;
+    key = "," + bm.title;
+    key = "," + bm.url;
 
     return key;
 }
@@ -56,23 +65,17 @@ export default class WebDavAdapter {
         return wda;
     }
 
-    webdav_put_callback (wdStatus, wdBody, wdHeaders) {
-        console.log ("webdav_put_callback: Status: " + wdStatus);
-        this.wdPromise.resolve ();
-        return;
-    }
-
     setData (data) {
-        this.server = data
+        this.server = data;
     }
 
     getData () {
-        return JSON.parse(JSON.stringify(this.server))
+        return JSON.parse(JSON.stringify(this.server));
     }
 
     getLabel () {
-        let data = this.getData()
-            return data.username + '@' + data.url
+        let data = this.getData();
+        return data.username + '@' + data.url;
     }
 
     getBookmarksAsJSON () {
@@ -84,7 +87,7 @@ export default class WebDavAdapter {
             let value = values [i];
             bookmarksList.push (
                 {
-                    idx: i,
+                    id: value.id,
                     path: value.path,
                     url: value.url,
                     title: value.title,
@@ -105,18 +108,17 @@ export default class WebDavAdapter {
 
         let fullUrl = this.server.bookmark_file;
         fullUrl = this.server.url + fullUrl;
-
         console.log ("fullURL :" + fullUrl + ":");
 
         try {
-        await fetch (fullUrl, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
-                },
-                body: this.bookmarksAsJSON
-            });
+            await fetch (fullUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
+                    },
+                    body: this.bookmarksAsJSON
+                });
         } catch (e) {
             console.log ("Error Caught");
             console.log (e);
@@ -124,32 +126,126 @@ export default class WebDavAdapter {
         }
     }
 
+    async pullFromServer () {
+        let fullUrl = this.server.bookmark_file;
+        fullUrl = this.server.url + fullUrl;
+        console.log ("fullURL :" + fullUrl + ":");
+
+        let myBookmarks = this.getBookmarksAsJSON ();
+        let response;
+
+        try {
+            response = await fetch (fullUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
+                    }
+                });
+        } catch (e) {
+            console.log ("Error Caught");
+            console.log (e);
+            throw new Error('Network error: Check your network connection and your account details');
+        }
+
+        if (response.status === 401) {
+            throw new Error('Couldn\'t authenticate for removing bookmarks from the server.');
+        }
+
+        if (response.status !== 200) {
+            return {
+                'status' : response.status,
+                'db' : new Map ()
+            };
+        }
+
+        let bookmark_array = await response.json();
+        let server_db = new Map ();
+
+        bookmark_array.forEach ( (bm) => {
+            server_db.set(bm.id, {
+                id: bm.id
+                , url: bm.url
+                , title: bm.title
+                , path: bm.path
+            });
+        });
+
+console.log ("response out");
+console.log (server_db);
+
+        return {
+            'status' : response.status,
+            'db' : server_db
+        };
+    }
+
+    async syncStart () {
+        console.log ("syncStart: started");
+        try {
+            let resp = await this.pullFromServer ();
+            this.db = resp.db;
+
+console.log ("resp");
+console.log (resp);
+
+            if (resp.status !== 200)
+            {
+                if (resp.status !== 404)
+                {
+                    throw new Error('Failed to fetch bookmarks :' + resp.status + ":");
+                }
+            }
+        } catch (e) {
+            console.log ("caught error");
+            console.log (e);
+
+            this.db = new Map ();
+        }
+
+        console.log ("syncStart: completed");
+    }
+
     async pullBookmarks () {
         console.log('Fetching bookmarks', this.server)
 
-            let bookmarks = Array.from(this.db.values())
+        let server_db;
+        try {
+            let resp = await this.pullFromServer ();
+            server_db = resp.db;
+
+            if (resp.status !== 200)
+            {
+                if (resp.status !== 404)
+                {
+                    throw new Error('Failed to fetch bookmarks :' + resp.status + ":");
+                }
+            }
+        } catch (e) {
+            console.log ("caught error");
+            console.log (e);
+
+            server_db = new Map ();
+        }
+
+        let myBookmarks = Array.from(server_db.values())
             .map(bm => {
                     return new Bookmark(bm.id, null, bm.url, bm.title, bm.path)
                     })
 
-        console.log('Received bookmarks from server', bookmarks)
-
-        let myBookmarks = this.getBookmarksAsJSON ();
-
-        console.log ("pullBookmarks: 002");
+        console.log('Received bookmarks from server')
         console.log (myBookmarks);
 
-        return bookmarks
+        return myBookmarks
     }
 
     async getBookmark (id, autoupdate) {
-        console.log('Fetching single bookmark', this.server)
-            let bm = this.db.get(id)
-            if (!bm) {
-                throw new Error('Failed to fetch bookmark')
-            }
-        let bookmark = new Bookmark(bm.id, null, bm.url, bm.title, bm.path)
-            return bookmark
+        console.log('Fetching single bookmark', this.server);
+        let bm = this.db.get(id);
+        if (!bm) {
+            throw new Error('Failed to fetch bookmark');
+        }
+        let bookmark = new Bookmark(bm.id, null, bm.url, bm.title, bm.path);
+        return bookmark;
     }
 
     async createBookmark (bm) {
@@ -160,18 +256,25 @@ export default class WebDavAdapter {
 
         let highestID = 0;
         this.db.forEach ( (value, key) => {
-                if (value && value.id && highestID < value.id)
-                highestID = value.id;
-                }
-                );
+            if (value && value.id && highestID < value.id)
+            highestID = value.id;
+        });
 
-        bm.id = highestID + 1
-            this.db.set(bm.id, {
-                id: bm.id
-                , url: bm.url
-                , title: bm.title
-                , path: bm.path
-                });
+        bm.id = highestID + 1;
+
+try {
+        this.db.set(bm.id, {
+            id: bm.id
+            , url: bm.url
+            , title: bm.title
+            , path: bm.path
+        });
+} catch (e) {
+    console.log ("SET FAILED");
+    console.log (e);
+    console.log (this);
+    console.log (bm);
+}
 
         return bm;
     }
@@ -196,14 +299,12 @@ export default class WebDavAdapter {
 
     async removeBookmark (remoteId) {
         console.log('Remove bookmark', remoteId, this.server)
-            this.db.delete(remoteId)
-            console.log ("THIS");
+        this.db.delete(remoteId);
+        console.log ("THIS");
         console.log (this);
     }
 
     renderOptions (ctl, rootPath) {
-console.log ("renderOptions: 001");
-
         let data = this.getData()
 
         let onchangeURL = (e) => {
@@ -228,20 +329,12 @@ console.log ("renderOptions: 001");
             if (this.saveTimeout) clearTimeout(this.saveTimeout)
                 this.saveTimeout = setTimeout(() => ctl.update({...data, bookmark_file: e.target.value}), 300)
         }
-        let onchangePort = (e) => {
-            if (this.saveTimeout) clearTimeout(this.saveTimeout)
-                this.saveTimeout = setTimeout(() => ctl.update({...data, port: e.target.value}), 300)
-        }
         return <div className="account">
             <form>
             <table>
             <tr>
             <td><label for="url">WebDav Server URL:</label></td>
             <td><input value={new InputInitializeHook(data.url)} type="text" className="url" name="url" ev-keyup={onchangeURL} ev-blur={onchangeURL}/></td>
-            </tr>
-            <tr>
-            <td><label for="port">WebDav Server Port:</label></td>
-            <td><input value={new InputInitializeHook(data.port)} type="text" className="port" name="port" ev-keyup={onchangePort} ev-blur={onchangePort}/></td>
             </tr>
             <tr>
             <td><label for="username">User name:</label></td>

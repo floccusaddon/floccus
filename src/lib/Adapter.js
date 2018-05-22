@@ -61,7 +61,4 @@ export default class Adapter {
   removeBookmark () {
     throw new Error('Not implemented')
   }
-
-  async syncComplete () {
-  }
 }

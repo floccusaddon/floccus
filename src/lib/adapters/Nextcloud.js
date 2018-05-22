@@ -1,4 +1,3 @@
-/* @jsx el */
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
 import InputInitializeHook from '../InputInitializeHook'
