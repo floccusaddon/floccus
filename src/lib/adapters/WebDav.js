@@ -33,14 +33,6 @@ export default class WebDavAdapter {
         this.server = server;
         this.db = new Map();
 
-        this.webdav_config = {
-            'host': this.server.url,
-            'username': this.server.username,
-            'password': this.server.password,
-        };
-
-        this.webdav = new nl.sara.webdav.Client (this.webdav_config, this.server.isHttps, this.server.port);
-
         console.log ("THIS");
         console.log (this);
     }
@@ -109,20 +101,27 @@ export default class WebDavAdapter {
         console.log ("path :" + this.server.bookmark_file + ":");
         console.log ("BODY");
         console.log (this.bookmarksAsJSON);
+        console.log (this.server);
 
         let fullUrl = this.server.bookmark_file;
+        fullUrl = this.server.url + fullUrl;
 
         console.log ("fullURL :" + fullUrl + ":");
 
-        await new Promise (
-            (resolve, reject) => {
-                this.webdav.put (fullUrl,
-                    (wdStatus, wdBody, wdHeaders) => {
-                        console.log ("webdav_put_callback: Status: " + wdStatus);
-                        resolve (wdStatus);
-                    }, this.bookmarksAsJSON, 'application/json', []);
-            }
-        );
+        try {
+        await fetch (fullUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
+                },
+                body: this.bookmarksAsJSON
+            });
+        } catch (e) {
+            console.log ("Error Caught");
+            console.log (e);
+            throw new Error('Network error: Check your network connection and your account details');
+        }
     }
 
     async pullBookmarks () {
@@ -211,11 +210,10 @@ console.log ("renderOptions: 001");
             if (this.saveTimeout) clearTimeout(this.saveTimeout)
             {
                 let myUrl = e.target.value;
-                this.saveTimeout = setTimeout(() => ctl.update({...data, url: myUrl}), 300);
                 let myHttps = 0;
                 if (~['https:'].indexOf(url.parse(myUrl).protocol))
                     myHttps = 1;
-                this.saveTimeout = setTimeout(() => ctl.update({...data, isHttps: myHttps}), 300);
+                this.saveTimeout = setTimeout(() => ctl.update({...data, url: myUrl, isHttps: myHttps}), 300);
             }
         }
         let onchangeUsername = (e) => {
