@@ -16,7 +16,8 @@
   },
 
  "permissions": [
-    "https://*/*"
+    "https://*/"
+  , "http://*/"
   , "alarms"
   , "bookmarks"
   , "storage"
