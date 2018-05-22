@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "floccus",
   "short_name": "floccus",
-  "version": "2.2.3",
+  "version": "2.2.2",
   "description": "Sync your bookmarks with nextcloud",
   "icons": {
     "48": "icons/logo.png"
@@ -17,6 +17,7 @@
 
  "permissions": [
     "https://*/*"
+  , "http://*/*"
   , "alarms"
   , "bookmarks"
   , "storage"
