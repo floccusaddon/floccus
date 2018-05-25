@@ -12,16 +12,6 @@ function el (el, props, ...children) {
 
 const url = require('url')
 
-function getServerKey (server) {
-    let key = "";
-
-    key = key + "," + server.url;
-    key = key + "," + server.username;
-    key = key + "," + server.bookmark_file;
-
-    return key;
-}
-
 function getBookmarkKey (bm) {
     let key = "";
 
@@ -31,8 +21,6 @@ function getBookmarkKey (bm) {
 
     return key;
 }
-
-var WebDavAdapters = new Map ();
 
 export default class WebDavAdapter {
     constructor (server) {
@@ -44,25 +32,6 @@ export default class WebDavAdapter {
 
         console.log ("THIS");
         console.log (this);
-    }
-
-    // WebDavAdapter is a multiton based in server
-    static getMultiton (server) {
-        let key = getServerKey (server);
-        console.log ("getInstance: KEY :" + key + ":");
-
-        let wda = WebDavAdapters.get(key);
-        if (wda)
-        {
-            console.log ("Returning multiton");
-            return wda;
-        }
-
-        console.log ("Creating new instance");
-        wda = new WebDavAdapter (server);
-        WebDavAdapters.set (key, wda);
-
-        return wda;
     }
 
     setData (data) {
@@ -209,28 +178,26 @@ console.log (resp);
         console.log('Fetching bookmarks', this.server)
 
         let server_db;
-        try {
-            let resp = await this.pullFromServer ();
-            server_db = resp.db;
+        let resp = await this.pullFromServer ();
+        server_db = resp.db;
 
-            if (resp.status !== 200)
-            {
-                if (resp.status !== 404)
-                {
-                    throw new Error('Failed to fetch bookmarks :' + resp.status + ":");
-                }
+        if (resp.status !== 200)
+        {
+            if (response.status === 401) {
+                throw new Error('Couldn\'t authenticate for removing bookmarks from the server.')
             }
-        } catch (e) {
-            console.log ("caught error");
-            console.log (e);
 
-            server_db = new Map ();
+            if (resp.status !== 404)
+            {
+                throw new Error('Failed to fetch bookmarks :' + resp.status + ":");
+            }
         }
 
         let myBookmarks = Array.from(server_db.values())
             .map(bm => {
                     return new Bookmark(bm.id, null, bm.url, bm.title, bm.path)
-                    })
+            }
+        );
 
         console.log('Received bookmarks from server')
         console.log (myBookmarks);
@@ -250,9 +217,20 @@ console.log (resp);
 
     async createBookmark (bm) {
         console.log('Create single bookmark', bm, this.server)
-            if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
-                return false
-            }
+
+        // Per Marcel
+        // Also, since the user can also delete bookmarks, it might be
+        // best to have the counter persisted in the file, otherwise,
+        // if the last entry is deleted and at the same time a new bookmark
+        // is created, it gets the same id, causing other clients to think
+        // it was changed, rather then two independent operations. Not sure
+        // if that's actually a problem, but let's not make it one :)
+
+        // I am going to postpone work on this, till I get XBEL format worked
+        // out.   If there is a place in XBEL I can persist the id count that
+        // would be perfect.   I could always have an augment file that could
+        // persist the highestID, but that would ask for a 2nd webdav call and
+        // unnecessary network overhead.
 
         let highestID = 0;
         this.db.forEach ( (value, key) => {
@@ -262,28 +240,19 @@ console.log (resp);
 
         bm.id = highestID + 1;
 
-try {
         this.db.set(bm.id, {
             id: bm.id
             , url: bm.url
             , title: bm.title
             , path: bm.path
         });
-} catch (e) {
-    console.log ("SET FAILED");
-    console.log (e);
-    console.log (this);
-    console.log (bm);
-}
 
         return bm;
     }
 
     async updateBookmark (remoteId, newBm) {
         console.log('Update bookmark', newBM, remoteId, this.server)
-        if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(newBm.url).protocol)) {
-            return false
-        }
+
         let bm = await this.getBookmark(remoteId, false)
 
         this.db.set(bm.id, {
@@ -308,13 +277,12 @@ try {
         let data = this.getData()
 
         let onchangeURL = (e) => {
-            if (this.saveTimeout) clearTimeout(this.saveTimeout)
+            if (this.saveTimeout)
+                clearTimeout(this.saveTimeout);
+
             {
                 let myUrl = e.target.value;
-                let myHttps = 0;
-                if (~['https:'].indexOf(url.parse(myUrl).protocol))
-                    myHttps = 1;
-                this.saveTimeout = setTimeout(() => ctl.update({...data, url: myUrl, isHttps: myHttps}), 300);
+                this.saveTimeout = setTimeout(() => ctl.update({...data, url: myUrl}), 300);
             }
         }
         let onchangeUsername = (e) => {
