@@ -12,16 +12,6 @@ function el (el, props, ...children) {
 
 const url = require('url')
 
-function getBookmarkKey (bm) {
-    let key = "";
-
-    key = bm.path;
-    key = "," + bm.title;
-    key = "," + bm.url;
-
-    return key;
-}
-
 export default class WebDavAdapter {
     constructor (server) {
         console.log('Webdav constructor');
@@ -66,14 +56,46 @@ export default class WebDavAdapter {
         return JSON.stringify (bookmarksList, null, 4);
     }
 
-    async syncComplete () {
-        console.log ("WebDav: Copying JSON file to server");
-        this.bookmarksAsJSON = this.getBookmarksAsJSON ();
+    async webDavLockFile () {
+        console.log ("lockFile: 001");
 
-        console.log ("path :" + this.server.bookmark_file + ":");
-        console.log ("BODY");
-        console.log (this.bookmarksAsJSON);
-        console.log (this.server);
+        let fullUrl = this.server.bookmark_file;
+        fullUrl = this.server.url + fullUrl;
+        console.log ("fullURL :" + fullUrl + ":");
+
+        let xml_body = `<?xml version="1.0" encoding="utf-8" ?>
+ <D:lockinfo xmlns:D=’DAV:’>
+ <D:lockscope><D:exclusive/></D:lockscope>
+ <D:locktype><D:write/></D:locktype>
+ <D:owner>
+ <D:href>http://example.org/~ejw/contact.html</D:href>
+ </D:owner>
+ </D:lockinfo>`;
+
+        let response;
+
+        try {
+            response = await fetch (fullUrl, {
+                    method: 'LOCK',
+                    headers: {
+                        'Timeout': 'Second-30',
+                        'Content-Type': 'text/xml',
+                        'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
+                    },
+                    body: xml_body
+                });
+
+            console.log ("response");
+            console.log (response);
+        } catch (e) {
+            console.log ("Error Caught");
+            console.log (e);
+        }
+    }
+
+    async syncComplete () {
+        console.log ("WebDav: Uploading JSON file to server");
+        this.bookmarksAsJSON = this.getBookmarksAsJSON ();
 
         let fullUrl = this.server.bookmark_file;
         fullUrl = this.server.url + fullUrl;
@@ -100,7 +122,6 @@ export default class WebDavAdapter {
         fullUrl = this.server.url + fullUrl;
         console.log ("fullURL :" + fullUrl + ":");
 
-        let myBookmarks = this.getBookmarksAsJSON ();
         let response;
 
         try {
@@ -151,11 +172,18 @@ console.log (server_db);
     async syncStart () {
         console.log ("syncStart: started");
         try {
+console.log ("sending lockfile");
+            await this.webDavLockFile ();
+console.log ("returned lockfile");
+        }
+        catch (e) {
+            console.log ("WebDavLock failed");
+            console.log (e);
+        }
+
+        try {
             let resp = await this.pullFromServer ();
             this.db = resp.db;
-
-console.log ("resp");
-console.log (resp);
 
             if (resp.status !== 200)
             {
@@ -183,7 +211,7 @@ console.log (resp);
 
         if (resp.status !== 200)
         {
-            if (response.status === 401) {
+            if (resp.status === 401) {
                 throw new Error('Couldn\'t authenticate for removing bookmarks from the server.')
             }
 
