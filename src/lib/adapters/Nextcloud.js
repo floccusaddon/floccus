@@ -24,29 +24,22 @@ export default class NextcloudAdapter {
 
   renderOptions (ctl, rootPath) {
     let data = this.getData()
-    const saveTimeout = 1000
     let onchangeURL = (e) => {
-      if (this.saveTimeout) clearTimeout(this.saveTimeout)
-      this.saveTimeout = setTimeout(() => ctl.update({...data, url: e.target.value}), saveTimeout)
+      ctl.update({...data, url: e.target.value})
     }
     let onchangeUsername = (e) => {
-      if (this.saveTimeout) clearTimeout(this.saveTimeout)
-      this.saveTimeout = setTimeout(() => ctl.update({...data, username: e.target.value}), saveTimeout)
+      ctl.update({...data, username: e.target.value})
     }
     let onchangePassword = (e) => {
-      if (this.saveTimeout) clearTimeout(this.saveTimeout)
-      this.saveTimeout = setTimeout(() => ctl.update({...data, password: e.target.value}), saveTimeout)
+      ctl.update({...data, password: e.target.value})
     }
     let onchangeServerRoot = (e) => {
-      if (this.saveTimeout) clearTimeout(this.saveTimeout)
-      this.saveTimeout = setTimeout(() => {
-        let val = e.target.value
-        if (val[val.length - 1] === '/') {
-          val = val.substr(0,  val.length - 1)
-          e.target.value = val
-        }
-        ctl.update({...data, serverRoot: e.target.value})
-      }, saveTimeout)
+      let val = e.target.value
+      if (val[val.length - 1] === '/') {
+        val = val.substr(0, val.length - 1)
+        e.target.value = val
+      }
+      ctl.update({...data, serverRoot: e.target.value})
     }
     return <div className="account">
       <form>
