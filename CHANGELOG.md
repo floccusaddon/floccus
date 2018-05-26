@@ -1,3 +1,6 @@
+## v2.2.4
+ - FIX: options wouldn't store values
+
 ## v2.2.3
  - FIX: Debounce sync task to avoid peculiar failures
 
