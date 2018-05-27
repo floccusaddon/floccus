@@ -1,3 +1,6 @@
+## v2.2.5
+ - FIX: Account cache was broken
+
 ## v2.2.4
  - FIX: options wouldn't store values
 
