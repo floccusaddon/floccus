@@ -12,7 +12,7 @@ export default class Account {
       this.cache = {}
     }
     if (this.cache[id]) {
-      this.cache[id].updateFromStorage()
+      await this.cache[id].updateFromStorage()
       return this.cache[id]
     }
     let storage = new AccountStorage(id)
