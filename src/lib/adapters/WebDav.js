@@ -182,7 +182,75 @@ export default class WebDavAdapter {
             console.log ("Error Caught");
             console.log (e);
         }
-       
+    }
+
+    addBookmark (myStructure, bm)
+    {
+        let myArray = bm.path.split ("/");
+        let idx;
+        let current = myStructure;
+        let current_path = "";
+
+        for (idx = 1; idx < myArray.length; ++idx)
+        {
+            let item = myArray [idx];
+            if (item in current.folders)
+            {
+                current = current.folders [item];
+            }
+            else
+            {
+                let newpath;
+
+                if (current.path == '/')
+                {
+                    newpath = current.path + item;
+                }
+                else
+                {
+                    newpath = current.path + "/" + item;
+                }
+
+                current.folders [item] = {
+                    'title': item,
+                    'path': newpath,
+                    'bookmarks': [],
+                    'folders': {},
+                };
+
+                current = current.folders [item];
+            }
+        }
+
+        current.bookmarks.push ({
+            'title': bm.title,
+            'id': bm.id,
+            'path': bm.path,
+            'url': bm.url
+        });
+
+        console.log ("addBookmark");
+        console.log (myStructure);
+    }
+
+    convertToStructure () {
+        try {
+            let myBookmarks = Array.from(this.db.values());
+            let myStructure = {
+                    'title': '',
+                    'path': '',
+                    'bookmarks': [],
+                    'folders': {},
+            };
+
+            myBookmarks.forEach ( (bm) => {
+                this.addBookmark (myStructure, bm);
+            });
+        }
+        catch (e) {
+            console.log ("error");
+            console.log (e);
+        }
     }
 
     async syncComplete () {
@@ -209,12 +277,59 @@ export default class WebDavAdapter {
         }
 
 		this.freeLock ();
+
+        this.convertToStructure ();
     }
 
     async pullFromServer () {
+        let fullUrl = this.server.bookmark_file;
+        fullUrl = this.server.url + fullUrl;
+        console.log ("fullURL :" + fullUrl + ":");
+
+        let response;
+
+        try {
+            response = await fetch (fullUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
+                    }
+                });
+        } catch (e) {
+            console.log ("Error Caught");
+            console.log (e);
+            throw new Error('Network error: Check your network connection and your account details');
+        }
+
+        if (response.status === 401) {
+            throw new Error('Couldn\'t authenticate for removing bookmarks from the server.');
+        }
+
+        if (response.status !== 200) {
+            return {
+                'status' : response.status,
+                'db' : new Map ()
+            };
+        }
+
+        let bookmark_array = await response.json();
+        let server_db = new Map ();
+
+        bookmark_array.forEach ( (bm) => {
+            server_db.set(bm.id, {
+                id: bm.id
+                , url: bm.url
+                , title: bm.title
+                , path: bm.path
+            });
+        });
+
+console.log ("response out");
+console.log (server_db);
+
         return {
-            'status' : 200,
-            'db' : this.db
+            'status' : response.status,
+            'db' : server_db
         };
     }
 
