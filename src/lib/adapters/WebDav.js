@@ -100,6 +100,24 @@ export default class WebDavAdapter {
     	return new Promise(resolve => setTimeout(resolve, ms));
 	}
 
+    async uploadFile (url, content_type, data) 
+    {
+        try {
+            await fetch (url, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': content_type,
+                        'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
+                    },
+                    body: data
+                });
+        } catch (e) {
+            console.log ("Error Caught");
+            console.log (e);
+            throw new Error('Network error: Check your network connection and your account details');
+        }
+    }
+
     async obtainLock () {
         console.log ("obtainLock: 001");
 
@@ -132,20 +150,7 @@ export default class WebDavAdapter {
 			console.log ("obtainLock: 005 " + rStatus);
 			let fullURL = this.getBookmarkLockURL ();
 			console.log (fullURL);
-			try {
-				await fetch (fullURL, {
-						method: 'PUT',
-						headers: {
-							'Content-Type': 'text/html',
-							'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
-						},
-						body: '<html><body>I am a lock file</body></html>'
-					});
-			} catch (e) {
-            	console.log ("Error Caught");
-            	console.log (e);
-            	throw new Error('Network error: Check your network connection and your account details');
-        	}
+            this.uploadFile (fullURL, 'text/html', '<html><body>I am a lock file</body></html>');
 		}
 		else {
 			console.log ("obtainLock: 006 " + rStatus);
@@ -184,7 +189,8 @@ export default class WebDavAdapter {
         }
     }
 
-    addBookmark (myStructure, bm)
+    /* private routine */
+    _addBookmark (myStructure, bm)
     {
         let myArray = bm.path.split ("/");
         let idx;
@@ -228,31 +234,93 @@ export default class WebDavAdapter {
             'path': bm.path,
             'url': bm.url
         });
+    }
 
-        console.log ("addBookmark");
-        console.log (myStructure);
+    htmlEncode ( content ) {
+        return document.createElement('a').appendChild(
+            document.createTextNode (content)).parentNode.innerHTML;
+    }
+
+    htmlDecode ( content ) {
+        let a = document.createElement ('a');
+        a.innerHTML = html;
+        return a.textContent;
+    }
+
+    CDATAEncode ( content ) {
+        return '<![CDATA[' + content + ']]>';
+    }
+
+	outputFolderXBEL (myStructure, indent) {
+		let output = "";
+
+		myStructure.bookmarks.forEach ((bm) => {
+			output += indent + '<bookmark href=';
+            output += '"' + this.htmlEncode (bm.url) + '"';
+            output += ' id="' + bm.id + `">
+`;	
+			output += indent + "    <title>" + this.htmlEncode (bm.title) + `</title>
+`;
+			output += indent + `</bookmark>
+`;
+		});
+
+		let keys = Object.keys (myStructure.folders);
+		let values = keys.map ((v) => { return myStructure.folders[v]; });
+
+		values.forEach ((folder) => {
+			output += indent + `<folder>
+`;
+			output += indent + '    <title>' + this.htmlEncode (folder.title) + `</title>
+`;
+
+			output += this.outputFolderXBEL (folder, indent + '    ');
+
+			output += indent + `</folder>
+`;
+		});
+
+		return output;
+	}
+
+    createXBEL (myStructure) {
+        let output = `<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE xbel PUBLIC "+//IDN python.org//DTD XML Bookmark Exchange Language 1.0//EN//XML" "http://www.python.org/topics/xml/dtds/xbel-1.0.dtd">
+<xbel version="1.0">
+`;
+
+		output += this.outputFolderXBEL (myStructure, '');
+
+		output += `
+</xbel>`;
+
+		return output;
     }
 
     convertToStructure () {
+		let myStructure = {
+        	'title': '',
+            'path': '',
+            'bookmarks': [],
+            'folders': {},
+        };
+
         try {
             let myBookmarks = Array.from(this.db.values());
-            let myStructure = {
-                    'title': '',
-                    'path': '',
-                    'bookmarks': [],
-                    'folders': {},
-            };
-
             myBookmarks.forEach ( (bm) => {
-                this.addBookmark (myStructure, bm);
+                this._addBookmark (myStructure, bm);
             });
         }
         catch (e) {
             console.log ("error");
             console.log (e);
         }
-    }
 
+		let xbel = this.createXBEL (myStructure);
+
+        return xbel;
+    }
+   
     async syncComplete () {
         console.log ("WebDav: Uploading JSON file to server");
         this.bookmarksAsJSON = this.getBookmarksAsJSON ();
@@ -261,24 +329,13 @@ export default class WebDavAdapter {
         fullUrl = this.server.url + fullUrl;
         console.log ("fullURL :" + fullUrl + ":");
 
-        try {
-            await fetch (fullUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
-                    },
-                    body: this.bookmarksAsJSON
-                });
-        } catch (e) {
-            console.log ("Error Caught");
-            console.log (e);
-            throw new Error('Network error: Check your network connection and your account details');
-        }
+        this.uploadFile (fullUrl, 'application/json', this.bookmarksAsJSON);
+        let xbel = this.convertToStructure ();
+        //fullUrl += ".xbel";
+        fullUrl += ".xml";
+        this.uploadFile (fullUrl, 'application/xml', xbel);
 
 		this.freeLock ();
-
-        this.convertToStructure ();
     }
 
     async pullFromServer () {
