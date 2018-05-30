@@ -36,6 +36,10 @@ export default class Account {
     return account
   }
 
+  static getDefaultValues (type) {
+    return Adapter.factory({type}).constructor.getDefaultValues()
+  }
+
   constructor (id, storageAdapter, serverAdapter, treeAdapter) {
     this.server = serverAdapter
     this.id = id
@@ -74,22 +78,8 @@ export default class Account {
       .some(id => localId === id)
   }
 
-  renderOptions (ctl, rootPath) {
-    let originalData = this.getData()
-
-    var modifiedCtl = {
-      ...ctl
-      , update: (data) => {
-        if (JSON.stringify(data) === JSON.stringify(originalData)) return
-        if (originalData.serverRoot !== data.serverRoot) {
-          this.storage.initCache()
-          this.storage.initMappings()
-        }
-        ctl.update(data)
-      }
-    }
-
-    return this.server.renderOptions(modifiedCtl, rootPath)
+  renderOptions (state, actions) {
+    return this.server.renderOptions(state, actions)
   }
 
   async init () {

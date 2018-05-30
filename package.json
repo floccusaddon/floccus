@@ -38,6 +38,7 @@
     "babel-polyfill": "^6.20.0",
     "dom-delegator": "^13.1.0",
     "humanize-duration": "^3.12.1",
+    "hyperapp": "^1.2.5",
     "murmur2js": "^1.0.0",
     "virtual-dom": "^2.1.1"
   }

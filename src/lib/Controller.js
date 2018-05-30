@@ -28,6 +28,7 @@ class AlarmManger {
 export default class Controller {
   constructor () {
     this.schedule = {}
+    this.listeners = []
 
     this.alarms = new AlarmManger(this)
 
@@ -162,13 +163,25 @@ export default class Controller {
     if (account.getData().syncing) {
       return
     }
-    setTimeout(() => this.updateBadge(), 500)
+    setTimeout(() => this.updateStatus(), 500)
     try {
       await account.sync()
     } catch (error) {
       console.error(error)
     }
-    this.updateBadge()
+    this.updateStatus()
+  }
+
+  async updateStatus () {
+    await this.updateBadge()
+    this.listeners.forEach(fn => fn())
+  }
+
+  onStatusChange (listener) {
+    this.listeners.push(listener)
+    return () => {
+      this.listeners.splice(this.listeners.indexOf(listener))
+    }
   }
 
   async updateBadge () {
