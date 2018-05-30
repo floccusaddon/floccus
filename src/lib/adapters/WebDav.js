@@ -246,23 +246,7 @@ export default class WebDavAdapter {
     async pullBookmarks () {
         console.log('Fetching bookmarks', this.server)
 
-        let server_db;
-        let resp = await this.pullFromServer ();
-        server_db = resp.db;
-
-        if (resp.status !== 200)
-        {
-            if (resp.status === 401) {
-                throw new Error('Couldn\'t authenticate for removing bookmarks from the server.')
-            }
-
-            if (resp.status !== 404)
-            {
-                throw new Error('Failed to fetch bookmarks :' + resp.status + ":");
-            }
-        }
-
-        let myBookmarks = Array.from(server_db.values())
+        let myBookmarks = Array.from(this.db.values())
             .map(bm => {
                     return new Bookmark(bm.id, null, bm.url, bm.title, bm.path)
             }
