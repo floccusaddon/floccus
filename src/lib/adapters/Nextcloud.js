@@ -1,6 +1,7 @@
 /* @jsx el */
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
+import InputInitializeHook from '../InputInitializeHook'
 import Bookmark from '../Bookmark'
 import humanizeDuration from 'humanize-duration'
 const Parallel = require('async-parallel')
@@ -378,10 +379,3 @@ export default class NextcloudAdapter {
   }
 }
 
-class InputInitializeHook {
-  constructor (initStr) { this.initStr = initStr }
-  hook (node, propertyName, previousValue) {
-    if (typeof previousValue !== 'undefined') return
-    node[propertyName] = this.initStr
-  }
-}
