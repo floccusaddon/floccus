@@ -56,34 +56,125 @@ export default class WebDavAdapter {
         return JSON.stringify (bookmarksList, null, 4);
     }
 
-    async webDavLockFile () {
-        console.log ("lockFile: 001");
+	getBookmarkURL () {
+        return this.server.url + this.server.bookmark_file;
+	}
+
+	getBookmarkLockURL () {
+		return this.getBookmarkURL () + ".lock";
+	}
+
+    async checkLock () {
+        console.log ("checkLock: 001");
+
+        let rStatus = 500;
+        let response;
+		let fullURL = this.getBookmarkLockURL ();
+		console.log (fullURL);
+
+        try {
+            response = await fetch (fullURL, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
+                    },
+                });
+
+            console.log ("response");
+            console.log (response);
+
+            rStatus = response.status;
+
+            console.log (rStatus);
+        } catch (e) {
+            console.log ("Error Caught");
+            console.log (e);
+        }
+       
+		console.log ("checkLock: out " + rStatus );
+
+        return rStatus;
+    }
+
+	timeout(ms) {
+    	return new Promise(resolve => setTimeout(resolve, ms));
+	}
+
+    async obtainLock () {
+        console.log ("obtainLock: 001");
+
+        let rStatus;
+        let maxTimeout = 30;
+		let increment = 5;
+        let idx = 0;
+
+        for (idx = 0; idx < maxTimeout; idx += increment)
+        {
+			console.log ("loop :" + idx + ":");
+            rStatus = await this.checkLock ();
+			console.log ("obtainLock: 002 " + rStatus);
+            if (rStatus == 200) {
+				console.log ("waiting timeout :" + increment + ":");
+				await this.timeout (increment * 1000);
+				console.log ("waited timeout :" + increment + ":");
+            } else if (rStatus == 404) {
+				break;
+            }
+        }
+
+		console.log ("obtainLock: 003 " + rStatus);
+
+		if (rStatus == 200) {
+        	throw new Error('Lock Error: Unable to clear lock file, consider deleting ' + this.server.bookmark_file + '.lock');
+		}
+		else if (rStatus == 404)
+		{
+			console.log ("obtainLock: 005 " + rStatus);
+			let fullURL = this.getBookmarkLockURL ();
+			console.log (fullURL);
+			try {
+				await fetch (fullURL, {
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'text/html',
+							'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
+						},
+						body: '<html><body>I am a lock file</body></html>'
+					});
+			} catch (e) {
+            	console.log ("Error Caught");
+            	console.log (e);
+            	throw new Error('Network error: Check your network connection and your account details');
+        	}
+		}
+		else {
+			console.log ("obtainLock: 006 " + rStatus);
+        	throw new Error('Network Error: Unable to determine status of lock file ' + this.server.bookmark_file + '.lock');
+		}
+
+        return 1;
+    }
+
+    async freeLock () {
+        console.log ("freeLock: 001");
 
         let fullUrl = this.server.bookmark_file;
-        fullUrl = this.server.url + fullUrl;
+        fullUrl = this.server.url + fullUrl + ".lock";
+
         console.log ("fullURL :" + fullUrl + ":");
 
-        let xml_body = `<?xml version="1.0" encoding="utf-8" ?>
- <D:lockinfo xmlns:D=’DAV:’>
- <D:lockscope><D:exclusive/></D:lockscope>
- <D:locktype><D:write/></D:locktype>
- <D:owner>
- <D:href>http://example.org/~ejw/contact.html</D:href>
- </D:owner>
- </D:lockinfo>`;
-
+        let rStatus = 500;
         let response;
 
         try {
             response = await fetch (fullUrl, {
-                    method: 'LOCK',
+                    method: 'DELETE',
                     headers: {
-                        'Timeout': 'Second-30',
-                        'Content-Type': 'text/xml',
                         'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
                     },
-                    body: xml_body
                 });
+
+            rStatus = response.status;
 
             console.log ("response");
             console.log (response);
@@ -91,6 +182,7 @@ export default class WebDavAdapter {
             console.log ("Error Caught");
             console.log (e);
         }
+       
     }
 
     async syncComplete () {
@@ -115,71 +207,20 @@ export default class WebDavAdapter {
             console.log (e);
             throw new Error('Network error: Check your network connection and your account details');
         }
+
+		this.freeLock ();
     }
 
     async pullFromServer () {
-        let fullUrl = this.server.bookmark_file;
-        fullUrl = this.server.url + fullUrl;
-        console.log ("fullURL :" + fullUrl + ":");
-
-        let response;
-
-        try {
-            response = await fetch (fullUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
-                    }
-                });
-        } catch (e) {
-            console.log ("Error Caught");
-            console.log (e);
-            throw new Error('Network error: Check your network connection and your account details');
-        }
-
-        if (response.status === 401) {
-            throw new Error('Couldn\'t authenticate for removing bookmarks from the server.');
-        }
-
-        if (response.status !== 200) {
-            return {
-                'status' : response.status,
-                'db' : new Map ()
-            };
-        }
-
-        let bookmark_array = await response.json();
-        let server_db = new Map ();
-
-        bookmark_array.forEach ( (bm) => {
-            server_db.set(bm.id, {
-                id: bm.id
-                , url: bm.url
-                , title: bm.title
-                , path: bm.path
-            });
-        });
-
-console.log ("response out");
-console.log (server_db);
-
         return {
-            'status' : response.status,
-            'db' : server_db
+            'status' : 200,
+            'db' : this.db
         };
     }
 
     async syncStart () {
         console.log ("syncStart: started");
-        try {
-console.log ("sending lockfile");
-            await this.webDavLockFile ();
-console.log ("returned lockfile");
-        }
-        catch (e) {
-            console.log ("WebDavLock failed");
-            console.log (e);
-        }
+        await this.obtainLock ();
 
         try {
             let resp = await this.pullFromServer ();
