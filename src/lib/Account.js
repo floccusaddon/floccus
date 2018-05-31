@@ -125,8 +125,9 @@ export default class Account {
 
   async sync () {
     try {
-      if (this.getData().syncing) return
+      if (this.getData().syncing || this.syncing) return
       console.log('Starting sync process for account ' + this.getLabel())
+      this.syncing = true
       await this.setData({...this.getData(), syncing: true})
       if (!(await this.isInitialized())) {
         await this.init()
@@ -161,6 +162,7 @@ export default class Account {
       await this.tree.removeOrphanedFolders()
 
       await this.setData({...this.getData(), error: null, syncing: false, lastSync: Date.now()})
+      this.syncing = false
       console.log('Successfully ended sync process for account ' + this.getLabel())
     } catch (e) {
       if (e.list) {
