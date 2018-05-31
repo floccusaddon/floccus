@@ -1,3 +1,6 @@
+## v2.2.6
+ - FIX: Prevent parallel sync race condition
+
 ## v2.2.5
  - FIX: Account cache was broken
 
