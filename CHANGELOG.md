@@ -1,3 +1,6 @@
+## v2.2.7
+ - FIX: Pick up sync again after error
+
 ## v2.2.6
  - FIX: Prevent parallel sync race condition
 
