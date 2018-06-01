@@ -173,6 +173,7 @@ export default class Account {
         console.log(e)
         console.error('Syncing failed with', e)
         await this.setData({...this.getData(), error: e.message, syncing: false})
+        this.syncing = false
       }
     }
   }
