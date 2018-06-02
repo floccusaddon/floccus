@@ -20,6 +20,9 @@ export default class WebDavAdapter {
         this.server = server;
         this.db = new Map();
 
+        // keep highestID associated with the object
+        this.highestID = 0;
+
         console.log ("THIS");
         console.log (this);
     }
@@ -64,13 +67,11 @@ export default class WebDavAdapter {
 		return this.getBookmarkURL () + ".lock";
 	}
 
-    async checkLock () {
-        console.log ("checkLock: 001");
-
-        let rStatus = 500;
+    async downloadFile (fullURL)
+    {
         let response;
-		let fullURL = this.getBookmarkLockURL ();
-		console.log (fullURL);
+
+        console.log ("downloadFile: " + fullURL);
 
         try {
             response = await fetch (fullURL, {
@@ -82,15 +83,29 @@ export default class WebDavAdapter {
 
             console.log ("response");
             console.log (response);
-
-            rStatus = response.status;
-
-            console.log (rStatus);
         } catch (e) {
-            console.log ("Error Caught");
-            console.log (e);
+            response = { 'status': 500 };
         }
-       
+      
+		console.log ("downloadFile: out " + response.status);
+
+        return response;
+    }
+
+    async checkLock () {
+        console.log ("checkLock: 001");
+
+		let fullURL = this.getBookmarkLockURL ();
+		console.log (fullURL);
+
+        let rStatus;
+        let rBody;
+        let response;
+
+        response = await this.downloadFile (fullURL);
+        console.log (response);
+        rStatus = response.status;
+
 		console.log ("checkLock: out " + rStatus );
 
         return rStatus;
@@ -189,6 +204,67 @@ export default class WebDavAdapter {
         }
     }
 
+    htmlEncode ( content ) {
+        return document.createElement('a').appendChild(
+            document.createTextNode (content)).parentNode.innerHTML;
+    }
+
+    htmlDecode ( content ) {
+        let a = document.createElement ('a');
+        a.innerHTML = html;
+        return a.textContent;
+    }
+
+	outputFolderXBEL (myStructure, indent) {
+		let output = "";
+
+		myStructure.bookmarks.forEach ((bm) => {
+			output += indent + '<bookmark href=';
+            output += '"' + this.htmlEncode (bm.url) + '"';
+            output += ' id="' + bm.id + `">
+`;	
+			output += indent + "    <title>" + this.htmlEncode (bm.title) + `</title>
+`;
+			output += indent + `</bookmark>
+`;
+		});
+
+		let keys = Object.keys (myStructure.folders);
+		let values = keys.map ((v) => { return myStructure.folders[v]; });
+
+		values.forEach ((folder) => {
+			output += indent + `<folder>
+`;
+			output += indent + '    <title>' + this.htmlEncode (folder.title) + `</title>
+`;
+
+			output += this.outputFolderXBEL (folder, indent + '    ');
+
+			output += indent + `</folder>
+`;
+		});
+
+		return output;
+	}
+
+    createXBEL (myStructure) {
+        
+        let output = `<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE xbel PUBLIC "+//IDN python.org//DTD XML Bookmark Exchange Language 1.0//EN//XML" "http://www.python.org/topics/xml/dtds/xbel-1.0.dtd">
+<xbel version="1.0">
+`;
+
+        output += '<!--- highestID :' + this.highestID + `: for Floccus bookmark sync browser extension -->
+`;
+
+		output += this.outputFolderXBEL (myStructure, '');
+
+		output += `
+</xbel>`;
+
+		return output;
+    }
+
     /* private routine */
     _addBookmark (myStructure, bm)
     {
@@ -236,67 +312,6 @@ export default class WebDavAdapter {
         });
     }
 
-    htmlEncode ( content ) {
-        return document.createElement('a').appendChild(
-            document.createTextNode (content)).parentNode.innerHTML;
-    }
-
-    htmlDecode ( content ) {
-        let a = document.createElement ('a');
-        a.innerHTML = html;
-        return a.textContent;
-    }
-
-    CDATAEncode ( content ) {
-        return '<![CDATA[' + content + ']]>';
-    }
-
-	outputFolderXBEL (myStructure, indent) {
-		let output = "";
-
-		myStructure.bookmarks.forEach ((bm) => {
-			output += indent + '<bookmark href=';
-            output += '"' + this.htmlEncode (bm.url) + '"';
-            output += ' id="' + bm.id + `">
-`;	
-			output += indent + "    <title>" + this.htmlEncode (bm.title) + `</title>
-`;
-			output += indent + `</bookmark>
-`;
-		});
-
-		let keys = Object.keys (myStructure.folders);
-		let values = keys.map ((v) => { return myStructure.folders[v]; });
-
-		values.forEach ((folder) => {
-			output += indent + `<folder>
-`;
-			output += indent + '    <title>' + this.htmlEncode (folder.title) + `</title>
-`;
-
-			output += this.outputFolderXBEL (folder, indent + '    ');
-
-			output += indent + `</folder>
-`;
-		});
-
-		return output;
-	}
-
-    createXBEL (myStructure) {
-        let output = `<?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE xbel PUBLIC "+//IDN python.org//DTD XML Bookmark Exchange Language 1.0//EN//XML" "http://www.python.org/topics/xml/dtds/xbel-1.0.dtd">
-<xbel version="1.0">
-`;
-
-		output += this.outputFolderXBEL (myStructure, '');
-
-		output += `
-</xbel>`;
-
-		return output;
-    }
-
     convertToStructure () {
 		let myStructure = {
         	'title': '',
@@ -328,35 +343,79 @@ export default class WebDavAdapter {
         let fullUrl = this.server.bookmark_file;
         fullUrl = this.server.url + fullUrl;
         console.log ("fullURL :" + fullUrl + ":");
-
-        this.uploadFile (fullUrl, 'application/json', this.bookmarksAsJSON);
         let xbel = this.convertToStructure ();
-        //fullUrl += ".xbel";
-        fullUrl += ".xml";
         this.uploadFile (fullUrl, 'application/xml', xbel);
 
 		this.freeLock ();
     }
 
+    _getElementsByNodeName (nodes, nodeName, nodeType)
+    {
+        let elements = [];
+
+        nodes.forEach ((node) => {
+            if (node.nodeName == nodeName &&
+                node.nodeType == nodeType) {
+                elements.push (node);
+            }
+        });
+
+        return elements;
+    }
+
+    _parseFolder (xbelObj, path)
+    {
+        console.log ("_parseFolder: 001");
+
+        /* parse bookmarks first, breadth first */
+
+        let bookmarkList = this._getElementsByNodeName (xbelObj.childNodes, 'bookmark', 1 /* element type */);
+
+        console.log ("_parseFolder: 002");
+        console.log (bookmarkList);
+
+        bookmarkList.forEach ((bookmark) => {
+            this.db.set (bookmark.id, {
+                id: bookmark.id,
+                url: bookmark.getAttribute ("href"),
+                title: bookmark.firstElementChild.innerHTML,
+                path: path
+            })
+        });
+
+        let folderList = this._getElementsByNodeName (xbelObj.childNodes, 'folder', 1 /* element type */);
+
+        console.log ("_parseFolder: 003");
+        console.log (folderList);
+
+        folderList.forEach ((folder) => {
+            let newpath = path + "/" + folder.firstElementChild.innerHTML;
+            console.log ("Adding folder :" + newpath + ":");
+            this._parseFolder (folder, newpath);
+        });
+    }
+
+    _parseXbelDoc (xbelDoc)
+    {
+        console.log ("_parseXbelDoc: 001");
+        this.db = new Map ();
+        let nodeList = this._getElementsByNodeName (xbelDoc.childNodes, 'xbel', 1 /* element type */);
+        this._parseFolder (nodeList [0], "");
+        console.log ("_parseXbelDoc: 002");
+        console.log (this.db);
+    }
+
     async pullFromServer () {
+        console.log ("pullFromServer: 001");
+
         let fullUrl = this.server.bookmark_file;
         fullUrl = this.server.url + fullUrl;
         console.log ("fullURL :" + fullUrl + ":");
 
-        let response;
-
-        try {
-            response = await fetch (fullUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': 'Basic ' + btoa(this.server.username + ':' + this.server.password)
-                    }
-                });
-        } catch (e) {
-            console.log ("Error Caught");
-            console.log (e);
-            throw new Error('Network error: Check your network connection and your account details');
-        }
+        console.log ("pullFromServer: 002");
+        let response = await this.downloadFile (fullUrl);
+        console.log ("pullFromServer: 003");
+        console.log (response);
 
         if (response.status === 401) {
             throw new Error('Couldn\'t authenticate for removing bookmarks from the server.');
@@ -369,24 +428,36 @@ export default class WebDavAdapter {
             };
         }
 
-        let bookmark_array = await response.json();
-        let server_db = new Map ();
+        if (response.status == 200)
+        {
+            let xmlDocText = await response.text ();
+            let xmlDoc = new window.DOMParser().parseFromString(xmlDocText, "text/xml");
+            console.log ('xmldoc');
 
-        bookmark_array.forEach ( (bm) => {
-            server_db.set(bm.id, {
-                id: bm.id
-                , url: bm.url
-                , title: bm.title
-                , path: bm.path
+            /* let's get the highestID */
+            let byNL = xmlDocText.split ("\n");
+            console.log ("splitbyNL");
+            byNL.forEach ((line) => {
+                if (line.indexOf ("<!--- highestID :") >= 0)
+                {
+                    let idxStart = line.indexOf (':') + 1;
+                    let idxEnd = line.lastIndexOf (':');
+
+                    console.log ("line (" + line + ")");
+                    console.log ("idxStart (" + idxStart + ")");
+
+                    this.highestID = parseInt (line.substring (idxStart, idxEnd));
+
+                    console.log ("highestID (" + this.highestID + ")");
+                }
             });
-        });
 
-console.log ("response out");
-console.log (server_db);
+            this._parseXbelDoc (xmlDoc)
+        }
 
         return {
             'status' : response.status,
-            'db' : server_db
+            'db' : this.db
         };
     }
 
@@ -396,7 +467,6 @@ console.log (server_db);
 
         try {
             let resp = await this.pullFromServer ();
-            this.db = resp.db;
 
             if (resp.status !== 200)
             {
@@ -441,29 +511,18 @@ console.log (server_db);
     }
 
     async createBookmark (bm) {
-        console.log('Create single bookmark', bm, this.server)
+        console.log('Create bookmark: 001 ', bm, this.server)
 
-        // Per Marcel
-        // Also, since the user can also delete bookmarks, it might be
-        // best to have the counter persisted in the file, otherwise,
-        // if the last entry is deleted and at the same time a new bookmark
-        // is created, it gets the same id, causing other clients to think
-        // it was changed, rather then two independent operations. Not sure
-        // if that's actually a problem, but let's not make it one :)
+        // if highestID is zero than we have a new situation
 
-        // I am going to postpone work on this, till I get XBEL format worked
-        // out.   If there is a place in XBEL I can persist the id count that
-        // would be perfect.   I could always have an augment file that could
-        // persist the highestID, but that would ask for a 2nd webdav call and
-        // unnecessary network overhead.
+        if (this.highestID < 1) {
+            this.db.forEach ( (value, key) => {
+                if (value && value.id && highestID < value.id)
+                this.highestID = value.id;
+            });
+        }
 
-        let highestID = 0;
-        this.db.forEach ( (value, key) => {
-            if (value && value.id && highestID < value.id)
-            highestID = value.id;
-        });
-
-        bm.id = highestID + 1;
+        bm.id = ++this.highestID;
 
         this.db.set(bm.id, {
             id: bm.id
@@ -471,6 +530,8 @@ console.log (server_db);
             , title: bm.title
             , path: bm.path
         });
+
+        console.log('Create bookmark: OUT ', bm, this.server)
 
         return bm;
     }
