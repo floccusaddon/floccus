@@ -165,7 +165,7 @@ export default class WebDavAdapter {
 			console.log ("obtainLock: 005 " + rStatus);
 			let fullURL = this.getBookmarkLockURL ();
 			console.log (fullURL);
-            this.uploadFile (fullURL, 'text/html', '<html><body>I am a lock file</body></html>');
+            await this.uploadFile (fullURL, 'text/html', '<html><body>I am a lock file</body></html>');
 		}
 		else {
 			console.log ("obtainLock: 006 " + rStatus);
@@ -344,9 +344,8 @@ export default class WebDavAdapter {
         fullUrl = this.server.url + fullUrl;
         console.log ("fullURL :" + fullUrl + ":");
         let xbel = this.convertToStructure ();
-        this.uploadFile (fullUrl, 'application/xml', xbel);
-
-		this.freeLock ();
+        await this.uploadFile (fullUrl, 'application/xml', xbel);
+		await this.freeLock ();
     }
 
     _getElementsByNodeName (nodes, nodeName, nodeType)
