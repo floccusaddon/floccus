@@ -181,6 +181,9 @@ export default class Account {
         await this.setData({...this.getData(), error: e.message, syncing: false})
         this.syncing = false
       }
+
+      if ('syncFail' in this.server)
+        await this.server.syncFail ();
     }
   }
 
