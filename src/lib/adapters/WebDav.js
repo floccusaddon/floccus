@@ -368,14 +368,9 @@ _getElementsByNodeName (nodes, nodeName, nodeType)
 
 _parseFolder (xbelObj, path)
 {
-  console.log ("_parseFolder: 001");
-
   /* parse bookmarks first, breadth first */
 
   let bookmarkList = this._getElementsByNodeName (xbelObj.childNodes, 'bookmark', 1 /* element type */);
-
-  console.log ("_parseFolder: 002");
-  console.log (bookmarkList);
 
   bookmarkList.forEach ((bookmark) => {
       this.db.set (bookmark.id, new Bookmark (
@@ -389,9 +384,6 @@ _parseFolder (xbelObj, path)
 
   let folderList = this._getElementsByNodeName (xbelObj.childNodes, 'folder', 1 /* element type */);
 
-  console.log ("_parseFolder: 003");
-  console.log (folderList);
-
   folderList.forEach ((folder) => {
       let newpath = path + "/" + folder.firstElementChild.innerHTML;
       console.log ("Adding folder :" + newpath + ":");
@@ -401,14 +393,13 @@ _parseFolder (xbelObj, path)
 
 _parseXbelDoc (xbelDoc)
 {
-  console.log ("_parseXbelDoc: 001");
   this.db = new Map ();
   let nodeList = this._getElementsByNodeName (xbelDoc.childNodes, 'xbel', 1 /* element type */);
   this._parseFolder (nodeList [0], "");
-  console.log ("_parseXbelDoc: 002");
 
   // for debugging so that it does not change later in the console
   let xdb = new Map(this.db);
+  console.log ("_parseXbelDoc");
   console.log (xdb);
 }
 
@@ -447,17 +438,13 @@ async pullFromServer () {
     byNL.forEach ((line) => {
         if (line.indexOf ("<!--- highestID :") >= 0)
         {
-        let idxStart = line.indexOf (':') + 1;
-        let idxEnd = line.lastIndexOf (':');
+          let idxStart = line.indexOf (':') + 1;
+          let idxEnd = line.lastIndexOf (':');
 
-        console.log ("line (" + line + ")");
-        console.log ("idxStart (" + idxStart + ")");
-
-        this.highestID = parseInt (line.substring (idxStart, idxEnd));
-
-        console.log ("highestID (" + this.highestID + ")");
+          this.highestID = parseInt (line.substring (idxStart, idxEnd));
+          console.log ("highestID (" + this.highestID + ")");
         }
-        });
+      });
 
     this._parseXbelDoc (xmlDoc)
   }

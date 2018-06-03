@@ -119,21 +119,11 @@ function renderAccounts (accounts, secured) {
         .then(() => triggerRender())
     }}>Add Nextcloud Account</a>
     <a href="" className="btn" id="addaccountwebdav" ev-click={() => {
-/*
       Account.create({
         type: 'webdav',
         url: 'http://example.org',
         username: 'bob',
         password: 'password',
-        bookmark_file: 'bookmarks.xbel'})
-        .then(() => triggerRender())
-*/
-
-      Account.create({
-        type: 'webdav',
-        url: 'https://plex.jlbprof.com:8008/nextcloud/remote.php/webdav/',
-        username: 'julian',
-        password: 'qTmL8QPk',
         bookmark_file: 'bookmarks.xbel'})
         .then(() => triggerRender())
     }}>Add Webdav Account</a>
