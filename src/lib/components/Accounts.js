@@ -3,6 +3,9 @@ import browser from '../browser-api'
 import {h} from 'hyperapp'
 import Account from '../Account'
 import Tree from '../Tree'
+import * as Basics from './basics'
+
+const {Input, Button, Label} = Basics
 
 export const state = {
   accounts: {
@@ -47,8 +50,8 @@ export const actions = {
           })
       )
 
-      const background = await browser.runtime.getBackgroundPage()
-      actions.setSecured(!!background.controller.key)
+      const {accountsLocked} = await browser.storage.local.get({accountsLocked: null})
+      actions.setSecured(accountsLocked)
       actions.setList(accounts)
     }
     , delete: (accountId) => async (state, actions) => {
@@ -118,18 +121,17 @@ export const Component = () => (state, actions) => {
         }, actions)
       )
     }</div>
-    <a href="" className="btn" id="addaccount" onclick={(e) => {
-      e.preventDefault()
+    <Button fullWidth={true} onclick={(e) => {
       actions.accounts.create('nextcloud')
-    }}>Add account</a>
+    }}>Add account</Button>
     <div className="security">
-      <label><input type="checkbox" checked={state.accounts.secured} ev-click={(e) => {
+      <Label><input type="checkbox" checked={state.accounts.secured} onclick={(e) => {
         if (e.currentTarget.checked) {
           actions.switchView('setupKey')
         } else {
           actions.unsetKey()
         }
-      }} /> Secure your credentials with a passphrase (entered on browser start)</label>
+      }} /> Secure your credentials with a passphrase (entered on browser start)</Label>
     </div>
     <a className="test-link" href="./test.html">run tests</a>
   </div>

@@ -2,6 +2,9 @@
 import browser from '../browser-api'
 import {h} from 'hyperapp'
 import {Component as Overlay} from './Overlay'
+import * as Basics from './basics'
+
+const {Input, Button} = Basics
 
 export const state = {
   unlock: {
@@ -15,7 +18,12 @@ export const actions = {
   }
   , enterUnlockKey: (key) => async (state, actions) => {
     const background = await browser.runtime.getBackgroundPage()
-    await background.controller.unlock(key)
+    try {
+      await background.controller.unlock(key)
+    } catch (e) {
+      console.log(e.message)
+      return
+    }
     await actions.switchView('accounts')
   }
 }
@@ -24,12 +32,11 @@ export const Component = () => (state, actions) => {
   return <Overlay>
     <div id="unlock">
       <h2>Unlock floccus</h2>
-      <input value={''} type="password" className="unlockKey" placeholder="Enter your unlock passphrase" />
-      <a class="btn" href="#" onclick={(e) => {
-        e.preventDefault()
-        const key = e.target.parentNode.querySelector('.unlockKey').value
+      <Input value={''} type="password" placeholder="Enter your unlock passphrase" />
+      <Button onclick={(e) => {
+        const key = e.target.parentNode.querySelector('input').value
         actions.enterUnlockKey(key)
-      }}>Unlock</a>
+      }}>Unlock</Button>
     </div>
   </Overlay>
 }

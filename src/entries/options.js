@@ -23,8 +23,8 @@ const actions = {
     switch: (view) => ({current: view})
   }
   , switchView: (newView) => async (state, actions) => {
-    let {accountsLocked} = await browser.storage.local.get({accountsLocked: null})
-    if (accountsLocked) {
+    const background = await browser.runtime.getBackgroundPage()
+    if (!background.controller.unlocked) {
       actions.view.switch('unlock')
       return
     }
@@ -34,11 +34,6 @@ const actions = {
     actions.view.switch(newView)
   }
   , init: () => async (state, actions) => {
-    let {accountsLocked} = await browser.storage.local.get({accountsLocked: null})
-    if (accountsLocked) {
-      actions.switchView('unlock')
-      return
-    }
     actions.switchView('accounts')
   }
   , getState: () => state => state
