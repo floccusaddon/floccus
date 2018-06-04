@@ -1,7 +1,7 @@
 /* @jsx h */
 import browser from '../browser-api'
 import {h} from 'hyperapp'
-import Overlay from './Overlay'
+import {Component as Overlay} from './Overlay'
 
 export const state = {
   unlock: {

@@ -1,11 +1,18 @@
 /* @jsx h */
 import browser from '../browser-api'
 import {h} from 'hyperapp'
+import {Component as Overlay} from './Overlay'
+import * as Basics from './basics'
+import picostyle from 'picostyle'
+
+const style = picostyle(h)
+const Button = Basics.Button
 
 export const state = {
   picker: {
     openedFor: null
     , tree: null
+    , openedFolders: {}
   }
 }
 
@@ -16,6 +23,15 @@ export const actions = {
     , loadTree: () => async (state, actions) => {
       actions.setTree((await browser.bookmarks.getTree())[0])
     }
+    , toggleFolder: (folderId) => state => ({
+      openedFolders: {...state.openedFolders, [folderId]: !state.openedFolders[folderId]}
+    })
+    , openFolder: (folderId) => state => ({
+      openedFolders: {...state.openedFolders, [folderId]: true}
+    })
+    , closeFolder: (folderId) => state => ({
+      openedFolders: {...state.openedFolders, [folderId]: false}
+    })
   }
   , openPicker: (accountId) => async (state, actions) => {
     await actions.picker.loadTree()
@@ -43,26 +59,60 @@ export const Component = () => (state, actions) => {
 
 const Subtree = ({tree}) => (state, actions) => {
   return !tree.children ? ''
-    : <div className={'item ' + (tree.children ? 'folder' : '')}>
-      <div className="label" onclick={(e) => {
+    : <Item>
+      <ItemLabel onclick={(e) => {
         if (!tree.children.filter(child => !!child.children).length) return
-        var item = e.currentTarget.parentNode
-        if (item.classList.contains('open'))
-          item.classList.remove('open')
-        else
-          item.classList.add('open')
-      }}>
+        actions.picker.toggleFolder(tree.id)
+      }}
+      active={state.picker.openedFolders[tree.id]}>
+        {state.picker.openedFolders[tree.id]
+          ? '− '
+          : '+ '}
         {tree.title || <i>Untitled folder</i>}
-        <span className="choose btn"
+        <Button className="choose"
           onclick={(e) => {
             actions.setNodeFromPicker(tree.id)
             return false
-          }}>✓</span>
-      </div>
-      { tree.children.filter(child => !!child.children).length
+          }}>✓</Button>
+      </ItemLabel>
+      { tree.children.filter(child => !!child.children).length &&
+        state.picker.openedFolders[tree.id]
         ? <div className="children">
           {tree.children.map((node) => <Subtree tree={node} />)}
         </div>
         : ''}
-    </div>
+    </Item>
 }
+
+const Item = style('div')({
+  padding: '.1cm'
+  , '> .children': {
+    borderLeft: `1px ${Basics.COLORS.primary.light} solid`
+    , padding: '.2cm 0 0 .2cm'
+  }
+})
+const ItemLabel = style('div')(props => ({
+  padding: '.15cm'
+  , cursor: 'pointer'
+  , position: 'relative'
+  , borderRadius: '.1cm'
+  , background: props.active ? Basics.COLORS.primary.light : 'transparent'
+  , color: props.active ? 'white' : Basics.COLORS.primary.dark
+  , '::first-letter': {
+    fontSize: '.5cm'
+    , fontWeight: 'bold'
+  }
+  , '> button': {
+    display: 'none'
+    , position: 'absolute'
+    , right: 0
+    , top: 0
+  }
+  , ':hover': {
+    background: Basics.COLORS.primary.light
+    , color: 'white'
+  }
+  , ':hover button': {
+    display: 'inline-block'
+  }
+}))
