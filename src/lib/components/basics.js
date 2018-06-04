@@ -15,6 +15,19 @@ export const COLORS = {
 export const PADDING_CONTROLS = '.15cm'
 export const BORDER_RADIUS = '.1cm'
 
+export const H1 = style('h1')({
+  color: COLORS.primary.plane
+})
+export const H2 = style('h2')({
+  color: COLORS.primary.plane
+})
+export const H3 = style('h3')({
+  color: COLORS.primary.plane
+})
+export const H4 = style('h4')({
+  color: COLORS.primary.plane
+})
+
 export const Input = style('input')({
   width: '90%'
   , fontSize: '.38cm !important'
@@ -26,10 +39,11 @@ export const Input = style('input')({
 })
 
 export const Button = style('button')(props => ({
-  display: 'inline-block'
+  display: props.fullWidth ? 'block' : 'inline-block'
+  , width: props.fullWidth ? '95%' : 'auto'
   , cursor: 'pointer'
   , padding: '.15cm'
-  , margin: '.1cm .1cm .1cm 0'
+  , margin: props.fullWidth ? '.4cm auto' : '.1cm .1cm .1cm 0'
   , color: 'white'
   , textDecoration: 'none'
   , textAlign: 'center'
@@ -47,7 +61,7 @@ export const Button = style('button')(props => ({
 }))
 
 export const Label = style('label')({
-  color: COLORS.primary.plane
+  color: COLORS.primary.dark
 })
 
 export const A = style('a')({
