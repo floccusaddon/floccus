@@ -1,4 +1,3 @@
-/* @jsx h */
 import browser from '../browser-api'
 import {h} from 'hyperapp'
 import Account from '../Account'
@@ -12,6 +11,7 @@ export const state = {
     list: []
     , secured: false
     , writes: {} // for debouncing writes
+    , shownOptions: {}
   }
 }
 
@@ -109,6 +109,12 @@ export const actions = {
         }
       })
     }
+    , toggleOptions: (accountId) => state => ({
+      shownOptions: {
+        ...state.shownOptions
+        , [accountId]: !state.shownOptions[accountId]
+      }
+    })
   }
 }
 
@@ -118,6 +124,7 @@ export const Component = () => (state, actions) => {
       Object.keys(state.accounts.list).map(accountId =>
         state.accounts.accounts[accountId].server.constructor.renderOptions({
           account: state.accounts.list[accountId]
+          , showOptions: state.accounts.shownOptions[accountId]
         }, actions)
       )
     }</div>

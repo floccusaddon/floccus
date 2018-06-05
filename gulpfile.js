@@ -34,7 +34,7 @@ gulp.task('js', function () {
           , plugins: [
             'transform-object-rest-spread'
             , 'syntax-jsx'
-            , 'transform-react-jsx'
+            , ['transform-react-jsx', { 'pragma': 'h' }]
             , 'transform-async-to-generator'
           ]
         })

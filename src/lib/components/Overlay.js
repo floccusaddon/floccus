@@ -1,4 +1,3 @@
-/* @jsx h */
 import {h} from 'hyperapp'
 import picostyle from 'picostyle'
 const style = picostyle(h)

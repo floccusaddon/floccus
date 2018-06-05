@@ -1,16 +1,24 @@
-/* @jsx h */
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
 import Bookmark from '../Bookmark'
-import humanizeDuration from 'humanize-duration'
+import * as Basics from '../components/basics'
 const Parallel = require('async-parallel')
-
 const {h} = require('hyperapp')
-
 const url = require('url')
 const reverseStr = (str) => str.split('').reverse().join('')
 
 const TAG_PREFIX = 'floccus:'
+
+const {
+  Input
+  , Button
+  , Label
+  , Options
+  , AccountStatus
+  , AccountStatusDetail
+  , OptionSyncFolder
+  , OptionDelete
+} = Basics
 
 export default class NextcloudAdapter {
   constructor (server) {
@@ -36,77 +44,45 @@ export default class NextcloudAdapter {
       <form>
         <table>
           <tr>
-            <td><label for="url">Nextcloud server URL:</label></td>
-            <td><input value={data.url} type="text" className="url" name="url"
+            <td><Label for="url">Nextcloud server URL:</Label></td>
+            <td><Input value={data.url} type="text" name="url"
               onkeyup={onchange.bind(null, 'url')} onblur={onchange.bind(null, 'url')}
             /></td>
           </tr>
           <tr>
-            <td><label for="username">User name:</label></td>
-            <td><input value={data.username} type="text" className="username" name="username"
+            <td><Label for="username">User name:</Label></td>
+            <td><Input value={data.username} type="text" name="username"
               onkeyup={onchange.bind(null, 'username')} onblur={onchange.bind(null, 'username')}
             /></td>
           </tr>
           <tr>
-            <td><label for="password">Password:</label></td>
-            <td><input value={data.password} type="password" className="password" name="password"
+            <td><Label for="password">Password:</Label></td>
+            <td><Input value={data.password} type="password" name="password"
               onkeyup={onchange.bind(null, 'password')} onblur={onchange.bind(null, 'password')}
             /></td>
           </tr>
           <tr>
-            <td><label for="serverRoot">Server path:</label></td>
-            <td><input value={data.serverRoot || ''} type="text" className="serverRoot" name="serverRoot"
+            <td><Label for="serverRoot">Server path:</Label></td>
+            <td><Input value={data.serverRoot || ''} type="text" name="serverRoot"
               placeholder="Default: root folder  Example: /my/subfolder"
               onkeyup={onchange.bind(null, 'serverRoot')} onblur={onchange.bind(null, 'serverRoot')}
             /></td>
           </tr>
           <tr><td></td><td>
-            <span className="status">{
-              data.syncing
-                ? '↻ Syncing...'
-                : (data.error
-                  ? <span>✘ Error!</span>
-                  : <span>✓ all good</span>
-                )
-            }</span>
-            <a href="#" className="btn openOptions" onclick={(e) => {
+            <AccountStatus account={state.account} />
+            <Button onclick={(e) => {
               e.preventDefault()
-              var options = e.target.parentNode.querySelector('.options')
-              if (options.classList.contains('open')) {
-                e.target.classList.remove('active')
-                options.classList.remove('open')
-              } else {
-                e.target.classList.add('active')
-                options.classList.add('open')
-              }
-            }}>Options</a>
-            <a href="#" className={'btn forceSync ' + (data.syncing ? 'disabled' : '')}
-              onclick={() => !data.syncing && actions.accounts.sync(state.account.id)}>Sync now</a>
-            <div className="status-details">{data.error
-              ? data.error
-              : data.syncing === 'initial'
-                ? 'Syncing from scratch. This may take a longer than usual...'
-                : 'Last synchronized: ' + (data.lastSync ? humanizeDuration(Date.now() - data.lastSync, {largest: 1, round: true}) + ' ago' : 'never')}</div>
-            <div className="options">
-              <formgroup>
-                <h4>Sync folder</h4>
-                <input type="text" disabled placeholder="*Root folder*" value={state.account.rootPath} /><br/>
-                <a href="" title="Reset synchronized folder to create a new one" className={'btn resetRoot ' + (data.syncing ? 'disabled' : '')} onclick={() => {
-                  !data.syncing && actions.accounts.update({accountId: state.account.id, data: {...data, localRoot: null}})
-                }}>Reset</a>
-                <a href="#" title="Set an existing folder to sync" className={'btn chooseRoot ' + (data.syncing ? 'disabled' : '')} onclick={(e) => {
-                  e.preventDefault()
-                  actions.openPicker(state.account.id)
-                }}>Choose folder</a>
-              </formgroup>
-              <formgroup>
-                <h4>Remove account</h4>
-                <a href="#" className="btn remove" onclick={(e) => {
-                  e.preventDefault()
-                  actions.accounts.delete(state.account.id)
-                }}>Delete this account</a>
-              </formgroup>
-            </div>
+              actions.accounts.toggleOptions(state.account.id)
+            }}>Options</Button>
+            <Button disabled={!!data.syncing} onclick={(e) => {
+              e.preventDefault()
+              !data.syncing && actions.accounts.sync(state.account.id)
+            }}>Sync now</Button>
+            <AccountStatusDetail account={state.account} />
+            <Options show={state.showOptions}>
+              <OptionSyncFolder account={state.account} />
+              <OptionDelete account={state.account} />
+            </Options>
           </td></tr>
         </table>
       </form>

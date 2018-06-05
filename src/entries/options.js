@@ -1,4 +1,3 @@
-/* @jsx h */
 import browser from '../lib/browser-api'
 import {h, app} from 'hyperapp'
 
