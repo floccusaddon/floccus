@@ -483,7 +483,7 @@ title: value.title,
   }
 
   async updateBookmark (remoteId, newBm) {
-    console.log('Update bookmark', newBM, remoteId, this.server)
+    console.log('Update bookmark', newBm, remoteId, this.server)
 
     this.db.set(remoteId, new Bookmark (
         remoteId,
