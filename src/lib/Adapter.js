@@ -3,7 +3,7 @@ import FakeAdapter from './adapters/Fake'
 import WebDavAdapter from './adapters/WebDav'
 
 export default class Adapter {
-  static factory (data) {
+  static factory(data) {
     var adapter
     switch (data.type) {
       case 'nextcloud':
@@ -21,43 +21,43 @@ export default class Adapter {
     return adapter
   }
 
-  constructor () {
+  constructor() {
     throw new Error('Cannot instantiate abstract class')
   }
 
-  setData () {
+  setData() {
     throw new Error('Not implemented')
   }
 
-  getData () {
+  getData() {
     throw new Error('Not implemented')
   }
 
-  getLabel () {
+  getLabel() {
     throw new Error('Not implemented')
   }
 
-  renderOptions () {
+  renderOptions() {
     throw new Error('Not implemented')
   }
 
-  pullBookmarks () {
+  pullBookmarks() {
     throw new Error('Not implemented')
   }
 
-  getBookmark () {
+  getBookmark() {
     throw new Error('Not implemented')
   }
 
-  createBookmark () {
+  createBookmark() {
     throw new Error('Not implemented')
   }
 
-  updateBookmark () {
+  updateBookmark() {
     throw new Error('Not implemented')
   }
 
-  removeBookmark () {
+  removeBookmark() {
     throw new Error('Not implemented')
   }
 }

@@ -1,5 +1,5 @@
 import browser from '../lib/browser-api'
-import {h, app} from 'hyperapp'
+import { h, app } from 'hyperapp'
 
 import * as AccountsComponent from '../lib/components/Accounts'
 import * as PickerComponent from '../lib/components/Picker'
@@ -19,9 +19,9 @@ const state = {
 
 const actions = {
   view: {
-    switch: (view) => ({current: view})
-  }
-  , switchView: (newView) => async (state, actions) => {
+    switch: view => ({ current: view })
+  },
+  switchView: newView => async (state, actions) => {
     const background = await browser.runtime.getBackgroundPage()
     if (!background.controller.unlocked) {
       actions.view.switch('unlock')
@@ -31,48 +31,57 @@ const actions = {
       await actions.accounts.load()
     }
     actions.view.switch(newView)
-  }
-  , init: () => async (state, actions) => {
+  },
+  init: () => async (state, actions) => {
     actions.switchView('accounts')
-  }
-  , getState: () => state => state
+  },
+  getState: () => state => state
 }
 
-function render (state, actions) {
-  return <div id="app">{[
-    <Accounts />
-    , state.view.current === 'picker' ?
-      <Picker />
-      : state.view.current === 'unlock' ?
-        <Unlock />
-        : state.view.current === 'setupKey' ?
+function render(state, actions) {
+  return (
+    <div id="app">
+      {[
+        <Accounts />,
+        state.view.current === 'picker' ? (
+          <Picker />
+        ) : state.view.current === 'unlock' ? (
+          <Unlock />
+        ) : state.view.current === 'setupKey' ? (
           <SetupKey />
-          : ''
-  ]}</div>
+        ) : (
+          ''
+        )
+      ]}
+    </div>
+  )
 }
 
 // setup App
 
 const components = [
-  AccountsComponent
-  , PickerComponent
-  , UnlockComponent
-  , SetupKeyComponent
+  AccountsComponent,
+  PickerComponent,
+  UnlockComponent,
+  SetupKeyComponent
 ]
 
-const appState = Object.assign.apply(Object, [{}, state].concat(
-  components.map(comp => comp.state)
-))
-const appActions = Object.assign.apply(Object, [{}, actions].concat(
-  components.map(comp => comp.actions)
-))
+const appState = Object.assign.apply(
+  Object,
+  [{}, state].concat(components.map(comp => comp.state))
+)
+const appActions = Object.assign.apply(
+  Object,
+  [{}, actions].concat(components.map(comp => comp.actions))
+)
 
 let rootNode = document.querySelector('#app')
 window.app = app(appState, appActions, render, rootNode)
 window.app.init()
-
 ;(async () => {
   const background = await browser.runtime.getBackgroundPage()
-  const unregister = background.controller.onStatusChange(() => window.app.accounts.load())
+  const unregister = background.controller.onStatusChange(() =>
+    window.app.accounts.load()
+  )
   window.addEventListener('close', unregister)
 })()

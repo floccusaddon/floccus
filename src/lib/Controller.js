@@ -10,74 +10,81 @@ const STATUS_ALLGOOD = Symbol('allgood')
 const INACTIVITY_TIMEOUT = 1000 * 60
 
 class AlarmManger {
-  constructor (ctl) {
+  constructor(ctl) {
     this.ctl = ctl
   }
 
-  syncAllAccounts () {
-    browser.storage.local.get('accounts')
-      .then((d) => {
-        var accounts = d['accounts']
-        for (var accountId in accounts) {
-          this.ctl.syncAccount(accountId)
-        }
-      })
+  syncAllAccounts() {
+    browser.storage.local.get('accounts').then(d => {
+      var accounts = d['accounts']
+      for (var accountId in accounts) {
+        this.ctl.syncAccount(accountId)
+      }
+    })
   }
 }
 
 export default class Controller {
-  constructor () {
+  constructor() {
     this.schedule = {}
     this.listeners = []
 
     this.alarms = new AlarmManger(this)
 
     // set up change listener
-    browser.bookmarks.onChanged.addListener((localId, details) => this.onchange(localId, details))
-    browser.bookmarks.onMoved.addListener((localId, details) => this.onchange(localId, details))
-    browser.bookmarks.onRemoved.addListener((localId, details) => this.onchange(localId, details))
-    browser.bookmarks.onCreated.addListener((localId, details) => this.onchange(localId, details))
+    browser.bookmarks.onChanged.addListener((localId, details) =>
+      this.onchange(localId, details)
+    )
+    browser.bookmarks.onMoved.addListener((localId, details) =>
+      this.onchange(localId, details)
+    )
+    browser.bookmarks.onRemoved.addListener((localId, details) =>
+      this.onchange(localId, details)
+    )
+    browser.bookmarks.onCreated.addListener((localId, details) =>
+      this.onchange(localId, details)
+    )
 
     // Set up the alarms
 
-    browser.alarms.create('syncAllAccounts', {periodInMinutes: 15})
+    browser.alarms.create('syncAllAccounts', { periodInMinutes: 15 })
     browser.alarms.onAlarm.addListener(alarm => {
       this.alarms[alarm.name]()
     })
 
-    browser.storage.local.get('accountsLocked')
-      .then(async d => {
-        this.setEnabled(!d.accountsLocked)
-        this.unlocked = !d.accountsLocked
-        if (d.accountsLocked) {
-          this.key = null
-        }
-      })
+    browser.storage.local.get('accountsLocked').then(async d => {
+      this.setEnabled(!d.accountsLocked)
+      this.unlocked = !d.accountsLocked
+      if (d.accountsLocked) {
+        this.key = null
+      }
+    })
 
-    browser.storage.local.get('currentVersion')
-      .then(async d => {
-        if (packageJson.version === d.currentVersion) return
-        const accounts = await Account.getAllAccounts()
-        await Promise.all(
-          accounts.map(account => account.init())
-        )
-        await browser.storage.local.set({
-          currentVersion: packageJson.version
-        })
-        browser.runtime.openOptionsPage()
+    browser.storage.local.get('currentVersion').then(async d => {
+      if (packageJson.version === d.currentVersion) return
+      const accounts = await Account.getAllAccounts()
+      await Promise.all(accounts.map(account => account.init()))
+      await browser.storage.local.set({
+        currentVersion: packageJson.version
       })
+      browser.runtime.openOptionsPage()
+    })
   }
 
-  setEnabled (enabled) {
+  setEnabled(enabled) {
     this.enabled = enabled
   }
 
-  async setKey (key) {
+  async setKey(key) {
     let accounts = await Account.getAllAccounts()
     this.key = key
     let hashedKey = await Cryptography.sha256(key)
-    let encryptedHash = await Cryptography.encryptAES(key, Cryptography.iv, hashedKey)
-    await browser.storage.local.set({accountsLocked: encryptedHash})
+    let encryptedHash = await Cryptography.encryptAES(
+      key,
+      Cryptography.iv,
+      hashedKey
+    )
+    await browser.storage.local.set({ accountsLocked: encryptedHash })
     await Promise.all(accounts.map(a => a.setData(a.getData())))
 
     // ...aand lock it immediately.
@@ -86,10 +93,14 @@ export default class Controller {
     this.setEnabled(false)
   }
 
-  async unlock (key) {
+  async unlock(key) {
     let d = await browser.storage.local.get('accountsLocked')
     let hashedKey = await Cryptography.sha256(key)
-    let decryptedHash = await Cryptography.decryptAES(key, Cryptography.iv, d.accountsLocked)
+    let decryptedHash = await Cryptography.decryptAES(
+      key,
+      Cryptography.iv,
+      d.accountsLocked
+    )
     if (decryptedHash !== hashedKey) {
       throw new Error('The provided key was wrong')
     }
@@ -98,17 +109,17 @@ export default class Controller {
     this.setEnabled(true)
   }
 
-  async unsetKey () {
+  async unsetKey() {
     if (!this.unlocked) {
       throw new Error('Cannot disable encryption without unlocking first')
     }
     let accounts = await Account.getAllAccounts()
     this.key = null
-    await browser.storage.local.set({accountsLocked: null})
+    await browser.storage.local.set({ accountsLocked: null })
     await Promise.all(accounts.map(a => a.setData(a.getData())))
   }
 
-  async onchange (localId, details) {
+  async onchange(localId, details) {
     if (!this.enabled) {
       return
     }
@@ -116,20 +127,19 @@ export default class Controller {
 
     // Check which accounts contain the bookmark and which used to contain (track) it
     var trackingAccountsFilter = await Promise.all(
-      allAccounts
-        .map(async account => {
-          return account.tracksBookmark(localId)
-        })
+      allAccounts.map(async account => {
+        return account.tracksBookmark(localId)
+      })
     )
 
     const accountsToSync = allAccounts
-    // Filter out any accounts that are not tracking the bookmark
-      .filter((account, i) => (trackingAccountsFilter[i]))
+      // Filter out any accounts that are not tracking the bookmark
+      .filter((account, i) => trackingAccountsFilter[i])
       // Filter out any accounts that are presently syncing
       .filter(account => !account.getData().syncing)
 
     // We should now sync all accounts that are involved in this change (2 at max)
-    accountsToSync.forEach((account) => {
+    accountsToSync.forEach(account => {
       this.scheduleSyncAccount(account.id)
     })
 
@@ -140,22 +150,31 @@ export default class Controller {
       return
     }
 
-    const containingAccount = await Account.getAccountContainingLocalId(localId, ancestors, allAccounts)
-    if (containingAccount &&
+    const containingAccount = await Account.getAccountContainingLocalId(
+      localId,
+      ancestors,
+      allAccounts
+    )
+    if (
+      containingAccount &&
       !containingAccount.getData().syncing &&
-      !accountsToSync.some(acc => acc.id === containingAccount.id)) {
+      !accountsToSync.some(acc => acc.id === containingAccount.id)
+    ) {
       this.scheduleSyncAccount(containingAccount.id)
     }
   }
 
-  scheduleSyncAccount (accountId) {
+  scheduleSyncAccount(accountId) {
     if (this.schedule[accountId]) {
       clearTimeout(this.schedule[accountId])
     }
-    this.schedule[accountId] = setTimeout(() => this.syncAccount(accountId), INACTIVITY_TIMEOUT)
+    this.schedule[accountId] = setTimeout(
+      () => this.syncAccount(accountId),
+      INACTIVITY_TIMEOUT
+    )
   }
 
-  async syncAccount (accountId) {
+  async syncAccount(accountId) {
     if (!this.enabled) {
       return
     }
@@ -172,49 +191,48 @@ export default class Controller {
     this.updateStatus()
   }
 
-  async updateStatus () {
+  async updateStatus() {
     await this.updateBadge()
     this.listeners.forEach(fn => fn())
   }
 
-  onStatusChange (listener) {
+  onStatusChange(listener) {
     this.listeners.push(listener)
     return () => {
       this.listeners.splice(this.listeners.indexOf(listener))
     }
   }
 
-  async updateBadge () {
+  async updateBadge() {
     if (!this.unlocked) {
       return this.setStatusBadge(STATUS_ERROR)
     }
     const accounts = await Account.getAllAccounts()
-    const overallStatus = accounts
-      .reduce((status, account) => {
-        const accData = account.getData()
-        if (accData.error && !accData.syncing) {
-          return STATUS_ERROR
-        } else if (accData.syncing && status !== STATUS_ERROR) {
-          return STATUS_SYNCING
-        } else {
-          return STATUS_ALLGOOD
-        }
-      }, STATUS_ALLGOOD)
+    const overallStatus = accounts.reduce((status, account) => {
+      const accData = account.getData()
+      if (accData.error && !accData.syncing) {
+        return STATUS_ERROR
+      } else if (accData.syncing && status !== STATUS_ERROR) {
+        return STATUS_SYNCING
+      } else {
+        return STATUS_ALLGOOD
+      }
+    }, STATUS_ALLGOOD)
     this.setStatusBadge(overallStatus)
   }
 
-  async setStatusBadge (status) {
+  async setStatusBadge(status) {
     switch (status) {
       case STATUS_ALLGOOD:
-        browser.browserAction.setBadgeText({text: ''})
+        browser.browserAction.setBadgeText({ text: '' })
         break
       case STATUS_SYNCING:
-        browser.browserAction.setBadgeText({text: '<->'})
-        browser.browserAction.setBadgeBackgroundColor({color: '#0088dd'})
+        browser.browserAction.setBadgeText({ text: '<->' })
+        browser.browserAction.setBadgeBackgroundColor({ color: '#0088dd' })
         break
       case STATUS_ERROR:
-        browser.browserAction.setBadgeText({text: '!'})
-        browser.browserAction.setBadgeBackgroundColor({color: '#dd4d00'})
+        browser.browserAction.setBadgeText({ text: '!' })
+        browser.browserAction.setBadgeBackgroundColor({ color: '#dd4d00' })
         break
     }
   }
