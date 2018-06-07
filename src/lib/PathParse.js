@@ -7,4 +7,3 @@ export default class PathParse {
     return PathParse.reverseStr(path).split(/[/](?![\\])/).map (value => PathParse.reverseStr (value)).reverse ();
   }
 }
-

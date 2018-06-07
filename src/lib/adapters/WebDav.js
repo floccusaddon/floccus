@@ -1,16 +1,7 @@
-/* @jsx el */
-
-import InputInitializeHook from '../InputInitializeHook'
 import PathParse from '../PathParse'
 import Bookmark from '../Bookmark'
-import humanizeDuration from 'humanize-duration'
-
-const {h} = require('virtual-dom')
-
-function el (el, props, ...children) {
-  return h(el, props, children)
-};
-
+import * as Basics from '../components/basics'
+const {h} = require('hyperapp')
 const url = require('url')
 
 export default class WebDavAdapter {
@@ -23,6 +14,16 @@ export default class WebDavAdapter {
 
     // keep highestID associated with the object
     this.highestID = 0;
+  }
+
+  static getDefaultValues () {
+    return {
+      type: 'webdav'
+      , url: 'https://example.org'
+      , username: 'bob'
+      , password: 's3cret'
+      , bookmark_file: 'bookmarks.xbel'
+    }
   }
 
   setData (data) {
@@ -189,7 +190,7 @@ title: value.title,
         output += indent + '<bookmark href=';
         output += '"' + this.htmlEncode (bm.url) + '"';
         output += ' id="' + bm.id + `">
-        `;	
+        `;
         output += indent + "    <title>" + this.htmlEncode (bm.title) + `</title>
         `;
         output += indent + `</bookmark>
@@ -505,100 +506,57 @@ title: value.title,
     console.log (this);
   }
 
-  renderOptions (ctl, rootPath) {
-    let data = this.getData()
-
-    let onchangeURL = (e) => {
-      if (this.saveTimeout)
-        clearTimeout(this.saveTimeout);
-
-      {
-        let myUrl = e.target.value;
-        this.saveTimeout = setTimeout(() => ctl.update({...data, url: myUrl}), 300);
-      }
-    };
-
-    let onchangeUsername = (e) => {
-      if (this.saveTimeout) clearTimeout(this.saveTimeout)
-        this.saveTimeout = setTimeout(() => ctl.update({...data, username: e.target.value}), 300)
-    };
-
-    let onchangePassword = (e) => {
-      if (this.saveTimeout) clearTimeout(this.saveTimeout)
-        this.saveTimeout = setTimeout(() => ctl.update({...data, password: e.target.value}), 300)
-    };
-
-    let onchangeBookmarkFile = (e) => {
-      if (this.saveTimeout) clearTimeout(this.saveTimeout)
-        this.saveTimeout = setTimeout(() => ctl.update({...data, bookmark_file: e.target.value}), 300)
-    };
-
-    return <div className="account">
+  static renderOptions (state, actions) {
+    let data = state.account
+    let onchange = (prop, e) => {
+      actions.accounts.update({accountId: state.account.id, data: {[prop]: e.target.value}})
+    }
+    return <Account account={state.account}>
       <form>
-      <table>
-      <tr>
-      <td><label for="url">WebDav Server URL:</label></td>
-      <td><input value={new InputInitializeHook(data.url)} type="text" className="url" name="url" ev-keyup={onchangeURL} ev-blur={onchangeURL}/></td>
-      </tr>
-      <tr>
-      <td><label for="username">User name:</label></td>
-      <td><input value={new InputInitializeHook(data.username)} type="text" className="username" name="password" ev-keyup={onchangeUsername} ev-blur={onchangeUsername}/></td>
-      </tr>
-      <tr>
-      <td><label for="password">Password:</label></td>
-      <td><input value={new InputInitializeHook(data.password)} type="password" className="password" name="password" ev-keydown={onchangePassword} ev-blur={onchangePassword}/></td></tr>
-      <tr>
-      <td><label for="bookmark_file">Bookmark File:</label></td>
-      <td><input value={new InputInitializeHook(data.bookmark_file)} type="text" className="text" name="bookmark_file" ev-keydown={onchangePassword} ev-blur={onchangeBookmarkFile}/></td></tr>
-      <tr><td></td><td>
-      <span className="status">{
-        data.syncing
-          ? '↻ Syncing...'
-          : (data.error
-              ? <span>✘ Error!</span>
-              : <span>✓ all good</span>
-            )
-      }</span>
-    <a href="#" className="btn openOptions" ev-click={(e) => {
-      e.preventDefault()
-        var options = e.target.parentNode.querySelector('.options')
-        if (options.classList.contains('open')) {
-          e.target.classList.remove('active')
-            options.classList.remove('open')
-        } else {
-          e.target.classList.add('active')
-            options.classList.add('open')
-        }
-    }}>Options</a>
-    <a href="#" className={'btn forceSync ' + (data.syncing ? 'disabled' : '')} ev-click={() => !data.syncing && ctl.sync()}>Sync now</a>
-      <div className="status-details">{data.error
-        ? data.error
-          : data.syncing === 'initial'
-          ? 'Syncing from scratch. This may take a longer than usual...'
-          : 'Last synchronized: ' + (data.lastSync ? humanizeDuration(Date.now() - data.lastSync, {largest: 1, round: true}) + ' ago' : 'never')}</div>
-          <div className="options">
-          <formgroup>
-          <h4>Sync folder</h4>
-          <input type="text" disabled value={rootPath} /><br/>
-          <a href="" title="Reset synchronized folder to create a new one" className={'btn resetRoot ' + (data.syncing ? 'disabled' : '')} ev-click={() => {
-            !data.syncing && ctl.update({...data, localRoot: null})
-          }}>Reset</a>
-    <a href="#" title="Set an existing folder to sync" className={'btn chooseRoot ' + (data.syncing ? 'disabled' : '')} ev-click={(e) => {
-      e.preventDefault()
-        ctl.pickFolder()
-    }}>Choose folder</a>
-    </formgroup>
-      <formgroup>
-      <h4>Remove account</h4>
-      <a href="#" className="btn remove" ev-click={(e) => {
-        e.preventDefault()
-          ctl.delete()
-      }}>Delete this account</a>
-    </formgroup>
-      </div>
-      </td></tr>
-      </table>
+        <table>
+          <tr>
+            <td><Label for="url">Nextcloud server URL:</Label></td>
+            <td><Input value={data.url} type="text" name="url"
+              onkeyup={onchange.bind(null, 'url')} onblur={onchange.bind(null, 'url')}
+            /></td>
+          </tr>
+          <tr>
+            <td><Label for="username">User name:</Label></td>
+            <td><Input value={data.username} type="text" name="username"
+              onkeyup={onchange.bind(null, 'username')} onblur={onchange.bind(null, 'username')}
+            /></td>
+          </tr>
+          <tr>
+            <td><Label for="password">Password:</Label></td>
+            <td><Input value={data.password} type="password" name="password"
+              onkeyup={onchange.bind(null, 'password')} onblur={onchange.bind(null, 'password')}
+            /></td>
+          </tr>
+          <tr>
+            <td><Label for="bookmar_file">Server path:</Label></td>
+            <td><Input value={data.serverRoot || ''} type="text" name="bookmark_file"
+              placeholder="Path on the server to the bookmarks file"
+              onkeyup={onchange.bind(null, 'bookmark_file')} onblur={onchange.bind(null, 'serverRoot')}
+            /></td>
+          </tr>
+          <tr><td></td><td>
+            <AccountStatus account={state.account} />
+            <Button onclick={(e) => {
+              e.preventDefault()
+              actions.accounts.toggleOptions(state.account.id)
+            }}>Options</Button>
+            <Button disabled={!!data.syncing} onclick={(e) => {
+              e.preventDefault()
+              !data.syncing && actions.accounts.sync(state.account.id)
+            }}>Sync now</Button>
+            <AccountStatusDetail account={state.account} />
+            <Options show={state.showOptions}>
+              <OptionSyncFolder account={state.account} />
+              <OptionDelete account={state.account} />
+            </Options>
+          </td></tr>
+        </table>
       </form>
-      </div>
+    </Account>
   }
 }

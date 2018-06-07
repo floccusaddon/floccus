@@ -1,6 +1,5 @@
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
-import InputInitializeHook from '../InputInitializeHook'
 import Bookmark from '../Bookmark'
 import * as Basics from '../components/basics'
 const Parallel = require('async-parallel')
