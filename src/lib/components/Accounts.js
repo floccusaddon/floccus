@@ -142,7 +142,7 @@ export const Component = () => (state, actions) => {
           actions.accounts.create('nextcloud')
         }}
       >
-        Add account
+        Add Nextcloud Account
       </Button>
       <Button
         fullWidth={true}

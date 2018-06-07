@@ -4,6 +4,18 @@ import * as Basics from '../components/basics'
 const { h } = require('hyperapp')
 const url = require('url')
 
+const {
+  Input,
+  Button,
+  Label,
+  Options,
+  Account,
+  AccountStatus,
+  AccountStatusDetail,
+  OptionSyncFolder,
+  OptionDelete
+} = Basics
+
 export default class WebDavAdapter {
   constructor(server) {
     console.log('Webdav constructor')
@@ -551,7 +563,7 @@ export default class WebDavAdapter {
           <table>
             <tr>
               <td>
-                <Label for="url">Nextcloud server URL:</Label>
+                <Label for="url">WebDAV URL:</Label>
               </td>
               <td>
                 <Input
@@ -593,11 +605,11 @@ export default class WebDavAdapter {
             </tr>
             <tr>
               <td>
-                <Label for="bookmar_file">Server path:</Label>
+                <Label for="bookmar_file">Bookmarks file path:</Label>
               </td>
               <td>
                 <Input
-                  value={data.serverRoot || ''}
+                  value={data.bookmark_file || ''}
                   type="text"
                   name="bookmark_file"
                   placeholder="Path on the server to the bookmarks file"
