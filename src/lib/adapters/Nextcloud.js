@@ -1,115 +1,94 @@
-/* @jsx el */
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
 import InputInitializeHook from '../InputInitializeHook'
 import Bookmark from '../Bookmark'
-import humanizeDuration from 'humanize-duration'
+import * as Basics from '../components/basics'
 const Parallel = require('async-parallel')
-
-const {h} = require('virtual-dom')
-
-function el (el, props, ...children) {
-  return h(el, props, children)
-};
-
+const {h} = require('hyperapp')
 const url = require('url')
 const reverseStr = (str) => str.split('').reverse().join('')
 
 const TAG_PREFIX = 'floccus:'
+
+const {
+  Input
+  , Button
+  , Label
+  , Options
+  , Account
+  , AccountStatus
+  , AccountStatusDetail
+  , OptionSyncFolder
+  , OptionDelete
+} = Basics
 
 export default class NextcloudAdapter {
   constructor (server) {
     this.server = server
   }
 
-  renderOptions (ctl, rootPath) {
-    let data = this.getData()
-    let onchangeURL = (e) => {
-      ctl.update({...data, url: e.target.value})
+  static getDefaultValues () {
+    return {
+      type: 'nextcloud'
+      , url: 'https://example.org'
+      , username: 'bob'
+      , password: 's3cret'
+      , serverRoot: ''
     }
-    let onchangeUsername = (e) => {
-      ctl.update({...data, username: e.target.value})
+  }
+
+  static renderOptions (state, actions) {
+    let data = state.account
+    let onchange = (prop, e) => {
+      actions.accounts.update({accountId: state.account.id, data: {[prop]: e.target.value}})
     }
-    let onchangePassword = (e) => {
-      ctl.update({...data, password: e.target.value})
-    }
-    let onchangeServerRoot = (e) => {
-      let val = e.target.value
-      if (val[val.length - 1] === '/') {
-        val = val.substr(0, val.length - 1)
-        e.target.value = val
-      }
-      ctl.update({...data, serverRoot: e.target.value})
-    }
-    return <div className="account">
+    return <Account account={state.account}>
       <form>
         <table>
           <tr>
-            <td><label for="url">Nextcloud server URL:</label></td>
-            <td><input value={new InputInitializeHook(data.url)} type="text" className="url" name="url" ev-keyup={onchangeURL} ev-blur={onchangeURL}/></td>
+            <td><Label for="url">Nextcloud server URL:</Label></td>
+            <td><Input value={data.url} type="text" name="url"
+              onkeyup={onchange.bind(null, 'url')} onblur={onchange.bind(null, 'url')}
+            /></td>
           </tr>
           <tr>
-            <td><label for="username">User name:</label></td>
-            <td><input value={new InputInitializeHook(data.username)} type="text" className="username" name="username" ev-keyup={onchangeUsername} ev-blur={onchangeUsername}/></td>
+            <td><Label for="username">User name:</Label></td>
+            <td><Input value={data.username} type="text" name="username"
+              onkeyup={onchange.bind(null, 'username')} onblur={onchange.bind(null, 'username')}
+            /></td>
           </tr>
           <tr>
-            <td><label for="password">Password:</label></td>
-            <td><input value={new InputInitializeHook(data.password)} type="password" className="password" name="password" ev-keydown={onchangePassword} ev-blur={onchangePassword}/></td>
+            <td><Label for="password">Password:</Label></td>
+            <td><Input value={data.password} type="password" name="password"
+              onkeyup={onchange.bind(null, 'password')} onblur={onchange.bind(null, 'password')}
+            /></td>
           </tr>
           <tr>
-            <td><label for="serverRoot">Server path:</label></td>
-            <td><input value={new InputInitializeHook(data.serverRoot || '')} type="text" className="serverRoot" name="serverRoot" placeholder="Default: root folder  Example: /my/subfolder" ev-keyup={onchangeServerRoot} ev-blur={onchangeServerRoot}/></td>
+            <td><Label for="serverRoot">Server path:</Label></td>
+            <td><Input value={data.serverRoot || ''} type="text" name="serverRoot"
+              placeholder="Default: root folder  Example: /my/subfolder"
+              onkeyup={onchange.bind(null, 'serverRoot')} onblur={onchange.bind(null, 'serverRoot')}
+            /></td>
           </tr>
           <tr><td></td><td>
-            <span className="status">{
-              data.syncing
-                ? '↻ Syncing...'
-                : (data.error
-                  ? <span>✘ Error!</span>
-                  : <span>✓ all good</span>
-                )
-            }</span>
-            <a href="#" className="btn openOptions" ev-click={(e) => {
+            <AccountStatus account={state.account} />
+            <Button onclick={(e) => {
               e.preventDefault()
-              var options = e.target.parentNode.querySelector('.options')
-              if (options.classList.contains('open')) {
-                e.target.classList.remove('active')
-                options.classList.remove('open')
-              } else {
-                e.target.classList.add('active')
-                options.classList.add('open')
-              }
-            }}>Options</a>
-            <a href="#" className={'btn forceSync ' + (data.syncing ? 'disabled' : '')} ev-click={() => !data.syncing && ctl.sync()}>Sync now</a>
-            <div className="status-details">{data.error
-              ? data.error
-              : data.syncing === 'initial'
-                ? 'Syncing from scratch. This may take a longer than usual...'
-                : 'Last synchronized: ' + (data.lastSync ? humanizeDuration(Date.now() - data.lastSync, {largest: 1, round: true}) + ' ago' : 'never')}</div>
-            <div className="options">
-              <formgroup>
-                <h4>Sync folder</h4>
-                <input type="text" disabled placeholder="*Root folder*" value={rootPath} /><br/>
-                <a href="" title="Reset synchronized folder to create a new one" className={'btn resetRoot ' + (data.syncing ? 'disabled' : '')} ev-click={() => {
-                  !data.syncing && ctl.update({...data, localRoot: null})
-                }}>Reset</a>
-                <a href="#" title="Set an existing folder to sync" className={'btn chooseRoot ' + (data.syncing ? 'disabled' : '')} ev-click={(e) => {
-                  e.preventDefault()
-                  ctl.pickFolder()
-                }}>Choose folder</a>
-              </formgroup>
-              <formgroup>
-                <h4>Remove account</h4>
-                <a href="#" className="btn remove" ev-click={(e) => {
-                  e.preventDefault()
-                  ctl.delete()
-                }}>Delete this account</a>
-              </formgroup>
-            </div>
+              actions.accounts.toggleOptions(state.account.id)
+            }}>Options</Button>
+            <Button disabled={!!data.syncing} onclick={(e) => {
+              e.preventDefault()
+              !data.syncing && actions.accounts.sync(state.account.id)
+            }}>Sync now</Button>
+            <AccountStatusDetail account={state.account} />
+            <Options show={state.showOptions}>
+              <OptionSyncFolder account={state.account} />
+              <OptionDelete account={state.account} />
+            </Options>
           </td></tr>
         </table>
       </form>
-    </div>
+    </Account>
   }
 
   setData (data) {
@@ -378,4 +357,3 @@ export default class NextcloudAdapter {
       .replace(/%252C/g, '%2C')
   }
 }
-
