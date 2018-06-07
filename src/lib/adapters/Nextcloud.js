@@ -14,6 +14,7 @@ const {
   , Button
   , Label
   , Options
+  , Account
   , AccountStatus
   , AccountStatusDetail
   , OptionSyncFolder
@@ -40,7 +41,7 @@ export default class NextcloudAdapter {
     let onchange = (prop, e) => {
       actions.accounts.update({accountId: state.account.id, data: {[prop]: e.target.value}})
     }
-    return <div className="account" key={state.account.id}>
+    return <Account account={state.account}>
       <form>
         <table>
           <tr>
@@ -86,7 +87,7 @@ export default class NextcloudAdapter {
           </td></tr>
         </table>
       </form>
-    </div>
+    </Account>
   }
 
   setData (data) {

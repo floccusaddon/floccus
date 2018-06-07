@@ -90,6 +90,7 @@ export const actions = {
         await account.storage.initMappings()
       }
       await account.setData(newData)
+      await actions.load()
     }
     , create: (type) => async (state, actions) => {
       await Account.create(Account.getDefaultValues(type))

@@ -41,13 +41,14 @@ export const Input = style('input')({
   , background: 'white'
   , color: COLORS.text
   , padding: PADDING_CONTROLS
+  , margin: '.05cm'
 })
 
 export const Button = style('button')(props => ({
   display: props.fullWidth ? 'block' : 'inline-block'
   , width: props.fullWidth ? '95%' : 'auto'
   , cursor: 'pointer'
-  , padding: '.15cm'
+  , padding: PADDING_CONTROLS
   , margin: props.fullWidth ? '.4cm auto' : '.1cm .1cm .1cm 0'
   , color: 'white'
   , textDecoration: 'none'
@@ -67,6 +68,32 @@ export const Button = style('button')(props => ({
 
 export const Label = style('label')({
   color: COLORS.primary.dark
+})
+
+export const Account = ({account}, children) => (state, actions) => {
+  return <AccountStyle key={account.id}>
+    {children}
+  </AccountStyle>
+}
+
+const AccountStyle = style('div')({
+  borderBottom: `1px ${COLORS.primary.dark} solid`
+  , padding: '.4cm 0'
+  , marginBottom: '.4cm'
+  , color: COLORS.text
+  , 'table': {
+    border: 'none'
+    , width: '100%'
+    , minWidth: '12cm'
+  }
+  , 'td': {
+    width: 'auto'
+  }
+  , 'td:first-child': {
+    width: '4.5cm'
+    , textAlign: 'right'
+    , color: COLORS.primary.dark
+  }
 })
 
 export const AccountStatusDetail = ({account}) => (state, actions) => {

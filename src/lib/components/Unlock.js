@@ -3,7 +3,7 @@ import {h} from 'hyperapp'
 import {Component as Overlay} from './Overlay'
 import * as Basics from './basics'
 
-const {Input, Button} = Basics
+const {Input, Button, H2} = Basics
 
 export const state = {
   unlock: {
@@ -30,7 +30,7 @@ export const actions = {
 export const Component = () => (state, actions) => {
   return <Overlay>
     <div id="unlock">
-      <h2>Unlock floccus</h2>
+      <H2>Unlock floccus</H2>
       <Input value={''} type="password" placeholder="Enter your unlock passphrase" />
       <Button onclick={(e) => {
         const key = e.target.parentNode.querySelector('input').value
