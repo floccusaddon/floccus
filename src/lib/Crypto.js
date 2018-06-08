@@ -1,4 +1,10 @@
+import murmur2 from 'murmur2js'
+
 export default class Crypto {
+  static murmur2(message) {
+    return murmur2(message)
+  }
+
   static async sha256(message) {
     const msgBuffer = new TextEncoder('utf-8').encode(message) // encode as UTF-8
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer) // hash the message

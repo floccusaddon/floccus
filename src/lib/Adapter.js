@@ -1,8 +1,9 @@
+import Resource from './Resource'
 import NextcloudAdapter from './adapters/Nextcloud'
 import FakeAdapter from './adapters/Fake'
 import WebDavAdapter from './adapters/WebDav'
 
-export default class Adapter {
+export default class Adapter extends Resource {
   static factory(data) {
     var adapter
     switch (data.type) {
@@ -25,39 +26,50 @@ export default class Adapter {
     throw new Error('Cannot instantiate abstract class')
   }
 
-  setData() {
+  /**
+   * @param Object the account data entered in the options
+   */
+  setAccountData(data) {
     throw new Error('Not implemented')
   }
 
-  getData() {
+  getAccountData() {
     throw new Error('Not implemented')
   }
 
+  /**
+   * The label for this account based on the account data
+   */
   getLabel() {
     throw new Error('Not implemented')
   }
 
-  renderOptions() {
+  /**
+   * @return hyperapp-tree The options UI for this adapter
+   */
+  static renderOptions(state, actions) {
     throw new Error('Not implemented')
   }
 
-  pullBookmarks() {
+  /**
+   * @return Object the default values of the account data for this adapter
+   */
+  static getDefaultValues() {
     throw new Error('Not implemented')
   }
 
-  getBookmark() {
-    throw new Error('Not implemented')
-  }
+  /**
+   * Optional hook to do something on sync start
+   */
+  async onSyncStart() {}
 
-  createBookmark() {
-    throw new Error('Not implemented')
-  }
+  /**
+   * Optional hook to do something on sync completion
+   */
+  async onSyncComplete() {}
 
-  updateBookmark() {
-    throw new Error('Not implemented')
-  }
-
-  removeBookmark() {
-    throw new Error('Not implemented')
-  }
+  /**
+   * Optional hook to do something on sync fail
+   */
+  async onSyncFail() {}
 }
