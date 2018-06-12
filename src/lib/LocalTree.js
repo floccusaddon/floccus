@@ -1,5 +1,5 @@
 import browser from './browser-api'
-import Bookmark from './Bookmark'
+import Tree from './Tree'
 import Account from './Account'
 import AsyncLock from 'async-lock'
 
@@ -25,23 +25,26 @@ export default class LocalTree extends Resource {
   }
 
   async markDirty() {
-    return Promise.all(
-      Object.values(this.bookmarks).map(async bookmark => {
-        const treeHash = await bookmark.hash()
-        const cacheHash = this.cache[bookmark.localId]
-        if (treeHash !== cacheHash) {
-          bookmark.dirty = true
+    await this.bookmarks.hash()
+
+    const recurse = async item => {
+      const cacheHash = this.cache[bookmark.localId]
+      const treeHash = await item.hash()
+      if (cacheHash !== treeHash) {
+        item.dirty = true
+        if (item instanceof Tree.Folder) {
+          await Promise.all(item.children.map(child => recurse(child)))
         }
-      })
-    )
+      }
+    }
+    await recurse(this.bookmarks)
   }
 
   async loadBookmarks() {
     const tree = (await browser.bookmarks.getSubTree(this.rootId))[0]
     const allAccounts = await Account.getAllAccounts()
 
-    this.bookmarks = {}
-    const recurse = (node, parentPath) => {
+    const recurse = (node, parentId) => {
       if (
         allAccounts.some(
           acc => acc.getData().localRoot === node.id && node.id !== this.rootId
@@ -51,35 +54,33 @@ export default class LocalTree extends Resource {
         // (the user has apparently nested them *facepalm* -- how nice of us to take care of that)
         return
       }
-      if (!node.children) {
-        this.bookmarks[node.id] = new Bookmark(
-          this.mappings.LocalToServer[node.id],
-          node.id,
-          node.url,
-          node.title,
-          parentPath
-        )
-        return
+      if (node.children) {
+        return new Tree.Folder({
+          id: node.id,
+          parentId,
+          title: node.title,
+          children: node.children.map(child => resurse(child, node.id))
+        })
+      } else {
+        return new Bookmark({
+          id: node.id,
+          parentId,
+          title: node.title,
+          url: node.url
+        })
       }
-      const descendantPath =
-        parentPath + '/' + node.title.replace(/[/]/g, '\\/') // other paths don't have a trailing slash
-      node.children.map(node => recurse(node, descendantPath))
     }
-    tree.children.forEach(node => recurse(node, this.serverRoot))
+    this.bookmarks = recurse(tree)
   }
 
-  getBookmarkByLocalId(localId) {
-    return this.bookmarks[localId]
+  getAllBookmarks() {
+    return this.bookmarks
   }
 
   getBookmarkById(id) {
     const localId = this.mappings.ServerToLocal[id]
     if (!localId) return
     return this.bookmarks[localId]
-  }
-
-  getAllBookmarks() {
-    return Object.keys(this.bookmarks)
   }
 
   async createNode(bookmark) {

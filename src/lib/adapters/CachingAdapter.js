@@ -1,7 +1,7 @@
 import Tree from '../Tree'
 import Adapter from '../Adapter'
 
-export default class CachingAdapter {
+export default class CachingAdapter extends Adapter {
   constructor(server) {
     this.highestId = 0
   }

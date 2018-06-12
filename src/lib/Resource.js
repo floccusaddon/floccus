@@ -26,6 +26,13 @@ export class Resource {
   }
 
   /**
+   * @param id:int the id of the bookmark to delete
+   */
+  async removeBookmark(id) {
+    throw new Error('Not implemented')
+  }
+
+  /**
    * @param parentId:int the id of the parent node of the new folder
    * @param title:string the title of the folder
    * @return Promise<int> the id of the new folder

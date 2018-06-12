@@ -1,7 +1,10 @@
 import AccountStorage from './AccountStorage'
 import Adapter from './Adapter'
 import Tree from './Tree'
+import LocalTree from './LocalTree'
 import browser from './browser-api'
+
+const _ = require('lodash')
 const Parallel = require('async-parallel')
 
 const BATCH_SIZE = 10
@@ -21,7 +24,7 @@ export default class Account {
     if (typeof data.serverRoot !== 'string') {
       data.serverRoot = ''
     }
-    let tree = new Tree(storage, data.localRoot, data.serverRoot)
+    let tree = new LocalTree(storage, data.localRoot)
     let account = new Account(id, storage, Adapter.factory(data), tree)
     this.cache[id] = account
     return account
@@ -44,7 +47,7 @@ export default class Account {
     this.server = serverAdapter
     this.id = id
     this.storage = storageAdapter
-    this.tree = treeAdapter
+    this.localTree = treeAdapter
   }
 
   async delete() {
@@ -98,7 +101,7 @@ export default class Account {
     }
     await this.storage.initMappings()
     await this.storage.initCache()
-    this.tree = new Tree(this.storage, accData.localRoot, accData.serverRoot)
+    this.localTree = new LocalTree(this.storage, accData.localRoot)
   }
 
   async isInitialized() {
@@ -114,20 +117,23 @@ export default class Account {
 
   async sync() {
     try {
-      if ('syncStart' in this.server) await this.server.syncStart()
-
       if (this.getData().syncing || this.syncing) return
+
       console.log('Starting sync process for account ' + this.getLabel())
       this.syncing = true
       await this.setData({ ...this.getData(), syncing: true })
+
       if (!await this.isInitialized()) {
         await this.init()
+      }
+      if (this.server.syncStart) {
+        await this.server.syncStart()
       }
 
       // main sync steps:
 
       let mappings = await this.storage.getMappings()
-      await this.tree.load(mappings)
+      await this.localTree.load(mappings)
 
       if (
         Object.keys(mappings.LocalToServer).length === 0 &&
@@ -136,25 +142,8 @@ export default class Account {
         await this.setData({ ...this.getData(), syncing: 'initial' })
       }
 
-      // Deletes things we've known but that are no longer there locally
-      await this.sync_deleteFromServer(mappings)
-      // Server handles existing URLs that we think are new, client handles new URLs that are bookmarked twice locally
-      await this.sync_createOnServer(mappings)
-
-      let serverRoot = this.getData().serverRoot
-      let serverList = (await this.server.pullBookmarks()).filter(
-        bm => (serverRoot ? bm.path.indexOf(serverRoot) === 0 : true)
-      )
-
-      mappings = await this.storage.getMappings()
-      await this.tree.load(mappings)
-
-      // deletes everything locally that is not new but doesn't exist on the server anymore
-      await this.sync_deleteFromTree(serverList)
-      // Goes through server's list and updates creates things locally as needed
-      await this.sync_update(serverList)
-
-      await this.tree.removeOrphanedFolders()
+      const sync = new SyncProcess()
+      await sync.sync()
 
       await this.setData({
         ...this.getData(),
@@ -164,7 +153,9 @@ export default class Account {
       })
       this.syncing = false
 
-      if ('syncComplete' in this.server) await this.server.syncComplete()
+      if (this.server.syncComplete) {
+        await this.server.syncComplete()
+      }
 
       console.log(
         'Successfully ended sync process for account ' + this.getLabel()
@@ -188,20 +179,22 @@ export default class Account {
           error: e.message,
           syncing: false
         })
-        this.syncing = false
       }
-
-      if ('syncFail' in this.server) await this.server.syncFail()
+      this.syncing = false
+      if (this.server.syncFail) {
+        await this.server.syncFail()
+      }
     }
   }
 
   async sync_deleteFromServer(mappings) {
     // In the mappings but not in the tree: SERVERDELETE
-    var shouldExist = Object.keys(mappings.LocalToServer)
+    const shouldExist = Object.keys(mappings.LocalToServer)
+    const localRootFolder = this.localTree.getAllBookmarks()
     await Parallel.each(
       shouldExist,
       async localId => {
-        if (!this.tree.getBookmarkByLocalId(localId)) {
+        if (!localRootFolder.findBookmark(localId)) {
           console.log('SERVERDELETE', localId, mappings.LocalToServer[localId])
           await this.server.removeBookmark(mappings.LocalToServer[localId])
           await this.storage.removeFromMappings(localId)
