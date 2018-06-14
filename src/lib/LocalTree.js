@@ -4,43 +4,14 @@ import Account from './Account'
 import AsyncLock from 'async-lock'
 
 const treeLock = new AsyncLock()
-const reverseStr = str =>
-  str
-    .split('')
-    .reverse()
-    .join('')
 
 export default class LocalTree extends Resource {
-  constructor(storage, rootId, serverRoot) {
+  constructor(storage, rootId) {
     this.rootId = rootId
-    this.serverRoot = serverRoot
     this.storage = storage
   }
 
-  async load(mappings, cache) {
-    this.mappings = mappings || (await this.storage.getMappings())
-    this.cache = cache || (await this.storage.getCache())
-    await this.loadBookmarks()
-    this.markDirty()
-  }
-
-  async markDirty() {
-    await this.bookmarks.hash()
-
-    const recurse = async item => {
-      const cacheHash = this.cache[bookmark.localId]
-      const treeHash = await item.hash()
-      if (cacheHash !== treeHash) {
-        item.dirty = true
-        if (item instanceof Tree.Folder) {
-          await Promise.all(item.children.map(child => recurse(child)))
-        }
-      }
-    }
-    await recurse(this.bookmarks)
-  }
-
-  async loadBookmarks() {
+  async getBookmarksTree() {
     const tree = (await browser.bookmarks.getSubTree(this.rootId))[0]
     const allAccounts = await Account.getAllAccounts()
 
@@ -70,122 +41,51 @@ export default class LocalTree extends Resource {
         })
       }
     }
-    this.bookmarks = recurse(tree)
+    return recurse(tree)
   }
 
-  getAllBookmarks() {
-    return this.bookmarks
-  }
-
-  getBookmarkById(id) {
-    const localId = this.mappings.ServerToLocal[id]
-    if (!localId) return
-    return this.bookmarks[localId]
-  }
-
-  async createNode(bookmark) {
-    console.log('CREATE', bookmark)
-
-    if (this.getBookmarkById(bookmark.id)) {
-      throw new Error(
-        'trying to create a node for a bookmark that already has one'
-      )
-    }
-
-    const parentId = await this.mkdirpPath(
-      bookmark.getLocalPath(this.serverRoot)
-    )
+  async createBookmark(bookmark) {
     const node = await browser.bookmarks.create({
-      parentId,
+      parentId: bookmark.parentId,
       title: bookmark.title,
       url: bookmark.url
     })
-    bookmark.localId = node.id
-    this.bookmarks[bookmark.localId] = bookmark
-    await this.storage.addToMappings(bookmark)
-    return node
+    return node.id
   }
 
-  async updateNode(bookmark) {
-    console.log('LOCALUPDATE', bookmark)
-
-    if (!this.getBookmarkById(bookmark.id)) {
-      throw new Error('trying to update a node of a bookmark that has none')
-    }
-
-    await browser.bookmarks.update(bookmark.localId, {
+  async updateBookmark(bookmark) {
+    await browser.bookmarks.update(bookmark.id, {
       title: bookmark.title,
       url: bookmark.url
     })
-    const parentId = await this.mkdirpPath(
-      bookmark.getLocalPath(this.serverRoot)
-    )
     await browser.bookmarks.move(bookmark.localId, { parentId })
   }
 
-  async removeNode(bookmark) {
-    console.log('DELETE', bookmark)
-
-    if (!this.getBookmarkByLocalId(bookmark.localId)) {
-      throw new Error('trying to remove a node of a bookmark that has none')
-    }
-
-    await browser.bookmarks.remove(bookmark.localId)
-    await this.storage.removeFromMappings(bookmark.localId)
+  async removeBookmark(bookmark) {
+    await browser.bookmarks.remove(bookmark.id)
   }
 
-  async removeOrphanedFolders() {
-    const tree = (await browser.bookmarks.getSubTree(this.rootId))[0]
-    const allAccounts = await Account.getAllAccounts()
-
-    const recurse = async (parentPath, node) => {
-      if (
-        allAccounts.some(
-          acc => acc.getData().localRoot === node.id && node.id !== this.rootId
-        )
-      ) {
-        // This is the root folder of a different account
-        // (the user has apparently nested them *facepalm* -- how nice of us to take care of that)
-        return
-      }
-      if (!node.children) {
-        return
-      }
-      const descendantPath =
-        parentPath + '/' + node.title.replace(/[/]/g, '\\/')
-
-      await Promise.all(
-        node.children.map(node => recurse(descendantPath, node))
-      )
-
-      const children = await browser.bookmarks.getChildren(node.id)
-      if (!children.length && node.id !== this.rootId && parentPath !== '/') {
-        console.log('Remove orphaned folder: ' + descendantPath)
-        await browser.bookmarks.remove(node.id)
-      }
-    }
-    await recurse('', tree)
+  async createFolder(parentId, title) {
+    const node = await browser.bookmarks.create({
+      parentId,
+      title
+    })
+    return node.id
   }
 
-  async getAllNodes() {
-    const tree = (await browser.bookmarks.getSubTree(this.rootId))[0]
-    const allAccounts = await Account.getAllAccounts()
-    const recurse = root => {
-      if (
-        allAccounts.some(
-          acc => acc.getData().localRoot === root.id && root.id !== this.rootId
-        )
-      ) {
-        // This is the root folder of a different account
-        // (the user has apparently nested them *facepalm* -- how nice of us to take care of that)
-        return []
-      }
-      if (!root.children) return [root]
-      return root.children
-        .map(recurse)
-        .reduce((desc1, desc2) => desc1.concat(desc2), [])
-    }
-    return recurse(tree)
+  async updateFolder(id, title) {
+    await browser.bookmarks.update(bookmark.id, {
+      title: bookmark.title,
+      url: bookmark.url
+    })
+  }
+
+  async moveFolder(id, parentId) {
+    await browser.bookmarks.move(id, { parentId })
+  }
+
+  async removeFolder(id) {
+    await browser.bookmarks.remove(id)
   }
 
   static async getPathFromLocalId(localId, ancestors, relativeToRoot) {
@@ -206,48 +106,6 @@ export default class LocalTree extends Resource {
         }
       })
     )).join('/')
-  }
-
-  async mkdirpPath(path) {
-    const allAccounts = await Account.getAllAccounts()
-    return Tree.mkdirpPath(path, this.rootId, allAccounts)
-  }
-
-  static async mkdirpPath(path, rootId, allAccounts) {
-    if (path === '/' || path === '') {
-      return rootId
-    }
-
-    let pathArr = reverseStr(path)
-      .split(/[/](?![\\])/)
-      .reverse()
-      .map(str => reverseStr(str))
-    let pathSegment = pathArr[1]
-    let title = pathSegment.replace(/[\\][/]/g, '/')
-
-    let child = await treeLock.acquire(rootId, async () => {
-      let children = await browser.bookmarks.getChildren(rootId)
-      let childrenWithRightName = children.filter(bm => bm.title === title)
-      for (var i = 0; i < childrenWithRightName.length; i++) {
-        let subChildren = await browser.bookmarks.getChildren(
-          childrenWithRightName[i].id
-        )
-        if (subChildren.length) {
-          return childrenWithRightName[i]
-        }
-      }
-      return browser.bookmarks.create({ parentId: rootId, title })
-    })
-    if (allAccounts.some(acc => acc.getData().localRoot === child.id)) {
-      throw new Error(
-        'New path conflicts with existing nested floccus folder. Aborting.'
-      )
-    }
-    return Tree.mkdirpPath(
-      '/' + pathArr.slice(2).join('/'),
-      child.id,
-      allAccounts
-    )
   }
 
   static async getIdPathFromLocalId(localId, path) {

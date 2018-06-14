@@ -101,8 +101,18 @@ export default class AccountStorage {
     })
   }
 
-  getMappings() {
-    return AccountStorage.getEntry(`bookmarks[${this.accountId}].mappings`)
+  async getMappings() {
+    const data = await AccountStorage.getEntry(
+      `bookmarks[${this.accountId}].mappings`
+    )
+    return new Mappings(this, data)
+  }
+
+  async setMappings(data) {
+    await AccountStorage.changeEntry(
+      `bookmarks[${this.accountId}].mappings`,
+      () => data
+    )
   }
 
   removeFromMappings(localId) {

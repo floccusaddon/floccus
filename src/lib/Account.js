@@ -75,7 +75,7 @@ export default class Account {
   }
 
   async tracksBookmark(localId) {
-    if (!await this.isInitialized()) return false
+    if (!(await this.isInitialized())) return false
     let mappings = await this.storage.getMappings()
     return Object.keys(mappings.LocalToServer).some(id => localId === id)
   }
@@ -123,7 +123,7 @@ export default class Account {
       this.syncing = true
       await this.setData({ ...this.getData(), syncing: true })
 
-      if (!await this.isInitialized()) {
+      if (!(await this.isInitialized())) {
         await this.init()
       }
       if (this.server.syncStart) {
@@ -133,16 +133,18 @@ export default class Account {
       // main sync steps:
 
       let mappings = await this.storage.getMappings()
-      await this.localTree.load(mappings)
 
-      if (
-        Object.keys(mappings.LocalToServer).length === 0 &&
-        this.tree.getAllBookmarks().length !== 0
-      ) {
+      if (Object.keys(mappings.bookmarks.LocalToServer).length === 0) {
+        // Just a visual hint that it could take longer
         await this.setData({ ...this.getData(), syncing: 'initial' })
       }
 
-      const sync = new SyncProcess()
+      const sync = new SyncProcess(
+        mappings,
+        this.localTree,
+        await this.storage.getCache(),
+        this.server
+      )
       await sync.sync()
 
       await this.setData({
@@ -185,142 +187,6 @@ export default class Account {
         await this.server.syncFail()
       }
     }
-  }
-
-  async sync_deleteFromServer(mappings) {
-    // In the mappings but not in the tree: SERVERDELETE
-    const shouldExist = Object.keys(mappings.LocalToServer)
-    const localRootFolder = this.localTree.getAllBookmarks()
-    await Parallel.each(
-      shouldExist,
-      async localId => {
-        if (!localRootFolder.findBookmark(localId)) {
-          console.log('SERVERDELETE', localId, mappings.LocalToServer[localId])
-          await this.server.removeBookmark(mappings.LocalToServer[localId])
-          await this.storage.removeFromMappings(localId)
-          await this.storage.removeFromCache(localId)
-        }
-      },
-      BATCH_SIZE
-    )
-  }
-
-  async sync_createOnServer(mappings) {
-    // In the tree yet not in the mappings: SERVERCREATE
-    await Parallel.each(
-      this.tree
-        .getAllBookmarks()
-        .filter(
-          localId => typeof mappings.LocalToServer[localId] === 'undefined'
-        ),
-      async localId => {
-        const bookmark = this.tree.getBookmarkByLocalId(localId)
-        if (mappings.UrlToLocal[bookmark.url]) {
-          console.error(
-            'The same URL is bookmarked twice locally:',
-            bookmark.url
-          )
-          throw new Error(
-            'The same URL is bookmarked twice locally: "' +
-              bookmark.url +
-              '". Delete one of the two.'
-          )
-        }
-        console.log('SERVERCREATE', bookmark)
-        let serverMark = await this.server.createBookmark(bookmark)
-        if (!serverMark) {
-          // ignore this bookmark as it's not supported by the server
-          return
-        }
-        bookmark.id = serverMark.id
-        await this.storage.addToMappings(bookmark)
-        await this.storage.addToCache(bookmark.localId, await bookmark.hash())
-      },
-      BATCH_SIZE
-    )
-  }
-
-  async sync_deleteFromTree(serverList) {
-    const received = {}
-    serverList.forEach(bm => (received[bm.id] = true))
-
-    const mappings = await this.storage.getMappings()
-
-    // removed on the server: DELETE
-    await Parallel.each(
-      Object.keys(mappings.ServerToLocal),
-      // local bookmarks are only in the mappings if they have been added to the server successfully, so we never delete new ones!
-      async id => {
-        if (!received[id]) {
-          // If a bookmark was deleted on the server, we delete it as well
-          let localId = mappings.ServerToLocal[id]
-          await this.tree.removeNode(this.tree.getBookmarkByLocalId(localId))
-          await this.storage.removeFromCache(localId)
-          await this.storage.removeFromMappings(localId)
-        }
-      },
-      BATCH_SIZE
-    )
-  }
-
-  async sync_update(serverMarks) {
-    const mappings = await this.storage.getMappings() // For detecting duplicates
-    // Update known ones and create new ones
-    await Parallel.each(
-      serverMarks,
-      async serverMark => {
-        serverMark.localId = mappings.ServerToLocal[serverMark.id]
-        if (serverMark.localId) {
-          // known to mappings: (LOCAL|SERVER)UPDATE
-          let localMark = this.tree.getBookmarkByLocalId(serverMark.localId)
-
-          let serverHash = await serverMark.hash()
-          let treeHash = await localMark.hash()
-
-          if (treeHash === serverHash) {
-            return
-          }
-
-          if (!localMark.dirty) {
-            // LOCALUPDATE
-            await this.tree.updateNode(serverMark)
-            await this.storage.addToCache(serverMark.localId, serverHash)
-          } else {
-            // SERVERUPDATE
-            console.log('SERVERUPDATE', localMark, serverMark)
-            let couldHandle = await this.server.updateBookmark(
-              localMark.id,
-              localMark
-            )
-            if (!couldHandle) {
-              // if the protocol is not supported updateBookmark returns false
-              // and we ignore it
-              await this.server.removeBookmark(localMark.id)
-              await this.storage.removeFromMappings(localMark.localId)
-              await this.storage.removeFromCache(localMark.localId)
-              return
-            }
-            await this.storage.addToCache(localMark.localId, treeHash)
-          }
-        } else {
-          // Not yet known:
-          // CREATE
-          if (mappings.UrlToLocal[serverMark.url]) {
-            console.error(
-              "Trying to create a URL that is already bookmarked. This shouldn't happen! Please tell the developer about this! url=" +
-                serverMark.url
-            )
-            throw new Error(
-              "Trying to create a URL that is already bookmarked. This shouldn't happen! Please tell the developer about this! url=" +
-                serverMark.url
-            )
-          }
-          const node = await this.tree.createNode(serverMark)
-          await this.storage.addToCache(node.id, await serverMark.hash())
-        }
-      },
-      1 // concurrency
-    )
   }
 
   static async getAllAccounts() {
