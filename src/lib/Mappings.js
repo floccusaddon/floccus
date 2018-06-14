@@ -47,15 +47,16 @@ export class Mappings {
 
   static remove(mappings, { localId, remoteId }) {
     if (localId && remoteId && mappings.LocalToServer[localId] !== remoteId) {
-      this.remove(mappings, {localId})
-      this.remove(mappings, {remoteId})
+      this.remove(mappings, { localId })
+      this.remove(mappings, { remoteId })
       return
     }
     if (localId) {
-
-    delete mappings.ServerToLocal[mappings.LocalToServer[localId]]
-    delete mappings.LocalToServer[localId]
-    delete mappings.LocalToServer[mappings.ServerToLocal[remoteId]]
-    delete mappings.ServerToLocal[remoteId]
+      delete mappings.ServerToLocal[mappings.LocalToServer[localId]]
+      delete mappings.LocalToServer[localId]
+    } else {
+      delete mappings.LocalToServer[mappings.ServerToLocal[remoteId]]
+      delete mappings.ServerToLocal[remoteId]
+    }
   }
 }
