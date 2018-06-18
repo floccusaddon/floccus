@@ -146,6 +146,7 @@ export default class Account {
         this.server
       )
       await sync.sync()
+      await this.storage.setCache(sync.localTreeRoot)
 
       await this.setData({
         ...this.getData(),

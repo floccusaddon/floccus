@@ -1,5 +1,6 @@
 import browser from './browser-api'
 import Cryptography from './Crypto'
+import Folder from './Tree'
 import AsyncLock from 'async-lock'
 
 const storageLock = new AsyncLock()
@@ -60,84 +61,39 @@ export default class AccountStorage {
     })
   }
 
-  initCache() {
-    return browser.storage.local.set({
-      [`bookmarks[${this.accountId}].cache`]: {}
-    })
-  }
-
-  getCache() {
-    return AccountStorage.getEntry(`bookmarks[${this.accountId}].cache`)
-  }
-
-  removeFromCache(localId) {
-    return AccountStorage.changeEntry(
-      `bookmarks[${this.accountId}].cache`,
-      cache => {
-        delete cache[localId]
-        return cache
-      }
+  async getCache() {
+    const data = await AccountStorage.getEntry(
+      `bookmarks[${this.accountId}].cache`
     )
+    return Folder.hydrate(data)
   }
 
-  addToCache(localId, hash) {
-    return AccountStorage.changeEntry(
+  async setCache(data) {
+    await AccountStorage.changeEntry(
       `bookmarks[${this.accountId}].cache`,
-      cache => {
-        cache[localId] = hash
-        return cache
-      }
+      () => data
     )
-  }
-
-  initMappings() {
-    return browser.storage.local.set({
-      [`bookmarks[${this.accountId}].mappings`]: {
-        ServerToLocal: {},
-        LocalToServer: {},
-        UrlToLocal: {},
-        LocalToUrl: {}
-      }
-    })
   }
 
   async getMappings() {
     const data = await AccountStorage.getEntry(
       `bookmarks[${this.accountId}].mappings`
     )
-    return new Mappings(this, data)
+    return new Mappings(
+      this,
+      data || {
+        ServerToLocal: {},
+        LocalToServer: {},
+        UrlToLocal: {},
+        LocalToUrl: {}
+      }
+    )
   }
 
   async setMappings(data) {
     await AccountStorage.changeEntry(
       `bookmarks[${this.accountId}].mappings`,
       () => data
-    )
-  }
-
-  removeFromMappings(localId) {
-    return AccountStorage.changeEntry(
-      `bookmarks[${this.accountId}].mappings`,
-      mappings => {
-        delete mappings.ServerToLocal[mappings.LocalToServer[localId]]
-        delete mappings.LocalToServer[localId]
-        delete mappings.UrlToLocal[mappings.LocalToUrl[localId]]
-        delete mappings.LocalToUrl[localId]
-        return mappings
-      }
-    )
-  }
-
-  addToMappings(bookmark) {
-    return AccountStorage.changeEntry(
-      `bookmarks[${this.accountId}].mappings`,
-      mappings => {
-        mappings.LocalToServer[bookmark.localId] = bookmark.id
-        mappings.ServerToLocal[bookmark.id] = bookmark.localId
-        mappings.UrlToLocal[bookmark.url] = bookmark.localId
-        mappings.LocalToUrl[bookmark.localId] = bookmark.url
-        return mappings
-      }
     )
   }
 }

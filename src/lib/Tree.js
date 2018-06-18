@@ -19,6 +19,10 @@ export default class Bookmark {
     }
     return this.hashValue
   }
+
+  static hydrate(obj) {
+    return new Bookmark(obj)
+  }
 }
 
 export class Folder {
@@ -68,5 +72,18 @@ export class Folder {
       )
     }
     return this.hashValue
+  }
+
+  static hydrate(obj) {
+    return new Folder({
+      ...obj,
+      children: obj.children.map(child => {
+        if (child instanceof Folder) {
+          return Folder.hydrate(child)
+        } else {
+          return Bookmark.hydrate(child)
+        }
+      })
+    })
   }
 }
