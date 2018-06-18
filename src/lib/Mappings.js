@@ -7,7 +7,7 @@ export class Mappings {
 
   async addFolder({ localId, remoteId }) {
     Mappings.add(this.folders, { localId, remoteId })
-    this.storage.setMappings({
+    await this.storage.setMappings({
       folders: this.folders,
       bookmarks: this.bookmarks
     })
@@ -15,7 +15,7 @@ export class Mappings {
 
   async removeFolder({ localId, remoteId }) {
     Mappings.remove(this.folders, { localId, remoteId })
-    this.storage.setMappings({
+    await this.storage.setMappings({
       folders: this.folders,
       bookmarks: this.bookmarks
     })
@@ -23,7 +23,7 @@ export class Mappings {
 
   async addBookmark({ localId, remoteId }) {
     Mappings.add(this.bookmarks, { localId, remoteId })
-    this.storage.setMappings({
+    await this.storage.setMappings({
       folders: this.folders,
       bookmarks: this.bookmarks
     })
@@ -31,7 +31,7 @@ export class Mappings {
 
   async removeBookmark({ localId, remoteId }) {
     Mappings.remove(this.bookmarks, { localId, remoteId })
-    this.storage.setMappings({
+    await this.storage.setMappings({
       folders: this.folders,
       bookmarks: this.bookmarks
     })
