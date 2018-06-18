@@ -1,4 +1,4 @@
-export default class PathParse {
+export default class PathHelper {
   static reverseStr(str) {
     return str
       .split('')
@@ -6,10 +6,14 @@ export default class PathParse {
       .join('')
   }
 
-  static parsePathIntoAnArray(path) {
+  static pathToArray(path) {
     return PathParse.reverseStr(path)
       .split(/[/](?![\\])/)
       .map(value => PathParse.reverseStr(value))
       .reverse()
+  }
+
+  static arrayToPath(array) {
+    return array.map(value => value.replace(/[/]/, '/')).join('/')
   }
 }

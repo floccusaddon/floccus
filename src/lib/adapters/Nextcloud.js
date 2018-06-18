@@ -1,15 +1,11 @@
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
-import Bookmark from '../Bookmark'
+import { Folder, Bookmark } from '../Tree'
+import PathHelper from '../PathHelper'
 import * as Basics from '../components/basics'
 const Parallel = require('async-parallel')
 const { h } = require('hyperapp')
 const url = require('url')
-const reverseStr = str =>
-  str
-    .split('')
-    .reverse()
-    .join('')
 
 const TAG_PREFIX = 'floccus:'
 
@@ -172,7 +168,7 @@ export default class NextcloudAdapter {
     })
   }
 
-  async pullBookmarks() {
+  async getBookmarksList() {
     console.log('Fetching bookmarks', this.server)
     const getUrl =
       this.normalizeServerURL(this.server.url) +
@@ -193,7 +189,7 @@ export default class NextcloudAdapter {
 
     if (response.status === 401) {
       throw new Error(
-        "Couldn't authenticate for removing bookmarks from the server."
+        "Couldn't authenticate for fetching bookmarks from the server."
       )
     }
     if (response.status !== 200) {
@@ -216,7 +212,7 @@ export default class NextcloudAdapter {
         try {
           await this.updateBookmark(bm.id, {
             ...bm,
-            path: NextcloudAdapter.getPathFromServerMark(bm)
+            path: this.getPathFromServerMark(bm)
           })
         } catch (e) {
           console.log(e)
@@ -226,18 +222,99 @@ export default class NextcloudAdapter {
     )
 
     let bookmarks = json.data.map(bm => {
-      return new Bookmark(
-        bm.id,
-        null,
-        bm.url,
-        bm.title,
-        NextcloudAdapter.getPathFromServerMark(bm)
-      )
-      // tags: bm.tags.filter(tag => tag.indexOf('__floccus-path:') != 0)
+      let bookmark = new Bookmark({
+        id: bm.id,
+        url: bm.url,
+        title: bm.title
+        // Once firefox supports tags, we can do this:
+        // tags: bm.tags.filter(tag => tag.indexOf('__floccus-path:') != 0)
+      })
+      bookmark.path = NextcloudAdapter.getPathFromServerMark(bm)
+      return bookmark
     })
 
     console.log('Received bookmarks from server', bookmarks)
     return bookmarks
+  }
+
+  async getBookmarksTree() {
+    let list = await this.getBookmarksList()
+    list.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+    let tree = new Folder()
+
+    list.forEach(bookmark => {
+      // adjust path relative to serverRoot
+      if (this.server.serverRoot) {
+        if (bookmark.parentId.indexOf(this.server.serverRoot) === 0) {
+          bookmark.parentId = bookmark.parentId.substr(
+            0,
+            this.server.serverRoot.length
+          )
+        } else {
+          // skip this bookmark
+          return
+        }
+      }
+      let pathArray = PathHelper.pathToArray(bookmark.parentId)
+
+      var currentSubtree = tree
+      pathArray.forEach((title, i) => {
+        var folder = currentSubtree.children.filter(
+          folder => folder.title === title
+        )[0]
+        if (!folder) {
+          var folder = new Folder({
+            parentId: currentSubtree.id,
+            id: PathHelper.arrayToPath(pathArray.slice(0, i + 1)),
+            title
+          })
+          currentSubtree.children.push(folder)
+        }
+        currentSubtree = folder
+      })
+
+      bookmark.parentId = currentSubtree.id
+      currentSubtree.children.push(bookmark)
+    })
+
+    this.tree = tree
+    return tree
+  }
+
+  async createFolder(parentId, title) {
+    return
+  }
+
+  async updateFolder(id, parentId, title) {
+    let folder = this.tree.findFolder(id)
+    if (!folder) {
+      throw new Error('Folder not found')
+    }
+    let newParentId = PathHelper.arrayToPath(
+      PathHelper.pathToArray(parentId).concat([title])
+    )
+    await Parallel.each(folder.children, async child => {
+      if (child instanceof Folder) {
+        await this.updateFolder(id, newParentId, child.title)
+      } else {
+        child.parentId = newParentId
+        await this.updateBookmark(child)
+      }
+    })
+  }
+
+  async removeFolder(id) {
+    let folder = this.tree.findFolder(id)
+    if (!folder) {
+      return
+    }
+    await Parallel.each(folder.children, async child => {
+      if (child instanceof Folder) {
+        await this.removeFolder(id)
+      } else {
+        await this.removeBookmark(child)
+      }
+    })
   }
 
   async getBookmark(id, autoupdate) {
@@ -279,17 +356,27 @@ export default class NextcloudAdapter {
     if (autoupdate && bm.tags.every(tag => tag.indexOf(TAG_PREFIX) !== 0)) {
       await this.updateBookmark(bm.id, {
         ...bm,
-        path: NextcloudAdapter.getPathFromServerMark(bm)
+        parentId: this.getPathFromServerMark(bm)
       })
     }
 
-    let bookmark = new Bookmark(
-      bm.id,
-      null,
-      bm.url,
-      bm.title,
-      NextcloudAdapter.getPathFromServerMark(bm)
-    )
+    let bookmark = new Bookmark({
+      id: bm.id,
+      url: bm.url,
+      title: bm.title,
+      parentId: NextcloudAdapter.getPathFromServerMark(bm)
+    })
+    // adjust path relative to serverRoot
+    if (this.server.serverRoot) {
+      if (bookmark.parentId.indexOf(this.server.serverRoot) === 0) {
+        bookmark.parentId = bookmark.parentId.substr(
+          0,
+          this.server.serverRoot.length
+        )
+      } else {
+        // Kind of a PEBCAK
+      }
+    }
     bookmark.tags = NextcloudAdapter.filterPathTagFromTags(bm.tags)
     return bookmark
   }
@@ -298,10 +385,13 @@ export default class NextcloudAdapter {
     if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
       return false
     }
+    if (this.server.serverRoot) {
+      bookmark.parentId = this.server.serverRoot + bookmark.parentId
+    }
     let body = new FormData()
     body.append('url', bm.url)
     body.append('title', bm.title)
-    body.append('item[tags][]', NextcloudAdapter.convertPathToTag(bm.path))
+    body.append('item[tags][]', NextcloudAdapter.convertPathToTag(bm.parentId))
     const createUrl =
       this.normalizeServerURL(this.server.url) +
       'index.php/apps/bookmarks/public/rest/v2/bookmark'
@@ -339,26 +429,30 @@ export default class NextcloudAdapter {
     return bm
   }
 
-  async updateBookmark(remoteId, newBm) {
+  async updateBookmark(newBm) {
     if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(newBm.url).protocol)) {
       return false
     }
 
     let bm = await this.getBookmark(remoteId, false)
 
+    // adjust path relative to serverRoot
+    if (this.server.serverRoot) {
+      newBm.parentId = this.server.serverRoot + newBm.parentId
+    }
     let body = new URLSearchParams()
     body.append('url', newBm.url)
     body.append('title', newBm.title)
 
     bm.tags
-      .concat(NextcloudAdapter.filterPathTagFromTags(newBm.tags))
-      .concat([NextcloudAdapter.convertPathToTag(newBm.path)])
+      .concat(NextcloudAdapter.filterPathTagFromTags(bm.tags))
+      .concat([NextcloudAdapter.convertPathToTag(newBm.parentId)])
       .forEach(tag => body.append('item[tags][]', tag))
 
     let updateUrl =
       this.normalizeServerURL(this.server.url) +
       'index.php/apps/bookmarks/public/rest/v2/bookmark/' +
-      remoteId
+      newBm.id
     var putRes
     try {
       putRes = await fetch(updateUrl, {
@@ -390,21 +484,13 @@ export default class NextcloudAdapter {
     if (putJson.status !== 'success') {
       throw new Error('nextcloud API returned error')
     }
-
-    return new Bookmark(
-      remoteId,
-      null,
-      putJson.item.url,
-      putJson.item.title,
-      NextcloudAdapter.getPathFromServerMark(putJson.item)
-    )
   }
 
-  async removeBookmark(remoteId) {
+  async removeBookmark(bm) {
     const delUrl =
       this.normalizeServerURL(this.server.url) +
       'index.php/apps/bookmarks/public/rest/v2/bookmark/' +
-      remoteId
+      bm.id
     var res
     try {
       res = await fetch(delUrl, {
@@ -428,14 +514,13 @@ export default class NextcloudAdapter {
       )
     }
     if (res.status !== 200) {
-      throw new Error(
-        'Removing a bookmark on the server failed. remoteId=' + remoteId
-      )
+      throw new Error('Removing a bookmark on the server failed. url=' + bm.url)
     }
   }
 
-  static getPathFromServerMark(bm) {
-    return this.convertTagToPath(this.getPathTagFromTags(bm.tags))
+  getPathFromServerMark(bm) {
+    let pathTag = this.getPathTagFromTags(bm.tags)
+    return pathTag ? this.convertTagToPath(pathTag) : this.server.serverRoot
   }
 
   static filterPathTagFromTags(tags) {
@@ -443,18 +528,14 @@ export default class NextcloudAdapter {
   }
 
   static getPathTagFromTags(tags) {
-    return (tags || [])
-      .filter(tag => tag.indexOf(TAG_PREFIX) === 0)
-      .concat([this.convertPathToTag('')])[0]
+    return (tags || []).filter(tag => tag.indexOf(TAG_PREFIX) === 0)[0]
   }
 
   static convertPathToTag(path) {
     // We reverse the string and do a negative lookahead, reversing again afterwards
     return (
       TAG_PREFIX +
-      reverseStr(path)
-        .split(/[/](?![\\])/)
-        .reverse()
+      PathHelper.pathToArray(path)
         .map(str => reverseStr(str).replace(/>/g, '\\>'))
         .join('>')
         .replace(/%2C/g, '%252C')
@@ -464,10 +545,10 @@ export default class NextcloudAdapter {
 
   static convertTagToPath(tag) {
     // We reverse the string and split using a negative lookahead, reversing again afterwards
-    return reverseStr(tag.substr(TAG_PREFIX.length))
+    return PathHelper.reverseStr(tag.substr(TAG_PREFIX.length))
       .split(/>(?![\\])/)
       .reverse()
-      .map(str => reverseStr(str).replace(/\\>/g, '>'))
+      .map(str => PathHelper.reverseStr(str).replace(/\\>/g, '>'))
       .join('/')
       .replace(/%2C/g, ',') // encodeURIComponent(',') == '%2C'
       .replace(/%252C/g, '%2C')
