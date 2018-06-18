@@ -1,5 +1,6 @@
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
+import Adapter from '../Adapter'
 import { Folder, Bookmark } from '../Tree'
 import PathHelper from '../PathHelper'
 import * as Basics from '../components/basics'
@@ -21,8 +22,9 @@ const {
   OptionDelete
 } = Basics
 
-export default class NextcloudAdapter {
+export default class NextcloudAdapter extends Adapter {
   constructor(server) {
+    super()
     this.server = server
   }
 

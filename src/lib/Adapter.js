@@ -23,7 +23,10 @@ export default class Adapter extends Resource {
   }
 
   constructor() {
-    throw new Error('Cannot instantiate abstract class')
+    super()
+    if (this.constructor === Adapter) {
+      throw new Error('Cannot instantiate abstract class')
+    }
   }
 
   /**

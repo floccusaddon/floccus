@@ -3,6 +3,7 @@ import Adapter from '../Adapter'
 
 export default class CachingAdapter extends Adapter {
   constructor(server) {
+    super()
     this.highestId = 0
   }
 

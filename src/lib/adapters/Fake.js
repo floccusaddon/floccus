@@ -1,4 +1,4 @@
-import Bookmark from '../Bookmark'
+import { Bookmark } from '../Tree'
 
 const url = require('url')
 

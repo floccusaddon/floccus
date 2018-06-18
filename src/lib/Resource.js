@@ -1,6 +1,8 @@
 export class Resource {
   constructor() {
-    throw new Error('Not implemented')
+    if (this.constructor === Resource) {
+      throw new Error('Cannot instantiate abstract class')
+    }
   }
 
   /**

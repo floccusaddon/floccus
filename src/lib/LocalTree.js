@@ -7,6 +7,7 @@ const treeLock = new AsyncLock()
 
 export default class LocalTree extends Resource {
   constructor(storage, rootId) {
+    super()
     this.rootId = rootId
     this.storage = storage
   }

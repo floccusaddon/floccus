@@ -1,5 +1,4 @@
-import PathParse from '../PathParse'
-import Bookmark from '../Bookmark'
+import { Bookmark, Folder } from '../Tree'
 import * as Basics from '../components/basics'
 const { h } = require('hyperapp')
 const url = require('url')
