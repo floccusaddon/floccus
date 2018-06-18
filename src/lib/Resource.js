@@ -1,4 +1,4 @@
-export class Resource {
+export default class Resource {
   constructor() {
     if (this.constructor === Resource) {
       throw new Error('Cannot instantiate abstract class')

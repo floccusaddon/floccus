@@ -1,23 +1,20 @@
 import Resource from './Resource'
-import NextcloudAdapter from './adapters/Nextcloud'
-import FakeAdapter from './adapters/Fake'
-import WebDavAdapter from './adapters/WebDav'
 
 export default class Adapter extends Resource {
+  static register(type, constructor) {
+    if (!this.registry) {
+      this.registry = {}
+    }
+    this.registry[type] = constructor
+  }
+
   static factory(data) {
-    var adapter
-    switch (data.type) {
-      case 'nextcloud':
-        adapter = new NextcloudAdapter(data)
-        break
-      case 'fake':
-        adapter = new FakeAdapter(data)
-        break
-      case 'webdav':
-        adapter = new WebDavAdapter(data)
-        break
-      default:
-        throw new Error('Unknown account type')
+    var constructor = this.registry[data.type],
+      adapter
+    if (construcor) {
+      adapter = new constructor(data)
+    } else {
+      throw new Error('Unknown account type')
     }
     return adapter
   }

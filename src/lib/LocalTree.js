@@ -1,6 +1,7 @@
 import browser from './browser-api'
 import Tree from './Tree'
 import Account from './Account'
+import Resource from './Resource'
 import AsyncLock from 'async-lock'
 
 const treeLock = new AsyncLock()

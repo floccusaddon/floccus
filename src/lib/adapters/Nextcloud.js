@@ -556,3 +556,5 @@ export default class NextcloudAdapter extends Adapter {
       .replace(/%252C/g, '%2C')
   }
 }
+
+Adapter.register('nextcloud', NextcloudAdapter)
