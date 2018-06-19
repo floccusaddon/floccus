@@ -11,7 +11,7 @@ export default class Adapter extends Resource {
   static factory(data) {
     var constructor = this.registry[data.type],
       adapter
-    if (construcor) {
+    if (constructor) {
       adapter = new constructor(data)
     } else {
       throw new Error('Unknown account type')

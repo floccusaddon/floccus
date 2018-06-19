@@ -1,5 +1,5 @@
 import browser from './browser-api'
-import Tree from './Tree'
+import * as Tree from './Tree'
 import Account from './Account'
 import Resource from './Resource'
 import AsyncLock from 'async-lock'
@@ -32,10 +32,10 @@ export default class LocalTree extends Resource {
           id: node.id,
           parentId,
           title: node.title,
-          children: node.children.map(child => resurse(child, node.id))
+          children: node.children.map(child => recurse(child, node.id))
         })
       } else {
-        return new Bookmark({
+        return new Tree.Bookmark({
           id: node.id,
           parentId,
           title: node.title,
@@ -47,6 +47,7 @@ export default class LocalTree extends Resource {
   }
 
   async createBookmark(bookmark) {
+    console.log('(local)CREATE', bookmark)
     const node = await browser.bookmarks.create({
       parentId: bookmark.parentId,
       title: bookmark.title,
@@ -56,6 +57,7 @@ export default class LocalTree extends Resource {
   }
 
   async updateBookmark(bookmark) {
+    console.log('(local)UPDATE', bookmark)
     await browser.bookmarks.update(bookmark.id, {
       title: bookmark.title,
       url: bookmark.url
@@ -64,10 +66,12 @@ export default class LocalTree extends Resource {
   }
 
   async removeBookmark(bookmark) {
+    console.log('(local)REMOVE', bookmark)
     await browser.bookmarks.remove(bookmark.id)
   }
 
   async createFolder(parentId, title) {
+    console.log('(local)CREATEFOLDER', title)
     const node = await browser.bookmarks.create({
       parentId,
       title
@@ -76,6 +80,7 @@ export default class LocalTree extends Resource {
   }
 
   async updateFolder(id, title) {
+    console.log('(local)UPDATEFOLDER', title)
     await browser.bookmarks.update(bookmark.id, {
       title: bookmark.title,
       url: bookmark.url
@@ -83,10 +88,12 @@ export default class LocalTree extends Resource {
   }
 
   async moveFolder(id, parentId) {
+    console.log('(local)MOVEFOLDER', id, parentId)
     await browser.bookmarks.move(id, { parentId })
   }
 
   async removeFolder(id) {
+    console.log('(local)REMOVEFOLDER', title)
     await browser.bookmarks.remove(id)
   }
 

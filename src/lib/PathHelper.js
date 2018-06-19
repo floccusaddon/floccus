@@ -7,9 +7,9 @@ export default class PathHelper {
   }
 
   static pathToArray(path) {
-    return PathParse.reverseStr(path)
+    return this.reverseStr(path)
       .split(/[/](?![\\])/)
-      .map(value => PathParse.reverseStr(value))
+      .map(value => this.reverseStr(value))
       .reverse()
   }
 

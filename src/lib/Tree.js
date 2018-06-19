@@ -1,6 +1,6 @@
 import Crypto from './Crypto'
 
-export default class Bookmark {
+export class Bookmark {
   constructor({ id, parentId, url, title }) {
     this.id = id
     this.parentId = parentId
@@ -48,7 +48,7 @@ export class Folder {
   }
 
   findBookmark(id) {
-    const folderFound = this.children
+    const bookmarkFound = this.children
       .filter(child => child instanceof Bookmark)
       .filter(bm => bm.id == id)[0]
     if (bookmarkFound) {
@@ -77,13 +77,15 @@ export class Folder {
   static hydrate(obj) {
     return new Folder({
       ...obj,
-      children: obj.children.map(child => {
-        if (child instanceof Folder) {
-          return Folder.hydrate(child)
-        } else {
-          return Bookmark.hydrate(child)
-        }
-      })
+      children: obj.children
+        ? obj.children.map(child => {
+            if (!child.url) {
+              return Folder.hydrate(child)
+            } else {
+              return Bookmark.hydrate(child)
+            }
+          })
+        : null
     })
   }
 }

@@ -142,11 +142,11 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   setData(data) {
-    this.server = data
+    this.server = { ...data }
   }
 
   getData() {
-    return JSON.parse(JSON.stringify(this.server))
+    return { ...this.server }
   }
 
   getLabel() {
@@ -231,7 +231,7 @@ export default class NextcloudAdapter extends Adapter {
         // Once firefox supports tags, we can do this:
         // tags: bm.tags.filter(tag => tag.indexOf('__floccus-path:') != 0)
       })
-      bookmark.path = NextcloudAdapter.getPathFromServerMark(bm)
+      bookmark.parentId = this.getPathFromServerMark(bm)
       return bookmark
     })
 
@@ -242,7 +242,7 @@ export default class NextcloudAdapter extends Adapter {
   async getBookmarksTree() {
     let list = await this.getBookmarksList()
     list.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
-    let tree = new Folder()
+    let tree = new Folder({ id: '' })
 
     list.forEach(bookmark => {
       // adjust path relative to serverRoot
@@ -261,6 +261,8 @@ export default class NextcloudAdapter extends Adapter {
 
       var currentSubtree = tree
       pathArray.forEach((title, i) => {
+        // we already have created the root folder
+        if (i === 0) return
         var folder = currentSubtree.children.filter(
           folder => folder.title === title
         )[0]
@@ -366,7 +368,7 @@ export default class NextcloudAdapter extends Adapter {
       id: bm.id,
       url: bm.url,
       title: bm.title,
-      parentId: NextcloudAdapter.getPathFromServerMark(bm)
+      parentId: this.getPathFromServerMark(bm)
     })
     // adjust path relative to serverRoot
     if (this.server.serverRoot) {
@@ -384,6 +386,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async createBookmark(bm) {
+    console.log('(nextcloud)CREATE', bm)
     if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
       return false
     }
@@ -432,6 +435,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async updateBookmark(newBm) {
+    console.log('(nextcloud)UPDATE', newBm)
     if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(newBm.url).protocol)) {
       return false
     }
@@ -489,6 +493,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async removeBookmark(bm) {
+    console.log('(nextcloud)REMOVE', bm)
     const delUrl =
       this.normalizeServerURL(this.server.url) +
       'index.php/apps/bookmarks/public/rest/v2/bookmark/' +
@@ -521,8 +526,10 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   getPathFromServerMark(bm) {
-    let pathTag = this.getPathTagFromTags(bm.tags)
-    return pathTag ? this.convertTagToPath(pathTag) : this.server.serverRoot
+    let pathTag = NextcloudAdapter.getPathTagFromTags(bm.tags)
+    return pathTag
+      ? NextcloudAdapter.convertTagToPath(pathTag)
+      : this.server.serverRoot
   }
 
   static filterPathTagFromTags(tags) {
@@ -538,7 +545,7 @@ export default class NextcloudAdapter extends Adapter {
     return (
       TAG_PREFIX +
       PathHelper.pathToArray(path)
-        .map(str => reverseStr(str).replace(/>/g, '\\>'))
+        .map(str => PathHelper.reverseStr(str).replace(/>/g, '\\>'))
         .join('>')
         .replace(/%2C/g, '%252C')
         .replace(/,/g, '%2C')
@@ -556,5 +563,3 @@ export default class NextcloudAdapter extends Adapter {
       .replace(/%252C/g, '%2C')
   }
 }
-
-Adapter.register('nextcloud', NextcloudAdapter)

@@ -1,15 +1,26 @@
-export class SyncProcess {
-  constructor(mappings, localTree, cache, server) {
+import * as Tree from './Tree'
+
+const _ = require('lodash')
+const Parallel = require('async-parallel')
+
+export default class SyncProcess {
+  /**
+   * @param mappings {Mappings} The mappings Object
+   * @param localTree {LocalTree} The localTree resource object
+   * @param cacheTreeRoot {Folder} The tree from the cache
+   * @param server {Adapter} the server resource object
+   */
+  constructor(mappings, localTree, cacheTreeRoot, server) {
     this.mappings = mappings
     this.localTree = localTree
-    this.cache = cache
     this.server = server
+    this.cacheTreeRoot = cacheTreeRoot
   }
 
   async sync() {
     await this.syncTree(
       (this.localTreeRoot = await this.localTree.getBookmarksTree()),
-      (this.cacheTreeRoot = await this.cache.getBookmarksTree()),
+      this.cacheTreeRoot,
       (this.serverTreeRoot = await this.server.getBookmarksTree())
     )
   }
@@ -18,25 +29,30 @@ export class SyncProcess {
     const localHash = localItem ? await localItem.hash() : null
     const serverHash = serverItem ? await serverItem.hash() : null
 
+    console.log('COMPARE', { localItem, cacheItem, serverItem })
+
     if (localHash === serverHash) {
+      console.log('Skipping subtree of ', localItem)
       return
     }
 
+    var create, update, remove, mappings
     if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
-      const create = this.createFolder.bind(this)
-      const update = this.updateFolder.bind(this)
-      const remove = this.removeFolder.bind(this)
-      const mappings = this.mappings.folders
+      create = this.createFolder.bind(this)
+      update = this.updateFolder.bind(this)
+      remove = this.removeFolder.bind(this)
+      mappings = this.mappings.folders
     } else {
-      const create = this.createBookmark.bind(this)
-      const update = this.updateBookmark.bind(this)
-      const remove = this.removeBookmark.bind(this)
-      const mappings = this.mappings.bookmarks
+      create = this.createBookmark.bind(this)
+      update = this.updateBookmark.bind(this)
+      remove = this.removeBookmark.bind(this)
+      mappings = this.mappings.bookmarks
     }
     if (!localItem && !cacheItem && serverItem) {
       // CREATED UPSTREAM
       await create(
-        mappings.ServerToLocal,
+        this.mappings.bookmarks.ServerToLocal,
+        this.mappings.folders.ServerToLocal,
         this.serverTreeRoot,
         this.localTreeRoot,
         this.localTree,
@@ -45,7 +61,8 @@ export class SyncProcess {
     } else if (localItem && !cacheItem && !serverItem) {
       // CREATED LOCALLY
       await create(
-        mappings.LocalToServer,
+        this.mappings.bookmarks.LocalToServer,
+        this.mappings.folders.LocalToServer,
         this.localTreeRoot,
         this.serverTreeRoot,
         this.server,
@@ -81,7 +98,8 @@ export class SyncProcess {
   }
 
   async createFolder(
-    mapping,
+    mappingBookmarks,
+    mappingFolders,
     fromTree,
     toTree,
     toResource,
@@ -90,7 +108,7 @@ export class SyncProcess {
     // check if it was moved here from somewhere else
     if (folder.moved) return
     var oldFolder
-    if ((oldFolder = toTree.findFolder(mapping[folder.id]))) {
+    if ((oldFolder = toTree.findFolder(mappingFolders[folder.id]))) {
       folder.moved = true
 
       if (toTree === this.localTreeRoot) {
@@ -105,13 +123,13 @@ export class SyncProcess {
 
     // Add to resource
     const newId = await toResource.createFolder(
-      mapping[localItem.parentId],
+      mappingFolders[folder.parentId],
       folder.title
     )
 
     // Add to mappings
-    const localId = toTree === this.localTreeRoot ? folder.id : newId
-    const remoteId = toTree === this.localTreeRoot ? newId : folder.id
+    const localId = toTree === this.localTreeRoot ? newId : folder.id
+    const remoteId = toTree === this.localTreeRoot ? folder.id : newId
     this.mappings.addFolder({ localId, remoteId })
 
     // traverse children
@@ -124,13 +142,13 @@ export class SyncProcess {
     })
   }
 
-  async updateFolder(localItem, cacheItem, folderItem) {
+  async updateFolder(localItem, cacheItem, serverItem) {
     if (localItem === this.localTreeRoot) {
       // NOOP
     } else if ((await localItem.hash()) !== (await cacheItem.hash())) {
       // UPDATED LOCALLY
       await this.updateFolderProperties(
-        mappings.folders.LocalToServer,
+        this.mappings.folders.LocalToServer,
         localItem,
         serverItem,
         this.server
@@ -138,23 +156,23 @@ export class SyncProcess {
     } else {
       // UPDATED UPSTREAM
       await this.updateFolderProperties(
-        mappings.folders.ServerToLocal,
-        localItem,
+        this.mappings.folders.ServerToLocal,
         serverItem,
+        localItem,
         this.localTree
       )
     }
 
+    // Add folder to mappings
+    this.mappings.addFolder({ localId: localItem.id, remoteId: serverItem.id })
+
     // LOCAL CHANGES
 
-    localChildren = localItem.children.map(child => child.id)
-    cacheChildren = cacheItem.children.map(child => child.id)
-    serverChildren = serverItem.children.map(child => child.id)
-
     // CREATED LOCALLY
-    const addedChildren = _.difference(localChildren, cacheChildren)
     await Parallel.each(
-      localChildren.filter(child => ~addedChildren.indexOf(child.id)),
+      localItem.children.filter(
+        local => !cacheItem.children.some(cache => local.id === cache.id)
+      ),
       async addedChild => {
         // TODO: Merge this element with some concurrently added upstream one
         await this.syncTree(addedChild, null, null)
@@ -162,9 +180,10 @@ export class SyncProcess {
     )
 
     // REMOVED LOCALLY
-    const removedChildren = _.difference(cacheChildren, localChildren)
     await Parallel.each(
-      cacheChildren.filter(child => ~removedChildren.indexOf(child.id)),
+      cacheItem.children.filter(
+        cache => !localItem.children.some(local => local.id === cache.id)
+      ),
       async removedChild => {
         const serverChild =
           removedChild instanceof Tree.Folder
@@ -179,18 +198,28 @@ export class SyncProcess {
     )
 
     // CREATED UPSTREAM
-    const newChildren = _.difference(serverChildren, localChildren)
     await Parallel.each(
-      serverChildren.filter(child => ~newChildren.indexOf(child.id)),
+      serverItem.children.filter(
+        child =>
+          !this.mappings[child instanceof Tree.Folder ? 'folders' : 'bookmarks']
+            .ServerToLocal[child.id]
+      ),
       async newChild => {
         await this.syncTree(null, null, newChild)
       }
     )
 
     // REMOVED UPSTREAM
-    const oldChildren = _.difference(serverChildren, cacheChildren)
     await Parallel.each(
-      serverChildren.filter(child => ~oldChildren.indexOf(child.id)),
+      cacheItem.children.filter(
+        cache =>
+          !serverItem.children.some(
+            server =>
+              this.mappings[
+                cache instanceof Tree.Folder ? 'folders' : 'bookmarks'
+              ].LocalToServer[cache.id] === server.id
+          )
+      ),
       async oldChild => {
         const localChild =
           oldChild instanceof Tree.Folder
@@ -204,11 +233,17 @@ export class SyncProcess {
       }
     )
 
-    // DEAL WITH FOLDERS AND RECURSE UPSTREAM CHANGES
+    // RECURSE EXISTING ITEMS
 
-    const existingChildren = _.without(localChildren, addedChildren)
     await Parallel.each(
-      localChildren.filter(child => ~existingChildren.indexOf(child.id)),
+      localItem.children.filter(local =>
+        serverItem.children.some(
+          server =>
+            this.mappings[
+              local instanceof Tree.Folder ? 'folders' : 'bookmarks'
+            ].LocalToServer[local.id] === server.id
+        )
+      ),
       async existingChild => {
         const serverChild =
           existingChild instanceof Tree.Folder
@@ -220,22 +255,19 @@ export class SyncProcess {
               )
 
         const cacheChild = _.find(
-          cacheChildren,
+          cacheItem.children,
           cacheChild => cacheChild.id === existingChild.id
         )
         await this.syncTree(existingChild, cacheChild, serverChild)
       }
     )
-
-    // Add folder to mappings
-    this.mappings.addFolder({ localId: localItem.id, remoteId: serverItem.id })
   }
 
   async updateFolderProperties(mapping, fromFolder, toFolder, toResource) {
     if (toFolder.title !== fromFolder.title) {
       await toResource.updateFolder(toFolder.id, fromFolder.title)
     }
-    if (toFolder.parentId !== fromFolder.parentId) {
+    if (toFolder.parentId !== mapping[fromFolder.parentId]) {
       await toResource.moveFolder(toFolder.id, mapping[fromFolder.parentId])
     }
   }
@@ -273,7 +305,8 @@ export class SyncProcess {
   }
 
   async createBookmark(
-    mapping,
+    mappingBookmarks,
+    mappingFolders,
     fromTree,
     toTree,
     toResource,
@@ -282,7 +315,7 @@ export class SyncProcess {
     // check if this has been moved from elsewhere
     if (bookmark.moved) return
     var oldMark
-    if ((oldMark = toTree.findBookmark(mapping[bookmark.id]))) {
+    if ((oldMark = toTree.findBookmark(mappingBookmarks[bookmark.id]))) {
       // mark as moved to avoid syncing twice
       bookmark.moved = true
 
@@ -297,17 +330,17 @@ export class SyncProcess {
     }
 
     // create in resource
-    const newId = await toTree.createBookmark(
+    const newId = await toResource.createBookmark(
       new Tree.Bookmark({
-        parentId: mapping[bookmark.parentId],
+        parentId: mappingFolders[bookmark.parentId],
         title: bookmark.title,
         url: bookmark.url
       })
     )
 
     // add to mappings
-    const localId = toTree === this.localTreeRoot ? folder.id : newId
-    const remoteId = toTree === this.localTreeRoot ? newId : folder.id
+    const localId = toTree === this.localTreeRoot ? newId : bookmark.id
+    const remoteId = toTree === this.localTreeRoot ? bookmark.id : newId
     this.mappings.addBookmark({ localId, remoteId })
   }
 
@@ -352,7 +385,7 @@ export class SyncProcess {
       return
     }
 
-    await toTree.removeBookmark(bookmark.id)
+    await toResource.removeBookmark(bookmark.id)
     // TODO: Remove from mappings
   }
 }

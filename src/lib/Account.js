@@ -1,11 +1,13 @@
 import AccountStorage from './AccountStorage'
 import Adapter from './Adapter'
+import NextcloudAdapter from './adapters/Nextcloud'
 import Tree from './Tree'
 import LocalTree from './LocalTree'
+import SyncProcess from './SyncProcess'
 import browser from './browser-api'
 
-const _ = require('lodash')
-const Parallel = require('async-parallel')
+// register Adapters
+Adapter.register('nextcloud', NextcloudAdapter)
 
 const BATCH_SIZE = 10
 
@@ -63,9 +65,9 @@ export default class Account {
   }
 
   async setData(data) {
-    this.server.setData(data)
     let background = await browser.runtime.getBackgroundPage()
     await this.storage.setAccountData(data, background.controller.key)
+    this.server.setData(data)
   }
 
   async updateFromStorage() {
@@ -77,7 +79,9 @@ export default class Account {
   async tracksBookmark(localId) {
     if (!(await this.isInitialized())) return false
     let mappings = await this.storage.getMappings()
-    return Object.keys(mappings.LocalToServer).some(id => localId === id)
+    return Object.keys(mappings.bookmarks.LocalToServer).some(
+      id => localId === id
+    )
   }
 
   renderOptions(state, actions) {
@@ -146,7 +150,9 @@ export default class Account {
         this.server
       )
       await sync.sync()
-      await this.storage.setCache(sync.localTreeRoot)
+
+      // update cache
+      await this.storage.setCache(await this.localTree.getBookmarksTree())
 
       await this.setData({
         ...this.getData(),

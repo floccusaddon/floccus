@@ -1,6 +1,7 @@
 import browser from './browser-api'
 import Cryptography from './Crypto'
-import Folder from './Tree'
+import Mappings from './Mappings'
+import { Folder } from './Tree'
 import AsyncLock from 'async-lock'
 
 const storageLock = new AsyncLock()
@@ -61,11 +62,18 @@ export default class AccountStorage {
     })
   }
 
+  async initCache(data) {
+    await AccountStorage.changeEntry(
+      `bookmarks[${this.accountId}].cache`,
+      () => ({})
+    )
+  }
+
   async getCache() {
     const data = await AccountStorage.getEntry(
       `bookmarks[${this.accountId}].cache`
     )
-    return Folder.hydrate(data)
+    return Folder.hydrate(Object.keys(data).length ? data : {})
   }
 
   async setCache(data) {
@@ -75,18 +83,31 @@ export default class AccountStorage {
     )
   }
 
+  async initMappings(data) {
+    await AccountStorage.changeEntry(
+      `bookmarks[${this.accountId}].mappings`,
+      () => ({})
+    )
+  }
+
   async getMappings() {
     const data = await AccountStorage.getEntry(
       `bookmarks[${this.accountId}].mappings`
     )
     return new Mappings(
       this,
-      data || {
-        ServerToLocal: {},
-        LocalToServer: {},
-        UrlToLocal: {},
-        LocalToUrl: {}
-      }
+      Object.keys(data).length
+        ? data
+        : {
+            bookmarks: {
+              ServerToLocal: {},
+              LocalToServer: {}
+            },
+            folders: {
+              ServerToLocal: {},
+              LocalToServer: {}
+            }
+          }
     )
   }
 

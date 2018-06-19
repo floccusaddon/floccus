@@ -1,4 +1,4 @@
-export class Mappings {
+export default class Mappings {
   constructor(storageAdapter, mappingsData) {
     this.storage = storageAdapter
     this.folders = mappingsData.folders
@@ -38,7 +38,7 @@ export class Mappings {
   }
 
   static add(mappings, { localId, remoteId }) {
-    if (!localId || !remoteId) {
+    if (typeof localId === 'undefined' || typeof remoteId === 'undefined') {
       throw new Error('Cannot add empty mapping')
     }
     mappings.LocalToServer[localId] = remoteId

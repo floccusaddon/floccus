@@ -221,6 +221,7 @@ export default class Controller {
     this.setStatusBadge(overallStatus)
   }
 
+  // TODO: Convert switch to object access
   async setStatusBadge(status) {
     switch (status) {
       case STATUS_ALLGOOD:
