@@ -1,6 +1,8 @@
 import { Bookmark } from '../Tree'
 import CachingAdapter from './Caching'
-import { OptionDelete } from '../components/basics'
+import { OptionDelete, Account } from '../components/basics'
+
+const { h } = require('hyperapp')
 
 const url = require('url')
 
