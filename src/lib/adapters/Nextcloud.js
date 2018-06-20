@@ -440,7 +440,7 @@ export default class NextcloudAdapter extends Adapter {
       return false
     }
 
-    let bm = await this.getBookmark(remoteId, false)
+    let bm = await this.getBookmark(newBm.id, false)
 
     // adjust path relative to serverRoot
     if (this.server.serverRoot) {
