@@ -1,4 +1,4 @@
-import Tree from '../Tree'
+import * as Tree from '../Tree'
 import Adapter from '../Adapter'
 
 export default class CachingAdapter extends Adapter {
@@ -8,10 +8,11 @@ export default class CachingAdapter extends Adapter {
   }
 
   async getBookmarksTree() {
-    return this.bookmarksCache
+    return this.bookmarksCache.clone()
   }
 
   async createBookmark(bm) {
+    console.log('(fake)CREATE', bm)
     bm.id = ++this.highestId
     const foundFolder = this.bookmarksCache.findFolder(bm.parentId)
     if (!foundFolder) {
@@ -22,7 +23,8 @@ export default class CachingAdapter extends Adapter {
   }
 
   async updateBookmark(newBm) {
-    const foundBookmark = this.bookmarksCache.findBookmark(bm.id)
+    console.log('(fake)UPDATE', newBm)
+    const foundBookmark = this.bookmarksCache.findBookmark(newBm.id)
     if (!foundBookmark) {
       throw new Error("Bookmark to update doesn't exist anymore")
     }
@@ -33,9 +35,11 @@ export default class CachingAdapter extends Adapter {
         foundBookmark.parentId
       )
       if (!foundOldFolder) {
-        throw new Error("Folder to move out of doesn't exist")
+        throw new Error(
+          "Folder to move out of doesn't exist. This is an anomaly. Congratulations."
+        )
       }
-      const foundNewFolder = this.bookmarksCache.findFolder(bm.parentId)
+      const foundNewFolder = this.bookmarksCache.findFolder(newBm.parentId)
       if (!foundNewFolder) {
         throw new Error("Folder to move into doesn't exist")
       }
@@ -44,10 +48,12 @@ export default class CachingAdapter extends Adapter {
         1
       )
       foundNewFolder.children.push(foundBookmark) // TODO: respect order
+      foundBookmark.parentId = newBm.parentId
     }
   }
 
   async removeBookmark(id) {
+    console.log('(fake)REMOVE', { id })
     const foundBookmark = this.bookmarksCache.findBookmark(id)
     if (!foundBookmark) {
       throw new Error("Bookmark to remove doesn't exist anymore")
@@ -70,13 +76,14 @@ export default class CachingAdapter extends Adapter {
    * @return Promise<int> the id of the new folder
    */
   async createFolder(parentId, title) {
+    console.log('(fake)CREATEFOLDER', { parentId, title })
     const folder = new Tree.Folder({ parentId, title })
     folder.id = ++this.highestId
     const foundParentFolder = this.bookmarksCache.findFolder(parentId)
     if (!foundParentFolder) {
       throw new Error("Folder to create in doesn't exist")
     }
-    foundParentFolder.children.push(bm) // TODO: respect order
+    foundParentFolder.children.push(folder) // TODO: respect order
     return folder.id
   }
 
@@ -85,6 +92,7 @@ export default class CachingAdapter extends Adapter {
    * @param title:string the new title
    */
   async updateFolder(id, title) {
+    console.log('(fake)UPDATEFOLDER', { id, title })
     const folder = this.bookmarksCache.findFolder(id)
     if (!folder) {
       throw new Error("Folder to move doesn't exist")
@@ -97,6 +105,7 @@ export default class CachingAdapter extends Adapter {
    * @param newParentId:int the id of the new folder
    */
   async moveFolder(id, newParent) {
+    console.log('(fake)MOVEFOLDER', { id, newParent })
     const folder = this.bookmarksCache.findFolder(id)
     if (!folder) {
       throw new Error("Folder to move doesn't exist")
@@ -117,6 +126,7 @@ export default class CachingAdapter extends Adapter {
    * @param id:int the id of the folder
    */
   async removeFolder(id) {
+    console.log('(fake)REMOVEFOLDER', { id })
     const folder = this.bookmarksCache.findFolder(id)
     if (!folder) {
       throw new Error("Folder to remove doesn't exist")

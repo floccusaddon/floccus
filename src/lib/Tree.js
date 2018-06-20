@@ -20,6 +20,10 @@ export class Bookmark {
     return this.hashValue
   }
 
+  clone() {
+    return new Bookmark(this)
+  }
+
   static hydrate(obj) {
     return new Bookmark(obj)
   }
@@ -34,11 +38,8 @@ export class Folder {
   }
 
   findFolder(id) {
-    const folderFound = this.children
-      .filter(child => child instanceof Folder)
-      .filter(folder => folder.id == id)[0]
-    if (folderFound) {
-      return folderFound
+    if (this.id === id) {
+      return this
     }
     // traverse sub folders
     return this.children
@@ -58,7 +59,7 @@ export class Folder {
     return this.children
       .filter(child => child instanceof Folder)
       .map(folder => folder.findBookmark(id))
-      .filter(Bookmark => !!Bookmark)[0]
+      .filter(bookmark => !!bookmark)[0]
   }
 
   async hash() {
@@ -72,6 +73,13 @@ export class Folder {
       )
     }
     return this.hashValue
+  }
+
+  clone() {
+    return new Folder({
+      ...this,
+      children: this.children.map(child => child.clone())
+    })
   }
 
   static hydrate(obj) {

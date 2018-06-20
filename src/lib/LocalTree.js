@@ -62,12 +62,14 @@ export default class LocalTree extends Resource {
       title: bookmark.title,
       url: bookmark.url
     })
-    await browser.bookmarks.move(bookmark.localId, { parentId })
+    await browser.bookmarks.move(bookmark.id, {
+      parentId: bookmark.parentId
+    })
   }
 
-  async removeBookmark(bookmark) {
-    console.log('(local)REMOVE', bookmark)
-    await browser.bookmarks.remove(bookmark.id)
+  async removeBookmark(bookmarkId) {
+    console.log('(local)REMOVE', bookmarkId)
+    await browser.bookmarks.remove(bookmarkId)
   }
 
   async createFolder(parentId, title) {

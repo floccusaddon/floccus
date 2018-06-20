@@ -1,6 +1,7 @@
 import AccountStorage from './AccountStorage'
 import Adapter from './Adapter'
 import NextcloudAdapter from './adapters/Nextcloud'
+import FakeAdapter from './adapters/Fake'
 import Tree from './Tree'
 import LocalTree from './LocalTree'
 import SyncProcess from './SyncProcess'
@@ -8,6 +9,7 @@ import browser from './browser-api'
 
 // register Adapters
 Adapter.register('nextcloud', NextcloudAdapter)
+Adapter.register('fake', FakeAdapter)
 
 const BATCH_SIZE = 10
 
@@ -23,9 +25,6 @@ export default class Account {
     let storage = new AccountStorage(id)
     let background = await browser.runtime.getBackgroundPage()
     let data = await storage.getAccountData(background.controller.key)
-    if (typeof data.serverRoot !== 'string') {
-      data.serverRoot = ''
-    }
     let tree = new LocalTree(storage, data.localRoot)
     let account = new Account(id, storage, Adapter.factory(data), tree)
     this.cache[id] = account

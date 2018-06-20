@@ -5,6 +5,19 @@ export default class Mappings {
     this.bookmarks = mappingsData.bookmarks
   }
 
+  getSnapshot() {
+    return {
+      folders: {
+        ServerToLocal: { ...this.folders.ServerToLocal },
+        LocalToServer: { ...this.folders.LocalToServer }
+      },
+      bookmarks: {
+        ServerToLocal: { ...this.bookmarks.ServerToLocal },
+        LocalToServer: { ...this.bookmarks.LocalToServer }
+      }
+    }
+  }
+
   async addFolder({ localId, remoteId }) {
     Mappings.add(this.folders, { localId, remoteId })
     await this.storage.setMappings({

@@ -26,15 +26,7 @@ export default class SyncProcess {
   }
 
   async syncTree(localItem, cacheItem, serverItem) {
-    const localHash = localItem ? await localItem.hash() : null
-    const serverHash = serverItem ? await serverItem.hash() : null
-
     console.log('COMPARE', { localItem, cacheItem, serverItem })
-
-    if (localHash === serverHash) {
-      console.log('Skipping subtree of ', localItem)
-      return
-    }
 
     var create, update, remove, mappings
     if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
@@ -106,17 +98,29 @@ export default class SyncProcess {
     folder /* in fromTree */
   ) {
     // check if it was moved here from somewhere else
-    if (folder.moved) return
+    if (folder.moved) {
+      console.log('This folder was moved and has been dealt with')
+      return
+    }
     var oldFolder
     if ((oldFolder = toTree.findFolder(mappingFolders[folder.id]))) {
+      if (oldFolder.moved) {
+        console.log(
+          'This folder was moved here and concurrently moved somewhere else, ' +
+            'but it has been dealt with'
+        )
+        return
+      }
+
       folder.moved = true
+      console.log('This folder was moved here')
 
       if (toTree === this.localTreeRoot) {
         const cacheFolder = this.cacheTreeRoot.findFolder(oldFolder.id)
-        await this.syncTree(folder, cacheFolder, oldFolder)
+        await this.syncTree(oldFolder, cacheFolder, folder)
       } else {
         const cacheFolder = this.cacheTreeRoot.findFolder(folder.id)
-        await this.syncTree(oldFolder, cacheFolder, folder)
+        await this.syncTree(folder, cacheFolder, oldFolder)
       }
       return
     }
@@ -135,38 +139,61 @@ export default class SyncProcess {
     // traverse children
     await Parallel.each(folder.children, async child => {
       if (toTree === this.localTreeRoot) {
+        // from=server => created on the server
         await this.syncTree(null, null, child)
       } else {
+        // from=local => created locally
         await this.syncTree(child, null, null)
       }
     })
   }
 
   async updateFolder(localItem, cacheItem, serverItem) {
-    if (localItem === this.localTreeRoot) {
-      // NOOP
-    } else if ((await localItem.hash()) !== (await cacheItem.hash())) {
-      // UPDATED LOCALLY
-      await this.updateFolderProperties(
-        this.mappings.folders.LocalToServer,
-        localItem,
-        serverItem,
-        this.server
-      )
-    } else {
-      // UPDATED UPSTREAM
-      await this.updateFolderProperties(
-        this.mappings.folders.ServerToLocal,
-        serverItem,
-        localItem,
-        this.localTree
-      )
+    const changedLocally =
+      (await localItem.hash()) !== (await cacheItem.hash()) ||
+      localItem.parentId !== cacheItem.parentId
+    const changedUpstream =
+      (await cacheItem.hash()) !== (await serverItem.hash()) ||
+      localItem.parentId !==
+        this.mappings.folders.ServerToLocal[serverItem.parentId]
+    const changed = changedUpstream || changedLocally
+
+    if (localItem !== this.localTreeRoot && changed) {
+      if (changedLocally) {
+        // UPDATED LOCALLY
+        await this.updateFolderProperties(
+          this.mappings.folders.LocalToServer,
+          localItem,
+          serverItem,
+          this.server
+        )
+      } else {
+        // UPDATED UPSTREAM
+        await this.updateFolderProperties(
+          this.mappings.folders.ServerToLocal,
+          serverItem,
+          localItem,
+          this.localTree
+        )
+      }
     }
 
     // Add folder to mappings
     this.mappings.addFolder({ localId: localItem.id, remoteId: serverItem.id })
 
+    const localHash = localItem ? await localItem.hash() : null
+    const serverHash = serverItem ? await serverItem.hash() : null
+
+    if (localHash === serverHash) {
+      console.log('Skipping subtree of ', { localItem, serverItem })
+      return
+    }
+
+    console.log('Checking subtree of ', { localItem, serverItem })
+
     // LOCAL CHANGES
+
+    const mappingsSnapshot = this.mappings.getSnapshot()
 
     // CREATED LOCALLY
     await Parallel.each(
@@ -188,10 +215,10 @@ export default class SyncProcess {
         const serverChild =
           removedChild instanceof Tree.Folder
             ? this.serverTreeRoot.findFolder(
-                this.mappings.folders.LocalToServer[removedChild.id]
+                mappingsSnapshot.folders.LocalToServer[removedChild.id]
               )
             : this.serverTreeRoot.findBookmark(
-                this.mappings.bookmarks.LocalToServer[removedChild.id]
+                mappingsSnapshot.bookmarks.LocalToServer[removedChild.id]
               )
         await this.syncTree(null, removedChild, serverChild)
       }
@@ -201,8 +228,9 @@ export default class SyncProcess {
     await Parallel.each(
       serverItem.children.filter(
         child =>
-          !this.mappings[child instanceof Tree.Folder ? 'folders' : 'bookmarks']
-            .ServerToLocal[child.id]
+          !mappingsSnapshot[
+            child instanceof Tree.Folder ? 'folders' : 'bookmarks'
+          ].ServerToLocal[child.id]
       ),
       async newChild => {
         await this.syncTree(null, null, newChild)
@@ -215,7 +243,7 @@ export default class SyncProcess {
         cache =>
           !serverItem.children.some(
             server =>
-              this.mappings[
+              mappingsSnapshot[
                 cache instanceof Tree.Folder ? 'folders' : 'bookmarks'
               ].LocalToServer[cache.id] === server.id
           )
@@ -223,12 +251,8 @@ export default class SyncProcess {
       async oldChild => {
         const localChild =
           oldChild instanceof Tree.Folder
-            ? this.localTreeRoot.findFolder(
-                this.mappings.folders.LocalToServer[oldChild.id]
-              )
-            : this.localTreeRoot.findBookmark(
-                this.mappings.bookmarks.LocalToServer[oldChild.id]
-              )
+            ? this.localTreeRoot.findFolder(oldChild.id)
+            : this.localTreeRoot.findBookmark(oldChild.id)
         await this.syncTree(localChild, oldChild, null)
       }
     )
@@ -239,7 +263,7 @@ export default class SyncProcess {
       localItem.children.filter(local =>
         serverItem.children.some(
           server =>
-            this.mappings[
+            mappingsSnapshot[
               local instanceof Tree.Folder ? 'folders' : 'bookmarks'
             ].LocalToServer[local.id] === server.id
         )
@@ -279,11 +303,16 @@ export default class SyncProcess {
     toResource,
     folder /*in toTree */
   ) {
-    // check if it was moved here from somewhere else
+    // check if it was moved from here to somewhere else
     var newFolder
     if ((newFolder = fromTree.findFolder(reverseMapping[folder.id]))) {
-      if (newFolder.moved) return
+      if (newFolder.moved || folder.moved) {
+        console.log('This folder was moved and has been dealt with')
+        return
+      }
+
       newFolder.moved = true
+      console.log('This folder was moved from here')
 
       if (toTree === this.localTreeRoot) {
         const cacheFolder = this.cacheTreeRoot.findFolder(folder.id)
@@ -293,6 +322,13 @@ export default class SyncProcess {
         await this.syncTree(folder, cacheFolder, toFolder)
       }
       return
+    }
+
+    if (folder.moved) {
+      console.log(
+        'This folder was removed here and concurrently moved somewhere else ' +
+          '-- deletion takes precedence'
+      )
     }
 
     // remove from resource
@@ -313,17 +349,29 @@ export default class SyncProcess {
     bookmark /* in fromTree */
   ) {
     // check if this has been moved from elsewhere
-    if (bookmark.moved) return
+    if (bookmark.moved) {
+      console.log('This bookmark was moved here and has been dealt with')
+      return
+    }
     var oldMark
     if ((oldMark = toTree.findBookmark(mappingBookmarks[bookmark.id]))) {
+      if (oldMark.moved) {
+        // local changes are deal with first in updateFolder, thus this is deterministic
+        console.log(
+          'This bookmark was moved here and concurrently moved somewhere else, ' +
+            'but it has been dealt with'
+        )
+        return
+      }
       // mark as moved to avoid syncing twice
       bookmark.moved = true
+      console.log('This bookmark was moved here')
 
       if (toTree === this.localTreeRoot) {
-        const cacheMark = this.cacheTreeRoot.findFolder(oldMark.id)
+        const cacheMark = this.cacheTreeRoot.findBookmark(oldMark.id)
         await this.syncTree(oldMark, cacheMark, folder)
       } else {
-        const cacheMark = this.cacheTreeRoot.findFolder(bookmark.id)
+        const cacheMark = this.cacheTreeRoot.findBookmark(bookmark.id)
         await this.syncTree(bookmark, cacheMark, oldMark)
       }
       return
@@ -345,15 +393,39 @@ export default class SyncProcess {
   }
 
   async updateBookmark(localItem, cacheItem, serverItem) {
-    // TODO: DISTINGUISH by hashes
-    await this.server.updateBookmark(
-      new Tree.Bookmark({
-        id: serverItem.id,
-        parentId: serverItem.parentId,
-        title: localItem.title,
-        url: localItem.url
-      })
-    )
+    const changedLocally =
+      (await localItem.hash()) !== (await cacheItem.hash()) ||
+      localItem.parentId !== cacheItem.parentId
+    const changedUpstream =
+      (await cacheItem.hash()) !== (await serverItem.hash()) ||
+      localItem.parentId !==
+        this.mappings.folders.ServerToLocal[serverItem.parentId]
+    const changed = changedUpstream || changedLocally
+
+    if (!changed) {
+      console.log('Bookmark unchanged')
+      return
+    }
+
+    if (changedLocally) {
+      await this.server.updateBookmark(
+        new Tree.Bookmark({
+          id: serverItem.id,
+          parentId: this.mappings.folders.LocalToServer[localItem.parentId],
+          title: localItem.title,
+          url: localItem.url
+        })
+      )
+    } else {
+      await this.localTree.updateBookmark(
+        new Tree.Bookmark({
+          id: localItem.id,
+          parentId: this.mappings.folders.ServerToLocal[serverItem.parentId],
+          title: serverItem.title,
+          url: serverItem.url
+        })
+      )
+    }
 
     this.mappings.addBookmark({
       localId: localItem.id,
@@ -370,22 +442,36 @@ export default class SyncProcess {
   ) {
     // check if this has been moved elsewhere
     var newMark
-    if ((newMark = fromTree.findBookmark(mapping[bookmark.id]))) {
-      if (newMark.moved) return
+    if ((newMark = fromTree.findBookmark(reverseMapping[bookmark.id]))) {
+      if (newMark.moved || bookmark.moved) {
+        console.log('This bookmark was moved from here and has been dealt with')
+        return
+      }
       // mark as moved to avoid syncing twice
       newMark.moved = true
+      console.log('This bookmark was moved')
 
       if (toTree === this.localTreeRoot) {
-        const cacheMark = this.cacheTreeRoot.findFolder(bookmark.id)
+        const cacheMark = this.cacheTreeRoot.findBookmark(bookmark.id)
         await this.syncTree(bookmark, cacheMark, newMark)
       } else {
-        const cacheMark = this.cacheTreeRoot.findFolder(newMark)
+        const cacheMark = this.cacheTreeRoot.findBookmark(newMark.id)
         await this.syncTree(newMark, cacheMark, bookmark)
       }
       return
     }
 
+    if (bookmark.moved) {
+      // local changes are deal with first in updateFolder, thus this is deterministic
+      console.log(
+        'This bookmark was removed here and concurrently moved somewhere else -- deletion takes precedence'
+      )
+      // go on to delete it!
+    }
+
     await toResource.removeBookmark(bookmark.id)
-    // TODO: Remove from mappings
+    await this.mappings.removeBookmark({
+      [toResource === this.localTreeRoot ? 'localId' : 'remoteId']: bookmark.id
+    })
   }
 }
