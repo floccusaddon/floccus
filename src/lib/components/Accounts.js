@@ -1,7 +1,7 @@
 import browser from '../browser-api'
 import { h } from 'hyperapp'
 import Account from '../Account'
-import Tree from '../Tree'
+import LocalTree from '../LocalTree'
 import * as Basics from './basics'
 
 const { Input, Button, Label } = Basics
@@ -39,7 +39,9 @@ export const actions = {
           const localRoot = acc.getData().localRoot
           try {
             acc[$rootPath] = localRoot
-              ? decodeURIComponent(await Tree.getPathFromLocalId(localRoot))
+              ? decodeURIComponent(
+                  await LocalTree.getPathFromLocalId(localRoot)
+                )
               : '*newly created*'
           } catch (e) {
             acc[$rootPath] = '*newly created*'

@@ -100,7 +100,7 @@ export default class LocalTree extends Resource {
   }
 
   static async getPathFromLocalId(localId, ancestors, relativeToRoot) {
-    ancestors = ancestors || (await Tree.getIdPathFromLocalId(localId))
+    ancestors = ancestors || (await LocalTree.getIdPathFromLocalId(localId))
 
     if (relativeToRoot) {
       ancestors = ancestors.slice(ancestors.indexOf(relativeToRoot) + 1)
