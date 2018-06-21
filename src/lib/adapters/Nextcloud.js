@@ -289,17 +289,39 @@ export default class NextcloudAdapter extends Adapter {
     return
   }
 
-  async updateFolder(id, parentId, title) {
+  async updateFolder(id, title) {
     let folder = this.tree.findFolder(id)
     if (!folder) {
       throw new Error('Folder not found')
     }
+    folder.title = title
     let newParentId = PathHelper.arrayToPath(
-      PathHelper.pathToArray(parentId).concat([title])
+      PathHelper.pathToArray(folder.parentId).concat([title])
     )
+    folder.id = newParentId
     await Parallel.each(folder.children, async child => {
       if (child instanceof Folder) {
-        await this.updateFolder(id, newParentId, child.title)
+        await this.moveFolder(child.id, newParentId)
+      } else {
+        child.parentId = newParentId
+        await this.updateBookmark(child)
+      }
+    })
+  }
+
+  async moveFolder(id, parentId) {
+    let folder = this.tree.findFolder(id)
+    if (!folder) {
+      throw new Error('Folder not found')
+    }
+    folder.parentId = parentId
+    let newParentId = PathHelper.arrayToPath(
+      PathHelper.pathToArray(parentId).concat([folder.title])
+    )
+    folder.id = newParentId
+    await Parallel.each(folder.children, async child => {
+      if (child instanceof Folder) {
+        await this.moveFolder(child.id, newParentId)
       } else {
         child.parentId = newParentId
         await this.updateBookmark(child)
@@ -314,7 +336,7 @@ export default class NextcloudAdapter extends Adapter {
     }
     await Parallel.each(folder.children, async child => {
       if (child instanceof Folder) {
-        await this.removeFolder(id)
+        await this.removeFolder(child.id)
       } else {
         await this.removeBookmark(child)
       }
@@ -450,8 +472,7 @@ export default class NextcloudAdapter extends Adapter {
     body.append('url', newBm.url)
     body.append('title', newBm.title)
 
-    bm.tags
-      .concat(NextcloudAdapter.filterPathTagFromTags(bm.tags))
+    NextcloudAdapter.filterPathTagFromTags(bm.tags)
       .concat([NextcloudAdapter.convertPathToTag(newBm.parentId)])
       .forEach(tag => body.append('item[tags][]', tag))
 
@@ -545,7 +566,7 @@ export default class NextcloudAdapter extends Adapter {
     return (
       TAG_PREFIX +
       PathHelper.pathToArray(path)
-        .map(str => PathHelper.reverseStr(str).replace(/>/g, '\\>'))
+        .map(str => str.replace(/>/g, '\\>'))
         .join('>')
         .replace(/%2C/g, '%252C')
         .replace(/,/g, '%2C')
