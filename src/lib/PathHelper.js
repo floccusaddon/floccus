@@ -14,6 +14,6 @@ export default class PathHelper {
   }
 
   static arrayToPath(array) {
-    return array.map(value => value.replace(/[/]/, '/')).join('/')
+    return array.map(value => value.replace(/[/]/, '\\/')).join('/')
   }
 }
