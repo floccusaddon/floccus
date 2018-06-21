@@ -283,10 +283,15 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async createFolder(parentId, title) {
-    return
+    console.log('(nextcloud)CREATEFOLDER', { parentId, title }, '(noop)')
+    let newId = PathHelper.arrayToPath(
+      PathHelper.pathToArray(parentId).concat([title])
+    )
+    return newId
   }
 
   async updateFolder(id, title) {
+    console.log('(nextcloud)CREATEFOLDER', { id, title })
     let folder = this.tree.findFolder(id)
     if (!folder) {
       throw new Error('Folder not found')
@@ -307,6 +312,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async moveFolder(id, parentId) {
+    console.log('(nextcloud)MOVEFOLDER', { id, title })
     let folder = this.tree.findFolder(id)
     if (!folder) {
       throw new Error('Folder not found')
@@ -327,6 +333,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async removeFolder(id) {
+    console.log('(nextcloud)REMOVEFOLDER', id)
     let folder = this.tree.findFolder(id)
     if (!folder) {
       return
