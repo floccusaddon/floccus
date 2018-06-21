@@ -19,7 +19,8 @@ const {
   AccountStatus,
   AccountStatusDetail,
   OptionSyncFolder,
-  OptionDelete
+  OptionDelete,
+  H3
 } = Basics
 
 export default class NextcloudAdapter extends Adapter {
@@ -93,21 +94,6 @@ export default class NextcloudAdapter extends Adapter {
               </td>
             </tr>
             <tr>
-              <td>
-                <Label for="serverRoot">Server path:</Label>
-              </td>
-              <td>
-                <Input
-                  value={data.serverRoot || ''}
-                  type="text"
-                  name="serverRoot"
-                  placeholder="Default: root folder  Example: /my/subfolder"
-                  onkeyup={onchange.bind(null, 'serverRoot')}
-                  onblur={onchange.bind(null, 'serverRoot')}
-                />
-              </td>
-            </tr>
-            <tr>
               <td />
               <td>
                 <AccountStatus account={state.account} />
@@ -131,6 +117,17 @@ export default class NextcloudAdapter extends Adapter {
                 <AccountStatusDetail account={state.account} />
                 <Options show={state.showOptions}>
                   <OptionSyncFolder account={state.account} />
+
+                  <H3>Server folder</H3>
+                  <Input
+                    value={data.serverRoot || ''}
+                    type="text"
+                    name="serverRoot"
+                    placeholder="Default: root folder  Example: /my/subfolder"
+                    onkeyup={onchange.bind(null, 'serverRoot')}
+                    onblur={onchange.bind(null, 'serverRoot')}
+                  />
+
                   <OptionDelete account={state.account} />
                 </Options>
               </td>
