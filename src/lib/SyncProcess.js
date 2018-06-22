@@ -149,11 +149,13 @@ export default class SyncProcess {
   }
 
   async updateFolder(localItem, cacheItem, serverItem) {
+    const localHash = localItem ? await localItem.hash() : null
+    const cacheHash = cacheItem ? await cacheItem.hash() : null
+    const serverHash = serverItem ? await serverItem.hash() : null
     const changedLocally =
-      (await localItem.hash()) !== (await cacheItem.hash()) ||
-      localItem.parentId !== cacheItem.parentId
+      localHash !== cacheHash || localItem.parentId !== cacheItem.parentId
     const changedUpstream =
-      (await cacheItem.hash()) !== (await serverItem.hash()) ||
+      cacheHash !== serverHash ||
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
     const changed = changedUpstream || changedLocally
@@ -396,11 +398,13 @@ export default class SyncProcess {
   }
 
   async updateBookmark(localItem, cacheItem, serverItem) {
+    const localHash = localItem ? await localItem.hash() : null
+    const cacheHash = cacheItem ? await cacheItem.hash() : null
+    const serverHash = serverItem ? await serverItem.hash() : null
     const changedLocally =
-      (await localItem.hash()) !== (await cacheItem.hash()) ||
-      localItem.parentId !== cacheItem.parentId
+      localHash !== cacheHash || localItem.parentId !== cacheItem.parentId
     const changedUpstream =
-      (await cacheItem.hash()) !== (await serverItem.hash()) ||
+      cacheHash !== serverHash ||
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
     const changed = changedUpstream || changedLocally
