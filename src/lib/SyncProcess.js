@@ -152,7 +152,10 @@ export default class SyncProcess {
     const localHash = localItem ? await localItem.hash() : null
     const cacheHash = cacheItem ? await cacheItem.hash() : null
     const serverHash = serverItem ? await serverItem.hash() : null
-    const changed = localHash !== serverHash
+    const changed =
+      localHash !== serverHash ||
+      localItem.parentId !==
+        this.mappings.folders.ServerToLocal[serverItem.parentId]
     const changedLocally =
       localHash !== cacheHash || localItem.parentId !== cacheItem.parentId
     const changedUpstream =
@@ -421,13 +424,13 @@ export default class SyncProcess {
     const localHash = localItem ? await localItem.hash() : null
     const cacheHash = cacheItem ? await cacheItem.hash() : null
     const serverHash = serverItem ? await serverItem.hash() : null
-    const changed = localHash !== serverHash
-    const changedLocally =
-      localHash !== cacheHash || localItem.parentId !== cacheItem.parentId
-    const changedUpstream =
-      cacheHash !== serverHash ||
+    const changed =
+      localHash !== serverHash ||
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
+    const changedLocally =
+      localHash !== cacheHash || localItem.parentId !== cacheItem.parentId
+    const changedUpstream = cacheHash !== serverHash
 
     await this.mappings.addBookmark({
       localId: localItem.id,
