@@ -152,13 +152,13 @@ export default class SyncProcess {
     const localHash = localItem ? await localItem.hash() : null
     const cacheHash = cacheItem ? await cacheItem.hash() : null
     const serverHash = serverItem ? await serverItem.hash() : null
+    const changed = localHash !== serverHash
     const changedLocally =
       localHash !== cacheHash || localItem.parentId !== cacheItem.parentId
     const changedUpstream =
       cacheHash !== serverHash ||
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
-    const changed = changedUpstream || changedLocally
 
     if (localItem !== this.localTreeRoot && changed) {
       if (changedLocally) {
@@ -186,7 +186,7 @@ export default class SyncProcess {
       remoteId: serverItem.id
     })
 
-    if (localHash === serverHash) {
+    if (changed) {
       console.log('Skipping subtree of ', { localItem, serverItem })
       return
     }
@@ -406,13 +406,13 @@ export default class SyncProcess {
     const localHash = localItem ? await localItem.hash() : null
     const cacheHash = cacheItem ? await cacheItem.hash() : null
     const serverHash = serverItem ? await serverItem.hash() : null
+    const changed = localHash !== serverHash
     const changedLocally =
       localHash !== cacheHash || localItem.parentId !== cacheItem.parentId
     const changedUpstream =
       cacheHash !== serverHash ||
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
-    const changed = changedUpstream || changedLocally
 
     if (!changed) {
       console.log('Bookmark unchanged')
