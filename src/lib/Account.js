@@ -11,8 +11,6 @@ import browser from './browser-api'
 Adapter.register('nextcloud', NextcloudAdapter)
 Adapter.register('fake', FakeAdapter)
 
-const BATCH_SIZE = 10
-
 export default class Account {
   static async get(id) {
     if (!this.cache) {
@@ -171,7 +169,10 @@ export default class Account {
     } catch (e) {
       if (e.list) {
         var combinedMessage = e.list
-          .map(e => e.message, console.log(e))
+          .map(e => {
+            console.log(e)
+            return e.message
+          })
           .join('\n')
         console.error('Syncing failed with', combinedMessage)
         await this.setData({
