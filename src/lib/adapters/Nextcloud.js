@@ -7,6 +7,7 @@ import * as Basics from '../components/basics'
 const Parallel = require('async-parallel')
 const { h } = require('hyperapp')
 const url = require('url')
+const PQueue = require('p-queue')
 
 const TAG_PREFIX = 'floccus:'
 
@@ -27,6 +28,7 @@ export default class NextcloudAdapter extends Adapter {
   constructor(server) {
     super()
     this.server = server
+    this.fetchQueue = new PQueue({ concurrency: 10 })
   }
 
   static getDefaultValues() {
@@ -174,12 +176,14 @@ export default class NextcloudAdapter extends Adapter {
       'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
     var response
     try {
-      response = await fetch(getUrl, {
-        headers: {
-          Authorization:
-            'Basic ' + btoa(this.server.username + ':' + this.server.password)
-        }
-      })
+      response = await this.fetchQueue.add(() =>
+        fetch(getUrl, {
+          headers: {
+            Authorization:
+              'Basic ' + btoa(this.server.username + ':' + this.server.password)
+          }
+        })
+      )
     } catch (e) {
       throw new Error(
         'Network error: Check your network connection and your account details'
@@ -355,12 +359,14 @@ export default class NextcloudAdapter extends Adapter {
       id
     var response
     try {
-      response = await fetch(getUrl, {
-        headers: {
-          Authorization:
-            'Basic ' + btoa(this.server.username + ':' + this.server.password)
-        }
-      })
+      response = await this.fetchQueue.add(() =>
+        fetch(getUrl, {
+          headers: {
+            Authorization:
+              'Basic ' + btoa(this.server.username + ':' + this.server.password)
+          }
+        })
+      )
     } catch (e) {
       throw new Error(
         'Network error: Check your network connection and your account details'
@@ -428,14 +434,16 @@ export default class NextcloudAdapter extends Adapter {
       'index.php/apps/bookmarks/public/rest/v2/bookmark'
     var res
     try {
-      res = await fetch(createUrl, {
-        method: 'POST',
-        body,
-        headers: {
-          Authorization:
-            'Basic ' + btoa(this.server.username + ':' + this.server.password)
-        }
-      })
+      res = await this.fetchQueue.add(() =>
+        fetch(createUrl, {
+          method: 'POST',
+          body,
+          headers: {
+            Authorization:
+              'Basic ' + btoa(this.server.username + ':' + this.server.password)
+          }
+        })
+      )
     } catch (e) {
       throw new Error(
         'Network error: Check your network connection and your account details'
@@ -486,14 +494,16 @@ export default class NextcloudAdapter extends Adapter {
       newBm.id
     var putRes
     try {
-      putRes = await fetch(updateUrl, {
-        method: 'PUT',
-        body,
-        headers: {
-          Authorization:
-            'Basic ' + btoa(this.server.username + ':' + this.server.password)
-        }
-      })
+      putRes = await this.fetchQueue.add(() =>
+        fetch(updateUrl, {
+          method: 'PUT',
+          body,
+          headers: {
+            Authorization:
+              'Basic ' + btoa(this.server.username + ':' + this.server.password)
+          }
+        })
+      )
     } catch (e) {
       throw new Error(
         'Network error: Check your network connection and your account details'
@@ -525,13 +535,15 @@ export default class NextcloudAdapter extends Adapter {
       bm.id
     var res
     try {
-      res = await fetch(delUrl, {
-        method: 'DELETE',
-        headers: {
-          Authorization:
-            'Basic ' + btoa(this.server.username + ':' + this.server.password)
-        }
-      })
+      res = await this.fetchQueue.add(() =>
+        fetch(delUrl, {
+          method: 'DELETE',
+          headers: {
+            Authorization:
+              'Basic ' + btoa(this.server.username + ':' + this.server.password)
+          }
+        })
+      )
     } catch (e) {
       throw new Error(
         'Network error: Check your network connection and your account details'

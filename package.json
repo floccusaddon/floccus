@@ -40,6 +40,7 @@
     "humanize-duration": "^3.12.1",
     "hyperapp": "^1.2.5",
     "murmur2js": "^1.0.0",
+    "p-queue": "^2.4.2",
     "picostyle": "^1.0.2",
     "virtual-dom": "^2.1.1"
   }
