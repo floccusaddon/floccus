@@ -167,33 +167,31 @@ export default class Account {
         'Successfully ended sync process for account ' + this.getLabel()
       )
     } catch (e) {
-      if (e.list) {
-        var combinedMessage = e.list
-          .map(e => {
-            console.log(e)
-            return e.message
-          })
-          .join('\n')
-        console.error('Syncing failed with', combinedMessage)
-        await this.setData({
-          ...this.getData(),
-          error: combinedMessage,
-          syncing: false
-        })
-      } else {
-        console.log(e)
-        console.error('Syncing failed with', e)
-        await this.setData({
-          ...this.getData(),
-          error: e.message,
-          syncing: false
-        })
-      }
+      console.log(e)
+      var message = Account.stringifyError(e)
+      console.error('Syncing failed with', message)
+      await this.setData({
+        ...this.getData(),
+        error: message,
+        syncing: false
+      })
       this.syncing = false
       if (this.server.syncFail) {
         await this.server.syncFail()
       }
     }
+  }
+
+  static stringifyError(er) {
+    if (er.list) {
+      return e.list
+        .map(e => {
+          console.log(e)
+          return this.stringifyError(e)
+        })
+        .join('\n')
+    }
+    return er.message
   }
 
   static async getAllAccounts() {
