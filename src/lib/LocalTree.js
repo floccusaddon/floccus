@@ -2,15 +2,14 @@ import browser from './browser-api'
 import * as Tree from './Tree'
 import Account from './Account'
 import Resource from './Resource'
-import AsyncLock from 'async-lock'
-
-const treeLock = new AsyncLock()
+import PQueue from 'p-queue'
 
 export default class LocalTree extends Resource {
   constructor(storage, rootId) {
     super()
     this.rootId = rootId
     this.storage = storage
+    this.queue = new PQueue({ concurrency: 30 })
   }
 
   async getBookmarksTree() {
@@ -48,54 +47,64 @@ export default class LocalTree extends Resource {
 
   async createBookmark(bookmark) {
     console.log('(local)CREATE', bookmark)
-    const node = await browser.bookmarks.create({
-      parentId: bookmark.parentId,
-      title: bookmark.title,
-      url: bookmark.url
-    })
+    const node = await this.queue.add(() =>
+      browser.bookmarks.create({
+        parentId: bookmark.parentId,
+        title: bookmark.title,
+        url: bookmark.url
+      })
+    )
     return node.id
   }
 
   async updateBookmark(bookmark) {
     console.log('(local)UPDATE', bookmark)
-    await browser.bookmarks.update(bookmark.id, {
-      title: bookmark.title,
-      url: bookmark.url
-    })
-    await browser.bookmarks.move(bookmark.id, {
-      parentId: bookmark.parentId
-    })
+    await this.queue.add(() =>
+      browser.bookmarks.update(bookmark.id, {
+        title: bookmark.title,
+        url: bookmark.url
+      })
+    )
+    await this.queue.add(() =>
+      browser.bookmarks.move(bookmark.id, {
+        parentId: bookmark.parentId
+      })
+    )
   }
 
   async removeBookmark(bookmarkId) {
     console.log('(local)REMOVE', bookmarkId)
-    await browser.bookmarks.remove(bookmarkId)
+    await this.queue.add(() => browser.bookmarks.remove(bookmarkId))
   }
 
   async createFolder(parentId, title) {
     console.log('(local)CREATEFOLDER', title)
-    const node = await browser.bookmarks.create({
-      parentId,
-      title
-    })
+    const node = await this.queue.add(() =>
+      browser.bookmarks.create({
+        parentId,
+        title
+      })
+    )
     return node.id
   }
 
   async updateFolder(id, title) {
     console.log('(local)UPDATEFOLDER', title)
-    await browser.bookmarks.update(id, {
-      title
-    })
+    await this.queue.add(() =>
+      browser.bookmarks.update(id, {
+        title
+      })
+    )
   }
 
   async moveFolder(id, parentId) {
     console.log('(local)MOVEFOLDER', { id, parentId })
-    await browser.bookmarks.move(id, { parentId })
+    await this.queue.add(() => browser.bookmarks.move(id, { parentId }))
   }
 
   async removeFolder(id) {
     console.log('(local)REMOVEFOLDER', id)
-    await browser.bookmarks.removeTree(id)
+    await this.queue.add(() => browser.bookmarks.removeTree(id))
   }
 
   static async getPathFromLocalId(localId, ancestors, relativeToRoot) {
