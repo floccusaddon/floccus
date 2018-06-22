@@ -186,9 +186,6 @@ export default class SyncProcess {
       remoteId: serverItem.id
     })
 
-    const localHash = localItem ? await localItem.hash() : null
-    const serverHash = serverItem ? await serverItem.hash() : null
-
     if (localHash === serverHash) {
       console.log('Skipping subtree of ', { localItem, serverItem })
       return
@@ -201,33 +198,37 @@ export default class SyncProcess {
     const mappingsSnapshot = this.mappings.getSnapshot()
 
     // CREATED LOCALLY
-    await Parallel.each(
-      localItem.children.filter(
-        local => !cacheItem.children.some(cache => local.id === cache.id)
-      ),
-      async addedChild => {
-        // TODO: Merge this element with some concurrently added upstream one
-        await this.syncTree(addedChild, null, null)
-      }
-    )
+    if (cacheItem) {
+      await Parallel.each(
+        localItem.children.filter(
+          local => !cacheItem.children.some(cache => local.id === cache.id)
+        ),
+        async addedChild => {
+          // TODO: Merge this element with some concurrently added upstream one
+          await this.syncTree(addedChild, null, null)
+        }
+      )
+    }
 
     // REMOVED LOCALLY
-    await Parallel.each(
-      cacheItem.children.filter(
-        cache => !localItem.children.some(local => local.id === cache.id)
-      ),
-      async removedChild => {
-        const serverChild =
-          removedChild instanceof Tree.Folder
-            ? this.serverTreeRoot.findFolder(
-                mappingsSnapshot.folders.LocalToServer[removedChild.id]
-              )
-            : this.serverTreeRoot.findBookmark(
-                mappingsSnapshot.bookmarks.LocalToServer[removedChild.id]
-              )
-        await this.syncTree(null, removedChild, serverChild)
-      }
-    )
+    if (cacheItem) {
+      await Parallel.each(
+        cacheItem.children.filter(
+          cache => !localItem.children.some(local => local.id === cache.id)
+        ),
+        async removedChild => {
+          const serverChild =
+            removedChild instanceof Tree.Folder
+              ? this.serverTreeRoot.findFolder(
+                  mappingsSnapshot.folders.LocalToServer[removedChild.id]
+                )
+              : this.serverTreeRoot.findBookmark(
+                  mappingsSnapshot.bookmarks.LocalToServer[removedChild.id]
+                )
+          await this.syncTree(null, removedChild, serverChild)
+        }
+      )
+    }
 
     // CREATED UPSTREAM
     await Parallel.each(
@@ -243,24 +244,26 @@ export default class SyncProcess {
     )
 
     // REMOVED UPSTREAM
-    await Parallel.each(
-      cacheItem.children.filter(
-        cache =>
-          !serverItem.children.some(
-            server =>
-              mappingsSnapshot[
-                cache instanceof Tree.Folder ? 'folders' : 'bookmarks'
-              ].LocalToServer[cache.id] === server.id
-          )
-      ),
-      async oldChild => {
-        const localChild =
-          oldChild instanceof Tree.Folder
-            ? this.localTreeRoot.findFolder(oldChild.id)
-            : this.localTreeRoot.findBookmark(oldChild.id)
-        await this.syncTree(localChild, oldChild, null)
-      }
-    )
+    if (cacheItem) {
+      await Parallel.each(
+        cacheItem.children.filter(
+          cache =>
+            !serverItem.children.some(
+              server =>
+                mappingsSnapshot[
+                  cache instanceof Tree.Folder ? 'folders' : 'bookmarks'
+                ].LocalToServer[cache.id] === server.id
+            )
+        ),
+        async oldChild => {
+          const localChild =
+            oldChild instanceof Tree.Folder
+              ? this.localTreeRoot.findFolder(oldChild.id)
+              : this.localTreeRoot.findBookmark(oldChild.id)
+          await this.syncTree(localChild, oldChild, null)
+        }
+      )
+    }
 
     // RECURSE EXISTING ITEMS
 
@@ -283,10 +286,12 @@ export default class SyncProcess {
                 this.mappings.bookmarks.LocalToServer[existingChild.id]
               )
 
-        const cacheChild = _.find(
-          cacheItem.children,
-          cacheChild => cacheChild.id === existingChild.id
-        )
+        const cacheChild = cacheItem
+          ? _.find(
+              cacheItem.children,
+              cacheChild => cacheChild.id === existingChild.id
+            )
+          : null
         await this.syncTree(existingChild, cacheChild, serverChild)
       }
     )
