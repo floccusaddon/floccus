@@ -135,11 +135,6 @@ export default class Account {
 
       let mappings = await this.storage.getMappings()
 
-      if (Object.keys(mappings.bookmarks.LocalToServer).length === 0) {
-        // Just a visual hint that it could take longer
-        await this.setData({ ...this.getData(), syncing: 'initial' })
-      }
-
       const sync = new SyncProcess(
         mappings,
         this.localTree,

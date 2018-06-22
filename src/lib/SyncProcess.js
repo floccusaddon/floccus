@@ -198,17 +198,31 @@ export default class SyncProcess {
     const mappingsSnapshot = this.mappings.getSnapshot()
 
     // CREATED LOCALLY
-    if (cacheItem) {
-      await Parallel.each(
-        localItem.children.filter(
-          local => !cacheItem.children.some(cache => local.id === cache.id)
-        ),
-        async addedChild => {
-          // TODO: Merge this element with some concurrently added upstream one
-          await this.syncTree(addedChild, null, null)
-        }
-      )
-    }
+    await Parallel.each(
+      localItem.children.filter(
+        local =>
+          !cacheItem || !cacheItem.children.some(cache => local.id === cache.id)
+      ),
+      async addedChild => {
+        // merge this with an item created on the server
+        const serverChild = _.find(serverItem.children, serverChild => {
+          if (
+            serverChild instanceof Tree.Folder &&
+            addedChild instanceof Tree.Folder
+          ) {
+            return serverChild.title === addedChild.title
+          } else if (
+            serverChild instanceof Tree.Bookmark &&
+            addedChild instanceof Tree.Bookmark
+          ) {
+            return serverChild.url === addedChild.url
+          }
+          return false
+        })
+        if (serverChild) serverChild.merged = true
+        await this.syncTree(addedChild, null, serverChild)
+      }
+    )
 
     // REMOVED LOCALLY
     if (cacheItem) {
@@ -239,6 +253,7 @@ export default class SyncProcess {
           ].ServerToLocal[child.id]
       ),
       async newChild => {
+        if (newChild.merged) return
         await this.syncTree(null, null, newChild)
       }
     )
@@ -414,6 +429,11 @@ export default class SyncProcess {
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
 
+    await this.mappings.addBookmark({
+      localId: localItem.id,
+      remoteId: serverItem.id
+    })
+
     if (!changed) {
       console.log('Bookmark unchanged')
       return
@@ -438,11 +458,6 @@ export default class SyncProcess {
         })
       )
     }
-
-    await this.mappings.addBookmark({
-      localId: localItem.id,
-      remoteId: serverItem.id
-    })
   }
 
   async removeBookmark(
