@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "floccus",
   "short_name": "floccus",
-  "version": "2.2.7",
+  "version": "3.0.0",
   "description": "Sync your bookmarks with nextcloud",
   "icons": {
     "48": "icons/logo.png"
@@ -15,26 +15,20 @@
     }
   },
 
- "permissions": [
-    "https://*/"
-  , "http://*/"
-  , "alarms"
-  , "bookmarks"
-  , "storage"
-  ],
+  "permissions": ["https://*/", "http://*/", "alarms", "bookmarks", "storage"],
 
   "options_ui": {
     "page": "dist/html/options.html"
   },
 
-	"browser_action": {
-		"browser_style": true,
-		"default_icon": {
-			"48": "icons/logo.png"
-		},
-		"default_title": "Open Floccus options",
-		"default_popup": "dist/html/options.html"
-	},
+  "browser_action": {
+    "browser_style": true,
+    "default_icon": {
+      "48": "icons/logo.png"
+    },
+    "default_title": "Open Floccus options",
+    "default_popup": "dist/html/options.html"
+  },
 
   "background": {
     "page": "dist/html/background.html"
