@@ -186,7 +186,7 @@ export default class SyncProcess {
       remoteId: serverItem.id
     })
 
-    if (changed) {
+    if (!changed) {
       console.log('Skipping subtree of ', { localItem, serverItem })
       return
     }
