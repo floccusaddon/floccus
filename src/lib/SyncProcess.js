@@ -18,10 +18,17 @@ export default class SyncProcess {
   }
 
   async sync() {
+    this.localTreeRoot = await this.localTree.getBookmarksTree()
+    this.serverTreeRoot = await this.server.getBookmarksTree()
+
+    // generate hashtables to find items faster
+    this.localTreeRoot.createIndex()
+    this.cacheTreeRoot.createIndex()
+    this.serverTreeRoot.createIndex()
     await this.syncTree(
-      (this.localTreeRoot = await this.localTree.getBookmarksTree()),
+      this.localTreeRoot,
       this.cacheTreeRoot,
-      (this.serverTreeRoot = await this.server.getBookmarksTree())
+      this.serverTreeRoot
     )
   }
 
