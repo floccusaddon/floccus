@@ -70,7 +70,7 @@ export class Folder {
     if (!this.hashValue) {
       this.hashValue = Crypto.murmur2(
         JSON.stringify({
-          children: Promise.all(this.children.map(child => child.hash())),
+          children: await Promise.all(this.children.map(child => child.hash())),
           title: this.title
         })
       )
