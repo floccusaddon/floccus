@@ -24,6 +24,10 @@ export class Bookmark {
     return new Bookmark(this)
   }
 
+  createIndex() {
+    return { [this.id]: this }
+  }
+
   static hydrate(obj) {
     return new Bookmark(obj)
   }
@@ -67,8 +71,7 @@ export class Folder {
       this.hashValue = Crypto.murmur2(
         JSON.stringify({
           children: Promise.all(this.children.map(child => child.hash())),
-          title: this.title,
-          parentId: this.parentId
+          title: this.title
         })
       )
     }
@@ -80,6 +83,30 @@ export class Folder {
       ...this,
       children: this.children.map(child => child.clone())
     })
+  }
+
+  createIndex() {
+    this.index = {
+      folders: { [this.id]: this },
+      bookmarks: Object.assign(
+        {},
+        { [this.id]: this },
+        this.children
+          .filter(child => child instanceof Bookmark)
+          .reduce((obj, child) => {
+            obj[child.id] = child
+            return obj
+          }, {})
+      )
+    }
+
+    return (this.index = this.children
+      .filter(child => child instanceof Folder)
+      .map(child => child.createIndex())
+      .forEach((index, subIndex) => {
+        Object.assign(this.index.folders, subIndex.folders)
+        Object.assign(this.index.bookmarks, subIndex.bookmarks)
+      }))
   }
 
   static hydrate(obj) {
