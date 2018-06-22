@@ -179,7 +179,7 @@ export default class Account {
 
   static stringifyError(er) {
     if (er.list) {
-      return e.list
+      return er.list
         .map(e => {
           console.log(e)
           return this.stringifyError(e)
