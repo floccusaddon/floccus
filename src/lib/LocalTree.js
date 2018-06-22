@@ -95,7 +95,7 @@ export default class LocalTree extends Resource {
 
   async removeFolder(id) {
     console.log('(local)REMOVEFOLDER', id)
-    await browser.bookmarks.remove(id)
+    await browser.bookmarks.removeTree(id)
   }
 
   static async getPathFromLocalId(localId, ancestors, relativeToRoot) {
