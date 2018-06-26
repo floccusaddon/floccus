@@ -45,6 +45,11 @@ export class Folder {
     if (this.id === id) {
       return this
     }
+
+    if (this.index) {
+      return this.index.folders[id]
+    }
+
     // traverse sub folders
     return this.children
       .filter(child => child instanceof Folder)
@@ -53,6 +58,9 @@ export class Folder {
   }
 
   findBookmark(id) {
+    if (this.index) {
+      return this.index.bookmarks[id]
+    }
     const bookmarkFound = this.children
       .filter(child => child instanceof Bookmark)
       .filter(bm => bm.id == id)[0]
@@ -100,13 +108,14 @@ export class Folder {
       )
     }
 
-    return (this.index = this.children
+    this.children
       .filter(child => child instanceof Folder)
       .map(child => child.createIndex())
       .forEach((index, subIndex) => {
         Object.assign(this.index.folders, subIndex.folders)
         Object.assign(this.index.bookmarks, subIndex.bookmarks)
-      }))
+      })
+    return this.index
   }
 
   static hydrate(obj) {
