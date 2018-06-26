@@ -2,6 +2,7 @@ import * as Tree from './Tree'
 
 const _ = require('lodash')
 const Parallel = require('async-parallel')
+const CONCURRENCY = 3 // exponential with every subdirectory
 
 export default class SyncProcess {
   /**
@@ -152,7 +153,7 @@ export default class SyncProcess {
         // from=local => created locally
         await this.syncTree(child, null, null)
       }
-    })
+    }, CONCURRENCY)
   }
 
   async updateFolder(localItem, cacheItem, serverItem) {
@@ -231,7 +232,8 @@ export default class SyncProcess {
         })
         if (serverChild) serverChild.merged = true
         await this.syncTree(addedChild, null, serverChild)
-      }
+      },
+      CONCURRENCY
     )
 
     // REMOVED LOCALLY
@@ -250,7 +252,8 @@ export default class SyncProcess {
                   mappingsSnapshot.bookmarks.LocalToServer[removedChild.id]
                 )
           await this.syncTree(null, removedChild, serverChild)
-        }
+        },
+        CONCURRENCY
       )
     }
 
@@ -265,7 +268,8 @@ export default class SyncProcess {
       async newChild => {
         if (newChild.merged) return
         await this.syncTree(null, null, newChild)
-      }
+      },
+      CONCURRENCY
     )
 
     // REMOVED UPSTREAM
@@ -286,7 +290,8 @@ export default class SyncProcess {
               ? this.localTreeRoot.findFolder(oldChild.id)
               : this.localTreeRoot.findBookmark(oldChild.id)
           await this.syncTree(localChild, oldChild, null)
-        }
+        },
+        CONCURRENCY
       )
     }
 
@@ -318,7 +323,8 @@ export default class SyncProcess {
             )
           : null
         await this.syncTree(existingChild, cacheChild, serverChild)
-      }
+      },
+      CONCURRENCY
     )
   }
 
