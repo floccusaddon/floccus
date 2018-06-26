@@ -11,10 +11,10 @@ export class Bookmark {
   async hash() {
     if (!this.hashValue) {
       this.hashValue = Crypto.murmur2(
-        JSON.stringify({
-          url: this.url,
-          title: this.title
-        })
+        JSON.stringify([
+          this.url,
+          this.title
+        ])
       )
     }
     return this.hashValue
@@ -77,10 +77,10 @@ export class Folder {
   async hash() {
     if (!this.hashValue) {
       this.hashValue = Crypto.murmur2(
-        JSON.stringify({
-          children: await Promise.all(this.children.map(child => child.hash())),
-          title: this.title
-        })
+        JSON.stringify([
+          await Promise.all(this.children.map(child => child.hash())),
+          this.title
+        ])
       )
     }
     return this.hashValue
@@ -111,7 +111,7 @@ export class Folder {
     this.children
       .filter(child => child instanceof Folder)
       .map(child => child.createIndex())
-      .forEach((index, subIndex) => {
+      .forEach(subIndex => {
         Object.assign(this.index.folders, subIndex.folders)
         Object.assign(this.index.bookmarks, subIndex.bookmarks)
       })
