@@ -146,7 +146,6 @@ export default class WebDavAdapter extends CachingAdapter {
     let fullUrl = this.server.bookmark_file
     fullUrl = this.server.url + fullUrl + '.lock'
 
-console.log ("freeLock :" + fullUrl + ":");
     let rStatus = 500
     let response
 
@@ -164,7 +163,6 @@ console.log ("freeLock :" + fullUrl + ":");
       console.log('Error Caught')
       console.log(e)
     }
-console.log ("rStatus:" + rStatus + ":");
   }
 
   htmlEncode(content) {
