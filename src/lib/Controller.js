@@ -198,8 +198,11 @@ export default class Controller {
 
   onStatusChange(listener) {
     this.listeners.push(listener)
+    let unregistered = false
     return () => {
-      this.listeners.splice(this.listeners.indexOf(listener))
+      if (unregistered) return
+      this.listeners.splice(this.listeners.indexOf(listener), 1)
+      unregistered = true
     }
   }
 
