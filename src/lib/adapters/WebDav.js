@@ -1,3 +1,7 @@
+import * as Tree from '../Tree'
+import Adapter from '../Adapter'
+import CachingAdapter from '../Caching'
+
 import { Bookmark, Folder } from '../Tree'
 import * as Basics from '../components/basics'
 const { h } = require('hyperapp')
@@ -15,16 +19,13 @@ const {
   OptionDelete
 } = Basics
 
-export default class WebDavAdapter {
+export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {
+    super(server)
     console.log('Webdav constructor')
     console.log(server)
 
     this.server = server
-    this.db = new Map()
-
-    // keep highestID associated with the object
-    this.highestID = 0
   }
 
   static getDefaultValues() {
@@ -35,19 +36,6 @@ export default class WebDavAdapter {
       password: 's3cret',
       bookmark_file: 'bookmarks.xbel'
     }
-  }
-
-  setData(data) {
-    this.server = data
-  }
-
-  getData() {
-    return JSON.parse(JSON.stringify(this.server))
-  }
-
-  getLabel() {
-    let data = this.getData()
-    return data.username + '@' + data.url
   }
 
   getBookmarksAsJSON() {
@@ -339,11 +327,14 @@ export default class WebDavAdapter {
     return xbel
   }
 
-  async syncFail() {
+  async onSyncFail() {
     await this.freeLock()
   }
 
-  async syncComplete() {
+  async onSyncComplete() {
+console.log ("onSyncComplete");
+console.log (this.bookmarksCache);
+/*
     console.log('WebDav: Uploading JSON file to server')
     this.bookmarksAsJSON = this.getBookmarksAsJSON()
 
@@ -352,6 +343,7 @@ export default class WebDavAdapter {
     console.log('fullURL :' + fullUrl + ':')
     let xbel = this.convertToStructure()
     await this.uploadFile(fullUrl, 'application/xml', xbel)
+*/
     await this.freeLock()
   }
 
@@ -463,9 +455,11 @@ export default class WebDavAdapter {
     }
   }
 
-  async syncStart() {
+  async onSyncStart() {
+console.log ("onSyncStart: begin");
     await this.obtainLock()
 
+/*
     try {
       let resp = await this.pullFromServer()
 
@@ -480,72 +474,9 @@ export default class WebDavAdapter {
 
       this.db = new Map()
     }
+*/
 
-    console.log('syncStart: completed')
-  }
-
-  async pullBookmarks() {
-    console.log('Fetching bookmarks', this.server)
-
-    let myBookmarks = Array.from(this.db.values()).map(bm => {
-      return new Bookmark(bm.id, null, bm.url, bm.title, bm.path)
-    })
-
-    console.log('Received bookmarks from server')
-    console.log(myBookmarks)
-
-    return myBookmarks
-  }
-
-  async getBookmark(id, autoupdate) {
-    console.log('Fetching single bookmark', this.server)
-    let bm = this.db.get(id)
-    if (!bm) {
-      throw new Error('Failed to fetch bookmark')
-    }
-    let bookmark = new Bookmark(bm.id, null, bm.url, bm.title, bm.path)
-    return bookmark
-  }
-
-  async createBookmark(bm) {
-    console.log('Create bookmark: 001 ', bm, this.server)
-
-    // if highestID is zero than we have a new situation
-
-    if (this.highestID < 1) {
-      this.db.forEach((value, key) => {
-        if (value && value.id && highestID < value.id) this.highestID = value.id
-      })
-    }
-
-    bm.id = ++this.highestID
-
-    this.db.set(bm.id, new Bookmark(bm.id, null, bm.url, bm.title, bm.path))
-
-    console.log('Create bookmark: OUT ', bm, this.server)
-
-    return bm
-  }
-
-  async updateBookmark(remoteId, newBm) {
-    console.log('Update bookmark', newBm, remoteId, this.server)
-
-    this.db.set(
-      remoteId,
-      new Bookmark(remoteId, null, newBm.url, newBm.title, newBm.path)
-    )
-
-    console.log('THIS')
-    console.log(this)
-
-    return new Bookmark(remoteId, null, newBm.url, newBm.title, newBm.path)
-  }
-
-  async removeBookmark(remoteId) {
-    console.log('Remove bookmark', remoteId, this.server)
-    this.db.delete(remoteId)
-    console.log('THIS')
-    console.log(this)
+    console.log('onSyncStart: completed')
   }
 
   static renderOptions(state, actions) {
