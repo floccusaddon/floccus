@@ -1,6 +1,6 @@
 import * as Tree from '../Tree'
 import Adapter from '../Adapter'
-import CachingAdapter from '../Caching'
+import CachingAdapter from '../adapters/Caching'
 
 import { Bookmark, Folder } from '../Tree'
 import * as Basics from '../components/basics'
@@ -328,6 +328,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async onSyncFail() {
+console.log ("onSyncFail");
     await this.freeLock()
   }
 

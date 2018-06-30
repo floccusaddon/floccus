@@ -95,6 +95,7 @@ export const actions = {
       await actions.load()
     },
     create: type => async (state, actions) => {
+console.log ("create called :" + type + ":");
       await Account.create(Account.getDefaultValues(type))
       await actions.load()
     },
