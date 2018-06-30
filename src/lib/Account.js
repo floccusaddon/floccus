@@ -1,6 +1,7 @@
 import AccountStorage from './AccountStorage'
 import Adapter from './Adapter'
 import NextcloudAdapter from './adapters/Nextcloud'
+import WebDavAdapter from './adapters/WebDav'
 import FakeAdapter from './adapters/Fake'
 import Tree from './Tree'
 import LocalTree from './LocalTree'
@@ -9,6 +10,7 @@ import browser from './browser-api'
 
 // register Adapters
 Adapter.register('nextcloud', NextcloudAdapter)
+Adapter.register('webdav', WebDavAdapter)
 Adapter.register('fake', FakeAdapter)
 
 export default class Account {
@@ -127,8 +129,8 @@ export default class Account {
       if (!(await this.isInitialized())) {
         await this.init()
       }
-      if (this.server.syncStart) {
-        await this.server.syncStart()
+      if (this.server.onSyncStart) {
+        await this.server.onSyncStart()
       }
 
       // main sync steps:
@@ -154,8 +156,8 @@ export default class Account {
       })
       this.syncing = false
 
-      if (this.server.syncComplete) {
-        await this.server.syncComplete()
+      if (this.server.onSyncComplete) {
+        await this.server.onSyncComplete()
       }
 
       console.log(
@@ -171,8 +173,8 @@ export default class Account {
         syncing: false
       })
       this.syncing = false
-      if (this.server.syncFail) {
-        await this.server.syncFail()
+      if (this.server.onSyncFail) {
+        await this.server.onSyncFail()
       }
     }
   }
