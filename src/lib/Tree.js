@@ -10,12 +10,7 @@ export class Bookmark {
 
   async hash() {
     if (!this.hashValue) {
-      this.hashValue = Crypto.murmur2(
-        JSON.stringify([
-          this.url,
-          this.title
-        ])
-      )
+      this.hashValue = Crypto.murmur2(JSON.stringify([this.url, this.title]))
     }
     return this.hashValue
   }
@@ -78,7 +73,20 @@ export class Folder {
     if (!this.hashValue) {
       this.hashValue = Crypto.murmur2(
         JSON.stringify([
-          await Promise.all(this.children.map(child => child.hash())),
+          await Promise.all(
+            this.children
+              // TODO: only re-sort unless we sync the order of the children, too!
+              .sort((c1, c2) => {
+                if (c1.title < c2.title) {
+                  return -1
+                }
+                if (c2.title < c1.title) {
+                  return 1
+                }
+                return 0
+              })
+              .map(child => child.hash())
+          ),
           this.title
         ])
       )
