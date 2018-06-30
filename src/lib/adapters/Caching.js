@@ -6,7 +6,7 @@ export default class CachingAdapter extends Adapter {
   constructor(server) {
     super()
     this.highestId = 0
-    this.bookmarksCache = new Folder ({id: '', title: 'root'});
+    this.bookmarksCache = new Folder ({id: 0, title: 'root'});
   }
 
   getLabel() {

@@ -38,23 +38,6 @@ export default class WebDavAdapter extends CachingAdapter {
     }
   }
 
-  getBookmarksAsJSON() {
-    let bookmarksList = []
-    let values = Array.from(this.db.values())
-
-    for (var i = 0; i < values.length; ++i) {
-      let value = values[i]
-      bookmarksList.push({
-        id: value.id,
-        path: value.path,
-        url: value.url,
-        title: value.title
-      })
-    }
-
-    return JSON.stringify(bookmarksList, null, 4)
-  }
-
   getBookmarkURL() {
     return this.server.url + this.server.bookmark_file
   }
@@ -163,6 +146,7 @@ export default class WebDavAdapter extends CachingAdapter {
     let fullUrl = this.server.bookmark_file
     fullUrl = this.server.url + fullUrl + '.lock'
 
+console.log ("freeLock :" + fullUrl + ":");
     let rStatus = 500
     let response
 
@@ -180,6 +164,7 @@ export default class WebDavAdapter extends CachingAdapter {
       console.log('Error Caught')
       console.log(e)
     }
+console.log ("rStatus:" + rStatus + ":");
   }
 
   htmlEncode(content) {
@@ -194,157 +179,81 @@ export default class WebDavAdapter extends CachingAdapter {
     return a.textContent
   }
 
-  outputFolderXBEL(myStructure, indent) {
+  outputFolderXBEL(myFolder, indent) {
     let output = ''
 
-    myStructure.bookmarks.forEach(bm => {
-      output += indent + '<bookmark href='
-      output += '"' + this.htmlEncode(bm.url) + '"'
-      output +=
-        ' id="' +
-        bm.id +
-        `">
-        `
-      output +=
-        indent +
-        '    <title>' +
-        this.htmlEncode(bm.title) +
-        `</title>
-        `
-      output +=
-        indent +
-        `</bookmark>
-        `
-    })
+    myFolder.children.forEach(bm => {
+        if (bm instanceof Bookmark)
+        {
+          output += indent + '<bookmark href=';
+          output += '"' + this.htmlEncode(bm.url) + '"';
+          output += ' id="' + bm.id + `">
+`;
+          output += indent + '<title>' + this.htmlEncode(bm.title) + `</title>
+`;
+          output += indent + `</bookmark>
+`;
+        }
+    });
 
-    let keys = Object.keys(myStructure.folders)
-    let values = keys.map(v => {
-      return myStructure.folders[v]
-    })
+  myFolder.children.forEach ( folder => {
+      if (folder instanceof Folder)
+      {
+        output += indent + '<folder';
+        if ("id" in folder) {
+          output += ' id="' + folder.id + '"';
+        }
+        output += `>
+`;
 
-    values.forEach(folder => {
-      output +=
-        indent +
-        `<folder>
-        `
-      output +=
-        indent +
-        '    <title>' +
-        this.htmlEncode(folder.title) +
-        `</title>
-        `
+        output += indent + '    <title>' + this.htmlEncode(folder.title) + `</title>
+`;
 
-      output += this.outputFolderXBEL(folder, indent + '    ')
+        output += this.outputFolderXBEL(folder, indent + '    ');
 
-      output +=
-        indent +
-        `</folder>
-        `
+        output += indent + `</folder>
+`
+      };
     })
 
     return output
   }
 
-  createXBEL(myStructure) {
+  createXBEL(myTopFolder) {
     let output = `<?xml version="1.0" encoding="ISO-8859-1"?>
-      <!DOCTYPE xbel PUBLIC "+//IDN python.org//DTD XML Bookmark Exchange Language 1.0//EN//XML" "http://www.python.org/topics/xml/dtds/xbel-1.0.dtd">
-      <xbel version="1.0">
-      `
+<!DOCTYPE xbel PUBLIC "+//IDN python.org//DTD XML Bookmark Exchange Language 1.0//EN//XML" "http://www.python.org/topics/xml/dtds/xbel-1.0.dtd">
+<xbel version="1.0">
+`;
 
     output +=
-      '<!--- highestID :' +
-      this.highestID +
+      '<!--- highestId :' +
+      this.highestId +
       `: for Floccus bookmark sync browser extension -->
-      `
+`;
 
-    output += this.outputFolderXBEL(myStructure, '')
+    output += this.outputFolderXBEL(myTopFolder, '');
 
     output += `
-      </xbel>`
+</xbel>`;
 
-    return output
-  }
-
-  /* private routine */
-  _addBookmark(myStructure, bm) {
-    let myArray = PathParse.parsePathIntoAnArray(bm.path)
-    let idx
-    let current = myStructure
-    let current_path = ''
-
-    for (idx = 1; idx < myArray.length; ++idx) {
-      let item = myArray[idx]
-      if (item in current.folders) {
-        current = current.folders[item]
-      } else {
-        let newpath
-
-        if (current.path == '/') {
-          newpath = current.path + item
-        } else {
-          newpath = current.path + '/' + item
-        }
-
-        current.folders[item] = {
-          title: item,
-          path: newpath,
-          bookmarks: [],
-          folders: {}
-        }
-
-        current = current.folders[item]
-      }
-    }
-
-    current.bookmarks.push({
-      title: bm.title,
-      id: bm.id,
-      path: bm.path,
-      url: bm.url
-    })
-  }
-
-  convertToStructure() {
-    let myStructure = {
-      title: '',
-      path: '',
-      bookmarks: [],
-      folders: {}
-    }
-
-    try {
-      let myBookmarks = Array.from(this.db.values())
-      myBookmarks.forEach(bm => {
-        this._addBookmark(myStructure, bm)
-      })
-    } catch (e) {
-      console.log('error')
-      console.log(e)
-    }
-
-    let xbel = this.createXBEL(myStructure)
-
-    return xbel
+    return output;
   }
 
   async onSyncFail() {
-console.log ("onSyncFail");
+    console.log ("onSyncFail");
     await this.freeLock()
   }
 
   async onSyncComplete() {
-console.log ("onSyncComplete");
-console.log (this.bookmarksCache);
-/*
-    console.log('WebDav: Uploading JSON file to server')
-    this.bookmarksAsJSON = this.getBookmarksAsJSON()
+    console.log ("onSyncComplete");
+let cacheClone = this.bookmarksCache.clone ();
+console.log (cacheClone);
 
     let fullUrl = this.server.bookmark_file
     fullUrl = this.server.url + fullUrl
     console.log('fullURL :' + fullUrl + ':')
-    let xbel = this.convertToStructure()
+    let xbel = this.createXBEL (this.bookmarksCache);
     await this.uploadFile(fullUrl, 'application/xml', xbel)
-*/
     await this.freeLock()
   }
 
@@ -360,7 +269,7 @@ console.log (this.bookmarksCache);
     return elements
   }
 
-  _parseFolder(xbelObj, path) {
+  _parseFolder(xbelObj, folder) {
     /* parse bookmarks first, breadth first */
 
     let bookmarkList = this._getElementsByNodeName(
@@ -369,18 +278,16 @@ console.log (this.bookmarksCache);
       1 /* element type */
     )
 
-    bookmarkList.forEach(bookmark => {
-      this.db.set(
-        parseInt(bookmark.id),
-        new Bookmark(
-          parseInt(bookmark.id),
-          null,
-          bookmark.getAttribute('href'),
-          bookmark.firstElementChild.innerHTML,
-          path
-        )
-      )
-    })
+    bookmarkList.forEach((bookmark) => {
+      let bm = new Bookmark({
+        id: parseInt (bookmark.id),
+        parentId: folder.id,
+        url: bookmark.getAttribute('href'),
+        title: bookmark.firstElementChild.innerHTML,
+      });
+
+      folder.children.push (bm);
+    });
 
     let folderList = this._getElementsByNodeName(
       xbelObj.childNodes,
@@ -388,26 +295,28 @@ console.log (this.bookmarksCache);
       1 /* element type */
     )
 
-    folderList.forEach(folder => {
-      let newpath = path + '/' + folder.firstElementChild.innerHTML
-      console.log('Adding folder :' + newpath + ':')
-      this._parseFolder(folder, newpath)
-    })
+    folderList.forEach(bmFolder => {
+      let sTitle = bmFolder.firstElementChild.innerHTML;
+      console.log('Adding folder :' + sTitle + ':');
+      let newFolder = new Folder ({ id: parseInt (bmFolder.getAttribute('id')), title: sTitle, parentId: folder.id });
+      folder.children.push (newFolder);
+      this._parseFolder(bmFolder, newFolder);
+    });
   }
 
   _parseXbelDoc(xbelDoc) {
-    this.db = new Map()
+    let bookmarksCache = new Folder ({id: 0, title: 'root'});
     let nodeList = this._getElementsByNodeName(
       xbelDoc.childNodes,
       'xbel',
       1 /* element type */
     )
-    this._parseFolder(nodeList[0], '')
+    this._parseFolder(nodeList[0], bookmarksCache)
 
-    // for debugging so that it does not change later in the console
-    let xdb = new Map(this.db)
-    console.log('_parseXbelDoc')
-    console.log(xdb)
+    this.bookmarksCache = bookmarksCache.clone ();
+
+console.log ("parseXbel");
+console.log (bookmarksCache);
   }
 
   async pullFromServer() {
@@ -436,14 +345,14 @@ console.log (this.bookmarksCache);
         'text/xml'
       )
 
-      /* let's get the highestID */
+      /* let's get the highestId */
       let byNL = xmlDocText.split('\n')
       byNL.forEach(line => {
-        if (line.indexOf('<!--- highestID :') >= 0) {
+        if (line.indexOf('<!--- highestId :') >= 0) {
           let idxStart = line.indexOf(':') + 1
           let idxEnd = line.lastIndexOf(':')
 
-          this.highestID = parseInt(line.substring(idxStart, idxEnd))
+          this.highestId = parseInt(line.substring(idxStart, idxEnd))
         }
       })
 
@@ -460,7 +369,6 @@ console.log (this.bookmarksCache);
 console.log ("onSyncStart: begin");
     await this.obtainLock()
 
-/*
     try {
       let resp = await this.pullFromServer()
 
@@ -473,9 +381,8 @@ console.log ("onSyncStart: begin");
       console.log('caught error')
       console.log(e)
 
-      this.db = new Map()
+      this.bookmarksCache = new Folder ({ id: 0, title: 'root' });
     }
-*/
 
     console.log('onSyncStart: completed')
   }
