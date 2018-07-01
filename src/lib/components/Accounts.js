@@ -4,7 +4,7 @@ import Account from '../Account'
 import LocalTree from '../LocalTree'
 import * as Basics from './basics'
 
-const { Input, Button, Label } = Basics
+const { Input, Button, InputGroup, Select, Option, Label } = Basics
 
 export const state = {
   accounts: {
@@ -94,8 +94,9 @@ export const actions = {
       await account.setData(newData)
       await actions.load()
     },
-    create: type => async (state, actions) => {
-      await Account.create(Account.getDefaultValues(type))
+    setCreationType: type => ({ creationType: type }),
+    create: () => async (state, actions) => {
+      await Account.create(Account.getDefaultValues(state.creationType))
       await actions.load()
     },
     debounceWrite: ({ accountId, data, timeout }) => state => {
@@ -138,22 +139,24 @@ export const Component = () => (state, actions) => {
           )
         )}
       </div>
-      <Button
-        fullWidth={true}
-        onclick={e => {
-          actions.accounts.create('nextcloud')
-        }}
-      >
-        Add Nextcloud Account
-      </Button>
-      <Button
-        fullWidth={true}
-        onclick={e => {
-          actions.accounts.create('webdav')
-        }}
-      >
-        Add Webdav Account
-      </Button>
+      <InputGroup fullWidth={true}>
+        <Select
+          style={{ width: '85%' }}
+          onchange={e => {
+            actions.accounts.setCreationType(e.currentTarget.value)
+          }}
+        >
+          <option value="nextcloud">New Nextcloud Account</option>
+          <option value="webdav">New Webdav Account</option>
+        </Select>
+        <Button
+          onclick={e => {
+            actions.accounts.create()
+          }}
+        >
+          Add
+        </Button>
+      </InputGroup>
       <div className="security">
         <Label>
           <input

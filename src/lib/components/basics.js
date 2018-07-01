@@ -13,6 +13,8 @@ export const COLORS = {
   },
   text: '#444'
 }
+
+export const HEIGHT_CONTROLS = '.8cm'
 export const PADDING_CONTROLS = '.15cm'
 export const BORDER_RADIUS = '.1cm'
 
@@ -44,9 +46,52 @@ export const Input = style('input')({
   margin: '.05cm'
 })
 
+export const InputGroup = style('div')(props => ({
+  display: props.fullWidth ? 'block' : 'inline-block',
+  width: props.fullWidth ? '95%' : 'auto',
+  padding: '0',
+  margin: props.fullWidth ? '.4cm auto' : '.1cm .1cm .1cm 0',
+  '> *': {
+    margin: '.1cm 0 .1cm 0 !important',
+    borderRadius: '0 !important'
+  },
+  '> :first-child': {
+    borderTopLeftRadius: BORDER_RADIUS + ' !important',
+    borderBottomLeftRadius: BORDER_RADIUS + '!important'
+  },
+  '> :last-child': {
+    borderTopRightRadius: BORDER_RADIUS + '!important',
+    borderBottomRightRadius: BORDER_RADIUS + '!important'
+  }
+}))
+
+export const Select = style('select')(props => ({
+  display: props.fullWidth ? 'block' : 'inline-block',
+  width: props.fullWidth ? '95%' : 'auto',
+  height: HEIGHT_CONTROLS,
+  cursor: 'pointer',
+  padding: PADDING_CONTROLS,
+  margin: props.fullWidth ? '.4cm auto' : '.1cm .1cm .1cm 0',
+  color: 'white',
+  textDecoration: 'none',
+  textAlign: 'center',
+  backgroundColor: props.active ? COLORS.primary.light : COLORS.primary.plane,
+  ':hover': {
+    backgroundColor: COLORS.primary.light
+  },
+  border: `1px ${COLORS.primary.dark} solid`,
+  borderRadius: BORDER_RADIUS,
+  '[disabled]': {
+    color: 'white !important',
+    backgroundColor: '#999 !important',
+    cursor: 'default'
+  }
+}))
+
 export const Button = style('button')(props => ({
   display: props.fullWidth ? 'block' : 'inline-block',
   width: props.fullWidth ? '95%' : 'auto',
+  height: HEIGHT_CONTROLS,
   cursor: 'pointer',
   padding: PADDING_CONTROLS,
   margin: props.fullWidth ? '.4cm auto' : '.1cm .1cm .1cm 0',
