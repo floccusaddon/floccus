@@ -14,45 +14,45 @@ export const COLORS = {
   text: '#444'
 }
 
-export const HEIGHT_CONTROLS = '.8cm'
-export const PADDING_CONTROLS = '.15cm'
-export const BORDER_RADIUS = '.1cm'
+export const HEIGHT_CONTROLS = '33px'
+export const PADDING_CONTROLS = '7px'
+export const BORDER_RADIUS = '3px'
 
 export const H1 = style('h1')({
   color: COLORS.primary.plane,
-  marginBottom: '.1cm'
+  marginBottom: '3px'
 })
 export const H2 = style('h2')({
   color: COLORS.primary.plane,
-  marginBottom: '.1cm'
+  marginBottom: '3px'
 })
 export const H3 = style('h3')({
   color: COLORS.primary.plane,
-  marginBottom: '.1cm'
+  marginBottom: '3px'
 })
 export const H4 = style('h4')({
   color: COLORS.primary.plane,
-  marginBottom: '.1cm'
+  marginBottom: '3px'
 })
 
 export const Input = style('input')({
   width: '90%',
-  fontSize: '.38cm !important',
+  fontSize: '15px !important',
   border: `1px ${COLORS.primary.dark} solid`,
   borderRadius: BORDER_RADIUS,
   background: 'white',
   color: COLORS.text,
   padding: PADDING_CONTROLS,
-  margin: '.05cm'
+  margin: '2px'
 })
 
 export const InputGroup = style('div')(props => ({
   display: props.fullWidth ? 'block' : 'inline-block',
   width: props.fullWidth ? '95%' : 'auto',
   padding: '0',
-  margin: props.fullWidth ? '.4cm auto' : '.1cm .1cm .1cm 0',
+  margin: props.fullWidth ? '15px auto' : '3px 3px 3px 0',
   '> *': {
-    margin: '.1cm 0 .1cm 0 !important',
+    margin: '3px 0 3px 0 !important',
     borderRadius: '0 !important'
   },
   '> :first-child': {
@@ -71,7 +71,7 @@ export const Select = style('select')(props => ({
   height: HEIGHT_CONTROLS,
   cursor: 'pointer',
   padding: PADDING_CONTROLS,
-  margin: props.fullWidth ? '.4cm auto' : '.1cm .1cm .1cm 0',
+  margin: props.fullWidth ? '15px auto' : '3px 3px 3px 0',
   color: 'white',
   textDecoration: 'none',
   textAlign: 'center',
@@ -94,7 +94,7 @@ export const Button = style('button')(props => ({
   height: HEIGHT_CONTROLS,
   cursor: 'pointer',
   padding: PADDING_CONTROLS,
-  margin: props.fullWidth ? '.4cm auto' : '.1cm .1cm .1cm 0',
+  margin: props.fullWidth ? '15px auto' : '3px 3px  3px 0',
   color: 'white',
   textDecoration: 'none',
   textAlign: 'center',
@@ -121,19 +121,19 @@ export const Account = ({ account }, children) => (state, actions) => {
 
 const AccountStyle = style('div')({
   borderBottom: `1px ${COLORS.primary.dark} solid`,
-  padding: '.4cm 0',
-  marginBottom: '.4cm',
+  padding: '20px 0',
+  marginBottom: '20px',
   color: COLORS.text,
   table: {
     border: 'none',
     width: '100%',
-    minWidth: '12cm'
+    minWidth: '350px'
   },
   td: {
     width: 'auto'
   },
   'td:first-child': {
-    width: '4.5cm',
+    width: '150px',
     textAlign: 'right',
     color: COLORS.primary.dark
   }
@@ -159,8 +159,8 @@ export const AccountStatusDetail = ({ account }) => (state, actions) => {
 }
 
 const AccountStatusDetailStyle = style('div')({
-  margin: '.1cm',
-  padding: '.1cm',
+  margin: '3px',
+  padding: '3px',
   color: COLORS.primary.dark
 })
 
@@ -181,8 +181,8 @@ export const AccountStatus = ({ account }) => (state, actions) => {
 
 const AccountStatusStyle = style('span')({
   display: 'inline-block',
-  margin: '.1cm .1cm .1cm 0',
-  padding: '.1cm',
+  margin: '3px 3px 3px 0',
+  padding: '3px',
   color: COLORS.primary.dark
 })
 
@@ -247,7 +247,7 @@ export const Options = ({ show }, children) => (state, actions) => {
 
 const OptionsStyle = style('div')({
   borderLeft: `1px ${COLORS.primary.dark} solid`,
-  paddingLeft: '.2cm'
+  paddingLeft: '6px'
 })
 
 export const A = style('a')({})
