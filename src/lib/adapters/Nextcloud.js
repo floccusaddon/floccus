@@ -171,38 +171,10 @@ export default class NextcloudAdapter extends Adapter {
 
   async getBookmarksList() {
     console.log('Fetching bookmarks', this.server)
-    const getUrl =
-      this.normalizeServerURL(this.server.url) +
+    const json = await this.sendRequest(
+      'GET',
       'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
-    var response
-    try {
-      response = await this.fetchQueue.add(() =>
-        fetch(getUrl, {
-          headers: {
-            Authorization:
-              'Basic ' + btoa(this.server.username + ':' + this.server.password)
-          }
-        })
-      )
-    } catch (e) {
-      throw new Error(
-        'Network error: Check your network connection and your account details'
-      )
-    }
-
-    if (response.status === 401) {
-      throw new Error(
-        "Couldn't authenticate for fetching bookmarks from the server."
-      )
-    }
-    if (response.status !== 200) {
-      throw new Error('Failed to retrieve bookmarks from server')
-    }
-
-    let json = await response.json()
-    if (json.status !== 'success') {
-      throw new Error('Fetch failed:' + JSON.stringify(json))
-    }
+    )
 
     // for every bm without a path tag, add one
     let bmsWithoutPath = json.data.filter(bm =>
@@ -360,39 +332,11 @@ export default class NextcloudAdapter extends Adapter {
 
   async getBookmark(id) {
     console.log('Fetching single bookmark', this.server)
-    const getUrl =
-      this.normalizeServerURL(this.server.url) +
-      'index.php/apps/bookmarks/public/rest/v2/bookmark/' +
-      id
-    var response
-    try {
-      response = await this.fetchQueue.add(() =>
-        fetch(getUrl, {
-          headers: {
-            Authorization:
-              'Basic ' + btoa(this.server.username + ':' + this.server.password)
-          }
-        })
-      )
-    } catch (e) {
-      throw new Error(
-        'Network error: Check your network connection and your account details'
-      )
-    }
 
-    if (response.status === 401) {
-      throw new Error(
-        "Couldn't authenticate for retrieving a bookmark from the server."
-      )
-    }
-    if (response.status !== 200) {
-      throw new Error('Failed to retrieve bookmark from server: id=' + id)
-    }
-
-    let json = await response.json()
-    if (json.status !== 'success') {
-      throw new Error('Fetch failed:' + JSON.stringify(json))
-    }
+    const json = await this.sendRequest(
+      'GET',
+      'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id
+    )
 
     let bm = json.item
 
@@ -432,41 +376,12 @@ export default class NextcloudAdapter extends Adapter {
     let body = new FormData()
     body.append('url', bm.url)
     body.append('title', bm.title)
-    const createUrl =
-      this.normalizeServerURL(this.server.url) +
-      'index.php/apps/bookmarks/public/rest/v2/bookmark'
-    var res
-    try {
-      res = await this.fetchQueue.add(() =>
-        fetch(createUrl, {
-          method: 'POST',
-          body,
-          headers: {
-            Authorization:
-              'Basic ' + btoa(this.server.username + ':' + this.server.password)
-          }
-        })
-      )
-    } catch (e) {
-      throw new Error(
-        'Network error: Check your network connection and your account details'
-      )
-    }
 
-    console.log(res)
-
-    if (res.status === 401) {
-      throw new Error(
-        "Couldn't authenticate for creating a bookmark on the server."
-      )
-    }
-    if (res.status !== 200) {
-      throw new Error('Creating a bookmark on the server failed: ' + bm.url)
-    }
-    const json = await res.json()
-    if (json.status !== 'success') {
-      throw new Error('Server API returned error')
-    }
+    const json = await this.sendRequest(
+      'POST',
+      'index.php/apps/bookmarks/public/rest/v2/bookmark',
+      body
+    )
 
     bm.id = json.item.id + ';' + bm.parentId
     await this.updateBookmark(bm)
@@ -498,16 +413,56 @@ export default class NextcloudAdapter extends Adapter {
       .concat([NextcloudAdapter.convertPathToTag(newBm.parentId)])
       .forEach(tag => body.append('item[tags][]', tag))
 
-    let updateUrl =
-      this.normalizeServerURL(this.server.url) +
+    await this.sendRequest(
+      'PUT',
       'index.php/apps/bookmarks/public/rest/v2/bookmark/' +
-      newBm.id.split(';')[0]
-    var putRes
+        newBm.id.split(';')[0],
+      body
+    )
+
+    // update bookmark id in-place, so it'll be updated in the mappings
+    newBm.id = newBm.id.split(';')[0] + newBm.parentId
+  }
+
+  async removeBookmark(id) {
+    console.log('(nextcloud)REMOVE', { id })
+
+    let bms = await this.getBookmark(id.split(';')[0])
+
+    if (bms.length !== 1) {
+      // multiple bookmarks of the same url
+      // only remove one of the multiple path tags
+      let body = new URLSearchParams()
+      body.append('url', bms[0].url)
+      body.append('title', bms[0].title)
+
+      let oldPath = id.split(';')[1]
+      bms
+        .map(bm => bm.parentId)
+        .filter(path => path !== oldPath)
+        .forEach(tag => body.append('item[tags][]', tag))
+
+      await this.sendRequest(
+        'PUT',
+        'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id.split(';')[0],
+        body
+      )
+    } else {
+      // remove the whole bookmark
+      await this.sendRequest(
+        'DELETE',
+        'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id.split(';')[0]
+      )
+    }
+  }
+
+  async sendRequest(verb, relUrl, body) {
+    const url = this.normalizeServerURL(this.server.url) + relUrl
+    var res
     try {
-      putRes = await this.fetchQueue.add(() =>
-        fetch(updateUrl, {
-          method: 'PUT',
-          body,
+      res = await this.fetchQueue.add(() =>
+        fetch(url, {
+          method: verb,
           headers: {
             Authorization:
               'Basic ' + btoa(this.server.username + ':' + this.server.password)
@@ -520,118 +475,20 @@ export default class NextcloudAdapter extends Adapter {
       )
     }
 
-    console.log(putRes)
+    console.log(res)
 
-    if (putRes.status === 401) {
-      throw new Error(
-        "Couldn't authenticate for updating a bookmark on the server."
-      )
+    if (res.status === 401) {
+      throw new Error("Couldn't authenticate with the server")
     }
-    if (putRes.status !== 200) {
-      throw new Error('Updating a bookmark on the server failed: ' + newBm.url)
+    if (res.status !== 200) {
+      throw new Error(`Failed ${verb} request`)
     }
-
-    let putJson = await putRes.json()
-    if (putJson.status !== 'success') {
-      throw new Error('nextcloud API returned error')
+    let json = await res.json()
+    if (json.status !== 'success') {
+      throw new Error('Nextcloud API error: ' + JSON.stringify(json))
     }
 
-    // update bookmark id in-place, so it'll be updated in the mappings
-    newBm.id = newBm.id.split(';')[0] + newBm.parentId
-  }
-
-  async removeBookmark(id) {
-    console.log('(nextcloud)REMOVE', { id })
-
-    let bms = await this.getBookmark(id.split(';')[0])
-
-    if (bms.length !== 1) {
-      let body = new URLSearchParams()
-      body.append('url', bms[0].url)
-      body.append('title', bms[0].title)
-
-      let oldPath = id.split(';')[1]
-      bms
-        .map(bm => bm.parentId)
-        .filter(path => path !== oldPath)
-        .forEach(tag => body.append('item[tags][]', tag))
-
-      let updateUrl =
-        this.normalizeServerURL(this.server.url) +
-        'index.php/apps/bookmarks/public/rest/v2/bookmark/' +
-        id.split(';')[0]
-      var putRes
-      try {
-        putRes = await this.fetchQueue.add(() =>
-          fetch(updateUrl, {
-            method: 'PUT',
-            body,
-            headers: {
-              Authorization:
-                'Basic ' +
-                btoa(this.server.username + ':' + this.server.password)
-            }
-          })
-        )
-      } catch (e) {
-        throw new Error(
-          'Network error: Check your network connection and your account details'
-        )
-      }
-
-      console.log(putRes)
-
-      if (putRes.status === 401) {
-        throw new Error(
-          "Couldn't authenticate for updating a bookmark on the server."
-        )
-      }
-      if (putRes.status !== 200) {
-        throw new Error(
-          'Updating a bookmark on the server failed: ' + bms[0].url
-        )
-      }
-
-      let putJson = await putRes.json()
-      if (putJson.status !== 'success') {
-        throw new Error('nextcloud API returned error')
-      }
-    } else {
-      const delUrl =
-        this.normalizeServerURL(this.server.url) +
-        'index.php/apps/bookmarks/public/rest/v2/bookmark/' +
-        id.split(';')[0]
-      var res
-      try {
-        res = await this.fetchQueue.add(() =>
-          fetch(delUrl, {
-            method: 'DELETE',
-            headers: {
-              Authorization:
-                'Basic ' +
-                btoa(this.server.username + ':' + this.server.password)
-            }
-          })
-        )
-      } catch (e) {
-        throw new Error(
-          'Network error: Check your network connection and your account details'
-        )
-      }
-
-      console.log(res)
-
-      if (res.status === 401) {
-        throw new Error(
-          "Couldn't authenticate for removing a bookmark on the server."
-        )
-      }
-      if (res.status !== 200) {
-        throw new Error(
-          'Removing a bookmark on the server failed. id=' + id.split(';')[0]
-        )
-      }
-    }
+    return json
   }
 
   getPathsFromServerMark(bm) {
