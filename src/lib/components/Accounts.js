@@ -141,20 +141,20 @@ export const Component = () => (state, actions) => {
       </div>
       <InputGroup fullWidth={true}>
         <Select
-          style={{ width: '90%' }}
+          style={{ width: '75%' }}
           onchange={e => {
             actions.accounts.setCreationType(e.currentTarget.value)
           }}
         >
-          <option value="nextcloud">New Nextcloud Account</option>
-          <option value="webdav">New Webdav Account</option>
+          <option value="nextcloud">Nextcloud Bookmarks</option>
+          <option value="webdav">XBEL in WebDAV</option>
         </Select>
         <Button
           onclick={e => {
             actions.accounts.create()
           }}
         >
-          Add
+          Add Account
         </Button>
       </InputGroup>
       <div className="security">
