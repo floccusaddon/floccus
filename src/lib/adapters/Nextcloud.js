@@ -466,7 +466,8 @@ export default class NextcloudAdapter extends Adapter {
           headers: {
             Authorization:
               'Basic ' + btoa(this.server.username + ':' + this.server.password)
-          }
+          },
+          body
         })
       )
     } catch (e) {
