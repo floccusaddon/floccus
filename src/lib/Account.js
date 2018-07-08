@@ -125,7 +125,7 @@ export default class Account {
 
       console.log('Starting sync process for account ' + this.getLabel())
       this.syncing = true
-      await this.setData({ ...this.getData(), syncing: true })
+      await this.setData({ ...this.getData(), syncing: true, error: null })
 
       if (!(await this.isInitialized())) {
         await this.init()
