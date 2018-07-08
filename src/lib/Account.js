@@ -73,6 +73,7 @@ export default class Account {
     let background = await browser.runtime.getBackgroundPage()
     let data = await this.storage.getAccountData(background.controller.key)
     this.server.setData(data)
+    this.localTree = new LocalTree(this.storage, data.localRoot)
   }
 
   async tracksBookmark(localId) {
