@@ -325,7 +325,7 @@ export default class NextcloudAdapter extends Adapter {
       if (child instanceof Folder) {
         await this.removeFolder(child.id)
       } else {
-        await this.removeBookmark(child)
+        await this.removeBookmark(child.id)
       }
     })
   }
