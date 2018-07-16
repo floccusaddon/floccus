@@ -371,7 +371,7 @@ export default class NextcloudAdapter extends Adapter {
       return false
     }
     if (this.server.serverRoot) {
-      bookmark.parentId = this.server.serverRoot + bookmark.parentId
+      bm.parentId = this.server.serverRoot + bm.parentId
     }
     let body = new FormData()
     body.append('url', bm.url)
