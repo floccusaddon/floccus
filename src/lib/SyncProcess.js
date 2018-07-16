@@ -145,15 +145,19 @@ export default class SyncProcess {
     await this.mappings.addFolder({ localId, remoteId })
 
     // traverse children
-    await Parallel.each(folder.children, async child => {
-      if (toTree === this.localTreeRoot) {
-        // from=server => created on the server
-        await this.syncTree(null, null, child)
-      } else {
-        // from=local => created locally
-        await this.syncTree(child, null, null)
-      }
-    }, CONCURRENCY)
+    await Parallel.each(
+      folder.children,
+      async child => {
+        if (toTree === this.localTreeRoot) {
+          // from=server => created on the server
+          await this.syncTree(null, null, child)
+        } else {
+          // from=local => created locally
+          await this.syncTree(child, null, null)
+        }
+      },
+      CONCURRENCY
+    )
   }
 
   async updateFolder(localItem, cacheItem, serverItem) {
