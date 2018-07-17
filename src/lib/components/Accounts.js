@@ -146,7 +146,6 @@ export const Component = () => (state, actions) => {
           onchange={e => {
             actions.accounts.setCreationType(e.currentTarget.value)
           }}
-          value="nextcloud"
         >
           <option value="nextcloud">Nextcloud Bookmarks</option>
           <option value="webdav">XBEL in WebDAV</option>
