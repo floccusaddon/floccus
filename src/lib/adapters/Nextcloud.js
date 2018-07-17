@@ -185,7 +185,7 @@ export default class NextcloudAdapter extends Adapter {
       bmsWithoutPath,
       async bm => {
         try {
-          await this.updateBookmark(bm.id, {
+          await this.updateBookmark({
             ...bm,
             parentId: this.getPathsFromServerMark(bm)[0]
           })
