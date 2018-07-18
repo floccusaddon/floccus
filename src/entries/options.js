@@ -2,11 +2,13 @@ import browser from '../lib/browser-api'
 import { h, app } from 'hyperapp'
 
 import * as AccountsComponent from '../lib/components/Accounts'
+import * as AccountOptionsComponent from '../lib/components/AccountOptions'
 import * as PickerComponent from '../lib/components/Picker'
 import * as SetupKeyComponent from '../lib/components/SetupKey'
 import * as UnlockComponent from '../lib/components/Unlock'
 
 const Accounts = AccountsComponent.Component
+const AccountOptions = AccountOptionsComponent.Component
 const Picker = PickerComponent.Component
 const SetupKey = SetupKeyComponent.Component
 const Unlock = UnlockComponent.Component
@@ -45,6 +47,8 @@ function render(state, actions) {
         <Accounts />,
         state.view.current === 'picker' ? (
           <Picker />
+        ) : state.view.current === 'options' ? (
+          <AccountOptions />
         ) : state.view.current === 'unlock' ? (
           <Unlock />
         ) : state.view.current === 'setupKey' ? (
@@ -61,6 +65,7 @@ function render(state, actions) {
 
 const components = [
   AccountsComponent,
+  AccountOptionsComponent,
   PickerComponent,
   UnlockComponent,
   SetupKeyComponent

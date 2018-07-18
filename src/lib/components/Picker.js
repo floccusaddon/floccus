@@ -1,5 +1,6 @@
 import browser from '../browser-api'
 import { h } from 'hyperapp'
+import LocalTree from '../LocalTree'
 import { Component as Overlay } from './Overlay'
 import * as Basics from './basics'
 import picostyle from 'picostyle'
@@ -9,7 +10,6 @@ const Button = Basics.Button
 
 export const state = {
   picker: {
-    openedFor: null,
     tree: null,
     openedFolders: {}
   }
@@ -17,7 +17,6 @@ export const state = {
 
 export const actions = {
   picker: {
-    setOpenedFor: openedFor => ({ openedFor }),
     setTree: tree => ({ tree }),
     loadTree: () => async (state, actions) => {
       actions.setTree((await browser.bookmarks.getTree())[0])
@@ -35,16 +34,16 @@ export const actions = {
       openedFolders: { ...state.openedFolders, [folderId]: false }
     })
   },
-  openPicker: accountId => async (state, actions) => {
+  openPicker: () => async (state, actions) => {
     await actions.picker.loadTree()
-    actions.picker.setOpenedFor(accountId)
     actions.switchView('picker')
   },
-  setNodeFromPicker: nodeId => async (state, actions) => {
-    var account = state.accounts.accounts[state.picker.openedFor]
-    await account.setData({ ...account.getData(), localRoot: nodeId })
-    await account.init()
-    actions.switchView('accounts')
+  setNodeFromPicker: localRoot => async (state, actions) => {
+    const rootPath = decodeURIComponent(
+      await LocalTree.getPathFromLocalId(localRoot)
+    )
+    actions.options.update({ data: { localRoot, rootPath } })
+    actions.switchView('options')
   }
 }
 

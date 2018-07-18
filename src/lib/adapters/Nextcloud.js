@@ -11,18 +11,7 @@ const PQueue = require('p-queue')
 
 const TAG_PREFIX = 'floccus:'
 
-const {
-  Input,
-  Button,
-  Label,
-  Options,
-  Account,
-  AccountStatus,
-  AccountStatusDetail,
-  OptionSyncFolder,
-  OptionDelete,
-  H3
-} = Basics
+const { Input, Button, Label, OptionSyncFolder, OptionDelete, H3 } = Basics
 
 export default class NextcloudAdapter extends Adapter {
   constructor(server) {
@@ -44,99 +33,75 @@ export default class NextcloudAdapter extends Adapter {
   static renderOptions(state, actions) {
     let data = state.account
     let onchange = (prop, e) => {
-      actions.accounts.update({
-        accountId: state.account.id,
+      actions.options.update({
         data: { [prop]: e.target.value }
       })
     }
     return (
-      <Account account={state.account}>
-        <form>
-          <table>
-            <tr>
-              <td>
-                <Label for="url">Nextcloud server URL:</Label>
-              </td>
-              <td>
-                <Input
-                  value={data.url}
-                  type="text"
-                  name="url"
-                  onkeyup={onchange.bind(null, 'url')}
-                  onblur={onchange.bind(null, 'url')}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <Label for="username">User name:</Label>
-              </td>
-              <td>
-                <Input
-                  value={data.username}
-                  type="text"
-                  name="username"
-                  onkeyup={onchange.bind(null, 'username')}
-                  onblur={onchange.bind(null, 'username')}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <Label for="password">Password:</Label>
-              </td>
-              <td>
-                <Input
-                  value={data.password}
-                  type="password"
-                  name="password"
-                  onkeyup={onchange.bind(null, 'password')}
-                  onblur={onchange.bind(null, 'password')}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td />
-              <td>
-                <AccountStatus account={state.account} />
-                <Button
-                  onclick={e => {
-                    e.preventDefault()
-                    actions.accounts.toggleOptions(state.account.id)
-                  }}
-                >
-                  Options
-                </Button>
-                <Button
-                  disabled={!!data.syncing}
-                  onclick={e => {
-                    e.preventDefault()
-                    !data.syncing && actions.accounts.sync(state.account.id)
-                  }}
-                >
-                  Sync now
-                </Button>
-                <AccountStatusDetail account={state.account} />
-                <Options show={state.showOptions}>
-                  <OptionSyncFolder account={state.account} />
+      <form>
+        <table>
+          <tr>
+            <td>
+              <Label for="url">Nextcloud server URL:</Label>
+            </td>
+            <td>
+              <Input
+                value={data.url}
+                type="text"
+                name="url"
+                onkeyup={onchange.bind(null, 'url')}
+                onblur={onchange.bind(null, 'url')}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <Label for="username">User name:</Label>
+            </td>
+            <td>
+              <Input
+                value={data.username}
+                type="text"
+                name="username"
+                onkeyup={onchange.bind(null, 'username')}
+                onblur={onchange.bind(null, 'username')}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <Label for="password">Password:</Label>
+            </td>
+            <td>
+              <Input
+                value={data.password}
+                type="password"
+                name="password"
+                onkeyup={onchange.bind(null, 'password')}
+                onblur={onchange.bind(null, 'password')}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td />
+            <td>
+              <OptionSyncFolder account={state.account} />
 
-                  <H3>Server folder</H3>
-                  <Input
-                    value={data.serverRoot || ''}
-                    type="text"
-                    name="serverRoot"
-                    placeholder="Default: root folder  Example: /my/subfolder"
-                    onkeyup={onchange.bind(null, 'serverRoot')}
-                    onblur={onchange.bind(null, 'serverRoot')}
-                  />
+              <H3>Server folder</H3>
+              <Input
+                value={data.serverRoot || ''}
+                type="text"
+                name="serverRoot"
+                placeholder="Default: root folder  Example: /my/subfolder"
+                onkeyup={onchange.bind(null, 'serverRoot')}
+                onblur={onchange.bind(null, 'serverRoot')}
+              />
 
-                  <OptionDelete account={state.account} />
-                </Options>
-              </td>
-            </tr>
-          </table>
-        </form>
-      </Account>
+              <OptionDelete account={state.account} />
+            </td>
+          </tr>
+        </table>
+      </form>
     )
   }
 

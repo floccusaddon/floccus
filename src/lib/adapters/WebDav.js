@@ -7,17 +7,7 @@ import * as Basics from '../components/basics'
 const { h } = require('hyperapp')
 const url = require('url')
 
-const {
-  Input,
-  Button,
-  Label,
-  Options,
-  Account,
-  AccountStatus,
-  AccountStatusDetail,
-  OptionSyncFolder,
-  OptionDelete
-} = Basics
+const { Input, Button, Label, Options, OptionSyncFolder, OptionDelete } = Basics
 
 export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {
@@ -181,37 +171,50 @@ export default class WebDavAdapter extends CachingAdapter {
     let output = ''
 
     myFolder.children.forEach(bm => {
-        if (bm instanceof Bookmark)
-        {
-          output += indent + '<bookmark href=';
-          output += '"' + this.htmlEncode(bm.url) + '"';
-          output += ' id="' + bm.id + `">
-`;
-          output += indent + '<title>' + this.htmlEncode(bm.title) + `</title>
-`;
-          output += indent + `</bookmark>
-`;
-        }
-    });
+      if (bm instanceof Bookmark) {
+        output += indent + '<bookmark href='
+        output += '"' + this.htmlEncode(bm.url) + '"'
+        output +=
+          ' id="' +
+          bm.id +
+          `">
+`
+        output +=
+          indent +
+          '<title>' +
+          this.htmlEncode(bm.title) +
+          `</title>
+`
+        output +=
+          indent +
+          `</bookmark>
+`
+      }
+    })
 
-  myFolder.children.forEach ( folder => {
-      if (folder instanceof Folder)
-      {
-        output += indent + '<folder';
-        if ("id" in folder) {
-          output += ' id="' + folder.id + '"';
+    myFolder.children.forEach(folder => {
+      if (folder instanceof Folder) {
+        output += indent + '<folder'
+        if ('id' in folder) {
+          output += ' id="' + folder.id + '"'
         }
         output += `>
-`;
-
-        output += indent + '    <title>' + this.htmlEncode(folder.title) + `</title>
-`;
-
-        output += this.outputFolderXBEL(folder, indent + '    ');
-
-        output += indent + `</folder>
 `
-      };
+
+        output +=
+          indent +
+          '    <title>' +
+          this.htmlEncode(folder.title) +
+          `</title>
+`
+
+        output += this.outputFolderXBEL(folder, indent + '    ')
+
+        output +=
+          indent +
+          `</folder>
+`
+      }
     })
 
     return output
@@ -221,36 +224,36 @@ export default class WebDavAdapter extends CachingAdapter {
     let output = `<?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE xbel PUBLIC "+//IDN python.org//DTD XML Bookmark Exchange Language 1.0//EN//XML" "http://www.python.org/topics/xml/dtds/xbel-1.0.dtd">
 <xbel version="1.0">
-`;
+`
 
     output +=
       '<!--- highestId :' +
       this.highestId +
       `: for Floccus bookmark sync browser extension -->
-`;
+`
 
-    output += this.outputFolderXBEL(myTopFolder, '');
+    output += this.outputFolderXBEL(myTopFolder, '')
 
     output += `
-</xbel>`;
+</xbel>`
 
-    return output;
+    return output
   }
 
   async onSyncFail() {
-    console.log ("onSyncFail");
+    console.log('onSyncFail')
     await this.freeLock()
   }
 
   async onSyncComplete() {
-    console.log ("onSyncComplete");
-let cacheClone = this.bookmarksCache.clone ();
-console.log (cacheClone);
+    console.log('onSyncComplete')
+    let cacheClone = this.bookmarksCache.clone()
+    console.log(cacheClone)
 
     let fullUrl = this.server.bookmark_file
     fullUrl = this.server.url + fullUrl
     console.log('fullURL :' + fullUrl + ':')
-    let xbel = this.createXBEL (this.bookmarksCache);
+    let xbel = this.createXBEL(this.bookmarksCache)
     await this.uploadFile(fullUrl, 'application/xml', xbel)
     await this.freeLock()
   }
@@ -276,16 +279,16 @@ console.log (cacheClone);
       1 /* element type */
     )
 
-    bookmarkList.forEach((bookmark) => {
+    bookmarkList.forEach(bookmark => {
       let bm = new Bookmark({
-        id: parseInt (bookmark.id),
+        id: parseInt(bookmark.id),
         parentId: folder.id,
         url: bookmark.getAttribute('href'),
-        title: bookmark.firstElementChild.innerHTML,
-      });
+        title: bookmark.firstElementChild.innerHTML
+      })
 
-      folder.children.push (bm);
-    });
+      folder.children.push(bm)
+    })
 
     let folderList = this._getElementsByNodeName(
       xbelObj.childNodes,
@@ -294,16 +297,20 @@ console.log (cacheClone);
     )
 
     folderList.forEach(bmFolder => {
-      let sTitle = bmFolder.firstElementChild.innerHTML;
-      console.log('Adding folder :' + sTitle + ':');
-      let newFolder = new Folder ({ id: parseInt (bmFolder.getAttribute('id')), title: sTitle, parentId: folder.id });
-      folder.children.push (newFolder);
-      this._parseFolder(bmFolder, newFolder);
-    });
+      let sTitle = bmFolder.firstElementChild.innerHTML
+      console.log('Adding folder :' + sTitle + ':')
+      let newFolder = new Folder({
+        id: parseInt(bmFolder.getAttribute('id')),
+        title: sTitle,
+        parentId: folder.id
+      })
+      folder.children.push(newFolder)
+      this._parseFolder(bmFolder, newFolder)
+    })
   }
 
   _parseXbelDoc(xbelDoc) {
-    let bookmarksCache = new Folder ({id: 0, title: 'root'});
+    let bookmarksCache = new Folder({ id: 0, title: 'root' })
     let nodeList = this._getElementsByNodeName(
       xbelDoc.childNodes,
       'xbel',
@@ -311,10 +318,10 @@ console.log (cacheClone);
     )
     this._parseFolder(nodeList[0], bookmarksCache)
 
-    this.bookmarksCache = bookmarksCache.clone ();
+    this.bookmarksCache = bookmarksCache.clone()
 
-console.log ("parseXbel");
-console.log (bookmarksCache);
+    console.log('parseXbel')
+    console.log(bookmarksCache)
   }
 
   async pullFromServer() {
@@ -364,7 +371,7 @@ console.log (bookmarksCache);
   }
 
   async onSyncStart() {
-console.log ("onSyncStart: begin");
+    console.log('onSyncStart: begin')
     await this.obtainLock()
 
     try {
@@ -379,7 +386,7 @@ console.log ("onSyncStart: begin");
       console.log('caught error')
       console.log(e)
 
-      this.bookmarksCache = new Folder ({ id: 0, title: 'root' });
+      this.bookmarksCache = new Folder({ id: 0, title: 'root' })
     }
 
     console.log('onSyncStart: completed')
@@ -388,103 +395,79 @@ console.log ("onSyncStart: begin");
   static renderOptions(state, actions) {
     let data = state.account
     let onchange = (prop, e) => {
-      actions.accounts.update({
-        accountId: state.account.id,
+      actions.options.update({
         data: { [prop]: e.target.value }
       })
     }
     return (
-      <Account account={state.account}>
-        <form>
-          <table>
-            <tr>
-              <td>
-                <Label for="url">WebDAV URL:</Label>
-              </td>
-              <td>
-                <Input
-                  value={data.url}
-                  type="text"
-                  name="url"
-                  onkeyup={onchange.bind(null, 'url')}
-                  onblur={onchange.bind(null, 'url')}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <Label for="username">User name:</Label>
-              </td>
-              <td>
-                <Input
-                  value={data.username}
-                  type="text"
-                  name="username"
-                  onkeyup={onchange.bind(null, 'username')}
-                  onblur={onchange.bind(null, 'username')}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <Label for="password">Password:</Label>
-              </td>
-              <td>
-                <Input
-                  value={data.password}
-                  type="password"
-                  name="password"
-                  onkeyup={onchange.bind(null, 'password')}
-                  onblur={onchange.bind(null, 'password')}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <Label for="bookmar_file">Bookmarks file path:</Label>
-              </td>
-              <td>
-                <Input
-                  value={data.bookmark_file || ''}
-                  type="text"
-                  name="bookmark_file"
-                  placeholder="Path on the server to the bookmarks file"
-                  onkeyup={onchange.bind(null, 'bookmark_file')}
-                  onblur={onchange.bind(null, 'serverRoot')}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td />
-              <td>
-                <AccountStatus account={state.account} />
-                <Button
-                  onclick={e => {
-                    e.preventDefault()
-                    actions.accounts.toggleOptions(state.account.id)
-                  }}
-                >
-                  Options
-                </Button>
-                <Button
-                  disabled={!!data.syncing}
-                  onclick={e => {
-                    e.preventDefault()
-                    !data.syncing && actions.accounts.sync(state.account.id)
-                  }}
-                >
-                  Sync now
-                </Button>
-                <AccountStatusDetail account={state.account} />
-                <Options show={state.showOptions}>
-                  <OptionSyncFolder account={state.account} />
-                  <OptionDelete account={state.account} />
-                </Options>
-              </td>
-            </tr>
-          </table>
-        </form>
-      </Account>
+      <form>
+        <table>
+          <tr>
+            <td>
+              <Label for="url">WebDAV URL:</Label>
+            </td>
+            <td>
+              <Input
+                value={data.url}
+                type="text"
+                name="url"
+                onkeyup={onchange.bind(null, 'url')}
+                onblur={onchange.bind(null, 'url')}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <Label for="username">User name:</Label>
+            </td>
+            <td>
+              <Input
+                value={data.username}
+                type="text"
+                name="username"
+                onkeyup={onchange.bind(null, 'username')}
+                onblur={onchange.bind(null, 'username')}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <Label for="password">Password:</Label>
+            </td>
+            <td>
+              <Input
+                value={data.password}
+                type="password"
+                name="password"
+                onkeyup={onchange.bind(null, 'password')}
+                onblur={onchange.bind(null, 'password')}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <Label for="bookmar_file">Bookmarks file path:</Label>
+            </td>
+            <td>
+              <Input
+                value={data.bookmark_file || ''}
+                type="text"
+                name="bookmark_file"
+                placeholder="Path on the server to the bookmarks file"
+                onkeyup={onchange.bind(null, 'bookmark_file')}
+                onblur={onchange.bind(null, 'serverRoot')}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td />
+            <td>
+              <OptionSyncFolder account={state.account} />
+              <OptionDelete account={state.account} />
+            </td>
+          </tr>
+        </table>
+      </form>
     )
   }
 }

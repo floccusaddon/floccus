@@ -115,32 +115,56 @@ export const Label = style('label')({
   color: COLORS.primary.dark
 })
 
-export const Account = ({ account }, children) => (state, actions) => {
-  return <AccountStyle key={account.id}>{children}</AccountStyle>
+export const Account = ({ account }) => (state, actions) => {
+  const data = account.getData()
+  return (
+    <AccountStyle key={account.id}>
+      <H3>
+        <div class="controls">{data.type}</div>
+        {account.getLabel()}
+      </H3>
+      <Input type="text" readonly={true} value={data.rootPath} />
+      <AccountStatus account={account} />
+      <div class="controls">
+        <Button
+          onclick={e => {
+            e.preventDefault()
+            actions.openOptions(account.id)
+          }}
+        >
+          Options
+        </Button>
+        <Button
+          disabled={!!data.syncing}
+          onclick={e => {
+            e.preventDefault()
+            !data.syncing && actions.accounts.sync(account.id)
+          }}
+        >
+          Sync now
+        </Button>
+      </div>
+      <AccountStatusDetail account={account} />
+    </AccountStyle>
+  )
 }
 
 const AccountStyle = style('div')({
   borderBottom: `1px ${COLORS.primary.dark} solid`,
-  padding: '20px 0',
+  padding: '20px',
+  paddingTop: '0',
   marginBottom: '20px',
   color: COLORS.text,
-  table: {
-    border: 'none',
-    width: '100%',
-    minWidth: '350px'
+  ' input': {
+    width: 'calc(100% - 20px)'
   },
-  td: {
-    width: 'auto'
-  },
-  'td:first-child': {
-    width: '150px',
-    textAlign: 'right',
-    color: COLORS.primary.dark
+  ' .controls': {
+    float: 'right'
   }
 })
 
 export const AccountStatusDetail = ({ account }) => (state, actions) => {
-  const data = account
+  const data = account.getData()
   return (
     <AccountStatusDetailStyle>
       {data.error
@@ -165,7 +189,7 @@ const AccountStatusDetailStyle = style('div')({
 })
 
 export const AccountStatus = ({ account }) => (state, actions) => {
-  const data = account
+  const data = account.getData()
   return (
     <AccountStatusStyle>
       {data.syncing ? (
@@ -203,9 +227,8 @@ export const OptionSyncFolder = ({ account }) => (state, actions) => {
         onclick={e => {
           e.preventDefault()
           !account.syncing &&
-            actions.accounts.update({
-              accountId: account.id,
-              data: { ...account, localRoot: null }
+            actions.options.update({
+              data: { ...account, localRoot: null, rootPath: '*newly created*' }
             })
         }}
       >
@@ -216,7 +239,7 @@ export const OptionSyncFolder = ({ account }) => (state, actions) => {
         disabled={account.syncing}
         onclick={e => {
           e.preventDefault()
-          actions.openPicker(account.id)
+          actions.openPicker()
         }}
       >
         Choose folder
@@ -232,7 +255,7 @@ export const OptionDelete = ({ account }) => (state, actions) => {
       <Button
         onclick={e => {
           e.preventDefault()
-          actions.accounts.delete(account.id)
+          actions.deleteAndCloseOptions()
         }}
       >
         Delete this account
@@ -240,14 +263,5 @@ export const OptionDelete = ({ account }) => (state, actions) => {
     </div>
   )
 }
-
-export const Options = ({ show }, children) => (state, actions) => {
-  return show ? <OptionsStyle>{children}</OptionsStyle> : ''
-}
-
-const OptionsStyle = style('div')({
-  borderLeft: `1px ${COLORS.primary.dark} solid`,
-  paddingLeft: '6px'
-})
 
 export const A = style('a')({})
