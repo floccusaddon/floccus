@@ -83,6 +83,7 @@ window.app.init()
   const unregister = background.controller.onStatusChange(() =>
     window.app.accounts.load()
   )
-  window.addEventListener('blur', unregister)
+  window.addEventListener('beforeunload', unregister)
+  window.addEventListener('unload', unregister)
   window.addEventListener('close', unregister)
 })()
