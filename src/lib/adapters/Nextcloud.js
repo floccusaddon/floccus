@@ -141,26 +141,6 @@ export default class NextcloudAdapter extends Adapter {
       'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
     )
 
-    // for every bm without a path tag, add one
-    let bmsWithoutPath = json.data.filter(bm =>
-      bm.tags.every(tag => tag.indexOf(TAG_PREFIX) !== 0)
-    )
-
-    await Parallel.each(
-      bmsWithoutPath,
-      async bm => {
-        try {
-          await this.updateBookmark({
-            ...bm,
-            parentId: this.getPathsFromServerMark(bm)[0]
-          })
-        } catch (e) {
-          console.log(e)
-        }
-      },
-      /* parallel: */ 10
-    )
-
     let bookmarks = json.data.reduce((array, bm) => {
       let bookmark = new Bookmark({
         id: bm.id,
@@ -305,9 +285,11 @@ export default class NextcloudAdapter extends Adapter {
 
     let bm = json.item
 
-    let bookmarks = this.getPathsFromServerMark(bm).map(path => {
+    let paths = this.getPathsFromServerMark(bm)
+
+    let bookmarks = paths.map(path => {
       let bookmark = new Bookmark({
-        id: bm.id,
+        id: bm.id + ';' + path,
         url: bm.url,
         title: bm.title,
         parentId: path
@@ -386,7 +368,7 @@ export default class NextcloudAdapter extends Adapter {
     )
 
     // update bookmark id in-place, so it'll be updated in the mappings
-    newBm.id = newBm.id.split(';')[0] + newBm.parentId
+    newBm.id = newBm.id.split(';')[0] + ';' + newBm.parentId
   }
 
   async removeBookmark(id) {
@@ -459,9 +441,7 @@ export default class NextcloudAdapter extends Adapter {
 
   getPathsFromServerMark(bm) {
     let pathTags = NextcloudAdapter.getPathTagsFromTags(bm.tags)
-    return pathTags.length
-      ? pathTags.map(pathTag => NextcloudAdapter.convertTagToPath(pathTag))
-      : [this.server.serverRoot]
+    return pathTags.map(pathTag => NextcloudAdapter.convertTagToPath(pathTag))
   }
 
   static filterPathTagsFromTags(tags) {
