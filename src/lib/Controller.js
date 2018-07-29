@@ -240,6 +240,21 @@ export default class Controller {
         break
     }
   }
+
+  async onLoad() {
+    const accounts = await Account.getAllAccounts()
+    await Promise.all(
+      accounts.map(async acc => {
+        if (acc.getData().syncing) {
+          await acc.setData({
+            ...acc.getData(),
+            syncing: false,
+            error: 'Sync process was interrupted'
+          })
+        }
+      })
+    )
+  }
 }
 
 window.controller = new Controller()
