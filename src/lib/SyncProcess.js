@@ -414,7 +414,7 @@ export default class SyncProcess {
 
       if (toTree === this.localTreeRoot) {
         const cacheMark = this.cacheTreeRoot.findBookmark(oldMark.id)
-        await this.syncTree(oldMark, cacheMark, folder)
+        await this.syncTree(oldMark, cacheMark, bookmark)
       } else {
         const cacheMark = this.cacheTreeRoot.findBookmark(bookmark.id)
         await this.syncTree(bookmark, cacheMark, oldMark)
