@@ -213,9 +213,9 @@ export default class Controller {
     const accounts = await Account.getAllAccounts()
     const overallStatus = accounts.reduce((status, account) => {
       const accData = account.getData()
-      if (accData.error && !accData.syncing) {
+      if (status === STATUS_ERROR || (accData.error && !accData.syncing)) {
         return STATUS_ERROR
-      } else if (accData.syncing && status !== STATUS_ERROR) {
+      } else if (status == STATUS_SYNCING || accData.syncing) {
         return STATUS_SYNCING
       } else {
         return STATUS_ALLGOOD
