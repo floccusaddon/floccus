@@ -8,6 +8,7 @@ const Parallel = require('async-parallel')
 const { h } = require('hyperapp')
 const url = require('url')
 const PQueue = require('p-queue')
+const _ = require('lodash')
 
 const TAG_PREFIX = 'floccus:'
 
@@ -152,6 +153,15 @@ export default class NextcloudAdapter extends Adapter {
 
       // there may be multiple path tags per server bookmark, create a bookmark for each of them
       this.getPathsFromServerMark(bm).forEach(path => {
+        // adjust path relative to serverRoot
+        if (this.server.serverRoot) {
+          if (path.indexOf(this.server.serverRoot) === 0) {
+            path = path.substr(0, this.server.serverRoot.length)
+          } else {
+            // skip this bookmark
+            return
+          }
+        }
         let b = bookmark.clone()
         b.parentId = path
         b.id += ';' + path // id = <serverId>;<path>
@@ -161,6 +171,7 @@ export default class NextcloudAdapter extends Adapter {
     }, [])
 
     console.log('Received bookmarks from server', bookmarks)
+    this.list = bookmarks
     return bookmarks
   }
 
@@ -170,18 +181,6 @@ export default class NextcloudAdapter extends Adapter {
     let tree = new Folder({ id: '' })
 
     list.forEach(bookmark => {
-      // adjust path relative to serverRoot
-      if (this.server.serverRoot) {
-        if (bookmark.parentId.indexOf(this.server.serverRoot) === 0) {
-          bookmark.parentId = bookmark.parentId.substr(
-            0,
-            this.server.serverRoot.length
-          )
-        } else {
-          // skip this bookmark
-          return
-        }
-      }
       let pathArray = PathHelper.pathToArray(bookmark.parentId)
 
       var currentSubtree = tree
@@ -288,23 +287,20 @@ export default class NextcloudAdapter extends Adapter {
     let paths = this.getPathsFromServerMark(bm)
 
     let bookmarks = paths.map(path => {
+      // adjust path relative to serverRoot
+      if (this.server.serverRoot) {
+        if (path.indexOf(this.server.serverRoot) === 0) {
+          path = path.substr(0, this.server.serverRoot.length)
+        } else {
+          // Kind of a PEBCAK
+        }
+      }
       let bookmark = new Bookmark({
         id: bm.id + ';' + path,
         url: bm.url,
         title: bm.title,
         parentId: path
       })
-      // adjust path relative to serverRoot
-      if (this.server.serverRoot) {
-        if (bookmark.parentId.indexOf(this.server.serverRoot) === 0) {
-          bookmark.parentId = bookmark.parentId.substr(
-            0,
-            this.server.serverRoot.length
-          )
-        } else {
-          // Kind of a PEBCAK
-        }
-      }
       bookmark.tags = NextcloudAdapter.filterPathTagsFromTags(bm.tags)
       return bookmark
     })
@@ -312,25 +308,33 @@ export default class NextcloudAdapter extends Adapter {
     return bookmarks
   }
 
+  async getExistingBookmark(url) {
+    let existing = _.find(this.list, bookmark => bookmark.url === url)
+    if (!existing) return
+    return existing.id
+  }
+
   async createBookmark(bm) {
     console.log('(nextcloud)CREATE', bm)
     if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
       return false
     }
-    if (this.server.serverRoot) {
-      bm.parentId = this.server.serverRoot + bm.parentId
+    let existingBookmark = await this.getExistingBookmark(bm.url)
+    if (existingBookmark) {
+      bm.id = existingBookmark + ';' + bm.parentId
+    } else {
+      let body = new FormData()
+      body.append('url', bm.url)
+      body.append('title', bm.title)
+
+      const json = await this.sendRequest(
+        'POST',
+        'index.php/apps/bookmarks/public/rest/v2/bookmark',
+        body
+      )
+      bm.id = json.item.id + ';' + bm.parentId
     }
-    let body = new FormData()
-    body.append('url', bm.url)
-    body.append('title', bm.title)
 
-    const json = await this.sendRequest(
-      'POST',
-      'index.php/apps/bookmarks/public/rest/v2/bookmark',
-      body
-    )
-
-    bm.id = json.item.id + ';' + bm.parentId
     await this.updateBookmark(bm)
 
     return bm.id
@@ -345,9 +349,11 @@ export default class NextcloudAdapter extends Adapter {
     let bms = await this.getBookmark(newBm.id.split(';')[0])
 
     // adjust path relative to serverRoot
-    if (this.server.serverRoot) {
-      newBm.parentId = this.server.serverRoot + newBm.parentId
-    }
+
+    const realParentId = this.server.serverRoot
+      ? his.server.serverRoot + newBm.parentId
+      : newBm.parentId
+
     let body = new URLSearchParams()
     body.append('url', newBm.url)
     body.append('title', newBm.title)
@@ -357,7 +363,7 @@ export default class NextcloudAdapter extends Adapter {
       .map(bm => bm.parentId)
       .filter(path => path !== oldPath)
       .map(path => NextcloudAdapter.convertPathToTag(path))
-      .concat([NextcloudAdapter.convertPathToTag(newBm.parentId)])
+      .concat([NextcloudAdapter.convertPathToTag(realParentId)])
       .forEach(tag => body.append('item[tags][]', tag))
 
     await this.sendRequest(
@@ -384,6 +390,9 @@ export default class NextcloudAdapter extends Adapter {
       body.append('title', bms[0].title)
 
       let oldPath = id.split(';')[1]
+      if (this.server.serverRoot) {
+        oldPath = this.server.serverRoot + oldPath
+      }
       bms
         .map(bm => bm.parentId)
         .filter(path => path !== oldPath)
