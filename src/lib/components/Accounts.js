@@ -1,4 +1,5 @@
 import browser from '../browser-api'
+import Logger from '../Logger'
 import { h } from 'hyperapp'
 import Account from '../Account'
 import * as Basics from './basics'
@@ -44,6 +45,9 @@ export const actions = {
     )
     await actions.accounts.load()
     await actions.openOptions(account.id)
+  },
+  downloadLogs: async () => {
+    await Logger.downloadLogs()
   }
 }
 
@@ -89,9 +93,17 @@ export const Component = () => (state, actions) => {
           Secure your credentials with a passphrase (entered on browser start)
         </Label>
       </div>
-      <a className="test-link" href="./test.html">
-        run tests
-      </a>
+      <div class="debugging-tools">
+        <a
+          href="#"
+          onclick={e => {
+            actions.downloadLogs()
+          }}
+        >
+          Debug logs
+        </a>{' '}
+        <a href="./test.html">run tests</a>
+      </div>
     </div>
   )
 }
