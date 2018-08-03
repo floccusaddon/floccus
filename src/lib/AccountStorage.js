@@ -11,18 +11,20 @@ export default class AccountStorage {
     this.accountId = id
   }
 
-  static async changeEntry(entryName, fn) {
+  static async changeEntry(entryName, fn, defaultVal) {
     await storageLock.acquire(entryName, async () => {
-      const d = await browser.storage.local.get({ [entryName]: {} }) // default: {}
+      const d = await browser.storage.local.get({
+        [entryName]: defaultVal || {} // default: {}
+      })
       var entry = d[entryName]
       entry = fn(entry)
       await browser.storage.local.set({ [entryName]: entry })
     })
   }
 
-  static getEntry(entryName) {
+  static getEntry(entryName, defaultVal) {
     return browser.storage.local
-      .get({ [entryName]: {} }) // default: {}
+      .get({ [entryName]: defaultVal || {} }) // default: {}
       .then(d => {
         return d[entryName]
       })

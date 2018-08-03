@@ -1,6 +1,7 @@
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
 import Adapter from '../Adapter'
+import Logger from '../Logger'
 import { Folder, Bookmark } from '../Tree'
 import PathHelper from '../PathHelper'
 import * as Basics from '../components/basics'
@@ -136,7 +137,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async getBookmarksList() {
-    console.log('Fetching bookmarks', this.server)
+    Logger.log('Fetching bookmarks', this.server)
     const json = await this.sendRequest(
       'GET',
       'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
@@ -170,7 +171,7 @@ export default class NextcloudAdapter extends Adapter {
       return array
     }, [])
 
-    console.log('Received bookmarks from server', bookmarks)
+    Logger.log('Received bookmarks from server', bookmarks)
     this.list = bookmarks
     return bookmarks
   }
@@ -210,7 +211,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async createFolder(parentId, title) {
-    console.log('(nextcloud)CREATEFOLDER', { parentId, title }, '(noop)')
+    Logger.log('(nextcloud)CREATEFOLDER', { parentId, title }, '(noop)')
     let newId = PathHelper.arrayToPath(
       PathHelper.pathToArray(parentId).concat([title])
     )
@@ -218,7 +219,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async updateFolder(id, title) {
-    console.log('(nextcloud)UPDATEFOLDER', { id, title })
+    Logger.log('(nextcloud)UPDATEFOLDER', { id, title })
     let folder = this.tree.findFolder(id)
     if (!folder) {
       throw new Error('Folder not found')
@@ -239,7 +240,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async moveFolder(id, parentId) {
-    console.log('(nextcloud)MOVEFOLDER', { id, title })
+    Logger.log('(nextcloud)MOVEFOLDER', { id, title })
     let folder = this.tree.findFolder(id)
     if (!folder) {
       throw new Error('Folder not found')
@@ -260,7 +261,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async removeFolder(id) {
-    console.log('(nextcloud)REMOVEFOLDER', id)
+    Logger.log('(nextcloud)REMOVEFOLDER', id)
     let folder = this.tree.findFolder(id)
     if (!folder) {
       return
@@ -275,7 +276,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async getBookmark(id) {
-    console.log('Fetching single bookmark', this.server)
+    Logger.log('Fetching single bookmark', this.server)
 
     const json = await this.sendRequest(
       'GET',
@@ -315,7 +316,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async createBookmark(bm) {
-    console.log('(nextcloud)CREATE', bm)
+    Logger.log('(nextcloud)CREATE', bm)
     if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
       return false
     }
@@ -341,7 +342,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async updateBookmark(newBm) {
-    console.log('(nextcloud)UPDATE', newBm)
+    Logger.log('(nextcloud)UPDATE', newBm)
     if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(newBm.url).protocol)) {
       return false
     }
@@ -378,7 +379,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async removeBookmark(id) {
-    console.log('(nextcloud)REMOVE', { id })
+    Logger.log('(nextcloud)REMOVE', { id })
 
     let bms = await this.getBookmark(id.split(';')[0])
 
@@ -432,7 +433,7 @@ export default class NextcloudAdapter extends Adapter {
       )
     }
 
-    console.log(res)
+    Logger.log(res)
 
     if (res.status === 401) {
       throw new Error("Couldn't authenticate with the server")

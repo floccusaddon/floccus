@@ -1,4 +1,5 @@
 import browser from './browser-api'
+import Logger from './Logger'
 import * as Tree from './Tree'
 import Account from './Account'
 import Resource from './Resource'
@@ -46,7 +47,7 @@ export default class LocalTree extends Resource {
   }
 
   async createBookmark(bookmark) {
-    console.log('(local)CREATE', bookmark)
+    Logger.log('(local)CREATE', bookmark)
     const node = await this.queue.add(() =>
       browser.bookmarks.create({
         parentId: bookmark.parentId,
@@ -58,7 +59,7 @@ export default class LocalTree extends Resource {
   }
 
   async updateBookmark(bookmark) {
-    console.log('(local)UPDATE', bookmark)
+    Logger.log('(local)UPDATE', bookmark)
     await this.queue.add(() =>
       browser.bookmarks.update(bookmark.id, {
         title: bookmark.title,
@@ -73,12 +74,12 @@ export default class LocalTree extends Resource {
   }
 
   async removeBookmark(bookmarkId) {
-    console.log('(local)REMOVE', bookmarkId)
+    Logger.log('(local)REMOVE', bookmarkId)
     await this.queue.add(() => browser.bookmarks.remove(bookmarkId))
   }
 
   async createFolder(parentId, title) {
-    console.log('(local)CREATEFOLDER', title)
+    Logger.log('(local)CREATEFOLDER', title)
     const node = await this.queue.add(() =>
       browser.bookmarks.create({
         parentId,
@@ -89,7 +90,7 @@ export default class LocalTree extends Resource {
   }
 
   async updateFolder(id, title) {
-    console.log('(local)UPDATEFOLDER', title)
+    Logger.log('(local)UPDATEFOLDER', title)
     await this.queue.add(() =>
       browser.bookmarks.update(id, {
         title
@@ -98,12 +99,12 @@ export default class LocalTree extends Resource {
   }
 
   async moveFolder(id, parentId) {
-    console.log('(local)MOVEFOLDER', { id, parentId })
+    Logger.log('(local)MOVEFOLDER', { id, parentId })
     await this.queue.add(() => browser.bookmarks.move(id, { parentId }))
   }
 
   async removeFolder(id) {
-    console.log('(local)REMOVEFOLDER', id)
+    Logger.log('(local)REMOVEFOLDER', id)
     await this.queue.add(() => browser.bookmarks.removeTree(id))
   }
 

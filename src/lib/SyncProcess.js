@@ -1,4 +1,5 @@
 import * as Tree from './Tree'
+import Logger from './Logger'
 
 const _ = require('lodash')
 const Parallel = require('async-parallel')
@@ -34,7 +35,7 @@ export default class SyncProcess {
   }
 
   async syncTree(localItem, cacheItem, serverItem) {
-    console.log('COMPARE', { localItem, cacheItem, serverItem })
+    Logger.log('COMPARE', { localItem, cacheItem, serverItem })
 
     var create, update, remove, mappings
     if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
@@ -107,13 +108,13 @@ export default class SyncProcess {
   ) {
     // check if it was moved here from somewhere else
     if (folder.moved) {
-      console.log('This folder was moved and has been dealt with')
+      Logger.log('This folder was moved and has been dealt with')
       return
     }
     var oldFolder
     if ((oldFolder = toTree.findFolder(mappingFolders[folder.id]))) {
       if (oldFolder.moved) {
-        console.log(
+        Logger.log(
           'This folder was moved here and concurrently moved somewhere else, ' +
             'but it has been dealt with'
         )
@@ -121,7 +122,7 @@ export default class SyncProcess {
       }
 
       folder.moved = true
-      console.log('This folder was moved here')
+      Logger.log('This folder was moved here')
 
       if (toTree === this.localTreeRoot) {
         const cacheFolder = this.cacheTreeRoot.findFolder(oldFolder.id)
@@ -202,11 +203,11 @@ export default class SyncProcess {
     })
 
     if (!changed) {
-      console.log('Skipping subtree of ', { localItem, serverItem })
+      Logger.log('Skipping subtree of ', { localItem, serverItem })
       return
     }
 
-    console.log('Checking subtree of ', { localItem, serverItem })
+    Logger.log('Checking subtree of ', { localItem, serverItem })
 
     // LOCAL CHANGES
 
@@ -352,12 +353,12 @@ export default class SyncProcess {
     var newFolder
     if ((newFolder = fromTree.findFolder(reverseMapping[folder.id]))) {
       if (newFolder.moved || folder.moved) {
-        console.log('This folder was moved and has been dealt with')
+        Logger.log('This folder was moved and has been dealt with')
         return
       }
 
       newFolder.moved = true
-      console.log('This folder was moved from here')
+      Logger.log('This folder was moved from here')
 
       if (toTree === this.localTreeRoot) {
         const cacheFolder = this.cacheTreeRoot.findFolder(folder.id)
@@ -370,7 +371,7 @@ export default class SyncProcess {
     }
 
     if (folder.moved) {
-      console.log(
+      Logger.log(
         'This folder was removed here and concurrently moved somewhere else ' +
           '-- deletion takes precedence'
       )
@@ -395,14 +396,14 @@ export default class SyncProcess {
   ) {
     // check if this has been moved from elsewhere
     if (bookmark.moved) {
-      console.log('This bookmark was moved here and has been dealt with')
+      Logger.log('This bookmark was moved here and has been dealt with')
       return
     }
     var oldMark
     if ((oldMark = toTree.findBookmark(mappingBookmarks[bookmark.id]))) {
       if (oldMark.moved) {
         // local changes are deal with first in updateFolder, thus this is deterministic
-        console.log(
+        Logger.log(
           'This bookmark was moved here and concurrently moved somewhere else, ' +
             'but it has been dealt with'
         )
@@ -410,7 +411,7 @@ export default class SyncProcess {
       }
       // mark as moved to avoid syncing twice
       bookmark.moved = true
-      console.log('This bookmark was moved here')
+      Logger.log('This bookmark was moved here')
 
       if (toTree === this.localTreeRoot) {
         const cacheMark = this.cacheTreeRoot.findBookmark(oldMark.id)
@@ -455,7 +456,7 @@ export default class SyncProcess {
     })
 
     if (!changed) {
-      console.log('Bookmark unchanged')
+      Logger.log('Bookmark unchanged')
       return
     }
 
@@ -491,12 +492,12 @@ export default class SyncProcess {
     var newMark
     if ((newMark = fromTree.findBookmark(reverseMapping[bookmark.id]))) {
       if (newMark.moved || bookmark.moved) {
-        console.log('This bookmark was moved from here and has been dealt with')
+        Logger.log('This bookmark was moved from here and has been dealt with')
         return
       }
       // mark as moved to avoid syncing twice
       newMark.moved = true
-      console.log('This bookmark was moved')
+      Logger.log('This bookmark was moved')
 
       if (toTree === this.localTreeRoot) {
         const cacheMark = this.cacheTreeRoot.findBookmark(bookmark.id)
@@ -510,7 +511,7 @@ export default class SyncProcess {
 
     if (bookmark.moved) {
       // local changes are deal with first in updateFolder, thus this is deterministic
-      console.log(
+      Logger.log(
         'This bookmark was removed here and concurrently moved somewhere else -- deletion takes precedence'
       )
       // go on to delete it!
