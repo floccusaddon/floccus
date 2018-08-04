@@ -98,6 +98,7 @@ export const Component = () => (state, actions) => {
           href="#"
           onclick={e => {
             actions.downloadLogs()
+            e.preventDefault()
           }}
         >
           Debug logs
