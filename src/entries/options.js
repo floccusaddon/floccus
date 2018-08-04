@@ -42,7 +42,7 @@ const actions = {
 
 function render(state, actions) {
   return (
-    <div id="app">
+    <div>
       {[
         <Accounts />,
         state.view.current === 'picker' ? (
