@@ -157,7 +157,7 @@ export default class NextcloudAdapter extends Adapter {
         // adjust path relative to serverRoot
         if (this.server.serverRoot) {
           if (path.indexOf(this.server.serverRoot) === 0) {
-            path = path.substr(0, this.server.serverRoot.length)
+            path = path.substr(this.server.serverRoot.length)
           } else {
             // skip this bookmark
             return
