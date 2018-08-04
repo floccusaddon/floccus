@@ -275,7 +275,7 @@ export default class NextcloudAdapter extends Adapter {
     })
   }
 
-  async getBookmark(id) {
+  async _getBookmark(id) {
     Logger.log('Fetching single bookmark', this.server)
 
     const json = await this.sendRequest(
@@ -288,14 +288,6 @@ export default class NextcloudAdapter extends Adapter {
     let paths = this.getPathsFromServerMark(bm)
 
     let bookmarks = paths.map(path => {
-      // adjust path relative to serverRoot
-      if (this.server.serverRoot) {
-        if (path.indexOf(this.server.serverRoot) === 0) {
-          path = path.substr(0, this.server.serverRoot.length)
-        } else {
-          // Kind of a PEBCAK
-        }
-      }
       let bookmark = new Bookmark({
         id: bm.id + ';' + path,
         url: bm.url,
@@ -309,10 +301,15 @@ export default class NextcloudAdapter extends Adapter {
     return bookmarks
   }
 
+  /*
+   * This is pretty expensive! We need to wait until NcBookmarks has support for
+   * querying urls directly
+   */
   async getExistingBookmark(url) {
+    await this.getBookmarksList()
     let existing = _.find(this.list, bookmark => bookmark.url === url)
     if (!existing) return
-    return existing.id
+    return existing.id.split(';')[0]
   }
 
   async createBookmark(bm) {
@@ -347,25 +344,30 @@ export default class NextcloudAdapter extends Adapter {
       return false
     }
 
-    let bms = await this.getBookmark(newBm.id.split(';')[0])
-
-    // adjust path relative to serverRoot
-
-    const realParentId = this.server.serverRoot
-      ? his.server.serverRoot + newBm.parentId
-      : newBm.parentId
+    // returns the full paths from the server
+    let bms = await this._getBookmark(newBm.id.split(';')[0])
 
     let body = new URLSearchParams()
     body.append('url', newBm.url)
     body.append('title', newBm.title)
 
+    const realParentId = this.server.serverRoot
+      ? this.server.serverRoot + newBm.parentId
+      : newBm.parentId
+
     let oldPath = newBm.id.split(';')[1]
-    bms
+    if (this.server.serverRoot) {
+      oldPath = this.server.serverRoot + oldPath
+    }
+    console.log(bms, '-', oldPath)
+    let newTags = bms
       .map(bm => bm.parentId)
       .filter(path => path !== oldPath)
       .map(path => NextcloudAdapter.convertPathToTag(path))
       .concat([NextcloudAdapter.convertPathToTag(realParentId)])
-      .forEach(tag => body.append('item[tags][]', tag))
+      .concat(bms.length ? bms[0].tags : [])
+    console.log('newTags', newTags)
+    newTags.forEach(tag => body.append('item[tags][]', tag))
 
     await this.sendRequest(
       'PUT',
@@ -381,7 +383,7 @@ export default class NextcloudAdapter extends Adapter {
   async removeBookmark(id) {
     Logger.log('(nextcloud)REMOVE', { id })
 
-    let bms = await this.getBookmark(id.split(';')[0])
+    let bms = await this._getBookmark(id.split(';')[0])
 
     if (bms.length !== 1) {
       // multiple bookmarks of the same url
@@ -397,6 +399,7 @@ export default class NextcloudAdapter extends Adapter {
       bms
         .map(bm => bm.parentId)
         .filter(path => path !== oldPath)
+        .map(path => NextcloudAdapter.convertPathToTag(path))
         .forEach(tag => body.append('item[tags][]', tag))
 
       await this.sendRequest(
