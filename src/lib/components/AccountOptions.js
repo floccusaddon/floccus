@@ -36,12 +36,13 @@ export const actions = {
       if (JSON.stringify(newData) === JSON.stringify(originalData)) return
       if (
         originalData.serverRoot !== newData.serverRoot ||
-        originalData.localRoot !== newData.localRoot
+        originalData.localRoot !== newData.localRoot ||
+        newData.reset
       ) {
         await account.storage.initCache()
         await account.storage.initMappings()
       }
-      await account.setData(newData)
+      await account.setData({ ...newData, reset: null })
     },
     delete: () => async (state, actions) => {
       const account = state.account

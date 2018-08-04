@@ -13,7 +13,15 @@ const _ = require('lodash')
 
 const TAG_PREFIX = 'floccus:'
 
-const { Input, Button, Label, OptionSyncFolder, OptionDelete, H3 } = Basics
+const {
+  Input,
+  Button,
+  Label,
+  OptionSyncFolder,
+  OptionDelete,
+  OptionResetCache,
+  H3
+} = Basics
 
 export default class NextcloudAdapter extends Adapter {
   constructor(server) {
@@ -104,6 +112,8 @@ export default class NextcloudAdapter extends Adapter {
                 onkeyup={onchange.bind(null, 'serverRoot')}
                 onblur={onchange.bind(null, 'serverRoot')}
               />
+
+              <OptionResetCache account={state.account} />
 
               <OptionDelete account={state.account} />
             </td>

@@ -36,7 +36,9 @@ export const H4 = style('h4')({
 })
 
 export const Input = style('input')({
-  width: '90%',
+  '[type=text],[type=password]': {
+    width: '90%'
+  },
   fontSize: '15px !important',
   border: `1px ${COLORS.primary.dark} solid`,
   borderRadius: BORDER_RADIUS,
@@ -264,6 +266,33 @@ export const OptionDelete = ({ account }) => (state, actions) => {
       >
         Delete this account
       </Button>
+    </div>
+  )
+}
+
+export const OptionResetCache = ({ account }) => (state, actions) => {
+  return (
+    <div>
+      <H4>Trigger sync from scratch</H4>
+      <p>
+        Tick this box to reset the cache so that the next synchronization run is
+        guaranteed not to delete any data and merely merges server and local
+        bookmarks together
+      </p>
+      <Label>
+        <Input
+          type="checkbox"
+          onclick={e => {
+            actions.options.update({
+              data: {
+                ...account,
+                reset: e.target.checked
+              }
+            })
+          }}
+        />
+        Reset cache
+      </Label>
     </div>
   )
 }

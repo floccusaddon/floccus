@@ -7,7 +7,15 @@ import * as Basics from '../components/basics'
 const { h } = require('hyperapp')
 const url = require('url')
 
-const { Input, Button, Label, Options, OptionSyncFolder, OptionDelete } = Basics
+const {
+  Input,
+  Button,
+  Label,
+  Options,
+  OptionSyncFolder,
+  OptionDelete,
+  OptionResetCache
+} = Basics
 
 export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {
@@ -463,6 +471,7 @@ export default class WebDavAdapter extends CachingAdapter {
             <td />
             <td>
               <OptionSyncFolder account={state.account} />
+              <OptionResetCache account={state.account} />
               <OptionDelete account={state.account} />
             </td>
           </tr>
