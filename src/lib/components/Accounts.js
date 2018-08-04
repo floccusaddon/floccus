@@ -90,7 +90,7 @@ export const Component = () => (state, actions) => {
               }
             }}
           />{' '}
-          Secure your credentials with a passphrase (entered on browser start)
+          Secure your credentials
         </Label>
       </div>
       <div class="debugging-tools">

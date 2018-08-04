@@ -39,7 +39,12 @@ export const Component = () => (state, actions) => {
   return (
     <Overlay>
       <div id="setKey">
-        <H2>Set a passphrase for floccus</H2>
+        <H2>Set a pass phrase for floccus</H2>
+        <p>
+          When you set a pass phrase you will have to enter this pass phrase
+          everytime you start your browser if you want to access and synchronize
+          your bookmarks.
+        </p>
         <p>{state.setupKey.error ? state.setupKey.error : ''}</p>
         <Input
           value={''}
