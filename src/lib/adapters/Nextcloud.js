@@ -13,7 +13,7 @@ const _ = require('lodash')
 
 const TAG_PREFIX = 'floccus:'
 
-const { Input, Button, Label, OptionSyncFolder, OptionDelete, H3 } = Basics
+const { Input, Button, Label, OptionSyncFolder, OptionDelete, H3, P } = Basics
 
 export default class NextcloudAdapter extends Adapter {
   constructor(server) {
@@ -90,6 +90,12 @@ export default class NextcloudAdapter extends Adapter {
               <OptionSyncFolder account={state.account} />
 
               <H3>Server folder</H3>
+              <P>
+                This is the path prefix under which this account will work. E.g.
+                if you use "/myBookmarks", all your bookmarks will be created on
+                the server with this path prefixed to their normal path. This
+                allows you to compartmentalize your server bookmarks.
+              </P>
               <Input
                 value={data.serverRoot || ''}
                 type="text"

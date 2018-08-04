@@ -213,7 +213,11 @@ const AccountStatusStyle = style('span')({
 export const OptionSyncFolder = ({ account }) => (state, actions) => {
   return (
     <div>
-      <H4>Sync folder</H4>
+      <H4>Local folder</H4>
+      <P>
+        This is the local bookmarks folder in this browser that will be synced
+        to the server. By default a new folder will be created for you.
+      </P>
       <Input
         type="text"
         disabled
