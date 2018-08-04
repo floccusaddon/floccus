@@ -214,10 +214,10 @@ export const OptionSyncFolder = ({ account }) => (state, actions) => {
   return (
     <div>
       <H4>Local folder</H4>
-      <P>
+      <p>
         This is the local bookmarks folder in this browser that will be synced
         to the server. By default a new folder will be created for you.
-      </P>
+      </p>
       <Input
         type="text"
         disabled
