@@ -50,6 +50,7 @@ export default class WebDavAdapter extends CachingAdapter {
     try {
       response = await fetch(fullURL, {
         method: 'GET',
+        credentials: 'omit',
         headers: {
           Authorization:
             'Basic ' + btoa(this.server.username + ':' + this.server.password)
@@ -84,6 +85,7 @@ export default class WebDavAdapter extends CachingAdapter {
     try {
       await fetch(url, {
         method: 'PUT',
+        credentials: 'omit',
         headers: {
           'Content-Type': content_type,
           Authorization:
@@ -150,6 +152,7 @@ export default class WebDavAdapter extends CachingAdapter {
     try {
       response = await fetch(fullUrl, {
         method: 'DELETE',
+        credentials: 'omit',
         headers: {
           Authorization:
             'Basic ' + btoa(this.server.username + ':' + this.server.password)

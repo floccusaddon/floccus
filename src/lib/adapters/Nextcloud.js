@@ -439,6 +439,7 @@ export default class NextcloudAdapter extends Adapter {
       res = await this.fetchQueue.add(() =>
         fetch(url, {
           method: verb,
+          credentials: 'omit',
           headers: {
             Authorization:
               'Basic ' + btoa(this.server.username + ':' + this.server.password)
