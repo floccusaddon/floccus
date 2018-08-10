@@ -19,7 +19,8 @@ export const actions = {
   picker: {
     setTree: tree => ({ tree }),
     loadTree: () => async (state, actions) => {
-      actions.setTree((await browser.bookmarks.getTree())[0])
+      let tree = (await browser.bookmarks.getTree())[0]
+      actions.setTree(tree)
     },
     toggleFolder: folderId => state => ({
       openedFolders: {
@@ -38,6 +39,9 @@ export const actions = {
     await actions.picker.loadTree()
     actions.switchView('picker')
   },
+  cancelPicker: () => (state, actions) => {
+    actions.switchView('options')
+  },
   setNodeFromPicker: localRoot => async (state, actions) => {
     const rootPath = decodeURIComponent(
       await LocalTree.getPathFromLocalId(localRoot)
@@ -53,28 +57,39 @@ export const Component = () => (state, actions) => {
     <Overlay>
       <div id="picker">
         {tree.id ? (
-          <Subtree tree={tree} />
+          <Subtree tree={tree} root={true} />
         ) : (
           tree.children.map(node => <Subtree tree={node} />)
         )}
       </div>
+      <Button
+        onclick={e => {
+          actions.cancelPicker()
+        }}
+      >
+        Cancel
+      </Button>
     </Overlay>
   )
 }
 
-const Subtree = ({ tree }) => (state, actions) => {
+const Subtree = ({ tree, root }) => (state, actions) => {
+  let empty =
+    tree.children && !tree.children.filter(child => !!child.children).length
   return !tree.children ? (
     ''
   ) : (
     <Item>
       <ItemLabel
         onclick={e => {
-          if (!tree.children.filter(child => !!child.children).length) return
+          if (root) return
+          if (empty) return
           actions.picker.toggleFolder(tree.id)
         }}
-        active={state.picker.openedFolders[tree.id]}
+        active={root || state.picker.openedFolders[tree.id]}
+        class={empty || root ? 'untoggleable' : ''}
       >
-        {state.picker.openedFolders[tree.id] ? '− ' : '+ '}
+        {root || state.picker.openedFolders[tree.id] ? '📂 ' : '📁 '}
         {tree.title || <i>Untitled folder</i>}
         <Button
           className="choose"
@@ -83,11 +98,10 @@ const Subtree = ({ tree }) => (state, actions) => {
             return false
           }}
         >
-          ✓
+          select
         </Button>
       </ItemLabel>
-      {tree.children.filter(child => !!child.children).length &&
-      state.picker.openedFolders[tree.id] ? (
+      {!empty && (root || state.picker.openedFolders[tree.id]) ? (
         <div className="children">
           {tree.children.map(node => <Subtree tree={node} />)}
         </div>
@@ -99,34 +113,38 @@ const Subtree = ({ tree }) => (state, actions) => {
 }
 
 const Item = style('div')({
-  padding: '.1cm',
+  padding: '.1cm 0',
+  margin: '0',
   '> .children': {
     borderLeft: `1px ${Basics.COLORS.primary.light} solid`,
-    padding: '.2cm 0 0 .2cm'
+    padding: '.2cm 0 0 .2cm',
+    margin: '0'
   }
 })
 const ItemLabel = style('div')(props => ({
   padding: '.15cm',
-  cursor: 'pointer',
+  margin: '0',
+  ':not(.untoggleable)': {
+    cursor: 'pointer'
+  },
   position: 'relative',
   borderRadius: '.1cm',
+  overflow: 'auto',
   background: props.active ? Basics.COLORS.primary.light : 'transparent',
   color: props.active ? 'white' : Basics.COLORS.primary.dark,
   '::first-letter': {
     fontSize: '.5cm',
     fontWeight: 'bold'
   },
-  '> button': {
-    display: 'none',
-    position: 'absolute',
-    right: 0,
-    top: 0
-  },
-  ':hover': {
+  ':not(.untoggleable):hover': {
     background: Basics.COLORS.primary.light,
     color: 'white'
   },
-  ':hover button': {
-    display: 'inline-block'
+  '> button': {
+    display: 'inline-block',
+    float: 'right',
+    height: '.6cm',
+    padding: '.07cm',
+    boxSizing: 'border-box'
   }
 }))
