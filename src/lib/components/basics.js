@@ -125,7 +125,12 @@ export const Account = ({ account }) => (state, actions) => {
         <div class="controls">{data.type}</div>
         {account.getLabel()}
       </H3>
-      <Input type="text" readonly={true} value={data.rootPath} />
+      <Input
+        type="text"
+        readonly={true}
+        value={data.rootPath}
+        placeholder="*Root folder*"
+      />
       <AccountStatus account={account} />
       <div class="controls">
         <Button
