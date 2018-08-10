@@ -37,7 +37,7 @@ export const H4 = style('h4')({
 
 export const Input = style('input')({
   '[type=text],[type=password]': {
-    width: '90%'
+    width: '100%'
   },
   fontSize: '15px !important',
   border: `1px ${COLORS.primary.dark} solid`,
