@@ -28,7 +28,7 @@ export default class LocalTree extends Resource {
         // (the user has apparently nested them *facepalm* -- how nice of us to take care of that)
         return
       }
-      let overrideTitle
+      let overrideTitle, isRoot
       if (node.parentId === rootTree.id) {
         switch (node.id) {
           case 1: // Chrome
@@ -52,14 +52,19 @@ export default class LocalTree extends Resource {
             overrideTitle
           )
         }
+        if (node.id === rootTree.id) {
+          isRoot = true
+        }
       }
       if (node.children) {
-        return new Tree.Folder({
+        let folder = new Tree.Folder({
           id: node.id,
           parentId,
           title: overrideTitle || node.title,
           children: node.children.map(child => recurse(child, node.id))
         })
+        if (isRoot) folder.isRoot = true
+        return folder
       } else {
         return new Tree.Bookmark({
           id: node.id,

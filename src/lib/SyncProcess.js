@@ -262,42 +262,45 @@ export default class SyncProcess {
       )
     }
 
-    // CREATED UPSTREAM
-    await Parallel.each(
-      serverItem.children.filter(
-        child =>
-          !mappingsSnapshot[
-            child instanceof Tree.Folder ? 'folders' : 'bookmarks'
-          ].ServerToLocal[child.id]
-      ),
-      async newChild => {
-        if (newChild.merged) return
-        await this.syncTree(null, null, newChild)
-      },
-      CONCURRENCY
-    )
-
-    // REMOVED UPSTREAM
-    if (cacheItem) {
+    // don't create/remove items in the absolute root folder
+    if (!localItem.isRoot) {
+      // CREATED UPSTREAM
       await Parallel.each(
-        cacheItem.children.filter(
-          cache =>
-            !serverItem.children.some(
-              server =>
-                mappingsSnapshot[
-                  cache instanceof Tree.Folder ? 'folders' : 'bookmarks'
-                ].LocalToServer[cache.id] === server.id
-            )
+        serverItem.children.filter(
+          child =>
+            !mappingsSnapshot[
+              child instanceof Tree.Folder ? 'folders' : 'bookmarks'
+            ].ServerToLocal[child.id]
         ),
-        async oldChild => {
-          const localChild =
-            oldChild instanceof Tree.Folder
-              ? this.localTreeRoot.findFolder(oldChild.id)
-              : this.localTreeRoot.findBookmark(oldChild.id)
-          await this.syncTree(localChild, oldChild, null)
+        async newChild => {
+          if (newChild.merged) return
+          await this.syncTree(null, null, newChild)
         },
         CONCURRENCY
       )
+
+      // REMOVED UPSTREAM
+      if (cacheItem) {
+        await Parallel.each(
+          cacheItem.children.filter(
+            cache =>
+              !serverItem.children.some(
+                server =>
+                  mappingsSnapshot[
+                    cache instanceof Tree.Folder ? 'folders' : 'bookmarks'
+                  ].LocalToServer[cache.id] === server.id
+              )
+          ),
+          async oldChild => {
+            const localChild =
+              oldChild instanceof Tree.Folder
+                ? this.localTreeRoot.findFolder(oldChild.id)
+                : this.localTreeRoot.findBookmark(oldChild.id)
+            await this.syncTree(localChild, oldChild, null)
+          },
+          CONCURRENCY
+        )
+      }
     }
 
     // RECURSE EXISTING ITEMS
