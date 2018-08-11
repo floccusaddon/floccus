@@ -14,6 +14,7 @@ export default class LocalTree extends Resource {
   }
 
   async getBookmarksTree() {
+    const rootTree = (await browser.bookmarks.getTree())[0] // XXX: Kinda inefficient, but well.
     const tree = (await browser.bookmarks.getSubTree(this.rootId))[0]
     const allAccounts = await Account.getAllAccounts()
 
@@ -27,11 +28,36 @@ export default class LocalTree extends Resource {
         // (the user has apparently nested them *facepalm* -- how nice of us to take care of that)
         return
       }
+      let overrideTitle
+      if (node.parentId === rootTree.id) {
+        switch (node.id) {
+          case 1: // Chrome
+          case 'toolbar_____': // Firefox
+            overrideTitle = 'Bookmarks Bar'
+            break
+          case 2: // Chrome
+          case 'unfiled_____': // Firefox
+            overrideTitle = 'Other Bookmarks'
+            break
+          case 'menu________': // Firefox
+            overrideTitle = 'Bookmarks Menu'
+            break
+        }
+        if (overrideTitle) {
+          Logger.log(
+            'Overriding title of built-in node',
+            node.id,
+            node.title,
+            '=>',
+            overrideTitle
+          )
+        }
+      }
       if (node.children) {
         return new Tree.Folder({
           id: node.id,
           parentId,
-          title: node.title,
+          title: overrideTitle || node.title,
           children: node.children.map(child => recurse(child, node.id))
         })
       } else {
