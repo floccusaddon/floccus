@@ -495,7 +495,7 @@ export default class NextcloudAdapter extends Adapter {
   static convertTagToPath(tag) {
     return tag
       .substr(TAG_PREFIX.length)
-      .replace(/>/g, '>')
+      .replace(/>/g, '/')
       .replace(/%2C/g, ',') // encodeURIComponent(',') == '%2C'
       .replace(/%252C/g, '%2C')
   }
