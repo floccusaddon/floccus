@@ -483,24 +483,19 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   static convertPathToTag(path) {
-    // We reverse the string and do a negative lookahead, reversing again afterwards
     return (
       TAG_PREFIX +
-      PathHelper.pathToArray(path)
-        .map(str => str.replace(/>/g, '\\>'))
-        .join('>')
+      path
+        .replace(/[/]/g, '>')
         .replace(/%2C/g, '%252C')
         .replace(/,/g, '%2C')
     ) // encodeURIComponent(',') == '%2C'
   }
 
   static convertTagToPath(tag) {
-    // We reverse the string and split using a negative lookahead, reversing again afterwards
-    return PathHelper.reverseStr(tag.substr(TAG_PREFIX.length))
-      .split(/>(?![\\])/)
-      .reverse()
-      .map(str => PathHelper.reverseStr(str).replace(/\\>/g, '>'))
-      .join('/')
+    return tag
+      .substr(TAG_PREFIX.length)
+      .replace(/>/g, '>')
       .replace(/%2C/g, ',') // encodeURIComponent(',') == '%2C'
       .replace(/%252C/g, '%2C')
   }
