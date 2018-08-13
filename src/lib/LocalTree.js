@@ -52,9 +52,9 @@ export default class LocalTree extends Resource {
             overrideTitle
           )
         }
-        if (node.id === rootTree.id) {
-          isRoot = true
-        }
+      }
+      if (node.id === rootTree.id) {
+        isRoot = true
       }
       if (node.children) {
         let folder = new Tree.Folder({
@@ -63,7 +63,7 @@ export default class LocalTree extends Resource {
           title: overrideTitle || node.title,
           children: node.children.map(child => recurse(child, node.id))
         })
-        if (isRoot) folder.isRoot = true
+        folder.isRoot = isRoot
         return folder
       } else {
         return new Tree.Bookmark({
