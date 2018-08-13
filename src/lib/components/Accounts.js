@@ -1,8 +1,11 @@
 import browser from '../browser-api'
 import Logger from '../Logger'
+import picostyle from 'picostyle'
 import { h } from 'hyperapp'
 import Account from '../Account'
 import * as Basics from './basics'
+
+const style = picostyle(h)
 
 const { Button, InputGroup, Select, Option, Label, Account: AccountEl } = Basics
 
@@ -53,58 +56,77 @@ export const actions = {
 
 export const Component = () => (state, actions) => {
   return (
-    <div>
+    <AccountsStyle>
       <div id="accounts">
         {Object.keys(state.accounts.accounts).map(accountId => (
           <AccountEl account={state.accounts.accounts[accountId]} />
         ))}
       </div>
-      <InputGroup fullWidth={true}>
-        <Select
-          style={{ width: '75%' }}
-          onchange={e => {
-            actions.accounts.setCreationType(e.currentTarget.value)
-          }}
-        >
-          <option value="nextcloud">Nextcloud Bookmarks</option>
-          <option value="webdav">XBEL in WebDAV</option>
-        </Select>
-        <Button
-          onclick={e => {
-            actions.createAccount()
-          }}
-        >
-          Add Account
-        </Button>
-      </InputGroup>
-      <div className="security">
-        <Label>
-          <input
-            type="checkbox"
-            checked={state.accounts.secured}
-            onclick={e => {
-              if (e.currentTarget.checked) {
-                actions.switchView('setupKey')
-              } else {
-                actions.unsetKey()
-              }
+      <div class="wrapper">
+        <InputGroup fullWidth={true}>
+          <Select
+            style={{ width: '78%' }}
+            onchange={e => {
+              actions.accounts.setCreationType(e.currentTarget.value)
             }}
-          />{' '}
-          Secure your credentials
-        </Label>
+          >
+            <option value="nextcloud">Nextcloud Bookmarks</option>
+            <option value="webdav">XBEL in WebDAV</option>
+          </Select>
+          <Button
+            onclick={e => {
+              actions.createAccount()
+            }}
+          >
+            Add Account
+          </Button>
+        </InputGroup>
+        <div class="security">
+          <Label>
+            <input
+              type="checkbox"
+              checked={state.accounts.secured}
+              onclick={e => {
+                if (e.currentTarget.checked) {
+                  actions.switchView('setupKey')
+                } else {
+                  actions.unsetKey()
+                }
+              }}
+            />{' '}
+            Secure your credentials
+          </Label>
+        </div>
+        <div class="debugging-tools">
+          <a
+            href="#"
+            onclick={e => {
+              actions.downloadLogs()
+              e.preventDefault()
+            }}
+          >
+            Debug logs
+          </a>{' '}
+          <a href="./test.html">run tests</a>
+        </div>
       </div>
-      <div class="debugging-tools">
-        <a
-          href="#"
-          onclick={e => {
-            actions.downloadLogs()
-            e.preventDefault()
-          }}
-        >
-          Debug logs
-        </a>{' '}
-        <a href="./test.html">run tests</a>
-      </div>
-    </div>
+    </AccountsStyle>
   )
 }
+
+const AccountsStyle = style('div')({
+  ' .debugging-tools': {
+    display: 'block',
+    margin: '3px',
+    float: 'right',
+    fontSize: '9px'
+  },
+  ' .debugging-tools a': {
+    color: '#3893cc !important',
+    display: 'inline-block',
+    marginLeft: '3px'
+  },
+  ' .wrapper': {
+    margin: '0 20px'
+  }
+})

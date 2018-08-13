@@ -37,7 +37,8 @@ export const H4 = style('h4')({
 
 export const Input = style('input')({
   '[type=text],[type=password]': {
-    width: '100%'
+    width: '100%',
+    boxSizing: 'border-box'
   },
   fontSize: '15px !important',
   border: `1px ${COLORS.primary.dark} solid`,
@@ -50,7 +51,7 @@ export const Input = style('input')({
 
 export const InputGroup = style('div')(props => ({
   display: props.fullWidth ? 'block' : 'inline-block',
-  width: props.fullWidth ? '95%' : 'auto',
+  width: props.fullWidth ? '100%' : 'auto',
   padding: '0',
   margin: props.fullWidth ? '15px auto' : '3px 3px 3px 0',
   '> *': {
@@ -69,11 +70,12 @@ export const InputGroup = style('div')(props => ({
 
 export const Select = style('select')(props => ({
   display: props.fullWidth ? 'block' : 'inline-block',
-  width: props.fullWidth ? '95%' : 'auto',
+  width: props.fullWidth ? '100%' : 'auto',
   height: HEIGHT_CONTROLS,
   cursor: 'pointer',
   padding: PADDING_CONTROLS,
   margin: props.fullWidth ? '15px auto' : '3px 3px 3px 0',
+  boxSizing: 'border-box',
   color: 'white',
   textDecoration: 'none',
   textAlign: 'center',
@@ -92,11 +94,12 @@ export const Select = style('select')(props => ({
 
 export const Button = style('button')(props => ({
   display: props.fullWidth ? 'block' : 'inline-block',
-  width: props.fullWidth ? '95%' : 'auto',
+  width: props.fullWidth ? '100%' : 'auto',
   height: HEIGHT_CONTROLS,
   cursor: 'pointer',
   padding: PADDING_CONTROLS,
   margin: props.fullWidth ? '15px auto' : '3px 3px  3px 0',
+  boxSizing: 'border-box',
   color: 'white',
   textDecoration: 'none',
   textAlign: 'center',
