@@ -482,6 +482,11 @@ export default class SyncProcess {
         })
       )
     }
+
+    await this.mappings.addBookmark({
+      localId: localItem.id,
+      remoteId: serverItem.id
+    })
   }
 
   async removeBookmark(
