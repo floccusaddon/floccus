@@ -1,6 +1,6 @@
 import { Bookmark } from '../Tree'
 import CachingAdapter from './Caching'
-import { OptionDelete, Account } from '../components/basics'
+import { OptionDelete } from '../components/basics'
 
 const { h } = require('hyperapp')
 
@@ -20,10 +20,10 @@ export default class FakeAdapter extends CachingAdapter {
 
   static renderOptions(state, actions) {
     return (
-      <Account account={state.account}>
+      <div>
         <p>Fake account</p>
         <OptionDelete account={state.account} />
-      </Account>
+      </div>
     )
   }
 
