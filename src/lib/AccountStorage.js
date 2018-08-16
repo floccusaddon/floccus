@@ -57,11 +57,13 @@ export default class AccountStorage {
     })
   }
 
-  deleteAccountData() {
-    return AccountStorage.changeEntry(`accounts`, accounts => {
+  async deleteAccountData() {
+    await AccountStorage.changeEntry(`accounts`, accounts => {
       delete accounts[this.accountId]
       return accounts
     })
+    await this.initCache()
+    await this.initMappings()
   }
 
   async initCache(data) {
