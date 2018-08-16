@@ -153,6 +153,9 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async getBookmarksList() {
+    if (this.list) {
+      return this.list
+    }
     Logger.log('Fetching bookmarks', this.server)
     const json = await this.sendRequest(
       'GET',
@@ -193,6 +196,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async getBookmarksTree() {
+    this.list = null // clear cache before starting a new sync
     let list = await this.getBookmarksList()
     list.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
     let tree = new Folder({ id: '' })
@@ -347,6 +351,7 @@ export default class NextcloudAdapter extends Adapter {
         body
       )
       bm.id = json.item.id + ';' + bm.parentId
+      this.list = null
     }
 
     await this.updateBookmark(bm)
@@ -429,6 +434,7 @@ export default class NextcloudAdapter extends Adapter {
         'DELETE',
         'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id.split(';')[0]
       )
+      this.list = null // clear cache
     }
   }
 
