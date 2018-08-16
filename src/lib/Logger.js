@@ -8,14 +8,14 @@ export default class Logger {
 
     // log to console
     console.log.apply(console, logMsg)
+    this.messages.push(util.format.apply(util, logMsg))
+  }
 
-    // log to storage (in background)
-    AccountStorage.changeEntry(
+  static async persist() {
+    await AccountStorage.changeEntry(
       'log',
       log => {
-        log = log.slice(-5000) // rotate log to max of 5000 entries
-        log.push(util.format.apply(util, logMsg))
-        return log
+        return log.concat(this.messages).slice(-5000) // rotate log to max of 5000 entries
       },
       []
     )
@@ -27,15 +27,19 @@ export default class Logger {
 
   static async downloadLogs() {
     const logs = await this.getLogs()
-    this.download('floccus.log', logs.join('\r\n'))
+    console.log(logs)
+    let blob = new Blob([logs.join('\n')], {
+      type: 'text/plain',
+      endings: 'native'
+    })
+    this.download('floccus.log', blob)
   }
 
-  static download(filename, text) {
+  static download(filename, blob) {
     var element = document.createElement('a')
-    element.setAttribute(
-      'href',
-      'data:text/plain;charset=utf-8,' + encodeURIComponent(text)
-    )
+
+    let objectUrl = URL.createObjectURL(blob)
+    element.setAttribute('href', objectUrl)
     element.setAttribute('download', filename)
 
     element.style.display = 'none'
@@ -43,6 +47,9 @@ export default class Logger {
 
     element.click()
 
+    URL.revokeObjectURL(objectUrl)
     document.body.removeChild(element)
   }
 }
+
+Logger.messages = []

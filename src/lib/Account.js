@@ -6,6 +6,7 @@ import FakeAdapter from './adapters/Fake'
 import Tree from './Tree'
 import LocalTree from './LocalTree'
 import SyncProcess from './SyncProcess'
+import Logger from './Logger'
 import browser from './browser-api'
 
 // register Adapters
@@ -123,7 +124,7 @@ export default class Account {
     try {
       if (this.getData().syncing || this.syncing) return
 
-      console.log('Starting sync process for account ' + this.getLabel())
+      Logger.log('Starting sync process for account ' + this.getLabel())
       this.syncing = true
       await this.setData({ ...this.getData(), syncing: true, error: null })
 
@@ -161,7 +162,7 @@ export default class Account {
         await this.server.onSyncComplete()
       }
 
-      console.log(
+      Logger.log(
         'Successfully ended sync process for account ' + this.getLabel()
       )
     } catch (e) {
@@ -178,6 +179,7 @@ export default class Account {
         await this.server.onSyncFail()
       }
     }
+    await Logger.persist()
   }
 
   static stringifyError(er) {
