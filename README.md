@@ -12,6 +12,11 @@ Historically this was once possible using [the mozilla sync app](https://github.
 
 **News:** Floccus v3.0 now allows you to sync duplicate bookmarks in different folders and can sync accross browser vendors without any hassle. :weight_lifting_woman:
 
+[![Chrome Webstore](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|
+[![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)
+|-------------------|----------------------------|
+<img align="left" src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="right" src="https://img.shields.io/chrome-web-store/rating/fnaicdffflnofjppbagibeoednhnbjhg.svg">| <img align="left" src="https://img.shields.io/amo/users/passman.svg"> <img align="right" src="https://img.shields.io/amo/rating/passman.svg">
+
 ## Install
 
 For this to work with your Nextcloud server, you need at least version v0.11 of the Bookmarks app installed. Once you've done that you can continue to install floccus in your browser as follows.
