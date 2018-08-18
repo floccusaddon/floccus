@@ -1,3 +1,4 @@
 .*.sw*
 dist
 node_modules
+builds

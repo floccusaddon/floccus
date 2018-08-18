@@ -4,7 +4,7 @@ var browserify = require('browserify')
 var babelify = require('babelify')
 var tap = require('gulp-tap')
 var zip = require('gulp-zip')
-var crx = require('lib/gulp-crx')
+var crx = require('./lib/gulp-crx')
 var run = require('gulp-run-command').default
 
 const VERSION = require('./package.json').version
@@ -96,7 +96,7 @@ gulp.task(
   'keygen',
   run(
     'openssl genpkey' +
-      ' -algorithm RSA -out ./builds/key.pem -pkeyopt rsa_keygen_bits:2048'
+      ' -algorithm RSA -out ./key.pem -pkeyopt rsa_keygen_bits:2048'
   )
 )
 
@@ -105,7 +105,7 @@ gulp.task('crx', ['default'], function() {
     .src(paths.zip)
     .pipe(
       crx({
-        privateKey: fs.readFileSync('./builds/key.pem', 'utf8'),
+        privateKey: fs.readFileSync('./key.pem', 'utf8'),
         filename: `floccus-build-v${VERSION}.crx`
       })
     )

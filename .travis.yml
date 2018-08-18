@@ -1,15 +1,64 @@
+sudo: required
 addons:
   sauce_connect:
     username: marcelklehr
-  jwt:
-    secure: >-
-      Gq2h/kpkvFZ17u2dqaE1jXRxrFeN6/PlN6LQcgXJ32vGtoOOG/KoPeFtl2Y90wLPlri1+rKrYzL0JlDUS5Q5g8oGTJ34CZNkmlVi9ICdXi4P7ZE4COXo8WpkAgax/egFC+VD6a2nIByAELhPxBMzGtybeNcUMwDfh21jvuIDVOHu/y9tTivgO0NyHL8AMR+ASxjxxNp6OCbSDpXJC96n0JWj+Vd+ZA/qKSPsTGQ/dv4YU4Tp9hc+rHgUPvwWGk5UJi6qFrIvyNZiwY420U7kGyD+c2HKhanJcMF1ZvWvQPXijGD9ekImn66fsgZnLwlyQVhCjbdC8gqoCIfkEC/9BDsbWZCUbNJXdJrTneUdOhEAUIpTUtXlIPWqnZGRqSTJHfshwjUBA8DxEnJSRj7lPSzaSnDkwuTXR6VwWFItwxf75qbQjvE8cfnt/dcVD5Chu0yy2xv4547IPpolqWysBihHwNcx6ISHq0iExLDVVaD/hOl+uGlExC4NFwOMWcncSJAKut5IMJ22/rQmpuLATD1X3G1WKEkq+6iO8UWYNEmdu46E0gsJMDdE7TNWNPheXWJpzFeN8IUMVxLFDtt629QCJB8zBGadVNjIeK1nsG2YnNL5V3Ghq/8NmtGtKSlUKAAiGUGoep3DC9+CDioGSVnH9wY9RJkT/SQRZiya4kk=
+    access_key:
+      secure: C4errmkFcsqThedIIBeczzhGs20m8j5oCsowukSL23w0RcOcqOCA5om+DU/AvMwstex3zZI7TN1BJbyC16V5c2iOER+mfEYFEKiNWdCxh2BQ4J45IN3cwQg+fl9nOVUJxhYUXpuSXq9M63ObM3MHhS4SV5k+bmlaomKJVWbaKjRuPKebANkHUQPy0sUKAnrcfRt3uFH7qSrFKx8JRaZ930z+//0KyQo44I8TbpnsuyvIHc19Ko+04iDtZFPmNl3RwSLmnlpJ6V5o0kYxMHu+lEoTYOObUzPnTp3Vh2NufNbkzZu/lYkAGam9lNCoTl7/bJFKeOCgU5FCzYTTxvDShADOoISQ79PVc7dlqAPtLsiRcO7LW2l3Xhi7RUuJJoJlh9NfSHaCeTtTZUzayE+sCB8kJ6sql8EHVgpnkr1AMhsI4s85ys/9Dg9xdF/DH5ck4hcmaEHcHvaqlvG0STXZE5aFybyogPQiL/58qkzo/4hDQMi/jMFw4wkhlKywGCOtbU8p9jTla85ownk+qUdZilr9QTTPWm1rcK81V20x44DiygNs/M3N8W4bNhCFV+u9VLy5ZFhDiQrYTeTNYi+EQUQAtrohH0T8HmSkXD5lGxkLQtybA+2y131ZjZ1bxT4+U0U+eW+O+FPAo+7LcS8ORDNNnPmssSyAC37mbFKfGB4=
+
 env:
-  SELENIUM_BROWSER: chrome
+  global:
+    - SERVER=nextcloud/travis_ci/master
+    - DB=sqlite
+    - NC_APP=bookmarks
+    - SELENIUM_BROWSER=chrome
+   #- SELENIUM_BROWSER=firefox
+    - OC_USER=admin
+    - OC_PASS=admin
+    - NC_APP_VERSION=master
+  matrix:
+    - SERVER_BRANCH=master
+    - SERVER_BRANCH=stable13
+
 language: node_js
 node_js:
   - '7'
-script:
+before_script:
+  # build floccus
   - npm run keygen
   - npm run build-release
+
+  # install apache
+  - sudo apt-get update
+  - sudo apt-get install apache2 libapache2-mod-fastcgi
+  # configure apache virtual hosts
+  - sudo cp -f test/apache-vhost.conf /etc/apache2/sites-available/000-default.conf
+
+  # enable php-fpm
+  - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
+  #- sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.d/www.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.d/www.conf
+  - sudo a2enmod rewrite actions fastcgi alias
+  - echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - sudo sed -i -e "s,www-data,travis,g" /etc/apache2/envvars
+  - sudo chown -R travis:travis /var/lib/apache2/fastcgi
+  - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
+
+  # install nextcloud with bookmarks app
+  - pushd .
+  - cd ..
+  - git clone --depth=50 --branch="$NC_APP_VERSION" "https://github.com/nextcloud/$NC_APP.git" "$NC_APP"
+  - cd bookmarks
+  - composer install # using env to allow sudo to find composer
+  - wget https://raw.githubusercontent.com/$SERVER/before_install.sh
+  - sudo chmod +x ./before_install.sh
+  - . ./before_install.sh "$NC_APP" "$SERVER_BRANCH" "$DB"
+  - cd ../core || cd ../server
+  - php occ app:enable "$NC_APP"
+
+  # set apache htroot
+  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/000-default.conf
+  - sudo service apache2 restart
+
+  - popd
+
+script:
   - npm test

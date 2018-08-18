@@ -32,14 +32,5 @@
 
   "background": {
     "page": "dist/html/background.html"
-  },
-
-  "commands": {
-    "open-tests": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+Space"
-      },
-      "description": "Open tests (you're right. This is a hack)"
-    }
   }
 }
