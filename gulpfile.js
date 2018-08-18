@@ -1,14 +1,17 @@
 var gulp = require('gulp')
+var fs = require('fs')
 var browserify = require('browserify')
 var babelify = require('babelify')
 var tap = require('gulp-tap')
 var zip = require('gulp-zip')
+var crx = require('lib/gulp-crx')
+var run = require('gulp-run-command').default
 
 const VERSION = require('./package.json').version
 const paths = {
   zip: [
     '**',
-    '!build/**',
+    '!builds/**',
     '!src/**',
     '!node_modules/**',
     '!img/**',
@@ -73,19 +76,39 @@ gulp.task('mochacss', function() {
     .pipe(gulp.dest('./dist/css/'))
 })
 
-gulp.task('release', ['zip', 'xpi'])
+gulp.task('release', ['zip', 'xpi', 'crx'])
 
 gulp.task('zip', ['default'], function() {
-  gulp
+  return gulp
     .src(paths.zip)
     .pipe(zip(`floccus-build-v${VERSION}.zip`))
     .pipe(gulp.dest(paths.builds))
 })
 
 gulp.task('xpi', ['default'], function() {
-  gulp
+  return gulp
     .src(paths.zip)
     .pipe(zip(`floccus-build-v${VERSION}.xpi`))
+    .pipe(gulp.dest(paths.builds))
+})
+
+gulp.task(
+  'keygen',
+  run(
+    'openssl genpkey' +
+      ' -algorithm RSA -out ./builds/key.pem -pkeyopt rsa_keygen_bits:2048'
+  )
+)
+
+gulp.task('crx', ['default'], function() {
+  return gulp
+    .src(paths.zip)
+    .pipe(
+      crx({
+        privateKey: fs.readFileSync('./builds/key.pem', 'utf8'),
+        filename: `floccus-build-v${VERSION}.crx`
+      })
+    )
     .pipe(gulp.dest(paths.builds))
 })
 

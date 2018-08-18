@@ -12,6 +12,7 @@ language: node_js
 node_js:
   - '7'
 script:
+  - npm run keygen
   - npm run build-release
   - google-chrome --pack-extension=./ --no-message-box
   - npm test

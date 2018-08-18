@@ -6,7 +6,8 @@
   "scripts": {
     "build": "gulp",
     "build-release": "gulp release",
-    "test": "node test/selenium-runner.js"
+    "test": "node test/selenium-runner.js",
+    "keygen": "gulp keygen"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,8 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "gulp": "^3.9.1",
+    "gulp-crx-pack": "^1.0.2",
+    "gulp-run-command": "0.0.9",
     "gulp-tap": "^1.0.1",
     "gulp-zip": "^4.1.0",
     "mocha": "^5.0.4",
