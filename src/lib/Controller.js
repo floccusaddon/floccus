@@ -52,6 +52,15 @@ export default class Controller {
       this.alarms[alarm.name]()
     })
 
+    // handle test command
+    browser.commands.onCommand.addListener(command => {
+      if (command == 'open-tests') {
+        browser.tabs.update({ url: '/dist/html/test.html' })
+      }
+    })
+
+    // lock accounts when locking is enabled
+
     browser.storage.local.get('accountsLocked').then(async d => {
       this.setEnabled(!d.accountsLocked)
       this.unlocked = !d.accountsLocked
@@ -59,6 +68,8 @@ export default class Controller {
         this.key = null
       }
     })
+
+    // do some cleaning if this is a new version
 
     browser.storage.local.get('currentVersion').then(async d => {
       if (packageJson.version === d.currentVersion) return

@@ -1,0 +1,17 @@
+sudo: required
+addons:
+  chrome: 'stable'
+  sauce_connect:
+    username: marcelklehr
+  jwt:
+    secure: >-
+      Gq2h/kpkvFZ17u2dqaE1jXRxrFeN6/PlN6LQcgXJ32vGtoOOG/KoPeFtl2Y90wLPlri1+rKrYzL0JlDUS5Q5g8oGTJ34CZNkmlVi9ICdXi4P7ZE4COXo8WpkAgax/egFC+VD6a2nIByAELhPxBMzGtybeNcUMwDfh21jvuIDVOHu/y9tTivgO0NyHL8AMR+ASxjxxNp6OCbSDpXJC96n0JWj+Vd+ZA/qKSPsTGQ/dv4YU4Tp9hc+rHgUPvwWGk5UJi6qFrIvyNZiwY420U7kGyD+c2HKhanJcMF1ZvWvQPXijGD9ekImn66fsgZnLwlyQVhCjbdC8gqoCIfkEC/9BDsbWZCUbNJXdJrTneUdOhEAUIpTUtXlIPWqnZGRqSTJHfshwjUBA8DxEnJSRj7lPSzaSnDkwuTXR6VwWFItwxf75qbQjvE8cfnt/dcVD5Chu0yy2xv4547IPpolqWysBihHwNcx6ISHq0iExLDVVaD/hOl+uGlExC4NFwOMWcncSJAKut5IMJ22/rQmpuLATD1X3G1WKEkq+6iO8UWYNEmdu46E0gsJMDdE7TNWNPheXWJpzFeN8IUMVxLFDtt629QCJB8zBGadVNjIeK1nsG2YnNL5V3Ghq/8NmtGtKSlUKAAiGUGoep3DC9+CDioGSVnH9wY9RJkT/SQRZiya4kk=
+env:
+  SELENIUM_BROWSER: chrome
+language: node_js
+node_js:
+  - '7'
+script:
+  - npm run build-release
+  - google-chrome --pack-extension=./ --no-message-box
+  - npm test

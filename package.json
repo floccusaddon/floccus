@@ -4,7 +4,9 @@
   "description": "Sync your bookmarks with nextcloud",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "gulp",
+    "build-release": "gulp release",
+    "test": "node test/selenium-runner.js"
   },
   "repository": {
     "type": "git",
@@ -30,6 +32,7 @@
     "gulp-tap": "^1.0.1",
     "gulp-zip": "^4.1.0",
     "mocha": "^5.0.4",
+    "selenium-webdriver": "^4.0.0-alpha.1",
     "through2": "^2.0.3"
   },
   "dependencies": {

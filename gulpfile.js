@@ -8,6 +8,7 @@ const VERSION = require('./package.json').version
 const paths = {
   zip: [
     '**',
+    '!build/**',
     '!src/**',
     '!node_modules/**',
     '!img/**',
@@ -16,7 +17,8 @@ const paths = {
   ],
   views: './views/*.html',
   entries: 'src/entries/*.js',
-  js: 'src/**'
+  js: 'src/**',
+  builds: './builds/'
 }
 
 gulp.task('default', ['html', 'js', '3rd-party'])
@@ -77,14 +79,14 @@ gulp.task('zip', ['default'], function() {
   gulp
     .src(paths.zip)
     .pipe(zip(`floccus-build-v${VERSION}.zip`))
-    .pipe(gulp.dest('../'))
+    .pipe(gulp.dest(paths.builds))
 })
 
 gulp.task('xpi', ['default'], function() {
   gulp
     .src(paths.zip)
     .pipe(zip(`floccus-build-v${VERSION}.xpi`))
-    .pipe(gulp.dest('../'))
+    .pipe(gulp.dest(paths.builds))
 })
 
 gulp.task('watch', function() {
