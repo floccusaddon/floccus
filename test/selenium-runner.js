@@ -3,7 +3,7 @@ const { Builder, By, Key, until, Capabilities } = require('selenium-webdriver')
 const { Type, Entry } = require('selenium-webdriver/lib/logging')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
-const VERSION = require('./package.json').version
+const VERSION = require('../package.json').version
 
 let driver = new Builder()
   .usingServer(

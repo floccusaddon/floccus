@@ -1,6 +1,4 @@
-sudo: required
 addons:
-  chrome: 'stable'
   sauce_connect:
     username: marcelklehr
   jwt:
@@ -14,5 +12,4 @@ node_js:
 script:
   - npm run keygen
   - npm run build-release
-  - google-chrome --pack-extension=./ --no-message-box
   - npm test
