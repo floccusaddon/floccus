@@ -59,14 +59,23 @@ describe('Floccus', function() {
     describe(ACCOUNT_DATA.type + ' Sync', function() {
       context('with one client', function() {
         var account
-        beforeEach('set up dummy account', async function() {
+        beforeEach('set up account', async function() {
           account = await Account.create(ACCOUNT_DATA)
-          account.server.bookmarksCache = new Folder({ id: '', title: 'root' })
+          if (ACCOUNT_DATA.type === 'fake') {
+            account.server.bookmarksCache = new Folder({
+              id: '',
+              title: 'root'
+            })
+          }
           await account.init()
         })
-        afterEach('clean up dummy account', async function() {
+        afterEach('clean up account', async function() {
           if (!account) return
           await browser.bookmarks.removeTree(account.getData().localRoot)
+          if (ACCOUNT_DATA.type !== 'fake') {
+            let tree = await account.server.getBookmarksTree()
+            await account.server.removeFolder(tree.id)
+          }
           await account.delete()
         })
         it('should create local bookmarks on the server', async function() {
@@ -369,7 +378,7 @@ describe('Floccus', function() {
       })
       context('with two clients', function() {
         var account1, account2
-        beforeEach('set up dummy accounts', async function() {
+        beforeEach('set up accounts', async function() {
           account1 = await Account.create(ACCOUNT_DATA)
           await account1.init()
           account2 = await Account.create(ACCOUNT_DATA)
@@ -382,10 +391,18 @@ describe('Floccus', function() {
             )
           }
         })
-        afterEach('clean up dummy account', async function() {
+        afterEach('clean up account', async function() {
           await browser.bookmarks.removeTree(account1.getData().localRoot)
+          if (ACCOUNT_DATA.type !== 'fake') {
+            let tree1 = await account1.server.getBookmarksTree()
+            await account1.server.removeFolder(tree1.id)
+          }
           await account1.delete()
           await browser.bookmarks.removeTree(account2.getData().localRoot)
+          if (ACCOUNT_DATA.type !== 'fake') {
+            let tree2 = await account2.server.getBookmarksTree()
+            await account2.server.removeFolder(tree2.id)
+          }
           await account2.delete()
         })
         it('should propagate edits using "last write wins"', async function() {
