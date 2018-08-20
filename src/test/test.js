@@ -547,23 +547,32 @@ describe('Floccus', function() {
 })
 
 function expectTreeEqual(tree1, tree2) {
-  expect(tree1.title).to.equal(tree2.title)
-  if (tree2.url) {
-    expect(tree1.url).to.equal(tree2.url)
-  } else {
-    tree2.children.sort((a, b) => {
-      if (a.title < b.title) return -1
-      if (a.title > b.title) return 1
-      return 0
-    })
-    tree1.children.sort((a, b) => {
-      if (a.title < b.title) return -1
-      if (a.title > b.title) return 1
-      return 0
-    })
-    expect(tree1.children).to.have.length(tree2.children.length)
-    tree2.children.forEach((child2, i) => {
-      expectTreeEqual(tree1.children[i], child2)
-    })
+  try {
+    expect(tree1.title).to.equal(tree2.title)
+    if (tree2.url) {
+      expect(tree1.url).to.equal(tree2.url)
+    } else {
+      tree2.children.sort((a, b) => {
+        if (a.title < b.title) return -1
+        if (a.title > b.title) return 1
+        return 0
+      })
+      tree1.children.sort((a, b) => {
+        if (a.title < b.title) return -1
+        if (a.title > b.title) return 1
+        return 0
+      })
+      expect(tree1.children).to.have.length(tree2.children.length)
+      tree2.children.forEach((child2, i) => {
+        expectTreeEqual(tree1.children[i], child2)
+      })
+    }
+  } catch (e) {
+    console.log(
+      'Trees are not equal:\n',
+      'Tree 1:\n' + tree1.inspect(0) + '\n',
+      'Tree 2:\n' + tree2.inspect(0)
+    )
+    throw e
   }
 }

@@ -23,6 +23,14 @@ export class Bookmark {
     return { [this.id]: this }
   }
 
+  inspect(depth) {
+    return (
+      Array(depth)
+        .fill('  ')
+        .join('') + `- [${this.title}](${this.url})`
+    )
+  }
+
   static hydrate(obj) {
     return new Bookmark(obj)
   }
@@ -124,6 +132,16 @@ export class Folder {
         Object.assign(this.index.bookmarks, subIndex.bookmarks)
       })
     return this.index
+  }
+
+  inspect(depth) {
+    return (
+      Array(depth)
+        .fill('  ')
+        .join('') +
+      `+ ${this.title}\n` +
+      this.children.map(child => child.inspect(depth + 1)).join('\n')
+    )
   }
 
   static hydrate(obj) {
