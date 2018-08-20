@@ -119,7 +119,8 @@ describe('Floccus', function() {
                   ]
                 })
               ]
-            })
+            }),
+            ACCOUNT_DATA.type === 'nextcloud'
           )
         })
         it('should update the server on local changes', async function() {
@@ -170,7 +171,8 @@ describe('Floccus', function() {
                   ]
                 })
               ]
-            })
+            }),
+            ACCOUNT_DATA.type === 'nextcloud'
           )
         })
         it('should update the server on local removals', async function() {
@@ -215,7 +217,8 @@ describe('Floccus', function() {
                   ]
                 })
               ]
-            })
+            }),
+            ACCOUNT_DATA.type === 'nextcloud'
           )
         })
         it('should create server bookmarks locally', async function() {
@@ -255,7 +258,8 @@ describe('Floccus', function() {
                   ]
                 })
               ]
-            })
+            }),
+            ACCOUNT_DATA.type === 'nextcloud'
           )
         })
         it('should update local bookmarks on server changes', async function() {
@@ -305,7 +309,8 @@ describe('Floccus', function() {
                   ]
                 })
               ]
-            })
+            }),
+            ACCOUNT_DATA.type === 'nextcloud'
           )
         })
         it('should update local bookmarks on server removals', async function() {
@@ -344,7 +349,8 @@ describe('Floccus', function() {
                   ]
                 })
               ]
-            })
+            }),
+            ACCOUNT_DATA.type === 'nextcloud'
           )
         })
         it('should be ok if both server and local bookmark are removed', async function() {
@@ -463,14 +469,23 @@ describe('Floccus', function() {
                   ]
                 })
               ]
-            })
+            }),
+            ACCOUNT_DATA.type === 'nextcloud'
           )
 
           const tree1AfterSyncing = await account1.localTree.getBookmarksTree()
           const tree2AfterSyncing = await account2.localTree.getBookmarksTree()
-          expectTreeEqual(tree1AfterSyncing, tree2AfterSyncing)
+          expectTreeEqual(
+            tree1AfterSyncing,
+            tree2AfterSyncing,
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
           tree2AfterSyncing.title = serverTreeAfterSyncing.title
-          expectTreeEqual(tree2AfterSyncing, serverTreeAfterSyncing)
+          expectTreeEqual(
+            tree2AfterSyncing,
+            serverTreeAfterSyncing,
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
         })
         it('should propagate moves using "last write wins"', async function() {
           var adapter = account1.server
@@ -496,11 +511,23 @@ describe('Floccus', function() {
           const serverTreeAfterFirstSync = await adapter.getBookmarksTree()
           const tree1AfterFirstSync = await account1.localTree.getBookmarksTree()
           const tree2AfterFirstSync = await account2.localTree.getBookmarksTree()
-          expectTreeEqual(tree1AfterFirstSync, tree1)
+          expectTreeEqual(
+            tree1AfterFirstSync,
+            tree1,
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
           serverTreeAfterFirstSync.title = tree1.title
-          expectTreeEqual(serverTreeAfterFirstSync, tree1)
+          expectTreeEqual(
+            serverTreeAfterFirstSync,
+            tree1,
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
           tree2AfterFirstSync.title = tree1.title
-          expectTreeEqual(tree2AfterFirstSync, tree1)
+          expectTreeEqual(
+            tree2AfterFirstSync,
+            tree1,
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
           console.log('First round ok')
 
           await browser.bookmarks.move(bookmark1.id, { parentId: fooFolder.id })
@@ -511,9 +538,17 @@ describe('Floccus', function() {
 
           const serverTreeAfterSecondSync = await adapter.getBookmarksTree()
           const tree1AfterSecondSync = await account1.localTree.getBookmarksTree()
-          expectTreeEqual(tree1AfterSecondSync, tree1BeforeSecondSync)
+          expectTreeEqual(
+            tree1AfterSecondSync,
+            tree1BeforeSecondSync,
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
           serverTreeAfterSecondSync.title = tree1AfterSecondSync.title
-          expectTreeEqual(serverTreeAfterSecondSync, tree1AfterSecondSync)
+          expectTreeEqual(
+            serverTreeAfterSecondSync,
+            tree1AfterSecondSync,
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
           console.log('Second round first half ok')
 
           const bm2Id = (await account2.localTree.getBookmarksTree())
@@ -527,9 +562,17 @@ describe('Floccus', function() {
 
           const serverTreeAfterThirdSync = await adapter.getBookmarksTree()
           const tree2AfterThirdSync = await account2.localTree.getBookmarksTree()
-          expectTreeEqual(tree2AfterThirdSync, tree2BeforeThirdSync)
+          expectTreeEqual(
+            tree2AfterThirdSync,
+            tree2BeforeThirdSync,
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
           serverTreeAfterThirdSync.title = tree2AfterThirdSync.title
-          expectTreeEqual(serverTreeAfterThirdSync, tree2AfterThirdSync)
+          expectTreeEqual(
+            serverTreeAfterThirdSync,
+            tree2AfterThirdSync,
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
           console.log('Second round second half ok')
 
           console.log('acc1: final sync')
@@ -537,16 +580,24 @@ describe('Floccus', function() {
 
           const serverTreeAfterFinalSync = await adapter.getBookmarksTree()
           const tree1AfterFinalSync = await account1.localTree.getBookmarksTree()
-          expectTreeEqual(tree1AfterFinalSync, tree2AfterThirdSync)
+          expectTreeEqual(
+            tree1AfterFinalSync,
+            tree2AfterThirdSync,
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
           tree2AfterThirdSync.title = serverTreeAfterFinalSync.title
-          expectTreeEqual(tree2AfterThirdSync, serverTreeAfterFinalSync)
+          expectTreeEqual(
+            tree2AfterThirdSync,
+            serverTreeAfterFinalSync,
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
         })
       })
     })
   })
 })
 
-function expectTreeEqual(tree1, tree2) {
+function expectTreeEqual(tree1, tree2, ignoreEmptyFolders) {
   try {
     expect(tree1.title).to.equal(tree2.title)
     if (tree2.url) {
@@ -562,9 +613,15 @@ function expectTreeEqual(tree1, tree2) {
         if (a.title > b.title) return 1
         return 0
       })
-      expect(tree1.children).to.have.length(tree2.children.length)
-      tree2.children.forEach((child2, i) => {
-        expectTreeEqual(tree1.children[i], child2)
+      let children1 = ignoreEmptyFolders
+        ? tree1.children.filter(child => !hasNoBookmarks(child))
+        : tree1.children
+      let children2 = ignoreEmptyFolders
+        ? tree2.children.filter(child => !hasNoBookmarks(child))
+        : tree2.children
+      expect(children1).to.have.length(children2.length)
+      children2.forEach((child2, i) => {
+        expectTreeEqual(children1[i], child2, ignoreEmptyFolders)
       })
     }
   } catch (e) {
@@ -575,4 +632,9 @@ function expectTreeEqual(tree1, tree2) {
     )
     throw e
   }
+}
+
+function hasNoBookmarks(child) {
+  if (child instanceof Bookmark) return false
+  else return !child.children.some(child => !hasNoBookmarks(child))
 }
