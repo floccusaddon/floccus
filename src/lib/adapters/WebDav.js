@@ -8,6 +8,7 @@ const { h } = require('hyperapp')
 const url = require('url')
 
 const {
+  P,
   Input,
   Button,
   Label,
@@ -425,6 +426,13 @@ export default class WebDavAdapter extends CachingAdapter {
                 onkeyup={onchange.bind(null, 'url')}
                 onblur={onchange.bind(null, 'url')}
               />
+            </td>
+          </tr>
+          <tr>
+            <td />
+            <td>
+              e.g. with nextcloud:{' '}
+              <code>https://your-domain.com/remote.php/webdav/</code>
             </td>
           </tr>
           <tr>
