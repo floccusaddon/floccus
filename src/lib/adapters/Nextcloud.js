@@ -99,16 +99,18 @@ export default class NextcloudAdapter extends Adapter {
 
               <H3>Server folder</H3>
               <p>
-                This is the path prefix under which this account will work. E.g.
-                if you use "/myBookmarks", all your bookmarks will be created on
-                the server with this path prefixed to their normal path. This
-                allows you to compartmentalize your server bookmarks.
+                This is the path prefix under which this account will operate on
+                the server. E.g. if you use <code>/work</code>, all your
+                bookmarks will be created on the server with this path prefixed
+                to their path (the one relative to the local folder you
+                specified above). This allows you to separate your server
+                bookmarks into multiple "profiles".
               </p>
               <Input
                 value={data.serverRoot || ''}
                 type="text"
                 name="serverRoot"
-                placeholder="Default: root folder  Example: /my/subfolder"
+                placeholder="Leave empty for no prefix"
                 onkeyup={onchange.bind(null, 'serverRoot')}
                 onblur={onchange.bind(null, 'serverRoot')}
               />
