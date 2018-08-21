@@ -16,8 +16,9 @@ env:
     - OC_PASS=admin
     - NC_APP_VERSION=master
   matrix:
-    - SERVER_BRANCH=master
-    - SERVER_BRANCH=stable13
+    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0
+    - SERVER_BRANCH=stable13 NC_APP_VERSION=master
+    - SERVER_BRANCH=master NC_APP_VERSION=master
 
 language: node_js
 node_js:
@@ -47,7 +48,7 @@ before_script:
   - cd ..
   - git clone --depth=50 --branch="$NC_APP_VERSION" "https://github.com/nextcloud/$NC_APP.git" "$NC_APP"
   - cd bookmarks
-  - composer install # using env to allow sudo to find composer
+  - test -f composer.json && composer install || echo "Not running composer due to missing composer.json"
   - wget https://raw.githubusercontent.com/$SERVER/before_install.sh
   - sudo chmod +x ./before_install.sh
   - . ./before_install.sh "$NC_APP" "$SERVER_BRANCH" "$DB"
