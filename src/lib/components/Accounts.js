@@ -106,8 +106,7 @@ export const Component = () => (state, actions) => {
             }}
           >
             Debug logs
-          </a>{' '}
-          <a href="./test.html">run tests</a>
+          </a>
         </div>
       </div>
     </AccountsStyle>
