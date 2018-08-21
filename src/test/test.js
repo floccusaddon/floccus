@@ -10,7 +10,7 @@ import AccountStorage from '../lib/AccountStorage'
 import browser from '../lib/browser-api'
 
 describe('Floccus', function() {
-  this.timeout(10000) // no test should run longer than 10s
+  this.timeout(15000) // no test should run longer than 15s
   before(async function() {
     const background = await browser.runtime.getBackgroundPage()
     background.controller.setEnabled(false)
@@ -26,6 +26,13 @@ describe('Floccus', function() {
       url: 'http://localhost/',
       username: 'admin',
       password: 'admin'
+    },
+    {
+      type: 'webdav',
+      url: 'http://localhost/remote.php/webdav/',
+      username: 'admin',
+      password: 'admin',
+      bookmark_file: 'bookmarks.xbel'
     }
   ].forEach(ACCOUNT_DATA => {
     describe(ACCOUNT_DATA.type + ' Account', function() {
@@ -74,7 +81,18 @@ describe('Floccus', function() {
           await browser.bookmarks.removeTree(account.getData().localRoot)
           if (ACCOUNT_DATA.type !== 'fake') {
             let tree = await account.server.getBookmarksTree()
-            await account.server.removeFolder(tree.id)
+            await Promise.all(
+              tree.children.map(async child => {
+                if (child instanceof Folder) {
+                  await account.server.removeFolder(child.id)
+                } else {
+                  await account.server.removeBookmark(child.id)
+                }
+              })
+            )
+            if (account.server.onSyncComplete) {
+              await account.server.onSyncComplete()
+            }
           }
           await account.delete()
         })
@@ -223,7 +241,9 @@ describe('Floccus', function() {
         })
         it('should create server bookmarks locally', async function() {
           var adapter = account.server
-          const fooFolderId = await adapter.createFolder('', 'foo')
+          if (adapter.onSyncStart) await adapter.onSyncStart()
+          const serverTree = await adapter.getBookmarksTree()
+          const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
           const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
           const serverMark = {
             title: 'url',
@@ -233,6 +253,7 @@ describe('Floccus', function() {
           const bookmarkId = await adapter.createBookmark(
             new Bookmark(serverMark)
           )
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
           await account.sync()
           expect(account.getData().error).to.not.be.ok
@@ -265,7 +286,9 @@ describe('Floccus', function() {
         it('should update local bookmarks on server changes', async function() {
           var adapter = account.server
 
-          const fooFolderId = await adapter.createFolder('', 'foo')
+          if (adapter.onSyncStart) await adapter.onSyncStart()
+          const serverTree = await adapter.getBookmarksTree()
+          const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
           const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
           const serverMark = {
             title: 'url',
@@ -275,15 +298,18 @@ describe('Floccus', function() {
           const serverMarkId = await adapter.createBookmark(
             new Bookmark(serverMark)
           )
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
           await account.sync() // propage creation
 
+          if (adapter.onSyncStart) await adapter.onSyncStart()
           const newServerMark = {
             ...serverMark,
             title: 'blah',
             id: serverMarkId
           }
           await adapter.updateBookmark(new Bookmark(newServerMark))
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
           await account.sync() // propage update
           expect(account.getData().error).to.not.be.ok
@@ -315,7 +341,9 @@ describe('Floccus', function() {
         })
         it('should update local bookmarks on server removals', async function() {
           var adapter = account.server
-          const fooFolderId = await adapter.createFolder('', 'foo')
+          if (adapter.onSyncStart) await adapter.onSyncStart()
+          const serverTree = await adapter.getBookmarksTree()
+          const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
           const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
           const serverMark = {
             title: 'url',
@@ -325,10 +353,13 @@ describe('Floccus', function() {
           const serverMarkId = await adapter.createBookmark(
             new Bookmark(serverMark)
           )
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
           await account.sync() // propage creation
 
+          if (adapter.onSyncStart) await adapter.onSyncStart()
           await adapter.removeBookmark(serverMarkId)
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
           await account.sync() // propage update
           expect(account.getData().error).to.not.be.ok
@@ -356,7 +387,9 @@ describe('Floccus', function() {
         it('should be ok if both server and local bookmark are removed', async function() {
           var adapter = account.server
 
-          const fooFolderId = await adapter.createFolder('', 'foo')
+          if (adapter.onSyncStart) await adapter.onSyncStart()
+          var serverTree = await adapter.getBookmarksTree()
+          const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
           const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
           const serverMark = {
             title: 'url',
@@ -366,15 +399,21 @@ describe('Floccus', function() {
           const serverMarkId = await adapter.createBookmark(
             new Bookmark(serverMark)
           )
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
           await account.sync() // propagate creation
 
+          if (adapter.onSyncStart) await adapter.onSyncStart()
           await adapter.removeBookmark(serverMarkId)
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
           await account.sync() // propagate update
 
           expect(account.getData().error).to.not.be.ok
           const localTree = await account.localTree.getBookmarksTree()
-          const serverTree = await adapter.getBookmarksTree()
+
+          if (adapter.onSyncStart) await adapter.onSyncStart()
+          serverTree = await adapter.getBookmarksTree()
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
           // Root must also be equal in the assertion
           localTree.title = serverTree.title
@@ -397,17 +436,45 @@ describe('Floccus', function() {
             )
           }
         })
-        afterEach('clean up account', async function() {
+        afterEach('clean up accounts', async function() {
           await browser.bookmarks.removeTree(account1.getData().localRoot)
           if (ACCOUNT_DATA.type !== 'fake') {
+            if (account1.server.onSyncStart) {
+              await account1.server.onSyncStart()
+            }
             let tree1 = await account1.server.getBookmarksTree()
-            await account1.server.removeFolder(tree1.id)
+            await Promise.all(
+              tree1.children.map(async child => {
+                if (child instanceof Folder) {
+                  await account1.server.removeFolder(child.id)
+                } else {
+                  await account1.server.removeBookmark(child.id)
+                }
+              })
+            )
+            if (account1.server.onSyncComplete) {
+              await account1.server.onSyncComplete()
+            }
           }
           await account1.delete()
           await browser.bookmarks.removeTree(account2.getData().localRoot)
           if (ACCOUNT_DATA.type !== 'fake') {
+            if (account1.server.onSyncStart) {
+              await account1.server.onSyncStart()
+            }
             let tree2 = await account2.server.getBookmarksTree()
-            await account2.server.removeFolder(tree2.id)
+            await Promise.all(
+              tree2.children.map(async child => {
+                if (child instanceof Folder) {
+                  await account2.server.removeFolder(child.id)
+                } else {
+                  await account2.server.removeBookmark(child.id)
+                }
+              })
+            )
+            if (account1.server.onSyncComplete) {
+              await account1.server.onSyncComplete()
+            }
           }
           await account2.delete()
         })
@@ -431,7 +498,10 @@ describe('Floccus', function() {
           await account1.sync()
           await account2.sync()
 
+          if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTree = await adapter.getBookmarksTree()
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
           const tree1 = await account1.localTree.getBookmarksTree()
           const tree2 = await account2.localTree.getBookmarksTree()
           tree1.title = tree2.title
@@ -453,7 +523,9 @@ describe('Floccus', function() {
 
           await account1.sync()
 
+          if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterSyncing = await adapter.getBookmarksTree()
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
           expectTreeEqual(
             serverTreeAfterSyncing,
             new Folder({
@@ -508,7 +580,10 @@ describe('Floccus', function() {
           await account1.sync()
           await account2.sync()
 
+          if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterFirstSync = await adapter.getBookmarksTree()
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
           const tree1AfterFirstSync = await account1.localTree.getBookmarksTree()
           const tree2AfterFirstSync = await account2.localTree.getBookmarksTree()
           expectTreeEqual(
@@ -536,7 +611,10 @@ describe('Floccus', function() {
           const tree1BeforeSecondSync = await account1.localTree.getBookmarksTree()
           await account1.sync()
 
+          if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterSecondSync = await adapter.getBookmarksTree()
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
           const tree1AfterSecondSync = await account1.localTree.getBookmarksTree()
           expectTreeEqual(
             tree1AfterSecondSync,
@@ -553,7 +631,10 @@ describe('Floccus', function() {
 
           await account2.sync()
 
+          if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterThirdSync = await adapter.getBookmarksTree()
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
           const tree2AfterThirdSync = await account2.localTree.getBookmarksTree()
           expectTreeEqual(
             tree2AfterThirdSync,
@@ -571,7 +652,10 @@ describe('Floccus', function() {
           console.log('acc1: final sync')
           await account1.sync()
 
+          if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterFinalSync = await adapter.getBookmarksTree()
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
           const tree1AfterFinalSync = await account1.localTree.getBookmarksTree()
           expectTreeEqual(
             tree1AfterFinalSync,
