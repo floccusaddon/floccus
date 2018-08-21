@@ -33,7 +33,7 @@ export default class Account {
   }
 
   static async create(data) {
-    let id = '' + Math.floor(Math.random() * 10000000000)
+    let id = '' + Date.now()
     let storage = new AccountStorage(id)
 
     await storage.setAccountData(data)
