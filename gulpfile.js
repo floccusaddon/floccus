@@ -16,7 +16,8 @@ const paths = {
     '!node_modules/**',
     '!img/**',
     '!ISSUE_TEMPLATE.md',
-    '!gulpfile.js'
+    '!gulpfile.js',
+    '!key.pem'
   ],
   views: './views/*.html',
   entries: 'src/entries/*.js',
