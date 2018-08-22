@@ -6,11 +6,9 @@
 
 <a href="https://liberapay.com/marcelklehr/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
 
-The goal of this project is to build a browser extension that syncs your browser data with the open source sync and share server [Nextcloud](https://nextcloud.com).
+The goal of this project is to build a browser extension that syncs your browser data across browser vendors with the open source, self-hosted sync and share server [Nextcloud](https://nextcloud.com) and possibly other self-hosted solutions.
 
-Historically this was once possible using [the mozilla sync app](https://github.com/owncloudarchive/mozilla_sync). However, it's [not very easy anymore](https://github.com/owncloudarchive/mozilla_sync/issues/33) to run your own sync server and it still would only work with firefox.
-
-**News:** Floccus v3.0 now allows you to sync duplicate bookmarks in different folders and can sync accross browser vendors without any hassle. :weight_lifting_woman:
+**News:** Floccus v3.0 now allows you to sync duplicate bookmarks in different folders and can sync accross browser vendors without any hassle. :weight_lifting_woman: Additionally you can now sync with any WebDAV server you want, not just with the nextcloud bookmarks app.
 
 [![Chrome Webstore](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|
 [![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)
@@ -19,7 +17,12 @@ Historically this was once possible using [the mozilla sync app](https://github.
 
 ## Install
 
-For this to work with your Nextcloud server, you need at least version v0.11 of the Bookmarks app installed. Once you've done that you can continue to install floccus in your browser as follows.
+You will need a server, at least one browser and the floccus browser extension.
+
+You can either choose to sync via WebDAV (with any version of nextcloud or with any other WebDAV server, commercial or self-hosted).
+Alternatively, if you'd like to access your bookmarks via a nice web frontend, you can sync with the nextcloud bookmarks app, which allows you to do just that. For the latter to work, you need at least version v0.11 of the Bookmarks app installed (which requires nextcloud v12 or greater).
+
+Once you have your server ready, read on to install the browser extension.
 
 **Note:** It is recommended to not enable native bookmark synchronization built into your browser, as it is known to cause issues.
 
@@ -29,9 +32,9 @@ You can [install it via the Chrome Web store](https://chrome.google.com/webstore
 
 Alternatively, you can still install it by [downloading the Chrome package from the latest release](https://github.com/marcelklehr/floccus/releases/) and dropping it into Chrome's extension page.
 
-#### Updating from 1.x to v2.0
+#### Updating from 2.x to v3.0
 
-It is recommended to remove all of your bookmarks from your accounts before updating floccus, deleting them and after updating to reconnect them again, in order to prevent unforeseen problems!
+It is recommended to remove all of your bookmarks from your accounts before using the new version, deleting the accounts and then to create them again, in order to prevent unforeseen problems!
 
 ### Firefox
 
@@ -39,9 +42,9 @@ You can [install it via AMO](https://addons.mozilla.org/en-US/firefox/addon/floc
 
 (Note that AMO has to review all new releases, though, so you might need to wait a bit before you can install the latest release on firefox.)
 
-#### Updating from 1.x to v2.0
+#### Updating from v2.x to v3.0
 
-It is recommended to remove all of your bookmarks from your accounts before updating floccus, deleting them and after updating to reconnect them again, in order to prevent unforeseen problems!
+It is recommended to remove all of your bookmarks from your accounts before using the new version, deleting the accounts and then to create them again, in order to prevent unforeseen problems!
 
 ### Firefox for Android
 
@@ -49,47 +52,17 @@ Floccus is not supported by Firefox for Android, [yet](https://developer.mozilla
 
 ## Usage
 
-- **The options panel**; After installation the options pane will pop up allowing you to create accounts and edit their settings. You will be able to access this pane at all times by clicking the floccus icon in the browser tool bar.
-- **Your accounts**: You can setup multiple nextcloud accounts and select a bookmark folder for each, that should be synced with that account. Floccus will keep the bookmarks in sync with your nextcloud whenever you add or change them and will also sync periodically to pull the latest changes from the server.
-- **Syncing the root folder**: If you want to sync all bookmarks in your browser you need to select the topmost untitled folder in the folder picker. Syncing the root folder across browsers from different vendors is now possible out of the box (built-in folder names are now normalized).
+- **The accounts panel**; After installation the accounts pane will pop up allowing you to create and manage accounts. You will be able to access this pane at all times by clicking the floccus icon in the browser tool bar.
+- **Your accounts**: You can setup multiple accounts and select a bookmark folder for each, that should be synced with that account. Floccus will keep the bookmarks in sync with the server you selected whenever you add or change them and will also sync periodically to pull the latest changes from the server.
+- **Syncing the root folder**: If you want to sync all bookmarks in your browser you need to select the topmost untitled folder in the folder picker. (In case you're wondering: Syncing the root folder across browsers from different vendors is now possible out of the box, because the built-in folder names are now normalized).
 
 ### Limitations
 
 - Note that currently you cannot sync the same folder with multiple nextcloud accounts in order to avoid data corruption. If you sync the root folder with one account and sync a sub folder with a different account, that sub-folder will not be synced with the account connected to the root folder anymore.
-- Syncing the root folder across browsers from different vendors is not possible currently, as the main bookmark folders (like "Other bookmarks") are hardcoded and different for each browser vendor.
 
-## Goals and Limitations aka. Is this a good idea?
+## Considerations
 
-As there have been debates about whether this software product is a good idea, I've made a little section here with my considerations.
-
-### Goals
-
-The goals of this piece of software
-
-- provide an open cross-platform sync solution for browser data with nextcloud
-- performance is a plus, but not necessary
-- (eventual) consistency is more important than intention preservation (i.e. when ever a mistake happens during sync, it's guaranteed to be eventually consistent on all sites)
-
-### Current status and Limitations
-
-The WebExtensions bookmarks API has a few limitations:
-
-1.  No support for batching or transactions
-2.  Record GUIDs can change, but are only known to change when Firefox Sync is used.
-3.  The data format doesn't represent descriptions, tags or separators
-4.  No way to create a per-device folder
-5.  It's impossible to express safe operations, because there are no compare-and-set primitives.
-6.  Triggering a sync after the first change, causing repeated syncs and inconsistency to spread to other devices.
-
-Nonetheless, I've chosen to utilize the WebExtensions API for implementing this sync client. As I'm aware, this decision has (at least) the following consequences:
-
-1.  No transaction support (\#1) leads to bad performance
-2.  No support for transactions (\#1) also can potentially cause intermediate states to be synced. However, all necessary precautions are taken to prevent this and even in the case that this happens, all sites will be eventually consistent, allowing you to manually resolve possible problems after the fact.
-3.  Due to the modification of GUIDs (\#2), usage of Firefox Sync along with Floccus is discouraged.
-4.  The incomplete data format (\#3) is an open problem, but doesn't impact the synchronization of the remaining accessible data.
-5.  The inability to exclude folders from sync in 3rd-party extensions (\#4) is a problem, but manageable when users are able to manually choose folders to ignore. (Currently not implemented)
-6.  The lack of safe write operations (\#5) can be dealt with similarly to the missing transaction support: Changes made during sync could lead to an unintended but consistent state, which can be resolved manually. Additionally, precautions are taken to prevent this.
-7.  In order to avoid syncing prematurely (\#6) floccus employs a timeout to wait until all pending bookmarks operations are done.
+Is this a good idea? I think so. If you'd like to know more, check out [the considerations file](./CONSIDERATIONS.md)
 
 ## What's with the name?
 
