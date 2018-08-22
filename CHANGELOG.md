@@ -1,3 +1,15 @@
+## v3.0.0
+
+- NEW: Rewritten sync algorithm allowing faster syncing and better extensibility with adapters
+- NEW: Bookmarks app adapter can now handle duplicate URLs in different folders
+- NEW: WebDAV adpater
+- NEW: Refactored UI code and cleaner interface design
+- NEW: 1-click Debug logs :tada:
+- NEW: Bookmarks app adapter doesn't automatically tag untagged upstream bookmarks anymore
+- NEW: Streamlined "sync everything" use case
+- NEW: More explanations in the UI for people who don't read the manual
+- FIX: Various UX improvements
+
 ## v2.2.9
 
 - FIX: Adjust usage of fetch API to specification update
