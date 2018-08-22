@@ -432,7 +432,9 @@ export default class WebDavAdapter extends CachingAdapter {
             <td />
             <td>
               e.g. with nextcloud:{' '}
-              <code>https://your-domain.com/remote.php/webdav/</code>
+              <i>
+                <code>https://your-domain.com/remote.php/webdav/</code>
+              </i>
             </td>
           </tr>
           <tr>
@@ -481,9 +483,11 @@ export default class WebDavAdapter extends CachingAdapter {
           <tr>
             <td />
             <td>
-              a path to the bookmarks file relative to your WebDAV URL e.g.{' '}
-              <code>personal_stuff/bookmarks.xbel</code> (all folders in the
-              path must already exist)
+              a path to the bookmarks file relative to your WebDAV URL (all
+              folders in the path must already exist). e.g.{' '}
+              <i>
+                <code>personal_stuff/bookmarks.xbel</code>
+              </i>
             </td>
           </tr>
           <tr>
