@@ -465,7 +465,7 @@ export default class WebDavAdapter extends CachingAdapter {
           </tr>
           <tr>
             <td>
-              <Label for="bookmar_file">Bookmarks file path:</Label>
+              <Label for="bookmark_file">Bookmarks file path:</Label>
             </td>
             <td>
               <Input
@@ -476,6 +476,14 @@ export default class WebDavAdapter extends CachingAdapter {
                 onkeyup={onchange.bind(null, 'bookmark_file')}
                 onblur={onchange.bind(null, 'serverRoot')}
               />
+            </td>
+          </tr>
+          <tr>
+            <td />
+            <td>
+              a path to the bookmarks file relative to your WebDAV URL e.g.{' '}
+              <code>personal_stuff/bookmarks.xbel</code> (all folders in the
+              path must already exist)
             </td>
           </tr>
           <tr>
