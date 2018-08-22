@@ -1,3 +1,7 @@
+## v3.0.1
+
+- nothing changed
+
 ## v3.0.0
 
 - NEW: Rewritten sync algorithm allowing faster syncing and better extensibility with adapters
