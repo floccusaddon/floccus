@@ -50,6 +50,17 @@ It is recommended to remove all of your bookmarks from your accounts before usin
 
 Floccus is not supported by Firefox for Android, [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility).
 
+### Permissions
+
+Floccus requests the following permissions:
+
+| Permission           | Explanation                                                                                                                                                                                                                                                                                                                                                          |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| storage              | Necessary for maintaining a cache and mappings between server and browser bookmarks                                                                                                                                                                                                                                                                                  |
+| alarms               | Necessary for triggering synchronization in regular intervals                                                                                                                                                                                                                                                                                                        |
+| bookmarks            | Necessary for creating and reading bookmarks                                                                                                                                                                                                                                                                                                                         |
+| Unlimited web access | Necessary for accessing your self-hosted server. This cannot be limited, because everybody's server has a different URL. Unfortunately, the way webextensions work currently, floccus also gets access to all the data the browser has collected on those websites. However, floccus makes no use of that data and doesn't in any way collect information about you. |
+
 ## Usage
 
 - **The accounts panel**; After installation the accounts pane will pop up allowing you to create and manage accounts. You will be able to access this pane at all times by clicking the floccus icon in the browser tool bar.
