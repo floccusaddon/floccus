@@ -210,13 +210,14 @@ export default class NextcloudAdapter extends Adapter {
 
       var currentSubtree = tree
       pathArray.forEach((title, i) => {
+        var folder
         // we already have created the root folder
         if (i === 0) return
-        var folder = currentSubtree.children.filter(
-          folder => folder.title === title
-        )[0]
+        folder = currentSubtree.children
+          .filter(child => child instanceof Folder)
+          .filter(folder => folder.title === title)[0]
         if (!folder) {
-          var folder = new Folder({
+          folder = new Folder({
             parentId: currentSubtree.id,
             id: PathHelper.arrayToPath(pathArray.slice(0, i + 1)),
             title
