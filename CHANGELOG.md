@@ -1,3 +1,8 @@
+## v3.0.2
+
+- NC bookmarks adapter: Discern folders and bookmarks when building initial tree
+- WebDAV adapter: Don't continue with empty tree after error in onSyncStart
+
 ## v3.0.1
 
 - nothing changed
