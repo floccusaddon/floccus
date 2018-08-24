@@ -395,10 +395,7 @@ export default class WebDavAdapter extends CachingAdapter {
         }
       }
     } catch (e) {
-      console.log('caught error')
-      console.log(e)
-
-      this.bookmarksCache = new Folder({ id: 0, title: 'root' })
+      throw e
     }
 
     console.log('onSyncStart: completed')
