@@ -36,7 +36,8 @@ export default class Account {
     let id = '' + Date.now()
     let storage = new AccountStorage(id)
 
-    await storage.setAccountData(data)
+    let background = await browser.runtime.getBackgroundPage()
+    await storage.setAccountData(data, background.controller.key)
     let account = new Account(id, storage, Adapter.factory(data))
     return account
   }

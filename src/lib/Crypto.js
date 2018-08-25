@@ -47,7 +47,7 @@ export default class Crypto {
   static async decryptAES(key, iv, ciphertext) {
     return new TextDecoder().decode(
       await crypto.subtle.decrypt(
-        { name: 'AES-CBC', iv: Uint8Array.from(iv) },
+        { name: 'AES-CBC', iv: Uint8Array.from(Crypto.iv) },
         await this.prepareKey(key),
         this.hexstrToBuffer(ciphertext)
       )
@@ -57,7 +57,7 @@ export default class Crypto {
   static async encryptAES(key, iv, message) {
     return this.bufferToHexstr(
       await crypto.subtle.encrypt(
-        { name: 'AES-CBC', iv: Uint8Array.from(iv) },
+        { name: 'AES-CBC', iv: Uint8Array.from(Crypto.iv) },
         await this.prepareKey(key),
         new TextEncoder().encode(message)
       )
