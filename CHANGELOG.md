@@ -1,3 +1,7 @@
+## v3.0.3
+
+- FIX: Securing accounts was broken
+
 ## v3.0.2
 
 - NC bookmarks adapter: Discern folders and bookmarks when building initial tree
