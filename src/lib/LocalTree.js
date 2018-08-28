@@ -31,11 +31,11 @@ export default class LocalTree extends Resource {
       let overrideTitle, isRoot
       if (node.parentId === rootTree.id) {
         switch (node.id) {
-          case 1: // Chrome
+          case '1': // Chrome
           case 'toolbar_____': // Firefox
             overrideTitle = 'Bookmarks Bar'
             break
-          case 2: // Chrome
+          case '2': // Chrome
           case 'unfiled_____': // Firefox
             overrideTitle = 'Other Bookmarks'
             break
