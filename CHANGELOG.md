@@ -1,3 +1,7 @@
+## v3.0.4
+
+- FIX: Root folder normalization in chrome wasn't working
+
 ## v3.0.3
 
 - FIX: Securing accounts was broken
