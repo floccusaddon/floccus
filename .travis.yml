@@ -17,6 +17,7 @@ env:
     - NC_APP_VERSION=master
   matrix:
     - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0
+    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.12.1
     - SERVER_BRANCH=stable13 NC_APP_VERSION=master
     - SERVER_BRANCH=master NC_APP_VERSION=master
 
