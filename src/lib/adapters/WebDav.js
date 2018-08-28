@@ -296,7 +296,7 @@ export default class WebDavAdapter extends CachingAdapter {
         id: parseInt(bookmark.id),
         parentId: folder.id,
         url: bookmark.getAttribute('href'),
-        title: bookmark.firstElementChild.innerHTML
+        title: this.htmlDecode(bookmark.firstElementChild.innerHTML)
       })
 
       folder.children.push(bm)
@@ -309,7 +309,7 @@ export default class WebDavAdapter extends CachingAdapter {
     )
 
     folderList.forEach(bmFolder => {
-      let sTitle = bmFolder.firstElementChild.innerHTML
+      let sTitle = this.htmlDecode(bmFolder.firstElementChild.innerHTML)
       console.log('Adding folder :' + sTitle + ':')
       let newFolder = new Folder({
         id: parseInt(bmFolder.getAttribute('id')),
