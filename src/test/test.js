@@ -384,6 +384,57 @@ describe('Floccus', function() {
             ACCOUNT_DATA.type === 'nextcloud'
           )
         })
+        it('should handle strange characters well', async function() {
+          var adapter = account.server
+          expect((await adapter.getBookmarksTree()).children).to.have.lengthOf(
+            0
+          )
+
+          const localRoot = account.getData().localRoot
+          const fooFolder = await browser.bookmarks.create({
+            title: 'foo!"§$%&/()=?"',
+            parentId: localRoot
+          })
+          const barFolder = await browser.bookmarks.create({
+            title: "bar=?*'Ä_:-^;",
+            parentId: fooFolder.id
+          })
+          const bookmark = await browser.bookmarks.create({
+            title: 'url|!"=)/§_:;Ä\'*ü"',
+            url: 'http://ur.l/',
+            parentId: barFolder.id
+          })
+          await account.sync()
+          expect(account.getData().error).to.not.be.ok
+
+          await account.sync()
+          expect(account.getData().error).to.not.be.ok
+
+          const tree = await adapter.getBookmarksTree()
+          expectTreeEqual(
+            tree,
+            new Folder({
+              title: tree.title,
+              children: [
+                new Folder({
+                  title: 'foo!"§$%&/()=?"',
+                  children: [
+                    new Folder({
+                      title: "bar=?*'Ä_:-^;",
+                      children: [
+                        new Bookmark({
+                          title: 'url|!"=)/§_:;Ä\'*ü"',
+                          url: bookmark.url
+                        })
+                      ]
+                    })
+                  ]
+                })
+              ]
+            }),
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
+        })
         it('should be ok if both server and local bookmark are removed', async function() {
           var adapter = account.server
 

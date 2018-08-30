@@ -172,7 +172,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
   htmlDecode(content) {
     let a = document.createElement('a')
-    a.innerHTML = html
+    a.innerHTML = content
     return a.textContent
   }
 
