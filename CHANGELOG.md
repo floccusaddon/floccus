@@ -1,3 +1,7 @@
+## v3.0.6
+
+- FIX: Properly decode titles in .xbel file
+
 ## v3.0.5
 
 - FIX: Don't write account password to debug log
