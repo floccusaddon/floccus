@@ -160,7 +160,7 @@ export default class NextcloudAdapter extends Adapter {
     if (this.list) {
       return this.list
     }
-    Logger.log('Fetching bookmarks', this.server)
+    Logger.log('Fetching bookmarks')
     const json = await this.sendRequest(
       'GET',
       'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
@@ -301,7 +301,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async _getBookmark(id) {
-    Logger.log('Fetching single bookmark', this.server)
+    Logger.log('Fetching single bookmark')
 
     const json = await this.sendRequest(
       'GET',
@@ -463,8 +463,6 @@ export default class NextcloudAdapter extends Adapter {
         'Network error: Check your network connection and your account details'
       )
     }
-
-    Logger.log(res)
 
     if (res.status === 401) {
       throw new Error("Couldn't authenticate with the server")
