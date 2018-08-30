@@ -15,7 +15,7 @@ export default class Logger {
     await AccountStorage.changeEntry(
       'log',
       log => {
-        return log.concat(this.messages).slice(-5000) // rotate log to max of 5000 entries
+        return log.concat(this.messages).slice(-2500) // rotate log to max of 5000 entries
       },
       []
     )
