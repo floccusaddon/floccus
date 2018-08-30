@@ -1,3 +1,8 @@
+## v3.0.5
+
+- FIX: Don't write account password to debug log
+- FIX: Properly decode titles in .xbel file
+
 ## v3.0.4
 
 - FIX: Root folder normalization in chrome wasn't working
