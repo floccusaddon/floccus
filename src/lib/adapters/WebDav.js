@@ -1,7 +1,7 @@
 import * as Tree from '../Tree'
 import Adapter from '../Adapter'
 import CachingAdapter from '../adapters/Caching'
-
+import Logger from '../Logger'
 import { Bookmark, Folder } from '../Tree'
 import * as Basics from '../components/basics'
 const { h } = require('hyperapp')
@@ -21,9 +21,6 @@ const {
 export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {
     super(server)
-    console.log('Webdav constructor')
-    console.log(server)
-
     this.server = server
   }
 
@@ -66,7 +63,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async checkLock() {
     let fullURL = this.getBookmarkLockURL()
-    console.log(fullURL)
+    Logger.log(fullURL)
 
     let rStatus
     let rBody
@@ -95,8 +92,8 @@ export default class WebDavAdapter extends CachingAdapter {
         body: data
       })
     } catch (e) {
-      console.log('Error Caught')
-      console.log(e)
+      Logger.log('Error Caught')
+      Logger.log(e)
       throw new Error(
         'Network error: Check your network connection and your account details'
       )
@@ -126,7 +123,7 @@ export default class WebDavAdapter extends CachingAdapter {
       )
     } else if (rStatus == 404) {
       let fullURL = this.getBookmarkLockURL()
-      console.log(fullURL)
+      Logger.log(fullURL)
       await this.uploadFile(
         fullURL,
         'text/html',
@@ -162,8 +159,8 @@ export default class WebDavAdapter extends CachingAdapter {
 
       rStatus = response.status
     } catch (e) {
-      console.log('Error Caught')
-      console.log(e)
+      Logger.log('Error Caught')
+      Logger.log(e)
     }
   }
 
@@ -253,18 +250,18 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async onSyncFail() {
-    console.log('onSyncFail')
+    Logger.log('onSyncFail')
     await this.freeLock()
   }
 
   async onSyncComplete() {
-    console.log('onSyncComplete')
+    Logger.log('onSyncComplete')
     let cacheClone = this.bookmarksCache.clone()
-    console.log(cacheClone)
+    Logger.log(cacheClone)
 
     let fullUrl = this.server.bookmark_file
     fullUrl = this.server.url + fullUrl
-    console.log('fullURL :' + fullUrl + ':')
+    Logger.log('fullURL :' + fullUrl + ':')
     let xbel = this.createXBEL(this.bookmarksCache)
     await this.uploadFile(fullUrl, 'application/xml', xbel)
     await this.freeLock()
@@ -310,7 +307,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
     folderList.forEach(bmFolder => {
       let sTitle = this.htmlDecode(bmFolder.firstElementChild.innerHTML)
-      console.log('Adding folder :' + sTitle + ':')
+      Logger.log('Adding folder :' + sTitle + ':')
       let newFolder = new Folder({
         id: parseInt(bmFolder.getAttribute('id')),
         title: sTitle,
@@ -332,8 +329,8 @@ export default class WebDavAdapter extends CachingAdapter {
 
     this.bookmarksCache = bookmarksCache.clone()
 
-    console.log('parseXbel')
-    console.log(bookmarksCache)
+    Logger.log('parseXbel')
+    Logger.log(bookmarksCache)
   }
 
   async pullFromServer() {
@@ -383,7 +380,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async onSyncStart() {
-    console.log('onSyncStart: begin')
+    Logger.log('onSyncStart: begin')
     await this.obtainLock()
 
     try {
@@ -398,7 +395,7 @@ export default class WebDavAdapter extends CachingAdapter {
       throw e
     }
 
-    console.log('onSyncStart: completed')
+    Logger.log('onSyncStart: completed')
   }
 
   static renderOptions(state, actions) {
