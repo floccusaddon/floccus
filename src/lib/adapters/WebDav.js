@@ -164,10 +164,10 @@ export default class WebDavAdapter extends CachingAdapter {
     }
   }
 
-  htmlEncode(content) {
-    return document
-      .createElement('a')
-      .appendChild(document.createTextNode(content)).parentNode.innerHTML
+  xmlEncode(content) {
+    return new XMLSerializer().serializeToString(
+      document.createTextNode(content)
+    )
   }
 
   htmlDecode(content) {
@@ -182,7 +182,7 @@ export default class WebDavAdapter extends CachingAdapter {
     myFolder.children.forEach(bm => {
       if (bm instanceof Bookmark) {
         output += indent + '<bookmark href='
-        output += '"' + this.htmlEncode(bm.url) + '"'
+        output += '"' + this.xmlEncode(bm.url) + '"'
         output +=
           ' id="' +
           bm.id +
@@ -191,7 +191,7 @@ export default class WebDavAdapter extends CachingAdapter {
         output +=
           indent +
           '<title>' +
-          this.htmlEncode(bm.title) +
+          this.xmlEncode(bm.title) +
           `</title>
 `
         output +=
@@ -213,7 +213,7 @@ export default class WebDavAdapter extends CachingAdapter {
         output +=
           indent +
           '    <title>' +
-          this.htmlEncode(folder.title) +
+          this.xmlEncode(folder.title) +
           `</title>
 `
 
