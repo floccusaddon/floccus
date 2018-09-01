@@ -1,0 +1,24 @@
+{
+  "projectName": "floccus",
+  "projectOwner": "marcelklehr",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 70,
+  "commit": true,
+  "contributors": [
+    {
+      "login": "bernd-wechner",
+      "name": "Bernd Wechner",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/7296506?v=4",
+      "profile": "https://github.com/bernd-wechner",
+      "contributions": [
+        "bug",
+        "ideas",
+        "test"
+      ]
+    }
+  ]
+}
