@@ -325,6 +325,11 @@ export default class WebDavAdapter extends CachingAdapter {
       'xbel',
       1 /* element type */
     )
+    if (!nodeList.length) {
+      throw new Error(
+        'Parse Error: ' + new XMLSerializer().serializeToString(xbelDoc)
+      )
+    }
     this._parseFolder(nodeList[0], bookmarksCache)
 
     this.bookmarksCache = bookmarksCache.clone()
