@@ -93,8 +93,8 @@ If you'd like to support the creation and maintenance of this software, consider
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore -->
-| [<img src="https://avatars2.githubusercontent.com/u/7296506?v=4" width="70px;"/><br /><sub><b>Bernd Wechner</b></sub>](https://github.com/bernd-wechner)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3Abernd-wechner "Bug reports") [🤔](#ideas-bernd-wechner "Ideas, Planning, & Feedback") [⚠️](https://github.com/marcelklehr/floccus/commits?author=bernd-wechner "Tests") |
-| :---: |
+| [<img src="https://avatars2.githubusercontent.com/u/7296506?v=4" width="70px;"/><br /><sub><b>Bernd Wechner</b></sub>](https://github.com/bernd-wechner)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3Abernd-wechner "Bug reports") [🤔](#ideas-bernd-wechner "Ideas, Planning, & Feedback") [⚠️](https://github.com/marcelklehr/floccus/commits?author=bernd-wechner "Tests") | [<img src="https://avatars0.githubusercontent.com/u/9746421?v=4" width="70px;"/><br /><sub><b>jlbprof</b></sub>](https://github.com/jlbprof)<br />[💻](https://github.com/marcelklehr/floccus/commits?author=jlbprof "Code") [🐛](https://github.com/marcelklehr/floccus/issues?q=author%3Ajlbprof "Bug reports") [⚠️](https://github.com/marcelklehr/floccus/commits?author=jlbprof "Tests") |
+| :---: | :---: |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification.
