@@ -201,7 +201,7 @@ export default class WebDavAdapter extends CachingAdapter {
         }
       })
 
-      let bookmarkCache = new Folder({ id: 0, title: 'root' })
+      let bookmarksCache = new Folder({ id: 0, title: 'root' })
       parseXbelDoc(xmlDoc, bookmarksCache)
       this.bookmarksCache = bookmarksCache.clone()
 
@@ -366,7 +366,7 @@ function parseXbelDoc(xbelDoc, rootFolder) {
   parseXbelFolder(nodeList[0], rootFolder)
 }
 
-function parseFolder(xbelObj, folder) {
+function parseXbelFolder(xbelObj, folder) {
   /* parse bookmarks first, breadth first */
 
   let bookmarkList = getElementsByNodeName(
@@ -400,7 +400,7 @@ function parseFolder(xbelObj, folder) {
       parentId: folder.id
     })
     folder.children.push(newFolder)
-    parseFolder(bmFolder, newFolder)
+    parseXbelFolder(bmFolder, newFolder)
   })
 }
 
@@ -447,11 +447,8 @@ function outputFolderXBEL(myFolder, indent) {
         title.textContent = child.title
         folder.appendChild(title)
 
-        folder.innerHTML += outputFolderXBEL(folder, indent + '    ')
-        return new XMLSerializer().serializeToString(
-          bookmark,
-          'application/xml'
-        )
+        folder.innerHTML += outputFolderXBEL(child, indent + '    ')
+        return new XMLSerializer().serializeToString(folder, 'application/xml')
       }
     })
     .join('\r\n' + indent)
