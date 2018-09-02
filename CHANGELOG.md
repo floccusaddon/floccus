@@ -1,3 +1,7 @@
+## v3.0.7
+
+- FIX: Various XML parse and serialization issues have been fixed
+
 ## v3.0.6
 
 - FIX: Properly decode titles in .xbel file
