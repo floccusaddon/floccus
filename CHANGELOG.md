@@ -1,3 +1,7 @@
+## v3.0.8
+
+- FIX: Fix WebDAV adapter
+
 ## v3.0.7
 
 - FIX: Various XML parse and serialization issues have been fixed
