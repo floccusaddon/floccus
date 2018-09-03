@@ -71,7 +71,6 @@ export default class Controller {
       await browser.storage.local.set({
         currentVersion: packageJson.version
       })
-      browser.runtime.openOptionsPage()
     })
   }
 
