@@ -27,7 +27,9 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
 
       if (killTimeout) clearTimeout(killTimeout)
       killTimeout = setTimeout(() => {
-        console.log('FINISHED - no test started since 3 minutes, tests stopped')
+        console.log(
+          'FINISHED FAILED - no test has ended for 3 minutes, tests stopped'
+        )
       }, 60000 * 3)
     })
 

@@ -468,9 +468,21 @@ export default class NextcloudAdapter extends Adapter {
       throw new Error("Couldn't authenticate with the server")
     }
     if (res.status !== 200) {
-      throw new Error(`Failed ${verb} request`)
+      throw new Error(
+        `Error ${
+          res.status
+        }. Failed ${verb} request. Check your server configuration.`
+      )
     }
-    let json = await res.json()
+    let json
+    try {
+      json = await res.json()
+    } catch (e) {
+      throw new Error(
+        'Could not parse server response. Is the bookmarks app installed on your server?\n' +
+          e.message
+      )
+    }
     if (json.status !== 'success') {
       throw new Error('Nextcloud API error: ' + JSON.stringify(json))
     }
