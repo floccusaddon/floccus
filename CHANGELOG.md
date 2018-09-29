@@ -1,3 +1,7 @@
+## v3.0.9
+
+- Various UX improvements
+
 ## v3.0.8
 
 - FIX: Fix WebDAV adapter
