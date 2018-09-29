@@ -43,10 +43,10 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async downloadFile(fullURL) {
-    let response
+    let res
 
     try {
-      response = await fetch(fullURL, {
+      res = await fetch(fullURL, {
         method: 'GET',
         credentials: 'omit',
         headers: {
@@ -55,10 +55,21 @@ export default class WebDavAdapter extends CachingAdapter {
         }
       })
     } catch (e) {
-      response = { status: 500 }
+      throw new Error(
+        'Network error: Check your network connection and your account details'
+      )
     }
 
-    return response
+    if (res.status === 401) {
+      throw new Error("Couldn't authenticate with the server")
+    }
+    if (!res.ok && res.status !== 404) {
+      throw new Error(
+        `Error ${res.status}. Failed request. Check your server configuration.`
+      )
+    }
+
+    return res
   }
 
   async checkLock() {
@@ -81,7 +92,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async uploadFile(url, content_type, data) {
     try {
-      await fetch(url, {
+      var res = await fetch(url, {
         method: 'PUT',
         credentials: 'omit',
         headers: {
@@ -96,6 +107,16 @@ export default class WebDavAdapter extends CachingAdapter {
       Logger.log(e)
       throw new Error(
         'Network error: Check your network connection and your account details'
+      )
+    }
+    if (res.status === 401) {
+      throw new Error("Couldn't authenticate with the server")
+    }
+    if (!res.ok) {
+      throw new Error(
+        `Error ${
+          res.status
+        }. Failed to upload XBEL file. Check your server configuration.`
       )
     }
   }
@@ -131,7 +152,7 @@ export default class WebDavAdapter extends CachingAdapter {
       )
     } else {
       throw new Error(
-        'Network Error: Unable to determine status of lock file ' +
+        `Error ${rStatus} while trying to determine status of lock file ` +
           this.server.bookmark_file +
           '.lock'
       )
@@ -171,12 +192,10 @@ export default class WebDavAdapter extends CachingAdapter {
     let response = await this.downloadFile(fullUrl)
 
     if (response.status === 401) {
-      throw new Error(
-        "Couldn't authenticate for removing bookmarks from the server."
-      )
+      throw new Error("Couldn't authenticate with the server.")
     }
 
-    if (response.status !== 200) {
+    if (response.status === 404) {
       return {
         status: response.status,
         db: new Map()

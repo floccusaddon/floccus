@@ -469,7 +469,9 @@ export default class NextcloudAdapter extends Adapter {
     }
     if (res.status !== 200) {
       throw new Error(
-        `Failed ${verb} request. Check your server configuration.`
+        `Error ${
+          res.status
+        }. Failed ${verb} request. Check your server configuration.`
       )
     }
     let json
