@@ -2,11 +2,13 @@
   "manifest_version": 2,
   "name": "floccus",
   "short_name": "floccus",
-  "version": "3.0.8",
+  "version": "3.0.9",
   "description":
     "Sync your bookmarks with your selfhosted server (e.g. Nextcloud)",
   "icons": {
-    "48": "icons/logo.png"
+    "48": "icons/logo.png",
+    "64": "icons/logo_64.png",
+    "128": "icons/logo_128.png"
   },
 
   "applications": {
