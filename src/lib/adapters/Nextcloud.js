@@ -265,7 +265,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   async moveFolder(id, parentId) {
-    Logger.log('(nextcloud)MOVEFOLDER', { id, title })
+    Logger.log('(nextcloud)MOVEFOLDER', { id, parentId })
     let folder = this.tree.findFolder(id)
     if (!folder) {
       throw new Error('Folder not found')

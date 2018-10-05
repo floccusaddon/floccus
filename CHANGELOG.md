@@ -1,3 +1,7 @@
+## v3.0.10
+
+- Fix syncing moved folders
+
 ## v3.0.9
 
 - Various UX improvements

@@ -2,7 +2,7 @@
 
 ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/img/screen_firefox_options.png)
 
-> Sync your browser bookmarks with Nextcloud
+> Sync your bookmarks with your selfhosted server (e.g. Nextcloud)
 
 The goal of this project is to build a browser extension that syncs your browser data across browser vendors with the open source, self-hosted sync and share server [Nextcloud](https://nextcloud.com) and possibly other self-hosted solutions.
 

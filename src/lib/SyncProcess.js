@@ -368,7 +368,7 @@ export default class SyncProcess {
         await this.syncTree(folder, cacheFolder, newFolder)
       } else {
         const cacheFolder = this.cacheTreeRoot.findFolder(newFolder.id)
-        await this.syncTree(folder, cacheFolder, toFolder)
+        await this.syncTree(newFolder, cacheFolder, folder)
       }
       return
     }
