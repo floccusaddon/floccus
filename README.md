@@ -73,6 +73,10 @@ You can specify a 'server folder' in your floccus account setup. This is like th
 
 - Note that currently you cannot sync the same folder with multiple nextcloud accounts in order to avoid data corruption. If you sync the root folder with one account and sync a sub folder with a different account, that sub-folder will not be synced with the account connected to the root folder anymore.
 
+### Finding duplicates
+
+Floccus will sync your bookmarks as-is, including any dupes. If you need to find and remove duplicates in your bookmarks, try something like [bookmark-dupes](https://addons.mozilla.org/en-US/firefox/addon/bookmark-dupes).
+
 ## Considerations
 
 Is this a good idea? I think so. If you'd like to know more, check out [the considerations file](./CONSIDERATIONS.md)
