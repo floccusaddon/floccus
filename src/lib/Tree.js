@@ -140,7 +140,12 @@ export class Folder {
         .fill('  ')
         .join('') +
       `+ ${this.title}\n` +
-      this.children.map(child => child.inspect(depth + 1)).join('\n')
+      this.children
+        .map(
+          child =>
+            child && child.inspect ? child.inspect(depth + 1) : String(child)
+        )
+        .join('\n')
     )
   }
 
