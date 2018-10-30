@@ -28,6 +28,12 @@ describe('Floccus', function() {
       password: 'admin'
     },
     {
+      type: 'nextcloud-folders',
+      url: 'http://localhost/',
+      username: 'admin',
+      password: 'admin'
+    },
+    {
       type: 'webdav',
       url: 'http://localhost/remote.php/webdav/',
       username: 'admin',

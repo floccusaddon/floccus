@@ -70,7 +70,10 @@ export const Component = () => (state, actions) => {
               actions.accounts.setCreationType(e.currentTarget.value)
             }}
           >
-            <option value="nextcloud">Nextcloud Bookmarks</option>
+            <option value="nextcloud-folders">
+              Nextcloud Bookmarks (v0.14+)
+            </option>
+            <option value="nextcloud">Nextcloud Bookmarks (legacy)</option>
             <option value="webdav">XBEL in WebDAV</option>
           </Select>
           <Button

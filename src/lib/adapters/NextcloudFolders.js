@@ -1,0 +1,489 @@
+// Nextcloud ADAPTER
+// All owncloud specifc stuff goes in here
+import Adapter from '../Adapter'
+import Logger from '../Logger'
+import { Folder, Bookmark } from '../Tree'
+import PathHelper from '../PathHelper'
+import * as Basics from '../components/basics'
+const Parallel = require('async-parallel')
+const { h } = require('hyperapp')
+const url = require('url')
+const PQueue = require('p-queue')
+const _ = require('lodash')
+
+const {
+  Input,
+  Button,
+  Label,
+  OptionSyncFolder,
+  OptionDelete,
+  OptionResetCache,
+  H3
+} = Basics
+
+export default class NextcloudAdapter extends Adapter {
+  constructor(server) {
+    super()
+    this.server = server
+    this.fetchQueue = new PQueue({ concurrency: 10 })
+  }
+
+  static getDefaultValues() {
+    return {
+      type: 'nextcloud',
+      url: 'https://example.org',
+      username: 'bob',
+      password: 's3cret',
+      serverRoot: ''
+    }
+  }
+
+  static renderOptions(state, actions) {
+    let data = state.account
+    let onchange = (prop, e) => {
+      actions.options.update({
+        data: { [prop]: e.target.value }
+      })
+    }
+    return (
+      <form>
+        <table>
+          <tr>
+            <td>
+              <Label for="url">Nextcloud server URL:</Label>
+            </td>
+            <td>
+              <Input
+                value={data.url}
+                type="text"
+                name="url"
+                onkeyup={onchange.bind(null, 'url')}
+                onblur={onchange.bind(null, 'url')}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <Label for="username">User name:</Label>
+            </td>
+            <td>
+              <Input
+                value={data.username}
+                type="text"
+                name="username"
+                onkeyup={onchange.bind(null, 'username')}
+                onblur={onchange.bind(null, 'username')}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <Label for="password">Password:</Label>
+            </td>
+            <td>
+              <Input
+                value={data.password}
+                type="password"
+                name="password"
+                onkeyup={onchange.bind(null, 'password')}
+                onblur={onchange.bind(null, 'password')}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td />
+            <td>
+              <OptionSyncFolder account={state.account} />
+
+              <H3>Server folder</H3>
+              <p>
+                This is the path prefix under which this account will operate on
+                the server. E.g. if you use{' '}
+                <i>
+                  <code>/work</code>
+                </i>, all your bookmarks will be created on the server with this
+                path prefixed to their original path (the one relative to the
+                local folder you specified above). This allows you to separate
+                your server bookmarks into multiple "profiles".
+              </p>
+              <Input
+                value={data.serverRoot || ''}
+                type="text"
+                name="serverRoot"
+                placeholder="Leave empty for no prefix"
+                onkeyup={onchange.bind(null, 'serverRoot')}
+                onblur={onchange.bind(null, 'serverRoot')}
+              />
+
+              <OptionResetCache account={state.account} />
+
+              <OptionDelete account={state.account} />
+            </td>
+          </tr>
+        </table>
+      </form>
+    )
+  }
+
+  setData(data) {
+    this.server = { ...data }
+  }
+
+  getData() {
+    return { ...this.server }
+  }
+
+  getLabel() {
+    let data = this.getData()
+    return data.username + '@' + data.url
+  }
+
+  normalizeServerURL(input) {
+    let serverURL = url.parse(input)
+    let indexLoc = serverURL.pathname.indexOf('index.php')
+    return url.format({
+      protocol: serverURL.protocol,
+      auth: serverURL.auth,
+      host: serverURL.host,
+      port: serverURL.port,
+      pathname:
+        serverURL.pathname.substr(0, ~indexLoc ? indexLoc : undefined) +
+        (!~indexLoc && serverURL.pathname[serverURL.pathname.length - 1] !== '/'
+          ? '/'
+          : '')
+    })
+  }
+
+  async getBookmarksList() {
+    if (this.list) {
+      return this.list
+    }
+    Logger.log('Fetching bookmarks')
+    const json = await this.sendRequest(
+      'GET',
+      'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
+    )
+
+    let bookmarks = json.data.reduce((array, bm) => {
+      let bookmark = new Bookmark({
+        id: bm.id,
+        url: bm.url,
+        title: bm.title
+        // Once firefox supports tags, we can do this:
+        // tags: bm.tags.filter(tag => tag.indexOf('__floccus-path:') != 0)
+      })
+
+      // there may be multiple path tags per server bookmark, create a bookmark for each of them
+      bm.folders.forEach(parentId => {
+        let b = bookmark.clone()
+        b.id = b.id
+        b.parentId = parentId
+        array.push(b)
+      })
+      return array
+    }, [])
+
+    Logger.log('Received bookmarks from server', bookmarks)
+    this.list = bookmarks
+    return bookmarks
+  }
+
+  async getBookmarksTree() {
+    this.list = null // clear cache before starting a new sync
+    let list = await this.getBookmarksList()
+    let serverListTempFolder = new Folder({ children: list })
+    serverListTempFolder.createIndex()
+
+    const json = await this.sendRequest(
+      'GET',
+      'index.php/apps/bookmarks/public/rest/v2/folder'
+    )
+
+    let tree = new Folder({ id: '-1' })
+    let childFolders = json.data
+    if (this.server.serverRoot) {
+      this.server.serverRoot
+        .split('/')
+        .slice(1)
+        .forEach(segment => {
+          let currentChild = childFolders.filter(
+            folder => folder.title === segment
+          )[0]
+          tree = new Folder({ id: currentChild.id })
+          childFolders = currentChild.children
+        })
+    }
+    const recurseChildFolders = async (tree, childFolders) => {
+      // retrieve folder order
+      const json = await this.sendRequest(
+        'GET',
+        `index.php/apps/bookmarks/public/rest/v2/folder/${tree.id}/childorder`
+      )
+      await Promise.all(
+        json.data.map(child => {
+          if (child.type === 'folder') {
+            // get the folder from the tree we've fetched above
+            let folder = childFolders.filter(
+              folder => folder.id === child.id
+            )[0]
+            if (!folder)
+              throw new Error(
+                'Inconsistent server state! Folder present in childorder list but not in folder tree'
+              )
+            let newFolder = new Folder({
+              id: child.id,
+              title: folder.title,
+              parentId: tree.id
+            })
+            tree.children.push(newFolder)
+            // ... and recurse
+            return recurseChildFolders(newFolder, folder.children)
+          } else {
+            // get the bookmark from the list we've fetched above
+            tree.children.push(
+              serverListTempFolder.findBookmark(child.id + ';' + tree.id)
+            )
+            return Promise.resolve()
+          }
+        })
+      )
+    }
+    await recurseChildFolders(tree, childFolders)
+
+    this.tree = tree
+    return tree
+  }
+
+  async createFolder(parentId, title) {
+    Logger.log('(nextcloud)CREATEFOLDER', { parentId, title })
+
+    let parentFolder
+    if (parentId !== '-1') {
+      parentFolder = this.tree
+    } else {
+      parentFolder = this.tree.findFolder(parentId)
+      if (!parentFolder) {
+        throw new Error('Folder not found')
+      }
+    }
+    let body = new FormData()
+    body.append('parent_folder', parentId)
+    body.append('title', title)
+    const json = await this.sendRequest(
+      'POST',
+      'index.php/apps/bookmarks/public/rest/v2/folder',
+      body
+    )
+    parentFolder.children.push(
+      new Folder({ id: json.item.id, title, parentId })
+    )
+    this.tree.createIndex()
+    return json.item.id
+  }
+
+  async updateFolder(id, title) {
+    Logger.log('(nextcloud)UPDATEFOLDER', { id, title })
+    let folder = this.tree.findFolder(id)
+    if (!folder) {
+      throw new Error('Folder not found')
+    }
+    let body = new FormData()
+    body.append('parent_folder', folder.parentId)
+    body.append('title', title)
+    const json = await this.sendRequest(
+      'PUT',
+      `index.php/apps/bookmarks/public/rest/v2/folder/${id}`,
+      body
+    )
+    folder.title = title
+  }
+
+  async moveFolder(id, parentId) {
+    Logger.log('(nextcloud)MOVEFOLDER', { id, parentId })
+    let folder = this.tree.findFolder(id)
+    if (!folder) {
+      throw new Error('Folder not found')
+    }
+    let body = new FormData()
+    body.append('parent_folder', parentId)
+    body.append('title', folder.title)
+    const json = await this.sendRequest(
+      'PUT',
+      `index.php/apps/bookmarks/public/rest/v2/folder/${id}`,
+      body
+    )
+    let oldParentFolder = this.tree.findFolder(folder.parentId)
+    oldParentFolder.children = oldParentFolder.children.filter(
+      child => child.id !== id
+    )
+    let newParentFolder = this.tree.findFolder(parentId)
+    folder.parentId = parentId
+    newParentFolder.children.push(folder)
+    this.tree.createIndex()
+  }
+
+  async removeFolder(id) {
+    Logger.log('(nextcloud)REMOVEFOLDER', id)
+    let folder = this.tree.findFolder(id)
+    if (!folder) {
+      return
+    }
+    const json = await this.sendRequest(
+      'DELETE',
+      `index.php/apps/bookmarks/public/rest/v2/folder/${id}`
+    )
+    let parent = this.tree.findFolder(folder.parentId)
+    parent.children = parent.children.filter(child => child.id !== id)
+  }
+
+  async _getBookmark(id) {
+    Logger.log('Fetching single bookmark')
+
+    const json = await this.sendRequest(
+      'GET',
+      'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id
+    )
+
+    let bm = json.item
+    let bookmarks = bm.folders.map(parentId => {
+      let bookmark = new Bookmark({
+        id: bm.id + ';' + parentId,
+        url: bm.url,
+        title: bm.title,
+        parentId: parentId
+      })
+      bookmark.tags = bm.tags
+      return bookmark
+    })
+
+    return bookmarks
+  }
+
+  /*
+   * This is pretty expensive! We need to wait until NcBookmarks has support for
+   * querying urls directly
+   */
+  async getExistingBookmark(url) {
+    await this.getBookmarksList()
+    let existing = _.find(this.list, bookmark => bookmark.url === url)
+    if (!existing) return
+    return existing.id
+  }
+
+  async createBookmark(bm) {
+    Logger.log('(nextcloud)CREATE', bm)
+    if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
+      return false
+    }
+    let existingBookmark = await this.getExistingBookmark(bm.url)
+    if (existingBookmark) {
+      bm.id = existingBookmark + ';' + bm.parentId
+      await this.updateBookmark(bm)
+    } else {
+      let body = new FormData()
+      body.append('url', bm.url)
+      body.append('title', bm.title)
+      body.append('folders[]', bm.parentId)
+
+      const json = await this.sendRequest(
+        'POST',
+        'index.php/apps/bookmarks/public/rest/v2/bookmark',
+        body
+      )
+      bm.id = json.item.id + ';' + bm.parentId
+      // invalidate cache
+      this.list = null
+    }
+
+    return bm.id
+  }
+
+  async updateBookmark(newBm) {
+    Logger.log('(nextcloud)UPDATE', newBm)
+    if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(newBm.url).protocol)) {
+      return false
+    }
+
+    let [upstreamId, oldParentId] = newBm.id.split(';')
+    let bms = await this._getBookmark(upstreamId)
+
+    let body = new URLSearchParams()
+    body.append('url', newBm.url)
+    body.append('title', newBm.title)
+
+    bms
+      .map(bm => bm.parentId)
+      .filter(parentId => parentId !== oldParentId)
+      .concat([newBm.parentId])
+      .forEach(parentId => body.append('folders[]', parentId))
+
+    bms[0].tags.forEach(tag => body.append('item[tags][]', tag))
+
+    await this.sendRequest(
+      'PUT',
+      `index.php/apps/bookmarks/public/rest/v2/bookmark/${upstreamId}`,
+      body
+    )
+
+    newBm.id = upstreamId + ';' + newBm.parentId
+  }
+
+  async removeBookmark(id) {
+    Logger.log('(nextcloud)REMOVE', { id })
+
+    let [upstreamId, parentId] = id.split(';')
+
+    await this.sendRequest(
+      'DELETE',
+      `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/bookmarks/${upstreamId}`
+    )
+    this.list = null // clear cache
+  }
+
+  async sendRequest(verb, relUrl, body) {
+    const url = this.normalizeServerURL(this.server.url) + relUrl
+    var res
+    try {
+      res = await this.fetchQueue.add(() =>
+        fetch(url, {
+          method: verb,
+          credentials: 'omit',
+          headers: {
+            Authorization:
+              'Basic ' + btoa(this.server.username + ':' + this.server.password)
+          },
+          body
+        })
+      )
+    } catch (e) {
+      throw new Error(
+        'Network error: Check your network connection and your account details'
+      )
+    }
+
+    if (res.status === 401) {
+      throw new Error("Couldn't authenticate with the server")
+    }
+    if (res.status !== 200) {
+      throw new Error(
+        `Error ${
+          res.status
+        }. Failed ${verb} request. Check your server configuration.`
+      )
+    }
+    let json
+    try {
+      json = await res.json()
+    } catch (e) {
+      throw new Error(
+        'Could not parse server response. Is the bookmarks app installed on your server?\n' +
+          e.message
+      )
+    }
+    if (json.status !== 'success') {
+      throw new Error('Nextcloud API error: ' + JSON.stringify(json))
+    }
+
+    return json
+  }
+}
