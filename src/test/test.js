@@ -10,7 +10,7 @@ import AccountStorage from '../lib/AccountStorage'
 import browser from '../lib/browser-api'
 
 describe('Floccus', function() {
-  this.timeout(20000) // no test should run longer than 15s
+  this.timeout(30000) // no test should run longer than 30s
   before(async function() {
     const background = await browser.runtime.getBackgroundPage()
     background.controller.setEnabled(false)

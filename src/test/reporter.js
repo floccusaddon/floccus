@@ -31,11 +31,7 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
           'FINISHED FAILED - no test has ended for 3 minutes, tests stopped'
         )
       }, 60000 * 3)
-    })
-
-    var total = runner.total
-    runner.on('end', () => {
-      if (this.stats.tests >= total) {
+      if (this.stats.tests >= runner.total) {
         var minutes = Math.floor(this.stats.duration / 1000 / 60)
         var seconds = Math.round((this.stats.duration / 1000) % 60)
 
