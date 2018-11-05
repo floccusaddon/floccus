@@ -112,8 +112,8 @@ export default class CachingAdapter extends Adapter {
    * @param id:int the id of the folder
    * @param newParentId:int the id of the new folder
    */
-  async moveFolder(id, newParent) {
-    Logger.log('MOVEFOLDER', { id, newParent })
+  async moveFolder(id, newParentId) {
+    Logger.log('MOVEFOLDER', { id, newParentId })
     const folder = this.bookmarksCache.findFolder(id)
     if (!folder) {
       throw new Error("Folder to move doesn't exist")
