@@ -332,11 +332,14 @@ export default class NextcloudAdapter extends Adapter {
    */
   async getExistingBookmark(url) {
     Logger.log('Fetching bookmarks to find existing bookmark')
-    const json = await this.sendRequest(
-      'GET',
-      'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
-    )
-    let existing = _.find(json.data, bookmark => bookmark.url === url)
+    if (!this.list) {
+      const json = await this.sendRequest(
+        'GET',
+        'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
+      )
+      this.list.raw = json.data
+    }
+    let existing = _.find(this.list.raw, bookmark => bookmark.url === url)
     if (!existing) return
     return existing.id
   }
