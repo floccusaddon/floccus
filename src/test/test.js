@@ -245,6 +245,60 @@ describe('Floccus', function() {
             ACCOUNT_DATA.type === 'nextcloud'
           )
         })
+        it('should update the server on local folder moves', async function() {
+          var adapter = account.server
+          expect((await adapter.getBookmarksTree()).children).to.have.lengthOf(
+            0
+          )
+
+          const localRoot = account.getData().localRoot
+          const fooFolder = await browser.bookmarks.create({
+            title: 'foo',
+            parentId: localRoot
+          })
+          const bookmark1 = await browser.bookmarks.create({
+            title: 'test',
+            url: 'http://ureff.l/',
+            parentId: fooFolder.id
+          })
+          const barFolder = await browser.bookmarks.create({
+            title: 'bar',
+            parentId: fooFolder.id
+          })
+          const bookmark2 = await browser.bookmarks.create({
+            title: 'url',
+            url: 'http://ur.l/',
+            parentId: barFolder.id
+          })
+          await account.sync() // propagate to server
+
+          await browser.bookmarks.move(barFolder.id, { parentId: localRoot })
+          await account.sync() // update on server
+          expect(account.getData().error).to.not.be.ok
+
+          const tree = await adapter.getBookmarksTree()
+          expectTreeEqual(
+            tree,
+            new Folder({
+              title: tree.title,
+              children: [
+                new Folder({
+                  title: 'foo',
+                  children: [
+                    new Bookmark({ title: 'test', url: 'http://ureff.l/' })
+                  ]
+                }),
+                new Folder({
+                  title: 'bar',
+                  children: [
+                    new Bookmark({ title: 'url', url: 'http://ur.l/' })
+                  ]
+                })
+              ]
+            }),
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
+        })
         it('should create server bookmarks locally', async function() {
           var adapter = account.server
           if (adapter.onSyncStart) await adapter.onSyncStart()
