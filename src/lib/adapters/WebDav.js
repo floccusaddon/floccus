@@ -30,7 +30,7 @@ export default class WebDavAdapter extends CachingAdapter {
       url: 'https://example.org',
       username: 'bob',
       password: 's3cret',
-      bookmark_file: '/bookmarks.xbel'
+      bookmark_file: 'bookmarks.xbel'
     }
   }
 
@@ -237,8 +237,8 @@ export default class WebDavAdapter extends CachingAdapter {
   async onSyncStart() {
     Logger.log('onSyncStart: begin')
 
-    if (this.server.bookmark_file[0] !== '/') {
-      throw new Error("Bookmarks file setting must start with a slash: '/'")
+    if (this.server.bookmark_file[0] === '/') {
+      throw new Error("Bookmarks file setting mustn't start with a slash: '/'")
     }
 
     await this.obtainLock()
