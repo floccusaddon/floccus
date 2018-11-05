@@ -323,7 +323,7 @@ export default class NextcloudAdapter extends Adapter {
       return bookmark
     })
 
-    return bookmarks
+    return { bookmarks, tags: NextcloudAdapter.filterPathTagsFromTags(bm.tags) }
   }
 
   /*
@@ -331,10 +331,14 @@ export default class NextcloudAdapter extends Adapter {
    * querying urls directly
    */
   async getExistingBookmark(url) {
-    await this.getBookmarksList()
-    let existing = _.find(this.list, bookmark => bookmark.url === url)
+    Logger.log('Fetching bookmarks to find existing bookmark')
+    const json = await this.sendRequest(
+      'GET',
+      'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
+    )
+    let existing = _.find(json.data, bookmark => bookmark.url === url)
     if (!existing) return
-    return existing.id.split(';')[0]
+    return existing.id
   }
 
   async createBookmark(bm) {
@@ -371,7 +375,9 @@ export default class NextcloudAdapter extends Adapter {
     }
 
     // returns the full paths from the server
-    let bms = await this._getBookmark(newBm.id.split(';')[0])
+    let { bookmarks: bms, tags } = await this._getBookmark(
+      newBm.id.split(';')[0]
+    )
 
     let body = new URLSearchParams()
     body.append('url', newBm.url)
@@ -385,13 +391,13 @@ export default class NextcloudAdapter extends Adapter {
     if (this.server.serverRoot) {
       oldPath = this.server.serverRoot + oldPath
     }
-    console.log(bms, '-', oldPath)
+    console.log(bms, tags, '-', oldPath)
     let newTags = bms
       .map(bm => bm.parentId)
       .filter(path => path !== oldPath)
       .map(path => NextcloudAdapter.convertPathToTag(path))
       .concat([NextcloudAdapter.convertPathToTag(realParentId)])
-      .concat(bms.length ? bms[0].tags : [])
+      .concat(tags)
     console.log('newTags', newTags)
     newTags.forEach(tag => body.append('item[tags][]', tag))
 
