@@ -332,11 +332,12 @@ export default class NextcloudAdapter extends Adapter {
    */
   async getExistingBookmark(url) {
     Logger.log('Fetching bookmarks to find existing bookmark')
-    if (!this.list) {
+    if (!this.list || !this.list.raw) {
       const json = await this.sendRequest(
         'GET',
         'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
       )
+      this.list = {}
       this.list.raw = json.data
     }
     let existing = _.find(this.list.raw, bookmark => bookmark.url === url)
@@ -418,7 +419,7 @@ export default class NextcloudAdapter extends Adapter {
   async removeBookmark(id) {
     Logger.log('(nextcloud)REMOVE', { id })
 
-    let bms = await this._getBookmark(id.split(';')[0])
+    let { bookmarks: bms, tags } = await this._getBookmark(id.split(';')[0])
 
     if (bms.length !== 1) {
       // multiple bookmarks of the same url
