@@ -86,6 +86,9 @@ describe('Floccus', function() {
           if (!account) return
           await browser.bookmarks.removeTree(account.getData().localRoot)
           if (ACCOUNT_DATA.type !== 'fake') {
+            if (account.server.onSyncStart) {
+              await account.server.onSyncStart()
+            }
             let tree = await account.server.getBookmarksTree()
             await Promise.all(
               tree.children.map(async child => {
