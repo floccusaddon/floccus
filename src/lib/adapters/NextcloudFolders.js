@@ -266,12 +266,14 @@ export default class NextcloudAdapter extends Adapter {
         throw new Error('Folder not found')
       }
     }
-    let body = new FormData()
-    body.append('parent_folder', parentId)
-    body.append('title', title)
+    let body = JSON.stringify({
+      parent_folder: parentId,
+      title: title
+    })
     const json = await this.sendRequest(
       'POST',
       'index.php/apps/bookmarks/public/rest/v2/folder',
+      'application/json',
       body
     )
     parentFolder.children.push(
@@ -287,12 +289,14 @@ export default class NextcloudAdapter extends Adapter {
     if (!folder) {
       throw new Error('Folder not found')
     }
-    let body = new FormData()
-    body.append('parent_folder', folder.parentId)
-    body.append('title', title)
+    let body = JSON.stringify({
+      parent_folder: folder.parentId,
+      title: title
+    })
     const json = await this.sendRequest(
       'PUT',
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}`,
+      'application/json',
       body
     )
     folder.title = title
@@ -304,12 +308,14 @@ export default class NextcloudAdapter extends Adapter {
     if (!folder) {
       throw new Error('Folder not found')
     }
-    let body = new FormData()
-    body.append('parent_folder', parentId)
-    body.append('title', folder.title)
+    let body = JSON.stringify({
+      parent_folder: parentId,
+      title: folder.title
+    })
     const json = await this.sendRequest(
       'PUT',
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}`,
+      'application/json',
       body
     )
     let oldParentFolder = this.tree.findFolder(folder.parentId)
@@ -380,14 +386,16 @@ export default class NextcloudAdapter extends Adapter {
       bm.id = existingBookmark + ';' + bm.parentId
       await this.updateBookmark(bm)
     } else {
-      let body = new FormData()
-      body.append('url', bm.url)
-      body.append('title', bm.title)
-      body.append('folders[]', bm.parentId)
+      let body = JSON.stringify({
+        url: bm.url,
+        title: bm.title,
+        folders: [bm.parentId]
+      })
 
       const json = await this.sendRequest(
         'POST',
         'index.php/apps/bookmarks/public/rest/v2/bookmark',
+        'application/json',
         body
       )
       bm.id = json.item.id + ';' + bm.parentId
@@ -407,21 +415,21 @@ export default class NextcloudAdapter extends Adapter {
     let [upstreamId, oldParentId] = newBm.id.split(';')
     let bms = await this._getBookmark(upstreamId)
 
-    let body = new URLSearchParams()
-    body.append('url', newBm.url)
-    body.append('title', newBm.title)
-
-    bms
-      .map(bm => bm.parentId)
-      .filter(parentId => parentId !== oldParentId)
-      .concat([newBm.parentId])
-      .forEach(parentId => body.append('folders[]', parentId))
+    let body = JSON.stringify({
+      url: newBm.url,
+      title: newBm.title,
+      folders: bms
+        .map(bm => bm.parentId)
+        .filter(parentId => parentId !== oldParentId)
+        .concat([newBm.parentId])
+    })
 
     bms[0].tags.forEach(tag => body.append('item[tags][]', tag))
 
     await this.sendRequest(
       'PUT',
       `index.php/apps/bookmarks/public/rest/v2/bookmark/${upstreamId}`,
+      'application/json',
       body
     )
 
@@ -440,7 +448,7 @@ export default class NextcloudAdapter extends Adapter {
     this.list = null // clear cache
   }
 
-  async sendRequest(verb, relUrl, body) {
+  async sendRequest(verb, relUrl, type, body) {
     const url = this.normalizeServerURL(this.server.url) + relUrl
     var res
     try {
@@ -449,6 +457,7 @@ export default class NextcloudAdapter extends Adapter {
           method: verb,
           credentials: 'omit',
           headers: {
+            ...(type && { 'Content-type': type }),
             Authorization:
               'Basic ' + btoa(this.server.username + ':' + this.server.password)
           },
