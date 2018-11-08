@@ -431,8 +431,7 @@ export default class NextcloudAdapter extends Adapter {
       body
     )
 
-    // update bookmark id in-place, so it'll be updated in the mappings
-    newBm.id = newBm.id.split(';')[0] + ';' + newBm.parentId
+    return newBm.id.split(';')[0] + ';' + newBm.parentId
   }
 
   async removeBookmark(id) {

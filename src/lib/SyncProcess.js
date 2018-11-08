@@ -463,8 +463,9 @@ export default class SyncProcess {
       return
     }
 
+    let newServerId
     if (changedLocally) {
-      await this.server.updateBookmark(
+      newServerId = await this.server.updateBookmark(
         new Tree.Bookmark({
           id: serverItem.id,
           parentId: this.mappings.folders.LocalToServer[localItem.parentId],
@@ -485,7 +486,7 @@ export default class SyncProcess {
 
     await this.mappings.addBookmark({
       localId: localItem.id,
-      remoteId: serverItem.id
+      remoteId: newServerId || serverItem.id
     })
   }
 

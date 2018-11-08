@@ -433,7 +433,7 @@ export default class NextcloudAdapter extends Adapter {
       body
     )
 
-    newBm.id = upstreamId + ';' + newBm.parentId
+    return upstreamId + ';' + newBm.parentId
   }
 
   async removeBookmark(id) {
