@@ -27,7 +27,8 @@ export class Bookmark {
     return (
       Array(depth)
         .fill('  ')
-        .join('') + `- [${this.title}](${this.url})`
+        .join('') +
+      `- #${this.id}[${this.title}](${this.url}) parentId: ${this.parentId}`
     )
   }
 
@@ -139,7 +140,7 @@ export class Folder {
       Array(depth)
         .fill('  ')
         .join('') +
-      `+ ${this.title}\n` +
+      `+ #${this.id}[${this.title}] parentId: ${this.parentId}\n` +
       this.children
         .map(
           child =>

@@ -203,11 +203,11 @@ export default class SyncProcess {
     })
 
     if (!changed) {
-      Logger.log('Skipping subtree of ', { localItem, serverItem })
+      Logger.log('Skipping subtree')
       return
     }
 
-    Logger.log('Checking subtree of ', { localItem, serverItem })
+    Logger.log('Checking subtree')
 
     // LOCAL CHANGES
 
