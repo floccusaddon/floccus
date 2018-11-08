@@ -254,14 +254,18 @@ export default class NextcloudAdapter extends Adapter {
       PathHelper.pathToArray(folder.parentId).concat([title])
     )
     folder.id = newParentId
-    await Parallel.each(folder.children, async child => {
-      if (child instanceof Folder) {
-        await this.moveFolder(child.id, newParentId)
-      } else {
-        child.parentId = newParentId
-        await this.updateBookmark(child)
-      }
-    })
+    await Parallel.each(
+      folder.children,
+      async child => {
+        if (child instanceof Folder) {
+          await this.moveFolder(child.id, newParentId)
+        } else {
+          child.parentId = newParentId
+          await this.updateBookmark(child)
+        }
+      },
+      1
+    )
   }
 
   async moveFolder(id, parentId) {
@@ -270,19 +274,30 @@ export default class NextcloudAdapter extends Adapter {
     if (!folder) {
       throw new Error('Folder not found')
     }
+    let oldParent = this.tree.findFolder(folder.parentId)
+    if (!oldParent) {
+      throw new Error('Parent folder not found')
+    }
+    oldParent.children.splice(oldParent.children.indexOf(folder), 1)
+
     folder.parentId = parentId
     let newParentId = PathHelper.arrayToPath(
       PathHelper.pathToArray(parentId).concat([folder.title])
     )
     folder.id = newParentId
-    await Parallel.each(folder.children, async child => {
-      if (child instanceof Folder) {
-        await this.moveFolder(child.id, newParentId)
-      } else {
-        child.parentId = newParentId
-        await this.updateBookmark(child)
-      }
-    })
+
+    await Parallel.each(
+      folder.children,
+      async child => {
+        if (child instanceof Folder) {
+          await this.moveFolder(child.id, newParentId)
+        } else {
+          child.parentId = newParentId
+          await this.updateBookmark(child)
+        }
+      },
+      1
+    )
   }
 
   async removeFolder(id) {
@@ -291,13 +306,17 @@ export default class NextcloudAdapter extends Adapter {
     if (!folder) {
       return
     }
-    await Parallel.each(folder.children, async child => {
-      if (child instanceof Folder) {
-        await this.removeFolder(child.id)
-      } else {
-        await this.removeBookmark(child.id)
-      }
-    })
+    await Parallel.each(
+      folder.children,
+      async child => {
+        if (child instanceof Folder) {
+          await this.removeFolder(child.id)
+        } else {
+          await this.removeBookmark(child.id)
+        }
+      },
+      1
+    )
   }
 
   async _getBookmark(id) {
