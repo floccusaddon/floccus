@@ -36,6 +36,12 @@ export const Component = () => (state, actions) => {
           value={''}
           type="password"
           placeholder="Enter your unlock passphrase"
+          onkeydown={e => {
+            if (e.which === 13) {
+              actions.enterUnlockKey(e.target.value)
+            }
+          }}
+          oncreate={element => element.focus()}
         />
         <Button
           onclick={e => {
