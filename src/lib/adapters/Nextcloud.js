@@ -455,7 +455,10 @@ export default class NextcloudAdapter extends Adapter {
         .map(bm => bm.parentId)
         .filter(path => path !== oldPath)
         .map(path => NextcloudAdapter.convertPathToTag(path))
+        .concat(tags)
         .forEach(tag => body.append('item[tags][]', tag))
+
+      console.log(bms, tags, '-', oldPath)
 
       await this.sendRequest(
         'PUT',
