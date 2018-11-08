@@ -376,8 +376,9 @@ export default class SyncProcess {
     if (folder.moved) {
       Logger.log(
         'This folder was removed here and concurrently moved somewhere else ' +
-          '-- deletion takes precedence'
+          '-- moves take precedence to preserve data'
       )
+      return
     }
 
     // remove from resource
@@ -521,9 +522,9 @@ export default class SyncProcess {
     if (bookmark.moved) {
       // local changes are deal with first in updateFolder, thus this is deterministic
       Logger.log(
-        'This bookmark was removed here and concurrently moved somewhere else -- deletion takes precedence'
+        'This bookmark was removed here and concurrently moved somewhere else -- moves take precedence'
       )
-      // go on to delete it!
+      return
     }
 
     await toResource.removeBookmark(bookmark.id)
