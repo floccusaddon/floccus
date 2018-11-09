@@ -240,6 +240,13 @@ export default class NextcloudAdapter extends Adapter {
     let newId = PathHelper.arrayToPath(
       PathHelper.pathToArray(parentId).concat([title])
     )
+    let folder = new Folder({ title, parentId, id: newId })
+    let newParent = this.tree.findFolder(parentId)
+    if (!newParent) {
+      throw new Error('New parent folder not found')
+    }
+    newParent.children.push(folder)
+    this.tree.createIndex()
     return newId
   }
 
@@ -266,6 +273,7 @@ export default class NextcloudAdapter extends Adapter {
       },
       1
     )
+    this.tree.createIndex()
   }
 
   async moveFolder(id, parentId) {
@@ -303,6 +311,7 @@ export default class NextcloudAdapter extends Adapter {
       },
       1
     )
+    this.tree.createIndex()
   }
 
   async removeFolder(id) {
@@ -311,6 +320,12 @@ export default class NextcloudAdapter extends Adapter {
     if (!folder) {
       return
     }
+    let oldParent = this.tree.findFolder(folder.parentId)
+    if (!oldParent) {
+      throw new Error('Parent folder not found')
+    }
+    oldParent.children.splice(oldParent.children.indexOf(folder), 1)
+
     await Parallel.each(
       folder.children,
       async child => {
@@ -322,6 +337,7 @@ export default class NextcloudAdapter extends Adapter {
       },
       1
     )
+    this.tree.createIndex()
   }
 
   async _getBookmark(id) {
