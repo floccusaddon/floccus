@@ -280,6 +280,11 @@ export default class NextcloudAdapter extends Adapter {
     }
     oldParent.children.splice(oldParent.children.indexOf(folder), 1)
 
+    let newParent = this.tree.findFolder(parentId)
+    if (!newParent) {
+      throw new Error('New parent folder not found')
+    }
+    newParent.children.push(folder)
     folder.parentId = parentId
     let newParentId = PathHelper.arrayToPath(
       PathHelper.pathToArray(parentId).concat([folder.title])
