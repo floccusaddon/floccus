@@ -69,6 +69,18 @@ Floccus requests the following permissions:
 
 When using the nextcloud Bookmarks adapter, you can specify a 'server folder' in your floccus account setup. This is like the target folder of a copy or rsync command. While the local sync folder you have selected from your browser bookmarks will normally end up being synced to the root bookmark path on your server, you can change that to an arbitrary sub-directory, e.g. /Toolbar, with the 'server folder' setting. If you are using the WebDAV/XBEL adapter, you can do the same by specifying a specific xbel file in the settings.
 
+This way it is possible to sync Firefox' 'Bookmarks Menu' folder to Chrome, which doesn't have a Menu folder out of the box: Simply set up a separate account for each of the main folders in firefox, each with a separate server folder, e.g.:
+
+- Fx '/Bookmarks Toolbar' <=> '/Toolbar'
+  - Fx '/Other Bookmarks' <=> '/Others'
+  - Fx '/Bookmarks Menu' <=> '/Menu'
+
+Then, in Chrome you can setup the folders as follows:
+
+- GC '/Bookmarks Toolbar' <=> '/Toolbar'
+- GC '/Bookmarks Toolbar/Menu' <=> '/Menu' (You need to create this folder yourself, of course.)
+  - GC '/Other Bookmarks' <=> '/Others'
+
 ### Limitations
 
 - Note that currently you cannot sync the same folder with multiple nextcloud accounts in order to avoid data corruption. If you sync the root folder with one account and sync a sub folder with a different account, that sub-folder will not be synced with the account connected to the root folder anymore.
