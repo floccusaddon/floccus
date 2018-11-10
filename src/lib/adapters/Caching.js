@@ -26,7 +26,8 @@ export default class CachingAdapter extends Adapter {
     if (!foundFolder) {
       throw new Error("Folder to create in doesn't exist")
     }
-    foundFolder.children.push(bm) // TODO: respect order
+    foundFolder.children.push(bm)
+    this.bookmarksCache.createIndex()
     return bm.id
   }
 
@@ -57,6 +58,7 @@ export default class CachingAdapter extends Adapter {
       )
       foundNewFolder.children.push(foundBookmark) // TODO: respect order
       foundBookmark.parentId = newBm.parentId
+      this.bookmarksCache.createIndex()
     }
   }
 
@@ -76,6 +78,7 @@ export default class CachingAdapter extends Adapter {
       foundOldFolder.children.indexOf(foundBookmark),
       1
     )
+    this.bookmarksCache.createIndex()
   }
 
   /**
@@ -91,7 +94,8 @@ export default class CachingAdapter extends Adapter {
     if (!foundParentFolder) {
       throw new Error("Folder to create in doesn't exist")
     }
-    foundParentFolder.children.push(folder) // TODO: respect order
+    foundParentFolder.children.push(folder)
+    this.bookmarksCache.createIndex()
     return folder.id
   }
 
@@ -127,7 +131,45 @@ export default class CachingAdapter extends Adapter {
       throw new Error("Folder to move into doesn't exist")
     }
     foundOldFolder.children.splice(foundOldFolder.children.indexOf(folder), 1)
-    foundNewFolder.children.push(folder) // TODO: respect order
+    foundNewFolder.children.push(folder)
+    folder.parentId = newParentId
+    this.bookmarksCache.createIndex()
+  }
+
+  async orderFolder(id, order) {
+    Logger.log('ORDERFOLDER', { id, order })
+
+    let folder = this.bookmarksCache.findFolder(id)
+    if (!folder) {
+      throw new Error('Could not find folder to order')
+    }
+    order.forEach(item => {
+      let child
+      if (item.type === 'folder') {
+        child = folder.findFolder(item.id)
+      } else {
+        child = folder.findBookmark(item.id)
+      }
+      if (!child || child.parentId !== folder.id) {
+        throw new Error('Item in folder ordering is not an actual child')
+      }
+    })
+    if (order.length !== folder.children.length) {
+      throw new Error(
+        "Folder ordering is missing some of the folder's children"
+      )
+    }
+    const newChildren = []
+    order.forEach(item => {
+      let child
+      if (item.type === 'folder') {
+        child = folder.findFolder(item.id)
+      } else {
+        child = folder.findBookmark(item.id)
+      }
+      newChildren.push(child)
+    })
+    folder.children = newChildren
   }
 
   /**
@@ -144,6 +186,7 @@ export default class CachingAdapter extends Adapter {
       throw new Error("Parent folder to remove folder from of doesn't exist")
     }
     foundOldFolder.children.splice(foundOldFolder.children.indexOf(folder), 1)
+    this.bookmarksCache.createIndex()
   }
 
   setData(data) {

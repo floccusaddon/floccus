@@ -21,7 +21,7 @@ const {
   H3
 } = Basics
 
-export default class NextcloudAdapter extends Adapter {
+export default class NextcloudFoldersAdapter extends Adapter {
   constructor(server) {
     super()
     this.server = server
@@ -251,7 +251,7 @@ export default class NextcloudAdapter extends Adapter {
     await recurseChildFolders(tree, childFolders)
 
     this.tree = tree
-    return tree
+    return tree.clone()
   }
 
   async createFolder(parentId, title) {
@@ -300,6 +300,7 @@ export default class NextcloudAdapter extends Adapter {
       body
     )
     folder.title = title
+    this.tree.createIndex()
   }
 
   async moveFolder(id, parentId) {
@@ -328,6 +329,22 @@ export default class NextcloudAdapter extends Adapter {
     this.tree.createIndex()
   }
 
+  async orderFolder(id, order) {
+    Logger.log('(nextcloud)ORDERFOLDER', { id, order })
+    const body = {
+      data: order.map(item => ({
+        id: String(item.id).split(';')[0],
+        type: item.type
+      }))
+    }
+    const json = await this.sendRequest(
+      'PATCH',
+      `index.php/apps/bookmarks/public/rest/v2/folder/${id}/childorder`,
+      'application/json',
+      JSON.stringify(body)
+    )
+  }
+
   async removeFolder(id) {
     Logger.log('(nextcloud)REMOVEFOLDER', id)
     let folder = this.tree.findFolder(id)
@@ -340,6 +357,7 @@ export default class NextcloudAdapter extends Adapter {
     )
     let parent = this.tree.findFolder(folder.parentId)
     parent.children = parent.children.filter(child => child.id !== id)
+    this.tree.createIndex()
   }
 
   async _getBookmark(id) {

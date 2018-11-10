@@ -11,7 +11,7 @@ import AccountStorage from '../lib/AccountStorage'
 import browser from '../lib/browser-api'
 
 describe('Floccus', function() {
-  this.timeout(30000) // no test should run longer than 30s
+  this.timeout(60000) // no test should run longer than 60s
   before(async function() {
     const background = await browser.runtime.getBackgroundPage()
     background.controller.setEnabled(false)
@@ -601,6 +601,115 @@ describe('Floccus', function() {
 
           expectTreeEqual(localTree, serverTree)
         })
+
+        if (ACCOUNT_DATA.type !== 'nextcloud') {
+          it('should synchronize ordering', async function() {
+            var adapter = account.server
+            expect(
+              (await adapter.getBookmarksTree()).children
+            ).to.have.lengthOf(0)
+
+            const localRoot = account.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const folder1 = await browser.bookmarks.create({
+              title: 'folder1',
+              parentId: fooFolder.id
+            })
+            const folder2 = await browser.bookmarks.create({
+              title: 'folder2',
+              parentId: fooFolder.id
+            })
+            const bookmark1 = await browser.bookmarks.create({
+              title: 'url1',
+              url: 'http://ur.l/',
+              parentId: fooFolder.id
+            })
+            const bookmark2 = await browser.bookmarks.create({
+              title: 'url2',
+              url: 'http://ur.ll/',
+              parentId: fooFolder.id
+            })
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            await browser.bookmarks.move(bookmark1.id, { index: 0 })
+            await browser.bookmarks.move(folder1.id, { index: 1 })
+            await browser.bookmarks.move(bookmark2.id, { index: 2 })
+            await browser.bookmarks.move(folder2.id, { index: 3 })
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            const localTree = await account.localTree.getBookmarksTree()
+            expectTreeEqual(
+              localTree,
+              new Folder({
+                title: localTree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Bookmark({
+                        title: 'url1',
+                        url: bookmark1.url
+                      }),
+                      new Folder({
+                        title: 'folder1',
+                        children: []
+                      }),
+                      new Bookmark({
+                        title: 'url2',
+                        url: bookmark2.url
+                      }),
+                      new Folder({
+                        title: 'folder2',
+                        children: []
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false,
+              true
+            )
+
+            const tree = await adapter.getBookmarksTree()
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Bookmark({
+                        title: 'url1',
+                        url: bookmark1.url
+                      }),
+                      new Folder({
+                        title: 'folder1',
+                        children: []
+                      }),
+                      new Bookmark({
+                        title: 'url2',
+                        url: bookmark2.url
+                      }),
+                      new Folder({
+                        title: 'folder2',
+                        children: []
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false,
+              true
+            )
+          })
+        }
       })
       context('with two clients', function() {
         var account1, account2
@@ -963,22 +1072,24 @@ describe('Floccus', function() {
   })
 })
 
-function expectTreeEqual(tree1, tree2, ignoreEmptyFolders) {
+function expectTreeEqual(tree1, tree2, ignoreEmptyFolders, checkOrder) {
   try {
     expect(tree1.title).to.equal(tree2.title)
     if (tree2.url) {
       expect(tree1.url).to.equal(tree2.url)
     } else {
-      tree2.children.sort((a, b) => {
-        if (a.title < b.title) return -1
-        if (a.title > b.title) return 1
-        return 0
-      })
-      tree1.children.sort((a, b) => {
-        if (a.title < b.title) return -1
-        if (a.title > b.title) return 1
-        return 0
-      })
+      if (!checkOrder) {
+        tree2.children.sort((a, b) => {
+          if (a.title < b.title) return -1
+          if (a.title > b.title) return 1
+          return 0
+        })
+        tree1.children.sort((a, b) => {
+          if (a.title < b.title) return -1
+          if (a.title > b.title) return 1
+          return 0
+        })
+      }
       let children1 = ignoreEmptyFolders
         ? tree1.children.filter(child => !hasNoBookmarks(child))
         : tree1.children
@@ -987,12 +1098,12 @@ function expectTreeEqual(tree1, tree2, ignoreEmptyFolders) {
         : tree2.children
       expect(children1).to.have.length(children2.length)
       children2.forEach((child2, i) => {
-        expectTreeEqual(children1[i], child2, ignoreEmptyFolders)
+        expectTreeEqual(children1[i], child2, ignoreEmptyFolders, checkOrder)
       })
     }
   } catch (e) {
     console.log(
-      'Trees are not equal:\n',
+      `Trees are not equal: (checkOrder: ${checkOrder}, ignoreEmptyFolders: ${ignoreEmptyFolders})`,
       'Tree 1:\n' + tree1.inspect(0) + '\n',
       'Tree 2:\n' + tree2.inspect(0)
     )
