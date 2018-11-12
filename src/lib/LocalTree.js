@@ -61,7 +61,9 @@ export default class LocalTree extends Resource {
           id: node.id,
           parentId,
           title: overrideTitle || node.title,
-          children: node.children.map(child => recurse(child, node.id))
+          children: node.children
+            .map(child => recurse(child, node.id))
+            .filter(child => !!child) // filter out `undefined` from nested accounts
         })
         folder.isRoot = isRoot
         return folder
