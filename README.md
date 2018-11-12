@@ -6,7 +6,7 @@
 
 The goal of this project is to build a browser extension that syncs your browser data across browser vendors with the open source, self-hosted sync and share server [Nextcloud](https://nextcloud.com) and possibly other self-hosted solutions.
 
-**News:** Floccus v3.0 now allows you to sync duplicate bookmarks in different folders and can sync accross browser vendors without any hassle. :weight_lifting_woman: Additionally you can now sync with any WebDAV server you want, not just with the nextcloud bookmarks app.
+**News:** Floccus v3.1 now allows you to sync with the newly available folders in nextcloud bookmarks and also preserves the order of your bookmarks. :weight_lifting_woman:
 
 [![Chrome Webstore](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|
 [![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)
@@ -30,9 +30,9 @@ You can [install it via the Chrome Web store](https://chrome.google.com/webstore
 
 Alternatively, you can still install it by [downloading the Chrome package from the latest release](https://github.com/marcelklehr/floccus/releases/) and dropping it into Chrome's extension page.
 
-#### Updating from 2.x to v3.0
+#### Updating from v3.0 to v3.1
 
-It is recommended to remove all of your bookmarks from your accounts before using the new version, deleting the accounts and then to create them again, in order to prevent unforeseen problems!
+When using a WebDAV account, there's nothing you need to do to benefit from the new order preservation feature. If you are using the nextcloud adapter, it is recommended that you switch to the new nextcloud adapter, which works with the Bookmarks folders feature and also preserves ordering.
 
 ### Firefox
 
