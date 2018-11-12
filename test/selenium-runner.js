@@ -49,7 +49,7 @@ const VERSION = require('../package.json').version
             .then(callback)
         })
         if (!id) throw new Error('Could not install extension')
-        testUrl = `chrome-extension://${id}/dist/html/test.html`
+        testUrl = `chrome-extension://${id}/`
         break
 
       case 'firefox':
@@ -68,11 +68,13 @@ const VERSION = require('../package.json').version
         })
         if (!optionsURL) throw new Error('Could not install extension')
         id = url.parse(optionsURL).hostname
-        testUrl = `moz-extension://${id}/dist/html/test.html`
+        testUrl = `moz-extension://${id}/`
         break
       default:
         throw new Error('Unknown browser')
     }
+
+    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_ADAPTER}%20`
 
     await driver.get(testUrl)
 

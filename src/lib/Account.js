@@ -1,5 +1,6 @@
 import AccountStorage from './AccountStorage'
 import Adapter from './Adapter'
+import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
 import NextcloudAdapter from './adapters/Nextcloud'
 import WebDavAdapter from './adapters/WebDav'
 import FakeAdapter from './adapters/Fake'
@@ -11,6 +12,7 @@ import browser from './browser-api'
 
 // register Adapters
 Adapter.register('nextcloud', NextcloudAdapter)
+Adapter.register('nextcloud-folders', NextcloudFoldersAdapter)
 Adapter.register('webdav', WebDavAdapter)
 Adapter.register('fake', FakeAdapter)
 

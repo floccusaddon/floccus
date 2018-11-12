@@ -22,6 +22,7 @@ export default class Resource {
 
   /**
    * @param bookmark:Bookmark the bookmark with the new data
+   * @returns (optional) new id of the bookmark
    */
   async updateBookmark(bookmark) {
     throw new Error('Not implemented')

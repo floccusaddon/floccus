@@ -120,6 +120,13 @@ export default class LocalTree extends Resource {
     return node.id
   }
 
+  async orderFolder(id, order) {
+    Logger.log('(local)ORDERFOLDER', { id, order })
+    for (let index = 0; index < order.length; index++) {
+      await browser.bookmarks.move(order[index].id, { index })
+    }
+  }
+
   async updateFolder(id, title) {
     Logger.log('(local)UPDATEFOLDER', title)
     await this.queue.add(() =>

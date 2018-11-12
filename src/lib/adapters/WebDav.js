@@ -236,6 +236,11 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async onSyncStart() {
     Logger.log('onSyncStart: begin')
+
+    if (this.server.bookmark_file[0] === '/') {
+      throw new Error("Bookmarks file setting mustn't start with a slash: '/'")
+    }
+
     await this.obtainLock()
 
     try {
@@ -250,6 +255,8 @@ export default class WebDavAdapter extends CachingAdapter {
       throw e
     }
 
+    this.initialTreeHash = await this.bookmarksCache.hash()
+
     Logger.log('onSyncStart: completed')
   }
 
@@ -263,11 +270,16 @@ export default class WebDavAdapter extends CachingAdapter {
     let cacheClone = this.bookmarksCache.clone()
     Logger.log(cacheClone)
 
-    let fullUrl = this.server.bookmark_file
-    fullUrl = this.server.url + fullUrl
-    Logger.log('fullURL :' + fullUrl + ':')
-    let xbel = createXBEL(this.bookmarksCache, this.highestId)
-    await this.uploadFile(fullUrl, 'application/xml', xbel)
+    const newTreeHash = await cacheClone.hash()
+    if (newTreeHash !== this.initialTreeHash) {
+      let fullUrl = this.server.bookmark_file
+      fullUrl = this.server.url + fullUrl
+      Logger.log('fullURL :' + fullUrl + ':')
+      let xbel = createXBEL(this.bookmarksCache, this.highestId)
+      await this.uploadFile(fullUrl, 'application/xml', xbel)
+    } else {
+      Logger.log('No changes to the server version necessary')
+    }
     await this.freeLock()
   }
 

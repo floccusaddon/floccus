@@ -11,8 +11,6 @@ const url = require('url')
 const PQueue = require('p-queue')
 const _ = require('lodash')
 
-const TAG_PREFIX = 'floccus:'
-
 const {
   Input,
   Button,
@@ -23,7 +21,7 @@ const {
   H3
 } = Basics
 
-export default class NextcloudAdapter extends Adapter {
+export default class NextcloudFoldersAdapter extends Adapter {
   constructor(server) {
     super()
     this.server = server
@@ -176,19 +174,10 @@ export default class NextcloudAdapter extends Adapter {
       })
 
       // there may be multiple path tags per server bookmark, create a bookmark for each of them
-      this.getPathsFromServerMark(bm).forEach(path => {
-        // adjust path relative to serverRoot
-        if (this.server.serverRoot) {
-          if (path.indexOf(this.server.serverRoot) === 0) {
-            path = path.substr(this.server.serverRoot.length)
-          } else {
-            // skip this bookmark
-            return
-          }
-        }
+      bm.folders.forEach(parentId => {
         let b = bookmark.clone()
-        b.parentId = path
-        b.id += ';' + path // id = <serverId>;<path>
+        b.id = b.id
+        b.parentId = parentId
         array.push(b)
       })
       return array
@@ -202,52 +191,96 @@ export default class NextcloudAdapter extends Adapter {
   async getBookmarksTree() {
     this.list = null // clear cache before starting a new sync
     let list = await this.getBookmarksList()
-    list.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
-    let tree = new Folder({ id: '' })
+    let serverListTempFolder = new Folder({ children: list })
+    serverListTempFolder.createIndex()
 
-    list.forEach(bookmark => {
-      let pathArray = PathHelper.pathToArray(bookmark.parentId)
+    const json = await this.sendRequest(
+      'GET',
+      'index.php/apps/bookmarks/public/rest/v2/folder'
+    )
 
-      var currentSubtree = tree
-      pathArray.forEach((title, i) => {
-        var folder
-        // we already have created the root folder
-        if (i === 0) return
-        folder = currentSubtree.children
-          .filter(child => child instanceof Folder)
-          .filter(folder => folder.title === title)[0]
-        if (!folder) {
-          folder = new Folder({
-            parentId: currentSubtree.id,
-            id: PathHelper.arrayToPath(pathArray.slice(0, i + 1)),
-            title
-          })
-          currentSubtree.children.push(folder)
-        }
-        currentSubtree = folder
-      })
-
-      // attach path to id, since it might be duplicated
-      currentSubtree.children.push(bookmark)
-    })
+    let tree = new Folder({ id: '-1' })
+    let childFolders = json.data
+    if (this.server.serverRoot) {
+      this.server.serverRoot
+        .split('/')
+        .slice(1)
+        .forEach(segment => {
+          let currentChild = childFolders.filter(
+            folder => folder.title === segment
+          )[0]
+          tree = new Folder({ id: currentChild.id })
+          childFolders = currentChild.children
+        })
+    }
+    const recurseChildFolders = async (tree, childFolders) => {
+      // retrieve folder order
+      const json = await this.sendRequest(
+        'GET',
+        `index.php/apps/bookmarks/public/rest/v2/folder/${tree.id}/childorder`
+      )
+      await Promise.all(
+        json.data.map(child => {
+          if (child.type === 'folder') {
+            // get the folder from the tree we've fetched above
+            let folder = childFolders.filter(
+              folder => folder.id === child.id
+            )[0]
+            if (!folder)
+              throw new Error(
+                'Inconsistent server state! Folder present in childorder list but not in folder tree'
+              )
+            let newFolder = new Folder({
+              id: child.id,
+              title: folder.title,
+              parentId: tree.id
+            })
+            tree.children.push(newFolder)
+            // ... and recurse
+            return recurseChildFolders(newFolder, folder.children)
+          } else {
+            // get the bookmark from the list we've fetched above
+            let childBookmark = serverListTempFolder.findBookmark(child.id)
+            childBookmark.id = childBookmark.id + ';' + tree.id
+            tree.children.push(childBookmark)
+            return Promise.resolve()
+          }
+        })
+      )
+    }
+    await recurseChildFolders(tree, childFolders)
 
     this.tree = tree
-    return tree
+    return tree.clone()
   }
 
   async createFolder(parentId, title) {
-    Logger.log('(nextcloud)CREATEFOLDER', { parentId, title }, '(noop)')
-    let newId = PathHelper.arrayToPath(
-      PathHelper.pathToArray(parentId).concat([title])
-    )
-    let folder = new Folder({ title, parentId, id: newId })
-    let newParent = this.tree.findFolder(parentId)
-    if (!newParent) {
-      throw new Error('New parent folder not found')
+    Logger.log('(nextcloud)CREATEFOLDER', { parentId, title })
+
+    let parentFolder
+    if (parentId !== '-1') {
+      parentFolder = this.tree
+    } else {
+      parentFolder = this.tree.findFolder(parentId)
+      if (!parentFolder) {
+        throw new Error('Folder not found')
+      }
     }
-    newParent.children.push(folder)
+    let body = JSON.stringify({
+      parent_folder: parentId,
+      title: title
+    })
+    const json = await this.sendRequest(
+      'POST',
+      'index.php/apps/bookmarks/public/rest/v2/folder',
+      'application/json',
+      body
+    )
+    parentFolder.children.push(
+      new Folder({ id: json.item.id, title, parentId })
+    )
     this.tree.createIndex()
-    return newId
+    return json.item.id
   }
 
   async updateFolder(id, title) {
@@ -256,23 +289,17 @@ export default class NextcloudAdapter extends Adapter {
     if (!folder) {
       throw new Error('Folder not found')
     }
+    let body = JSON.stringify({
+      parent_folder: folder.parentId,
+      title: title
+    })
+    const json = await this.sendRequest(
+      'PUT',
+      `index.php/apps/bookmarks/public/rest/v2/folder/${id}`,
+      'application/json',
+      body
+    )
     folder.title = title
-    let newParentId = PathHelper.arrayToPath(
-      PathHelper.pathToArray(folder.parentId).concat([title])
-    )
-    folder.id = newParentId
-    await Parallel.each(
-      folder.children,
-      async child => {
-        if (child instanceof Folder) {
-          await this.moveFolder(child.id, newParentId)
-        } else {
-          child.parentId = newParentId
-          await this.updateBookmark(child)
-        }
-      },
-      1
-    )
     this.tree.createIndex()
   }
 
@@ -282,36 +309,40 @@ export default class NextcloudAdapter extends Adapter {
     if (!folder) {
       throw new Error('Folder not found')
     }
-    let oldParent = this.tree.findFolder(folder.parentId)
-    if (!oldParent) {
-      throw new Error('Parent folder not found')
-    }
-    oldParent.children.splice(oldParent.children.indexOf(folder), 1)
-
-    let newParent = this.tree.findFolder(parentId)
-    if (!newParent) {
-      throw new Error('New parent folder not found')
-    }
-    newParent.children.push(folder)
+    let body = JSON.stringify({
+      parent_folder: parentId,
+      title: folder.title
+    })
+    const json = await this.sendRequest(
+      'PUT',
+      `index.php/apps/bookmarks/public/rest/v2/folder/${id}`,
+      'application/json',
+      body
+    )
+    let oldParentFolder = this.tree.findFolder(folder.parentId)
+    oldParentFolder.children = oldParentFolder.children.filter(
+      child => child.id !== id
+    )
+    let newParentFolder = this.tree.findFolder(parentId)
     folder.parentId = parentId
-    let newParentId = PathHelper.arrayToPath(
-      PathHelper.pathToArray(parentId).concat([folder.title])
-    )
-    folder.id = newParentId
-
-    await Parallel.each(
-      folder.children,
-      async child => {
-        if (child instanceof Folder) {
-          await this.moveFolder(child.id, newParentId)
-        } else {
-          child.parentId = newParentId
-          await this.updateBookmark(child)
-        }
-      },
-      1
-    )
+    newParentFolder.children.push(folder)
     this.tree.createIndex()
+  }
+
+  async orderFolder(id, order) {
+    Logger.log('(nextcloud)ORDERFOLDER', { id, order })
+    const body = {
+      data: order.map(item => ({
+        id: String(item.id).split(';')[0],
+        type: item.type
+      }))
+    }
+    const json = await this.sendRequest(
+      'PATCH',
+      `index.php/apps/bookmarks/public/rest/v2/folder/${id}/childorder`,
+      'application/json',
+      JSON.stringify(body)
+    )
   }
 
   async removeFolder(id) {
@@ -320,24 +351,12 @@ export default class NextcloudAdapter extends Adapter {
     if (!folder) {
       return
     }
-
-    await Parallel.each(
-      folder.children,
-      async child => {
-        if (child instanceof Folder) {
-          await this.removeFolder(child.id)
-        } else {
-          await this.removeBookmark(child.id)
-        }
-      },
-      1
+    const json = await this.sendRequest(
+      'DELETE',
+      `index.php/apps/bookmarks/public/rest/v2/folder/${id}`
     )
-
-    let oldParent = this.tree.findFolder(folder.parentId)
-    if (!oldParent) {
-      throw new Error('Parent folder not found')
-    }
-    oldParent.children.splice(oldParent.children.indexOf(folder), 1)
+    let parent = this.tree.findFolder(folder.parentId)
+    parent.children = parent.children.filter(child => child.id !== id)
     this.tree.createIndex()
   }
 
@@ -350,21 +369,18 @@ export default class NextcloudAdapter extends Adapter {
     )
 
     let bm = json.item
-
-    let paths = this.getPathsFromServerMark(bm)
-
-    let bookmarks = paths.map(path => {
+    let bookmarks = bm.folders.map(parentId => {
       let bookmark = new Bookmark({
-        id: bm.id + ';' + path,
+        id: bm.id + ';' + parentId,
         url: bm.url,
         title: bm.title,
-        parentId: path
+        parentId: parentId
       })
-      bookmark.tags = NextcloudAdapter.filterPathTagsFromTags(bm.tags)
+      bookmark.tags = bm.tags
       return bookmark
     })
 
-    return { bookmarks, tags: NextcloudAdapter.filterPathTagsFromTags(bm.tags) }
+    return bookmarks
   }
 
   /*
@@ -372,16 +388,8 @@ export default class NextcloudAdapter extends Adapter {
    * querying urls directly
    */
   async getExistingBookmark(url) {
-    Logger.log('Fetching bookmarks to find existing bookmark')
-    if (!this.list || !this.list.raw) {
-      const json = await this.sendRequest(
-        'GET',
-        'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
-      )
-      this.list = {}
-      this.list.raw = json.data
-    }
-    let existing = _.find(this.list.raw, bookmark => bookmark.url === url)
+    await this.getBookmarksList()
+    let existing = _.find(this.list, bookmark => bookmark.url === url)
     if (!existing) return
     return existing.id
   }
@@ -394,21 +402,24 @@ export default class NextcloudAdapter extends Adapter {
     let existingBookmark = await this.getExistingBookmark(bm.url)
     if (existingBookmark) {
       bm.id = existingBookmark + ';' + bm.parentId
+      await this.updateBookmark(bm)
     } else {
-      let body = new FormData()
-      body.append('url', bm.url)
-      body.append('title', bm.title)
+      let body = JSON.stringify({
+        url: bm.url,
+        title: bm.title,
+        folders: [bm.parentId]
+      })
 
       const json = await this.sendRequest(
         'POST',
         'index.php/apps/bookmarks/public/rest/v2/bookmark',
+        'application/json',
         body
       )
       bm.id = json.item.id + ';' + bm.parentId
+      // invalidate cache
       this.list = null
     }
-
-    await this.updateBookmark(bm)
 
     return bm.id
   }
@@ -419,84 +430,43 @@ export default class NextcloudAdapter extends Adapter {
       return false
     }
 
-    // returns the full paths from the server
-    let { bookmarks: bms, tags } = await this._getBookmark(
-      newBm.id.split(';')[0]
-    )
+    let [upstreamId, oldParentId] = newBm.id.split(';')
+    let bms = await this._getBookmark(upstreamId)
 
-    let body = new URLSearchParams()
-    body.append('url', newBm.url)
-    body.append('title', newBm.title)
+    let body = JSON.stringify({
+      url: newBm.url,
+      title: newBm.title,
+      folders: bms
+        .map(bm => bm.parentId)
+        .filter(parentId => parentId !== oldParentId)
+        .concat([newBm.parentId])
+    })
 
-    const realParentId = this.server.serverRoot
-      ? this.server.serverRoot + newBm.parentId
-      : newBm.parentId
-
-    let oldPath = newBm.id.split(';')[1]
-    if (this.server.serverRoot) {
-      oldPath = this.server.serverRoot + oldPath
-    }
-    console.log(bms, tags, '-', oldPath)
-    let newTags = bms
-      .map(bm => bm.parentId)
-      .filter(path => path !== oldPath)
-      .map(path => NextcloudAdapter.convertPathToTag(path))
-      .concat([NextcloudAdapter.convertPathToTag(realParentId)])
-      .concat(tags)
-    console.log('newTags', newTags)
-    newTags.forEach(tag => body.append('item[tags][]', tag))
+    bms[0].tags.forEach(tag => body.append('item[tags][]', tag))
 
     await this.sendRequest(
       'PUT',
-      'index.php/apps/bookmarks/public/rest/v2/bookmark/' +
-        newBm.id.split(';')[0],
+      `index.php/apps/bookmarks/public/rest/v2/bookmark/${upstreamId}`,
+      'application/json',
       body
     )
 
-    return newBm.id.split(';')[0] + ';' + newBm.parentId
+    return upstreamId + ';' + newBm.parentId
   }
 
   async removeBookmark(id) {
     Logger.log('(nextcloud)REMOVE', { id })
 
-    let { bookmarks: bms, tags } = await this._getBookmark(id.split(';')[0])
+    let [upstreamId, parentId] = id.split(';')
 
-    if (bms.length !== 1) {
-      // multiple bookmarks of the same url
-      // only remove one of the multiple path tags
-      let body = new URLSearchParams()
-      body.append('url', bms[0].url)
-      body.append('title', bms[0].title)
-
-      let oldPath = id.split(';')[1]
-      if (this.server.serverRoot) {
-        oldPath = this.server.serverRoot + oldPath
-      }
-      bms
-        .map(bm => bm.parentId)
-        .filter(path => path !== oldPath)
-        .map(path => NextcloudAdapter.convertPathToTag(path))
-        .concat(tags)
-        .forEach(tag => body.append('item[tags][]', tag))
-
-      console.log(bms, tags, '-', oldPath)
-
-      await this.sendRequest(
-        'PUT',
-        'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id.split(';')[0],
-        body
-      )
-    } else {
-      // remove the whole bookmark
-      await this.sendRequest(
-        'DELETE',
-        'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id.split(';')[0]
-      )
-      this.list = null // clear cache
-    }
+    await this.sendRequest(
+      'DELETE',
+      `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/bookmarks/${upstreamId}`
+    )
+    this.list = null // clear cache
   }
 
-  async sendRequest(verb, relUrl, body) {
+  async sendRequest(verb, relUrl, type, body) {
     const url = this.normalizeServerURL(this.server.url) + relUrl
     var res
     try {
@@ -505,6 +475,7 @@ export default class NextcloudAdapter extends Adapter {
           method: verb,
           credentials: 'omit',
           headers: {
+            ...(type && { 'Content-type': type }),
             Authorization:
               'Basic ' + btoa(this.server.username + ':' + this.server.password)
           },
@@ -541,36 +512,5 @@ export default class NextcloudAdapter extends Adapter {
     }
 
     return json
-  }
-
-  getPathsFromServerMark(bm) {
-    let pathTags = NextcloudAdapter.getPathTagsFromTags(bm.tags)
-    return pathTags.map(pathTag => NextcloudAdapter.convertTagToPath(pathTag))
-  }
-
-  static filterPathTagsFromTags(tags) {
-    return (tags || []).filter(tag => tag.indexOf(TAG_PREFIX) !== 0)
-  }
-
-  static getPathTagsFromTags(tags) {
-    return (tags || []).filter(tag => tag.indexOf(TAG_PREFIX) === 0)
-  }
-
-  static convertPathToTag(path) {
-    return (
-      TAG_PREFIX +
-      path
-        .replace(/[/]/g, '>')
-        .replace(/%2C/g, '%252C')
-        .replace(/,/g, '%2C')
-    ) // encodeURIComponent(',') == '%2C'
-  }
-
-  static convertTagToPath(tag) {
-    return tag
-      .substr(TAG_PREFIX.length)
-      .replace(/>/g, '/')
-      .replace(/%2C/g, ',') // encodeURIComponent(',') == '%2C'
-      .replace(/%252C/g, '%2C')
   }
 }

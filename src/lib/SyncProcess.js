@@ -17,6 +17,7 @@ export default class SyncProcess {
     this.localTree = localTree
     this.server = server
     this.cacheTreeRoot = cacheTreeRoot
+    this.preserveOrder = !!this.server.orderFolder
   }
 
   async sync() {
@@ -162,15 +163,22 @@ export default class SyncProcess {
   }
 
   async updateFolder(localItem, cacheItem, serverItem) {
-    const localHash = localItem ? await localItem.hash() : null
-    const cacheHash = cacheItem ? await cacheItem.hash() : null
-    const serverHash = serverItem ? await serverItem.hash() : null
+    const localHash = localItem
+      ? await localItem.hash(this.preserveOrder)
+      : null
+    const cacheHash = cacheItem
+      ? await cacheItem.hash(this.preserveOrder)
+      : null
+    const serverHash = serverItem
+      ? await serverItem.hash(this.preserveOrder)
+      : null
     const changed =
       localHash !== serverHash ||
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
     const changedLocally =
-      localHash !== cacheHash || localItem.parentId !== cacheItem.parentId
+      (cacheItem && !cacheItem.id) || // if id is not set, changedLocally must be true
+      (localHash !== cacheHash || localItem.parentId !== cacheItem.parentId)
     const changedUpstream =
       cacheHash !== serverHash ||
       localItem.parentId !==
@@ -203,15 +211,20 @@ export default class SyncProcess {
     })
 
     if (!changed) {
-      Logger.log('Skipping subtree of ', { localItem, serverItem })
+      Logger.log('Skipping subtree')
       return
     }
 
-    Logger.log('Checking subtree of ', { localItem, serverItem })
+    Logger.log('Checking subtree')
 
     // LOCAL CHANGES
 
     const mappingsSnapshot = this.mappings.getSnapshot()
+
+    const localOrder = localItem.children.map(child => ({
+      type: child instanceof Tree.Folder ? 'folder' : 'bookmark',
+      id: child.id
+    }))
 
     // CREATED LOCALLY
     await Parallel.each(
@@ -268,13 +281,23 @@ export default class SyncProcess {
       await Parallel.each(
         serverItem.children.filter(
           child =>
-            !mappingsSnapshot[
-              child instanceof Tree.Folder ? 'folders' : 'bookmarks'
-            ].ServerToLocal[child.id]
+            !(cacheItem || localItem).children.some(
+              cacheChild =>
+                mappingsSnapshot[
+                  child instanceof Tree.Folder ? 'folders' : 'bookmarks'
+                ].ServerToLocal[child.id] === cacheChild.id
+            )
         ),
         async newChild => {
           if (newChild.merged) return
           await this.syncTree(null, null, newChild)
+          // add to ordering
+          localOrder.splice(serverItem.children.indexOf(newChild), 0, {
+            type: newChild instanceof Tree.Folder ? 'folder' : 'bookmark',
+            id: this.mappings.getSnapshot()[
+              newChild instanceof Tree.Folder ? 'folders' : 'bookmarks'
+            ].ServerToLocal[newChild.id]
+          })
         },
         CONCURRENCY
       )
@@ -288,7 +311,7 @@ export default class SyncProcess {
                 server =>
                   mappingsSnapshot[
                     cache instanceof Tree.Folder ? 'folders' : 'bookmarks'
-                  ].LocalToServer[cache.id] === server.id
+                  ].ServerToLocal[server.id] === cache.id
               )
           ),
           async oldChild => {
@@ -297,10 +320,31 @@ export default class SyncProcess {
                 ? this.localTreeRoot.findFolder(oldChild.id)
                 : this.localTreeRoot.findBookmark(oldChild.id)
             await this.syncTree(localChild, oldChild, null)
+            // remove from ordering
+            localOrder.splice(
+              localOrder.indexOf(
+                localOrder.filter(item => item.id === localChild.id)[0]
+              ),
+              1
+            )
           },
           CONCURRENCY
         )
       }
+    }
+
+    // ORDER CHILDREN
+
+    if (this.preserveOrder && localOrder.length > 1) {
+      const newMappingsSnapshot = this.mappings.getSnapshot()
+      await this.localTree.orderFolder(localItem.id, localOrder)
+      await this.server.orderFolder(
+        serverItem.id,
+        localOrder.map(item => ({
+          type: item.type,
+          id: newMappingsSnapshot[item.type + 's'].LocalToServer[item.id]
+        }))
+      )
     }
 
     // RECURSE EXISTING ITEMS
@@ -311,7 +355,7 @@ export default class SyncProcess {
           server =>
             mappingsSnapshot[
               local instanceof Tree.Folder ? 'folders' : 'bookmarks'
-            ].LocalToServer[local.id] === server.id
+            ].ServerToLocal[server.id] === local.id
         )
       ),
       async existingChild => {
@@ -376,8 +420,9 @@ export default class SyncProcess {
     if (folder.moved) {
       Logger.log(
         'This folder was removed here and concurrently moved somewhere else ' +
-          '-- deletion takes precedence'
+          '-- moves take precedence to preserve data'
       )
+      return
     }
 
     // remove from resource
@@ -463,8 +508,9 @@ export default class SyncProcess {
       return
     }
 
+    let newServerId
     if (changedLocally) {
-      await this.server.updateBookmark(
+      newServerId = await this.server.updateBookmark(
         new Tree.Bookmark({
           id: serverItem.id,
           parentId: this.mappings.folders.LocalToServer[localItem.parentId],
@@ -485,7 +531,7 @@ export default class SyncProcess {
 
     await this.mappings.addBookmark({
       localId: localItem.id,
-      remoteId: serverItem.id
+      remoteId: newServerId || serverItem.id
     })
   }
 
@@ -520,9 +566,9 @@ export default class SyncProcess {
     if (bookmark.moved) {
       // local changes are deal with first in updateFolder, thus this is deterministic
       Logger.log(
-        'This bookmark was removed here and concurrently moved somewhere else -- deletion takes precedence'
+        'This bookmark was removed here and concurrently moved somewhere else -- moves take precedence'
       )
-      // go on to delete it!
+      return
     }
 
     await toResource.removeBookmark(bookmark.id)

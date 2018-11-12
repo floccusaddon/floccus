@@ -27,7 +27,8 @@ export class Bookmark {
     return (
       Array(depth)
         .fill('  ')
-        .join('') + `- [${this.title}](${this.url})`
+        .join('') +
+      `- #${this.id}[${this.title}](${this.url}) parentId: ${this.parentId}`
     )
   }
 
@@ -77,23 +78,25 @@ export class Folder {
       .filter(bookmark => !!bookmark)[0]
   }
 
-  async hash() {
+  async hash(preserveOrder) {
     if (!this.hashValue) {
+      if (!preserveOrder) {
+        this.children
+          // only re-sort unless we sync the order of the children as well
+          .sort((c1, c2) => {
+            if (c1.title < c2.title) {
+              return -1
+            }
+            if (c2.title < c1.title) {
+              return 1
+            }
+            return 0
+          })
+      }
       this.hashValue = Crypto.murmur2(
         JSON.stringify([
           await Promise.all(
-            this.children
-              // TODO: only re-sort unless we sync the order of the children, too!
-              .sort((c1, c2) => {
-                if (c1.title < c2.title) {
-                  return -1
-                }
-                if (c2.title < c1.title) {
-                  return 1
-                }
-                return 0
-              })
-              .map(child => child.hash())
+            this.children.map(child => child.hash(preserveOrder))
           ),
           this.title
         ])
@@ -139,8 +142,13 @@ export class Folder {
       Array(depth)
         .fill('  ')
         .join('') +
-      `+ ${this.title}\n` +
-      this.children.map(child => child.inspect(depth + 1)).join('\n')
+      `+ #${this.id}[${this.title}] parentId: ${this.parentId}\n` +
+      this.children
+        .map(
+          child =>
+            child && child.inspect ? child.inspect(depth + 1) : String(child)
+        )
+        .join('\n')
     )
   }
 

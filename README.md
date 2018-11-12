@@ -6,7 +6,7 @@
 
 The goal of this project is to build a browser extension that syncs your browser data across browser vendors with the open source, self-hosted sync and share server [Nextcloud](https://nextcloud.com) and possibly other self-hosted solutions.
 
-**News:** Floccus v3.0 now allows you to sync duplicate bookmarks in different folders and can sync accross browser vendors without any hassle. :weight_lifting_woman: Additionally you can now sync with any WebDAV server you want, not just with the nextcloud bookmarks app.
+**News:** Floccus v3.1 now allows you to sync with the newly available folders in nextcloud bookmarks and also preserves the order of your bookmarks. :weight_lifting_woman:
 
 [![Chrome Webstore](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|
 [![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)
@@ -30,9 +30,9 @@ You can [install it via the Chrome Web store](https://chrome.google.com/webstore
 
 Alternatively, you can still install it by [downloading the Chrome package from the latest release](https://github.com/marcelklehr/floccus/releases/) and dropping it into Chrome's extension page.
 
-#### Updating from 2.x to v3.0
+#### Updating from v3.0 to v3.1
 
-It is recommended to remove all of your bookmarks from your accounts before using the new version, deleting the accounts and then to create them again, in order to prevent unforeseen problems!
+When using a WebDAV account, there's nothing you need to do to benefit from the new order preservation feature. If you are using the nextcloud adapter, it is recommended that you switch to the new nextcloud adapter, which works with the Bookmarks folders feature and also preserves ordering.
 
 ### Firefox
 
@@ -65,13 +65,29 @@ Floccus requests the following permissions:
 - **Your accounts**: You can setup multiple accounts and select a bookmark folder for each, that should be synced with that account. Floccus will keep the bookmarks in sync with the server you selected whenever you add or change them and will also sync periodically to pull the latest changes from the server.
 - **Syncing the root folder**: If you want to sync all bookmarks in your browser you need to select the topmost untitled folder in the folder picker. (In case you're wondering: Syncing the root folder across browsers from different vendors is now possible out of the box, because the built-in folder names are now normalized).
 
-### The server path: Mapping folders
+### The server path: Mapping folders / Profiles
 
-You can specify a 'server folder' in your floccus account setup. This is like the target folder of a copy or rsync command. While the local sync folder you have selected from your browser bookmarks normally will end up being synced to the root bookmark path on your server, you can change that to an arbitrary sub-directory, e.g. /Toolbar.
+When using the nextcloud Bookmarks adapter, you can specify a 'server folder' in your floccus account setup. This is like the target folder of a copy or rsync command. While the local sync folder you have selected from your browser bookmarks will normally end up being synced to the root bookmark path on your server, you can change that to an arbitrary sub-directory, e.g. /Toolbar, with the 'server folder' setting. If you are using the WebDAV/XBEL adapter, you can do the same by specifying a specific xbel file in the settings.
+
+This way it is possible to sync Firefox' 'Bookmarks Menu' folder to Chrome, which doesn't have a Menu folder out of the box: Simply set up a separate account for each of the main folders in firefox, each with a separate server folder, e.g.:
+
+- Fx '/Bookmarks Toolbar' <=> '/Toolbar'
+  - Fx '/Other Bookmarks' <=> '/Others'
+  - Fx '/Bookmarks Menu' <=> '/Menu'
+
+Then, in Chrome you can setup the folders as follows:
+
+- GC '/Bookmarks Toolbar' <=> '/Toolbar'
+- GC '/Bookmarks Toolbar/Menu' <=> '/Menu' (You need to create this folder yourself, of course.)
+  - GC '/Other Bookmarks' <=> '/Others'
 
 ### Limitations
 
 - Note that currently you cannot sync the same folder with multiple nextcloud accounts in order to avoid data corruption. If you sync the root folder with one account and sync a sub folder with a different account, that sub-folder will not be synced with the account connected to the root folder anymore.
+
+### Finding duplicates
+
+Floccus will sync your bookmarks as-is, including any dupes. If you need to find and remove duplicates in your bookmarks, try something like [bookmark-dupes](https://addons.mozilla.org/en-US/firefox/addon/bookmark-dupes).
 
 ## Considerations
 

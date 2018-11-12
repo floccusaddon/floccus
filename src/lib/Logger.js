@@ -2,6 +2,8 @@ import browser from '../lib/browser-api'
 import AccountStorage from './AccountStorage'
 import util from 'util'
 
+const packageJson = require('../../package.json')
+
 export default class Logger {
   static log() {
     const logMsg = arguments
@@ -15,7 +17,7 @@ export default class Logger {
     await AccountStorage.changeEntry(
       'log',
       log => {
-        return log.concat(this.messages).slice(-2500) // rotate log to max of 5000 entries
+        return log.concat(this.messages).slice(-1000) // rotate log to max of 1000 entries
       },
       []
     )
@@ -32,7 +34,14 @@ export default class Logger {
       type: 'text/plain',
       endings: 'native'
     })
-    this.download('floccus.log', blob)
+    this.download(
+      'floccus-' +
+        packageJson.version +
+        '-' +
+        new Date().toISOString().slice(0, 10) +
+        '.log',
+      blob
+    )
   }
 
   static download(filename, blob) {
