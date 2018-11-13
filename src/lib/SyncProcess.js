@@ -331,20 +331,20 @@ export default class SyncProcess {
           CONCURRENCY
         )
       }
-    }
 
-    // ORDER CHILDREN
+      // ORDER CHILDREN
 
-    if (this.preserveOrder && localOrder.length > 1) {
-      const newMappingsSnapshot = this.mappings.getSnapshot()
-      await this.localTree.orderFolder(localItem.id, localOrder)
-      await this.server.orderFolder(
-        serverItem.id,
-        localOrder.map(item => ({
-          type: item.type,
-          id: newMappingsSnapshot[item.type + 's'].LocalToServer[item.id]
-        }))
-      )
+      if (this.preserveOrder && localOrder.length > 1) {
+        const newMappingsSnapshot = this.mappings.getSnapshot()
+        await this.localTree.orderFolder(localItem.id, localOrder)
+        await this.server.orderFolder(
+          serverItem.id,
+          localOrder.map(item => ({
+            type: item.type,
+            id: newMappingsSnapshot[item.type + 's'].LocalToServer[item.id]
+          }))
+        )
+      }
     }
 
     // RECURSE EXISTING ITEMS
