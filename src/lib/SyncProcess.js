@@ -320,13 +320,15 @@ export default class SyncProcess {
                 ? this.localTreeRoot.findFolder(oldChild.id)
                 : this.localTreeRoot.findBookmark(oldChild.id)
             await this.syncTree(localChild, oldChild, null)
-            // remove from ordering
-            localOrder.splice(
-              localOrder.indexOf(
-                localOrder.filter(item => item.id === localChild.id)[0]
-              ),
-              1
-            )
+            if (localChild) {
+              // remove from ordering
+              localOrder.splice(
+                localOrder.indexOf(
+                  localOrder.filter(item => item.id === localChild.id)[0]
+                ),
+                1
+              )
+            }
           },
           CONCURRENCY
         )
