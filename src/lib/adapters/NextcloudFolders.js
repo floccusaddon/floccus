@@ -30,7 +30,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
   static getDefaultValues() {
     return {
-      type: 'nextcloud',
+      type: 'nextcloud-folders',
       url: 'https://example.org',
       username: 'bob',
       password: 's3cret',
