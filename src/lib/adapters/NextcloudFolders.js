@@ -439,10 +439,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
       folders: bms
         .map(bm => bm.parentId)
         .filter(parentId => parentId !== oldParentId)
-        .concat([newBm.parentId])
+        .concat([newBm.parentId]),
+      tags: bms[0].tags
     })
-
-    bms[0].tags.forEach(tag => body.append('item[tags][]', tag))
 
     await this.sendRequest(
       'PUT',
