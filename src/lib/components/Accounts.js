@@ -13,7 +13,7 @@ export const state = {
   accounts: {
     accounts: {},
     secured: false,
-    creationType: 'nextcloud'
+    creationType: 'nextcloud-folders'
   }
 }
 
