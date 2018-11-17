@@ -255,7 +255,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
   }
 
   async createFolder(parentId, title) {
-    Logger.log('(nextcloud)CREATEFOLDER', { parentId, title })
+    Logger.log('(nextcloud-folders)CREATEFOLDER', { parentId, title })
 
     let parentFolder
     if (parentId !== '-1') {
@@ -284,7 +284,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
   }
 
   async updateFolder(id, title) {
-    Logger.log('(nextcloud)UPDATEFOLDER', { id, title })
+    Logger.log('(nextcloud-folders)UPDATEFOLDER', { id, title })
     let folder = this.tree.findFolder(id)
     if (!folder) {
       throw new Error('Folder not found')
@@ -304,7 +304,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
   }
 
   async moveFolder(id, parentId) {
-    Logger.log('(nextcloud)MOVEFOLDER', { id, parentId })
+    Logger.log('(nextcloud-folders)MOVEFOLDER', { id, parentId })
     let folder = this.tree.findFolder(id)
     if (!folder) {
       throw new Error('Folder not found')
@@ -330,7 +330,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
   }
 
   async orderFolder(id, order) {
-    Logger.log('(nextcloud)ORDERFOLDER', { id, order })
+    Logger.log('(nextcloud-folders)ORDERFOLDER', { id, order })
     const body = {
       data: order.map(item => ({
         id: String(item.id).split(';')[0],
@@ -346,7 +346,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
   }
 
   async removeFolder(id) {
-    Logger.log('(nextcloud)REMOVEFOLDER', id)
+    Logger.log('(nextcloud-folders)REMOVEFOLDER', id)
     let folder = this.tree.findFolder(id)
     if (!folder) {
       return
@@ -395,7 +395,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
   }
 
   async createBookmark(bm) {
-    Logger.log('(nextcloud)CREATE', bm)
+    Logger.log('(nextcloud-folders)CREATE', bm)
     if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
       return false
     }
@@ -425,7 +425,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
   }
 
   async updateBookmark(newBm) {
-    Logger.log('(nextcloud)UPDATE', newBm)
+    Logger.log('(nextcloud-folders)UPDATE', newBm)
     if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(newBm.url).protocol)) {
       return false
     }
@@ -454,7 +454,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
   }
 
   async removeBookmark(id) {
-    Logger.log('(nextcloud)REMOVE', { id })
+    Logger.log('(nextcloud-folders)REMOVE', { id })
 
     let [upstreamId, parentId] = id.split(';')
 
