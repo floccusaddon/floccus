@@ -9,6 +9,7 @@ const Parallel = require('async-parallel')
 const { h } = require('hyperapp')
 const url = require('url')
 const PQueue = require('p-queue')
+import AsyncLock from 'async-lock'
 const _ = require('lodash')
 
 const TAG_PREFIX = 'floccus:'
@@ -28,6 +29,7 @@ export default class NextcloudAdapter extends Adapter {
     super()
     this.server = server
     this.fetchQueue = new PQueue({ concurrency: 10 })
+    this.bookmarkLock = new AsyncLock()
   }
 
   static getDefaultValues() {
@@ -391,26 +393,30 @@ export default class NextcloudAdapter extends Adapter {
     if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
       return false
     }
-    let existingBookmark = await this.getExistingBookmark(bm.url)
-    if (existingBookmark) {
-      bm.id = existingBookmark + ';' + bm.parentId
-    } else {
-      let body = new FormData()
-      body.append('url', bm.url)
-      body.append('title', bm.title)
 
-      const json = await this.sendRequest(
-        'POST',
-        'index.php/apps/bookmarks/public/rest/v2/bookmark',
-        body
-      )
-      bm.id = json.item.id + ';' + bm.parentId
-      this.list = null
-    }
+    // We need this lock to avoid creating multiple bookmarks with the same URL in parallel
+    return await this.bookmarkLock.acquire(bm.url, async () => {
+      let existingBookmark = await this.getExistingBookmark(bm.url)
+      if (existingBookmark) {
+        bm.id = existingBookmark + ';' + bm.parentId
+      } else {
+        let body = new FormData()
+        body.append('url', bm.url)
+        body.append('title', bm.title)
 
-    await this.updateBookmark(bm)
+        const json = await this.sendRequest(
+          'POST',
+          'index.php/apps/bookmarks/public/rest/v2/bookmark',
+          body
+        )
+        bm.id = json.item.id + ';' + bm.parentId
+        this.list = null
+      }
 
-    return bm.id
+      await this.updateBookmark(bm)
+
+      return bm.id
+    })
   }
 
   async updateBookmark(newBm) {
@@ -419,81 +425,92 @@ export default class NextcloudAdapter extends Adapter {
       return false
     }
 
-    // returns the full paths from the server
-    let { bookmarks: bms, tags } = await this._getBookmark(
-      newBm.id.split(';')[0]
-    )
+    const serverId = newBm.id.split(';')[0]
 
-    let body = new URLSearchParams()
-    body.append('url', newBm.url)
-    body.append('title', newBm.title)
+    // We need this lock to avoid changing a bookmark that is
+    // in two places in parallel for those two places
+    return await this.bookmarkLock.acquire(serverId, async () => {
+      // returns the full paths from the server
+      let { bookmarks: bms, tags } = await this._getBookmark(serverId)
 
-    const realParentId = this.server.serverRoot
-      ? this.server.serverRoot + newBm.parentId
-      : newBm.parentId
+      let body = new URLSearchParams()
+      body.append('url', newBm.url)
+      body.append('title', newBm.title)
 
-    let oldPath = newBm.id.split(';')[1]
-    if (this.server.serverRoot) {
-      oldPath = this.server.serverRoot + oldPath
-    }
-    console.log(bms, tags, '-', oldPath)
-    let newTags = bms
-      .map(bm => bm.parentId)
-      .filter(path => path !== oldPath)
-      .map(path => NextcloudAdapter.convertPathToTag(path))
-      .concat([NextcloudAdapter.convertPathToTag(realParentId)])
-      .concat(tags)
-    console.log('newTags', newTags)
-    newTags.forEach(tag => body.append('item[tags][]', tag))
+      const realParentId = this.server.serverRoot
+        ? this.server.serverRoot + newBm.parentId
+        : newBm.parentId
 
-    await this.sendRequest(
-      'PUT',
-      'index.php/apps/bookmarks/public/rest/v2/bookmark/' +
-        newBm.id.split(';')[0],
-      body
-    )
+      let oldPath = newBm.id.split(';')[1]
+      if (this.server.serverRoot) {
+        oldPath = this.server.serverRoot + oldPath
+      }
+      console.log(bms, tags, '-', oldPath)
+      let newTags = bms
+        .map(bm => bm.parentId)
+        .filter(path => path !== oldPath)
+        .map(path => NextcloudAdapter.convertPathToTag(path))
+        .concat([NextcloudAdapter.convertPathToTag(realParentId)])
+        .concat(tags)
+      console.log('newTags', newTags)
+      newTags.forEach(tag => body.append('item[tags][]', tag))
 
-    return newBm.id.split(';')[0] + ';' + newBm.parentId
+      await this.sendRequest(
+        'PUT',
+        'index.php/apps/bookmarks/public/rest/v2/bookmark/' +
+          newBm.id.split(';')[0],
+        body
+      )
+
+      return newBm.id.split(';')[0] + ';' + newBm.parentId
+    })
   }
 
   async removeBookmark(id) {
     Logger.log('(nextcloud)REMOVE', { id })
 
-    let { bookmarks: bms, tags } = await this._getBookmark(id.split(';')[0])
+    const serverId = id.split(';')[0]
 
-    if (bms.length !== 1) {
-      // multiple bookmarks of the same url
-      // only remove one of the multiple path tags
-      let body = new URLSearchParams()
-      body.append('url', bms[0].url)
-      body.append('title', bms[0].title)
+    // We need this lock to avoid deleting a bookmark that is in two places
+    // in parallel
+    return await this.bookmarkLock.acquire(serverId, async () => {
+      let { bookmarks: bms, tags } = await this._getBookmark()
 
-      let oldPath = id.split(';')[1]
-      if (this.server.serverRoot) {
-        oldPath = this.server.serverRoot + oldPath
+      if (bms.length !== 1) {
+        // multiple bookmarks of the same url
+        // only remove one of the multiple path tags
+        let body = new URLSearchParams()
+        body.append('url', bms[0].url)
+        body.append('title', bms[0].title)
+
+        let oldPath = id.split(';')[1]
+        if (this.server.serverRoot) {
+          oldPath = this.server.serverRoot + oldPath
+        }
+        bms
+          .map(bm => bm.parentId)
+          .filter(path => path !== oldPath)
+          .map(path => NextcloudAdapter.convertPathToTag(path))
+          .concat(tags)
+          .forEach(tag => body.append('item[tags][]', tag))
+
+        console.log(bms, tags, '-', oldPath)
+
+        await this.sendRequest(
+          'PUT',
+          'index.php/apps/bookmarks/public/rest/v2/bookmark/' +
+            id.split(';')[0],
+          body
+        )
+      } else {
+        // remove the whole bookmark
+        await this.sendRequest(
+          'DELETE',
+          'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id.split(';')[0]
+        )
+        this.list = null // clear cache
       }
-      bms
-        .map(bm => bm.parentId)
-        .filter(path => path !== oldPath)
-        .map(path => NextcloudAdapter.convertPathToTag(path))
-        .concat(tags)
-        .forEach(tag => body.append('item[tags][]', tag))
-
-      console.log(bms, tags, '-', oldPath)
-
-      await this.sendRequest(
-        'PUT',
-        'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id.split(';')[0],
-        body
-      )
-    } else {
-      // remove the whole bookmark
-      await this.sendRequest(
-        'DELETE',
-        'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id.split(';')[0]
-      )
-      this.list = null // clear cache
-    }
+    })
   }
 
   async sendRequest(verb, relUrl, body) {

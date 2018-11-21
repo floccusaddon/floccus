@@ -9,6 +9,7 @@ const Parallel = require('async-parallel')
 const { h } = require('hyperapp')
 const url = require('url')
 const PQueue = require('p-queue')
+import AsyncLock from 'async-lock'
 const _ = require('lodash')
 
 const {
@@ -26,6 +27,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     super()
     this.server = server
     this.fetchQueue = new PQueue({ concurrency: 10 })
+    this.bookmarkLock = new AsyncLock()
   }
 
   static getDefaultValues() {
@@ -399,29 +401,34 @@ export default class NextcloudFoldersAdapter extends Adapter {
     if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
       return false
     }
-    let existingBookmark = await this.getExistingBookmark(bm.url)
-    if (existingBookmark) {
-      bm.id = existingBookmark + ';' + bm.parentId
-      await this.updateBookmark(bm)
-    } else {
-      let body = JSON.stringify({
-        url: bm.url,
-        title: bm.title,
-        folders: [bm.parentId]
-      })
 
-      const json = await this.sendRequest(
-        'POST',
-        'index.php/apps/bookmarks/public/rest/v2/bookmark',
-        'application/json',
-        body
-      )
-      bm.id = json.item.id + ';' + bm.parentId
-      // invalidate cache
-      this.list = null
-    }
+    // We need this lock to avoid creating two boomarks with the same url
+    // in parallel
+    return await this.bookmarkLock.acquire(bm.url, async () => {
+      let existingBookmark = await this.getExistingBookmark(bm.url)
+      if (existingBookmark) {
+        bm.id = existingBookmark + ';' + bm.parentId
+        await this.updateBookmark(bm)
+      } else {
+        let body = JSON.stringify({
+          url: bm.url,
+          title: bm.title,
+          folders: [bm.parentId]
+        })
 
-    return bm.id
+        const json = await this.sendRequest(
+          'POST',
+          'index.php/apps/bookmarks/public/rest/v2/bookmark',
+          'application/json',
+          body
+        )
+        bm.id = json.item.id + ';' + bm.parentId
+        // invalidate cache
+        this.list = null
+      }
+
+      return bm.id
+    })
   }
 
   async updateBookmark(newBm) {
@@ -431,26 +438,31 @@ export default class NextcloudFoldersAdapter extends Adapter {
     }
 
     let [upstreamId, oldParentId] = newBm.id.split(';')
-    let bms = await this._getBookmark(upstreamId)
 
-    let body = JSON.stringify({
-      url: newBm.url,
-      title: newBm.title,
-      folders: bms
-        .map(bm => bm.parentId)
-        .filter(parentId => parentId !== oldParentId)
-        .concat([newBm.parentId]),
-      tags: bms[0].tags
+    // We need this lock to avoid updating bookmarks which are in two places at Once
+    // in parallel
+    return await this.bookmarkLock.acquire(bupstreamId, async () => {
+      let bms = await this._getBookmark(upstreamId)
+
+      let body = JSON.stringify({
+        url: newBm.url,
+        title: newBm.title,
+        folders: bms
+          .map(bm => bm.parentId)
+          .filter(parentId => parentId !== oldParentId)
+          .concat([newBm.parentId]),
+        tags: bms[0].tags
+      })
+
+      await this.sendRequest(
+        'PUT',
+        `index.php/apps/bookmarks/public/rest/v2/bookmark/${upstreamId}`,
+        'application/json',
+        body
+      )
+
+      return upstreamId + ';' + newBm.parentId
     })
-
-    await this.sendRequest(
-      'PUT',
-      `index.php/apps/bookmarks/public/rest/v2/bookmark/${upstreamId}`,
-      'application/json',
-      body
-    )
-
-    return upstreamId + ';' + newBm.parentId
   }
 
   async removeBookmark(id) {
@@ -458,11 +470,14 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
     let [upstreamId, parentId] = id.split(';')
 
-    await this.sendRequest(
-      'DELETE',
-      `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/bookmarks/${upstreamId}`
-    )
-    this.list = null // clear cache
+    // Just to be safe
+    return await this.bookmarkLock.acquire(upstreamId, async () => {
+      await this.sendRequest(
+        'DELETE',
+        `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/bookmarks/${upstreamId}`
+      )
+      this.list = null // clear cache
+    })
   }
 
   async sendRequest(verb, relUrl, type, body) {
