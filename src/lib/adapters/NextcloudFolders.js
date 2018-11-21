@@ -441,7 +441,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
     // We need this lock to avoid updating bookmarks which are in two places at Once
     // in parallel
-    return await this.bookmarkLock.acquire(bupstreamId, async () => {
+    return await this.bookmarkLock.acquire(upstreamId, async () => {
       let bms = await this._getBookmark(upstreamId)
 
       let body = JSON.stringify({

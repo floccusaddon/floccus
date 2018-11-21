@@ -457,8 +457,7 @@ export default class NextcloudAdapter extends Adapter {
 
       await this.sendRequest(
         'PUT',
-        'index.php/apps/bookmarks/public/rest/v2/bookmark/' +
-          newBm.id.split(';')[0],
+        'index.php/apps/bookmarks/public/rest/v2/bookmark/' + serverId,
         body
       )
 
@@ -474,7 +473,7 @@ export default class NextcloudAdapter extends Adapter {
     // We need this lock to avoid deleting a bookmark that is in two places
     // in parallel
     return await this.bookmarkLock.acquire(serverId, async () => {
-      let { bookmarks: bms, tags } = await this._getBookmark()
+      let { bookmarks: bms, tags } = await this._getBookmark(serverId)
 
       if (bms.length !== 1) {
         // multiple bookmarks of the same url
@@ -498,15 +497,14 @@ export default class NextcloudAdapter extends Adapter {
 
         await this.sendRequest(
           'PUT',
-          'index.php/apps/bookmarks/public/rest/v2/bookmark/' +
-            id.split(';')[0],
+          'index.php/apps/bookmarks/public/rest/v2/bookmark/' + serverId,
           body
         )
       } else {
         // remove the whole bookmark
         await this.sendRequest(
           'DELETE',
-          'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id.split(';')[0]
+          'index.php/apps/bookmarks/public/rest/v2/bookmark/' + serverId
         )
         this.list = null // clear cache
       }
