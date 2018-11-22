@@ -198,6 +198,7 @@ export default class NextcloudAdapter extends Adapter {
 
     Logger.log('Received bookmarks from server', bookmarks)
     this.list = bookmarks
+    this.list.raw = json.data
     return bookmarks
   }
 
@@ -375,15 +376,8 @@ export default class NextcloudAdapter extends Adapter {
    */
   async getExistingBookmark(url) {
     Logger.log('Fetching bookmarks to find existing bookmark')
-    if (!this.list || !this.list.raw) {
-      const json = await this.sendRequest(
-        'GET',
-        'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
-      )
-      this.list = {}
-      this.list.raw = json.data
-    }
-    let existing = _.find(this.list.raw, bookmark => bookmark.url === url)
+    const list = await this.getBookmarksList()
+    let existing = _.find(list.raw, bookmark => bookmark.url === url)
     if (!existing) return
     return existing.id
   }
@@ -399,10 +393,20 @@ export default class NextcloudAdapter extends Adapter {
       let existingBookmark = await this.getExistingBookmark(bm.url)
       if (existingBookmark) {
         bm.id = existingBookmark + ';' + bm.parentId
+        await this.updateBookmark(bm)
       } else {
         let body = new FormData()
         body.append('url', bm.url)
         body.append('title', bm.title)
+
+        const realParentId = this.server.serverRoot
+          ? this.server.serverRoot + bm.parentId
+          : bm.parentId
+
+        body.append(
+          'item[tags][]',
+          NextcloudAdapter.convertPathToTag(realParentId)
+        )
 
         const json = await this.sendRequest(
           'POST',
@@ -410,10 +414,13 @@ export default class NextcloudAdapter extends Adapter {
           body
         )
         bm.id = json.item.id + ';' + bm.parentId
-        this.list = null
+
+        // add bookmark to cached URLs
+        this.list.raw.push({ id: json.item.id, url: bm.url })
       }
 
-      await this.updateBookmark(bm)
+      // add bookmark to cached list
+      this.list.push(bm)
 
       return bm.id
     })
@@ -506,8 +513,20 @@ export default class NextcloudAdapter extends Adapter {
           'DELETE',
           'index.php/apps/bookmarks/public/rest/v2/bookmark/' + serverId
         )
-        this.list = null // clear cache
+
+        // remove url from the cached list
+        const list = await this.getBookmarksList()
+        let listIndex = _.findIndex(
+          list.raw,
+          bookmark => bookmark.id === serverId
+        )
+        list.raw.splice(listIndex, 1)
       }
+
+      // remove bookmark from the cached list
+      const list = await this.getBookmarksList()
+      let listIndex = _.findIndex(list, bookmark => bookmark.id === id)
+      list.splice(listIndex, 1)
     })
   }
 

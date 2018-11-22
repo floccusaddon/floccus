@@ -423,9 +423,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
           body
         )
         bm.id = json.item.id + ';' + bm.parentId
-        // invalidate cache
-        this.list = null
       }
+      // add bookmark to cached list
+      this.list.push(bm)
 
       return bm.id
     })
@@ -476,7 +476,11 @@ export default class NextcloudFoldersAdapter extends Adapter {
         'DELETE',
         `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/bookmarks/${upstreamId}`
       )
-      this.list = null // clear cache
+
+      // remove bookmark from the cached list
+      const list = await this.getBookmarksList()
+      let listIndex = _.findIndex(list, bookmark => bookmark.id === id)
+      list.splice(listIndex, 1)
     })
   }
 
