@@ -443,7 +443,32 @@ export default class SyncProcess {
       return
     }
 
-    // remove from resource
+    // remove children from resource
+    // we do this so that we can check if the folder is actually empty in the end
+    // if it isn't, we keep it, cause there's probably some unaccepted stuff in there
+    await Parallel.each(folder.children, async child => {
+      let serverChild, localChild, cacheChild
+      if (toResource === this.server) {
+        serverChild = child
+        cacheChild =
+          serverChild instanceof Tree.Folder
+            ? this.cacheTreeRoot.findFolder(
+                this.mappings.folders.ServerToLocal[serverChild.id]
+              )
+            : this.serverTreeRoot.findBookmark(
+                this.mappings.bookmarks.ServerToLocal[serverChild.id]
+              )
+      } else {
+        localChild = child
+        cacheChild =
+          localChild instanceof Tree.Folder
+            ? this.cacheTreeRoot.findFolder(localChild.id)
+            : this.cacheTreeRoot.findBookmark(localChild.id)
+      }
+
+      await this.syncTree(localChild, cacheChild, serverChild)
+    })
+    // remove folder from resource
     await toResource.removeFolder(folder.id)
 
     // remove from mappings

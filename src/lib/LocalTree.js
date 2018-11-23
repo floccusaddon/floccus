@@ -14,7 +14,7 @@ export default class LocalTree extends Resource {
   }
 
   async getBookmarksTree() {
-    const rootTree = (await browser.bookmarks.getTree())[0] // XXX: Kinda inefficient, but well.
+    const [rootTree] = await browser.bookmarks.getTree() // XXX: Kinda inefficient, but well.
     const tree = (await browser.bookmarks.getSubTree(this.rootId))[0]
     const allAccounts = await Account.getAllAccounts()
 
@@ -143,8 +143,13 @@ export default class LocalTree extends Resource {
     await this.queue.add(() => browser.bookmarks.move(id, { parentId }))
   }
 
-  async removeFolder(id) {
+  async removeFolder(id, force) {
     Logger.log('(local)REMOVEFOLDER', id)
+    let [tree] = await browser.bookmarks.getSubTree(id)
+    if (tree.children.length && !force) {
+      Logger.log("Won't remove non-empty folder. Moving on.")
+      return
+    }
     await this.queue.add(() => browser.bookmarks.removeTree(id))
   }
 

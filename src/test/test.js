@@ -673,6 +673,10 @@ describe('Floccus', function() {
               title: 'bar',
               parentId: localRoot
             })
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: barFolder.id
+            })
             const bookmark1 = await browser.bookmarks.create({
               title: 'url',
               url: 'http://ur.l/',
@@ -681,7 +685,7 @@ describe('Floccus', function() {
             const bookmark2 = await browser.bookmarks.create({
               title: 'url2',
               url: 'javascript:void(0)',
-              parentId: barFolder.id
+              parentId: fooFolder.id
             })
             await account.sync() // propagate to server
             expect(account.getData().error).to.not.be.ok
@@ -698,7 +702,11 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'bar',
                     children: [
-                      new Bookmark({ title: 'url', url: 'http://ur.l/' })
+                      new Bookmark({ title: 'url', url: 'http://ur.l/' }),
+                      new Folder({
+                        title: 'foo',
+                        children: []
+                      })
                     ]
                   })
                 ]
@@ -716,7 +724,15 @@ describe('Floccus', function() {
                     title: 'bar',
                     children: [
                       new Bookmark({ title: 'url', url: 'http://ur.l/' }),
-                      new Bookmark({ title: 'url2', url: 'javascript:void(0)' })
+                      new Folder({
+                        title: 'foo',
+                        children: [
+                          new Bookmark({
+                            title: 'url2',
+                            url: 'javascript:void(0)'
+                          })
+                        ]
+                      })
                     ]
                   })
                 ]
