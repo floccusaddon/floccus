@@ -140,6 +140,13 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return data.username + '@' + data.url
   }
 
+  acceptsBookmark(bm) {
+    if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
+      return false
+    }
+    return true
+  }
+
   normalizeServerURL(input) {
     let serverURL = url.parse(input)
     let indexLoc = serverURL.pathname.indexOf('index.php')
@@ -398,9 +405,6 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
   async createBookmark(bm) {
     Logger.log('(nextcloud-folders)CREATE', bm)
-    if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
-      return false
-    }
 
     // We need this lock to avoid creating two boomarks with the same url
     // in parallel
@@ -433,9 +437,6 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
   async updateBookmark(newBm) {
     Logger.log('(nextcloud-folders)UPDATE', newBm)
-    if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(newBm.url).protocol)) {
-      return false
-    }
 
     let [upstreamId, oldParentId] = newBm.id.split(';')
 

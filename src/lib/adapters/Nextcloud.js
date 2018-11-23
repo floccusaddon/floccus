@@ -142,6 +142,13 @@ export default class NextcloudAdapter extends Adapter {
     return data.username + '@' + data.url
   }
 
+  acceptsBookmark(bm) {
+    if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
+      return false
+    }
+    return true
+  }
+
   normalizeServerURL(input) {
     let serverURL = url.parse(input)
     let indexLoc = serverURL.pathname.indexOf('index.php')
@@ -384,9 +391,6 @@ export default class NextcloudAdapter extends Adapter {
 
   async createBookmark(bm) {
     Logger.log('(nextcloud)CREATE', bm)
-    if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
-      return false
-    }
 
     // We need this lock to avoid creating multiple bookmarks with the same URL in parallel
     return await this.bookmarkLock.acquire(bm.url, async () => {
@@ -428,9 +432,6 @@ export default class NextcloudAdapter extends Adapter {
 
   async updateBookmark(newBm) {
     Logger.log('(nextcloud)UPDATE', newBm)
-    if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(newBm.url).protocol)) {
-      return false
-    }
 
     const serverId = newBm.id.split(';')[0]
 

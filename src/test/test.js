@@ -659,7 +659,95 @@ describe('Floccus', function() {
             }),
             ACCOUNT_DATA.type === 'nextcloud'
           )
+
+          const localTree = await account.localTree.getBookmarksTree()
+          expectTreeEqual(
+            localTree,
+            new Folder({
+              title: localTree.title,
+              children: [
+                new Folder({
+                  title: 'bar',
+                  children: [
+                    new Bookmark({ title: 'url', url: 'http://ur.l/' })
+                  ]
+                }),
+                new Folder({
+                  title: 'nestedAccount',
+                  children: [
+                    new Bookmark({ title: 'url2', url: 'http://ur2.l/' })
+                  ]
+                })
+              ]
+            }),
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
         })
+        if (~ACCOUNT_DATA.type.indexOf('nextcloud')) {
+          it('should leave alone unaccepted bookmarks entirely', async function() {
+            const localRoot = account.getData().localRoot
+
+            var adapter = account.server
+            expect(
+              (await adapter.getBookmarksTree()).children
+            ).to.have.lengthOf(0)
+
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: localRoot
+            })
+            const bookmark1 = await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: barFolder.id
+            })
+            const bookmark2 = await browser.bookmarks.create({
+              title: 'url2',
+              url: 'javascript:void(0)',
+              parentId: barFolder.id
+            })
+            await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
+
+            await account.sync() // propagate to server -- if we had cached the unacceptables, they'd be deleted now
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await adapter.getBookmarksTree()
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'bar',
+                    children: [
+                      new Bookmark({ title: 'url', url: 'http://ur.l/' })
+                    ]
+                  })
+                ]
+              }),
+              ACCOUNT_DATA.type === 'nextcloud'
+            )
+
+            const localTree = await account.localTree.getBookmarksTree()
+            expectTreeEqual(
+              localTree,
+              new Folder({
+                title: localTree.title,
+                children: [
+                  new Folder({
+                    title: 'bar',
+                    children: [
+                      new Bookmark({ title: 'url', url: 'http://ur.l/' }),
+                      new Bookmark({ title: 'url2', url: 'javascript:void(0)' })
+                    ]
+                  })
+                ]
+              }),
+              ACCOUNT_DATA.type === 'nextcloud'
+            )
+          })
+        }
 
         if (ACCOUNT_DATA.type !== 'nextcloud') {
           it('should synchronize ordering', async function() {

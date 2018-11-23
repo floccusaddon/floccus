@@ -23,6 +23,7 @@ export default class SyncProcess {
   async sync() {
     this.localTreeRoot = await this.localTree.getBookmarksTree()
     this.serverTreeRoot = await this.server.getBookmarksTree()
+    this.filterOutUnacceptedBookmarks(this.localTreeRoot)
 
     // generate hashtables to find items faster
     this.localTreeRoot.createIndex()
@@ -33,6 +34,20 @@ export default class SyncProcess {
       this.cacheTreeRoot,
       this.serverTreeRoot
     )
+  }
+
+  filterOutUnacceptedBookmarks(tree) {
+    tree.children = tree.children.filter(child => {
+      if (child instanceof Tree.Bookmark) {
+        if (!this.server.acceptsBookmark(child)) {
+          return false
+        }
+        return true
+      } else {
+        this.filterOutUnacceptedBookmarks(child)
+        return true
+      }
+    })
   }
 
   async syncTree(localItem, cacheItem, serverItem) {
@@ -221,6 +236,7 @@ export default class SyncProcess {
 
     const mappingsSnapshot = this.mappings.getSnapshot()
 
+    // cache initial local order
     const localOrder = localItem.children.map(child => ({
       type: child instanceof Tree.Folder ? 'folder' : 'bookmark',
       id: child.id

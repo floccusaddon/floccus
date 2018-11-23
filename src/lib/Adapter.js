@@ -59,6 +59,13 @@ export default class Adapter extends Resource {
   }
 
   /**
+   * @return Boolean true if the bookmark type can be handled by the adapter
+   */
+  acceptsBookmark(bookmark) {
+    return true
+  }
+
+  /**
    * Optional hook to do something on sync start
    */
   async onSyncStart() {}
