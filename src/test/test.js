@@ -659,29 +659,6 @@ describe('Floccus', function() {
             }),
             ACCOUNT_DATA.type === 'nextcloud'
           )
-
-          const localTree = await account.localTree.getBookmarksTree()
-          expectTreeEqual(
-            localTree,
-            new Folder({
-              title: localTree.title,
-              children: [
-                new Folder({
-                  title: 'bar',
-                  children: [
-                    new Bookmark({ title: 'url', url: 'http://ur.l/' })
-                  ]
-                }),
-                new Folder({
-                  title: 'nestedAccount',
-                  children: [
-                    new Bookmark({ title: 'url2', url: 'http://ur2.l/' })
-                  ]
-                })
-              ]
-            }),
-            ACCOUNT_DATA.type === 'nextcloud'
-          )
         })
         if (~ACCOUNT_DATA.type.indexOf('nextcloud')) {
           it('should leave alone unaccepted bookmarks entirely', async function() {
