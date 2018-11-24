@@ -1,3 +1,7 @@
+## v3.1.8
+
+- Roll back parallelization to mitigate issues that came up
+
 ## v3.1.7
 
 - Various performance improvements
