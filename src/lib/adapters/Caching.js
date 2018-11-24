@@ -12,7 +12,7 @@ export default class CachingAdapter extends Adapter {
 
   getLabel() {
     let data = this.getData()
-    return data.username + '@' + data.url
+    return data.username + '@' + url.parse(data.url).hostname
   }
 
   async getBookmarksTree() {

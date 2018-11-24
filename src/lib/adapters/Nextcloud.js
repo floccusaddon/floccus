@@ -139,7 +139,7 @@ export default class NextcloudAdapter extends Adapter {
 
   getLabel() {
     let data = this.getData()
-    return data.username + '@' + data.url
+    return data.username + '@' + url.parse(data.url).hostname
   }
 
   acceptsBookmark(bm) {
