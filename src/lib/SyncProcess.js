@@ -3,7 +3,7 @@ import Logger from './Logger'
 
 const _ = require('lodash')
 const Parallel = require('async-parallel')
-const CONCURRENCY = 10 // exponential with every subdirectory
+const CONCURRENCY = 1 // exponential with every subdirectory
 
 export default class SyncProcess {
   /**
