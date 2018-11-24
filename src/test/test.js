@@ -450,6 +450,58 @@ describe('Floccus', function() {
             ACCOUNT_DATA.type === 'nextcloud'
           )
         })
+        it('should be able to handle duplicates', async function() {
+          var adapter = account.server
+          expect((await adapter.getBookmarksTree()).children).to.have.lengthOf(
+            0
+          )
+
+          const localRoot = account.getData().localRoot
+          const bookmarkData = {
+            title: 'url',
+            url: 'http://ur.l/'
+          }
+          const fooFolder = await browser.bookmarks.create({
+            title: 'foo',
+            parentId: localRoot
+          })
+          const bookmark1 = await browser.bookmarks.create({
+            ...bookmarkData,
+            parentId: fooFolder.id
+          })
+          const barFolder = await browser.bookmarks.create({
+            title: 'bar',
+            parentId: fooFolder.id
+          })
+          const bookmark2 = await browser.bookmarks.create({
+            ...bookmarkData,
+            parentId: barFolder.id
+          })
+          await account.sync() // propagate to server
+
+          await browser.bookmarks.move(barFolder.id, { parentId: localRoot })
+          await account.sync() // update on server
+          expect(account.getData().error).to.not.be.ok
+
+          const tree = await adapter.getBookmarksTree()
+          expectTreeEqual(
+            tree,
+            new Folder({
+              title: tree.title,
+              children: [
+                new Folder({
+                  title: 'foo',
+                  children: [new Bookmark(bookmarkData)]
+                }),
+                new Folder({
+                  title: 'bar',
+                  children: [new Bookmark(bookmarkData)]
+                })
+              ]
+            }),
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
+        })
         it('should not fail when moving both folders and contents', async function() {
           var adapter = account.server
           expect((await adapter.getBookmarksTree()).children).to.have.lengthOf(
