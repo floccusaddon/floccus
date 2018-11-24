@@ -2,6 +2,7 @@ import * as Tree from '../Tree'
 import Logger from '../Logger'
 import { Folder, Bookmark } from '../Tree'
 import Adapter from '../Adapter'
+const url = require('url')
 
 export default class CachingAdapter extends Adapter {
   constructor(server) {
