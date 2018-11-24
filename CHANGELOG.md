@@ -1,3 +1,8 @@
+## v3.1.7
+
+- Various performance improvements
+- FIX: Leave alone unaccepted bookmarks (e.g. bookmarklets and RSS bookmarks)
+
 ## v3.0.10
 
 - Fix syncing moved folders
