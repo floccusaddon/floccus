@@ -512,27 +512,42 @@ describe('Floccus', function() {
           if (adapter.onSyncStart) await adapter.onSyncStart()
           var serverTree = await adapter.getBookmarksTree()
           const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
-          const serverMark = {
+          const serverMark1 = {
             title: 'url',
             url: 'http://ur.l/?a=b&foo=bar'
           }
-          const serverMarkId = await adapter.createBookmark(
-            new Bookmark({ ...serverMark, parentId: fooFolderId })
+          const serverMark2 = {
+            title: 'url2',
+            url: 'http://ur2.l/?a=b&foo=bar'
+          }
+          const serverMarkId1 = await adapter.createBookmark(
+            new Bookmark({ ...serverMark1, parentId: fooFolderId })
+          )
+          const serverMarkId2 = await adapter.createBookmark(
+            new Bookmark({ ...serverMark2, parentId: fooFolderId })
           )
           if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
           // create bookmark locally
           const localRoot = account.getData().localRoot
-          const localMark = {
+          const localMark1 = {
             title: 'url',
             url: 'http://ur.l/?foo=bar&a=b'
+          }
+          const localMark2 = {
+            title: 'url2',
+            url: 'http://ur2.l/?foo=bar&a=b'
           }
           const fooFolder = await browser.bookmarks.create({
             title: 'foo',
             parentId: localRoot
           })
-          const localMarkId = await browser.bookmarks.create({
-            ...localMark,
+          const localMarkId1 = await browser.bookmarks.create({
+            ...localMark1,
+            parentId: fooFolder.id
+          })
+          const localMarkId2 = await browser.bookmarks.create({
+            ...localMark2,
             parentId: fooFolder.id
           })
 
@@ -548,7 +563,10 @@ describe('Floccus', function() {
               children: [
                 new Folder({
                   title: 'foo',
-                  children: [new Bookmark(serverMark)]
+                  children: [
+                    new Bookmark(serverMark1),
+                    new Bookmark(serverMark2)
+                  ]
                 })
               ]
             }),
