@@ -200,7 +200,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
   async getBookmarksTree() {
     this.list = null // clear cache before starting a new sync
     let list = await this.getBookmarksList()
-    let serverListTempFolder = new Folder({ children: list })
+    let serverListTempFolder = new Folder({ children: list }).clone() // clone, because we modify the id in-place below
     serverListTempFolder.createIndex()
 
     const json = await this.sendRequest(
@@ -482,7 +482,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
       // remove bookmark from the cached list
       const list = await this.getBookmarksList()
-      let listIndex = _.findIndex(list, bookmark => bookmark.id === id)
+      let listIndex = _.findIndex(list, bookmark => bookmark.id === upstreamId)
       list.splice(listIndex, 1)
     })
   }
