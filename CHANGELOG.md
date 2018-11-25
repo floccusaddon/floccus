@@ -1,3 +1,7 @@
+## v3.1.10
+
+- FIX NextcloudFolders adapter: Duplicates in different folders on the server would cause trouble
+
 ## v3.1.9
 
 - FIX: Deduplication wouldn't work in all cases as URLs weren't normalized
