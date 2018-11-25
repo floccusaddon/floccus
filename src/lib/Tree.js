@@ -1,10 +1,11 @@
 import Crypto from './Crypto'
+const normalizeURL = require('normalize-url')
 
 export class Bookmark {
   constructor({ id, parentId, url, title }) {
     this.id = id
     this.parentId = parentId
-    this.url = url
+    this.url = normalizeURL(url)
     this.title = title
   }
 

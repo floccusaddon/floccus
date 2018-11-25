@@ -502,6 +502,59 @@ describe('Floccus', function() {
             ACCOUNT_DATA.type === 'nextcloud'
           )
         })
+        it('should deduplicate unnormalized URLs', async function() {
+          var adapter = account.server
+          expect((await adapter.getBookmarksTree()).children).to.have.lengthOf(
+            0
+          )
+
+          // create bookmark on server
+          if (adapter.onSyncStart) await adapter.onSyncStart()
+          var serverTree = await adapter.getBookmarksTree()
+          const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
+          const serverMark = {
+            title: 'url',
+            url: 'http://ur.l/?a=b&foo=bar'
+          }
+          const serverMarkId = await adapter.createBookmark(
+            new Bookmark({ ...serverMark, parentId: fooFolderId })
+          )
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
+          // create bookmark locally
+          const localRoot = account.getData().localRoot
+          const localMark = {
+            title: 'url',
+            url: 'http://ur.l/?foo=bar&a=b'
+          }
+          const fooFolder = await browser.bookmarks.create({
+            title: 'foo',
+            parentId: localRoot
+          })
+          const localMarkId = await browser.bookmarks.create({
+            ...localMark,
+            parentId: fooFolder.id
+          })
+
+          await account.sync() // propagate to server
+
+          expect(account.getData().error).to.not.be.ok
+
+          const tree = await adapter.getBookmarksTree()
+          expectTreeEqual(
+            tree,
+            new Folder({
+              title: tree.title,
+              children: [
+                new Folder({
+                  title: 'foo',
+                  children: [new Bookmark(serverMark)]
+                })
+              ]
+            }),
+            ACCOUNT_DATA.type === 'nextcloud'
+          )
+        })
         it('should not fail when moving both folders and contents', async function() {
           var adapter = account.server
           expect((await adapter.getBookmarksTree()).children).to.have.lengthOf(
