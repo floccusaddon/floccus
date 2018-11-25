@@ -1,3 +1,7 @@
+## v3.1.9
+
+- FIX: Deduplication wouldn't work in all cases as URLs weren't normalized
+
 ## v3.1.8
 
 - Roll back parallelization to mitigate issues that came up
