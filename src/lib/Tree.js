@@ -5,7 +5,11 @@ export class Bookmark {
   constructor({ id, parentId, url, title }) {
     this.id = id
     this.parentId = parentId
-    this.url = normalizeURL(url)
+    try {
+      this.url = normalizeURL(url)
+    } catch (e) {
+      this.url = url
+    }
     this.title = title
   }
 
