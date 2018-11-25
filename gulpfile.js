@@ -39,12 +39,10 @@ gulp.task('js', function() {
             debug: true
           })
             .transform(babelify, {
-              presets: ['es2015'],
-              plugins: [
-                'transform-object-rest-spread',
-                'syntax-jsx',
-                ['transform-react-jsx', { pragma: 'h' }],
-                'transform-async-to-generator'
+              global: true,
+              presets: [
+                '@babel/preset-env',
+                ['@babel/preset-react', { pragma: 'h' }]
               ]
             })
             .bundle()
