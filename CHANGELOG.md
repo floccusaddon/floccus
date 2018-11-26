@@ -1,3 +1,7 @@
+## v3.1.12
+
+- FIX: Initial tree construction would mess up IDs of server bookmarks in nextcloud-folders adapter
+
 ## v3.1.11
 
 - FIX: Deduplication wouldn't work reliably
