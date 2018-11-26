@@ -234,7 +234,7 @@ export default class SyncProcess {
 
     // LOCAL CHANGES
 
-    const mappingsSnapshot = this.mappings.getSnapshot()
+    let mappingsSnapshot = this.mappings.getSnapshot()
 
     // cache initial local order
     const localOrder = localItem.children.map(child => ({
@@ -293,6 +293,9 @@ export default class SyncProcess {
 
     // don't create/remove items in the absolute root folder
     if (!localItem.isRoot) {
+      // take a new snapshot since the server or we ourselves might have deduplicated above
+      mappingsSnapshot = this.mappings.getSnapshot()
+
       // CREATED UPSTREAM
       await Parallel.each(
         serverItem.children.filter(
