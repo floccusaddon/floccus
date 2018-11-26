@@ -1,3 +1,7 @@
+## v3.1.13
+
+- FIX: Removing folders on the server would fail
+
 ## v3.1.12
 
 - FIX: Initial tree construction would mess up IDs of server bookmarks in nextcloud-folders adapter
