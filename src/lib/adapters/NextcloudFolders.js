@@ -249,7 +249,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
             return recurseChildFolders(newFolder, folder.children)
           } else {
             // get the bookmark from the list we've fetched above
-            let childBookmark = serverListTempFolder.findBookmark(child.id)
+            let childBookmark = serverListTempFolder
+              .findBookmark(child.id)
+              .clone()
             childBookmark.id = childBookmark.id + ';' + tree.id
             tree.children.push(childBookmark)
             return Promise.resolve()
