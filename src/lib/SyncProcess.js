@@ -458,7 +458,7 @@ export default class SyncProcess {
             ? this.cacheTreeRoot.findFolder(
                 this.mappings.folders.ServerToLocal[serverChild.id]
               )
-            : this.serverTreeRoot.findBookmark(
+            : this.cacheTreeRoot.findBookmark(
                 this.mappings.bookmarks.ServerToLocal[serverChild.id]
               )
       } else {
