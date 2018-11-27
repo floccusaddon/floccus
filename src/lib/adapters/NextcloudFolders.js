@@ -211,16 +211,21 @@ export default class NextcloudFoldersAdapter extends Adapter {
     let tree = new Folder({ id: '-1' })
     let childFolders = json.data
     if (this.server.serverRoot) {
-      this.server.serverRoot
-        .split('/')
-        .slice(1)
-        .forEach(segment => {
+      await Parallel.each(
+        this.server.serverRoot.split('/').slice(1),
+        async segment => {
           let currentChild = childFolders.filter(
             folder => folder.title === segment
           )[0]
+          if (!currentChild) {
+            currentChild = {}
+            currentChild.id = await this.createFolder(tree.id, segment)
+            currentChild.children = []
+          }
           tree = new Folder({ id: currentChild.id })
           childFolders = currentChild.children
-        })
+        }
+      )
     }
     const recurseChildFolders = async (tree, childFolders) => {
       // retrieve folder order

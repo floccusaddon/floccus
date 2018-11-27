@@ -29,10 +29,25 @@ describe('Floccus', function() {
       password: 'admin'
     },
     {
+      type: 'nextcloud with serverRoot',
+      url: 'http://localhost/',
+      username: 'admin',
+      password: 'admin',
+      serverRoot: '/my folder/some subfolder'
+    },
+    {
       type: 'nextcloud-folders',
       url: 'http://localhost/',
       username: 'admin',
-      password: 'admin'
+      password: 'admin',
+      serverRoot: '/my folder/some subfolder'
+    },
+    {
+      type: 'nextcloud-folders with serverRoot',
+      url: 'http://localhost/',
+      username: 'admin',
+      password: 'admin',
+      serverRoot: '/my folder/some subfolder'
     },
     {
       type: 'webdav',
