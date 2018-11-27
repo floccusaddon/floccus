@@ -218,9 +218,18 @@ export default class NextcloudFoldersAdapter extends Adapter {
             folder => folder.title === segment
           )[0]
           if (!currentChild) {
-            currentChild = {}
-            currentChild.id = await this.createFolder(tree.id, segment)
-            currentChild.children = []
+            // create folder
+            let body = JSON.stringify({
+              parent_folder: tree.id,
+              title: segment
+            })
+            const json = await this.sendRequest(
+              'POST',
+              'index.php/apps/bookmarks/public/rest/v2/folder',
+              'application/json',
+              body
+            )
+            currentChild = { id: json.item.id, children: [] }
           }
           tree = new Folder({ id: currentChild.id })
           childFolders = currentChild.children
