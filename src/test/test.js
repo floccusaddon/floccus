@@ -29,7 +29,7 @@ describe('Floccus', function() {
       password: 'admin'
     },
     {
-      type: 'nextcloud with serverRoot',
+      type: 'nextcloud',
       url: 'http://localhost/',
       username: 'admin',
       password: 'admin',
@@ -39,11 +39,10 @@ describe('Floccus', function() {
       type: 'nextcloud-folders',
       url: 'http://localhost/',
       username: 'admin',
-      password: 'admin',
-      serverRoot: '/my folder/some subfolder'
+      password: 'admin'
     },
     {
-      type: 'nextcloud-folders with serverRoot',
+      type: 'nextcloud-folders',
       url: 'http://localhost/',
       username: 'admin',
       password: 'admin',
@@ -57,34 +56,39 @@ describe('Floccus', function() {
       bookmark_file: 'bookmarks.xbel'
     }
   ].forEach(ACCOUNT_DATA => {
-    describe(ACCOUNT_DATA.type + ' Account', function() {
-      var account
-      beforeEach('set up account', async function() {
-        account = await Account.create(ACCOUNT_DATA)
-      })
-      afterEach('clean up account', async function() {
-        if (account) await account.delete()
-      })
-      it('should create an account', async function() {
-        const secondInstance = await Account.get(account.id)
-        expect(secondInstance.getData()).to.deep.equal(account.getData())
-      })
-      it('should save and restore an account', async function() {
-        await account.setData(ACCOUNT_DATA)
-        expect(account.getData()).to.deep.equal(ACCOUNT_DATA)
+    describe(
+      ACCOUNT_DATA.type +
+        ' Account ' +
+        (ACCOUNT_DATA.serverRoot ? ACCOUNT_DATA.serverRoot : ''),
+      function() {
+        var account
+        beforeEach('set up account', async function() {
+          account = await Account.create(ACCOUNT_DATA)
+        })
+        afterEach('clean up account', async function() {
+          if (account) await account.delete()
+        })
+        it('should create an account', async function() {
+          const secondInstance = await Account.get(account.id)
+          expect(secondInstance.getData()).to.deep.equal(account.getData())
+        })
+        it('should save and restore an account', async function() {
+          await account.setData(ACCOUNT_DATA)
+          expect(account.getData()).to.deep.equal(ACCOUNT_DATA)
 
-        const secondInstance = await Account.get(account.id)
-        expect(secondInstance.getData()).to.deep.equal(ACCOUNT_DATA)
-      })
-      it('should delete an account', async function() {
-        await account.delete()
-        expect(Account.get(account.id)).to.be.rejected
-        account = null // so afterEach notices it's deleted already
-      })
-      it('should not be initialized upon creation', async function() {
-        expect(await account.isInitialized()).to.be.false
-      })
-    })
+          const secondInstance = await Account.get(account.id)
+          expect(secondInstance.getData()).to.deep.equal(ACCOUNT_DATA)
+        })
+        it('should delete an account', async function() {
+          await account.delete()
+          expect(Account.get(account.id)).to.be.rejected
+          account = null // so afterEach notices it's deleted already
+        })
+        it('should not be initialized upon creation', async function() {
+          expect(await account.isInitialized()).to.be.false
+        })
+      }
+    )
     describe(ACCOUNT_DATA.type + ' Sync', function() {
       context('with one client', function() {
         var account
