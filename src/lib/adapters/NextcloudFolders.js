@@ -253,6 +253,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
               .findBookmark(child.id)
               .clone()
             childBookmark.id = childBookmark.id + ';' + tree.id
+            childBookmark.parentId = tree.id
             tree.children.push(childBookmark)
             return Promise.resolve()
           }
