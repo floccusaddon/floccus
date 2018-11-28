@@ -122,7 +122,6 @@ export class Folder {
       folders: { [this.id]: this },
       bookmarks: Object.assign(
         {},
-        { [this.id]: this },
         this.children
           .filter(child => child instanceof Bookmark)
           .reduce((obj, child) => {
