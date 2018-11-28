@@ -12,6 +12,9 @@ Please answer the below questions to allow for as smooth a process of tackling t
 - Nextcloud:
 - Nextcloud Bookmarks app:
 - Floccus:
+- Floccus sync method: <!-- either XBEL/webdav (signified as `webdav`), nextcloud Bookmarks legacy
+                            (signified as `nextcloud`), or nextcloud Bookmarks v0.14+ with folders
+  															(signified as `nextcloud-folders`) -->
 
 ### Steps to reproduce
 
