@@ -200,8 +200,6 @@ export default class NextcloudFoldersAdapter extends Adapter {
   async getBookmarksTree() {
     this.list = null // clear cache before starting a new sync
     let list = await this.getBookmarksList()
-    let serverListTempFolder = new Folder({ children: list }).clone() // clone, because we modify the id in-place below
-    serverListTempFolder.createIndex()
 
     const json = await this.sendRequest(
       'GET',
@@ -263,9 +261,19 @@ export default class NextcloudFoldersAdapter extends Adapter {
             return recurseChildFolders(newFolder, folder.children)
           } else {
             // get the bookmark from the list we've fetched above
-            let childBookmark = serverListTempFolder
-              .findBookmark(child.id)
-              .clone()
+            let childBookmark = _.find(
+              list,
+              bookmark =>
+                bookmark.id === child.id && bookmark.parentId === tree.id
+            )
+            if (!childBookmark) {
+              throw new Error(
+                `Folder #${tree.id}[${
+                  tree.title
+                }] contains an nonexistent bookmark ${child.id}`
+              )
+            }
+            childBookmark = childBookmark.clone()
             childBookmark.id = childBookmark.id + ';' + tree.id
             childBookmark.parentId = tree.id
             tree.children.push(childBookmark)
