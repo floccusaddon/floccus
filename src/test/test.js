@@ -66,7 +66,11 @@ describe('Floccus', function() {
           account = await Account.create(ACCOUNT_DATA)
         })
         afterEach('clean up account', async function() {
-          if (account) await account.delete()
+          if (account) {
+            let localRoot = account.getData().localRoot
+            if (localRoot) await browser.bookmarks.removeTree(localRoot)
+            await account.delete()
+          }
         })
         it('should create an account', async function() {
           const secondInstance = await Account.get(account.id)
@@ -109,18 +113,13 @@ describe('Floccus', function() {
             if (account.server.onSyncStart) {
               await account.server.onSyncStart()
             }
-            let tree = await account.server.getBookmarksTree()
-            await AsyncParallel.each(
-              tree.children,
-              async child => {
-                if (child instanceof Folder) {
-                  await account.server.removeFolder(child.id)
-                } else {
-                  await account.server.removeBookmark(child.id)
-                }
-              },
-              1
-            )
+            await AsyncParallel.each([0, '', '-1'], async rootId => {
+              try {
+                await account.server.removeFolder(rootId)
+              } catch (e) {
+                console.log(e)
+              }
+            })
             if (account.server.onSyncComplete) {
               await account.server.onSyncComplete()
             }
@@ -801,6 +800,9 @@ describe('Floccus', function() {
             }),
             ACCOUNT_DATA.type === 'nextcloud'
           )
+
+          await browser.bookmarks.removeTree(nestedAccount.getData().localRoot)
+          await nestedAccount.delete()
         })
         if (~ACCOUNT_DATA.type.indexOf('nextcloud')) {
           it('should leave alone unaccepted bookmarks entirely', async function() {
@@ -1014,16 +1016,13 @@ describe('Floccus', function() {
             if (account1.server.onSyncStart) {
               await account1.server.onSyncStart()
             }
-            let tree1 = await account1.server.getBookmarksTree()
-            await Promise.all(
-              tree1.children.map(async child => {
-                if (child instanceof Folder) {
-                  await account1.server.removeFolder(child.id)
-                } else {
-                  await account1.server.removeBookmark(child.id)
-                }
-              })
-            )
+            await AsyncParallel.each([0, '', '-1'], async rootId => {
+              try {
+                await account1.server.removeFolder(rootId)
+              } catch (e) {
+                console.log(e)
+              }
+            })
             if (account1.server.onSyncComplete) {
               await account1.server.onSyncComplete()
             }
@@ -1034,16 +1033,13 @@ describe('Floccus', function() {
             if (account1.server.onSyncStart) {
               await account1.server.onSyncStart()
             }
-            let tree2 = await account2.server.getBookmarksTree()
-            await Promise.all(
-              tree2.children.map(async child => {
-                if (child instanceof Folder) {
-                  await account2.server.removeFolder(child.id)
-                } else {
-                  await account2.server.removeBookmark(child.id)
-                }
-              })
-            )
+            await AsyncParallel.each([0, '', '-1'], async rootId => {
+              try {
+                await account2.server.removeFolder(rootId)
+              } catch (e) {
+                console.log(e)
+              }
+            })
             if (account1.server.onSyncComplete) {
               await account1.server.onSyncComplete()
             }

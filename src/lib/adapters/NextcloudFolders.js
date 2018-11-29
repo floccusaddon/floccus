@@ -382,15 +382,24 @@ export default class NextcloudFoldersAdapter extends Adapter {
   async removeFolder(id) {
     Logger.log('(nextcloud-folders)REMOVEFOLDER', id)
     let folder = this.tree.findFolder(id)
-    if (!folder) {
-      return
-    }
     const json = await this.sendRequest(
       'DELETE',
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}`
     )
-    let parent = this.tree.findFolder(folder.parentId)
-    parent.children = parent.children.filter(child => child.id !== id)
+    if (folder.parentId) {
+      let parent = this.tree.findFolder(folder.parentId) // the root folder doesn't have a parent
+      parent.children = parent.children.filter(child => child.id !== id)
+    } else if (folder) {
+      await Promise.all(
+        folder.children.map(child => {
+          if (child instanceof Folder) {
+            this.removeFolder(child.id)
+          } else {
+            this.removeBookmark(child.id)
+          }
+        })
+      )
+    }
     this.tree.createIndex()
   }
 

@@ -182,11 +182,24 @@ export default class CachingAdapter extends Adapter {
     if (!folder) {
       throw new Error("Folder to remove doesn't exist")
     }
-    const foundOldFolder = this.bookmarksCache.findFolder(folder.parentId)
-    if (!foundOldFolder) {
-      throw new Error("Parent folder to remove folder from of doesn't exist")
+    // root folder doesn't have a parent, yo!
+    if (typeof folder.parentId !== 'undefined') {
+      const foundOldFolder = this.bookmarksCache.findFolder(folder.parentId)
+      if (!foundOldFolder) {
+        throw new Error("Parent folder to remove folder from of doesn't exist")
+      }
+      foundOldFolder.children.splice(foundOldFolder.children.indexOf(folder), 1)
+    } else {
+      await Promise.all(
+        folder.children.map(child => {
+          if (child instanceof Folder) {
+            this.removeFolder(child.id)
+          } else {
+            this.removeBookmark(child.id)
+          }
+        })
+      )
     }
-    foundOldFolder.children.splice(foundOldFolder.children.indexOf(folder), 1)
     this.bookmarksCache.createIndex()
   }
 

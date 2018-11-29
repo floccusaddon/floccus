@@ -343,11 +343,14 @@ export default class NextcloudAdapter extends Adapter {
       1
     )
 
-    let oldParent = this.tree.findFolder(folder.parentId)
-    if (!oldParent) {
-      throw new Error('Parent folder not found')
+    // the root folder doesn't have a parent
+    if (typeof folder.parentId !== 'undefined') {
+      let oldParent = this.tree.findFolder(folder.parentId)
+      if (!oldParent) {
+        throw new Error('Parent folder not found')
+      }
+      oldParent.children.splice(oldParent.children.indexOf(folder), 1)
     }
-    oldParent.children.splice(oldParent.children.indexOf(folder), 1)
     this.tree.createIndex()
   }
 
