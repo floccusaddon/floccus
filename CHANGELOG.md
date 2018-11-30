@@ -1,3 +1,8 @@
+## v3.1.14
+
+- FIX: nextcloud-folders tree construction was still broken
+- FIX: Index creation was broken
+
 ## v3.1.13
 
 - FIX: Removing folders on the server would fail
