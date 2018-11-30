@@ -231,7 +231,8 @@ export default class NextcloudFoldersAdapter extends Adapter {
           }
           tree = new Folder({ id: currentChild.id })
           childFolders = currentChild.children
-        }
+        },
+        1
       )
     }
     const recurseChildFolders = async (tree, childFolders) => {
@@ -381,50 +382,16 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
   async removeFolder(id) {
     Logger.log('(nextcloud-folders)REMOVEFOLDER', id)
-
-    if (id === '-1') {
-      // delete root folder contents only
-      const json = await this.sendRequest(
-        'GET',
-        `index.php/apps/bookmarks/public/rest/v2/folder/${id}/childorder`
-      )
-      await Promise.all(
-        json.data.map(async child => {
-          if (child.type === 'bookmark') {
-            await this.sendRequest(
-              'DELETE',
-              `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/bookmarks/${upstreamId}`
-            )
-          } else {
-            const json = await this.sendRequest(
-              'DELETE',
-              `index.php/apps/bookmarks/public/rest/v2/folder/${id}`
-            )
-          }
-        })
-      )
+    let folder = this.tree.findFolder(id)
+    if (!folder) {
       return
     }
-
-    let folder = this.tree.findFolder(id)
     const json = await this.sendRequest(
       'DELETE',
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}`
     )
-    if (folder.parentId) {
-      let parent = this.tree.findFolder(folder.parentId)
-      parent.children = parent.children.filter(child => child.id !== id)
-    } else if (folder) {
-      await Promise.all(
-        folder.children.map(child => {
-          if (child instanceof Folder) {
-            this.removeFolder(child.id)
-          } else {
-            this.removeBookmark(child.id)
-          }
-        })
-      )
-    }
+    let parent = this.tree.findFolder(folder.parentId)
+    parent.children = parent.children.filter(child => child.id !== id)
 
     this.tree.createIndex()
   }
