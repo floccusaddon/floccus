@@ -4,6 +4,7 @@ import CachingAdapter from '../adapters/Caching'
 import Logger from '../Logger'
 import { Bookmark, Folder } from '../Tree'
 import * as Basics from '../components/basics'
+import { Base64 } from 'js-base64'
 const { h } = require('hyperapp')
 const url = require('url')
 
@@ -44,14 +45,16 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async downloadFile(fullURL) {
     let res
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
 
     try {
       res = await fetch(fullURL, {
         method: 'GET',
         credentials: 'omit',
         headers: {
-          Authorization:
-            'Basic ' + btoa(this.server.username + ':' + this.server.password)
+          Authorization: 'Basic ' + authString
         }
       })
     } catch (e) {
@@ -91,14 +94,16 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async uploadFile(url, content_type, data) {
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
     try {
       var res = await fetch(url, {
         method: 'PUT',
         credentials: 'omit',
         headers: {
           'Content-Type': content_type,
-          Authorization:
-            'Basic ' + btoa(this.server.username + ':' + this.server.password)
+          Authorization: 'Basic ' + authString
         },
         body: data
       })
@@ -167,14 +172,16 @@ export default class WebDavAdapter extends CachingAdapter {
 
     let rStatus = 500
     let response
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
 
     try {
       response = await fetch(fullUrl, {
         method: 'DELETE',
         credentials: 'omit',
         headers: {
-          Authorization:
-            'Basic ' + btoa(this.server.username + ':' + this.server.password)
+          Authorization: 'Basic ' + authString
         }
       })
 

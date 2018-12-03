@@ -5,6 +5,7 @@ import Logger from '../Logger'
 import { Folder, Bookmark } from '../Tree'
 import PathHelper from '../PathHelper'
 import * as Basics from '../components/basics'
+import { Base64 } from 'js-base64'
 const Parallel = require('async-parallel')
 const { h } = require('hyperapp')
 const url = require('url')
@@ -533,15 +534,17 @@ export default class NextcloudAdapter extends Adapter {
 
   async sendRequest(verb, relUrl, body) {
     const url = this.normalizeServerURL(this.server.url) + relUrl
-    var res
+    let res
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
     try {
       res = await this.fetchQueue.add(() =>
         fetch(url, {
           method: verb,
           credentials: 'omit',
           headers: {
-            Authorization:
-              'Basic ' + btoa(this.server.username + ':' + this.server.password)
+            Authorization: 'Basic ' + authString
           },
           body
         })
