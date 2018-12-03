@@ -538,11 +538,11 @@ describe('Floccus', function() {
             const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
             const serverMark1 = {
               title: 'url',
-              url: 'http://ur.l/?a=b&foo=b%C3%A1r+foo'
+              url: 'http://ur.l/foo/bar?a=b&foo=b%C3%A1r+foo'
             }
             const serverMark2 = {
               title: 'url2',
-              url: 'http://ur2.l/?a=b&foo=b%C3%A1r+foo'
+              url: 'http://ur2.l/foo/bar?a=b&foo=b%C3%A1r+foo'
             }
             const serverMarkId1 = await adapter.createBookmark(
               new Bookmark({ ...serverMark1, parentId: fooFolderId })
@@ -556,11 +556,11 @@ describe('Floccus', function() {
             const localRoot = account.getData().localRoot
             const localMark1 = {
               title: 'url',
-              url: 'http://ur.l/?foo=bár+foo&a=b'
+              url: 'http://ur.l/foo/bar?foo=bár+foo&a=b'
             }
             const localMark2 = {
               title: 'url2',
-              url: 'http://ur2.l/?foo=bár+foo&a=b'
+              url: 'http://ur2.l/foo/bar?foo=bár+foo&a=b'
             }
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
