@@ -24,6 +24,7 @@ export default class SyncProcess {
     this.localTreeRoot = await this.localTree.getBookmarksTree()
     this.serverTreeRoot = await this.server.getBookmarksTree()
     this.filterOutUnacceptedBookmarks(this.localTreeRoot)
+    await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
 
     // generate hashtables to find items faster
     this.localTreeRoot.createIndex()
@@ -48,6 +49,30 @@ export default class SyncProcess {
         return true
       }
     })
+  }
+
+  async filterOutDuplicatesInTheSameFolder(tree) {
+    const seenUrl = {}
+    const duplicates = []
+    tree.children = tree.children.filter(child => {
+      if (child instanceof Tree.Bookmark) {
+        if (seenUrl[child.url]) {
+          duplicates.push(child)
+          return false
+        }
+        seenUrl[child.url] = true
+      } else {
+        this.filterOutDuplicatesInTheSameFolder(child)
+      }
+      return true
+    })
+    Logger.log(
+      'Filtered out the following duplicates before syncing',
+      duplicates
+    )
+    await Promise.all(
+      duplicates.map(bm => this.localTree.removeBookmark(bm.id))
+    )
   }
 
   async syncTree(localItem, cacheItem, serverItem) {
