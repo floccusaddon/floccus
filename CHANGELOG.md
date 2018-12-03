@@ -1,3 +1,8 @@
+## v3.1.15
+
+- FIX: Automatically local-only deduplicate bookmarks within local folders
+- FIX: Unicode characters in passwords would cause errors
+
 ## v3.1.14
 
 - FIX: nextcloud-folders tree construction was still broken
