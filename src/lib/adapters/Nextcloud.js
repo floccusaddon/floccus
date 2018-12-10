@@ -541,16 +541,29 @@ export default class NextcloudAdapter extends Adapter {
     )
     try {
       res = await this.fetchQueue.add(() =>
-        fetch(url, {
-          method: verb,
-          credentials: 'omit',
-          headers: {
-            Authorization: 'Basic ' + authString
-          },
-          body
-        })
+        Promise.race([
+          fetch(url, {
+            method: verb,
+            credentials: 'omit',
+            headers: {
+              Authorization: 'Basic ' + authString
+            },
+            body
+          }),
+
+          new Promise((resolve, reject) =>
+            setTimeout(() => {
+              const e = new Error(
+                'Request timed out. Check your server configuration'
+              )
+              e.pass = true
+              reject(e)
+            }, 60000)
+          )
+        ])
       )
     } catch (e) {
+      if (e.pass) throw e
       throw new Error(
         'Network error: Check your network connection and your account details'
       )
