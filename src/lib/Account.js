@@ -153,17 +153,18 @@ export default class Account {
       // update cache
       await this.storage.setCache(await this.localTree.getBookmarksTree())
 
+      if (this.server.onSyncComplete) {
+        await this.server.onSyncComplete()
+      }
+
       await this.setData({
         ...this.getData(),
         error: null,
         syncing: false,
         lastSync: Date.now()
       })
-      this.syncing = false
 
-      if (this.server.onSyncComplete) {
-        await this.server.onSyncComplete()
-      }
+      this.syncing = false
 
       Logger.log(
         'Successfully ended sync process for account ' + this.getLabel()
