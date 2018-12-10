@@ -309,4 +309,32 @@ export const OptionResetCache = ({ account }) => (state, actions) => {
   )
 }
 
+export const OptionParallelSyncing = ({ account }) => (state, actions) => {
+  return (
+    <div>
+      <H4>Speed up synchronization</H4>
+      <p>
+        Tick this box to process multiple folders in parallel in order to speed
+        up the synchronization. This feature is experimental and makes it harder
+        to read the debug logs.
+      </p>
+      <Label>
+        <Input
+          type="checkbox"
+          onclick={e => {
+            actions.options.update({
+              data: {
+                ...account,
+                parallel: e.target.checked
+              }
+            })
+          }}
+          checked={state.options.data.parallel}
+        />
+        Run sync in parallel
+      </Label>
+    </div>
+  )
+}
+
 export const A = style('a')({})

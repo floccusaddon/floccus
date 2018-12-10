@@ -146,7 +146,8 @@ export default class Account {
         mappings,
         this.localTree,
         await this.storage.getCache(),
-        this.server
+        this.server,
+        this.getData().parallel
       )
       await sync.sync()
 

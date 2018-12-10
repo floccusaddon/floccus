@@ -3,7 +3,6 @@ import Logger from './Logger'
 
 const _ = require('lodash')
 const Parallel = require('async-parallel')
-const CONCURRENCY = 1 // exponential with every subdirectory
 
 export default class SyncProcess {
   /**
@@ -12,12 +11,17 @@ export default class SyncProcess {
    * @param cacheTreeRoot {Folder} The tree from the cache
    * @param server {Adapter} the server resource object
    */
-  constructor(mappings, localTree, cacheTreeRoot, server) {
+  constructor(mappings, localTree, cacheTreeRoot, server, parallel) {
     this.mappings = mappings
     this.localTree = localTree
     this.server = server
     this.cacheTreeRoot = cacheTreeRoot
     this.preserveOrder = !!this.server.orderFolder
+    if (parallel) {
+      this.concurrency = 5 // exponential with every subdirectory
+    } else {
+      this.concurrency = 1
+    }
   }
 
   async sync() {
@@ -198,7 +202,7 @@ export default class SyncProcess {
           await this.syncTree(child, null, null)
         }
       },
-      CONCURRENCY
+      this.concurrency
     )
   }
 
@@ -292,7 +296,7 @@ export default class SyncProcess {
         if (serverChild) serverChild.merged = true
         await this.syncTree(addedChild, null, serverChild)
       },
-      CONCURRENCY
+      this.concurrency
     )
 
     // REMOVED LOCALLY
@@ -312,7 +316,7 @@ export default class SyncProcess {
                 )
           await this.syncTree(null, removedChild, serverChild)
         },
-        CONCURRENCY
+        this.concurrency
       )
     }
 
@@ -343,7 +347,7 @@ export default class SyncProcess {
             ].ServerToLocal[newChild.id]
           })
         },
-        CONCURRENCY
+        this.concurrency
       )
 
       // REMOVED UPSTREAM
@@ -374,7 +378,7 @@ export default class SyncProcess {
               )
             }
           },
-          CONCURRENCY
+          this.concurrency
         )
       }
 
@@ -422,7 +426,7 @@ export default class SyncProcess {
           : null
         await this.syncTree(existingChild, cacheChild, serverChild)
       },
-      CONCURRENCY
+      this.concurrency
     )
   }
 
