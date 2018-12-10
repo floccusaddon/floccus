@@ -18,7 +18,7 @@ export default class SyncProcess {
     this.cacheTreeRoot = cacheTreeRoot
     this.preserveOrder = !!this.server.orderFolder
     if (parallel) {
-      this.concurrency = 5 // exponential with every subdirectory
+      this.concurrency = 2 // exponential with every subdirectory
     } else {
       this.concurrency = 1
     }
