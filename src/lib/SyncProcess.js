@@ -3,6 +3,7 @@ import Logger from './Logger'
 
 const _ = require('lodash')
 const Parallel = require('async-parallel')
+const PQueue = require('p-queue')
 
 export default class SyncProcess {
   /**
@@ -17,8 +18,9 @@ export default class SyncProcess {
     this.server = server
     this.cacheTreeRoot = cacheTreeRoot
     this.preserveOrder = !!this.server.orderFolder
+    this.queue = new PQueue({ concurrency: parallel ? 100 : Math.Infinity }) // 2^6 = 64 => max supported folder layers: 6
     if (parallel) {
-      this.concurrency = 2 // exponential with every subdirectory
+      this.concurrency = 2 // grows exponentially with each folder layer
     } else {
       this.concurrency = 1
     }
@@ -80,67 +82,69 @@ export default class SyncProcess {
   }
 
   async syncTree(localItem, cacheItem, serverItem) {
-    Logger.log('COMPARE', { localItem, cacheItem, serverItem })
+    this.queue.add(async () => {
+      Logger.log('COMPARE', { localItem, cacheItem, serverItem })
 
-    var create, update, remove, mappings
-    if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
-      create = this.createFolder.bind(this)
-      update = this.updateFolder.bind(this)
-      remove = this.removeFolder.bind(this)
-      mappings = this.mappings.folders
-    } else {
-      create = this.createBookmark.bind(this)
-      update = this.updateBookmark.bind(this)
-      remove = this.removeBookmark.bind(this)
-      mappings = this.mappings.bookmarks
-    }
-    if (!localItem && !cacheItem && serverItem) {
-      // CREATED UPSTREAM
-      await create(
-        this.mappings.bookmarks.ServerToLocal,
-        this.mappings.folders.ServerToLocal,
-        this.serverTreeRoot,
-        this.localTreeRoot,
-        this.localTree,
-        serverItem
-      )
-    } else if (localItem && !cacheItem && !serverItem) {
-      // CREATED LOCALLY
-      await create(
-        this.mappings.bookmarks.LocalToServer,
-        this.mappings.folders.LocalToServer,
-        this.localTreeRoot,
-        this.serverTreeRoot,
-        this.server,
-        localItem
-      )
-    } else if (
-      (localItem && cacheItem && serverItem) ||
-      (localItem && !cacheItem && serverItem)
-    ) {
-      // UPDATED
-      await update(localItem, cacheItem, serverItem)
-    } else if (!localItem && cacheItem && serverItem) {
-      // DELETED LOCALLY
-      await remove(
-        mappings.ServerToLocal,
-        this.localTreeRoot,
-        this.serverTreeRoot,
-        this.server,
-        serverItem
-      )
-    } else if (localItem && cacheItem && !serverItem) {
-      // DELETED UPSTREAM
-      await remove(
-        mappings.LocalToServer,
-        this.serverTreeRoot,
-        this.localTreeRoot,
-        this.localTree,
-        localItem
-      )
-    } else if (!localItem && cacheItem && !serverItem) {
-      // TODO: remove from mappings
-    }
+      var create, update, remove, mappings
+      if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
+        create = this.createFolder.bind(this)
+        update = this.updateFolder.bind(this)
+        remove = this.removeFolder.bind(this)
+        mappings = this.mappings.folders
+      } else {
+        create = this.createBookmark.bind(this)
+        update = this.updateBookmark.bind(this)
+        remove = this.removeBookmark.bind(this)
+        mappings = this.mappings.bookmarks
+      }
+      if (!localItem && !cacheItem && serverItem) {
+        // CREATED UPSTREAM
+        await create(
+          this.mappings.bookmarks.ServerToLocal,
+          this.mappings.folders.ServerToLocal,
+          this.serverTreeRoot,
+          this.localTreeRoot,
+          this.localTree,
+          serverItem
+        )
+      } else if (localItem && !cacheItem && !serverItem) {
+        // CREATED LOCALLY
+        await create(
+          this.mappings.bookmarks.LocalToServer,
+          this.mappings.folders.LocalToServer,
+          this.localTreeRoot,
+          this.serverTreeRoot,
+          this.server,
+          localItem
+        )
+      } else if (
+        (localItem && cacheItem && serverItem) ||
+        (localItem && !cacheItem && serverItem)
+      ) {
+        // UPDATED
+        await update(localItem, cacheItem, serverItem)
+      } else if (!localItem && cacheItem && serverItem) {
+        // DELETED LOCALLY
+        await remove(
+          mappings.ServerToLocal,
+          this.localTreeRoot,
+          this.serverTreeRoot,
+          this.server,
+          serverItem
+        )
+      } else if (localItem && cacheItem && !serverItem) {
+        // DELETED UPSTREAM
+        await remove(
+          mappings.LocalToServer,
+          this.serverTreeRoot,
+          this.localTreeRoot,
+          this.localTree,
+          localItem
+        )
+      } else if (!localItem && cacheItem && !serverItem) {
+        // TODO: remove from mappings
+      }
+    })
   }
 
   async createFolder(

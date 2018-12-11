@@ -30,7 +30,7 @@ export default class NextcloudAdapter extends Adapter {
   constructor(server) {
     super()
     this.server = server
-    this.fetchQueue = new PQueue({ concurrency: 10 })
+    this.fetchQueue = new PQueue({ concurrency: 100 })
     this.bookmarkLock = new AsyncLock()
   }
 
