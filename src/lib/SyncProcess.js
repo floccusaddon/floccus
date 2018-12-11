@@ -18,7 +18,7 @@ export default class SyncProcess {
     this.server = server
     this.cacheTreeRoot = cacheTreeRoot
     this.preserveOrder = !!this.server.orderFolder
-    this.queue = new PQueue({ concurrency: parallel ? 100 : Math.Infinity }) // 2^6 = 64 => max supported folder layers: 6
+    this.queue = new PQueue({ concurrency: parallel ? 100 : Infinity }) // 2^6 = 64 => max supported folder layers: 6
     if (parallel) {
       this.concurrency = 2 // grows exponentially with each folder layer
     } else {
