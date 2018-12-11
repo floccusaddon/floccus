@@ -82,7 +82,7 @@ export default class SyncProcess {
   }
 
   async syncTree(localItem, cacheItem, serverItem) {
-    this.queue.add(async () => {
+    await this.queue.add(async () => {
       Logger.log('COMPARE', { localItem, cacheItem, serverItem })
 
       var create, update, remove, mappings
