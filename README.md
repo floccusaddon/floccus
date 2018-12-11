@@ -30,23 +30,25 @@ You can [install it via the Chrome Web store](https://chrome.google.com/webstore
 
 Alternatively, you can still install it by [downloading the Chrome package from the latest release](https://github.com/marcelklehr/floccus/releases/) and dropping it into Chrome's extension page.
 
-#### Updating from v3.0 to v3.1
-
-When using a WebDAV account, there's nothing you need to do to benefit from the new order preservation feature. If you are using the nextcloud adapter, it is recommended that you switch to the new nextcloud adapter, which works with the Bookmarks folders feature and also preserves ordering.
-
 ### Firefox
 
 You can [install it via AMO](https://addons.mozilla.org/en-US/firefox/addon/floccus/).
 
 (Note that AMO has to review all new releases, though, so you might need to wait a bit before you can install the latest release on firefox.)
 
+### Firefox for Android
+
+Floccus is not supported by Firefox for Android, [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility).
+
+### Ugrading
+
 #### Updating from v2.x to v3.0
 
 It is recommended to remove all of your bookmarks from your accounts before using the new version, deleting the accounts and then to create them again, in order to prevent unforeseen problems!
 
-### Firefox for Android
+#### Updating from v3.0 to v3.1
 
-Floccus is not supported by Firefox for Android, [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility).
+When using a WebDAV account, there's nothing you need to do to benefit from the new order preservation feature. If you are using the nextcloud adapter, it is recommended that you switch to the new nextcloud adapter, which works with the Bookmarks folders feature and also preserves ordering.
 
 ### Permissions
 
@@ -87,7 +89,11 @@ Then, in Chrome you can setup the folders as follows:
 
 ### Finding duplicates
 
-Floccus will sync your bookmarks as-is, including any dupes. If you need to find and remove duplicates in your bookmarks, try something like [bookmark-dupes](https://addons.mozilla.org/en-US/firefox/addon/bookmark-dupes).
+Floccus will sync your bookmarks as-is, including any dupes that are in different folders. If you need to find and remove duplicates in your bookmarks, try something like [bookmark-dupes](https://addons.mozilla.org/en-US/firefox/addon/bookmark-dupes).
+
+### Troubleshooting
+
+- **Emojis**: MySQL doesn't support emojis out of the box, so if you're syncing to nextcloud and getting Error code 500 from nextcloud, check the nextcloud log for SQL errors and [proceed as explained in the nextcloud docs](https://docs.nextcloud.com/server/stable/admin_manual/configuration_database/mysql_4byte_support.html).
 
 ## Considerations
 
