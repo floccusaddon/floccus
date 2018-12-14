@@ -24,6 +24,8 @@ Once you have your server ready, read on to install the browser extension.
 
 **Note:** It is recommended to not enable native bookmark synchronization built into your browser, as it is known to cause issues.
 
+**Note:** Please avoid installing the bookmarks_fulltextsearch app in nextcloud as it is known to cause issues with newer versions of the bookmarks app.
+
 ### Chrome
 
 You can [install it via the Chrome Web store](https://chrome.google.com/webstore/detail/floccus-nextcloud-sync/fnaicdffflnofjppbagibeoednhnbjhg)
