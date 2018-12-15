@@ -243,10 +243,24 @@ export default class NextcloudFoldersAdapter extends Adapter {
           }
           tree = new Folder({ id: currentChild.id })
           childFolders = currentChild.children
-          childrenOrder = _.find(
+          let child = _.find(
             childrenOrder,
             child => child.id === currentChild.id && child.type === 'folder'
           )
+          if (!child || !child.children) {
+            const childrenOrderJson = await this.sendRequest(
+              'GET',
+              `index.php/apps/bookmarks/public/rest/v2/folder/${
+                child.id
+              }/childorder`
+            )
+            childrenOrder = childrenOrderJson.data
+          } else {
+            childrenOrder = _.find(
+              childrenOrder,
+              child => child.id === currentChild.id && child.type === 'folder'
+            ).children
+          }
         },
         1
       )
