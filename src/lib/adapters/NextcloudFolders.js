@@ -247,64 +247,60 @@ export default class NextcloudFoldersAdapter extends Adapter {
       )
     }
     const recurseChildFolders = async (tree, childFolders, childrenOrder) => {
-      await Promise.all(
-        childrenOrder.map(child => {
-          if (child.type === 'folder') {
-            // get the folder from the tree we've fetched above
-            let folder = childFolders.filter(
-              folder => folder.id === child.id
-            )[0]
-            if (!folder)
-              throw new Error(
-                'Inconsistent server state! Folder present in childorder list but not in folder tree'
-              )
-            let newFolder = new Folder({
-              id: child.id,
-              title: folder.title,
-              parentId: tree.id
-            })
-            tree.children.push(newFolder)
-
-            let subChildrenOrder
-            if (typeof child.children === 'undefined') {
-              // This is only necessary for bookmarks <=0.14.3
-              const childrenOrderJson = await this.sendRequest(
-                'GET',
-                `index.php/apps/bookmarks/public/rest/v2/folder/${
-                  child.id
-                }/childorder`
-              )
-              subChildrenOrder = childrenOrderJson.data
-            }
-
-            // ... and recurse
-            return recurseChildFolders(
-              newFolder,
-              folder.children,
-              child.children || subChildrenOrder
+      await AsyncParallel.each(childrenOrder, async child => {
+        if (child.type === 'folder') {
+          // get the folder from the tree we've fetched above
+          let folder = childFolders.filter(folder => folder.id === child.id)[0]
+          if (!folder)
+            throw new Error(
+              'Inconsistent server state! Folder present in childorder list but not in folder tree'
             )
-          } else {
-            // get the bookmark from the list we've fetched above
-            let childBookmark = _.find(
-              list,
-              bookmark =>
-                bookmark.id === child.id && bookmark.parentId === tree.id
+          let newFolder = new Folder({
+            id: child.id,
+            title: folder.title,
+            parentId: tree.id
+          })
+          tree.children.push(newFolder)
+
+          let subChildrenOrder
+          if (typeof child.children === 'undefined') {
+            // This is only necessary for bookmarks <=0.14.3
+            const childrenOrderJson = await this.sendRequest(
+              'GET',
+              `index.php/apps/bookmarks/public/rest/v2/folder/${
+                child.id
+              }/childorder`
             )
-            if (!childBookmark) {
-              throw new Error(
-                `Folder #${tree.id}[${
-                  tree.title
-                }] contains an nonexistent bookmark ${child.id}`
-              )
-            }
-            childBookmark = childBookmark.clone()
-            childBookmark.id = childBookmark.id + ';' + tree.id
-            childBookmark.parentId = tree.id
-            tree.children.push(childBookmark)
-            return Promise.resolve()
+            subChildrenOrder = childrenOrderJson.data
           }
-        })
-      )
+
+          // ... and recurse
+          return recurseChildFolders(
+            newFolder,
+            folder.children,
+            child.children || subChildrenOrder
+          )
+        } else {
+          // get the bookmark from the list we've fetched above
+          let childBookmark = _.find(
+            list,
+            bookmark =>
+              bookmark.id === child.id && bookmark.parentId === tree.id
+          )
+          if (!childBookmark) {
+            throw new Error(
+              `Folder #${tree.id}[${
+                tree.title
+              }] contains an nonexistent bookmark ${child.id}`
+            )
+          }
+          childBookmark = childBookmark.clone()
+          childBookmark.id = childBookmark.id + ';' + tree.id
+          childBookmark.parentId = tree.id
+          tree.children.push(childBookmark)
+          return Promise.resolve()
+        }
+      })
     }
     await recurseChildFolders(tree, childFolders, childrenOrder)
 
