@@ -223,9 +223,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
       await Parallel.each(
         this.server.serverRoot.split('/').slice(1),
         async segment => {
-          let currentChild = childFolders.filter(
+          let currentChild = _.find(
+            childFolders,
             folder => folder.title === segment
-          )[0]
+          )
           if (!currentChild) {
             // create folder
             let body = JSON.stringify({
@@ -242,6 +243,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
           }
           tree = new Folder({ id: currentChild.id })
           childFolders = currentChild.children
+          childrenOrder = _.find(
+            childrenOrder,
+            child => child.id === currentChild.id && child.type === 'folder'
+          )
         },
         1
       )
