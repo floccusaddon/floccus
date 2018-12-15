@@ -22,7 +22,7 @@ describe('Floccus', function() {
   })
   const CREDENTIALS = {
     username: 'admin',
-    password: 'admin'
+    password: 'admin\\admin'
   }
   ;[
     Account.getDefaultValues('fake'),
@@ -34,7 +34,7 @@ describe('Floccus', function() {
     {
       type: 'nextcloud',
       url: 'http://localhost/',
-      serverRoot: '/my folder/some subfolder'
+      serverRoot: '/my folder/some subfolder',
       ...CREDENTIALS
     },
     {
