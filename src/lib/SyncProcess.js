@@ -18,9 +18,9 @@ export default class SyncProcess {
     this.server = server
     this.cacheTreeRoot = cacheTreeRoot
     this.preserveOrder = !!this.server.orderFolder
-    this.queue = new PQueue({ concurrency: parallel ? 100 : Infinity }) // 2^6 = 64 => max supported folder layers: 6
+    this.queue = new PQueue({ concurrency: parallel ? 100 : Infinity })
     if (parallel) {
-      this.concurrency = 2 // grows exponentially with each folder layer
+      this.concurrency = 10 // grows exponentially with each folder layer
     } else {
       this.concurrency = 1
     }
@@ -82,7 +82,7 @@ export default class SyncProcess {
   }
 
   async syncTree(localItem, cacheItem, serverItem) {
-    await this.queue.add(async () => {
+    const execSync = async () => {
       Logger.log('COMPARE', { localItem, cacheItem, serverItem })
 
       var create, update, remove, mappings
@@ -144,7 +144,13 @@ export default class SyncProcess {
       } else if (!localItem && cacheItem && !serverItem) {
         // TODO: remove from mappings
       }
-    })
+    }
+
+    if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
+      await execSync()
+    } else {
+      await this.queue.add(execSync)
+    }
   }
 
   async createFolder(
@@ -276,11 +282,12 @@ export default class SyncProcess {
     }))
 
     // CREATED LOCALLY
+    let createdLocally = localItem.children.filter(
+      local =>
+        !cacheItem || !cacheItem.children.some(cache => local.id === cache.id)
+    )
     await Parallel.each(
-      localItem.children.filter(
-        local =>
-          !cacheItem || !cacheItem.children.some(cache => local.id === cache.id)
-      ),
+      createdLocally,
       async addedChild => {
         // merge this with an item created on the server
         const serverChild = _.find(serverItem.children, serverChild => {
@@ -304,11 +311,12 @@ export default class SyncProcess {
     )
 
     // REMOVED LOCALLY
+    let removedLocally = cacheItem.children.filter(
+      cache => !localItem.children.some(local => local.id === cache.id)
+    )
     if (cacheItem) {
       await Parallel.each(
-        cacheItem.children.filter(
-          cache => !localItem.children.some(local => local.id === cache.id)
-        ),
+        removedLocally,
         async removedChild => {
           const serverChild =
             removedChild instanceof Tree.Folder
@@ -330,60 +338,70 @@ export default class SyncProcess {
       mappingsSnapshot = this.mappings.getSnapshot()
 
       // CREATED UPSTREAM
+      let createdUpstream = serverItem.children.filter(
+        child =>
+          !(cacheItem || localItem).children.some(
+            cacheChild =>
+              mappingsSnapshot[
+                child instanceof Tree.Folder ? 'folders' : 'bookmarks'
+              ].ServerToLocal[child.id] === cacheChild.id
+          )
+      )
       await Parallel.each(
-        serverItem.children.filter(
-          child =>
-            !(cacheItem || localItem).children.some(
-              cacheChild =>
-                mappingsSnapshot[
-                  child instanceof Tree.Folder ? 'folders' : 'bookmarks'
-                ].ServerToLocal[child.id] === cacheChild.id
-            )
-        ),
+        createdUpstream,
         async newChild => {
           if (newChild.merged) return
           await this.syncTree(null, null, newChild)
-          // add to ordering
-          localOrder.splice(serverItem.children.indexOf(newChild), 0, {
-            type: newChild instanceof Tree.Folder ? 'folder' : 'bookmark',
-            id: this.mappings.getSnapshot()[
-              newChild instanceof Tree.Folder ? 'folders' : 'bookmarks'
-            ].ServerToLocal[newChild.id]
-          })
         },
         this.concurrency
       )
+      createdUpstream.forEach(newChild => {
+        // add to ordering
+        localOrder.splice(serverItem.children.indexOf(newChild), 0, {
+          type: newChild instanceof Tree.Folder ? 'folder' : 'bookmark',
+          id: this.mappings.getSnapshot()[
+            newChild instanceof Tree.Folder ? 'folders' : 'bookmarks'
+          ].ServerToLocal[newChild.id]
+        })
+      })
 
       // REMOVED UPSTREAM
       if (cacheItem) {
+        let removedUpstream = cacheItem.children.filter(
+          cache =>
+            !serverItem.children.some(
+              server =>
+                mappingsSnapshot[
+                  cache instanceof Tree.Folder ? 'folders' : 'bookmarks'
+                ].ServerToLocal[server.id] === cache.id
+            )
+        )
         await Parallel.each(
-          cacheItem.children.filter(
-            cache =>
-              !serverItem.children.some(
-                server =>
-                  mappingsSnapshot[
-                    cache instanceof Tree.Folder ? 'folders' : 'bookmarks'
-                  ].ServerToLocal[server.id] === cache.id
-              )
-          ),
+          removedUpstream,
           async oldChild => {
             const localChild =
               oldChild instanceof Tree.Folder
                 ? this.localTreeRoot.findFolder(oldChild.id)
                 : this.localTreeRoot.findBookmark(oldChild.id)
             await this.syncTree(localChild, oldChild, null)
-            if (localChild) {
-              // remove from ordering
-              localOrder.splice(
-                localOrder.indexOf(
-                  localOrder.filter(item => item.id === localChild.id)[0]
-                ),
-                1
-              )
-            }
           },
           this.concurrency
         )
+        removedUpstream.forEach(oldChild => {
+          const localChild =
+            oldChild instanceof Tree.Folder
+              ? this.localTreeRoot.findFolder(oldChild.id)
+              : this.localTreeRoot.findBookmark(oldChild.id)
+          if (localChild) {
+            // remove from ordering
+            localOrder.splice(
+              localOrder.indexOf(
+                localOrder.filter(item => item.id === localChild.id)[0]
+              ),
+              1
+            )
+          }
+        })
       }
 
       // ORDER CHILDREN
