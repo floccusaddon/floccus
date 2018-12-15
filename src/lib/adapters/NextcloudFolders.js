@@ -247,7 +247,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       )
     }
     const recurseChildFolders = async (tree, childFolders, childrenOrder) => {
-      await AsyncParallel.each(childrenOrder, async child => {
+      await Parallel.each(childrenOrder, async child => {
         if (child.type === 'folder') {
           // get the folder from the tree we've fetched above
           let folder = childFolders.filter(folder => folder.id === child.id)[0]
