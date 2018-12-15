@@ -105,7 +105,8 @@ export default class NextcloudFoldersAdapter extends Adapter {
                 the server. E.g. if you use{' '}
                 <i>
                   <code>/work</code>
-                </i>, all your bookmarks will be created on the server with this
+                </i>
+                , all your bookmarks will be created on the server with this
                 path prefixed to their original path (the one relative to the
                 local folder you specified above). This allows you to separate
                 your server bookmarks into multiple "profiles".
@@ -203,13 +204,21 @@ export default class NextcloudFoldersAdapter extends Adapter {
     this.list = null // clear cache before starting a new sync
     let list = await this.getBookmarksList()
 
-    const json = await this.sendRequest(
+    const childFoldersJson = await this.sendRequest(
       'GET',
       'index.php/apps/bookmarks/public/rest/v2/folder'
     )
+    let childFolders = childFoldersJson.data
+    Logger.log('Received folders from server', childFolders)
+    // retrieve folder order
+    const childrenOrderJson = await this.sendRequest(
+      'GET',
+      `index.php/apps/bookmarks/public/rest/v2/folder/-1/childorder?layers=-1`
+    )
+    let childrenOrder = childrenOrderJson.data
+    Logger.log('Received children order from server', childrenOrder)
 
     let tree = new Folder({ id: '-1' })
-    let childFolders = json.data
     if (this.server.serverRoot) {
       await Parallel.each(
         this.server.serverRoot.split('/').slice(1),
@@ -237,14 +246,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
         1
       )
     }
-    const recurseChildFolders = async (tree, childFolders) => {
-      // retrieve folder order
-      const json = await this.sendRequest(
-        'GET',
-        `index.php/apps/bookmarks/public/rest/v2/folder/${tree.id}/childorder`
-      )
+    const recurseChildFolders = async (tree, childFolders, childrenOrder) => {
       await Promise.all(
-        json.data.map(child => {
+        childrenOrder.map(child => {
           if (child.type === 'folder') {
             // get the folder from the tree we've fetched above
             let folder = childFolders.filter(
@@ -260,8 +264,25 @@ export default class NextcloudFoldersAdapter extends Adapter {
               parentId: tree.id
             })
             tree.children.push(newFolder)
+
+            let subChildrenOrder
+            if (typeof child.children === 'undefined') {
+              // This is only necessary for bookmarks <=0.14.3
+              const childrenOrderJson = await this.sendRequest(
+                'GET',
+                `index.php/apps/bookmarks/public/rest/v2/folder/${
+                  child.id
+                }/childorder`
+              )
+              subChildrenOrder = childrenOrderJson.data
+            }
+
             // ... and recurse
-            return recurseChildFolders(newFolder, folder.children)
+            return recurseChildFolders(
+              newFolder,
+              folder.children,
+              child.children || subChildrenOrder
+            )
           } else {
             // get the bookmark from the list we've fetched above
             let childBookmark = _.find(
@@ -285,7 +306,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
         })
       )
     }
-    await recurseChildFolders(tree, childFolders)
+    await recurseChildFolders(tree, childFolders, childrenOrder)
 
     this.tree = tree
     return tree.clone()
