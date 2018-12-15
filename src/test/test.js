@@ -20,46 +20,68 @@ describe('Floccus', function() {
     const background = await browser.runtime.getBackgroundPage()
     background.controller.setEnabled(true)
   })
+  const CREDENTIALS = {
+    username: 'admin',
+    password: 'admin'
+  }
   ;[
     Account.getDefaultValues('fake'),
     {
       type: 'nextcloud',
       url: 'http://localhost/',
-      username: 'admin',
-      password: 'admin'
+      ...CREDENTIALS
     },
     {
       type: 'nextcloud',
       url: 'http://localhost/',
-      username: 'admin',
-      password: 'admin',
       serverRoot: '/my folder/some subfolder'
+      ...CREDENTIALS
+    },
+    {
+      type: 'nextcloud',
+      url: 'http://localhost/',
+      parallel: true,
+      ...CREDENTIALS
     },
     {
       type: 'nextcloud-folders',
       url: 'http://localhost/',
-      username: 'admin',
-      password: 'admin'
+      ...CREDENTIALS
     },
     {
       type: 'nextcloud-folders',
       url: 'http://localhost/',
-      username: 'admin',
-      password: 'admin',
-      serverRoot: '/my folder/some subfolder'
+      serverRoot: '/my folder/some subfolder',
+      ...CREDENTIALS
+    },
+    {
+      type: 'nextcloud-folders',
+      url: 'http://localhost/',
+      parallel: true,
+      ...CREDENTIALS
     },
     {
       type: 'webdav',
       url: 'http://localhost/remote.php/webdav/',
-      username: 'admin',
-      password: 'admin',
-      bookmark_file: 'bookmarks.xbel'
+      bookmark_file: 'bookmarks.xbel',
+      ...CREDENTIALS
+    },
+    {
+      type: 'webdav',
+      url: 'http://localhost/remote.php/webdav/',
+      bookmark_file: 'bookmarks.xbel',
+      parallel: true,
+      ...CREDENTIALS
     }
   ].forEach(ACCOUNT_DATA => {
     describe(
       ACCOUNT_DATA.type +
         ' Account ' +
-        (ACCOUNT_DATA.serverRoot ? ACCOUNT_DATA.serverRoot : ''),
+        (ACCOUNT_DATA.serverRoot
+          ? 'with serverRoot'
+          : ACCOUNT_DATA.parallel
+          ? 'parallel'
+          : ''),
       function() {
         var account
         beforeEach('set up account', async function() {
@@ -96,7 +118,11 @@ describe('Floccus', function() {
     describe(
       ACCOUNT_DATA.type +
         ' Sync ' +
-        (ACCOUNT_DATA.serverRoot ? 'with serverRoot' : ''),
+        (ACCOUNT_DATA.serverRoot
+          ? 'with serverRoot'
+          : ACCOUNT_DATA.parallel
+          ? 'parallel'
+          : ''),
       function() {
         context('with one client', function() {
           var account
