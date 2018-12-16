@@ -311,10 +311,10 @@ export default class SyncProcess {
     )
 
     // REMOVED LOCALLY
-    let removedLocally = cacheItem.children.filter(
-      cache => !localItem.children.some(local => local.id === cache.id)
-    )
     if (cacheItem) {
+      let removedLocally = cacheItem.children.filter(
+        cache => !localItem.children.some(local => local.id === cache.id)
+      )
       await Parallel.each(
         removedLocally,
         async removedChild => {
@@ -356,6 +356,7 @@ export default class SyncProcess {
         this.concurrency
       )
       createdUpstream.forEach(newChild => {
+        if (newChild.merged) return
         // add to ordering
         localOrder.splice(serverItem.children.indexOf(newChild), 0, {
           type: newChild instanceof Tree.Folder ? 'folder' : 'bookmark',
