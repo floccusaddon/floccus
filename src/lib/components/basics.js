@@ -250,7 +250,7 @@ export const AccountStatus = ({ account }) => (state, actions) => {
       ) : data.error ? (
         <span style={{ color: '#8e3939' }}>✘ Error!</span>
       ) : (
-        <span color={{ color: '#3d8e39' }}>✓ all good</span>
+        <span style={{ color: '#3d8e39' }}>✓ all good</span>
       )}
     </AccountStatusStyle>
   )
