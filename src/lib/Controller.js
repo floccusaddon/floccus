@@ -185,6 +185,9 @@ export default class Controller {
     if (account.getData().syncing) {
       return
     }
+    if (!account.getData().enabled) {
+      return
+    }
     setTimeout(() => this.updateStatus(), 500)
     try {
       await account.sync()

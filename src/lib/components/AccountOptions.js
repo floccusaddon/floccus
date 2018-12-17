@@ -88,25 +88,22 @@ export const Component = () => (state, actions) => {
           },
           actions
         )}
-        <Button onclick={() => actions.closeOptions()}>Cancel</Button>
-        <Button onclick={() => actions.saveOptions()}>Save</Button>
+        <div class="actions">
+          <Button onclick={() => actions.closeOptions()}>Cancel</Button>
+          <Button primary onclick={() => actions.saveOptions()}>
+            Save
+          </Button>
+        </div>
       </AccountOptionsStyle>
     </Overlay>
   )
 }
 const AccountOptionsStyle = style('div')({
   color: Basics.COLORS.text,
-  table: {
-    border: 'none',
-    width: '100%',
-    minWidth: '350px'
+  ' input': {
+    marginBottom: '10px'
   },
-  td: {
-    width: 'auto'
-  },
-  'td:first-child': {
-    width: '150px',
-    textAlign: 'right',
-    color: Basics.COLORS.primary.dark
+  ' .actions': {
+    float: 'right'
   }
 })

@@ -2,6 +2,8 @@ import picostyle from 'picostyle'
 import humanizeDuration from 'humanize-duration'
 import { h } from 'hyperapp'
 
+const path = require('path')
+
 const style = picostyle(h)
 
 export const COLORS = {
@@ -9,30 +11,35 @@ export const COLORS = {
   primary: {
     plane: '#53a9df',
     light: '#68b4e3',
-    dark: '#3893cc'
+    dark: '#3893cc',
+    background: '#eaf2f7'
   },
   text: '#444'
 }
 
 export const HEIGHT_CONTROLS = '33px'
 export const PADDING_CONTROLS = '7px'
-export const BORDER_RADIUS = '3px'
+export const BORDER_RADIUS = '5px'
 
-export const H1 = style('h1')({
-  color: COLORS.primary.plane,
-  marginBottom: '3px'
-})
+export const H1 = style('h1')(props => ({
+  color: props.inverted ? 'white' : COLORS.primary.plane,
+  marginBottom: '3px',
+  marginTop: '25px'
+}))
 export const H2 = style('h2')({
   color: COLORS.primary.plane,
-  marginBottom: '3px'
+  marginBottom: '3px',
+  marginTop: '25px'
 })
 export const H3 = style('h3')({
   color: COLORS.primary.plane,
-  marginBottom: '3px'
+  marginBottom: '3px',
+  marginTop: '25px'
 })
 export const H4 = style('h4')({
   color: COLORS.primary.plane,
-  marginBottom: '3px'
+  marginBottom: '3px',
+  marginTop: '25px'
 })
 
 export const Input = style('input')({
@@ -100,12 +107,20 @@ export const Button = style('button')(props => ({
   padding: PADDING_CONTROLS,
   margin: props.fullWidth ? '15px auto' : '3px 3px  3px 0',
   boxSizing: 'border-box',
-  color: 'white',
+  color: props.primary ? 'white' : COLORS.primary.dark,
   textDecoration: 'none',
   textAlign: 'center',
-  backgroundColor: props.active ? COLORS.primary.light : COLORS.primary.plane,
+  backgroundColor: props.primary
+    ? props.active
+      ? COLORS.primary.light
+      : COLORS.primary.plane
+    : props.active
+    ? COLORS.primary.background
+    : 'white',
   ':hover': {
-    backgroundColor: COLORS.primary.light
+    backgroundColor: props.primary
+      ? COLORS.primary.light
+      : COLORS.primary.background
   },
   border: `1px ${COLORS.primary.dark} solid`,
   borderRadius: BORDER_RADIUS,
@@ -124,17 +139,16 @@ export const Account = ({ account }) => (state, actions) => {
   const data = account.getData()
   return (
     <AccountStyle key={account.id}>
-      <H3>
-        <div class="controls">{data.type}</div>
-        {account.getLabel()}
-      </H3>
-      <Input
-        type="text"
-        readonly={true}
-        value={data.rootPath}
-        placeholder="*Root folder*"
-      />
-      <AccountStatus account={account} />
+      <div class="controls">
+        <AccountStatus account={account} />
+      </div>
+      <H2>{path.basename(data.rootPath || 'Root folder')}</H2>
+      <div class="small">
+        <code style={{ color: COLORS.primary.light }}>
+          {data.type + '://' + account.getLabel()}
+        </code>
+      </div>
+      <AccountStatusDetail account={account} />
       <div class="controls">
         <Button
           onclick={e => {
@@ -154,22 +168,52 @@ export const Account = ({ account }) => (state, actions) => {
           Sync now
         </Button>
       </div>
-      <AccountStatusDetail account={account} />
+      <Label>
+        <Input
+          type="checkbox"
+          checked={!!data.enabled}
+          title={'Enable or disable account'}
+          onclick={async e => {
+            actions.options.setAccount(state.accounts.accounts[account.id])
+            actions.options.setData(
+              state.accounts.accounts[account.id].getData()
+            )
+            actions.options.update({ data: { enabled: e.target.checked } })
+            await actions.saveOptions()
+          }}
+        />{' '}
+        enabled
+      </Label>
     </AccountStyle>
   )
 }
 
 const AccountStyle = style('div')({
-  borderBottom: `1px ${COLORS.primary.dark} solid`,
-  padding: '20px',
-  paddingTop: '0',
-  marginBottom: '20px',
+  boxShadow: 'rgba(0, 0,0, 0.15) 0px 2px 10px',
+  borderRadius: BORDER_RADIUS,
+  backgroundColor: 'white',
+  padding: '15px',
+  paddingTop: '-10px',
+  margin: '20px',
   color: COLORS.text,
-  ' input': {
-    width: 'calc(100% - 20px)'
+  overflow: 'auto',
+  ' h2': {
+    marginTop: '0'
+  },
+  ' input[type=text]': {
+    width: '100%'
+  },
+  ' .small': {
+    fontSize: '.85em'
+  },
+  'input[type=checkbox]': {
+    marginTop: '10px'
   },
   ' .controls': {
     float: 'right'
+  },
+  ' .controls :last-child': {
+    marginRight: '0'
   }
 })
 
@@ -180,21 +224,20 @@ export const AccountStatusDetail = ({ account }) => (state, actions) => {
       {data.error
         ? data.error
         : data.syncing === 'initial'
-          ? 'Syncing from scratch. This may take a longer than usual...'
-          : 'Last synchronized: ' +
-            (data.lastSync
-              ? humanizeDuration(Date.now() - data.lastSync, {
-                  largest: 1,
-                  round: true
-                }) + ' ago'
-              : 'never')}
+        ? 'Syncing from scratch. This may take a longer than usual...'
+        : 'Last synchronized: ' +
+          (data.lastSync
+            ? humanizeDuration(Date.now() - data.lastSync, {
+                largest: 1,
+                round: true
+              }) + ' ago'
+            : 'never')}
     </AccountStatusDetailStyle>
   )
 }
 
 const AccountStatusDetailStyle = style('div')({
-  margin: '3px',
-  padding: '3px',
+  margin: '10px 0',
   color: COLORS.primary.dark
 })
 
@@ -205,9 +248,9 @@ export const AccountStatus = ({ account }) => (state, actions) => {
       {data.syncing ? (
         '↻ Syncing...'
       ) : data.error ? (
-        <span>✘ Error!</span>
+        <span style={{ color: '#8e3939' }}>✘ Error!</span>
       ) : (
-        <span>✓ all good</span>
+        <span color={{ color: '#3d8e39' }}>✓ all good</span>
       )}
     </AccountStatusStyle>
   )
@@ -226,11 +269,9 @@ export const OptionSyncFolder = ({ account }) => (state, actions) => {
       <H4>Local folder</H4>
       <p>
         This is the local bookmarks folder in this browser that will be synced
-        to the server. By default a new folder will be created for you. (<b>
-          Note:
-        </b>{' '}
-        You can now sync the root folder across different browser vendors out of
-        the box.)
+        to the server. By default a new folder will be created for you. (
+        <b>Note:</b> You can now sync the root folder across different browser
+        vendors out of the box.)
       </p>
       <Input
         type="text"

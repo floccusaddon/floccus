@@ -53,80 +53,56 @@ export default class NextcloudAdapter extends Adapter {
     }
     return (
       <form>
-        <table>
-          <tr>
-            <td>
-              <Label for="url">Nextcloud server URL:</Label>
-            </td>
-            <td>
-              <Input
-                value={data.url}
-                type="text"
-                name="url"
-                onkeyup={onchange.bind(null, 'url')}
-                onblur={onchange.bind(null, 'url')}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <Label for="username">User name:</Label>
-            </td>
-            <td>
-              <Input
-                value={data.username}
-                type="text"
-                name="username"
-                onkeyup={onchange.bind(null, 'username')}
-                onblur={onchange.bind(null, 'username')}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <Label for="password">Password:</Label>
-            </td>
-            <td>
-              <Input
-                value={data.password}
-                type="password"
-                name="password"
-                onkeyup={onchange.bind(null, 'password')}
-                onblur={onchange.bind(null, 'password')}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td />
-            <td>
-              <OptionSyncFolder account={state.account} />
+        <Label for="url">Nextcloud server URL:</Label>
+        <Input
+          value={data.url}
+          type="text"
+          name="url"
+          onkeyup={onchange.bind(null, 'url')}
+          onblur={onchange.bind(null, 'url')}
+        />
+        <Label for="username">User name:</Label>
+        <Input
+          value={data.username}
+          type="text"
+          name="username"
+          onkeyup={onchange.bind(null, 'username')}
+          onblur={onchange.bind(null, 'username')}
+        />
+        <Label for="password">Password:</Label>
+        <Input
+          value={data.password}
+          type="password"
+          name="password"
+          onkeyup={onchange.bind(null, 'password')}
+          onblur={onchange.bind(null, 'password')}
+        />
+        <OptionSyncFolder account={state.account} />
 
-              <H3>Server folder</H3>
-              <p>
-                This is the path prefix under which this account will operate on
-                the server. E.g. if you use{' '}
-                <i>
-                  <code>/work</code>
-                </i>, all your bookmarks will be created on the server with this
-                path prefixed to their original path (the one relative to the
-                local folder you specified above). This allows you to separate
-                your server bookmarks into multiple "profiles".
-              </p>
-              <Input
-                value={data.serverRoot || ''}
-                type="text"
-                name="serverRoot"
-                placeholder="Leave empty for no prefix"
-                onkeyup={onchange.bind(null, 'serverRoot')}
-                onblur={onchange.bind(null, 'serverRoot')}
-              />
+        <H3>Server folder</H3>
+        <p>
+          This is the path prefix under which this account will operate on the
+          server. E.g. if you use{' '}
+          <i>
+            <code>/work</code>
+          </i>
+          , all your bookmarks will be created on the server with this path
+          prefixed to their original path (the one relative to the local folder
+          you specified above). This allows you to separate your server
+          bookmarks into multiple "profiles".
+        </p>
+        <Input
+          value={data.serverRoot || ''}
+          type="text"
+          name="serverRoot"
+          placeholder="Leave empty for no prefix"
+          onkeyup={onchange.bind(null, 'serverRoot')}
+          onblur={onchange.bind(null, 'serverRoot')}
+        />
 
-              <OptionResetCache account={state.account} />
-              <OptionParallelSyncing account={state.account} />
-              <OptionDelete account={state.account} />
-            </td>
-          </tr>
-        </table>
+        <OptionResetCache account={state.account} />
+        <OptionParallelSyncing account={state.account} />
+        <OptionDelete account={state.account} />
       </form>
     )
   }
