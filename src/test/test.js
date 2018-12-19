@@ -76,12 +76,13 @@ describe('Floccus', function() {
   ].forEach(ACCOUNT_DATA => {
     describe(
       ACCOUNT_DATA.type +
-        ' Account ' +
+        ' ' +
         (ACCOUNT_DATA.serverRoot
-          ? 'with serverRoot'
+          ? 'with serverRoot '
           : ACCOUNT_DATA.parallel
-          ? 'parallel'
-          : ''),
+          ? 'parallel '
+          : '') +
+        'Account',
       function() {
         var account
         beforeEach('set up account', async function() {
@@ -117,12 +118,13 @@ describe('Floccus', function() {
     )
     describe(
       ACCOUNT_DATA.type +
-        ' Sync ' +
+        ' ' +
         (ACCOUNT_DATA.serverRoot
-          ? 'with serverRoot'
+          ? 'serverRoot '
           : ACCOUNT_DATA.parallel
-          ? 'parallel'
-          : ''),
+          ? 'parallel '
+          : '') +
+        'Sync ',
       function() {
         context('with one client', function() {
           var account
