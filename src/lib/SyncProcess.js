@@ -335,7 +335,7 @@ export default class SyncProcess {
     // don't create/remove items in the absolute root folder
     if (!localItem.isRoot) {
       // take a new snapshot since the server or we ourselves might have deduplicated above
-      mappingsSnapshot = this.mappings.getSnapshot()
+      let newMappingsSnapshot = this.mappings.getSnapshot()
 
       // CREATED UPSTREAM
       let createdUpstream = serverItem.children.filter(
@@ -343,6 +343,9 @@ export default class SyncProcess {
           !(cacheItem || localItem).children.some(
             cacheChild =>
               mappingsSnapshot[
+                child instanceof Tree.Folder ? 'folders' : 'bookmarks'
+              ].ServerToLocal[child.id] === cacheChild.id ||
+              newMappingsSnapshot[
                 child instanceof Tree.Folder ? 'folders' : 'bookmarks'
               ].ServerToLocal[child.id] === cacheChild.id
           )
@@ -373,6 +376,9 @@ export default class SyncProcess {
             !serverItem.children.some(
               server =>
                 mappingsSnapshot[
+                  cache instanceof Tree.Folder ? 'folders' : 'bookmarks'
+                ].ServerToLocal[server.id] === cache.id ||
+                newMappingsSnapshot[
                   cache instanceof Tree.Folder ? 'folders' : 'bookmarks'
                 ].ServerToLocal[server.id] === cache.id
             )
