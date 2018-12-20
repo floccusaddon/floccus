@@ -41,7 +41,6 @@ env:
     - SERVER_BRANCH=stable15 NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-folders serverRoot"
     - SERVER_BRANCH=stable15 NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-folders parallel"
     - SERVER_BRANCH=stable15 NC_APP_VERSION=master FLOCCUS_ADAPTER=webdav
-    - SERVER_BRANCH=stable15 NC_APP_VERSION=master FLOCCUS_ADAPTER="webdav serverRoot"
     - SERVER_BRANCH=stable15 NC_APP_VERSION=master FLOCCUS_ADAPTER="webdav parallel"
 
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER=nextcloud
