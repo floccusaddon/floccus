@@ -67,13 +67,13 @@ export default class CachingAdapter extends Adapter {
     Logger.log('REMOVE', { id })
     const foundBookmark = this.bookmarksCache.findBookmark(id)
     if (!foundBookmark) {
-      throw new Error("Bookmark to remove doesn't exist anymore")
+      return
     }
     const foundOldFolder = this.bookmarksCache.findFolder(
       foundBookmark.parentId
     )
     if (!foundOldFolder) {
-      throw new Error("Folder to move out of doesn't exist")
+      return
     }
     foundOldFolder.children.splice(
       foundOldFolder.children.indexOf(foundBookmark),
