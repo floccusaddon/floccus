@@ -1,5 +1,6 @@
 import { h } from 'hyperapp'
 import picostyle from 'picostyle'
+import * as Basics from './basics'
 const style = picostyle(h)
 
 export const state = {}
@@ -14,7 +15,9 @@ export const Component = (_, children) => (state, actions) => {
         actions.switchView('accounts')
       }}
     >
-      <div>{children}</div>
+      <div style={{ background: Basics.COLORS.primary.background }}>
+        {children}
+      </div>
     </StyleComponent>
   )
 }

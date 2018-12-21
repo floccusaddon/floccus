@@ -4,10 +4,19 @@ import picostyle from 'picostyle'
 import { h } from 'hyperapp'
 import Account from '../Account'
 import * as Basics from './basics'
+const FLOCCUS_VERSION = require('../../../package.json').version
 
 const style = picostyle(h)
 
-const { Button, InputGroup, Select, Option, Label, Account: AccountEl } = Basics
+const {
+  H1,
+  Button,
+  InputGroup,
+  Select,
+  Option,
+  Label,
+  Account: AccountEl
+} = Basics
 
 export const state = {
   accounts: {
@@ -77,6 +86,7 @@ export const Component = () => (state, actions) => {
             <option value="webdav">XBEL in WebDAV</option>
           </Select>
           <Button
+            primary
             onclick={e => {
               actions.createAccount()
             }}
@@ -118,9 +128,9 @@ export const Component = () => (state, actions) => {
 
 const AccountsStyle = style('div')({
   ' .debugging-tools': {
-    display: 'block',
-    margin: '3px',
-    float: 'right',
+    position: 'absolute',
+    right: '20px',
+    bottom: '10px',
     fontSize: '9px'
   },
   ' .debugging-tools a': {
@@ -129,6 +139,9 @@ const AccountsStyle = style('div')({
     marginLeft: '3px'
   },
   ' .wrapper': {
-    margin: '0 20px'
+    position: 'relative',
+    background: 'white',
+    margin: '0',
+    padding: '10px 20px 20px 25px' // top is actually 25px as well, because of InputGroup
   }
 })

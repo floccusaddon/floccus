@@ -16,7 +16,8 @@ const {
   Options,
   OptionSyncFolder,
   OptionDelete,
-  OptionResetCache
+  OptionResetCache,
+  OptionParallelSyncing
 } = Basics
 
 export default class WebDavAdapter extends CachingAdapter {
@@ -299,92 +300,52 @@ export default class WebDavAdapter extends CachingAdapter {
     }
     return (
       <form>
-        <table>
-          <tr>
-            <td>
-              <Label for="url">WebDAV URL:</Label>
-            </td>
-            <td>
-              <Input
-                value={data.url}
-                type="text"
-                name="url"
-                onkeyup={onchange.bind(null, 'url')}
-                onblur={onchange.bind(null, 'url')}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td />
-            <td>
-              e.g. with nextcloud:{' '}
-              <i>
-                <code>https://your-domain.com/remote.php/webdav/</code>
-              </i>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <Label for="username">User name:</Label>
-            </td>
-            <td>
-              <Input
-                value={data.username}
-                type="text"
-                name="username"
-                onkeyup={onchange.bind(null, 'username')}
-                onblur={onchange.bind(null, 'username')}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <Label for="password">Password:</Label>
-            </td>
-            <td>
-              <Input
-                value={data.password}
-                type="password"
-                name="password"
-                onkeyup={onchange.bind(null, 'password')}
-                onblur={onchange.bind(null, 'password')}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <Label for="bookmark_file">Bookmarks file path:</Label>
-            </td>
-            <td>
-              <Input
-                value={data.bookmark_file || ''}
-                type="text"
-                name="bookmark_file"
-                placeholder="Path on the server to the bookmarks file"
-                onkeyup={onchange.bind(null, 'bookmark_file')}
-                onblur={onchange.bind(null, 'serverRoot')}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td />
-            <td>
-              a path to the bookmarks file relative to your WebDAV URL (all
-              folders in the path must already exist). e.g.{' '}
-              <i>
-                <code>personal_stuff/bookmarks.xbel</code>
-              </i>
-            </td>
-          </tr>
-          <tr>
-            <td />
-            <td>
-              <OptionSyncFolder account={state.account} />
-              <OptionResetCache account={state.account} />
-              <OptionDelete account={state.account} />
-            </td>
-          </tr>
-        </table>
+        <Label for="url">WebDAV URL:</Label>
+        <Input
+          value={data.url}
+          type="text"
+          name="url"
+          onkeyup={onchange.bind(null, 'url')}
+          onblur={onchange.bind(null, 'url')}
+        />
+        e.g. with nextcloud:{' '}
+        <i>
+          <code>https://your-domain.com/remote.php/webdav/</code>
+        </i>
+        <Label for="username">User name:</Label>
+        <Input
+          value={data.username}
+          type="text"
+          name="username"
+          onkeyup={onchange.bind(null, 'username')}
+          onblur={onchange.bind(null, 'username')}
+        />
+        <Label for="password">Password:</Label>
+        <Input
+          value={data.password}
+          type="password"
+          name="password"
+          onkeyup={onchange.bind(null, 'password')}
+          onblur={onchange.bind(null, 'password')}
+        />
+        <Label for="bookmark_file">Bookmarks file path:</Label>
+        <Input
+          value={data.bookmark_file || ''}
+          type="text"
+          name="bookmark_file"
+          placeholder="Path on the server to the bookmarks file"
+          onkeyup={onchange.bind(null, 'bookmark_file')}
+          onblur={onchange.bind(null, 'serverRoot')}
+        />
+        a path to the bookmarks file relative to your WebDAV URL (all folders in
+        the path must already exist). e.g.{' '}
+        <i>
+          <code>personal_stuff/bookmarks.xbel</code>
+        </i>
+        <OptionSyncFolder account={state.account} />
+        <OptionResetCache account={state.account} />
+        <OptionParallelSyncing account={state.account} />
+        <OptionDelete account={state.account} />
       </form>
     )
   }

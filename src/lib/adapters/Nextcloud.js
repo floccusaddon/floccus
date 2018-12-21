@@ -22,6 +22,7 @@ const {
   OptionSyncFolder,
   OptionDelete,
   OptionResetCache,
+  OptionParallelSyncing,
   H3
 } = Basics
 
@@ -29,7 +30,7 @@ export default class NextcloudAdapter extends Adapter {
   constructor(server) {
     super()
     this.server = server
-    this.fetchQueue = new PQueue({ concurrency: 10 })
+    this.fetchQueue = new PQueue({ concurrency: 100 })
     this.bookmarkLock = new AsyncLock()
   }
 
@@ -52,80 +53,56 @@ export default class NextcloudAdapter extends Adapter {
     }
     return (
       <form>
-        <table>
-          <tr>
-            <td>
-              <Label for="url">Nextcloud server URL:</Label>
-            </td>
-            <td>
-              <Input
-                value={data.url}
-                type="text"
-                name="url"
-                onkeyup={onchange.bind(null, 'url')}
-                onblur={onchange.bind(null, 'url')}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <Label for="username">User name:</Label>
-            </td>
-            <td>
-              <Input
-                value={data.username}
-                type="text"
-                name="username"
-                onkeyup={onchange.bind(null, 'username')}
-                onblur={onchange.bind(null, 'username')}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <Label for="password">Password:</Label>
-            </td>
-            <td>
-              <Input
-                value={data.password}
-                type="password"
-                name="password"
-                onkeyup={onchange.bind(null, 'password')}
-                onblur={onchange.bind(null, 'password')}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td />
-            <td>
-              <OptionSyncFolder account={state.account} />
+        <Label for="url">Nextcloud server URL:</Label>
+        <Input
+          value={data.url}
+          type="text"
+          name="url"
+          onkeyup={onchange.bind(null, 'url')}
+          onblur={onchange.bind(null, 'url')}
+        />
+        <Label for="username">User name:</Label>
+        <Input
+          value={data.username}
+          type="text"
+          name="username"
+          onkeyup={onchange.bind(null, 'username')}
+          onblur={onchange.bind(null, 'username')}
+        />
+        <Label for="password">Password:</Label>
+        <Input
+          value={data.password}
+          type="password"
+          name="password"
+          onkeyup={onchange.bind(null, 'password')}
+          onblur={onchange.bind(null, 'password')}
+        />
+        <OptionSyncFolder account={state.account} />
 
-              <H3>Server folder</H3>
-              <p>
-                This is the path prefix under which this account will operate on
-                the server. E.g. if you use{' '}
-                <i>
-                  <code>/work</code>
-                </i>, all your bookmarks will be created on the server with this
-                path prefixed to their original path (the one relative to the
-                local folder you specified above). This allows you to separate
-                your server bookmarks into multiple "profiles".
-              </p>
-              <Input
-                value={data.serverRoot || ''}
-                type="text"
-                name="serverRoot"
-                placeholder="Leave empty for no prefix"
-                onkeyup={onchange.bind(null, 'serverRoot')}
-                onblur={onchange.bind(null, 'serverRoot')}
-              />
+        <H3>Server folder</H3>
+        <p>
+          This is the path prefix under which this account will operate on the
+          server. E.g. if you use{' '}
+          <i>
+            <code>/work</code>
+          </i>
+          , all your bookmarks will be created on the server with this path
+          prefixed to their original path (the one relative to the local folder
+          you specified above). This allows you to separate your server
+          bookmarks into multiple "profiles".
+        </p>
+        <Input
+          value={data.serverRoot || ''}
+          type="text"
+          name="serverRoot"
+          placeholder="Leave empty for no prefix"
+          onkeyup={onchange.bind(null, 'serverRoot')}
+          onblur={onchange.bind(null, 'serverRoot')}
+        />
 
-              <OptionResetCache account={state.account} />
-
-              <OptionDelete account={state.account} />
-            </td>
-          </tr>
-        </table>
+        <OptionResetCache account={state.account} />
+        <OptionParallelSyncing account={state.account} />
+        <OptionDelete account={state.account} />
       </form>
     )
   }
@@ -540,16 +517,29 @@ export default class NextcloudAdapter extends Adapter {
     )
     try {
       res = await this.fetchQueue.add(() =>
-        fetch(url, {
-          method: verb,
-          credentials: 'omit',
-          headers: {
-            Authorization: 'Basic ' + authString
-          },
-          body
-        })
+        Promise.race([
+          fetch(url, {
+            method: verb,
+            credentials: 'omit',
+            headers: {
+              Authorization: 'Basic ' + authString
+            },
+            body
+          }),
+
+          new Promise((resolve, reject) =>
+            setTimeout(() => {
+              const e = new Error(
+                'Request timed out. Check your server configuration'
+              )
+              e.pass = true
+              reject(e)
+            }, 60000)
+          )
+        ])
       )
     } catch (e) {
+      if (e.pass) throw e
       throw new Error(
         'Network error: Check your network connection and your account details'
       )

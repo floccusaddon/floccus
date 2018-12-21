@@ -68,6 +68,11 @@ export default class Controller {
       if (packageJson.version === d.currentVersion) return
       const accounts = await Account.getAllAccounts()
       await Promise.all(accounts.map(account => account.init()))
+      await Promise.all(
+        accounts.map(account =>
+          account.setData({ ...account.getData(), enabled: true })
+        )
+      )
       await browser.storage.local.set({
         currentVersion: packageJson.version
       })
@@ -183,6 +188,9 @@ export default class Controller {
     }
     let account = await Account.get(accountId)
     if (account.getData().syncing) {
+      return
+    }
+    if (!account.getData().enabled) {
       return
     }
     setTimeout(() => this.updateStatus(), 500)

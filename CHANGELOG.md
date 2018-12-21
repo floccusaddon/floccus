@@ -1,3 +1,11 @@
+## v3.2.0
+
+- NEW: Overhaul UI
+- NEW: Allow sync speedup by syncing in parallel
+- FIX: Update dependencies to mitigate some minor security issues
+- FIX: Speed up folder order fetching if the server supports it
+- FIX a bug involving the deletion of local bookmarks
+
 ## v3.1.15
 
 - FIX: Automatically local-only deduplicate bookmarks within local folders

@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Floccus options</title>
-  <style>
-  body {
-    font-size: 14px !important;
-    font-family: sans-serif;
-  }
+  <head>
+    <meta charset="utf-8" />
+    <title>Floccus options</title>
+    <style>
+      body {
+        font-size: 14px !important;
+        font-family: sans-serif;
+        padding: 0;
+        margin: 0;
+        margin-top: -15px; /* I have no idea why this is necessary */
+      }
 
-  #app {
-    width: 500px;
-    min-height: 500px;
-  }
-
-  </style>
-</head>
-<body>
-<div id="app"></div>
-<script src="../js/polyfill.js"></script>
-<script src="../../lib/chrome-promise.js"></script>
-<script src="../js/options.js"></script>
-</body>
+      #app {
+        width: 500px;
+        min-height: 500px;
+        background: #eaf2f7;
+        padding-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="../js/polyfill.js"></script>
+    <script src="../../lib/chrome-promise.js"></script>
+    <script src="../js/options.js"></script>
+  </body>
 </html>

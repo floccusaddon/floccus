@@ -11,24 +11,37 @@ env:
     - DB=sqlite
     - NC_APP=bookmarks
     - SELENIUM_BROWSER=chrome
-   #- SELENIUM_BROWSER=firefox
+    #- SELENIUM_BROWSER=firefox
     - OC_USER=admin
     - OC_PASS=admin
     - NC_APP_VERSION=master
   matrix:
     - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER=nextcloud
-    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER=webdav
+    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER="nextcloud serverRoot"
+    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER="nextcloud parallel"
 
     - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.12.2 FLOCCUS_ADAPTER=nextcloud
-    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.12.2 FLOCCUS_ADAPTER=webdav
+    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.12.2 FLOCCUS_ADAPTER="nextcloud serverRoot"
+    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.12.2 FLOCCUS_ADAPTER="nextcloud parallel"
 
     - SERVER_BRANCH=stable14 NC_APP_VERSION=v0.14.3 FLOCCUS_ADAPTER=nextcloud
-    - SERVER_BRANCH=stable14 NC_APP_VERSION=v0.14.3 FLOCCUS_ADAPTER=webdav
     - SERVER_BRANCH=stable14 NC_APP_VERSION=v0.14.3 FLOCCUS_ADAPTER=nextcloud-folders
 
-    - SERVER_BRANCH=stable14 NC_APP_VERSION=master FLOCCUS_ADAPTER=nextcloud
-    - SERVER_BRANCH=stable14 NC_APP_VERSION=master FLOCCUS_ADAPTER=webdav
-    - SERVER_BRANCH=stable14 NC_APP_VERSION=master FLOCCUS_ADAPTER=nextcloud-folders
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.14.3 FLOCCUS_ADAPTER=nextcloud
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.14.3 FLOCCUS_ADAPTER="nextcloud serverRoot"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.14.3 FLOCCUS_ADAPTER="nextcloud parallel"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.14.3 FLOCCUS_ADAPTER=nextcloud-folders
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.14.3 FLOCCUS_ADAPTER="nextcloud-folders serverRoot"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.14.3 FLOCCUS_ADAPTER="nextcloud-folders parallel"
+
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=master FLOCCUS_ADAPTER=nextcloud
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud serverRoot"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud parallel"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=master FLOCCUS_ADAPTER=nextcloud-folders
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-folders serverRoot"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-folders parallel"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=master FLOCCUS_ADAPTER=webdav
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=master FLOCCUS_ADAPTER="webdav parallel"
 
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER=nextcloud
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER=webdav

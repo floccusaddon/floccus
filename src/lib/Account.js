@@ -146,12 +146,17 @@ export default class Account {
         mappings,
         this.localTree,
         await this.storage.getCache(),
-        this.server
+        this.server,
+        this.getData().parallel
       )
       await sync.sync()
 
       // update cache
       await this.storage.setCache(await this.localTree.getBookmarksTree())
+
+      if (this.server.onSyncComplete) {
+        await this.server.onSyncComplete()
+      }
 
       await this.setData({
         ...this.getData(),
@@ -159,11 +164,8 @@ export default class Account {
         syncing: false,
         lastSync: Date.now()
       })
-      this.syncing = false
 
-      if (this.server.onSyncComplete) {
-        await this.server.onSyncComplete()
-      }
+      this.syncing = false
 
       Logger.log(
         'Successfully ended sync process for account ' + this.getLabel()

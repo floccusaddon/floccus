@@ -20,6 +20,7 @@ const {
   OptionSyncFolder,
   OptionDelete,
   OptionResetCache,
+  OptionParallelSyncing,
   H3
 } = Basics
 
@@ -27,7 +28,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
   constructor(server) {
     super()
     this.server = server
-    this.fetchQueue = new PQueue({ concurrency: 10 })
+    this.fetchQueue = new PQueue({ concurrency: 100 })
     this.bookmarkLock = new AsyncLock()
   }
 
@@ -50,80 +51,56 @@ export default class NextcloudFoldersAdapter extends Adapter {
     }
     return (
       <form>
-        <table>
-          <tr>
-            <td>
-              <Label for="url">Nextcloud server URL:</Label>
-            </td>
-            <td>
-              <Input
-                value={data.url}
-                type="text"
-                name="url"
-                onkeyup={onchange.bind(null, 'url')}
-                onblur={onchange.bind(null, 'url')}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <Label for="username">User name:</Label>
-            </td>
-            <td>
-              <Input
-                value={data.username}
-                type="text"
-                name="username"
-                onkeyup={onchange.bind(null, 'username')}
-                onblur={onchange.bind(null, 'username')}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <Label for="password">Password:</Label>
-            </td>
-            <td>
-              <Input
-                value={data.password}
-                type="password"
-                name="password"
-                onkeyup={onchange.bind(null, 'password')}
-                onblur={onchange.bind(null, 'password')}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td />
-            <td>
-              <OptionSyncFolder account={state.account} />
+        <Label for="url">Nextcloud server URL</Label>
+        <Input
+          value={data.url}
+          type="text"
+          name="url"
+          onkeyup={onchange.bind(null, 'url')}
+          onblur={onchange.bind(null, 'url')}
+        />
+        <Label for="username">User name</Label>
+        <Input
+          value={data.username}
+          type="text"
+          name="username"
+          onkeyup={onchange.bind(null, 'username')}
+          onblur={onchange.bind(null, 'username')}
+        />
+        <Label for="password">Password</Label>
+        <Input
+          value={data.password}
+          type="password"
+          name="password"
+          onkeyup={onchange.bind(null, 'password')}
+          onblur={onchange.bind(null, 'password')}
+        />
+        <OptionSyncFolder account={state.account} />
 
-              <H3>Server folder</H3>
-              <p>
-                This is the path prefix under which this account will operate on
-                the server. E.g. if you use{' '}
-                <i>
-                  <code>/work</code>
-                </i>, all your bookmarks will be created on the server with this
-                path prefixed to their original path (the one relative to the
-                local folder you specified above). This allows you to separate
-                your server bookmarks into multiple "profiles".
-              </p>
-              <Input
-                value={data.serverRoot || ''}
-                type="text"
-                name="serverRoot"
-                placeholder="Leave empty for no prefix"
-                onkeyup={onchange.bind(null, 'serverRoot')}
-                onblur={onchange.bind(null, 'serverRoot')}
-              />
+        <H3>Server folder</H3>
+        <p>
+          This is the path prefix under which this account will operate on the
+          server. E.g. if you use{' '}
+          <i>
+            <code>/work</code>
+          </i>
+          , all your bookmarks will be created on the server with this path
+          prefixed to their original path (the one relative to the local folder
+          you specified above). This allows you to separate your server
+          bookmarks into multiple "profiles".
+        </p>
+        <Input
+          value={data.serverRoot || ''}
+          type="text"
+          name="serverRoot"
+          placeholder="Leave empty for no prefix"
+          onkeyup={onchange.bind(null, 'serverRoot')}
+          onblur={onchange.bind(null, 'serverRoot')}
+        />
 
-              <OptionResetCache account={state.account} />
-
-              <OptionDelete account={state.account} />
-            </td>
-          </tr>
-        </table>
+        <OptionResetCache account={state.account} />
+        <OptionParallelSyncing account={state.account} />
+        <OptionDelete account={state.account} />
       </form>
     )
   }
@@ -202,20 +179,29 @@ export default class NextcloudFoldersAdapter extends Adapter {
     this.list = null // clear cache before starting a new sync
     let list = await this.getBookmarksList()
 
-    const json = await this.sendRequest(
+    const childFoldersJson = await this.sendRequest(
       'GET',
       'index.php/apps/bookmarks/public/rest/v2/folder'
     )
+    let childFolders = childFoldersJson.data
+    Logger.log('Received folders from server', childFolders)
+    // retrieve folder order
+    const childrenOrderJson = await this.sendRequest(
+      'GET',
+      `index.php/apps/bookmarks/public/rest/v2/folder/-1/childorder?layers=-1`
+    )
+    let childrenOrder = childrenOrderJson.data
+    Logger.log('Received children order from server', childrenOrder)
 
     let tree = new Folder({ id: '-1' })
-    let childFolders = json.data
     if (this.server.serverRoot) {
       await Parallel.each(
         this.server.serverRoot.split('/').slice(1),
         async segment => {
-          let currentChild = childFolders.filter(
+          let currentChild = _.find(
+            childFolders,
             folder => folder.title === segment
-          )[0]
+          )
           if (!currentChild) {
             // create folder
             let body = JSON.stringify({
@@ -232,18 +218,32 @@ export default class NextcloudFoldersAdapter extends Adapter {
           }
           tree = new Folder({ id: currentChild.id })
           childFolders = currentChild.children
+          let child = _.find(
+            childrenOrder,
+            child => child.id === currentChild.id && child.type === 'folder'
+          )
+          if (!child || !child.children) {
+            const childrenOrderJson = await this.sendRequest(
+              'GET',
+              `index.php/apps/bookmarks/public/rest/v2/folder/${
+                currentChild.id
+              }/childorder`
+            )
+            childrenOrder = childrenOrderJson.data
+          } else {
+            childrenOrder = _.find(
+              childrenOrder,
+              child => child.id === currentChild.id && child.type === 'folder'
+            ).children
+          }
         },
         1
       )
     }
-    const recurseChildFolders = async (tree, childFolders) => {
-      // retrieve folder order
-      const json = await this.sendRequest(
-        'GET',
-        `index.php/apps/bookmarks/public/rest/v2/folder/${tree.id}/childorder`
-      )
-      await Promise.all(
-        json.data.map(child => {
+    const recurseChildFolders = async (tree, childFolders, childrenOrder) => {
+      await Parallel.each(
+        childrenOrder,
+        async child => {
           if (child.type === 'folder') {
             // get the folder from the tree we've fetched above
             let folder = childFolders.filter(
@@ -259,8 +259,25 @@ export default class NextcloudFoldersAdapter extends Adapter {
               parentId: tree.id
             })
             tree.children.push(newFolder)
+
+            let subChildrenOrder
+            if (typeof child.children === 'undefined') {
+              // This is only necessary for bookmarks <=0.14.3
+              const childrenOrderJson = await this.sendRequest(
+                'GET',
+                `index.php/apps/bookmarks/public/rest/v2/folder/${
+                  child.id
+                }/childorder`
+              )
+              subChildrenOrder = childrenOrderJson.data
+            }
+
             // ... and recurse
-            return recurseChildFolders(newFolder, folder.children)
+            return recurseChildFolders(
+              newFolder,
+              folder.children,
+              child.children || subChildrenOrder
+            )
           } else {
             // get the bookmark from the list we've fetched above
             let childBookmark = _.find(
@@ -281,10 +298,11 @@ export default class NextcloudFoldersAdapter extends Adapter {
             tree.children.push(childBookmark)
             return Promise.resolve()
           }
-        })
+        },
+        1
       )
     }
-    await recurseChildFolders(tree, childFolders)
+    await recurseChildFolders(tree, childFolders, childrenOrder)
 
     this.tree = tree
     return tree.clone()
@@ -523,17 +541,29 @@ export default class NextcloudFoldersAdapter extends Adapter {
     )
     try {
       res = await this.fetchQueue.add(() =>
-        fetch(url, {
-          method: verb,
-          credentials: 'omit',
-          headers: {
-            ...(type && { 'Content-type': type }),
-            Authorization: 'Basic ' + authString
-          },
-          body
-        })
+        Promise.race([
+          fetch(url, {
+            method: verb,
+            credentials: 'omit',
+            headers: {
+              ...(type && { 'Content-type': type }),
+              Authorization: 'Basic ' + authString
+            },
+            body
+          }),
+          new Promise((resolve, reject) =>
+            setTimeout(() => {
+              const e = new Error(
+                'Request timed out. Check your server configuration'
+              )
+              e.pass = true
+              reject(e)
+            }, 60000)
+          )
+        ])
       )
     } catch (e) {
+      if (e.pass) throw e
       throw new Error(
         'Network error: Check your network connection and your account details'
       )
