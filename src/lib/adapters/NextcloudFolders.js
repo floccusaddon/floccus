@@ -175,6 +175,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return bookmarks
   }
 
+  /**
+   * Warning: No strict equality checks with IDs in here, because
+   * MySQL uses stringified numbers while Postgres doesn't
+   */
   async getBookmarksTree() {
     this.list = null // clear cache before starting a new sync
     let list = await this.getBookmarksList()
@@ -220,7 +224,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
           childFolders = currentChild.children
           let child = _.find(
             childrenOrder,
-            child => child.id === currentChild.id && child.type === 'folder'
+            child => child.id == currentChild.id && child.type === 'folder'
           )
           if (!child || !child.children) {
             const childrenOrderJson = await this.sendRequest(
@@ -233,7 +237,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
           } else {
             childrenOrder = _.find(
               childrenOrder,
-              child => child.id === currentChild.id && child.type === 'folder'
+              child => child.id == currentChild.id && child.type === 'folder'
             ).children
           }
         },
@@ -283,7 +287,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
             let childBookmark = _.find(
               list,
               bookmark =>
-                bookmark.id === child.id && bookmark.parentId === tree.id
+                bookmark.id == child.id && bookmark.parentId == tree.id
             )
             if (!childBookmark) {
               throw new Error(
