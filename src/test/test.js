@@ -81,7 +81,7 @@ describe('Floccus', function() {
           ? 'with serverRoot '
           : ACCOUNT_DATA.parallel
           ? 'parallel '
-          : '') +
+          : 'standard ') +
         'Account',
       function() {
         var account
@@ -123,7 +123,7 @@ describe('Floccus', function() {
           ? 'serverRoot '
           : ACCOUNT_DATA.parallel
           ? 'parallel '
-          : '') +
+          : 'standard ') +
         'Sync ',
       function() {
         context('with one client', function() {
