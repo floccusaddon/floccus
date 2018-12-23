@@ -1,3 +1,7 @@
+## v3.2.1
+
+- FIX: Folder ordering would cause issues in some situations
+
 ## v3.2.0
 
 - NEW: Overhaul UI
