@@ -120,6 +120,12 @@ export const Component = () => (state, actions) => {
           >
             Debug logs
           </a>
+          <a
+            target="_blank"
+            href="https://github.com/marcelklehr/floccus#donate"
+          >
+            Fund development
+          </a>
         </div>
       </div>
     </AccountsStyle>
