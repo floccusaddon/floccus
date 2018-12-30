@@ -29,15 +29,29 @@ export default class WebDavAdapter extends CachingAdapter {
   static getDefaultValues() {
     return {
       type: 'webdav',
-      url: 'https://example.org',
+      url: 'https://example.org/',
       username: 'bob',
       password: 's3cret',
       bookmark_file: 'bookmarks.xbel'
     }
   }
 
+  normalizeServerURL(input) {
+    let serverURL = url.parse(input)
+    if (!serverURL.pathname) serverURL.pathname = ''
+    return url.format({
+      protocol: serverURL.protocol,
+      auth: serverURL.auth,
+      host: serverURL.host,
+      port: serverURL.port,
+      pathname:
+        serverURL.pathname +
+        (serverURL.pathname[serverURL.pathname.length - 1] !== '/' ? '/' : '')
+    })
+  }
+
   getBookmarkURL() {
-    return this.server.url + this.server.bookmark_file
+    return this.normalizeServerURL(this.server.url) + this.server.bookmark_file
   }
 
   getBookmarkLockURL() {
@@ -168,8 +182,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async freeLock() {
-    let fullUrl = this.server.bookmark_file
-    fullUrl = this.server.url + fullUrl + '.lock'
+    let fullUrl = this.getBookmarkLockURL()
 
     let rStatus = 500
     let response
@@ -194,8 +207,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async pullFromServer() {
-    let fullUrl = this.server.bookmark_file
-    fullUrl = this.server.url + fullUrl
+    let fullUrl = this.getBookmarkLockURL()
 
     let response = await this.downloadFile(fullUrl)
 
@@ -280,8 +292,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
     const newTreeHash = await cacheClone.hash()
     if (newTreeHash !== this.initialTreeHash) {
-      let fullUrl = this.server.bookmark_file
-      fullUrl = this.server.url + fullUrl
+      let fullUrl = this.getBookmarkURL()
       Logger.log('fullURL :' + fullUrl + ':')
       let xbel = createXBEL(this.bookmarksCache, this.highestId)
       await this.uploadFile(fullUrl, 'application/xml', xbel)
