@@ -207,7 +207,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async pullFromServer() {
-    let fullUrl = this.getBookmarkLockURL()
+    let fullUrl = this.getBookmarkURL()
 
     let response = await this.downloadFile(fullUrl)
 
