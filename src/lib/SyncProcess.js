@@ -228,6 +228,7 @@ export default class SyncProcess {
       ? await serverItem.hash(this.preserveOrder)
       : null
     const changed =
+      !cacheItem ||
       localHash !== serverHash ||
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
