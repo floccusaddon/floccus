@@ -1,8 +1,11 @@
+import AsyncLock from 'async-lock'
+
 export default class Mappings {
   constructor(storageAdapter, mappingsData) {
     this.storage = storageAdapter
     this.folders = mappingsData.folders
     this.bookmarks = mappingsData.bookmarks
+    this.lock = new AsyncLock()
   }
 
   getSnapshot() {
@@ -19,34 +22,42 @@ export default class Mappings {
   }
 
   async addFolder({ localId, remoteId }) {
-    Mappings.add(this.folders, { localId, remoteId })
-    await this.storage.setMappings({
-      folders: this.folders,
-      bookmarks: this.bookmarks
+    await this.lock.acquire('storage', async () => {
+      Mappings.add(this.folders, { localId, remoteId })
+      await this.storage.setMappings({
+        folders: this.folders,
+        bookmarks: this.bookmarks
+      })
     })
   }
 
   async removeFolder({ localId, remoteId }) {
-    Mappings.remove(this.folders, { localId, remoteId })
-    await this.storage.setMappings({
-      folders: this.folders,
-      bookmarks: this.bookmarks
+    await this.lock.acquire('storage', async () => {
+      Mappings.remove(this.folders, { localId, remoteId })
+      await this.storage.setMappings({
+        folders: this.folders,
+        bookmarks: this.bookmarks
+      })
     })
   }
 
   async addBookmark({ localId, remoteId }) {
-    Mappings.add(this.bookmarks, { localId, remoteId })
-    await this.storage.setMappings({
-      folders: this.folders,
-      bookmarks: this.bookmarks
+    await this.lock.acquire('storage', async () => {
+      Mappings.add(this.bookmarks, { localId, remoteId })
+      await this.storage.setMappings({
+        folders: this.folders,
+        bookmarks: this.bookmarks
+      })
     })
   }
 
   async removeBookmark({ localId, remoteId }) {
-    Mappings.remove(this.bookmarks, { localId, remoteId })
-    await this.storage.setMappings({
-      folders: this.folders,
-      bookmarks: this.bookmarks
+    await this.lock.acquire('storage', async () => {
+      Mappings.remove(this.bookmarks, { localId, remoteId })
+      await this.storage.setMappings({
+        folders: this.folders,
+        bookmarks: this.bookmarks
+      })
     })
   }
 
