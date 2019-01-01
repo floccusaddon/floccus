@@ -509,7 +509,7 @@ export default class SyncProcess {
     // if it isn't, we keep it, cause there's probably some unaccepted stuff in there
     await Parallel.each(folder.children, async child => {
       let serverChild, localChild, cacheChild
-      if (toResource === this.server) {
+      if (toTree === this.serverTreeRoot) {
         serverChild = child
         cacheChild =
           serverChild instanceof Tree.Folder
