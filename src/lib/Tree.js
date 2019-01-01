@@ -5,12 +5,19 @@ export class Bookmark {
   constructor({ id, parentId, url, title }) {
     this.id = id
     this.parentId = parentId
+    this.title = title
+
+    // separator or js bookmark
+    if (url.indexOf('data:') === 0 || url.indexOf('javascript:') === 0) {
+      this.url = url
+      return
+    }
+
     try {
       this.url = normalizeURL(url)
     } catch (e) {
       this.url = url
     }
-    this.title = title
   }
 
   async hash() {
@@ -148,9 +155,8 @@ export class Folder {
         .join('') +
       `+ #${this.id}[${this.title}] parentId: ${this.parentId}\n` +
       this.children
-        .map(
-          child =>
-            child && child.inspect ? child.inspect(depth + 1) : String(child)
+        .map(child =>
+          child && child.inspect ? child.inspect(depth + 1) : String(child)
         )
         .join('\n')
     )
