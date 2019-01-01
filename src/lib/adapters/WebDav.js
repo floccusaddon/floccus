@@ -136,7 +136,7 @@ export default class WebDavAdapter extends CachingAdapter {
       throw new Error(
         `Error ${
           res.status
-        }. Failed to upload XBEL file. Check your server configuration.`
+        }. Failed to upload file. Check your server configuration.`
       )
     }
   }
