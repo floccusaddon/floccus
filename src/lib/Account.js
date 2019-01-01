@@ -174,6 +174,7 @@ export default class Account {
       console.log(e)
       var message = Account.stringifyError(e)
       console.error('Syncing failed with', message)
+      Logger.log('Syncing failed with', message)
       await this.setData({
         ...this.getData(),
         error: message,
