@@ -80,7 +80,7 @@ export const Component = () => (state, actions) => {
             }}
           >
             <option value="nextcloud-folders">
-              Nextcloud Bookmarks (v0.14+)
+              Nextcloud Bookmarks (with folders)
             </option>
             <option value="nextcloud">Nextcloud Bookmarks (legacy)</option>
             <option value="webdav">XBEL in WebDAV</option>
@@ -94,6 +94,14 @@ export const Component = () => (state, actions) => {
             Add Account
           </Button>
         </InputGroup>
+        <p>
+          {state.accounts.creationType === 'nextcloud-folders'
+            ? 'The option "Nextcloud Bookmarks with folders" is compatible with version 0.14 of the Bookmarks app (and upwards). It creates actual folders in the app.'
+            : state.accounts.creationType === 'nextcloud'
+            ? 'The legacy option is compatible with version 0.11 of the Bookmarks app (and upwards). It will emulate folders by assigning tags containing the folder path to the bookmarks.'
+            : "The WebDAV option syncs your bookmarks by storing them in an XBEL file in the provided WebDAV share. There is no accompanying web UI for this option and you don't need nextcloud for this."}
+        </p>
+        <p> </p>
         <div class="security">
           <Label>
             <input
