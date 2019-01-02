@@ -1,3 +1,11 @@
+## v3.2.3
+
+- FIX: Don't normalize the URLs of separators and js bookmarks to avoid deduplicating them
+- FIX: Make mappings thread safe to avoid race conditions in parallel mode
+- FIX: Ensure all folders are traversed when cache is empty
+- FIX: Log error message to debug log on sync fail
+- NEW: Add description for sync methods in UI
+
 ## v3.2.2
 
 - FIX: Issues with syncing to nextcloud on Postgres
