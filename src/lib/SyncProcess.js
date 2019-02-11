@@ -147,9 +147,9 @@ export default class SyncProcess {
     }
 
     if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
-      await execSync()
+      return await execSync()
     } else {
-      await this.queue.add(execSync)
+      return await this.queue.add(execSync)
     }
   }
 
