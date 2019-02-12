@@ -52,6 +52,19 @@ It is recommended to remove all of your bookmarks from your accounts before usin
 
 When using a WebDAV account, there's nothing you need to do to benefit from the new order preservation feature. If you are using the nextcloud adapter, it is recommended that you switch to the new nextcloud adapter, which works with the Bookmarks folders feature and also preserves ordering.
 
+#### Switching from tag-based to folder-based syncing
+
+The first sync method available with floccus syncs folders by creating associated tags on the server, which contain the folder's path. Since then the Nextcloud Bookmarks app supports folders natively and floccus has a new matching sync method. Here's how you switch to the new method:
+
+1. Back up your browser bookmarks
+2. _Remove the active floccus account_ for your nextcloud in _all_ browsers
+3. Remove all bookmarks on nextcloud (there's an option for that in the settings)
+4. Setup a new floccus sync account with the adapter that says "with folders" (as opposed to "legacy") in one browser
+5. Trigger a sync run to create the bookmarks and folders on the server
+6. Make sure everything is as expected on the server
+7. Setup floccus sync accounts in all other browsers with the "with folders"-adapter
+8. Done.
+
 ### Permissions
 
 Floccus requests the following permissions:
