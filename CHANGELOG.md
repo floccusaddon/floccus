@@ -1,3 +1,8 @@
+## v3.2.4
+
+- FIX: Use a different URL normalization library
+- FIX: Correctly pass through sync effects to folder traversal logic
+
 ## v3.2.3
 
 - FIX: Don't normalize the URLs of separators and js bookmarks to avoid deduplicating them
