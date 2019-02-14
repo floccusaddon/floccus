@@ -1,3 +1,8 @@
+## v3.2.5
+
+- FIX: Solve some UX issues regarding disabled accounts
+- FIX: Clean up duplicates caused by switching normalization algorithm
+
 ## v3.2.4
 
 - FIX: Use a different URL normalization library
