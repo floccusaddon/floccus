@@ -249,7 +249,7 @@ export const AccountStatus = ({ account }) => (state, actions) => {
         '↻ Syncing...'
       ) : data.error ? (
         <span style={{ color: '#8e3939' }}>✘ Error!</span>
-      ) : data.enabled ? (
+      ) : !data.enabled ? (
         <span style={{ color: 'rgb(139, 39, 164)' }}>∅ disabled</span>
       ) : (
         <span style={{ color: '#3d8e39' }}>✓ all good</span>
