@@ -4,6 +4,7 @@ import Logger from './Logger'
 const _ = require('lodash')
 const Parallel = require('async-parallel')
 const PQueue = require('p-queue')
+const normalizeMoreAggressively = require('normalize-url')
 
 export default class SyncProcess {
   /**
@@ -62,11 +63,26 @@ export default class SyncProcess {
     const duplicates = []
     tree.children = tree.children.filter(child => {
       if (child instanceof Tree.Bookmark) {
+        // Clean up duplicates after normalization algo switch
+        if (
+          child.url === normalizeMoreAggressively(child.url) &&
+          tree.children.some(
+            c =>
+              c instanceof Tree.Bookmark &&
+              normalizeMoreAggressively(c.url) ===
+                normalizeMoreAggressively(child.url) &&
+              c.url !== normalizeMoreAggressively(c.url) &&
+              c.id !== child.id
+          )
+        ) {
+          duplicates.push(child)
+          return false
+        }
         if (seenUrl[child.url]) {
           duplicates.push(child)
           return false
         }
-        seenUrl[child.url] = true
+        seenUrl[child.url] = child
       } else {
         this.filterOutDuplicatesInTheSameFolder(child)
       }
