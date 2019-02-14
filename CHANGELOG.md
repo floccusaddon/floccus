@@ -1,3 +1,7 @@
+## v3.2.6
+
+- FIX: Fix "Failed to construct 'URL'" Error
+
 ## v3.2.5
 
 - FIX: Solve some UX issues regarding disabled accounts
