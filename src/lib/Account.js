@@ -45,7 +45,10 @@ export default class Account {
   }
 
   static getDefaultValues(type) {
-    return Adapter.factory({ type }).constructor.getDefaultValues()
+    return {
+      ...Adapter.factory({ type }).constructor.getDefaultValues(),
+      enabled: true
+    }
   }
 
   constructor(id, storageAdapter, serverAdapter, treeAdapter) {
