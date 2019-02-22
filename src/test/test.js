@@ -1328,6 +1328,99 @@ describe('Floccus', function() {
               ACCOUNT_DATA.type === 'nextcloud'
             )
           })
+
+          if (ACCOUNT_DATA.type !== 'nextcloud') {
+            it('should synchronize ordering', async function() {
+              var adapter = account1.server
+              expect(
+                (await adapter.getBookmarksTree()).children
+              ).to.have.lengthOf(0)
+
+              const localRoot = account1.getData().localRoot
+              const fooFolder = await browser.bookmarks.create({
+                title: 'foo',
+                parentId: localRoot
+              })
+              const folder1 = await browser.bookmarks.create({
+                title: 'folder1',
+                parentId: fooFolder.id
+              })
+              const folder2 = await browser.bookmarks.create({
+                title: 'folder2',
+                parentId: fooFolder.id
+              })
+              const bookmark1 = await browser.bookmarks.create({
+                title: 'url1',
+                url: 'http://ur.l/',
+                parentId: fooFolder.id
+              })
+              const bookmark2 = await browser.bookmarks.create({
+                title: 'url2',
+                url: 'http://ur.ll/',
+                parentId: fooFolder.id
+              })
+              await account1.sync()
+              expect(account1.getData().error).to.not.be.ok
+
+              await account2.sync()
+              expect(account2.getData().error).to.not.be.ok
+
+              const localTree1 = await account1.localTree.getBookmarksTree()
+              const localTree2 = await account2.localTree.getBookmarksTree()
+              localTree2.title = localTree1.title
+              expectTreeEqual(localTree1, localTree2, true, true)
+
+              await browser.bookmarks.move(bookmark1.id, { index: 0 })
+              await browser.bookmarks.move(folder1.id, { index: 1 })
+              await browser.bookmarks.move(bookmark2.id, { index: 2 })
+              await browser.bookmarks.move(folder2.id, { index: 3 })
+
+              await account1.sync()
+              expect(account1.getData().error).to.not.be.ok
+
+              await account2.sync()
+              expect(account2.getData().error).to.not.be.ok
+
+              const localTree = await account1.localTree.getBookmarksTree()
+              expectTreeEqual(
+                localTree,
+                new Folder({
+                  title: localTree.title,
+                  children: [
+                    new Folder({
+                      title: 'foo',
+                      children: [
+                        new Bookmark({
+                          title: 'url1',
+                          url: bookmark1.url
+                        }),
+                        new Folder({
+                          title: 'folder1',
+                          children: []
+                        }),
+                        new Bookmark({
+                          title: 'url2',
+                          url: bookmark2.url
+                        }),
+                        new Folder({
+                          title: 'folder2',
+                          children: []
+                        })
+                      ]
+                    })
+                  ]
+                }),
+                true,
+                true
+              )
+
+              const secondLocalTree1 = await account1.localTree.getBookmarksTree()
+              const secondLocalTree2 = await account2.localTree.getBookmarksTree()
+              secondLocalTree2.title = secondLocalTree1.title
+              expectTreeEqual(secondLocalTree1, secondLocalTree2, true, true)
+            })
+          }
+
           // Skipping this, because nextcloud adapter currently
           // isn't able to track bookmarks across dirs, thus in this
           // scenario both bookmarks survive :/
