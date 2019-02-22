@@ -8,6 +8,7 @@ const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')
 const STATUS_ALLGOOD = Symbol('allgood')
 const INACTIVITY_TIMEOUT = 1000 * 60
+const SYNC_INTERVAL = 15
 
 class AlarmManger {
   constructor(ctl) {
@@ -47,7 +48,7 @@ export default class Controller {
 
     // Set up the alarms
 
-    browser.alarms.create('syncAllAccounts', { periodInMinutes: 15 })
+    browser.alarms.create('syncAllAccounts', { periodInMinutes: SYNC_INTERVAL })
     browser.alarms.onAlarm.addListener(alarm => {
       this.alarms[alarm.name]()
     })
@@ -76,6 +77,15 @@ export default class Controller {
       await browser.storage.local.set({
         currentVersion: packageJson.version
       })
+    })
+
+    Account.getAllAccounts().then(accounts => {
+      accounts
+        .filter(
+          account =>
+            account.getData().lastSync < Date.now() - SYNC_INTERVAL * 60 * 1000
+        )
+        .forEach(account => this.syncAccount(account.id))
     })
   }
 
