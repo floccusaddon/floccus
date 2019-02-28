@@ -65,16 +65,18 @@ export default class SyncProcess {
       if (child instanceof Tree.Bookmark) {
         // Clean up duplicates after normalization algo switch
         try {
+          const childUrlNormalized = normalizeMoreAggressively(child.url)
           if (
-            child.url === normalizeMoreAggressively(child.url) &&
-            tree.children.some(
-              c =>
+            child.url === childUrlNormalized &&
+            tree.children.some(c => {
+              const cUrlNormalized = normalizeMoreAggressively(c.url)
+              return (
                 c instanceof Tree.Bookmark &&
-                normalizeMoreAggressively(c.url) ===
-                  normalizeMoreAggressively(child.url) &&
-                c.url !== normalizeMoreAggressively(c.url) &&
+                cUrlNormalized === childUrlNormalized &&
+                c.url !== cUrlNormalized &&
                 c.id !== child.id
-            )
+              )
+            })
           ) {
             duplicates.push(child)
             return false
