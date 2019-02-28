@@ -346,7 +346,7 @@ export const OptionResetCache = ({ account }) => (state, actions) => {
             })
           }}
         />
-        Reset cache
+        Merge bookmarks on the next run
       </Label>
     </div>
   )
