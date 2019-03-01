@@ -315,11 +315,11 @@ export default class SyncProcess {
 
     // cache initial local order
     const localOrder = localItem.children.map(child => ({
-      type: child instanceof Tree.Folder ? 'folder' : 'bookmark',
+      type: child.type,
       id: child.id
     }))
     const remoteOrder = serverItem.children.map(child => ({
-      type: child instanceof Tree.Folder ? 'folder' : 'bookmark',
+      type: child.type,
       id: child.id
     }))
 
@@ -354,10 +354,10 @@ export default class SyncProcess {
     createdLocally.forEach(newChild => {
       // add to ordering
       remoteOrder.splice(localItem.children.indexOf(newChild), 0, {
-        type: newChild instanceof Tree.Folder ? 'folder' : 'bookmark',
-        id: this.mappings.getSnapshot()[
-          newChild instanceof Tree.Folder ? 'folders' : 'bookmarks'
-        ].LocalToServer[newChild.id]
+        type: newChild.type,
+        id: this.mappings.getSnapshot()[newChild.type + 's'].LocalToServer[
+          newChild.id
+        ]
       })
     })
 
@@ -412,12 +412,10 @@ export default class SyncProcess {
         child =>
           !(cacheItem || localItem).children.some(
             cacheChild =>
-              mappingsSnapshot[
-                child instanceof Tree.Folder ? 'folders' : 'bookmarks'
-              ].ServerToLocal[child.id] === cacheChild.id ||
-              newMappingsSnapshot[
-                child instanceof Tree.Folder ? 'folders' : 'bookmarks'
-              ].ServerToLocal[child.id] === cacheChild.id
+              mappingsSnapshot[child.type + 's'].ServerToLocal[child.id] ===
+                cacheChild.id ||
+              newMappingsSnapshot[child.type + 's'].ServerToLocal[child.id] ===
+                cacheChild.id
           )
       )
       createdUpstream = await Parallel.filter(
@@ -431,10 +429,10 @@ export default class SyncProcess {
       createdUpstream.forEach(newChild => {
         // add to ordering
         localOrder.splice(serverItem.children.indexOf(newChild), 0, {
-          type: newChild instanceof Tree.Folder ? 'folder' : 'bookmark',
-          id: this.mappings.getSnapshot()[
-            newChild instanceof Tree.Folder ? 'folders' : 'bookmarks'
-          ].ServerToLocal[newChild.id]
+          type: newChild.type,
+          id: this.mappings.getSnapshot()[newChild.type + 's'].ServerToLocal[
+            newChild.id
+          ]
         })
       })
 
@@ -444,12 +442,11 @@ export default class SyncProcess {
           cache =>
             !serverItem.children.some(
               server =>
-                mappingsSnapshot[
-                  cache instanceof Tree.Folder ? 'folders' : 'bookmarks'
-                ].ServerToLocal[server.id] === cache.id ||
-                newMappingsSnapshot[
-                  cache instanceof Tree.Folder ? 'folders' : 'bookmarks'
-                ].ServerToLocal[server.id] === cache.id
+                mappingsSnapshot[cache.type + 's'].ServerToLocal[server.id] ===
+                  cache.id ||
+                newMappingsSnapshot[cache.type + 's'].ServerToLocal[
+                  server.id
+                ] === cache.id
             )
         )
         removedUpstream = await Parallel.filter(
@@ -514,9 +511,8 @@ export default class SyncProcess {
       localItem.children.filter(local =>
         serverItem.children.some(
           server =>
-            mappingsSnapshot[
-              local instanceof Tree.Folder ? 'folders' : 'bookmarks'
-            ].ServerToLocal[server.id] === local.id
+            mappingsSnapshot[local.type + 's'].ServerToLocal[server.id] ===
+            local.id
         )
       ),
       async existingChild => {

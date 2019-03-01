@@ -3,6 +3,7 @@ import normalizeUrl from './normalizeUrl'
 
 export class Bookmark {
   constructor({ id, parentId, url, title }) {
+    this.type = 'bookmark'
     this.id = id
     this.parentId = parentId
     this.title = title
@@ -53,6 +54,7 @@ export class Bookmark {
 
 export class Folder {
   constructor({ id, parentId, title, children }) {
+    this.type = 'folder'
     this.id = id
     this.parentId = parentId
     this.title = title
