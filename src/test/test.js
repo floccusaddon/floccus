@@ -1381,11 +1381,14 @@ describe('Floccus', function() {
               await account2.sync()
               expect(account2.getData().error).to.not.be.ok
 
-              const localTree = await account1.localTree.getBookmarksTree()
+              await account1.sync()
+              expect(account1.getData().error).to.not.be.ok
+
+              const secondLocalTree1 = await account1.localTree.getBookmarksTree()
               expectTreeEqual(
-                localTree,
+                secondLocalTree1,
                 new Folder({
-                  title: localTree.title,
+                  title: secondLocalTree1.title,
                   children: [
                     new Folder({
                       title: 'foo',
@@ -1414,7 +1417,6 @@ describe('Floccus', function() {
                 true
               )
 
-              const secondLocalTree1 = await account1.localTree.getBookmarksTree()
               const secondLocalTree2 = await account2.localTree.getBookmarksTree()
               secondLocalTree2.title = secondLocalTree1.title
               expectTreeEqual(secondLocalTree1, secondLocalTree2, true, true)

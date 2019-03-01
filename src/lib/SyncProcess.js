@@ -236,6 +236,20 @@ export default class SyncProcess {
       },
       this.concurrency
     )
+
+    if (this.preserveOrder) {
+      const newMappingsSnapshot = this.mappings.getSnapshot()
+      const direction =
+        toTree === this.localTreeRoot ? 'ServerToLocal' : 'LocalToServer'
+      toResource.orderFolder(
+        newId,
+        folder.children.map(item => ({
+          type: item.type,
+          id: newMappingsSnapshot[item.type + 's'][direction][item.id]
+        }))
+      )
+    }
+
     return true
   }
 
@@ -304,6 +318,10 @@ export default class SyncProcess {
       type: child instanceof Tree.Folder ? 'folder' : 'bookmark',
       id: child.id
     }))
+    const remoteOrder = serverItem.children.map(child => ({
+      type: child instanceof Tree.Folder ? 'folder' : 'bookmark',
+      id: child.id
+    }))
 
     // CREATED LOCALLY
     let createdLocally = localItem.children.filter(
@@ -333,6 +351,15 @@ export default class SyncProcess {
       },
       this.concurrency
     )
+    createdLocally.forEach(newChild => {
+      // add to ordering
+      remoteOrder.splice(localItem.children.indexOf(newChild), 0, {
+        type: newChild instanceof Tree.Folder ? 'folder' : 'bookmark',
+        id: this.mappings.getSnapshot()[
+          newChild instanceof Tree.Folder ? 'folders' : 'bookmarks'
+        ].LocalToServer[newChild.id]
+      })
+    })
 
     // REMOVED LOCALLY
     if (cacheItem) {
@@ -354,6 +381,25 @@ export default class SyncProcess {
         },
         this.concurrency
       )
+      removedLocally.forEach(oldChild => {
+        const serverChild =
+          oldChild instanceof Tree.Folder
+            ? this.serverTreeRoot.findFolder(
+                mappingsSnapshot.folders.LocalToServer[oldChild.id]
+              )
+            : this.serverTreeRoot.findBookmark(
+                mappingsSnapshot.bookmarks.LocalToServer[oldChild.id]
+              )
+        if (serverChild && serverChild.parentId === serverItem.id) {
+          // remove from ordering
+          remoteOrder.splice(
+            remoteOrder.indexOf(
+              remoteOrder.filter(item => item.id === serverChild.id)[0]
+            ),
+            1
+          )
+        }
+      })
     }
 
     // don't create/remove items in the absolute root folder
@@ -420,8 +466,12 @@ export default class SyncProcess {
         removedUpstream.forEach(oldChild => {
           const localChild =
             oldChild instanceof Tree.Folder
-              ? this.localTreeRoot.findFolder(oldChild.id)
-              : this.localTreeRoot.findBookmark(oldChild.id)
+              ? this.localTreeRoot.findFolder(
+                  newMappingsSnapshot.folders.ServerToLocal[oldChild.id]
+                )
+              : this.localTreeRoot.findBookmark(
+                  newMappingsSnapshot.bookmarks.ServerToLocal[oldChild.id]
+                )
           if (localChild) {
             // remove from ordering
             localOrder.splice(
@@ -438,14 +488,23 @@ export default class SyncProcess {
 
       if (this.preserveOrder && localOrder.length > 1) {
         const newMappingsSnapshot = this.mappings.getSnapshot()
-        await this.localTree.orderFolder(localItem.id, localOrder)
-        await this.server.orderFolder(
-          serverItem.id,
-          localOrder.map(item => ({
-            type: item.type,
-            id: newMappingsSnapshot[item.type + 's'].LocalToServer[item.id]
-          }))
-        )
+        if (changedLocally) {
+          await this.server.orderFolder(
+            serverItem.id,
+            localOrder.map(item => ({
+              id: newMappingsSnapshot[item.type + 's'].LocalToServer[item.id],
+              type: item.type
+            }))
+          )
+        } else {
+          await this.localTree.orderFolder(
+            localItem.id,
+            remoteOrder.map(item => ({
+              id: newMappingsSnapshot[item.type + 's'].ServerToLocal[item.id],
+              type: item.type
+            }))
+          )
+        }
       }
     }
 

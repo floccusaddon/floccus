@@ -93,30 +93,32 @@ export class Folder {
   }
 
   async hash(preserveOrder) {
-    if (!this.hashValue) {
-      if (!preserveOrder) {
-        this.children
-          // only re-sort unless we sync the order of the children as well
-          .sort((c1, c2) => {
-            if (c1.title < c2.title) {
-              return -1
-            }
-            if (c2.title < c1.title) {
-              return 1
-            }
-            return 0
-          })
-      }
-      this.hashValue = Crypto.murmur2(
-        JSON.stringify([
-          await Promise.all(
-            this.children.map(child => child.hash(preserveOrder))
-          ),
-          this.title
-        ])
-      )
+    if (this.hashValue && this.hashValue[preserveOrder]) {
+      return this.hashValue[preserveOrder]
     }
-    return this.hashValue
+    let children = this.children.slice()
+    if (!preserveOrder) {
+      // only re-sort unless we sync the order of the children as well
+      children.sort((c1, c2) => {
+        if (c1.title < c2.title) {
+          return -1
+        }
+        if (c2.title < c1.title) {
+          return 1
+        }
+        return 0
+      })
+    }
+    if (!this.hashValue) this.hashValue = {}
+    this.hashValue[preserveOrder] = Crypto.murmur2(
+      JSON.stringify([
+        await Promise.all(
+          this.children.map(child => child.hash(preserveOrder))
+        ),
+        this.title
+      ])
+    )
+    return this.hashValue[preserveOrder]
   }
 
   clone() {
