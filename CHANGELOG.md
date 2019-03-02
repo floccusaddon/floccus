@@ -1,3 +1,11 @@
+## v3.2.7
+
+- FIX: Fix orderPreservation algorithm
+- FIX: SyncProcess: Increase performance of initial filtering
+- FIX: Options UI: Rename "reset cache" option
+- FIX: Fix order preservation on WebDAV
+- FIX: Sync on startup if necessary
+
 ## v3.2.6
 
 - FIX: Fix "Failed to construct 'URL'" Error
