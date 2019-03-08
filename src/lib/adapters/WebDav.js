@@ -378,40 +378,30 @@ function parseXbelDoc(xbelDoc, rootFolder) {
 }
 
 function parseXbelFolder(xbelObj, folder) {
-  /* parse bookmarks first, breadth first */
+  /* parse depth first */
 
-  let bookmarkList = getElementsByNodeName(
-    xbelObj.childNodes,
-    'bookmark',
-    1 /* element type */
-  )
+  xbelObj.childNodes.forEach(node => {
+    let item
+    if (node.tagName && node.tagName === 'bookmark') {
+      item = new Bookmark({
+        id: parseInt(node.id),
+        parentId: folder.id,
+        url: node.getAttribute('href'),
+        title: node.firstElementChild.textContent
+      })
+    } else if (node.tagName && node.tagName === 'folder') {
+      Logger.log('Adding folder "' + node.firstElementChild.textContent + '"')
+      item = new Folder({
+        id: parseInt(node.getAttribute('id')),
+        title: node.firstElementChild.textContent,
+        parentId: folder.id
+      })
+      parseXbelFolder(node, item)
+    } else {
+      return
+    }
 
-  bookmarkList.forEach(bookmark => {
-    let bm = new Bookmark({
-      id: parseInt(bookmark.id),
-      parentId: folder.id,
-      url: bookmark.getAttribute('href'),
-      title: bookmark.firstElementChild.textContent
-    })
-
-    folder.children.push(bm)
-  })
-
-  let folderList = getElementsByNodeName(
-    xbelObj.childNodes,
-    'folder',
-    1 /* element type */
-  )
-
-  folderList.forEach(bmFolder => {
-    Logger.log('Adding folder :' + bmFolder.firstElementChild.textContent + ':')
-    let newFolder = new Folder({
-      id: parseInt(bmFolder.getAttribute('id')),
-      title: bmFolder.firstElementChild.textContent,
-      parentId: folder.id
-    })
-    folder.children.push(newFolder)
-    parseXbelFolder(bmFolder, newFolder)
+    folder.children.push(item)
   })
 }
 
