@@ -13,6 +13,8 @@ const PQueue = require('p-queue')
 import AsyncLock from 'async-lock'
 const _ = require('lodash')
 
+const PAGE_SIZE = 300
+
 const {
   Input,
   Button,
@@ -145,13 +147,21 @@ export default class NextcloudFoldersAdapter extends Adapter {
     if (this.list) {
       return this.list
     }
-    Logger.log('Fetching bookmarks')
-    const json = await this.sendRequest(
-      'GET',
-      'index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1'
-    )
 
-    let bookmarks = json.data.reduce((array, bm) => {
+    Logger.log('Fetching bookmarks')
+    let i = 0
+    let data = []
+    let json
+    do {
+      json = await this.sendRequest(
+        'GET',
+        `index.php/apps/bookmarks/public/rest/v2/bookmark?page=${i}&limit=${PAGE_SIZE}`
+      )
+      data = data.concat(json.data)
+      i++
+    } while (json.data.length === PAGE_SIZE)
+
+    let bookmarks = data.reduce((array, bm) => {
       let bookmark = new Bookmark({
         id: bm.id,
         url: bm.url,
