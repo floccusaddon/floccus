@@ -158,6 +158,9 @@ export default class NextcloudAdapter extends Adapter {
         'GET',
         `index.php/apps/bookmarks/public/rest/v2/bookmark?page=${i}&limit=${PAGE_SIZE}`
       )
+      if (!Array.isArray(json.data)) {
+        throw new Error('Unexpected response data from server')
+      }
       data = data.concat(json.data)
       i++
     } while (json.data.length === PAGE_SIZE)

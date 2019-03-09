@@ -157,6 +157,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
         'GET',
         `index.php/apps/bookmarks/public/rest/v2/bookmark?page=${i}&limit=${PAGE_SIZE}`
       )
+      if (!Array.isArray(json.data)) {
+        throw new Error('Unexpected response data from server')
+      }
       data = data.concat(json.data)
       i++
     } while (json.data.length === PAGE_SIZE)
@@ -197,6 +200,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'GET',
       'index.php/apps/bookmarks/public/rest/v2/folder'
     )
+    if (!Array.isArray(childFoldersJson.data)) {
+      throw new Error('Unexpected response data from server')
+    }
     let childFolders = childFoldersJson.data
     Logger.log('Received folders from server', childFolders)
     // retrieve folder order
@@ -204,6 +210,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'GET',
       `index.php/apps/bookmarks/public/rest/v2/folder/-1/childorder?layers=-1`
     )
+    if (!Array.isArray(childrenOrderJson.data)) {
+      throw new Error('Unexpected response data from server')
+    }
     let childrenOrder = childrenOrderJson.data
     Logger.log('Received children order from server', childrenOrder)
 
@@ -228,6 +237,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
               'application/json',
               body
             )
+            if (typeof json.item !== 'object') {
+              throw new Error('Unexpected response data from server')
+            }
             currentChild = { id: json.item.id, children: [] }
           }
           tree = new Folder({ id: currentChild.id })
@@ -243,6 +255,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
                 currentChild.id
               }/childorder`
             )
+            if (!Array.isArray(childrenOrderJson.data)) {
+              throw new Error('Unexpected response data from server')
+            }
             childrenOrder = childrenOrderJson.data
           } else {
             childrenOrder = _.find(
@@ -283,6 +298,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
                   child.id
                 }/childorder`
               )
+              if (!Array.isArray(childrenOrderJson.data)) {
+                throw new Error('Unexpected response data from server')
+              }
               subChildrenOrder = childrenOrderJson.data
             }
 
@@ -344,6 +362,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'application/json',
       body
     )
+    if (typeof json.item !== 'object') {
+      throw new Error('Unexpected response data from server')
+    }
+
     parentFolder.children.push(
       new Folder({ id: json.item.id, title, parentId })
     )
@@ -436,6 +458,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'GET',
       'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id
     )
+    if (typeof json.item !== 'object') {
+      throw new Error('Unexpected response data from server')
+    }
 
     let bm = json.item
     let bookmarks = bm.folders.map(parentId => {
@@ -486,6 +511,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
           'application/json',
           body
         )
+        if (typeof json.item !== 'object') {
+          throw new Error('Unexpected response data from server')
+        }
         bm.id = json.item.id + ';' + bm.parentId
       }
       // add bookmark to cached list
