@@ -1,3 +1,8 @@
+## v3.2.8
+
+- Fix: XBEL parser didn't retain ordering
+- FIX: Request bookmarks in smaller chunks to avoid causing a timeout
+
 ## v3.2.7
 
 - FIX: Fix orderPreservation algorithm
