@@ -1,6 +1,6 @@
 import browser from './browser-api'
 import Account from './Account'
-import Tree from './Tree'
+import LocalTree from './LocalTree'
 import Cryptography from './Crypto'
 import packageJson from '../../package.json'
 
@@ -163,7 +163,7 @@ export default class Controller {
 
     var ancestors
     try {
-      ancestors = await Tree.getIdPathFromLocalId(localId)
+      ancestors = await LocalTree.getIdPathFromLocalId(localId)
     } catch (e) {
       return
     }
