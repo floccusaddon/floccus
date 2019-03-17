@@ -196,37 +196,111 @@ function normalize_fragment(fragment) {
 }
 
 function unquote(text, exceptions = []) {
-  const _hextochr = []
-  for (let i = 0; i < 256; i++) {
-    let hex = i.toString(16)
-    _hextochr[hex] = String.fromCharCode(i)
-    _hextochr[hex.toUpperCase()] = String.fromCharCode(i)
-  }
-  if (text.length == 0) {
-    return text
-  }
-  if (!text) {
-    throw new Exception('text is not set and thus cannot be unquoted')
-  }
-  if (!~text.indexOf('%')) {
-    return text
-  }
-  const s = text.split('%')
-  let res = s[0]
-  for (let i = 1; i < s.length; i++) {
-    const h = s[i]
-    const c = _hextochr[h.substr(0, 2)] ? _hextochr[h.substr(0, 2)] : ''
-    if (c.length > 0 && !~exceptions.indexOf(c)) {
-      if (h.length > 2) {
-        res += c + h.substr(2)
-      } else {
-        res += c
-      }
+  let r = ''
+  let k = 0
+  while (k < text.length) {
+    let c = text[k]
+    let s
+    if (c !== '%') {
+      s = c
     } else {
-      res += '%' + h
+      let start = k
+      if (k + 2 >= text.length) throw new Error('URIError')
+      if (
+        !~'01234567889abcdef'.indexOf(text[k + 1].toLowerCase) ||
+        !~'0123456789abcdef'.indexOf(text[k + 2])
+      ) {
+        throw new Error('URIError')
+      }
+      let b = parseInt(text[k + 1] + text[k + 2], 16)
+      k += 2
+      if ((b & (1 << 7)) === 0) {
+        c = String.fromCharCode(b)
+        if (!~exceptions.indexOf(c)) {
+          s = c
+        } else {
+          s = text.substr(start, k - start + 1)
+        }
+      } else {
+        let n = 0
+        while (((b << n) & 0x80) !== 0) n++
+        if (n === 1 || n > 4) {
+          throw new Error('URIError')
+        }
+        let octets = new Uint8Array(n)
+        octets[0] = b
+        if (k + 3 * (n - 1) > text.length) {
+          throw new Error('URIError')
+        }
+        let j = 1
+        while (j < n) {
+          k++
+          if (text[k] !== '%') {
+            throw new Error('URIError')
+          }
+          if (
+            !~'01234567889abcdef'.indexOf(text[k + 1].toLowerCase) ||
+            !~'0123456789abcdef'.indexOf(text[k + 2])
+          ) {
+            throw new Error('URIError')
+          }
+          let b = parseInt(text[k + 1] + text[k + 2], 16)
+          k += 2
+          octets[j] = b
+          j++
+        }
+        // we don't actually decode this here, we just validate
+        s = text.substr(start, k - start + 1)
+      }
     }
+    r += s
+    k++
   }
-  return res
+  return r
+}
+
+// Unmarshals a string from an Uint8Array.
+function decodeUTF8(bytes) {
+  var i = 0,
+    s = ''
+  while (i < bytes.length) {
+    var c = bytes[i++]
+    if (c > 127) {
+      if (c > 191 && c < 224) {
+        if (i >= bytes.length)
+          throw new Error('UTF-8 decode: incomplete 2-byte sequence')
+        c = ((c & 31) << 6) | (bytes[i++] & 63)
+      } else if (c > 223 && c < 240) {
+        if (i + 1 >= bytes.length)
+          throw new Error('UTF-8 decode: incomplete 3-byte sequence')
+        c = ((c & 15) << 12) | ((bytes[i++] & 63) << 6) | (bytes[i++] & 63)
+      } else if (c > 239 && c < 248) {
+        if (i + 2 >= bytes.length)
+          throw new Error('UTF-8 decode: incomplete 4-byte sequence')
+        c =
+          ((c & 7) << 18) |
+          ((bytes[i++] & 63) << 12) |
+          ((bytes[i++] & 63) << 6) |
+          (bytes[i++] & 63)
+      } else
+        throw new Error(
+          'UTF-8 decode: unknown multibyte start 0x' +
+            c.toString(16) +
+            ' at index ' +
+            (i - 1)
+        )
+    }
+    if (c <= 0xffff) s += String.fromCharCode(c)
+    else if (c <= 0x10ffff) {
+      c -= 0x10000
+      s += String.fromCharCode((c >> 10) | 0xd800)
+      s += String.fromCharCode((c & 0x3ff) | 0xdc00)
+    } else
+      throw new Error(
+        'UTF-8 decode: code point 0x' + c.toString(16) + ' exceeds UTF-16 reach'
+      )
+  }
+  return s
 }
 
 function split(url) {
