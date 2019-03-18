@@ -202,7 +202,11 @@ function unquote(text, exceptions = []) {
     let c = text[k]
     let s
     if (c !== '%') {
-      s = c
+      if (c.charCodeAt(0) >= 128) {
+        s = encodeURIComponent(c)
+      } else {
+        s = c
+      }
     } else {
       let start = k
       if (k + 2 >= text.length) throw new Error('URIError')
