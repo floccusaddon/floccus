@@ -69,9 +69,9 @@ export default class SyncProcess {
           if (
             child.url === childUrlNormalized &&
             tree.children.some(c => {
+              if (!(c instanceof Tree.Bookmark)) return false
               const cUrlNormalized = normalizeMoreAggressively(c.url)
               return (
-                c instanceof Tree.Bookmark &&
                 cUrlNormalized === childUrlNormalized &&
                 c.url !== cUrlNormalized &&
                 c.id !== child.id
