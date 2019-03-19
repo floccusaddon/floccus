@@ -1,3 +1,8 @@
+## v3.2.9
+
+- FIX: Improve normalization algorithm
+- FIX: Clean up duplicates caused by switching to a different normalization algorithm
+
 ## v3.2.8
 
 - Fix: XBEL parser didn't retain ordering
