@@ -1,5 +1,6 @@
 import Crypto from './Crypto'
 import normalizeUrl from './normalizeUrl'
+import Logger from './Logger'
 
 export class Bookmark {
   constructor({ id, parentId, url, title }) {
@@ -19,6 +20,7 @@ export class Bookmark {
     try {
       this.url = normalizeUrl(url)
     } catch (e) {
+      Logger.log('Failed to normalize', url)
       this.url = url
     }
   }
