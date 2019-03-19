@@ -211,7 +211,7 @@ function unquote(text, exceptions = []) {
       let start = k
       if (k + 2 >= text.length) throw new Error('URIError')
       if (
-        !~'01234567889abcdef'.indexOf(text[k + 1].toLowerCase) ||
+        !~'0123456789abcdef'.indexOf(text[k + 1].toLowerCase) ||
         !~'0123456789abcdef'.indexOf(text[k + 2])
       ) {
         throw new Error('URIError')

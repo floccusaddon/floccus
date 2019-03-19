@@ -607,6 +607,11 @@ describe('Floccus', function() {
 
             expect(account.getData().error).to.not.be.ok
 
+            // Sync again, so client can deduplicate
+            // necessary if using bookmarks < v0.12 or WebDAV
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
             const tree = await adapter.getBookmarksTree()
             expectTreeEqual(
               tree,
