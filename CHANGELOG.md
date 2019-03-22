@@ -1,3 +1,7 @@
+## v3.2.10
+
+- FIX: Various crucial fixes for edge cases of the sync algorithm
+
 ## v3.2.9
 
 - FIX: Improve normalization algorithm
