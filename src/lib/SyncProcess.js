@@ -335,12 +335,12 @@ export default class SyncProcess {
             serverChild instanceof Tree.Folder &&
             addedChild instanceof Tree.Folder
           ) {
-            return serverChild.title === addedChild.title
+            return serverChild.title === addedChild.title && !serverChild.merged
           } else if (
             serverChild instanceof Tree.Bookmark &&
             addedChild instanceof Tree.Bookmark
           ) {
-            return serverChild.url === addedChild.url
+            return serverChild.url === addedChild.url && !serverChild.merged
           }
           return false
         })
