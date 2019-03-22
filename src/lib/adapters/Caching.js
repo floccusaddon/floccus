@@ -152,7 +152,10 @@ export default class CachingAdapter extends Adapter {
         child = folder.findBookmark(item.id)
       }
       if (!child || child.parentId !== folder.id) {
-        throw new Error('Item in folder ordering is not an actual child')
+        throw new Error(
+          'Item in folder ordering is not an actual child: ' +
+            JSON.stringify(item)
+        )
       }
     })
     if (order.length !== folder.children.length) {
