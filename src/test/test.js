@@ -698,6 +698,75 @@ describe('Floccus', function() {
               ACCOUNT_DATA.type === 'nextcloud'
             )
           })
+          it('should not fail when both moving folders and deleting their contents', async function() {
+            var adapter = account.server
+            expect(
+              (await adapter.getBookmarksTree()).children
+            ).to.have.lengthOf(0)
+
+            const localRoot = account.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const bookmark1 = await browser.bookmarks.create({
+              title: 'test',
+              url: 'http://ureff.l/',
+              parentId: fooFolder.id
+            })
+            const bookmark2 = await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://uawdgr.l/',
+              parentId: fooFolder.id
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            const bookmark3 = await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://urzur.l/',
+              parentId: barFolder.id
+            })
+            const bookmark4 = await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://uadgr.l/',
+              parentId: barFolder.id
+            })
+            await account.sync() // propagate to server
+
+            await browser.bookmarks.move(barFolder.id, { parentId: localRoot })
+            await browser.bookmarks.move(fooFolder.id, {
+              parentId: barFolder.id
+            })
+            await browser.bookmarks.remove(bookmark3.id)
+            await account.sync() // update on server
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await adapter.getBookmarksTree()
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'bar',
+                    children: [
+                      new Bookmark(bookmark4),
+                      new Folder({
+                        title: 'foo',
+                        children: [
+                          new Bookmark(bookmark1),
+                          new Bookmark(bookmark2)
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              ACCOUNT_DATA.type === 'nextcloud'
+            )
+          })
           it('should handle strange characters well', async function() {
             var adapter = account.server
             expect(
