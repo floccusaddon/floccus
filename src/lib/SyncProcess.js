@@ -725,7 +725,7 @@ export default class SyncProcess {
     if ((newMark = fromTree.findBookmark(reverseMapping[bookmark.id]))) {
       if (newMark.moved) {
         Logger.log('This bookmark was moved from here and has been dealt with')
-        return false
+        return true
       }
       // mark as moved to avoid syncing twice
       newMark.moved = true
