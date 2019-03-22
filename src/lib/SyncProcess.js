@@ -263,18 +263,16 @@ export default class SyncProcess {
     const serverHash = serverItem
       ? await serverItem.hash(this.preserveOrder)
       : null
-    const changed =
+    const changedLocally =
       !cacheItem ||
+      (cacheItem && !cacheItem.id) || // if id is not set, changedLocally must be true
+      localHash !== cacheHash ||
+      localItem.parentId !== cacheItem.parentId
+    const changedUpstream =
       localHash !== serverHash ||
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
-    const changedLocally =
-      (cacheItem && !cacheItem.id) || // if id is not set, changedLocally must be true
-      (localHash !== cacheHash || localItem.parentId !== cacheItem.parentId)
-    const changedUpstream =
-      cacheHash !== serverHash ||
-      localItem.parentId !==
-        this.mappings.folders.ServerToLocal[serverItem.parentId]
+    const changed = changedLocally || changedUpstream
 
     if (localItem !== this.localTreeRoot && changed) {
       if (changedLocally) {
@@ -674,13 +672,13 @@ export default class SyncProcess {
     const localHash = localItem ? await localItem.hash() : null
     const cacheHash = cacheItem ? await cacheItem.hash() : null
     const serverHash = serverItem ? await serverItem.hash() : null
-    const changed =
-      localHash !== serverHash ||
-      localItem.parentId !==
-        this.mappings.folders.ServerToLocal[serverItem.parentId]
     const changedLocally =
       localHash !== cacheHash || localItem.parentId !== cacheItem.parentId
-    const changedUpstream = cacheHash !== serverHash
+    const changedUpstream =
+      cacheHash !== serverHash ||
+      localItem.parentId !==
+        this.mappings.folders.ServerToLocal[serverItem.parentId]
+    const changed = changedLocally || changedUpstream
 
     await this.mappings.addBookmark({
       localId: localItem.id,
