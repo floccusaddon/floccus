@@ -484,21 +484,9 @@ export default class SyncProcess {
       if (this.preserveOrder && localOrder.length > 1) {
         const newMappingsSnapshot = this.mappings.getSnapshot()
         if (changedLocally) {
-          await this.server.orderFolder(
-            serverItem.id,
-            localOrder.map(item => ({
-              id: newMappingsSnapshot[item.type + 's'].LocalToServer[item.id],
-              type: item.type
-            }))
-          )
+          await this.server.orderFolder(serverItem.id, remoteOrder)
         } else {
-          await this.localTree.orderFolder(
-            localItem.id,
-            remoteOrder.map(item => ({
-              id: newMappingsSnapshot[item.type + 's'].ServerToLocal[item.id],
-              type: item.type
-            }))
-          )
+          await this.localTree.orderFolder(localItem.id, localOrder)
         }
       }
     }
