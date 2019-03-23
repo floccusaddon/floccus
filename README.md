@@ -102,6 +102,17 @@ Then, in Chrome you can setup the folders as follows:
 
 - Note that currently you cannot sync the same folder with multiple nextcloud accounts in order to avoid data corruption. If you sync the root folder with one account and sync a sub folder with a different account, that sub-folder will not be synced with the account connected to the root folder anymore.
 
+### Performance
+
+Performance is an aspect that I try to tackle with gradual improvements. The latest development here is the "parallel sync" option that processes multiple branches of the bookmarks tree in parallel. The benchmark results in this case are as follows:
+
+| adapter           | cold sync (3000 Bookmarks) | warm sync (3000 Bookmarks) |
+| ----------------- | -------------------------- | -------------------------- |
+| nextcloud-folders | ~20min                     | ~4min                      |
+| webdav            | ~3min                      | ~2min                      |
+
+**Note**: The cold sync performance of the nextcloud-folders adapter depends to an extent on the server's resources as well, such that parallel syncing is not always faster in this case.
+
 ### Finding duplicates
 
 Floccus will sync your bookmarks as-is, including any dupes that are in different folders. If you need to find and remove duplicates in your bookmarks, try something like [bookmark-dupes](https://addons.mozilla.org/en-US/firefox/addon/bookmark-dupes).
