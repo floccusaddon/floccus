@@ -121,6 +121,12 @@ Floccus will sync your bookmarks as-is, including any dupes that are in differen
 
 - **Emojis**: MySQL doesn't support emojis out of the box, so if you're syncing to nextcloud and getting Error code 500 from nextcloud, check the nextcloud log for SQL errors and [proceed as explained in the nextcloud docs](https://docs.nextcloud.com/server/stable/admin_manual/configuration_database/mysql_4byte_support.html).
 
+### LoFloccus - Sync Floccus to a Local Folder / Other Services
+
+In order sync your bookmarks to a local folder the **LoFloccus** desktop app was born. This is a small companion app for Floccus that allows you to pick a local folder where to store your bookmarks. With your bookmarks stored in a folder you have the freedom to sync with Dropbox, Syncthing, rsync, git or any other solution. You can get it at https://github.com/TCB13/LoFloccus.
+
+A desktop app is required because due to browser restrictions the Floccus extension can't directly make changes to the filesystem.
+
 ## Considerations
 
 Is this a good idea? I think so. If you'd like to know more, check out [the considerations file](./CONSIDERATIONS.md)
