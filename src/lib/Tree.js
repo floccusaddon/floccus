@@ -1,5 +1,5 @@
 import Crypto from './Crypto'
-import normalizeUrl from './normalizeUrl'
+import normalizeUrl from 'conservative-normalize-url'
 import Logger from './Logger'
 
 export class Bookmark {
