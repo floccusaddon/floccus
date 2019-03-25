@@ -26,12 +26,17 @@ const paths = {
   builds: './builds/'
 }
 const WEBSTORE_ID = 'fnaicdffflnofjppbagibeoednhnbjhg'
-const WEBSTORE_CREDENTIALS = require('./builds/google-api.json')
 
-const webstore = webstoreClient({
-  extensionId: WEBSTORE_ID,
-  ...WEBSTORE_CREDENTIALS
-})
+let WEBSTORE_CREDENTIALS
+let webstore
+try {
+  WEBSTORE_CREDENTIALS = require('./builds/google-api.json')
+  webstore = webstoreClient(
+    Object.assign({}, WEBSTORE_CREDENTIALS, {
+      extensionId: WEBSTORE_ID
+    })
+  )
+} catch (e) {}
 
 gulp.task('default', ['html', 'js', '3rd-party'])
 
