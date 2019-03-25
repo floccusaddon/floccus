@@ -6,6 +6,7 @@ var tap = require('gulp-tap')
 var zip = require('gulp-zip')
 var crx = require('./lib/gulp-crx')
 var run = require('gulp-run-command').default
+var webstoreClient = require('chrome-webstore-upload')
 
 const VERSION = require('./package.json').version
 const paths = {
@@ -24,6 +25,13 @@ const paths = {
   js: 'src/**',
   builds: './builds/'
 }
+const WEBSTORE_ID = 'fnaicdffflnofjppbagibeoednhnbjhg'
+const WEBSTORE_CREDENTIALS = require('./builds/google-api.json')
+
+const webstore = webstoreClient({
+  extensionId: WEBSTORE_ID,
+  ...WEBSTORE_CREDENTIALS
+})
 
 gulp.task('default', ['html', 'js', '3rd-party'])
 
@@ -109,6 +117,14 @@ gulp.task('crx', ['default'], function() {
       })
     )
     .pipe(gulp.dest(paths.builds))
+})
+
+gulp.task('webstore', ['zip'], function() {
+  return webstore
+    .uploadExisting(fs.createReadStream(`floccus-build-v${VERSION}.zip`))
+    .then(function() {
+      return webstore.publish('default')
+    })
 })
 
 gulp.task('watch', function() {
