@@ -21,6 +21,10 @@ export const HEIGHT_CONTROLS = '33px'
 export const PADDING_CONTROLS = '7px'
 export const BORDER_RADIUS = '5px'
 
+export const P = style('p')({
+  color: COLORS.text
+})
+
 export const H1 = style('h1')(props => ({
   color: props.inverted ? 'white' : COLORS.primary.plane,
   marginBottom: '3px',
