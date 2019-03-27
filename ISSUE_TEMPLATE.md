@@ -12,9 +12,8 @@ Please answer the below questions to allow for as smooth a process of tackling t
 - Nextcloud:
 - Nextcloud Bookmarks app:
 - Floccus:
-- Floccus sync method: <!-- either XBEL/webdav (signified as `webdav`), nextcloud Bookmarks legacy
-                            (signified as `nextcloud`), or nextcloud Bookmarks v0.14+ with folders
-  															(signified as `nextcloud-folders`) -->
+- Floccus sync method:
+  <!-- Sync methods are either XBEL/webdav (signified as `webdav`), nextcloud Bookmarks legacy (signified as `nextcloud`), or nextcloud Bookmarks v0.14+ with folders (signified as `nextcloud-folders`) -->
 
 ### Steps to reproduce
 
@@ -37,11 +36,12 @@ Please answer the below questions to allow for as smooth a process of tackling t
 
 ### Debug log
 
-<!-- It is useful to attach a debug log file to the issue. You can obtain a debug
-log of the most recent sync runs by clicking 'Debug log' in the bottom right
+<!-- It is often useful to provide a debug log file along with the issue. You can obtain a debug log of the most recent sync runs by clicking 'Debug log' in the bottom right
 corner of the floccus panel in your browser.
-If you don't want your bookmarks to be public, you can send the log file to me
-via mail
+
+Note: As your debug log usually contains large parts of your bookmark data, instead of attaching it to the issue here, publicly, I recommend uploading it privately at the following URL https://klehranlage.net/index.php/s/7nn82NSBsfQKdsJ
 -->
+
+- [ ] Debug log provided
 
 <!-- Thanks! Now, hit Submit and wait for a reply :) -->
