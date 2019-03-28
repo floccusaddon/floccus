@@ -2,6 +2,8 @@ import Crypto from './Crypto'
 import normalizeUrl from 'conservative-normalize-url'
 import Logger from './Logger'
 
+const STRANGE_PROTOCOLS = ['data:', 'javascript:', 'about:', 'chrome:']
+
 export class Bookmark {
   constructor({ id, parentId, url, title }) {
     this.type = 'bookmark'
@@ -9,15 +11,14 @@ export class Bookmark {
     this.parentId = parentId
     this.title = title
 
-    // separator or js bookmark
-    if (url.indexOf('data:') === 0 || url.indexOf('javascript:') === 0) {
+    // not a regular bookmark
+    if (STRANGE_PROTOCOLS.some(proto => url.indexOf(proto) === 0)) {
       this.url = url
       return
     }
 
-    const urlObj = new URL(url)
-
     try {
+      new URL(url)
       this.url = normalizeUrl(url)
     } catch (e) {
       Logger.log('Failed to normalize', url)
