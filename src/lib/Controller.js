@@ -87,6 +87,8 @@ export default class Controller {
         )
         .forEach(account => this.syncAccount(account.id))
     })
+
+    setInterval(() => this.updateStatus(), 500)
   }
 
   setEnabled(enabled) {

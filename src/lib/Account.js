@@ -132,7 +132,7 @@ export default class Account {
 
       Logger.log('Starting sync process for account ' + this.getLabel())
       this.syncing = true
-      await this.setData({ ...this.getData(), syncing: true, error: null })
+      await this.setData({ ...this.getData(), syncing: 0.05, error: null })
 
       if (!(await this.isInitialized())) {
         await this.init()
@@ -152,7 +152,11 @@ export default class Account {
         this.server,
         this.getData().parallel
       )
+      const interval = setInterval(() => {
+        this.setData({ ...this.getData(), syncing: sync.progress })
+      }, 250)
       await sync.sync()
+      clearInterval(interval)
 
       // update cache
       await this.storage.setCache(await this.localTree.getBookmarksTree())

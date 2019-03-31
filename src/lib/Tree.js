@@ -133,6 +133,13 @@ export class Folder {
     })
   }
 
+  count() {
+    if (!this.index) {
+      this.createIndex()
+    }
+    return Object.keys(this.index.bookmarks).length
+  }
+
   createIndex() {
     this.index = {
       folders: { [this.id]: this },

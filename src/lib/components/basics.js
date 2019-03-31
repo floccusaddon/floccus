@@ -225,17 +225,19 @@ export const AccountStatusDetail = ({ account }) => (state, actions) => {
   const data = account.getData()
   return (
     <AccountStatusDetailStyle>
-      {data.error
-        ? data.error
-        : data.syncing === 'initial'
-        ? 'Syncing from scratch. This may take a longer than usual...'
-        : 'Last synchronized: ' +
-          (data.lastSync
-            ? humanizeDuration(Date.now() - data.lastSync, {
-                largest: 1,
-                round: true
-              }) + ' ago'
-            : 'never')}
+      {data.error ? (
+        data.error
+      ) : data.syncing ? (
+        <Progress value={data.syncing} />
+      ) : (
+        'Last synchronized: ' +
+        (data.lastSync
+          ? humanizeDuration(Date.now() - data.lastSync, {
+              largest: 1,
+              round: true
+            }) + ' ago'
+          : 'never')
+      )}
     </AccountStatusDetailStyle>
   )
 }
@@ -385,3 +387,28 @@ export const OptionParallelSyncing = ({ account }) => (state, actions) => {
 }
 
 export const A = style('a')({})
+
+export const Progress = ({ value }) => {
+  return (
+    <ProgressStyle value={value}>
+      <div />
+    </ProgressStyle>
+  )
+}
+const ProgressStyle = style('div')(props => ({
+  display: 'inline-block',
+  margin: '3px 3px 3px 0',
+  padding: '0',
+  height: '1em',
+  width: '90%',
+  border: `1px solid ${COLORS.primary.dark}`,
+  borderRadius: BORDER_RADIUS,
+  '> div': {
+    height: '100%',
+    margin: '0',
+    background: COLORS.primary.plane,
+    display: 'inline-block',
+    transition: 'width .5s',
+    width: props.value * 100 + '%'
+  }
+}))

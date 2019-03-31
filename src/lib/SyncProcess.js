@@ -20,11 +20,26 @@ export default class SyncProcess {
     this.cacheTreeRoot = cacheTreeRoot
     this.preserveOrder = !!this.server.orderFolder
     this.queue = new PQueue({ concurrency: parallel ? 100 : Infinity })
+    this.progress = 0.05
+    this.done = 0
     if (parallel) {
       this.concurrency = 10 // grows exponentially with each folder layer
     } else {
       this.concurrency = 1
     }
+  }
+
+  updateProgress() {
+    this.progress = Math.max(
+      0.05,
+      Math.min(
+        1,
+        Math.min(
+          this.done / this.localTreeRoot.count(),
+          this.done / this.serverTreeRoot.count()
+        )
+      )
+    )
   }
 
   async sync() {
@@ -171,6 +186,7 @@ export default class SyncProcess {
     if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
       return await execSync()
     } else {
+      this.updateProgress()
       return await this.queue.add(execSync)
     }
   }
@@ -665,6 +681,7 @@ export default class SyncProcess {
     const localId = toTree === this.localTreeRoot ? newId : bookmark.id
     const remoteId = toTree === this.localTreeRoot ? bookmark.id : newId
     await this.mappings.addBookmark({ localId, remoteId })
+    this.done++
     return true
   }
 
@@ -684,6 +701,8 @@ export default class SyncProcess {
       localId: localItem.id,
       remoteId: serverItem.id
     })
+
+    this.done++
 
     if (!changed) {
       Logger.log('Bookmark unchanged')
@@ -757,6 +776,7 @@ export default class SyncProcess {
     await this.mappings.removeBookmark({
       [toResource === this.localTreeRoot ? 'localId' : 'remoteId']: bookmark.id
     })
+    this.done++
     return true
   }
 }
