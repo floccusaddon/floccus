@@ -3,7 +3,7 @@
   "name": "floccus",
   "short_name": "floccus",
   "version": "3.2.10",
-  "description": "Sync your bookmarks with your selfhosted server (e.g. Nextcloud)",
+  "description": "Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)",
   "icons": {
     "48": "icons/logo.png",
     "64": "icons/logo_64.png",

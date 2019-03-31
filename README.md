@@ -2,11 +2,11 @@
 
 ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/img/screen_firefox_options.png)
 
-> Sync your bookmarks with your selfhosted server (e.g. Nextcloud)
+> Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)
 
-The goal of this project is to build a browser extension that syncs your browser data across browser vendors with the open source, self-hosted sync and share server [Nextcloud](https://nextcloud.com) and possibly other self-hosted solutions.
+The goal of this project is to build a browser extension that syncs your browser data across browser vendors.
 
-**News:** Floccus v3.1 now allows you to sync with the newly available folders in nextcloud bookmarks and also preserves the order of your bookmarks. :weight_lifting_woman:
+**News:** Floccus can now sync with the local file system using LoFloccus (read below).
 
 [![Chrome Webstore](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|
 [![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)
@@ -15,12 +15,15 @@ The goal of this project is to build a browser extension that syncs your browser
 
 ## Install
 
-You will need a server, at least one browser and the floccus browser extension.
+At least one browser and the floccus browser extension.
 
-You can either choose to sync via WebDAV (with any version of nextcloud or with any other WebDAV server, commercial or self-hosted).
-Alternatively, if you'd like to access your bookmarks via a nice web frontend, you can sync with the nextcloud bookmarks app, which allows you to do just that. For the latter to work, you need at least version v0.11 of the Bookmarks app installed (which requires nextcloud v12 or greater).
+The following sync methods are available:
 
-Once you have your server ready, read on to install the browser extension.
+- **WebDAV**: If you have a WebDAV server at hand, like any version of nextcloud/owncloud, box.com or with any other WebDAV server, commercial or self-hosted.
+- **Nextcloud Bookmarks**: Nextcloud in particular also sports a dedicated bookmarks app, which allows you to also access your bookmarks via a nice web UI. For this to work with floccus, you need v0.11 of the Bookmarks app installed (which requires at least nextcloud v12).
+- **Local file and more**: You can also just sync with a local file, using [the companion desktop app LoFloccus](https://github.com/TCB13/LoFloccus). You can then also sync that file to other computers using your favorite file syncing solution, like Dropbox, Syncthing, rsync, etc.
+
+Once your server or the LoFloccus app is ready, read on for the browser of your choosing.
 
 **Note:** It is recommended to not enable native bookmark synchronization built into your browser, as it is known to cause issues.
 
@@ -40,7 +43,7 @@ You can [install it via AMO](https://addons.mozilla.org/en-US/firefox/addon/floc
 
 ### Firefox for Android
 
-Floccus is not supported by Firefox for Android, [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility).
+Floccus is not supported by Firefox for Android [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility).
 
 ### Ugrading
 
@@ -120,12 +123,6 @@ Floccus will sync your bookmarks as-is, including any dupes that are in differen
 ### Troubleshooting
 
 - **Emojis**: MySQL doesn't support emojis out of the box, so if you're syncing to nextcloud and getting Error code 500 from nextcloud, check the nextcloud log for SQL errors and [proceed as explained in the nextcloud docs](https://docs.nextcloud.com/server/stable/admin_manual/configuration_database/mysql_4byte_support.html).
-
-### LoFloccus - Sync Floccus to a Local Folder / Other Services
-
-In order sync your bookmarks to a local folder the **LoFloccus** desktop app was born. This is a small companion app for Floccus that allows you to pick a local folder where to store your bookmarks. With your bookmarks stored in a folder you have the freedom to sync with Dropbox, Syncthing, rsync, git or any other solution. You can get it at https://github.com/TCB13/LoFloccus.
-
-A desktop app is required because due to browser restrictions the Floccus extension can't directly make changes to the filesystem.
 
 ## Considerations
 
