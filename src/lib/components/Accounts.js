@@ -120,6 +120,9 @@ export const Component = () => (state, actions) => {
           </Label>
         </div>
         <div class="debugging-tools">
+          <a href="options.html" target="_blank">
+            Open in new tab
+          </a>
           <a
             href="#"
             onclick={e => {
@@ -146,12 +149,12 @@ const AccountsStyle = style('div')({
     position: 'absolute',
     right: '20px',
     bottom: '10px',
-    fontSize: '9px'
+    fontSize: '10px'
   },
   ' .debugging-tools a': {
     color: '#3893cc !important',
     display: 'inline-block',
-    marginLeft: '3px'
+    marginLeft: '10px'
   },
   ' .wrapper': {
     position: 'relative',
