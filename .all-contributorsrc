@@ -60,6 +60,17 @@
         "bug",
         "ideas"
       ]
+    },
+    {
+      "login": "TCB13",
+      "name": "TCB13",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/6315832?v=4",
+      "profile": "https://iklive.eu",
+      "contributions": [
+        "code",
+        "ideas",
+        "plugin"
+      ]
     }
   ]
 }
