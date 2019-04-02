@@ -35,7 +35,7 @@ export default class Account {
   }
 
   static async create(data) {
-    let id = '' + Date.now()
+    let id = '' + Date.now() + Math.random()
     let storage = new AccountStorage(id)
 
     let background = await browser.runtime.getBackgroundPage()
