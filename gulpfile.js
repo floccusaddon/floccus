@@ -126,7 +126,9 @@ gulp.task('crx', ['default'], function() {
 
 gulp.task('webstore', ['zip'], function() {
   return webstore
-    .uploadExisting(fs.createReadStream(`floccus-build-v${VERSION}.zip`))
+    .uploadExisting(
+      fs.createReadStream(`${paths.builds}floccus-build-v${VERSION}.zip`)
+    )
     .then(function() {
       return webstore.publish('default')
     })
