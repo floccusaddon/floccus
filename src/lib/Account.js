@@ -127,6 +127,7 @@ export default class Account {
   }
 
   async sync() {
+    let interval
     try {
       if (this.getData().syncing || this.syncing) return
 
@@ -152,7 +153,7 @@ export default class Account {
         this.server,
         this.getData().parallel
       )
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         this.setData({ ...this.getData(), syncing: sync.progress })
       }, 250)
       await sync.sync()
@@ -178,6 +179,7 @@ export default class Account {
         'Successfully ended sync process for account ' + this.getLabel()
       )
     } catch (e) {
+      clearInterval(interval)
       console.log(e)
       var message = Account.stringifyError(e)
       console.error('Syncing failed with', message)
