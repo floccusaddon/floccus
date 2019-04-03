@@ -1,3 +1,11 @@
+## v3.2.11
+
+- NEW: Progress bar
+- NEW: Add LoFloccus companion app (thanks to @TCB13)
+- FIX: UI: Add a link to open options in new tab
+- FIX: Added default font color as black to avoid issues with dark browser themes
+- FIX: Tree: URL normalization: Add more strange protocols to the blacklist
+
 ## v3.2.10
 
 - FIX: Various crucial fixes for edge cases of the sync algorithm
