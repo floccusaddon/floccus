@@ -1,3 +1,7 @@
+## v3.2.14
+
+- FIX: Unlock input field
+
 ## v3.2.13
 
 - FIX: Unlock input field
