@@ -7,18 +7,20 @@ const { Input, Button, H2 } = Basics
 
 export const state = {
   unlock: {
-    error: null
+    error: null,
+    key: ''
   }
 }
 
 export const actions = {
   unlock: {
-    setError: error => ({ error })
+    setError: error => ({ error }),
+    updateKey: key => ({ key })
   },
-  enterUnlockKey: key => async (state, actions) => {
+  submitUnlockKey: () => async (state, actions) => {
     const background = await browser.runtime.getBackgroundPage()
     try {
-      await background.controller.unlock(key)
+      await background.controller.unlock(state.unlock.key)
     } catch (e) {
       console.log(e.message)
       return
@@ -33,20 +35,23 @@ export const Component = () => (state, actions) => {
       <div id="unlock">
         <H2>Unlock floccus</H2>
         <Input
-          value={''}
+          value={state.unlock.key}
           type="password"
           placeholder="Enter your unlock passphrase"
-          oninput={e => {
+          onkeydown={e => {
             if (e.which === 13) {
               actions.enterUnlockKey(e.target.value)
             }
+          }}
+          oninput={e => {
+            const key = e.target.value
+            actions.unlock.updateKey(key)
           }}
           oncreate={element => element.focus()}
         />
         <Button
           onclick={e => {
-            const key = e.target.parentNode.querySelector('input').value
-            actions.enterUnlockKey(key)
+            actions.submitUnlockKey()
           }}
         >
           Unlock

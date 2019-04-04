@@ -7,15 +7,20 @@ const { Input, Button, H2 } = Basics
 
 export const state = {
   setupKey: {
-    error: null
+    error: null,
+    key1: '',
+    key2: ''
   }
 }
 
 export const actions = {
   setupKey: {
-    setError: error => ({ error })
+    setError: error => ({ error }),
+    updateKey1: key1 => ({ key1 }),
+    updateKey2: key2 => ({ key2 })
   },
-  setKey: ({ key1, key2 }) => async (state, actions) => {
+  setKey: () => async (state, actions) => {
+    const { key1, key2 } = state.setupKey
     if (key1 !== key2) {
       actions.setupKey.setError("Passphrases don't match.")
       return
@@ -47,19 +52,26 @@ export const Component = () => (state, actions) => {
         </p>
         <p>{state.setupKey.error ? state.setupKey.error : ''}</p>
         <Input
-          value={''}
+          value={state.setupKey.key1}
           type="password"
           placeholder="Enter your unlock passphrase"
+          oninput={e => {
+            const key = e.target.value
+            actions.setupKey.updateKey1(key)
+          }}
         />
         <Input
-          value={''}
+          value={state.setupKey.key2}
           type="password"
           placeholder="Enter passphrase a second time"
+          oninput={e => {
+            const key = e.target.value
+            actions.setupKey.updateKey2(key)
+          }}
         />
         <Button
           onclick={e => {
-            let inputs = e.target.parentNode.querySelectorAll('input')
-            actions.setKey({ key1: inputs[0].value, key2: inputs[1].value })
+            actions.setKey()
           }}
         >
           Secure accounts
