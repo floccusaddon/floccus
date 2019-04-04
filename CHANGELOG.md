@@ -1,3 +1,8 @@
+## v3.2.12
+
+- FIX: Sync: Clear status update interval on error
+- FIX: Fix form inputs
+
 ## v3.2.11
 
 - NEW: Progress bar
