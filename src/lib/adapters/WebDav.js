@@ -315,8 +315,7 @@ export default class WebDavAdapter extends CachingAdapter {
           value={data.url}
           type="text"
           name="url"
-          onkeyup={onchange.bind(null, 'url')}
-          onblur={onchange.bind(null, 'url')}
+          oninput={onchange.bind(null, 'url')}
         />
         <p>
           e.g. with nextcloud:{' '}
@@ -329,16 +328,14 @@ export default class WebDavAdapter extends CachingAdapter {
           value={data.username}
           type="text"
           name="username"
-          onkeyup={onchange.bind(null, 'username')}
-          onblur={onchange.bind(null, 'username')}
+          oninput={onchange.bind(null, 'username')}
         />
         <Label for="password">Password:</Label>
         <Input
           value={data.password}
           type="password"
           name="password"
-          onkeyup={onchange.bind(null, 'password')}
-          onblur={onchange.bind(null, 'password')}
+          oninput={onchange.bind(null, 'password')}
         />
         <Label for="bookmark_file">Bookmarks file path:</Label>
         <Input
@@ -346,8 +343,7 @@ export default class WebDavAdapter extends CachingAdapter {
           type="text"
           name="bookmark_file"
           placeholder="Path on the server to the bookmarks file"
-          onkeyup={onchange.bind(null, 'bookmark_file')}
-          onblur={onchange.bind(null, 'serverRoot')}
+          oninput={onchange.bind(null, 'bookmark_file')}
         />
         a path to the bookmarks file relative to your WebDAV URL (all folders in
         the path must already exist). e.g.{' '}

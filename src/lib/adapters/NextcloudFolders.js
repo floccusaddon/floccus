@@ -58,24 +58,21 @@ export default class NextcloudFoldersAdapter extends Adapter {
           value={data.url}
           type="text"
           name="url"
-          onkeyup={onchange.bind(null, 'url')}
-          onblur={onchange.bind(null, 'url')}
+          oninput={onchange.bind(null, 'url')}
         />
         <Label for="username">User name</Label>
         <Input
           value={data.username}
           type="text"
           name="username"
-          onkeyup={onchange.bind(null, 'username')}
-          onblur={onchange.bind(null, 'username')}
+          oninput={onchange.bind(null, 'username')}
         />
         <Label for="password">Password</Label>
         <Input
           value={data.password}
           type="password"
           name="password"
-          onkeyup={onchange.bind(null, 'password')}
-          onblur={onchange.bind(null, 'password')}
+          oninput={onchange.bind(null, 'password')}
         />
         <OptionSyncFolder account={state.account} />
 
@@ -96,8 +93,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
           type="text"
           name="serverRoot"
           placeholder="Leave empty for no prefix"
-          onkeyup={onchange.bind(null, 'serverRoot')}
-          onblur={onchange.bind(null, 'serverRoot')}
+          oninput={onchange.bind(null, 'serverRoot')}
         />
 
         <OptionResetCache account={state.account} />
