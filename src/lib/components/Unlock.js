@@ -36,7 +36,7 @@ export const Component = () => (state, actions) => {
           value={''}
           type="password"
           placeholder="Enter your unlock passphrase"
-          onkeydown={e => {
+          oninput={e => {
             if (e.which === 13) {
               actions.enterUnlockKey(e.target.value)
             }
