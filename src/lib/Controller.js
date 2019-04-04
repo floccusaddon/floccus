@@ -3,34 +3,38 @@ import Account from './Account'
 import LocalTree from './LocalTree'
 import Cryptography from './Crypto'
 import packageJson from '../../package.json'
+const PQueue = require('p-queue')
 
 const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')
 const STATUS_ALLGOOD = Symbol('allgood')
 const INACTIVITY_TIMEOUT = 1000 * 60
-const SYNC_INTERVAL = 15
+const SYNC_INTERVAL = 15 * 1000 * 60
 
-class AlarmManger {
+class AlarmManager {
   constructor(ctl) {
     this.ctl = ctl
   }
 
-  syncAllAccounts() {
-    browser.storage.local.get('accounts').then(d => {
-      var accounts = d['accounts']
-      for (var accountId in accounts) {
-        this.ctl.syncAccount(accountId)
+  async checkSync() {
+    const d = await browser.storage.local.get('accounts')
+    var accounts = d['accounts']
+    for (var accountId in accounts) {
+      const account = await Account.get(accountId)
+      if (Date.now() > SYNC_INTERVAL + account.getData().lastSync) {
+        this.ctl.scheduleSync(accountId)
       }
-    })
+    }
   }
 }
 
 export default class Controller {
   constructor() {
+    this.jobs = new PQueue({ concurrency: 1 })
     this.schedule = {}
     this.listeners = []
 
-    this.alarms = new AlarmManger(this)
+    this.alarms = new AlarmManager(this)
 
     // set up change listener
     browser.bookmarks.onChanged.addListener((localId, details) =>
@@ -48,7 +52,7 @@ export default class Controller {
 
     // Set up the alarms
 
-    browser.alarms.create('syncAllAccounts', { periodInMinutes: SYNC_INTERVAL })
+    browser.alarms.create('checkSync', { periodInMinutes: 1 })
     browser.alarms.onAlarm.addListener(alarm => {
       this.alarms[alarm.name]()
     })
@@ -180,18 +184,21 @@ export default class Controller {
       !containingAccount.getData().syncing &&
       !accountsToSync.some(acc => acc.id === containingAccount.id)
     ) {
-      this.scheduleSyncAccount(containingAccount.id)
+      this.scheduleSync(containingAccount.id, true)
     }
   }
 
-  scheduleSyncAccount(accountId) {
-    if (this.schedule[accountId]) {
-      clearTimeout(this.schedule[accountId])
+  scheduleSync(accountId, wait) {
+    if (wait) {
+      if (this.schedule[accountId]) {
+        clearTimeout(this.schedule[accountId])
+      }
+      this.schedule[accountId] = setTimeout(
+        () => this.scheduleSync(accountId),
+        INACTIVITY_TIMEOUT
+      )
     }
-    this.schedule[accountId] = setTimeout(
-      () => this.syncAccount(accountId),
-      INACTIVITY_TIMEOUT
-    )
+    return this.jobs.add(() => this.syncAccount(accountId))
   }
 
   async syncAccount(accountId) {
