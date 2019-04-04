@@ -1,3 +1,7 @@
+## v3.2.13
+
+- FIX: Unlock input field
+
 ## v3.2.12
 
 - FIX: Sync: Clear status update interval on error
