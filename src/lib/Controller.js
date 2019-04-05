@@ -197,6 +197,7 @@ export default class Controller {
         () => this.scheduleSync(accountId),
         INACTIVITY_TIMEOUT
       )
+      return
     }
     return this.jobs.add(() => this.syncAccount(accountId))
   }
