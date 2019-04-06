@@ -1,3 +1,7 @@
+## v3.2.15
+
+- FIX: URL normalizer would break some URLs with fragments
+
 ## v3.2.14
 
 - FIX: Unlock input field
