@@ -31,6 +31,7 @@ class AlarmManager {
 export default class Controller {
   constructor() {
     this.jobs = new PQueue({ concurrency: 1 })
+    this.waiting = {}
     this.schedule = {}
     this.listeners = []
 
@@ -188,7 +189,7 @@ export default class Controller {
     }
   }
 
-  scheduleSync(accountId, wait) {
+  async scheduleSync(accountId, wait) {
     if (wait) {
       if (this.schedule[accountId]) {
         clearTimeout(this.schedule[accountId])
@@ -199,10 +200,23 @@ export default class Controller {
       )
       return
     }
+
+    let account = await Account.get(accountId)
+    if (account.getData().syncing) {
+      return
+    }
+
+    if (this.waiting[accountId]) {
+      return
+    }
+
+    this.waiting[accountId] = true
+
     return this.jobs.add(() => this.syncAccount(accountId))
   }
 
   async syncAccount(accountId) {
+    this.waiting[accountId] = false
     if (!this.enabled) {
       return
     }
