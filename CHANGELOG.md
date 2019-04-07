@@ -1,3 +1,7 @@
+## v3.2.16
+
+- FIX: Don't schedule sync jobs while syncing
+
 ## v3.2.15
 
 - FIX: URL normalizer would break some URLs with fragments
