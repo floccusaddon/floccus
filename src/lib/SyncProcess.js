@@ -690,9 +690,10 @@ export default class SyncProcess {
     const cacheHash = cacheItem ? await cacheItem.hash() : null
     const serverHash = serverItem ? await serverItem.hash() : null
     const changedLocally =
-      localHash !== cacheHash || localItem.parentId !== cacheItem.parentId
+      (localHash !== serverHash && localHash !== cacheHash) ||
+      (cacheItem && localItem.parentId !== cacheItem.parentId)
     const changedUpstream =
-      cacheHash !== serverHash ||
+      (localHash !== serverHash && cacheHash !== serverHash) ||
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
     const changed = changedLocally || changedUpstream
