@@ -301,5 +301,3 @@ export default class Controller {
     )
   }
 }
-
-window.controller = new Controller()
