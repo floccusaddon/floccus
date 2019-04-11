@@ -1,0 +1,236 @@
+{
+  "Error001": {
+    "message": "E001: Folder to create in doesn't exist"
+  },
+  "Error002": {
+    "message": "E002: Bookmark to update doesn't exist anymore"
+  },
+  "Error003": {
+    "message": "E003: Folder to move out of doesn't exist. This is an anomaly. Congratulations."
+  },
+  "Error004": {
+    "message": "E004: Folder to move into doesn't exist"
+  },
+  "Error005": {
+    "message": "E005: Folder to create in doesn't exist"
+  },
+  "Error006": {
+    "message": "E006: Folder to update doesn't exist"
+  },
+  "Error007": {
+    "message": "E007: Folder to move doesn't exist"
+  },
+  "Error008": {
+    "message": "E008: Folder to move out of doesn't exist"
+  },
+  "Error009": {
+    "message": "E009: Folder to move into doesn't exist"
+  },
+  "Error010": {
+    "message": "E010: Could not find folder to order"
+  },
+  "Error011": {
+    "message": "E011: Item in folder ordering is not an actual child: $1"
+  },
+  "Error012": {
+    "message": "E012: Folder ordering is missing some of the folder's children"
+  },
+  "Error013": {
+    "message": "E013: Folder to remove doesn't exist"
+  },
+  "Error014": {
+    "message": "E014: Parent folder to remove folder from of doesn't exist"
+  },
+  "Error015": {
+    "message": "E015: Unexpected response data from server"
+  },
+  "Error016": {
+    "message": "E016: Request timed out. Check your server configuration"
+  },
+  "Error017": {
+    "message": "E017: Network error: Check your network connection and your account details"
+  },
+  "Error018": {
+    "message": "E018: Couldn't authenticate with the server"
+  },
+  "Error019": {
+    "message": "E019: HTTP status $1. Failed $2 request. Check your server configuration and log."
+  },
+  "Error020": {
+    "message": "E020: Could not parse server response. Is the bookmarks app installed on your server?"
+  },
+  "Error021": {
+    "message": "E021: Inconsistent server state. Folder is present in childorder list but not in folder tree"
+  },
+  "Error022": {
+    "message": "E022: Folder $1 supposedly contains non-existent bookmark $2"
+  },
+  "Error023": {
+    "message": "E023: Unable to clear lock file, consider deleting $1 manually."
+  },
+  "Error024": {
+    "message": "E024: HTTP status $1 while trying to determine status of lock file $2"
+  },
+  "Error025": {
+    "message": "E025: Bookmarks file setting mustn't begin with a slash: '/'"
+  },
+  "Error026": {
+    "message": "E026: HTTP status $1. Failed to fetch bookmarks"
+  },
+  "Error027": {
+    "message": "E027: Sync process was interrupted"
+  },
+  "LabelWebdavurl": {
+    "message": "WebDAV URL"
+  },
+  "DescriptionWebdavurl": {
+    "message": "e.g. with nextcloud: https://your-domain.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "Nextcloud URL"
+  },
+  "LabelUsername": {
+    "message": "Username"
+  },
+  "LabelPassword": {
+    "message": "Password"
+  },
+  "LabelBookmarksfile": {
+    "message": "Bookmarks file path"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "a path to the bookmarks file relative to your WebDAV URL (all folders in the path must already exist). e.g. personal_stuff/bookmarks.xbel"
+  },
+  "LabelServerfolder": {
+    "message": "Server folder"
+  },
+  "DescriptionServerfolder": {
+    "message": "This is the path prefix under which this account will operate on the server. E.g. if you use ''/work', all your bookmarks will be created on the server with this path prefixed to their original path (the one relative to the local folder you specified above). This allows you to separate your server bookmarks into multiple 'profiles'. Leave this empty to use no prefix at all."
+  },
+  "LabelLocalfolder": {
+    "message": "Local folder"
+  },
+  "DescriptionLocalfolder": {
+    "message": "This is the local bookmarks folder in this browser that will be synced to the server. By default a new folder will be created for you. (Note: You can now sync the root folder across different browser vendors out of the box.)"
+  },
+  "LabelRootfolder": {
+    "message": "Root folder"
+  },
+  "LabelOptions": {
+    "message": "Options"
+  },
+  "LabelSyncnow": {
+    "message": "Sync now"
+  },
+  "LabelEnabled": {
+    "message": "Enabled"
+  },
+  "StatusLastsynced": {
+    "message": "Last synchronized: $1 ago"
+  },
+  "StatusNeversynced": {
+    "message": "Not synchronized, yet"
+  },
+  "StatusAllgood": {
+    "message": "All good"
+  },
+  "StatusDisabled": {
+    "message": "Disabled"
+  },
+  "StatusError": {
+    "message": "Error"
+  },
+  "StatusSyncing": {
+    "message": "Syncing"
+  },
+  "LabelReset": {
+    "message": "Reset"
+  },
+  "DescriptionReset": {
+    "message": "Reset synchronized folder to create a new one"
+  },
+  "LabelChoosefolder": {
+    "message": "Choose folder"
+  },
+  "DescriptionChoosefolder": {
+    "message": "Set an existing folder to sync"
+  },
+  "LabelRemoveaccount": {
+    "message": "Remove account"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "Delete this account (this will not remove your bookmarks)"
+  },
+  "LabelResetCache": {
+    "message": "Trigger sync from scratch"
+  },
+  "DescriptionResetcache": {
+    "message": "Tick this box to reset the cache so that the next synchronization run is guaranteed not to delete any data and merely merges server and local bookmarks together"
+  },
+  "LabelParallelsync": {
+    "message": "Speed up synchronization"
+  },
+  "DescriptionParallelsync": {
+    "message": "Tick this box to process multiple folders in parallel in order to speed the synchronization. This feature is experimental and makes it harder to read the debug logs."
+  },
+  "LabelSave": {
+    "message": "Save"
+  },
+  "LabelCancel": {
+    "message": "Cancel"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Nextcloud Bookmarks"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "The option 'Nextcloud Bookmarks' is compatible with at least version v0.14 of the Bookmarks app."
+  },
+  "LabelAdapternextcloud": {
+    "message": "Nextcloud Bookmarks (legacy)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "The legacy option is compatible with at least version v0.11 of the Bookmarks app. It will emulate folders using tags containing the folder path. It is not recommended to use this for new accounts."
+  },
+  "LabelAdapterwebdav": {
+    "message": "XBEL file in WebDAV share"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "The WebDAV option syncs your bookmarks by storing them in an XBEL file in the provided WebDAV share. There is no accompanying web UI for this option and you can use it with any WebDAV-compatible server."
+  },
+  "LabelAddaccount": {
+    "message": "Add account"
+  },
+  "LabelSecurecredentials": {
+    "message": "Secure your credentials"
+  },
+  "LabelOpenintab": {
+    "message": "Open in tab"
+  },
+  "LabelDebuglogs": {
+    "message": "Debug logs"
+  },
+  "LabelFunddevelopment": {
+    "message": "Fund development"
+  },
+  "LabelSelect": {
+    "message": "Select"
+  },
+  "LabelUntitledfolder": {
+    "message": "Untitled folder"
+  },
+  "LabelSetkey": {
+    "message": "Set a pass phrase for floccus"
+  },
+  "DescriptionSetkey": {
+    "message": "When you set a pass phrase you will have to enter this pass phrase everytime you start your browser if you want to access and synchronize your bookmarks."
+  },
+  "LabelKey": {
+    "message": "Enter your unlock passphrase"
+  },
+  "LabelKey2": {
+    "message": "Enter your passphrase a second time"
+  },
+  "LabelUnlock": {
+    "message": "Unlock floccus"
+  }
+}
