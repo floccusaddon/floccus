@@ -294,7 +294,7 @@ export default class Controller {
           await acc.setData({
             ...acc.getData(),
             syncing: false,
-            error: 'Sync process was interrupted'
+            error: browser.i18n.getMessage('Error027')
           })
         }
       })

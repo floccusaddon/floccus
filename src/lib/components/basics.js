@@ -1,6 +1,7 @@
 import picostyle from 'picostyle'
 import humanizeDuration from 'humanize-duration'
 import { h } from 'hyperapp'
+import browser from '../browser-api'
 
 const path = require('path')
 
@@ -146,7 +147,11 @@ export const Account = ({ account }) => (state, actions) => {
       <div class="controls">
         <AccountStatus account={account} />
       </div>
-      <H2>{path.basename(data.rootPath || 'Root folder')}</H2>
+      <H2>
+        {path.basename(
+          data.rootPath || browser.i18n.getMessage('LabelRootfolder')
+        )}
+      </H2>
       <div class="small">
         <code style={{ color: COLORS.primary.light }}>
           {data.type + '://' + account.getLabel()}
@@ -160,7 +165,7 @@ export const Account = ({ account }) => (state, actions) => {
             actions.openOptions(account.id)
           }}
         >
-          Options
+          {browser.i18n.getMessage('LabelOptions')}
         </Button>
         <Button
           disabled={!!data.syncing || !data.enabled}
@@ -169,7 +174,7 @@ export const Account = ({ account }) => (state, actions) => {
             !data.syncing && actions.accounts.sync(account.id)
           }}
         >
-          Sync now
+          {browser.i18n.getMessage('LabelSyncnow')}
         </Button>
       </div>
       <Label>
@@ -186,7 +191,7 @@ export const Account = ({ account }) => (state, actions) => {
             await actions.saveOptions()
           }}
         />{' '}
-        enabled
+        {browser.i18n.getMessage('LabelEnabled')}
       </Label>
     </AccountStyle>
   )
@@ -229,14 +234,16 @@ export const AccountStatusDetail = ({ account }) => (state, actions) => {
         data.error
       ) : data.syncing ? (
         <Progress value={data.syncing} />
+      ) : data.lastSync ? (
+        browser.i18n.getMessage(
+          'StatusLastsynced',
+          humanizeDuration(Date.now() - data.lastSync, {
+            largest: 1,
+            round: true
+          })
+        )
       ) : (
-        'Last synchronized: ' +
-        (data.lastSync
-          ? humanizeDuration(Date.now() - data.lastSync, {
-              largest: 1,
-              round: true
-            }) + ' ago'
-          : 'never')
+        browser.i18n.getMessage('StatusNeversynced')
       )}
     </AccountStatusDetailStyle>
   )
@@ -252,13 +259,19 @@ export const AccountStatus = ({ account }) => (state, actions) => {
   return (
     <AccountStatusStyle>
       {data.syncing ? (
-        '↻ Syncing...'
+        '↻ ' + browser.i18n.getMessage('StatusSyncing')
       ) : data.error ? (
-        <span style={{ color: '#8e3939' }}>✘ Error!</span>
+        <span style={{ color: '#8e3939' }}>
+          ✘ {browser.i18n.getMessage('StatusError')}
+        </span>
       ) : !data.enabled ? (
-        <span style={{ color: 'rgb(139, 39, 164)' }}>∅ disabled</span>
+        <span style={{ color: 'rgb(139, 39, 164)' }}>
+          ∅ {browser.i18n.getMessage('StatusDisabled')}
+        </span>
       ) : (
-        <span style={{ color: '#3d8e39' }}>✓ all good</span>
+        <span style={{ color: '#3d8e39' }}>
+          ✓ {browser.i18n.getMessage('StatusAllgood')}
+        </span>
       )}
     </AccountStatusStyle>
   )
@@ -274,22 +287,17 @@ const AccountStatusStyle = style('span')({
 export const OptionSyncFolder = ({ account }) => (state, actions) => {
   return (
     <div>
-      <H4>Local folder</H4>
-      <p>
-        This is the local bookmarks folder in this browser that will be synced
-        to the server. By default a new folder will be created for you. (
-        <b>Note:</b> You can now sync the root folder across different browser
-        vendors out of the box.)
-      </p>
+      <H4>{browser.i18n.getMessage('LabelLocalfolder')}</H4>
+      <p>{browser.i18n.getMessage('DescriptionLocalfolder')} </p>
       <Input
         type="text"
         disabled
-        placeholder="*Root folder*"
+        placeholder={browser.i18n.getMessage('LabelRootfolder')}
         value={account.rootPath}
       />
       <br />
       <Button
-        title="Reset synchronized folder to create a new one"
+        title={browser.i18n.getMessage('DescriptionReset')}
         disabled={!!account.syncing}
         onclick={e => {
           e.preventDefault()
@@ -299,17 +307,17 @@ export const OptionSyncFolder = ({ account }) => (state, actions) => {
             })
         }}
       >
-        Reset
+        {browser.i18n.getMessage('LabelReset')}
       </Button>
       <Button
-        title="Set an existing folder to sync"
+        title={browser.i18n.getMessage('DescriptionChoosefolder')}
         disabled={account.syncing}
         onclick={e => {
           e.preventDefault()
           actions.openPicker()
         }}
       >
-        Choose folder
+        {browser.i18n.getMessage('LabelChoosefolder')}
       </Button>
     </div>
   )
@@ -318,14 +326,14 @@ export const OptionSyncFolder = ({ account }) => (state, actions) => {
 export const OptionDelete = ({ account }) => (state, actions) => {
   return (
     <div>
-      <H4>Remove account</H4>
+      <H4>{browser.i18n.getMessage('LabelRemoveaccount')}</H4>
       <Button
         onclick={e => {
           e.preventDefault()
           actions.deleteAndCloseOptions()
         }}
       >
-        Delete this account
+        {browser.i18n.getMessage('DescriptionRemoveaccount')}
       </Button>
     </div>
   )
@@ -334,12 +342,8 @@ export const OptionDelete = ({ account }) => (state, actions) => {
 export const OptionResetCache = ({ account }) => (state, actions) => {
   return (
     <div>
-      <H4>Trigger sync from scratch</H4>
-      <p>
-        Tick this box to reset the cache so that the next synchronization run is
-        guaranteed not to delete any data and merely merges server and local
-        bookmarks together
-      </p>
+      <H4>{browser.i18n.getMessage('LabelResetCache')}</H4>
+      <p>{browser.i18n.getMessage('DescriptionResetCache')}</p>
       <Label>
         <Input
           type="checkbox"
@@ -352,7 +356,7 @@ export const OptionResetCache = ({ account }) => (state, actions) => {
             })
           }}
         />
-        Merge bookmarks on the next run
+        {browser.i18n.getMessage('LabelResetCache')}
       </Label>
     </div>
   )
@@ -361,12 +365,8 @@ export const OptionResetCache = ({ account }) => (state, actions) => {
 export const OptionParallelSyncing = ({ account }) => (state, actions) => {
   return (
     <div>
-      <H4>Speed up synchronization</H4>
-      <p>
-        Tick this box to process multiple folders in parallel in order to speed
-        up the synchronization. This feature is experimental and makes it harder
-        to read the debug logs.
-      </p>
+      <H4>{browser.i18n.getMessage('LabelParallelsync')}</H4>
+      <p>{browser.i18n.getMessage('DescriptionParallelsync')}</p>
       <Label>
         <Input
           type="checkbox"
@@ -380,7 +380,7 @@ export const OptionParallelSyncing = ({ account }) => (state, actions) => {
           }}
           checked={state.options.data.parallel}
         />
-        Run sync in parallel
+        {browser.i18n.getMessage('LabelParallelsync')}
       </Label>
     </div>
   )

@@ -11,6 +11,7 @@ const { h } = require('hyperapp')
 const url = require('url')
 const PQueue = require('p-queue')
 import AsyncLock from 'async-lock'
+import browser from '../browser-api'
 const _ = require('lodash')
 
 const PAGE_SIZE = 300
@@ -53,21 +54,21 @@ export default class NextcloudFoldersAdapter extends Adapter {
     }
     return (
       <form>
-        <Label for="url">Nextcloud server URL</Label>
+        <Label for="url">{browser.i18n.getMessage('LabelNextcloudurl')}</Label>
         <Input
           value={data.url}
           type="text"
           name="url"
           oninput={onchange.bind(null, 'url')}
         />
-        <Label for="username">User name</Label>
+        <Label for="username">{browser.i18n.getMessage('LabelUsername')}</Label>
         <Input
           value={data.username}
           type="text"
           name="username"
           oninput={onchange.bind(null, 'username')}
         />
-        <Label for="password">Password</Label>
+        <Label for="password">{browser.i18n.getMessage('LabelPassword')}</Label>
         <Input
           value={data.password}
           type="password"
@@ -76,23 +77,12 @@ export default class NextcloudFoldersAdapter extends Adapter {
         />
         <OptionSyncFolder account={state.account} />
 
-        <H3>Server folder</H3>
-        <p>
-          This is the path prefix under which this account will operate on the
-          server. E.g. if you use{' '}
-          <i>
-            <code>/work</code>
-          </i>
-          , all your bookmarks will be created on the server with this path
-          prefixed to their original path (the one relative to the local folder
-          you specified above). This allows you to separate your server
-          bookmarks into multiple "profiles".
-        </p>
+        <H3>{browser.i18n.getMessage('LabelServerfolder')}</H3>
+        <p>{browser.i18n.getMessage('DescriptionServerfolder')}</p>
         <Input
           value={data.serverRoot || ''}
           type="text"
           name="serverRoot"
-          placeholder="Leave empty for no prefix"
           oninput={onchange.bind(null, 'serverRoot')}
         />
 
@@ -154,7 +144,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
         `index.php/apps/bookmarks/public/rest/v2/bookmark?page=${i}&limit=${PAGE_SIZE}`
       )
       if (!Array.isArray(json.data)) {
-        throw new Error('Unexpected response data from server')
+        throw new Error(browser.i18n.getMessage('Error015'))
       }
       data = data.concat(json.data)
       i++
@@ -197,7 +187,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'index.php/apps/bookmarks/public/rest/v2/folder'
     )
     if (!Array.isArray(childFoldersJson.data)) {
-      throw new Error('Unexpected response data from server')
+      throw new Error(browser.i18n.getMessage('Error015'))
     }
     let childFolders = childFoldersJson.data
     Logger.log('Received folders from server', childFolders)
@@ -207,7 +197,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       `index.php/apps/bookmarks/public/rest/v2/folder/-1/childorder?layers=-1`
     )
     if (!Array.isArray(childrenOrderJson.data)) {
-      throw new Error('Unexpected response data from server')
+      throw new Error(browser.i18n.getMessage('Error015'))
     }
     let childrenOrder = childrenOrderJson.data
     Logger.log('Received children order from server', childrenOrder)
@@ -234,7 +224,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
               body
             )
             if (typeof json.item !== 'object') {
-              throw new Error('Unexpected response data from server')
+              throw new Error(browser.i18n.getMessage('Error015'))
             }
             currentChild = { id: json.item.id, children: [] }
           }
@@ -252,7 +242,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
               }/childorder`
             )
             if (!Array.isArray(childrenOrderJson.data)) {
-              throw new Error('Unexpected response data from server')
+              throw new Error(browser.i18n.getMessage('Error015'))
             }
             childrenOrder = childrenOrderJson.data
           } else {
@@ -274,10 +264,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
             let folder = childFolders.filter(
               folder => folder.id === child.id
             )[0]
-            if (!folder)
-              throw new Error(
-                'Inconsistent server state! Folder present in childorder list but not in folder tree'
-              )
+            if (!folder) throw new Error(browser.i18n.getMessage('Error021'))
             let newFolder = new Folder({
               id: child.id,
               title: folder.title,
@@ -295,7 +282,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
                 }/childorder`
               )
               if (!Array.isArray(childrenOrderJson.data)) {
-                throw new Error('Unexpected response data from server')
+                throw new Error(browser.i18n.getMessage('Error015'))
               }
               subChildrenOrder = childrenOrderJson.data
             }
@@ -315,9 +302,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
             )
             if (!childBookmark) {
               throw new Error(
-                `Folder #${tree.id}[${
-                  tree.title
-                }] contains an nonexistent bookmark ${child.id}`
+                browser.i18n.getMessage('Error022', [
+                  `#${tree.id}[${tree.title}]`,
+                  child.id
+                ])
               )
             }
             childBookmark = childBookmark.clone()
@@ -345,7 +333,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     } else {
       parentFolder = this.tree.findFolder(parentId)
       if (!parentFolder) {
-        throw new Error('Folder not found')
+        throw new Error(browser.i18n.getMessage('Error005'))
       }
     }
     let body = JSON.stringify({
@@ -359,7 +347,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       body
     )
     if (typeof json.item !== 'object') {
-      throw new Error('Unexpected response data from server')
+      throw new Error(browser.i18n.getMessage('Error015'))
     }
 
     parentFolder.children.push(
@@ -373,7 +361,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     Logger.log('(nextcloud-folders)UPDATEFOLDER', { id, title })
     let folder = this.tree.findFolder(id)
     if (!folder) {
-      throw new Error('Folder not found')
+      throw new Error(browser.i18n.getMessage('Error006'))
     }
     let body = JSON.stringify({
       parent_folder: folder.parentId,
@@ -393,7 +381,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     Logger.log('(nextcloud-folders)MOVEFOLDER', { id, parentId })
     let folder = this.tree.findFolder(id)
     if (!folder) {
-      throw new Error('Folder not found')
+      throw new Error(browser.i18n.getMessage('Error007'))
     }
     let body = JSON.stringify({
       parent_folder: parentId,
@@ -455,7 +443,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id
     )
     if (typeof json.item !== 'object') {
-      throw new Error('Unexpected response data from server')
+      throw new Error(browser.i18n.getMessage('Error015'))
     }
 
     let bm = json.item
@@ -508,7 +496,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
           body
         )
         if (typeof json.item !== 'object') {
-          throw new Error('Unexpected response data from server')
+          throw new Error(browser.i18n.getMessage('Error015'))
         }
         bm.id = json.item.id + ';' + bm.parentId
       }
@@ -591,9 +579,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
           }),
           new Promise((resolve, reject) =>
             setTimeout(() => {
-              const e = new Error(
-                'Request timed out. Check your server configuration'
-              )
+              const e = new Error(browser.i18n.getMessage('Error016'))
               e.pass = true
               reject(e)
             }, 60000)
@@ -602,32 +588,23 @@ export default class NextcloudFoldersAdapter extends Adapter {
       )
     } catch (e) {
       if (e.pass) throw e
-      throw new Error(
-        'Network error: Check your network connection and your account details'
-      )
+      throw new Error(browser.i18n.getMessage('Error017'))
     }
 
     if (res.status === 401) {
-      throw new Error("Couldn't authenticate with the server")
+      throw new Error(browser.i18n.getMessage('Error018'))
     }
     if (res.status !== 200) {
-      throw new Error(
-        `Error ${
-          res.status
-        }. Failed ${verb} request. Check your server configuration.`
-      )
+      throw new Error(browser.i18n.getMessage('Error019', [res.status, verb]))
     }
     let json
     try {
       json = await res.json()
     } catch (e) {
-      throw new Error(
-        'Could not parse server response. Is the bookmarks app installed on your server?\n' +
-          e.message
-      )
+      throw new Error(browser.i18n.getMessage('Error020') + '\n' + e.message)
     }
     if (json.status !== 'success') {
-      throw new Error('Nextcloud API error: ' + JSON.stringify(json))
+      throw new Error('Nextcloud API error: \n' + JSON.stringify(json))
     }
 
     return json

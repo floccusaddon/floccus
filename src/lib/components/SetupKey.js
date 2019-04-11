@@ -44,17 +44,13 @@ export const Component = () => (state, actions) => {
   return (
     <Overlay>
       <div id="setKey">
-        <H2>Set a pass phrase for floccus</H2>
-        <p>
-          When you set a pass phrase you will have to enter this pass phrase
-          everytime you start your browser if you want to access and synchronize
-          your bookmarks.
-        </p>
+        <H2>{browser.i18n.getMessage('LabelSetkey')}</H2>
+        <p>{browser.i18n.getMessage('DescriptionSetkey')}</p>
         <p>{state.setupKey.error ? state.setupKey.error : ''}</p>
         <Input
           value={state.setupKey.key1}
           type="password"
-          placeholder="Enter your unlock passphrase"
+          placeholder={browser.i18n.getMessage('LabelKey')}
           oninput={e => {
             const key = e.target.value
             actions.setupKey.updateKey1(key)
@@ -63,7 +59,7 @@ export const Component = () => (state, actions) => {
         <Input
           value={state.setupKey.key2}
           type="password"
-          placeholder="Enter passphrase a second time"
+          placeholder={browser.i18n.getMessage('LabelKey2')}
           oninput={e => {
             const key = e.target.value
             actions.setupKey.updateKey2(key)
@@ -74,7 +70,7 @@ export const Component = () => (state, actions) => {
             actions.setKey()
           }}
         >
-          Secure accounts
+          {browser.i18n.getMessage('LabelSecurecredentials')}
         </Button>
       </div>
     </Overlay>

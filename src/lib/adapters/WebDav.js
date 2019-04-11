@@ -72,18 +72,14 @@ export default class WebDavAdapter extends CachingAdapter {
         }
       })
     } catch (e) {
-      throw new Error(
-        'Network error: Check your network connection and your account details'
-      )
+      throw new Error(browser.i18n.getMessage('Error017'))
     }
 
     if (res.status === 401) {
-      throw new Error("Couldn't authenticate with the server")
+      throw new Error(browser.i18n.getMessage('Error018'))
     }
     if (!res.ok && res.status !== 404) {
-      throw new Error(
-        `Error ${res.status}. Failed request. Check your server configuration.`
-      )
+      throw new Error(browser.i18n.getMessage('Error019', [res.status, 'GET']))
     }
 
     return res
@@ -124,19 +120,13 @@ export default class WebDavAdapter extends CachingAdapter {
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
-      throw new Error(
-        'Network error: Check your network connection and your account details'
-      )
+      throw new Error(browser.i18n.getMessage('Error017'))
     }
     if (res.status === 401) {
-      throw new Error("Couldn't authenticate with the server")
+      throw new Error(browser.i18n.getMessage('Error018'))
     }
     if (!res.ok) {
-      throw new Error(
-        `Error ${
-          res.status
-        }. Failed to upload file. Check your server configuration.`
-      )
+      throw new Error(browser.i18n.getMessage('Error019', [res.status, 'PUT']))
     }
   }
 
@@ -157,9 +147,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
     if (rStatus == 200) {
       throw new Error(
-        'Lock Error: Unable to clear lock file, consider deleting ' +
-          this.server.bookmark_file +
-          '.lock'
+        browser.i18n.getMessage('Error023', this.server.bookmark_file + '.lock')
       )
     } else if (rStatus == 404) {
       let fullURL = this.getBookmarkLockURL()
@@ -171,9 +159,10 @@ export default class WebDavAdapter extends CachingAdapter {
       )
     } else {
       throw new Error(
-        `Error ${rStatus} while trying to determine status of lock file ` +
-          this.server.bookmark_file +
-          '.lock'
+        browser.i18n.getMessage('Error024', [
+          rStatus,
+          this.server.bookmark_file + '.lock'
+        ])
       )
     }
 
@@ -211,7 +200,7 @@ export default class WebDavAdapter extends CachingAdapter {
     let response = await this.downloadFile(fullUrl)
 
     if (response.status === 401) {
-      throw new Error("Couldn't authenticate with the server.")
+      throw new Error(browser.i18n.getMessage('Error018'))
     }
 
     if (response.status === 404) {
@@ -257,7 +246,7 @@ export default class WebDavAdapter extends CachingAdapter {
     Logger.log('onSyncStart: begin')
 
     if (this.server.bookmark_file[0] === '/') {
-      throw new Error("Bookmarks file setting mustn't start with a slash: '/'")
+      throw new Error(browser.i18n.getMessage('Error025'))
     }
 
     await this.obtainLock()
@@ -267,7 +256,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
       if (resp.status !== 200) {
         if (resp.status !== 404) {
-          throw new Error('Failed to fetch bookmarks :' + resp.status + ':')
+          throw new Error(browser.i18n.getMessage('Error026', resp.status))
         }
       }
     } catch (e) {
@@ -310,46 +299,38 @@ export default class WebDavAdapter extends CachingAdapter {
     }
     return (
       <form>
-        <Label for="url">WebDAV URL:</Label>
+        <Label for="url">{browser.i18n.getMessage('LabelWebdavurl')}</Label>
         <Input
           value={data.url}
           type="text"
           name="url"
           oninput={onchange.bind(null, 'url')}
         />
-        <p>
-          e.g. with nextcloud:{' '}
-          <i>
-            <code>https://your-domain.com/remote.php/webdav/</code>
-          </i>
-        </p>
-        <Label for="username">User name:</Label>
+        <p>{browser.i18n.getMessage('DescriptionWebdavurl')}</p>
+        <Label for="username">{browser.i18n.getMessage('LabelUsername')}</Label>
         <Input
           value={data.username}
           type="text"
           name="username"
           oninput={onchange.bind(null, 'username')}
         />
-        <Label for="password">Password:</Label>
+        <Label for="password">{browser.i18n.getMessage('LabelPassword')}</Label>
         <Input
           value={data.password}
           type="password"
           name="password"
           oninput={onchange.bind(null, 'password')}
         />
-        <Label for="bookmark_file">Bookmarks file path:</Label>
+        <Label for="bookmark_file">
+          {browser.i18n.getMessage('LabelBookmarksfile')}
+        </Label>
         <Input
           value={data.bookmark_file || ''}
           type="text"
           name="bookmark_file"
-          placeholder="Path on the server to the bookmarks file"
           oninput={onchange.bind(null, 'bookmark_file')}
         />
-        a path to the bookmarks file relative to your WebDAV URL (all folders in
-        the path must already exist). e.g.{' '}
-        <i>
-          <code>personal_stuff/bookmarks.xbel</code>
-        </i>
+        <p>{browser.i18n.getMessage('DescriptionBookmarksfile')}</p>
         <OptionSyncFolder account={state.account} />
         <OptionResetCache account={state.account} />
         <OptionParallelSyncing account={state.account} />

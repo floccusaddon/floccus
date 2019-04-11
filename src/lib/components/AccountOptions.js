@@ -89,9 +89,11 @@ export const Component = () => (state, actions) => {
           actions
         )}
         <div class="actions">
-          <Button onclick={() => actions.closeOptions()}>Cancel</Button>
+          <Button onclick={() => actions.closeOptions()}>
+            {browser.i18n.getMessage('LabelCancel')}
+          </Button>
           <Button primary onclick={() => actions.saveOptions()}>
-            Save
+            {browser.i18n.getMessage('LabelSave')}
           </Button>
         </div>
       </AccountOptionsStyle>

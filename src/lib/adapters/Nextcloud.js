@@ -11,6 +11,7 @@ const { h } = require('hyperapp')
 const url = require('url')
 const PQueue = require('p-queue')
 import AsyncLock from 'async-lock'
+import browser from '../browser-api'
 const _ = require('lodash')
 
 const TAG_PREFIX = 'floccus:'
@@ -54,21 +55,21 @@ export default class NextcloudAdapter extends Adapter {
     }
     return (
       <form>
-        <Label for="url">Nextcloud server URL:</Label>
+        <Label for="url">{browser.i18n.getMessage('LabelNextcloudurl')}</Label>
         <Input
           value={data.url}
           type="text"
           name="url"
           oninput={onchange.bind(null, 'url')}
         />
-        <Label for="username">User name:</Label>
+        <Label for="username">{browser.i18n.getMessage('LabelUsername')}</Label>
         <Input
           value={data.username}
           type="text"
           name="username"
           oninput={onchange.bind(null, 'username')}
         />
-        <Label for="password">Password:</Label>
+        <Label for="password">{browser.i18n.getMessage('LabelPassword')}</Label>
         <Input
           value={data.password}
           type="password"
@@ -77,23 +78,12 @@ export default class NextcloudAdapter extends Adapter {
         />
         <OptionSyncFolder account={state.account} />
 
-        <H3>Server folder</H3>
-        <p>
-          This is the path prefix under which this account will operate on the
-          server. E.g. if you use{' '}
-          <i>
-            <code>/work</code>
-          </i>
-          , all your bookmarks will be created on the server with this path
-          prefixed to their original path (the one relative to the local folder
-          you specified above). This allows you to separate your server
-          bookmarks into multiple "profiles".
-        </p>
+        <H3>{browser.i18n.getMessage('LabelServerfolder')}</H3>
+        <p>{browser.i18n.getMessage('DescriptionServerfolder')}</p>
         <Input
           value={data.serverRoot || ''}
           type="text"
           name="serverRoot"
-          placeholder="Leave empty for no prefix"
           oninput={onchange.bind(null, 'serverRoot')}
         />
 
@@ -155,7 +145,7 @@ export default class NextcloudAdapter extends Adapter {
         `index.php/apps/bookmarks/public/rest/v2/bookmark?page=${i}&limit=${PAGE_SIZE}`
       )
       if (!Array.isArray(json.data)) {
-        throw new Error('Unexpected response data from server')
+        throw new Error(browser.i18n.getMessage('Error015'))
       }
       data = data.concat(json.data)
       i++
@@ -239,7 +229,7 @@ export default class NextcloudAdapter extends Adapter {
     let folder = new Folder({ title, parentId, id: newId })
     let newParent = this.tree.findFolder(parentId)
     if (!newParent) {
-      throw new Error('New parent folder not found')
+      throw new Error(browser.i18n.getMessage('Error001'))
     }
     newParent.children.push(folder)
     this.tree.createIndex()
@@ -250,7 +240,7 @@ export default class NextcloudAdapter extends Adapter {
     Logger.log('(nextcloud)UPDATEFOLDER', { id, title })
     let folder = this.tree.findFolder(id)
     if (!folder) {
-      throw new Error('Folder not found')
+      throw new Error(browser.i18n.getMessage('Error006'))
     }
     folder.title = title
     let newParentId = PathHelper.arrayToPath(
@@ -276,17 +266,17 @@ export default class NextcloudAdapter extends Adapter {
     Logger.log('(nextcloud)MOVEFOLDER', { id, parentId })
     let folder = this.tree.findFolder(id)
     if (!folder) {
-      throw new Error('Folder not found')
+      throw new Error(browser.i18n.getMessage('Error007'))
     }
     let oldParent = this.tree.findFolder(folder.parentId)
     if (!oldParent) {
-      throw new Error('Parent folder not found')
+      throw new Error(browser.i18n.getMessage('Error008'))
     }
     oldParent.children.splice(oldParent.children.indexOf(folder), 1)
 
     let newParent = this.tree.findFolder(parentId)
     if (!newParent) {
-      throw new Error('New parent folder not found')
+      throw new Error(browser.i18n.getMessage('Error009'))
     }
     newParent.children.push(folder)
     folder.parentId = parentId
@@ -331,7 +321,7 @@ export default class NextcloudAdapter extends Adapter {
 
     let oldParent = this.tree.findFolder(folder.parentId)
     if (!oldParent) {
-      throw new Error('Parent folder not found')
+      throw new Error(browser.i18n.getMessage('Error014'))
     }
     oldParent.children.splice(oldParent.children.indexOf(folder), 1)
     this.tree.createIndex()
@@ -537,9 +527,7 @@ export default class NextcloudAdapter extends Adapter {
 
           new Promise((resolve, reject) =>
             setTimeout(() => {
-              const e = new Error(
-                'Request timed out. Check your server configuration'
-              )
+              const e = new Error(browser.i18n.getMessage('Error016'))
               e.pass = true
               reject(e)
             }, 60000)
@@ -548,32 +536,23 @@ export default class NextcloudAdapter extends Adapter {
       )
     } catch (e) {
       if (e.pass) throw e
-      throw new Error(
-        'Network error: Check your network connection and your account details'
-      )
+      throw new Error(browser.i18n.getMessage('Error017'))
     }
 
     if (res.status === 401) {
-      throw new Error("Couldn't authenticate with the server")
+      throw new Error(browser.i18n.getMessage('Error018'))
     }
     if (res.status !== 200) {
-      throw new Error(
-        `Error ${
-          res.status
-        }. Failed ${verb} request. Check your server configuration.`
-      )
+      throw new Error(browser.i18n.getMessage('Error019', [res.status, verb]))
     }
     let json
     try {
       json = await res.json()
     } catch (e) {
-      throw new Error(
-        'Could not parse server response. Is the bookmarks app installed on your server?\n' +
-          e.message
-      )
+      throw new Error(browser.i18n.getMessage('Error020') + '\n' + e.message)
     }
     if (json.status !== 'success') {
-      throw new Error('Nextcloud API error: ' + JSON.stringify(json))
+      throw new Error('Nextcloud API error: \n' + JSON.stringify(json))
     }
 
     return json

@@ -81,10 +81,14 @@ export const Component = () => (state, actions) => {
             }}
           >
             <option value="nextcloud-folders">
-              Nextcloud Bookmarks (with folders)
+              {browser.i18n.getMessage('LabelAdapternextcloudfolders')}
             </option>
-            <option value="nextcloud">Nextcloud Bookmarks (legacy)</option>
-            <option value="webdav">XBEL in WebDAV</option>
+            <option value="nextcloud">
+              {browser.i18n.getMessage('LabelAdapternextcloud')}
+            </option>
+            <option value="webdav">
+              {browser.i18n.getMessage('LabelAdapterwebdav')}
+            </option>
           </Select>
           <Button
             primary
@@ -92,15 +96,15 @@ export const Component = () => (state, actions) => {
               actions.createAccount()
             }}
           >
-            Add Account
+            {browser.i18n.getMessage('LabelAddaccount')}
           </Button>
         </InputGroup>
         <P>
           {state.accounts.creationType === 'nextcloud-folders'
-            ? 'The option "Nextcloud Bookmarks with folders" is compatible with version 0.14 of the Bookmarks app (and upwards). It creates actual folders in the app.'
+            ? browser.i18n.getMessage('DescriptionAdapternextcloudfolders')
             : state.accounts.creationType === 'nextcloud'
-            ? 'The legacy option is compatible with version 0.11 of the Bookmarks app (and upwards). It will emulate folders by assigning tags containing the folder path to the bookmarks.'
-            : "The WebDAV option syncs your bookmarks by storing them in an XBEL file in the provided WebDAV share. There is no accompanying web UI for this option and you don't need nextcloud for this."}
+            ? browser.i18n.getMessage('DescriptionAdapternextcloud')
+            : browser.i18n.getMessage('DescriptionAdapterwebdav')}
         </P>
         <p> </p>
         <div class="security">
@@ -116,12 +120,12 @@ export const Component = () => (state, actions) => {
                 }
               }}
             />{' '}
-            Secure your credentials
+            {browser.i18n.getMessage('LabelSecurecredentials')}
           </Label>
         </div>
         <div class="debugging-tools">
           <a href="options.html" target="_blank">
-            Open in new tab
+            {browser.i18n.getMessage('LabelOpenintab')}
           </a>
           <a
             href="#"
@@ -130,13 +134,13 @@ export const Component = () => (state, actions) => {
               e.preventDefault()
             }}
           >
-            Debug logs
+            {browser.i18n.getMessage('LabelDebuglogs')}
           </a>
           <a
             target="_blank"
             href="https://github.com/marcelklehr/floccus#donate"
           >
-            Fund development
+            {browser.i18n.getMessage('LabelFunddevelopment')}
           </a>
         </div>
       </div>

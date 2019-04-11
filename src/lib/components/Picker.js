@@ -67,7 +67,7 @@ export const Component = () => (state, actions) => {
           actions.cancelPicker()
         }}
       >
-        Cancel
+        {browser.i18n.getMessage('LabelCancel')}
       </Button>
     </Overlay>
   )
@@ -90,7 +90,7 @@ const Subtree = ({ tree, root }) => (state, actions) => {
         class={empty || root ? 'untoggleable' : ''}
       >
         {root || state.picker.openedFolders[tree.id] ? '📂 ' : '📁 '}
-        {tree.title || <i>Untitled folder</i>}
+        {tree.title || <i>{browser.i18n.getMessage('LabelUntitledfolder')}</i>}
         <Button
           className="choose"
           onclick={e => {
@@ -98,12 +98,14 @@ const Subtree = ({ tree, root }) => (state, actions) => {
             return false
           }}
         >
-          select
+          {browser.i18n.getMessage('LabelSelect')}
         </Button>
       </ItemLabel>
       {!empty && (root || state.picker.openedFolders[tree.id]) ? (
         <div className="children">
-          {tree.children.map(node => <Subtree tree={node} />)}
+          {tree.children.map(node => (
+            <Subtree tree={node} />
+          ))}
         </div>
       ) : (
         ''

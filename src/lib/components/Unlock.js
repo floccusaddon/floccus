@@ -33,11 +33,11 @@ export const Component = () => (state, actions) => {
   return (
     <Overlay>
       <div id="unlock">
-        <H2>Unlock floccus</H2>
+        <H2>{browser.i18n.getMessage('LabelUnlock')}</H2>
         <Input
           value={state.unlock.key}
           type="password"
-          placeholder="Enter your unlock passphrase"
+          placeholder={browser.i18n.getMessage('LabelKey')}
           onkeydown={e => {
             if (e.which === 13) {
               actions.enterUnlockKey(e.target.value)
@@ -54,7 +54,7 @@ export const Component = () => (state, actions) => {
             actions.submitUnlockKey()
           }}
         >
-          Unlock
+          {browser.i18n.getMessage('LabelUnlock')}
         </Button>
       </div>
     </Overlay>

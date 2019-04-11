@@ -2,6 +2,7 @@ import * as Tree from '../Tree'
 import Logger from '../Logger'
 import { Folder, Bookmark } from '../Tree'
 import Adapter from '../Adapter'
+import browser from '../browser-api'
 const url = require('url')
 
 export default class CachingAdapter extends Adapter {
@@ -25,7 +26,7 @@ export default class CachingAdapter extends Adapter {
     bm.id = ++this.highestId
     const foundFolder = this.bookmarksCache.findFolder(bm.parentId)
     if (!foundFolder) {
-      throw new Error("Folder to create in doesn't exist")
+      throw new Error(browser.i18n.getMessage('Error001'))
     }
     foundFolder.children.push(bm)
     this.bookmarksCache.createIndex()
@@ -36,7 +37,7 @@ export default class CachingAdapter extends Adapter {
     Logger.log('UPDATE', newBm)
     const foundBookmark = this.bookmarksCache.findBookmark(newBm.id)
     if (!foundBookmark) {
-      throw new Error("Bookmark to update doesn't exist anymore")
+      throw new Error(browser.i18n.getMessage('Error002'))
     }
     foundBookmark.url = newBm.url
     foundBookmark.title = newBm.title
@@ -45,13 +46,11 @@ export default class CachingAdapter extends Adapter {
         foundBookmark.parentId
       )
       if (!foundOldFolder) {
-        throw new Error(
-          "Folder to move out of doesn't exist. This is an anomaly. Congratulations."
-        )
+        throw new Error(browser.i18n.getMessage('Error003'))
       }
       const foundNewFolder = this.bookmarksCache.findFolder(newBm.parentId)
       if (!foundNewFolder) {
-        throw new Error("Folder to move into doesn't exist")
+        throw new Error(browser.i18n.getMessage('Error004'))
       }
       foundOldFolder.children.splice(
         foundOldFolder.children.indexOf(foundBookmark),
@@ -93,7 +92,7 @@ export default class CachingAdapter extends Adapter {
     folder.id = ++this.highestId
     const foundParentFolder = this.bookmarksCache.findFolder(parentId)
     if (!foundParentFolder) {
-      throw new Error("Folder to create in doesn't exist")
+      throw new Error(browser.i18n.getMessage('Error005'))
     }
     foundParentFolder.children.push(folder)
     this.bookmarksCache.createIndex()
@@ -108,7 +107,7 @@ export default class CachingAdapter extends Adapter {
     Logger.log('UPDATEFOLDER', { id, title })
     const folder = this.bookmarksCache.findFolder(id)
     if (!folder) {
-      throw new Error("Folder to move doesn't exist")
+      throw new Error(browser.i18n.getMessage('Error006'))
     }
     folder.title = title
   }
@@ -121,15 +120,15 @@ export default class CachingAdapter extends Adapter {
     Logger.log('MOVEFOLDER', { id, newParentId })
     const folder = this.bookmarksCache.findFolder(id)
     if (!folder) {
-      throw new Error("Folder to move doesn't exist")
+      throw new Error(browser.i18n.getMessage('Error007'))
     }
     const foundOldFolder = this.bookmarksCache.findFolder(folder.parentId)
     if (!foundOldFolder) {
-      throw new Error("Folder to move out of doesn't exist")
+      throw new Error(browser.i18n.getMessage('Error008'))
     }
     const foundNewFolder = this.bookmarksCache.findFolder(newParentId)
     if (!foundNewFolder) {
-      throw new Error("Folder to move into doesn't exist")
+      throw new Error(browser.i18n.getMessage('Error009'))
     }
     foundOldFolder.children.splice(foundOldFolder.children.indexOf(folder), 1)
     foundNewFolder.children.push(folder)
@@ -142,7 +141,7 @@ export default class CachingAdapter extends Adapter {
 
     let folder = this.bookmarksCache.findFolder(id)
     if (!folder) {
-      throw new Error('Could not find folder to order')
+      throw new Error(browser.i18n.getMessage('Error010'))
     }
     order.forEach(item => {
       let child
@@ -153,15 +152,12 @@ export default class CachingAdapter extends Adapter {
       }
       if (!child || child.parentId !== folder.id) {
         throw new Error(
-          'Item in folder ordering is not an actual child: ' +
-            JSON.stringify(item)
+          browser.i18n.getMessage('Error011', JSON.stringify(item))
         )
       }
     })
     if (order.length !== folder.children.length) {
-      throw new Error(
-        "Folder ordering is missing some of the folder's children"
-      )
+      throw new Error(browser.i18n.getMessage('Error012'))
     }
     const newChildren = []
     order.forEach(item => {
@@ -183,12 +179,12 @@ export default class CachingAdapter extends Adapter {
     Logger.log('REMOVEFOLDER', { id })
     const folder = this.bookmarksCache.findFolder(id)
     if (!folder) {
-      throw new Error("Folder to remove doesn't exist")
+      throw new Error(browser.i18n.getMessage('Error013'))
     }
     // root folder doesn't have a parent, yo!
     const foundOldFolder = this.bookmarksCache.findFolder(folder.parentId)
     if (!foundOldFolder) {
-      throw new Error("Parent folder to remove folder from of doesn't exist")
+      throw new Error(browser.i18n.getMessage('Error014'))
     }
     foundOldFolder.children.splice(foundOldFolder.children.indexOf(folder), 1)
     this.bookmarksCache.createIndex()

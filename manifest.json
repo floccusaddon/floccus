@@ -17,6 +17,8 @@
     }
   },
 
+  "default_locale": "en",
+
   "permissions": ["https://*/", "http://*/", "alarms", "bookmarks", "storage"],
 
   "options_ui": {
