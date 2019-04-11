@@ -146,6 +146,7 @@ If you'd like to support the creation and maintenance of this software, please c
 <!-- prettier-ignore -->
 | [<img src="https://avatars2.githubusercontent.com/u/7296506?v=4" width="70px;" alt="Bernd Wechner"/><br /><sub><b>Bernd Wechner</b></sub>](https://github.com/bernd-wechner)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3Abernd-wechner "Bug reports") [🤔](#ideas-bernd-wechner "Ideas, Planning, & Feedback") [⚠️](https://github.com/marcelklehr/floccus/commits?author=bernd-wechner "Tests") | [<img src="https://avatars0.githubusercontent.com/u/9746421?v=4" width="70px;" alt="jlbprof"/><br /><sub><b>jlbprof</b></sub>](https://github.com/jlbprof)<br />[💻](https://github.com/marcelklehr/floccus/commits?author=jlbprof "Code") [🐛](https://github.com/marcelklehr/floccus/issues?q=author%3Ajlbprof "Bug reports") [⚠️](https://github.com/marcelklehr/floccus/commits?author=jlbprof "Tests") | [<img src="https://avatars2.githubusercontent.com/u/1771400?v=4" width="70px;" alt="TeutonJon78"/><br /><sub><b>TeutonJon78</b></sub>](https://github.com/TeutonJon78)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3ATeutonJon78 "Bug reports") [🤔](#ideas-TeutonJon78 "Ideas, Planning, & Feedback") | [<img src="https://avatars1.githubusercontent.com/u/9087223?v=4" width="70px;" alt="Scott P."/><br /><sub><b>Scott P.</b></sub>](https://github.com/skewty)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3Askewty "Bug reports") [🤔](#ideas-skewty "Ideas, Planning, & Feedback") | [<img src="https://avatars1.githubusercontent.com/u/10448369?v=4" width="70px;" alt="Lantizia"/><br /><sub><b>Lantizia</b></sub>](https://github.com/Lantizia)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3ALantizia "Bug reports") [🤔](#ideas-Lantizia "Ideas, Planning, & Feedback") | [<img src="https://avatars1.githubusercontent.com/u/6315832?v=4" width="70px;" alt="TCB13"/><br /><sub><b>TCB13</b></sub>](https://iklive.eu)<br />[💻](https://github.com/marcelklehr/floccus/commits?author=TCB13 "Code") [🤔](#ideas-TCB13 "Ideas, Planning, & Feedback") [🔌](#plugin-TCB13 "Plugin/utility libraries") |
 | :---: | :---: | :---: | :---: | :---: | :---: |
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification.
@@ -153,6 +154,8 @@ This project follows the [all-contributors](https://github.com/kentcdodds/all-co
 ## Contribute
 
 All contributions, code, feedback and strategic advice, are welcome. If you have a question you can contact me directly via email or simply [open an issue](https://github.com/marcelklehr/floccus/issues/new) on the repository. I'm also always happy for people helping me test new features -- see the issues for announcements of beta versions.
+
+Translations can now be provided over at [transifex](https://www.transifex.com/floccus/floccus/).
 
 ### Setting up a dev environment
 
