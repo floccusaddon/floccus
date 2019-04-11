@@ -155,13 +155,11 @@ This project follows the [all-contributors](https://github.com/kentcdodds/all-co
 
 All contributions, code, feedback and strategic advice, are welcome. If you have a question you can contact me directly via email or simply [open an issue](https://github.com/marcelklehr/floccus/issues/new) on the repository. I'm also always happy for people helping me test new features -- see the issues for announcements of beta versions.
 
-### Tranlating
+### Translating
 
 Translations can now be provided over at [transifex](https://www.transifex.com/floccus/floccus/).
 
-<a target="_blank" style="text-decoration:none; color:black; font-size:66%" href="/projects/p/undefined/resource/messages-json--develop/"
-title="See more information on Transifex.com">Top translations: undefined » messages-json--develop</a><br/>
-<img border="0" src="/projects/p/undefined/resource/messages-json--develop/chart/image_png"/><br/><a target="_blank" href="/"><img border="0" src="https://cdn.transifex.com/static/charts/images/tx-logo-micro.c5603f91c780.png"/></a>
+![](https://www.transifex.com/projects/p/floccus/resource/messages-json--develop/chart/image_png)
 
 ### Setting up a dev environment
 
