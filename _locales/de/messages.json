@@ -1,0 +1,236 @@
+{
+  "Error001": {
+    "message": "E001: Der Ordner in dem neu erzeugt werden soll existiert nicht"
+  },
+  "Error002": {
+    "message": "E002: Zu aktualisierendes Lesezeichen existiert nicht"
+  },
+  "Error003": {
+    "message": "E003: Ordner aus dem herausgeschoben werden soll existiert nicht. Dies ist eine Anomalie. Herzlichen Glückwunsch."
+  },
+  "Error004": {
+    "message": "E004: Ordner in den verschoben werden soll existiert nicht"
+  },
+  "Error005": {
+    "message": "E005: Ordner in dem erzeugt werden soll existiert nicht"
+  },
+  "Error006": {
+    "message": "E006: Zu aktualisierender Ordner existiert nicht "
+  },
+  "Error007": {
+    "message": "E007: Zu verschiebender Ordner existiert nicht"
+  },
+  "Error008": {
+    "message": "E008: Der Ordner, aus dem herausgeschoben werden soll, existiert nicht."
+  },
+  "Error009": {
+    "message": "E009: Ordner in den verschoben werden soll existiert nicht"
+  },
+  "Error010": {
+    "message": "E010: Zu ordnender Ordner konnte nicht gefunden werden"
+  },
+  "Error011": {
+    "message": "E011: Der Eintrag in der Ordner-Ordnung ist kein Kind des Ordners: $1"
+  },
+  "Error012": {
+    "message": "E012: Der Ordner-Ordnung fehlen einige Kinder des Ordners"
+  },
+  "Error013": {
+    "message": "E013: Zu löschender Ordner existiert nicht"
+  },
+  "Error014": {
+    "message": "E014: Elternordner aus dem gelöscht werden soll existiert nicht mehr"
+  },
+  "Error015": {
+    "message": "E015: Unerwartete Antwortdaten vom Server erhalten"
+  },
+  "Error016": {
+    "message": "E016: Zeitüberschreitung einer Anfrage. Überprüfen Sie die Server-Konfiguration"
+  },
+  "Error017": {
+    "message": "E017: Netzwerk-Fehler: Überprüfen sie Ihre Netzwerkverbindung und die eingegebenen Konto-Daten"
+  },
+  "Error018": {
+    "message": "E018: Authentifizierung fehlgeschlagen"
+  },
+  "Error019": {
+    "message": "E019: HTTP Status $1. Anfrage vom Typ $2  fehlgeschlagen. Überprüfen Sie die Server-Konfiguration und das Server-Log"
+  },
+  "Error020": {
+    "message": "E020: Antwort des Servers konnte nicht gelesen werden. Ist die Bookmarks App auf Ihrem Server installiert?"
+  },
+  "Error021": {
+    "message": "E021: Inkonsistenter Server-Zustand. Ein Ordner ist in der Kind-Ordnung enthalten, aber nicht im Ordner-Baum."
+  },
+  "Error022": {
+    "message": "E022: Ordner $1 enhält angeblich ein nicht existierendes Lesezeichen: $2"
+  },
+  "Error023": {
+    "message": "E023: Freigabe der Lock-Datei war nicht erfolgreich. Erwägen Sie $1 von Hand zu löschen."
+  },
+  "Error024": {
+    "message": "E024: HTTP status $1 während des Ermittelns des Status der Lock-Datei $2"
+  },
+  "Error025": {
+    "message": "E025: Die Einstellung der Bookmarks Datei darf nicht mit einem Schrägstrich beginnen: '/'"
+  },
+  "Error026": {
+    "message": "E026: HTTP status $1. Fehler beim laden der Lesezeichen"
+  },
+  "Error027": {
+    "message": "E027: Der Synchronisierungsprozess wurde unterbrochen"
+  },
+  "LabelWebdavurl": {
+    "message": "WebDAV URL"
+  },
+  "DescriptionWebdavurl": {
+    "message": "z.B. mit Nextcloud: https://ihre-domain.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "Nextcloud URL"
+  },
+  "LabelUsername": {
+    "message": "Benutzername"
+  },
+  "LabelPassword": {
+    "message": "Passwort"
+  },
+  "LabelBookmarksfile": {
+    "message": "Pfad zur Bookmark-Datei"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "ein Pfad zur Bookmarks-Datei relativ zur WebDAV URL (alle Ordner darin müssen bereits existieren). z.B. persönlich/lesezeichen.xbel (Kein Schrägstrich am Anfang!)"
+  },
+  "LabelServerfolder": {
+    "message": "Server-Ordner"
+  },
+  "DescriptionServerfolder": {
+    "message": "Das Pfad-Präfix unter welchem dieses Konto auf dem Server agiert. Wenn Sie z.B. '/arbeit' eingeben, werden alle Lesezeichen auf dem Server mit diesem Pfad als Präfix zu ihrem eigentlichen Pfad angelegt. Dies erlaubt Ihnen Ihre Lesezeichen auf dem Server in verschiedene Profile aufzuteilen. Lassen Sie dieses Feld leer, um kein Präfix zu setzen."
+  },
+  "LabelLocalfolder": {
+    "message": "Lokaler Ordner"
+  },
+  "DescriptionLocalfolder": {
+    "message": "Der lokale Lesezeichen-Ordner in diesem Browser, der mit dem Server synchronisiert wird. Per Default wird ein neuer Ordner für Sie angelegt. (Note: Es ist nun möglich den Wurzel-Ordner direkt zwischen verschiedenen Browser-Typen zu synchroniesieren.)"
+  },
+  "LabelRootfolder": {
+    "message": "Wurzel-Ordner"
+  },
+  "LabelOptions": {
+    "message": "Optionen"
+  },
+  "LabelSyncnow": {
+    "message": "Jetzt synchronisieren"
+  },
+  "LabelEnabled": {
+    "message": "Aktiviert"
+  },
+  "StatusLastsynced": {
+    "message": "Zuletzt synchronisiert: vor $1"
+  },
+  "StatusNeversynced": {
+    "message": "Noch nie synchronisiert."
+  },
+  "StatusAllgood": {
+    "message": "Alles gut"
+  },
+  "StatusDisabled": {
+    "message": "Deaktiviert"
+  },
+  "StatusError": {
+    "message": "Fehler"
+  },
+  "StatusSyncing": {
+    "message": "Synchronisiere"
+  },
+  "LabelReset": {
+    "message": "Zurücksetzen"
+  },
+  "DescriptionReset": {
+    "message": "Setzen Sie den synchronisierten Ordner zurück um einen neuen generieren zu lassen"
+  },
+  "LabelChoosefolder": {
+    "message": "Ordner wählen"
+  },
+  "DescriptionChoosefolder": {
+    "message": "Setzen Sie einen existierenden Ordner, der synchronisiert werden soll"
+  },
+  "LabelRemoveaccount": {
+    "message": "Konto entfernen"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "Lösche dieses Konto (löscht keine Lesezeichen)"
+  },
+  "LabelResetCache": {
+    "message": "Neue Synchronisierung von Grund auf auslösen"
+  },
+  "DescriptionResetcache": {
+    "message": "Setzen SIe diesen Haken, um den Cache zurückzusetzen, sodass die nächste Synchronisierung garantiert keine Lesezeichen löscht, sondern lediglich Server und Lokale Lesezeichen vereinigt"
+  },
+  "LabelParallelsync": {
+    "message": "Synchronisierung beschleunigen"
+  },
+  "DescriptionParallelsync": {
+    "message": "Setzen Sie diesen Haken um mehrere Ordner parallel abzuarbeiten und so die Synchronisierung zu beschleunigen. Dieses Feature ist experimentell und macht es schwieriger die Debug Logs zu lesen."
+  },
+  "LabelSave": {
+    "message": "Speichern"
+  },
+  "LabelCancel": {
+    "message": "Abbrechen"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Nextcloud Bookmarks"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "Die Option \"Nextcloud Bookmarks\" ist kompatibel mit mindestens Version v0.14 der Bookmarks app."
+  },
+  "LabelAdapternextcloud": {
+    "message": "Nextcloud Bookmarks (alte Version)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "Die Option Alte Version ist kompatibel mit mindestens Version v0.11 der Bookmarks app. Dabei werden Ordner mittels Tags simuliert, die den Ordner-Pfad enthalten. Es wird nicht empfohlen, diese Option für neue Konten zu verwenden."
+  },
+  "LabelAdapterwebdav": {
+    "message": "XBEL-Datei im WebDAV-Share"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "Die WebDAV-Option synchronisiert Ihre Lesezeichen indem sie in einer XBEL-Datei im angegebenen WebDAV-Share gespeichert werden. Es gibt dafür kein entsprechendes Web Interface, aber die Option funktioniert mit jedem WebDAV-kompatiblen Server."
+  },
+  "LabelAddaccount": {
+    "message": "Konto hinzufügen"
+  },
+  "LabelSecurecredentials": {
+    "message": "Zugangsdaten absichern"
+  },
+  "LabelOpenintab": {
+    "message": "In tab öffnen"
+  },
+  "LabelDebuglogs": {
+    "message": "Debug-Logs"
+  },
+  "LabelFunddevelopment": {
+    "message": "Entwicklung fördern"
+  },
+  "LabelSelect": {
+    "message": "Auswählen"
+  },
+  "LabelUntitledfolder": {
+    "message": "Unbenannter Ordner"
+  },
+  "LabelSetkey": {
+    "message": "Passwort für floccus setzen"
+  },
+  "DescriptionSetkey": {
+    "message": "Wenn Sie ein Passwort setzen, müssen sie dieses immer eingeben, wenn sie Ihren Browser starten, damit Lesezeichen synchronisiert werden."
+  },
+  "LabelKey": {
+    "message": "Passwort zum entsperren eingeben"
+  },
+  "LabelKey2": {
+    "message": "Passwort ein zweites Mal eingeben"
+  },
+  "LabelUnlock": {
+    "message": "Floccus entsperren"
+  }
+}
