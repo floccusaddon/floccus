@@ -41,9 +41,9 @@ You can [install it via AMO](https://addons.mozilla.org/en-US/firefox/addon/floc
 
 (Note that AMO has to review all new releases, though, so you might need to wait a bit before you can install the latest release on firefox.)
 
-### Firefox for Android
+### Android
 
-Floccus is not supported by Firefox for Android [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility).
+Floccus is not supported by Firefox for Android [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility). **But**, why wait for mozilla, if you can use [Kiwi Browser](https://play.google.com/store/apps/details?id=com.kiwibrowser.browser), which supports floccus! Install instructions are the same as for Chrome.
 
 ### Ugrading
 
