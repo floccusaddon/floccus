@@ -123,25 +123,32 @@ export const Component = () => (state, actions) => {
             {browser.i18n.getMessage('LabelSecurecredentials')}
           </Label>
         </div>
-        <div class="debugging-tools">
-          <a href="options.html" target="_blank">
-            {browser.i18n.getMessage('LabelOpenintab')}
-          </a>
-          <a
-            href="#"
-            onclick={e => {
-              actions.downloadLogs()
-              e.preventDefault()
-            }}
-          >
-            {browser.i18n.getMessage('LabelDebuglogs')}
-          </a>
-          <a
-            target="_blank"
-            href="https://github.com/marcelklehr/floccus#donate"
-          >
-            {browser.i18n.getMessage('LabelFunddevelopment')}
-          </a>
+        <div class="footer">
+          <div class="debugging-tools">
+            <a href="options.html" target="_blank">
+              {browser.i18n.getMessage('LabelOpenintab')}
+            </a>
+            <a
+              href="#"
+              onclick={e => {
+                actions.downloadLogs()
+                e.preventDefault()
+              }}
+            >
+              {browser.i18n.getMessage('LabelDebuglogs')}
+            </a>
+            <a
+              target="_blank"
+              href="https://github.com/marcelklehr/floccus#donate"
+            >
+              {browser.i18n.getMessage('LabelFunddevelopment')}
+            </a>
+          </div>
+          <div class="branding">
+            <a href="https://github.com/marcelklehr/floccus" target="_blank">
+              <img src="../../icons/logo.svg" border="0" /> floccus
+            </a>
+          </div>
         </div>
       </div>
     </AccountsStyle>
@@ -149,16 +156,38 @@ export const Component = () => (state, actions) => {
 }
 
 const AccountsStyle = style('div')({
+  ' .footer': {
+    fontSize: '11px',
+    paddingTop: '30px',
+    marginBottom: '-20px',
+    overflow: 'auto'
+  },
+  ' .footer a': {
+    color: '#3893cc !important',
+    textDecoration: 'none'
+  },
+  ' .footer a:hover': {
+    textDecoration: 'underline'
+  },
   ' .debugging-tools': {
-    position: 'absolute',
-    right: '20px',
-    bottom: '10px',
-    fontSize: '10px'
+    float: 'right'
   },
   ' .debugging-tools a': {
-    color: '#3893cc !important',
     display: 'inline-block',
     marginLeft: '10px'
+  },
+  ' .branding': {
+    float: 'left'
+  },
+  ' .branding a': {
+    textDecoration: 'none !important'
+  },
+  ' .branding img': {
+    width: 'auto',
+    height: '3em',
+    position: 'relative',
+    verticalAlign: 'top',
+    top: '-1em'
   },
   ' .wrapper': {
     position: 'relative',
