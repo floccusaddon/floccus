@@ -21,6 +21,17 @@ export default class CachingAdapter extends Adapter {
     return this.bookmarksCache.clone()
   }
 
+  acceptsBookmark(bm) {
+    if (
+      !~['https:', 'http:', 'ftp:', 'data:', 'javascript:'].indexOf(
+        url.parse(bm.url).protocol
+      )
+    ) {
+      return false
+    }
+    return true
+  }
+
   async createBookmark(bm) {
     Logger.log('CREATE', bm)
     bm.id = ++this.highestId
