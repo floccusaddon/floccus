@@ -386,6 +386,27 @@ export const OptionParallelSyncing = ({ account }) => (state, actions) => {
   )
 }
 
+export const OptionSyncInterval = ({ account }) => (state, actions) => {
+  return (
+    <div>
+      <H4>{browser.i18n.getMessage('LabelSyncinterval')}</H4>
+      <p>{browser.i18n.getMessage('DescriptionSyncinterval')}</p>
+      <Input
+        type="number"
+        oninput={e => {
+          actions.options.update({
+            data: {
+              ...account,
+              syncInterval: e.target.value
+            }
+          })
+        }}
+        value={state.options.data.syncInterval}
+      />
+    </div>
+  )
+}
+
 export const A = style('a')({})
 
 export const Progress = ({ value }) => {

@@ -232,5 +232,11 @@
   },
   "LabelUnlock": {
     "message": "Unlock floccus"
+  },
+  "LabelSyncinterval": {
+    "message": "Synchronization interval"
+  },
+  "DescriptionSyncinterval": {
+    "message": "The timespan between two sync runs in minutes. Default is 15 minutes."
   }
 }

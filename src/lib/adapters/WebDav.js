@@ -17,7 +17,8 @@ const {
   OptionSyncFolder,
   OptionDelete,
   OptionResetCache,
-  OptionParallelSyncing
+  OptionParallelSyncing,
+  OptionSyncInterval
 } = Basics
 
 export default class WebDavAdapter extends CachingAdapter {
@@ -333,6 +334,8 @@ export default class WebDavAdapter extends CachingAdapter {
         />
         <p>{browser.i18n.getMessage('DescriptionBookmarksfile')}</p>
         <OptionSyncFolder account={state.account} />
+
+        <OptionSyncInterval account={state.account} />
         <OptionResetCache account={state.account} />
         <OptionParallelSyncing account={state.account} />
         <OptionDelete account={state.account} />

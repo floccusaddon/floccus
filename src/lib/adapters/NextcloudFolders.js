@@ -24,6 +24,7 @@ const {
   OptionDelete,
   OptionResetCache,
   OptionParallelSyncing,
+  OptionSyncInterval,
   H3
 } = Basics
 
@@ -86,6 +87,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
           oninput={onchange.bind(null, 'serverRoot')}
         />
 
+        <OptionSyncInterval account={state.account} />
         <OptionResetCache account={state.account} />
         <OptionParallelSyncing account={state.account} />
         <OptionDelete account={state.account} />

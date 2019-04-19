@@ -32,6 +32,7 @@ export const actions = {
       const data = state.data
       const originalData = account.getData()
       if (data.serverRoot === '/') data.serverRoot = ''
+      data.syncInterval = parseInt(data.syncInterval)
       const newData = { ...originalData, ...data }
       if (JSON.stringify(newData) === JSON.stringify(originalData)) return
       if (

@@ -9,7 +9,7 @@ const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')
 const STATUS_ALLGOOD = Symbol('allgood')
 const INACTIVITY_TIMEOUT = 1000 * 60
-const SYNC_INTERVAL = 15 * 1000 * 60
+const DEFAULT_SYNC_INTERVAL = 15
 
 class AlarmManager {
   constructor(ctl) {
@@ -21,7 +21,11 @@ class AlarmManager {
     var accounts = d['accounts']
     for (var accountId in accounts) {
       const account = await Account.get(accountId)
-      if (Date.now() > SYNC_INTERVAL + account.getData().lastSync) {
+      const data = account.getData()
+      if (
+        Date.now() >
+        (data.syncInterval || DEFAULT_SYNC_INTERVAL) * 1000 * 60 + data.lastSync
+      ) {
         this.ctl.scheduleSync(accountId)
       }
     }
