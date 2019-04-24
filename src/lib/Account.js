@@ -6,7 +6,7 @@ import WebDavAdapter from './adapters/WebDav'
 import FakeAdapter from './adapters/Fake'
 import Tree from './Tree'
 import LocalTree from './LocalTree'
-import SyncProcess from './SyncProcess'
+import DefaultSyncProcess from './strategies/Default'
 import Logger from './Logger'
 import browser from './browser-api'
 
@@ -146,7 +146,7 @@ export default class Account {
 
       let mappings = await this.storage.getMappings()
 
-      const sync = new SyncProcess(
+      const sync = new DefaultSyncProcess(
         mappings,
         this.localTree,
         await this.storage.getCache(),

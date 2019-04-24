@@ -1,5 +1,5 @@
-import * as Tree from './Tree'
-import Logger from './Logger'
+import * as Tree from '../Tree'
+import Logger from '../Logger'
 
 const _ = require('lodash')
 const Parallel = require('async-parallel')
@@ -47,6 +47,9 @@ export default class SyncProcess {
     this.serverTreeRoot = await this.server.getBookmarksTree()
     this.filterOutUnacceptedBookmarks(this.localTreeRoot)
     await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
+
+    // Load sparse tree
+    await this.loadChildren(this.serverTreeRoot, this.mappings.getSnapshot())
 
     // generate hashtables to find items faster
     this.localTreeRoot.createIndex()
@@ -183,12 +186,36 @@ export default class SyncProcess {
       }
     }
 
-    if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
-      return await execSync()
+    this.updateProgress()
+    return await this.queue.add(execSync)
+  }
+
+  async loadChildren(serverItem, mappingsSnapshot) {
+    if (serverItem instanceof Tree.Bookmark) return
+    if (typeof this.server.loadFolderChildren === 'undefined') return
+    let localItem
+    if (serverItem === this.serverTreeRoot) {
+      localItem = this.localTreeRoot
     } else {
-      this.updateProgress()
-      return await this.queue.add(execSync)
+      const localId = mappingsSnapshot.folders.ServerToLocal[serverItem.id]
+      localItem = this.localTreeRoot.findFolder(localId)
     }
+    if (
+      localItem &&
+      (await localItem.hash(true)) === (await serverItem.hash(true))
+    ) {
+      return
+    }
+    Logger.log('LOADCHILDREN', serverItem)
+    const children = await this.server.loadFolderChildren(serverItem.id)
+    serverItem.children = children
+
+    // recurse
+    await Promise.all(
+      serverItem.children.map(child =>
+        this.loadChildren(child, mappingsSnapshot)
+      )
+    )
   }
 
   async createFolder(
