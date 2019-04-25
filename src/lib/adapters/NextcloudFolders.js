@@ -593,6 +593,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
     }
 
     let bm = json.item
+    if (!bm.folders.length) {
+      bm.folders = [null]
+    }
     let bookmarks = bm.folders.map(parentId => {
       let bookmark = new Bookmark({
         id: bm.id + ';' + parentId,
@@ -684,7 +687,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
         title: newBm.title,
         folders: bms
           .map(bm => bm.parentId)
-          .filter(parentId => parentId !== oldParentId)
+          .filter(parentId => parentId !== oldParentId && parentId)
           .concat([newBm.parentId]),
         tags: bms[0].tags
       })
