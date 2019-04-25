@@ -368,6 +368,38 @@ export default class NextcloudFoldersAdapter extends Adapter {
       throw new Error(browser.i18n.getMessage('Error015'))
     }
     let childFolders = childFoldersJson.data
+    let tree = new Folder({ id: '-1' })
+    if (this.server.serverRoot) {
+      await Parallel.each(
+        this.server.serverRoot.split('/').slice(1),
+        async segment => {
+          let currentChild = _.find(
+            childFolders,
+            folder => folder.title === segment
+          )
+          if (!currentChild) {
+            // create folder
+            let body = JSON.stringify({
+              parent_folder: tree.id,
+              title: segment
+            })
+            const json = await this.sendRequest(
+              'POST',
+              'index.php/apps/bookmarks/public/rest/v2/folder',
+              'application/json',
+              body
+            )
+            if (typeof json.item !== 'object') {
+              throw new Error(browser.i18n.getMessage('Error015'))
+            }
+            currentChild = { id: json.item.id, children: [] }
+          }
+          tree = new Folder({ id: currentChild.id })
+          childFolders = currentChild.children
+        },
+        1
+      )
+    }
     Logger.log('Received folders from server', childFolders)
     const recurseChildFolders = (tree, childFolders) => {
       childFolders.forEach(child => {
@@ -386,7 +418,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'index.php/apps/bookmarks/public/rest/v2/folder/-1/hash'
     )
     this.list = []
-    this.tree = new Folder({ id: '-1' })
+    this.tree = tree
     this.tree.hashValue = { true: hashJson.data }
     recurseChildFolders(this.tree, childFoldersJson.data)
     return this.tree
