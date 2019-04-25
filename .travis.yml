@@ -23,7 +23,7 @@ env:
     - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER="nextcloud parallel"
 
     - SERVER_BRANCH=stable14 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud standard"
-    - SERVER_BRANCH=stable14 NC_APP_VERSION=v0.17.1 FLOCCUS_ADAPTER="nextcloud-folders standard"
+    - SERVER_BRANCH=stable14 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud-folders standard"
 
     - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud standard"
     - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud serverRoot"
