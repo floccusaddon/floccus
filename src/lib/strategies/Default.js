@@ -208,6 +208,9 @@ export default class SyncProcess {
     }
     Logger.log('LOADCHILDREN', serverItem)
     const children = await this.server.loadFolderChildren(serverItem.id)
+    if (!children) {
+      return
+    }
     serverItem.children = children
 
     // recurse

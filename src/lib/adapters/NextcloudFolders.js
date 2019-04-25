@@ -425,6 +425,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
   }
 
   async loadFolderChildren(folderId) {
+    if (!this.hasFeatureHashing) {
+      return
+    }
     const [childrenOrderJson, childBookmarksJson] = await Promise.all([
       this.sendRequest(
         'GET',
