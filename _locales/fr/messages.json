@@ -1,0 +1,242 @@
+{
+  "Error001": {
+    "message": "E001: Le dossier dans lequel créer n'existe pas"
+  },
+  "Error002": {
+    "message": "E002: Le marque-page à mettre à jour n'existe plus"
+  },
+  "Error003": {
+    "message": "E003: Le dossier dont sortir n'existe pas. C'est une anomalie. Toutes nos félicitations."
+  },
+  "Error004": {
+    "message": "E004: Le dossier de destination n'existe pas"
+  },
+  "Error005": {
+    "message": "E005: Le dossier dans lequel créer n'existe pas"
+  },
+  "Error006": {
+    "message": "E006: Le dossier à mettre à jour n'existe pas"
+  },
+  "Error007": {
+    "message": "E007: Le dossier à déplacer n'existe pas"
+  },
+  "Error008": {
+    "message": "E008: Le dossier dont sortir n'existe pas"
+  },
+  "Error009": {
+    "message": "E009: Le répertoire de destination n'existe pas"
+  },
+  "Error010": {
+    "message": "E010: Impossible de trouver de dossier à ranger"
+  },
+  "Error011": {
+    "message": "E011: L'élément dans le dossier en cours de rangement n'est pas un fils réel: $1"
+  },
+  "Error012": {
+    "message": "E012: Il manque  certains de ses fils du dossier en cours de rangement"
+  },
+  "Error013": {
+    "message": "E013: Le dossier à supprimer n'existe pas"
+  },
+  "Error014": {
+    "message": "E014: Le répertoire parent du dossier à supprimer n'existe pas"
+  },
+  "Error015": {
+    "message": "E015: Réponse inattendue du serveur"
+  },
+  "Error016": {
+    "message": "E016: Temps dépassé durant le requête. Vérifiez la configuration du serveur"
+  },
+  "Error017": {
+    "message": "E017: Erreur réseau: Vérifiez votre connexion réseau et vos paramètres de compte"
+  },
+  "Error018": {
+    "message": "E018: Impossible de s'authentifier sur le serveur"
+  },
+  "Error019": {
+    "message": "E019: Statut HTTP: $1 Requête $2en erreur. Vérifiez votre configuration serveur et votre journal"
+  },
+  "Error020": {
+    "message": "E020: Impossible de lire la réponse du serveur. L'application de marque-pages est elle installée sur votre serveur?"
+  },
+  "Error021": {
+    "message": "E021: État serveur incohérent. Le dossier est présent dans la liste des fils mais pas dans l'arborescence"
+  },
+  "Error022": {
+    "message": "E022: Le serveur $1est censé contenir le marque page $2qui n'existe pas"
+  },
+  "Error023": {
+    "message": "E023: Impossible de libérer le fichier verrou. Essayez de supprimer $1 manuellement."
+  },
+  "Error024": {
+    "message": "E024: Statut HTTP $1 en essayant de déterminer l'état du fichier verro $2"
+  },
+  "Error025": {
+    "message": "E025: Le fichier de paramètre des marque-pages ne doit pas commencer par un slash '/'"
+  },
+  "Error026": {
+    "message": "E026: Statut HTTP $1. Impossible de récupérer les marque-pages."
+  },
+  "Error027": {
+    "message": "E027: Synchronisation interrompue"
+  },
+  "LabelWebdavurl": {
+    "message": "URL WevDAV"
+  },
+  "DescriptionWebdavurl": {
+    "message": "Par ex. avext Nextcloud: https://votre-domaine.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "URL Nextcloud"
+  },
+  "LabelUsername": {
+    "message": "Utilisateur"
+  },
+  "LabelPassword": {
+    "message": "Mot de passe"
+  },
+  "LabelBookmarksfile": {
+    "message": "Chemin du fichier de marque-pages"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "un chemin vers le fichier de marque-pages correspondant à votre URL WebDAV (tous les dossiers dans le chemin doivent exister). Par ex. documents...personnels/bookmarks.xbel"
+  },
+  "LabelServerfolder": {
+    "message": "Dossier serveur"
+  },
+  "DescriptionServerfolder": {
+    "message": "C'est le préfixe de chemin sous lequel ce compte échangera avec le serveur. Par ex. si vous utilisez \"travail\", tous vos marques-pages seront créés sur le serveur avec le chemin original préfixé par ce chemin (correspondant au répertoire local que vous avez précisé au-dessus). Cela permet de séparer vos marques-pages sur le serveur dans plusieurs 'profils'. Laisser ce paramètre vide si vous ne voulez pas utiliser de préfixe."
+  },
+  "LabelLocalfolder": {
+    "message": "Répertoire local"
+  },
+  "DescriptionLocalfolder": {
+    "message": "C'est le répertoire des marque-pages locaux de ce navigateur qui sera synchronisé avec le serveur. Par défaut un nouveau répertoire sera créé. (Note: vous pouvez dès maintenant synchroniser le répertoire racine avec différents navigateurs sans rien faire de plus)"
+  },
+  "LabelRootfolder": {
+    "message": "Répertoire racine"
+  },
+  "LabelOptions": {
+    "message": "Options"
+  },
+  "LabelSyncnow": {
+    "message": "Synchroniser maintenant"
+  },
+  "LabelEnabled": {
+    "message": "Activé"
+  },
+  "StatusLastsynced": {
+    "message": "Dernière synchronisation il y a $1"
+  },
+  "StatusNeversynced": {
+    "message": "Pas encore synchronisé"
+  },
+  "StatusAllgood": {
+    "message": "Tout bon"
+  },
+  "StatusDisabled": {
+    "message": "Désactivé"
+  },
+  "StatusError": {
+    "message": "Erreur"
+  },
+  "StatusSyncing": {
+    "message": "Synchronisation en cours"
+  },
+  "LabelReset": {
+    "message": "Réinitialisation"
+  },
+  "DescriptionReset": {
+    "message": "Réinitialiser le répertoire synchronisé pour en créer un nouveau"
+  },
+  "LabelChoosefolder": {
+    "message": "Choisissez un répertoire"
+  },
+  "DescriptionChoosefolder": {
+    "message": "Définir un répertoire existant à synchroniser"
+  },
+  "LabelRemoveaccount": {
+    "message": "Supprimer le compte"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "Supprimer ce compte (cela ne supprimera pas vos marque-pages)"
+  },
+  "LabelResetCache": {
+    "message": "Déclenchez une nouvelle synchronisation"
+  },
+  "DescriptionResetcache": {
+    "message": "Cochez cette case pour réinitialiser le cache pour que la prochaine synchronisation ne supprime aucune donnée et se contente de fusionner les données serveur et les marque-pages locaux ensemble"
+  },
+  "LabelParallelsync": {
+    "message": "Accélérer la synchronisation"
+  },
+  "DescriptionParallelsync": {
+    "message": "Cochez cette case pour traiter plusieurs dossiers en parallèle afin d'accélérer la synchronisation. Cette fonctionnalité est expérimentale et rend plus difficile la lecture des journaux de débogage."
+  },
+  "LabelSave": {
+    "message": "Sauvegarder"
+  },
+  "LabelCancel": {
+    "message": "Annuler"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Marque-pages Nextcloud"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "L'option 'Marque-pages Nextcloud' n'est compatible qu'avec la version 0.14 de l'application Bookmarks"
+  },
+  "LabelAdapternextcloud": {
+    "message": "Marque-pages Nextcloud (ancienne méthode)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "Cette option d'ancienne méthode est compatible avec la version minimum 0.11 de l'application Bookmarks. Elle émulera des dossiers en utilisant des tags contenant le chemin du dossier. Cette option n'est pas recommandée pour les nouveaux comptes."
+  },
+  "LabelAdapterwebdav": {
+    "message": "Fichier XBEL dans le partage WebDAV"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "L'option WebDAV synchronise vos marque-pages en les stockant dans un fichier XBEL dans le partage WebDAV indiqué. Il n'y a pas d'interface utilisateur Web associée à cette option et vous pouvez l'utiliser avec tout serveur compatible WebDAV."
+  },
+  "LabelAddaccount": {
+    "message": "Ajouter un compte"
+  },
+  "LabelSecurecredentials": {
+    "message": "Sécurisez vos identifiants"
+  },
+  "LabelOpenintab": {
+    "message": "Ouvrir dans un onglet"
+  },
+  "LabelDebuglogs": {
+    "message": "Journaux de débogage"
+  },
+  "LabelFunddevelopment": {
+    "message": "Financez le développement"
+  },
+  "LabelSelect": {
+    "message": "Sélectionner"
+  },
+  "LabelUntitledfolder": {
+    "message": "Dossier sans nom"
+  },
+  "LabelSetkey": {
+    "message": "Définissez une phrase secrète pour Floccus"
+  },
+  "DescriptionSetkey": {
+    "message": "Lorsque vous définissez une phrase secrète, vous devez la saisir à chaque démarrage du navigateur si vous souhaitez accéder à vos favoris et les synchroniser."
+  },
+  "LabelKey": {
+    "message": "Entrez la phrase de déverrouillage"
+  },
+  "LabelKey2": {
+    "message": "Entrez votre phrase secrète une seconde fois"
+  },
+  "LabelUnlock": {
+    "message": "Déverrouiller Floccus"
+  },
+  "LabelSyncinterval": {
+    "message": "Intervalle de synchronisation"
+  },
+  "DescriptionSyncinterval": {
+    "message": "Intervalle entre deux synchronisations. 15 minutes par défaut."
+  }
+}
