@@ -1,0 +1,242 @@
+{
+  "Error001": {
+    "message": "E001: A pasta onde criar não existe"
+  },
+  "Error002": {
+    "message": "E002: O marcador a atualizar já não existe"
+  },
+  "Error003": {
+    "message": "E003: A pasta de onde mover não existe. Isto é uma anomalia. Parabéns!"
+  },
+  "Error004": {
+    "message": "E004: A pasta para onde mover não existe"
+  },
+  "Error005": {
+    "message": "E005: A pasta onde criar não existe"
+  },
+  "Error006": {
+    "message": "E006: A pasta a atualizar não existe"
+  },
+  "Error007": {
+    "message": "E007: A pasta a mover não existe"
+  },
+  "Error008": {
+    "message": "E008: A pasta de onde mover não existe"
+  },
+  "Error009": {
+    "message": "E009: A pasta para onde mover não existe"
+  },
+  "Error010": {
+    "message": "E010: Não foi possível encontrar uma pasta para ordenar"
+  },
+  "Error011": {
+    "message": "E011: Elemento na ordenação das pastas não é um filho: $1"
+  },
+  "Error012": {
+    "message": "E012: A ordenação de pastas está a faltar em alguns dos filhos da pasta"
+  },
+  "Error013": {
+    "message": "E013: A pasta a remover não existe."
+  },
+  "Error014": {
+    "message": "E014: A pasta pai de onde remover a pasta não existe"
+  },
+  "Error015": {
+    "message": "E015: Resposta inesperada recebida do servidor"
+  },
+  "Error016": {
+    "message": "E016: Tempo limite para o pedido excedido. Verifique a configuração do servidor."
+  },
+  "Error017": {
+    "message": "E017: Erro de rede. Verifique a sua ligação à rede e os detalhes da conta."
+  },
+  "Error018": {
+    "message": "E018: Não foi possível autenticar no servidor"
+  },
+  "Error019": {
+    "message": "E019: HTTP $1. O pedido $2 falhou. Verifique a configuração do servidor."
+  },
+  "Error020": {
+    "message": "E020: Não foi possível processar a resposta do servidor. A aplicação dos marcadores está instalada no servidor?"
+  },
+  "Error021": {
+    "message": "E021: O estado do servidor é inconsistente. A pasta está presente na lista do childorder mas não está na árvore de pastas."
+  },
+  "Error022": {
+    "message": "E022: A pasta $1 contém supostamente um marcador não existente $2"
+  },
+  "Error023": {
+    "message": "E023: Impossível remover o ficheiro de segurança, considere remover $1 manualmente."
+  },
+  "Error024": {
+    "message": "E024: HTTP $1 ao tentar determinar o estado do ficheiro de segurança $2"
+  },
+  "Error025": {
+    "message": "E025: O ficheiro dos marcadores não pode começar com a barra \"/\""
+  },
+  "Error026": {
+    "message": "E026: HTTP $1. Erro ao obter marcadores."
+  },
+  "Error027": {
+    "message": "E027: A sincronização foi interrompida"
+  },
+  "LabelWebdavurl": {
+    "message": "URL do WebDAV"
+  },
+  "DescriptionWebdavurl": {
+    "message": "ex. com nextcloud: https://o-seu-dominio.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "URL do Nextcloud"
+  },
+  "LabelUsername": {
+    "message": "Utilizador"
+  },
+  "LabelPassword": {
+    "message": "Palavra-passe"
+  },
+  "LabelBookmarksfile": {
+    "message": "Caminho para o ficheiro de marcadores"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "O caminho para o ficheiro de marcadores relativo ao URL do seu WebDAV (todas as pastas neste caminho têm de existir). ex. documentos/marcadores.xbel"
+  },
+  "LabelServerfolder": {
+    "message": "Pasta no servidor"
+  },
+  "DescriptionServerfolder": {
+    "message": "Este é o prefixo sobre o qual esta conta irá operar no servidor. Ex. se utilizar \"/trabalho\", todos os seus marcadores serão criados no servidor com este prefixo no caminho original (aquele relativo à pasta local definida anteriormente). Esta opção permite separar os marcadores no servidor em múltiplos perfis. Se não for preenchido nenhum prefixo será utilizado."
+  },
+  "LabelLocalfolder": {
+    "message": "Pasta local"
+  },
+  "DescriptionLocalfolder": {
+    "message": "Esta é a pasta de marcores local (no seu browser) que será sincronizada com o servidor. Por padrão, uma nova pasta será criada por si. (Nota: pode agora sincronizar a pasta raiz com browsers distintos.)"
+  },
+  "LabelRootfolder": {
+    "message": "Raiz"
+  },
+  "LabelOptions": {
+    "message": "Opções"
+  },
+  "LabelSyncnow": {
+    "message": "Sincronizar agora"
+  },
+  "LabelEnabled": {
+    "message": "Ativado"
+  },
+  "StatusLastsynced": {
+    "message": "Útima sincronização há: $1"
+  },
+  "StatusNeversynced": {
+    "message": "Ainda não sincronizado"
+  },
+  "StatusAllgood": {
+    "message": "Sucesso"
+  },
+  "StatusDisabled": {
+    "message": "Desativado"
+  },
+  "StatusError": {
+    "message": "Erro"
+  },
+  "StatusSyncing": {
+    "message": "Sincronizando"
+  },
+  "LabelReset": {
+    "message": "Reset"
+  },
+  "DescriptionReset": {
+    "message": "Redefinir pasta sinronizada para criar uma nova."
+  },
+  "LabelChoosefolder": {
+    "message": "Escolher uma pasta"
+  },
+  "DescriptionChoosefolder": {
+    "message": "Definir uma pasta existente para sincronizar"
+  },
+  "LabelRemoveaccount": {
+    "message": "Remover conta"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "Apaga esta conta (não irá remover os marcadores)"
+  },
+  "LabelResetCache": {
+    "message": "Desencadear sincronização incial"
+  },
+  "DescriptionResetcache": {
+    "message": "Marque para limpar o cache e garante que a próxima sincronização não iá apagar nada, apenas juntar os marcadores locais com os do servidor."
+  },
+  "LabelParallelsync": {
+    "message": "Aumentar a velocidade de sincronização"
+  },
+  "DescriptionParallelsync": {
+    "message": "Marque para sincronizar várias pastas em simultâneo o que poderá acelerar a valocidade de sincronização. Esta é uma funcionalidade experimental e dificulta a leitura dos registos de debug."
+  },
+  "LabelSave": {
+    "message": "Guardar"
+  },
+  "LabelCancel": {
+    "message": "Cancelar"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Marcadores do Nextcloud"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "A opção \"Marcadores do Nextcloud\" é compatível com a versão 0.14 ou superior da aplicação de marcadores."
+  },
+  "LabelAdapternextcloud": {
+    "message": "Marcadores do Nextcloud (legacy)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "A opção legacy é compatível com pelo menos a versão 0.11 da aplicação de marcadores. Irá emular pastas recorrendo a tags contento o caminho da pasta. Não é recomendável utilizar esta opção com novas contas."
+  },
+  "LabelAdapterwebdav": {
+    "message": "Ficheiro XBEL em partilha WebDAV"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "A opção WebDAV sincroniza os seus marcadores guardando-os num ficheiro XBEL numa partilha WebDAV.  Não existe uma interface web para esta opção e pode ser utilizada com qualquer servidor compatível com WebDAV."
+  },
+  "LabelAddaccount": {
+    "message": "Adicionar conta"
+  },
+  "LabelSecurecredentials": {
+    "message": "Proteja as suas credenciais"
+  },
+  "LabelOpenintab": {
+    "message": "Abrir em separador"
+  },
+  "LabelDebuglogs": {
+    "message": "Registos de debug"
+  },
+  "LabelFunddevelopment": {
+    "message": "Apoiar o desenvolvimento"
+  },
+  "LabelSelect": {
+    "message": "Selecionar"
+  },
+  "LabelUntitledfolder": {
+    "message": "Pasta sem nome"
+  },
+  "LabelSetkey": {
+    "message": "Defina uma palavra-passe para o floccus"
+  },
+  "DescriptionSetkey": {
+    "message": "Quando define uma palavra-passe terá de a introduzir de cada vez que inicia o seu browser. Só após isto será possível aceder e sincronizar os seus marcadores."
+  },
+  "LabelKey": {
+    "message": "Introduza a sua palavra-passe"
+  },
+  "LabelKey2": {
+    "message": "Introduza a sua palavra-passe novamente"
+  },
+  "LabelUnlock": {
+    "message": "Desbloquear o floccus"
+  },
+  "LabelSyncinterval": {
+    "message": "Intervalo de sincronização"
+  },
+  "DescriptionSyncinterval": {
+    "message": "O intervalo em minutos entre duas sincronizações. O valor padrão é 15 minutos."
+  }
+}
