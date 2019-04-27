@@ -232,5 +232,11 @@
   },
   "LabelUnlock": {
     "message": "Floccus entsperren"
+  },
+  "LabelSyncinterval": {
+    "message": "Synchronisierungsintervall"
+  },
+  "DescriptionSyncinterval": {
+    "message": "Die Zeitspanne zwischen zwei Synchronisierungsläufen. Der Standard-Wert sind 15 Minuten."
   }
 }
