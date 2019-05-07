@@ -60,7 +60,7 @@ export default class LocalTree extends Resource {
         let folder = new Tree.Folder({
           id: node.id,
           parentId,
-          title: overrideTitle || node.title,
+          title: parentId ? overrideTitle || node.title : undefined,
           children: node.children
             .map(child => recurse(child, node.id))
             .filter(child => !!child) // filter out `undefined` from nested accounts

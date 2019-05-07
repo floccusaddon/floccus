@@ -28,8 +28,8 @@ export class Bookmark {
 
   async hash() {
     if (!this.hashValue) {
-      this.hashValue = Crypto.murmur2(
-        JSON.stringify({ url: this.url, title: this.title })
+      this.hashValue = await Crypto.sha256(
+        JSON.stringify({ title: this.title, url: this.url })
       )
     }
     return this.hashValue
@@ -117,13 +117,14 @@ export class Folder {
       })
     }
     if (!this.hashValue) this.hashValue = {}
-    this.hashValue[preserveOrder] = Crypto.murmur2(
+    this.hashValue[preserveOrder] = await Crypto.sha256(
       JSON.stringify({
+        title: this.title,
         children: await Promise.all(
           this.children.map(child => child.hash(preserveOrder))
-        ),
-        title: this.title
+        )
       })
+    )
     )
     return this.hashValue[preserveOrder]
   }
