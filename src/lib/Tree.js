@@ -125,7 +125,6 @@ export class Folder {
         )
       })
     )
-    )
     return this.hashValue[preserveOrder]
   }
 
