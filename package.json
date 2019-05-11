@@ -7,7 +7,8 @@
     "build": "gulp",
     "build-release": "gulp release",
     "test": "node test/selenium-runner.js",
-    "keygen": "gulp keygen"
+    "keygen": "gulp keygen",
+    "postinstall": "opencollective-postinstall"
   },
   "repository": {
     "type": "git",
@@ -49,9 +50,15 @@
     "js-base64": "^2.5.1",
     "murmur2js": "^1.0.0",
     "normalize-url": "^4.3.0",
+    "opencollective-postinstall": "^2.0.2",
     "p-queue": "^5.0.0",
     "picostyle": "^1.0.2",
     "punycode": "^2.1.1",
-    "virtual-dom": "^2.1.1"
+    "virtual-dom": "^2.1.1",
+    "opencollective": "^1.0.3"
+  },
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/floccus"
   }
 }
