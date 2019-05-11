@@ -1,4 +1,4 @@
-# ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/icons/logo.png) Floccus
+# ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/icons/logo.png) Floccus [![Backers on Open Collective](https://opencollective.com/floccus/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/floccus/sponsors/badge.svg)](#sponsors) 
 
 ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/img/screen_firefox_options.png)
 
@@ -176,6 +176,36 @@ Translations can now be provided over at [transifex](https://www.transifex.com/f
 ### Releasing
 
 Firefox expects a zip, for chrome do the following: https://developer.chrome.com/extensions/packaging (private key necessary!)
+
+## Contributors
+
+This project exists thanks to all the people who contribute. 
+<a href="https://github.com/marcelklehr/floccus/graphs/contributors"><img src="https://opencollective.com/floccus/contributors.svg?width=890&button=false" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/floccus#backer)]
+
+<a href="https://opencollective.com/floccus#backers" target="_blank"><img src="https://opencollective.com/floccus/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/floccus#sponsor)]
+
+<a href="https://opencollective.com/floccus/sponsor/0/website" target="_blank"><img src="https://opencollective.com/floccus/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/floccus/sponsor/1/website" target="_blank"><img src="https://opencollective.com/floccus/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/floccus/sponsor/2/website" target="_blank"><img src="https://opencollective.com/floccus/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/floccus/sponsor/3/website" target="_blank"><img src="https://opencollective.com/floccus/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/floccus/sponsor/4/website" target="_blank"><img src="https://opencollective.com/floccus/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/floccus/sponsor/5/website" target="_blank"><img src="https://opencollective.com/floccus/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/floccus/sponsor/6/website" target="_blank"><img src="https://opencollective.com/floccus/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/floccus/sponsor/7/website" target="_blank"><img src="https://opencollective.com/floccus/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/floccus/sponsor/8/website" target="_blank"><img src="https://opencollective.com/floccus/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/floccus/sponsor/9/website" target="_blank"><img src="https://opencollective.com/floccus/sponsor/9/avatar.svg"></a>
+
+
 
 ## License
 
