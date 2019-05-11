@@ -1,4 +1,4 @@
-# ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/icons/logo.png) Floccus [![Backers on Open Collective](https://opencollective.com/floccus/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/floccus/sponsors/badge.svg)](#sponsors) 
+# ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/icons/logo.png) Floccus [![Backers on Open Collective](https://opencollective.com/floccus/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/floccus/sponsors/badge.svg)](#sponsors)
 
 ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/img/screen_firefox_options.png)
 
@@ -142,6 +142,8 @@ If you'd like to support the creation and maintenance of this software, please c
 
 ## Contributors
 
+This project exists thanks to all the people who contribute.
+
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore -->
 | [<img src="https://avatars2.githubusercontent.com/u/7296506?v=4" width="70px;" alt="Bernd Wechner"/><br /><sub><b>Bernd Wechner</b></sub>](https://github.com/bernd-wechner)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3Abernd-wechner "Bug reports") [🤔](#ideas-bernd-wechner "Ideas, Planning, & Feedback") [⚠️](https://github.com/marcelklehr/floccus/commits?author=bernd-wechner "Tests") | [<img src="https://avatars0.githubusercontent.com/u/9746421?v=4" width="70px;" alt="jlbprof"/><br /><sub><b>jlbprof</b></sub>](https://github.com/jlbprof)<br />[💻](https://github.com/marcelklehr/floccus/commits?author=jlbprof "Code") [🐛](https://github.com/marcelklehr/floccus/issues?q=author%3Ajlbprof "Bug reports") [⚠️](https://github.com/marcelklehr/floccus/commits?author=jlbprof "Tests") | [<img src="https://avatars2.githubusercontent.com/u/1771400?v=4" width="70px;" alt="TeutonJon78"/><br /><sub><b>TeutonJon78</b></sub>](https://github.com/TeutonJon78)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3ATeutonJon78 "Bug reports") [🤔](#ideas-TeutonJon78 "Ideas, Planning, & Feedback") | [<img src="https://avatars1.githubusercontent.com/u/9087223?v=4" width="70px;" alt="Scott P."/><br /><sub><b>Scott P.</b></sub>](https://github.com/skewty)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3Askewty "Bug reports") [🤔](#ideas-skewty "Ideas, Planning, & Feedback") | [<img src="https://avatars1.githubusercontent.com/u/10448369?v=4" width="70px;" alt="Lantizia"/><br /><sub><b>Lantizia</b></sub>](https://github.com/Lantizia)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3ALantizia "Bug reports") [🤔](#ideas-Lantizia "Ideas, Planning, & Feedback") | [<img src="https://avatars1.githubusercontent.com/u/6315832?v=4" width="70px;" alt="TCB13"/><br /><sub><b>TCB13</b></sub>](https://iklive.eu)<br />[💻](https://github.com/marcelklehr/floccus/commits?author=TCB13 "Code") [🤔](#ideas-TCB13 "Ideas, Planning, & Feedback") [🔌](#plugin-TCB13 "Plugin/utility libraries") |
@@ -177,18 +179,11 @@ Translations can now be provided over at [transifex](https://www.transifex.com/f
 
 Firefox expects a zip, for chrome do the following: https://developer.chrome.com/extensions/packaging (private key necessary!)
 
-## Contributors
-
-This project exists thanks to all the people who contribute. 
-<a href="https://github.com/marcelklehr/floccus/graphs/contributors"><img src="https://opencollective.com/floccus/contributors.svg?width=890&button=false" /></a>
-
-
 ## Backers
 
 Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/floccus#backer)]
 
 <a href="https://opencollective.com/floccus#backers" target="_blank"><img src="https://opencollective.com/floccus/backers.svg?width=890"></a>
-
 
 ## Sponsors
 
@@ -204,8 +199,6 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://opencollective.com/floccus/sponsor/7/website" target="_blank"><img src="https://opencollective.com/floccus/sponsor/7/avatar.svg"></a>
 <a href="https://opencollective.com/floccus/sponsor/8/website" target="_blank"><img src="https://opencollective.com/floccus/sponsor/8/avatar.svg"></a>
 <a href="https://opencollective.com/floccus/sponsor/9/website" target="_blank"><img src="https://opencollective.com/floccus/sponsor/9/avatar.svg"></a>
-
-
 
 ## License
 
