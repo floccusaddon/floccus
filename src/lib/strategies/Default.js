@@ -193,16 +193,18 @@ export default class SyncProcess {
   async loadChildren(serverItem, mappingsSnapshot) {
     if (serverItem instanceof Tree.Bookmark) return
     if (typeof this.server.loadFolderChildren === 'undefined') return
-    let localItem
+    let localItem, cacheItem
     if (serverItem === this.serverTreeRoot) {
       localItem = this.localTreeRoot
+      cacheItem = this.cacheTreeRoot
     } else {
       const localId = mappingsSnapshot.folders.ServerToLocal[serverItem.id]
       localItem = this.localTreeRoot.findFolder(localId)
+      cacheItem = this.cacheTreeRoot.findFolder(localId)
     }
     if (
       localItem &&
-      (await localItem.hash(true)) === (await serverItem.hash(true))
+      !(await this.folderHasChanged(localItem, cacheItem, serverItem)).changed
     ) {
       return
     }
@@ -299,7 +301,7 @@ export default class SyncProcess {
     return true
   }
 
-  async updateFolder(localItem, cacheItem, serverItem) {
+  async folderHasChanged(localItem, cacheItem, serverItem) {
     const localHash = localItem
       ? await localItem.hash(this.preserveOrder)
       : null
@@ -319,6 +321,15 @@ export default class SyncProcess {
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
     const changed = changedLocally || changedUpstream
+    return { changedLocally, changedUpstream, changed }
+  }
+
+  async updateFolder(localItem, cacheItem, serverItem) {
+    const {
+      changed,
+      changedLocally,
+      changedUpstream
+    } = await this.folderHasChanged(localItem, cacheItem, serverItem)
 
     if (localItem !== this.localTreeRoot && changed) {
       if (changedLocally) {
