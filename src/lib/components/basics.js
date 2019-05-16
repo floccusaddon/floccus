@@ -2,6 +2,7 @@ import picostyle from 'picostyle'
 import humanizeDuration from 'humanize-duration'
 import { h } from 'hyperapp'
 import browser from '../browser-api'
+import PathHelper from '../PathHelper'
 
 const path = require('path')
 
@@ -142,16 +143,16 @@ export const Label = style('label')({
 
 export const Account = ({ account }) => (state, actions) => {
   const data = account.getData()
+  const pathArray = PathHelper.pathToArray(
+    data.rootPath || browser.i18n.getMessage('LabelRootfolder')
+  )
+  const folderName = pathArray[pathArray.length - 1]
   return (
     <AccountStyle key={account.id}>
       <div class="controls">
         <AccountStatus account={account} />
       </div>
-      <H2>
-        {path.basename(
-          data.rootPath || browser.i18n.getMessage('LabelRootfolder')
-        )}
-      </H2>
+      <H2>{folderName}</H2>
       <div class="small">
         <code style={{ color: COLORS.primary.light }}>
           {data.type + '://' + account.getLabel()}
