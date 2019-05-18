@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "floccus",
   "short_name": "floccus",
-  "version": "3.3.0.1",
+  "version": "3.3.0.2",
   "description": "Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)",
   "icons": {
     "48": "icons/logo.png",
