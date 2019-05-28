@@ -88,14 +88,7 @@ export default class Controller {
       })
     })
 
-    Account.getAllAccounts().then(accounts => {
-      accounts
-        .filter(
-          account =>
-            account.getData().lastSync < Date.now() - SYNC_INTERVAL * 60 * 1000
-        )
-        .forEach(account => this.syncAccount(account.id))
-    })
+    this.checkSync()
 
     setInterval(() => this.updateStatus(), 500)
   }
