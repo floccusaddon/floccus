@@ -88,7 +88,7 @@ export default class Controller {
       })
     })
 
-    this.checkSync()
+    this.alarms.checkSync()
 
     setInterval(() => this.updateStatus(), 500)
   }
