@@ -1,6 +1,7 @@
 import Crypto from './Crypto'
 import normalizeUrl from 'conservative-normalize-url'
 import Logger from './Logger'
+const Parallel = require('async-parallel')
 
 const STRANGE_PROTOCOLS = ['data:', 'javascript:', 'about:', 'chrome:']
 
@@ -120,8 +121,10 @@ export class Folder {
     this.hashValue[preserveOrder] = await Crypto.sha256(
       JSON.stringify({
         title: this.title,
-        children: await Promise.all(
-          this.children.map(child => child.hash(preserveOrder))
+        children: await Parallel.map(
+          this.children,
+          child => child.hash(preserveOrder),
+          1
         )
       })
     )
