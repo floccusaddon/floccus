@@ -1,3 +1,14 @@
+## v3.3.0
+
+- FIX: Update conservative-normalize-url
+- FIX: UI: Split path correctly to display full folder name
+- FIX: NextcloudFolders: Fix Updating a bookmark that has no parent folders
+- NEW: Translations
+- NEW: Sparse tree syncing using hash trees
+- NEW: Add option to set sync interval
+- NEW: Caching adapter: Add acceptor method
+- NEW: UI: Polish footer + add logo + Improve mobile support
+
 ## v3.2.16
 
 - FIX: Don't schedule sync jobs while syncing
