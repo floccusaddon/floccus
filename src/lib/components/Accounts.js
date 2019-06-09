@@ -75,7 +75,7 @@ export const Component = () => (state, actions) => {
       <div class="wrapper">
         <InputGroup fullWidth={true}>
           <Select
-            style={{ width: '78%' }}
+            style={{ width: '75%' }}
             onchange={e => {
               actions.accounts.setCreationType(e.currentTarget.value)
             }}
