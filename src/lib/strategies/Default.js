@@ -216,10 +216,8 @@ export default class SyncProcess {
     serverItem.children = children
 
     // recurse
-    await Promise.all(
-      serverItem.children.map(child =>
-        this.loadChildren(child, mappingsSnapshot)
-      )
+    await Parallel.forEach(serverItem.children, child =>
+      this.loadChildren(child, mappingsSnapshot)
     )
   }
 
