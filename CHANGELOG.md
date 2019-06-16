@@ -2,6 +2,10 @@
 
 - FIX: Don't load all parts of the sparse tree in parallel
 
+## v3.3.1
+
+- FIX: Don't load all parts of the sparse tree in parallel
+
 ## v3.3.0
 
 - FIX: Update conservative-normalize-url
