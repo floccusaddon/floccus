@@ -45,7 +45,7 @@
     "conservative-normalize-url": "^1.0.3",
     "dom-delegator": "^13.1.0",
     "humanize-duration": "^3.18.0",
-    "hyperapp": "^1.2.9",
+    "hyperapp": "^1.2.10",
     "js-base64": "^2.5.1",
     "murmur2js": "^1.0.0",
     "normalize-url": "^4.3.0",
