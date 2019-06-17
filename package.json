@@ -35,7 +35,7 @@
     "gulp-tap": "^1.0.1",
     "gulp-zip": "^4.2.0",
     "mocha": "^6.1.4",
-    "selenium-webdriver": "^4.0.0-alpha.1",
+    "selenium-webdriver": "^4.0.0-alpha.3",
     "through2": "^2.0.5"
   },
   "dependencies": {
