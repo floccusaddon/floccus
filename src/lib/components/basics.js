@@ -408,6 +408,30 @@ export const OptionSyncInterval = ({ account }) => (state, actions) => {
   )
 }
 
+export const OptionSlaveSyncing = ({ account }) => (state, actions) => {
+  return (
+    <div>
+      <H4>{browser.i18n.getMessage('LabelSlavesync')}</H4>
+      <p>{browser.i18n.getMessage('DescriptionSlavesync')}</p>
+      <Label>
+        <Input
+          type="checkbox"
+          onclick={e => {
+            actions.options.update({
+              data: {
+                ...account,
+                strategy: e.target.checked ? 'slave' : 'default'
+              }
+            })
+          }}
+          checked={state.options.data.strategy == 'slave'}
+        />
+        {browser.i18n.getMessage('LabelSlavesync')}
+      </Label>
+    </div>
+  )
+}
+
 export const A = style('a')({})
 
 export const Progress = ({ value }) => {

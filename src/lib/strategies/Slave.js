@@ -241,7 +241,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
 
       // ORDER CHILDREN
 
-      if (this.preserveOrder && localOrder.length > 1) {
+      if (this.preserveOrder && remoteOrder.length > 1) {
         const newMappingsSnapshot = this.mappings.getSnapshot()
         // always update local tree
         await this.localTree.orderFolder(

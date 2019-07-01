@@ -173,6 +173,12 @@
   "DescriptionParallelsync": {
     "message": "Tick this box to process multiple folders in parallel in order to speed the synchronization. This feature is experimental and makes it harder to read the debug logs."
   },
+  "LabelSlavesync": {
+    "message": "Slave mode"
+  },
+  "DescriptionSlavesync": {
+    "message": "Tick this box to only overtake changes from the server and override local changes."
+  },
   "LabelSave": {
     "message": "Save"
   },

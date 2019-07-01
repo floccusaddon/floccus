@@ -7,6 +7,7 @@ import FakeAdapter from './adapters/Fake'
 import Tree from './Tree'
 import LocalTree from './LocalTree'
 import DefaultSyncProcess from './strategies/Default'
+import SlaveSyncProcess from './strategies/Slave'
 import Logger from './Logger'
 import browser from './browser-api'
 
@@ -146,7 +147,18 @@ export default class Account {
 
       let mappings = await this.storage.getMappings()
 
-      const sync = new DefaultSyncProcess(
+      let strategy
+      switch (this.getData().strategy) {
+        case 'slave':
+          console.log('Using slave mode')
+          strategy = SlaveSyncProcess
+          break
+        default:
+          console.log('Using normal mode')
+          strategy = DefaultSyncProcess
+          break
+      }
+      const sync = new strategy(
         mappings,
         this.localTree,
         await this.storage.getCache(),
