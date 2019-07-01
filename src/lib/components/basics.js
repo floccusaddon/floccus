@@ -327,7 +327,7 @@ export const OptionSyncFolder = ({ account }) => (state, actions) => {
 export const OptionDelete = ({ account }) => (state, actions) => {
   return (
     <div>
-      <H4>{browser.i18n.getMessage('LabelRemoveaccount')}</H4>
+      <H4>🗑 {browser.i18n.getMessage('LabelRemoveaccount')}</H4>
       <Button
         onclick={e => {
           e.preventDefault()
@@ -343,7 +343,7 @@ export const OptionDelete = ({ account }) => (state, actions) => {
 export const OptionResetCache = ({ account }) => (state, actions) => {
   return (
     <div>
-      <H4>{browser.i18n.getMessage('LabelResetCache')}</H4>
+      <H4>🔁 {browser.i18n.getMessage('LabelResetCache')}</H4>
       <p>{browser.i18n.getMessage('DescriptionResetCache')}</p>
       <Label>
         <Input
@@ -366,7 +366,7 @@ export const OptionResetCache = ({ account }) => (state, actions) => {
 export const OptionParallelSyncing = ({ account }) => (state, actions) => {
   return (
     <div>
-      <H4>{browser.i18n.getMessage('LabelParallelsync')}</H4>
+      <H4>🚴 {browser.i18n.getMessage('LabelParallelsync')}</H4>
       <p>{browser.i18n.getMessage('DescriptionParallelsync')}</p>
       <Label>
         <Input
@@ -390,7 +390,7 @@ export const OptionParallelSyncing = ({ account }) => (state, actions) => {
 export const OptionSyncInterval = ({ account }) => (state, actions) => {
   return (
     <div>
-      <H4>{browser.i18n.getMessage('LabelSyncinterval')}</H4>
+      <H4>⏱ {browser.i18n.getMessage('LabelSyncinterval')}</H4>
       <p>{browser.i18n.getMessage('DescriptionSyncinterval')}</p>
       <Input
         type="number"
@@ -411,7 +411,7 @@ export const OptionSyncInterval = ({ account }) => (state, actions) => {
 export const OptionSlaveSyncing = ({ account }) => (state, actions) => {
   return (
     <div>
-      <H4>{browser.i18n.getMessage('LabelSlavesync')}</H4>
+      <H4>🔏 {browser.i18n.getMessage('LabelSlavesync')}</H4>
       <p>{browser.i18n.getMessage('DescriptionSlavesync')}</p>
       <Label>
         <Input
