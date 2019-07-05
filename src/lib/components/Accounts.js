@@ -50,6 +50,10 @@ export const actions = {
       const background = await browser.runtime.getBackgroundPage()
       background.syncAccount(accountId)
     },
+    cancelSync: accountId => async (state, actions) => {
+      const background = await browser.runtime.getBackgroundPage()
+      background.controller.cancelSync(accountId)
+    },
     setCreationType: type => ({ creationType: type })
   },
   createAccount: () => async (state, actions) => {

@@ -158,18 +158,17 @@ export default class Account {
           strategy = DefaultSyncProcess
           break
       }
-      const sync = new strategy(
+      this.syncing = new strategy(
         mappings,
         this.localTree,
         await this.storage.getCache(),
         this.server,
-        this.getData().parallel
+        this.getData().parallel,
+        progress => {
+          this.setData({ ...this.getData(), syncing: progress })
+        }
       )
-      interval = setInterval(() => {
-        this.setData({ ...this.getData(), syncing: sync.progress })
-      }, 250)
-      await sync.sync()
-      clearInterval(interval)
+      await this.syncing.sync()
 
       // update cache
       await this.storage.setCache(await this.localTree.getBookmarksTree())
@@ -191,7 +190,6 @@ export default class Account {
         'Successfully ended sync process for account ' + this.getLabel()
       )
     } catch (e) {
-      clearInterval(interval)
       console.log(e)
       var message = Account.stringifyError(e)
       console.error('Syncing failed with', message)
@@ -219,6 +217,11 @@ export default class Account {
         .join('\n')
     }
     return er.message
+  }
+
+  async cancelSync() {
+    if (!this.syncing) return
+    return this.syncing.cancel()
   }
 
   static async getAllAccounts() {

@@ -212,6 +212,11 @@ export default class Controller {
     return this.jobs.add(() => this.syncAccount(accountId))
   }
 
+  async cancelSync(accountId) {
+    let account = await Account.get(accountId)
+    account.cancelSync()
+  }
+
   async syncAccount(accountId) {
     this.waiting[accountId] = false
     if (!this.enabled) {

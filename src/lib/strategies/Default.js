@@ -1,10 +1,12 @@
 import * as Tree from '../Tree'
 import Logger from '../Logger'
+import browser from '../browser-api'
 
 const _ = require('lodash')
 const Parallel = require('async-parallel')
 const PQueue = require('p-queue')
 const normalizeMoreAggressively = require('normalize-url')
+const { throttle } = require('throttle-debounce')
 
 export default class SyncProcess {
   /**
@@ -12,16 +14,30 @@ export default class SyncProcess {
    * @param localTree {LocalTree} The localTree resource object
    * @param cacheTreeRoot {Folder} The tree from the cache
    * @param server {Adapter} the server resource object
+   * @param parallel {Boolean} Whether to run the sync in parallel
+   * @param progressCb {Function} a callback that will be called with a percentage when there is progress
    */
-  constructor(mappings, localTree, cacheTreeRoot, server, parallel) {
+  constructor(
+    mappings,
+    localTree,
+    cacheTreeRoot,
+    server,
+    parallel,
+    progressCb
+  ) {
     this.mappings = mappings
     this.localTree = localTree
     this.server = server
     this.cacheTreeRoot = cacheTreeRoot
+
     this.preserveOrder = !!this.server.orderFolder
-    this.queue = new PQueue({ concurrency: parallel ? 100 : Infinity })
+
     this.progress = 0.05
+    this.progressCb = throttle(250, progressCb)
     this.done = 0
+    this.canceled = false
+
+    this.queue = new PQueue({ concurrency: parallel ? 100 : Infinity })
     if (parallel) {
       this.concurrency = 10 // grows exponentially with each folder layer
     } else {
@@ -30,16 +46,21 @@ export default class SyncProcess {
   }
 
   updateProgress() {
-    this.progress = Math.max(
-      0.05,
-      Math.min(
-        1,
+    this.progressCb(
+      Math.max(
+        0.05,
         Math.min(
-          this.done / this.localTreeRoot.count(),
-          this.done / this.serverTreeRoot.count()
+          1,
+          this.done /
+            Math.max(this.localTreeRoot.count(), this.serverTreeRoot.count())
         )
       )
     )
+  }
+
+  async cancel() {
+    if (this.canceled) return
+    this.canceled = true
   }
 
   async sync() {
@@ -60,6 +81,9 @@ export default class SyncProcess {
       this.cacheTreeRoot,
       this.serverTreeRoot
     )
+    if (this.canceled) {
+      throw new Error(browser.i18n.getMessage('Error027'))
+    }
   }
 
   filterOutUnacceptedBookmarks(tree) {
@@ -122,72 +146,75 @@ export default class SyncProcess {
   }
 
   async syncTree(localItem, cacheItem, serverItem) {
-    const execSync = async () => {
-      Logger.log('COMPARE', { localItem, cacheItem, serverItem })
-
-      var create, update, remove, mappings
-      if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
-        create = this.createFolder.bind(this)
-        update = this.updateFolder.bind(this)
-        remove = this.removeFolder.bind(this)
-        mappings = this.mappings.folders
-      } else {
-        create = this.createBookmark.bind(this)
-        update = this.updateBookmark.bind(this)
-        remove = this.removeBookmark.bind(this)
-        mappings = this.mappings.bookmarks
-      }
-      if (!localItem && !cacheItem && serverItem) {
-        // CREATED UPSTREAM
-        return await create(
-          this.mappings.bookmarks.ServerToLocal,
-          this.mappings.folders.ServerToLocal,
-          this.serverTreeRoot,
-          this.localTreeRoot,
-          this.localTree,
-          serverItem
-        )
-      } else if (localItem && !cacheItem && !serverItem) {
-        // CREATED LOCALLY
-        return await create(
-          this.mappings.bookmarks.LocalToServer,
-          this.mappings.folders.LocalToServer,
-          this.localTreeRoot,
-          this.serverTreeRoot,
-          this.server,
-          localItem
-        )
-      } else if (
-        (localItem && cacheItem && serverItem) ||
-        (localItem && !cacheItem && serverItem)
-      ) {
-        // UPDATED
-        await update(localItem, cacheItem, serverItem)
-      } else if (!localItem && cacheItem && serverItem) {
-        // DELETED LOCALLY
-        return await remove(
-          mappings.ServerToLocal,
-          this.localTreeRoot,
-          this.serverTreeRoot,
-          this.server,
-          serverItem
-        )
-      } else if (localItem && cacheItem && !serverItem) {
-        // DELETED UPSTREAM
-        return await remove(
-          mappings.LocalToServer,
-          this.serverTreeRoot,
-          this.localTreeRoot,
-          this.localTree,
-          localItem
-        )
-      } else if (!localItem && cacheItem && !serverItem) {
-        // TODO: remove from mappings
-      }
-    }
-
     this.updateProgress()
-    return await this.queue.add(execSync)
+    if (this.canceled) return
+    return await this.queue.add(() =>
+      this._syncTree(localItem, cacheItem, serverItem)
+    )
+  }
+
+  async _syncTree(localItem, cacheItem, serverItem) {
+    Logger.log('COMPARE', { localItem, cacheItem, serverItem })
+
+    var create, update, remove, mappings
+    if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
+      create = this.createFolder.bind(this)
+      update = this.updateFolder.bind(this)
+      remove = this.removeFolder.bind(this)
+      mappings = this.mappings.folders
+    } else {
+      create = this.createBookmark.bind(this)
+      update = this.updateBookmark.bind(this)
+      remove = this.removeBookmark.bind(this)
+      mappings = this.mappings.bookmarks
+    }
+    if (!localItem && !cacheItem && serverItem) {
+      // CREATED UPSTREAM
+      return await create(
+        this.mappings.bookmarks.ServerToLocal,
+        this.mappings.folders.ServerToLocal,
+        this.serverTreeRoot,
+        this.localTreeRoot,
+        this.localTree,
+        serverItem
+      )
+    } else if (localItem && !cacheItem && !serverItem) {
+      // CREATED LOCALLY
+      return await create(
+        this.mappings.bookmarks.LocalToServer,
+        this.mappings.folders.LocalToServer,
+        this.localTreeRoot,
+        this.serverTreeRoot,
+        this.server,
+        localItem
+      )
+    } else if (
+      (localItem && cacheItem && serverItem) ||
+      (localItem && !cacheItem && serverItem)
+    ) {
+      // UPDATED
+      await update(localItem, cacheItem, serverItem)
+    } else if (!localItem && cacheItem && serverItem) {
+      // DELETED LOCALLY
+      return await remove(
+        mappings.ServerToLocal,
+        this.localTreeRoot,
+        this.serverTreeRoot,
+        this.server,
+        serverItem
+      )
+    } else if (localItem && cacheItem && !serverItem) {
+      // DELETED UPSTREAM
+      return await remove(
+        mappings.LocalToServer,
+        this.serverTreeRoot,
+        this.localTreeRoot,
+        this.localTree,
+        localItem
+      )
+    } else if (!localItem && cacheItem && !serverItem) {
+      // TODO: remove from mappings
+    }
   }
 
   async loadChildren(serverItem, mappingsSnapshot) {

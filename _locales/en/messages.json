@@ -122,6 +122,9 @@
   "LabelSyncnow": {
     "message": "Sync now"
   },
+  "LabelCancelsync": {
+    "message": "Cancel sync"
+  },
   "LabelEnabled": {
     "message": "Enabled"
   },

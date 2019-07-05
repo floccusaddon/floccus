@@ -169,13 +169,16 @@ export const Account = ({ account }) => (state, actions) => {
           {browser.i18n.getMessage('LabelOptions')}
         </Button>
         <Button
-          disabled={!!data.syncing || !data.enabled}
+          disabled={!data.enabled}
           onclick={e => {
             e.preventDefault()
-            !data.syncing && actions.accounts.sync(account.id)
+            if (!data.syncing) actions.accounts.sync(account.id)
+            if (data.syncing) actions.accounts.cancelSync(account.id)
           }}
         >
-          {browser.i18n.getMessage('LabelSyncnow')}
+          {!data.syncing
+            ? browser.i18n.getMessage('LabelSyncnow')
+            : browser.i18n.getMessage('LabelCancelsync')}
         </Button>
       </div>
       <Label>
