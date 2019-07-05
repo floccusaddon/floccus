@@ -49,7 +49,7 @@
     "js-base64": "^2.5.1",
     "murmur2js": "^1.0.0",
     "normalize-url": "^4.3.0",
-    "p-queue": "^5.0.0",
+    "p-queue": "^6.0.2",
     "picostyle": "^1.0.2",
     "punycode": "^2.1.1",
     "throttle-debounce": "^2.1.0",
