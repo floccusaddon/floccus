@@ -33,7 +33,7 @@ export default class SyncProcess {
     this.preserveOrder = !!this.server.orderFolder
 
     this.progress = 0.05
-    this.progressCb = throttle(250, progressCb)
+    this.progressCb = throttle(250, true, progressCb)
     this.done = 0
     this.canceled = false
 
