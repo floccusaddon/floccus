@@ -23,7 +23,7 @@
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-react": "^7.0.0",
-    "all-contributors-cli": "^5.11.0",
+    "all-contributors-cli": "^6.7.0",
     "babelify": "^10.0.0",
     "browserify": "^16.2.3",
     "chai": "^4.2.0",
