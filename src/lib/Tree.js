@@ -19,8 +19,8 @@ export class Bookmark {
     }
 
     try {
-      new URL(url)
-      this.url = normalizeUrl(url)
+      let urlObj = new URL(url)
+      this.url = urlObj.href
     } catch (e) {
       Logger.log('Failed to normalize', url)
       this.url = url

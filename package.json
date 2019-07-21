@@ -42,7 +42,6 @@
     "async-lock": "^1.2.0",
     "async-parallel": "^1.2.3",
     "babel-polyfill": "^6.20.0",
-    "conservative-normalize-url": "^1.0.3",
     "dom-delegator": "^13.1.0",
     "humanize-duration": "^3.18.0",
     "hyperapp": "^1.2.10",
