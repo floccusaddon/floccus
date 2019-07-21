@@ -584,11 +584,11 @@ describe('Floccus', function() {
             const localRoot = account.getData().localRoot
             const localMark1 = {
               title: 'url',
-              url: 'http://ur.l/foo/bar?foo=bár+foo&a=b'
+              url: 'http://ur.l/foo/bar?a=b&foo=bár+foo'
             }
             const localMark2 = {
               title: 'url2',
-              url: 'http://ur2.l/foo/bar?foo=bár+foo&a=b'
+              url: 'http://ur2.l/foo/bar?a=b&foo=bár+foo'
             }
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
