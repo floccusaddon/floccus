@@ -1,0 +1,251 @@
+{
+  "Error001": {
+    "message": "E001: 要创建的文件夹不存在"
+  },
+  "Error002": {
+    "message": "E002: 暂时没有需要更新的书签"
+  },
+  "Error003": {
+    "message": "E003：要移出的文件夹不存在。这是一种异常。恭喜你。"
+  },
+  "Error004": {
+    "message": "E004: 要移入的文件夹不存在"
+  },
+  "Error005": {
+    "message": "E005: 要创建的文件夹不存在"
+  },
+  "Error006": {
+    "message": "E006: 要更新的文件夹不存在"
+  },
+  "Error007": {
+    "message": "E007: 要移动的文件夹不存在"
+  },
+  "Error008": {
+    "message": "E008：要移出的文件夹不存在"
+  },
+  "Error009": {
+    "message": "E009：要移动的文件夹不存在"
+  },
+  "Error010": {
+    "message": "E010：找不到要订购的文件夹"
+  },
+  "Error011": {
+    "message": "E011：文件夹排序中的项不是实际的子项：$1"
+  },
+  "Error012": {
+    "message": "E012：文件夹排序缺少文件夹的某些子级"
+  },
+  "Error013": {
+    "message": "E013：要删除的文件夹不存在"
+  },
+  "Error014": {
+    "message": "E014：要删除文件夹的父文件夹不存在"
+  },
+  "Error015": {
+    "message": "E015：服务器的发生意外响应数据"
+  },
+  "Error016": {
+    "message": "E016: 请求超时。请检查你的服务器设置"
+  },
+  "Error017": {
+    "message": "E017: 网络错误: 请检查你的网络连接或者账户信息"
+  },
+  "Error018": {
+    "message": "E018: 无法通过服务器进行身份验证"
+  },
+  "Error019": {
+    "message": "E019: HTTP状态 $1。 $2 请求失败。检查您的服务器配置和日志。"
+  },
+  "Error020": {
+    "message": "E020：无法分析服务器响应。书签应用程序是否安装在您的服务器上？"
+  },
+  "Error021": {
+    "message": "E021：服务器状态不一致。文件夹存在于子列表中，但不在文件夹树中"
+  },
+  "Error022": {
+    "message": "E022：文件夹$1可能包含不存在的书签$2"
+  },
+  "Error023": {
+    "message": "E023：无法清除锁定文件，请考虑手动删除$1。"
+  },
+  "Error024": {
+    "message": "E024：HTTP状态$1，尝试确定锁定文件$2的状态"
+  },
+  "Error025": {
+    "message": "E025: 书签文件不允许以'/'开头"
+  },
+  "Error026": {
+    "message": "E026: HTTP status $1. 获取书签失败"
+  },
+  "Error027": {
+    "message": "E027: 同步进程中断"
+  },
+  "LabelWebdavurl": {
+    "message": "WebDAV URL"
+  },
+  "DescriptionWebdavurl": {
+    "message": "例如：使用NextCloud：https://your-domain.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "Nextcloud URL"
+  },
+  "LabelUsername": {
+    "message": "用户名"
+  },
+  "LabelPassword": {
+    "message": "密码"
+  },
+  "LabelBookmarksfile": {
+    "message": "书签路径"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "相对于WebDAV URL的书签路径(所有路径必须已经存在).例如:personal_stuff/bookmarks.xbel "
+  },
+  "LabelServerfolder": {
+    "message": "服务器文件夹"
+  },
+  "DescriptionServerfolder": {
+    "message": "这是此帐户在服务器上运行的路径前缀。例如如果使用''/ work'，在服务器上创建所有书签的路径添加上''/ work'（相对于您在上面指定的本地文件夹的路径）。这允许您将服务器书签分成多个“配置文件”。将其留空以完全不使用前缀。"
+  },
+  "LabelLocalfolder": {
+    "message": "本地文件夹"
+  },
+  "DescriptionLocalfolder": {
+    "message": "这是会被同步到服务器的本地书签文件夹。默认会为你创建一个新的文件夹(现在你可以在不同浏览器中同步整个根目录)"
+  },
+  "LabelRootfolder": {
+    "message": "根目录"
+  },
+  "LabelOptions": {
+    "message": "选项"
+  },
+  "LabelSyncnow": {
+    "message": "同步"
+  },
+  "LabelCancelsync": {
+    "message": "取消同步"
+  },
+  "LabelEnabled": {
+    "message": "启用"
+  },
+  "StatusLastsynced": {
+    "message": "上次同步: $1 之前"
+  },
+  "StatusNeversynced": {
+    "message": "从未同步过"
+  },
+  "StatusAllgood": {
+    "message": "完美"
+  },
+  "StatusDisabled": {
+    "message": "禁用"
+  },
+  "StatusError": {
+    "message": "错误"
+  },
+  "StatusSyncing": {
+    "message": "同步中"
+  },
+  "LabelReset": {
+    "message": "重置"
+  },
+  "DescriptionReset": {
+    "message": "重置同步文件夹以创建新文件夹"
+  },
+  "LabelChoosefolder": {
+    "message": "选择文件夹"
+  },
+  "DescriptionChoosefolder": {
+    "message": "选择一个已存在的文件夹用来同步"
+  },
+  "LabelRemoveaccount": {
+    "message": "移除账户"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "删除此账户(此操作不会删除你的书签)"
+  },
+  "LabelResetCache": {
+    "message": "从头开始触发同步"
+  },
+  "DescriptionResetcache": {
+    "message": "勾选此框以重置缓存，以确保下一次同步运行不会删除任何数据，只是将服务器和本地书签合并在一起"
+  },
+  "LabelParallelsync": {
+    "message": "加速同步速度"
+  },
+  "DescriptionParallelsync": {
+    "message": "勾选此框可并行处理多个文件夹，以加快同步速度"
+  },
+  "LabelSlavesync": {
+    "message": "从机模式"
+  },
+  "DescriptionSlavesync": {
+    "message": "勾选此框仅覆盖来自服务器的更改，并覆盖本地更改。"
+  },
+  "LabelSave": {
+    "message": "保存"
+  },
+  "LabelCancel": {
+    "message": "取消"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Nextcloud 书签"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "“Nextcloud Bookmarks”选项至少需要Bookmarks app v0.14版本。"
+  },
+  "LabelAdapternextcloud": {
+    "message": "Nextcloud Bookmarks (legacy)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "传统选项至少与书签应用程序的v0.11版本兼容。它将使用包含文件夹路径的标记来模拟文件夹。不建议用于新帐户。"
+  },
+  "LabelAdapterwebdav": {
+    "message": "WebDAV共享中的XBEL文件"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "WebDAV选项通过将书签存储在提供的WebDAV共享中的XBEL文件中来同步书签。此选项没有附带的Web UI，您可以将其用于任何与WebDAV兼容的服务器。"
+  },
+  "LabelAddaccount": {
+    "message": "添加账户"
+  },
+  "LabelSecurecredentials": {
+    "message": "保护您的凭据"
+  },
+  "LabelOpenintab": {
+    "message": "在标签页中打开"
+  },
+  "LabelDebuglogs": {
+    "message": "Debug日志"
+  },
+  "LabelFunddevelopment": {
+    "message": "开发信息"
+  },
+  "LabelSelect": {
+    "message": "选取"
+  },
+  "LabelUntitledfolder": {
+    "message": "无标题文件夹"
+  },
+  "LabelSetkey": {
+    "message": "为floccus设置一个密码锁"
+  },
+  "DescriptionSetkey": {
+    "message": "当你开启密码锁后，每次启动浏览器后若想操作phrase 都需要解锁"
+  },
+  "LabelKey": {
+    "message": "输入解锁密码"
+  },
+  "LabelKey2": {
+    "message": "再次输入解锁密码"
+  },
+  "LabelUnlock": {
+    "message": "解锁floccus"
+  },
+  "LabelSyncinterval": {
+    "message": "同步间隔"
+  },
+  "DescriptionSyncinterval": {
+    "message": "两次同步之间的时间跨度，以分钟为单位。默认为15分钟。"
+  }
+}
