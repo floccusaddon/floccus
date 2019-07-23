@@ -40,7 +40,7 @@ export const Component = () => (state, actions) => {
           placeholder={browser.i18n.getMessage('LabelKey')}
           onkeydown={e => {
             if (e.which === 13) {
-              actions.enterUnlockKey(e.target.value)
+              actions.submitUnlockKey()
             }
           }}
           oninput={e => {
