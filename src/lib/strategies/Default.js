@@ -341,11 +341,12 @@ export default class SyncProcess {
     const reconciled = !cacheItem && localHash !== serverHash
     const changedLocally =
       (localHash !== cacheHash && localHash !== serverHash) ||
-      localItem.parentId !== cacheItem.parentId
+      (cacheItem && localItem.parentId !== cacheItem.parentId)
     const changedUpstream =
       (cacheHash !== serverHash && localHash !== serverHash) ||
-      localItem.parentId !==
-        this.mappings.folders.ServerToLocal[serverItem.parentId]
+      (cacheItem &&
+        cacheItem.parentId !==
+          this.mappings.folders.ServerToLocal[serverItem.parentId])
     const changed = changedLocally || changedUpstream || reconciled
     return { changedLocally, changedUpstream, changed, reconciled }
   }
@@ -761,8 +762,9 @@ export default class SyncProcess {
       (cacheItem && localItem.parentId !== cacheItem.parentId)
     const changedUpstream =
       (localHash !== serverHash && cacheHash !== serverHash) ||
-      localItem.parentId !==
-        this.mappings.folders.ServerToLocal[serverItem.parentId]
+      (cacheItem &&
+        cacheItem.parentId !==
+          this.mappings.folders.ServerToLocal[serverItem.parentId])
     const reconciled = !cacheItem && localHash !== serverHash
     const changed = changedLocally || changedUpstream || reconciled
     return { changed, changedLocally, changedUpstream, reconciled }
