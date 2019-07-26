@@ -769,7 +769,7 @@ export default class SyncProcess {
   }
 
   async updateBookmark(localItem, cacheItem, serverItem) {
-    const { changed, changedLocally } = this.bookmarkHasChanged(
+    const { changed, changedLocally } = await this.bookmarkHasChanged(
       localItem,
       cacheItem,
       serverItem

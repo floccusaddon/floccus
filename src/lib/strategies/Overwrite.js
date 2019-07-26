@@ -263,7 +263,7 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
   }
 
   async updateBookmark(localItem, cacheItem, serverItem) {
-    const { changed } = this.bookmarkHasChanged(
+    const { changed } = await this.bookmarkHasChanged(
       localItem,
       cacheItem,
       serverItem
