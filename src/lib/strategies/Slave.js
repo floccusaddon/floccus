@@ -4,8 +4,6 @@ import DefaultStrategy from './Default'
 
 const _ = require('lodash')
 const Parallel = require('async-parallel')
-const PQueue = require('p-queue')
-const normalizeMoreAggressively = require('normalize-url')
 
 export default class SlaveSyncProcess extends DefaultStrategy {
   async syncTree(localItem, cacheItem, serverItem) {
@@ -26,7 +24,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
       }
       if (!localItem && !cacheItem && serverItem) {
         // CREATED UPSTREAM
-        return await create(
+        return create(
           this.mappings.bookmarks.ServerToLocal,
           this.mappings.folders.ServerToLocal,
           this.serverTreeRoot,
@@ -37,7 +35,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
       } else if (localItem && !cacheItem && !serverItem) {
         // CREATED LOCALLY
         // --> delete locally again
-        return await remove(
+        return remove(
           mappings.LocalToServer,
           this.serverTreeRoot,
           this.localTreeRoot,
@@ -53,7 +51,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
       } else if (!localItem && cacheItem && serverItem) {
         // DELETED LOCALLY
         // --> recreate locally
-        return await create(
+        return create(
           this.mappings.bookmarks.ServerToLocal,
           this.mappings.folders.ServerToLocal,
           this.serverTreeRoot,
@@ -63,7 +61,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
         )
       } else if (localItem && cacheItem && !serverItem) {
         // DELETED UPSTREAM
-        return await remove(
+        return remove(
           mappings.LocalToServer,
           this.serverTreeRoot,
           this.localTreeRoot,
@@ -76,10 +74,10 @@ export default class SlaveSyncProcess extends DefaultStrategy {
     }
 
     if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
-      return await execSync()
+      return execSync()
     } else {
       this.updateProgress()
-      return await this.queue.add(execSync)
+      return this.queue.add(execSync)
     }
   }
 
@@ -142,7 +140,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
       local =>
         !cacheItem || !cacheItem.children.some(cache => local.id === cache.id)
     )
-    createdLocally = await Parallel.filter(
+    await Parallel.filter(
       createdLocally,
       async addedChild => {
         // merge this with an item created on the server
@@ -161,7 +159,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
           return false
         })
         if (serverChild) serverChild.merged = true
-        return await this.syncTree(addedChild, null, serverChild)
+        return this.syncTree(addedChild, null, serverChild)
       },
       this.concurrency
     )
@@ -171,7 +169,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
       let removedLocally = cacheItem.children.filter(
         cache => !localItem.children.some(local => local.id === cache.id)
       )
-      removedLocally = await Parallel.filter(
+      await Parallel.filter(
         removedLocally,
         async removedChild => {
           const serverChild =
@@ -182,7 +180,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
               : this.serverTreeRoot.findBookmark(
                   mappingsSnapshot.bookmarks.LocalToServer[removedChild.id]
                 )
-          return await this.syncTree(null, removedChild, serverChild)
+          return this.syncTree(null, removedChild, serverChild)
         },
         this.concurrency
       )
@@ -204,11 +202,11 @@ export default class SlaveSyncProcess extends DefaultStrategy {
                 cacheChild.id
           )
       )
-      createdUpstream = await Parallel.filter(
+      await Parallel.filter(
         createdUpstream,
         async newChild => {
           if (newChild.merged) return false
-          return await this.syncTree(null, null, newChild)
+          return this.syncTree(null, null, newChild)
         },
         this.concurrency
       )
@@ -226,14 +224,14 @@ export default class SlaveSyncProcess extends DefaultStrategy {
                 ] === cache.id
             )
         )
-        removedUpstream = await Parallel.filter(
+        await Parallel.filter(
           removedUpstream,
           async oldChild => {
             const localChild =
               oldChild instanceof Tree.Folder
                 ? this.localTreeRoot.findFolder(oldChild.id)
                 : this.localTreeRoot.findBookmark(oldChild.id)
-            return await this.syncTree(localChild, oldChild, null)
+            return this.syncTree(localChild, oldChild, null)
           },
           this.concurrency
         )

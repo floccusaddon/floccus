@@ -1,4 +1,3 @@
-import browser from '../lib/browser-api'
 import AccountStorage from './AccountStorage'
 import util from 'util'
 

@@ -148,7 +148,7 @@ export default class SyncProcess {
   async syncTree(localItem, cacheItem, serverItem) {
     this.updateProgress()
     if (this.canceled) return
-    return await this.queue.add(() =>
+    return this.queue.add(() =>
       this._syncTree(localItem, cacheItem, serverItem)
     )
   }
@@ -170,7 +170,7 @@ export default class SyncProcess {
     }
     if (!localItem && !cacheItem && serverItem) {
       // CREATED UPSTREAM
-      return await create(
+      return create(
         this.mappings.bookmarks.ServerToLocal,
         this.mappings.folders.ServerToLocal,
         this.serverTreeRoot,
@@ -180,7 +180,7 @@ export default class SyncProcess {
       )
     } else if (localItem && !cacheItem && !serverItem) {
       // CREATED LOCALLY
-      return await create(
+      return create(
         this.mappings.bookmarks.LocalToServer,
         this.mappings.folders.LocalToServer,
         this.localTreeRoot,
@@ -196,7 +196,7 @@ export default class SyncProcess {
       await update(localItem, cacheItem, serverItem)
     } else if (!localItem && cacheItem && serverItem) {
       // DELETED LOCALLY
-      return await remove(
+      return remove(
         mappings.ServerToLocal,
         this.localTreeRoot,
         this.serverTreeRoot,
@@ -205,7 +205,7 @@ export default class SyncProcess {
       )
     } else if (localItem && cacheItem && !serverItem) {
       // DELETED UPSTREAM
-      return await remove(
+      return remove(
         mappings.LocalToServer,
         this.serverTreeRoot,
         this.localTreeRoot,
@@ -352,11 +352,11 @@ export default class SyncProcess {
   }
 
   async updateFolder(localItem, cacheItem, serverItem) {
-    const {
-      changed,
-      changedLocally,
-      changedUpstream
-    } = await this.folderHasChanged(localItem, cacheItem, serverItem)
+    const { changed, changedLocally } = await this.folderHasChanged(
+      localItem,
+      cacheItem,
+      serverItem
+    )
 
     if (localItem !== this.localTreeRoot && changed) {
       if (changedLocally) {
@@ -429,7 +429,7 @@ export default class SyncProcess {
           return false
         })
         if (serverChild) serverChild.merged = true
-        return await this.syncTree(addedChild, null, serverChild)
+        return this.syncTree(addedChild, null, serverChild)
       },
       this.concurrency
     )
@@ -459,7 +459,7 @@ export default class SyncProcess {
               : this.serverTreeRoot.findBookmark(
                   mappingsSnapshot.bookmarks.LocalToServer[removedChild.id]
                 )
-          return await this.syncTree(null, removedChild, serverChild)
+          return this.syncTree(null, removedChild, serverChild)
         },
         this.concurrency
       )
@@ -504,7 +504,7 @@ export default class SyncProcess {
         createdUpstream,
         async newChild => {
           if (newChild.merged) return false
-          return await this.syncTree(null, null, newChild)
+          return this.syncTree(null, null, newChild)
         },
         this.concurrency
       )
@@ -538,7 +538,7 @@ export default class SyncProcess {
               oldChild instanceof Tree.Folder
                 ? this.localTreeRoot.findFolder(oldChild.id)
                 : this.localTreeRoot.findBookmark(oldChild.id)
-            return await this.syncTree(localChild, oldChild, null)
+            return this.syncTree(localChild, oldChild, null)
           },
           this.concurrency
         )
@@ -633,7 +633,7 @@ export default class SyncProcess {
     fromTree,
     toTree,
     toResource,
-    folder /*in toTree */
+    folder /* in toTree */
   ) {
     if (folder.moved) {
       Logger.log(

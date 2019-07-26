@@ -7,7 +7,6 @@ const expect = chai.expect
 
 import Account from '../lib/Account'
 import { Folder, Bookmark } from '../lib/Tree'
-import AccountStorage from '../lib/AccountStorage'
 import browser from '../lib/browser-api'
 
 describe('Floccus', function() {

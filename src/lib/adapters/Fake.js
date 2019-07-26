@@ -1,10 +1,7 @@
-import { Bookmark } from '../Tree'
 import CachingAdapter from './Caching'
 import { OptionDelete } from '../components/basics'
 
 const { h } = require('hyperapp')
-
-const url = require('url')
 
 export default class FakeAdapter extends CachingAdapter {
   constructor(server) {

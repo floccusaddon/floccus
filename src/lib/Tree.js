@@ -1,5 +1,4 @@
 import Crypto from './Crypto'
-import normalizeUrl from 'conservative-normalize-url'
 import Logger from './Logger'
 const Parallel = require('async-parallel')
 

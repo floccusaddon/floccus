@@ -4,8 +4,6 @@ import { h } from 'hyperapp'
 import browser from '../browser-api'
 import PathHelper from '../PathHelper'
 
-const path = require('path')
-
 const style = picostyle(h)
 
 export const COLORS = {
@@ -427,7 +425,7 @@ export const OptionSlaveSyncing = ({ account }) => (state, actions) => {
               }
             })
           }}
-          checked={state.options.data.strategy == 'slave'}
+          checked={state.options.data.strategy === 'slave'}
         />
         {browser.i18n.getMessage('LabelSlavesync')}
       </Label>

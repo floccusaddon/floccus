@@ -3,7 +3,6 @@
 import Adapter from '../Adapter'
 import Logger from '../Logger'
 import { Folder, Bookmark } from '../Tree'
-import PathHelper from '../PathHelper'
 import * as Basics from '../components/basics'
 import { Base64 } from 'js-base64'
 const Parallel = require('async-parallel')
@@ -193,7 +192,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'index.php/apps/bookmarks/public/rest/v2/folder/-1/hash',
       null,
       null,
-      /*returnRawResponse:*/ true
+      /* returnRawResponse: */ true
     )
     let json
     try {
@@ -267,14 +266,14 @@ export default class NextcloudFoldersAdapter extends Adapter {
           childFolders = currentChild.children
           let child = _.find(
             childrenOrder,
-            child => child.id == currentChild.id && child.type === 'folder'
+            child =>
+              parseInt(child.id) === parseInt(currentChild.id) &&
+              child.type === 'folder'
           )
           if (!child || !child.children) {
             const childrenOrderJson = await this.sendRequest(
               'GET',
-              `index.php/apps/bookmarks/public/rest/v2/folder/${
-                currentChild.id
-              }/childorder`
+              `index.php/apps/bookmarks/public/rest/v2/folder/${currentChild.id}/childorder`
             )
             if (!Array.isArray(childrenOrderJson.data)) {
               throw new Error(browser.i18n.getMessage('Error015'))
@@ -283,7 +282,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
           } else {
             childrenOrder = _.find(
               childrenOrder,
-              child => child.id == currentChild.id && child.type === 'folder'
+              child =>
+                parseInt(child.id) === parseInt(currentChild.id) &&
+                child.type === 'folder'
             ).children
           }
         },
@@ -312,9 +313,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
               // This is only necessary for bookmarks <=0.14.3
               const childrenOrderJson = await this.sendRequest(
                 'GET',
-                `index.php/apps/bookmarks/public/rest/v2/folder/${
-                  child.id
-                }/childorder`
+                `index.php/apps/bookmarks/public/rest/v2/folder/${child.id}/childorder`
               )
               if (!Array.isArray(childrenOrderJson.data)) {
                 throw new Error(browser.i18n.getMessage('Error015'))
@@ -333,7 +332,8 @@ export default class NextcloudFoldersAdapter extends Adapter {
             let childBookmark = _.find(
               list,
               bookmark =>
-                bookmark.id == child.id && bookmark.parentId == tree.id
+                parseInt(bookmark.id) === parseInt(child.id) &&
+                parseInt(bookmark.parentId) === parseInt(tree.id)
             )
             if (!childBookmark) {
               throw new Error(
@@ -515,7 +515,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       parent_folder: folder.parentId,
       title: title
     })
-    const json = await this.sendRequest(
+    await this.sendRequest(
       'PUT',
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}`,
       'application/json',
@@ -535,7 +535,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       parent_folder: parentId,
       title: folder.title
     })
-    const json = await this.sendRequest(
+    await this.sendRequest(
       'PUT',
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}`,
       'application/json',
@@ -559,7 +559,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
         type: item.type
       }))
     }
-    const json = await this.sendRequest(
+    await this.sendRequest(
       'PATCH',
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}/childorder`,
       'application/json',
@@ -573,7 +573,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     if (!folder) {
       return
     }
-    const json = await this.sendRequest(
+    await this.sendRequest(
       'DELETE',
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}`
     )
@@ -642,7 +642,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
     // We need this lock to avoid creating two boomarks with the same url
     // in parallel
-    return await this.bookmarkLock.acquire(bm.url, async () => {
+    return this.bookmarkLock.acquire(bm.url, async () => {
       let existingBookmark = await this.getExistingBookmark(bm.url)
       if (existingBookmark) {
         bm.id = existingBookmark + ';' + bm.parentId
@@ -681,7 +681,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
     // We need this lock to avoid updating bookmarks which are in two places at Once
     // in parallel
-    return await this.bookmarkLock.acquire(upstreamId, async () => {
+    return this.bookmarkLock.acquire(upstreamId, async () => {
       let bms = await this._getBookmark(upstreamId)
 
       let body = JSON.stringify({
@@ -711,7 +711,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     let [upstreamId, parentId] = id.split(';')
 
     // Just to be safe
-    return await this.bookmarkLock.acquire(upstreamId, async () => {
+    return this.bookmarkLock.acquire(upstreamId, async () => {
       await this.sendRequest(
         'DELETE',
         `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/bookmarks/${upstreamId}`

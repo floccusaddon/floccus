@@ -1,5 +1,3 @@
-import * as Tree from '../Tree'
-import Adapter from '../Adapter'
 import CachingAdapter from '../adapters/Caching'
 import Logger from '../Logger'
 import browser from '../browser-api'
@@ -92,14 +90,8 @@ export default class WebDavAdapter extends CachingAdapter {
     let fullURL = this.getBookmarkLockURL()
     Logger.log(fullURL)
 
-    let rStatus
-    let rBody
-    let response
-
-    response = await this.downloadFile(fullURL)
-    rStatus = response.status
-
-    return rStatus
+    const response = await this.downloadFile(fullURL)
+    return response.status
   }
 
   timeout(ms) {
@@ -141,18 +133,18 @@ export default class WebDavAdapter extends CachingAdapter {
 
     for (idx = 0; idx < maxTimeout; idx += increment) {
       rStatus = await this.checkLock()
-      if (rStatus == 200) {
+      if (rStatus === 200) {
         await this.timeout(increment * 1000)
-      } else if (rStatus == 404) {
+      } else if (rStatus === 404) {
         break
       }
     }
 
-    if (rStatus == 200) {
+    if (rStatus === 200) {
       throw new Error(
         browser.i18n.getMessage('Error023', this.server.bookmark_file + '.lock')
       )
-    } else if (rStatus == 404) {
+    } else if (rStatus === 404) {
       let fullURL = this.getBookmarkLockURL()
       Logger.log(fullURL)
       await this.uploadFile(
@@ -175,22 +167,18 @@ export default class WebDavAdapter extends CachingAdapter {
   async freeLock() {
     let fullUrl = this.getBookmarkLockURL()
 
-    let rStatus = 500
-    let response
     let authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
 
     try {
-      response = await fetch(fullUrl, {
+      await fetch(fullUrl, {
         method: 'DELETE',
         credentials: 'omit',
         headers: {
           Authorization: 'Basic ' + authString
         }
       })
-
-      rStatus = response.status
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
@@ -213,7 +201,7 @@ export default class WebDavAdapter extends CachingAdapter {
       }
     }
 
-    if (response.status == 200) {
+    if (response.status === 200) {
       let xmlDocText = await response.text()
       let xmlDoc = new window.DOMParser().parseFromString(
         xmlDocText,
@@ -392,7 +380,7 @@ function getElementsByNodeName(nodes, nodeName, nodeType) {
   let elements = []
 
   nodes.forEach(node => {
-    if (node.nodeName == nodeName && node.nodeType == nodeType) {
+    if (node.nodeName === nodeName && node.nodeType === nodeType) {
       elements.push(node)
     }
   })

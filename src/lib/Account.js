@@ -128,7 +128,6 @@ export default class Account {
   }
 
   async sync() {
-    let interval
     try {
       if (this.getData().syncing || this.syncing) return
 
