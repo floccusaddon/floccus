@@ -1,3 +1,11 @@
+const {
+  EVENT_RUN_END,
+  EVENT_TEST_BEGIN,
+  EVENT_TEST_FAIL,
+  EVENT_TEST_PASS,
+  EVENT_SUITE_BEGIN
+} = Mocha.Runner.constants
+
 export function createWebdriverAndHtmlReporter(html_reporter) {
   return function(runner) {
     Mocha.reporters.Base.call(this, runner)
@@ -5,34 +13,27 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
 
     // Scroll down test display after each test
     let mocha = document.querySelector('#mocha')
-    runner.on('test', test => {
+    runner.on(EVENT_TEST_BEGIN, test => {
+      resetKillTimeout()
       console.log('\n### ' + test.title + ' ###\n')
-      killTimeout = setTimeout(() => {
-        console.log(
-          'FINISHED FAILED - no test has ended for 3 minutes, tests stopped'
-        )
-      }, 60000 * 3)
       mocha.scrollTop = mocha.scrollHeight
     })
 
-    runner.on('suite', suite => {
+    runner.on(EVENT_SUITE_BEGIN, suite => {
       if (suite.root) return
       console.log('\n## ' + suite.title + ' ## \n')
     })
 
-    var killTimeout
-    runner.on('test end', test => {
-      if ('passed' === test.state) {
-        console.log('->', 'PASSED :', test.title, test.duration / 1000 + 's')
-      } else if (test.pending) {
-        console.log('->', 'PENDING:', test.title)
-      } else {
-        console.log('->', 'FAILED :', test.title, stringifyException(test.err))
-      }
-
-      if (killTimeout) clearTimeout(killTimeout)
+    runner.on(EVENT_TEST_FAIL, test => {
+      console.log('->', 'FAILED :', test.title, stringifyException(test.err))
+      resetKillTimeout()
     })
-    runner.on('run end', () => {
+    runner.on(EVENT_TEST_PASS, test => {
+      console.log('->', 'PASSED :', test.title, test.duration / 1000 + 's')
+      resetKillTimeout()
+    })
+
+    runner.on(EVENT_RUN_END, () => {
       var minutes = Math.floor(runner.stats.duration / 1000 / 60)
       var seconds = Math.round((runner.stats.duration / 1000) % 60)
 
@@ -45,6 +46,16 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
       )
     })
   }
+}
+
+var killTimeout
+function resetKillTimeout() {
+  if (killTimeout) clearTimeout(killTimeout)
+  killTimeout = setTimeout(() => {
+    console.log(
+      'FINISHED FAILED - no test has ended for 3 minutes, tests stopped'
+    )
+  }, 60000 * 3)
 }
 
 function stringifyException(exception) {
