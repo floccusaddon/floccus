@@ -22,8 +22,8 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
 
     var killTimeout
     runner.on('test end', test => {
-      if ('passed' == test.state) {
-        console.log('->', 'PASSED :', test.title)
+      if ('passed' === test.state) {
+        console.log('->', 'PASSED :', test.title, test.duration / 1000 + 's')
       } else if (test.pending) {
         console.log('->', 'PENDING:', test.title)
       } else {
