@@ -36,8 +36,9 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
       resetKillTimeout()
     })
     runner.on(EVENT_TEST_PASS, test => {
-      console.log('->', 'PASSED :', test.title, test.duration / 1000 + 's')
-      summary.push(Mocha.reporters.Base.symbols.ok + ' ' + test.title)
+      const status = `${test.title} (${test.duration / 1000}s)`
+      console.log('->', 'PASSED :', status)
+      summary.push(Mocha.reporters.Base.symbols.ok + ' ' + status)
       resetKillTimeout()
     })
 
