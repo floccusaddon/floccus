@@ -35,7 +35,7 @@ env:
     - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud standard"
     - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud serverRoot"
     - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud parallel"
-    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud-folders"
+    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud-folders standard"
     - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud-folders serverRoot"
     - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud-folders parallel"
     - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="webdav standard"
