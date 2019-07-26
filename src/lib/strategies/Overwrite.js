@@ -5,7 +5,7 @@ import DefaultStrategy from './Default'
 const _ = require('lodash')
 const Parallel = require('async-parallel')
 
-export default class SlaveSyncProcess extends DefaultStrategy {
+export default class OverwriteSyncProcess extends DefaultStrategy {
   async syncTree(localItem, cacheItem, serverItem) {
     const execSync = async () => {
       Logger.log('COMPARE', { localItem, cacheItem, serverItem })
@@ -24,22 +24,23 @@ export default class SlaveSyncProcess extends DefaultStrategy {
       }
       if (!localItem && !cacheItem && serverItem) {
         // CREATED UPSTREAM
-        return create(
-          this.mappings.bookmarks.ServerToLocal,
-          this.mappings.folders.ServerToLocal,
-          this.serverTreeRoot,
+        // --> remove upstream
+        return remove(
+          mappings.ServerToLocal,
           this.localTreeRoot,
-          this.localTree,
+          this.serverTreeRoot,
+          this.serverTree,
           serverItem
         )
       } else if (localItem && !cacheItem && !serverItem) {
         // CREATED LOCALLY
-        // --> delete locally again
-        return remove(
-          mappings.LocalToServer,
-          this.serverTreeRoot,
+        // --> create remotely
+        return create(
+          this.mappings.bookmarks.LocalToServer,
+          this.mappings.folders.LocalToServer,
           this.localTreeRoot,
-          this.localTree,
+          this.serverTreeRoot,
+          this.serverTree,
           localItem
         )
       } else if (
@@ -50,22 +51,22 @@ export default class SlaveSyncProcess extends DefaultStrategy {
         await update(localItem, cacheItem, serverItem)
       } else if (!localItem && cacheItem && serverItem) {
         // DELETED LOCALLY
-        // --> recreate locally
-        return create(
-          this.mappings.bookmarks.ServerToLocal,
-          this.mappings.folders.ServerToLocal,
-          this.serverTreeRoot,
+        // --> remove remotely
+        return remove(
+          mappings.ServerToLocal,
           this.localTreeRoot,
-          this.localTree,
+          this.serverTreeRoot,
+          this.serverTree,
           serverItem
         )
       } else if (localItem && cacheItem && !serverItem) {
         // DELETED UPSTREAM
-        return remove(
-          mappings.LocalToServer,
-          this.serverTreeRoot,
+        return create(
+          this.mappings.bookmarks.LocalToServer,
+          this.mappings.folders.LocalToServer,
           this.localTreeRoot,
-          this.localTree,
+          this.serverTreeRoot,
+          this.serverTree,
           localItem
         )
       } else if (!localItem && cacheItem && !serverItem) {
@@ -85,12 +86,12 @@ export default class SlaveSyncProcess extends DefaultStrategy {
     const { changed } = this.folderHasChanged(localItem, cacheItem, serverItem)
 
     if (localItem !== this.localTreeRoot && changed) {
-      // always update local folder
+      // always update remote folder
       await this.updateFolderProperties(
-        this.mappings.folders.ServerToLocal,
-        serverItem,
+        this.mappings.folders.LocalToServer,
         localItem,
-        this.localTree
+        serverItem,
+        this.serverTree
       )
     }
 
@@ -111,8 +112,8 @@ export default class SlaveSyncProcess extends DefaultStrategy {
 
     let mappingsSnapshot = this.mappings.getSnapshot()
 
-    // cache initial order
-    const remoteOrder = serverItem.children.map(child => ({
+    // cache initial local order
+    const localOrder = localItem.children.map(child => ({
       type: child.type,
       id: child.id
     }))
@@ -122,7 +123,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
       local =>
         !cacheItem || !cacheItem.children.some(cache => local.id === cache.id)
     )
-    await Parallel.filter(
+    createdLocally = await Parallel.filter(
       createdLocally,
       async addedChild => {
         // merge this with an item created on the server
@@ -151,7 +152,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
       let removedLocally = cacheItem.children.filter(
         cache => !localItem.children.some(local => local.id === cache.id)
       )
-      await Parallel.filter(
+      removedLocally = await Parallel.filter(
         removedLocally,
         async removedChild => {
           const serverChild =
@@ -168,70 +169,65 @@ export default class SlaveSyncProcess extends DefaultStrategy {
       )
     }
 
-    // don't create/remove items in the absolute root folder
-    if (!localItem.isRoot) {
-      // take a new snapshot since the server or we ourselves might have deduplicated above
-      let newMappingsSnapshot = this.mappings.getSnapshot()
+    // take a new snapshot since the server or we ourselves might have deduplicated above
+    let newMappingsSnapshot = this.mappings.getSnapshot()
 
-      // CREATED UPSTREAM
-      let createdUpstream = serverItem.children.filter(
-        child =>
-          !(cacheItem || localItem).children.some(
-            cacheChild =>
-              mappingsSnapshot[child.type + 's'].ServerToLocal[child.id] ===
-                cacheChild.id ||
-              newMappingsSnapshot[child.type + 's'].ServerToLocal[child.id] ===
-                cacheChild.id
+    // CREATED UPSTREAM
+    let createdUpstream = serverItem.children.filter(
+      child =>
+        !(cacheItem || localItem).children.some(
+          cacheChild =>
+            mappingsSnapshot[child.type + 's'].ServerToLocal[child.id] ===
+              cacheChild.id ||
+            newMappingsSnapshot[child.type + 's'].ServerToLocal[child.id] ===
+              cacheChild.id
+        )
+    )
+    createdUpstream = await Parallel.filter(
+      createdUpstream,
+      async newChild => {
+        if (newChild.merged) return false
+        return this.syncTree(null, null, newChild)
+      },
+      this.concurrency
+    )
+
+    // REMOVED UPSTREAM
+    if (cacheItem) {
+      let removedUpstream = cacheItem.children.filter(
+        cache =>
+          !serverItem.children.some(
+            server =>
+              mappingsSnapshot[cache.type + 's'].ServerToLocal[server.id] ===
+                cache.id ||
+              newMappingsSnapshot[cache.type + 's'].ServerToLocal[server.id] ===
+                cache.id
           )
       )
-      await Parallel.filter(
-        createdUpstream,
-        async newChild => {
-          if (newChild.merged) return false
-          return this.syncTree(null, null, newChild)
+      removedUpstream = await Parallel.filter(
+        removedUpstream,
+        async oldChild => {
+          const localChild =
+            oldChild instanceof Tree.Folder
+              ? this.localTreeRoot.findFolder(oldChild.id)
+              : this.localTreeRoot.findBookmark(oldChild.id)
+          return this.syncTree(localChild, oldChild, null)
         },
         this.concurrency
       )
+    }
 
-      // REMOVED UPSTREAM
-      if (cacheItem) {
-        let removedUpstream = cacheItem.children.filter(
-          cache =>
-            !serverItem.children.some(
-              server =>
-                mappingsSnapshot[cache.type + 's'].ServerToLocal[server.id] ===
-                  cache.id ||
-                newMappingsSnapshot[cache.type + 's'].ServerToLocal[
-                  server.id
-                ] === cache.id
-            )
-        )
-        await Parallel.filter(
-          removedUpstream,
-          async oldChild => {
-            const localChild =
-              oldChild instanceof Tree.Folder
-                ? this.localTreeRoot.findFolder(oldChild.id)
-                : this.localTreeRoot.findBookmark(oldChild.id)
-            return this.syncTree(localChild, oldChild, null)
-          },
-          this.concurrency
-        )
-      }
+    // ORDER CHILDREN
 
-      // ORDER CHILDREN
-
-      if (this.preserveOrder && remoteOrder.length > 1) {
-        const newMappingsSnapshot = this.mappings.getSnapshot()
-        // always update local tree
-        await this.localTree.orderFolder(
-          localItem.id,
-          remoteOrder.map(item => ({
-            id: newMappingsSnapshot[item.type + 's'].ServerToLocal[item.id],
-            type: item.type
-          }))
-        )
-      }
+    if (this.preserveOrder && localOrder.length > 1) {
+      const newMappingsSnapshot = this.mappings.getSnapshot()
+      await this.server.orderFolder(
+        serverItem.id,
+        localOrder.map(item => ({
+          id: newMappingsSnapshot[item.type + 's'].LocalToServer[item.id],
+          type: item.type
+        }))
+      )
     }
 
     // RECURSE EXISTING ITEMS

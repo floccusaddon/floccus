@@ -753,7 +753,7 @@ export default class SyncProcess {
     return true
   }
 
-  async updateBookmark(localItem, cacheItem, serverItem) {
+  async bookmarkHasChanged(localItem, cacheItem, serverItem) {
     const localHash = localItem ? await localItem.hash() : null
     const cacheHash = cacheItem ? await cacheItem.hash() : null
     const serverHash = serverItem ? await serverItem.hash() : null
@@ -765,6 +765,15 @@ export default class SyncProcess {
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
     const changed = changedLocally || changedUpstream
+    return { changed, changedLocally, changedUpstream }
+  }
+
+  async updateBookmark(localItem, cacheItem, serverItem) {
+    const { changed, changedLocally } = this.bookmarkHasChanged(
+      localItem,
+      cacheItem,
+      serverItem
+    )
 
     await this.mappings.addBookmark({
       localId: localItem.id,
