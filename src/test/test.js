@@ -11,6 +11,7 @@ import browser from '../lib/browser-api'
 
 describe('Floccus', function() {
   this.timeout(60000) // no test should run longer than 60s
+  this.slow(20000) // 20s is slow
   before(async function() {
     const background = await browser.runtime.getBackgroundPage()
     background.controller.setEnabled(false)

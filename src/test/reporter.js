@@ -6,13 +6,18 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
     // Scroll down test display after each test
     let mocha = document.querySelector('#mocha')
     runner.on('test', test => {
-      console.log(test.title)
+      console.log('\n### ' + test.title + ' ###\n')
+      killTimeout = setTimeout(() => {
+        console.log(
+          'FINISHED FAILED - no test has ended for 3 minutes, tests stopped'
+        )
+      }, 60000 * 3)
       mocha.scrollTop = mocha.scrollHeight
     })
 
     runner.on('suite', suite => {
       if (suite.root) return
-      console.log(suite.title)
+      console.log('\n## ' + suite.title + ' ## \n')
     })
 
     var killTimeout
@@ -26,23 +31,18 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
       }
 
       if (killTimeout) clearTimeout(killTimeout)
-      killTimeout = setTimeout(() => {
-        console.log(
-          'FINISHED FAILED - no test has ended for 3 minutes, tests stopped'
-        )
-      }, 60000 * 3)
-      if (this.stats.tests >= runner.total) {
-        var minutes = Math.floor(this.stats.duration / 1000 / 60)
-        var seconds = Math.round((this.stats.duration / 1000) % 60)
+    })
+    runner.on('run end', () => {
+      var minutes = Math.floor(runner.stats.duration / 1000 / 60)
+      var seconds = Math.round((runner.stats.duration / 1000) % 60)
 
-        console.log(
-          'FINISHED ' + (this.stats.failures > 0 ? 'FAILED' : 'PASSED') + ' -',
-          this.stats.passes,
-          'tests passed,',
-          this.stats.failures,
-          'tests failed, duration: ' + minutes + ':' + seconds
-        )
-      }
+      console.log(
+        'FINISHED ' + (runner.stats.failures > 0 ? 'FAILED' : 'PASSED') + ' -',
+        runner.stats.passes,
+        'tests passed,',
+        runner.stats.failures,
+        'tests failed, duration: ' + minutes + ':' + seconds
+      )
     })
   }
 }
