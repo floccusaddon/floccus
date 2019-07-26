@@ -32,12 +32,12 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
 
     runner.on(EVENT_TEST_FAIL, test => {
       console.log('->', 'FAILED :', test.title, stringifyException(test.err))
-      summary.push(this.symbols.err, test.title)
+      summary.push(Mocha.reporters.Base.symbols.err + ' ' + test.title)
       resetKillTimeout()
     })
     runner.on(EVENT_TEST_PASS, test => {
       console.log('->', 'PASSED :', test.title, test.duration / 1000 + 's')
-      summary.push(this.symbols.ok, test.title)
+      summary.push(Mocha.reporters.Base.symbols.ok + ' ' + test.title)
       resetKillTimeout()
     })
 
