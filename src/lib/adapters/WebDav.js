@@ -1,7 +1,7 @@
 import CachingAdapter from '../adapters/Caching'
+import XbelSerializer from '../serializers/Xbel'
 import Logger from '../Logger'
 import browser from '../browser-api'
-import { Bookmark, Folder } from '../Tree'
 import * as Basics from '../components/basics'
 import { Base64 } from 'js-base64'
 const { h } = require('hyperapp')
@@ -160,8 +160,6 @@ export default class WebDavAdapter extends CachingAdapter {
         ])
       )
     }
-
-    return 1
   }
 
   async freeLock() {
@@ -195,18 +193,11 @@ export default class WebDavAdapter extends CachingAdapter {
     }
 
     if (response.status === 404) {
-      return {
-        status: response.status,
-        db: new Map()
-      }
+      return response
     }
 
     if (response.status === 200) {
       let xmlDocText = await response.text()
-      let xmlDoc = new window.DOMParser().parseFromString(
-        xmlDocText,
-        'application/xml'
-      )
 
       /* let's get the highestId */
       let byNL = xmlDocText.split('\n')
@@ -219,18 +210,10 @@ export default class WebDavAdapter extends CachingAdapter {
         }
       })
 
-      let bookmarksCache = new Folder({ id: 0, title: 'root' })
-      parseXbelDoc(xmlDoc, bookmarksCache)
-      this.bookmarksCache = bookmarksCache.clone()
-
-      Logger.log('parseXbel')
-      Logger.log(bookmarksCache)
+      this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
     }
 
-    return {
-      status: response.status,
-      db: this.db
-    }
+    return response
   }
 
   async onSyncStart() {
@@ -266,13 +249,10 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async onSyncComplete() {
     Logger.log('onSyncComplete')
-    let cacheClone = this.bookmarksCache.clone()
-    Logger.log(cacheClone)
 
-    const newTreeHash = await cacheClone.hash(true)
+    const newTreeHash = await this.bookmarksCache.hash(true)
     if (newTreeHash !== this.initialTreeHash) {
       let fullUrl = this.getBookmarkURL()
-      Logger.log('fullURL :' + fullUrl + ':')
       let xbel = createXBEL(this.bookmarksCache, this.highestId)
       await this.uploadFile(fullUrl, 'application/xml', xbel)
     } else {
@@ -334,99 +314,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 }
 
-function parseXbelDoc(xbelDoc, rootFolder) {
-  let nodeList = getElementsByNodeName(
-    xbelDoc.childNodes,
-    'xbel',
-    1 /* element type */
-  )
-  if (!nodeList.length) {
-    throw new Error(
-      'Parse Error: ' + new XMLSerializer().serializeToString(xbelDoc)
-    )
-  }
-  parseXbelFolder(nodeList[0], rootFolder)
-}
-
-function parseXbelFolder(xbelObj, folder) {
-  /* parse depth first */
-
-  xbelObj.childNodes.forEach(node => {
-    let item
-    if (node.tagName && node.tagName === 'bookmark') {
-      item = new Bookmark({
-        id: parseInt(node.id),
-        parentId: folder.id,
-        url: node.getAttribute('href'),
-        title: node.firstElementChild.textContent
-      })
-    } else if (node.tagName && node.tagName === 'folder') {
-      Logger.log('Adding folder "' + node.firstElementChild.textContent + '"')
-      item = new Folder({
-        id: parseInt(node.getAttribute('id')),
-        title: node.firstElementChild.textContent,
-        parentId: folder.id
-      })
-      parseXbelFolder(node, item)
-    } else {
-      return
-    }
-
-    folder.children.push(item)
-  })
-}
-
-function getElementsByNodeName(nodes, nodeName, nodeType) {
-  let elements = []
-
-  nodes.forEach(node => {
-    if (node.nodeName === nodeName && node.nodeType === nodeType) {
-      elements.push(node)
-    }
-  })
-
-  return elements
-}
-
-function outputFolderXBEL(myFolder, indent) {
-  let xmlDocument = new DOMParser().parseFromString(
-    '<xml></xml>',
-    'application/xml'
-  )
-
-  return myFolder.children
-    .map(child => {
-      if (child instanceof Bookmark) {
-        let bookmark = xmlDocument.createElement('bookmark')
-        bookmark.setAttribute('href', child.url)
-        bookmark.setAttribute('id', child.id)
-        let title = xmlDocument.createElement('title')
-        title.textContent = child.title
-        bookmark.appendChild(title)
-        return new XMLSerializer().serializeToString(
-          bookmark,
-          'application/xml'
-        )
-      }
-
-      if (child instanceof Folder) {
-        let folder = xmlDocument.createElement('folder')
-        if ('id' in child) {
-          folder.setAttribute('id', child.id)
-        }
-
-        let title = xmlDocument.createElement('title')
-        title.textContent = child.title
-        folder.appendChild(title)
-
-        folder.innerHTML += outputFolderXBEL(child, indent + '    ')
-        return new XMLSerializer().serializeToString(folder, 'application/xml')
-      }
-    })
-    .join('\r\n' + indent)
-}
-
-function createXBEL(myTopFolder, highestId) {
+function createXBEL(rootFolder, highestId) {
   let output = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE xbel PUBLIC "+//IDN python.org//DTD XML Bookmark Exchange Language 1.0//EN//XML" "http://pyxml.sourceforge.net/topics/dtds/xbel.dtd">
 <xbel version="1.0">
@@ -438,7 +326,7 @@ function createXBEL(myTopFolder, highestId) {
     `: for Floccus bookmark sync browser extension -->
 `
 
-  output += outputFolderXBEL(myTopFolder, '')
+  output += XbelSerializer.serialize(rootFolder)
 
   output += `
 </xbel>`

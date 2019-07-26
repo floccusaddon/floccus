@@ -1,6 +1,7 @@
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
-import Adapter from '../Adapter'
+import Adapter from '../interfaces/Adapter'
+import HtmlSerializer from '../serializer/Html'
 import Logger from '../Logger'
 import { Folder, Bookmark } from '../Tree'
 import * as Basics from '../components/basics'
@@ -160,11 +161,8 @@ export default class NextcloudFoldersAdapter extends Adapter {
         id: bm.id,
         url: bm.url,
         title: bm.title
-        // Once firefox supports tags, we can do this:
-        // tags: bm.tags.filter(tag => tag.indexOf('__floccus-path:') != 0)
       })
 
-      // there may be multiple path tags per server bookmark, create a bookmark for each of them
       bm.folders.forEach(parentId => {
         let b = bookmark.clone()
         b.id = b.id
@@ -179,10 +177,6 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return bookmarks
   }
 
-  /**
-   * Warning: No strict equality checks with IDs in here, because
-   * MySQL uses stringified numbers while Postgres doesn't
-   */
   async getBookmarksTree(loadAll) {
     this.list = null // clear cache before starting a new sync
 

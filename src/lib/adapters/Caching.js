@@ -1,7 +1,7 @@
 import * as Tree from '../Tree'
 import Logger from '../Logger'
 import { Folder } from '../Tree'
-import Adapter from '../Adapter'
+import Adapter from '../interfaces/Adapter'
 import browser from '../browser-api'
 const url = require('url')
 

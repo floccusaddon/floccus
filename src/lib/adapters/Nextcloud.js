@@ -1,6 +1,6 @@
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
-import Adapter from '../Adapter'
+import Adapter from '../interfaces/Adapter'
 import Logger from '../Logger'
 import { Folder, Bookmark } from '../Tree'
 import PathHelper from '../PathHelper'
@@ -34,7 +34,9 @@ export default class NextcloudAdapter extends Adapter {
   constructor(server) {
     super()
     this.server = server
-    this.fetchQueue = new PQueue({ concurrency: 100 })
+    // Slow to Average server has perhaps ~8 cores
+    // + 1/2 in flight requests
+    this.fetchQueue = new PQueue({ concurrency: 12 })
     this.bookmarkLock = new AsyncLock()
   }
 
