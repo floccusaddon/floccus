@@ -338,28 +338,27 @@ export default class SyncProcess {
     const serverHash = serverItem
       ? await serverItem.hash(this.preserveOrder)
       : null
+    const reconciled = !cacheItem && localHash !== serverHash
     const changedLocally =
-      !cacheItem ||
-      (cacheItem && !cacheItem.id) || // if id is not set, changedLocally must be true
-      localHash !== cacheHash ||
+      (localHash !== cacheHash && localHash !== serverHash) ||
       localItem.parentId !== cacheItem.parentId
     const changedUpstream =
-      localHash !== serverHash ||
+      (cacheHash !== serverHash && localHash !== serverHash) ||
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
-    const changed = changedLocally || changedUpstream
-    return { changedLocally, changedUpstream, changed }
+    const changed = changedLocally || changedUpstream || reconciled
+    return { changedLocally, changedUpstream, changed, reconciled }
   }
 
   async updateFolder(localItem, cacheItem, serverItem) {
-    const { changed, changedLocally } = await this.folderHasChanged(
+    const { changed, changedLocally, reconciled } = await this.folderHasChanged(
       localItem,
       cacheItem,
       serverItem
     )
 
     if (localItem !== this.localTreeRoot && changed) {
-      if (changedLocally) {
+      if (changedLocally || reconciled) {
         // UPDATED LOCALLY
         await this.updateFolderProperties(
           this.mappings.folders.LocalToServer,
@@ -764,16 +763,17 @@ export default class SyncProcess {
       (localHash !== serverHash && cacheHash !== serverHash) ||
       localItem.parentId !==
         this.mappings.folders.ServerToLocal[serverItem.parentId]
-    const changed = changedLocally || changedUpstream
-    return { changed, changedLocally, changedUpstream }
+    const reconciled = !cacheItem && localHash !== serverHash
+    const changed = changedLocally || changedUpstream || reconciled
+    return { changed, changedLocally, changedUpstream, reconciled }
   }
 
   async updateBookmark(localItem, cacheItem, serverItem) {
-    const { changed, changedLocally } = await this.bookmarkHasChanged(
-      localItem,
-      cacheItem,
-      serverItem
-    )
+    const {
+      changed,
+      changedLocally,
+      reconciled
+    } = await this.bookmarkHasChanged(localItem, cacheItem, serverItem)
 
     await this.mappings.addBookmark({
       localId: localItem.id,
@@ -788,7 +788,7 @@ export default class SyncProcess {
     }
 
     let newServerId
-    if (changedLocally) {
+    if (changedLocally || reconciled) {
       newServerId = await this.server.updateBookmark(
         new Tree.Bookmark({
           id: serverItem.id,

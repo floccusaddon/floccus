@@ -82,7 +82,11 @@ export default class SlaveSyncProcess extends DefaultStrategy {
   }
 
   async updateFolder(localItem, cacheItem, serverItem) {
-    const { changed } = this.folderHasChanged(localItem, cacheItem, serverItem)
+    const { changed } = await this.folderHasChanged(
+      localItem,
+      cacheItem,
+      serverItem
+    )
 
     if (localItem !== this.localTreeRoot && changed) {
       // always update local folder
@@ -273,6 +277,8 @@ export default class SlaveSyncProcess extends DefaultStrategy {
       serverItem
     )
 
+    const changedOrRoot = changed || cacheItem === this.cacheTreeRoot
+
     await this.mappings.addBookmark({
       localId: localItem.id,
       remoteId: serverItem.id
@@ -280,7 +286,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
 
     this.done++
 
-    if (!changed) {
+    if (!changedOrRoot) {
       Logger.log('Bookmark unchanged')
       return
     }

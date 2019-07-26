@@ -83,7 +83,11 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
   }
 
   async updateFolder(localItem, cacheItem, serverItem) {
-    const { changed } = this.folderHasChanged(localItem, cacheItem, serverItem)
+    const { changed } = await this.folderHasChanged(
+      localItem,
+      cacheItem,
+      serverItem
+    )
 
     if (localItem !== this.localTreeRoot && changed) {
       // always update remote folder
