@@ -250,6 +250,7 @@ export default class WebDavAdapter extends CachingAdapter {
   async onSyncComplete() {
     Logger.log('onSyncComplete')
 
+    this.bookmarksCache = this.bookmarksCache.clone()
     const newTreeHash = await this.bookmarksCache.hash(true)
     if (newTreeHash !== this.initialTreeHash) {
       let fullUrl = this.getBookmarkURL()
