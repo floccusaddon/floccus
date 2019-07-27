@@ -732,7 +732,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       // add bookmark to cached list
       let upstreamMark = bm.clone()
       upstreamMark.id = bm.id.split(';')[0]
-      this.list.push(upstreamMark)
+      this.list && this.list.push(upstreamMark)
 
       return bm.id
     })
