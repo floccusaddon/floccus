@@ -414,10 +414,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'index.php/apps/bookmarks/public/rest/v2/folder/-1/hash'
     )
     this.list = null
-    this.tree = tree
-    this.tree.hashValue = { true: hashJson.data }
-    recurseChildFolders(this.tree, childFoldersJson.data)
-    return this.tree.clone()
+    this.tree = tree.clone() // we clone, so we can mess with our own version
+    tree.hashValue = { true: hashJson.data }
+    recurseChildFolders(tree, childFoldersJson.data)
+    return tree
   }
 
   async loadFolderChildren(folderId) {
