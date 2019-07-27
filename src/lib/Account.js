@@ -1,5 +1,5 @@
 import AccountStorage from './AccountStorage'
-import Adapter from './Adapter'
+import Adapter from './interfaces/Adapter'
 import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
 import NextcloudAdapter from './adapters/Nextcloud'
 import WebDavAdapter from './adapters/WebDav'

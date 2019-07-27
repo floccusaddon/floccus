@@ -2,7 +2,7 @@ import browser from './browser-api'
 import Logger from './Logger'
 import * as Tree from './Tree'
 import Account from './Account'
-import Resource from './Resource'
+import Resource from './interfaces/Resource'
 import PQueue from 'p-queue'
 
 export default class LocalTree extends Resource {
