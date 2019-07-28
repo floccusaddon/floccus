@@ -526,6 +526,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     const blob = new Blob(
       [
         '<!DOCTYPE NETSCAPE-Bookmark-file-1>\n',
+        '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n',
         HtmlSerializer.serialize(folder)
       ],
       {
