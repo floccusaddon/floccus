@@ -41,7 +41,7 @@ class XbelSerializer extends Serializer {
           title: node.firstElementChild.textContent,
           parentId: folder.id
         })
-        this._parseXbelFolder(node, item)
+        this._parseFolder(node, item)
       } else {
         return
       }
