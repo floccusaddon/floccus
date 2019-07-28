@@ -23,7 +23,7 @@ class XbelSerializer extends Serializer {
     return rootFolder
   }
 
-  _parseXbelFolder(xbelObj, folder) {
+  _parseFolder(xbelObj, folder) {
     /* parse depth first */
 
     xbelObj.childNodes.forEach(node => {
