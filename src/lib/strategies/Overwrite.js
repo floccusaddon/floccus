@@ -29,7 +29,7 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
           mappings.ServerToLocal,
           this.localTreeRoot,
           this.serverTreeRoot,
-          this.serverTree,
+          this.server,
           serverItem
         )
       } else if (localItem && !cacheItem && !serverItem) {
@@ -95,7 +95,7 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
         this.mappings.folders.LocalToServer,
         localItem,
         serverItem,
-        this.serverTree
+        this.server
       )
     }
 
@@ -285,12 +285,12 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
       return
     }
 
-    await this.localTree.updateBookmark(
+    await this.server.updateBookmark(
       new Tree.Bookmark({
-        id: localItem.id,
-        parentId: this.mappings.folders.ServerToLocal[serverItem.parentId],
-        title: serverItem.title,
-        url: serverItem.url
+        id: serverItem.id,
+        parentId: this.mappings.folders.LocalToServer[localItem.parentId],
+        title: localItem.title,
+        url: localItem.url
       })
     )
 
