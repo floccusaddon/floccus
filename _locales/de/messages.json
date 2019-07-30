@@ -122,6 +122,9 @@
   "LabelSyncnow": {
     "message": "Jetzt synchronisieren"
   },
+  "LabelCancelsync": {
+    "message": "Abbrechen"
+  },
   "LabelEnabled": {
     "message": "Aktiviert"
   },
@@ -172,6 +175,21 @@
   },
   "DescriptionParallelsync": {
     "message": "Setzen Sie diesen Haken um mehrere Ordner parallel abzuarbeiten und so die Synchronisierung zu beschleunigen. Dieses Feature ist experimentell und macht es schwieriger die Debug Logs zu lesen."
+  },
+  "LabelStrategy": {
+    "message": "Synchronisationsstrategie"
+  },
+  "DescriptionStrategy": {
+    "message": "Diese Option bestimmt wie der Lesezeichenbaum auf dem Server mit dem im Browser synchronisiert wird. Normalerweise will man Änderungen von beiden Seiten behalten, sofern sie kompatibel sind, aber manchmal ist es nötig die lokale Version genau so auf den Server zu übertragen, oder anders herum."
+  },
+  "LabelStrategydefault": {
+    "message": "Verschmelze lokale und vom Server kommende Änderungen (empfohlen)"
+  },
+  "LabelStrategyslave": {
+    "message": "Lokale Änderungen immer überschreiben und verwerfen"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "Vom Server kommende Änderungen immer überschreiben und verwerfen"
   },
   "LabelSave": {
     "message": "Speichern"
