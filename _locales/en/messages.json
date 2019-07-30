@@ -176,11 +176,20 @@
   "DescriptionParallelsync": {
     "message": "Tick this box to process multiple folders in parallel in order to speed the synchronization. This feature is experimental and makes it harder to read the debug logs."
   },
-  "LabelSlavesync": {
-    "message": "Slave mode"
+  "LabelStrategy": {
+    "message": "Synchronization strategy"
   },
-  "DescriptionSlavesync": {
-    "message": "Tick this box to only overtake changes from the server and override local changes."
+  "DescriptionStrategy": {
+    "message": "This option determines how to synchronize the bookmarks tree on the server with the one in this browser. Usually you will want to keep changes to both trees if they are compatible, but sometimes you might want to force the local version onto the server, or vice versa."
+  },
+  "LabelStrategydefault": {
+    "message": "Merge local and remote changes (recommended)"
+  },
+  "LabelStrategyslave": {
+    "message": "Always overwrite and revert local changes"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "Always overwrite and revert remote changes"
   },
   "LabelSave": {
     "message": "Save"

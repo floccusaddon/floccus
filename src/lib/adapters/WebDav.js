@@ -17,7 +17,7 @@ const {
   OptionResetCache,
   OptionParallelSyncing,
   OptionSyncInterval,
-  OptionSlaveSyncing
+  OptionSyncStrategy
 } = Basics
 
 export default class WebDavAdapter extends CachingAdapter {
@@ -308,7 +308,7 @@ export default class WebDavAdapter extends CachingAdapter {
         <OptionSyncInterval account={state.account} />
         <OptionResetCache account={state.account} />
         <OptionParallelSyncing account={state.account} />
-        <OptionSlaveSyncing account={state.account} />
+        <OptionSyncStrategy account={state.account} />
         <OptionDelete account={state.account} />
       </form>
     )

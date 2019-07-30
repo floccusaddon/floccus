@@ -26,7 +26,6 @@ const {
   OptionResetCache,
   OptionParallelSyncing,
   OptionSyncInterval,
-  OptionSlaveSyncing,
   H3
 } = Basics
 
@@ -94,7 +93,6 @@ export default class NextcloudAdapter extends Adapter {
         <OptionSyncInterval account={state.account} />
         <OptionResetCache account={state.account} />
         <OptionParallelSyncing account={state.account} />
-        <OptionSlaveSyncing account={state.account} />
         <OptionDelete account={state.account} />
       </form>
     )

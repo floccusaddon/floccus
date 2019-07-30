@@ -409,29 +409,57 @@ export const OptionSyncInterval = ({ account }) => (state, actions) => {
   )
 }
 
-export const OptionSlaveSyncing = ({ account }) => (state, actions) => {
+export const OptionSyncStrategy = ({ account }) => (state, actions) => {
+  const setStrategy = strategy => {
+    actions.options.update({
+      data: {
+        ...account,
+        strategy: 'overwrite'
+      }
+    })
+  }
   return (
-    <div>
-      <H4>🔏 {browser.i18n.getMessage('LabelSlavesync')}</H4>
-      <p>{browser.i18n.getMessage('DescriptionSlavesync')}</p>
+    <OptionSyncStrategyStyle>
+      <H4>⚖ {browser.i18n.getMessage('LabelStrategy')}</H4>
+      <p>{browser.i18n.getMessage('DescriptionStrategy')}</p>
       <Label>
         <Input
-          type="checkbox"
-          onclick={e => {
-            actions.options.update({
-              data: {
-                ...account,
-                strategy: e.target.checked ? 'slave' : 'default'
-              }
-            })
-          }}
+          type="radio"
+          name="syncstrategy"
+          onclick={e => setStrategy('default')}
+          checked={
+            state.options.data.strategy === 'default' ||
+            !state.options.data.strategy
+          }
+        />
+        {browser.i18n.getMessage('LabelStrategydefault')}
+      </Label>
+      <Label>
+        <Input
+          type="radio"
+          name="syncstrategy"
+          onclick={e => setStrategy('slave')}
           checked={state.options.data.strategy === 'slave'}
         />
-        {browser.i18n.getMessage('LabelSlavesync')}
+        {browser.i18n.getMessage('LabelStrategyslave')}
       </Label>
-    </div>
+      <Label>
+        <Input
+          type="radio"
+          name="syncstrategy"
+          onclick={e => setStrategy('overwrite')}
+          checked={state.options.data.strategy === 'overwrite'}
+        />
+        {browser.i18n.getMessage('LabelStrategyoverwrite')}
+      </Label>
+    </OptionSyncStrategyStyle>
   )
 }
+const OptionSyncStrategyStyle = style('div')(props => ({
+  '> label': {
+    display: 'block'
+  }
+}))
 
 export const A = style('a')({})
 
