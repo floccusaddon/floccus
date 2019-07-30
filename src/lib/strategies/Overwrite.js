@@ -40,7 +40,7 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
           this.mappings.folders.LocalToServer,
           this.localTreeRoot,
           this.serverTreeRoot,
-          this.serverTree,
+          this.server,
           localItem
         )
       } else if (
@@ -56,7 +56,7 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
           mappings.ServerToLocal,
           this.localTreeRoot,
           this.serverTreeRoot,
-          this.serverTree,
+          this.server,
           serverItem
         )
       } else if (localItem && cacheItem && !serverItem) {
@@ -66,7 +66,7 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
           this.mappings.folders.LocalToServer,
           this.localTreeRoot,
           this.serverTreeRoot,
-          this.serverTree,
+          this.server,
           localItem
         )
       } else if (!localItem && cacheItem && !serverItem) {
