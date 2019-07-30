@@ -8,6 +8,7 @@ import Tree from './Tree'
 import LocalTree from './LocalTree'
 import DefaultSyncProcess from './strategies/Default'
 import SlaveSyncProcess from './strategies/Slave'
+import OverwriteSyncProcess from './strategies/Overwrite'
 import Logger from './Logger'
 import browser from './browser-api'
 
@@ -151,6 +152,10 @@ export default class Account {
         case 'slave':
           console.log('Using slave mode')
           strategy = SlaveSyncProcess
+          break
+        case 'overwrite':
+          console.log('Using overwrite mode')
+          strategy = OverwriteSyncProcess
           break
         default:
           console.log('Using normal mode')

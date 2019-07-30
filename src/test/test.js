@@ -1466,6 +1466,307 @@ describe('Floccus', function() {
               )
             })
           })
+          context('with overwrite mode', function() {
+            it('should create local bookmarks on the server', async function() {
+              await account.setData({
+                ...account.getData(),
+                strategy: 'overwrite'
+              })
+              var adapter = account.server
+              expect(
+                (await adapter.getBookmarksTree(true)).children
+              ).to.have.lengthOf(0)
+
+              const localRoot = account.getData().localRoot
+              const fooFolder = await browser.bookmarks.create({
+                title: 'foo',
+                parentId: localRoot
+              })
+              const barFolder = await browser.bookmarks.create({
+                title: 'bar',
+                parentId: fooFolder.id
+              })
+              const bookmark = await browser.bookmarks.create({
+                title: 'url',
+                url: 'http://ur.l/',
+                parentId: barFolder.id
+              })
+              await account.sync()
+              expect(account.getData().error).to.not.be.ok
+
+              const tree = await adapter.getBookmarksTree(true)
+              expectTreeEqual(
+                tree,
+                new Folder({
+                  title: tree.title,
+                  children: [
+                    new Folder({
+                      title: 'foo',
+                      children: [
+                        new Folder({
+                          title: 'bar',
+                          children: [
+                            new Bookmark({ title: 'url', url: bookmark.url })
+                          ]
+                        })
+                      ]
+                    })
+                  ]
+                }),
+                ACCOUNT_DATA.type === 'nextcloud'
+              )
+            })
+            it('should update the server on local changes', async function() {
+              var adapter = account.server
+              expect(
+                (await adapter.getBookmarksTree(true)).children
+              ).to.have.lengthOf(0)
+
+              const localRoot = account.getData().localRoot
+              const fooFolder = await browser.bookmarks.create({
+                title: 'foo',
+                parentId: localRoot
+              })
+              const barFolder = await browser.bookmarks.create({
+                title: 'bar',
+                parentId: fooFolder.id
+              })
+              const bookmark = await browser.bookmarks.create({
+                title: 'url',
+                url: 'http://ur.l/',
+                parentId: barFolder.id
+              })
+              await account.sync() // propagate to server
+              await account.setData({
+                ...account.getData(),
+                strategy: 'overwrite'
+              })
+
+              const newData = { title: 'blah' }
+              await browser.bookmarks.update(bookmark.id, newData)
+              const originalTree = await account.localTree.getBookmarksTree(
+                true
+              )
+              await account.sync() // update on server
+              expect(account.getData().error).to.not.be.ok
+
+              const tree = await adapter.getBookmarksTree(true)
+              expectTreeEqual(
+                tree,
+                originalTree,
+                ACCOUNT_DATA.type === 'nextcloud'
+              )
+            })
+            it('should update the server on local removals', async function() {
+              var adapter = account.server
+              expect(
+                (await adapter.getBookmarksTree(true)).children
+              ).to.have.lengthOf(0)
+
+              const localRoot = account.getData().localRoot
+              const fooFolder = await browser.bookmarks.create({
+                title: 'foo',
+                parentId: localRoot
+              })
+              const barFolder = await browser.bookmarks.create({
+                title: 'bar',
+                parentId: fooFolder.id
+              })
+              const bookmark = await browser.bookmarks.create({
+                title: 'url',
+                url: 'http://ur.l/',
+                parentId: barFolder.id
+              })
+              await account.sync() // propagate to server
+              await account.setData({
+                ...account.getData(),
+                strategy: 'overwrite'
+              })
+
+              await browser.bookmarks.remove(bookmark.id)
+              const originalTree = await account.localTree.getBookmarksTree(
+                true
+              )
+              await account.sync() // update on server
+              expect(account.getData().error).to.not.be.ok
+
+              const tree = await adapter.getBookmarksTree(true)
+              expectTreeEqual(
+                tree,
+                originalTree,
+                ACCOUNT_DATA.type === 'nextcloud'
+              )
+            })
+            it('should update the server on local folder moves', async function() {
+              var adapter = account.server
+              expect(
+                (await adapter.getBookmarksTree(true)).children
+              ).to.have.lengthOf(0)
+
+              const localRoot = account.getData().localRoot
+              const fooFolder = await browser.bookmarks.create({
+                title: 'foo',
+                parentId: localRoot
+              })
+              const bookmark1 = await browser.bookmarks.create({
+                title: 'test',
+                url: 'http://ureff.l/',
+                parentId: fooFolder.id
+              })
+              const barFolder = await browser.bookmarks.create({
+                title: 'bar',
+                parentId: fooFolder.id
+              })
+              const bookmark2 = await browser.bookmarks.create({
+                title: 'url',
+                url: 'http://ur.l/',
+                parentId: barFolder.id
+              })
+              await account.sync() // propagate to server
+              await account.setData({
+                ...account.getData(),
+                strategy: 'overwrite'
+              })
+
+              await browser.bookmarks.move(barFolder.id, {
+                parentId: localRoot
+              })
+              const originalTree = await account.localTree.getBookmarksTree(
+                true
+              )
+              await account.sync() // update on server
+              expect(account.getData().error).to.not.be.ok
+
+              const tree = await adapter.getBookmarksTree(true)
+              expectTreeEqual(
+                tree,
+                originalTree,
+                ACCOUNT_DATA.type === 'nextcloud'
+              )
+            })
+            it("shouldn't create server bookmarks locally", async function() {
+              await account.setData({
+                ...account.getData(),
+                strategy: 'overwrite'
+              })
+              var adapter = account.server
+              if (adapter.onSyncStart) await adapter.onSyncStart()
+              const originalTree = await account.localTree.getBookmarksTree(
+                true
+              )
+              const fooFolderId = await adapter.createFolder(
+                serverTree.id,
+                'foo'
+              )
+              const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
+              const serverMark = {
+                title: 'url',
+                url: 'http://ur.l/',
+                parentId: barFolderId
+              }
+              const bookmarkId = await adapter.createBookmark(
+                new Bookmark(serverMark)
+              )
+              if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
+              await account.sync()
+              expect(account.getData().error).to.not.be.ok
+
+              const tree = await account.localTree.getBookmarksTree(true)
+              expectTreeEqual(
+                tree,
+                originalTree,
+                ACCOUNT_DATA.type === 'nextcloud'
+              )
+            })
+            it("shouldn't update local bookmarks on server changes", async function() {
+              var adapter = account.server
+
+              if (adapter.onSyncStart) await adapter.onSyncStart()
+              const serverTree = await adapter.getBookmarksTree(true)
+              const fooFolderId = await adapter.createFolder(
+                serverTree.id,
+                'foo'
+              )
+              const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
+              const serverMark = {
+                title: 'url',
+                url: 'http://ur.l/',
+                parentId: barFolderId
+              }
+              const serverMarkId = await adapter.createBookmark(
+                new Bookmark(serverMark)
+              )
+              if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
+              await account.sync() // propage creation
+              const originalTree = await account.localTree.getBookmarksTree(
+                true
+              )
+              await account.setData({
+                ...account.getData(),
+                strategy: 'overwrite'
+              })
+
+              if (adapter.onSyncStart) await adapter.onSyncStart()
+              const newServerMark = {
+                ...serverMark,
+                title: 'blah',
+                id: serverMarkId
+              }
+              await adapter.updateBookmark(new Bookmark(newServerMark))
+              if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
+              await account.sync() // propage update
+              expect(account.getData().error).to.not.be.ok
+
+              const tree = await account.localTree.getBookmarksTree(true)
+              expectTreeEqual(
+                tree,
+                originalTree,
+                ACCOUNT_DATA.type === 'nextcloud'
+              )
+            })
+            it("shouldn't update local bookmarks on server removals", async function() {
+              var adapter = account.server
+              if (adapter.onSyncStart) await adapter.onSyncStart()
+              const serverTree = await adapter.getBookmarksTree(true)
+              const fooFolderId = await adapter.createFolder(
+                serverTree.id,
+                'foo'
+              )
+              const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
+              const serverMark = {
+                title: 'url',
+                url: 'http://ur.l/',
+                parentId: barFolderId
+              }
+              const serverMarkId = await adapter.createBookmark(
+                new Bookmark(serverMark)
+              )
+              if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
+              await account.sync() // propage creation
+              const originalTree = await account.localTree.getBookmarksTree(
+                true
+              )
+              await account.setData({ ...account.getData(), strategy: 'slave' })
+
+              if (adapter.onSyncStart) await adapter.onSyncStart()
+              await adapter.removeBookmark(serverMarkId)
+              if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
+              await account.sync() // propage update
+              expect(account.getData().error).to.not.be.ok
+
+              const tree = await account.localTree.getBookmarksTree(true)
+              expectTreeEqual(
+                tree,
+                originalTree,
+                ACCOUNT_DATA.type === 'nextcloud'
+              )
+            })
+          })
         })
         context('with two clients', function() {
           var account1, account2
