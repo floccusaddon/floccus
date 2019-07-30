@@ -1551,6 +1551,7 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               const tree = await adapter.getBookmarksTree(true)
+              originalTree.title = tree.title
               expectTreeEqual(
                 tree,
                 originalTree,
@@ -1591,6 +1592,7 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               const tree = await adapter.getBookmarksTree(true)
+              originalTree.title = tree.title
               expectTreeEqual(
                 tree,
                 originalTree,
@@ -1638,6 +1640,7 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               const tree = await adapter.getBookmarksTree(true)
+              originalTree.title = tree.title
               expectTreeEqual(
                 tree,
                 originalTree,
@@ -1654,6 +1657,7 @@ describe('Floccus', function() {
               const originalTree = await account.localTree.getBookmarksTree(
                 true
               )
+              const serverTree = await adapter.getBookmarksTree(true)
               const fooFolderId = await adapter.createFolder(
                 serverTree.id,
                 'foo'
@@ -1673,6 +1677,7 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               const tree = await account.localTree.getBookmarksTree(true)
+              originalTree.title = tree.title
               expectTreeEqual(
                 tree,
                 originalTree,
@@ -1721,6 +1726,7 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               const tree = await account.localTree.getBookmarksTree(true)
+              originalTree.title = tree.title
               expectTreeEqual(
                 tree,
                 originalTree,
@@ -1750,7 +1756,10 @@ describe('Floccus', function() {
               const originalTree = await account.localTree.getBookmarksTree(
                 true
               )
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({
+                ...account.getData(),
+                strategy: 'overwrite'
+              })
 
               if (adapter.onSyncStart) await adapter.onSyncStart()
               await adapter.removeBookmark(serverMarkId)
@@ -1760,6 +1769,7 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               const tree = await account.localTree.getBookmarksTree(true)
+              originalTree.title = tree.title
               expectTreeEqual(
                 tree,
                 originalTree,
