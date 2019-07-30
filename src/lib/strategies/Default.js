@@ -71,8 +71,15 @@ export default class SyncProcess {
     this.filterOutUnacceptedBookmarks(this.localTreeRoot)
     await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
 
-    // Load sparse tree
-    await this.loadChildren(this.serverTreeRoot, this.mappings.getSnapshot())
+    const roughFolderDiff =
+      this.localTreeRoot.countFolders() - this.serverTreeRoot.countFolders()
+    if (roughFolderDiff > -100) {
+      // Load sparse tree
+      await this.loadChildren(this.serverTreeRoot, this.mappings.getSnapshot())
+    } else {
+      // rather load the complete tree, as we do less requests this way
+      this.serverTreeRoot = await this.server.getBookmarksTree(true)
+    }
 
     // generate hashtables to find items faster
     this.localTreeRoot.createIndex()
@@ -226,6 +233,9 @@ export default class SyncProcess {
   }
 
   async loadChildren(serverItem, mappingsSnapshot) {
+    if (this.canceled) {
+      throw new Error(browser.i18n.getMessage('Error027'))
+    }
     if (serverItem instanceof Tree.Bookmark) return
     if (typeof this.server.loadFolderChildren === 'undefined') return
     let localItem, cacheItem

@@ -10,7 +10,7 @@ export default class LocalTree extends Resource {
     super()
     this.rootId = rootId
     this.storage = storage
-    this.queue = new PQueue({ concurrency: 30 })
+    this.queue = new PQueue({ concurrency: 10 })
   }
 
   async getBookmarksTree() {
