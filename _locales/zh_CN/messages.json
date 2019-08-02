@@ -176,11 +176,20 @@
   "DescriptionParallelsync": {
     "message": "勾选此框可并行处理多个文件夹，以加快同步速度"
   },
-  "LabelSlavesync": {
-    "message": "从机模式"
+  "LabelStrategy": {
+    "message": "同步策略"
   },
-  "DescriptionSlavesync": {
-    "message": "勾选此框仅覆盖来自服务器的更改，并覆盖本地更改。"
+  "DescriptionStrategy": {
+    "message": "此选项确定如何将服务器上的书签树与此浏览器中的书签树同步。如果两个树都兼容，您将希望保留对它们的更改，但有时您可能希望将本地版本强制到服务器上，反之亦然。"
+  },
+  "LabelStrategydefault": {
+    "message": "合并本地和远程更改（推荐）"
+  },
+  "LabelStrategyslave": {
+    "message": "始终覆盖并还原本地更改"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "始终覆盖和还原远程更改"
   },
   "LabelSave": {
     "message": "保存"
