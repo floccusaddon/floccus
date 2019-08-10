@@ -110,6 +110,7 @@ export default class Account {
         parentId: bookmarksBar.id
       })
       accData.localRoot = node.id
+      accData.rootPath = await LocalTree.getPathFromLocalId(node.id)
       await this.setData(accData)
     }
     await this.storage.initMappings()
