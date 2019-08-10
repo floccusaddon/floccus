@@ -145,6 +145,9 @@ export default class Controller {
     if (!this.enabled) {
       return
     }
+    // Debounce this function
+    this.setEnabled(false)
+
     const allAccounts = await Account.getAllAccounts()
 
     // Check which accounts contain the bookmark and which used to contain (track) it
@@ -159,16 +162,21 @@ export default class Controller {
       .filter((account, i) => trackingAccountsFilter[i])
       // Filter out any accounts that are presently syncing
       .filter(account => !account.getData().syncing)
+      // Filter out accounts that are not enabled
+      .filter(account => account.getData().enabled)
 
-    // We should now sync all accounts that are involved in this change (2 at max)
+    // We should now sync the account that used to contain this bookmark
     accountsToSync.forEach(account => {
-      this.scheduleSyncAccount(account.id)
+      this.scheduleSync(account.id)
     })
+
+    // Now we check the account of the new folder
 
     var ancestors
     try {
       ancestors = await LocalTree.getIdPathFromLocalId(localId)
     } catch (e) {
+      this.setEnabled(true)
       return
     }
 
@@ -180,10 +188,13 @@ export default class Controller {
     if (
       containingAccount &&
       !containingAccount.getData().syncing &&
+      containingAccount.getData().enabled &&
       !accountsToSync.some(acc => acc.id === containingAccount.id)
     ) {
       this.scheduleSync(containingAccount.id, true)
     }
+
+    this.setEnabled(true)
   }
 
   async scheduleSync(accountId, wait) {
@@ -200,6 +211,9 @@ export default class Controller {
 
     let account = await Account.get(accountId)
     if (account.getData().syncing) {
+      return
+    }
+    if (!account.getData().enabled) {
       return
     }
 
