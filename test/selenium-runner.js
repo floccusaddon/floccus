@@ -7,11 +7,17 @@ const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
 const VERSION = require('../package.json').version
 ;(async function() {
   let driver = await new Builder()
-    .usingServer(
-      `http://${process.env.SAUCE_USERNAME}:${
-        process.env.SAUCE_ACCESS_KEY
-      }@ondemand.saucelabs.com/wd/hub`
-    )
+    .withCapabilities({
+      username: process.env.SAUCE_USERNAME,
+      accessKey: process.env.SAUCE_ACCESS_KEY,
+      'sauce:options': {
+        'moz:firefoxOptions': { wc3: true },
+        maxDuration: 3600,
+        idleTimeout: 1000,
+        'seleniumVersion:': '3.11.0'
+      }
+    })
+    .usingServer('https://ondemand.saucelabs.com:443/wd/hub')
     .forBrowser(process.env.SELENIUM_BROWSER)
     .setChromeOptions(
       new ChromeOptions().addExtensions(
@@ -19,9 +25,7 @@ const VERSION = require('../package.json').version
       )
     )
     .setFirefoxOptions(
-      new FirefoxOptions()
-        .set('version', '68')
-        .set('platform', 'Windows 10')
+      new FirefoxOptions().set('version', '68').set('platform', 'Windows 10')
     )
     .build()
   try {
@@ -48,12 +52,16 @@ const VERSION = require('../package.json').version
 
       case 'firefox':
         // Scrape extension id from firefox addons page
-        await driver.installAddon(`./builds/floccus-build-v${VERSION}.xpi`, true)
+        await driver.installAddon(
+          `./builds/floccus-build-v${VERSION}.xpi`,
+          true
+        )
         await driver.get('about:debugging')
         await new Promise(resolve => setTimeout(resolve, 10000))
         let optionsURL = await driver.executeScript(function() {
-          var extension = Array.from(AboutDebugging.client.mainRoot.__poolMap.values())
-          .filter(obj => obj.id === 'floccus@handmadeideas.org')[0]
+          var extension = Array.from(
+            AboutDebugging.client.mainRoot.__poolMap.values()
+          ).filter(obj => obj.id === 'floccus@handmadeideas.org')[0]
           return extension.manifestURL
         })
         if (!optionsURL) throw new Error('Could not install extension')
