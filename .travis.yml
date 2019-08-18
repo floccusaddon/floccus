@@ -10,40 +10,34 @@ env:
     - SERVER=nextcloud/travis_ci/master
     - DB=sqlite
     - NC_APP=bookmarks
-    #- SELENIUM_BROWSER=chrome
-    - SELENIUM_BROWSER=firefox
     - OC_USER=admin
     - OC_PASS=admin
     - NC_APP_VERSION=master
   matrix:
-    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake standard"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake standard" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake standard" SELENIUM_BROWSER="firefox"
 
-    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER="nextcloud standard"
-    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER="nextcloud serverRoot"
-    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER="nextcloud parallel"
+    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="firefox"
 
-    - SERVER_BRANCH=stable14 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud standard"
-    - SERVER_BRANCH=stable14 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud-folders standard"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="firefox"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="firefox"
 
-    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud standard"
-    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud serverRoot"
-    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud parallel"
-    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud-folders standard"
-    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud-folders serverRoot"
-    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud-folders parallel"
+    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.6 FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.6 FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="firefox"
+    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.6 FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.6 FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="firefox"
+    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.6 FLOCCUS_ADAPTER="webdav" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.6 FLOCCUS_ADAPTER="webdav" SELENIUM_BROWSER="firefox"
 
-    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud standard"
-    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud serverRoot"
-    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud parallel"
-    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud-folders standard"
-    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud-folders serverRoot"
-    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud-folders parallel"
-    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="webdav standard"
-    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="webdav parallel"
-
-    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER=nextcloud standard
-    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="webdav standard"
-    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-folders standard"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="firefox"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="firefox"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="webdav" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="webdav" SELENIUM_BROWSER="firefox"
 
 language: node_js
 node_js:
