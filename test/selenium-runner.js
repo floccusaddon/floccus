@@ -49,17 +49,12 @@ const VERSION = require('../package.json').version
 
       case 'firefox':
         // Scrape extension id from firefox addons page
-        await driver.get('about:addons')
+        await driver.get('about:debugging')
         await new Promise(resolve => setTimeout(resolve, 10000))
-        let optionsURL = await driver.executeAsyncScript(function() {
-          var callback = arguments[arguments.length - 1]
-          window.AddonManager.getActiveAddons()
-            .then(data => {
-              return data.addons
-                .filter(extension => extension.name === 'floccus')
-                .map(extension => extension.optionsURL)[0]
-            })
-            .then(callback)
+        let optionsURL = await driver.executeScript(function() {
+          var extension = Array.from(AboutDebugging.client.mainRoot.__poolMap.values())
+          .filter(obj => obj.id === 'floccus@handmadeideas.org')[0]
+          return extension.manifestURL
         })
         if (!optionsURL) throw new Error('Could not install extension')
         id = url.parse(optionsURL).hostname
