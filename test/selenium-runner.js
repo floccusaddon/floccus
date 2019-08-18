@@ -12,12 +12,15 @@ const VERSION = require('../package.json').version
       accessKey: process.env.SAUCE_ACCESS_KEY,
       'sauce:options': {
         'moz:firefoxOptions': { wc3: true },
+        'goog:chromeOptions': { wc3: true },
         maxDuration: 3600,
         idleTimeout: 1000,
         'seleniumVersion:': '3.11.0'
       }
     })
-    .usingServer('https://ondemand.saucelabs.com:443/wd/hub')
+    .usingServer(
+      `http://${process.env.SAUCE_USERNAME}:${process.env.SAUCE_ACCESS_KEY}@ondemand.saucelabs.com/wd/hub`
+    )
     .forBrowser(process.env.SELENIUM_BROWSER)
     .setChromeOptions(
       new ChromeOptions().addExtensions(
