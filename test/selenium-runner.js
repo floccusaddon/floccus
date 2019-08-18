@@ -1,13 +1,13 @@
 const fs = require('fs')
 const url = require('url')
-const { Builder, By, Key, until, Capabilities } = require('selenium-webdriver')
-const { Type, Entry } = require('selenium-webdriver/lib/logging')
+const { Builder } = require('selenium-webdriver')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
 const VERSION = require('../package.json').version
 ;(async function() {
   let driver = await new Builder()
     .withCapabilities({
+      'tunnel-identifier': process.env['TRAVIS_JOB_NUMBER'],
       username: process.env.SAUCE_USERNAME,
       accessKey: process.env.SAUCE_ACCESS_KEY,
       'sauce:options': {
