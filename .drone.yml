@@ -51,7 +51,7 @@ services:
       - apt update && apt install git wget -y
       - git clone --depth=1 --branch="v1.0.6" "https://github.com/nextcloud/bookmarks.git" "custom_apps/bookmarks"
       - wget https://getcomposer.org/installer -q | php -- --quiet
-      - cd custom_apps/bookmarks && composer install
+      - cd custom_apps/bookmarks && php ./composer.phar install
       - php occ app:enable "bookmarks"
 
   - name: nextcloud16
@@ -65,5 +65,5 @@ services:
       - apt update && apt install git wget -y
       - git clone --depth=1 --branch="master" "https://github.com/nextcloud/bookmarks.git" "custom_apps/bookmarks"
       - wget https://getcomposer.org/installer -q | php -- --quiet
-      - cd custom_apps/bookmarks && composer install
+      - cd custom_apps/bookmarks && php ./composer.phar install
       - php occ app:enable "bookmarks"
