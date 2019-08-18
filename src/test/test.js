@@ -27,18 +27,18 @@ describe('Floccus', function() {
   ;[
     Account.getDefaultValues('fake'),
     {
-      type: 'nextcloud',
+      type: 'nextcloud-legacy',
       url: 'http://localhost/',
       ...CREDENTIALS
     },
     {
-      type: 'nextcloud',
+      type: 'nextcloud-legacy',
       url: 'http://localhost/',
       serverRoot: '/my folder/some subfolder',
       ...CREDENTIALS
     },
     {
-      type: 'nextcloud',
+      type: 'nextcloud-legacy',
       url: 'http://localhost/',
       parallel: true,
       ...CREDENTIALS
