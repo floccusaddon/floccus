@@ -13,8 +13,6 @@ const VERSION = require('../package.json').version
       'sauce:options': {
         'moz:firefoxOptions': { wc3: true },
         'goog:chromeOptions': { wc3: true },
-        maxDuration: 3600,
-        idleTimeout: 1000,
         'seleniumVersion:': '3.11.0'
       }
     })

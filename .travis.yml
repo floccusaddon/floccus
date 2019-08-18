@@ -17,23 +17,23 @@ env:
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake standard" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake standard" SELENIUM_BROWSER="firefox"
 
-    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="firefox"
+    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER="nextcloud-legacy" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=stable13 NC_APP_VERSION=v0.11.0 FLOCCUS_ADAPTER="nextcloud-legacy" SELENIUM_BROWSER="firefox"
 
-    - SERVER_BRANCH=stable15 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=stable15 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="firefox"
-    - SERVER_BRANCH=stable15 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=stable15 NC_APP_VERSION=v1.0.6 FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="firefox"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud-legacy" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud-legacy" SELENIUM_BROWSER="firefox"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=stable15 NC_APP_VERSION=v0.17.0 FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="firefox"
 
-    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.1 FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.1 FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="firefox"
+    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.1 FLOCCUS_ADAPTER="nextcloud-legacy" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.1 FLOCCUS_ADAPTER="nextcloud-legacy" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.1 FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.1 FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.1 FLOCCUS_ADAPTER="webdav" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable16 NC_APP_VERSION=v1.1.1 FLOCCUS_ADAPTER="webdav" SELENIUM_BROWSER="firefox"
 
-    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud " SELENIUM_BROWSER="firefox"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-legacy" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-legacy" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-folders" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="webdav" SELENIUM_BROWSER="chrome"
@@ -54,7 +54,7 @@ before_script:
   - sudo cp -f test/apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 
   # use php 7
-  - phpenv global 7.1
+  - phpenv global 7.2
 
   # enable php-fpm
   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf

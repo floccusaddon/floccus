@@ -14,6 +14,7 @@ import browser from './browser-api'
 
 // register Adapters
 Adapter.register('nextcloud', NextcloudAdapter)
+Adapter.register('nextcloud-legacy', NextcloudAdapter)
 Adapter.register('nextcloud-folders', NextcloudFoldersAdapter)
 Adapter.register('webdav', WebDavAdapter)
 Adapter.register('fake', FakeAdapter)
