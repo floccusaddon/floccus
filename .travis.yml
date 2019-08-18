@@ -10,8 +10,8 @@ env:
     - SERVER=nextcloud/travis_ci/master
     - DB=sqlite
     - NC_APP=bookmarks
-    - SELENIUM_BROWSER=chrome
-    #- SELENIUM_BROWSER=firefox
+    #- SELENIUM_BROWSER=chrome
+    - SELENIUM_BROWSER=firefox
     - OC_USER=admin
     - OC_PASS=admin
     - NC_APP_VERSION=master
