@@ -35,7 +35,8 @@ services:
         from_secret: SAUCE_ACCESS_KEY
     ports:
       - 8000
-    command: ['-u', '$SAUCE_USERNAME', '-k', '$SAUCE_ACCESS_KEY']
+    commands:
+      - sc -P 8000 -u $SAUCE_USERNAME -k $SAUCE_ACCESS_KEY
 
   - name: nextcloud15
     image: 'nextcloud:15'
@@ -45,7 +46,7 @@ services:
       NEXTCLOUD_ADMIN_USER: admin
       NEXTCLOUD_ADMIN_PASSWORD: admin
     commands:
-      - apt install git
+      - apt update && apt install git
       - git clone --depth=1 --branch="v1.0.6" "https://github.com/nextcloud/bookmarks.git" "custom_apps/bookmarks"
       - cd custom_apps/bookmarks && composer install
       - php occ app:enable "bookmarks"
@@ -58,7 +59,7 @@ services:
       NEXTCLOUD_ADMIN_USER: admin
       NEXTCLOUD_ADMIN_PASSWORD: admin
     commands:
-      - apt install git
+      - apt update && apt install git
       - git clone --depth=1 --branch="master" "https://github.com/nextcloud/bookmarks.git" "custom_apps/bookmarks"
       - cd custom_apps/bookmarks && composer install
       - php occ app:enable "bookmarks"
