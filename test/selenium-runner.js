@@ -12,12 +12,7 @@ const VERSION = require('../package.json').version
         process.env.SAUCE_ACCESS_KEY
       }@ondemand.saucelabs.com/wd/hub`
     )
-    .withCapabilities(
-      new Capabilities({
-        'tunnel-identifier': process.env['TRAVIS_JOB_NUMBER']
-      })
-    )
-    .forBrowser('chrome')
+    .forBrowser(process.env.SELENIUM_BROWSER)
     .setChromeOptions(
       new ChromeOptions().addExtensions(
         fs.readFileSync(`./builds/floccus-build-v${VERSION}.crx`, 'base64')
@@ -55,10 +50,10 @@ const VERSION = require('../package.json').version
       case 'firefox':
         // Scrape extension id from firefox addons page
         await driver.get('about:addons')
-        await new Promise(resolve => setTimeout(resolve, 5000))
+        await new Promise(resolve => setTimeout(resolve, 10000))
         let optionsURL = await driver.executeAsyncScript(function() {
           var callback = arguments[arguments.length - 1]
-          AddonManager.getActiveAddons()
+          window.AddonManager.getActiveAddons()
             .then(data => {
               return data.addons
                 .filter(extension => extension.name === 'floccus')
