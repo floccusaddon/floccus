@@ -3,58 +3,58 @@ name: default
 
 steps:
   - name: test in chrome
-	  image: node
-		environment:
-		  SAUCE_USERNAME: marcelklehr
-			SAUCE_ACCESS_KEY:
-			  from_secret: SAUCE_ACCESS_KEY
-			SELENIUM_BROWSER: chrome
-		commands:
-		  - npm run keygen
-			- npm run build-release
-			- npm run test
+    image: node
+    environment:
+      SAUCE_USERNAME: marcelklehr
+      SAUCE_ACCESS_KEY:
+        from_secret: SAUCE_ACCESS_KEY
+      SELENIUM_BROWSER: chrome
+    commands:
+      - npm run keygen
+      - npm run build-release
+      - npm run test
 
-	- name: test
-	  image: node
-		environment:
-		  SAUCE_USERNAME: marcelklehr
-			SAUCE_ACCESS_KEY:
-			  from_secret: SAUCE_ACCESS_KEY
-			SELENIUM_BROWSER: firefox
-		commands:
-		  - npm run keygen
-			- npm run build-release
-			- npm run test
+  - name: test
+    image: node
+    environment:
+      SAUCE_USERNAME: marcelklehr
+      SAUCE_ACCESS_KEY:
+        from_secret: SAUCE_ACCESS_KEY
+      SELENIUM_BROWSER: firefox
+    commands:
+      - npm run keygen
+      - npm run build-release
+      - npm run test
 
 services:
   - name: saucelabs
-	  image: joscha/docker-sauce-connect
-		ports:
-		  - 8000
-	  command: ['-u', '$SAUCE_USERNAME', '-k'. '$SAUCE_ACCESS_KEY']
+    image: joscha/docker-sauce-connect
+    ports:
+      - 8000
+    command: ['-u', '$SAUCE_USERNAME', '-k', '$SAUCE_ACCESS_KEY']
 
   - name: nextcloud15
     image: 'nextcloud:15'
-		ports:
-		  - 80
-		environment:
-		  NEXTCLOUD_ADMIN_USER: admin
-			NEXTCLOUD_ADMIN_PASSWORD: admin
+    ports:
+      - 80
+    environment:
+      NEXTCLOUD_ADMIN_USER: admin
+      NEXTCLOUD_ADMIN_PASSWORD: admin
     command: |
-		  git clone --depth=1 --branch="v1.0.6" "https://github.com/nextcloud/bookmarks.git" "custom_apps/bookmarks"
-			cd custom_apps/bookmarks && composer install
-			php occ app:enable "bookmarks"
-			/entrypoint.sh apache-foreground
+      git clone --depth=1 --branch="v1.0.6" "https://github.com/nextcloud/bookmarks.git" "custom_apps/bookmarks"
+      cd custom_apps/bookmarks && composer install
+      php occ app:enable "bookmarks"
+      /entrypoint.sh apache-foreground
 
   - name: nextcloud16
     image: 'nextcloud:16'
-		ports:
-		  - 80
-		environment:
-		  NEXTCLOUD_ADMIN_USER: admin
-			NEXTCLOUD_ADMIN_PASSWORD: admin
+    ports:
+      - 80
+    environment:
+      NEXTCLOUD_ADMIN_USER: admin
+      NEXTCLOUD_ADMIN_PASSWORD: admin
     commands: |
-		  git clone --depth=1 --branch="master" "https://github.com/nextcloud/bookmarks.git" "custom_apps/bookmarks"
-			cd custom_apps/bookmarks && composer install
-			php occ app:enable "bookmarks"
-			/entrypoint.sh apache-foreground
+      git clone --depth=1 --branch="master" "https://github.com/nextcloud/bookmarks.git" "custom_apps/bookmarks"
+      cd custom_apps/bookmarks && composer install
+      php occ app:enable "bookmarks"
+      /entrypoint.sh apache-foreground
