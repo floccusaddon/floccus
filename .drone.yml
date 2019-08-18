@@ -3,7 +3,7 @@ name: default
 
 steps:
   - name: test in chrome
-    image: node
+    image: node:10
     environment:
       SAUCE_USERNAME: marcelklehr
       SAUCE_ACCESS_KEY:
@@ -16,7 +16,7 @@ steps:
       - npm run test
 
   - name: test in firefox
-    image: node
+    image: node:10
     environment:
       SAUCE_USERNAME: marcelklehr
       SAUCE_ACCESS_KEY:
