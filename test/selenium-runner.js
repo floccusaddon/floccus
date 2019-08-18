@@ -20,7 +20,7 @@ const VERSION = require('../package.json').version
     )
     .setFirefoxOptions(
       new FirefoxOptions()
-        .set('version', 'dev')
+        .set('version', '68')
         .set('platform', 'Windows 10')
         .addExtensions(`./builds/floccus-build-v${VERSION}.xpi`)
     )
