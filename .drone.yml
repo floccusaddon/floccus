@@ -10,11 +10,12 @@ steps:
         from_secret: SAUCE_ACCESS_KEY
       SELENIUM_BROWSER: chrome
     commands:
+      - npm install
       - npm run keygen
       - npm run build-release
       - npm run test
 
-  - name: test
+  - name: test in firefox
     image: node
     environment:
       SAUCE_USERNAME: marcelklehr
@@ -47,7 +48,7 @@ services:
       NEXTCLOUD_ADMIN_USER: admin
       NEXTCLOUD_ADMIN_PASSWORD: admin
     commands:
-      - apt update && apt install git -y
+      - apt update && apt install git wget -y
       - git clone --depth=1 --branch="v1.0.6" "https://github.com/nextcloud/bookmarks.git" "custom_apps/bookmarks"
       - wget https://getcomposer.org/installer -0 - -q | php -- --quiet
       - cd custom_apps/bookmarks && composer install
@@ -61,7 +62,7 @@ services:
       NEXTCLOUD_ADMIN_USER: admin
       NEXTCLOUD_ADMIN_PASSWORD: admin
     commands:
-      - apt update && apt install git -y
+      - apt update && apt install git wget -y
       - git clone --depth=1 --branch="master" "https://github.com/nextcloud/bookmarks.git" "custom_apps/bookmarks"
       - wget https://getcomposer.org/installer -0 - -q | php -- --quiet
       - cd custom_apps/bookmarks && composer install
