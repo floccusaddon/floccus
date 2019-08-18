@@ -40,7 +40,7 @@ services:
     environment:
       NEXTCLOUD_ADMIN_USER: admin
       NEXTCLOUD_ADMIN_PASSWORD: admin
-    command: |
+    entrypoint: |
       git clone --depth=1 --branch="v1.0.6" "https://github.com/nextcloud/bookmarks.git" "custom_apps/bookmarks"
       cd custom_apps/bookmarks && composer install
       php occ app:enable "bookmarks"
@@ -53,7 +53,7 @@ services:
     environment:
       NEXTCLOUD_ADMIN_USER: admin
       NEXTCLOUD_ADMIN_PASSWORD: admin
-    commands: |
+    entrypoint: |
       git clone --depth=1 --branch="master" "https://github.com/nextcloud/bookmarks.git" "custom_apps/bookmarks"
       cd custom_apps/bookmarks && composer install
       php occ app:enable "bookmarks"
