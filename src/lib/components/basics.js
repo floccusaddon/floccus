@@ -414,7 +414,7 @@ export const OptionSyncStrategy = ({ account }) => (state, actions) => {
     actions.options.update({
       data: {
         ...account,
-        strategy: 'overwrite'
+        strategy
       }
     })
   }
