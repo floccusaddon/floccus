@@ -202,7 +202,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
           it('should update the server on local changes', async function() {
@@ -254,7 +254,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
           it('should update the server on local removals', async function() {
@@ -300,7 +300,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
           it('should update the server on local folder moves', async function() {
@@ -354,7 +354,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
           it('should create server bookmarks locally', async function() {
@@ -398,7 +398,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
           it('should update local bookmarks on server changes', async function() {
@@ -454,7 +454,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
           it('should update local bookmarks on server removals', async function() {
@@ -499,7 +499,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
           it('should be able to handle duplicates', async function() {
@@ -551,7 +551,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
           it('should deduplicate unnormalized URLs', async function() {
@@ -627,7 +627,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
           it('should not fail when moving both folders and contents', async function() {
@@ -681,7 +681,7 @@ describe('Floccus', function() {
                       new Folder({
                         title: 'foo',
                         children:
-                          ACCOUNT_DATA.type !== 'nextcloud'
+                          ACCOUNT_DATA.type !== 'nextcloud-legacy'
                             ? []
                             : [
                                 // This is because of a peculiarity of the legacy adapter
@@ -695,7 +695,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
           it('should not fail when both moving folders and deleting their contents', async function() {
@@ -764,7 +764,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
           it('should handle strange characters well', async function() {
@@ -815,7 +815,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
           it('should be ok if both server and local bookmark are removed', async function() {
@@ -910,7 +910,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
 
             await browser.bookmarks.removeTree(
@@ -957,7 +957,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -974,10 +974,10 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
-          if (~ACCOUNT_DATA.type.indexOf('nextcloud')) {
+          if (~ACCOUNT_DATA.type.indexOf('nextcloud-legacy')) {
             it('should leave alone unaccepted bookmarks entirely', async function() {
               const localRoot = account.getData().localRoot
 
@@ -1028,7 +1028,7 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
 
               const localTree = await account.localTree.getBookmarksTree(true)
@@ -1054,12 +1054,12 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
           }
 
-          if (ACCOUNT_DATA.type !== 'nextcloud') {
+          if (ACCOUNT_DATA.type !== 'nextcloud-legacy') {
             it('should synchronize ordering', async function() {
               var adapter = account.server
               expect(
@@ -1228,7 +1228,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
             it("shouldn't update the server on local removals", async function() {
@@ -1263,7 +1263,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
             it("shouldn't update the server on local folder moves", async function() {
@@ -1305,7 +1305,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
             it('should create server bookmarks locally', async function() {
@@ -1353,7 +1353,7 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
             it('should update local bookmarks on server changes', async function() {
@@ -1413,7 +1413,7 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
             it('should update local bookmarks on server removals', async function() {
@@ -1462,13 +1462,13 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
           })
           context('with overwrite mode', function() {
             before(function() {
-              if (ACCOUNT_DATA.type === 'nextcloud') return this.skip()
+              if (ACCOUNT_DATA.type === 'nextcloud-legacy') return this.skip()
             })
             it('should create local bookmarks on the server', async function() {
               await account.setData({
@@ -1516,7 +1516,7 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
             it('should update the server on local changes', async function() {
@@ -1558,7 +1558,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
             it('should update the server on local removals', async function() {
@@ -1599,7 +1599,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
             it('should update the server on local folder moves', async function() {
@@ -1647,7 +1647,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
             it("shouldn't create server bookmarks locally", async function() {
@@ -1684,7 +1684,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
             it("shouldn't update local bookmarks on server changes", async function() {
@@ -1733,7 +1733,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
             it("shouldn't update local bookmarks on server removals", async function() {
@@ -1776,7 +1776,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ACCOUNT_DATA.type === 'nextcloud'
+                ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
           })
@@ -1886,7 +1886,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
 
             const tree1AfterSyncing = await account1.localTree.getBookmarksTree(
@@ -1898,13 +1898,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterSyncing,
               tree2AfterSyncing,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             tree2AfterSyncing.title = serverTreeAfterSyncing.title
             expectTreeEqual(
               tree2AfterSyncing,
               serverTreeAfterSyncing,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
           it('should overtake moves to a different client', async function() {
@@ -1943,19 +1943,19 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             serverTreeAfterFirstSync.title = tree1.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             tree2AfterFirstSync.title = tree1.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             console.log('First round ok')
 
@@ -1981,13 +1981,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterSecondSync,
               tree1BeforeSecondSync,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             serverTreeAfterSecondSync.title = tree1AfterSecondSync.title
             expectTreeEqual(
               serverTreeAfterSecondSync,
               tree1AfterSecondSync,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             console.log('Second round first half ok')
 
@@ -2005,13 +2005,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree2AfterThirdSync,
               tree1AfterSecondSync,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             serverTreeAfterThirdSync.title = tree2AfterThirdSync.title
             expectTreeEqual(
               serverTreeAfterThirdSync,
               tree2AfterThirdSync,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             console.log('Second round second half ok')
 
@@ -2030,18 +2030,18 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFinalSync,
               tree2AfterThirdSync,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             tree2AfterThirdSync.title = serverTreeAfterFinalSync.title
             expectTreeEqual(
               tree2AfterThirdSync,
               serverTreeAfterFinalSync,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
 
           it('should synchronize ordering', async function() {
-            if (ACCOUNT_DATA.type === 'nextcloud') return this.skip()
+            if (ACCOUNT_DATA.type === 'nextcloud-legacy') return this.skip()
             var adapter = account1.server
             expect(
               (await adapter.getBookmarksTree(true)).children
@@ -2173,19 +2173,19 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             serverTreeAfterFirstSync.title = tree1.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             tree2AfterFirstSync.title = tree1.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             console.log('First round ok')
 
@@ -2208,13 +2208,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterSecondSync,
               tree1BeforeSecondSync,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             serverTreeAfterSecondSync.title = tree1AfterSecondSync.title
             expectTreeEqual(
               serverTreeAfterSecondSync,
               tree1AfterSecondSync,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             console.log('Second round first half ok')
 
@@ -2238,13 +2238,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree2AfterThirdSync,
               tree2BeforeThirdSync,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             serverTreeAfterThirdSync.title = tree2AfterThirdSync.title
             expectTreeEqual(
               serverTreeAfterThirdSync,
               tree2AfterThirdSync,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             console.log('Second round second half ok')
 
@@ -2260,13 +2260,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFinalSync,
               tree2AfterThirdSync,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
             tree2AfterThirdSync.title = serverTreeAfterFinalSync.title
             expectTreeEqual(
               tree2AfterThirdSync,
               serverTreeAfterFinalSync,
-              ACCOUNT_DATA.type === 'nextcloud'
+              ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
         })
@@ -2317,4 +2317,8 @@ function expectTreeEqual(tree1, tree2, ignoreEmptyFolders, checkOrder) {
 function hasNoBookmarks(child) {
   if (child instanceof Bookmark) return false
   else return !child.children.some(child => !hasNoBookmarks(child))
+}
+
+function ignoreEmptyFolders(account_data) {
+  return account_data.type === 'nextcloud-legacy'
 }
