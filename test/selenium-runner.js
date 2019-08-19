@@ -7,26 +7,23 @@ const VERSION = require('../package.json').version
 ;(async function() {
   let driver = await new Builder()
     .withCapabilities({
-      tunnelIdentifier: process.env['TRAVIS_JOB_NUMBER'],
-      username: process.env.SAUCE_USERNAME,
-      accessKey: process.env.SAUCE_ACCESS_KEY,
+      browserVersion: 'latest',
       'sauce:options': {
+        name: process.env['TRAVIS_JOB_NUMBER'],
+        tunnelIdentifier: process.env['TRAVIS_JOB_NUMBER'],
+        username: process.env.SAUCE_USERNAME,
+        accessKey: process.env.SAUCE_ACCESS_KEY,
         'moz:firefoxOptions': { wc3: true },
         'goog:chromeOptions': { wc3: true },
         'seleniumVersion:': '3.11.0'
       }
     })
-    .usingServer(
-      `http://${process.env.SAUCE_USERNAME}:${process.env.SAUCE_ACCESS_KEY}@ondemand.saucelabs.com/wd/hub`
-    )
+    .usingServer(`https://ondemand.saucelabs.com/wd/hub`)
     .forBrowser(process.env.SELENIUM_BROWSER)
     .setChromeOptions(
       new ChromeOptions().addExtensions(
         fs.readFileSync(`./builds/floccus-build-v${VERSION}.crx`, 'base64')
       )
-    )
-    .setFirefoxOptions(
-      new FirefoxOptions().set('version', '68').set('platform', 'Windows 10')
     )
     .build()
   try {
