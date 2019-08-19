@@ -122,7 +122,7 @@ Floccus will sync your bookmarks as-is, including any dupes that are in differen
 
 ### Troubleshooting
 
-- **Emojis**: MySQL doesn't support emojis out of the box, so if you're syncing to nextcloud and getting Error code 500 from nextcloud, check the nextcloud log for SQL errors and [proceed as explained in the nextcloud docs](https://docs.nextcloud.com/server/stable/admin_manual/configuration_database/mysql_4byte_support.html).
+- **Emojis**: MySQL doesn't support emojis out of the box, so if you're syncing to nextcloud and getting Error code 500 from nextcloud, check the nextcloud log for SQL errors and [proceed as explained in the nextcloud docs if you get charset errors](https://docs.nextcloud.com/server/stable/admin_manual/configuration_database/mysql_4byte_support.html).
 
 ## Considerations
 
