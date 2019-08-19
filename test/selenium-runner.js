@@ -1,33 +1,29 @@
 const fs = require('fs')
 const url = require('url')
-const { Builder, By, Key, until, Capabilities } = require('selenium-webdriver')
-const { Type, Entry } = require('selenium-webdriver/lib/logging')
+const { Builder } = require('selenium-webdriver')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
 const VERSION = require('../package.json').version
 ;(async function() {
   let driver = await new Builder()
-    .usingServer(
-      `http://${process.env.SAUCE_USERNAME}:${
-        process.env.SAUCE_ACCESS_KEY
-      }@ondemand.saucelabs.com/wd/hub`
-    )
-    .withCapabilities(
-      new Capabilities({
-        'tunnel-identifier': process.env['TRAVIS_JOB_NUMBER']
-      })
-    )
-    .forBrowser('chrome')
+    .withCapabilities({
+      browserVersion: 'latest',
+      'sauce:options': {
+        name: process.env['TRAVIS_JOB_NUMBER'],
+        tunnelIdentifier: process.env['TRAVIS_JOB_NUMBER'],
+        username: process.env.SAUCE_USERNAME,
+        accessKey: process.env.SAUCE_ACCESS_KEY,
+        'moz:firefoxOptions': { wc3: true },
+        'goog:chromeOptions': { wc3: true },
+        'seleniumVersion:': '3.11.0'
+      }
+    })
+    .usingServer(`https://ondemand.saucelabs.com/wd/hub`)
+    .forBrowser(process.env.SELENIUM_BROWSER)
     .setChromeOptions(
       new ChromeOptions().addExtensions(
         fs.readFileSync(`./builds/floccus-build-v${VERSION}.crx`, 'base64')
       )
-    )
-    .setFirefoxOptions(
-      new FirefoxOptions()
-        .set('version', 'dev')
-        .set('platform', 'Windows 10')
-        .addExtensions(`./builds/floccus-build-v${VERSION}.xpi`)
     )
     .build()
   try {
@@ -54,17 +50,17 @@ const VERSION = require('../package.json').version
 
       case 'firefox':
         // Scrape extension id from firefox addons page
-        await driver.get('about:addons')
-        await new Promise(resolve => setTimeout(resolve, 5000))
-        let optionsURL = await driver.executeAsyncScript(function() {
-          var callback = arguments[arguments.length - 1]
-          AddonManager.getActiveAddons()
-            .then(data => {
-              return data.addons
-                .filter(extension => extension.name === 'floccus')
-                .map(extension => extension.optionsURL)[0]
-            })
-            .then(callback)
+        await driver.installAddon(
+          `./builds/floccus-build-v${VERSION}.xpi`,
+          true
+        )
+        await driver.get('about:debugging')
+        await new Promise(resolve => setTimeout(resolve, 10000))
+        let optionsURL = await driver.executeScript(function() {
+          var extension = Array.from(
+            AboutDebugging.client.mainRoot.__poolMap.values()
+          ).filter(obj => obj.id === 'floccus@handmadeideas.org')[0]
+          return extension.manifestURL
         })
         if (!optionsURL) throw new Error('Could not install extension')
         id = url.parse(optionsURL).hostname
@@ -78,17 +74,20 @@ const VERSION = require('../package.json').version
 
     await driver.get(testUrl)
 
-    let logs,
-      fin,
-      i = 0
+    let logs = [],
+      fin
     do {
       await new Promise(resolve => setTimeout(resolve, 3000))
-      logs = await driver.executeScript(function() {
-        return window.floccusTestLogs
+      const newLogs = await driver.executeScript(function() {
+        var logs = window.floccusTestLogs.slice(
+          window.floccusTestLogsLength || 0
+        )
+        window.floccusTestLogsLength = window.floccusTestLogs.length
+        return logs
       })
 
-      logs.slice(i).forEach(entry => console.log(entry))
-      i = logs.length
+      newLogs.forEach(entry => console.log(entry))
+      logs = logs.concat(newLogs)
     } while (
       !logs.some(entry => {
         if (~entry.indexOf('FINISHED')) {
