@@ -74,7 +74,8 @@ const VERSION = require('../package.json').version
 
     await driver.get(testUrl)
 
-    let logs, fin
+    let logs = [],
+      fin
     do {
       await new Promise(resolve => setTimeout(resolve, 3000))
       const newLogs = await driver.executeScript(function() {
