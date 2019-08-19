@@ -92,14 +92,14 @@ When using the nextcloud Bookmarks adapter, you can specify a 'server folder' in
 This way it is possible to sync Firefox' 'Bookmarks Menu' folder to Chrome, which doesn't have a Menu folder out of the box: Simply set up a separate account for each of the main folders in firefox, each with a separate server folder, e.g.:
 
 - Fx '/Bookmarks Toolbar' <=> '/Toolbar'
-  - Fx '/Other Bookmarks' <=> '/Others'
-  - Fx '/Bookmarks Menu' <=> '/Menu'
+- Fx '/Other Bookmarks' <=> '/Others'
+- Fx '/Bookmarks Menu' <=> '/Menu'
 
 Then, in Chrome you can setup the folders as follows:
 
 - GC '/Bookmarks Toolbar' <=> '/Toolbar'
 - GC '/Bookmarks Toolbar/Menu' <=> '/Menu' (You need to create this folder yourself, of course.)
-  - GC '/Other Bookmarks' <=> '/Others'
+- GC '/Other Bookmarks' <=> '/Others'
 
 ### Limitations
 
@@ -109,12 +109,12 @@ Then, in Chrome you can setup the folders as follows:
 
 Performance is an aspect that I try to tackle with gradual improvements. The latest development here is the "parallel sync" option that processes multiple branches of the bookmarks tree in parallel. The benchmark results in this case are as follows:
 
-| adapter           | cold sync (3000 Bookmarks) | warm sync (3000 Bookmarks) |
-| ----------------- | -------------------------- | -------------------------- |
-| nextcloud-folders | ~20min                     | ~4min                      |
-| webdav            | ~3min                      | ~2min                      |
+| adapter           | cold initial sync (4000 Bookmarks) | warm sync with no changes (4000 Bookmarks) |
+| ----------------- | ---------------------------------- | ------------------------------------------ |
+| nextcloud-folders | ~7min                              | ~20s                                       |
+| webdav            | ~4min                              | ~10s                                       |
 
-**Note**: The cold sync performance of the nextcloud-folders adapter depends to an extent on the server's resources as well, such that parallel syncing is not always faster in this case.
+**Note**: The cold sync performance of the nextcloud-folders adapter depends to an extent on the server's resources as well, such that the times may vary with your setup.
 
 ### Finding duplicates
 
