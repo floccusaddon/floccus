@@ -74,17 +74,19 @@ const VERSION = require('../package.json').version
 
     await driver.get(testUrl)
 
-    let logs,
-      fin,
-      i = 0
+    let logs, fin
     do {
       await new Promise(resolve => setTimeout(resolve, 3000))
-      logs = await driver.executeScript(function() {
-        return window.floccusTestLogs
+      const newLogs = await driver.executeScript(function() {
+        var logs = window.floccusTestLogs.slice(
+          window.floccusTestLogsLength || 0
+        )
+        window.floccusTestLogsLength = window.floccusTestLogs.length
+        return logs
       })
 
-      logs.slice(i).forEach(entry => console.log(entry))
-      i = logs.length
+      newLogs.forEach(entry => console.log(entry))
+      logs = logs.concat(newLogs)
     } while (
       !logs.some(entry => {
         if (~entry.indexOf('FINISHED')) {
