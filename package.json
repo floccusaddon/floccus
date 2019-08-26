@@ -1,6 +1,6 @@
 {
   "name": "floccus",
-  "version": "3.4.0-beta.3",
+  "version": "3.4.0",
   "description": "Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)",
   "main": "index.js",
   "scripts": {
@@ -34,7 +34,7 @@
     "gulp-run-command": "0.0.9",
     "gulp-tap": "^1.0.1",
     "gulp-zip": "^4.2.0",
-    "mocha": "^6.1.4",
+    "mocha": "^6.2.0",
     "selenium-webdriver": "^4.0.0-alpha.4",
     "through2": "^2.0.5"
   },
