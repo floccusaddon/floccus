@@ -1,3 +1,14 @@
+## v3.4.0
+
+- NEW: Automated testing in firefox (#353)
+- NEW: Add emojis to various options
+- NEW: Implement cancel sync button
+- NEW: Sync strategies (default/merging, slave / override browser, master / override server)
+- NEW: Bulk upload for faster syncing
+- FIX Account: Set rootPath on init
+- FIX: Unlock enter press
+- FIX: Use whatwg URL normalization
+
 ## v3.3.1
 
 - FIX: Don't load all parts of the sparse tree in parallel
