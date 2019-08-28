@@ -28,6 +28,7 @@ If applicable, add screenshots to help explain your problem.
  - Browser [e.g. chrome, safari]
  - Browser Version [e.g. 22]
  - Floccus version: [e.g. 3.2.2]
+ - Floccus sync method: [e.g. webdav, nextcloud legacy or nextcloud folders]
 
 **Server (please complete the following information):**
  - OS: [e.g. centOS 7]
