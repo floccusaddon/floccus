@@ -197,6 +197,9 @@
   "LabelCancel": {
     "message": "Cancel"
   },
+  "LabelChooseadapter": {
+    "message": "How do you want to sync?"
+  },
   "LabelAdapternextcloudfolders": {
     "message": "Nextcloud Bookmarks"
   },
