@@ -1,6 +1,6 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-const AsyncParallel = require('async-parallel')
+import AsyncParallel from 'async-parallel'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -80,8 +80,8 @@ describe('Floccus', function() {
         (ACCOUNT_DATA.serverRoot
           ? 'with serverRoot '
           : ACCOUNT_DATA.parallel
-          ? 'parallel '
-          : 'standard ') +
+            ? 'parallel '
+            : 'standard ') +
         'Account',
       function() {
         var account
@@ -122,8 +122,8 @@ describe('Floccus', function() {
         (ACCOUNT_DATA.serverRoot
           ? 'serverRoot '
           : ACCOUNT_DATA.parallel
-          ? 'parallel '
-          : 'standard ') +
+            ? 'parallel '
+            : 'standard ') +
         'Sync ',
       function() {
         context('with one client', function() {
@@ -684,12 +684,12 @@ describe('Floccus', function() {
                           ACCOUNT_DATA.type !== 'nextcloud-legacy'
                             ? []
                             : [
-                                // This is because of a peculiarity of the legacy adapter
-                                new Bookmark({
-                                  title: 'test',
-                                  url: 'http://ureff.l/'
-                                })
-                              ]
+                              // This is because of a peculiarity of the legacy adapter
+                              new Bookmark({
+                                title: 'test',
+                                url: 'http://ureff.l/'
+                              })
+                            ]
                       })
                     ]
                   })
