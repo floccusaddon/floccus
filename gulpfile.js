@@ -9,7 +9,7 @@ const globals = require('rollup-plugin-node-globals')
 const acornJsx = require('acorn-jsx')
 const createZip = require('gulp-zip')
 const createCrx = require('./lib/gulp-crx')
-const run = require('gulp-run-command').main
+const shell = require('spawn-shell')
 const webstoreClient = require('chrome-webstore-upload')
 const fs = require('fs')
 const path = require('path')
@@ -121,10 +121,11 @@ const crx = gulp.series(main, function() {
 })
 
 const keygen = function() {
-  return run(
+  return shell(
     'openssl genpkey' +
-      ' -algorithm RSA -out ./key.pem -pkeyopt rsa_keygen_bits:2048'
-  )
+      ' -algorithm RSA -out ./key.pem -pkeyopt rsa_keygen_bits:2048',
+    { env: process.env }
+  ).exitPromise
 }
 
 const pushWebstore = function() {

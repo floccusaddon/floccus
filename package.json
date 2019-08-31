@@ -33,7 +33,6 @@
     "gulp": "^4",
     "gulp-crx-pack": "^1.0.2",
     "gulp-rollup-each": "^3.0.1",
-    "gulp-run-command": "0.0.9",
     "gulp-tap": "^1.0.1",
     "gulp-zip": "^4.2.0",
     "mocha": "^6.2.0",
@@ -44,6 +43,7 @@
     "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "selenium-webdriver": "^4.0.0-alpha.4",
+    "spawn-shell": "^2.1.0",
     "through2": "^2.0.5"
   },
   "dependencies": {
