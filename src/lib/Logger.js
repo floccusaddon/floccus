@@ -5,7 +5,7 @@ const packageJson = require('../../package.json')
 
 export default class Logger {
   static log() {
-    const logMsg = arguments
+    const logMsg = [new Date().toISOString(), ...arguments]
 
     // log to console
     console.log.apply(console, logMsg)
