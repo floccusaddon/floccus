@@ -4,7 +4,6 @@ import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
 import NextcloudAdapter from './adapters/Nextcloud'
 import WebDavAdapter from './adapters/WebDav'
 import FakeAdapter from './adapters/Fake'
-import Tree from './Tree'
 import LocalTree from './LocalTree'
 import DefaultSyncProcess from './strategies/Default'
 import SlaveSyncProcess from './strategies/Slave'
@@ -242,7 +241,7 @@ export default class Account {
   }
 
   static async getAccountContainingLocalId(localId, ancestors, allAccounts) {
-    ancestors = ancestors || (await Tree.getIdPathFromLocalId(localId))
+    ancestors = ancestors || (await LocalTree.getIdPathFromLocalId(localId))
     allAccounts = allAccounts || (await this.getAllAccounts())
     var account = allAccounts
       .map(account => ({

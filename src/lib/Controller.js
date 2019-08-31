@@ -3,7 +3,7 @@ import Account from './Account'
 import LocalTree from './LocalTree'
 import Cryptography from './Crypto'
 import packageJson from '../../package.json'
-const PQueue = require('p-queue')
+import PQueue from 'p-queue'
 
 const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')

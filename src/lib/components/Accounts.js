@@ -4,7 +4,7 @@ import picostyle from 'picostyle'
 import { h } from 'hyperapp'
 import Account from '../Account'
 import * as Basics from './basics'
-const FLOCCUS_VERSION = require('../../../package.json').version
+import { version as FLOCCUS_VERSION } from '../../../package.json'
 
 const style = picostyle(h)
 

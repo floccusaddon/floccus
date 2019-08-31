@@ -1,5 +1,5 @@
 import { createWebdriverAndHtmlReporter } from './reporter'
-var util = require('util')
+import util from 'util'
 
 // Make logs accessible to travis selenium runner
 window.floccusTestLogs = []

@@ -5,15 +5,14 @@ import HtmlSerializer from '../serializers/Html'
 import Logger from '../Logger'
 import { Folder, Bookmark } from '../Tree'
 import * as Basics from '../components/basics'
-import { Base64 } from 'js-base64'
-const Parallel = require('async-parallel')
-const { h } = require('hyperapp')
-const url = require('url')
-const PQueue = require('p-queue')
-import AsyncLock from 'async-lock'
 import browser from '../browser-api'
-const _ = {}
-_.find = require('lodash.find')
+import * as Parallel from 'async-parallel'
+import { Base64 } from 'js-base64'
+const { h } = 'hyperapp'
+import url from 'url'
+import PQueue from 'p-queue'
+import AsyncLock from 'async-lock'
+import _ from 'lodash'
 
 const PAGE_SIZE = 300
 

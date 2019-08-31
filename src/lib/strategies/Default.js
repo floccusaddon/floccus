@@ -2,12 +2,11 @@ import * as Tree from '../Tree'
 import Logger from '../Logger'
 import browser from '../browser-api'
 
-const _ = {}
-_.find = require('lodash.find')
-const Parallel = require('async-parallel')
-const PQueue = require('p-queue')
-const normalizeMoreAggressively = require('normalize-url')
-const { throttle } = require('throttle-debounce')
+import _ from 'lodash'
+import Parallel from 'async-parallel'
+import PQueue from 'p-queue'
+import normalizeMoreAggressively from 'normalize-url'
+import { throttle } from 'throttle-debounce'
 
 export default class SyncProcess {
   /**

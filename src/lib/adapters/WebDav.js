@@ -4,8 +4,8 @@ import Logger from '../Logger'
 import browser from '../browser-api'
 import * as Basics from '../components/basics'
 import { Base64 } from 'js-base64'
-const { h } = require('hyperapp')
-const url = require('url')
+const { h } = 'hyperapp'
+import url from 'url'
 
 const {
   Input,

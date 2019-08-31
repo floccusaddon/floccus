@@ -1,7 +1,7 @@
 import AccountStorage from './AccountStorage'
 import util from 'util'
 
-const packageJson = require('../../package.json')
+import packageJson from '../../package.json'
 
 export default class Logger {
   static log() {

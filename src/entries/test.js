@@ -1,1 +1,1 @@
-require('../test/index.js')
+import '../test/index.js'

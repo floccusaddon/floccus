@@ -2,9 +2,8 @@ import * as Tree from '../Tree'
 import Logger from '../Logger'
 import DefaultStrategy from './Default'
 
-const _ = {}
-_.find = require('lodash.find')
-const Parallel = require('async-parallel')
+import _ from 'lodash'
+import Parallel from 'async-parallel'
 
 export default class OverwriteSyncProcess extends DefaultStrategy {
   async syncTree(localItem, cacheItem, serverItem) {

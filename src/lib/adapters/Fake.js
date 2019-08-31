@@ -1,7 +1,7 @@
 import CachingAdapter from './Caching'
 import { OptionDelete } from '../components/basics'
 
-const { h } = require('hyperapp')
+import { h } from 'hyperapp'
 
 export default class FakeAdapter extends CachingAdapter {
   constructor(server) {
