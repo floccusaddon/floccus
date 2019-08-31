@@ -1,6 +1,6 @@
 import picostyle from 'picostyle'
 import humanizeDuration from 'humanize-duration'
-import { h } from 'hyperapp'
+
 import browser from '../browser-api'
 import PathHelper from '../PathHelper'
 

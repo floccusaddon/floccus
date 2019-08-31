@@ -1,5 +1,5 @@
 import browser from '../lib/browser-api'
-import { h, app } from 'hyperapp'
+import { app } from 'hyperapp'
 
 import * as AccountsComponent from '../lib/components/Accounts'
 import * as NewAccountComponent from '../lib/components/NewAccount'

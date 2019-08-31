@@ -37,6 +37,7 @@
     "gulp-zip": "^4.2.0",
     "mocha": "^6.2.0",
     "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-inject": "^3.0.1",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-jsx": "^1.0.3",
     "rollup-plugin-node-builtins": "^2.1.2",

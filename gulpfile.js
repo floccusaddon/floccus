@@ -6,6 +6,7 @@ const json = require('rollup-plugin-json')
 const jsx = require('rollup-plugin-jsx')
 const builtins = require('rollup-plugin-node-builtins')
 const globals = require('rollup-plugin-node-globals')
+const inject = require('rollup-plugin-inject')
 const acornJsx = require('acorn-jsx')
 const createZip = require('gulp-zip')
 const createCrx = require('./lib/gulp-crx')
@@ -54,12 +55,15 @@ const js = async() => {
           {
             // inputOptions
             plugins: [
+              json(),
               resolve({ preferBuiltins: false }),
               commonjs(),
+              jsx({ factory: 'h' }),
+              inject({
+                h: ['hyperapp', 'h']
+              }),
               builtins(),
-              json(),
-              globals(),
-              jsx({ factory: 'h' })
+              globals()
             ],
             isCache: true, // enable Rollup cache
             acornInjectPlugins: [acornJsx()]
