@@ -12,7 +12,10 @@ const url = require('url')
 const PQueue = require('p-queue')
 import AsyncLock from 'async-lock'
 import browser from '../browser-api'
-const _ = require('lodash')
+const _ = {
+  find: require('lodash.find'),
+  findIndex: require('lodash.findindex')
+}
 
 const TAG_PREFIX = 'floccus:'
 const PAGE_SIZE = 300
@@ -373,7 +376,7 @@ export default class NextcloudAdapter extends Adapter {
     Logger.log('(nextcloud)CREATE', bm)
 
     // We need this lock to avoid creating multiple bookmarks with the same URL in parallel
-    return this.bookmarkLock.acquire(bm.url, async () => {
+    return this.bookmarkLock.acquire(bm.url, async() => {
       let existingBookmark = await this.getExistingBookmark(bm.url)
       if (existingBookmark) {
         bm.id = existingBookmark + ';' + bm.parentId
@@ -417,7 +420,7 @@ export default class NextcloudAdapter extends Adapter {
 
     // We need this lock to avoid changing a bookmark that is
     // in two places in parallel for those two places
-    return this.bookmarkLock.acquire(serverId, async () => {
+    return this.bookmarkLock.acquire(serverId, async() => {
       // returns the full paths from the server
       let { bookmarks: bms, tags } = await this._getBookmark(serverId)
 
@@ -460,7 +463,7 @@ export default class NextcloudAdapter extends Adapter {
 
     // We need this lock to avoid deleting a bookmark that is in two places
     // in parallel
-    return this.bookmarkLock.acquire(serverId, async () => {
+    return this.bookmarkLock.acquire(serverId, async() => {
       let { bookmarks: bms, tags } = await this._getBookmark(serverId)
 
       if (bms.length !== 1) {

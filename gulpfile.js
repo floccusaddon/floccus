@@ -69,13 +69,7 @@ gulp.task('html', function() {
   return gulp.src(paths.views).pipe(gulp.dest('./dist/html/'))
 })
 
-gulp.task('3rd-party', ['polyfill', 'mocha'])
-
-gulp.task('polyfill', function() {
-  return gulp
-    .src('./node_modules/babel-polyfill/dist/polyfill.js')
-    .pipe(gulp.dest('./dist/js/'))
-})
+gulp.task('3rd-party', ['mocha'])
 
 gulp.task('mocha', ['mochajs', 'mochacss'])
 
