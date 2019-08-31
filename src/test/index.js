@@ -1,4 +1,5 @@
 import { createWebdriverAndHtmlReporter } from './reporter'
+import tests from './test'
 import util from 'util'
 
 // Make logs accessible to travis selenium runner
@@ -10,6 +11,6 @@ console.log = function() {
 }
 
 mocha.setup('bdd')
-require('./test')
+tests()
 mocha.reporter(createWebdriverAndHtmlReporter(mocha._reporter))
 mocha.run()
