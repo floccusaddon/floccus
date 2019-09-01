@@ -84,11 +84,12 @@ const VERSION = require('../package.json').version
     const finishStatus = await driver.wait(
       new Condition('for tests to finish', async driver => {
         // dump latest logs
-        const logs = await driver
-          .manage()
-          .logs()
-          .get(logging.Type.BROWSER)
-        logs.forEach(entry => console.log(entry.message))
+        const logs = await driver.executeScript(function() {
+          const logs = window.floccusLogMessages
+          window.floccusLogMessages = []
+          return logs
+        })
+        logs.forEach(entry => console.log(entry))
 
         // check if the tests are finished
         return driver.executeScript(function() {

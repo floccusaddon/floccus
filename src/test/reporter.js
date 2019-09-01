@@ -1,3 +1,4 @@
+import util from 'util'
 const {
   EVENT_RUN_END,
   EVENT_TEST_BEGIN,
@@ -9,12 +10,18 @@ const {
 export function createWebdriverAndHtmlReporter(html_reporter) {
   return function(runner) {
     Mocha.reporters.Base.call(this, runner)
-
-    // report on the selenium screen, too
-    new html_reporter(runner)
+    new html_reporter(runner) // report on the selenium screen, too
 
     // Set test finish status
     window.floccusTestsFinished = null
+
+    // Set up logging
+    window.floccusLogMessages = []
+    const consoleLog = console.log
+    console.log = function() {
+      window.floccusLogMessages.push(util.format.apply(util, arguments))
+      consoleLog.apply(console, arguments)
+    }
 
     // build a summary
     const summary = []
