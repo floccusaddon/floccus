@@ -98,21 +98,21 @@ const thirdparty = mocha
 
 const main = gulp.parallel(html, js, thirdparty)
 
-const zip = gulp.series(main, function() {
+const zip = gulp.series(function() {
   return gulp
     .src(paths.zip)
     .pipe(createZip(`floccus-build-v${VERSION}.zip`))
     .pipe(gulp.dest(paths.builds))
 })
 
-const xpi = gulp.series(main, function() {
+const xpi = gulp.series(function() {
   return gulp
     .src(paths.zip)
     .pipe(createZip(`floccus-build-v${VERSION}.xpi`))
     .pipe(gulp.dest(paths.builds))
 })
 
-const crx = gulp.series(main, function() {
+const crx = gulp.series(function() {
   return gulp
     .src(paths.zip)
     .pipe(
@@ -141,7 +141,7 @@ const pushWebstore = function() {
       return webstore.publish('main')
     })
 }
-const release = gulp.parallel(zip, xpi, crx)
+const release = gulp.series(main, gulp.parallel(zip, xpi, crx))
 
 const watch = function() {
   gulp.watch(paths.js, js)

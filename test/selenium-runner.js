@@ -1,10 +1,11 @@
 const fs = require('fs')
 const url = require('url')
-const { Builder } = require('selenium-webdriver')
+const { Builder, logging, Condition } = require('selenium-webdriver')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
 const VERSION = require('../package.json').version
 ;(async function() {
+  logging.installConsoleHandler()
   let driver = await new Builder()
     .withCapabilities({
       browserVersion: 'latest',
@@ -23,6 +24,12 @@ const VERSION = require('../package.json').version
     .setChromeOptions(
       new ChromeOptions().addExtensions(
         fs.readFileSync(`./builds/floccus-build-v${VERSION}.crx`, 'base64')
+      )
+    )
+    .setLoggingPrefs(
+      new logging.Preferences().setLevel(
+        logging.Type.BROWSER,
+        logging.Level.DEBUG
       )
     )
     .build()
@@ -73,32 +80,16 @@ const VERSION = require('../package.json').version
     testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_ADAPTER}%20`
 
     await driver.get(testUrl)
-
-    let logs = [],
-      fin
-    do {
-      await new Promise(resolve => setTimeout(resolve, 3000))
-      const newLogs = await driver.executeScript(function() {
-        var logs = window.floccusTestLogs.slice(
-          window.floccusTestLogsLength || 0
-        )
-        window.floccusTestLogsLength = window.floccusTestLogs.length
-        return logs
-      })
-
-      newLogs.forEach(entry => console.log(entry))
-      logs = logs.concat(newLogs)
-    } while (
-      !logs.some(entry => {
-        if (~entry.indexOf('FINISHED')) {
-          fin = entry
-          return true
-        }
-        return false
+    const finishStatus = await driver.wait(
+      new Condition('for tests to finish', driver => {
+        return driver.executeScript(function() {
+          return window.floccusTestsFinished
+        })
       })
     )
+
     await driver.quit()
-    if (fin && ~fin.indexOf('FAILED')) {
+    if (finishStatus === 'FAILED') {
       process.exit(1)
     }
   } catch (e) {
