@@ -34,7 +34,7 @@ const VERSION = require('../package.json').version
     )
     .build()
   try {
-    let id, testURL
+    let id, testUrl
     switch (await (await driver.getSession()).getCapability('browserName')) {
       case 'chrome':
         // Scrape extension id from chrome extension page
@@ -80,12 +80,24 @@ const VERSION = require('../package.json').version
     testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_ADAPTER}%20`
 
     await driver.get(testUrl)
+
     const finishStatus = await driver.wait(
-      new Condition('for tests to finish', driver => {
+      new Condition('for tests to finish', async driver => {
+        // dump latest logs
+        const logs = await driver
+          .manage()
+          .logs()
+          .get(logging.Type.BROWSER)
+        logs.forEach(entry => console.log(entry.message))
+
+        // check if the tests are finished
         return driver.executeScript(function() {
           return window.floccusTestsFinished
         })
-      })
+      }),
+      undefined,
+      undefined,
+      1000 // poll interval
     )
 
     await driver.quit()
