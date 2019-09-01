@@ -24,7 +24,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "acorn-jsx": "^5.0.2",
-    "all-contributors-cli": "^5.11.0",
+    "all-contributors-cli": "^6.8.1",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chrome-webstore-upload": "^0.2.2",
