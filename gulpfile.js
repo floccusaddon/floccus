@@ -45,39 +45,37 @@ try {
   )
 } catch (e) {}
 
-const js = async() => {
-  return (
-    gulp
-      .src(paths.entries, { read: false }) // no need of reading file because browserify does.
-      // transform file objects using gulp-tap plugin
-      .pipe(
-        rollupEach(
-          {
-            // inputOptions
-            plugins: [
-              json(),
-              resolve({ preferBuiltins: false }),
-              commonjs(),
-              jsx({ factory: 'h' }),
-              inject({
-                h: ['hyperapp', 'h']
-              }),
-              builtins(),
-              globals()
-            ],
-            isCache: true, // enable Rollup cache
-            acornInjectPlugins: [acornJsx()]
-          },
-          file => {
-            return {
-              format: 'iife',
-              name: path.basename(file.path, '.js')
-            }
+const js = () => {
+  return gulp
+    .src(paths.entries)
+    .pipe(
+      rollupEach(
+        {
+          // inputOptions
+          plugins: [
+            json(),
+            resolve({ preferBuiltins: false }),
+            commonjs(),
+            jsx({ factory: 'h' }),
+            inject({
+              h: ['hyperapp', 'h']
+            }),
+            builtins(),
+            globals()
+          ],
+          isCache: true, // enable Rollup cache
+          acornInjectPlugins: [acornJsx()]
+        },
+        file => {
+          return {
+            format: 'iife',
+            name: path.basename(file.path, '.js'),
+            dir: 'dist/js/'
           }
-        )
+        }
       )
-      .pipe(gulp.dest('./dist/js/'))
-  )
+    )
+    .pipe(gulp.dest('dist/js/'))
 }
 
 const html = () => {
@@ -94,25 +92,24 @@ const mochacss = () => {
 }
 
 const mocha = gulp.parallel(mochajs, mochacss)
-const thirdparty = mocha
 
-const main = gulp.parallel(html, js, thirdparty)
+const main = gulp.parallel(html, js, mocha)
 
-const zip = gulp.series(function() {
+const zip = function() {
   return gulp
     .src(paths.zip)
     .pipe(createZip(`floccus-build-v${VERSION}.zip`))
     .pipe(gulp.dest(paths.builds))
-})
+}
 
-const xpi = gulp.series(function() {
+const xpi = function() {
   return gulp
     .src(paths.zip)
     .pipe(createZip(`floccus-build-v${VERSION}.xpi`))
     .pipe(gulp.dest(paths.builds))
-})
+}
 
-const crx = gulp.series(function() {
+const crx = function() {
   return gulp
     .src(paths.zip)
     .pipe(
@@ -122,7 +119,7 @@ const crx = gulp.series(function() {
       })
     )
     .pipe(gulp.dest(paths.builds))
-})
+}
 
 const keygen = function() {
   return shell(
@@ -153,5 +150,11 @@ module.exports = {
   pushWebstore,
   release,
   default: main,
-  watch
+  watch,
+  xpi,
+  crx,
+  zip,
+  html,
+  js,
+  mocha
 }
