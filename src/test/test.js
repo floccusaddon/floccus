@@ -81,8 +81,8 @@ export default function() {
           (ACCOUNT_DATA.serverRoot
             ? 'with serverRoot '
             : ACCOUNT_DATA.parallel
-            ? 'parallel '
-            : 'standard ') +
+              ? 'parallel '
+              : 'standard ') +
           'Account',
         function() {
           var account
@@ -123,8 +123,8 @@ export default function() {
           (ACCOUNT_DATA.serverRoot
             ? 'serverRoot '
             : ACCOUNT_DATA.parallel
-            ? 'parallel '
-            : 'standard ') +
+              ? 'parallel '
+              : 'standard ') +
           'Sync ',
         function() {
           context('with one client', function() {
@@ -706,12 +706,12 @@ export default function() {
                             ACCOUNT_DATA.type !== 'nextcloud-legacy'
                               ? []
                               : [
-                                  // This is because of a peculiarity of the legacy adapter
-                                  new Bookmark({
-                                    title: 'test',
-                                    url: 'http://ureff.l/'
-                                  })
-                                ]
+                                // This is because of a peculiarity of the legacy adapter
+                                new Bookmark({
+                                  title: 'test',
+                                  url: 'http://ureff.l/'
+                                })
+                              ]
                         })
                       ]
                     })

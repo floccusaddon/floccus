@@ -46,7 +46,7 @@ env:
 
 language: node_js
 node_js:
-  - '7'
+  - '11'
 before_script:
   # build floccus
   - npm run keygen

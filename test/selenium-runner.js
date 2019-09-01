@@ -1,10 +1,11 @@
 const fs = require('fs')
 const url = require('url')
-const { Builder } = require('selenium-webdriver')
+const { Builder, logging, Condition } = require('selenium-webdriver')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
 const VERSION = require('../package.json').version
 ;(async function() {
+  logging.installConsoleHandler()
   let driver = await new Builder()
     .withCapabilities({
       browserVersion: 'latest',
@@ -25,9 +26,15 @@ const VERSION = require('../package.json').version
         fs.readFileSync(`./builds/floccus-build-v${VERSION}.crx`, 'base64')
       )
     )
+    .setLoggingPrefs(
+      new logging.Preferences().setLevel(
+        logging.Type.BROWSER,
+        logging.Level.DEBUG
+      )
+    )
     .build()
   try {
-    let id, testURL
+    let id, testUrl
     switch (await (await driver.getSession()).getCapability('browserName')) {
       case 'chrome':
         // Scrape extension id from chrome extension page
@@ -74,31 +81,28 @@ const VERSION = require('../package.json').version
 
     await driver.get(testUrl)
 
-    let logs = [],
-      fin
-    do {
-      await new Promise(resolve => setTimeout(resolve, 3000))
-      const newLogs = await driver.executeScript(function() {
-        var logs = window.floccusTestLogs.slice(
-          window.floccusTestLogsLength || 0
-        )
-        window.floccusTestLogsLength = window.floccusTestLogs.length
-        return logs
-      })
+    const finishStatus = await driver.wait(
+      new Condition('for tests to finish', async driver => {
+        // dump latest logs
+        const logs = await driver.executeScript(function() {
+          const logs = window.floccusLogMessages
+          window.floccusLogMessages = []
+          return logs
+        })
+        logs.forEach(entry => console.log(entry))
 
-      newLogs.forEach(entry => console.log(entry))
-      logs = logs.concat(newLogs)
-    } while (
-      !logs.some(entry => {
-        if (~entry.indexOf('FINISHED')) {
-          fin = entry
-          return true
-        }
-        return false
-      })
+        // check if the tests are finished
+        return driver.executeScript(function() {
+          return window.floccusTestsFinished
+        })
+      }),
+      undefined,
+      undefined,
+      1000 // poll interval
     )
+
     await driver.quit()
-    if (fin && ~fin.indexOf('FAILED')) {
+    if (finishStatus === 'FAILED') {
       process.exit(1)
     }
   } catch (e) {
