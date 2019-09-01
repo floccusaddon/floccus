@@ -45,7 +45,7 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "selenium-webdriver": "^4.0.0-alpha.4",
     "spawn-shell": "^2.1.0",
-    "through2": "^2.0.5"
+    "through2": "^3.0.1"
   },
   "dependencies": {
     "async-lock": "^1.2.2",
