@@ -129,7 +129,8 @@
     "message": "Enabled"
   },
   "StatusLastsynced": {
-    "message": "Last synchronized: $1 ago"
+    "message": "Last synchronized: $1 ago",
+    "description": "Last synchronization time. The place holder holds a duration, e.g. '5 minutes'."
   },
   "StatusNeversynced": {
     "message": "Not synchronized, yet"
@@ -259,5 +260,9 @@
   },
   "DescriptionSyncinterval": {
     "message": "The timespan between two sync runs in minutes. Default is 15 minutes."
+  },
+  "LabelOptionsscreen": {
+    "message": "$1 options",
+    "description": "Title of the options screen. The placeholder holds the account type."
   }
 }

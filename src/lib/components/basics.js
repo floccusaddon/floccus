@@ -27,23 +27,35 @@ export const P = style('p')({
 
 export const H1 = style('h1')(props => ({
   color: props.inverted ? 'white' : COLORS.primary.plane,
-  marginBottom: '3px',
-  marginTop: '25px'
+  marginBottom: '7px',
+  marginTop: '25px',
+  ':first-child': {
+    marginTop: '0'
+  }
 }))
 export const H2 = style('h2')({
   color: COLORS.primary.plane,
-  marginBottom: '3px',
-  marginTop: '25px'
+  marginBottom: '7px',
+  marginTop: '25px',
+  ':first-child': {
+    marginTop: '0'
+  }
 })
 export const H3 = style('h3')({
   color: COLORS.primary.plane,
-  marginBottom: '3px',
-  marginTop: '25px'
+  marginBottom: '7px',
+  marginTop: '25px',
+  ':first-child': {
+    marginTop: '0'
+  }
 })
 export const H4 = style('h4')({
   color: COLORS.primary.plane,
-  marginBottom: '3px',
-  marginTop: '25px'
+  marginBottom: '7px',
+  marginTop: '25px',
+  ':first-child': {
+    marginTop: '0'
+  }
 })
 
 export const Input = style('input')({
