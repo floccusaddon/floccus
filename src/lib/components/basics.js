@@ -119,8 +119,8 @@ export const Button = style('button')(props => ({
       ? COLORS.primary.light
       : COLORS.primary.plane
     : props.active
-    ? COLORS.primary.background
-    : 'white',
+      ? COLORS.primary.background
+      : 'white',
   ':hover': {
     backgroundColor: props.primary
       ? COLORS.primary.light
@@ -241,7 +241,8 @@ export const AccountStatusDetail = ({ account }) => (state, actions) => {
           'StatusLastsynced',
           humanizeDuration(Date.now() - data.lastSync, {
             largest: 1,
-            round: true
+            round: true,
+            language: browser.i18n.getUILanguage()
           })
         )
       ) : (
