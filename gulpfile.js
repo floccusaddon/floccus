@@ -53,6 +53,7 @@ const js = () => {
         {
           // inputOptions
           plugins: [
+            builtins(),
             json(),
             resolve({ preferBuiltins: false }),
             commonjs(),
@@ -60,7 +61,6 @@ const js = () => {
             inject({
               h: ['hyperapp', 'h']
             }),
-            builtins(),
             globals()
           ],
           isCache: true, // enable Rollup cache
