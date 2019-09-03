@@ -31,7 +31,7 @@
     "gulp": "^4",
     "gulp-crx-pack": "^1.0.2",
     "gulp-rollup-each": "^3.0.1",
-    "gulp-zip": "^4.2.0",
+    "gulp-zip": "^5.0.0",
     "mocha": "^6.2.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-inject": "^3.0.1",
