@@ -29,6 +29,8 @@ Once your server or the LoFloccus app is ready, read on for the browser of your 
 
 **Note:** Please avoid installing the bookmarks_fulltextsearch app in nextcloud as it is known to cause issues with newer versions of the bookmarks app.
 
+**Note:** If you feel floccus is missing a sync backend and you'd like to chip in, check out the [Quick Intro to creating an adapter](https://github.com/marcelklehr/floccus/blob/develop/doc/Adapters.md). I'm happy to accept your pull request! :)
+
 ### Chrome
 
 You can [install it via the Chrome Web store](https://chrome.google.com/webstore/detail/floccus-nextcloud-sync/fnaicdffflnofjppbagibeoednhnbjhg)
