@@ -66,7 +66,7 @@ const VERSION = require('../package.json').version
         let optionsURL = await driver.executeScript(function() {
           const extension = AboutDebugging.store
             .getState()
-            .debugTargets.installedExtensions.filter(
+            .debugTargets.temporaryExtensions.filter(
               obj => obj.id === 'floccus@handmadeideas.org'
             )[0]
           return extension.details.manifestURL
