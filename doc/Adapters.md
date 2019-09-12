@@ -11,20 +11,20 @@ All adapters implement the following API.
 ```js
 class Adapter extends Resource {
   /**
-	 * @static
-	 * @param state:{account:AccountData} Contains the current account data
-	 * @param update:(data) => void Allows updating account data
+   * @static
+   * @param state:{account:AccountData} Contains the current account data
+   * @param update:(data) => void Allows updating account data
    * @return hyperapp-tree The options UI for this adapter
    */
   static renderOptions(state, update) : VNode
 
   /**
-	 * @static
+   * @static
    * @return Object the default values of the account data for this adapter
    */
   static getDefaultValues() : any
 
-	/**
+  /**
    * @param Object the account data entered in the options
    */
   setAccountData(data: any)
@@ -104,23 +104,23 @@ class Resource {
    */
   async removeFolder(id: int)
 
-	/**
-	 * ------
-	 * The following methods are optional
-	 * ------
-	 */
+  /**
+   * ------
+   * The following methods are optional
+   * ------
+   */
 
   /**
-	 * (Optional method)
+   * (Optional method)
    * @param id:int the id of the folder
    * @param order the order of the folder's contents
    */
   async orderFolder(id: int, order: {id: int, type: 'bookmark'|'folder'}[])
 
   /**
-	 * (Optional method)
+   * (Optional method)
    * @param parentId:int the id of the folder to import into
-	 * @param folder:Folder the folder to import
+   * @param folder:Folder the folder to import
    */
   async bulkImportFolder(parentId: int, folder: Folder)
 
@@ -133,11 +133,11 @@ Your adapter will receive and return data using the following data types.
 
 ```js
 class Bookmark {
-	public type: string = 'bookmark'
-	public id: int
-	public parentId: int
-	public url: string
-	public title: string
+  public type: string = 'bookmark'
+  public id: int
+  public parentId: int
+  public url: string
+  public title: string
 
   constructor({ id: int, parentId: int, url: string, title: string })
 
@@ -145,11 +145,11 @@ class Bookmark {
 }
 
 class Folder {
-	public type: string = 'folder'
-	public id: int
-	public parentId: int
-	public title: string
-	public children: (Folder|Bookmark)[]
+  public type: string = 'folder'
+  public id: int
+  public parentId: int
+  public title: string
+  public children: (Folder|Bookmark)[]
 
   constructor({ id: int, parentId: int, title: string, children: (Folder|Bookmark)[] })
 
@@ -173,7 +173,7 @@ static renderOptions(state, update) : VNode
 Floccus uses a React-style virtual DOM rendering system and uses JSX to write templates. An options view could look like this:
 
 ```js
-	static renderOptions(state, update) {
+  static renderOptions(state, update) {
     let data = state.account
     let onchange = (prop, e) => {
       update({ [prop]: e.target.value })
