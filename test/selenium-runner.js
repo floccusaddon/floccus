@@ -61,14 +61,15 @@ const VERSION = require('../package.json').version
           `./builds/floccus-build-v${VERSION}.xpi`,
           true
         )
-        await driver.get('about:debugging')
+        await driver.get('about:debugging#/runtime/this-firefox')
         await new Promise(resolve => setTimeout(resolve, 10000))
         let optionsURL = await driver.executeScript(function() {
           const extension = AboutDebugging.store
             .getState()
-            .debugTargets.temporaryExtensions.filter(
-              obj => obj.id === 'floccus@handmadeideas.org'
-            )[0]
+            .debugTargets.temporaryExtensions.concat(
+              AboutDebugging.store.getState().debugTargets.installedExtensions
+            )
+            .filter(obj => obj.id === 'floccus@handmadeideas.org')[0]
           return extension.details.manifestURL
         })
         if (!optionsURL) throw new Error('Could not install extension')
