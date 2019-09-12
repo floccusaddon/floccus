@@ -10,10 +10,10 @@ All adapters implement the following API.
 
 ```js
 class Adapter extends Resource {
-	/**
-	 * @param data:any the initial account data
-	 */
-	constructor(data: any)
+  /**
+   * @param data:any the initial account data
+   */
+  constructor(data: any)
 
   /**
    * @static
@@ -178,16 +178,16 @@ The account data object holds all state specific to each account and is easily e
 
 ```js
 {
-	type: string, // specifies the account adapter
-	enabled: boolean, // whether automatic syncing is enabled for this account
-	localRoot: string, // the local folder associated with this account
-	rootPath: string, // the full folder path to the local root folder
-	error: null|string, // either null or a string containing the latest error of the last sync
-	syncing: false|float, // either false or a float between 0 and 1 indicating the sync progress
-	strategy: string, // indicates the sync strategy to be used
-	lastSync: int // the timestamp of the last sync run
+  type: string, // specifies the account adapter
+  enabled: boolean, // whether automatic syncing is enabled for this account
+  localRoot: string, // the local folder associated with this account
+  rootPath: string, // the full folder path to the local root folder
+  error: null|string, // either null or a string containing the latest error of the last sync
+  syncing: false|float, // either false or a float between 0 and 1 indicating the sync progress
+  strategy: string, // indicates the sync strategy to be used
+  lastSync: int // the timestamp of the last sync run
 
-	// ...any properties your adapter adds
+  // ...any properties your adapter adds
 }
 ```
 
