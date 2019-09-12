@@ -49,17 +49,17 @@ class Adapter extends Resource {
   /**
    * Optional hook to do something on sync start
    */
-  async onSyncStart() {}
+  async onSyncStart()
 
   /**
    * Optional hook to do something on sync completion
    */
-  async onSyncComplete() {}
+  async onSyncComplete()
 
   /**
    * Optional hook to do something on sync fail
    */
-  async onSyncFail() {}
+  async onSyncFail()
 }
 
 class Resource {
