@@ -10,6 +10,11 @@ All adapters implement the following API.
 
 ```js
 class Adapter extends Resource {
+	/**
+	 * @param data:any the initial account data
+	 */
+	constructor(data: any)
+
   /**
    * @static
    * @param state:{account:AccountData} Contains the current account data
@@ -159,7 +164,31 @@ class Folder {
 
   clone() : Folder
 }
+```
 
+You can import these using the following line:
+
+```js
+import { Folder, Bookmark } from '../Tree'
+```
+
+### Account data
+
+The account data object holds all state specific to each account and is easily extensible. Floccus reserves the follwing properties for internal use:
+
+```js
+{
+	type: string, // specifies the account adapter
+	enabled: boolean, // whether automatic syncing is enabled for this account
+	localRoot: string, // the local folder associated with this account
+	rootPath: string, // the full folder path to the local root folder
+	error: null|string, // either null or a string containing the latest error of the last sync
+	syncing: false|float, // either false or a float between 0 and 1 indicating the sync progress
+	strategy: string, // indicates the sync strategy to be used
+	lastSync: int // the timestamp of the last sync run
+
+	// ...any properties your adapter adds
+}
 ```
 
 ## Rendering the options UI
@@ -264,5 +293,23 @@ const {
 ```
 
 Using these will make sure that your UI will fit in with the design of floccus.
+
+## Internationalization
+
+In order for your UI to be translatable, you'll have to add your strings to the following file with a unique ID: `_locales/en/messages.json`
+
+The format should be quite simple to figure out from the existing messages.
+
+You can use these strings by specifying the unique ID using the following API:
+
+```
+import browser from '../browser-api'
+
+// ....
+
+browser.i18n.getMessage('LabelNextcloudurl')
+```
+
+## ... and beyond!
 
 I also encourage you to check out the code of existing adapters for inspiration.
