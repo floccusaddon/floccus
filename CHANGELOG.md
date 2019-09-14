@@ -1,3 +1,10 @@
+## v3.4.1
+- NEW: Overhaul build process
+- NEW: UX: Improve "new account" flow
+- NEW: UX: Make it more clear which adapter is being used in options
+- FIX: Logger: Add timestamps
+- FIX: Translate sync duration
+
 ## v3.4.0
 
 - NEW: Automated testing in firefox (#353)
