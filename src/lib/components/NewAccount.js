@@ -10,7 +10,7 @@ const { H2, Button, P, Label } = Basics
 
 export const state = {
   newAccount: {
-    type: null
+    type: 'nextcloud-folders'
   }
 }
 
@@ -37,53 +37,44 @@ export const Component = () => (state, actions) => {
   return (
     <Overlay>
       <H2>{browser.i18n.getMessage('LabelChooseadapter')}</H2>
-      <P>
-        <Label>
-          <input
-            type="radio"
-            name="type"
-            value="nextcloud-folders"
-            onchange={e => {
-              actions.newAccount.setType(e.currentTarget.value)
-            }}
-          />
-          {browser.i18n.getMessage('LabelAdapternextcloudfolders')}
-        </Label>
-        <br />
-        {browser.i18n.getMessage('DescriptionAdapternextcloudfolders')}
-      </P>
-      <P>
-        <Label>
-          <input
-            type="radio"
-            name="type"
-            value="nextcloud-legacy"
-            onchange={e => {
-              actions.newAccount.setType(e.currentTarget.value)
-            }}
-          />
-          {browser.i18n.getMessage('LabelAdapternextcloud')}
-        </Label>
-        <br />
-
-        {browser.i18n.getMessage('DescriptionAdapternextcloud')}
-      </P>
-      <P>
-        <Label>
-          <input
-            type="radio"
-            name="type"
-            value="webdav"
-            onchange={e => {
-              actions.newAccount.setType(e.currentTarget.value)
-            }}
-          />
-          {browser.i18n.getMessage('LabelAdapterwebdav')}
-        </Label>
-        <br />
-
-        {browser.i18n.getMessage('DescriptionAdapterwebdav')}
-      </P>
+      {
+        [
+          {
+            type: 'nextcloud-folders',
+            label: browser.i18n.getMessage('LabelAdapternextcloudfolders'),
+            description: browser.i18n.getMessage('DescriptionAdapternextcloudfolders')
+          },
+          {
+            type: 'nextcloud-legacy',
+            label: browser.i18n.getMessage('LabelAdapternextcloud'),
+            description: browser.i18n.getMessage('DescriptionAdapternextcloud')
+          },
+          {
+            type: 'webdav',
+            label: browser.i18n.getMessage('LabelAdapterwebdav'),
+            description: browser.i18n.getMessage('DescriptionAdapterwebdav')
+          },
+        ].map(adapter => (
+          <div>
+            <P>
+              <Label>
+                <input
+                  type="radio"
+                  name="type"
+                  value={adapter.type}
+                  checked={state.newAccount.type === adapter.type}
+                  onchange={e => {
+                    actions.newAccount.setType(adapter.type)
+                  }}
+                />
+                {adapter.label}
+              </Label>
+            </P>
+            <P style={{paddingLeft: '20px'}}>
+              {adapter.description}
+            </P>
+          </div>
+        ))}
 
       <Button
         primary
