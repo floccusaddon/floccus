@@ -1,3 +1,6 @@
+## v3.4.2
+- Roll back v3.4.1 due to UI issues
+
 ## v3.4.1
 - NEW: Overhaul build process
 - NEW: UX: Improve "new account" flow
