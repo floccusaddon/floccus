@@ -1,6 +1,8 @@
 import CachingAdapter from './Caching'
 import { OptionDelete } from '../components/basics'
 
+const { h } = require('hyperapp')
+
 export default class FakeAdapter extends CachingAdapter {
   constructor(server) {
     super()
@@ -13,7 +15,7 @@ export default class FakeAdapter extends CachingAdapter {
     }
   }
 
-  static renderOptions(state, update) {
+  static renderOptions(state, actions) {
     return (
       <div>
         <p>Fake account</p>

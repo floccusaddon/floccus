@@ -1,11 +1,11 @@
 import AccountStorage from './AccountStorage'
 import util from 'util'
 
-import packageJson from '../../package.json'
+const packageJson = require('../../package.json')
 
 export default class Logger {
   static log() {
-    const logMsg = [new Date().toISOString(), ...arguments]
+    const logMsg = arguments
 
     // log to console
     console.log.apply(console, logMsg)

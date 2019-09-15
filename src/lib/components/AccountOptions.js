@@ -1,12 +1,12 @@
 import browser from '../browser-api'
-
+import { h } from 'hyperapp'
 import LocalTree from '../LocalTree'
 import { Component as Overlay } from './Overlay'
 import * as Basics from './basics'
 import picostyle from 'picostyle'
 
 const style = picostyle(h)
-const { Button, H2 } = Basics
+const Button = Basics.Button
 
 export const state = {
   options: {
@@ -27,7 +27,7 @@ export const actions = {
         }
       }
     },
-    updateAccount: () => async(state, actions) => {
+    updateAccount: () => async (state, actions) => {
       const account = state.account
       const data = state.data
       const originalData = account.getData()
@@ -45,12 +45,12 @@ export const actions = {
       }
       await account.setData({ ...newData, reset: null })
     },
-    delete: () => async(state, actions) => {
+    delete: () => async (state, actions) => {
       const account = state.account
       await account.delete()
     }
   },
-  openOptions: accountId => async(state, actions) => {
+  openOptions: accountId => async (state, actions) => {
     const account = state.accounts.accounts[accountId]
     const data = account.getData()
     const localRoot = data.localRoot
@@ -65,11 +65,11 @@ export const actions = {
     actions.options.setData(data)
     actions.switchView('options')
   },
-  saveOptions: () => async(state, actions) => {
+  saveOptions: () => async (state, actions) => {
     await actions.options.updateAccount()
     actions.closeOptions()
   },
-  deleteAndCloseOptions: () => async(state, actions) => {
+  deleteAndCloseOptions: () => async (state, actions) => {
     await actions.options.delete()
     actions.closeOptions()
   },
@@ -83,17 +83,11 @@ export const Component = () => (state, actions) => {
   return (
     <Overlay>
       <AccountOptionsStyle>
-        <H2>
-          {browser.i18n.getMessage(
-            'LabelOptionsscreen',
-            state.options.data.type
-          )}
-        </H2>
         {account.server.constructor.renderOptions(
           {
             account: state.options.data
           },
-          data => actions.update({ data })
+          actions
         )}
         <div class="actions">
           <Button onclick={() => actions.closeOptions()}>

@@ -4,7 +4,8 @@ import Logger from '../Logger'
 import browser from '../browser-api'
 import * as Basics from '../components/basics'
 import { Base64 } from 'js-base64'
-import url from 'url'
+const { h } = require('hyperapp')
+const url = require('url')
 
 const {
   Input,
@@ -261,10 +262,12 @@ export default class WebDavAdapter extends CachingAdapter {
     await this.freeLock()
   }
 
-  static renderOptions(state, update) {
+  static renderOptions(state, actions) {
     let data = state.account
     let onchange = (prop, e) => {
-      update({ [prop]: e.target.value })
+      actions.options.update({
+        data: { [prop]: e.target.value }
+      })
     }
     return (
       <form>

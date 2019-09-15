@@ -5,13 +5,14 @@ import HtmlSerializer from '../serializers/Html'
 import Logger from '../Logger'
 import { Folder, Bookmark } from '../Tree'
 import * as Basics from '../components/basics'
-import browser from '../browser-api'
-import * as Parallel from 'async-parallel'
 import { Base64 } from 'js-base64'
-import url from 'url'
-import PQueue from 'p-queue'
+const Parallel = require('async-parallel')
+const { h } = require('hyperapp')
+const url = require('url')
+const PQueue = require('p-queue')
 import AsyncLock from 'async-lock'
-import _ from 'lodash'
+import browser from '../browser-api'
+const _ = require('lodash')
 
 const PAGE_SIZE = 300
 
@@ -48,10 +49,12 @@ export default class NextcloudFoldersAdapter extends Adapter {
     }
   }
 
-  static renderOptions(state, update) {
+  static renderOptions(state, actions) {
     let data = state.account
     let onchange = (prop, e) => {
-      update({ [prop]: e.target.value })
+      actions.options.update({
+        data: { [prop]: e.target.value }
+      })
     }
     return (
       <form>
@@ -282,7 +285,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
         1
       )
     }
-    const recurseChildFolders = async(tree, childFolders, childrenOrder) => {
+    const recurseChildFolders = async (tree, childFolders, childrenOrder) => {
       await Parallel.each(
         childrenOrder,
         async child => {
@@ -705,7 +708,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
     // We need this lock to avoid creating two boomarks with the same url
     // in parallel
-    return this.bookmarkLock.acquire(bm.url, async() => {
+    return this.bookmarkLock.acquire(bm.url, async () => {
       let existingBookmark = await this.getExistingBookmark(bm.url)
       if (existingBookmark) {
         bm.id = existingBookmark + ';' + bm.parentId
@@ -744,7 +747,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
     // We need this lock to avoid updating bookmarks which are in two places at Once
     // in parallel
-    return this.bookmarkLock.acquire(upstreamId, async() => {
+    return this.bookmarkLock.acquire(upstreamId, async () => {
       let bms = await this._getBookmark(upstreamId)
 
       let body = JSON.stringify({
@@ -774,7 +777,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     let [upstreamId, parentId] = id.split(';')
 
     // Just to be safe
-    return this.bookmarkLock.acquire(upstreamId, async() => {
+    return this.bookmarkLock.acquire(upstreamId, async () => {
       await this.sendRequest(
         'DELETE',
         `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/bookmarks/${upstreamId}`

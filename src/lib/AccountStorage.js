@@ -12,7 +12,7 @@ export default class AccountStorage {
   }
 
   static async changeEntry(entryName, fn, defaultVal) {
-    await storageLock.acquire(entryName, async() => {
+    await storageLock.acquire(entryName, async () => {
       const d = await browser.storage.local.get({
         [entryName]: defaultVal || {} // default: {}
       })
@@ -103,15 +103,15 @@ export default class AccountStorage {
       Object.keys(data).length
         ? data
         : {
-          bookmarks: {
-            ServerToLocal: {},
-            LocalToServer: {}
-          },
-          folders: {
-            ServerToLocal: {},
-            LocalToServer: {}
+            bookmarks: {
+              ServerToLocal: {},
+              LocalToServer: {}
+            },
+            folders: {
+              ServerToLocal: {},
+              LocalToServer: {}
+            }
           }
-        }
     )
   }
 

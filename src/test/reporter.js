@@ -1,4 +1,3 @@
-import util from 'util'
 const {
   EVENT_RUN_END,
   EVENT_TEST_BEGIN,
@@ -10,18 +9,9 @@ const {
 export function createWebdriverAndHtmlReporter(html_reporter) {
   return function(runner) {
     Mocha.reporters.Base.call(this, runner)
-    new html_reporter(runner) // report on the selenium screen, too
 
-    // Set test finish status
-    window.floccusTestsFinished = null
-
-    // Set up logging
-    window.floccusLogMessages = []
-    const consoleLog = console.log
-    console.log = function() {
-      window.floccusLogMessages.push(util.format.apply(util, arguments))
-      consoleLog.apply(console, arguments)
-    }
+    // report on the selenium screen, too
+    new html_reporter(runner)
 
     // build a summary
     const summary = []
@@ -55,20 +45,16 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
     runner.on(EVENT_RUN_END, () => {
       var minutes = Math.floor(runner.stats.duration / 1000 / 60)
       var seconds = Math.round((runner.stats.duration / 1000) % 60)
-      const status = runner.stats.failures > 0 ? 'FAILED' : 'PASSED'
 
       console.log('\n' + summary.join('\n'))
 
       console.log(
-        'FINISHED ' + status + ' -',
+        'FINISHED ' + (runner.stats.failures > 0 ? 'FAILED' : 'PASSED') + ' -',
         runner.stats.passes,
         'tests passed,',
         runner.stats.failures,
         'tests failed, duration: ' + minutes + ':' + seconds
       )
-
-      // Set test finish status
-      window.floccusTestsFinished = status
     })
   }
 }
@@ -80,7 +66,6 @@ function resetKillTimeout() {
     console.log(
       'FINISHED FAILED - no test has ended for 3 minutes, tests stopped'
     )
-    window.floccusTestsFinished = 'FAILED'
   }, 60000 * 3)
 }
 
@@ -94,7 +79,7 @@ function stringifyException(exception) {
 
   // <=IE7 stringifies to [Object Error]. Since it can be overloaded, we
   // check for the result of the stringifying.
-  if (err == '[object Error]') err = exception.message
+  if ('[object Error]' == err) err = exception.message
 
   // Safari doesn't give you a stack. Let's at least provide a source line.
   if (!exception.stack && exception.sourceURL && exception.line !== undefined) {

@@ -1,19 +1,12 @@
-const gulp = require('gulp')
-const rollupEach = require('gulp-rollup-each')
-const resolve = require('rollup-plugin-node-resolve')
-const commonjs = require('rollup-plugin-commonjs')
-const json = require('rollup-plugin-json')
-const jsx = require('rollup-plugin-jsx')
-const builtins = require('rollup-plugin-node-builtins')
-const globals = require('rollup-plugin-node-globals')
-const inject = require('rollup-plugin-inject')
-const acornJsx = require('acorn-jsx')
-const createZip = require('gulp-zip')
-const createCrx = require('./lib/gulp-crx')
-const shell = require('spawn-shell')
-const webstoreClient = require('chrome-webstore-upload')
-const fs = require('fs')
-const path = require('path')
+var gulp = require('gulp')
+var fs = require('fs')
+var browserify = require('browserify')
+var babelify = require('babelify')
+var tap = require('gulp-tap')
+var zip = require('gulp-zip')
+var crx = require('./lib/gulp-crx')
+var run = require('gulp-run-command').default
+var webstoreClient = require('chrome-webstore-upload')
 
 const VERSION = require('./package.json').version
 const paths = {
@@ -45,116 +38,112 @@ try {
   )
 } catch (e) {}
 
-const js = () => {
-  return gulp
-    .src(paths.entries)
-    .pipe(
-      rollupEach(
-        {
-          // inputOptions
-          plugins: [
-            builtins(),
-            json(),
-            resolve({ preferBuiltins: false }),
-            commonjs(),
-            jsx({ factory: 'h' }),
-            inject({
-              h: ['hyperapp', 'h']
-            }),
-            globals()
-          ],
-          isCache: true, // enable Rollup cache
-          acornInjectPlugins: [acornJsx()]
-        },
-        file => {
-          return {
-            format: 'iife',
-            name: path.basename(file.path, '.js'),
-            dir: 'dist/js/'
-          }
-        }
+gulp.task('default', ['html', 'js', '3rd-party'])
+
+gulp.task('js', function() {
+  return (
+    gulp
+      .src(paths.entries, { read: false }) // no need of reading file because browserify does.
+      // transform file objects using gulp-tap plugin
+      .pipe(
+        tap(function(file) {
+          // replace file contents with browserify's bundle stream
+          file.contents = browserify(file.path, {
+            debug: true
+          })
+            .transform(babelify, {
+              global: true,
+              presets: [
+                '@babel/preset-env',
+                ['@babel/preset-react', { pragma: 'h' }]
+              ]
+            })
+            .bundle()
+        })
       )
-    )
-    .pipe(gulp.dest('dist/js/'))
-}
+      .pipe(gulp.dest('./dist/js/'))
+  )
+})
 
-const html = () => {
+gulp.task('html', function() {
   return gulp.src(paths.views).pipe(gulp.dest('./dist/html/'))
-}
+})
 
-const mochajs = () => {
+gulp.task('3rd-party', ['polyfill', 'mocha'])
+
+gulp.task('polyfill', function() {
+  return gulp
+    .src('./node_modules/babel-polyfill/dist/polyfill.js')
+    .pipe(gulp.dest('./dist/js/'))
+})
+
+gulp.task('mocha', ['mochajs', 'mochacss'])
+
+gulp.task('mochajs', function() {
   return gulp.src('./node_modules/mocha/mocha.js').pipe(gulp.dest('./dist/js/'))
-}
-const mochacss = () => {
+})
+gulp.task('mochacss', function() {
   return gulp
     .src('./node_modules/mocha/mocha.css')
     .pipe(gulp.dest('./dist/css/'))
-}
+})
 
-const mocha = gulp.parallel(mochajs, mochacss)
+gulp.task('release', ['zip', 'xpi', 'crx'])
 
-const main = gulp.parallel(html, js, mocha)
-
-const zip = function() {
+gulp.task('zip', ['default'], function() {
   return gulp
     .src(paths.zip)
-    .pipe(createZip(`floccus-build-v${VERSION}.zip`))
+    .pipe(zip(`floccus-build-v${VERSION}.zip`))
     .pipe(gulp.dest(paths.builds))
-}
+})
 
-const xpi = function() {
+gulp.task('xpi', ['default'], function() {
   return gulp
     .src(paths.zip)
-    .pipe(createZip(`floccus-build-v${VERSION}.xpi`))
+    .pipe(zip(`floccus-build-v${VERSION}.xpi`))
     .pipe(gulp.dest(paths.builds))
-}
+})
 
-const crx = function() {
+gulp.task(
+  'keygen',
+  run(
+    'openssl genpkey' +
+      ' -algorithm RSA -out ./key.pem -pkeyopt rsa_keygen_bits:2048'
+  )
+)
+
+gulp.task('crx', ['default'], function() {
   return gulp
     .src(paths.zip)
     .pipe(
-      createCrx({
+      crx({
         privateKey: fs.readFileSync('./key.pem', 'utf8'),
         filename: `floccus-build-v${VERSION}.crx`
       })
     )
     .pipe(gulp.dest(paths.builds))
-}
+})
 
-const keygen = function() {
-  return shell(
-    'openssl genpkey' +
-      ' -algorithm RSA -out ./key.pem -pkeyopt rsa_keygen_bits:2048',
-    { env: process.env }
-  ).exitPromise
-}
-
-const pushWebstore = function() {
+gulp.task('webstore', ['zip'], function() {
   return webstore
     .uploadExisting(
       fs.createReadStream(`${paths.builds}floccus-build-v${VERSION}.zip`)
     )
     .then(function() {
-      return webstore.publish('main')
+      return webstore.publish('default')
     })
-}
-const release = gulp.series(main, gulp.parallel(zip, xpi, crx))
+})
 
-const watch = function() {
-  gulp.watch(paths.js, js)
-  gulp.watch(paths.views, html)
-}
+gulp.task('watch', function() {
+  let jsWatcher = gulp.watch(paths.js, ['js'])
+  let viewsWatcher = gulp.watch(paths.views, ['html'])
 
-module.exports = {
-  keygen,
-  pushWebstore,
-  release,
-  default: main,
-  watch,
-  xpi,
-  crx,
-  zip,
-  html,
-  js,
-  mocha
+  jsWatcher.on('change', onWatchEvent)
+  viewsWatcher.on('change', onWatchEvent)
+})
+
+function onWatchEvent(event) {
+  console.log(
+    'File ' + event.path + ' was ' + event.type + ', running tasks...'
+  )
 }

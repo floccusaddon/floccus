@@ -2,12 +2,12 @@ import * as Tree from '../Tree'
 import Logger from '../Logger'
 import DefaultStrategy from './Default'
 
-import _ from 'lodash'
-import Parallel from 'async-parallel'
+const _ = require('lodash')
+const Parallel = require('async-parallel')
 
 export default class OverwriteSyncProcess extends DefaultStrategy {
   async syncTree(localItem, cacheItem, serverItem) {
-    const execSync = async() => {
+    const execSync = async () => {
       Logger.log('COMPARE', { localItem, cacheItem, serverItem })
 
       var create, update, remove, mappings
@@ -162,11 +162,11 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
           const serverChild =
             removedChild instanceof Tree.Folder
               ? this.serverTreeRoot.findFolder(
-                mappingsSnapshot.folders.LocalToServer[removedChild.id]
-              )
+                  mappingsSnapshot.folders.LocalToServer[removedChild.id]
+                )
               : this.serverTreeRoot.findBookmark(
-                mappingsSnapshot.bookmarks.LocalToServer[removedChild.id]
-              )
+                  mappingsSnapshot.bookmarks.LocalToServer[removedChild.id]
+                )
           return this.syncTree(null, removedChild, serverChild)
         },
         this.concurrency
@@ -248,17 +248,17 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
         const serverChild =
           existingChild instanceof Tree.Folder
             ? this.serverTreeRoot.findFolder(
-              this.mappings.folders.LocalToServer[existingChild.id]
-            )
+                this.mappings.folders.LocalToServer[existingChild.id]
+              )
             : this.serverTreeRoot.findBookmark(
-              this.mappings.bookmarks.LocalToServer[existingChild.id]
-            )
+                this.mappings.bookmarks.LocalToServer[existingChild.id]
+              )
 
         const cacheChild = cacheItem
           ? _.find(
-            cacheItem.children,
-            cacheChild => cacheChild.id === existingChild.id
-          )
+              cacheItem.children,
+              cacheChild => cacheChild.id === existingChild.id
+            )
           : null
         await this.syncTree(existingChild, cacheChild, serverChild)
       },

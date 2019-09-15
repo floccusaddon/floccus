@@ -3,7 +3,7 @@ import Logger from '../Logger'
 import { Folder } from '../Tree'
 import Adapter from '../interfaces/Adapter'
 import browser from '../browser-api'
-import url from 'url'
+const url = require('url')
 
 export default class CachingAdapter extends Adapter {
   constructor(server) {

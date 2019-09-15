@@ -1,10 +1,10 @@
 import browser from '../browser-api'
 import Logger from '../Logger'
 import picostyle from 'picostyle'
-
+import { h } from 'hyperapp'
 import Account from '../Account'
 import * as Basics from './basics'
-import { version as FLOCCUS_VERSION } from '../../../package.json'
+const FLOCCUS_VERSION = require('../../../package.json').version
 
 const style = picostyle(h)
 
@@ -22,7 +22,8 @@ const {
 export const state = {
   accounts: {
     accounts: {},
-    secured: false
+    secured: false,
+    creationType: 'nextcloud-folders'
   }
 }
 
@@ -55,6 +56,13 @@ export const actions = {
     },
     setCreationType: type => ({ creationType: type })
   },
+  createAccount: () => async (state, actions) => {
+    let account = await Account.create(
+      Account.getDefaultValues(state.accounts.creationType)
+    )
+    await actions.accounts.load()
+    await actions.openOptions(account.id)
+  },
   downloadLogs: async () => {
     await Logger.downloadLogs()
   }
@@ -69,15 +77,39 @@ export const Component = () => (state, actions) => {
         ))}
       </div>
       <div class="wrapper">
-        <Button
-          primary
-          fullWidth={true}
-          onclick={e => {
-            actions.openNewAccount()
-          }}
-        >
-          {browser.i18n.getMessage('LabelAddaccount')}
-        </Button>
+        <InputGroup fullWidth={true}>
+          <Select
+            style={{ width: '75%' }}
+            onchange={e => {
+              actions.accounts.setCreationType(e.currentTarget.value)
+            }}
+          >
+            <option value="nextcloud-folders">
+              {browser.i18n.getMessage('LabelAdapternextcloudfolders')}
+            </option>
+            <option value="nextcloud">
+              {browser.i18n.getMessage('LabelAdapternextcloud')}
+            </option>
+            <option value="webdav">
+              {browser.i18n.getMessage('LabelAdapterwebdav')}
+            </option>
+          </Select>
+          <Button
+            primary
+            onclick={e => {
+              actions.createAccount()
+            }}
+          >
+            {browser.i18n.getMessage('LabelAddaccount')}
+          </Button>
+        </InputGroup>
+        <P>
+          {state.accounts.creationType === 'nextcloud-folders'
+            ? browser.i18n.getMessage('DescriptionAdapternextcloudfolders')
+            : state.accounts.creationType === 'nextcloud'
+            ? browser.i18n.getMessage('DescriptionAdapternextcloud')
+            : browser.i18n.getMessage('DescriptionAdapterwebdav')}
+        </P>
         <p> </p>
         <div class="security">
           <Label>

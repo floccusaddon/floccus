@@ -1,6 +1,6 @@
 {
   "name": "floccus",
-  "version": "3.4.1",
+  "version": "3.4.0",
   "description": "Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)",
   "main": "index.js",
   "scripts": {
@@ -23,38 +23,35 @@
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
-    "acorn-jsx": "^5.0.2",
     "all-contributors-cli": "^5.11.0",
+    "babelify": "^10.0.0",
+    "browserify": "^16.3.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chrome-webstore-upload": "^0.2.2",
-    "gulp": "^4",
+    "gulp": "^3.9.1",
     "gulp-crx-pack": "^1.0.2",
-    "gulp-rollup-each": "^3.0.1",
+    "gulp-run-command": "0.0.9",
+    "gulp-tap": "^1.0.1",
     "gulp-zip": "^4.2.0",
     "mocha": "^6.2.0",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-inject": "^3.0.1",
-    "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-jsx": "^1.0.3",
-    "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-globals": "^1.4.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
     "selenium-webdriver": "^4.0.0-alpha.4",
-    "spawn-shell": "^2.1.0"
+    "through2": "^2.0.5"
   },
   "dependencies": {
     "async-lock": "^1.2.2",
     "async-parallel": "^1.2.3",
+    "babel-polyfill": "^6.20.0",
     "dom-delegator": "^13.1.0",
     "humanize-duration": "^3.20.0",
     "hyperapp": "^1.2.10",
     "js-base64": "^2.5.1",
+    "murmur2js": "^1.0.0",
     "normalize-url": "^4.3.0",
     "p-queue": "^5.0.0",
     "picostyle": "^1.0.2",
+    "punycode": "^2.1.1",
     "throttle-debounce": "^2.1.0",
-    "virtual-dom": "^2.1.1",
-    "lodash": "^4.17.15"
+    "virtual-dom": "^2.1.1"
   }
 }

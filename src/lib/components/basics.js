@@ -1,6 +1,6 @@
 import picostyle from 'picostyle'
 import humanizeDuration from 'humanize-duration'
-
+import { h } from 'hyperapp'
 import browser from '../browser-api'
 import PathHelper from '../PathHelper'
 
@@ -27,35 +27,23 @@ export const P = style('p')({
 
 export const H1 = style('h1')(props => ({
   color: props.inverted ? 'white' : COLORS.primary.plane,
-  marginBottom: '7px',
-  marginTop: '25px',
-  ':first-child': {
-    marginTop: '0'
-  }
+  marginBottom: '3px',
+  marginTop: '25px'
 }))
 export const H2 = style('h2')({
   color: COLORS.primary.plane,
-  marginBottom: '7px',
-  marginTop: '25px',
-  ':first-child': {
-    marginTop: '0'
-  }
+  marginBottom: '3px',
+  marginTop: '25px'
 })
 export const H3 = style('h3')({
   color: COLORS.primary.plane,
-  marginBottom: '7px',
-  marginTop: '25px',
-  ':first-child': {
-    marginTop: '0'
-  }
+  marginBottom: '3px',
+  marginTop: '25px'
 })
 export const H4 = style('h4')({
   color: COLORS.primary.plane,
-  marginBottom: '7px',
-  marginTop: '25px',
-  ':first-child': {
-    marginTop: '0'
-  }
+  marginBottom: '3px',
+  marginTop: '25px'
 })
 
 export const Input = style('input')({
@@ -131,8 +119,8 @@ export const Button = style('button')(props => ({
       ? COLORS.primary.light
       : COLORS.primary.plane
     : props.active
-      ? COLORS.primary.background
-      : 'white',
+    ? COLORS.primary.background
+    : 'white',
   ':hover': {
     backgroundColor: props.primary
       ? COLORS.primary.light
@@ -253,8 +241,7 @@ export const AccountStatusDetail = ({ account }) => (state, actions) => {
           'StatusLastsynced',
           humanizeDuration(Date.now() - data.lastSync, {
             largest: 1,
-            round: true,
-            language: browser.i18n.getUILanguage()
+            round: true
           })
         )
       ) : (

@@ -22,7 +22,7 @@ export default class Mappings {
   }
 
   async addFolder({ localId, remoteId }) {
-    await this.lock.acquire('storage', async() => {
+    await this.lock.acquire('storage', async () => {
       Mappings.add(this.folders, { localId, remoteId })
       await this.storage.setMappings({
         folders: this.folders,
@@ -32,7 +32,7 @@ export default class Mappings {
   }
 
   async removeFolder({ localId, remoteId }) {
-    await this.lock.acquire('storage', async() => {
+    await this.lock.acquire('storage', async () => {
       Mappings.remove(this.folders, { localId, remoteId })
       await this.storage.setMappings({
         folders: this.folders,
@@ -42,7 +42,7 @@ export default class Mappings {
   }
 
   async addBookmark({ localId, remoteId }) {
-    await this.lock.acquire('storage', async() => {
+    await this.lock.acquire('storage', async () => {
       Mappings.add(this.bookmarks, { localId, remoteId })
       await this.storage.setMappings({
         folders: this.folders,
@@ -52,7 +52,7 @@ export default class Mappings {
   }
 
   async removeBookmark({ localId, remoteId }) {
-    await this.lock.acquire('storage', async() => {
+    await this.lock.acquire('storage', async () => {
       Mappings.remove(this.bookmarks, { localId, remoteId })
       await this.storage.setMappings({
         folders: this.folders,

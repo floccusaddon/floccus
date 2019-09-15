@@ -129,8 +129,7 @@
     "message": "启用"
   },
   "StatusLastsynced": {
-    "message": "上次同步: $1 之前",
-    "description": "Last synchronization time. The place holder holds a duration, e.g. '5 minutes'."
+    "message": "上次同步: $1 之前"
   },
   "StatusNeversynced": {
     "message": "从未同步过"
@@ -198,9 +197,6 @@
   "LabelCancel": {
     "message": "取消"
   },
-  "LabelChooseadapter": {
-    "message": "要如何同步？"
-  },
   "LabelAdapternextcloudfolders": {
     "message": "Nextcloud 书签"
   },
@@ -260,9 +256,5 @@
   },
   "DescriptionSyncinterval": {
     "message": "两次同步之间的时间跨度，以分钟为单位。默认为15分钟。"
-  },
-  "LabelOptionsscreen": {
-    "message": "$1选项",
-    "description": "Title of the options screen. The placeholder holds the account type."
   }
 }

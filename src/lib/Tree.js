@@ -1,6 +1,6 @@
 import Crypto from './Crypto'
 import Logger from './Logger'
-import * as Parallel from 'async-parallel'
+const Parallel = require('async-parallel')
 
 const STRANGE_PROTOCOLS = ['data:', 'javascript:', 'about:', 'chrome:']
 
@@ -194,12 +194,12 @@ export class Folder {
       ...obj,
       children: obj.children
         ? obj.children.map(child => {
-          if (!child.url) {
-            return Folder.hydrate(child)
-          } else {
-            return Bookmark.hydrate(child)
-          }
-        })
+            if (!child.url) {
+              return Folder.hydrate(child)
+            } else {
+              return Bookmark.hydrate(child)
+            }
+          })
         : null
     })
   }

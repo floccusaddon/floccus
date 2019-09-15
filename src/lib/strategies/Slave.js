@@ -2,8 +2,8 @@ import * as Tree from '../Tree'
 import Logger from '../Logger'
 import DefaultStrategy from './Default'
 
-import _ from 'lodash'
-import Parallel from 'async-parallel'
+const _ = require('lodash')
+const Parallel = require('async-parallel')
 
 export default class SlaveSyncProcess extends DefaultStrategy {
   async syncTree(localItem, cacheItem, serverItem) {

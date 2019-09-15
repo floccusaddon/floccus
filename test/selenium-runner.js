@@ -1,11 +1,10 @@
 const fs = require('fs')
 const url = require('url')
-const { Builder, logging, Condition } = require('selenium-webdriver')
+const { Builder } = require('selenium-webdriver')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
 const VERSION = require('../package.json').version
 ;(async function() {
-  logging.installConsoleHandler()
   let driver = await new Builder()
     .withCapabilities({
       browserVersion: 'latest',
@@ -26,15 +25,9 @@ const VERSION = require('../package.json').version
         fs.readFileSync(`./builds/floccus-build-v${VERSION}.crx`, 'base64')
       )
     )
-    .setLoggingPrefs(
-      new logging.Preferences().setLevel(
-        logging.Type.BROWSER,
-        logging.Level.DEBUG
-      )
-    )
     .build()
   try {
-    let id, testUrl
+    let id, testURL
     switch (await (await driver.getSession()).getCapability('browserName')) {
       case 'chrome':
         // Scrape extension id from chrome extension page
@@ -61,16 +54,13 @@ const VERSION = require('../package.json').version
           `./builds/floccus-build-v${VERSION}.xpi`,
           true
         )
-        await driver.get('about:debugging#/runtime/this-firefox')
+        await driver.get('about:debugging')
         await new Promise(resolve => setTimeout(resolve, 10000))
         let optionsURL = await driver.executeScript(function() {
-          const extension = AboutDebugging.store
-            .getState()
-            .debugTargets.temporaryExtensions.concat(
-              AboutDebugging.store.getState().debugTargets.installedExtensions
-            )
-            .filter(obj => obj.id === 'floccus@handmadeideas.org')[0]
-          return extension.details.manifestURL
+          var extension = Array.from(
+            AboutDebugging.client.mainRoot.__poolMap.values()
+          ).filter(obj => obj.id === 'floccus@handmadeideas.org')[0]
+          return extension.manifestURL
         })
         if (!optionsURL) throw new Error('Could not install extension')
         id = url.parse(optionsURL).hostname
@@ -84,28 +74,31 @@ const VERSION = require('../package.json').version
 
     await driver.get(testUrl)
 
-    const finishStatus = await driver.wait(
-      new Condition('for tests to finish', async driver => {
-        // dump latest logs
-        const logs = await driver.executeScript(function() {
-          const logs = window.floccusLogMessages
-          window.floccusLogMessages = []
-          return logs
-        })
-        logs.forEach(entry => console.log(entry))
+    let logs = [],
+      fin
+    do {
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      const newLogs = await driver.executeScript(function() {
+        var logs = window.floccusTestLogs.slice(
+          window.floccusTestLogsLength || 0
+        )
+        window.floccusTestLogsLength = window.floccusTestLogs.length
+        return logs
+      })
 
-        // check if the tests are finished
-        return driver.executeScript(function() {
-          return window.floccusTestsFinished
-        })
-      }),
-      undefined,
-      undefined,
-      1000 // poll interval
+      newLogs.forEach(entry => console.log(entry))
+      logs = logs.concat(newLogs)
+    } while (
+      !logs.some(entry => {
+        if (~entry.indexOf('FINISHED')) {
+          fin = entry
+          return true
+        }
+        return false
+      })
     )
-
     await driver.quit()
-    if (finishStatus === 'FAILED') {
+    if (fin && ~fin.indexOf('FAILED')) {
       process.exit(1)
     }
   } catch (e) {

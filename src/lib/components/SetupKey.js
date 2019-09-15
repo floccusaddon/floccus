@@ -1,5 +1,5 @@
 import browser from '../browser-api'
-
+import { h } from 'hyperapp'
 import { Component as Overlay } from './Overlay'
 import * as Basics from './basics'
 
