@@ -47,7 +47,7 @@
     "hyperapp": "^1.2.10",
     "js-base64": "^2.5.1",
     "murmur2js": "^1.0.0",
-    "normalize-url": "^4.3.0",
+    "normalize-url": "^4.4.1",
     "p-queue": "^5.0.0",
     "picostyle": "^1.0.2",
     "punycode": "^2.1.1",
