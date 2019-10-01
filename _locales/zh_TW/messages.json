@@ -1,0 +1,260 @@
+{
+  "Error001": {
+    "message": "E001：要創建的資料夾不存在"
+  },
+  "Error002": {
+    "message": "E002：沒有需要更新的書籤"
+  },
+  "Error003": {
+    "message": "E003：要移出的資料夾不存在，這是一種異常。恭喜你。"
+  },
+  "Error004": {
+    "message": "E004：要移入的資料夾不存在"
+  },
+  "Error005": {
+    "message": "E005：要創建的資料夾不存在"
+  },
+  "Error006": {
+    "message": "E006：要更新的資料夾不存在"
+  },
+  "Error007": {
+    "message": "E007：要移動的資料夾不存在"
+  },
+  "Error008": {
+    "message": "E008：要移出的資料夾不存在"
+  },
+  "Error009": {
+    "message": "E009：要移動的資料夾不存在"
+  },
+  "Error010": {
+    "message": "E010：找不到指定的資料夾"
+  },
+  "Error011": {
+    "message": "E011：指定資料夾中的項目不是實際的子項目：$1"
+  },
+  "Error012": {
+    "message": "E012：資料夾排序缺失某些資料夾的子項"
+  },
+  "Error013": {
+    "message": "E013：要刪除的資料夾不存在"
+  },
+  "Error014": {
+    "message": "E014：要刪除的資料夾的父資料夾不存在"
+  },
+  "Error015": {
+    "message": "E015：伺服器的回應資料不符預期"
+  },
+  "Error016": {
+    "message": "E016：請求超時。請檢查您的伺服器設定"
+  },
+  "Error017": {
+    "message": "E017：網路錯誤：請檢查您的網路連線或賬戶資訊"
+  },
+  "Error018": {
+    "message": "E018：無法通過伺服器進行身份驗證"
+  },
+  "Error019": {
+    "message": "E019：HTTP 狀態 $1。 $2 請求失敗，請檢查您的伺服器設定和日誌。"
+  },
+  "Error020": {
+    "message": "E020：無法解析伺服器回應。您的伺服器是否已安裝書籤應用程式？"
+  },
+  "Error021": {
+    "message": "E021：伺服器狀態和本地不符。資料夾存在於子資料夾列表中，但不在資料夾樹中。"
+  },
+  "Error022": {
+    "message": "E022：資料夾 $1 可能包含不存在的書籤 $2"
+  },
+  "Error023": {
+    "message": "E023：無法清除鎖定檔案，請考慮手動刪除 $1。"
+  },
+  "Error024": {
+    "message": "E024：嘗試確定鎖定檔案 $2 的状态時， HTTP 狀態爲 $1"
+  },
+  "Error025": {
+    "message": "E025：書籤資料夾必須不以 '/' 開頭"
+  },
+  "Error026": {
+    "message": "E026：HTTP 狀態 $1。獲取書籤失敗"
+  },
+  "Error027": {
+    "message": "E027：同步進程終端"
+  },
+  "LabelWebdavurl": {
+    "message": "WebDAV URL"
+  },
+  "DescriptionWebdavurl": {
+    "message": "例如：使用 NextCloud：https://your-domain.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "Nextcloud URL"
+  },
+  "LabelUsername": {
+    "message": "使用者名稱"
+  },
+  "LabelPassword": {
+    "message": "密碼"
+  },
+  "LabelBookmarksfile": {
+    "message": "書籤路徑"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "相對於 WebDAV URL 的書籤路徑（路徑內的所有資料夾必須已經存在），比如：personal_stuff/bookmarks.xbel "
+  },
+  "LabelServerfolder": {
+    "message": "伺服器資料夾"
+  },
+  "DescriptionServerfolder": {
+    "message": "這是此賬戶在伺服器上的路徑前綴，例如如果您使用 \"/work\"，則在此伺服器上創建的所有書籤的路徑都將被加上此前綴。這允許您將伺服器書籤分成多個“設定檔”。將其留空以不使用前綴。"
+  },
+  "LabelLocalfolder": {
+    "message": "本地資料夾"
+  },
+  "DescriptionLocalfolder": {
+    "message": "這是會和伺服器同步的本地資料夾。預設會爲您創建一個新的資料夾。（注意：現在您可以在不同瀏覽器同步根資料夾）"
+  },
+  "LabelRootfolder": {
+    "message": "根資料夾"
+  },
+  "LabelOptions": {
+    "message": "選項"
+  },
+  "LabelSyncnow": {
+    "message": "立刻同步"
+  },
+  "LabelCancelsync": {
+    "message": "取消同步"
+  },
+  "LabelEnabled": {
+    "message": "已啓用"
+  },
+  "StatusLastsynced": {
+    "message": "上次同步：$1 之前"
+  },
+  "StatusNeversynced": {
+    "message": "從未同步"
+  },
+  "StatusAllgood": {
+    "message": "一切正常"
+  },
+  "StatusDisabled": {
+    "message": "已停用"
+  },
+  "StatusError": {
+    "message": "錯誤"
+  },
+  "StatusSyncing": {
+    "message": "同步中"
+  },
+  "LabelReset": {
+    "message": "重設"
+  },
+  "DescriptionReset": {
+    "message": "重設同步資料夾以創建新同步資料夾"
+  },
+  "LabelChoosefolder": {
+    "message": "選擇資料夾唉"
+  },
+  "DescriptionChoosefolder": {
+    "message": "選擇一個已存在的資料夾以進行同步"
+  },
+  "LabelRemoveaccount": {
+    "message": "移除帳號"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "刪除此帳號（這將不會刪除您的書籤）"
+  },
+  "LabelResetCache": {
+    "message": "從頭開始同步"
+  },
+  "DescriptionResetcache": {
+    "message": "勾選此框以重設快取，以確保下一次同步不會刪除任何數據，只將伺服器和本地的書籤合併在一起"
+  },
+  "LabelParallelsync": {
+    "message": "加速同步速度"
+  },
+  "DescriptionParallelsync": {
+    "message": "勾選此框以並行處理多個資料夾，以加快同步速度"
+  },
+  "LabelStrategy": {
+    "message": "同步策略"
+  },
+  "DescriptionStrategy": {
+    "message": "此選項將決定如何將伺服器上的書籤樹與此瀏覽器中的書籤樹同步。通常您會想合併兩個樹的更改（如果它們兼容的話），但有時您可能會想以本地版本強制覆蓋伺服器上的版本，反之依然。"
+  },
+  "LabelStrategydefault": {
+    "message": "合併本地和遠端更改（推薦）"
+  },
+  "LabelStrategyslave": {
+    "message": "始終覆蓋並還原本地更改"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "始終覆蓋和還原遠端修改"
+  },
+  "LabelSave": {
+    "message": "保存"
+  },
+  "LabelCancel": {
+    "message": "取消"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Nextcloud 書籤"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "“Nextcloud 書籤” 選項需要書籤應用程式的版本至少爲 v0.14。"
+  },
+  "LabelAdapternextcloud": {
+    "message": "Nextcloud 書籤（傳統）"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "傳統選項至少於書籤應用程式 v0.11 相容，這將使用包含資料夾的標籤來模擬資料夾。對於新帳號，不建議使用此選項。"
+  },
+  "LabelAdapterwebdav": {
+    "message": "WebDAV 共享中的 XBEL 檔案"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "WebDAV 選項通過將書籤儲存在提供的 WebDAV 共享中的XBEL 檔案中來同步書籤。此選項沒有隨附的 Web UI，您可以將其與任何 WebDAV 相容的伺服器一起使用。"
+  },
+  "LabelAddaccount": {
+    "message": "添加帳號"
+  },
+  "LabelSecurecredentials": {
+    "message": "保護您的憑據"
+  },
+  "LabelOpenintab": {
+    "message": "在標籤頁中打開"
+  },
+  "LabelDebuglogs": {
+    "message": "除錯日誌"
+  },
+  "LabelFunddevelopment": {
+    "message": "贊助開發"
+  },
+  "LabelSelect": {
+    "message": "選取"
+  },
+  "LabelUntitledfolder": {
+    "message": "無標題資料夾"
+  },
+  "LabelSetkey": {
+    "message": "爲 floccus 設定密碼"
+  },
+  "DescriptionSetkey": {
+    "message": "當您設定密碼後，每次啓動瀏覽器後如果要訪問和同步書籤，都需要解鎖。"
+  },
+  "LabelKey": {
+    "message": "輸入解鎖密碼"
+  },
+  "LabelKey2": {
+    "message": "再次輸入解鎖密碼"
+  },
+  "LabelUnlock": {
+    "message": "解鎖 floccus"
+  },
+  "LabelSyncinterval": {
+    "message": "同步間隔"
+  },
+  "DescriptionSyncinterval": {
+    "message": "兩次同步之間的時間間隔。以分鐘爲單位，預設爲 15 分鐘。"
+  }
+}
