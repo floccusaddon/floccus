@@ -19,7 +19,7 @@ export const COLORS = {
 
 export const HEIGHT_CONTROLS = '33px'
 export const PADDING_CONTROLS = '7px'
-export const BORDER_RADIUS = '5px'
+export const BORDER_RADIUS = '15px'
 
 export const P = style('p')({
   color: COLORS.text
@@ -27,23 +27,35 @@ export const P = style('p')({
 
 export const H1 = style('h1')(props => ({
   color: props.inverted ? 'white' : COLORS.primary.plane,
-  marginBottom: '3px',
-  marginTop: '25px'
+  marginBottom: '7px',
+  marginTop: '25px',
+  ':first-child': {
+    marginTop: '0'
+  }
 }))
 export const H2 = style('h2')({
   color: COLORS.primary.plane,
-  marginBottom: '3px',
-  marginTop: '25px'
+  marginBottom: '7px',
+  marginTop: '25px',
+  ':first-child': {
+    marginTop: '0'
+  }
 })
 export const H3 = style('h3')({
   color: COLORS.primary.plane,
-  marginBottom: '3px',
-  marginTop: '25px'
+  marginBottom: '7px',
+  marginTop: '25px',
+  ':first-child': {
+    marginTop: '0'
+  }
 })
 export const H4 = style('h4')({
   color: COLORS.primary.plane,
-  marginBottom: '3px',
-  marginTop: '25px'
+  marginBottom: '7px',
+  marginTop: '25px',
+  ':first-child': {
+    marginTop: '0'
+  }
 })
 
 export const Input = style('input')({
@@ -119,8 +131,8 @@ export const Button = style('button')(props => ({
       ? COLORS.primary.light
       : COLORS.primary.plane
     : props.active
-    ? COLORS.primary.background
-    : 'white',
+      ? COLORS.primary.background
+      : 'white',
   ':hover': {
     backgroundColor: props.primary
       ? COLORS.primary.light

@@ -52,9 +52,7 @@ export default class NextcloudAdapter extends Adapter {
   static renderOptions(state, actions) {
     let data = state.account
     let onchange = (prop, e) => {
-      actions.options.update({
-        data: { [prop]: e.target.value }
-      })
+      actions.options.update({ [prop]: e.target.value })
     }
     return (
       <form>
@@ -373,7 +371,7 @@ export default class NextcloudAdapter extends Adapter {
     Logger.log('(nextcloud)CREATE', bm)
 
     // We need this lock to avoid creating multiple bookmarks with the same URL in parallel
-    return this.bookmarkLock.acquire(bm.url, async () => {
+    return this.bookmarkLock.acquire(bm.url, async() => {
       let existingBookmark = await this.getExistingBookmark(bm.url)
       if (existingBookmark) {
         bm.id = existingBookmark + ';' + bm.parentId
@@ -417,7 +415,7 @@ export default class NextcloudAdapter extends Adapter {
 
     // We need this lock to avoid changing a bookmark that is
     // in two places in parallel for those two places
-    return this.bookmarkLock.acquire(serverId, async () => {
+    return this.bookmarkLock.acquire(serverId, async() => {
       // returns the full paths from the server
       let { bookmarks: bms, tags } = await this._getBookmark(serverId)
 
@@ -460,7 +458,7 @@ export default class NextcloudAdapter extends Adapter {
 
     // We need this lock to avoid deleting a bookmark that is in two places
     // in parallel
-    return this.bookmarkLock.acquire(serverId, async () => {
+    return this.bookmarkLock.acquire(serverId, async() => {
       let { bookmarks: bms, tags } = await this._getBookmark(serverId)
 
       if (bms.length !== 1) {

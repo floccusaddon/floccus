@@ -15,7 +15,7 @@ export default class FakeAdapter extends CachingAdapter {
     }
   }
 
-  static renderOptions(state, actions) {
+  static renderOptions(state, update) {
     return (
       <div>
         <p>Fake account</p>

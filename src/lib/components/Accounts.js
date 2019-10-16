@@ -22,8 +22,7 @@ const {
 export const state = {
   accounts: {
     accounts: {},
-    secured: false,
-    creationType: 'nextcloud-folders'
+    secured: false
   }
 }
 
@@ -33,7 +32,7 @@ export const actions = {
       accounts
     }),
     setSecured: secured => ({ secured }),
-    load: () => async (state, actions) => {
+    load: () => async(state, actions) => {
       const accountsArray = await Account.getAllAccounts()
       const accounts = {}
       accountsArray.forEach(acc => {
@@ -46,24 +45,17 @@ export const actions = {
       actions.setSecured(accountsLocked)
       actions.setList(accounts)
     },
-    sync: accountId => async (state, actions) => {
+    sync: accountId => async(state, actions) => {
       const background = await browser.runtime.getBackgroundPage()
       background.syncAccount(accountId)
     },
-    cancelSync: accountId => async (state, actions) => {
+    cancelSync: accountId => async(state, actions) => {
       const background = await browser.runtime.getBackgroundPage()
       background.controller.cancelSync(accountId)
     },
     setCreationType: type => ({ creationType: type })
   },
-  createAccount: () => async (state, actions) => {
-    let account = await Account.create(
-      Account.getDefaultValues(state.accounts.creationType)
-    )
-    await actions.accounts.load()
-    await actions.openOptions(account.id)
-  },
-  downloadLogs: async () => {
+  downloadLogs: async() => {
     await Logger.downloadLogs()
   }
 }
@@ -77,39 +69,15 @@ export const Component = () => (state, actions) => {
         ))}
       </div>
       <div class="wrapper">
-        <InputGroup fullWidth={true}>
-          <Select
-            style={{ width: '75%' }}
-            onchange={e => {
-              actions.accounts.setCreationType(e.currentTarget.value)
-            }}
-          >
-            <option value="nextcloud-folders">
-              {browser.i18n.getMessage('LabelAdapternextcloudfolders')}
-            </option>
-            <option value="nextcloud">
-              {browser.i18n.getMessage('LabelAdapternextcloud')}
-            </option>
-            <option value="webdav">
-              {browser.i18n.getMessage('LabelAdapterwebdav')}
-            </option>
-          </Select>
-          <Button
-            primary
-            onclick={e => {
-              actions.createAccount()
-            }}
-          >
-            {browser.i18n.getMessage('LabelAddaccount')}
-          </Button>
-        </InputGroup>
-        <P>
-          {state.accounts.creationType === 'nextcloud-folders'
-            ? browser.i18n.getMessage('DescriptionAdapternextcloudfolders')
-            : state.accounts.creationType === 'nextcloud'
-            ? browser.i18n.getMessage('DescriptionAdapternextcloud')
-            : browser.i18n.getMessage('DescriptionAdapterwebdav')}
-        </P>
+        <Button
+          primary
+          fullWidth={true}
+          onclick={e => {
+            actions.openNewAccount()
+          }}
+        >
+          {browser.i18n.getMessage('LabelAddaccount')}
+        </Button>
         <p> </p>
         <div class="security">
           <Label>
