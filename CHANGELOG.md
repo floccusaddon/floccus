@@ -1,7 +1,16 @@
+## v3.5.0
+
+- NEW: UX: Improve "new account" flow
+- NEW: UX: Make it more clear which adapter is being used in options
+- NEW: Improve funding UX
+- FIX: Logger: Add timestamps
+
 ## v3.4.2
+
 - Roll back v3.4.1 due to UI issues
 
 ## v3.4.1
+
 - NEW: Overhaul build process
 - NEW: UX: Improve "new account" flow
 - NEW: UX: Make it more clear which adapter is being used in options
