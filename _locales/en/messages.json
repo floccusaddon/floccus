@@ -230,6 +230,9 @@
   "LabelFunddevelopment": {
     "message": "Fund development"
   },
+  "DescriptionFunddevelopment": {
+    "message": "Put your money where your mouth is and give something back to the creator of floccus to support the creation and maintenance of this project financially. Any amount, no matter how small, is appreciated. Thank you 💙"
+  },
   "LabelSelect": {
     "message": "Select"
   },
@@ -263,5 +266,29 @@
   "LabelOptionsscreen": {
     "message": "$1 options",
     "description": "Title of the options screen. The placeholder holds the account type."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "Make a one-time donation via paypal to support the project"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "Make a regular donation via OpenCollective to support the project"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "Make a regular donation via Liberapay to support the project"
+  },
+  "LabelGithubsponsors": {
+    "message": "GitHub sponsors"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "Make a regular donation via GitHub sponsors to support the project"
   }
 }

@@ -473,7 +473,13 @@ const OptionSyncStrategyStyle = style('div')(props => ({
   }
 }))
 
-export const A = style('a')({})
+export const A = style('a')({
+  color: '#3893cc !important',
+  textDecoration: 'none',
+  ':hover': {
+    textDecoration: 'underline'
+  }
+})
 
 export const Progress = ({ value }) => {
   return (

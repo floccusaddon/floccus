@@ -7,6 +7,7 @@ import * as AccountOptionsComponent from '../lib/components/AccountOptions'
 import * as PickerComponent from '../lib/components/Picker'
 import * as SetupKeyComponent from '../lib/components/SetupKey'
 import * as UnlockComponent from '../lib/components/Unlock'
+import * as FundingComponent from '../lib/components/Funding'
 
 const Accounts = AccountsComponent.Component
 const NewAccount = NewAccountComponent.Component
@@ -14,10 +15,11 @@ const AccountOptions = AccountOptionsComponent.Component
 const Picker = PickerComponent.Component
 const SetupKey = SetupKeyComponent.Component
 const Unlock = UnlockComponent.Component
+const Funding = FundingComponent.Component
 
 const state = {
   view: {
-    current: 'accounts' // accounts | picker | setupKey | unlock | newAccount
+    current: 'accounts' // accounts | picker | setupKey | unlock | newAccount | funding
   }
 }
 
@@ -57,6 +59,8 @@ function render(state, actions) {
           <Unlock />
         ) : state.view.current === 'setupKey' ? (
           <SetupKey />
+        ) : state.view.current === 'funding' ? (
+          <Funding />
         ) : (
           ''
         )
@@ -73,7 +77,8 @@ const components = [
   AccountOptionsComponent,
   PickerComponent,
   UnlockComponent,
-  SetupKeyComponent
+  SetupKeyComponent,
+  FundingComponent
 ]
 
 const appState = Object.assign.apply(

@@ -110,8 +110,11 @@ export const Component = () => (state, actions) => {
               📜 {browser.i18n.getMessage('LabelDebuglogs')}
             </a>
             <a
-              target="_blank"
-              href="https://github.com/marcelklehr/floccus#donate"
+              href="#"
+              onclick={e => {
+                actions.openFunding()
+                e.preventDefault()
+              }}
             >
               💙 {browser.i18n.getMessage('LabelFunddevelopment')}
             </a>
