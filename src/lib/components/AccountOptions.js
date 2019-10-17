@@ -93,7 +93,7 @@ export const Component = () => (state, actions) => {
           {
             account: state.options.data
           },
-          data => actions.update({ data })
+          data => actions.options.update({ data })
         )}
         <div class="actions">
           <Button onclick={() => actions.closeOptions()}>

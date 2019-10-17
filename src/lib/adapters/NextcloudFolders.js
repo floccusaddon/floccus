@@ -49,10 +49,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
     }
   }
 
-  static renderOptions(state, actions) {
+  static renderOptions(state, update) {
     let data = state.account
     let onchange = (prop, e) => {
-      actions.options.update({ [prop]: e.target.value })
+      update({ [prop]: e.target.value })
     }
     return (
       <form>
