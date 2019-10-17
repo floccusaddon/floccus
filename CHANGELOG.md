@@ -1,3 +1,7 @@
+## v3.5.1
+
+- FIX: UI: Input fields were broken
+
 ## v3.5.0
 
 - NEW: UX: Improve "new account" flow

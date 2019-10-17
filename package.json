@@ -1,6 +1,6 @@
 {
   "name": "floccus",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "description": "Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)",
   "main": "index.js",
   "scripts": {
