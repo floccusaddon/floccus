@@ -63,7 +63,7 @@ const VERSION = require('../package.json').version
               AboutDebugging.store.getState().debugTargets.installedExtensions
             )
             .filter(obj => obj.id === 'floccus@handmadeideas.org')[0]
-          return extension.manifestURL
+          return extension.details.manifestURL
         })
         if (!optionsURL) throw new Error('Could not install extension')
         id = url.parse(optionsURL).hostname
