@@ -153,7 +153,7 @@
     "message": "重設同步資料夾以創建新同步資料夾"
   },
   "LabelChoosefolder": {
-    "message": "選擇資料夾唉"
+    "message": "選擇資料夾"
   },
   "DescriptionChoosefolder": {
     "message": "選擇一個已存在的資料夾以進行同步"
@@ -174,7 +174,7 @@
     "message": "加速同步速度"
   },
   "DescriptionParallelsync": {
-    "message": "勾選此框以並行處理多個資料夾，以加快同步速度"
+    "message": "勾選此框以並行處理多個資料夾，以加快同步速度。此實驗性功能將使除錯日誌較難閱讀"
   },
   "LabelStrategy": {
     "message": "同步策略"
@@ -201,13 +201,13 @@
     "message": "Nextcloud 書籤"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "“Nextcloud 書籤” 選項需要書籤應用程式的版本至少爲 v0.14。"
+    "message": "“Nextcloud 書籤” 選項需要書籤應用程式的版本爲 v0.14 以上。"
   },
   "LabelAdapternextcloud": {
-    "message": "Nextcloud 書籤（傳統）"
+    "message": "Nextcloud 書籤（舊版）"
   },
   "DescriptionAdapternextcloud": {
-    "message": "傳統選項至少於書籤應用程式 v0.11 相容，這將使用包含資料夾的標籤來模擬資料夾。對於新帳號，不建議使用此選項。"
+    "message": "\"舊版\" 選項相容於書籤應用程式 v0.11 以上的版本，這將使用包含資料夾的標籤來模擬資料夾。對於新帳號，不建議使用此選項。"
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV 共享中的 XBEL 檔案"
@@ -230,6 +230,9 @@
   "LabelFunddevelopment": {
     "message": "贊助開發"
   },
+  "DescriptionFunddevelopment": {
+    "message": "實踐並反饋給 floccus 的創作者以在財務上支持此計畫的創建及維護。不論多小的金額都十分歡迎，Thank you 💙"
+  },
   "LabelSelect": {
     "message": "選取"
   },
@@ -240,7 +243,7 @@
     "message": "爲 floccus 設定密碼"
   },
   "DescriptionSetkey": {
-    "message": "當您設定密碼後，每次啓動瀏覽器後如果要訪問和同步書籤，都需要解鎖。"
+    "message": "如果您設定了密碼，您每次重啓瀏覽器後都需要輸入密碼才能存取和同步您的書籤。"
   },
   "LabelKey": {
     "message": "輸入解鎖密碼"
@@ -256,5 +259,36 @@
   },
   "DescriptionSyncinterval": {
     "message": "兩次同步之間的時間間隔。以分鐘爲單位，預設爲 15 分鐘。"
+  },
+  "LabelChooseadapter": {
+    "message": "您希望用什麼方式同步呢？"
+  },
+  "LabelOptionsscreen": {
+    "message": "$1 選項",
+    "description": "Title of the options screen. The placeholder holds the account type."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "以 Paypal 的一次性捐款支持這個計畫"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "以 OpenCollective 的定期捐款支持這個計畫"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "以 Liberapay 的定期捐款支持這個計畫"
+  },
+  "LabelGithubsponsors": {
+    "message": "GitHub sponsors"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "以 GitHub sponsors 的定期捐款支持這個計畫"
   }
 }
