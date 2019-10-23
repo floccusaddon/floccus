@@ -230,6 +230,9 @@
   "LabelFunddevelopment": {
     "message": "开发信息"
   },
+  "DescriptionFunddevelopment": {
+    "message": "实践并反馈给 floccus 的创作者以在财务上支持此项目的创建及维护。不论多小的金额都十分欢迎，Thank you 💙"
+  },
   "LabelSelect": {
     "message": "选取"
   },
@@ -256,5 +259,36 @@
   },
   "DescriptionSyncinterval": {
     "message": "两次同步之间的时间跨度，以分钟为单位。默认为15分钟。"
+  },
+  "LabelChooseadapter": {
+    "message": "要如何同步？"
+  },
+  "LabelOptionsscreen": {
+    "message": "$1选项",
+    "description": "Title of the options screen. The placeholder holds the account type."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "通过 Paypal 一次性捐款以支持该项目"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "通过 OpenCollective 定期捐款以支持该项目"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "通过 Liberapay 定期捐款以支持该项目"
+  },
+  "LabelGithubsponsors": {
+    "message": "GitHub sponsors"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "通过 GitHub sponsors 定期捐款以支持该项目"
   }
 }
