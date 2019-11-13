@@ -43,7 +43,7 @@
     "async-parallel": "^1.2.3",
     "babel-polyfill": "^6.20.0",
     "dom-delegator": "^13.1.0",
-    "humanize-duration": "^3.20.0",
+    "humanize-duration": "^3.21.0",
     "hyperapp": "^1.2.10",
     "js-base64": "^2.5.1",
     "murmur2js": "^1.0.0",
