@@ -31,7 +31,7 @@
     "chrome-webstore-upload": "^0.2.2",
     "gulp": "^3.9.1",
     "gulp-crx-pack": "^1.0.2",
-    "gulp-run-command": "0.0.9",
+    "gulp-run-command": "0.0.10",
     "gulp-tap": "^1.0.1",
     "gulp-zip": "^4.2.0",
     "mocha": "^6.2.2",
