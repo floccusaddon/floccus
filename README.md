@@ -22,6 +22,7 @@ The following sync methods are available:
 - **WebDAV**: If you have a WebDAV server at hand, like any version of nextcloud/owncloud, box.com or with any other WebDAV server, commercial or self-hosted.
 - **Nextcloud Bookmarks**: Nextcloud in particular also sports a dedicated bookmarks app, which allows you to also access your bookmarks via a nice web UI. For this to work with floccus, you need v0.11 of the Bookmarks app installed (which requires at least nextcloud v12).
 - **Local file and more**: You can also just sync with a local file, using [the companion desktop app LoFloccus](https://github.com/TCB13/LoFloccus). You can then also sync that file to other computers using your favorite file syncing solution, like Dropbox, Syncthing, rsync, etc.
+- **WebDAV (Docker)**: [Local WebDAV Docker server](https://github.com/marlluslustosa/Floccus-WebDavDocker) to Floccus. Dockerized version for GNU/Linux (with autentication).
 
 Once your server or the LoFloccus app is ready, read on for the browser of your choosing.
 
