@@ -152,15 +152,15 @@ export default class Account {
       let strategy
       switch (this.getData().strategy) {
         case 'slave':
-          console.log('Using slave mode')
+          Logger.log('Using slave strategy')
           strategy = SlaveSyncProcess
           break
         case 'overwrite':
-          console.log('Using overwrite mode')
+          Logger.log('Using overwrite strategy')
           strategy = OverwriteSyncProcess
           break
         default:
-          console.log('Using normal mode')
+          Logger.log('Using normal strategy')
           strategy = DefaultSyncProcess
           break
       }
