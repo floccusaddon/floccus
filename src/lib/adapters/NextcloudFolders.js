@@ -154,21 +154,21 @@ export default class NextcloudFoldersAdapter extends Adapter {
       i++
     } while (json.data.length === PAGE_SIZE)
 
-    let bookmarks = data.reduce((array, bm) => {
-      let bookmark = new Bookmark({
-        id: bm.id,
-        url: bm.url,
-        title: bm.title
-      })
+    let bookmarks = _.flatten(
+      data.map(bm => {
+        let bookmark = new Bookmark({
+          id: bm.id,
+          url: bm.url,
+          title: bm.title
+        })
 
-      bm.folders.forEach(parentId => {
-        let b = bookmark.clone()
-        b.id = b.id
-        b.parentId = parentId
-        array.push(b)
+        return bm.folders.map(parentId => {
+          let b = bookmark.clone()
+          b.parentId = parentId
+          return b
+        })
       })
-      return array
-    }, [])
+    )
 
     Logger.log('Received bookmarks from server', bookmarks)
     this.list = bookmarks
