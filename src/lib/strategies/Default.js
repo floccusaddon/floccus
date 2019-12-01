@@ -71,14 +71,19 @@ export default class SyncProcess {
     this.filterOutUnacceptedBookmarks(this.localTreeRoot)
     await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
 
-    const roughFolderDiff =
-      this.localTreeRoot.countFolders() - this.serverTreeRoot.countFolders()
-    if (roughFolderDiff > -100) {
-      // Load sparse tree
-      await this.loadChildren(this.serverTreeRoot, this.mappings.getSnapshot())
-    } else {
-      // rather load the complete tree, as we do less requests this way
-      this.serverTreeRoot = await this.server.getBookmarksTree(true)
+    if (this.server.hasFeatureHashing) {
+      const roughFolderDiff =
+        this.localTreeRoot.countFolders() - this.serverTreeRoot.countFolders()
+      if (roughFolderDiff > -100) {
+        // Load sparse tree
+        await this.loadChildren(
+          this.serverTreeRoot,
+          this.mappings.getSnapshot()
+        )
+      } else {
+        // rather load the complete tree, as we do less requests this way
+        this.serverTreeRoot = await this.server.getBookmarksTree(true)
+      }
     }
 
     // generate hashtables to find items faster
@@ -499,11 +504,11 @@ export default class SyncProcess {
           const serverChild =
             removedChild instanceof Tree.Folder
               ? this.serverTreeRoot.findFolder(
-                  mappingsSnapshot.folders.LocalToServer[removedChild.id]
-                )
+                mappingsSnapshot.folders.LocalToServer[removedChild.id]
+              )
               : this.serverTreeRoot.findBookmark(
-                  mappingsSnapshot.bookmarks.LocalToServer[removedChild.id]
-                )
+                mappingsSnapshot.bookmarks.LocalToServer[removedChild.id]
+              )
           return this.syncTree(null, removedChild, serverChild)
         },
         this.concurrency
@@ -512,11 +517,11 @@ export default class SyncProcess {
         const serverChild =
           oldChild instanceof Tree.Folder
             ? this.serverTreeRoot.findFolder(
-                mappingsSnapshot.folders.LocalToServer[oldChild.id]
-              )
+              mappingsSnapshot.folders.LocalToServer[oldChild.id]
+            )
             : this.serverTreeRoot.findBookmark(
-                mappingsSnapshot.bookmarks.LocalToServer[oldChild.id]
-              )
+              mappingsSnapshot.bookmarks.LocalToServer[oldChild.id]
+            )
         if (serverChild && serverChild.parentId === serverItem.id) {
           // remove from ordering
           remoteOrder.splice(
@@ -591,11 +596,11 @@ export default class SyncProcess {
           const localChild =
             oldChild instanceof Tree.Folder
               ? this.localTreeRoot.findFolder(
-                  newMappingsSnapshot.folders.ServerToLocal[oldChild.id]
-                )
+                newMappingsSnapshot.folders.ServerToLocal[oldChild.id]
+              )
               : this.localTreeRoot.findBookmark(
-                  newMappingsSnapshot.bookmarks.ServerToLocal[oldChild.id]
-                )
+                newMappingsSnapshot.bookmarks.ServerToLocal[oldChild.id]
+              )
           if (localChild) {
             // remove from ordering
             localOrder.splice(
@@ -646,17 +651,17 @@ export default class SyncProcess {
         const serverChild =
           existingChild instanceof Tree.Folder
             ? this.serverTreeRoot.findFolder(
-                this.mappings.folders.LocalToServer[existingChild.id]
-              )
+              this.mappings.folders.LocalToServer[existingChild.id]
+            )
             : this.serverTreeRoot.findBookmark(
-                this.mappings.bookmarks.LocalToServer[existingChild.id]
-              )
+              this.mappings.bookmarks.LocalToServer[existingChild.id]
+            )
 
         const cacheChild = cacheItem
           ? _.find(
-              cacheItem.children,
-              cacheChild => cacheChild.id === existingChild.id
-            )
+            cacheItem.children,
+            cacheChild => cacheChild.id === existingChild.id
+          )
           : null
         await this.syncTree(existingChild, cacheChild, serverChild)
       },
@@ -719,11 +724,11 @@ export default class SyncProcess {
         cacheChild =
           serverChild instanceof Tree.Folder
             ? this.cacheTreeRoot.findFolder(
-                this.mappings.folders.ServerToLocal[serverChild.id]
-              )
+              this.mappings.folders.ServerToLocal[serverChild.id]
+            )
             : this.cacheTreeRoot.findBookmark(
-                this.mappings.bookmarks.ServerToLocal[serverChild.id]
-              )
+              this.mappings.bookmarks.ServerToLocal[serverChild.id]
+            )
       } else {
         localChild = child
         cacheChild =
