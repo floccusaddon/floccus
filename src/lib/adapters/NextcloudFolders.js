@@ -15,6 +15,7 @@ import browser from '../browser-api'
 const _ = require('lodash')
 
 const PAGE_SIZE = 300
+const TIMEOUT = 180000
 
 const {
   Input,
@@ -811,7 +812,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
               const e = new Error(browser.i18n.getMessage('Error016'))
               e.pass = true
               reject(e)
-            }, 60000)
+            }, TIMEOUT)
           )
         ])
       )
