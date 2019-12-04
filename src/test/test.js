@@ -2149,7 +2149,7 @@ describe('Floccus', function() {
                 const newBookmark = await browser.bookmarks.create({
                   title: 'url' + k,
                   url: 'http://ur.l/' + k,
-                  parentId: parentId
+                  parentId
                 })
                 bookmarks.push(newBookmark)
               }
@@ -2160,14 +2160,14 @@ describe('Floccus', function() {
               for (let k = i; k < j; k += step) {
                 const newFolder = await browser.bookmarks.create({
                   title: 'folder' + k,
-                  parentId: parentId
+                  parentId
                 })
                 folders.push(newFolder)
                 await createTree(newFolder.id, k, k + step)
               }
             }
 
-            createTree(localRoot, 0, 2500) // Create 10000 bookmarks
+            await createTree(localRoot, 0, 2500) // Create 10000 bookmarks
 
             const tree1Initial = await account1.localTree.getBookmarksTree(true)
             await account1.sync()
