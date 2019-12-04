@@ -2138,6 +2138,7 @@ describe('Floccus', function() {
           })
 
           it('should handle deep hierarchies with lots of bookmarks', async function() {
+            this.timeout(20 * 60000) // timeout after 20mins
             var adapter = account1.server
 
             const localRoot = account1.getData().localRoot
@@ -2167,7 +2168,7 @@ describe('Floccus', function() {
               }
             }
 
-            await createTree(localRoot, 0, 2500) // Create 10000 bookmarks
+            await createTree(localRoot, 0, 1000) // Create 4000 bookmarks
 
             const tree1Initial = await account1.localTree.getBookmarksTree(true)
             await account1.sync()
