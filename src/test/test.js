@@ -2142,8 +2142,9 @@ describe('Floccus', function() {
             var adapter = account1.server
 
             const localRoot = account1.getData().localRoot
-            const bookmarks = []
-            const folders = []
+            let bookmarks = 0
+            let folders = 0
+            let magicFolder, magicBookmark
             const createTree = async(parentId, i, j) => {
               const len = Math.abs(i - j)
               for (let k = i; k < j; k++) {
@@ -2152,7 +2153,8 @@ describe('Floccus', function() {
                   url: 'http://ur.l/' + k,
                   parentId
                 })
-                bookmarks.push(newBookmark)
+                bookmarks++
+                if (bookmarks === 3333) magicBookmark = newBookmark
               }
 
               if (len < 13) return
@@ -2163,7 +2165,8 @@ describe('Floccus', function() {
                   title: 'folder' + k,
                   parentId
                 })
-                folders.push(newFolder)
+                folders++
+                if (folders === 33) magicFolder = newFolder
                 await createTree(newFolder.id, k, k + step)
               }
             }
@@ -2205,8 +2208,8 @@ describe('Floccus', function() {
             )
             console.log('First round ok')
 
-            await browser.bookmarks.move(bookmarks[4444].id, {
-              parentId: folders[13].id
+            await browser.bookmarks.move(magicBookmark.id, {
+              parentId: magicFolder.id
             })
             console.log('acc1: Moved bookmark')
 
