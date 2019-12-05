@@ -27,7 +27,7 @@ const VERSION = require('../package.json').version
     )
     .build()
   try {
-    let id, testURL
+    let id, testUrl
     switch (await (await driver.getSession()).getCapability('browserName')) {
       case 'chrome':
         // Scrape extension id from chrome extension page
@@ -81,7 +81,7 @@ const VERSION = require('../package.json').version
       fin
     do {
       await new Promise(resolve => setTimeout(resolve, 3000))
-      const newLogs = await driver.executeScript(function() {
+      logs = await driver.executeScript(function() {
         var logs = window.floccusTestLogs.slice(
           window.floccusTestLogsLength || 0
         )
@@ -89,8 +89,7 @@ const VERSION = require('../package.json').version
         return logs
       })
 
-      newLogs.forEach(entry => console.log(entry))
-      logs = logs.concat(newLogs)
+      logs.forEach(entry => console.log(entry))
     } while (
       !logs.some(entry => {
         if (~entry.indexOf('FINISHED')) {
