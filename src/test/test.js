@@ -80,8 +80,8 @@ describe('Floccus', function() {
         (ACCOUNT_DATA.serverRoot
           ? 'with serverRoot '
           : ACCOUNT_DATA.parallel
-            ? 'parallel '
-            : 'standard ') +
+          ? 'parallel '
+          : 'standard ') +
         'Account',
       function() {
         var account
@@ -122,8 +122,8 @@ describe('Floccus', function() {
         (ACCOUNT_DATA.serverRoot
           ? 'serverRoot '
           : ACCOUNT_DATA.parallel
-            ? 'parallel '
-            : 'standard ') +
+          ? 'parallel '
+          : 'standard ') +
         'Sync ',
       function() {
         context('with one client', function() {
@@ -684,12 +684,12 @@ describe('Floccus', function() {
                           ACCOUNT_DATA.type !== 'nextcloud-legacy'
                             ? []
                             : [
-                              // This is because of a peculiarity of the legacy adapter
-                              new Bookmark({
-                                title: 'test',
-                                url: 'http://ureff.l/'
-                              })
-                            ]
+                                // This is because of a peculiarity of the legacy adapter
+                                new Bookmark({
+                                  title: 'test',
+                                  url: 'http://ureff.l/'
+                                })
+                              ]
                       })
                     ]
                   })
@@ -2145,7 +2145,7 @@ describe('Floccus', function() {
             let bookmarks = 0
             let folders = 0
             let magicFolder, magicBookmark
-            const createTree = async(parentId, i, j) => {
+            const createTree = async (parentId, i, j) => {
               const len = Math.abs(i - j)
               for (let k = i; k < j; k++) {
                 const newBookmark = await browser.bookmarks.create({
@@ -2154,7 +2154,7 @@ describe('Floccus', function() {
                   parentId
                 })
                 bookmarks++
-                if (bookmarks === 3333) magicBookmark = newBookmark
+                if (bookmarks === 333) magicBookmark = newBookmark
               }
 
               if (len < 13) return
@@ -2171,7 +2171,7 @@ describe('Floccus', function() {
               }
             }
 
-            await createTree(localRoot, 0, 1000) // Create 4000 bookmarks
+            await createTree(localRoot, 0, 500) // Create 1500 bookmarks
 
             const tree1Initial = await account1.localTree.getBookmarksTree(true)
             await account1.sync()
