@@ -2154,7 +2154,7 @@ describe('Floccus', function() {
                   parentId
                 })
                 bookmarks++
-                if (bookmarks === 333) magicBookmark = newBookmark
+                if (bookmarks === 33) magicBookmark = newBookmark
               }
 
               if (len < 5) return
