@@ -7,7 +7,7 @@ const VERSION = require('../package.json').version
 ;(async function() {
   let driver = await new Builder()
     .withCapabilities({
-      browserVersion: 'latest',
+      browserVersion: 'dev',
       'sauce:options': {
         name: process.env['TRAVIS_JOB_NUMBER'],
         tunnelIdentifier: process.env['TRAVIS_JOB_NUMBER'],
