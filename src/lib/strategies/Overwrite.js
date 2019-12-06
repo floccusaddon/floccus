@@ -6,79 +6,71 @@ const _ = require('lodash')
 const Parallel = require('async-parallel')
 
 export default class OverwriteSyncProcess extends DefaultStrategy {
-  async syncTree(localItem, cacheItem, serverItem) {
-    const execSync = async () => {
-      Logger.log('COMPARE', { localItem, cacheItem, serverItem })
+  async _syncTree(localItem, cacheItem, serverItem) {
+    if (this.canceled) throw new Error('Sync cancelled')
+    Logger.log('COMPARE', { localItem, cacheItem, serverItem })
 
-      var create, update, remove, mappings
-      if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
-        create = this.createFolder.bind(this)
-        update = this.updateFolder.bind(this)
-        remove = this.removeFolder.bind(this)
-        mappings = this.mappings.folders
-      } else {
-        create = this.createBookmark.bind(this)
-        update = this.updateBookmark.bind(this)
-        remove = this.removeBookmark.bind(this)
-        mappings = this.mappings.bookmarks
-      }
-      if (!localItem && !cacheItem && serverItem) {
-        // CREATED UPSTREAM
-        // --> remove upstream
-        return remove(
-          mappings.ServerToLocal,
-          this.localTreeRoot,
-          this.serverTreeRoot,
-          this.server,
-          serverItem
-        )
-      } else if (localItem && !cacheItem && !serverItem) {
-        // CREATED LOCALLY
-        // --> create remotely
-        return create(
-          this.mappings.bookmarks.LocalToServer,
-          this.mappings.folders.LocalToServer,
-          this.localTreeRoot,
-          this.serverTreeRoot,
-          this.server,
-          localItem
-        )
-      } else if (
-        (localItem && cacheItem && serverItem) ||
-        (localItem && !cacheItem && serverItem)
-      ) {
-        // UPDATED
-        await update(localItem, cacheItem, serverItem)
-      } else if (!localItem && cacheItem && serverItem) {
-        // DELETED LOCALLY
-        // --> remove remotely
-        return remove(
-          mappings.ServerToLocal,
-          this.localTreeRoot,
-          this.serverTreeRoot,
-          this.server,
-          serverItem
-        )
-      } else if (localItem && cacheItem && !serverItem) {
-        // DELETED UPSTREAM
-        return create(
-          this.mappings.bookmarks.LocalToServer,
-          this.mappings.folders.LocalToServer,
-          this.localTreeRoot,
-          this.serverTreeRoot,
-          this.server,
-          localItem
-        )
-      } else if (!localItem && cacheItem && !serverItem) {
-        // TODO: remove from mappings
-      }
-    }
-
+    var create, update, remove, mappings
     if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
-      return execSync()
+      create = this.createFolder.bind(this)
+      update = this.updateFolder.bind(this)
+      remove = this.removeFolder.bind(this)
+      mappings = this.mappings.folders
     } else {
-      this.updateProgress()
-      return this.queue.add(execSync)
+      create = this.createBookmark.bind(this)
+      update = this.updateBookmark.bind(this)
+      remove = this.removeBookmark.bind(this)
+      mappings = this.mappings.bookmarks
+    }
+    if (!localItem && !cacheItem && serverItem) {
+      // CREATED UPSTREAM
+      // --> remove upstream
+      return remove(
+        mappings.ServerToLocal,
+        this.localTreeRoot,
+        this.serverTreeRoot,
+        this.server,
+        serverItem
+      )
+    } else if (localItem && !cacheItem && !serverItem) {
+      // CREATED LOCALLY
+      // --> create remotely
+      return create(
+        this.mappings.bookmarks.LocalToServer,
+        this.mappings.folders.LocalToServer,
+        this.localTreeRoot,
+        this.serverTreeRoot,
+        this.server,
+        localItem
+      )
+    } else if (
+      (localItem && cacheItem && serverItem) ||
+      (localItem && !cacheItem && serverItem)
+    ) {
+      // UPDATED
+      await update(localItem, cacheItem, serverItem)
+    } else if (!localItem && cacheItem && serverItem) {
+      // DELETED LOCALLY
+      // --> remove remotely
+      return remove(
+        mappings.ServerToLocal,
+        this.localTreeRoot,
+        this.serverTreeRoot,
+        this.server,
+        serverItem
+      )
+    } else if (localItem && cacheItem && !serverItem) {
+      // DELETED UPSTREAM
+      return create(
+        this.mappings.bookmarks.LocalToServer,
+        this.mappings.folders.LocalToServer,
+        this.localTreeRoot,
+        this.serverTreeRoot,
+        this.server,
+        localItem
+      )
+    } else if (!localItem && cacheItem && !serverItem) {
+      // TODO: remove from mappings
     }
   }
 
@@ -162,11 +154,11 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
           const serverChild =
             removedChild instanceof Tree.Folder
               ? this.serverTreeRoot.findFolder(
-                  mappingsSnapshot.folders.LocalToServer[removedChild.id]
-                )
+                mappingsSnapshot.folders.LocalToServer[removedChild.id]
+              )
               : this.serverTreeRoot.findBookmark(
-                  mappingsSnapshot.bookmarks.LocalToServer[removedChild.id]
-                )
+                mappingsSnapshot.bookmarks.LocalToServer[removedChild.id]
+              )
           return this.syncTree(null, removedChild, serverChild)
         },
         this.concurrency
@@ -248,17 +240,17 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
         const serverChild =
           existingChild instanceof Tree.Folder
             ? this.serverTreeRoot.findFolder(
-                this.mappings.folders.LocalToServer[existingChild.id]
-              )
+              this.mappings.folders.LocalToServer[existingChild.id]
+            )
             : this.serverTreeRoot.findBookmark(
-                this.mappings.bookmarks.LocalToServer[existingChild.id]
-              )
+              this.mappings.bookmarks.LocalToServer[existingChild.id]
+            )
 
         const cacheChild = cacheItem
           ? _.find(
-              cacheItem.children,
-              cacheChild => cacheChild.id === existingChild.id
-            )
+            cacheItem.children,
+            cacheChild => cacheChild.id === existingChild.id
+          )
           : null
         await this.syncTree(existingChild, cacheChild, serverChild)
       },
