@@ -228,6 +228,8 @@ export default class Controller {
 
   async cancelSync(accountId) {
     let account = await Account.get(accountId)
+    // Avoid starting it again automatically
+    account.setData({ ...account.getData(), enabled: false })
     account.cancelSync()
   }
 
