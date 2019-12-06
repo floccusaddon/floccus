@@ -1782,6 +1782,7 @@ describe('Floccus', function() {
           })
         })
         context('with two clients', function() {
+          this.timeout(60 * 60000) // timeout after 20mins
           var account1, account2
           beforeEach('set up accounts', async function() {
             account1 = await Account.create(ACCOUNT_DATA)
@@ -2138,14 +2139,13 @@ describe('Floccus', function() {
           })
 
           it('should handle deep hierarchies with lots of bookmarks', async function() {
-            this.timeout(20 * 60000) // timeout after 20mins
             var adapter = account1.server
 
             const localRoot = account1.getData().localRoot
             let bookmarks = 0
             let folders = 0
             let magicFolder, magicBookmark
-            const createTree = async (parentId, i, j) => {
+            const createTree = async(parentId, i, j) => {
               const len = Math.abs(i - j)
               for (let k = i; k < j; k++) {
                 const newBookmark = await browser.bookmarks.create({
