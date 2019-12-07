@@ -78,10 +78,10 @@ describe('Floccus', function() {
       ACCOUNT_DATA.type +
         ' ' +
         (ACCOUNT_DATA.serverRoot
-          ? 'with serverRoot '
+          ? 'serverRoot '
           : ACCOUNT_DATA.parallel
-          ? 'parallel '
-          : 'standard ') +
+            ? 'parallel '
+            : 'standard ') +
         'Account',
       function() {
         var account
@@ -122,8 +122,8 @@ describe('Floccus', function() {
         (ACCOUNT_DATA.serverRoot
           ? 'serverRoot '
           : ACCOUNT_DATA.parallel
-          ? 'parallel '
-          : 'standard ') +
+            ? 'parallel '
+            : 'standard ') +
         'Sync ',
       function() {
         context('with one client', function() {
@@ -684,12 +684,12 @@ describe('Floccus', function() {
                           ACCOUNT_DATA.type !== 'nextcloud-legacy'
                             ? []
                             : [
-                                // This is because of a peculiarity of the legacy adapter
-                                new Bookmark({
-                                  title: 'test',
-                                  url: 'http://ureff.l/'
-                                })
-                              ]
+                              // This is because of a peculiarity of the legacy adapter
+                              new Bookmark({
+                                title: 'test',
+                                url: 'http://ureff.l/'
+                              })
+                            ]
                       })
                     ]
                   })
@@ -2145,7 +2145,7 @@ describe('Floccus', function() {
             let bookmarks = 0
             let folders = 0
             let magicFolder, magicBookmark
-            const createTree = async (parentId, i, j) => {
+            const createTree = async(parentId, i, j) => {
               const len = Math.abs(i - j)
               for (let k = i; k < j; k++) {
                 const newBookmark = await browser.bookmarks.create({
