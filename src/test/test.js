@@ -22,7 +22,7 @@ describe('Floccus', function() {
   })
   const CREDENTIALS = {
     username: 'admin',
-    password: 'admin'
+    password: 'admin\\admin'
   }
   ;[
     Account.getDefaultValues('fake'),
@@ -2157,9 +2157,9 @@ describe('Floccus', function() {
                 if (bookmarks === 33) magicBookmark = newBookmark
               }
 
-              if (len < 7) return
+              if (len < 3) return
 
-              const step = Math.floor(len / 7)
+              const step = Math.floor(len / 3)
               for (let k = i; k < j; k += step) {
                 const newFolder = await browser.bookmarks.create({
                   title: 'folder' + k,
@@ -2171,7 +2171,7 @@ describe('Floccus', function() {
               }
             }
 
-            await createTree(localRoot, 0, 70)
+            await createTree(localRoot, 0, 40)
 
             const tree1Initial = await account1.localTree.getBookmarksTree(true)
             await account1.sync()

@@ -21,9 +21,11 @@ const VERSION = require('../package.json').version
     .usingServer(`https://ondemand.saucelabs.com/wd/hub`)
     .forBrowser(process.env.SELENIUM_BROWSER)
     .setChromeOptions(
-      new ChromeOptions().addExtensions(
-        fs.readFileSync(`./builds/floccus-build-v${VERSION}.crx`, 'base64')
-      )
+      new ChromeOptions()
+        .excludeSwitches('extension-content-verification')
+        .addExtensions(
+          fs.readFileSync(`./builds/floccus-build-v${VERSION}.crx`, 'base64')
+        )
     )
     .build()
   try {
