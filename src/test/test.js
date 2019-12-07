@@ -2171,7 +2171,7 @@ describe('Floccus', function() {
               }
             }
 
-            await createTree(localRoot, 0, 100)
+            await createTree(localRoot, 0, 50)
 
             const tree1Initial = await account1.localTree.getBookmarksTree(true)
             await account1.sync()
