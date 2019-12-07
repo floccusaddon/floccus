@@ -2157,7 +2157,7 @@ describe('Floccus', function() {
                 if (bookmarks === 33) magicBookmark = newBookmark
               }
 
-              if (len < 5) return
+              if (len < 6) return
 
               const step = Math.floor(len / 10)
               for (let k = i; k < j; k += step) {
@@ -2171,7 +2171,7 @@ describe('Floccus', function() {
               }
             }
 
-            await createTree(localRoot, 0, 50)
+            await createTree(localRoot, 0, 70)
 
             const tree1Initial = await account1.localTree.getBookmarksTree(true)
             await account1.sync()
