@@ -2157,9 +2157,9 @@ describe('Floccus', function() {
                 if (bookmarks === 33) magicBookmark = newBookmark
               }
 
-              if (len < 6) return
+              if (len < 7) return
 
-              const step = Math.floor(len / 10)
+              const step = Math.floor(len / 7)
               for (let k = i; k < j; k += step) {
                 const newFolder = await browser.bookmarks.create({
                   title: 'folder' + k,
