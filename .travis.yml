@@ -14,8 +14,8 @@ env:
     - OC_PASS=admin
     - NC_APP_VERSION=master
   matrix:
-    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake standard" SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake standard" SELENIUM_BROWSER="firefox"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake" SELENIUM_BROWSER="firefox"
 
     - SERVER_BRANCH=stable14 NC_APP_VERSION=v1.1.2 FLOCCUS_ADAPTER="nextcloud-legacy standard" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable14 NC_APP_VERSION=v1.1.2 FLOCCUS_ADAPTER="nextcloud-legacy standard" SELENIUM_BROWSER="firefox"
@@ -34,16 +34,12 @@ env:
 
     - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy standard" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy parallel" SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy serverRoot" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy standard" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy parallel" SELENIUM_BROWSER="firefox"
-    - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy serverRoot" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders standard" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders parallel" SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders serverRoot" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders standard" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders parallel" SELENIUM_BROWSER="firefox"
-    - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders serverRoot" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="webdav" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="webdav" SELENIUM_BROWSER="firefox"
 
