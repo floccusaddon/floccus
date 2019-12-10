@@ -7,7 +7,7 @@ const VERSION = require('../package.json').version
 ;(async function() {
   let driver = await new Builder()
     .withCapabilities({
-      browserVersion: '70',
+      browserVersion: process.env['BROWSER_VERSION'],
       'sauce:options': {
         name: process.env['TRAVIS_JOB_NUMBER'],
         tunnelIdentifier: process.env['TRAVIS_JOB_NUMBER'],
@@ -75,7 +75,7 @@ const VERSION = require('../package.json').version
         throw new Error('Unknown browser')
     }
 
-    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_ADAPTER}%20`
+    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_ADAPTER}`
 
     await driver.get(testUrl)
 
