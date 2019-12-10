@@ -1,3 +1,12 @@
+## v3.5.2
+
+- FIX: Performance optimization: Only retry sparse trees if server allows hashing
+- FIX: Simplify getBookmarksList
+- FIX: NextcloudFolders: Increase timeout to 3min
+- FIX: webdav lock acquisition mechanism
+- FIX: Strategies: Refactor syncTree + always abort on cancel
+- FIX: Controller: Disable account on cancelSync to avoid auto-restart
+
 ## v3.5.1
 
 - FIX: UI: Input fields were broken

@@ -106,6 +106,7 @@ const crx = function() {
   return crx3(
     fs.createReadStream(`${paths.builds}/floccus-build-v${VERSION}.zip`),
     {
+      keyPath: 'key.pem',
       crxPath: `${paths.builds}/floccus-build-v${VERSION}.crx`
     }
   )

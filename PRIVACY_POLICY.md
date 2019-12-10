@@ -22,11 +22,11 @@ Please also read the License which also governs the use of floccus as well as li
 
 ## Contact Us
 
-If you have questions about our Privacy Policy please contact me at mklehr@gmx.net.
+If you have questions about this Privacy Policy please contact me at mklehr@gmx.net.
 
 Marcel Klehr
-Marie-Alexandra-Straße 56
-76135 Karlsruhe
+Natruper Straße 211A
+49090
 Germany
 
 Effective as of Sep 28, 2018
