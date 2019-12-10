@@ -13,6 +13,7 @@ env:
     - OC_USER=admin
     - OC_PASS=admin
     - NC_APP_VERSION=master
+    - BROWSER_VERSION=60
   matrix:
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake" SELENIUM_BROWSER="firefox"
