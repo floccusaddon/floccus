@@ -6,8 +6,7 @@
   "scripts": {
     "build": "gulp",
     "build-release": "gulp release",
-    "test": "node test/selenium-runner.js",
-    "keygen": "gulp keygen"
+    "test": "node test/selenium-runner.js"
   },
   "repository": {
     "type": "git",
@@ -29,14 +28,12 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chrome-webstore-upload": "^0.2.2",
-    "gulp": "^3.9.1",
-    "gulp-crx-pack": "^1.0.2",
-    "gulp-run-command": "0.0.9",
+    "gulp": "^4",
     "gulp-tap": "^1.0.1",
-    "gulp-zip": "^4.2.0",
+    "gulp-zip": "^5",
     "mocha": "^6.2.2",
     "selenium-webdriver": "^4.0.0-alpha.5",
-    "through2": "^2.0.5"
+    "crx3": "^1.1.1"
   },
   "dependencies": {
     "async-lock": "^1.2.2",

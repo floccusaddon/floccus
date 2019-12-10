@@ -3,7 +3,6 @@ const url = require('url')
 const { Builder } = require('selenium-webdriver')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
-const Proxy = require('selenium-webdriver/proxy')
 const VERSION = require('../package.json').version
 ;(async function() {
   let driver = await new Builder()
@@ -20,7 +19,6 @@ const VERSION = require('../package.json').version
       }
     })
     .usingServer(`https://ondemand.saucelabs.com/wd/hub`)
-    .setProxy(Proxy.manual({ http: 'localhost:1234' })) // dummy proxy
     .forBrowser(process.env.SELENIUM_BROWSER)
     .setChromeOptions(
       new ChromeOptions()

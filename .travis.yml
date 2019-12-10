@@ -53,10 +53,9 @@ env:
 
 language: node_js
 node_js:
-  - '11'
+  - '13'
 before_script:
   # build floccus
-  - npm run keygen
   - npm run build-release
 
   # install apache
