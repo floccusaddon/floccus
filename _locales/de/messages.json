@@ -230,6 +230,9 @@
   "LabelFunddevelopment": {
     "message": "Entwicklung fördern"
   },
+  "DescriptionFunddevelopment": {
+    "message": "Wenn dir floccus gefällt, fass dir ein Herz und gib etwas zurück an den Erfinder von floccus, um die Weiterentwiklung des Projekts finanziell zu unterstützen. Jeder Betrag ist willkommen, egal wie klein. Vielen Dank 💙"
+  },
   "LabelSelect": {
     "message": "Auswählen"
   },
@@ -256,5 +259,36 @@
   },
   "DescriptionSyncinterval": {
     "message": "Die Zeitspanne zwischen zwei Synchronisierungsläufen. Der Standard-Wert sind 15 Minuten."
+  },
+  "LabelChooseadapter": {
+    "message": "Wie willst du synchronisieren?"
+  },
+  "LabelOptionsscreen": {
+    "message": "$1 Optionen",
+    "description": "Title of the options screen. The placeholder holds the account type."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "Tätige eine einmalige Spende über Paypal um das Projekt zu unterstützen."
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "Tätige regelmäßige Spenden über OpenCollective um das Projekt zu unterstüzten."
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "Tätige regelmäßige Spenden über Liberapay um das Projekt zu unterstützen"
+  },
+  "LabelGithubsponsors": {
+    "message": "GitHub sponsors"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "Tätige regelmäßige Spenden über Github sponsors um das Projekt zu untertützen"
   }
 }
