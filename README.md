@@ -1,4 +1,4 @@
-# ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/icons/logo.png) Floccus [![Backers on Open Collective](https://opencollective.com/floccus/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/floccus/sponsors/badge.svg)](#sponsors)
+# ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/icons/logo.png) Floccus
 
 ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/img/screen_chrome_options.png)
 
@@ -8,10 +8,16 @@ The goal of this project is to build a browser extension that syncs your browser
 
 **News:** Floccus can now sync with the local file system using LoFloccus (read below).
 
+[![Build Status](https://travis-ci.org/marcelklehr/floccus.svg?branch=develop)](https://travis-ci.org/marcelklehr/floccus)
+
 [![Chrome Webstore](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|
 [![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)
 |-------------------|----------------------------|
 <img align="left" src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="right" src="https://img.shields.io/chrome-web-store/rating/fnaicdffflnofjppbagibeoednhnbjhg.svg">| <img align="left" src="https://img.shields.io/amo/users/floccus.svg"> <img align="right" src="https://img.shields.io/amo/rating/floccus.svg">
+
+## Community
+
+Talk to us on [gitter](https://gitter.im/marcelklehr/floccus)! :wave:
 
 ## Install
 
@@ -20,7 +26,7 @@ At least one browser and the floccus browser extension.
 The following sync methods are available:
 
 - **WebDAV**: If you have a WebDAV server at hand, like any version of nextcloud/owncloud, box.com or with any other WebDAV server, commercial or self-hosted.
-- **Nextcloud Bookmarks**: Nextcloud in particular also sports a dedicated bookmarks app, which allows you to also access your bookmarks via a nice web UI. For this to work with floccus, you need v0.11 of the Bookmarks app installed (which requires at least nextcloud v12).
+- **Nextcloud Bookmarks**: Nextcloud in particular also sports a dedicated bookmarks app, which allows you to also access your bookmarks via a nice web UI.
 - **Local file and more**: You can also just sync with a local file, using [the companion desktop app LoFloccus](https://github.com/TCB13/LoFloccus). You can then also sync that file to other computers using your favorite file syncing solution, like Dropbox, Syncthing, rsync, etc. You can also create a WebDAV Server on the local machine using Docker in GNU/Linux, check out the project [Floccus-WebDavDocker](https://github.com/marlluslustosa/Floccus-WebDavDocker).
 
 Once your server or the LoFloccus app is ready, read on for the browser of your choosing.
@@ -126,6 +132,8 @@ Floccus will sync your bookmarks as-is, including any dupes that are in differen
 
 - **Emojis**: MySQL doesn't support emojis out of the box, so if you're syncing to nextcloud and getting Error code 500 from nextcloud, check the nextcloud log for SQL errors and [proceed as explained in the nextcloud docs if you get charset errors](https://docs.nextcloud.com/server/stable/admin_manual/configuration_database/mysql_4byte_support.html).
 
+If you need help sorting out problems, try the gitter chat room: <https://gitter.im/marcelklehr/floccus>
+
 ## Considerations
 
 Is this a good idea? I think so. If you'd like to know more, check out [the considerations file](./CONSIDERATIONS.md)
@@ -166,7 +174,9 @@ Translations can now be provided over at [transifex](https://www.transifex.com/f
 
 ![](https://www.transifex.com/projects/p/floccus/resource/messages-json--develop/chart/image_png)
 
-### Setting up a dev environment
+### Development
+
+#### Setting up a dev environment
 
 - Clone this repository.
 - Install node.js and npm
@@ -174,13 +184,13 @@ Translations can now be provided over at [transifex](https://www.transifex.com/f
 - Run `gulp` to build
 - Install firefox developer edition and prepare it as follows: https://developer.mozilla.org/en-US/Add-ons/Setting_up_extension_development_environment
 
-### Building
+#### Building
 
 - `gulp`
 
-### Releasing
+#### Releasing
 
-Firefox expects a zip, for chrome do the following: https://developer.chrome.com/extensions/packaging (private key necessary!)
+- `gulp release`
 
 ## Backers
 
