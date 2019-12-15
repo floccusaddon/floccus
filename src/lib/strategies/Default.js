@@ -161,6 +161,7 @@ export default class SyncProcess {
   }
 
   async syncTree(localItem, cacheItem, serverItem) {
+    await new Promise(resolve => setImmediate(resolve))
     this.updateProgress()
     if (this.canceled) throw new Error('Sync cancelled')
     if ((localItem || serverItem || cacheItem) instanceof Tree.Folder) {
@@ -269,8 +270,11 @@ export default class SyncProcess {
     await Parallel.each(
       serverItem.children,
       child => this.loadChildren(child, mappingsSnapshot),
-      1
+      this.concurrency
     )
+
+    serverItem.hashValue = {}
+    await serverItem.hash(true)
   }
 
   async createFolder(
@@ -436,6 +440,7 @@ export default class SyncProcess {
 
     if (!changed) {
       Logger.log('Skipping subtree')
+      this.done += localItem.count()
       return
     }
 
