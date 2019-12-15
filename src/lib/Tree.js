@@ -58,12 +58,13 @@ export class Bookmark {
 }
 
 export class Folder {
-  constructor({ id, parentId, title, children }) {
+  constructor({ id, parentId, title, children, hashValue }) {
     this.type = 'folder'
     this.id = id
     this.parentId = parentId
     this.title = title
     this.children = children || []
+    this.hashValue = hashValue || {}
   }
 
   findFolder(id) {
@@ -194,12 +195,12 @@ export class Folder {
       ...obj,
       children: obj.children
         ? obj.children.map(child => {
-            if (!child.url) {
-              return Folder.hydrate(child)
-            } else {
-              return Bookmark.hydrate(child)
-            }
-          })
+          if (!child.url) {
+            return Folder.hydrate(child)
+          } else {
+            return Bookmark.hydrate(child)
+          }
+        })
         : null
     })
   }
