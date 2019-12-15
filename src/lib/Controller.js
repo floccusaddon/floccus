@@ -165,9 +165,11 @@ export default class Controller {
       // Filter out accounts that are not enabled
       .filter(account => account.getData().enabled)
 
-    // We should now sync the account that used to contain this bookmark
+    // We should now cancel sync for the account that used to contain this bookmark
+    // and schedule a new sync
     accountsToSync.forEach(account => {
-      this.scheduleSync(account.id)
+      this.cancelSync(account.id, true)
+      this.scheduleSync(account.id, true)
     })
 
     // Now we check the account of the new folder
@@ -191,6 +193,7 @@ export default class Controller {
       containingAccount.getData().enabled &&
       !accountsToSync.some(acc => acc.id === containingAccount.id)
     ) {
+      this.cancelSync(containingAccount.id, true)
       this.scheduleSync(containingAccount.id, true)
     }
 
@@ -226,10 +229,12 @@ export default class Controller {
     return this.jobs.add(() => this.syncAccount(accountId))
   }
 
-  async cancelSync(accountId) {
+  async cancelSync(accountId, keepEnabled) {
     let account = await Account.get(accountId)
     // Avoid starting it again automatically
-    account.setData({ ...account.getData(), enabled: false })
+    if (!keepEnabled) {
+      account.setData({ ...account.getData(), enabled: false })
+    }
     account.cancelSync()
   }
 
