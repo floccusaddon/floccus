@@ -131,10 +131,11 @@ export class Folder {
     return this.hashValue[preserveOrder]
   }
 
-  clone() {
+  clone(withHash) {
     return new Folder({
       ...this,
-      children: this.children.map(child => child.clone())
+      ...(!withHash && { hashValue: {} }),
+      children: this.children.map(child => child.clone(withHash))
     })
   }
 
@@ -181,7 +182,8 @@ export class Folder {
       Array(depth)
         .fill('  ')
         .join('') +
-      `+ #${this.id}[${this.title}] parentId: ${this.parentId}\n` +
+      `+ #${this.id}[${this.title}] parentId: ${this.parentId}, hash: ${this
+        .hashValue[true] || this.hashValue[false]}\n` +
       this.children
         .map(child =>
           child && child.inspect ? child.inspect(depth + 1) : String(child)
