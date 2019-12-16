@@ -288,8 +288,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
               child.type === 'folder'
           )
           if (!child || !child.children) {
-            childrenOrder = await this._getChildOrder(child.id)
-            childFolders = await this._getChildFolders(child.id)
+            childrenOrder = await this._getChildOrder(currentChildFolder.id)
           } else {
             childrenOrder = _.find(
               childrenOrder,
@@ -297,6 +296,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
                 parseInt(child.id) === parseInt(currentChildFolder.id) &&
                 child.type === 'folder'
             ).children
+          }
+          if (!currentChildFolder.children) {
+            childFolders = await this._getChildFolders(currentChildFolder.id)
+          } else {
             childFolders = currentChildFolder.children
           }
         },
@@ -347,23 +350,18 @@ export default class NextcloudFoldersAdapter extends Adapter {
       await Parallel.each(
         folders.filter(x => x),
         async([newFolder, child, folder]) => {
-          let subChildrenOrder, subFolders
           if (typeof child.children === 'undefined') {
-            subChildrenOrder = await this._getChildOrder(
-              child.id,
+            child.children = await this._getChildOrder(child.id, childrenLayers)
+          }
+          if (typeof folder.children === 'undefined') {
+            folder.children = await this._getChildFolders(
+              folder.id,
               childrenLayers
             )
           }
-          if (typeof folder.children === 'undefined') {
-            subFolders = await this._getChildFolders(folder.id, childrenLayers)
-          }
 
           // ... and recurse
-          return recurseChildFolders(
-            newFolder,
-            folder.children || subFolders,
-            child.children || subChildrenOrder
-          )
+          return recurseChildFolders(newFolder, folder.children, child.children)
         },
         3
       )
@@ -418,7 +416,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
         1
       )
     }
-    Logger.log('Received folders from server', childFolders)
+    Logger.log('Received initial folders from server', childFolders)
     const recurseChildFolders = async(tree, childFolders) => {
       await Parallel.each(
         childFolders,
