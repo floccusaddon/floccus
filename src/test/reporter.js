@@ -57,6 +57,13 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
 }
 
 function stringifyException(exception) {
+  if (exception.list) {
+    return exception.list
+      .map(e => {
+        return stringifyException(e)
+      })
+      .join('\n')
+  }
   var err = exception.stack || exception.toString()
 
   // FF / Opera do not add the message
