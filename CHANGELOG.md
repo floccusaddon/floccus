@@ -1,3 +1,9 @@
+## v3.5.3
+
+- FIX: Stop sync if user is making changes
+- FIX: Speed up sparse tree loading
+- FIX: Refactor sparse tree loading
+
 ## v3.5.2
 
 - FIX: Performance optimization: Only retry sparse trees if server allows hashing
