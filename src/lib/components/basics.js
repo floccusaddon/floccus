@@ -44,18 +44,12 @@ export const H2 = style('h2')({
 export const H3 = style('h3')({
   color: COLORS.primary.plane,
   marginBottom: '7px',
-  marginTop: '25px',
-  ':first-child': {
-    marginTop: '0'
-  }
+  marginTop: '25px'
 })
 export const H4 = style('h4')({
   color: COLORS.primary.plane,
   marginBottom: '7px',
-  marginTop: '25px',
-  ':first-child': {
-    marginTop: '0'
-  }
+  marginTop: '25px'
 })
 
 export const Input = style('input')({
