@@ -494,7 +494,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return Promise.all(
       childrenOrder.map(async item => {
         if (item.type === 'bookmark') {
-          const bm = _.find(childBookmarks, child => child.id === item.id)
+          const bm = _.find(
+            childBookmarks,
+            child => parseInt(child.id) === parseInt(item.id)
+          )
           if (bm instanceof Bookmark) return bm // in case we've got this from the cached list
           return new Bookmark({
             id: bm.id + ';' + folderId,
@@ -639,7 +642,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     )
     let oldParentFolder = this.tree.findFolder(folder.parentId)
     oldParentFolder.children = oldParentFolder.children.filter(
-      child => child.id !== id
+      child => parseInt(child.id) !== parseInt(id)
     )
     let newParentFolder = this.tree.findFolder(parentId)
     folder.parentId = parentId
@@ -674,7 +677,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}`
     )
     let parent = this.tree.findFolder(folder.parentId)
-    parent.children = parent.children.filter(child => child.id !== id)
+    parent.children = parent.children.filter(
+      child => parseInt(child.id) !== parseInt(id)
+    )
 
     this.tree.createIndex()
   }
@@ -785,7 +790,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
         title: newBm.title,
         folders: bms
           .map(bm => bm.parentId)
-          .filter(parentId => parentId !== oldParentId && parentId)
+          .filter(
+            parentId => parentId && parseInt(parentId) !== parseInt(oldParentId)
+          )
           .concat([newBm.parentId]),
         tags: bms[0].tags
       })
@@ -815,7 +822,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
       // remove bookmark from the cached list
       const list = await this.getBookmarksList()
-      let listIndex = _.findIndex(list, bookmark => bookmark.id === upstreamId)
+      let listIndex = _.findIndex(
+        list,
+        bookmark => parseInt(bookmark.id) === parseInt(upstreamId)
+      )
       list.splice(listIndex, 1)
     })
   }
