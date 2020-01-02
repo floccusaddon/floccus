@@ -52,13 +52,9 @@ env:
     - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="webdav" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="webdav" SELENIUM_BROWSER="firefox"
 
-    - SERVER_BRANCH=stable17 NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-legacy standard-root" SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=stable17 NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-legacy standard-root" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=stable17 NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-folders standard-root" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable17 NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-folders standard-root" SELENIUM_BROWSER="firefox"
 
-    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-legacy standard-root" SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-legacy standard-root" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-folders standard-root" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="nextcloud-folders standard-root" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="webdav" SELENIUM_BROWSER="chrome"
