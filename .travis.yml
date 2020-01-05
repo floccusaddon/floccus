@@ -76,6 +76,11 @@ before_script:
   # use php 7
   - phpenv global 7.2
 
+  # install apcu
+  - pecl channel-update pecl.php.net
+  - pecl config-set preferred_state beta
+  - echo yes | pecl upgrade apcu
+
   # enable php-fpm
   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.d/www.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.d/www.conf
