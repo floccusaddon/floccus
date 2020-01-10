@@ -54,7 +54,7 @@ export default class Resource {
 
   /**
    * @param id:int the id of the folder
-   * @param newParentId:int the id of the new folder
+   * @param newParent
    */
   async moveFolder(id, newParent) {
     throw new Error('Not implemented')

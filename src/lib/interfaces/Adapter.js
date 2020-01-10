@@ -27,7 +27,7 @@ export default class Adapter extends Resource {
   }
 
   /**
-   * @param Object the account data entered in the options
+   * @param data
    */
   setAccountData(data) {
     throw new Error('Not implemented')

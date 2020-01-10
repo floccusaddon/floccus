@@ -20,13 +20,14 @@ class AlarmManager {
   async checkSync() {
     const d = await browser.storage.local.get('accounts')
     const accounts = d['accounts']
-    for (let accountId in accounts) {
+    for (let accountId of accounts) {
       const account = await Account.get(accountId)
       const data = account.getData()
       if (
         Date.now() >
         (data.syncInterval || DEFAULT_SYNC_INTERVAL) * 1000 * 60 + data.lastSync
       ) {
+        // noinspection ES6MissingAwait
         this.ctl.scheduleSync(accountId)
       }
     }
@@ -234,9 +235,9 @@ export default class Controller {
     let account = await Account.get(accountId)
     // Avoid starting it again automatically
     if (!keepEnabled) {
-      account.setData({ ...account.getData(), enabled: false })
+      await account.setData({ ...account.getData(), enabled: false })
     }
-    account.cancelSync()
+    await account.cancelSync()
   }
 
   async syncAccount(accountId) {
@@ -297,15 +298,15 @@ export default class Controller {
   async setStatusBadge(status) {
     switch (status) {
       case STATUS_ALLGOOD:
-        browser.browserAction.setBadgeText({ text: '' })
+        await browser.browserAction.setBadgeText({ text: '' })
         break
       case STATUS_SYNCING:
-        browser.browserAction.setBadgeText({ text: '<->' })
-        browser.browserAction.setBadgeBackgroundColor({ color: '#0088dd' })
+        await browser.browserAction.setBadgeText({ text: '<->' })
+        await browser.browserAction.setBadgeBackgroundColor({ color: '#0088dd' })
         break
       case STATUS_ERROR:
-        browser.browserAction.setBadgeText({ text: '!' })
-        browser.browserAction.setBadgeBackgroundColor({ color: '#dd4d00' })
+        await browser.browserAction.setBadgeText({ text: '!' })
+        await browser.browserAction.setBadgeBackgroundColor({ color: '#dd4d00' })
         break
     }
   }

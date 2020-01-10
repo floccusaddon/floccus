@@ -364,7 +364,7 @@ export default class SyncProcess {
         const newMappingsSnapshot = this.mappings.getSnapshot()
         const direction =
           toTree === this.localTreeRoot ? 'ServerToLocal' : 'LocalToServer'
-        toResource.orderFolder(
+        await toResource.orderFolder(
           newId,
           folder.children.map(item => ({
             type: item.type,
