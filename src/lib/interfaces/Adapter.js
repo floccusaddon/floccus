@@ -9,8 +9,8 @@ export default class Adapter extends Resource {
   }
 
   static factory(data) {
-    var constructor = this.registry[data.type],
-      adapter
+    const constructor = this.registry[data.type]
+    let adapter
     if (constructor) {
       adapter = new constructor(data)
     } else {

@@ -16,7 +16,7 @@ export default class AccountStorage {
       const d = await browser.storage.local.get({
         [entryName]: defaultVal || {} // default: {}
       })
-      var entry = d[entryName]
+      let entry = d[entryName]
       entry = fn(entry)
       await browser.storage.local.set({ [entryName]: entry })
     })

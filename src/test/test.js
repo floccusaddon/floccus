@@ -1,13 +1,13 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
+import Account from '../lib/Account'
+import { Bookmark, Folder } from '../lib/Tree'
+import browser from '../lib/browser-api'
+
 const AsyncParallel = require('async-parallel')
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
-
-import Account from '../lib/Account'
-import { Folder, Bookmark } from '../lib/Tree'
-import browser from '../lib/browser-api'
 
 describe('Floccus', function() {
   this.timeout(60000) // no test should run longer than 60s
@@ -22,7 +22,7 @@ describe('Floccus', function() {
   })
   const CREDENTIALS = {
     username: 'admin',
-    password: 'admin'
+    password: 'admin\\admin'
   }
   ;[
     Account.getDefaultValues('fake'),
@@ -84,7 +84,7 @@ describe('Floccus', function() {
     describe(`${ACCOUNT_DATA.type} ${
       ACCOUNT_DATA.parallel ? 'parallel' : 'standard'
     }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`, function() {
-      var account
+      let account
       beforeEach('set up account', async function() {
         account = await Account.create(ACCOUNT_DATA)
       })
@@ -119,7 +119,7 @@ describe('Floccus', function() {
       ACCOUNT_DATA.parallel ? 'parallel' : 'standard'
     }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Sync`, function() {
       context('with one client', function() {
-        var account
+        let account
         beforeEach('set up account', async function() {
           account = await Account.create(ACCOUNT_DATA)
           if (ACCOUNT_DATA.type === 'fake') {
@@ -153,7 +153,7 @@ describe('Floccus', function() {
           await account.delete()
         })
         it('should create local bookmarks on the server', async function() {
-          var adapter = account.server
+          const adapter = account.server
           expect(
             (await adapter.getBookmarksTree(true)).children
           ).to.have.lengthOf(0)
@@ -198,7 +198,7 @@ describe('Floccus', function() {
           )
         })
         it('should update the server on local changes', async function() {
-          var adapter = account.server
+          const adapter = account.server
           expect(
             (await adapter.getBookmarksTree(true)).children
           ).to.have.lengthOf(0)
@@ -250,7 +250,7 @@ describe('Floccus', function() {
           )
         })
         it('should update the server on local removals', async function() {
-          var adapter = account.server
+          const adapter = account.server
           expect(
             (await adapter.getBookmarksTree(true)).children
           ).to.have.lengthOf(0)
@@ -296,7 +296,7 @@ describe('Floccus', function() {
           )
         })
         it('should update the server on local folder moves', async function() {
-          var adapter = account.server
+          const adapter = account.server
           expect(
             (await adapter.getBookmarksTree(true)).children
           ).to.have.lengthOf(0)
@@ -350,7 +350,7 @@ describe('Floccus', function() {
           )
         })
         it('should create server bookmarks locally', async function() {
-          var adapter = account.server
+          const adapter = account.server
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTree = await adapter.getBookmarksTree(true)
           const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
@@ -394,7 +394,7 @@ describe('Floccus', function() {
           )
         })
         it('should update local bookmarks on server changes', async function() {
-          var adapter = account.server
+          const adapter = account.server
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTree = await adapter.getBookmarksTree(true)
@@ -450,7 +450,7 @@ describe('Floccus', function() {
           )
         })
         it('should update local bookmarks on server removals', async function() {
-          var adapter = account.server
+          const adapter = account.server
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTree = await adapter.getBookmarksTree(true)
           const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
@@ -495,7 +495,7 @@ describe('Floccus', function() {
           )
         })
         it('should be able to handle duplicates', async function() {
-          var adapter = account.server
+          const adapter = account.server
           expect(
             (await adapter.getBookmarksTree(true)).children
           ).to.have.lengthOf(0)
@@ -547,14 +547,14 @@ describe('Floccus', function() {
           )
         })
         it('should deduplicate unnormalized URLs', async function() {
-          var adapter = account.server
+          const adapter = account.server
           expect(
             (await adapter.getBookmarksTree(true)).children
           ).to.have.lengthOf(0)
 
           // create bookmark on server
           if (adapter.onSyncStart) await adapter.onSyncStart()
-          var serverTree = await adapter.getBookmarksTree(true)
+          const serverTree = await adapter.getBookmarksTree(true)
           const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
           const serverMark1 = {
             title: 'url',
@@ -623,7 +623,7 @@ describe('Floccus', function() {
           )
         })
         it('should not fail when moving both folders and contents', async function() {
-          var adapter = account.server
+          const adapter = account.server
           expect(
             (await adapter.getBookmarksTree(true)).children
           ).to.have.lengthOf(0)
@@ -676,12 +676,12 @@ describe('Floccus', function() {
                         ACCOUNT_DATA.type !== 'nextcloud-legacy'
                           ? []
                           : [
-                            // This is because of a peculiarity of the legacy adapter
-                            new Bookmark({
-                              title: 'test',
-                              url: 'http://ureff.l/'
-                            })
-                          ]
+                              // This is because of a peculiarity of the legacy adapter
+                              new Bookmark({
+                                title: 'test',
+                                url: 'http://ureff.l/'
+                              })
+                            ]
                     })
                   ]
                 })
@@ -691,7 +691,7 @@ describe('Floccus', function() {
           )
         })
         it('should not fail when both moving folders and deleting their contents', async function() {
-          var adapter = account.server
+          const adapter = account.server
           expect(
             (await adapter.getBookmarksTree(true)).children
           ).to.have.lengthOf(0)
@@ -760,7 +760,7 @@ describe('Floccus', function() {
           )
         })
         it('should handle strange characters well', async function() {
-          var adapter = account.server
+          const adapter = account.server
           expect(
             (await adapter.getBookmarksTree(true)).children
           ).to.have.lengthOf(0)
@@ -811,10 +811,10 @@ describe('Floccus', function() {
           )
         })
         it('should be ok if both server and local bookmark are removed', async function() {
-          var adapter = account.server
+          const adapter = account.server
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
-          var serverTree = await adapter.getBookmarksTree(true)
+          let serverTree = await adapter.getBookmarksTree(true)
           const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
           const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
           const serverMark = {
@@ -863,7 +863,7 @@ describe('Floccus', function() {
           })
           await nestedAccount.init()
 
-          var adapter = account.server
+          const adapter = account.server
           expect(
             (await adapter.getBookmarksTree(true)).children
           ).to.have.lengthOf(0)
@@ -911,7 +911,7 @@ describe('Floccus', function() {
         it('should remove duplicates in the same folder', async function() {
           const localRoot = account.getData().localRoot
 
-          var adapter = account.server
+          const adapter = account.server
           expect(
             (await adapter.getBookmarksTree(true)).children
           ).to.have.lengthOf(0)
@@ -971,7 +971,7 @@ describe('Floccus', function() {
           it('should leave alone unaccepted bookmarks entirely', async function() {
             const localRoot = account.getData().localRoot
 
-            var adapter = account.server
+            const adapter = account.server
             expect(
               (await adapter.getBookmarksTree(true)).children
             ).to.have.lengthOf(0)
@@ -1051,7 +1051,7 @@ describe('Floccus', function() {
 
         if (ACCOUNT_DATA.type !== 'nextcloud-legacy') {
           it('should synchronize ordering', async function() {
-            var adapter = account.server
+            const adapter = account.server
             expect(
               (await adapter.getBookmarksTree(true)).children
             ).to.have.lengthOf(0)
@@ -1160,7 +1160,7 @@ describe('Floccus', function() {
         context('with slave mode', function() {
           it("shouldn't create local bookmarks on the server", async function() {
             await account.setData({ ...account.getData(), strategy: 'slave' })
-            var adapter = account.server
+            const adapter = account.server
             expect(
               (await adapter.getBookmarksTree(true)).children
             ).to.have.lengthOf(0)
@@ -1186,7 +1186,7 @@ describe('Floccus', function() {
             expect(tree.children).to.have.lengthOf(0)
           })
           it("shouldn't update the server on local changes", async function() {
-            var adapter = account.server
+            const adapter = account.server
             expect(
               (await adapter.getBookmarksTree(true)).children
             ).to.have.lengthOf(0)
@@ -1222,7 +1222,7 @@ describe('Floccus', function() {
             )
           })
           it("shouldn't update the server on local removals", async function() {
-            var adapter = account.server
+            const adapter = account.server
             expect(
               (await adapter.getBookmarksTree(true)).children
             ).to.have.lengthOf(0)
@@ -1257,7 +1257,7 @@ describe('Floccus', function() {
             )
           })
           it("shouldn't update the server on local folder moves", async function() {
-            var adapter = account.server
+            const adapter = account.server
             expect(
               (await adapter.getBookmarksTree(true)).children
             ).to.have.lengthOf(0)
@@ -1300,7 +1300,7 @@ describe('Floccus', function() {
           })
           it('should create server bookmarks locally', async function() {
             await account.setData({ ...account.getData(), strategy: 'slave' })
-            var adapter = account.server
+            const adapter = account.server
             if (adapter.onSyncStart) await adapter.onSyncStart()
             const serverTree = await adapter.getBookmarksTree(true)
             const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
@@ -1345,7 +1345,7 @@ describe('Floccus', function() {
           })
           it('should update local bookmarks on server changes', async function() {
             await account.setData({ ...account.getData(), strategy: 'slave' })
-            var adapter = account.server
+            const adapter = account.server
 
             if (adapter.onSyncStart) await adapter.onSyncStart()
             const serverTree = await adapter.getBookmarksTree(true)
@@ -1402,7 +1402,7 @@ describe('Floccus', function() {
           })
           it('should update local bookmarks on server removals', async function() {
             await account.setData({ ...account.getData(), strategy: 'slave' })
-            var adapter = account.server
+            const adapter = account.server
             if (adapter.onSyncStart) await adapter.onSyncStart()
             const serverTree = await adapter.getBookmarksTree(true)
             const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
@@ -1456,7 +1456,7 @@ describe('Floccus', function() {
               ...account.getData(),
               strategy: 'overwrite'
             })
-            var adapter = account.server
+            const adapter = account.server
             expect(
               (await adapter.getBookmarksTree(true)).children
             ).to.have.lengthOf(0)
@@ -1501,7 +1501,7 @@ describe('Floccus', function() {
             )
           })
           it('should update the server on local changes', async function() {
-            var adapter = account.server
+            const adapter = account.server
             expect(
               (await adapter.getBookmarksTree(true)).children
             ).to.have.lengthOf(0)
@@ -1541,7 +1541,7 @@ describe('Floccus', function() {
             )
           })
           it('should update the server on local removals', async function() {
-            var adapter = account.server
+            const adapter = account.server
             expect(
               (await adapter.getBookmarksTree(true)).children
             ).to.have.lengthOf(0)
@@ -1580,7 +1580,7 @@ describe('Floccus', function() {
             )
           })
           it('should update the server on local folder moves', async function() {
-            var adapter = account.server
+            const adapter = account.server
             expect(
               (await adapter.getBookmarksTree(true)).children
             ).to.have.lengthOf(0)
@@ -1630,7 +1630,7 @@ describe('Floccus', function() {
               ...account.getData(),
               strategy: 'overwrite'
             })
-            var adapter = account.server
+            const adapter = account.server
             if (adapter.onSyncStart) await adapter.onSyncStart()
             const originalTree = await account.localTree.getBookmarksTree(true)
             const serverTree = await adapter.getBookmarksTree(true)
@@ -1658,7 +1658,7 @@ describe('Floccus', function() {
             )
           })
           it("shouldn't update local bookmarks on server changes", async function() {
-            var adapter = account.server
+            const adapter = account.server
 
             if (adapter.onSyncStart) await adapter.onSyncStart()
             const serverTree = await adapter.getBookmarksTree(true)
@@ -1702,7 +1702,7 @@ describe('Floccus', function() {
             )
           })
           it("shouldn't update local bookmarks on server removals", async function() {
-            var adapter = account.server
+            const adapter = account.server
             if (adapter.onSyncStart) await adapter.onSyncStart()
             const serverTree = await adapter.getBookmarksTree(true)
             const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
@@ -1743,7 +1743,7 @@ describe('Floccus', function() {
       })
       context('with two clients', function() {
         this.timeout(60 * 60000) // timeout after 20mins
-        var account1, account2
+        let account1, account2
         beforeEach('set up accounts', async function() {
           account1 = await Account.create(ACCOUNT_DATA)
           await account1.init()
@@ -1784,7 +1784,7 @@ describe('Floccus', function() {
           await account2.delete()
         })
         it('should propagate edits using "last write wins"', async function() {
-          var adapter = account1.server
+          const adapter = account1.server
 
           const localRoot = account1.getData().localRoot
           const fooFolder = await browser.bookmarks.create({
@@ -1869,7 +1869,7 @@ describe('Floccus', function() {
           )
         })
         it('should overtake moves to a different client', async function() {
-          var adapter = account1.server
+          const adapter = account1.server
 
           const localRoot = account1.getData().localRoot
           const fooFolder = await browser.bookmarks.create({
@@ -1995,7 +1995,7 @@ describe('Floccus', function() {
 
         it('should synchronize ordering', async function() {
           if (ACCOUNT_DATA.type === 'nextcloud-legacy') return this.skip()
-          var adapter = account1.server
+          const adapter = account1.server
           expect(
             (await adapter.getBookmarksTree(true)).children
           ).to.have.lengthOf(0)
@@ -2091,13 +2091,13 @@ describe('Floccus', function() {
         })
 
         it('should handle deep hierarchies with lots of bookmarks', async function() {
-          var adapter = account1.server
+          const adapter = account1.server
 
           const localRoot = account1.getData().localRoot
           let bookmarks = 0
           let folders = 0
           let magicFolder, magicBookmark
-          const createTree = async(parentId, i, j) => {
+          const createTree = async (parentId, i, j) => {
             const len = Math.abs(i - j)
             for (let k = i; k < j; k++) {
               const newBookmark = await browser.bookmarks.create({
@@ -2237,7 +2237,7 @@ describe('Floccus', function() {
         // isn't able to track bookmarks across dirs, thus in this
         // scenario both bookmarks survive :/
         it.skip('should propagate moves using "last write wins"', async function() {
-          var adapter = account1.server
+          const adapter = account1.server
 
           const localRoot = account1.getData().localRoot
           const fooFolder = await browser.bookmarks.create({

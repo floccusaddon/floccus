@@ -44,7 +44,7 @@ export default class Logger {
   }
 
   static download(filename, blob) {
-    var element = document.createElement('a')
+    const element = document.createElement('a')
 
     let objectUrl = URL.createObjectURL(blob)
     element.setAttribute('href', objectUrl)

@@ -2,16 +2,17 @@
 // All owncloud specifc stuff goes in here
 import Adapter from '../interfaces/Adapter'
 import Logger from '../Logger'
-import { Folder, Bookmark } from '../Tree'
+import { Bookmark, Folder } from '../Tree'
 import PathHelper from '../PathHelper'
 import * as Basics from '../components/basics'
 import { Base64 } from 'js-base64'
+import AsyncLock from 'async-lock'
+import browser from '../browser-api'
+
 const Parallel = require('async-parallel')
 const { h } = require('hyperapp')
 const url = require('url')
 const PQueue = require('p-queue')
-import AsyncLock from 'async-lock'
-import browser from '../browser-api'
 const _ = require('lodash')
 
 const TAG_PREFIX = 'floccus:'
@@ -110,10 +111,7 @@ export default class NextcloudAdapter extends Adapter {
   }
 
   acceptsBookmark(bm) {
-    if (!~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)) {
-      return false
-    }
-    return true
+    return ~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)
   }
 
   normalizeServerURL(input) {
@@ -196,9 +194,9 @@ export default class NextcloudAdapter extends Adapter {
     list.forEach(bookmark => {
       let pathArray = PathHelper.pathToArray(bookmark.parentId)
 
-      var currentSubtree = tree
+      let currentSubtree = tree
       pathArray.forEach((title, i) => {
-        var folder
+        let folder
         // we already have created the root folder
         if (i === 0) return
         folder = currentSubtree.children
@@ -371,7 +369,7 @@ export default class NextcloudAdapter extends Adapter {
     Logger.log('(nextcloud)CREATE', bm)
 
     // We need this lock to avoid creating multiple bookmarks with the same URL in parallel
-    return this.bookmarkLock.acquire(bm.url, async() => {
+    return this.bookmarkLock.acquire(bm.url, async () => {
       let existingBookmark = await this.getExistingBookmark(bm.url)
       if (existingBookmark) {
         bm.id = existingBookmark + ';' + bm.parentId
@@ -415,7 +413,7 @@ export default class NextcloudAdapter extends Adapter {
 
     // We need this lock to avoid changing a bookmark that is
     // in two places in parallel for those two places
-    return this.bookmarkLock.acquire(serverId, async() => {
+    return this.bookmarkLock.acquire(serverId, async () => {
       // returns the full paths from the server
       let { bookmarks: bms, tags } = await this._getBookmark(serverId)
 
@@ -458,7 +456,7 @@ export default class NextcloudAdapter extends Adapter {
 
     // We need this lock to avoid deleting a bookmark that is in two places
     // in parallel
-    return this.bookmarkLock.acquire(serverId, async() => {
+    return this.bookmarkLock.acquire(serverId, async () => {
       let { bookmarks: bms, tags } = await this._getBookmark(serverId)
 
       if (bms.length !== 1) {

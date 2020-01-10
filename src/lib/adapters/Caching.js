@@ -1,8 +1,9 @@
 import * as Tree from '../Tree'
-import Logger from '../Logger'
 import { Folder } from '../Tree'
+import Logger from '../Logger'
 import Adapter from '../interfaces/Adapter'
 import browser from '../browser-api'
+
 const url = require('url')
 
 export default class CachingAdapter extends Adapter {
@@ -22,14 +23,9 @@ export default class CachingAdapter extends Adapter {
   }
 
   acceptsBookmark(bm) {
-    if (
-      !~['https:', 'http:', 'ftp:', 'data:', 'javascript:'].indexOf(
-        url.parse(bm.url).protocol
-      )
-    ) {
-      return false
-    }
-    return true
+    return ~['https:', 'http:', 'ftp:', 'data:', 'javascript:'].indexOf(
+      url.parse(bm.url).protocol
+    )
   }
 
   async createBookmark(bm) {

@@ -4,7 +4,6 @@ import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
 import NextcloudAdapter from './adapters/Nextcloud'
 import WebDavAdapter from './adapters/WebDav'
 import FakeAdapter from './adapters/Fake'
-import Tree from './Tree'
 import LocalTree from './LocalTree'
 import DefaultSyncProcess from './strategies/Default'
 import SlaveSyncProcess from './strategies/Slave'
@@ -197,7 +196,7 @@ export default class Account {
       )
     } catch (e) {
       console.log(e)
-      var message = Account.stringifyError(e)
+      const message = Account.stringifyError(e)
       console.error('Syncing failed with', message)
       Logger.log('Syncing failed with', message)
       await this.setData({
@@ -232,7 +231,7 @@ export default class Account {
 
   static async getAllAccounts() {
     const d = await browser.storage.local.get({ accounts: {} })
-    var accounts = d['accounts']
+    let accounts = d['accounts']
 
     accounts = await Promise.all(
       Object.keys(accounts).map(accountId => Account.get(accountId))
@@ -242,9 +241,9 @@ export default class Account {
   }
 
   static async getAccountContainingLocalId(localId, ancestors, allAccounts) {
-    ancestors = ancestors || (await Tree.getIdPathFromLocalId(localId))
+    ancestors = ancestors || (await LocalTree.getIdPathFromLocalId(localId))
     allAccounts = allAccounts || (await this.getAllAccounts())
-    var account = allAccounts
+    const account = allAccounts
       .map(account => ({
         account,
         index: ancestors.indexOf(account.getData().localRoot)

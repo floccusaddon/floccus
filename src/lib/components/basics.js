@@ -125,8 +125,8 @@ export const Button = style('button')(props => ({
       ? COLORS.primary.light
       : COLORS.primary.plane
     : props.active
-      ? COLORS.primary.background
-      : 'white',
+    ? COLORS.primary.background
+    : 'white',
   ':hover': {
     backgroundColor: props.primary
       ? COLORS.primary.light
@@ -243,20 +243,20 @@ export const AccountStatusDetail = ({ account }) => (state, actions) => {
       ) : data.syncing ? (
         <Progress value={data.syncing} />
       ) : (data.lastSync
-        ? browser.i18n.getMessage(
-          'StatusLastsynced',
-          humanizeDuration(Date.now() - data.lastSync, {
-            largest: 1,
-            round: true
-          })
-        )
-        : browser.i18n.getMessage('StatusNeversynced')) +
+          ? browser.i18n.getMessage(
+              'StatusLastsynced',
+              humanizeDuration(Date.now() - data.lastSync, {
+                largest: 1,
+                round: true
+              })
+            )
+          : browser.i18n.getMessage('StatusNeversynced')) +
         ' ' +
         (data.type === 'nextcloud' || data.type === 'nextcloud-legacy') ? (
-          browser.i18n.getMessage('LegacyAdapterDeprecation')
-        ) : (
-          ''
-        )}
+        browser.i18n.getMessage('LegacyAdapterDeprecation')
+      ) : (
+        ''
+      )}
     </AccountStatusDetailStyle>
   )
 }

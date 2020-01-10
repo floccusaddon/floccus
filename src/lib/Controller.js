@@ -3,6 +3,7 @@ import Account from './Account'
 import LocalTree from './LocalTree'
 import Cryptography from './Crypto'
 import packageJson from '../../package.json'
+
 const PQueue = require('p-queue')
 
 const STATUS_ERROR = Symbol('error')
@@ -18,8 +19,8 @@ class AlarmManager {
 
   async checkSync() {
     const d = await browser.storage.local.get('accounts')
-    var accounts = d['accounts']
-    for (var accountId in accounts) {
+    const accounts = d['accounts']
+    for (let accountId in accounts) {
       const account = await Account.get(accountId)
       const data = account.getData()
       if (
@@ -151,7 +152,7 @@ export default class Controller {
     const allAccounts = await Account.getAllAccounts()
 
     // Check which accounts contain the bookmark and which used to contain (track) it
-    var trackingAccountsFilter = await Promise.all(
+    const trackingAccountsFilter = await Promise.all(
       allAccounts.map(async account => {
         return account.tracksBookmark(localId)
       })
@@ -174,7 +175,7 @@ export default class Controller {
 
     // Now we check the account of the new folder
 
-    var ancestors
+    let ancestors
     try {
       ancestors = await LocalTree.getIdPathFromLocalId(localId)
     } catch (e) {

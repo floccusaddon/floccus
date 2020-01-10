@@ -27,7 +27,7 @@ const actions = {
   view: {
     switch: view => ({ current: view })
   },
-  switchView: newView => async(state, actions) => {
+  switchView: newView => async (state, actions) => {
     const background = await browser.runtime.getBackgroundPage()
     if (!background.controller.unlocked) {
       actions.view.switch('unlock')
@@ -38,7 +38,7 @@ const actions = {
     }
     actions.view.switch(newView)
   },
-  init: () => async(state, actions) => {
+  init: () => async (state, actions) => {
     actions.switchView('accounts')
   },
   getState: () => state => state
@@ -93,7 +93,7 @@ const appActions = Object.assign.apply(
 let rootNode = document.querySelector('#app')
 window.app = app(appState, appActions, render, rootNode)
 window.app.init()
-;(async() => {
+;(async () => {
   const background = await browser.runtime.getBackgroundPage()
   const unregister = background.controller.onStatusChange(() =>
     window.app.accounts.load()

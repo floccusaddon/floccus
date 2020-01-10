@@ -9,7 +9,7 @@ const { H2, Button, P, Label, A } = Basics
 export const state = {}
 
 export const actions = {
-  openFunding: () => async(state, actions) => {
+  openFunding: () => async (state, actions) => {
     actions.switchView('funding')
   },
   cancelFunding: () => (state, actions) => {

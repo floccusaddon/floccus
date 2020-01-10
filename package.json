@@ -28,12 +28,13 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chrome-webstore-upload": "^0.2.2",
+    "crx3": "^1.1.1",
     "gulp": "^4",
     "gulp-tap": "^1.0.1",
     "gulp-zip": "^5",
     "mocha": "^6.2.2",
-    "selenium-webdriver": "^4.0.0-alpha.5",
-    "crx3": "^1.1.1"
+    "prettier": "^1.19.1",
+    "selenium-webdriver": "^4.0.0-alpha.5"
   },
   "dependencies": {
     "async-lock": "^1.2.2",

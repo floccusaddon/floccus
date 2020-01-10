@@ -1,4 +1,4 @@
-var b
+let b
 if (typeof browser === 'undefined' && typeof chrome !== 'undefined') {
   b = new ChromePromise()
   b.alarms = chrome.alarms // Don't promisify alarms -- don't make sense, yo!
