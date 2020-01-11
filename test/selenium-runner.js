@@ -3,6 +3,7 @@ const url = require('url')
 const { Builder } = require('selenium-webdriver')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
+const saveStats = require('./save-stats')
 const VERSION = require('../package.json').version
 ;(async function() {
   let driver = await new Builder()
@@ -104,6 +105,19 @@ const VERSION = require('../package.json').version
     await driver.quit()
     if (fin && ~fin.indexOf('FAILED')) {
       process.exit(1)
+    }else{
+      const match = fin.match(/duration: (\d+):(\d+)/i)
+      if (match) {
+        const data = {
+          testSuiteTime: parseInt(match[1]) + parseInt(match[2])/60
+        }
+        const label = process.env['FLOCCUS_ADAPTER'] + ' ' + process.env['SELENIUM_BROWSER'] + ' ' +  process.env['SERVER_BRANCH'] + ' ' + process.env['NC_APP_VERSION']
+        try {
+          await saveStats(process.env['TRAVIS_COMMIT'], label, data)
+        }catch(e) {
+          console.log('FAILED TO SAVE BENCHMARK STATS', e)
+        }
+      }
     }
   } catch (e) {
     console.log(e)
