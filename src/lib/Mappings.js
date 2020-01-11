@@ -10,13 +10,13 @@ export default class Mappings {
 
   getSnapshot() {
     return {
-      folders: {
-        ServerToLocal: { ...this.folders.ServerToLocal },
-        LocalToServer: { ...this.folders.LocalToServer }
+      ServerToLocal: {
+        bookmarks: { ...this.bookmarks.ServerToLocal },
+        folders: { ...this.folders.ServerToLocal }
       },
-      bookmarks: {
-        ServerToLocal: { ...this.bookmarks.ServerToLocal },
-        LocalToServer: { ...this.bookmarks.LocalToServer }
+      LocalToServer: {
+        bookmarks: { ...this.bookmarks.LocalToServer },
+        folders: { ...this.folders.LocalToServer }
       }
     }
   }

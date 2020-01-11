@@ -27,6 +27,10 @@ export class Bookmark {
     }
   }
 
+  canMergeWith(otherItem) {
+    return this.type === otherItem.type && this.url === otherItem.url
+  }
+
   async hash() {
     if (!this.hashValue) {
       this.hashValue = await Crypto.sha256(
@@ -51,6 +55,18 @@ export class Bookmark {
         .join('') +
       `- #${this.id}[${this.title}](${this.url}) parentId: ${this.parentId}`
     )
+  }
+
+  visitCreate(syncProcess, ...args) {
+    syncProcess.createBookmark(...args)
+  }
+
+  visitUpdate(syncProcess, ...args) {
+    syncProcess.updateBookmark(...args)
+  }
+
+  visitRemove(syncProcess, ...args) {
+    syncProcess.removeBookmark(...args)
   }
 
   static hydrate(obj) {
@@ -99,6 +115,18 @@ export class Folder {
       .filter(child => child instanceof Folder)
       .map(folder => folder.findBookmark(id))
       .filter(bookmark => !!bookmark)[0]
+  }
+
+  findItem(type, id) {
+    if (type === 'folder') {
+      return this.findFolder(id)
+    }else{
+      return this.findBookmark(id)
+    }
+  }
+
+  canMergeWith(otherItem) {
+    return this.type === otherItem.type && this.title === otherItem.title
   }
 
   async hash(preserveOrder) {
@@ -191,6 +219,18 @@ export class Folder {
         )
         .join('\n')
     )
+  }
+
+  visitCreate(syncProcess, ...args) {
+    return syncProcess.createFolder(...args)
+  }
+
+  visitUpdate(syncProcess, ...args) {
+    return syncProcess.updateFolder(...args)
+  }
+
+  visitRemove(syncProcess, ...args) {
+    return syncProcess.removeFolder(...args)
   }
 
   static hydrate(obj) {
