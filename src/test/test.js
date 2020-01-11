@@ -21,11 +21,15 @@ describe('Floccus', function() {
     background.controller.setEnabled(true)
   })
   const CREDENTIALS = {
-    username: 'admin',
-    password: 'admin\\admin'
-  }
+      username: 'admin',
+      password: 'admin\\admin'
+    }
   ;[
     Account.getDefaultValues('fake'),
+    {
+      ...Account.getDefaultValues('fake'),
+      parallel: true
+    },
     {
       type: 'nextcloud-legacy',
       url: 'http://localhost/',
@@ -676,12 +680,12 @@ describe('Floccus', function() {
                         ACCOUNT_DATA.type !== 'nextcloud-legacy'
                           ? []
                           : [
-                              // This is because of a peculiarity of the legacy adapter
-                              new Bookmark({
-                                title: 'test',
-                                url: 'http://ureff.l/'
-                              })
-                            ]
+                            // This is because of a peculiarity of the legacy adapter
+                            new Bookmark({
+                              title: 'test',
+                              url: 'http://ureff.l/'
+                            })
+                          ]
                     })
                   ]
                 })
@@ -771,7 +775,7 @@ describe('Floccus', function() {
             parentId: localRoot
           })
           const barFolder = await browser.bookmarks.create({
-            title: "bar=?*'Ä_:-^;",
+            title: 'bar=?*\'Ä_:-^;',
             parentId: fooFolder.id
           })
           const bookmark = await browser.bookmarks.create({
@@ -795,7 +799,7 @@ describe('Floccus', function() {
                   title: 'foo!"§$%&/()=?"',
                   children: [
                     new Folder({
-                      title: "bar=?*'Ä_:-^;",
+                      title: 'bar=?*\'Ä_:-^;',
                       children: [
                         new Bookmark({
                           title: 'url|!"=)/§_:;Ä\'*ü"',
@@ -1158,7 +1162,7 @@ describe('Floccus', function() {
           })
         }
         context('with slave mode', function() {
-          it("shouldn't create local bookmarks on the server", async function() {
+          it('shouldn\'t create local bookmarks on the server', async function() {
             await account.setData({ ...account.getData(), strategy: 'slave' })
             const adapter = account.server
             expect(
@@ -1185,7 +1189,7 @@ describe('Floccus', function() {
             const tree = await adapter.getBookmarksTree(true)
             expect(tree.children).to.have.lengthOf(0)
           })
-          it("shouldn't update the server on local changes", async function() {
+          it('shouldn\'t update the server on local changes', async function() {
             const adapter = account.server
             expect(
               (await adapter.getBookmarksTree(true)).children
@@ -1221,7 +1225,7 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
-          it("shouldn't update the server on local removals", async function() {
+          it('shouldn\'t update the server on local removals', async function() {
             const adapter = account.server
             expect(
               (await adapter.getBookmarksTree(true)).children
@@ -1256,7 +1260,7 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
-          it("shouldn't update the server on local folder moves", async function() {
+          it('shouldn\'t update the server on local folder moves', async function() {
             const adapter = account.server
             expect(
               (await adapter.getBookmarksTree(true)).children
@@ -1625,7 +1629,7 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
-          it("shouldn't create server bookmarks locally", async function() {
+          it('shouldn\'t create server bookmarks locally', async function() {
             await account.setData({
               ...account.getData(),
               strategy: 'overwrite'
@@ -1657,7 +1661,7 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
-          it("shouldn't update local bookmarks on server changes", async function() {
+          it('shouldn\'t update local bookmarks on server changes', async function() {
             const adapter = account.server
 
             if (adapter.onSyncStart) await adapter.onSyncStart()
@@ -1701,7 +1705,7 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
-          it("shouldn't update local bookmarks on server removals", async function() {
+          it('shouldn\'t update local bookmarks on server removals', async function() {
             const adapter = account.server
             if (adapter.onSyncStart) await adapter.onSyncStart()
             const serverTree = await adapter.getBookmarksTree(true)

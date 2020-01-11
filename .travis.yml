@@ -15,8 +15,10 @@ env:
     - NC_APP_VERSION=master
     - BROWSER_VERSION=latest
   matrix:
-    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake" SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake" SELENIUM_BROWSER="firefox"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake standard-root" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake standard-root" SELENIUM_BROWSER="firefox"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake parallel-root" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake parallel-root" SELENIUM_BROWSER="firefox"
 
     - SERVER_BRANCH=stable14 NC_APP_VERSION=v1.1.2 FLOCCUS_ADAPTER="nextcloud-legacy standard-root" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable14 NC_APP_VERSION=v1.1.2 FLOCCUS_ADAPTER="nextcloud-legacy standard-root" SELENIUM_BROWSER="firefox"
