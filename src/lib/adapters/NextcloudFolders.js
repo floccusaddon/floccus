@@ -505,7 +505,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
           })
         } else if (item.type === 'folder') {
           const folderHash = await this._getFolderHash(item.id)
-          const childFolder = this.tree.findFolder(item.id)
+          const childFolder = this.tree.findFolder(item.id).clone()
           childFolder.hashValue = { true: folderHash }
           return childFolder
         }

@@ -72,19 +72,13 @@ export default class SyncProcess {
     this.filterOutUnacceptedBookmarks(this.localTreeRoot)
     await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
 
-    if ('hasFeatureHashing' in this.server) {
-      const roughFolderDiff =
-        this.localTreeRoot.countFolders() - this.serverTreeRoot.countFolders()
-      if (roughFolderDiff > -100) {
+    if (('loadFolderChildren' in this.server)) {
+        Logger.log('Loading sparse tree as necessary')
         // Load sparse tree
         await this.loadChildren(
           this.serverTreeRoot,
           this.mappings.getSnapshot()
         )
-      } else {
-        // rather load the complete tree, as we do less requests this way
-        this.serverTreeRoot = await this.server.getBookmarksTree(true)
-      }
     }
 
     // generate hashtables to find items faster
@@ -236,13 +230,13 @@ export default class SyncProcess {
       throw new Error(browser.i18n.getMessage('Error027'))
     }
     if (serverItem instanceof Tree.Bookmark) return
-    if ('loadFolderChildren' in this.server) return
+    if (!this.server.hasFeatureHashing) return
     let localItem, cacheItem
     if (serverItem === this.serverTreeRoot) {
       localItem = this.localTreeRoot
       cacheItem = this.cacheTreeRoot
     } else {
-      const localId = mappingsSnapshot.folders.ServerToLocal[serverItem.id]
+      const localId = mappingsSnapshot.ServerToLocal.folders[serverItem.id]
       localItem = this.localTreeRoot.findFolder(localId)
       cacheItem = this.cacheTreeRoot.findFolder(localId)
     }
