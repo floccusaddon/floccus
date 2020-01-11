@@ -294,20 +294,24 @@ export default class Controller {
     this.setStatusBadge(overallStatus)
   }
 
-  // TODO: Convert switch to object access
   async setStatusBadge(status) {
-    switch (status) {
-      case STATUS_ALLGOOD:
-        await browser.browserAction.setBadgeText({ text: '' })
-        break
-      case STATUS_SYNCING:
-        await browser.browserAction.setBadgeText({ text: '<->' })
-        await browser.browserAction.setBadgeBackgroundColor({ color: '#0088dd' })
-        break
-      case STATUS_ERROR:
-        await browser.browserAction.setBadgeText({ text: '!' })
-        await browser.browserAction.setBadgeBackgroundColor({ color: '#dd4d00' })
-        break
+    const badge = {
+      [STATUS_ALLGOOD]: {
+        text: ''
+      },
+      [STATUS_SYNCING]: {
+        text: '<->',
+        color: '#0088dd'
+      },
+      [STATUS_ERROR]: {
+        text: '!',
+        color: '#dd4d00'
+      }
+    }
+
+    await browser.browserAction.setBadgeText({ text: badge[status].text })
+    if (badge[status].color) {
+      await browser.browserAction.setBadgeBackgroundColor({ color: badge[status].color })
     }
   }
 
