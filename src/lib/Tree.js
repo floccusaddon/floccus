@@ -120,7 +120,7 @@ export class Folder {
   findItem(type, id) {
     if (type === 'folder') {
       return this.findFolder(id)
-    }else{
+    } else {
       return this.findBookmark(id)
     }
   }

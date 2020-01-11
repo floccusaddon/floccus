@@ -311,7 +311,9 @@ export default class Controller {
 
     await browser.browserAction.setBadgeText({ text: badge[status].text })
     if (badge[status].color) {
-      await browser.browserAction.setBadgeBackgroundColor({ color: badge[status].color })
+      await browser.browserAction.setBadgeBackgroundColor({
+        color: badge[status].color
+      })
     }
   }
 
