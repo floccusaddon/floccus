@@ -38,7 +38,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
     } else if (!localItem && cacheItem && serverItem) {
       // DELETED LOCALLY
       // --> recreate locally
-      return item.visitCreate({
+      return item.visitCreate(this, {
         mapping: mappings.ServerToLocal,
         toTree: this.localTreeRoot,
         toResource: this.localTree,
@@ -83,13 +83,13 @@ export default class SlaveSyncProcess extends DefaultStrategy {
     }
   }
 
-  async syncChildOrder({ localItem, cacheItem, serverItem, localOrder, remoteOrder }) {
-    if (this.preserveOrder && remoteOrder.length > 1) {
+  async syncChildOrder({ localItem, cacheItem, serverItem, localOrder, serverOrder }) {
+    if (this.preserveOrder && serverOrder.length > 1) {
       const newMappingsSnapshot = this.mappings.getSnapshot()
       // always update local tree
       await this.localTree.orderFolder(
         localItem.id,
-        remoteOrder.map(item => ({
+        serverOrder.map(item => ({
           id: newMappingsSnapshot.ServerToLocal[item.type + 's'][item.id],
           type: item.type
         }))

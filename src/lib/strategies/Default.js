@@ -201,7 +201,7 @@ export default class SyncProcess {
       (localItem && !cacheItem && serverItem)
     ) {
       // UPDATED
-      await item.visitUpdate(this, localItem, cacheItem, serverItem)
+      return item.visitUpdate(this, localItem, cacheItem, serverItem)
     } else if (!localItem && cacheItem && serverItem) {
       // DELETED LOCALLY
       return item.visitRemove(this, {
@@ -288,8 +288,9 @@ export default class SyncProcess {
     let oldFolder
     if ((oldFolder = toTree.findFolder(mapping.folders[folder.id]))) {
       if (oldFolder.moved) {
+        // local changes are dealt with first, so this is deterministic
         Logger.log(
-          'This folder was moved here and concurrently moved somewhere else, ' +
+          'create branch: This folder was moved here in fromTree and concurrently moved somewhere else in toTree, ' +
           'but it has been dealt with'
         )
         return
@@ -297,7 +298,7 @@ export default class SyncProcess {
 
       // check if it was moved here from somewhere else
       if (folder.moved) {
-        Logger.log('This folder was moved and has been dealt with in a delete branch')
+        Logger.log('create branch: This folder was moved here in fromTree and has been dealt with in a delete branch')
         // Add to order
         toOrder.insert('folder', folder.id, oldFolder.id)
         return
@@ -305,7 +306,7 @@ export default class SyncProcess {
 
 
       folder.moved = true
-      Logger.log('This folder was moved here')
+      Logger.log('create branch: This folder was moved here in fromTree')
 
       // Add to order
       toOrder.insert('folder', folder.id, oldFolder.id)
@@ -562,7 +563,7 @@ export default class SyncProcess {
         await this.server.orderFolder(
           serverItem.id,
           localOrder.getOrder().map(item => ({
-            id: newMappingsSnapshot[item.type + 's'].LocalToServer[item.id],
+            id: newMappingsSnapshot.LocalToServer[item.type + 's'][item.id],
             type: item.type
           }))
         )
@@ -570,7 +571,7 @@ export default class SyncProcess {
         await this.localTree.orderFolder(
           localItem.id,
           serverOrder.getOrder().map(item => ({
-            id: newMappingsSnapshot[item.type + 's'].ServerToLocal[item.id],
+            id: newMappingsSnapshot.ServerToLocal[item.type + 's'][item.id],
             type: item.type
           }))
         )
@@ -635,9 +636,11 @@ export default class SyncProcess {
 
     if (folder.moved) {
       Logger.log(
-        'This folder was removed here and concurrently moved somewhere else ' +
+        'remove branch: This folder was removed in fromTree and concurrently moved somewhere else in toTree ' +
         '-- moves take precedence to preserve data'
       )
+      // remove from order
+      toOrder.remove('folder', folder.id)
       return
     }
 
@@ -645,7 +648,7 @@ export default class SyncProcess {
     let newFolder
     if ((newFolder = fromTree.findFolder(reverseMapping.folders[folder.id]))) {
       if (newFolder.moved) {
-        Logger.log('This folder was moved and has been dealt with')
+        Logger.log('remove branch: This folder was moved in fromTree and has been dealt with')
 
         // remove from order
         toOrder.remove('folder', folder.id)
@@ -653,7 +656,7 @@ export default class SyncProcess {
       }
 
       newFolder.moved = true
-      Logger.log('This folder was moved from here')
+      Logger.log('remove branch: This folder was moved away from here in fromTree to somewhere else in fromTree')
 
       // remove from order
       toOrder.remove('folder', folder.id)
@@ -714,14 +717,14 @@ export default class SyncProcess {
       if (oldMark.moved) {
         // local changes are deal with first in updateFolder, thus this is deterministic
         Logger.log(
-          'This bookmark was moved here and concurrently moved somewhere else, ' +
+          'create branch: This bookmark was moved here in fromTree and concurrently moved somewhere else in toTree, ' +
           'but it has been dealt with'
         )
         return
       }
 
       if (bookmark.moved) {
-        Logger.log('This bookmark was moved here and has been dealt with')
+        Logger.log('create branch: This bookmark was moved here in fromTree and has been dealt with')
         // add to order
         toOrder.insert('bookmark', bookmark.id, oldMark.id)
         return
@@ -729,7 +732,7 @@ export default class SyncProcess {
 
       // mark as moved to avoid syncing twice
       bookmark.moved = true
-      Logger.log('This bookmark was moved here')
+      Logger.log('create branch: This bookmark was moved here from somewhere else in from tree')
 
       // add to order
       toOrder.insert('bookmark', bookmark.id, oldMark.id)
@@ -844,8 +847,10 @@ export default class SyncProcess {
     if (bookmark.moved) {
       // local changes are deal with first in updateFolder, thus this is deterministic
       Logger.log(
-        'This bookmark was removed here and concurrently moved somewhere else -- moves take precedence'
+        'remove branch: This bookmark was removed in fromTree and concurrently moved somewhere else intoTree -- moves take precedence'
       )
+      // remove bookmark from order
+      toOrder.remove('bookmark', bookmark.id)
       return true
     }
 
@@ -853,15 +858,16 @@ export default class SyncProcess {
     let newMark
     if ((newMark = fromTree.findBookmark(reverseMapping.bookmarks[bookmark.id]))) {
       if (newMark.moved) {
-        Logger.log('This bookmark was moved from here and has been dealt with')
+        Logger.log('remove branch: This bookmark was moved away from here in fromTree and has been dealt with')
 
         // remove bookmark from order
         toOrder.remove('bookmark', bookmark.id)
         return
       }
+
       // mark as moved to avoid syncing twice
       newMark.moved = true
-      Logger.log('This bookmark was moved')
+      Logger.log('remove branch: This bookmark was moved away to somewhere else in fromTree')
 
       // remove bookmark from order
       toOrder.remove('bookmark', bookmark.id)

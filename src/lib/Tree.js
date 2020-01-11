@@ -58,15 +58,15 @@ export class Bookmark {
   }
 
   visitCreate(syncProcess, ...args) {
-    syncProcess.createBookmark(...args)
+    return syncProcess.createBookmark(...args)
   }
 
   visitUpdate(syncProcess, ...args) {
-    syncProcess.updateBookmark(...args)
+    return syncProcess.updateBookmark(...args)
   }
 
   visitRemove(syncProcess, ...args) {
-    syncProcess.removeBookmark(...args)
+    return syncProcess.removeBookmark(...args)
   }
 
   static hydrate(obj) {

@@ -123,7 +123,7 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
     await this.server.updateBookmark(
       new Tree.Bookmark({
         id: serverItem.id,
-        parentId: this.mappings.folders.LocalToServer[localItem.parentId],
+        parentId: this.mappings.getSnapshot().LocalToServer.folders[localItem.parentId],
         title: localItem.title,
         url: localItem.url
       })
