@@ -278,7 +278,8 @@ export default class SyncProcess {
                        toOrder,
                        item: folder/* in fromTree */
                      }) {
-    if (toTree.findFolder(mapping.folders[folder.parentId]).isRoot) {
+    const toParent = toTree.findFolder(mapping.folders[folder.parentId])
+    if (toParent && toParent.isRoot) {
       Logger.log(
         'We\'re not allowed to change any direct children of the absolute root folder. Skipping.'
       )
@@ -624,7 +625,8 @@ export default class SyncProcess {
                        toOrder,
                        item: folder /* in toTree */
                      }) {
-    if (toTree.findFolder(folder.parentId).isRoot) {
+    const toParent = toTree.findFolder(folder.parentId)
+    if (toParent && toParent.isRoot) {
       Logger.log(
         'We\'re not allowed to change any direct children of the absolute root folder. Skipping.'
       )
@@ -700,7 +702,8 @@ export default class SyncProcess {
                          toOrder,
                          item: bookmark /* in fromTree */
                        }) {
-    if (toTree.findFolder(mapping.folders[bookmark.parentId]).isRoot) {
+    const toParent = toTree.findFolder(mapping.folders[bookmark.parentId])
+    if (toParent && toParent.isRoot) {
       Logger.log(
         'We\'re not allowed to change any direct children of the absolute root folder. Skipping.'
       )
