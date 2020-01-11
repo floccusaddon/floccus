@@ -723,7 +723,7 @@ export default class SyncProcess {
       if (bookmark.moved) {
         Logger.log('This bookmark was moved here and has been dealt with')
         // add to order
-        toOrder.insert('bookmark', oldMark.id)
+        toOrder.insert('bookmark', bookmark.id, oldMark.id)
         return
       }
 
@@ -732,7 +732,7 @@ export default class SyncProcess {
       Logger.log('This bookmark was moved here')
 
       // add to order
-      toOrder.insert('bookmark', oldMark.id)
+      toOrder.insert('bookmark', bookmark.id, oldMark.id)
 
       if (toTree === this.localTreeRoot) {
         const cacheMark = this.cacheTreeRoot.findBookmark(oldMark.id)
@@ -754,7 +754,7 @@ export default class SyncProcess {
     )
 
     // add to order
-    toOrder.insert('bookmark', newId)
+    toOrder.insert('bookmark', bookmark.id, newId)
 
     // add to mappings
     const localId = toTree === this.localTreeRoot ? newId : bookmark.id
