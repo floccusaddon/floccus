@@ -436,6 +436,7 @@ export default class SyncProcess {
     let serverOrder = new OrderTracker({ fromFolder: localItem, toFolder: serverItem })
 
     // CREATED LOCALLY
+    Logger.log('Check locally created children')
     let createdLocally = localItem.children.filter(
       local =>
         !cacheItem || !cacheItem.children.some(cache => local.id === cache.id)
@@ -454,6 +455,7 @@ export default class SyncProcess {
     )
 
     // REMOVED LOCALLY
+    Logger.log('Check locally removed children')
     let removedLocally = cacheItem ? cacheItem.children.filter(
       cache => !localItem.children.some(local => local.id === cache.id)
       )
@@ -472,6 +474,7 @@ export default class SyncProcess {
     let newMappingsSnapshot = this.mappings.getSnapshot()
 
     // CREATED UPSTREAM
+    Logger.log('Check children created upstream')
     let createdUpstream = serverItem.children.filter(
       child =>
         !(cacheItem || localItem).children.some(
@@ -492,6 +495,7 @@ export default class SyncProcess {
     )
 
     // REMOVED UPSTREAM
+    Logger.log('Check children removed upstream')
     let removedUpstream = cacheItem ?
       cacheItem.children.filter(
         cache =>
@@ -515,13 +519,11 @@ export default class SyncProcess {
       this.concurrency
     )
 
-    // ORDER CHILDREN
-    await this.syncChildOrder({ localItem, cacheItem, serverItem, localOrder, serverOrder })
-
     // RECURSE EXISTING ITEMS
 
-    mappingsSnapshot = this.mappings.getSnapshot()
+    Logger.log('Check unmoved children')
 
+    // Note: we're intentionally using the original snapshot here!
     let existingItems =
       localItem.children.filter(local =>
         serverItem.children.some(
@@ -544,10 +546,13 @@ export default class SyncProcess {
             cacheChild => cacheChild.id === existingChild.id
           )
           : null
-        await this.syncTree({ localItem: existingChild, cacheItem: cacheChild, serverItem: serverChild })
+        await this.syncTree({ localItem: existingChild, cacheItem: cacheChild, serverItem: serverChild, localOrder, serverOrder })
       },
       this.concurrency
     )
+
+    // ORDER CHILDREN
+    await this.syncChildOrder({ localItem, cacheItem, serverItem, localOrder, serverOrder })
   }
 
   async syncChildOrder({ localItem, cacheItem, serverItem, localOrder, serverOrder }) {

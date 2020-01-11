@@ -22,7 +22,7 @@ describe('Floccus', function() {
   })
   const CREDENTIALS = {
       username: 'admin',
-      password: 'admin'
+      password: new URL(window.location.href).searchParams.get('pw') || 'admin'
     }
   ;[
     Account.getDefaultValues('fake'),
