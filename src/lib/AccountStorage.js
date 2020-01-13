@@ -3,6 +3,7 @@ import Cryptography from './Crypto'
 import Mappings from './Mappings'
 import { Folder } from './Tree'
 import AsyncLock from 'async-lock'
+import * as localForage from 'localforage'
 
 const storageLock = new AsyncLock()
 
@@ -13,25 +14,32 @@ export default class AccountStorage {
 
   static async changeEntry(entryName, fn, defaultVal) {
     await storageLock.acquire(entryName, async () => {
-      const d = await browser.storage.local.get({
-        [entryName]: defaultVal || {} // default: {}
-      })
-      let entry = d[entryName]
+      let entry = (await localForage.getItem(entryName)) || defaultVal
       entry = fn(entry)
-      await browser.storage.local.set({ [entryName]: entry })
+      await localForage.setItem(entryName, entry)
     })
   }
 
   static getEntry(entryName, defaultVal) {
-    return browser.storage.local
-      .get({ [entryName]: defaultVal || {} }) // default: {}
+    return localForage
+      .getItem(entryName)
       .then(d => {
-        return d[entryName]
+        return d || defaultVal
       })
   }
 
+  static deleteEntry(entryName) {
+    return localForage.removeItem(entryName)
+  }
+
+
+  static async getAllAccounts() {
+    let accounts = await AccountStorage.getEntry(`accounts`, {})
+    return Object.keys(accounts)
+  }
+
   async getAccountData(key) {
-    let accounts = await AccountStorage.getEntry(`accounts`)
+    let accounts = await AccountStorage.getEntry(`accounts`, {})
     let data = accounts[this.accountId]
     if (key) {
       data.password = await Cryptography.decryptAES(key, data.iv, data.password)
@@ -51,10 +59,9 @@ export default class AccountStorage {
       }
     }
     return AccountStorage.changeEntry(`accounts`, accounts => {
-      accounts = accounts || {}
       accounts[this.accountId] = encData
       return accounts
-    })
+    }, {})
   }
 
   async deleteAccountData() {
@@ -62,8 +69,8 @@ export default class AccountStorage {
       delete accounts[this.accountId]
       return accounts
     })
-    await this.initCache()
-    await this.initMappings()
+    await this.deleteCache()
+    await this.deleteMappings()
   }
 
   async initCache(data) {
@@ -87,6 +94,10 @@ export default class AccountStorage {
     )
   }
 
+  async deleteCache() {
+    await AccountStorage.deleteEntry(`bookmarks[${this.accountId}].cache`)
+  }
+
   async initMappings(data) {
     await AccountStorage.changeEntry(
       `bookmarks[${this.accountId}].mappings`,
@@ -103,15 +114,15 @@ export default class AccountStorage {
       Object.keys(data).length
         ? data
         : {
-            bookmarks: {
-              ServerToLocal: {},
-              LocalToServer: {}
-            },
-            folders: {
-              ServerToLocal: {},
-              LocalToServer: {}
-            }
+          bookmarks: {
+            ServerToLocal: {},
+            LocalToServer: {}
+          },
+          folders: {
+            ServerToLocal: {},
+            LocalToServer: {}
           }
+        }
     )
   }
 
@@ -120,5 +131,9 @@ export default class AccountStorage {
       `bookmarks[${this.accountId}].mappings`,
       () => data
     )
+  }
+
+  async deleteMappings() {
+    await AccountStorage.deleteEntry(`bookmarks[${this.accountId}].mappings`)
   }
 }

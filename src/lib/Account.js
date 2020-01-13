@@ -230,14 +230,7 @@ export default class Account {
   }
 
   static async getAllAccounts() {
-    const d = await browser.storage.local.get({ accounts: {} })
-    let accounts = d['accounts']
-
-    accounts = await Promise.all(
-      Object.keys(accounts).map(accountId => Account.get(accountId))
-    )
-
-    return accounts
+    return Promise.all((await AccountStorage.getAllAccounts()).map(accountId => Account.get(accountId)))
   }
 
   static async getAccountContainingLocalId(localId, ancestors, allAccounts) {

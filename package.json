@@ -46,6 +46,7 @@
     "humanize-duration": "^3.21.0",
     "hyperapp": "^1.2.10",
     "js-base64": "^2.5.1",
+    "localforage": "^1.7.3",
     "lodash": "^4.17.15",
     "murmur2js": "^1.0.0",
     "normalize-url": "^4.3.0",
