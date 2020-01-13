@@ -125,6 +125,15 @@ export class Folder {
     }
   }
 
+  async traverse(fn) {
+    await Parallel.each(this.children, async item => {
+      await fn(item, this)
+      if (item.type === 'folder') {
+        await item.traverse(fn)
+      }
+    })
+  }
+
   canMergeWith(otherItem) {
     return this.type === otherItem.type && this.title === otherItem.title
   }
