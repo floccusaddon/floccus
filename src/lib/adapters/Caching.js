@@ -216,7 +216,7 @@ export default class CachingAdapter extends Adapter {
     })
     // good as new
     this.bookmarksCache.createIndex()
-    return imported.children
+    return imported
   }
 
   setData(data) {
