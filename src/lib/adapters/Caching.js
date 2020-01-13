@@ -197,23 +197,21 @@ export default class CachingAdapter extends Adapter {
     this.bookmarksCache.createIndex()
   }
 
-  async bulkImportFolder(parentId, folder) {
-    Logger.log('BULKIMPORT', { parentId, folder })
-    const foundParentFolder = this.bookmarksCache.findFolder(parentId)
-    if (!foundParentFolder) {
+  async bulkImportFolder(id, folder) {
+    Logger.log('BULKIMPORT', { id, folder })
+    const foundFolder = this.bookmarksCache.findFolder(id)
+    if (!foundFolder) {
       throw new Error(browser.i18n.getMessage('Error005'))
     }
     // clone and adjust ids
     const imported = folder.clone()
-    imported.id = parentId
+    imported.id = id
     await imported.traverse(async (item, parentFolder) => {
       item.id = ++this.highestId
       item.parentId = parentFolder.id
     })
     // insert into tree
-    imported.children.forEach(item => {
-      foundParentFolder.children.push(folder)
-    })
+    foundFolder.children = imported.children
     // good as new
     this.bookmarksCache.createIndex()
     return imported
