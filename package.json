@@ -28,7 +28,7 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chrome-webstore-upload": "^0.2.2",
-    "crx3": "^1.1.1",
+    "crx3": "^1.1.2",
     "gist-client": "^1.1.1",
     "gulp": "^4",
     "gulp-tap": "^1.0.1",
