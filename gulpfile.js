@@ -10,7 +10,7 @@ const VERSION = require('./package.json').version
 const paths = {
   zip: [
     './**',
-    '!dist/js/test.js', // only for releases
+    //'!dist/js/test.js', // only for releases
     '!builds/**',
     '!src/**',
     '!node_modules/**',
