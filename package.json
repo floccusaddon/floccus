@@ -22,7 +22,7 @@
     "@babel/core": "^7.7.2",
     "@babel/preset-env": "^7.7.1",
     "@babel/preset-react": "^7.0.0",
-    "all-contributors-cli": "^5.11.0",
+    "all-contributors-cli": "^6.12.0",
     "babel-loader": "^8.0.6",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
