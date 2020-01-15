@@ -1,8 +1,7 @@
 var gulp = require('gulp')
 var fs = require('fs')
-var browserify = require('browserify')
-var babelify = require('babelify')
-var tap = require('gulp-tap')
+var webpack = require('webpack')
+var config = require('./webpack.prod')
 var gulpZip = require('gulp-zip')
 var crx3 = require('crx3')
 var webstoreClient = require('chrome-webstore-upload')
@@ -11,7 +10,7 @@ const VERSION = require('./package.json').version
 const paths = {
   zip: [
     './**',
-    // '!dist/js/test.js', // only for releases
+    '!dist/js/test.js', // only for releases
     '!builds/**',
     '!src/**',
     '!node_modules/**',
@@ -39,28 +38,14 @@ try {
 } catch (e) {}
 
 const js = function() {
-  return (
-    gulp
-      .src(paths.entries, { read: false }) // no need of reading file because browserify does.
-      // transform file objects using gulp-tap plugin
-      .pipe(
-        tap(function(file) {
-          // replace file contents with browserify's bundle stream
-          file.contents = browserify(file.path, {
-            debug: true
-          })
-            .transform(babelify, {
-              global: true,
-              presets: [
-                '@babel/preset-env',
-                ['@babel/preset-react', { pragma: 'h' }]
-              ]
-            })
-            .bundle()
-        })
-      )
-      .pipe(gulp.dest('./dist/js/'))
-  )
+  return new Promise(resolve => webpack(config, (err, stats) => {
+
+    if (err) console.log('Webpack', err)
+
+    console.log(stats.toString({ /* stats options */ }))
+
+    resolve()
+  }))
 }
 
 const html = function() {

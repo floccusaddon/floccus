@@ -3,6 +3,7 @@ import Account from './Account'
 import LocalTree from './LocalTree'
 import Cryptography from './Crypto'
 import packageJson from '../../package.json'
+import AccountStorage from './AccountStorage'
 
 const PQueue = require('p-queue')
 
@@ -18,8 +19,7 @@ class AlarmManager {
   }
 
   async checkSync() {
-    const d = await browser.storage.local.get('accounts')
-    const accounts = d['accounts']
+    const accounts = await AccountStorage.getAllAccounts()
     for (let accountId of accounts) {
       const account = await Account.get(accountId)
       const data = account.getData()
