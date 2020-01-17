@@ -21,10 +21,10 @@ describe('Floccus', function() {
     background.controller.setEnabled(true)
   })
   const CREDENTIALS = {
-      username: 'admin',
-      password: new URL(window.location.href).searchParams.get('pw') || 'admin'
-    }
-  ;[
+    username: 'admin',
+    password: new URL(window.location.href).searchParams.get('pw') || 'admin'
+  }
+  const ACCOUNTS = [
     Account.getDefaultValues('fake'),
     {
       ...Account.getDefaultValues('fake'),
@@ -84,7 +84,9 @@ describe('Floccus', function() {
       parallel: true,
       ...CREDENTIALS
     }
-  ].forEach(ACCOUNT_DATA => {
+  ]
+
+  ACCOUNTS.forEach(ACCOUNT_DATA => {
     describe(`${ACCOUNT_DATA.type} ${
       ACCOUNT_DATA.parallel ? 'parallel' : 'standard'
     }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`, function() {
@@ -2094,6 +2096,183 @@ describe('Floccus', function() {
           expectTreeEqual(secondLocalTree1, secondLocalTree2, true, true)
         })
 
+        // Skipping this, because nextcloud adapter currently
+        // isn't able to track bookmarks across dirs, thus in this
+        // scenario both bookmarks survive :/
+        it.skip('should propagate moves using "last write wins"', async function() {
+          const adapter = account1.server
+
+          const localRoot = account1.getData().localRoot
+          const fooFolder = await browser.bookmarks.create({
+            title: 'foo',
+            parentId: localRoot
+          })
+          const barFolder = await browser.bookmarks.create({
+            title: 'bar',
+            parentId: fooFolder.id
+          })
+          const bookmark1 = await browser.bookmarks.create({
+            title: 'url',
+            url: 'http://ur.l/',
+            parentId: barFolder.id
+          })
+          const tree1 = await account1.localTree.getBookmarksTree(true)
+          await account1.sync()
+          await account2.sync()
+
+          const serverTreeAfterFirstSync = await adapter.getBookmarksTree(true)
+          const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+            true
+          )
+          const tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+            true
+          )
+          expectTreeEqual(
+            tree1AfterFirstSync,
+            tree1,
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+          serverTreeAfterFirstSync.title = tree1.title
+          expectTreeEqual(
+            serverTreeAfterFirstSync,
+            tree1,
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+          tree2AfterFirstSync.title = tree1.title
+          expectTreeEqual(
+            tree2AfterFirstSync,
+            tree1,
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+          console.log('First round ok')
+
+          await browser.bookmarks.move(bookmark1.id, {
+            parentId: fooFolder.id
+          })
+          console.log('acc1: Moved bookmark from bar into foo')
+
+          const tree1BeforeSecondSync = await account1.localTree.getBookmarksTree(
+            true
+          )
+          await account1.sync()
+
+          const serverTreeAfterSecondSync = await adapter.getBookmarksTree(true)
+          const tree1AfterSecondSync = await account1.localTree.getBookmarksTree(
+            true
+          )
+          expectTreeEqual(
+            tree1AfterSecondSync,
+            tree1BeforeSecondSync,
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+          serverTreeAfterSecondSync.title = tree1AfterSecondSync.title
+          expectTreeEqual(
+            serverTreeAfterSecondSync,
+            tree1AfterSecondSync,
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+          console.log('Second round first half ok')
+
+          const bm2Id = (await account2.localTree.getBookmarksTree(true))
+            .children[0].children[0].children[0].id
+          await browser.bookmarks.move(bm2Id, {
+            parentId: account2.getData().localRoot
+          })
+          console.log('acc2: Moved bookmark from bar into root')
+          const tree2BeforeThirdSync = await account2.localTree.getBookmarksTree(
+            true
+          )
+          await account2.sync()
+
+          const serverTreeAfterThirdSync = await adapter.getBookmarksTree(true)
+          const tree2AfterThirdSync = await account2.localTree.getBookmarksTree(
+            true
+          )
+          expectTreeEqual(
+            tree2AfterThirdSync,
+            tree2BeforeThirdSync,
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+          serverTreeAfterThirdSync.title = tree2AfterThirdSync.title
+          expectTreeEqual(
+            serverTreeAfterThirdSync,
+            tree2AfterThirdSync,
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+          console.log('Second round second half ok')
+
+          console.log('acc1: final sync')
+          await account1.sync()
+
+          const serverTreeAfterFinalSync = await adapter.getBookmarksTree(true)
+          const tree1AfterFinalSync = await account1.localTree.getBookmarksTree(
+            true
+          )
+          expectTreeEqual(
+            tree1AfterFinalSync,
+            tree2AfterThirdSync,
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+          tree2AfterThirdSync.title = serverTreeAfterFinalSync.title
+          expectTreeEqual(
+            tree2AfterThirdSync,
+            serverTreeAfterFinalSync,
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+        })
+      })
+    })
+  })
+
+  ACCOUNTS.forEach(ACCOUNT_DATA => {
+    describe(`${ACCOUNT_DATA.type} benchmark ${
+      ACCOUNT_DATA.parallel ? 'parallel' : 'standard'
+    }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`, function() {
+
+
+      context('with two clients', function() {
+        this.timeout(60 * 60000) // timeout after 20mins
+        let account1, account2
+        beforeEach('set up accounts', async function() {
+          account1 = await Account.create(ACCOUNT_DATA)
+          await account1.init()
+          account2 = await Account.create(ACCOUNT_DATA)
+          await account2.init()
+
+          if (ACCOUNT_DATA.type === 'fake') {
+            // Wrire both accounts to the same fake db
+            account2.server.bookmarksCache = account1.server.bookmarksCache = new Folder(
+              { id: '', title: 'root' }
+            )
+          }
+        })
+        afterEach('clean up accounts', async function() {
+          await browser.bookmarks.removeTree(account1.getData().localRoot)
+          if (ACCOUNT_DATA.type !== 'fake') {
+            await account1.setData({
+              ...account1.getData(),
+              serverRoot: null
+            })
+            if (account1.server.onSyncStart) {
+              await account1.server.onSyncStart()
+            }
+            const tree = await account1.server.getBookmarksTree(true)
+            await AsyncParallel.each(tree.children, async child => {
+              if (child instanceof Folder) {
+                await account1.server.removeFolder(child.id)
+              } else {
+                await account1.server.removeBookmark(child.id)
+              }
+            })
+            if (account1.server.onSyncComplete) {
+              await account1.server.onSyncComplete()
+            }
+          }
+          await account1.delete()
+          await browser.bookmarks.removeTree(account2.getData().localRoot)
+          await account2.delete()
+        })
+
         it('should handle deep hierarchies with lots of bookmarks', async function() {
           const adapter = account1.server
 
@@ -2221,131 +2400,6 @@ describe('Floccus', function() {
           const serverTreeAfterFinalSync = await adapter.getBookmarksTree(true)
           if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
-          const tree1AfterFinalSync = await account1.localTree.getBookmarksTree(
-            true
-          )
-          expectTreeEqual(
-            tree1AfterFinalSync,
-            tree2AfterThirdSync,
-            ignoreEmptyFolders(ACCOUNT_DATA)
-          )
-          tree2AfterThirdSync.title = serverTreeAfterFinalSync.title
-          expectTreeEqual(
-            tree2AfterThirdSync,
-            serverTreeAfterFinalSync,
-            ignoreEmptyFolders(ACCOUNT_DATA)
-          )
-        })
-
-        // Skipping this, because nextcloud adapter currently
-        // isn't able to track bookmarks across dirs, thus in this
-        // scenario both bookmarks survive :/
-        it.skip('should propagate moves using "last write wins"', async function() {
-          const adapter = account1.server
-
-          const localRoot = account1.getData().localRoot
-          const fooFolder = await browser.bookmarks.create({
-            title: 'foo',
-            parentId: localRoot
-          })
-          const barFolder = await browser.bookmarks.create({
-            title: 'bar',
-            parentId: fooFolder.id
-          })
-          const bookmark1 = await browser.bookmarks.create({
-            title: 'url',
-            url: 'http://ur.l/',
-            parentId: barFolder.id
-          })
-          const tree1 = await account1.localTree.getBookmarksTree(true)
-          await account1.sync()
-          await account2.sync()
-
-          const serverTreeAfterFirstSync = await adapter.getBookmarksTree(true)
-          const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
-            true
-          )
-          const tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
-            true
-          )
-          expectTreeEqual(
-            tree1AfterFirstSync,
-            tree1,
-            ignoreEmptyFolders(ACCOUNT_DATA)
-          )
-          serverTreeAfterFirstSync.title = tree1.title
-          expectTreeEqual(
-            serverTreeAfterFirstSync,
-            tree1,
-            ignoreEmptyFolders(ACCOUNT_DATA)
-          )
-          tree2AfterFirstSync.title = tree1.title
-          expectTreeEqual(
-            tree2AfterFirstSync,
-            tree1,
-            ignoreEmptyFolders(ACCOUNT_DATA)
-          )
-          console.log('First round ok')
-
-          await browser.bookmarks.move(bookmark1.id, {
-            parentId: fooFolder.id
-          })
-          console.log('acc1: Moved bookmark from bar into foo')
-
-          const tree1BeforeSecondSync = await account1.localTree.getBookmarksTree(
-            true
-          )
-          await account1.sync()
-
-          const serverTreeAfterSecondSync = await adapter.getBookmarksTree(true)
-          const tree1AfterSecondSync = await account1.localTree.getBookmarksTree(
-            true
-          )
-          expectTreeEqual(
-            tree1AfterSecondSync,
-            tree1BeforeSecondSync,
-            ignoreEmptyFolders(ACCOUNT_DATA)
-          )
-          serverTreeAfterSecondSync.title = tree1AfterSecondSync.title
-          expectTreeEqual(
-            serverTreeAfterSecondSync,
-            tree1AfterSecondSync,
-            ignoreEmptyFolders(ACCOUNT_DATA)
-          )
-          console.log('Second round first half ok')
-
-          const bm2Id = (await account2.localTree.getBookmarksTree(true))
-            .children[0].children[0].children[0].id
-          await browser.bookmarks.move(bm2Id, {
-            parentId: account2.getData().localRoot
-          })
-          console.log('acc2: Moved bookmark from bar into root')
-          const tree2BeforeThirdSync = await account2.localTree.getBookmarksTree(
-            true
-          )
-          await account2.sync()
-
-          const serverTreeAfterThirdSync = await adapter.getBookmarksTree(true)
-          const tree2AfterThirdSync = await account2.localTree.getBookmarksTree(
-            true
-          )
-          expectTreeEqual(
-            tree2AfterThirdSync,
-            tree2BeforeThirdSync,
-            ignoreEmptyFolders(ACCOUNT_DATA)
-          )
-          serverTreeAfterThirdSync.title = tree2AfterThirdSync.title
-          expectTreeEqual(
-            serverTreeAfterThirdSync,
-            tree2AfterThirdSync,
-            ignoreEmptyFolders(ACCOUNT_DATA)
-          )
-          console.log('Second round second half ok')
-
-          console.log('acc1: final sync')
-          await account1.sync()
-
-          const serverTreeAfterFinalSync = await adapter.getBookmarksTree(true)
           const tree1AfterFinalSync = await account1.localTree.getBookmarksTree(
             true
           )
