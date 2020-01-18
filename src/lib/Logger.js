@@ -8,8 +8,8 @@ export default class Logger {
     const logMsg = [new Date().toISOString(), ...arguments]
 
     // log to console
-    console.log.apply(console, logMsg)
-    this.messages.push(util.format.apply(util, logMsg))
+    //console.log.apply(console, logMsg)
+    this.messages.push(util.format.apply(util, logMsg)) // TODO: Use a linked list here to get O(n)
   }
 
   static async persist() {

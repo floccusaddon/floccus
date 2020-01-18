@@ -130,6 +130,7 @@ export default class Account {
   }
 
   async sync() {
+    let mappings
     try {
       if (this.getData().syncing || this.syncing) return
 
@@ -145,8 +146,7 @@ export default class Account {
       }
 
       // main sync steps:
-
-      let mappings = await this.storage.getMappings()
+      mappings = await this.storage.getMappings()
 
       let strategy
       switch (this.getData().strategy) {
@@ -210,6 +210,9 @@ export default class Account {
       }
     }
     await Logger.persist()
+    if (mappings) {
+      await mappings.persist()
+    }
   }
 
   static stringifyError(er) {

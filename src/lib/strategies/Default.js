@@ -6,7 +6,6 @@ import OrderTracker from '../OrderTracker'
 const _ = require('lodash')
 const Parallel = require('async-parallel')
 const PQueue = require('p-queue')
-const normalizeMoreAggressively = require('normalize-url')
 const { throttle } = require('throttle-debounce')
 
 export default class SyncProcess {
@@ -111,27 +110,6 @@ export default class SyncProcess {
     const duplicates = []
     tree.children = tree.children.filter(child => {
       if (child instanceof Tree.Bookmark) {
-        // Clean up duplicates after normalization algo switch
-        try {
-          const childUrlNormalized = normalizeMoreAggressively(child.url)
-          if (
-            child.url === childUrlNormalized &&
-            tree.children.some(c => {
-              if (!(c instanceof Tree.Bookmark)) return false
-              const cUrlNormalized = normalizeMoreAggressively(c.url)
-              return (
-                cUrlNormalized === childUrlNormalized &&
-                c.url !== cUrlNormalized &&
-                c.id !== child.id
-              )
-            })
-          ) {
-            duplicates.push(child)
-            return false
-          }
-        } catch (e) {
-          // sooo, that'd be a no, I guess.
-        }
         if (seenUrl[child.url]) {
           duplicates.push(child)
           return false
