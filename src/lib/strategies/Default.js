@@ -271,7 +271,7 @@ export default class SyncProcess {
       // check if it was moved here from somewhere else
       if (folder.moved) {
         folder.moved()
-      }else{
+      } else {
         folder.moved = true
       }
 
@@ -412,39 +412,82 @@ export default class SyncProcess {
     let localOrder = new OrderTracker({ fromFolder: serverItem, toFolder: localItem })
     let serverOrder = new OrderTracker({ fromFolder: localItem, toFolder: serverItem })
 
+    let createdLocally = localItem.children.filter(
+      local =>
+        !cacheItem || !cacheItem.children.some(cache => local.id === cache.id)
+    )
+    let removedLocally = cacheItem ? cacheItem.children.filter(
+      cache => !localItem.children.some(local => local.id === cache.id)
+      )
+      : []
+    let createdUpstream = serverItem.children.filter(
+      child =>
+        !(cacheItem || localItem).children.some(
+          cacheChild =>
+            mappingsSnapshot.ServerToLocal[child.type + 's'][child.id] ===
+            cacheChild.id
+        )
+    )
+    let removedUpstream = cacheItem ?
+      cacheItem.children.filter(
+        cache =>
+          !serverItem.children.some(
+            server =>
+              mappingsSnapshot.ServerToLocal[cache.type + 's'][server.id] ===
+              cache.id
+          )
+      )
+      : []
+    let createdLocallyAndUpstream = createdLocally.filter(
+      local =>
+        createdUpstream.some(server => server.canMergeWith(local))
+    )
+    let existingItems =
+      localItem.children.filter(local =>
+        serverItem.children.some(
+          server =>
+            mappingsSnapshot.ServerToLocal[local.type + 's'][server.id] ===
+            local.id
+        )
+      )
+
+    // CREATED LOCALLY AND UPSTREAM
+    await Parallel.each(
+      createdLocallyAndUpstream,
+      async addedChild => {
+        // merge this with an item created on the server
+        const serverChild = _.find(createdUpstream, serverChild => {
+          return serverChild.canMergeWith(addedChild) && !serverChild.merged
+        })
+        if (!serverChild) return
+        addedChild.merged = true
+        serverChild.merged = true
+        Logger.log('New locally and upstream (merging):', {serverChild: serverChild, localChild: addedChild})
+        await this.syncTree({ localItem: addedChild, serverItem: serverChild, localOrder, serverOrder })
+      },
+      this.concurrency
+    )
     await Promise.all([
       (async () => {
         // CREATED LOCALLY
-        Logger.log('Check locally created children')
-        let createdLocally = localItem.children.filter(
-          local =>
-            !cacheItem || !cacheItem.children.some(cache => local.id === cache.id)
-        )
         await Parallel.each(
           createdLocally,
           async addedChild => {
-            // merge this with an item created on the server
-            const serverChild = _.find(serverItem.children, serverChild => {
-              return serverChild.canMergeWith(addedChild) && !serverChild.merged
-            })
-            if (serverChild) serverChild.merged = true
-            await this.syncTree({ localItem: addedChild, serverItem: serverChild, localOrder, serverOrder })
+            if (addedChild.merged) return
+            Logger.log('New locally:', {localChild: addedChild})
+            await this.syncTree({ localItem: addedChild, localOrder, serverOrder })
           },
           this.concurrency
         )
       })(),
       (async () => {
         // REMOVED LOCALLY
-        Logger.log('Check locally removed children')
-        let removedLocally = cacheItem ? cacheItem.children.filter(
-          cache => !localItem.children.some(local => local.id === cache.id)
-          )
-          : []
         await Parallel.each(
           removedLocally,
           async removedChild => {
             const serverChild =
               this.serverTreeRoot.findItem(removedChild.type, mappingsSnapshot.LocalToServer[removedChild.type + 's'][removedChild.id])
+            Logger.log('Absent locally:', {serverChild: serverChild, cacheChild: removedChild})
             await this.syncTree({ cacheItem: removedChild, serverItem: serverChild, serverOrder, localOrder })
           },
           this.concurrency
@@ -452,15 +495,6 @@ export default class SyncProcess {
       })(),
       (async () => {
         // CREATED UPSTREAM
-        Logger.log('Check children created upstream')
-        let createdUpstream = serverItem.children.filter(
-          child =>
-            !(cacheItem || localItem).children.some(
-              cacheChild =>
-                mappingsSnapshot.ServerToLocal[child.type + 's'][child.id] ===
-                cacheChild.id
-            )
-        )
         await Parallel.each(
           createdUpstream,
           async newChild => {
@@ -469,6 +503,7 @@ export default class SyncProcess {
               return localChild.canMergeWith(newChild)
             })
             if (localChild) return
+            Logger.log('New upstream:', {serverChild: newChild})
             await this.syncTree({ serverItem: newChild, localOrder, serverOrder })
           },
           this.concurrency
@@ -476,22 +511,12 @@ export default class SyncProcess {
       })(),
       (async () => {
         // REMOVED UPSTREAM
-        Logger.log('Check children removed upstream')
-        let removedUpstream = cacheItem ?
-          cacheItem.children.filter(
-            cache =>
-              !serverItem.children.some(
-                server =>
-                  mappingsSnapshot.ServerToLocal[cache.type + 's'][server.id] ===
-                  cache.id
-              )
-          )
-          : []
         await Parallel.each(
           removedUpstream,
           async oldChild => {
             const localChild =
               this.localTreeRoot.findItem(oldChild.type, oldChild.id)
+            Logger.log('Absent upstream:', {cacheChild: oldChild, localChild})
             await this.syncTree({ localItem: localChild, cacheItem: oldChild, localOrder, serverOrder })
           },
           this.concurrency
@@ -499,17 +524,6 @@ export default class SyncProcess {
       })(),
       (async () => {
         // RECURSE EXISTING ITEMS
-        Logger.log('Check unmoved children')
-
-        // Note: we're intentionally using the original snapshot here!
-        let existingItems =
-          localItem.children.filter(local =>
-            serverItem.children.some(
-              server =>
-                mappingsSnapshot.ServerToLocal[local.type + 's'][server.id] ===
-                local.id
-            )
-          )
         await Parallel.each(
           existingItems,
           async existingChild => {
@@ -524,6 +538,7 @@ export default class SyncProcess {
                 cacheChild => cacheChild.id === existingChild.id
               )
               : null
+            Logger.log('Present upstream and locally:', {localChild: existingChild, cacheChild, serverChild})
             await this.syncTree({
               localItem: existingChild,
               cacheItem: cacheChild,
@@ -666,7 +681,13 @@ export default class SyncProcess {
         cacheChild = this.cacheTreeRoot.findItem(localChild.type, localChild.id)
       }
 
-      await this.syncTree({ localChild, cacheChild, serverChild })
+      await this.syncTree({
+        localItem: localChild,
+        cacheItem: cacheChild,
+        serverItem: serverChild,
+        localOrder: new OrderTracker({ toFolder: folder }),
+        serverOrder: new OrderTracker({ toFolder: folder })
+      })
     })
     // remove folder from resource
     await toResource.removeFolder(folder.id)
