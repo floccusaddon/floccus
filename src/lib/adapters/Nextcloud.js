@@ -218,7 +218,7 @@ export default class NextcloudAdapter extends Adapter {
     })
 
     this.tree = tree
-    return tree
+    return tree.clone()
   }
 
   async createFolder(parentId, title) {
