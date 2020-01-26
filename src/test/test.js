@@ -992,7 +992,7 @@ describe('Floccus', function() {
           const bookmark1 = await browser.bookmarks.create({
             title: 'url',
             url: 'http://ur.l/',
-            parentId: fooFolder.id
+            parentId: barFolder.id
           })
           await account.sync() // propagate to server
           expect(account.getData().error).to.not.be.ok
@@ -1001,7 +1001,7 @@ describe('Floccus', function() {
             title: 'sub',
             parentId: fooFolder.id
           })
-          await browser.bookmarks.move(barFolder.id, {parentId: subFolder.id})
+          await browser.bookmarks.move(bookmark1.id, {parentId: subFolder.id})
 
           await account.sync() // propagate to server
           expect(account.getData().error).to.not.be.ok
@@ -1037,7 +1037,7 @@ describe('Floccus', function() {
           expectTreeEqual(
             localTree,
             new Folder({
-              title: tree.title,
+              title: localTree.title,
               children: [
                 new Folder({
                   title: 'bar',
