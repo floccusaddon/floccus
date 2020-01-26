@@ -4,34 +4,63 @@ export default class OrderTracker {
     this.toFolder = toFolder
     this.order = toFolder
       ? toFolder.children.map(child => ({
-          type: child.type,
-          id: child.id
-        }))
+        type: child.type,
+        id: child.id
+      }))
       : []
+    this.pendingOps = 0
   }
 
   insert(type, fromId, toId) {
-    const entry = {
-      type: type,
-      id: toId
+    this.pendingOps++
+    return () => {
+      const entry = {
+        type: type,
+        id: toId
+      }
+      this.order.splice(
+        this.fromFolder.children.findIndex(
+          child => child.id === fromId && child.type === type
+        ),
+        0,
+        entry
+      )
+      this.pendingOps--
+      this.checkFinished()
     }
-    this.order.splice(
-      this.fromFolder.children.findIndex(
-        child => child.id === fromId && child.type === type
-      ),
-      0,
-      entry
-    )
   }
 
   remove(type, toId) {
-    this.order.splice(
-      this.order.findIndex(item => item.id === toId && item.type === type),
-      1
-    )
+    this.pendingOps++
+    return () => {
+      this.order.splice(
+        this.order.findIndex(item => item.id === toId && item.type === type),
+        1
+      )
+      this.pendingOps--
+      this.checkFinished()
+    }
   }
 
-  getOrder() {
+  async getOrder() {
+    await this.onFinished()
     return this.order
+  }
+
+  isFinished() {
+    return this.pendingOps === 0
+  }
+
+  onFinished() {
+    return new Promise(resolve => {
+      this.finishedCb = resolve
+      this.checkFinished()
+    })
+  }
+
+  checkFinished() {
+    if (this.isFinished() && this.finishedCb) {
+      this.finishedCb()
+    }
   }
 }

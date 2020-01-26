@@ -40,7 +40,7 @@ export default class SyncProcess {
     // The queue concurrency is for bookmark syncTree tasks
     this.queue = new PQueue({ concurrency: 20 })
     // the `concurrency` is for folder tasks created in a parent folder
-    if (parallel) {
+    if (true) {
       this.concurrency = 10
     } else {
       this.concurrency = 1
@@ -72,12 +72,12 @@ export default class SyncProcess {
     await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
 
     if (('loadFolderChildren' in this.server)) {
-        Logger.log('Loading sparse tree as necessary')
-        // Load sparse tree
-        await this.loadChildren(
-          this.serverTreeRoot,
-          this.mappings.getSnapshot()
-        )
+      Logger.log('Loading sparse tree as necessary')
+      // Load sparse tree
+      await this.loadChildren(
+        this.serverTreeRoot,
+        this.mappings.getSnapshot()
+      )
     }
 
     // generate hashtables to find items faster
@@ -196,9 +196,9 @@ export default class SyncProcess {
       })
     } else if (!localItem && cacheItem && !serverItem) {
       if (cacheItem instanceof Tree.Bookmark) {
-        await this.mappings.removeBookmark({localId: cacheItem.id})
-      }else{
-        await this.mappings.removeFolder({localId: cacheItem.id})
+        await this.mappings.removeBookmark({ localId: cacheItem.id })
+      } else {
+        await this.mappings.removeFolder({ localId: cacheItem.id })
       }
     }
   }
@@ -270,18 +270,15 @@ export default class SyncProcess {
 
       // check if it was moved here from somewhere else
       if (folder.moved) {
-        Logger.log('create branch: This folder was moved here in fromTree and has been dealt with in a delete branch')
-        // Add to order
-        toOrder.insert('folder', folder.id, oldFolder.id)
-        return
+        folder.moved()
+      }else{
+        folder.moved = true
       }
 
-
-      folder.moved = true
-      Logger.log('create branch: This folder was moved here in fromTree')
-
       // Add to order
-      toOrder.insert('folder', folder.id, oldFolder.id)
+      toOrder.insert('folder', folder.id, oldFolder.id)()
+
+      Logger.log('create branch: This folder was moved here in fromTree')
 
       if (toTree === this.localTreeRoot) {
         const cacheFolder = this.cacheTreeRoot.findFolder(oldFolder.id)
@@ -290,6 +287,7 @@ export default class SyncProcess {
         const cacheFolder = this.cacheTreeRoot.findFolder(folder.id)
         await this.syncTree({ localItem: folder, cacheItem: cacheFolder, serverItem: oldFolder })
       }
+
       return
     }
 
@@ -299,16 +297,20 @@ export default class SyncProcess {
       folder.title
     )
 
-    // Add to order
-    toOrder.insert('folder', folder.id, newId)
-
     // Add to mappings
     const localId = toTree === this.localTreeRoot ? newId : folder.id
     const remoteId = toTree === this.localTreeRoot ? folder.id : newId
     await this.mappings.addFolder({ localId, remoteId })
 
+    let containsMovedItems = false
+    await folder.traverse(async (item) => {
+      if (item.moved) {
+        containsMovedItems = true
+      }
+    })
+
     let importedFolder
-    if (toResource.bulkImportFolder) {
+    if (toResource.bulkImportFolder && !containsMovedItems) {
       try {
         importedFolder = await toResource.bulkImportFolder(newId, folder)
         importedFolder.parentId = mapping.folders[folder.parentId]
@@ -352,10 +354,13 @@ export default class SyncProcess {
       if (this.preserveOrder) {
         await toResource.orderFolder(
           newId,
-          orderTracker.getOrder()
+          await orderTracker.getOrder()
         )
       }
     }
+
+    // Add to order
+    toOrder.insert('folder', folder.id, newId)()
   }
 
   async folderHasChanged(localItem, cacheItem, serverItem) {
@@ -407,121 +412,130 @@ export default class SyncProcess {
     let localOrder = new OrderTracker({ fromFolder: serverItem, toFolder: localItem })
     let serverOrder = new OrderTracker({ fromFolder: localItem, toFolder: serverItem })
 
-    // CREATED LOCALLY
-    Logger.log('Check locally created children')
-    let createdLocally = localItem.children.filter(
-      local =>
-        !cacheItem || !cacheItem.children.some(cache => local.id === cache.id)
-    )
-    await Parallel.each(
-      createdLocally,
-      async addedChild => {
-        // merge this with an item created on the server
-        const serverChild = _.find(serverItem.children, serverChild => {
-          return serverChild.canMergeWith(addedChild) && !serverChild.merged
-        })
-        if (serverChild) serverChild.merged = true
-        await this.syncTree({ localItem: addedChild, serverItem: serverChild, localOrder, serverOrder })
-      },
-      this.concurrency
-    )
-
-    // REMOVED LOCALLY
-    Logger.log('Check locally removed children')
-    let removedLocally = cacheItem ? cacheItem.children.filter(
-      cache => !localItem.children.some(local => local.id === cache.id)
-      )
-      : []
-    await Parallel.each(
-      removedLocally,
-      async removedChild => {
-        const serverChild =
-          this.serverTreeRoot.findItem(removedChild.type, mappingsSnapshot.LocalToServer[removedChild.type + 's'][removedChild.id])
-        await this.syncTree({ cacheItem: removedChild, serverItem: serverChild, serverOrder, localOrder })
-      },
-      this.concurrency
-    )
-
-    // take a new snapshot since the server or we ourselves might have deduplicated above
-    let newMappingsSnapshot = this.mappings.getSnapshot()
-
-    // CREATED UPSTREAM
-    Logger.log('Check children created upstream')
-    let createdUpstream = serverItem.children.filter(
-      child =>
-        !(cacheItem || localItem).children.some(
-          cacheChild =>
-            mappingsSnapshot.ServerToLocal[child.type + 's'][child.id] ===
-            cacheChild.id ||
-            newMappingsSnapshot.ServerToLocal[child.type + 's'][child.id] ===
-            cacheChild.id
+    await Promise.all([
+      (async () => {
+        // CREATED LOCALLY
+        Logger.log('Check locally created children')
+        let createdLocally = localItem.children.filter(
+          local =>
+            !cacheItem || !cacheItem.children.some(cache => local.id === cache.id)
         )
-    )
-    await Parallel.each(
-      createdUpstream,
-      async newChild => {
-        if (newChild.merged) return false
-        await this.syncTree({ serverItem: newChild, localOrder, serverOrder })
-      },
-      this.concurrency
-    )
-
-    // REMOVED UPSTREAM
-    Logger.log('Check children removed upstream')
-    let removedUpstream = cacheItem ?
-      cacheItem.children.filter(
-        cache =>
-          !serverItem.children.some(
-            server =>
-              mappingsSnapshot.ServerToLocal[cache.type + 's'][server.id] ===
-              cache.id ||
-              newMappingsSnapshot.ServerToLocal[cache.type + 's'][
-                server.id
-                ] === cache.id
+        await Parallel.each(
+          createdLocally,
+          async addedChild => {
+            // merge this with an item created on the server
+            const serverChild = _.find(serverItem.children, serverChild => {
+              return serverChild.canMergeWith(addedChild) && !serverChild.merged
+            })
+            if (serverChild) serverChild.merged = true
+            await this.syncTree({ localItem: addedChild, serverItem: serverChild, localOrder, serverOrder })
+          },
+          this.concurrency
+        )
+      })(),
+      (async () => {
+        // REMOVED LOCALLY
+        Logger.log('Check locally removed children')
+        let removedLocally = cacheItem ? cacheItem.children.filter(
+          cache => !localItem.children.some(local => local.id === cache.id)
           )
-      )
-      : []
-    await Parallel.each(
-      removedUpstream,
-      async oldChild => {
-        const localChild =
-          this.localTreeRoot.findItem(oldChild.type, oldChild.id)
-        await this.syncTree({ localItem: localChild, cacheItem: oldChild, localOrder, serverOrder })
-      },
-      this.concurrency
-    )
-
-    // RECURSE EXISTING ITEMS
-
-    Logger.log('Check unmoved children')
-
-    // Note: we're intentionally using the original snapshot here!
-    let existingItems =
-      localItem.children.filter(local =>
-        serverItem.children.some(
-          server =>
-            mappingsSnapshot.ServerToLocal[local.type + 's'][server.id] ===
-            local.id
+          : []
+        await Parallel.each(
+          removedLocally,
+          async removedChild => {
+            const serverChild =
+              this.serverTreeRoot.findItem(removedChild.type, mappingsSnapshot.LocalToServer[removedChild.type + 's'][removedChild.id])
+            await this.syncTree({ cacheItem: removedChild, serverItem: serverChild, serverOrder, localOrder })
+          },
+          this.concurrency
         )
-      )
-    await Parallel.each(
-      existingItems,
-      async existingChild => {
-        const serverChild = this.serverTreeRoot.findItem(
-          existingChild.type,
-          mappingsSnapshot.LocalToServer[existingChild.type + 's'][existingChild.id]
+      })(),
+      (async () => {
+        // CREATED UPSTREAM
+        Logger.log('Check children created upstream')
+        let createdUpstream = serverItem.children.filter(
+          child =>
+            !(cacheItem || localItem).children.some(
+              cacheChild =>
+                mappingsSnapshot.ServerToLocal[child.type + 's'][child.id] ===
+                cacheChild.id
+            )
         )
-
-        const cacheChild = cacheItem
-          ? _.find(
-            cacheItem.children,
-            cacheChild => cacheChild.id === existingChild.id
+        await Parallel.each(
+          createdUpstream,
+          async newChild => {
+            if (newChild.merged) return
+            const localChild = _.find(localItem.children, localChild => {
+              return localChild.canMergeWith(newChild)
+            })
+            if (localChild) return
+            await this.syncTree({ serverItem: newChild, localOrder, serverOrder })
+          },
+          this.concurrency
+        )
+      })(),
+      (async () => {
+        // REMOVED UPSTREAM
+        Logger.log('Check children removed upstream')
+        let removedUpstream = cacheItem ?
+          cacheItem.children.filter(
+            cache =>
+              !serverItem.children.some(
+                server =>
+                  mappingsSnapshot.ServerToLocal[cache.type + 's'][server.id] ===
+                  cache.id
+              )
           )
-          : null
-        await this.syncTree({ localItem: existingChild, cacheItem: cacheChild, serverItem: serverChild, localOrder, serverOrder })
-      },
-      this.concurrency
-    )
+          : []
+        await Parallel.each(
+          removedUpstream,
+          async oldChild => {
+            const localChild =
+              this.localTreeRoot.findItem(oldChild.type, oldChild.id)
+            await this.syncTree({ localItem: localChild, cacheItem: oldChild, localOrder, serverOrder })
+          },
+          this.concurrency
+        )
+      })(),
+      (async () => {
+        // RECURSE EXISTING ITEMS
+        Logger.log('Check unmoved children')
+
+        // Note: we're intentionally using the original snapshot here!
+        let existingItems =
+          localItem.children.filter(local =>
+            serverItem.children.some(
+              server =>
+                mappingsSnapshot.ServerToLocal[local.type + 's'][server.id] ===
+                local.id
+            )
+          )
+        await Parallel.each(
+          existingItems,
+          async existingChild => {
+            const serverChild = this.serverTreeRoot.findItem(
+              existingChild.type,
+              mappingsSnapshot.LocalToServer[existingChild.type + 's'][existingChild.id]
+            )
+
+            const cacheChild = cacheItem
+              ? _.find(
+                cacheItem.children,
+                cacheChild => cacheChild.id === existingChild.id
+              )
+              : null
+            await this.syncTree({
+              localItem: existingChild,
+              cacheItem: cacheChild,
+              serverItem: serverChild,
+              localOrder,
+              serverOrder
+            })
+          },
+          this.concurrency
+        )
+      })()
+    ])
 
     // ORDER CHILDREN
     await this.syncChildOrder({ localItem, cacheItem, serverItem, localOrder, serverOrder })
@@ -535,24 +549,28 @@ export default class SyncProcess {
       enPar
     } = await this.folderHasChanged(localItem, cacheItem, serverItem)
 
-    if (this.preserveOrder && !enPar) {
-      if (changedLocally || reconciled) {
-        await this.server.orderFolder(
-          serverItem.id,
-          localOrder.getOrder().map(item => ({
-            id: newMappingsSnapshot.LocalToServer[item.type + 's'][item.id],
-            type: item.type
-          }))
-        )
-      } else {
-        await this.localTree.orderFolder(
-          localItem.id,
-          serverOrder.getOrder().map(item => ({
-            id: newMappingsSnapshot.ServerToLocal[item.type + 's'][item.id],
-            type: item.type
-          }))
-        )
-      }
+    if (!this.preserveOrder) return
+    if (enPar) return
+
+    await localOrder.onFinished()
+    await serverOrder.onFinished()
+
+    if (changedLocally || reconciled) {
+      await this.server.orderFolder(
+        serverItem.id,
+        (await localOrder.getOrder()).map(item => ({
+          id: newMappingsSnapshot.LocalToServer[item.type + 's'][item.id],
+          type: item.type
+        }))
+      )
+    } else {
+      await this.localTree.orderFolder(
+        localItem.id,
+        (await serverOrder.getOrder()).map(item => ({
+          id: newMappingsSnapshot.ServerToLocal[item.type + 's'][item.id],
+          type: item.type
+        }))
+      )
     }
   }
 
@@ -617,7 +635,7 @@ export default class SyncProcess {
         '-- moves take precedence to preserve data'
       )
       // remove from order
-      toOrder.remove('folder', folder.id)
+      toOrder.remove('folder', folder.id)()
       return
     }
 
@@ -626,24 +644,11 @@ export default class SyncProcess {
     if ((newFolder = fromTree.findFolder(reverseMapping.folders[folder.id]))) {
       if (newFolder.moved) {
         Logger.log('remove branch: This folder was moved in fromTree and has been dealt with')
-
         // remove from order
-        toOrder.remove('folder', folder.id)
-        return
-      }
-
-      newFolder.moved = true
-      Logger.log('remove branch: This folder was moved away from here in fromTree to somewhere else in fromTree')
-
-      // remove from order
-      toOrder.remove('folder', folder.id)
-
-      if (toTree === this.localTreeRoot) {
-        const cacheFolder = this.cacheTreeRoot.findFolder(folder.id)
-        await this.syncTree({ localItem: folder, cacheItem: cacheFolder, serverItem: newFolder })
+        toOrder.remove('folder', folder.id)()
       } else {
-        const cacheFolder = this.cacheTreeRoot.findFolder(newFolder.id)
-        await this.syncTree({ localItem: newFolder, cacheItem: cacheFolder, serverItem: folder })
+        Logger.log('remove branch: This folder was moved away from here in fromTree to somewhere else in fromTree')
+        newFolder.moved = toOrder.remove('folder', folder.id)
       }
       return
     }
@@ -667,7 +672,7 @@ export default class SyncProcess {
     await toResource.removeFolder(folder.id)
 
     // remove from order
-    toOrder.remove('folder', folder.id)
+    toOrder.remove('folder', folder.id)()
 
     // remove from mappings
     const localId = toTree === this.localTreeRoot ? folder.id : null
@@ -700,19 +705,10 @@ export default class SyncProcess {
         return
       }
 
-      if (bookmark.moved) {
-        Logger.log('create branch: This bookmark was moved here in fromTree and has been dealt with')
-        // add to order
-        toOrder.insert('bookmark', bookmark.id, oldMark.id)
-        return
-      }
-
-      // mark as moved to avoid syncing twice
-      bookmark.moved = true
       Logger.log('create branch: This bookmark was moved here from somewhere else in from tree')
 
       // add to order
-      toOrder.insert('bookmark', bookmark.id, oldMark.id)
+      toOrder.insert('bookmark', bookmark.id, oldMark.id)()
 
       if (toTree === this.localTreeRoot) {
         const cacheMark = this.cacheTreeRoot.findBookmark(oldMark.id)
@@ -721,7 +717,12 @@ export default class SyncProcess {
         const cacheMark = this.cacheTreeRoot.findBookmark(bookmark.id)
         await this.syncTree({ localItem: bookmark, cacheItem: cacheMark, serverItem: oldMark })
       }
-      return true
+      if (bookmark.moved) {
+        bookmark.moved()
+      } else {
+        bookmark.moved = true
+      }
+      return
     }
 
     // create in resource
@@ -734,7 +735,7 @@ export default class SyncProcess {
     )
 
     // add to order
-    toOrder.insert('bookmark', bookmark.id, newId)
+    toOrder.insert('bookmark', bookmark.id, newId)()
 
     // add to mappings
     const localId = toTree === this.localTreeRoot ? newId : bookmark.id
@@ -827,7 +828,7 @@ export default class SyncProcess {
         'remove branch: This bookmark was removed in fromTree and concurrently moved somewhere else intoTree -- moves take precedence'
       )
       // remove bookmark from order
-      toOrder.remove('bookmark', bookmark.id)
+      //toOrder.remove('bookmark', bookmark.id)()
       return true
     }
 
@@ -836,25 +837,12 @@ export default class SyncProcess {
     if ((newMark = fromTree.findBookmark(reverseMapping.bookmarks[bookmark.id]))) {
       if (newMark.moved) {
         Logger.log('remove branch: This bookmark was moved away from here in fromTree and has been dealt with')
-
         // remove bookmark from order
-        toOrder.remove('bookmark', bookmark.id)
-        return
-      }
-
-      // mark as moved to avoid syncing twice
-      newMark.moved = true
-      Logger.log('remove branch: This bookmark was moved away to somewhere else in fromTree')
-
-      // remove bookmark from order
-      toOrder.remove('bookmark', bookmark.id)
-
-      if (toTree === this.localTreeRoot) {
-        const cacheMark = this.cacheTreeRoot.findBookmark(bookmark.id)
-        await this.syncTree({localItem: bookmark, cacheItem: cacheMark, serverItem: newMark})
+        toOrder.remove('bookmark', bookmark.id)()
       } else {
-        const cacheMark = this.cacheTreeRoot.findBookmark(newMark.id)
-        await this.syncTree({localItem: newMark, cacheItem: cacheMark, serverItem: bookmark})
+        Logger.log('remove branch: This bookmark was moved away to somewhere else in fromTree')
+        // remove bookmark from order
+        newMark.moved = toOrder.remove('bookmark', bookmark.id)
       }
       return
     }
@@ -863,7 +851,7 @@ export default class SyncProcess {
     await toResource.removeBookmark(bookmark.id)
 
     // remove bookmark from order
-    toOrder.remove('bookmark', bookmark.id)
+    toOrder.remove('bookmark', bookmark.id)()
 
     // remove bookmark from mappings
     await this.mappings.removeBookmark({
