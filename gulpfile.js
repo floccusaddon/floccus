@@ -2,6 +2,7 @@ var gulp = require('gulp')
 var fs = require('fs')
 var webpack = require('webpack')
 var config = require('./webpack.prod')
+var devConfig = require('./webpack.dev')
 var gulpZip = require('gulp-zip')
 var crx3 = require('crx3')
 var webstoreClient = require('chrome-webstore-upload')
@@ -48,6 +49,17 @@ const js = function() {
   }))
 }
 
+const devjs = function() {
+  return new Promise(resolve => webpack(devConfig, (err, stats) => {
+
+    if (err) console.log('Webpack', err)
+
+    console.log(stats.toString({ /* stats options */ }))
+
+    resolve()
+  }))
+}
+
 const html = function() {
   return gulp.src(paths.views).pipe(gulp.dest('./dist/html/'))
 }
@@ -72,6 +84,8 @@ const mocha = gulp.parallel(mochajs, mochacss)
 const thirdparty = gulp.parallel(polyfill, mocha)
 
 const main = gulp.series(html, js, thirdparty)
+
+const dev = gulp.series(html, devjs, thirdparty)
 
 const zip = function() {
   return gulp
@@ -110,7 +124,7 @@ const publish = gulp.series(main, zip, function() {
 })
 
 const watch = function() {
-  let jsWatcher = gulp.watch(paths.js, js)
+  let jsWatcher = gulp.watch(paths.js, dev)
   let viewsWatcher = gulp.watch(paths.views, html)
 
   jsWatcher.on('change', onWatchEvent)
@@ -128,8 +142,9 @@ exports.js = js
 exports.mocha = mocha
 exports.watch = watch
 exports.release = release
-exports.watch = gulp.series(main, watch)
+exports.watch = gulp.series(dev, watch)
 exports.publish = publish
+exports.dev = dev
 /*
  * Define default task that can be called by just running `gulp` from cli
  */
