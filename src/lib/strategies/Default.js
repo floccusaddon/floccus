@@ -32,7 +32,6 @@ export default class SyncProcess {
 
     this.preserveOrder = ('orderFolder' in this.server)
 
-    this.progress = 0.05
     this.progressCb = throttle(250, true, progressCb)
     this.done = 0
     this.canceled = false
@@ -40,10 +39,10 @@ export default class SyncProcess {
     // The queue concurrency is for bookmark syncTree tasks
     this.queue = new PQueue({ concurrency: 20 })
     // the `concurrency` is for folder tasks created in a parent folder
-    if (true) {
+    if (parallel) {
       this.concurrency = 10
     } else {
-      this.concurrency = 1
+      this.concurrency = 2
     }
   }
 
