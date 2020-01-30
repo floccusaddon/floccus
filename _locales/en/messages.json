@@ -292,6 +292,6 @@
     "message": "Make a regular donation via GitHub sponsors to support the project"
   },
   "LegacyAdapterDeprecation": {
-    "message": "Warning! This legacy account type is deprecated and will soon be removed. Please switch to the new nextcloud sync method. Improved performance and precision await you."
+    "message": "Warning! This legacy account type is deprecated and will soon be removed. Please switch to the new nextcloud sync method. Improved performance and accuracy await you."
   }
 }
