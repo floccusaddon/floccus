@@ -816,6 +816,86 @@ describe('Floccus', function() {
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
         })
+        it('should be able to delete a server folder', async function() {
+          const adapter = account.server
+          expect(
+            (await adapter.getBookmarksTree(true)).children
+          ).to.have.lengthOf(0)
+
+          const localRoot = account.getData().localRoot
+          const fooFolder = await browser.bookmarks.create({
+            title: 'foo',
+            parentId: localRoot
+          })
+          const barFolder = await browser.bookmarks.create({
+            title: 'bar',
+            parentId: fooFolder.id
+          })
+          const bookmark = await browser.bookmarks.create({
+            title: 'url',
+            url: 'http://ur.l/',
+            parentId: barFolder.id
+          })
+          await account.sync()
+          expect(account.getData().error).to.not.be.ok
+
+          await browser.bookmarks.removeTree(fooFolder.id)
+
+          await account.sync()
+          expect(account.getData().error).to.not.be.ok
+
+          const tree = await adapter.getBookmarksTree(true)
+          expectTreeEqual(
+            tree,
+            new Folder({
+              title: tree.title,
+              children: []
+            }),
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+        })
+        it('should be able to delete a local folder', async function() {
+          const adapter = account.server
+          expect(
+            (await adapter.getBookmarksTree(true)).children
+          ).to.have.lengthOf(0)
+
+          const localRoot = account.getData().localRoot
+          const fooFolder = await browser.bookmarks.create({
+            title: 'foo',
+            parentId: localRoot
+          })
+          const barFolder = await browser.bookmarks.create({
+            title: 'bar',
+            parentId: fooFolder.id
+          })
+          const bookmark = await browser.bookmarks.create({
+            title: 'url',
+            url: 'http://ur.l/',
+            parentId: barFolder.id
+          })
+          await account.sync()
+          expect(account.getData().error).to.not.be.ok
+
+
+          if (adapter.onSyncStart) await adapter.onSyncStart()
+          let tree = await adapter.getBookmarksTree(true)
+          await adapter.removeFolder(tree.children[0].id)
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
+          await account.sync()
+          expect(account.getData().error).to.not.be.ok
+
+          tree = await adapter.getBookmarksTree(true)
+          expectTreeEqual(
+            tree,
+            new Folder({
+              title: tree.title,
+              children: []
+            }),
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+        })
         it('should be ok if both server and local bookmark are removed', async function() {
           const adapter = account.server
 
