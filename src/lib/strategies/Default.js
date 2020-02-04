@@ -303,7 +303,7 @@ export default class SyncProcess {
 
     let containsMovedItems = false
     await folder.traverse(async (item) => {
-      if (item.moved) {
+      if (toTree.findItem(item.type, mapping[item.type+'s'][item.id])) {
         containsMovedItems = true
       }
     })

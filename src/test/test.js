@@ -1081,7 +1081,7 @@ describe('Floccus', function() {
             title: 'sub',
             parentId: fooFolder.id
           })
-          await browser.bookmarks.move(bookmark1.id, {parentId: subFolder.id})
+          await browser.bookmarks.move(bookmark1.id, { parentId: subFolder.id })
 
           await account.sync() // propagate to server
           expect(account.getData().error).to.not.be.ok
@@ -1094,8 +1094,7 @@ describe('Floccus', function() {
               children: [
                 new Folder({
                   title: 'bar',
-                  children: [
-                  ]
+                  children: []
                 }),
                 new Folder({
                   title: 'foo',
@@ -1121,8 +1120,7 @@ describe('Floccus', function() {
               children: [
                 new Folder({
                   title: 'bar',
-                  children: [
-                  ]
+                  children: []
                 }),
                 new Folder({
                   title: 'foo',
@@ -1131,6 +1129,108 @@ describe('Floccus', function() {
                       title: 'sub',
                       children: [
                         new Bookmark({ title: 'url', url: 'http://ur.l/' })
+                      ]
+                    })
+                  ]
+                })
+              ]
+            }),
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+        })
+        it('should move items successfully when mixing creation and moving', async function() {
+          const localRoot = account.getData().localRoot
+
+          const adapter = account.server
+          expect(
+            (await adapter.getBookmarksTree(true)).children
+          ).to.have.lengthOf(0)
+
+          const barFolder = await browser.bookmarks.create({
+            title: 'bar',
+            parentId: localRoot
+          })
+          const fooFolder = await browser.bookmarks.create({
+            title: 'foo',
+            parentId: localRoot
+          })
+          const bookmark1 = await browser.bookmarks.create({
+            title: 'url',
+            url: 'http://ur.l/',
+            parentId: barFolder.id
+          })
+          await account.sync() // propagate to server
+          expect(account.getData().error).to.not.be.ok
+
+          const topFolder = await browser.bookmarks.create({
+            title: 'top',
+            parentId: localRoot
+          })
+          const subFolder = await browser.bookmarks.create({
+            title: 'sub',
+            parentId: topFolder.id
+          })
+          await browser.bookmarks.move(fooFolder.id, { parentId: subFolder.id })
+          await browser.bookmarks.move(barFolder.id, { parentId: fooFolder.id })
+
+          await account.sync() // propagate to server
+          expect(account.getData().error).to.not.be.ok
+
+          const tree = await adapter.getBookmarksTree(true)
+          expectTreeEqual(
+            tree,
+            new Folder({
+              title: tree.title,
+              children: [
+                new Folder({
+                  title: 'top',
+                  children: [
+                    new Folder({
+                      title: 'sub',
+                      children: [
+                        new Folder({
+                          title: 'foo',
+                          children: [
+                            new Folder({
+                              title: 'bar',
+                              children: [
+                                new Bookmark({ title: 'url', url: 'http://ur.l/' })
+                              ]
+                            })
+                          ]
+                        })
+                      ]
+                    })
+                  ]
+                })
+              ]
+            }),
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+
+          const localTree = await account.localTree.getBookmarksTree(true)
+          expectTreeEqual(
+            localTree,
+            new Folder({
+              title: localTree.title,
+              children: [
+                new Folder({
+                  title: 'top',
+                  children: [
+                    new Folder({
+                      title: 'sub',
+                      children: [
+                        new Folder({
+                          title: 'foo',
+                          children: [
+                            new Folder({
+                              title: 'bar',
+                              children: [
+                                new Bookmark({ title: 'url', url: 'http://ur.l/' })
+                              ]
+                            })
+                          ]
+                        })
                       ]
                     })
                   ]
@@ -1620,9 +1720,9 @@ describe('Floccus', function() {
             )
           })
         })
-      context('with overwrite mode', function() {
-        before(function() {
-          if (ACCOUNT_DATA.type === 'nextcloud-legacy') return this.skip()
+        context('with overwrite mode', function() {
+          before(function() {
+            if (ACCOUNT_DATA.type === 'nextcloud-legacy') return this.skip()
           })
           it('should create local bookmarks on the server', async function() {
             await account.setData({
