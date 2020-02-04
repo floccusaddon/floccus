@@ -42,7 +42,7 @@ const VERSION = require('../package.json').version
             .getExtensionsInfo()
             .then(data => {
               return data
-                .filter(extension => extension.name === 'floccus')
+                .filter(extension => extension.name === 'floccus bookmarks sync')
                 .map(extension => extension.id)[0]
             })
             .then(callback)
