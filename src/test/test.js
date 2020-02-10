@@ -1138,7 +1138,7 @@ describe('Floccus', function() {
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
         })
-        it('should move items successfully when mixing creation and moving', async function() {
+        it('should move items successfully when mixing creation and moving (1)', async function() {
           const localRoot = account.getData().localRoot
 
           const adapter = account.server
@@ -1227,6 +1227,136 @@ describe('Floccus', function() {
                               title: 'bar',
                               children: [
                                 new Bookmark({ title: 'url', url: 'http://ur.l/' })
+                              ]
+                            })
+                          ]
+                        })
+                      ]
+                    })
+                  ]
+                })
+              ]
+            }),
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+        })
+        it('should move items successfully when mixing creation and moving (2)', async function() {
+          const localRoot = account.getData().localRoot
+
+          const adapter = account.server
+          expect(
+            (await adapter.getBookmarksTree(true)).children
+          ).to.have.lengthOf(0)
+
+          const aFolder = await browser.bookmarks.create({
+            title: 'a',
+            parentId: localRoot
+          })
+          const bFolder = await browser.bookmarks.create({
+            title: 'b',
+            parentId: aFolder.id
+          })
+          const cFolder = await browser.bookmarks.create({
+            title: 'c',
+            parentId: bFolder.id
+          })
+          const dFolder = await browser.bookmarks.create({
+            title: 'd',
+            parentId: cFolder.id
+          })
+          const bookmark1 = await browser.bookmarks.create({
+            title: 'url',
+            url: 'http://ur.l/',
+            parentId: dFolder.id
+          })
+          await account.sync() // propagate to server
+          expect(account.getData().error).to.not.be.ok
+
+          const eFolder = await browser.bookmarks.create({
+            title: 'e',
+            parentId: localRoot
+          })
+          await browser.bookmarks.move(bFolder.id, { parentId: eFolder.id })
+          const fFolder = await browser.bookmarks.create({
+            title: 'f',
+            parentId: bFolder.id
+          })
+          await browser.bookmarks.move(cFolder.id, { parentId: fFolder.id })
+
+          await account.sync() // propagate to server
+          expect(account.getData().error).to.not.be.ok
+
+          const tree = await adapter.getBookmarksTree(true)
+          expectTreeEqual(
+            tree,
+            new Folder({
+              title: tree.title,
+              children: [
+                new Folder({
+                  title: 'a',
+                  children: [
+                  ]
+                }),
+                new Folder({
+                  title: 'e',
+                  children: [
+                    new Folder({
+                      title: 'b',
+                      children: [
+                        new Folder({
+                          title: 'f',
+                          children: [
+                            new Folder({
+                              title: 'c',
+                              children: [
+                                new Folder({
+                                  title: 'd',
+                                  children: [
+                                    new Bookmark({ title: 'url', url: 'http://ur.l/' })
+                                  ]
+                                })
+                              ]
+                            })
+                          ]
+                        })
+                      ]
+                    })
+                  ]
+                })
+              ]
+            }),
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+
+          const localTree = await account.localTree.getBookmarksTree(true)
+          expectTreeEqual(
+            localTree,
+            new Folder({
+              title: localTree.title,
+              children: [
+                new Folder({
+                  title: 'a',
+                  children: [
+                  ]
+                }),
+                new Folder({
+                  title: 'e',
+                  children: [
+                    new Folder({
+                      title: 'b',
+                      children: [
+                        new Folder({
+                          title: 'f',
+                          children: [
+                            new Folder({
+                              title: 'c',
+                              children: [
+                                new Folder({
+                                  title: 'd',
+                                  children: [
+                                    new Bookmark({ title: 'url', url: 'http://ur.l/' })
+                                  ]
+                                })
                               ]
                             })
                           ]

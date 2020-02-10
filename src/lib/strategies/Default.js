@@ -2,6 +2,7 @@ import * as Tree from '../Tree'
 import Logger from '../Logger'
 import browser from '../browser-api'
 import OrderTracker from '../OrderTracker'
+import AsyncLock from 'async-lock'
 
 const _ = require('lodash')
 const Parallel = require('async-parallel')
@@ -35,6 +36,8 @@ export default class SyncProcess {
     this.progressCb = throttle(250, true, progressCb)
     this.done = 0
     this.canceled = false
+
+    this.moveFolderLock = new AsyncLock
 
     // The queue concurrency is for bookmark syncTree tasks
     this.queue = new PQueue({ concurrency: 20 })
@@ -258,35 +261,45 @@ export default class SyncProcess {
     }
     let oldFolder
     if ((oldFolder = toTree.findFolder(mapping.folders[folder.id]))) {
-      if (oldFolder.moved) {
-        // local changes are dealt with first, so this is deterministic
+      const localFolder = toTree === this.localTreeRoot? oldFolder : folder
+
+      if (this.moveFolderLock.isBusy(localFolder.id) && oldFolder.findFolder(mapping.folders[folder.parentId])) {
         Logger.log(
-          'create branch: This folder was moved here in fromTree and concurrently moved somewhere else in toTree, ' +
-          'but it has been dealt with'
+          'create branch: Detected hierarchy inversion. Stopping recursion / dead-lock'
         )
         return
       }
 
-      // check if it was moved here from somewhere else
-      if (folder.moved) {
-        folder.moved()
-      } else {
-        folder.moved = true
-      }
+      await this.moveFolderLock.acquire(localFolder.id, async () => {
+        if (oldFolder.moved) {
+          // local changes are dealt with first, so this is deterministic
+          Logger.log(
+            'create branch: This folder was moved here in fromTree and concurrently moved somewhere else in toTree, ' +
+            'but it has been dealt with'
+          )
+          return
+        }
 
-      // Add to order
-      toOrder.insert('folder', folder.id, oldFolder.id)()
 
-      Logger.log('create branch: This folder was moved here in fromTree')
+        if (folder.moved) {
+          folder.moved()
+        } else {
+          folder.moved = true
+        }
 
-      if (toTree === this.localTreeRoot) {
-        const cacheFolder = this.cacheTreeRoot.findFolder(oldFolder.id)
-        await this.syncTree({ localItem: oldFolder, cacheItem: cacheFolder, serverItem: folder })
-      } else {
-        const cacheFolder = this.cacheTreeRoot.findFolder(folder.id)
-        await this.syncTree({ localItem: folder, cacheItem: cacheFolder, serverItem: oldFolder })
-      }
+        Logger.log('create branch: This folder was moved here in fromTree')
 
+        if (toTree === this.localTreeRoot) {
+          const cacheFolder = this.cacheTreeRoot.findFolder(oldFolder.id)
+          await this.syncTree({ localItem: oldFolder, cacheItem: cacheFolder, serverItem: folder })
+        } else {
+          const cacheFolder = this.cacheTreeRoot.findFolder(folder.id)
+          await this.syncTree({ localItem: folder, cacheItem: cacheFolder, serverItem: oldFolder })
+        }
+
+        // Add to order
+        toOrder.insert('folder', folder.id, oldFolder.id)()
+      })
       return
     }
 
@@ -656,14 +669,23 @@ export default class SyncProcess {
     // check if it was moved from here to somewhere else
     let newFolder
     if ((newFolder = fromTree.findFolder(reverseMapping.folders[folder.id]))) {
-      if (newFolder.moved) {
-        Logger.log('remove branch: This folder was moved in fromTree and has been dealt with')
-        // remove from order
-        toOrder.remove('folder', folder.id)()
-      } else {
-        Logger.log('remove branch: This folder was moved away from here in fromTree to somewhere else in fromTree')
-        newFolder.moved = toOrder.remove('folder', folder.id)
+      const localFolder = toTree === this.localTreeRoot? folder : newFolder
+
+      if (this.moveFolderLock.isBusy(localFolder.id) && newFolder.findFolder(reverseMapping.folders[folder.parentId])) {
+        Logger.log('remove branch: Detected Folder hierarchy inversion. Stopping recursion / dead lock.')
+        return
       }
+
+      await this.moveFolderLock.acquire(localFolder.id, async () => {
+        if (newFolder.moved) {
+          Logger.log('remove branch: This folder was moved in fromTree and has been dealt with')
+          // remove from order
+          toOrder.remove('folder', folder.id)()
+        } else {
+          Logger.log('remove branch: This folder was moved away from here in fromTree to somewhere else in fromTree')
+          newFolder.moved = toOrder.remove('folder', folder.id)
+        }
+      })
       return
     }
 
