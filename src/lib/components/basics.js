@@ -125,8 +125,8 @@ export const Button = style('button')(props => ({
       ? COLORS.primary.light
       : COLORS.primary.plane
     : props.active
-    ? COLORS.primary.background
-    : 'white',
+      ? COLORS.primary.background
+      : 'white',
   ':hover': {
     backgroundColor: props.primary
       ? COLORS.primary.light
@@ -154,7 +154,7 @@ export const Account = ({ account }) => (state, actions) => {
   return (
     <AccountStyle key={account.id}>
       <div class="controls">
-        <AccountStatus account={account} />
+        <AccountStatus account={account}/>
       </div>
       <H2>{folderName}</H2>
       <div class="small">
@@ -162,7 +162,7 @@ export const Account = ({ account }) => (state, actions) => {
           {data.type + '://' + account.getLabel()}
         </code>
       </div>
-      <AccountStatusDetail account={account} />
+      <AccountStatusDetail account={account}/>
       <div class="controls">
         <Button
           onclick={e => {
@@ -238,25 +238,24 @@ export const AccountStatusDetail = ({ account }) => (state, actions) => {
   const data = account.getData()
   return (
     <AccountStatusDetailStyle>
-      {data.error ? (
-        data.error
-      ) : data.syncing ? (
-        <Progress value={data.syncing} />
-      ) : (data.lastSync
+      {
+        (data.error ? (
+          data.error
+        ) : (data.syncing ? (
+            <Progress value={data.syncing}/>
+          ) : (data.lastSync
           ? browser.i18n.getMessage(
-              'StatusLastsynced',
-              humanizeDuration(Date.now() - data.lastSync, {
-                largest: 1,
-                round: true
-              })
-            )
-          : browser.i18n.getMessage('StatusNeversynced')) +
-        ' ' +
-        (data.type === 'nextcloud' || data.type === 'nextcloud-legacy') ? (
-        browser.i18n.getMessage('LegacyAdapterDeprecation')
-      ) : (
-        ''
-      )}
+            'StatusLastsynced',
+            humanizeDuration(Date.now() - data.lastSync, {
+              largest: 1,
+              round: true
+            })
+          )
+          : browser.i18n.getMessage('StatusNeversynced')))) +
+          ' ' +
+          ((data.type === 'nextcloud' || data.type === 'nextcloud-legacy') ?
+            browser.i18n.getMessage('LegacyAdapterDeprecation') : '')
+      }
     </AccountStatusDetailStyle>
   )
 }
@@ -307,16 +306,16 @@ export const OptionSyncFolder = ({ account }) => (state, actions) => {
         placeholder={browser.i18n.getMessage('LabelRootfolder')}
         value={account.rootPath}
       />
-      <br />
+      <br/>
       <Button
         title={browser.i18n.getMessage('DescriptionReset')}
         disabled={!!account.syncing}
         onclick={e => {
           e.preventDefault()
           !account.syncing &&
-            actions.options.update({
-              data: { ...account, localRoot: null, rootPath: '*newly created*' }
-            })
+          actions.options.update({
+            data: { ...account, localRoot: null, rootPath: '*newly created*' }
+          })
         }}
       >
         {browser.i18n.getMessage('LabelReset')}
@@ -482,7 +481,7 @@ export const A = style('a')({
 export const Progress = ({ value }) => {
   return (
     <ProgressStyle value={value}>
-      <div />
+      <div/>
     </ProgressStyle>
   )
 }

@@ -24,28 +24,18 @@ env:
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake parallel-root" SELENIUM_BROWSER="firefox"
 
     # test on nc@14 bm@1.1.2 chrome
-    - SERVER_BRANCH=stable14 NC_APP_VERSION=v1.1.2 FLOCCUS_ADAPTER="nextcloud-legacy standard-root" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable14 NC_APP_VERSION=v1.1.2 FLOCCUS_ADAPTER="nextcloud-folders standard-root" SELENIUM_BROWSER="chrome"
 
     # test on nc@15 bm@stable chrome
-    - SERVER_BRANCH=stable15 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy standard-root" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable15 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders standard-root" SELENIUM_BROWSER="chrome"
 
     # test on nc@16 bm@stable chrome
-    - SERVER_BRANCH=stable16 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy standard-root" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable16 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders standard-root" SELENIUM_BROWSER="chrome"
 
     # test on nc@17 bm@stable chrome
-    - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy standard-root" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable17 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders standard-root" SELENIUM_BROWSER="chrome"
 
     # test on nc@18 bm@stable [standard, parallel] x [root, subfolder] x [firefox, chrome]
-    - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy standard-root" SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy standard-subfolder" SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy parallel-root" SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy standard-root" SELENIUM_BROWSER="firefox"
-    - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy standard-subfolder" SELENIUM_BROWSER="firefox"
-    - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy parallel-root" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders standard-root" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders standard-subfolder" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders parallel-root" SELENIUM_BROWSER="chrome"
@@ -75,10 +65,6 @@ env:
     - SERVER_BRANCH=master NC_APP_VERSION=master FLOCCUS_ADAPTER="fake benchmark parallel-root" SELENIUM_BROWSER="firefox"
 
     # benchmark on nc@latest bm@stable [standard, parallel] root [chrome, firefox]
-    - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy benchmark standard-root" SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy benchmark parallel-root" SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy benchmark standard-root" SELENIUM_BROWSER="firefox"
-    - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-legacy benchmark parallel-root" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders benchmark standard-root" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders pbenchmark arallel-root" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders benchmark standard-root" SELENIUM_BROWSER="firefox"
