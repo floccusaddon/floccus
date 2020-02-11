@@ -38,14 +38,9 @@ const VERSION = require('../package.json').version
         await new Promise(resolve => setTimeout(resolve, 5000))
         id = await driver.executeAsyncScript(function() {
           var callback = arguments[arguments.length - 1]
-          extensions.Service.getInstance()
-            .getExtensionsInfo()
-            .then(data => {
-              return data
-                .filter(extension => extension.name === 'floccus bookmarks sync')
-                .map(extension => extension.id)[0]
-            })
-            .then(callback)
+          var extension = document.getElementsByName('extensions-item-list').extensions
+            .find(extension => extension.name === 'floccus bookmarks sync')
+          callback(extension.id)
         })
         if (!id) throw new Error('Could not install extension')
         testUrl = `chrome-extension://${id}/`
