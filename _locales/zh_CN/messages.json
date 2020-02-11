@@ -290,5 +290,8 @@
   },
   "DescriptionGithubsponsors": {
     "message": "通过 GitHub sponsors 定期捐款以支持该项目"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "警告！此旧帐户类型已弃用，不久将被删除。请切换到新的nextcloud同步方法。提高性能和准确性等着您。"
   }
 }
