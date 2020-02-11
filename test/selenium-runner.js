@@ -38,7 +38,7 @@ const VERSION = require('../package.json').version
         await new Promise(resolve => setTimeout(resolve, 5000))
         id = await driver.executeAsyncScript(function() {
           var callback = arguments[arguments.length - 1]
-          var extension = document.getElementsByName('extensions-item-list').extensions
+          var extension = document.querySelector('extensions-manager').extensions_
             .find(extension => extension.name === 'floccus bookmarks sync')
           callback(extension.id)
         })
