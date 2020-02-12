@@ -36,7 +36,7 @@
     "prettier": "^1.19.1",
     "selenium-webdriver": "^4.0.0-alpha.5",
     "typescript": "^3.7.5",
-    "webpack": "^4.41.5",
+    "webpack": "^4.41.6",
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
