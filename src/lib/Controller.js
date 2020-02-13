@@ -92,7 +92,7 @@ export default class Controller {
 
     this.alarms.checkSync()
 
-    setInterval(() => this.updateStatus(), 500)
+    setInterval(() => this.updateStatus(), 1000)
   }
 
   setEnabled(enabled) {
