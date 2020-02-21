@@ -424,9 +424,17 @@ export default class SyncProcess {
     let localOrder = new OrderTracker({ fromFolder: serverItem, toFolder: localItem })
     let serverOrder = new OrderTracker({ fromFolder: localItem, toFolder: serverItem })
 
+    let existingItems =
+      localItem.children.filter(local =>
+        serverItem.children.some(
+          server =>
+            mappingsSnapshot.ServerToLocal[local.type + 's'][server.id] ===
+            local.id
+        )
+      )
     let createdLocally = localItem.children.filter(
       local =>
-        !cacheItem || !cacheItem.children.some(cache => local.id === cache.id)
+        (!cacheItem || !cacheItem.children.some(cache => local.id === cache.id)) && !existingItems.includes(local)
     )
     let removedLocally = cacheItem ? cacheItem.children.filter(
       cache => !localItem.children.some(local => local.id === cache.id)
@@ -454,14 +462,6 @@ export default class SyncProcess {
       local =>
         createdUpstream.some(server => server.canMergeWith(local))
     )
-    let existingItems =
-      localItem.children.filter(local =>
-        serverItem.children.some(
-          server =>
-            mappingsSnapshot.ServerToLocal[local.type + 's'][server.id] ===
-            local.id
-        )
-      )
 
     // CREATED LOCALLY AND UPSTREAM
     await Parallel.each(
@@ -511,10 +511,6 @@ export default class SyncProcess {
           createdUpstream,
           async newChild => {
             if (newChild.merged) return
-            const localChild = _.find(localItem.children, localChild => {
-              return localChild.canMergeWith(newChild)
-            })
-            if (localChild) return
             Logger.log('New upstream:', {serverChild: newChild})
             await this.syncTree({ serverItem: newChild, localOrder, serverOrder })
           },
