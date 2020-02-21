@@ -1294,8 +1294,7 @@ describe('Floccus', function() {
               children: [
                 new Folder({
                   title: 'a',
-                  children: [
-                  ]
+                  children: []
                 }),
                 new Folder({
                   title: 'e',
@@ -1336,8 +1335,7 @@ describe('Floccus', function() {
               children: [
                 new Folder({
                   title: 'a',
-                  children: [
-                  ]
+                  children: []
                 }),
                 new Folder({
                   title: 'e',
@@ -1361,6 +1359,100 @@ describe('Floccus', function() {
                             })
                           ]
                         })
+                      ]
+                    })
+                  ]
+                })
+              ]
+            }),
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+        })
+        it('should integrate existing items from both sides', async function() {
+          const localRoot = account.getData().localRoot
+
+          const adapter = account.server
+          expect(
+            (await adapter.getBookmarksTree(true)).children
+          ).to.have.lengthOf(0)
+
+          const aFolder = await browser.bookmarks.create({
+            title: 'a',
+            parentId: localRoot
+          })
+          const bFolder = await browser.bookmarks.create({
+            title: 'b',
+            parentId: aFolder.id
+          })
+          const bookmark1 = await browser.bookmarks.create({
+            title: 'url',
+            url: 'http://ur.l/',
+            parentId: aFolder.id
+          })
+          const bookmark2 = await browser.bookmarks.create({
+            title: 'url2',
+            url: 'http://ur.l/dalfk',
+            parentId: bFolder.id
+          })
+
+          await adapter.onSyncStart()
+          const aFolderId = await adapter.createFolder((await adapter.getBookmarksTree()).id, 'a')
+          const bookmark1Id = await adapter.createBookmark(new Bookmark({
+            title: 'url',
+            url: 'http://ur.l',
+            parentId: aFolderId
+          }))
+
+          const bFolderId = await adapter.createFolder(aFolderId, 'b')
+          const bookmark2Id = await adapter.createBookmark(new Bookmark({
+            title: 'url2',
+            url: 'http://ur.l/dalfk',
+            parentId: bFolderId
+          }))
+
+          await account.sync() // propagate to server
+          expect(account.getData().error).to.not.be.ok
+
+          await account.sync() // propagate to server
+          expect(account.getData().error).to.not.be.ok
+
+          const tree = await adapter.getBookmarksTree(true)
+          expectTreeEqual(
+            tree,
+            new Folder({
+              title: tree.title,
+              children: [
+                new Folder({
+                  title: 'a',
+                  children: [
+                    new Bookmark({ title: 'url', url: 'http://ur.l/' }),
+                    new Folder({
+                      title: 'b',
+                      children: [
+                        new Bookmark({ title: 'url2', url: 'http://ur.l/dalfk' })
+                      ]
+                    })
+                  ]
+                })
+              ]
+            }),
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+
+          const localTree = await account.localTree.getBookmarksTree(true)
+          expectTreeEqual(
+            localTree,
+            new Folder({
+              title: localTree.title,
+              children: [
+                new Folder({
+                  title: 'a',
+                  children: [
+                    new Bookmark({ title: 'url', url: 'http://ur.l/' }),
+                    new Folder({
+                      title: 'b',
+                      children: [
+                        new Bookmark({ title: 'url2', url: 'http://ur.l/dalfk' })
                       ]
                     })
                   ]
