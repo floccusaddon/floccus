@@ -243,18 +243,21 @@ export const AccountStatusDetail = ({ account }) => (state, actions) => {
           data.error
         ) : (data.syncing ? (
             <Progress value={data.syncing}/>
-          ) : (data.lastSync
-          ? browser.i18n.getMessage(
-            'StatusLastsynced',
-            humanizeDuration(Date.now() - data.lastSync, {
-              largest: 1,
-              round: true
-            })
-          )
-          : browser.i18n.getMessage('StatusNeversynced')))) +
-          ' ' +
-          ((data.type === 'nextcloud' || data.type === 'nextcloud-legacy') ?
-            browser.i18n.getMessage('LegacyAdapterDeprecation') : '')
+          ) : (
+              data.lastSync
+                ? browser.i18n.getMessage(
+                'StatusLastsynced',
+                humanizeDuration(Date.now() - data.lastSync, {
+                  largest: 1,
+                  round: true
+                })
+                )
+                : browser.i18n.getMessage('StatusNeversynced')
+            )
+            + ' ' +
+            ((data.type === 'nextcloud' || data.type === 'nextcloud-legacy') ?
+              browser.i18n.getMessage('LegacyAdapterDeprecation') : '')
+        ))
       }
     </AccountStatusDetailStyle>
   )
