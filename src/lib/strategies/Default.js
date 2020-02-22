@@ -281,9 +281,7 @@ export default class SyncProcess {
         }
 
 
-        if (folder.moved) {
-          folder.moved()
-        } else {
+        if (!folder.moved) {
           folder.moved = true
         }
 
@@ -295,6 +293,10 @@ export default class SyncProcess {
         } else {
           const cacheFolder = this.cacheTreeRoot.findFolder(folder.id)
           await this.syncTree({ localItem: folder, cacheItem: cacheFolder, serverItem: oldFolder })
+        }
+
+        if ('function' === typeof folder.moved) {
+          folder.moved()
         }
 
         // Add to order
@@ -745,8 +747,9 @@ export default class SyncProcess {
 
       Logger.log('create branch: This bookmark was moved here from somewhere else in from tree')
 
-      // add to order
-      toOrder.insert('bookmark', bookmark.id, oldMark.id)()
+      if (!bookmark.moved) {
+        bookmark.moved = true
+      }
 
       if (toTree === this.localTreeRoot) {
         const cacheMark = this.cacheTreeRoot.findBookmark(oldMark.id)
@@ -755,11 +758,14 @@ export default class SyncProcess {
         const cacheMark = this.cacheTreeRoot.findBookmark(bookmark.id)
         await this.syncTree({ localItem: bookmark, cacheItem: cacheMark, serverItem: oldMark })
       }
-      if (bookmark.moved) {
+
+      if ('function' === typeof bookmark.moved) {
         bookmark.moved()
-      } else {
-        bookmark.moved = true
       }
+
+      // add to order
+      toOrder.insert('bookmark', bookmark.id, oldMark.id)()
+
       return
     }
 
@@ -858,7 +864,7 @@ export default class SyncProcess {
       Logger.log(
         'We\'re not allowed to change any direct children of the absolute root folder. Skipping.'
       )
-      return false
+      return
     }
     if (bookmark.moved) {
       // local changes are deal with first in updateFolder, thus this is deterministic
@@ -866,8 +872,8 @@ export default class SyncProcess {
         'remove branch: This bookmark was removed in fromTree and concurrently moved somewhere else intoTree -- moves take precedence'
       )
       // remove bookmark from order
-      //toOrder.remove('bookmark', bookmark.id)()
-      return true
+      toOrder.remove('bookmark', bookmark.id)()
+      return
     }
 
     // check if this has been moved elsewhere
