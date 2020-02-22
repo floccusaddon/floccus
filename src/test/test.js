@@ -2904,6 +2904,158 @@ describe('Floccus', function() {
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
         })
+
+        it('should handle fuzzed changes', async function() {
+          const adapter = account1.server
+
+          const localRoot = account1.getData().localRoot
+          let bookmarks = []
+          let folders = []
+          const createTree = async (parentId, i, j) => {
+            const len = Math.abs(i - j)
+            for (let k = i; k < j; k++) {
+              const newBookmark = await browser.bookmarks.create({
+                title: 'url' + k,
+                url: 'http://ur.l/' + k,
+                parentId
+              })
+              bookmarks.push(newBookmark)
+            }
+
+            if (len < 4) return
+
+            const step = Math.floor(len / 4)
+            for (let k = i; k < j; k += step) {
+              const newFolder = await browser.bookmarks.create({
+                title: 'folder' + k,
+                parentId
+              })
+              folders.push(newFolder)
+              await createTree(newFolder.id, k, k + step)
+            }
+          }
+
+          await createTree(localRoot, 0, 100)
+
+          const tree1Initial = await account1.localTree.getBookmarksTree(true)
+          await account1.sync()
+          await account2.sync()
+
+          if (adapter.onSyncStart) await adapter.onSyncStart()
+          const serverTreeAfterFirstSync = await adapter.getBookmarksTree(true)
+          if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
+          const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+            true
+          )
+          const tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+            true
+          )
+          expectTreeEqual(
+            tree1AfterFirstSync,
+            tree1Initial,
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+          serverTreeAfterFirstSync.title = tree1Initial.title
+          expectTreeEqual(
+            serverTreeAfterFirstSync,
+            tree1Initial,
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+          tree2AfterFirstSync.title = tree1Initial.title
+          expectTreeEqual(
+            tree2AfterFirstSync,
+            tree1Initial,
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+          console.log('Initial round ok')
+
+          for (let i = 0; i < 25; i++) {
+
+            const magicBookmark = bookmarks[(bookmarks.length * Math.random()) | 0]
+            const magicFolder1 = folders[(folders.length * Math.random()) | 0]
+            const magicFolder2 = folders[(folders.length * Math.random()) | 0]
+            const magicFolder3 = folders[(folders.length * Math.random()) | 0]
+
+            await browser.bookmarks.move(magicBookmark.id, {
+              parentId: magicFolder1.id
+            })
+            await browser.bookmarks.move(magicFolder2.id, {
+              parentId: magicFolder3.id
+            })
+            console.log('Rount ' + i + ': acc1: Moved bookmark')
+
+            const tree1BeforeSync = await account1.localTree.getBookmarksTree(
+              true
+            )
+            await account1.sync()
+
+            if (adapter.onSyncStart) await adapter.onSyncStart()
+            const serverTreeAfterSync = await adapter.getBookmarksTree(true)
+            if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
+            const tree1AfterSync = await account1.localTree.getBookmarksTree(
+              true
+            )
+            expectTreeEqual(
+              tree1AfterSync,
+              tree1BeforeSync,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            serverTreeAfterSync.title = tree1AfterSync.title
+            expectTreeEqual(
+              serverTreeAfterSync,
+              tree1AfterSync,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            console.log('Round ' + i + ': first half ok')
+
+            await account2.sync()
+
+            if (adapter.onSyncStart) await adapter.onSyncStart()
+            const serverTreeAfterSecondSync = await adapter.getBookmarksTree(true)
+            if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
+            const tree2AfterSecondSync = await account2.localTree.getBookmarksTree(
+              true
+            )
+            expectTreeEqual(
+              tree2AfterSecondSync,
+              tree1AfterSync,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            serverTreeAfterSecondSync.title = tree2AfterSecondSync.title
+            expectTreeEqual(
+              serverTreeAfterSecondSync,
+              tree2AfterSecondSync,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            console.log('Round ' + i + ': second half ok')
+
+            console.log('Round ' + i + ': final sync')
+            await account1.sync()
+
+            if (adapter.onSyncStart) await adapter.onSyncStart()
+            const serverTreeAfterFinalSync = await adapter.getBookmarksTree(true)
+            if (adapter.onSyncComplete) await adapter.onSyncComplete()
+
+            const tree1AfterFinalSync = await account1.localTree.getBookmarksTree(
+              true
+            )
+            expectTreeEqual(
+              tree1AfterFinalSync,
+              tree2AfterSecondSync,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            tree2AfterSecondSync.title = serverTreeAfterFinalSync.title
+            expectTreeEqual(
+              tree2AfterSecondSync,
+              serverTreeAfterFinalSync,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+
+          }
+        })
       })
     })
   })
