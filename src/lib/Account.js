@@ -219,7 +219,7 @@ export default class Account {
     if (er.list) {
       return er.list
         .map(e => {
-          console.log(e)
+          Logger.log(e)
           return this.stringifyError(e)
         })
         .join('\n')
