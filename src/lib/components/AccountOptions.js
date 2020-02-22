@@ -27,6 +27,7 @@ export const actions = {
         }
       }
     },
+
     updateAccount: () => async (state, actions) => {
       const account = state.account
       const data = state.data

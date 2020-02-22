@@ -577,6 +577,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     } catch (e) {
       this.hasFeatureBulkImport = false
     }
+
     const recurseChildren = (children, id, title, parentId) => {
       return new Folder({
         id,

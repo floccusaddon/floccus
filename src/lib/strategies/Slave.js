@@ -3,12 +3,18 @@ import Logger from '../Logger'
 import DefaultStrategy from './Default'
 
 export default class SlaveSyncProcess extends DefaultStrategy {
-  async _syncTree({ localItem, cacheItem, serverItem, localOrder, serverOrder }) {
+  async _syncTree({
+    localItem,
+    cacheItem,
+    serverItem,
+    localOrder,
+    serverOrder
+  }) {
     if (this.canceled) throw new Error('Sync cancelled')
     Logger.log('COMPARE', { localItem, cacheItem, serverItem })
 
     let mappings = this.mappings.getSnapshot()
-    let item = (cacheItem || localItem || serverItem)
+    let item = cacheItem || localItem || serverItem
     if (!localItem && !cacheItem && serverItem) {
       // CREATED UPSTREAM
       return item.visitCreate(this, {
@@ -57,9 +63,9 @@ export default class SlaveSyncProcess extends DefaultStrategy {
       })
     } else if (!localItem && cacheItem && !serverItem) {
       if (cacheItem instanceof Tree.Bookmark) {
-        await this.mappings.removeBookmark({localId: cacheItem.id})
-      }else{
-        await this.mappings.removeFolder({localId: cacheItem.id})
+        await this.mappings.removeBookmark({ localId: cacheItem.id })
+      } else {
+        await this.mappings.removeFolder({ localId: cacheItem.id })
       }
     }
   }
@@ -83,7 +89,13 @@ export default class SlaveSyncProcess extends DefaultStrategy {
     }
   }
 
-  async syncChildOrder({ localItem, cacheItem, serverItem, localOrder, serverOrder }) {
+  async syncChildOrder({
+    localItem,
+    cacheItem,
+    serverItem,
+    localOrder,
+    serverOrder
+  }) {
     if (this.preserveOrder && serverOrder.length > 1) {
       const newMappingsSnapshot = this.mappings.getSnapshot()
       // always update local tree

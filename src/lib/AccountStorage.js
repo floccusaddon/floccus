@@ -21,17 +21,14 @@ export default class AccountStorage {
   }
 
   static getEntry(entryName, defaultVal) {
-    return localForage
-      .getItem(entryName)
-      .then(d => {
-        return d || defaultVal
-      })
+    return localForage.getItem(entryName).then(d => {
+      return d || defaultVal
+    })
   }
 
   static deleteEntry(entryName) {
     return localForage.removeItem(entryName)
   }
-
 
   static async getAllAccounts() {
     let accounts = await AccountStorage.getEntry(`accounts`, {})
@@ -58,10 +55,14 @@ export default class AccountStorage {
         password: await Cryptography.encryptAES(key, data.iv, data.password)
       }
     }
-    return AccountStorage.changeEntry(`accounts`, accounts => {
-      accounts[this.accountId] = encData
-      return accounts
-    }, {})
+    return AccountStorage.changeEntry(
+      `accounts`,
+      accounts => {
+        accounts[this.accountId] = encData
+        return accounts
+      },
+      {}
+    )
   }
 
   async deleteAccountData() {
@@ -114,15 +115,15 @@ export default class AccountStorage {
       Object.keys(data).length
         ? data
         : {
-          bookmarks: {
-            ServerToLocal: {},
-            LocalToServer: {}
-          },
-          folders: {
-            ServerToLocal: {},
-            LocalToServer: {}
+            bookmarks: {
+              ServerToLocal: {},
+              LocalToServer: {}
+            },
+            folders: {
+              ServerToLocal: {},
+              LocalToServer: {}
+            }
           }
-        }
     )
   }
 

@@ -233,7 +233,11 @@ export default class Account {
   }
 
   static async getAllAccounts() {
-    return Promise.all((await AccountStorage.getAllAccounts()).map(accountId => Account.get(accountId)))
+    return Promise.all(
+      (await AccountStorage.getAllAccounts()).map(accountId =>
+        Account.get(accountId)
+      )
+    )
   }
 
   static async getAccountContainingLocalId(localId, ancestors, allAccounts) {

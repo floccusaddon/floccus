@@ -38,8 +38,11 @@ const VERSION = require('../package.json').version
         await new Promise(resolve => setTimeout(resolve, 5000))
         id = await driver.executeAsyncScript(function() {
           var callback = arguments[arguments.length - 1]
-          var extension = document.querySelector('extensions-manager').extensions_
-            .find(extension => extension.name === 'floccus bookmarks sync')
+          var extension = document
+            .querySelector('extensions-manager')
+            .extensions_.find(
+              extension => extension.name === 'floccus bookmarks sync'
+            )
           callback(extension.id)
         })
         if (!id) throw new Error('Could not install extension')
@@ -100,16 +103,23 @@ const VERSION = require('../package.json').version
     await driver.quit()
     if (fin && ~fin.indexOf('FAILED')) {
       process.exit(1)
-    }else{
+    } else {
       const match = fin.match(/duration: (\d+):(\d+)/i)
       if (match) {
         const data = {
-          testSuiteTime: parseInt(match[1]) + parseInt(match[2])/60
+          testSuiteTime: parseInt(match[1]) + parseInt(match[2]) / 60
         }
-        const label = process.env['FLOCCUS_ADAPTER'] + ' ' + process.env['SELENIUM_BROWSER'] + ' ' +  process.env['SERVER_BRANCH'] + ' ' + process.env['NC_APP_VERSION']
+        const label =
+          process.env['FLOCCUS_ADAPTER'] +
+          ' ' +
+          process.env['SELENIUM_BROWSER'] +
+          ' ' +
+          process.env['SERVER_BRANCH'] +
+          ' ' +
+          process.env['NC_APP_VERSION']
         try {
           await saveStats(process.env['TRAVIS_COMMIT'], label, data)
-        }catch(e) {
+        } catch (e) {
           console.log('FAILED TO SAVE BENCHMARK STATS', e)
         }
       }

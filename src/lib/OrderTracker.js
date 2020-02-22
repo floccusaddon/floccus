@@ -4,9 +4,9 @@ export default class OrderTracker {
     this.toFolder = toFolder
     this.order = toFolder
       ? toFolder.children.map(child => ({
-        type: child.type,
-        id: child.id
-      }))
+          type: child.type,
+          id: child.id
+        }))
       : []
     this.pendingOps = 0
   }

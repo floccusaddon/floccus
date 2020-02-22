@@ -3,35 +3,39 @@ import Logger from '../Logger'
 import DefaultStrategy from './Default'
 
 export default class OverwriteSyncProcess extends DefaultStrategy {
-  async _syncTree({ localItem, cacheItem, serverItem, localOrder, serverOrder }) {
+  async _syncTree({
+    localItem,
+    cacheItem,
+    serverItem,
+    localOrder,
+    serverOrder
+  }) {
     if (this.canceled) throw new Error('Sync cancelled')
     Logger.log('COMPARE', { localItem, cacheItem, serverItem })
 
     let mappings = this.mappings.getSnapshot()
-    let item = (localItem || serverItem || cacheItem)
+    let item = localItem || serverItem || cacheItem
     if (!localItem && !cacheItem && serverItem) {
       // CREATED UPSTREAM
       // --> remove upstream
       return item.visitRemove(this, {
-          reverseMapping: mappings.ServerToLocal,
-          fromTree: this.localTreeRoot,
-          toTree: this.serverTreeRoot,
-          toResource: this.server,
-          toOrder: serverOrder,
-          item: serverItem
-        }
-      )
+        reverseMapping: mappings.ServerToLocal,
+        fromTree: this.localTreeRoot,
+        toTree: this.serverTreeRoot,
+        toResource: this.server,
+        toOrder: serverOrder,
+        item: serverItem
+      })
     } else if (localItem && !cacheItem && !serverItem) {
       // CREATED LOCALLY
       // --> create remotely
       return item.visitCreate(this, {
-          mapping: mappings.LocalToServer,
-          toTree: this.serverTreeRoot,
-          toResource: this.server,
-          toOrder: serverOrder,
-          item: localItem
-        }
-      )
+        mapping: mappings.LocalToServer,
+        toTree: this.serverTreeRoot,
+        toResource: this.server,
+        toOrder: serverOrder,
+        item: localItem
+      })
     } else if (
       (localItem && cacheItem && serverItem) ||
       (localItem && !cacheItem && serverItem)
@@ -42,14 +46,13 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
       // DELETED LOCALLY
       // --> remove remotely
       return item.visitRemove(this, {
-          reverseMapping: mappings.ServerToLocal,
-          fromTree: this.localTreeRoot,
-          toTree: this.serverTreeRoot,
-          toResource: this.server,
-          toOrder: serverOrder,
-          item: serverItem
-        }
-      )
+        reverseMapping: mappings.ServerToLocal,
+        fromTree: this.localTreeRoot,
+        toTree: this.serverTreeRoot,
+        toResource: this.server,
+        toOrder: serverOrder,
+        item: serverItem
+      })
     } else if (localItem && cacheItem && !serverItem) {
       // DELETED UPSTREAM
       return item.visitCreate(this, {
@@ -61,9 +64,9 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
       })
     } else if (!localItem && cacheItem && !serverItem) {
       if (cacheItem instanceof Tree.Bookmark) {
-        await this.mappings.removeBookmark({localId: cacheItem.id})
-      }else{
-        await this.mappings.removeFolder({localId: cacheItem.id})
+        await this.mappings.removeBookmark({ localId: cacheItem.id })
+      } else {
+        await this.mappings.removeFolder({ localId: cacheItem.id })
       }
     }
   }
@@ -87,7 +90,13 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
     }
   }
 
-  async syncChildOrder({ localItem, cacheItem, serverItem, localOrder, remoteOrder }) {
+  async syncChildOrder({
+    localItem,
+    cacheItem,
+    serverItem,
+    localOrder,
+    remoteOrder
+  }) {
     if (this.preserveOrder && localOrder.length > 1) {
       const newMappingsSnapshot = this.mappings.getSnapshot()
       // always update server tree
@@ -123,7 +132,9 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
     await this.server.updateBookmark(
       new Tree.Bookmark({
         id: serverItem.id,
-        parentId: this.mappings.getSnapshot().LocalToServer.folders[localItem.parentId],
+        parentId: this.mappings.getSnapshot().LocalToServer.folders[
+          localItem.parentId
+        ],
         title: localItem.title,
         url: localItem.url
       })
