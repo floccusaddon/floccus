@@ -280,7 +280,6 @@ export default class SyncProcess {
           return
         }
 
-
         if (!folder.moved) {
           folder.moved = true
         }

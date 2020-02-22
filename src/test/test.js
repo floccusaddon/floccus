@@ -1410,6 +1410,8 @@ describe('Floccus', function() {
             parentId: bFolderId
           }))
 
+          await adapter.onSyncComplete()
+
           await account.sync() // propagate to server
           expect(account.getData().error).to.not.be.ok
 
