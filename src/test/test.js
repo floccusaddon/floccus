@@ -20,6 +20,9 @@ describe('Floccus', function() {
     const background = await browser.runtime.getBackgroundPage()
     background.controller.setEnabled(true)
   })
+  const SERVER =
+    new URL(window.location.href).searchParams.get('server') ||
+    'http://localhost'
   const CREDENTIALS = {
     username: 'admin',
     password: new URL(window.location.href).searchParams.get('pw') || 'admin'
@@ -32,41 +35,41 @@ describe('Floccus', function() {
     },
     {
       type: 'nextcloud-legacy',
-      url: 'http://localhost/',
+      url: SERVER,
       ...CREDENTIALS
     },
     {
       type: 'nextcloud-legacy',
-      url: 'http://localhost/',
+      url: SERVER,
       serverRoot: '/my folder/some subfolder',
       ...CREDENTIALS
     },
     {
       type: 'nextcloud-legacy',
-      url: 'http://localhost/',
+      url: SERVER,
       parallel: true,
       ...CREDENTIALS
     },
     {
       type: 'nextcloud-folders',
-      url: 'http://localhost/',
+      url: SERVER,
       ...CREDENTIALS
     },
     {
       type: 'nextcloud-folders',
-      url: 'http://localhost/',
+      url: SERVER,
       serverRoot: '/my folder/some subfolder',
       ...CREDENTIALS
     },
     {
       type: 'nextcloud-folders',
-      url: 'http://localhost/',
+      url: SERVER,
       parallel: true,
       ...CREDENTIALS
     },
     {
       type: 'nextcloud-folders',
-      url: 'http://localhost/',
+      url: SERVER,
       serverRoot: '/my folder/some subfolder',
       parallel: true,
       ...CREDENTIALS
