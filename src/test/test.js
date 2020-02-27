@@ -2826,7 +2826,9 @@ describe('Floccus', function() {
 
           const tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
+          expect(account1.getData().error).to.not.be.ok
           await account2.sync()
+          expect(account2.getData().error).to.not.be.ok
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterFirstSync = await adapter.getBookmarksTree(true)
@@ -2866,6 +2868,7 @@ describe('Floccus', function() {
             true
           )
           await account1.sync()
+          expect(account1.getData().error).to.not.be.ok
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterSecondSync = await adapter.getBookmarksTree(true)
@@ -2888,6 +2891,7 @@ describe('Floccus', function() {
           console.log('Second round first half ok')
 
           await account2.sync()
+          expect(account2.getData().error).to.not.be.ok
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterThirdSync = await adapter.getBookmarksTree(true)
@@ -2911,6 +2915,7 @@ describe('Floccus', function() {
 
           console.log('acc1: final sync')
           await account1.sync()
+          expect(account1.getData().error).to.not.be.ok
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterFinalSync = await adapter.getBookmarksTree(true)
@@ -2966,8 +2971,10 @@ describe('Floccus', function() {
 
           const tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
+          expect(account1.getData().error).to.not.be.ok
           console.log('Initial round account1 completed')
           await account2.sync()
+          expect(account2.getData().error).to.not.be.ok
           console.log('Initial round account2 completed')
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
@@ -3033,6 +3040,7 @@ describe('Floccus', function() {
             true
           )
           await account1.sync()
+          expect(account1.getData().error).to.not.be.ok
           console.log('second round: account1 completed')
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
@@ -3056,6 +3064,7 @@ describe('Floccus', function() {
           console.log('first half ok')
 
           await account2.sync()
+          expect(account2.getData().error).to.not.be.ok
           console.log('second round: account1 completed')
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
@@ -3082,6 +3091,7 @@ describe('Floccus', function() {
 
           console.log('final sync')
           await account1.sync()
+          expect(account1.getData().error).to.not.be.ok
           console.log('final sync completed')
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
