@@ -32,7 +32,7 @@
     "gulp": "^4",
     "gulp-tap": "^1.0.1",
     "gulp-zip": "^5",
-    "mocha": "^6.2.2",
+    "mocha": "^7.1.0",
     "prettier": "^1.19.1",
     "selenium-webdriver": "^4.0.0-alpha.5",
     "typescript": "^3.7.5",
