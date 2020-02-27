@@ -2966,7 +2966,9 @@ describe('Floccus', function() {
 
           const tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
+          console.log('Initial round account1 completed')
           await account2.sync()
+          console.log('Initial round account2 completed')
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterFirstSync = await adapter.getBookmarksTree(true)
@@ -2983,18 +2985,21 @@ describe('Floccus', function() {
             tree1Initial,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+          console.log('Initial round: first tree ok')
           serverTreeAfterFirstSync.title = tree1Initial.title
           expectTreeEqual(
             serverTreeAfterFirstSync,
             tree1Initial,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+          console.log('Initial round: server tree ok')
           tree2AfterFirstSync.title = tree1Initial.title
           expectTreeEqual(
             tree2AfterFirstSync,
             tree1Initial,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+          console.log('Initial round: second tree ok')
           console.log('Initial round ok')
 
           for (let i = 0; i < 25; i++) {
@@ -3028,6 +3033,7 @@ describe('Floccus', function() {
             true
           )
           await account1.sync()
+          console.log('second round: account1 completed')
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterSync = await adapter.getBookmarksTree(true)
@@ -3039,15 +3045,18 @@ describe('Floccus', function() {
             tree1BeforeSync,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+          console.log('Second round: local tree tree ok')
           serverTreeAfterSync.title = tree1AfterSync.title
           expectTreeEqual(
             serverTreeAfterSync,
             tree1AfterSync,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+          console.log('Second round: server tree tree ok')
           console.log('first half ok')
 
           await account2.sync()
+          console.log('second round: account1 completed')
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterSecondSync = await adapter.getBookmarksTree(true)
@@ -3061,16 +3070,19 @@ describe('Floccus', function() {
             tree1AfterSync,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+          console.log('Second round: second local tree tree ok')
           serverTreeAfterSecondSync.title = tree2AfterSecondSync.title
           expectTreeEqual(
             serverTreeAfterSecondSync,
             tree2AfterSecondSync,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+          console.log('Second round: second server tree tree ok')
           console.log('second half ok')
 
           console.log('final sync')
           await account1.sync()
+          console.log('final sync completed')
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterFinalSync = await adapter.getBookmarksTree(true)
@@ -3084,12 +3096,14 @@ describe('Floccus', function() {
             tree2AfterSecondSync,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+          console.log('Final round: local tree tree ok')
           tree2AfterSecondSync.title = serverTreeAfterFinalSync.title
           expectTreeEqual(
             tree2AfterSecondSync,
             serverTreeAfterFinalSync,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+          console.log('Final round: server tree tree ok')
         })
       })
     })
