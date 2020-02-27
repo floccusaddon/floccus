@@ -66,7 +66,7 @@ env:
 
     # benchmark on nc@latest bm@stable [standard, parallel] root [chrome, firefox]
     - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders benchmark standard-root" SELENIUM_BROWSER="chrome"
-    - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders pbenchmark arallel-root" SELENIUM_BROWSER="chrome"
+    - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders benchmark parallel-root" SELENIUM_BROWSER="chrome"
     - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders benchmark standard-root" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="nextcloud-folders benchmark parallel-root" SELENIUM_BROWSER="firefox"
     - SERVER_BRANCH=stable18 NC_APP_VERSION=stable FLOCCUS_ADAPTER="webdav benchmark standard" SELENIUM_BROWSER="chrome"
