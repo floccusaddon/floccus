@@ -368,7 +368,7 @@ export default class SyncProcess {
     if (importedFolder) {
       // We've bulk imported the whole folder contents, now
       // we have to link them
-      console.log('Imported folder:', importedFolder)
+      Logger.log('Imported folder:', importedFolder)
       if (toTree === this.localTreeRoot) {
         // from=server to=local
         await this.syncTree({ localItem: importedFolder, serverItem: folder })
