@@ -45,7 +45,7 @@ export default class SyncProcess {
     if (parallel) {
       this.concurrency = 10
     } else {
-      this.concurrency = 3
+      this.concurrency = 4
     }
   }
 
@@ -501,7 +501,12 @@ export default class SyncProcess {
         )
       : []
     let createdLocallyAndUpstream = createdLocally.filter(local =>
-      createdUpstream.some(server => server.canMergeWith(local))
+      createdUpstream.some(
+        server =>
+          server.canMergeWith(local) &&
+          !mappingsSnapshot.ServerToLocal[server.type + 's'][server.id] &&
+          !mappingsSnapshot.LocalToServer[local.type + 's'][local.id]
+      )
     )
 
     // CREATED LOCALLY AND UPSTREAM
