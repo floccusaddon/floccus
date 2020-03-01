@@ -859,36 +859,42 @@ export default class SyncProcess {
         return
       }
 
-      Logger.log(
-        'create branch: This bookmark was moved here from somewhere else in from tree'
-      )
+      const localBookmark = this.localTreeRoot.findBookmark(oldMark.id)
+        ? oldMark
+        : bookmark
 
-      if (!bookmark.moved) {
-        bookmark.moved = true
-      }
+      await this.moveFolderLock.acquire(localBookmark.id, async () => {
+        Logger.log(
+          'create branch: This bookmark was moved here from somewhere else in from tree'
+        )
 
-      if (toTree === this.localTreeRoot) {
-        const cacheMark = this.cacheTreeRoot.findBookmark(oldMark.id)
-        await this.syncTree({
-          localItem: oldMark,
-          cacheItem: cacheMark,
-          serverItem: bookmark
-        })
-      } else {
-        const cacheMark = this.cacheTreeRoot.findBookmark(bookmark.id)
-        await this.syncTree({
-          localItem: bookmark,
-          cacheItem: cacheMark,
-          serverItem: oldMark
-        })
-      }
+        if (!bookmark.moved) {
+          bookmark.moved = true
+        }
 
-      if ('function' === typeof bookmark.moved) {
-        bookmark.moved()
-      }
+        if (toTree === this.localTreeRoot) {
+          const cacheMark = this.cacheTreeRoot.findBookmark(oldMark.id)
+          await this.syncTree({
+            localItem: oldMark,
+            cacheItem: cacheMark,
+            serverItem: bookmark
+          })
+        } else {
+          const cacheMark = this.cacheTreeRoot.findBookmark(bookmark.id)
+          await this.syncTree({
+            localItem: bookmark,
+            cacheItem: cacheMark,
+            serverItem: oldMark
+          })
+        }
 
-      // add to order
-      toOrder.insert('bookmark', bookmark.id, oldMark.id)()
+        if ('function' === typeof bookmark.moved) {
+          bookmark.moved()
+        }
+
+        // add to order
+        toOrder.insert('bookmark', bookmark.id, oldMark.id)()
+      })
 
       return
     }
@@ -1005,19 +1011,24 @@ export default class SyncProcess {
     if (
       (newMark = fromTree.findBookmark(reverseMapping.bookmarks[bookmark.id]))
     ) {
-      if (newMark.moved) {
-        Logger.log(
-          'remove branch: This bookmark was moved away from here in fromTree and has been dealt with'
-        )
-        // remove bookmark from order
-        toOrder.remove('bookmark', bookmark.id)()
-      } else {
-        Logger.log(
-          'remove branch: This bookmark was moved away to somewhere else in fromTree'
-        )
-        // remove bookmark from order
-        newMark.moved = toOrder.remove('bookmark', bookmark.id)
-      }
+      const localBookmark = this.localTreeRoot.findBookmark(newMark.id)
+        ? newMark
+        : bookmark
+      await this.moveFolderLock.acquire(localBookmark.id, async () => {
+        if (newMark.moved) {
+          Logger.log(
+            'remove branch: This bookmark was moved away from here in fromTree and has been dealt with'
+          )
+          // remove bookmark from order
+          toOrder.remove('bookmark', bookmark.id)()
+        } else {
+          Logger.log(
+            'remove branch: This bookmark was moved away to somewhere else in fromTree'
+          )
+          // remove bookmark from order
+          newMark.moved = toOrder.remove('bookmark', bookmark.id)
+        }
+      })
       return
     }
 
