@@ -45,7 +45,7 @@ export default class SyncProcess {
     if (parallel) {
       this.concurrency = 10
     } else {
-      this.concurrency = 2
+      this.concurrency = 4
     }
   }
 
