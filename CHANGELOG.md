@@ -1,3 +1,13 @@
+## v4.0.0
+
+- FIX: Stop sync if user is making changes
+- FIX: NetxcloudFolders: Refactor sparse tree loading
+- FIX: Performance optimizations
+- NEW: Deprecate NextcloudLegacy adapter
+- NEW: Build process: Switch to webpack
+- NEW: Migrate account data from extension storage to indexedDB for faster access
+- NEW: Refactor sync algorithm
+
 ## v3.5.3
 
 - FIX: Stop sync if user is making changes
