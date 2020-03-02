@@ -85,7 +85,7 @@ export default class AccountStorage {
     const data = await AccountStorage.getEntry(
       `bookmarks[${this.accountId}].cache`
     )
-    return Folder.hydrate(Object.keys(data).length ? data : {})
+    return Folder.hydrate(data && Object.keys(data).length ? data : {})
   }
 
   async setCache(data) {
@@ -112,7 +112,7 @@ export default class AccountStorage {
     )
     return new Mappings(
       this,
-      Object.keys(data).length
+      data && Object.keys(data).length
         ? data
         : {
             bookmarks: {
