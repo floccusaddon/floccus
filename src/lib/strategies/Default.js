@@ -672,6 +672,7 @@ export default class SyncProcess {
     )
 
     if (!this.preserveOrder) return
+    if (localItem.isRoot) return
     if (enPar) return
 
     await localOrder.onFinished()
