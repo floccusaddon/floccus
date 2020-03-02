@@ -1,3 +1,7 @@
+## v4.0.1
+
+- FIX: Storage access error
+
 ## v4.0.0
 
 - FIX: Stop sync if user is making changes
