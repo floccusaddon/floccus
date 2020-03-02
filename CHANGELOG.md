@@ -1,6 +1,10 @@
+## v4.0.2
+
+- FIX root folder synchronization
+
 ## v4.0.1
 
-- FIX: Storage access error
+- FIX storage access error
 
 ## v4.0.0
 
