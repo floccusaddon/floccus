@@ -290,5 +290,8 @@
   },
   "DescriptionGithubsponsors": {
     "message": "Tätige regelmäßige Spenden über Github sponsors um das Projekt zu untertützen"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "Warnung! Dieser Konto-Typ ist überholt und wird bald entfernt. Bitte wechseln Sie zur neuen Nextcloud Synchronisierungsmethode mit besserer Performance und Korrektheit. "
   }
 }
