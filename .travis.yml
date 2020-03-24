@@ -131,5 +131,6 @@ before_script:
 script:
   - npm test
 
-after_failure:
+after_script:
   - tail -50 ../server/data/nextcloud.log
+  - tail -50 /var/log/www/error.log
