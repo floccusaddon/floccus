@@ -102,6 +102,20 @@ const VERSION = require('../package.json').version
     )
     await driver.quit()
     if (fin && ~fin.indexOf('FAILED')) {
+      console.log('=== start nextcloud log ===')
+      try {
+        console.log(fs.readFileSync('../server/data/nextcloud.log'))
+      } catch (e) {
+        console.log(e)
+      }
+      console.log('=== end nextcloud log ===')
+      console.log('=== start apache log ===')
+      try {
+        console.log(fs.readFileSync('/var/log/apache2/error.log'))
+      } catch (e) {
+        console.log(e)
+      }
+      console.log('=== end apache log ===')
       process.exit(1)
     } else {
       const match = fin.match(/duration: (\d+):(\d+)/i)
