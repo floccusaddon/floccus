@@ -97,7 +97,6 @@ before_script:
   - phpenv global 7.2
 
   # install apcu
-  - pecl install apcu-beta
   - phpenv config-add "test/apcu.ini"
 
   # enable php-fpm
