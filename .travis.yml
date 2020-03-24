@@ -97,9 +97,8 @@ before_script:
   - phpenv global 7.2
 
   # install apcu
-  - pecl channel-update pecl.php.net
-  - pecl config-set preferred_state beta
-  - echo yes | pecl upgrade apcu
+  - pecl install apcu-beta
+  - phpenv config-add "$BASE/build/travis/phpenv/apcu-$TRAVIS_PHP_VERSION.ini"
 
   # enable php-fpm
   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf

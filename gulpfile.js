@@ -39,25 +39,35 @@ try {
 } catch (e) {}
 
 const js = function() {
-  return new Promise(resolve => webpack(config, (err, stats) => {
+  return new Promise(resolve =>
+    webpack(config, (err, stats) => {
+      if (err) console.log('Webpack', err)
 
-    if (err) console.log('Webpack', err)
+      console.log(
+        stats.toString({
+          /* stats options */
+        })
+      )
 
-    console.log(stats.toString({ /* stats options */ }))
-
-    resolve()
-  }))
+      resolve()
+    })
+  )
 }
 
 const devjs = function() {
-  return new Promise(resolve => webpack(devConfig, (err, stats) => {
+  return new Promise(resolve =>
+    webpack(devConfig, (err, stats) => {
+      if (err) console.log('Webpack', err)
 
-    if (err) console.log('Webpack', err)
+      console.log(
+        stats.toString({
+          /* stats options */
+        })
+      )
 
-    console.log(stats.toString({ /* stats options */ }))
-
-    resolve()
-  }))
+      resolve()
+    })
+  )
 }
 
 const html = function() {
