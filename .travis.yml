@@ -98,7 +98,7 @@ before_script:
 
   # install apcu
   - pecl install apcu-beta
-  - phpenv config-add "$BASE/build/travis/phpenv/apcu-$TRAVIS_PHP_VERSION.ini"
+  - phpenv config-add "test/apcu.ini"
 
   # enable php-fpm
   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
