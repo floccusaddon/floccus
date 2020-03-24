@@ -93,9 +93,6 @@ before_script:
   # configure apache virtual hosts
   - sudo cp -f test/apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 
-  # use php 7
-  - phpenv global 7.2
-
   # install apcu
   - phpenv config-add "test/apcu.ini"
 
@@ -106,6 +103,7 @@ before_script:
   - echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - sudo sed -i -e "s,www-data,travis,g" /etc/apache2/envvars
   - sudo chown -R travis:travis /var/lib/apache2/fastcgi
+  - sudo chown -R travis:travis /var/llog/apache2
   - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
 
   # install nextcloud with bookmarks app
