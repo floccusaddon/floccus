@@ -119,6 +119,8 @@ before_script:
   - . ./before_install.sh "$NC_APP" "$SERVER_BRANCH" "$DB"
   - cd ../core || cd ../server
   - php occ app:enable "$NC_APP"
+  # enable APCu
+  - php occ config:system:set --value "\OC\Memcache\APCu" memcache.local
 
   # set apache htroot
   - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/000-default.conf
