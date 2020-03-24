@@ -120,7 +120,7 @@ before_script:
   - cd ../core || cd ../server
   - php occ app:enable "$NC_APP"
   # enable APCu
-  - php occ config:system:set --value "\OC\Memcache\APCu" memcache.local
+  - php occ config:system:set --value "\\OC\\Memcache\\APCu" memcache.local
 
   # set apache htroot
   - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/000-default.conf
@@ -130,3 +130,6 @@ before_script:
 
 script:
   - npm test
+
+after_failure:
+  - tail -50 ../server/data/nextcloud.log
