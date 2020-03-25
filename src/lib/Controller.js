@@ -90,18 +90,6 @@ export default class Controller {
       })
     })
 
-    // migrate from extension storage to indexedDB
-
-    browser.storage.local
-      .get('accounts')
-      .then(async d => {
-        if (!d.accounts) return
-        return AccountStorage.changeEntry('accounts', () => d.accounts)
-      })
-      .then(() => {
-        return browser.storage.local.remove('accounts')
-      })
-
     this.alarms.checkSync()
 
     setInterval(() => this.updateStatus(), 1000)
