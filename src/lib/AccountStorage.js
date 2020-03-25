@@ -5,6 +5,8 @@ import { Folder } from './Tree'
 import AsyncLock from 'async-lock'
 import * as localForage from 'localforage'
 
+const storage = (window.browser && browser.storage) || (window.chrome && chrome.storage);
+
 const storageLock = new AsyncLock()
 
 export default class AccountStorage {
@@ -14,20 +16,29 @@ export default class AccountStorage {
 
   static async changeEntry(entryName, fn, defaultVal) {
     await storageLock.acquire(entryName, async () => {
-      let entry = (await localForage.getItem(entryName)) || defaultVal
+
+      let entry = await AccountStorage.getEntry(entryName, defaultVal);
       entry = fn(entry)
-      await localForage.setItem(entryName, entry)
+
+      // extension storage can't handle "undefined" values
+      if (entry === undefined) {
+        entry = null;
+      }
+      await storage.local.set({[entryName]: JSON.stringify(entry)});
     })
   }
 
-  static getEntry(entryName, defaultVal) {
-    return localForage.getItem(entryName).then(d => {
-      return d || defaultVal
-    })
+  static async getEntry(entryName, defaultVal) {
+    let entry = await storage.local.get(entryName);
+    if (entry[entryName]) {
+      return JSON.parse(entry[entryName])
+    } else {
+      return defaultVal;
+    }
   }
 
   static deleteEntry(entryName) {
-    return localForage.removeItem(entryName)
+    return storage.local.remove(entryName);
   }
 
   static async getAllAccounts() {
