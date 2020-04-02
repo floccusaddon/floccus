@@ -435,6 +435,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       )
     }
     this.list = null
+    tree.hashValue = { true: await this._getFolderHash(-1) }
     await recurseChildFolders(tree, childFoldersJson.data)
     this.tree = tree.clone(true) // we clone (withHash), so we can mess with our own version
     return tree
