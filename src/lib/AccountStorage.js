@@ -3,7 +3,6 @@ import Cryptography from './Crypto'
 import Mappings from './Mappings'
 import { Folder } from './Tree'
 import AsyncLock from 'async-lock'
-import * as localForage from 'localforage'
 
 const storageLock = new AsyncLock()
 
