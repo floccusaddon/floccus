@@ -5,8 +5,6 @@ import { Folder } from './Tree'
 import AsyncLock from 'async-lock'
 import * as localForage from 'localforage'
 
-const storage = (window.browser && browser.storage) || (window.chrome && chrome.storage);
-
 const storageLock = new AsyncLock()
 
 export default class AccountStorage {
@@ -24,12 +22,12 @@ export default class AccountStorage {
       if (entry === undefined) {
         entry = null;
       }
-      await storage.local.set({[entryName]: JSON.stringify(entry)});
+      await browser.storage.local.set({[entryName]: JSON.stringify(entry)});
     })
   }
 
   static async getEntry(entryName, defaultVal) {
-    let entry = await storage.local.get(entryName);
+    let entry = await browser.storage.local.get(entryName);
     if (entry[entryName]) {
       return JSON.parse(entry[entryName])
     } else {
@@ -38,7 +36,7 @@ export default class AccountStorage {
   }
 
   static deleteEntry(entryName) {
-    return storage.local.remove(entryName);
+    return browser.storage.local.remove(entryName);
   }
 
   static async getAllAccounts() {
