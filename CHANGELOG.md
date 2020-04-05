@@ -1,3 +1,8 @@
+## v4.0.3
+
+- FIX: Add support for permanent private mode in firefox
+- FIX: Remove a possible performance restriction
+
 ## v4.0.2
 
 - FIX root folder synchronization
