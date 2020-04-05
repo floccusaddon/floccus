@@ -1,3 +1,7 @@
+## v4.0.4
+
+- FIX: account migration code
+
 ## v4.0.3
 
 - FIX: Add support for permanent private mode in firefox
