@@ -13,29 +13,28 @@ export default class AccountStorage {
 
   static async changeEntry(entryName, fn, defaultVal) {
     await storageLock.acquire(entryName, async () => {
-
-      let entry = await AccountStorage.getEntry(entryName, defaultVal);
+      let entry = await AccountStorage.getEntry(entryName, defaultVal)
       entry = fn(entry)
 
       // extension storage can't handle "undefined" values
       if (entry === undefined) {
-        entry = null;
+        entry = null
       }
-      await browser.storage.local.set({[entryName]: JSON.stringify(entry)});
+      await browser.storage.local.set({ [entryName]: JSON.stringify(entry) })
     })
   }
 
   static async getEntry(entryName, defaultVal) {
-    let entry = await browser.storage.local.get(entryName);
+    let entry = await browser.storage.local.get(entryName)
     if (entry[entryName]) {
       return JSON.parse(entry[entryName])
     } else {
-      return defaultVal;
+      return defaultVal
     }
   }
 
   static deleteEntry(entryName) {
-    return browser.storage.local.remove(entryName);
+    return browser.storage.local.remove(entryName)
   }
 
   static async getAllAccounts() {

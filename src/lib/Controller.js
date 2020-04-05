@@ -4,7 +4,7 @@ import LocalTree from './LocalTree'
 import Cryptography from './Crypto'
 import packageJson from '../../package.json'
 import AccountStorage from './AccountStorage'
-import * as localForage from 'localforage'  // for backwards compatibility
+import * as localForage from 'localforage' // for backwards compatibility
 
 const PQueue = require('p-queue')
 
@@ -93,7 +93,8 @@ export default class Controller {
 
     // migrate from localForage back to extension storage
 
-    localForage.getItem('accounts')
+    localForage
+      .getItem('accounts')
       .then(async d => {
         if (!d.accounts) return
         return AccountStorage.changeEntry('accounts', () => d.accounts)
