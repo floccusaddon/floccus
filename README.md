@@ -19,9 +19,6 @@ The goal of this project is to build a browser extension that syncs your browser
 Talk to us on [gitter](https://gitter.im/marcelklehr/floccus)! :wave:
 
 ## Install
-
-At least one browser and the floccus browser extension.
-
 The following sync methods are available:
 
 - **WebDAV**: If you have a WebDAV server at hand, like any version of nextcloud/owncloud, box.com or with any other WebDAV server, commercial or self-hosted.
@@ -35,6 +32,19 @@ Once your server or the LoFloccus app is ready, read on for the browser of your 
 **Note:** Please avoid installing the bookmarks_fulltextsearch app in nextcloud as it is known to cause issues with newer versions of the bookmarks app.
 
 **Note:** If you feel floccus is missing a sync backend and you'd like to chip in, check out the [Quick Intro to creating an adapter](https://github.com/marcelklehr/floccus/blob/develop/doc/Adapters.md). I'm happy to accept your pull request! :)
+
+### Nextcloud
+Floccus is regularly tested with the following setups:
+
+|Nextcloud|Bookmarks|
+|---|---|
+|v14|v1.1.2|
+|v15|v2.3.4|
+|v16|v2.3.4|
+|v17|v2.3.4|
+|v18|v2.3.4|
+
+Syncing via WebDAV should work with any Nextcloud version.
 
 ### Chrome
 
@@ -53,6 +63,9 @@ You can [install it via AMO](https://addons.mozilla.org/en-US/firefox/addon/floc
 Floccus is not supported by Firefox for Android [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility). **But**, why wait for mozilla, if you can use [Kiwi Browser](https://play.google.com/store/apps/details?id=com.kiwibrowser.browser), which supports floccus! Install instructions are the same as for Chrome.
 
 ### Ugrading
+
+### Upgrading from v3.x to v4.x
+See "Switching from tag-based to folder-based syncing"
 
 #### Updating from v2.x to v3.0
 
