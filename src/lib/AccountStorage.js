@@ -16,18 +16,14 @@ export default class AccountStorage {
       let entry = await AccountStorage.getEntry(entryName, defaultVal)
       entry = fn(entry)
 
-      // extension storage can't handle "undefined" values
-      if (entry === undefined) {
-        entry = null
-      }
-      await browser.storage.local.set({ [entryName]: JSON.stringify(entry) })
+      await browser.storage.local.set({ [entryName]: entry })
     })
   }
 
   static async getEntry(entryName, defaultVal) {
     let entry = await browser.storage.local.get(entryName)
     if (entry[entryName]) {
-      return JSON.parse(entry[entryName])
+      return entry[entryName]
     } else {
       return defaultVal
     }

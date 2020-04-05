@@ -95,9 +95,9 @@ export default class Controller {
 
     localForage
       .getItem('accounts')
-      .then(async d => {
-        if (!d.accounts) return
-        return AccountStorage.changeEntry('accounts', () => d.accounts)
+      .then(async accounts => {
+        if (!accounts) return
+        return AccountStorage.changeEntry('accounts', () => accounts)
       })
       .then(() => {
         return localForage.removeItem('accounts')
