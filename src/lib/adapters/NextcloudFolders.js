@@ -399,14 +399,19 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
   async _getChildren(folderId, layers) {
     let childrenJson
-    try {
-      childrenJson = await this.sendRequest(
-        'GET',
-        `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/children?layers=${layers}`
-      )
-      this.hasFeatureChildren = true
-    } catch (e) {
-      this.hasFeatureChildren = false
+    if (
+      'undefined' === typeof this.hasFeatureChildren ||
+      this.hasFeatureChildren
+    ) {
+      try {
+        childrenJson = await this.sendRequest(
+          'GET',
+          `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/children?layers=${layers}`
+        )
+        this.hasFeatureChildren = true
+      } catch (e) {
+        this.hasFeatureChildren = false
+      }
     }
     if (this.hasFeatureChildren) {
       const children = childrenJson.data
@@ -494,7 +499,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     const children = await this._getChildren(folderId, 1)
     const recurse = async children => {
       return Parallel.each(children, async child => {
-        if (child instanceof Folder) {
+        if (child instanceof Folder && !child.loaded) {
           const folderHash = await this._getFolderHash(child.id)
           child.hashValue = { true: folderHash }
           await recurse(child.children)
