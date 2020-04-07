@@ -183,7 +183,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'index.php/apps/bookmarks/public/rest/v2/folder/-1/hash',
       null,
       null,
-      /* returnRawResponse: */ true
+      true
     )
     let json
     try {
@@ -222,97 +222,77 @@ export default class NextcloudFoldersAdapter extends Adapter {
       `index.php/apps/bookmarks/public/rest/v2/folder?root=${folderId}&layers=${layers}`
     )
     if (!Array.isArray(folderJson.data)) {
-      throw new Error("Failed to fetch folder's children folders")
+      throw new Error(browser.i18n.getMessage('Error015'))
     }
     return folderJson.data
+  }
+
+  async _findServerRoot(childFolders) {
+    let tree
+    await Parallel.each(
+      this.server.serverRoot.split('/').slice(1),
+      async segment => {
+        let currentChild = _.find(
+          childFolders,
+          folder => folder.title === segment
+        )
+        if (!currentChild) {
+          // create folder
+          let body = JSON.stringify({
+            parent_folder: tree.id,
+            title: segment
+          })
+          const json = await this.sendRequest(
+            'POST',
+            'index.php/apps/bookmarks/public/rest/v2/folder',
+            'application/json',
+            body
+          )
+          if (typeof json.item !== 'object') {
+            throw new Error(browser.i18n.getMessage('Error015'))
+          }
+          currentChild = { id: json.item.id, children: [] }
+        }
+        tree = new Folder({ id: currentChild.id })
+        childFolders =
+          currentChild.children ||
+          (await this._getChildFolders(currentChild.id))
+      },
+      1
+    )
+    return { tree, childFolders }
   }
 
   async getCompleteBookmarksTree() {
     let list = await this.getBookmarksList()
 
-    const childrenLayers = 3
+    const childrenLayers = 2
 
-    const childFoldersJson = await this.sendRequest(
-      'GET',
-      `index.php/apps/bookmarks/public/rest/v2/folder?layers=${childrenLayers}`
-    )
-    if (!Array.isArray(childFoldersJson.data)) {
-      throw new Error(browser.i18n.getMessage('Error015'))
-    }
-    let childFolders = childFoldersJson.data
+    let childFolders = await this._getChildFolders(-1, childrenLayers)
     Logger.log(
       'Received initial folders from server (may be incomplete)',
       childFolders
     )
 
+    let tree = new Folder({ id: '-1' })
+    if (this.server.serverRoot) {
+      ;({ tree, childFolders } = await this._findServerRoot(childFolders))
+    }
+
     // retrieve folder order
-    let childrenOrder = await this._getChildOrder(-1, childrenLayers)
+    let childrenOrder = await this._getChildOrder(tree.id, childrenLayers)
     Logger.log(
       'Received initial children order from server (may be incomplete)',
       childrenOrder
     )
 
-    let tree = new Folder({ id: '-1' })
-    if (this.server.serverRoot) {
-      await Parallel.each(
-        this.server.serverRoot.split('/').slice(1),
-        async segment => {
-          let currentChildFolder = _.find(
-            childFolders,
-            folder => folder.title === segment
-          )
-          if (!currentChildFolder) {
-            // create folder
-            let body = JSON.stringify({
-              parent_folder: tree.id,
-              title: segment
-            })
-            const json = await this.sendRequest(
-              'POST',
-              'index.php/apps/bookmarks/public/rest/v2/folder',
-              'application/json',
-              body
-            )
-            if (typeof json.item !== 'object') {
-              throw new Error(browser.i18n.getMessage('Error015'))
-            }
-            currentChildFolder = { id: json.item.id, children: [] }
-          }
-          tree = new Folder({ id: currentChildFolder.id })
-          let child = _.find(
-            childrenOrder,
-            child =>
-              parseInt(child.id) === parseInt(currentChildFolder.id) &&
-              child.type === 'folder'
-          )
-          if (!child || !child.children) {
-            childrenOrder = await this._getChildOrder(currentChildFolder.id)
-          } else {
-            childrenOrder = _.find(
-              childrenOrder,
-              child =>
-                parseInt(child.id) === parseInt(currentChildFolder.id) &&
-                child.type === 'folder'
-            ).children
-          }
-          if (!currentChildFolder.children) {
-            childFolders = await this._getChildFolders(currentChildFolder.id)
-          } else {
-            childFolders = currentChildFolder.children
-          }
-        },
-        1
-      )
-    }
     const recurseChildFolders = async (tree, childFolders, childrenOrder) => {
       const folders = await Parallel.map(
         childrenOrder,
         async child => {
           if (child.type === 'folder') {
             // get the folder from the tree we've fetched above
-            let folder = childFolders.filter(
-              folder => folder.id === child.id
-            )[0]
+            let folder = childFolders.find(folder => folder.id === child.id)
             if (!folder) throw new Error(browser.i18n.getMessage('Error021'))
             let newFolder = new Folder({
               id: child.id,
@@ -346,7 +326,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
         1
       )
       await Parallel.each(
-        folders.filter(x => x),
+        folders.filter(Boolean),
         async ([newFolder, child, folder]) => {
           if (typeof child.children === 'undefined') {
             child.children = await this._getChildOrder(child.id, childrenLayers)
@@ -373,70 +353,33 @@ export default class NextcloudFoldersAdapter extends Adapter {
   async getSparseBookmarksTree() {
     this.hasFeatureHashing = true
     this.hasFeatureExistanceCheck = true
+
     const childrenLayers = 3
-    const childFoldersJson = await this.sendRequest(
-      'GET',
-      `index.php/apps/bookmarks/public/rest/v2/folder?layers=${childrenLayers}`
-    )
-    if (!Array.isArray(childFoldersJson.data)) {
-      throw new Error(browser.i18n.getMessage('Error015'))
-    }
-    let childFolders = childFoldersJson.data
+
+    let childFolders = await this._getChildFolders(-1, childrenLayers)
     let tree = new Folder({ id: '-1' })
+
     if (this.server.serverRoot) {
-      await Parallel.each(
-        this.server.serverRoot.split('/').slice(1),
-        async segment => {
-          let currentChild = _.find(
-            childFolders,
-            folder => folder.title === segment
-          )
-          if (!currentChild) {
-            // create folder
-            let body = JSON.stringify({
-              parent_folder: tree.id,
-              title: segment
-            })
-            const json = await this.sendRequest(
-              'POST',
-              'index.php/apps/bookmarks/public/rest/v2/folder',
-              'application/json',
-              body
-            )
-            if (typeof json.item !== 'object') {
-              throw new Error(browser.i18n.getMessage('Error015'))
-            }
-            currentChild = { id: json.item.id, children: [] }
-          }
-          tree = new Folder({ id: currentChild.id })
-          childFolders = currentChild.children
-        },
-        1
-      )
+      ;({ tree, childFolders } = await this._findServerRoot(childFolders))
     }
+
     Logger.log('Received initial folders from server', childFolders)
-    const recurseChildFolders = async (tree, childFolders) => {
-      await Parallel.each(
-        childFolders,
-        async childFolder => {
-          let newFolder = new Folder({
-            id: childFolder.id,
-            title: childFolder.title,
-            parentId: tree.id
-          })
-          tree.children.push(newFolder)
-          // ... and recurse
-          return recurseChildFolders(
-            newFolder,
-            childFolder.children // || (await this._getChildFolders(childFolder.id, childrenLayers))
-          )
-        },
-        3
-      )
+
+    const recurseChildFolders = (tree, childFolders) => {
+      childFolders.forEach(childFolder => {
+        let newFolder = new Folder({
+          id: childFolder.id,
+          title: childFolder.title,
+          parentId: tree.id
+        })
+        tree.children.push(newFolder)
+        // ... and recurse
+        return recurseChildFolders(newFolder, childFolder.children || [])
+      })
     }
     this.list = null
     tree.hashValue = { true: await this._getFolderHash(-1) }
-    await recurseChildFolders(tree, childFoldersJson.data)
+    recurseChildFolders(tree, childFolders)
     this.tree = tree.clone(true) // we clone (withHash), so we can mess with our own version
     return tree
   }
@@ -454,43 +397,73 @@ export default class NextcloudFoldersAdapter extends Adapter {
       })
   }
 
-  async loadFolderChildren(folderId) {
-    if (!this.hasFeatureHashing) {
-      return
-    }
-    const folder = this.tree.findFolder(folderId)
-    const [childrenOrder, childFolders, childBookmarks] = await Promise.all([
-      this._getChildOrder(folderId),
-      folder.children.length
-        ? folder.children
-        : this._getChildFolders(folderId, 3),
-      Promise.resolve().then(
-        () =>
-          this.list ||
-          this.sendRequest(
-            'GET',
-            `index.php/apps/bookmarks/public/rest/v2/bookmark?folder=${folderId}&page=-1`
-          ).then(json => json.data)
+  async _getChildren(folderId, layers) {
+    let childrenJson
+    try {
+      childrenJson = await this.sendRequest(
+        'GET',
+        `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/children?layers=${layers}`
       )
-    ])
-    const recurseFolders = (folder, childFolders) => {
-      if (!childFolders) return
-      folder.children = childFolders.map(child => {
-        if (child instanceof Folder) {
-          return child
-        }
-        const childFolder = new Folder({
-          id: child.id,
-          parentId: folder.id,
-          title: child.title
-        })
-        recurseFolders(childFolder, child.children)
-        return childFolder
-      })
+      this.hasFeatureChildren = true
+    } catch (e) {
+      this.hasFeatureChildren = false
     }
-    recurseFolders(folder, childFolders)
-    return Promise.all(
-      childrenOrder.map(async item => {
+    if (this.hasFeatureChildren) {
+      const children = childrenJson.data
+      const recurseChildren = (folderId, children) => {
+        return children.map(item => {
+          if (item.type === 'bookmark') {
+            return new Bookmark({
+              id: item.id + ';' + folderId,
+              title: item.title,
+              parentId: folderId,
+              url: item.url
+            })
+          } else if (item.type === 'folder') {
+            const childFolder = new Folder({
+              id: item.id,
+              parentId: folderId,
+              title: item.title
+            })
+            childFolder.loaded = Boolean(childFolder.children)
+            childFolder.children = recurseChildren(item.id, item.children || [])
+            return childFolder
+          }
+        })
+      }
+      return recurseChildren(folderId, children)
+    } else {
+      const [childrenOrder, childFolders, childBookmarks] = await Promise.all([
+        this._getChildOrder(folderId),
+        this._getChildFolders(folderId),
+        Promise.resolve().then(
+          () =>
+            this.list ||
+            this.sendRequest(
+              'GET',
+              `index.php/apps/bookmarks/public/rest/v2/bookmark?folder=${folderId}&page=-1`
+            ).then(json => json.data)
+        )
+      ])
+      const recurseFolders = (folderId, childFolders) => {
+        if (!childFolders) return
+        return childFolders.map(child => {
+          if (child instanceof Folder) {
+            return child
+          }
+          const childFolder = new Folder({
+            id: child.id,
+            parentId: folderId,
+            title: child.title
+          })
+          childFolder.children = recurseFolders(child.id, child.children)
+          return childFolder
+        })
+      }
+      const folder = new Folder({
+        children: recurseFolders(folderId, childFolders)
+      })
+      return childrenOrder.map(item => {
         if (item.type === 'bookmark') {
           const bm = _.find(
             childBookmarks,
@@ -504,13 +477,33 @@ export default class NextcloudFoldersAdapter extends Adapter {
             url: bm.url
           })
         } else if (item.type === 'folder') {
-          const folderHash = await this._getFolderHash(item.id)
-          const childFolder = this.tree.findFolder(item.id).clone()
-          childFolder.hashValue = { true: folderHash }
-          return childFolder
+          return folder.findFolder(item.id)
         }
       })
-    )
+    }
+  }
+
+  async loadFolderChildren(folderId) {
+    if (!this.hasFeatureHashing) {
+      return
+    }
+    const folder = this.tree.findFolder(folderId)
+    if (folder.loaded) {
+      return
+    }
+    const children = await this._getChildren(folderId, 1)
+    const recurse = async children => {
+      return Parallel.each(children, async child => {
+        if (child instanceof Folder) {
+          const folderHash = await this._getFolderHash(child.id)
+          child.hashValue = { true: folderHash }
+          await recurse(child.children)
+        }
+      })
+    }
+    await recurse(children)
+    folder.children = children
+    return folder.clone(true).children
   }
 
   async createFolder(parentId, title) {
