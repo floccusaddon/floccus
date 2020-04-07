@@ -228,7 +228,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
   }
 
   async _findServerRoot(childFolders) {
-    let tree
+    let tree = new Folder({ id: '-1' })
     await Parallel.each(
       this.server.serverRoot.split('/').slice(1),
       async segment => {
@@ -425,7 +425,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
               parentId: folderId,
               title: item.title
             })
-            childFolder.loaded = Boolean(childFolder.children)
+            childFolder.loaded = Boolean(item.children)
             childFolder.children = recurseChildren(item.id, item.children || [])
             return childFolder
           }
@@ -489,7 +489,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     }
     const folder = this.tree.findFolder(folderId)
     if (folder.loaded) {
-      return
+      return folder.clone(true).children
     }
     const children = await this._getChildren(folderId, 1)
     const recurse = async children => {
