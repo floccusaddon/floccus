@@ -812,7 +812,16 @@ export default class SyncProcess {
         )
       } else {
         localChild = child
+        // if we can't find the cache child, that means this is a new bookmark,
+        // so in order to delete it anyway, we'll just pass along `true` to have it deleted
         cacheChild = this.cacheTreeRoot.findItem(localChild.type, localChild.id)
+      }
+
+      if (!cacheChild) {
+        Logger.log(
+          `Child of folder ${folder.id} is new, yet we're deleting the folder: ${child}`
+        )
+        cacheChild = child
       }
 
       await this.syncTree({

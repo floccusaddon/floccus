@@ -2602,7 +2602,7 @@ describe('Floccus', function() {
             tree2BeforeSecondSync,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
-          serverTreeAfterThirdSync.title = tree2AfterThirdSync.title
+          serverTreeAfterThirdSync.title = tree2BeforeSecondSync.title
           expectTreeEqual(
             serverTreeAfterThirdSync,
             tree2BeforeSecondSync,
@@ -2627,7 +2627,7 @@ describe('Floccus', function() {
             tree2BeforeSecondSync,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
-          tree2AfterThirdSync.title = serverTreeAfterFinalSync.title
+          tree2BeforeSecondSync.title = serverTreeAfterFinalSync.title
           expectTreeEqual(
             serverTreeAfterFinalSync,
             tree2BeforeSecondSync,
