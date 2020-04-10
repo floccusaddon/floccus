@@ -5,7 +5,7 @@ import Cryptography from './Crypto'
 import packageJson from '../../package.json'
 import AccountStorage from './AccountStorage'
 import * as localForage from 'localforage' // for backwards compatibility
-import { CookieManager, CookieSession } from './adapters/CookieManager'
+import { AuthManager, AuthSession } from './adapters/CookieManager'
 
 const PQueue = require('p-queue')
 
@@ -59,9 +59,9 @@ export default class Controller {
       this.onchange(localId, details)
     )
 
-    // set up packet listener to intercept cookies
-    window.cookiemanager = new CookieManager("HEUhicksREKA")
-    window.cookiesession = new CookieSession(window.cookiemanager)
+    // set up request/response listener for nextcloud authentication
+    window.authmanager = new AuthManager()
+    window.authsession = new AuthSession(window.authmanager)
 
     // Set up the alarms
 

@@ -866,7 +866,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     try {
       res = await this.fetchQueue.add(() =>
         Promise.race([
-          window.cookiesession.fetch(url, {
+          window.authsession.fetch(url, {
             method: verb,
             //credentials: 'same-origin',
             credentials: 'omit',
