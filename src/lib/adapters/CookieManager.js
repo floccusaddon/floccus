@@ -28,7 +28,7 @@ export class AuthSession {
     this.needsAuthentication = true 
     // some browsers (chrome) allow us to acces relevant httpOnly cookies 
     // over chrome.cookies but not by intercepting webRequets
-    // TODO this kind of relies on nextcloud only sending our expected set of httpOnly cookies
+    // TODO this kinda relies on nextcloud only sending our expected set of httpOnly cookies
     this.everRecievedCookie = false
   }
 
@@ -58,62 +58,91 @@ export class AuthSession {
 
 export class AuthManager {
 
-  constructor() {
+  // @param server url used by API fetches
+  constructor(serverURL) {
     this.sessions = {} // dict: cookieJarId => CookieJar
     this.requests = {} // prevent memory leaks (epecially on request timeouts etc) TODO
+    this.serverurl = serverURL // url.format({
+            //protocol: serverURL.protocol,
+            //auth: serverURL.auth,
+            //host: serverURL.host,
+            //port: serverURL.port})
     this.sessionIdState = 0
 
-    let onResponse = function(e) {
-      let header = e.responseHeaders
-      // get cookieSession by request id
-      let authSessionId = window.authmanager.requests[e.requestId]
-      if (authSessionId === undefined) {
-        // request wasn't handled by this
-        console.warn("did not recognize response")
-      } else {
-        // cookie is ignored by browser. no need to remove it.
-        // save cookie in session
-        window.authmanager.sessions[authSessionId].acceptCookies(header)
-      }
-      return {responseHeaders: e.responseHeaders};
-    }
+    this.onResponseListener = e => this.onResponse(e)
+    this.onRequestListener = e => this.onRequest(e)
 
-    let onRequest = function(e) {
-      let header = e.requestHeaders
-      // get the authSessionId and save the request id for the session
-      let authSessionId = header.find(object => object.name.toLowerCase() == "authsessionid").value
-      if ( authSessionId === undefined ) {
-        // not a request managed by this
-        console.warn("did not recognize this request")
-      } else {
-        window.authmanager.requests[e.requestId] = authSessionId
-        // offer cookies already present in the session
-        let new_cookies = window.authmanager.sessions[authSessionId].cookieJar.getAsSingleCookie()
-        // TODO dont overwrite all cookies
-        header.push({ name: "Cookie", value: new_cookies})
-      }
-
-      return {requestHeaders: e.requestHeaders}
-    }
-
-    // TODO onAuthRequired?
-    // TODO better filters
+    let filter = this.getRequestFilter()
+    console.log(filter)
+  
     browser.webRequest.onHeadersReceived.addListener(
-      onResponse,
+      this.onResponseListener,
       {urls: ["<all_urls>"]},
       ["blocking", "responseHeaders"]
     );
 
     browser.webRequest.onBeforeSendHeaders.addListener(
-      onRequest,
+      this.onRequestListener,
       {urls: ["<all_urls>"]},
       ["blocking", "requestHeaders"]
     );
 
   }
+  
+  onResponse(e) {
+      let header = e.responseHeaders
+      // get cookieSession by request id
+      let authSessionId = this.requests[e.requestId]
+      if (authSessionId === undefined) {
+        // request wasn't handled by this
+        console.debug("Detected a response not meant for the bookmarks API. Returning now.")
+      } else {
+        // cookie is ignored by browser. no need to remove it.
+        // save cookie in session
+        this.sessions[authSessionId].acceptCookies(header)
+      }
+      return {responseHeaders: e.responseHeaders};
+  }
+
+  onRequest(e) {
+      let header = e.requestHeaders
+      // get the authSessionId and save the request id for the session
+      let authSessionId
+      for (let object of header) {
+        if (object.name.toLowerCase() == "authsessionid") {
+          authSessionId = object.value
+        }
+      }
+      //let authSessionId = header.find(object => object.name.toLowerCase() == "authsessionid").value
+      if ( authSessionId === undefined ) {
+        // not a request managed by this
+        console.debug("Detected a request not meant for the bookmarks API. Returning now.")
+      } else {
+        this.requests[e.requestId] = authSessionId
+        // offer cookies already present in the session
+        console.log("on request sessions:")
+        console.log(this.sessions)
+        let new_cookies = this.sessions[authSessionId].cookieJar.getAsSingleCookie()
+        header.push({ name: "Cookie", value: new_cookies})
+      }
+
+      return {requestHeaders: e.requestHeaders}
+  }
+
+  getRequestFilter() {
+    // because background.html doesn't own a window nor a tab, there is little we can do
+    let tab = browser.tabs.getCurrent()
+    let w = browser.windows.getCurrent()
+
+    return {
+      urls: [this.serverurl + "*"]
+    }
+  }
 
   addSession(authSession) {
     this.sessions[authSession.id] = authSession
+    console.log("add session sessions:")
+    console.log(this.sessions)
   }
 
   newSessionId() {

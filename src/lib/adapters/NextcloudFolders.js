@@ -33,7 +33,7 @@ const {
 } = Basics
 
 export default class NextcloudFoldersAdapter extends Adapter {
-  constructor(server, cookieman) {
+  constructor(server) {
     super()
     this.server = server
     this.fetchQueue = new PQueue({ concurrency: 12 })
@@ -866,7 +866,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     try {
       res = await this.fetchQueue.add(() =>
         Promise.race([
-          window.authsession.fetch(url, {
+          this.authSession.fetch(url, {
             method: verb,
             //credentials: 'same-origin',
             credentials: 'omit',

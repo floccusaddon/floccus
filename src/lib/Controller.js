@@ -59,10 +59,6 @@ export default class Controller {
       this.onchange(localId, details)
     )
 
-    // set up request/response listener for nextcloud authentication
-    window.authmanager = new AuthManager()
-    window.authsession = new AuthSession(window.authmanager)
-
     // Set up the alarms
 
     browser.alarms.create('checkSync', { periodInMinutes: 1 })

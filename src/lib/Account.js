@@ -10,6 +10,7 @@ import SlaveSyncProcess from './strategies/Slave'
 import OverwriteSyncProcess from './strategies/Overwrite'
 import Logger from './Logger'
 import browser from './browser-api'
+import { AuthManager, AuthSession } from './adapters/CookieManager'
 
 // register Adapters
 Adapter.register('nextcloud', NextcloudAdapter)
@@ -163,6 +164,11 @@ export default class Account {
           strategy = DefaultSyncProcess
           break
       }
+
+      // set up request/response listener for nextcloud authentication
+      this.authManager = new AuthManager(this.server.server.url)
+      this.server.authSession = new AuthSession(this.authManager)
+
       this.syncing = new strategy(
         mappings,
         this.localTree,
