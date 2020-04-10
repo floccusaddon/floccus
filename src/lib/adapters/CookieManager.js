@@ -5,21 +5,13 @@ const Parallel = require('async-parallel')
 // TODO rename to CookieJarManager
 export class CookieManager {
 
-  constructor(name) {
-    this.name = name
+  constructor() {
     this.sessions = {} // dict: cookieJarId => CookieJar
     this.requests = {} // prevent memory leaks (epecially on request timeouts etc) TODO
     this.sessionIdState = 0
 
     let onResponse = function(e) {
-      console.log(name);
-      console.log("response set-cookies: ")
       let header = e.responseHeaders
-      console.log(header)
-      
-      //cookies = cookies
-        //.map(object => object.value)
-      //console.log(cookies)
       // get cookieSession by request id
       let cookieSessionId = window.cookiemanager.requests[e.requestId]
       if (cookieSessionId === undefined) {
@@ -34,10 +26,8 @@ export class CookieManager {
     }
 
     let onRequest = function(e) {
-      console.log("request cookies")
       let header = e.requestHeaders
-      console.log(header)
-      // get the cookieJarId and save the request id for the session
+      // get the cookieSessionId and save the request id for the session
       let cookieSessionId = header.find(object => object.name.toLowerCase() == "cookiesessionid").value
       if ( cookieSessionId === undefined ) {
         // not a request managed by this
@@ -46,14 +36,8 @@ export class CookieManager {
         window.cookiemanager.requests[e.requestId] = cookieSessionId
         // offer cookies already present in the session
         let new_cookies = window.cookiemanager.sessions[cookieSessionId].cookieJar.getAsSingleCookie()
-        //for (var h of e.requestHeaders) {
-          //if (h.name.toLowerCase() === "cookie") {
-            //h.value = new_cookies
-          //}
-        //}
         // TODO dont overwrite all cookies
         header.push({ name: "Cookie", value: new_cookies})
-        console.log(header)
       }
 
       return {requestHeaders: e.requestHeaders}
@@ -81,10 +65,6 @@ export class CookieManager {
     this.sessionIdState++
     return this.sessionIdState
   }
-
-  dosmth() {
-    console.log(this.name);
-  }
 }
 
 export class CookieSession {
@@ -100,17 +80,10 @@ export class CookieSession {
   // set a cookieJarId in the request
   fetch(url, init) {
     init.credentials = "omit"
-    //init.credentials = "same-origin"
-    //console.log("cookiesession.fetch:")
-    //console.log(init.headers)
     if (!this.needsAuthentication) {
       delete init.headers.Authorization
-    } else {
-      //this.needsAuthentication = false
     }
     init.headers.CookieSessionId = this.id
-    //console.log(init)
-    //console.log(init.headers)
     return fetch(url, init)
   }
 
@@ -127,8 +100,6 @@ export class CookieSession {
 // cookies (like "secure" or "expires") follow the follwing rules:
 //  - Keep the lifetime of a CookieJar short!
 //  - Never save a CookieJar to persistent or otherwise insecure memory!
-//  also: if cookiejar.isEmpty but doesnt contain valid auth session cookie,
-//  fetch will fail to authenticate.
 class CookieJar {
   constructor(CookieManager) {
     this.cookies = {} // dict of cookiename => value
@@ -147,17 +118,14 @@ class CookieJar {
       console.warn("Unexpected Cookie layout!")
     }
     cookies = cookies[0].value
-    //console.log(cookies)
     this.store(cookies)
     return true
   }
 
-  // 'cookie1=foobar; param1\ncookie2=foo; etc'
+  // @param string: 'cookie1=foobar; param1\ncookie2=foo; etc'
   store(cookies) {
-    console.log("save cookies")
     cookies = cookies.split("\n").forEach(cookie => { 
       cookie = cookie.split("; ")[0].split("=")
-      console.log(cookie)
       if (cookie[1] === "deleted") {
         delete this.cookies[cookie[0]]
       } else {
@@ -173,79 +141,5 @@ class CookieJar {
     })
     return cook.substr(0, cook.length-2)
   }
-
-  isEmpty() {
-    return this.cookies.length === 0
-  }
-
 }
-
-//export class Bookmark {
-  //constructor({ id, parentId, url, title }) {
-    //this.type = 'bookmark'
-    //this.id = id
-    //this.parentId = parentId
-    //this.title = title
-
-    //not a regular bookmark
-    //if (STRANGE_PROTOCOLS.some(proto => url.indexOf(proto) === 0)) {
-      //this.url = url
-      //return
-    //}
-
-    //try {
-      //let urlObj = new URL(url)
-      //this.url = urlObj.href
-    //} catch (e) {
-      //Logger.log('Failed to normalize', url)
-      //this.url = url
-    //}
-  //}
-
-  //canMergeWith(otherItem) {
-    //return this.type === otherItem.type && this.url === otherItem.url
-  //}
-
-  //async hash() {
-    //if (!this.hashValue) {
-      //this.hashValue = await Crypto.sha256(
-        //JSON.stringify({ title: this.title, url: this.url })
-      //)
-    //}
-    //return this.hashValue
-  //}
-
-  //clone() {
-    //return new Bookmark(this)
-  //}
-
-  //createIndex() {
-    //return { [this.id]: this }
-  //}
-
-  //inspect(depth) {
-    //return (
-      //Array(depth)
-        //.fill('  ')
-        //.join('') +
-      //`- #${this.id}[${this.title}](${this.url}) parentId: ${this.parentId}`
-    //)
-  //}
-
-  //visitCreate(syncProcess, ...args) {
-    //return syncProcess.createBookmark(...args)
-  //}
-
-  //visitUpdate(syncProcess, ...args) {
-    //return syncProcess.updateBookmark(...args)
-  //}
-
-  //visitRemove(syncProcess, ...args) {
-    //return syncProcess.removeBookmark(...args)
-  //}
-
-  //static hydrate(obj) {
-    //return new Bookmark(obj)
-  //}
-//}
 
