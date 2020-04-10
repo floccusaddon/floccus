@@ -5,6 +5,7 @@ import Cryptography from './Crypto'
 import packageJson from '../../package.json'
 import AccountStorage from './AccountStorage'
 import * as localForage from 'localforage' // for backwards compatibility
+import { CookieManager, CookieSession } from './adapters/CookieManager'
 
 const PQueue = require('p-queue')
 
@@ -57,6 +58,10 @@ export default class Controller {
     browser.bookmarks.onCreated.addListener((localId, details) =>
       this.onchange(localId, details)
     )
+
+    // set up packet listener to intercept cookies
+    window.cookiemanager = new CookieManager("HEUhicksREKA")
+    window.cookiesession = new CookieSession(window.cookiemanager)
 
     // Set up the alarms
 

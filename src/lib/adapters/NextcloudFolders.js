@@ -8,6 +8,7 @@ import * as Basics from '../components/basics'
 import { Base64 } from 'js-base64'
 import AsyncLock from 'async-lock'
 import browser from '../browser-api'
+import { CookieManager } from './CookieManager'
 
 const Parallel = require('async-parallel')
 const { h } = require('hyperapp')
@@ -32,7 +33,7 @@ const {
 } = Basics
 
 export default class NextcloudFoldersAdapter extends Adapter {
-  constructor(server) {
+  constructor(server, cookieman) {
     super()
     this.server = server
     this.fetchQueue = new PQueue({ concurrency: 12 })
@@ -827,17 +828,47 @@ export default class NextcloudFoldersAdapter extends Adapter {
     })
   }
 
+  acceptCookies(header) {
+    console.log("header " + header)
+    let accepted_cookies = header.get("Set-Cookie")
+    console.log("cookies " + accepted_cookies)
+    let entries = header.entries()
+    //for (entry in entries) {
+      //console.log(entry)
+      //console.log(key + ": " + value)
+    //}
+  }
+
   async sendRequest(verb, relUrl, type, body, returnRawResponse) {
     const url = this.normalizeServerURL(this.server.url) + relUrl
     let res
     let authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
+
+    //let cm = new CookieManager("FOOOOO");
+    //console.log(":::::::");
+    //cm.dosmth();
+
+    let onBHeaderRec = function(e) {
+      console.log("HEUREKA");
+      return {responseHeads: e.responseHeaders};
+    }
+
+    //if ( ! await browser.webRequest.onHeadersReceived.hasListener(onBHeaderRec) ) {
+      //await browser.webRequest.onHeadersReceived.addListener(
+        //onBHeaderRec,
+        //{urls: ["<all_urls>"]},
+        //["blocking", "responseHeaders"]
+      //);
+    //}
+
     try {
       res = await this.fetchQueue.add(() =>
         Promise.race([
-          fetch(url, {
+          window.cookiesession.fetch(url, {
             method: verb,
+            //credentials: 'same-origin',
             credentials: 'omit',
             headers: {
               ...(type && { 'Content-type': type }),
@@ -858,6 +889,28 @@ export default class NextcloudFoldersAdapter extends Adapter {
       if (e.pass) throw e
       throw new Error(browser.i18n.getMessage('Error017'))
     }
+
+    //console.log("penis " + res.status)
+    //console.log("penis " + res.headers)
+    //console.log("penis " + await res.headers.entries())
+    //let entries = await res.headers.entries()
+    //let entry = await entries.next()
+    //console.log("penis header1" + entry)
+    //entry = await entries.next()
+    //console.log("penis header2" + entry)
+    //let setcookie = await res.headers.get("Set-Cookie")
+    //console.log("penis " + setcookie)
+    //console.debug("=================")
+    //let date = await res.headers.get("Date")
+    //console.log("Date: " + date)
+    //let cookie = await res.headers.get("Set-Cookie")
+    //console.log("Set-Cookie: " + cookie)
+    //for (const item of entries) {
+      //let item1 = item[0]
+      //let item2 = item[1]
+      //console.debug("the headers: " + item1 + ": " + item2)
+    //}
+    //this.acceptCookies(res.headers)
 
     if (returnRawResponse) {
       return res
