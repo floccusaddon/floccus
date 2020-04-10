@@ -1000,7 +1000,8 @@ export default class SyncProcess {
     toOrder,
     item: bookmark /* in toTree */
   }) {
-    if (toTree.findFolder(bookmark.parentId).isRoot) {
+    const toParent = toTree.findFolder(bookmark.parentId)
+    if (toParent && toParent.isRoot) {
       Logger.log(
         "We're not allowed to change any direct children of the absolute root folder. Skipping."
       )
