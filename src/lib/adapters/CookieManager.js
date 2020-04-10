@@ -1,3 +1,4 @@
+import browser from '../browser-api'
 import Logger from '../Logger'
 
 const Parallel = require('async-parallel')
@@ -22,7 +23,13 @@ export class AuthSession {
     this.cookieJar = new CookieJar()
     this.id = authman.newSessionId() // why use ids? just save a reference to the object TODO
     this.authman.addSession(this)
-    this.needsAuthentication = true // it looks like we only need to send auth 2 times? (we send 3 times now)
+
+    // it looks like we only need to send auth 2 times? (we send 3 times now)
+    this.needsAuthentication = true 
+    // some browsers (chrome) allow us to acces relevant httpOnly cookies 
+    // over chrome.cookies but not by intercepting webRequets
+    // TODO this kind of relies on nextcloud only sending our expected set of httpOnly cookies
+    this.everRecievedCookie = false
   }
 
   // copys behaviour of official fetch, but overwrites certain fields to contain the request in this auth session
@@ -38,8 +45,13 @@ export class AuthSession {
 
   acceptCookies(header) {
     if (!this.cookieJar.storeFromHeader(header)) {
-      // no new cookies recieved
-      this.needsAuthentication = false
+      if (this.everRecievedCookie) {
+        // if and only if our browser grants us access to httpsOnly cookies,
+        // _and_ nextcloud has stopped sending new cookies, stop sending login data
+        this.needsAuthentication = false
+      }
+    } else {
+      this.everRecievedCookie = true
     }
   }
 }
@@ -63,7 +75,7 @@ export class AuthManager {
         // save cookie in session
         window.authmanager.sessions[authSessionId].acceptCookies(header)
       }
-      return {responseHeads: e.responseHeaders};
+      return {responseHeaders: e.responseHeaders};
     }
 
     let onRequest = function(e) {
@@ -84,6 +96,8 @@ export class AuthManager {
       return {requestHeaders: e.requestHeaders}
     }
 
+    // TODO onAuthRequired?
+    // TODO better filters
     browser.webRequest.onHeadersReceived.addListener(
       onResponse,
       {urls: ["<all_urls>"]},
