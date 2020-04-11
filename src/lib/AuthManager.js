@@ -1,13 +1,11 @@
 import browser from './browser-api'
 
-const Parallel = require('async-parallel')
-
 // An AuthSession can be used to make API fetch() calls to Nextcloud. It 
 // overrides the requests headers to reduce the number of times, the server
 // has to validate passwords.
 // In order to do that without interfering with the users session cookies, 
 // it intercepts relevant requests/responses and stores the cookies in a dedicated 
-// CookyJar.
+// CookieJar.
 //
 // Because a CookieJar does not respect any attributes given to 
 // cookies (like "secure" or "expires") and because session timeouts are not
@@ -17,7 +15,8 @@ const Parallel = require('async-parallel')
 export class AuthSession {
 
   // @param AuthManager
-  // @param "https://example.org"
+  // @param "https://example.org" This session can only be used for API calls
+  //          to this server.
   constructor(authman, serverUrl) {
     this.authman = authman
     this.cookieJar = new CookieJar()
@@ -29,8 +28,7 @@ export class AuthSession {
     // it looks like we only need to send auth 2 times? (we send 3 times now)
     this.needsAuthentication = true 
     // some browsers (chrome) allow us to acces relevant httpOnly cookies 
-    // over chrome.cookies but not by intercepting webRequets
-    // TODO this kinda relies on nextcloud only sending our expected set of httpOnly cookies
+    // by chrome.cookies but not by intercepting webRequests
     this.everRecievedCookie = false
   }
 
@@ -38,8 +36,8 @@ export class AuthSession {
     this.authman.removeSession(this)
   }
 
-  // copys behaviour of official fetch, but overwrites certain fields to contain the request in this auth session
-  // set a AuthSessionId in the request
+  // Mimics behaviour of official fetch, but overwrites certain fields to 
+  // contain the request in this AuthSession. Sets a AuthSessionId in the request.
   fetch(url, init) {
     init.credentials = "omit"
     if (!this.needsAuthentication) {
@@ -52,7 +50,7 @@ export class AuthSession {
   acceptCookies(header) {
     if (!this.cookieJar.storeFromHeader(header)) {
       if (this.everRecievedCookie) {
-        // if and only if our browser grants us access to httpsOnly cookies,
+        // if and only if our browser grants us access to httpOnly cookies,
         // _and_ nextcloud has stopped sending new cookies, stop sending login data
         this.needsAuthentication = false
       }
@@ -62,9 +60,9 @@ export class AuthSession {
   }
 }
 
+// Handles listeners for AuthSessions. Should have exactly one global instance.  
 export class AuthManager {
 
-  // @param server url used by API fetches
   constructor() {
     this.sessions = {} // dict: AuthSessionId => AuthSession
     this.requests = {} // dict: request.requestId => AuthSessionId
@@ -72,7 +70,6 @@ export class AuthManager {
 
     this.onResponseListener = e => this.onResponse(e)
     this.onRequestListener = e => this.onRequest(e)
-
   }
 
   updateListeners() {
@@ -84,18 +81,19 @@ export class AuthManager {
     }
   }
 
+  // adds or overwrites listeners
   addListeners(filter) {
     browser.webRequest.onHeadersReceived.addListener(
       this.onResponseListener,
       filter,
       ["blocking", "responseHeaders"]
-    );
+    )
 
     browser.webRequest.onBeforeSendHeaders.addListener(
       this.onRequestListener,
       filter,
       ["blocking", "requestHeaders"]
-    );
+    )
   }
 
   removeListeners() {
@@ -105,15 +103,15 @@ export class AuthManager {
 
   onResponse(e) {
       let header = e.responseHeaders
-      // get cookieSession by request id
+      // get authSession by request id
       let authSessionId = this.requests[e.requestId]
       if (authSessionId === undefined) {
         // request wasn't handled by this
         console.info("Detected a response not meant for the bookmarks API. Returning now.")
       } else {
-        // cookie is ignored by browser. no need to remove it.
         // save cookie in session
         this.sessions[authSessionId].acceptCookies(header)
+        // remove request and its ownership
         delete this.requests[e.requestId]
         delete this.sessions[authSessionId].ownedRequests[e.requestId]
       }
@@ -122,7 +120,7 @@ export class AuthManager {
 
   onRequest(e) {
       let header = e.requestHeaders
-      // get the authSessionId and save the request id for the session
+      // get the authSessionId
       let authSessionId
       for (let object of header) {
         if (object.name.toLowerCase() == "authsessionid") {
@@ -134,7 +132,9 @@ export class AuthManager {
         // not a request managed by this
         console.info("Detected a request not meant for the bookmarks API. Returning now.")
       } else {
+        // assign the requestId a authSession
         this.requests[e.requestId] = authSessionId
+        // set ownership of request
         this.sessions[authSessionId].ownedRequests[e.requestId] = true
         // offer cookies already present in the session
         let new_cookies = this.sessions[authSessionId].cookieJar.getAsSingleCookie()
@@ -162,7 +162,9 @@ export class AuthManager {
   }
 
   removeSession(authSession) {
+    // clean up requests owned by authSession
     Object.keys(authSession.ownedRequests).forEach(requestId => delete this.requests[requestId])
+
     delete this.sessions[authSession.id]
     this.updateListeners()
   }
@@ -181,8 +183,8 @@ class CookieJar {
   // @param webRequest.HttpHeaders
   // @return false if no cookie was found
   storeFromHeader(header) {
-    // in firefox cookies arrive colleted in one objects value seperated by newline
-    // `[{name: "Set-Cookie", value: "cookie1; httpOnly\ncookie2; httpOnly"}]
+    // in firefox cookies arrive colleted in a single objects value seperated by newline
+    // [{name: "Set-Cookie", value: "cookie1; httpOnly\ncookie2; httpOnly"}]
     let cookies = header.filter(object => object.name.toLowerCase() == "set-cookie")
     if (cookies.length === 0) {
       return false
@@ -195,7 +197,7 @@ class CookieJar {
     return true
   }
 
-  // @param string: 'cookie1=foobar; param1\ncookie2=foo; etc'
+  // @param cookies string: 'cookie1=foobar; param1\ncookie2=foo; etc'
   store(cookies) {
     cookies = cookies.split("\n").forEach(cookie => { 
       cookie = cookie.split("; ")[0].split("=")
