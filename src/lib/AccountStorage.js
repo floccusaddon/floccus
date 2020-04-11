@@ -16,14 +16,16 @@ export default class AccountStorage {
       let entry = await AccountStorage.getEntry(entryName, defaultVal)
       entry = fn(entry)
 
-      await browser.storage.local.set({ [entryName]: entry })
+      await browser.storage.local.set({ [entryName]: JSON.stringify(entry) })
     })
   }
 
   static async getEntry(entryName, defaultVal) {
     let entry = await browser.storage.local.get(entryName)
     if (entry[entryName]) {
-      return entry[entryName]
+      return typeof entry[entryName] === 'string'
+        ? JSON.parse(entry[entryName])
+        : entry[entryName]
     } else {
       return defaultVal
     }

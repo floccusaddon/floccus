@@ -194,11 +194,15 @@ export default class Account {
       Logger.log(
         'Successfully ended sync process for account ' + this.getLabel()
       )
+      if (mappings) {
+        await mappings.persist()
+      }
     } catch (e) {
       console.log(e)
       const message = Account.stringifyError(e)
       console.error('Syncing failed with', message)
       Logger.log('Syncing failed with', message)
+
       await this.setData({
         ...this.getData(),
         error: message,
@@ -208,11 +212,12 @@ export default class Account {
       if (this.server.onSyncFail) {
         await this.server.onSyncFail()
       }
+
+      if (mappings) {
+        await mappings.persist()
+      }
     }
     await Logger.persist()
-    if (mappings) {
-      await mappings.persist()
-    }
   }
 
   static stringifyError(er) {
