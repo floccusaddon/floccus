@@ -1465,6 +1465,9 @@ describe('Floccus', function() {
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
 
+          expect(tree.findBookmark(bookmark1Id)).to.be.ok
+          expect(tree.findBookmark(bookmark2Id)).to.be.ok
+
           const localTree = await account.localTree.getBookmarksTree(true)
           expectTreeEqual(
             localTree,
@@ -1490,6 +1493,9 @@ describe('Floccus', function() {
             }),
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+
+          expect(localTree.findBookmark(bookmark1.id)).to.be.ok
+          expect(localTree.findBookmark(bookmark2.id)).to.be.ok
         })
         if (~ACCOUNT_DATA.type.indexOf('nextcloud-legacy')) {
           it('should leave alone unaccepted bookmarks entirely', async function() {
