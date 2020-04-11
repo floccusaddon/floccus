@@ -25,7 +25,8 @@ export class AuthSession {
     this.authman = authman
     this.cookieJar = new CookieJar()
     this.id = authman.newSessionId()
-    this.authman.addSession(this, serverUrl)
+    this.serverUrl = serverUrl
+    this.authman.addSession(this)
 
     // it looks like we only need to send auth 2 times? (we send 3 times now)
     this.needsAuthentication = true 
@@ -33,6 +34,10 @@ export class AuthSession {
     // over chrome.cookies but not by intercepting webRequets
     // TODO this kinda relies on nextcloud only sending our expected set of httpOnly cookies
     this.everRecievedCookie = false
+  }
+
+  destructor() {
+    this.authman.removeSession(this)
   }
 
   // copys behaviour of official fetch, but overwrites certain fields to contain the request in this auth session
@@ -62,40 +67,45 @@ export class AuthSession {
 export class AuthManager {
 
   // @param server url used by API fetches
-  constructor(serverUrl) {
+  constructor() {
     this.sessions = {} // dict: cookieJarId => CookieJar
     this.requests = {} // prevent memory leaks (epecially on request timeouts etc) TODO
-    this.serverurl = serverUrl // url.format({
-            //protocol: serverURL.protocol,
-            //auth: serverURL.auth,
-            //host: serverURL.host,
-            //port: serverURL.port})
+    this.serverurls = [] // serverurl followed by a *
     this.sessionIdState = 0
 
     this.onResponseListener = e => this.onResponse(e)
     this.onRequestListener = e => this.onRequest(e)
 
+  }
+
+  updateListeners() {
     let filter = this.getRequestFilter()
-  
+    if (filter.urls.length <= 0) {
+      this.removeListeners()
+    } else {
+      this.addListeners(filter)
+    }
+  }
+
+  addListeners(filter) {
     browser.webRequest.onHeadersReceived.addListener(
       this.onResponseListener,
-      {urls: ["<all_urls>"]},
+      filter,
       ["blocking", "responseHeaders"]
     );
 
     browser.webRequest.onBeforeSendHeaders.addListener(
       this.onRequestListener,
-      {urls: ["<all_urls>"]},
+      filter,
       ["blocking", "requestHeaders"]
     );
-
   }
 
-  destructor() {
+  removeListeners() {
     browser.webRequest.onHeadersReceived.removeListener(this.onResponseListener)
     browser.webRequest.onBeforeSendHeaders.removeListener(this.onRequestListener)
   }
-  
+
   onResponse(e) {
       let header = e.responseHeaders
       // get cookieSession by request id
@@ -136,18 +146,24 @@ export class AuthManager {
 
   getRequestFilter() {
     // because background.html doesn't own a window nor a tab, there is little we can do
-    let tab = browser.tabs.getCurrent()
-    let w = browser.windows.getCurrent()
+    //let tab = browser.tabs.getCurrent()
+    //let w = browser.windows.getCurrent()
+    let serverurls = []
+    Object.values(this.sessions).forEach(session => serverurls.push(session.serverUrl + "/*"))
 
     return {
-      urls: [this.serverurl + "*"]
+      urls: serverurls 
     }
   }
 
-  addSession(authSession, serverUrl) {
+  addSession(authSession) {
     this.sessions[authSession.id] = authSession
-    console.log("add session sessions:")
-    console.log(this.sessions)
+    this.updateListeners()
+  }
+
+  removeSession(authSession) {
+    delete this.sessions[authSession.id]
+    this.updateListeners()
   }
 
   newSessionId() {

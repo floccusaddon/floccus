@@ -59,6 +59,9 @@ export default class Controller {
       this.onchange(localId, details)
     )
 
+    // register webRequest listeners
+    window.authManager = new AuthManager()
+
     // Set up the alarms
 
     browser.alarms.create('checkSync', { periodInMinutes: 1 })

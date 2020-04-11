@@ -166,8 +166,7 @@ export default class Account {
       }
 
       // set up request/response listener for nextcloud authentication
-      this.authManager = new AuthManager(this.server.server.url)
-      this.server.authSession = new AuthSession(this.authManager, this.server.server.url)
+      this.server.authSession = new AuthSession(window.authManager, this.server.server.url)
 
       this.syncing = new strategy(
         mappings,
@@ -181,7 +180,7 @@ export default class Account {
       )
       await this.syncing.sync()
 
-      this.authManager.destructor()
+      this.server.authSession.destructor()
 
       // update cache
       await this.storage.setCache(await this.localTree.getBookmarksTree())
