@@ -3,6 +3,8 @@ import Logger from '../Logger'
 
 const Parallel = require('async-parallel')
 
+// TODO concurrent sync fuck things up
+
 // An AuthSession can be used to make API fetch() calls to Nextcloud. It 
 // overrides the requests headers to reduce the number of times, the server
 // has to validate passwords.
@@ -18,11 +20,12 @@ const Parallel = require('async-parallel')
 export class AuthSession {
 
   // @param AuthManager
-  constructor(authman) {
+  // @param "https://example.org"
+  constructor(authman, serverUrl) {
     this.authman = authman
     this.cookieJar = new CookieJar()
-    this.id = authman.newSessionId() // why use ids? just save a reference to the object TODO
-    this.authman.addSession(this)
+    this.id = authman.newSessionId()
+    this.authman.addSession(this, serverUrl)
 
     // it looks like we only need to send auth 2 times? (we send 3 times now)
     this.needsAuthentication = true 
@@ -59,10 +62,10 @@ export class AuthSession {
 export class AuthManager {
 
   // @param server url used by API fetches
-  constructor(serverURL) {
+  constructor(serverUrl) {
     this.sessions = {} // dict: cookieJarId => CookieJar
     this.requests = {} // prevent memory leaks (epecially on request timeouts etc) TODO
-    this.serverurl = serverURL // url.format({
+    this.serverurl = serverUrl // url.format({
             //protocol: serverURL.protocol,
             //auth: serverURL.auth,
             //host: serverURL.host,
@@ -73,7 +76,6 @@ export class AuthManager {
     this.onRequestListener = e => this.onRequest(e)
 
     let filter = this.getRequestFilter()
-    console.log(filter)
   
     browser.webRequest.onHeadersReceived.addListener(
       this.onResponseListener,
@@ -88,6 +90,11 @@ export class AuthManager {
     );
 
   }
+
+  destructor() {
+    browser.webRequest.onHeadersReceived.removeListener(this.onResponseListener)
+    browser.webRequest.onBeforeSendHeaders.removeListener(this.onRequestListener)
+  }
   
   onResponse(e) {
       let header = e.responseHeaders
@@ -95,7 +102,7 @@ export class AuthManager {
       let authSessionId = this.requests[e.requestId]
       if (authSessionId === undefined) {
         // request wasn't handled by this
-        console.debug("Detected a response not meant for the bookmarks API. Returning now.")
+        console.info("Detected a response not meant for the bookmarks API. Returning now.")
       } else {
         // cookie is ignored by browser. no need to remove it.
         // save cookie in session
@@ -113,15 +120,13 @@ export class AuthManager {
           authSessionId = object.value
         }
       }
-      //let authSessionId = header.find(object => object.name.toLowerCase() == "authsessionid").value
+
       if ( authSessionId === undefined ) {
         // not a request managed by this
-        console.debug("Detected a request not meant for the bookmarks API. Returning now.")
+        console.info("Detected a request not meant for the bookmarks API. Returning now.")
       } else {
         this.requests[e.requestId] = authSessionId
         // offer cookies already present in the session
-        console.log("on request sessions:")
-        console.log(this.sessions)
         let new_cookies = this.sessions[authSessionId].cookieJar.getAsSingleCookie()
         header.push({ name: "Cookie", value: new_cookies})
       }
@@ -139,7 +144,7 @@ export class AuthManager {
     }
   }
 
-  addSession(authSession) {
+  addSession(authSession, serverUrl) {
     this.sessions[authSession.id] = authSession
     console.log("add session sessions:")
     console.log(this.sessions)
