@@ -25,10 +25,9 @@ export class AuthSession {
     this.ownedRequests = {} // dict: request.id => true
     this.authman.addSession(this)
 
-    // it looks like we only need to send auth 2 times? (we send 3 times now)
+    // it looks like we only need to send auth 2 times for nextcloud? (we send 3 times now)
     this.needsAuthentication = true 
-    // some browsers (chrome) allow us to acces relevant httpOnly cookies 
-    // by chrome.cookies but not by intercepting webRequests
+    // some browsers might not allow us to acces relevant httpOnly cookies
     this.everRecievedCookie = false
   }
 
@@ -83,16 +82,26 @@ export class AuthManager {
 
   // adds or overwrites listeners
   addListeners(filter) {
+
+    let respPerms = ["blocking", "responseHeaders"]
+    let reqPerms = ["blocking", "requestHeaders"]
+
+    // "extraHeaders" is required additionally for chrome to show relevant cookies
+    if (browser.isChrome) {
+      respPerms.push("extraHeaders")
+      reqPerms.push("extraHeaders")
+    }
+
     browser.webRequest.onHeadersReceived.addListener(
       this.onResponseListener,
       filter,
-      ["blocking", "responseHeaders"]
+      respPerms
     )
 
     browser.webRequest.onBeforeSendHeaders.addListener(
       this.onRequestListener,
       filter,
-      ["blocking", "requestHeaders"]
+      reqPerms
     )
   }
 
@@ -183,27 +192,26 @@ class CookieJar {
   // @param webRequest.HttpHeaders
   // @return false if no cookie was found
   storeFromHeader(header) {
-    // in firefox cookies arrive colleted in a single objects value seperated by newline
-    // [{name: "Set-Cookie", value: "cookie1; httpOnly\ncookie2; httpOnly"}]
     let cookies = header.filter(object => object.name.toLowerCase() == "set-cookie")
     if (cookies.length === 0) {
       return false
     }
-    if (cookies.length > 1) {
-      console.warn("Unexpected Cookie layout!")
-    }
-    cookies = cookies[0].value
-    this.store(cookies)
+
+    cookies.forEach(cookie => this.store(cookie.value))
+
     return true
   }
 
   // @param cookies string: 'cookie1=foobar; param1\ncookie2=foo; etc'
-  store(cookies) {
-    cookies = cookies.split("\n").forEach(cookie => { 
+  store(cookie) {
+    // in firefox a single cookie can represent multiple cookies (seperated by newline)
+    cookie.split("\n").forEach(cookie => { 
       cookie = cookie.split("; ")[0].split("=")
       if (cookie[1] === "deleted") {
+        // delete cookie
         delete this.cookies[cookie[0]]
       } else {
+        // save cookie
         this.cookies[cookie[0]] = cookie[1]
       }
     })
