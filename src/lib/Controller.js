@@ -60,6 +60,7 @@ export default class Controller {
     )
 
     // register webRequest listeners
+
     window.authManager = new AuthManager()
 
     // Set up the alarms

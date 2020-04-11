@@ -161,7 +161,7 @@ export class AuthManager {
     Object.values(this.sessions).forEach(session => serverurls.push(session.serverUrl + "/*"))
 
     return {
-      urls: serverurls 
+      urls: serverurls
     }
   }
 
@@ -205,7 +205,7 @@ class CookieJar {
   // @param cookies string: 'cookie1=foobar; param1\ncookie2=foo; etc'
   store(cookie) {
     // in firefox a single cookie can represent multiple cookies (seperated by newline)
-    cookie.split("\n").forEach(cookie => { 
+    cookie.split("\n").forEach(cookie => {
       cookie = cookie.split("; ")[0].split("=")
       if (cookie[1] === "deleted") {
         // delete cookie

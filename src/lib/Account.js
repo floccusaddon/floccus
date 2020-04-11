@@ -10,7 +10,7 @@ import SlaveSyncProcess from './strategies/Slave'
 import OverwriteSyncProcess from './strategies/Overwrite'
 import Logger from './Logger'
 import browser from './browser-api'
-import { AuthManager, AuthSession } from './AuthManager'
+import { AuthSession } from './AuthManager'
 
 // register Adapters
 Adapter.register('nextcloud', NextcloudAdapter)
