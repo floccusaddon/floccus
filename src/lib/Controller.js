@@ -5,7 +5,7 @@ import Cryptography from './Crypto'
 import packageJson from '../../package.json'
 import AccountStorage from './AccountStorage'
 import * as localForage from 'localforage' // for backwards compatibility
-import { AuthManager, AuthSession } from './adapters/CookieManager'
+import { AuthManager } from './AuthManager'
 
 const PQueue = require('p-queue')
 

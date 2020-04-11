@@ -1,5 +1,4 @@
-import browser from '../browser-api'
-import Logger from '../Logger'
+import browser from './browser-api'
 
 const Parallel = require('async-parallel')
 

@@ -8,7 +8,7 @@ import * as Basics from '../components/basics'
 import { Base64 } from 'js-base64'
 import AsyncLock from 'async-lock'
 import browser from '../browser-api'
-import { CookieManager } from './CookieManager'
+import { CookieManager } from '../AuthManager'
 
 const Parallel = require('async-parallel')
 const { h } = require('hyperapp')
@@ -40,6 +40,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     this.bookmarkLock = new AsyncLock()
     this.hasFeatureHashing = false
     this.hasFeatureExistanceCheck = false
+    this.authSession
   }
 
   static getDefaultValues() {
