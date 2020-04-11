@@ -2,8 +2,6 @@ import browser from './browser-api'
 
 const Parallel = require('async-parallel')
 
-// TODO concurrent sync fuck things up
-
 // An AuthSession can be used to make API fetch() calls to Nextcloud. It 
 // overrides the requests headers to reduce the number of times, the server
 // has to validate passwords.
@@ -25,6 +23,7 @@ export class AuthSession {
     this.cookieJar = new CookieJar()
     this.id = authman.newSessionId()
     this.serverUrl = serverUrl
+    this.ownedRequests = {} // dict: request.id => true
     this.authman.addSession(this)
 
     // it looks like we only need to send auth 2 times? (we send 3 times now)
@@ -67,9 +66,8 @@ export class AuthManager {
 
   // @param server url used by API fetches
   constructor() {
-    this.sessions = {} // dict: cookieJarId => CookieJar
-    this.requests = {} // prevent memory leaks (epecially on request timeouts etc) TODO
-    this.serverurls = [] // serverurl followed by a *
+    this.sessions = {} // dict: AuthSessionId => AuthSession
+    this.requests = {} // dict: request.requestId => AuthSessionId
     this.sessionIdState = 0
 
     this.onResponseListener = e => this.onResponse(e)
@@ -116,6 +114,8 @@ export class AuthManager {
         // cookie is ignored by browser. no need to remove it.
         // save cookie in session
         this.sessions[authSessionId].acceptCookies(header)
+        delete this.requests[e.requestId]
+        delete this.sessions[authSessionId].ownedRequests[e.requestId]
       }
       return {responseHeaders: e.responseHeaders};
   }
@@ -135,6 +135,7 @@ export class AuthManager {
         console.info("Detected a request not meant for the bookmarks API. Returning now.")
       } else {
         this.requests[e.requestId] = authSessionId
+        this.sessions[authSessionId].ownedRequests[e.requestId] = true
         // offer cookies already present in the session
         let new_cookies = this.sessions[authSessionId].cookieJar.getAsSingleCookie()
         header.push({ name: "Cookie", value: new_cookies})
@@ -161,6 +162,7 @@ export class AuthManager {
   }
 
   removeSession(authSession) {
+    Object.keys(authSession.ownedRequests).forEach(requestId => delete this.requests[requestId])
     delete this.sessions[authSession.id]
     this.updateListeners()
   }
