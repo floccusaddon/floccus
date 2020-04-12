@@ -27,7 +27,8 @@ export const actions = {
         }
       }
     },
-    updateAccount: () => async(state, actions) => {
+
+    updateAccount: () => async (state, actions) => {
       const account = state.account
       const data = state.data
       const originalData = account.getData()
@@ -45,12 +46,12 @@ export const actions = {
       }
       await account.setData({ ...newData, reset: null })
     },
-    delete: () => async(state, actions) => {
+    delete: () => async (state, actions) => {
       const account = state.account
       await account.delete()
     }
   },
-  openOptions: accountId => async(state, actions) => {
+  openOptions: accountId => async (state, actions) => {
     const account = state.accounts.accounts[accountId]
     const data = account.getData()
     const localRoot = data.localRoot
@@ -65,11 +66,11 @@ export const actions = {
     actions.options.setData(data)
     actions.switchView('options')
   },
-  saveOptions: () => async(state, actions) => {
+  saveOptions: () => async (state, actions) => {
     await actions.options.updateAccount()
     actions.closeOptions()
   },
-  deleteAndCloseOptions: () => async(state, actions) => {
+  deleteAndCloseOptions: () => async (state, actions) => {
     await actions.options.delete()
     actions.closeOptions()
   },

@@ -1,8 +1,9 @@
 import * as Tree from '../Tree'
-import Logger from '../Logger'
 import { Folder } from '../Tree'
+import Logger from '../Logger'
 import Adapter from '../interfaces/Adapter'
 import browser from '../browser-api'
+
 const url = require('url')
 
 export default class CachingAdapter extends Adapter {
@@ -22,14 +23,9 @@ export default class CachingAdapter extends Adapter {
   }
 
   acceptsBookmark(bm) {
-    if (
-      !~['https:', 'http:', 'ftp:', 'data:', 'javascript:'].indexOf(
-        url.parse(bm.url).protocol
-      )
-    ) {
-      return false
-    }
-    return true
+    return ~['https:', 'http:', 'ftp:', 'data:', 'javascript:'].indexOf(
+      url.parse(bm.url).protocol
+    )
   }
 
   async createBookmark(bm) {
@@ -199,6 +195,26 @@ export default class CachingAdapter extends Adapter {
     }
     foundOldFolder.children.splice(foundOldFolder.children.indexOf(folder), 1)
     this.bookmarksCache.createIndex()
+  }
+
+  async bulkImportFolder(id, folder) {
+    Logger.log('BULKIMPORT', { id, folder })
+    const foundFolder = this.bookmarksCache.findFolder(id)
+    if (!foundFolder) {
+      throw new Error(browser.i18n.getMessage('Error005'))
+    }
+    // clone and adjust ids
+    const imported = folder.clone()
+    imported.id = id
+    await imported.traverse(async (item, parentFolder) => {
+      item.id = ++this.highestId
+      item.parentId = parentFolder.id
+    })
+    // insert into tree
+    foundFolder.children = imported.children
+    // good as new
+    this.bookmarksCache.createIndex()
+    return imported
   }
 
   setData(data) {

@@ -4,6 +4,7 @@ import Logger from '../Logger'
 import browser from '../browser-api'
 import * as Basics from '../components/basics'
 import { Base64 } from 'js-base64'
+
 const { h } = require('hyperapp')
 const url = require('url')
 
@@ -225,16 +226,12 @@ export default class WebDavAdapter extends CachingAdapter {
 
     await this.obtainLock()
 
-    try {
-      let resp = await this.pullFromServer()
+    let resp = await this.pullFromServer()
 
-      if (resp.status !== 200) {
-        if (resp.status !== 404) {
-          throw new Error(browser.i18n.getMessage('Error026', resp.status))
-        }
+    if (resp.status !== 200) {
+      if (resp.status !== 404) {
+        throw new Error(browser.i18n.getMessage('Error026', resp.status))
       }
-    } catch (e) {
-      throw e
     }
 
     this.initialTreeHash = await this.bookmarksCache.hash(true)

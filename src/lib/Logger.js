@@ -8,8 +8,8 @@ export default class Logger {
     const logMsg = [new Date().toISOString(), ...arguments]
 
     // log to console
-    console.log.apply(console, logMsg)
-    this.messages.push(util.format.apply(util, logMsg))
+    DEBUG && console.log.apply(console, logMsg)
+    this.messages.push(util.format.apply(util, logMsg)) // TODO: Use a linked list here to get O(n)
   }
 
   static async persist() {
@@ -44,7 +44,7 @@ export default class Logger {
   }
 
   static download(filename, blob) {
-    var element = document.createElement('a')
+    const element = document.createElement('a')
 
     let objectUrl = URL.createObjectURL(blob)
     element.setAttribute('href', objectUrl)

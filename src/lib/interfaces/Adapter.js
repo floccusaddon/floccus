@@ -9,8 +9,8 @@ export default class Adapter extends Resource {
   }
 
   static factory(data) {
-    var constructor = this.registry[data.type],
-      adapter
+    const constructor = this.registry[data.type]
+    let adapter
     if (constructor) {
       adapter = new constructor(data)
     } else {
@@ -27,7 +27,7 @@ export default class Adapter extends Resource {
   }
 
   /**
-   * @param Object the account data entered in the options
+   * @param data
    */
   setAccountData(data) {
     throw new Error('Not implemented')

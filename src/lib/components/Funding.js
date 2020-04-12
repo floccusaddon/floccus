@@ -1,6 +1,5 @@
 import browser from '../browser-api'
 import { h } from 'hyperapp'
-import Account from '../Account'
 import { Component as Overlay } from './Overlay'
 import * as Basics from './basics'
 
@@ -9,7 +8,7 @@ const { H2, Button, P, Label, A } = Basics
 export const state = {}
 
 export const actions = {
-  openFunding: () => async(state, actions) => {
+  openFunding: () => async (state, actions) => {
     actions.switchView('funding')
   },
   cancelFunding: () => (state, actions) => {

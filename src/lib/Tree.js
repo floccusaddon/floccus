@@ -1,5 +1,6 @@
 import Crypto from './Crypto'
 import Logger from './Logger'
+
 const Parallel = require('async-parallel')
 
 const STRANGE_PROTOCOLS = ['data:', 'javascript:', 'about:', 'chrome:']
@@ -24,6 +25,10 @@ export class Bookmark {
       Logger.log('Failed to normalize', url)
       this.url = url
     }
+  }
+
+  canMergeWith(otherItem) {
+    return this.type === otherItem.type && this.url === otherItem.url
   }
 
   async hash() {
@@ -52,18 +57,31 @@ export class Bookmark {
     )
   }
 
+  visitCreate(syncProcess, ...args) {
+    return syncProcess.createBookmark(...args)
+  }
+
+  visitUpdate(syncProcess, ...args) {
+    return syncProcess.updateBookmark(...args)
+  }
+
+  visitRemove(syncProcess, ...args) {
+    return syncProcess.removeBookmark(...args)
+  }
+
   static hydrate(obj) {
     return new Bookmark(obj)
   }
 }
 
 export class Folder {
-  constructor({ id, parentId, title, children }) {
+  constructor({ id, parentId, title, children, hashValue }) {
     this.type = 'folder'
     this.id = id
     this.parentId = parentId
     this.title = title
     this.children = children || []
+    this.hashValue = hashValue || {}
   }
 
   findFolder(id) {
@@ -99,6 +117,27 @@ export class Folder {
       .filter(bookmark => !!bookmark)[0]
   }
 
+  findItem(type, id) {
+    if (type === 'folder') {
+      return this.findFolder(id)
+    } else {
+      return this.findBookmark(id)
+    }
+  }
+
+  async traverse(fn) {
+    await Parallel.each(this.children, async item => {
+      await fn(item, this)
+      if (item.type === 'folder') {
+        await item.traverse(fn)
+      }
+    })
+  }
+
+  canMergeWith(otherItem) {
+    return this.type === otherItem.type && this.title === otherItem.title
+  }
+
   async hash(preserveOrder) {
     if (this.hashValue && this.hashValue[preserveOrder]) {
       return this.hashValue[preserveOrder]
@@ -130,10 +169,11 @@ export class Folder {
     return this.hashValue[preserveOrder]
   }
 
-  clone() {
+  clone(withHash) {
     return new Folder({
       ...this,
-      children: this.children.map(child => child.clone())
+      ...(!withHash && { hashValue: {} }),
+      children: this.children.map(child => child.clone(withHash))
     })
   }
 
@@ -180,13 +220,26 @@ export class Folder {
       Array(depth)
         .fill('  ')
         .join('') +
-      `+ #${this.id}[${this.title}] parentId: ${this.parentId}\n` +
+      `+ #${this.id}[${this.title}] parentId: ${this.parentId}, hash: ${this
+        .hashValue[true] || this.hashValue[false]}\n` +
       this.children
         .map(child =>
           child && child.inspect ? child.inspect(depth + 1) : String(child)
         )
         .join('\n')
     )
+  }
+
+  visitCreate(syncProcess, ...args) {
+    return syncProcess.createFolder(...args)
+  }
+
+  visitUpdate(syncProcess, ...args) {
+    return syncProcess.updateFolder(...args)
+  }
+
+  visitRemove(syncProcess, ...args) {
+    return syncProcess.removeFolder(...args)
   }
 
   static hydrate(obj) {

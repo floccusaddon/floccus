@@ -1,8 +1,8 @@
 var gulp = require('gulp')
 var fs = require('fs')
-var browserify = require('browserify')
-var babelify = require('babelify')
-var tap = require('gulp-tap')
+var webpack = require('webpack')
+var config = require('./webpack.prod')
+var devConfig = require('./webpack.dev')
 var gulpZip = require('gulp-zip')
 var crx3 = require('crx3')
 var webstoreClient = require('chrome-webstore-upload')
@@ -11,7 +11,7 @@ const VERSION = require('./package.json').version
 const paths = {
   zip: [
     './**',
-    // '!dist/js/test.js', // only for releases
+    //'!dist/js/test.js', // only for releases
     '!builds/**',
     '!src/**',
     '!node_modules/**',
@@ -39,27 +39,34 @@ try {
 } catch (e) {}
 
 const js = function() {
-  return (
-    gulp
-      .src(paths.entries, { read: false }) // no need of reading file because browserify does.
-      // transform file objects using gulp-tap plugin
-      .pipe(
-        tap(function(file) {
-          // replace file contents with browserify's bundle stream
-          file.contents = browserify(file.path, {
-            debug: true
-          })
-            .transform(babelify, {
-              global: true,
-              presets: [
-                '@babel/preset-env',
-                ['@babel/preset-react', { pragma: 'h' }]
-              ]
-            })
-            .bundle()
+  return new Promise(resolve =>
+    webpack(config, (err, stats) => {
+      if (err) console.log('Webpack', err)
+
+      console.log(
+        stats.toString({
+          /* stats options */
         })
       )
-      .pipe(gulp.dest('./dist/js/'))
+
+      resolve()
+    })
+  )
+}
+
+const devjs = function() {
+  return new Promise(resolve =>
+    webpack(devConfig, (err, stats) => {
+      if (err) console.log('Webpack', err)
+
+      console.log(
+        stats.toString({
+          /* stats options */
+        })
+      )
+
+      resolve()
+    })
   )
 }
 
@@ -87,6 +94,8 @@ const mocha = gulp.parallel(mochajs, mochacss)
 const thirdparty = gulp.parallel(polyfill, mocha)
 
 const main = gulp.series(html, js, thirdparty)
+
+const dev = gulp.series(html, devjs, thirdparty)
 
 const zip = function() {
   return gulp
@@ -125,7 +134,7 @@ const publish = gulp.series(main, zip, function() {
 })
 
 const watch = function() {
-  let jsWatcher = gulp.watch(paths.js, js)
+  let jsWatcher = gulp.watch(paths.js, dev)
   let viewsWatcher = gulp.watch(paths.views, html)
 
   jsWatcher.on('change', onWatchEvent)
@@ -143,8 +152,9 @@ exports.js = js
 exports.mocha = mocha
 exports.watch = watch
 exports.release = release
-exports.watch = gulp.series(main, watch)
+exports.watch = gulp.series(dev, watch)
 exports.publish = publish
+exports.dev = dev
 /*
  * Define default task that can be called by just running `gulp` from cli
  */

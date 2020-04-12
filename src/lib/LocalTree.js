@@ -160,17 +160,19 @@ export default class LocalTree extends Resource {
       ancestors = ancestors.slice(ancestors.indexOf(relativeToRoot) + 1)
     }
 
-    return (await Promise.all(
-      ancestors.map(async ancestor => {
-        try {
-          let bms = await browser.bookmarks.get(ancestor)
-          let bm = bms[0]
-          return bm.title.replace(/[/]/g, '\\/')
-        } catch (e) {
-          return 'Error!'
-        }
-      })
-    )).join('/')
+    return (
+      await Promise.all(
+        ancestors.map(async ancestor => {
+          try {
+            let bms = await browser.bookmarks.get(ancestor)
+            let bm = bms[0]
+            return bm.title.replace(/[/]/g, '\\/')
+          } catch (e) {
+            return 'Error!'
+          }
+        })
+      )
+    ).join('/')
   }
 
   static async getIdPathFromLocalId(localId, path) {

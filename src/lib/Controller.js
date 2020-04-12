@@ -3,6 +3,9 @@ import Account from './Account'
 import LocalTree from './LocalTree'
 import Cryptography from './Crypto'
 import packageJson from '../../package.json'
+import AccountStorage from './AccountStorage'
+import * as localForage from 'localforage' // for backwards compatibility
+
 const PQueue = require('p-queue')
 
 const STATUS_ERROR = Symbol('error')
@@ -17,15 +20,15 @@ class AlarmManager {
   }
 
   async checkSync() {
-    const d = await browser.storage.local.get('accounts')
-    var accounts = d['accounts']
-    for (var accountId in accounts) {
+    const accounts = await AccountStorage.getAllAccounts()
+    for (let accountId of accounts) {
       const account = await Account.get(accountId)
       const data = account.getData()
       if (
         Date.now() >
         (data.syncInterval || DEFAULT_SYNC_INTERVAL) * 1000 * 60 + data.lastSync
       ) {
+        // noinspection ES6MissingAwait
         this.ctl.scheduleSync(accountId)
       }
     }
@@ -88,9 +91,21 @@ export default class Controller {
       })
     })
 
+    // migrate from localForage back to extension storage
+
+    localForage
+      .getItem('accounts')
+      .then(async accounts => {
+        if (!accounts) return
+        return AccountStorage.changeEntry('accounts', () => accounts)
+      })
+      .then(() => {
+        return localForage.removeItem('accounts')
+      })
+
     this.alarms.checkSync()
 
-    setInterval(() => this.updateStatus(), 500)
+    setInterval(() => this.updateStatus(), 1000)
   }
 
   setEnabled(enabled) {
@@ -151,7 +166,7 @@ export default class Controller {
     const allAccounts = await Account.getAllAccounts()
 
     // Check which accounts contain the bookmark and which used to contain (track) it
-    var trackingAccountsFilter = await Promise.all(
+    const trackingAccountsFilter = await Promise.all(
       allAccounts.map(async account => {
         return account.tracksBookmark(localId)
       })
@@ -165,14 +180,16 @@ export default class Controller {
       // Filter out accounts that are not enabled
       .filter(account => account.getData().enabled)
 
-    // We should now sync the account that used to contain this bookmark
+    // We should now cancel sync for the account that used to contain this bookmark
+    // and schedule a new sync
     accountsToSync.forEach(account => {
-      this.scheduleSync(account.id)
+      this.cancelSync(account.id, true)
+      this.scheduleSync(account.id, true)
     })
 
     // Now we check the account of the new folder
 
-    var ancestors
+    let ancestors
     try {
       ancestors = await LocalTree.getIdPathFromLocalId(localId)
     } catch (e) {
@@ -191,6 +208,7 @@ export default class Controller {
       containingAccount.getData().enabled &&
       !accountsToSync.some(acc => acc.id === containingAccount.id)
     ) {
+      this.cancelSync(containingAccount.id, true)
       this.scheduleSync(containingAccount.id, true)
     }
 
@@ -226,11 +244,13 @@ export default class Controller {
     return this.jobs.add(() => this.syncAccount(accountId))
   }
 
-  async cancelSync(accountId) {
+  async cancelSync(accountId, keepEnabled) {
     let account = await Account.get(accountId)
     // Avoid starting it again automatically
-    account.setData({ ...account.getData(), enabled: false })
-    account.cancelSync()
+    if (!keepEnabled) {
+      await account.setData({ ...account.getData(), enabled: false })
+    }
+    await account.cancelSync()
   }
 
   async syncAccount(accountId) {
@@ -287,20 +307,26 @@ export default class Controller {
     this.setStatusBadge(overallStatus)
   }
 
-  // TODO: Convert switch to object access
   async setStatusBadge(status) {
-    switch (status) {
-      case STATUS_ALLGOOD:
-        browser.browserAction.setBadgeText({ text: '' })
-        break
-      case STATUS_SYNCING:
-        browser.browserAction.setBadgeText({ text: '<->' })
-        browser.browserAction.setBadgeBackgroundColor({ color: '#0088dd' })
-        break
-      case STATUS_ERROR:
-        browser.browserAction.setBadgeText({ text: '!' })
-        browser.browserAction.setBadgeBackgroundColor({ color: '#dd4d00' })
-        break
+    const badge = {
+      [STATUS_ALLGOOD]: {
+        text: ''
+      },
+      [STATUS_SYNCING]: {
+        text: '<->',
+        color: '#0088dd'
+      },
+      [STATUS_ERROR]: {
+        text: '!',
+        color: '#dd4d00'
+      }
+    }
+
+    await browser.browserAction.setBadgeText({ text: badge[status].text })
+    if (badge[status].color) {
+      await browser.browserAction.setBadgeBackgroundColor({
+        color: badge[status].color
+      })
     }
   }
 

@@ -1,63 +1,43 @@
-import AsyncLock from 'async-lock'
-
 export default class Mappings {
   constructor(storageAdapter, mappingsData) {
     this.storage = storageAdapter
     this.folders = mappingsData.folders
     this.bookmarks = mappingsData.bookmarks
-    this.lock = new AsyncLock()
   }
 
   getSnapshot() {
     return {
-      folders: {
-        ServerToLocal: { ...this.folders.ServerToLocal },
-        LocalToServer: { ...this.folders.LocalToServer }
+      ServerToLocal: {
+        bookmarks: this.bookmarks.ServerToLocal,
+        folders: this.folders.ServerToLocal
       },
-      bookmarks: {
-        ServerToLocal: { ...this.bookmarks.ServerToLocal },
-        LocalToServer: { ...this.bookmarks.LocalToServer }
+      LocalToServer: {
+        bookmarks: this.bookmarks.LocalToServer,
+        folders: this.folders.LocalToServer
       }
     }
   }
 
   async addFolder({ localId, remoteId }) {
-    await this.lock.acquire('storage', async () => {
-      Mappings.add(this.folders, { localId, remoteId })
-      await this.storage.setMappings({
-        folders: this.folders,
-        bookmarks: this.bookmarks
-      })
-    })
+    this.folders = Mappings.add(this.folders, { localId, remoteId })
   }
 
   async removeFolder({ localId, remoteId }) {
-    await this.lock.acquire('storage', async () => {
-      Mappings.remove(this.folders, { localId, remoteId })
-      await this.storage.setMappings({
-        folders: this.folders,
-        bookmarks: this.bookmarks
-      })
-    })
+    this.folders = Mappings.remove(this.folders, { localId, remoteId })
   }
 
   async addBookmark({ localId, remoteId }) {
-    await this.lock.acquire('storage', async () => {
-      Mappings.add(this.bookmarks, { localId, remoteId })
-      await this.storage.setMappings({
-        folders: this.folders,
-        bookmarks: this.bookmarks
-      })
-    })
+    this.bookmarks = Mappings.add(this.bookmarks, { localId, remoteId })
   }
 
   async removeBookmark({ localId, remoteId }) {
-    await this.lock.acquire('storage', async () => {
-      Mappings.remove(this.bookmarks, { localId, remoteId })
-      await this.storage.setMappings({
-        folders: this.folders,
-        bookmarks: this.bookmarks
-      })
+    this.bookmarks = Mappings.remove(this.bookmarks, { localId, remoteId })
+  }
+
+  async persist() {
+    await this.storage.setMappings({
+      folders: this.folders,
+      bookmarks: this.bookmarks
     })
   }
 
@@ -65,22 +45,45 @@ export default class Mappings {
     if (typeof localId === 'undefined' || typeof remoteId === 'undefined') {
       throw new Error('Cannot add empty mapping')
     }
-    mappings.LocalToServer[localId] = remoteId
-    mappings.ServerToLocal[remoteId] = localId
+    return {
+      LocalToServer: {
+        ...mappings.LocalToServer,
+        [localId]: remoteId
+      },
+      ServerToLocal: {
+        ...mappings.ServerToLocal,
+        [remoteId]: localId
+      }
+    }
   }
 
   static remove(mappings, { localId, remoteId }) {
     if (localId && remoteId && mappings.LocalToServer[localId] !== remoteId) {
-      this.remove(mappings, { localId })
-      this.remove(mappings, { remoteId })
-      return
+      mappings = this.remove(mappings, { localId })
+      return this.remove(mappings, { remoteId })
     }
     if (localId) {
-      delete mappings.ServerToLocal[mappings.LocalToServer[localId]]
-      delete mappings.LocalToServer[localId]
+      return {
+        LocalToServer: {
+          ...mappings.LocalToServer,
+          [localId]: undefined
+        },
+        ServerToLocal: {
+          ...mappings.ServerToLocal,
+          [mappings.LocalToServer[localId]]: undefined
+        }
+      }
     } else {
-      delete mappings.LocalToServer[mappings.ServerToLocal[remoteId]]
-      delete mappings.ServerToLocal[remoteId]
+      return {
+        LocalToServer: {
+          ...mappings.LocalToServer,
+          [mappings.ServerToLocal[remoteId]]: undefined
+        },
+        ServerToLocal: {
+          ...mappings.ServerToLocal,
+          [remoteId]: undefined
+        }
+      }
     }
   }
 }

@@ -44,18 +44,12 @@ export const H2 = style('h2')({
 export const H3 = style('h3')({
   color: COLORS.primary.plane,
   marginBottom: '7px',
-  marginTop: '25px',
-  ':first-child': {
-    marginTop: '0'
-  }
+  marginTop: '25px'
 })
 export const H4 = style('h4')({
   color: COLORS.primary.plane,
   marginBottom: '7px',
-  marginTop: '25px',
-  ':first-child': {
-    marginTop: '0'
-  }
+  marginTop: '25px'
 })
 
 export const Input = style('input')({
@@ -131,8 +125,8 @@ export const Button = style('button')(props => ({
       ? COLORS.primary.light
       : COLORS.primary.plane
     : props.active
-      ? COLORS.primary.background
-      : 'white',
+    ? COLORS.primary.background
+    : 'white',
   ':hover': {
     backgroundColor: props.primary
       ? COLORS.primary.light
@@ -248,16 +242,20 @@ export const AccountStatusDetail = ({ account }) => (state, actions) => {
         data.error
       ) : data.syncing ? (
         <Progress value={data.syncing} />
-      ) : data.lastSync ? (
-        browser.i18n.getMessage(
-          'StatusLastsynced',
-          humanizeDuration(Date.now() - data.lastSync, {
-            largest: 1,
-            round: true
-          })
-        )
       ) : (
-        browser.i18n.getMessage('StatusNeversynced')
+        (data.lastSync
+          ? browser.i18n.getMessage(
+              'StatusLastsynced',
+              humanizeDuration(Date.now() - data.lastSync, {
+                largest: 1,
+                round: true
+              })
+            )
+          : browser.i18n.getMessage('StatusNeversynced')) +
+        ' ' +
+        (data.type === 'nextcloud' || data.type === 'nextcloud-legacy'
+          ? browser.i18n.getMessage('LegacyAdapterDeprecation')
+          : '')
       )}
     </AccountStatusDetailStyle>
   )

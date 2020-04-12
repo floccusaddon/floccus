@@ -40,8 +40,8 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
     })
 
     runner.on(EVENT_RUN_END, () => {
-      var minutes = Math.floor(runner.stats.duration / 1000 / 60)
-      var seconds = Math.round((runner.stats.duration / 1000) % 60)
+      const minutes = Math.floor(runner.stats.duration / 1000 / 60)
+      const seconds = Math.round((runner.stats.duration / 1000) % 60)
 
       console.log('\n' + summary.join('\n'))
 
@@ -57,7 +57,14 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
 }
 
 function stringifyException(exception) {
-  var err = exception.stack || exception.toString()
+  if (exception.list) {
+    return exception.list
+      .map(e => {
+        return stringifyException(e)
+      })
+      .join('\n')
+  }
+  let err = exception.stack || exception.toString()
 
   // FF / Opera do not add the message
   if (!~err.indexOf(exception.message)) {

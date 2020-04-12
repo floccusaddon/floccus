@@ -4,7 +4,6 @@ import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
 import NextcloudAdapter from './adapters/Nextcloud'
 import WebDavAdapter from './adapters/WebDav'
 import FakeAdapter from './adapters/Fake'
-import Tree from './Tree'
 import LocalTree from './LocalTree'
 import DefaultSyncProcess from './strategies/Default'
 import SlaveSyncProcess from './strategies/Slave'
@@ -131,6 +130,7 @@ export default class Account {
   }
 
   async sync() {
+    let mappings
     try {
       if (this.getData().syncing || this.syncing) return
 
@@ -146,8 +146,7 @@ export default class Account {
       }
 
       // main sync steps:
-
-      let mappings = await this.storage.getMappings()
+      mappings = await this.storage.getMappings()
 
       let strategy
       switch (this.getData().strategy) {
@@ -195,11 +194,15 @@ export default class Account {
       Logger.log(
         'Successfully ended sync process for account ' + this.getLabel()
       )
+      if (mappings) {
+        await mappings.persist()
+      }
     } catch (e) {
       console.log(e)
-      var message = Account.stringifyError(e)
+      const message = Account.stringifyError(e)
       console.error('Syncing failed with', message)
       Logger.log('Syncing failed with', message)
+
       await this.setData({
         ...this.getData(),
         error: message,
@@ -209,6 +212,10 @@ export default class Account {
       if (this.server.onSyncFail) {
         await this.server.onSyncFail()
       }
+
+      if (mappings) {
+        await mappings.persist()
+      }
     }
     await Logger.persist()
   }
@@ -217,7 +224,7 @@ export default class Account {
     if (er.list) {
       return er.list
         .map(e => {
-          console.log(e)
+          Logger.log(e)
           return this.stringifyError(e)
         })
         .join('\n')
@@ -231,20 +238,17 @@ export default class Account {
   }
 
   static async getAllAccounts() {
-    const d = await browser.storage.local.get({ accounts: {} })
-    var accounts = d['accounts']
-
-    accounts = await Promise.all(
-      Object.keys(accounts).map(accountId => Account.get(accountId))
+    return Promise.all(
+      (await AccountStorage.getAllAccounts()).map(accountId =>
+        Account.get(accountId)
+      )
     )
-
-    return accounts
   }
 
   static async getAccountContainingLocalId(localId, ancestors, allAccounts) {
-    ancestors = ancestors || (await Tree.getIdPathFromLocalId(localId))
+    ancestors = ancestors || (await LocalTree.getIdPathFromLocalId(localId))
     allAccounts = allAccounts || (await this.getAllAccounts())
-    var account = allAccounts
+    const account = allAccounts
       .map(account => ({
         account,
         index: ancestors.indexOf(account.getData().localRoot)
