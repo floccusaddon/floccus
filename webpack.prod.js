@@ -7,7 +7,7 @@ module.exports = merge(common, {
   devtool: '#source-map',
   plugins: [
     new webpack.DefinePlugin({
-      DEBUG: JSON.stringify(true)
+      DEBUG: JSON.stringify(!Boolean(process.env['CI']))
     })
   ]
 })
