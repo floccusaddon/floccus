@@ -1,3 +1,9 @@
+## v4.1.0
+ - FIX AccountStorage: Use JSON
+ - FIX Sync: Fix null pointer
+ - FIX Sync: Handle creations inside deletions gracefully
+ - NEW: NextcloudFolders: Speedup
+
 ## v4.0.4
 
 - FIX: account migration code
