@@ -4,8 +4,7 @@ import picostyle from 'picostyle'
 import { h } from 'hyperapp'
 import Account from '../Account'
 import * as Basics from './basics'
-
-const FLOCCUS_VERSION = require('../../../package.json').version
+import { version as VERSION } from '../../../package.json'
 
 const style = picostyle(h)
 
@@ -121,8 +120,8 @@ export const Component = () => (state, actions) => {
             </a>
           </div>
           <div class="branding">
-            <a href="https://github.com/marcelklehr/floccus" target="_blank">
-              <img src="../../icons/logo.svg" border="0" /> floccus
+            <a href="https://floccus.org" target="_blank">
+              <img src="../../icons/logo.svg" border="0" /> floccus {VERSION}
             </a>
           </div>
         </div>

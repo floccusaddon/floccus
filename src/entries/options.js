@@ -8,6 +8,7 @@ import * as PickerComponent from '../lib/components/Picker'
 import * as SetupKeyComponent from '../lib/components/SetupKey'
 import * as UnlockComponent from '../lib/components/Unlock'
 import * as FundingComponent from '../lib/components/Funding'
+import * as UpdateComponent from '../lib/components/Update'
 
 const Accounts = AccountsComponent.Component
 const NewAccount = NewAccountComponent.Component
@@ -16,10 +17,11 @@ const Picker = PickerComponent.Component
 const SetupKey = SetupKeyComponent.Component
 const Unlock = UnlockComponent.Component
 const Funding = FundingComponent.Component
+const Update = UpdateComponent.Component
 
 const state = {
   view: {
-    current: 'accounts' // accounts | picker | setupKey | unlock | newAccount | funding
+    current: 'accounts' // accounts | picker | setupKey | unlock | newAccount | funding | update
   }
 }
 
@@ -39,6 +41,10 @@ const actions = {
     actions.view.switch(newView)
   },
   init: () => async (state, actions) => {
+    if (window.location.hash === '#updated') {
+      actions.switchView('update')
+      return
+    }
     actions.switchView('accounts')
   },
   getState: () => state => state
@@ -61,6 +67,8 @@ function render(state, actions) {
           <SetupKey />
         ) : state.view.current === 'funding' ? (
           <Funding />
+        ) : state.view.current === 'update' ? (
+          <Update />
         ) : (
           ''
         )
@@ -78,7 +86,8 @@ const components = [
   PickerComponent,
   UnlockComponent,
   SetupKeyComponent,
-  FundingComponent
+  FundingComponent,
+  UpdateComponent
 ]
 
 const appState = Object.assign.apply(
