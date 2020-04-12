@@ -3,6 +3,7 @@ import chaiAsPromised from 'chai-as-promised'
 import Account from '../lib/Account'
 import { Bookmark, Folder } from '../lib/Tree'
 import browser from '../lib/browser-api'
+import { AuthSession, AuthManager } from '../lib/AuthManager'
 
 const AsyncParallel = require('async-parallel')
 
@@ -95,6 +96,7 @@ describe('Floccus', function() {
     }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`, function() {
       let account
       beforeEach('set up account', async function() {
+        window.authManager = new AuthManager()
         account = await Account.create(ACCOUNT_DATA)
       })
       afterEach('clean up account', async function() {
@@ -2791,6 +2793,7 @@ describe('Floccus', function() {
 
         it('should handle deep hierarchies with lots of bookmarks', async function() {
           const adapter = account1.server
+          adapter.authSession = new AuthSession(window.authManager)
 
           const localRoot = account1.getData().localRoot
           let bookmarks = 0
@@ -2831,6 +2834,7 @@ describe('Floccus', function() {
           expect(account2.getData().error).to.not.be.ok
 
           if (adapter.onSyncStart) await adapter.onSyncStart()
+          console.warn("getting tree from adapter")
           const serverTreeAfterFirstSync = await adapter.getBookmarksTree(true)
           if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
@@ -2857,6 +2861,7 @@ describe('Floccus', function() {
             tree1Initial,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+          adapter.authSession.destructor()
           console.log('First round ok')
 
           await browser.bookmarks.move(magicBookmark.id, {
@@ -2870,6 +2875,7 @@ describe('Floccus', function() {
           await account1.sync()
           expect(account1.getData().error).to.not.be.ok
 
+          adapter.authSession = new AuthSession(window.authManager)
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterSecondSync = await adapter.getBookmarksTree(true)
           if (adapter.onSyncComplete) await adapter.onSyncComplete()
@@ -2888,11 +2894,13 @@ describe('Floccus', function() {
             tree1AfterSecondSync,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+          adapter.authSession.destructor()
           console.log('Second round first half ok')
 
           await account2.sync()
           expect(account2.getData().error).to.not.be.ok
 
+          adapter.authSession = new AuthSession(window.authManager)
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterThirdSync = await adapter.getBookmarksTree(true)
           if (adapter.onSyncComplete) await adapter.onSyncComplete()
@@ -2911,12 +2919,14 @@ describe('Floccus', function() {
             tree2AfterThirdSync,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+          adapter.authSession.destructor()
           console.log('Second round second half ok')
 
           console.log('acc1: final sync')
           await account1.sync()
           expect(account1.getData().error).to.not.be.ok
 
+          adapter.authSession = new AuthSession(window.authManager)
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterFinalSync = await adapter.getBookmarksTree(true)
           if (adapter.onSyncComplete) await adapter.onSyncComplete()
@@ -2935,6 +2945,7 @@ describe('Floccus', function() {
             serverTreeAfterFinalSync,
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
+          adapter.authSession.destructor()
         })
 
         it('should handle fuzzed changes', async function() {

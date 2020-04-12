@@ -19,7 +19,7 @@
 
   "default_locale": "en",
 
-  "permissions": ["https://*/", "http://*/", "alarms", "bookmarks", "storage", "cookies", "webRequestBlocking", "webRequest"],
+  "permissions": ["https://*/", "http://*/", "alarms", "bookmarks", "storage", "webRequestBlocking", "webRequest"],
 
   "options_ui": {
     "page": "dist/html/options.html",

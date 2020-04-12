@@ -166,7 +166,7 @@ export default class Account {
       }
 
       // set up request/response listener for nextcloud authentication
-      this.server.authSession = new AuthSession(window.authManager, this.server.server.url)
+      this.server.authSession = new AuthSession(window.authManager, this.server.server.url) // TODO arg!
 
       this.syncing = new strategy(
         mappings,
