@@ -163,7 +163,6 @@ export default class Account {
           strategy = DefaultSyncProcess
           break
       }
-
       this.syncing = new strategy(
         mappings,
         this.localTree,

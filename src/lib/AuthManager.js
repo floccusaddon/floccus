@@ -20,15 +20,16 @@ export class AuthSession {
     if (serverUrl === undefined) {
       throw "AuthSession constructor arg undefined: serverUrl"
     }
+    this.alive = true
     this.authman = window.authManager
-    if (this.authman === undefined) {
-      throw "No AuthManager available."
-    }
     this.cookieJar = new CookieJar()
-    this.id = this.authman.newSessionId()
     this.serverUrl = serverUrl
+    // AuthManager creates an entry in authManager.requests for every request
+    // sent. The entries are deleted if a reponse is received. If no response 
+    // is received, the entries have to be removed by authSession.destroy() 
+    // because AuthManagers are long lived and should not leak memory. 
+    // Therefore an authSession has to know which requests belong to it.
     this.ownedRequests = {} // dict: request.id => true
-    this.authman.addSession(this)
 
     // it looks like we only need to send auth 2 times for nextcloud? (we send 3 times now)
     this.needsAuthentication = true 
@@ -36,25 +37,41 @@ export class AuthSession {
     this.everRecievedCookie = false
   }
 
+  async initialize() {
+    if (this.authman === undefined) {
+      const background = await browser.runtime.getBackgroundPage()
+      this.authman = background.authManager
+      window.authManager = this.authman
+    }
+    this.id = this.authman.newSessionId()
+    this.authman.addSession(this)
+  }
+
   destructor() {
     this.authman.removeSession(this)
-    let id = this.id
-    Object.keys(this).forEach(key => delete this[key])
-    this.info = "This AuthSession (id: " + id + ") object has been destroyed."
+    this.alive = false
+  }
+
+  check() {
+    if (!this.alive) {
+      throw "Trying to use an AuthSession wich has been destroyed."
+    }
   }
 
   // Mimics behaviour of official fetch, but overwrites certain fields to 
   // contain the request in this AuthSession. Sets a AuthSessionId in the request.
   fetch(url, init) {
+    this.check()
     init.credentials = "omit"
     if (!this.needsAuthentication) {
       delete init.headers.Authorization
     }
-    init.headers.AuthSessionId = this.id
+    init.headers["X-floccus-Session-Id"] = this.id
     return fetch(url, init)
   }
 
   acceptCookies(header) {
+    this.check()
     if (!this.cookieJar.storeFromHeader(header)) {
       if (this.everRecievedCookie) {
         // if and only if our browser grants us access to httpOnly cookies,
@@ -140,7 +157,7 @@ export class AuthManager {
       // get the authSessionId
       let authSessionId
       for (let object of header) {
-        if (object.name.toLowerCase() == "authsessionid") {
+        if (object.name.toLowerCase() == "x-floccus-session-id") {
           authSessionId = object.value
         }
       }
@@ -165,8 +182,7 @@ export class AuthManager {
     // because background.html doesn't own a window nor a tab, there is little we can do
     //let tab = browser.tabs.getCurrent()
     //let w = browser.windows.getCurrent()
-    let serverurls = []
-    Object.values(this.sessions).forEach(session => serverurls.push(session.serverUrl + "/*"))
+    let serverurls = Object.values(this.sessions).map(session => session.serverUrl + "/*")
 
     return {
       urls: serverurls

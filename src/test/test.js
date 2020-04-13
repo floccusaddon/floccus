@@ -14,7 +14,6 @@ describe('Floccus', function() {
   this.slow(20000) // 20s is slow
   before(async function() {
     const background = await browser.runtime.getBackgroundPage()
-    window.authManager = background.authManager
     background.controller.setEnabled(false)
   })
   after(async function() {
