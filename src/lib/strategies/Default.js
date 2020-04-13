@@ -245,6 +245,7 @@ export default class SyncProcess {
       localItem &&
       !(await this.folderHasChanged(localItem, cacheItem, serverItem)).changed
     ) {
+      this.done += localItem.count()
       return
     }
     Logger.log('LOADCHILDREN', serverItem)
