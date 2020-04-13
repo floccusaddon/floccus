@@ -18,6 +18,14 @@ export class AuthSession {
   // @param "https://example.org" This session can only be used for API calls
   //          to this server.
   constructor(authman, serverUrl) {
+    if (serverUrl === undefined) {
+      throw "AuthSession constructor arg undefined: serverUrl"
+    }
+    if (authman === undefined) {
+      console.warn("AuthSession constructor arg undefined: AuthManager")
+      window.authManager = new AuthManager()
+      authman = window.authManager
+    }
     this.authman = authman
     this.cookieJar = new CookieJar()
     this.id = authman.newSessionId()
@@ -33,6 +41,9 @@ export class AuthSession {
 
   destructor() {
     this.authman.removeSession(this)
+    let id = this.id
+    Object.keys(this).forEach(key => delete this[key])
+    this.info = "This AuthSession (id: " + id + ") object has been destroyed."
   }
 
   // Mimics behaviour of official fetch, but overwrites certain fields to 

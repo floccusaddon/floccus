@@ -2771,6 +2771,7 @@ describe('Floccus', function() {
               ...account1.getData(),
               serverRoot: null
             })
+            account1.server.authSession = new AuthSession(window.authManager, SERVER)
             if (account1.server.onSyncStart) {
               await account1.server.onSyncStart()
             }
@@ -2786,6 +2787,7 @@ describe('Floccus', function() {
               await account1.server.onSyncComplete()
             }
           }
+          account1.server.authSession.destructor()
           await account1.delete()
           await browser.bookmarks.removeTree(account2.getData().localRoot)
           await account2.delete()
@@ -2793,7 +2795,6 @@ describe('Floccus', function() {
 
         it('should handle deep hierarchies with lots of bookmarks', async function() {
           const adapter = account1.server
-          adapter.authSession = new AuthSession(window.authManager)
 
           const localRoot = account1.getData().localRoot
           let bookmarks = 0
@@ -2833,8 +2834,9 @@ describe('Floccus', function() {
           await account2.sync()
           expect(account2.getData().error).to.not.be.ok
 
-          if (adapter.onSyncStart) await adapter.onSyncStart()
           console.warn("getting tree from adapter")
+          adapter.authSession = new AuthSession(window.authManager, SERVER)
+          if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterFirstSync = await adapter.getBookmarksTree(true)
           if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
@@ -2875,7 +2877,7 @@ describe('Floccus', function() {
           await account1.sync()
           expect(account1.getData().error).to.not.be.ok
 
-          adapter.authSession = new AuthSession(window.authManager)
+          adapter.authSession = new AuthSession(window.authManager, SERVER)
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterSecondSync = await adapter.getBookmarksTree(true)
           if (adapter.onSyncComplete) await adapter.onSyncComplete()
@@ -2900,7 +2902,7 @@ describe('Floccus', function() {
           await account2.sync()
           expect(account2.getData().error).to.not.be.ok
 
-          adapter.authSession = new AuthSession(window.authManager)
+          adapter.authSession = new AuthSession(window.authManager, SERVER)
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterThirdSync = await adapter.getBookmarksTree(true)
           if (adapter.onSyncComplete) await adapter.onSyncComplete()
@@ -2926,7 +2928,7 @@ describe('Floccus', function() {
           await account1.sync()
           expect(account1.getData().error).to.not.be.ok
 
-          adapter.authSession = new AuthSession(window.authManager)
+          adapter.authSession = new AuthSession(window.authManager, SERVER)
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterFinalSync = await adapter.getBookmarksTree(true)
           if (adapter.onSyncComplete) await adapter.onSyncComplete()
