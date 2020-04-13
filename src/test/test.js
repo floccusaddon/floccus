@@ -2834,7 +2834,6 @@ describe('Floccus', function() {
           await account2.sync()
           expect(account2.getData().error).to.not.be.ok
 
-          console.warn("getting tree from adapter")
           adapter.authSession = new AuthSession(window.authManager, SERVER)
           if (adapter.onSyncStart) await adapter.onSyncStart()
           const serverTreeAfterFirstSync = await adapter.getBookmarksTree(true)
