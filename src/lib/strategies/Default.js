@@ -245,6 +245,7 @@ export default class SyncProcess {
       localItem &&
       !(await this.folderHasChanged(localItem, cacheItem, serverItem)).changed
     ) {
+      this.done += localItem.count()
       return
     }
     Logger.log('LOADCHILDREN', serverItem)
@@ -812,7 +813,16 @@ export default class SyncProcess {
         )
       } else {
         localChild = child
+        // if we can't find the cache child, that means this is a new bookmark,
+        // so in order to delete it anyway, we'll just pass along `true` to have it deleted
         cacheChild = this.cacheTreeRoot.findItem(localChild.type, localChild.id)
+      }
+
+      if (!cacheChild) {
+        Logger.log(
+          `Child of folder ${folder.id} is new, yet we're deleting the folder: ${child}`
+        )
+        cacheChild = child
       }
 
       await this.syncTree({
@@ -991,7 +1001,8 @@ export default class SyncProcess {
     toOrder,
     item: bookmark /* in toTree */
   }) {
-    if (toTree.findFolder(bookmark.parentId).isRoot) {
+    const toParent = toTree.findFolder(bookmark.parentId)
+    if (toParent && toParent.isRoot) {
       Logger.log(
         "We're not allowed to change any direct children of the absolute root folder. Skipping."
       )

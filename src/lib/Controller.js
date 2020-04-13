@@ -94,6 +94,12 @@ export default class Controller {
       await browser.storage.local.set({
         currentVersion: packageJson.version
       })
+
+      browser.tabs.create({
+        url: './options.html#updated',
+        title: browser.i18n.getMessage('LabelUpdated'),
+        discarded: true
+      })
     })
 
     // migrate from localForage back to extension storage

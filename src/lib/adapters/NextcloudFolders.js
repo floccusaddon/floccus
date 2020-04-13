@@ -504,8 +504,8 @@ export default class NextcloudFoldersAdapter extends Adapter {
         if (child instanceof Folder && !child.loaded) {
           const folderHash = await this._getFolderHash(child.id)
           child.hashValue = { true: folderHash }
-          await recurse(child.children)
         }
+        await recurse(child.children)
       })
     }
     await recurse(children)

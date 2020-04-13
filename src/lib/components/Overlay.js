@@ -39,6 +39,8 @@ const StyleComponent = style('div')({
     padding: '.5cm',
     background: 'white',
     overflowY: 'scroll',
-    overflowX: 'hidden'
+    overflowX: 'hidden',
+    maxWidth: '700px',
+    maxHeight: '800px'
   }
 })
