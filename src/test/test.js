@@ -3,7 +3,6 @@ import chaiAsPromised from 'chai-as-promised'
 import Account from '../lib/Account'
 import { Bookmark, Folder } from '../lib/Tree'
 import browser from '../lib/browser-api'
-import { AuthManager } from '../lib/AuthManager'
 
 const AsyncParallel = require('async-parallel')
 
@@ -15,6 +14,7 @@ describe('Floccus', function() {
   this.slow(20000) // 20s is slow
   before(async function() {
     const background = await browser.runtime.getBackgroundPage()
+    window.authManager = background.authManager
     background.controller.setEnabled(false)
   })
   after(async function() {
@@ -96,7 +96,6 @@ describe('Floccus', function() {
     }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`, function() {
       let account
       beforeEach('set up account', async function() {
-        window.authManager = new AuthManager()
         account = await Account.create(ACCOUNT_DATA)
       })
       afterEach('clean up account', async function() {

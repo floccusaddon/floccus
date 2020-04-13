@@ -830,7 +830,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
   }
 
   async onSyncStart() {
-    this.authSession = new AuthSession(window.authManager, this.server.url)
+    this.authSession = new AuthSession(this.server.url)
   }
 
   async onSyncComplete() {

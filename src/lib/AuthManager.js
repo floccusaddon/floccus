@@ -14,21 +14,18 @@ import browser from './browser-api'
 //  - Never save an AuthSession to persistent or otherwise insecure memory!
 export class AuthSession {
 
-  // @param AuthManager
   // @param "https://example.org" This session can only be used for API calls
   //          to this server.
-  constructor(authman, serverUrl) {
+  constructor(serverUrl) {
     if (serverUrl === undefined) {
       throw "AuthSession constructor arg undefined: serverUrl"
     }
-    if (authman === undefined) {
-      console.warn("AuthSession constructor arg undefined: AuthManager")
-      window.authManager = new AuthManager()
-      authman = window.authManager
+    this.authman = window.authManager
+    if (this.authman === undefined) {
+      throw "No AuthManager available."
     }
-    this.authman = authman
     this.cookieJar = new CookieJar()
-    this.id = authman.newSessionId()
+    this.id = this.authman.newSessionId()
     this.serverUrl = serverUrl
     this.ownedRequests = {} // dict: request.id => true
     this.authman.addSession(this)
