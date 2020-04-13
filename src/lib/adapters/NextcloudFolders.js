@@ -8,7 +8,7 @@ import * as Basics from '../components/basics'
 import { Base64 } from 'js-base64'
 import AsyncLock from 'async-lock'
 import browser from '../browser-api'
-import { AuthManager } from '../AuthManager'
+import { AuthManager, AuthSession } from '../AuthManager'
 
 const Parallel = require('async-parallel')
 const { h } = require('hyperapp')
@@ -827,6 +827,18 @@ export default class NextcloudFoldersAdapter extends Adapter {
       )
       list.splice(listIndex, 1)
     })
+  }
+
+  async onSyncStart() {
+    this.authSession = new AuthSession(window.authManager, this.server.url)
+  }
+
+  async onSyncComplete() {
+    this.authSession.destructor()
+  }
+
+  async onSyncFail() {
+    this.authSession.destructor()
   }
 
   async sendRequest(verb, relUrl, type, body, returnRawResponse) {

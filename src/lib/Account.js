@@ -10,7 +10,6 @@ import SlaveSyncProcess from './strategies/Slave'
 import OverwriteSyncProcess from './strategies/Overwrite'
 import Logger from './Logger'
 import browser from './browser-api'
-import { AuthSession } from './AuthManager'
 
 // register Adapters
 Adapter.register('nextcloud', NextcloudAdapter)
@@ -165,8 +164,6 @@ export default class Account {
           break
       }
 
-      this.server.authSession = new AuthSession(window.authManager, this.server.server.url)
-
       this.syncing = new strategy(
         mappings,
         this.localTree,
@@ -178,8 +175,6 @@ export default class Account {
         }
       )
       await this.syncing.sync()
-
-      this.server.authSession.destructor()
 
       // update cache
       await this.storage.setCache(await this.localTree.getBookmarksTree())
