@@ -66,6 +66,16 @@ export default class Adapter extends Resource {
   }
 
   /**
+   * run this.f(...args) between onSyncStart and onSyncComplete
+   */
+  async withHooks(f, ...args) {
+    if (this.onSyncStart) await this.onSyncStart()
+    let ret = await f.call(this, ...args)
+    if (this.onSyncComplete) await this.onSyncComplete()
+    return ret
+  }
+
+  /**
    * Optional hook to do something on sync start
    */
   async onSyncStart() {}
