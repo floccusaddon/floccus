@@ -864,15 +864,17 @@ export default class NextcloudFoldersAdapter extends Adapter {
           new Promise((resolve, reject) =>
             setTimeout(() => {
               const e = new Error(browser.i18n.getMessage('Error016'))
-              e.pass = true
               reject(e)
             }, TIMEOUT)
           )
         ])
       )
     } catch (e) {
-      if (e.pass) throw e
-      throw new Error(browser.i18n.getMessage('Error017'))
+      if (e.fromFetch) {
+        throw new Error(browser.i18n.getMessage('Error017'))
+      } else {
+        throw e
+      }
     }
 
     if (returnRawResponse) {

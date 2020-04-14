@@ -67,7 +67,15 @@ export class AuthSession {
       delete init.headers.Authorization
     }
     init.headers["X-floccus-Session-Id"] = this.id
-    return fetch(url, init)
+
+    let response
+    try {
+      response = fetch(url, init)
+    } catch (e) {
+      e.fromFetch = true
+      throw e
+    }
+    return response
   }
 
   acceptCookies(header) {
