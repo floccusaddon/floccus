@@ -31,8 +31,9 @@ export class AuthSession {
     // Therefore an authSession has to know which requests belong to it.
     this.ownedRequests = {} // dict: request.id => true
 
-    // it looks like we only need to send auth 2 times for nextcloud? (we send 3 times now)
-    this.needsAuthentication = true 
+    this.needsAuthorizations
+    this.setAuthBuildUpRequired()
+
     // some browsers might not allow us to acces relevant httpOnly cookies
     this.everRecievedCookie = false
   }
@@ -62,12 +63,23 @@ export class AuthSession {
   // contain the request in this AuthSession. Sets a AuthSessionId in the request.
   fetch(url, init) {
     this.check()
+
+    // not quite sure if this an actual fix or just a workaround for this 
+    // specific test: Floccus%20nextcloud-folders%20standard-root%20Sync%20with%20one%20client%20should%20not%20fail%20when%20both%20moving%20folders%20and%20deleting%20their%20contents
+    if (init.method == "PUT") {
+      this.setAuthBuildUpRequired()
+    }
+
+    // adjust headers
     init.credentials = "omit"
-    if (!this.needsAuthentication) {
+    if (!this.needsAuthorization()) {
       delete init.headers.Authorization
+    } else {
+      this.needsAuthorizations--
     }
     init.headers["X-floccus-Session-Id"] = this.id
 
+    // fetch request
     let response
     try {
       response = fetch(url, init)
@@ -78,17 +90,31 @@ export class AuthSession {
     return response
   }
 
-  acceptCookies(header) {
+  /**
+   * From testing it looks like building up valid auth cookies requires at 
+   * least two Authorizations in sequence. 
+   * Additionally it looks like PUT requests need an additional 
+   * auth build up.
+   */
+  setAuthBuildUpRequired() {
+    this.needsAuthorizations = 2
+  }
+
+  needsAuthorization() {
+    return this.needsAuthorizations > 0
+  }
+
+  onResponse(header) {
     this.check()
-    if (!this.cookieJar.storeFromHeader(header)) {
-      if (this.everRecievedCookie) {
-        // if and only if our browser grants us access to httpOnly cookies,
-        // _and_ nextcloud has stopped sending new cookies, stop sending login data
-        this.needsAuthentication = false
-      }
-    } else {
+
+    if (this.cookieJar.storeFromHeader(header)) {
       this.everRecievedCookie = true
     }
+    if (!this.everRecievedCookie) {
+      // never received cookie
+      this.setAuthBuildUpRequired()
+    }
+
   }
 }
 
@@ -152,7 +178,7 @@ export class AuthManager {
         console.info("Detected a response not meant for the bookmarks API. Returning now.")
       } else {
         // save cookie in session
-        this.sessions[authSessionId].acceptCookies(header)
+        this.sessions[authSessionId].onResponse(header)
         // remove request and its ownership
         delete this.requests[e.requestId]
         delete this.sessions[authSessionId].ownedRequests[e.requestId]
