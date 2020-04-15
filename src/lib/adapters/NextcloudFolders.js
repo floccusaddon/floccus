@@ -354,9 +354,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     this.hasFeatureHashing = true
     this.hasFeatureExistanceCheck = true
 
-    const childrenLayers = 3
-
-    let childFolders = await this._getChildFolders(-1, childrenLayers)
+    let childFolders = await this._getChildFolders(-1, 0)
     let tree = new Folder({ id: '-1' })
 
     if (this.server.serverRoot) {
