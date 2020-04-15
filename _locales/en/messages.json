@@ -111,7 +111,7 @@
     "message": "Local folder"
   },
   "DescriptionLocalfolder": {
-    "message": "This is the local bookmarks folder in this browser that will be synced to the server. By default a new folder will be created for you. (Note: You can now sync the root folder across different browser vendors out of the box.)"
+    "message": "This is the local bookmarks folder in this browser that will be synced to the server. By default a new empty folder will be created for you in this browser, if you want to sync an existing folder, select it here. (Note: You can now sync the root folder across different browser vendors out of the box.)"
   },
   "LabelRootfolder": {
     "message": "Root folder"
