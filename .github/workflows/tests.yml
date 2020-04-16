@@ -1,0 +1,141 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - develop
+
+env:
+  APP_NAME: bookmarks
+
+jobs:
+  php:
+    runs-on: ubuntu-latest
+
+    env:
+      SELENIUM_HUB_HOST: hub
+      TEST_HOST: nextcloud
+
+    strategy:
+      # do not stop on another job's failure
+      fail-fast: false
+      matrix:
+        node-versions: [13.x]
+        server-versions: ['18']
+        app-versions: ['stable']
+        floccus-adapter:
+          - fake
+          - nextcloud-folders
+          - webdav
+        test-name:
+          - standard
+          - parallel
+          - benchmark standard-root
+          - benchmark parallel-root
+        browsers: ['firefox', 'chrome']
+        include:
+          - app-versions: v1.1.2
+            server-versions: 16
+            floccus-adapter: nextcloud-folders
+            test-name: standard
+            browsers: chrome
+          - app-versions: stable
+            server-versions: 16
+            floccus-adapter: nextcloud-folders
+            test-name: standard
+            browsers: chrome
+          - app-versions: stable
+            server-versions: 17
+            floccus-adapter: nextcloud-folders
+            test-name: standard
+            browsers: chrome
+          - app-versions: master
+            server-versions: 18
+            floccus-adapter: nextcloud-folders
+            test-name: standard
+            browsers: chrome
+          - app-versions: master
+            server-versions: 18
+            floccus-adapter: nextcloud-folders
+            test-name: benchmark standard-root
+            browsers: chrome
+          - app-versions: master
+            server-versions: 18
+            floccus-adapter: nextcloud-folders
+            test-name: benchmark parallel-root
+            browsers: chrome
+
+
+    name: ${{matrix.floccus-adapter}}:${{ matrix.test-name}} nc@${{ matrix.server-versions }} bm@${{ matrix.app-versions }} ${{ matrix.browsers }}
+
+    services:
+      hub:
+        image: selenium/hub:3.141.59-gold
+        ports:
+          - 4444:4444
+      firefox:
+        image: selenium/node-firefox:3.141.59-gold
+        env:
+          HUB_HOST: hub
+          HUB_PORT: 4444
+        options: -v /dev/shm:/dev/shm
+      chrome:
+        image: selenium/node-chrome:3.141.59-gold
+        env:
+          HUB_HOST: hub
+          HUB_PORT: 4444
+        options: -v /dev/shm:/dev/shm
+      nextcloud:
+        image: nextcloud:${{ matrix.server-versions }}
+        env:
+          NEXTCLOUD_ADMIN_USER: admin
+          NEXTCLOUD_ADMIN_PASSWORD: admin
+          SQLITE_DATABASE: nextcloud.sqlite
+          NEXTCLOUD_TRUSTED_DOMAINS: nextcloud
+        volumes:
+          - apps:/home/runner/work/floccus/floccus/apps
+        options: --name nextcloud
+
+    steps:
+      - name: Checkout floccus
+        uses: actions/checkout@v2
+        with:
+          path: floccus
+
+      - name: Checkout bookmarks app
+        uses: actions/checkout@v2
+        with:
+          repository: nextcloud/${{ env.APP_NAME }}
+          ref: ${{ matrix.app-versions }}
+          path: apps/${{ env.APP_NAME }}
+
+      - name: Enable bookmarks app
+        shell: bash
+        run: |
+          NEXT_WAIT_TIME=0
+          until [ $NEXT_WAIT_TIME -eq 10 ] || docker exec --user www-data nextcloud php occ app:enable ${{ env.APP_NAME }}; do
+              sleep $(( NEXT_WAIT_TIME++ ))
+          done
+          [ $NEXT_WAIT_TIME -lt 10 ]
+
+      - name: Set up node ${{ matrix.node-versions }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-versions }}
+
+      - name: Install dependencies & build
+        working-directory: floccus
+        run: |
+          npm ci
+          npm run build-release --if-present
+
+      - name: Run tests
+        working-directory: floccus
+        env:
+          SELENIUM_BROWSER: ${{ matrix.browsers }}
+          FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
+        run: |
+          echo $FLOCCUS_TEST $SELENIUM_BROWSER
+          npm run test

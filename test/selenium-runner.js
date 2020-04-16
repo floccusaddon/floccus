@@ -8,25 +8,25 @@ const VERSION = require('../package.json').version
 ;(async function() {
   let driver = await new Builder()
     .withCapabilities({
-      browserVersion: process.env['BROWSER_VERSION'],
       'sauce:options': {
-        name: process.env['TRAVIS_JOB_NUMBER'],
-        tunnelIdentifier: process.env['TRAVIS_JOB_NUMBER'],
-        username: process.env.SAUCE_USERNAME,
-        accessKey: process.env.SAUCE_ACCESS_KEY,
         'moz:firefoxOptions': { wc3: true },
         'goog:chromeOptions': { wc3: true },
         'seleniumVersion:': '3.11.0'
       }
     })
-    .usingServer(`https://ondemand.saucelabs.com/wd/hub`)
+    .usingServer(`http://localhost:4444/wd/hub`)
     .forBrowser(process.env.SELENIUM_BROWSER)
     .setChromeOptions(
-      new ChromeOptions()
-        .excludeSwitches('extension-content-verification')
-        .addExtensions(
-          fs.readFileSync(`./builds/floccus-build-v${VERSION}.crx`, 'base64')
-        )
+      process.env.SELENIUM_BROWSER === 'chrome'
+        ? new ChromeOptions()
+            .excludeSwitches('extension-content-verification')
+            .addExtensions(
+              fs.readFileSync(
+                `./builds/floccus-build-v${VERSION}.crx`,
+                'base64'
+              )
+            )
+        : null
     )
     .build()
   try {
@@ -55,26 +55,21 @@ const VERSION = require('../package.json').version
           `./builds/floccus-build-v${VERSION}.xpi`,
           true
         )
-        await driver.get('about:debugging#/runtime/this-firefox')
+        await driver.get('about:debugging')
         await new Promise(resolve => setTimeout(resolve, 10000))
-        let optionsURL = await driver.executeScript(function() {
-          const extension = AboutDebugging.store
-            .getState()
-            .debugTargets.temporaryExtensions.concat(
-              AboutDebugging.store.getState().debugTargets.installedExtensions
-            )
-            .filter(obj => obj.id === 'floccus@handmadeideas.org')[0]
-          return extension.details.manifestURL
+        testUrl = await driver.executeScript(function() {
+          const extension = WebExtensionPolicy.getByID(
+            'floccus@handmadeideas.org'
+          )
+          return extension.extension.baseURL
         })
-        if (!optionsURL) throw new Error('Could not install extension')
-        id = url.parse(optionsURL).hostname
-        testUrl = `moz-extension://${id}/`
+        if (!testUrl) throw new Error('Could not install extension')
         break
       default:
         throw new Error('Unknown browser')
     }
 
-    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_ADAPTER}`
+    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=http://${process.env.TEST_HOST}`
 
     await driver.get(testUrl)
 

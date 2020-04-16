@@ -38,8 +38,7 @@ Floccus is regularly tested with the following setups:
 
 |Nextcloud|Bookmarks|
 |---|---|
-|v14|v1.1.2|
-|v15|v2.3.4|
+|v16|v1.1.2|
 |v16|v2.3.4|
 |v17|v2.3.4|
 |v18|v2.3.4|
