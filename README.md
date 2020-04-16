@@ -10,9 +10,9 @@ The goal of this project is to build a browser extension that syncs your browser
 
 [![Build Status](https://travis-ci.org/marcelklehr/floccus.svg?branch=develop)](https://travis-ci.org/marcelklehr/floccus)
 
-[![Chrome Webstore](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|[![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)|
-|---|-----|
-|<img align="left" src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="right" src="https://img.shields.io/chrome-web-store/rating/fnaicdffflnofjppbagibeoednhnbjhg.svg">| <img align="left" src="https://img.shields.io/amo/users/floccus.svg"> <img align="right" src="https://img.shields.io/amo/rating/floccus.svg">|
+[![Chrome Webstore](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|[![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)|[<img alt="Microsoft Edge" src="https://developer.microsoft.com/en-us/store/badges/images/English_get-it-from-MS.png" height="45" />](https://microsoftedge.microsoft.com/addons/detail/gjkddcofhiifldbllobcamllmanombji)|
+|---|-----|---|
+|<img align="left" src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="right" src="https://img.shields.io/chrome-web-store/rating/fnaicdffflnofjppbagibeoednhnbjhg.svg">| <img align="left" src="https://img.shields.io/amo/users/floccus.svg"> <img align="right" src="https://img.shields.io/amo/rating/floccus.svg">||
 
 ## Community
 
