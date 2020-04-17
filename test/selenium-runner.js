@@ -97,7 +97,7 @@ const VERSION = require('../package.json').version
     )
     await driver.quit()
     if (fin && ~fin.indexOf('FAILED')) {
-      console.log('=== start nextcloud log ===')
+      /*console.log('=== start nextcloud log ===')
       try {
         console.log(fs.readFileSync('../server/data/nextcloud.log'))
       } catch (e) {
@@ -106,11 +106,11 @@ const VERSION = require('../package.json').version
       console.log('=== end nextcloud log ===')
       console.log('=== start apache log ===')
       try {
-        console.log(fs.readFileSync('/var/log/apache2/error.log'))
+        console.log(fs.readFileSync('/var/log/apache2/error.log').toString('UTF-8'))
       } catch (e) {
         console.log(e)
       }
-      console.log('=== end apache log ===')
+      console.log('=== end apache log ===')*/
       process.exit(1)
     } else {
       const match = fin.match(/duration: (\d+):(\d+)/i)
@@ -119,15 +119,15 @@ const VERSION = require('../package.json').version
           testSuiteTime: parseInt(match[1]) + parseInt(match[2]) / 60
         }
         const label =
-          process.env['FLOCCUS_ADAPTER'] +
+          process.env['FLOCCUS_TEST'] +
           ' ' +
           process.env['SELENIUM_BROWSER'] +
-          ' ' +
+          ' nc@' +
           process.env['SERVER_BRANCH'] +
-          ' ' +
+          ' bm@' +
           process.env['NC_APP_VERSION']
         try {
-          await saveStats(process.env['TRAVIS_COMMIT'], label, data)
+          await saveStats(process.env['GITHUB_SHA'], label, data)
         } catch (e) {
           console.log('FAILED TO SAVE BENCHMARK STATS', e)
         }

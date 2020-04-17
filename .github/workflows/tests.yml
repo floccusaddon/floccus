@@ -17,6 +17,8 @@ jobs:
     env:
       SELENIUM_HUB_HOST: hub
       TEST_HOST: nextcloud
+      SERVER_BRANCH: ${{ matrix.server-versions }}
+      NC_APP_VERSION: ${{ matrix.app-versions }}
 
     strategy:
       # do not stop on another job's failure
@@ -136,6 +138,6 @@ jobs:
         env:
           SELENIUM_BROWSER: ${{ matrix.browsers }}
           FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
         run: |
-          echo $FLOCCUS_TEST $SELENIUM_BROWSER
           npm run test
