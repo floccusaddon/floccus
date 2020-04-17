@@ -1,4 +1,6 @@
 import browser from './browser-api'
+import api_versions from './api_versions'
+const url = require('url')
 
 // An AuthSession can be used to make API fetch() calls to Nextcloud. It 
 // overrides the requests headers to reduce the number of times, the server
@@ -23,7 +25,7 @@ export class AuthSession {
     this.alive = true
     this.authman = window.authManager
     this.cookieJar = new CookieJar()
-    this.serverUrl = serverUrl
+    this.serverUrl = this.normalizeServerURL(serverUrl)
     // AuthManager creates an entry in authManager.requests for every request
     // sent. The entries are deleted if a reponse is received. If no response 
     // is received, the entries have to be removed by authSession.destroy() 
@@ -59,13 +61,15 @@ export class AuthSession {
     }
   }
 
-  // Mimics behaviour of official fetch, but overwrites certain fields to 
-  // contain the request in this AuthSession. Sets a AuthSessionId in the request.
-  fetch(url, init) {
-    this.check()
-
+  // @param init param of fetch to manage by this
+  manageRequest(init) {
     // not quite sure if this an actual fix or just a workaround for this 
     // specific test: Floccus%20nextcloud-folders%20standard-root%20Sync%20with%20one%20client%20should%20not%20fail%20when%20both%20moving%20folders%20and%20deleting%20their%20contents
+    //
+    // https://docs.nextcloud.com/server/latest/developer_manual//app/requests/controllers.html
+    // ^ "The session is closed automatically for writing, unless you add the @UseSession annotation!"
+    // PUT may be considered writing by nextcloud and could cause the session to close. 
+    // Hence authBuildUp is required for PUTs. 
     if (init.method == "PUT") {
       this.setAuthBuildUpRequired()
     }
@@ -78,6 +82,22 @@ export class AuthSession {
       this.needsAuthorizations--
     }
     init.headers["X-floccus-Session-Id"] = this.id
+
+    return init
+  }
+
+  // Mimics behaviour of official fetch, but overwrites certain fields to 
+  // contain the request in this AuthSession. Sets a AuthSessionId in the request.
+  fetch(url, init) {
+    this.check()
+
+    // Modify headers to manage request by this if the api endpoint has a 
+    // sufficient version.
+    if (api_versions.lessEqual(
+      this.authman.API_MIN_REQUIRED_VERSION, api_versions.extractVersion(url)
+    )) {
+      init = this.manageRequest(init)
+    }
 
     // fetch request
     let response
@@ -116,6 +136,22 @@ export class AuthSession {
     }
 
   }
+
+  normalizeServerURL(input) {
+    let serverURL = url.parse(input)
+    let indexLoc = serverURL.pathname.indexOf('index.php')
+    return url.format({
+      protocol: serverURL.protocol,
+      auth: serverURL.auth,
+      host: serverURL.host,
+      port: serverURL.port,
+      pathname:
+        serverURL.pathname.substr(0, ~indexLoc ? indexLoc : undefined) +
+        (!~indexLoc && serverURL.pathname[serverURL.pathname.length - 1] !== '/'
+          ? '/'
+          : '')
+    })
+  }
 }
 
 // Handles listeners for AuthSessions. Should have exactly one global instance.  
@@ -125,6 +161,8 @@ export class AuthManager {
     this.sessions = {} // dict: AuthSessionId => AuthSession
     this.requests = {} // dict: request.requestId => AuthSessionId
     this.sessionIdState = 0
+
+    this.API_MIN_REQUIRED_VERSION = "v3"
 
     this.onResponseListener = e => this.onResponse(e)
     this.onRequestListener = e => this.onRequest(e)
@@ -216,8 +254,8 @@ export class AuthManager {
     // because background.html doesn't own a window nor a tab, there is little we can do
     //let tab = browser.tabs.getCurrent()
     //let w = browser.windows.getCurrent()
-    let serverurls = Object.values(this.sessions).map(session => session.serverUrl + "/*")
-
+    let serverurls = Object.values(this.sessions).map(session => 
+      session.serverUrl + "*")
     return {
       urls: serverurls
     }
