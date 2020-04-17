@@ -20,7 +20,7 @@
   "homepage": "https://github.com/marcelklehr/floccus#readme",
   "devDependencies": {
     "@babel/core": "^7.9.0",
-    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
     "@babel/preset-react": "^7.9.1",
     "all-contributors-cli": "^5.11.0",
     "babel-loader": "^8.1.0",
