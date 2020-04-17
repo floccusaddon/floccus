@@ -76,13 +76,13 @@ describe('Floccus', function() {
     },
     {
       type: 'webdav',
-      url: 'http://localhost/remote.php/webdav/',
+      url: `${SERVER}/remote.php/webdav/`,
       bookmark_file: 'bookmarks.xbel',
       ...CREDENTIALS
     },
     {
       type: 'webdav',
-      url: 'http://localhost/remote.php/webdav/',
+      url: `${SERVER}/remote.php/webdav/`,
       bookmark_file: 'bookmarks.xbel',
       parallel: true,
       ...CREDENTIALS

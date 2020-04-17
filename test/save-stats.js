@@ -3,9 +3,9 @@ const gistClient = new GistClient()
 
 const GIST_ID = '51b4015641802f4f275574ca98beed61'
 
-gistClient.setToken(process.env['GIST_TOKEN'])
-
 async function save(sha, label, data) {
+  if (!process.env.GIST_TOKEN) return
+  gistClient.setToken(process.env['GIST_TOKEN'])
   const gist = await gistClient.getOneById(GIST_ID)
   const db = JSON.parse(gist.files['index.json'].content)
   if (!db[sha]) {
@@ -18,4 +18,3 @@ async function save(sha, label, data) {
 }
 
 module.exports = save
-save('foobar', 'blabla', { test: 2 })
