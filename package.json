@@ -50,7 +50,7 @@
     "localforage": "^1.7.3",
     "lodash": "^4.17.15",
     "murmur2js": "^1.0.0",
-    "normalize-url": "^4.5.0",
+    "normalize-url": "^5.0.0",
     "p-queue": "^5.0.0",
     "picostyle": "^1.0.2",
     "punycode": "^2.1.1",
