@@ -109,8 +109,6 @@ export default class Controller {
         return localForage.removeItem('accounts')
       })
 
-    this.alarms.checkSync()
-
     setInterval(() => this.updateStatus(), 10000)
   }
 
