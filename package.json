@@ -52,7 +52,7 @@
     "murmur2js": "^1.0.0",
     "normalize-url": "^5.0.0",
     "p-queue": "^5.0.0",
-    "picostyle": "^1.0.2",
+    "picostyle": "^2.2.0",
     "punycode": "^2.1.1",
     "throttle-debounce": "^2.1.0",
     "virtual-dom": "^2.1.1"
