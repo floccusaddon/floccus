@@ -111,7 +111,7 @@
     "message": "本地文件夹"
   },
   "DescriptionLocalfolder": {
-    "message": "这是会被同步到服务器的本地书签文件夹。默认会为你创建一个新的文件夹(现在你可以在不同浏览器中同步整个根目录)"
+    "message": "这是此浏览器中的本地书签文件夹，将被同步到服务器。 默认情况下，将在此浏览器中为您创建一个新的空文件夹，如果要同步现有文件夹，请在此处选择它。 （注意：您现在可以立即在不同浏览器供应商之间同步根文件夹。）"
   },
   "LabelRootfolder": {
     "message": "根目录"
@@ -231,7 +231,7 @@
     "message": "开发信息"
   },
   "DescriptionFunddevelopment": {
-    "message": "实践并反馈给 floccus 的创作者以在财务上支持此项目的创建及维护。不论多小的金额都十分欢迎，Thank you 💙"
+    "message": "最近几年，我一直在尝试通过书签应用程序在Nextcloud上以及通过floccus 在浏览器中改善您的书签体验。 这项工作不仅很有趣，而且很耗时。\n\n我借此机会要求您捐款，以支持该项目的维护并使其更具可持续性。 您可以在下面找到受支持的付款提供商。 任何金额，无论多么小，都值得赞赏。 谢谢💙💙"
   },
   "LabelSelect": {
     "message": "选取"
@@ -293,5 +293,14 @@
   },
   "LegacyAdapterDeprecation": {
     "message": "警告！此旧帐户类型已弃用，不久将被删除。请切换到新的nextcloud同步方法。提高性能和准确性等着您。"
-  }
+  },
+  "LabelUpdated": {
+    "message": "Floccus已更新"
+  },
+  "DescriptionUpdated": {
+    "message": "恭喜，您的计算机上已经收到了最新的floccus更新！ 🎉"
+  },
+  "LabelReleaseNotes": {
+  "message": "阅读发行说明"
+}
 }
