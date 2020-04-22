@@ -181,6 +181,7 @@ This project exists thanks to all the people who contribute.
   <tr>
     <td align="center"><a href="https://github.com/Tank-Missile"><img src="https://avatars0.githubusercontent.com/u/5893370?v=4" width="70px;" alt=""/><br /><sub><b>Tank-Missile</b></sub></a><br /><a href="https://github.com/marcelklehr/floccus/issues?q=author%3ATank-Missile" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://github.com/tkurbad"><img src="https://avatars1.githubusercontent.com/u/158030?v=4" width="70px;" alt=""/><br /><sub><b>Torsten Kurbad</b></sub></a><br /><a href="https://github.com/marcelklehr/floccus/issues?q=author%3Atkurbad" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/gerroon"><img src="https://avatars1.githubusercontent.com/u/8519469?v=4" width="70px;" alt=""/><br /><sub><b>gerroon</b></sub></a><br /><a href="https://github.com/marcelklehr/floccus/issues?q=author%3Agerroon" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
