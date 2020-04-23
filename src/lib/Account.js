@@ -245,23 +245,15 @@ export default class Account {
     )
   }
 
-  static async getAccountContainingLocalId(localId, ancestors, allAccounts) {
+  static async getAccountsContainingLocalId(localId, ancestors, allAccounts) {
     ancestors = ancestors || (await LocalTree.getIdPathFromLocalId(localId))
     allAccounts = allAccounts || (await this.getAllAccounts())
-    const account = allAccounts
+    return allAccounts
       .map(account => ({
         account,
         index: ancestors.indexOf(account.getData().localRoot)
       }))
       .filter(acc => acc.index !== -1)
-      .reduce(
-        (acc1, acc2) => {
-          if (acc1.index > acc2.index) return acc1
-          else return acc2
-        },
-        { account: null, index: -1 }
-      ).account
-
-    return account
+      .map(acc => acc.account)
   }
 }
