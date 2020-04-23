@@ -934,68 +934,6 @@ describe('Floccus', function() {
 
           expectTreeEqual(localTree, serverTree)
         })
-        it('should sync nested accounts correctly', async function() {
-          const localRoot = account.getData().localRoot
-          const nestedAccountFolder = await browser.bookmarks.create({
-            title: 'nestedAccount',
-            parentId: localRoot
-          })
-
-          let nestedAccount = await Account.create({
-            ...Account.getDefaultValues('fake'),
-            localRoot: nestedAccountFolder.id
-          })
-          nestedAccount.server.bookmarksCache = new Folder({
-            id: '',
-            title: 'root'
-          })
-          await nestedAccount.init()
-
-          const adapter = account.server
-          expect(
-            (await adapter.getBookmarksTree(true)).children
-          ).to.have.lengthOf(0)
-
-          const barFolder = await browser.bookmarks.create({
-            title: 'bar',
-            parentId: localRoot
-          })
-          const bookmark1 = await browser.bookmarks.create({
-            title: 'url',
-            url: 'http://ur.l/',
-            parentId: barFolder.id
-          })
-          const bookmark2 = await browser.bookmarks.create({
-            title: 'url2',
-            url: 'http://ur2.l/',
-            parentId: nestedAccountFolder.id
-          })
-          await account.sync() // propagate to server
-          await nestedAccount.sync() // propagate to server
-
-          expect(account.getData().error).to.not.be.ok
-          expect(nestedAccount.getData().error).to.not.be.ok
-
-          const tree = await adapter.getBookmarksTree(true)
-          expectTreeEqual(
-            tree,
-            new Folder({
-              title: tree.title,
-              children: [
-                new Folder({
-                  title: 'bar',
-                  children: [
-                    new Bookmark({ title: 'url', url: 'http://ur.l/' })
-                  ]
-                })
-              ]
-            }),
-            ignoreEmptyFolders(ACCOUNT_DATA)
-          )
-
-          await browser.bookmarks.removeTree(nestedAccount.getData().localRoot)
-          await nestedAccount.delete()
-        })
         it('should remove duplicates in the same folder', async function() {
           const localRoot = account.getData().localRoot
 
