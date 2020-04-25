@@ -19,6 +19,7 @@ jobs:
       TEST_HOST: nextcloud
       SERVER_BRANCH: ${{ matrix.server-versions }}
       NC_APP_VERSION: ${{ matrix.app-versions }}
+      MYSQL_PASSWORD: root
 
     strategy:
       # do not stop on another job's failure
@@ -94,11 +95,18 @@ jobs:
         env:
           NEXTCLOUD_ADMIN_USER: admin
           NEXTCLOUD_ADMIN_PASSWORD: admin
-          SQLITE_DATABASE: nextcloud.sqlite
+          MYSQL_DATABASE: nextcloud
+          MYSQL_USER: root
+          MYSQL_PASSWORD: ${{env.MYSQL_PASSWORD}}
+          MYSQL_HOST: mysql
           NEXTCLOUD_TRUSTED_DOMAINS: nextcloud
         volumes:
           - apps:/home/runner/work/floccus/floccus/apps
         options: --name nextcloud
+      mysql:
+        image: mariadb:latest
+        env:
+          MYSQL_ROOT_PASSWORD: ${{env.MYSQL_PASSWORD}}
 
     steps:
       - name: Checkout floccus
