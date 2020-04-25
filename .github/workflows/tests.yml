@@ -125,10 +125,10 @@ jobs:
         shell: bash
         run: |
           NEXT_WAIT_TIME=0
-          until [ $NEXT_WAIT_TIME -eq 10 ] || docker exec --user www-data nextcloud php occ app:enable ${{ env.APP_NAME }}; do
+          until [ $NEXT_WAIT_TIME -eq 15 ] || docker exec --user www-data nextcloud php occ app:enable ${{ env.APP_NAME }}; do
               sleep $(( NEXT_WAIT_TIME++ ))
           done
-          [ $NEXT_WAIT_TIME -lt 10 ]
+          [ $NEXT_WAIT_TIME -lt 15 ]
 
       - name: Set up node ${{ matrix.node-versions }}
         uses: actions/setup-node@v1
