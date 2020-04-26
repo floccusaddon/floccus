@@ -130,7 +130,7 @@ jobs:
               sleep $(( NEXT_WAIT_TIME++ ))
           done
           [ $NEXT_WAIT_TIME -lt 25 ]
-        if: matrix.floccus-adapter == 'nextcloud-folders'
+        if: matrix.floccus-adapter != 'fake'
 
       - name: Enable APCu
         run: |
