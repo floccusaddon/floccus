@@ -120,7 +120,7 @@ jobs:
           repository: nextcloud/${{ env.APP_NAME }}
           ref: ${{ matrix.app-versions }}
           path: apps/${{ env.APP_NAME }}
-        if: floccus-adapter == 'nextcloud-folders'
+        if: matrix.floccus-adapter == 'nextcloud-folders'
 
       - name: Enable bookmarks app
         shell: bash
@@ -130,12 +130,12 @@ jobs:
               sleep $(( NEXT_WAIT_TIME++ ))
           done
           [ $NEXT_WAIT_TIME -lt 25 ]
-        if: floccus-adapter == 'nextcloud-folders'
+        if: matrix.floccus-adapter == 'nextcloud-folders'
 
       - name: Enable APCu
         run: |
           docker exec --user www-data nextcloud php occ config:system:set --value "\\OC\\Memcache\\APCu" memcache.local
-        if: floccus-adapter != 'fake'
+        if: matrix.floccus-adapter != 'fake'
 
       - name: Set up node ${{ matrix.node-versions }}
         uses: actions/setup-node@v1
