@@ -111,7 +111,7 @@
     "message": "Lokaler Ordner"
   },
   "DescriptionLocalfolder": {
-    "message": "Der lokale Lesezeichen-Ordner in diesem Browser, der mit dem Server synchronisiert wird. Per Default wird ein neuer Ordner für Sie angelegt. (Note: Es ist nun möglich den Wurzel-Ordner direkt zwischen verschiedenen Browser-Typen zu synchroniesieren.)"
+    "message": "Der lokale Lesezeichen-Ordner in diesem Browser, der mit dem Server synchronisiert wird. Per Default wird ein neuer Ordner für Sie angelegt. (Hinweis: Es ist nun möglich das Wurzel-Verzeichnis zwischen verschiedenen Browser-Typen direkt zu synchronisieren.) "
   },
   "LabelRootfolder": {
     "message": "Wurzel-Ordner"
@@ -231,7 +231,7 @@
     "message": "Entwicklung fördern"
   },
   "DescriptionFunddevelopment": {
-    "message": "Wenn dir floccus gefällt, fass dir ein Herz und gib etwas zurück an den Erfinder von floccus, um die Weiterentwiklung des Projekts finanziell zu unterstützen. Jeder Betrag ist willkommen, egal wie klein. Vielen Dank 💙"
+    "message": "Ich habe in den letzten Jahren versucht, Ihre Lesezeichen-Erfahrung auf Nextcloud und in der Bookmark-App mit floccus zu verbessern. Ein Unterfangen, das sowohl Spaß macht als auch viel Zeit kostet.\n\nIch nutze die Gelegenheit, um Sie um eine Spende zu bitten um das Projekt zu unterstützen und am Laufen zu halten. Im Folgenden finden Sie die unterstützten Bezahldienste. Jeder Betrag, egal wie klein er auch sein mag, ist willkommen. Vielen Dank. 💙💙"
   },
   "LabelSelect": {
     "message": "Auswählen"
@@ -293,5 +293,14 @@
   },
   "LegacyAdapterDeprecation": {
     "message": "Warnung! Dieser Konto-Typ ist überholt und wird bald entfernt. Bitte wechseln Sie zur neuen Nextcloud Synchronisierungsmethode mit besserer Performance und Korrektheit. "
-  }
+  },
+  "LabelUpdated": {
+    "message": "Floccus wurde aktualisiert"
+  },
+  "DescriptionUpdated": {
+    "message": "Glückwunsch, das aktuellste floccus-Update befindet sich auf Ihrem Rechner! 🎉"
+  },
+  "LabelReleaseNotes": {
+  "message": "Release-Notes lesen"
+}
 }
