@@ -3,8 +3,9 @@
     "browser": true,
     "commonjs": true,
     "es6": true,
-    "node": true
-    // Allow jest syntax in the src folder
+    "node": true,
+    "webextensions": true,
+    "mocha": true
   },
   "parserOptions": {
     "parser": "babel-eslint",
@@ -14,20 +15,18 @@
     "eslint:recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
-    "plugin:vue/recommended"
+    "plugin:vue/recommended",
+    "plugin:mocha/recommended"
   ],
   "settings": {
     "import/resolver": {
       "node": {
-        "paths": [
-          "src"],
-        "extensions": [
-          ".js", ".vue"]
+        "paths": ["src"],
+        "extensions": [".js", ".vue"]
       }
     }
   },
-  "plugins": ["vue",
-    "node"],
+  "plugins": ["vue", "node", "mocha"],
   "rules": {
     "arrow-spacing": ["error", { "before": true, "after": true }],
     "block-spacing": ["error", "always"],
@@ -219,6 +218,9 @@
     // space before self-closing elements
     "vue/html-closing-bracket-spacing": "error",
     // no ending html tag on a new line
-    "vue/html-closing-bracket-newline": ["error", { "multiline": "never" }]
+    "vue/html-closing-bracket-newline": ["error", { "multiline": "never" }],
+    // expect.js...
+    "no-unused-expressions": ["off"],
+    "mocha/no-setup-in-describe": ["off"]
   }
 }

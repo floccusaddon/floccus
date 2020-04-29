@@ -12,82 +12,86 @@ const expect = chai.expect
 describe('Floccus', function() {
   this.timeout(60000) // no test should run longer than 60s
   this.slow(20000) // 20s is slow
+
+  let SERVER, CREDENTIALS, ACCOUNTS
+
   before(async function() {
     const background = await browser.runtime.getBackgroundPage()
     background.controller.setEnabled(false)
+
+    SERVER =
+      (new URL(window.location.href)).searchParams.get('server') ||
+      'http://localhost'
+    CREDENTIALS = {
+      username: 'admin',
+      password: (new URL(window.location.href)).searchParams.get('pw') || 'admin'
+    }
+    ACCOUNTS = [
+      Account.getDefaultValues('fake'),
+      {
+        ...Account.getDefaultValues('fake'),
+        parallel: true
+      },
+      {
+        type: 'nextcloud-legacy',
+        url: SERVER,
+        ...CREDENTIALS
+      },
+      {
+        type: 'nextcloud-legacy',
+        url: SERVER,
+        serverRoot: '/my folder/some subfolder',
+        ...CREDENTIALS
+      },
+      {
+        type: 'nextcloud-legacy',
+        url: SERVER,
+        parallel: true,
+        ...CREDENTIALS
+      },
+      {
+        type: 'nextcloud-folders',
+        url: SERVER,
+        ...CREDENTIALS
+      },
+      {
+        type: 'nextcloud-folders',
+        url: SERVER,
+        serverRoot: '/my folder/some subfolder',
+        ...CREDENTIALS
+      },
+      {
+        type: 'nextcloud-folders',
+        url: SERVER,
+        parallel: true,
+        ...CREDENTIALS
+      },
+      {
+        type: 'nextcloud-folders',
+        url: SERVER,
+        serverRoot: '/my folder/some subfolder',
+        parallel: true,
+        ...CREDENTIALS
+      },
+      {
+        type: 'webdav',
+        url: `${SERVER}/remote.php/webdav/`,
+        bookmark_file: 'bookmarks.xbel',
+        ...CREDENTIALS
+      },
+      {
+        type: 'webdav',
+        url: `${SERVER}/remote.php/webdav/`,
+        bookmark_file: 'bookmarks.xbel',
+        parallel: true,
+        ...CREDENTIALS
+      }
+    ]
   })
   after(async function() {
     const background = await browser.runtime.getBackgroundPage()
     background.controller.setEnabled(true)
   })
-  const SERVER =
-    new URL(window.location.href).searchParams.get('server') ||
-    'http://localhost'
-  const CREDENTIALS = {
-    username: 'admin',
-    password: new URL(window.location.href).searchParams.get('pw') || 'admin'
-  }
-  const ACCOUNTS = [
-    Account.getDefaultValues('fake'),
-    {
-      ...Account.getDefaultValues('fake'),
-      parallel: true
-    },
-    {
-      type: 'nextcloud-legacy',
-      url: SERVER,
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-legacy',
-      url: SERVER,
-      serverRoot: '/my folder/some subfolder',
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-legacy',
-      url: SERVER,
-      parallel: true,
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-folders',
-      url: SERVER,
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-folders',
-      url: SERVER,
-      serverRoot: '/my folder/some subfolder',
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-folders',
-      url: SERVER,
-      parallel: true,
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-folders',
-      url: SERVER,
-      serverRoot: '/my folder/some subfolder',
-      parallel: true,
-      ...CREDENTIALS
-    },
-    {
-      type: 'webdav',
-      url: `${SERVER}/remote.php/webdav/`,
-      bookmark_file: 'bookmarks.xbel',
-      ...CREDENTIALS
-    },
-    {
-      type: 'webdav',
-      url: `${SERVER}/remote.php/webdav/`,
-      bookmark_file: 'bookmarks.xbel',
-      parallel: true,
-      ...CREDENTIALS
-    }
-  ]
 
   ACCOUNTS.forEach(ACCOUNT_DATA => {
     describe(`${ACCOUNT_DATA.type} ${
@@ -315,7 +319,7 @@ describe('Floccus', function() {
             title: 'foo',
             parentId: localRoot
           })
-          const bookmark1 = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             title: 'test',
             url: 'http://ureff.l/',
             parentId: fooFolder.id
@@ -324,7 +328,7 @@ describe('Floccus', function() {
             title: 'bar',
             parentId: fooFolder.id
           })
-          const bookmark2 = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             title: 'url',
             url: 'http://ur.l/',
             parentId: barFolder.id
@@ -369,7 +373,7 @@ describe('Floccus', function() {
             url: 'http://ur.l/',
             parentId: barFolderId
           }
-          const bookmarkId = await adapter.createBookmark(
+          await adapter.createBookmark(
             new Bookmark(serverMark)
           )
           if (adapter.onSyncComplete) await adapter.onSyncComplete()
@@ -518,7 +522,7 @@ describe('Floccus', function() {
             title: 'foo',
             parentId: localRoot
           })
-          const bookmark1 = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             ...bookmarkData,
             parentId: fooFolder.id
           })
@@ -526,7 +530,7 @@ describe('Floccus', function() {
             title: 'bar',
             parentId: fooFolder.id
           })
-          const bookmark2 = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             ...bookmarkData,
             parentId: barFolder.id
           })
@@ -573,10 +577,10 @@ describe('Floccus', function() {
             title: 'url2',
             url: 'http://ur2.l/foo/bar?a=b&foo=b%C3%A1r+foo'
           }
-          const serverMarkId1 = await adapter.createBookmark(
+          await adapter.createBookmark(
             new Bookmark({ ...serverMark1, parentId: fooFolderId })
           )
-          const serverMarkId2 = await adapter.createBookmark(
+          await adapter.createBookmark(
             new Bookmark({ ...serverMark2, parentId: fooFolderId })
           )
           if (adapter.onSyncComplete) await adapter.onSyncComplete()
@@ -595,11 +599,11 @@ describe('Floccus', function() {
             title: 'foo',
             parentId: localRoot
           })
-          const localMarkId1 = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             ...localMark1,
             parentId: fooFolder.id
           })
-          const localMarkId2 = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             ...localMark2,
             parentId: fooFolder.id
           })
@@ -651,7 +655,7 @@ describe('Floccus', function() {
             title: 'bar',
             parentId: fooFolder.id
           })
-          const bookmark2 = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             title: 'url',
             url: 'http://ur.l/',
             parentId: barFolder.id
@@ -834,7 +838,7 @@ describe('Floccus', function() {
             title: 'bar',
             parentId: fooFolder.id
           })
-          const bookmark = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             title: 'url',
             url: 'http://ur.l/',
             parentId: barFolder.id
@@ -872,7 +876,7 @@ describe('Floccus', function() {
             title: 'bar',
             parentId: fooFolder.id
           })
-          const bookmark = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             title: 'url',
             url: 'http://ur.l/',
             parentId: barFolder.id
@@ -946,12 +950,12 @@ describe('Floccus', function() {
             title: 'bar',
             parentId: localRoot
           })
-          const bookmark1 = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             title: 'url',
             url: 'http://ur.l/',
             parentId: barFolder.id
           })
-          const bookmark2 = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             title: 'url',
             url: 'http://ur.l/',
             parentId: barFolder.id
@@ -1094,7 +1098,7 @@ describe('Floccus', function() {
             title: 'foo',
             parentId: localRoot
           })
-          const bookmark1 = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             title: 'url',
             url: 'http://ur.l/',
             parentId: barFolder.id
@@ -1210,7 +1214,7 @@ describe('Floccus', function() {
             title: 'd',
             parentId: cFolder.id
           })
-          const bookmark1 = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             title: 'url',
             url: 'http://ur.l/',
             parentId: dFolder.id
@@ -1452,12 +1456,12 @@ describe('Floccus', function() {
               title: 'foo',
               parentId: barFolder.id
             })
-            const bookmark1 = await browser.bookmarks.create({
+            await browser.bookmarks.create({
               title: 'url',
               url: 'http://ur.l/',
               parentId: barFolder.id
             })
-            const bookmark2 = await browser.bookmarks.create({
+            await browser.bookmarks.create({
               title: 'url2',
               url: 'javascript:void(0)',
               parentId: fooFolder.id
@@ -1642,7 +1646,7 @@ describe('Floccus', function() {
               title: 'bar',
               parentId: fooFolder.id
             })
-            const bookmark = await browser.bookmarks.create({
+            await browser.bookmarks.create({
               title: 'url',
               url: 'http://ur.l/',
               parentId: barFolder.id
@@ -1735,7 +1739,7 @@ describe('Floccus', function() {
               title: 'foo',
               parentId: localRoot
             })
-            const bookmark1 = await browser.bookmarks.create({
+            await browser.bookmarks.create({
               title: 'test',
               url: 'http://ureff.l/',
               parentId: fooFolder.id
@@ -1744,7 +1748,7 @@ describe('Floccus', function() {
               title: 'bar',
               parentId: fooFolder.id
             })
-            const bookmark2 = await browser.bookmarks.create({
+            await browser.bookmarks.create({
               title: 'url',
               url: 'http://ur.l/',
               parentId: barFolder.id
@@ -1778,7 +1782,7 @@ describe('Floccus', function() {
               url: 'http://ur.l/',
               parentId: barFolderId
             }
-            const bookmarkId = await adapter.createBookmark(
+            await adapter.createBookmark(
               new Bookmark(serverMark)
             )
             if (adapter.onSyncComplete) await adapter.onSyncComplete()
@@ -2058,7 +2062,7 @@ describe('Floccus', function() {
               title: 'foo',
               parentId: localRoot
             })
-            const bookmark1 = await browser.bookmarks.create({
+            await browser.bookmarks.create({
               title: 'test',
               url: 'http://ureff.l/',
               parentId: fooFolder.id
@@ -2067,7 +2071,7 @@ describe('Floccus', function() {
               title: 'bar',
               parentId: fooFolder.id
             })
-            const bookmark2 = await browser.bookmarks.create({
+            await browser.bookmarks.create({
               title: 'url',
               url: 'http://ur.l/',
               parentId: barFolder.id
@@ -2109,7 +2113,7 @@ describe('Floccus', function() {
               url: 'http://ur.l/',
               parentId: barFolderId
             }
-            const bookmarkId = await adapter.createBookmark(
+            await adapter.createBookmark(
               new Bookmark(serverMark)
             )
             if (adapter.onSyncComplete) await adapter.onSyncComplete()
@@ -2472,7 +2476,7 @@ describe('Floccus', function() {
             title: 'bar',
             parentId: fooFolder.id
           })
-          const bookmark1 = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             title: 'url',
             url: 'http://ur.l/',
             parentId: barFolder.id
@@ -2516,7 +2520,7 @@ describe('Floccus', function() {
 
           // remove bar folder in account2
           await browser.bookmarks.removeTree(tree2.children[0].children[0].id)
-          const bookmark2 = await browser.bookmarks.create({
+          await browser.bookmarks.create({
             title: 'url2',
             url: 'http://ur2.l/',
             parentId: barFolder.id
@@ -2678,7 +2682,7 @@ describe('Floccus', function() {
         // Skipping this, because nextcloud adapter currently
         // isn't able to track bookmarks across dirs, thus in this
         // scenario both bookmarks survive :/
-        it.skip('should propagate moves using "last write wins"', async function() {
+        it('should propagate moves using "last write wins"', async function() {
           const adapter = account1.server
 
           const localRoot = account1.getData().localRoot

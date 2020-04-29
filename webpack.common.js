@@ -1,5 +1,6 @@
 const path = require('path')
 const { VueLoaderPlugin } = require('vue-loader')
+const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 
 module.exports = {
   entry: {
@@ -10,7 +11,7 @@ module.exports = {
       'background-script.js'
     ),
     options: path.join(__dirname, 'src', 'entries', 'options.js'),
-    //test: path.join(__dirname, 'src', 'entries', 'test.js')
+    test: path.join(__dirname, 'src', 'entries', 'test.js')
   },
   output: {
     path: path.resolve(__dirname, 'dist', 'js'),
@@ -62,8 +63,9 @@ module.exports = {
               [
                 '@babel/preset-env',
                 {
-                  targets: '> 0.25%, not dead',
+                  targets: '> 5%, not dead',
                   useBuiltIns: 'usage',
+                  modules: false,
                 },
               ],
             ],
@@ -72,7 +74,7 @@ module.exports = {
       },
     ],
   },
-  plugins: [new VueLoaderPlugin()],
+  plugins: [new VueLoaderPlugin(), new VuetifyLoaderPlugin()],
   resolve: {
     extensions: ['*', '.js', '.vue'],
   },
