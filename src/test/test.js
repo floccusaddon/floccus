@@ -685,12 +685,12 @@ describe('Floccus', function() {
                         ACCOUNT_DATA.type !== 'nextcloud-legacy'
                           ? []
                           : [
-                              // This is because of a peculiarity of the legacy adapter
-                              new Bookmark({
-                                title: 'test',
-                                url: 'http://ureff.l/'
-                              })
-                            ]
+                            // This is because of a peculiarity of the legacy adapter
+                            new Bookmark({
+                              title: 'test',
+                              url: 'http://ureff.l/'
+                            })
+                          ]
                     })
                   ]
                 })
@@ -2857,7 +2857,7 @@ describe('Floccus', function() {
           let bookmarks = 0
           let folders = 0
           let magicFolder, magicBookmark
-          const createTree = async (parentId, i, j) => {
+          const createTree = async(parentId, i, j) => {
             const len = Math.abs(i - j)
             for (let k = i; k < j; k++) {
               const newBookmark = await browser.bookmarks.create({
@@ -3004,7 +3004,7 @@ describe('Floccus', function() {
           const localRoot = account1.getData().localRoot
           let bookmarks = []
           let folders = []
-          const createTree = async (parentId, i, j) => {
+          const createTree = async(parentId, i, j) => {
             const len = Math.abs(i - j)
             for (let k = i; k < j; k++) {
               const newBookmark = await browser.bookmarks.create({

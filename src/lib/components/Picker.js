@@ -18,7 +18,7 @@ export const state = {
 export const actions = {
   picker: {
     setTree: tree => ({ tree }),
-    loadTree: () => async (state, actions) => {
+    loadTree: () => async(state, actions) => {
       let tree = (await browser.bookmarks.getTree())[0]
       actions.setTree(tree)
     },
@@ -35,14 +35,14 @@ export const actions = {
       openedFolders: { ...state.openedFolders, [folderId]: false }
     })
   },
-  openPicker: () => async (state, actions) => {
+  openPicker: () => async(state, actions) => {
     await actions.picker.loadTree()
     actions.switchView('picker')
   },
   cancelPicker: () => (state, actions) => {
     actions.switchView('options')
   },
-  setNodeFromPicker: localRoot => async (state, actions) => {
+  setNodeFromPicker: localRoot => async(state, actions) => {
     const rootPath = decodeURIComponent(
       await LocalTree.getPathFromLocalId(localRoot)
     )

@@ -32,7 +32,7 @@ export const actions = {
       accounts
     }),
     setSecured: secured => ({ secured }),
-    load: () => async (state, actions) => {
+    load: () => async(state, actions) => {
       const accountsArray = await Account.getAllAccounts()
       const accounts = {}
       accountsArray.forEach(acc => {
@@ -45,17 +45,17 @@ export const actions = {
       actions.setSecured(accountsLocked)
       actions.setList(accounts)
     },
-    sync: accountId => async (state, actions) => {
+    sync: accountId => async(state, actions) => {
       const background = await browser.runtime.getBackgroundPage()
       background.syncAccount(accountId)
     },
-    cancelSync: accountId => async (state, actions) => {
+    cancelSync: accountId => async(state, actions) => {
       const background = await browser.runtime.getBackgroundPage()
       await background.controller.cancelSync(accountId)
     },
     setCreationType: type => ({ creationType: type })
   },
-  downloadLogs: async () => {
+  downloadLogs: async() => {
     await Logger.downloadLogs()
   }
 }

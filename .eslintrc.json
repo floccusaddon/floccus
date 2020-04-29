@@ -1,17 +1,33 @@
 {
-  "parserOptions": {
-    "ecmaVersion": 9,
-    "sourceType": "module",
-    "ecmaFeatures": {
-      "jsx": true
-    }
-  },
   "env": {
     "browser": true,
+    "commonjs": true,
     "es6": true,
-    "webextensions": true,
-    "commonjs": true
+    "node": true
+    // Allow jest syntax in the src folder
   },
+  "parserOptions": {
+    "parser": "babel-eslint",
+    "ecmaVersion": 6
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:vue/recommended"
+  ],
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "paths": [
+          "src"],
+        "extensions": [
+          ".js", ".vue"]
+      }
+    }
+  },
+  "plugins": ["vue",
+    "node"],
   "rules": {
     "arrow-spacing": ["error", { "before": true, "after": true }],
     "block-spacing": ["error", "always"],
@@ -191,6 +207,18 @@
     "valid-typeof": ["error", { "requireStringLiterals": true }],
     "wrap-iife": ["error", "any", { "functionPrototypeMethods": true }],
     "yield-star-spacing": ["error", "both"],
-    "yoda": ["error", "never"]
+    "yoda": ["error", "never"],
+    // PascalCase components names for vuejs
+    // https://vuejs.org/v2/style-guide/#Single-file-component-filename-casing-strongly-recommended
+    "vue/component-name-in-template-casing": ["error", "PascalCase"],
+    // force name
+    "vue/match-component-file-name": ["error", {
+      "extensions": ["jsx", "vue", "js"],
+      "shouldMatchCase": true
+    }],
+    // space before self-closing elements
+    "vue/html-closing-bracket-spacing": "error",
+    // no ending html tag on a new line
+    "vue/html-closing-bracket-newline": ["error", { "multiline": "never" }]
   }
 }

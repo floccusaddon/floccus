@@ -18,12 +18,12 @@ const paths = {
     '!img/**',
     '!ISSUE_TEMPLATE.md',
     '!gulpfile.js',
-    '!key.pem'
+    '!key.pem',
   ],
-  views: './views/*.html',
+  views: './html/*.html',
   entries: 'src/entries/*.js',
   js: 'src/**',
-  builds: './builds/'
+  builds: './builds/',
 }
 const WEBSTORE_ID = 'fnaicdffflnofjppbagibeoednhnbjhg'
 
@@ -33,13 +33,13 @@ try {
   WEBSTORE_CREDENTIALS = require('./builds/google-api.json')
   webstore = webstoreClient(
     Object.assign({}, WEBSTORE_CREDENTIALS, {
-      extensionId: WEBSTORE_ID
+      extensionId: WEBSTORE_ID,
     })
   )
 } catch (e) {}
 
-const js = function() {
-  return new Promise(resolve =>
+const js = function () {
+  return new Promise((resolve) =>
     webpack(config, (err, stats) => {
       if (err) console.log('Webpack', err)
 
@@ -54,8 +54,8 @@ const js = function() {
   )
 }
 
-const devjs = function() {
-  return new Promise(resolve =>
+const devjs = function () {
+  return new Promise((resolve) =>
     webpack(devConfig, (err, stats) => {
       if (err) console.log('Webpack', err)
 
@@ -70,20 +70,20 @@ const devjs = function() {
   )
 }
 
-const html = function() {
+const html = function () {
   return gulp.src(paths.views).pipe(gulp.dest('./dist/html/'))
 }
 
-const polyfill = function() {
+const polyfill = function () {
   return gulp
     .src('./node_modules/babel-polyfill/dist/polyfill.js')
     .pipe(gulp.dest('./dist/js/'))
 }
 
-const mochajs = function() {
+const mochajs = function () {
   return gulp.src('./node_modules/mocha/mocha.js').pipe(gulp.dest('./dist/js/'))
 }
-const mochacss = function() {
+const mochacss = function () {
   return gulp
     .src('./node_modules/mocha/mocha.css')
     .pipe(gulp.dest('./dist/css/'))
@@ -97,43 +97,43 @@ const main = gulp.series(html, js, thirdparty)
 
 const dev = gulp.series(html, devjs, thirdparty)
 
-const zip = function() {
+const zip = function () {
   return gulp
     .src(paths.zip, { buffer: false })
     .pipe(gulpZip(`floccus-build-v${VERSION}.zip`))
     .pipe(gulp.dest(paths.builds))
 }
 
-const xpi = function() {
+const xpi = function () {
   return gulp
     .src(paths.zip, { buffer: false })
     .pipe(gulpZip(`floccus-build-v${VERSION}.xpi`))
     .pipe(gulp.dest(paths.builds))
 }
 
-const crx = function() {
+const crx = function () {
   return crx3(
     fs.createReadStream(`${paths.builds}/floccus-build-v${VERSION}.zip`),
     {
       keyPath: 'key.pem',
-      crxPath: `${paths.builds}/floccus-build-v${VERSION}.crx`
+      crxPath: `${paths.builds}/floccus-build-v${VERSION}.crx`,
     }
   )
 }
 
 const release = gulp.series(main, zip, xpi, crx)
 
-const publish = gulp.series(main, zip, function() {
+const publish = gulp.series(main, zip, function () {
   return webstore
     .uploadExisting(
       fs.createReadStream(`${paths.builds}floccus-build-v${VERSION}.zip`)
     )
-    .then(function() {
+    .then(function () {
       return webstore.publish('default')
     })
 })
 
-const watch = function() {
+const watch = function () {
   let jsWatcher = gulp.watch(paths.js, dev)
   let viewsWatcher = gulp.watch(paths.views, html)
 

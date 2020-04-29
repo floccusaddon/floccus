@@ -3,7 +3,7 @@ import Adapter from './interfaces/Adapter'
 import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
 import NextcloudAdapter from './adapters/Nextcloud'
 import WebDavAdapter from './adapters/WebDav'
-import FakeAdapter from './adapters/Fake'
+// import FakeAdapter from './adapters/Fake'
 import LocalTree from './LocalTree'
 import DefaultSyncProcess from './strategies/Default'
 import SlaveSyncProcess from './strategies/Slave'
@@ -16,7 +16,7 @@ Adapter.register('nextcloud', NextcloudAdapter)
 Adapter.register('nextcloud-legacy', NextcloudAdapter)
 Adapter.register('nextcloud-folders', NextcloudFoldersAdapter)
 Adapter.register('webdav', WebDavAdapter)
-Adapter.register('fake', FakeAdapter)
+// Adapter.register('fake', FakeAdapter)
 
 export default class Account {
   static async get(id) {
@@ -49,7 +49,7 @@ export default class Account {
   static getDefaultValues(type) {
     return {
       ...Adapter.factory({ type }).constructor.getDefaultValues(),
-      enabled: true
+      enabled: true,
     }
   }
 
@@ -89,7 +89,7 @@ export default class Account {
     if (!(await this.isInitialized())) return false
     let mappings = await this.storage.getMappings()
     return Object.keys(mappings.bookmarks.LocalToServer).some(
-      id => localId === id
+      (id) => localId === id
     )
   }
 
@@ -107,7 +107,7 @@ export default class Account {
       let bookmarksBar = parentNode[0].children[0]
       let node = await browser.bookmarks.create({
         title: 'Nextcloud (' + this.getLabel() + ')',
-        parentId: bookmarksBar.id
+        parentId: bookmarksBar.id,
       })
       accData.localRoot = node.id
       accData.rootPath = await LocalTree.getPathFromLocalId(node.id)
@@ -169,7 +169,7 @@ export default class Account {
         await this.storage.getCache(),
         this.server,
         this.getData().parallel,
-        progress => {
+        (progress) => {
           this.setData({ ...this.getData(), syncing: progress })
         }
       )
@@ -186,7 +186,7 @@ export default class Account {
         ...this.getData(),
         error: null,
         syncing: false,
-        lastSync: Date.now()
+        lastSync: Date.now(),
       })
 
       this.syncing = false
@@ -206,7 +206,7 @@ export default class Account {
       await this.setData({
         ...this.getData(),
         error: message,
-        syncing: false
+        syncing: false,
       })
       this.syncing = false
       if (this.server.onSyncFail) {
@@ -223,7 +223,7 @@ export default class Account {
   static stringifyError(er) {
     if (er.list) {
       return er.list
-        .map(e => {
+        .map((e) => {
           Logger.log(e)
           return this.stringifyError(e)
         })
@@ -239,7 +239,7 @@ export default class Account {
 
   static async getAllAccounts() {
     return Promise.all(
-      (await AccountStorage.getAllAccounts()).map(accountId =>
+      (await AccountStorage.getAllAccounts()).map((accountId) =>
         Account.get(accountId)
       )
     )
@@ -249,11 +249,11 @@ export default class Account {
     ancestors = ancestors || (await LocalTree.getIdPathFromLocalId(localId))
     allAccounts = allAccounts || (await this.getAllAccounts())
     return allAccounts
-      .map(account => ({
+      .map((account) => ({
         account,
-        index: ancestors.indexOf(account.getData().localRoot)
+        index: ancestors.indexOf(account.getData().localRoot),
       }))
-      .filter(acc => acc.index !== -1)
-      .map(acc => acc.account)
+      .filter((acc) => acc.index !== -1)
+      .map((acc) => acc.account)
   }
 }

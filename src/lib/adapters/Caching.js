@@ -206,7 +206,7 @@ export default class CachingAdapter extends Adapter {
     // clone and adjust ids
     const imported = folder.clone()
     imported.id = id
-    await imported.traverse(async (item, parentFolder) => {
+    await imported.traverse(async(item, parentFolder) => {
       item.id = ++this.highestId
       item.parentId = parentFolder.id
     })

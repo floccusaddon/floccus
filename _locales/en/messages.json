@@ -221,6 +221,9 @@
   "LabelSecurecredentials": {
     "message": "Secure your credentials"
   },
+  "LabelSecuredcredentials": {
+    "message": "Your credentials are secure"
+  },
   "LabelOpenintab": {
     "message": "Open in tab"
   },
@@ -253,6 +256,12 @@
   },
   "LabelUnlock": {
     "message": "Unlock floccus"
+  },
+  "LabelRemovekey": {
+    "message": "Remove pass phrase"
+  },
+  "LabelRemovedkey": {
+    "message": "Pass phrase removed"
   },
   "LabelSyncinterval": {
     "message": "Synchronization interval"
@@ -292,7 +301,7 @@
     "message": "Make a regular donation via GitHub sponsors to support the project"
   },
   "LegacyAdapterDeprecation": {
-    "message": "Warning! This legacy account type is deprecated and will soon be removed. Please switch to the new nextcloud sync method. Improved performance and accuracy await you."
+    "message": "This legacy account type is deprecated and will soon be removed. Please switch to the new nextcloud sync method. Improved performance and accuracy await you."
   },
   "LabelUpdated": {
     "message": "Floccus was updated"
@@ -301,6 +310,30 @@
     "message": "Congrats, the latest update of floccus has arrived on your machine! \uD83C\uDF89"
   },
   "LabelReleaseNotes": {
-  "message": "Read release notes"
-}
+    "message": "Read release notes"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "Server details"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "Folder mapping"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "Sync behavior"
+  },
+  "LabelOptionsDangerous": {
+    "message": "Dangerous actions"
+  },
+  "LabelAccountDeleted": {
+    "message": "Account deleted"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "This account was deleted"
+  },
+  "LabelNoAccount": {
+    "message": "No accounts here"
+  },
+  "DescriptionNoAccount": {
+    "message": "Create a new account to sync your bookmarks."
+  }
 }

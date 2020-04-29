@@ -18,10 +18,10 @@ export const actions = {
   newAccount: {
     setType: type => ({ type })
   },
-  openNewAccount: () => async (state, actions) => {
+  openNewAccount: () => async(state, actions) => {
     actions.switchView('newAccount')
   },
-  createAccount: () => async (state, actions) => {
+  createAccount: () => async(state, actions) => {
     let account = await Account.create(
       Account.getDefaultValues(state.newAccount.type)
     )
