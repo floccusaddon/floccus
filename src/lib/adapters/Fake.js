@@ -15,15 +15,6 @@ export default class FakeAdapter extends CachingAdapter {
     }
   }
 
-  static renderOptions(state, update) {
-    return (
-      <div>
-        <p>Fake account</p>
-        <OptionDelete account={state.account} />
-      </div>
-    )
-  }
-
   setData(data) {
     this.server = data
   }
