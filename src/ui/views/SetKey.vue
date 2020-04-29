@@ -30,6 +30,7 @@
             </v-btn>
             <v-btn
               v-if="secured"
+              class="mr-2"
               @click="onRemove">
               {{ t("LabelRemovekey") }}
             </v-btn>

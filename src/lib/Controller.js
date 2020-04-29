@@ -91,7 +91,7 @@ export default class Controller {
       })
 
       browser.tabs.create({
-        url: './options.html#updated',
+        url: './options.html#/update',
         title: browser.i18n.getMessage('LabelUpdated'),
         discarded: true
       })

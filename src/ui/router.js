@@ -4,6 +4,7 @@ import Overview from './views/Overview'
 import AccountOptions from './views/AccountOptions'
 import NewAccount from './views/NewAccount'
 import SetKey from './views/SetKey'
+import Update from './views/Update'
 
 Vue.use(Router)
 
@@ -38,16 +39,11 @@ export const router = new Router({
       path: '/set-key',
       name: routes.SET_KEY,
       component: SetKey,
-    },/*
-    {
-      path: '/funding',
-      name: routes.FUNDING,
-      component: Funding,
     },
     {
       path: '/update',
       name: routes.UPDATE,
       component: Update,
-    }, */
+    },
   ],
 })

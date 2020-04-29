@@ -234,7 +234,7 @@
     "message": "Fund development"
   },
   "DescriptionFunddevelopment": {
-    "message": "I have been trying to improve your bookmarks experience both on Nextcloud with the bookmarks app and in your browser with floccus these last couple of years. An endeavor that is both a lot of fun but also quite time consuming.\n\nI'm using this opportunity to ask you for a donation in order to support the maintenance of this project and make this endeavor more sustainable. You can find the supported payment providers below. Any amount, no matter how small, is appreciated. Thank you \uD83D\uDC99💙"
+    "message": "I'm using this opportunity to ask you for a donation in order to support the maintenance of this project and make this endeavor more sustainable. You can find the supported payment providers below. Any amount is appreciated. Thank you!💙"
   },
   "LabelSelect": {
     "message": "Select"
@@ -307,7 +307,7 @@
     "message": "Floccus was updated"
   },
   "DescriptionUpdated": {
-    "message": "Congrats, the latest update of floccus has arrived on your machine! \uD83C\uDF89"
+    "message": "Congrats, the latest update of floccus has arrived on your machine!"
   },
   "LabelReleaseNotes": {
     "message": "Read release notes"

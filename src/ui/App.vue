@@ -8,9 +8,16 @@
       app>
       <v-row no-gutters>
         <v-col>
-          <span class="white--text body-1">floccus v{{ VERSION }}</span>
+          <v-btn
+            text
+            x-small
+            href="https://floccus.org"
+            target="_blank"
+            class="white--text">
+            floccus v{{ VERSION }}
+          </v-btn>
         </v-col>
-        <v-col>
+        <v-col class="d-flex flex-row-reverse">
           <v-btn
             v-if="secured"
             text
