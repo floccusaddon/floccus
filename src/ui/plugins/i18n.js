@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import browser from '../../lib/browser-api'
 
 export default {
