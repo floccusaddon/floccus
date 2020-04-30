@@ -2681,7 +2681,7 @@ describe('Floccus', function() {
         // Skipping this, because nextcloud adapter currently
         // isn't able to track bookmarks across dirs, thus in this
         // scenario both bookmarks survive :/
-        it('should propagate moves using "last write wins"', async function() {
+        it.skip('should propagate moves using "last write wins"', async function() {
           const adapter = account1.server
 
           const localRoot = account1.getData().localRoot

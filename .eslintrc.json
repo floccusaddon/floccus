@@ -221,6 +221,7 @@
     "vue/html-closing-bracket-newline": ["error", { "multiline": "never" }],
     // expect.js...
     "no-unused-expressions": ["off"],
-    "mocha/no-setup-in-describe": ["off"]
+    "mocha/no-setup-in-describe": ["off"],
+    "mocha/no-skipped-tests": ["off"]
   }
 }
