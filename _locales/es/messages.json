@@ -1,0 +1,306 @@
+{
+  "Error001": {
+    "message": "E001: La carpeta en donde crearlo no existe"
+  },
+  "Error002": {
+    "message": "E002: El marcador para actualizar ya no existe"
+  },
+  "Error003": {
+    "message": "E003: La carpeta desde donde mover no existe. Esto es una anomalía. Enhorabuena."
+  },
+  "Error004": {
+    "message": "E004: La carpeta a la que mover no existe"
+  },
+  "Error005": {
+    "message": "E005: La carpeta  en la que crear no existe"
+  },
+  "Error006": {
+    "message": "E006: La carpeta que actualizar no existe"
+  },
+  "Error007": {
+    "message": "E007: La carpeta que mover no existe"
+  },
+  "Error008": {
+    "message": "E008:La carpeta desde la que mover no existe"
+  },
+  "Error009": {
+    "message": "E009: La carpeta a la que mover no existe"
+  },
+  "Error010": {
+    "message": "E010: No se ha podido encontrar la carpeta para ordenarla"
+  },
+  "Error011": {
+    "message": "E011: El ítem en la ordenación de la carpeta no es un verdadero hijo: $1"
+  },
+  "Error012": {
+    "message": "E012: A la ordenación de la carpeta le faltan algunos de los hijos de la carpeta"
+  },
+  "Error013": {
+    "message": "E013: La carpeta que eliminar no existe"
+  },
+  "Error014": {
+    "message": "E014: La carpeta padre desde de la que quitar la carpeta no existe"
+  },
+  "Error015": {
+    "message": "E015: Datos de respuesta del servidor inesperados"
+  },
+  "Error016": {
+    "message": "E016: La petición ha caducado. Comprueba la configuración del servidor"
+  },
+  "Error017": {
+    "message": "E017: Error de red: Comprueba tu conexión de red y los detalles de tu cuenta"
+  },
+  "Error018": {
+    "message": "E018: No se ha podido autenticar con el servidor"
+  },
+  "Error019": {
+    "message": "E019: estado HTTP $1 . Fallo en la petición $2. Comprueba la configuración del servidor y el registro."
+  },
+  "Error020": {
+    "message": "E020: No se ha podido recibir respuesta del servidor. ¿La app de marcadores está instalada en tu servidor?"
+  },
+  "Error021": {
+    "message": "E021: Estado del servidor inconsistente. La carpeta se presenta en lista de orden de hijos, pero no en árbol de carpetas"
+  },
+  "Error022": {
+    "message": "E022: La carpeta $1 contiene supuestamente el marcador no existente $2"
+  },
+  "Error023": {
+    "message": "E023: No se ha podido limpiar el archivo bloqueado, considera eliminar $1 manualmente."
+  },
+  "Error024": {
+    "message": "E024: Estado HTTP $1 al intentar determinar el estado del archivo bloqueado $2"
+  },
+  "Error025": {
+    "message": "E025: El archivo de configuración de marcadores no debe comenzar con una barra: '/'"
+  },
+  "Error026": {
+    "message": "E026: Estado HTTP $1. Fallo al recuperar marcadores"
+  },
+  "Error027": {
+    "message": "E027: Se ha interrumpido el proceso de sincronización"
+  },
+  "LabelWebdavurl": {
+    "message": "URL de WebDAV"
+  },
+  "DescriptionWebdavurl": {
+    "message": "p. ej., con nextcoud: https://tudominio.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "URL de Nextcloud"
+  },
+  "LabelUsername": {
+    "message": "Nombre de usuario"
+  },
+  "LabelPassword": {
+    "message": "Contraseña"
+  },
+  "LabelBookmarksfile": {
+    "message": "Ruta de los marcadores"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "una ruta a los marcadores relativa a tu URL WebDAV (todas las carpetas en la ruta deben existir ya. P. ej., personal/marcadores.xbel"
+  },
+  "LabelServerfolder": {
+    "message": "Carpeta del servidor"
+  },
+  "DescriptionServerfolder": {
+    "message": "Este es el prefijo de la ruta bajo la que esta cuenta operará en el servidor. P. ej., si usas '/trabajo', todos tus marcadores se crearán en el servidor con esta ruta prefijada a su ruta original (la relativa a la carpeta local que has especificado arriba). Esto permite separa tus marcadores del servidor en múltiples 'perfiles'. Deja esto vacío para no usar ningún prefijo."
+  },
+  "LabelLocalfolder": {
+    "message": "Carpeta local"
+  },
+  "DescriptionLocalfolder": {
+    "message": "Esta es la carpeta local de marcadores que se sincronizará con el servidor. Por defecto se creará una nueva carpeta vacía en el servidor; si quieres sincronizar una carpeta existente, selecciónala aquí. (Nota: Ahora puedes sincronizar la carpeta raíz entre diferentes navegadores sin tener que configurar nada.)"
+  },
+  "LabelRootfolder": {
+    "message": "Carpeta raíz"
+  },
+  "LabelOptions": {
+    "message": "Opciones"
+  },
+  "LabelSyncnow": {
+    "message": "Sincronizar ahora"
+  },
+  "LabelCancelsync": {
+    "message": "Cancelar sincronización"
+  },
+  "LabelEnabled": {
+    "message": "Activada"
+  },
+  "StatusLastsynced": {
+    "message": "Última sincronización: hace $1"
+  },
+  "StatusNeversynced": {
+    "message": "Aún no se ha sincronizado"
+  },
+  "StatusAllgood": {
+    "message": "Todo bien"
+  },
+  "StatusDisabled": {
+    "message": "Desactivada"
+  },
+  "StatusError": {
+    "message": "Error"
+  },
+  "StatusSyncing": {
+    "message": "Sincronizando"
+  },
+  "LabelReset": {
+    "message": "Resetear"
+  },
+  "DescriptionReset": {
+    "message": "Resetear carpeta sincronizada para crear una nueva"
+  },
+  "LabelChoosefolder": {
+    "message": "Escoge carpeta"
+  },
+  "DescriptionChoosefolder": {
+    "message": "Configura una carpeta existente para sincronizar"
+  },
+  "LabelRemoveaccount": {
+    "message": "Eliminar cuenta"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "Borrar esta cuenta (esto no eliminará tus marcadores)"
+  },
+  "LabelResetCache": {
+    "message": "Forzar sincronización desde cero"
+  },
+  "DescriptionResetcache": {
+    "message": "Marca esta casilla para resetear la caché para garantizar que la ejecución de la próxima sincronización no elimine ningún dato y simplemente una  los marcadores locales y los del servidor"
+  },
+  "LabelParallelsync": {
+    "message": "Acelerar sincronización"
+  },
+  "DescriptionParallelsync": {
+    "message": "Marca esta casilla para procesar múltiples careptas en paralelo para acelerar la sincronización. Esta característica es experimental y hace más difícil leer los registros de depuración."
+  },
+  "LabelStrategy": {
+    "message": "Estrategia de sincronización"
+  },
+  "DescriptionStrategy": {
+    "message": "Esta opción determina cómo sincronizar el árbol de marcadores en el servidor con el de este navegador. Normalmente querrás mantener los cambios a ambos árboles si son compatibles, pero en ocasiones puedes querer forzar la versión local sobre la del servidor o viceversa."
+  },
+  "LabelStrategydefault": {
+    "message": "Mezclar cambios locales y remotos (recomendado)"
+  },
+  "LabelStrategyslave": {
+    "message": "Siempre reescribir y revertir los cambios locales"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "Siempre sobreescribir y revertir los cambios remotos"
+  },
+  "LabelSave": {
+    "message": "Guardar"
+  },
+  "LabelCancel": {
+    "message": "Cancelar"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Marcadores de Nextcloud"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "La opción 'Marcadores de Nextcloud' es compatible al menos con la versión  0.14 de la app de Marcadores."
+  },
+  "LabelAdapternextcloud": {
+    "message": "Marcadores de Nextcloud (antigua)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "La opción antiuga es compatible con al menos la versión 0.11 de la app de Marcadores. Emulará las carpetas usando etiquetas que contienen la ruta de carpetas. No se recomienda para cuentas nuevas."
+  },
+  "LabelAdapterwebdav": {
+    "message": "Archivo XBEL en compartido WebDAV"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "La opción WebDAV sincroniza tus marcadores almacenándolos en un archivo XBEL em el compartidio WebDAV que se provea. No hay UI acompañante para esta opción y puedes usarla con cualquier servidor compatible con WebDAV."
+  },
+  "LabelAddaccount": {
+    "message": "Añadir cuenta"
+  },
+  "LabelSecurecredentials": {
+    "message": "Asegurar tus credenciales"
+  },
+  "LabelOpenintab": {
+    "message": "Abrir en pestaña"
+  },
+  "LabelDebuglogs": {
+    "message": "Registros de depuración"
+  },
+  "LabelFunddevelopment": {
+    "message": "Financiar el desarrollo"
+  },
+  "DescriptionFunddevelopment": {
+    "message": "He estado intentando mejorar la experiencia con los marcadores tanto en Nextcloud como en la app de marcadores y en tu navegador con Floccus durante un par de años. Una tarea que es muy divertida pero también quita mucho tiempo.\n\nAprovecho esta oportunidad para pedir una donación con el fin de apoyar el mantenimiento de este proyecto y hacer esta tarea más sostenible. Puedes encontrar los proveedores de pago soportados a continuación. Se agradece cualquier cantidad, no importa el tamaño. Gracias💙💙 "
+  },
+  "LabelSelect": {
+    "message": "Seleccionar"
+  },
+  "LabelUntitledfolder": {
+    "message": "Carpeta sin título"
+  },
+  "LabelSetkey": {
+    "message": "Establecer una frase de paso para Floccus"
+  },
+  "DescriptionSetkey": {
+    "message": "Cuando estableces una frase de paso, tendrás que introducirla cada vez que inicies tu navegador si quieres acceder a tus marcadores y sincronizarlos."
+  },
+  "LabelKey": {
+    "message": "Introduce tu frase de paso de desbloqueo"
+  },
+  "LabelKey2": {
+    "message": "Introduce la frase de paso de nuevo"
+  },
+  "LabelUnlock": {
+    "message": "Desbloquear Floccus"
+  },
+  "LabelSyncinterval": {
+    "message": "Intervalo de sincronización"
+  },
+  "DescriptionSyncinterval": {
+    "message": "El intervalo entre dos sincronizaciones, en minutos. 15 minutos por defecto."
+  },
+  "LabelChooseadapter": {
+    "message": "¿Cómo quieres sincronizar?"
+  },
+  "LabelOptionsscreen": {
+    "message": "$1 Opciones",
+    "description": "Title of the options screen. The placeholder holds the account type."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "Haz una donación puntual vía Paypal para apoyar el proyecto"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "Haz una donación periódica vía OpenCollective para apoyar el proyecto"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "Haz una donación periódica vía Liberapay para apoyar el proyecto"
+  },
+  "LabelGithubsponsors": {
+    "message": "GitHub sponsors"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "Haz una donación periódica vía GitHub sponsors para apoyar el proyecto"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "¡Aviso! El tipo de cuenta antiguo está descontinuado y pronto se eliminará. Por favor, cambia al nuevo método de sincronización de Nextcloud. Te esperan un rendimiento y una precisión mejorados."
+  },
+  "LabelUpdated": {
+    "message": "Floccus ha sido actualizado"
+  },
+  "DescriptionUpdated": {
+    "message": "¡Enhorabuena, la última actualización de Floccus ha llegado a tu máquina! 🎉"
+  },
+  "LabelReleaseNotes": {
+  "message": "Leer notas de publicación"
+}
+}
