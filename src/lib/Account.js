@@ -3,7 +3,7 @@ import Adapter from './interfaces/Adapter'
 import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
 import NextcloudAdapter from './adapters/Nextcloud'
 import WebDavAdapter from './adapters/WebDav'
-// import FakeAdapter from './adapters/Fake'
+import FakeAdapter from './adapters/Fake'
 import LocalTree from './LocalTree'
 import DefaultSyncProcess from './strategies/Default'
 import SlaveSyncProcess from './strategies/Slave'
@@ -16,7 +16,7 @@ Adapter.register('nextcloud', NextcloudAdapter)
 Adapter.register('nextcloud-legacy', NextcloudAdapter)
 Adapter.register('nextcloud-folders', NextcloudFoldersAdapter)
 Adapter.register('webdav', WebDavAdapter)
-// Adapter.register('fake', FakeAdapter)
+Adapter.register('fake', FakeAdapter)
 
 export default class Account {
   static async get(id) {
@@ -106,7 +106,7 @@ export default class Account {
       let parentNode = await browser.bookmarks.getTree()
       let bookmarksBar = parentNode[0].children[0]
       let node = await browser.bookmarks.create({
-        title: 'Nextcloud (' + this.getLabel() + ')',
+        title: 'Floccus (' + this.getLabel() + ')',
         parentId: bookmarksBar.id,
       })
       accData.localRoot = node.id

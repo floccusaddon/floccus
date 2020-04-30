@@ -29,6 +29,11 @@
             :account="data"
             @reset="onReset"
             @delete="onDelete" />
+          <OptionsFake
+            v-if="data.type === 'fake'"
+            :account="data"
+            @reset="onReset"
+            @delete="onDelete" />
         </v-form>
         <div class="d-flex flex-row-reverse">
           <v-btn
@@ -63,10 +68,11 @@ import { actions } from '../store'
 import OptionsNextcloudFolders from '../components/OptionsNextcloudFolders'
 import OptionsWebdav from '../components/OptionsWebdav'
 import OptionsNextcloudLegacy from '../components/OptionsNextcloudLegacy'
+import OptionsFake from '../components/OptionsFake'
 
 export default {
   name: 'AccountOptions',
-  components: { OptionsNextcloudLegacy, OptionsWebdav, OptionsNextcloudFolders },
+  components: { OptionsFake, OptionsNextcloudLegacy, OptionsWebdav, OptionsNextcloudFolders },
   data() {
     return {
       folderName: '',

@@ -14,79 +14,78 @@ describe('Floccus', function() {
   this.slow(20000) // 20s is slow
 
   let SERVER, CREDENTIALS, ACCOUNTS
+  SERVER =
+    (new URL(window.location.href)).searchParams.get('server') ||
+    'http://localhost'
+  CREDENTIALS = {
+    username: 'admin',
+    password: (new URL(window.location.href)).searchParams.get('pw') || 'admin'
+  }
+  ACCOUNTS = [
+    Account.getDefaultValues('fake'),
+    {
+      ...Account.getDefaultValues('fake'),
+      parallel: true
+    },
+    {
+      type: 'nextcloud-legacy',
+      url: SERVER,
+      ...CREDENTIALS
+    },
+    {
+      type: 'nextcloud-legacy',
+      url: SERVER,
+      serverRoot: '/my folder/some subfolder',
+      ...CREDENTIALS
+    },
+    {
+      type: 'nextcloud-legacy',
+      url: SERVER,
+      parallel: true,
+      ...CREDENTIALS
+    },
+    {
+      type: 'nextcloud-folders',
+      url: SERVER,
+      ...CREDENTIALS
+    },
+    {
+      type: 'nextcloud-folders',
+      url: SERVER,
+      serverRoot: '/my folder/some subfolder',
+      ...CREDENTIALS
+    },
+    {
+      type: 'nextcloud-folders',
+      url: SERVER,
+      parallel: true,
+      ...CREDENTIALS
+    },
+    {
+      type: 'nextcloud-folders',
+      url: SERVER,
+      serverRoot: '/my folder/some subfolder',
+      parallel: true,
+      ...CREDENTIALS
+    },
+    {
+      type: 'webdav',
+      url: `${SERVER}/remote.php/webdav/`,
+      bookmark_file: 'bookmarks.xbel',
+      ...CREDENTIALS
+    },
+    {
+      type: 'webdav',
+      url: `${SERVER}/remote.php/webdav/`,
+      bookmark_file: 'bookmarks.xbel',
+      parallel: true,
+      ...CREDENTIALS
+    }
+  ]
 
   before(async function() {
     const background = await browser.runtime.getBackgroundPage()
     background.controller.setEnabled(false)
-
-    SERVER =
-      (new URL(window.location.href)).searchParams.get('server') ||
-      'http://localhost'
-    CREDENTIALS = {
-      username: 'admin',
-      password: (new URL(window.location.href)).searchParams.get('pw') || 'admin'
-    }
-    ACCOUNTS = [
-      Account.getDefaultValues('fake'),
-      {
-        ...Account.getDefaultValues('fake'),
-        parallel: true
-      },
-      {
-        type: 'nextcloud-legacy',
-        url: SERVER,
-        ...CREDENTIALS
-      },
-      {
-        type: 'nextcloud-legacy',
-        url: SERVER,
-        serverRoot: '/my folder/some subfolder',
-        ...CREDENTIALS
-      },
-      {
-        type: 'nextcloud-legacy',
-        url: SERVER,
-        parallel: true,
-        ...CREDENTIALS
-      },
-      {
-        type: 'nextcloud-folders',
-        url: SERVER,
-        ...CREDENTIALS
-      },
-      {
-        type: 'nextcloud-folders',
-        url: SERVER,
-        serverRoot: '/my folder/some subfolder',
-        ...CREDENTIALS
-      },
-      {
-        type: 'nextcloud-folders',
-        url: SERVER,
-        parallel: true,
-        ...CREDENTIALS
-      },
-      {
-        type: 'nextcloud-folders',
-        url: SERVER,
-        serverRoot: '/my folder/some subfolder',
-        parallel: true,
-        ...CREDENTIALS
-      },
-      {
-        type: 'webdav',
-        url: `${SERVER}/remote.php/webdav/`,
-        bookmark_file: 'bookmarks.xbel',
-        ...CREDENTIALS
-      },
-      {
-        type: 'webdav',
-        url: `${SERVER}/remote.php/webdav/`,
-        bookmark_file: 'bookmarks.xbel',
-        parallel: true,
-        ...CREDENTIALS
-      }
-    ]
   })
   after(async function() {
     const background = await browser.runtime.getBackgroundPage()
