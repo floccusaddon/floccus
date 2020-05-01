@@ -19,6 +19,7 @@ jobs:
       TEST_HOST: nextcloud
       SERVER_BRANCH: ${{ matrix.server-versions }}
       NC_APP_VERSION: ${{ matrix.app-versions }}
+      SELENIUM_VERSION: 3.141.59-20200409
       MYSQL_PASSWORD: root
 
     strategy:
@@ -40,12 +41,12 @@ jobs:
         browsers: ['firefox', 'chrome']
         include:
           - app-versions: v1.1.2
-            server-versions: 16
+            server-versions: 17
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
           - app-versions: stable
-            server-versions: 16
+            server-versions: 17
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
@@ -75,17 +76,17 @@ jobs:
 
     services:
       hub:
-        image: selenium/hub:3.141.59-gold
+        image: selenium/hub:3.141.59-20200409
         ports:
           - 4444:4444
       firefox:
-        image: selenium/node-firefox:3.141.59-gold
+        image: selenium/node-firefox:3.141.59-20200409
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
         options: -v /dev/shm:/dev/shm
       chrome:
-        image: selenium/node-chrome:3.141.59-gold
+        image: selenium/node-chrome:3.141.59-20200409
         env:
           HUB_HOST: hub
           HUB_PORT: 4444

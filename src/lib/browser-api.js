@@ -1,3 +1,4 @@
+/* global ChromePromise */
 let b
 if (typeof browser === 'undefined' && typeof chrome !== 'undefined') {
   b = new ChromePromise()

@@ -1,3 +1,4 @@
+/* global DEBUG */
 import AccountStorage from './AccountStorage'
 import util from 'util'
 

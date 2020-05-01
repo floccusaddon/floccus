@@ -4,31 +4,17 @@ import Adapter from '../interfaces/Adapter'
 import Logger from '../Logger'
 import { Bookmark, Folder } from '../Tree'
 import PathHelper from '../PathHelper'
-import * as Basics from '../components/basics'
 import { Base64 } from 'js-base64'
 import AsyncLock from 'async-lock'
 import browser from '../browser-api'
 
 const Parallel = require('async-parallel')
-const { h } = require('hyperapp')
 const url = require('url')
 const PQueue = require('p-queue')
 const _ = require('lodash')
 
 const TAG_PREFIX = 'floccus:'
 const PAGE_SIZE = 300
-
-const {
-  Input,
-  Button,
-  Label,
-  OptionSyncFolder,
-  OptionDelete,
-  OptionResetCache,
-  OptionParallelSyncing,
-  OptionSyncInterval,
-  H3
-} = Basics
 
 export default class NextcloudAdapter extends Adapter {
   constructor(server) {
@@ -48,53 +34,6 @@ export default class NextcloudAdapter extends Adapter {
       password: 's3cret',
       serverRoot: ''
     }
-  }
-
-  static renderOptions(state, update) {
-    let data = state.account
-    let onchange = (prop, e) => {
-      update({ [prop]: e.target.value })
-    }
-    return (
-      <form>
-        <Label for="url">{browser.i18n.getMessage('LabelNextcloudurl')}</Label>
-        <Input
-          value={data.url}
-          type="text"
-          name="url"
-          oninput={onchange.bind(null, 'url')}
-        />
-        <Label for="username">{browser.i18n.getMessage('LabelUsername')}</Label>
-        <Input
-          value={data.username}
-          type="text"
-          name="username"
-          oninput={onchange.bind(null, 'username')}
-        />
-        <Label for="password">{browser.i18n.getMessage('LabelPassword')}</Label>
-        <Input
-          value={data.password}
-          type="password"
-          name="password"
-          oninput={onchange.bind(null, 'password')}
-        />
-        <OptionSyncFolder account={state.account} />
-
-        <H3>{browser.i18n.getMessage('LabelServerfolder')}</H3>
-        <p>{browser.i18n.getMessage('DescriptionServerfolder')}</p>
-        <Input
-          value={data.serverRoot || ''}
-          type="text"
-          name="serverRoot"
-          oninput={onchange.bind(null, 'serverRoot')}
-        />
-
-        <OptionSyncInterval account={state.account} />
-        <OptionResetCache account={state.account} />
-        <OptionParallelSyncing account={state.account} />
-        <OptionDelete account={state.account} />
-      </form>
-    )
   }
 
   setData(data) {
@@ -369,7 +308,7 @@ export default class NextcloudAdapter extends Adapter {
     Logger.log('(nextcloud)CREATE', bm)
 
     // We need this lock to avoid creating multiple bookmarks with the same URL in parallel
-    return this.bookmarkLock.acquire(bm.url, async () => {
+    return this.bookmarkLock.acquire(bm.url, async() => {
       let existingBookmark = await this.getExistingBookmark(bm.url)
       if (existingBookmark) {
         bm.id = existingBookmark + ';' + bm.parentId
@@ -413,7 +352,7 @@ export default class NextcloudAdapter extends Adapter {
 
     // We need this lock to avoid changing a bookmark that is
     // in two places in parallel for those two places
-    return this.bookmarkLock.acquire(serverId, async () => {
+    return this.bookmarkLock.acquire(serverId, async() => {
       // returns the full paths from the server
       let { bookmarks: bms, tags } = await this._getBookmark(serverId)
 
@@ -456,7 +395,7 @@ export default class NextcloudAdapter extends Adapter {
 
     // We need this lock to avoid deleting a bookmark that is in two places
     // in parallel
-    return this.bookmarkLock.acquire(serverId, async () => {
+    return this.bookmarkLock.acquire(serverId, async() => {
       let { bookmarks: bms, tags } = await this._getBookmark(serverId)
 
       if (bms.length !== 1) {

@@ -1,3 +1,4 @@
+/* global Mocha */
 const {
   EVENT_RUN_END,
   EVENT_TEST_BEGIN,
@@ -11,7 +12,8 @@ export function createWebdriverAndHtmlReporter(html_reporter) {
     Mocha.reporters.Base.call(this, runner)
 
     // report on the selenium screen, too
-    new html_reporter(runner)
+    // fucking eslint forced me to create this prop
+    runner.html = new html_reporter(runner)
 
     // build a summary
     const summary = []
@@ -70,10 +72,6 @@ function stringifyException(exception) {
   if (!~err.indexOf(exception.message)) {
     err = exception.message + '\n' + err
   }
-
-  // <=IE7 stringifies to [Object Error]. Since it can be overloaded, we
-  // check for the result of the stringifying.
-  if (err == '[object Error]') err = exception.message
 
   // Safari doesn't give you a stack. Let's at least provide a source line.
   if (!exception.stack && exception.sourceURL && exception.line !== undefined) {

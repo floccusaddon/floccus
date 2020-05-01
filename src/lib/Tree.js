@@ -106,7 +106,7 @@ export class Folder {
     }
     const bookmarkFound = this.children
       .filter(child => child instanceof Bookmark)
-      .filter(bm => bm.id == id)[0]
+      .filter(bm => String(bm.id) === String(id))[0]
     if (bookmarkFound) {
       return bookmarkFound
     }
@@ -247,12 +247,12 @@ export class Folder {
       ...obj,
       children: obj.children
         ? obj.children.map(child => {
-            if (!child.url) {
-              return Folder.hydrate(child)
-            } else {
-              return Bookmark.hydrate(child)
-            }
-          })
+          if (!child.url) {
+            return Folder.hydrate(child)
+          } else {
+            return Bookmark.hydrate(child)
+          }
+        })
         : null
     })
   }

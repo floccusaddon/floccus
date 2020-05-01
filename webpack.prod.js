@@ -4,10 +4,10 @@ const webpack = require('webpack')
 
 module.exports = merge(common, {
   mode: 'production',
-  devtool: '#source-map',
+  devtool: false,
   plugins: [
     new webpack.DefinePlugin({
-      DEBUG: JSON.stringify(!Boolean(process.env['CI']))
+      DEBUG: JSON.stringify(!process.env['CI'])
     })
   ]
 })

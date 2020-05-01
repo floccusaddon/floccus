@@ -45,13 +45,6 @@ export default class Adapter extends Resource {
   }
 
   /**
-   * @return hyperapp-tree The options UI for this adapter
-   */
-  static renderOptions(state, actions) {
-    throw new Error('Not implemented')
-  }
-
-  /**
    * @return Object the default values of the account data for this adapter
    */
   static getDefaultValues() {

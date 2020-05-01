@@ -2,24 +2,9 @@ import CachingAdapter from '../adapters/Caching'
 import XbelSerializer from '../serializers/Xbel'
 import Logger from '../Logger'
 import browser from '../browser-api'
-import * as Basics from '../components/basics'
 import { Base64 } from 'js-base64'
 
-const { h } = require('hyperapp')
 const url = require('url')
-
-const {
-  Input,
-  Button,
-  Label,
-  Options,
-  OptionSyncFolder,
-  OptionDelete,
-  OptionResetCache,
-  OptionParallelSyncing,
-  OptionSyncInterval,
-  OptionSyncStrategy
-} = Basics
 
 export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {
@@ -257,56 +242,6 @@ export default class WebDavAdapter extends CachingAdapter {
       Logger.log('No changes to the server version necessary')
     }
     await this.freeLock()
-  }
-
-  static renderOptions(state, update) {
-    let data = state.account
-    let onchange = (prop, e) => {
-      update({ [prop]: e.target.value })
-    }
-    return (
-      <form>
-        <Label for="url">{browser.i18n.getMessage('LabelWebdavurl')}</Label>
-        <Input
-          value={data.url}
-          type="text"
-          name="url"
-          oninput={onchange.bind(null, 'url')}
-        />
-        <p>{browser.i18n.getMessage('DescriptionWebdavurl')}</p>
-        <Label for="username">{browser.i18n.getMessage('LabelUsername')}</Label>
-        <Input
-          value={data.username}
-          type="text"
-          name="username"
-          oninput={onchange.bind(null, 'username')}
-        />
-        <Label for="password">{browser.i18n.getMessage('LabelPassword')}</Label>
-        <Input
-          value={data.password}
-          type="password"
-          name="password"
-          oninput={onchange.bind(null, 'password')}
-        />
-        <Label for="bookmark_file">
-          {browser.i18n.getMessage('LabelBookmarksfile')}
-        </Label>
-        <Input
-          value={data.bookmark_file || ''}
-          type="text"
-          name="bookmark_file"
-          oninput={onchange.bind(null, 'bookmark_file')}
-        />
-        <p>{browser.i18n.getMessage('DescriptionBookmarksfile')}</p>
-        <OptionSyncFolder account={state.account} />
-
-        <OptionSyncInterval account={state.account} />
-        <OptionResetCache account={state.account} />
-        <OptionParallelSyncing account={state.account} />
-        <OptionSyncStrategy account={state.account} />
-        <OptionDelete account={state.account} />
-      </form>
-    )
   }
 }
 

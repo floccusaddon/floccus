@@ -1,7 +1,6 @@
 import browser from './browser-api'
 import Logger from './Logger'
 import * as Tree from './Tree'
-import Account from './Account'
 import Resource from './interfaces/Resource'
 import PQueue from 'p-queue'
 
@@ -16,7 +15,6 @@ export default class LocalTree extends Resource {
   async getBookmarksTree() {
     const [rootTree] = await browser.bookmarks.getTree() // XXX: Kinda inefficient, but well.
     const tree = (await browser.bookmarks.getSubTree(this.rootId))[0]
-    const allAccounts = await Account.getAllAccounts()
 
     const recurse = (node, parentId) => {
       let overrideTitle, isRoot

@@ -91,7 +91,7 @@ export default class Controller {
       })
 
       browser.tabs.create({
-        url: './options.html#updated',
+        url: './options.html#/update',
         title: browser.i18n.getMessage('LabelUpdated'),
         discarded: true
       })
@@ -126,26 +126,30 @@ export default class Controller {
       hashedKey
     )
     await browser.storage.local.set({ accountsLocked: encryptedHash })
-    await Promise.all(accounts.map(a => a.setData(a.getData())))
+    if (accounts.length) {
+      await Promise.all(accounts.map(a => a.setData(a.getData())))
+    }
 
-    // ...aand lock it immediately.
-    this.key = null
-    this.unlocked = false
-    this.setEnabled(false)
+    // ...aand unlock it immediately.
+    this.key = key
+    this.unlocked = true
+    this.setEnabled(true)
   }
 
   async unlock(key) {
-    let d = await browser.storage.local.get('accountsLocked')
-    let hashedKey = await Cryptography.sha256(key)
-    let decryptedHash = await Cryptography.decryptAES(
-      key,
-      Cryptography.iv,
-      d.accountsLocked
-    )
-    if (decryptedHash !== hashedKey) {
-      throw new Error('The provided key was wrong')
+    let d = await browser.storage.local.get({'accountsLocked': null})
+    if (d.accountsLocked) {
+      let hashedKey = await Cryptography.sha256(key)
+      let decryptedHash = await Cryptography.decryptAES(
+        key,
+        Cryptography.iv,
+        d.accountsLocked
+      )
+      if (decryptedHash !== hashedKey) {
+        throw new Error('The provided key was wrong')
+      }
+      this.key = key
     }
-    this.key = key
     this.unlocked = true
     this.setEnabled(true)
   }
