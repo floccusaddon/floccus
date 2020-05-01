@@ -41,12 +41,12 @@ jobs:
         browsers: ['firefox', 'chrome']
         include:
           - app-versions: v1.1.2
-            server-versions: 16
+            server-versions: 17
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
           - app-versions: stable
-            server-versions: 16
+            server-versions: 17
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
