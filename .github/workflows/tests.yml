@@ -20,6 +20,7 @@ jobs:
       SERVER_BRANCH: ${{ matrix.server-versions }}
       NC_APP_VERSION: ${{ matrix.app-versions }}
       SELENIUM_VERSION: 3.141.59-20200409
+      MYSQL_PASSWORD: root
 
     strategy:
       # do not stop on another job's failure
@@ -95,11 +96,18 @@ jobs:
         env:
           NEXTCLOUD_ADMIN_USER: admin
           NEXTCLOUD_ADMIN_PASSWORD: admin
-          SQLITE_DATABASE: nextcloud.sqlite
+          MYSQL_DATABASE: nextcloud
+          MYSQL_USER: root
+          MYSQL_PASSWORD: ${{env.MYSQL_PASSWORD}}
+          MYSQL_HOST: mysql
           NEXTCLOUD_TRUSTED_DOMAINS: nextcloud
         volumes:
           - apps:/home/runner/work/floccus/floccus/apps
         options: --name nextcloud
+      mysql:
+        image: mariadb:latest
+        env:
+          MYSQL_ROOT_PASSWORD: ${{env.MYSQL_PASSWORD}}
 
     steps:
       - name: Checkout floccus
@@ -113,15 +121,22 @@ jobs:
           repository: nextcloud/${{ env.APP_NAME }}
           ref: ${{ matrix.app-versions }}
           path: apps/${{ env.APP_NAME }}
+        if: matrix.floccus-adapter == 'nextcloud-folders'
 
       - name: Enable bookmarks app
         shell: bash
         run: |
           NEXT_WAIT_TIME=0
-          until [ $NEXT_WAIT_TIME -eq 10 ] || docker exec --user www-data nextcloud php occ app:enable ${{ env.APP_NAME }}; do
+          until [ $NEXT_WAIT_TIME -eq 25 ] || docker exec --user www-data nextcloud php occ app:enable ${{ env.APP_NAME }}; do
               sleep $(( NEXT_WAIT_TIME++ ))
           done
-          [ $NEXT_WAIT_TIME -lt 10 ]
+          [ $NEXT_WAIT_TIME -lt 25 ]
+        if: matrix.floccus-adapter != 'fake'
+
+      - name: Enable APCu
+        run: |
+          docker exec --user www-data nextcloud php occ config:system:set --value "\\OC\\Memcache\\APCu" memcache.local
+        if: matrix.floccus-adapter != 'fake'
 
       - name: Set up node ${{ matrix.node-versions }}
         uses: actions/setup-node@v1
