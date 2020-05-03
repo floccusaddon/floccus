@@ -221,6 +221,9 @@
   "LabelSecurecredentials": {
     "message": "Asegurar tus credenciales"
   },
+  "LabelSecuredcredentials": {
+    "message": "Tus credenciales son seguras"
+  },
   "LabelOpenintab": {
     "message": "Abrir en pestaña"
   },
@@ -231,7 +234,7 @@
     "message": "Financiar el desarrollo"
   },
   "DescriptionFunddevelopment": {
-    "message": "He estado intentando mejorar la experiencia con los marcadores tanto en Nextcloud como en la app de marcadores y en tu navegador con Floccus durante un par de años. Una tarea que es muy divertida pero también quita mucho tiempo.\n\nAprovecho esta oportunidad para pedir una donación con el fin de apoyar el mantenimiento de este proyecto y hacer esta tarea más sostenible. Puedes encontrar los proveedores de pago soportados a continuación. Se agradece cualquier cantidad, no importa el tamaño. Gracias💙💙 "
+    "message": "Aprovecho esta oportunidad para pedirte una donación que ayude a mantener este proyecto y hacer esta tarea más sostenible. Puedes encontrar los proveedores de pago soportados a continuación. Se agradece cualquier cantidad. ¡Gracias! 💙"
   },
   "LabelSelect": {
     "message": "Seleccionar"
@@ -253,6 +256,12 @@
   },
   "LabelUnlock": {
     "message": "Desbloquear Floccus"
+  },
+  "LabelRemovekey": {
+    "message": "Eliminar frase de paso"
+  },
+  "LabelRemovedkey": {
+    "message": "Frase de paso eliminada"
   },
   "LabelSyncinterval": {
     "message": "Intervalo de sincronización"
@@ -292,15 +301,39 @@
     "message": "Haz una donación periódica vía GitHub sponsors para apoyar el proyecto"
   },
   "LegacyAdapterDeprecation": {
-    "message": "¡Aviso! El tipo de cuenta antiguo está descontinuado y pronto se eliminará. Por favor, cambia al nuevo método de sincronización de Nextcloud. Te esperan un rendimiento y una precisión mejorados."
+    "message": "Este de cuenta antiguo está descontinuado y pronto se eliminará. Por favor, cambia al nuevo método de sincronización de Nextcloud. Te esperan un rendimiento y una precisión mejorados."
   },
   "LabelUpdated": {
     "message": "Floccus ha sido actualizado"
   },
   "DescriptionUpdated": {
-    "message": "¡Enhorabuena, la última actualización de Floccus ha llegado a tu máquina! 🎉"
+    "message": "¡Enhorabuena, la última actualización de Floccus ha llegado a tu máquina! "
   },
   "LabelReleaseNotes": {
-  "message": "Leer notas de publicación"
-}
+    "message": "Leer notas de publicación"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "Detalles del servidor"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "Mapeado de carpetas"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "Comportamiento de sincronización"
+  },
+  "LabelOptionsDangerous": {
+    "message": "Acciones peligrosas"
+  },
+  "LabelAccountDeleted": {
+    "message": "Cuenta eliminada"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "Esta cuenta ha sido eliminada"
+  },
+  "LabelNoAccount": {
+    "message": "No hay cuentas aquí"
+  },
+  "DescriptionNoAccount": {
+    "message": "Crea una cuenta nueva para sincronizar tus marcadores."
+  }
 }
