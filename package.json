@@ -80,7 +80,7 @@
     "vue-template-compiler": "^2.6.11",
     "vuelidate": "^0.7.5",
     "vuetify": "^2.2.25",
-    "vuex": "^3.3.0",
+    "vuex": "^3.4.0",
     "vuex-router-sync": "^5.0.0"
   }
 }
