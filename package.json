@@ -41,7 +41,7 @@
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
     "selenium-webdriver": "^4.0.0-alpha.7",
-    "typescript": "^3.8.3",
+    "typescript": "^3.9.2",
     "vuetify-loader": "^1.4.3",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
