@@ -48,7 +48,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "async-lock": "^1.2.2",
+    "async-lock": "^1.2.4",
     "async-parallel": "^1.2.3",
     "babel-polyfill": "^6.20.0",
     "css-loader": "^3.5.3",
