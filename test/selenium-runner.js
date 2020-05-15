@@ -19,13 +19,13 @@ const VERSION = require('../package.json').version
     .setChromeOptions(
       process.env.SELENIUM_BROWSER === 'chrome'
         ? new ChromeOptions()
-            .excludeSwitches('extension-content-verification')
-            .addExtensions(
-              fs.readFileSync(
-                `./builds/floccus-build-v${VERSION}.crx`,
-                'base64'
-              )
+          .excludeSwitches('extension-content-verification')
+          .addExtensions(
+            fs.readFileSync(
+              `./builds/floccus-build-v${VERSION}.crx`,
+              'base64'
             )
+          )
         : null
     )
     .build()
@@ -97,7 +97,7 @@ const VERSION = require('../package.json').version
     )
     await driver.quit()
     if (fin && ~fin.indexOf('FAILED')) {
-      /*console.log('=== start nextcloud log ===')
+      /* console.log('=== start nextcloud log ===')
       try {
         console.log(fs.readFileSync('../server/data/nextcloud.log'))
       } catch (e) {
@@ -110,7 +110,7 @@ const VERSION = require('../package.json').version
       } catch (e) {
         console.log(e)
       }
-      console.log('=== end apache log ===')*/
+      console.log('=== end apache log ===') */
       process.exit(1)
     } else {
       const match = fin.match(/duration: (\d+):(\d+)/i)
