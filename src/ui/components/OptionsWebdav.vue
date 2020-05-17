@@ -10,35 +10,45 @@
           <v-text-field
             v-model="data.url"
             :rules="[validateUrl]"
-            :label="t('LabelWebdavurl')" />
+            :label="t('LabelWebdavurl')"
+            @input="$emit('input', data)" />
           <v-text-field
             v-model="data.username"
-            :label="t('LabelUsername')" />
+            :label="t('LabelUsername')"
+            @input="$emit('input', data)" />
           <v-text-field
             v-model="data.password"
             type="password"
-            :label="t('LabelPassword')" />
+            :label="t('LabelPassword')"
+            @input="$emit('input', data)" />
           <v-text-field
             v-model="data.bookmark_file"
             :rules="[validateBookmarksFile]"
             :label="t('LabelBookmarksfile')"
             :hint="t('DescriptionBookmarksfile')"
-            :persistent-hint="true" />
+            :persistent-hint="true"
+            @input="$emit('input', data)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 
       <v-expansion-panel>
         <v-expansion-panel-header>{{ t('LabelOptionsFolderMapping') }}</v-expansion-panel-header>
         <v-expansion-panel-content>
-          <OptionSyncFolder v-model="data.localRoot" />
+          <OptionSyncFolder
+            v-model="data.localRoot"
+            @input="$emit('input', data)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 
       <v-expansion-panel>
         <v-expansion-panel-header>{{ t('LabelOptionsSyncBehavior') }}</v-expansion-panel-header>
         <v-expansion-panel-content>
-          <OptionSyncInterval v-model="data.syncInterval" />
-          <OptionSyncStrategy v-model="data.strategy" />
+          <OptionSyncInterval
+            v-model="data.syncInterval"
+            @input="$emit('input', data)" />
+          <OptionSyncStrategy
+            v-model="data.strategy"
+            @input="$emit('input', data)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 
@@ -65,14 +75,14 @@ export default {
   name: 'OptionsWebdav',
   components: { OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
   props: {
-    account: {
+    value: {
       type: Object,
       required: true
     }
   },
   data() {
     return {
-      data: this.account,
+      data: this.value,
       panels: [0]
     }
   },

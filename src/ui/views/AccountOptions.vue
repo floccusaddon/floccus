@@ -16,22 +16,22 @@
           class="mt-3 mb-3">
           <OptionsNextcloudFolders
             v-if="data.type === 'nextcloud-folders'"
-            :account="data"
+            v-model="data"
             @reset="onReset"
             @delete="onDelete" />
           <OptionsWebdav
             v-if="data.type === 'webdav'"
-            :account="data"
+            v-model="data"
             @reset="onReset"
             @delete="onDelete" />
           <OptionsNextcloudLegacy
             v-if="data.type === 'nextcloud' || data.type === 'nextcloud-legacy'"
-            :account="data"
+            v-model="data"
             @reset="onReset"
             @delete="onDelete" />
           <OptionsFake
             v-if="data.type === 'fake'"
-            :account="data"
+            v-model="data"
             @reset="onReset"
             @delete="onDelete" />
         </v-form>
@@ -76,6 +76,7 @@ export default {
   data() {
     return {
       folderName: '',
+      data: {},
       savedData: false,
       deleted: false,
     }
@@ -87,9 +88,8 @@ export default {
     loading() {
       return !Object.keys(this.$store.state.accounts).length
     },
-    data() {
-      if (!this.$store.state.accounts[this.id]) return {}
-      return this.$store.state.accounts[this.id].data
+    accountState() {
+      return this.$store.state.accounts[this.id]
     },
     localRoot() {
       return this.data.localRoot
@@ -101,6 +101,9 @@ export default {
   watch: {
     localRoot() {
       this.updateFolderName()
+    },
+    accountState() {
+      this.data = this.accountState.data
     }
   },
   created() {
