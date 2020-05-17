@@ -1,6 +1,7 @@
 import Account from '../../lib/Account'
 import browser from '../../lib/browser-api'
 import { mutations } from './mutations'
+import Logger from '../../lib/Logger'
 
 export const actions = {
   LOAD_LOCKED: 'LOAD_UNLOCKED',
@@ -14,6 +15,7 @@ export const actions = {
   STORE_ACCOUNT: 'STORE_ACCOUNT',
   TRIGGER_SYNC: 'TRIGGER_SYNC',
   CANCEL_SYNC: 'CANCEL_SYNC',
+  DOWNLOAD_LOGS: 'DOWNLOAD_LOGS'
 }
 export const actionsDefinition = {
   async [actions.LOAD_LOCKED]({ commit, dispatch, state }) {
@@ -78,5 +80,8 @@ export const actionsDefinition = {
   async [actions.CANCEL_SYNC]({ commit, dispatch, state }, accountId) {
     const background = await browser.runtime.getBackgroundPage()
     await background.controller.cancelSync(accountId)
+  },
+  async [actions.DOWNLOAD_LOGS]({ commit, dispatch, state }) {
+    await Logger.downloadLogs()
   },
 }

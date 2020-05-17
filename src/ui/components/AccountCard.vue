@@ -43,7 +43,13 @@
             outlined
             :icon="false"
             :type="statusType">
-            {{ statusDetail }}
+            {{ statusDetail }} <v-btn
+              color="blue"
+              class="float-right"
+              x-small
+              @click="onGetLogs">
+              {{ t('LabelDebuglogs') }}
+            </v-btn>
           </v-alert>
           <v-alert
             v-if="legacyWarning"
@@ -225,6 +231,9 @@ export default {
     },
     onToggleEnabled() {
       this.$store.dispatch(actions.STORE_ACCOUNT, this.account.id)
+    },
+    onGetLogs() {
+      this.$store.dispatch(actions.DOWNLOAD_LOGS)
     }
   }
 }
