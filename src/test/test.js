@@ -648,7 +648,7 @@ describe('Floccus', function() {
           }
           const localMark2 = {
             title: 'url2',
-            url: 'https://ur1.l'
+            url: 'https://ur.l'
           }
           const fooFolder = await browser.bookmarks.create({
             title: 'foo',
