@@ -11,7 +11,7 @@ const VERSION = require('./package.json').version
 const paths = {
   zip: [
     './**',
-    // '!dist/js/test.js', // only for releases
+    (process.env['CI'] ? '' : '!') + 'dist/js/test.js',
     '!builds/**',
     '!src/**',
     '!node_modules/**',
@@ -36,7 +36,9 @@ try {
       extensionId: WEBSTORE_ID,
     })
   )
-} catch (e) {}
+} catch (e) {
+  // noop
+}
 
 const js = function() {
   return new Promise((resolve) =>
