@@ -11,7 +11,7 @@ const VERSION = require('./package.json').version
 const paths = {
   zip: [
     './**',
-    //'!dist/js/test.js', // only for releases
+    // '!dist/js/test.js', // only for releases
     '!builds/**',
     '!src/**',
     '!node_modules/**',
@@ -38,7 +38,7 @@ try {
   )
 } catch (e) {}
 
-const js = function () {
+const js = function() {
   return new Promise((resolve) =>
     webpack(config, (err, stats) => {
       if (err) console.log('Webpack', err)
@@ -54,7 +54,7 @@ const js = function () {
   )
 }
 
-const devjs = function () {
+const devjs = function() {
   return new Promise((resolve) =>
     webpack(devConfig, (err, stats) => {
       if (err) console.log('Webpack', err)
@@ -70,20 +70,20 @@ const devjs = function () {
   )
 }
 
-const html = function () {
+const html = function() {
   return gulp.src(paths.views).pipe(gulp.dest('./dist/html/'))
 }
 
-const polyfill = function () {
+const polyfill = function() {
   return gulp
     .src('./node_modules/babel-polyfill/dist/polyfill.js')
     .pipe(gulp.dest('./dist/js/'))
 }
 
-const mochajs = function () {
+const mochajs = function() {
   return gulp.src('./node_modules/mocha/mocha.js').pipe(gulp.dest('./dist/js/'))
 }
-const mochacss = function () {
+const mochacss = function() {
   return gulp
     .src('./node_modules/mocha/mocha.css')
     .pipe(gulp.dest('./dist/css/'))
@@ -97,21 +97,21 @@ const main = gulp.series(html, js, thirdparty)
 
 const dev = gulp.series(html, devjs, thirdparty)
 
-const zip = function () {
+const zip = function() {
   return gulp
     .src(paths.zip, { buffer: false })
     .pipe(gulpZip(`floccus-build-v${VERSION}.zip`))
     .pipe(gulp.dest(paths.builds))
 }
 
-const xpi = function () {
+const xpi = function() {
   return gulp
     .src(paths.zip, { buffer: false })
     .pipe(gulpZip(`floccus-build-v${VERSION}.xpi`))
     .pipe(gulp.dest(paths.builds))
 }
 
-const crx = function () {
+const crx = function() {
   return crx3(
     fs.createReadStream(`${paths.builds}/floccus-build-v${VERSION}.zip`),
     {
@@ -123,17 +123,17 @@ const crx = function () {
 
 const release = gulp.series(main, zip, xpi, crx)
 
-const publish = gulp.series(main, zip, function () {
+const publish = gulp.series(main, zip, function() {
   return webstore
     .uploadExisting(
       fs.createReadStream(`${paths.builds}floccus-build-v${VERSION}.zip`)
     )
-    .then(function () {
+    .then(function() {
       return webstore.publish('default')
     })
 })
 
-const watch = function () {
+const watch = function() {
   let jsWatcher = gulp.watch(paths.js, dev)
   let viewsWatcher = gulp.watch(paths.views, html)
 
