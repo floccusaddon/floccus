@@ -23,6 +23,9 @@ export default class CachingAdapter extends Adapter {
   }
 
   acceptsBookmark(bm) {
+    if (bm.url === 'data:') {
+      return false
+    }
     return ~['https:', 'http:', 'ftp:', 'data:', 'javascript:'].indexOf(
       url.parse(bm.url).protocol
     )
