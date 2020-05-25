@@ -335,5 +335,14 @@
   },
   "DescriptionNoAccount": {
     "message": "Create a new account to sync your bookmarks."
+  },
+  "LabelLoginFlowStart": {
+    "message": "Sign in with Nextcloud login flow"
+  },
+  "LabelLoginFlowStop": {
+    "message": "Abort Nextcloud login flow"
+  },
+  "LabelLoginFlowError": {
+    "message": "Nextcloud login flow failed."
   }
 }

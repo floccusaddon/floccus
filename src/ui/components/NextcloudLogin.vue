@@ -18,7 +18,7 @@
               <v-icon>mdi-account-circle</v-icon>
             </v-btn>
           </template>
-          <span>Login with Nextcloud Flow</span>
+          <span>{{ t('LabelLoginFlowStart') }}</span>
         </v-tooltip>
         <v-tooltip
           v-else
@@ -31,7 +31,7 @@
               <v-icon>mdi-cancel</v-icon>
             </v-btn>
           </template>
-          <span>Cancel Nextcloud Login Flow</span>
+          <span>{{ t('LabelLoginFlowStop') }}</span>
         </v-tooltip>
       </template>
     </v-text-field>

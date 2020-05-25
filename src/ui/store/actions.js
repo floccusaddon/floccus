@@ -91,7 +91,7 @@ export const actionsDefinition = {
     let res = await fetch(`${rootUrl}/index.php/login/v2`, {method: 'POST', headers: {'User-Agent': 'Floccus bookmarks sync'}})
     if (res.status !== 200 || !state.loginFlow.isRunning) {
       commit(mutations.SET_LOGIN_FLOW_STATE, false)
-      throw new Error('Could not connect to Nextcloud Login flow endpoint')
+      throw new Error(browser.i18n.getMessage('LabelLoginFlowError'))
     }
     let json = await res.json()
     try {
@@ -106,7 +106,7 @@ export const actionsDefinition = {
       throw e
     }
     if (res.status !== 200) {
-      throw new Error('Login failed')
+      throw new Error(browser.i18n.getMessage('LabelLoginFlowError'))
     }
     json = await res.json()
     return {username: json.loginName, password: json.appPassword}
