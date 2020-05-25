@@ -12,15 +12,12 @@
             :rules="[validateUrl]"
             :label="t('LabelNextcloudurl')"
             @input="$emit('input', data)" />
-          <v-text-field
-            v-model="data.username"
-            :label="t('LabelUsername')"
-            @input="$emit('input', data)" />
-          <v-text-field
-            v-model="data.password"
-            type="password"
-            :label="t('LabelPassword')"
-            @input="$emit('input', data)" />
+          <NextcloudLogin
+            :password.sync="data.password"
+            :username.sync="data.username"
+            :server="data.url"
+            @update:password="$emit('input', data)"
+            @update:username="$emit('input', data)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 
@@ -77,10 +74,11 @@ import OptionResetCache from './OptionResetCache'
 import OptionSyncStrategy from './OptionSyncStrategy'
 import OptionDeleteAccount from './OptionDeleteAccount'
 import OptionSyncFolder from './OptionSyncFolder'
+import NextcloudLogin from './NextcloudLogin'
 
 export default {
   name: 'OptionsNextcloudFolders',
-  components: { OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
+  components: { NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
   props: {
     value: {
       type: Object,

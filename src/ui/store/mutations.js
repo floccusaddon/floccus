@@ -6,6 +6,7 @@ export const mutations = {
   LOAD_ACCOUNTS: 'LOAD_ACCOUNTS',
   STORE_ACCOUNT_DATA: 'STORE_ACCOUNT_DATA',
   REMOVE_ACCOUNT: 'REMOVE_ACCOUNT',
+  SET_LOGIN_FLOW_STATE: 'SET_LOGIN_FLOW_STATE'
 }
 export const mutationsDefinition = {
   [mutations.SET_LOCKED](state, locked) {
@@ -23,4 +24,7 @@ export const mutationsDefinition = {
   [mutations.REMOVE_ACCOUNT](state, id) {
     Vue.delete(state.accounts, id)
   },
+  [mutations.SET_LOGIN_FLOW_STATE](state, running) {
+    Vue.set(state.loginFlow, 'isRunning', running)
+  }
 }

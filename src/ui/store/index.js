@@ -15,6 +15,9 @@ export default new Store({
     locked: false,
     secured: false,
     accounts: {},
+    loginFlow: {
+      isRunning: false
+    }
   },
   getters: {},
 })

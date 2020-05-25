@@ -15,7 +15,9 @@ export const actions = {
   STORE_ACCOUNT: 'STORE_ACCOUNT',
   TRIGGER_SYNC: 'TRIGGER_SYNC',
   CANCEL_SYNC: 'CANCEL_SYNC',
-  DOWNLOAD_LOGS: 'DOWNLOAD_LOGS'
+  DOWNLOAD_LOGS: 'DOWNLOAD_LOGS',
+  START_LOGIN_FLOW: 'START_LOGIN_FLOW',
+  STOP_LOGIN_FLOW: 'STOP_LOGIN_FLOW'
 }
 export const actionsDefinition = {
   async [actions.LOAD_LOCKED]({ commit, dispatch, state }) {
@@ -84,4 +86,32 @@ export const actionsDefinition = {
   async [actions.DOWNLOAD_LOGS]({ commit, dispatch, state }) {
     await Logger.downloadLogs()
   },
+  async [actions.START_LOGIN_FLOW]({commit, dispatch, state}, rootUrl) {
+    commit(mutations.SET_LOGIN_FLOW_STATE, true)
+    let res = await fetch(`${rootUrl}/index.php/login/v2`, {method: 'POST', headers: {'User-Agent': 'Floccus bookmarks sync'}})
+    if (res.status !== 200 || !state.loginFlow.isRunning) {
+      commit(mutations.SET_LOGIN_FLOW_STATE, false)
+      throw new Error('Could not connect to Nextcloud Login flow endpoint')
+    }
+    let json = await res.json()
+    try {
+      await browser.tabs.create({ url: json.login })
+      do {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        res = await fetch(json.poll.endpoint, { method: 'POST', body: `token=${json.poll.token}`, headers: {'Content-type': 'application/x-www-form-urlencoded'} })
+      } while (res.status === 404 && state.loginFlow.isRunning)
+      commit(mutations.SET_LOGIN_FLOW_STATE, false)
+    } catch (e) {
+      commit(mutations.SET_LOGIN_FLOW_STATE, false)
+      throw e
+    }
+    if (res.status !== 200) {
+      throw new Error('Login failed')
+    }
+    json = await res.json()
+    return {username: json.loginName, password: json.appPassword}
+  },
+  async [actions.STOP_LOGIN_FLOW]({commit}) {
+    commit(mutations.SET_LOGIN_FLOW_STATE, false)
+  }
 }
