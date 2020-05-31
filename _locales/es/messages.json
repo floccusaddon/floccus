@@ -335,5 +335,14 @@
   },
   "DescriptionNoAccount": {
     "message": "Crea una cuenta nueva para sincronizar tus marcadores."
+  },
+  "LabelLoginFlowStart": {
+    "message": "Iniciar sesión con el mecanismo de entrada de Nextcloud"
+  },
+  "LabelLoginFlowStop": {
+    "message": "Abortar mecanismo de entrada de Nextcloud"
+  },
+  "LabelLoginFlowError": {
+    "message": "Fallo del mecanismo de entrada de Nextcloud."
   }
 }
