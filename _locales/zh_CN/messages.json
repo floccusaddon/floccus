@@ -105,7 +105,7 @@
     "message": "服务器文件夹"
   },
   "DescriptionServerfolder": {
-    "message": "这是此帐户在服务器上运行的路径前缀。例如如果使用''/ work'，在服务器上创建所有书签的路径添加上''/ work'（相对于您在上面指定的本地文件夹的路径）。这允许您将服务器书签分成多个“配置文件”。将其留空以完全不使用前缀。"
+    "message": "这是此帐户在服务器上运行的路径前缀。例如如果使用''/work'，在服务器上创建所有书签，将在其原始路径的前面加上此路径前缀（相对于您在上面指定的本地文件夹的路径）。这允许您将服务器书签分成多个“配置文件”。将其留空以完全不使用前缀。"
   },
   "LabelLocalfolder": {
     "message": "本地文件夹"
@@ -201,13 +201,13 @@
     "message": "Nextcloud 书签"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "“Nextcloud Bookmarks”选项至少需要Bookmarks app v0.14版本。"
+    "message": "“Nextcloud 书签”选项至少需要Bookmarks app v0.14版本。"
   },
   "LabelAdapternextcloud": {
-    "message": "Nextcloud Bookmarks (legacy)"
+    "message": "Nextcloud 书签（旧版）"
   },
   "DescriptionAdapternextcloud": {
-    "message": "传统选项至少与书签应用程序的v0.11版本兼容。它将使用包含文件夹路径的标记来模拟文件夹。不建议用于新帐户。"
+    "message": "旧版选项至少与书签应用程序的v0.11版本兼容。它将使用包含文件夹路径的标记来模拟文件夹。不建议用于新帐户。"
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV共享中的XBEL文件"
@@ -335,5 +335,14 @@
   },
   "DescriptionNoAccount": {
     "message": "创建新帐户以同步书签。"
+  },
+  "LabelLoginFlowStart": {
+    "message": "以 Nextcloud login flow 登录"
+  },
+  "LabelLoginFlowStop": {
+    "message": "中止 Nextcloud login flow"
+  },
+  "LabelLoginFlowError": {
+    "message": "Nextcloud login flow 登录失败。"
   }
 }
