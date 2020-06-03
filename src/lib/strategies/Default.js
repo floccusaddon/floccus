@@ -245,6 +245,7 @@ export default class SyncProcess {
       localItem &&
       !(await this.folderHasChanged(localItem, cacheItem, serverItem)).changed
     ) {
+      this.done += localItem.count()
       return
     }
     Logger.log('LOADCHILDREN', serverItem)
@@ -294,7 +295,7 @@ export default class SyncProcess {
         return
       }
 
-      await this.moveFolderLock.acquire(localFolder.id, async () => {
+      await this.moveFolderLock.acquire(localFolder.id, async() => {
         if (oldFolder.moved) {
           // local changes are dealt with first, so this is deterministic
           Logger.log(
@@ -326,7 +327,7 @@ export default class SyncProcess {
           })
         }
 
-        if ('function' === typeof folder.moved) {
+        if (typeof folder.moved === 'function') {
           folder.moved()
         }
 
@@ -479,8 +480,8 @@ export default class SyncProcess {
     )
     let removedLocally = cacheItem
       ? cacheItem.children.filter(
-          cache => !localItem.children.some(local => local.id === cache.id)
-        )
+        cache => !localItem.children.some(local => local.id === cache.id)
+      )
       : []
     let createdUpstream = serverItem.children.filter(
       child =>
@@ -492,13 +493,13 @@ export default class SyncProcess {
     )
     let removedUpstream = cacheItem
       ? cacheItem.children.filter(
-          cache =>
-            !serverItem.children.some(
-              server =>
-                mappingsSnapshot.ServerToLocal[cache.type + 's'][server.id] ===
+        cache =>
+          !serverItem.children.some(
+            server =>
+              mappingsSnapshot.ServerToLocal[cache.type + 's'][server.id] ===
                 cache.id
-            )
-        )
+          )
+      )
       : []
     let createdLocallyAndUpstream = createdLocally.filter(local =>
       createdUpstream.some(
@@ -534,7 +535,7 @@ export default class SyncProcess {
       this.concurrency
     )
     await Promise.all([
-      (async () => {
+      (async() => {
         // CREATED LOCALLY
         await Parallel.each(
           createdLocally,
@@ -550,7 +551,7 @@ export default class SyncProcess {
           this.concurrency
         )
       })(),
-      (async () => {
+      (async() => {
         // REMOVED LOCALLY
         await Parallel.each(
           removedLocally,
@@ -575,7 +576,7 @@ export default class SyncProcess {
           this.concurrency
         )
       })(),
-      (async () => {
+      (async() => {
         // CREATED UPSTREAM
         await Parallel.each(
           createdUpstream,
@@ -591,7 +592,7 @@ export default class SyncProcess {
           this.concurrency
         )
       })(),
-      (async () => {
+      (async() => {
         // REMOVED UPSTREAM
         await Parallel.each(
           removedUpstream,
@@ -611,7 +612,7 @@ export default class SyncProcess {
           this.concurrency
         )
       })(),
-      (async () => {
+      (async() => {
         // RECURSE EXISTING ITEMS
         await Parallel.each(
           existingItems,
@@ -625,9 +626,9 @@ export default class SyncProcess {
 
             const cacheChild = cacheItem
               ? _.find(
-                  cacheItem.children,
-                  cacheChild => cacheChild.id === existingChild.id
-                )
+                cacheItem.children,
+                cacheChild => cacheChild.id === existingChild.id
+              )
               : null
             Logger.log('Present upstream and locally:', {
               localChild: existingChild,
@@ -780,7 +781,7 @@ export default class SyncProcess {
         return
       }
 
-      await this.moveFolderLock.acquire(localFolder.id, async () => {
+      await this.moveFolderLock.acquire(localFolder.id, async() => {
         if (newFolder.moved) {
           Logger.log(
             'remove branch: This folder was moved in fromTree and has been dealt with'
@@ -873,7 +874,7 @@ export default class SyncProcess {
         ? oldMark
         : bookmark
 
-      await this.moveFolderLock.acquire(localBookmark.id, async () => {
+      await this.moveFolderLock.acquire(localBookmark.id, async() => {
         Logger.log(
           'create branch: This bookmark was moved here from somewhere else in from tree'
         )
@@ -898,7 +899,7 @@ export default class SyncProcess {
           })
         }
 
-        if ('function' === typeof bookmark.moved) {
+        if (typeof bookmark.moved === 'function') {
           bookmark.moved()
         }
 
@@ -1025,7 +1026,7 @@ export default class SyncProcess {
       const localBookmark = this.localTreeRoot.findBookmark(newMark.id)
         ? newMark
         : bookmark
-      await this.moveFolderLock.acquire(localBookmark.id, async () => {
+      await this.moveFolderLock.acquire(localBookmark.id, async() => {
         if (newMark.moved) {
           Logger.log(
             'remove branch: This bookmark was moved away from here in fromTree and has been dealt with'

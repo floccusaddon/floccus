@@ -90,6 +90,26 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "tkurbad",
+      "name": "Torsten Kurbad",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/158030?v=4",
+      "profile": "https://github.com/tkurbad",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "gerroon",
+      "name": "gerroon",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/8519469?v=4",
+      "profile": "https://github.com/gerroon",
+      "contributions": [
+        "bug"
+      ]
     }
-  ]
+  ],
+  "skipCi": true,
+  "contributorsPerLine": 7
 }

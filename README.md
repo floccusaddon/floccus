@@ -8,11 +8,11 @@ The goal of this project is to build a browser extension that syncs your browser
 
 **News:** Floccus can now sync with the local file system using LoFloccus (read below).
 
-[![Build Status](https://travis-ci.org/marcelklehr/floccus.svg?branch=develop)](https://travis-ci.org/marcelklehr/floccus)
+[![Tests](https://github.com/marcelklehr/floccus/workflows/Tests/badge.svg)](https://github.com/marcelklehr/floccus/actions?query=workflow%3ATests)
 
-[![Chrome Webstore](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|[![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)|
-|---|-----|
-|<img align="left" src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="right" src="https://img.shields.io/chrome-web-store/rating/fnaicdffflnofjppbagibeoednhnbjhg.svg">| <img align="left" src="https://img.shields.io/amo/users/floccus.svg"> <img align="right" src="https://img.shields.io/amo/rating/floccus.svg">|
+[![Chrome Webstore](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|[![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)|[<img alt="Microsoft Edge" src="https://developer.microsoft.com/en-us/store/badges/images/English_get-it-from-MS.png" height="45" />](https://microsoftedge.microsoft.com/addons/detail/gjkddcofhiifldbllobcamllmanombji)|
+|---|-----|---|
+|<img align="left" src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="right" src="https://img.shields.io/chrome-web-store/rating/fnaicdffflnofjppbagibeoednhnbjhg.svg">| <img align="left" src="https://img.shields.io/amo/users/floccus.svg"> <img align="right" src="https://img.shields.io/amo/rating/floccus.svg">||
 
 ## Community
 
@@ -38,8 +38,7 @@ Floccus is regularly tested with the following setups:
 
 |Nextcloud|Bookmarks|
 |---|---|
-|v14|v1.1.2|
-|v15|v2.3.4|
+|v16|v1.1.2|
 |v16|v2.3.4|
 |v17|v2.3.4|
 |v18|v2.3.4|
@@ -167,11 +166,27 @@ If you'd like to support the creation and maintenance of this software, please c
 This project exists thanks to all the people who contribute.
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore -->
-| [<img src="https://avatars2.githubusercontent.com/u/7296506?v=4" width="70px;" alt="Bernd Wechner"/><br /><sub><b>Bernd Wechner</b></sub>](https://github.com/bernd-wechner)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3Abernd-wechner "Bug reports") [🤔](#ideas-bernd-wechner "Ideas, Planning, & Feedback") [⚠️](https://github.com/marcelklehr/floccus/commits?author=bernd-wechner "Tests") | [<img src="https://avatars0.githubusercontent.com/u/9746421?v=4" width="70px;" alt="jlbprof"/><br /><sub><b>jlbprof</b></sub>](https://github.com/jlbprof)<br />[💻](https://github.com/marcelklehr/floccus/commits?author=jlbprof "Code") [🐛](https://github.com/marcelklehr/floccus/issues?q=author%3Ajlbprof "Bug reports") [⚠️](https://github.com/marcelklehr/floccus/commits?author=jlbprof "Tests") | [<img src="https://avatars2.githubusercontent.com/u/1771400?v=4" width="70px;" alt="TeutonJon78"/><br /><sub><b>TeutonJon78</b></sub>](https://github.com/TeutonJon78)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3ATeutonJon78 "Bug reports") [🤔](#ideas-TeutonJon78 "Ideas, Planning, & Feedback") | [<img src="https://avatars1.githubusercontent.com/u/9087223?v=4" width="70px;" alt="Scott P."/><br /><sub><b>Scott P.</b></sub>](https://github.com/skewty)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3Askewty "Bug reports") [🤔](#ideas-skewty "Ideas, Planning, & Feedback") | [<img src="https://avatars1.githubusercontent.com/u/10448369?v=4" width="70px;" alt="Lantizia"/><br /><sub><b>Lantizia</b></sub>](https://github.com/Lantizia)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3ALantizia "Bug reports") [🤔](#ideas-Lantizia "Ideas, Planning, & Feedback") | [<img src="https://avatars1.githubusercontent.com/u/6315832?v=4" width="70px;" alt="TCB13"/><br /><sub><b>TCB13</b></sub>](https://iklive.eu)<br />[💻](https://github.com/marcelklehr/floccus/commits?author=TCB13 "Code") [🤔](#ideas-TCB13 "Ideas, Planning, & Feedback") [🔌](#plugin-TCB13 "Plugin/utility libraries") [🌍](#translation-TCB13 "Translation") | [<img src="https://avatars0.githubusercontent.com/u/26199042?v=4" width="70px;" alt="gohrner "/><br /><sub><b>gohrner </b></sub>](https://github.com/gohrner)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3Agohrner "Bug reports") |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| [<img src="https://avatars0.githubusercontent.com/u/5893370?v=4" width="70px;" alt="Tank-Missile"/><br /><sub><b>Tank-Missile</b></sub>](https://github.com/Tank-Missile)<br />[🐛](https://github.com/marcelklehr/floccus/issues?q=author%3ATank-Missile "Bug reports") |
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/bernd-wechner"><img src="https://avatars2.githubusercontent.com/u/7296506?v=4" width="70px;" alt=""/><br /><sub><b>Bernd Wechner</b></sub></a><br /><a href="https://github.com/marcelklehr/floccus/issues?q=author%3Abernd-wechner" title="Bug reports">🐛</a> <a href="#ideas-bernd-wechner" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/marcelklehr/floccus/commits?author=bernd-wechner" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/jlbprof"><img src="https://avatars0.githubusercontent.com/u/9746421?v=4" width="70px;" alt=""/><br /><sub><b>jlbprof</b></sub></a><br /><a href="https://github.com/marcelklehr/floccus/commits?author=jlbprof" title="Code">💻</a> <a href="https://github.com/marcelklehr/floccus/issues?q=author%3Ajlbprof" title="Bug reports">🐛</a> <a href="https://github.com/marcelklehr/floccus/commits?author=jlbprof" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/TeutonJon78"><img src="https://avatars2.githubusercontent.com/u/1771400?v=4" width="70px;" alt=""/><br /><sub><b>TeutonJon78</b></sub></a><br /><a href="https://github.com/marcelklehr/floccus/issues?q=author%3ATeutonJon78" title="Bug reports">🐛</a> <a href="#ideas-TeutonJon78" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="https://github.com/skewty"><img src="https://avatars1.githubusercontent.com/u/9087223?v=4" width="70px;" alt=""/><br /><sub><b>Scott P.</b></sub></a><br /><a href="https://github.com/marcelklehr/floccus/issues?q=author%3Askewty" title="Bug reports">🐛</a> <a href="#ideas-skewty" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="https://github.com/Lantizia"><img src="https://avatars1.githubusercontent.com/u/10448369?v=4" width="70px;" alt=""/><br /><sub><b>Lantizia</b></sub></a><br /><a href="https://github.com/marcelklehr/floccus/issues?q=author%3ALantizia" title="Bug reports">🐛</a> <a href="#ideas-Lantizia" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="https://iklive.eu"><img src="https://avatars1.githubusercontent.com/u/6315832?v=4" width="70px;" alt=""/><br /><sub><b>TCB13</b></sub></a><br /><a href="https://github.com/marcelklehr/floccus/commits?author=TCB13" title="Code">💻</a> <a href="#ideas-TCB13" title="Ideas, Planning, & Feedback">🤔</a> <a href="#plugin-TCB13" title="Plugin/utility libraries">🔌</a> <a href="#translation-TCB13" title="Translation">🌍</a></td>
+    <td align="center"><a href="https://github.com/gohrner"><img src="https://avatars0.githubusercontent.com/u/26199042?v=4" width="70px;" alt=""/><br /><sub><b>gohrner </b></sub></a><br /><a href="https://github.com/marcelklehr/floccus/issues?q=author%3Agohrner" title="Bug reports">🐛</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/Tank-Missile"><img src="https://avatars0.githubusercontent.com/u/5893370?v=4" width="70px;" alt=""/><br /><sub><b>Tank-Missile</b></sub></a><br /><a href="https://github.com/marcelklehr/floccus/issues?q=author%3ATank-Missile" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/tkurbad"><img src="https://avatars1.githubusercontent.com/u/158030?v=4" width="70px;" alt=""/><br /><sub><b>Torsten Kurbad</b></sub></a><br /><a href="https://github.com/marcelklehr/floccus/issues?q=author%3Atkurbad" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/gerroon"><img src="https://avatars1.githubusercontent.com/u/8519469?v=4" width="70px;" alt=""/><br /><sub><b>gerroon</b></sub></a><br /><a href="https://github.com/marcelklehr/floccus/issues?q=author%3Agerroon" title="Bug reports">🐛</a></td>
+  </tr>
+</table>
 
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification.

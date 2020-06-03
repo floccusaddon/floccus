@@ -111,7 +111,7 @@
     "message": "Local folder"
   },
   "DescriptionLocalfolder": {
-    "message": "This is the local bookmarks folder in this browser that will be synced to the server. By default a new folder will be created for you. (Note: You can now sync the root folder across different browser vendors out of the box.)"
+    "message": "This is the local bookmarks folder in this browser that will be synced to the server. By default a new empty folder will be created for you in this browser, if you want to sync an existing folder, select it here. (Note: You can now sync the root folder across different browser vendors out of the box.)"
   },
   "LabelRootfolder": {
     "message": "Root folder"
@@ -221,6 +221,9 @@
   "LabelSecurecredentials": {
     "message": "Secure your credentials"
   },
+  "LabelSecuredcredentials": {
+    "message": "Your credentials are secure"
+  },
   "LabelOpenintab": {
     "message": "Open in tab"
   },
@@ -231,7 +234,7 @@
     "message": "Fund development"
   },
   "DescriptionFunddevelopment": {
-    "message": "Put your money where your mouth is and give something back to the creator of floccus to support the creation and maintenance of this project financially. Any amount, no matter how small, is appreciated. Thank you 💙"
+    "message": "I'm using this opportunity to ask you for a donation in order to support the maintenance of this project and make this endeavor more sustainable. You can find the supported payment providers below. Any amount is appreciated. Thank you!💙"
   },
   "LabelSelect": {
     "message": "Select"
@@ -253,6 +256,12 @@
   },
   "LabelUnlock": {
     "message": "Unlock floccus"
+  },
+  "LabelRemovekey": {
+    "message": "Remove pass phrase"
+  },
+  "LabelRemovedkey": {
+    "message": "Pass phrase removed"
   },
   "LabelSyncinterval": {
     "message": "Synchronization interval"
@@ -292,6 +301,48 @@
     "message": "Make a regular donation via GitHub sponsors to support the project"
   },
   "LegacyAdapterDeprecation": {
-    "message": "Warning! This legacy account type is deprecated and will soon be removed. Please switch to the new nextcloud sync method. Improved performance and accuracy await you."
+    "message": "This legacy account type is deprecated and will soon be removed. Please switch to the new nextcloud sync method. Improved performance and accuracy await you."
+  },
+  "LabelUpdated": {
+    "message": "Floccus was updated"
+  },
+  "DescriptionUpdated": {
+    "message": "Congrats, the latest update of floccus has arrived on your machine!"
+  },
+  "LabelReleaseNotes": {
+    "message": "Read release notes"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "Server details"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "Folder mapping"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "Sync behavior"
+  },
+  "LabelOptionsDangerous": {
+    "message": "Dangerous actions"
+  },
+  "LabelAccountDeleted": {
+    "message": "Account deleted"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "This account was deleted"
+  },
+  "LabelNoAccount": {
+    "message": "No accounts here"
+  },
+  "DescriptionNoAccount": {
+    "message": "Create a new account to sync your bookmarks."
+  },
+  "LabelLoginFlowStart": {
+    "message": "Sign in with Nextcloud login flow"
+  },
+  "LabelLoginFlowStop": {
+    "message": "Abort Nextcloud login flow"
+  },
+  "LabelLoginFlowError": {
+    "message": "Nextcloud login flow failed."
   }
 }

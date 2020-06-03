@@ -23,6 +23,9 @@ export default class CachingAdapter extends Adapter {
   }
 
   acceptsBookmark(bm) {
+    if (bm.url === 'data:') {
+      return false
+    }
     return ~['https:', 'http:', 'ftp:', 'data:', 'javascript:'].indexOf(
       url.parse(bm.url).protocol
     )
@@ -206,7 +209,7 @@ export default class CachingAdapter extends Adapter {
     // clone and adjust ids
     const imported = folder.clone()
     imported.id = id
-    await imported.traverse(async (item, parentFolder) => {
+    await imported.traverse(async(item, parentFolder) => {
       item.id = ++this.highestId
       item.parentId = parentFolder.id
     })

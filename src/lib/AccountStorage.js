@@ -12,7 +12,7 @@ export default class AccountStorage {
   }
 
   static async changeEntry(entryName, fn, defaultVal) {
-    await storageLock.acquire(entryName, async () => {
+    await storageLock.acquire(entryName, async() => {
       let entry = await AccountStorage.getEntry(entryName, defaultVal)
       entry = fn(entry)
 
@@ -79,7 +79,7 @@ export default class AccountStorage {
     await this.deleteMappings()
   }
 
-  async initCache(data) {
+  async initCache() {
     await AccountStorage.changeEntry(
       `bookmarks[${this.accountId}].cache`,
       () => ({})
@@ -104,7 +104,7 @@ export default class AccountStorage {
     await AccountStorage.deleteEntry(`bookmarks[${this.accountId}].cache`)
   }
 
-  async initMappings(data) {
+  async initMappings() {
     await AccountStorage.changeEntry(
       `bookmarks[${this.accountId}].mappings`,
       () => ({})
@@ -120,15 +120,15 @@ export default class AccountStorage {
       data && Object.keys(data).length
         ? data
         : {
-            bookmarks: {
-              ServerToLocal: {},
-              LocalToServer: {}
-            },
-            folders: {
-              ServerToLocal: {},
-              LocalToServer: {}
-            }
+          bookmarks: {
+            ServerToLocal: {},
+            LocalToServer: {}
+          },
+          folders: {
+            ServerToLocal: {},
+            LocalToServer: {}
           }
+        }
     )
   }
 

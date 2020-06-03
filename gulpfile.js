@@ -11,19 +11,19 @@ const VERSION = require('./package.json').version
 const paths = {
   zip: [
     './**',
-    //'!dist/js/test.js', // only for releases
+    (process.env['CI'] ? '' : '!') + 'dist/js/test.js',
     '!builds/**',
     '!src/**',
     '!node_modules/**',
     '!img/**',
     '!ISSUE_TEMPLATE.md',
     '!gulpfile.js',
-    '!key.pem'
+    '!key.pem',
   ],
-  views: './views/*.html',
+  views: './html/*.html',
   entries: 'src/entries/*.js',
   js: 'src/**',
-  builds: './builds/'
+  builds: './builds/',
 }
 const WEBSTORE_ID = 'fnaicdffflnofjppbagibeoednhnbjhg'
 
@@ -33,13 +33,15 @@ try {
   WEBSTORE_CREDENTIALS = require('./builds/google-api.json')
   webstore = webstoreClient(
     Object.assign({}, WEBSTORE_CREDENTIALS, {
-      extensionId: WEBSTORE_ID
+      extensionId: WEBSTORE_ID,
     })
   )
-} catch (e) {}
+} catch (e) {
+  // noop
+}
 
 const js = function() {
-  return new Promise(resolve =>
+  return new Promise((resolve) =>
     webpack(config, (err, stats) => {
       if (err) console.log('Webpack', err)
 
@@ -55,7 +57,7 @@ const js = function() {
 }
 
 const devjs = function() {
-  return new Promise(resolve =>
+  return new Promise((resolve) =>
     webpack(devConfig, (err, stats) => {
       if (err) console.log('Webpack', err)
 
@@ -116,7 +118,7 @@ const crx = function() {
     fs.createReadStream(`${paths.builds}/floccus-build-v${VERSION}.zip`),
     {
       keyPath: 'key.pem',
-      crxPath: `${paths.builds}/floccus-build-v${VERSION}.crx`
+      crxPath: `${paths.builds}/floccus-build-v${VERSION}.crx`,
     }
   )
 }

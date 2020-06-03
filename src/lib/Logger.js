@@ -1,4 +1,6 @@
+/* global DEBUG */
 import AccountStorage from './AccountStorage'
+import { throttle } from 'throttle-debounce'
 import util from 'util'
 
 const packageJson = require('../../package.json')
@@ -10,6 +12,7 @@ export default class Logger {
     // log to console
     DEBUG && console.log.apply(console, logMsg)
     this.messages.push(util.format.apply(util, logMsg)) // TODO: Use a linked list here to get O(n)
+    this.persistThrottled()
   }
 
   static async persist() {
@@ -59,5 +62,5 @@ export default class Logger {
     document.body.removeChild(element)
   }
 }
-
 Logger.messages = []
+Logger.persistThrottled = throttle(500, false,() => Logger.persist())

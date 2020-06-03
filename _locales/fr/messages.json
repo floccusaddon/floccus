@@ -27,13 +27,13 @@
     "message": "E009: Le répertoire de destination n'existe pas"
   },
   "Error010": {
-    "message": "E010: Impossible de trouver de dossier à ranger"
+    "message": "E010: Impossible de trouver le dossier à trier"
   },
   "Error011": {
-    "message": "E011: L'élément dans le dossier en cours de rangement n'est pas un fils réel: $1"
+    "message": "E011: L'élément dans le dossier en cours de tri n'en est pas un membre réel: $1"
   },
   "Error012": {
-    "message": "E012: Il manque  certains de ses fils du dossier en cours de rangement"
+    "message": "E012: Il manque certains de ses sous-éléments au dossier en cours de tri"
   },
   "Error013": {
     "message": "E013: Le dossier à supprimer n'existe pas"
@@ -54,22 +54,22 @@
     "message": "E018: Impossible de s'authentifier sur le serveur"
   },
   "Error019": {
-    "message": "E019: Statut HTTP: $1 Requête $2en erreur. Vérifiez votre configuration serveur et votre journal"
+    "message": "E019: Statut HTTP: $1 Requête $2en erreur. Vérifiez la configuration de votre serveur et votre journal"
   },
   "Error020": {
     "message": "E020: Impossible de lire la réponse du serveur. L'application de marque-pages est elle installée sur votre serveur?"
   },
   "Error021": {
-    "message": "E021: État serveur incohérent. Le dossier est présent dans la liste des fils mais pas dans l'arborescence"
+    "message": "E021: État incohérent du serveur. Le dossier est présent dans la liste des membres mais pas dans l'arborescence"
   },
   "Error022": {
-    "message": "E022: Le serveur $1est censé contenir le marque page $2qui n'existe pas"
+    "message": "E022: Le dossier $1est censé contenir le marque page $2qui n'existe pas"
   },
   "Error023": {
-    "message": "E023: Impossible de libérer le fichier verrou. Essayez de supprimer $1 manuellement."
+    "message": "E023: Impossible de libérer le fichier verrouillé. Essayez de supprimer $1 manuellement."
   },
   "Error024": {
-    "message": "E024: Statut HTTP $1 en essayant de déterminer l'état du fichier verro $2"
+    "message": "E024: Statut HTTP $1 en essayant de déterminer l'état du fichier verrouillé $2"
   },
   "Error025": {
     "message": "E025: Le fichier de paramètre des marque-pages ne doit pas commencer par un slash '/'"
@@ -84,34 +84,34 @@
     "message": "URL WevDAV"
   },
   "DescriptionWebdavurl": {
-    "message": "Par ex. avext Nextcloud: https://votre-domaine.com/remote.php/webdav/"
+    "message": "Par ex. avec Nextcloud: https://votre-domaine.com/remote.php/webdav/"
   },
   "LabelNextcloudurl": {
     "message": "URL Nextcloud"
   },
   "LabelUsername": {
-    "message": "Utilisateur"
+    "message": "Nom d'utilisateur"
   },
   "LabelPassword": {
     "message": "Mot de passe"
   },
   "LabelBookmarksfile": {
-    "message": "Chemin du fichier de marque-pages"
+    "message": "Chemin d'accès vers les marque-pages"
   },
   "DescriptionBookmarksfile": {
-    "message": "un chemin vers le fichier de marque-pages correspondant à votre URL WebDAV (tous les dossiers dans le chemin doivent exister). Par ex. documents...personnels/bookmarks.xbel"
+    "message": "un chemin d'accès vers le fichier de marque-pages par rapport à votre URL WebDAV (tous les dossiers dans le chemin doivent déjà exister). Par ex. documents...personnels/bookmarks.xbel"
   },
   "LabelServerfolder": {
     "message": "Dossier serveur"
   },
   "DescriptionServerfolder": {
-    "message": "C'est le préfixe de chemin sous lequel ce compte échangera avec le serveur. Par ex. si vous utilisez \"travail\", tous vos marques-pages seront créés sur le serveur avec le chemin original préfixé par ce chemin (correspondant au répertoire local que vous avez précisé au-dessus). Cela permet de séparer vos marques-pages sur le serveur dans plusieurs 'profils'. Laisser ce paramètre vide si vous ne voulez pas utiliser de préfixe."
+    "message": "C'est le préfixe du chemin d'accès sous lequel ce compte échangera avec le serveur. Par ex. si vous utilisez \"/travail\", tous vos marques-pages seront créés sur le serveur avec le chemin original, préfixé par ce chemin (correspondant au répertoire local que vous avez précisé au-dessus). Cela permet de séparer vos marques-pages sur le serveur dans plusieurs 'profils'. Laisser ce paramètre vide si vous ne voulez pas utiliser de préfixe."
   },
   "LabelLocalfolder": {
     "message": "Répertoire local"
   },
   "DescriptionLocalfolder": {
-    "message": "C'est le répertoire des marque-pages locaux de ce navigateur qui sera synchronisé avec le serveur. Par défaut un nouveau répertoire sera créé. (Note: vous pouvez dès maintenant synchroniser le répertoire racine avec différents navigateurs sans rien faire de plus)"
+    "message": "Ceci est le dossier de marque-pages local du navigateur qui sera synchronisé avec le serveur. Par défaut, un nouveau dossier vide sera créé pour vous dans ce navigateur. Si vous souhaitez synchroniser un dossier existant, sélectionnez-le ici. (Note: Vous pouvez dès maintenant synchroniser le dossier racine avec plusieurs navigateurs différents.)"
   },
   "LabelRootfolder": {
     "message": "Répertoire racine"
@@ -121,6 +121,9 @@
   },
   "LabelSyncnow": {
     "message": "Synchroniser maintenant"
+  },
+  "LabelCancelsync": {
+    "message": "Annuler la synchronisation"
   },
   "LabelEnabled": {
     "message": "Activé"
@@ -141,7 +144,7 @@
     "message": "Erreur"
   },
   "StatusSyncing": {
-    "message": "Synchronisation en cours"
+    "message": "Synchronisation"
   },
   "LabelReset": {
     "message": "Réinitialisation"
@@ -162,16 +165,31 @@
     "message": "Supprimer ce compte (cela ne supprimera pas vos marque-pages)"
   },
   "LabelResetCache": {
-    "message": "Déclenchez une nouvelle synchronisation"
+    "message": "Reprendre toute la synchronisation depuis le début"
   },
   "DescriptionResetcache": {
-    "message": "Cochez cette case pour réinitialiser le cache pour que la prochaine synchronisation ne supprime aucune donnée et se contente de fusionner les données serveur et les marque-pages locaux ensemble"
+    "message": "Cochez cette case pour réinitialiser le cache, assurer que la prochaine synchronisation ne supprime aucune donnée et se limite à fusionner les données serveur et les marque-pages locaux ensemble"
   },
   "LabelParallelsync": {
     "message": "Accélérer la synchronisation"
   },
   "DescriptionParallelsync": {
     "message": "Cochez cette case pour traiter plusieurs dossiers en parallèle afin d'accélérer la synchronisation. Cette fonctionnalité est expérimentale et rend plus difficile la lecture des journaux de débogage."
+  },
+  "LabelStrategy": {
+    "message": "Stratégie de synchronisation"
+  },
+  "DescriptionStrategy": {
+    "message": "Cette option détermine comment synchroniser l'arborescence des marque-pages du serveur et celle dans ce navigateur. Normalement, vous voudrez conserver les modifications aux deux arborescences si elles sont compatibles, mais parfois, vous pouvez vouloir imposer la version locale au serveur, ou inversement."
+  },
+  "LabelStrategydefault": {
+    "message": "Fusionner les modifications locales et distantes (recommandé)"
+  },
+  "LabelStrategyslave": {
+    "message": "Toujours écraser et remplacer les changements locaux"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "Toujours écraser et remplacer les changements distants"
   },
   "LabelSave": {
     "message": "Sauvegarder"
@@ -212,6 +230,9 @@
   "LabelFunddevelopment": {
     "message": "Financez le développement"
   },
+  "DescriptionFunddevelopment": {
+    "message": "J'ai tenté d'améliorer votre expérience avec les marque-pages à la fois dans Nextcloud avec l'application Marque-page et dans votre navigateur avec Floccus depuis ces dernières années. Une mission qui est à la fois amusante mais qui demande aussi un temps considérable.\n\nJ'utilise donc cette opportunité pour vous demander un don dans le but de soutenir l'évolution de ce projet et rendre cette mission plus réalisable. Vous pouvez trouver les fournisseurs de paiements supportés plus bas. Chaque montant, aussi petit soit-il, est apprécié. Merci 💙💙"
+  },
   "LabelSelect": {
     "message": "Sélectionner"
   },
@@ -238,5 +259,48 @@
   },
   "DescriptionSyncinterval": {
     "message": "Intervalle entre deux synchronisations. 15 minutes par défaut."
-  }
+  },
+  "LabelChooseadapter": {
+    "message": "Comment voulez-vous synchroniser ?"
+  },
+  "LabelOptionsscreen": {
+    "message": "Options $1",
+    "description": "Title of the options screen. The placeholder holds the account type."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "Faire une donation unique via Paypal pour aider le projet"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "Faire un don récurrent via OpenCollective pour aider le projet"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "Faire un don récurrent via Liberapay pour aider le projet"
+  },
+  "LabelGithubsponsors": {
+    "message": "Commanditaires de GitHub"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "Faire un don récurrent via les commanditaires de GitHub pour aider le projet"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "Attention! Cet ancien type de compte est déconseillé et ne sera plus supporté sous peu. Veuillez migrer vers la nouvelle méthode de synchronisation Nextcloud. Une meilleure performance et une meilleure précision vous y attendent."
+  },
+  "LabelUpdated": {
+    "message": "Floccus a été mis à jour"
+  },
+  "DescriptionUpdated": {
+    "message": "Félicitation! La dernière mise-à-jour de Floccus est maintenant installée dans votre système!  🎉"
+  },
+  "LabelReleaseNotes": {
+  "message": "Lire les notes de publication"
+}
 }

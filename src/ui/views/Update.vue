@@ -1,0 +1,100 @@
+<template>
+  <v-container>
+    <v-card
+      class="options mt-3">
+      <v-container class="pa-5">
+        <v-card-title>
+          {{ t("LabelUpdated") }}
+        </v-card-title>
+        <v-card-text>
+          <div class="body-1">
+            {{ t('DescriptionUpdated') }}
+          </div>
+          <v-btn
+            class="primary mt-2"
+            target="_blank"
+            :href="`https://github.com/marcelklehr/floccus/releases/tag/v${VERSION}`">
+            {{ t('LabelReleaseNotes') }}
+          </v-btn>
+        </v-card-text>
+        <v-card-title>
+          {{ t("LabelFunddevelopment") }}
+        </v-card-title>
+        <v-card-text>
+          <div class="body-1">
+            {{ t("DescriptionFunddevelopment") }}
+          </div>
+          <div class="d-flex flex-wrap mt-4">
+            <v-card
+              v-for="processor in paymentOptions"
+              :key="processor.label"
+              tile
+              flat
+              :color="'light-blue'"
+              class="mr-2 mb-2"
+              target="_blank"
+              width="48%"
+              :href="processor.href">
+              <v-card-title class="white--text">
+                {{ processor.label }}
+              </v-card-title>
+              <v-card-text class="white--text">
+                {{ processor.description }}
+              </v-card-text>
+            </v-card>
+          </div>
+        </v-card-text>
+      </v-container>
+    </v-card>
+  </v-container>
+</template>
+
+<script>
+import {version as VERSION} from '../../../package.json'
+import browser from '../../lib/browser-api'
+
+export default {
+  name: 'Update',
+  components: {},
+  data() {
+    return {
+      paymentOptions: [
+        {
+          href: 'https://www.paypal.me/marcelklehr1',
+          label: browser.i18n.getMessage('LabelPaypal'),
+          description: browser.i18n.getMessage('DescriptionPaypal')
+        },
+        {
+          href: 'https://opencollective.com/floccus',
+          label: browser.i18n.getMessage('LabelOpencollective'),
+          description: browser.i18n.getMessage('DescriptionOpencollective')
+        },
+        {
+          href: 'https://liberapay.com/marcelklehr/donate',
+          label: browser.i18n.getMessage('LabelLiberapay'),
+          description: browser.i18n.getMessage('DescriptionLiberapay')
+        },
+        {
+          href: 'https://github.com/users/marcelklehr/sponsorship',
+          label: browser.i18n.getMessage('LabelGithubsponsors'),
+          description: browser.i18n.getMessage('DescriptionGithubsponsors')
+        }
+      ]
+    }
+  },
+  computed: {
+    VERSION() {
+      return VERSION
+    }
+  },
+  methods: {
+  }
+}
+</script>
+
+<style scoped>
+    .options {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+</style>

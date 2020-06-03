@@ -89,6 +89,12 @@ export default class Controller {
       await browser.storage.local.set({
         currentVersion: packageJson.version
       })
+
+      browser.tabs.create({
+        url: './options.html#/update',
+        title: browser.i18n.getMessage('LabelUpdated'),
+        discarded: true
+      })
     })
 
     // migrate from localForage back to extension storage
@@ -103,9 +109,7 @@ export default class Controller {
         return localForage.removeItem('accounts')
       })
 
-    this.alarms.checkSync()
-
-    setInterval(() => this.updateStatus(), 1000)
+    setInterval(() => this.updateStatus(), 10000)
   }
 
   setEnabled(enabled) {
@@ -122,26 +126,30 @@ export default class Controller {
       hashedKey
     )
     await browser.storage.local.set({ accountsLocked: encryptedHash })
-    await Promise.all(accounts.map(a => a.setData(a.getData())))
+    if (accounts.length) {
+      await Promise.all(accounts.map(a => a.setData(a.getData())))
+    }
 
-    // ...aand lock it immediately.
-    this.key = null
-    this.unlocked = false
-    this.setEnabled(false)
+    // ...aand unlock it immediately.
+    this.key = key
+    this.unlocked = true
+    this.setEnabled(true)
   }
 
   async unlock(key) {
-    let d = await browser.storage.local.get('accountsLocked')
-    let hashedKey = await Cryptography.sha256(key)
-    let decryptedHash = await Cryptography.decryptAES(
-      key,
-      Cryptography.iv,
-      d.accountsLocked
-    )
-    if (decryptedHash !== hashedKey) {
-      throw new Error('The provided key was wrong')
+    let d = await browser.storage.local.get({'accountsLocked': null})
+    if (d.accountsLocked) {
+      let hashedKey = await Cryptography.sha256(key)
+      let decryptedHash = await Cryptography.decryptAES(
+        key,
+        Cryptography.iv,
+        d.accountsLocked
+      )
+      if (decryptedHash !== hashedKey) {
+        throw new Error('The provided key was wrong')
+      }
+      this.key = key
     }
-    this.key = key
     this.unlocked = true
     this.setEnabled(true)
   }
@@ -197,20 +205,22 @@ export default class Controller {
       return
     }
 
-    const containingAccount = await Account.getAccountContainingLocalId(
+    const containingAccounts = await Account.getAccountsContainingLocalId(
       localId,
       ancestors,
       allAccounts
     )
-    if (
-      containingAccount &&
-      !containingAccount.getData().syncing &&
-      containingAccount.getData().enabled &&
-      !accountsToSync.some(acc => acc.id === containingAccount.id)
-    ) {
-      this.cancelSync(containingAccount.id, true)
-      this.scheduleSync(containingAccount.id, true)
-    }
+    containingAccounts.forEach(containingAccount => {
+      if (
+        containingAccount &&
+        !containingAccount.getData().syncing &&
+        containingAccount.getData().enabled &&
+        !accountsToSync.some(acc => acc.id === containingAccount.id)
+      ) {
+        this.cancelSync(containingAccount.id, true)
+        this.scheduleSync(containingAccount.id, true)
+      }
+    })
 
     this.setEnabled(true)
   }

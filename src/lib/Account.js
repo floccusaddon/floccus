@@ -49,7 +49,7 @@ export default class Account {
   static getDefaultValues(type) {
     return {
       ...Adapter.factory({ type }).constructor.getDefaultValues(),
-      enabled: true
+      enabled: true,
     }
   }
 
@@ -89,7 +89,7 @@ export default class Account {
     if (!(await this.isInitialized())) return false
     let mappings = await this.storage.getMappings()
     return Object.keys(mappings.bookmarks.LocalToServer).some(
-      id => localId === id
+      (id) => localId === id
     )
   }
 
@@ -106,8 +106,8 @@ export default class Account {
       let parentNode = await browser.bookmarks.getTree()
       let bookmarksBar = parentNode[0].children[0]
       let node = await browser.bookmarks.create({
-        title: 'Nextcloud (' + this.getLabel() + ')',
-        parentId: bookmarksBar.id
+        title: 'Floccus (' + this.getLabel() + ')',
+        parentId: bookmarksBar.id,
       })
       accData.localRoot = node.id
       accData.rootPath = await LocalTree.getPathFromLocalId(node.id)
@@ -169,7 +169,7 @@ export default class Account {
         await this.storage.getCache(),
         this.server,
         this.getData().parallel,
-        progress => {
+        (progress) => {
           this.setData({ ...this.getData(), syncing: progress })
         }
       )
@@ -186,7 +186,7 @@ export default class Account {
         ...this.getData(),
         error: null,
         syncing: false,
-        lastSync: Date.now()
+        lastSync: Date.now(),
       })
 
       this.syncing = false
@@ -206,7 +206,7 @@ export default class Account {
       await this.setData({
         ...this.getData(),
         error: message,
-        syncing: false
+        syncing: false,
       })
       this.syncing = false
       if (this.server.onSyncFail) {
@@ -223,7 +223,7 @@ export default class Account {
   static stringifyError(er) {
     if (er.list) {
       return er.list
-        .map(e => {
+        .map((e) => {
           Logger.log(e)
           return this.stringifyError(e)
         })
@@ -239,29 +239,21 @@ export default class Account {
 
   static async getAllAccounts() {
     return Promise.all(
-      (await AccountStorage.getAllAccounts()).map(accountId =>
+      (await AccountStorage.getAllAccounts()).map((accountId) =>
         Account.get(accountId)
       )
     )
   }
 
-  static async getAccountContainingLocalId(localId, ancestors, allAccounts) {
+  static async getAccountsContainingLocalId(localId, ancestors, allAccounts) {
     ancestors = ancestors || (await LocalTree.getIdPathFromLocalId(localId))
     allAccounts = allAccounts || (await this.getAllAccounts())
-    const account = allAccounts
-      .map(account => ({
+    return allAccounts
+      .map((account) => ({
         account,
-        index: ancestors.indexOf(account.getData().localRoot)
+        index: ancestors.indexOf(account.getData().localRoot),
       }))
-      .filter(acc => acc.index !== -1)
-      .reduce(
-        (acc1, acc2) => {
-          if (acc1.index > acc2.index) return acc1
-          else return acc2
-        },
-        { account: null, index: -1 }
-      ).account
-
-    return account
+      .filter((acc) => acc.index !== -1)
+      .map((acc) => acc.account)
   }
 }
