@@ -1,3 +1,24 @@
+## v4.2.0
+
+## Added
+28573b69f81b704df2b83e25bf37f2863546ffe7 Implement nextcloud flow login
+316b69cd36e78471c148e5e973090e5a5abafbd8 Add an update screen
+ Lots of new translations
+
+## Fixed
+4bf16e25d4e0b6f5386adb56614eb245599ec5e0 Fix for separator lines with webdav
+5655e81753c13d9b94b8f6c08bdc1c74949eb569 NextcloudFolders fix non-getChildren algorithm
+
+## Changed
+a658fd02f67335b3c73b3b69e6a3bd7ac456f365 New UI using Vue.js
+85c9caeb9714dc1dfdc5f8164949b9c3346c5b55 Allow syncing the same folder with multiple accounts
+92bc583877359b65153a19c2c55f56ff41f99802 Don't sync immediately on startup
+b7eee8e14534838f875350897576abe01a839b02 Offline Performance: Only poll status every 10s -- real updates will be on demand
+454b8066ffe096c4cb264683adaf09d5c2ad7d17 NextcloudFolders: getSparseBookmarksTree: Don't load too many layers initially
+2758f17fe74d8bb6603a6e674dc31d8e37ec271a Messages: Clarify DescriptionLocalfolder
+956a2b6d22a5023110d5fce4063064c4a54597b9 Improve progress bar update during loadChildren
+
+
 ## v4.1.0
  - FIX AccountStorage: Use JSON
  - FIX Sync: Fix null pointer
