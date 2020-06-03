@@ -13,11 +13,11 @@
             :label="t('LabelNextcloudurl')"
             @input="$emit('input', data)" />
           <NextcloudLogin
-            :password.sync="data.password"
             :username.sync="data.username"
+            :password.sync="data.password"
             :server="data.url"
-            @update:password="$emit('input', data)"
-            @update:username="$emit('input', data)" />
+            @update:username="$emit('input', data)"
+            @update:password="$emit('input', data)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 

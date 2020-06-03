@@ -1,11 +1,11 @@
 <template>
   <div>
     <v-text-field
-      :value="username"
+      v-model="username"
       :label="t('LabelUsername')"
       :loading="isRunning"
       :error-messages="error"
-      @input="$emit('update:username', username)">
+      @input="$emit('update:username', $event)">
       <template slot="append-outer">
         <v-tooltip
           v-if="!isRunning"
@@ -36,10 +36,10 @@
       </template>
     </v-text-field>
     <v-text-field
-      :value="password"
+      v-model="password"
       type="password"
       :label="t('LabelPassword')"
-      @input="$emit('update:password', password)" />
+      @input="$emit('update:password', $event)" />
   </div>
 </template>
 
