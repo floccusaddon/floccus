@@ -153,7 +153,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return childrenOrderJson.data
   }
 
-  async _getChildFolders(folderId, layers) {
+  async _getChildFolders(folderId, layers = 0) {
     const folderJson = await this.sendRequest(
       'GET',
       `index.php/apps/bookmarks/public/rest/v2/folder?root=${folderId}&layers=${layers}`
@@ -386,7 +386,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
         ),
       ])
       const recurseFolders = (folderId, childFolders) => {
-        if (!childFolders) return
+        if (!childFolders) return []
         return childFolders.map((child) => {
           if (child instanceof Folder) {
             return child
