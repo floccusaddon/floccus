@@ -23,9 +23,10 @@ export default class AccountStorage {
   static async getEntry(entryName, defaultVal) {
     let entry = await browser.storage.local.get(entryName)
     if (entry[entryName]) {
-      return typeof entry[entryName] === 'string'
-        ? JSON.parse(entry[entryName])
-        : entry[entryName]
+      while (typeof entry[entryName] === 'string') {
+        entry[entryName] = JSON.parse(entry[entryName])
+      }
+      return entry[entryName]
     } else {
       return defaultVal
     }

@@ -86,7 +86,7 @@ export default {
       return this.$route.params.accountId
     },
     loading() {
-      return !Object.keys(this.$store.state.accounts).length
+      return !Object.keys(this.$store.state.accounts).length || !Object.keys(this.data).length
     },
     accountState() {
       return this.$store.state.accounts[this.id]
