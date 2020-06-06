@@ -1,3 +1,9 @@
+## v4.2.1
+
+## Fixed
+ - Fix "Cannot add new accounts"
+ - Fix disabling accounts
+
 ## v4.2.0
 
 ## Added
