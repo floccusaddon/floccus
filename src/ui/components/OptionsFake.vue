@@ -14,14 +14,14 @@ export default {
   name: 'OptionsFake',
   components: { OptionDeleteAccount, OptionResetCache },
   props: {
-    account: {
+    value: {
       type: Object,
       required: true
     }
   },
   data() {
     return {
-      data: this.account,
+      data: this.value,
       panels: [0]
     }
   },

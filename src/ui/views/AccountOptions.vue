@@ -6,7 +6,7 @@
       :loading="loading">
       <v-container class="pa-5">
         <div class="overline">
-          {{ data.type }}
+          {{ accountState.data.type }}
         </div>
         <div class="headline">
           {{ folderName || t('LabelUntitledfolder') }}
@@ -15,23 +15,23 @@
           v-if="!loading"
           class="mt-3 mb-3">
           <OptionsNextcloudFolders
-            v-if="data.type === 'nextcloud-folders'"
-            v-model="data"
+            v-if="accountState.data.type === 'nextcloud-folders'"
+            v-model="accountState.data"
             @reset="onReset"
             @delete="onDelete" />
           <OptionsWebdav
-            v-if="data.type === 'webdav'"
-            v-model="data"
+            v-if="accountState.data.type === 'webdav'"
+            v-model="accountState.data"
             @reset="onReset"
             @delete="onDelete" />
           <OptionsNextcloudLegacy
-            v-if="data.type === 'nextcloud' || data.type === 'nextcloud-legacy'"
-            v-model="data"
+            v-if="accountState.data.type === 'nextcloud' || accountState.data.type === 'nextcloud-legacy'"
+            v-model="accountState.data"
             @reset="onReset"
             @delete="onDelete" />
           <OptionsFake
-            v-if="data.type === 'fake'"
-            v-model="data"
+            v-if="accountState.data.type === 'fake'"
+            v-model="accountState.data"
             @reset="onReset"
             @delete="onDelete" />
         </v-form>
@@ -76,7 +76,6 @@ export default {
   data() {
     return {
       folderName: '',
-      data: {},
       savedData: false,
       deleted: false,
     }
@@ -86,33 +85,30 @@ export default {
       return this.$route.params.accountId
     },
     loading() {
-      return !Object.keys(this.$store.state.accounts).length || !Object.keys(this.data).length
+      return !Object.keys(this.$store.state.accounts).length || !this.accountState.data || !Object.keys(this.accountState.data).length
     },
     accountState() {
-      return this.$store.state.accounts[this.id]
+      return this.$store.state.accounts[this.id] || {}
     },
     localRoot() {
-      return this.data.localRoot
+      return this.accountState.data.localRoot
     },
     saved() {
-      return this.savedData === JSON.stringify(this.data)
+      return this.savedData === JSON.stringify(this.accountState.data)
     }
   },
   watch: {
     localRoot() {
       this.updateFolderName()
     },
-    accountState() {
-      this.data = this.accountState.data
-    }
   },
   created() {
     this.updateFolderName()
   },
   methods: {
     async onSave() {
-      await this.$store.dispatch(actions.STORE_ACCOUNT, {id: this.id, data: this.data})
-      this.savedData = JSON.stringify(this.data)
+      await this.$store.dispatch(actions.STORE_ACCOUNT, {id: this.id, data: this.accountState.data})
+      this.savedData = JSON.stringify(this.accountState.data)
     },
     async updateFolderName() {
       const pathArray = PathHelper.pathToArray(decodeURIComponent(
