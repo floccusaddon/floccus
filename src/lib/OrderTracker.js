@@ -18,6 +18,9 @@ export default class OrderTracker {
         type: type,
         id: toId
       }
+      if (!entry.id) {
+        throw new Error(`Trying to insert an item without id: ${type}:${fromId}:${toId}`)
+      }
       if (~this.order.findIndex(item => item.id === entry.id && item.type === entry.type)) {
         throw new Error(`Trying to insert an already existing item into OrderTracker: ${entry.type}:${entry.id}`)
       }
