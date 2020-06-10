@@ -1,3 +1,11 @@
+## v4.2.2
+### Fixed
+6c1b6f5200ba4c6a25585313ab847755d24d368e Sync: Fix undefined id in folder ordering
+53daaebbcd37a372a79bf9795db899899e8aec4c Fixes #557: Save options on account creation
+
+### Changed
+7b737d29951ec0707af1d249398cb39fe27dc8af OrderTracker: Throw error when invariants are violated
+
 ## v4.2.1
 
 ## Fixed
@@ -6,16 +14,16 @@
 
 ## v4.2.0
 
-## Added
+### Added
 28573b69f81b704df2b83e25bf37f2863546ffe7 Implement nextcloud flow login
 316b69cd36e78471c148e5e973090e5a5abafbd8 Add an update screen
  Lots of new translations
 
-## Fixed
+### Fixed
 4bf16e25d4e0b6f5386adb56614eb245599ec5e0 Fix for separator lines with webdav
 5655e81753c13d9b94b8f6c08bdc1c74949eb569 NextcloudFolders fix non-getChildren algorithm
 
-## Changed
+### Changed
 a658fd02f67335b3c73b3b69e6a3bd7ac456f365 New UI using Vue.js
 85c9caeb9714dc1dfdc5f8164949b9c3346c5b55 Allow syncing the same folder with multiple accounts
 92bc583877359b65153a19c2c55f56ff41f99802 Don't sync immediately on startup
