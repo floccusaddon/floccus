@@ -90,11 +90,15 @@ export default class Controller {
         currentVersion: packageJson.version
       })
 
-      browser.tabs.create({
-        url: './options.html#/update',
-        title: browser.i18n.getMessage('LabelUpdated'),
-        discarded: true
-      })
+      const packageVersion = packageJson.version.split('.')
+      const lastVersion = d.currentVersion ? d.currentVersion.split('.') : []
+      if (packageVersion[0] !== lastVersion[0] || packageVersion[1] !== lastVersion[1]) {
+        browser.tabs.create({
+          url: './options.html#/update',
+          title: browser.i18n.getMessage('LabelUpdated'),
+          discarded: true
+        })
+      }
     })
 
     // migrate from localForage back to extension storage
