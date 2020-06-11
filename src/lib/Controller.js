@@ -83,7 +83,7 @@ export default class Controller {
       await Promise.all(accounts.map(account => account.init()))
       await Promise.all(
         accounts.map(account =>
-          account.setData({ ...account.getData(), enabled: true })
+          account.setData({ ...account.getData() })
         )
       )
       await browser.storage.local.set({
