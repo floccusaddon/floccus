@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-text-field
-      v-model="username"
+      :value="username"
       :label="t('LabelUsername')"
       :loading="isRunning"
       :error-messages="error"
@@ -36,7 +36,7 @@
       </template>
     </v-text-field>
     <v-text-field
-      v-model="password"
+      :value="password"
       type="password"
       :label="t('LabelPassword')"
       @input="$emit('update:password', $event)" />
@@ -75,9 +75,7 @@ export default {
       this.error = null
       try {
         const credentials = await this.$store.dispatch(actions.START_LOGIN_FLOW, this.server)
-        this.username = credentials.username
         this.$emit('update:username', credentials.username)
-        this.password = credentials.password
         this.$emit('update:password', credentials.password)
       } catch (e) {
         this.error = e.message
