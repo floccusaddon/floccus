@@ -1,3 +1,15 @@
+## v4.2.3
+
+### Fixed
+87ec04ed3f92706749599502ef8fd0439cb710fe Options: Fix folder picker
+a9beccedffc8d585201691a16298192fc5e98884 Fix Nextcloudlogin
+d84e0e1ee5288769db9c7f220b1db72bd16b5d6a Do not auto-enable accounts on udpate
+
+### Changed
+4fa192b5b06f547ea07653a3cae28d8bc2aec396 Improve styling of ADD ACCOUNT button
+a759c439483c9eab8781fede148478abc14f11eb Controller: Only display update screen for non-patch updates
+
+
 ## v4.2.2
 ### Fixed
 6c1b6f5200ba4c6a25585313ab847755d24d368e Sync: Fix undefined id in folder ordering
