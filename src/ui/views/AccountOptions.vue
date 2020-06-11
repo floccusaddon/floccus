@@ -91,7 +91,7 @@ export default {
       return this.$store.state.accounts[this.id] || {}
     },
     localRoot() {
-      return this.accountState.data.localRoot
+      return this.accountState.data ? this.accountState.data.localRoot : null
     },
     saved() {
       return this.savedData === JSON.stringify(this.accountState.data)
