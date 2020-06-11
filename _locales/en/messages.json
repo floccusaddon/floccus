@@ -344,5 +344,8 @@
   },
   "LabelLoginFlowError": {
     "message": "Nextcloud login flow failed."
+  },
+  "LabelNewAccount": {
+    "message": "New Account"
   }
 }
