@@ -1,3 +1,8 @@
+## v4.2.4
+
+### Fixed
+Refactor options event handling to fix options UX
+
 ## v4.2.3
 
 ### Fixed
