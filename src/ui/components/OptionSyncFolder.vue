@@ -76,6 +76,7 @@ export default {
   },
   watch: {
     value(localRoot) {
+      this.selectedLocalRoot = this.value
       this.updatePath()
     }
   },

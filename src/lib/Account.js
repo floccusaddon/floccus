@@ -69,7 +69,12 @@ export default class Account {
   }
 
   getData() {
-    return this.server.getData()
+    const defaults = {
+      localRoot: null,
+      strategy: 'default',
+      syncInterval: 15,
+    }
+    return {...defaults, ...this.server.getData()}
   }
 
   async setData(data) {

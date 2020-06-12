@@ -45,7 +45,14 @@ export default {
     }
   },
   watch: {
-
+    value() {
+      this.syncIntervalStep = this.syncIntervalSteps.reduce((closestIndex, value, index) => {
+        const currentDelta = Math.abs(this.syncIntervalSteps[closestIndex] - this.value)
+        const newDelta = Math.abs(value - this.value)
+        if (currentDelta > newDelta) return index
+        else return closestIndex
+      }, 0) || this.syncIntervalSteps.indexOf(15)
+    },
     syncIntervalStep(step) {
       this.$emit('input', this.syncIntervalSteps[step])
     },

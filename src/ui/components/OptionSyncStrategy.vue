@@ -6,7 +6,9 @@
     <div class="caption">
       {{ t('DescriptionStrategy') }}
     </div>
-    <v-radio-group v-model="strategy">
+    <v-radio-group
+      :value="value"
+      @change="$emit('input', $event)">
       <v-radio
         :label="t('LabelStrategydefault')"
         value="default" />
@@ -29,16 +31,6 @@ export default {
       default: 'default',
     }
   },
-  data() {
-    return {
-      strategy: this.value
-    }
-  },
-  watch: {
-    strategy(value) {
-      this.$emit('input', value)
-    }
-  }
 }
 </script>
 

@@ -8,16 +8,16 @@
         <v-expansion-panel-header>{{ t('LabelOptionsServerDetails') }}</v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-text-field
-            v-model="data.url"
+            :value="url"
             :rules="[validateUrl]"
             :label="t('LabelNextcloudurl')"
-            @input="$emit('input', data)" />
+            @input="$emit('update:url', $event)" />
           <NextcloudLogin
-            :username.sync="data.username"
-            :password.sync="data.password"
-            :server="data.url"
-            @update:username="$emit('input', data)"
-            @update:password="$emit('input', data)" />
+            :username="username"
+            :password="password"
+            :server="url"
+            @update:username="$emit('update:username', $event)"
+            @update:password="$emit('update:password', $event)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 
@@ -32,15 +32,15 @@
               {{ t('DescriptionServerfolder') }}
             </div>
             <v-text-field
-              v-model="data.serverRoot"
+              :value="serverRoot"
               :placeholder="'/'"
               :rules="[validateServerRoot]"
               :label="t('LabelServerfolder')"
-              @input="$emit('input', data)" />
+              @input="$emit('update:serverRoot', $event)" />
           </v-container>
           <OptionSyncFolder
-            v-model="data.localRoot"
-            @input="$emit('input', data)" />
+            :value="localRoot"
+            @input="$emit('update:localRoot', $event)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 
@@ -48,11 +48,11 @@
         <v-expansion-panel-header>{{ t('LabelOptionsSyncBehavior') }}</v-expansion-panel-header>
         <v-expansion-panel-content>
           <OptionSyncInterval
-            v-model="data.syncInterval"
-            @input="$emit('input', data)" />
+            :value="syncInterval"
+            @input="$emit('update:syncInterval', $event)" />
           <OptionSyncStrategy
-            v-model="data.strategy"
-            @input="$emit('input', data)" />
+            :value="strategy"
+            @input="$emit('update:strategy', $event)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 
@@ -79,15 +79,9 @@ import NextcloudLogin from './NextcloudLogin'
 export default {
   name: 'OptionsNextcloudFolders',
   components: { NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
-  props: {
-    value: {
-      type: Object,
-      required: true
-    }
-  },
+  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy'],
   data() {
     return {
-      data: this.value,
       panels: [0]
     }
   },
