@@ -1,3 +1,8 @@
+## v4.2.5
+
+### Fixed
+WebDAV adapter: Fix bookmarks_file option
+
 ## v4.2.4
 
 ### Fixed
