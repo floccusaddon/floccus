@@ -3034,6 +3034,7 @@ describe('Floccus', function() {
           await createTree(localRoot, 0, 100)
 
           const tree1Initial = await account1.localTree.getBookmarksTree(true)
+          console.log('Initial tree', tree1Initial)
           await account1.sync()
           expect(account1.getData().error).to.not.be.ok
           console.log('Initial round account1 completed')
@@ -3089,9 +3090,11 @@ describe('Floccus', function() {
                 await browser.bookmarks.move(magicBookmark.id, {
                   parentId: magicFolder1.id
                 })
+                console.log('Move ' + magicBookmark.title + ' to ' + magicFolder1.id)
                 await browser.bookmarks.move(magicFolder2.id, {
                   parentId: magicFolder3.id
                 })
+                console.log('Move #' + magicFolder2.id + '[' + magicFolder2.title + '] to ' + magicFolder3.id)
                 success = true
               } catch (e) {
                 console.log(e)
