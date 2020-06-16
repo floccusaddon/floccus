@@ -113,7 +113,7 @@ describe('Floccus', function() {
       })
       it('should save and restore an account', async function() {
         await account.setData(ACCOUNT_DATA)
-        expect(account.getData()).to.deep.equal(ACCOUNT_DATA)
+        expect(account.getData()).to.deep.equal({...account.getData(), ACCOUNT_DATA})
 
         const secondInstance = await Account.get(account.id)
         expect(secondInstance.getData()).to.deep.equal(ACCOUNT_DATA)
@@ -627,6 +627,65 @@ describe('Floccus', function() {
                   children: [
                     new Bookmark(serverMark1),
                     new Bookmark(serverMark2)
+                  ]
+                })
+              ]
+            }),
+            ignoreEmptyFolders(ACCOUNT_DATA)
+          )
+        })
+        it('should deduplicate unnormalized URLs without gettings stuck', async function() {
+          const adapter = account.server
+          expect(
+            (await adapter.getBookmarksTree(true)).children
+          ).to.have.lengthOf(0)
+
+          // create bookmark locally
+          const localRoot = account.getData().localRoot
+          const localMark1 = {
+            title: 'url',
+            url: 'http://nextcloud.com/'
+          }
+          const localMark2 = {
+            title: 'url',
+            url: 'https://nextcloud.com'
+          }
+          const fooFolder = await browser.bookmarks.create({
+            title: 'foo',
+            parentId: localRoot
+          })
+          await browser.bookmarks.create({
+            ...localMark1,
+            parentId: fooFolder.id
+          })
+          await browser.bookmarks.create({
+            ...localMark2,
+            parentId: fooFolder.id
+          })
+
+          await account.sync() // propagate to server
+
+          expect(account.getData().error).to.not.be.ok
+
+          // Sync again, so client can deduplicate
+          // necessary if using bookmarks < v0.12 or WebDAV
+          await account.sync()
+          expect(account.getData().error).to.not.be.ok
+
+          await account.sync()
+          expect(account.getData().error).to.not.be.ok
+
+          const tree = await adapter.getBookmarksTree(true)
+          expectTreeEqual(
+            tree,
+            new Folder({
+              title: tree.title,
+              children: [
+                new Folder({
+                  title: 'foo',
+                  children: [
+                    new Bookmark(localMark1),
+                    new Bookmark(localMark2)
                   ]
                 })
               ]
