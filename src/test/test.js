@@ -113,7 +113,7 @@ describe('Floccus', function() {
       })
       it('should save and restore an account', async function() {
         await account.setData(ACCOUNT_DATA)
-        expect(account.getData()).to.deep.equal({...account.getData(), ACCOUNT_DATA})
+        expect(account.getData()).to.deep.equal({...account.getData(), ...ACCOUNT_DATA})
 
         const secondInstance = await Account.get(account.id)
         expect(secondInstance.getData()).to.deep.equal(ACCOUNT_DATA)
