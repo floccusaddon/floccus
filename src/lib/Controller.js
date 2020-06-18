@@ -209,22 +209,20 @@ export default class Controller {
       return
     }
 
-    const containingAccounts = await Account.getAccountsContainingLocalId(
+    const containingAccount = await Account.getAccountContainingLocalId(
       localId,
       ancestors,
       allAccounts
     )
-    containingAccounts.forEach(containingAccount => {
-      if (
-        containingAccount &&
-        !containingAccount.getData().syncing &&
-        containingAccount.getData().enabled &&
-        !accountsToSync.some(acc => acc.id === containingAccount.id)
-      ) {
-        this.cancelSync(containingAccount.id, true)
-        this.scheduleSync(containingAccount.id, true)
-      }
-    })
+    if (
+      containingAccount &&
+      !containingAccount.getData().syncing &&
+      containingAccount.getData().enabled &&
+      !accountsToSync.some(acc => acc.id === containingAccount.id)
+    ) {
+      this.cancelSync(containingAccount.id, true)
+      this.scheduleSync(containingAccount.id, true)
+    }
 
     this.setEnabled(true)
   }

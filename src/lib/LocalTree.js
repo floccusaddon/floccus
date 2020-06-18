@@ -17,6 +17,15 @@ export default class LocalTree extends Resource {
     const tree = (await browser.bookmarks.getSubTree(this.rootId))[0]
 
     const recurse = (node, parentId) => {
+      if (
+        allAccounts.some(
+          acc => acc.getData().localRoot === node.id && node.id !== this.rootId
+        )
+      ) {
+        // This is the root folder of a different account
+        // (the user has apparently nested them *facepalm* -- how nice of us to take care of that)
+        return
+      }
       let overrideTitle, isRoot
       if (node.parentId === rootTree.id) {
         switch (node.id) {
