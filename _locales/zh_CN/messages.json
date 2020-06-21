@@ -344,5 +344,8 @@
   },
   "LabelLoginFlowError": {
     "message": "Nextcloud login flow 登录失败。"
+  },
+  "LabelNewAccount": {
+    "message": "新建帐户"
   }
 }
