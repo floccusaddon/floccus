@@ -116,7 +116,7 @@ describe('Floccus', function() {
         expect(account.getData()).to.deep.equal({...account.getData(), ...ACCOUNT_DATA})
 
         const secondInstance = await Account.get(account.id)
-        expect(secondInstance.getData()).to.deep.equal(ACCOUNT_DATA)
+        expect(secondInstance.getData()).to.deep.equal({...secondInstance.getData(), ...ACCOUNT_DATA})
       })
       it('should delete an account', async function() {
         await account.delete()
