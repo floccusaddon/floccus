@@ -21,11 +21,10 @@ export default class LocalTree extends Resource {
     const recurse = (node, parentId) => {
       if (
         allAccounts.some(
-          acc => acc.getData().localRoot === node.id && node.id !== this.rootId
+          acc => acc.getData().localRoot === node.id && node.id !== this.rootId && !acc.getData().nestedSync
         )
       ) {
-        // This is the root folder of a different account
-        // (the user has apparently nested them *facepalm* -- how nice of us to take care of that)
+        // This is the root folder of a different account and the user doesn't want nested sync
         return
       }
       let overrideTitle, isRoot

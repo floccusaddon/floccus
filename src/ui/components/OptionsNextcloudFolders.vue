@@ -53,6 +53,9 @@
           <OptionSyncStrategy
             :value="strategy"
             @input="$emit('update:strategy', $event)" />
+          <OptionNestedSync
+            :value="nestedSync"
+            @input="$emit('update:nestedSync', $event)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 
@@ -75,11 +78,12 @@ import OptionSyncStrategy from './OptionSyncStrategy'
 import OptionDeleteAccount from './OptionDeleteAccount'
 import OptionSyncFolder from './OptionSyncFolder'
 import NextcloudLogin from './NextcloudLogin'
+import OptionNestedSync from './OptionNestedSync'
 
 export default {
   name: 'OptionsNextcloudFolders',
-  components: { NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
-  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy'],
+  components: { OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
+  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'nestedSync'],
   data() {
     return {
       panels: [0]

@@ -44,6 +44,9 @@
           <OptionSyncFolder
             :value="localRoot"
             @input="$emit('update:localRoot', $event)" />
+          <OptionNestedSync
+            :value="nestedSync"
+            @input="$emit('update:nestedSync', $event)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 
@@ -81,7 +84,7 @@ import OptionSyncFolder from './OptionSyncFolder'
 export default {
   name: 'OptionsNextcloudLegacy',
   components: { OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
-  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy'],
+  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'nestedSync'],
   data() {
     return {
       panels: [0]
