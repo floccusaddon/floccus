@@ -532,7 +532,7 @@ export default class SyncProcess {
           serverOrder
         })
       },
-      this.concurrency
+      1
     )
     await Promise.all([
       (async() => {
