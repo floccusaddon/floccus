@@ -18,6 +18,12 @@ export default class OrderTracker {
         type: type,
         id: toId
       }
+      if (!entry.id) {
+        throw new Error(`Trying to insert an item without id: ${type}:${fromId}:${toId}`)
+      }
+      if (~this.order.findIndex(item => item.id === entry.id && item.type === entry.type)) {
+        throw new Error(`Trying to insert an already existing item into OrderTracker: ${entry.type}:${entry.id}`)
+      }
       this.order.splice(
         this.fromFolder.children.findIndex(
           child => child.id === fromId && child.type === type
@@ -33,8 +39,12 @@ export default class OrderTracker {
   remove(type, toId) {
     this.pendingOps++
     return () => {
+      const index = this.order.findIndex(item => item.id === toId && item.type === type)
+      if (index === -1) {
+        throw new Error(`Trying to remove a non-existing item from OrderTracker: ${type}:${toId}`)
+      }
       this.order.splice(
-        this.order.findIndex(item => item.id === toId && item.type === type),
+        index,
         1
       )
       this.pendingOps--

@@ -230,7 +230,7 @@ export default {
       this.$store.dispatch(actions.CANCEL_SYNC, this.account.id)
     },
     onToggleEnabled() {
-      this.$store.dispatch(actions.STORE_ACCOUNT, this.account.id)
+      this.$store.dispatch(actions.STORE_ACCOUNT, {id: this.account.id, data: this.account.data})
     },
     onGetLogs() {
       this.$store.dispatch(actions.DOWNLOAD_LOGS)

@@ -53,7 +53,7 @@ export const actionsDefinition = {
         label: acc.getLabel(),
       }
     })
-    commit(mutations.LOAD_ACCOUNTS, accounts)
+    await commit(mutations.LOAD_ACCOUNTS, accounts)
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
     const account = await Account.create(Account.getDefaultValues(type))

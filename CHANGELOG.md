@@ -1,15 +1,51 @@
+## v4.2.5
+
+### Fixed
+WebDAV adapter: Fix bookmarks_file option
+
+## v4.2.4
+
+### Fixed
+Refactor options event handling to fix options UX
+
+## v4.2.3
+
+### Fixed
+87ec04ed3f92706749599502ef8fd0439cb710fe Options: Fix folder picker
+a9beccedffc8d585201691a16298192fc5e98884 Fix Nextcloudlogin
+d84e0e1ee5288769db9c7f220b1db72bd16b5d6a Do not auto-enable accounts on udpate
+
+### Changed
+4fa192b5b06f547ea07653a3cae28d8bc2aec396 Improve styling of ADD ACCOUNT button
+a759c439483c9eab8781fede148478abc14f11eb Controller: Only display update screen for non-patch updates
+
+
+## v4.2.2
+### Fixed
+6c1b6f5200ba4c6a25585313ab847755d24d368e Sync: Fix undefined id in folder ordering
+53daaebbcd37a372a79bf9795db899899e8aec4c Fixes #557: Save options on account creation
+
+### Changed
+7b737d29951ec0707af1d249398cb39fe27dc8af OrderTracker: Throw error when invariants are violated
+
+## v4.2.1
+
+## Fixed
+ - Fix "Cannot add new accounts"
+ - Fix disabling accounts
+
 ## v4.2.0
 
-## Added
+### Added
 28573b69f81b704df2b83e25bf37f2863546ffe7 Implement nextcloud flow login
 316b69cd36e78471c148e5e973090e5a5abafbd8 Add an update screen
  Lots of new translations
 
-## Fixed
+### Fixed
 4bf16e25d4e0b6f5386adb56614eb245599ec5e0 Fix for separator lines with webdav
 5655e81753c13d9b94b8f6c08bdc1c74949eb569 NextcloudFolders fix non-getChildren algorithm
 
-## Changed
+### Changed
 a658fd02f67335b3c73b3b69e6a3bd7ac456f365 New UI using Vue.js
 85c9caeb9714dc1dfdc5f8164949b9c3346c5b55 Allow syncing the same folder with multiple accounts
 92bc583877359b65153a19c2c55f56ff41f99802 Don't sync immediately on startup

@@ -83,18 +83,22 @@ export default class Controller {
       await Promise.all(accounts.map(account => account.init()))
       await Promise.all(
         accounts.map(account =>
-          account.setData({ ...account.getData(), enabled: true })
+          account.setData({ ...account.getData() })
         )
       )
       await browser.storage.local.set({
         currentVersion: packageJson.version
       })
 
-      browser.tabs.create({
-        url: './options.html#/update',
-        title: browser.i18n.getMessage('LabelUpdated'),
-        discarded: true
-      })
+      const packageVersion = packageJson.version.split('.')
+      const lastVersion = d.currentVersion ? d.currentVersion.split('.') : []
+      if (packageVersion[0] !== lastVersion[0] || packageVersion[1] !== lastVersion[1]) {
+        browser.tabs.create({
+          url: './options.html#/update',
+          title: browser.i18n.getMessage('LabelUpdated'),
+          discarded: true
+        })
+      }
     })
 
     // migrate from localForage back to extension storage

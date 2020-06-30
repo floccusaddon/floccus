@@ -665,7 +665,6 @@ export default class SyncProcess {
     localOrder,
     serverOrder
   }) {
-    const newMappingsSnapshot = this.mappings.getSnapshot()
     const { changedLocally, reconciled, enPar } = await this.folderHasChanged(
       localItem,
       cacheItem,
@@ -678,6 +677,8 @@ export default class SyncProcess {
 
     await localOrder.onFinished()
     await serverOrder.onFinished()
+
+    const newMappingsSnapshot = this.mappings.getSnapshot()
 
     if (changedLocally || reconciled) {
       await this.server.orderFolder(

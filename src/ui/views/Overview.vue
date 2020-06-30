@@ -19,13 +19,14 @@
       </div>
     </v-container>
     <v-btn
-      fab
-      class="primary fab"
+      block
       :to="{name: routes.NEW_ACCOUNT}"
+      color="white"
       target="_blank">
-      <v-icon color="white">
+      <v-icon>
         mdi-plus
       </v-icon>
+      {{ t('LabelNewAccount') }}
     </v-btn>
   </v-container>
 </template>

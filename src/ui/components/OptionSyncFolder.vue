@@ -45,7 +45,7 @@
           :item-text="'title'"
           :item-key="'id'"
           :filter="(item)=>!item.url"
-          :active="[localRoot]"
+          :active="[value]"
           :open="folders.length? [folders[0].id] : []"
           :items="folders"
           dense
@@ -68,7 +68,6 @@ export default {
   props: { value: { type: String, default: undefined } },
   data() {
     return {
-      localRoot: this.value,
       selectedLocalRoot: this.value,
       path: '',
       finder: false,
@@ -76,7 +75,8 @@ export default {
     }
   },
   watch: {
-    localRoot(localRoot) {
+    value(localRoot) {
+      this.selectedLocalRoot = this.value
       this.updatePath()
     }
   },
@@ -86,11 +86,11 @@ export default {
   methods: {
     async updatePath() {
       this.path = decodeURIComponent(
-        await LocalTree.getPathFromLocalId(this.localRoot)
+        await LocalTree.getPathFromLocalId(this.value)
       ) + '/'
     },
     async onTriggerFinder() {
-      this.selectedLocalRoot = this.localRoot
+      this.selectedLocalRoot = this.value
       this.finder = true
       this.folders = await browser.bookmarks.getTree()
     },
@@ -99,8 +99,7 @@ export default {
     },
     onSave() {
       this.finder = false
-      this.localRoot = this.selectedLocalRoot
-      this.$emit('input', this.localRoot)
+      this.$emit('input', this.selectedLocalRoot)
     }
   }
 }

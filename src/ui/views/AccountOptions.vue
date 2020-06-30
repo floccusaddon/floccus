@@ -16,22 +16,22 @@
           class="mt-3 mb-3">
           <OptionsNextcloudFolders
             v-if="data.type === 'nextcloud-folders'"
-            v-model="data"
+            v-bind.sync="data"
             @reset="onReset"
             @delete="onDelete" />
           <OptionsWebdav
             v-if="data.type === 'webdav'"
-            v-model="data"
+            v-bind.sync="data"
             @reset="onReset"
             @delete="onDelete" />
           <OptionsNextcloudLegacy
             v-if="data.type === 'nextcloud' || data.type === 'nextcloud-legacy'"
-            v-model="data"
+            v-bind.sync="data"
             @reset="onReset"
             @delete="onDelete" />
           <OptionsFake
             v-if="data.type === 'fake'"
-            v-model="data"
+            v-bind.sync="data"
             @reset="onReset"
             @delete="onDelete" />
         </v-form>
@@ -86,13 +86,10 @@ export default {
       return this.$route.params.accountId
     },
     loading() {
-      return !Object.keys(this.$store.state.accounts).length
-    },
-    accountState() {
-      return this.$store.state.accounts[this.id]
+      return !this.$store.state.accounts[this.id] || !this.$store.state.accounts[this.id].data || !Object.keys(this.$store.state.accounts[this.id].data).length
     },
     localRoot() {
-      return this.data.localRoot
+      return this.data ? this.data.localRoot : null
     },
     saved() {
       return this.savedData === JSON.stringify(this.data)
@@ -102,12 +99,16 @@ export default {
     localRoot() {
       this.updateFolderName()
     },
-    accountState() {
-      this.data = this.accountState.data
+    loading() {
+      if (this.loading) return
+      this.data = this.$store.state.accounts[this.id].data
     }
   },
   created() {
     this.updateFolderName()
+    if (!this.loading) {
+      this.data = this.$store.state.accounts[this.id].data
+    }
   },
   methods: {
     async onSave() {
