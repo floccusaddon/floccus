@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         node-versions: [13.x]
-        server-versions: ['18']
+        server-versions: ['19']
         app-versions: ['stable']
         floccus-adapter:
           - fake
@@ -50,28 +50,33 @@ jobs:
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
-          - app-versions: stable
-            server-versions: 17
+          - app-versions: v2.3.4
+            server-versions: 19
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
           - app-versions: stable
-            server-versions: 17
+            server-versions: 18
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
-          - app-versions: master
+          - app-versions: stable
             server-versions: 18
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
           - app-versions: master
-            server-versions: 18
+            server-versions: 19
+            floccus-adapter: nextcloud-folders
+            test-name: standard
+            browsers: chrome
+          - app-versions: master
+            server-versions: 19
             floccus-adapter: nextcloud-folders
             test-name: benchmark standard-root
             browsers: chrome
           - app-versions: master
-            server-versions: 18
+            server-versions: 19
             floccus-adapter: nextcloud-folders
             test-name: benchmark parallel-root
             browsers: chrome
