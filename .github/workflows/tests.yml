@@ -81,17 +81,17 @@ jobs:
 
     services:
       hub:
-        image: selenium/hub:${{env.SELENIUM_VERSION}}
+        image: selenium/hub:3
         ports:
           - 4444:4444
       firefox:
-        image: selenium/node-firefox:${{env.SELENIUM_VERSION}}
+        image: selenium/node-firefox:3
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
         options: -v /dev/shm:/dev/shm
       chrome:
-        image: selenium/node-chrome:${{env.SELENIUM_VERSION}}
+        image: selenium/node-chrome:3
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
