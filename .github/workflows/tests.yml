@@ -107,7 +107,7 @@ jobs:
           MYSQL_HOST: mysql
           NEXTCLOUD_TRUSTED_DOMAINS: nextcloud
         volumes:
-          - /home/runner/work/floccus/floccus/apps:apps
+          - /home/runner/work/floccus/floccus/apps:/var/www/html/custom_apps
         options: --name nextcloud
       mysql:
         image: mariadb:latest
