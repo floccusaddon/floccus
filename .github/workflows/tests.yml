@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         node-versions: [13.x]
-        server-versions: ['18']
+        server-versions: ['19']
         app-versions: ['stable']
         floccus-adapter:
           - fake
@@ -137,13 +137,13 @@ jobs:
               sleep $(( NEXT_WAIT_TIME++ ))
           done
           [ $NEXT_WAIT_TIME -lt 25 ]
-        if: matrix.floccus-adapter != 'fake'
+        if: matrix.floccus-adapter == 'nextcloud-folders'
 
       - name: List apps
         shell: bash
         run: |
           docker exec --user www-data nextcloud php occ app:list
-        if: matrix.floccus-adapter != 'fake'
+        if: matrix.floccus-adapter == 'nextcloud-folders'
 
       - name: Enable APCu
         run: |
