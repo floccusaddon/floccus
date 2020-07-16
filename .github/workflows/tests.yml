@@ -125,12 +125,13 @@ jobs:
         with:
           repository: nextcloud/${{ env.APP_NAME }}
           ref: ${{ matrix.app-versions }}
-          path: apps/${{ env.APP_NAME }}
+          path: ${{ env.APP_NAME }}
         if: matrix.floccus-adapter == 'nextcloud-folders'
 
       - name: Enable bookmarks app
         shell: bash
         run: |
+          sudo cp -R ${{env.APP_NAME}} apps/
           NEXT_WAIT_TIME=0
           until [ $NEXT_WAIT_TIME -eq 25 ] || docker exec --user www-data nextcloud php occ app:enable ${{ env.APP_NAME }}; do
               sleep $(( NEXT_WAIT_TIME++ ))
