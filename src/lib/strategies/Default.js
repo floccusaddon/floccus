@@ -931,6 +931,7 @@ export default class SyncProcess {
   }
 
   async bookmarkHasChanged(localItem, cacheItem, serverItem) {
+    const mappingsSnapshot = this.mappings.getSnapshot()
     const localHash = localItem ? await localItem.hash() : null
     const cacheHash = cacheItem ? await cacheItem.hash() : null
     const serverHash = serverItem ? await serverItem.hash() : null
@@ -941,7 +942,7 @@ export default class SyncProcess {
       (localHash !== serverHash && cacheHash !== serverHash) ||
       (cacheItem &&
         cacheItem.parentId !==
-          this.mappings.folders.ServerToLocal[serverItem.parentId])
+          mappingsSnapshot.ServerToLocal.folders[serverItem.parentId])
     const reconciled = !cacheItem && localHash !== serverHash
     const changed = changedLocally || changedUpstream || reconciled
     return { changed, changedLocally, changedUpstream, reconciled }
