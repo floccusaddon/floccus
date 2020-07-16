@@ -107,7 +107,7 @@ jobs:
           MYSQL_HOST: mysql
           NEXTCLOUD_TRUSTED_DOMAINS: nextcloud
         volumes:
-          - /home/runner/work/floccus/floccus/apps:apps
+          - /home/runner/work/floccus/floccus:/var/www/html/custom_apps
         options: --name nextcloud
       mysql:
         image: mariadb:latest
@@ -125,7 +125,7 @@ jobs:
         with:
           repository: nextcloud/${{ env.APP_NAME }}
           ref: ${{ matrix.app-versions }}
-          path: apps/${{ env.APP_NAME }}
+          path: ${{ env.APP_NAME }}
         if: matrix.floccus-adapter == 'nextcloud-folders'
 
       - name: Enable bookmarks app
