@@ -131,6 +131,13 @@ jobs:
       - name: Enable bookmarks app
         shell: bash
         run: |
+          cd ${{ env.APP_NAME }}
+          composer install
+        if: matrix.floccus-adapter == 'nextcloud-folders'
+
+      - name: Enable bookmarks app
+        shell: bash
+        run: |
           sudo cp -R ${{env.APP_NAME}} apps/
           NEXT_WAIT_TIME=0
           until [ $NEXT_WAIT_TIME -eq 25 ] || docker exec --user www-data nextcloud php occ app:enable ${{ env.APP_NAME }}; do
