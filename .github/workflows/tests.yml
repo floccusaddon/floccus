@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         node-versions: [13.x]
-        server-versions: ['19']
+        server-versions: ['18']
         app-versions: ['stable']
         floccus-adapter:
           - fake
@@ -154,7 +154,11 @@ jobs:
 
       - name: Enable APCu
         run: |
-          docker exec --user www-data nextcloud php occ config:system:set --value "\\OC\\Memcache\\APCu" memcache.local
+          NEXT_WAIT_TIME=0
+          until [ $NEXT_WAIT_TIME -eq 25 ] || docker exec --user www-data nextcloud php occ config:system:set --value "\\OC\\Memcache\\APCu" memcache.local
+               sleep $(( NEXT_WAIT_TIME++ ))
+          done
+          [ $NEXT_WAIT_TIME -lt 25 ]
         if: matrix.floccus-adapter != 'fake'
 
       - name: Set up node ${{ matrix.node-versions }}
