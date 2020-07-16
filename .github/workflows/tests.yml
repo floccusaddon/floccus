@@ -138,6 +138,12 @@ jobs:
           [ $NEXT_WAIT_TIME -lt 25 ]
         if: matrix.floccus-adapter != 'fake'
 
+      - name: List apps
+        shell: bash
+        run: |
+          docker exec --user www-data nextcloud php occ app:list
+        if: matrix.floccus-adapter != 'fake'
+
       - name: Enable APCu
         run: |
           docker exec --user www-data nextcloud php occ config:system:set --value "\\OC\\Memcache\\APCu" memcache.local
