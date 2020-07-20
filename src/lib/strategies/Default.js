@@ -489,6 +489,10 @@ export default class SyncProcess {
           cacheChild =>
             mappingsSnapshot.ServerToLocal[child.type + 's'][child.id] ===
             cacheChild.id
+        ) && !existingItems.some(
+          existingLocal =>
+            mappingsSnapshot.LocalToServer[child.type + 's'][existingLocal.id] ===
+            child.id
         )
     )
     let removedUpstream = cacheItem
@@ -1012,7 +1016,7 @@ export default class SyncProcess {
     if (bookmark.moved) {
       // local changes are deal with first in updateFolder, thus this is deterministic
       Logger.log(
-        'remove branch: This bookmark was removed in fromTree and concurrently moved somewhere else intoTree -- moves take precedence'
+        'remove branch: This bookmark was removed in fromTree and concurrently moved somewhere else in toTree -- moves take precedence'
       )
       // remove bookmark from order
       toOrder.remove('bookmark', bookmark.id)()
