@@ -96,8 +96,7 @@ export default class Controller {
       if (packageVersion[0] !== lastVersion[0] || packageVersion[1] !== lastVersion[1]) {
         browser.tabs.create({
           url: './options.html#/update',
-          title: browser.i18n.getMessage('LabelUpdated'),
-          discarded: true
+          active: false
         })
       }
     })
