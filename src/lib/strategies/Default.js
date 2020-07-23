@@ -489,6 +489,10 @@ export default class SyncProcess {
           cacheChild =>
             mappingsSnapshot.ServerToLocal[child.type + 's'][child.id] ===
             cacheChild.id
+        ) && !existingItems.some(
+          existingLocal =>
+            mappingsSnapshot.LocalToServer[child.type + 's'][existingLocal.id] ===
+            child.id
         )
     )
     let removedUpstream = cacheItem
@@ -532,7 +536,7 @@ export default class SyncProcess {
           serverOrder
         })
       },
-      this.concurrency
+      1
     )
     await Promise.all([
       (async() => {
@@ -681,6 +685,10 @@ export default class SyncProcess {
     const newMappingsSnapshot = this.mappings.getSnapshot()
 
     if (changedLocally || reconciled) {
+      const unmappable = (await localOrder.getOrder()).filter(item => newMappingsSnapshot.LocalToServer[item.type + 's'][item.id] === undefined)
+      if (unmappable.length) {
+        throw new Error(`Cannot find mapped children of ${localItem.id} / ${serverItem.id} for ` + JSON.stringify(unmappable))
+      }
       await this.server.orderFolder(
         serverItem.id,
         (await localOrder.getOrder()).map(item => ({
@@ -689,6 +697,10 @@ export default class SyncProcess {
         }))
       )
     } else {
+      const unmappable = (await serverOrder.getOrder()).filter(item => newMappingsSnapshot.ServerToLocal[item.type + 's'][item.id] === undefined)
+      if (unmappable.length) {
+        throw new Error(`Cannot find mapped children of ${localItem.id} / ${serverItem.id} for ` + JSON.stringify(unmappable))
+      }
       await this.localTree.orderFolder(
         localItem.id,
         (await serverOrder.getOrder()).map(item => ({
@@ -837,13 +849,13 @@ export default class SyncProcess {
     // remove folder from resource
     await toResource.removeFolder(folder.id)
 
-    // remove from order
-    toOrder.remove('folder', folder.id)()
-
     // remove from mappings
     const localId = toTree === this.localTreeRoot ? folder.id : null
     const remoteId = toTree === this.localTreeRoot ? null : folder.id
     await this.mappings.removeFolder({ localId, remoteId })
+
+    // remove from order
+    toOrder.remove('folder', folder.id)()
   }
 
   async createBookmark({
@@ -920,13 +932,13 @@ export default class SyncProcess {
       })
     )
 
-    // add to order
-    toOrder.insert('bookmark', bookmark.id, newId)()
-
     // add to mappings
     const localId = toTree === this.localTreeRoot ? newId : bookmark.id
     const remoteId = toTree === this.localTreeRoot ? bookmark.id : newId
     await this.mappings.addBookmark({ localId, remoteId })
+
+    // add to order
+    toOrder.insert('bookmark', bookmark.id, newId)()
 
     this.done++
   }
@@ -1012,7 +1024,7 @@ export default class SyncProcess {
     if (bookmark.moved) {
       // local changes are deal with first in updateFolder, thus this is deterministic
       Logger.log(
-        'remove branch: This bookmark was removed in fromTree and concurrently moved somewhere else intoTree -- moves take precedence'
+        'remove branch: This bookmark was removed in fromTree and concurrently moved somewhere else in toTree -- moves take precedence'
       )
       // remove bookmark from order
       toOrder.remove('bookmark', bookmark.id)()
@@ -1048,13 +1060,13 @@ export default class SyncProcess {
     // remove bookmark from resource
     await toResource.removeBookmark(bookmark.id)
 
-    // remove bookmark from order
-    toOrder.remove('bookmark', bookmark.id)()
-
     // remove bookmark from mappings
     await this.mappings.removeBookmark({
       [toResource === this.localTreeRoot ? 'localId' : 'remoteId']: bookmark.id
     })
+
+    // remove bookmark from order
+    toOrder.remove('bookmark', bookmark.id)()
 
     this.done++
   }

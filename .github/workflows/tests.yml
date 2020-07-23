@@ -19,7 +19,7 @@ jobs:
       TEST_HOST: nextcloud
       SERVER_BRANCH: ${{ matrix.server-versions }}
       NC_APP_VERSION: ${{ matrix.app-versions }}
-      SELENIUM_VERSION: 3.141.59-20200409
+      SELENIUM_VERSION: 3
       MYSQL_PASSWORD: root
 
     strategy:
@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         node-versions: [13.x]
-        server-versions: ['18']
+        server-versions: ['19']
         app-versions: ['stable']
         floccus-adapter:
           - fake
@@ -51,27 +51,27 @@ jobs:
             test-name: standard
             browsers: chrome
           - app-versions: stable
-            server-versions: 17
+            server-versions: 18
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
           - app-versions: stable
-            server-versions: 17
-            floccus-adapter: nextcloud-folders
-            test-name: standard
-            browsers: chrome
-          - app-versions: master
             server-versions: 18
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
           - app-versions: master
-            server-versions: 18
+            server-versions: 19
+            floccus-adapter: nextcloud-folders
+            test-name: standard
+            browsers: chrome
+          - app-versions: master
+            server-versions: 19
             floccus-adapter: nextcloud-folders
             test-name: benchmark standard-root
             browsers: chrome
           - app-versions: master
-            server-versions: 18
+            server-versions: 19
             floccus-adapter: nextcloud-folders
             test-name: benchmark parallel-root
             browsers: chrome
@@ -81,17 +81,17 @@ jobs:
 
     services:
       hub:
-        image: selenium/hub:3.141.59-20200409
+        image: selenium/hub:3
         ports:
           - 4444:4444
       firefox:
-        image: selenium/node-firefox:3.141.59-20200409
+        image: selenium/node-firefox:3
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
         options: -v /dev/shm:/dev/shm
       chrome:
-        image: selenium/node-chrome:3.141.59-20200409
+        image: selenium/node-chrome:3
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
@@ -107,7 +107,7 @@ jobs:
           MYSQL_HOST: mysql
           NEXTCLOUD_TRUSTED_DOMAINS: nextcloud
         volumes:
-          - apps:/home/runner/work/floccus/floccus/apps
+          - /home/runner/work/floccus/floccus/apps:/var/www/html/custom_apps
         options: --name nextcloud
       mysql:
         image: mariadb:latest
@@ -125,22 +125,40 @@ jobs:
         with:
           repository: nextcloud/${{ env.APP_NAME }}
           ref: ${{ matrix.app-versions }}
-          path: apps/${{ env.APP_NAME }}
+          path: ${{ env.APP_NAME }}
         if: matrix.floccus-adapter == 'nextcloud-folders'
 
       - name: Enable bookmarks app
         shell: bash
         run: |
+          cd ${{ env.APP_NAME }}
+          composer install
+        if: matrix.floccus-adapter == 'nextcloud-folders'
+
+      - name: Enable bookmarks app
+        shell: bash
+        run: |
+          sudo cp -R ${{env.APP_NAME}} apps/
           NEXT_WAIT_TIME=0
           until [ $NEXT_WAIT_TIME -eq 25 ] || docker exec --user www-data nextcloud php occ app:enable ${{ env.APP_NAME }}; do
               sleep $(( NEXT_WAIT_TIME++ ))
           done
           [ $NEXT_WAIT_TIME -lt 25 ]
-        if: matrix.floccus-adapter != 'fake'
+        if: matrix.floccus-adapter == 'nextcloud-folders'
+
+      - name: List apps
+        shell: bash
+        run: |
+          docker exec --user www-data nextcloud php occ app:list
+        if: matrix.floccus-adapter == 'nextcloud-folders'
 
       - name: Enable APCu
         run: |
-          docker exec --user www-data nextcloud php occ config:system:set --value "\\OC\\Memcache\\APCu" memcache.local
+          NEXT_WAIT_TIME=0
+          until [ $NEXT_WAIT_TIME -eq 25 ] || docker exec --user www-data nextcloud php occ config:system:set --value "\\OC\\Memcache\\APCu" memcache.local; do
+              sleep $(( NEXT_WAIT_TIME++ ))
+          done
+          [ $NEXT_WAIT_TIME -lt 25 ]
         if: matrix.floccus-adapter != 'fake'
 
       - name: Set up node ${{ matrix.node-versions }}

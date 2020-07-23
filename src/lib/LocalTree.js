@@ -3,6 +3,7 @@ import Logger from './Logger'
 import * as Tree from './Tree'
 import Resource from './interfaces/Resource'
 import PQueue from 'p-queue'
+import Account from './Account'
 
 export default class LocalTree extends Resource {
   constructor(storage, rootId) {
@@ -15,8 +16,17 @@ export default class LocalTree extends Resource {
   async getBookmarksTree() {
     const [rootTree] = await browser.bookmarks.getTree() // XXX: Kinda inefficient, but well.
     const tree = (await browser.bookmarks.getSubTree(this.rootId))[0]
+    const allAccounts = await Account.getAllAccounts()
 
     const recurse = (node, parentId) => {
+      if (
+        allAccounts.some(
+          acc => acc.getData().localRoot === node.id && node.id !== this.rootId && !acc.getData().nestedSync
+        )
+      ) {
+        // This is the root folder of a different account and the user doesn't want nested sync
+        return
+      }
       let overrideTitle, isRoot
       if (node.parentId === rootTree.id) {
         switch (node.id) {

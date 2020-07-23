@@ -1,0 +1,363 @@
+{
+  "Error001": {
+    "message": "E001: Mappen att skapa i finns inte"
+  },
+  "Error002": {
+    "message": "E002: Bokmärket som ska uppdateras finns inte längre"
+  },
+  "Error003": {
+    "message": "E003: Mappen som ska flyttas ifrån finns inte. Detta är en avvikelse.\nGrattis."
+  },
+  "Error004": {
+    "message": "E004: Mappen att flytta till finns inte"
+  },
+  "Error005": {
+    "message": "E005: Mappen att skapa i finns inte"
+  },
+  "Error006": {
+    "message": "E006: Mappen som ska uppdateras finns inte"
+  },
+  "Error007": {
+    "message": "E007: Mappen som ska flyttas finns inte"
+  },
+  "Error008": {
+    "message": "E008: Mappen att flytta ut från finns inte"
+  },
+  "Error009": {
+    "message": "E009: Mappen att flytta in i finns inte"
+  },
+  "Error010": {
+    "message": "E010: Kunde inte hitta mappen att sortera"
+  },
+  "Error011": {
+    "message": "E011: Posten som ska sorteras i mappen är inte underliggande: $1"
+  },
+  "Error012": {
+    "message": "E012: Mappen som ska sorteras saknar några av mappens underliggande objekt"
+  },
+  "Error013": {
+    "message": "E013: Mappen som ska tas bort finns inte"
+  },
+  "Error014": {
+    "message": "E014: Den överliggande mappen som ska tas bort finns inte"
+  },
+  "Error015": {
+    "message": "E015: Oväntat svar från server"
+  },
+  "Error016": {
+    "message": "E016: Begäran tog för lång tid. Kontrollera dina serverinställningar"
+  },
+  "Error017": {
+    "message": "E017: Nätverksfel: Kontrollera din nätverksanslutning och dina kontoinställningar"
+  },
+  "Error018": {
+    "message": "E018: Det gick inte att verifiera med servern"
+  },
+  "Error019": {
+    "message": "E019: HTTP status $1. Misslyckades med $2 begäran. Kontrollera dina serverinställningar och logg."
+  },
+  "Error020": {
+    "message": "E020: Det gick inte att analysera serverns svar. Är bokmärken-appen installerad på din server?"
+  },
+  "Error021": {
+    "message": "E021: Inkonsekvent servertillstånd. Mappen finns i listan över underordnade mappar men inte i mappträdet"
+  },
+  "Error022": {
+    "message": "E022: Mappen $1 innehåller icke existerande bokmärke $2"
+  },
+  "Error023": {
+    "message": "E023: Kunde inte rensa låst fil, överväg att ta bort $1 manuellt."
+  },
+  "Error024": {
+    "message": "E024: HTTP status $1 när status fastställdes för låsta filen $2"
+  },
+  "Error025": {
+    "message": "E025: Bokmärkensfilens inställning får inte börja med ett slashtecken: '/'"
+  },
+  "Error026": {
+    "message": "E026: HTTP status $1. Misslyckade att hämta bokmärken"
+  },
+  "Error027": {
+    "message": "E027. Synkningsprocessen avbröts"
+  },
+  "LabelWebdavurl": {
+    "message": "WebDAV URL"
+  },
+  "DescriptionWebdavurl": {
+    "message": "Ex. med nextcloud: https://your-domain.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "Nextcloud URL"
+  },
+  "LabelUsername": {
+    "message": "Användarnamn"
+  },
+  "LabelPassword": {
+    "message": "Lösenord"
+  },
+  "LabelBookmarksfile": {
+    "message": "Bokmärkets filsökväg"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "en sökväg till bokmärkesfilen relativt din WebDAV-URL (alla mappar i sökvägen måste redan existera). t.ex. personal_stuff/bookmarks.xbel"
+  },
+  "LabelServerfolder": {
+    "message": "Server mapp"
+  },
+  "DescriptionServerfolder": {
+    "message": "Detta är den sökvägsprefix under vilket detta konto kommer att fungera på servern. T.ex. Om du använder '' / work 'kommer alla dina bokmärken att skapas på servern med denna sökväg förinställd till sin ursprungliga sökväg (den i förhållande till den lokala mappen som du angav ovan). Detta gör att du kan dela dina serverbokmärken i flera 'profiler'. Lämna detta tomt för att inte använda något prefix alls."
+  },
+  "LabelLocalfolder": {
+    "message": "Lokal mapp"
+  },
+  "DescriptionLocalfolder": {
+    "message": "Detta är den lokala bokmärkesmappen i den här webbläsaren som kommer att synkroniseras med servern. Som standard skapas en ny tom mapp för dig i den här webbläsaren. Om du vill synkronisera en befintlig mapp, välj den här. (Obs! Du kan nu synkronisera rotmappen mellan olika webbläsarleverantörer som standard.)"
+  },
+  "LabelRootfolder": {
+    "message": "Rotkatalog"
+  },
+  "LabelOptions": {
+    "message": "Alternativ"
+  },
+  "LabelSyncnow": {
+    "message": "Synka nu"
+  },
+  "LabelCancelsync": {
+    "message": "Avbryt synkning"
+  },
+  "LabelEnabled": {
+    "message": "Aktiverad"
+  },
+  "StatusLastsynced": {
+    "message": "Tid sedan synkronisering: $1"
+  },
+  "StatusNeversynced": {
+    "message": "Ännu inte synkroniserad"
+  },
+  "StatusAllgood": {
+    "message": "Allt väl"
+  },
+  "StatusDisabled": {
+    "message": "Avaktiverad"
+  },
+  "StatusError": {
+    "message": "Fel"
+  },
+  "StatusSyncing": {
+    "message": "Synkar"
+  },
+  "LabelReset": {
+    "message": "Återställ"
+  },
+  "DescriptionReset": {
+    "message": "Återställ synkroniserad mapp för att skapa en ny"
+  },
+  "LabelChoosefolder": {
+    "message": "Välj mapp"
+  },
+  "DescriptionChoosefolder": {
+    "message": "Välj en existerande mapp att synka"
+  },
+  "LabelRemoveaccount": {
+    "message": "Ta bort konto"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "Ta bort detta konto (detta kommer inte ta bort dina bokmärken)"
+  },
+  "LabelResetCache": {
+    "message": "Utlös en synkning från grunden"
+  },
+  "DescriptionResetcache": {
+    "message": "Kryssa i den här rutan för att återställa cachen så att nästa synkroniseringskörning garanteras att inte radera data och bara slår samman server och lokala bokmärken."
+  },
+  "LabelParallelsync": {
+    "message": "Skynda på synkronisering"
+  },
+  "DescriptionParallelsync": {
+    "message": "Kryssa i denna ruta för att behandla flera mappar parallellt för att påskynda synkroniseringen. Den här funktionen är experimentell och gör det svårare att läsa felsökningsloggarna."
+  },
+  "LabelStrategy": {
+    "message": "Synkronieringsstrategi"
+  },
+  "DescriptionStrategy": {
+    "message": "Det här alternativet avgör hur du ska synkronisera bokmärktträdet på servern med det i den här webbläsaren. Vanligtvis vill du behålla ändringar i båda träden om de är kompatibla, men ibland kanske du vill tvinga den lokala versionen till servern, eller vice versa."
+  },
+  "LabelStrategydefault": {
+    "message": "Slå samman lokala och fjärrändringar (rekommenderas)"
+  },
+  "LabelStrategyslave": {
+    "message": "Skriv alltid över och återställ lokala ändringar"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "Skriv alltid över och återställ fjärrändringar"
+  },
+  "LabelSave": {
+    "message": "Spara"
+  },
+  "LabelCancel": {
+    "message": "Avbryt"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Nextcloud Bookmarks"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "Alternativet 'Nextcloud Bookmarks' är kompatibel med åtminstonde version v0.14 av Bookmarks appen."
+  },
+  "LabelAdapternextcloud": {
+    "message": "Nextcloud Bookmarks (legacy)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "Den äldre versionen är kompatibel med åtminstone version v0.11 av appen Bookmarks. Den kommer att emulera mappar med taggar som innehåller mappvägen. Det rekommenderas inte att använda detta för nya konton."
+  },
+  "LabelAdapterwebdav": {
+    "message": "XBEL filen i WebDAV delningen"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "WebDAV-alternativet synkroniserar dina bokmärken genom att lagra dem i en XBEL-fil i den angivna WebDAV-delningen. Det finns inget medföljande webbgränssnitt för detta alternativ och du kan använda det med vilken WebDAV-kompatibel server som helst."
+  },
+  "LabelAddaccount": {
+    "message": "Lägg till konto"
+  },
+  "LabelSecurecredentials": {
+    "message": "Säkra dina autentiseringsuppgifter "
+  },
+  "LabelSecuredcredentials": {
+    "message": "Dina autentiseringsuppgifter är säkra"
+  },
+  "LabelOpenintab": {
+    "message": "Öppna i flik"
+  },
+  "LabelDebuglogs": {
+    "message": "Debug loggar"
+  },
+  "LabelFunddevelopment": {
+    "message": "Finansiera utvecklingen"
+  },
+  "DescriptionFunddevelopment": {
+    "message": "Jag använder denna möjlighet för att be dig om en donation för att stödja underhållet av detta projekt och göra detta arbete mer hållbart. Du hittar de betalningsleverantörer som stöds nedan. Varje belopp uppskattas. Tack! 💙"
+  },
+  "LabelSelect": {
+    "message": "Välj"
+  },
+  "LabelUntitledfolder": {
+    "message": "Namnlös mapp"
+  },
+  "LabelSetkey": {
+    "message": "Ange lösenfras för floccus"
+  },
+  "DescriptionSetkey": {
+    "message": "När du ställer in en lösenfras måste du ange denna lösenfras varje gång du startar webbläsaren om du vill komma åt och synkronisera dina bokmärken."
+  },
+  "LabelKey": {
+    "message": "Ange din upplåsnings lösenfras"
+  },
+  "LabelKey2": {
+    "message": "Ange din lösenfras en gång till"
+  },
+  "LabelUnlock": {
+    "message": "Lås upp floccus"
+  },
+  "LabelRemovekey": {
+    "message": "Ta bort lösenfrasen"
+  },
+  "LabelRemovedkey": {
+    "message": "Lösenfras har tagits bort"
+  },
+  "LabelSyncinterval": {
+    "message": "Synkroniseringsintervall"
+  },
+  "DescriptionSyncinterval": {
+    "message": "Tidsspannet mellan två synkningar i minuter. Standard är 15 mintuer."
+  },
+  "LabelChooseadapter": {
+    "message": "Hur vill du synka?"
+  },
+  "LabelOptionsscreen": {
+    "message": "$1 alternativ",
+    "description": "Title of the options screen. The placeholder holds the account type."
+  },
+  "LabelPaypal": {
+    "message": "PayPal"
+  },
+  "DescriptionPaypal": {
+    "message": "Gör en engångsdonation via PayPal för att stötta projektet"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "Gör en regelbunden donation via OpenCollective för att stötta projektet"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "Gör en regelbunden donation via Liberapay för att stötta projektet"
+  },
+  "LabelGithubsponsors": {
+    "message": "GitHub sponsorer"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "Gör en regelbunden donation via GitHub sponsors för att stötta projektet"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "Denna gamla kontotyp avskrivs och kommer snart att tas bort. Växla till den nya synkroniseringsmetoden för Nextcloud. Förbättrad prestanda och noggrannhet väntar dig."
+  },
+  "LabelUpdated": {
+    "message": "Floccus uppdaterades"
+  },
+  "DescriptionUpdated": {
+    "message": "Grattis, du har den senaste uppdateringen av floccus på din enhet!"
+  },
+  "LabelReleaseNotes": {
+    "message": "Läs uppdateringslogg"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "Server detaljer"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "Mappmappning"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "Synkningsbeteende"
+  },
+  "LabelOptionsDangerous": {
+    "message": "Farliga inställningar"
+  },
+  "LabelAccountDeleted": {
+    "message": "Kontot borttaget"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "Det här kontot är borttaget"
+  },
+  "LabelNoAccount": {
+    "message": "Inga konton här"
+  },
+  "DescriptionNoAccount": {
+    "message": "Skapa ett konto för att synka dina bokmärken."
+  },
+  "LabelLoginFlowStart": {
+    "message": "Logga in med Nextcloud Flow"
+  },
+  "LabelLoginFlowStop": {
+    "message": "Avbryt Nextcloud Flow inloggning"
+  },
+  "LabelLoginFlowError": {
+    "message": "Nextcloud Flow inloggning misslyckades"
+  },
+  "LabelNewAccount": {
+    "message": "Nytt konto"
+  },
+  "LabelNestedSync": {
+    "message": "Nästlade konton"
+  },
+  "DescriptionNestedSync": {
+    "message": "Du kan nästla konton så att en överordnad mapp tillhör ett konto och en underordnad mapp till ett annat konto. Vill du inkludera detta kontos lokala mapp i eventuell överordnad mappsynkronisering från ett annat konto?"
+  },
+  "LabelNestedSyncNo": {
+    "message": "Exkludera detta kontos lokala mappar i andra synkningskonton"
+  },
+  "LabelNestedSyncYes": {
+    "message": "Inkludera detta kontos lokala mappar i andra kontons synkningar"
+  }
+}

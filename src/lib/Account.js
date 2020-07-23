@@ -73,6 +73,7 @@ export default class Account {
       localRoot: null,
       strategy: 'default',
       syncInterval: 15,
+      nestedSync: false,
     }
     return {...defaults, ...this.server.getData()}
   }
@@ -253,12 +254,12 @@ export default class Account {
   static async getAccountsContainingLocalId(localId, ancestors, allAccounts) {
     ancestors = ancestors || (await LocalTree.getIdPathFromLocalId(localId))
     allAccounts = allAccounts || (await this.getAllAccounts())
-    return allAccounts
-      .map((account) => ({
-        account,
-        index: ancestors.indexOf(account.getData().localRoot),
-      }))
-      .filter((acc) => acc.index !== -1)
-      .map((acc) => acc.account)
+
+    const accountsInvolved = allAccounts
+      .filter(acc => ancestors.indexOf(acc.getData().localRoot) !== -1)
+      .reverse()
+
+    const lastNesterIdx = accountsInvolved.findIndex(acc => !acc.getData().nestedSync)
+    return accountsInvolved.slice(0, lastNesterIdx)
   }
 }

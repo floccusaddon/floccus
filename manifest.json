@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "floccus bookmarks sync",
   "short_name": "floccus",
-  "version": "4.2.5",
+  "version": "4.2.6",
   "description": "Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)",
   "icons": {
     "48": "icons/logo.png",
@@ -19,7 +19,7 @@
 
   "default_locale": "en",
 
-  "permissions": ["https://*/", "http://*/", "alarms", "bookmarks", "storage"],
+  "permissions": ["https://*/", "http://*/", "alarms", "bookmarks", "storage", "unlimitedStorage"],
 
   "options_ui": {
     "page": "dist/html/options.html",

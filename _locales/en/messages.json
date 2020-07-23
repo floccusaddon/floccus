@@ -347,5 +347,17 @@
   },
   "LabelNewAccount": {
     "message": "New Account"
+  },
+  "LabelNestedSync": {
+    "message": "Nested accounts"
+  },
+  "DescriptionNestedSync": {
+    "message": "You can nest accounts so that a parent folder belongs to one account and a child folder to a different account. Do you want to include this account's local folder in any potential parent folder sync from a different account?"
+  },
+  "LabelNestedSyncNo": {
+    "message": "Exclude this account's local folder from other sync accounts"
+  },
+  "LabelNestedSyncYes": {
+    "message": "Include this account's local folder in other account syncs"
   }
 }

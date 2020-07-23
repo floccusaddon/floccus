@@ -49,6 +49,9 @@
           <OptionSyncStrategy
             :value="strategy"
             @input="$emit('update:strategy', $event)" />
+          <OptionNestedSync
+            :value="nestedSync"
+            @input="$emit('update:nestedSync', $event)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 
@@ -70,11 +73,12 @@ import OptionResetCache from './OptionResetCache'
 import OptionSyncStrategy from './OptionSyncStrategy'
 import OptionDeleteAccount from './OptionDeleteAccount'
 import OptionSyncFolder from './OptionSyncFolder'
+import OptionNestedSync from './OptionNestedSync'
 
 export default {
   name: 'OptionsWebdav',
-  components: { OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
-  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file'],
+  components: { OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
+  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync'],
   data() {
     return {
       panels: [0]

@@ -799,10 +799,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
       return res
     }
 
-    if (res.status === 401) {
+    if (res.status === 401 || res.status === 403) {
       throw new Error(browser.i18n.getMessage('Error018'))
     }
-    if (res.status !== 200) {
+    if (res.status === 503) {
       throw new Error(browser.i18n.getMessage('Error019', [res.status, verb]))
     }
     let json

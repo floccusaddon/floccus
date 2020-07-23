@@ -5,6 +5,7 @@ import Cryptography from './Crypto'
 import packageJson from '../../package.json'
 import AccountStorage from './AccountStorage'
 import * as localForage from 'localforage' // for backwards compatibility
+import _ from 'lodash'
 
 const PQueue = require('p-queue')
 
@@ -95,8 +96,7 @@ export default class Controller {
       if (packageVersion[0] !== lastVersion[0] || packageVersion[1] !== lastVersion[1]) {
         browser.tabs.create({
           url: './options.html#/update',
-          title: browser.i18n.getMessage('LabelUpdated'),
-          discarded: true
+          active: false
         })
       }
     })
@@ -141,7 +141,7 @@ export default class Controller {
   }
 
   async unlock(key) {
-    let d = await browser.storage.local.get({'accountsLocked': null})
+    let d = await browser.storage.local.get({ 'accountsLocked': null })
     if (d.accountsLocked) {
       let hashedKey = await Cryptography.sha256(key)
       let decryptedHash = await Cryptography.decryptAES(
@@ -184,20 +184,9 @@ export default class Controller {
       })
     )
 
-    const accountsToSync = allAccounts
+    let accountsToSync = allAccounts
       // Filter out any accounts that are not tracking the bookmark
       .filter((account, i) => trackingAccountsFilter[i])
-      // Filter out any accounts that are presently syncing
-      .filter(account => !account.getData().syncing)
-      // Filter out accounts that are not enabled
-      .filter(account => account.getData().enabled)
-
-    // We should now cancel sync for the account that used to contain this bookmark
-    // and schedule a new sync
-    accountsToSync.forEach(account => {
-      this.cancelSync(account.id, true)
-      this.scheduleSync(account.id, true)
-    })
 
     // Now we check the account of the new folder
 
@@ -214,16 +203,18 @@ export default class Controller {
       ancestors,
       allAccounts
     )
-    containingAccounts.forEach(containingAccount => {
-      if (
-        containingAccount &&
-        !containingAccount.getData().syncing &&
-        containingAccount.getData().enabled &&
-        !accountsToSync.some(acc => acc.id === containingAccount.id)
-      ) {
-        this.cancelSync(containingAccount.id, true)
-        this.scheduleSync(containingAccount.id, true)
-      }
+    accountsToSync = _.uniqBy(
+      accountsToSync.concat(containingAccounts),
+      acc => acc.id)
+      // Filter out any accounts that are presently syncing
+      .filter(account => !account.getData().syncing)
+      // Filter out accounts that are not enabled
+      .filter(account => account.getData().enabled)
+
+    // schedule a new sync for all accounts involved
+    accountsToSync.forEach(account => {
+      this.cancelSync(account.id, true)
+      this.scheduleSync(account.id, true)
     })
 
     this.setEnabled(true)

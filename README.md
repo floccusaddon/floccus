@@ -38,10 +38,10 @@ Floccus is regularly tested with the following setups:
 
 |Nextcloud|Bookmarks|
 |---|---|
-|v16|v1.1.2|
-|v16|v2.3.4|
+|v17|v1.1.2|
 |v17|v2.3.4|
 |v18|v2.3.4|
+|v19|v3.x|
 
 Syncing via WebDAV should work with any Nextcloud version.
 
@@ -63,16 +63,16 @@ Floccus is not supported by Firefox for Android [yet](https://developer.mozilla.
 
 ### Ugrading
 
-### Upgrading from v3.x to v4.x
+#### Upgrading from v3.x to v4.x
 See "Switching from tag-based to folder-based syncing"
-
-#### Updating from v2.x to v3.0
-
-It is recommended to remove all of your bookmarks from your accounts before using the new version, deleting the accounts and then to create them again, in order to prevent unforeseen problems!
 
 #### Updating from v3.0 to v3.1
 
 When using a WebDAV account, there's nothing you need to do to benefit from the new order preservation feature. If you are using the nextcloud adapter, it is recommended that you switch to the new nextcloud adapter, which works with the Bookmarks folders feature and also preserves ordering.
+
+#### Updating from v2.x to v3.0
+
+It is recommended to remove all of your bookmarks from your accounts before using the new version, deleting the accounts and then to create them again, in order to prevent unforeseen problems!
 
 #### Switching from tag-based to folder-based syncing
 
@@ -93,7 +93,7 @@ Floccus requests the following permissions:
 
 | Permission           | Explanation                                                                                                                                                                                                                                                                                                                                                          |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| storage              | Necessary for maintaining a cache and mappings between server and browser bookmarks                                                                                                                                                                                                                                                                                  |
+| storage, unlimitedStorage             | Necessary for maintaining a cache and mappings between server and browser bookmarks                                                                                                                                                                                                                                                                                  |
 | alarms               | Necessary for triggering synchronization in regular intervals                                                                                                                                                                                                                                                                                                        |
 | bookmarks            | Necessary for creating and reading bookmarks                                                                                                                                                                                                                                                                                                                         |
 | Unlimited web access | Necessary for accessing your self-hosted server. This cannot be limited, because everybody's server has a different URL. Unfortunately, the way webextensions work currently, floccus also gets access to all the data the browser has collected on those websites. However, floccus makes no use of that data and doesn't in any way collect information about you. |
