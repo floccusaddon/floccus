@@ -1,3 +1,22 @@
+# Changelog
+
+## v4.2.6
+
+### New
+- Add option for nested accounts
+- Revert "Allow syncing the same folder with multiple accounts"
+
+### Fixed
+- Try to fix unmapped children error
+- Sync algorithm: XOR createdUpstream with existingChildren
+- Update dependencies
+- NextcloudFolders: Improve error message on non-200 response
+- Update screenshots
+- SyncProcess: Fix concurrency for merging
+- NestedSync: Fix WebDAV and NextcloudLegacy
+- WebDAV: Give up faster when lock doesn't unlock
+- Permissions: We may need unlimited storage
+
 ## v4.2.5
 
 ### Fixed
