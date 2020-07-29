@@ -347,5 +347,17 @@
   },
   "LabelNewAccount": {
     "message": "新建帐户"
+  },
+  "LabelNestedSync": {
+    "message": "嵌套帐户"
+  },
+  "DescriptionNestedSync": {
+    "message": "您可以嵌套帐户，以便父文件夹属于一个帐户，子文件夹属于另一个帐户。是否要将此帐户的本地文件夹包含在来自其他帐户任何可能的父文件夹同步中？"
+  },
+  "LabelNestedSyncNo": {
+    "message": "从其他帐户同步中排除此帐户的本地文件夹"
+  },
+  "LabelNestedSyncYes": {
+    "message": "在其他帐户同步中包括此帐户的本地文件夹"
   }
 }
