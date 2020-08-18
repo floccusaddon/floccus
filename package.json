@@ -66,7 +66,7 @@
     "hyperapp": "^1.2.10",
     "js-base64": "^2.5.2",
     "localforage": "^1.7.3",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.20",
     "murmur2js": "^1.0.0",
     "normalize-url": "^5.0.0",
     "p-queue": "^5.0.0",
