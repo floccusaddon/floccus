@@ -17,8 +17,8 @@ jobs:
     env:
       SELENIUM_HUB_HOST: hub
       TEST_HOST: nextcloud
-      SERVER_BRANCH: ${{ matrix.server-versions }}
-      NC_APP_VERSION: ${{ matrix.app-versions }}
+      SERVER_BRANCH: ${{ matrix.server-version }}
+      NC_APP_VERSION: ${{ matrix.app-version }}
       SELENIUM_VERSION: 3
       MYSQL_PASSWORD: root
 
@@ -26,9 +26,9 @@ jobs:
       # do not stop on another job's failure
       fail-fast: false
       matrix:
-        node-versions: [13.x]
-        server-versions: ['19']
-        app-versions: ['stable']
+        node-version: [13.x]
+        server-version: ['19']
+        app-version: ['stable']
         floccus-adapter:
           - fake
           - nextcloud-folders
@@ -40,44 +40,44 @@ jobs:
           - benchmark parallel-root
         browsers: ['firefox', 'chrome']
         include:
-          - app-versions: v1.1.2
-            server-versions: 17
+          - app-version: v1.1.2
+            server-version: 17
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
-          - app-versions: v2.3.4
-            server-versions: 18
+          - app-version: v2.3.4
+            server-version: 18
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
-          - app-versions: stable
-            server-versions: 18
+          - app-version: stable
+            server-version: 18
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
-          - app-versions: stable
-            server-versions: 18
+          - app-version: stable
+            server-version: 18
             floccus-adapter: nextcloud-folders
             test-name: standard
             browsers: chrome
-          - app-versions: master
-            server-versions: 19
+          - app-version: master
+            server-version: 19
             floccus-adapter: nextcloud-folders
             test-name: standard
-            browsers: chrome
-          - app-versions: master
-            server-versions: 19
+            browsers: chromnodee
+          - app-version: master
+            server-version: 19
             floccus-adapter: nextcloud-folders
             test-name: benchmark standard-root
             browsers: chrome
-          - app-versions: master
-            server-versions: 19
+          - app-version: master
+            server-version: 19
             floccus-adapter: nextcloud-folders
             test-name: benchmark parallel-root
             browsers: chrome
 
 
-    name: ${{matrix.floccus-adapter}}:${{ matrix.test-name}} nc@${{ matrix.server-versions }} bm@${{ matrix.app-versions }} ${{ matrix.browsers }}
+    name: ${{matrix.floccus-adapter}}:${{ matrix.test-name}} nc@${{ matrix.server-version }} bm@${{ matrix.app-version }} ${{ matrix.browsers }}
 
     services:
       hub:
@@ -97,7 +97,7 @@ jobs:
           HUB_PORT: 4444
         options: -v /dev/shm:/dev/shm
       nextcloud:
-        image: nextcloud:${{ matrix.server-versions }}
+        image: nextcloud:${{ matrix.server-version }}
         env:
           NEXTCLOUD_ADMIN_USER: admin
           NEXTCLOUD_ADMIN_PASSWORD: admin
@@ -124,7 +124,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: nextcloud/${{ env.APP_NAME }}
-          ref: ${{ matrix.app-versions }}
+          ref: ${{ matrix.app-version }}
           path: ${{ env.APP_NAME }}
         if: matrix.floccus-adapter == 'nextcloud-folders'
 
@@ -161,10 +161,10 @@ jobs:
           [ $NEXT_WAIT_TIME -lt 25 ]
         if: matrix.floccus-adapter != 'fake'
 
-      - name: Set up node ${{ matrix.node-versions }}
+      - name: Set up node ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-versions }}
+          node-version: ${{ matrix.node-version }}
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -188,7 +188,7 @@ jobs:
         working-directory: floccus
         env:
           SELENIUM_BROWSER: ${{ matrix.browsers }}
-          FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
+          FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}.* ${(app-version == 'v1.2.6' || app-version == 'v2.3.4')  && '(?!!exclude-old)' || '' }
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
         run: |
           npm run test
