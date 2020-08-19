@@ -634,7 +634,7 @@ describe('Floccus', function() {
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
         })
-        it('should deduplicate unnormalized URLs without gettings stuck', async function() {
+        it('should deduplicate unnormalized URLs without gettings stuck !exclude-old', async function() {
           const adapter = account.server
           expect(
             (await adapter.getBookmarksTree(true)).children

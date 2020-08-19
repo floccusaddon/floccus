@@ -217,12 +217,6 @@ export default class SyncProcess {
         toOrder: localOrder,
         item: localItem
       })
-    } else if (!localItem && cacheItem && !serverItem) {
-      if (cacheItem instanceof Tree.Bookmark) {
-        await this.mappings.removeBookmark({ localId: cacheItem.id })
-      } else {
-        await this.mappings.removeFolder({ localId: cacheItem.id })
-      }
     }
   }
 
