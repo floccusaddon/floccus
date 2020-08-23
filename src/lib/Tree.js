@@ -6,11 +6,12 @@ const Parallel = require('async-parallel')
 const STRANGE_PROTOCOLS = ['data:', 'javascript:', 'about:', 'chrome:']
 
 export class Bookmark {
-  constructor({ id, parentId, url, title }) {
+  constructor({ id, parentId, url, title, hashValue }) {
     this.type = 'bookmark'
     this.id = id
     this.parentId = parentId
     this.title = title
+    this.hashValue = hashValue || {}
 
     // not a regular bookmark
     if (STRANGE_PROTOCOLS.some(proto => url.indexOf(proto) === 0)) {
@@ -40,8 +41,8 @@ export class Bookmark {
     return this.hashValue
   }
 
-  clone() {
-    return new Bookmark(this)
+  clone(withHash) {
+    return new Bookmark({...this, ...(!withHash && { hashValue: {} })})
   }
 
   createIndex() {
@@ -75,13 +76,14 @@ export class Bookmark {
 }
 
 export class Folder {
-  constructor({ id, parentId, title, children, hashValue }) {
+  constructor({ id, parentId, title, children, hashValue, dateGroupModified }) {
     this.type = 'folder'
     this.id = id
     this.parentId = parentId
     this.title = title
     this.children = children || []
     this.hashValue = hashValue || {}
+    this.dateGroupModified = dateGroupModified || null
   }
 
   findFolder(id) {

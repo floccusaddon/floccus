@@ -401,12 +401,18 @@ export default class SyncProcess {
   }
 
   async folderHasChanged(localItem, cacheItem, serverItem) {
-    const localHash = localItem
-      ? await localItem.hash(this.preserveOrder)
-      : null
     const cacheHash = cacheItem
       ? await cacheItem.hash(this.preserveOrder)
       : null
+    let localHash
+    if (cacheItem && cacheItem.dateGroupModified === localItem.dateGroupModified) {
+      localHash = cacheHash
+      localItem.hashValue[this.preserveOrder] = cacheHash
+    } else {
+      localHash = localItem
+        ? await localItem.hash(this.preserveOrder)
+        : null
+    }
     const serverHash = serverItem
       ? await serverItem.hash(this.preserveOrder)
       : null

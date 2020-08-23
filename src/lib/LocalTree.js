@@ -60,6 +60,7 @@ export default class LocalTree extends Resource {
           id: node.id,
           parentId,
           title: parentId ? overrideTitle || node.title : undefined,
+          dateGroupModified: node.dateGroupModified,
           children: node.children
             .map(child => recurse(child, node.id))
             .filter(child => !!child) // filter out `undefined` from nested accounts
