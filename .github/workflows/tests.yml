@@ -188,7 +188,7 @@ jobs:
         working-directory: floccus
         env:
           SELENIUM_BROWSER: ${{ matrix.browsers }}
-          FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}.* ${(app-version == 'v1.2.6' || app-version == 'v2.3.4')  && '(?!!exclude-old)' || '' }
+          FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
         run: |
           npm run test
