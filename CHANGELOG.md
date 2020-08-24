@@ -1,5 +1,14 @@
 # Changelog
 
+## v4.3.0
+
+### New
+ - Implement import/export of accounts
+
+### Fixed
+- UI: Account card button alignment fix
+- Fix OrderTracker bug (#598)
+
 ## v4.2.6
 
 ### New
