@@ -359,5 +359,14 @@
   },
   "LabelNestedSyncYes": {
     "message": "Include this account's local folder in other account syncs"
+  },
+  "LabelImportExport": {
+    "message": "Import/Export"
+  },
+  "LabelExport": {
+    "message": "Export"
+  },
+  "LabelImport": {
+    "message": "Import"
   }
 }

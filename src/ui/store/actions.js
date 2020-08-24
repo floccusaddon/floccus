@@ -2,6 +2,7 @@ import Account from '../../lib/Account'
 import browser from '../../lib/browser-api'
 import { mutations } from './mutations'
 import Logger from '../../lib/Logger'
+import LocalTree from '../../lib/LocalTree'
 
 export const actions = {
   LOAD_LOCKED: 'LOAD_UNLOCKED',
@@ -10,6 +11,8 @@ export const actions = {
   UNSET_KEY: 'UNSET_KEY',
   LOAD_ACCOUNTS: 'LOAD_ACCOUNTS',
   CREATE_ACCOUNT: 'CREATE_ACCOUNT',
+  IMPORT_ACCOUNTS: 'IMPORT_ACCOUNTS',
+  EXPORT_ACCOUNTS: 'EXPORT_ACCOUNTS',
   DELETE_ACCOUNT: 'DELETE_ACCOUNT',
   RESET_ACCOUNT: 'RESET_ACCOUNT',
   STORE_ACCOUNT: 'STORE_ACCOUNT',
@@ -46,19 +49,34 @@ export const actionsDefinition = {
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
     const accountsArray = await Account.getAllAccounts()
     const accounts = {}
-    accountsArray.forEach((acc) => {
-      accounts[acc.id] = {
-        data: acc.getData(),
-        id: acc.id,
-        label: acc.getLabel(),
-      }
-    })
+    await Promise.all(
+      accountsArray.map(async(acc) => {
+        accounts[acc.id] = {
+          data: acc.getData(),
+          id: acc.id,
+          label: acc.getLabel(),
+          fullPath: await LocalTree.getPathFromLocalId(acc.getData().localRoot)
+        }
+      })
+    )
     await commit(mutations.LOAD_ACCOUNTS, accounts)
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
     const account = await Account.create(Account.getDefaultValues(type))
     await dispatch(actions.LOAD_ACCOUNTS)
     return account.id
+  },
+  async [actions.IMPORT_ACCOUNTS]({commit, dispatch, state}, accounts) {
+    await Account.import(accounts)
+    await dispatch(actions.LOAD_ACCOUNTS)
+  },
+  async [actions.EXPORT_ACCOUNTS]({commit, dispatch, state}, accountIds) {
+    const data = await Account.export(accountIds)
+    const blob = new Blob([JSON.stringify(data, null, '  ')], {
+      type: 'text/plain',
+      endings: 'native'
+    })
+    Logger.download('floccus.export.json', blob)
   },
   async [actions.DELETE_ACCOUNT]({commit, dispatch, state}, id) {
     const account = await Account.get(id)
