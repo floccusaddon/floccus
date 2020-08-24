@@ -5,6 +5,7 @@ import AccountOptions from './views/AccountOptions'
 import NewAccount from './views/NewAccount'
 import SetKey from './views/SetKey'
 import Update from './views/Update'
+import ImportExport from './views/ImportExport'
 
 Vue.use(Router)
 
@@ -15,6 +16,7 @@ export const routes = {
   SET_KEY: 'SET_KEY',
   FUNDING: 'FUNDING',
   UPDATE: 'UPDATE',
+  IMPORTEXPORT: 'IMPORTEXPORT',
 }
 
 export const router = new Router({
@@ -44,6 +46,11 @@ export const router = new Router({
       path: '/update',
       name: routes.UPDATE,
       component: Update,
+    },
+    {
+      path: '/importexport',
+      name: routes.IMPORTEXPORT,
+      component: ImportExport,
     },
   ],
 })

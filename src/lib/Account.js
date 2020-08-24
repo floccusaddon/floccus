@@ -38,12 +38,25 @@ export default class Account {
 
   static async create(data) {
     let id = '' + Date.now() + Math.random()
+    let adapter = Adapter.factory(data)
     let storage = new AccountStorage(id)
 
     let background = await browser.runtime.getBackgroundPage()
     await storage.setAccountData(data, background.controller.key)
-    let account = new Account(id, storage, Adapter.factory(data))
+    let account = new Account(id, storage, adapter)
     return account
+  }
+
+  static async import(accounts) {
+    for (const accountData of accounts) {
+      await Account.create({...accountData, enabled: false})
+    }
+  }
+
+  static async export(accountIds) {
+    return (await Promise.all(
+      accountIds.map(id => Account.get(id))
+    )).map(a => a.getData())
   }
 
   static getDefaultValues(type) {

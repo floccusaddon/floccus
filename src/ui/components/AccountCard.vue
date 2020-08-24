@@ -7,7 +7,7 @@
       v-slot:progress
       :value="account.data.syncing * 100 || 0"
       :indeterminate="account.data.syncing < 0.1" />
-    <v-container class="pa-5">
+    <v-container class="pa-4">
       <v-row
         no-gutters
         class="flex-column">
@@ -17,8 +17,10 @@
               <div class="overline">
                 {{ account.data.type }}
               </div>
-              <div class="headline">
-                {{ folderName }}
+              <div class="text-h6">
+                <v-icon color="primary">
+                  mdi-folder
+                </v-icon> {{ folderName }}
               </div>
               <div class="caption">
                 {{ uri }}
@@ -42,7 +44,8 @@
             dark
             outlined
             :icon="false"
-            :type="statusType">
+            :type="statusType"
+            class="pa-2 text-caption">
             {{ statusDetail }} <v-btn
               color="blue"
               class="float-right"
@@ -66,27 +69,29 @@
             <v-col>
               <v-switch
                 v-model="account.data.enabled"
-                :label="t('LabelEnabled')"
+                :aria-label="t('LabelEnabled')"
                 dense
                 class="mt-0 pt-0"
                 @change="onToggleEnabled" />
             </v-col>
             <v-col
-              class="align-end flex-grow-0"
+              class="d-flex flex-grow-0"
               :style="{ flexBasis: 'content' }">
               <v-btn
                 icon
                 small
+                :title="t('LabelOptions')"
                 :aria-label="t('LabelOptions')"
                 :to="{ name: routes.ACCOUNT_OPTIONS, params: { accountId: account.id } }"
                 target="_blank">
                 <v-icon>mdi-settings</v-icon>
               </v-btn>
-              <template v-if="account.data.enabled">
+              <template>
                 <v-btn
                   v-if="!account.data.syncing"
                   class="primary"
                   small
+                  :disabled="!account.data.enabled"
                   @click="onTriggerSync">
                   <v-icon>mdi-sync</v-icon>
                   {{ t('LabelSyncnow') }}

@@ -18,22 +18,32 @@
         {{ t('DescriptionNoAccount') }}
       </div>
     </v-container>
-    <v-btn
-      block
-      :to="{name: routes.NEW_ACCOUNT}"
-      color="white"
-      target="_blank">
-      <v-icon>
-        mdi-plus
-      </v-icon>
-      {{ t('LabelNewAccount') }}
-    </v-btn>
+    <v-container class="d-flex flex-row pa-0">
+      <v-btn
+        class="flex-grow-1 me-1"
+        :to="{ name: routes.NEW_ACCOUNT }"
+        color="white"
+        target="_blank">
+        <v-icon>
+          mdi-plus
+        </v-icon>
+        {{ t('LabelNewAccount') }}
+      </v-btn>
+      <v-btn
+        color="white"
+        :title="t('labelImportExport')"
+        :to="{ name: routes.IMPORTEXPORT }"
+        target="_blank">
+        <v-icon>mdi-swap-vertical-bold</v-icon>
+      </v-btn>
+    </v-container>
   </v-container>
 </template>
 
 <script>
 import AccountCard from '../components/AccountCard'
 import { routes } from '../router'
+
 export default {
   name: 'Overview',
   components: { AccountCard },
@@ -43,7 +53,7 @@ export default {
     },
     routes() {
       return routes
-    }
+    },
   }
 }
 </script>

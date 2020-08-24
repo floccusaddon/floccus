@@ -1,6 +1,6 @@
 {
   "name": "floccus",
-  "version": "4.2.6",
+  "version": "4.3.0",
   "description": "Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)",
   "main": "index.js",
   "scripts": {
@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/marcelklehr/floccus#readme",
   "devDependencies": {
-    "@babel/core": "^7.9.0",
+    "@babel/core": "^7.11.0",
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.9.4",
     "all-contributors-cli": "^6.14.2",
@@ -42,7 +42,7 @@
     "sass-loader": "^8.0.2",
     "selenium-webdriver": "^4.0.0-alpha.7",
     "typescript": "^3.9.7",
-    "vuetify-loader": "^1.4.3",
+    "vuetify-loader": "^1.6.0",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-merge": "^4.2.2"
@@ -66,7 +66,7 @@
     "hyperapp": "^1.2.10",
     "js-base64": "^2.5.2",
     "localforage": "^1.7.3",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.20",
     "murmur2js": "^1.0.0",
     "normalize-url": "^5.0.0",
     "p-queue": "^5.0.0",
@@ -76,7 +76,7 @@
     "virtual-dom": "^2.1.1",
     "vue": "^2.6.11",
     "vue-loader": "^15.9.3",
-    "vue-router": "^3.1.6",
+    "vue-router": "^3.4.3",
     "vue-template-compiler": "^2.6.11",
     "vuelidate": "^0.7.5",
     "vuetify": "^2.3.4",
