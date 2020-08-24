@@ -75,21 +75,23 @@
                 @change="onToggleEnabled" />
             </v-col>
             <v-col
-              class="align-end flex-grow-0"
+              class="d-flex flex-grow-0"
               :style="{ flexBasis: 'content' }">
               <v-btn
                 icon
                 small
+                :title="t('LabelOptions')"
                 :aria-label="t('LabelOptions')"
                 :to="{ name: routes.ACCOUNT_OPTIONS, params: { accountId: account.id } }"
                 target="_blank">
                 <v-icon>mdi-settings</v-icon>
               </v-btn>
-              <template v-if="account.data.enabled">
+              <template>
                 <v-btn
                   v-if="!account.data.syncing"
                   class="primary"
                   small
+                  :disabled="!account.data.enabled"
                   @click="onTriggerSync">
                   <v-icon>mdi-sync</v-icon>
                   {{ t('LabelSyncnow') }}
