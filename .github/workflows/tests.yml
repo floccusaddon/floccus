@@ -64,7 +64,7 @@ jobs:
             server-version: 19
             floccus-adapter: nextcloud-folders
             test-name: standard
-            browsers: chromnodee
+            browsers: chrome
           - app-version: master
             server-version: 19
             floccus-adapter: nextcloud-folders
