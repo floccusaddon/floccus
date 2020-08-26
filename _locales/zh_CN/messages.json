@@ -359,5 +359,14 @@
   },
   "LabelNestedSyncYes": {
     "message": "在其他帐户同步中包括此帐户的本地文件夹"
+  },
+  "LabelImportExport": {
+    "message": "导入/导出"
+  },
+  "LabelExport": {
+    "message": "导出"
+  },
+  "LabelImport": {
+    "message": "导入"
   }
 }
