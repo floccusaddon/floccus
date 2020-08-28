@@ -64,7 +64,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "humanize-duration": "^3.22.0",
     "hyperapp": "^1.2.10",
-    "js-base64": "^2.5.2",
+    "js-base64": "^2.6.4",
     "localforage": "^1.7.3",
     "lodash": "^4.17.20",
     "murmur2js": "^1.0.0",
