@@ -3215,6 +3215,7 @@ describe('Floccus', function() {
             const tree1AfterInit = await account1.localTree.getBookmarksTree(
               true
             )
+            tree1AfterInit.title = serverTreeAfterInit.title
             expectTreeEqual(
               tree1AfterInit,
               tree2AfterSecondSync,
