@@ -80,13 +80,6 @@ export default class Controller {
 
     browser.storage.local.get('currentVersion').then(async d => {
       if (packageJson.version === d.currentVersion) return
-      const accounts = await Account.getAllAccounts()
-      await Promise.all(accounts.map(account => account.init()))
-      await Promise.all(
-        accounts.map(account =>
-          account.setData({ ...account.getData() })
-        )
-      )
       await browser.storage.local.set({
         currentVersion: packageJson.version
       })

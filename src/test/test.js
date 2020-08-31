@@ -1497,6 +1497,9 @@ describe('Floccus', function() {
           expect(localTree.findBookmark(bookmark2.id)).to.be.ok
         })
         it('should leave alone unaccepted bookmarks entirely', async function() {
+          if (!~ACCOUNT_DATA.type.indexOf('nextcloud')) {
+            this.skip()
+          }
           const localRoot = account.getData().localRoot
 
           expect(
