@@ -989,9 +989,7 @@ describe('Floccus', function() {
           expect(account.getData().error).to.not.be.ok
           const localTree = await account.localTree.getBookmarksTree(true)
 
-          await withSyncConnection(account, async() => {
-            serverTree = await getAllBookmarks(account)
-          })
+          serverTree = await getAllBookmarks(account)
 
           // Root must also be equal in the assertion
           localTree.title = serverTree.title
