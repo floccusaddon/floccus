@@ -3076,15 +3076,39 @@ describe('Floccus', function() {
           for (let j = 0; j < 3; j++) {
             console.log('STARTING LOOP ' + j)
 
+            const serverTreeAfterFirstSync = await getAllBookmarks(account1)
+
+            const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+              true
+            )
+            const tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+              true
+            )
+            tree1AfterFirstSync.title = serverTreeAfterFirstSync.title
+            expectTreeEqual(
+              tree1AfterFirstSync,
+              serverTreeAfterFirstSync,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            console.log('first tree ok')
+            tree2AfterFirstSync.title = serverTreeAfterFirstSync.title
+            expectTreeEqual(
+              tree2AfterFirstSync,
+              serverTreeAfterFirstSync,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            console.log('Initial round: second tree ok')
+            console.log('Initial round ok')
+
             for (let i = 0; i < 10; i++) {
-              let success = false
+              let noSuccess = 0, success = false
               let magicBookmark
               let magicFolder1
               let magicFolder2
               let magicFolder3
               let magicFolder4
               let magicFolder5
-              while (!success) {
+              while (!success && noSuccess < 5) {
                 magicBookmark = bookmarks[(bookmarks.length * Math.random()) | 0]
                 magicFolder1 = folders[(folders.length * Math.random()) | 0]
                 magicFolder2 = folders[(folders.length * Math.random()) | 0]
@@ -3104,29 +3128,27 @@ describe('Floccus', function() {
                     parentId: magicFolder3.id
                   })
                   console.log('Move #' + magicFolder2.id + '[' + magicFolder2.title + '] to ' + magicFolder3.id)
-                  await browser.bookmarks.move(magicFolder2.id, {
-                    parentId: magicFolder3.id
-                  })
-                  console.log('Move #' + magicFolder2.id + '[' + magicFolder2.title + '] to ' + magicFolder3.id)
 
                   // Randomly create a folder
                   const newFolder = await browser.bookmarks.create({
-                    title: 'newFolder' + i,
+                    title: 'newFolder' + Math.random(),
                     parentId: magicFolder4.id
                   })
                   folders.push(newFolder)
                   console.log('Created #' + newFolder.id + '[' + newFolder.title + '] in ' + magicFolder4.id)
 
                   const newBookmark = await browser.bookmarks.create({
-                    title: 'newBookmark' + i,
-                    url: 'http://ur.l/' + magicFolder5.id + '/' + i,
+                    title: 'newBookmark' + Math.random(),
+                    url: 'http://ur.l/' + magicFolder5.id + '/' + Math.random(),
                     parentId: magicFolder5.id
                   })
                   bookmarks.push(newBookmark)
+                  console.log('Created #' + newBookmark.id + '[' + newBookmark.title + '] in ' + magicFolder5.id)
 
                   success = true
                 } catch (e) {
                   console.log(e)
+                  noSuccess++
                 }
               }
             }
@@ -3208,17 +3230,18 @@ describe('Floccus', function() {
             await account1.init()
             await account1.sync()
             expect(account1.getData().error).to.not.be.ok
-            console.log('final sync completed')
+            console.log('final sync after init completed')
 
             const serverTreeAfterInit = await getAllBookmarks(account1)
 
             const tree1AfterInit = await account1.localTree.getBookmarksTree(
               true
             )
+
             tree1AfterInit.title = serverTreeAfterInit.title
             expectTreeEqual(
               tree1AfterInit,
-              tree2AfterSecondSync,
+              serverTreeAfterInit,
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
             console.log('Final round after init: local tree ok')
