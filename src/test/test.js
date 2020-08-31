@@ -965,9 +965,8 @@ describe('Floccus', function() {
         })
         it('should be ok if both server and local bookmark are removed', async function() {
           const adapter = account.server
-
-          if (adapter.onSyncStart) await adapter.onSyncStart()
           let serverTree = await getAllBookmarks(account)
+          if (adapter.onSyncStart) await adapter.onSyncStart()
           const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
           const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
           const serverMark = {
