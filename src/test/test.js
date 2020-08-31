@@ -1822,8 +1822,8 @@ describe('Floccus', function() {
           it('should create server bookmarks locally', async function() {
             await account.setData({ ...account.getData(), strategy: 'slave' })
             const adapter = account.server
-            if (adapter.onSyncStart) await adapter.onSyncStart()
             const serverTree = await getAllBookmarks(account)
+            if (adapter.onSyncStart) await adapter.onSyncStart()
             const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
             const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
             const serverMark = {
@@ -1868,8 +1868,8 @@ describe('Floccus', function() {
             await account.setData({ ...account.getData(), strategy: 'slave' })
             const adapter = account.server
 
-            if (adapter.onSyncStart) await adapter.onSyncStart()
             const serverTree = await getAllBookmarks(account)
+            if (adapter.onSyncStart) await adapter.onSyncStart()
             const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
             const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
             const serverMark = {
@@ -2149,9 +2149,10 @@ describe('Floccus', function() {
               strategy: 'overwrite'
             })
             const adapter = account.server
-            if (adapter.onSyncStart) await adapter.onSyncStart()
             const originalTree = await account.localTree.getBookmarksTree(true)
             const serverTree = await getAllBookmarks(account)
+
+            if (adapter.onSyncStart) await adapter.onSyncStart()
             const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
             const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
             const serverMark = {
@@ -2177,9 +2178,9 @@ describe('Floccus', function() {
           })
           it("shouldn't update local bookmarks on server changes", async function() {
             const adapter = account.server
+            const serverTree = await getAllBookmarks(account)
 
             if (adapter.onSyncStart) await adapter.onSyncStart()
-            const serverTree = await getAllBookmarks(account)
             const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
             const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
             const serverMark = {
@@ -2221,8 +2222,8 @@ describe('Floccus', function() {
           })
           it("shouldn't update local bookmarks on server removals", async function() {
             const adapter = account.server
-            if (adapter.onSyncStart) await adapter.onSyncStart()
             const serverTree = await getAllBookmarks(account)
+            if (adapter.onSyncStart) await adapter.onSyncStart()
             const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
             const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
             const serverMark = {
