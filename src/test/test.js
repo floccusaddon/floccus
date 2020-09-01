@@ -99,7 +99,7 @@ describe('Floccus', function() {
   })
 
   ACCOUNTS.forEach(ACCOUNT_DATA => {
-    describe(`${ACCOUNT_DATA.type} ${
+    describe(`${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs ? '-old' : ''} ${
       ACCOUNT_DATA.parallel ? 'parallel' : 'standard'
     }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`, function() {
       let account
@@ -133,9 +133,9 @@ describe('Floccus', function() {
         expect(await account.isInitialized()).to.be.false
       })
     })
-    describe(`${ACCOUNT_DATA.type} ${
+    describe(`${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs ? '-old' : ''} ${
       ACCOUNT_DATA.parallel ? 'parallel' : 'standard'
-    }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} ${ACCOUNT_DATA.oldAPIs ? 'legacyAPI' : 'currentAPI'} Sync`, function() {
+    }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Sync`, function() {
       context('with one client', function() {
         let account
         beforeEach('set up account', async function() {
@@ -2824,9 +2824,9 @@ describe('Floccus', function() {
   })
 
   ACCOUNTS.forEach(ACCOUNT_DATA => {
-    describe(`${ACCOUNT_DATA.type} benchmark ${
+    describe(`${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs ? '-old' : ''} benchmark ${
       ACCOUNT_DATA.parallel ? 'parallel' : 'standard'
-    }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} ${ACCOUNT_DATA.oldAPIs ? 'legacyAPI' : 'currentAPI'} Account`, function() {
+    }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`, function() {
       context('with two clients', function() {
         this.timeout(60 * 60000) // timeout after 20mins
         let account1, account2
