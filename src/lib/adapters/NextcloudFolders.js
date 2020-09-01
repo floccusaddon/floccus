@@ -70,7 +70,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
   }
 
   getLockUrl() {
-    return 'https://lock.floccus.org' + (this.server.serverRoot || '')
+    return this.server.url + '/remote.php/webdav/.floccus-' + Base64.toBase64(this.server.serverRoot) + '.lock'
   }
 
   timeout(ms) {
@@ -92,29 +92,122 @@ export default class NextcloudFoldersAdapter extends Adapter {
     await this.freeLock()
   }
 
+  async downloadFile(fullURL) {
+    let res
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+
+    try {
+      res = await fetch(fullURL, {
+        method: 'GET',
+        credentials: 'omit',
+        headers: {
+          Authorization: 'Basic ' + authString
+        }
+      })
+    } catch (e) {
+      throw new Error(browser.i18n.getMessage('Error017'))
+    }
+
+    if (res.status === 401) {
+      throw new Error(browser.i18n.getMessage('Error018'))
+    }
+    if (!res.ok && res.status !== 404) {
+      throw new Error(browser.i18n.getMessage('Error019', [res.status, 'GET']))
+    }
+
+    return res
+  }
+
+  async uploadFile(url, content_type, data) {
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+    try {
+      var res = await fetch(url, {
+        method: 'PUT',
+        credentials: 'omit',
+        headers: {
+          'Content-Type': content_type,
+          Authorization: 'Basic ' + authString
+        },
+        body: data
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      throw new Error(browser.i18n.getMessage('Error017'))
+    }
+    if (res.status === 401) {
+      throw new Error(browser.i18n.getMessage('Error018'))
+    }
+    if (!res.ok) {
+      throw new Error(browser.i18n.getMessage('Error019', [res.status, 'PUT']))
+    }
+  }
+
+  async checkLock() {
+    let fullURL = this.getLockUrl()
+    Logger.log(fullURL)
+
+    const response = await this.downloadFile(fullURL)
+    return response.status
+  }
+
   async obtainLock() {
-    let locked = false
+    let rStatus
     let maxTimeout = 30 * 60 * 1000 // Give up after 0.5h
     let base = 1.25
-
     for (let i = 0; 1 / Math.log(base) * base ** i * 1000 < maxTimeout; i++) {
-      locked = await this.getExistingBookmark(this.getLockUrl())
-      if (locked) {
+      rStatus = await this.checkLock()
+      if (rStatus === 200) {
         await this.timeout(base ** i * 1000)
+      } else if (rStatus === 404) {
+        break
       }
     }
-    if (locked) {
-      throw new Error('Unable to clear lock ' + this.getLockUrl())
-    }
-    try {
-      this.lockBookmarkId = await this.createBookmark({url: this.getLockUrl(), parentId: -1})
-    } catch (e) {
-      throw new Error('Unable to set lock ' + e.message)
+
+    if (rStatus === 200) {
+      throw new Error(
+        browser.i18n.getMessage('Error023', this.server.bookmark_file + '.lock')
+      )
+    } else if (rStatus === 404) {
+      let fullURL = this.getLockUrl()
+      Logger.log(fullURL)
+      await this.uploadFile(
+        fullURL,
+        'text/html',
+        '<html><body>I am a lock file</body></html>'
+      )
+    } else {
+      throw new Error(
+        browser.i18n.getMessage('Error024', [
+          rStatus,
+          this.server.bookmark_file + '.lock'
+        ])
+      )
     }
   }
 
   async freeLock() {
-    await this.removeBookmark(this.lockBookmarkId)
+    let fullUrl = this.getLockUrl()
+
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+
+    try {
+      await fetch(fullUrl, {
+        method: 'DELETE',
+        credentials: 'omit',
+        headers: {
+          Authorization: 'Basic ' + authString
+        }
+      })
+    } catch (e) {
+      Logger.log(e)
+    }
   }
 
   async getBookmarksList() {
