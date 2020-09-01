@@ -192,4 +192,4 @@ jobs:
           FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
         run: |
-          npm run test
+          npm run test --unhandled-rejections=strict
