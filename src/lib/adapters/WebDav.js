@@ -113,14 +113,12 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async obtainLock() {
     let rStatus
-    let maxTimeout = 26 // Give up after 0.5h
-    let increment = 1.25
-    let idx = 0
-
-    for (idx = 0; idx < maxTimeout; idx += increment) {
+    let maxTimeout = 30 * 60 * 1000 // Give up after 0.5h
+    let base = 1.25
+    for (let i = 0; 1 / Math.log(base) * base ** i * 1000 < maxTimeout; i++) {
       rStatus = await this.checkLock()
       if (rStatus === 200) {
-        await this.timeout(increment ** idx * 1000)
+        await this.timeout(base ** i * 1000)
       } else if (rStatus === 404) {
         break
       }

@@ -69,6 +69,54 @@ export default class NextcloudFoldersAdapter extends Adapter {
     })
   }
 
+  getLockUrl() {
+    return 'https://lock.floccus.org' + (this.server.serverRoot || '')
+  }
+
+  timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
+  async onSyncStart() {
+    Logger.log('onSyncStart: begin')
+    await this.obtainLock()
+  }
+
+  async onSyncFail() {
+    Logger.log('onSyncFail')
+    await this.freeLock()
+  }
+
+  async onSyncComplete() {
+    Logger.log('onSyncComplete')
+    await this.freeLock()
+  }
+
+  async obtainLock() {
+    let locked = false
+    let maxTimeout = 30 * 60 * 1000 // Give up after 0.5h
+    let base = 1.25
+
+    for (let i = 0; 1 / Math.log(base) * base ** i * 1000 < maxTimeout; i++) {
+      locked = await this.getExistingBookmark(this.getLockUrl())
+      if (locked) {
+        await this.timeout(base ** i * 1000)
+      }
+    }
+    if (locked) {
+      throw new Error('Unable to clear lock ' + this.getLockUrl())
+    }
+    try {
+      this.lockBookmarkId = await this.createBookmark({url: this.getLockUrl()})
+    } catch (e) {
+      throw new Error('Unable to set lock ' + e.message)
+    }
+  }
+
+  async freeLock() {
+    await this.removeBookmark(this.lockBookmarkId)
+  }
+
   async getBookmarksList() {
     if (this.list) {
       return this.list
