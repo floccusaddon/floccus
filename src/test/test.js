@@ -135,7 +135,7 @@ describe('Floccus', function() {
     })
     describe(`${ACCOUNT_DATA.type} ${
       ACCOUNT_DATA.parallel ? 'parallel' : 'standard'
-    }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} oldAPIs:${Boolean(ACCOUNT_DATA.oldAPIs)} Sync`, function() {
+    }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} ${ACCOUNT_DATA.oldAPIs ? 'legacyAPI' : 'currentAPI'} Sync`, function() {
       context('with one client', function() {
         let account
         beforeEach('set up account', async function() {
@@ -2826,7 +2826,7 @@ describe('Floccus', function() {
   ACCOUNTS.forEach(ACCOUNT_DATA => {
     describe(`${ACCOUNT_DATA.type} benchmark ${
       ACCOUNT_DATA.parallel ? 'parallel' : 'standard'
-    }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`, function() {
+    }-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} ${ACCOUNT_DATA.oldAPIs ? 'legacyAPI' : 'currentAPI'} Account`, function() {
       context('with two clients', function() {
         this.timeout(60 * 60000) // timeout after 20mins
         let account1, account2
@@ -2842,6 +2842,10 @@ describe('Floccus', function() {
               { id: '', title: 'root' }
             )
           }
+          if (ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs) {
+            account1.server.hasFeatureHashing = false
+            account2.server.hasFeatureHashing = false
+          }
         })
         afterEach('clean up accounts', async function() {
           await browser.bookmarks.removeTree(account1.getData().localRoot)
@@ -2850,8 +2854,8 @@ describe('Floccus', function() {
               ...account1.getData(),
               serverRoot: null
             })
+            const tree = await getAllBookmarks(account1)
             await withSyncConnection(account1, async() => {
-              const tree = await account1.server.getBookmarksTree(true)
               await AsyncParallel.each(tree.children, async child => {
                 if (child instanceof Folder) {
                   await account1.server.removeFolder(child.id)
@@ -3073,7 +3077,7 @@ describe('Floccus', function() {
           console.log('Initial round: second tree ok')
           console.log('Initial round ok')
 
-          for (let j = 0; j < 3; j++) {
+          for (let j = 0; j < 5; j++) {
             console.log('STARTING LOOP ' + j)
 
             const serverTreeAfterFirstSync = await getAllBookmarks(account1)
@@ -3100,7 +3104,7 @@ describe('Floccus', function() {
             console.log('Initial round: second tree ok')
             console.log('Initial round ok')
 
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 25; i++) {
               let noSuccess = 0, success = false
               let magicBookmark
               let magicFolder1

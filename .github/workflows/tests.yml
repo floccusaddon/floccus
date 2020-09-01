@@ -36,8 +36,8 @@ jobs:
         test-name:
           - standard
           - parallel
-          - benchmark standard-root
-          - benchmark parallel-root
+          - benchmark standard-root currentAPI
+          - benchmark standard-root legacyAPI
         browsers: ['firefox', 'chrome']
         include:
           - app-version: v1.1.2
@@ -68,12 +68,12 @@ jobs:
           - app-version: master
             server-version: 19
             floccus-adapter: nextcloud-folders
-            test-name: benchmark standard-root
+            test-name: benchmark standard-root currentAPI
             browsers: chrome
           - app-version: master
             server-version: 19
             floccus-adapter: nextcloud-folders
-            test-name: benchmark parallel-root
+            test-name: benchmark standard-root legacyAPI
             browsers: chrome
 
 
