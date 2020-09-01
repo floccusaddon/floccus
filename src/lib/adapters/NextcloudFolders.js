@@ -201,8 +201,6 @@ export default class NextcloudFoldersAdapter extends Adapter {
   }
 
   async getCompleteBookmarksTree() {
-    let list = await this.getBookmarksList()
-
     const childrenLayers = 2
 
     let childFolders = await this._getChildFolders(-1, childrenLayers)
@@ -215,6 +213,14 @@ export default class NextcloudFoldersAdapter extends Adapter {
     if (this.server.serverRoot) {
       ({ tree, childFolders } = await this._findServerRoot(childFolders))
     }
+
+    if (this.hasFeatureChildren) {
+      tree.children = await this._getChildren(tree.id, -1)
+      this.tree = tree
+      return tree.clone()
+    }
+
+    let list = await this.getBookmarksList()
 
     // retrieve folder order
     let childrenOrder = await this._getChildOrder(tree.id, childrenLayers)
