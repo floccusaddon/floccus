@@ -107,7 +107,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       throw new Error('Unable to clear lock ' + this.getLockUrl())
     }
     try {
-      this.lockBookmarkId = await this.createBookmark({url: this.getLockUrl()})
+      this.lockBookmarkId = await this.createBookmark({url: this.getLockUrl(), parentId: -1})
     } catch (e) {
       throw new Error('Unable to set lock ' + e.message)
     }
