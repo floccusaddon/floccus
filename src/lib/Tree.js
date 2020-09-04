@@ -48,9 +48,9 @@ export class Bookmark {
     return { [this.id]: this }
   }
 
-  inspect(depth) {
+  inspect(depth = 0) {
     return (
-      Array(depth)
+      Array(depth < 0 ? 0 : depth)
         .fill('  ')
         .join('') +
       `- #${this.id}[${this.title}](${this.url}) parentId: ${this.parentId}`
@@ -82,6 +82,11 @@ export class Folder {
     this.title = title
     this.children = children || []
     this.hashValue = hashValue || {}
+  }
+
+  findItemFilter(type, fn) {
+    this.createIndex()
+    return Object.entries(this.index[type + 's']).find(fn)
   }
 
   findFolder(id) {
@@ -215,9 +220,9 @@ export class Folder {
     return this.index
   }
 
-  inspect(depth) {
+  inspect(depth = 0) {
     return (
-      Array(depth)
+      Array(depth < 0 ? 0 : depth)
         .fill('  ')
         .join('') +
       `+ #${this.id}[${this.title}] parentId: ${this.parentId}, hash: ${this

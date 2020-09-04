@@ -105,12 +105,14 @@ export default class LocalTree extends Resource {
     )
   }
 
-  async removeBookmark(bookmarkId) {
+  async removeBookmark(bookmark) {
+    let bookmarkId = bookmark.id
     Logger.log('(local)REMOVE', bookmarkId)
     await this.queue.add(() => browser.bookmarks.remove(bookmarkId))
   }
 
-  async createFolder(parentId, title) {
+  async createFolder(folder) {
+    let {parentId, title} = folder
     Logger.log('(local)CREATEFOLDER', title)
     const node = await this.queue.add(() =>
       browser.bookmarks.create({
@@ -128,27 +130,20 @@ export default class LocalTree extends Resource {
     }
   }
 
-  async updateFolder(id, title) {
+  async updateFolder(folder) {
+    let {id, title, parentId} = folder
     Logger.log('(local)UPDATEFOLDER', title)
     await this.queue.add(() =>
       browser.bookmarks.update(id, {
         title
       })
     )
-  }
-
-  async moveFolder(id, parentId) {
-    Logger.log('(local)MOVEFOLDER', { id, parentId })
     await this.queue.add(() => browser.bookmarks.move(id, { parentId }))
   }
 
-  async removeFolder(id, force) {
+  async removeFolder(folder) {
+    let id = folder.id
     Logger.log('(local)REMOVEFOLDER', id)
-    let [tree] = await browser.bookmarks.getSubTree(id)
-    if (tree.children.length && !force) {
-      Logger.log("Won't remove non-empty folder. Moving on.")
-      return
-    }
     await this.queue.add(() => browser.bookmarks.removeTree(id))
   }
 

@@ -593,8 +593,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return folder.clone(true).children
   }
 
-  async createFolder(parentId, title) {
-    Logger.log('(nextcloud-folders)CREATEFOLDER', { parentId, title })
+  async createFolder(folder) {
+    Logger.log('(nextcloud-folders)CREATEFOLDER', {folder})
+    let parentId = folder.parentId
+    let title = folder.title
 
     let parentFolder
     if (parentId !== '-1') {
@@ -683,34 +685,12 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return recurseChildren(json.data, parentId, folder.title)
   }
 
-  async updateFolder(id, title) {
-    Logger.log('(nextcloud-folders)UPDATEFOLDER', { id, title })
-    let folder = this.tree.findFolder(id)
-    if (!folder) {
-      throw new Error(browser.i18n.getMessage('Error006'))
-    }
+  async updateFolder(folder) {
+    Logger.log('(nextcloud-folders)UPDATEFOLDER', { folder })
+    let id = folder.id
+    let oldFolder = this.tree.findFolder(folder.id)
     let body = JSON.stringify({
       parent_folder: folder.parentId,
-      title: title,
-    })
-    await this.sendRequest(
-      'PUT',
-      `index.php/apps/bookmarks/public/rest/v2/folder/${id}`,
-      'application/json',
-      body
-    )
-    folder.title = title
-    this.tree.createIndex()
-  }
-
-  async moveFolder(id, parentId) {
-    Logger.log('(nextcloud-folders)MOVEFOLDER', { id, parentId })
-    let folder = this.tree.findFolder(id)
-    if (!folder) {
-      throw new Error(browser.i18n.getMessage('Error007'))
-    }
-    let body = JSON.stringify({
-      parent_folder: parentId,
       title: folder.title,
     })
     await this.sendRequest(
@@ -719,13 +699,14 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'application/json',
       body
     )
-    let oldParentFolder = this.tree.findFolder(folder.parentId)
+    oldFolder.title = folder.title
+    oldFolder.parentId = folder.parentId
+    let oldParentFolder = this.tree.findFolder(oldFolder.parentId)
     oldParentFolder.children = oldParentFolder.children.filter(
       (child) => parseInt(child.id) !== parseInt(id)
     )
-    let newParentFolder = this.tree.findFolder(parentId)
-    folder.parentId = parentId
-    newParentFolder.children.push(folder)
+    let newParentFolder = this.tree.findFolder(folder.parentId)
+    newParentFolder.children.push(oldFolder)
     this.tree.createIndex()
   }
 
@@ -745,9 +726,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
     )
   }
 
-  async removeFolder(id) {
-    Logger.log('(nextcloud-folders)REMOVEFOLDER', id)
-    let folder = this.tree.findFolder(id)
+  async removeFolder(folder) {
+    Logger.log('(nextcloud-folders)REMOVEFOLDER', { folder })
+    let id = folder.id
+    let oldFolder = this.tree.findFolder(id)
     if (!folder) {
       return
     }
@@ -755,7 +737,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'DELETE',
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}`
     )
-    let parent = this.tree.findFolder(folder.parentId)
+    let parent = this.tree.findFolder(oldFolder.parentId)
     parent.children = parent.children.filter(
       (child) => parseInt(child.id) !== parseInt(id)
     )
@@ -888,9 +870,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
     })
   }
 
-  async removeBookmark(id) {
-    Logger.log('(nextcloud-folders)REMOVE', { id })
-
+  async removeBookmark(bookmark) {
+    Logger.log('(nextcloud-folders)REMOVE', { bookmark })
+    let id = bookmark.id
     let [upstreamId, parentId] = id.split(';')
 
     // Just to be safe

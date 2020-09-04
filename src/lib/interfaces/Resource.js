@@ -29,41 +29,31 @@ export default class Resource {
   }
 
   /**
-   * @param id:int the id of the bookmark to delete
+   * @param bookmark:Bookmark the bookmark to delete
    */
-  async removeBookmark(id) {
+  async removeBookmark(bookmark) {
     throw new Error('Not implemented')
   }
 
   /**
-   * @param parentId:int the id of the parent node of the new folder
-   * @param title:string the title of the folder
+   * @param folder:Folder the new folder
    * @return Promise<int> the id of the new folder
    */
-  async createFolder(parentId, title) {
+  async createFolder(folder) {
     throw new Error('Not implemented')
   }
 
   /**
-   * @param id:int the id of the folder to be updated
-   * @param title:string the new title
+   * @param folder:Folder the folder to be updated
    */
-  async updateFolder(id, title) {
+  async updateFolder(folder) {
     throw new Error('Not implemented')
   }
 
   /**
-   * @param id:int the id of the folder
-   * @param newParent
+   * @param id:Folder the folder
    */
-  async moveFolder(id, newParent) {
-    throw new Error('Not implemented')
-  }
-
-  /**
-   * @param id:int the id of the folder
-   */
-  async removeFolder(id) {
+  async removeFolder(folder) {
     throw new Error('Not implemented')
   }
 }

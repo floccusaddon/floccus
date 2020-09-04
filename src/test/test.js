@@ -367,8 +367,8 @@ describe('Floccus', function() {
           const serverTree = await getAllBookmarks(account)
           let fooFolderId, barFolderId, serverMark
           await withSyncConnection(account, async() => {
-            fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
-            barFolderId = await adapter.createFolder(fooFolderId, 'bar')
+            fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+            barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
             serverMark = {
               title: 'url',
               url: 'http://ur.l/',
@@ -414,8 +414,8 @@ describe('Floccus', function() {
           const serverTree = await getAllBookmarks(account)
           let fooFolderId, barFolderId, serverMarkId, serverMark
           await withSyncConnection(account, async() => {
-            fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
-            barFolderId = await adapter.createFolder(fooFolderId, 'bar')
+            fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+            barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
             serverMark = {
               title: 'url',
               url: 'http://ur.l/',
@@ -472,8 +472,8 @@ describe('Floccus', function() {
 
           const serverTree = await getAllBookmarks(account)
           if (adapter.onSyncStart) await adapter.onSyncStart()
-          const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
-          const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
+          const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+          const barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
           const serverMark = {
             title: 'url',
             url: 'http://ur.l/',
@@ -489,7 +489,7 @@ describe('Floccus', function() {
           expect(account.getData().error).to.not.be.ok
 
           await withSyncConnection(account, async() => {
-            await adapter.removeBookmark(serverMarkId)
+            await adapter.removeBookmark({...serverMark, id: serverMarkId})
           })
 
           await account.sync() // propage update
@@ -575,7 +575,7 @@ describe('Floccus', function() {
           // create bookmark on server
           const serverTree = await getAllBookmarks(account)
           if (adapter.onSyncStart) await adapter.onSyncStart()
-          const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
+          const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
           const serverMark1 = {
             title: 'url',
             url: 'http://ur.l/foo/bar?a=b&foo=b%C3%A1r+foo'
@@ -947,7 +947,7 @@ describe('Floccus', function() {
 
           let tree = await getAllBookmarks(account)
           await withSyncConnection(account, async() => {
-            await adapter.removeFolder(tree.children[0].id)
+            await adapter.removeFolder({id: tree.children[0].id})
           })
 
           await account.sync()
@@ -967,8 +967,8 @@ describe('Floccus', function() {
           const adapter = account.server
           let serverTree = await getAllBookmarks(account)
           if (adapter.onSyncStart) await adapter.onSyncStart()
-          const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
-          const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
+          const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+          const barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
           const serverMark = {
             title: 'url',
             url: 'http://ur.l/',
@@ -982,7 +982,7 @@ describe('Floccus', function() {
           await account.sync() // propagate creation
 
           await withSyncConnection(account, async() => {
-            await adapter.removeBookmark(serverMarkId)
+            await adapter.removeBookmark({...serverMark, id: serverMarkId})
           })
           await account.sync() // propagate update
 
@@ -1408,8 +1408,8 @@ describe('Floccus', function() {
           let aFolderId, bookmark1Id,bFolderId,bookmark2Id
           await withSyncConnection(account, async() => {
             aFolderId = await adapter.createFolder(
-              (await adapter.getBookmarksTree()).id,
-              'a'
+              new Folder({parentId: (await adapter.getBookmarksTree()).id,
+                title: 'a'})
             )
             bookmark1Id = await adapter.createBookmark(
               new Bookmark({
@@ -1419,7 +1419,7 @@ describe('Floccus', function() {
               })
             )
 
-            bFolderId = await adapter.createFolder(aFolderId, 'b')
+            bFolderId = await adapter.createFolder(new Folder({parentId: aFolderId, title: 'b'}))
             bookmark2Id = await adapter.createBookmark(
               new Bookmark({
                 title: 'url2',
@@ -1824,8 +1824,8 @@ describe('Floccus', function() {
             const adapter = account.server
             const serverTree = await getAllBookmarks(account)
             if (adapter.onSyncStart) await adapter.onSyncStart()
-            const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
-            const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
+            const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+            const barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
             const serverMark = {
               title: 'url',
               url: 'http://ur.l/',
@@ -1870,8 +1870,8 @@ describe('Floccus', function() {
 
             const serverTree = await getAllBookmarks(account)
             if (adapter.onSyncStart) await adapter.onSyncStart()
-            const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
-            const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
+            const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+            const barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
             const serverMark = {
               title: 'url',
               url: 'http://ur.l/',
@@ -1927,8 +1927,8 @@ describe('Floccus', function() {
             const adapter = account.server
             const serverTree = await getAllBookmarks(account)
             if (adapter.onSyncStart) await adapter.onSyncStart()
-            const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
-            const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
+            const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+            const barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
             const serverMark = {
               title: 'url',
               url: 'http://ur.l/',
@@ -1942,7 +1942,7 @@ describe('Floccus', function() {
             await account.sync() // propage creation
 
             await withSyncConnection(account, async() => {
-              await adapter.removeBookmark(serverMarkId)
+              await adapter.removeBookmark({...serverMark, id: serverMarkId})
             })
 
             await account.sync() // propage update
@@ -2153,8 +2153,8 @@ describe('Floccus', function() {
             const serverTree = await getAllBookmarks(account)
 
             if (adapter.onSyncStart) await adapter.onSyncStart()
-            const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
-            const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
+            const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+            const barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
             const serverMark = {
               title: 'url',
               url: 'http://ur.l/',
@@ -2181,8 +2181,8 @@ describe('Floccus', function() {
             const serverTree = await getAllBookmarks(account)
 
             if (adapter.onSyncStart) await adapter.onSyncStart()
-            const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
-            const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
+            const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+            const barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
             const serverMark = {
               title: 'url',
               url: 'http://ur.l/',
@@ -2224,8 +2224,8 @@ describe('Floccus', function() {
             const adapter = account.server
             const serverTree = await getAllBookmarks(account)
             if (adapter.onSyncStart) await adapter.onSyncStart()
-            const fooFolderId = await adapter.createFolder(serverTree.id, 'foo')
-            const barFolderId = await adapter.createFolder(fooFolderId, 'bar')
+            const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+            const barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
             const serverMark = {
               title: 'url',
               url: 'http://ur.l/',

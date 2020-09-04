@@ -72,8 +72,9 @@ export default class CachingAdapter extends Adapter {
     }
   }
 
-  async removeBookmark(id) {
-    Logger.log('REMOVE', { id })
+  async removeBookmark(bookmark) {
+    Logger.log('REMOVE', { bookmark })
+    let id = bookmark.id
     const foundBookmark = this.bookmarksCache.findBookmark(id)
     if (!foundBookmark) {
       return
@@ -91,58 +92,39 @@ export default class CachingAdapter extends Adapter {
     this.bookmarksCache.createIndex()
   }
 
-  /**
-   * @param parentId:int the id of the parent node of the new folder
-   * @param title:string the title of the folder
-   * @return Promise<int> the id of the new folder
-   */
-  async createFolder(parentId, title) {
-    Logger.log('CREATEFOLDER', { parentId, title })
-    const folder = new Tree.Folder({ parentId, title })
-    folder.id = ++this.highestId
-    const foundParentFolder = this.bookmarksCache.findFolder(parentId)
+  async createFolder(folder) {
+    Logger.log('CREATEFOLDER', { folder })
+    const newFolder = new Tree.Folder({ parentId: folder.parentId, title: folder.title })
+    newFolder.id = ++this.highestId
+    const foundParentFolder = this.bookmarksCache.findFolder(newFolder.parentId)
     if (!foundParentFolder) {
       throw new Error(browser.i18n.getMessage('Error005'))
     }
-    foundParentFolder.children.push(folder)
+    foundParentFolder.children.push(newFolder)
     this.bookmarksCache.createIndex()
-    return folder.id
+    return newFolder.id
   }
 
-  /**
-   * @param id:int the id of the folder to be updated
-   * @param title:string the new title
-   */
-  async updateFolder(id, title) {
-    Logger.log('UPDATEFOLDER', { id, title })
-    const folder = this.bookmarksCache.findFolder(id)
-    if (!folder) {
+  async updateFolder(folder) {
+    Logger.log('UPDATEFOLDER', { folder })
+    let id = folder.id
+    const oldFolder = this.bookmarksCache.findFolder(id)
+    if (!oldFolder) {
       throw new Error(browser.i18n.getMessage('Error006'))
     }
-    folder.title = title
-  }
 
-  /**
-   * @param id:int the id of the folder
-   * @param newParentId:int the id of the new folder
-   */
-  async moveFolder(id, newParentId) {
-    Logger.log('MOVEFOLDER', { id, newParentId })
-    const folder = this.bookmarksCache.findFolder(id)
-    if (!folder) {
-      throw new Error(browser.i18n.getMessage('Error007'))
-    }
-    const foundOldFolder = this.bookmarksCache.findFolder(folder.parentId)
-    if (!foundOldFolder) {
+    const foundOldParentFolder = this.bookmarksCache.findFolder(oldFolder.parentId)
+    if (!foundOldParentFolder) {
       throw new Error(browser.i18n.getMessage('Error008'))
     }
-    const foundNewFolder = this.bookmarksCache.findFolder(newParentId)
-    if (!foundNewFolder) {
+    const foundNewParentFolder = this.bookmarksCache.findFolder(folder.parentId)
+    if (!foundNewParentFolder) {
       throw new Error(browser.i18n.getMessage('Error009'))
     }
-    foundOldFolder.children.splice(foundOldFolder.children.indexOf(folder), 1)
-    foundNewFolder.children.push(folder)
-    folder.parentId = newParentId
+    foundOldParentFolder.children.splice(foundOldParentFolder.children.indexOf(oldFolder), 1)
+    foundNewParentFolder.children.push(oldFolder)
+    oldFolder.title = folder.title
+    oldFolder.parentId = folder.parentId
     this.bookmarksCache.createIndex()
   }
 
@@ -182,21 +164,19 @@ export default class CachingAdapter extends Adapter {
     folder.children = newChildren
   }
 
-  /**
-   * @param id:int the id of the folder
-   */
-  async removeFolder(id) {
-    Logger.log('REMOVEFOLDER', { id })
-    const folder = this.bookmarksCache.findFolder(id)
-    if (!folder) {
+  async removeFolder(folder) {
+    Logger.log('REMOVEFOLDER', { folder })
+    let id = folder.id
+    const oldFolder = this.bookmarksCache.findFolder(id)
+    if (!oldFolder) {
       throw new Error(browser.i18n.getMessage('Error013'))
     }
     // root folder doesn't have a parent, yo!
-    const foundOldFolder = this.bookmarksCache.findFolder(folder.parentId)
+    const foundOldFolder = this.bookmarksCache.findFolder(oldFolder.parentId)
     if (!foundOldFolder) {
       throw new Error(browser.i18n.getMessage('Error014'))
     }
-    foundOldFolder.children.splice(foundOldFolder.children.indexOf(folder), 1)
+    foundOldFolder.children.splice(foundOldFolder.children.indexOf(oldFolder), 1)
     this.bookmarksCache.createIndex()
   }
 
