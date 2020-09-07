@@ -2287,9 +2287,9 @@ describe('Floccus', function() {
               const tree = await account1.server.getBookmarksTree(true)
               await AsyncParallel.each(tree.children, async child => {
                 if (child instanceof Folder) {
-                  await account1.server.removeFolder(child.id)
+                  await account1.server.removeFolder(child)
                 } else {
-                  await account1.server.removeBookmark(child.id)
+                  await account1.server.removeBookmark(child)
                 }
               })
             })
