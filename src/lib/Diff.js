@@ -4,6 +4,7 @@ export const actions = {
   UPDATE: 'UPDATE',
   MOVE: 'MOVE',
   REMOVE: 'REMOVE',
+  REORDER: 'REORDER',
 }
 
 export default class Diff {
@@ -12,7 +13,8 @@ export default class Diff {
       [actions.CREATE]: [],
       [actions.UPDATE]: [],
       [actions.MOVE]: [],
-      [actions.REMOVE]: []
+      [actions.REMOVE]: [],
+      [actions.REORDER]: []
     }
   }
 
@@ -33,13 +35,14 @@ export default class Diff {
   getActions() {
     return [].concat(
       this.sortActions(this.actions.UPDATE),
-      this.sortActions(this.actions.CREATE),
+      this.sortActions(this.actions.CREATE, true),
       this.sortActions(this.actions.MOVE),
-      this.sortActions(this.actions.REMOVE)
+      this.sortActions(this.actions.REMOVE),
+      this.sortActions(this.actions.REORDER),
     )
   }
 
-  sortActions(actions) {
+  sortActions(actions, reverse) {
     actions.sort((action1, action2) => {
       if (action1.payload.type === 'folder' && action1.payload.findItem(action2.payload.type, action2.payload.id)) {
         return -1
@@ -49,6 +52,9 @@ export default class Diff {
       }
       return 0
     })
+    if (reverse) {
+      actions.reverse()
+    }
     return actions
   }
 
@@ -61,15 +67,32 @@ export default class Diff {
    * on LocalToServer:
    * @param mappings
    * @param isLocalToServer
+   * @param mapReorders
    */
-  map(mappings, isLocalToServer) {
+  map(mappings, isLocalToServer, mapReorders) {
     // Map payloads
     this.getActions().forEach(action => {
       if (action.type === actions.REMOVE && !isLocalToServer) {
         return
       }
 
-      if (action.oldItem && !isLocalToServer) {
+      if (action.type === actions.REORDER) {
+        if (!mapReorders) {
+          return
+        }
+        if (action.oldOrder && !isLocalToServer) {
+          const oldOrder = action.oldOrder
+          action.oldOrder = action.order
+          action.order = oldOrder
+        } else {
+          action.oldOrder = action.order
+          action.order = action.order.slice().map(item => {
+            return {...item, id: mappings[item.type + 's'][item.id]}
+          })
+        }
+      }
+
+      if (action.oldItem && !isLocalToServer && action.type !== actions.MOVE) {
         const payload = action.payload.clone()
         payload.id = action.oldItem.id
         payload.parentId = action.oldItem.parentId

@@ -156,13 +156,13 @@ describe('Floccus', function() {
           await browser.bookmarks.removeTree(account.getData().localRoot)
           if (ACCOUNT_DATA.type !== 'fake') {
             await account.setData({ ...account.getData(), serverRoot: null })
-            const tree = await account.server.getBookmarksTree(true)
+            const tree = await getAllBookmarks(account)
             await withSyncConnection(account, async() => {
               await AsyncParallel.each(tree.children, async child => {
                 if (child instanceof Folder) {
-                  await account.server.removeFolder(child.id)
+                  await account.server.removeFolder(child)
                 } else {
-                  await account.server.removeBookmark(child.id)
+                  await account.server.removeBookmark(child)
                 }
               })
             })
@@ -3105,55 +3105,48 @@ describe('Floccus', function() {
             console.log('Initial round ok')
 
             for (let i = 0; i < 25; i++) {
-              let noSuccess = 0, success = false
               let magicBookmark
               let magicFolder1
               let magicFolder2
               let magicFolder3
               let magicFolder4
               let magicFolder5
-              while (!success && noSuccess < 5) {
+              try {
+                // Randomly move one bookmark
                 magicBookmark = bookmarks[(bookmarks.length * Math.random()) | 0]
                 magicFolder1 = folders[(folders.length * Math.random()) | 0]
+                await browser.bookmarks.move(magicBookmark.id, {
+                  parentId: magicFolder1.id
+                })
+                console.log('Move ' + magicBookmark.title + ' to ' + magicFolder1.id)
+
+                // Randomly move two folders
                 magicFolder2 = folders[(folders.length * Math.random()) | 0]
                 magicFolder3 = folders[(folders.length * Math.random()) | 0]
+                await browser.bookmarks.move(magicFolder2.id, {
+                  parentId: magicFolder3.id
+                })
+                console.log('Move #' + magicFolder2.id + '[' + magicFolder2.title + '] to ' + magicFolder3.id)
+
+                // Randomly create a folder
                 magicFolder4 = folders[(folders.length * Math.random()) | 0]
+                const newFolder = await browser.bookmarks.create({
+                  title: 'newFolder' + Math.random(),
+                  parentId: magicFolder4.id
+                })
+                folders.push(newFolder)
+                console.log('Created #' + newFolder.id + '[' + newFolder.title + '] in ' + magicFolder4.id)
+
                 magicFolder5 = folders[(folders.length * Math.random()) | 0]
-
-                try {
-                  // Randomly move one bookmark
-                  await browser.bookmarks.move(magicBookmark.id, {
-                    parentId: magicFolder1.id
-                  })
-                  console.log('Move ' + magicBookmark.title + ' to ' + magicFolder1.id)
-
-                  // Randomly move two folders
-                  await browser.bookmarks.move(magicFolder2.id, {
-                    parentId: magicFolder3.id
-                  })
-                  console.log('Move #' + magicFolder2.id + '[' + magicFolder2.title + '] to ' + magicFolder3.id)
-
-                  // Randomly create a folder
-                  const newFolder = await browser.bookmarks.create({
-                    title: 'newFolder' + Math.random(),
-                    parentId: magicFolder4.id
-                  })
-                  folders.push(newFolder)
-                  console.log('Created #' + newFolder.id + '[' + newFolder.title + '] in ' + magicFolder4.id)
-
-                  const newBookmark = await browser.bookmarks.create({
-                    title: 'newBookmark' + Math.random(),
-                    url: 'http://ur.l/' + magicFolder5.id + '/' + Math.random(),
-                    parentId: magicFolder5.id
-                  })
-                  bookmarks.push(newBookmark)
-                  console.log('Created #' + newBookmark.id + '[' + newBookmark.title + '] in ' + magicFolder5.id)
-
-                  success = true
-                } catch (e) {
-                  console.log(e)
-                  noSuccess++
-                }
+                const newBookmark = await browser.bookmarks.create({
+                  title: 'newBookmark' + Math.random(),
+                  url: 'http://ur.l/' + magicFolder5.id + '/' + Math.random(),
+                  parentId: magicFolder5.id
+                })
+                bookmarks.push(newBookmark)
+                console.log('Created #' + newBookmark.id + '[' + newBookmark.title + '] in ' + magicFolder5.id)
+              } catch (e) {
+                console.log(e)
               }
             }
             console.log(' acc1: Moved items')

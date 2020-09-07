@@ -63,6 +63,9 @@ export default class SyncProcess {
       await this.loadChildren(this.serverTreeRoot, mappingsSnapshot)
     }
 
+    // Cache tree might not have been initialized and thus have no id
+    this.cacheTreeRoot.id = this.localTreeRoot.id
+
     // generate hashtables to find items faster
     this.localTreeRoot.createIndex()
     this.cacheTreeRoot.createIndex()
@@ -93,6 +96,14 @@ export default class SyncProcess {
     await Promise.all([
       this.execute(this.server, serverPlan, mappingsSnapshot.LocalToServer),
       this.execute(this.localTree, localPlan, mappingsSnapshot.ServerToLocal),
+    ])
+
+    // mappings have been updated, reload
+    mappingsSnapshot = await this.mappings.getSnapshot()
+
+    await Promise.all([
+      this.executeReorderings(this.server, serverPlan, mappingsSnapshot.LocalToServer, true),
+      this.executeReorderings(this.localTree, localPlan, mappingsSnapshot.ServerToLocal, false),
     ])
   }
 
@@ -143,6 +154,7 @@ export default class SyncProcess {
     const localRemovals = localDiff.getActions().filter(action => action.type === actions.REMOVE)
     const localMoves = localDiff.getActions().filter(action => action.type === actions.MOVE)
     const localUpdates = localDiff.getActions().filter(action => action.type === actions.UPDATE)
+    const localReorders = localDiff.getActions().filter(action => action.type === actions.REORDER)
 
     // Prepare server plan
     let serverPlan = new Diff()
@@ -163,7 +175,7 @@ export default class SyncProcess {
       }
       if (action.type === actions.CREATE) {
         const concurrentCreation = serverCreations.find(a =>
-          action.payload.parentId === mappingsSnapshot.ServerToLocal[a.payload.type + 's'][a.payload.parentId] &&
+          action.payload.parentId === mappingsSnapshot.ServerToLocal.folders[a.payload.parentId] &&
           action.payload.canMergeWith(a.payload))
         if (concurrentCreation) {
           // created on both the server and locally, try to reconcile
@@ -187,6 +199,12 @@ export default class SyncProcess {
           serverPlan.add(subScanner.getDiff())
           return
         }
+        const concurrentRemoval = serverRemovals.find(a =>
+          a.payload.findItem('folder', action.payload.parentId))
+        if (concurrentRemoval) {
+          // Already deleted on server, do nothing.
+          return
+        }
       }
       if (action.type === actions.MOVE) {
         const concurrentRemoval = serverRemovals.find(a =>
@@ -194,6 +212,14 @@ export default class SyncProcess {
         if (concurrentRemoval) {
           // moved locally but removed on the server, recreate it on the server
           serverPlan.commit({...action, type: actions.CREATE})
+          return
+        }
+      }
+      if (action.type === actions.REORDER) {
+        const concurrentRemoval = serverRemovals.find(a =>
+          a.payload.findItem('folder', action.payload.id))
+        if (concurrentRemoval) {
+          // Already deleted on server, do nothing.
           return
         }
       }
@@ -220,13 +246,10 @@ export default class SyncProcess {
           // removed on server, moved locally, do nothing to keep it locally.
           return
         }
-        // don't map ids as the removals stem from the cacheTree
-        localPlan.commit(action)
-        return
       }
       if (action.type === actions.CREATE) {
         const concurrentCreation = localCreations.find(a =>
-          action.payload.parentId === mappingsSnapshot.LocalToServer[a.payload.type + 's'][a.payload.parentId] &&
+          action.payload.parentId === mappingsSnapshot.LocalToServer.folders[a.payload.parentId] &&
           action.payload.canMergeWith(a.payload))
         if (concurrentCreation) {
           // created on both the server and locally, try to reconcile
@@ -249,6 +272,12 @@ export default class SyncProcess {
           mappingsPromises.push(this.addMapping(this.server, concurrentCreation.payload, action.payload.id))
           await Promise.all(mappingsPromises)
           localPlan.add(subScanner.getDiff())
+          return
+        }
+        const concurrentRemoval = localRemovals.find(a =>
+          a.payload.findItem('folder', mappingsSnapshot.ServerToLocal[action.payload.parentId]))
+        if (concurrentRemoval) {
+          // Already deleted locally, do nothing.
           return
         }
       }
@@ -274,6 +303,20 @@ export default class SyncProcess {
           return
         }
       }
+      if (action.type === actions.REORDER) {
+        const concurrentReorder = localReorders.find(a =>
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type + 's'][a.payload.id])
+        if (concurrentReorder) {
+          // Updated both on server and locally, local has precedence: do nothing locally
+          return
+        }
+        const concurrentRemoval = serverRemovals.find(a =>
+          a.payload.findItem('folder', action.payload.id))
+        if (concurrentRemoval) {
+          // Already deleted on server, do nothing.
+          return
+        }
+      }
       localPlan.commit(action)
     })
 
@@ -282,7 +325,7 @@ export default class SyncProcess {
     return { localPlan, serverPlan}
   }
 
-  async execute(resource, plan, mappings) {
+  async execute(resource, plan) {
     await Parallel.each(plan.getActions(), async(action) => {
       let item = action.payload
 
@@ -294,6 +337,7 @@ export default class SyncProcess {
 
       if (action.type === actions.CREATE) {
         const id = await action.payload.visitCreate(resource, item)
+        item.id = id
         await this.addMapping(resource, action.oldItem, id)
 
         if (item.children) {
@@ -312,8 +356,56 @@ export default class SyncProcess {
         return
       }
 
+      if (action.type === actions.REORDER) {
+        return
+      }
+
       throw new Error('Unknown action type: ' + action.type)
-    })
+    }, 1)
+  }
+
+  async executeReorderings(resource, plan, mappings, isLocalToServer) {
+    const reorderings = new Diff()
+    reorderings.add(plan)
+    reorderings.map(mappings, isLocalToServer, true)
+
+    reorderings
+      .getActions()
+      .filter(action => action.type === actions.REORDER)
+      .forEach(action => {
+        const childRemovals = plan
+          .getActions()
+          .filter(a => a.type === actions.REMOVE)
+          .filter(a =>
+            action.payload.id === a.payload.parentId)
+        const childAwayMoves = plan
+          .getActions()
+          .filter(a => a.type === actions.MOVE)
+          .filter(a =>
+            action.payload.id === a.oldItem.parentId)
+        action.order = action.order.filter(item =>
+          !childRemovals.find(a =>
+            item.id === a.payload.id) &&
+          !childAwayMoves.find(a => item.id === a.payload.id))
+        plan
+          .getActions()
+          .filter(a => a.type === actions.CREATE || a.type === actions.MOVE)
+          .filter(a =>
+            action.payload.id === a.payload.parentId)
+          .forEach(a => {
+            action.order.splice(a.index, { type: a.payload.type, id: a.payload.id })
+          })
+      })
+
+    console.log({reorderings})
+
+    await Parallel.each(reorderings.getActions(), async(action) => {
+      let item = action.payload
+
+      if (action.type === actions.REORDER) {
+        await resource.orderFolder(item.id, action.order)
+      }
+    }, 1)
   }
 
   async addMapping(resource, item, newId) {
