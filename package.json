@@ -6,7 +6,7 @@
   "scripts": {
     "build": "gulp",
     "build-release": "gulp release",
-    "test": "node test/selenium-runner.js"
+    "test": "node test/selenium-runner.js --unhandled-rejections=strict"
   },
   "repository": {
     "type": "git",
