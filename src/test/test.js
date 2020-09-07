@@ -2858,9 +2858,9 @@ describe('Floccus', function() {
             await withSyncConnection(account1, async() => {
               await AsyncParallel.each(tree.children, async child => {
                 if (child instanceof Folder) {
-                  await account1.server.removeFolder(child.id)
+                  await account1.server.removeFolder(child)
                 } else {
-                  await account1.server.removeBookmark(child.id)
+                  await account1.server.removeBookmark(child)
                 }
               })
             })
