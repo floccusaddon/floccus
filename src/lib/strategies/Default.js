@@ -85,10 +85,10 @@ export default class SyncProcess {
     )
 
     const [localDiff, serverDiff] = await Promise.all([localScanner.run(), serverScanner.run()])
-    console.log({localDiff, serverDiff})
+    Logger.log({localDiff, serverDiff})
 
     const {localPlan, serverPlan} = await this.reconcile(localDiff, serverDiff)
-    console.log({localPlan, serverPlan})
+    Logger.log({localPlan, serverPlan})
 
     // mappings have been updated, reload
     mappingsSnapshot = await this.mappings.getSnapshot()
@@ -397,7 +397,7 @@ export default class SyncProcess {
           })
       })
 
-    console.log({reorderings})
+    Logger.log({reorderings})
 
     await Parallel.each(reorderings.getActions(), async(action) => {
       let item = action.payload
