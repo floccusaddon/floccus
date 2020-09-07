@@ -36,9 +36,7 @@ jobs:
           - webdav
         test-name:
           - standard
-          - parallel
           - benchmark standard-root
-          - benchmark parallel-root
         browsers: ['firefox', 'chrome']
         include:
           - app-version: v1.1.2
