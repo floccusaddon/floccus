@@ -48,6 +48,12 @@ export class Bookmark {
     return { [this.id]: this }
   }
 
+  findItem(type, id) {
+    if (type === 'bookmark' && id === this.id) {
+      return this
+    }
+  }
+
   inspect(depth = 0) {
     return (
       Array(depth < 0 ? 0 : depth)
