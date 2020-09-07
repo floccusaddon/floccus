@@ -125,14 +125,14 @@ jobs:
           repository: nextcloud/${{ env.APP_NAME }}
           ref: ${{ matrix.app-version }}
           path: ${{ env.APP_NAME }}
-        if: matrix.floccus-adapter == 'nextcloud-folders'
+        if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
 
       - name: Enable bookmarks app
         shell: bash
         run: |
           cd ${{ env.APP_NAME }}
           composer install
-        if: matrix.floccus-adapter == 'nextcloud-folders'
+        if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
 
       - name: Enable bookmarks app
         shell: bash
@@ -143,13 +143,13 @@ jobs:
               sleep $(( NEXT_WAIT_TIME++ ))
           done
           [ $NEXT_WAIT_TIME -lt 25 ]
-        if: matrix.floccus-adapter == 'nextcloud-folders'
+        if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
 
       - name: List apps
         shell: bash
         run: |
           docker exec --user www-data nextcloud php occ app:list
-        if: matrix.floccus-adapter == 'nextcloud-folders'
+        if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
 
       - name: Enable APCu
         run: |
