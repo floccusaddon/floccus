@@ -94,8 +94,8 @@ export default class SyncProcess {
     mappingsSnapshot = await this.mappings.getSnapshot()
 
     await Promise.all([
-      this.execute(this.server, serverPlan, mappingsSnapshot.LocalToServer),
-      this.execute(this.localTree, localPlan, mappingsSnapshot.ServerToLocal),
+      this.execute(this.server, serverPlan, mappingsSnapshot.LocalToServer, true),
+      this.execute(this.localTree, localPlan, mappingsSnapshot.ServerToLocal, false),
     ])
 
     // mappings have been updated, reload
@@ -228,7 +228,7 @@ export default class SyncProcess {
     })
 
     // Map payloads
-    serverPlan.map(mappingsSnapshot.LocalToServer, true)
+    serverPlan.map(mappingsSnapshot.LocalToServer, true, (action) => action.type !== actions.REORDER && action.type !== actions.MOVE)
 
     // Prepare local plan
     const localPlan = new Diff()
@@ -320,13 +320,13 @@ export default class SyncProcess {
       localPlan.commit(action)
     })
 
-    localPlan.map(mappingsSnapshot.ServerToLocal, false)
+    localPlan.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type !== actions.REORDER && action.type !== actions.MOVE)
 
     return { localPlan, serverPlan}
   }
 
-  async execute(resource, plan) {
-    await Parallel.each(plan.getActions(), async(action) => {
+  async execute(resource, plan, mappings, isLocalToServer) {
+    const run = async(action) => {
       let item = action.payload
 
       if (action.type === actions.REMOVE) {
@@ -345,7 +345,7 @@ export default class SyncProcess {
           action.oldItem.children.forEach((child) => subPlan.commit({type: actions.CREATE, payload: child}))
           const mappingsSnapshot = await this.mappings.getSnapshot()[resource === this.localTree ? 'ServerToLocal' : 'LocalToServer']
           subPlan.map(mappingsSnapshot, resource === this.localTree)
-          await this.execute(resource, subPlan, mappingsSnapshot)
+          await this.execute(resource, subPlan, mappingsSnapshot, isLocalToServer)
         }
         return
       }
@@ -361,13 +361,18 @@ export default class SyncProcess {
       }
 
       throw new Error('Unknown action type: ' + action.type)
-    }, 1)
+    }
+
+    await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run, 1)
+    const mappingsSnapshot = await this.mappings.getSnapshot()
+    plan.map(isLocalToServer ? mappingsSnapshot.LocalToServer : mappingsSnapshot.ServerToLocal, isLocalToServer, (action) => action.type === actions.MOVE)
+    await Parallel.each(plan.getActions().filter(action => action.type === actions.MOVE || action.type === actions.REMOVE), run, 1)
   }
 
   async executeReorderings(resource, plan, mappings, isLocalToServer) {
     const reorderings = new Diff()
     reorderings.add(plan)
-    reorderings.map(mappings, isLocalToServer, true)
+    reorderings.map(mappings, isLocalToServer, (action) => action.type === actions.REORDER)
 
     reorderings
       .getActions()

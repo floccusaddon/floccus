@@ -39,7 +39,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
     })
 
     // Map payloads
-    localPlan.map(mappingsSnapshot.ServerToLocal, false)
+    localPlan.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type !== actions.REORDER && action.type !== actions.MOVE)
 
     // Prepare server plan for reversing server changes
     await Parallel.each(localDiff.getActions(), async action => {

@@ -73,29 +73,24 @@ export default class Diff {
    * on LocalToServer:
    * @param mappings
    * @param isLocalToServer
-   * @param mapReorders
+   * @param filter
    */
-  map(mappings, isLocalToServer, mapReorders) {
+  map(mappings, isLocalToServer, filter = () => true) {
     // Map payloads
     this.getActions().forEach(action => {
       if (action.type === actions.REMOVE && !isLocalToServer) {
         return
       }
 
+      if (!filter(action)) {
+        return
+      }
+
       if (action.type === actions.REORDER) {
-        if (!mapReorders) {
-          return
-        }
-        if (action.oldOrder && !isLocalToServer) {
-          const oldOrder = action.oldOrder
-          action.oldOrder = action.order
-          action.order = oldOrder
-        } else {
-          action.oldOrder = action.order
-          action.order = action.order.slice().map(item => {
-            return {...item, id: mappings[item.type + 's'][item.id]}
-          })
-        }
+        action.oldOrder = action.order
+        action.order = action.order.slice().map(item => {
+          return {...item, id: mappings[item.type + 's'][item.id]}
+        })
       }
 
       if (action.oldItem && !isLocalToServer && action.type !== actions.MOVE) {

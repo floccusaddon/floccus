@@ -107,13 +107,13 @@ export default class LocalTree extends Resource {
 
   async removeBookmark(bookmark) {
     let bookmarkId = bookmark.id
-    Logger.log('(local)REMOVE', bookmarkId)
+    Logger.log('(local)REMOVE', bookmark)
     await this.queue.add(() => browser.bookmarks.remove(bookmarkId))
   }
 
   async createFolder(folder) {
     let {parentId, title} = folder
-    Logger.log('(local)CREATEFOLDER', title)
+    Logger.log('(local)CREATEFOLDER', folder)
     const node = await this.queue.add(() =>
       browser.bookmarks.create({
         parentId,

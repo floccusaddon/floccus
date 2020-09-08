@@ -37,7 +37,7 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
     })
 
     // Map payloads
-    serverPlan.map(mappingsSnapshot.LocalToServer, true)
+    serverPlan.map(mappingsSnapshot.LocalToServer, true, (action) => action.type !== actions.REORDER && action.type !== actions.MOVE)
 
     // Prepare server plan for reversing server changes
     await Parallel.each(serverDiff.getActions(), async action => {

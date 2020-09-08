@@ -3,6 +3,7 @@ import { Folder } from '../Tree'
 import Logger from '../Logger'
 import Adapter from '../interfaces/Adapter'
 import browser from '../browser-api'
+import { difference} from 'lodash'
 
 const url = require('url')
 
@@ -149,7 +150,8 @@ export default class CachingAdapter extends Adapter {
       }
     })
     if (order.length !== folder.children.length) {
-      throw new Error(browser.i18n.getMessage('Error012'))
+      const diff = difference(folder.children.map(i => i.id), order.map(i => i.id))
+      throw new Error(browser.i18n.getMessage('Error012') + ' ' + JSON.stringify(diff))
     }
     const newChildren = []
     order.forEach(item => {
