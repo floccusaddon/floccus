@@ -100,70 +100,88 @@ export default class Scanner {
   async findMoves() {
     let createActions
     let removeActions
-    let reconciliations = 1
+    let reconciled = true
 
-    while (reconciliations > 0) {
-      while (reconciliations > 0) {
-        reconciliations = 0
-        createActions = this.diff.getActions().filter((action) => action.type === actions.CREATE)
+    // As soon as one match is found, action list is updated and search is started with the new list
+    // repeat until no rewrites happen anymore
+    while (reconciled) {
+      reconciled = false
+      let createAction, removeAction
+
+      // First find direct matches (avoids glitches when folders and their contents have been moved)
+      createActions = this.diff.getActions().filter((action) => action.type === actions.CREATE)
+      while (!reconciled && (createAction = createActions.shift())) {
+        const createdItem = createAction.payload
         removeActions = this.diff.getActions().filter(action => action.type === actions.REMOVE)
-
-        await Parallel.each(createActions, async(createAction) => {
-          const createdItem = createAction.payload
-          await Parallel.each(removeActions, async(removeAction) => {
-            const removedItem = removeAction.payload
-            if (this.mergeable(removedItem, createdItem) && removedItem.type === createdItem.type) {
-              this.diff.retract(createAction)
-              this.diff.retract(removeAction)
-              this.diff.commit({
-                type: actions.MOVE,
-                payload: createdItem,
-                oldItem: removedItem,
-                index: createAction.index,
-                oldIndex: removeAction.index
-              })
-              reconciliations++
-              await this.diffItem(removedItem, createdItem)
-            }
-          }, 1)
-        }, 1)
+        while (!reconciled && (removeAction = removeActions.shift())) {
+          const removedItem = removeAction.payload
+          if (this.mergeable(removedItem, createdItem)) {
+            this.diff.retract(createAction)
+            this.diff.retract(removeAction)
+            this.diff.commit({
+              type: actions.MOVE,
+              payload: createdItem,
+              oldItem: removedItem,
+              index: createAction.index,
+              oldIndex: removeAction.index
+            })
+            reconciled = true
+            await this.diffItem(removedItem, createdItem)
+          }
+        }
       }
 
-      reconciliations = 0
+      // Then find descendant matches
       createActions = this.diff.getActions().filter((action) => action.type === actions.CREATE)
-      removeActions = this.diff.getActions().filter(action => action.type === actions.REMOVE)
-
-      await Parallel.each(createActions, async(createAction) => {
+      while (!reconciled && (createAction = createActions.shift())) {
         const createdItem = createAction.payload
-        await Parallel.each(removeActions, async(removeAction) => {
+        removeActions = this.diff.getActions().filter(action => action.type === actions.REMOVE)
+        while (!reconciled && (removeAction = removeActions.shift())) {
           const removedItem = removeAction.payload
-          if (removedItem.type === 'folder') {
-            const oldItem = removedItem.findItemFilter(createdItem.type, item => this.mergeable(item, createdItem))
-            if (oldItem) {
-              this.diff.retract(createAction)
-              this.diff.commit({ type: actions.MOVE, payload: createdItem, oldItem, index: createAction.index })
-              reconciliations++
-              await this.diffItem(oldItem, createdItem)
+          const oldItem = removedItem.findItemFilter(createdItem.type, item => this.mergeable(item, createdItem))
+          if (oldItem) {
+            let oldIndex
+            this.diff.retract(createAction)
+            if (oldItem === removedItem) {
+              this.diff.retract(removeAction)
+            } else {
+              const oldParent = removedItem.findItem('folder', oldItem.parentId)
+              oldIndex = oldParent.children.indexOf(oldItem)
             }
-          }
-          if (createdItem.type === 'folder') {
+            this.diff.commit({
+              type: actions.MOVE,
+              payload: createdItem,
+              oldItem,
+              index: createAction.index,
+              oldIndex: oldIndex || removeAction.index
+            })
+            reconciled = true
+            await this.diffItem(oldItem, createdItem)
+          } else {
             const newItem = createdItem.findItemFilter(removedItem.type, item => this.mergeable(removedItem, item))
+            let index
             if (newItem) {
               this.diff.retract(removeAction)
-              const newParent = createdItem.findItem('folder', newItem.parentId)
-              newParent.children.splice(newParent.children.indexOf(newItem), 1)
+              if (newItem === createdItem) {
+                this.diff.retract(createAction)
+              } else {
+                const newParent = createdItem.findItem('folder', newItem.parentId)
+                index = newParent.children.indexOf(newItem)
+                newParent.children.splice(index, 1)
+              }
               this.diff.commit({
                 type: actions.MOVE,
                 payload: newItem,
                 oldItem: removedItem,
-                index: createAction.index
+                index: index || createAction.index,
+                oldIndex: removeAction.index
               })
-              reconciliations++
+              reconciled = true
               await this.diffItem(removedItem, newItem)
             }
           }
-        }, 1)
-      }, 1)
+        }
+      }
     }
   }
 }

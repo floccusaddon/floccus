@@ -54,6 +54,12 @@ export class Bookmark {
     }
   }
 
+  findItemFilter(type, fn) {
+    if (type === 'bookmark' && fn(this)) {
+      return this
+    }
+  }
+
   inspect(depth = 0) {
     return (
       Array(depth < 0 ? 0 : depth)
@@ -91,8 +97,7 @@ export class Folder {
   }
 
   findItemFilter(type, fn) {
-    this.createIndex()
-    return Object.entries(this.index[type + 's']).find(fn)
+    return Object.values(this.index[type + 's']).find(fn)
   }
 
   findFolder(id) {
