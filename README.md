@@ -61,7 +61,7 @@ You can [install it via AMO](https://addons.mozilla.org/en-US/firefox/addon/floc
 
 Floccus is not supported by Firefox for Android [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility). **But**, why wait for mozilla, if you can use [Kiwi Browser](https://play.google.com/store/apps/details?id=com.kiwibrowser.browser), which supports floccus! Install instructions are the same as for Chrome.
 
-### Ugrading
+### Upgrading
 
 #### Upgrading from v3.x to v4.x
 See "Switching from tag-based to folder-based syncing"
