@@ -132,7 +132,7 @@ export default class LocalTree extends Resource {
 
   async updateFolder(folder) {
     let {id, title, parentId} = folder
-    Logger.log('(local)UPDATEFOLDER', title)
+    Logger.log('(local)UPDATEFOLDER', folder)
     await this.queue.add(() =>
       browser.bookmarks.update(id, {
         title

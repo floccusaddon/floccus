@@ -147,6 +147,7 @@ export default class Scanner {
             } else {
               const oldParent = removedItem.findItem('folder', oldItem.parentId)
               oldIndex = oldParent.children.indexOf(oldItem)
+              oldParent.children.splice(oldIndex, 1)
             }
             this.diff.commit({
               type: actions.MOVE,
