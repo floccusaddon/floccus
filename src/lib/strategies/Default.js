@@ -397,14 +397,16 @@ export default class SyncProcess {
         action.order = action.order.filter(item =>
           !childRemovals.find(a =>
             item.id === a.payload.id) &&
-          !childAwayMoves.find(a => item.id === a.payload.id))
+          !childAwayMoves.find(a =>
+            item.id === a.payload.id)
+        )
         plan
           .getActions()
           .filter(a => a.type === actions.CREATE || a.type === actions.MOVE)
           .filter(a =>
-            action.payload.id === a.payload.parentId)
+            action.payload.id === a.payload.parentId && !action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
           .forEach(a => {
-            action.order.splice(a.index, { type: a.payload.type, id: a.payload.id })
+            action.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
           })
       })
 
@@ -416,7 +418,7 @@ export default class SyncProcess {
       if (action.type === actions.REORDER) {
         await resource.orderFolder(item.id, action.order)
       }
-    }, 1)
+    })
   }
 
   async addMapping(resource, item, newId) {
