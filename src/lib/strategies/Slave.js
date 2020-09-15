@@ -1,5 +1,3 @@
-import * as Tree from '../Tree'
-import Logger from '../Logger'
 import DefaultStrategy from './Default'
 import Diff, { actions } from '../Diff'
 
