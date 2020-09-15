@@ -369,10 +369,11 @@ export default class SyncProcess {
       throw new Error('Unknown action type: ' + action.type)
     }
 
-    await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run, 1)
+    await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run)
     const mappingsSnapshot = await this.mappings.getSnapshot()
     plan.map(isLocalToServer ? mappingsSnapshot.LocalToServer : mappingsSnapshot.ServerToLocal, isLocalToServer, (action) => action.type === actions.MOVE)
-    await Parallel.each(plan.getActions().filter(action => action.type === actions.MOVE || action.type === actions.REMOVE), run, 1)
+    await Parallel.each(plan.getActions().filter(action => action.type === actions.MOVE), run)
+    await Parallel.each(plan.getActions().filter(action => action.type === actions.REMOVE), run)
   }
 
   async executeReorderings(resource, plan, mappings, isLocalToServer) {
