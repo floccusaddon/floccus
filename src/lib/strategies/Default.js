@@ -144,7 +144,7 @@ export default class SyncProcess {
   }
 
   async reconcile(localDiff, serverDiff) {
-    const mappingsSnapshot = await this.mappings.getSnapshot()
+    let mappingsSnapshot = await this.mappings.getSnapshot()
 
     const serverCreations = serverDiff.getActions().filter(action => action.type === actions.CREATE)
     const serverRemovals = serverDiff.getActions().filter(action => action.type === actions.REMOVE)
@@ -179,24 +179,26 @@ export default class SyncProcess {
           action.payload.canMergeWith(a.payload))
         if (concurrentCreation) {
           // created on both the server and locally, try to reconcile
-          const mappingsPromises = []
+          const newMappings = []
           const subScanner = new Scanner(
             concurrentCreation.payload,
             action.payload,
             (oldItem, newItem) => {
               if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
                 // if two items can be merged, we'll add mappings here directly
-                mappingsPromises.push(this.addMapping(this.localTree, oldItem, newItem.id))
+                newMappings.push([oldItem, newItem.id])
                 return true
               }
               return false
             },
-            this.preserveOrder
+            this.preserveOrder,
+            false
           )
           await subScanner.run()
-          mappingsPromises.push(this.addMapping(this.localTree, concurrentCreation.payload, action.payload.id))
-          await Promise.all(mappingsPromises)
-          serverPlan.add(subScanner.getDiff())
+          newMappings.push([concurrentCreation.payload, action.payload.id])
+          await Parallel.each(newMappings, async([oldItem, newId]) => {
+            await this.addMapping(this.localTree, oldItem, newId)
+          },1)
           return
         }
         const concurrentRemoval = serverRemovals.find(a =>
@@ -228,6 +230,7 @@ export default class SyncProcess {
     })
 
     // Map payloads
+    mappingsSnapshot = await this.mappings.getSnapshot() // Necessary because of concurrent creation reconciliation
     serverPlan.map(mappingsSnapshot.LocalToServer, true, (action) => action.type !== actions.REORDER && action.type !== actions.MOVE)
 
     // Prepare local plan
@@ -253,25 +256,27 @@ export default class SyncProcess {
           action.payload.canMergeWith(a.payload))
         if (concurrentCreation) {
           // created on both the server and locally, try to reconcile
-          const mappingsPromises = []
+          const newMappings = []
           const subScanner = new Scanner(
             concurrentCreation.payload,
             action.payload,
             (oldItem, newItem) => {
               if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
                 // if two items can be merged, we'll add mappings here directly
-                mappingsPromises.push(this.addMapping(this.server, oldItem, newItem.id))
+                newMappings.push([oldItem, newItem.id])
                 return true
               }
               return false
             },
-            this.preserveOrder
+            this.preserveOrder,
+            false,
           )
           await subScanner.run()
           // also add mappings for the two root folders
-          mappingsPromises.push(this.addMapping(this.server, concurrentCreation.payload, action.payload.id))
-          await Promise.all(mappingsPromises)
-          localPlan.add(subScanner.getDiff())
+          newMappings.push([concurrentCreation.payload, action.payload.id])
+          await Parallel.each(newMappings, async([oldItem, newId]) => {
+            await this.addMapping(this.server, oldItem, newId)
+          })
           return
         }
         const concurrentRemoval = localRemovals.find(a =>
@@ -320,6 +325,7 @@ export default class SyncProcess {
       localPlan.commit(action)
     })
 
+    mappingsSnapshot = await this.mappings.getSnapshot() // Necessary because of concurrent creation reconciliation
     localPlan.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type !== actions.REORDER && action.type !== actions.MOVE)
 
     return { localPlan, serverPlan}

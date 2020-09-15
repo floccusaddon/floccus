@@ -2,11 +2,12 @@ const Parallel = require('async-parallel')
 import Diff, { actions } from './Diff'
 
 export default class Scanner {
-  constructor(oldTree, newTree, mergeable, preserveOrder) {
+  constructor(oldTree, newTree, mergeable, preserveOrder, checkHashes) {
     this.oldTree = oldTree
     this.newTree = newTree
     this.mergeable = mergeable
     this.preserveOrder = preserveOrder
+    this.checkHashes = typeof checkHashes === 'undefined' ? true : checkHashes
     this.diff = new Diff()
   }
 
@@ -31,7 +32,7 @@ export default class Scanner {
 
   async diffFolder(oldFolder, newFolder) {
     const hasChanged = await this.folderHasChanged(oldFolder, newFolder)
-    if (!hasChanged) {
+    if (!hasChanged && this.checkHashes) {
       return
     }
     if (oldFolder.title !== newFolder.title && oldFolder.parentId && newFolder.parentId) {
