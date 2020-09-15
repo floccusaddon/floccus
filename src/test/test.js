@@ -3123,6 +3123,13 @@ describe('Floccus', function() {
                 // Randomly move two folders
                 magicFolder2 = folders[(folders.length * Math.random()) | 0]
                 magicFolder3 = folders[(folders.length * Math.random()) | 0]
+                if (magicFolder2 === magicFolder3) {
+                  continue
+                }
+                const tree2 = (await browser.bookmarks.getSubTree(magicFolder2.id))[0]
+                if (Folder.hydrate(tree2).findFolder(magicFolder3.id)) {
+                  continue
+                }
                 await browser.bookmarks.move(magicFolder2.id, {
                   parentId: magicFolder3.id
                 })
