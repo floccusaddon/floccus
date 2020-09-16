@@ -224,6 +224,26 @@ export default class SyncProcess {
           // Already deleted on server, do nothing.
           return
         }
+        const concurrentMoves = serverMoves.filter(a => action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
+        const childAwayMoves = concurrentMoves
+          .filter(a =>
+            action.payload.id !== a.payload.parentId)
+        const childInsertMoves = concurrentMoves
+          .filter(a =>
+            action.payload.id === a.payload.parentId)
+        const concurrentRemovals = serverRemovals.filter(a => action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
+        action.order = action.order.filter(item =>
+          !childAwayMoves.find(a =>
+            item.id === a.payload.id) &&
+          !concurrentRemovals.find(a =>
+            item.id === a.payload.id)
+        )
+        childInsertMoves
+          .filter(a =>
+            action.payload.id === a.payload.parentId && !action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
+          .forEach(a => {
+            action.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
+          })
       }
 
       serverPlan.commit(action)
@@ -321,6 +341,26 @@ export default class SyncProcess {
           // Already deleted on server, do nothing.
           return
         }
+        const concurrentMoves = localMoves.filter(a => action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
+        const childAwayMoves = concurrentMoves
+          .filter(a =>
+            action.payload.id !== a.payload.parentId)
+        const childInsertMoves = concurrentMoves
+          .filter(a =>
+            action.payload.id === a.payload.parentId)
+        const concurrentRemovals = localRemovals.filter(a => action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
+        action.order = action.order.filter(item =>
+          !childAwayMoves.find(a =>
+            item.id === a.payload.id) &&
+          !concurrentRemovals.find(a =>
+            item.id === a.payload.id)
+        )
+        childInsertMoves
+          .filter(a =>
+            action.payload.id === a.payload.parentId && !action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
+          .forEach(a => {
+            action.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
+          })
       }
       localPlan.commit(action)
     })
@@ -372,7 +412,7 @@ export default class SyncProcess {
     await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run)
     const mappingsSnapshot = await this.mappings.getSnapshot()
     plan.map(isLocalToServer ? mappingsSnapshot.LocalToServer : mappingsSnapshot.ServerToLocal, isLocalToServer, (action) => action.type === actions.MOVE)
-    await Parallel.each(plan.getActions().filter(action => action.type === actions.MOVE), run)
+    await Parallel.each(plan.getActions().filter(action => action.type === actions.MOVE), run, 1) // Don't run in parallel for weird hierarchy reversals
     await Parallel.each(plan.getActions().filter(action => action.type === actions.REMOVE), run)
   }
 

@@ -122,8 +122,9 @@ export default class SlaveSyncProcess extends DefaultStrategy {
       throw new Error('Unknown action type: ' + action.type)
     }
 
-    await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run, 1)
+    await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run)
     // don't  map here!
-    await Parallel.each(plan.getActions().filter(action => action.type === actions.MOVE || action.type === actions.REMOVE), run, 1)
+    await Parallel.each(plan.getActions().filter(action => action.type === actions.MOVE), run, 1) // Don't run in parallel for weird hierarchy reversals
+    await Parallel.each(plan.getActions().filter(action => action.type === actions.REMOVE), run)
   }
 }
