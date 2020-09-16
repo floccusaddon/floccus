@@ -192,7 +192,7 @@ export default class Account {
       await this.syncing.sync()
 
       // update cache
-      await this.storage.setCache(await this.localTree.getBookmarksTree())
+      await this.storage.setCache(this.syncing.localTreeRoot.clone())
 
       if (this.server.onSyncComplete) {
         await this.server.onSyncComplete()
