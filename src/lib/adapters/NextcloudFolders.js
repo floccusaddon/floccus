@@ -699,14 +699,14 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'application/json',
       body
     )
-    oldFolder.title = folder.title
-    oldFolder.parentId = folder.parentId
     let oldParentFolder = this.tree.findFolder(oldFolder.parentId)
     oldParentFolder.children = oldParentFolder.children.filter(
       (child) => parseInt(child.id) !== parseInt(id)
     )
     let newParentFolder = this.tree.findFolder(folder.parentId)
     newParentFolder.children.push(oldFolder)
+    oldFolder.title = folder.title
+    oldFolder.parentId = folder.parentId
     this.tree.createIndex()
   }
 
