@@ -2244,7 +2244,7 @@ describe('Floccus', function() {
             })
 
             await withSyncConnection(account, async() => {
-              await adapter.removeBookmark(serverMarkId)
+              await adapter.removeBookmark({...serverMark, id: serverMarkId})
             })
 
             await account.sync() // propage update
