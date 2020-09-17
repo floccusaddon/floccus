@@ -410,12 +410,19 @@ export default class SyncProcess {
         subPlan.map(mappingsSnapshot, resource === this.localTree)
         await this.execute(resource, subPlan, mappingsSnapshot, isLocalToServer)
 
-        // Order created items after the fact, as they've been created concurrently
-        const subOrder = new Diff()
-        subOrder.commit({type: actions.REORDER, oldItem: action.payload, payload: action.oldItem, order: action.payload.children.map(i => ({type: i.type, id: i.id}))})
-        mappingsSnapshot = await this.mappings.getSnapshot()[resource === this.localTree ? 'ServerToLocal' : 'LocalToServer']
-        subOrder.map(mappingsSnapshot, resource === this.localTree)
-        await this.executeReorderings(resource, subOrder)
+        if (item.children.length > 1) {
+          // Order created items after the fact, as they've been created concurrently
+          const subOrder = new Diff()
+          subOrder.commit({
+            type: actions.REORDER,
+            oldItem: action.payload,
+            payload: action.oldItem,
+            order: action.payload.children.map(i => ({ type: i.type, id: i.id }))
+          })
+          mappingsSnapshot = await this.mappings.getSnapshot()[resource === this.localTree ? 'ServerToLocal' : 'LocalToServer']
+          subOrder.map(mappingsSnapshot, resource === this.localTree)
+          await this.executeReorderings(resource, subOrder)
+        }
       }
       return
     }
