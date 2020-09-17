@@ -54,8 +54,12 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
           // removed on the server, moved locally, do nothing to recreate it on the server.
           return
         }
+
+        const payload = action.payload.clone()
+        payload.id = null
+        payload.parentId = mappingsSnapshot.LocalToServer.folders[payload.parentId]
         // recreate it on the server otherwise
-        serverPlan.commit({...action, type: actions.CREATE})
+        serverPlan.commit({...action, type: actions.CREATE, payload, oldItem: action.payload})
         return
       }
       if (action.type === actions.CREATE) {
