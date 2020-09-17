@@ -85,45 +85,10 @@ export default class SlaveSyncProcess extends DefaultStrategy {
   }
 
   async execute(resource, plan, mappings, isLocalToServer) {
-    const run = async(action) => {
-      let item = action.payload
-
-      if (action.type === actions.REMOVE) {
-        await action.payload.visitRemove(resource, item)
-        await this.removeMapping(resource, item)
-        return
-      }
-
-      if (action.type === actions.CREATE) {
-        const id = await action.payload.visitCreate(resource, item)
-        item.id = id
-        await this.addMapping(resource, action.oldItem, id)
-
-        if (item.children) {
-          const subPlan = new Diff
-          action.oldItem.children.forEach((child) => subPlan.commit({type: actions.CREATE, payload: child}))
-          const mappingsSnapshot = await this.mappings.getSnapshot()[resource === this.localTree ? 'ServerToLocal' : 'LocalToServer']
-          subPlan.map(mappingsSnapshot, resource === this.localTree)
-          await this.execute(resource, subPlan, mappingsSnapshot, isLocalToServer)
-        }
-        return
-      }
-
-      if (action.type === actions.UPDATE || action.type === actions.MOVE) {
-        await action.payload.visitUpdate(resource, item)
-        await this.addMapping(resource, action.oldItem, item.id)
-        return
-      }
-
-      if (action.type === actions.REORDER) {
-        return
-      }
-
-      throw new Error('Unknown action type: ' + action.type)
-    }
+    const run = (action) => this.executeAction(resource, action, isLocalToServer)
 
     await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run)
-    // don't  map here!
+    // Don't map here in slave mode!
     await Parallel.each(plan.getActions().filter(action => action.type === actions.MOVE), run, 1) // Don't run in parallel for weird hierarchy reversals
     await Parallel.each(plan.getActions().filter(action => action.type === actions.REMOVE), run)
   }

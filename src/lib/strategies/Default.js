@@ -101,9 +101,18 @@ export default class SyncProcess {
     // mappings have been updated, reload
     mappingsSnapshot = await this.mappings.getSnapshot()
 
+    const localReorder = new Diff()
+    localReorder.add(localPlan)
+    localReorder.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type === actions.REORDER)
+    localReorder.add(serverPlan)
+
+    const serverReorder = new Diff()
+    serverReorder.add(localReorder)
+    serverReorder.map(mappingsSnapshot.LocalToServer, true, (action) => action.type === actions.REORDER)
+
     await Promise.all([
-      this.executeReorderings(this.server, serverPlan, mappingsSnapshot.LocalToServer, true),
-      this.executeReorderings(this.localTree, localPlan, mappingsSnapshot.ServerToLocal, false),
+      this.executeReorderings(this.server, serverReorder),
+      this.executeReorderings(this.localTree, localReorder),
     ])
   }
 
@@ -332,7 +341,6 @@ export default class SyncProcess {
         const concurrentReorder = localReorders.find(a =>
           action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type + 's'][a.payload.id])
         if (concurrentReorder) {
-          // Updated both on server and locally, local has precedence: do nothing locally
           return
         }
         const concurrentRemoval = serverRemovals.find(a =>
@@ -372,42 +380,7 @@ export default class SyncProcess {
   }
 
   async execute(resource, plan, mappings, isLocalToServer) {
-    const run = async(action) => {
-      let item = action.payload
-
-      if (action.type === actions.REMOVE) {
-        await action.payload.visitRemove(resource, item)
-        await this.removeMapping(resource, item)
-        return
-      }
-
-      if (action.type === actions.CREATE) {
-        const id = await action.payload.visitCreate(resource, item)
-        item.id = id
-        await this.addMapping(resource, action.oldItem, id)
-
-        if (item.children) {
-          const subPlan = new Diff
-          action.oldItem.children.forEach((child) => subPlan.commit({type: actions.CREATE, payload: child}))
-          const mappingsSnapshot = await this.mappings.getSnapshot()[resource === this.localTree ? 'ServerToLocal' : 'LocalToServer']
-          subPlan.map(mappingsSnapshot, resource === this.localTree)
-          await this.execute(resource, subPlan, mappingsSnapshot, isLocalToServer)
-        }
-        return
-      }
-
-      if (action.type === actions.UPDATE || action.type === actions.MOVE) {
-        await action.payload.visitUpdate(resource, item)
-        await this.addMapping(resource, action.oldItem, item.id)
-        return
-      }
-
-      if (action.type === actions.REORDER) {
-        return
-      }
-
-      throw new Error('Unknown action type: ' + action.type)
-    }
+    const run = (action) => this.executeAction(resource, action, isLocalToServer)
 
     await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run)
     const mappingsSnapshot = await this.mappings.getSnapshot()
@@ -416,41 +389,51 @@ export default class SyncProcess {
     await Parallel.each(plan.getActions().filter(action => action.type === actions.REMOVE), run)
   }
 
-  async executeReorderings(resource, plan, mappings, isLocalToServer) {
-    const reorderings = new Diff()
-    reorderings.add(plan)
-    reorderings.map(mappings, isLocalToServer, (action) => action.type === actions.REORDER)
+  async executeAction(resource, action, isLocalToServer) {
+    let item = action.payload
 
-    reorderings
-      .getActions()
-      .filter(action => action.type === actions.REORDER)
-      .forEach(action => {
-        const childRemovals = plan
-          .getActions()
-          .filter(a => a.type === actions.REMOVE)
-          .filter(a =>
-            action.payload.id === a.payload.parentId)
-        const childAwayMoves = plan
-          .getActions()
-          .filter(a => a.type === actions.MOVE)
-          .filter(a =>
-            action.payload.id === a.oldItem.parentId)
-        action.order = action.order.filter(item =>
-          !childRemovals.find(a =>
-            item.id === a.payload.id) &&
-          !childAwayMoves.find(a =>
-            item.id === a.payload.id)
-        )
-        plan
-          .getActions()
-          .filter(a => a.type === actions.CREATE || a.type === actions.MOVE)
-          .filter(a =>
-            action.payload.id === a.payload.parentId && !action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
-          .forEach(a => {
-            action.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
-          })
-      })
+    if (action.type === actions.REMOVE) {
+      await action.payload.visitRemove(resource, item)
+      await this.removeMapping(resource, item)
+      return
+    }
 
+    if (action.type === actions.CREATE) {
+      const id = await action.payload.visitCreate(resource, item)
+      item.id = id
+      await this.addMapping(resource, action.oldItem, id)
+
+      if (item.children) {
+        const subPlan = new Diff
+        action.oldItem.children.forEach((child) => subPlan.commit({type: actions.CREATE, payload: child}))
+        let mappingsSnapshot = await this.mappings.getSnapshot()[resource === this.localTree ? 'ServerToLocal' : 'LocalToServer']
+        subPlan.map(mappingsSnapshot, resource === this.localTree)
+        await this.execute(resource, subPlan, mappingsSnapshot, isLocalToServer)
+
+        // Order created items after the fact, as they've been created concurrently
+        const subOrder = new Diff()
+        subOrder.commit({type: actions.REORDER, oldItem: action.payload, payload: action.oldItem, order: action.payload.children.map(i => ({type: i.type, id: i.id}))})
+        mappingsSnapshot = await this.mappings.getSnapshot()[resource === this.localTree ? 'ServerToLocal' : 'LocalToServer']
+        subOrder.map(mappingsSnapshot, resource === this.localTree)
+        await this.executeReorderings(resource, subOrder)
+      }
+      return
+    }
+
+    if (action.type === actions.UPDATE || action.type === actions.MOVE) {
+      await action.payload.visitUpdate(resource, item)
+      await this.addMapping(resource, action.oldItem, item.id)
+      return
+    }
+
+    if (action.type === actions.REORDER) {
+      return
+    }
+
+    throw new Error('Unknown action type: ' + action.type)
+  }
+
+  async executeReorderings(resource, reorderings) {
     Logger.log({reorderings})
 
     await Parallel.each(reorderings.getActions(), async(action) => {
