@@ -102,11 +102,13 @@ export default class SyncProcess {
     mappingsSnapshot = await this.mappings.getSnapshot()
 
     const localReorder = new Diff()
+    this.reconcileReorderings(localPlan, mappingsSnapshot.LocalToServer)
     localReorder.add(localPlan)
     localReorder.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type === actions.REORDER)
     localReorder.add(serverPlan)
 
     const serverReorder = new Diff()
+    this.reconcileReorderings(serverPlan, mappingsSnapshot.ServerToLocal)
     serverReorder.add(localReorder)
     serverReorder.map(mappingsSnapshot.LocalToServer, true, (action) => action.type === actions.REORDER)
 
@@ -155,15 +157,15 @@ export default class SyncProcess {
   async reconcile(localDiff, serverDiff) {
     let mappingsSnapshot = await this.mappings.getSnapshot()
 
-    const serverCreations = serverDiff.getActions().filter(action => action.type === actions.CREATE)
-    const serverRemovals = serverDiff.getActions().filter(action => action.type === actions.REMOVE)
-    const serverMoves = serverDiff.getActions().filter(action => action.type === actions.MOVE)
+    const serverCreations = serverDiff.getActions(actions.CREATE)
+    const serverRemovals = serverDiff.getActions(actions.REMOVE)
+    const serverMoves = serverDiff.getActions(actions.MOVE)
 
-    const localCreations = localDiff.getActions().filter(action => action.type === actions.CREATE)
-    const localRemovals = localDiff.getActions().filter(action => action.type === actions.REMOVE)
-    const localMoves = localDiff.getActions().filter(action => action.type === actions.MOVE)
-    const localUpdates = localDiff.getActions().filter(action => action.type === actions.UPDATE)
-    const localReorders = localDiff.getActions().filter(action => action.type === actions.REORDER)
+    const localCreations = localDiff.getActions(actions.CREATE)
+    const localRemovals = localDiff.getActions(actions.REMOVE)
+    const localMoves = localDiff.getActions(actions.MOVE)
+    const localUpdates = localDiff.getActions(actions.UPDATE)
+    const localReorders = localDiff.getActions(actions.REORDER)
 
     // Prepare server plan
     let serverPlan = new Diff()
@@ -233,26 +235,6 @@ export default class SyncProcess {
           // Already deleted on server, do nothing.
           return
         }
-        const concurrentMoves = serverMoves.filter(a => action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
-        const childAwayMoves = concurrentMoves
-          .filter(a =>
-            action.payload.id !== a.payload.parentId)
-        const childInsertMoves = concurrentMoves
-          .filter(a =>
-            action.payload.id === a.payload.parentId)
-        const concurrentRemovals = serverRemovals.filter(a => action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
-        action.order = action.order.filter(item =>
-          !childAwayMoves.find(a =>
-            item.id === a.payload.id) &&
-          !concurrentRemovals.find(a =>
-            item.id === a.payload.id)
-        )
-        childInsertMoves
-          .filter(a =>
-            action.payload.id === a.payload.parentId && !action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
-          .forEach(a => {
-            action.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
-          })
       }
 
       serverPlan.commit(action)
@@ -349,26 +331,6 @@ export default class SyncProcess {
           // Already deleted on server, do nothing.
           return
         }
-        const concurrentMoves = localMoves.filter(a => action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
-        const childAwayMoves = concurrentMoves
-          .filter(a =>
-            action.payload.id !== a.payload.parentId)
-        const childInsertMoves = concurrentMoves
-          .filter(a =>
-            action.payload.id === a.payload.parentId)
-        const concurrentRemovals = localRemovals.filter(a => action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
-        action.order = action.order.filter(item =>
-          !childAwayMoves.find(a =>
-            item.id === a.payload.id) &&
-          !concurrentRemovals.find(a =>
-            item.id === a.payload.id)
-        )
-        childInsertMoves
-          .filter(a =>
-            action.payload.id === a.payload.parentId && !action.order.find(i => i.id === a.payload.id && i.type === a.payload.type))
-          .forEach(a => {
-            action.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
-          })
       }
       localPlan.commit(action)
     })
@@ -385,8 +347,8 @@ export default class SyncProcess {
     await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run)
     const mappingsSnapshot = await this.mappings.getSnapshot()
     plan.map(isLocalToServer ? mappingsSnapshot.LocalToServer : mappingsSnapshot.ServerToLocal, isLocalToServer, (action) => action.type === actions.MOVE)
-    await Parallel.each(plan.getActions().filter(action => action.type === actions.MOVE), run, 1) // Don't run in parallel for weird hierarchy reversals
-    await Parallel.each(plan.getActions().filter(action => action.type === actions.REMOVE), run)
+    await Parallel.each(plan.getActions(actions.MOVE), run, 1) // Don't run in parallel for weird hierarchy reversals
+    await Parallel.each(plan.getActions(actions.REMOVE), run)
   }
 
   async executeAction(resource, action, isLocalToServer) {
@@ -438,6 +400,33 @@ export default class SyncProcess {
     }
 
     throw new Error('Unknown action type: ' + action.type)
+  }
+
+  reconcileReorderings(plan, reverseMappings, isLocalToServer) {
+    plan
+      .getActions(actions.REORDER)
+      .forEach(reorderAction => {
+        const childAwayMoves = plan.getActions(actions.MOVE)
+          .filter(move => (isLocalToServer ? reorderAction.payload.id === move.oldItem.parentId : reorderAction.payload.id === reverseMappings[move.oldItem.parentId]) &&
+            reorderAction.order.find(item => item.id === reverseMappings[move.payload.type + 's'][move.payload.id])
+          )
+        const concurrentRemovals = plan.getActions(actions.REMOVE)
+          .filter(removal => reorderAction.order.find(item => item.id === reverseMappings[removal.payload.type + 's'][removal.payload.id] && item.type === removal.payload.type))
+        reorderAction.order = reorderAction.order.filter(item =>
+          !childAwayMoves.find(move =>
+            item.id === reverseMappings[move.payload.type + 's'][move.payload.id]) &&
+          !concurrentRemovals.find(removal =>
+            item.id === reverseMappings[removal.payload.type + 's'][removal.payload.id])
+        )
+        plan.getActions(actions.MOVE)
+          .filter(move =>
+            reorderAction.payload.id === reverseMappings.folders[move.payload.parentId] &&
+            !reorderAction.order.find(item => item.id === reverseMappings[move.payload.type + 's'][move.payload.id] && item.type === move.payload.type)
+          )
+          .forEach(a => {
+            reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
+          })
+      })
   }
 
   async executeReorderings(resource, reorderings) {

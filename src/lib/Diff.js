@@ -32,7 +32,10 @@ export default class Diff {
     diff.getActions().forEach(action => this.commit(action))
   }
 
-  getActions() {
+  getActions(type) {
+    if (type) {
+      return this.sortActions(this.actions[type])
+    }
     return [].concat(
       this.sortActions(this.actions.UPDATE),
       this.sortActions(this.actions.CREATE, true),
