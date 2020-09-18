@@ -105,10 +105,10 @@ export default class SyncProcess {
     this.reconcileReorderings(localPlan, mappingsSnapshot.LocalToServer)
     localReorder.add(localPlan)
     localReorder.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type === actions.REORDER)
-    localReorder.add(serverPlan)
 
     const serverReorder = new Diff()
     this.reconcileReorderings(serverPlan, mappingsSnapshot.ServerToLocal)
+    localReorder.add(serverPlan)
     serverReorder.add(localReorder)
     serverReorder.map(mappingsSnapshot.LocalToServer, true, (action) => action.type === actions.REORDER)
 
@@ -405,6 +405,8 @@ export default class SyncProcess {
   reconcileReorderings(plan, reverseMappings, isLocalToServer) {
     plan
       .getActions(actions.REORDER)
+      // MOVEs have oldItem from cacheTree and payload now mapped to target tree
+      // REORDERs have payload in source tree
       .forEach(reorderAction => {
         const childAwayMoves = plan.getActions(actions.MOVE)
           .filter(move => (isLocalToServer ? reorderAction.payload.id === move.oldItem.parentId : reorderAction.payload.id === reverseMappings[move.oldItem.parentId]) &&
