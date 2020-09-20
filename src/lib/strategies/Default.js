@@ -108,8 +108,8 @@ export default class SyncProcess {
 
     const serverReorder = new Diff()
     this.reconcileReorderings(serverPlan, mappingsSnapshot.ServerToLocal)
-    localReorder.add(serverPlan)
-    serverReorder.add(localReorder)
+    // localReorder.add(serverPlan)
+    serverReorder.add(serverPlan)
     serverReorder.map(mappingsSnapshot.LocalToServer, true, (action) => action.type === actions.REORDER)
 
     await Promise.all([
@@ -426,7 +426,7 @@ export default class SyncProcess {
             !reorderAction.order.find(item => item.id === reverseMappings[move.payload.type + 's'][move.payload.id] && item.type === move.payload.type)
           )
           .forEach(a => {
-            reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
+            reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: reverseMappings[a.payload.type + 's'][a.payload.id] })
           })
       })
   }
