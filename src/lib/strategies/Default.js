@@ -102,12 +102,12 @@ export default class SyncProcess {
     mappingsSnapshot = await this.mappings.getSnapshot()
 
     const localReorder = new Diff()
-    this.reconcileReorderings(localPlan, mappingsSnapshot.LocalToServer)
+    this.reconcileReorderings(localPlan, mappingsSnapshot.LocalToServer, true)
     localReorder.add(localPlan)
     localReorder.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type === actions.REORDER)
 
     const serverReorder = new Diff()
-    this.reconcileReorderings(serverPlan, mappingsSnapshot.ServerToLocal)
+    this.reconcileReorderings(serverPlan, mappingsSnapshot.ServerToLocal, false)
     // localReorder.add(serverPlan)
     serverReorder.add(serverPlan)
     serverReorder.map(mappingsSnapshot.LocalToServer, true, (action) => action.type === actions.REORDER)
@@ -409,16 +409,17 @@ export default class SyncProcess {
       // REORDERs have payload in source tree
       .forEach(reorderAction => {
         const childAwayMoves = plan.getActions(actions.MOVE)
-          .filter(move => (isLocalToServer ? reorderAction.payload.id === move.oldItem.parentId : reorderAction.payload.id === reverseMappings[move.oldItem.parentId]) &&
-            reorderAction.order.find(item => item.id === reverseMappings[move.payload.type + 's'][move.payload.id])
+          .filter(move =>
+            (isLocalToServer ? reorderAction.payload.id === move.oldItem.parentId : reorderAction.payload.id === reverseMappings[move.oldItem.parentId]) &&
+            reorderAction.order.find(item => item.id === reverseMappings[move.payload.type + 's'][move.payload.id] && item.type === move.payload.type)
           )
         const concurrentRemovals = plan.getActions(actions.REMOVE)
           .filter(removal => reorderAction.order.find(item => item.id === reverseMappings[removal.payload.type + 's'][removal.payload.id] && item.type === removal.payload.type))
         reorderAction.order = reorderAction.order.filter(item =>
           !childAwayMoves.find(move =>
-            item.id === reverseMappings[move.payload.type + 's'][move.payload.id]) &&
+            item.id === reverseMappings[move.payload.type + 's'][move.payload.id] && move.payload.type === item.type) &&
           !concurrentRemovals.find(removal =>
-            item.id === reverseMappings[removal.payload.type + 's'][removal.payload.id])
+            item.id === reverseMappings[removal.payload.type + 's'][removal.payload.id] && removal.payload.type === item.type)
         )
         plan.getActions(actions.MOVE)
           .filter(move =>
