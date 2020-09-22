@@ -3077,7 +3077,7 @@ describe('Floccus', function() {
           console.log('Initial round: second tree ok')
           console.log('Initial round ok')
 
-          for (let j = 0; j < 10; j++) {
+          for (let j = 0; j < 4; j++) {
             console.log('STARTING LOOP ' + j)
 
             const serverTreeAfterFirstSync = await getAllBookmarks(account1)
@@ -3104,7 +3104,7 @@ describe('Floccus', function() {
             console.log('Initial round: second tree ok')
             console.log('Initial round ok')
 
-            for (let i = 0; i < 25; i++) {
+            for (let i = 0; i < 35; i++) {
               let magicBookmark
               let magicFolder1
               let magicFolder2
