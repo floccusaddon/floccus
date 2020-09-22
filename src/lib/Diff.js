@@ -39,7 +39,7 @@ export default class Diff {
     return [].concat(
       this.sortActions(this.actions.UPDATE),
       this.sortActions(this.actions.CREATE, true),
-      this.sortActions(this.actions.MOVE),
+      this.sortActions(this.actions.MOVE, true),
       this.sortActions(this.actions.REMOVE),
       this.sortActions(this.actions.REORDER),
     )
@@ -47,13 +47,13 @@ export default class Diff {
 
   sortActions(actions, reverse) {
     actions.sort((action1, action2) => {
-      if (action1.payload.findItem(action2.payload.type, action2.payload.id) &&
-        action1.payload.findItem('folder', action2.payload.parentId) &&
+      if (action1.payload.findItem(action2.payload.type, action2.payload.id) ||
+        action1.payload.findItem('folder', action2.payload.parentId) ||
         (action1.oldItem && action2.oldItem && action1.oldItem.findItem(action2.oldItem.type, action2.oldItem.id))) {
         return -1
       }
-      if (action2.payload.findItem(action1.payload.type, action1.payload.id) &&
-        action2.payload.findItem('folder', action1.payload.parentId) &&
+      if (action2.payload.findItem(action1.payload.type, action1.payload.id) ||
+        action2.payload.findItem('folder', action1.payload.parentId) ||
         (action1.oldItem && action2.oldItem && action2.oldItem.findItem(action1.oldItem.type, action1.oldItem.id))) {
         return 1
       }
