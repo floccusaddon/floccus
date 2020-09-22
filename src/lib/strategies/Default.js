@@ -341,13 +341,28 @@ export default class SyncProcess {
     return { localPlan, serverPlan}
   }
 
+  orderMoves(actions, tree) {
+    actions.sort((a1, a2) => {
+      if (tree.findItem(a1.payload.type, a1.payload.id).findItem(a2.payload.type, a2.payload.id)) {
+        return 1
+      }
+      if (tree.findItem(a2.payload.type, a2.payload.id).findItem(a1.payload.type, a1.payload.id)) {
+        return -1
+      }
+      return 0
+    })
+
+    return actions
+  }
+
   async execute(resource, plan, mappings, isLocalToServer) {
     const run = (action) => this.executeAction(resource, action, isLocalToServer)
 
     await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run)
     const mappingsSnapshot = await this.mappings.getSnapshot()
     plan.map(isLocalToServer ? mappingsSnapshot.LocalToServer : mappingsSnapshot.ServerToLocal, isLocalToServer, (action) => action.type === actions.MOVE)
-    await Parallel.each(plan.getActions(actions.MOVE), run, 1) // Don't run in parallel for weird hierarchy reversals
+    const moveActions = this.orderMoves(plan.getActions(actions.MOVE), isLocalToServer ? this.serverTreeRoot : this.localTreeRoot)
+    await Parallel.each(moveActions, run, 1) // Don't run in parallel for weird hierarchy reversals
     await Parallel.each(plan.getActions(actions.REMOVE), run)
   }
 

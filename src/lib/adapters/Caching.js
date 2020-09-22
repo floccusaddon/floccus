@@ -52,25 +52,26 @@ export default class CachingAdapter extends Adapter {
     }
     foundBookmark.url = newBm.url
     foundBookmark.title = newBm.title
-    if (foundBookmark.parentId !== newBm.parentId) {
-      const foundOldFolder = this.bookmarksCache.findFolder(
-        foundBookmark.parentId
-      )
-      if (!foundOldFolder) {
-        throw new Error(browser.i18n.getMessage('Error003'))
-      }
-      const foundNewFolder = this.bookmarksCache.findFolder(newBm.parentId)
-      if (!foundNewFolder) {
-        throw new Error(browser.i18n.getMessage('Error004'))
-      }
-      foundOldFolder.children.splice(
-        foundOldFolder.children.indexOf(foundBookmark),
-        1
-      )
-      foundNewFolder.children.push(foundBookmark) // TODO: respect order
-      foundBookmark.parentId = newBm.parentId
-      this.bookmarksCache.createIndex()
+    if (foundBookmark.parentId === newBm.parentId) {
+      return
     }
+    const foundOldFolder = this.bookmarksCache.findFolder(
+      foundBookmark.parentId
+    )
+    if (!foundOldFolder) {
+      throw new Error(browser.i18n.getMessage('Error003'))
+    }
+    const foundNewFolder = this.bookmarksCache.findFolder(newBm.parentId)
+    if (!foundNewFolder) {
+      throw new Error(browser.i18n.getMessage('Error004'))
+    }
+    foundOldFolder.children.splice(
+      foundOldFolder.children.indexOf(foundBookmark),
+      1
+    )
+    foundNewFolder.children.push(foundBookmark)
+    foundBookmark.parentId = newBm.parentId
+    this.bookmarksCache.createIndex()
   }
 
   async removeBookmark(bookmark) {
@@ -122,6 +123,9 @@ export default class CachingAdapter extends Adapter {
     if (!foundNewParentFolder) {
       throw new Error(browser.i18n.getMessage('Error009'))
     }
+    if (oldFolder.findFolder(foundNewParentFolder.id)) {
+      throw new Error('Detected creation of folder loop')
+    }
     foundOldParentFolder.children.splice(foundOldParentFolder.children.indexOf(oldFolder), 1)
     foundNewParentFolder.children.push(oldFolder)
     oldFolder.title = folder.title
@@ -137,15 +141,18 @@ export default class CachingAdapter extends Adapter {
       throw new Error(browser.i18n.getMessage('Error010'))
     }
     order.forEach(item => {
-      let child
-      if (item.type === 'folder') {
-        child = folder.findFolder(item.id)
-      } else {
-        child = folder.findBookmark(item.id)
-      }
+      let child = folder.findItem(item.type, item.id)
       if (!child || child.parentId !== folder.id) {
         throw new Error(
           browser.i18n.getMessage('Error011', JSON.stringify(item))
+        )
+      }
+    })
+    folder.children.forEach(child => {
+      let item = order.find((item) => item.type === child.type && item.id === child.id)
+      if (!item) {
+        throw new Error(
+          browser.i18n.getMessage('Error012', JSON.stringify(item))
         )
       }
     })
@@ -155,12 +162,7 @@ export default class CachingAdapter extends Adapter {
     }
     const newChildren = []
     order.forEach(item => {
-      let child
-      if (item.type === 'folder') {
-        child = folder.findFolder(item.id)
-      } else {
-        child = folder.findBookmark(item.id)
-      }
+      let child = folder.findItem(item.type, item.id)
       newChildren.push(child)
     })
     folder.children = newChildren
