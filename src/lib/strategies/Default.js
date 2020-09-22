@@ -341,12 +341,12 @@ export default class SyncProcess {
     return { localPlan, serverPlan}
   }
 
-  orderMoves(actions, tree) {
+  orderMoves(actions, tree, mappings) {
     actions.sort((a1, a2) => {
-      if (tree.findItem(a1.payload.type, a1.payload.id).findItem(a2.payload.type, a2.payload.id)) {
+      if (tree.findItem(a1.payload.type, a1.payload.id).findItem(a2.payload.type, a2.payload.id) || a1.payload.findItemFilter(a2.payload.type, (i) => mappings[i.type + 's'][i.id] === a2.payload.id)) {
         return 1
       }
-      if (tree.findItem(a2.payload.type, a2.payload.id).findItem(a1.payload.type, a1.payload.id)) {
+      if (tree.findItem(a2.payload.type, a2.payload.id).findItem(a1.payload.type, a1.payload.id) || a2.payload.findItemFilter(a1.payload.type, (i) => mappings[i.type + 's'][i.id] === a1.payload.id)) {
         return -1
       }
       return 0
@@ -361,7 +361,7 @@ export default class SyncProcess {
     await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run)
     const mappingsSnapshot = await this.mappings.getSnapshot()
     plan.map(isLocalToServer ? mappingsSnapshot.LocalToServer : mappingsSnapshot.ServerToLocal, isLocalToServer, (action) => action.type === actions.MOVE)
-    const moveActions = this.orderMoves(plan.getActions(actions.MOVE), isLocalToServer ? this.serverTreeRoot : this.localTreeRoot)
+    const moveActions = this.orderMoves(plan.getActions(actions.MOVE), isLocalToServer ? this.serverTreeRoot : this.localTreeRoot, isLocalToServer ? mappingsSnapshot.LocalToServer : mappingsSnapshot.ServerToLocal)
     await Parallel.each(moveActions, run, 1) // Don't run in parallel for weird hierarchy reversals
     await Parallel.each(plan.getActions(actions.REMOVE), run)
   }

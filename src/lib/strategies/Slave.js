@@ -89,7 +89,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
 
     await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run)
     // Don't map here in slave mode!
-    const moveActions = this.orderMoves(plan.getActions(actions.MOVE), isLocalToServer ? this.serverTreeRoot : this.localTreeRoot)
+    const moveActions = this.orderMoves(plan.getActions(actions.MOVE), isLocalToServer ? this.serverTreeRoot : this.localTreeRoot, mappings)
     await Parallel.each(moveActions, run, 1) // Don't run in parallel for weird hierarchy reversals
     await Parallel.each(plan.getActions(actions.REMOVE), run)
   }

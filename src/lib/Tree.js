@@ -97,6 +97,9 @@ export class Folder {
   }
 
   findItemFilter(type, fn) {
+    if (!this.index) {
+      this.createIndex()
+    }
     return Object.values(this.index[type + 's']).find(fn)
   }
 
