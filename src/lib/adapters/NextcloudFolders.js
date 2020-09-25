@@ -633,9 +633,13 @@ export default class NextcloudFoldersAdapter extends Adapter {
       throw new Error('Current server does not support bulk import')
     }
     if (folder.count() > 300) {
-      throw new Error('Refusing to bulk import more than 1000 bookmarks')
+      throw new Error('Refusing to bulk import more than 300 bookmarks')
     }
     Logger.log('(nextcloud-folders)BULKIMPORT', { parentId, folder })
+    let parentFolder = this.tree.findFolder(parentId)
+    if (!parentFolder) {
+      throw new Error(browser.i18n.getMessage('Error005'))
+    }
     const blob = new Blob(
       [
         '<!DOCTYPE NETSCAPE-Bookmark-file-1>\n',
@@ -682,7 +686,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
         }),
       })
     }
-    return recurseChildren(json.data, parentId, folder.title)
+    const imported = recurseChildren(json.data, parentId, folder.title)
+    parentFolder.children = imported.clone(true).children
+    this.tree.createIndex()
+    return imported
   }
 
   async updateFolder(folder) {
