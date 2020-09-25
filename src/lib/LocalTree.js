@@ -148,25 +148,29 @@ export default class LocalTree extends Resource {
   }
 
   static async getPathFromLocalId(localId, ancestors, relativeToRoot) {
-    ancestors = ancestors || (await LocalTree.getIdPathFromLocalId(localId))
+    try {
+      ancestors = ancestors || (await LocalTree.getIdPathFromLocalId(localId))
 
-    if (relativeToRoot) {
-      ancestors = ancestors.slice(ancestors.indexOf(relativeToRoot) + 1)
+      if (relativeToRoot) {
+        ancestors = ancestors.slice(ancestors.indexOf(relativeToRoot) + 1)
+      }
+
+      return (
+        await Promise.all(
+          ancestors.map(async ancestor => {
+            try {
+              let bms = await browser.bookmarks.get(ancestor)
+              let bm = bms[0]
+              return bm.title.replace(/[/]/g, '\\/')
+            } catch (e) {
+              return 'Error!'
+            }
+          })
+        )
+      ).join('/')
+    } catch (e) {
+      return browser.i18n.getMessage('LabelFolderNotFound')
     }
-
-    return (
-      await Promise.all(
-        ancestors.map(async ancestor => {
-          try {
-            let bms = await browser.bookmarks.get(ancestor)
-            let bm = bms[0]
-            return bm.title.replace(/[/]/g, '\\/')
-          } catch (e) {
-            return 'Error!'
-          }
-        })
-      )
-    ).join('/')
   }
 
   static async getIdPathFromLocalId(localId, path) {
