@@ -366,8 +366,38 @@ export default class SyncProcess {
       await this.addMapping(resource, action.oldItem, id)
 
       if (item.children) {
+        if (item.count() < 500 && resource.bulkImportFolder) {
+          try {
+            // Try bulk import
+            const imported = await resource.bulkImportFolder(item.id, item)
+            const newMappings = []
+            const subScanner = new Scanner(
+              item,
+              imported,
+              (oldItem, newItem) => {
+                if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
+                  // if two items can be merged, we'll add mappings here directly
+                  newMappings.push([oldItem, newItem.id])
+                  return true
+                }
+                return false
+              },
+              this.preserveOrder,
+              false,
+            )
+            await subScanner.run()
+            await Parallel.each(newMappings, async([oldItem, newId]) => {
+              await this.addMapping(this.server, oldItem, newId)
+            })
+            return
+          } catch (e) {
+            Logger.log('Bulk import failed, continuing with normal creation', e)
+          }
+        }
+
+        // Create a sub plan
         const subPlan = new Diff
-        action.oldItem.children.forEach((child) => subPlan.commit({type: actions.CREATE, payload: child}))
+        action.oldItem.children.forEach((child) => subPlan.commit({ type: actions.CREATE, payload: child }))
         let mappingsSnapshot = await this.mappings.getSnapshot()[resource === this.localTree ? 'ServerToLocal' : 'LocalToServer']
         subPlan.map(mappingsSnapshot, resource === this.localTree)
         await this.execute(resource, subPlan, mappingsSnapshot, isLocalToServer)

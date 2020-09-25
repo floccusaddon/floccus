@@ -700,10 +700,16 @@ export default class NextcloudFoldersAdapter extends Adapter {
       body
     )
     let oldParentFolder = this.tree.findFolder(oldFolder.parentId)
+    if (!oldParentFolder) {
+      throw new Error(browser.i18n.getMessage('Error008'))
+    }
     oldParentFolder.children = oldParentFolder.children.filter(
       (child) => parseInt(child.id) !== parseInt(id)
     )
     let newParentFolder = this.tree.findFolder(folder.parentId)
+    if (!newParentFolder) {
+      throw new Error(browser.i18n.getMessage('Error009'))
+    }
     newParentFolder.children.push(oldFolder)
     oldFolder.title = folder.title
     oldFolder.parentId = folder.parentId
@@ -730,7 +736,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     Logger.log('(nextcloud-folders)REMOVEFOLDER', { folder })
     let id = folder.id
     let oldFolder = this.tree.findFolder(id)
-    if (!folder) {
+    if (!oldFolder) {
       return
     }
     await this.sendRequest(
