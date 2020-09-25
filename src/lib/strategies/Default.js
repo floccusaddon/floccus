@@ -365,7 +365,7 @@ export default class SyncProcess {
       item.id = id
       await this.addMapping(resource, action.oldItem, id)
 
-      if (item.children.length) {
+      if (item.children && item.children.length) {
         if (resource.bulkImportFolder) {
           try {
             // Try bulk import
