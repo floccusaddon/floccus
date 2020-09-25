@@ -590,6 +590,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     }
     await recurse(children)
     folder.children = children
+    this.tree.createIndex()
     return folder.clone(true).children
   }
 
@@ -598,14 +599,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
     let parentId = folder.parentId
     let title = folder.title
 
-    let parentFolder
-    if (parentId !== '-1') {
-      parentFolder = this.tree
-    } else {
-      parentFolder = this.tree.findFolder(parentId)
-      if (!parentFolder) {
-        throw new Error(browser.i18n.getMessage('Error005'))
-      }
+    let parentFolder = this.tree.findFolder(parentId)
+    if (!parentFolder) {
+      throw new Error(browser.i18n.getMessage('Error005'))
     }
     let body = JSON.stringify({
       parent_folder: parentId,
