@@ -13,7 +13,7 @@ describe('Floccus', function() {
   this.timeout(60000) // no test should run longer than 60s
   this.slow(20000) // 20s is slow
 
-  let SERVER, CREDENTIALS, ACCOUNTS
+  let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION
   SERVER =
     (new URL(window.location.href)).searchParams.get('server') ||
     'http://localhost'
@@ -21,6 +21,8 @@ describe('Floccus', function() {
     username: 'admin',
     password: (new URL(window.location.href)).searchParams.get('pw') || 'admin'
   }
+  APP_VERSION = (new URL(window.location.href)).searchParams.get('app_version') ||
+    'stable'
   ACCOUNTS = [
     Account.getDefaultValues('fake'),
     {
@@ -642,7 +644,10 @@ describe('Floccus', function() {
             ignoreEmptyFolders(ACCOUNT_DATA)
           )
         })
-        it('should deduplicate unnormalized URLs without gettings stuck !exclude-old', async function() {
+        it('should deduplicate unnormalized URLs without gettings stuck', async function() {
+          if (APP_VERSION !== 'stable') {
+            this.skip()
+          }
           expect(
             (await getAllBookmarks(account)).children
           ).to.have.lengthOf(0)
@@ -1575,113 +1580,114 @@ describe('Floccus', function() {
           )
         })
 
-        if (ACCOUNT_DATA.type !== 'nextcloud-legacy') {
-          it('should synchronize ordering', async function() {
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
+        it('should synchronize ordering', async function() {
+          if (ACCOUNT_DATA.type === 'nextcloud-legacy') {
+            this.skip()
+          }
+          expect(
+            (await getAllBookmarks(account)).children
+          ).to.have.lengthOf(0)
 
-            const localRoot = account.getData().localRoot
-            const fooFolder = await browser.bookmarks.create({
-              title: 'foo',
-              parentId: localRoot
-            })
-            const folder1 = await browser.bookmarks.create({
-              title: 'folder1',
-              parentId: fooFolder.id
-            })
-            const folder2 = await browser.bookmarks.create({
-              title: 'folder2',
-              parentId: fooFolder.id
-            })
-            const bookmark1 = await browser.bookmarks.create({
-              title: 'url1',
-              url: 'http://ur.l/',
-              parentId: fooFolder.id
-            })
-            const bookmark2 = await browser.bookmarks.create({
-              title: 'url2',
-              url: 'http://ur.ll/',
-              parentId: fooFolder.id
-            })
-            await account.sync()
-            expect(account.getData().error).to.not.be.ok
-
-            await browser.bookmarks.move(bookmark1.id, { index: 0 })
-            await browser.bookmarks.move(folder1.id, { index: 1 })
-            await browser.bookmarks.move(bookmark2.id, { index: 2 })
-            await browser.bookmarks.move(folder2.id, { index: 3 })
-
-            await account.sync()
-            expect(account.getData().error).to.not.be.ok
-
-            const localTree = await account.localTree.getBookmarksTree(true)
-            expectTreeEqual(
-              localTree,
-              new Folder({
-                title: localTree.title,
-                children: [
-                  new Folder({
-                    title: 'foo',
-                    children: [
-                      new Bookmark({
-                        title: 'url1',
-                        url: bookmark1.url
-                      }),
-                      new Folder({
-                        title: 'folder1',
-                        children: []
-                      }),
-                      new Bookmark({
-                        title: 'url2',
-                        url: bookmark2.url
-                      }),
-                      new Folder({
-                        title: 'folder2',
-                        children: []
-                      })
-                    ]
-                  })
-                ]
-              }),
-              false,
-              true
-            )
-
-            const tree = await getAllBookmarks(account)
-            expectTreeEqual(
-              tree,
-              new Folder({
-                title: tree.title,
-                children: [
-                  new Folder({
-                    title: 'foo',
-                    children: [
-                      new Bookmark({
-                        title: 'url1',
-                        url: bookmark1.url
-                      }),
-                      new Folder({
-                        title: 'folder1',
-                        children: []
-                      }),
-                      new Bookmark({
-                        title: 'url2',
-                        url: bookmark2.url
-                      }),
-                      new Folder({
-                        title: 'folder2',
-                        children: []
-                      })
-                    ]
-                  })
-                ]
-              }),
-              false,
-              true
-            )
+          const localRoot = account.getData().localRoot
+          const fooFolder = await browser.bookmarks.create({
+            title: 'foo',
+            parentId: localRoot
           })
-        }
+          const folder1 = await browser.bookmarks.create({
+            title: 'folder1',
+            parentId: fooFolder.id
+          })
+          const folder2 = await browser.bookmarks.create({
+            title: 'folder2',
+            parentId: fooFolder.id
+          })
+          const bookmark1 = await browser.bookmarks.create({
+            title: 'url1',
+            url: 'http://ur.l/',
+            parentId: fooFolder.id
+          })
+          const bookmark2 = await browser.bookmarks.create({
+            title: 'url2',
+            url: 'http://ur.ll/',
+            parentId: fooFolder.id
+          })
+          await account.sync()
+          expect(account.getData().error).to.not.be.ok
+
+          await browser.bookmarks.move(bookmark1.id, { index: 0 })
+          await browser.bookmarks.move(folder1.id, { index: 1 })
+          await browser.bookmarks.move(bookmark2.id, { index: 2 })
+          await browser.bookmarks.move(folder2.id, { index: 3 })
+
+          await account.sync()
+          expect(account.getData().error).to.not.be.ok
+
+          const localTree = await account.localTree.getBookmarksTree(true)
+          expectTreeEqual(
+            localTree,
+            new Folder({
+              title: localTree.title,
+              children: [
+                new Folder({
+                  title: 'foo',
+                  children: [
+                    new Bookmark({
+                      title: 'url1',
+                      url: bookmark1.url
+                    }),
+                    new Folder({
+                      title: 'folder1',
+                      children: []
+                    }),
+                    new Bookmark({
+                      title: 'url2',
+                      url: bookmark2.url
+                    }),
+                    new Folder({
+                      title: 'folder2',
+                      children: []
+                    })
+                  ]
+                })
+              ]
+            }),
+            false,
+            true
+          )
+
+          const tree = await getAllBookmarks(account)
+          expectTreeEqual(
+            tree,
+            new Folder({
+              title: tree.title,
+              children: [
+                new Folder({
+                  title: 'foo',
+                  children: [
+                    new Bookmark({
+                      title: 'url1',
+                      url: bookmark1.url
+                    }),
+                    new Folder({
+                      title: 'folder1',
+                      children: []
+                    }),
+                    new Bookmark({
+                      title: 'url2',
+                      url: bookmark2.url
+                    }),
+                    new Folder({
+                      title: 'folder2',
+                      children: []
+                    })
+                  ]
+                })
+              ]
+            }),
+            false,
+            true
+          )
+        })
         context('with slave mode', function() {
           it("shouldn't create local bookmarks on the server", async function() {
             await account.setData({ ...account.getData(), strategy: 'slave' })

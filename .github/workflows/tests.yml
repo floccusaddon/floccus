@@ -189,5 +189,6 @@ jobs:
           SELENIUM_BROWSER: ${{ matrix.browsers }}
           FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          APP_VERSION: ${{ matrix.app-version }}
         run: |
           npm run test
