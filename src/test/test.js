@@ -1,5 +1,6 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
+import random from 'random'
 import Account from '../lib/Account'
 import { Bookmark, Folder } from '../lib/Tree'
 import browser from '../lib/browser-api'
@@ -13,7 +14,7 @@ describe('Floccus', function() {
   this.timeout(60000) // no test should run longer than 60s
   this.slow(20000) // 20s is slow
 
-  let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION
+  let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION, SEED
   SERVER =
     (new URL(window.location.href)).searchParams.get('server') ||
     'http://localhost'
@@ -23,6 +24,11 @@ describe('Floccus', function() {
   }
   APP_VERSION = (new URL(window.location.href)).searchParams.get('app_version') ||
     'stable'
+
+  SEED = (new URL(window.location.href)).searchParams.get('seed') || Math.random() + ''
+  console.log('RANDOMNESS SEED', SEED)
+  random.use(SEED)
+
   ACCOUNTS = [
     Account.getDefaultValues('fake'),
     {
@@ -1360,6 +1366,9 @@ describe('Floccus', function() {
             )
           })
           it('should move items without creating a folder loop', async function() {
+            if (APP_VERSION !== 'stable') {
+              this.skip()
+            }
             const localRoot = account.getData().localRoot
 
             expect(
@@ -3165,16 +3174,16 @@ describe('Floccus', function() {
               let magicFolder5
               try {
                 // Randomly move one bookmark
-                magicBookmark = bookmarks[(bookmarks.length * Math.random()) | 0]
-                magicFolder1 = folders[(folders.length * Math.random()) | 0]
+                magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
+                magicFolder1 = folders[random.int(0, folders.length - 1)]
                 await browser.bookmarks.move(magicBookmark.id, {
                   parentId: magicFolder1.id
                 })
                 console.log('Move ' + magicBookmark.title + ' to ' + magicFolder1.id)
 
                 // Randomly move two folders
-                magicFolder2 = folders[(folders.length * Math.random()) | 0]
-                magicFolder3 = folders[(folders.length * Math.random()) | 0]
+                magicFolder2 = folders[random.int(0, folders.length - 1)]
+                magicFolder3 = folders[random.int(0, folders.length - 1)]
                 if (magicFolder2 === magicFolder3) {
                   continue
                 }
@@ -3188,7 +3197,7 @@ describe('Floccus', function() {
                 console.log('Move #' + magicFolder2.id + '[' + magicFolder2.title + '] to ' + magicFolder3.id)
 
                 // Randomly create a folder
-                magicFolder4 = folders[(folders.length * Math.random()) | 0]
+                magicFolder4 = folders[random.int(0, folders.length - 1)]
                 const newFolder = await browser.bookmarks.create({
                   title: 'newFolder' + Math.random(),
                   parentId: magicFolder4.id
@@ -3196,7 +3205,7 @@ describe('Floccus', function() {
                 folders.push(newFolder)
                 console.log('Created #' + newFolder.id + '[' + newFolder.title + '] in ' + magicFolder4.id)
 
-                magicFolder5 = folders[(folders.length * Math.random()) | 0]
+                magicFolder5 = folders[random.int(0, folders.length - 1)]
                 const newBookmark = await browser.bookmarks.create({
                   title: 'newBookmark' + Math.random(),
                   url: 'http://ur.l/' + magicFolder5.id + '/' + Math.random(),

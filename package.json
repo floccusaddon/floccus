@@ -72,6 +72,7 @@
     "p-queue": "^5.0.0",
     "picostyle": "^1.0.2",
     "punycode": "^2.1.1",
+    "random": "^2.2.0",
     "throttle-debounce": "^2.1.0",
     "virtual-dom": "^2.1.1",
     "vue": "^2.6.11",
