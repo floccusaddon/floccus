@@ -227,6 +227,23 @@ export default class SyncProcess {
           serverPlan.commit({...action, type: actions.CREATE})
           return
         }
+        const concurrentHierarchyReversals = serverMoves.filter(a =>
+          action.payload.findItem('folder', mappingsSnapshot.ServerToLocal.folders[a.payload.parentId]) &&
+          a.payload.findItem('folder', mappingsSnapshot.LocalToServer.folders[action.payload.parentId])
+        )
+        if (concurrentHierarchyReversals.length) {
+          concurrentHierarchyReversals.forEach(a => {
+            // moved locally but moved in reverse hierarchical order on server
+            const payload = a.oldItem.clone() // we don't map here as we want this to look like a local action
+            const oldItem = a.payload.clone()
+            oldItem.id = mappingsSnapshot.ServerToLocal[oldItem.type + 's'][oldItem.id]
+            oldItem.parentId = mappingsSnapshot.ServerToLocal.folders[oldItem.parentId]
+            // revert server move
+            serverPlan.commit({...a, payload, oldItem})
+          })
+          serverPlan.commit(action)
+          return
+        }
       }
       if (action.type === actions.REORDER) {
         const concurrentRemoval = serverRemovals.find(a =>
@@ -308,6 +325,14 @@ export default class SyncProcess {
           action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type + 's'][a.payload.id])
         if (concurrentMove) {
           // Moved both on server and locally, local has precedence: do nothing locally
+          return
+        }
+        const concurrentHierarchyReversals = localMoves.filter(a =>
+          action.payload.findItem('folder', mappingsSnapshot.LocalToServer.folders[a.payload.parentId]) &&
+          a.payload.findItem('folder', mappingsSnapshot.ServerToLocal.folders[action.payload.parentId])
+        )
+        if (concurrentHierarchyReversals.length) {
+          // Moved locally and in reverse hierarchical order on server. local has precedence: do nothing locally
           return
         }
       }
