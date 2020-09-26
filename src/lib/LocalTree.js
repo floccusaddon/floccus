@@ -4,6 +4,7 @@ import * as Tree from './Tree'
 import Resource from './interfaces/Resource'
 import PQueue from 'p-queue'
 import Account from './Account'
+import { Folder } from './Tree'
 
 export default class LocalTree extends Resource {
   constructor(storage, rootId) {
@@ -138,6 +139,10 @@ export default class LocalTree extends Resource {
         title
       })
     )
+    const oldFolder = (await browser.bookmarks.getSubTree(id))[0]
+    if (Folder.hydrate(oldFolder).findFolder(parentId)) {
+      throw new Error('Detected creation of folder loop. Moving ' + id + ' into its descendant ' + parentId)
+    }
     await this.queue.add(() => browser.bookmarks.move(id, { parentId }))
   }
 

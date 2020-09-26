@@ -34,38 +34,50 @@ export default class Diff {
 
   getActions(type) {
     if (type) {
-      return this.sortActions(this.actions[type], type === actions.CREATE)
+      return Diff.sortActions(this.actions[type], type === actions.CREATE)
     }
     return [].concat(
-      this.sortActions(this.actions.UPDATE),
-      this.sortActions(this.actions.CREATE, true), // From high to low
-      this.sortActions(this.actions.MOVE),
-      this.sortActions(this.actions.REMOVE),
-      this.sortActions(this.actions.REORDER),
+      Diff.sortActions(this.actions.UPDATE),
+      Diff.sortActions(this.actions.CREATE, true), // From high to low
+      Diff.sortActions(this.actions.MOVE),
+      Diff.sortActions(this.actions.REMOVE),
+      Diff.sortActions(this.actions.REORDER),
     )
   }
 
-  sortActions(actions, reverse) {
+  static sortActions(actions, reverse, tree) {
     // Sort from deep hierarchy to high hierarchy
     actions.slice().sort((action1, action2) => {
       // Tier 1: Relationship in source tree
       if (
         // Move this action down, If it's item contains the other item
-        (action1.payload.findItem(action2.payload.type, action2.payload.id) ||
-        (action1.oldItem && action2.oldItem && action1.oldItem.findItem(action2.oldItem.type, action2.oldItem.id))) &&
+        (
+          (tree && tree.findItem(action1.payload.type, action1.payload.id) && tree.findItem(action1.payload.type, action1.payload.id).findItem(action2.payload.type, action2.payload.id)) ||
+          action1.payload.findItem(action2.payload.type, action2.payload.id) ||
+          (action1.oldItem && action2.oldItem && action1.oldItem.findItem(action2.oldItem.type, action2.oldItem.id))
+        ) &&
         // and its target is in the other item
-        (action2.payload.findItem('folder', action1.payload.parentId) ||
-        (action1.oldItem && action2.oldItem && action2.oldItem.findItem('folder', action1.oldItem.parentId)))
+        (
+          (tree && tree.findItem(action2.payload.type, action2.payload.id) && tree.findItem(action2.payload.type, action2.payload.id).findItem('folder', action1.payload.parentId)) ||
+          action2.payload.findItem('folder', action1.payload.parentId) ||
+          (action1.oldItem && action2.oldItem && action2.oldItem.findItem('folder', action1.oldItem.parentId))
+        )
       ) {
         return -1
       }
       if (
         // Move this action up, if its item is contained in the other item
-        (action2.payload.findItem(action1.payload.type, action1.payload.id) ||
-        (action1.oldItem && action2.oldItem && action2.oldItem.findItem(action1.oldItem.type, action1.oldItem.id))) &&
+        (
+          (tree && tree.findItem(action2.payload.type, action2.payload.id) && tree.findItem(action2.payload.type, action2.payload.id).findItem(action1.payload.type, action1.payload.id)) ||
+          action2.payload.findItem(action1.payload.type, action1.payload.id) ||
+          (action1.oldItem && action2.oldItem && action2.oldItem.findItem(action1.oldItem.type, action1.oldItem.id))
+        ) &&
         // and  its item contains the other one's target
-        (action1.payload.findItem('folder', action2.payload.parentId) ||
-        (action1.oldItem && action2.oldItem && action1.oldItem.findItem('folder', action2.oldItem.parentId)))
+        (
+          (tree && tree.findItem(action1.payload.type, action1.payload.id) && tree.findItem(action1.payload.type, action1.payload.id).findItem('folder', action2.payload.parentId)) ||
+          action1.payload.findItem('folder', action2.payload.parentId) ||
+          (action1.oldItem && action2.oldItem && action1.oldItem.findItem('folder', action2.oldItem.parentId))
+        )
       ) {
         return 1
       }

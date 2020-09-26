@@ -1359,6 +1359,78 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
+          it('should move items without creating a folder loop', async function() {
+            const localRoot = account.getData().localRoot
+
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            const aFolder = await browser.bookmarks.create({
+              title: 'a',
+              parentId: localRoot
+            })
+            const bFolder = await browser.bookmarks.create({
+              title: 'b',
+              parentId: localRoot
+            })
+            await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: bFolder.id
+            })
+            await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
+
+            // move b into a in client
+            await browser.bookmarks.move(bFolder.id, { parentId: aFolder.id })
+            const initialTree = await getAllBookmarks(account)
+
+            // move a into b on server
+            await withSyncConnection(account, async() => {
+              const aFolder = initialTree.children[0]
+              const bFolder = initialTree.children[1]
+              aFolder.parentId = bFolder.id
+              await account.server.updateFolder(aFolder)
+            })
+
+            await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'a',
+                    children: [
+                      new Folder({
+                        title: 'b',
+                        children: [
+                          new Bookmark({
+                            title: 'url',
+                            url: 'http://ur.l/',
+                          })
+
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+
+            const localTree = await account.localTree.getBookmarksTree(true)
+            localTree.title = tree.title
+            expectTreeEqual(
+              localTree,
+              tree,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+          })
           it('should integrate existing items from both sides', async function() {
             const localRoot = account.getData().localRoot
 

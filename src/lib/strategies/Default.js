@@ -347,7 +347,8 @@ export default class SyncProcess {
     await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run)
     const mappingsSnapshot = await this.mappings.getSnapshot()
     plan.map(isLocalToServer ? mappingsSnapshot.LocalToServer : mappingsSnapshot.ServerToLocal, isLocalToServer, (action) => action.type === actions.MOVE)
-    await Parallel.each(plan.getActions(actions.MOVE), run, 1) // Don't run in parallel for weird hierarchy reversals
+    const moves = Diff.sortActions(plan.getActions(actions.MOVE), false, isLocalToServer ? this.serverTreeRoot : this.localTreeRoot)
+    await Parallel.each(moves, run, 1) // Don't run in parallel for weird hierarchy reversals
     await Parallel.each(plan.getActions(actions.REMOVE), run)
   }
 
