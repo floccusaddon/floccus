@@ -124,7 +124,7 @@ export default class CachingAdapter extends Adapter {
       throw new Error(browser.i18n.getMessage('Error009'))
     }
     if (oldFolder.findFolder(foundNewParentFolder.id)) {
-      throw new Error('Detected creation of folder loop')
+      throw new Error('Detected creation of folder loop: Moving ' + id + ' to ' + folder.parentId + ', but it already contains the new parent node')
     }
     foundOldParentFolder.children.splice(foundOldParentFolder.children.indexOf(oldFolder), 1)
     foundNewParentFolder.children.push(oldFolder)
