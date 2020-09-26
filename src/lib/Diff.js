@@ -34,19 +34,20 @@ export default class Diff {
 
   getActions(type) {
     if (type) {
-      return this.sortActions(this.actions[type])
+      return this.sortActions(this.actions[type], type === actions.CREATE)
     }
     return [].concat(
       this.sortActions(this.actions.UPDATE),
-      this.sortActions(this.actions.CREATE, true),
-      this.sortActions(this.actions.MOVE, true),
+      this.sortActions(this.actions.CREATE, true), // From high to low
+      this.sortActions(this.actions.MOVE),
       this.sortActions(this.actions.REMOVE),
       this.sortActions(this.actions.REORDER),
     )
   }
 
   sortActions(actions, reverse) {
-    actions.sort((action1, action2) => {
+    // Sort from deep hierarchy to high hierarchy
+    actions.slice().sort((action1, action2) => {
       if (action1.payload.findItem(action2.payload.type, action2.payload.id) ||
         (action1.oldItem && action2.oldItem && action1.oldItem.findItem(action2.oldItem.type, action2.oldItem.id))) {
         return -1
