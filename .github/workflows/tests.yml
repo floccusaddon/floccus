@@ -35,34 +35,34 @@ jobs:
           - nextcloud-folders-old
           - webdav
         test-name:
-          - ''
+          - test
           - benchmark root
         browsers: ['firefox', 'chrome']
         include:
           - app-version: v1.1.2
             server-version: 17
             floccus-adapter: nextcloud-folders
-            test-name: ''
+            test-name: test
             browsers: chrome
           - app-version: v2.3.4
             server-version: 18
             floccus-adapter: nextcloud-folders
-            test-name: ''
+            test-name: test
             browsers: chrome
           - app-version: stable
             server-version: 18
             floccus-adapter: nextcloud-folders
-            test-name: ''
+            test-name: test
             browsers: chrome
           - app-version: stable
             server-version: 18
             floccus-adapter: nextcloud-folders
-            test-name: ''
+            test-name: test
             browsers: chrome
           - app-version: master
             server-version: 19
             floccus-adapter: nextcloud-folders
-            test-name: ''
+            test-name: test
             browsers: chrome
           - app-version: master
             server-version: 19
