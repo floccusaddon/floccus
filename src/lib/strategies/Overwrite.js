@@ -1,34 +1,33 @@
 import DefaultStrategy from './Default'
-import Diff, { actions } from '../Diff'
-
-const Parallel = require('async-parallel')
+import Diff, { ActionType } from '../Diff'
+import * as Parallel from 'async-parallel'
 
 export default class OverwriteSyncProcess extends DefaultStrategy {
   async reconcile(localDiff, serverDiff) {
     const mappingsSnapshot = await this.mappings.getSnapshot()
 
-    const serverRemovals = serverDiff.getActions().filter(action => action.type === actions.REMOVE)
+    const serverRemovals = serverDiff.getActions().filter(action => action.type === ActionType.REMOVE)
 
-    const localRemovals = localDiff.getActions().filter(action => action.type === actions.REMOVE)
-    const localMoves = localDiff.getActions().filter(action => action.type === actions.MOVE)
+    const localRemovals = localDiff.getActions().filter(action => action.type === ActionType.REMOVE)
+    const localMoves = localDiff.getActions().filter(action => action.type === ActionType.MOVE)
 
     // Prepare server plan
     let serverPlan = new Diff()
     await Parallel.each(localDiff.getActions(), async action => {
-      if (action.type === actions.REMOVE) {
+      if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = serverRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type + 's'][a.payload.id])
+          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
         if (concurrentRemoval) {
           // Already deleted on server, do nothing.
           return
         }
       }
-      if (action.type === actions.MOVE) {
+      if (action.type === ActionType.MOVE) {
         const concurrentRemoval = serverRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type + 's'][a.payload.id])
+          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
         if (concurrentRemoval) {
           // moved locally but removed on the server, recreate it on the server
-          serverPlan.commit({...action, type: actions.CREATE})
+          serverPlan.commit({...action, type: ActionType.CREATE})
           return
         }
       }
@@ -37,19 +36,19 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
     })
 
     // Map payloads
-    serverPlan.map(mappingsSnapshot.LocalToServer, true, (action) => action.type !== actions.REORDER && action.type !== actions.MOVE)
+    serverPlan.map(mappingsSnapshot.LocalToServer, true, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
 
     // Prepare server plan for reversing server changes
     await Parallel.each(serverDiff.getActions(), async action => {
-      if (action.type === actions.REMOVE) {
+      if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = localRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type + 's'][a.payload.id])
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id])
         if (concurrentRemoval) {
           // Already deleted locally, do nothing.
           return
         }
         const concurrentMove = localMoves.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type + 's'][a.payload.id])
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id])
         if (concurrentMove) {
           // removed on the server, moved locally, do nothing to recreate it on the server.
           return
@@ -57,27 +56,27 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
 
         const payload = action.payload.clone()
         payload.id = null
-        payload.parentId = mappingsSnapshot.LocalToServer.folders[payload.parentId]
+        payload.parentId = mappingsSnapshot.LocalToServer.folder[payload.parentId]
         // recreate it on the server otherwise
-        serverPlan.commit({...action, type: actions.CREATE, payload, oldItem: action.payload})
+        serverPlan.commit({...action, type: ActionType.CREATE, payload, oldItem: action.payload})
         return
       }
-      if (action.type === actions.CREATE) {
-        serverPlan.commit({...action, type: actions.REMOVE})
+      if (action.type === ActionType.CREATE) {
+        serverPlan.commit({...action, type: ActionType.REMOVE})
         return
       }
-      if (action.type === actions.MOVE) {
-        serverPlan.commit({type: actions.MOVE, payload: action.oldItem, oldItem: action.payload})
+      if (action.type === ActionType.MOVE) {
+        serverPlan.commit({type: ActionType.MOVE, payload: action.oldItem, oldItem: action.payload})
         return
       }
-      if (action.type === actions.UPDATE) {
+      if (action.type === ActionType.UPDATE) {
         const payload = action.oldItem
         payload.id = action.payload.id
         payload.parentId = action.payload.parentId
         const oldItem = action.payload
         oldItem.id = action.oldItem.id
         oldItem.parentId = action.oldItem.parentId
-        serverPlan.commit({type: actions.UPDATE, payload, oldItem})
+        serverPlan.commit({type: ActionType.UPDATE, payload, oldItem})
       }
     })
 
@@ -98,7 +97,7 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
       await this.server.orderFolder(
         serverItem.id,
         localOrder.map(item => ({
-          id: newMappingsSnapshot.LocalToServer[item.type + 's'][item.id],
+          id: newMappingsSnapshot.LocalToServer[item.type ][item.id],
           type: item.type
         }))
       )

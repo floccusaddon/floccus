@@ -1,5 +1,5 @@
-const Parallel = require('async-parallel')
-import Diff, { actions } from './Diff'
+import * as Parallel from 'async-parallel'
+import Diff, { ActionType } from './Diff'
 
 export default class Scanner {
   constructor(oldTree, newTree, mergeable, preserveOrder, checkHashes) {
@@ -36,7 +36,7 @@ export default class Scanner {
       return
     }
     if (oldFolder.title !== newFolder.title && oldFolder.parentId && newFolder.parentId) {
-      this.diff.commit({type: actions.UPDATE, payload: newFolder, oldItem: oldFolder})
+      this.diff.commit({type: ActionType.UPDATE, payload: newFolder, oldItem: oldFolder})
     }
 
     // Preserved Items
@@ -56,7 +56,7 @@ export default class Scanner {
     // (using map here, because 'each' doesn't provide indices)
     await Parallel.map(newFolder.children, async(newChild, index) => {
       if (!oldFolder.children.some(old => old.type === newChild.type && this.mergeable(old, newChild))) {
-        await this.diff.commit({type: actions.CREATE, payload: newChild, index})
+        await this.diff.commit({type: ActionType.CREATE, payload: newChild, index})
       }
     }, 1)
 
@@ -64,13 +64,13 @@ export default class Scanner {
     // (using map here, because 'each' doesn't provide indices)
     await Parallel.map(oldFolder.children, async(old, index) => {
       if (!newFolder.children.some(newChild => newChild.type === old.type && this.mergeable(old, newChild))) {
-        await this.diff.commit({type: actions.REMOVE, payload: old, index})
+        await this.diff.commit({type: ActionType.REMOVE, payload: old, index})
       }
     }, 1)
 
     if (newFolder.children.length > 1 || oldFolder.children.length > 1) {
       this.diff.commit({
-        type: actions.REORDER,
+        type: ActionType.REORDER,
         payload: newFolder,
         oldItem: oldFolder,
         order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
@@ -82,7 +82,7 @@ export default class Scanner {
   async diffBookmark(oldBookmark, newBookmark) {
     const hasChanged = await this.bookmarkHasChanged(oldBookmark, newBookmark)
     if (hasChanged) {
-      this.diff.commit({ type: actions.UPDATE, payload: newBookmark, oldItem: oldBookmark })
+      this.diff.commit({ type: ActionType.UPDATE, payload: newBookmark, oldItem: oldBookmark })
     }
   }
 
@@ -110,17 +110,17 @@ export default class Scanner {
       let createAction, removeAction
 
       // First find direct matches (avoids glitches when folders and their contents have been moved)
-      createActions = this.diff.getActions().filter((action) => action.type === actions.CREATE)
+      createActions = this.diff.getActions().filter((action) => action.type === ActionType.CREATE)
       while (!reconciled && (createAction = createActions.shift())) {
         const createdItem = createAction.payload
-        removeActions = this.diff.getActions().filter(action => action.type === actions.REMOVE)
+        removeActions = this.diff.getActions().filter(action => action.type === ActionType.REMOVE)
         while (!reconciled && (removeAction = removeActions.shift())) {
           const removedItem = removeAction.payload
           if (this.mergeable(removedItem, createdItem)) {
             this.diff.retract(createAction)
             this.diff.retract(removeAction)
             this.diff.commit({
-              type: actions.MOVE,
+              type: ActionType.MOVE,
               payload: createdItem,
               oldItem: removedItem,
               index: createAction.index,
@@ -133,10 +133,10 @@ export default class Scanner {
       }
 
       // Then find descendant matches
-      createActions = this.diff.getActions().filter((action) => action.type === actions.CREATE)
+      createActions = this.diff.getActions().filter((action) => action.type === ActionType.CREATE)
       while (!reconciled && (createAction = createActions.shift())) {
         const createdItem = createAction.payload
-        removeActions = this.diff.getActions().filter(action => action.type === actions.REMOVE)
+        removeActions = this.diff.getActions().filter(action => action.type === ActionType.REMOVE)
         while (!reconciled && (removeAction = removeActions.shift())) {
           const removedItem = removeAction.payload
           const oldItem = removedItem.findItemFilter(createdItem.type, item => this.mergeable(item, createdItem))
@@ -151,7 +151,7 @@ export default class Scanner {
               oldParent.children.splice(oldIndex, 1)
             }
             this.diff.commit({
-              type: actions.MOVE,
+              type: ActionType.MOVE,
               payload: createdItem,
               oldItem,
               index: createAction.index,
@@ -172,7 +172,7 @@ export default class Scanner {
                 newParent.children.splice(index, 1)
               }
               this.diff.commit({
-                type: actions.MOVE,
+                type: ActionType.MOVE,
                 payload: newItem,
                 oldItem: removedItem,
                 index: index || createAction.index,

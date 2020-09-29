@@ -3,30 +3,61 @@
 import Adapter from '../interfaces/Adapter'
 import HtmlSerializer from '../serializers/Html'
 import Logger from '../Logger'
-import { Bookmark, Folder } from '../Tree'
+import { Bookmark, Folder, TItem } from '../Tree'
 import { Base64 } from 'js-base64'
 import AsyncLock from 'async-lock'
 import browser from '../browser-api'
-
-const Parallel = require('async-parallel')
-const url = require('url')
-const PQueue = require('p-queue')
-const _ = require('lodash')
+import * as Parallel from 'async-parallel'
+import url from 'url'
+import PQueue from 'p-queue'
+import { flatten } from 'lodash/flatten'
+import { BulkImportResource, LoadFolderChildrenResource, OrderFolderResource } from '../interfaces/Resource'
+import Ordering from '../interfaces/Ordering'
 
 const PAGE_SIZE = 300
 const TIMEOUT = 180000
 
-export default class NextcloudFoldersAdapter extends Adapter {
-  constructor(server) {
-    super()
+export interface NextcloudFoldersConfig {
+  type: 'nextcloud-folders'
+  url: string
+  username: string
+  password: string
+  serverRoot?: string
+}
+
+interface IChildFolder {
+  id: string|number
+  title: string
+  parentId?: string|number
+  children?: IChildFolder[]
+}
+
+interface IChildOrderItem {
+  type: 'bookmark' | 'folder'
+  id: string|number
+  children?: IChildOrderItem[]
+}
+
+export default class NextcloudFoldersAdapter implements Adapter, BulkImportResource, LoadFolderChildrenResource, OrderFolderResource {
+  private server: NextcloudFoldersConfig
+  private fetchQueue: PQueue<{ concurrency: 12 }>
+  private bookmarkLock: AsyncLock
+  private hasFeatureHashing = false
+  private hasFeatureExistenceCheck = false
+  private hasFeatureChildren = false
+  private hasFeatureBulkImport = false
+  private list: Bookmark[]
+  private tree: Folder
+
+  constructor(server: NextcloudFoldersConfig) {
     this.server = server
     this.fetchQueue = new PQueue({ concurrency: 12 })
     this.bookmarkLock = new AsyncLock()
     this.hasFeatureHashing = false
-    this.hasFeatureExistanceCheck = false
+    this.hasFeatureExistenceCheck = false
   }
 
-  static getDefaultValues() {
+  static getDefaultValues(): NextcloudFoldersConfig {
     return {
       type: 'nextcloud-folders',
       url: 'https://example.org',
@@ -36,26 +67,26 @@ export default class NextcloudFoldersAdapter extends Adapter {
     }
   }
 
-  setData(data) {
+  setData(data:NextcloudFoldersConfig):void {
     this.server = { ...data }
   }
 
-  getData() {
+  getData():NextcloudFoldersConfig {
     return { ...this.server }
   }
 
-  getLabel() {
-    let data = this.getData()
+  getLabel():string {
+    const data = this.getData()
     return data.username + '@' + url.parse(data.url).hostname
   }
 
-  acceptsBookmark(bm) {
-    return ~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol)
+  acceptsBookmark(bm: Bookmark):boolean {
+    return Boolean(~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol))
   }
 
-  normalizeServerURL(input) {
-    let serverURL = url.parse(input)
-    let indexLoc = serverURL.pathname.indexOf('index.php')
+  normalizeServerURL(input:string):string {
+    const serverURL = url.parse(input)
+    const indexLoc = serverURL.pathname.indexOf('index.php')
     return url.format({
       protocol: serverURL.protocol,
       auth: serverURL.auth,
@@ -69,32 +100,32 @@ export default class NextcloudFoldersAdapter extends Adapter {
     })
   }
 
-  getLockUrl() {
+  getLockUrl():string {
     return this.server.url + '/remote.php/webdav/.floccus-' + Base64.toBase64(this.server.serverRoot) + '.lock'
   }
 
-  timeout(ms) {
+  timeout(ms:number):Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
-  async onSyncStart() {
+  async onSyncStart():Promise<void> {
     Logger.log('onSyncStart: begin')
     await this.obtainLock()
   }
 
-  async onSyncFail() {
+  async onSyncFail():Promise<void> {
     Logger.log('onSyncFail')
     await this.freeLock()
   }
 
-  async onSyncComplete() {
+  async onSyncComplete():Promise<void> {
     Logger.log('onSyncComplete')
     await this.freeLock()
   }
 
-  async downloadFile(fullURL) {
+  async downloadFile(fullURL:string):Promise<Response> {
     let res
-    let authString = Base64.encode(
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
 
@@ -120,12 +151,13 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return res
   }
 
-  async uploadFile(url, content_type, data) {
-    let authString = Base64.encode(
+  async uploadFile(url:string, content_type:string, data:string):Promise<void> {
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
+    let res
     try {
-      var res = await fetch(url, {
+      res = await fetch(url, {
         method: 'PUT',
         credentials: 'omit',
         headers: {
@@ -147,18 +179,18 @@ export default class NextcloudFoldersAdapter extends Adapter {
     }
   }
 
-  async checkLock() {
-    let fullURL = this.getLockUrl()
+  async checkLock(): Promise<number> {
+    const fullURL = this.getLockUrl()
     Logger.log(fullURL)
 
     const response = await this.downloadFile(fullURL)
     return response.status
   }
 
-  async obtainLock() {
+  async obtainLock():Promise<void> {
     let rStatus
-    let maxTimeout = 30 * 60 * 1000 // Give up after 0.5h
-    let base = 1.25
+    const maxTimeout = 30 * 60 * 1000 // Give up after 0.5h
+    const base = 1.25
     for (let i = 0; 1 / Math.log(base) * base ** i * 1000 < maxTimeout; i++) {
       rStatus = await this.checkLock()
       if (rStatus === 200) {
@@ -170,10 +202,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
     if (rStatus === 200) {
       throw new Error(
-        browser.i18n.getMessage('Error023', this.server.bookmark_file + '.lock')
+        browser.i18n.getMessage('Error023', this.getLockUrl())
       )
     } else if (rStatus === 404) {
-      let fullURL = this.getLockUrl()
+      const fullURL = this.getLockUrl()
       Logger.log(fullURL)
       await this.uploadFile(
         fullURL,
@@ -184,16 +216,16 @@ export default class NextcloudFoldersAdapter extends Adapter {
       throw new Error(
         browser.i18n.getMessage('Error024', [
           rStatus,
-          this.server.bookmark_file + '.lock'
+          this.getLockUrl()
         ])
       )
     }
   }
 
-  async freeLock() {
-    let fullUrl = this.getLockUrl()
+  async freeLock():Promise<void> {
+    const fullUrl = this.getLockUrl()
 
-    let authString = Base64.encode(
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
 
@@ -210,7 +242,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     }
   }
 
-  async getBookmarksList() {
+  async getBookmarksList():Promise<Bookmark[]> {
     if (this.list) {
       return this.list
     }
@@ -231,18 +263,19 @@ export default class NextcloudFoldersAdapter extends Adapter {
       i++
     } while (json.data.length === PAGE_SIZE)
 
-    let bookmarks = _.flatten(
+    const bookmarks = flatten(
       data.map((bm) => {
-        let bookmark = new Bookmark({
-          id: bm.id,
-          url: bm.url,
-          title: bm.title,
-        })
+        const bookmark = {
+          id: bm.id as number|string,
+          url: bm.url as string,
+          title: bm.title as string,
+          parentId: null
+        }
 
         return bm.folders.map((parentId) => {
-          let b = bookmark.clone()
+          const b = {...bookmark}
           b.parentId = parentId
-          return b
+          return new Bookmark(b)
         })
       })
     )
@@ -252,7 +285,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return bookmarks
   }
 
-  async getBookmarksTree(loadAll) {
+  async getBookmarksTree(loadAll = false):Promise<Folder> {
     this.list = null // clear cache before starting a new sync
 
     // feature detection: Check if the server offers hashes
@@ -282,7 +315,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     }
   }
 
-  async _getChildOrder(folderId, layers) {
+  async _getChildOrder(folderId:string|number, layers:number):Promise<IChildOrderItem[]> {
     const childrenOrderJson = await this.sendRequest(
       'GET',
       `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/childorder` +
@@ -294,7 +327,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return childrenOrderJson.data
   }
 
-  async _getChildFolders(folderId, layers = 0) {
+  async _getChildFolders(folderId:string|number, layers = 0):Promise<IChildFolder[]> {
     const folderJson = await this.sendRequest(
       'GET',
       `index.php/apps/bookmarks/public/rest/v2/folder?root=${folderId}&layers=${layers}`
@@ -305,18 +338,18 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return folderJson.data
   }
 
-  async _findServerRoot(childFolders) {
-    let tree = new Folder({ id: '-1' })
+  async _findServerRoot(childFolders: IChildFolder[]):Promise<{tree:Folder, childFolders: IChildFolder[]}> {
+    let tree = new Folder({ id: '-1', title: 'root' })
     await Parallel.each(
       this.server.serverRoot.split('/').slice(1),
       async(segment) => {
-        let currentChild = _.find(
-          childFolders,
+        let currentChild = childFolders.find(
+
           (folder) => folder.title === segment
         )
         if (!currentChild) {
           // create folder
-          let body = JSON.stringify({
+          const body = JSON.stringify({
             parent_folder: tree.id,
             title: segment,
           })
@@ -329,9 +362,9 @@ export default class NextcloudFoldersAdapter extends Adapter {
           if (typeof json.item !== 'object') {
             throw new Error(browser.i18n.getMessage('Error015'))
           }
-          currentChild = { id: json.item.id, children: [] }
+          currentChild = { id: json.item.id, children: [], title: json.item.title }
         }
-        tree = new Folder({ id: currentChild.id })
+        tree = new Folder({ id: currentChild.id, title: currentChild.title })
         childFolders =
           currentChild.children ||
           (await this._getChildFolders(currentChild.id))
@@ -341,7 +374,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return { tree, childFolders }
   }
 
-  async getCompleteBookmarksTree() {
+  async getCompleteBookmarksTree():Promise<Folder> {
     const childrenLayers = 2
 
     let childFolders = await this._getChildFolders(-1, childrenLayers)
@@ -350,7 +383,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       childFolders
     )
 
-    let tree = new Folder({ id: '-1' })
+    let tree = new Folder({ id: '-1', title: 'root' })
     if (this.server.serverRoot) {
       ({ tree, childFolders } = await this._findServerRoot(childFolders))
     }
@@ -361,37 +394,37 @@ export default class NextcloudFoldersAdapter extends Adapter {
       return tree.clone()
     }
 
-    let list = await this.getBookmarksList()
+    const list = await this.getBookmarksList()
 
     // retrieve folder order
-    let childrenOrder = await this._getChildOrder(tree.id, childrenLayers)
+    const childrenOrder = await this._getChildOrder(tree.id, childrenLayers)
     Logger.log(
       'Received initial children order from server (may be incomplete)',
       childrenOrder
     )
 
-    const recurseChildFolders = async(tree, childFolders, childrenOrder) => {
+    const recurseChildFolders = async(tree:Folder, childFolders:IChildFolder[], childrenOrder:IChildOrderItem[]) => {
       const folders = await Parallel.map(
         childrenOrder,
         async(child) => {
           if (child.type === 'folder') {
             // get the folder from the tree we've fetched above
-            let folder = childFolders.find((folder) => folder.id === child.id)
+            const folder = childFolders.find((folder) => folder.id === child.id)
             if (!folder) throw new Error(browser.i18n.getMessage('Error021'))
-            let newFolder = new Folder({
+            const newFolder = new Folder({
               id: child.id,
               title: folder.title,
               parentId: tree.id,
             })
             tree.children.push(newFolder)
-            return [newFolder, child, folder]
+            return { newFolder, child, folder}
           } else {
             // get the bookmark from the list we've fetched above
-            let childBookmark = _.find(
-              list,
+            let childBookmark = list.find(
+
               (bookmark) =>
-                parseInt(bookmark.id) === parseInt(child.id) &&
-                parseInt(bookmark.parentId) === parseInt(tree.id)
+                String(bookmark.id) === String(child.id) &&
+                String(bookmark.parentId) === String(tree.id)
             )
             if (!childBookmark) {
               throw new Error(
@@ -411,7 +444,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       )
       await Parallel.each(
         folders.filter(Boolean),
-        async([newFolder, child, folder]) => {
+        async({ newFolder, child, folder}) => {
           if (typeof child.children === 'undefined') {
             child.children = await this._getChildOrder(child.id, childrenLayers)
           }
@@ -434,12 +467,12 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return tree.clone()
   }
 
-  async getSparseBookmarksTree() {
+  async getSparseBookmarksTree() :Promise<Folder> {
     this.hasFeatureHashing = true
-    this.hasFeatureExistanceCheck = true
+    this.hasFeatureExistenceCheck = true
 
     let childFolders = await this._getChildFolders(-1, 0)
-    let tree = new Folder({ id: '-1' })
+    let tree = new Folder({ id: '-1', title: 'root' })
 
     if (this.server.serverRoot) {
       ({ tree, childFolders } = await this._findServerRoot(childFolders))
@@ -449,7 +482,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
     const recurseChildFolders = (tree, childFolders) => {
       childFolders.forEach((childFolder) => {
-        let newFolder = new Folder({
+        const newFolder = new Folder({
           id: childFolder.id,
           title: childFolder.title,
           parentId: tree.id,
@@ -466,12 +499,12 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return tree
   }
 
-  async _getFolderHash(folderId) {
+  async _getFolderHash(folderId:string|number):Promise<string> {
     return this.sendRequest(
       'GET',
       `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/hash`
     )
-      .catch((e) => {
+      .catch(() => {
         return { data: '0' } // fallback
       })
       .then((json) => {
@@ -479,7 +512,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       })
   }
 
-  async _getChildren(folderId, layers) {
+  async _getChildren(folderId:string|number, layers:number) {
     let childrenJson
     if (
       typeof this.hasFeatureChildren === 'undefined' ||
@@ -521,7 +554,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       return recurseChildren(folderId, children)
     } else {
       const [childrenOrder, childFolders, childBookmarks] = await Promise.all([
-        this._getChildOrder(folderId),
+        this._getChildOrder(folderId, 1),
         this._getChildFolders(folderId),
         Promise.resolve().then(
           () =>
@@ -548,13 +581,15 @@ export default class NextcloudFoldersAdapter extends Adapter {
         })
       }
       const folder = new Folder({
+        id: folderId,
+        title: '',
         children: recurseFolders(folderId, childFolders),
       })
       return childrenOrder.map((item) => {
         if (item.type === 'bookmark') {
-          const bm = _.find(
-            childBookmarks,
-            (child) => parseInt(child.id) === parseInt(item.id)
+          const bm = childBookmarks.find(
+
+            (child) => String(child.id) === String(item.id)
           )
           if (bm instanceof Bookmark) return bm // in case we've got this from the cached list
           return new Bookmark({
@@ -570,7 +605,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     }
   }
 
-  async loadFolderChildren(folderId) {
+  async loadFolderChildren(folderId:string|number): Promise<TItem[]> {
     if (!this.hasFeatureHashing) {
       return
     }
@@ -581,7 +616,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
     const children = await this._getChildren(folderId, 1)
     const recurse = async(children) => {
       return Parallel.each(children, async(child) => {
-        if (child instanceof Folder && !child.loaded) {
+        if (!(child instanceof Folder)) {
+          return
+        }
+        if (!child.loaded) {
           const folderHash = await this._getFolderHash(child.id)
           child.hashValue = { true: folderHash }
         }
@@ -594,16 +632,16 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return folder.clone(true).children
   }
 
-  async createFolder(folder) {
+  async createFolder(folder:Folder):Promise<string|number> {
     Logger.log('(nextcloud-folders)CREATEFOLDER', {folder})
-    let parentId = folder.parentId
-    let title = folder.title
+    const parentId = folder.parentId
+    const title = folder.title
 
-    let parentFolder = this.tree.findFolder(parentId)
+    const parentFolder = this.tree.findFolder(parentId)
     if (!parentFolder) {
       throw new Error(browser.i18n.getMessage('Error005'))
     }
-    let body = JSON.stringify({
+    const body = JSON.stringify({
       parent_folder: parentId,
       title: title,
     })
@@ -624,7 +662,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     return json.item.id
   }
 
-  async bulkImportFolder(parentId, folder) {
+  async bulkImportFolder(parentId:string|number, folder:Folder):Promise<Folder> {
     if (this.hasFeatureBulkImport === false) {
       throw new Error('Current server does not support bulk import')
     }
@@ -632,7 +670,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
       throw new Error('Refusing to bulk import more than 300 bookmarks')
     }
     Logger.log('(nextcloud-folders)BULKIMPORT', { parentId, folder })
-    let parentFolder = this.tree.findFolder(parentId)
+    const parentFolder = this.tree.findFolder(parentId)
     if (!parentFolder) {
       throw new Error(browser.i18n.getMessage('Error005'))
     }
@@ -682,17 +720,17 @@ export default class NextcloudFoldersAdapter extends Adapter {
         }),
       })
     }
-    const imported = recurseChildren(json.data, parentId, folder.title)
+    const imported = recurseChildren(json.data, parentId, folder.title, folder.parentId)
     parentFolder.children = imported.clone(true).children
     this.tree.createIndex()
     return imported
   }
 
-  async updateFolder(folder) {
+  async updateFolder(folder:Folder):Promise<void> {
     Logger.log('(nextcloud-folders)UPDATEFOLDER', { folder })
-    let id = folder.id
-    let oldFolder = this.tree.findFolder(folder.id)
-    let body = JSON.stringify({
+    const id = folder.id
+    const oldFolder = this.tree.findFolder(folder.id)
+    const body = JSON.stringify({
       parent_folder: folder.parentId,
       title: folder.title,
     })
@@ -702,14 +740,14 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'application/json',
       body
     )
-    let oldParentFolder = this.tree.findFolder(oldFolder.parentId)
+    const oldParentFolder = this.tree.findFolder(oldFolder.parentId)
     if (!oldParentFolder) {
       throw new Error(browser.i18n.getMessage('Error008'))
     }
     oldParentFolder.children = oldParentFolder.children.filter(
-      (child) => parseInt(child.id) !== parseInt(id)
+      (child) => String(child.id) !== String(id)
     )
-    let newParentFolder = this.tree.findFolder(folder.parentId)
+    const newParentFolder = this.tree.findFolder(folder.parentId)
     if (!newParentFolder) {
       throw new Error(browser.i18n.getMessage('Error009'))
     }
@@ -719,7 +757,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
     this.tree.createIndex()
   }
 
-  async orderFolder(id, order) {
+  async orderFolder(id:string|number, order:Ordering):Promise<void> {
     Logger.log('(nextcloud-folders)ORDERFOLDER', { id, order })
     const body = {
       data: order.map((item) => ({
@@ -735,10 +773,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
     )
   }
 
-  async removeFolder(folder) {
+  async removeFolder(folder:Folder):Promise<void> {
     Logger.log('(nextcloud-folders)REMOVEFOLDER', { folder })
-    let id = folder.id
-    let oldFolder = this.tree.findFolder(id)
+    const id = folder.id
+    const oldFolder = this.tree.findFolder(id)
     if (!oldFolder) {
       return
     }
@@ -746,15 +784,15 @@ export default class NextcloudFoldersAdapter extends Adapter {
       'DELETE',
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}`
     )
-    let parent = this.tree.findFolder(oldFolder.parentId)
+    const parent = this.tree.findFolder(oldFolder.parentId)
     parent.children = parent.children.filter(
-      (child) => parseInt(child.id) !== parseInt(id)
+      (child) => String(child.id) !== String(id)
     )
 
     this.tree.createIndex()
   }
 
-  async _getBookmark(id) {
+  async _getBookmark(id:string|number):Promise<Bookmark[]> {
     Logger.log('Fetching single bookmark')
 
     const json = await this.sendRequest(
@@ -765,30 +803,27 @@ export default class NextcloudFoldersAdapter extends Adapter {
       throw new Error(browser.i18n.getMessage('Error015'))
     }
 
-    let bm = json.item
+    const bm = json.item
     if (!bm.folders.length) {
       bm.folders = [null]
     }
-    let bookmarks = bm.folders.map((parentId) => {
-      let bookmark = new Bookmark({
+    return bm.folders.map((parentId) => {
+      return new Bookmark({
         id: bm.id + ';' + parentId,
         url: bm.url,
         title: bm.title,
         parentId: parentId,
+        tags: bm.tags
       })
-      bookmark.tags = bm.tags
-      return bookmark
     })
-
-    return bookmarks
   }
 
   /*
    * This is pretty expensive! We need to wait until NcBookmarks has support for
    * querying urls directly
    */
-  async getExistingBookmark(url) {
-    if (this.hasFeatureExistanceCheck) {
+  async getExistingBookmark(url:string):Promise<false|string|number> {
+    if (this.hasFeatureExistenceCheck) {
       const json = await this.sendRequest(
         'GET',
         `index.php/apps/bookmarks/public/rest/v2/bookmark?url=${encodeURIComponent(
@@ -802,24 +837,24 @@ export default class NextcloudFoldersAdapter extends Adapter {
       }
     } else {
       await this.getBookmarksList()
-      let existing = _.find(this.list, (bookmark) => bookmark.url === url)
+      const existing = this.list.find((bookmark) => bookmark.url === url)
       if (!existing) return false
       return existing.id
     }
   }
 
-  async createBookmark(bm) {
+  async createBookmark(bm:Bookmark):Promise<string|number> {
     Logger.log('(nextcloud-folders)CREATE', bm)
 
     // We need this lock to avoid creating two boomarks with the same url
     // in parallel
     return this.bookmarkLock.acquire(bm.url, async() => {
-      let existingBookmark = await this.getExistingBookmark(bm.url)
+      const existingBookmark = await this.getExistingBookmark(bm.url)
       if (existingBookmark) {
         bm.id = existingBookmark + ';' + bm.parentId
         await this.updateBookmark(bm)
       } else {
-        let body = JSON.stringify({
+        const body = JSON.stringify({
           url: bm.url,
           title: bm.title,
           folders: [bm.parentId],
@@ -837,7 +872,7 @@ export default class NextcloudFoldersAdapter extends Adapter {
         bm.id = json.item.id + ';' + bm.parentId
       }
       // add bookmark to cached list
-      let upstreamMark = bm.clone()
+      const upstreamMark = bm.clone()
       upstreamMark.id = bm.id.split(';')[0]
       this.list && this.list.push(upstreamMark)
 
@@ -845,24 +880,24 @@ export default class NextcloudFoldersAdapter extends Adapter {
     })
   }
 
-  async updateBookmark(newBm) {
+  async updateBookmark(newBm:Bookmark):Promise<void> {
     Logger.log('(nextcloud-folders)UPDATE', newBm)
 
-    let [upstreamId, oldParentId] = newBm.id.split(';')
+    const [upstreamId, oldParentId] = String(newBm.id).split(';')
 
     // We need this lock to avoid updating bookmarks which are in two places at Once
     // in parallel
     return this.bookmarkLock.acquire(upstreamId, async() => {
-      let bms = await this._getBookmark(upstreamId)
+      const bms = await this._getBookmark(upstreamId)
 
-      let body = JSON.stringify({
+      const body = JSON.stringify({
         url: newBm.url,
         title: newBm.title,
         folders: bms
           .map((bm) => bm.parentId)
           .filter(
             (parentId) =>
-              parentId && parseInt(parentId) !== parseInt(oldParentId)
+              parentId && String(parentId) !== String(oldParentId)
           )
           .concat([newBm.parentId]),
         tags: bms[0].tags,
@@ -879,10 +914,10 @@ export default class NextcloudFoldersAdapter extends Adapter {
     })
   }
 
-  async removeBookmark(bookmark) {
+  async removeBookmark(bookmark:Bookmark):Promise<void> {
     Logger.log('(nextcloud-folders)REMOVE', { bookmark })
-    let id = bookmark.id
-    let [upstreamId, parentId] = id.split(';')
+    const id = bookmark.id
+    const [upstreamId, parentId] = String(id).split(';')
 
     // Just to be safe
     return this.bookmarkLock.acquire(upstreamId, async() => {
@@ -893,18 +928,18 @@ export default class NextcloudFoldersAdapter extends Adapter {
 
       // remove bookmark from the cached list
       const list = await this.getBookmarksList()
-      let listIndex = _.findIndex(
-        list,
-        (bookmark) => parseInt(bookmark.id) === parseInt(upstreamId)
+      const listIndex = list.findIndex(
+        (bookmark) => String(bookmark.id) === String(upstreamId)
       )
       list.splice(listIndex, 1)
     })
   }
 
-  async sendRequest(verb, relUrl, type, body, returnRawResponse) {
+  async sendRequest(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false):Promise<any> {
     const url = this.normalizeServerURL(this.server.url) + relUrl
     let res
-    let authString = Base64.encode(
+    let timedOut = false
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
     try {
@@ -921,15 +956,14 @@ export default class NextcloudFoldersAdapter extends Adapter {
           }),
           new Promise((resolve, reject) =>
             setTimeout(() => {
-              const e = new Error(browser.i18n.getMessage('Error016'))
-              e.pass = true
-              reject(e)
+              timedOut = true
+              reject(new Error(browser.i18n.getMessage('Error016')))
             }, TIMEOUT)
           ),
         ])
       )
     } catch (e) {
-      if (e.pass) throw e
+      if (timedOut) throw e
       throw new Error(browser.i18n.getMessage('Error017'))
     }
 

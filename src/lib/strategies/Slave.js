@@ -1,34 +1,33 @@
 import DefaultStrategy from './Default'
-import Diff, { actions } from '../Diff'
-
-const Parallel = require('async-parallel')
+import Diff, { ActionType } from '../Diff'
+import * as Parallel from 'async-parallel'
 
 export default class SlaveSyncProcess extends DefaultStrategy {
   async reconcile(localDiff, serverDiff) {
     const mappingsSnapshot = await this.mappings.getSnapshot()
 
-    const serverMoves = serverDiff.getActions().filter(action => action.type === actions.MOVE)
-    const serverRemovals = serverDiff.getActions().filter(action => action.type === actions.REMOVE)
+    const serverMoves = serverDiff.getActions().filter(action => action.type === ActionType.MOVE)
+    const serverRemovals = serverDiff.getActions().filter(action => action.type === ActionType.REMOVE)
 
-    const localRemovals = localDiff.getActions().filter(action => action.type === actions.REMOVE)
+    const localRemovals = localDiff.getActions().filter(action => action.type === ActionType.REMOVE)
 
     // Prepare local plan
     let localPlan = new Diff()
     await Parallel.each(serverDiff.getActions(), async action => {
-      if (action.type === actions.REMOVE) {
+      if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = localRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type + 's'][a.payload.id])
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id])
         if (concurrentRemoval) {
           // Already deleted locally, do nothing.
           return
         }
       }
-      if (action.type === actions.MOVE) {
+      if (action.type === ActionType.MOVE) {
         const concurrentRemoval = localRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type + 's'][a.payload.id])
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id])
         if (concurrentRemoval) {
           // moved on server but removed locally, recreate it on the server
-          localPlan.commit({...action, type: actions.CREATE})
+          localPlan.commit({...action, type: ActionType.CREATE})
           return
         }
       }
@@ -37,46 +36,46 @@ export default class SlaveSyncProcess extends DefaultStrategy {
     })
 
     // Map payloads
-    localPlan.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type !== actions.REORDER && action.type !== actions.MOVE)
+    localPlan.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
 
     // Prepare server plan for reversing server changes
     await Parallel.each(localDiff.getActions(), async action => {
-      if (action.type === actions.REMOVE) {
+      if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = serverRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type + 's'][a.payload.id])
+          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
         if (concurrentRemoval) {
           // Already deleted locally, do nothing.
           return
         }
         const concurrentMove = serverMoves.find(a =>
-          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type + 's'][a.payload.id])
+          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
         if (concurrentMove) {
           // removed on the server, moved locally, do nothing to recreate it on the server.
           return
         }
         // recreate it on the server otherwise
         const oldItem = action.payload.clone()
-        oldItem.id = mappingsSnapshot.LocalToServer[oldItem.type + 's'][oldItem.id]
-        oldItem.parentId = mappingsSnapshot.LocalToServer.folders[oldItem.parentId]
-        localPlan.commit({...action, type: actions.CREATE, oldItem})
+        oldItem.id = mappingsSnapshot.LocalToServer[oldItem.type ][oldItem.id]
+        oldItem.parentId = mappingsSnapshot.LocalToServer.folder[oldItem.parentId]
+        localPlan.commit({...action, type: ActionType.CREATE, oldItem})
         return
       }
-      if (action.type === actions.CREATE) {
-        localPlan.commit({...action, type: actions.REMOVE})
+      if (action.type === ActionType.CREATE) {
+        localPlan.commit({...action, type: ActionType.REMOVE})
         return
       }
-      if (action.type === actions.MOVE) {
-        localPlan.commit({type: actions.MOVE, payload: action.oldItem, oldItem: action.payload})
+      if (action.type === ActionType.MOVE) {
+        localPlan.commit({type: ActionType.MOVE, payload: action.oldItem, oldItem: action.payload})
         return
       }
-      if (action.type === actions.UPDATE) {
+      if (action.type === ActionType.UPDATE) {
         const payload = action.oldItem
         payload.id = action.payload.id
         payload.parentId = action.payload.parentId
         const oldItem = action.payload
         oldItem.id = action.oldItem.id
         oldItem.parentId = action.oldItem.parentId
-        localPlan.commit({type: actions.UPDATE, payload, oldItem})
+        localPlan.commit({type: ActionType.UPDATE, payload, oldItem})
       }
     })
 
@@ -87,9 +86,9 @@ export default class SlaveSyncProcess extends DefaultStrategy {
   async execute(resource, plan, mappings, isLocalToServer) {
     const run = (action) => this.executeAction(resource, action, isLocalToServer)
 
-    await Parallel.each(plan.getActions().filter(action => action.type === actions.CREATE || action.type === actions.UPDATE), run)
+    await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run)
     // Don't map here in slave mode!
-    await Parallel.each(plan.getActions(actions.MOVE), run, 1) // Don't run in parallel for weird hierarchy reversals
-    await Parallel.each(plan.getActions(actions.REMOVE), run)
+    await Parallel.each(plan.getActions(ActionType.MOVE), run, 1) // Don't run in parallel for weird hierarchy reversals
+    await Parallel.each(plan.getActions(ActionType.REMOVE), run)
   }
 }

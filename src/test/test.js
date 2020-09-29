@@ -4,8 +4,7 @@ import random from 'random'
 import Account from '../lib/Account'
 import { Bookmark, Folder } from '../lib/Tree'
 import browser from '../lib/browser-api'
-
-const AsyncParallel = require('async-parallel')
+import AsyncParallel from 'async-parallel'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect

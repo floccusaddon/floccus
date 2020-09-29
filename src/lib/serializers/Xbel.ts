@@ -1,7 +1,7 @@
 import Serializer from '../interfaces/Serializer'
 import { Bookmark, Folder } from '../Tree'
 
-class XbelSerializer extends Serializer {
+class XbelSerializer implements Serializer {
   serialize(folder) {
     return this._serializeFolder(folder, '')
   }
@@ -62,20 +62,19 @@ class XbelSerializer extends Serializer {
         if (child instanceof Bookmark) {
           const bookmark = xmlDocument.createElement('bookmark')
           bookmark.setAttribute('href', child.url)
-          bookmark.setAttribute('id', child.id)
+          bookmark.setAttribute('id', String(child.id))
           const title = xmlDocument.createElement('title')
           title.textContent = child.title
           bookmark.appendChild(title)
           return new XMLSerializer().serializeToString(
-            bookmark,
-            'application/xml'
+            bookmark
           )
         }
 
         if (child instanceof Folder) {
           const folder = xmlDocument.createElement('folder')
           if ('id' in child) {
-            folder.setAttribute('id', child.id)
+            folder.setAttribute('id', String(child.id))
           }
 
           const title = xmlDocument.createElement('title')
@@ -84,8 +83,7 @@ class XbelSerializer extends Serializer {
 
           folder.innerHTML += this._serializeFolder(child, indent + '    ')
           return new XMLSerializer().serializeToString(
-            folder,
-            'application/xml'
+            folder
           )
         }
       })

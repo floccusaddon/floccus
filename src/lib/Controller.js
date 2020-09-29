@@ -7,7 +7,7 @@ import AccountStorage from './AccountStorage'
 import * as localForage from 'localforage' // for backwards compatibility
 import _ from 'lodash'
 
-const PQueue = require('p-queue')
+import PQueue from 'p-queue'
 
 const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')

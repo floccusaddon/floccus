@@ -126,7 +126,15 @@ const watch = function() {
   jsWatcher.on('change', onWatchEvent)
   viewsWatcher.on('change', onWatchEvent)
 
-  webpack(devConfig).watch({}, console.log)
+  webpack(devConfig).watch({}, (err, stats) => {
+    if (err) {
+      console.log(err)
+    }
+    console.log(stats.toString({
+      chunks: false,
+      colors: true
+    }))
+  })
 }
 
 function onWatchEvent(event) {

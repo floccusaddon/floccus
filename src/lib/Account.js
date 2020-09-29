@@ -1,5 +1,4 @@
 import AccountStorage from './AccountStorage'
-import Adapter from './interfaces/Adapter'
 import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
 import WebDavAdapter from './adapters/WebDav'
 import FakeAdapter from './adapters/Fake'
@@ -9,11 +8,12 @@ import SlaveSyncProcess from './strategies/Slave'
 import OverwriteSyncProcess from './strategies/Overwrite'
 import Logger from './Logger'
 import browser from './browser-api'
+import AdapterFactory from './AdapterFactory'
 
 // register Adapters
-Adapter.register('nextcloud-folders', NextcloudFoldersAdapter)
-Adapter.register('webdav', WebDavAdapter)
-Adapter.register('fake', FakeAdapter)
+AdapterFactory.register('nextcloud-folders', NextcloudFoldersAdapter)
+AdapterFactory.register('webdav', WebDavAdapter)
+AdapterFactory.register('fake', FakeAdapter)
 
 export default class Account {
   static async get(id) {
@@ -28,14 +28,14 @@ export default class Account {
     let background = await browser.runtime.getBackgroundPage()
     let data = await storage.getAccountData(background.controller.key)
     let tree = new LocalTree(storage, data.localRoot)
-    let account = new Account(id, storage, Adapter.factory(data), tree)
+    let account = new Account(id, storage, AdapterFactory.factory(data), tree)
     this.cache[id] = account
     return account
   }
 
   static async create(data) {
     let id = '' + Date.now() + Math.random()
-    let adapter = Adapter.factory(data)
+    let adapter = AdapterFactory.factory(data)
     let storage = new AccountStorage(id)
 
     let background = await browser.runtime.getBackgroundPage()
@@ -58,7 +58,7 @@ export default class Account {
 
   static getDefaultValues(type) {
     return {
-      ...Adapter.factory({ type }).constructor.getDefaultValues(),
+      ...AdapterFactory.factory({ type }).constructor.getDefaultValues(),
       enabled: true,
     }
   }

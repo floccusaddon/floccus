@@ -1,10 +1,10 @@
-import CachingAdapter from '../adapters/Caching'
+import CachingAdapter from './Caching'
 import XbelSerializer from '../serializers/Xbel'
 import Logger from '../Logger'
 import browser from '../browser-api'
 import { Base64 } from 'js-base64'
 
-const url = require('url')
+import url from 'url'
 
 export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {

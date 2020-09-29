@@ -1,38 +1,41 @@
 import * as Tree from '../Tree'
-import { Folder } from '../Tree'
+import { Bookmark, Folder } from '../Tree'
 import Logger from '../Logger'
 import Adapter from '../interfaces/Adapter'
 import browser from '../browser-api'
 import { difference} from 'lodash'
 
-const url = require('url')
+import url from 'url'
+import Ordering from '../interfaces/Ordering'
 
-export default class CachingAdapter extends Adapter {
-  constructor(server) {
-    super()
+export default class CachingAdapter implements Adapter {
+  private highestId: number
+  protected bookmarksCache: Folder
+  protected server: any
+  constructor(server: any) {
     this.highestId = 0
     this.bookmarksCache = new Folder({ id: 0, title: 'root' })
   }
 
-  getLabel() {
-    let data = this.getData()
+  getLabel():string {
+    const data = this.getData()
     return data.username + '@' + url.parse(data.url).hostname
   }
 
-  async getBookmarksTree() {
+  async getBookmarksTree(): Promise<Folder> {
     return this.bookmarksCache.clone()
   }
 
-  acceptsBookmark(bm) {
+  acceptsBookmark(bm:Bookmark):boolean {
     if (bm.url === 'data:') {
       return false
     }
-    return ~['https:', 'http:', 'ftp:', 'data:', 'javascript:'].indexOf(
+    return Boolean(~['https:', 'http:', 'ftp:', 'data:', 'javascript:'].indexOf(
       url.parse(bm.url).protocol
-    )
+    ))
   }
 
-  async createBookmark(bm) {
+  async createBookmark(bm:Bookmark):Promise<string|number> {
     Logger.log('CREATE', bm)
     bm.id = ++this.highestId
     const foundFolder = this.bookmarksCache.findFolder(bm.parentId)
@@ -44,7 +47,7 @@ export default class CachingAdapter extends Adapter {
     return bm.id
   }
 
-  async updateBookmark(newBm) {
+  async updateBookmark(newBm: Bookmark): Promise<void> {
     Logger.log('UPDATE', newBm)
     const foundBookmark = this.bookmarksCache.findBookmark(newBm.id)
     if (!foundBookmark) {
@@ -74,9 +77,9 @@ export default class CachingAdapter extends Adapter {
     this.bookmarksCache.createIndex()
   }
 
-  async removeBookmark(bookmark) {
+  async removeBookmark(bookmark:Bookmark): Promise<void> {
     Logger.log('REMOVE', { bookmark })
-    let id = bookmark.id
+    const id = bookmark.id
     const foundBookmark = this.bookmarksCache.findBookmark(id)
     if (!foundBookmark) {
       return
@@ -94,10 +97,9 @@ export default class CachingAdapter extends Adapter {
     this.bookmarksCache.createIndex()
   }
 
-  async createFolder(folder) {
+  async createFolder(folder:Folder): Promise<string|number> {
     Logger.log('CREATEFOLDER', { folder })
-    const newFolder = new Tree.Folder({ parentId: folder.parentId, title: folder.title })
-    newFolder.id = ++this.highestId
+    const newFolder = new Tree.Folder({ id: ++this.highestId, parentId: folder.parentId, title: folder.title })
     const foundParentFolder = this.bookmarksCache.findFolder(newFolder.parentId)
     if (!foundParentFolder) {
       throw new Error(browser.i18n.getMessage('Error005'))
@@ -107,9 +109,9 @@ export default class CachingAdapter extends Adapter {
     return newFolder.id
   }
 
-  async updateFolder(folder) {
+  async updateFolder(folder:Folder): Promise<void> {
     Logger.log('UPDATEFOLDER', { folder })
-    let id = folder.id
+    const id = folder.id
     const oldFolder = this.bookmarksCache.findFolder(id)
     if (!oldFolder) {
       throw new Error(browser.i18n.getMessage('Error006'))
@@ -133,15 +135,15 @@ export default class CachingAdapter extends Adapter {
     this.bookmarksCache.createIndex()
   }
 
-  async orderFolder(id, order) {
+  async orderFolder(id:string|number, order:Ordering):Promise<void> {
     Logger.log('ORDERFOLDER', { id, order })
 
-    let folder = this.bookmarksCache.findFolder(id)
+    const folder = this.bookmarksCache.findFolder(id)
     if (!folder) {
       throw new Error(browser.i18n.getMessage('Error010'))
     }
     order.forEach(item => {
-      let child = folder.findItem(item.type, item.id)
+      const child = folder.findItem(item.type, item.id)
       if (!child || child.parentId !== folder.id) {
         throw new Error(
           browser.i18n.getMessage('Error011', JSON.stringify(item))
@@ -149,7 +151,7 @@ export default class CachingAdapter extends Adapter {
       }
     })
     folder.children.forEach(child => {
-      let item = order.find((item) => item.type === child.type && item.id === child.id)
+      const item = order.find((item) => item.type === child.type && item.id === child.id)
       if (!item) {
         throw new Error(
           browser.i18n.getMessage('Error012', JSON.stringify(item))
@@ -162,15 +164,15 @@ export default class CachingAdapter extends Adapter {
     }
     const newChildren = []
     order.forEach(item => {
-      let child = folder.findItem(item.type, item.id)
+      const child = folder.findItem(item.type, item.id)
       newChildren.push(child)
     })
     folder.children = newChildren
   }
 
-  async removeFolder(folder) {
+  async removeFolder(folder:Folder):Promise<void> {
     Logger.log('REMOVEFOLDER', { folder })
-    let id = folder.id
+    const id = folder.id
     const oldFolder = this.bookmarksCache.findFolder(id)
     if (!oldFolder) {
       throw new Error(browser.i18n.getMessage('Error013'))
@@ -184,7 +186,7 @@ export default class CachingAdapter extends Adapter {
     this.bookmarksCache.createIndex()
   }
 
-  async bulkImportFolder(id, folder) {
+  async bulkImportFolder(id:string|number, folder:Folder):Promise<Folder> {
     Logger.log('BULKIMPORT', { id, folder })
     const foundFolder = this.bookmarksCache.findFolder(id)
     if (!foundFolder) {
@@ -204,11 +206,20 @@ export default class CachingAdapter extends Adapter {
     return imported
   }
 
-  setData(data) {
+  setData(data:any):void {
     this.server = { ...data }
   }
 
-  getData() {
+  getData():any {
     return { ...this.server }
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async onSyncStart():Promise<void> { }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async onSyncFail():Promise<void> { }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async onSyncComplete():Promise<void> { }
 }

@@ -1,47 +1,62 @@
+import { TItemType } from './Tree'
+
+type InternalItemTypeMapping = { LocalToServer: Record<string, string>, ServerToLocal: Record<string, string> }
+
+export type Mapping = Record<TItemType,Record<string,number|string>>
+
+export type MappingSnapshot = {
+  ServerToLocal: Mapping,
+  LocalToServer: Mapping
+}
+
 export default class Mappings {
-  constructor(storageAdapter, mappingsData) {
+  private folders: InternalItemTypeMapping
+  private bookmarks: InternalItemTypeMapping
+  private storage: any
+
+  constructor(storageAdapter:any, mappingsData:any) {
     this.storage = storageAdapter
     this.folders = mappingsData.folders
     this.bookmarks = mappingsData.bookmarks
   }
 
-  getSnapshot() {
+  getSnapshot():MappingSnapshot {
     return {
       ServerToLocal: {
-        bookmarks: this.bookmarks.ServerToLocal,
-        folders: this.folders.ServerToLocal
+        bookmark: this.bookmarks.ServerToLocal,
+        folder: this.folders.ServerToLocal
       },
       LocalToServer: {
-        bookmarks: this.bookmarks.LocalToServer,
-        folders: this.folders.LocalToServer
+        bookmark: this.bookmarks.LocalToServer,
+        folder: this.folders.LocalToServer
       }
     }
   }
 
-  async addFolder({ localId, remoteId }) {
+  async addFolder({ localId, remoteId }: { localId?:string|number, remoteId?:string|number }):Promise<void> {
     this.folders = Mappings.add(this.folders, { localId, remoteId })
   }
 
-  async removeFolder({ localId, remoteId }) {
+  async removeFolder({ localId, remoteId }: { localId?:string|number, remoteId?:string|number }):Promise<void> {
     this.folders = Mappings.remove(this.folders, { localId, remoteId })
   }
 
-  async addBookmark({ localId, remoteId }) {
+  async addBookmark({ localId, remoteId }: { localId?:string|number, remoteId?:string|number }):Promise<void> {
     this.bookmarks = Mappings.add(this.bookmarks, { localId, remoteId })
   }
 
-  async removeBookmark({ localId, remoteId }) {
+  async removeBookmark({ localId, remoteId }: { localId?:string|number, remoteId?:string|number }):Promise<void> {
     this.bookmarks = Mappings.remove(this.bookmarks, { localId, remoteId })
   }
 
-  async persist() {
+  async persist():Promise<void> {
     await this.storage.setMappings({
       folders: this.folders,
       bookmarks: this.bookmarks
     })
   }
 
-  static add(mappings, { localId, remoteId }) {
+  private static add(mappings, { localId, remoteId }: { localId?:string|number, remoteId?:string|number }):InternalItemTypeMapping {
     if (typeof localId === 'undefined' || typeof remoteId === 'undefined') {
       throw new Error('Cannot add empty mapping')
     }
@@ -57,7 +72,7 @@ export default class Mappings {
     }
   }
 
-  static remove(mappings, { localId, remoteId }) {
+  private static remove(mappings, { localId, remoteId }: { localId?:string|number, remoteId?:string|number }):InternalItemTypeMapping {
     if (localId && remoteId && mappings.LocalToServer[localId] !== remoteId) {
       mappings = this.remove(mappings, { localId })
       return this.remove(mappings, { remoteId })
