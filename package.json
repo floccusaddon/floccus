@@ -43,6 +43,7 @@
     "prettier": "^2.0.5",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
+    "seedrandom": "^3.0.5",
     "selenium-webdriver": "^4.0.0-alpha.7",
     "ts-loader": "^8.0.4",
     "typescript": "^3.9.7",

@@ -1,10 +1,11 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import random from 'random'
+import seedrandom from 'seedrandom'
 import Account from '../lib/Account'
 import { Bookmark, Folder } from '../lib/Tree'
 import browser from '../lib/browser-api'
-import AsyncParallel from 'async-parallel'
+import * as AsyncParallel from 'async-parallel'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -26,7 +27,7 @@ describe('Floccus', function() {
 
   SEED = (new URL(window.location.href)).searchParams.get('seed') || Math.random() + ''
   console.log('RANDOMNESS SEED', SEED)
-  random.use(SEED)
+  random.use(seedrandom(SEED))
 
   ACCOUNTS = [
     Account.getDefaultValues('fake'),
