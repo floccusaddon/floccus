@@ -314,12 +314,13 @@ export class Folder {
     return resource.removeFolder(this)
   }
 
-  static hydrate(obj: {id: string|number, parentId?: string|number, title: string, children: []}): Folder {
+  static hydrate(obj: {id: string|number, parentId?: string|number, title: string, children: any[]}): Folder {
     return new Folder({
       ...obj,
       children: obj.children
         ? obj.children.map(child => {
-          if ('url' in child) {
+          // Firefox seems to set 'url' even for folders
+          if ('url' in child && typeof child.url === 'string') {
             return Bookmark.hydrate(child)
           } else {
             return Folder.hydrate(child)
