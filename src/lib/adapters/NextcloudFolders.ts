@@ -10,7 +10,7 @@ import browser from '../browser-api'
 import * as Parallel from 'async-parallel'
 import url from 'url'
 import PQueue from 'p-queue'
-import { flatten } from 'lodash/flatten'
+import flatten from 'lodash/flatten'
 import { BulkImportResource, LoadFolderChildrenResource, OrderFolderResource } from '../interfaces/Resource'
 import Ordering from '../interfaces/Ordering'
 
@@ -42,10 +42,10 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
   private server: NextcloudFoldersConfig
   private fetchQueue: PQueue<{ concurrency: 12 }>
   private bookmarkLock: AsyncLock
-  private hasFeatureHashing = false
-  private hasFeatureExistenceCheck = false
-  private hasFeatureChildren = false
-  private hasFeatureBulkImport = false
+  public hasFeatureHashing:boolean = null
+  public hasFeatureExistenceCheck:boolean = null
+  public hasFeatureChildren:boolean = null
+  public hasFeatureBulkImport:boolean = null
   private list: Bookmark[]
   private tree: Folder
 
