@@ -515,7 +515,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
   async _getChildren(folderId:string|number, layers:number) {
     let childrenJson
     if (
-      typeof this.hasFeatureChildren === 'undefined' ||
+      this.hasFeatureChildren === null ||
       this.hasFeatureChildren
     ) {
       try {
@@ -730,6 +730,9 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     Logger.log('(nextcloud-folders)UPDATEFOLDER', { folder })
     const id = folder.id
     const oldFolder = this.tree.findFolder(folder.id)
+    if (oldFolder.findFolder(folder.parentId)) {
+      throw new Error('Detected folder loop creation')
+    }
     const body = JSON.stringify({
       parent_folder: folder.parentId,
       title: folder.title,
