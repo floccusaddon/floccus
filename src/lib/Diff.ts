@@ -1,6 +1,7 @@
 import { Folder, TItem, ItemType } from './Tree'
 import { Mapping } from './Mappings'
 import Ordering from './interfaces/Ordering'
+import batchingToposort from 'batching-toposort'
 
 export const ActionType = {
   CREATE: 'CREATE',
@@ -114,59 +115,42 @@ export default class Diff {
 
   getActions(type?: TActionType):Action[] {
     if (type) {
-      return Diff.sortActions(this.actions[type], type === ActionType.CREATE)
+      return this.actions[type]
     }
     return [].concat(
-      Diff.sortActions(this.actions[ActionType.UPDATE]),
-      Diff.sortActions(this.actions[ActionType.CREATE], true), // From high to low
-      Diff.sortActions(this.actions[ActionType.MOVE]),
-      Diff.sortActions(this.actions[ActionType.REMOVE]),
-      Diff.sortActions(this.actions[ActionType.REORDER]),
+      this.actions[ActionType.UPDATE],
+      this.actions[ActionType.CREATE],
+      this.actions[ActionType.MOVE],
+      this.actions[ActionType.REMOVE],
+      this.actions[ActionType.REORDER],
     )
   }
 
-  static sortActions(actions: Action[], reverse = false, tree?: Folder) :Action[] {
-    // Sort from deep hierarchy to high hierarchy
-    actions.slice().sort((action1, action2) => {
-      // Tier 1: Relationship in source tree
-      if (
-        // Move this action down, If it's item contains the other item
-        (
-          (tree && tree.findItem(action1.payload.type, action1.payload.id) && tree.findItem(action1.payload.type, action1.payload.id).findItem(action2.payload.type, action2.payload.id)) ||
-          action1.payload.findItem(action2.payload.type, action2.payload.id) ||
-          ('oldItem' in action1 && 'oldItem' in action2 && action1.oldItem.findItem(action2.oldItem.type, action2.oldItem.id))
-        ) &&
-        // and its target is in the other item
-        (
-          (tree && tree.findItem(action2.payload.type, action2.payload.id) && tree.findItem(action2.payload.type, action2.payload.id).findItem(ItemType.FOLDER, action1.payload.parentId)) ||
-          action2.payload.findItem(ItemType.FOLDER, action1.payload.parentId) ||
-          ('oldItem' in action1 && 'oldItem' in action2 && action2.oldItem.findItem(ItemType.FOLDER, action1.oldItem.parentId))
-        )
-      ) {
-        return -1
-      }
-      if (
-        // Move this action up, if its item is contained in the other item
-        (
-          (tree && tree.findItem(action2.payload.type, action2.payload.id) && tree.findItem(action2.payload.type, action2.payload.id).findItem(action1.payload.type, action1.payload.id)) ||
-          action2.payload.findItem(action1.payload.type, action1.payload.id) ||
-          ('oldItem' in action1 && 'oldItem' in action2 && action2.oldItem.findItem(action1.oldItem.type, action1.oldItem.id))
-        ) &&
-        // and  its item contains the other one's target
-        (
-          (tree && tree.findItem(action1.payload.type, action1.payload.id) && tree.findItem(action1.payload.type, action1.payload.id).findItem(ItemType.FOLDER, action2.payload.parentId)) ||
-          action1.payload.findItem(ItemType.FOLDER, action2.payload.parentId) ||
-          ('oldItem' in action1 && 'oldItem' in action2 && action1.oldItem.findItem(ItemType.FOLDER, action2.oldItem.parentId))
-        )
-      ) {
-        return 1
-      }
-      return 0
-    })
-    if (reverse) {
-      actions.reverse()
-    }
-    return actions
+  static sortMoves(actions: Action[], tree: Folder) :Action[][] {
+    const bookmarks = actions.filter(a => a.payload.type === ItemType.BOOKMARK)
+    const folderMoves = actions.filter(a => a.payload.type === ItemType.FOLDER)
+    const DAG = folderMoves
+      .reduce((DAG, action1) => {
+        DAG[action1.payload.id] = folderMoves.filter(action2 => {
+          if (action1 === action2) {
+            return false
+          }
+          return (
+            tree.findItem(action1.payload.type, action1.payload.id) && tree.findItem(action1.payload.type, action1.payload.id).findItem(action2.payload.type, action2.payload.id) &&
+            tree.findItem(action2.payload.type, action2.payload.id) && tree.findItem(action2.payload.type, action2.payload.id).findItem(ItemType.FOLDER, action1.payload.parentId)
+          ) /* ||
+            (
+              tree.findItem(action2.payload.type, action2.payload.id) && tree.findItem(action2.payload.type, action2.payload.id).findItem(action1.payload.type, action1.payload.id) &&
+              tree.findItem(action1.payload.type, action1.payload.id) && tree.findItem(action1.payload.type, action1.payload.id).findItem(ItemType.FOLDER, action2.payload.parentId)
+            ) */
+        })
+          .map(a => a.payload.id)
+        return DAG
+      }, {})
+    const batches = batchingToposort(DAG).map(batch => batch.map(id => folderMoves.find(a => String(a.payload.id) === String(id))))
+    batches.push(bookmarks)
+    batches.reverse()
+    return batches
   }
 
   inspect(): Action[] {

@@ -83,24 +83,4 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
     const localPlan = new Diff() // empty, we don't wanna change anything here
     return { localPlan, serverPlan}
   }
-
-  async syncChildOrder({
-    localItem,
-    cacheItem,
-    serverItem,
-    localOrder,
-    remoteOrder
-  }) {
-    if (this.preserveOrder && localOrder.length > 1) {
-      const newMappingsSnapshot = this.mappings.getSnapshot()
-      // always update server tree
-      await this.server.orderFolder(
-        serverItem.id,
-        localOrder.map(item => ({
-          id: newMappingsSnapshot.LocalToServer[item.type ][item.id],
-          type: item.type
-        }))
-      )
-    }
-  }
 }
