@@ -9,6 +9,7 @@ import OverwriteSyncProcess from './strategies/Overwrite'
 import Logger from './Logger'
 import browser from './browser-api'
 import AdapterFactory from './AdapterFactory'
+import MergeSyncProcess from './strategies/Merge'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', NextcloudFoldersAdapter)
@@ -163,6 +164,7 @@ export default class Account {
 
       // main sync steps:
       mappings = await this.storage.getMappings()
+      const cacheTree = await this.storage.getCache()
 
       let strategy
       switch (this.getData().strategy) {
@@ -175,16 +177,21 @@ export default class Account {
           strategy = OverwriteSyncProcess
           break
         default:
-          Logger.log('Using normal strategy')
-          strategy = DefaultSyncProcess
+          if (!cacheTree.children.length) {
+            Logger.log('Using merge strategy (no cache available)')
+            strategy = MergeSyncProcess
+          } else {
+            Logger.log('Using normal strategy')
+            strategy = DefaultSyncProcess
+          }
           break
       }
+
       this.syncing = new strategy(
         mappings,
         this.localTree,
-        await this.storage.getCache(),
+        cacheTree,
         this.server,
-        this.getData().parallel,
         (progress) => {
           this.setData({ ...this.getData(), syncing: progress })
         }

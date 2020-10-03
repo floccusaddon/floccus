@@ -11,16 +11,16 @@ import TResource, { OrderFolderResource } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
 
 export default class SyncProcess {
-  private mappings: Mappings
-  private localTree: LocalTree
-  private server: TAdapter
-  private cacheTreeRoot: Folder
-  private done: number
-  private canceled: boolean
-  private preserveOrder: boolean
-  private progressCb: (progress:number)=>void
-  private localTreeRoot: Folder
-  private serverTreeRoot: Folder
+  protected mappings: Mappings
+  protected localTree: LocalTree
+  protected server: TAdapter
+  protected cacheTreeRoot: Folder
+  protected done: number
+  protected canceled: boolean
+  protected preserveOrder: boolean
+  protected progressCb: (progress:number)=>void
+  protected localTreeRoot: Folder
+  protected serverTreeRoot: Folder
 
   constructor(
     mappings:Mappings,
@@ -77,20 +77,7 @@ export default class SyncProcess {
     this.cacheTreeRoot.createIndex()
     this.serverTreeRoot.createIndex()
 
-    const localScanner = new Scanner(
-      this.cacheTreeRoot,
-      this.localTreeRoot,
-      (oldItem, newItem) => oldItem.type === newItem.type && oldItem.id === newItem.id,
-      this.preserveOrder
-    )
-    const serverScanner = new Scanner(
-      this.cacheTreeRoot,
-      this.serverTreeRoot,
-      (oldItem, newItem) => Boolean(oldItem.type === newItem.type && mappingsSnapshot.LocalToServer[oldItem.type ][oldItem.id] === newItem.id),
-      this.preserveOrder
-    )
-
-    const [localDiff, serverDiff] = await Promise.all([localScanner.run(), serverScanner.run()])
+    const {localDiff, serverDiff} = await this.getDiffs()
     Logger.log({localDiff, serverDiff})
 
     const {localPlan, serverPlan} = await this.reconcile(localDiff, serverDiff)
@@ -162,6 +149,25 @@ export default class SyncProcess {
     )
   }
 
+  async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
+    const mappingsSnapshot = await this.mappings.getSnapshot()
+    // if we have the cache available, Diff cache and both trees
+    const localScanner = new Scanner(
+      this.cacheTreeRoot,
+      this.localTreeRoot,
+      (oldItem, newItem) => oldItem.type === newItem.type && oldItem.id === newItem.id,
+      this.preserveOrder
+    )
+    const serverScanner = new Scanner(
+      this.cacheTreeRoot,
+      this.serverTreeRoot,
+      (oldItem, newItem) => Boolean(oldItem.type === newItem.type && mappingsSnapshot.LocalToServer[oldItem.type][oldItem.id] === newItem.id),
+      this.preserveOrder
+    )
+    const [localDiff, serverDiff] = await Promise.all([localScanner.run(), serverScanner.run()])
+    return {localDiff, serverDiff}
+  }
+
   async reconcile(localDiff:Diff, serverDiff:Diff):Promise<{serverPlan: Diff, localPlan: Diff}> {
     let mappingsSnapshot = await this.mappings.getSnapshot()
 
@@ -176,7 +182,7 @@ export default class SyncProcess {
     const localReorders = localDiff.getActions(ActionType.REORDER)
 
     // Prepare server plan
-    const serverPlan = new Diff()
+    const serverPlan = new Diff() // to be mapped
     await Parallel.each(localDiff.getActions(), async(action:Action) => {
       if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = serverRemovals.find(a =>
@@ -200,8 +206,8 @@ export default class SyncProcess {
           // created on both the server and locally, try to reconcile
           const newMappings = []
           const subScanner = new Scanner(
-            concurrentCreation.payload,
-            action.payload,
+            concurrentCreation.payload, // server tree
+            action.payload, // local tree
             (oldItem, newItem) => {
               if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
                 // if two items can be merged, we'll add mappings here directly
@@ -218,6 +224,7 @@ export default class SyncProcess {
           await Parallel.each(newMappings, async([oldItem, newId]) => {
             await this.addMapping(this.localTree, oldItem, newId)
           },1)
+          // TODO: subScanner may contain residual CREATE/REMOVE actions that need to be added to mappings
           return
         }
         const concurrentRemoval = serverRemovals.find(a =>
@@ -313,6 +320,7 @@ export default class SyncProcess {
           await Parallel.each(newMappings, async([oldItem, newId]) => {
             await this.addMapping(this.server, oldItem, newId)
           })
+          // do nothing locally if the trees differ, serverPlan takes care of adjusting the server tree
           return
         }
         const concurrentRemoval = localRemovals.find(a =>
@@ -421,7 +429,7 @@ export default class SyncProcess {
             )
             await subScanner.run()
             await Parallel.each(newMappings, async([oldItem, newId]) => {
-              await this.addMapping(this.server, oldItem, newId)
+              await this.addMapping(resource, oldItem, newId)
             })
             return
           } catch (e) {

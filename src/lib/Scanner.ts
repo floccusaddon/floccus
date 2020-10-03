@@ -1,8 +1,15 @@
 import * as Parallel from 'async-parallel'
 import Diff, { ActionType } from './Diff'
+import { Bookmark, Folder, TItem } from './Tree'
 
 export default class Scanner {
-  constructor(oldTree, newTree, mergeable, preserveOrder, checkHashes) {
+  private oldTree: TItem
+  private newTree: TItem
+  private mergeable: (i1: TItem, i2: TItem) => boolean
+  private preserveOrder: boolean
+  private checkHashes: boolean
+  private diff: Diff
+  constructor(oldTree:TItem, newTree:TItem, mergeable:(i1:TItem, i2:TItem)=>boolean, preserveOrder:boolean, checkHashes = true) {
     this.oldTree = oldTree
     this.newTree = newTree
     this.mergeable = mergeable
@@ -11,60 +18,56 @@ export default class Scanner {
     this.diff = new Diff()
   }
 
-  getDiff() {
+  getDiff():Diff {
     return this.diff
   }
 
-  async run() {
+  async run():Promise<Diff> {
     this.diff = new Diff()
     await this.diffItem(this.oldTree, this.newTree)
     await this.findMoves()
     return this.diff
   }
 
-  async diffItem(oldItem, newItem) {
-    if (oldItem.type === 'folder') {
+  async diffItem(oldItem:TItem, newItem:TItem):Promise<void> {
+    if (oldItem.type === 'folder' && newItem.type === 'folder') {
       return this.diffFolder(oldItem, newItem)
-    } else {
+    } else if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
       return this.diffBookmark(oldItem, newItem)
+    } else {
+      throw new Error('Mismatched diff items: ' + oldItem.type + ', ' + newItem.type)
     }
   }
 
-  async diffFolder(oldFolder, newFolder) {
-    const hasChanged = await this.folderHasChanged(oldFolder, newFolder)
-    if (!hasChanged && this.checkHashes) {
-      return
+  async diffFolder(oldFolder:Folder, newFolder:Folder):Promise<void> {
+    if (this.checkHashes) {
+      const hasChanged = await this.folderHasChanged(oldFolder, newFolder)
+      if (!hasChanged) {
+        return
+      }
     }
     if (oldFolder.title !== newFolder.title && oldFolder.parentId && newFolder.parentId) {
+      // folder title changed and it's not the root folder
       this.diff.commit({type: ActionType.UPDATE, payload: newFolder, oldItem: oldFolder})
     }
 
-    // Preserved Items
-    await Parallel.each(oldFolder.children, async old => {
-      if (newFolder.children.some(
-        newChild =>
-          newChild.type === old.type &&
-          this.mergeable(old, newChild)
-      )) {
-        const newItem = newFolder.children.find((child) => old.type === child.type && this.mergeable(old, child))
+    // Preserved Items and removed Items
+    // (using map here, because 'each' doesn't provide indices)
+    await Parallel.map(oldFolder.children, async(old, index) => {
+      const newItem = newFolder.children.find((child) => old.type === child.type && this.mergeable(old, child))
+      if (newItem) {
         await this.diffItem(old, newItem)
-        return true
+        return
       }
+
+      this.diff.commit({type: ActionType.REMOVE, payload: old, index})
     }, 1)
 
     // created Items
     // (using map here, because 'each' doesn't provide indices)
     await Parallel.map(newFolder.children, async(newChild, index) => {
       if (!oldFolder.children.some(old => old.type === newChild.type && this.mergeable(old, newChild))) {
-        await this.diff.commit({type: ActionType.CREATE, payload: newChild, index})
-      }
-    }, 1)
-
-    // removed Items
-    // (using map here, because 'each' doesn't provide indices)
-    await Parallel.map(oldFolder.children, async(old, index) => {
-      if (!newFolder.children.some(newChild => newChild.type === old.type && this.mergeable(old, newChild))) {
-        await this.diff.commit({type: ActionType.REMOVE, payload: old, index})
+        this.diff.commit({type: ActionType.CREATE, payload: newChild, index})
       }
     }, 1)
 
@@ -79,26 +82,31 @@ export default class Scanner {
     }
   }
 
-  async diffBookmark(oldBookmark, newBookmark) {
-    const hasChanged = await this.bookmarkHasChanged(oldBookmark, newBookmark)
+  async diffBookmark(oldBookmark:Bookmark, newBookmark:Bookmark):Promise<void> {
+    let hasChanged
+    if (this.checkHashes) {
+      hasChanged = await this.bookmarkHasChanged(oldBookmark, newBookmark)
+    } else {
+      hasChanged = oldBookmark.title !== newBookmark.title || oldBookmark.url !== newBookmark.url
+    }
     if (hasChanged) {
       this.diff.commit({ type: ActionType.UPDATE, payload: newBookmark, oldItem: oldBookmark })
     }
   }
 
-  async bookmarkHasChanged(oldBookmark, newBookmark) {
+  async bookmarkHasChanged(oldBookmark:Bookmark, newBookmark:Bookmark):Promise<boolean> {
     const oldHash = await oldBookmark.hash()
     const newHash = await newBookmark.hash()
     return oldHash !== newHash
   }
 
-  async folderHasChanged(oldFolder, newFolder) {
+  async folderHasChanged(oldFolder:Folder, newFolder:Folder):Promise<boolean> {
     const oldHash = await oldFolder.hash(this.preserveOrder)
     const newHash = await newFolder.hash(this.preserveOrder)
     return oldHash !== newHash
   }
 
-  async findMoves() {
+  async findMoves():Promise<void> {
     let createActions
     let removeActions
     let reconciled = true

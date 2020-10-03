@@ -17,6 +17,8 @@ export interface CreateAction {
   type: 'CREATE',
   payload: TItem,
   oldItem?: TItem,
+  index?: number,
+  oldIndex?: number,
 }
 
 export interface UpdateAction {
@@ -109,8 +111,14 @@ export default class Diff {
     }
   }
 
-  add(diff: Diff):void {
-    diff.getActions().forEach(action => this.commit(action))
+  add(diff: Diff, types:TActionType[] = []):void {
+    if (types.length === 0) {
+      diff.getActions().forEach(action => this.commit(action))
+      return
+    }
+    types.forEach(type =>
+      diff.getActions(type).forEach(action => this.commit(action))
+    )
   }
 
   getActions(type?: TActionType):Action[] {
@@ -194,6 +202,9 @@ export default class Diff {
       } else {
         const item = action.payload.clone()
         item.id = mappings[item.type ][item.id]
+        if (typeof item.parentId !== 'undefined' && typeof mappings.folder[item.parentId] === 'undefined') {
+          throw new Error('Cannot map parentId:' + item.parentId)
+        }
         item.parentId = mappings.folder[item.parentId]
 
         action.oldItem = action.payload
