@@ -61,7 +61,7 @@
     "dom-delegator": "^13.1.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-import-resolver-webpack": "^0.12.1",
-    "eslint-loader": "^3.0.4",
+    "eslint-loader": "^4.0.2",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.1.1",
