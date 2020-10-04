@@ -74,7 +74,7 @@ export class Bookmark {
   }
 
   findItem(type:TItemType, id:string|number):TItem {
-    if (type === 'bookmark' && id === this.id) {
+    if (type === 'bookmark' && String(id) === String(this.id)) {
       return this
     }
   }
@@ -148,7 +148,7 @@ export class Folder {
   }
 
   findFolder(id:string|number): Folder {
-    if (this.id === id) {
+    if (String(this.id) === String(id)) {
       return this
     }
 

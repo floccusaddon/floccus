@@ -409,7 +409,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
         async(child) => {
           if (child.type === 'folder') {
             // get the folder from the tree we've fetched above
-            const folder = childFolders.find((folder) => folder.id === child.id)
+            const folder = childFolders.find((folder) => String(folder.id) === String(child.id))
             if (!folder) throw new Error(browser.i18n.getMessage('Error021'))
             const newFolder = new Folder({
               id: child.id,
