@@ -76,7 +76,7 @@
     "murmur2js": "^1.0.0",
     "normalize-url": "^5.0.0",
     "npm": "^6.14.8",
-    "p-queue": "^5.0.0",
+    "p-queue": "^6.6.1",
     "picostyle": "^1.0.2",
     "punycode": "^2.1.1",
     "random": "^2.2.0",
