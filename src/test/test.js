@@ -3089,7 +3089,7 @@ describe('Floccus', function() {
             const step = Math.floor(len / 4)
             for (let k = i; k < j; k += step) {
               const newFolder = await browser.bookmarks.create({
-                title: 'folder' + k + ':' + step,
+                title: 'folder' + i + ':' + k + ':' + (k + step),
                 parentId
               })
               folders.push(newFolder)
