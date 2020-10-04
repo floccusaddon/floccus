@@ -144,13 +144,8 @@ export default class Diff {
             return false
           }
           return (
-            tree.findItem(action1.payload.type, action1.payload.id) && tree.findItem(action1.payload.type, action1.payload.id).findItem(action2.payload.type, action2.payload.id) &&
-            tree.findItem(action2.payload.type, action2.payload.id) && tree.findItem(action2.payload.type, action2.payload.id).findItem(ItemType.FOLDER, action1.payload.parentId)
-          ) /* ||
-            (
-              tree.findItem(action2.payload.type, action2.payload.id) && tree.findItem(action2.payload.type, action2.payload.id).findItem(action1.payload.type, action1.payload.id) &&
-              tree.findItem(action1.payload.type, action1.payload.id) && tree.findItem(action1.payload.type, action1.payload.id).findItem(ItemType.FOLDER, action2.payload.parentId)
-            ) */
+            (tree.findItem(action1.payload.type, action1.payload.id) && tree.findItem(action1.payload.type, action1.payload.id).findItem(action2.payload.type, action2.payload.id))
+          )
         })
           .map(a => a.payload.id)
         return DAG
