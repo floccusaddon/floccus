@@ -47,6 +47,7 @@ export const actionsDefinition = {
     await background.controller.unsetKey()
   },
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
+    commit(mutations.LOADING_START, 'accounts')
     const accountsArray = await Account.getAllAccounts()
     const accounts = {}
     await Promise.all(
@@ -60,6 +61,7 @@ export const actionsDefinition = {
       })
     )
     await commit(mutations.LOAD_ACCOUNTS, accounts)
+    commit(mutations.LOADING_END, 'accounts')
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
     const account = await Account.create(Account.getDefaultValues(type))

@@ -54,6 +54,11 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+      {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
@@ -76,6 +81,6 @@ module.exports = {
   },
   plugins: [new VueLoaderPlugin(), new VuetifyLoaderPlugin()],
   resolve: {
-    extensions: ['*', '.js', '.vue'],
+    extensions: ['*', '.js', '.vue', '.ts'],
   },
 }

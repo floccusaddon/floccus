@@ -69,7 +69,7 @@ const VERSION = require('../package.json').version
         throw new Error('Unknown browser')
     }
 
-    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=http://${process.env.TEST_HOST}`
+    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=http://${process.env.TEST_HOST}&app_version=http://${process.env.APP_VERSION}`
 
     await driver.get(testUrl)
 

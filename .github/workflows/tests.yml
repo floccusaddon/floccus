@@ -32,48 +32,47 @@ jobs:
         floccus-adapter:
           - fake
           - nextcloud-folders
+          - nextcloud-folders-old
           - webdav
         test-name:
-          - standard
-          - parallel
-          - benchmark standard-root
-          - benchmark parallel-root
+          - test
+          - benchmark root
         browsers: ['firefox', 'chrome']
         include:
           - app-version: v1.1.2
             server-version: 17
             floccus-adapter: nextcloud-folders
-            test-name: standard
+            test-name: test
             browsers: chrome
           - app-version: v2.3.4
             server-version: 18
             floccus-adapter: nextcloud-folders
-            test-name: standard
+            test-name: test
             browsers: chrome
           - app-version: stable
             server-version: 18
             floccus-adapter: nextcloud-folders
-            test-name: standard
+            test-name: test
             browsers: chrome
           - app-version: stable
             server-version: 18
             floccus-adapter: nextcloud-folders
-            test-name: standard
+            test-name: test
             browsers: chrome
           - app-version: master
             server-version: 19
             floccus-adapter: nextcloud-folders
-            test-name: standard
+            test-name: test
             browsers: chrome
           - app-version: master
             server-version: 19
             floccus-adapter: nextcloud-folders
-            test-name: benchmark standard-root
+            test-name: benchmark root
             browsers: chrome
           - app-version: master
             server-version: 19
-            floccus-adapter: nextcloud-folders
-            test-name: benchmark parallel-root
+            floccus-adapter: nextcloud-folders-old
+            test-name: benchmark root
             browsers: chrome
 
 
@@ -126,14 +125,14 @@ jobs:
           repository: nextcloud/${{ env.APP_NAME }}
           ref: ${{ matrix.app-version }}
           path: ${{ env.APP_NAME }}
-        if: matrix.floccus-adapter == 'nextcloud-folders'
+        if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
 
       - name: Enable bookmarks app
         shell: bash
         run: |
           cd ${{ env.APP_NAME }}
           composer install
-        if: matrix.floccus-adapter == 'nextcloud-folders'
+        if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
 
       - name: Enable bookmarks app
         shell: bash
@@ -144,13 +143,13 @@ jobs:
               sleep $(( NEXT_WAIT_TIME++ ))
           done
           [ $NEXT_WAIT_TIME -lt 25 ]
-        if: matrix.floccus-adapter == 'nextcloud-folders'
+        if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
 
       - name: List apps
         shell: bash
         run: |
           docker exec --user www-data nextcloud php occ app:list
-        if: matrix.floccus-adapter == 'nextcloud-folders'
+        if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
 
       - name: Enable APCu
         run: |
@@ -190,5 +189,6 @@ jobs:
           SELENIUM_BROWSER: ${{ matrix.browsers }}
           FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          APP_VERSION: ${{ matrix.app-version }}
         run: |
           npm run test

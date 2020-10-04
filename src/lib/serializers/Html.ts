@@ -1,7 +1,7 @@
 import Serializer from '../interfaces/Serializer'
 import { Bookmark, Folder } from '../Tree'
 
-class HtmlSerializer extends Serializer {
+class HtmlSerializer implements Serializer {
   serialize(folder) {
     return this._serializeFolder(folder, '')
   }
@@ -28,7 +28,9 @@ class HtmlSerializer extends Serializer {
       .join('\n')
   }
 
-  /* deserialize not implemented */
+  deserialize(): Folder {
+    throw new Error('Not implemented')
+  }
 }
 
 export default new HtmlSerializer()

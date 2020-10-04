@@ -7,7 +7,7 @@ import AccountStorage from './AccountStorage'
 import * as localForage from 'localforage' // for backwards compatibility
 import _ from 'lodash'
 
-const PQueue = require('p-queue')
+import PQueue from 'p-queue'
 
 const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')
@@ -80,13 +80,6 @@ export default class Controller {
 
     browser.storage.local.get('currentVersion').then(async d => {
       if (packageJson.version === d.currentVersion) return
-      const accounts = await Account.getAllAccounts()
-      await Promise.all(accounts.map(account => account.init()))
-      await Promise.all(
-        accounts.map(account =>
-          account.setData({ ...account.getData() })
-        )
-      )
       await browser.storage.local.set({
         currentVersion: packageJson.version
       })

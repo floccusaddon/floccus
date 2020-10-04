@@ -20,6 +20,7 @@
   "default_locale": "en",
 
   "permissions": ["https://*/", "http://*/", "alarms", "bookmarks", "storage", "unlimitedStorage"],
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
 
   "options_ui": {
     "page": "dist/html/options.html",
