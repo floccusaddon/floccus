@@ -80,7 +80,7 @@
     "picostyle": "^1.0.2",
     "punycode": "^2.1.1",
     "random": "^2.2.0",
-    "throttle-debounce": "^2.1.0",
+    "throttle-debounce": "^2.3.0",
     "virtual-dom": "^2.1.1",
     "vue": "^2.6.11",
     "vue-loader": "^15.9.3",
