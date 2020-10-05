@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.4.0-rc1
+
+### New
+- New Sync algorithm
+
+### Fixed
+- Fixed problems with old sync algorithm
+- Display loading indicator for accounts overview
+- Don't fail loading account if folder doesn't exist anymore
+
 ## v4.3.0
 
 ### New
