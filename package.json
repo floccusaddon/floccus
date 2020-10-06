@@ -74,7 +74,7 @@
     "localforage": "^1.7.3",
     "lodash": "^4.17.20",
     "murmur2js": "^1.0.0",
-    "normalize-url": "^5.0.0",
+    "normalize-url": "^5.2.1",
     "npm": "^6.14.8",
     "p-queue": "^5.0.0",
     "picostyle": "^1.0.2",
