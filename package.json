@@ -70,7 +70,7 @@
     "humanize-duration": "^3.22.0",
     "hyperapp": "^1.2.10",
     "install": "^0.13.0",
-    "js-base64": "^2.6.4",
+    "js-base64": "^3.5.2",
     "localforage": "^1.7.3",
     "lodash": "^4.17.20",
     "murmur2js": "^1.0.0",
