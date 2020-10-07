@@ -43,6 +43,10 @@ export default class SyncProcess {
     this.canceled = false
   }
 
+  async cancel() :Promise<void> {
+    this.canceled = true
+  }
+
   updateProgress():void {
     this.actionsDone++
     this.progressCb(
@@ -397,6 +401,10 @@ export default class SyncProcess {
   async executeAction(resource:TResource, action:Action, isLocalToServer:boolean):Promise<void> {
     const item = action.payload
 
+    if (this.canceled) {
+      throw new Error(browser.i18n.getMessage('Error027'))
+    }
+
     if (action.type === ActionType.REMOVE) {
       await action.payload.visitRemove(resource)
       await this.removeMapping(resource, item)
@@ -517,11 +525,14 @@ export default class SyncProcess {
     await Parallel.each(reorderings.getActions(), async(action) => {
       const item = action.payload
 
-      if (action.type === ActionType.REORDER) {
-        await resource.orderFolder(item.id, action.order)
+      if (this.canceled) {
+        throw new Error(browser.i18n.getMessage('Error027'))
       }
 
-      this.actionsDone++
+      if (action.type === ActionType.REORDER) {
+        await resource.orderFolder(item.id, action.order)
+        this.updateProgress()
+      }
     })
   }
 
