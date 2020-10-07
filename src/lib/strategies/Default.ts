@@ -15,12 +15,13 @@ export default class SyncProcess {
   protected localTree: LocalTree
   protected server: TAdapter
   protected cacheTreeRoot: Folder
-  protected done: number
   protected canceled: boolean
   protected preserveOrder: boolean
   protected progressCb: (progress:number)=>void
   protected localTreeRoot: Folder
   protected serverTreeRoot: Folder
+  protected actionsDone: number
+  protected actionsPlanned: number
 
   constructor(
     mappings:Mappings,
@@ -37,19 +38,17 @@ export default class SyncProcess {
     this.preserveOrder = 'orderFolder' in this.server
 
     this.progressCb = throttle(250, true, progressCb) as (progress:number)=>void
-    this.done = 0
+    this.actionsDone = 0
+    this.actionsPlanned = 0
     this.canceled = false
   }
 
   updateProgress():void {
+    this.actionsDone++
     this.progressCb(
-      Math.max(
-        0.05,
-        Math.min(
-          1,
-          this.done /
-            Math.max(this.localTreeRoot.count(), this.serverTreeRoot.count())
-        )
+      Math.min(
+        1,
+        this.actionsDone / (this.actionsPlanned + 1)
       )
     )
   }
@@ -82,6 +81,8 @@ export default class SyncProcess {
 
     const {localPlan, serverPlan} = await this.reconcile(localDiff, serverDiff)
     Logger.log({localPlan, serverPlan})
+
+    this.actionsPlanned = serverPlan.getActions().length + localPlan.getActions().length
 
     // mappings have been updated, reload
     mappingsSnapshot = await this.mappings.getSnapshot()
@@ -399,6 +400,7 @@ export default class SyncProcess {
     if (action.type === ActionType.REMOVE) {
       await action.payload.visitRemove(resource)
       await this.removeMapping(resource, item)
+      this.updateProgress()
       return
     }
 
@@ -431,6 +433,8 @@ export default class SyncProcess {
             await Parallel.each(newMappings, async([oldItem, newId]) => {
               await this.addMapping(resource, oldItem, newId)
             })
+
+            this.updateProgress()
             return
           } catch (e) {
             Logger.log('Bulk import failed, continuing with normal creation', e)
@@ -462,12 +466,16 @@ export default class SyncProcess {
           }
         }
       }
+
+      this.updateProgress()
+
       return
     }
 
     if (action.type === ActionType.UPDATE || action.type === ActionType.MOVE) {
       await action.payload.visitUpdate(resource)
       await this.addMapping(resource, action.oldItem, item.id)
+      this.updateProgress()
     }
   }
 
@@ -512,6 +520,8 @@ export default class SyncProcess {
       if (action.type === ActionType.REORDER) {
         await resource.orderFolder(item.id, action.order)
       }
+
+      this.actionsDone++
     })
   }
 
@@ -564,7 +574,7 @@ export default class SyncProcess {
       localItem &&
       !(await this.folderHasChanged(localItem, cacheItem, serverItem))
     ) {
-      this.done += localItem.count()
+      this.actionsDone += localItem.count()
       return
     }
     Logger.log('LOADCHILDREN', serverItem)
