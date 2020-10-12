@@ -1,18 +1,30 @@
 # ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/icons/logo.png) Floccus
 
-![](https://raw.githubusercontent.com/marcelklehr/floccus/master/img/screen_chrome_options.png)
+![](https://raw.githubusercontent.com/marcelklehr/floccus/develop/img/screen_chrome_wide.png)
 
 > Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)
 
-The goal of this project is to build a browser extension that syncs your browser data across browser vendors.
-
-**News:** Floccus can now sync with the local file system using LoFloccus (read below).
-
 [![Tests](https://github.com/marcelklehr/floccus/workflows/Tests/badge.svg)](https://github.com/marcelklehr/floccus/actions?query=workflow%3ATests)
+
+- 📂 Sync any local bookmarks folder to any server-side folder
+- ⚛ Use any browser that is compatible wit hthe web extension API
+- 💼 Create as many sync profiles as you like
+- 🚚 Control sync strategy, i.e. uni- or bidirectional syncing
+- ⏳ Control sync interval
+- 📦 Easily export your configuration
+- 🔒 Keep your credentials secure with an encryption passphrase
 
 [![Chrome Webstore](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|[![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)|[<img alt="Microsoft Edge" src="https://developer.microsoft.com/en-us/store/badges/images/English_get-it-from-MS.png" height="45" />](https://microsoftedge.microsoft.com/addons/detail/gjkddcofhiifldbllobcamllmanombji)|
 |---|-----|---|
-|<img align="left" src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="right" src="https://img.shields.io/chrome-web-store/rating/fnaicdffflnofjppbagibeoednhnbjhg.svg">| <img align="left" src="https://img.shields.io/amo/users/floccus.svg"> <img align="right" src="https://img.shields.io/amo/rating/floccus.svg">||
+|<img align="left" src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="right" src="https://img.shields.io/chrome-web-store/rating/fnaicdffflnofjppbagibeoednhnbjhg.svg">| <img align="left" src="https://img.shields.io/amo/users/floccus.svg"> <img align="right" src="https://img.shields.io/amo/rating/floccus.svg">|[![](https://img.shields.io/badge/dynamic/json?label=rating&suffix=/5&query=%24.averageRating&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fgjkddcofhiifldbllobcamllmanombji)](https://microsoftedge.microsoft.com/addons/detail/floccus-bookmarks-sync/gjkddcofhiifldbllobcamllmanombji)|
+
+
+## Donate
+
+If you'd like to support the creation and maintenance of this software, please consider donating. :)
+
+| [<img src="https://img.shields.io/badge/paypal-donate-blue.svg?logo=paypal&style=for-the-badge">](https://www.paypal.me/marcelklehr1) | [<img src="http://img.shields.io/liberapay/receives/marcelklehr.svg?logo=liberapay&style=for-the-badge">](https://liberapay.com/marcelklehr/donate) | [![](https://opencollective.com/floccus/tiers/backer.svg?avatarHeight=36)](https://opencollective.com/floccus) | [<img src="https://img.shields.io/badge/github-sponsors-violet.svg?logo=github&style=for-the-badge">](https://github.com/sponsors/marcelklehr) |
+| :-----------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------: |
 
 ## Community
 
@@ -41,7 +53,8 @@ Floccus is regularly tested with the following setups:
 |v17|v1.1.2|
 |v17|v2.3.4|
 |v18|v2.3.4|
-|v19|v3.x|
+|v19|v3.4.3|
+|v20|v4.x|
 
 Syncing via WebDAV should work with any Nextcloud version.
 
@@ -152,14 +165,6 @@ Is this a good idea? I think so. If you'd like to know more, check out [the cons
 ## What's with the name?
 
 [Cirrus floccus](https://en.wikipedia.org/wiki/Cirrus_floccus) is a type of cloud, that <del>can sync your browser data</del> looks very nice.
-
-## Donate
-
-If you'd like to support the creation and maintenance of this software, please consider donating. :)
-
-| [<img src="https://img.shields.io/badge/paypal-donate-blue.svg?logo=paypal&style=for-the-badge">](https://www.paypal.me/marcelklehr1) | [<img src="http://img.shields.io/liberapay/receives/marcelklehr.svg?logo=liberapay&style=for-the-badge">](https://liberapay.com/marcelklehr/donate) | [![](https://opencollective.com/floccus/tiers/backer.svg?avatarHeight=36)](https://opencollective.com/floccus) |
-| :-----------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------: |
-
 
 ## Contributors
 
