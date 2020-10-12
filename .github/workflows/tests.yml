@@ -49,28 +49,33 @@ jobs:
             floccus-adapter: nextcloud-folders
             test-name: test
             browsers: chrome
-          - app-version: stable
+          - app-version: v3.4.3
             server-version: 18
             floccus-adapter: nextcloud-folders
             test-name: test
             browsers: chrome
-          - app-version: stable
-            server-version: 18
+          - app-version: v3.4.3
+            server-version: 19
             floccus-adapter: nextcloud-folders
             test-name: test
             browsers: chrome
-          - app-version: master
+          - app-version: stable
             server-version: 19
             floccus-adapter: nextcloud-folders
             test-name: test
             browsers: chrome
           - app-version: master
-            server-version: 19
+            server-version: 20
+            floccus-adapter: nextcloud-folders
+            test-name: test
+            browsers: chrome
+          - app-version: master
+            server-version: 20
             floccus-adapter: nextcloud-folders
             test-name: benchmark root
             browsers: chrome
           - app-version: master
-            server-version: 19
+            server-version: 20
             floccus-adapter: nextcloud-folders-old
             test-name: benchmark root
             browsers: chrome
