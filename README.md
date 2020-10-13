@@ -28,7 +28,7 @@ If you'd like to support the creation and maintenance of this software, please c
 
 ## Community
 
-Talk to us on [gitter](https://gitter.im/marcelklehr/floccus)! :wave:
+Talk to us on [gitter](https://gitter.im/marcelklehr/floccus) or in the [official Nextcloud Bookmarks talk channel](https://cloud.nextcloud.com/call/u52jcby9)! :wave:
 
 ## Install
 The following sync methods are available:
