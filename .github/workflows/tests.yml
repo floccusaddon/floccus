@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [13.x]
-        server-version: ['19']
+        server-version: ['20']
         app-version: ['stable']
         floccus-adapter:
           - fake
