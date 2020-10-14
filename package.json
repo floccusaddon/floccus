@@ -48,7 +48,7 @@
     "ts-loader": "^8.0.4",
     "typescript": "^3.9.7",
     "vuetify-loader": "^1.6.0",
-    "webpack": "^4.43.0",
+    "webpack": "^4.44.2",
     "webpack-cli": "^3.3.11",
     "webpack-merge": "^4.2.2"
   },
