@@ -71,7 +71,6 @@
 </template>
 
 <script>
-import { url } from 'vuelidate/lib/validators'
 import OptionSyncInterval from './OptionSyncInterval'
 import OptionResetCache from './OptionResetCache'
 import OptionSyncStrategy from './OptionSyncStrategy'
@@ -90,7 +89,14 @@ export default {
     }
   },
   methods: {
-    validateUrl: url,
+    vvalidateUrl(str) {
+      try {
+        const u = new URL(str)
+        return Boolean(u)
+      } catch (e) {
+        return false
+      }
+    },
     validateServerRoot(path) {
       return !path || path === '/' || (path[0] === '/' && path[path.length - 1] !== '/')
     },
