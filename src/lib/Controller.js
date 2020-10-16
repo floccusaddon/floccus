@@ -4,7 +4,6 @@ import LocalTree from './LocalTree'
 import Cryptography from './Crypto'
 import packageJson from '../../package.json'
 import AccountStorage from './AccountStorage'
-import * as localForage from 'localforage' // for backwards compatibility
 import _ from 'lodash'
 
 import PQueue from 'p-queue'
@@ -93,18 +92,6 @@ export default class Controller {
         })
       }
     })
-
-    // migrate from localForage back to extension storage
-
-    localForage
-      .getItem('accounts')
-      .then(async accounts => {
-        if (!accounts) return
-        return AccountStorage.changeEntry('accounts', () => accounts)
-      })
-      .then(() => {
-        return localForage.removeItem('accounts')
-      })
 
     setInterval(() => this.updateStatus(), 10000)
   }
@@ -258,9 +245,6 @@ export default class Controller {
     }
     let account = await Account.get(accountId)
     if (account.getData().syncing) {
-      return
-    }
-    if (!account.getData().enabled) {
       return
     }
     setTimeout(() => this.updateStatus(), 500)
