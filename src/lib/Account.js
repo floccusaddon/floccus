@@ -10,6 +10,8 @@ import Logger from './Logger'
 import browser from './browser-api'
 import AdapterFactory from './AdapterFactory'
 import MergeSyncProcess from './strategies/Merge'
+import LocalTabs from './LocalTabs'
+import { Folder } from './Tree'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', NextcloudFoldersAdapter)
@@ -69,6 +71,7 @@ export default class Account {
     this.id = id
     this.storage = storageAdapter
     this.localTree = treeAdapter
+    this.localTabs = new LocalTabs(this.storage)
   }
 
   async delete() {
@@ -155,16 +158,19 @@ export default class Account {
       this.syncing = true
       await this.setData({ ...this.getData(), syncing: 0.05, error: null })
 
-      if (!(await this.isInitialized())) {
+      if (this.getData().localRoot !== 'tabs' && !(await this.isInitialized())) {
         await this.init()
       }
+
+      const localResource = this.getData().localRoot !== 'tabs' ? this.localTree : this.localTabs
+
       if (this.server.onSyncStart) {
         await this.server.onSyncStart()
       }
 
       // main sync steps:
       mappings = await this.storage.getMappings()
-      const cacheTree = await this.storage.getCache()
+      const cacheTree = localResource === this.localTree ? await this.storage.getCache() : new Folder({title: '', id: 'tabs'})
 
       let strategy
       switch (this.getData().strategy) {
@@ -189,7 +195,7 @@ export default class Account {
 
       this.syncing = new strategy(
         mappings,
-        this.localTree,
+        localResource,
         cacheTree,
         this.server,
         (progress) => {
@@ -199,9 +205,11 @@ export default class Account {
       await this.syncing.sync()
 
       // update cache
-      const cache = await this.localTree.getBookmarksTree()
-      this.syncing.filterOutUnacceptedBookmarks(cache)
-      await this.storage.setCache(cache)
+      if (localResource === this.localTree) {
+        const cache = await localResource.getBookmarksTree()
+        this.syncing.filterOutUnacceptedBookmarks(cache)
+        await this.storage.setCache(cache)
+      }
 
       if (this.server.onSyncComplete) {
         await this.server.onSyncComplete()

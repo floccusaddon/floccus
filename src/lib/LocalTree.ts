@@ -157,6 +157,9 @@ export default class LocalTree implements IResource {
   }
 
   static async getPathFromLocalId(localId:string, ancestors:string[], relativeToRoot?:string):Promise<string> {
+    if (localId === 'tabs') {
+      return browser.i18n.getMessage('LabelTabs')
+    }
     try {
       ancestors = ancestors || (await LocalTree.getIdPathFromLocalId(localId))
 

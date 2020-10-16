@@ -371,5 +371,17 @@
   },
   "LabelFolderNotFound": {
     "message": "Folder not found"
+  },
+  "LabelSyncTabs": {
+    "message": "Sync Tabs"
+  },
+  "LabelTabs": {
+    "message": "Tabs"
+  },
+  "LabelSyncDown": {
+    "message": "Sync down"
+  },
+  "LabelSyncUp": {
+    "message": "Sync up"
   }
 }

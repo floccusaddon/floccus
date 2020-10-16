@@ -7,18 +7,31 @@
       <div class="caption">
         {{ t('DescriptionLocalfolder') }}
       </div>
-      <v-text-field
-        v-model="path"
-        readonly
-        @click="onTriggerFinder">
-        <template v-slot:append>
-          <v-icon
-            color="blue"
-            @click="onTriggerFinder">
-            mdi-folder
-          </v-icon>
-        </template>
-      </v-text-field>
+      <v-radio-group
+        v-model="mode"
+        column>
+        <v-radio value="folder">
+          <template #label>
+            {{ t('LabelLocalfolder') }}
+            &nbsp;
+            <v-text-field
+              v-model="path"
+              readonly
+              @click="onTriggerFinder">
+              <template #append>
+                <v-icon
+                  color="blue"
+                  @click="onTriggerFinder">
+                  mdi-folder
+                </v-icon>
+              </template>
+            </v-text-field>
+          </template>
+        </v-radio>
+        <v-radio
+          :label="t('LabelSyncTabs')"
+          value="tabs" />
+      </v-radio-group>
     </v-container>
     <v-dialog
       v-model="finder"
@@ -70,6 +83,7 @@ export default {
     return {
       selectedLocalRoot: this.value,
       path: '',
+      mode: 'folder',
       finder: false,
       folders: [],
     }
@@ -78,6 +92,11 @@ export default {
     value(localRoot) {
       this.selectedLocalRoot = this.value
       this.updatePath()
+    },
+    mode() {
+      if (this.mode === 'tabs') {
+        this.$emit('input', 'tabs')
+      }
     }
   },
   created() {
@@ -85,6 +104,9 @@ export default {
   },
   methods: {
     async updatePath() {
+      if (this.mode !== 'folder' || this.value === 'tabs') {
+        return
+      }
       this.path = decodeURIComponent(
         await LocalTree.getPathFromLocalId(this.value)
       ) + '/'
