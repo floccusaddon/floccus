@@ -29,7 +29,7 @@
     "babel-loader": "^8.1.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "chrome-webstore-upload": "^0.2.2",
+    "chrome-webstore-upload": "^0.4.2",
     "crx3": "^1.1.2",
     "deepmerge": "^4.2.2",
     "eslint": "^6.8.0",
