@@ -550,6 +550,44 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
+          it('should be able to sync the root folder', async function() {
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            const [fullTree] = await browser.bookmarks.getTree()
+            const localRoot = fullTree.id
+            await account.setData({...account.getData(), localRoot})
+            account = await Account.get(account.id)
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: fullTree.children[0].id
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: barFolder.id
+            })
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            await browser.bookmarks.removeTree(fooFolder.id)
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            tree.title = fullTree.title
+            expectTreeEqual(
+              tree,
+              Folder.hydrate(fullTree),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+          })
           it('should deduplicate unnormalized URLs', async function() {
             const adapter = account.server
             expect(
