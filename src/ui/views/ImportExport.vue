@@ -17,7 +17,7 @@
               <v-col>
                 <div class="text-h6">
                   <v-icon color="primary">
-                    mdi-folder
+                    {{ account.data.localRoot === 'tabs'? 'mdi-tab' : 'mdi-folder' }}
                   </v-icon> {{ getFolderName(account.fullPath) }}
                 </div>
                 <div class="caption">
