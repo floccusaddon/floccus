@@ -581,11 +581,13 @@ describe('Floccus', function() {
             expect(account.getData().error).to.not.be.ok
 
             const tree = await getAllBookmarks(account)
-            tree.title = fullTree.title
+            const localTree = await account.localTree.getBookmarksTree()
+            tree.title = localTree.title
             expectTreeEqual(
               tree,
-              Folder.hydrate(fullTree),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              localTree,
+              ignoreEmptyFolders(ACCOUNT_DATA),
+              false
             )
           })
           it('should deduplicate unnormalized URLs', async function() {
