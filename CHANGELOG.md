@@ -1,5 +1,20 @@
 # Changelog
 
+##  v4.4.0
+
+### New
+- New Sync algorithm
+- Implement option to sync tabs
+
+### Fixed
+- Fixed problems with old sync algorithm
+- Display loading indicator for accounts overview
+- Don't fail loading account if folder doesn't exist anymore
+- Fix server URL validation
+
+### Changed
+- Drop support for legacy nextcloud bookmarks sync method. (Please see README for ways to migrate)
+
 ## v4.4.0-rc1
 
 ### New
