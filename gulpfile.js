@@ -56,22 +56,6 @@ const js = function() {
   )
 }
 
-const devjs = function() {
-  return new Promise((resolve) =>
-    webpack(devConfig, (err, stats) => {
-      if (err) console.log('Webpack', err)
-
-      console.log(
-        stats.toString({
-          /* stats options */
-        })
-      )
-
-      resolve()
-    })
-  )
-}
-
 const html = function() {
   return gulp.src(paths.views).pipe(gulp.dest('./dist/html/'))
 }
@@ -97,7 +81,7 @@ const thirdparty = gulp.parallel(polyfill, mocha)
 
 const main = gulp.series(html, js, thirdparty)
 
-const dev = gulp.series(html, devjs, thirdparty)
+const dev = gulp.series(html, thirdparty)
 
 const zip = function() {
   return gulp
@@ -141,6 +125,16 @@ const watch = function() {
 
   jsWatcher.on('change', onWatchEvent)
   viewsWatcher.on('change', onWatchEvent)
+
+  webpack(devConfig).watch({}, (err, stats) => {
+    if (err) {
+      console.log(err)
+    }
+    console.log(stats.toString({
+      chunks: false,
+      colors: true
+    }))
+  })
 }
 
 function onWatchEvent(event) {

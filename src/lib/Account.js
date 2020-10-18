@@ -1,7 +1,5 @@
 import AccountStorage from './AccountStorage'
-import Adapter from './interfaces/Adapter'
 import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
-import NextcloudAdapter from './adapters/Nextcloud'
 import WebDavAdapter from './adapters/WebDav'
 import FakeAdapter from './adapters/Fake'
 import LocalTree from './LocalTree'
@@ -10,13 +8,15 @@ import SlaveSyncProcess from './strategies/Slave'
 import OverwriteSyncProcess from './strategies/Overwrite'
 import Logger from './Logger'
 import browser from './browser-api'
+import AdapterFactory from './AdapterFactory'
+import MergeSyncProcess from './strategies/Merge'
+import LocalTabs from './LocalTabs'
+import { Folder } from './Tree'
 
 // register Adapters
-Adapter.register('nextcloud', NextcloudAdapter)
-Adapter.register('nextcloud-legacy', NextcloudAdapter)
-Adapter.register('nextcloud-folders', NextcloudFoldersAdapter)
-Adapter.register('webdav', WebDavAdapter)
-Adapter.register('fake', FakeAdapter)
+AdapterFactory.register('nextcloud-folders', NextcloudFoldersAdapter)
+AdapterFactory.register('webdav', WebDavAdapter)
+AdapterFactory.register('fake', FakeAdapter)
 
 export default class Account {
   static async get(id) {
@@ -31,14 +31,14 @@ export default class Account {
     let background = await browser.runtime.getBackgroundPage()
     let data = await storage.getAccountData(background.controller.key)
     let tree = new LocalTree(storage, data.localRoot)
-    let account = new Account(id, storage, Adapter.factory(data), tree)
+    let account = new Account(id, storage, AdapterFactory.factory(data), tree)
     this.cache[id] = account
     return account
   }
 
   static async create(data) {
     let id = '' + Date.now() + Math.random()
-    let adapter = Adapter.factory(data)
+    let adapter = AdapterFactory.factory(data)
     let storage = new AccountStorage(id)
 
     let background = await browser.runtime.getBackgroundPage()
@@ -61,7 +61,7 @@ export default class Account {
 
   static getDefaultValues(type) {
     return {
-      ...Adapter.factory({ type }).constructor.getDefaultValues(),
+      ...AdapterFactory.factory({ type }).constructor.getDefaultValues(),
       enabled: true,
     }
   }
@@ -71,6 +71,7 @@ export default class Account {
     this.id = id
     this.storage = storageAdapter
     this.localTree = treeAdapter
+    this.localTabs = new LocalTabs(this.storage)
   }
 
   async delete() {
@@ -157,15 +158,19 @@ export default class Account {
       this.syncing = true
       await this.setData({ ...this.getData(), syncing: 0.05, error: null })
 
-      if (!(await this.isInitialized())) {
+      if (this.getData().localRoot !== 'tabs' && !(await this.isInitialized())) {
         await this.init()
       }
+
+      const localResource = this.getData().localRoot !== 'tabs' ? this.localTree : this.localTabs
+
       if (this.server.onSyncStart) {
         await this.server.onSyncStart()
       }
 
       // main sync steps:
       mappings = await this.storage.getMappings()
+      const cacheTree = localResource === this.localTree ? await this.storage.getCache() : new Folder({title: '', id: 'tabs'})
 
       let strategy
       switch (this.getData().strategy) {
@@ -178,16 +183,21 @@ export default class Account {
           strategy = OverwriteSyncProcess
           break
         default:
-          Logger.log('Using normal strategy')
-          strategy = DefaultSyncProcess
+          if (!cacheTree.children.length) {
+            Logger.log('Using merge strategy (no cache available)')
+            strategy = MergeSyncProcess
+          } else {
+            Logger.log('Using normal strategy')
+            strategy = DefaultSyncProcess
+          }
           break
       }
+
       this.syncing = new strategy(
         mappings,
-        this.localTree,
-        await this.storage.getCache(),
+        localResource,
+        cacheTree,
         this.server,
-        this.getData().parallel,
         (progress) => {
           this.setData({ ...this.getData(), syncing: progress })
         }
@@ -195,7 +205,11 @@ export default class Account {
       await this.syncing.sync()
 
       // update cache
-      await this.storage.setCache(await this.localTree.getBookmarksTree())
+      if (localResource === this.localTree) {
+        const cache = await localResource.getBookmarksTree()
+        this.syncing.filterOutUnacceptedBookmarks(cache)
+        await this.storage.setCache(cache)
+      }
 
       if (this.server.onSyncComplete) {
         await this.server.onSyncComplete()

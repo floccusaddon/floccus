@@ -6,7 +6,7 @@
       v-if="account.data.syncing"
       v-slot:progress
       :value="account.data.syncing * 100 || 0"
-      :indeterminate="account.data.syncing < 0.1" />
+      :indeterminate="account.data.syncing < 0.01" />
     <v-container class="pa-4">
       <v-row
         no-gutters
@@ -18,7 +18,14 @@
                 {{ account.data.type }}
               </div>
               <div class="text-h6">
-                <v-icon color="primary">
+                <v-icon
+                  v-if="account.data.localRoot === 'tabs'"
+                  color="primary">
+                  mdi-tab
+                </v-icon>
+                <v-icon
+                  v-else
+                  color="primary">
                   mdi-folder
                 </v-icon> {{ folderName }}
               </div>
@@ -86,24 +93,37 @@
                 target="_blank">
                 <v-icon>mdi-settings</v-icon>
               </v-btn>
-              <template>
-                <v-btn
-                  v-if="!account.data.syncing"
-                  class="primary"
-                  small
-                  :disabled="!account.data.enabled"
-                  @click="onTriggerSync">
-                  <v-icon>mdi-sync</v-icon>
-                  {{ t('LabelSyncnow') }}
-                </v-btn>
-                <v-btn
-                  v-else
-                  small
-                  @click="onCancelSync">
-                  <v-icon>mdi-cancel</v-icon>
-                  {{ t('LabelCancelsync') }}
-                </v-btn>
-              </template>
+              <v-btn
+                icon
+                small
+                :title="t('LabelSyncUp')"
+                :aria-label="t('LabelSyncUp')"
+                @click="onTriggerSyncUp">
+                <v-icon>mdi-arrow-up-bold</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                small
+                :title="t('LabelSyncDown')"
+                :aria-label="t('LabelSyncDown')"
+                @click="onTriggerSyncDown">
+                <v-icon>mdi-arrow-down-bold</v-icon>
+              </v-btn>
+              <v-btn
+                v-if="!account.data.syncing"
+                class="primary"
+                small
+                @click="onTriggerSync">
+                <v-icon>mdi-sync</v-icon>
+                {{ t('LabelSyncnow') }}
+              </v-btn>
+              <v-btn
+                v-else
+                small
+                @click="onCancelSync">
+                <v-icon>mdi-cancel</v-icon>
+                {{ t('LabelCancelsync') }}
+              </v-btn>
             </v-col>
           </v-row>
         </v-col>
@@ -230,6 +250,12 @@ export default {
   methods: {
     onTriggerSync() {
       this.$store.dispatch(actions.TRIGGER_SYNC, this.account.id)
+    },
+    onTriggerSyncUp() {
+      this.$store.dispatch(actions.TRIGGER_SYNC_UP, this.account.id)
+    },
+    onTriggerSyncDown() {
+      this.$store.dispatch(actions.TRIGGER_SYNC_DOWN, this.account.id)
     },
     onCancelSync() {
       this.$store.dispatch(actions.CANCEL_SYNC, this.account.id)

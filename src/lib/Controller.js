@@ -4,10 +4,9 @@ import LocalTree from './LocalTree'
 import Cryptography from './Crypto'
 import packageJson from '../../package.json'
 import AccountStorage from './AccountStorage'
-import * as localForage from 'localforage' // for backwards compatibility
 import _ from 'lodash'
 
-const PQueue = require('p-queue')
+import PQueue from 'p-queue'
 
 const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')
@@ -80,13 +79,6 @@ export default class Controller {
 
     browser.storage.local.get('currentVersion').then(async d => {
       if (packageJson.version === d.currentVersion) return
-      const accounts = await Account.getAllAccounts()
-      await Promise.all(accounts.map(account => account.init()))
-      await Promise.all(
-        accounts.map(account =>
-          account.setData({ ...account.getData() })
-        )
-      )
       await browser.storage.local.set({
         currentVersion: packageJson.version
       })
@@ -100,18 +92,6 @@ export default class Controller {
         })
       }
     })
-
-    // migrate from localForage back to extension storage
-
-    localForage
-      .getItem('accounts')
-      .then(async accounts => {
-        if (!accounts) return
-        return AccountStorage.changeEntry('accounts', () => accounts)
-      })
-      .then(() => {
-        return localForage.removeItem('accounts')
-      })
 
     setInterval(() => this.updateStatus(), 10000)
   }
@@ -265,9 +245,6 @@ export default class Controller {
     }
     let account = await Account.get(accountId)
     if (account.getData().syncing) {
-      return
-    }
-    if (!account.getData().enabled) {
       return
     }
     setTimeout(() => this.updateStatus(), 500)

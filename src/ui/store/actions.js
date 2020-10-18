@@ -17,6 +17,8 @@ export const actions = {
   RESET_ACCOUNT: 'RESET_ACCOUNT',
   STORE_ACCOUNT: 'STORE_ACCOUNT',
   TRIGGER_SYNC: 'TRIGGER_SYNC',
+  TRIGGER_SYNC_UP: 'TRIGGER_SYNC_UP',
+  TRIGGER_SYNC_DOWN: 'TRIGGER_SYNC_DOWN',
   CANCEL_SYNC: 'CANCEL_SYNC',
   DOWNLOAD_LOGS: 'DOWNLOAD_LOGS',
   START_LOGIN_FLOW: 'START_LOGIN_FLOW',
@@ -47,6 +49,7 @@ export const actionsDefinition = {
     await background.controller.unsetKey()
   },
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
+    commit(mutations.LOADING_START, 'accounts')
     const accountsArray = await Account.getAllAccounts()
     const accounts = {}
     await Promise.all(
@@ -60,6 +63,7 @@ export const actionsDefinition = {
       })
     )
     await commit(mutations.LOAD_ACCOUNTS, accounts)
+    commit(mutations.LOADING_END, 'accounts')
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
     const account = await Account.create(Account.getDefaultValues(type))
@@ -96,6 +100,22 @@ export const actionsDefinition = {
   async [actions.TRIGGER_SYNC]({ commit, dispatch, state }, accountId) {
     const background = await browser.runtime.getBackgroundPage()
     background.syncAccount(accountId)
+  },
+  async [actions.TRIGGER_SYNC_DOWN]({ commit, dispatch, state }, accountId) {
+    const account = await Account.get(accountId)
+    const data = account.getData()
+    await account.setData({...data, strategy: 'slave' })
+    const background = await browser.runtime.getBackgroundPage()
+    await background.syncAccount(accountId)
+    await account.setData(data)
+  },
+  async [actions.TRIGGER_SYNC_UP]({ commit, dispatch, state }, accountId) {
+    const account = await Account.get(accountId)
+    const data = account.getData()
+    await account.setData({...data, strategy: 'overwrite' })
+    const background = await browser.runtime.getBackgroundPage()
+    await background.syncAccount(accountId)
+    await account.setData(data)
   },
   async [actions.CANCEL_SYNC]({ commit, dispatch, state }, accountId) {
     const background = await browser.runtime.getBackgroundPage()

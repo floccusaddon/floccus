@@ -17,6 +17,9 @@ export default new Store({
     accounts: {},
     loginFlow: {
       isRunning: false
+    },
+    loading: {
+      accounts: true,
     }
   },
   getters: {},

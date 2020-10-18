@@ -1,148 +1,86 @@
-import * as Tree from '../Tree'
-import Logger from '../Logger'
 import DefaultStrategy from './Default'
+import Diff, { ActionType } from '../Diff'
+import * as Parallel from 'async-parallel'
 
 export default class OverwriteSyncProcess extends DefaultStrategy {
-  async _syncTree({
-    localItem,
-    cacheItem,
-    serverItem,
-    localOrder,
-    serverOrder
-  }) {
-    if (this.canceled) throw new Error('Sync cancelled')
-    Logger.log('COMPARE', { localItem, cacheItem, serverItem })
+  async reconcile(localDiff, serverDiff) {
+    const mappingsSnapshot = await this.mappings.getSnapshot()
 
-    let mappings = this.mappings.getSnapshot()
-    let item = localItem || serverItem || cacheItem
-    if (!localItem && !cacheItem && serverItem) {
-      // CREATED UPSTREAM
-      // --> remove upstream
-      return item.visitRemove(this, {
-        reverseMapping: mappings.ServerToLocal,
-        fromTree: this.localTreeRoot,
-        toTree: this.serverTreeRoot,
-        toResource: this.server,
-        toOrder: serverOrder,
-        item: serverItem
-      })
-    } else if (localItem && !cacheItem && !serverItem) {
-      // CREATED LOCALLY
-      // --> create remotely
-      return item.visitCreate(this, {
-        mapping: mappings.LocalToServer,
-        toTree: this.serverTreeRoot,
-        toResource: this.server,
-        toOrder: serverOrder,
-        item: localItem
-      })
-    } else if (
-      (localItem && cacheItem && serverItem) ||
-      (localItem && !cacheItem && serverItem)
-    ) {
-      // UPDATED
-      await item.visitUpdate(this, localItem, cacheItem, serverItem)
-    } else if (!localItem && cacheItem && serverItem) {
-      // DELETED LOCALLY
-      // --> remove remotely
-      return item.visitRemove(this, {
-        reverseMapping: mappings.ServerToLocal,
-        fromTree: this.localTreeRoot,
-        toTree: this.serverTreeRoot,
-        toResource: this.server,
-        toOrder: serverOrder,
-        item: serverItem
-      })
-    } else if (localItem && cacheItem && !serverItem) {
-      // DELETED UPSTREAM
-      return item.visitCreate(this, {
-        mapping: mappings.LocalToServer,
-        toTree: this.serverTreeRoot,
-        toResource: this.server,
-        toOrder: serverOrder,
-        item: localItem
-      })
-    } else if (!localItem && cacheItem && !serverItem) {
-      if (cacheItem instanceof Tree.Bookmark) {
-        await this.mappings.removeBookmark({ localId: cacheItem.id })
-      } else {
-        await this.mappings.removeFolder({ localId: cacheItem.id })
+    const serverRemovals = serverDiff.getActions().filter(action => action.type === ActionType.REMOVE)
+
+    const localRemovals = localDiff.getActions().filter(action => action.type === ActionType.REMOVE)
+    const localMoves = localDiff.getActions().filter(action => action.type === ActionType.MOVE)
+
+    // Prepare server plan
+    let serverPlan = new Diff()
+    await Parallel.each(localDiff.getActions(), async action => {
+      if (action.type === ActionType.REMOVE) {
+        const concurrentRemoval = serverRemovals.find(a =>
+          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
+        if (concurrentRemoval) {
+          // Already deleted on server, do nothing.
+          return
+        }
       }
-    }
-  }
+      if (action.type === ActionType.MOVE) {
+        const concurrentRemoval = serverRemovals.find(a =>
+          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
+        if (concurrentRemoval) {
+          // moved locally but removed on the server, recreate it on the server
+          serverPlan.commit({...action, type: ActionType.CREATE})
+          return
+        }
+      }
 
-  async syncFolderProperties(localItem, cacheItem, serverItem) {
-    const { changed } = await this.folderHasChanged(
-      localItem,
-      cacheItem,
-      serverItem
-    )
-
-    if (localItem !== this.localTreeRoot && changed) {
-      const mappings = this.mappings.getSnapshot()
-      // always update remote folder
-      await this.updateFolderProperties({
-        mapping: mappings.LocalToServer,
-        fromFolder: localItem,
-        toFolder: serverItem,
-        toResource: this.server
-      })
-    }
-  }
-
-  async syncChildOrder({
-    localItem,
-    cacheItem,
-    serverItem,
-    localOrder,
-    remoteOrder
-  }) {
-    if (this.preserveOrder && localOrder.length > 1) {
-      const newMappingsSnapshot = this.mappings.getSnapshot()
-      // always update server tree
-      await this.server.orderFolder(
-        serverItem.id,
-        localOrder.map(item => ({
-          id: newMappingsSnapshot.LocalToServer[item.type + 's'][item.id],
-          type: item.type
-        }))
-      )
-    }
-  }
-
-  async updateBookmark(localItem, cacheItem, serverItem) {
-    const { changed } = await this.bookmarkHasChanged(
-      localItem,
-      cacheItem,
-      serverItem
-    )
-
-    await this.mappings.addBookmark({
-      localId: localItem.id,
-      remoteId: serverItem.id
+      serverPlan.commit(action)
     })
 
-    this.done++
+    // Map payloads
+    serverPlan.map(mappingsSnapshot.LocalToServer, true, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
 
-    if (!changed) {
-      Logger.log('Bookmark unchanged')
-      return
-    }
+    // Prepare server plan for reversing server changes
+    await Parallel.each(serverDiff.getActions(), async action => {
+      if (action.type === ActionType.REMOVE) {
+        const concurrentRemoval = localRemovals.find(a =>
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id])
+        if (concurrentRemoval) {
+          // Already deleted locally, do nothing.
+          return
+        }
+        const concurrentMove = localMoves.find(a =>
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id])
+        if (concurrentMove) {
+          // removed on the server, moved locally, do nothing to recreate it on the server.
+          return
+        }
 
-    await this.server.updateBookmark(
-      new Tree.Bookmark({
-        id: serverItem.id,
-        parentId: this.mappings.getSnapshot().LocalToServer.folders[
-          localItem.parentId
-        ],
-        title: localItem.title,
-        url: localItem.url
-      })
-    )
-
-    await this.mappings.addBookmark({
-      localId: localItem.id,
-      remoteId: serverItem.id
+        const payload = action.payload.clone()
+        payload.id = null
+        payload.parentId = mappingsSnapshot.LocalToServer.folder[payload.parentId]
+        // recreate it on the server otherwise
+        serverPlan.commit({...action, type: ActionType.CREATE, payload, oldItem: action.payload})
+        return
+      }
+      if (action.type === ActionType.CREATE) {
+        serverPlan.commit({...action, type: ActionType.REMOVE})
+        return
+      }
+      if (action.type === ActionType.MOVE) {
+        serverPlan.commit({type: ActionType.MOVE, payload: action.oldItem, oldItem: action.payload})
+        return
+      }
+      if (action.type === ActionType.UPDATE) {
+        const payload = action.oldItem
+        payload.id = action.payload.id
+        payload.parentId = action.payload.parentId
+        const oldItem = action.payload
+        oldItem.id = action.oldItem.id
+        oldItem.parentId = action.oldItem.parentId
+        serverPlan.commit({type: ActionType.UPDATE, payload, oldItem})
+      }
     })
+
+    const localPlan = new Diff() // empty, we don't wanna change anything here
+    return { localPlan, serverPlan}
   }
 }
