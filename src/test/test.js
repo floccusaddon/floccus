@@ -582,7 +582,7 @@ describe('Floccus', function() {
             await browser.bookmarks.removeTree(fooFolder.id)
             const allBookmarks = await getAllBookmarks(account)
             await withSyncConnection(account, async() => {
-              await account.server.orderFolder('-1', _.shuffle(allBookmarks.map(f => ({type: 'folder', id: f.id}))))
+              await account.server.orderFolder('-1', _.shuffle(allBookmarks.children.map(f => ({type: 'folder', id: f.id}))))
             })
 
             await account.sync()
