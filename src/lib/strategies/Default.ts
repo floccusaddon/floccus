@@ -100,12 +100,12 @@ export default class SyncProcess {
     mappingsSnapshot = await this.mappings.getSnapshot()
 
     const localReorder = new Diff()
-    await this.reconcileReorderings(localPlan, mappingsSnapshot.LocalToServer, true)
+    this.reconcileReorderings(localPlan, mappingsSnapshot.LocalToServer, true)
     localReorder.add(localPlan)
     localReorder.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type === ActionType.REORDER)
 
     const serverReorder = new Diff()
-    await this.reconcileReorderings(serverPlan, mappingsSnapshot.ServerToLocal, false)
+    this.reconcileReorderings(serverPlan, mappingsSnapshot.ServerToLocal, false)
     // localReorder.add(serverPlan)
     serverReorder.add(serverPlan)
     serverReorder.map(mappingsSnapshot.LocalToServer, true, (action) => action.type === ActionType.REORDER)
@@ -487,21 +487,7 @@ export default class SyncProcess {
     }
   }
 
-  async reconcileReorderings(plan:Diff, reverseMappings:Mapping, isLocalToServer: boolean) : Promise<void> {
-    const absoluteRootFolder = await LocalTree.getAbsoluteRootFolder()
-    plan
-      .getActions(ActionType.REORDER)
-      .map(a => a as ReorderAction)
-      .filter(action => {
-        if (!isLocalToServer) {
-          return action.payload.id === absoluteRootFolder.id
-        }
-        return false
-      })
-      .forEach(action => {
-        plan.retract(action)
-      })
-
+  reconcileReorderings(plan:Diff, reverseMappings:Mapping, isLocalToServer: boolean) : void {
     plan
       .getActions(ActionType.REORDER)
       .map(a => a as ReorderAction)
@@ -535,6 +521,20 @@ export default class SyncProcess {
 
   async executeReorderings(resource:OrderFolderResource, reorderings:Diff):Promise<void> {
     Logger.log({ reorderings })
+
+    const absoluteRootFolder = await LocalTree.getAbsoluteRootFolder()
+    reorderings
+      .getActions(ActionType.REORDER)
+      .map(a => a as ReorderAction)
+      .filter(action => {
+        if (resource === this.localTree) {
+          return action.payload.id === absoluteRootFolder.id
+        }
+        return false
+      })
+      .forEach(action => {
+        reorderings.retract(action)
+      })
 
     await Parallel.each(reorderings.getActions(), async(action) => {
       const item = action.payload

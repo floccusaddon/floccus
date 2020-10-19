@@ -193,7 +193,7 @@ export default class MergeSyncProcess extends Default {
     return { localPlan, serverPlan}
   }
 
-  reconcileReorderings(plan:Diff, reverseMappings:Mapping, isLocalToServer: boolean) :void{
+  reconcileReorderings(plan:Diff, reverseMappings:Mapping, isLocalToServer: boolean) :void {
     plan
       .getActions(ActionType.REORDER)
       .map(a => a as ReorderAction)
