@@ -100,12 +100,12 @@ export default class SyncProcess {
     mappingsSnapshot = await this.mappings.getSnapshot()
 
     const localReorder = new Diff()
-    this.reconcileReorderings(localPlan, mappingsSnapshot.LocalToServer, true)
+    await this.reconcileReorderings(localPlan, mappingsSnapshot.LocalToServer, true)
     localReorder.add(localPlan)
     localReorder.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type === ActionType.REORDER)
 
     const serverReorder = new Diff()
-    this.reconcileReorderings(serverPlan, mappingsSnapshot.ServerToLocal, false)
+    await this.reconcileReorderings(serverPlan, mappingsSnapshot.ServerToLocal, false)
     // localReorder.add(serverPlan)
     serverReorder.add(serverPlan)
     serverReorder.map(mappingsSnapshot.LocalToServer, true, (action) => action.type === ActionType.REORDER)
@@ -487,7 +487,21 @@ export default class SyncProcess {
     }
   }
 
-  reconcileReorderings(plan:Diff, reverseMappings:Mapping, isLocalToServer: boolean) :void{
+  async reconcileReorderings(plan:Diff, reverseMappings:Mapping, isLocalToServer: boolean) : Promise<void> {
+    const absoluteRootFolder = await LocalTree.getAbsoluteRootFolder()
+    plan
+      .getActions(ActionType.REORDER)
+      .map(a => a as ReorderAction)
+      .filter(action => {
+        if (!isLocalToServer) {
+          return action.payload.id === absoluteRootFolder.id
+        }
+        return false
+      })
+      .forEach(action => {
+        plan.retract(action)
+      })
+
     plan
       .getActions(ActionType.REORDER)
       .map(a => a as ReorderAction)
@@ -527,11 +541,6 @@ export default class SyncProcess {
 
       if (this.canceled) {
         throw new Error(browser.i18n.getMessage('Error027'))
-      }
-
-      if (item.type === 'folder' && item.isRoot) {
-        Logger.log('Skipping reordering of root folder.')
-        return
       }
 
       if (action.type === ActionType.REORDER) {

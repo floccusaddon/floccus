@@ -205,4 +205,8 @@ export default class LocalTree implements IResource {
     }
     return this.getIdPathFromLocalId(bm.parentId, path)
   }
+
+  static async getAbsoluteRootFolder() {
+    return (await browser.bookmarks.getTree())[0]
+  }
 }
