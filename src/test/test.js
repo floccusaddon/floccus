@@ -1,3 +1,4 @@
+/* global CI */
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import random from 'random'
@@ -552,7 +553,7 @@ describe('Floccus', function() {
             )
           })
           it('should be able to sync the root folder', async function() {
-            if (!process.env['CI']) {
+            if (!CI) {
               this.skip()
             }
             expect(
