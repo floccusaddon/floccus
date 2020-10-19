@@ -529,7 +529,7 @@ export default class SyncProcess {
         throw new Error(browser.i18n.getMessage('Error027'))
       }
 
-      if (!item.parentId) {
+      if (item.type === 'folder' && item.isRoot) {
         Logger.log('Skipping reordering of root folder.')
         return
       }
