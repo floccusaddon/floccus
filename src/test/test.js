@@ -551,6 +551,9 @@ describe('Floccus', function() {
             )
           })
           it('should be able to sync the root folder', async function() {
+            if (!process.env['CI']) {
+              this.skip()
+            }
             expect(
               (await getAllBookmarks(account)).children
             ).to.have.lengthOf(0)
@@ -576,6 +579,10 @@ describe('Floccus', function() {
             expect(account.getData().error).to.not.be.ok
 
             await browser.bookmarks.removeTree(fooFolder.id)
+            const allBookmarks = await getAllBookmarks(account)
+            await withSyncConnection(account, async() => {
+              await account.server.orderFolder('-1', _.shuffle(allBookmarks.map(f => ({type:'folder', id: f.id}))))
+            })
 
             await account.sync()
             expect(account.getData().error).to.not.be.ok
@@ -589,6 +596,10 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA),
               false
             )
+
+            // avoid cleanup, because root cannot be removed
+            await account.setData({...account.getData(), localRoot: null})
+            await account.init()
           })
           it('should deduplicate unnormalized URLs', async function() {
             const adapter = account.server
