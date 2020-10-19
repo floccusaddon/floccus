@@ -1,5 +1,12 @@
 # Changelog
 
+##  v4.4.1
+
+### Fixed
+- Fix sync cache
+- Fix: Don't touch root folders
+- Fix NexcloudFolders: Use lock for getBookmarkslist
+
 ##  v4.4.0
 
 ### New
