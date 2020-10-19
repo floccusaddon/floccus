@@ -6,6 +6,7 @@ import Account from '../lib/Account'
 import { Bookmark, Folder } from '../lib/Tree'
 import browser from '../lib/browser-api'
 import * as AsyncParallel from 'async-parallel'
+import * as _ from 'lodash'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -581,7 +582,7 @@ describe('Floccus', function() {
             await browser.bookmarks.removeTree(fooFolder.id)
             const allBookmarks = await getAllBookmarks(account)
             await withSyncConnection(account, async() => {
-              await account.server.orderFolder('-1', _.shuffle(allBookmarks.map(f => ({type:'folder', id: f.id}))))
+              await account.server.orderFolder('-1', _.shuffle(allBookmarks.map(f => ({type: 'folder', id: f.id}))))
             })
 
             await account.sync()
