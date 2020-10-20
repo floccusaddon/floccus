@@ -170,7 +170,7 @@ export default class Account {
 
       // main sync steps:
       mappings = await this.storage.getMappings()
-      const cacheTree = localResource === this.localTree ? await this.storage.getCache() : new Folder({title: '', id: 'tabs'})
+      const cacheTree = localResource instanceof LocalTree ? await this.storage.getCache() : new Folder({title: '', id: 'tabs'})
 
       let strategy
       switch (this.getData().strategy) {
@@ -205,7 +205,7 @@ export default class Account {
       await this.syncing.sync()
 
       // update cache
-      if (localResource === this.localTree) {
+      if (localResource instanceof LocalTree) {
         const cache = await localResource.getBookmarksTree()
         this.syncing.filterOutUnacceptedBookmarks(cache)
         await this.storage.setCache(cache)

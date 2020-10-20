@@ -138,6 +138,10 @@ export default class LocalTree implements IResource {
   async updateFolder(folder:Folder):Promise<void> {
     const {id, title, parentId} = folder
     Logger.log('(local)UPDATEFOLDER', folder)
+    if (folder.isRoot) {
+      Logger.log('This is a root folder. Skip.')
+      return
+    }
     await this.queue.add(() =>
       browser.bookmarks.update(id, {
         title
@@ -153,6 +157,10 @@ export default class LocalTree implements IResource {
   async removeFolder(folder:Folder):Promise<void> {
     const id = folder.id
     Logger.log('(local)REMOVEFOLDER', id)
+    if (folder.isRoot) {
+      Logger.log('This is a root folder. Skip.')
+      return
+    }
     await this.queue.add(() => browser.bookmarks.removeTree(id))
   }
 
@@ -196,5 +204,9 @@ export default class LocalTree implements IResource {
       return path // might be that the root is circular
     }
     return this.getIdPathFromLocalId(bm.parentId, path)
+  }
+
+  static async getAbsoluteRootFolder() {
+    return (await browser.bookmarks.getTree())[0]
   }
 }

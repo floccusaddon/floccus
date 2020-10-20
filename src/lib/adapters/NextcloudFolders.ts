@@ -243,46 +243,48 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
   }
 
   async getBookmarksList():Promise<Bookmark[]> {
-    if (this.list) {
-      return this.list
-    }
-
-    Logger.log('Fetching bookmarks')
-    let i = 0
-    let data = []
-    let json
-    do {
-      json = await this.sendRequest(
-        'GET',
-        `index.php/apps/bookmarks/public/rest/v2/bookmark?page=${i}&limit=${PAGE_SIZE}`
-      )
-      if (!Array.isArray(json.data)) {
-        throw new Error(browser.i18n.getMessage('Error015'))
+    return this.bookmarkLock.acquire('list', async() => {
+      if (this.list) {
+        return this.list
       }
-      data = data.concat(json.data)
-      i++
-    } while (json.data.length === PAGE_SIZE)
 
-    const bookmarks = flatten(
-      data.map((bm) => {
-        const bookmark = {
-          id: bm.id as number|string,
-          url: bm.url as string,
-          title: bm.title as string,
-          parentId: null
+      Logger.log('Fetching bookmarks')
+      let i = 0
+      let data = []
+      let json
+      do {
+        json = await this.sendRequest(
+          'GET',
+          `index.php/apps/bookmarks/public/rest/v2/bookmark?page=${i}&limit=${PAGE_SIZE}`
+        )
+        if (!Array.isArray(json.data)) {
+          throw new Error(browser.i18n.getMessage('Error015'))
         }
+        data = data.concat(json.data)
+        i++
+      } while (json.data.length === PAGE_SIZE)
 
-        return bm.folders.map((parentId) => {
-          const b = {...bookmark}
-          b.parentId = parentId
-          return new Bookmark(b)
+      const bookmarks = flatten(
+        data.map((bm) => {
+          const bookmark = {
+            id: bm.id as number | string,
+            url: bm.url as string,
+            title: bm.title as string,
+            parentId: null
+          }
+
+          return bm.folders.map((parentId) => {
+            const b = { ...bookmark }
+            b.parentId = parentId
+            return new Bookmark(b)
+          })
         })
-      })
-    )
+      )
 
-    Logger.log('Received bookmarks from server', bookmarks)
-    this.list = bookmarks
-    return bookmarks
+      Logger.log('Received bookmarks from server', bookmarks)
+      this.list = bookmarks
+      return bookmarks
+    })
   }
 
   async getBookmarksTree(loadAll = false):Promise<Folder> {

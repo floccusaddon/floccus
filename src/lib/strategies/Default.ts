@@ -487,7 +487,7 @@ export default class SyncProcess {
     }
   }
 
-  reconcileReorderings(plan:Diff, reverseMappings:Mapping, isLocalToServer: boolean) :void{
+  reconcileReorderings(plan:Diff, reverseMappings:Mapping, isLocalToServer: boolean) : void {
     plan
       .getActions(ActionType.REORDER)
       .map(a => a as ReorderAction)
@@ -520,7 +520,21 @@ export default class SyncProcess {
   }
 
   async executeReorderings(resource:OrderFolderResource, reorderings:Diff):Promise<void> {
-    Logger.log({reorderings})
+    Logger.log({ reorderings })
+
+    const absoluteRootFolder = await LocalTree.getAbsoluteRootFolder()
+    reorderings
+      .getActions(ActionType.REORDER)
+      .map(a => a as ReorderAction)
+      .filter(action => {
+        if (resource === this.localTree) {
+          return action.payload.id === absoluteRootFolder.id
+        }
+        return false
+      })
+      .forEach(action => {
+        reorderings.retract(action)
+      })
 
     await Parallel.each(reorderings.getActions(), async(action) => {
       const item = action.payload
