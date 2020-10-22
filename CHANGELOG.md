@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.4.2
+
+### Fixed
+- Update some unclear wording in i18n strings
+- Fix "sync up" and "sync down" buttons
+- Reset cache on update to fix issues from v4.4.0
+
 ##  v4.4.1
 
 ### Fixed
