@@ -186,10 +186,10 @@
     "message": "Merge local and remote changes (recommended)"
   },
   "LabelStrategyslave": {
-    "message": "Always overwrite and revert local changes"
+    "message": "Always revert local changes and pull upstream remote changes"
   },
   "LabelStrategyoverwrite": {
-    "message": "Always overwrite and revert remote changes"
+    "message": "Always revert upstream remote changes and push local changes"
   },
   "LabelSave": {
     "message": "Save"
