@@ -83,4 +83,8 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
     const localPlan = new Diff() // empty, we don't wanna change anything here
     return { localPlan, serverPlan}
   }
+
+  async loadChildren() {
+    this.serverTreeRoot = await this.server.getBookmarksTree(true)
+  }
 }
