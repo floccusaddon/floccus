@@ -590,6 +590,10 @@ export default class SyncProcess {
     if (serverItem === this.serverTreeRoot) {
       localItem = this.localTreeRoot
       cacheItem = this.cacheTreeRoot
+
+      // fix the title for the root sync folder
+      localItem.title = serverItem.title
+      cacheItem.title = serverItem.title
     } else {
       const localId = mappingsSnapshot.ServerToLocal.folder[serverItem.id]
       localItem = this.localTreeRoot.findFolder(localId)
@@ -614,10 +618,6 @@ export default class SyncProcess {
       serverItem.children,
       child => this.loadChildren(child, mappingsSnapshot)
     )
-
-    // recalculate hash
-    serverItem.hashValue = {}
-    await serverItem.hash(true)
   }
 
   async folderHasChanged(localItem: TItem, cacheItem: TItem, serverItem: TItem):Promise<boolean> {

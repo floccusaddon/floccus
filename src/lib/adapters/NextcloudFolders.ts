@@ -340,8 +340,8 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     return folderJson.data
   }
 
-  async _findServerRoot(childFolders: IChildFolder[]):Promise<{tree:Folder, childFolders: IChildFolder[]}> {
-    let tree = new Folder({ id: '-1', title: 'root' })
+  async _findServerRoot(childFolders: IChildFolder[] = []):Promise<{tree:Folder, childFolders: IChildFolder[]}> {
+    let tree = new Folder({ id: '-1', title: '' })
     await Parallel.each(
       this.server.serverRoot.split('/').slice(1),
       async(segment) => {
@@ -385,7 +385,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       childFolders
     )
 
-    let tree = new Folder({ id: '-1', title: 'root' })
+    let tree = new Folder({ id: '-1' })
     if (this.server.serverRoot) {
       ({ tree, childFolders } = await this._findServerRoot(childFolders))
     }
@@ -473,30 +473,14 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     this.hasFeatureHashing = true
     this.hasFeatureExistenceCheck = true
 
-    let childFolders = await this._getChildFolders(-1, 0)
-    let tree = new Folder({ id: '-1', title: 'root' })
+    let tree = new Folder({ id: '-1' })
 
     if (this.server.serverRoot) {
-      ({ tree, childFolders } = await this._findServerRoot(childFolders))
+      ({ tree } = await this._findServerRoot())
     }
 
-    Logger.log('Received initial folders from server', childFolders)
-
-    const recurseChildFolders = (tree, childFolders) => {
-      childFolders.forEach((childFolder) => {
-        const newFolder = new Folder({
-          id: childFolder.id,
-          title: childFolder.title,
-          parentId: tree.id,
-        })
-        tree.children.push(newFolder)
-        // ... and recurse
-        return recurseChildFolders(newFolder, childFolder.children || [])
-      })
-    }
     this.list = null
     tree.hashValue = { true: await this._getFolderHash(-1) }
-    recurseChildFolders(tree, childFolders)
     this.tree = tree.clone(true) // we clone (withHash), so we can mess with our own version
     return tree
   }
@@ -547,8 +531,8 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
               parentId: folderId,
               title: item.title,
             })
-            childFolder.loaded = Boolean(item.children)
             childFolder.children = recurseChildren(item.id, item.children || [])
+            childFolder.loaded = Boolean(item.children)
             return childFolder
           }
         })
