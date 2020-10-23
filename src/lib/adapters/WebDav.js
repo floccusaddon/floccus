@@ -103,7 +103,7 @@ export default class WebDavAdapter extends CachingAdapter {
       Logger.log(e)
       throw new Error(browser.i18n.getMessage('Error017'))
     }
-    if (res.status === 401) {
+    if (res.status === 401 || res.status === 403) {
       throw new Error(browser.i18n.getMessage('Error018'))
     }
     if (!res.ok) {
