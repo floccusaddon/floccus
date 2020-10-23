@@ -383,5 +383,8 @@
   },
   "LabelSyncUp": {
     "message": "Sync up"
+  },
+  "DescriptionFilesPermission": {
+    "message": "Make sure you give floccus permission to not only use the bookmarks app but the Nextcloud files app as well."
   }
 }

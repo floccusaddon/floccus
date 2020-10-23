@@ -171,8 +171,8 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       Logger.log(e)
       throw new Error(browser.i18n.getMessage('Error017'))
     }
-    if (res.status === 401) {
-      throw new Error(browser.i18n.getMessage('Error018'))
+    if (res.status === 401 || res.status === 403) {
+      throw new Error(browser.i18n.getMessage('Error018') + ' ' + browser.i18n.getMessage('DescriptionFilesPermission'))
     }
     if (!res.ok) {
       throw new Error(browser.i18n.getMessage('Error019', [res.status, 'PUT']))
