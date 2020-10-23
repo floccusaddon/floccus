@@ -456,6 +456,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       }
       return recurseChildren(folderId, children)
     } else {
+      const tree = new Folder({id: folderId})
       const [childrenOrder, childFolders, childBookmarks] = await Promise.all([
         this._getChildOrder(folderId, layers),
         this._getChildFolders(folderId, layers),
@@ -468,49 +469,63 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
             ).then((json) => json.data)
         ),
       ])
-      const recurseFolders = (folderId, childFolders) => {
-        if (!childFolders) return []
-        return childFolders.map((child) => {
-          if (child instanceof Folder) {
-            return child
-          }
-          const childFolder = new Folder({
-            id: child.id,
-            parentId: folderId,
-            title: child.title,
-          })
-          childFolder.children = recurseFolders(child.id, child.children)
-          return childFolder
-        })
-      }
-      const folder = new Folder({
-        id: folderId,
-        children: recurseFolders(folderId, childFolders),
-      })
-      const recurseItems = (folderId, childrenOrder) => {
-        return childrenOrder.map((item) => {
-          if (item.type === 'bookmark') {
-            const bm = childBookmarks.find(
-              (child) => String(child.id) === String(item.id)
-            )
-            if (!bm) {
-              throw new Error('Could not find bookmark ' + item.id)
+      const recurseChildFolders = async(tree:Folder, childFolders:IChildFolder[], childrenOrder:IChildOrderItem[], layers:number) => {
+        const folders = await Parallel.map(
+          childrenOrder,
+          async(child) => {
+            if (child.type === 'folder') {
+              // get the folder from the tree we've fetched above
+              const folder = childFolders.find((folder) => String(folder.id) === String(child.id))
+              if (!folder) throw new Error(browser.i18n.getMessage('Error021'))
+              const newFolder = new Folder({
+                id: child.id,
+                title: folder.title,
+                parentId: tree.id,
+              })
+              tree.children.push(newFolder)
+              return { newFolder, child, folder}
+            } else {
+              // get the bookmark from the list we've fetched above
+              let childBookmark = childBookmarks.find(
+                (bookmark) =>
+                  String(bookmark.id) === String(child.id) &&
+                  String(bookmark.parentId) === String(tree.id)
+              )
+              if (!childBookmark) {
+                throw new Error(
+                  browser.i18n.getMessage('Error022', [
+                    `#${tree.id}[${tree.title}]`,
+                    child.id,
+                  ])
+                )
+              }
+              childBookmark = childBookmark.clone()
+              childBookmark.id = childBookmark.id + ';' + tree.id
+              childBookmark.parentId = tree.id
+              tree.children.push(childBookmark)
             }
-            if (bm instanceof Bookmark) return bm // in case we've got this from the cached list
-            return new Bookmark({
-              id: bm.id + ';' + folderId,
-              title: bm.title,
-              parentId: folderId,
-              url: bm.url,
-            })
-          } else if (item.type === 'folder') {
-            const f = folder.findFolder(item.id)
-            f.children = recurseItems(f.id, item.children)
-            return f
-          }
-        })
+          },
+          1
+        )
+        const nextLayer = layers < 0 ? -1 : layers - 1
+        await Parallel.each(
+          folders.filter(Boolean),
+          async({ newFolder, child, folder}) => {
+            if (typeof child.children === 'undefined') {
+              child.children = await this._getChildOrder(child.id, nextLayer)
+            }
+            if (typeof folder.children === 'undefined') {
+              folder.children = await this._getChildFolders(folder.id, nextLayer)
+            }
+
+            // ... and recurse
+            return recurseChildFolders(newFolder, folder.children, child.children, nextLayer)
+          },
+          3
+        )
       }
-      return recurseItems(folderId, childrenOrder)
+      await recurseChildFolders(tree, childFolders, childrenOrder, layers)
+      return tree.children
     }
   }
 
