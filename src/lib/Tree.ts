@@ -115,7 +115,7 @@ export class Bookmark {
 export class Folder {
   public type = ItemType.FOLDER
   public id: number | string
-  public title?: string
+  public title: string
   public parentId: number | string
   public children: TItem[]
   public hashValue: Record<string,string>
@@ -127,7 +127,7 @@ export class Folder {
   :{
     id:number|string,
     parentId?:number|string,
-    title?:string,
+    title:string,
     // eslint-disable-next-line no-use-before-define
     children?: TItem[],
     hashValue?:Record<'true'|'false',string>
