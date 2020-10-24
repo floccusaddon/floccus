@@ -12,6 +12,8 @@ import AdapterFactory from './AdapterFactory'
 import MergeSyncProcess from './strategies/Merge'
 import LocalTabs from './LocalTabs'
 import { Folder } from './Tree'
+import MergeOverwrite from './strategies/OverwriteMerge'
+import MergeSlave from './strategies/SlaveMerge'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', NextcloudFoldersAdapter)
@@ -175,19 +177,29 @@ export default class Account {
       let strategy
       switch (this.getData().strategy) {
         case 'slave':
-          Logger.log('Using slave strategy')
-          strategy = SlaveSyncProcess
+          if (!cacheTree.children.length) {
+            Logger.log('Using "merge slave" strategy (no cache available)')
+            strategy = MergeSlave
+          } else {
+            Logger.log('Using slave strategy')
+            strategy = SlaveSyncProcess
+          }
           break
         case 'overwrite':
-          Logger.log('Using overwrite strategy')
-          strategy = OverwriteSyncProcess
+          if (!cacheTree.children.length) {
+            Logger.log('Using "merge overwrite" strategy (no cache available)')
+            strategy = MergeOverwrite
+          } else {
+            Logger.log('Using "overwrite" strategy')
+            strategy = OverwriteSyncProcess
+          }
           break
         default:
           if (!cacheTree.children.length) {
-            Logger.log('Using merge strategy (no cache available)')
+            Logger.log('Using "merge default" strategy (no cache available)')
             strategy = MergeSyncProcess
           } else {
-            Logger.log('Using normal strategy')
+            Logger.log('Using "default" strategy')
             strategy = DefaultSyncProcess
           }
           break

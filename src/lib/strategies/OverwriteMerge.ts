@@ -1,42 +1,53 @@
-import DefaultStrategy from './Default'
 import Diff, { ActionType } from '../Diff'
+import Scanner from '../Scanner'
+import OverwriteSyncProcess from './Overwrite'
 import * as Parallel from 'async-parallel'
 
-export default class OverwriteSyncProcess extends DefaultStrategy {
-  async reconcile(localDiff, serverDiff) {
-    const mappingsSnapshot = await this.mappings.getSnapshot()
+export default class MergeOverwrite extends OverwriteSyncProcess {
+  async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
+    // If there's no cache, diff the two trees directly
+    const newMappings = []
+    const localScanner = new Scanner(
+      this.serverTreeRoot,
+      this.localTreeRoot,
+      (serverItem, localItem) => {
+        if (localItem.type === serverItem.type && serverItem.canMergeWith(localItem)) {
+          newMappings.push([localItem, serverItem])
+          return true
+        }
+        return false
+      },
+      this.preserveOrder,
+      false
+    )
+    const serverScanner = new Scanner(
+      this.localTreeRoot,
+      this.serverTreeRoot,
+      (localItem, serverItem) => {
+        if (serverItem.type === localItem.type && serverItem.canMergeWith(localItem)) {
+          newMappings.push([localItem, serverItem])
+          return true
+        }
+        return false
+      },
+      this.preserveOrder,
+      false
+    )
+    const [localDiff, serverDiff] = await Promise.all([localScanner.run(), serverScanner.run()])
+    await Promise.all(newMappings.map(([localItem, serverItem]) => {
+      this.addMapping(this.server, localItem, serverItem.id)
+    }))
+    return {localDiff, serverDiff}
+  }
 
-    const serverRemovals = serverDiff.getActions().filter(action => action.type === ActionType.REMOVE)
+  async reconcile(localDiff: Diff, serverDiff: Diff):Promise<{serverPlan: Diff, localPlan: Diff}> {
+    const mappingsSnapshot = await this.mappings.getSnapshot()
 
     const localRemovals = localDiff.getActions().filter(action => action.type === ActionType.REMOVE)
     const localMoves = localDiff.getActions().filter(action => action.type === ActionType.MOVE)
 
     // Prepare server plan
-    let serverPlan = new Diff()
-    await Parallel.each(localDiff.getActions(), async action => {
-      if (action.type === ActionType.REMOVE) {
-        const concurrentRemoval = serverRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
-        if (concurrentRemoval) {
-          // Already deleted on server, do nothing.
-          return
-        }
-      }
-      if (action.type === ActionType.MOVE) {
-        const concurrentRemoval = serverRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
-        if (concurrentRemoval) {
-          // moved locally but removed on the server, recreate it on the server
-          serverPlan.commit({...action, type: ActionType.CREATE})
-          return
-        }
-      }
-
-      serverPlan.commit(action)
-    })
-
-    // Map payloads
-    serverPlan.map(mappingsSnapshot.LocalToServer, true, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
+    const serverPlan = new Diff()
 
     // Prepare server plan for reversing server changes
     await Parallel.each(serverDiff.getActions(), async action => {
@@ -84,7 +95,7 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
     return { localPlan, serverPlan}
   }
 
-  async loadChildren() {
+  async loadChildren() :Promise<void> {
     this.serverTreeRoot = await this.server.getBookmarksTree(true)
   }
 }

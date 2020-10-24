@@ -1,9 +1,11 @@
 import DefaultStrategy from './Default'
 import Diff, { ActionType } from '../Diff'
 import * as Parallel from 'async-parallel'
+import TResource from '../interfaces/Resource'
+import { Mapping } from '../Mappings'
 
 export default class SlaveSyncProcess extends DefaultStrategy {
-  async reconcile(localDiff, serverDiff) {
+  async reconcile(localDiff: Diff, serverDiff: Diff): Promise<{serverPlan: Diff, localPlan: Diff}> {
     const mappingsSnapshot = await this.mappings.getSnapshot()
 
     const serverMoves = serverDiff.getActions().filter(action => action.type === ActionType.MOVE)
@@ -12,7 +14,8 @@ export default class SlaveSyncProcess extends DefaultStrategy {
     const localRemovals = localDiff.getActions().filter(action => action.type === ActionType.REMOVE)
 
     // Prepare local plan
-    let localPlan = new Diff()
+    const localPlan = new Diff()
+
     await Parallel.each(serverDiff.getActions(), async action => {
       if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = localRemovals.find(a =>
@@ -38,10 +41,16 @@ export default class SlaveSyncProcess extends DefaultStrategy {
     // Map payloads
     localPlan.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
 
-    // Prepare server plan for reversing server changes
+    // Prepare server plan for reversing local changes
     await Parallel.each(localDiff.getActions(), async action => {
       if (action.type === ActionType.REMOVE) {
-        const concurrentRemoval = serverRemovals.find(a =>
+        let concurrentRemoval = serverRemovals.find(a =>
+          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
+        if (concurrentRemoval) {
+          // Already deleted locally, do nothing.
+          return
+        }
+        concurrentRemoval = serverRemovals.find(a =>
           action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
         if (concurrentRemoval) {
           // Already deleted locally, do nothing.
@@ -83,16 +92,12 @@ export default class SlaveSyncProcess extends DefaultStrategy {
     return { localPlan, serverPlan}
   }
 
-  async execute(resource, plan, mappings, isLocalToServer) {
+  async execute(resource: TResource, plan:Diff, mappings:Mapping, isLocalToServer: boolean): Promise<void> {
     const run = (action) => this.executeAction(resource, action, isLocalToServer)
 
     await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run)
     // Don't map here in slave mode!
     await Parallel.each(plan.getActions(ActionType.MOVE), run, 1) // Don't run in parallel for weird hierarchy reversals
     await Parallel.each(plan.getActions(ActionType.REMOVE), run)
-  }
-
-  async loadChildren() {
-    this.serverTreeRoot = await this.server.getBookmarksTree(true)
   }
 }
