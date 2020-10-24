@@ -486,10 +486,11 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
               return { newFolder, child, folder}
             } else {
               // get the bookmark from the list we've fetched above
+              // which might either be Bookmark[] or a raw bookmark list response with no parentId but a folders array
               let childBookmark = childBookmarks.find(
                 (bookmark) =>
                   String(bookmark.id) === String(child.id) &&
-                  String(bookmark.parentId) === String(tree.id)
+                  (!bookmark.parentId || String(bookmark.parentId) === String(tree.id))
               )
               if (!childBookmark) {
                 throw new Error(
