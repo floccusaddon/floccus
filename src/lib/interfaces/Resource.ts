@@ -2,7 +2,7 @@ import { Bookmark, Folder, TItem } from '../Tree'
 import Ordering from './Ordering'
 
 export interface IResource {
-  getBookmarksTree():Promise<Folder>
+  getBookmarksTree(loadAll?: boolean):Promise<Folder>
   createBookmark(bookmark: Bookmark):Promise<string|number>
   updateBookmark(bookmark: Bookmark):Promise<void>
   removeBookmark(bookmark:Bookmark):Promise<void>

@@ -314,7 +314,7 @@ export class Folder {
     return resource.removeFolder(this)
   }
 
-  static hydrate(obj: {id: string|number, parentId?: string|number, title: string, children: any[]}): Folder {
+  static hydrate(obj: {id: string|number, parentId?: string|number, title?: string, children: any[]}): Folder {
     return new Folder({
       ...obj,
       children: obj.children

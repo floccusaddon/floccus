@@ -91,4 +91,8 @@ export default class SlaveSyncProcess extends DefaultStrategy {
     await Parallel.each(plan.getActions(ActionType.MOVE), run, 1) // Don't run in parallel for weird hierarchy reversals
     await Parallel.each(plan.getActions(ActionType.REMOVE), run)
   }
+
+  async loadChildren() {
+    this.serverTreeRoot = await this.server.getBookmarksTree(true)
+  }
 }
