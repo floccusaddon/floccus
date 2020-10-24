@@ -469,7 +469,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
             ).then((json) => json.data)
         ),
       ])
-      const recurseChildFolders = async(tree:Folder, childFolders:IChildFolder[], childrenOrder:IChildOrderItem[], layers:number) => {
+      const recurseChildFolders = async(tree:Folder, childFolders:IChildFolder[], childrenOrder:IChildOrderItem[], childBookmarks:any[], layers:number) => {
         const folders = await Parallel.map(
           childrenOrder,
           async(child) => {
@@ -499,6 +499,9 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
                   ])
                 )
               }
+              if (!(childBookmark instanceof Bookmark)) {
+                childBookmark = new Bookmark(childBookmark)
+              }
               childBookmark = childBookmark.clone()
               childBookmark.id = childBookmark.id + ';' + tree.id
               childBookmark.parentId = tree.id
@@ -517,14 +520,19 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
             if (typeof folder.children === 'undefined') {
               folder.children = await this._getChildFolders(folder.id, nextLayer)
             }
+            const childBookmarks = this.list ||
+            await this.sendRequest(
+              'GET',
+              `index.php/apps/bookmarks/public/rest/v2/bookmark?folder=${newFolder.id}&page=-1`
+            ).then((json) => json.data)
 
             // ... and recurse
-            return recurseChildFolders(newFolder, folder.children, child.children, nextLayer)
+            return recurseChildFolders(newFolder, folder.children, child.children, childBookmarks, nextLayer)
           },
           3
         )
       }
-      await recurseChildFolders(tree, childFolders, childrenOrder, layers)
+      await recurseChildFolders(tree, childFolders, childrenOrder, childBookmarks, layers)
       return tree.children
     }
   }
