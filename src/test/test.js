@@ -2764,7 +2764,7 @@ describe('Floccus', function() {
           // Skipping this, because nextcloud adapter currently
           // isn't able to track bookmarks across dirs, thus in this
           // scenario both bookmarks survive :/
-          it.skip('should propagate moves using "last write wins"', async function() {
+          it('should propagate moves using "last write wins"', async function() {
             const localRoot = account1.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
@@ -2781,7 +2781,9 @@ describe('Floccus', function() {
             })
             const tree1 = await account1.localTree.getBookmarksTree(true)
             await account1.sync()
+            expect(account2.getData().error).to.not.be.ok
             await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
 
             const serverTreeAfterFirstSync = await getAllBookmarks(account1)
             const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
