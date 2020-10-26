@@ -118,13 +118,14 @@ export default class Scanner {
       let createAction, removeAction
 
       // First find direct matches (avoids glitches when folders and their contents have been moved)
-      createActions = this.diff.getActions().filter((action) => action.type === ActionType.CREATE)
+      createActions = this.diff.getActions(ActionType.CREATE)
       while (!reconciled && (createAction = createActions.shift())) {
         const createdItem = createAction.payload
-        removeActions = this.diff.getActions().filter(action => action.type === ActionType.REMOVE)
+        removeActions = this.diff.getActions(ActionType.REMOVE)
         while (!reconciled && (removeAction = removeActions.shift())) {
           const removedItem = removeAction.payload
-          if (this.mergeable(removedItem, createdItem)) {
+          // We also allow canMergeWith here, because e.g. for NextcloudFolders the id of moved bookmarks changes
+          if (this.mergeable(removedItem, createdItem) || (removedItem.type === 'bookmark' && removedItem.canMergeWith(createdItem))) {
             this.diff.retract(createAction)
             this.diff.retract(removeAction)
             this.diff.commit({
@@ -141,10 +142,10 @@ export default class Scanner {
       }
 
       // Then find descendant matches
-      createActions = this.diff.getActions().filter((action) => action.type === ActionType.CREATE)
+      createActions = this.diff.getActions(ActionType.CREATE)
       while (!reconciled && (createAction = createActions.shift())) {
         const createdItem = createAction.payload
-        removeActions = this.diff.getActions().filter(action => action.type === ActionType.REMOVE)
+        removeActions = this.diff.getActions(ActionType.REMOVE)
         while (!reconciled && (removeAction = removeActions.shift())) {
           const removedItem = removeAction.payload
           const oldItem = removedItem.findItemFilter(createdItem.type, item => this.mergeable(item, createdItem))

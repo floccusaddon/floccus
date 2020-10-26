@@ -375,7 +375,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
   }
 
   async getCompleteBookmarksTree():Promise<Folder> {
-    let tree = new Folder({ id: '-1', })
+    let tree = new Folder({ id: -1, })
     if (this.server.serverRoot) {
       tree = await this._findServerRoot()
     }

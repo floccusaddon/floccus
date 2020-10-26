@@ -123,7 +123,7 @@ export default class Diff {
 
   getActions(type?: TActionType):Action[] {
     if (type) {
-      return this.actions[type]
+      return this.actions[type].slice()
     }
     return [].concat(
       this.actions[ActionType.UPDATE],
@@ -185,25 +185,36 @@ export default class Diff {
         })
       }
 
-      if ('oldItem' in action && !isLocalToServer && action.type !== ActionType.MOVE) {
-        const payload = action.payload.clone()
-        payload.id = action.oldItem.id
-        payload.parentId = action.oldItem.parentId
-        const oldItem = action.oldItem.clone()
-        oldItem.id = action.payload.id
-        oldItem.parentId = action.payload.parentId
-        action.oldItem = oldItem
-        action.payload = payload
-      } else {
-        const item = action.payload.clone()
-        item.id = mappings[item.type ][item.id]
-        if (typeof item.parentId !== 'undefined' && typeof mappings.folder[item.parentId] === 'undefined') {
-          throw new Error('Cannot map parentId:' + item.parentId)
-        }
-        item.parentId = mappings.folder[item.parentId]
+      // needed because we set oldItem in the first section, so we wouldn't know anymore if it was set before
+      const oldItem = action.oldItem
 
-        action.oldItem = action.payload
-        action.payload = item
+      // We have two sections here, because we want to be able to take IDs from oldItem even for moves
+      // but not parentIds (which do change during moves, obviously)
+
+      if (oldItem && !isLocalToServer) {
+        const oldId = action.oldItem.id
+        const newId = action.payload.id
+        action.oldItem = action.oldItem.clone()
+        action.payload = action.payload.clone()
+        action.payload.id = oldId
+        action.oldItem.id = newId
+      } else {
+        const newPayload = action.payload.clone()
+        newPayload.id = mappings[newPayload.type][newPayload.id]
+        action.oldItem = action.payload.clone()
+        action.payload = newPayload
+      }
+
+      if (oldItem && !isLocalToServer && action.type !== ActionType.MOVE) {
+        const oldParent = action.oldItem.parentId
+        const newParent = action.payload.parentId
+        action.payload.parentId = oldParent
+        action.oldItem.parentId = newParent
+      } else {
+        if (typeof action.payload.parentId !== 'undefined' && typeof mappings.folder[action.payload.parentId] === 'undefined') {
+          throw new Error('Cannot map parentId:' + action.payload.parentId)
+        }
+        action.payload.parentId = mappings.folder[action.payload.parentId]
       }
     })
   }
