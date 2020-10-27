@@ -189,9 +189,10 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
 
   async obtainLock():Promise<void> {
     let rStatus
+    const startDate = Date.now()
     const maxTimeout = 30 * 60 * 1000 // Give up after 0.5h
     const base = 1.25
-    for (let i = 0; 1 / Math.log(base) * base ** i * 1000 < maxTimeout; i++) {
+    for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
       rStatus = await this.checkLock()
       if (rStatus === 200) {
         await this.timeout(base ** i * 1000)
