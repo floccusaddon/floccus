@@ -1,5 +1,24 @@
 # Changelog
 
+## v4.4.3
+
+### Fixed
+
+- Fix lock timeout to 0.5h
+- Detect moves of bookmarks even when ID changed
+- Fix unidirectional sync strategies when no cache is available
+- NextcloudFolders: Fix _getChildren for old APIs
+- Fix Merge  strategy
+- NextcloudFolders: Performance improvements
+- Add 403 to auth fail message
+
+## v4.4.2
+
+### Fixed
+- Update some unclear wording in i18n strings
+- Fix "sync up" and "sync down" buttons
+- Reset cache on update to fix issues from v4.4.0
+
 ##  v4.4.1
 
 ### Fixed

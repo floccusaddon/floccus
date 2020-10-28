@@ -224,4 +224,8 @@ export default class MergeSyncProcess extends Default {
           })
       })
   }
+
+  async loadChildren():Promise<void> {
+    this.serverTreeRoot = await this.server.getBookmarksTree(true)
+  }
 }

@@ -614,10 +614,6 @@ export default class SyncProcess {
       serverItem.children,
       child => this.loadChildren(child, mappingsSnapshot)
     )
-
-    // recalculate hash
-    serverItem.hashValue = {}
-    await serverItem.hash(true)
   }
 
   async folderHasChanged(localItem: TItem, cacheItem: TItem, serverItem: TItem):Promise<boolean> {

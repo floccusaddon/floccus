@@ -83,6 +83,15 @@ export default class Controller {
         currentVersion: packageJson.version
       })
 
+      // TODO: Remove this before next release.
+      const accounts = await Account.getAllAccounts()
+      await Promise.all(accounts.map(account => account.init()))
+      await Promise.all(
+        accounts.map(account =>
+          account.setData({ ...account.getData() })
+        )
+      )
+
       const packageVersion = packageJson.version.split('.')
       const lastVersion = d.currentVersion ? d.currentVersion.split('.') : []
       if (packageVersion[0] !== lastVersion[0] || packageVersion[1] !== lastVersion[1]) {

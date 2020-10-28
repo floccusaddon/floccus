@@ -132,7 +132,8 @@ describe('Floccus', function() {
             }
             await account.init()
             if (ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs) {
-              account.server.hasFeatureHashing = false
+              // account.server.hasFeatureHashing = false
+              account.server.hasFeatureChildren = false
             }
           })
           afterEach('clean up account', async function() {
