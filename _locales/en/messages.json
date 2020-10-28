@@ -51,7 +51,7 @@
     "message": "E017: Network error: Check your network connection and your account details"
   },
   "Error018": {
-    "message": "E018: Couldn't authenticate with the server"
+    "message": "E018: Couldn't authenticate with the server."
   },
   "Error019": {
     "message": "E019: HTTP status $1. Failed $2 request. Check your server configuration and log."
@@ -79,6 +79,9 @@
   },
   "Error027": {
     "message": "E027: Sync process was interrupted"
+  },
+  "Error028": {
+    "message": "E028: Couldn't authenticate with the server. If you are using 2FA, make sure to grant access to files as well."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
