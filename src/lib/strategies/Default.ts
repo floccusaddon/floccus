@@ -91,6 +91,17 @@ export default class SyncProcess {
     // mappings have been updated, reload
     mappingsSnapshot = await this.mappings.getSnapshot()
 
+    // Weed out modifications to bookmarks root
+    const absoluteRootFolder = await LocalTree.getAbsoluteRootFolder()
+    localPlan
+      .getActions()
+      .filter(action => {
+        return action.payload.id === absoluteRootFolder.id || action.payload.parentId === absoluteRootFolder.id
+      })
+      .forEach(action => {
+        localPlan.retract(action)
+      })
+
     await Promise.all([
       this.execute(this.server, serverPlan, mappingsSnapshot.LocalToServer, true),
       this.execute(this.localTree, localPlan, mappingsSnapshot.ServerToLocal, false),
@@ -521,20 +532,6 @@ export default class SyncProcess {
 
   async executeReorderings(resource:OrderFolderResource, reorderings:Diff):Promise<void> {
     Logger.log({ reorderings })
-
-    const absoluteRootFolder = await LocalTree.getAbsoluteRootFolder()
-    reorderings
-      .getActions(ActionType.REORDER)
-      .map(a => a as ReorderAction)
-      .filter(action => {
-        if (resource === this.localTree) {
-          return action.payload.id === absoluteRootFolder.id
-        }
-        return false
-      })
-      .forEach(action => {
-        reorderings.retract(action)
-      })
 
     await Parallel.each(reorderings.getActions(), async(action) => {
       const item = action.payload
