@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.4.4
+
+### Fixed
+
+- Fix: Ignore changes to browser root folder
+
 ## v4.4.3
 
 ### Fixed
