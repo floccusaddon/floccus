@@ -1679,7 +1679,7 @@ describe('Floccus', function() {
             )
           })
           it('should sync root folder successfully', async function() {
-            const root = await LocalTree.getAbsoluteRootFolder()
+            const [root] = await browser.bookmarks.getTree()
             await account.setData({...account.getData(), localRoot: root.id})
 
             expect(
@@ -1708,7 +1708,7 @@ describe('Floccus', function() {
             const tree = await getAllBookmarks(account)
             expectTreeEqual(
               tree,
-              Folder.hydrate(await LocalTree.getAbsoluteRootFolder()),
+              Folder.hydrate((await LocalTree.getAbsoluteRootFolder())[0]),
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
