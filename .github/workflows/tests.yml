@@ -74,6 +74,11 @@ jobs:
             floccus-adapter: nextcloud-folders-old
             test-name: benchmark root
             browsers: chrome
+          - app-version: stable
+            server-version: 20
+            floccus-adapter: fake-noCache
+            test-name: test
+            browsers: chrome
 
 
     name: ${{matrix.floccus-adapter}}:${{ matrix.test-name}} nc@${{ matrix.server-version }} bm@${{ matrix.app-version }} ${{ matrix.browsers }}

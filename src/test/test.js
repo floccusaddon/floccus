@@ -32,6 +32,10 @@ describe('Floccus', function() {
   ACCOUNTS = [
     Account.getDefaultValues('fake'),
     {
+      ...Account.getDefaultValues('fake'),
+      noCache: true,
+    },
+    {
       type: 'nextcloud-legacy',
       url: SERVER,
       ...CREDENTIALS
@@ -84,7 +88,7 @@ describe('Floccus', function() {
 
   ACCOUNTS.forEach(ACCOUNT_DATA => {
     describe(
-      `${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs ? '-old' : ''} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`,
+      `${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs ? '-old' : ACCOUNT_DATA.noCache ? '-noCache' : ''} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`,
       function() {
         let account
         beforeEach('set up account', async function() {
@@ -118,7 +122,7 @@ describe('Floccus', function() {
         })
       })
     describe(
-      `${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs ? '-old' : ''} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Sync`,
+      `${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs ? '-old' : ACCOUNT_DATA.noCache ? '-noCache' : ''} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Sync`,
       function() {
         context('with one client', function() {
           let account
@@ -134,6 +138,14 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs) {
               // account.server.hasFeatureHashing = false
               account.server.hasFeatureChildren = false
+            }
+            if (ACCOUNT_DATA.noCache) {
+              account.storage.setCache = () => {
+                // noop
+              }
+              account.storage.setMappings = () => {
+                // noop
+              }
             }
           })
           afterEach('clean up account', async function() {
@@ -250,6 +262,9 @@ describe('Floccus', function() {
             )
           })
           it('should update the server on local removals', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
             expect(
               (await getAllBookmarks(account)).children
             ).to.have.lengthOf(0)
@@ -394,6 +409,9 @@ describe('Floccus', function() {
             )
           })
           it('should update local bookmarks on server changes', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
             const adapter = account.server
 
             const serverTree = await getAllBookmarks(account)
@@ -453,6 +471,9 @@ describe('Floccus', function() {
             )
           })
           it('should update local bookmarks on server removals', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
             const adapter = account.server
 
             const serverTree = await getAllBookmarks(account)
@@ -689,6 +710,9 @@ describe('Floccus', function() {
             )
           })
           it('should not fail when moving both folders and contents', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
             expect(
               (await getAllBookmarks(account)).children
             ).to.have.lengthOf(0)
@@ -756,6 +780,9 @@ describe('Floccus', function() {
             )
           })
           it('should not fail when both moving folders and deleting their contents', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
             expect(
               (await getAllBookmarks(account)).children
             ).to.have.lengthOf(0)
@@ -874,6 +901,9 @@ describe('Floccus', function() {
             )
           })
           it('should be able to delete a server folder', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
             expect(
               (await getAllBookmarks(account)).children
             ).to.have.lengthOf(0)
@@ -911,6 +941,9 @@ describe('Floccus', function() {
             )
           })
           it('should be able to delete a local folder', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
             const adapter = account.server
             expect(
               (await getAllBookmarks(account)).children
@@ -1370,6 +1403,9 @@ describe('Floccus', function() {
             if (APP_VERSION !== 'stable') {
               this.skip()
             }
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
             const localRoot = account.getData().localRoot
 
             expect(
@@ -1641,6 +1677,9 @@ describe('Floccus', function() {
           it('should synchronize ordering', async function() {
             if (ACCOUNT_DATA.type === 'nextcloud-legacy') {
               this.skip()
+            }
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
             }
             expect(
               (await getAllBookmarks(account)).children
@@ -2888,7 +2927,7 @@ describe('Floccus', function() {
   })
 
   ACCOUNTS.forEach(ACCOUNT_DATA => {
-    describe(`${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs ? '-old' : ''} benchmark ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'}`, function() {
+    describe(`${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs ? '-old' : ACCOUNT_DATA.noCache ? '-noCache' : ''} benchmark ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'}`, function() {
       context('with two clients', function() {
         this.timeout(60 * 60000) // timeout after 20mins
         let account1, account2
@@ -2907,6 +2946,20 @@ describe('Floccus', function() {
           if (ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs) {
             account1.server.hasFeatureHashing = false
             account2.server.hasFeatureHashing = false
+          }
+          if (ACCOUNT_DATA.noCache) {
+            account1.storage.setCache = () => {
+              // noop
+            }
+            account1.storage.setMappings = () => {
+              // noop
+            }
+            account2.storage.setCache = () => {
+              // noop
+            }
+            account2.storage.setMappings = () => {
+              // noop
+            }
           }
         })
         afterEach('clean up accounts', async function() {
