@@ -1708,7 +1708,7 @@ describe('Floccus', function() {
             const tree = await getAllBookmarks(account)
             expectTreeEqual(
               tree,
-              Folder.hydrate((await LocalTree.getAbsoluteRootFolder())[0]),
+              Folder.hydrate((await browser.bookmarks.getTree())[0]),
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
