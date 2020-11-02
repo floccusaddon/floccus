@@ -6,7 +6,6 @@ import Account from '../lib/Account'
 import { Bookmark, Folder } from '../lib/Tree'
 import browser from '../lib/browser-api'
 import * as AsyncParallel from 'async-parallel'
-import LocalTree from '../lib/LocalTree'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
