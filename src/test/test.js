@@ -1713,6 +1713,9 @@ describe('Floccus', function() {
               newRoot,
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
+
+            await account.setData({...account.getData(), localRoot: barFolder.id})
+            account = await Account.get(account.id)
           })
           it('should synchronize ordering', async function() {
             if (ACCOUNT_DATA.type === 'nextcloud-legacy') {
