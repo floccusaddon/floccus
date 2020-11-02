@@ -151,7 +151,11 @@ describe('Floccus', function() {
           })
           afterEach('clean up account', async function() {
             if (!account) return
-            await browser.bookmarks.removeTree(account.getData().localRoot)
+            try {
+              await browser.bookmarks.removeTree(account.getData().localRoot)
+            } catch (e) {
+              console.error(e)
+            }
             if (ACCOUNT_DATA.type !== 'fake') {
               await account.setData({ ...account.getData(), serverRoot: null })
               const tree = await getAllBookmarks(account)
@@ -1704,7 +1708,7 @@ describe('Floccus', function() {
             const tree = await getAllBookmarks(account)
             expectTreeEqual(
               tree,
-              await LocalTree.getAbsoluteRootFolder(),
+              Folder.hydrate(await LocalTree.getAbsoluteRootFolder()),
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
