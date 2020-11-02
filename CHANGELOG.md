@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.4.5
+
+### Fixed
+
+- Fix: Ignore changes to browser root folder
+- Fix mapping in SlaveMerge strategy
+
 ## v4.4.4
 
 ### Fixed
