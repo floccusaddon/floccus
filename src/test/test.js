@@ -6,6 +6,7 @@ import Account from '../lib/Account'
 import { Bookmark, Folder } from '../lib/Tree'
 import browser from '../lib/browser-api'
 import * as AsyncParallel from 'async-parallel'
+import LocalTree from '../lib/LocalTree'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -1673,7 +1674,40 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
+          it('should sync root folder successfully', async function() {
+            const root = await LocalTree.getAbsoluteRootFolder()
+            await account.setData({...account.getData(), localRoot: root.id})
 
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: root.children[0].id
+            })
+            await browser.bookmarks.create({
+              title: 'foo',
+              parentId: barFolder.id
+            })
+            await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: barFolder.id
+            })
+            await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
+
+            await account.sync() // propagate to server -- if we had cached the unacceptables, they'd be deleted now
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              await LocalTree.getAbsoluteRootFolder(),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+          })
           it('should synchronize ordering', async function() {
             if (ACCOUNT_DATA.type === 'nextcloud-legacy') {
               this.skip()

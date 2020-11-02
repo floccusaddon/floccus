@@ -2,6 +2,7 @@ import { Folder, TItem, ItemType } from './Tree'
 import { Mapping } from './Mappings'
 import Ordering from './interfaces/Ordering'
 import batchingToposort from 'batching-toposort'
+import Logger from './Logger'
 
 export const ActionType = {
   CREATE: 'CREATE',
@@ -177,6 +178,8 @@ export default class Diff {
       if (!filter(action)) {
         return
       }
+
+      Logger.log('Mapping action ' + action.type + (isLocalToServer ? 'LocalToServer' : 'ServerToLocal'), {...action})
 
       if (action.type === ActionType.REORDER) {
         action.oldOrder = action.order
