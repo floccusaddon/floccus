@@ -116,7 +116,8 @@ const VERSION = require('../package.json').version
       const match = fin.match(/duration: (\d+):(\d+)/i)
       if (match) {
         const data = {
-          testSuiteTime: parseInt(match[1]) + parseInt(match[2]) / 60
+          testSuiteTime: parseInt(match[1]) + parseInt(match[2]) / 60,
+          normalizerTime: await getNormalizerTime(),
         }
         const label =
           process.env['FLOCCUS_TEST'] +
@@ -139,3 +140,21 @@ const VERSION = require('../package.json').version
     process.exit(1)
   }
 })()
+
+async function getNormalizerTime() {
+  const start = Date.now()
+  fibonacci(34) // should take about 3s
+  await saveStats.getData()
+  const end = Date.now()
+  return (end - start) / 1000
+}
+
+function fibonacci(num) {
+  if (num === 1) {
+    return 0
+  }
+  if (num === 2) {
+    return 1
+  }
+  return fibonacci(num - 1) + fibonacci(num - 2)
+}

@@ -17,4 +17,10 @@ async function save(sha, label, data) {
   })
 }
 
+save.getData = async function() {
+  if (!process.env.GIST_TOKEN) return
+  gistClient.setToken(process.env['GIST_TOKEN'])
+  await gistClient.getOneById(GIST_ID)
+}
+
 module.exports = save
