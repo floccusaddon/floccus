@@ -4,6 +4,7 @@ const { Builder } = require('selenium-webdriver')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
 const saveStats = require('./save-stats')
+const fetch = require('node-fetch')
 const VERSION = require('../package.json').version
 ;(async function() {
   let driver = await new Builder()
@@ -69,7 +70,7 @@ const VERSION = require('../package.json').version
         throw new Error('Unknown browser')
     }
 
-    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=http://${process.env.TEST_HOST}&app_version=http://${process.env.APP_VERSION}`
+    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=http://${process.env.TEST_HOST}&app_version=${process.env.APP_VERSION}`
 
     await driver.get(testUrl)
 
@@ -144,7 +145,9 @@ const VERSION = require('../package.json').version
 async function getNormalizerTime() {
   const start = Date.now()
   fibonacci(34) // should take about 3s
-  await saveStats.getData()
+  for (let i = 0; i < 30; i++) { // dunno how long this takes, prolly not that long
+    await fetch('http://' + process.env.TEST_HOST)
+  }
   const end = Date.now()
   return (end - start) / 1000
 }
