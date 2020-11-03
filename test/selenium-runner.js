@@ -144,8 +144,8 @@ const VERSION = require('../package.json').version
 
 async function getNormalizerTime() {
   const start = Date.now()
-  fibonacci(34) // should take about 3s
-  for (let i = 0; i < 30; i++) { // dunno how long this takes, prolly not that long
+  fibonacci(33) // get a feel for how fast this CPU is rn
+  for (let i = 0; i < 30; i++) { // get a feel for how fast this network card is rns
     await fetch('http://' + process.env.TEST_HOST)
   }
   const end = Date.now()
