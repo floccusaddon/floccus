@@ -92,15 +92,7 @@ export default class SyncProcess {
     mappingsSnapshot = await this.mappings.getSnapshot()
 
     // Weed out modifications to bookmarks root
-    const absoluteRootFolder = await LocalTree.getAbsoluteRootFolder()
-    localPlan
-      .getActions()
-      .filter(action => {
-        return action.payload.id === absoluteRootFolder.id || action.payload.parentId === absoluteRootFolder.id
-      })
-      .forEach(action => {
-        localPlan.retract(action)
-      })
+    await this.filterOutRootFolderActions(localPlan)
 
     await Promise.all([
       this.execute(this.server, serverPlan, mappingsSnapshot.LocalToServer, true),
@@ -120,6 +112,8 @@ export default class SyncProcess {
     // localReorder.add(serverPlan)
     serverReorder.add(serverPlan)
     serverReorder.map(mappingsSnapshot.LocalToServer, true, (action) => action.type === ActionType.REORDER)
+
+    await this.filterOutRootFolderActions(localReorder)
 
     if ('orderFolder' in this.server) {
       await Promise.all([
@@ -163,6 +157,19 @@ export default class SyncProcess {
     await Promise.all(
       duplicates.map(bm => this.localTree.removeBookmark(bm))
     )
+  }
+
+  async filterOutRootFolderActions(plan: Diff):Promise<void> {
+    // Weed out modifications to bookmarks root
+    const absoluteRootFolder = await LocalTree.getAbsoluteRootFolder()
+    plan
+      .getActions()
+      .filter(action => {
+        return action.payload.id === absoluteRootFolder.id || action.payload.parentId === absoluteRootFolder.id
+      })
+      .forEach(action => {
+        plan.retract(action)
+      })
   }
 
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {

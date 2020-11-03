@@ -71,7 +71,7 @@ export default class MergeSlave extends Slave {
     })
 
     // Map payloads
-    localPlan.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
+    localPlan.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type !== ActionType.REORDER)// && action.type !== ActionType.MOVE)
 
     const serverPlan = new Diff() // empty, we don't wanna change anything here
     return { localPlan, serverPlan}
