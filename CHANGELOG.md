@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.4.6
+
+### Fixed
+
+- NextcloudFolders: Remove webdav locking
+
 ## v4.4.5
 
 ### Fixed
