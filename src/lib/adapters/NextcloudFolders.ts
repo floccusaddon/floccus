@@ -413,6 +413,9 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       return
     }
     const folder = this.tree.findFolder(folderId)
+    if (!folder) {
+      throw new Error('Could not find folder for loadFolderChildren')
+    }
     if (folder.loaded) {
       return folder.clone(true).children
     }
@@ -533,6 +536,9 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     Logger.log('(nextcloud-folders)UPDATEFOLDER', { folder })
     const id = folder.id
     const oldFolder = this.tree.findFolder(folder.id)
+    if (!oldFolder) {
+      throw new Error(browser.i18n.getMessage('Error006'))
+    }
     if (oldFolder.findFolder(folder.parentId)) {
       throw new Error('Detected folder loop creation')
     }
