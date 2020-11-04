@@ -100,147 +100,16 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     })
   }
 
-  getLockUrl():string {
-    return this.server.url + '/remote.php/webdav/.floccus-' + Base64.toBase64(this.server.serverRoot) + '.lock'
+  async onSyncStart(): Promise<void> {
+    // noop
   }
 
-  timeout(ms:number):Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
+  async onSyncComplete(): Promise<void> {
+    // noop
   }
 
-  async onSyncStart():Promise<void> {
-    Logger.log('onSyncStart: begin')
-    await this.obtainLock()
-  }
-
-  async onSyncFail():Promise<void> {
-    Logger.log('onSyncFail')
-    await this.freeLock()
-  }
-
-  async onSyncComplete():Promise<void> {
-    Logger.log('onSyncComplete')
-    await this.freeLock()
-  }
-
-  async downloadFile(fullURL:string):Promise<Response> {
-    let res
-    const authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
-
-    try {
-      res = await fetch(fullURL, {
-        method: 'GET',
-        credentials: 'omit',
-        headers: {
-          Authorization: 'Basic ' + authString
-        }
-      })
-    } catch (e) {
-      throw new Error(browser.i18n.getMessage('Error017'))
-    }
-
-    if (res.status === 401 || res.status === 403) {
-      throw new Error(browser.i18n.getMessage('Error028'))
-    }
-    if (!res.ok && res.status !== 404) {
-      throw new Error(browser.i18n.getMessage('Error019', [res.status, 'GET']))
-    }
-
-    return res
-  }
-
-  async uploadFile(url:string, content_type:string, data:string):Promise<void> {
-    const authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
-    let res
-    try {
-      res = await fetch(url, {
-        method: 'PUT',
-        credentials: 'omit',
-        headers: {
-          'Content-Type': content_type,
-          Authorization: 'Basic ' + authString
-        },
-        body: data
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-      throw new Error(browser.i18n.getMessage('Error017'))
-    }
-    if (res.status === 401 || res.status === 403) {
-      throw new Error(browser.i18n.getMessage('Error018') + ' ' + browser.i18n.getMessage('DescriptionFilesPermission'))
-    }
-    if (!res.ok) {
-      throw new Error(browser.i18n.getMessage('Error019', [res.status, 'PUT']))
-    }
-  }
-
-  async checkLock(): Promise<number> {
-    const fullURL = this.getLockUrl()
-    Logger.log(fullURL)
-
-    const response = await this.downloadFile(fullURL)
-    return response.status
-  }
-
-  async obtainLock():Promise<void> {
-    let rStatus
-    const startDate = Date.now()
-    const maxTimeout = 30 * 60 * 1000 // Give up after 0.5h
-    const base = 1.25
-    for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
-      rStatus = await this.checkLock()
-      if (rStatus === 200) {
-        await this.timeout(base ** i * 1000)
-      } else if (rStatus === 404) {
-        break
-      }
-    }
-
-    if (rStatus === 200) {
-      throw new Error(
-        browser.i18n.getMessage('Error023', this.getLockUrl())
-      )
-    } else if (rStatus === 404) {
-      const fullURL = this.getLockUrl()
-      Logger.log(fullURL)
-      await this.uploadFile(
-        fullURL,
-        'text/html',
-        '<html><body>I am a lock file</body></html>'
-      )
-    } else {
-      throw new Error(
-        browser.i18n.getMessage('Error024', [
-          rStatus,
-          this.getLockUrl()
-        ])
-      )
-    }
-  }
-
-  async freeLock():Promise<void> {
-    const fullUrl = this.getLockUrl()
-
-    const authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
-
-    try {
-      await fetch(fullUrl, {
-        method: 'DELETE',
-        credentials: 'omit',
-        headers: {
-          Authorization: 'Basic ' + authString
-        }
-      })
-    } catch (e) {
-      Logger.log(e)
-    }
+  async onSyncFail(): Promise<void> {
+    // noop
   }
 
   async getBookmarksList():Promise<Bookmark[]> {
@@ -544,6 +413,9 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       return
     }
     const folder = this.tree.findFolder(folderId)
+    if (!folder) {
+      throw new Error('Could not find folder for loadFolderChildren')
+    }
     if (folder.loaded) {
       return folder.clone(true).children
     }
@@ -664,6 +536,9 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     Logger.log('(nextcloud-folders)UPDATEFOLDER', { folder })
     const id = folder.id
     const oldFolder = this.tree.findFolder(folder.id)
+    if (!oldFolder) {
+      throw new Error(browser.i18n.getMessage('Error006'))
+    }
     if (oldFolder.findFolder(folder.parentId)) {
       throw new Error('Detected folder loop creation')
     }

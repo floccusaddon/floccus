@@ -4,6 +4,7 @@ const { Builder } = require('selenium-webdriver')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
 const saveStats = require('./save-stats')
+const fetch = require('node-fetch')
 const VERSION = require('../package.json').version
 ;(async function() {
   let driver = await new Builder()
@@ -69,7 +70,7 @@ const VERSION = require('../package.json').version
         throw new Error('Unknown browser')
     }
 
-    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=http://${process.env.TEST_HOST}&app_version=http://${process.env.APP_VERSION}`
+    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=http://${process.env.TEST_HOST}&app_version=${process.env.APP_VERSION}`
 
     await driver.get(testUrl)
 
@@ -116,7 +117,8 @@ const VERSION = require('../package.json').version
       const match = fin.match(/duration: (\d+):(\d+)/i)
       if (match) {
         const data = {
-          testSuiteTime: parseInt(match[1]) + parseInt(match[2]) / 60
+          testSuiteTime: parseInt(match[1]) + parseInt(match[2]) / 60,
+          normalizerTime: await getNormalizerTime(),
         }
         const label =
           process.env['FLOCCUS_TEST'] +
@@ -139,3 +141,23 @@ const VERSION = require('../package.json').version
     process.exit(1)
   }
 })()
+
+async function getNormalizerTime() {
+  const start = Date.now()
+  fibonacci(33) // get a feel for how fast this CPU is rn
+  for (let i = 0; i < 30; i++) { // get a feel for how fast this network card is rns
+    await fetch('http://' + process.env.TEST_HOST)
+  }
+  const end = Date.now()
+  return (end - start) / 1000
+}
+
+function fibonacci(num) {
+  if (num === 1) {
+    return 0
+  }
+  if (num === 2) {
+    return 1
+  }
+  return fibonacci(num - 1) + fibonacci(num - 2)
+}
