@@ -1,5 +1,5 @@
 import { ItemType } from '../Tree'
-import Diff, { Action, ActionType, MoveAction, ReorderAction } from '../Diff'
+import Diff, { Action, ActionType } from '../Diff'
 import Scanner from '../Scanner'
 import * as Parallel from 'async-parallel'
 import Default from './Default'
@@ -193,36 +193,8 @@ export default class MergeSyncProcess extends Default {
     return { localPlan, serverPlan}
   }
 
-  reconcileReorderings(plan:Diff, reverseMappings:Mapping, isLocalToServer: boolean) :void {
-    plan
-      .getActions(ActionType.REORDER)
-      .map(a => a as ReorderAction)
-      // MOVEs have oldItem from target tree and payload now mapped to target tree
-      // REORDERs have payload in source tree
-      .forEach(reorderAction => {
-        const childAwayMoves = plan.getActions(ActionType.MOVE)
-          .filter(move =>
-            (reorderAction.payload.id === reverseMappings[move.payload.type][move.oldItem.parentId]) &&
-            reorderAction.order.find(item => item.id === reverseMappings[move.payload.type ][move.payload.id] && item.type === move.payload.type)
-          )
-        const concurrentRemovals = plan.getActions(ActionType.REMOVE)
-          .filter(removal => reorderAction.order.find(item => item.id === reverseMappings[removal.payload.type ][removal.payload.id] && item.type === removal.payload.type))
-        reorderAction.order = reorderAction.order.filter(item =>
-          !childAwayMoves.find(move =>
-            item.id === reverseMappings[move.payload.type ][move.payload.id] && move.payload.type === item.type) &&
-          !concurrentRemovals.find(removal =>
-            item.id === reverseMappings[removal.payload.type ][removal.payload.id] && removal.payload.type === item.type)
-        )
-        plan.getActions(ActionType.MOVE)
-          .map(a => a as MoveAction)
-          .filter(move =>
-            reorderAction.payload.id === reverseMappings.folder[move.payload.parentId] &&
-            !reorderAction.order.find(item => item.id === reverseMappings[move.payload.type ][move.payload.id] && item.type === move.payload.type)
-          )
-          .forEach(a => {
-            reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: reverseMappings[a.payload.type ][a.payload.id] })
-          })
-      })
+  reconcileReorderings(targetTreePlan:Diff, sourceTreePlan:Diff, sourceToTargetMappings:Mapping, isLocalToServer: boolean) : void {
+    super.reconcileReorderings(targetTreePlan, sourceTreePlan, sourceToTargetMappings, true)
   }
 
   async loadChildren():Promise<void> {

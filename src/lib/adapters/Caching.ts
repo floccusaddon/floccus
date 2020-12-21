@@ -146,7 +146,7 @@ export default class CachingAdapter implements Adapter {
       const child = folder.findItem(item.type, item.id)
       if (!child || child.parentId !== folder.id) {
         throw new Error(
-          browser.i18n.getMessage('Error011', JSON.stringify(item))
+          browser.i18n.getMessage('Error011', id + ':' + JSON.stringify(item))
         )
       }
     })
@@ -154,13 +154,13 @@ export default class CachingAdapter implements Adapter {
       const item = order.find((item) => item.type === child.type && item.id === child.id)
       if (!item) {
         throw new Error(
-          browser.i18n.getMessage('Error012', JSON.stringify(item))
+          browser.i18n.getMessage('Error012') + ' ' + id + ':' + child.inspect()
         )
       }
     })
     if (order.length !== folder.children.length) {
       const diff = difference(folder.children.map(i => i.id), order.map(i => i.id))
-      throw new Error(browser.i18n.getMessage('Error012') + ' ' + JSON.stringify(diff))
+      throw new Error(browser.i18n.getMessage('Error012') + ' ' + id + ':' + JSON.stringify(diff))
     }
     const newChildren = []
     order.forEach(item => {

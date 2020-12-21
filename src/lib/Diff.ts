@@ -179,7 +179,7 @@ export default class Diff {
         return
       }
 
-      Logger.log('Mapping action ' + action.type + (isLocalToServer ? 'LocalToServer' : 'ServerToLocal'), {...action})
+      Logger.log('Mapping action ' + action.type + ' ' + (isLocalToServer ? 'LocalToServer' : 'ServerToLocal'), {...action})
 
       if (action.type === ActionType.REORDER) {
         action.oldOrder = action.order
@@ -217,6 +217,7 @@ export default class Diff {
         if (typeof action.payload.parentId !== 'undefined' && typeof mappings.folder[action.payload.parentId] === 'undefined') {
           throw new Error('Cannot map parentId:' + action.payload.parentId)
         }
+        action.oldItem.parentId = action.payload.parentId
         action.payload.parentId = mappings.folder[action.payload.parentId]
       }
     })

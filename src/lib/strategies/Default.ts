@@ -1,7 +1,7 @@
 import { Bookmark, Folder, TItem, ItemType } from '../Tree'
 import Logger from '../Logger'
 import browser from '../browser-api'
-import Diff, { Action, ActionType, MoveAction, ReorderAction } from '../Diff'
+import Diff, { Action, ActionType, CreateAction, MoveAction, ReorderAction } from '../Diff'
 import Scanner from '../Scanner'
 import * as Parallel from 'async-parallel'
 import { throttle } from 'throttle-debounce'
@@ -103,12 +103,12 @@ export default class SyncProcess {
     mappingsSnapshot = await this.mappings.getSnapshot()
 
     const localReorder = new Diff()
-    this.reconcileReorderings(localPlan, mappingsSnapshot.LocalToServer, true)
+    this.reconcileReorderings(localPlan, serverPlan, mappingsSnapshot.ServerToLocal, false)
     localReorder.add(localPlan)
     localReorder.map(mappingsSnapshot.ServerToLocal, false, (action) => action.type === ActionType.REORDER)
 
     const serverReorder = new Diff()
-    this.reconcileReorderings(serverPlan, mappingsSnapshot.ServerToLocal, false)
+    this.reconcileReorderings(serverPlan, localPlan, mappingsSnapshot.LocalToServer, true)
     // localReorder.add(serverPlan)
     serverReorder.add(serverPlan)
     serverReorder.map(mappingsSnapshot.LocalToServer, true, (action) => action.type === ActionType.REORDER)
@@ -472,7 +472,7 @@ export default class SyncProcess {
           const subPlan = new Diff
           action.oldItem.children.forEach((child) => subPlan.commit({ type: ActionType.CREATE, payload: child }))
           const mappingsSnapshot = await this.mappings.getSnapshot()[resource === this.localTree ? 'ServerToLocal' : 'LocalToServer']
-          subPlan.map(mappingsSnapshot, resource === this.localTree)
+          subPlan.map(mappingsSnapshot, resource !== this.localTree)
           await this.execute(resource, subPlan, mappingsSnapshot, isLocalToServer)
         }
 
@@ -486,7 +486,7 @@ export default class SyncProcess {
             order: item.children.map(i => ({ type: i.type, id: i.id }))
           })
           const mappingsSnapshot = await this.mappings.getSnapshot()[resource === this.localTree ? 'ServerToLocal' : 'LocalToServer']
-          subOrder.map(mappingsSnapshot, resource === this.localTree)
+          subOrder.map(mappingsSnapshot, resource !== this.localTree)
           if ('orderFolder' in resource) {
             await this.executeReorderings(resource, subOrder)
           }
@@ -505,34 +505,66 @@ export default class SyncProcess {
     }
   }
 
-  reconcileReorderings(plan:Diff, reverseMappings:Mapping, isLocalToServer: boolean) : void {
-    plan
+  reconcileReorderings(targetTreePlan:Diff, sourceTreePlan:Diff, sourceToTargetMappings:Mapping, isLocalToServer: boolean) : void {
+    targetTreePlan
       .getActions(ActionType.REORDER)
       .map(a => a as ReorderAction)
-      // MOVEs have oldItem from cacheTree and payload now mapped to target tree
-      // REORDERs have payload in source tree
+    // MOVEs have oldItem from cacheTree and payload now mapped to the individual target tree
+    // REORDERs have payload in source tree
       .forEach(reorderAction => {
-        const childAwayMoves = plan.getActions(ActionType.MOVE)
+        // Find Away-moves
+        const childAwayMoves = sourceTreePlan.getActions(ActionType.MOVE)
           .filter(move =>
-            (isLocalToServer ? String(reorderAction.payload.id) === String(move.oldItem.parentId) : String(reorderAction.payload.id) === String(reverseMappings[move.payload.type][move.oldItem.parentId])) &&
-            reorderAction.order.find(item => String(item.id) === String(reverseMappings[move.payload.type ][move.payload.id]) && item.type === move.payload.type)
+            isLocalToServer ? String(sourceToTargetMappings.folder[reorderAction.payload.id]) === String(move.oldItem.parentId) : String(reorderAction.payload.id) === String(move.oldItem.parentId) &&
+                  reorderAction.order.find(item => String(item.id) === String(move.payload.id) && item.type === move.payload.type)
           )
-        const concurrentRemovals = plan.getActions(ActionType.REMOVE)
-          .filter(removal => reorderAction.order.find(item => String(item.id) === String(reverseMappings[removal.payload.type][removal.payload.id]) && item.type === removal.payload.type))
-        reorderAction.order = reorderAction.order.filter(item =>
-          !childAwayMoves.find(move =>
-            String(item.id) === String(reverseMappings[move.payload.type][move.payload.id]) && move.payload.type === item.type) &&
-          !concurrentRemovals.find(removal =>
-            String(item.id) === String(reverseMappings[removal.payload.type][removal.payload.id]) && removal.payload.type === item.type)
-        )
-        plan.getActions(ActionType.MOVE)
+
+        // Find removals
+        const concurrentRemovals = sourceTreePlan.getActions(ActionType.REMOVE)
+          .filter(removal => reorderAction.order.find(item => String(item.id) === String(removal.payload.id) && item.type === removal.payload.type))
+
+        // Remove away-moves and removals
+        reorderAction.order = reorderAction.order.filter(item => {
+          let action
+          if (
+            // eslint-disable-next-line no-cond-assign
+            action = childAwayMoves.find(move =>
+              String(item.id) === String(move.payload.id) && move.payload.type === item.type)) {
+            Logger.log('ReconcileReorders: Removing moved item from order', {move: action, reorder: reorderAction})
+            return false
+          }
+
+          if (
+            // eslint-disable-next-line no-cond-assign
+            action = concurrentRemovals.find(removal =>
+              String(item.id) === String(removal.payload.id) && removal.payload.type === item.type)
+          ) {
+            Logger.log('ReconcileReorders: Removing removed item from order', {item, reorder: reorderAction, removal: action})
+            return false
+          }
+          return true
+        })
+
+        // Find and insert creations
+        const concurrentCreations = sourceTreePlan.getActions(ActionType.CREATE)
+          .map(a => a as CreateAction)
+          .filter(creation => String(reorderAction.payload.id) === String(creation.payload.parentId))
+        concurrentCreations
+          .forEach(a => {
+            Logger.log('ReconcileReorders: Inserting created item into order', {creation: a, reorder: reorderAction})
+            reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
+          })
+
+        // Find and insert moves at move target
+        sourceTreePlan.getActions(ActionType.MOVE)
           .map(a => a as MoveAction)
           .filter(move =>
-            String(reorderAction.payload.id) === String(reverseMappings.folder[move.payload.parentId]) &&
-            !reorderAction.order.find(item => String(item.id) === String(reverseMappings[move.payload.type][move.payload.id]) && item.type === move.payload.type)
+            String(reorderAction.payload.id) === String(move.payload.parentId) &&
+                  !reorderAction.order.find(item => String(item.id) === String(move.payload.id) && item.type === move.payload.type)
           )
           .forEach(a => {
-            reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: reverseMappings[a.payload.type ][a.payload.id] })
+            Logger.log('ReconcileReorders: Inserting moved item into order', {move: a, reorder: reorderAction})
+            reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
           })
       })
   }
