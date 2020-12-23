@@ -209,22 +209,23 @@ export default class SyncProcess {
     await Parallel.each(localDiff.getActions(), async(action:Action) => {
       if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = serverRemovals.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id]))
+          String(action.payload.id) === String(mappingsSnapshot.ServerToLocal[a.payload.type][a.payload.id]))
         if (concurrentRemoval) {
           // Already deleted on server, do nothing.
           return
         }
         const concurrentMove = serverMoves.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id]))
+          String(action.payload.id) === String(mappingsSnapshot.ServerToLocal[a.payload.type][a.payload.id]))
         if (concurrentMove) {
           // moved on the server, moves take precedence, do nothing (i.e. leave server version intact)
           return
         }
       }
       if (action.type === ActionType.CREATE) {
-        const concurrentCreation = serverCreations.find(a =>
+        const concurrentCreation = serverCreations.find(a => (
           String(action.payload.parentId) === String(mappingsSnapshot.ServerToLocal.folder[a.payload.parentId]) &&
-          action.payload.canMergeWith(a.payload))
+              action.payload.canMergeWith(a.payload)
+        ))
         if (concurrentCreation) {
           // created on both the server and locally, try to reconcile
           const newMappings = []
@@ -304,7 +305,7 @@ export default class SyncProcess {
     await Parallel.each(serverDiff.getActions(), async(action:Action) => {
       if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = localRemovals.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id]))
+          String(action.payload.id) === String(mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id]))
         if (concurrentRemoval) {
           // Already deleted on server, do nothing.
           return
@@ -319,7 +320,8 @@ export default class SyncProcess {
       if (action.type === ActionType.CREATE) {
         const concurrentCreation = localCreations.find(a =>
           String(action.payload.parentId === mappingsSnapshot.LocalToServer.folder[a.payload.parentId]) &&
-          action.payload.canMergeWith(a.payload))
+          action.payload.canMergeWith(a.payload)
+        )
         if (concurrentCreation) {
           // created on both the server and locally, try to reconcile
           const newMappings = []
@@ -509,14 +511,14 @@ export default class SyncProcess {
     targetTreePlan
       .getActions(ActionType.REORDER)
       .map(a => a as ReorderAction)
-    // MOVEs have oldItem from cacheTree and payload now mapped to the individual target tree
+    // MOVEs have oldItem from cacheTree and payload now mapped to their corresponding target tree
     // REORDERs have payload in source tree
       .forEach(reorderAction => {
         // Find Away-moves
         const childAwayMoves = sourceTreePlan.getActions(ActionType.MOVE)
           .filter(move =>
-            isLocalToServer ? String(sourceToTargetMappings.folder[reorderAction.payload.id]) === String(move.oldItem.parentId) : String(reorderAction.payload.id) === String(move.oldItem.parentId) &&
-                  reorderAction.order.find(item => String(item.id) === String(move.payload.id) && item.type === move.payload.type)
+            (String(reorderAction.payload.id) !== String(move.payload.parentId) && // reorder IDs are from localTree (source of this plan), move.oldItem IDs are from server tree (source of other plan)
+                reorderAction.order.find(item => String(item.id) === String(move.payload.id) && item.type === move.payload.type))// move.payload IDs are from localTree (target of the other plan
           )
 
         // Find removals
@@ -556,16 +558,16 @@ export default class SyncProcess {
           })
 
         // Find and insert moves at move target
-        sourceTreePlan.getActions(ActionType.MOVE)
+        const moves = sourceTreePlan.getActions(ActionType.MOVE)
           .map(a => a as MoveAction)
           .filter(move =>
             String(reorderAction.payload.id) === String(move.payload.parentId) &&
                   !reorderAction.order.find(item => String(item.id) === String(move.payload.id) && item.type === move.payload.type)
           )
-          .forEach(a => {
-            Logger.log('ReconcileReorders: Inserting moved item into order', {move: a, reorder: reorderAction})
-            reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
-          })
+        moves.forEach(a => {
+          Logger.log('ReconcileReorders: Inserting moved item into order', {move: a, reorder: reorderAction})
+          reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
+        })
       })
   }
 
