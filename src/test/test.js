@@ -2982,10 +2982,13 @@ describe('Floccus', function() {
 
           if (ACCOUNT_DATA.type === 'fake') {
             // Wrire both accounts to the same fake db
-            account1.server.bookmarksCache = new Folder(
+            account2.server.bookmarksCache = account1.server.bookmarksCache = new Folder(
               { id: '', title: 'root' }
             )
-            account2.server = account1.server
+            account2.server.__defineSetter__('highestId', (id) => {
+              account1.server.highestId = id
+            })
+            account2.server.__defineGetter__('highestId', () => account1.server.highestId)
           }
           if (ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs) {
             account1.server.hasFeatureHashing = false
