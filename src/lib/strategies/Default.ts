@@ -267,8 +267,8 @@ export default class SyncProcess {
           return
         }
         const concurrentHierarchyReversals = serverMoves.filter(a =>
-          action.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[a.payload.parentId]) &&
-          a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.LocalToServer.folder[action.payload.parentId])
+          action.payload.type === ItemType.FOLDER && action.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[a.payload.parentId]) &&
+          a.payload.type === ItemType.FOLDER && a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.LocalToServer.folder[action.payload.parentId])
         )
         if (concurrentHierarchyReversals.length) {
           concurrentHierarchyReversals.forEach(a => {
@@ -277,6 +277,15 @@ export default class SyncProcess {
             const oldItem = a.payload.clone()
             oldItem.id = mappingsSnapshot.ServerToLocal[oldItem.type ][oldItem.id]
             oldItem.parentId = mappingsSnapshot.ServerToLocal.folder[oldItem.parentId]
+
+            if (
+              serverPlan.getActions(ActionType.MOVE).find(move =>
+                move.payload.id === payload.id && move.payload.parentId === payload.parentId)
+            ) {
+              // Don't create duplicates!
+              return
+            }
+
             // revert server move
             serverPlan.commit({...a, payload, oldItem})
           })
@@ -369,8 +378,8 @@ export default class SyncProcess {
           return
         }
         const concurrentHierarchyReversals = localMoves.filter(a =>
-          action.payload.findItem(ItemType.FOLDER, mappingsSnapshot.LocalToServer.folder[a.payload.parentId]) &&
-          a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[action.payload.parentId])
+          action.payload.type === ItemType.FOLDER && action.payload.findItem(ItemType.FOLDER, mappingsSnapshot.LocalToServer.folder[a.payload.parentId]) &&
+          a.payload.type === ItemType.FOLDER && a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[action.payload.parentId])
         )
         if (concurrentHierarchyReversals.length) {
           // Moved locally and in reverse hierarchical order on server. local has precedence: do nothing locally
