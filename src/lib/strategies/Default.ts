@@ -266,16 +266,25 @@ export default class SyncProcess {
           serverPlan.commit({...action, type: ActionType.CREATE})
           return
         }
-        const concurrentHierarchyReversals = serverMoves.filter(a =>
-          action.payload.type === ItemType.FOLDER && action.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[a.payload.parentId]) &&
-          a.payload.type === ItemType.FOLDER && a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.LocalToServer.folder[action.payload.parentId])
-        )
+        // Find concurrent moves that form a hierarchy reversal together with this one
+        const concurrentHierarchyReversals = serverMoves.filter(a => {
+          const serverFolder = this.serverTreeRoot.findItem(ItemType.FOLDER, a.payload.id)
+          const localFolder = this.localTreeRoot.findItem(ItemType.FOLDER, action.payload.id)
+
+          const localAncestors = Folder.getAncestorsOf(this.localTreeRoot.findItem(ItemType.FOLDER, action.payload.parentId), this.localTreeRoot)
+          const serverAncestors = Folder.getAncestorsOf(this.serverTreeRoot.findItem(ItemType.FOLDER, a.payload.parentId), this.serverTreeRoot)
+
+          // If both items are folders, and one of the ancestors of one item is a child of the other item
+          return action.payload.type === ItemType.FOLDER && a.payload.type === ItemType.FOLDER &&
+                localAncestors.find(ancestor => serverFolder.findItem(ItemType.FOLDER, mappingsSnapshot.LocalToServer.folder[ancestor.id])) &&
+                  serverAncestors.find(ancestor => localFolder.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[ancestor.id]))
+        })
         if (concurrentHierarchyReversals.length) {
           concurrentHierarchyReversals.forEach(a => {
             // moved locally but moved in reverse hierarchical order on server
             const payload = a.oldItem.clone() // we don't map here as we want this to look like a local action
             const oldItem = a.payload.clone()
-            oldItem.id = mappingsSnapshot.ServerToLocal[oldItem.type ][oldItem.id]
+            oldItem.id = mappingsSnapshot.ServerToLocal[oldItem.type][oldItem.id]
             oldItem.parentId = mappingsSnapshot.ServerToLocal.folder[oldItem.parentId]
 
             if (
@@ -377,10 +386,18 @@ export default class SyncProcess {
           // Moved both on server and locally, local has precedence: do nothing locally
           return
         }
-        const concurrentHierarchyReversals = localMoves.filter(a =>
-          action.payload.type === ItemType.FOLDER && action.payload.findItem(ItemType.FOLDER, mappingsSnapshot.LocalToServer.folder[a.payload.parentId]) &&
-          a.payload.type === ItemType.FOLDER && a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[action.payload.parentId])
-        )
+        const concurrentHierarchyReversals = localMoves.filter(a => {
+          const serverFolder = this.serverTreeRoot.findItem(ItemType.FOLDER, action.payload.id)
+          const localFolder = this.localTreeRoot.findItem(ItemType.FOLDER, a.payload.id)
+
+          const localAncestors = Folder.getAncestorsOf(this.localTreeRoot.findItem(ItemType.FOLDER, a.payload.parentId), this.localTreeRoot)
+          const serverAncestors = Folder.getAncestorsOf(this.serverTreeRoot.findItem(ItemType.FOLDER, action.payload.parentId), this.serverTreeRoot)
+
+          // If both items are folders, and one of the ancestors of one item is a child of the other item
+          return action.payload.type === ItemType.FOLDER && a.payload.type === ItemType.FOLDER &&
+            localAncestors.find(ancestor => serverFolder.findItem(ItemType.FOLDER, mappingsSnapshot.LocalToServer.folder[ancestor.id])) &&
+            serverAncestors.find(ancestor => localFolder.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[ancestor.id]))
+        })
         if (concurrentHierarchyReversals.length) {
           // Moved locally and in reverse hierarchical order on server. local has precedence: do nothing locally
           return

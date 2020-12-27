@@ -329,6 +329,20 @@ export class Folder {
         : null
     })
   }
+
+  static getAncestorsOf(item: TItem, tree: Folder): TItem[] {
+    const ancestors = [item]
+    let parent = item
+    while (parent.id !== tree.id) {
+      ancestors.push(parent)
+      parent = tree.findItem(ItemType.FOLDER, parent.parentId)
+      if (!parent) {
+        throw new Error('Item is not a descendant of the tree passed')
+      }
+    }
+    ancestors.reverse()
+    return ancestors
+  }
 }
 
 export type TItem = Bookmark | Folder
