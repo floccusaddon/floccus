@@ -241,6 +241,10 @@ export default class Scanner {
 
     for (const folderId in targets) {
       const newFolder = this.newTree.findItem(ItemType.FOLDER, folderId) as Folder
+      const duplicate = this.diff.getActions(ActionType.REORDER).find(a => a.payload.id === newFolder.id)
+      if (duplicate) {
+        this.diff.retract(duplicate)
+      }
       this.diff.commit({
         type: ActionType.REORDER,
         payload: newFolder,
