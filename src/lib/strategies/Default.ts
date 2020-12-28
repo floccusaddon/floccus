@@ -204,6 +204,9 @@ export default class SyncProcess {
     const localUpdates = localDiff.getActions(ActionType.UPDATE)
     const localReorders = localDiff.getActions(ActionType.REORDER)
 
+    const avoidServerReorders = {}
+    const avoidLocalReorders = {}
+
     // Prepare server plan
     const serverPlan = new Diff() // to be mapped
     await Parallel.each(localDiff.getActions(), async(action:Action) => {
@@ -297,12 +300,17 @@ export default class SyncProcess {
 
             // revert server move
             serverPlan.commit({...a, payload, oldItem})
+            avoidServerReorders[payload.parentId] = true
+            avoidServerReorders[oldItem.parentId] = true
           })
           serverPlan.commit(action)
           return
         }
       }
       if (action.type === ActionType.REORDER) {
+        if (avoidServerReorders[action.payload.id]) {
+          return
+        }
         const concurrentRemoval = serverRemovals.find(a =>
           a.payload.findItem('folder', action.payload.id))
         if (concurrentRemoval) {
@@ -329,7 +337,7 @@ export default class SyncProcess {
           return
         }
         const concurrentMove = localMoves.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id]))
+          String(action.payload.id) === String(mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id]))
         if (concurrentMove) {
           // removed on server, moved locally, do nothing to keep it locally.
           return
@@ -369,6 +377,7 @@ export default class SyncProcess {
         const concurrentRemoval = localRemovals.find(a =>
           a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[action.payload.parentId]))
         if (concurrentRemoval) {
+          avoidLocalReorders[action.payload.parentId] = true
           // Already deleted locally, do nothing.
           return
         }
@@ -400,6 +409,8 @@ export default class SyncProcess {
         })
         if (concurrentHierarchyReversals.length) {
           // Moved locally and in reverse hierarchical order on server. local has precedence: do nothing locally
+          avoidLocalReorders[action.payload.parentId] = true
+          avoidLocalReorders[mappingsSnapshot.LocalToServer[action.oldItem.type][action.oldItem.parentId]] = true
           return
         }
       }
@@ -412,6 +423,9 @@ export default class SyncProcess {
         }
       }
       if (action.type === ActionType.REORDER) {
+        if (avoidLocalReorders[action.payload.id]) {
+          return
+        }
         const concurrentReorder = localReorders.find(a =>
           String(action.payload.id) === String(mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id]))
         if (concurrentReorder) {
