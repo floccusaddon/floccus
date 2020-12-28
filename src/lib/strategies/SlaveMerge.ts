@@ -59,7 +59,7 @@ export default class MergeSlave extends Slave {
       }
       if (action.type === ActionType.MOVE) {
         const concurrentRemoval = localRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id])
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id])
         if (concurrentRemoval) {
           // moved on server but removed locally, recreate it on the server
           localPlan.commit({...action, type: ActionType.CREATE})

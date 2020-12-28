@@ -24,7 +24,7 @@ export default class OverwriteSyncProcess extends DefaultStrategy {
       }
       if (action.type === ActionType.MOVE) {
         const concurrentRemoval = serverRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
+          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type][a.payload.id])
         if (concurrentRemoval) {
           // moved locally but removed on the server, recreate it on the server
           serverPlan.commit({...action, type: ActionType.CREATE})
