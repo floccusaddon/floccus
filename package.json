@@ -60,7 +60,7 @@
     "batching-toposort": "^1.2.0",
     "css-loader": "^3.6.0",
     "dom-delegator": "^13.1.0",
-    "eslint-config-standard": "^12.0.0",
+    "eslint-config-standard": "^14.1.1",
     "eslint-import-resolver-webpack": "^0.12.2",
     "eslint-loader": "^4.0.2",
     "eslint-plugin-import": "^2.22.1",
