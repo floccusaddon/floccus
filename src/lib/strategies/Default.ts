@@ -288,8 +288,8 @@ export default class SyncProcess {
             oldItem.parentId = mappingsSnapshot.ServerToLocal.folder[oldItem.parentId]
 
             if (
-              serverPlan.getActions(ActionType.MOVE).find(move =>
-                move.payload.id === payload.id && move.payload.parentId === payload.parentId)
+              serverPlan.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id) ||
+              localDiff.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id)
             ) {
               // Don't create duplicates!
               return
