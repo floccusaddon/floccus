@@ -132,11 +132,11 @@ jobs:
           path: ${{ env.APP_NAME }}
         if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
 
-      - name: Enable bookmarks app
+      - name: Install bookmarks app
         shell: bash
         run: |
           cd ${{ env.APP_NAME }}
-          composer install
+          composer install --ignore-platform-req=php
         if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
 
       - name: Enable bookmarks app
