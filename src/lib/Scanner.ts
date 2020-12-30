@@ -128,8 +128,7 @@ export default class Scanner {
         removeActions = this.diff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
         while (!reconciled && (removeAction = removeActions.shift())) {
           const removedItem = removeAction.payload
-          // We also allow canMergeWith here, because e.g. for NextcloudFolders the id of moved bookmarks changes
-          // 2020-12-21 15:09 -- removed this part because I couldn't make sense of why I added it...
+          // We also allow canMergeWith here, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
           if (this.mergeable(removedItem, createdItem) || (removedItem.type === 'bookmark' && removedItem.canMergeWith(createdItem))) {
             this.diff.retract(createAction)
             this.diff.retract(removeAction)
@@ -154,7 +153,7 @@ export default class Scanner {
         removeActions = this.diff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
         while (!reconciled && (removeAction = removeActions.shift())) {
           const removedItem = removeAction.payload
-          const oldItem = removedItem.findItemFilter(createdItem.type, item => this.mergeable(item, createdItem))
+          const oldItem = removedItem.findItemFilter(createdItem.type, item => this.mergeable(item, createdItem) || (item.type === 'bookmark' && item.canMergeWith(createdItem)))
           if (oldItem) {
             let oldIndex
             this.diff.retract(createAction)
@@ -179,7 +178,7 @@ export default class Scanner {
             reconciled = true
             await this.diffItem(oldItem, createdItem)
           } else {
-            const newItem = createdItem.findItemFilter(removedItem.type, item => this.mergeable(removedItem, item))
+            const newItem = createdItem.findItemFilter(removedItem.type, item => this.mergeable(removedItem, item) || (removedItem.type === 'bookmark' && removedItem.canMergeWith(item)))
             let index
             if (newItem) {
               this.diff.retract(removeAction)

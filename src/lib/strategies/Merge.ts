@@ -176,7 +176,7 @@ export default class MergeSyncProcess extends Default {
       }
       if (action.type === ActionType.MOVE) {
         const concurrentMove = localMoves.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id])
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id] || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
         if (concurrentMove) {
           // Moved both on server and locally, local has precedence: do nothing locally
           return
@@ -200,7 +200,7 @@ export default class MergeSyncProcess extends Default {
       }
       if (action.type === ActionType.UPDATE) {
         const concurrentUpdate = localUpdates.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id])
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id] || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
         if (concurrentUpdate) {
           // Updated both on server and locally, local has precedence: do nothing locally
           return

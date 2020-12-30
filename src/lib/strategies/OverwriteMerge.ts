@@ -53,13 +53,13 @@ export default class MergeOverwrite extends OverwriteSyncProcess {
     await Parallel.each(serverDiff.getActions(), async action => {
       if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = localRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id])
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id] || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
         if (concurrentRemoval) {
           // Already deleted locally, do nothing.
           return
         }
         const concurrentMove = localMoves.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id])
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id] || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
         if (concurrentMove) {
           // removed on the server, moved locally, do nothing to recreate it on the server.
           return
