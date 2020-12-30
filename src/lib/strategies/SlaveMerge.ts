@@ -51,7 +51,7 @@ export default class MergeSlave extends Slave {
     await Parallel.each(serverDiff.getActions(), async action => {
       if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = localRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id] || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id])
         if (concurrentRemoval) {
           // Already deleted locally, do nothing.
           return
@@ -59,7 +59,7 @@ export default class MergeSlave extends Slave {
       }
       if (action.type === ActionType.MOVE) {
         const concurrentRemoval = localRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id] || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id])
         if (concurrentRemoval) {
           // moved on server but removed locally, recreate it on the server
           localPlan.commit({...action, type: ActionType.CREATE})

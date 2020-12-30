@@ -45,13 +45,13 @@ export default class SlaveSyncProcess extends DefaultStrategy {
     await Parallel.each(localDiff.getActions(), async action => {
       if (action.type === ActionType.REMOVE) {
         let concurrentRemoval = serverRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id] || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
+          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
         if (concurrentRemoval) {
           // Already deleted locally, do nothing.
           return
         }
         concurrentRemoval = serverRemovals.find(a =>
-          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id] || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
+          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
         if (concurrentRemoval) {
           // Already deleted locally, do nothing.
           return

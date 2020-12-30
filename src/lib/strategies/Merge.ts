@@ -200,7 +200,7 @@ export default class MergeSyncProcess extends Default {
       }
       if (action.type === ActionType.UPDATE) {
         const concurrentUpdate = localUpdates.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id] || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id])
         if (concurrentUpdate) {
           // Updated both on server and locally, local has precedence: do nothing locally
           return
