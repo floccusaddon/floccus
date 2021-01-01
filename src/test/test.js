@@ -3187,7 +3187,7 @@ describe('Floccus', function() {
             for (let k = i; k < j; k++) {
               const newBookmark = await browser.bookmarks.create({
                 title: 'url' + i + ':' + k + ':' + j,
-                url: 'http://ur.l/' + i + '/' + k + '/' + j,
+                url: 'http://ur.l/' + parentId + '/' + i + '/' + k + '/' + j,
                 parentId
               })
               bookmarks.push(newBookmark)
@@ -3404,7 +3404,7 @@ describe('Floccus', function() {
             for (let k = i; k < j; k++) {
               const newBookmark = await browser.bookmarks.create({
                 title: 'url' + i + ':' + j + ':' + k,
-                url: 'http://ur.l/' + i + '/' + j + '/' + k,
+                url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
                 parentId
               })
               bookmarks1.push(newBookmark)
