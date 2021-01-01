@@ -94,10 +94,8 @@ export default class SyncProcess {
     // Weed out modifications to bookmarks root
     await this.filterOutRootFolderActions(localPlan)
 
-    await Promise.all([
-      this.execute(this.server, serverPlan, mappingsSnapshot.LocalToServer, true),
-      this.execute(this.localTree, localPlan, mappingsSnapshot.ServerToLocal, false),
-    ])
+    await this.execute(this.server, serverPlan, mappingsSnapshot.LocalToServer, true)
+    await this.execute(this.localTree, localPlan, mappingsSnapshot.ServerToLocal, false)
 
     // mappings have been updated, reload
     mappingsSnapshot = await this.mappings.getSnapshot()
@@ -174,6 +172,9 @@ export default class SyncProcess {
 
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
     const mappingsSnapshot = await this.mappings.getSnapshot()
+
+    const newMappings = []
+
     // if we have the cache available, Diff cache and both trees
     const localScanner = new Scanner(
       this.cacheTreeRoot,
@@ -272,7 +273,7 @@ export default class SyncProcess {
       }
       if (action.type === ActionType.MOVE) {
         const concurrentRemoval = serverRemovals.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.ServerToLocal[a.payload.type][a.payload.id]) || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
+          String(action.payload.id) === String(mappingsSnapshot.ServerToLocal[a.payload.type][a.payload.id]))
         if (concurrentRemoval) {
           // moved locally but removed on the server, recreate it on the server
           serverPlan.commit({...action, type: ActionType.CREATE})
