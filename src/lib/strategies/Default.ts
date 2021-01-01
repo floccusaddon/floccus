@@ -222,13 +222,13 @@ export default class SyncProcess {
     await Parallel.each(localDiff.getActions(), async(action:Action) => {
       if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = serverRemovals.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.ServerToLocal[a.payload.type][a.payload.id]) || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
+          String(action.payload.id) === String(mappingsSnapshot.ServerToLocal[a.payload.type][a.payload.id]))
         if (concurrentRemoval) {
           // Already deleted on server, do nothing.
           return
         }
         const concurrentMove = serverMoves.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.ServerToLocal[a.payload.type][a.payload.id]) || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
+          String(action.payload.id) === String(mappingsSnapshot.ServerToLocal[a.payload.type][a.payload.id]))
         if (concurrentMove) {
           // moved on the server, moves take precedence, do nothing (i.e. leave server version intact)
           return
@@ -395,13 +395,13 @@ export default class SyncProcess {
       if (action.type === ActionType.MOVE) {
         /* We use canMergeWith for bookmarks as well for matching, in case of server moves, because bookmarks change ID on server moves ("<bookmarkID>;<folderID>") */
         const concurrentRemoval = localRemovals.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id]) || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
+          String(action.payload.id) === String(mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id]))
         if (concurrentRemoval) {
           localPlan.commit({...action, type: ActionType.CREATE})
           return
         }
         const concurrentMove = localMoves.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id]) || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
+          String(action.payload.id) === String(mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id]))
         if (concurrentMove) {
           // Moved both on server and locally, local has precedence: do nothing locally
           return
