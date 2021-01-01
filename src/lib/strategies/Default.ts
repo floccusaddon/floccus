@@ -178,16 +178,25 @@ export default class SyncProcess {
     const localScanner = new Scanner(
       this.cacheTreeRoot,
       this.localTreeRoot,
-      (oldItem, newItem) => oldItem.type === newItem.type && String(oldItem.id) === String(newItem.id),
+      (oldItem, newItem) =>
+        (oldItem.type === newItem.type && String(oldItem.id) === String(newItem.id)),
       this.preserveOrder
     )
     const serverScanner = new Scanner(
       this.cacheTreeRoot,
       this.serverTreeRoot,
-      (oldItem, newItem) => oldItem.type === newItem.type && String(mappingsSnapshot.LocalToServer[oldItem.type][oldItem.id]) === String(newItem.id),
+      // We also allow canMergeWith here, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
+      (oldItem, newItem) => {
+        if ((oldItem.type === newItem.type && String(mappingsSnapshot.LocalToServer[oldItem.type][oldItem.id]) === String(newItem.id)) || (oldItem.type === 'bookmark' && oldItem.canMergeWith(newItem))) {
+          newMappings.push([oldItem, newItem])
+          return true
+        }
+        return false
+      },
       this.preserveOrder
     )
     const [localDiff, serverDiff] = await Promise.all([localScanner.run(), serverScanner.run()])
+    await Promise.all(newMappings.map(([localItem, serverItem]) => this.addMapping(this.server, localItem, serverItem.id)))
     return {localDiff, serverDiff}
   }
 

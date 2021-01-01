@@ -128,8 +128,8 @@ export default class Scanner {
         removeActions = this.diff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
         while (!reconciled && (removeAction = removeActions.shift())) {
           const removedItem = removeAction.payload
-          // We also allow canMergeWith here, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
-          if (this.mergeable(removedItem, createdItem) || (removedItem.type === 'bookmark' && removedItem.canMergeWith(createdItem))) {
+
+          if (this.mergeable(removedItem, createdItem)) {
             this.diff.retract(createAction)
             this.diff.retract(removeAction)
             this.diff.commit({
@@ -153,7 +153,7 @@ export default class Scanner {
         removeActions = this.diff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
         while (!reconciled && (removeAction = removeActions.shift())) {
           const removedItem = removeAction.payload
-          const oldItem = removedItem.findItemFilter(createdItem.type, item => this.mergeable(item, createdItem) || (item.type === 'bookmark' && item.canMergeWith(createdItem)))
+          const oldItem = removedItem.findItemFilter(createdItem.type, item => this.mergeable(item, createdItem))
           if (oldItem) {
             let oldIndex
             this.diff.retract(createAction)
@@ -178,7 +178,7 @@ export default class Scanner {
             reconciled = true
             await this.diffItem(oldItem, createdItem)
           } else {
-            const newItem = createdItem.findItemFilter(removedItem.type, item => this.mergeable(removedItem, item) || (removedItem.type === 'bookmark' && removedItem.canMergeWith(item)))
+            const newItem = createdItem.findItemFilter(removedItem.type, item => this.mergeable(removedItem, item))
             let index
             if (newItem) {
               this.diff.retract(removeAction)
