@@ -697,6 +697,7 @@ export default class SyncProcess {
       return
     }
     serverItem.children = children
+    serverItem.loaded = true
 
     // recurse
     await Parallel.each(

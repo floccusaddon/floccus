@@ -434,6 +434,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     }
     await recurse(children)
     folder.children = children
+    folder.loaded = true
     this.tree.createIndex()
     return folder.clone(true).children
   }

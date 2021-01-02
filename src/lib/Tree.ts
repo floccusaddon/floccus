@@ -123,20 +123,22 @@ export class Folder {
   public loaded = false
   private index: IItemIndex
 
-  constructor({ id, parentId, title, children, hashValue }
+  constructor({ id, parentId, title, children, hashValue, loaded }
   :{
     id:number|string,
     parentId?:number|string,
     title?:string,
     // eslint-disable-next-line no-use-before-define
     children?: TItem[],
-    hashValue?:Record<'true'|'false',string>
+    hashValue?:Record<'true'|'false',string>,
+    loaded?: boolean
   }) {
     this.id = id
     this.parentId = parentId
     this.title = title
     this.children = children || []
     this.hashValue = hashValue || {}
+    this.loaded = loaded || false
   }
 
   // eslint-disable-next-line no-use-before-define
