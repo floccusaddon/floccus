@@ -710,7 +710,9 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
           .map((bm) => bm.parentId)
           .filter(
             (parentId) =>
-              parentId && String(parentId) !== String(oldParentId)
+              parentId && String(parentId) !== String(oldParentId) &&
+              // make sure this is not an outdated oldParentId (can happen due to canMergeWith in Scanner)
+              this.tree.findFolder(parentId) && (this.tree.findFolder(parentId).findBookmark(newBm.id) || !this.tree.findFolder(parentId).loaded)
           )
           .concat([newBm.parentId]),
         tags: bms[0].tags,
