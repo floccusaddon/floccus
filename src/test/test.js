@@ -1404,7 +1404,7 @@ describe('Floccus', function() {
             )
           })
           it('should move items without creating a folder loop', async function() {
-            if (APP_VERSION !== 'stable') {
+            if (APP_VERSION !== 'stable' && APP_VERSION !== 'master') {
               this.skip()
             }
             if (ACCOUNT_DATA.noCache) {
@@ -1434,10 +1434,10 @@ describe('Floccus', function() {
 
             // move b into a in client
             await browser.bookmarks.move(bFolder.id, { parentId: aFolder.id })
-            const initialTree = await getAllBookmarks(account)
 
             // move a into b on server
             await withSyncConnection(account, async() => {
+              const initialTree = await account.server.getBookmarksTree(true)
               const aFolder = initialTree.children[0]
               const bFolder = initialTree.children[1]
               aFolder.parentId = bFolder.id
