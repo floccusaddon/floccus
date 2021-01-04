@@ -4,6 +4,7 @@ import Scanner from '../Scanner'
 import * as Parallel from 'async-parallel'
 import Default from './Default'
 import { Mapping } from '../Mappings'
+import Logger from '../Logger'
 
 export default class MergeSyncProcess extends Default {
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
@@ -223,6 +224,7 @@ export default class MergeSyncProcess extends Default {
   }
 
   async loadChildren():Promise<void> {
+    Logger.log('Merge strategy: Load complete tree from server')
     this.serverTreeRoot = await this.server.getBookmarksTree(true)
   }
 }

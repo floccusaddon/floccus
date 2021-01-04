@@ -267,6 +267,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     }
 
     this.list = null
+    tree.loaded = false
     tree.hashValue = { true: await this._getFolderHash(tree.id) }
     this.tree = tree.clone(true) // we clone (withHash), so we can mess with our own version
     return tree
@@ -318,7 +319,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
               parentId: folderId,
               title: item.title,
             })
-            childFolder.loaded = Boolean(item.children)
+            childFolder.loaded = Boolean(item.children) // not children.length but whether the whole children field exists
             childFolder.children = recurseChildren(item.id, item.children || [])
             return childFolder
           }
@@ -351,6 +352,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
                 id: child.id,
                 title: folder.title,
                 parentId: tree.id,
+                loaded: false
               })
               tree.children.push(newFolder)
               return { newFolder, child, folder}
@@ -381,6 +383,11 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
           },
           1
         )
+        tree.loaded = true
+        if (layers === 0) {
+          return
+        }
+
         const nextLayer = layers < 0 ? -1 : layers - 1
         await Parallel.each(
           folders.filter(Boolean),

@@ -120,7 +120,7 @@ export class Folder {
   public children: TItem[]
   public hashValue: Record<string,string>
   public isRoot = false
-  public loaded = false
+  public loaded = true
   private index: IItemIndex
 
   constructor({ id, parentId, title, children, hashValue, loaded }
@@ -138,7 +138,7 @@ export class Folder {
     this.title = title
     this.children = children || []
     this.hashValue = hashValue || {}
-    this.loaded = loaded || false
+    this.loaded = typeof loaded !== 'undefined' ? loaded : true
   }
 
   // eslint-disable-next-line no-use-before-define
@@ -214,6 +214,10 @@ export class Folder {
   async hash(preserveOrder = false): Promise<string> {
     if (this.hashValue && this.hashValue[String(preserveOrder)]) {
       return this.hashValue[String(preserveOrder)]
+    }
+
+    if (!this.loaded) {
+      throw new Error('Trying to calculate hash of a folder that isn\'t loaded')
     }
 
     const children = this.children.slice()
