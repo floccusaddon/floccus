@@ -695,6 +695,8 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       const upstreamMark = bm.clone()
       upstreamMark.id = bm.id.split(';')[0]
       this.list && this.list.push(upstreamMark)
+      this.tree.findFolder(bm.parentId).children.push(upstreamMark)
+      this.tree.createIndex()
 
       return bm.id
     })
@@ -719,7 +721,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
             (parentId) =>
               parentId && String(parentId) !== String(oldParentId) &&
               // make sure this is not an outdated oldParentId (can happen due to canMergeWith in Scanner)
-              this.tree.findFolder(parentId) && (this.tree.findFolder(parentId).findBookmark(newBm.id) || !this.tree.findFolder(parentId).loaded)
+              this.tree.findFolder(parentId) && (this.tree.findFolder(parentId).findItemFilter('bookmark', i => i.canMergeWith(newBm)) || !this.tree.findFolder(parentId).loaded)
           )
           .concat([newBm.parentId]),
         tags: bms[0].tags,
@@ -732,7 +734,14 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
         body
       )
 
-      return upstreamId + ';' + newBm.parentId
+      const newFolder = this.tree.findFolder(newBm.parentId)
+      if (!newFolder.children.find(item => item.id === newBm.id && item.type === 'bookmark')) {
+        newFolder.children.push(newBm)
+      }
+      newBm.id = upstreamId + ';' + newBm.parentId
+      this.tree.createIndex()
+
+      return newBm.id
     })
   }
 
