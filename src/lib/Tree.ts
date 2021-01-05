@@ -137,7 +137,7 @@ export class Folder {
     this.parentId = parentId
     this.title = title
     this.children = children || []
-    this.hashValue = hashValue || {}
+    this.hashValue = {...hashValue} || {}
     this.loaded = typeof loaded !== 'undefined' ? loaded : true
   }
 

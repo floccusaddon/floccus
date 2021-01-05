@@ -101,7 +101,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
   }
 
   async onSyncStart(): Promise<void> {
-    // noop
+    this.tree = new Folder({ id: -1, loaded: false })
   }
 
   async onSyncComplete(): Promise<void> {
