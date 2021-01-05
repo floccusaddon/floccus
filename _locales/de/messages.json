@@ -1,6 +1,6 @@
 {
   "Error001": {
-    "message": "E001: Der Ordner in dem neu erzeugt werden soll existiert nicht"
+    "message": "E001: Der Ordner, in dem neu erzeugt werden soll, existiert nicht"
   },
   "Error002": {
     "message": "E002: Zu aktualisierendes Lesezeichen existiert nicht"
@@ -51,7 +51,7 @@
     "message": "E017: Netzwerk-Fehler: Überprüfen sie Ihre Netzwerkverbindung und die eingegebenen Konto-Daten"
   },
   "Error018": {
-    "message": "E018: Authentifizierung fehlgeschlagen"
+    "message": "E018: Konnte nicht am Server authentifiziert werden."
   },
   "Error019": {
     "message": "E019: HTTP Status $1. Anfrage vom Typ $2  fehlgeschlagen. Überprüfen Sie die Server-Konfiguration und das Server-Log"
@@ -79,6 +79,9 @@
   },
   "Error027": {
     "message": "E027: Der Synchronisierungsprozess wurde unterbrochen"
+  },
+  "Error028": {
+    "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -186,10 +189,10 @@
     "message": "Verschmelze lokale und vom Server kommende Änderungen (empfohlen)"
   },
   "LabelStrategyslave": {
-    "message": "Lokale Änderungen immer überschreiben und verwerfen"
+    "message": "Immer lokale Änderungen verwerfen und vom Server kommende Änderungen runterladen."
   },
   "LabelStrategyoverwrite": {
-    "message": "Vom Server kommende Änderungen immer überschreiben und verwerfen"
+    "message": "Immer vom Server kommende Änderungen verwerfen und lokale Änderungen hochladen."
   },
   "LabelSave": {
     "message": "Speichern"
@@ -221,6 +224,9 @@
   "LabelSecurecredentials": {
     "message": "Zugangsdaten absichern"
   },
+  "LabelSecuredcredentials": {
+    "message": "Deine Anmeldedaten sind sicher"
+  },
   "LabelOpenintab": {
     "message": "In tab öffnen"
   },
@@ -231,7 +237,7 @@
     "message": "Entwicklung fördern"
   },
   "DescriptionFunddevelopment": {
-    "message": "Ich habe in den letzten Jahren versucht, Ihre Lesezeichen-Erfahrung auf Nextcloud und in der Bookmark-App mit floccus zu verbessern. Ein Unterfangen, das sowohl Spaß macht als auch viel Zeit kostet.\n\nIch nutze die Gelegenheit, um Sie um eine Spende zu bitten um das Projekt zu unterstützen und am Laufen zu halten. Im Folgenden finden Sie die unterstützten Bezahldienste. Jeder Betrag, egal wie klein er auch sein mag, ist willkommen. Vielen Dank. 💙💙"
+    "message": "Ich nutze diese Gelegenheit, um Sie um eine Spende zu bitten um das Projekt zu unterstützen und am Laufen zu halten. Im Folgenden finden Sie die unterstützten Bezahldienste. Jeder Betrag, egal wie klein er auch sein mag, ist willkommen. Vielen Dank. 💙"
   },
   "LabelSelect": {
     "message": "Auswählen"
@@ -253,6 +259,12 @@
   },
   "LabelUnlock": {
     "message": "Floccus entsperren"
+  },
+  "LabelRemovekey": {
+    "message": "Passwort löschen"
+  },
+  "LabelRemovedkey": {
+    "message": "Passwort wurde gelöscht"
   },
   "LabelSyncinterval": {
     "message": "Synchronisierungsintervall"
@@ -292,7 +304,7 @@
     "message": "Tätige regelmäßige Spenden über Github sponsors um das Projekt zu untertützen"
   },
   "LegacyAdapterDeprecation": {
-    "message": "Warnung! Dieser Konto-Typ ist überholt und wird bald entfernt. Bitte wechseln Sie zur neuen Nextcloud Synchronisierungsmethode mit besserer Performance und Korrektheit. "
+    "message": "Warnung! Dieser Konto-Typ ist veraltet und wird bald entfernt. Bitte wechseln Sie zur neuen Nextcloud Synchronisierungsmethode mit besserer Leistungsfähigkeit und Fehlerfreiheit. "
   },
   "LabelUpdated": {
     "message": "Floccus wurde aktualisiert"
@@ -301,6 +313,81 @@
     "message": "Glückwunsch, das aktuellste floccus-Update befindet sich auf Ihrem Rechner! 🎉"
   },
   "LabelReleaseNotes": {
-  "message": "Release-Notes lesen"
-}
+    "message": "Release-Notes lesen"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "Server Details"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "Ordner Zuordnung"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "Synchronisationsverhalten"
+  },
+  "LabelOptionsDangerous": {
+    "message": "Gefährliche Funktionen"
+  },
+  "LabelAccountDeleted": {
+    "message": "Konto gelöscht"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "Dieses Konto wurde gelöscht"
+  },
+  "LabelNoAccount": {
+    "message": "Keine Konten vorhanden"
+  },
+  "DescriptionNoAccount": {
+    "message": "Neuen Account erstellen um Lesezeichen zu synchronisieren."
+  },
+  "LabelLoginFlowStart": {
+    "message": "Mit Nextcloud anmelden"
+  },
+  "LabelLoginFlowStop": {
+    "message": "Anmeldung bei Nextcloud abbrechen"
+  },
+  "LabelLoginFlowError": {
+    "message": "Anmeldung bei Nextcloud fehlgeschlagen."
+  },
+  "LabelNewAccount": {
+    "message": "Neues Konto"
+  },
+  "LabelNestedSync": {
+    "message": "Verschachtelte Konten"
+  },
+  "DescriptionNestedSync": {
+    "message": "Sie können Konten so verschachtelen, dass ein übergeordneter Ordner zu einem Konto und ein untergeordneter Ordner zu einem anderen Konto gehört. Wollen Sie den lokalen Ordner dieses Kontos im einer eventuell übergeordneten Ordnersynchronisation eines anderen Kontos einbetten?"
+  },
+  "LabelNestedSyncNo": {
+    "message": "Schließe den lokalen Ordner dieses Kontos von anderen Synchronisationskonten aus"
+  },
+  "LabelNestedSyncYes": {
+    "message": "Bette den lokalen Ordner dieses Kontos in andere Synchronisationskonten ein"
+  },
+  "LabelImportExport": {
+    "message": " Konten Importieren/Exportieren"
+  },
+  "LabelExport": {
+    "message": "Konten exportieren"
+  },
+  "LabelImport": {
+    "message": "Konten importieren"
+  },
+  "LabelFolderNotFound": {
+    "message": "Ordner nicht gefunden"
+  },
+  "LabelSyncTabs": {
+    "message": "Synchronisiere Reiter"
+  },
+  "LabelTabs": {
+    "message": "Reiter"
+  },
+  "LabelSyncDown": {
+    "message": "Empfange vom Server"
+  },
+  "LabelSyncUp": {
+    "message": "Sende zum Server"
+  },
+  "DescriptionFilesPermission": {
+    "message": "Stellen Sie sicher, dass floccus sowohl ausreichende Berechtigungen für die Nutzung der Lesezeichen App, als auch für die Nexcloud Files App hat."
+  }
 }
