@@ -56,11 +56,6 @@ export default {
           type: 'webdav',
           label: this.t('LabelAdapterwebdav'),
           description: this.t('DescriptionAdapterwebdav')
-        },
-        {
-          type: 'nextcloud-legacy',
-          label: this.t('LabelAdapternextcloud'),
-          description: this.t('DescriptionAdapternextcloud')
         }
       ]
     }
