@@ -114,11 +114,11 @@ export default class Diff {
 
   add(diff: Diff, types:TActionType[] = []):void {
     if (types.length === 0) {
-      diff.getActions().forEach(action => this.commit(action))
+      diff.getActions().forEach(action => this.commit({...action}))
       return
     }
     types.forEach(type =>
-      diff.getActions(type).forEach(action => this.commit(action))
+      diff.getActions(type).forEach(action => this.commit({...action}))
     )
   }
 
@@ -151,7 +151,13 @@ export default class Diff {
           .map(a => a.payload.id)
         return DAG
       }, {})
-    const batches = batchingToposort(DAG).map(batch => batch.map(id => folderMoves.find(a => String(a.payload.id) === String(id))))
+    let batches
+    try {
+      batches = batchingToposort(DAG).map(batch => batch.map(id => folderMoves.find(a => String(a.payload.id) === String(id))))
+    } catch (e) {
+      console.log({DAG, tree, actions})
+      throw e
+    }
     batches.push(bookmarks)
     batches.reverse()
     return batches
