@@ -18,6 +18,24 @@
 |---|-----|---|
 |<img align="left" src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="right" src="https://img.shields.io/chrome-web-store/rating/fnaicdffflnofjppbagibeoednhnbjhg.svg">| <img align="left" src="https://img.shields.io/amo/users/floccus.svg"> <img align="right" src="https://img.shields.io/amo/rating/floccus.svg">|[![](https://img.shields.io/badge/dynamic/json?label=rating&suffix=/5&query=%24.averageRating&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fgjkddcofhiifldbllobcamllmanombji)](https://microsoftedge.microsoft.com/addons/detail/floccus-bookmarks-sync/gjkddcofhiifldbllobcamllmanombji)|
 
+## Table of contents
+ * [Donate](#Donate)
+ * [Community](#Community)
+ * [Install](#Install)
+   * [Nextcloud](#Nextcloud)
+   * [Chrome](#Chrome)
+   * [Firefox](#Firefox)
+   * [Android](#Android)
+   * [Upgrading](#Upgrading)
+   * [Permissions](#Permissions)
+ * [Usage](#Usage)
+ * [Considerations](#Considerations)
+ * [What's with the name?](#whats-with-the-name)
+ * [Contributors](#Contributors)
+ * [Contribute](#Contribute)
+ * [Backers](#Backers)
+ * [Sponsors](#Sponsors)
+ * [License](#License)
 
 ## Donate
 
