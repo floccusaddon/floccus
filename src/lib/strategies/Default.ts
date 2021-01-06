@@ -719,10 +719,10 @@ export default class SyncProcess {
       : null
     const reconciled = !cacheItem
     const changedLocally =
-      (localHash !== cacheHash && localHash !== serverHash) ||
+      (localHash !== cacheHash) ||
       (cacheItem && localItem.parentId !== cacheItem.parentId)
     const changedUpstream =
-      (cacheHash !== serverHash && localHash !== serverHash) ||
+      (cacheHash !== serverHash) ||
       (cacheItem &&
         cacheItem.parentId !==
         mappingsSnapshot.ServerToLocal.folder[serverItem.parentId])
