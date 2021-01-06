@@ -1432,6 +1432,9 @@ describe('Floccus', function() {
             await account.sync() // propagate to server
             expect(account.getData().error).to.not.be.ok
 
+            await account.sync() // sync to server again for order to kick in
+            expect(account.getData().error).to.not.be.ok
+
             // move b into a in client
             await browser.bookmarks.move(bFolder.id, { parentId: aFolder.id })
 
