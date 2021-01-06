@@ -625,17 +625,19 @@ export default class SyncProcess {
   async executeReorderings(resource:OrderFolderResource, reorderings:Diff):Promise<void> {
     Logger.log({ reorderings })
 
-    await Parallel.each(reorderings.getActions(), async(action) => {
+    await Parallel.each(reorderings.getActions(ActionType.REORDER).map(a => a as ReorderAction), async(action) => {
       const item = action.payload
 
       if (this.canceled) {
         throw new Error(browser.i18n.getMessage('Error027'))
       }
 
-      if (action.type === ActionType.REORDER) {
-        await resource.orderFolder(item.id, action.order)
-        this.updateProgress()
+      if (action.order.length <= 1) {
+        return
       }
+
+      await resource.orderFolder(item.id, action.order)
+      this.updateProgress()
     })
   }
 
