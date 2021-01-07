@@ -51,7 +51,7 @@
     "message": "E017: 网络错误: 请检查你的网络连接或者账户信息"
   },
   "Error018": {
-    "message": "E018: 无法通过服务器进行身份验证"
+    "message": "E018：无法通过服务器进行身份验证。"
   },
   "Error019": {
     "message": "E019: HTTP状态 $1。 $2 请求失败。检查您的服务器配置和日志。"
@@ -79,6 +79,9 @@
   },
   "Error027": {
     "message": "E027: 同步进程中断"
+  },
+  "Error028": {
+    "message": "028：无法通过服务器进行身份验证。如果使用 2FA，请确保也授予对文件的访问权限。"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -186,10 +189,10 @@
     "message": "合并本地和远程更改（推荐）"
   },
   "LabelStrategyslave": {
-    "message": "始终覆盖并还原本地更改"
+    "message": "始终还原本地更改并拉取上游远程更改"
   },
   "LabelStrategyoverwrite": {
-    "message": "始终覆盖和还原远程更改"
+    "message": "始终还原上游远程更改并推送本地更改"
   },
   "LabelSave": {
     "message": "保存"
@@ -361,12 +364,30 @@
     "message": "在其他帐户同步中包括此帐户的本地文件夹"
   },
   "LabelImportExport": {
-    "message": "导入/导出"
+    "message": "导入/导出 帐户"
   },
   "LabelExport": {
-    "message": "导出"
+    "message": "导出帐户"
   },
   "LabelImport": {
-    "message": "导入"
+    "message": "导入帐户"
+  },
+  "LabelFolderNotFound": {
+    "message": "文件夹未找到"
+  },
+  "LabelSyncTabs": {
+    "message": "同步选项卡"
+  },
+  "LabelTabs": {
+    "message": "选项卡"
+  },
+  "LabelSyncDown": {
+    "message": "向下同步"
+  },
+  "LabelSyncUp": {
+    "message": "向上同步"
+  },
+  "DescriptionFilesPermission": {
+    "message": "确保授予 floccus 许可权，使其不仅可以使用书签应用程序，还可以使用 Nextcloud 文件应用程序。"
   }
 }

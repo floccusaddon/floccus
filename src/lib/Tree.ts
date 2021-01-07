@@ -120,23 +120,25 @@ export class Folder {
   public children: TItem[]
   public hashValue: Record<string,string>
   public isRoot = false
-  public loaded = false
+  public loaded = true
   private index: IItemIndex
 
-  constructor({ id, parentId, title, children, hashValue }
+  constructor({ id, parentId, title, children, hashValue, loaded }
   :{
     id:number|string,
     parentId?:number|string,
     title?:string,
     // eslint-disable-next-line no-use-before-define
     children?: TItem[],
-    hashValue?:Record<'true'|'false',string>
+    hashValue?:Record<'true'|'false',string>,
+    loaded?: boolean
   }) {
     this.id = id
     this.parentId = parentId
     this.title = title
     this.children = children || []
-    this.hashValue = hashValue || {}
+    this.hashValue = {...hashValue} || {}
+    this.loaded = typeof loaded !== 'undefined' ? loaded : true
   }
 
   // eslint-disable-next-line no-use-before-define
@@ -212,6 +214,10 @@ export class Folder {
   async hash(preserveOrder = false): Promise<string> {
     if (this.hashValue && this.hashValue[String(preserveOrder)]) {
       return this.hashValue[String(preserveOrder)]
+    }
+
+    if (!this.loaded) {
+      throw new Error('Trying to calculate hash of a folder that isn\'t loaded')
     }
 
     const children = this.children.slice()
@@ -328,6 +334,20 @@ export class Folder {
         })
         : null
     })
+  }
+
+  static getAncestorsOf(item: TItem, tree: Folder): TItem[] {
+    const ancestors = [item]
+    let parent = item
+    while (parent.id !== tree.id) {
+      ancestors.push(parent)
+      parent = tree.findItem(ItemType.FOLDER, parent.parentId)
+      if (!parent) {
+        throw new Error('Item is not a descendant of the tree passed')
+      }
+    }
+    ancestors.reverse()
+    return ancestors
   }
 }
 

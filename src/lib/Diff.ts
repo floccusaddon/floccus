@@ -114,11 +114,11 @@ export default class Diff {
 
   add(diff: Diff, types:TActionType[] = []):void {
     if (types.length === 0) {
-      diff.getActions().forEach(action => this.commit(action))
+      diff.getActions().forEach(action => this.commit({...action}))
       return
     }
     types.forEach(type =>
-      diff.getActions(type).forEach(action => this.commit(action))
+      diff.getActions(type).forEach(action => this.commit({...action}))
     )
   }
 
@@ -141,7 +141,7 @@ export default class Diff {
     const DAG = folderMoves
       .reduce((DAG, action1) => {
         DAG[action1.payload.id] = folderMoves.filter(action2 => {
-          if (action1 === action2) {
+          if (action1 === action2 || action1.payload.id === action2.payload.id) {
             return false
           }
           return (
@@ -151,7 +151,13 @@ export default class Diff {
           .map(a => a.payload.id)
         return DAG
       }, {})
-    const batches = batchingToposort(DAG).map(batch => batch.map(id => folderMoves.find(a => String(a.payload.id) === String(id))))
+    let batches
+    try {
+      batches = batchingToposort(DAG).map(batch => batch.map(id => folderMoves.find(a => String(a.payload.id) === String(id))))
+    } catch (e) {
+      console.log({DAG, tree, actions})
+      throw e
+    }
     batches.push(bookmarks)
     batches.reverse()
     return batches
@@ -179,7 +185,7 @@ export default class Diff {
         return
       }
 
-      Logger.log('Mapping action ' + action.type + (isLocalToServer ? 'LocalToServer' : 'ServerToLocal'), {...action})
+      Logger.log('Mapping action ' + action.type + ' ' + (isLocalToServer ? 'LocalToServer' : 'ServerToLocal'), {...action})
 
       if (action.type === ActionType.REORDER) {
         action.oldOrder = action.order
@@ -217,6 +223,7 @@ export default class Diff {
         if (typeof action.payload.parentId !== 'undefined' && typeof mappings.folder[action.payload.parentId] === 'undefined') {
           throw new Error('Cannot map parentId:' + action.payload.parentId)
         }
+        action.oldItem.parentId = action.payload.parentId
         action.payload.parentId = mappings.folder[action.payload.parentId]
       }
     })

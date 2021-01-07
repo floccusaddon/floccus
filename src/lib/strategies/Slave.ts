@@ -57,7 +57,7 @@ export default class SlaveSyncProcess extends DefaultStrategy {
           return
         }
         const concurrentMove = serverMoves.find(a =>
-          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id])
+          action.payload.id === mappingsSnapshot.ServerToLocal[a.payload.type ][a.payload.id] || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
         if (concurrentMove) {
           // removed on the server, moved locally, do nothing to recreate it on the server.
           return

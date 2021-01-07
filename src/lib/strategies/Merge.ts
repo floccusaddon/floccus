@@ -1,9 +1,10 @@
-import { ItemType } from '../Tree'
-import Diff, { Action, ActionType, MoveAction, ReorderAction } from '../Diff'
+import { Folder, ItemType } from '../Tree'
+import Diff, { Action, ActionType } from '../Diff'
 import Scanner from '../Scanner'
 import * as Parallel from 'async-parallel'
 import Default from './Default'
 import { Mapping } from '../Mappings'
+import Logger from '../Logger'
 
 export default class MergeSyncProcess extends Default {
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
@@ -90,10 +91,18 @@ export default class MergeSyncProcess extends Default {
         }
       }
       if (action.type === ActionType.MOVE) {
-        const concurrentHierarchyReversals = serverMoves.filter(a =>
-          action.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[a.payload.parentId]) &&
-          a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.LocalToServer.folder[action.payload.parentId])
-        )
+        const concurrentHierarchyReversals = serverMoves.filter(a => {
+          const serverFolder = this.serverTreeRoot.findItem(ItemType.FOLDER, a.payload.id)
+          const localFolder = this.localTreeRoot.findItem(ItemType.FOLDER, action.payload.id)
+
+          const localAncestors = Folder.getAncestorsOf(this.localTreeRoot.findItem(ItemType.FOLDER, action.payload.parentId), this.localTreeRoot)
+          const serverAncestors = Folder.getAncestorsOf(this.serverTreeRoot.findItem(ItemType.FOLDER, a.payload.parentId), this.serverTreeRoot)
+
+          // If both items are folders, and one of the ancestors of one item is a child of the other item
+          return action.payload.type === ItemType.FOLDER && a.payload.type === ItemType.FOLDER &&
+            localAncestors.find(ancestor => serverFolder.findItem(ItemType.FOLDER, mappingsSnapshot.LocalToServer.folder[ancestor.id])) &&
+            serverAncestors.find(ancestor => localFolder.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[ancestor.id]))
+        })
         if (concurrentHierarchyReversals.length) {
           concurrentHierarchyReversals.forEach(a => {
             // moved locally but moved in reverse hierarchical order on server
@@ -101,6 +110,15 @@ export default class MergeSyncProcess extends Default {
             const oldItem = a.payload.clone()
             oldItem.id = mappingsSnapshot.ServerToLocal[oldItem.type ][oldItem.id]
             oldItem.parentId = mappingsSnapshot.ServerToLocal.folder[oldItem.parentId]
+
+            if (
+              serverPlan.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id) ||
+              localDiff.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id)
+            ) {
+              // Don't create duplicates!
+              return
+            }
+
             // revert server move
             serverPlan.commit({...a, payload, oldItem})
           })
@@ -159,15 +177,23 @@ export default class MergeSyncProcess extends Default {
       }
       if (action.type === ActionType.MOVE) {
         const concurrentMove = localMoves.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id])
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id] || (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload)))
         if (concurrentMove) {
           // Moved both on server and locally, local has precedence: do nothing locally
           return
         }
-        const concurrentHierarchyReversals = localMoves.filter(a =>
-          action.payload.findItem(ItemType.FOLDER, mappingsSnapshot.LocalToServer.folder[a.payload.parentId]) &&
-          a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[action.payload.parentId])
-        )
+        const concurrentHierarchyReversals = localMoves.filter(a => {
+          const serverFolder = this.serverTreeRoot.findItem(ItemType.FOLDER, action.payload.id)
+          const localFolder = this.localTreeRoot.findItem(ItemType.FOLDER, a.payload.id)
+
+          const localAncestors = Folder.getAncestorsOf(this.localTreeRoot.findItem(ItemType.FOLDER, a.payload.parentId), this.localTreeRoot)
+          const serverAncestors = Folder.getAncestorsOf(this.serverTreeRoot.findItem(ItemType.FOLDER, action.payload.parentId), this.serverTreeRoot)
+
+          // If both items are folders, and one of the ancestors of one item is a child of the other item
+          return action.payload.type === ItemType.FOLDER && a.payload.type === ItemType.FOLDER &&
+            localAncestors.find(ancestor => serverFolder.findItem(ItemType.FOLDER, mappingsSnapshot.LocalToServer.folder[ancestor.id])) &&
+            serverAncestors.find(ancestor => localFolder.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[ancestor.id]))
+        })
         if (concurrentHierarchyReversals.length) {
           // Moved locally and in reverse hierarchical order on server. local has precedence: do nothing locally
           return
@@ -175,7 +201,7 @@ export default class MergeSyncProcess extends Default {
       }
       if (action.type === ActionType.UPDATE) {
         const concurrentUpdate = localUpdates.find(a =>
-          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type ][a.payload.id])
+          action.payload.id === mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id])
         if (concurrentUpdate) {
           // Updated both on server and locally, local has precedence: do nothing locally
           return
@@ -193,39 +219,12 @@ export default class MergeSyncProcess extends Default {
     return { localPlan, serverPlan}
   }
 
-  reconcileReorderings(plan:Diff, reverseMappings:Mapping, isLocalToServer: boolean) :void {
-    plan
-      .getActions(ActionType.REORDER)
-      .map(a => a as ReorderAction)
-      // MOVEs have oldItem from target tree and payload now mapped to target tree
-      // REORDERs have payload in source tree
-      .forEach(reorderAction => {
-        const childAwayMoves = plan.getActions(ActionType.MOVE)
-          .filter(move =>
-            (reorderAction.payload.id === reverseMappings[move.payload.type][move.oldItem.parentId]) &&
-            reorderAction.order.find(item => item.id === reverseMappings[move.payload.type ][move.payload.id] && item.type === move.payload.type)
-          )
-        const concurrentRemovals = plan.getActions(ActionType.REMOVE)
-          .filter(removal => reorderAction.order.find(item => item.id === reverseMappings[removal.payload.type ][removal.payload.id] && item.type === removal.payload.type))
-        reorderAction.order = reorderAction.order.filter(item =>
-          !childAwayMoves.find(move =>
-            item.id === reverseMappings[move.payload.type ][move.payload.id] && move.payload.type === item.type) &&
-          !concurrentRemovals.find(removal =>
-            item.id === reverseMappings[removal.payload.type ][removal.payload.id] && removal.payload.type === item.type)
-        )
-        plan.getActions(ActionType.MOVE)
-          .map(a => a as MoveAction)
-          .filter(move =>
-            reorderAction.payload.id === reverseMappings.folder[move.payload.parentId] &&
-            !reorderAction.order.find(item => item.id === reverseMappings[move.payload.type ][move.payload.id] && item.type === move.payload.type)
-          )
-          .forEach(a => {
-            reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: reverseMappings[a.payload.type ][a.payload.id] })
-          })
-      })
+  reconcileReorderings(targetTreePlan:Diff, sourceTreePlan:Diff, sourceToTargetMappings:Mapping, isLocalToServer: boolean) : void {
+    super.reconcileReorderings(targetTreePlan, sourceTreePlan, sourceToTargetMappings, true)
   }
 
   async loadChildren():Promise<void> {
+    Logger.log('Merge strategy: Load complete tree from server')
     this.serverTreeRoot = await this.server.getBookmarksTree(true)
   }
 }

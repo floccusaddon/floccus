@@ -1,5 +1,23 @@
 # Changelog
 
+## v4.4.7
+
+### Fixed
+ - UI: NewAccount: Remove nextcloud legacy option
+ - NextcloudFolders: Fix sparse trees
+ - NextcloudFolders#updateBookmark: preserve intention when moving bookmarks
+ - Scanner: Clone with Hash
+ - Sync: Move canMergeWith detection to Scanner mergeable
+ - Sync: Fix race conditions
+ - Sync: Simplify scanner
+ - Sync: Avoid artificial Cycles in Toposort
+ - Sync: Avoid duplicate REORDERs
+ - Sync: Filter out REORDERs that are invlidated from hierarchy reversal remediation
+ - Sync: Avoid duplicates in concurrent hierarchy reversal detection
+ - Sync: Extend detection for concurrent hierarchy reversals
+ - Fix reconcileReorders
+ - Fix Scanner: Account for reorders at the end
+
 ## v4.4.6
 
 ### Fixed

@@ -1,6 +1,6 @@
 import * as Parallel from 'async-parallel'
-import Diff, { ActionType } from './Diff'
-import { Bookmark, Folder, TItem } from './Tree'
+import Diff, { ActionType, CreateAction, RemoveAction } from './Diff'
+import { Bookmark, Folder, ItemType, TItem } from './Tree'
 
 export default class Scanner {
   private oldTree: TItem
@@ -26,6 +26,7 @@ export default class Scanner {
     this.diff = new Diff()
     await this.diffItem(this.oldTree, this.newTree)
     await this.findMoves()
+    await this.addReorders()
     return this.diff
   }
 
@@ -46,6 +47,9 @@ export default class Scanner {
         return
       }
     }
+
+    let childrenDiff = 0
+
     if (oldFolder.title !== newFolder.title && oldFolder.parentId && newFolder.parentId) {
       // folder title changed and it's not the root folder
       this.diff.commit({type: ActionType.UPDATE, payload: newFolder, oldItem: oldFolder})
@@ -61,6 +65,7 @@ export default class Scanner {
       }
 
       this.diff.commit({type: ActionType.REMOVE, payload: old, index})
+      childrenDiff++
     }, 1)
 
     // created Items
@@ -68,16 +73,15 @@ export default class Scanner {
     await Parallel.map(newFolder.children, async(newChild, index) => {
       if (!oldFolder.children.some(old => old.type === newChild.type && this.mergeable(old, newChild))) {
         this.diff.commit({type: ActionType.CREATE, payload: newChild, index})
+        childrenDiff++
       }
     }, 1)
 
-    if (newFolder.children.length > 1 || oldFolder.children.length > 1) {
+    if (childrenDiff === 0 && newFolder.children.length > 1) {
       this.diff.commit({
         type: ActionType.REORDER,
         payload: newFolder,
-        oldItem: oldFolder,
         order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
-        oldOrder: oldFolder.children.map(i => ({ type: i.type, id: i.id }))
       })
     }
   }
@@ -115,17 +119,17 @@ export default class Scanner {
     // repeat until no rewrites happen anymore
     while (reconciled) {
       reconciled = false
-      let createAction, removeAction
+      let createAction: CreateAction, removeAction: RemoveAction
 
       // First find direct matches (avoids glitches when folders and their contents have been moved)
-      createActions = this.diff.getActions(ActionType.CREATE)
+      createActions = this.diff.getActions(ActionType.CREATE).map(a => a as CreateAction)
       while (!reconciled && (createAction = createActions.shift())) {
         const createdItem = createAction.payload
-        removeActions = this.diff.getActions(ActionType.REMOVE)
+        removeActions = this.diff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
         while (!reconciled && (removeAction = removeActions.shift())) {
           const removedItem = removeAction.payload
-          // We also allow canMergeWith here, because e.g. for NextcloudFolders the id of moved bookmarks changes
-          if (this.mergeable(removedItem, createdItem) || (removedItem.type === 'bookmark' && removedItem.canMergeWith(createdItem))) {
+
+          if (this.mergeable(removedItem, createdItem)) {
             this.diff.retract(createAction)
             this.diff.retract(removeAction)
             this.diff.commit({
@@ -136,16 +140,17 @@ export default class Scanner {
               oldIndex: removeAction.index
             })
             reconciled = true
+            // Don't use the items from the action, but the ones in the actual tree to avoid using tree parts mutated by this algorithm (see below)
             await this.diffItem(removedItem, createdItem)
           }
         }
       }
 
       // Then find descendant matches
-      createActions = this.diff.getActions(ActionType.CREATE)
+      createActions = this.diff.getActions(ActionType.CREATE).map(a => a as CreateAction)
       while (!reconciled && (createAction = createActions.shift())) {
         const createdItem = createAction.payload
-        removeActions = this.diff.getActions(ActionType.REMOVE)
+        removeActions = this.diff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
         while (!reconciled && (removeAction = removeActions.shift())) {
           const removedItem = removeAction.payload
           const oldItem = removedItem.findItemFilter(createdItem.type, item => this.mergeable(item, createdItem))
@@ -155,9 +160,13 @@ export default class Scanner {
             if (oldItem === removedItem) {
               this.diff.retract(removeAction)
             } else {
-              const oldParent = removedItem.findItem('folder', oldItem.parentId)
-              oldIndex = oldParent.children.indexOf(oldItem)
-              oldParent.children.splice(oldIndex, 1)
+              // We clone the item here, because we don't want to mutate all copies of this tree (item)
+              const removedItemClone = removedItem.clone(true)
+              const oldParentClone = removedItemClone.findItem(ItemType.FOLDER, oldItem.parentId) as Folder
+              const oldItemClone = removedItemClone.findItem(oldItem.type, oldItem.id)
+              oldIndex = oldParentClone.children.indexOf(oldItemClone)
+              oldParentClone.children.splice(oldIndex, 1)
+              removeAction.payload = removedItemClone
             }
             this.diff.commit({
               type: ActionType.MOVE,
@@ -176,9 +185,13 @@ export default class Scanner {
               if (newItem === createdItem) {
                 this.diff.retract(createAction)
               } else {
-                const newParent = createdItem.findItem('folder', newItem.parentId)
-                index = newParent.children.indexOf(newItem)
-                newParent.children.splice(index, 1)
+                // We clone the item here, because we don't want to mutate all copies of this tree (item)
+                const createdItemClone = createdItem.clone(true)
+                const newParentClone = createdItemClone.findItem(ItemType.FOLDER, newItem.parentId) as Folder
+                const newClonedItem = createdItemClone.findItem(newItem.type, newItem.id)
+                index = newParentClone.children.indexOf(newClonedItem)
+                newParentClone.children.splice(index, 1)
+                createAction.payload = createdItemClone
               }
               this.diff.commit({
                 type: ActionType.MOVE,
@@ -193,6 +206,49 @@ export default class Scanner {
           }
         }
       }
+    }
+  }
+
+  async addReorders(): Promise<void> {
+    const targets = {}
+    const sources = {}
+
+    // Collect folders to reorder
+    this.diff.getActions()
+      .forEach(action => {
+        switch (action.type) {
+          case ActionType.CREATE:
+            targets[action.payload.parentId] = true
+            break
+          case ActionType.REMOVE:
+            sources[action.payload.parentId] = true
+            break
+          case ActionType.MOVE:
+            targets[action.payload.parentId] = true
+            sources[action.oldItem.parentId] = true
+            break
+        }
+      })
+
+    for (const folderId in sources) {
+      const oldFolder = this.oldTree.findItem(ItemType.FOLDER, folderId) as Folder
+      const newFolder = this.newTree.findItemFilter(ItemType.FOLDER, (item) => this.mergeable(oldFolder, item)) as Folder
+      if (newFolder) {
+        targets[newFolder.id] = true
+      }
+    }
+
+    for (const folderId in targets) {
+      const newFolder = this.newTree.findItem(ItemType.FOLDER, folderId) as Folder
+      const duplicate = this.diff.getActions(ActionType.REORDER).find(a => a.payload.id === newFolder.id)
+      if (duplicate) {
+        this.diff.retract(duplicate)
+      }
+      this.diff.commit({
+        type: ActionType.REORDER,
+        payload: newFolder,
+        order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
+      })
     }
   }
 }

@@ -14,10 +14,28 @@
 - 📦 Easily export your configuration
 - 🔒 Keep your credentials secure with an encryption passphrase
 
-[![Chrome Webstore](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|[![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)|[<img alt="Microsoft Edge" src="https://developer.microsoft.com/en-us/store/badges/images/English_get-it-from-MS.png" height="45" />](https://microsoftedge.microsoft.com/addons/detail/gjkddcofhiifldbllobcamllmanombji)|
+[![Chrome Webstore](https://storage.googleapis.com/chrome-gcs-uploader.appspot.com/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/tbyBjqi7Zu733AAKA5n4.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|[![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)|[<img alt="Microsoft Edge" src="https://developer.microsoft.com/en-us/store/badges/images/English_get-it-from-MS.png" height="45" />](https://microsoftedge.microsoft.com/addons/detail/gjkddcofhiifldbllobcamllmanombji)|
 |---|-----|---|
 |<img align="left" src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="right" src="https://img.shields.io/chrome-web-store/rating/fnaicdffflnofjppbagibeoednhnbjhg.svg">| <img align="left" src="https://img.shields.io/amo/users/floccus.svg"> <img align="right" src="https://img.shields.io/amo/rating/floccus.svg">|[![](https://img.shields.io/badge/dynamic/json?label=rating&suffix=/5&query=%24.averageRating&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fgjkddcofhiifldbllobcamllmanombji)](https://microsoftedge.microsoft.com/addons/detail/floccus-bookmarks-sync/gjkddcofhiifldbllobcamllmanombji)|
 
+## Table of contents
+ * [Donate](#Donate)
+ * [Community](#Community)
+ * [Install](#Install)
+   * [Nextcloud](#Nextcloud)
+   * [Chrome](#Chrome)
+   * [Firefox](#Firefox)
+   * [Android](#Android)
+   * [Upgrading](#Upgrading)
+   * [Permissions](#Permissions)
+ * [Usage](#Usage)
+ * [Considerations](#Considerations)
+ * [What's with the name?](#whats-with-the-name)
+ * [Contributors](#Contributors)
+ * [Contribute](#Contribute)
+ * [Backers](#Backers)
+ * [Sponsors](#Sponsors)
+ * [License](#License)
 
 ## Donate
 
