@@ -105,6 +105,7 @@ export default {
   methods: {
     async updatePath() {
       if (this.mode !== 'folder' || this.value === 'tabs') {
+        this.mode = 'tabs'
         return
       }
       this.path = decodeURIComponent(
