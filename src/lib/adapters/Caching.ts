@@ -175,12 +175,12 @@ export default class CachingAdapter implements Adapter {
     const id = folder.id
     const oldFolder = this.bookmarksCache.findFolder(id)
     if (!oldFolder) {
-      throw new Error(browser.i18n.getMessage('Error013'))
+      return
     }
     // root folder doesn't have a parent, yo!
     const foundOldFolder = this.bookmarksCache.findFolder(oldFolder.parentId)
     if (!foundOldFolder) {
-      throw new Error(browser.i18n.getMessage('Error014'))
+      return
     }
     foundOldFolder.children.splice(foundOldFolder.children.indexOf(oldFolder), 1)
     this.bookmarksCache.createIndex()

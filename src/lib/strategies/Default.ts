@@ -1,7 +1,7 @@
 import { Bookmark, Folder, TItem, ItemType } from '../Tree'
 import Logger from '../Logger'
 import browser from '../browser-api'
-import Diff, { Action, ActionType, CreateAction, MoveAction, ReorderAction } from '../Diff'
+import Diff, { Action, ActionType, CreateAction, MoveAction, RemoveAction, ReorderAction, UpdateAction } from '../Diff'
 import Scanner from '../Scanner'
 import * as Parallel from 'async-parallel'
 import { throttle } from 'throttle-debounce'
@@ -85,6 +85,8 @@ export default class SyncProcess {
 
     const {localPlan, serverPlan} = await this.reconcile(localDiff, serverDiff)
     Logger.log({localPlan, serverPlan})
+
+    Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
 
     this.actionsPlanned = serverPlan.getActions().length + localPlan.getActions().length
 
@@ -204,15 +206,15 @@ export default class SyncProcess {
   async reconcile(localDiff:Diff, serverDiff:Diff):Promise<{serverPlan: Diff, localPlan: Diff}> {
     let mappingsSnapshot = await this.mappings.getSnapshot()
 
-    const serverCreations = serverDiff.getActions(ActionType.CREATE)
-    const serverRemovals = serverDiff.getActions(ActionType.REMOVE)
-    const serverMoves = serverDiff.getActions(ActionType.MOVE)
+    const serverCreations = serverDiff.getActions(ActionType.CREATE).map(a => a as CreateAction)
+    const serverRemovals = serverDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
+    const serverMoves = serverDiff.getActions(ActionType.MOVE).map(a => a as MoveAction)
 
-    const localCreations = localDiff.getActions(ActionType.CREATE)
-    const localRemovals = localDiff.getActions(ActionType.REMOVE)
-    const localMoves = localDiff.getActions(ActionType.MOVE)
-    const localUpdates = localDiff.getActions(ActionType.UPDATE)
-    const localReorders = localDiff.getActions(ActionType.REORDER)
+    const localCreations = localDiff.getActions(ActionType.CREATE).map(a => a as CreateAction)
+    const localRemovals = localDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
+    const localMoves = localDiff.getActions(ActionType.MOVE).map(a => a as MoveAction)
+    const localUpdates = localDiff.getActions(ActionType.UPDATE).map(a => a as UpdateAction)
+    const localReorders = localDiff.getActions(ActionType.REORDER).map(a => a as ReorderAction)
 
     const avoidServerReorders = {}
     const avoidLocalReorders = {}
@@ -222,11 +224,32 @@ export default class SyncProcess {
     await Parallel.each(localDiff.getActions(), async(action:Action) => {
       if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = serverRemovals.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.ServerToLocal[a.payload.type][a.payload.id]))
+          (action.payload.type === a.payload.type && String(action.payload.id) === String(a.payload.id)) ||
+          a.payload.findItem(ItemType.FOLDER, action.payload.parentId))
         if (concurrentRemoval) {
           // Already deleted on server, do nothing.
           return
         }
+
+        const complexConcurrentRemoval = localRemovals.find(localRemoval => {
+          let currentAction : RemoveAction|CreateAction|MoveAction =
+            serverDiff.getActions()
+              .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
+              .map(a => a as CreateAction|MoveAction)
+              .find(serverAction => serverAction.payload.findItem(ItemType.FOLDER, mappingsSnapshot.LocalToServer.folder[action.payload.parentId]))
+          while (currentAction && !localRemoval.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[currentAction.payload.parentId])) {
+            currentAction = serverDiff.getActions()
+              .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
+              .map(a => a as CreateAction|MoveAction)
+              .find(serverAction => serverAction.payload.findItem(ItemType.FOLDER, currentAction.payload.parentId))
+          }
+          return Boolean(currentAction)
+        })
+        if (complexConcurrentRemoval) {
+          // already deleted by a different REMOVE from this diff (connected via local MOVE|CREATEs)
+          return
+        }
+
         const concurrentMove = serverMoves.find(a =>
           String(action.payload.id) === String(mappingsSnapshot.ServerToLocal[a.payload.type][a.payload.id]))
         if (concurrentMove) {
@@ -265,18 +288,34 @@ export default class SyncProcess {
           return
         }
         const concurrentRemoval = serverRemovals.find(a =>
-          a.payload.findItem('folder', action.payload.parentId))
+          // server removal removed this creation's target
+          a.payload.findItem(ItemType.FOLDER, action.payload.parentId) ||
+          // or: server removal removed a move's target that was the target of this creation
+          localDiff.getActions().filter(a => a.type === ActionType.MOVE || a.type === ActionType.CREATE)
+            .find(a2 => a.payload.findItem(ItemType.FOLDER, a2.payload.parentId) && a2.payload.findItem(ItemType.FOLDER, action.payload.parentId))
+        )
         if (concurrentRemoval) {
+          avoidServerReorders[action.payload.parentId] = true
           // Already deleted on server, do nothing.
           return
         }
       }
       if (action.type === ActionType.MOVE) {
+        const concurrentParentRemoval = serverRemovals.find(a =>
+          // server-side removal of this move's target
+          a.payload.findItem(ItemType.FOLDER, action.payload.parentId) ||
+          // or: server-side removal of a local creation's target which was the target of this move
+          localDiff.getActions().filter(a => a.type === ActionType.MOVE || a.type === ActionType.CREATE)
+            .find(a2 => a2.payload.findItem(ItemType.FOLDER, action.payload.parentId) && a.payload.findItem(ItemType.FOLDER, a2.payload.parentId)))
+        if (concurrentParentRemoval) {
+          return
+        }
         const concurrentRemoval = serverRemovals.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.ServerToLocal[a.payload.type][a.payload.id]))
-        if (concurrentRemoval) {
+          (action.payload.type === a.payload.type && String(action.payload.id) === String(a.payload.id)) ||
+          a.payload.findItem(ItemType.FOLDER, action.oldItem.parentId))
+        if (concurrentRemoval && !localRemovals.find(a => a.payload.findItem(action.payload.type, action.payload.id))) {
           // moved locally but removed on the server, recreate it on the server
-          serverPlan.commit({...action, type: ActionType.CREATE})
+          serverPlan.commit({...action, type: ActionType.CREATE, oldItem: null})
           return
         }
         // Find concurrent moves that form a hierarchy reversal together with this one
@@ -341,13 +380,34 @@ export default class SyncProcess {
     await Parallel.each(serverDiff.getActions(), async(action:Action) => {
       if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = localRemovals.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id]))
+          (action.payload.type === a.payload.type && String(action.payload.id) === String(a.payload.id)) ||
+          a.payload.findItem(ItemType.FOLDER, action.payload.parentId))
         if (concurrentRemoval) {
-          // Already deleted on server, do nothing.
+          // Already deleted on locally, do nothing.
           return
         }
+
+        const complexConcurrentRemoval = serverRemovals.find(serverRemoval => {
+          let currentAction : RemoveAction|CreateAction|MoveAction = localDiff.getActions()
+            .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
+            .map(a => a as CreateAction|MoveAction)
+            .find(localAction => localAction.payload.findItem(ItemType.FOLDER, action.payload.parentId))
+
+          while (currentAction && !serverRemoval.payload.findItem(ItemType.FOLDER, currentAction.payload.parentId)) {
+            currentAction = localDiff.getActions()
+              .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
+              .map(a => a as CreateAction|MoveAction)
+              .find(localAction => localAction.payload.findItem(ItemType.FOLDER, currentAction.payload.parentId))
+          }
+          return Boolean(currentAction)
+        })
+        if (complexConcurrentRemoval) {
+          // already deleted by a different REMOVE from this diff (connected via local MOVE|CREATEs)
+          return
+        }
+
         const concurrentMove = localMoves.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id]))
+          action.payload.type === a.payload.type && String(action.payload.id) === String(a.payload.id))
         if (concurrentMove) {
           // removed on server, moved locally, do nothing to keep it locally.
           return
@@ -355,7 +415,7 @@ export default class SyncProcess {
       }
       if (action.type === ActionType.CREATE) {
         const concurrentCreation = localCreations.find(a =>
-          String(action.payload.parentId === mappingsSnapshot.LocalToServer.folder[a.payload.parentId]) &&
+          String(action.payload.parentId) === String(mappingsSnapshot.LocalToServer.folder[a.payload.parentId]) &&
           action.payload.canMergeWith(a.payload)
         )
         if (concurrentCreation) {
@@ -385,7 +445,12 @@ export default class SyncProcess {
           return
         }
         const concurrentRemoval = localRemovals.find(a =>
-          a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[action.payload.parentId]))
+          // local removal removed this creation's target
+          a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[action.payload.parentId]) ||
+          // or: local removal removed a move or creation's target that was the target of this creation
+          serverDiff.getActions().filter(a => a.type === ActionType.MOVE || a.type === ActionType.CREATE)
+            .find(a2 => a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[a2.payload.parentId]) && a2.payload.findItem(ItemType.FOLDER, action.payload.parentId))
+        )
         if (concurrentRemoval) {
           avoidLocalReorders[action.payload.parentId] = true
           // Already deleted locally, do nothing.
@@ -393,11 +458,20 @@ export default class SyncProcess {
         }
       }
       if (action.type === ActionType.MOVE) {
-        /* We use canMergeWith for bookmarks as well for matching, in case of server moves, because bookmarks change ID on server moves ("<bookmarkID>;<folderID>") */
+        const concurrentParentRemoval = localRemovals.find(a =>
+          // local removal of this move's target
+          a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[action.payload.parentId]) ||
+          // or: local removal of a server-side creation or move's target which was the target of this move
+          serverDiff.getActions().filter(a => a.type === ActionType.MOVE || a.type === ActionType.CREATE)
+            .find(a2 => a2.payload.findItem(ItemType.FOLDER, action.payload.parentId) && a.payload.findItem(ItemType.FOLDER, mappingsSnapshot.ServerToLocal.folder[a2.payload.parentId])))
+        if (concurrentParentRemoval) {
+          return
+        }
         const concurrentRemoval = localRemovals.find(a =>
-          String(action.payload.id) === String(mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id]))
+          String(action.payload.id) === String(mappingsSnapshot.LocalToServer[a.payload.type][a.payload.id]) ||
+          a.payload.findItem(ItemType.FOLDER, action.oldItem.parentId))
         if (concurrentRemoval) {
-          localPlan.commit({...action, type: ActionType.CREATE})
+          localPlan.commit({...action, type: ActionType.CREATE, oldItem: null})
           return
         }
         const concurrentMove = localMoves.find(a =>
