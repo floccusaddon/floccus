@@ -232,6 +232,10 @@ export default class Scanner {
 
     for (const folderId in sources) {
       const oldFolder = this.oldTree.findItem(ItemType.FOLDER, folderId) as Folder
+      if (!oldFolder) {
+        // In case a MOVE's old parent was removed
+        continue
+      }
       const newFolder = this.newTree.findItemFilter(ItemType.FOLDER, (item) => this.mergeable(oldFolder, item)) as Folder
       if (newFolder) {
         targets[newFolder.id] = true
