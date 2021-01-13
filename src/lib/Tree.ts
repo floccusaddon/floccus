@@ -5,6 +5,13 @@ import * as Parallel from 'async-parallel'
 
 const STRANGE_PROTOCOLS = ['data:', 'javascript:', 'about:', 'chrome:']
 
+export const ItemLocation = {
+  LOCAL: 'Local',
+  SERVER: 'Server'
+} as const
+
+export type TItemLocation = (typeof ItemLocation)[keyof typeof ItemLocation];
+
 export const ItemType = {
   FOLDER: 'folder',
   BOOKMARK: 'bookmark'
@@ -26,13 +33,15 @@ export class Bookmark {
   public title: string
   public url: string
   public tags: string[]
+  public location: TItemLocation
   private hashValue: string
 
-  constructor({ id, parentId, url, title, tags }: { id:string|number, parentId:string|number, url:string, title:string, tags?: string[] }) {
+  constructor({ id, parentId, url, title, tags, location }: { id:string|number, parentId:string|number, url:string, title:string, tags?: string[], location: TItemLocation }) {
     this.id = id
     this.parentId = parentId
     this.title = title
     this.tags = tags
+    this.location = location
 
     // not a regular bookmark
     if (STRANGE_PROTOCOLS.some(proto => url.indexOf(proto) === 0)) {
@@ -65,8 +74,15 @@ export class Bookmark {
     return this.hashValue
   }
 
-  clone():Bookmark {
-    return new Bookmark(this)
+  clone(withHash?: boolean, location?: TItemLocation):Bookmark {
+    return new Bookmark({...this, location: location ?? this.location})
+  }
+
+  withLocation<T extends TItemLocation>(location: T): Bookmark {
+    return new Bookmark({
+      ...this,
+      location,
+    })
   }
 
   createIndex():any {
@@ -121,9 +137,10 @@ export class Folder {
   public hashValue: Record<string,string>
   public isRoot = false
   public loaded = true
+  public location: TItemLocation
   private index: IItemIndex
 
-  constructor({ id, parentId, title, children, hashValue, loaded }
+  constructor({ id, parentId, title, children, hashValue, loaded, location }
   :{
     id:number|string,
     parentId?:number|string,
@@ -131,7 +148,8 @@ export class Folder {
     // eslint-disable-next-line no-use-before-define
     children?: TItem[],
     hashValue?:Record<'true'|'false',string>,
-    loaded?: boolean
+    loaded?: boolean,
+    location: TItemLocation
   }) {
     this.id = id
     this.parentId = parentId
@@ -139,6 +157,7 @@ export class Folder {
     this.children = children || []
     this.hashValue = {...hashValue} || {}
     this.loaded = typeof loaded !== 'undefined' ? loaded : true
+    this.location = location
   }
 
   // eslint-disable-next-line no-use-before-define
@@ -247,11 +266,12 @@ export class Folder {
     return this.hashValue[String(preserveOrder)]
   }
 
-  clone(withHash?:boolean):Folder {
+  clone(withHash?:boolean, location?: TItemLocation):Folder {
     return new Folder({
       ...this,
       ...(!withHash && { hashValue: {} }),
-      children: this.children.map(child => child.clone(withHash))
+      ...(location && {location}),
+      children: this.children.map(child => child.clone(withHash, location ?? this.location))
     })
   }
 
@@ -320,7 +340,7 @@ export class Folder {
     return resource.removeFolder(this)
   }
 
-  static hydrate(obj: {id: string|number, parentId?: string|number, title?: string, children: any[]}): Folder {
+  static hydrate(obj: {id: string|number, parentId?: string|number, title?: string, location: TItemLocation, children: any[]}): Folder {
     return new Folder({
       ...obj,
       children: obj.children

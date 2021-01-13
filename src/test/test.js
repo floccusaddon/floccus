@@ -131,7 +131,8 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type === 'fake') {
               account.server.bookmarksCache = new Folder({
                 id: '',
-                title: 'root'
+                title: 'root',
+                location: 'Server'
               })
             }
             await account.init()
@@ -2421,7 +2422,7 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type === 'fake') {
             // Wrire both accounts to the same fake db
               account2.server.bookmarksCache = account1.server.bookmarksCache = new Folder(
-                { id: '', title: 'root' }
+                { id: '', title: 'root', location: 'Server' }
               )
             }
           })
@@ -2989,7 +2990,7 @@ describe('Floccus', function() {
           if (ACCOUNT_DATA.type === 'fake') {
             // Wrire both accounts to the same fake db
             account2.server.bookmarksCache = account1.server.bookmarksCache = new Folder(
-              { id: '', title: 'root' }
+              { id: '', title: 'root', location: 'Server' }
             )
             account2.server.__defineSetter__('highestId', (id) => {
               account1.server.highestId = id

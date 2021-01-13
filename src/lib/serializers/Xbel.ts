@@ -1,5 +1,5 @@
 import Serializer from '../interfaces/Serializer'
-import { Bookmark, Folder } from '../Tree'
+import { Bookmark, Folder, ItemLocation } from '../Tree'
 
 class XbelSerializer implements Serializer {
   serialize(folder) {
@@ -18,7 +18,7 @@ class XbelSerializer implements Serializer {
       )
     }
 
-    const rootFolder = new Folder({ id: 0, title: 'root' })
+    const rootFolder = new Folder({ id: 0, title: 'root', location: ItemLocation.SERVER })
     this._parseFolder(nodeList[0], rootFolder)
     return rootFolder
   }
@@ -33,13 +33,15 @@ class XbelSerializer implements Serializer {
           id: parseInt(node.id),
           parentId: folder.id,
           url: node.getAttribute('href'),
-          title: node.firstElementChild.textContent
+          title: node.firstElementChild.textContent,
+          location: ItemLocation.SERVER,
         })
       } else if (node.tagName && node.tagName === 'folder') {
         item = new Folder({
           id: parseInt(node.getAttribute('id')),
           title: node.firstElementChild.textContent,
-          parentId: folder.id
+          parentId: folder.id,
+          location: ItemLocation.SERVER,
         })
         this._parseFolder(node, item)
       } else {

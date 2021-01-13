@@ -4,7 +4,7 @@ import * as Tree from './Tree'
 import { IResource } from './interfaces/Resource'
 import PQueue from 'p-queue'
 import Account from './Account'
-import { Bookmark, Folder } from './Tree'
+import { Bookmark, Folder, ItemLocation } from './Tree'
 import Ordering from './interfaces/Ordering'
 
 export default class LocalTree implements IResource {
@@ -62,6 +62,7 @@ export default class LocalTree implements IResource {
       }
       if (node.children) {
         const folder = new Tree.Folder({
+          location: ItemLocation.LOCAL,
           id: node.id,
           parentId,
           title: parentId ? overrideTitle || node.title : undefined,
@@ -73,6 +74,7 @@ export default class LocalTree implements IResource {
         return folder
       } else {
         return new Tree.Bookmark({
+          location: ItemLocation.LOCAL,
           id: node.id,
           parentId,
           title: node.title,

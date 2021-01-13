@@ -1,4 +1,4 @@
-import { TItemType } from './Tree'
+import { TItem, TItemLocation, TItemType } from './Tree'
 
 type InternalItemTypeMapping = { LocalToServer: Record<string, string>, ServerToLocal: Record<string, string> }
 
@@ -100,5 +100,29 @@ export default class Mappings {
         }
       }
     }
+  }
+
+  static mapId(mappingsSnapshot:MappingSnapshot, item: TItem, target: TItemLocation) : string|number {
+    if (item.location === target) {
+      return item.id
+    }
+    return mappingsSnapshot[item.location + 'To' + target][item.type][item.id]
+  }
+
+  static mapParentId(mappingsSnapshot:MappingSnapshot, item: TItem, target: TItemLocation) : string|number {
+    if (item.location === target) {
+      return item.parentId
+    }
+    return mappingsSnapshot[item.location + 'To' + target].folder[item.parentId]
+  }
+
+  static mappable(mappingsSnapshot: MappingSnapshot, item1: TItem, item2: TItem) : boolean {
+    if (Mappings.mapId(mappingsSnapshot, item1, item2.location) === item2.id) {
+      return true
+    }
+    if (Mappings.mapId(mappingsSnapshot, item2, item1.location) === item1.id) {
+      return true
+    }
+    return false
   }
 }

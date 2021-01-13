@@ -3,7 +3,7 @@
 import Adapter from '../interfaces/Adapter'
 import HtmlSerializer from '../serializers/Html'
 import Logger from '../Logger'
-import { Bookmark, Folder, TItem } from '../Tree'
+import { Bookmark, Folder, ItemLocation, TItem } from '../Tree'
 import { Base64 } from 'js-base64'
 import AsyncLock from 'async-lock'
 import browser from '../browser-api'
@@ -140,7 +140,8 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
             id: bm.id as number | string,
             url: bm.url as string,
             title: bm.title as string,
-            parentId: null
+            parentId: null,
+            location: ItemLocation.SERVER,
           }
 
           return bm.folders.map((parentId) => {
@@ -211,7 +212,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
   }
 
   async _findServerRoot():Promise<Folder> {
-    let tree = new Folder({ id: -1, })
+    let tree = new Folder({ id: -1, location: ItemLocation.SERVER })
     let childFolders
     await Parallel.each(
       this.server.serverRoot.split('/').slice(1),
@@ -237,7 +238,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
           }
           currentChild = { id: json.item.id, children: [], title: json.item.title }
         }
-        tree = new Folder({ id: currentChild.id, title: currentChild.title })
+        tree = new Folder({ id: currentChild.id, title: currentChild.title, location: ItemLocation.SERVER })
       },
       1
     )
@@ -245,7 +246,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
   }
 
   async getCompleteBookmarksTree():Promise<Folder> {
-    let tree = new Folder({ id: -1, })
+    let tree = new Folder({ id: -1, location: ItemLocation.SERVER })
     if (this.server.serverRoot) {
       tree = await this._findServerRoot()
     }
@@ -260,7 +261,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     this.hasFeatureHashing = true
     this.hasFeatureExistenceCheck = true
 
-    let tree = new Folder({ id: -1 })
+    let tree = new Folder({ id: -1, location: ItemLocation.SERVER })
 
     if (this.server.serverRoot) {
       tree = await this._findServerRoot()
@@ -312,12 +313,14 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
               title: item.title,
               parentId: folderId,
               url: item.url,
+              location: ItemLocation.SERVER,
             })
           } else if (item.type === 'folder') {
             const childFolder = new Folder({
               id: item.id,
               parentId: folderId,
               title: item.title,
+              location: ItemLocation.SERVER,
             })
             childFolder.loaded = Boolean(item.children) // not children.length but whether the whole children field exists
             childFolder.children = recurseChildren(item.id, item.children || [])
@@ -327,7 +330,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       }
       return recurseChildren(folderId, children)
     } else {
-      const tree = new Folder({id: folderId})
+      const tree = new Folder({id: folderId, location: ItemLocation.SERVER})
       const [childrenOrder, childFolders, childBookmarks] = await Promise.all([
         this._getChildOrder(folderId, layers),
         this._getChildFolders(folderId, layers),
@@ -352,7 +355,8 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
                 id: child.id,
                 title: folder.title,
                 parentId: tree.id,
-                loaded: false
+                loaded: false,
+                location: ItemLocation.SERVER,
               })
               tree.children.push(newFolder)
               return { newFolder, child, folder}
@@ -470,7 +474,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     }
 
     parentFolder.children.push(
-      new Folder({ id: json.item.id, title, parentId })
+      new Folder({ id: json.item.id, title, parentId, location: ItemLocation.SERVER })
     )
     this.tree.createIndex()
     return json.item.id
@@ -517,6 +521,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
         id,
         title,
         parentId,
+        location: ItemLocation.SERVER,
         children: children.map((item) => {
           if (item.type === 'bookmark') {
             return new Bookmark({
@@ -524,6 +529,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
               title: item.title,
               url: item.url,
               parentId: id,
+              location: ItemLocation.SERVER,
             })
           } else if (item.type === 'folder') {
             return recurseChildren(item.children, item.id, item.title, id)
@@ -633,7 +639,8 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
         url: bm.url,
         title: bm.title,
         parentId: parentId,
-        tags: bm.tags
+        tags: bm.tags,
+        location: ItemLocation.SERVER,
       })
     })
   }
