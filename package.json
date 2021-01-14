@@ -43,7 +43,7 @@
     "node-fetch": "^2.6.1",
     "prettier": "^2.2.1",
     "sass": "^1.32.3",
-    "sass-loader": "^8.0.2",
+    "sass-loader": "^10.1.1",
     "seedrandom": "^3.0.5",
     "selenium-webdriver": "^4.0.0-alpha.8",
     "ts-loader": "^8.0.14",
