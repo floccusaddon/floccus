@@ -122,7 +122,7 @@ export default class LocalTree implements IResource {
     try {
       await this.queue.add(() => browser.bookmarks.remove(bookmarkId))
     } catch (e) {
-      throw new Error('Could not remove ' + bookmark.inspect() + ': ' + e.message)
+      Logger.log('Could not remove ' + bookmark.inspect() + ': ' + e.message + '\n Moving on')
     }
   }
 
@@ -178,7 +178,7 @@ export default class LocalTree implements IResource {
     try {
       await this.queue.add(() => browser.bookmarks.removeTree(id))
     } catch (e) {
-      throw new Error('Could not remove ' + folder.inspect() + ': ' + e.message)
+      Logger.log('Could not remove ' + folder.inspect() + ': ' + e.message + '\n Moving on.')
     }
   }
 
