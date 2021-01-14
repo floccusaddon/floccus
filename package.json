@@ -51,7 +51,7 @@
     "vuetify-loader": "^1.6.0",
     "webpack": "^4.46.0",
     "webpack-cli": "^3.3.12",
-    "webpack-merge": "^4.2.2"
+    "webpack-merge": "^5.7.3"
   },
   "dependencies": {
     "async-lock": "^1.2.8",
