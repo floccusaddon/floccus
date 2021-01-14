@@ -58,7 +58,7 @@
     "async-parallel": "^1.2.3",
     "babel-polyfill": "^6.20.0",
     "batching-toposort": "^1.2.0",
-    "css-loader": "^3.6.0",
+    "css-loader": "^5.0.1",
     "dom-delegator": "^13.1.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-import-resolver-webpack": "^0.12.2",
