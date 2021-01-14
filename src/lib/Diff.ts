@@ -125,6 +125,22 @@ export default class Diff {
     )
   }
 
+  static findChain(mappingsSnapshot: MappingSnapshot, actions: Action[], currentItem: TItem, targetAction: Action): boolean {
+    if (
+      targetAction.payload.findItem(ItemType.FOLDER,
+        Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location))
+    ) {
+      return true
+    }
+    const newCurrentAction = actions.find(targetAction =>
+      targetAction.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location))
+    )
+    if (newCurrentAction) {
+      return Diff.findChain(mappingsSnapshot, actions, newCurrentAction.payload, targetAction)
+    }
+    return false
+  }
+
   static sortMoves(actions: Action[], tree: Folder) :Action[][] {
     const bookmarks = actions.filter(a => a.payload.type === ItemType.BOOKMARK)
     const folderMoves = actions.filter(a => a.payload.type === ItemType.FOLDER)

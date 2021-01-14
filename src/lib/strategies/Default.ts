@@ -208,41 +208,32 @@ export default class SyncProcess {
     const sourceCreations = sourceDiff.getActions(ActionType.CREATE).map(a => a as CreateAction)
     const sourceRemovals = sourceDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
 
+    const allCreateAndMoveActions = targetDiff.getActions()
+      .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
+      .map(a => a as CreateAction|MoveAction)
+      .concat(
+        sourceDiff.getActions()
+          .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
+          .map(a => a as CreateAction|MoveAction)
+      )
+
     const avoidTargetReorders = {}
 
     // Prepare target plan
     const targetPlan = new Diff() // to be mapped
     await Parallel.each(sourceDiff.getActions(), async(action:Action) => {
       if (action.type === ActionType.REMOVE) {
-        const concurrentRemoval = targetRemovals.find(a =>
-          (action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload)) ||
-          a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location)))
+        const concurrentRemoval = targetRemovals.find(targetRemoval =>
+          (action.payload.type === targetRemoval.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetRemoval.payload)) ||
+          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.payload, targetRemoval))
         if (concurrentRemoval) {
           // Already deleted on target, do nothing.
           return
         }
 
-        const complexConcurrentRemoval = sourceRemovals.find(sourceRemoval => {
-          let currentAction : RemoveAction|CreateAction|MoveAction =
-            targetDiff.getActions()
-              .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
-              .map(a => a as CreateAction|MoveAction)
-              .find(targetAction => targetAction.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, targetAction.payload.location)))
-          while (currentAction && !sourceRemoval.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentAction.payload, sourceRemoval.payload.location))) {
-            currentAction = targetDiff.getActions()
-              .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
-              .map(a => a as CreateAction|MoveAction)
-              .find(targetAction => targetAction.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentAction.payload, targetAction.payload.location)))
-          }
-          return Boolean(currentAction)
-        })
-        if (complexConcurrentRemoval) {
-          // already deleted by a different REMOVE from this diff (connected via source MOVE|CREATEs)
-          return
-        }
-
-        const concurrentMove = targetMoves.find(a =>
-          action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
+        const concurrentMove = targetMoves.find(targetMove =>
+          action.payload.type === targetMove.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetMove.payload)
+        )
         if (concurrentMove) {
           // moved on the target, moves take precedence, do nothing (i.e. leave target version intact)
           return
@@ -278,15 +269,9 @@ export default class SyncProcess {
           // TODO: subScanner may contain residual CREATE/REMOVE actions that need to be added to mappings
           return
         }
-        const concurrentRemoval = targetRemovals.find(a =>
-          // target removal removed this creation's target
-          a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location)) ||
-          // or: target removal removed a move's target that was the target of this creation
-          sourceDiff.getActions().filter(a => a.type === ActionType.MOVE || a.type === ActionType.CREATE)
-            .find(a2 =>
-              a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, a2.payload, a.payload.location)) &&
-              a2.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a2.payload.location))
-            )
+        const concurrentRemoval = targetRemovals.find(targetRemoval =>
+          // target removal removed this creation's target (via some chain)
+          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.payload, targetRemoval)
         )
         if (concurrentRemoval) {
           avoidTargetReorders[action.payload.parentId] = true
@@ -295,22 +280,27 @@ export default class SyncProcess {
         }
       }
       if (action.type === ActionType.MOVE) {
-        const concurrentParentRemoval = targetRemovals.find(a =>
-          // target-side removal of this move's target
-          a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location)) ||
-          // or: target-side removal of a source creation's target which was the target of this move
-          sourceDiff.getActions().filter(a => a.type === ActionType.MOVE || a.type === ActionType.CREATE)
-            .find(a2 =>
-              a2.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a2.payload.location)) &&
-              a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, a2.payload, a.payload.location)))
+        // FInd out if there's a removal in the target diff which already deletes this item (via some chain of MOVE|CREATEs)
+        const complexTargetTargetRemoval = targetRemovals.find(targetRemoval => {
+          return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.payload, targetRemoval)
+        })
+        const concurrentTargetOriginRemoval = targetRemovals.find(targetRemoval =>
+          (action.payload.type === targetRemoval.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetRemoval.payload)) ||
+            Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.oldItem, targetRemoval)
         )
-        if (concurrentParentRemoval) {
+        const concurrentSourceOriginRemoval = sourceRemovals.find(sourceRemoval => {
+          return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.oldItem, sourceRemoval)
+        })
+        if (complexTargetTargetRemoval) {
+          // target already deleted by a target REMOVE (connected via source MOVE|CREATEs)
+          if (!concurrentTargetOriginRemoval && !concurrentSourceOriginRemoval) {
+            // make sure this item is not already being removed, when it's no longer moved
+            targetPlan.commit({ ...action, type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
+          }
           return
         }
-        const concurrentRemoval = targetRemovals.find(a =>
-          (action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload)) ||
-          a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.oldItem, a.payload.location)))
-        if (concurrentRemoval && !sourceRemovals.find(a => a.payload.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, a.payload.location)))) {
+        if (concurrentTargetOriginRemoval) {
+          // if (!concurrentSourceOriginRemoval) {
           // moved sourcely but removed on the target, recreate it on the target
           const originalCreation = sourceCreations.find(creation => creation.payload.findItem(ItemType.FOLDER, action.payload.parentId))
           if (originalCreation && originalCreation.payload.type === ItemType.FOLDER) {
@@ -320,6 +310,7 @@ export default class SyncProcess {
           } else {
             targetPlan.commit({ ...action, type: ActionType.CREATE, oldItem: null })
           }
+          // }
           return
         }
 
