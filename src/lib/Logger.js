@@ -19,7 +19,7 @@ export default class Logger {
     await AccountStorage.changeEntry(
       'log',
       log => {
-        return log.concat(this.messages).slice(-1000) // rotate log to max of 1000 entries
+        return log.slice(-10).concat(this.messages) // only save the last sync run
       },
       []
     )
