@@ -42,7 +42,7 @@
     "mocha": "^8.2.1",
     "node-fetch": "^2.6.1",
     "prettier": "^2.2.1",
-    "sass": "^1.32.3",
+    "sass": "^1.32.4",
     "sass-loader": "^8.0.2",
     "seedrandom": "^3.0.5",
     "selenium-webdriver": "^4.0.0-alpha.8",
