@@ -207,6 +207,7 @@ export default class SyncProcess {
 
     const sourceCreations = sourceDiff.getActions(ActionType.CREATE).map(a => a as CreateAction)
     const sourceRemovals = sourceDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
+    const sourceMoves = sourceDiff.getActions(ActionType.MOVE).map(a => a as MoveAction)
 
     const allCreateAndMoveActions = targetDiff.getActions()
       .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
@@ -300,17 +301,28 @@ export default class SyncProcess {
           return
         }
         if (concurrentTargetOriginRemoval) {
-          // if (!concurrentSourceOriginRemoval) {
           // moved sourcely but removed on the target, recreate it on the target
           const originalCreation = sourceCreations.find(creation => creation.payload.findItem(ItemType.FOLDER, action.payload.parentId))
+
+          // Remove subitems that have been (re)moved already by other actions
+          const newPayload = action.payload.clone()
+          if (newPayload.type === ItemType.FOLDER) {
+            newPayload.traverse((item, folder) => {
+              const extracted = sourceRemovals.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload)) ||
+                sourceMoves.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload))
+              if (extracted) {
+                folder.children.splice(folder.children.indexOf(item), 1)
+              }
+            })
+          }
+
           if (originalCreation && originalCreation.payload.type === ItemType.FOLDER) {
             // in case the new parent is already a newly created item, merge it into that creation
             const folder = originalCreation.payload.findFolder(action.payload.parentId)
-            folder.children.splice(action.index, 0, action.payload)
+            folder.children.splice(action.index, 0, newPayload)
           } else {
-            targetPlan.commit({ ...action, type: ActionType.CREATE, oldItem: null })
+            targetPlan.commit({ ...action, type: ActionType.CREATE, oldItem: null, payload: newPayload })
           }
-          // }
           return
         }
 
