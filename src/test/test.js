@@ -3286,7 +3286,7 @@ describe('Floccus', function() {
             }
             console.log('Initial round ok')
 
-            await randomlyManipulateTree(account1, folders, bookmarks, 35)
+            await randomlyManipulateTree(account1, folders, bookmarks, 20)
             console.log(' acc1: Moved items')
 
             const tree1BeforeSync = await account1.localTree.getBookmarksTree(
@@ -3508,8 +3508,8 @@ describe('Floccus', function() {
               folders2 = Object.values(tree2AfterFirstSync.index.folder)
             }
 
-            await randomlyManipulateTree(account1, folders1, bookmarks1, 35)
-            await randomlyManipulateTree(account2, folders2, bookmarks2, 35)
+            await randomlyManipulateTree(account1, folders1, bookmarks1, 20)
+            await randomlyManipulateTree(account2, folders2, bookmarks2, 20)
 
             console.log(' acc1: Moved items')
 
