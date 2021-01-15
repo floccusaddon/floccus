@@ -194,13 +194,6 @@ export default class Diff {
           return
         }
 
-        /* if (action.type === ActionType.REMOVE && targetLocation !== ItemLocation.SERVER) {
-          newDiff.commit({...action})
-          return
-        } */
-
-        Logger.log('Mapping action ' + action.type + ' to ' + targetLocation, {...action})
-
         // needed because we set oldItem in the first section, so we wouldn't know anymore if it was set before
         const oldItem = action.oldItem
 
