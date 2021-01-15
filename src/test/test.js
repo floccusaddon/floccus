@@ -3760,6 +3760,11 @@ describe('Floccus', function() {
 
             await account2.sync()
             expect(account2.getData().error).to.not.be.ok
+
+            // Sync twice, because some removal-move mixes are hard to sort out consistently
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+
             console.log('second round: account2 completed')
 
             const serverTreeAfterSecondSync = await getAllBookmarks(account1)
