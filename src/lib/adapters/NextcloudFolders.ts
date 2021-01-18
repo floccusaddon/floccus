@@ -759,17 +759,20 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
 
     // Just to be safe
     return this.bookmarkLock.acquire(upstreamId, async() => {
-      await this.sendRequest(
-        'DELETE',
-        `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/bookmarks/${upstreamId}`
-      )
-
-      // remove bookmark from the cached list
-      const list = await this.getBookmarksList()
-      const listIndex = list.findIndex(
-        (bookmark) => String(bookmark.id) === String(upstreamId)
-      )
-      list.splice(listIndex, 1)
+      try {
+        await this.sendRequest(
+          'DELETE',
+          `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/bookmarks/${upstreamId}`
+        )
+        // remove bookmark from the cached list
+        const list = await this.getBookmarksList()
+        const listIndex = list.findIndex(
+          (bookmark) => String(bookmark.id) === String(upstreamId)
+        )
+        list.splice(listIndex, 1)
+      } catch (e) {
+        Logger.log('Error removing bookmark from folder: ' + e.message + '\n Moving on.')
+      }
     })
   }
 
