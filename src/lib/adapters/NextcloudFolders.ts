@@ -611,11 +611,12 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}`
     )
     const parent = this.tree.findFolder(oldFolder.parentId)
-    parent.children = parent.children.filter(
-      (child) => String(child.id) !== String(id)
-    )
-
-    this.tree.createIndex()
+    if (parent) {
+      parent.children = parent.children.filter(
+        (child) => String(child.id) !== String(id)
+      )
+      this.tree.createIndex()
+    }
   }
 
   async _getBookmark(id:string|number):Promise<Bookmark[]> {
