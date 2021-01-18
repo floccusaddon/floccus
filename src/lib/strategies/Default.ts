@@ -281,6 +281,58 @@ export default class SyncProcess {
         }
       }
       if (action.type === ActionType.MOVE) {
+        // Find concurrent moves that form a hierarchy reversal together with this one
+        const concurrentHierarchyReversals = targetMoves.filter(a => {
+          let sourceFolder, targetFolder, sourceAncestors, targetAncestors
+          if (action.payload.location === ItemLocation.LOCAL) {
+            targetFolder = this.serverTreeRoot.findItem(ItemType.FOLDER, a.payload.id)
+            sourceFolder = this.localTreeRoot.findItem(ItemType.FOLDER, action.payload.id)
+
+            sourceAncestors = Folder.getAncestorsOf(this.localTreeRoot.findItem(ItemType.FOLDER, action.payload.parentId), this.localTreeRoot)
+            targetAncestors = Folder.getAncestorsOf(this.serverTreeRoot.findItem(ItemType.FOLDER, a.payload.parentId), this.serverTreeRoot)
+          } else {
+            sourceFolder = this.serverTreeRoot.findItem(ItemType.FOLDER, action.payload.id)
+            targetFolder = this.localTreeRoot.findItem(ItemType.FOLDER, a.payload.id)
+
+            targetAncestors = Folder.getAncestorsOf(this.localTreeRoot.findItem(ItemType.FOLDER, a.payload.parentId), this.localTreeRoot)
+            sourceAncestors = Folder.getAncestorsOf(this.serverTreeRoot.findItem(ItemType.FOLDER, action.payload.parentId), this.serverTreeRoot)
+          }
+
+          // If both items are folders, and one of the ancestors of one item is a child of the other item
+          return action.payload.type === ItemType.FOLDER && a.payload.type === ItemType.FOLDER &&
+            sourceAncestors.find(ancestor => targetFolder.findItem(ItemType.FOLDER, Mappings.mapId(mappingsSnapshot, ancestor, targetFolder.location))) &&
+            targetAncestors.find(ancestor => sourceFolder.findItem(ItemType.FOLDER, Mappings.mapId(mappingsSnapshot, ancestor, sourceFolder.location)))
+        })
+        if (concurrentHierarchyReversals.length) {
+          if (targetLocation === ItemLocation.SERVER) {
+            concurrentHierarchyReversals.forEach(a => {
+              // moved sourcely but moved in reverse hierarchical order on target
+              const payload = a.oldItem.clone() // we don't map here as we want this to look like a source action
+              const oldItem = a.payload.clone()
+              oldItem.id = Mappings.mapId(mappingsSnapshot, oldItem, action.payload.location)
+              oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, oldItem, action.payload.location)
+
+              if (
+                targetPlan.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id) ||
+                sourceDiff.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id)
+              ) {
+                // Don't create duplicates!
+                return
+              }
+
+              // revert target move
+              targetPlan.commit({ ...a, payload, oldItem })
+              avoidTargetReorders[payload.parentId] = true
+              avoidTargetReorders[oldItem.parentId] = true
+            })
+            targetPlan.commit(action)
+          } else {
+            // Moved sourcely and in reverse hierarchical order on target. source has precedence: do nothing sourcely
+            avoidTargetReorders[action.payload.parentId] = true
+            avoidTargetReorders[Mappings.mapParentId(mappingsSnapshot, action.oldItem, ItemLocation.SERVER)] = true
+          }
+          return
+        }
         // FInd out if there's a removal in the target diff which already deletes this item (via some chain of MOVE|CREATEs)
         const complexTargetTargetRemoval = targetRemovals.find(targetRemoval => {
           return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.payload, targetRemoval)
@@ -333,59 +385,6 @@ export default class SyncProcess {
             // Moved both on target and sourcely, source has precedence: do nothing sourcely
             return
           }
-        }
-
-        // Find concurrent moves that form a hierarchy reversal together with this one
-        const concurrentHierarchyReversals = targetMoves.filter(a => {
-          let sourceFolder, targetFolder, sourceAncestors, targetAncestors
-          if (action.payload.location === ItemLocation.LOCAL) {
-            targetFolder = this.serverTreeRoot.findItem(ItemType.FOLDER, a.payload.id)
-            sourceFolder = this.localTreeRoot.findItem(ItemType.FOLDER, action.payload.id)
-
-            sourceAncestors = Folder.getAncestorsOf(this.localTreeRoot.findItem(ItemType.FOLDER, action.payload.parentId), this.localTreeRoot)
-            targetAncestors = Folder.getAncestorsOf(this.serverTreeRoot.findItem(ItemType.FOLDER, a.payload.parentId), this.serverTreeRoot)
-          } else {
-            sourceFolder = this.serverTreeRoot.findItem(ItemType.FOLDER, action.payload.id)
-            targetFolder = this.localTreeRoot.findItem(ItemType.FOLDER, a.payload.id)
-
-            targetAncestors = Folder.getAncestorsOf(this.localTreeRoot.findItem(ItemType.FOLDER, a.payload.parentId), this.localTreeRoot)
-            sourceAncestors = Folder.getAncestorsOf(this.serverTreeRoot.findItem(ItemType.FOLDER, action.payload.parentId), this.serverTreeRoot)
-          }
-
-          // If both items are folders, and one of the ancestors of one item is a child of the other item
-          return action.payload.type === ItemType.FOLDER && a.payload.type === ItemType.FOLDER &&
-            sourceAncestors.find(ancestor => targetFolder.findItem(ItemType.FOLDER, Mappings.mapId(mappingsSnapshot, ancestor, targetFolder.location))) &&
-            targetAncestors.find(ancestor => sourceFolder.findItem(ItemType.FOLDER, Mappings.mapId(mappingsSnapshot, ancestor, sourceFolder.location)))
-        })
-        if (concurrentHierarchyReversals.length) {
-          if (targetLocation === ItemLocation.SERVER) {
-            concurrentHierarchyReversals.forEach(a => {
-            // moved sourcely but moved in reverse hierarchical order on target
-              const payload = a.oldItem.clone() // we don't map here as we want this to look like a source action
-              const oldItem = a.payload.clone()
-              oldItem.id = Mappings.mapId(mappingsSnapshot, oldItem, action.payload.location)
-              oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, oldItem, action.payload.location)
-
-              if (
-                targetPlan.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id) ||
-              sourceDiff.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id)
-              ) {
-              // Don't create duplicates!
-                return
-              }
-
-              // revert target move
-              targetPlan.commit({ ...a, payload, oldItem })
-              avoidTargetReorders[payload.parentId] = true
-              avoidTargetReorders[oldItem.parentId] = true
-            })
-            targetPlan.commit(action)
-          } else {
-            // Moved sourcely and in reverse hierarchical order on target. source has precedence: do nothing sourcely
-            avoidTargetReorders[action.payload.parentId] = true
-            avoidTargetReorders[Mappings.mapParentId(mappingsSnapshot, action.oldItem, ItemLocation.SERVER)] = true
-          }
-          return
         }
       }
 
