@@ -83,8 +83,8 @@ export default class SyncProcess {
     const {localDiff, serverDiff} = await this.getDiffs()
     Logger.log({localDiff, serverDiff})
 
-    const serverPlan = await this.reconcileDiffs(localDiff, serverDiff, ItemLocation.SERVER)
-    const localPlan = await this.reconcileDiffs(serverDiff, localDiff, ItemLocation.LOCAL)
+    let serverPlan = await this.reconcileDiffs(localDiff, serverDiff, ItemLocation.SERVER)
+    let localPlan = await this.reconcileDiffs(serverDiff, localDiff, ItemLocation.LOCAL)
     Logger.log({localPlan, serverPlan})
 
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
@@ -94,16 +94,16 @@ export default class SyncProcess {
     // Weed out modifications to bookmarks root
     await this.filterOutRootFolderActions(localPlan)
 
-    const mappedServerPlan = await this.execute(this.server, serverPlan, ItemLocation.SERVER)
-    const mappedLocalPlan = await this.execute(this.localTree, localPlan, ItemLocation.LOCAL)
+    serverPlan = await this.execute(this.server, serverPlan, ItemLocation.SERVER)
+    localPlan = await this.execute(this.localTree, localPlan, ItemLocation.LOCAL)
 
     // mappings have been updated, reload
     mappingsSnapshot = await this.mappings.getSnapshot()
 
-    const localReorder = this.reconcileReorderings(mappedLocalPlan, mappedServerPlan, mappingsSnapshot)
+    const localReorder = this.reconcileReorderings(localPlan, serverPlan, mappingsSnapshot)
       .map(mappingsSnapshot, ItemLocation.LOCAL)
 
-    const serverReorder = this.reconcileReorderings(mappedServerPlan, mappedLocalPlan, mappingsSnapshot)
+    const serverReorder = this.reconcileReorderings(serverPlan, localPlan, mappingsSnapshot)
       .map(mappingsSnapshot, ItemLocation.SERVER)
 
     await this.filterOutRootFolderActions(localReorder)
