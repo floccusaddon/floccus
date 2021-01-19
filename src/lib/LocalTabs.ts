@@ -2,7 +2,7 @@ import browser from './browser-api'
 import Logger from './Logger'
 import { IResource } from './interfaces/Resource'
 import PQueue from 'p-queue'
-import { Bookmark, Folder } from './Tree'
+import { Bookmark, Folder, ItemLocation } from './Tree'
 import Ordering from './interfaces/Ordering'
 import uniq from 'lodash/uniq'
 
@@ -23,16 +23,19 @@ export default class LocalTabs implements IResource {
     return new Folder({
       title: '',
       id: 'tabs',
+      location: ItemLocation.LOCAL,
       children: uniq(tabs.map(t => t.windowId)).map(windowId => {
         return new Folder({
           title: '',
           id: windowId,
           parentId: 'tabs',
+          location: ItemLocation.LOCAL,
           children: tabs.filter(t => t.windowId === windowId).sort(t => t.index).map(t => new Bookmark({
             id: t.id,
             title: '',
             url: t.url,
             parentId: windowId,
+            location: ItemLocation.LOCAL,
           }))
         })
       })

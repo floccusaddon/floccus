@@ -4,7 +4,7 @@ import * as Tree from './Tree'
 import { IResource } from './interfaces/Resource'
 import PQueue from 'p-queue'
 import Account from './Account'
-import { Bookmark, Folder } from './Tree'
+import { Bookmark, Folder, ItemLocation } from './Tree'
 import Ordering from './interfaces/Ordering'
 
 export default class LocalTree implements IResource {
@@ -62,6 +62,7 @@ export default class LocalTree implements IResource {
       }
       if (node.children) {
         const folder = new Tree.Folder({
+          location: ItemLocation.LOCAL,
           id: node.id,
           parentId,
           title: parentId ? overrideTitle || node.title : undefined,
@@ -73,6 +74,7 @@ export default class LocalTree implements IResource {
         return folder
       } else {
         return new Tree.Bookmark({
+          location: ItemLocation.LOCAL,
           id: node.id,
           parentId,
           title: node.title,
@@ -85,14 +87,18 @@ export default class LocalTree implements IResource {
 
   async createBookmark(bookmark:Bookmark): Promise<string|number> {
     Logger.log('(local)CREATE', bookmark)
-    const node = await this.queue.add(() =>
-      browser.bookmarks.create({
-        parentId: bookmark.parentId,
-        title: bookmark.title,
-        url: bookmark.url
-      })
-    )
-    return node.id
+    try {
+      const node = await this.queue.add(() =>
+        browser.bookmarks.create({
+          parentId: bookmark.parentId,
+          title: bookmark.title,
+          url: bookmark.url
+        })
+      )
+      return node.id
+    } catch (e) {
+      throw new Error('Could not create ' + bookmark.inspect() + ': ' + e.message)
+    }
   }
 
   async updateBookmark(bookmark:Bookmark):Promise<void> {
@@ -113,22 +119,30 @@ export default class LocalTree implements IResource {
   async removeBookmark(bookmark:Bookmark): Promise<void> {
     const bookmarkId = bookmark.id
     Logger.log('(local)REMOVE', bookmark)
-    await this.queue.add(() => browser.bookmarks.remove(bookmarkId))
+    try {
+      await this.queue.add(() => browser.bookmarks.remove(bookmarkId))
+    } catch (e) {
+      Logger.log('Could not remove ' + bookmark.inspect() + ': ' + e.message + '\n Moving on')
+    }
   }
 
   async createFolder(folder:Folder): Promise<string> {
     const {parentId, title} = folder
     Logger.log('(local)CREATEFOLDER', folder)
-    const node = await this.queue.add(() =>
-      browser.bookmarks.create({
-        parentId,
-        title
-      })
-    )
-    return node.id
+    try {
+      const node = await this.queue.add(() =>
+        browser.bookmarks.create({
+          parentId,
+          title
+        })
+      )
+      return node.id
+    } catch (e) {
+      throw new Error('Could not create ' + folder.inspect() + ': ' + e.message)
+    }
   }
 
-  async orderFolder(id:string|number, order:Ordering) {
+  async orderFolder(id:string|number, order:Ordering) :Promise<void> {
     Logger.log('(local)ORDERFOLDER', { id, order })
     for (let index = 0; index < order.length; index++) {
       await browser.bookmarks.move(order[index].id, { index })
@@ -161,7 +175,11 @@ export default class LocalTree implements IResource {
       Logger.log('This is a root folder. Skip.')
       return
     }
-    await this.queue.add(() => browser.bookmarks.removeTree(id))
+    try {
+      await this.queue.add(() => browser.bookmarks.removeTree(id))
+    } catch (e) {
+      Logger.log('Could not remove ' + folder.inspect() + ': ' + e.message + '\n Moving on.')
+    }
   }
 
   static async getPathFromLocalId(localId:string, ancestors:string[], relativeToRoot?:string):Promise<string> {

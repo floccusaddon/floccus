@@ -1,5 +1,5 @@
 import * as Tree from '../Tree'
-import { Bookmark, Folder } from '../Tree'
+import { Bookmark, Folder, ItemLocation } from '../Tree'
 import Logger from '../Logger'
 import Adapter from '../interfaces/Adapter'
 import browser from '../browser-api'
@@ -14,7 +14,7 @@ export default class CachingAdapter implements Adapter {
   protected server: any
   constructor(server: any) {
     this.highestId = 0
-    this.bookmarksCache = new Folder({ id: 0, title: 'root' })
+    this.bookmarksCache = new Folder({ id: 0, title: 'root', location: ItemLocation.SERVER })
   }
 
   getLabel():string {
@@ -99,7 +99,7 @@ export default class CachingAdapter implements Adapter {
 
   async createFolder(folder:Folder): Promise<string|number> {
     Logger.log('CREATEFOLDER', { folder })
-    const newFolder = new Tree.Folder({ id: ++this.highestId, parentId: folder.parentId, title: folder.title })
+    const newFolder = new Tree.Folder({ id: ++this.highestId, parentId: folder.parentId, title: folder.title, location: ItemLocation.SERVER })
     const foundParentFolder = this.bookmarksCache.findFolder(newFolder.parentId)
     if (!foundParentFolder) {
       throw new Error(browser.i18n.getMessage('Error005'))
@@ -175,12 +175,12 @@ export default class CachingAdapter implements Adapter {
     const id = folder.id
     const oldFolder = this.bookmarksCache.findFolder(id)
     if (!oldFolder) {
-      throw new Error(browser.i18n.getMessage('Error013'))
+      return
     }
     // root folder doesn't have a parent, yo!
     const foundOldFolder = this.bookmarksCache.findFolder(oldFolder.parentId)
     if (!foundOldFolder) {
-      throw new Error(browser.i18n.getMessage('Error014'))
+      return
     }
     foundOldFolder.children.splice(foundOldFolder.children.indexOf(oldFolder), 1)
     this.bookmarksCache.createIndex()

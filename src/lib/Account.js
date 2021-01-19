@@ -4,16 +4,14 @@ import WebDavAdapter from './adapters/WebDav'
 import FakeAdapter from './adapters/Fake'
 import LocalTree from './LocalTree'
 import DefaultSyncProcess from './strategies/Default'
-import SlaveSyncProcess from './strategies/Slave'
-import OverwriteSyncProcess from './strategies/Overwrite'
+import UnidirectionalSyncProcess from './strategies/Unidirectional'
 import Logger from './Logger'
 import browser from './browser-api'
 import AdapterFactory from './AdapterFactory'
 import MergeSyncProcess from './strategies/Merge'
 import LocalTabs from './LocalTabs'
-import { Folder } from './Tree'
-import MergeOverwrite from './strategies/OverwriteMerge'
-import MergeSlave from './strategies/SlaveMerge'
+import { Folder, ItemLocation } from './Tree'
+import UnidirectionalMergeSyncProcess from './strategies/UnidirectionalMerge'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', NextcloudFoldersAdapter)
@@ -174,25 +172,27 @@ export default class Account {
       mappings = await this.storage.getMappings()
       const cacheTree = localResource instanceof LocalTree ? await this.storage.getCache() : new Folder({title: '', id: 'tabs'})
 
-      let strategy
+      let strategy, direction
       switch (this.getData().strategy) {
         case 'slave':
           if (!cacheTree.children.length) {
             Logger.log('Using "merge slave" strategy (no cache available)')
-            strategy = MergeSlave
+            strategy = UnidirectionalMergeSyncProcess
           } else {
             Logger.log('Using slave strategy')
-            strategy = SlaveSyncProcess
+            strategy = UnidirectionalSyncProcess
           }
+          direction = ItemLocation.LOCAL
           break
         case 'overwrite':
           if (!cacheTree.children.length) {
             Logger.log('Using "merge overwrite" strategy (no cache available)')
-            strategy = MergeOverwrite
+            strategy = UnidirectionalMergeSyncProcess
           } else {
             Logger.log('Using "overwrite" strategy')
-            strategy = OverwriteSyncProcess
+            strategy = UnidirectionalSyncProcess
           }
+          direction = ItemLocation.SERVER
           break
         default:
           if (!cacheTree.children.length) {
@@ -214,6 +214,9 @@ export default class Account {
           this.setData({ ...this.getData(), syncing: progress })
         }
       )
+      if (direction) {
+        this.syncing.setDirection(direction)
+      }
       await this.syncing.sync()
 
       // update cache

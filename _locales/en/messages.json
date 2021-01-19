@@ -119,6 +119,9 @@
   "LabelRootfolder": {
     "message": "Root folder"
   },
+  "LabelNewfolder": {
+    "message": "Newly created folder"
+  },
   "LabelOptions": {
     "message": "Options"
   },

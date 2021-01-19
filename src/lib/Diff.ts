@@ -1,5 +1,5 @@
-import { Folder, TItem, ItemType } from './Tree'
-import { Mapping } from './Mappings'
+import { Folder, TItem, ItemType, TItemLocation, ItemLocation } from './Tree'
+import Mappings, { MappingSnapshot } from './Mappings'
 import Ordering from './interfaces/Ordering'
 import batchingToposort from 'batching-toposort'
 import Logger from './Logger'
@@ -40,7 +40,7 @@ export interface ReorderAction {
   type: 'REORDER',
   payload: TItem,
   oldItem?: TItem,
-  order?: Ordering,
+  order: Ordering,
   oldOrder?: Ordering,
 }
 
@@ -112,16 +112,6 @@ export default class Diff {
     }
   }
 
-  add(diff: Diff, types:TActionType[] = []):void {
-    if (types.length === 0) {
-      diff.getActions().forEach(action => this.commit({...action}))
-      return
-    }
-    types.forEach(type =>
-      diff.getActions(type).forEach(action => this.commit({...action}))
-    )
-  }
-
   getActions(type?: TActionType):Action[] {
     if (type) {
       return this.actions[type].slice()
@@ -133,6 +123,22 @@ export default class Diff {
       this.actions[ActionType.REMOVE],
       this.actions[ActionType.REORDER],
     )
+  }
+
+  static findChain(mappingsSnapshot: MappingSnapshot, actions: Action[], currentItem: TItem, targetAction: Action): boolean {
+    if (
+      targetAction.payload.findItem(ItemType.FOLDER,
+        Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location))
+    ) {
+      return true
+    }
+    const newCurrentAction = actions.find(targetAction =>
+      targetAction.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location))
+    )
+    if (newCurrentAction) {
+      return Diff.findChain(mappingsSnapshot, actions, newCurrentAction.payload, targetAction)
+    }
+    return false
   }
 
   static sortMoves(actions: Action[], tree: Folder) :Action[][] {
@@ -170,62 +176,69 @@ export default class Diff {
   /**
    * on ServerToLocal: don't map removals
    * on LocalToServer:
-   * @param mappings
-   * @param isLocalToServer
+   * @param mappingsSnapshot
+   * @param targetLocation
    * @param filter
    */
-  map(mappings:Mapping, isLocalToServer: boolean, filter: (Action)=>boolean = () => true):void {
+  map(mappingsSnapshot:MappingSnapshot, targetLocation: TItemLocation, filter: (Action)=>boolean = () => true): Diff {
+    const newDiff = new Diff
+
     // Map payloads
-    this.getActions().forEach(action => {
-      if (action.type === ActionType.REMOVE && !isLocalToServer) {
-        return
-      }
+    this.getActions()
+      .map(a => a as Action)
+      .forEach(action => {
+        let newAction
 
-      if (!filter(action)) {
-        return
-      }
-
-      Logger.log('Mapping action ' + action.type + ' ' + (isLocalToServer ? 'LocalToServer' : 'ServerToLocal'), {...action})
-
-      if (action.type === ActionType.REORDER) {
-        action.oldOrder = action.order
-        action.order = action.order.slice().map(item => {
-          return {...item, id: mappings[item.type ][item.id]}
-        })
-      }
-
-      // needed because we set oldItem in the first section, so we wouldn't know anymore if it was set before
-      const oldItem = action.oldItem
-
-      // We have two sections here, because we want to be able to take IDs from oldItem even for moves
-      // but not parentIds (which do change during moves, obviously)
-
-      if (oldItem && !isLocalToServer) {
-        const oldId = action.oldItem.id
-        const newId = action.payload.id
-        action.oldItem = action.oldItem.clone()
-        action.payload = action.payload.clone()
-        action.payload.id = oldId
-        action.oldItem.id = newId
-      } else {
-        const newPayload = action.payload.clone()
-        newPayload.id = mappings[newPayload.type][newPayload.id]
-        action.oldItem = action.payload.clone()
-        action.payload = newPayload
-      }
-
-      if (oldItem && !isLocalToServer && action.type !== ActionType.MOVE) {
-        const oldParent = action.oldItem.parentId
-        const newParent = action.payload.parentId
-        action.payload.parentId = oldParent
-        action.oldItem.parentId = newParent
-      } else {
-        if (typeof action.payload.parentId !== 'undefined' && typeof mappings.folder[action.payload.parentId] === 'undefined') {
-          throw new Error('Cannot map parentId:' + action.payload.parentId)
+        if (!filter(action)) {
+          newDiff.commit(action)
+          return
         }
-        action.oldItem.parentId = action.payload.parentId
-        action.payload.parentId = mappings.folder[action.payload.parentId]
-      }
-    })
+
+        // needed because we set oldItem in the first section, so we wouldn't know anymore if it was set before
+        const oldItem = action.oldItem
+
+        // We have two sections here, because we want to be able to take IDs from oldItem even for moves
+        // but not parentIds (which do change during moves, obviously)
+
+        if (oldItem && targetLocation !== ItemLocation.SERVER) {
+          const oldId = action.oldItem.id
+          const newId = action.payload.id
+          newAction = {
+            ...action,
+            payload: action.payload.clone(false, targetLocation),
+            oldItem: action.oldItem.clone(false)
+          }
+          newAction.payload.id = oldId
+          newAction.oldItem.id = newId
+        } else {
+          newAction = {
+            ...action,
+            payload: action.payload.clone(false, targetLocation),
+            oldItem: action.payload.clone(false)
+          }
+          newAction.payload.id = Mappings.mapId(mappingsSnapshot, action.payload, targetLocation)
+        }
+
+        if (oldItem && targetLocation !== ItemLocation.SERVER && action.type !== ActionType.MOVE) {
+          newAction.payload.parentId = action.oldItem.parentId
+          newAction.oldItem.parentId = action.payload.parentId
+        } else {
+          newAction.oldItem.parentId = action.payload.parentId
+          newAction.payload.parentId = Mappings.mapParentId(mappingsSnapshot, action.payload, targetLocation)
+          if (typeof newAction.payload.parentId === 'undefined' && typeof action.payload.parentId !== 'undefined') {
+            throw new Error('Failed to map parentId: ' + action.payload.parentId)
+          }
+        }
+
+        if (action.type === ActionType.REORDER) {
+          newAction.oldOrder = action.order
+          newAction.order = action.order.slice().map(item => {
+            return {...item, id: mappingsSnapshot[(targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL) + 'To' + targetLocation][item.type][item.id]}
+          })
+        }
+
+        newDiff.commit(newAction)
+      })
+    return newDiff
   }
 }

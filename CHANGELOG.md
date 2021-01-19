@@ -1,5 +1,17 @@
 # Changelog
 
+## v4.4.8
+
+### Fixed
+- Fix SyncFolder Option
+- NextcloudFolders: Don't throw when failing to delete a folder or bookmark
+- Sync: A lot of fixes for deletions mixed with moves
+- LocalTree: Don't throw when trying to remove a non-existent item
+- Fix log rotation
+- Fix Scanner#addReorders in case a MOVE's old parent was removed
+- Sync: Don't execute REORDERs when length <= 1
+- Non-merge Sync: Only compare with cache hash, not directly in order to merge concurrent on par changes
+
 ## v4.4.7
 
 ### Fixed
