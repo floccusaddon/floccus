@@ -97,6 +97,9 @@ export default {
       if (this.mode === 'tabs') {
         this.$emit('input', 'tabs')
       }
+      if (this.mode === 'folder' && this.value === 'tabs') {
+        this.$emit('input', '')
+      }
     }
   },
   created() {
@@ -104,13 +107,17 @@ export default {
   },
   methods: {
     async updatePath() {
-      if (this.mode !== 'folder' || this.value === 'tabs') {
+      if (this.mode === 'tabs' || this.value === 'tabs') {
         this.mode = 'tabs'
         return
       }
-      this.path = decodeURIComponent(
-        await LocalTree.getPathFromLocalId(this.value)
-      ) + '/'
+      if (this.value) {
+        this.path = decodeURIComponent(
+          await LocalTree.getPathFromLocalId(this.value)
+        ) + '/'
+      } else {
+        this.path = this.t('LabelNewfolder')
+      }
     },
     async onTriggerFinder() {
       this.selectedLocalRoot = this.value
