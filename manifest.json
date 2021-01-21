@@ -3,7 +3,7 @@
   "name": "floccus bookmarks sync",
   "short_name": "floccus",
   "version": "4.4.8",
-  "description": "Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)",
+  "description": "__MSG_DescriptionExtension__",
   "icons": {
     "48": "icons/logo.png",
     "64": "icons/logo_64.png",

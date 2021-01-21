@@ -392,5 +392,8 @@
   },
   "DescriptionFilesPermission": {
     "message": "Make sure you give floccus permission to not only use the bookmarks app but the Nextcloud files app as well."
+  },
+  "DescriptionExtension": {
+    "message": "Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)"
   }
 }
