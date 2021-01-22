@@ -2,6 +2,7 @@ import Crypto from './Crypto'
 import Logger from './Logger'
 import TResource from './interfaces/Resource'
 import * as Parallel from 'async-parallel'
+import cache from 'webext-storage-cache'
 
 const STRANGE_PROTOCOLS = ['data:', 'javascript:', 'about:', 'chrome:']
 
@@ -34,14 +35,16 @@ export class Bookmark {
   public url: string
   public tags: string[]
   public location: TItemLocation
+  public lastModified: number
   private hashValue: string
 
-  constructor({ id, parentId, url, title, tags, location }: { id:string|number, parentId:string|number, url:string, title:string, tags?: string[], location: TItemLocation }) {
+  constructor({ id, parentId, url, title, tags, location, lastModified }: { id:string|number, parentId:string|number, url:string, title:string, tags?: string[], lastModified?: number, location: TItemLocation }) {
     this.id = id
     this.parentId = parentId
     this.title = title
     this.tags = tags
     this.location = location
+    this.lastModified = lastModified ?? 0
 
     // not a regular bookmark
     if (STRANGE_PROTOCOLS.some(proto => url.indexOf(proto) === 0)) {
@@ -137,10 +140,11 @@ export class Folder {
   public hashValue: Record<string,string>
   public isRoot = false
   public loaded = true
+  public lastModified: number
   public location: TItemLocation
   private index: IItemIndex
 
-  constructor({ id, parentId, title, children, hashValue, loaded, location }
+  constructor({ id, parentId, title, children, hashValue, loaded, location, lastModified }
   :{
     id:number|string,
     parentId?:number|string,
@@ -149,6 +153,7 @@ export class Folder {
     children?: TItem[],
     hashValue?:Record<'true'|'false',string>,
     loaded?: boolean,
+    lastModified?: number
     location: TItemLocation
   }) {
     this.id = id
@@ -158,6 +163,7 @@ export class Folder {
     this.hashValue = {...hashValue} || {}
     this.loaded = typeof loaded !== 'undefined' ? loaded : true
     this.location = location
+    this.lastModified = lastModified ?? 0
   }
 
   // eslint-disable-next-line no-use-before-define
@@ -231,6 +237,12 @@ export class Folder {
   }
 
   async hash(preserveOrder = false): Promise<string> {
+    const cacheKey = 'hash:' + this.id + ',' + this.lastModified
+    if (this.location === ItemLocation.LOCAL && this.lastModified !== 0) {
+      if (await cache.has(cacheKey)) {
+        this.hashValue = await cache.get(cacheKey)
+      }
+    }
     if (this.hashValue && this.hashValue[String(preserveOrder)]) {
       return this.hashValue[String(preserveOrder)]
     }
@@ -263,6 +275,11 @@ export class Folder {
         )
       })
     )
+
+    if (this.location === ItemLocation.LOCAL && this.lastModified !== 0) {
+      await cache.set(cacheKey, this.hashValue)
+    }
+
     return this.hashValue[String(preserveOrder)]
   }
 

@@ -62,6 +62,7 @@ export default class LocalTree implements IResource {
       }
       if (node.children) {
         const folder = new Tree.Folder({
+          lastModified: node.dateGroupModified,
           location: ItemLocation.LOCAL,
           id: node.id,
           parentId,
@@ -74,6 +75,7 @@ export default class LocalTree implements IResource {
         return folder
       } else {
         return new Tree.Bookmark({
+          lastModified: node.dateGroupModified,
           location: ItemLocation.LOCAL,
           id: node.id,
           parentId,
