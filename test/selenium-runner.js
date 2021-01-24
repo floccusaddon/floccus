@@ -133,7 +133,7 @@ async function getNormalizerTime() {
   const start = Date.now()
   fibonacci(33) // get a feel for how fast this CPU is rn
   for (let i = 0; i < 30; i++) { // get a feel for how fast this network card is rns
-    await fetch('http://' + process.env.TEST_HOST)
+    await fetch('http://google.com')
   }
   const end = Date.now()
   return (end - start) / 1000
