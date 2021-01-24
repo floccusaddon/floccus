@@ -109,10 +109,8 @@ export default class SyncProcess {
     await this.filterOutRootFolderActions(localReorder)
 
     if ('orderFolder' in this.server) {
-      await Promise.all([
-        this.executeReorderings(this.server, serverReorder),
-        this.executeReorderings(this.localTree, localReorder),
-      ])
+      await this.executeReorderings(this.server, serverReorder)
+      await this.executeReorderings(this.localTree, localReorder)
     }
   }
 
