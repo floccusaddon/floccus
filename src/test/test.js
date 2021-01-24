@@ -3078,12 +3078,12 @@ describe('Floccus', function() {
           await account2.sync()
           expect(account2.getData().error).to.not.be.ok
 
-          const serverTreeAfterFirstSync = await getAllBookmarks(account1)
+          let serverTreeAfterFirstSync = await getAllBookmarks(account1)
 
-          const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+          let tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
             true
           )
-          const tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+          let tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
             true
           )
           if (!ACCOUNT_DATA.noCache) {
@@ -3105,6 +3105,9 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           }
+          serverTreeAfterFirstSync = null
+          tree1AfterFirstSync = null
+          tree2AfterFirstSync = null
           console.log('First round ok')
 
           await browser.bookmarks.move(magicBookmark.id, {
@@ -3112,15 +3115,15 @@ describe('Floccus', function() {
           })
           console.log('acc1: Moved bookmark')
 
-          const tree1BeforeSecondSync = await account1.localTree.getBookmarksTree(
+          let tree1BeforeSecondSync = await account1.localTree.getBookmarksTree(
             true
           )
           await account1.sync()
           expect(account1.getData().error).to.not.be.ok
 
-          const serverTreeAfterSecondSync = await getAllBookmarks(account1)
+          let serverTreeAfterSecondSync = await getAllBookmarks(account1)
 
-          const tree1AfterSecondSync = await account1.localTree.getBookmarksTree(
+          let tree1AfterSecondSync = await account1.localTree.getBookmarksTree(
             true
           )
           if (!ACCOUNT_DATA.noCache) {
@@ -3136,14 +3139,16 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           }
+          tree1BeforeSecondSync = null
+          serverTreeAfterSecondSync = null
           console.log('Second round first half ok')
 
           await account2.sync()
           expect(account2.getData().error).to.not.be.ok
 
-          const serverTreeAfterThirdSync = await getAllBookmarks(account1)
+          let serverTreeAfterThirdSync = await getAllBookmarks(account1)
 
-          const tree2AfterThirdSync = await account2.localTree.getBookmarksTree(
+          let tree2AfterThirdSync = await account2.localTree.getBookmarksTree(
             true
           )
           if (!ACCOUNT_DATA.noCache) {
@@ -3159,15 +3164,17 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           }
+          serverTreeAfterThirdSync = null
+          tree2AfterThirdSync = null
           console.log('Second round second half ok')
 
           console.log('acc1: final sync')
           await account1.sync()
           expect(account1.getData().error).to.not.be.ok
 
-          const serverTreeAfterFinalSync = await getAllBookmarks(account1)
+          let serverTreeAfterFinalSync = await getAllBookmarks(account1)
 
-          const tree1AfterFinalSync = await account1.localTree.getBookmarksTree(
+          let tree1AfterFinalSync = await account1.localTree.getBookmarksTree(
             true
           )
           if (!ACCOUNT_DATA.noCache) {
@@ -3183,6 +3190,8 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           }
+          serverTreeAfterFinalSync = null
+          tree1AfterFinalSync = null
         })
 
         it('should handle fuzzed changes', async function() {
@@ -3215,7 +3224,7 @@ describe('Floccus', function() {
 
           await createTree(localRoot, 0, 100)
 
-          const tree1Initial = await account1.localTree.getBookmarksTree(true)
+          let tree1Initial = await account1.localTree.getBookmarksTree(true)
           console.log('Initial tree', tree1Initial)
           await account1.sync()
           expect(account1.getData().error).to.not.be.ok
@@ -3224,12 +3233,12 @@ describe('Floccus', function() {
           expect(account2.getData().error).to.not.be.ok
           console.log('Initial round account2 completed')
 
-          const serverTreeAfterFirstSync = await getAllBookmarks(account1)
+          let serverTreeAfterFirstSync = await getAllBookmarks(account1)
 
-          const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+          let tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
             true
           )
-          const tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+          let tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
             true
           )
           if (!ACCOUNT_DATA.noCache) {
@@ -3255,17 +3264,21 @@ describe('Floccus', function() {
             )
             console.log('Initial round: second tree ok')
           }
+          tree1Initial = null
+          tree1AfterFirstSync = null
+          tree2AfterFirstSync = null
+          serverTreeAfterFirstSync = null
           console.log('Initial round ok')
 
           for (let j = 0; j < 4; j++) {
             console.log('STARTING LOOP ' + j)
 
-            const serverTreeAfterFirstSync = await getAllBookmarks(account1)
+            let serverTreeAfterFirstSync = await getAllBookmarks(account1)
 
-            const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+            let tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
               true
             )
-            const tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+            let tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
               true
             )
             if (!ACCOUNT_DATA.noCache) {
@@ -3284,20 +3297,23 @@ describe('Floccus', function() {
               )
               console.log('Initial round: second tree ok')
             }
+            serverTreeAfterFirstSync = null
+            tree1AfterFirstSync = null
+            tree2AfterFirstSync = null
             console.log('Initial round ok')
 
             await randomlyManipulateTree(account1, folders, bookmarks, 20)
             console.log(' acc1: Moved items')
 
-            const tree1BeforeSync = await account1.localTree.getBookmarksTree(
+            let tree1BeforeSync = await account1.localTree.getBookmarksTree(
               true
             )
             await account1.sync()
             expect(account1.getData().error).to.not.be.ok
             console.log('second round: account1 completed')
 
-            const serverTreeAfterSync = await getAllBookmarks(account1)
-            const tree1AfterSync = await account1.localTree.getBookmarksTree(true)
+            let serverTreeAfterSync = await getAllBookmarks(account1)
+            let tree1AfterSync = await account1.localTree.getBookmarksTree(true)
 
             if (!ACCOUNT_DATA.noCache) {
               expectTreeEqual(
@@ -3314,15 +3330,17 @@ describe('Floccus', function() {
               )
               console.log('Second round: server tree tree ok')
             }
+            tree1BeforeSync = null
+            serverTreeAfterSync = null
             console.log('first half ok')
 
             await account2.sync()
             expect(account2.getData().error).to.not.be.ok
             console.log('second round: account1 completed')
 
-            const serverTreeAfterSecondSync = await getAllBookmarks(account1)
+            let serverTreeAfterSecondSync = await getAllBookmarks(account1)
 
-            const tree2AfterSecondSync = await account2.localTree.getBookmarksTree(
+            let tree2AfterSecondSync = await account2.localTree.getBookmarksTree(
               true
             )
             if (!ACCOUNT_DATA.noCache) {
@@ -3340,6 +3358,7 @@ describe('Floccus', function() {
               )
               console.log('Second round: second server tree tree ok')
             }
+            serverTreeAfterSecondSync = null
             console.log('second half ok')
 
             console.log('final sync')
@@ -3347,9 +3366,9 @@ describe('Floccus', function() {
             expect(account1.getData().error).to.not.be.ok
             console.log('final sync completed')
 
-            const serverTreeAfterFinalSync = await getAllBookmarks(account1)
+            let serverTreeAfterFinalSync = await getAllBookmarks(account1)
 
-            const tree1AfterFinalSync = await account1.localTree.getBookmarksTree(
+            let tree1AfterFinalSync = await account1.localTree.getBookmarksTree(
               true
             )
             if (!ACCOUNT_DATA.noCache) {
@@ -3367,15 +3386,18 @@ describe('Floccus', function() {
               )
               console.log('Final round: server tree tree ok')
             }
+            serverTreeAfterFinalSync = null
+            tree1AfterFinalSync = null
+            tree2AfterSecondSync = null
 
             await account1.init()
             await account1.sync()
             expect(account1.getData().error).to.not.be.ok
             console.log('final sync after init completed')
 
-            const serverTreeAfterInit = await getAllBookmarks(account1)
+            let serverTreeAfterInit = await getAllBookmarks(account1)
 
-            const tree1AfterInit = await account1.localTree.getBookmarksTree(
+            let tree1AfterInit = await account1.localTree.getBookmarksTree(
               true
             )
 
@@ -3395,6 +3417,9 @@ describe('Floccus', function() {
               )
               console.log('Final round after init: server tree ok')
             }
+            tree1AfterInit = null
+            serverTreeAfterInit = null
+            tree2AfterSecondSync = null
           }
         })
 
@@ -3432,7 +3457,7 @@ describe('Floccus', function() {
 
           await createTree(localRoot, 0, 100)
 
-          const tree1Initial = await account1.localTree.getBookmarksTree(true)
+          let tree1Initial = await account1.localTree.getBookmarksTree(true)
           console.log('Initial tree', tree1Initial)
           await account1.sync()
           expect(account1.getData().error).to.not.be.ok
@@ -3441,12 +3466,12 @@ describe('Floccus', function() {
           expect(account2.getData().error).to.not.be.ok
           console.log('Initial round account2 completed')
 
-          const serverTreeAfterFirstSync = await getAllBookmarks(account1)
+          let serverTreeAfterFirstSync = await getAllBookmarks(account1)
 
-          const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+          let tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
             true
           )
-          const tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+          let tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
             true
           )
           if (!ACCOUNT_DATA.noCache) {
@@ -3471,17 +3496,20 @@ describe('Floccus', function() {
             )
             console.log('Initial round: second tree ok')
           }
+          tree1Initial = null
+          tree1AfterFirstSync = null
+          serverTreeAfterFirstSync = null
           console.log('Initial round ok')
 
           for (let j = 0; j < 4; j++) {
             console.log('STARTING LOOP ' + j)
 
-            const serverTreeAfterFirstSync = await getAllBookmarks(account1)
+            let serverTreeAfterFirstSync = await getAllBookmarks(account1)
 
-            const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+            let tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
               true
             )
-            const tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+            let tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
               true
             )
             if (!ACCOUNT_DATA.noCache) {
@@ -3500,6 +3528,8 @@ describe('Floccus', function() {
               )
               console.log('Initial round: second tree ok')
             }
+            tree1AfterFirstSync = null
+            serverTreeAfterFirstSync = null
             console.log('Initial round ok')
 
             if (!bookmarks2) {
@@ -3513,16 +3543,16 @@ describe('Floccus', function() {
 
             console.log(' acc1: Moved items')
 
-            const tree1BeforeSync = await account1.localTree.getBookmarksTree(
+            let tree1BeforeSync = await account1.localTree.getBookmarksTree(
               true
             )
             await account1.sync()
             expect(account1.getData().error).to.not.be.ok
             console.log('second round: account1 completed')
 
-            const serverTreeAfterSync = await getAllBookmarks(account1)
+            let serverTreeAfterSync = await getAllBookmarks(account1)
 
-            const tree1AfterSync = await account1.localTree.getBookmarksTree(true)
+            let tree1AfterSync = await account1.localTree.getBookmarksTree(true)
             if (!ACCOUNT_DATA.noCache) {
               expectTreeEqual(
                 tree1AfterSync,
@@ -3538,15 +3568,18 @@ describe('Floccus', function() {
               )
               console.log('Second round: server tree tree ok')
             }
+            tree1AfterSync = null
+            serverTreeAfterSync = null
+            tree1BeforeSync = null
             console.log('first half ok')
 
             await account2.sync()
             expect(account2.getData().error).to.not.be.ok
             console.log('second round: account1 completed')
 
-            const serverTreeAfterSecondSync = await getAllBookmarks(account1)
+            let serverTreeAfterSecondSync = await getAllBookmarks(account1)
 
-            const tree2AfterSecondSync = await account2.localTree.getBookmarksTree(
+            let tree2AfterSecondSync = await account2.localTree.getBookmarksTree(
               true
             )
             if (!ACCOUNT_DATA.noCache) {
@@ -3558,6 +3591,7 @@ describe('Floccus', function() {
               )
               console.log('Second round: second server tree tree ok')
             }
+            serverTreeAfterSecondSync = null
             console.log('second half ok')
 
             console.log('final sync')
@@ -3565,9 +3599,9 @@ describe('Floccus', function() {
             expect(account1.getData().error).to.not.be.ok
             console.log('final sync completed')
 
-            const serverTreeAfterFinalSync = await getAllBookmarks(account1)
+            let serverTreeAfterFinalSync = await getAllBookmarks(account1)
 
-            const tree1AfterFinalSync = await account1.localTree.getBookmarksTree(
+            let tree1AfterFinalSync = await account1.localTree.getBookmarksTree(
               true
             )
             if (!ACCOUNT_DATA.noCache) {
@@ -3585,15 +3619,17 @@ describe('Floccus', function() {
               )
               console.log('Final round: server tree tree ok')
             }
+            serverTreeAfterFinalSync = null
+            tree1AfterFinalSync = null
 
             await account1.init()
             await account1.sync()
             expect(account1.getData().error).to.not.be.ok
             console.log('final sync after init completed')
 
-            const serverTreeAfterInit = await getAllBookmarks(account1)
+            let serverTreeAfterInit = await getAllBookmarks(account1)
 
-            const tree1AfterInit = await account1.localTree.getBookmarksTree(
+            let tree1AfterInit = await account1.localTree.getBookmarksTree(
               true
             )
 
@@ -3613,6 +3649,9 @@ describe('Floccus', function() {
               )
               console.log('Final round after init: server tree ok')
             }
+            tree2AfterSecondSync = null
+            tree1AfterInit = null
+            serverTreeAfterInit = null
           }
         })
 
@@ -3650,7 +3689,7 @@ describe('Floccus', function() {
 
           await createTree(localRoot, 0, 100)
 
-          const tree1Initial = await account1.localTree.getBookmarksTree(true)
+          let tree1Initial = await account1.localTree.getBookmarksTree(true)
           console.log('Initial tree', tree1Initial)
           await account1.sync()
           expect(account1.getData().error).to.not.be.ok
@@ -3659,12 +3698,12 @@ describe('Floccus', function() {
           expect(account2.getData().error).to.not.be.ok
           console.log('Initial round account2 completed')
 
-          const serverTreeAfterFirstSync = await getAllBookmarks(account1)
+          let serverTreeAfterFirstSync = await getAllBookmarks(account1)
 
-          const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+          let tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
             true
           )
-          const tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+          let tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
             true
           )
           if (!ACCOUNT_DATA.noCache) {
@@ -3689,17 +3728,21 @@ describe('Floccus', function() {
             )
             console.log('Initial round: second tree ok')
           }
+          tree1Initial = null
+          serverTreeAfterFirstSync = null
+          tree1AfterFirstSync = null
+          tree2AfterFirstSync = null
           console.log('Initial round ok')
 
           for (let j = 0; j < 4; j++) {
             console.log('STARTING LOOP ' + j)
 
-            const serverTreeAfterFirstSync = await getAllBookmarks(account1)
+            let serverTreeAfterFirstSync = await getAllBookmarks(account1)
 
-            const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+            let tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
               true
             )
-            const tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+            let tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
               true
             )
             if (!ACCOUNT_DATA.noCache) {
@@ -3718,6 +3761,8 @@ describe('Floccus', function() {
               )
               console.log('Initial round: second tree ok')
             }
+            serverTreeAfterFirstSync = null
+            tree1AfterFirstSync = null
             console.log('Initial round ok')
 
             if (!bookmarks2) {
@@ -3731,16 +3776,16 @@ describe('Floccus', function() {
 
             console.log(' acc1: Moved items')
 
-            const tree1BeforeSync = await account1.localTree.getBookmarksTree(
+            let tree1BeforeSync = await account1.localTree.getBookmarksTree(
               true
             )
             await account1.sync()
             expect(account1.getData().error).to.not.be.ok
             console.log('second round: account1 completed')
 
-            const serverTreeAfterSync = await getAllBookmarks(account1)
+            let serverTreeAfterSync = await getAllBookmarks(account1)
+            let tree1AfterSync = await account1.localTree.getBookmarksTree(true)
 
-            const tree1AfterSync = await account1.localTree.getBookmarksTree(true)
             if (!ACCOUNT_DATA.noCache) {
               expectTreeEqual(
                 tree1AfterSync,
@@ -3756,6 +3801,9 @@ describe('Floccus', function() {
               )
               console.log('Second round: server tree tree ok')
             }
+            tree1BeforeSync = null
+            tree1AfterSync = null
+            serverTreeAfterSync = null
             console.log('first half ok')
 
             await account2.sync()
@@ -3767,9 +3815,9 @@ describe('Floccus', function() {
 
             console.log('second round: account2 completed')
 
-            const serverTreeAfterSecondSync = await getAllBookmarks(account1)
+            let serverTreeAfterSecondSync = await getAllBookmarks(account1)
 
-            const tree2AfterSecondSync = await account2.localTree.getBookmarksTree(
+            let tree2AfterSecondSync = await account2.localTree.getBookmarksTree(
               true
             )
             if (!ACCOUNT_DATA.noCache) {
@@ -3781,6 +3829,7 @@ describe('Floccus', function() {
               )
               console.log('Second round: second server tree tree ok')
             }
+            serverTreeAfterSecondSync = null
             console.log('second half ok')
 
             console.log('final sync')
@@ -3788,9 +3837,9 @@ describe('Floccus', function() {
             expect(account1.getData().error).to.not.be.ok
             console.log('final sync completed')
 
-            const serverTreeAfterFinalSync = await getAllBookmarks(account1)
+            let serverTreeAfterFinalSync = await getAllBookmarks(account1)
 
-            const tree1AfterFinalSync = await account1.localTree.getBookmarksTree(
+            let tree1AfterFinalSync = await account1.localTree.getBookmarksTree(
               true
             )
             if (!ACCOUNT_DATA.noCache) {
@@ -3808,15 +3857,16 @@ describe('Floccus', function() {
               )
               console.log('Final round: server tree tree ok')
             }
+            tree1AfterFinalSync = null
 
             await account1.init()
             await account1.sync()
             expect(account1.getData().error).to.not.be.ok
             console.log('final sync after init completed')
 
-            const serverTreeAfterInit = await getAllBookmarks(account1)
+            let serverTreeAfterInit = await getAllBookmarks(account1)
 
-            const tree1AfterInit = await account1.localTree.getBookmarksTree(
+            let tree1AfterInit = await account1.localTree.getBookmarksTree(
               true
             )
 
@@ -3836,6 +3886,9 @@ describe('Floccus', function() {
               )
               console.log('Final round after init: server tree ok')
             }
+            serverTreeAfterInit = null
+            tree1AfterInit = null
+            serverTreeAfterInit = null
           }
         })
       })
