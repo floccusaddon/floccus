@@ -3165,7 +3165,6 @@ describe('Floccus', function() {
             )
           }
           serverTreeAfterThirdSync = null
-          tree2AfterThirdSync = null
           console.log('Second round second half ok')
 
           console.log('acc1: final sync')
@@ -3388,7 +3387,6 @@ describe('Floccus', function() {
             }
             serverTreeAfterFinalSync = null
             tree1AfterFinalSync = null
-            tree2AfterSecondSync = null
 
             await account1.init()
             await account1.sync()
@@ -3409,7 +3407,7 @@ describe('Floccus', function() {
                 ignoreEmptyFolders(ACCOUNT_DATA)
               )
               console.log('Final round after init: local tree ok')
-              tree2AfterSecondSync.title = serverTreeAfterFinalSync.title
+              tree2AfterSecondSync.title = serverTreeAfterInit.title
               expectTreeEqual(
                 tree2AfterSecondSync,
                 serverTreeAfterInit,
@@ -3641,7 +3639,7 @@ describe('Floccus', function() {
                 ignoreEmptyFolders(ACCOUNT_DATA)
               )
               console.log('Final round after init: local tree ok')
-              tree2AfterSecondSync.title = serverTreeAfterFinalSync.title
+              tree2AfterSecondSync.title = serverTreeAfterInit.title
               expectTreeEqual(
                 tree2AfterSecondSync,
                 serverTreeAfterInit,
