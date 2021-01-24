@@ -96,12 +96,8 @@ const VERSION = require('../package.json').version
         return false
       })
     )
-    try {
-      await driver.quit()
-    } catch (e) {
-      console.log(e)
-    }
     if (fin && ~fin.indexOf('FAILED')) {
+      await driver.quit()
       process.exit(1)
     } else {
       const match = fin.match(/duration: (\d+):(\d+)/i)
@@ -124,6 +120,7 @@ const VERSION = require('../package.json').version
           console.log('FAILED TO SAVE BENCHMARK STATS', e)
         }
       }
+      await driver.quit()
     }
   } catch (e) {
     console.log(e)
