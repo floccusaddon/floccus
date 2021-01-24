@@ -344,11 +344,15 @@ export default class SyncProcess {
         const concurrentSourceOriginRemoval = sourceRemovals.find(sourceRemoval => {
           return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.oldItem, sourceRemoval)
         })
-        if (complexTargetTargetRemoval) {
-          // target already deleted by a target REMOVE (connected via source MOVE|CREATEs)
+        const concurrentSourceTargetRemoval = sourceRemovals.find(sourceRemoval =>
+          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.payload, sourceRemoval)
+        )
+        if (complexTargetTargetRemoval || concurrentSourceTargetRemoval) {
+          // target already deleted by a target|source REMOVE (connected via source MOVE|CREATEs)
           if (!concurrentTargetOriginRemoval && !concurrentSourceOriginRemoval) {
             // make sure this item is not already being removed, when it's no longer moved
             targetPlan.commit({ ...action, type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
+            avoidTargetReorders[action.payload.id] = true
           }
           return
         }
