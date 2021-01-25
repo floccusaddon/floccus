@@ -19,7 +19,7 @@ export default class Logger {
     await AccountStorage.changeEntry(
       'log',
       log => {
-        return log.slice(-10).concat(this.messages) // only save the last sync run
+        return this.messages // only save the last sync run
       },
       []
     )
