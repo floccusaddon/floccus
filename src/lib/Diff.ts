@@ -2,7 +2,6 @@ import { Folder, TItem, ItemType, TItemLocation, ItemLocation } from './Tree'
 import Mappings, { MappingSnapshot } from './Mappings'
 import Ordering from './interfaces/Ordering'
 import batchingToposort from 'batching-toposort'
-import Logger from './Logger'
 
 export const ActionType = {
   CREATE: 'CREATE',
