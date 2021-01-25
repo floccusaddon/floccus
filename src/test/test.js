@@ -3224,7 +3224,6 @@ describe('Floccus', function() {
           await createTree(localRoot, 0, 100)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
-          console.log('Initial tree', tree1Initial)
           await account1.sync()
           expect(account1.getData().error).to.not.be.ok
           console.log('Initial round account1 completed')
@@ -3456,7 +3455,6 @@ describe('Floccus', function() {
           await createTree(localRoot, 0, 100)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
-          console.log('Initial tree', tree1Initial)
           await account1.sync()
           expect(account1.getData().error).to.not.be.ok
           console.log('Initial round account1 completed')
@@ -3688,7 +3686,6 @@ describe('Floccus', function() {
           await createTree(localRoot, 0, 100)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
-          console.log('Initial tree', tree1Initial)
           await account1.sync()
           expect(account1.getData().error).to.not.be.ok
           console.log('Initial round account1 completed')
