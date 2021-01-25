@@ -625,7 +625,11 @@ export default class SyncProcess {
         return
       }
 
-      await resource.orderFolder(item.id, action.order)
+      await resource.orderFolder(item.id, action.order
+        // in rare situations the diff generates a REMOVE for an item that is still in the tree,
+        // make sure to sort out those failed mapings (value: undefined)
+        .filter(item => item.id)
+      )
       this.updateProgress()
     })
   }
