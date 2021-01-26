@@ -209,8 +209,6 @@ export default class SyncProcess {
     const sourceRemovals = sourceDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
     const sourceMoves = sourceDiff.getActions(ActionType.MOVE).map(a => a as MoveAction)
 
-    const sourceTree = targetLocation === ItemLocation.SERVER ? this.localTreeRoot : this.serverTreeRoot
-
     const allCreateAndMoveActions = targetDiff.getActions()
       .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
       .map(a => a as CreateAction|MoveAction)
@@ -358,7 +356,7 @@ export default class SyncProcess {
           }
           return
         }
-        if (concurrentSourceTargetRemoval && !sourceTree.findItem(action.payload.type, action.payload.id)) {
+        if (concurrentSourceTargetRemoval && targetLocation === ItemLocation.LOCAL) { // No idea why this works
           // target already deleted by a source REMOVE (connected via source MOVE|CREATEs)
           avoidTargetReorders[action.payload.parentId] = true
           avoidTargetReorders[action.payload.id] = true
