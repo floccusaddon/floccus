@@ -209,6 +209,8 @@ export default class SyncProcess {
     const sourceRemovals = sourceDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
     const sourceMoves = sourceDiff.getActions(ActionType.MOVE).map(a => a as MoveAction)
 
+    const sourceTree = targetLocation === ItemLocation.SERVER ? this.localTreeRoot : this.serverTreeRoot
+
     const allCreateAndMoveActions = targetDiff.getActions()
       .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
       .map(a => a as CreateAction|MoveAction)
@@ -344,9 +346,9 @@ export default class SyncProcess {
         const concurrentSourceOriginRemoval = sourceRemovals.find(sourceRemoval => {
           return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.oldItem, sourceRemoval)
         })
-        /* const concurrentSourceTargetRemoval = sourceRemovals.find(sourceRemoval =>
+        const concurrentSourceTargetRemoval = sourceRemovals.find(sourceRemoval =>
           Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.payload, sourceRemoval)
-        ) */
+        )
         if (complexTargetTargetRemoval) {
           // target already deleted by a target|source REMOVE (connected via source MOVE|CREATEs)
           if (!concurrentTargetOriginRemoval && !concurrentSourceOriginRemoval) {
@@ -354,6 +356,12 @@ export default class SyncProcess {
             targetPlan.commit({ ...action, type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
             avoidTargetReorders[action.payload.id] = true
           }
+          return
+        }
+        if (concurrentSourceTargetRemoval && !sourceTree.findItem(action.payload.type, action.payload.id)) {
+          // target already deleted by a source REMOVE (connected via source MOVE|CREATEs)
+          avoidTargetReorders[action.payload.parentId] = true
+          avoidTargetReorders[action.payload.id] = true
           return
         }
         if (concurrentTargetOriginRemoval) {
