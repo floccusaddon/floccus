@@ -96,22 +96,8 @@ const VERSION = require('../package.json').version
         return false
       })
     )
-    await driver.quit()
     if (fin && ~fin.indexOf('FAILED')) {
-      /* console.log('=== start nextcloud log ===')
-      try {
-        console.log(fs.readFileSync('../server/data/nextcloud.log'))
-      } catch (e) {
-        console.log(e)
-      }
-      console.log('=== end nextcloud log ===')
-      console.log('=== start apache log ===')
-      try {
-        console.log(fs.readFileSync('/var/log/apache2/error.log').toString('UTF-8'))
-      } catch (e) {
-        console.log(e)
-      }
-      console.log('=== end apache log ===') */
+      await driver.quit()
       process.exit(1)
     } else {
       const match = fin.match(/duration: (\d+):(\d+)/i)
@@ -134,6 +120,7 @@ const VERSION = require('../package.json').version
           console.log('FAILED TO SAVE BENCHMARK STATS', e)
         }
       }
+      await driver.quit()
     }
   } catch (e) {
     console.log(e)
@@ -146,7 +133,7 @@ async function getNormalizerTime() {
   const start = Date.now()
   fibonacci(33) // get a feel for how fast this CPU is rn
   for (let i = 0; i < 30; i++) { // get a feel for how fast this network card is rns
-    await fetch('http://' + process.env.TEST_HOST)
+    await fetch('http://google.com')
   }
   const end = Date.now()
   return (end - start) / 1000

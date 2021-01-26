@@ -96,7 +96,7 @@ export default class Controller {
       const lastVersion = d.currentVersion ? d.currentVersion.split('.') : []
       if (packageVersion[0] !== lastVersion[0] || packageVersion[1] !== lastVersion[1]) {
         browser.tabs.create({
-          url: './options.html#/update',
+          url: '/dist/html/options.html#/update',
           active: false
         })
       }

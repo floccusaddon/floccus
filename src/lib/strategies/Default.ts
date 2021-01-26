@@ -344,12 +344,22 @@ export default class SyncProcess {
         const concurrentSourceOriginRemoval = sourceRemovals.find(sourceRemoval => {
           return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.oldItem, sourceRemoval)
         })
+        const concurrentSourceTargetRemoval = sourceRemovals.find(sourceRemoval =>
+          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.payload, sourceRemoval)
+        )
         if (complexTargetTargetRemoval) {
-          // target already deleted by a target REMOVE (connected via source MOVE|CREATEs)
+          // target already deleted by a target|source REMOVE (connected via source MOVE|CREATEs)
           if (!concurrentTargetOriginRemoval && !concurrentSourceOriginRemoval) {
             // make sure this item is not already being removed, when it's no longer moved
             targetPlan.commit({ ...action, type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
+            avoidTargetReorders[action.payload.id] = true
           }
+          return
+        }
+        if (concurrentSourceTargetRemoval && targetLocation === ItemLocation.LOCAL) { // No idea why this works
+          // target already deleted by a source REMOVE (connected via source MOVE|CREATEs)
+          avoidTargetReorders[action.payload.parentId] = true
+          avoidTargetReorders[action.payload.id] = true
           return
         }
         if (concurrentTargetOriginRemoval) {
@@ -621,7 +631,11 @@ export default class SyncProcess {
         return
       }
 
-      await resource.orderFolder(item.id, action.order)
+      await resource.orderFolder(item.id, action.order
+        // in rare situations the diff generates a REMOVE for an item that is still in the tree,
+        // make sure to sort out those failed mapings (value: undefined)
+        .filter(item => item.id)
+      )
       this.updateProgress()
     })
   }

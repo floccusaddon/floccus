@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.4.9
+
+### Fixed
+- Sync: Fix concurrentSourceTargetRemoval case
+- Sync: Filter out undefined order items
+- Logger#persist: Only save last sync run
+- Update chrome screenshots
+- Controller: Fix link to update page
+- l10n: Translate extension description
+
 ## v4.4.8
 
 ### Fixed
