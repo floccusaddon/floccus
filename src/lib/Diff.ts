@@ -132,12 +132,9 @@ export default class Diff {
       return true
     }
     const newCurrentAction = actions.find(targetAction =>
-      targetAction.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location))
+      !chain.includes(targetAction) && targetAction.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location))
     )
     if (newCurrentAction) {
-      if (chain.includes(newCurrentAction)) {
-        return false
-      }
       return Diff.findChain(mappingsSnapshot, actions, newCurrentAction.payload, targetAction, [...chain, newCurrentAction])
     }
     return false
