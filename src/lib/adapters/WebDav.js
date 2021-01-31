@@ -54,6 +54,7 @@ export default class WebDavAdapter extends CachingAdapter {
       res = await fetch(fullURL, {
         method: 'GET',
         credentials: 'omit',
+        mode: 'no-cors', // avoid sending Origin: null
         headers: {
           Authorization: 'Basic ' + authString
         }
@@ -92,6 +93,7 @@ export default class WebDavAdapter extends CachingAdapter {
       var res = await fetch(url, {
         method: 'PUT',
         credentials: 'omit',
+        mode: 'no-cors', // avoid sending Origin: null
         headers: {
           'Content-Type': content_type,
           Authorization: 'Basic ' + authString
@@ -158,6 +160,7 @@ export default class WebDavAdapter extends CachingAdapter {
       await fetch(fullUrl, {
         method: 'DELETE',
         credentials: 'omit',
+        mode: 'no-cors', // avoid sending Origin: null
         headers: {
           Authorization: 'Basic ' + authString
         }
