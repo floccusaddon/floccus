@@ -1,5 +1,14 @@
 # Changelog
 
+## v4.4.10
+
+### Fixed
+
+- Diff#findChain: Prevent infinite recursions
+- Fix Logger
+- executeReorderings: Don't fail sync process if REORDER fails
+- executeReorderings: Make sure items are unique
+
 ## v4.4.9
 
 ### Fixed
