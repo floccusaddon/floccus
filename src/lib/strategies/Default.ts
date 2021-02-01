@@ -313,10 +313,12 @@ export default class SyncProcess {
               oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, oldItem, action.payload.location)
 
               if (
-                targetPlan.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id) ||
-                sourceDiff.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id)
-              ) {
                 // Don't create duplicates!
+                targetPlan.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id) ||
+                sourceDiff.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id) ||
+                // Don't move back into removed territory
+                targetDiff.getActions(ActionType.REMOVE).find(move => move.payload.findItem(payload.type, payload.parentId))
+              ) {
                 return
               }
 
