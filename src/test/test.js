@@ -2982,9 +2982,9 @@ describe('Floccus', function() {
           // reset random seed
           random.use(seedrandom(SEED))
 
-          account1 = await Account.create(ACCOUNT_DATA)
+          account1 = await Account.create({...ACCOUNT_DATA, failsafe: false})
           await account1.init()
-          account2 = await Account.create(ACCOUNT_DATA)
+          account2 = await Account.create({...ACCOUNT_DATA, failsafe: false})
           await account2.init()
 
           if (ACCOUNT_DATA.type === 'fake') {
