@@ -1600,6 +1600,59 @@ describe('Floccus', function() {
             expect(localTree.findBookmark(bookmark1.id)).to.be.ok
             expect(localTree.findBookmark(bookmark2.id)).to.be.ok
           })
+          it('should error when deleting too much local data', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              this.skip()
+            }
+
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            const localRoot = account.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            await [
+              'http://ur.l/',
+              'http://ur.ll/',
+              'http://ur2.l/',
+              'http://ur3.l/',
+              'http://ur4.l/',
+              'http://ur5.l/',
+              'http://ur6.l/',
+              'http://ur7.l/',
+              'http://ur8.l/',
+              'http://ur9.l/',
+              'http://ur10.l/',
+            ].map(url => browser.bookmarks.create({
+              title: 'url',
+              url,
+              parentId: barFolder.id
+            }))
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            // Remove everything on the server
+            const tree = await getAllBookmarks(account)
+            await withSyncConnection(account, async() => {
+              await AsyncParallel.each(tree.children, async child => {
+                if (child instanceof Folder) {
+                  await account.server.removeFolder(child)
+                } else {
+                  await account.server.removeBookmark(child)
+                }
+              })
+            })
+
+            await account.sync()
+            expect(account.getData().error).to.be.ok // should have errored
+          })
           it('should leave alone unaccepted bookmarks entirely', async function() {
             if (!~ACCOUNT_DATA.type.indexOf('nextcloud')) {
               this.skip()
@@ -2982,9 +3035,9 @@ describe('Floccus', function() {
           // reset random seed
           random.use(seedrandom(SEED))
 
-          account1 = await Account.create(ACCOUNT_DATA)
+          account1 = await Account.create({...ACCOUNT_DATA, failsafe: false})
           await account1.init()
-          account2 = await Account.create(ACCOUNT_DATA)
+          account2 = await Account.create({...ACCOUNT_DATA, failsafe: false})
           await account2.init()
 
           if (ACCOUNT_DATA.type === 'fake') {
