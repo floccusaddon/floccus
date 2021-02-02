@@ -1600,7 +1600,11 @@ describe('Floccus', function() {
             expect(localTree.findBookmark(bookmark1.id)).to.be.ok
             expect(localTree.findBookmark(bookmark2.id)).to.be.ok
           })
-          it('should error when deleting to much local data', async function() {
+          it('should error when deleting too much local data', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              this.skip()
+            }
+
             expect(
               (await getAllBookmarks(account)).children
             ).to.have.lengthOf(0)
