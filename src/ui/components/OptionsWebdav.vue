@@ -59,6 +59,9 @@
         <v-expansion-panel-header>{{ t('LabelOptionsDangerous') }}</v-expansion-panel-header>
         <v-expansion-panel-content>
           <OptionResetCache @click="$emit('reset')" />
+          <OptionFailsafe
+            :value="failsafe"
+            @input="$emit('update:failsafe', $event)" />
           <OptionDeleteAccount @click="$emit('delete')" />
         </v-expansion-panel-content>
       </v-expansion-panel>
@@ -73,11 +76,12 @@ import OptionSyncStrategy from './OptionSyncStrategy'
 import OptionDeleteAccount from './OptionDeleteAccount'
 import OptionSyncFolder from './OptionSyncFolder'
 import OptionNestedSync from './OptionNestedSync'
+import OptionFailsafe from './OptionFailsafe'
 
 export default {
   name: 'OptionsWebdav',
-  components: { OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync'],
+  components: { OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
+  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
   data() {
     return {
       panels: [0]

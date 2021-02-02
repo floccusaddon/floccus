@@ -68,6 +68,13 @@
             :type="'warning'">
             {{ legacyWarning }}
           </v-alert>
+          <v-alert
+            v-if="!account.data.failsafe"
+            dense
+            outlined
+            :type="'warning'">
+            {{ t('StatusFailsafeoff') }}
+          </v-alert>
         </v-col>
         <v-col>
           <v-row

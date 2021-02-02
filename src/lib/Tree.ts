@@ -102,6 +102,10 @@ export class Bookmark {
     return null
   }
 
+  count():number {
+    return 1
+  }
+
   inspect(depth = 0):string {
     return (
       Array(depth < 0 ? 0 : depth)
