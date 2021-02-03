@@ -42,7 +42,7 @@ Note: Please write down the actual version numbers instead of writing 'latest'.
 ### Debug log
 It is often useful to provide a debug log file along with the issue. You can obtain a debug log of the most recent sync runs by clicking 'Debug log' in the bottom right corner of the floccus panel in your browser.
 
-Note: As your debug log usually contains large parts of your bookmark data, instead of attaching it publicly to the issue here, I recommend uploading it privately at the following URL https://klehranlage.net/index.php/s/7nn82NSBsfQKdsJ
+Note: As your debug log usually contains large parts of your bookmark data, instead of attaching it publicly to the issue here, I recommend uploading it privately at the following URL https://cloud.marcelklehr.de/s/PCi3iLWrzdMZSmw
 
 - [ ] Debug log provided
 
