@@ -89,7 +89,7 @@ export default {
   props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'nestedSync', 'failsafe'],
   data() {
     return {
-      panels: [0]
+      panels: [0, 1]
     }
   },
   methods: {

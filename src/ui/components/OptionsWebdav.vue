@@ -84,7 +84,7 @@ export default {
   props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
   data() {
     return {
-      panels: [0]
+      panels: [0, 1]
     }
   },
   methods: {
