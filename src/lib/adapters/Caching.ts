@@ -13,6 +13,10 @@ export default class CachingAdapter implements Adapter {
   protected bookmarksCache: Folder
   protected server: any
   constructor(server: any) {
+    this.resetCache()
+  }
+
+  resetCache() {
     this.highestId = 0
     this.bookmarksCache = new Folder({ id: 0, title: 'root', location: ItemLocation.SERVER })
   }
