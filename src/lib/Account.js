@@ -88,6 +88,7 @@ export default class Account {
       strategy: 'default',
       syncInterval: 15,
       nestedSync: false,
+      failsafe: true,
     }
     return {...defaults, ...this.server.getData()}
   }

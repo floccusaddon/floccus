@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.5.0
+
+### New
+- Implement failsafe to prevent data loss
+
+### Fixed
+- WebDAV: Clear cache on 404
+- UI: Improve options UX by opening folder settings by default as well
+- Sync: Fix "Cannot find folder to move into"
+
 ## v4.4.10
 
 ### Fixed

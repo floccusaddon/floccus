@@ -94,6 +94,16 @@ export default class SyncProcess {
     // Weed out modifications to bookmarks root
     await this.filterOutRootFolderActions(localPlan)
 
+    const localCountTotal = this.localTreeRoot.count()
+    const localCountDeleted = localPlan.getActions(ActionType.REMOVE).reduce((count, action) => count + action.payload.count(), 0)
+
+    if (localCountTotal > 5 && localCountDeleted / localCountTotal > 0.5) {
+      const failsafe = this.server.getData().failsafe
+      if (failsafe !== false || typeof failsafe === 'undefined') {
+        throw new Error(browser.i18n.getMessage('Error029', [(localCountDeleted / localCountTotal) * 100]))
+      }
+    }
+
     serverPlan = await this.execute(this.server, serverPlan, ItemLocation.SERVER)
     localPlan = await this.execute(this.localTree, localPlan, ItemLocation.LOCAL)
 
@@ -313,10 +323,12 @@ export default class SyncProcess {
               oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, oldItem, action.payload.location)
 
               if (
-                targetPlan.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id) ||
-                sourceDiff.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id)
-              ) {
                 // Don't create duplicates!
+                targetPlan.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id) ||
+                sourceDiff.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id) ||
+                // Don't move back into removed territory
+                targetDiff.getActions(ActionType.REMOVE).find(move => move.payload.findItem(payload.type, payload.parentId))
+              ) {
                 return
               }
 

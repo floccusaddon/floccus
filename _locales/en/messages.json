@@ -81,7 +81,10 @@
     "message": "E027: Sync process was interrupted"
   },
   "Error028": {
-    "message": "E028: Couldn't authenticate with the server. If you are using 2FA, make sure to grant access to files as well."
+    "message": "E028: Couldn't authenticate with the server."
+  },
+  "Error029": {
+    "message": "E029: Failsafe: The current sync run would delete $1% of your bookmarks. Refusing to execute. Disabled this failsafe in the account settings if you want to proceed anyway."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -395,5 +398,20 @@
   },
   "DescriptionExtension": {
     "message": "Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)"
+  },
+  "LabelFailsafe": {
+    "message": "Failsafe"
+  },
+  "DescriptionFailsafe": {
+    "message": "Sometimes configuration errors or software bugs can cause the unintended removal of data, which is then lost. To prevent that from happening, floccus will not delete more than 50% of your bookmarks in one go unless you disable this failsafe here."
+  },
+  "LabelFailsafeon": {
+    "message": "Enabled. Don't delete more than 50% of my local bookmarks without asking me first. (Recommended)"
+  },
+  "LabelFailsafeoff": {
+    "message": "Disabled. Allow the removal of more than 50% of my local bookmarks without confirming with me."
+  },
+  "StatusFailsafeoff": {
+    "message": "Failsafe disabled. You are at risk for unintended data loss. It is recommended to enable the failsafe in the account settings."
   }
 }

@@ -63,6 +63,9 @@
         <v-expansion-panel-header>{{ t('LabelOptionsDangerous') }}</v-expansion-panel-header>
         <v-expansion-panel-content>
           <OptionResetCache @click="$emit('reset')" />
+          <OptionFailsafe
+            :value="failsafe"
+            @input="$emit('update:failsafe', $event)" />
           <OptionDeleteAccount @click="$emit('delete')" />
         </v-expansion-panel-content>
       </v-expansion-panel>
@@ -78,18 +81,19 @@ import OptionDeleteAccount from './OptionDeleteAccount'
 import OptionSyncFolder from './OptionSyncFolder'
 import NextcloudLogin from './NextcloudLogin'
 import OptionNestedSync from './OptionNestedSync'
+import OptionFailsafe from './OptionFailsafe'
 
 export default {
   name: 'OptionsNextcloudFolders',
-  components: { OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
-  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'nestedSync'],
+  components: { OptionFailsafe, OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
+  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'nestedSync', 'failsafe'],
   data() {
     return {
-      panels: [0]
+      panels: [0, 1]
     }
   },
   methods: {
-    vvalidateUrl(str) {
+    validateUrl(str) {
       try {
         const u = new URL(str)
         return Boolean(u)

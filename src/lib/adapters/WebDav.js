@@ -178,6 +178,7 @@ export default class WebDavAdapter extends CachingAdapter {
     }
 
     if (response.status === 404) {
+      this.resetCache()
       return response
     }
 
