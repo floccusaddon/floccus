@@ -1,5 +1,6 @@
 import browser from './browser-api'
 import Cryptography from './Crypto'
+import DefunctCryptography from './DefunctCrypto'
 import Mappings from './Mappings'
 import { Folder } from './Tree'
 import AsyncLock from 'async-lock'
@@ -45,7 +46,12 @@ export default class AccountStorage {
     let accounts = await AccountStorage.getEntry(`accounts`, {})
     let data = accounts[this.accountId]
     if (key) {
-      data.password = await Cryptography.decryptAES(key, data.iv, data.password)
+      if (data.iv) {
+        data.password = await DefunctCryptography.decryptAES(key, data.iv, data.password)
+        delete data.iv
+      } else {
+        data.password = await Cryptography.decryptAES(key, data.password, data.username)
+      }
     }
     return data
   }
@@ -53,12 +59,12 @@ export default class AccountStorage {
   async setAccountData(data, key) {
     let encData = data
     if (key) {
-      if (!data.iv) {
-        data.iv = Array.from(Cryptography.getRandomBytes(16))
+      if (data.iv) {
+        delete data.iv
       }
       encData = {
         ...data,
-        password: await Cryptography.encryptAES(key, data.iv, data.password)
+        password: await Cryptography.encryptAES(key, data.password, data.username)
       }
     }
     return AccountStorage.changeEntry(
