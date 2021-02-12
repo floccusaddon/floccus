@@ -5,7 +5,9 @@ import seedrandom from 'seedrandom'
 import Account from '../lib/Account'
 import { Bookmark, Folder } from '../lib/Tree'
 import browser from '../lib/browser-api'
+import Crypto from '../lib/Crypto'
 import * as AsyncParallel from 'async-parallel'
+import DefunctCrypto from '../lib/DefunctCrypto'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -84,6 +86,31 @@ describe('Floccus', function() {
   after(async function() {
     const background = await browser.runtime.getBackgroundPage()
     background.controller.setEnabled(true)
+  })
+
+  describe('Crypto', function() {
+    it('should encrypt and decrypt correctly', async function() {
+      const passphrase = 'test'
+      const salt = 'blah'
+      const message = 'I don\'t know'
+      const payload = await Crypto.encryptAES(passphrase, message, salt)
+      console.log(payload)
+      const cleartext = await Crypto.decryptAES(passphrase, payload, salt)
+      expect(cleartext).to.equal(message)
+      console.log(cleartext)
+      console.log(message)
+    })
+
+    it('should encrypt and decrypt correctly (even with defunct crypto)', async function() {
+      const passphrase = 'test'
+      const message = 'I don\'t know'
+      const payload = await DefunctCrypto.encryptAES(passphrase, DefunctCrypto.iv, message)
+      console.log(payload)
+      const cleartext = await DefunctCrypto.decryptAES(passphrase, DefunctCrypto.iv, payload)
+      expect(cleartext).to.equal(message)
+      console.log(cleartext)
+      console.log(message)
+    })
   })
 
   ACCOUNTS.forEach(ACCOUNT_DATA => {
