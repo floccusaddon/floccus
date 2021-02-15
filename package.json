@@ -67,7 +67,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.1.0",
-    "eslint-plugin-vue": "^6.2.2",
+    "eslint-plugin-vue": "^7.6.0",
     "humanize-duration": "^3.25.1",
     "hyperapp": "^1.2.10",
     "install": "^0.13.0",
