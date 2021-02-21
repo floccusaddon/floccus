@@ -84,7 +84,7 @@
     "message": "E028: Couldn't authenticate with the server."
   },
   "Error029": {
-    "message": "E029: Failsafe: The current sync run would delete $1% of your bookmarks. Refusing to execute. Disabled this failsafe in the account settings if you want to proceed anyway."
+    "message": "E029: Failsafe: The current sync run would delete $1% of your bookmarks. Refusing to execute. Disable this failsafe in the account settings if you want to proceed anyway."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -413,5 +413,20 @@
   },
   "StatusFailsafeoff": {
     "message": "Failsafe disabled. You are at risk for unintended data loss. It is recommended to enable the failsafe in the account settings."
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google Drive"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "Sync bookmarks via an encrypted file that is stored in your Google Drive"
+  },
+  "LabelLogingoogle": {
+    "message": "Login with Google"
+  },
+  "LabelLoggedingoogle": {
+    "message": "Logged in with Google"
+  },
+  "DescriptionLogingoogle": {
+    "message": "Connect your Google account to store the bookmark sync file in your Google Drive."
   }
 }

@@ -24,6 +24,11 @@
             v-bind.sync="data"
             @reset="onReset"
             @delete="onDelete" />
+          <OptionsGoogleDrive
+            v-if="data.type === 'google-drive'"
+            v-bind.sync="data"
+            @reset="onReset"
+            @delete="onDelete" />
           <OptionsNextcloudLegacy
             v-if="data.type === 'nextcloud' || data.type === 'nextcloud-legacy'"
             v-bind.sync="data"
@@ -69,10 +74,11 @@ import OptionsNextcloudFolders from '../components/OptionsNextcloudFolders'
 import OptionsWebdav from '../components/OptionsWebdav'
 import OptionsNextcloudLegacy from '../components/OptionsNextcloudLegacy'
 import OptionsFake from '../components/OptionsFake'
+import OptionsGoogleDrive from '../components/OptionsGoogleDrive'
 
 export default {
   name: 'AccountOptions',
-  components: { OptionsFake, OptionsNextcloudLegacy, OptionsWebdav, OptionsNextcloudFolders },
+  components: { OptionsGoogleDrive, OptionsFake, OptionsNextcloudLegacy, OptionsWebdav, OptionsNextcloudFolders },
   data() {
     return {
       folderName: '',

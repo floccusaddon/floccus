@@ -9,7 +9,7 @@ import url from 'url'
 import Ordering from '../interfaces/Ordering'
 
 export default class CachingAdapter implements Adapter {
-  private highestId: number
+  protected highestId: number
   protected bookmarksCache: Folder
   protected server: any
   constructor(server: any) {
