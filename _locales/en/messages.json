@@ -86,6 +86,9 @@
   "Error029": {
     "message": "E029: Failsafe: The current sync run would delete $1% of your bookmarks. Refusing to execute. Disable this failsafe in the account settings if you want to proceed anyway."
   },
+  "Error030": {
+    "message": "E030: Failed to decrypt bookmarks file. The passphrase may be wrong or the file may be corrupted."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -428,5 +431,11 @@
   },
   "DescriptionLogingoogle": {
     "message": "Connect your Google account to store the bookmark sync file in your Google Drive."
+  },
+  "LabelPassphrase": {
+    "message": "Passphrase"
+},
+  "DescriptionPassphrase": {
+    "message": "Set a passphrase for encrypting your bookmarks file, if you set no passphrase, no encryption will be run."
   }
 }

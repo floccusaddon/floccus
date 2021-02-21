@@ -30,6 +30,13 @@
             :hint="t('DescriptionBookmarksfilegoogle')"
             :persistent-hint="true"
             @input="$emit('update:bookmark_file', $event)" />
+          <v-text-field
+            class="mt-2"
+            :value="password"
+            :label="t('LabelPassphrase')"
+            :hint="t('DescriptionPassphrase')"
+            :persistent-hint="true"
+            @input="$emit('update:password', $event)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 

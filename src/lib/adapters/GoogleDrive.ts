@@ -110,7 +110,15 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       this.fileId = file.id
       await this.setLock(this.fileId)
 
-      const xmlDocText = await this.downloadFile(this.fileId)
+      let xmlDocText = await this.downloadFile(this.fileId)
+
+      if (this.server.password) {
+        try {
+          xmlDocText = await Crypto.decryptAES(this.server.password, xmlDocText, this.server.bookmark_file)
+        } catch (e) {
+          throw new Error(browser.i18n.getMessage('Error030'))
+        }
+      }
 
       /* let's get the highestId */
       const byNL = xmlDocText.split('\n')
@@ -146,6 +154,11 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     this.bookmarksCache = this.bookmarksCache.clone()
     const newTreeHash = await this.bookmarksCache.hash(true)
+    let xbel = createXBEL(this.bookmarksCache, this.highestId)
+
+    if (this.server.password) {
+      xbel = await Crypto.encryptAES(this.server.password, xbel, this.server.bookmark_file)
+    }
 
     if (!this.fileId) {
       await this.createFile(xbel)
