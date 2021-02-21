@@ -30,7 +30,7 @@
             :value="bookmark_file"
             :rules="[validateBookmarksFile]"
             :label="t('LabelBookmarksfile')"
-            :hint="t('DescriptionBookmarksfile')"
+            :hint="t('DescriptionBookmarksfilegoogle')"
             :persistent-hint="true"
             @input="$emit('update:bookmark_file', $event)" />
         </v-expansion-panel-content>
@@ -95,7 +95,7 @@ export default {
   },
   methods: {
     validateBookmarksFile(path) {
-      return path[0] !== '/' && path[path.length - 1] !== '/'
+      return !path.includes('/')
     },
     async authenticate() {
       const token = await GoogleDriveAdapter.authorizeMozilla()

@@ -107,6 +107,9 @@
   "DescriptionBookmarksfile": {
     "message": "a path to the bookmarks file relative to your WebDAV URL (all folders in the path must already exist). e.g. personal_stuff/bookmarks.xbel"
   },
+ "DescriptionBookmarksfilegoogle": {
+   "message": "the file name of the bookmarks file that will reside in your Google Drive (make sure this name is unique in your Drive)"
+ },
   "LabelServerfolder": {
     "message": "Server folder"
   },
