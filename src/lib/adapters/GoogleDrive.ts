@@ -2,6 +2,7 @@ import browser from '../browser-api'
 import CachingAdapter from './Caching'
 import Logger from '../Logger'
 import XbelSerializer from '../serializers/Xbel'
+import Crypto from '../Crypto'
 
 export default class GoogleDriveAdapter extends CachingAdapter {
   static SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly']
@@ -9,17 +10,14 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
   private initialTreeHash: string
   private fileId: string
+  private accessToken: string
 
   constructor(server) {
     super(server)
     this.server = server
   }
 
-  static async authorizeChrome() {
-    return browser.identity.getAuthToken({interactive: true})
-  }
-
-  static async authorizeMozilla() {
+  static async authorize(interactive = true) {
     const redirectURL = chrome.identity.getRedirectURL()
     const scopes = ['https://www.googleapis.com/auth/drive.file']
     let authURL = 'https://accounts.google.com/o/oauth2/auth'
@@ -29,7 +27,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     authURL += `&scope=${encodeURIComponent(scopes.join(' '))}`
 
     const redirectResult = await browser.identity.launchWebAuthFlow({
-      interactive: true,
+      interactive,
       url: authURL
     })
     return this.validate(redirectResult)
@@ -46,7 +44,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
    Note that the Google page talks about an "audience" property, but in fact
    it seems to be "aud".
    */
-  static async validate(redirectURL) {
+  static async validate(redirectURL:string) {
     const accessToken = extractAccessToken(redirectURL)
     if (!accessToken) {
       throw new Error('Authorization failure')
@@ -61,7 +59,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     }
 
     const json = await response.json()
-
+    console.log(json)
     if (json.aud && (json.aud === this.CLIENT_ID)) {
       return accessToken
     } else {
@@ -92,9 +90,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   async onSyncStart() {
     Logger.log('onSyncStart: begin')
 
-    if (this.server.bookmark_file[0] === '/') {
-      throw new Error(browser.i18n.getMessage('Error025'))
-    }
+    this.accessToken = await GoogleDriveAdapter.authorize(false)
 
     let file
     const startDate = Date.now()
@@ -102,7 +98,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     const base = 1.25
     for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
       const fileList = await this.listFiles('name = ' + "'" + this.server.bookmark_file + "'")
-      file = fileList.files[0]
+      file = fileList.files.filter(file => !file.trashed)[0]
       if (file && file['appProperties.locked']) {
         await this.timeout(base ** i * 1000)
       } else {
@@ -139,7 +135,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
   async onSyncFail() {
     Logger.log('onSyncFail')
-    await this.freeLock(this.fileId)
+    if (this.fileId) {
+      await this.freeLock(this.fileId)
+    }
+    this.fileId = null
   }
 
   async onSyncComplete() {
@@ -149,18 +148,18 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     const newTreeHash = await this.bookmarksCache.hash(true)
 
     if (!this.fileId) {
-      const xbel = createXBEL(this.bookmarksCache, this.highestId)
       await this.createFile(xbel)
+      this.fileId = null
       return
     }
 
     if (newTreeHash !== this.initialTreeHash) {
-      const xbel = createXBEL(this.bookmarksCache, this.highestId)
       await this.uploadFile(this.fileId, xbel)
     } else {
       Logger.log('No changes to the server version necessary')
     }
     await this.freeLock(this.fileId)
+    this.fileId = null
   }
 
   async listFiles(query: string) : Promise<any> {
@@ -168,7 +167,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     try {
       resp = await fetch(this.getUrl() + '/files?corpora=user&q=' + query, {
         headers: {
-          Authorization: 'Bearer ' + this.server.password
+          Authorization: 'Bearer ' + this.accessToken
         }
       })
     } catch (e) {
@@ -187,7 +186,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     try {
       resp = await fetch(this.getUrl() + '/files/' + id + '?alt=media', {
         headers: {
-          Authorization: 'Bearer ' + this.server.password
+          Authorization: 'Bearer ' + this.accessToken
         }
       })
     } catch (e) {
@@ -209,7 +208,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
         credentials: 'omit',
         body: JSON.stringify({appProperties: {locked: false}}),
         headers: {
-          Authorization: 'Bearer ' + this.server.password,
+          Authorization: 'Bearer ' + this.accessToken,
           'Content-type': 'application/json',
         }
       })
@@ -232,7 +231,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
         credentials: 'omit',
         body: JSON.stringify({appProperties: {locked: true}}),
         headers: {
-          Authorization: 'Bearer ' + this.server.password,
+          Authorization: 'Bearer ' + this.accessToken,
           'Content-type': 'application/json',
         }
       })
@@ -256,7 +255,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
         body: xbel,
         headers: {
           'Content-Type': 'application/xml',
-          Authorization: 'Bearer ' + this.server.password,
+          Authorization: 'Bearer ' + this.accessToken,
         },
       })
     } catch (e) {
@@ -279,7 +278,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
         credentials: 'omit',
         body: JSON.stringify({name: this.server.bookmark_file}),
         headers: {
-          Authorization: 'Bearer ' + this.server.password,
+          Authorization: 'Bearer ' + this.accessToken,
           'Content-type': 'application/json',
         }
       })
@@ -303,7 +302,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
         body: xbel,
         headers: {
           'Content-Type': 'application/xml',
-          Authorization: 'Bearer ' + this.server.password,
+          Authorization: 'Bearer ' + this.accessToken,
         },
       })
     } catch (e) {

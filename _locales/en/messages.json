@@ -426,9 +426,6 @@
   "LabelLogingoogle": {
     "message": "Login with Google"
   },
-  "LabelLoggedingoogle": {
-    "message": "Logged in with Google"
-  },
   "DescriptionLogingoogle": {
     "message": "Connect your Google account to store the bookmark sync file in your Google Drive."
   }

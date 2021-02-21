@@ -7,15 +7,7 @@
       <v-expansion-panel>
         <v-expansion-panel-header>{{ t('LabelOptionsServerDetails') }}</v-expansion-panel-header>
         <v-expansion-panel-content>
-          <div v-if="password">
-            <v-btn
-              disabled
-              color="primary"
-              @click="authenticate">
-              {{ t('LabelLoggedingoogle') }}
-            </v-btn>
-          </div>
-          <div v-else>
+          <div>
             <v-btn
               color="primary"
               @click="authenticate">
@@ -24,6 +16,11 @@
             <p class="mt-1">
               {{ t('DescriptionLogingoogle') }}
             </p>
+            <v-icon
+              v-if="authorized"
+              color="success">
+              mdi-checkmark
+            </v-icon>
           </div>
           <v-text-field
             class="mt-2"
@@ -90,7 +87,8 @@ export default {
   props: ['password', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
   data() {
     return {
-      panels: [0, 1]
+      panels: [0, 1],
+      authorized: false,
     }
   },
   methods: {
@@ -98,8 +96,10 @@ export default {
       return !path.includes('/')
     },
     async authenticate() {
-      const token = await GoogleDriveAdapter.authorizeMozilla()
-      this.$emit('update:password', token)
+      const token = await GoogleDriveAdapter.authorize()
+      if (token) {
+        this.authorized = true
+      }
     }
   }
 }
