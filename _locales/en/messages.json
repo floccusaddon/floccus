@@ -432,6 +432,9 @@
   "DescriptionLogingoogle": {
     "message": "Connect your Google account to store the bookmark sync file in your Google Drive."
   },
+  "DescriptionLoggedingoogle": {
+    "message": "You have connected your Google account to store the bookmark sync file in your Google Drive."
+  },
   "LabelPassphrase": {
     "message": "Passphrase"
 },

@@ -3,10 +3,10 @@ import CachingAdapter from './Caching'
 import Logger from '../Logger'
 import XbelSerializer from '../serializers/Xbel'
 import Crypto from '../Crypto'
+import Credentials from '../../../google-api.credentials.json'
 
 export default class GoogleDriveAdapter extends CachingAdapter {
   static SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly']
-  static CLIENT_ID = '305459871054-4rr6n0jmsdvvprtjqbma5oeksshis2bn.apps.googleusercontent.com'
 
   private initialTreeHash: string
   private fileId: string
@@ -21,37 +21,36 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     const redirectURL = chrome.identity.getRedirectURL()
     const scopes = ['https://www.googleapis.com/auth/drive.file']
     let authURL = 'https://accounts.google.com/o/oauth2/auth'
-    authURL += `?client_id=${this.CLIENT_ID}`
-    authURL += `&response_type=token`
+    authURL += `?client_id=${Credentials.web.client_id}`
+    authURL += `&response_type=code`
     authURL += `&redirect_uri=${encodeURIComponent(redirectURL)}`
     authURL += `&scope=${encodeURIComponent(scopes.join(' '))}`
+    authURL += `&approval_prompt=force&access_type=offline`
 
     const redirectResult = await browser.identity.launchWebAuthFlow({
       interactive,
       url: authURL
     })
-    return this.validate(redirectResult)
-  }
 
-  /**
-   Validate the token contained in redirectURL.
-   This follows essentially the process here:
-   https://developers.google.com/identity/protocols/OAuth2UserAgent#tokeninfo-validation
-   - make a GET request to the validation URL, including the access token
-   - if the response is 200, and contains an "aud" property, and that property
-   matches the clientID, then the response is valid
-   - otherwise it is not valid
-   Note that the Google page talks about an "audience" property, but in fact
-   it seems to be "aud".
-   */
-  static async validate(redirectURL:string) {
-    const accessToken = extractAccessToken(redirectURL)
-    if (!accessToken) {
+    const m = redirectResult.match(/[#?](.*)/)
+    if (!m || m.length < 1)
+      return null
+    const params = new URLSearchParams(m[1].split('#')[0])
+    const code = params.get('code')
+
+    if (!code) {
       throw new Error('Authorization failure')
     }
-    const validationURL = `${VALIDATION_BASE_URL}?access_token=${accessToken}`
-    const response = await fetch(validationURL, {
-      method: 'GET'
+    const response = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: `code=${code}&` +
+        `client_id=${Credentials.web.client_id}&` +
+        `client_secret=${Credentials.web.client_secret}&` +
+        `redirect_uri=${encodeURIComponent(chrome.identity.getRedirectURL())}&` +
+        'grant_type=authorization_code'
     })
 
     if (response.status !== 200) {
@@ -60,22 +59,48 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     const json = await response.json()
     console.log(json)
-    if (json.aud && (json.aud === this.CLIENT_ID)) {
-      return accessToken
+    if (json.access_token && json.refresh_token) {
+      return json.refresh_token
+    } else {
+      throw new Error('Token validation error')
+    }
+  }
+
+  static async getAccessToken(refreshToken:string) {
+    const response = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: `refresh_token=${refreshToken}&` +
+        `client_id=${Credentials.web.client_id}&` +
+        `client_secret=${Credentials.web.client_secret}&` +
+        `grant_type=refresh_token`
+    })
+
+    if (response.status !== 200) {
+      throw new Error('Could not authenticate with Google Drive. Please connect floccus with your google account again.')
+    }
+
+    const json = await response.json()
+    console.log(json)
+    if (json.access_token) {
+      return json.access_token
     } else {
       throw new Error('Token validation error')
     }
   }
 
   getLabel():string {
-    return 'Google Drive'
+    return this.server.bookmark_file + ' in your Google Drive'
   }
 
   static getDefaultValues() {
     return {
       type: 'google-drive',
       password: '',
-      bookmark_file: 'bookmarks.xbel'
+      refreshToken: null,
+      bookmark_file: 'bookmarks.xbel',
     }
   }
 
@@ -90,7 +115,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   async onSyncStart() {
     Logger.log('onSyncStart: begin')
 
-    this.accessToken = await GoogleDriveAdapter.authorize(false)
+    this.accessToken = await GoogleDriveAdapter.getAccessToken(this.server.refreshToken)
 
     let file
     const startDate = Date.now()
@@ -328,16 +353,6 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     }
     return resp.status === 200
   }
-}
-
-const VALIDATION_BASE_URL = 'https://www.googleapis.com/oauth2/v3/tokeninfo'
-
-function extractAccessToken(redirectUri) {
-  const m = redirectUri.match(/[#?](.*)/)
-  if (!m || m.length < 1)
-    return null
-  const params = new URLSearchParams(m[1].split('#')[0])
-  return params.get('access_token')
 }
 
 function createXBEL(rootFolder, highestId) {

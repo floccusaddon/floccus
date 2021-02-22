@@ -8,19 +8,19 @@
         <v-expansion-panel-header>{{ t('LabelOptionsServerDetails') }}</v-expansion-panel-header>
         <v-expansion-panel-content>
           <div>
+            <v-icon
+              v-if="authorized || refreshToken"
+              color="success">
+              mdi-check
+            </v-icon>
             <v-btn
               color="primary"
               @click="authenticate">
               {{ t('LabelLogingoogle') }}
             </v-btn>
             <p class="mt-1">
-              {{ t('DescriptionLogingoogle') }}
+              {{ authorized || refreshToken? t('DescriptionLoggedingoogle') : t('DescriptionLogingoogle') }}
             </p>
-            <v-icon
-              v-if="authorized"
-              color="success">
-              mdi-checkmark
-            </v-icon>
           </div>
           <v-text-field
             class="mt-2"
@@ -32,6 +32,7 @@
             @input="$emit('update:bookmark_file', $event)" />
           <v-text-field
             class="mt-2"
+            type="password"
             :value="password"
             :label="t('LabelPassphrase')"
             :hint="t('DescriptionPassphrase')"
@@ -91,7 +92,7 @@ import GoogleDriveAdapter from '../../lib/adapters/GoogleDrive'
 export default {
   name: 'OptionsGoogleDrive',
   components: { OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['password', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
+  props: ['password', 'refreshToken', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
   data() {
     return {
       panels: [0, 1],
@@ -103,9 +104,10 @@ export default {
       return !path.includes('/')
     },
     async authenticate() {
-      const token = await GoogleDriveAdapter.authorize()
-      if (token) {
+      const refresh_token = await GoogleDriveAdapter.authorize()
+      if (refresh_token) {
         this.authorized = true
+        this.$emit('update:refreshToken', refresh_token)
       }
     }
   }
