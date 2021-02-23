@@ -56,7 +56,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     })
 
     if (response.status !== 200) {
-      throw new Error('Token validation error')
+      throw new Error(browser.i18n.getMessage('Error032'))
     }
 
     const json = await response.json()
@@ -64,7 +64,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     if (json.access_token && json.refresh_token) {
       return json.refresh_token
     } else {
-      throw new Error('Token validation error')
+      throw new Error(browser.i18n.getMessage('Error032'))
     }
   }
 
@@ -81,14 +81,14 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     })
 
     if (response.status !== 200) {
-      throw new Error('Could not authenticate with Google Drive. Please connect floccus with your google account again.')
+      throw new Error(browser.i18n.getMessage('Error031'))
     }
 
     const json = await response.json()
     if (json.access_token) {
       return json.access_token
     } else {
-      throw new Error('Token validation error')
+      throw new Error(browser.i18n.getMessage('Error032'))
     }
   }
 
