@@ -238,6 +238,25 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     return resp.text()
   }
 
+  async deleteFile(id: string): Promise<void> {
+    let resp
+    try {
+      resp = await fetch(this.getUrl() + '/files/' + id, {
+        method: 'DELETE',
+        headers: {
+          Authorization: 'Bearer ' + this.accessToken
+        }
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      throw new Error(browser.i18n.getMessage('Error017'))
+    }
+    if (resp.status === 401 || resp.status === 403) {
+      throw new Error(browser.i18n.getMessage('Error018'))
+    }
+  }
+
   async freeLock(id:string) {
     let resp
     try {

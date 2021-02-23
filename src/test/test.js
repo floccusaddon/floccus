@@ -38,23 +38,6 @@ describe('Floccus', function() {
       noCache: true,
     },
     {
-      type: 'nextcloud-legacy',
-      url: SERVER,
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-legacy',
-      url: SERVER,
-      serverRoot: '/my folder/some subfolder',
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-legacy',
-      url: SERVER,
-      parallel: true,
-      ...CREDENTIALS
-    },
-    {
       type: 'nextcloud-folders',
       url: SERVER,
       ...CREDENTIALS
@@ -76,6 +59,18 @@ describe('Floccus', function() {
       url: `${SERVER}/remote.php/webdav/`,
       bookmark_file: 'bookmarks.xbel',
       ...CREDENTIALS
+    },
+    {
+      type: 'google-drive',
+      bookmark_file: random.int() + '.xbel',
+      password: '',
+      refreshToken: CREDENTIALS.password,
+    },
+    {
+      type: 'google-drive',
+      bookmark_file: random.int() + '.xbel',
+      password: random.int(),
+      refreshToken: CREDENTIALS.password,
     },
   ]
 
@@ -195,6 +190,10 @@ describe('Floccus', function() {
                   }
                 })
               })
+            }
+            if (ACCOUNT_DATA.type === 'google-drive') {
+              await account.server.onSyncStart()
+              await account.server.deleteFile(account.server.fileId)
             }
             await account.delete()
           })
@@ -2524,6 +2523,10 @@ describe('Floccus', function() {
                 })
               })
             }
+            if (ACCOUNT_DATA.type === 'google-drive') {
+              await account1.server.onSyncStart()
+              await account1.server.deleteFile(account1.server.fileId)
+            }
             await account1.delete()
             await browser.bookmarks.removeTree(account2.getData().localRoot)
             await account2.delete()
@@ -3113,6 +3116,10 @@ describe('Floccus', function() {
                 }
               })
             })
+          }
+          if (ACCOUNT_DATA.type === 'google-drive') {
+            await account1.server.onSyncStart()
+            await account1.server.deleteFile(account1.server.fileId)
           }
           await account1.delete()
           await browser.bookmarks.removeTree(account2.getData().localRoot)
