@@ -1,6 +1,7 @@
 import AccountStorage from './AccountStorage'
 import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
 import WebDavAdapter from './adapters/WebDav'
+import GoogleDriveAdapter from './adapters/GoogleDrive'
 import FakeAdapter from './adapters/Fake'
 import LocalTree from './LocalTree'
 import DefaultSyncProcess from './strategies/Default'
@@ -16,6 +17,7 @@ import UnidirectionalMergeSyncProcess from './strategies/UnidirectionalMerge'
 // register Adapters
 AdapterFactory.register('nextcloud-folders', NextcloudFoldersAdapter)
 AdapterFactory.register('webdav', WebDavAdapter)
+AdapterFactory.register('google-drive', GoogleDriveAdapter)
 AdapterFactory.register('fake', FakeAdapter)
 
 export default class Account {
@@ -166,7 +168,10 @@ export default class Account {
       const localResource = this.getData().localRoot !== 'tabs' ? this.localTree : this.localTabs
 
       if (this.server.onSyncStart) {
-        await this.server.onSyncStart()
+        const status = await this.server.onSyncStart()
+        if (status === false) {
+          await this.init()
+        }
       }
 
       // main sync steps:

@@ -56,6 +56,11 @@ export default {
           type: 'webdav',
           label: this.t('LabelAdapterwebdav'),
           description: this.t('DescriptionAdapterwebdav')
+        },
+        {
+          type: 'google-drive',
+          label: this.t('LabelAdaptergoogledrive'),
+          description: this.t('DescriptionAdaptergoogledrive')
         }
       ]
     }

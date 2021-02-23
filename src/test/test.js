@@ -22,7 +22,7 @@ describe('Floccus', function() {
     'http://localhost'
   CREDENTIALS = {
     username: 'admin',
-    password: (new URL(window.location.href)).searchParams.get('pw') || 'admin'
+    password: (new URL(window.location.href)).searchParams.get('password') || 'admin'
   }
   APP_VERSION = (new URL(window.location.href)).searchParams.get('app_version') ||
     'stable'
@@ -36,23 +36,6 @@ describe('Floccus', function() {
     {
       ...Account.getDefaultValues('fake'),
       noCache: true,
-    },
-    {
-      type: 'nextcloud-legacy',
-      url: SERVER,
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-legacy',
-      url: SERVER,
-      serverRoot: '/my folder/some subfolder',
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-legacy',
-      url: SERVER,
-      parallel: true,
-      ...CREDENTIALS
     },
     {
       type: 'nextcloud-folders',
@@ -76,6 +59,18 @@ describe('Floccus', function() {
       url: `${SERVER}/remote.php/webdav/`,
       bookmark_file: 'bookmarks.xbel',
       ...CREDENTIALS
+    },
+    {
+      type: 'google-drive',
+      bookmark_file: random.float() + '.xbel',
+      password: '',
+      refreshToken: CREDENTIALS.password,
+    },
+    {
+      type: 'google-drive',
+      bookmark_file: random.float() + '.xbel',
+      password: random.int(),
+      refreshToken: CREDENTIALS.password,
     },
   ]
 
@@ -195,6 +190,13 @@ describe('Floccus', function() {
                   }
                 })
               })
+            }
+            if (ACCOUNT_DATA.type === 'google-drive') {
+              const fileList = await account.server.listFiles('name = ' + "'" + account.server.bookmark_file + "'")
+              const file = fileList.files[0]
+              if (file) {
+                await account.server.deleteFile(file.id)
+              }
             }
             await account.delete()
           })
@@ -2524,6 +2526,13 @@ describe('Floccus', function() {
                 })
               })
             }
+            if (ACCOUNT_DATA.type === 'google-drive') {
+              const fileList = await account1.server.listFiles('name = ' + "'" + account1.server.bookmark_file + "'")
+              const file = fileList.files[0]
+              if (file) {
+                await account1.server.deleteFile(file.id)
+              }
+            }
             await account1.delete()
             await browser.bookmarks.removeTree(account2.getData().localRoot)
             await account2.delete()
@@ -3113,6 +3122,13 @@ describe('Floccus', function() {
                 }
               })
             })
+          }
+          if (ACCOUNT_DATA.type === 'google-drive') {
+            const fileList = await account1.server.listFiles('name = ' + "'" + account1.server.bookmark_file + "'")
+            const file = fileList.files[0]
+            if (file) {
+              await account1.server.deleteFile(file.id)
+            }
           }
           await account1.delete()
           await browser.bookmarks.removeTree(account2.getData().localRoot)

@@ -84,7 +84,16 @@
     "message": "E028: Couldn't authenticate with the server."
   },
   "Error029": {
-    "message": "E029: Failsafe: The current sync run would delete $1% of your bookmarks. Refusing to execute. Disabled this failsafe in the account settings if you want to proceed anyway."
+    "message": "E029: Failsafe: The current sync run would delete $1% of your bookmarks. Refusing to execute. Disable this failsafe in the account settings if you want to proceed anyway."
+  },
+  "Error030": {
+    "message": "E030: Failed to decrypt bookmarks file. The passphrase may be wrong or the file may be corrupted."
+  },
+  "Error031": {
+    "message": "E031: Could not authenticate with Google Drive. Please connect floccus with your google account again."
+  },
+  "Error032": {
+    "message": "E032: OAuth error. Token validation error. Please reconnect your Google Account."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -107,6 +116,9 @@
   "DescriptionBookmarksfile": {
     "message": "a path to the bookmarks file relative to your WebDAV URL (all folders in the path must already exist). e.g. personal_stuff/bookmarks.xbel"
   },
+ "DescriptionBookmarksfilegoogle": {
+   "message": "the file name of the bookmarks file that will reside in your Google Drive (make sure this name is unique in your Drive)"
+ },
   "LabelServerfolder": {
     "message": "Server folder"
   },
@@ -413,5 +425,26 @@
   },
   "StatusFailsafeoff": {
     "message": "Failsafe disabled. You are at risk for unintended data loss. It is recommended to enable the failsafe in the account settings."
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google Drive"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "Sync bookmarks via an encrypted file that is stored in your Google Drive"
+  },
+  "LabelLogingoogle": {
+    "message": "Login with Google"
+  },
+  "DescriptionLogingoogle": {
+    "message": "Connect your Google account to store the bookmark sync file in your Google Drive."
+  },
+  "DescriptionLoggedingoogle": {
+    "message": "You have connected your Google account to store the bookmark sync file in your Google Drive."
+  },
+  "LabelPassphrase": {
+    "message": "Passphrase"
+},
+  "DescriptionPassphrase": {
+    "message": "Set a passphrase for encrypting your bookmarks file, if you set no passphrase, no encryption will be run."
   }
 }

@@ -34,6 +34,7 @@ jobs:
           - nextcloud-folders
           - nextcloud-folders-old
           - webdav
+          - google-drive
         test-name:
           - test
           - benchmark root
@@ -182,6 +183,12 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
+      - name: Get credentials
+        env:
+          GOOGLE_API_CREDENTIALS: ${{ secrets.GOOGLE_API_CREDENTIALS }}
+        run: |
+          echo $GOOGLE_API_CREDENTIALS > floccus/google-api.credentials.json
+
       - name: Install dependencies & build
         working-directory: floccus
         run: |
@@ -194,6 +201,7 @@ jobs:
           SELENIUM_BROWSER: ${{ matrix.browsers }}
           FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          GOOGLE_API_REFRESH_TOKEN: ${{ secrets.GOOGLE_API_REFRESH_TOKEN }}
           APP_VERSION: ${{ matrix.app-version }}
         run: |
           npm run test
