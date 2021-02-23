@@ -183,6 +183,12 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
+      - name: Get credentials
+        env:
+          GOOGLE_API_CREDENTIALS: ${{ secrets.GOOGLE_API_CREDENTIALS }}
+        run: |
+          echo $GOOGLE_API_CREDENTIALS > floccus/google-api.credentials.json
+
       - name: Install dependencies & build
         working-directory: floccus
         run: |

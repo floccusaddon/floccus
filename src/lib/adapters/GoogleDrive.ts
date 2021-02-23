@@ -5,6 +5,8 @@ import XbelSerializer from '../serializers/Xbel'
 import Crypto from '../Crypto'
 import Credentials from '../../../google-api.credentials.json'
 
+declare const chrome: any
+
 export default class GoogleDriveAdapter extends CachingAdapter {
   static SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly']
 
