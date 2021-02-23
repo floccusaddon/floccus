@@ -168,7 +168,10 @@ export default class Account {
       const localResource = this.getData().localRoot !== 'tabs' ? this.localTree : this.localTabs
 
       if (this.server.onSyncStart) {
-        await this.server.onSyncStart()
+        const status = await this.server.onSyncStart()
+        if (status === false) {
+          await this.init()
+        }
       }
 
       // main sync steps:

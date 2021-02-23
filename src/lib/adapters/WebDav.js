@@ -222,6 +222,11 @@ export default class WebDavAdapter extends CachingAdapter {
     this.initialTreeHash = await this.bookmarksCache.hash(true)
 
     Logger.log('onSyncStart: completed')
+
+    if (resp.status === 404) {
+      // Notify sync process that we need to reset cache
+      return false
+    }
   }
 
   async onSyncFail() {

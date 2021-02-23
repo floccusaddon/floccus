@@ -165,6 +165,11 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     this.initialTreeHash = await this.bookmarksCache.hash(true)
 
     Logger.log('onSyncStart: completed')
+
+    if (!this.fileId) {
+      // notify sync process that we should reset cache
+      return false
+    }
   }
 
   async onSyncFail() {
