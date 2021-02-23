@@ -85,7 +85,6 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     }
 
     const json = await response.json()
-    console.log(json)
     if (json.access_token) {
       return json.access_token
     } else {
