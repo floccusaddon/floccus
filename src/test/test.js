@@ -62,13 +62,13 @@ describe('Floccus', function() {
     },
     {
       type: 'google-drive',
-      bookmark_file: random.int() + '.xbel',
+      bookmark_file: random.float() + '.xbel',
       password: '',
       refreshToken: CREDENTIALS.password,
     },
     {
       type: 'google-drive',
-      bookmark_file: random.int() + '.xbel',
+      bookmark_file: random.float() + '.xbel',
       password: random.int(),
       refreshToken: CREDENTIALS.password,
     },
@@ -192,8 +192,11 @@ describe('Floccus', function() {
               })
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
-              await account.server.onSyncStart()
-              await account.server.deleteFile(account.server.fileId)
+              const fileList = await account.server.listFiles('name = ' + "'" + account.server.bookmark_file + "'")
+              const file = fileList.files[0]
+              if (file) {
+                await account.server.deleteFile(file.id)
+              }
             }
             await account.delete()
           })
@@ -2524,8 +2527,11 @@ describe('Floccus', function() {
               })
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
-              await account1.server.onSyncStart()
-              await account1.server.deleteFile(account1.server.fileId)
+              const fileList = await account1.server.listFiles('name = ' + "'" + account1.server.bookmark_file + "'")
+              const file = fileList.files[0]
+              if (file) {
+                await account1.server.deleteFile(file.id)
+              }
             }
             await account1.delete()
             await browser.bookmarks.removeTree(account2.getData().localRoot)
@@ -3118,8 +3124,11 @@ describe('Floccus', function() {
             })
           }
           if (ACCOUNT_DATA.type === 'google-drive') {
-            await account1.server.onSyncStart()
-            await account1.server.deleteFile(account1.server.fileId)
+            const fileList = await account1.server.listFiles('name = ' + "'" + account1.server.bookmark_file + "'")
+            const file = fileList.files[0]
+            if (file) {
+              await account1.server.deleteFile(file.id)
+            }
           }
           await account1.delete()
           await browser.bookmarks.removeTree(account2.getData().localRoot)
