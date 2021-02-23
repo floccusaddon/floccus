@@ -22,7 +22,7 @@ describe('Floccus', function() {
     'http://localhost'
   CREDENTIALS = {
     username: 'admin',
-    password: (new URL(window.location.href)).searchParams.get('pw') || 'admin'
+    password: (new URL(window.location.href)).searchParams.get('password') || 'admin'
   }
   APP_VERSION = (new URL(window.location.href)).searchParams.get('app_version') ||
     'stable'
