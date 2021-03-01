@@ -58,6 +58,9 @@
       <v-expansion-panel>
         <v-expansion-panel-header>{{ t('LabelOptionsDangerous') }}</v-expansion-panel-header>
         <v-expansion-panel-content>
+          <OptionClientCert
+            :value="includeCredentials"
+            @input="$emit('update:includeCredentials', $event)" />
           <OptionResetCache @click="$emit('reset')" />
           <OptionFailsafe
             :value="failsafe"
@@ -77,11 +80,12 @@ import OptionDeleteAccount from './OptionDeleteAccount'
 import OptionSyncFolder from './OptionSyncFolder'
 import OptionNestedSync from './OptionNestedSync'
 import OptionFailsafe from './OptionFailsafe'
+import OptionClientCert from './OptionClientCert'
 
 export default {
   name: 'OptionsWebdav',
-  components: { OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
+  components: { OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
+  props: ['url', 'username', 'password', 'includeCredentials', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
   data() {
     return {
       panels: [0, 1]

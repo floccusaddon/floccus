@@ -443,8 +443,14 @@
   },
   "LabelPassphrase": {
     "message": "Passphrase"
-},
+  },
   "DescriptionPassphrase": {
     "message": "Set a passphrase for encrypting your bookmarks file, if you set no passphrase, no encryption will be run."
+  },
+  "LabelClientcert": {
+    "message": "Send client certificates"
+  },
+  "DescriptionClientcert": {
+    "message": "Enable this option if your server requires a client certificate for authentication. This may cause unintended side effects, as floccus will also share cookies with your browser profile."
   }
 }

@@ -23,6 +23,7 @@ export interface NextcloudFoldersConfig {
   username: string
   password: string
   serverRoot?: string
+  includeCredentials?: boolean
 }
 
 interface IChildFolder {
@@ -64,6 +65,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       username: 'bob',
       password: 's3cret',
       serverRoot: '',
+      includeCredentials: false,
     }
   }
 
@@ -72,7 +74,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
   }
 
   getData():NextcloudFoldersConfig {
-    return { ...this.server }
+    return { ...NextcloudFoldersAdapter.getDefaultValues(), ...this.server }
   }
 
   getLabel():string {
@@ -789,7 +791,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
         Promise.race([
           fetch(url, {
             method: verb,
-            credentials: 'omit',
+            credentials: this.server.includeCredentials ? 'include' : 'omit',
             headers: {
               ...(type && { 'Content-type': type }),
               Authorization: 'Basic ' + authString,

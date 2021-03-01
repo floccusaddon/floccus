@@ -18,8 +18,13 @@ export default class WebDavAdapter extends CachingAdapter {
       url: 'https://example.org/',
       username: 'bob',
       password: 's3cret',
-      bookmark_file: 'bookmarks.xbel'
+      bookmark_file: 'bookmarks.xbel',
+      includeCredentials: false,
     }
+  }
+
+  getData(data) {
+    this.server = { ...WebDavAdapter.getDefaultValues(), ...data }
   }
 
   normalizeServerURL(input) {
@@ -44,6 +49,10 @@ export default class WebDavAdapter extends CachingAdapter {
     return this.getBookmarkURL() + '.lock'
   }
 
+  timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
   async downloadFile(fullURL) {
     let res
     let authString = Base64.encode(
@@ -53,7 +62,7 @@ export default class WebDavAdapter extends CachingAdapter {
     try {
       res = await fetch(fullURL, {
         method: 'GET',
-        credentials: 'omit',
+        credentials: this.server.includeCredentials ? 'include' : 'omit',
         headers: {
           Authorization: 'Basic ' + authString
         }
@@ -72,18 +81,6 @@ export default class WebDavAdapter extends CachingAdapter {
     return res
   }
 
-  async checkLock() {
-    let fullURL = this.getBookmarkLockURL()
-    Logger.log(fullURL)
-
-    const response = await this.downloadFile(fullURL)
-    return response.status
-  }
-
-  timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
-  }
-
   async uploadFile(url, content_type, data) {
     let authString = Base64.encode(
       this.server.username + ':' + this.server.password
@@ -91,7 +88,7 @@ export default class WebDavAdapter extends CachingAdapter {
     try {
       var res = await fetch(url, {
         method: 'PUT',
-        credentials: 'omit',
+        credentials: this.server.includeCredentials ? 'include' : 'omit',
         headers: {
           'Content-Type': content_type,
           Authorization: 'Basic ' + authString
@@ -109,6 +106,35 @@ export default class WebDavAdapter extends CachingAdapter {
     if (!res.ok) {
       throw new Error(browser.i18n.getMessage('Error019', [res.status, 'PUT']))
     }
+  }
+
+  async freeLock() {
+    let fullUrl = this.getBookmarkLockURL()
+
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+
+    try {
+      await fetch(fullUrl, {
+        method: 'DELETE',
+        credentials: this.server.includeCredentials ? 'include' : 'omit',
+        headers: {
+          Authorization: 'Basic ' + authString
+        }
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+    }
+  }
+
+  async checkLock() {
+    let fullURL = this.getBookmarkLockURL()
+    Logger.log(fullURL)
+
+    const response = await this.downloadFile(fullURL)
+    return response.status
   }
 
   async obtainLock() {
@@ -144,27 +170,6 @@ export default class WebDavAdapter extends CachingAdapter {
           this.server.bookmark_file + '.lock'
         ])
       )
-    }
-  }
-
-  async freeLock() {
-    let fullUrl = this.getBookmarkLockURL()
-
-    let authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
-
-    try {
-      await fetch(fullUrl, {
-        method: 'DELETE',
-        credentials: 'omit',
-        headers: {
-          Authorization: 'Basic ' + authString
-        }
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
     }
   }
 
