@@ -161,7 +161,7 @@ export default {
         disabled: 'rgb(125, 114, 128)',
         ok: '#3d8e39',
         error: '#8e3939',
-        syncing: 'blue'
+        syncing: '#2196F3'
       },
       statusIcons: {
         disabled: 'mdi-sync-off',
