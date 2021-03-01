@@ -62,6 +62,9 @@
       <v-expansion-panel>
         <v-expansion-panel-header>{{ t('LabelOptionsDangerous') }}</v-expansion-panel-header>
         <v-expansion-panel-content>
+          <OptionClientCert
+            :value="includeCredentials"
+            @input="$emit('update:includeCredentials', $event)" />
           <OptionResetCache @click="$emit('reset')" />
           <OptionFailsafe
             :value="failsafe"
@@ -82,11 +85,12 @@ import OptionSyncFolder from './OptionSyncFolder'
 import NextcloudLogin from './NextcloudLogin'
 import OptionNestedSync from './OptionNestedSync'
 import OptionFailsafe from './OptionFailsafe'
+import OptionClientCert from './OptionClientCert'
 
 export default {
   name: 'OptionsNextcloudFolders',
-  components: { OptionFailsafe, OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
-  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'nestedSync', 'failsafe'],
+  components: { OptionClientCert, OptionFailsafe, OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
+  props: ['url', 'username', 'password', 'includeCredentials', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'nestedSync', 'failsafe'],
   data() {
     return {
       panels: [0, 1]
