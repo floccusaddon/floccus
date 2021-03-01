@@ -23,8 +23,8 @@ export default class WebDavAdapter extends CachingAdapter {
     }
   }
 
-  getData(data) {
-    this.server = { ...WebDavAdapter.getDefaultValues(), ...data }
+  getData() {
+    return { ...WebDavAdapter.getDefaultValues(), ...this.server }
   }
 
   normalizeServerURL(input) {
