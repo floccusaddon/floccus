@@ -72,6 +72,10 @@ const VERSION = require('../package.json').version
 
     testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=http://${process.env.TEST_HOST}&app_version=${process.env.APP_VERSION}`
 
+    if (process.env.FLOCCUS_TEST.includes('google-drive')) {
+      testUrl += `&password=${process.env.GOOGLE_API_REFRESH_TOKEN}`
+    }
+
     await driver.get(testUrl)
 
     let logs = [],

@@ -5,7 +5,9 @@ import seedrandom from 'seedrandom'
 import Account from '../lib/Account'
 import { Bookmark, Folder } from '../lib/Tree'
 import browser from '../lib/browser-api'
+import Crypto from '../lib/Crypto'
 import * as AsyncParallel from 'async-parallel'
+import DefunctCrypto from '../lib/DefunctCrypto'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -20,7 +22,7 @@ describe('Floccus', function() {
     'http://localhost'
   CREDENTIALS = {
     username: 'admin',
-    password: (new URL(window.location.href)).searchParams.get('pw') || 'admin'
+    password: (new URL(window.location.href)).searchParams.get('password') || 'admin'
   }
   APP_VERSION = (new URL(window.location.href)).searchParams.get('app_version') ||
     'stable'
@@ -34,23 +36,6 @@ describe('Floccus', function() {
     {
       ...Account.getDefaultValues('fake'),
       noCache: true,
-    },
-    {
-      type: 'nextcloud-legacy',
-      url: SERVER,
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-legacy',
-      url: SERVER,
-      serverRoot: '/my folder/some subfolder',
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-legacy',
-      url: SERVER,
-      parallel: true,
-      ...CREDENTIALS
     },
     {
       type: 'nextcloud-folders',
@@ -75,6 +60,18 @@ describe('Floccus', function() {
       bookmark_file: 'bookmarks.xbel',
       ...CREDENTIALS
     },
+    {
+      type: 'google-drive',
+      bookmark_file: random.float() + '.xbel',
+      password: '',
+      refreshToken: CREDENTIALS.password,
+    },
+    {
+      type: 'google-drive',
+      bookmark_file: random.float() + '.xbel',
+      password: random.int(),
+      refreshToken: CREDENTIALS.password,
+    },
   ]
 
   before(async function() {
@@ -84,6 +81,31 @@ describe('Floccus', function() {
   after(async function() {
     const background = await browser.runtime.getBackgroundPage()
     background.controller.setEnabled(true)
+  })
+
+  describe('Crypto', function() {
+    it('should encrypt and decrypt correctly', async function() {
+      const passphrase = 'test'
+      const salt = 'blah'
+      const message = 'I don\'t know'
+      const payload = await Crypto.encryptAES(passphrase, message, salt)
+      console.log(payload)
+      const cleartext = await Crypto.decryptAES(passphrase, payload, salt)
+      expect(cleartext).to.equal(message)
+      console.log(cleartext)
+      console.log(message)
+    })
+
+    it('should encrypt and decrypt correctly (even with defunct crypto)', async function() {
+      const passphrase = 'test'
+      const message = 'I don\'t know'
+      const payload = await DefunctCrypto.encryptAES(passphrase, DefunctCrypto.iv, message)
+      console.log(payload)
+      const cleartext = await DefunctCrypto.decryptAES(passphrase, DefunctCrypto.iv, payload)
+      expect(cleartext).to.equal(message)
+      console.log(cleartext)
+      console.log(message)
+    })
   })
 
   ACCOUNTS.forEach(ACCOUNT_DATA => {
@@ -168,6 +190,13 @@ describe('Floccus', function() {
                   }
                 })
               })
+            }
+            if (ACCOUNT_DATA.type === 'google-drive') {
+              const fileList = await account.server.listFiles('name = ' + "'" + account.server.bookmark_file + "'")
+              const file = fileList.files[0]
+              if (file) {
+                await account.server.deleteFile(file.id)
+              }
             }
             await account.delete()
           })
@@ -2497,6 +2526,13 @@ describe('Floccus', function() {
                 })
               })
             }
+            if (ACCOUNT_DATA.type === 'google-drive') {
+              const fileList = await account1.server.listFiles('name = ' + "'" + account1.server.bookmark_file + "'")
+              const file = fileList.files[0]
+              if (file) {
+                await account1.server.deleteFile(file.id)
+              }
+            }
             await account1.delete()
             await browser.bookmarks.removeTree(account2.getData().localRoot)
             await account2.delete()
@@ -3086,6 +3122,13 @@ describe('Floccus', function() {
                 }
               })
             })
+          }
+          if (ACCOUNT_DATA.type === 'google-drive') {
+            const fileList = await account1.server.listFiles('name = ' + "'" + account1.server.bookmark_file + "'")
+            const file = fileList.files[0]
+            if (file) {
+              await account1.server.deleteFile(file.id)
+            }
           }
           await account1.delete()
           await browser.bookmarks.removeTree(account2.getData().localRoot)

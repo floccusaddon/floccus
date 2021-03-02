@@ -9,7 +9,7 @@ import url from 'url'
 import Ordering from '../interfaces/Ordering'
 
 export default class CachingAdapter implements Adapter {
-  private highestId: number
+  protected highestId: number
   protected bookmarksCache: Folder
   protected server: any
   constructor(server: any) {
@@ -219,7 +219,7 @@ export default class CachingAdapter implements Adapter {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async onSyncStart():Promise<void> { }
+  async onSyncStart():Promise<void|boolean> { }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async onSyncFail():Promise<void> { }

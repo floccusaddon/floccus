@@ -16,5 +16,5 @@ jobs:
       - name: Assign new issues and pull requests to project 1 Backlog
         uses: srggrs/assign-one-project-github-action@1.2.0
         with:
-          project: 'https://github.com/marcelklehr/floccus/projects/1'
+          project: 'https://github.com/floccusaddon/floccus/projects/1'
           column_name: 'Backlog'

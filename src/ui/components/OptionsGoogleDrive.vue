@@ -7,37 +7,45 @@
       <v-expansion-panel>
         <v-expansion-panel-header>{{ t('LabelOptionsServerDetails') }}</v-expansion-panel-header>
         <v-expansion-panel-content>
+          <div>
+            <v-icon
+              v-if="authorized || refreshToken"
+              color="success">
+              mdi-check
+            </v-icon>
+            <v-btn
+              color="primary"
+              @click="authenticate">
+              {{ t('LabelLogingoogle') }}
+            </v-btn>
+            <p class="mt-1">
+              {{ authorized || refreshToken? t('DescriptionLoggedingoogle') : t('DescriptionLogingoogle') }}
+            </p>
+          </div>
           <v-text-field
-            :value="url"
-            :rules="[validateUrl]"
-            :label="t('LabelNextcloudurl')"
-            @input="$emit('update:url', $event)" />
-          <NextcloudLogin
-            :username="username"
-            :password="password"
-            :server="url"
-            @update:username="$emit('update:username', $event)"
-            @update:password="$emit('update:password', $event)" />
+            append-icon="mdi-file-document"
+            class="mt-2"
+            :value="bookmark_file"
+            :rules="[validateBookmarksFile]"
+            :label="t('LabelBookmarksfile')"
+            :hint="t('DescriptionBookmarksfilegoogle')"
+            :persistent-hint="true"
+            @input="$emit('update:bookmark_file', $event)" />
+          <v-text-field
+            append-icon="mdi-lock"
+            class="mt-2"
+            type="password"
+            :value="password"
+            :label="t('LabelPassphrase')"
+            :hint="t('DescriptionPassphrase')"
+            :persistent-hint="true"
+            @input="$emit('update:password', $event)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 
       <v-expansion-panel>
         <v-expansion-panel-header>{{ t('LabelOptionsFolderMapping') }}</v-expansion-panel-header>
         <v-expansion-panel-content>
-          <v-container>
-            <div class="heading">
-              {{ t('LabelServerfolder') }}
-            </div>
-            <div class="caption">
-              {{ t('DescriptionServerfolder') }}
-            </div>
-            <v-text-field
-              :value="serverRoot"
-              :placeholder="'/'"
-              :rules="[validateServerRoot]"
-              :label="t('LabelServerfolder')"
-              @input="$emit('update:serverRoot', $event)" />
-          </v-container>
           <OptionSyncFolder
             :value="localRoot"
             @input="$emit('update:localRoot', $event)" />
@@ -62,9 +70,6 @@
       <v-expansion-panel>
         <v-expansion-panel-header>{{ t('LabelOptionsDangerous') }}</v-expansion-panel-header>
         <v-expansion-panel-content>
-          <OptionClientCert
-            :value="includeCredentials"
-            @input="$emit('update:includeCredentials', $event)" />
           <OptionResetCache @click="$emit('reset')" />
           <OptionFailsafe
             :value="failsafe"
@@ -82,32 +87,31 @@ import OptionResetCache from './OptionResetCache'
 import OptionSyncStrategy from './OptionSyncStrategy'
 import OptionDeleteAccount from './OptionDeleteAccount'
 import OptionSyncFolder from './OptionSyncFolder'
-import NextcloudLogin from './NextcloudLogin'
 import OptionNestedSync from './OptionNestedSync'
 import OptionFailsafe from './OptionFailsafe'
-import OptionClientCert from './OptionClientCert'
+import GoogleDriveAdapter from '../../lib/adapters/GoogleDrive'
 
 export default {
-  name: 'OptionsNextcloudFolders',
-  components: { OptionClientCert, OptionFailsafe, OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
-  props: ['url', 'username', 'password', 'includeCredentials', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'nestedSync', 'failsafe'],
+  name: 'OptionsGoogleDrive',
+  components: { OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
+  props: ['password', 'refreshToken', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
   data() {
     return {
-      panels: [0, 1]
+      panels: [0, 1],
+      authorized: false,
     }
   },
   methods: {
-    validateUrl(str) {
-      try {
-        const u = new URL(str)
-        return Boolean(u)
-      } catch (e) {
-        return false
+    validateBookmarksFile(path) {
+      return !path.includes('/')
+    },
+    async authenticate() {
+      const refresh_token = await GoogleDriveAdapter.authorize()
+      if (refresh_token) {
+        this.authorized = true
+        this.$emit('update:refreshToken', refresh_token)
       }
-    },
-    validateServerRoot(path) {
-      return !path || path === '/' || (path[0] === '/' && path[path.length - 1] !== '/')
-    },
+    }
   }
 }
 </script>

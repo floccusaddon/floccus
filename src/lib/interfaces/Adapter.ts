@@ -6,7 +6,7 @@ export default interface IAdapter {
   getData() :Record<string, any>
   getLabel(): string
   acceptsBookmark(bookmark:Bookmark): boolean
-  onSyncStart():Promise<void>
+  onSyncStart():Promise<void|boolean>
   onSyncComplete():Promise<void>
   onSyncFail():Promise<void>
 }

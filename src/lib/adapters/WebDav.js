@@ -5,6 +5,7 @@ import browser from '../browser-api'
 import { Base64 } from 'js-base64'
 
 import url from 'url'
+import Crypto from '../Crypto'
 
 export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {
@@ -18,8 +19,14 @@ export default class WebDavAdapter extends CachingAdapter {
       url: 'https://example.org/',
       username: 'bob',
       password: 's3cret',
-      bookmark_file: 'bookmarks.xbel'
+      bookmark_file: 'bookmarks.xbel',
+      includeCredentials: false,
+      passphrase: '',
     }
+  }
+
+  getData() {
+    return { ...WebDavAdapter.getDefaultValues(), ...this.server }
   }
 
   normalizeServerURL(input) {
@@ -126,9 +133,7 @@ export default class WebDavAdapter extends CachingAdapter {
     }
 
     if (rStatus === 200) {
-      throw new Error(
-        browser.i18n.getMessage('Error023', this.server.bookmark_file + '.lock')
-      )
+      // continue anyway
     } else if (rStatus === 404) {
       let fullURL = this.getBookmarkLockURL()
       Logger.log(fullURL)
@@ -185,6 +190,14 @@ export default class WebDavAdapter extends CachingAdapter {
     if (response.status === 200) {
       let xmlDocText = await response.text()
 
+      if (this.server.passphrase) {
+        try {
+          xmlDocText = await Crypto.decryptAES(this.server.passphrase, xmlDocText, this.server.bookmark_file)
+        } catch (e) {
+          throw new Error(browser.i18n.getMessage('Error030'))
+        }
+      }
+
       /* let's get the highestId */
       let byNL = xmlDocText.split('\n')
       byNL.forEach(line => {
@@ -222,6 +235,11 @@ export default class WebDavAdapter extends CachingAdapter {
     this.initialTreeHash = await this.bookmarksCache.hash(true)
 
     Logger.log('onSyncStart: completed')
+
+    if (resp.status === 404) {
+      // Notify sync process that we need to reset cache
+      return false
+    }
   }
 
   async onSyncFail() {
@@ -237,6 +255,9 @@ export default class WebDavAdapter extends CachingAdapter {
     if (newTreeHash !== this.initialTreeHash) {
       let fullUrl = this.getBookmarkURL()
       let xbel = createXBEL(this.bookmarksCache, this.highestId)
+      if (this.server.passphrase) {
+        xbel = await Crypto.encryptAES(this.server.passphrase, xbel, this.server.bookmark_file)
+      }
       await this.uploadFile(fullUrl, 'application/xml', xbel)
     } else {
       Logger.log('No changes to the server version necessary')

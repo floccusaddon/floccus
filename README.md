@@ -2,7 +2,7 @@
 
 ![](https://raw.githubusercontent.com/marcelklehr/floccus/develop/img/screen_chrome_wide.png)
 
-> Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)
+> Sync your bookmarks across browsers via Nextcloud, WebDAV or Google Drive
 
 [![Tests](https://github.com/marcelklehr/floccus/workflows/Tests/badge.svg)](https://github.com/marcelklehr/floccus/actions?query=workflow%3ATests)
 
@@ -26,9 +26,7 @@
    * [Chrome](#Chrome)
    * [Firefox](#Firefox)
    * [Android](#Android)
-   * [Upgrading](#Upgrading)
    * [Permissions](#Permissions)
- * [Usage](#Usage)
  * [Considerations](#Considerations)
  * [What's with the name?](#whats-with-the-name)
  * [Contributors](#Contributors)
@@ -51,6 +49,7 @@ Talk to us on [gitter](https://gitter.im/marcelklehr/floccus) or in the [officia
 ## Install
 The following sync methods are available:
 
+- **Google Drive**: If you have a Google account you can sync your bookmarks via an encrypted file in your Drive.
 - **WebDAV**: If you have a WebDAV server at hand, like any version of nextcloud/owncloud, box.com or with any other WebDAV server, commercial or self-hosted.
 - **Nextcloud Bookmarks**: Nextcloud in particular also sports a dedicated bookmarks app, which allows you to also access your bookmarks via a nice web UI.
 - **Local file and more**: You can also just sync with a local file, using [the companion desktop app LoFloccus](https://github.com/TCB13/LoFloccus). You can then also sync that file to other computers using your favorite file syncing solution, like Dropbox, Syncthing, rsync, etc. You can also create a WebDAV Server on the local machine using Docker in GNU/Linux, check out the project [Floccus-WebDavDocker](https://github.com/marlluslustosa/Floccus-WebDavDocker).
@@ -58,10 +57,6 @@ The following sync methods are available:
 Once your server or the LoFloccus app is ready, read on for the browser of your choosing.
 
 **Note:** It is recommended to not enable native bookmark synchronization built into your browser, as it is known to cause issues.
-
-**Note:** Please avoid installing the bookmarks_fulltextsearch app in nextcloud as it is known to cause issues with newer versions of the bookmarks app.
-
-**Note:** If you feel floccus is missing a sync backend and you'd like to chip in, check out the [Quick Intro to creating an adapter](https://github.com/marcelklehr/floccus/blob/develop/doc/Adapters.md). I'm happy to accept your pull request! :)
 
 ### Nextcloud
 Floccus is regularly tested with the following setups:
@@ -92,32 +87,6 @@ You can [install it via AMO](https://addons.mozilla.org/en-US/firefox/addon/floc
 
 Floccus is not supported by Firefox for Android [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility). **But**, why wait for mozilla, if you can use [Kiwi Browser](https://play.google.com/store/apps/details?id=com.kiwibrowser.browser), which supports floccus! Install instructions are the same as for Chrome.
 
-### Upgrading
-
-#### Upgrading from v3.x to v4.x
-See "Switching from tag-based to folder-based syncing"
-
-#### Updating from v3.0 to v3.1
-
-When using a WebDAV account, there's nothing you need to do to benefit from the new order preservation feature. If you are using the nextcloud adapter, it is recommended that you switch to the new nextcloud adapter, which works with the Bookmarks folders feature and also preserves ordering.
-
-#### Updating from v2.x to v3.0
-
-It is recommended to remove all of your bookmarks from your accounts before using the new version, deleting the accounts and then to create them again, in order to prevent unforeseen problems!
-
-#### Switching from tag-based to folder-based syncing
-
-The first sync method available with floccus syncs folders by creating associated tags on the server, which contain the folder's path. Since then the Nextcloud Bookmarks app supports folders natively and floccus has a new matching sync method. Here's how you switch to the new method:
-
-1. Back up your browser bookmarks
-2. _Remove the active floccus account_ for your nextcloud in _all_ browsers
-3. Remove all bookmarks on nextcloud (there's an option for that in the settings)
-4. Setup a new floccus sync account with the adapter that says "with folders" (as opposed to "legacy") in one browser
-5. Trigger a sync run to create the bookmarks and folders on the server
-6. Make sure everything is as expected on the server
-7. Setup floccus sync accounts in all other browsers with the "with folders"-adapter
-8. Done.
-
 ### Permissions
 
 Floccus requests the following permissions:
@@ -129,46 +98,9 @@ Floccus requests the following permissions:
 | bookmarks            | Necessary for creating and reading bookmarks                                                                                                                                                                                                                                                                                                                         |
 | Unlimited web access | Necessary for accessing your self-hosted server. This cannot be limited, because everybody's server has a different URL. Unfortunately, the way webextensions work currently, floccus also gets access to all the data the browser has collected on those websites. However, floccus makes no use of that data and doesn't in any way collect information about you. |
 
-## Usage
-
-- **The accounts panel**; After installation the accounts pane will pop up allowing you to create and manage accounts. You will be able to access this pane at all times by clicking the floccus icon in the browser tool bar.
-- **Your accounts**: You can setup multiple accounts and select a bookmark folder for each, that should be synced with that account. Floccus will keep the bookmarks in sync with the server you selected whenever you add or change them and will also sync periodically to pull the latest changes from the server.
-- **Syncing the root folder**: If you want to sync all bookmarks in your browser you need to select the topmost untitled folder in the folder picker. (In case you're wondering: Syncing the root folder across browsers from different vendors is now possible out of the box, because the built-in folder names are now normalized).
-
-### The server path: Mapping folders / Profiles
-
-When using the nextcloud Bookmarks adapter, you can specify a 'server folder' in your floccus account setup. This is like the target folder of a copy or rsync command. While the local sync folder you have selected from your browser bookmarks will normally end up being synced to the root bookmark path on your server, you can change that to an arbitrary sub-directory, e.g. /Toolbar, with the 'server folder' setting. If you are using the WebDAV/XBEL adapter, you can do the same by specifying a specific xbel file in the settings.
-
-This way it is possible to sync Firefox' 'Bookmarks Menu' folder to Chrome, which doesn't have a Menu folder out of the box: Simply set up a separate account for each of the main folders in firefox, each with a separate server folder, e.g.:
-
-- Fx '/Bookmarks Toolbar' <=> '/Toolbar'
-- Fx '/Other Bookmarks' <=> '/Others'
-- Fx '/Bookmarks Menu' <=> '/Menu'
-
-Then, in Chrome you can setup the folders as follows:
-
-- GC '/Bookmarks Toolbar' <=> '/Toolbar'
-- GC '/Bookmarks Toolbar/Menu' <=> '/Menu' (You need to create this folder yourself, of course.)
-- GC '/Other Bookmarks' <=> '/Others'
-
 ### Limitations
 
 - Note that currently you cannot sync the same folder with multiple nextcloud accounts in order to avoid data corruption. If you sync the root folder with one account and sync a sub folder with a different account, that sub-folder will not be synced with the account connected to the root folder anymore.
-
-### Performance
-
-Performance is an aspect that I try to tackle with gradual improvements. The latest development here is the "parallel sync" option that processes multiple branches of the bookmarks tree in parallel. The benchmark results in this case are as follows:
-
-| adapter           | cold initial sync (4000 Bookmarks) | warm sync with no changes (4000 Bookmarks) |
-| ----------------- | ---------------------------------- | ------------------------------------------ |
-| nextcloud-folders | ~7min                              | ~20s                                       |
-| webdav            | ~4min                              | ~10s                                       |
-
-**Note**: The cold sync performance of the nextcloud-folders adapter depends to an extent on the server's resources as well, such that the times may vary with your setup.
-
-### Finding duplicates
-
-Floccus will sync your bookmarks as-is, including any dupes that are in different folders. If you need to find and remove duplicates in your bookmarks, try something like [bookmark-dupes](https://addons.mozilla.org/en-US/firefox/addon/bookmark-dupes).
 
 ### Troubleshooting
 
