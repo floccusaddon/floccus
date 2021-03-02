@@ -86,8 +86,9 @@ export default class Controller {
 
       // Set flag to switch to new encryption implementation
       const oldVersion = d.currentVersion.split('.')
+      const e = await browser.storage.local.get('accountsLocked')
       // eslint-disable-next-line eqeqeq
-      if (oldVersion[0] === '4' && (oldVersion[1] < 5 || (oldVersion[1] == 5 && oldVersion[2] == 0))) {
+      if (e.accountsLocked && oldVersion[0] === '4' && (oldVersion[1] < 5 || (oldVersion[1] == 5 && oldVersion[2] == 0))) {
         await browser.storage.local.set({
           rekeyAfterUpdate: true
         })
