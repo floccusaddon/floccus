@@ -22,12 +22,22 @@
             :label="t('LabelPassword')"
             @input="$emit('update:password', $event)" />
           <v-text-field
+            append-icon="mdi-file-document"
             :value="bookmark_file"
             :rules="[validateBookmarksFile]"
             :label="t('LabelBookmarksfile')"
             :hint="t('DescriptionBookmarksfile')"
             :persistent-hint="true"
             @input="$emit('update:bookmark_file', $event)" />
+          <v-text-field
+            append-icon="mdi-lock"
+            class="mt-2"
+            type="password"
+            :value="passphrase"
+            :label="t('LabelPassphrase')"
+            :hint="t('DescriptionPassphrase')"
+            :persistent-hint="true"
+            @input="$emit('update:passphrase', $event)" />
         </v-expansion-panel-content>
       </v-expansion-panel>
 
@@ -85,7 +95,7 @@ import OptionClientCert from './OptionClientCert'
 export default {
   name: 'OptionsWebdav',
   components: { OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['url', 'username', 'password', 'includeCredentials', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
+  props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
   data() {
     return {
       panels: [0, 1]

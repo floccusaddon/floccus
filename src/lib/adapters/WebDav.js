@@ -5,6 +5,7 @@ import browser from '../browser-api'
 import { Base64 } from 'js-base64'
 
 import url from 'url'
+import Crypto from '../Crypto'
 
 export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {
@@ -20,6 +21,7 @@ export default class WebDavAdapter extends CachingAdapter {
       password: 's3cret',
       bookmark_file: 'bookmarks.xbel',
       includeCredentials: false,
+      passphrase: '',
     }
   }
 
@@ -49,10 +51,6 @@ export default class WebDavAdapter extends CachingAdapter {
     return this.getBookmarkURL() + '.lock'
   }
 
-  timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
-  }
-
   async downloadFile(fullURL) {
     let res
     let authString = Base64.encode(
@@ -62,7 +60,7 @@ export default class WebDavAdapter extends CachingAdapter {
     try {
       res = await fetch(fullURL, {
         method: 'GET',
-        credentials: this.server.includeCredentials ? 'include' : 'omit',
+        credentials: 'omit',
         headers: {
           Authorization: 'Basic ' + authString
         }
@@ -81,6 +79,18 @@ export default class WebDavAdapter extends CachingAdapter {
     return res
   }
 
+  async checkLock() {
+    let fullURL = this.getBookmarkLockURL()
+    Logger.log(fullURL)
+
+    const response = await this.downloadFile(fullURL)
+    return response.status
+  }
+
+  timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
   async uploadFile(url, content_type, data) {
     let authString = Base64.encode(
       this.server.username + ':' + this.server.password
@@ -88,7 +98,7 @@ export default class WebDavAdapter extends CachingAdapter {
     try {
       var res = await fetch(url, {
         method: 'PUT',
-        credentials: this.server.includeCredentials ? 'include' : 'omit',
+        credentials: 'omit',
         headers: {
           'Content-Type': content_type,
           Authorization: 'Basic ' + authString
@@ -108,35 +118,6 @@ export default class WebDavAdapter extends CachingAdapter {
     }
   }
 
-  async freeLock() {
-    let fullUrl = this.getBookmarkLockURL()
-
-    let authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
-
-    try {
-      await fetch(fullUrl, {
-        method: 'DELETE',
-        credentials: this.server.includeCredentials ? 'include' : 'omit',
-        headers: {
-          Authorization: 'Basic ' + authString
-        }
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-    }
-  }
-
-  async checkLock() {
-    let fullURL = this.getBookmarkLockURL()
-    Logger.log(fullURL)
-
-    const response = await this.downloadFile(fullURL)
-    return response.status
-  }
-
   async obtainLock() {
     let rStatus
     const startDate = Date.now()
@@ -152,9 +133,7 @@ export default class WebDavAdapter extends CachingAdapter {
     }
 
     if (rStatus === 200) {
-      throw new Error(
-        browser.i18n.getMessage('Error023', this.server.bookmark_file + '.lock')
-      )
+      // continue anyway
     } else if (rStatus === 404) {
       let fullURL = this.getBookmarkLockURL()
       Logger.log(fullURL)
@@ -170,6 +149,27 @@ export default class WebDavAdapter extends CachingAdapter {
           this.server.bookmark_file + '.lock'
         ])
       )
+    }
+  }
+
+  async freeLock() {
+    let fullUrl = this.getBookmarkLockURL()
+
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+
+    try {
+      await fetch(fullUrl, {
+        method: 'DELETE',
+        credentials: 'omit',
+        headers: {
+          Authorization: 'Basic ' + authString
+        }
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
     }
   }
 
@@ -189,6 +189,14 @@ export default class WebDavAdapter extends CachingAdapter {
 
     if (response.status === 200) {
       let xmlDocText = await response.text()
+
+      if (this.server.passphrase) {
+        try {
+          xmlDocText = await Crypto.decryptAES(this.server.passphrase, xmlDocText, this.server.bookmark_file)
+        } catch (e) {
+          throw new Error(browser.i18n.getMessage('Error030'))
+        }
+      }
 
       /* let's get the highestId */
       let byNL = xmlDocText.split('\n')
@@ -247,6 +255,9 @@ export default class WebDavAdapter extends CachingAdapter {
     if (newTreeHash !== this.initialTreeHash) {
       let fullUrl = this.getBookmarkURL()
       let xbel = createXBEL(this.bookmarksCache, this.highestId)
+      if (this.server.passphrase) {
+        xbel = await Crypto.encryptAES(this.server.passphrase, xbel, this.server.bookmark_file)
+      }
       await this.uploadFile(fullUrl, 'application/xml', xbel)
     } else {
       Logger.log('No changes to the server version necessary')

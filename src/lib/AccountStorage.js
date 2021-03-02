@@ -51,6 +51,9 @@ export default class AccountStorage {
         delete data.iv
       } else {
         data.password = await Cryptography.decryptAES(key, data.password, data.username)
+        if (data.passphrase) {
+          data.passphrase = await Cryptography.decryptAES(key, data.passphrase, data.username)
+        }
       }
     }
     return data
@@ -64,7 +67,8 @@ export default class AccountStorage {
       }
       encData = {
         ...data,
-        password: await Cryptography.encryptAES(key, data.password, data.username)
+        password: await Cryptography.encryptAES(key, data.password, data.username),
+        ...(data.passphrase && {passphrase: await Cryptography.encryptAES(key, data.passphrase, data.username)})
       }
     }
     return AccountStorage.changeEntry(
