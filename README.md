@@ -2,7 +2,7 @@
 
 ![](https://raw.githubusercontent.com/marcelklehr/floccus/develop/img/screen_chrome_wide.png)
 
-> Sync your bookmarks across browsers via Nextcloud, WebDAV or a local file (and thus any file sync solution)
+> Sync your bookmarks across browsers via Nextcloud, WebDAV or Google Drive
 
 [![Tests](https://github.com/marcelklehr/floccus/workflows/Tests/badge.svg)](https://github.com/marcelklehr/floccus/actions?query=workflow%3ATests)
 
@@ -49,6 +49,7 @@ Talk to us on [gitter](https://gitter.im/marcelklehr/floccus) or in the [officia
 ## Install
 The following sync methods are available:
 
+- **Google Drive**: If you have a Google account you can sync your bookmarks via an encrypted file in your Drive.
 - **WebDAV**: If you have a WebDAV server at hand, like any version of nextcloud/owncloud, box.com or with any other WebDAV server, commercial or self-hosted.
 - **Nextcloud Bookmarks**: Nextcloud in particular also sports a dedicated bookmarks app, which allows you to also access your bookmarks via a nice web UI.
 - **Local file and more**: You can also just sync with a local file, using [the companion desktop app LoFloccus](https://github.com/TCB13/LoFloccus). You can then also sync that file to other computers using your favorite file syncing solution, like Dropbox, Syncthing, rsync, etc. You can also create a WebDAV Server on the local machine using Docker in GNU/Linux, check out the project [Floccus-WebDavDocker](https://github.com/marlluslustosa/Floccus-WebDavDocker).
