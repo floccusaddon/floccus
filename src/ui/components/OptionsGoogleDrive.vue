@@ -23,6 +23,7 @@
             </p>
           </div>
           <v-text-field
+            append-icon="mdi-file-document"
             class="mt-2"
             :value="bookmark_file"
             :rules="[validateBookmarksFile]"
@@ -31,6 +32,7 @@
             :persistent-hint="true"
             @input="$emit('update:bookmark_file', $event)" />
           <v-text-field
+            append-icon="mdi-lock"
             class="mt-2"
             type="password"
             :value="password"
