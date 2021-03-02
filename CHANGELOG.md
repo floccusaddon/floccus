@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.6.0
+
+### New
+- Sync via Google Drive
+- Optionally encrypt your sync file
+- Allow sending client certificates
+
+### Fixed
+- Fix Crypto module
+
 ## v4.5.0
 
 ### New
