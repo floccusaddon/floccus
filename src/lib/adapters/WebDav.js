@@ -194,7 +194,11 @@ export default class WebDavAdapter extends CachingAdapter {
         try {
           xmlDocText = await Crypto.decryptAES(this.server.passphrase, xmlDocText, this.server.bookmark_file)
         } catch (e) {
-          throw new Error(browser.i18n.getMessage('Error030'))
+          if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
+            // not encrypted, yet => noop
+          } else {
+            throw new Error(browser.i18n.getMessage('Error030'))
+          }
         }
       }
 
