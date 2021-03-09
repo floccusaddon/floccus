@@ -2,8 +2,9 @@ import Diff, { ActionType } from '../Diff'
 import Scanner from '../Scanner'
 import Unidirectional from './Unidirectional'
 import * as Parallel from 'async-parallel'
-import { TItemLocation } from '../Tree'
+import { ItemLocation, TItemLocation } from '../Tree'
 import Mappings from '../Mappings'
+import TResource from '../interfaces/Resource'
 
 export default class UnidirectionalMergeSyncProcess extends Unidirectional {
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
@@ -86,5 +87,20 @@ export default class UnidirectionalMergeSyncProcess extends Unidirectional {
 
   async loadChildren() :Promise<void> {
     this.serverTreeRoot = await this.server.getBookmarksTree(true)
+  }
+
+  async execute(resource:TResource, plan:Diff, targetLocation:TItemLocation):Promise<Diff> {
+    if (this.direction === ItemLocation.LOCAL) {
+      const run = (action) => this.executeAction(resource, action, targetLocation)
+
+      await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run)
+      // Don't map here in slave mode!
+      const batches = Diff.sortMoves(plan.getActions(ActionType.MOVE), targetLocation === ItemLocation.SERVER ? this.serverTreeRoot : this.localTreeRoot)
+      await Parallel.each(batches, batch => Promise.all(batch.map(run)), 1)
+      await Parallel.each(plan.getActions(ActionType.REMOVE), run)
+      return plan
+    } else {
+      return super.execute(resource, plan, targetLocation)
+    }
   }
 }
