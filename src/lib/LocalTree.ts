@@ -103,17 +103,21 @@ export default class LocalTree implements IResource {
 
   async updateBookmark(bookmark:Bookmark):Promise<void> {
     Logger.log('(local)UPDATE', bookmark)
-    await this.queue.add(() =>
-      browser.bookmarks.update(bookmark.id, {
-        title: bookmark.title,
-        url: bookmark.url
-      })
-    )
-    await this.queue.add(() =>
-      browser.bookmarks.move(bookmark.id, {
-        parentId: bookmark.parentId
-      })
-    )
+    try {
+      await this.queue.add(() =>
+        browser.bookmarks.update(bookmark.id, {
+          title: bookmark.title,
+          url: bookmark.url
+        })
+      )
+      await this.queue.add(() =>
+        browser.bookmarks.move(bookmark.id, {
+          parentId: bookmark.parentId
+        })
+      )
+    } catch (e) {
+      throw new Error('Could not update ' + bookmark.inspect() + ': ' + e.message)
+    }
   }
 
   async removeBookmark(bookmark:Bookmark): Promise<void> {

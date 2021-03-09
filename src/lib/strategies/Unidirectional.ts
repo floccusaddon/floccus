@@ -1,9 +1,10 @@
 import DefaultStrategy from './Default'
 import Diff, { ActionType } from '../Diff'
 import * as Parallel from 'async-parallel'
-import TResource from '../interfaces/Resource'
+// import TResource from '../interfaces/Resource'
 import Mappings from '../Mappings'
-import { ItemLocation, TItemLocation } from '../Tree'
+// import { ItemLocation, TItemLocation } from '../Tree'
+import { TItemLocation } from '../Tree'
 
 export default class UnidirectionalSyncProcess extends DefaultStrategy {
   protected direction: TItemLocation
@@ -82,6 +83,11 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
           return
         }
         if (action.type === ActionType.MOVE) {
+          const concurrentMove = slavePlan.getActions(ActionType.MOVE).find(a => Mappings.mappable(mappingsSnapshot, a.payload, action.oldItem))
+          if (concurrentMove) {
+            return
+          }
+
           slavePlan.commit({ type: ActionType.MOVE, payload: action.oldItem, oldItem: action.payload })
           return
         }
@@ -99,21 +105,6 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       return slavePlan
     } else {
       return new Diff() // empty, we don't wanna change anything here
-    }
-  }
-
-  async execute(resource:TResource, plan:Diff, targetLocation:TItemLocation):Promise<Diff> {
-    if (this.direction === ItemLocation.LOCAL) {
-      const run = (action) => this.executeAction(resource, action, targetLocation)
-
-      await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run)
-      // Don't map here in slave mode!
-      const batches = Diff.sortMoves(plan.getActions(ActionType.MOVE), targetLocation === ItemLocation.SERVER ? this.serverTreeRoot : this.localTreeRoot)
-      await Parallel.each(batches, batch => Promise.all(batch.map(run)), 1)
-      await Parallel.each(plan.getActions(ActionType.REMOVE), run)
-      return plan
-    } else {
-      return super.execute(resource, plan, targetLocation)
     }
   }
 }
