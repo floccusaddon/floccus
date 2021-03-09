@@ -3982,6 +3982,248 @@ describe('Floccus', function() {
             serverTreeAfterInit = null
           }
         })
+
+        it('unidirectional should handle fuzzed changes from two clients', async function() {
+          await account2.setData({...account2.getData(), strategy: 'slave'})
+          const localRoot = account1.getData().localRoot
+          let bookmarks1 = []
+          let folders1 = []
+
+          let bookmarks2
+          let folders2
+
+          const createTree = async(parentId, i, j) => {
+            const len = Math.abs(i - j)
+            for (let k = i; k < j; k++) {
+              const newBookmark = await browser.bookmarks.create({
+                title: 'url' + i + ':' + j + ':' + k,
+                url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
+                parentId
+              })
+              bookmarks1.push(newBookmark)
+            }
+
+            if (len < 4) return
+
+            const step = Math.floor(len / 4)
+            for (let k = i; k < j; k += step) {
+              const newFolder = await browser.bookmarks.create({
+                title: 'folder' + i + ':' + k + ':' + (k + step),
+                parentId
+              })
+              folders1.push(newFolder)
+              await createTree(newFolder.id, k, k + step)
+            }
+          }
+
+          await createTree(localRoot, 0, 100)
+
+          let tree1Initial = await account1.localTree.getBookmarksTree(true)
+          await account1.sync()
+          expect(account1.getData().error).to.not.be.ok
+          console.log('Initial round account1 completed')
+          await account2.sync()
+          expect(account2.getData().error).to.not.be.ok
+          console.log('Initial round account2 completed')
+
+          let serverTreeAfterFirstSync = await getAllBookmarks(account1)
+
+          let tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+            true
+          )
+          let tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+            true
+          )
+          if (!ACCOUNT_DATA.noCache) {
+            expectTreeEqual(
+              tree1AfterFirstSync,
+              tree1Initial,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            console.log('Initial round: first tree ok')
+            serverTreeAfterFirstSync.title = tree1Initial.title
+            expectTreeEqual(
+              serverTreeAfterFirstSync,
+              tree1Initial,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            console.log('Initial round: server tree ok')
+            tree2AfterFirstSync.title = tree1Initial.title
+            expectTreeEqual(
+              tree2AfterFirstSync,
+              tree1Initial,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            console.log('Initial round: second tree ok')
+          }
+          tree1Initial = null
+          tree1AfterFirstSync = null
+          serverTreeAfterFirstSync = null
+          console.log('Initial round ok')
+
+          for (let j = 0; j < 4; j++) {
+            console.log('STARTING LOOP ' + j)
+
+            let serverTreeAfterFirstSync = await getAllBookmarks(account1)
+
+            let tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+              true
+            )
+            let tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+              true
+            )
+            if (!ACCOUNT_DATA.noCache) {
+              tree1AfterFirstSync.title = serverTreeAfterFirstSync.title
+              expectTreeEqual(
+                tree1AfterFirstSync,
+                serverTreeAfterFirstSync,
+                ignoreEmptyFolders(ACCOUNT_DATA)
+              )
+              console.log('first tree ok')
+              tree2AfterFirstSync.title = serverTreeAfterFirstSync.title
+              expectTreeEqual(
+                tree2AfterFirstSync,
+                serverTreeAfterFirstSync,
+                ignoreEmptyFolders(ACCOUNT_DATA)
+              )
+              console.log('Initial round: second tree ok')
+            }
+            tree1AfterFirstSync = null
+            serverTreeAfterFirstSync = null
+            console.log('Initial round ok')
+
+            if (!bookmarks2) {
+              tree2AfterFirstSync.createIndex()
+              bookmarks2 = Object.values(tree2AfterFirstSync.index.bookmark)
+              folders2 = Object.values(tree2AfterFirstSync.index.folder)
+            }
+
+            await randomlyManipulateTree(account1, folders1, bookmarks1, 20)
+            await randomlyManipulateTree(account2, folders2, bookmarks2, 20)
+
+            console.log(' acc1: Moved items')
+
+            let tree1BeforeSync = await account1.localTree.getBookmarksTree(
+              true
+            )
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+            console.log('second round: account1 completed')
+
+            let serverTreeAfterSync = await getAllBookmarks(account1)
+            let tree1AfterSync = await account1.localTree.getBookmarksTree(true)
+
+            if (!ACCOUNT_DATA.noCache) {
+              expectTreeEqual(
+                tree1AfterSync,
+                tree1BeforeSync,
+                ignoreEmptyFolders(ACCOUNT_DATA)
+              )
+              console.log('Second round: local tree tree ok')
+              serverTreeAfterSync.title = tree1AfterSync.title
+              expectTreeEqual(
+                serverTreeAfterSync,
+                tree1AfterSync,
+                ignoreEmptyFolders(ACCOUNT_DATA)
+              )
+              console.log('Second round: server tree tree ok')
+            }
+            tree1BeforeSync = null
+            console.log('first half ok')
+
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+            console.log('second round: account1 completed')
+
+            let serverTreeAfterSecondSync = await getAllBookmarks(account1)
+
+            let tree2AfterSecondSync = await account2.localTree.getBookmarksTree(
+              true
+            )
+            if (!ACCOUNT_DATA.noCache) {
+              serverTreeAfterSecondSync.title = tree1AfterSync.title
+              expectTreeEqual(
+                serverTreeAfterSecondSync,
+                tree1AfterSync,
+                ignoreEmptyFolders(ACCOUNT_DATA)
+              )
+              serverTreeAfterSecondSync.title = tree2AfterSecondSync.title
+              expectTreeEqual(
+                serverTreeAfterSecondSync,
+                tree2AfterSecondSync,
+                ignoreEmptyFolders(ACCOUNT_DATA)
+              )
+              console.log('Second round: second server tree tree ok')
+            }
+            serverTreeAfterSecondSync = null
+            console.log('second half ok')
+
+            console.log('final sync')
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+            console.log('final sync completed')
+
+            let serverTreeAfterFinalSync = await getAllBookmarks(account1)
+
+            let tree1AfterFinalSync = await account1.localTree.getBookmarksTree(
+              true
+            )
+            if (!ACCOUNT_DATA.noCache) {
+              expectTreeEqual(
+                tree1AfterFinalSync,
+                tree2AfterSecondSync,
+                ignoreEmptyFolders(ACCOUNT_DATA)
+              )
+              console.log('Final round: local tree tree ok')
+              tree2AfterSecondSync.title = serverTreeAfterFinalSync.title
+              expectTreeEqual(
+                tree2AfterSecondSync,
+                serverTreeAfterFinalSync,
+                ignoreEmptyFolders(ACCOUNT_DATA)
+              )
+              console.log('Final round: server tree tree ok')
+            }
+            serverTreeAfterFinalSync = null
+            tree1AfterFinalSync = null
+
+            await account1.init()
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+            console.log('final sync after init completed')
+
+            let serverTreeAfterInit = await getAllBookmarks(account1)
+
+            let tree1AfterInit = await account1.localTree.getBookmarksTree(
+              true
+            )
+
+            if (!ACCOUNT_DATA.noCache) {
+              tree1AfterSync.title = serverTreeAfterInit.title
+              expectTreeEqual(
+                tree1AfterSync,
+                serverTreeAfterInit,
+                ignoreEmptyFolders(ACCOUNT_DATA)
+              )
+              tree1AfterInit.title = serverTreeAfterSync.title
+              expectTreeEqual(
+                tree1AfterInit,
+                serverTreeAfterSync,
+                ignoreEmptyFolders(ACCOUNT_DATA)
+              )
+              console.log('Final round after init: local tree ok')
+              tree2AfterSecondSync.title = serverTreeAfterInit.title
+              expectTreeEqual(
+                tree2AfterSecondSync,
+                serverTreeAfterInit,
+                ignoreEmptyFolders(ACCOUNT_DATA)
+              )
+              console.log('Final round after init: server tree ok')
+            }
+            tree2AfterSecondSync = null
+            tree1AfterInit = null
+            serverTreeAfterInit = null
+          }
+        })
       })
     })
   })
