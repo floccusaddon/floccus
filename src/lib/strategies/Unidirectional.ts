@@ -1,8 +1,8 @@
 import DefaultStrategy from './Default'
 import Diff, { ActionType } from '../Diff'
 import * as Parallel from 'async-parallel'
-import Mappings from '../Mappings'
-import { Folder, ItemLocation, ItemType, TItemLocation } from '../Tree'
+import Mappings, { MappingSnapshot } from '../Mappings'
+import { Folder, ItemLocation, ItemType, TItem, TItemLocation } from '../Tree'
 
 export default class UnidirectionalSyncProcess extends DefaultStrategy {
   protected direction: TItemLocation
@@ -16,6 +16,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     const masterMoves = sourceDiff.getActions().filter(action => action.type === ActionType.MOVE)
     const masterRemovals = sourceDiff.getActions().filter(action => action.type === ActionType.REMOVE)
+    const masterCreations = sourceDiff.getActions().filter(action => action.type === ActionType.CREATE)
 
     const slaveRemovals = targetDiff.getActions().filter(action => action.type === ActionType.REMOVE)
 
@@ -39,25 +40,19 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
             action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload)
           )
           if (concurrentRemoval) {
-            const existingCreation = slavePlan.getActions(ActionType.CREATE).find(a => a.payload.findItem(ItemType.FOLDER, action.payload.parentId))
+            const existingCreation = slavePlan.getActions(ActionType.CREATE).find(a => a.payload.findItem(ItemType.FOLDER, action.payload.parentId)) ||
+              masterCreations.find(a => a.payload.findItem(ItemType.FOLDER, action.payload.parentId))
             if (existingCreation) {
               // the new parent is already being re-created due a different revert
               const parentFolder = existingCreation.payload.findItem(ItemType.FOLDER, action.payload.parentId) as Folder
               // use concurrentRemoval here, because the MOVE from the master doesn't contain descendents that have been moved away (which would mean we lose them)
-              const newItem = concurrentRemoval.payload.clone(false, parentFolder.location)
-              newItem.id = Mappings.mapId(mappingsSnapshot, action.payload, parentFolder.location)
+              const newItem = await this.translateCompleteItem(concurrentRemoval.payload, mappingsSnapshot, parentFolder.location)
+              newItem.id = Mappings.mapId(mappingsSnapshot, concurrentRemoval.payload, parentFolder.location)
               newItem.parentId = parentFolder.id
-              if (newItem.type === ItemType.FOLDER) {
-                await newItem.traverse(async(item, parentFolder) => {
-                  item.location = concurrentRemoval.payload.location // has been set to fakeLocation already by clone(), but for map to work we need to reset it
-                  item.id = Mappings.mapId(mappingsSnapshot, item, existingCreation.payload.location)
-                  item.parentId = parentFolder.id
-                  item.location = existingCreation.payload.location
-                })
-              }
               parentFolder.children.splice(action.index, 0, newItem)
               return
             }
+
             const existingRemoval = slaveRemovals.find(a => a !== concurrentRemoval && a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, targetLocation)))
             if (existingRemoval) {
               // the new parent is already being re-created due a different revert
@@ -68,8 +63,29 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
               return
             }
 
+            const newItem = await this.translateCompleteItem(concurrentRemoval.payload, mappingsSnapshot, action.payload.location)
+            newItem.id = action.payload.id
+            newItem.parentId = action.payload.parentId
+
             // moved on server but removed locally, recreate it on the server
-            slavePlan.commit({ ...action, type: ActionType.CREATE, oldItem: null })
+            slavePlan.commit({ ...action, type: ActionType.CREATE, payload: newItem, oldItem: null })
+            return
+          }
+
+          const concurrentNestedSlaveRemoval = slaveRemovals.find(a =>
+            a.payload.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, a.payload.location))
+          )
+          const concurrentNestedMasterRemoval = masterRemovals.find(a =>
+            // we search for the old parent here (paylod.parentId is the move target)
+            a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.oldItem, a.payload.location))
+          )
+          if (concurrentNestedSlaveRemoval && concurrentNestedMasterRemoval) {
+            // If slave has removed this item and master, too, we have to switch this from MOVE to CREATE
+            const newItem = action.payload.clone()
+            newItem.id = action.payload.id
+            newItem.parentId = action.payload.parentId
+
+            slavePlan.commit({ type: ActionType.CREATE, payload: newItem, index: action.index })
             return
           }
 
@@ -84,15 +100,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
           if (concurrentRemoval) {
             // locally removed the parent of a newly created item on the server
             const parentFolder = concurrentRemoval.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, concurrentRemoval.payload.location)) as Folder
-            const newItem = action.payload.clone(false, parentFolder.location)
-            if (newItem.type === ItemType.FOLDER) {
-              await newItem.traverse(async(item, parentFolder) => {
-                item.location = action.payload.location // has been set to fakeLocation already by clone(), but for map to work we need to reset it
-                item.id = Mappings.mapId(mappingsSnapshot, item, concurrentRemoval.payload.location)
-                item.parentId = parentFolder.id
-                item.location = action.payload.location
-              })
-            }
+            const newItem = await this.translateCompleteItem(action.payload, mappingsSnapshot, concurrentRemoval.payload.location)
             newItem.parentId = parentFolder.id
             parentFolder.children.splice(action.index, 0, newItem)
             return
@@ -125,31 +133,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
           }
 
           // recreate it on slave resource otherwise
-          const payload = action.payload.clone(false, targetLocation)
+          const oldItem = await this.translateCompleteItem(action.payload, mappingsSnapshot, targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL)
+          const payload = action.payload.clone()
           payload.id = null
-          payload.parentId = Mappings.mapParentId(mappingsSnapshot, action.payload, targetLocation)
-          const fakeLocation = targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL
-          const oldItem = action.payload.clone(false, fakeLocation)
-          oldItem.id = Mappings.mapId(mappingsSnapshot, action.payload, fakeLocation)
-          oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, action.payload, fakeLocation)
-          if (oldItem instanceof Folder) {
-            const nonexistingItems = []
-            await oldItem.traverse(async(item, parentFolder) => {
-              item.location = targetLocation // has been set to fakeLocation already by clone(), but for map to work we need to reset it
-              item.id = Mappings.mapId(mappingsSnapshot, item, fakeLocation)
-              if (typeof item.id === 'undefined') {
-                nonexistingItems.push(item)
-              }
-              item.parentId = parentFolder.id
-              item.location = fakeLocation
-            })
-            oldItem.createIndex()
-            // filter out all items that couldn't be mapped: These are creations from the slave side
-            nonexistingItems.forEach(item => {
-              const folder = oldItem.findFolder(item.parentId)
-              folder.children = folder.children.filter(i => i.id)
-            })
-          }
           slavePlan.commit({...action, type: ActionType.CREATE, payload, oldItem: oldItem})
           return
         }
@@ -158,6 +144,15 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
           return
         }
         if (action.type === ActionType.MOVE) {
+          const concurrentNestedMasterRemoval = masterRemovals
+            .find(a => a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.oldItem, a.payload.location)))
+          /* const concurrentNestedSlaveRemoval = slaveRemovals
+            .find(a => a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.oldItem, a.payload.location))) */
+          if (concurrentNestedMasterRemoval) {
+            slavePlan.commit({ type: ActionType.REMOVE, payload: action.payload })
+            return
+          }
+
           const concurrentMove = slavePlan.getActions(ActionType.MOVE).find(a => Mappings.mappable(mappingsSnapshot, a.payload, action.oldItem))
           if (concurrentMove) {
             return
@@ -184,5 +179,30 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     } else {
       return new Diff() // empty, we don't wanna change anything here
     }
+  }
+
+  private async translateCompleteItem(item: TItem, mappingsSnapshot: MappingSnapshot, fakeLocation: TItemLocation) {
+    const newItem = item.clone(false, fakeLocation)
+    newItem.id = Mappings.mapId(mappingsSnapshot, item, fakeLocation)
+    newItem.parentId = Mappings.mapParentId(mappingsSnapshot, item, fakeLocation)
+    if (newItem instanceof Folder) {
+      const nonexistingItems = []
+      await newItem.traverse(async(child, parentFolder) => {
+        child.location = item.location // has been set to fakeLocation already by clone(), but for map to work we need to reset it
+        child.id = Mappings.mapId(mappingsSnapshot, child, fakeLocation)
+        if (typeof child.id === 'undefined') {
+          nonexistingItems.push(child)
+        }
+        child.parentId = parentFolder.id
+        child.location = fakeLocation
+      })
+      newItem.createIndex()
+      // filter out all items that couldn't be mapped: These are creations from the slave side
+      nonexistingItems.forEach(item => {
+        const folder = newItem.findFolder(item.parentId)
+        folder.children = folder.children.filter(i => i.id)
+      })
+    }
+    return newItem
   }
 }
