@@ -480,7 +480,9 @@ export default class SyncProcess {
     if (action.type === ActionType.CREATE) {
       const id = await action.payload.visitCreate(resource)
       item.id = id
-      await this.addMapping(resource, action.oldItem, id)
+      if (action.oldItem) {
+        await this.addMapping(resource, action.oldItem, id)
+      }
 
       if (item instanceof Folder && item.children.length) {
         if ('bulkImportFolder' in resource) {
@@ -518,24 +520,24 @@ export default class SyncProcess {
         if (action.oldItem && action.oldItem instanceof Folder) {
           const subPlan = new Diff
           action.oldItem.children.forEach((child) => subPlan.commit({ type: ActionType.CREATE, payload: child }))
-          const mappingsSnapshot = await this.mappings.getSnapshot()
+          let mappingsSnapshot = await this.mappings.getSnapshot()
           const mappedSubPlan = subPlan.map(mappingsSnapshot, targetLocation)
           await this.execute(resource, mappedSubPlan, targetLocation)
-        }
 
-        if (item.children.length > 1) {
-          // Order created items after the fact, as they've been created concurrently
-          const subOrder = new Diff()
-          subOrder.commit({
-            type: ActionType.REORDER,
-            oldItem: action.payload,
-            payload: action.oldItem,
-            order: item.children.map(i => ({ type: i.type, id: i.id }))
-          })
-          const mappingsSnapshot = await this.mappings.getSnapshot()
-          const mappedOrder = subOrder.map(mappingsSnapshot, targetLocation)
-          if ('orderFolder' in resource) {
-            await this.executeReorderings(resource, mappedOrder)
+          if (item.children.length > 1) {
+            // Order created items after the fact, as they've been created concurrently
+            const subOrder = new Diff()
+            subOrder.commit({
+              type: ActionType.REORDER,
+              oldItem: action.payload,
+              payload: action.oldItem,
+              order: item.children.map(i => ({ type: i.type, id: i.id }))
+            })
+            mappingsSnapshot = await this.mappings.getSnapshot()
+            const mappedOrder = subOrder.map(mappingsSnapshot, targetLocation)
+            if ('orderFolder' in resource) {
+              await this.executeReorderings(resource, mappedOrder)
+            }
           }
         }
       }
