@@ -50,6 +50,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
               newItem.id = Mappings.mapId(mappingsSnapshot, concurrentRemoval.payload, parentFolder.location)
               newItem.parentId = parentFolder.id
               parentFolder.children.splice(action.index, 0, newItem)
+              existingCreation.payload.createIndex()
               return
             }
 
@@ -60,32 +61,56 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
               // use concurrentRemoval here, because the MOVE from the master doesn't contain descendents that have been moved away (which would mean we lose them)
               const newItem = concurrentRemoval.payload.clone()
               parentFolder.children.splice(action.index, 0, newItem)
+              existingRemoval.payload.createIndex()
               return
             }
 
             const newItem = await this.translateCompleteItem(concurrentRemoval.payload, mappingsSnapshot, action.payload.location)
             newItem.id = action.payload.id
             newItem.parentId = action.payload.parentId
+            newItem.createIndex()
 
             // moved on server but removed locally, recreate it on the server
             slavePlan.commit({ ...action, type: ActionType.CREATE, payload: newItem, oldItem: null })
             return
           }
 
-          const concurrentNestedSlaveRemoval = slaveRemovals.find(a =>
+          const concurrentNestedSlaveSourceRemoval = slaveRemovals.find(a =>
             a.payload.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, a.payload.location))
           )
           const concurrentNestedMasterRemoval = masterRemovals.find(a =>
             // we search for the old parent here (paylod.parentId is the move target)
             a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.oldItem, a.payload.location))
           )
-          if (concurrentNestedSlaveRemoval && concurrentNestedMasterRemoval) {
+          if (concurrentNestedSlaveSourceRemoval && concurrentNestedMasterRemoval) {
             // If slave has removed this item and master, too, we have to switch this from MOVE to CREATE
             const newItem = action.payload.clone()
-            newItem.id = action.payload.id
-            newItem.parentId = action.payload.parentId
-
             slavePlan.commit({ type: ActionType.CREATE, payload: newItem, index: action.index })
+            return
+          }
+
+          const concurrentNestedMasterTargetCreation = masterCreations.find(a =>
+            // we search for the old parent here (paylod.parentId is the move target)
+            a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location))
+          ) ||
+            slavePlan.getActions(ActionType.CREATE).find(a =>
+            // we search for the old parent here (paylod.parentId is the move target)
+              a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location))
+            )
+          if (concurrentNestedMasterTargetCreation && concurrentNestedSlaveSourceRemoval) {
+            // If slave has removed this item source and master is creating the item's target, we have to transplant it
+            const oldParent = concurrentNestedSlaveSourceRemoval.payload
+              .findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.oldItem, concurrentNestedSlaveSourceRemoval.payload.location)) as Folder
+            oldParent.children = oldParent.children.filter(i => Mappings.mappable(mappingsSnapshot, i, action.payload))
+            concurrentNestedSlaveSourceRemoval.payload.createIndex()
+
+            const newItem = action.payload.clone()
+
+            const newParent = concurrentNestedMasterTargetCreation.payload
+              .findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, concurrentNestedMasterTargetCreation.payload.location)) as Folder
+            newParent.children.splice(action.index, 0, newItem)
+            concurrentNestedMasterTargetCreation.payload.createIndex()
+
             return
           }
 
@@ -103,6 +128,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
             const newItem = await this.translateCompleteItem(action.payload, mappingsSnapshot, concurrentRemoval.payload.location)
             newItem.parentId = parentFolder.id
             parentFolder.children.splice(action.index, 0, newItem)
+            concurrentRemoval.payload.createIndex()
             return
           }
         }
@@ -158,6 +184,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
           const oldItem = action.oldItem.clone(false, targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL)
           oldItem.id = Mappings.mapId(mappingsSnapshot, action.oldItem, oldItem.location)
           oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, action.oldItem, oldItem.location)
+          oldItem.createIndex()
 
           slavePlan.commit({ type: ActionType.MOVE, payload: oldItem, oldItem: action.payload })
           return
@@ -200,6 +227,8 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
         const folder = newItem.findFolder(item.parentId)
         folder.children = folder.children.filter(i => i.id)
       })
+    } else {
+      newItem.createIndex()
     }
     return newItem
   }
