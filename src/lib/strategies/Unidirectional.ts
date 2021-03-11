@@ -133,10 +133,8 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
           }
 
           // recreate it on slave resource otherwise
-          const oldItem = await this.translateCompleteItem(action.payload, mappingsSnapshot, targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL)
-          const payload = action.payload.clone()
-          payload.id = null
-          slavePlan.commit({...action, type: ActionType.CREATE, payload, oldItem: oldItem})
+          const payload = await this.translateCompleteItem(action.payload, mappingsSnapshot, targetLocation)
+          slavePlan.commit({...action, type: ActionType.CREATE, payload })
           return
         }
         if (action.type === ActionType.CREATE) {
