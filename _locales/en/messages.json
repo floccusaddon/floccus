@@ -95,6 +95,9 @@
   "Error032": {
     "message": "E032: OAuth error. Token validation error. Please reconnect your Google Account."
   },
+  "Error033": {
+    "message": "E033: Redirect detected. Please install the Bookmarks app on your nextcloud and make sure the nextcloud URL you entered doesn't redirect to a different location."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
