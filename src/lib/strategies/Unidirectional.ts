@@ -61,9 +61,14 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     this.applyFailsafe(overridePlan)
     overridePlan = await this.execute(target, overridePlan, this.direction)
 
+    // mappings have been updated, reload
+    const mappingsSnapshot = await this.mappings.getSnapshot()
+    const overrideReorder = this.reconcileReorderings(overridePlan, revertPlan, mappingsSnapshot)
+      .map(mappingsSnapshot, this.direction)
+
     if ('orderFolder' in target) {
       await Promise.all([
-        this.executeReorderings(target, overridePlan),
+        this.executeReorderings(target, overrideReorder),
       ])
     }
   }

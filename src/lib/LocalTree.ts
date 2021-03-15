@@ -148,8 +148,12 @@ export default class LocalTree implements IResource {
 
   async orderFolder(id:string|number, order:Ordering) :Promise<void> {
     Logger.log('(local)ORDERFOLDER', { id, order })
-    for (let index = 0; index < order.length; index++) {
-      await browser.bookmarks.move(order[index].id, { index })
+    try {
+      for (let index = 0; index < order.length; index++) {
+        await browser.bookmarks.move(order[index].id, { index })
+      }
+    } catch (e) {
+      throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
     }
   }
 
