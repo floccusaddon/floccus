@@ -23,6 +23,9 @@ export default class SyncProcess {
   protected actionsDone: number
   protected actionsPlanned: number
 
+  // The location that has precedence in case of conflicts
+  protected masterLocation: TItemLocation
+
   constructor(
     mappings:Mappings,
     localTree:LocalTree,
@@ -58,6 +61,7 @@ export default class SyncProcess {
   }
 
   async sync(): Promise<void> {
+    this.masterLocation = ItemLocation.LOCAL
     await this.prepareSync()
 
     const {localDiff, serverDiff} = await this.getDiffs()
@@ -324,7 +328,7 @@ export default class SyncProcess {
             targetAncestors.find(ancestor => sourceFolder.findItem(ItemType.FOLDER, Mappings.mapId(mappingsSnapshot, ancestor, sourceFolder.location)))
         })
         if (concurrentHierarchyReversals.length) {
-          if (targetLocation === ItemLocation.SERVER) {
+          if (targetLocation !== this.masterLocation) {
             concurrentHierarchyReversals.forEach(a => {
               // moved sourcely but moved in reverse hierarchical order on target
               const payload = a.oldItem.clone() // we don't map here as we want this to look like a source action
@@ -378,7 +382,7 @@ export default class SyncProcess {
           }
           return
         }
-        if (concurrentSourceTargetRemoval && targetLocation === ItemLocation.LOCAL) { // No idea why this works
+        if (concurrentSourceTargetRemoval && targetLocation === this.masterLocation) { // No idea why this works
           // target already deleted by a source REMOVE (connected via source MOVE|CREATEs)
           avoidTargetReorders[action.payload.parentId] = true
           avoidTargetReorders[action.payload.id] = true
@@ -410,7 +414,7 @@ export default class SyncProcess {
           return
         }
 
-        if (targetLocation === ItemLocation.LOCAL) {
+        if (targetLocation === this.masterLocation) {
           const concurrentMove = targetMoves.find(a =>
             action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
           if (concurrentMove) {
@@ -420,7 +424,7 @@ export default class SyncProcess {
         }
       }
 
-      if (action.type === ActionType.UPDATE && targetLocation === ItemLocation.LOCAL) {
+      if (action.type === ActionType.UPDATE && targetLocation === this.masterLocation) {
         const concurrentUpdate = targetUpdates.find(a =>
           action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
         if (concurrentUpdate) {
@@ -434,7 +438,7 @@ export default class SyncProcess {
           return
         }
 
-        if (targetLocation === ItemLocation.LOCAL) {
+        if (targetLocation === this.masterLocation) {
           const concurrentReorder = targetReorders.find(a =>
             action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
           if (concurrentReorder) {

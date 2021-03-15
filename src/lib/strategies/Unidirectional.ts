@@ -13,6 +13,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   }
 
   async sync(): Promise<void> {
+    this.masterLocation = this.direction === ItemLocation.SERVER ? ItemLocation.LOCAL : ItemLocation.SERVER
     await this.prepareSync()
 
     const {localDiff, serverDiff} = await this.getDiffs()
