@@ -104,10 +104,10 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
         return
       }
       if (action.type === ActionType.UPDATE) {
-        const payload = action.oldItem
+        const payload = action.oldItem.clone(false, action.payload.location)
         payload.id = action.payload.id
         payload.parentId = action.payload.parentId
-        const oldItem = action.payload
+        const oldItem = action.payload.clone(false, action.oldItem.location)
         oldItem.id = action.oldItem.id
         oldItem.parentId = action.oldItem.parentId
         plan.commit({ type: ActionType.UPDATE, payload, oldItem })
