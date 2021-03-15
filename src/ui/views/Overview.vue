@@ -43,7 +43,7 @@
           :title="t('labelImportExport')"
           :to="{ name: routes.IMPORTEXPORT }"
           target="_blank">
-          <v-icon>mdi-swap-vertical-bold</v-icon>
+          <v-icon>mdi-export</v-icon>
         </v-btn>
       </v-container>
     </template>
