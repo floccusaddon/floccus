@@ -102,6 +102,9 @@ export default class MergeSyncProcess extends Default {
         }
         // Find concurrent moves that form a hierarchy reversal together with this one
         const concurrentHierarchyReversals = targetMoves.filter(a => {
+          if (action.payload.type !== ItemType.FOLDER || a.payload.type !== ItemType.FOLDER) {
+            return false
+          }
           let sourceFolder, targetFolder, sourceAncestors, targetAncestors
           if (action.payload.location === ItemLocation.LOCAL) {
             targetFolder = this.serverTreeRoot.findItem(ItemType.FOLDER, a.payload.id)

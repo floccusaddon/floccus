@@ -58,27 +58,7 @@ export default class SyncProcess {
   }
 
   async sync(): Promise<void> {
-    this.localTreeRoot = await this.localTree.getBookmarksTree()
-    this.serverTreeRoot = await this.server.getBookmarksTree()
-    this.filterOutUnacceptedBookmarks(this.localTreeRoot)
-    await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
-
-    await this.mappings.addFolder({ localId: this.localTreeRoot.id, remoteId: this.serverTreeRoot.id })
-    let mappingsSnapshot = await this.mappings.getSnapshot()
-
-    if ('loadFolderChildren' in this.server) {
-      Logger.log('Loading sparse tree as necessary')
-      // Load sparse tree
-      await this.loadChildren(this.serverTreeRoot, mappingsSnapshot)
-    }
-
-    // Cache tree might not have been initialized and thus have no id
-    this.cacheTreeRoot.id = this.localTreeRoot.id
-
-    // generate hash tables to find items faster
-    this.localTreeRoot.createIndex()
-    this.cacheTreeRoot.createIndex()
-    this.serverTreeRoot.createIndex()
+    await this.prepareSync()
 
     const {localDiff, serverDiff} = await this.getDiffs()
     Logger.log({localDiff, serverDiff})
@@ -94,21 +74,13 @@ export default class SyncProcess {
     // Weed out modifications to bookmarks root
     await this.filterOutRootFolderActions(localPlan)
 
-    const localCountTotal = this.localTreeRoot.count()
-    const localCountDeleted = localPlan.getActions(ActionType.REMOVE).reduce((count, action) => count + action.payload.count(), 0)
-
-    if (localCountTotal > 5 && localCountDeleted / localCountTotal > 0.5) {
-      const failsafe = this.server.getData().failsafe
-      if (failsafe !== false || typeof failsafe === 'undefined') {
-        throw new Error(browser.i18n.getMessage('Error029', [(localCountDeleted / localCountTotal) * 100]))
-      }
-    }
+    this.applyFailsafe(localPlan)
 
     serverPlan = await this.execute(this.server, serverPlan, ItemLocation.SERVER)
     localPlan = await this.execute(this.localTree, localPlan, ItemLocation.LOCAL)
 
     // mappings have been updated, reload
-    mappingsSnapshot = await this.mappings.getSnapshot()
+    const mappingsSnapshot = await this.mappings.getSnapshot()
 
     const localReorder = this.reconcileReorderings(localPlan, serverPlan, mappingsSnapshot)
       .map(mappingsSnapshot, ItemLocation.LOCAL)
@@ -123,6 +95,42 @@ export default class SyncProcess {
         this.executeReorderings(this.server, serverReorder),
         this.executeReorderings(this.localTree, localReorder),
       ])
+    }
+  }
+
+  protected async prepareSync() {
+    this.localTreeRoot = await this.localTree.getBookmarksTree()
+    this.serverTreeRoot = await this.server.getBookmarksTree()
+    this.filterOutUnacceptedBookmarks(this.localTreeRoot)
+    await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
+
+    await this.mappings.addFolder({ localId: this.localTreeRoot.id, remoteId: this.serverTreeRoot.id })
+    const mappingsSnapshot = await this.mappings.getSnapshot()
+
+    if ('loadFolderChildren' in this.server) {
+      Logger.log('Loading sparse tree as necessary')
+      // Load sparse tree
+      await this.loadChildren(this.serverTreeRoot, mappingsSnapshot)
+    }
+
+    // Cache tree might not have been initialized and thus have no id
+    this.cacheTreeRoot.id = this.localTreeRoot.id
+
+    // generate hash tables to find items faster
+    this.localTreeRoot.createIndex()
+    this.cacheTreeRoot.createIndex()
+    this.serverTreeRoot.createIndex()
+  }
+
+  protected applyFailsafe(localPlan: Diff) {
+    const localCountTotal = this.localTreeRoot.count()
+    const localCountDeleted = localPlan.getActions(ActionType.REMOVE).reduce((count, action) => count + action.payload.count(), 0)
+
+    if (localCountTotal > 5 && localCountDeleted / localCountTotal > 0.5) {
+      const failsafe = this.server.getData().failsafe
+      if (failsafe !== false || typeof failsafe === 'undefined') {
+        throw new Error(browser.i18n.getMessage('Error029', [(localCountDeleted / localCountTotal) * 100]))
+      }
     }
   }
 
@@ -293,6 +301,9 @@ export default class SyncProcess {
       if (action.type === ActionType.MOVE) {
         // Find concurrent moves that form a hierarchy reversal together with this one
         const concurrentHierarchyReversals = targetMoves.filter(a => {
+          if (action.payload.type !== ItemType.FOLDER || a.payload.type !== ItemType.FOLDER) {
+            return false
+          }
           let sourceFolder, targetFolder, sourceAncestors, targetAncestors
           if (action.payload.location === ItemLocation.LOCAL) {
             targetFolder = this.serverTreeRoot.findItem(ItemType.FOLDER, a.payload.id)
@@ -309,8 +320,7 @@ export default class SyncProcess {
           }
 
           // If both items are folders, and one of the ancestors of one item is a child of the other item
-          return action.payload.type === ItemType.FOLDER && a.payload.type === ItemType.FOLDER &&
-            sourceAncestors.find(ancestor => targetFolder.findItem(ItemType.FOLDER, Mappings.mapId(mappingsSnapshot, ancestor, targetFolder.location))) &&
+          return sourceAncestors.find(ancestor => targetFolder.findItem(ItemType.FOLDER, Mappings.mapId(mappingsSnapshot, ancestor, targetFolder.location))) &&
             targetAncestors.find(ancestor => sourceFolder.findItem(ItemType.FOLDER, Mappings.mapId(mappingsSnapshot, ancestor, sourceFolder.location)))
         })
         if (concurrentHierarchyReversals.length) {
@@ -484,7 +494,7 @@ export default class SyncProcess {
         await this.addMapping(resource, action.oldItem, id)
       }
 
-      if (item instanceof Folder && item.children.length) {
+      if (item instanceof Folder && ((action.payload instanceof Folder && action.payload.children.length) || (action.oldItem instanceof Folder && action.oldItem.children.length))) {
         if ('bulkImportFolder' in resource) {
           try {
             // Try bulk import

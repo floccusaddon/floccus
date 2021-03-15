@@ -2,7 +2,8 @@ import DefaultStrategy from './Default'
 import Diff, { ActionType } from '../Diff'
 import * as Parallel from 'async-parallel'
 import Mappings, { MappingSnapshot } from '../Mappings'
-import { Folder, ItemLocation, ItemType, TItem, TItemLocation } from '../Tree'
+import { Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
+import Logger from '../Logger'
 
 export default class UnidirectionalSyncProcess extends DefaultStrategy {
   protected direction: TItemLocation
@@ -11,199 +12,104 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     this.direction = direction
   }
 
-  async reconcileDiffs(sourceDiff: Diff, targetDiff: Diff, targetLocation: TItemLocation): Promise<Diff> {
-    const mappingsSnapshot = await this.mappings.getSnapshot()
+  async sync(): Promise<void> {
+    await this.prepareSync()
 
-    const masterMoves = sourceDiff.getActions().filter(action => action.type === ActionType.MOVE)
-    const masterRemovals = sourceDiff.getActions().filter(action => action.type === ActionType.REMOVE)
-    const masterCreations = sourceDiff.getActions().filter(action => action.type === ActionType.CREATE)
+    const {localDiff, serverDiff} = await this.getDiffs()
+    Logger.log({localDiff, serverDiff})
 
-    const slaveRemovals = targetDiff.getActions().filter(action => action.type === ActionType.REMOVE)
-
-    if (targetLocation === this.direction) {
-      // Prepare slave plan
-      let slavePlan = new Diff()
-
-      // Process master diff first
-      await Parallel.each(sourceDiff.getActions(), async action => {
-        if (action.type === ActionType.REMOVE) {
-          const concurrentRemoval = slaveRemovals.find(a =>
-            action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload)
-          )
-          if (concurrentRemoval) {
-            // Already deleted locally, do nothing.
-            return
-          }
-        }
-        if (action.type === ActionType.MOVE) {
-          const concurrentRemoval = slaveRemovals.find(a =>
-            action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload)
-          )
-          if (concurrentRemoval) {
-            const existingCreation = slavePlan.getActions(ActionType.CREATE).find(a => a.payload.findItem(ItemType.FOLDER, action.payload.parentId)) ||
-              masterCreations.find(a => a.payload.findItem(ItemType.FOLDER, action.payload.parentId))
-            if (existingCreation) {
-              // the new parent is already being re-created due a different revert
-              const parentFolder = existingCreation.payload.findItem(ItemType.FOLDER, action.payload.parentId) as Folder
-              // use concurrentRemoval here, because the MOVE from the master doesn't contain descendents that have been moved away (which would mean we lose them)
-              const newItem = await this.translateCompleteItem(concurrentRemoval.payload, mappingsSnapshot, parentFolder.location)
-              newItem.id = Mappings.mapId(mappingsSnapshot, concurrentRemoval.payload, parentFolder.location)
-              newItem.parentId = parentFolder.id
-              parentFolder.children.splice(action.index, 0, newItem)
-              existingCreation.payload.createIndex()
-              return
-            }
-
-            const existingRemoval = slaveRemovals.find(a => a !== concurrentRemoval && a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, targetLocation)))
-            if (existingRemoval) {
-              // the new parent is already being re-created due a different revert
-              const parentFolder = existingRemoval.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, targetLocation)) as Folder
-              // use concurrentRemoval here, because the MOVE from the master doesn't contain descendents that have been moved away (which would mean we lose them)
-              const newItem = concurrentRemoval.payload.clone()
-              parentFolder.children.splice(action.index, 0, newItem)
-              existingRemoval.payload.createIndex()
-              return
-            }
-
-            const newItem = await this.translateCompleteItem(concurrentRemoval.payload, mappingsSnapshot, action.payload.location)
-            newItem.id = action.payload.id
-            newItem.parentId = action.payload.parentId
-            newItem.createIndex()
-
-            // moved on server but removed locally, recreate it on the server
-            slavePlan.commit({ ...action, type: ActionType.CREATE, payload: newItem, oldItem: null })
-            return
-          }
-
-          const concurrentNestedSlaveSourceRemoval = slaveRemovals.find(a =>
-            a.payload.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, a.payload.location))
-          )
-          const concurrentNestedMasterRemoval = masterRemovals.find(a =>
-            // we search for the old parent here (paylod.parentId is the move target)
-            a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.oldItem, a.payload.location))
-          )
-          if (concurrentNestedSlaveSourceRemoval && concurrentNestedMasterRemoval) {
-            // If slave has removed this item and master, too, we have to switch this from MOVE to CREATE
-            const newItem = action.payload.clone()
-            slavePlan.commit({ type: ActionType.CREATE, payload: newItem, index: action.index })
-            return
-          }
-
-          const concurrentNestedMasterTargetCreation = masterCreations.find(a =>
-            // we search for the old parent here (paylod.parentId is the move target)
-            a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location))
-          ) ||
-            slavePlan.getActions(ActionType.CREATE).find(a =>
-            // we search for the old parent here (paylod.parentId is the move target)
-              a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location))
-            )
-          if (concurrentNestedMasterTargetCreation && concurrentNestedSlaveSourceRemoval) {
-            // If slave has removed this item source and master is creating the item's target, we have to transplant it
-            const oldParent = concurrentNestedSlaveSourceRemoval.payload
-              .findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.oldItem, concurrentNestedSlaveSourceRemoval.payload.location)) as Folder
-            oldParent.children = oldParent.children.filter(i => Mappings.mappable(mappingsSnapshot, i, action.payload))
-            concurrentNestedSlaveSourceRemoval.payload.createIndex()
-
-            const newItem = action.payload.clone()
-
-            const newParent = concurrentNestedMasterTargetCreation.payload
-              .findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, concurrentNestedMasterTargetCreation.payload.location)) as Folder
-            newParent.children.splice(action.index, 0, newItem)
-            concurrentNestedMasterTargetCreation.payload.createIndex()
-
-            return
-          }
-
-          // prevent mapper from falling back to oldItem which may have been removed from tree
-          slavePlan.commit({ ...action, oldItem: null })
-          return
-        }
-        if (action.type === ActionType.CREATE) {
-          const concurrentRemoval = slaveRemovals.find(a =>
-            a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location))
-          )
-          if (concurrentRemoval) {
-            // locally removed the parent of a newly created item on the server
-            const parentFolder = concurrentRemoval.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, concurrentRemoval.payload.location)) as Folder
-            const newItem = await this.translateCompleteItem(action.payload, mappingsSnapshot, concurrentRemoval.payload.location)
-            newItem.parentId = parentFolder.id
-            parentFolder.children.splice(action.index, 0, newItem)
-            concurrentRemoval.payload.createIndex()
-            return
-          }
-        }
-
-        slavePlan.commit(action)
-      })
-
-      // Map payloads
-      slavePlan = slavePlan.map(mappingsSnapshot, targetLocation, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
-
-      // Prepare slave plan for reversing slave changes
-      await Parallel.each(targetDiff.getActions(), async action => {
-        if (action.type === ActionType.REMOVE) {
-          const concurrentRemoval = masterRemovals.find(a =>
-            action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload)
-          )
-          if (concurrentRemoval) {
-            // Already deleted on slave, do nothing.
-            return
-          }
-          const concurrentMove = masterMoves.find(a =>
-            (action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload)) ||
-            (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload))
-          )
-          if (concurrentMove) {
-            // removed on the slave, moved in master, do nothing to recreate it.
-            return
-          }
-
-          // recreate it on slave resource otherwise
-          const payload = await this.translateCompleteItem(action.payload, mappingsSnapshot, targetLocation)
-          slavePlan.commit({...action, type: ActionType.CREATE, payload })
-          return
-        }
-        if (action.type === ActionType.CREATE) {
-          slavePlan.commit({ ...action, type: ActionType.REMOVE })
-          return
-        }
-        if (action.type === ActionType.MOVE) {
-          const concurrentNestedMasterRemoval = masterRemovals
-            .find(a => a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.oldItem, a.payload.location)))
-          /* const concurrentNestedSlaveRemoval = slaveRemovals
-            .find(a => a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.oldItem, a.payload.location))) */
-          if (concurrentNestedMasterRemoval) {
-            slavePlan.commit({ type: ActionType.REMOVE, payload: action.payload })
-            return
-          }
-
-          const concurrentMove = slavePlan.getActions(ActionType.MOVE).find(a => Mappings.mappable(mappingsSnapshot, a.payload, action.oldItem))
-          if (concurrentMove) {
-            return
-          }
-          const oldItem = action.oldItem.clone(false, targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL)
-          oldItem.id = Mappings.mapId(mappingsSnapshot, action.oldItem, oldItem.location)
-          oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, action.oldItem, oldItem.location)
-          oldItem.createIndex()
-
-          slavePlan.commit({ type: ActionType.MOVE, payload: oldItem, oldItem: action.payload })
-          return
-        }
-        if (action.type === ActionType.UPDATE) {
-          const payload = action.oldItem
-          payload.id = action.payload.id
-          payload.parentId = action.payload.parentId
-          const oldItem = action.payload
-          oldItem.id = action.oldItem.id
-          oldItem.parentId = action.oldItem.parentId
-          slavePlan.commit({ type: ActionType.UPDATE, payload, oldItem })
-        }
-      })
-
-      return slavePlan
+    let sourceDiff, targetDiff, target
+    if (this.direction === ItemLocation.SERVER) {
+      sourceDiff = localDiff
+      targetDiff = serverDiff
+      target = this.server
     } else {
-      return new Diff() // empty, we don't wanna change anything here
+      sourceDiff = serverDiff
+      targetDiff = localDiff
+      target = this.localTree
     }
+
+    this.actionsPlanned = sourceDiff.getActions().length + targetDiff.getActions().length
+    Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
+
+    // First revert slave modifications
+
+    let revertPlan = await this.revertDiff(targetDiff, this.direction)
+    // Weed out modifications to bookmarks root
+    if (this.direction === ItemLocation.LOCAL) {
+      await this.filterOutRootFolderActions(revertPlan)
+    }
+    Logger.log({revertPlan})
+    this.applyFailsafe(revertPlan)
+    revertPlan = await this.execute(target, revertPlan, this.direction)
+
+    // Then reconcile master modifications with new slave changes and after having fetched the new trees
+    await this.prepareSync()
+    Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
+
+    let overridePlan = await this.reconcileDiffs(sourceDiff, revertPlan, this.direction)
+
+    // Fix MOVEs: We want execute to map to new IDs instead of oldItem.id, because items may have been reinserted by reverPlan
+    overridePlan.getActions(ActionType.MOVE).forEach(action => { action.oldItem = null })
+
+    Logger.log({overridePlan})
+
+    // Weed out modifications to bookmarks root
+    if (this.direction === ItemLocation.LOCAL) {
+      await this.filterOutRootFolderActions(overridePlan)
+    }
+    this.applyFailsafe(overridePlan)
+    overridePlan = await this.execute(target, overridePlan, this.direction)
+
+    if ('orderFolder' in target) {
+      await Promise.all([
+        this.executeReorderings(target, overridePlan),
+      ])
+    }
+  }
+
+  async revertDiff(targetDiff: Diff, targetLocation: TItemLocation): Promise<Diff> {
+    const mappingsSnapshot = await this.mappings.getSnapshot()
+    // Prepare slave plan
+    const plan = new Diff()
+
+    // Prepare slave plan for reversing slave changes
+    await Parallel.each(targetDiff.getActions(), async action => {
+      if (action.type === ActionType.REMOVE) {
+        // recreate it on slave resource otherwise
+        const payload = await this.translateCompleteItem(action.payload, mappingsSnapshot, targetLocation)
+        const oldItem = await this.translateCompleteItem(action.payload, mappingsSnapshot, targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL)
+        payload.createIndex()
+        oldItem.createIndex()
+
+        plan.commit({...action, type: ActionType.CREATE, payload, oldItem })
+        return
+      }
+      if (action.type === ActionType.CREATE) {
+        plan.commit({ ...action, type: ActionType.REMOVE })
+        return
+      }
+      if (action.type === ActionType.MOVE) {
+        const oldItem = action.oldItem.clone(false, targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL)
+        oldItem.id = Mappings.mapId(mappingsSnapshot, action.oldItem, oldItem.location)
+        oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, action.oldItem, oldItem.location)
+        oldItem.createIndex()
+
+        plan.commit({ type: ActionType.MOVE, payload: oldItem, oldItem: action.payload })
+        return
+      }
+      if (action.type === ActionType.UPDATE) {
+        const payload = action.oldItem
+        payload.id = action.payload.id
+        payload.parentId = action.payload.parentId
+        const oldItem = action.payload
+        oldItem.id = action.oldItem.id
+        oldItem.parentId = action.oldItem.parentId
+        plan.commit({ type: ActionType.UPDATE, payload, oldItem })
+      }
+    })
+
+    return plan
   }
 
   private async translateCompleteItem(item: TItem, mappingsSnapshot: MappingSnapshot, fakeLocation: TItemLocation) {
