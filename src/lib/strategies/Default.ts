@@ -498,7 +498,7 @@ export default class SyncProcess {
         if ('bulkImportFolder' in resource) {
           try {
             // Try bulk import
-            const imported = await resource.bulkImportFolder(item.id, item)
+            const imported = await resource.bulkImportFolder(item.id, (action.oldItem || action.payload) as Folder)
             const newMappings = []
             const subScanner = new Scanner(
               item,
