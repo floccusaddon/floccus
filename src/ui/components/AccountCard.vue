@@ -103,6 +103,8 @@
               <v-btn
                 icon
                 small
+                :outlined="account.data.strategy === 'overwrite'"
+                :color="account.data.strategy === 'overwrite'? 'primary' : null"
                 :title="t('LabelSyncUp')"
                 :aria-label="t('LabelSyncUp')"
                 @click="onTriggerSyncUp">
@@ -111,6 +113,8 @@
               <v-btn
                 icon
                 small
+                :outlined="account.data.strategy === 'slave'"
+                :color="account.data.strategy === 'slave'? 'primary' : null"
                 :title="t('LabelSyncDown')"
                 :aria-label="t('LabelSyncDown')"
                 @click="onTriggerSyncDown">
