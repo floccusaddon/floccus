@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.6.2
+
+### Fixed
+- One-time strategy change: Don't get stuck on the wrong sync strategy
+- UX: Highlight default strategy in AccountCards
+
 ## v4.6.1
 
 ### Fixed
