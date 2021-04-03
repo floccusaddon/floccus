@@ -274,7 +274,7 @@ export default class Controller {
     await account.cancelSync()
   }
 
-  async syncAccount(accountId) {
+  async syncAccount(accountId, strategy) {
     this.waiting[accountId] = false
     if (!this.enabled) {
       return
@@ -285,7 +285,7 @@ export default class Controller {
     }
     setTimeout(() => this.updateStatus(), 500)
     try {
-      await account.sync()
+      await account.sync(strategy)
     } catch (error) {
       console.error(error)
     }

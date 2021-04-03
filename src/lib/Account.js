@@ -152,7 +152,7 @@ export default class Account {
     }
   }
 
-  async sync() {
+  async sync(strategy) {
     let mappings
     try {
       if (this.getData().syncing || this.syncing) return
@@ -178,40 +178,40 @@ export default class Account {
       mappings = await this.storage.getMappings()
       const cacheTree = localResource instanceof LocalTree ? await this.storage.getCache() : new Folder({title: '', id: 'tabs'})
 
-      let strategy, direction
-      switch (this.getData().strategy) {
+      let strategyClass, direction
+      switch (strategy || this.getData().strategy) {
         case 'slave':
           if (!cacheTree.children.length) {
             Logger.log('Using "merge slave" strategy (no cache available)')
-            strategy = UnidirectionalMergeSyncProcess
+            strategyClass = UnidirectionalMergeSyncProcess
           } else {
             Logger.log('Using slave strategy')
-            strategy = UnidirectionalSyncProcess
+            strategyClass = UnidirectionalSyncProcess
           }
           direction = ItemLocation.LOCAL
           break
         case 'overwrite':
           if (!cacheTree.children.length) {
             Logger.log('Using "merge overwrite" strategy (no cache available)')
-            strategy = UnidirectionalMergeSyncProcess
+            strategyClass = UnidirectionalMergeSyncProcess
           } else {
             Logger.log('Using "overwrite" strategy')
-            strategy = UnidirectionalSyncProcess
+            strategyClass = UnidirectionalSyncProcess
           }
           direction = ItemLocation.SERVER
           break
         default:
           if (!cacheTree.children.length) {
             Logger.log('Using "merge default" strategy (no cache available)')
-            strategy = MergeSyncProcess
+            strategyClass = MergeSyncProcess
           } else {
             Logger.log('Using "default" strategy')
-            strategy = DefaultSyncProcess
+            strategyClass = DefaultSyncProcess
           }
           break
       }
 
-      this.syncing = new strategy(
+      this.syncing = new strategyClass(
         mappings,
         localResource,
         cacheTree,
