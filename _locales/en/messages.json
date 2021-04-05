@@ -95,6 +95,9 @@
   "Error032": {
     "message": "E032: OAuth error. Token validation error. Please reconnect your Google Account."
   },
+  "Error033": {
+    "message": "E033: Redirect detected. Please install the Bookmarks app on your nextcloud and make sure the nextcloud URL you entered doesn't redirect to a different location."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -355,7 +358,7 @@
     "message": "No accounts here"
   },
   "DescriptionNoAccount": {
-    "message": "Create a new account to sync your bookmarks."
+    "message": "Create a new account to sync your bookmarks or import accounts from a different device or browser."
   },
   "LabelLoginFlowStart": {
     "message": "Sign in with Nextcloud login flow"
@@ -390,6 +393,12 @@
   "LabelImport": {
     "message": "Import accounts"
   },
+  "DescriptionExport": {
+    "message": "Select accounts below that you would like to export to a file, so you can easily re-create the same accounts on a different device or browser."
+  },
+  "DescriptionImport": {
+    "message": "Import a file with exported accounts here to re-create accounts exported on a different device or browser. Please make sure to set the correct sync folders again after importing."
+  },
   "LabelFolderNotFound": {
     "message": "Folder not found"
   },
@@ -400,10 +409,10 @@
     "message": "Tabs"
   },
   "LabelSyncDown": {
-    "message": "Sync down"
+    "message": "Pull sync: Override local changes"
   },
   "LabelSyncUp": {
-    "message": "Sync up"
+    "message": "Push sync: Override server-side changes"
   },
   "DescriptionFilesPermission": {
     "message": "Make sure you give floccus permission to not only use the bookmarks app but the Nextcloud files app as well."

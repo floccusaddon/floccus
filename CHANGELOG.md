@@ -1,5 +1,21 @@
 # Changelog
 
+## v4.6.2
+
+### Fixed
+- One-time strategy change: Don't get stuck on the wrong sync strategy
+- UX: Highlight default strategy in AccountCards
+
+## v4.6.1
+
+### Fixed
+UX: NextcloudFolders: Detect HTTP redirects
+Improve import/export UX
+messages: Fix sync{Down,Up} wording
+Reimplement Unidirectional strategy
+WebDAV: Accept non-encrypted file in encryption mode
+GoogleDrive: Accept non-encrypted file in encryption mode
+
 ## v4.6.0
 
 ### New

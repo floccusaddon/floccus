@@ -811,6 +811,10 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       throw new Error(browser.i18n.getMessage('Error017'))
     }
 
+    if (res.redirected) {
+      throw new Error(browser.i18n.getMessage('Error033'))
+    }
+
     if (returnRawResponse) {
       return res
     }

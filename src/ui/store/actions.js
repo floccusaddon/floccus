@@ -99,25 +99,15 @@ export const actionsDefinition = {
   },
   async [actions.TRIGGER_SYNC]({ commit, dispatch, state }, accountId) {
     const background = await browser.runtime.getBackgroundPage()
-    background.syncAccount(accountId)
+    background.controller.syncAccount(accountId)
   },
   async [actions.TRIGGER_SYNC_DOWN]({ commit, dispatch, state }, accountId) {
-    let account = await Account.get(accountId)
-    const strategy = account.getData.strategy
-    await account.setData({...account.getData(), strategy: 'slave' })
     const background = await browser.runtime.getBackgroundPage()
-    await background.syncAccount(accountId)
-    account = await Account.get(accountId)
-    await account.setData({...account.getData(), strategy})
+    await background.controller.syncAccount(accountId, 'slave')
   },
   async [actions.TRIGGER_SYNC_UP]({ commit, dispatch, state }, accountId) {
-    let account = await Account.get(accountId)
-    const strategy = account.getData.strategy
-    await account.setData({...account.getData(), strategy: 'overwrite' })
     const background = await browser.runtime.getBackgroundPage()
-    await background.syncAccount(accountId)
-    account = await Account.get(accountId)
-    await account.setData({...account.getData(), strategy})
+    await background.controller.syncAccount(accountId, 'overwrite')
   },
   async [actions.CANCEL_SYNC]({ commit, dispatch, state }, accountId) {
     const background = await browser.runtime.getBackgroundPage()

@@ -7,6 +7,7 @@
           {{ t("LabelExport") }}
         </v-card-title>
         <v-card-text>
+          <p>{{ t("DescriptionExport") }}</p>
           <div
             v-for="(account, i) in accounts"
             :key="i">
@@ -32,10 +33,16 @@
             <v-icon>mdi-export</v-icon>{{ t('LabelExport') }}
           </v-btn>
         </v-card-text>
+      </v-container>
+    </v-card>
+    <v-card
+      class="options mt-3">
+      <v-container class="pa-5">
         <v-card-title>
           {{ t("LabelImport") }}
         </v-card-title>
         <v-card-text>
+          <p>{{ t("DescriptionImport") }}</p>
           <input
             ref="filePicker"
             type="file"

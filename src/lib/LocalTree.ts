@@ -103,17 +103,21 @@ export default class LocalTree implements IResource {
 
   async updateBookmark(bookmark:Bookmark):Promise<void> {
     Logger.log('(local)UPDATE', bookmark)
-    await this.queue.add(() =>
-      browser.bookmarks.update(bookmark.id, {
-        title: bookmark.title,
-        url: bookmark.url
-      })
-    )
-    await this.queue.add(() =>
-      browser.bookmarks.move(bookmark.id, {
-        parentId: bookmark.parentId
-      })
-    )
+    try {
+      await this.queue.add(() =>
+        browser.bookmarks.update(bookmark.id, {
+          title: bookmark.title,
+          url: bookmark.url
+        })
+      )
+      await this.queue.add(() =>
+        browser.bookmarks.move(bookmark.id, {
+          parentId: bookmark.parentId
+        })
+      )
+    } catch (e) {
+      throw new Error('Could not update ' + bookmark.inspect() + ': ' + e.message)
+    }
   }
 
   async removeBookmark(bookmark:Bookmark): Promise<void> {
@@ -144,8 +148,12 @@ export default class LocalTree implements IResource {
 
   async orderFolder(id:string|number, order:Ordering) :Promise<void> {
     Logger.log('(local)ORDERFOLDER', { id, order })
-    for (let index = 0; index < order.length; index++) {
-      await browser.bookmarks.move(order[index].id, { index })
+    try {
+      for (let index = 0; index < order.length; index++) {
+        await browser.bookmarks.move(order[index].id, { index })
+      }
+    } catch (e) {
+      throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
     }
   }
 

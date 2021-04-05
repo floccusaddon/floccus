@@ -23,6 +23,9 @@ export default class SyncProcess {
   protected actionsDone: number
   protected actionsPlanned: number
 
+  // The location that has precedence in case of conflicts
+  protected masterLocation: TItemLocation
+
   constructor(
     mappings:Mappings,
     localTree:LocalTree,
@@ -58,27 +61,8 @@ export default class SyncProcess {
   }
 
   async sync(): Promise<void> {
-    this.localTreeRoot = await this.localTree.getBookmarksTree()
-    this.serverTreeRoot = await this.server.getBookmarksTree()
-    this.filterOutUnacceptedBookmarks(this.localTreeRoot)
-    await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
-
-    await this.mappings.addFolder({ localId: this.localTreeRoot.id, remoteId: this.serverTreeRoot.id })
-    let mappingsSnapshot = await this.mappings.getSnapshot()
-
-    if ('loadFolderChildren' in this.server) {
-      Logger.log('Loading sparse tree as necessary')
-      // Load sparse tree
-      await this.loadChildren(this.serverTreeRoot, mappingsSnapshot)
-    }
-
-    // Cache tree might not have been initialized and thus have no id
-    this.cacheTreeRoot.id = this.localTreeRoot.id
-
-    // generate hash tables to find items faster
-    this.localTreeRoot.createIndex()
-    this.cacheTreeRoot.createIndex()
-    this.serverTreeRoot.createIndex()
+    this.masterLocation = ItemLocation.LOCAL
+    await this.prepareSync()
 
     const {localDiff, serverDiff} = await this.getDiffs()
     Logger.log({localDiff, serverDiff})
@@ -94,21 +78,13 @@ export default class SyncProcess {
     // Weed out modifications to bookmarks root
     await this.filterOutRootFolderActions(localPlan)
 
-    const localCountTotal = this.localTreeRoot.count()
-    const localCountDeleted = localPlan.getActions(ActionType.REMOVE).reduce((count, action) => count + action.payload.count(), 0)
-
-    if (localCountTotal > 5 && localCountDeleted / localCountTotal > 0.5) {
-      const failsafe = this.server.getData().failsafe
-      if (failsafe !== false || typeof failsafe === 'undefined') {
-        throw new Error(browser.i18n.getMessage('Error029', [(localCountDeleted / localCountTotal) * 100]))
-      }
-    }
+    this.applyFailsafe(localPlan)
 
     serverPlan = await this.execute(this.server, serverPlan, ItemLocation.SERVER)
     localPlan = await this.execute(this.localTree, localPlan, ItemLocation.LOCAL)
 
     // mappings have been updated, reload
-    mappingsSnapshot = await this.mappings.getSnapshot()
+    const mappingsSnapshot = await this.mappings.getSnapshot()
 
     const localReorder = this.reconcileReorderings(localPlan, serverPlan, mappingsSnapshot)
       .map(mappingsSnapshot, ItemLocation.LOCAL)
@@ -123,6 +99,42 @@ export default class SyncProcess {
         this.executeReorderings(this.server, serverReorder),
         this.executeReorderings(this.localTree, localReorder),
       ])
+    }
+  }
+
+  protected async prepareSync() {
+    this.localTreeRoot = await this.localTree.getBookmarksTree()
+    this.serverTreeRoot = await this.server.getBookmarksTree()
+    this.filterOutUnacceptedBookmarks(this.localTreeRoot)
+    await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
+
+    await this.mappings.addFolder({ localId: this.localTreeRoot.id, remoteId: this.serverTreeRoot.id })
+    const mappingsSnapshot = await this.mappings.getSnapshot()
+
+    if ('loadFolderChildren' in this.server) {
+      Logger.log('Loading sparse tree as necessary')
+      // Load sparse tree
+      await this.loadChildren(this.serverTreeRoot, mappingsSnapshot)
+    }
+
+    // Cache tree might not have been initialized and thus have no id
+    this.cacheTreeRoot.id = this.localTreeRoot.id
+
+    // generate hash tables to find items faster
+    this.localTreeRoot.createIndex()
+    this.cacheTreeRoot.createIndex()
+    this.serverTreeRoot.createIndex()
+  }
+
+  protected applyFailsafe(localPlan: Diff) {
+    const localCountTotal = this.localTreeRoot.count()
+    const localCountDeleted = localPlan.getActions(ActionType.REMOVE).reduce((count, action) => count + action.payload.count(), 0)
+
+    if (localCountTotal > 5 && localCountDeleted / localCountTotal > 0.5) {
+      const failsafe = this.server.getData().failsafe
+      if (failsafe !== false || typeof failsafe === 'undefined') {
+        throw new Error(browser.i18n.getMessage('Error029', [(localCountDeleted / localCountTotal) * 100]))
+      }
     }
   }
 
@@ -293,6 +305,9 @@ export default class SyncProcess {
       if (action.type === ActionType.MOVE) {
         // Find concurrent moves that form a hierarchy reversal together with this one
         const concurrentHierarchyReversals = targetMoves.filter(a => {
+          if (action.payload.type !== ItemType.FOLDER || a.payload.type !== ItemType.FOLDER) {
+            return false
+          }
           let sourceFolder, targetFolder, sourceAncestors, targetAncestors
           if (action.payload.location === ItemLocation.LOCAL) {
             targetFolder = this.serverTreeRoot.findItem(ItemType.FOLDER, a.payload.id)
@@ -309,12 +324,11 @@ export default class SyncProcess {
           }
 
           // If both items are folders, and one of the ancestors of one item is a child of the other item
-          return action.payload.type === ItemType.FOLDER && a.payload.type === ItemType.FOLDER &&
-            sourceAncestors.find(ancestor => targetFolder.findItem(ItemType.FOLDER, Mappings.mapId(mappingsSnapshot, ancestor, targetFolder.location))) &&
+          return sourceAncestors.find(ancestor => targetFolder.findItem(ItemType.FOLDER, Mappings.mapId(mappingsSnapshot, ancestor, targetFolder.location))) &&
             targetAncestors.find(ancestor => sourceFolder.findItem(ItemType.FOLDER, Mappings.mapId(mappingsSnapshot, ancestor, sourceFolder.location)))
         })
         if (concurrentHierarchyReversals.length) {
-          if (targetLocation === ItemLocation.SERVER) {
+          if (targetLocation !== this.masterLocation) {
             concurrentHierarchyReversals.forEach(a => {
               // moved sourcely but moved in reverse hierarchical order on target
               const payload = a.oldItem.clone() // we don't map here as we want this to look like a source action
@@ -368,7 +382,7 @@ export default class SyncProcess {
           }
           return
         }
-        if (concurrentSourceTargetRemoval && targetLocation === ItemLocation.LOCAL) { // No idea why this works
+        if (concurrentSourceTargetRemoval && targetLocation === this.masterLocation) { // No idea why this works
           // target already deleted by a source REMOVE (connected via source MOVE|CREATEs)
           avoidTargetReorders[action.payload.parentId] = true
           avoidTargetReorders[action.payload.id] = true
@@ -400,7 +414,7 @@ export default class SyncProcess {
           return
         }
 
-        if (targetLocation === ItemLocation.LOCAL) {
+        if (targetLocation === this.masterLocation) {
           const concurrentMove = targetMoves.find(a =>
             action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
           if (concurrentMove) {
@@ -410,7 +424,7 @@ export default class SyncProcess {
         }
       }
 
-      if (action.type === ActionType.UPDATE && targetLocation === ItemLocation.LOCAL) {
+      if (action.type === ActionType.UPDATE && targetLocation === this.masterLocation) {
         const concurrentUpdate = targetUpdates.find(a =>
           action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
         if (concurrentUpdate) {
@@ -424,7 +438,7 @@ export default class SyncProcess {
           return
         }
 
-        if (targetLocation === ItemLocation.LOCAL) {
+        if (targetLocation === this.masterLocation) {
           const concurrentReorder = targetReorders.find(a =>
             action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
           if (concurrentReorder) {
@@ -480,13 +494,15 @@ export default class SyncProcess {
     if (action.type === ActionType.CREATE) {
       const id = await action.payload.visitCreate(resource)
       item.id = id
-      await this.addMapping(resource, action.oldItem, id)
+      if (action.oldItem) {
+        await this.addMapping(resource, action.oldItem, id)
+      }
 
-      if (item instanceof Folder && item.children.length) {
+      if (item instanceof Folder && ((action.payload instanceof Folder && action.payload.children.length) || (action.oldItem instanceof Folder && action.oldItem.children.length))) {
         if ('bulkImportFolder' in resource) {
           try {
             // Try bulk import
-            const imported = await resource.bulkImportFolder(item.id, item)
+            const imported = await resource.bulkImportFolder(item.id, (action.oldItem || action.payload) as Folder)
             const newMappings = []
             const subScanner = new Scanner(
               item,
@@ -518,24 +534,24 @@ export default class SyncProcess {
         if (action.oldItem && action.oldItem instanceof Folder) {
           const subPlan = new Diff
           action.oldItem.children.forEach((child) => subPlan.commit({ type: ActionType.CREATE, payload: child }))
-          const mappingsSnapshot = await this.mappings.getSnapshot()
+          let mappingsSnapshot = await this.mappings.getSnapshot()
           const mappedSubPlan = subPlan.map(mappingsSnapshot, targetLocation)
           await this.execute(resource, mappedSubPlan, targetLocation)
-        }
 
-        if (item.children.length > 1) {
-          // Order created items after the fact, as they've been created concurrently
-          const subOrder = new Diff()
-          subOrder.commit({
-            type: ActionType.REORDER,
-            oldItem: action.payload,
-            payload: action.oldItem,
-            order: item.children.map(i => ({ type: i.type, id: i.id }))
-          })
-          const mappingsSnapshot = await this.mappings.getSnapshot()
-          const mappedOrder = subOrder.map(mappingsSnapshot, targetLocation)
-          if ('orderFolder' in resource) {
-            await this.executeReorderings(resource, mappedOrder)
+          if (item.children.length > 1) {
+            // Order created items after the fact, as they've been created concurrently
+            const subOrder = new Diff()
+            subOrder.commit({
+              type: ActionType.REORDER,
+              oldItem: action.payload,
+              payload: action.oldItem,
+              order: item.children.map(i => ({ type: i.type, id: i.id }))
+            })
+            mappingsSnapshot = await this.mappings.getSnapshot()
+            const mappedOrder = subOrder.map(mappingsSnapshot, targetLocation)
+            if ('orderFolder' in resource) {
+              await this.executeReorderings(resource, mappedOrder)
+            }
           }
         }
       }
