@@ -68,7 +68,7 @@
 
 <script>
 import PathHelper from '../../lib/PathHelper'
-import LocalTree from '../../lib/LocalTree'
+import BrowserTree from '../../lib/BrowserTree'
 import { actions } from '../store'
 import OptionsNextcloudFolders from '../components/OptionsNextcloudFolders'
 import OptionsWebdav from '../components/OptionsWebdav'
@@ -123,7 +123,7 @@ export default {
     },
     async updateFolderName() {
       const pathArray = PathHelper.pathToArray(decodeURIComponent(
-        await LocalTree.getPathFromLocalId(this.localRoot)
+        await BrowserTree.getPathFromLocalId(this.localRoot)
       ))
       this.folderName = pathArray[pathArray.length - 1]
     },

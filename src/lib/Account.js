@@ -3,7 +3,7 @@ import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
 import WebDavAdapter from './adapters/WebDav'
 import GoogleDriveAdapter from './adapters/GoogleDrive'
 import FakeAdapter from './adapters/Fake'
-import LocalTree from './LocalTree'
+import BrowserTree from './BrowserTree'
 import DefaultSyncProcess from './strategies/Default'
 import UnidirectionalSyncProcess from './strategies/Unidirectional'
 import Logger from './Logger'
@@ -32,7 +32,7 @@ export default class Account {
     let storage = new AccountStorage(id)
     let background = await browser.runtime.getBackgroundPage()
     let data = await storage.getAccountData(background.controller.key)
-    let tree = new LocalTree(storage, data.localRoot)
+    let tree = new BrowserTree(storage, data.localRoot)
     let account = new Account(id, storage, AdapterFactory.factory(data), tree)
     this.cache[id] = account
     return account
@@ -105,7 +105,7 @@ export default class Account {
     let background = await browser.runtime.getBackgroundPage()
     let data = await this.storage.getAccountData(background.controller.key)
     this.server.setData(data)
-    this.localTree = new LocalTree(this.storage, data.localRoot)
+    this.localTree = new BrowserTree(this.storage, data.localRoot)
   }
 
   async tracksBookmark(localId) {
@@ -133,12 +133,12 @@ export default class Account {
         parentId: bookmarksBar.id,
       })
       accData.localRoot = node.id
-      accData.rootPath = await LocalTree.getPathFromLocalId(node.id)
+      accData.rootPath = await BrowserTree.getPathFromLocalId(node.id)
       await this.setData(accData)
     }
     await this.storage.initMappings()
     await this.storage.initCache()
-    this.localTree = new LocalTree(this.storage, accData.localRoot)
+    this.localTree = new BrowserTree(this.storage, accData.localRoot)
   }
 
   async isInitialized() {
@@ -176,7 +176,7 @@ export default class Account {
 
       // main sync steps:
       mappings = await this.storage.getMappings()
-      const cacheTree = localResource instanceof LocalTree ? await this.storage.getCache() : new Folder({title: '', id: 'tabs'})
+      const cacheTree = localResource instanceof BrowserTree ? await this.storage.getCache() : new Folder({title: '', id: 'tabs'})
 
       let strategyClass, direction
       switch (strategy || this.getData().strategy) {
@@ -226,7 +226,7 @@ export default class Account {
       await this.syncing.sync()
 
       // update cache
-      if (localResource instanceof LocalTree) {
+      if (localResource instanceof BrowserTree) {
         const cache = await localResource.getBookmarksTree()
         this.syncing.filterOutUnacceptedBookmarks(cache)
         await this.storage.setCache(cache)
@@ -300,7 +300,7 @@ export default class Account {
   }
 
   static async getAccountsContainingLocalId(localId, ancestors, allAccounts) {
-    ancestors = ancestors || (await LocalTree.getIdPathFromLocalId(localId))
+    ancestors = ancestors || (await BrowserTree.getIdPathFromLocalId(localId))
     allAccounts = allAccounts || (await this.getAllAccounts())
 
     const accountsInvolved = allAccounts

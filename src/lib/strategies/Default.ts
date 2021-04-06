@@ -6,13 +6,13 @@ import Scanner from '../Scanner'
 import * as Parallel from 'async-parallel'
 import { throttle } from 'throttle-debounce'
 import Mappings, { MappingSnapshot } from '../Mappings'
-import LocalTree from '../LocalTree'
+import BrowserTree from '../BrowserTree'
 import TResource, { OrderFolderResource } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
 
 export default class SyncProcess {
   protected mappings: Mappings
-  protected localTree: LocalTree
+  protected localTree: BrowserTree
   protected server: TAdapter
   protected cacheTreeRoot: Folder
   protected canceled: boolean
@@ -28,7 +28,7 @@ export default class SyncProcess {
 
   constructor(
     mappings:Mappings,
-    localTree:LocalTree,
+    localTree:BrowserTree,
     cacheTreeRoot:Folder,
     server:TAdapter,
     progressCb:(progress:number)=>void
@@ -176,7 +176,7 @@ export default class SyncProcess {
 
   async filterOutRootFolderActions(plan: Diff):Promise<void> {
     // Weed out modifications to bookmarks root
-    const absoluteRootFolder = await LocalTree.getAbsoluteRootFolder()
+    const absoluteRootFolder = await BrowserTree.getAbsoluteRootFolder()
     plan
       .getActions()
       .filter(action => {

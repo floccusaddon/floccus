@@ -7,7 +7,7 @@ import Account from './Account'
 import { Bookmark, Folder, ItemLocation } from './Tree'
 import Ordering from './interfaces/Ordering'
 
-export default class LocalTree implements IResource {
+export default class BrowserTree implements IResource {
   private readonly rootId: string
   private queue: PQueue<{ concurrency: 10 }>
   private storage: unknown
@@ -195,7 +195,7 @@ export default class LocalTree implements IResource {
       return browser.i18n.getMessage('LabelTabs')
     }
     try {
-      ancestors = ancestors || (await LocalTree.getIdPathFromLocalId(localId))
+      ancestors = ancestors || (await BrowserTree.getIdPathFromLocalId(localId))
 
       if (relativeToRoot) {
         ancestors = ancestors.slice(ancestors.indexOf(relativeToRoot) + 1)

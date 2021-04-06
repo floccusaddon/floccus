@@ -2,7 +2,7 @@ import Account from '../../lib/Account'
 import browser from '../../lib/browser-api'
 import { mutations } from './mutations'
 import Logger from '../../lib/Logger'
-import LocalTree from '../../lib/LocalTree'
+import BrowserTree from '../../lib/BrowserTree'
 
 export const actions = {
   LOAD_LOCKED: 'LOAD_UNLOCKED',
@@ -58,7 +58,7 @@ export const actionsDefinition = {
           data: acc.getData(),
           id: acc.id,
           label: acc.getLabel(),
-          fullPath: await LocalTree.getPathFromLocalId(acc.getData().localRoot)
+          fullPath: await BrowserTree.getPathFromLocalId(acc.getData().localRoot)
         }
       })
     )

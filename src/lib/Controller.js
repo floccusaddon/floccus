@@ -1,6 +1,6 @@
 import browser from './browser-api'
 import Account from './Account'
-import LocalTree from './LocalTree'
+import BrowserTree from './BrowserTree'
 import Cryptography from './Crypto'
 import DefunctCryptography from './DefunctCrypto'
 import packageJson from '../../package.json'
@@ -208,7 +208,7 @@ export default class Controller {
 
     let ancestors
     try {
-      ancestors = await LocalTree.getIdPathFromLocalId(localId)
+      ancestors = await BrowserTree.getIdPathFromLocalId(localId)
     } catch (e) {
       this.setEnabled(true)
       return

@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import LocalTree from '../../lib/LocalTree'
+import BrowserTree from '../../lib/BrowserTree'
 import browser from '../../lib/browser-api'
 
 export default {
@@ -113,7 +113,7 @@ export default {
       }
       if (this.value) {
         this.path = decodeURIComponent(
-          await LocalTree.getPathFromLocalId(this.value)
+          await BrowserTree.getPathFromLocalId(this.value)
         ) + '/'
       } else {
         this.path = this.t('LabelNewfolder')
