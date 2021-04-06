@@ -7,14 +7,14 @@ import AsyncLock from 'async-lock'
 
 const storageLock = new AsyncLock()
 
-export default class AccountStorage {
+export default class BrowserAccountStorage {
   constructor(id) {
     this.accountId = id
   }
 
   static async changeEntry(entryName, fn, defaultVal) {
     await storageLock.acquire(entryName, async() => {
-      let entry = await AccountStorage.getEntry(entryName, defaultVal)
+      let entry = await BrowserAccountStorage.getEntry(entryName, defaultVal)
       entry = fn(entry)
 
       await browser.storage.local.set({ [entryName]: JSON.stringify(entry) })
@@ -38,12 +38,12 @@ export default class AccountStorage {
   }
 
   static async getAllAccounts() {
-    let accounts = await AccountStorage.getEntry(`accounts`, {})
+    let accounts = await BrowserAccountStorage.getEntry(`accounts`, {})
     return Object.keys(accounts)
   }
 
   async getAccountData(key) {
-    let accounts = await AccountStorage.getEntry(`accounts`, {})
+    let accounts = await BrowserAccountStorage.getEntry(`accounts`, {})
     let data = accounts[this.accountId]
     if (key) {
       if (data.iv) {
@@ -71,7 +71,7 @@ export default class AccountStorage {
         ...(data.passphrase && {passphrase: await Cryptography.encryptAES(key, data.passphrase, data.username)})
       }
     }
-    return AccountStorage.changeEntry(
+    return BrowserAccountStorage.changeEntry(
       `accounts`,
       accounts => {
         accounts[this.accountId] = encData
@@ -82,7 +82,7 @@ export default class AccountStorage {
   }
 
   async deleteAccountData() {
-    await AccountStorage.changeEntry(`accounts`, accounts => {
+    await BrowserAccountStorage.changeEntry(`accounts`, accounts => {
       delete accounts[this.accountId]
       return accounts
     })
@@ -91,39 +91,39 @@ export default class AccountStorage {
   }
 
   async initCache() {
-    await AccountStorage.changeEntry(
+    await BrowserAccountStorage.changeEntry(
       `bookmarks[${this.accountId}].cache`,
       () => ({})
     )
   }
 
   async getCache() {
-    const data = await AccountStorage.getEntry(
+    const data = await BrowserAccountStorage.getEntry(
       `bookmarks[${this.accountId}].cache`
     )
     return Folder.hydrate(data && Object.keys(data).length ? data : {})
   }
 
   async setCache(data) {
-    await AccountStorage.changeEntry(
+    await BrowserAccountStorage.changeEntry(
       `bookmarks[${this.accountId}].cache`,
       () => data
     )
   }
 
   async deleteCache() {
-    await AccountStorage.deleteEntry(`bookmarks[${this.accountId}].cache`)
+    await BrowserAccountStorage.deleteEntry(`bookmarks[${this.accountId}].cache`)
   }
 
   async initMappings() {
-    await AccountStorage.changeEntry(
+    await BrowserAccountStorage.changeEntry(
       `bookmarks[${this.accountId}].mappings`,
       () => ({})
     )
   }
 
   async getMappings() {
-    const data = await AccountStorage.getEntry(
+    const data = await BrowserAccountStorage.getEntry(
       `bookmarks[${this.accountId}].mappings`
     )
     return new Mappings(
@@ -144,13 +144,13 @@ export default class AccountStorage {
   }
 
   async setMappings(data) {
-    await AccountStorage.changeEntry(
+    await BrowserAccountStorage.changeEntry(
       `bookmarks[${this.accountId}].mappings`,
       () => data
     )
   }
 
   async deleteMappings() {
-    await AccountStorage.deleteEntry(`bookmarks[${this.accountId}].mappings`)
+    await BrowserAccountStorage.deleteEntry(`bookmarks[${this.accountId}].mappings`)
   }
 }

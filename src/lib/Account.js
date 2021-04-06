@@ -1,4 +1,4 @@
-import AccountStorage from './AccountStorage'
+import BrowserAccountStorage from './BrowserAccountStorage'
 import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
 import WebDavAdapter from './adapters/WebDav'
 import GoogleDriveAdapter from './adapters/GoogleDrive'
@@ -29,7 +29,7 @@ export default class Account {
       await this.cache[id].updateFromStorage()
       return this.cache[id]
     }
-    let storage = new AccountStorage(id)
+    let storage = new BrowserAccountStorage(id)
     let background = await browser.runtime.getBackgroundPage()
     let data = await storage.getAccountData(background.controller.key)
     let tree = new BrowserTree(storage, data.localRoot)
@@ -41,7 +41,7 @@ export default class Account {
   static async create(data) {
     let id = '' + Date.now() + Math.random()
     let adapter = AdapterFactory.factory(data)
-    let storage = new AccountStorage(id)
+    let storage = new BrowserAccountStorage(id)
 
     let background = await browser.runtime.getBackgroundPage()
     await storage.setAccountData(data, background.controller.key)
@@ -293,7 +293,7 @@ export default class Account {
 
   static async getAllAccounts() {
     return Promise.all(
-      (await AccountStorage.getAllAccounts()).map((accountId) =>
+      (await BrowserAccountStorage.getAllAccounts()).map((accountId) =>
         Account.get(accountId)
       )
     )

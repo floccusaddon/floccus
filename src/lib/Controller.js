@@ -4,7 +4,7 @@ import BrowserTree from './BrowserTree'
 import Cryptography from './Crypto'
 import DefunctCryptography from './DefunctCrypto'
 import packageJson from '../../package.json'
-import AccountStorage from './AccountStorage'
+import BrowserAccountStorage from './BrowserAccountStorage'
 import _ from 'lodash'
 
 import PQueue from 'p-queue'
@@ -21,7 +21,7 @@ class AlarmManager {
   }
 
   async checkSync() {
-    const accounts = await AccountStorage.getAllAccounts()
+    const accounts = await BrowserAccountStorage.getAllAccounts()
     for (let accountId of accounts) {
       const account = await Account.get(accountId)
       const data = account.getData()

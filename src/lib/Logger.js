@@ -1,5 +1,5 @@
 /* global DEBUG */
-import AccountStorage from './AccountStorage'
+import BrowserAccountStorage from './BrowserAccountStorage'
 import util from 'util'
 
 import packageJson from '../../package.json'
@@ -14,7 +14,7 @@ export default class Logger {
   }
 
   static async persist() {
-    await AccountStorage.changeEntry(
+    await BrowserAccountStorage.changeEntry(
       'log',
       log => {
         const messages = this.messages
@@ -26,7 +26,7 @@ export default class Logger {
   }
 
   static async getLogs() {
-    return AccountStorage.getEntry('log')
+    return BrowserAccountStorage.getEntry('log')
   }
 
   static async downloadLogs() {
