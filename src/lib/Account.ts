@@ -1,18 +1,22 @@
-import BrowserAccountStorage from './BrowserAccountStorage'
+import BrowserAccount from './browser/BrowserAccount'
+import AdapterFactory from './AdapterFactory'
+import LocalTabs from './LocalTabs'
+import browser from './browser-api'
+import BrowserTree from './browser/BrowserTree'
+import Logger from './Logger'
+import { Folder, ItemLocation } from './Tree'
+import UnidirectionalMergeSyncProcess from './strategies/UnidirectionalMerge'
+import UnidirectionalSyncProcess from './strategies/Unidirectional'
+import MergeSyncProcess from './strategies/Merge'
+import DefaultSyncProcess from './strategies/Default'
+import BrowserAccountStorage from './browser/BrowserAccountStorage'
+import IAccountStorage, { IAccountData, TAccountStrategy } from './interfaces/AccountStorage'
+import { TAdapter } from './interfaces/Adapter'
 import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
 import WebDavAdapter from './adapters/WebDav'
 import GoogleDriveAdapter from './adapters/GoogleDrive'
 import FakeAdapter from './adapters/Fake'
-import BrowserTree from './BrowserTree'
-import DefaultSyncProcess from './strategies/Default'
-import UnidirectionalSyncProcess from './strategies/Unidirectional'
-import Logger from './Logger'
-import browser from './browser-api'
-import AdapterFactory from './AdapterFactory'
-import MergeSyncProcess from './strategies/Merge'
-import LocalTabs from './LocalTabs'
-import { Folder, ItemLocation } from './Tree'
-import UnidirectionalMergeSyncProcess from './strategies/UnidirectionalMerge'
+import TResource from './interfaces/Resource'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', NextcloudFoldersAdapter)
@@ -21,54 +25,43 @@ AdapterFactory.register('google-drive', GoogleDriveAdapter)
 AdapterFactory.register('fake', FakeAdapter)
 
 export default class Account {
-  static async get(id) {
-    if (!this.cache) {
-      this.cache = {}
-    }
+  static cache = {}
+
+  static async get(id:string):Promise<Account> {
     if (this.cache[id]) {
       await this.cache[id].updateFromStorage()
       return this.cache[id]
     }
-    let storage = new BrowserAccountStorage(id)
-    let background = await browser.runtime.getBackgroundPage()
-    let data = await storage.getAccountData(background.controller.key)
-    let tree = new BrowserTree(storage, data.localRoot)
-    let account = new Account(id, storage, AdapterFactory.factory(data), tree)
+    const account = await BrowserAccount.get(id)
     this.cache[id] = account
     return account
   }
 
-  static async create(data) {
-    let id = '' + Date.now() + Math.random()
-    let adapter = AdapterFactory.factory(data)
-    let storage = new BrowserAccountStorage(id)
-
-    let background = await browser.runtime.getBackgroundPage()
-    await storage.setAccountData(data, background.controller.key)
-    let account = new Account(id, storage, adapter)
-    return account
+  static async create(data: IAccountData):Promise<Account> {
+    return BrowserAccount.create(data)
   }
 
-  static async import(accounts) {
+  static async import(accounts:IAccountData[]):Promise<void> {
     for (const accountData of accounts) {
-      await Account.create({...accountData, enabled: false})
+      await BrowserAccount.create({...accountData, enabled: false})
     }
   }
 
-  static async export(accountIds) {
+  static async export(accountIds:string[]):Promise<IAccountData[]> {
     return (await Promise.all(
       accountIds.map(id => Account.get(id))
     )).map(a => a.getData())
   }
 
-  static getDefaultValues(type) {
-    return {
-      ...AdapterFactory.factory({ type }).constructor.getDefaultValues(),
-      enabled: true,
-    }
-  }
+  public id: string
+  public syncing: boolean
+  protected syncProcess: DefaultSyncProcess
+  protected storage: IAccountStorage
+  protected server: TAdapter
+  protected localTree: TResource
+  protected localTabs: TResource
 
-  constructor(id, storageAdapter, serverAdapter, treeAdapter) {
+  constructor(id:string, storageAdapter:IAccountStorage, serverAdapter: TAdapter, treeAdapter:TResource) {
     this.server = serverAdapter
     this.id = id
     this.storage = storageAdapter
@@ -76,18 +69,18 @@ export default class Account {
     this.localTabs = new LocalTabs(this.storage)
   }
 
-  async delete() {
+  async delete():Promise<void> {
     await this.storage.deleteAccountData()
   }
 
-  getLabel() {
+  getLabel():string {
     return this.server.getLabel()
   }
 
-  getData() {
+  getData():IAccountData {
     const defaults = {
       localRoot: null,
-      strategy: 'default',
+      strategy: 'default' as TAccountStrategy,
       syncInterval: 15,
       nestedSync: false,
       failsafe: true,
@@ -95,64 +88,36 @@ export default class Account {
     return {...defaults, ...this.server.getData()}
   }
 
-  async setData(data) {
-    let background = await browser.runtime.getBackgroundPage()
+  async setData(data:IAccountData):Promise<void> {
+    const background = await browser.runtime.getBackgroundPage()
     await this.storage.setAccountData(data, background.controller.key)
     this.server.setData(data)
   }
 
-  async updateFromStorage() {
-    let background = await browser.runtime.getBackgroundPage()
-    let data = await this.storage.getAccountData(background.controller.key)
+  async updateFromStorage():Promise<void> {
+    const background = await browser.runtime.getBackgroundPage()
+    const data = await this.storage.getAccountData(background.controller.key)
     this.server.setData(data)
     this.localTree = new BrowserTree(this.storage, data.localRoot)
   }
 
-  async tracksBookmark(localId) {
+  async tracksBookmark(localId:string):Promise<boolean> {
     if (!(await this.isInitialized())) return false
-    let mappings = await this.storage.getMappings()
-    return Object.keys(mappings.bookmarks.LocalToServer).some(
+    const mappings = await this.storage.getMappings()
+    return Object.keys(mappings.getSnapshot().LocalToServer.bookmark).some(
       (id) => localId === id
     )
   }
 
-  renderOptions(state, actions) {
-    return this.server.renderOptions(state, actions)
+  async init():Promise<void> {
+    throw new Error('Not implemented')
   }
 
-  async init() {
-    console.log('initializing account ' + this.id)
-    const accData = this.getData()
-    try {
-      await browser.bookmarks.getSubTree(accData.localRoot)
-    } catch (e) {
-      let parentNode = await browser.bookmarks.getTree()
-      let bookmarksBar = parentNode[0].children[0]
-      let node = await browser.bookmarks.create({
-        title: 'Floccus (' + this.getLabel() + ')',
-        parentId: bookmarksBar.id,
-      })
-      accData.localRoot = node.id
-      accData.rootPath = await BrowserTree.getPathFromLocalId(node.id)
-      await this.setData(accData)
-    }
-    await this.storage.initMappings()
-    await this.storage.initCache()
-    this.localTree = new BrowserTree(this.storage, accData.localRoot)
+  async isInitialized():Promise<boolean> {
+    throw new Error('Not implemented')
   }
 
-  async isInitialized() {
-    try {
-      let localRoot = this.getData().localRoot
-      await browser.bookmarks.getSubTree(localRoot)
-      return true
-    } catch (e) {
-      console.log('Apparently not initialized, because:', e)
-      return false
-    }
-  }
-
-  async sync(strategy) {
+  async sync(strategy?:TAccountStrategy):Promise<void> {
     let mappings
     try {
       if (this.getData().syncing || this.syncing) return
@@ -176,7 +141,7 @@ export default class Account {
 
       // main sync steps:
       mappings = await this.storage.getMappings()
-      const cacheTree = localResource instanceof BrowserTree ? await this.storage.getCache() : new Folder({title: '', id: 'tabs'})
+      const cacheTree = localResource instanceof BrowserTree ? await this.storage.getCache() : new Folder({title: '', id: 'tabs', location: ItemLocation.LOCAL})
 
       let strategyClass, direction
       switch (strategy || this.getData().strategy) {
@@ -211,7 +176,7 @@ export default class Account {
           break
       }
 
-      this.syncing = new strategyClass(
+      this.syncProcess = new strategyClass(
         mappings,
         localResource,
         cacheTree,
@@ -221,14 +186,14 @@ export default class Account {
         }
       )
       if (direction) {
-        this.syncing.setDirection(direction)
+        this.syncProcess.setDirection(direction)
       }
-      await this.syncing.sync()
+      await this.syncProcess.sync()
 
       // update cache
       if (localResource instanceof BrowserTree) {
         const cache = await localResource.getBookmarksTree()
-        this.syncing.filterOutUnacceptedBookmarks(cache)
+        this.syncProcess.filterOutUnacceptedBookmarks(cache)
         await this.storage.setCache(cache)
       }
 
@@ -253,7 +218,7 @@ export default class Account {
       }
     } catch (e) {
       console.log(e)
-      const message = Account.stringifyError(e)
+      const message = BrowserAccount.stringifyError(e)
       console.error('Syncing failed with', message)
       Logger.log('Syncing failed with', message)
 
@@ -274,7 +239,7 @@ export default class Account {
     await Logger.persist()
   }
 
-  static stringifyError(er) {
+  static stringifyError(er:any):string {
     if (er.list) {
       return er.list
         .map((e) => {
@@ -286,20 +251,20 @@ export default class Account {
     return er.message
   }
 
-  async cancelSync() {
+  async cancelSync():Promise<void> {
     if (!this.syncing) return
-    return this.syncing.cancel()
+    return this.syncProcess.cancel()
   }
 
-  static async getAllAccounts() {
+  static async getAllAccounts():Promise<Account[]> {
     return Promise.all(
       (await BrowserAccountStorage.getAllAccounts()).map((accountId) =>
-        Account.get(accountId)
+        BrowserAccount.get(accountId)
       )
     )
   }
 
-  static async getAccountsContainingLocalId(localId, ancestors, allAccounts) {
+  static async getAccountsContainingLocalId(localId:string, ancestors:string[], allAccounts:Account[]):Promise<Account[]> {
     ancestors = ancestors || (await BrowserTree.getIdPathFromLocalId(localId))
     allAccounts = allAccounts || (await this.getAllAccounts())
 

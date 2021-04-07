@@ -1,9 +1,10 @@
 import { Bookmark } from '../Tree'
 import TResource from './Resource'
+import { IAccountData } from './AccountStorage'
 
 export default interface IAdapter {
-  setData(data: Record<string, any>): void
-  getData() :Record<string, any>
+  setData(data: IAccountData): void
+  getData() :IAccountData
   getLabel(): string
   acceptsBookmark(bookmark:Bookmark): boolean
   onSyncStart():Promise<void|boolean>

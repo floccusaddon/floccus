@@ -3,6 +3,7 @@ import browser from '../../lib/browser-api'
 import { mutations } from './mutations'
 import Logger from '../../lib/Logger'
 import BrowserTree from '../../lib/BrowserTree'
+import AdapterFactory from '../../lib/AdapterFactory'
 
 export const actions = {
   LOAD_LOCKED: 'LOAD_UNLOCKED',
@@ -66,7 +67,7 @@ export const actionsDefinition = {
     commit(mutations.LOADING_END, 'accounts')
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
-    const account = await Account.create(Account.getDefaultValues(type))
+    const account = await Account.create(AdapterFactory.getDefaultValues(type))
     await dispatch(actions.LOAD_ACCOUNTS)
     return account.id
   },
