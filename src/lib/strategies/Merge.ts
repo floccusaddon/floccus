@@ -152,10 +152,10 @@ export default class MergeSyncProcess extends Default {
           return
         }
       }
-      if (action.type === ActionType.UPDATE && targetLocation === ItemLocation.LOCAL) {
+      if (action.type === ActionType.UPDATE) {
         const concurrentUpdate = sourceUpdates.find(a =>
           action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
-        if (concurrentUpdate) {
+        if (concurrentUpdate && targetLocation === ItemLocation.LOCAL) {
           // Updated both on server and locally, local has precedence: do nothing locally
           return
         }

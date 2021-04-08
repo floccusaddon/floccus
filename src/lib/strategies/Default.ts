@@ -424,11 +424,17 @@ export default class SyncProcess {
         }
       }
 
-      if (action.type === ActionType.UPDATE && targetLocation === this.masterLocation) {
+      if (action.type === ActionType.UPDATE) {
         const concurrentUpdate = targetUpdates.find(a =>
           action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
-        if (concurrentUpdate) {
+        if (concurrentUpdate && targetLocation === this.masterLocation) {
           // Updated both on target and sourcely, source has precedence: do nothing sourcely
+          return
+        }
+        const concurrentRemoval = targetRemovals.find(a =>
+          a.payload.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, a.payload.location)))
+        if (concurrentRemoval) {
+          // Already deleted on target, do nothing.
           return
         }
       }
