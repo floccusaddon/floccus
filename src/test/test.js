@@ -4628,6 +4628,12 @@ async function randomlyManipulateTreeWithDeletions(account, folders, bookmarks, 
       bookmarks.splice(bookmarks.indexOf(magicBookmark), 1)
       console.log('Remove ' + magicBookmark.title)
 
+      // Randomly rename one bookmark
+      magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
+      const newTitle = 'renamed' + Math.random()
+      await browser.bookmarks.update(magicBookmark.id, {title: newTitle})
+      console.log('Rename #' + magicBookmark.id + '[' + magicBookmark.title + '] to ' + newTitle)
+
       magicFolder1 = folders[random.int(0, folders.length - 1)]
       await browser.bookmarks.removeTree(magicFolder1.id)
       folders.splice(folders.indexOf(magicFolder1), 1)
