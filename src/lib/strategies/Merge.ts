@@ -44,7 +44,7 @@ export default class MergeSyncProcess extends Default {
   }
 
   async reconcileDiffs(sourceDiff:Diff, targetDiff:Diff, targetLocation: TItemLocation):Promise<Diff> {
-    let mappingsSnapshot = await this.mappings.getSnapshot()
+    const mappingsSnapshot = await this.mappings.getSnapshot()
 
     const targetCreations = targetDiff.getActions(ActionType.CREATE)
     const targetMoves = targetDiff.getActions(ActionType.MOVE)
@@ -152,10 +152,10 @@ export default class MergeSyncProcess extends Default {
           return
         }
       }
-      if (action.type === ActionType.UPDATE && targetLocation === ItemLocation.LOCAL) {
+      if (action.type === ActionType.UPDATE) {
         const concurrentUpdate = sourceUpdates.find(a =>
           action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
-        if (concurrentUpdate) {
+        if (concurrentUpdate && targetLocation === ItemLocation.LOCAL) {
           // Updated both on server and locally, local has precedence: do nothing locally
           return
         }
@@ -168,11 +168,7 @@ export default class MergeSyncProcess extends Default {
       targetPlan.commit(action)
     })
 
-    // Map payloads
-    mappingsSnapshot = await this.mappings.getSnapshot() // Necessary because of concurrent creation reconciliation
-    const mappedTargetPlan = targetPlan.map(mappingsSnapshot, targetLocation, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
-
-    return mappedTargetPlan
+    return targetPlan
   }
 
   reconcileReorderings(targetTreePlan:Diff, sourceTreePlan:Diff, mappingSnapshot:MappingSnapshot) : Diff {

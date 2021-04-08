@@ -67,8 +67,16 @@ export default class SyncProcess {
     const {localDiff, serverDiff} = await this.getDiffs()
     Logger.log({localDiff, serverDiff})
 
-    let serverPlan = await this.reconcileDiffs(localDiff, serverDiff, ItemLocation.SERVER)
-    let localPlan = await this.reconcileDiffs(serverDiff, localDiff, ItemLocation.LOCAL)
+    const unmappedServerPlan = await this.reconcileDiffs(localDiff, serverDiff, ItemLocation.SERVER)
+    // have to get snapshot after reconciliation, because of concurrent creation reconciliation
+    let mappingsSnapshot = this.mappings.getSnapshot()
+    let serverPlan = unmappedServerPlan.map(mappingsSnapshot, ItemLocation.SERVER, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
+
+    const unmappedLocalPlan = await this.reconcileDiffs(serverDiff, localDiff, ItemLocation.LOCAL)
+    // have to get snapshot after reconciliation, because of concurrent creation reconciliation
+    mappingsSnapshot = this.mappings.getSnapshot()
+    let localPlan = unmappedLocalPlan.map(mappingsSnapshot, ItemLocation.LOCAL, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
+
     Logger.log({localPlan, serverPlan})
 
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
@@ -84,7 +92,7 @@ export default class SyncProcess {
     localPlan = await this.execute(this.localTree, localPlan, ItemLocation.LOCAL)
 
     // mappings have been updated, reload
-    const mappingsSnapshot = await this.mappings.getSnapshot()
+    mappingsSnapshot = await this.mappings.getSnapshot()
 
     const localReorder = this.reconcileReorderings(localPlan, serverPlan, mappingsSnapshot)
       .map(mappingsSnapshot, ItemLocation.LOCAL)
@@ -219,7 +227,7 @@ export default class SyncProcess {
   }
 
   async reconcileDiffs(sourceDiff:Diff, targetDiff:Diff, targetLocation: TItemLocation):Promise<Diff> {
-    let mappingsSnapshot = await this.mappings.getSnapshot()
+    const mappingsSnapshot = await this.mappings.getSnapshot()
 
     const targetCreations = targetDiff.getActions(ActionType.CREATE).map(a => a as CreateAction)
     const targetRemovals = targetDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
@@ -424,11 +432,17 @@ export default class SyncProcess {
         }
       }
 
-      if (action.type === ActionType.UPDATE && targetLocation === this.masterLocation) {
+      if (action.type === ActionType.UPDATE) {
         const concurrentUpdate = targetUpdates.find(a =>
           action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
-        if (concurrentUpdate) {
+        if (concurrentUpdate && targetLocation === this.masterLocation) {
           // Updated both on target and sourcely, source has precedence: do nothing sourcely
+          return
+        }
+        const concurrentRemoval = targetRemovals.find(a =>
+          a.payload.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, a.payload.location)))
+        if (concurrentRemoval) {
+          // Already deleted on target, do nothing.
           return
         }
       }
@@ -457,11 +471,7 @@ export default class SyncProcess {
       targetPlan.commit(action)
     })
 
-    // Map payloads
-    mappingsSnapshot = await this.mappings.getSnapshot() // Necessary because of concurrent creation reconciliation
-    const mappedTargetPlan = targetPlan.map(mappingsSnapshot, targetLocation, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
-
-    return mappedTargetPlan
+    return targetPlan
   }
 
   async execute(resource:TResource, plan:Diff, targetLocation:TItemLocation):Promise<Diff> {

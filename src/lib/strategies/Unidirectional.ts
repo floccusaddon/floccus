@@ -48,9 +48,13 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     await this.prepareSync()
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
 
-    let overridePlan = await this.reconcileDiffs(sourceDiff, revertPlan, this.direction)
-
-    // Fix MOVEs: We want execute to map to new IDs instead of oldItem.id, because items may have been reinserted by reverPlan
+    const unmappedOverridePlan = await this.reconcileDiffs(sourceDiff, revertPlan, this.direction)
+    // Fix UPDATEs: We want to map to new IDs instead of oldItem.id, because items may have been reinserted by revertPlan
+    unmappedOverridePlan.getActions(ActionType.UPDATE).forEach(action => { action.oldItem = null })
+    // have to get snapshot after reconciliation, because of concurrent creation reconciliation
+    let mappingsSnapshot = this.mappings.getSnapshot()
+    let overridePlan = unmappedOverridePlan.map(mappingsSnapshot, this.direction, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
+    // Fix MOVEs: We want execute to map to new IDs instead of oldItem.id, because items may have been reinserted by revertPlan
     overridePlan.getActions(ActionType.MOVE).forEach(action => { action.oldItem = null })
 
     Logger.log({overridePlan})
@@ -63,7 +67,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     overridePlan = await this.execute(target, overridePlan, this.direction)
 
     // mappings have been updated, reload
-    const mappingsSnapshot = await this.mappings.getSnapshot()
+    mappingsSnapshot = await this.mappings.getSnapshot()
     const overrideReorder = this.reconcileReorderings(overridePlan, revertPlan, mappingsSnapshot)
       .map(mappingsSnapshot, this.direction)
 
