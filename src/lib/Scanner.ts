@@ -176,7 +176,9 @@ export default class Scanner {
               oldIndex: oldIndex || removeAction.index
             })
             reconciled = true
-            await this.diffItem(oldItem, createdItem)
+            if (oldItem.type === ItemType.FOLDER) {
+              await this.diffItem(oldItem, createdItem)
+            }
           } else {
             const newItem = createdItem.findItemFilter(removedItem.type, item => this.mergeable(removedItem, item))
             let index
@@ -201,12 +203,23 @@ export default class Scanner {
                 oldIndex: removeAction.index
               })
               reconciled = true
-              await this.diffItem(removedItem, newItem)
+              if (removedItem.type === ItemType.FOLDER) {
+                await this.diffItem(removedItem, newItem)
+              }
             }
           }
         }
       }
     }
+
+    // Remove all UPDATEs that have already been handled by a MOVE
+    const moves = this.diff.getActions(ActionType.MOVE)
+    const updates = this.diff.getActions(ActionType.UPDATE)
+    updates.forEach(update => {
+      if (moves.find(move => move.payload.id === update.payload.id)) {
+        this.diff.retract(update)
+      }
+    })
   }
 
   async addReorders(): Promise<void> {
