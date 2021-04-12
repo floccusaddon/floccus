@@ -6,13 +6,12 @@ import Scanner from '../Scanner'
 import * as Parallel from 'async-parallel'
 import { throttle } from 'throttle-debounce'
 import Mappings, { MappingSnapshot } from '../Mappings'
-import BrowserTree from '../BrowserTree'
-import TResource, { OrderFolderResource } from '../interfaces/Resource'
+import TResource, { OrderFolderResource, TLocalTree } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
 
 export default class SyncProcess {
   protected mappings: Mappings
-  protected localTree: BrowserTree
+  protected localTree: TLocalTree
   protected server: TAdapter
   protected cacheTreeRoot: Folder
   protected canceled: boolean
@@ -28,7 +27,7 @@ export default class SyncProcess {
 
   constructor(
     mappings:Mappings,
-    localTree:BrowserTree,
+    localTree:TLocalTree,
     cacheTreeRoot:Folder,
     server:TAdapter,
     progressCb:(progress:number)=>void
@@ -60,6 +59,10 @@ export default class SyncProcess {
     )
   }
 
+  setDirection(direction:TItemLocation):void {
+    throw new Error('Unsupported method')
+  }
+
   async sync(): Promise<void> {
     this.masterLocation = ItemLocation.LOCAL
     await this.prepareSync()
@@ -75,9 +78,6 @@ export default class SyncProcess {
 
     this.actionsPlanned = serverPlan.getActions().length + localPlan.getActions().length
 
-    // Weed out modifications to bookmarks root
-    await this.filterOutRootFolderActions(localPlan)
-
     this.applyFailsafe(localPlan)
 
     serverPlan = await this.execute(this.server, serverPlan, ItemLocation.SERVER)
@@ -91,8 +91,6 @@ export default class SyncProcess {
 
     const serverReorder = this.reconcileReorderings(serverPlan, localPlan, mappingsSnapshot)
       .map(mappingsSnapshot, ItemLocation.SERVER)
-
-    await this.filterOutRootFolderActions(localReorder)
 
     if ('orderFolder' in this.server) {
       await Promise.all([
@@ -172,19 +170,6 @@ export default class SyncProcess {
     await Promise.all(
       duplicates.map(bm => this.localTree.removeBookmark(bm))
     )
-  }
-
-  async filterOutRootFolderActions(plan: Diff):Promise<void> {
-    // Weed out modifications to bookmarks root
-    const absoluteRootFolder = await BrowserTree.getAbsoluteRootFolder()
-    plan
-      .getActions()
-      .filter(action => {
-        return action.payload.id === absoluteRootFolder.id || action.payload.parentId === absoluteRootFolder.id
-      })
-      .forEach(action => {
-        plan.retract(action)
-      })
   }
 
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {

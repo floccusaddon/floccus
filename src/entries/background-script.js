@@ -1,6 +1,6 @@
-import Controller from '../lib/Controller'
+import BrowserController from '../lib/browser/BrowserController'
 
-window.controller = new Controller()
+window.controller = new BrowserController()
 
 const onload = () => {
   window.controller.onLoad()

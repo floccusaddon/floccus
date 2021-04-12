@@ -53,4 +53,31 @@ export default class BrowserAccount extends Account {
       return false
     }
   }
+
+  async updateFromStorage():Promise<void> {
+    const background = await browser.runtime.getBackgroundPage()
+    const data = await this.storage.getAccountData(background.controller.key)
+    this.server.setData(data)
+    this.localTree = new BrowserTree(this.storage, data.localRoot)
+  }
+
+  static async getAllAccounts():Promise<Account[]> {
+    return Promise.all(
+      (await BrowserAccountStorage.getAllAccounts()).map((accountId) =>
+        BrowserAccount.get(accountId)
+      )
+    )
+  }
+
+  static async getAccountsContainingLocalId(localId:string, ancestors:string[], allAccounts:Account[]):Promise<Account[]> {
+    ancestors = ancestors || (await BrowserTree.getIdPathFromLocalId(localId))
+    allAccounts = allAccounts || (await this.getAllAccounts())
+
+    const accountsInvolved = allAccounts
+      .filter(acc => ancestors.indexOf(acc.getData().localRoot) !== -1)
+      .reverse()
+
+    const lastNesterIdx = accountsInvolved.findIndex(acc => !acc.getData().nestedSync)
+    return accountsInvolved.slice(0, lastNesterIdx)
+  }
 }

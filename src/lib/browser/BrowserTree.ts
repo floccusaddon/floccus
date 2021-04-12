@@ -1,27 +1,31 @@
-import browser from './browser-api'
-import Logger from './Logger'
-import * as Tree from './Tree'
-import { IResource } from './interfaces/Resource'
+import browser from '../browser-api'
+import Logger from '../Logger'
+import * as Tree from '../Tree'
+import { IResource } from '../interfaces/Resource'
 import PQueue from 'p-queue'
-import Account from './Account'
-import { Bookmark, Folder, ItemLocation } from './Tree'
-import Ordering from './interfaces/Ordering'
+import BrowserAccount from './BrowserAccount'
+import { Bookmark, Folder, ItemLocation } from '../Tree'
+import Ordering from '../interfaces/Ordering'
 
 export default class BrowserTree implements IResource {
   private readonly rootId: string
   private queue: PQueue<{ concurrency: 10 }>
   private storage: unknown
+  private absoluteRoot: { id: string }
 
   constructor(storage:unknown, rootId:string) {
     this.rootId = rootId
     this.storage = storage
     this.queue = new PQueue({ concurrency: 10 })
+    BrowserTree.getAbsoluteRootFolder().then(root => {
+      this.absoluteRoot = root
+    })
   }
 
   async getBookmarksTree():Promise<Folder> {
     const [rootTree] = await browser.bookmarks.getTree() // XXX: Kinda inefficient, but well.
     const [tree] = await browser.bookmarks.getSubTree(this.rootId)
-    const allAccounts = await Account.getAllAccounts()
+    const allAccounts = await BrowserAccount.getAllAccounts()
 
     const recurse = (node, parentId?) => {
       if (
@@ -87,6 +91,10 @@ export default class BrowserTree implements IResource {
 
   async createBookmark(bookmark:Bookmark): Promise<string|number> {
     Logger.log('(local)CREATE', bookmark)
+    if (bookmark.parentId === this.absoluteRoot.id) {
+      Logger.log('This action affects the absolute root. Skipping.')
+      return
+    }
     try {
       const node = await this.queue.add(() =>
         browser.bookmarks.create({
@@ -103,6 +111,10 @@ export default class BrowserTree implements IResource {
 
   async updateBookmark(bookmark:Bookmark):Promise<void> {
     Logger.log('(local)UPDATE', bookmark)
+    if (bookmark.parentId === this.absoluteRoot.id) {
+      Logger.log('This action affects the absolute root. Skipping.')
+      return
+    }
     try {
       await this.queue.add(() =>
         browser.bookmarks.update(bookmark.id, {
@@ -121,6 +133,10 @@ export default class BrowserTree implements IResource {
   }
 
   async removeBookmark(bookmark:Bookmark): Promise<void> {
+    if (bookmark.parentId === this.absoluteRoot.id) {
+      Logger.log('This action affects the absolute root. Skipping.')
+      return
+    }
     const bookmarkId = bookmark.id
     Logger.log('(local)REMOVE', bookmark)
     try {
@@ -133,6 +149,10 @@ export default class BrowserTree implements IResource {
   async createFolder(folder:Folder): Promise<string> {
     const {parentId, title} = folder
     Logger.log('(local)CREATEFOLDER', folder)
+    if (folder.parentId === this.absoluteRoot.id) {
+      Logger.log('This action affects the absolute root. Skipping.')
+      return
+    }
     try {
       const node = await this.queue.add(() =>
         browser.bookmarks.create({
@@ -148,6 +168,10 @@ export default class BrowserTree implements IResource {
 
   async orderFolder(id:string|number, order:Ordering) :Promise<void> {
     Logger.log('(local)ORDERFOLDER', { id, order })
+    if (id === this.absoluteRoot.id) {
+      Logger.log('This action affects the absolute root. Skipping.')
+      return
+    }
     try {
       for (let index = 0; index < order.length; index++) {
         await browser.bookmarks.move(order[index].id, { index })
@@ -160,6 +184,10 @@ export default class BrowserTree implements IResource {
   async updateFolder(folder:Folder):Promise<void> {
     const {id, title, parentId} = folder
     Logger.log('(local)UPDATEFOLDER', folder)
+    if (folder.parentId === this.absoluteRoot.id) {
+      Logger.log('This action affects the absolute root. Skipping.')
+      return
+    }
     if (folder.isRoot) {
       Logger.log('This is a root folder. Skip.')
       return
@@ -179,6 +207,10 @@ export default class BrowserTree implements IResource {
   async removeFolder(folder:Folder):Promise<void> {
     const id = folder.id
     Logger.log('(local)REMOVEFOLDER', id)
+    if (folder.parentId === this.absoluteRoot.id) {
+      Logger.log('This action affects the absolute root. Skipping.')
+      return
+    }
     if (folder.isRoot) {
       Logger.log('This is a root folder. Skip.')
       return
@@ -190,7 +222,7 @@ export default class BrowserTree implements IResource {
     }
   }
 
-  static async getPathFromLocalId(localId:string, ancestors:string[], relativeToRoot?:string):Promise<string> {
+  static async getPathFromLocalId(localId:string, ancestors?:string[], relativeToRoot?:string):Promise<string> {
     if (localId === 'tabs') {
       return browser.i18n.getMessage('LabelTabs')
     }
