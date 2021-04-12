@@ -1,9 +1,9 @@
-import browser from './browser-api'
-import Account from './Account'
+import browser from '../browser-api'
+import BrowserAccount from './BrowserAccount'
 import BrowserTree from './BrowserTree'
-import Cryptography from './Crypto'
-import DefunctCryptography from './DefunctCrypto'
-import packageJson from '../../package.json'
+import Cryptography from '../Crypto'
+import DefunctCryptography from '../DefunctCrypto'
+import packageJson from '../../../package.json'
 import BrowserAccountStorage from './BrowserAccountStorage'
 import _ from 'lodash'
 
@@ -23,7 +23,7 @@ class AlarmManager {
   async checkSync() {
     const accounts = await BrowserAccountStorage.getAllAccounts()
     for (let accountId of accounts) {
-      const account = await Account.get(accountId)
+      const account = await BrowserAccount.get(accountId)
       const data = account.getData()
       if (
         Date.now() >
@@ -36,7 +36,7 @@ class AlarmManager {
   }
 }
 
-export default class Controller {
+export default class BrowserController {
   constructor() {
     this.jobs = new PQueue({ concurrency: 1 })
     this.waiting = {}
@@ -112,7 +112,7 @@ export default class Controller {
   }
 
   async setKey(key) {
-    let accounts = await Account.getAllAccounts()
+    let accounts = await BrowserAccount.getAllAccounts()
     await Promise.all(accounts.map(a => a.updateFromStorage()))
     this.key = key
     let hashedKey = await Cryptography.sha256(key)
@@ -177,7 +177,7 @@ export default class Controller {
     if (!this.unlocked) {
       throw new Error('Cannot disable encryption without unlocking first')
     }
-    let accounts = await Account.getAllAccounts()
+    let accounts = await BrowserAccount.getAllAccounts()
     await Promise.all(accounts.map(a => a.updateFromStorage()))
     this.key = null
     await browser.storage.local.set({ accountsLocked: null })
@@ -191,7 +191,7 @@ export default class Controller {
     // Debounce this function
     this.setEnabled(false)
 
-    const allAccounts = await Account.getAllAccounts()
+    const allAccounts = await BrowserAccount.getAllAccounts()
 
     // Check which accounts contain the bookmark and which used to contain (track) it
     const trackingAccountsFilter = await Promise.all(
@@ -214,7 +214,7 @@ export default class Controller {
       return
     }
 
-    const containingAccounts = await Account.getAccountsContainingLocalId(
+    const containingAccounts = await BrowserAccount.getAccountsContainingLocalId(
       localId,
       ancestors,
       allAccounts
@@ -248,7 +248,7 @@ export default class Controller {
       return
     }
 
-    let account = await Account.get(accountId)
+    let account = await BrowserAccount.get(accountId)
     if (account.getData().syncing) {
       return
     }
@@ -266,7 +266,7 @@ export default class Controller {
   }
 
   async cancelSync(accountId, keepEnabled) {
-    let account = await Account.get(accountId)
+    let account = await BrowserAccount.get(accountId)
     // Avoid starting it again automatically
     if (!keepEnabled) {
       await account.setData({ ...account.getData(), enabled: false })
@@ -279,7 +279,7 @@ export default class Controller {
     if (!this.enabled) {
       return
     }
-    let account = await Account.get(accountId)
+    let account = await BrowserAccount.get(accountId)
     if (account.getData().syncing) {
       return
     }
@@ -311,7 +311,7 @@ export default class Controller {
     if (!this.unlocked) {
       return this.setStatusBadge(STATUS_ERROR)
     }
-    const accounts = await Account.getAllAccounts()
+    const accounts = await BrowserAccount.getAllAccounts()
     const overallStatus = accounts.reduce((status, account) => {
       const accData = account.getData()
       if (status === STATUS_ERROR || (accData.error && !accData.syncing)) {
@@ -349,7 +349,7 @@ export default class Controller {
   }
 
   async onLoad() {
-    const accounts = await Account.getAllAccounts()
+    const accounts = await BrowserAccount.getAllAccounts()
     await Promise.all(
       accounts.map(async acc => {
         if (acc.getData().syncing) {
