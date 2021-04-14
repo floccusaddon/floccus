@@ -2,7 +2,6 @@
   "name": "floccus",
   "version": "4.6.2",
   "description": "Sync your bookmarks across browsers via Nextcloud, WebDAV or Google Drive",
-  "main": "src/native/index.js",
   "scripts": {
     "build": "gulp",
     "build-release": "gulp release",
@@ -22,9 +21,6 @@
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
     "@babel/preset-react": "^7.12.10",
-    "@nativescript/android": "8.0.0",
-    "@nativescript/types": "^8.0.0",
-    "@nativescript/webpack": "^5.0.0-beta.4",
     "@types/node": "^14.14.37",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
@@ -44,7 +40,6 @@
     "gulp-tap": "^1.0.1",
     "gulp-zip": "^5.0.2",
     "mocha": "^8.2.1",
-    "nativescript-vue-template-compiler": "^2.9.0",
     "node-fetch": "^2.6.1",
     "prettier": "^2.2.1",
     "sass": "^1.32.3",
@@ -59,8 +54,6 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "@nativescript/core": "^8.0.0",
-    "@nativescript/theme": "^3.0.1",
     "async-lock": "^1.2.8",
     "async-parallel": "^1.2.3",
     "babel-polyfill": "^6.20.0",
@@ -79,7 +72,6 @@
     "install": "^0.13.0",
     "js-base64": "^3.6.0",
     "lodash": "^4.17.20",
-    "nativescript-vue": "^2.9.0",
     "p-queue": "^5.0.0",
     "punycode": "^2.1.1",
     "random": "^2.2.0",
