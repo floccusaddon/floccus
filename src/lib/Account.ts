@@ -16,6 +16,14 @@ import WebDavAdapter from './adapters/WebDav'
 import GoogleDriveAdapter from './adapters/GoogleDrive'
 import FakeAdapter from './adapters/Fake'
 import { TLocalTree } from './interfaces/Resource'
+import {
+  FailsafeError,
+  FloccusError,
+  HttpError, InconsistentBookmarksExistenceError, LockFileError,
+  MissingItemOrderError,
+  ParseResponseError,
+  UnknownFolderItemOrderError
+} from '../errors/Error'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', NextcloudFoldersAdapter)
@@ -236,6 +244,30 @@ export default class Account {
   }
 
   static stringifyError(er:any):string {
+    if (er instanceof UnknownFolderItemOrderError) {
+      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.item])
+    }
+    if (er instanceof MissingItemOrderError) {
+      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.item])
+    }
+    if (er instanceof HttpError) {
+      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.status, er.method])
+    }
+    if (er instanceof ParseResponseError) {
+      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0')) + '\n' + er.response
+    }
+    if (er instanceof InconsistentBookmarksExistenceError) {
+      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.folder, er.bookmark])
+    }
+    if (er instanceof LockFileError) {
+      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.status, er.lockFile])
+    }
+    if (er instanceof FailsafeError) {
+      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
+    }
+    if (er instanceof FloccusError) {
+      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'))
+    }
     if (er.list) {
       return er.list
         .map((e) => {

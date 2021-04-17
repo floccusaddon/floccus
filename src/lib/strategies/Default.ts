@@ -1,6 +1,5 @@
 import { Bookmark, Folder, TItem, ItemType, ItemLocation, TItemLocation } from '../Tree'
 import Logger from '../Logger'
-import browser from '../browser-api'
 import Diff, { Action, ActionType, CreateAction, MoveAction, RemoveAction, ReorderAction, UpdateAction } from '../Diff'
 import Scanner from '../Scanner'
 import * as Parallel from 'async-parallel'
@@ -8,6 +7,7 @@ import { throttle } from 'throttle-debounce'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import TResource, { OrderFolderResource, TLocalTree } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
+import { FailsafeError, InterruptedSyncError } from '../../errors/Error'
 
 export default class SyncProcess {
   protected mappings: Mappings
@@ -131,7 +131,7 @@ export default class SyncProcess {
     if (localCountTotal > 5 && localCountDeleted / localCountTotal > 0.5) {
       const failsafe = this.server.getData().failsafe
       if (failsafe !== false || typeof failsafe === 'undefined') {
-        throw new Error(browser.i18n.getMessage('Error029', [(localCountDeleted / localCountTotal) * 100]))
+        throw new FailsafeError((localCountDeleted / localCountTotal) * 100)
       }
     }
   }
@@ -466,7 +466,7 @@ export default class SyncProcess {
     const item = action.payload
 
     if (this.canceled) {
-      throw new Error(browser.i18n.getMessage('Error027'))
+      throw new InterruptedSyncError()
     }
 
     if (action.type === ActionType.REMOVE) {
@@ -637,7 +637,7 @@ export default class SyncProcess {
       const item = action.payload
 
       if (this.canceled) {
-        throw new Error(browser.i18n.getMessage('Error027'))
+        throw new InterruptedSyncError()
       }
 
       if (action.order.length <= 1) {
@@ -698,7 +698,7 @@ export default class SyncProcess {
 
   async loadChildren(serverItem:TItem, mappingsSnapshot:MappingSnapshot):Promise<void> {
     if (this.canceled) {
-      throw new Error(browser.i18n.getMessage('Error027'))
+      throw new InterruptedSyncError()
     }
     if (!(serverItem instanceof Folder)) return
     if (!('loadFolderChildren' in this.server)) return

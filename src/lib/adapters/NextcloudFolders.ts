@@ -6,13 +6,22 @@ import Logger from '../Logger'
 import { Bookmark, Folder, ItemLocation, TItem } from '../Tree'
 import { Base64 } from 'js-base64'
 import AsyncLock from 'async-lock'
-import browser from '../browser-api'
 import * as Parallel from 'async-parallel'
 import url from 'url'
 import PQueue from 'p-queue'
 import flatten from 'lodash/flatten'
 import { BulkImportResource, LoadFolderChildrenResource, OrderFolderResource } from '../interfaces/Resource'
 import Ordering from '../interfaces/Ordering'
+import {
+  AuthenticationError, HttpError,
+  InconsistentBookmarksExistenceError,
+  InconsistentServerStateError, NetworkError, ParseResponseError, RedirectError, RequestTimeoutError,
+  UnexpectedServerResponseError,
+  UnknownCreateTargetError,
+  UnknownFolderParentUpdateError,
+  UnknownFolderUpdateError,
+  UnknownMoveTargetError
+} from '../../errors/Error'
 
 const PAGE_SIZE = 300
 const TIMEOUT = 180000
@@ -130,7 +139,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
           `index.php/apps/bookmarks/public/rest/v2/bookmark?page=${i}&limit=${PAGE_SIZE}`
         )
         if (!Array.isArray(json.data)) {
-          throw new Error(browser.i18n.getMessage('Error015'))
+          throw new UnexpectedServerResponseError()
         }
         data = data.concat(json.data)
         i++
@@ -197,7 +206,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
         (layers ? `?layers=${layers}` : '')
     )
     if (!Array.isArray(childrenOrderJson.data)) {
-      throw new Error(browser.i18n.getMessage('Error015'))
+      throw new UnexpectedServerResponseError()
     }
     return childrenOrderJson.data
   }
@@ -208,7 +217,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       `index.php/apps/bookmarks/public/rest/v2/folder?root=${folderId}&layers=${layers}`
     )
     if (!Array.isArray(folderJson.data)) {
-      throw new Error(browser.i18n.getMessage('Error015'))
+      throw new UnexpectedServerResponseError()
     }
     return folderJson.data
   }
@@ -236,7 +245,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
             body
           )
           if (typeof json.item !== 'object') {
-            throw new Error(browser.i18n.getMessage('Error015'))
+            throw new UnexpectedServerResponseError()
           }
           currentChild = { id: json.item.id, children: [], title: json.item.title }
         }
@@ -352,7 +361,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
             if (child.type === 'folder') {
               // get the folder from the tree we've fetched above
               const folder = childFolders.find((folder) => String(folder.id) === String(child.id))
-              if (!folder) throw new Error(browser.i18n.getMessage('Error021'))
+              if (!folder) throw new InconsistentServerStateError()
               const newFolder = new Folder({
                 id: child.id,
                 title: folder.title,
@@ -371,11 +380,9 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
                   (!bookmark.parentId || String(bookmark.parentId) === String(tree.id))
               )
               if (!childBookmark) {
-                throw new Error(
-                  browser.i18n.getMessage('Error022', [
-                    `#${tree.id}[${tree.title}]`,
-                    child.id,
-                  ])
+                throw new InconsistentBookmarksExistenceError(
+                  `#${tree.id}[${tree.title}]`,
+                  String(child.id)
                 )
               }
               if (!(childBookmark instanceof Bookmark)) {
@@ -459,7 +466,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
 
     const parentFolder = this.tree.findFolder(parentId)
     if (!parentFolder) {
-      throw new Error(browser.i18n.getMessage('Error005'))
+      throw new UnknownCreateTargetError()
     }
     const body = JSON.stringify({
       parent_folder: parentId,
@@ -472,7 +479,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       body
     )
     if (typeof json.item !== 'object') {
-      throw new Error(browser.i18n.getMessage('Error015'))
+      throw new UnexpectedServerResponseError()
     }
 
     parentFolder.children.push(
@@ -492,7 +499,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     Logger.log('(nextcloud-folders)BULKIMPORT', { parentId, folder })
     const parentFolder = this.tree.findFolder(parentId)
     if (!parentFolder) {
-      throw new Error(browser.i18n.getMessage('Error005'))
+      throw new UnknownCreateTargetError()
     }
     const blob = new Blob(
       [
@@ -553,7 +560,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     const id = folder.id
     const oldFolder = this.tree.findFolder(folder.id)
     if (!oldFolder) {
-      throw new Error(browser.i18n.getMessage('Error006'))
+      throw new UnknownFolderUpdateError()
     }
     if (oldFolder.findFolder(folder.parentId)) {
       throw new Error('Detected folder loop creation')
@@ -570,14 +577,14 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     )
     const oldParentFolder = this.tree.findFolder(oldFolder.parentId)
     if (!oldParentFolder) {
-      throw new Error(browser.i18n.getMessage('Error008'))
+      throw new UnknownFolderParentUpdateError()
     }
     oldParentFolder.children = oldParentFolder.children.filter(
       (child) => String(child.id) !== String(id)
     )
     const newParentFolder = this.tree.findFolder(folder.parentId)
     if (!newParentFolder) {
-      throw new Error(browser.i18n.getMessage('Error009'))
+      throw new UnknownMoveTargetError()
     }
     newParentFolder.children.push(oldFolder)
     oldFolder.title = folder.title
@@ -629,7 +636,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       'index.php/apps/bookmarks/public/rest/v2/bookmark/' + id
     )
     if (typeof json.item !== 'object') {
-      throw new Error(browser.i18n.getMessage('Error015'))
+      throw new UnexpectedServerResponseError()
     }
 
     const bm = json.item
@@ -697,7 +704,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
           body
         )
         if (typeof json.item !== 'object') {
-          throw new Error(browser.i18n.getMessage('Error015'))
+          throw new UnexpectedServerResponseError()
         }
         bm.id = json.item.id + ';' + bm.parentId
       }
@@ -801,18 +808,18 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
           new Promise((resolve, reject) =>
             setTimeout(() => {
               timedOut = true
-              reject(new Error(browser.i18n.getMessage('Error016')))
+              reject(new RequestTimeoutError())
             }, TIMEOUT)
           ),
         ])
       )
     } catch (e) {
       if (timedOut) throw e
-      throw new Error(browser.i18n.getMessage('Error017'))
+      throw new NetworkError()
     }
 
     if (res.redirected) {
-      throw new Error(browser.i18n.getMessage('Error033'))
+      throw new RedirectError()
     }
 
     if (returnRawResponse) {
@@ -820,16 +827,16 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     }
 
     if (res.status === 401 || res.status === 403) {
-      throw new Error(browser.i18n.getMessage('Error018'))
+      throw new AuthenticationError()
     }
     if (res.status === 503) {
-      throw new Error(browser.i18n.getMessage('Error019', [res.status, verb]))
+      throw new HttpError(res.status, verb)
     }
     let json
     try {
       json = await res.json()
     } catch (e) {
-      throw new Error(browser.i18n.getMessage('Error020') + '\n' + e.message)
+      throw new ParseResponseError(e.message)
     }
     if (json.status !== 'success') {
       throw new Error('Nextcloud API error: \n' + JSON.stringify(json))

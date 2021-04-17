@@ -4,6 +4,13 @@ import Logger from '../Logger'
 import XbelSerializer from '../serializers/Xbel'
 import Crypto from '../Crypto'
 import Credentials from '../../../google-api.credentials.json'
+import {
+  AuthenticationError,
+  DecryptionError,
+  GoogleDriveAuthenticationError,
+  NetworkError,
+  OAuthTokenError
+} from '../../errors/Error'
 
 declare const chrome: any
 
@@ -56,15 +63,14 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     })
 
     if (response.status !== 200) {
-      throw new Error(browser.i18n.getMessage('Error032'))
+      throw new OAuthTokenError()
     }
-
     const json = await response.json()
     console.log(json)
     if (json.access_token && json.refresh_token) {
       return json.refresh_token
     } else {
-      throw new Error(browser.i18n.getMessage('Error032'))
+      throw new OAuthTokenError()
     }
   }
 
@@ -81,14 +87,14 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     })
 
     if (response.status !== 200) {
-      throw new Error(browser.i18n.getMessage('Error031'))
+      throw new GoogleDriveAuthenticationError()
     }
 
     const json = await response.json()
     if (json.access_token) {
       return json.access_token
     } else {
-      throw new Error(browser.i18n.getMessage('Error032'))
+      throw new OAuthTokenError()
     }
   }
 
@@ -145,7 +151,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
           if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
             // not encrypted, yet => noop
           } else {
-            throw new Error(browser.i18n.getMessage('Error030'))
+            throw new DecryptionError()
           }
         }
       }
@@ -221,10 +227,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
-      throw new Error(browser.i18n.getMessage('Error017'))
+      throw new NetworkError()
     }
     if (resp.status === 401 || resp.status === 403) {
-      throw new Error(browser.i18n.getMessage('Error018'))
+      throw new AuthenticationError()
     }
     return resp.json()
   }
@@ -240,10 +246,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
-      throw new Error(browser.i18n.getMessage('Error017'))
+      throw new NetworkError()
     }
     if (resp.status === 401 || resp.status === 403) {
-      throw new Error(browser.i18n.getMessage('Error018'))
+      throw new AuthenticationError()
     }
     return resp.text()
   }
@@ -260,10 +266,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
-      throw new Error(browser.i18n.getMessage('Error017'))
+      throw new NetworkError()
     }
     if (resp.status === 401 || resp.status === 403) {
-      throw new Error(browser.i18n.getMessage('Error018'))
+      throw new AuthenticationError()
     }
   }
 
@@ -282,10 +288,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
-      throw new Error(browser.i18n.getMessage('Error017'))
+      throw new NetworkError()
     }
     if (resp.status === 401 || resp.status === 403) {
-      throw new Error(browser.i18n.getMessage('Error018'))
+      throw new AuthenticationError()
     }
     return resp.status === 200
   }
@@ -305,10 +311,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
-      throw new Error(browser.i18n.getMessage('Error017'))
+      throw new NetworkError()
     }
     if (resp.status === 401 || resp.status === 403) {
-      throw new Error(browser.i18n.getMessage('Error018'))
+      throw new AuthenticationError()
     }
     return resp.status === 200
   }
@@ -328,10 +334,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
-      throw new Error(browser.i18n.getMessage('Error017'))
+      throw new NetworkError()
     }
     if (resp.status === 401 || resp.status === 403) {
-      throw new Error(browser.i18n.getMessage('Error018'))
+      throw new AuthenticationError()
     }
     if (resp.status !== 200 && resp.status !== 201) {
       return false
@@ -352,10 +358,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
-      throw new Error(browser.i18n.getMessage('Error017'))
+      throw new NetworkError()
     }
     if (resp.status === 401 || resp.status === 403) {
-      throw new Error(browser.i18n.getMessage('Error018'))
+      throw new AuthenticationError()
     }
     return resp.status === 200
   }
@@ -375,10 +381,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
-      throw new Error(browser.i18n.getMessage('Error017'))
+      throw new NetworkError()
     }
     if (resp.status === 401 || resp.status === 403) {
-      throw new Error(browser.i18n.getMessage('Error018'))
+      throw new AuthenticationError()
     }
     return resp.status === 200
   }
