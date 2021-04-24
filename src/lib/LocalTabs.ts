@@ -27,14 +27,14 @@ export default class LocalTabs implements IResource {
       children: uniq(tabs.map(t => t.windowId)).map(windowId => {
         return new Folder({
           title: '',
-          id: windowId,
+          id: String(windowId),
           parentId: 'tabs',
           location: ItemLocation.LOCAL,
           children: tabs.filter(t => t.windowId === windowId).sort(t => t.index).map(t => new Bookmark({
             id: t.id,
             title: '',
             url: t.url,
-            parentId: windowId,
+            parentId: String(windowId),
             location: ItemLocation.LOCAL,
           }))
         })
