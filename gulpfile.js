@@ -39,6 +39,7 @@ const paths = {
     '!ISSUE_TEMPLATE.md',
     '!gulpfile.js',
     '!key.pem',
+    '!android/**',
   ],
   views: './html/*.html',
   entries: 'src/entries/*.js',
