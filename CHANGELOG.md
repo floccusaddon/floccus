@@ -1,5 +1,14 @@
 # Changelog
 
+## v4.6.3
+
+### Fixed
+A few fixes to improve syncing accuracy:
+
+- Unidirectional: Don't map UPDATEs to old IDs, but to newly reinserted IDs
+- Scanner: Don't generate UPDATEs for items that have been MOVEd
+- DefaultSyncStrategy: Fix UPDATE vs REMOVE condition
+
 ## v4.6.2
 
 ### Fixed
