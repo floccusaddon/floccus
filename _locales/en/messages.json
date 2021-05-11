@@ -102,7 +102,7 @@
     "message": "WebDAV URL"
   },
   "DescriptionWebdavurl": {
-    "message": "e.g. with nextcloud: https://your-domain.com/remote.php/webdav/"
+    "message": "e.g. with nextcloud: https://example.com/remote.php/webdav/"
   },
   "LabelNextcloudurl": {
     "message": "Nextcloud URL"
