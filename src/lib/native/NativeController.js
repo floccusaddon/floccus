@@ -99,7 +99,7 @@ export default class NativeController {
       let hashedKey = await Cryptography.sha256(key)
       let decryptedHash = await Cryptography.decryptAES(
         key,
-        d.accountsLocked,
+        accountsLocked,
         'FLOCCUS'
       )
 

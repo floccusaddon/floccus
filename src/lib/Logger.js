@@ -1,5 +1,7 @@
 /* global DEBUG */
-import BrowserAccountStorage from './BrowserAccountStorage'
+import { Device } from '@capacitor/device'
+import BrowserAccountStorage from './browser/BrowserAccountStorage'
+import NativeAccountStorage from './native/NativeAccountStorage'
 import util from 'util'
 
 import packageJson from '../../package.json'
@@ -14,7 +16,8 @@ export default class Logger {
   }
 
   static async persist() {
-    await BrowserAccountStorage.changeEntry(
+    const Storage = ((await Device.getInfo()).platform === 'web') ? BrowserAccountStorage : NativeAccountStorage
+    await Storage.changeEntry(
       'log',
       log => {
         const messages = this.messages

@@ -74,7 +74,6 @@
 </template>
 
 <script>
-import browser from '../lib/browser-api'
 import { version as VERSION } from '../../package.json'
 import { actions } from './store'
 import { routes } from './router'
