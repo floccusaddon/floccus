@@ -1,8 +1,8 @@
-import browser from './browser-api'
-import Cryptography from './Crypto'
-import DefunctCryptography from './DefunctCrypto'
-import Mappings from './Mappings'
-import { Folder } from './Tree'
+import browser from '../browser-api'
+import Cryptography from '../Crypto'
+import DefunctCryptography from '../DefunctCrypto'
+import Mappings from '../Mappings'
+import { Folder } from '../Tree'
 import AsyncLock from 'async-lock'
 
 const storageLock = new AsyncLock()
