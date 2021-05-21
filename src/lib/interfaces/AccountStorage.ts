@@ -15,6 +15,7 @@ export interface IAccountData {
 }
 
 export default interface IAccountStorage {
+  accountId: string;
   getAccountData(key): Promise<IAccountData>;
   setAccountData(data:IAccountData, key:string): Promise<void>;
   deleteAccountData(): Promise<void>

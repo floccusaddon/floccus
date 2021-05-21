@@ -24,6 +24,7 @@ import {
   ParseResponseError,
   UnknownFolderItemOrderError
 } from '../errors/Error'
+import Controller from './Controller'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', NextcloudFoldersAdapter)
@@ -96,8 +97,8 @@ export default class Account {
   }
 
   async setData(data:IAccountData):Promise<void> {
-    const background = await browser.runtime.getBackgroundPage()
-    await this.storage.setAccountData(data, background.controller.key)
+    const controller = await Controller.getSingleton()
+    await this.storage.setAccountData(data, controller.key)
     this.server.setData(data)
   }
 
