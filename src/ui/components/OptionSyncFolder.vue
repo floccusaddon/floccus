@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import BrowserTree from '../../lib/BrowserTree'
+import BrowserTree from '../../lib/browser/BrowserTree'
 import browser from '../../lib/browser-api'
 
 export default {

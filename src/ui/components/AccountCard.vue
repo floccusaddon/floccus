@@ -148,7 +148,7 @@ import PathHelper from '../../lib/PathHelper'
 import humanizeDuration from 'humanize-duration'
 import { actions } from '../store'
 import { routes } from '../router'
-import BrowserTree from '../../lib/BrowserTree'
+import BrowserTree from '../../lib/browser/BrowserTree'
 
 export default {
   name: 'AccountCard',

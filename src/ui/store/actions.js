@@ -2,7 +2,7 @@ import Account from '../../lib/Account'
 import browser from '../../lib/browser-api'
 import { mutations } from './mutations'
 import Logger from '../../lib/Logger'
-import BrowserTree from '../../lib/BrowserTree'
+import BrowserTree from '../../lib/browser/BrowserTree'
 import AdapterFactory from '../../lib/AdapterFactory'
 import Controller from '../../lib/Controller'
 

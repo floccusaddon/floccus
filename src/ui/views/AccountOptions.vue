@@ -68,7 +68,7 @@
 
 <script>
 import PathHelper from '../../lib/PathHelper'
-import BrowserTree from '../../lib/BrowserTree'
+import BrowserTree from '../../lib/browser/BrowserTree'
 import { actions } from '../store'
 import OptionsNextcloudFolders from '../components/OptionsNextcloudFolders'
 import OptionsWebdav from '../components/OptionsWebdav'

@@ -8,7 +8,7 @@ export default class Controller {
 
   static async getSingleton():Promise<IController> {
     if (!this.singleton) {
-      if ((await Device.getInfo().platform) === 'web') {
+      if ((await Device.getInfo()).platform === 'web') {
         const background = await browser.runtime.getBackgroundPage()
         this.singleton = background.controller
       } else {
