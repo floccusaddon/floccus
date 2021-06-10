@@ -1647,7 +1647,7 @@ describe('Floccus', function() {
               title: 'bar',
               parentId: fooFolder.id
             })
-            await [
+            await Promise.all([
               'http://ur.l/',
               'http://ur.ll/',
               'http://ur2.l/',
@@ -1663,7 +1663,7 @@ describe('Floccus', function() {
               title: 'url',
               url,
               parentId: barFolder.id
-            }))
+            })))
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 

@@ -138,6 +138,7 @@ export default class SyncProcess {
     const localCountTotal = this.localTreeRoot.count()
     const localCountDeleted = localPlan.getActions(ActionType.REMOVE).reduce((count, action) => count + action.payload.count(), 0)
 
+    Logger.log('Checking failsafe: ' + localCountDeleted + '/' + localCountTotal + '=' + (localCountDeleted / localCountTotal))
     if (localCountTotal > 5 && localCountDeleted / localCountTotal > 0.5) {
       const failsafe = this.server.getData().failsafe
       if (failsafe !== false || typeof failsafe === 'undefined') {
