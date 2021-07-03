@@ -421,7 +421,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     }
   }
 
-  async loadFolderChildren(folderId:string|number): Promise<TItem[]> {
+  async loadFolderChildren(folderId:string|number, all?: boolean): Promise<TItem[]> {
     if (!this.hasFeatureHashing) {
       return
     }
@@ -432,20 +432,25 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     if (folder.loaded) {
       return folder.clone(true).children
     }
-    const children = await this._getChildren(folderId, 1)
-    const recurse = async(children) => {
-      return Parallel.each(children, async(child) => {
-        if (!(child instanceof Folder)) {
-          return
-        }
-        if (!child.loaded) {
-          const folderHash = await this._getFolderHash(child.id)
-          child.hashValue = { true: folderHash }
-        }
-        await recurse(child.children)
-      })
+    let children
+    if (all) {
+      children = await this._getChildren(folderId, -1)
+    } else {
+      children = await this._getChildren(folderId, 1)
+      const recurse = async(children) => {
+        return Parallel.each(children, async(child) => {
+          if (!(child instanceof Folder)) {
+            return
+          }
+          if (!child.loaded) {
+            const folderHash = await this._getFolderHash(child.id)
+            child.hashValue = { true: folderHash }
+          }
+          await recurse(child.children)
+        })
+      }
+      await recurse(children)
     }
-    await recurse(children)
     folder.children = children
     folder.loaded = true
     this.tree.createIndex()

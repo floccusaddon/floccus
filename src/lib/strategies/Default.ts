@@ -745,7 +745,8 @@ export default class SyncProcess {
       return
     }
     Logger.log('LOADCHILDREN', serverItem)
-    const children = await this.server.loadFolderChildren(serverItem.id)
+    // If we don't know this folder, yet, load the whole subtree (!localItem)
+    const children = await this.server.loadFolderChildren(serverItem.id, !localItem)
     if (!children) {
       return
     }

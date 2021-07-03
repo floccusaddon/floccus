@@ -17,7 +17,7 @@ export interface BulkImportResource extends IResource {
 }
 
 export interface LoadFolderChildrenResource extends IResource {
-  loadFolderChildren(id: number|string):Promise<TItem[]>
+  loadFolderChildren(id: number|string, all?: boolean):Promise<TItem[]>
 }
 
 export interface OrderFolderResource extends IResource {
