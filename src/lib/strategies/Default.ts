@@ -441,7 +441,8 @@ export default class SyncProcess {
           return
         }
         const concurrentRemoval = targetRemovals.find(a =>
-          a.payload.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, a.payload.location)))
+          a.payload.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, a.payload.location)) ||
+          a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location)))
         if (concurrentRemoval) {
           // Already deleted on target, do nothing.
           return
