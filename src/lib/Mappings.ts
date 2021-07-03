@@ -77,6 +77,7 @@ export default class Mappings {
       mappings = this.remove(mappings, { localId })
       return this.remove(mappings, { remoteId })
     }
+
     if (localId) {
       return {
         LocalToServer: {
@@ -84,14 +85,14 @@ export default class Mappings {
           [localId]: undefined
         },
         ServerToLocal: {
-          ...mappings.ServerToLocal,
+          ...Object.fromEntries(Object.entries(mappings.ServerToLocal).filter(([,id]) => id !== localId)),
           [mappings.LocalToServer[localId]]: undefined
         }
       }
     } else {
       return {
         LocalToServer: {
-          ...mappings.LocalToServer,
+          ...Object.fromEntries(Object.entries(mappings.LocalToServer).filter(([,id]) => id !== remoteId)),
           [mappings.ServerToLocal[remoteId]]: undefined
         },
         ServerToLocal: {
