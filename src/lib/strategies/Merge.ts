@@ -1,5 +1,5 @@
-import { Folder, ItemLocation, ItemType, TItemLocation } from '../Tree'
-import Diff, { Action, ActionType } from '../Diff'
+import { ItemLocation, TItemLocation } from '../Tree'
+import Diff, { Action, ActionType, CreateAction, MoveAction } from '../Diff'
 import Scanner from '../Scanner'
 import * as Parallel from 'async-parallel'
 import Default from './Default'
@@ -52,6 +52,15 @@ export default class MergeSyncProcess extends Default {
     const sourceMoves = sourceDiff.getActions(ActionType.MOVE)
     const sourceUpdates = sourceDiff.getActions(ActionType.UPDATE)
 
+    const allCreateAndMoveActions = targetDiff.getActions()
+      .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
+      .map(a => a as CreateAction|MoveAction)
+      .concat(
+        sourceDiff.getActions()
+          .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
+          .map(a => a as CreateAction|MoveAction)
+      )
+
     // Prepare server plan
     const targetPlan = new Diff() // to be mapped
     await Parallel.each(sourceDiff.getActions(), async(action:Action) => {
@@ -101,29 +110,9 @@ export default class MergeSyncProcess extends Default {
           }
         }
         // Find concurrent moves that form a hierarchy reversal together with this one
-        const concurrentHierarchyReversals = targetMoves.filter(a => {
-          if (action.payload.type !== ItemType.FOLDER || a.payload.type !== ItemType.FOLDER) {
-            return false
-          }
-          let sourceFolder, targetFolder, sourceAncestors, targetAncestors
-          if (action.payload.location === ItemLocation.LOCAL) {
-            targetFolder = this.serverTreeRoot.findItem(ItemType.FOLDER, a.payload.id)
-            sourceFolder = this.localTreeRoot.findItem(ItemType.FOLDER, action.payload.id)
-
-            sourceAncestors = Folder.getAncestorsOf(this.localTreeRoot.findItem(ItemType.FOLDER, action.payload.parentId), this.localTreeRoot)
-            targetAncestors = Folder.getAncestorsOf(this.serverTreeRoot.findItem(ItemType.FOLDER, a.payload.parentId), this.serverTreeRoot)
-          } else {
-            sourceFolder = this.serverTreeRoot.findItem(ItemType.FOLDER, action.payload.id)
-            targetFolder = this.localTreeRoot.findItem(ItemType.FOLDER, a.payload.id)
-
-            targetAncestors = Folder.getAncestorsOf(this.localTreeRoot.findItem(ItemType.FOLDER, a.payload.parentId), this.localTreeRoot)
-            sourceAncestors = Folder.getAncestorsOf(this.serverTreeRoot.findItem(ItemType.FOLDER, action.payload.parentId), this.serverTreeRoot)
-          }
-
-          // If both items are folders, and one of the ancestors of one item is a child of the other item
-          return action.payload.type === ItemType.FOLDER && a.payload.type === ItemType.FOLDER &&
-            sourceAncestors.find(ancestor => targetFolder.findItem(ItemType.FOLDER, Mappings.mapId(mappingsSnapshot, ancestor, targetFolder.location))) &&
-            targetAncestors.find(ancestor => sourceFolder.findItem(ItemType.FOLDER, Mappings.mapId(mappingsSnapshot, ancestor, sourceFolder.location)))
+        const concurrentHierarchyReversals = targetMoves.filter(targetMove => {
+          return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.payload, targetMove) &&
+            Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetMove.payload, action)
         })
         if (concurrentHierarchyReversals.length) {
           if (targetLocation === ItemLocation.SERVER) {
