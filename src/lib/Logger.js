@@ -15,7 +15,7 @@ export default class Logger {
 
   static async persist() {
     await AccountStorage.changeEntry(
-      'log',
+      'logs',
       log => {
         const messages = this.messages
         this.messages = []
@@ -26,7 +26,7 @@ export default class Logger {
   }
 
   static async getLogs() {
-    return AccountStorage.getEntry('log')
+    return AccountStorage.getEntry('logs', [])
   }
 
   static async downloadLogs() {
