@@ -57,13 +57,17 @@
           activatable
           :item-text="'title'"
           :item-key="'id'"
-          :filter="(item)=>!item.url"
           :active="[value]"
           :open="folders.length? [folders[0].id] : []"
           :items="folders"
           dense
           @update:active="onUpdateSelection">
-          <template v-slot:label="{item}">
+          <template #prepend="{ open }">
+            <v-icon>
+              {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+            </v-icon>
+          </template>
+          <template #label="{item}">
             {{ item.title || t('LabelUntitledfolder') }}
           </template>
         </v-treeview>
@@ -122,7 +126,15 @@ export default {
     async onTriggerFinder() {
       this.selectedLocalRoot = this.value
       this.finder = true
-      this.folders = await browser.bookmarks.getTree()
+      this.folders = this.filterOutBookmarks(await browser.bookmarks.getTree())
+    },
+    filterOutBookmarks(children) {
+      return children.filter(item => {
+        if (item.children) {
+          item.children = this.filterOutBookmarks(item.children)
+        }
+        return !item.url
+      })
     },
     onUpdateSelection(active) {
       this.selectedLocalRoot = active[0]
