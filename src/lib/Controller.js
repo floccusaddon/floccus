@@ -25,9 +25,11 @@ class AlarmManager {
     for (let accountId of accounts) {
       const account = await Account.get(accountId)
       const data = account.getData()
+      const lastSync = data.lastSync || 0
+      const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
       if (
         Date.now() >
-        (data.syncInterval || DEFAULT_SYNC_INTERVAL) * 1000 * 60 + data.lastSync
+        interval * 1000 * 60 + lastSync
       ) {
         // noinspection ES6MissingAwait
         this.ctl.scheduleSync(accountId)
