@@ -66,7 +66,8 @@ export const actionsDefinition = {
     commit(mutations.LOADING_END, 'accounts')
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
-    const account = await Account.create(Account.getDefaultValues(type))
+    const rootFolder = await LocalTree.getAbsoluteRootFolder()
+    const account = await Account.create({...Account.getDefaultValues(type), localRoot: rootFolder.id})
     await dispatch(actions.LOAD_ACCOUNTS)
     return account.id
   },
