@@ -64,6 +64,8 @@ export default class SyncProcess {
     this.masterLocation = ItemLocation.LOCAL
     await this.prepareSync()
 
+    Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
+
     const {localDiff, serverDiff} = await this.getDiffs()
     Logger.log({localDiff, serverDiff})
 
@@ -78,8 +80,6 @@ export default class SyncProcess {
     let localPlan = unmappedLocalPlan.map(mappingsSnapshot, ItemLocation.LOCAL, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
 
     Logger.log({localPlan, serverPlan})
-
-    Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
 
     this.actionsPlanned = serverPlan.getActions().length + localPlan.getActions().length
 
@@ -266,8 +266,8 @@ export default class SyncProcess {
         const concurrentMove = targetMoves.find(targetMove =>
           action.payload.type === targetMove.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetMove.payload)
         )
-        if (concurrentMove) {
-          // moved on the target, moves take precedence, do nothing (i.e. leave target version intact)
+        if (concurrentMove && targetLocation === this.masterLocation) {
+          // moved on the target, moves from master take precedence, do nothing (i.e. leave target version intact)
           return
         }
       }
@@ -338,8 +338,10 @@ export default class SyncProcess {
           // target already deleted by a target|source REMOVE (connected via source MOVE|CREATEs)
           if (!concurrentTargetOriginRemoval && !concurrentSourceOriginRemoval) {
             // make sure this item is not already being removed, when it's no longer moved
-            targetPlan.commit({ ...action, type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
-            avoidTargetReorders[action.payload.id] = true
+            if (targetLocation === this.masterLocation) {
+              targetPlan.commit({ ...action, type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
+              avoidTargetReorders[action.payload.id] = true
+            }
           }
           return
         }
@@ -351,26 +353,29 @@ export default class SyncProcess {
         }
         if (concurrentTargetOriginRemoval) {
           // moved sourcely but removed on the target, recreate it on the target
-          const originalCreation = sourceCreations.find(creation => creation.payload.findItem(ItemType.FOLDER, action.payload.parentId))
+          if (targetLocation !== this.masterLocation) {
+            // only when coming from master do we recreate
+            const originalCreation = sourceCreations.find(creation => creation.payload.findItem(ItemType.FOLDER, action.payload.parentId))
 
-          // Remove subitems that have been (re)moved already by other actions
-          const newPayload = action.payload.clone()
-          if (newPayload.type === ItemType.FOLDER) {
-            newPayload.traverse((item, folder) => {
-              const extracted = sourceRemovals.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload)) ||
-                sourceMoves.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload))
-              if (extracted) {
-                folder.children.splice(folder.children.indexOf(item), 1)
-              }
-            })
-          }
+            // Remove subitems that have been (re)moved already by other actions
+            const newPayload = action.payload.clone()
+            if (newPayload.type === ItemType.FOLDER) {
+              newPayload.traverse((item, folder) => {
+                const extracted = sourceRemovals.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload)) ||
+                  sourceMoves.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload))
+                if (extracted) {
+                  folder.children.splice(folder.children.indexOf(item), 1)
+                }
+              })
+            }
 
-          if (originalCreation && originalCreation.payload.type === ItemType.FOLDER) {
-            // in case the new parent is already a newly created item, merge it into that creation
-            const folder = originalCreation.payload.findFolder(action.payload.parentId)
-            folder.children.splice(action.index, 0, newPayload)
-          } else {
-            targetPlan.commit({ ...action, type: ActionType.CREATE, oldItem: null, payload: newPayload })
+            if (originalCreation && originalCreation.payload.type === ItemType.FOLDER) {
+              // in case the new parent is already a newly created item, merge it into that creation
+              const folder = originalCreation.payload.findFolder(action.payload.parentId)
+              folder.children.splice(action.index, 0, newPayload)
+            } else {
+              targetPlan.commit({ ...action, type: ActionType.CREATE, oldItem: null, payload: newPayload })
+            }
           }
           return
         }
