@@ -104,6 +104,15 @@ const VERSION = require('../package.json').version
       await driver.quit()
       process.exit(1)
     } else {
+      // get and save coverage
+      if (process.env.FLOCCUS_COVERAGE === 'true') {
+        const coverageData = await driver.executeScript(function() {
+          return window.__coverage__
+        })
+        fs.writeFileSync('.nyc_output/out.json', JSON.stringify(coverageData))
+      }
+
+      // Save duration data in gist
       const match = fin.match(/duration: (\d+):(\d+)/i)
       if (match) {
         const data = {

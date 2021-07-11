@@ -39,48 +39,62 @@ jobs:
           - test
           - benchmark root
         browsers: ['firefox', 'chrome']
+        coverage: [false]
         include:
           - app-version: v1.1.2
             server-version: 17
             floccus-adapter: nextcloud-folders
             test-name: test
             browsers: chrome
+            coverage: false
           - app-version: v2.3.4
             server-version: 18
             floccus-adapter: nextcloud-folders
             test-name: test
             browsers: chrome
+            coverage: false
           - app-version: stable3
             server-version: 18
             floccus-adapter: nextcloud-folders
             test-name: test
             browsers: chrome
+            coverage: false
           - app-version: stable3
             server-version: 19
             floccus-adapter: nextcloud-folders
             test-name: test
             browsers: chrome
+            coverage: false
           - app-version: master
             server-version: 20
             floccus-adapter: nextcloud-folders
             test-name: test
             browsers: chrome
+            coverage: false
           - app-version: master
             server-version: 20
             floccus-adapter: nextcloud-folders
             test-name: benchmark root
             browsers: chrome
+            coverage: false
           - app-version: master
             server-version: 20
             floccus-adapter: nextcloud-folders-old
             test-name: benchmark root
             browsers: chrome
+            coverage: false
           - app-version: stable
             server-version: 20
             floccus-adapter: fake-noCache
             test-name: test
             browsers: chrome
-
+            coverage: false
+          - app-version: master
+            server-version: 20
+            floccus-adapter: fake
+            test-name: ''
+            browsers: chrome
+            coverage: true
 
     name: ${{matrix.floccus-adapter}}:${{ matrix.test-name}} nc@${{ matrix.server-version }} bm@${{ matrix.app-version }} ${{ matrix.browsers }}
 
@@ -189,10 +203,20 @@ jobs:
         run: |
           echo $GOOGLE_API_CREDENTIALS > floccus/google-api.credentials.json
 
-      - name: Install dependencies & build
+      - name: Install dependencies
         working-directory: floccus
         run: |
           npm ci
+
+      - name: Instrument source files for coverage
+        working-directory: floccus
+        run: |
+          npx nyc instrument ./src/lib ./src/lib
+        if: matrix.coverage
+
+      - name: Build
+        working-directory: floccus
+        run: |
           npm run build-release --if-present
 
       - name: Run tests
@@ -200,8 +224,15 @@ jobs:
         env:
           SELENIUM_BROWSER: ${{ matrix.browsers }}
           FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
+          FLOCCUS_COVERAGE: ${{ matrix.coverage }}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GOOGLE_API_REFRESH_TOKEN: ${{ secrets.GOOGLE_API_REFRESH_TOKEN }}
           APP_VERSION: ${{ matrix.app-version }}
         run: |
           npm run test
+
+      - name: Report coverage
+        working-directory: floccus
+        run: |
+          nyc report
+        if: matrix.coverage

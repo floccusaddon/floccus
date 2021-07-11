@@ -41,6 +41,7 @@
     "gulp-zip": "^5.0.2",
     "mocha": "^8.2.1",
     "node-fetch": "^2.6.1",
+    "nyc": "^15.1.0",
     "prettier": "^2.2.1",
     "sass": "^1.32.3",
     "sass-loader": "^8.0.2",
