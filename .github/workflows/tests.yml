@@ -208,14 +208,11 @@ jobs:
         run: |
           npm ci
 
-      - name: Instrument source files for coverage
-        working-directory: floccus
-        run: |
-          npx nyc instrument ./src/lib ./src/lib
-        if: matrix.coverage
-
+      # webpack will instrument the bundle with istanbul when FLOCCUS_COVERAGE is true
       - name: Build
         working-directory: floccus
+        env:
+          FLOCCUS_COVERAGE: ${{ matrix.coverage }}
         run: |
           npm run build-release --if-present
 
