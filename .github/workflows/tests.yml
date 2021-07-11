@@ -234,5 +234,7 @@ jobs:
       - name: Report coverage
         working-directory: floccus
         run: |
-          nyc report
+          nyc report --reporter=json
+          npm install codecov -g
+          codecov
         if: matrix.coverage

@@ -39,6 +39,7 @@
     "gulp": "^4",
     "gulp-tap": "^1.0.1",
     "gulp-zip": "^5.0.2",
+    "istanbul-instrumenter-loader": "^3.0.1",
     "mocha": "^8.2.1",
     "node-fetch": "^2.6.1",
     "nyc": "^15.1.0",
