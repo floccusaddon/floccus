@@ -52,6 +52,9 @@ export default class MergeSyncProcess extends Default {
     const sourceMoves = sourceDiff.getActions(ActionType.MOVE)
     const sourceUpdates = sourceDiff.getActions(ActionType.UPDATE)
 
+    const targetTree = targetLocation === ItemLocation.LOCAL ? this.localTreeRoot : this.serverTreeRoot
+    const sourceTree = targetLocation === ItemLocation.LOCAL ? this.serverTreeRoot : this.localTreeRoot
+
     const allCreateAndMoveActions = targetDiff.getActions()
       .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
       .map(a => a as CreateAction|MoveAction)
@@ -111,8 +114,8 @@ export default class MergeSyncProcess extends Default {
         }
         // Find concurrent moves that form a hierarchy reversal together with this one
         const concurrentHierarchyReversals = targetMoves.filter(targetMove => {
-          return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, action.payload, targetMove) &&
-            Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetMove.payload, action)
+          return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetMove) &&
+            Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, targetMove.payload, action)
         })
         if (concurrentHierarchyReversals.length) {
           if (targetLocation === ItemLocation.SERVER) {

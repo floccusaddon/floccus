@@ -124,19 +124,26 @@ export default class Diff {
     )
   }
 
-  static findChain(mappingsSnapshot: MappingSnapshot, actions: Action[], currentItem: TItem, targetAction: Action, chain: Action[] = []): boolean {
+  static findChain(mappingsSnapshot: MappingSnapshot, actions: Action[], itemTree: Folder, currentItem: TItem, targetAction: Action, chain: Action[] = []): boolean {
+    const targetItemInTree = itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location))
     if (
       targetAction.payload.findItem(ItemType.FOLDER,
-        Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location))
+        Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location)) ||
+      (targetItemInTree && targetItemInTree.findFolder(Mappings.mapParentId(mappingsSnapshot, currentItem, itemTree.location)))
     ) {
       return true
     }
     const newCurrentActions = actions.filter(targetAction =>
-      !chain.includes(targetAction) && targetAction.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location))
+      !chain.includes(targetAction) && (
+        targetAction.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location)) ||
+        (
+          itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location)) &&
+          itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location)).findFolder(Mappings.mapParentId(mappingsSnapshot, currentItem, itemTree.location)))
+      )
     )
     if (newCurrentActions.length) {
       for (const newCurrentAction of newCurrentActions) {
-        if (Diff.findChain(mappingsSnapshot, actions, newCurrentAction.payload, targetAction, [...chain, newCurrentAction])) {
+        if (Diff.findChain(mappingsSnapshot, actions, itemTree, newCurrentAction.payload, targetAction, [...chain, newCurrentAction])) {
           return true
         }
       }
