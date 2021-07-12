@@ -164,16 +164,24 @@ export default class LocalTree implements IResource {
       Logger.log('This is a root folder. Skip.')
       return
     }
-    await this.queue.add(() =>
-      browser.bookmarks.update(id, {
-        title
-      })
-    )
+    try {
+      await this.queue.add(() =>
+        browser.bookmarks.update(id, {
+          title
+        })
+      )
+    } catch (e) {
+      throw new Error('Failed to rename folder ' + id + ': ' + e.message)
+    }
     const oldFolder = (await browser.bookmarks.getSubTree(id))[0]
     if (Folder.hydrate(oldFolder).findFolder(parentId)) {
       throw new Error('Detected creation of folder loop. Moving ' + id + ' into its descendant ' + parentId)
     }
-    await this.queue.add(() => browser.bookmarks.move(id, { parentId }))
+    try {
+      await this.queue.add(() => browser.bookmarks.move(id, { parentId }))
+    } catch (e) {
+      throw new Error('Failed to move folder ' + id + ': ' + e.message)
+    }
   }
 
   async removeFolder(folder:Folder):Promise<void> {

@@ -209,7 +209,7 @@ export default class Diff {
           newAction = {
             ...action,
             payload: action.payload.clone(false, targetLocation),
-            oldItem: action.oldItem.clone(false)
+            oldItem: action.oldItem.clone(false, action.payload.location)
           }
           newAction.payload.id = oldId
           newAction.oldItem.id = newId

@@ -390,10 +390,10 @@ export default class SyncProcess {
 
             concurrentHierarchyReversals.forEach(a => {
               // moved sourcely but moved in reverse hierarchical order on target
-              const payload = a.oldItem.clone() // we don't map here as we want this to look like a source action
-              const oldItem = a.payload.clone()
-              oldItem.id = Mappings.mapId(mappingsSnapshot, oldItem, action.payload.location)
-              oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, oldItem, action.payload.location)
+              const payload = a.oldItem.clone(false, targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL) // we don't map here as we want this to look like a source action
+              const oldItem = a.payload.clone(false, action.payload.location)
+              oldItem.id = Mappings.mapId(mappingsSnapshot, a.payload, action.payload.location)
+              oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, a.payload, action.payload.location)
 
               if (
                 // Don't create duplicates!
