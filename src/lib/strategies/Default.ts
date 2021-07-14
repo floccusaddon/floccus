@@ -65,8 +65,6 @@ export default class SyncProcess {
     await this.prepareSync()
 
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
-    this.localTreeRoot.createIndex()
-    this.serverTreeRoot.createIndex()
 
     const {localDiff, serverDiff} = await this.getDiffs()
     Logger.log({localDiff, serverDiff})

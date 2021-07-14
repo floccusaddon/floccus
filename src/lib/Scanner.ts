@@ -167,6 +167,7 @@ export default class Scanner {
               oldIndex = oldParentClone.children.indexOf(oldItemClone)
               oldParentClone.children.splice(oldIndex, 1)
               removeAction.payload = removedItemClone
+              removeAction.payload.createIndex()
             }
             this.diff.commit({
               type: ActionType.MOVE,
@@ -194,6 +195,7 @@ export default class Scanner {
                 index = newParentClone.children.indexOf(newClonedItem)
                 newParentClone.children.splice(index, 1)
                 createAction.payload = createdItemClone
+                createAction.payload.createIndex()
               }
               this.diff.commit({
                 type: ActionType.MOVE,
