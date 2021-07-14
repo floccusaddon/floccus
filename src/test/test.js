@@ -683,7 +683,7 @@ describe('Floccus', function() {
             )
           })
           it('should deduplicate unnormalized URLs without getting stuck', async function() {
-            if (ACCOUNT_DATA.type !== 'nextcloud-folders') {
+            if (ACCOUNT_DATA.type !== 'nextcloud-folders' || (APP_VERSION !== 'stable' && APP_VERSION !== 'master' && APP_VERSION !== 'stable3')) {
               this.skip()
             }
             expect(
