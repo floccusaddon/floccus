@@ -267,9 +267,8 @@ export default class Account {
         await this.server.onSyncFail()
       }
 
-      if (mappings) {
-        await mappings.persist()
-      }
+      // reset cache and mappings after error
+      await this.init()
     }
     await Logger.persist()
   }
