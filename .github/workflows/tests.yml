@@ -115,7 +115,7 @@ jobs:
           - /home/runner/work/floccus/floccus/apps:/var/www/html/custom_apps
         options: --name nextcloud
       mysql:
-        image: mariadb:latest
+        image: mariadb:10.5 # see https://github.com/nextcloud/docker/issues/1536
         env:
           MYSQL_ROOT_PASSWORD: ${{env.MYSQL_PASSWORD}}
 
