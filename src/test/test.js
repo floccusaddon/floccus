@@ -682,8 +682,8 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
-          it('should deduplicate unnormalized URLs without gettings stuck', async function() {
-            if (APP_VERSION !== 'stable') {
+          it('should deduplicate unnormalized URLs without getting stuck', async function() {
+            if (ACCOUNT_DATA.type !== 'nextcloud-folders' || (APP_VERSION !== 'stable' && APP_VERSION !== 'master' && APP_VERSION !== 'stable3')) {
               this.skip()
             }
             expect(
@@ -1052,6 +1052,9 @@ describe('Floccus', function() {
             expectTreeEqual(localTree, serverTree)
           })
           it('should remove duplicates in the same folder', async function() {
+            if (ACCOUNT_DATA.type !== 'nextcloud-folders') {
+              return this.skip()
+            }
             const localRoot = account.getData().localRoot
 
             expect(
