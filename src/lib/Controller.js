@@ -111,6 +111,12 @@ export default class Controller {
 
   setEnabled(enabled) {
     this.enabled = enabled
+    if (enabled) {
+      // Sync after 7s
+      setTimeout(() => {
+        this.alarms.checkSync()
+      }, 7000)
+    }
   }
 
   async setKey(key) {
