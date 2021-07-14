@@ -1052,6 +1052,9 @@ describe('Floccus', function() {
             expectTreeEqual(localTree, serverTree)
           })
           it('should remove duplicates in the same folder', async function() {
+            if (ACCOUNT_DATA.type !== 'nextcloud-folders') {
+              return this.skip()
+            }
             const localRoot = account.getData().localRoot
 
             expect(
