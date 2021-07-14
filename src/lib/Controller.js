@@ -360,6 +360,8 @@ export default class Controller {
             syncing: false,
             error: browser.i18n.getMessage('Error027')
           })
+          // reset cache after interrupted sync
+          await acc.init()
         }
       })
     )
