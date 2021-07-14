@@ -682,8 +682,8 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
-          it('should deduplicate unnormalized URLs without gettings stuck', async function() {
-            if (APP_VERSION !== 'stable') {
+          it('should deduplicate unnormalized URLs without getting stuck', async function() {
+            if (ACCOUNT_DATA.type !== 'nextcloud-folders') {
               this.skip()
             }
             expect(
