@@ -1,6 +1,8 @@
 <template>
-  <v-app id="app">
-    <v-content class="light-blue lighten-5">
+  <v-app
+    id="app"
+    :style="appStyle">
+    <v-content>
       <router-view />
     </v-content>
     <v-footer
@@ -96,6 +98,11 @@ export default {
     },
     routes() {
       return routes
+    },
+    appStyle() {
+      return {
+        background: this.$vuetify.theme.dark ? '#000' : '#e1f5fe'
+      }
     }
   },
   async created() {
