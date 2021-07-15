@@ -2845,6 +2845,9 @@ describe('Floccus', function() {
             )
           })
           it('should handle duplicate bookmarks in different serverRoot folders', async function() {
+            if (ACCOUNT_DATA.type !== 'nextcloud-folders') {
+              return this.skip()
+            }
             await account1.setData({...account1.getData(), serverRoot: '/folder1'})
             await account2.setData({...account2.getData(), serverRoot: '/folder2'})
 
