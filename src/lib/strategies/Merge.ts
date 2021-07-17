@@ -40,6 +40,11 @@ export default class MergeSyncProcess extends Default {
     await Promise.all(newMappings.map(([localItem, serverItem]) => {
       this.addMapping(this.server, localItem, serverItem.id)
     }))
+
+    // This is important for tab sync and shouldn't harm any other situations
+    localDiff.getActions(ActionType.UPDATE).forEach(update => localDiff.retract(update))
+    serverDiff.getActions(ActionType.UPDATE).forEach(update => serverDiff.retract(update))
+
     return {localDiff, serverDiff}
   }
 
