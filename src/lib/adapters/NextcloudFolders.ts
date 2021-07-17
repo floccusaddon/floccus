@@ -687,7 +687,9 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       const existingBookmark = await this.getExistingBookmark(bm.url)
       if (existingBookmark) {
         bm.id = existingBookmark.id + ';' + bm.parentId // We already use the new parentId here, to avoid moving it away from the old location
-        await this.updateBookmark(bm)
+        const updatedBookmark = bm.clone()
+        updatedBookmark.title = existingBookmark.title
+        await this.updateBookmark(updatedBookmark)
       } else {
         const body = JSON.stringify({
           url: bm.url,
