@@ -2868,7 +2868,6 @@ describe('Floccus', function() {
               url: 'http://ur.l/',
               parentId: barFolder.id
             })
-            const tree1 = await account1.localTree.getBookmarksTree(true)
 
             const localRoot2 = account2.getData().localRoot
             const fooFolder2 = await browser.bookmarks.create({
@@ -2879,41 +2878,45 @@ describe('Floccus', function() {
               title: 'bar',
               parentId: fooFolder2.id
             })
-            await browser.bookmarks.create({
-              title: 'url',
-              url: 'http://ur.l/',
-              parentId: barFolder2.id
-            })
-            const tree2 = await account2.localTree.getBookmarksTree(true)
 
             await account1.sync()
             expect(account1.getData().error).to.not.be.ok
 
             await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+
+            await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: barFolder2.id
+            })
+
+            const tree2 = await account2.localTree.getBookmarksTree(true)
+
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+
+            await account1.sync()
             expect(account1.getData().error).to.not.be.ok
 
             const serverTree1 = await getAllBookmarks(account1)
             const serverTree2 = await getAllBookmarks(account2)
 
-            const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+            const tree1AfterSync = await account1.localTree.getBookmarksTree(
               true
             )
-            const tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+            const tree2AfterSync = await account2.localTree.getBookmarksTree(
               true
             )
-            expectTreeEqual(
-              tree1AfterFirstSync,
-              tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
-            )
-            serverTree1.title = tree1.title
+
+            serverTree1.title = tree1AfterSync.title
             expectTreeEqual(
               serverTree1,
-              tree1,
+              tree1AfterSync,
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
             expectTreeEqual(
-              tree2AfterFirstSync,
+              tree2AfterSync,
               tree2,
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
@@ -2921,56 +2924,6 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTree2,
               tree2,
-              ignoreEmptyFolders(ACCOUNT_DATA)
-            )
-            console.log('First round ok')
-
-            // remove bar folder in account2
-            await browser.bookmarks.removeTree(barFolder2.id)
-            console.log(
-              'acc2: Deleted bar'
-            )
-
-            const tree2BeforeSecondSync = await account2.localTree.getBookmarksTree(
-              true
-            )
-            await account2.sync()
-            expect(account2.getData().error).to.not.be.ok
-
-            await account1.sync()
-            expect(account1.getData().error).to.not.be.ok
-
-            const serverTree1AfterThirdSync = await getAllBookmarks(account1)
-            const serverTree2AfterThirdSync = await getAllBookmarks(account2)
-
-            const tree1AfterThirdSync = await account1.localTree.getBookmarksTree(
-              true
-            )
-            const tree2AfterThirdSync = await account2.localTree.getBookmarksTree(
-              true
-            )
-            serverTree1AfterThirdSync.title = tree1.title
-            expectTreeEqual(
-              serverTree1AfterThirdSync,
-              tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
-            )
-            tree1AfterThirdSync.title = tree1.title
-            expectTreeEqual(
-              tree1AfterThirdSync,
-              tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
-            )
-            serverTree2AfterThirdSync.title = tree2BeforeSecondSync.title
-            expectTreeEqual(
-              serverTree2AfterThirdSync,
-              tree2BeforeSecondSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
-            )
-            serverTree2AfterThirdSync.title = tree2BeforeSecondSync.title
-            expectTreeEqual(
-              tree2AfterThirdSync,
-              tree2BeforeSecondSync,
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
