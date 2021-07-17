@@ -2886,12 +2886,10 @@ describe('Floccus', function() {
             expect(account2.getData().error).to.not.be.ok
 
             await browser.bookmarks.create({
-              title: 'url',
+              title: 'foo',
               url: 'http://ur.l/',
               parentId: barFolder2.id
             })
-
-            const tree2 = await account2.localTree.getBookmarksTree(true)
 
             await account2.sync()
             expect(account2.getData().error).to.not.be.ok
@@ -2899,8 +2897,10 @@ describe('Floccus', function() {
             await account1.sync()
             expect(account1.getData().error).to.not.be.ok
 
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+
             const serverTree1 = await getAllBookmarks(account1)
-            const serverTree2 = await getAllBookmarks(account2)
 
             const tree1AfterSync = await account1.localTree.getBookmarksTree(
               true
@@ -2908,6 +2908,9 @@ describe('Floccus', function() {
             const tree2AfterSync = await account2.localTree.getBookmarksTree(
               true
             )
+
+            // Note that we compare two different trees from two different server roots
+            // here, which just happen to look the same by virtue of this test
 
             serverTree1.title = tree1AfterSync.title
             expectTreeEqual(
@@ -2917,13 +2920,7 @@ describe('Floccus', function() {
             )
             expectTreeEqual(
               tree2AfterSync,
-              tree2,
-              ignoreEmptyFolders(ACCOUNT_DATA)
-            )
-            serverTree2.title = tree2.title
-            expectTreeEqual(
-              serverTree2,
-              tree2,
+              tree1AfterSync,
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
