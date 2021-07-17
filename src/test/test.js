@@ -245,6 +245,9 @@ describe('Floccus', function() {
             )
           })
           it('should update the server on local changes', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
             expect(
               (await getAllBookmarks(account)).children
             ).to.have.lengthOf(0)
@@ -2100,6 +2103,9 @@ describe('Floccus', function() {
               )
             })
             it('should update local bookmarks on server changes', async function() {
+              if (ACCOUNT_DATA.noCache) {
+                return this.skip()
+              }
               await account.setData({ ...account.getData(), strategy: 'slave' })
               const adapter = account.server
 
@@ -2257,6 +2263,9 @@ describe('Floccus', function() {
               )
             })
             it('should update the server on local changes', async function() {
+              if (ACCOUNT_DATA.noCache) {
+                return this.skip()
+              }
               expect(
                 (await getAllBookmarks(account)).children
               ).to.have.lengthOf(0)
