@@ -6,7 +6,7 @@
       v-if="account.data.syncing"
       v-slot:progress
       :value="account.data.syncing * 100 || 0"
-      :indeterminate="account.data.syncing < 0.01" />
+      :indeterminate="account.data.syncing < 0.1" />
     <v-container class="pa-4">
       <v-row
         no-gutters
