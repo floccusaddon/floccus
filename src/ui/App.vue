@@ -18,6 +18,21 @@
             class="white--text">
             floccus v{{ VERSION }}
           </v-btn>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                x-small
+                text
+                class="white--text"
+                v-bind="attrs"
+                :to="{name: routes.DONATE}"
+                target="_blank"
+                v-on="on">
+                <v-icon>mdi-heart-outline</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ t('LabelFunddevelopment') }}</span>
+          </v-tooltip>
         </v-col>
         <v-col class="d-flex flex-row-reverse">
           <v-btn
