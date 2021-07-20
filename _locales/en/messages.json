@@ -409,10 +409,19 @@
     "message": "Tabs"
   },
   "LabelSyncDown": {
-    "message": "Pull sync: Override local changes"
+    "message": "Pull sync"
   },
   "LabelSyncUp": {
-    "message": "Push sync: Override server-side changes"
+    "message": "Push sync"
+  },
+  "LabelSyncDownOnce": {
+    "message": "Pull sync once"
+  },
+  "LabelSyncUpOnce": {
+    "message": "Push sync once"
+  },
+  "LabelSyncNormal": {
+    "message": "Normal sync"
   },
   "DescriptionFilesPermission": {
     "message": "Make sure you give floccus permission to not only use the bookmarks app but the Nextcloud files app as well."
