@@ -9,7 +9,7 @@
     <v-btn
       small
       class="mt-3"
-      @click="$emit('click')">
+      @click="onClick">
       {{ t('LabelRemoveaccount') }}
     </v-btn>
   </v-container>
@@ -18,6 +18,13 @@
 <script>
 export default {
   name: 'OptionDeleteAccount',
+  methods: {
+    onClick() {
+      if (window.confirm('Do you really want to remove this account?')) {
+        this.$emit('click')
+      }
+    }
+  }
 }
 </script>
 
