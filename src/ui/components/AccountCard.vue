@@ -84,9 +84,12 @@
             <v-col>
               <v-switch
                 v-model="account.data.enabled"
-                :aria-label="t('LabelEnabled')"
+                v-bind="attrs"
+                :aria-label="t('LabelAutosync')"
+                :label="t('LabelAutosync')"
                 dense
                 class="mt-0 pt-0"
+                v-on="on"
                 @change="onToggleEnabled" />
             </v-col>
             <v-col

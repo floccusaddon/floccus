@@ -149,8 +149,8 @@
   "LabelCancelsync": {
     "message": "Cancel sync"
   },
-  "LabelEnabled": {
-    "message": "Enabled"
+  "LabelAutosync": {
+    "message": "Auto-sync"
   },
   "StatusLastsynced": {
     "message": "Last synchronized: $1 ago"
