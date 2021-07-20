@@ -37,7 +37,9 @@
               class="align-end flex-grow-0"
               :style="{minWidth: 'max-content'}">
               <div class="pa-3 d-inline-block font-weight-light body-2">
-                <v-icon :color="statusColor">
+                <v-icon
+                  :color="statusColor"
+                  :class="{spinning: account.data.syncing}">
                   {{ statusIcon }}
                 </v-icon>
                 <span :style="{color: statusColor}">{{ statusLabel }}</span>
@@ -285,4 +287,17 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.spinning {
+  animation: spin 2s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  99.9% {
+    transform: rotate(360deg);
+  }
+}
+</style>
