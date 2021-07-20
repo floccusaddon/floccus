@@ -54,7 +54,8 @@
             :type="statusType"
             class="pa-2 text-caption">
             {{ statusDetail }} <v-btn
-              color="blue"
+              v-if="account.data.error"
+              :color="statusType"
               class="float-right"
               x-small
               @click="onGetLogs">
