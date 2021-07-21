@@ -1,5 +1,66 @@
 <template>
-  <v-container>
+  <div>
+    <v-navigation-drawer
+      app
+      fixed>
+      <v-list-item>
+        <v-list-item-content>
+          <v-list-item-title class="text-h6">
+            {{ folderName || t('LabelUntitledfolder') }}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ data.type }}
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-divider />
+
+      <v-list
+        dense
+        nav>
+        <v-list-item
+          link
+          href="#server">
+          <v-list-item-icon>
+            <v-icon>mdi-account-box</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{ t('LabelOptionsServerDetails') }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item
+          link
+          href="#folder">
+          <v-list-item-icon>
+            <v-icon>mdi-folder-outline</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{ t('LabelOptionsFolderMapping') }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item
+          link
+          href="#sync">
+          <v-list-item-icon>
+            <v-icon>mdi-sync-circle</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{ t('LabelOptionsSyncBehavior') }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item
+          link
+          href="#danger">
+          <v-list-item-icon>
+            <v-icon>mdi-alert-circle</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{ t('LabelOptionsDangerous') }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
     <v-card
       v-if="!deleted"
       class="width mt-3"
@@ -63,7 +124,7 @@
         <v-card-text>{{ t('DescriptionAccountDeleted') }}</v-card-text>
       </v-card>
     </v-dialog>
-  </v-container>
+  </div>
 </template>
 
 <script>
