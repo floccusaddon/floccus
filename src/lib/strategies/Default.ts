@@ -337,6 +337,10 @@ export default class SyncProcess {
         const concurrentSourceOriginRemoval = sourceRemovals.find(sourceRemoval => {
           return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.oldItem, sourceRemoval)
         })
+        const concurrentSourceTargetRemoval = sourceRemovals.find(sourceRemoval =>
+          // We pass an empty folder here, because we don't want direct deletions of the moved folder's parent to count, as it's moved away anyway
+          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, new Folder({id: 0, location: targetLocation}), action.payload, sourceRemoval)
+        )
         if (complexTargetTargetRemoval) {
           // target already deleted by a target|source REMOVE (connected via source MOVE|CREATEs)
           if (!concurrentTargetOriginRemoval && !concurrentSourceOriginRemoval) {
@@ -346,6 +350,16 @@ export default class SyncProcess {
               avoidTargetReorders[action.payload.id] = true
             }
           }
+          return
+        }
+        if (concurrentSourceTargetRemoval) {
+          // target already deleted by a source REMOVE (connected via source MOVE|CREATEs)
+          if (targetLocation !== this.masterLocation) {
+            targetPlan.commit({ ...action, type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
+            avoidTargetReorders[action.payload.id] = true
+          }
+          avoidTargetReorders[action.payload.parentId] = true
+          avoidTargetReorders[action.payload.id] = true
           return
         }
         if (concurrentTargetOriginRemoval) {
