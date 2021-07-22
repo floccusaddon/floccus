@@ -338,7 +338,8 @@ export default class SyncProcess {
           return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.oldItem, sourceRemoval)
         })
         const concurrentSourceTargetRemoval = sourceRemovals.find(sourceRemoval =>
-          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.payload, sourceRemoval)
+          // We pass an empty folder here, because we don't want direct deletions of the moved folder's parent to count, as it's moved away anyway
+          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, new Folder({id: 0, location: targetLocation}), action.payload, sourceRemoval)
         )
         if (complexTargetTargetRemoval) {
           // target already deleted by a target|source REMOVE (connected via source MOVE|CREATEs)
