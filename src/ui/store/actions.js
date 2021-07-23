@@ -112,7 +112,7 @@ export const actionsDefinition = {
   },
   async [actions.CANCEL_SYNC]({ commit, dispatch, state }, accountId) {
     const background = await browser.runtime.getBackgroundPage()
-    await background.controller.cancelSync(accountId)
+    await background.controller.cancelSync(accountId, true)
   },
   async [actions.DOWNLOAD_LOGS]({ commit, dispatch, state }) {
     await Logger.downloadLogs()

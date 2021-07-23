@@ -237,7 +237,6 @@ export default class Controller {
 
     // schedule a new sync for all accounts involved
     accountsToSync.forEach(account => {
-      this.cancelSync(account.id, true)
       this.scheduleSync(account.id, true)
     })
 

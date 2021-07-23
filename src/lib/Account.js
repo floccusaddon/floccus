@@ -287,6 +287,7 @@ export default class Account {
 
   async cancelSync() {
     if (!this.syncing) return
+    window.location.reload()
     return this.syncing.cancel()
   }
 
