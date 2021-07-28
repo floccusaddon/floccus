@@ -98,6 +98,9 @@
   "Error033": {
     "message": "E033: Redirect detected. Please install the Bookmarks app on your nextcloud and make sure the nextcloud URL you entered doesn't redirect to a different location."
   },
+  "Error034": {
+    "message": "E034: Bookmarks file is unreadable. Did you forget to set an encryption passphrase?"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
