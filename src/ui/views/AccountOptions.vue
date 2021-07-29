@@ -1,27 +1,22 @@
 <template>
   <div>
     <v-navigation-drawer
+      v-if="$vuetify.breakpoint.mobile"
+      class="pa-5"
       app
       fixed>
-      <v-list-item>
-        <v-list-item-content>
-          <v-list-item-title class="text-h6">
-            {{ folderName || t('LabelUntitledfolder') }}
-          </v-list-item-title>
-          <v-list-item-subtitle>
-            {{ data.type }}
-          </v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-
-      <v-divider />
-
+      <div class="overline">
+        {{ data.type }}
+      </div>
+      <div class="headline">
+        {{ folderName || t('LabelUntitledfolder') }}
+      </div>
       <v-list
         dense
         nav>
         <v-list-item
           link
-          href="#server">
+          @click="$vuetify.goTo('#server', {duration: 0.5})">
           <v-list-item-icon>
             <v-icon>mdi-account-box</v-icon>
           </v-list-item-icon>
@@ -31,7 +26,7 @@
         </v-list-item>
         <v-list-item
           link
-          href="#folder">
+          @click="$vuetify.goTo('#folder', {duration: 0.5})">
           <v-list-item-icon>
             <v-icon>mdi-folder-outline</v-icon>
           </v-list-item-icon>
@@ -41,7 +36,7 @@
         </v-list-item>
         <v-list-item
           link
-          href="#sync">
+          @click="$vuetify.goTo('#sync', {duration: 0.5})">
           <v-list-item-icon>
             <v-icon>mdi-sync-circle</v-icon>
           </v-list-item-icon>
@@ -51,7 +46,7 @@
         </v-list-item>
         <v-list-item
           link
-          href="#danger">
+          @click="$vuetify.goTo('#danger', {duration: 0.5})">
           <v-list-item-icon>
             <v-icon>mdi-alert-circle</v-icon>
           </v-list-item-icon>
@@ -65,54 +60,107 @@
       v-if="!deleted"
       class="width mt-3"
       :loading="loading">
-      <v-container class="pa-5">
-        <div class="overline">
-          {{ data.type }}
-        </div>
-        <div class="headline">
-          {{ folderName || t('LabelUntitledfolder') }}
-        </div>
-        <v-form
-          v-if="!loading"
-          class="mt-3 mb-3">
-          <OptionsNextcloudFolders
-            v-if="data.type === 'nextcloud-folders'"
-            v-bind.sync="data"
-            @reset="onReset"
-            @delete="onDelete" />
-          <OptionsWebdav
-            v-if="data.type === 'webdav'"
-            v-bind.sync="data"
-            @reset="onReset"
-            @delete="onDelete" />
-          <OptionsGoogleDrive
-            v-if="data.type === 'google-drive'"
-            v-bind.sync="data"
-            @reset="onReset"
-            @delete="onDelete" />
-          <OptionsNextcloudLegacy
-            v-if="data.type === 'nextcloud' || data.type === 'nextcloud-legacy'"
-            v-bind.sync="data"
-            @reset="onReset"
-            @delete="onDelete" />
-          <OptionsFake
-            v-if="data.type === 'fake'"
-            v-bind.sync="data"
-            @reset="onReset"
-            @delete="onDelete" />
-        </v-form>
-        <div class="d-flex flex-row-reverse">
-          <v-btn
-            class="primary"
-            @click="onSave">
-            {{ t('LabelSave') }}
-          </v-btn>
-          <v-icon
-            v-if="saved"
-            color="green">
-            mdi-check
-          </v-icon>
-        </div>
+      <v-container :class="[!$vuetify.breakpoint.mobile && 'pa-5']">
+        <v-row>
+          <v-col :style="$vuetify.breakpoint.mobile? {display: 'none'} : {width: '250px', 'flex-grow': 0}">
+            <div
+              :style="{position: 'sticky', top: '20px'}">
+              <div class="overline">
+                {{ data.type }}
+              </div>
+              <div class="headline">
+                {{ folderName || t('LabelUntitledfolder') }}
+              </div>
+              <v-list
+                dense
+                nav>
+                <v-list-item
+                  link
+                  @click="$vuetify.goTo('#server', {duration: 0.5})">
+                  <v-list-item-icon>
+                    <v-icon>mdi-account-box</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ t('LabelOptionsServerDetails') }}</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item
+                  link
+                  @click="$vuetify.goTo('#folder', {duration: 0.5})">
+                  <v-list-item-icon>
+                    <v-icon>mdi-folder-outline</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ t('LabelOptionsFolderMapping') }}</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item
+                  link
+                  @click="$vuetify.goTo('#sync', {duration: 0.5})">
+                  <v-list-item-icon>
+                    <v-icon>mdi-sync-circle</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ t('LabelOptionsSyncBehavior') }}</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item
+                  link
+                  @click="$vuetify.goTo('#danger', {duration: 0.5})">
+                  <v-list-item-icon>
+                    <v-icon>mdi-alert-circle</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ t('LabelOptionsDangerous') }}</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
+            </div>
+          </v-col>
+          <v-col>
+            <v-form
+              v-if="!loading"
+              class="mt-3 mb-3">
+              <OptionsNextcloudFolders
+                v-if="data.type === 'nextcloud-folders'"
+                v-bind.sync="data"
+                @reset="onReset"
+                @delete="onDelete" />
+              <OptionsWebdav
+                v-if="data.type === 'webdav'"
+                v-bind.sync="data"
+                @reset="onReset"
+                @delete="onDelete" />
+              <OptionsGoogleDrive
+                v-if="data.type === 'google-drive'"
+                v-bind.sync="data"
+                @reset="onReset"
+                @delete="onDelete" />
+              <OptionsNextcloudLegacy
+                v-if="data.type === 'nextcloud' || data.type === 'nextcloud-legacy'"
+                v-bind.sync="data"
+                @reset="onReset"
+                @delete="onDelete" />
+              <OptionsFake
+                v-if="data.type === 'fake'"
+                v-bind.sync="data"
+                @reset="onReset"
+                @delete="onDelete" />
+            </v-form>
+            <div class="d-flex flex-row-reverse">
+              <v-btn
+                class="primary"
+                @click="onSave">
+                {{ t('LabelSave') }}
+              </v-btn>
+              <v-icon
+                v-if="saved"
+                color="green">
+                mdi-check
+              </v-icon>
+            </div>
+          </v-col>
+        </v-row>
       </v-container>
     </v-card>
     <v-dialog
@@ -124,6 +172,7 @@
         <v-card-text>{{ t('DescriptionAccountDeleted') }}</v-card-text>
       </v-card>
     </v-dialog>
+    <v-navigation-drawer :style="{display: 'none'}" />
   </div>
 </template>
 
@@ -160,6 +209,9 @@ export default {
     },
     saved() {
       return this.savedData === JSON.stringify(this.data)
+    },
+    menuComponent() {
+      return this.$vuetify.breakpoint.mobile ? 'v-navigation-drawer' : 'div'
     }
   },
   watch: {
@@ -201,7 +253,7 @@ export default {
 
 <style scoped>
     .width {
-        max-width: 600px;
+        max-width: 850px;
         margin: 0 auto;
     }
 </style>
