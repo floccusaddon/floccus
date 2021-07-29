@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <div class="heading">
+  <div>
+    <div class="text-h6">
       {{ t('LabelNestedSync') }}
     </div>
     <div class="caption">
@@ -16,7 +16,7 @@
         :label="t('LabelNestedSyncYes')"
         :value="true" />
     </v-radio-group>
-  </v-container>
+  </div>
 </template>
 
 <script>

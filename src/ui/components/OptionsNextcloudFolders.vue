@@ -1,80 +1,89 @@
 <template>
   <v-container>
-    <h2
-      id="server"
-      class="text-h5">
-      <v-icon>mdi-account-box</v-icon>
-      {{ t('LabelOptionsServerDetails') }}
-    </h2>
-    <v-container>
-      <v-text-field
-        :value="url"
-        :rules="[validateUrl]"
-        :label="t('LabelNextcloudurl')"
-        @input="$emit('update:url', $event)" />
-      <NextcloudLogin
-        :username="username"
-        :password="password"
-        :server="url"
-        @update:username="$emit('update:username', $event)"
-        @update:password="$emit('update:password', $event)" />
-    </v-container>
+    <v-card class="mb-4">
+      <v-card-title
+        id="server">
+        <v-icon>mdi-account-box</v-icon>
+        {{ t('LabelOptionsServerDetails') }}
+      </v-card-title>
+      <v-card-text>
+        <v-text-field
+          :value="url"
+          :rules="[validateUrl]"
+          :label="t('LabelNextcloudurl')"
+          @input="$emit('update:url', $event)" />
+        <NextcloudLogin
+          :username="username"
+          :password="password"
+          :server="url"
+          @update:username="$emit('update:username', $event)"
+          @update:password="$emit('update:password', $event)" />
+      </v-card-text>
+    </v-card>
 
-    <h2
-      id="folder"
-      class="text-h5">
-      <v-icon>mdi-folder-outline</v-icon>
-      {{ t('LabelOptionsFolderMapping') }}
-    </h2>
-    <v-container>
-      <div class="heading">
-        {{ t('LabelServerfolder') }}
-      </div>
-      <div class="caption">
-        {{ t('DescriptionServerfolder') }}
-      </div>
-      <v-text-field
-        :value="serverRoot"
-        :placeholder="'/'"
-        :rules="[validateServerRoot]"
-        :label="t('LabelServerfolder')"
-        @input="$emit('update:serverRoot', $event)" />
-    </v-container>
-    <OptionSyncFolder
-      :value="localRoot"
-      @input="$emit('update:localRoot', $event)" />
+    <v-card class="mb-4">
+      <v-card-title
+        id="folder">
+        <v-icon>mdi-folder-outline</v-icon>
+        {{ t('LabelOptionsFolderMapping') }}
+      </v-card-title>
+      <v-card-text>
+        <div class="text-h6">
+          {{ t('LabelServerfolder') }}
+        </div>
+        <div class="caption">
+          {{ t('DescriptionServerfolder') }}
+        </div>
+        <v-text-field
+          :value="serverRoot"
+          :placeholder="'/'"
+          :rules="[validateServerRoot]"
+          :label="t('LabelServerfolder')"
+          @input="$emit('update:serverRoot', $event)" />
+        <OptionSyncFolder
+          :value="localRoot"
+          @input="$emit('update:localRoot', $event)" />
+      </v-card-text>
+    </v-card>
 
-    <h2
-      id="sync"
-      class="text-h5">
-      <v-icon>mdi-sync-circle</v-icon>
-      {{ t('LabelOptionsSyncBehavior') }}
-    </h2>
+    <v-card class="mb-4">
+      <v-card-title
+        id="sync"
+        class="text-h5">
+        <v-icon>mdi-sync-circle</v-icon>
+        {{ t('LabelOptionsSyncBehavior') }}
+      </v-card-title>
+      <v-card-text>
+        <OptionSyncInterval
+          :value="syncInterval"
+          @input="$emit('update:syncInterval', $event)" />
+        <OptionSyncStrategy
+          :value="strategy"
+          @input="$emit('update:strategy', $event)" />
+        <OptionNestedSync
+          :value="nestedSync"
+          @input="$emit('update:nestedSync', $event)" />
+      </v-card-text>
+    </v-card>
 
-    <OptionSyncInterval
-      :value="syncInterval"
-      @input="$emit('update:syncInterval', $event)" />
-    <OptionSyncStrategy
-      :value="strategy"
-      @input="$emit('update:strategy', $event)" />
-    <OptionNestedSync
-      :value="nestedSync"
-      @input="$emit('update:nestedSync', $event)" />
-
-    <h2
-      id="danger"
-      class="text-h5">
-      <v-icon>mdi-alert-circle</v-icon>
-      {{ t('LabelOptionsDangerous') }}
-    </h2>
-    <OptionClientCert
-      :value="includeCredentials"
-      @input="$emit('update:includeCredentials', $event)" />
-    <OptionResetCache @click="$emit('reset')" />
-    <OptionFailsafe
-      :value="failsafe"
-      @input="$emit('update:failsafe', $event)" />
-    <OptionDeleteAccount @click="$emit('delete')" />
+    <v-card class="mb-4">
+      <v-card-title
+        id="danger"
+        class="text-h5">
+        <v-icon>mdi-alert-circle</v-icon>
+        {{ t('LabelOptionsDangerous') }}
+      </v-card-title>
+      <v-card-text>
+        <OptionClientCert
+          :value="includeCredentials"
+          @input="$emit('update:includeCredentials', $event)" />
+        <OptionResetCache @click="$emit('reset')" />
+        <OptionFailsafe
+          :value="failsafe"
+          @input="$emit('update:failsafe', $event)" />
+        <OptionDeleteAccount @click="$emit('delete')" />
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
 

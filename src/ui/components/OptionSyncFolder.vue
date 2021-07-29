@@ -1,7 +1,7 @@
 <template>
   <div>
-    <v-container>
-      <div class="heading">
+    <div>
+      <div class="text-h6">
         {{ t('LabelLocalfolder') }}
       </div>
       <div class="caption">
@@ -32,7 +32,7 @@
           :label="t('LabelSyncTabs')"
           value="tabs" />
       </v-radio-group>
-    </v-container>
+    </div>
     <v-dialog
       v-model="finder"
       max-width="600"

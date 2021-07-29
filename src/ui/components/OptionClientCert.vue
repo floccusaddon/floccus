@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <div class="heading">
+  <div>
+    <div class="text-h6">
       {{ t('LabelClientcert') }}
     </div>
     <div class="caption">
@@ -12,7 +12,7 @@
       :false-value="false"
       :label="t('LabelClientcert')"
       @change="$emit('input', $event)" />
-  </v-container>
+  </div>
 </template>
 
 <script>

@@ -251,9 +251,12 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
     .width {
         max-width: 850px;
         margin: 0 auto;
+    }
+    .v-form .v-icon {
+      margin-right: 10px;
     }
 </style>
