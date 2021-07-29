@@ -129,13 +129,13 @@
     "message": "Server folder"
   },
   "DescriptionServerfolder": {
-    "message": "This is the path prefix under which this account will operate on the server. E.g. if you use ''/work', all your bookmarks will be created on the server with this path prefixed to their original path (the one relative to the local folder you specified above). This allows you to separate your server bookmarks into multiple 'profiles'. Leave this empty to use no prefix at all."
+    "message": "This is the path prefix under which this account will operate on the server. Leave this empty to use no prefix at all."
   },
   "LabelLocalfolder": {
     "message": "Local folder"
   },
   "DescriptionLocalfolder": {
-    "message": "This is the local bookmarks folder in this browser that will be synced to the server. By default a new empty folder will be created for you in this browser, if you want to sync an existing folder, select it here. (Note: You can now sync the root folder across different browser vendors out of the box.)"
+    "message": "This is the local bookmarks folder in this browser that will be synced to the server."
   },
   "LabelRootfolder": {
     "message": "Root folder"
