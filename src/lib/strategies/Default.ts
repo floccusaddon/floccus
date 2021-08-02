@@ -9,7 +9,7 @@ import Mappings, { MappingSnapshot } from '../Mappings'
 import LocalTree from '../LocalTree'
 import TResource, { OrderFolderResource } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
-import NextcloudFoldersAdapter from '../adapters/NextcloudFolders'
+import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 
 export default class SyncProcess {
   protected mappings: Mappings
@@ -115,7 +115,7 @@ export default class SyncProcess {
     this.localTreeRoot = await this.localTree.getBookmarksTree()
     this.serverTreeRoot = await this.server.getBookmarksTree()
     this.filterOutUnacceptedBookmarks(this.localTreeRoot)
-    if (this.server instanceof NextcloudFoldersAdapter) {
+    if (this.server instanceof NextcloudBookmarksAdapter) {
       await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
     }
 

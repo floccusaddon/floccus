@@ -122,7 +122,7 @@
               v-if="!loading"
               class="mt-3 mb-3">
               <OptionsNextcloudFolders
-                v-if="data.type === 'nextcloud-folders'"
+                v-if="data.type === 'nextcloud-folders' || data.type === 'nextcloud-bookmarks'"
                 v-bind.sync="data"
                 @reset="onReset"
                 @delete="onDelete" />
@@ -180,7 +180,7 @@
 import PathHelper from '../../lib/PathHelper'
 import LocalTree from '../../lib/LocalTree'
 import { actions } from '../store'
-import OptionsNextcloudFolders from '../components/OptionsNextcloudFolders'
+import OptionsNextcloudFolders from '../components/OptionsNextcloudBookmarks'
 import OptionsWebdav from '../components/OptionsWebdav'
 import OptionsNextcloudLegacy from '../components/OptionsNextcloudLegacy'
 import OptionsFake from '../components/OptionsFake'
