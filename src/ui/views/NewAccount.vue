@@ -45,10 +45,10 @@ export default {
   components: {},
   data() {
     return {
-      adapter: 'nextcloud-folders',
+      adapter: 'nextcloud-bookmarks',
       adapters: [
         {
-          type: 'nextcloud-folders',
+          type: 'nextcloud-bookmarks',
           label: this.t('LabelAdapternextcloudfolders'),
           description: this.t('DescriptionAdapternextcloudfolders')
         },

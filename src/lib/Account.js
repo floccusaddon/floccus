@@ -1,5 +1,5 @@
 import AccountStorage from './AccountStorage'
-import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
+import NextcloudBookmarksAdapter from './adapters/NextcloudBookmarks'
 import WebDavAdapter from './adapters/WebDav'
 import GoogleDriveAdapter from './adapters/GoogleDrive'
 import FakeAdapter from './adapters/Fake'
@@ -15,7 +15,8 @@ import { Folder, ItemLocation } from './Tree'
 import UnidirectionalMergeSyncProcess from './strategies/UnidirectionalMerge'
 
 // register Adapters
-AdapterFactory.register('nextcloud-folders', NextcloudFoldersAdapter)
+AdapterFactory.register('nextcloud-folders', NextcloudBookmarksAdapter)
+AdapterFactory.register('nextcloud-bookmarks', NextcloudBookmarksAdapter)
 AdapterFactory.register('webdav', WebDavAdapter)
 AdapterFactory.register('google-drive', GoogleDriveAdapter)
 AdapterFactory.register('fake', FakeAdapter)
@@ -92,7 +93,7 @@ export default class Account {
       nestedSync: false,
       failsafe: true,
     }
-    return {...defaults, ...this.server.getData()}
+    return {...defaults, ...this.server.getData(), ...(this.server.getData().type === 'nextcloud-folders' && {type: 'nextcloud-bookmarks'})}
   }
 
   async setData(data) {

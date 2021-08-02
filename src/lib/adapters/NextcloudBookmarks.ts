@@ -17,8 +17,8 @@ import Ordering from '../interfaces/Ordering'
 const PAGE_SIZE = 300
 const TIMEOUT = 180000
 
-export interface NextcloudFoldersConfig {
-  type: 'nextcloud-folders'
+export interface NextcloudBookmarksConfig {
+  type: 'nextcloud-folders'|'nextcloud-bookmarks'
   url: string
   username: string
   password: string
@@ -40,8 +40,8 @@ interface IChildOrderItem {
   children?: IChildOrderItem[]
 }
 
-export default class NextcloudFoldersAdapter implements Adapter, BulkImportResource, LoadFolderChildrenResource, OrderFolderResource {
-  private server: NextcloudFoldersConfig
+export default class NextcloudBookmarksAdapter implements Adapter, BulkImportResource, LoadFolderChildrenResource, OrderFolderResource {
+  private server: NextcloudBookmarksConfig
   private fetchQueue: PQueue<{ concurrency: 12 }>
   private bookmarkLock: AsyncLock
   public hasFeatureHashing:boolean = null
@@ -51,7 +51,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
   private list: Bookmark[]
   private tree: Folder
 
-  constructor(server: NextcloudFoldersConfig) {
+  constructor(server: NextcloudBookmarksConfig) {
     this.server = server
     this.fetchQueue = new PQueue({ concurrency: 12 })
     this.bookmarkLock = new AsyncLock()
@@ -59,9 +59,9 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     this.hasFeatureExistenceCheck = false
   }
 
-  static getDefaultValues(): NextcloudFoldersConfig {
+  static getDefaultValues(): NextcloudBookmarksConfig {
     return {
-      type: 'nextcloud-folders',
+      type: 'nextcloud-bookmarks',
       url: 'https://example.org',
       username: 'bob',
       password: 's3cret',
@@ -71,12 +71,12 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
     }
   }
 
-  setData(data:NextcloudFoldersConfig):void {
+  setData(data:NextcloudBookmarksConfig):void {
     this.server = { ...data }
   }
 
-  getData():NextcloudFoldersConfig {
-    return { ...NextcloudFoldersAdapter.getDefaultValues(), ...this.server }
+  getData():NextcloudBookmarksConfig {
+    return { ...NextcloudBookmarksAdapter.getDefaultValues(), ...this.server }
   }
 
   getLabel():string {

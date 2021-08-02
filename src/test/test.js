@@ -38,18 +38,18 @@ describe('Floccus', function() {
       noCache: true,
     },
     {
-      type: 'nextcloud-folders',
+      type: 'nextcloud-bookmarks',
       url: SERVER,
       ...CREDENTIALS
     },
     {
-      type: 'nextcloud-folders',
+      type: 'nextcloud-bookmarks',
       url: SERVER,
       oldAPIs: true,
       ...CREDENTIALS
     },
     {
-      type: 'nextcloud-folders',
+      type: 'nextcloud-bookmarks',
       url: SERVER,
       serverRoot: '/my folder/some subfolder',
       ...CREDENTIALS
@@ -110,7 +110,7 @@ describe('Floccus', function() {
 
   ACCOUNTS.forEach(ACCOUNT_DATA => {
     describe(
-      `${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs ? '-old' : ACCOUNT_DATA.noCache ? '-noCache' : ''} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`,
+      `${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs ? '-old' : ACCOUNT_DATA.noCache ? '-noCache' : ''} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`,
       function() {
         let account
         beforeEach('set up account', async function() {
@@ -144,7 +144,7 @@ describe('Floccus', function() {
         })
       })
     describe(
-      `${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs ? '-old' : ACCOUNT_DATA.noCache ? '-noCache' : ''} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Sync`,
+      `${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs ? '-old' : ACCOUNT_DATA.noCache ? '-noCache' : ''} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Sync`,
       function() {
         context('with one client', function() {
           let account
@@ -158,7 +158,7 @@ describe('Floccus', function() {
               })
             }
             await account.init()
-            if (ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs) {
+            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
               // account.server.hasFeatureHashing = false
               account.server.hasFeatureChildren = false
             }
@@ -686,7 +686,7 @@ describe('Floccus', function() {
             )
           })
           it('should deduplicate unnormalized URLs without getting stuck', async function() {
-            if (ACCOUNT_DATA.type !== 'nextcloud-folders' || (APP_VERSION !== 'stable' && APP_VERSION !== 'master' && APP_VERSION !== 'stable3')) {
+            if (ACCOUNT_DATA.type !== 'nextcloud-bookmarks' || (APP_VERSION !== 'stable' && APP_VERSION !== 'master' && APP_VERSION !== 'stable3')) {
               this.skip()
             }
             expect(
@@ -1055,7 +1055,7 @@ describe('Floccus', function() {
             expectTreeEqual(localTree, serverTree)
           })
           it('should remove duplicates in the same folder', async function() {
-            if (ACCOUNT_DATA.type !== 'nextcloud-folders') {
+            if (ACCOUNT_DATA.type !== 'nextcloud-bookmarks') {
               return this.skip()
             }
             const localRoot = account.getData().localRoot
@@ -2857,7 +2857,7 @@ describe('Floccus', function() {
             )
           })
           it('should handle duplicate bookmarks in different serverRoot folders', async function() {
-            if (ACCOUNT_DATA.type !== 'nextcloud-folders') {
+            if (ACCOUNT_DATA.type !== 'nextcloud-bookmarks') {
               return this.skip()
             }
             await account1.setData({...account1.getData(), serverRoot: '/folder1'})
@@ -3701,7 +3701,7 @@ describe('Floccus', function() {
   })
 
   ACCOUNTS.forEach(ACCOUNT_DATA => {
-    describe(`${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs ? '-old' : ACCOUNT_DATA.noCache ? '-noCache' : ''} benchmark ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'}`, function() {
+    describe(`${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs ? '-old' : ACCOUNT_DATA.noCache ? '-noCache' : ''} benchmark ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'}`, function() {
       context('with two clients', function() {
         this.timeout(90 * 60000) // timeout after 1.5h
         let account1, account2
@@ -3724,7 +3724,7 @@ describe('Floccus', function() {
             })
             account2.server.__defineGetter__('highestId', () => account1.server.highestId)
           }
-          if (ACCOUNT_DATA.type === 'nextcloud-folders' && ACCOUNT_DATA.oldAPIs) {
+          if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
             account1.server.hasFeatureHashing = false
             account2.server.hasFeatureHashing = false
           }
