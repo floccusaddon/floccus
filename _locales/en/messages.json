@@ -96,7 +96,7 @@
     "message": "E032: OAuth error. Token validation error. Please reconnect your Google Account."
   },
   "Error033": {
-    "message": "E033: Redirect detected. Please install the Bookmarks app on your nextcloud and make sure the nextcloud URL you entered doesn't redirect to a different location."
+    "message": "E033: Redirect detected. Please install the Bookmarks app on your nextcloud and make sure the nextcloud URL you entered doesn't redirect to a different location. If the redirect is part of your Nextcloud setup, you can disable this check in the settings."
   },
   "Error034": {
     "message": "E034: Bookmarks file is unreadable. Did you forget to set an encryption passphrase?"
@@ -473,5 +473,11 @@
   },
   "DescriptionClientcert": {
     "message": "Enable this option if your server requires a client certificate for authentication. This may cause unintended side effects, as floccus will also share cookies with your browser profile."
+  },
+  "LabelAllowredirects": {
+    "message": "Allow redirects in Server URL"
+  },
+  "DescriptionAllowredirects": {
+    "message": "Enable this option, if you get redirect errors during syncing, which you believe to be unwarranted."
   }
 }

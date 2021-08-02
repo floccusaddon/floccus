@@ -24,6 +24,7 @@ export interface NextcloudFoldersConfig {
   password: string
   serverRoot?: string
   includeCredentials?: boolean
+  allowRedirects?: boolean
 }
 
 interface IChildFolder {
@@ -66,6 +67,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       password: 's3cret',
       serverRoot: '',
       includeCredentials: false,
+      allowRedirects: false
     }
   }
 
@@ -818,7 +820,7 @@ export default class NextcloudFoldersAdapter implements Adapter, BulkImportResou
       throw new Error(browser.i18n.getMessage('Error017'))
     }
 
-    if (res.redirected) {
+    if (res.redirected && !this.server.allowRedirects) {
       throw new Error(browser.i18n.getMessage('Error033'))
     }
 

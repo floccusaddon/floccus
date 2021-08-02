@@ -78,6 +78,9 @@
           :value="includeCredentials"
           @input="$emit('update:includeCredentials', $event)" />
         <OptionResetCache @click="$emit('reset')" />
+        <OptionAllowRedirects
+          :value="allowRedirects"
+          @input="$emit('update:allowRedirects', $event)" />
         <OptionFailsafe
           :value="failsafe"
           @input="$emit('update:failsafe', $event)" />
@@ -97,11 +100,12 @@ import NextcloudLogin from './NextcloudLogin'
 import OptionNestedSync from './OptionNestedSync'
 import OptionFailsafe from './OptionFailsafe'
 import OptionClientCert from './OptionClientCert'
+import OptionAllowRedirects from './OptionAllowRedirects'
 
 export default {
   name: 'OptionsNextcloudFolders',
-  components: { OptionClientCert, OptionFailsafe, OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
-  props: ['url', 'username', 'password', 'includeCredentials', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'nestedSync', 'failsafe'],
+  components: { OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
+  props: ['url', 'username', 'password', 'includeCredentials', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'nestedSync', 'failsafe', 'allowRedirects'],
   data() {
     return {
       panels: [0, 1]
