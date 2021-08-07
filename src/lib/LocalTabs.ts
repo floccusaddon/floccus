@@ -47,7 +47,8 @@ export default class LocalTabs implements IResource {
     const node = await this.queue.add(() =>
       browser.tabs.create({
         windowId: bookmark.parentId,
-        url: bookmark.url
+        url: bookmark.url,
+        discarded: true
       })
     )
     return node.id
