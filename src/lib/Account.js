@@ -145,6 +145,9 @@ export default class Account {
   async isInitialized() {
     try {
       let localRoot = this.getData().localRoot
+      if (localRoot === 'tabs') {
+        return true
+      }
       await browser.bookmarks.getSubTree(localRoot)
       return true
     } catch (e) {
