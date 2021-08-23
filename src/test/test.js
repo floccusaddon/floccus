@@ -3703,7 +3703,7 @@ describe('Floccus', function() {
   ACCOUNTS.forEach(ACCOUNT_DATA => {
     describe(`${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs ? '-old' : ACCOUNT_DATA.noCache ? '-noCache' : ''} benchmark ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'}`, function() {
       context('with two clients', function() {
-        this.timeout(90 * 60000) // timeout after 1.5h
+        this.timeout(120 * 60000) // timeout after 2h
         let account1, account2
         beforeEach('set up accounts', async function() {
           // reset random seed
