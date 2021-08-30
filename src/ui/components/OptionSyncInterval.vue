@@ -1,9 +1,12 @@
 <template>
-  <v-container>
+  <div>
+    <div class="text-h6">
+      {{ t('LabelSyncinterval') }}
+    </div>
     <v-slider
       v-model="syncIntervalStep"
-      class="mt-5"
-      :label="t('LabelSyncinterval')"
+      class="mt-8 mb-5"
+      :aria-label="t('LabelSyncinterval')"
       :hint="t('DescriptionSyncinterval')"
       :min="0"
       :max="syncIntervalSteps.length-1"
@@ -16,7 +19,7 @@
         {{ humanizeDuration(syncIntervalSteps[step] * 1000 * 60) }}
       </template>
     </v-slider>
-  </v-container>
+  </div>
 </template>
 
 <script>
@@ -32,7 +35,7 @@ export default {
   },
   data() {
     const steps = [
-      0, 5, 10, 15, 20, 25, 30, 45, 60, 60 * 2, 60 * 3, 60 * 4, 60 * 6, 60 * 8, 60 * 12, 60 * 16, 60 * 24
+      5, 10, 15, 20, 25, 30, 45, 60, 60 * 2, 60 * 3, 60 * 4, 60 * 6, 60 * 8, 60 * 12, 60 * 16, 60 * 24
     ]
     return {
       syncIntervalSteps: steps,

@@ -24,23 +24,21 @@ export default class LocalTabs implements IResource {
       title: '',
       id: 'tabs',
       location: ItemLocation.LOCAL,
-      children: uniq(tabs.map(t => t.windowId))
-        .map(id => id as string)
-        .map(windowId => {
-          return new Folder({
+      children: uniq(tabs.map(t => t.windowId)).map(id => id as number).map(windowId => {
+        return new Folder({
+          title: '',
+          id: windowId,
+          parentId: 'tabs',
+          location: ItemLocation.LOCAL,
+          children: tabs.filter(t => t.windowId === windowId).sort(t => t.index).map(t => new Bookmark({
+            id: t.id,
             title: '',
-            id: windowId,
-            parentId: 'tabs',
+            url: t.url,
+            parentId: windowId,
             location: ItemLocation.LOCAL,
-            children: tabs.filter(t => t.windowId === windowId).sort(t => t.index).map(t => new Bookmark({
-              id: t.id,
-              title: '',
-              url: t.url,
-              parentId: windowId,
-              location: ItemLocation.LOCAL,
-            }))
-          })
+          }))
         })
+      })
     })
   }
 
@@ -49,7 +47,8 @@ export default class LocalTabs implements IResource {
     const node = await this.queue.add(() =>
       browser.tabs.create({
         windowId: bookmark.parentId,
-        url: bookmark.url
+        url: bookmark.url,
+        discarded: true
       })
     )
     return node.id

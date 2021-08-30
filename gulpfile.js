@@ -31,7 +31,7 @@ const VERSION = require('./package.json').version
 const paths = {
   zip: [
     './**',
-    (process.env['CI'] ? '' : '!') + 'dist/js/test.js',
+    (process.env['CI'] ? './' : '!') + 'dist/js/test.js',
     '!builds/**',
     '!src/**',
     '!node_modules/**',
@@ -39,6 +39,7 @@ const paths = {
     '!ISSUE_TEMPLATE.md',
     '!gulpfile.js',
     '!key.pem',
+    '!android/**',
   ],
   views: './html/*.html',
   entries: 'src/entries/*.js',

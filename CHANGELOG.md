@@ -1,5 +1,49 @@
 # Changelog
 
+## v4.7.0
+
+### New
+- Sync root folder by default
+- NextcloudFolders: Add option to allow redirects
+- New settings UI
+- New error: Trying to read encrypted file without passphrase
+- UX: Make AccountCard expandable and hide all non-essential stuff
+- UI: Add donate page with link to it in overview
+- UI: Support system dark theme
+- UI: Reduce scrollbar size
+- UX: Polish folder picker
+- 
+
+### Fixes
+ - Various syncing correctness fixes
+ - Rename NextcloudFolders to NextcloudBookmarks
+ - Fix cancel sync: Cancel sync by reloading background page
+ - OptionSyncInterval: Don't allow choosing 0
+ - OptionDeleteAccount: Ask for confirmation fist
+ - Fix tab sync: tab and window IDs are integers
+ - Controller: Reset cache after interrupted sync
+ - Only remove duplicates for Nextcloud
+ - Sync: Invalidate cache after sync error
+ - Performance: Always createIndex when cloning in Scanner
+ - Fix UnidirectionalMerge: Allow reorders
+ - Controller: Fix sync interval on first run
+ - Fix debug logs in Firefox
+ - Speedup loading new folders in NextcloudFolders
+ - ImportExport: Select all accounts by default
+
+## v4.6.4
+
+### Fixed
+A few fixes to improve syncing accuracy:
+
+- Unidirectional: Don't map UPDATEs to old IDs, but to newly reinserted IDs
+- Scanner: Don't generate UPDATEs for items that have been MOVEd
+- DefaultSyncStrategy: Fix UPDATE vs REMOVE condition
+
+## v4.6.3
+
+Broken release.
+
 ## v4.6.2
 
 ### Fixed

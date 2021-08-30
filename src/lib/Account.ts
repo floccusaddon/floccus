@@ -11,7 +11,7 @@ import MergeSyncProcess from './strategies/Merge'
 import DefaultSyncProcess from './strategies/Default'
 import IAccountStorage, { IAccountData, TAccountStrategy } from './interfaces/AccountStorage'
 import { TAdapter } from './interfaces/Adapter'
-import NextcloudFoldersAdapter from './adapters/NextcloudFolders'
+import NextcloudBookmarksAdapter from './adapters/NextcloudBookmarks'
 import WebDavAdapter from './adapters/WebDav'
 import GoogleDriveAdapter from './adapters/GoogleDrive'
 import FakeAdapter from './adapters/Fake'
@@ -27,7 +27,8 @@ import {
 import Controller from './Controller'
 
 // register Adapters
-AdapterFactory.register('nextcloud-folders', NextcloudFoldersAdapter)
+AdapterFactory.register('nextcloud-folders', NextcloudBookmarksAdapter)
+AdapterFactory.register('nextcloud-bookmarks', NextcloudBookmarksAdapter)
 AdapterFactory.register('webdav', WebDavAdapter)
 AdapterFactory.register('google-drive', GoogleDriveAdapter)
 AdapterFactory.register('fake', FakeAdapter)
@@ -93,7 +94,7 @@ export default class Account {
       nestedSync: false,
       failsafe: true,
     }
-    return {...defaults, ...this.server.getData()}
+    return {...defaults, ...this.server.getData(), ...(this.server.getData().type === 'nextcloud-folders' && {type: 'nextcloud-bookmarks'})}
   }
 
   async setData(data:IAccountData):Promise<void> {
@@ -237,9 +238,8 @@ export default class Account {
         await this.server.onSyncFail()
       }
 
-      if (mappings) {
-        await mappings.persist()
-      }
+      // reset cache and mappings after error
+      await this.init()
     }
     await Logger.persist()
   }
@@ -282,6 +282,7 @@ export default class Account {
 
   async cancelSync():Promise<void> {
     if (!this.syncing) return
+    window.location.reload()
     return this.syncProcess.cancel()
   }
 

@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <div class="heading">
+  <div>
+    <div class="text-h6">
       {{ t('LabelStrategy') }}
     </div>
     <div class="caption">
@@ -19,7 +19,7 @@
         :label="t('LabelStrategyoverwrite')"
         value="overwrite" />
     </v-radio-group>
-  </v-container>
+  </div>
 </template>
 
 <script>

@@ -18,7 +18,7 @@ export default class Logger {
   static async persist() {
     const Storage = ((await Device.getInfo()).platform === 'web') ? BrowserAccountStorage : NativeAccountStorage
     await Storage.changeEntry(
-      'log',
+      'logs',
       log => {
         const messages = this.messages
         this.messages = []
@@ -29,7 +29,7 @@ export default class Logger {
   }
 
   static async getLogs() {
-    return BrowserAccountStorage.getEntry('log')
+    return BrowserAccountStorage.getEntry('logs', [])
   }
 
   static async downloadLogs() {

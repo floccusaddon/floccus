@@ -205,6 +205,8 @@ export default class WebDavAdapter extends CachingAdapter {
             throw new DecryptionError()
           }
         }
+      } else if (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
+        throw new Error(browser.i18n.getMessage('Error034'))
       }
 
       /* let's get the highestId */

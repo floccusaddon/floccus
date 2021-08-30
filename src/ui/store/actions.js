@@ -68,7 +68,8 @@ export const actionsDefinition = {
     commit(mutations.LOADING_END, 'accounts')
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
-    const account = await Account.create(AdapterFactory.getDefaultValues(type))
+    const rootFolder = await BrowserTree.getAbsoluteRootFolder()
+    const account = await Account.create({...AdapterFactory.getDefaultValues(type), localRoot: rootFolder.id})
     await dispatch(actions.LOAD_ACCOUNTS)
     return account.id
   },
@@ -113,7 +114,7 @@ export const actionsDefinition = {
   },
   async [actions.CANCEL_SYNC]({ commit, dispatch, state }, accountId) {
     const controller = await Controller.getSingleton()
-    await controller.cancelSync(accountId)
+    await controller.cancelSync(accountId, true)
   },
   async [actions.DOWNLOAD_LOGS]({ commit, dispatch, state }) {
     await Logger.downloadLogs()

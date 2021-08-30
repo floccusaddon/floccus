@@ -124,18 +124,29 @@ export default class Diff {
     )
   }
 
-  static findChain(mappingsSnapshot: MappingSnapshot, actions: Action[], currentItem: TItem, targetAction: Action, chain: Action[] = []): boolean {
+  static findChain(mappingsSnapshot: MappingSnapshot, actions: Action[], itemTree: Folder, currentItem: TItem, targetAction: Action, chain: Action[] = []): boolean {
+    const targetItemInTree = itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location))
     if (
       targetAction.payload.findItem(ItemType.FOLDER,
-        Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location))
+        Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location)) ||
+      (targetItemInTree && targetItemInTree.findFolder(Mappings.mapParentId(mappingsSnapshot, currentItem, itemTree.location)))
     ) {
       return true
     }
-    const newCurrentAction = actions.find(targetAction =>
-      !chain.includes(targetAction) && targetAction.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location))
+    const newCurrentActions = actions.filter(targetAction =>
+      !chain.includes(targetAction) && (
+        targetAction.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location)) ||
+        (
+          itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location)) &&
+          itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location)).findFolder(Mappings.mapParentId(mappingsSnapshot, currentItem, itemTree.location)))
+      )
     )
-    if (newCurrentAction) {
-      return Diff.findChain(mappingsSnapshot, actions, newCurrentAction.payload, targetAction, [...chain, newCurrentAction])
+    if (newCurrentActions.length) {
+      for (const newCurrentAction of newCurrentActions) {
+        if (Diff.findChain(mappingsSnapshot, actions, itemTree, newCurrentAction.payload, targetAction, [...chain, newCurrentAction])) {
+          return true
+        }
+      }
     }
     return false
   }
@@ -205,7 +216,7 @@ export default class Diff {
           newAction = {
             ...action,
             payload: action.payload.clone(false, targetLocation),
-            oldItem: action.oldItem.clone(false)
+            oldItem: action.oldItem.clone(false, action.payload.location)
           }
           newAction.payload.id = oldId
           newAction.oldItem.id = newId
@@ -218,7 +229,7 @@ export default class Diff {
           newAction.payload.id = Mappings.mapId(mappingsSnapshot, action.payload, targetLocation)
         }
 
-        if (oldItem && targetLocation !== ItemLocation.SERVER && action.type !== ActionType.MOVE) {
+        if (oldItem && targetLocation !== ItemLocation.SERVER && action.type !== ActionType.MOVE && action.type !== ActionType.UPDATE) {
           newAction.payload.parentId = action.oldItem.parentId
           newAction.oldItem.parentId = action.payload.parentId
         } else {

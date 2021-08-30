@@ -6,6 +6,7 @@ import NewAccount from './views/NewAccount'
 import SetKey from './views/SetKey'
 import Update from './views/Update'
 import ImportExport from './views/ImportExport'
+import Donate from './views/Donate'
 
 Vue.use(Router)
 
@@ -17,6 +18,7 @@ export const routes = {
   FUNDING: 'FUNDING',
   UPDATE: 'UPDATE',
   IMPORTEXPORT: 'IMPORTEXPORT',
+  DONATE: 'DONATE',
 }
 
 export const router = new Router({
@@ -51,6 +53,11 @@ export const router = new Router({
       path: '/importexport',
       name: routes.IMPORTEXPORT,
       component: ImportExport,
+    },
+    {
+      path: '/donate',
+      name: routes.DONATE,
+      component: Donate,
     },
   ],
 })

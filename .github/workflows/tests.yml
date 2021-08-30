@@ -31,8 +31,8 @@ jobs:
         app-version: ['stable']
         floccus-adapter:
           - fake
-          - nextcloud-folders
-          - nextcloud-folders-old
+          - nextcloud-bookmarks
+          - nextcloud-bookmarks-old
           - webdav
           - google-drive
         test-name:
@@ -42,37 +42,37 @@ jobs:
         include:
           - app-version: v1.1.2
             server-version: 17
-            floccus-adapter: nextcloud-folders
+            floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: chrome
           - app-version: v2.3.4
             server-version: 18
-            floccus-adapter: nextcloud-folders
+            floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: chrome
           - app-version: stable3
             server-version: 18
-            floccus-adapter: nextcloud-folders
+            floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: chrome
           - app-version: stable3
             server-version: 19
-            floccus-adapter: nextcloud-folders
+            floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: chrome
           - app-version: master
             server-version: 20
-            floccus-adapter: nextcloud-folders
+            floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: chrome
           - app-version: master
             server-version: 20
-            floccus-adapter: nextcloud-folders
+            floccus-adapter: nextcloud-bookmarks
             test-name: benchmark root
             browsers: chrome
           - app-version: master
             server-version: 20
-            floccus-adapter: nextcloud-folders-old
+            floccus-adapter: nextcloud-bookmarks-old
             test-name: benchmark root
             browsers: chrome
           - app-version: stable
@@ -115,7 +115,7 @@ jobs:
           - /home/runner/work/floccus/floccus/apps:/var/www/html/custom_apps
         options: --name nextcloud
       mysql:
-        image: mariadb:latest
+        image: mariadb:10.5 # see https://github.com/nextcloud/docker/issues/1536
         env:
           MYSQL_ROOT_PASSWORD: ${{env.MYSQL_PASSWORD}}
 
@@ -131,14 +131,14 @@ jobs:
           repository: nextcloud/${{ env.APP_NAME }}
           ref: ${{ matrix.app-version }}
           path: ${{ env.APP_NAME }}
-        if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
+        if: matrix.floccus-adapter == 'nextcloud-bookmarks' || matrix.floccus-adapter == 'nextcloud-bookmarks-old'
 
       - name: Install bookmarks app
         shell: bash
         run: |
           cd ${{ env.APP_NAME }}
           composer install --ignore-platform-req=php
-        if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
+        if: matrix.floccus-adapter == 'nextcloud-bookmarks' || matrix.floccus-adapter == 'nextcloud-bookmarks-old'
 
       - name: Enable bookmarks app
         shell: bash
@@ -149,13 +149,13 @@ jobs:
               sleep $(( NEXT_WAIT_TIME++ ))
           done
           [ $NEXT_WAIT_TIME -lt 25 ]
-        if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
+        if: matrix.floccus-adapter == 'nextcloud-bookmarks' || matrix.floccus-adapter == 'nextcloud-bookmarks-old'
 
       - name: List apps
         shell: bash
         run: |
           docker exec --user www-data nextcloud php occ app:list
-        if: matrix.floccus-adapter == 'nextcloud-folders' || matrix.floccus-adapter == 'nextcloud-folders-old'
+        if: matrix.floccus-adapter == 'nextcloud-bookmarks' || matrix.floccus-adapter == 'nextcloud-bookmarks-old'
 
       - name: Enable APCu
         run: |

@@ -96,13 +96,16 @@
     "message": "E032: OAuth error. Token validation error. Please reconnect your Google Account."
   },
   "Error033": {
-    "message": "E033: Redirect detected. Please install the Bookmarks app on your nextcloud and make sure the nextcloud URL you entered doesn't redirect to a different location."
+    "message": "E033: Redirect detected. Please install the Bookmarks app on your nextcloud and make sure the nextcloud URL you entered doesn't redirect to a different location. If the redirect is part of your Nextcloud setup, you can disable this check in the settings."
+  },
+  "Error034": {
+    "message": "E034: Bookmarks file is unreadable. Did you forget to set an encryption passphrase?"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
   "DescriptionWebdavurl": {
-    "message": "e.g. with nextcloud: https://your-domain.com/remote.php/webdav/"
+    "message": "e.g. with nextcloud: https://example.com/remote.php/webdav/"
   },
   "LabelNextcloudurl": {
     "message": "Nextcloud URL"
@@ -126,13 +129,13 @@
     "message": "Server folder"
   },
   "DescriptionServerfolder": {
-    "message": "This is the path prefix under which this account will operate on the server. E.g. if you use ''/work', all your bookmarks will be created on the server with this path prefixed to their original path (the one relative to the local folder you specified above). This allows you to separate your server bookmarks into multiple 'profiles'. Leave this empty to use no prefix at all."
+    "message": "This is the path prefix under which this account will operate on the server. Leave this empty to use no prefix at all."
   },
   "LabelLocalfolder": {
     "message": "Local folder"
   },
   "DescriptionLocalfolder": {
-    "message": "This is the local bookmarks folder in this browser that will be synced to the server. By default a new empty folder will be created for you in this browser, if you want to sync an existing folder, select it here. (Note: You can now sync the root folder across different browser vendors out of the box.)"
+    "message": "This is the local bookmarks folder in this browser that will be synced to the server."
   },
   "LabelRootfolder": {
     "message": "Root folder"
@@ -149,8 +152,8 @@
   "LabelCancelsync": {
     "message": "Cancel sync"
   },
-  "LabelEnabled": {
-    "message": "Enabled"
+  "LabelAutosync": {
+    "message": "Auto-sync"
   },
   "StatusLastsynced": {
     "message": "Last synchronized: $1 ago"
@@ -258,7 +261,7 @@
     "message": "Fund development"
   },
   "DescriptionFunddevelopment": {
-    "message": "I'm using this opportunity to ask you for a donation in order to support the maintenance of this project and make this endeavor more sustainable. You can find the supported payment providers below. Any amount is appreciated. Thank you!💙"
+    "message": "Work on floccus is fuelled by a voluntary subscription model. If you think what I do is worthwhile, and if you can spare a few coins each month without hardship, please support my work. Also, please consider giving floccus a rating on the addon store of your choice. Thank you!💙"
   },
   "LabelSelect": {
     "message": "Select"
@@ -409,10 +412,19 @@
     "message": "Tabs"
   },
   "LabelSyncDown": {
-    "message": "Pull sync: Override local changes"
+    "message": "Pull sync"
   },
   "LabelSyncUp": {
-    "message": "Push sync: Override server-side changes"
+    "message": "Push sync"
+  },
+  "LabelSyncDownOnce": {
+    "message": "Pull sync once"
+  },
+  "LabelSyncUpOnce": {
+    "message": "Push sync once"
+  },
+  "LabelSyncNormal": {
+    "message": "Normal sync"
   },
   "DescriptionFilesPermission": {
     "message": "Make sure you give floccus permission to not only use the bookmarks app but the Nextcloud files app as well."
@@ -461,5 +473,11 @@
   },
   "DescriptionClientcert": {
     "message": "Enable this option if your server requires a client certificate for authentication. This may cause unintended side effects, as floccus will also share cookies with your browser profile."
+  },
+  "LabelAllowredirects": {
+    "message": "Allow redirects in Server URL"
+  },
+  "DescriptionAllowredirects": {
+    "message": "Enable this option, if you get redirect errors during syncing, which you believe to be unwarranted."
   }
 }

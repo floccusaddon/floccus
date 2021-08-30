@@ -6,7 +6,7 @@
       v-if="account.data.syncing"
       v-slot:progress
       :value="account.data.syncing * 100 || 0"
-      :indeterminate="account.data.syncing < 0.01" />
+      :indeterminate="account.data.syncing < 0.1" />
     <v-container class="pa-4">
       <v-row
         no-gutters
@@ -37,7 +37,9 @@
               class="align-end flex-grow-0"
               :style="{minWidth: 'max-content'}">
               <div class="pa-3 d-inline-block font-weight-light body-2">
-                <v-icon :color="statusColor">
+                <v-icon
+                  :color="statusColor"
+                  :class="{spinning: account.data.syncing}">
                   {{ statusIcon }}
                 </v-icon>
                 <span :style="{color: statusColor}">{{ statusLabel }}</span>
@@ -54,7 +56,8 @@
             :type="statusType"
             class="pa-2 text-caption">
             {{ statusDetail }} <v-btn
-              color="blue"
+              v-if="account.data.error"
+              :color="statusType"
               class="float-right"
               x-small
               @click="onGetLogs">
@@ -80,46 +83,23 @@
           <v-row
             no-gutters
             class="mt-2">
-            <v-col>
-              <v-switch
-                v-model="account.data.enabled"
-                :aria-label="t('LabelEnabled')"
+            <v-col class="d-flex flex-row">
+              <v-select
+                v-model="account.data.strategy"
                 dense
-                class="mt-0 pt-0"
-                @change="onToggleEnabled" />
-            </v-col>
-            <v-col
-              class="d-flex flex-grow-0"
-              :style="{ flexBasis: 'content' }">
-              <v-btn
-                icon
-                small
-                :title="t('LabelOptions')"
-                :aria-label="t('LabelOptions')"
-                :to="{ name: routes.ACCOUNT_OPTIONS, params: { accountId: account.id } }"
-                target="_blank">
-                <v-icon>mdi-settings</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                small
-                :outlined="account.data.strategy === 'overwrite'"
-                :color="account.data.strategy === 'overwrite'? 'primary' : null"
-                :title="t('LabelSyncUp')"
-                :aria-label="t('LabelSyncUp')"
-                @click="onTriggerSyncUp">
-                <v-icon>mdi-arrow-up-bold</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                small
-                :outlined="account.data.strategy === 'slave'"
-                :color="account.data.strategy === 'slave'? 'primary' : null"
-                :title="t('LabelSyncDown')"
-                :aria-label="t('LabelSyncDown')"
-                @click="onTriggerSyncDown">
-                <v-icon>mdi-arrow-down-bold</v-icon>
-              </v-btn>
+                :items="[
+                  {text: strategyLabels['slave'], value: 'slave', icon: strategyIcons['slave']},
+                  {text: strategyLabels['overwrite'], value: 'overwrite', icon: strategyIcons['overwrite']},
+                  {text: strategyLabels['default'], value: 'default', icon: strategyIcons['default']},
+                ]"
+                @change="onChangeStrategy">
+                <template #prepend-inner>
+                  <v-icon>{{ strategyIcons[account.data.strategy] }}</v-icon>
+                </template>
+                <template #item="{item}">
+                  <v-icon>{{ item.icon }}</v-icon> {{ item.text }}
+                </template>
+              </v-select>
               <v-btn
                 v-if="!account.data.syncing"
                 class="primary"
@@ -136,6 +116,50 @@
                 {{ t('LabelCancelsync') }}
               </v-btn>
             </v-col>
+          </v-row>
+          <v-row :class="{'d-none': !showDetails, 'pa-2': true, 'mt-3': true, 'justify-space-between': true}">
+            <v-btn
+              small
+              @click="onTriggerSyncUp">
+              <v-icon>mdi-arrow-up-bold</v-icon>
+              {{ t('LabelSyncUpOnce') }}
+            </v-btn>
+            <v-switch
+              v-model="account.data.enabled"
+              :aria-label="t('LabelAutosync')"
+              :label="t('LabelAutosync')"
+              dense
+              class="mt-0 pt-0"
+              @change="onToggleEnabled" />
+          </v-row>
+          <v-row :class="{'d-none': !showDetails, 'pa-2': true, 'mb-3': true, 'justify-space-between': true}">
+            <v-btn
+              small
+              @click="onTriggerSyncDown">
+              <v-icon>mdi-arrow-down-bold</v-icon>
+              {{ t('LabelSyncDownOnce') }}
+            </v-btn>
+
+            <v-btn
+              small
+              :to="{ name: routes.ACCOUNT_OPTIONS, params: { accountId: account.id } }"
+              target="_blank">
+              <v-icon>mdi-settings</v-icon>
+              {{ t('LabelOptions') }}
+            </v-btn>
+          </v-row>
+          <v-row>
+            <v-btn
+              text
+              block
+              @click="showDetails = !showDetails">
+              <v-icon v-if="!showDetails">
+                mdi-chevron-down
+              </v-icon>
+              <v-icon v-else>
+                mdi-chevron-up
+              </v-icon>
+            </v-btn>
           </v-row>
         </v-col>
       </v-row>
@@ -178,7 +202,18 @@ export default {
         ok: this.t('StatusAllgood'),
         error: this.t('StatusError'),
         syncing: this.t('StatusSyncing')
-      }
+      },
+      strategyIcons: {
+        slave: 'mdi-arrow-down-bold',
+        overwrite: 'mdi-arrow-up-bold',
+        default: 'mdi-sync',
+      },
+      strategyLabels: {
+        slave: this.t('LabelSyncDown'),
+        overwrite: this.t('LabelSyncUp'),
+        default: this.t('LabelSyncNormal'),
+      },
+      showDetails: false
     }
   },
   computed: {
@@ -259,6 +294,9 @@ export default {
     this.rootPath = await BrowserTree.getPathFromLocalId(this.localRoot)
   },
   methods: {
+    onChangeStrategy() {
+      this.$store.dispatch(actions.STORE_ACCOUNT, {id: this.account.id, data: this.account.data})
+    },
     onTriggerSync() {
       this.$store.dispatch(actions.TRIGGER_SYNC, this.account.id)
     },
@@ -281,4 +319,17 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.spinning {
+  animation: spin 2s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  99.9% {
+    transform: rotate(360deg);
+  }
+}
+</style>

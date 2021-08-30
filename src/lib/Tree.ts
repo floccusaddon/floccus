@@ -160,7 +160,7 @@ export class Folder {
     this.title = title
     this.children = children || []
     this.hashValue = {...hashValue} || {}
-    this.loaded = typeof loaded !== 'undefined' ? loaded : true
+    this.loaded = loaded !== false
     this.location = location
   }
 

@@ -1,6 +1,8 @@
 <template>
-  <v-app id="app">
-    <v-content class="light-blue lighten-5">
+  <v-app
+    id="app"
+    :style="appStyle">
+    <v-content>
       <router-view />
     </v-content>
     <v-footer
@@ -16,6 +18,21 @@
             class="white--text">
             floccus v{{ VERSION }}
           </v-btn>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                x-small
+                text
+                class="white--text"
+                v-bind="attrs"
+                :to="{name: routes.DONATE}"
+                target="_blank"
+                v-on="on">
+                <v-icon>mdi-heart-outline</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ t('LabelFunddevelopment') }}</span>
+          </v-tooltip>
         </v-col>
         <v-col class="d-flex flex-row-reverse">
           <v-btn
@@ -96,6 +113,11 @@ export default {
     },
     routes() {
       return routes
+    },
+    appStyle() {
+      return {
+        background: this.$vuetify.theme.dark ? '#000' : '#e1f5fe'
+      }
     }
   },
   async created() {

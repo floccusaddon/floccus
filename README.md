@@ -7,7 +7,7 @@
 [![Tests](https://github.com/marcelklehr/floccus/workflows/Tests/badge.svg)](https://github.com/marcelklehr/floccus/actions?query=workflow%3ATests)
 
 - 📂 Sync any local bookmarks folder to any server-side folder
-- ⚛ Use any browser that is compatible wit hthe web extension API
+- ⚛ Use any browser that is compatible with the web extension API
 - 💼 Create as many sync profiles as you like
 - 🚚 Control sync strategy, i.e. uni- or bidirectional syncing
 - ⏳ Control sync interval

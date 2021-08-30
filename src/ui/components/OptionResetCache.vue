@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <div class="heading">
+  <div>
+    <div class="text-h6">
       {{ t('LabelResetCache') }}
     </div>
     <div class="caption">
@@ -8,11 +8,11 @@
     </div>
     <v-btn
       small
-      class="mt-3"
+      class="mt-3 mb-5"
       @click="$emit('click')">
       {{ t('LabelResetCache') }}
     </v-btn>
-  </v-container>
+  </div>
 </template>
 
 <script>

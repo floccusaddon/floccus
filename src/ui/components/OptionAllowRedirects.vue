@@ -1,23 +1,23 @@
 <template>
   <div>
     <div class="text-h6">
-      {{ t('LabelClientcert') }}
+      {{ t('LabelAllowredirects') }}
     </div>
     <div class="caption">
-      {{ t('DescriptionClientcert') }}
+      {{ t('DescriptionAllowredirects') }}
     </div>
     <v-checkbox
       :input-value="value"
       :true-value="true"
       :false-value="false"
-      :label="t('LabelClientcert')"
+      :label="t('LabelAllowredirects')"
       @change="$emit('input', $event)" />
   </div>
 </template>
 
 <script>
 export default {
-  name: 'OptionClientCert',
+  name: 'OptionAllowRedirects',
   props: {
     value: {
       type: Boolean,
