@@ -1,15 +1,14 @@
 import NativeAccountStorage from './NativeAccountStorage'
 import NativeTree from './NativeTree'
-import browser from '../browser-api'
 import AdapterFactory from '../AdapterFactory'
 import Account from '../Account'
 import { IAccountData } from '../interfaces/AccountStorage'
-import NativeController from './NativeController'
+import Controller from '../Controller'
 
 export default class NativeAccount extends Account {
   static async get(id:string):Promise<Account> {
     const storage = new NativeAccountStorage(id)
-    const controller = NativeController.getSingleton()
+    const controller = await Controller.getSingleton()
     const data = await storage.getAccountData(controller.key)
     const tree = new NativeTree(storage)
     await tree.load()
@@ -21,7 +20,7 @@ export default class NativeAccount extends Account {
     const adapter = AdapterFactory.factory(data)
     const storage = new NativeAccountStorage(id)
 
-    const controller = NativeController.getSingleton()
+    const controller = await Controller.getSingleton()
     await storage.setAccountData(data, controller.key)
     const tree = new NativeTree(storage)
     await tree.load()
@@ -47,7 +46,7 @@ export default class NativeAccount extends Account {
   }
 
   async updateFromStorage():Promise<void> {
-    const controller = NativeController.getSingleton()
+    const controller = await Controller.getSingleton()
     const data = await this.storage.getAccountData(controller.key)
     this.server.setData(data)
     this.localTree = new NativeTree(this.storage)

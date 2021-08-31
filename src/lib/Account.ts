@@ -1,4 +1,3 @@
-import BrowserAccount from './browser/BrowserAccount'
 import AdapterFactory from './AdapterFactory'
 import LocalTabs from './LocalTabs'
 import browser from './browser-api'
@@ -25,6 +24,8 @@ import {
   UnknownFolderItemOrderError
 } from '../errors/Error'
 import Controller from './Controller'
+import { Device } from '@capacitor/device'
+import IAccount from './interfaces/Account'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', NextcloudBookmarksAdapter)
@@ -35,24 +36,34 @@ AdapterFactory.register('fake', FakeAdapter)
 
 export default class Account {
   static cache = {}
+  static singleton : IAccount
+
+  static async getAccountClass(): Promise<IAccount> {
+    if ((await Device.getInfo()).platform === 'web') {
+      this.singleton = (await import('./browser/BrowserAccount')).default
+    } else {
+      return null
+    }
+    return this.singleton
+  }
 
   static async get(id:string):Promise<Account> {
     if (this.cache[id]) {
       await this.cache[id].updateFromStorage()
       return this.cache[id]
     }
-    const account = await BrowserAccount.get(id)
+    const account = await (await this.getAccountClass()).get(id)
     this.cache[id] = account
     return account
   }
 
   static async create(data: IAccountData):Promise<Account> {
-    return BrowserAccount.create(data)
+    return (await this.getAccountClass()).create(data)
   }
 
   static async import(accounts:IAccountData[]):Promise<void> {
     for (const accountData of accounts) {
-      await BrowserAccount.create({...accountData, enabled: false})
+      await this.create({...accountData, enabled: false})
     }
   }
 
@@ -224,7 +235,8 @@ export default class Account {
       }
     } catch (e) {
       console.log(e)
-      const message = BrowserAccount.stringifyError(e)
+      // const message = (await Account.getAccountClass()).stringifyError(e)
+      const message = e.getMessage()
       console.error('Syncing failed with', message)
       Logger.log('Syncing failed with', message)
 
@@ -287,10 +299,10 @@ export default class Account {
   }
 
   static async getAllAccounts():Promise<Account[]> {
-    return BrowserAccount.getAllAccounts()
+    return (await this.getAccountClass()).getAllAccounts()
   }
 
   static async getAccountsContainingLocalId(localId:string, ancestors:string[], allAccounts:Account[]):Promise<Account[]> {
-    return BrowserAccount.getAccountsContainingLocalId(localId, ancestors, allAccounts)
+    return (await this.getAccountClass()).getAccountsContainingLocalId(localId, ancestors, allAccounts)
   }
 }

@@ -1,7 +1,6 @@
 import { Device } from '@capacitor/device'
 import browser from './browser-api'
 import IController from './interfaces/Controller'
-import NativeController from './native/NativeController'
 
 export default class Controller {
   static singleton: IController
@@ -12,7 +11,8 @@ export default class Controller {
         const background = await browser.runtime.getBackgroundPage()
         this.singleton = background.controller
       } else {
-        this.singleton = NativeController.getSingleton()
+        const NativeController = await import('./native/NativeController')
+        this.singleton = NativeController.default.getSingleton()
       }
     }
     return this.singleton

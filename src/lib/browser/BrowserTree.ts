@@ -3,7 +3,7 @@ import Logger from '../Logger'
 import * as Tree from '../Tree'
 import { IResource } from '../interfaces/Resource'
 import PQueue from 'p-queue'
-import BrowserAccount from './BrowserAccount'
+import Account from '../Account'
 import { Bookmark, Folder, ItemLocation } from '../Tree'
 import Ordering from '../interfaces/Ordering'
 
@@ -25,7 +25,7 @@ export default class BrowserTree implements IResource {
   async getBookmarksTree():Promise<Folder> {
     const [rootTree] = await browser.bookmarks.getTree() // XXX: Kinda inefficient, but well.
     const [tree] = await browser.bookmarks.getSubTree(this.rootId)
-    const allAccounts = await BrowserAccount.getAllAccounts()
+    const allAccounts = await (await Account.getAccountClass()).getAllAccounts()
 
     const recurse = (node, parentId?) => {
       if (
