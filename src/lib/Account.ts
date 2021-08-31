@@ -42,7 +42,7 @@ export default class Account {
     if ((await Device.getInfo()).platform === 'web') {
       this.singleton = (await import('./browser/BrowserAccount')).default
     } else {
-      return null
+      this.singleton = (await import('./native/NativeAccount')).default
     }
     return this.singleton
   }

@@ -1,0 +1,13 @@
+{
+	"appId": "org.handmadeideas.floccus",
+	"appName": "floccus",
+	"bundledWebRuntime": false,
+	"npmClient": "npm",
+	"webDir": "dist",
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 0
+		}
+	},
+	"cordova": {}
+}

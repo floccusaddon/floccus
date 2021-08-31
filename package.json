@@ -66,8 +66,6 @@
     "async-parallel": "^1.2.3",
     "babel-polyfill": "^6.20.0",
     "batching-toposort": "^1.2.0",
-    "cordova-plugin-chrome-apps-common": "^1.0.7",
-    "cordova-plugin-chrome-apps-i18n": "^2.0.1",
     "css-loader": "^3.6.0",
     "dom-delegator": "^13.1.0",
     "eslint-config-standard": "^12.0.0",
