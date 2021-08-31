@@ -235,8 +235,7 @@ export default class Account {
       }
     } catch (e) {
       console.log(e)
-      // const message = (await Account.getAccountClass()).stringifyError(e)
-      const message = e.getMessage()
+      const message = Account.stringifyError(e)
       console.error('Syncing failed with', message)
       Logger.log('Syncing failed with', message)
 
