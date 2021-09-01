@@ -27,7 +27,7 @@ export default class BrowserAccount extends Account {
   async init():Promise<void> {
     console.log('initializing account ' + this.id)
     const accData = this.getData()
-    if (!this.isInitialized()) {
+    if (!(await this.isInitialized())) {
       const parentNode = await browser.bookmarks.getTree()
       const bookmarksBar = parentNode[0].children[0]
       const node = await browser.bookmarks.create({
