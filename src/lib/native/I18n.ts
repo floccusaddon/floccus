@@ -32,8 +32,18 @@ export default class I18n {
    * Get a formatted message with the given name
    */
   public getMessage(messageName: string, content?: any, formats?: any): string {
-    const message = this.doGetMessage(messageName)
-    return message ? new IntlMessageFormat(message.message, this.locale, formats).format(content) : messageName
+    const string = this.doGetMessage(messageName)
+    if (string) {
+      const message = new IntlMessageFormat(string.message, this.locale, formats).format(content)
+      if (!message) {
+        return messageName
+      }
+      if (Array.isArray(message)) {
+        return message.join('')
+      }
+      return message
+    }
+    return messageName
   }
 
   /**
