@@ -6,6 +6,8 @@ var devConfig = require('./webpack.dev')
 var gulpZip = require('gulp-zip')
 var crx3 = require('crx3')
 var webstoreClient = require('chrome-webstore-upload')
+var rename = require('gulp-rename')
+var path = require('path')
 
 // Provide a dummy credential file for third-party builders
 try {
@@ -45,6 +47,7 @@ const paths = {
   entries: 'src/entries/*.js',
   js: 'src/**',
   builds: './builds/',
+  locales: '_locales/**/messages.json'
 }
 const WEBSTORE_ID = 'fnaicdffflnofjppbagibeoednhnbjhg'
 
@@ -59,6 +62,17 @@ try {
   )
 } catch (e) {
   // noop
+}
+
+const locales = function() {
+  return gulp.src(paths.locales).pipe(rename(function(file) {
+    // Returns a completely new object, make sure you return all keys needed!
+    return {
+      dirname: '.',
+      basename: path.basename(file.dirname),
+      extname: '.json'
+    }
+  })).pipe(gulp.dest('./dist/_locales/'))
 }
 
 const js = function() {
@@ -100,7 +114,7 @@ const mocha = gulp.parallel(mochajs, mochacss)
 
 const thirdparty = gulp.parallel(polyfill, mocha)
 
-const main = gulp.series(html, js, thirdparty)
+const main = gulp.series(html, locales, js, thirdparty)
 
 const dev = gulp.series(html, thirdparty)
 
@@ -143,9 +157,11 @@ const publish = gulp.series(main, zip, function() {
 const watch = function() {
   let jsWatcher = gulp.watch(paths.js, dev)
   let viewsWatcher = gulp.watch(paths.views, html)
+  let localeWatcher = gulp.watch(paths.locales, locales)
 
   jsWatcher.on('change', onWatchEvent)
   viewsWatcher.on('change', onWatchEvent)
+  localeWatcher.on('change', onWatchEvent)
 
   webpack(devConfig).watch({}, (err, stats) => {
     if (err) {
@@ -172,6 +188,7 @@ exports.release = release
 exports.watch = gulp.series(dev, watch)
 exports.publish = publish
 exports.dev = dev
+exports.locales = locales
 /*
  * Define default task that can be called by just running `gulp` from cli
  */

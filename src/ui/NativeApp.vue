@@ -2,8 +2,7 @@
   <v-app
     id="app"
     :style="appStyle">
-    <v-content>
-    </v-content>
+    <v-content />
     <v-footer
       color="#3893cc"
       app>
@@ -92,7 +91,7 @@
 <script>
 import { version as VERSION } from '../../package.json'
 export default {
-  name: 'App',
+  name: 'NativeApp',
   data() {
     return {
       VERSION,
@@ -117,9 +116,6 @@ export default {
     }
   },
   methods: {
-    t(s) {
-      return s
-    }
   }
 }
 </script>
