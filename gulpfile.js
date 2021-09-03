@@ -35,6 +35,7 @@ const paths = {
     './**',
     (process.env['CI'] ? './' : '!') + 'dist/js/test.js',
     '!builds/**',
+    '!icons/**',
     '!src/**',
     '!node_modules/**',
     '!img/**',
@@ -47,7 +48,8 @@ const paths = {
   entries: 'src/entries/*.js',
   js: 'src/**',
   builds: './builds/',
-  locales: '_locales/**/messages.json'
+  locales: '_locales/**/messages.json',
+  icons: 'icons/*'
 }
 const WEBSTORE_ID = 'fnaicdffflnofjppbagibeoednhnbjhg'
 
@@ -73,6 +75,10 @@ const locales = function() {
       extname: '.json'
     }
   })).pipe(gulp.dest('./dist/_locales/'))
+}
+
+const icons = function() {
+  return gulp.src(paths.icons).pipe(gulp.dest('./dist/icons/'))
 }
 
 const js = function() {
@@ -114,9 +120,9 @@ const mocha = gulp.parallel(mochajs, mochacss)
 
 const thirdparty = gulp.parallel(polyfill, mocha)
 
-const main = gulp.series(html, locales, js, thirdparty)
+const main = gulp.series(html, locales, js, thirdparty, icons)
 
-const dev = gulp.series(html, thirdparty)
+const dev = gulp.series(html, thirdparty, locales, icons)
 
 const zip = function() {
   return gulp
