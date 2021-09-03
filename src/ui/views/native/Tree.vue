@@ -26,6 +26,9 @@
       <v-btn icon>
         <v-icon>mdi-sync</v-icon>
       </v-btn>
+      <v-btn icon>
+        <v-icon>mdi-settings</v-icon>
+      </v-btn>
     </v-app-bar>
     <v-content>
       <v-list
@@ -43,11 +46,9 @@
                 large>
                 mdi-folder
               </v-icon>
-              <v-icon
+              <FaviconImage
                 v-else
-                large>
-                mdi-star
-              </v-icon>
+                :url="item.url" />
             </v-list-item-avatar>
 
             <v-list-item-content>
@@ -77,7 +78,9 @@
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item>
-                    <v-list-item-title>Delete</v-list-item-title>
+                    <v-list-item-title @click="deleteItem(item)">
+                      Delete
+                    </v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-menu>
@@ -112,9 +115,10 @@ import Drawer from '../../components/native/Drawer'
 import flatten from 'lodash/flatten'
 import DialogEditFolder from '../../components/native/DialogEditFolder'
 import DialogEditBookmark from '../../components/native/DialogEditBookmark'
+import FaviconImage from '../../components/native/FaviconImage'
 export default {
   name: 'Tree',
-  components: { DialogEditBookmark, DialogEditFolder, Drawer },
+  components: { FaviconImage, DialogEditBookmark, DialogEditFolder, Drawer },
   filters: {
     hostname(url) {
       return new URL(url).hostname
@@ -128,17 +132,17 @@ export default {
           id: 6,
           parentId: 0,
           children: [
-            {type: 'bookmark', url: 'https://marcelklehr.de', title: 'Marcel Klehr', id: 7},
-            {type: 'bookmark', url: 'https://duckduckgo.com', title: 'DuckDuckGo', id: 8},
-            {type: 'bookmark', url: 'https://floccus.org', title: 'Floccus bookmarks sync', id: 9},
-            {type: 'bookmark', url: 'https://google.com', title: 'Google Search', id: 10},
-            {type: 'bookmark', url: 'https://nextcloud.com', title: 'Nextcloud', id: 11},
+            {type: 'bookmark', url: 'https://marcelklehr.de', title: 'Marcel Klehr', id: 7, parentId: 6},
+            {type: 'bookmark', url: 'https://duckduckgo.com', title: 'DuckDuckGo', id: 8, parentId: 6},
+            {type: 'bookmark', url: 'https://floccus.org', title: 'Floccus bookmarks sync', id: 9, parentId: 6},
+            {type: 'bookmark', url: 'https://google.com', title: 'Google Search', id: 10, parentId: 6},
+            {type: 'bookmark', url: 'https://nextcloud.com', title: 'Nextcloud', id: 11, parentId: 6},
           ]},
-        {type: 'bookmark', url: 'https://google.com', title: 'Google Search', id: 5},
-        {type: 'bookmark', url: 'https://nextcloud.com', title: 'Nextcloud', id: 1},
-        {type: 'bookmark', url: 'https://duckduckgo.com', title: 'DuckDuckGo', id: 2},
-        {type: 'bookmark', url: 'https://floccus.org', title: 'Floccus bookmarks sync', id: 3},
-        {type: 'bookmark', url: 'https://marcelklehr.de', title: 'Marcel Klehr', id: 4},
+        {type: 'bookmark', url: 'https://google.com', title: 'Google Search', id: 5, parentId: 0},
+        {type: 'bookmark', url: 'https://nextcloud.com', title: 'Nextcloud', id: 1, parentId: 0},
+        {type: 'bookmark', url: 'https://duckduckgo.com', title: 'DuckDuckGo', id: 2, parentId: 0},
+        {type: 'bookmark', url: 'https://floccus.org', title: 'Floccus bookmarks sync', id: 3, parentId: 0},
+        {type: 'bookmark', url: 'https://marcelklehr.de', title: 'Marcel Klehr', id: 4, parentId: 0},
       ]}
     return {
       tree,
@@ -202,6 +206,10 @@ export default {
         this.currentlyEditedFolder = item
         this.isEditingFolder = true
       }
+    },
+    deleteItem(item) {
+      const parent = this.findItem(item.parentId, this.tree)
+      parent.children.splice(parent.children.indexOf(item), 1)
     },
   }
 }
