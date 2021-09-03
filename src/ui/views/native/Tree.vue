@@ -72,7 +72,9 @@
 
                 <v-list>
                   <v-list-item>
-                    <v-list-item-title>Edit</v-list-item-title>
+                    <v-list-item-title @click="editItem(item)">
+                      Edit
+                    </v-list-item-title>
                   </v-list-item>
                   <v-list-item>
                     <v-list-item-title>Delete</v-list-item-title>
@@ -93,15 +95,26 @@
         <v-card-title>No bookmarks here :(</v-card-title>
       </v-card>
     </v-content>
+    <DialogEditFolder
+      v-if="isEditingFolder"
+      :display.sync="isEditingFolder"
+      :title.sync="currentlyEditedFolder.title" />
+    <DialogEditBookmark
+      v-if="isEditingBookmark"
+      :display.sync="isEditingBookmark"
+      :title.sync="currentlyEditedBookmark.title"
+      :url.sync="currentlyEditedBookmark.url" />
   </div>
 </template>
 
 <script>
 import Drawer from '../../components/native/Drawer'
 import flatten from 'lodash/flatten'
+import DialogEditFolder from '../../components/native/DialogEditFolder'
+import DialogEditBookmark from '../../components/native/DialogEditBookmark'
 export default {
   name: 'Tree',
-  components: { Drawer },
+  components: { DialogEditBookmark, DialogEditFolder, Drawer },
   filters: {
     hostname(url) {
       return new URL(url).hostname
@@ -132,6 +145,10 @@ export default {
       currentFolderId: tree.id,
       drawer: false,
       searchQuery: '',
+      isEditingFolder: false,
+      currentlyEditedFolder: null,
+      isEditingBookmark: false,
+      currentlyEditedBookmark: null
     }
   },
   computed: {
@@ -176,7 +193,16 @@ export default {
       if (typeof this.currentFolder.parentId !== 'undefined') {
         this.currentFolderId = this.currentFolder.parentId
       }
-    }
+    },
+    editItem(item) {
+      if (item.url) {
+        this.currentlyEditedBookmark = item
+        this.isEditingBookmark = true
+      } else {
+        this.currentlyEditedFolder = item
+        this.isEditingFolder = true
+      }
+    },
   }
 }
 </script>
