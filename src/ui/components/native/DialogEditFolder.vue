@@ -23,7 +23,7 @@
         <v-btn
           color="blue darken-1"
           text
-          @click="$emit('update:title', temporaryTitle); $emit('update:display', false)">
+          @click="$emit('save', {title: temporaryTitle}); $emit('update:display', false)">
           OK
         </v-btn>
         <v-spacer />
@@ -36,8 +36,9 @@
 export default {
   name: 'DialogEditFolder',
   props: {
-    title: {
-      type: String,
+    folder: {
+      type: Object,
+      default: () => ({})
     },
     display: {
       type: Boolean,
@@ -45,7 +46,12 @@ export default {
   },
   data() {
     return {
-      temporaryTitle: this.title,
+      temporaryTitle: this.folder.title || '',
+    }
+  },
+  watch: {
+    title() {
+      this.temporaryTitle = this.folder.title
     }
   }
 }

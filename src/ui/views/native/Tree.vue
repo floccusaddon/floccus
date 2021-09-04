@@ -137,23 +137,24 @@
       </v-speed-dial>
     </v-main>
 
-    <DialogEditFolder
-      v-if="isEditingFolder"
-      :display.sync="isEditingFolder"
-      :title.sync="currentlyEditedFolder.title" />
     <DialogEditBookmark
-      v-if="isEditingBookmark"
-      :display.sync="isEditingBookmark"
-      :title.sync="currentlyEditedBookmark.title"
-      :url.sync="currentlyEditedBookmark.url" />
-    <DialogAddBookmark
       v-if="isAddingBookmark"
       :display.sync="isAddingBookmark"
       @save="createBookmark($event)" />
-    <DialogAddFolder
+    <DialogEditFolder
       v-if="isAddingFolder"
       :display.sync="isAddingFolder"
       @save="createFolder($event)" />
+    <DialogEditBookmark
+      v-if="isEditingBookmark"
+      :bookmark="currentlyEditedBookmark"
+      :display.sync="isEditingBookmark"
+      @save="editBookmark($event)" />
+    <DialogEditFolder
+      v-if="isEditingFolder"
+      :folder="currentlyEditedFolder"
+      :display.sync="isEditingFolder"
+      @save="editFolder($event)" />
   </div>
 </template>
 
@@ -164,12 +165,11 @@ import DialogEditFolder from '../../components/native/DialogEditFolder'
 import DialogEditBookmark from '../../components/native/DialogEditBookmark'
 import FaviconImage from '../../components/native/FaviconImage'
 import { routes } from '../../NativeRouter'
-import DialogAddBookmark from '../../components/native/DialogAddBookmark'
 import { Bookmark, Folder } from '../../../lib/Tree'
-import DialogAddFolder from '../../components/native/DialogAddFolder'
+import Vue from 'vue'
 export default {
   name: 'Tree',
-  components: { DialogAddFolder, DialogAddBookmark, FaviconImage, DialogEditBookmark, DialogEditFolder, Drawer },
+  components: { FaviconImage, DialogEditBookmark, DialogEditFolder, Drawer },
   filters: {
     hostname(url) {
       return new URL(url).hostname
@@ -272,7 +272,7 @@ export default {
       this.isAddingBookmark = true
     },
     createBookmark(props) {
-      this.items.push(new Bookmark({id: Math.random(), ...props}))
+      this.items.push(new Bookmark({id: Math.random(), parentId: this.currentFolderId, ...props}))
     },
     addFolder() {
       this.isAddingFolder = true
@@ -280,6 +280,12 @@ export default {
     createFolder(props) {
       this.items.push(new Folder({...props,id: Math.random(), parentId: this.currentFolderId}))
     },
+    editFolder(props) {
+      Object.entries(props).forEach(([key, value]) => Vue.set(this.currentlyEditedFolder, key, value))
+    },
+    editBookmark(props) {
+      Object.entries(props).forEach(([key, value]) => Vue.set(this.currentlyEditedBookmark, key, value))
+    }
   }
 }
 </script>
