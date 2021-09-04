@@ -24,16 +24,28 @@
     <v-list
       dense
       nav>
+      <template v-for="account in accounts">
+        <v-list-item
+          :key="account.id"
+          link>
+          <v-list-item-icon>
+            <v-icon>{{ account.type | accountIcon }}</v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-content>
+            <v-list-item-title>{{ account | accountName }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </template>
       <v-list-item
-        v-for="item in items"
-        :key="item.title"
+        key="info"
         link>
         <v-list-item-icon>
-          <v-icon>{{ item.icon }}</v-icon>
+          <v-icon>mdi-information-outline</v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title>{{ item.title }}</v-list-item-title>
+          <v-list-item-title>About</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
     </v-list>
@@ -43,6 +55,22 @@
 <script>
 export default {
   name: 'Drawer',
+  filters: {
+    accountIcon(type) {
+      const icons = {
+        'googledrive': 'mdi-google-drive',
+        'nextcloud-bookmarks': 'mdi-cloud',
+        'webdav': 'mdi-folder-network'
+      }
+      return icons[type]
+    },
+    accountName(account) {
+      if (account.type !== 'googledrive') {
+        return account.username + '@' + new URL(account.url).hostname
+      }
+      return account.username + '@drive.google.com'
+    }
+  },
   props: {
     visible: {
       type: Boolean
@@ -50,14 +78,13 @@ export default {
   },
   data() {
     return {
-      items: [
-        { title: 'Dashboard', icon: 'mdi-view-dashboard' },
-        { title: 'Photos', icon: 'mdi-image' },
-        { title: 'About', icon: 'mdi-help-box' },
+      accounts: [
+        {id: Math.random(), syncing: false, url: 'http://cloud.nextcloud.com', username: 'frank', error: false, type: 'nextcloud-bookmarks'},
+        {id: Math.random(),syncing: true, url: 'http://cloud.nextcloud.com', username: 'fr4nk', error: false, type: 'webdav'},
+        {id: Math.random(),syncing: false, url: 'http://google.com', username: 'frank', error: true, type: 'googledrive'},
       ],
-      right: null,
     }
-  },
+  }
 }
 </script>
 
