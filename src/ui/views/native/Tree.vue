@@ -32,7 +32,7 @@
         <v-icon>mdi-settings</v-icon>
       </v-btn>
     </v-app-bar>
-    <v-content>
+    <v-main>
       <v-list
         v-if="items && items.length"
         two-line>
@@ -99,7 +99,44 @@
         class="ma-2 mt-10">
         <v-card-title>No bookmarks here :(</v-card-title>
       </v-card>
-    </v-content>
+      <v-speed-dial
+        v-model="fab"
+        fixed
+        bottom
+        right>
+        <template #activator>
+          <v-btn
+            v-model="fab"
+            color="blue"
+            dark
+            fab>
+            <v-icon v-if="fab">
+              mdi-close
+            </v-icon>
+            <v-icon v-else>
+              mdi-plus
+            </v-icon>
+          </v-btn>
+        </template>
+        <v-btn
+          color="blue"
+          dark
+          small
+          fab
+          @click="addFolder">
+          <v-icon>mdi-folder</v-icon>
+        </v-btn>
+        <v-btn
+          color="blue"
+          dark
+          small
+          fab
+          @click="addBookmark">
+          <v-icon>mdi-star</v-icon>
+        </v-btn>
+      </v-speed-dial>
+    </v-main>
+
     <DialogEditFolder
       v-if="isEditingFolder"
       :display.sync="isEditingFolder"
@@ -109,6 +146,14 @@
       :display.sync="isEditingBookmark"
       :title.sync="currentlyEditedBookmark.title"
       :url.sync="currentlyEditedBookmark.url" />
+    <DialogAddBookmark
+      v-if="isAddingBookmark"
+      :display.sync="isAddingBookmark"
+      @save="createBookmark($event)" />
+    <DialogAddFolder
+      v-if="isAddingFolder"
+      :display.sync="isAddingFolder"
+      @save="createFolder($event)" />
   </div>
 </template>
 
@@ -119,9 +164,12 @@ import DialogEditFolder from '../../components/native/DialogEditFolder'
 import DialogEditBookmark from '../../components/native/DialogEditBookmark'
 import FaviconImage from '../../components/native/FaviconImage'
 import { routes } from '../../NativeRouter'
+import DialogAddBookmark from '../../components/native/DialogAddBookmark'
+import { Bookmark, Folder } from '../../../lib/Tree'
+import DialogAddFolder from '../../components/native/DialogAddFolder'
 export default {
   name: 'Tree',
-  components: { FaviconImage, DialogEditBookmark, DialogEditFolder, Drawer },
+  components: { DialogAddFolder, DialogAddBookmark, FaviconImage, DialogEditBookmark, DialogEditFolder, Drawer },
   filters: {
     hostname(url) {
       return new URL(url).hostname
@@ -155,7 +203,10 @@ export default {
       isEditingFolder: false,
       currentlyEditedFolder: null,
       isEditingBookmark: false,
-      currentlyEditedBookmark: null
+      currentlyEditedBookmark: null,
+      isAddingBookmark: false,
+      isAddingFolder: false,
+      fab: false
     }
   },
   computed: {
@@ -216,6 +267,18 @@ export default {
     deleteItem(item) {
       const parent = this.findItem(item.parentId, this.tree)
       parent.children.splice(parent.children.indexOf(item), 1)
+    },
+    addBookmark() {
+      this.isAddingBookmark = true
+    },
+    createBookmark(props) {
+      this.items.push(new Bookmark({id: Math.random(), ...props}))
+    },
+    addFolder() {
+      this.isAddingFolder = true
+    },
+    createFolder(props) {
+      this.items.push(new Folder({...props,id: Math.random(), parentId: this.currentFolderId}))
     },
   }
 }

@@ -52,7 +52,6 @@
 </template>
 
 <script>
-import Drawer from '../../components/native/Drawer'
 import OptionsNextcloudLegacy from '../../components/OptionsNextcloudLegacy'
 import OptionsFake from '../../components/OptionsFake'
 import OptionsGoogleDrive from '../../components/OptionsGoogleDrive'
@@ -63,7 +62,7 @@ import PathHelper from '../../../lib/PathHelper'
 import BrowserTree from '../../../lib/browser/BrowserTree'
 export default {
   name: 'Options',
-  components: { OptionsNextcloudBookmarks, OptionsWebdav, OptionsGoogleDrive, OptionsFake, OptionsNextcloudLegacy, Drawer },
+  components: { OptionsNextcloudBookmarks, OptionsWebdav, OptionsGoogleDrive, OptionsFake, OptionsNextcloudLegacy },
   data() {
     return {
       drawer: false,
@@ -92,7 +91,7 @@ export default {
       this.updateFolderName()
     },
     loading() {
-      if (this.loading) return
+      // if (this.loading) return
       // this.data = this.$store.state.accounts[this.id].data
     }
   },
