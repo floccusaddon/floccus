@@ -26,7 +26,9 @@
       <v-btn icon>
         <v-icon>mdi-sync</v-icon>
       </v-btn>
-      <v-btn icon>
+      <v-btn
+        icon
+        :to="{name: routes.ACCOUNT_OPTIONS, params:{accountId: Math.random()}}">
         <v-icon>mdi-settings</v-icon>
       </v-btn>
     </v-app-bar>
@@ -116,6 +118,7 @@ import flatten from 'lodash/flatten'
 import DialogEditFolder from '../../components/native/DialogEditFolder'
 import DialogEditBookmark from '../../components/native/DialogEditBookmark'
 import FaviconImage from '../../components/native/FaviconImage'
+import { routes } from '../../NativeRouter'
 export default {
   name: 'Tree',
   components: { FaviconImage, DialogEditBookmark, DialogEditFolder, Drawer },
@@ -164,7 +167,10 @@ export default {
     },
     currentFolder() {
       return this.findItem(this.currentFolderId, this.tree)
-    }
+    },
+    routes() {
+      return routes
+    },
   },
   methods: {
     clickItem(item) {

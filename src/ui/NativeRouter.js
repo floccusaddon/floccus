@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Tree from './views/native/Tree'
-import AccountOptions from './views/AccountOptions'
 import NewAccount from './views/NewAccount'
 import Update from './views/Update'
 import ImportExport from './views/ImportExport'
 import Donate from './views/Donate'
+import Options from './views/native/Options'
 
 Vue.use(Router)
 
@@ -31,7 +31,7 @@ export const router = new Router({
     {
       path: '/options/:accountId',
       name: routes.ACCOUNT_OPTIONS,
-      component: AccountOptions,
+      component: Options,
     },
     {
       path: '/new',
