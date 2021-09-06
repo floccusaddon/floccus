@@ -77,9 +77,6 @@
 </template>
 
 <script>
-import BrowserTree from '../../lib/browser/BrowserTree'
-import browser from '../../lib/browser-api'
-
 export default {
   name: 'OptionSyncFolder',
   props: { value: { type: String, default: undefined } },
@@ -115,6 +112,7 @@ export default {
         this.mode = 'tabs'
         return
       }
+      const BrowserTree = (await import('../../lib/browser/BrowserTree')).default
       if (this.value) {
         this.path = decodeURIComponent(
           await BrowserTree.getPathFromLocalId(this.value)
@@ -124,6 +122,7 @@ export default {
       }
     },
     async onTriggerFinder() {
+      const browser = (await import('../../lib/browser-api')).default
       this.selectedLocalRoot = this.value
       this.finder = true
       this.folders = this.filterOutBookmarks(await browser.bookmarks.getTree())

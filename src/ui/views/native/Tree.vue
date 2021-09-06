@@ -6,11 +6,12 @@
       app>
       <v-app-bar-nav-icon
         v-if="currentFolderId === tree.id"
-        class="mr-2"
+        class="mr-2 ml-n2"
         @click="drawer = !drawer" />
       <v-btn
         v-else
         icon
+        class="mr-2 ml-n2"
         @click="goBack">
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>

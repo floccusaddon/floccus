@@ -1,5 +1,4 @@
 import { Device } from '@capacitor/device'
-import browser from './browser-api'
 import IController from './interfaces/Controller'
 
 export default class Controller {
@@ -8,6 +7,7 @@ export default class Controller {
   static async getSingleton():Promise<IController> {
     if (!this.singleton) {
       if ((await Device.getInfo()).platform === 'web') {
+        const browser = (await import('./browser-api')).default
         const background = await browser.runtime.getBackgroundPage()
         this.singleton = background.controller
       } else {

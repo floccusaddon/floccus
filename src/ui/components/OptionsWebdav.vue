@@ -42,7 +42,9 @@
       </v-card-text>
     </v-card>
 
-    <v-card class="mb-4">
+    <v-card
+      v-if="isBrowser"
+      class="mb-4">
       <v-card-title
         id="folder"
         class="text-h5">

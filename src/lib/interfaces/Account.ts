@@ -8,4 +8,5 @@ export default interface IAccount {
   export(accountIds:string[]):Promise<IAccountData[]>
   getAllAccounts():Promise<Account[]>
   getAccountsContainingLocalId(localId:string, ancestors:string[], allAccounts:Account[]):Promise<Account[]>
+  stringifyError(er: any): Promise<string>
 }

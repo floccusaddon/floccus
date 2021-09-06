@@ -1,6 +1,4 @@
-import I18n from '../../lib/native/I18n'
-
-export const i18n = new I18n('en')
+import {i18n} from '../../lib/native/I18n'
 
 export default {
   methods: {

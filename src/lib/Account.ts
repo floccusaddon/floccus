@@ -1,7 +1,4 @@
 import AdapterFactory from './AdapterFactory'
-import LocalTabs from './LocalTabs'
-import browser from './browser-api'
-import BrowserTree from './browser/BrowserTree'
 import Logger from './Logger'
 import { Folder, ItemLocation } from './Tree'
 import UnidirectionalMergeSyncProcess from './strategies/UnidirectionalMerge'
@@ -12,17 +9,9 @@ import IAccountStorage, { IAccountData, TAccountStrategy } from './interfaces/Ac
 import { TAdapter } from './interfaces/Adapter'
 import NextcloudBookmarksAdapter from './adapters/NextcloudBookmarks'
 import WebDavAdapter from './adapters/WebDav'
-import GoogleDriveAdapter from './adapters/GoogleDrive'
+// import GoogleDriveAdapter from './adapters/GoogleDrive'
 import FakeAdapter from './adapters/Fake'
 import { TLocalTree } from './interfaces/Resource'
-import {
-  FailsafeError,
-  FloccusError,
-  HttpError, InconsistentBookmarksExistenceError, LockFileError,
-  MissingItemOrderError,
-  ParseResponseError,
-  UnknownFolderItemOrderError
-} from '../errors/Error'
 import Controller from './Controller'
 import { Device } from '@capacitor/device'
 import IAccount from './interfaces/Account'
@@ -31,7 +20,7 @@ import IAccount from './interfaces/Account'
 AdapterFactory.register('nextcloud-folders', NextcloudBookmarksAdapter)
 AdapterFactory.register('nextcloud-bookmarks', NextcloudBookmarksAdapter)
 AdapterFactory.register('webdav', WebDavAdapter)
-AdapterFactory.register('google-drive', GoogleDriveAdapter)
+// AdapterFactory.register('google-drive', GoogleDriveAdapter)
 AdapterFactory.register('fake', FakeAdapter)
 
 export default class Account {
@@ -86,7 +75,6 @@ export default class Account {
     this.id = id
     this.storage = storageAdapter
     this.localTree = treeAdapter
-    this.localTabs = new LocalTabs(this.storage)
   }
 
   async delete():Promise<void> {
@@ -147,7 +135,14 @@ export default class Account {
         await this.init()
       }
 
-      const localResource = this.getData().localRoot !== 'tabs' ? this.localTree : this.localTabs
+      let localResource
+      if (this.getData().localRoot !== 'tabs') {
+        localResource = this.localTree
+      } else {
+        const LocalTabs = (await import('./LocalTabs')).default
+        this.localTabs = new LocalTabs(this.storage)
+        localResource = this.localTabs
+      }
 
       if (this.server.onSyncStart) {
         const status = await this.server.onSyncStart()
@@ -158,7 +153,7 @@ export default class Account {
 
       // main sync steps:
       mappings = await this.storage.getMappings()
-      const cacheTree = localResource instanceof BrowserTree ? await this.storage.getCache() : new Folder({title: '', id: 'tabs', location: ItemLocation.LOCAL})
+      const cacheTree = localResource.constructor.name !== 'LocalTabs' ? await this.storage.getCache() : new Folder({title: '', id: 'tabs', location: ItemLocation.LOCAL})
 
       let strategyClass, direction
       switch (strategy || this.getData().strategy) {
@@ -208,7 +203,7 @@ export default class Account {
       await this.syncProcess.sync()
 
       // update cache
-      if (localResource instanceof BrowserTree) {
+      if (localResource.constructor.name !== 'LocalTabs') {
         const cache = await localResource.getBookmarksTree()
         this.syncProcess.filterOutUnacceptedBookmarks(cache)
         await this.storage.setCache(cache)
@@ -235,7 +230,7 @@ export default class Account {
       }
     } catch (e) {
       console.log(e)
-      const message = Account.stringifyError(e)
+      const message = await Account.stringifyError(e)
       console.error('Syncing failed with', message)
       Logger.log('Syncing failed with', message)
 
@@ -255,40 +250,8 @@ export default class Account {
     await Logger.persist()
   }
 
-  static stringifyError(er:any):string {
-    if (er instanceof UnknownFolderItemOrderError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.item])
-    }
-    if (er instanceof MissingItemOrderError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.item])
-    }
-    if (er instanceof HttpError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.status, er.method])
-    }
-    if (er instanceof ParseResponseError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0')) + '\n' + er.response
-    }
-    if (er instanceof InconsistentBookmarksExistenceError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.folder, er.bookmark])
-    }
-    if (er instanceof LockFileError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.status, er.lockFile])
-    }
-    if (er instanceof FailsafeError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
-    }
-    if (er instanceof FloccusError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'))
-    }
-    if (er.list) {
-      return er.list
-        .map((e) => {
-          Logger.log(e)
-          return this.stringifyError(e)
-        })
-        .join('\n')
-    }
-    return er.message
+  static async stringifyError(er:any):Promise<string> {
+    return (await this.getAccountClass()).stringifyError(er)
   }
 
   async cancelSync():Promise<void> {

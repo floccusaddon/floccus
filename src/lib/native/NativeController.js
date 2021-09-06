@@ -1,10 +1,10 @@
-import browser from '../browser-api'
 import { Storage } from '@capacitor/storage'
 import NativeAccount from './NativeAccount'
 import NativeTree from './NativeTree'
 import Cryptography from '../Crypto'
 import packageJson from '../../../package.json'
 import NativeAccountStorage from './NativeAccountStorage'
+import {i18n} from './I18n'
 import _ from 'lodash'
 
 import PQueue from 'p-queue'
@@ -57,7 +57,7 @@ export default class NativeController {
 
     Storage.get({key: 'currentVersion'}).then(async({value: currentVersion}) => {
       if (packageJson.version === currentVersion) return
-      await browser.storage.local.set({
+      await Storage.set({
         currentVersion: packageJson.version
       })
 
@@ -253,7 +253,7 @@ export default class NativeController {
           await acc.setData({
             ...acc.getData(),
             syncing: false,
-            error: browser.i18n.getMessage('Error027')
+            error: i18n.getMessage('Error027')
           })
         }
       })

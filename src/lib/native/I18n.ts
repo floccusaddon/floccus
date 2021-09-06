@@ -68,3 +68,5 @@ export default class I18n {
     return this.messages[messageName]
   }
 }
+
+export const i18n = new I18n('en')

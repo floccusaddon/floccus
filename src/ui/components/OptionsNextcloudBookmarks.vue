@@ -13,6 +13,7 @@
           :label="t('LabelNextcloudurl')"
           @input="$emit('update:url', $event)" />
         <NextcloudLogin
+          v-if="isBrowser"
           :username="username"
           :password="password"
           :server="url"
@@ -41,6 +42,7 @@
           :label="t('LabelServerfolder')"
           @input="$emit('update:serverRoot', $event)" />
         <OptionSyncFolder
+          v-if="isBrowser"
           :value="localRoot"
           @input="$emit('update:localRoot', $event)" />
       </v-card-text>

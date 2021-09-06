@@ -4,6 +4,16 @@ import AdapterFactory from '../AdapterFactory'
 import Account from '../Account'
 import { IAccountData } from '../interfaces/AccountStorage'
 import Controller from '../Controller'
+import {
+  FailsafeError, FloccusError,
+  HttpError,
+  InconsistentBookmarksExistenceError, LockFileError,
+  MissingItemOrderError,
+  ParseResponseError,
+  UnknownFolderItemOrderError
+} from '../../errors/Error'
+import Logger from '../Logger'
+import { i18n } from './I18n'
 
 export default class NativeAccount extends Account {
   static async get(id:string):Promise<Account> {
@@ -50,6 +60,42 @@ export default class NativeAccount extends Account {
     const data = await this.storage.getAccountData(controller.key)
     this.server.setData(data)
     this.localTree = new NativeTree(this.storage)
+  }
+
+  static async stringifyError(er:any):Promise<string> {
+    if (er instanceof UnknownFolderItemOrderError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.item])
+    }
+    if (er instanceof MissingItemOrderError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.item])
+    }
+    if (er instanceof HttpError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.status, er.method])
+    }
+    if (er instanceof ParseResponseError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0')) + '\n' + er.response
+    }
+    if (er instanceof InconsistentBookmarksExistenceError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.folder, er.bookmark])
+    }
+    if (er instanceof LockFileError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.status, er.lockFile])
+    }
+    if (er instanceof FailsafeError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
+    }
+    if (er instanceof FloccusError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))
+    }
+    if (er.list) {
+      return er.list
+        .map((e) => {
+          Logger.log(e)
+          return this.stringifyError(e)
+        })
+        .join('\n')
+    }
+    return er.message
   }
 
   static async getAllAccounts():Promise<Account[]> {
