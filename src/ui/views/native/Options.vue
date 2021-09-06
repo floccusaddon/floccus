@@ -45,7 +45,7 @@
 import OptionsFake from '../../components/OptionsFake'
 import OptionsWebdav from '../../components/OptionsWebdav'
 import OptionsNextcloudBookmarks from '../../components/OptionsNextcloudBookmarks'
-import PathHelper from '../../../lib/PathHelper'
+// iport PathHelper from '../../../lib/PathHelper'
 
 const actions = {}
 export default {

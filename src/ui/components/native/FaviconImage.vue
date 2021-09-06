@@ -26,9 +26,13 @@ export default {
     }
   },
   async created() {
-    const res = await fetch(this.url)
-    const icons = getIcons(await res.text(), res.url)
-    this.src = icons[0]
+    try {
+      const res = await fetch(this.url)
+      const icons = getIcons(await res.text(), res.url)
+      this.src = icons[0]
+    } catch (e) {
+      console.log(e)
+    }
   }
 }
 </script>
