@@ -4,7 +4,7 @@
       app>
       <v-btn
         icon
-        @click="$router.back()">
+        :to="{name: routes.TREE, params: {accountId: id}}">
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
       <v-app-bar-title>Account Options</v-app-bar-title>
@@ -46,6 +46,7 @@ import OptionsFake from '../../components/OptionsFake'
 import OptionsWebdav from '../../components/OptionsWebdav'
 import OptionsNextcloudBookmarks from '../../components/OptionsNextcloudBookmarks'
 import { actions } from '../../store/native'
+import { routes } from '../../NativeRouter'
 // iport PathHelper from '../../../lib/PathHelper'
 
 export default {
@@ -73,6 +74,9 @@ export default {
     saved() {
       return this.savedData === JSON.stringify(this.data)
     },
+    routes() {
+      return routes
+    }
   },
   watch: {
     localRoot() {
@@ -93,6 +97,7 @@ export default {
     async onSave() {
       await this.$store.dispatch(actions.STORE_ACCOUNT, {id: this.id, data: this.data})
       this.savedData = JSON.stringify(this.data)
+      await this.$router.push({name: routes.TREE, params: {accountId: this.id}})
     },
     async updateFolderName() {
       // const pathArray = PathHelper.pathToArray(decodeURIComponent(
