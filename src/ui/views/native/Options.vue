@@ -99,12 +99,6 @@ export default {
       this.savedData = JSON.stringify(this.data)
       await this.$router.push({name: routes.TREE, params: {accountId: this.id}})
     },
-    async updateFolderName() {
-      // const pathArray = PathHelper.pathToArray(decodeURIComponent(
-      //  await BrowserTree.getPathFromLocalId(this.localRoot)
-      // ))
-      // this.folderName = pathArray[pathArray.length - 1]
-    },
     async onDelete() {
       await this.$store.dispatch(actions.DELETE_ACCOUNT, this.id)
       this.deleted = true

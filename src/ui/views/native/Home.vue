@@ -17,8 +17,7 @@ export default {
       const accountId = Object.keys(this.$store.state.accounts)[0]
       this.$router.push({name: routes.TREE, params: {accountId}})
     } else {
-      const accountId = await this.$store.dispatch(actions.CREATE_ACCOUNT, 'nextcloud-bookmarks')
-      this.$router.push({name: routes.TREE, params: {accountId}})
+      this.$router.push({name: routes.NEW_ACCOUNT})
     }
   }
 }
