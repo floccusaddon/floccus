@@ -13,6 +13,7 @@ import {
   NetworkError,
   SlashError
 } from '../../errors/Error'
+import { Http } from '@capacitor-community/http'
 
 export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {
@@ -65,7 +66,8 @@ export default class WebDavAdapter extends CachingAdapter {
     )
 
     try {
-      res = await fetch(fullURL, {
+      res = await Http.request({
+        url: fullURL,
         method: 'GET',
         credentials: 'omit',
         headers: {
@@ -103,14 +105,15 @@ export default class WebDavAdapter extends CachingAdapter {
       this.server.username + ':' + this.server.password
     )
     try {
-      var res = await fetch(url, {
+      var res = await Http.request({
+        url,
         method: 'PUT',
         credentials: 'omit',
         headers: {
           'Content-Type': content_type,
           Authorization: 'Basic ' + authString
         },
-        body: data
+        data
       })
     } catch (e) {
       Logger.log('Error Caught')
@@ -165,7 +168,8 @@ export default class WebDavAdapter extends CachingAdapter {
     )
 
     try {
-      await fetch(fullUrl, {
+      await Http.request({
+        url: fullUrl,
         method: 'DELETE',
         credentials: 'omit',
         headers: {
