@@ -8,6 +8,7 @@
 
 <script>
 import { version as VERSION } from '../../package.json'
+import { actions } from './store/native'
 export default {
   name: 'NativeApp',
   data() {
@@ -33,13 +34,12 @@ export default {
       }
     }
   },
+  created() {
+    setInterval(() => {
+      this.$store.dispatch(actions.LOAD_ACCOUNTS)
+    }, 5000)
+  },
   methods: {
   }
 }
 </script>
-
-<style scoped>
-#app {
-  min-width: 460px;
-}
-</style>

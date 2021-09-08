@@ -13,7 +13,6 @@
           :label="t('LabelNextcloudurl')"
           @input="$emit('update:url', $event)" />
         <NextcloudLogin
-          v-if="isBrowser"
           :username="username"
           :password="password"
           :server="url"

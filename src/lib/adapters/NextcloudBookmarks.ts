@@ -22,6 +22,8 @@ import {
   UnknownFolderUpdateError,
   UnknownMoveTargetError
 } from '../../errors/Error'
+import { Http } from '@capacitor-community/http'
+import { Device } from '@capacitor/device'
 
 const PAGE_SIZE = 300
 const TIMEOUT = 180000
@@ -186,6 +188,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     try {
       json = await hashResponse.json()
     } catch (e) {
+      json = hashResponse.data
       // noop
     }
 
@@ -796,6 +799,15 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async sendRequest(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false):Promise<any> {
+    const deviceInfo = await Device.getInfo()
+    if (deviceInfo.platform === 'web') {
+      return this.sendRequestWeb(verb, relUrl, type, body, returnRawResponse)
+    } else {
+      return this.sendRequestNative(verb, relUrl, type, body, returnRawResponse)
+    }
+  }
+
+  async sendRequestWeb(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false):Promise<any> {
     const url = this.normalizeServerURL(this.server.url) + relUrl
     let res
     let timedOut = false
@@ -847,6 +859,56 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     } catch (e) {
       throw new ParseResponseError(e.message)
     }
+    if (json.status !== 'success') {
+      throw new Error('Nextcloud API error: \n' + JSON.stringify(json))
+    }
+
+    return json
+  }
+
+  async sendRequestNative(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false):Promise<any> {
+    const url = this.normalizeServerURL(this.server.url) + relUrl
+    let res
+    let timedOut = false
+    const authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+    try {
+      res = await this.fetchQueue.add(() =>
+        Promise.race([
+          Http.request({
+            url,
+            method: verb,
+            headers: {
+              ...(type && { 'Content-type': type }),
+              Authorization: 'Basic ' + authString,
+            },
+            ...(body && { data: body }),
+          }),
+          new Promise((resolve, reject) =>
+            setTimeout(() => {
+              timedOut = true
+              reject(new RequestTimeoutError())
+            }, TIMEOUT)
+          ),
+        ])
+      )
+    } catch (e) {
+      if (timedOut) throw e
+      throw new NetworkError()
+    }
+
+    if (returnRawResponse) {
+      return res
+    }
+
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status === 503) {
+      throw new HttpError(res.status, verb)
+    }
+    const json = res.data
     if (json.status !== 'success') {
       throw new Error('Nextcloud API error: \n' + JSON.stringify(json))
     }

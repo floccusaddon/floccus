@@ -1,11 +1,15 @@
 <template>
   <div>
+    <v-system-bar
+      v-if="Boolean(syncError)"
+      color="red"
+      v-text="syncError" />
     <Drawer :visible.sync="drawer" />
     <v-app-bar
       hide-on-scroll
       app>
       <v-app-bar-nav-icon
-        v-if="currentFolderId === tree.id"
+        v-if="!tree || currentFolderId === tree.id"
         class="mr-2 ml-n2"
         @click="drawer = !drawer" />
       <v-btn
@@ -17,25 +21,34 @@
       </v-btn>
       <v-text-field
         v-model="searchQuery"
-        :label="currentFolderId === tree.id? 'Search Bookmarks' : 'Search '+currentFolder.title"
+        :label="!tree || currentFolderId === tree.id? 'Search Bookmarks' : 'Search '+currentFolder.title"
         solo
         flat
         dense
         clearable
         hide-details />
       <v-spacer />
-      <v-btn icon>
+      <v-btn
+        icon
+        :disabled="Boolean(syncing)"
+        @click="onTriggerSync">
         <v-icon>mdi-sync</v-icon>
       </v-btn>
       <v-btn
+        v-if="currentAccount"
         icon
-        :to="{name: routes.ACCOUNT_OPTIONS, params:{accountId: Math.random()}}">
+        :to="{name: routes.ACCOUNT_OPTIONS, params:{accountId: currentAccount? currentAccount.id : 0}}">
         <v-icon>mdi-settings</v-icon>
       </v-btn>
     </v-app-bar>
     <v-main>
+      <v-progress-circular
+        v-if="loading"
+        indeterminate
+        color="blue"
+        class="loading" />
       <v-list
-        v-if="items && items.length"
+        v-else-if="items && items.length"
         two-line>
         <template v-for="item in items">
           <v-list-item
@@ -168,6 +181,7 @@ import FaviconImage from '../../components/native/FaviconImage'
 import { routes } from '../../NativeRouter'
 import { Bookmark, Folder } from '../../../lib/Tree'
 import Vue from 'vue'
+import { actions } from '../../store/native'
 export default {
   name: 'Tree',
   components: { FaviconImage, DialogEditBookmark, DialogEditFolder, Drawer },
@@ -177,28 +191,8 @@ export default {
     }
   },
   data() {
-    const tree = {id: 0,
-      children: [
-        {type: 'folder',
-          title: 'Escuchar música',
-          id: 6,
-          parentId: 0,
-          children: [
-            {type: 'bookmark', url: 'https://marcelklehr.de', title: 'Marcel Klehr', id: 7, parentId: 6},
-            {type: 'bookmark', url: 'https://duckduckgo.com', title: 'DuckDuckGo', id: 8, parentId: 6},
-            {type: 'bookmark', url: 'https://floccus.org', title: 'Floccus bookmarks sync', id: 9, parentId: 6},
-            {type: 'bookmark', url: 'https://google.com', title: 'Google Search', id: 10, parentId: 6},
-            {type: 'bookmark', url: 'https://nextcloud.com', title: 'Nextcloud', id: 11, parentId: 6},
-          ]},
-        {type: 'bookmark', url: 'https://google.com', title: 'Google Search', id: 5, parentId: 0},
-        {type: 'bookmark', url: 'https://nextcloud.com', title: 'Nextcloud', id: 1, parentId: 0},
-        {type: 'bookmark', url: 'https://duckduckgo.com', title: 'DuckDuckGo', id: 2, parentId: 0},
-        {type: 'bookmark', url: 'https://floccus.org', title: 'Floccus bookmarks sync', id: 3, parentId: 0},
-        {type: 'bookmark', url: 'https://marcelklehr.de', title: 'Marcel Klehr', id: 4, parentId: 0},
-      ]}
     return {
-      tree,
-      currentFolderId: tree.id,
+      currentFolderId: 0,
       drawer: false,
       searchQuery: '',
       isEditingFolder: false,
@@ -211,7 +205,31 @@ export default {
     }
   },
   computed: {
+    id() {
+      return this.$route.params.accountId
+    },
+    loading() {
+      return (!this.$store.state.accounts[this.id] || !this.$store.state.accounts[this.id].data || !Object.keys(this.$store.state.accounts[this.id].data).length || !this.tree)
+    },
+    tree() {
+      return this.$store.state.tree
+    },
+    syncing() {
+      if (this.loading) {
+        return false
+      }
+      return this.$store.state.accounts[this.id].data.syncing
+    },
+    syncError() {
+      if (this.loading) {
+        return false
+      }
+      return this.$store.state.accounts[this.id].data.error
+    },
     items() {
+      if (!this.tree) {
+        return []
+      }
       if (this.searchQuery && this.searchQuery.length >= 2) {
         return this.search(this.searchQuery.toLowerCase().trim(), this.currentFolder)
       }
@@ -223,6 +241,22 @@ export default {
     routes() {
       return routes
     },
+    currentAccount() {
+      return this.$store.state.accounts[this.id]
+    }
+  },
+  watch: {
+    async id() {
+      await this.$store.dispatch(actions.LOAD_TREE, this.id)
+    },
+    async syncing() {
+      if (!this.syncing) {
+        await this.$store.dispatch(actions.LOAD_TREE, this.id)
+      }
+    }
+  },
+  created() {
+    this.$store.dispatch(actions.LOAD_TREE, this.id)
   },
   methods: {
     clickItem(item) {
@@ -234,6 +268,9 @@ export default {
       }
     },
     findItem(id, tree) {
+      if (!tree) {
+        return null
+      }
       if (tree.id === id) {
         return tree
       }
@@ -286,11 +323,16 @@ export default {
     },
     editBookmark(props) {
       Object.entries(props).forEach(([key, value]) => Vue.set(this.currentlyEditedBookmark, key, value))
+    },
+    onTriggerSync() {
+      this.$store.dispatch(actions.TRIGGER_SYNC, this.id)
     }
   }
 }
 </script>
 
 <style scoped>
-
+.loading {
+  margin: 40vh 40vw;
+}
 </style>

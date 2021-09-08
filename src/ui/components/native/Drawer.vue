@@ -27,13 +27,14 @@
       <template v-for="account in accounts">
         <v-list-item
           :key="account.id"
-          link>
+          link
+          :to="{name: routes.TREE, params:{accountId: account.id}}">
           <v-list-item-icon>
-            <v-icon>{{ account.type | accountIcon }}</v-icon>
+            <v-icon>{{ account.data.type | accountIcon }}</v-icon>
           </v-list-item-icon>
 
           <v-list-item-content>
-            <v-list-item-title>{{ account | accountName }}</v-list-item-title>
+            <v-list-item-title>{{ account.label }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </template>
@@ -53,6 +54,7 @@
 </template>
 
 <script>
+import { routes } from '../../NativeRouter'
 export default {
   name: 'Drawer',
   filters: {
@@ -64,12 +66,6 @@ export default {
       }
       return icons[type]
     },
-    accountName(account) {
-      if (account.type !== 'googledrive') {
-        return account.username + '@' + new URL(account.url).hostname
-      }
-      return account.username + '@drive.google.com'
-    }
   },
   props: {
     visible: {
@@ -77,12 +73,14 @@ export default {
     },
   },
   data() {
-    return {
-      accounts: [
-        {id: Math.random(), syncing: false, url: 'http://cloud.nextcloud.com', username: 'frank', error: false, type: 'nextcloud-bookmarks'},
-        {id: Math.random(),syncing: true, url: 'http://cloud.nextcloud.com', username: 'fr4nk', error: false, type: 'webdav'},
-        {id: Math.random(),syncing: false, url: 'http://google.com', username: 'frank', error: true, type: 'googledrive'},
-      ],
+    return { }
+  },
+  computed: {
+    accounts() {
+      return Object.values(this.$store.state.accounts)
+    },
+    routes() {
+      return routes
     }
   }
 }

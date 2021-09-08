@@ -9,6 +9,7 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
+    implementation project(':capacitor-community-http')
     implementation project(':capacitor-device')
     implementation project(':capacitor-storage')
 

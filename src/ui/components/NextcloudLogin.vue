@@ -6,7 +6,9 @@
       :loading="isRunning"
       :error-messages="error"
       @input="$emit('update:username', $event)">
-      <template slot="append-outer">
+      <template
+        v-if="isBrowser"
+        slot="append-outer">
         <v-tooltip
           v-if="!isRunning"
           left>

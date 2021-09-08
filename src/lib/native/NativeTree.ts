@@ -1,5 +1,5 @@
 import { Storage } from '@capacitor/storage'
-import { Bookmark, Folder } from '../Tree'
+import { Bookmark, Folder, ItemLocation } from '../Tree'
 import Ordering from '../interfaces/Ordering'
 import CachingAdapter from '../adapters/Caching'
 import IAccountStorage from '../interfaces/AccountStorage'
@@ -28,7 +28,7 @@ export default class NativeTree extends CachingAdapter {
   }
 
   async save():Promise<void> {
-    await Storage.set({key: `bookmarks[${this.accountId}].tree`, value: JSON.stringify(this.bookmarksCache)})
+    await Storage.set({key: `bookmarks[${this.accountId}].tree`, value: JSON.stringify(this.bookmarksCache.clone(true, ItemLocation.LOCAL))})
     await Storage.set({key: `bookmarks[${this.accountId}].highestId`, value: this.highestId + ''})
   }
 

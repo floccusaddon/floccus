@@ -23,12 +23,14 @@ class AlarmManager {
     for (let accountId of accounts) {
       const account = await NativeAccount.get(accountId)
       const data = account.getData()
-      if (
+      if (!data.lastSync ||
         Date.now() >
         (data.syncInterval || DEFAULT_SYNC_INTERVAL) * 1000 * 60 + data.lastSync
       ) {
         // noinspection ES6MissingAwait
         this.ctl.scheduleSync(accountId)
+      } else {
+        console.log('Not syncing account for now: ', accountId)
       }
     }
   }
@@ -57,9 +59,7 @@ export default class NativeController {
 
     Storage.get({key: 'currentVersion'}).then(async({value: currentVersion}) => {
       if (packageJson.version === currentVersion) return
-      await Storage.set({
-        currentVersion: packageJson.version
-      })
+      await Storage.set({key: 'currentVersion', value: packageJson.version})
 
       const packageVersion = packageJson.version.split('.')
       const lastVersion = currentVersion ? currentVersion.split('.') : []

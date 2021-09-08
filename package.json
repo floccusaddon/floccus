@@ -58,6 +58,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
+    "@capacitor-community/http": "^1.2.0",
     "@capacitor/android": "^3.0.0",
     "@capacitor/cli": "^3.0.0",
     "@capacitor/core": "^3.0.0",

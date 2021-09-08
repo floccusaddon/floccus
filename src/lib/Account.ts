@@ -11,7 +11,7 @@ import NextcloudBookmarksAdapter from './adapters/NextcloudBookmarks'
 import WebDavAdapter from './adapters/WebDav'
 // import GoogleDriveAdapter from './adapters/GoogleDrive'
 import FakeAdapter from './adapters/Fake'
-import { TLocalTree } from './interfaces/Resource'
+import { IResource, TLocalTree } from './interfaces/Resource'
 import Controller from './Controller'
 import { Device } from '@capacitor/device'
 import IAccount from './interfaces/Account'
@@ -94,6 +94,17 @@ export default class Account {
       failsafe: true,
     }
     return {...defaults, ...this.server.getData(), ...(this.server.getData().type === 'nextcloud-folders' && {type: 'nextcloud-bookmarks'})}
+  }
+
+  async getResource():Promise<IResource> {
+    let localResource
+    if (this.getData().localRoot !== 'tabs') {
+      return this.localTree
+    } else {
+      const LocalTabs = (await import('./LocalTabs')).default
+      this.localTabs = new LocalTabs(this.storage)
+      return this.localTabs
+    }
   }
 
   async setData(data:IAccountData):Promise<void> {

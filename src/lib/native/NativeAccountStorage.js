@@ -23,11 +23,11 @@ export default class NativeAccountStorage {
 
   static async getEntry(entryName, defaultVal) {
     let entry = await Storage.get({key: entryName })
-    if (entry[entryName]) {
-      while (typeof entry[entryName] === 'string') {
-        entry[entryName] = JSON.parse(entry[entryName])
+    if (entry.value) {
+      while (typeof entry.value === 'string') {
+        entry.value = JSON.parse(entry.value)
       }
-      return entry[entryName]
+      return entry.value
     } else {
       return defaultVal
     }
@@ -44,6 +44,7 @@ export default class NativeAccountStorage {
 
   async getAccountData(key) {
     let accounts = await NativeAccountStorage.getEntry(`accounts`, {})
+    console.log()
     let data = accounts[this.accountId]
     if (key) {
       if (data.iv) {

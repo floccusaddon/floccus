@@ -11,6 +11,7 @@
 
 <script>
 import { getIcons } from '../../../lib/getFavicon'
+import { Http } from '@capacitor-community/http'
 
 export default {
   name: 'FaviconImage',
@@ -27,8 +28,8 @@ export default {
   },
   async created() {
     try {
-      const res = await fetch(this.url)
-      const icons = getIcons(await res.text(), res.url)
+      const res = await Http.get({url: this.url})
+      const icons = getIcons(res.data, res.url)
       this.src = icons[0]
     } catch (e) {
       console.log(e)
