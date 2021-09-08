@@ -20,7 +20,6 @@ export default class NativeAccount extends Account {
     const storage = new NativeAccountStorage(id)
     const controller = await Controller.getSingleton()
     const data = await storage.getAccountData(controller.key)
-    console.log('data:', data)
     const tree = new NativeTree(storage)
     await tree.load()
     return new NativeAccount(id, storage, AdapterFactory.factory(data), tree)
@@ -60,7 +59,9 @@ export default class NativeAccount extends Account {
     const controller = await Controller.getSingleton()
     const data = await this.storage.getAccountData(controller.key)
     this.server.setData(data)
-    this.localTree = new NativeTree(this.storage)
+    const nativeTree = new NativeTree(this.storage)
+    await nativeTree.load()
+    this.localTree = nativeTree
   }
 
   static async stringifyError(er:any):Promise<string> {

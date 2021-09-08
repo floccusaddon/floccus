@@ -29,8 +29,6 @@ class AlarmManager {
       ) {
         // noinspection ES6MissingAwait
         this.ctl.scheduleSync(accountId)
-      } else {
-        console.log('Not syncing account for now: ', accountId)
       }
     }
   }

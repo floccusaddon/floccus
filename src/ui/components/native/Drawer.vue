@@ -28,7 +28,7 @@
         <v-list-item
           :key="account.id"
           link
-          :to="{name: routes.TREE, params:{accountId: account.id}}">
+          :to="{name: routes.TREE, params: {accountId: account.id}}">
           <v-list-item-icon>
             <v-icon>{{ account.data.type | accountIcon }}</v-icon>
           </v-list-item-icon>
@@ -38,6 +38,18 @@
           </v-list-item-content>
         </v-list-item>
       </template>
+      <v-list-item
+        key="addaccount"
+        link
+        :to="{ name: routes.NEW_ACCOUNT }">
+        <v-list-item-icon>
+          <v-icon>mdi-plus</v-icon>
+        </v-list-item-icon>
+
+        <v-list-item-content>
+          <v-list-item-title>New account</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
       <v-list-item
         key="info"
         link>

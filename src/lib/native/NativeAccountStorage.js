@@ -44,7 +44,6 @@ export default class NativeAccountStorage {
 
   async getAccountData(key) {
     let accounts = await NativeAccountStorage.getEntry(`accounts`, {})
-    console.log()
     let data = accounts[this.accountId]
     if (key) {
       if (data.iv) {

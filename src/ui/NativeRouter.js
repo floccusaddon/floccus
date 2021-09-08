@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Tree from './views/native/Tree'
 import Options from './views/native/Options'
 import Home from './views/native/Home'
+import NewAccount from './views/NewAccount'
 
 Vue.use(Router)
 
@@ -35,6 +36,11 @@ export const router = new Router({
       path: '/options/:accountId',
       name: routes.ACCOUNT_OPTIONS,
       component: Options,
+    },
+    {
+      path: '/new',
+      name: routes.NEW_ACCOUNT,
+      component: NewAccount,
     },
   ],
 })

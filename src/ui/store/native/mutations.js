@@ -8,7 +8,6 @@ export const mutations = {
   LOAD_ACCOUNTS: 'LOAD_ACCOUNTS',
   STORE_ACCOUNT_DATA: 'STORE_ACCOUNT_DATA',
   REMOVE_ACCOUNT: 'REMOVE_ACCOUNT',
-  SELECT_ACCOUNT: 'SELECT_ACCOUNT',
   LOAD_TREE: 'LOAD_TREE',
   SET_LOGIN_FLOW_STATE: 'SET_LOGIN_FLOW_STATE'
 }
@@ -27,9 +26,6 @@ export const mutationsDefinition = {
   },
   [mutations.REMOVE_ACCOUNT](state, id) {
     Vue.delete(state.accounts, id)
-  },
-  [mutations.SELECT_ACCOUNT](state, id) {
-    state.account = state.accounts[id]
   },
   [mutations.LOAD_TREE](state, tree) {
     state.tree = tree

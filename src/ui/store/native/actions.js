@@ -47,7 +47,6 @@ export const actionsDefinition = {
     const account = await Account.get(id)
     const tree = await account.getResource()
     const rootFolder = await tree.getBookmarksTree(true)
-    console.log(rootFolder)
     await commit(mutations.LOAD_TREE, rootFolder)
   },
   async [actions.CREATE_BOOKMARK]() {

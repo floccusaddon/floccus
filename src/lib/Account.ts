@@ -97,7 +97,6 @@ export default class Account {
   }
 
   async getResource():Promise<IResource> {
-    let localResource
     if (this.getData().localRoot !== 'tabs') {
       return this.localTree
     } else {

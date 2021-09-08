@@ -1,9 +1,5 @@
 <template>
   <div>
-    <v-system-bar
-      v-if="Boolean(syncError)"
-      color="red"
-      v-text="syncError" />
     <Drawer :visible.sync="drawer" />
     <v-app-bar
       hide-on-scroll
@@ -30,7 +26,7 @@
       <v-spacer />
       <v-btn
         icon
-        :disabled="Boolean(syncing)"
+        :disabled="Boolean(syncing) || !currentAccount"
         @click="onTriggerSync">
         <v-icon>mdi-sync</v-icon>
       </v-btn>
@@ -42,13 +38,20 @@
       </v-btn>
     </v-app-bar>
     <v-main>
+      <v-alert
+        v-if="Boolean(syncError)"
+        dense
+        outlined
+        text
+        type="warning"
+        v-text="syncError" />
       <v-progress-circular
         v-if="loading"
         indeterminate
         color="blue"
         class="loading" />
       <v-list
-        v-else-if="items && items.length"
+        v-else-if="currentFolder && items && items.length"
         two-line>
         <template v-for="item in items">
           <v-list-item
@@ -227,7 +230,7 @@ export default {
       return this.$store.state.accounts[this.id].data.error
     },
     items() {
-      if (!this.tree) {
+      if (!this.currentFolder) {
         return []
       }
       if (this.searchQuery && this.searchQuery.length >= 2) {
@@ -235,28 +238,28 @@ export default {
       }
       return this.currentFolder.children
     },
-    currentFolder() {
-      return this.findItem(this.currentFolderId, this.tree)
-    },
     routes() {
       return routes
     },
     currentAccount() {
       return this.$store.state.accounts[this.id]
-    }
+    },
+    currentFolder() {
+      return this.findItem(this.currentFolderId, this.tree)
+    },
   },
   watch: {
-    async id() {
-      await this.$store.dispatch(actions.LOAD_TREE, this.id)
+    async $route() {
+      await this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
     },
     async syncing() {
       if (!this.syncing) {
-        await this.$store.dispatch(actions.LOAD_TREE, this.id)
+        await this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
       }
     }
   },
-  created() {
-    this.$store.dispatch(actions.LOAD_TREE, this.id)
+  mounted() {
+    this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
   },
   methods: {
     clickItem(item) {
