@@ -45,6 +45,10 @@
         text
         type="warning"
         v-text="syncError" />
+      <v-progress-linear
+        v-if="syncing"
+        indeterminate
+        color="blue" />
       <v-progress-circular
         v-if="loading"
         indeterminate
