@@ -909,6 +909,11 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new HttpError(res.status, verb)
     }
     const json = res.data
+
+    if (typeof json !== 'object') {
+      throw new ParseResponseError(res.data.substr(0, 10))
+    }
+
     if (json.status !== 'success') {
       throw new Error('Nextcloud API error: \n' + JSON.stringify(json))
     }
