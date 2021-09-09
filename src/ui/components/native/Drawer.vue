@@ -50,6 +50,7 @@
           <v-list-item-title>New account</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+      <v-divider />
       <v-list-item
         key="info"
         link>
