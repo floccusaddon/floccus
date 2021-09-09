@@ -79,16 +79,12 @@ export default {
     }
   },
   watch: {
-    localRoot() {
-      this.updateFolderName()
-    },
     loading() {
       if (this.loading) return
       this.data = this.$store.state.accounts[this.id].data
     }
   },
   created() {
-    this.updateFolderName()
     if (!this.loading) {
       this.data = this.$store.state.accounts[this.id].data
     }
