@@ -56,12 +56,7 @@ export default class NativeAccount extends Account {
   }
 
   async updateFromStorage():Promise<void> {
-    const controller = await Controller.getSingleton()
-    const data = await this.storage.getAccountData(controller.key)
-    this.server.setData(data)
-    const nativeTree = new NativeTree(this.storage)
-    await nativeTree.load()
-    this.localTree = nativeTree
+
   }
 
   static async stringifyError(er:any):Promise<string> {
