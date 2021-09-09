@@ -49,23 +49,41 @@ export const actionsDefinition = {
     const rootFolder = await tree.getBookmarksTree(true)
     await commit(mutations.LOAD_TREE, rootFolder)
   },
-  async [actions.CREATE_BOOKMARK]() {
-    // todo
+  async [actions.CREATE_BOOKMARK]({commit}, {accountId, bookmark}) {
+    const account = await Account.get(accountId)
+    const tree = await account.getResource()
+    await tree.createBookmark(bookmark)
+    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
-  async [actions.EDIT_BOOKMARK]() {
-    // todo
+  async [actions.EDIT_BOOKMARK]({commit}, {accountId, bookmark}) {
+    const account = await Account.get(accountId)
+    const tree = await account.getResource()
+    await tree.updateBookmark(bookmark)
+    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
-  async [actions.DELETE_BOOKMARK]() {
-    // todo
+  async [actions.DELETE_BOOKMARK]({commit}, {accountId, bookmark}) {
+    const account = await Account.get(accountId)
+    const tree = await account.getResource()
+    await tree.removeBookmark(bookmark)
+    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
-  async [actions.CREATE_FOLDER]() {
-    // todo
+  async [actions.CREATE_FOLDER]({commit}, {accountId, folder}) {
+    const account = await Account.get(accountId)
+    const tree = await account.getResource()
+    await tree.createFolder(folder)
+    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
-  async [actions.EDIT_FOLDER]() {
-    // todo
+  async [actions.EDIT_FOLDER]({commit}, {accountId, folder}) {
+    const account = await Account.get(accountId)
+    const tree = await account.getResource()
+    await tree.updateFolder(folder)
+    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
-  async [actions.DELETE_FOLDER]() {
-    // todo
+  async [actions.DELETE_FOLDER]({commit}, {accountId, folder}) {
+    const account = await Account.get(accountId)
+    const tree = await account.getResource()
+    await tree.removeFolder(folder)
+    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
     const account = await Account.create({...AdapterFactory.getDefaultValues(type)})

@@ -189,7 +189,6 @@ import DialogEditBookmark from '../../components/native/DialogEditBookmark'
 import FaviconImage from '../../components/native/FaviconImage'
 import { routes } from '../../NativeRouter'
 import { Bookmark, Folder } from '../../../lib/Tree'
-import Vue from 'vue'
 import { actions } from '../../store/native'
 export default {
   name: 'Tree',
@@ -321,26 +320,47 @@ export default {
       }
     },
     deleteItem(item) {
-      const parent = this.findItem(item.parentId, this.tree)
-      parent.children.splice(parent.children.indexOf(item), 1)
+      if (item.type === 'bookmark') {
+        this.$store.dispatch(actions.DELETE_BOOKMARK, {
+          accountId: this.id,
+          bookmark: item
+        })
+      } else {
+        this.$store.dispatch(actions.DELETE_FOLDER, {
+          accountId: this.id,
+          folder: item
+        })
+      }
     },
     addBookmark() {
       this.isAddingBookmark = true
     },
     createBookmark(props) {
-      this.items.push(new Bookmark({id: Math.random(), parentId: this.currentFolderId, ...props}))
+      this.$store.dispatch(actions.CREATE_BOOKMARK, {
+        accountId: this.id,
+        bookmark: new Bookmark({ id: null, parentId: this.currentFolderId, ...props })
+      })
     },
     addFolder() {
       this.isAddingFolder = true
     },
     createFolder(props) {
-      this.items.push(new Folder({...props,id: Math.random(), parentId: this.currentFolderId}))
+      this.$store.dispatch(actions.CREATE_FOLDER, {
+        accountId: this.id,
+        folder: new Folder({...props, id: null, parentId: this.currentFolderId})
+      })
     },
     editFolder(props) {
-      Object.entries(props).forEach(([key, value]) => Vue.set(this.currentlyEditedFolder, key, value))
+      this.$store.dispatch(actions.EDIT_FOLDER, {
+        accountId: this.id,
+        folder: new Folder({...this.currentlyEditedFolder, ...props})
+      })
     },
     editBookmark(props) {
-      Object.entries(props).forEach(([key, value]) => Vue.set(this.currentlyEditedBookmark, key, value))
+      this.$store.dispatch(actions.EDIT_BOOKMARK, {
+        accountId: this.id,
+        bookmark: new Bookmark({...this.currentlyEditedBookmark, ...props})
+      })
     },
     onTriggerSync() {
       this.$store.dispatch(actions.TRIGGER_SYNC, this.id)
