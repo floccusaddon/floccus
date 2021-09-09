@@ -16,13 +16,14 @@
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
       <v-text-field
-        v-model="searchQuery"
+        :value="searchQuery"
         :label="!tree || currentFolderId === tree.id? 'Search Bookmarks' : 'Search '+currentFolder.title"
         solo
         flat
         dense
         clearable
-        hide-details />
+        hide-details
+        @input="onSearch" />
       <v-spacer />
       <v-btn
         icon
@@ -44,6 +45,7 @@
         outlined
         text
         type="warning"
+        class="ma-1"
         v-text="syncError" />
       <v-progress-linear
         v-if="syncing"
@@ -66,6 +68,7 @@
             <v-list-item-avatar>
               <v-icon
                 v-if="item.type === 'folder'"
+                color="blue"
                 large>
                 mdi-folder
               </v-icon>
@@ -181,7 +184,6 @@
 
 <script>
 import Drawer from '../../components/native/Drawer'
-import flatten from 'lodash/flatten'
 import DialogEditFolder from '../../components/native/DialogEditFolder'
 import DialogEditBookmark from '../../components/native/DialogEditBookmark'
 import FaviconImage from '../../components/native/FaviconImage'
@@ -208,7 +210,8 @@ export default {
       currentlyEditedBookmark: null,
       isAddingBookmark: false,
       isAddingFolder: false,
-      fab: false
+      fab: false,
+      searchDebounceTimer: null,
     }
   },
   computed: {
@@ -260,7 +263,10 @@ export default {
       if (!this.syncing) {
         await this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
       }
-    }
+    },
+    tree() {
+      this.tree.createIndex()
+    },
   },
   mounted() {
     this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
@@ -284,15 +290,20 @@ export default {
       if (tree.url) {
         return false
       }
-      return tree.children.find(item => this.findItem(id, item))
+      return tree.findFolder(id)
+    },
+    onSearch(query) {
+      clearTimeout(this.searchDebounceTimer)
+      this.searchDebounceTimer = setTimeout(() => {
+        this.searchQuery = query
+      }, 500)
     },
     search(query, tree) {
-      const matchTitle = tree.title ? query.split(' ').some(term => tree.title.toLowerCase().includes(term)) : false
-      if (!tree.url && tree.children) {
-        return flatten(tree.children.map(item => this.search(query, item))).concat(matchTitle ? [tree] : [])
-      }
-      const matchUrl = query.split(' ').some(term => tree.url.toLowerCase().includes(term))
-      return matchUrl || matchTitle ? [tree] : []
+      return Object.values(tree.index.bookmark).filter(item => {
+        const matchTitle = item.title ? query.split(' ').some(term => item.title.toLowerCase().includes(term)) : false
+        const matchUrl = query.split(' ').some(term => item.url.toLowerCase().includes(term))
+        return matchUrl || matchTitle
+      })
     },
     goBack() {
       this.searchQuery = ''
