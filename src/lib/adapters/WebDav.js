@@ -197,7 +197,7 @@ export default class WebDavAdapter extends CachingAdapter {
     }
 
     if (response.status === 200) {
-      let xmlDocText = await response.text()
+      let xmlDocText = response.data
 
       if (this.server.passphrase) {
         try {
