@@ -81,7 +81,7 @@ export default class WebDavAdapter extends CachingAdapter {
     if (res.status === 401) {
       throw new AuthenticationError()
     }
-    if (!res.ok && res.status !== 404) {
+    if (res.status >= 300 && res.status !== 404) {
       throw new HttpError(res.status, 'GET')
     }
 
@@ -123,7 +123,7 @@ export default class WebDavAdapter extends CachingAdapter {
     if (res.status === 401 || res.status === 403) {
       throw new AuthenticationError()
     }
-    if (!res.ok) {
+    if (res.status >= 300) {
       throw new HttpError(res.status, 'PUT')
     }
   }
