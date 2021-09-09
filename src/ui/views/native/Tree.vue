@@ -98,13 +98,19 @@
                 </template>
 
                 <v-list>
-                  <v-list-item>
-                    <v-list-item-title @click="editItem(item)">
+                  <v-list-item @click="editItem(item)">
+                    <v-list-item-avatar>
+                      <v-icon>mdi-pencil</v-icon>
+                    </v-list-item-avatar>
+                    <v-list-item-title>
                       Edit
                     </v-list-item-title>
                   </v-list-item>
-                  <v-list-item>
-                    <v-list-item-title @click="deleteItem(item)">
+                  <v-list-item @click="deleteItem(item)">
+                    <v-list-item-avatar>
+                      <v-icon>mdi-delete</v-icon>
+                    </v-list-item-avatar>
+                    <v-list-item-title>
                       Delete
                     </v-list-item-title>
                   </v-list-item>
