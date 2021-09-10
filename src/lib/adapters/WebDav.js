@@ -72,7 +72,8 @@ export default class WebDavAdapter extends CachingAdapter {
         credentials: 'omit',
         headers: {
           Authorization: 'Basic ' + authString
-        }
+        },
+        responseType: 'text'
       })
     } catch (e) {
       throw new NetworkError()
