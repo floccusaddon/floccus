@@ -14,6 +14,10 @@ const VERSION = require('../package.json').version
       process.env.SELENIUM_BROWSER === 'chrome'
         ? new ChromeOptions()
           .excludeSwitches('extension-content-verification')
+          .addArguments([
+            '--no-sandbox', // see https://bugs.chromium.org/p/chromedriver/issues/detail?id=2473
+            '--remote-debugging-port=9222'
+          ])
           .addExtensions(
             fs.readFileSync(
               `./builds/floccus-build-v${VERSION}.crx`,

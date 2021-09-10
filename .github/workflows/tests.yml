@@ -30,7 +30,7 @@ jobs:
         npm-version: [7.x]
         server-version: ['20']
         app-version: ['stable']
-        selenium-version: ['3.141.59']
+        selenium-version: ['3']
         floccus-adapter:
           - fake
           - nextcloud-bookmarks
@@ -40,7 +40,7 @@ jobs:
         test-name:
           - test
           - benchmark root
-        browsers: ['firefox', 'chrome']
+        browsers: ['firefox']
         include:
           - app-version: v1.1.2
             server-version: 17
@@ -82,7 +82,6 @@ jobs:
             floccus-adapter: fake-noCache
             test-name: test
             browsers: firefox
-
 
     name: ${{matrix.floccus-adapter}}:${{ matrix.test-name}} nc@${{ matrix.server-version }} bm@${{ matrix.app-version }} ${{ matrix.browsers }}
 
