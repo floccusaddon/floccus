@@ -8,13 +8,6 @@ const fetch = require('node-fetch')
 const VERSION = require('../package.json').version
 ;(async function() {
   let driver = await new Builder()
-    .withCapabilities({
-      'sauce:options': {
-        'moz:firefoxOptions': { wc3: true },
-        'goog:chromeOptions': { wc3: true },
-        'seleniumVersion:': '3.11.0'
-      }
-    })
     .usingServer(`http://localhost:4444/wd/hub`)
     .forBrowser(process.env.SELENIUM_BROWSER)
     .setChromeOptions(
