@@ -94,13 +94,13 @@ jobs:
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
-        options: -v /dev/shm:/dev/shm  --memory 5g
+        options: --shm-size="2g" --memory 5g
       chrome:
         image: selenium/node-chrome:3
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
-        options: -v /dev/shm:/dev/shm --memory 5g
+        options: --shm-size="2g" --memory 5g
       nextcloud:
         image: nextcloud:${{ matrix.server-version }}
         env:
