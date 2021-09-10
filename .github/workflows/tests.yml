@@ -46,42 +46,42 @@ jobs:
             server-version: 17
             floccus-adapter: nextcloud-bookmarks
             test-name: test
-            browsers: chrome
+            browsers: firefox
           - app-version: v2.3.4
             server-version: 18
             floccus-adapter: nextcloud-bookmarks
             test-name: test
-            browsers: chrome
+            browsers: firefox
           - app-version: stable3
             server-version: 18
             floccus-adapter: nextcloud-bookmarks
             test-name: test
-            browsers: chrome
+            browsers: firefox
           - app-version: stable3
             server-version: 19
             floccus-adapter: nextcloud-bookmarks
             test-name: test
-            browsers: chrome
+            browsers: firefox
           - app-version: master
             server-version: 20
             floccus-adapter: nextcloud-bookmarks
             test-name: test
-            browsers: chrome
+            browsers: firefox
           - app-version: master
             server-version: 20
             floccus-adapter: nextcloud-bookmarks
             test-name: benchmark root
-            browsers: chrome
+            browsers: firefox
           - app-version: master
             server-version: 20
             floccus-adapter: nextcloud-bookmarks-old
             test-name: benchmark root
-            browsers: chrome
+            browsers: firefox
           - app-version: stable
             server-version: 20
             floccus-adapter: fake-noCache
             test-name: test
-            browsers: chrome
+            browsers: firefox
 
 
     name: ${{matrix.floccus-adapter}}:${{ matrix.test-name}} nc@${{ matrix.server-version }} bm@${{ matrix.app-version }} ${{ matrix.browsers }}
