@@ -19,7 +19,7 @@ jobs:
       TEST_HOST: nextcloud
       SERVER_BRANCH: ${{ matrix.server-version }}
       NC_APP_VERSION: ${{ matrix.app-version }}
-      SELENIUM_VERSION: 3
+      SELENIUM_VERSION: 4
       MYSQL_PASSWORD: root
 
     strategy:
@@ -87,17 +87,17 @@ jobs:
 
     services:
       hub:
-        image: selenium/hub:3
+        image: selenium/hub:4
         ports:
           - 4444:4444
       firefox:
-        image: selenium/node-firefox:3
+        image: selenium/node-firefox:4
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
         options: --shm-size="2g" --memory 5g
       chrome:
-        image: selenium/node-chrome:3
+        image: selenium/node-chrome:4
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
