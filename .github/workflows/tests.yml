@@ -19,7 +19,7 @@ jobs:
       TEST_HOST: nextcloud
       SERVER_BRANCH: ${{ matrix.server-version }}
       NC_APP_VERSION: ${{ matrix.app-version }}
-      SELENIUM_VERSION: ${{matrix.selenium-version}}
+      SELENIUM_VERSION: 3
       MYSQL_PASSWORD: root
 
     strategy:
@@ -102,7 +102,6 @@ jobs:
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
-          START_XVFB: false
         options: --shm-size="2g"
       nextcloud:
         image: nextcloud:${{ matrix.server-version }}
