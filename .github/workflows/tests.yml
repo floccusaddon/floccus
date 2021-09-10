@@ -26,7 +26,8 @@ jobs:
       # do not stop on another job's failure
       fail-fast: false
       matrix:
-        node-version: [13.x]
+        node-version: [14.x]
+        npm-version: [7.x]
         server-version: ['20']
         app-version: ['stable']
         floccus-adapter:
@@ -170,6 +171,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+
+      - name: Set up npm ${{ matrix.npm-version }}
+        run: npm i -g npm@"${{ matrix.npm-version }}"
 
       - name: Cache node modules
         uses: actions/cache@v1
