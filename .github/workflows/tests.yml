@@ -30,7 +30,7 @@ jobs:
         npm-version: [7.x]
         server-version: ['20']
         app-version: ['stable']
-        selenium-version: ['3.141.59-20210311']
+        selenium-version: ['3.141.59']
         floccus-adapter:
           - fake
           - nextcloud-bookmarks
@@ -96,13 +96,14 @@ jobs:
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
-        options: --shm-size="2g" --memory 5g
+        options: --shm-size="2g"
       chrome:
         image: selenium/node-chrome:${{matrix.selenium-version}}
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
-        options: --shm-size="2g" --memory 5g
+          START_XVFB: false
+        options: --shm-size="2g"
       nextcloud:
         image: nextcloud:${{ matrix.server-version }}
         env:
