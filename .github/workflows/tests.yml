@@ -87,17 +87,17 @@ jobs:
 
     services:
       hub:
-        image: selenium/hub:${{matrix.selenium-version}}
+        image: selenium/hub:3
         ports:
           - 4444:4444
       firefox:
-        image: selenium/node-firefox:${{matrix.selenium-version}}
+        image: selenium/node-firefox:3
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
         options: --shm-size="2g"
       chrome:
-        image: selenium/node-chrome:${{matrix.selenium-version}}
+        image: selenium/node-chrome:3
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
