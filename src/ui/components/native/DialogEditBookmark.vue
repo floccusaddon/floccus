@@ -56,7 +56,7 @@ export default {
   data() {
     return {
       temporaryTitle: this.bookmark.title || '',
-      temporaryUrl: this.bookmark.url || '',
+      temporaryUrl: this.bookmark.url || this.url || '',
       urlError: null
     }
   },

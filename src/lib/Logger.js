@@ -9,7 +9,7 @@ export default class Logger {
     const logMsg = [new Date().toISOString(), ...arguments]
 
     // log to console
-    DEBUG && console.log.apply(console, logMsg)
+    DEBUG && console.log(util.format.apply(util, logMsg))
     this.messages.push(util.format.apply(util, logMsg)) // TODO: Use a linked list here to get O(n)
   }
 

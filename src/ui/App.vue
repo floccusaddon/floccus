@@ -6,7 +6,7 @@
       <router-view />
     </v-content>
     <v-footer
-      color="#3893cc"
+      color="blue darken-1"
       app>
       <v-row no-gutters>
         <v-col>

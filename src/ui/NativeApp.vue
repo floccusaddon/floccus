@@ -9,6 +9,8 @@
 <script>
 import { version as VERSION } from '../../package.json'
 import { actions } from './store/native'
+import {SendIntent} from 'send-intent'
+import { routes } from './NativeRouter'
 export default {
   name: 'NativeApp',
   data() {
@@ -25,9 +27,6 @@ export default {
     secured() {
       return false
     },
-    routes() {
-      return {}
-    },
     appStyle() {
       return {
         background: this.$vuetify.theme.dark ? '#000' : '#fff'
@@ -38,6 +37,19 @@ export default {
     setInterval(() => {
       this.$store.dispatch(actions.LOAD_ACCOUNTS)
     }, 5000)
+
+    window.addEventListener('sendIntentReceived', () => {
+      SendIntent.checkSendIntentReceived().then((result) => {
+        if (result.text) {
+          this.$router.push({
+            name: routes.ADD_BOOKMARK,
+            params: {
+              id: Object.keys(this.$store.state.accounts)[0],
+              url: result.text
+            }})
+        }
+      })
+    })
   },
   methods: {
   }

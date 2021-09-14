@@ -13,6 +13,7 @@ dependencies {
     implementation project(':capacitor-device')
     implementation project(':capacitor-splash-screen')
     implementation project(':capacitor-storage')
+    implementation project(':send-intent')
 
 }
 

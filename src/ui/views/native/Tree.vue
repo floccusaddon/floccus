@@ -50,11 +50,11 @@
       <v-progress-linear
         v-if="syncing"
         indeterminate
-        color="blue" />
+        color="blue darken-1" />
       <v-progress-circular
         v-if="loading"
         indeterminate
-        color="blue"
+        color="blue darken-1"
         class="loading" />
       <v-list
         v-else-if="currentFolder && items && items.length"
@@ -68,7 +68,7 @@
             <v-list-item-avatar>
               <v-icon
                 v-if="item.type === 'folder'"
-                color="blue"
+                color="blue darken-1"
                 large>
                 mdi-folder
               </v-icon>
@@ -137,7 +137,7 @@
         <template #activator>
           <v-btn
             v-model="fab"
-            color="blue"
+            color="blue darken-1"
             dark
             fab>
             <v-icon v-if="fab">
@@ -149,7 +149,7 @@
           </v-btn>
         </template>
         <v-btn
-          color="blue"
+          color="blue darken-1"
           dark
           small
           fab
@@ -157,7 +157,7 @@
           <v-icon>mdi-folder</v-icon>
         </v-btn>
         <v-btn
-          color="blue"
+          color="blue darken-1"
           dark
           small
           fab

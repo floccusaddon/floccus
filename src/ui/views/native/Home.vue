@@ -1,7 +1,7 @@
 <template>
   <v-progress-circular
     indeterminate
-    color="blue"
+    color="blue darken-1"
     class="ma-auto" />
 </template>
 

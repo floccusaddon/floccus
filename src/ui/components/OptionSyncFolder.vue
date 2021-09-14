@@ -20,7 +20,7 @@
               @click="onTriggerFinder">
               <template #append>
                 <v-icon
-                  color="blue"
+                  color="blue darken-1"
                   @click="onTriggerFinder">
                   mdi-folder
                 </v-icon>

@@ -4,6 +4,7 @@ import Tree from './views/native/Tree'
 import Options from './views/native/Options'
 import Home from './views/native/Home'
 import NewAccount from './views/NewAccount'
+import AddBookmarkIntent from './views/native/AddBookmarkIntent'
 
 Vue.use(Router)
 
@@ -12,7 +13,7 @@ export const routes = {
   TREE: 'TREE',
   ACCOUNT_OPTIONS: 'ACCOUNT_OPTIONS',
   NEW_ACCOUNT: 'NEW_ACCOUNT',
-  SET_KEY: 'SET_KEY',
+  ADD_BOOKMARK: 'ADD_BOOKMARK',
   FUNDING: 'FUNDING',
   UPDATE: 'UPDATE',
   IMPORTEXPORT: 'IMPORTEXPORT',
@@ -41,6 +42,11 @@ export const router = new Router({
       path: '/new',
       name: routes.NEW_ACCOUNT,
       component: NewAccount,
+    },
+    {
+      path: '/newBookmark/:accountId/:url',
+      name: routes.ADD_BOOKMARK,
+      component: AddBookmarkIntent,
     },
   ],
 })

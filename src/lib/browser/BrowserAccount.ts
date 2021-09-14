@@ -96,11 +96,11 @@ export default class BrowserAccount extends Account {
       return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'))
     }
     if (er.list) {
-      return er.list
+      return (await Promise.all(er.list
         .map((e) => {
           Logger.log(e)
           return this.stringifyError(e)
-        })
+        })))
         .join('\n')
     }
     return er.message
