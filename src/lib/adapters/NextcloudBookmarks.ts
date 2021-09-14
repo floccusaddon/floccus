@@ -23,7 +23,7 @@ import {
   UnknownMoveTargetError
 } from '../../errors/Error'
 import { Http } from '@capacitor-community/http'
-import { Device } from '@capacitor/device'
+// import { Device } from '@capacitor/device'
 
 const PAGE_SIZE = 300
 const TIMEOUT = 180000
@@ -239,10 +239,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         )
         if (!currentChild) {
           // create folder
-          const body = JSON.stringify({
+          const body = {
             parent_folder: tree.id,
             title: segment,
-          })
+          }
           const json = await this.sendRequest(
             'POST',
             'index.php/apps/bookmarks/public/rest/v2/folder',
@@ -478,10 +478,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     if (!parentFolder) {
       throw new UnknownCreateTargetError()
     }
-    const body = JSON.stringify({
+    const body = {
       parent_folder: parentId,
       title: title,
-    })
+    }
     const json = await this.sendRequest(
       'POST',
       'index.php/apps/bookmarks/public/rest/v2/folder',
@@ -521,15 +521,14 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         type: 'text/html',
       }
     )
-    const body = new FormData()
-    body.append('bm_import', blob)
+
     let json
     try {
       json = await this.sendRequest(
         'POST',
         `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/import`,
-        null,
-        body
+        'multipart/form-data',
+        {'bm_import': blob}
       )
     } catch (e) {
       this.hasFeatureBulkImport = false
@@ -575,10 +574,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     if (oldFolder.findFolder(folder.parentId)) {
       throw new Error('Detected folder loop creation')
     }
-    const body = JSON.stringify({
+    const body = {
       parent_folder: folder.parentId,
       title: folder.title,
-    })
+    }
     await this.sendRequest(
       'PUT',
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}`,
@@ -614,7 +613,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       'PATCH',
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}/childorder`,
       'application/json',
-      JSON.stringify(body)
+      body
     )
   }
 
@@ -703,11 +702,11 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         updatedBookmark.title = existingBookmark.title
         await this.updateBookmark(updatedBookmark)
       } else {
-        const body = JSON.stringify({
+        const body = {
           url: bm.url,
           title: bm.title,
           folders: [bm.parentId],
-        })
+        }
 
         const json = await this.sendRequest(
           'POST',
@@ -741,7 +740,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return this.bookmarkLock.acquire(upstreamId, async() => {
       const bms = await this._getBookmark(upstreamId)
 
-      const body = JSON.stringify({
+      const body = {
         url: newBm.url,
         title: newBm.title,
         folders: bms
@@ -754,7 +753,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           )
           .concat([newBm.parentId]),
         tags: bms[0].tags,
-      })
+      }
 
       await this.sendRequest(
         'PUT',
@@ -799,12 +798,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async sendRequest(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false):Promise<any> {
-    const deviceInfo = await Device.getInfo()
-    if (deviceInfo.platform === 'web') {
-      return this.sendRequestWeb(verb, relUrl, type, body, returnRawResponse)
-    } else {
-      return this.sendRequestNative(verb, relUrl, type, body, returnRawResponse)
-    }
+    // const deviceInfo = await Device.getInfo()
+    // if (deviceInfo.platform === 'web') {
+    //  return this.sendRequestWeb(verb, relUrl, type, body, returnRawResponse)
+    // } else {
+    return this.sendRequestNative(verb, relUrl, type, body, returnRawResponse)
+    // }
   }
 
   async sendRequestWeb(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false):Promise<any> {
@@ -884,6 +883,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
               Authorization: 'Basic ' + authString,
             },
             ...(body && { data: body }),
+            webFetchExtra: {
+              credentials: this.server.includeCredentials ? 'include' : 'omit',
+            }
           }),
           new Promise((resolve, reject) =>
             setTimeout(() => {
