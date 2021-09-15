@@ -814,6 +814,26 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
+
+    if (type && type.includes('application/json')) {
+      body = JSON.stringify(body)
+    } else if (type && type.includes('application/x-www-form-urlencoded')) {
+      const params = new URLSearchParams()
+      for (const [key, value] of Object.entries(body || {})) {
+        params.set(key, value as any)
+      }
+      body = params.toString()
+    } else if (
+      (type && type.includes('multipart/form-data')) ||
+       typeof body === 'object'
+    ) {
+      const form = new FormData()
+      for (const [key, value] of Object.entries(body || {})) {
+        form.append(key, value as any)
+      }
+      body = form
+    }
+
     try {
       res = await this.fetchQueue.add(() =>
         Promise.race([
@@ -824,7 +844,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
               ...(type && { 'Content-type': type }),
               Authorization: 'Basic ' + authString,
             },
-            ...(body && { body }),
+            ...(body && !['get', 'head'].includes(verb.toLowerCase()) && { body }),
           }),
           new Promise((resolve, reject) =>
             setTimeout(() => {
@@ -836,6 +856,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       )
     } catch (e) {
       if (timedOut) throw e
+      console.log(e)
       throw new NetworkError()
     }
 
