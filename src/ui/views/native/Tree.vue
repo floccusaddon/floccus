@@ -306,8 +306,8 @@ export default {
     },
     search(query, tree) {
       return Object.values(tree.index.bookmark).filter(item => {
-        const matchTitle = item.title ? query.split(' ').some(term => item.title.toLowerCase().includes(term)) : false
-        const matchUrl = query.split(' ').some(term => item.url.toLowerCase().includes(term))
+        const matchTitle = item.title ? query.split(' ').every(term => item.title.toLowerCase().includes(term)) : false
+        const matchUrl = query.split(' ').every(term => item.url.toLowerCase().includes(term))
         return matchUrl || matchTitle
       })
     },
