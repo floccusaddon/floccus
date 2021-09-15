@@ -866,17 +866,24 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async sendRequestNative(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false):Promise<any> {
-    const url = this.normalizeServerURL(this.server.url) + relUrl
+    let url = this.normalizeServerURL(this.server.url) + relUrl
     let res
     let timedOut = false
     const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
     try {
+      if (url.includes('?')) {
+        url = url.substr(0, url.indexOf('?'))
+      }
       res = await this.fetchQueue.add(() =>
         Promise.race([
           Http.request({
             url,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            params: Object.fromEntries(new URL(url).searchParams.entries()),
+            shouldEncodeUrlParams: false,
             method: verb,
             headers: {
               ...(type && { 'Content-type': type }),
