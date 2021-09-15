@@ -23,6 +23,7 @@ import {
   UnknownMoveTargetError
 } from '../../errors/Error'
 import { Http } from '@capacitor-community/http'
+import { Device } from '@capacitor/device'
 // import { Device } from '@capacitor/device'
 
 const PAGE_SIZE = 300
@@ -798,12 +799,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async sendRequest(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false):Promise<any> {
-    // const deviceInfo = await Device.getInfo()
-    // if (deviceInfo.platform === 'web') {
-    //  return this.sendRequestWeb(verb, relUrl, type, body, returnRawResponse)
-    // } else {
-    return this.sendRequestNative(verb, relUrl, type, body, returnRawResponse)
-    // }
+    const deviceInfo = await Device.getInfo()
+    if (deviceInfo.platform === 'web') {
+      return this.sendRequestWeb(verb, relUrl, type, body, returnRawResponse)
+    } else {
+      return this.sendRequestNative(verb, relUrl, type, body, returnRawResponse)
+    }
   }
 
   async sendRequestWeb(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false):Promise<any> {
