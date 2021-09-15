@@ -58,7 +58,8 @@
         class="loading" />
       <v-list
         v-else-if="currentFolder && items && items.length"
-        two-line>
+        two-line
+        class="mb-10">
         <template v-for="item in items">
           <v-list-item
             :key="item.type+item.id"
