@@ -378,6 +378,6 @@ export default {
 
 <style scoped>
 .loading {
-  margin: 40vh 40vw;
+  margin: 45vh 45vw;
 }
 </style>
