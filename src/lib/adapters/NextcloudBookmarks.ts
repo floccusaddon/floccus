@@ -268,7 +268,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       tree = await this._findServerRoot()
     }
 
-    await this.getBookmarksList()
     tree.children = await this._getChildren(tree.id, -1)
     this.tree = tree
     return tree.clone()
@@ -347,6 +346,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       }
       return recurseChildren(folderId, children)
     } else {
+      // We don't have the children endpoint available, so we have to query all bookmarks that exist :(
+      await this.getBookmarksList()
+
       const tree = new Folder({id: folderId, location: ItemLocation.SERVER})
       const [childrenOrder, childFolders, childBookmarks] = await Promise.all([
         this._getChildOrder(folderId, layers),
