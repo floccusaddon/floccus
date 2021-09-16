@@ -62,6 +62,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   public hasFeatureBulkImport:boolean = null
   private list: Bookmark[]
   private tree: Folder
+  private lockId: string | number
 
   constructor(server: NextcloudBookmarksConfig) {
     this.server = server
@@ -116,16 +117,49 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     })
   }
 
+  timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
   async onSyncStart(): Promise<void> {
-    // noop
+    const lockKey = 'https://floccus.org/?lock'
+    let lockBookmark
+    const startDate = Date.now()
+    const maxTimeout = 30 * 60 * 1000 // Give up after 0.5h
+    const base = 1.25
+    for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
+      lockBookmark = await this.getExistingBookmark(lockKey)
+      if (lockBookmark === false && i === 1) {
+        break
+      } else {
+        await this.timeout(base ** i * 1000)
+      }
+    }
+
+    const body = {
+      url: lockKey,
+      title: 'Floccus sync lock',
+      folders: [-1],
+    }
+
+    const json = await this.sendRequest(
+      'POST',
+      'index.php/apps/bookmarks/public/rest/v2/bookmark',
+      'application/json',
+      body
+    )
+    if (typeof json.item !== 'object') {
+      throw new UnexpectedServerResponseError()
+    }
+    this.lockId = json.item.id + ';' + -1
   }
 
   async onSyncComplete(): Promise<void> {
-    // noop
+    await this.removeBookmark(new Bookmark({id: this.lockId, title: 'Floccus sync lock', url: 'https://floccus.org/?lock', parentId: -1, location: ItemLocation.SERVER}))
   }
 
   async onSyncFail(): Promise<void> {
-    // noop
+    await this.removeBookmark(new Bookmark({id: this.lockId, title: 'Floccus sync lock', url: 'https://floccus.org/?lock', parentId: -1, location: ItemLocation.SERVER}))
   }
 
   async getBookmarksList():Promise<Bookmark[]> {
@@ -344,7 +378,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           }
         })
       }
-      return recurseChildren(folderId, children)
+      return recurseChildren(folderId, children).filter(item => item.id !== this.lockId)
     } else {
       // We don't have the children endpoint available, so we have to query all bookmarks that exist :(
       await this.getBookmarksList()
@@ -432,7 +466,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         )
       }
       await recurseChildFolders(tree, childFolders, childrenOrder, childBookmarks, layers)
-      return tree.children
+      return tree.children.filter(item => item.id !== this.lockId)
     }
   }
 
