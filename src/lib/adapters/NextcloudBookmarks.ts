@@ -523,13 +523,16 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       }
     )
 
+    const body = new FormData()
+    body.append('bm_import', blob, 'upload.html')
+
     let json
     try {
       json = await this.sendRequest(
         'POST',
         `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/import`,
         'multipart/form-data',
-        {'bm_import': blob}
+        body
       )
     } catch (e) {
       this.hasFeatureBulkImport = false
@@ -824,15 +827,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         params.set(key, value as any)
       }
       body = params.toString()
-    } else if (
-      (type && type.includes('multipart/form-data')) ||
-       typeof body === 'object'
-    ) {
-      const form = new FormData()
-      for (const [key, value] of Object.entries(body || {})) {
-        form.append(key, value as any)
-      }
-      body = form
     }
 
     try {
@@ -842,7 +836,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             method: verb,
             credentials: this.server.includeCredentials ? 'include' : 'omit',
             headers: {
-              ...(type && { 'Content-type': type }),
+              ...(type && type !== 'multipart/form-data' && { 'Content-type': type }),
               Authorization: 'Basic ' + authString,
             },
             ...(body && !['get', 'head'].includes(verb.toLowerCase()) && { body }),
