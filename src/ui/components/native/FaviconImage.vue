@@ -12,6 +12,7 @@
 <script>
 import { getIcons } from '../../../lib/getFavicon'
 import { Http } from '@capacitor-community/http'
+import {Storage} from '@capacitor/storage'
 
 export default {
   name: 'FaviconImage',
@@ -27,10 +28,18 @@ export default {
     }
   },
   async created() {
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 400))
+    const key = `favicons[${this.url}]`
+    const {value: cachedFavicon} = await Storage.get({key})
+    if (cachedFavicon) {
+      this.src = cachedFavicon
+      return
+    }
     try {
       const res = await Http.get({url: this.url})
       const icons = getIcons(res.data, res.url)
       this.src = icons[0]
+      await Storage.set({key, value: this.src})
     } catch (e) {
       console.log(e)
     }
