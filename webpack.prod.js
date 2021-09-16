@@ -7,7 +7,7 @@ module.exports = merge(common, {
   devtool: false,
   plugins: [
     new webpack.DefinePlugin({
-      DEBUG: JSON.stringify(!process.env['CI'])
+      DEBUG: JSON.stringify(true || !process.env['CI'])
     })
   ]
 })
