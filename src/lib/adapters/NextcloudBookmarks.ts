@@ -533,6 +533,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       )
     } catch (e) {
       this.hasFeatureBulkImport = false
+      throw e
     }
 
     const recurseChildren = (children, id, title, parentId) => {
