@@ -69,11 +69,13 @@ export default class WebDavAdapter extends CachingAdapter {
       res = await Http.request({
         url: fullURL,
         method: 'GET',
-        credentials: 'omit',
         headers: {
           Authorization: 'Basic ' + authString
         },
-        responseType: 'text'
+        responseType: 'text',
+        webFetchExtra: {
+          credentials: 'omit',
+        }
       })
     } catch (e) {
       throw new NetworkError()
@@ -109,12 +111,14 @@ export default class WebDavAdapter extends CachingAdapter {
       var res = await Http.request({
         url,
         method: 'PUT',
-        credentials: 'omit',
         headers: {
           'Content-Type': content_type,
           Authorization: 'Basic ' + authString
         },
-        data
+        data,
+        webFetchExtra: {
+          credentials: 'omit',
+        }
       })
     } catch (e) {
       Logger.log('Error Caught')
@@ -172,9 +176,11 @@ export default class WebDavAdapter extends CachingAdapter {
       await Http.request({
         url: fullUrl,
         method: 'DELETE',
-        credentials: 'omit',
         headers: {
           Authorization: 'Basic ' + authString
+        },
+        webFetchExtra: {
+          credentials: 'omit',
         }
       })
     } catch (e) {
