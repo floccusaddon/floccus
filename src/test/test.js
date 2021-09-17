@@ -4191,17 +4191,10 @@ describe('Floccus', function() {
           await createTree(localRoot, 0, 100)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
-          if (ACCOUNT_DATA.type !== 'fake') {
-            await Promise.all([
-              account1.sync(),
-              new Promise(resolve => setTimeout(resolve, 5000)).then(() => account2.sync())
-            ])
-          } else {
-            await account1.sync()
-            await account2.sync()
-          }
+          await account1.sync()
           expect(account1.getData().error).to.not.be.ok
           console.log('Initial round account1 completed')
+          await account2.sync()
           expect(account2.getData().error).to.not.be.ok
           console.log('Initial round account2 completed')
 
@@ -4285,15 +4278,7 @@ describe('Floccus', function() {
             let tree1BeforeSync = await account1.localTree.getBookmarksTree(
               true
             )
-            if (ACCOUNT_DATA.type !== 'fake') {
-              await Promise.all([
-                account1.sync(),
-                new Promise(resolve => setTimeout(resolve, 5000)).then(() => account2.sync())
-              ])
-            } else {
-              await account1.sync()
-              await account2.sync()
-            }
+            await account1.sync()
             expect(account1.getData().error).to.not.be.ok
             console.log('second round: account1 completed')
 
@@ -4320,6 +4305,7 @@ describe('Floccus', function() {
             tree1BeforeSync = null
             console.log('first half ok')
 
+            await account2.sync()
             expect(account2.getData().error).to.not.be.ok
             console.log('second round: account1 completed')
 
