@@ -131,16 +131,6 @@
                 v-bind.sync="data"
                 @reset="onReset"
                 @delete="onDelete" />
-              <OptionsGoogleDrive
-                v-if="data.type === 'google-drive'"
-                v-bind.sync="data"
-                @reset="onReset"
-                @delete="onDelete" />
-              <OptionsNextcloudLegacy
-                v-if="data.type === 'nextcloud' || data.type === 'nextcloud-legacy'"
-                v-bind.sync="data"
-                @reset="onReset"
-                @delete="onDelete" />
               <OptionsFake
                 v-if="data.type === 'fake'"
                 v-bind.sync="data"
@@ -178,17 +168,16 @@
 
 <script>
 import PathHelper from '../../lib/PathHelper'
-import LocalTree from '../../lib/LocalTree'
+import BrowserTree from '../../lib/browser/BrowserTree'
 import { actions } from '../store'
 import OptionsNextcloudFolders from '../components/OptionsNextcloudBookmarks'
 import OptionsWebdav from '../components/OptionsWebdav'
-import OptionsNextcloudLegacy from '../components/OptionsNextcloudLegacy'
 import OptionsFake from '../components/OptionsFake'
-import OptionsGoogleDrive from '../components/OptionsGoogleDrive'
+// import OptionsGoogleDrive from '../components/OptionsGoogleDrive'
 
 export default {
   name: 'AccountOptions',
-  components: { OptionsGoogleDrive, OptionsFake, OptionsNextcloudLegacy, OptionsWebdav, OptionsNextcloudFolders },
+  components: { OptionsFake, OptionsWebdav, OptionsNextcloudFolders },
   data() {
     return {
       folderName: '',
@@ -236,7 +225,7 @@ export default {
     },
     async updateFolderName() {
       const pathArray = PathHelper.pathToArray(decodeURIComponent(
-        await LocalTree.getPathFromLocalId(this.localRoot)
+        await BrowserTree.getPathFromLocalId(this.localRoot)
       ))
       this.folderName = pathArray[pathArray.length - 1]
     },

@@ -37,9 +37,6 @@
 </template>
 
 <script>
-import { actions } from '../store'
-import { routes } from '../router'
-
 export default {
   name: 'NewAccount',
   components: {},
@@ -67,8 +64,8 @@ export default {
   },
   methods: {
     async onCreate() {
-      const accountId = await this.$store.dispatch(actions.CREATE_ACCOUNT, this.adapter)
-      await this.$router.push({name: routes.ACCOUNT_OPTIONS, params: {accountId}})
+      const accountId = await this.$store.dispatch('CREATE_ACCOUNT', this.adapter)
+      await this.$router.push({name: 'ACCOUNT_OPTIONS', params: {accountId}})
     },
   }
 }

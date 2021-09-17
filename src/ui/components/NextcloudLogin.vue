@@ -6,7 +6,9 @@
       :loading="isRunning"
       :error-messages="error"
       @input="$emit('update:username', $event)">
-      <template slot="append-outer">
+      <template
+        v-if="isBrowser"
+        slot="append-outer">
         <v-tooltip
           v-if="!isRunning"
           left>
@@ -44,7 +46,6 @@
 </template>
 
 <script>
-import { actions } from '../store'
 
 export default {
   name: 'NextcloudLogin',
@@ -72,6 +73,7 @@ export default {
   },
   methods: {
     async onFlowStart() {
+      const { actions } = await import('../store')
       this.error = null
       try {
         const credentials = await this.$store.dispatch(actions.START_LOGIN_FLOW, this.server)
@@ -82,6 +84,7 @@ export default {
       }
     },
     async onFlowStop() {
+      const { actions } = await import('../store')
       await this.$store.dispatch(actions.STOP_LOGIN_FLOW)
     }
   }

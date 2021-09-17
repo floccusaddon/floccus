@@ -14,6 +14,7 @@ jobs:
     strategy:
       matrix:
         node-versions: [13.x]
+        npm-version: [7.x]
 
     name: node${{ matrix.node-versions }}
     steps:
@@ -23,6 +24,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-versions }}
+
+      - name: Set up npm ${{ matrix.npm-version }}
+        run: npm i -g npm@"${{ matrix.npm-version }}"
 
       - name: Cache node modules
         uses: actions/cache@v1

@@ -26,9 +26,11 @@ jobs:
       # do not stop on another job's failure
       fail-fast: false
       matrix:
-        node-version: [13.x]
+        node-version: [14.x]
+        npm-version: [7.x]
         server-version: ['20']
         app-version: ['stable']
+        selenium-version: ['3']
         floccus-adapter:
           - fake
           - nextcloud-bookmarks
@@ -38,49 +40,64 @@ jobs:
         test-name:
           - test
           - benchmark root
-        browsers: ['firefox', 'chrome']
+        browsers: ['firefox']
         include:
           - app-version: v1.1.2
             server-version: 17
             floccus-adapter: nextcloud-bookmarks
             test-name: test
-            browsers: chrome
+            browsers: firefox
+            node-version: 14.x
+            npm-version: 7.x
           - app-version: v2.3.4
             server-version: 18
             floccus-adapter: nextcloud-bookmarks
             test-name: test
-            browsers: chrome
+            browsers: firefox
+            node-version: 14.x
+            npm-version: 7.x
           - app-version: stable3
             server-version: 18
             floccus-adapter: nextcloud-bookmarks
             test-name: test
-            browsers: chrome
+            browsers: firefox
+            node-version: 14.x
+            npm-version: 7.x
           - app-version: stable3
             server-version: 19
             floccus-adapter: nextcloud-bookmarks
             test-name: test
-            browsers: chrome
+            browsers: firefox
+            node-version: 14.x
+            npm-version: 7.x
           - app-version: master
             server-version: 20
             floccus-adapter: nextcloud-bookmarks
             test-name: test
-            browsers: chrome
+            browsers: firefox
+            node-version: 14.x
+            npm-version: 7.x
           - app-version: master
             server-version: 20
             floccus-adapter: nextcloud-bookmarks
             test-name: benchmark root
-            browsers: chrome
+            browsers: firefox
+            node-version: 14.x
+            npm-version: 7.x
           - app-version: master
             server-version: 20
             floccus-adapter: nextcloud-bookmarks-old
             test-name: benchmark root
-            browsers: chrome
+            browsers: firefox
+            node-version: 14.x
+            npm-version: 7.x
           - app-version: stable
             server-version: 20
             floccus-adapter: fake-noCache
             test-name: test
-            browsers: chrome
-
+            browsers: firefox
+            node-version: 14.x
+            npm-version: 7.x
 
     name: ${{matrix.floccus-adapter}}:${{ matrix.test-name}} nc@${{ matrix.server-version }} bm@${{ matrix.app-version }} ${{ matrix.browsers }}
 
@@ -94,13 +111,13 @@ jobs:
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
-        options: --shm-size="2g" --memory 5g
+        options: --shm-size="2g"
       chrome:
         image: selenium/node-chrome:3
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
-        options: --shm-size="2g" --memory 5g
+        options: --shm-size="2g"
       nextcloud:
         image: nextcloud:${{ matrix.server-version }}
         env:
@@ -170,6 +187,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+
+      - name: Set up npm ${{ matrix.npm-version }}
+        run: npm i -g npm@"${{ matrix.npm-version }}"
 
       - name: Cache node modules
         uses: actions/cache@v1

@@ -1,5 +1,5 @@
 /* global DEBUG */
-import AccountStorage from './AccountStorage'
+import { Device } from '@capacitor/device'
 import util from 'util'
 
 import packageJson from '../../package.json'
@@ -9,12 +9,13 @@ export default class Logger {
     const logMsg = [new Date().toISOString(), ...arguments]
 
     // log to console
-    DEBUG && console.log.apply(console, logMsg)
+    DEBUG && console.log(util.format.apply(util, logMsg))
     this.messages.push(util.format.apply(util, logMsg)) // TODO: Use a linked list here to get O(n)
   }
 
   static async persist() {
-    await AccountStorage.changeEntry(
+    const Storage = ((await Device.getInfo()).platform === 'web') ? await import('./browser/BrowserAccountStorage') : await import('./native/NativeAccountStorage')
+    await Storage.default.changeEntry(
       'logs',
       log => {
         const messages = this.messages
@@ -26,7 +27,8 @@ export default class Logger {
   }
 
   static async getLogs() {
-    return AccountStorage.getEntry('logs', [])
+    const Storage = ((await Device.getInfo()).platform === 'web') ? await import('./browser/BrowserAccountStorage') : await import('./native/NativeAccountStorage')
+    return Storage.default.getEntry('logs', [])
   }
 
   static async downloadLogs() {

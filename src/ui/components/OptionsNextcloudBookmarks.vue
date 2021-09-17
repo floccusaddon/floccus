@@ -41,6 +41,7 @@
           :label="t('LabelServerfolder')"
           @input="$emit('update:serverRoot', $event)" />
         <OptionSyncFolder
+          v-if="isBrowser"
           :value="localRoot"
           @input="$emit('update:localRoot', $event)" />
       </v-card-text>

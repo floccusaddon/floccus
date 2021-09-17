@@ -36,10 +36,6 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     // First revert slave modifications
 
     let revertPlan = await this.revertDiff(targetDiff, this.direction)
-    // Weed out modifications to bookmarks root
-    if (this.direction === ItemLocation.LOCAL) {
-      await this.filterOutRootFolderActions(revertPlan)
-    }
     Logger.log({revertPlan})
     this.applyFailsafe(revertPlan)
     revertPlan = await this.execute(target, revertPlan, this.direction)
@@ -59,10 +55,6 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     Logger.log({overridePlan})
 
-    // Weed out modifications to bookmarks root
-    if (this.direction === ItemLocation.LOCAL) {
-      await this.filterOutRootFolderActions(overridePlan)
-    }
     this.applyFailsafe(overridePlan)
     overridePlan = await this.execute(target, overridePlan, this.direction)
 

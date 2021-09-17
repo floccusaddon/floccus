@@ -2,11 +2,17 @@ import * as Tree from '../Tree'
 import { Bookmark, Folder, ItemLocation } from '../Tree'
 import Logger from '../Logger'
 import Adapter from '../interfaces/Adapter'
-import browser from '../browser-api'
 import { difference} from 'lodash'
 
 import url from 'url'
 import Ordering from '../interfaces/Ordering'
+import {
+  MissingItemOrderError,
+  UnknownBookmarkUpdateError,
+  UnknownCreateTargetError, UnknownFolderItemOrderError, UnknownFolderOrderError, UnknownFolderUpdateError,
+  UnknownMoveOriginError,
+  UnknownMoveTargetError
+} from '../../errors/Error'
 
 export default class CachingAdapter implements Adapter {
   protected highestId: number
@@ -44,7 +50,7 @@ export default class CachingAdapter implements Adapter {
     bm.id = ++this.highestId
     const foundFolder = this.bookmarksCache.findFolder(bm.parentId)
     if (!foundFolder) {
-      throw new Error(browser.i18n.getMessage('Error001'))
+      throw new UnknownCreateTargetError()
     }
     foundFolder.children.push(bm)
     this.bookmarksCache.createIndex()
@@ -55,7 +61,7 @@ export default class CachingAdapter implements Adapter {
     Logger.log('UPDATE', newBm)
     const foundBookmark = this.bookmarksCache.findBookmark(newBm.id)
     if (!foundBookmark) {
-      throw new Error(browser.i18n.getMessage('Error002'))
+      throw new UnknownBookmarkUpdateError()
     }
     foundBookmark.url = newBm.url
     foundBookmark.title = newBm.title
@@ -66,11 +72,11 @@ export default class CachingAdapter implements Adapter {
       foundBookmark.parentId
     )
     if (!foundOldFolder) {
-      throw new Error(browser.i18n.getMessage('Error003'))
+      throw new UnknownMoveOriginError()
     }
     const foundNewFolder = this.bookmarksCache.findFolder(newBm.parentId)
     if (!foundNewFolder) {
-      throw new Error(browser.i18n.getMessage('Error004'))
+      throw new UnknownMoveTargetError()
     }
     foundOldFolder.children.splice(
       foundOldFolder.children.indexOf(foundBookmark),
@@ -106,7 +112,7 @@ export default class CachingAdapter implements Adapter {
     const newFolder = new Tree.Folder({ id: ++this.highestId, parentId: folder.parentId, title: folder.title, location: ItemLocation.SERVER })
     const foundParentFolder = this.bookmarksCache.findFolder(newFolder.parentId)
     if (!foundParentFolder) {
-      throw new Error(browser.i18n.getMessage('Error005'))
+      throw new UnknownCreateTargetError()
     }
     foundParentFolder.children.push(newFolder)
     this.bookmarksCache.createIndex()
@@ -118,16 +124,16 @@ export default class CachingAdapter implements Adapter {
     const id = folder.id
     const oldFolder = this.bookmarksCache.findFolder(id)
     if (!oldFolder) {
-      throw new Error(browser.i18n.getMessage('Error006'))
+      throw new UnknownFolderUpdateError()
     }
 
     const foundOldParentFolder = this.bookmarksCache.findFolder(oldFolder.parentId)
     if (!foundOldParentFolder) {
-      throw new Error(browser.i18n.getMessage('Error008'))
+      throw new UnknownMoveOriginError()
     }
     const foundNewParentFolder = this.bookmarksCache.findFolder(folder.parentId)
     if (!foundNewParentFolder) {
-      throw new Error(browser.i18n.getMessage('Error009'))
+      throw new UnknownMoveTargetError()
     }
     if (oldFolder.findFolder(foundNewParentFolder.id)) {
       throw new Error('Detected creation of folder loop: Moving ' + id + ' to ' + folder.parentId + ', but it already contains the new parent node')
@@ -144,27 +150,25 @@ export default class CachingAdapter implements Adapter {
 
     const folder = this.bookmarksCache.findFolder(id)
     if (!folder) {
-      throw new Error(browser.i18n.getMessage('Error010'))
+      throw new UnknownFolderOrderError()
     }
     order.forEach(item => {
       const child = folder.findItem(item.type, item.id)
       if (!child || child.parentId !== folder.id) {
-        throw new Error(
-          browser.i18n.getMessage('Error011', id + ':' + JSON.stringify(item))
-        )
+        throw new UnknownFolderItemOrderError(id + ':' + JSON.stringify(item))
       }
     })
     folder.children.forEach(child => {
       const item = order.find((item) => item.type === child.type && item.id === child.id)
       if (!item) {
-        throw new Error(
-          browser.i18n.getMessage('Error012') + ' ' + id + ':' + child.inspect()
+        throw new MissingItemOrderError(
+          id + ':' + child.inspect()
         )
       }
     })
     if (order.length !== folder.children.length) {
       const diff = difference(folder.children.map(i => i.id), order.map(i => i.id))
-      throw new Error(browser.i18n.getMessage('Error012') + ' ' + id + ':' + JSON.stringify(diff))
+      throw new MissingItemOrderError(id + ':' + JSON.stringify(diff))
     }
     const newChildren = []
     order.forEach(item => {
@@ -194,7 +198,7 @@ export default class CachingAdapter implements Adapter {
     Logger.log('BULKIMPORT', { id, folder })
     const foundFolder = this.bookmarksCache.findFolder(id)
     if (!foundFolder) {
-      throw new Error(browser.i18n.getMessage('Error005'))
+      throw new UnknownCreateTargetError()
     }
     // clone and adjust ids
     const imported = folder.clone()

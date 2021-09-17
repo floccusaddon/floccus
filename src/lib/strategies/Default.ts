@@ -1,19 +1,19 @@
 import { Bookmark, Folder, TItem, ItemType, ItemLocation, TItemLocation } from '../Tree'
 import Logger from '../Logger'
-import browser from '../browser-api'
 import Diff, { Action, ActionType, CreateAction, MoveAction, RemoveAction, ReorderAction, UpdateAction } from '../Diff'
 import Scanner from '../Scanner'
 import * as Parallel from 'async-parallel'
 import { throttle } from 'throttle-debounce'
 import Mappings, { MappingSnapshot } from '../Mappings'
-import LocalTree from '../LocalTree'
-import TResource, { OrderFolderResource } from '../interfaces/Resource'
+import TResource, { OrderFolderResource, TLocalTree } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
+import { FailsafeError, InterruptedSyncError } from '../../errors/Error'
+
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 
 export default class SyncProcess {
   protected mappings: Mappings
-  protected localTree: LocalTree
+  protected localTree: TLocalTree
   protected server: TAdapter
   protected cacheTreeRoot: Folder
   protected canceled: boolean
@@ -29,7 +29,7 @@ export default class SyncProcess {
 
   constructor(
     mappings:Mappings,
-    localTree:LocalTree,
+    localTree:TLocalTree,
     cacheTreeRoot:Folder,
     server:TAdapter,
     progressCb:(progress:number)=>void
@@ -61,6 +61,10 @@ export default class SyncProcess {
     )
   }
 
+  setDirection(direction:TItemLocation):void {
+    throw new Error('Unsupported method')
+  }
+
   async sync(): Promise<void> {
     this.masterLocation = ItemLocation.LOCAL
     await this.prepareSync()
@@ -84,9 +88,6 @@ export default class SyncProcess {
 
     this.actionsPlanned = serverPlan.getActions().length + localPlan.getActions().length
 
-    // Weed out modifications to bookmarks root
-    await this.filterOutRootFolderActions(localPlan)
-
     this.applyFailsafe(localPlan)
 
     serverPlan = await this.execute(this.server, serverPlan, ItemLocation.SERVER)
@@ -100,8 +101,6 @@ export default class SyncProcess {
 
     const serverReorder = this.reconcileReorderings(serverPlan, localPlan, mappingsSnapshot)
       .map(mappingsSnapshot, ItemLocation.SERVER)
-
-    await this.filterOutRootFolderActions(localReorder)
 
     if ('orderFolder' in this.server) {
       await Promise.all([
@@ -145,7 +144,7 @@ export default class SyncProcess {
     if (localCountTotal > 5 && localCountDeleted / localCountTotal > 0.5) {
       const failsafe = this.server.getData().failsafe
       if (failsafe !== false || typeof failsafe === 'undefined') {
-        throw new Error(browser.i18n.getMessage('Error029', [(localCountDeleted / localCountTotal) * 100]))
+        throw new FailsafeError((localCountDeleted / localCountTotal) * 100)
       }
     }
   }
@@ -184,19 +183,6 @@ export default class SyncProcess {
     await Promise.all(
       duplicates.map(bm => this.localTree.removeBookmark(bm))
     )
-  }
-
-  async filterOutRootFolderActions(plan: Diff):Promise<void> {
-    // Weed out modifications to bookmarks root
-    const absoluteRootFolder = await LocalTree.getAbsoluteRootFolder()
-    plan
-      .getActions()
-      .filter(action => {
-        return action.payload.id === absoluteRootFolder.id || action.payload.parentId === absoluteRootFolder.id
-      })
-      .forEach(action => {
-        plan.retract(action)
-      })
   }
 
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
@@ -491,7 +477,7 @@ export default class SyncProcess {
     const item = action.payload
 
     if (this.canceled) {
-      throw new Error(browser.i18n.getMessage('Error027'))
+      throw new InterruptedSyncError()
     }
 
     if (action.type === ActionType.REMOVE) {
@@ -662,7 +648,7 @@ export default class SyncProcess {
       const item = action.payload
 
       if (this.canceled) {
-        throw new Error(browser.i18n.getMessage('Error027'))
+        throw new InterruptedSyncError()
       }
 
       if (action.order.length <= 1) {
@@ -723,7 +709,7 @@ export default class SyncProcess {
 
   async loadChildren(serverItem:TItem, mappingsSnapshot:MappingSnapshot):Promise<void> {
     if (this.canceled) {
-      throw new Error(browser.i18n.getMessage('Error027'))
+      throw new InterruptedSyncError()
     }
     if (!(serverItem instanceof Folder)) return
     if (!('loadFolderChildren' in this.server)) return

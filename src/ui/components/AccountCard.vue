@@ -172,7 +172,7 @@ import PathHelper from '../../lib/PathHelper'
 import humanizeDuration from 'humanize-duration'
 import { actions } from '../store'
 import { routes } from '../router'
-import LocalTree from '../../lib/LocalTree'
+import BrowserTree from '../../lib/browser/BrowserTree'
 
 export default {
   name: 'AccountCard',
@@ -287,11 +287,11 @@ export default {
   },
   watch: {
     async localRoot(localRoot) {
-      this.rootPath = await LocalTree.getPathFromLocalId(localRoot)
+      this.rootPath = await BrowserTree.getPathFromLocalId(localRoot)
     }
   },
   async created() {
-    this.rootPath = await LocalTree.getPathFromLocalId(this.localRoot)
+    this.rootPath = await BrowserTree.getPathFromLocalId(this.localRoot)
   },
   methods: {
     onChangeStrategy() {

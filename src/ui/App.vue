@@ -6,7 +6,7 @@
       <router-view />
     </v-content>
     <v-footer
-      color="#3893cc"
+      color="blue darken-1"
       app>
       <v-row no-gutters>
         <v-col>
@@ -91,10 +91,10 @@
 </template>
 
 <script>
-import browser from '../lib/browser-api'
 import { version as VERSION } from '../../package.json'
 import { actions } from './store'
 import { routes } from './router'
+import Controller from '../lib/Controller'
 export default {
   name: 'App',
   data() {
@@ -125,8 +125,8 @@ export default {
       this.$store.dispatch(actions.LOAD_LOCKED),
       this.$store.dispatch(actions.LOAD_ACCOUNTS)
     ])
-    const background = await browser.runtime.getBackgroundPage()
-    const unregister = background.controller.onStatusChange(() =>
+    const controller = await Controller.getSingleton()
+    const unregister = controller.onStatusChange(() =>
       this.$store.dispatch(actions.LOAD_ACCOUNTS)
     )
     window.addEventListener('beforeunload', unregister)

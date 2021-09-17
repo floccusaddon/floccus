@@ -8,19 +8,16 @@ const fetch = require('node-fetch')
 const VERSION = require('../package.json').version
 ;(async function() {
   let driver = await new Builder()
-    .withCapabilities({
-      'sauce:options': {
-        'moz:firefoxOptions': { wc3: true },
-        'goog:chromeOptions': { wc3: true },
-        'seleniumVersion:': '3.11.0'
-      }
-    })
     .usingServer(`http://localhost:4444/wd/hub`)
     .forBrowser(process.env.SELENIUM_BROWSER)
     .setChromeOptions(
       process.env.SELENIUM_BROWSER === 'chrome'
         ? new ChromeOptions()
           .excludeSwitches('extension-content-verification')
+          .addArguments([
+            '--no-sandbox', // see https://bugs.chromium.org/p/chromedriver/issues/detail?id=2473
+            '--remote-debugging-port=9222'
+          ])
           .addExtensions(
             fs.readFileSync(
               `./builds/floccus-build-v${VERSION}.crx`,

@@ -24,5 +24,7 @@ export interface OrderFolderResource extends IResource {
   orderFolder(id: number|string, order:Ordering):Promise<void>
 }
 
+export type TLocalTree = IResource & OrderFolderResource
+
 type TResource = IResource|BulkImportResource|LoadFolderChildrenResource|OrderFolderResource
 export default TResource

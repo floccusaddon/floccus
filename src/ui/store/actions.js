@@ -2,7 +2,9 @@ import Account from '../../lib/Account'
 import browser from '../../lib/browser-api'
 import { mutations } from './mutations'
 import Logger from '../../lib/Logger'
-import LocalTree from '../../lib/LocalTree'
+import BrowserTree from '../../lib/browser/BrowserTree'
+import AdapterFactory from '../../lib/AdapterFactory'
+import Controller from '../../lib/Controller'
 
 export const actions = {
   LOAD_LOCKED: 'LOAD_UNLOCKED',
@@ -26,14 +28,14 @@ export const actions = {
 }
 export const actionsDefinition = {
   async [actions.LOAD_LOCKED]({ commit, dispatch, state }) {
-    const background = await browser.runtime.getBackgroundPage()
-    commit(mutations.SET_LOCKED, !background.controller.unlocked)
-    commit(mutations.SET_SECURED, !!background.controller.key || !background.controller.unlocked)
+    const controller = await Controller.getSingleton()
+    commit(mutations.SET_LOCKED, !controller.unlocked)
+    commit(mutations.SET_SECURED, !!controller.key || !controller.unlocked)
   },
   async [actions.UNLOCK]({commit, dispatch, state}, key) {
-    const background = await browser.runtime.getBackgroundPage()
+    const controller = await Controller.getSingleton()
     try {
-      await background.controller.unlock(key)
+      await controller.unlock(key)
     } catch (e) {
       console.error(e.message)
       throw e
@@ -41,12 +43,12 @@ export const actionsDefinition = {
     commit(mutations.SET_LOCKED, false)
   },
   async [actions.SET_KEY]({commit, dispatch, state}, key) {
-    const background = await browser.runtime.getBackgroundPage()
-    await background.controller.setKey(key)
+    const controller = await Controller.getSingleton()
+    await controller.setKey(key)
   },
   async [actions.UNSET_KEY]({commit, dispatch, state}) {
-    const background = await browser.runtime.getBackgroundPage()
-    await background.controller.unsetKey()
+    const controller = await Controller.getSingleton()
+    await controller.unsetKey()
   },
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
     commit(mutations.LOADING_START, 'accounts')
@@ -58,7 +60,7 @@ export const actionsDefinition = {
           data: acc.getData(),
           id: acc.id,
           label: acc.getLabel(),
-          fullPath: await LocalTree.getPathFromLocalId(acc.getData().localRoot)
+          fullPath: await BrowserTree.getPathFromLocalId(acc.getData().localRoot)
         }
       })
     )
@@ -66,8 +68,8 @@ export const actionsDefinition = {
     commit(mutations.LOADING_END, 'accounts')
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
-    const rootFolder = await LocalTree.getAbsoluteRootFolder()
-    const account = await Account.create({...Account.getDefaultValues(type), localRoot: rootFolder.id})
+    const rootFolder = await BrowserTree.getAbsoluteRootFolder()
+    const account = await Account.create({...AdapterFactory.getDefaultValues(type), localRoot: rootFolder.id})
     await dispatch(actions.LOAD_ACCOUNTS)
     return account.id
   },
@@ -99,20 +101,20 @@ export const actionsDefinition = {
     commit(mutations.STORE_ACCOUNT_DATA, {id, data})
   },
   async [actions.TRIGGER_SYNC]({ commit, dispatch, state }, accountId) {
-    const background = await browser.runtime.getBackgroundPage()
-    background.controller.syncAccount(accountId)
+    const controller = await Controller.getSingleton()
+    controller.syncAccount(accountId)
   },
   async [actions.TRIGGER_SYNC_DOWN]({ commit, dispatch, state }, accountId) {
-    const background = await browser.runtime.getBackgroundPage()
-    await background.controller.syncAccount(accountId, 'slave')
+    const controller = await Controller.getSingleton()
+    await controller.syncAccount(accountId, 'slave')
   },
   async [actions.TRIGGER_SYNC_UP]({ commit, dispatch, state }, accountId) {
-    const background = await browser.runtime.getBackgroundPage()
-    await background.controller.syncAccount(accountId, 'overwrite')
+    const controller = await Controller.getSingleton()
+    await controller.syncAccount(accountId, 'overwrite')
   },
   async [actions.CANCEL_SYNC]({ commit, dispatch, state }, accountId) {
-    const background = await browser.runtime.getBackgroundPage()
-    await background.controller.cancelSync(accountId, true)
+    const controller = await Controller.getSingleton()
+    await controller.cancelSync(accountId, true)
   },
   async [actions.DOWNLOAD_LOGS]({ commit, dispatch, state }) {
     await Logger.downloadLogs()

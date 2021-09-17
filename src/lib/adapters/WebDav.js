@@ -1,11 +1,19 @@
 import CachingAdapter from './Caching'
 import XbelSerializer from '../serializers/Xbel'
 import Logger from '../Logger'
-import browser from '../browser-api'
 import { Base64 } from 'js-base64'
 
 import url from 'url'
 import Crypto from '../Crypto'
+import {
+  AuthenticationError,
+  DecryptionError,
+  HttpError,
+  LockFileError,
+  NetworkError,
+  SlashError
+} from '../../errors/Error'
+import { Http } from '@capacitor-community/http'
 
 export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {
@@ -58,22 +66,26 @@ export default class WebDavAdapter extends CachingAdapter {
     )
 
     try {
-      res = await fetch(fullURL, {
+      res = await Http.request({
+        url: fullURL,
         method: 'GET',
-        credentials: 'omit',
         headers: {
           Authorization: 'Basic ' + authString
+        },
+        responseType: 'text',
+        webFetchExtra: {
+          credentials: 'omit',
         }
       })
     } catch (e) {
-      throw new Error(browser.i18n.getMessage('Error017'))
+      throw new NetworkError()
     }
 
     if (res.status === 401) {
-      throw new Error(browser.i18n.getMessage('Error018'))
+      throw new AuthenticationError()
     }
-    if (!res.ok && res.status !== 404) {
-      throw new Error(browser.i18n.getMessage('Error019', [res.status, 'GET']))
+    if (res.status >= 300 && res.status !== 404) {
+      throw new HttpError(res.status, 'GET')
     }
 
     return res
@@ -96,25 +108,28 @@ export default class WebDavAdapter extends CachingAdapter {
       this.server.username + ':' + this.server.password
     )
     try {
-      var res = await fetch(url, {
+      var res = await Http.request({
+        url,
         method: 'PUT',
-        credentials: 'omit',
         headers: {
           'Content-Type': content_type,
           Authorization: 'Basic ' + authString
         },
-        body: data
+        data,
+        webFetchExtra: {
+          credentials: 'omit',
+        }
       })
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
-      throw new Error(browser.i18n.getMessage('Error017'))
+      throw new NetworkError()
     }
     if (res.status === 401 || res.status === 403) {
-      throw new Error(browser.i18n.getMessage('Error018'))
+      throw new AuthenticationError()
     }
-    if (!res.ok) {
-      throw new Error(browser.i18n.getMessage('Error019', [res.status, 'PUT']))
+    if (res.status >= 300) {
+      throw new HttpError(res.status, 'PUT')
     }
   }
 
@@ -143,11 +158,9 @@ export default class WebDavAdapter extends CachingAdapter {
         '<html><body>I am a lock file</body></html>'
       )
     } else {
-      throw new Error(
-        browser.i18n.getMessage('Error024', [
-          rStatus,
-          this.server.bookmark_file + '.lock'
-        ])
+      throw new LockFileError(
+        rStatus,
+        this.server.bookmark_file + '.lock'
       )
     }
   }
@@ -160,11 +173,14 @@ export default class WebDavAdapter extends CachingAdapter {
     )
 
     try {
-      await fetch(fullUrl, {
+      await Http.request({
+        url: fullUrl,
         method: 'DELETE',
-        credentials: 'omit',
         headers: {
           Authorization: 'Basic ' + authString
+        },
+        webFetchExtra: {
+          credentials: 'omit',
         }
       })
     } catch (e) {
@@ -179,7 +195,7 @@ export default class WebDavAdapter extends CachingAdapter {
     let response = await this.downloadFile(fullUrl)
 
     if (response.status === 401) {
-      throw new Error(browser.i18n.getMessage('Error018'))
+      throw new AuthenticationError()
     }
 
     if (response.status === 404) {
@@ -188,7 +204,7 @@ export default class WebDavAdapter extends CachingAdapter {
     }
 
     if (response.status === 200) {
-      let xmlDocText = await response.text()
+      let xmlDocText = response.data
 
       if (this.server.passphrase) {
         try {
@@ -197,7 +213,7 @@ export default class WebDavAdapter extends CachingAdapter {
           if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
             // not encrypted, yet => noop
           } else {
-            throw new Error(browser.i18n.getMessage('Error030'))
+            throw new DecryptionError()
           }
         }
       } else if (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
@@ -225,7 +241,7 @@ export default class WebDavAdapter extends CachingAdapter {
     Logger.log('onSyncStart: begin')
 
     if (this.server.bookmark_file[0] === '/') {
-      throw new Error(browser.i18n.getMessage('Error025'))
+      throw new SlashError()
     }
 
     await this.obtainLock()
@@ -234,7 +250,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
     if (resp.status !== 200) {
       if (resp.status !== 404) {
-        throw new Error(browser.i18n.getMessage('Error026', resp.status))
+        throw new HttpError(resp.status, 'GET')
       }
     }
 

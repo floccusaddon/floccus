@@ -20,7 +20,7 @@
               @click="onTriggerFinder">
               <template #append>
                 <v-icon
-                  color="blue"
+                  color="blue darken-1"
                   @click="onTriggerFinder">
                   mdi-folder
                 </v-icon>
@@ -77,9 +77,6 @@
 </template>
 
 <script>
-import LocalTree from '../../lib/LocalTree'
-import browser from '../../lib/browser-api'
-
 export default {
   name: 'OptionSyncFolder',
   props: { value: { type: String, default: undefined } },
@@ -115,15 +112,17 @@ export default {
         this.mode = 'tabs'
         return
       }
+      const BrowserTree = (await import('../../lib/browser/BrowserTree')).default
       if (this.value) {
         this.path = decodeURIComponent(
-          await LocalTree.getPathFromLocalId(this.value)
+          await BrowserTree.getPathFromLocalId(this.value)
         ) + '/'
       } else {
         this.path = this.t('LabelNewfolder')
       }
     },
     async onTriggerFinder() {
+      const browser = (await import('../../lib/browser-api')).default
       this.selectedLocalRoot = this.value
       this.finder = true
       this.folders = this.filterOutBookmarks(await browser.bookmarks.getTree())

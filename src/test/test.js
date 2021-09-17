@@ -8,6 +8,8 @@ import browser from '../lib/browser-api'
 import Crypto from '../lib/Crypto'
 import * as AsyncParallel from 'async-parallel'
 import DefunctCrypto from '../lib/DefunctCrypto'
+import AdapterFactory from '../lib/AdapterFactory'
+import Controller from '../lib/Controller'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -32,9 +34,9 @@ describe('Floccus', function() {
   random.use(seedrandom(SEED))
 
   ACCOUNTS = [
-    Account.getDefaultValues('fake'),
+    AdapterFactory.getDefaultValues('fake'),
     {
-      ...Account.getDefaultValues('fake'),
+      ...AdapterFactory.getDefaultValues('fake'),
       noCache: true,
     },
     {
@@ -75,12 +77,12 @@ describe('Floccus', function() {
   ]
 
   before(async function() {
-    const background = await browser.runtime.getBackgroundPage()
-    background.controller.setEnabled(false)
+    const controller = await Controller.getSingleton()
+    controller.setEnabled(false)
   })
   after(async function() {
-    const background = await browser.runtime.getBackgroundPage()
-    background.controller.setEnabled(true)
+    const controller = await Controller.getSingleton()
+    controller.setEnabled(true)
   })
 
   describe('Crypto', function() {

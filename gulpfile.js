@@ -6,6 +6,8 @@ var devConfig = require('./webpack.dev')
 var gulpZip = require('gulp-zip')
 var crx3 = require('crx3')
 var webstoreClient = require('chrome-webstore-upload')
+var rename = require('gulp-rename')
+var path = require('path')
 
 // Provide a dummy credential file for third-party builders
 try {
@@ -33,6 +35,7 @@ const paths = {
     './**',
     (process.env['CI'] ? './' : '!') + 'dist/js/test.js',
     '!builds/**',
+    '!icons/**',
     '!src/**',
     '!node_modules/**',
     '!img/**',
@@ -45,6 +48,10 @@ const paths = {
   entries: 'src/entries/*.js',
   js: 'src/**',
   builds: './builds/',
+  locales: '_locales/**/messages.json',
+  icons: 'icons/*',
+  materialdesignicons: 'lib/materialdesignicons.min.css',
+  materialdesigniconsfont: 'fonts/materialdesignicons-webfont.woff2'
 }
 const WEBSTORE_ID = 'fnaicdffflnofjppbagibeoednhnbjhg'
 
@@ -59,6 +66,21 @@ try {
   )
 } catch (e) {
   // noop
+}
+
+const locales = function() {
+  return gulp.src(paths.locales).pipe(rename(function(file) {
+    // Returns a completely new object, make sure you return all keys needed!
+    return {
+      dirname: '.',
+      basename: path.basename(file.dirname),
+      extname: '.json'
+    }
+  })).pipe(gulp.dest('./dist/_locales/'))
+}
+
+const icons = function() {
+  return gulp.src(paths.icons).pipe(gulp.dest('./dist/icons/'))
 }
 
 const js = function() {
@@ -96,13 +118,25 @@ const mochacss = function() {
     .pipe(gulp.dest('./dist/css/'))
 }
 
+const materialdesignicons = function() {
+  return gulp
+    .src(paths.materialdesignicons)
+    .pipe(gulp.dest('./dist/css/'))
+}
+
+const materialdesigniconsfont = function() {
+  return gulp
+    .src(paths.materialdesigniconsfont)
+    .pipe(gulp.dest('./dist/fonts/'))
+}
+
 const mocha = gulp.parallel(mochajs, mochacss)
 
-const thirdparty = gulp.parallel(polyfill, mocha)
+const thirdparty = gulp.parallel(polyfill, mocha, materialdesignicons, materialdesigniconsfont)
 
-const main = gulp.series(html, js, thirdparty)
+const main = gulp.series(html, locales, js, thirdparty, icons)
 
-const dev = gulp.series(html, thirdparty)
+const dev = gulp.series(html, thirdparty, locales, icons)
 
 const zip = function() {
   return gulp
@@ -143,9 +177,11 @@ const publish = gulp.series(main, zip, function() {
 const watch = function() {
   let jsWatcher = gulp.watch(paths.js, dev)
   let viewsWatcher = gulp.watch(paths.views, html)
+  let localeWatcher = gulp.watch(paths.locales, locales)
 
   jsWatcher.on('change', onWatchEvent)
   viewsWatcher.on('change', onWatchEvent)
+  localeWatcher.on('change', onWatchEvent)
 
   webpack(devConfig).watch({}, (err, stats) => {
     if (err) {
@@ -172,6 +208,7 @@ exports.release = release
 exports.watch = gulp.series(dev, watch)
 exports.publish = publish
 exports.dev = dev
+exports.locales = locales
 /*
  * Define default task that can be called by just running `gulp` from cli
  */
