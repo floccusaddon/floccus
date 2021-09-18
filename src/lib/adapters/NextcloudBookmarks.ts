@@ -24,7 +24,6 @@ import {
 } from '../../errors/Error'
 import { Http } from '@capacitor-community/http'
 import { Device } from '@capacitor/device'
-// import { Device } from '@capacitor/device'
 
 const PAGE_SIZE = 300
 const TIMEOUT = 180000
@@ -122,44 +121,24 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async onSyncStart(): Promise<void> {
-    const lockKey = 'https://floccus.org/?lock'
-    let lockBookmark
     const startDate = Date.now()
     const maxTimeout = 30 * 60 * 1000 // Give up after 0.5h
     const base = 1.25
     for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
-      lockBookmark = await this.getExistingBookmark(lockKey)
-      if (lockBookmark === false && i === 1) {
+      if (await this.acquireLock()) {
         break
       } else {
         await this.timeout(base ** i * 1000)
       }
     }
-
-    const body = {
-      url: lockKey,
-      title: 'Floccus sync lock',
-      folders: [-1],
-    }
-
-    const json = await this.sendRequest(
-      'POST',
-      'index.php/apps/bookmarks/public/rest/v2/bookmark',
-      'application/json',
-      body
-    )
-    if (typeof json.item !== 'object') {
-      throw new UnexpectedServerResponseError()
-    }
-    this.lockId = json.item.id + ';' + -1
   }
 
   async onSyncComplete(): Promise<void> {
-    await this.removeBookmark(new Bookmark({id: this.lockId, title: 'Floccus sync lock', url: 'https://floccus.org/?lock', parentId: -1, location: ItemLocation.SERVER}))
+    await this.releaseLock()
   }
 
   async onSyncFail(): Promise<void> {
-    await this.removeBookmark(new Bookmark({id: this.lockId, title: 'Floccus sync lock', url: 'https://floccus.org/?lock', parentId: -1, location: ItemLocation.SERVER}))
+    await this.releaseLock()
   }
 
   async getBookmarksList():Promise<Bookmark[]> {
@@ -981,5 +960,29 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
 
     return json
+  }
+
+  private async acquireLock():Promise<boolean> {
+    const res = await this.sendRequest(
+      'POST',
+      'index.php/apps/bookmarks/public/rest/v2/lock',
+      null,
+      null,
+      true
+    )
+
+    return res.statusCode === 200 || res.statusCode === 405
+  }
+
+  private async releaseLock():Promise<boolean> {
+    const res = await this.sendRequest(
+      'DELETE',
+      'index.php/apps/bookmarks/public/rest/v2/lock',
+      null,
+      null,
+      true
+    )
+
+    return res.statusCode === 200
   }
 }
