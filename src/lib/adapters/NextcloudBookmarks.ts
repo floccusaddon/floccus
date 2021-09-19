@@ -971,7 +971,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       true
     )
 
-    return res.statusCode === 200 || res.statusCode === 405
+    return res.status === 200 || res.status === 405
   }
 
   private async releaseLock():Promise<boolean> {
@@ -983,6 +983,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       true
     )
 
-    return res.statusCode === 200
+    return res.status === 200
   }
 }
