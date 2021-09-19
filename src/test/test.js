@@ -8,8 +8,8 @@ import browser from '../lib/browser-api'
 import Crypto from '../lib/Crypto'
 import * as AsyncParallel from 'async-parallel'
 import DefunctCrypto from '../lib/DefunctCrypto'
-import AdapterFactory from '../lib/AdapterFactory'
 import Controller from '../lib/Controller'
+import FakeAdapter from '../lib/adapters/Fake'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -34,9 +34,9 @@ describe('Floccus', function() {
   random.use(seedrandom(SEED))
 
   ACCOUNTS = [
-    AdapterFactory.getDefaultValues('fake'),
+    FakeAdapter.getDefaultValues(),
     {
-      ...AdapterFactory.getDefaultValues('fake'),
+      ...FakeAdapter.getDefaultValues(),
       noCache: true,
     },
     {

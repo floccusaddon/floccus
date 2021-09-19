@@ -7,21 +7,17 @@ import MergeSyncProcess from './strategies/Merge'
 import DefaultSyncProcess from './strategies/Default'
 import IAccountStorage, { IAccountData, TAccountStrategy } from './interfaces/AccountStorage'
 import { TAdapter } from './interfaces/Adapter'
-import NextcloudBookmarksAdapter from './adapters/NextcloudBookmarks'
-import WebDavAdapter from './adapters/WebDav'
-// import GoogleDriveAdapter from './adapters/GoogleDrive'
-import FakeAdapter from './adapters/Fake'
 import { IResource, TLocalTree } from './interfaces/Resource'
 import Controller from './Controller'
 import { Device } from '@capacitor/device'
 import IAccount from './interfaces/Account'
 
 // register Adapters
-AdapterFactory.register('nextcloud-folders', NextcloudBookmarksAdapter)
-AdapterFactory.register('nextcloud-bookmarks', NextcloudBookmarksAdapter)
-AdapterFactory.register('webdav', WebDavAdapter)
-// AdapterFactory.register('google-drive', GoogleDriveAdapter)
-AdapterFactory.register('fake', FakeAdapter)
+AdapterFactory.register('nextcloud-folders', async() => (await import('./adapters/NextcloudBookmarks')).default)
+AdapterFactory.register('nextcloud-bookmarks', async() => (await import('./adapters/NextcloudBookmarks')).default)
+AdapterFactory.register('webdav', async() => (await import('./adapters/WebDav')).default)
+AdapterFactory.register('google-drive', async() => (await import('./adapters/GoogleDrive')).default)
+AdapterFactory.register('fake', async() => (await import('./adapters/Fake')).default)
 
 export default class Account {
   static cache = {}

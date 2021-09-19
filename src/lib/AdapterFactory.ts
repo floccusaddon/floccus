@@ -6,15 +6,16 @@ export default {
   register(type:string, adapter: any):void {
     this.registry[type] = adapter
   },
-  factory(data: any): TAdapter {
+  async factory(data: any): Promise<TAdapter> {
     if ('type' in data) {
-      const adapter = this.registry[data.type]
+      const adapter = await this.registry[data.type]()
       return new adapter(data)
     }
   },
-  getDefaultValues(type:string):IAccountData {
+  async getDefaultValues(type:string):Promise<IAccountData> {
+    const adapter = await this.registry[type]()
     return {
-      ...this.registry[type].getDefaultValues(),
+      ...adapter.getDefaultValues(),
       enabled: true,
     }
   }
