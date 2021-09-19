@@ -7,11 +7,11 @@ import store from './store'
 import i18n from './plugins/i18n'
 
 Vue.mixin(i18n)
+Vue.mixin(capacitor)
 
 const app = (global['Floccus'] = new Vue({
   el: '#app',
   store,
-  capacitor,
   router,
   vuetify,
   render: (h) => h(App),
