@@ -19,12 +19,12 @@ export default class BrowserAccount extends Account {
     const background = await browser.runtime.getBackgroundPage()
     const data = await storage.getAccountData(background.controller.key)
     const tree = new BrowserTree(storage, data.localRoot)
-    return new BrowserAccount(id, storage, AdapterFactory.factory(data), tree)
+    return new BrowserAccount(id, storage, await AdapterFactory.factory(data), tree)
   }
 
   static async create(data):Promise<Account> {
     const id = '' + Date.now() + Math.random()
-    const adapter = AdapterFactory.factory(data)
+    const adapter = await AdapterFactory.factory(data)
     const storage = new BrowserAccountStorage(id)
 
     const background = await browser.runtime.getBackgroundPage()

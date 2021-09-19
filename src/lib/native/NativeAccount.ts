@@ -22,12 +22,12 @@ export default class NativeAccount extends Account {
     const data = await storage.getAccountData(controller.key)
     const tree = new NativeTree(storage)
     await tree.load()
-    return new NativeAccount(id, storage, AdapterFactory.factory(data), tree)
+    return new NativeAccount(id, storage, await AdapterFactory.factory(data), tree)
   }
 
   static async create(data: IAccountData):Promise<Account> {
     const id = '' + Date.now() + Math.random()
-    const adapter = AdapterFactory.factory(data)
+    const adapter = await AdapterFactory.factory(data)
     const storage = new NativeAccountStorage(id)
 
     const controller = await Controller.getSingleton()
