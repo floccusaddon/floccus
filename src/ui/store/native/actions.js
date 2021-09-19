@@ -86,7 +86,7 @@ export const actionsDefinition = {
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
-    const account = await Account.create({...AdapterFactory.getDefaultValues(type)})
+    const account = await Account.create({...(await AdapterFactory.getDefaultValues(type))})
     await dispatch(actions.LOAD_ACCOUNTS)
     await dispatch(mutations.SELECT_ACCOUNT, account.id)
     return account.id

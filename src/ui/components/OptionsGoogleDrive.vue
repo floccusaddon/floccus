@@ -104,7 +104,6 @@ import OptionDeleteAccount from './OptionDeleteAccount'
 import OptionSyncFolder from './OptionSyncFolder'
 import OptionNestedSync from './OptionNestedSync'
 import OptionFailsafe from './OptionFailsafe'
-import GoogleDriveAdapter from '../../lib/adapters/GoogleDrive'
 
 export default {
   name: 'OptionsGoogleDrive',
@@ -121,6 +120,7 @@ export default {
       return !path.includes('/')
     },
     async authenticate() {
+      const GoogleDriveAdapter = (await import('../../lib/adapters/GoogleDrive')).default
       const refresh_token = await GoogleDriveAdapter.authorize()
       if (refresh_token) {
         this.authorized = true

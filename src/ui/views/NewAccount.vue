@@ -11,7 +11,9 @@
             <div
               v-for="a in adapters"
               :key="a.type">
-              <v-radio :value="a.type">
+              <v-radio
+                :value="a.type"
+                :disabled="!isBrowser && a.type !== 'nextcloud-bookmarks'">
                 <template v-slot:label>
                   <div class="heading">
                     {{ a.label }}

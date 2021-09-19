@@ -69,7 +69,7 @@ export const actionsDefinition = {
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
     const rootFolder = await BrowserTree.getAbsoluteRootFolder()
-    const account = await Account.create({...AdapterFactory.getDefaultValues(type), localRoot: rootFolder.id})
+    const account = await Account.create({...(await AdapterFactory.getDefaultValues(type)), localRoot: rootFolder.id})
     await dispatch(actions.LOAD_ACCOUNTS)
     return account.id
   },

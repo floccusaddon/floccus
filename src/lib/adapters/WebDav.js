@@ -14,6 +14,7 @@ import {
   SlashError
 } from '../../errors/Error'
 import { Http } from '@capacitor-community/http'
+import { Device } from '@capacitor/device'
 
 export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {
@@ -104,6 +105,42 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async uploadFile(url, content_type, data) {
+    const info = await Device.getInfo()
+    if (info.platform === 'web') {
+      return this.uploadFileWeb(url, content_type, data)
+    } else {
+      return this.uploadFileNative(url, content_type, data)
+    }
+  }
+
+  async uploadFileWeb(url, content_type, data) {
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+    try {
+      var res = await fetch(url,{
+        method: 'PUT',
+        headers: {
+          'Content-Type': content_type,
+          Authorization: 'Basic ' + authString
+        },
+        credentials: 'omit',
+        body: data,
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      throw new NetworkError()
+    }
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status >= 300) {
+      throw new HttpError(res.status, 'PUT')
+    }
+  }
+
+  async uploadFileNative(url, content_type, data) {
     let authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )

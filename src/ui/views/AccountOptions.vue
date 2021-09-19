@@ -118,6 +118,18 @@
             </div>
           </v-col>
           <v-col>
+            <div class="d-flex flex-row-reverse">
+              <v-btn
+                class="primary"
+                @click="onSave">
+                {{ t('LabelSave') }}
+              </v-btn>
+              <v-icon
+                v-if="saved"
+                color="green">
+                mdi-check
+              </v-icon>
+            </div>
             <v-form
               v-if="!loading"
               class="mt-3 mb-3">
@@ -133,6 +145,11 @@
                 @delete="onDelete" />
               <OptionsFake
                 v-if="data.type === 'fake'"
+                v-bind.sync="data"
+                @reset="onReset"
+                @delete="onDelete" />
+              <OptionsGoogleDrive
+                v-if="data.type === 'google-drive'"
                 v-bind.sync="data"
                 @reset="onReset"
                 @delete="onDelete" />
@@ -173,11 +190,12 @@ import { actions } from '../store'
 import OptionsNextcloudFolders from '../components/OptionsNextcloudBookmarks'
 import OptionsWebdav from '../components/OptionsWebdav'
 import OptionsFake from '../components/OptionsFake'
+import OptionsGoogleDrive from '../components/OptionsGoogleDrive'
 // import OptionsGoogleDrive from '../components/OptionsGoogleDrive'
 
 export default {
   name: 'AccountOptions',
-  components: { OptionsFake, OptionsWebdav, OptionsNextcloudFolders },
+  components: { OptionsGoogleDrive, OptionsFake, OptionsWebdav, OptionsNextcloudFolders },
   data() {
     return {
       folderName: '',
