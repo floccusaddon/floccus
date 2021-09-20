@@ -767,4 +767,19 @@ export default class SyncProcess {
         mappingsSnapshot.ServerToLocal.folder[serverItem.parentId])
     return changedLocally || changedUpstream || reconciled
   }
+
+  filterOutUnmappedItems(tree: Folder, mapping: MappingSnapshot) {
+    tree.children = tree.children.filter(child => {
+      if (child instanceof Bookmark) {
+        return child.id in mapping.LocalToServer.bookmark
+      } else {
+        if (child.id in mapping.LocalToServer.folder) {
+          this.filterOutUnmappedItems(child, mapping)
+          return true
+        } else {
+          return false
+        }
+      }
+    })
+  }
 }

@@ -11,6 +11,7 @@ import { IResource, TLocalTree } from './interfaces/Resource'
 import Controller from './Controller'
 import { Device } from '@capacitor/device'
 import IAccount from './interfaces/Account'
+import Mappings from './Mappings'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', async() => (await import('./adapters/NextcloudBookmarks')).default)
@@ -129,7 +130,7 @@ export default class Account {
   }
 
   async sync(strategy?:TAccountStrategy):Promise<void> {
-    let mappings
+    let mappings: Mappings
     try {
       if (this.getData().syncing || this.syncing) return
 
@@ -212,6 +213,7 @@ export default class Account {
       if (localResource.constructor.name !== 'LocalTabs') {
         const cache = await localResource.getBookmarksTree()
         this.syncProcess.filterOutUnacceptedBookmarks(cache)
+        this.syncProcess.filterOutUnmappedItems(cache, await mappings.getSnapshot())
         await this.storage.setCache(cache)
       }
 
