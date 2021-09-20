@@ -37,7 +37,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     let revertPlan = await this.revertDiff(targetDiff, this.direction)
     Logger.log({revertPlan})
-    this.applyFailsafe(revertPlan)
+    if (this.direction === ItemLocation.LOCAL) {
+      this.applyFailsafe(revertPlan)
+    }
     revertPlan = await this.execute(target, revertPlan, this.direction)
 
     // Then reconcile master modifications with new slave changes and after having fetched the new trees
@@ -55,7 +57,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     Logger.log({overridePlan})
 
-    this.applyFailsafe(overridePlan)
+    if (this.direction === ItemLocation.LOCAL) {
+      this.applyFailsafe(overridePlan)
+    }
     overridePlan = await this.execute(target, overridePlan, this.direction)
 
     // mappings have been updated, reload
