@@ -560,6 +560,65 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
+          it('should not delete additions while sync is running', async function() {
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            const localRoot = account.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: barFolder.id
+            })
+
+            const syncPromise = account.sync() // propagate to server
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            await browser.bookmarks.create({
+              title: 'url2',
+              url: 'http://ur2.l/',
+              parentId: fooFolder.id
+            })
+            await syncPromise
+
+            await account.sync() // update on server
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Bookmark({
+                        title: 'url2',
+                        url: 'http://ur2.l/',
+                      }),
+                      new Folder({
+                        title: 'bar',
+                        children: [new Bookmark({
+                          title: 'url',
+                          url: 'http://ur.l/',
+                        })]
+                      })
+                    ]
+                  }),
+                ]
+              }),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+          })
           it('should be able to handle duplicates', async function() {
             expect(
               (await getAllBookmarks(account)).children
