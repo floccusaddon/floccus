@@ -1,5 +1,17 @@
 # Changelog
 
+## v4.8.0
+
+### Fixes
+- GoogleDrive: Save & display google username after login
+- Unidirectional: Do not apply failsafe when overriding server
+- Don't remove items added *during* a sync run
+- NextcloudBookmarks: Implement locking
+- NextcloudBookmarks: Only query all bookmarks if necessary
+- NextcloudBookmarks: fix BulkImport
+- LocalTabs#create: Don't load all tabs at once, set new ones as discarded
+- Fix isInitialized for tab sync accounts
+
 ## v4.7.0
 
 ### New
