@@ -9,11 +9,13 @@
       </v-card-title>
       <v-card-text>
         <div>
-          <v-icon
-            v-if="authorized || refreshToken"
-            color="success">
-            mdi-check
-          </v-icon>
+          <template v-if="authorized || refreshToken">
+            {{ username }}
+            <v-icon
+              color="success">
+              mdi-check
+            </v-icon>
+          </template>
           <v-btn
             color="primary"
             @click="authenticate">
@@ -108,7 +110,7 @@ import OptionFailsafe from './OptionFailsafe'
 export default {
   name: 'OptionsGoogleDrive',
   components: { OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['password', 'refreshToken', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
+  props: ['username', 'password', 'refreshToken', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
   data() {
     return {
       panels: [0, 1],
@@ -121,10 +123,11 @@ export default {
     },
     async authenticate() {
       const GoogleDriveAdapter = (await import('../../lib/adapters/GoogleDrive')).default
-      const refresh_token = await GoogleDriveAdapter.authorize()
+      const { refresh_token, username } = await GoogleDriveAdapter.authorize()
       if (refresh_token) {
         this.authorized = true
         this.$emit('update:refreshToken', refresh_token)
+        this.$emit('update:username', username)
       }
     }
   }

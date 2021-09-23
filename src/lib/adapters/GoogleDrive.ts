@@ -67,11 +67,18 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     }
     const json = await response.json()
     console.log(json)
-    if (json.access_token && json.refresh_token) {
-      return json.refresh_token
-    } else {
+    if (!json.access_token || !json.refresh_token) {
       throw new OAuthTokenError()
     }
+
+    const res = await fetch('https://www.googleapis.com/drive/v3/about?fields=user/displayName', {
+      headers: {
+        Authorization: 'Bearer ' + json.access_token
+      }
+    })
+    const about = await res.json()
+
+    return { refresh_token: json.refresh_token, username: about.user.displayName }
   }
 
   static async getAccessToken(refreshToken:string) {
@@ -105,6 +112,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   static getDefaultValues() {
     return {
       type: 'google-drive',
+      username: '',
       password: '',
       refreshToken: null,
       bookmark_file: 'bookmarks.xbel',
