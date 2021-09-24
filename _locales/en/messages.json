@@ -379,13 +379,13 @@
     "message": "Nested accounts"
   },
   "DescriptionNestedSync": {
-    "message": "You can nest accounts so that a parent folder belongs to one account and a child folder to a different account. Do you want to include this account's local folder in any potential parent folder sync from a different account?"
+    "message": "You can nest accounts so that a parent folder belongs to account A and a sub folder to account A and B. Do you want to allow other accounts to sync this account's folder as well?"
   },
   "LabelNestedSyncNo": {
-    "message": "Exclude this account's local folder from other sync accounts"
+    "message": "No, ignore this account's folder in other accounts"
   },
   "LabelNestedSyncYes": {
-    "message": "Include this account's local folder in other account syncs"
+    "message": "Yes, include this account's folder in other accounts"
   },
   "LabelImportExport": {
     "message": "Import/Export Accounts"
