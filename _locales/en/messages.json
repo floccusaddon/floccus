@@ -135,7 +135,7 @@
     "message": "Local folder"
   },
   "DescriptionLocalfolder": {
-    "message": "This is the local bookmarks folder in this browser that will be synced to the server."
+    "message": "This is the local bookmarks folder in this browser that will be synced to the server. Note that some browser don't allow creating new items under the root folder (e.g. Firefox and Google Chrome)"
   },
   "LabelRootfolder": {
     "message": "Root folder"
