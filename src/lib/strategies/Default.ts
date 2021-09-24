@@ -489,6 +489,11 @@ export default class SyncProcess {
 
     if (action.type === ActionType.CREATE) {
       const id = await action.payload.visitCreate(resource)
+      if (typeof id === 'undefined') {
+        // undefined means we couldn't create the item. we're ignoring it
+        this.updateProgress()
+        return
+      }
       item.id = id
       if (action.oldItem) {
         await this.addMapping(resource, action.oldItem, id)
