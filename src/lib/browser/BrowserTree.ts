@@ -50,6 +50,8 @@ export default class BrowserTree implements IResource {
           case 'menu________': // Firefox
             overrideTitle = 'Bookmarks Menu'
             break
+          case 'mobile______': // Firefox
+            overrideTitle = 'Mobile Bookmarks'
         }
         if (overrideTitle) {
           Logger.log(
