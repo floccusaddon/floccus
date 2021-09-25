@@ -197,6 +197,7 @@ import FaviconImage from '../../components/native/FaviconImage'
 import { routes } from '../../NativeRouter'
 import { Bookmark, Folder } from '../../../lib/Tree'
 import { actions } from '../../store/native'
+
 export default {
   name: 'Tree',
   components: { FaviconImage, DialogEditBookmark, DialogEditFolder, Drawer },
@@ -276,6 +277,9 @@ export default {
   },
   mounted() {
     this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
+  },
+  backButton() {
+    this.goBack()
   },
   methods: {
     clickItem(item) {

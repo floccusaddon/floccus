@@ -89,6 +89,9 @@ export default {
       this.data = this.$store.state.accounts[this.id].data
     }
   },
+  backButton() {
+    this.$router.push({name: this.routes.TREE, params: {accountId: this.id}})
+  },
   methods: {
     async onSave() {
       await this.$store.dispatch(actions.STORE_ACCOUNT, {id: this.id, data: this.data})
