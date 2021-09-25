@@ -46,6 +46,7 @@ export const actionsDefinition = {
   async [actions.LOAD_TREE]({ commit, dispatch, state }, id) {
     const account = await Account.get(id)
     const tree = await account.getResource()
+    await tree.load()
     const rootFolder = await tree.getBookmarksTree(true)
     await commit(mutations.LOAD_TREE, rootFolder)
   },
@@ -88,7 +89,6 @@ export const actionsDefinition = {
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
     const account = await Account.create({...(await AdapterFactory.getDefaultValues(type))})
     await dispatch(actions.LOAD_ACCOUNTS)
-    await dispatch(mutations.SELECT_ACCOUNT, account.id)
     return account.id
   },
   async [actions.IMPORT_ACCOUNTS]({commit, dispatch, state}, accounts) {
