@@ -101,6 +101,7 @@ export default {
     async onDelete() {
       await this.$store.dispatch(actions.DELETE_ACCOUNT, this.id)
       this.deleted = true
+      this.$router.push({name: routes.HOME})
     },
     async onReset() {
       await this.$store.dispatch(actions.RESET_ACCOUNT, this.id)

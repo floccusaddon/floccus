@@ -34,7 +34,7 @@ export default class NativeAccountStorage {
   }
 
   static deleteEntry(entryName) {
-    return Storage.remove(entryName)
+    return Storage.remove({key: entryName})
   }
 
   static async getAllAccounts() {
