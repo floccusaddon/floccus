@@ -971,6 +971,13 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       true
     )
 
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status === 503) {
+      throw new HttpError(res.status, 'POST')
+    }
+
     return res.status === 200 || res.status === 405
   }
 
