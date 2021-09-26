@@ -17,7 +17,7 @@ export default class I18n {
     this.defaultMessages = DEFAULT_MESSAGES
   }
 
-  setLocale(locale:string) {
+  setLocale(locale:string):void {
     this.locale = locale
   }
 

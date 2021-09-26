@@ -30,7 +30,7 @@
     "message": "E010: Não foi possível encontrar uma pasta para ordenar"
   },
   "Error011": {
-    "message": "E011: Elemento na ordenação das pastas não é um filho: $1"
+    "message": "E011: Elemento na ordenação das pastas não é um filho: {0}"
   },
   "Error012": {
     "message": "E012: A ordenação de pastas está a faltar em alguns dos filhos da pasta"
@@ -54,7 +54,7 @@
     "message": "E018: Não foi possível autenticar no servidor"
   },
   "Error019": {
-    "message": "E019: HTTP $1. O pedido $2 falhou. Verifique a configuração do servidor."
+    "message": "E019: HTTP {0}. O pedido {1} falhou. Verifique a configuração do servidor."
   },
   "Error020": {
     "message": "E020: Não foi possível processar a resposta do servidor. A aplicação dos marcadores está instalada no servidor?"
@@ -63,19 +63,19 @@
     "message": "E021: O estado do servidor é inconsistente. A pasta está presente na lista do childorder mas não está na árvore de pastas."
   },
   "Error022": {
-    "message": "E022: A pasta $1 contém supostamente um marcador não existente $2"
+    "message": "E022: A pasta {0} contém supostamente um marcador não existente {1}"
   },
   "Error023": {
-    "message": "E023: Impossível remover o ficheiro de segurança, considere remover $1 manualmente."
+    "message": "E023: Impossível remover o ficheiro de segurança, considere remover {0} manualmente."
   },
   "Error024": {
-    "message": "E024: HTTP $1 ao tentar determinar o estado do ficheiro de segurança $2"
+    "message": "E024: HTTP {0} ao tentar determinar o estado do ficheiro de segurança {1}"
   },
   "Error025": {
     "message": "E025: O ficheiro dos marcadores não pode começar com a barra \"/\""
   },
   "Error026": {
-    "message": "E026: HTTP $1. Erro ao obter marcadores."
+    "message": "E026: HTTP {0}. Erro ao obter marcadores."
   },
   "Error027": {
     "message": "E027: A sincronização foi interrompida"
@@ -126,7 +126,7 @@
     "message": "Ativado"
   },
   "StatusLastsynced": {
-    "message": "Útima sincronização há: $1"
+    "message": "Útima sincronização há: {0}"
   },
   "StatusNeversynced": {
     "message": "Ainda não sincronizado"

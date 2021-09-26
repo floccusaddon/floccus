@@ -36,6 +36,7 @@ const paths = {
     (process.env['CI'] ? './' : '!') + 'dist/js/test.js',
     '!builds/**',
     '!src/**',
+    '!_locales/**',
     '!node_modules/**',
     '!img/**',
     '!ISSUE_TEMPLATE.md',

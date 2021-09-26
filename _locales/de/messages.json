@@ -30,7 +30,7 @@
     "message": "E010: Zu ordnender Ordner konnte nicht gefunden werden"
   },
   "Error011": {
-    "message": "E011: Der Eintrag in der Ordner-Ordnung ist kein Kind des Ordners: $1"
+    "message": "E011: Der Eintrag in der Ordner-Ordnung ist kein Kind des Ordners: {0}"
   },
   "Error012": {
     "message": "E012: Der Ordner-Ordnung fehlen einige Kinder des Ordners"
@@ -54,7 +54,7 @@
     "message": "E018: Konnte nicht am Server authentifiziert werden."
   },
   "Error019": {
-    "message": "E019: HTTP Status $1. Anfrage vom Typ $2  fehlgeschlagen. Überprüfen Sie die Server-Konfiguration und das Server-Log"
+    "message": "E019: HTTP Status {0}. Anfrage vom Typ {1}  fehlgeschlagen. Überprüfen Sie die Server-Konfiguration und das Server-Log"
   },
   "Error020": {
     "message": "E020: Antwort des Servers konnte nicht gelesen werden. Ist die Bookmarks App auf Ihrem Server installiert?"
@@ -63,19 +63,19 @@
     "message": "E021: Inkonsistenter Server-Zustand. Ein Ordner ist in der Kind-Ordnung enthalten, aber nicht im Ordner-Baum."
   },
   "Error022": {
-    "message": "E022: Ordner $1 enhält angeblich ein nicht existierendes Lesezeichen: $2"
+    "message": "E022: Ordner {0} enhält angeblich ein nicht existierendes Lesezeichen: {1}"
   },
   "Error023": {
-    "message": "E023: Freigabe der Lock-Datei war nicht erfolgreich. Erwägen Sie $1 von Hand zu löschen."
+    "message": "E023: Freigabe der Lock-Datei war nicht erfolgreich. Erwägen Sie {0} von Hand zu löschen."
   },
   "Error024": {
-    "message": "E024: HTTP status $1 während des Ermittelns des Status der Lock-Datei $2"
+    "message": "E024: HTTP status {0} während des Ermittelns des Status der Lock-Datei {1}"
   },
   "Error025": {
     "message": "E025: Die Einstellung der Bookmarks Datei darf nicht mit einem Schrägstrich beginnen: '/'"
   },
   "Error026": {
-    "message": "E026: HTTP status $1. Fehler beim laden der Lesezeichen"
+    "message": "E026: HTTP status {0}. Fehler beim laden der Lesezeichen"
   },
   "Error027": {
     "message": "E027: Der Synchronisierungsprozess wurde unterbrochen"
@@ -132,7 +132,7 @@
     "message": "Aktiviert"
   },
   "StatusLastsynced": {
-    "message": "Zuletzt synchronisiert: vor $1"
+    "message": "Zuletzt synchronisiert: vor {0}"
   },
   "StatusNeversynced": {
     "message": "Noch nie synchronisiert."
@@ -276,7 +276,7 @@
     "message": "Wie willst du synchronisieren?"
   },
   "LabelOptionsscreen": {
-    "message": "$1 Optionen",
+    "message": "{0} Optionen",
     "description": "Title of the options screen. The placeholder holds the account type."
   },
   "LabelPaypal": {

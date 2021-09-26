@@ -30,7 +30,7 @@
     "message": "E010：找不到要订购的文件夹"
   },
   "Error011": {
-    "message": "E011：文件夹排序中的项不是实际的子项：$1"
+    "message": "E011：文件夹排序中的项不是实际的子项：{0}"
   },
   "Error012": {
     "message": "E012：文件夹排序缺少文件夹的某些子级"
@@ -54,7 +54,7 @@
     "message": "E018：无法通过服务器进行身份验证。"
   },
   "Error019": {
-    "message": "E019: HTTP状态 $1。 $2 请求失败。检查您的服务器配置和日志。"
+    "message": "E019: HTTP状态 {0}。 {1} 请求失败。检查您的服务器配置和日志。"
   },
   "Error020": {
     "message": "E020：无法分析服务器响应。书签应用程序是否安装在您的服务器上？"
@@ -63,19 +63,19 @@
     "message": "E021：服务器状态不一致。文件夹存在于子列表中，但不在文件夹树中"
   },
   "Error022": {
-    "message": "E022：文件夹$1可能包含不存在的书签$2"
+    "message": "E022：文件夹{0}可能包含不存在的书签{1}"
   },
   "Error023": {
-    "message": "E023：无法清除锁定文件，请考虑手动删除$1。"
+    "message": "E023：无法清除锁定文件，请考虑手动删除{0}。"
   },
   "Error024": {
-    "message": "E024：HTTP状态$1，尝试确定锁定文件$2的状态"
+    "message": "E024：HTTP状态{0}，尝试确定锁定文件{1}的状态"
   },
   "Error025": {
     "message": "E025: 书签文件不允许以'/'开头"
   },
   "Error026": {
-    "message": "E026: HTTP status $1. 获取书签失败"
+    "message": "E026: HTTP status {0}. 获取书签失败"
   },
   "Error027": {
     "message": "E027: 同步进程中断"
@@ -132,7 +132,7 @@
     "message": "启用"
   },
   "StatusLastsynced": {
-    "message": "上次同步: $1 之前"
+    "message": "上次同步: {0} 之前"
   },
   "StatusNeversynced": {
     "message": "从未同步过"
@@ -276,7 +276,7 @@
     "message": "要如何同步？"
   },
   "LabelOptionsscreen": {
-    "message": "$1选项",
+    "message": "{0}选项",
     "description": "Title of the options screen. The placeholder holds the account type."
   },
   "LabelPaypal": {

@@ -30,7 +30,7 @@
     "message": "E010: No se ha podido encontrar la carpeta para ordenarla"
   },
   "Error011": {
-    "message": "E011: El ítem en la ordenación de la carpeta no es un verdadero hijo: $1"
+    "message": "E011: El ítem en la ordenación de la carpeta no es un verdadero hijo: {0}"
   },
   "Error012": {
     "message": "E012: A la ordenación de la carpeta le faltan algunos de los hijos de la carpeta"
@@ -54,7 +54,7 @@
     "message": "E018: No se ha podido autenticar con el servidor"
   },
   "Error019": {
-    "message": "E019: estado HTTP $1 . Fallo en la petición $2. Comprueba la configuración del servidor y el registro."
+    "message": "E019: estado HTTP {0} . Fallo en la petición {1}. Comprueba la configuración del servidor y el registro."
   },
   "Error020": {
     "message": "E020: No se ha podido recibir respuesta del servidor. ¿La app de marcadores está instalada en tu servidor?"
@@ -63,19 +63,19 @@
     "message": "E021: Estado del servidor inconsistente. La carpeta se presenta en lista de orden de hijos, pero no en árbol de carpetas"
   },
   "Error022": {
-    "message": "E022: La carpeta $1 contiene supuestamente el marcador no existente $2"
+    "message": "E022: La carpeta {0} contiene supuestamente el marcador no existente {1}"
   },
   "Error023": {
-    "message": "E023: No se ha podido limpiar el archivo bloqueado, considera eliminar $1 manualmente."
+    "message": "E023: No se ha podido limpiar el archivo bloqueado, considera eliminar {0} manualmente."
   },
   "Error024": {
-    "message": "E024: Estado HTTP $1 al intentar determinar el estado del archivo bloqueado $2"
+    "message": "E024: Estado HTTP {0} al intentar determinar el estado del archivo bloqueado {1}"
   },
   "Error025": {
     "message": "E025: El archivo de configuración de marcadores no debe comenzar con una barra: '/'"
   },
   "Error026": {
-    "message": "E026: Estado HTTP $1. Fallo al recuperar marcadores"
+    "message": "E026: Estado HTTP {0}. Fallo al recuperar marcadores"
   },
   "Error027": {
     "message": "E027: Se ha interrumpido el proceso de sincronización"
@@ -129,7 +129,7 @@
     "message": "Activada"
   },
   "StatusLastsynced": {
-    "message": "Última sincronización: hace $1"
+    "message": "Última sincronización: hace {0}"
   },
   "StatusNeversynced": {
     "message": "Aún no se ha sincronizado"
@@ -273,7 +273,7 @@
     "message": "¿Cómo quieres sincronizar?"
   },
   "LabelOptionsscreen": {
-    "message": "$1 Opciones",
+    "message": "{0} Opciones",
     "description": "Title of the options screen. The placeholder holds the account type."
   },
   "LabelPaypal": {

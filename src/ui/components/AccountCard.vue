@@ -266,10 +266,11 @@ export default {
       if (this.account.data.lastSync) {
         return this.t(
           'StatusLastsynced',
-          humanizeDuration(Date.now() - this.account.data.lastSync, {
+          [humanizeDuration(Date.now() - this.account.data.lastSync, {
             largest: 1,
-            round: true
-          })
+            round: true,
+            language: navigator.language
+          })]
         )
       }
       return this.t('StatusNeversynced')

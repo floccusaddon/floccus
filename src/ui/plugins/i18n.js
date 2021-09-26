@@ -1,9 +1,9 @@
-import browser from '../../lib/browser-api'
+import {i18n} from '../../lib/native/I18n'
 
 export default {
   methods: {
     t(messageName, substitutions) {
-      return browser.i18n.getMessage(messageName, substitutions)
+      return i18n.getMessage(messageName, substitutions)
     },
-  },
+  }
 }

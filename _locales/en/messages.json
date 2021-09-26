@@ -30,7 +30,7 @@
     "message": "E010: Could not find folder to order"
   },
   "Error011": {
-    "message": "E011: Item in folder ordering is not an actual child: $1"
+    "message": "E011: Item in folder ordering is not an actual child: {0}"
   },
   "Error012": {
     "message": "E012: Folder ordering is missing some of the folder's children"
@@ -54,7 +54,7 @@
     "message": "E018: Couldn't authenticate with the server."
   },
   "Error019": {
-    "message": "E019: HTTP status $1. Failed $2 request. Check your server configuration and log."
+    "message": "E019: HTTP status {0}. Failed {1} request. Check your server configuration and log."
   },
   "Error020": {
     "message": "E020: Could not parse server response. Is the bookmarks app installed on your server?"
@@ -63,19 +63,19 @@
     "message": "E021: Inconsistent server state. Folder is present in childorder list but not in folder tree"
   },
   "Error022": {
-    "message": "E022: Folder $1 supposedly contains non-existent bookmark $2"
+    "message": "E022: Folder {0} supposedly contains non-existent bookmark {1}"
   },
   "Error023": {
-    "message": "E023: Unable to clear lock file, consider deleting $1 manually."
+    "message": "E023: Unable to clear lock file, consider deleting {0} manually."
   },
   "Error024": {
-    "message": "E024: HTTP status $1 while trying to determine status of lock file $2"
+    "message": "E024: HTTP status {0} while trying to determine status of lock file {1}"
   },
   "Error025": {
     "message": "E025: Bookmarks file setting mustn't begin with a slash: '/'"
   },
   "Error026": {
-    "message": "E026: HTTP status $1. Failed to fetch bookmarks"
+    "message": "E026: HTTP status {0}. Failed to fetch bookmarks"
   },
   "Error027": {
     "message": "E027: Sync process was interrupted"
@@ -84,7 +84,7 @@
     "message": "E028: Couldn't authenticate with the server."
   },
   "Error029": {
-    "message": "E029: Failsafe: The current sync run would delete $1% of your bookmarks. Refusing to execute. Disable this failsafe in the account settings if you want to proceed anyway."
+    "message": "E029: Failsafe: The current sync run would delete {0}% of your bookmarks. Refusing to execute. Disable this failsafe in the account settings if you want to proceed anyway."
   },
   "Error030": {
     "message": "E030: Failed to decrypt bookmarks file. The passphrase may be wrong or the file may be corrupted."
@@ -156,7 +156,7 @@
     "message": "Auto-sync"
   },
   "StatusLastsynced": {
-    "message": "Last synchronized: $1 ago"
+    "message": "Last synchronized: {0} ago"
   },
   "StatusNeversynced": {
     "message": "Not synchronized, yet"
@@ -300,7 +300,7 @@
     "message": "How do you want to sync?"
   },
   "LabelOptionsscreen": {
-    "message": "$1 options",
+    "message": "{0} options",
     "description": "Title of the options screen. The placeholder holds the account type."
   },
   "LabelPaypal": {
@@ -484,7 +484,7 @@
     "message": "Search bookmarks"
   },
   "LabelSearchfolder": {
-    "message": "Search $1"
+    "message": "Search {0}"
   },
   "LabelEdititem": {
     "message": "Edit"

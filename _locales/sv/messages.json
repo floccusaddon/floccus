@@ -30,7 +30,7 @@
     "message": "E010: Kunde inte hitta mappen att sortera"
   },
   "Error011": {
-    "message": "E011: Posten som ska sorteras i mappen är inte underliggande: $1"
+    "message": "E011: Posten som ska sorteras i mappen är inte underliggande: {0}"
   },
   "Error012": {
     "message": "E012: Mappen som ska sorteras saknar några av mappens underliggande objekt"
@@ -54,7 +54,7 @@
     "message": "E018: Det gick inte att verifiera med servern"
   },
   "Error019": {
-    "message": "E019: HTTP status $1. Misslyckades med $2 begäran. Kontrollera dina serverinställningar och logg."
+    "message": "E019: HTTP status {0}. Misslyckades med {1} begäran. Kontrollera dina serverinställningar och logg."
   },
   "Error020": {
     "message": "E020: Det gick inte att analysera serverns svar. Är bokmärken-appen installerad på din server?"
@@ -63,19 +63,19 @@
     "message": "E021: Inkonsekvent servertillstånd. Mappen finns i listan över underordnade mappar men inte i mappträdet"
   },
   "Error022": {
-    "message": "E022: Mappen $1 innehåller icke existerande bokmärke $2"
+    "message": "E022: Mappen {0} innehåller icke existerande bokmärke {1}"
   },
   "Error023": {
-    "message": "E023: Kunde inte rensa låst fil, överväg att ta bort $1 manuellt."
+    "message": "E023: Kunde inte rensa låst fil, överväg att ta bort {0} manuellt."
   },
   "Error024": {
-    "message": "E024: HTTP status $1 när status fastställdes för låsta filen $2"
+    "message": "E024: HTTP status {0} när status fastställdes för låsta filen {1}"
   },
   "Error025": {
     "message": "E025: Bokmärkensfilens inställning får inte börja med ett slashtecken: '/'"
   },
   "Error026": {
-    "message": "E026: HTTP status $1. Misslyckade att hämta bokmärken"
+    "message": "E026: HTTP status {0}. Misslyckade att hämta bokmärken"
   },
   "Error027": {
     "message": "E027. Synkningsprocessen avbröts"
@@ -129,7 +129,7 @@
     "message": "Aktiverad"
   },
   "StatusLastsynced": {
-    "message": "Tid sedan synkronisering: $1"
+    "message": "Tid sedan synkronisering: {0}"
   },
   "StatusNeversynced": {
     "message": "Ännu inte synkroniserad"
@@ -273,7 +273,7 @@
     "message": "Hur vill du synka?"
   },
   "LabelOptionsscreen": {
-    "message": "$1 alternativ",
+    "message": "{0} alternativ",
     "description": "Title of the options screen. The placeholder holds the account type."
   },
   "LabelPaypal": {

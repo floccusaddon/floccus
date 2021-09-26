@@ -4,10 +4,14 @@ import capacitor from './plugins/capacitor'
 import App from './App'
 import { router } from './router'
 import store from './store'
-import i18n from './plugins/i18n'
+import i18nPlugin from './plugins/i18n'
+import {i18n} from '../lib/native/I18n'
 
-Vue.mixin(i18n)
+Vue.mixin(i18nPlugin)
 Vue.mixin(capacitor)
+
+i18n.setLocale(navigator.language)
+i18n.load()
 
 const app = (global['Floccus'] = new Vue({
   el: '#app',

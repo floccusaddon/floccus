@@ -30,7 +30,7 @@
     "message": "E010: Impossible de trouver le dossier à trier"
   },
   "Error011": {
-    "message": "E011: L'élément dans le dossier en cours de tri n'en est pas un membre réel: $1"
+    "message": "E011: L'élément dans le dossier en cours de tri n'en est pas un membre réel: {0}"
   },
   "Error012": {
     "message": "E012: Il manque certains de ses sous-éléments au dossier en cours de tri"
@@ -54,7 +54,7 @@
     "message": "E018: Impossible de s'authentifier sur le serveur"
   },
   "Error019": {
-    "message": "E019: Statut HTTP: $1 Requête $2en erreur. Vérifiez la configuration de votre serveur et votre journal"
+    "message": "E019: Statut HTTP: {0} Requête {1}en erreur. Vérifiez la configuration de votre serveur et votre journal"
   },
   "Error020": {
     "message": "E020: Impossible de lire la réponse du serveur. L'application de marque-pages est elle installée sur votre serveur?"
@@ -63,19 +63,19 @@
     "message": "E021: État incohérent du serveur. Le dossier est présent dans la liste des membres mais pas dans l'arborescence"
   },
   "Error022": {
-    "message": "E022: Le dossier $1est censé contenir le marque page $2qui n'existe pas"
+    "message": "E022: Le dossier {0}est censé contenir le marque page {1}qui n'existe pas"
   },
   "Error023": {
-    "message": "E023: Impossible de libérer le fichier verrouillé. Essayez de supprimer $1 manuellement."
+    "message": "E023: Impossible de libérer le fichier verrouillé. Essayez de supprimer {0} manuellement."
   },
   "Error024": {
-    "message": "E024: Statut HTTP $1 en essayant de déterminer l'état du fichier verrouillé $2"
+    "message": "E024: Statut HTTP {0} en essayant de déterminer l'état du fichier verrouillé {1}"
   },
   "Error025": {
     "message": "E025: Le fichier de paramètre des marque-pages ne doit pas commencer par un slash '/'"
   },
   "Error026": {
-    "message": "E026: Statut HTTP $1. Impossible de récupérer les marque-pages."
+    "message": "E026: Statut HTTP {0}. Impossible de récupérer les marque-pages."
   },
   "Error027": {
     "message": "E027: Synchronisation interrompue"
@@ -129,7 +129,7 @@
     "message": "Activé"
   },
   "StatusLastsynced": {
-    "message": "Dernière synchronisation il y a $1"
+    "message": "Dernière synchronisation il y a {0}"
   },
   "StatusNeversynced": {
     "message": "Pas encore synchronisé"
@@ -264,7 +264,7 @@
     "message": "Comment voulez-vous synchroniser ?"
   },
   "LabelOptionsscreen": {
-    "message": "Options $1",
+    "message": "Options {0}",
     "description": "Title of the options screen. The placeholder holds the account type."
   },
   "LabelPaypal": {

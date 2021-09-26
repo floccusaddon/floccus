@@ -30,7 +30,7 @@
     "message": "E010：找不到指定的資料夾"
   },
   "Error011": {
-    "message": "E011：指定資料夾中的項目不是實際的子項目：$1"
+    "message": "E011：指定資料夾中的項目不是實際的子項目：{0}"
   },
   "Error012": {
     "message": "E012：資料夾排序缺失某些資料夾的子項"
@@ -54,7 +54,7 @@
     "message": "E018：無法通過伺服器進行身份驗證"
   },
   "Error019": {
-    "message": "E019：HTTP 狀態 $1。 $2 請求失敗，請檢查您的伺服器設定和日誌。"
+    "message": "E019：HTTP 狀態 {0}。 {1} 請求失敗，請檢查您的伺服器設定和日誌。"
   },
   "Error020": {
     "message": "E020：無法解析伺服器回應。您的伺服器是否已安裝書籤應用程式？"
@@ -63,19 +63,19 @@
     "message": "E021：伺服器狀態和本地不符。資料夾存在於子資料夾列表中，但不在資料夾樹中。"
   },
   "Error022": {
-    "message": "E022：資料夾 $1 可能包含不存在的書籤 $2"
+    "message": "E022：資料夾 {0} 可能包含不存在的書籤 {1}"
   },
   "Error023": {
-    "message": "E023：無法清除鎖定檔案，請考慮手動刪除 $1。"
+    "message": "E023：無法清除鎖定檔案，請考慮手動刪除 {0}。"
   },
   "Error024": {
-    "message": "E024：嘗試確定鎖定檔案 $2 的状态時， HTTP 狀態爲 $1"
+    "message": "E024：嘗試確定鎖定檔案 {1} 的状态時， HTTP 狀態爲 {0}"
   },
   "Error025": {
     "message": "E025：書籤資料夾必須不以 '/' 開頭"
   },
   "Error026": {
-    "message": "E026：HTTP 狀態 $1。獲取書籤失敗"
+    "message": "E026：HTTP 狀態 {0}。獲取書籤失敗"
   },
   "Error027": {
     "message": "E027：同步進程終端"
@@ -129,7 +129,7 @@
     "message": "已啓用"
   },
   "StatusLastsynced": {
-    "message": "上次同步：$1 之前"
+    "message": "上次同步：{0} 之前"
   },
   "StatusNeversynced": {
     "message": "從未同步"
@@ -264,7 +264,7 @@
     "message": "您希望用什麼方式同步呢？"
   },
   "LabelOptionsscreen": {
-    "message": "$1 選項",
+    "message": "{0} 選項",
     "description": "Title of the options screen. The placeholder holds the account type."
   },
   "LabelPaypal": {
