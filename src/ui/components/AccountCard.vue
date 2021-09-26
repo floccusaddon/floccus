@@ -327,10 +327,10 @@ export default {
 
 @keyframes spin {
   0% {
-    transform: rotate(0deg);
+    transform: rotate(360deg);
   }
   99.9% {
-    transform: rotate(360deg);
+    transform: rotate(0deg);
   }
 }
 </style>
