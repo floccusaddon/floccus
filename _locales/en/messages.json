@@ -228,7 +228,7 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "The option 'Nextcloud Bookmarks' is compatible with at least version v0.14 of the Bookmarks app."
+    "message": "The option 'Nextcloud Bookmarks' is compatible with at least version v0.14 of the Bookmarks app. It can only sync http and ftp bookmarks."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (legacy)"
@@ -240,7 +240,7 @@
     "message": "XBEL file in WebDAV share"
   },
   "DescriptionAdapterwebdav": {
-    "message": "The WebDAV option syncs your bookmarks by storing them in an XBEL file in the provided WebDAV share. There is no accompanying web UI for this option and you can use it with any WebDAV-compatible server."
+    "message": "The WebDAV option syncs your bookmarks by storing them in an XBEL file in the provided WebDAV share. There is no accompanying web UI for this option and you can use it with any WebDAV-compatible server. It can sync http, ftp, data and javascript bookmarks."
   },
   "LabelAddaccount": {
     "message": "Add account"
@@ -451,7 +451,7 @@
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Sync bookmarks via an encrypted file that is stored in your Google Drive"
+    "message": "Sync bookmarks via an encrypted file that is stored in your Google Drive. It can sync http, ftp, data and javascript bookmarks."
   },
   "LabelLogingoogle": {
     "message": "Login with Google"
