@@ -7,14 +7,14 @@
         :to="{name: routes.TREE, params: {accountId: id}}">
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
-      <v-app-bar-title>Account Options</v-app-bar-title>
+      <v-app-bar-title>{{ t('LabelOptions') }}</v-app-bar-title>
       <v-spacer />
       <v-btn
         color="blue darken-1"
         text
         elevation="1"
         @click="onSave">
-        Save
+        {{ t('LabelSave') }}
       </v-btn>
     </v-app-bar>
     <v-main>

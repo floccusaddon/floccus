@@ -4,7 +4,7 @@
     max-width="500px">
     <v-card>
       <v-card-title class="text-h5">
-        Add bookmark
+        {{ isNew? t('LabelAddbookmark') : t('LabelEditbookmark') }}
       </v-card-title>
       <v-card-text>
         <v-text-field
@@ -23,13 +23,13 @@
           color="blue darken-1"
           text
           @click="$emit('update:display', false)">
-          Cancel
+          {{ t('LabelCancel') }}
         </v-btn>
         <v-btn
           color="blue darken-1"
           text
           @click="onSave">
-          OK
+          {{ t('LabelSave') }}
         </v-btn>
         <v-spacer />
       </v-card-actions>
@@ -52,6 +52,9 @@ export default {
     display: {
       type: Boolean,
     },
+    isNew: {
+      type: Boolean,
+    }
   },
   data() {
     return {

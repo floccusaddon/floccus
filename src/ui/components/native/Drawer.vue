@@ -14,7 +14,7 @@
           Floccus
         </v-list-item-title>
         <v-list-item-subtitle>
-          Private Bookmark Sync
+          {{ t('LabelSlugline') }}
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
@@ -47,19 +47,19 @@
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title>New account</v-list-item-title>
+          <v-list-item-title>{{ t('LabelNewAccount') }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <v-divider />
       <v-list-item
-        key="info"
+        key="donate"
         link>
         <v-list-item-icon>
-          <v-icon>mdi-information-outline</v-icon>
+          <v-icon>mdi-heart-outline</v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title>About</v-list-item-title>
+          <v-list-item-title>{{ t('LabelFunddevelopment') }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
     </v-list>

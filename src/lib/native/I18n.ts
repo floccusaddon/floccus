@@ -17,6 +17,10 @@ export default class I18n {
     this.defaultMessages = DEFAULT_MESSAGES
   }
 
+  setLocale(locale:string) {
+    this.locale = locale
+  }
+
   async load():Promise<void> {
     console.log(this.locale)
     const locale = this.locale

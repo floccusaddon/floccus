@@ -17,7 +17,7 @@
       </v-btn>
       <v-text-field
         :value="searchQuery"
-        :label="!tree || currentFolderId === tree.id? 'Search Bookmarks' : 'Search '+currentFolder.title"
+        :label="!tree || currentFolderId === tree.id? t('LabelSearch') : t('LabelSearchfolder', [currentFolder.title])"
         solo
         flat
         dense
@@ -104,7 +104,7 @@
                       <v-icon>mdi-pencil</v-icon>
                     </v-list-item-avatar>
                     <v-list-item-title>
-                      Edit
+                      {{ t('LabelEdititem') }}
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="deleteItem(item)">
@@ -112,7 +112,7 @@
                       <v-icon>mdi-delete</v-icon>
                     </v-list-item-avatar>
                     <v-list-item-title>
-                      Delete
+                      {{ t('LabelDeleteitem') }}
                     </v-list-item-title>
                   </v-list-item>
                 </v-list>
@@ -127,8 +127,13 @@
         v-else
         flat
         tile
-        class="ma-2 mt-10">
-        <v-card-title>No bookmarks here :(</v-card-title>
+        :style="{margin: '10vh auto', width: '90vw'}">
+        <img
+          src="icons/tree-swing.svg"
+          :style="{width: '95%', maxHeight: '40vh'}">
+        <h3 class="text-center headline mt-5">
+          {{ t('LabelNobookmarks') }}
+        </h3>
       </v-card>
       <v-speed-dial
         v-model="fab"
@@ -170,19 +175,23 @@
 
     <DialogEditBookmark
       v-if="isAddingBookmark"
+      :is-new="true"
       :display.sync="isAddingBookmark"
       @save="createBookmark($event)" />
     <DialogEditFolder
       v-if="isAddingFolder"
+      :is-new="true"
       :display.sync="isAddingFolder"
       @save="createFolder($event)" />
     <DialogEditBookmark
       v-if="isEditingBookmark"
+      :is-new="false"
       :bookmark="currentlyEditedBookmark"
       :display.sync="isEditingBookmark"
       @save="editBookmark($event)" />
     <DialogEditFolder
       v-if="isEditingFolder"
+      :is-new="false"
       :folder="currentlyEditedFolder"
       :display.sync="isEditingFolder"
       @save="editFolder($event)" />

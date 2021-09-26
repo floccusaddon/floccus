@@ -479,5 +479,35 @@
   },
   "DescriptionAllowredirects": {
     "message": "Enable this option, if you get redirect errors during syncing, which you believe to be unwarranted."
+  },
+  "LabelSearch": {
+    "message": "Search bookmarks"
+  },
+  "LabelSearchfolder": {
+    "message": "Search $1"
+  },
+  "LabelEdititem": {
+    "message": "Edit"
+  },
+  "LabelDeleteitem": {
+    "message": "Delete"
+  },
+  "LabelNobookmarks": {
+    "message": "No bookmarks here"
+  },
+  "LabelAddbookmark": {
+    "message": "Add bookmark"
+  },
+  "LabelEditbookmark": {
+    "message": "Edit bookmark"
+  },
+  "LabelAddfolder": {
+    "message": "Add folder"
+  },
+  "LabelEditfolder": {
+    "message": "Edit folder"
+  },
+  "LabelSlugline": {
+    "message": "Private Bookmark Sync"
   }
 }

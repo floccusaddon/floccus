@@ -6,6 +6,7 @@ import store from './store/native'
 import i18nPlugin from './plugins/NativeI18n'
 import { router } from './NativeRouter'
 import {i18n} from '../lib/native/I18n'
+import { Device } from '@capacitor/device'
 
 Vue.mixin(i18nPlugin)
 Vue.mixin(capacitor)
@@ -18,6 +19,10 @@ const app = (global['Floccus'] = new Vue({
   render: (h) => h(App),
 }))
 
-i18n.load()
+Device.getLanguageCode()
+  .then(({ value }) => {
+    i18n.setLocale(value)
+    i18n.load()
+  })
 
 export default app
