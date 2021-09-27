@@ -1,5 +1,21 @@
 # Changelog
 
+## v4.8.1
+
+### Fixes
+ - AccountCard: Fix spinner direction
+ - Mesages: Note which bookmark types are supported
+ - Update clientcert option description
+ - NextcloudBookmarks: Catch auth errors on locking mechanism
+ - Messages: Clarify wording of nested accounts setting
+ - Messages: Add note about root folder problems
+ - Sync: Recover from root folder CREATE actions
+ - Try to handle Mobile bookmarks folder
+ - [Android] i18n
+ - [Android] Fix tree loading
+ - [Android] Fix account deletion UX
+ - [Android] Override back button
+
 ## v4.8.0
 
 ### Fixes
