@@ -1,6 +1,6 @@
 {
   "name": "floccus",
-  "version": "4.8.1",
+  "version": "4.8.2",
   "description": "Sync your bookmarks across browsers via Nextcloud, WebDAV or Google Drive",
   "scripts": {
     "build": "gulp",

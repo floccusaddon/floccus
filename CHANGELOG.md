@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.8.2
+
+### Fixes
+- Fix i18n
+
 ## v4.8.1
 
 ### Fixes
