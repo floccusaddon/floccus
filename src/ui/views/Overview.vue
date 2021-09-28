@@ -38,7 +38,7 @@
           {{ t('LabelNewAccount') }}
         </v-btn>
         <v-btn
-          :title="t('labelImportExport')"
+          :title="t('LabelImportExport')"
           :to="{ name: routes.IMPORTEXPORT }"
           target="_blank">
           <v-icon>mdi-export</v-icon>

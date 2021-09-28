@@ -9,26 +9,35 @@ interface Messages {
 }
 
 export default class I18n {
-  private locale: string;
+  private locales: string[];
+  private locale = 'en'
   private messages: Messages | undefined;
   private defaultMessages: Messages;
   constructor(locale: string) {
-    this.locale = locale
+    this.locales = [locale]
     this.defaultMessages = DEFAULT_MESSAGES
   }
 
-  setLocale(locale:string):void {
-    this.locale = locale
+  setLocales(locales:string[]):void {
+    this.locales = locales
   }
 
   async load():Promise<void> {
-    console.log(this.locale)
-    const locale = this.locale
-    try {
-      this.messages = (await import(`../../../dist/_locales/${locale}.json`)).default
-    } catch (error) {
-      console.warn(error)
-      console.warn(`WARN: Could not find locale '${this.locale}'. Using default locale 'en'`)
+    for (const locale of this.locales) {
+      try {
+        this.messages = (await import(`../../../dist/_locales/${locale}.json`)).default
+        this.locale = locale
+        break
+      } catch (error) {
+        console.warn(error)
+      }
+      try {
+        this.messages = (await import(`../../../dist/_locales/${locale.split('-')[0]}.json`)).default
+        this.locale = locale.split('-')[0]
+        break
+      } catch (error) {
+        console.warn(error)
+      }
     }
   }
 

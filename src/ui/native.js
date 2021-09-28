@@ -21,7 +21,7 @@ const app = (global['Floccus'] = new Vue({
 
 Device.getLanguageCode()
   .then(({ value }) => {
-    i18n.setLocale(value)
+    i18n.setLocales([value])
     i18n.load()
   })
 

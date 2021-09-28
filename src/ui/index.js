@@ -10,7 +10,7 @@ import {i18n} from '../lib/native/I18n'
 Vue.mixin(i18nPlugin)
 Vue.mixin(capacitor)
 
-i18n.setLocale(navigator.language)
+i18n.setLocales(navigator.languages)
 i18n.load()
 
 const app = (global['Floccus'] = new Vue({

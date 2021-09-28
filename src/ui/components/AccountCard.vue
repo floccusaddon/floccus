@@ -269,7 +269,8 @@ export default {
           [humanizeDuration(Date.now() - this.account.data.lastSync, {
             largest: 1,
             round: true,
-            language: navigator.language
+            language: navigator.language.split('-')[0],
+            fallbacks: navigator.languages.map(lang => lang.split('-')[0]).concat(['en'])
           })]
         )
       }
