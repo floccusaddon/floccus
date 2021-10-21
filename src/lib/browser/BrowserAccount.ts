@@ -36,7 +36,7 @@ export default class BrowserAccount extends Account {
   async init():Promise<void> {
     console.log('initializing account ' + this.id)
     const accData = this.getData()
-    if (!(await this.isInitialized())) {
+    if (!(await this.isInitialized()) && accData.localRoot !== 'tabs') {
       const parentNode = await browser.bookmarks.getTree()
       const bookmarksBar = parentNode[0].children[0]
       const node = await browser.bookmarks.create({
@@ -55,6 +55,9 @@ export default class BrowserAccount extends Account {
   async isInitialized():Promise<boolean> {
     try {
       const localRoot = this.getData().localRoot
+      if (localRoot === 'tabs') {
+        return true
+      }
       await browser.bookmarks.getSubTree(localRoot)
       return true
     } catch (e) {

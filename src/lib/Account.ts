@@ -138,7 +138,7 @@ export default class Account {
       this.syncing = true
       await this.setData({ ...this.getData(), syncing: 0.05, error: null })
 
-      if (this.getData().localRoot !== 'tabs' && !(await this.isInitialized())) {
+      if (!(await this.isInitialized())) {
         await this.init()
       }
 
