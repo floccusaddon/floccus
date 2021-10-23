@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.8.3
+
+### Fixes 
+- Fix Account#init: Don't override sync tabs setting
+- NextcloudBookmarks: Fix acquireLock: Error on 404
+
 ## v4.8.2
 
 ### Fixes
