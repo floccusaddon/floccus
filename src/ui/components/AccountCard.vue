@@ -2,11 +2,12 @@
   <v-card
     :loading="Boolean(account.data.syncing)"
     color="light-blue-lighten-5">
-    <v-progress-linear
-      v-if="account.data.syncing"
-      v-slot:progress
-      :value="account.data.syncing * 100 || 0"
-      :indeterminate="account.data.syncing < 0.1" />
+    <template #progress>
+      <v-progress-linear
+        v-if="account.data.syncing"
+        :value="account.data.syncing * 100 || 0"
+        :indeterminate="account.data.syncing < 0.1" />
+    </template>
     <v-container class="pa-4">
       <v-row
         no-gutters
