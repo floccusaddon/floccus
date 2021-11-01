@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Overview from './views/Overview'
-import AccountOptions from './views/AccountOptions'
 import NewAccount from './views/NewAccount'
 import SetKey from './views/SetKey'
 import Update from './views/Update'
@@ -32,7 +31,7 @@ export const router = new Router({
     {
       path: '/options/:accountId',
       name: routes.ACCOUNT_OPTIONS,
-      component: AccountOptions,
+      component: () => import(/* webpackPrefetch: true */ './views/AccountOptions'),
     },
     {
       path: '/new',

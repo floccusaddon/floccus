@@ -14,6 +14,9 @@ module.exports = {
     test: path.join(__dirname, 'src', 'entries', 'test.js'),
     native: path.join(__dirname, 'src', 'entries', 'native.js')
   },
+  optimization: {
+    splitChunks: { chunks: 'async' }
+  },
   output: {
     path: path.resolve(__dirname, 'dist', 'js'),
     publicPath: '/dist/js/',
@@ -71,6 +74,7 @@ module.exports = {
                 {
                   targets: '> 5%, not dead',
                   useBuiltIns: 'usage',
+                  corejs: '3.19',
                   modules: false,
                 },
               ],

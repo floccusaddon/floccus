@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Tree from './views/native/Tree'
-import Options from './views/native/Options'
 import Home from './views/native/Home'
 import NewAccount from './views/NewAccount'
 import AddBookmarkIntent from './views/native/AddBookmarkIntent'
@@ -36,7 +35,7 @@ export const router = new Router({
     {
       path: '/options/:accountId',
       name: routes.ACCOUNT_OPTIONS,
-      component: Options,
+      component: () => import(/* webpackPrefetch: true */ './views/native/Options'),
     },
     {
       path: '/new',
