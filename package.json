@@ -27,7 +27,6 @@
     "all-contributors-cli": "^6.19.0",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
-    "babel-polyfill": "^6.26.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chrome-webstore-upload": "^0.4.2",

@@ -102,12 +102,6 @@ const html = function() {
   return gulp.src(paths.views).pipe(gulp.dest('./dist/html/'))
 }
 
-const polyfill = function() {
-  return gulp
-    .src('./node_modules/babel-polyfill/dist/polyfill.js')
-    .pipe(gulp.dest('./dist/js/'))
-}
-
 const mochajs = function() {
   return gulp.src('./node_modules/mocha/mocha.js').pipe(gulp.dest('./dist/js/'))
 }
@@ -131,7 +125,7 @@ const materialdesigniconsfont = function() {
 
 const mocha = gulp.parallel(mochajs, mochacss)
 
-const thirdparty = gulp.parallel(polyfill, mocha, materialdesignicons, materialdesigniconsfont)
+const thirdparty = gulp.parallel(mocha, materialdesignicons, materialdesigniconsfont)
 
 const main = gulp.series(html, locales, js, thirdparty, icons)
 
