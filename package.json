@@ -18,9 +18,8 @@
   },
   "homepage": "https://github.com/marcelklehr/floccus#readme",
   "devDependencies": {
-    "@babel/core": "^7.12.10",
-    "@babel/preset-env": "^7.12.11",
-    "@babel/preset-react": "^7.12.10",
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.0",
     "@types/node": "^14.14.37",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
@@ -95,5 +94,11 @@
     "vuetify": "^2.5.10",
     "vuex": "^3.6.0",
     "vuex-router-sync": "^5.0.0"
-  }
+  },
+  "browserslist": [
+     "> 0.25%",
+     "last 2 versions and supports es6-generators",
+     "Firefox ESR",
+     "not dead"
+    ]
 }

@@ -72,10 +72,9 @@ module.exports = {
               [
                 '@babel/preset-env',
                 {
-                  targets: '> 5%, not dead',
                   useBuiltIns: 'usage',
-                  corejs: '3.19',
-                  modules: false,
+                  corejs: {version: '3.19', proposals: true},
+                  shippedProposals: true,
                 },
               ],
             ],
