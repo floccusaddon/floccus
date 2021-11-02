@@ -24,6 +24,7 @@
           <div class="d-flex flex-row-reverse">
             <v-btn
               class="primary"
+              :disabled="!key1 || !key2 || !validateKeys()"
               @click="onSubmit">
               <v-icon>mdi-lock-outline</v-icon>
               {{ t("LabelSetkey") }}
