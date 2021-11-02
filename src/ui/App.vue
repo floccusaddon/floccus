@@ -19,7 +19,7 @@
             floccus v{{ VERSION }}
           </v-btn>
           <v-tooltip top>
-            <template v-slot:activator="{ on, attrs }">
+            <template #activator="{ on, attrs }">
               <v-btn
                 x-small
                 text
@@ -76,7 +76,8 @@
           <v-text-field
             v-model="key"
             :label="t('LabelKey')"
-            type="password" />
+            type="password"
+            @keyup.enter="onUnlock" />
           <div class="d-flex flex-row-reverse">
             <v-btn
               class="primary"
