@@ -30,7 +30,7 @@ export const actionsDefinition = {
   async [actions.LOAD_LOCKED]({ commit, dispatch, state }) {
     const controller = await Controller.getSingleton()
     commit(mutations.SET_LOCKED, !controller.unlocked)
-    commit(mutations.SET_SECURED, !!controller.key || !controller.unlocked)
+    commit(mutations.SET_SECURED, typeof controller.key === 'string' || !controller.unlocked)
   },
   async [actions.UNLOCK]({commit, dispatch, state}, key) {
     const controller = await Controller.getSingleton()
