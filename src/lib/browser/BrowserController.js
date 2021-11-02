@@ -106,7 +106,8 @@ export default class BrowserController {
       }
     })
 
-    setInterval(() => this.updateStatus(), 10000)
+    // Set correct badge after waiting a bit
+    setTimeout(() => this.updateStatus(), 3000)
   }
 
   setEnabled(enabled) {
