@@ -12,6 +12,7 @@ import PQueue from 'p-queue'
 const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')
 const STATUS_ALLGOOD = Symbol('allgood')
+const STATUS_DISABLED = Symbol('disabled')
 const INACTIVITY_TIMEOUT = 1000 * 60
 const DEFAULT_SYNC_INTERVAL = 15
 
@@ -320,7 +321,7 @@ export default class BrowserController {
       return this.setStatusBadge(STATUS_ERROR)
     }
     const accounts = await BrowserAccount.getAllAccounts()
-    const overallStatus = accounts.reduce((status, account) => {
+    let overallStatus = accounts.reduce((status, account) => {
       const accData = account.getData()
       if (status === STATUS_ERROR || (accData.error && !accData.syncing)) {
         return STATUS_ERROR
@@ -330,6 +331,13 @@ export default class BrowserController {
         return STATUS_ALLGOOD
       }
     }, STATUS_ALLGOOD)
+
+    if (overallStatus === STATUS_ALLGOOD) {
+      if (accounts.every(account => !account.getData().enabled)) {
+        overallStatus = STATUS_DISABLED
+      }
+    }
+
     this.setStatusBadge(overallStatus)
   }
 
@@ -345,6 +353,10 @@ export default class BrowserController {
       [STATUS_ERROR]: {
         text: '!',
         color: '#dd4d00'
+      },
+      [STATUS_DISABLED]: {
+        text: 'X',
+        color: '#999999'
       }
     }
 
