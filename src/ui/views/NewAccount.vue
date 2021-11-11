@@ -13,8 +13,8 @@
               :key="a.type">
               <v-radio
                 :value="a.type"
-                :disabled="!isBrowser && a.type !== 'nextcloud-bookmarks'">
-                <template v-slot:label>
+                :disabled="!isBrowser && a.type === 'google-drive'">
+                <template #label>
                   <div class="heading">
                     {{ a.label }}
                   </div>
