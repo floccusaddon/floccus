@@ -7,7 +7,7 @@ import url from 'url'
 import Crypto from '../Crypto'
 import {
   AuthenticationError,
-  DecryptionError,
+  DecryptionError, FileUnreadableError,
   HttpError, InterruptedSyncError,
   LockFileError,
   NetworkError,
@@ -261,7 +261,7 @@ export default class WebDavAdapter extends CachingAdapter {
           }
         }
       } else if (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
-        throw new Error(browser.i18n.getMessage('Error034'))
+        throw new FileUnreadableError()
       }
 
       /* let's get the highestId */
