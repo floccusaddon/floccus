@@ -1,3 +1,4 @@
+import './native-public-path'
 import Vue from 'vue'
 import vuetify from './plugins/vuetify'
 import capacitor from './plugins/capacitor'
