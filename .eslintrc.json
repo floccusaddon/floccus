@@ -4,7 +4,6 @@
     "commonjs": true,
     "es6": true,
     "node": true,
-    "webextensions": true,
     "mocha": true
   },
   "parserOptions": {
