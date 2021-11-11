@@ -10,6 +10,7 @@ export default interface IAdapter {
   onSyncStart():Promise<void|boolean>
   onSyncComplete():Promise<void>
   onSyncFail():Promise<void>
+  cancel():void
 }
 
 export type TAdapter = IAdapter & TResource

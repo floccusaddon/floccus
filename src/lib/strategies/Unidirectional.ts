@@ -4,6 +4,7 @@ import * as Parallel from 'async-parallel'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import { Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
 import Logger from '../Logger'
+import { InterruptedSyncError } from '../../errors/Error'
 
 export default class UnidirectionalSyncProcess extends DefaultStrategy {
   protected direction: TItemLocation
@@ -16,8 +17,16 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     this.masterLocation = this.direction === ItemLocation.SERVER ? ItemLocation.LOCAL : ItemLocation.SERVER
     await this.prepareSync()
 
+    if (this.canceled) {
+      throw new InterruptedSyncError()
+    }
+
     const {localDiff, serverDiff} = await this.getDiffs()
     Logger.log({localDiff, serverDiff})
+
+    if (this.canceled) {
+      throw new InterruptedSyncError()
+    }
 
     let sourceDiff, targetDiff, target
     if (this.direction === ItemLocation.SERVER) {
@@ -40,11 +49,20 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     if (this.direction === ItemLocation.LOCAL) {
       this.applyFailsafe(revertPlan)
     }
+
+    if (this.canceled) {
+      throw new InterruptedSyncError()
+    }
+
     revertPlan = await this.execute(target, revertPlan, this.direction)
 
     // Then reconcile master modifications with new slave changes and after having fetched the new trees
     await this.prepareSync()
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
+
+    if (this.canceled) {
+      throw new InterruptedSyncError()
+    }
 
     const unmappedOverridePlan = await this.reconcileDiffs(sourceDiff, revertPlan, this.direction)
     // Fix UPDATEs: We want to map to new IDs instead of oldItem.id, because items may have been reinserted by revertPlan
@@ -60,6 +78,11 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     if (this.direction === ItemLocation.LOCAL) {
       this.applyFailsafe(overridePlan)
     }
+
+    if (this.canceled) {
+      throw new InterruptedSyncError()
+    }
+
     overridePlan = await this.execute(target, overridePlan, this.direction)
 
     // mappings have been updated, reload

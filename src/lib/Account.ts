@@ -264,7 +264,7 @@ export default class Account {
 
   async cancelSync():Promise<void> {
     if (!this.syncing) return
-    window.location.reload()
+    this.server.cancel()
     return this.syncProcess.cancel()
   }
 

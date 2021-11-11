@@ -49,6 +49,7 @@ export default class SyncProcess {
 
   async cancel() :Promise<void> {
     this.canceled = true
+    this.server.cancel()
   }
 
   updateProgress():void {
@@ -69,20 +70,37 @@ export default class SyncProcess {
     this.masterLocation = ItemLocation.LOCAL
     await this.prepareSync()
 
+    if (this.canceled) {
+      throw new InterruptedSyncError()
+    }
+
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
 
     const {localDiff, serverDiff} = await this.getDiffs()
     Logger.log({localDiff, serverDiff})
 
+    if (this.canceled) {
+      throw new InterruptedSyncError()
+    }
+
     const unmappedServerPlan = await this.reconcileDiffs(localDiff, serverDiff, ItemLocation.SERVER)
+
     // have to get snapshot after reconciliation, because of concurrent creation reconciliation
     let mappingsSnapshot = this.mappings.getSnapshot()
     let serverPlan = unmappedServerPlan.map(mappingsSnapshot, ItemLocation.SERVER, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
+
+    if (this.canceled) {
+      throw new InterruptedSyncError()
+    }
 
     const unmappedLocalPlan = await this.reconcileDiffs(serverDiff, localDiff, ItemLocation.LOCAL)
     // have to get snapshot after reconciliation, because of concurrent creation reconciliation
     mappingsSnapshot = this.mappings.getSnapshot()
     let localPlan = unmappedLocalPlan.map(mappingsSnapshot, ItemLocation.LOCAL, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
+
+    if (this.canceled) {
+      throw new InterruptedSyncError()
+    }
 
     Logger.log({localPlan, serverPlan})
 
@@ -467,7 +485,17 @@ export default class SyncProcess {
     const mappingsSnapshot = await this.mappings.getSnapshot()
     const mappedPlan = plan.map(mappingsSnapshot, targetLocation, (action) => action.type === ActionType.MOVE)
     const batches = Diff.sortMoves(mappedPlan.getActions(ActionType.MOVE), targetLocation === ItemLocation.SERVER ? this.serverTreeRoot : this.localTreeRoot)
+
+    if (this.canceled) {
+      throw new InterruptedSyncError()
+    }
+
     await Parallel.each(batches, batch => Promise.all(batch.map(run)), 1)
+
+    if (this.canceled) {
+      throw new InterruptedSyncError()
+    }
+
     await Parallel.each(plan.getActions(ActionType.REMOVE), run)
 
     return mappedPlan

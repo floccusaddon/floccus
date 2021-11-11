@@ -7,7 +7,7 @@ import Credentials from '../../../google-api.credentials.json'
 import {
   AuthenticationError,
   DecryptionError,
-  GoogleDriveAuthenticationError,
+  GoogleDriveAuthenticationError, InterruptedSyncError,
   NetworkError,
   OAuthTokenError
 } from '../../errors/Error'
@@ -20,6 +20,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   private initialTreeHash: string
   private fileId: string
   private accessToken: string
+  private cancelCallback: () => void = null
 
   constructor(server) {
     super(server)
@@ -124,7 +125,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
+    return new Promise((resolve, reject) => {
+      setTimeout(resolve, ms)
+      this.cancelCallback = () => reject(new InterruptedSyncError())
+    })
   }
 
   async onSyncStart() {

@@ -13,9 +13,15 @@ import flatten from 'lodash/flatten'
 import { BulkImportResource, LoadFolderChildrenResource, OrderFolderResource } from '../interfaces/Resource'
 import Ordering from '../interfaces/Ordering'
 import {
-  AuthenticationError, HttpError,
+  AuthenticationError,
+  HttpError,
   InconsistentBookmarksExistenceError,
-  InconsistentServerStateError, NetworkError, ParseResponseError, RedirectError, RequestTimeoutError,
+  InconsistentServerStateError,
+  InterruptedSyncError,
+  NetworkError,
+  ParseResponseError,
+  RedirectError,
+  RequestTimeoutError,
   UnexpectedServerResponseError,
   UnknownCreateTargetError,
   UnknownFolderParentUpdateError,
@@ -62,6 +68,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private list: Bookmark[]
   private tree: Folder
   private lockId: string | number
+  private canceled = false
+  private cancelCallback: () => void = null
 
   constructor(server: NextcloudBookmarksConfig) {
     this.server = server
@@ -117,10 +125,14 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
+    return new Promise((resolve, reject) => {
+      setTimeout(resolve, ms)
+      this.cancelCallback = () => reject(new InterruptedSyncError())
+    })
   }
 
   async onSyncStart(): Promise<void> {
+    this.canceled = false
     const startDate = Date.now()
     const maxTimeout = 30 * 60 * 1000 // Give up after 0.5h
     const base = 1.25
@@ -139,6 +151,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   async onSyncFail(): Promise<void> {
     await this.releaseLock()
+  }
+
+  cancel() {
+    this.canceled = true
+    this.fetchQueue.clear()
+    this.cancelCallback && this.cancelCallback()
   }
 
   async getBookmarksList():Promise<Bookmark[]> {

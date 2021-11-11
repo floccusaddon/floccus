@@ -8,7 +8,7 @@ import Crypto from '../Crypto'
 import {
   AuthenticationError,
   DecryptionError,
-  HttpError,
+  HttpError, InterruptedSyncError,
   LockFileError,
   NetworkError,
   SlashError
@@ -50,6 +50,10 @@ export default class WebDavAdapter extends CachingAdapter {
         serverURL.pathname +
         (serverURL.pathname[serverURL.pathname.length - 1] !== '/' ? '/' : '')
     })
+  }
+
+  cancel() {
+    this.cancelCallback && this.cancelCallback()
   }
 
   getBookmarkURL() {
@@ -101,7 +105,10 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
+    return new Promise((resolve, reject) => {
+      setTimeout(resolve, ms)
+      this.cancelCallback = () => reject(new InterruptedSyncError())
+    })
   }
 
   async uploadFile(url, content_type, data) {

@@ -8,6 +8,7 @@ import BrowserAccountStorage from './BrowserAccountStorage'
 import _ from 'lodash'
 
 import PQueue from 'p-queue'
+import Account from '../Account'
 
 const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')
@@ -275,7 +276,7 @@ export default class BrowserController {
   }
 
   async cancelSync(accountId, keepEnabled) {
-    let account = await BrowserAccount.get(accountId)
+    let account = await Account.get(accountId)
     // Avoid starting it again automatically
     if (!keepEnabled) {
       await account.setData({ ...account.getData(), enabled: false })
@@ -288,7 +289,7 @@ export default class BrowserController {
     if (!this.enabled) {
       return
     }
-    let account = await BrowserAccount.get(accountId)
+    let account = await Account.get(accountId)
     if (account.getData().syncing) {
       return
     }
@@ -320,7 +321,7 @@ export default class BrowserController {
     if (!this.unlocked) {
       return this.setStatusBadge(STATUS_ERROR)
     }
-    const accounts = await BrowserAccount.getAllAccounts()
+    const accounts = await Account.getAllAccounts()
     let overallStatus = accounts.reduce((status, account) => {
       const accData = account.getData()
       if (status === STATUS_ERROR || (accData.error && !accData.syncing)) {
@@ -369,7 +370,7 @@ export default class BrowserController {
   }
 
   async onLoad() {
-    const accounts = await BrowserAccount.getAllAccounts()
+    const accounts = await Account.getAllAccounts()
     await Promise.all(
       accounts.map(async acc => {
         if (acc.getData().syncing) {
