@@ -96,7 +96,7 @@
     "message": "E032: OAuth error. Token validation error. Please reconnect your Google Account."
   },
   "Error033": {
-    "message": "E033: Redirect detected. Please install the Bookmarks app on your nextcloud and make sure the nextcloud URL you entered doesn't redirect to a different location. If the redirect is part of your Nextcloud setup, you can disable this check in the settings."
+    "message": "E033: Redirect detected. Please make sure the server supports the selected sync method and URL you entered is correct doesn't redirect to a different location. If the redirect is part of your setup, you can disable this check in the settings."
   },
   "Error034": {
     "message": "E034: Bookmarks file is unreadable. Did you forget to set an encryption passphrase?"

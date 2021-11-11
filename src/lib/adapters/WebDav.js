@@ -10,7 +10,7 @@ import {
   DecryptionError, FileUnreadableError,
   HttpError, InterruptedSyncError,
   LockFileError,
-  NetworkError,
+  NetworkError, RedirectError,
   SlashError
 } from '../../errors/Error'
 import { Http } from '@capacitor-community/http'
@@ -30,6 +30,7 @@ export default class WebDavAdapter extends CachingAdapter {
       password: 's3cret',
       bookmark_file: 'bookmarks.xbel',
       includeCredentials: false,
+      allowRedirects: false,
       passphrase: '',
     }
   }
@@ -80,10 +81,15 @@ export default class WebDavAdapter extends CachingAdapter {
         responseType: 'text',
         webFetchExtra: {
           credentials: 'omit',
+          ...(!this.server.allowRedirects && {redirect: 'manual'})
         }
       })
     } catch (e) {
       throw new NetworkError()
+    }
+
+    if (res.status === 0 && !this.server.allowRedirects) {
+      throw new RedirectError()
     }
 
     if (res.status === 401) {
@@ -186,7 +192,7 @@ export default class WebDavAdapter extends CachingAdapter {
       rStatus = await this.checkLock()
       if (rStatus === 200) {
         await this.timeout(base ** i * 1000)
-      } else if (rStatus === 404) {
+      } else if (rStatus !== 200) {
         break
       }
     }

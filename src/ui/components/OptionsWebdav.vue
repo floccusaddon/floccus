@@ -89,6 +89,9 @@
         <OptionClientCert
           :value="includeCredentials"
           @input="$emit('update:includeCredentials', $event)" />
+        <OptionAllowRedirects
+          :value="allowRedirects"
+          @input="$emit('update:allowRedirects', $event)" />
         <OptionResetCache @click="$emit('reset')" />
         <OptionFailsafe
           :value="failsafe"
@@ -108,11 +111,12 @@ import OptionSyncFolder from './OptionSyncFolder'
 import OptionNestedSync from './OptionNestedSync'
 import OptionFailsafe from './OptionFailsafe'
 import OptionClientCert from './OptionClientCert'
+import OptionAllowRedirects from './OptionAllowRedirects'
 
 export default {
   name: 'OptionsWebdav',
-  components: { OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
+  components: { OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
+  props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects'],
   data() {
     return {
       panels: [0, 1]
