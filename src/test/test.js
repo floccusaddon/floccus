@@ -584,7 +584,7 @@ describe('Floccus', function() {
             await new Promise(resolve => setTimeout(resolve, 1000))
             await browser.bookmarks.create({
               title: 'url2',
-              url: 'http://ur2.l/',
+              url: 'http://secondur.l/',
               parentId: fooFolder.id
             })
             await syncPromise
@@ -603,7 +603,7 @@ describe('Floccus', function() {
                     children: [
                       new Bookmark({
                         title: 'url2',
-                        url: 'http://ur2.l/',
+                        url: 'http://secondur.l/',
                       }),
                       new Folder({
                         title: 'bar',
