@@ -1,5 +1,25 @@
 # Changelog
 
+## v4.8.4
+
+### Fixes
+- Implement sync cancellation properly
+- [Android app] Enable webdav
+- Browser: Display badge when all accounts are disabled
+- Don't poll sync status
+- Fix $store.secured: Take into account empty strings passphrases
+- SetKey: Don't allow setting empty passphrase
+- Allow unlocking by pressing enter after passphrase
+- Build: Update browser targets
+- NextcloudBookmarks: Don't wait for lock forever in case of unexpected status codes
+- WebDAV: Catch redirect errors by default and add allowRedirects option
+- Fix Error class inheritance
+- WebDAV: Properly throw FileUnreadableError
+- [Android app] Update gradle
+- Update dependencies and fix security issues
+- Upgrade webpack
+- Update typescript compiler
+
 ## v4.8.3
 
 ### Fixes 
