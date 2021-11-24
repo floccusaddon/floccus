@@ -265,7 +265,9 @@ export default class Account {
   async cancelSync():Promise<void> {
     if (!this.syncing) return
     this.server.cancel()
-    return this.syncProcess.cancel()
+    if (this.syncProcess) {
+      await this.syncProcess.cancel()
+    }
   }
 
   static async getAllAccounts():Promise<Account[]> {
