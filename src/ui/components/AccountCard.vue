@@ -5,8 +5,7 @@
     <template #progress>
       <v-progress-linear
         v-if="account.data.syncing"
-        :value="account.data.syncing * 100 || 0"
-        :indeterminate="account.data.syncing < 0.1" />
+        :value="account.data.syncing * 100 || 0" />
     </template>
     <v-container class="pa-4">
       <v-row
