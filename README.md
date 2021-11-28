@@ -2,15 +2,15 @@
 
 ![](https://raw.githubusercontent.com/marcelklehr/floccus/develop/img/screen_chrome_wide.png)
 
-> Sync your bookmarks across browsers via Nextcloud, WebDAV or Google Drive
+> Sync your bookmarks privately across browsers
 
 [![Tests](https://github.com/marcelklehr/floccus/workflows/Tests/badge.svg)](https://github.com/marcelklehr/floccus/actions?query=workflow%3ATests)
 
-- 📂 Sync any local bookmarks folder to any server-side folder
-- ⚛ Use any browser that is compatible with the web extension API
-- 💼 Create as many sync profiles as you like
-- 🚚 Control sync strategy, i.e. uni- or bidirectional syncing
-- ⏳ Control sync interval
+- 🔖 Syncs your real, native browser bookmarks directly
+- ☸ Sync via [Nextcloud Bookmarks](https://github.com/nextcloud/bookmarks), Google Drive or [any WebDAV-compatible service](https://community.cryptomator.org/t/webdav-urls-of-common-cloud-storage-services/75)
+- ⚛ Use any browser that supports Web extensions (e.g. Firefox, Chrome, Edge, Opera, Brave, Vivaldi, ...; Safari [not yet](https://github.com/floccusaddon/floccus/issues/23))
+- 💼 Create as many sync profiles as you need
+- 🚚 Control sync strategy (i.e. uni- or bidirectional), ⏳ sync interval and 📂 synced folder
 - 📦 Easily export your configuration
 - 🔒 Keep your credentials secure with an encryption passphrase
 
@@ -18,89 +18,15 @@
 |---|-----|---|
 |<img align="left" src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="right" src="https://img.shields.io/chrome-web-store/rating/fnaicdffflnofjppbagibeoednhnbjhg.svg">| <img align="left" src="https://img.shields.io/amo/users/floccus.svg"> <img align="right" src="https://img.shields.io/amo/rating/floccus.svg">|[![](https://img.shields.io/badge/dynamic/json?label=rating&suffix=/5&query=%24.averageRating&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fgjkddcofhiifldbllobcamllmanombji)](https://microsoftedge.microsoft.com/addons/detail/floccus-bookmarks-sync/gjkddcofhiifldbllobcamllmanombji)|
 
-## Table of contents
- * [Donate](#Donate)
- * [Community](#Community)
- * [Install](#Install)
-   * [Nextcloud](#Nextcloud)
-   * [Chrome](#Chrome)
-   * [Firefox](#Firefox)
-   * [Android](#Android)
-   * [Permissions](#Permissions)
- * [Considerations](#Considerations)
- * [What's with the name?](#whats-with-the-name)
- * [Contributors](#Contributors)
- * [Contribute](#Contribute)
- * [Backers](#Backers)
- * [Sponsors](#Sponsors)
- * [License](#License)
-
-## Donate
+If you need help, talk to us on [gitter](https://gitter.im/marcelklehr/floccus), matrix ([`#marcelklehr_floccus:gitter.im`](https://matrix.to/#/#marcelklehr_floccus:gitter.im?utm_source=gitter), in the [official Nextcloud Bookmarks talk channel](https://cloud.nextcloud.com/call/u52jcby9), or drop [me](https://marcelklehr.de) a mail! :wave:
 
 If you'd like to support the creation and maintenance of this software, please consider donating. :)
 
 | [<img src="https://img.shields.io/badge/paypal-donate-blue.svg?logo=paypal&style=for-the-badge">](https://www.paypal.me/marcelklehr1) | [<img src="http://img.shields.io/liberapay/receives/marcelklehr.svg?logo=liberapay&style=for-the-badge">](https://liberapay.com/marcelklehr/donate) | [![](https://opencollective.com/floccus/tiers/backer.svg?avatarHeight=36)](https://opencollective.com/floccus) | [<img src="https://img.shields.io/badge/github-sponsors-violet.svg?logo=github&style=for-the-badge">](https://github.com/sponsors/marcelklehr) |
 | :-----------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------: |
-
-## Community
-
-Talk to us on [gitter](https://gitter.im/marcelklehr/floccus) or in the [official Nextcloud Bookmarks talk channel](https://cloud.nextcloud.com/call/u52jcby9)! :wave:
-
-## Install
-The following sync methods are available:
-
-- **Google Drive**: If you have a Google account you can sync your bookmarks via an encrypted file in your Drive.
-- **WebDAV**: If you have a WebDAV server at hand, like any version of nextcloud/owncloud, box.com or with any other WebDAV server, commercial or self-hosted.
-- **Nextcloud Bookmarks**: Nextcloud in particular also sports a dedicated bookmarks app, which allows you to also access your bookmarks via a nice web UI.
-- **Local file and more**: You can also just sync with a local file, using [the companion desktop app LoFloccus](https://github.com/TCB13/LoFloccus). You can then also sync that file to other computers using your favorite file syncing solution, like Dropbox, Syncthing, rsync, etc. You can also create a WebDAV Server on the local machine using Docker in GNU/Linux, check out the project [Floccus-WebDavDocker](https://github.com/marlluslustosa/Floccus-WebDavDocker).
-
-Once your server or the LoFloccus app is ready, read on for the browser of your choosing.
-
-**Note:** It is recommended to not enable native bookmark synchronization built into your browser, as it is known to cause issues.
-
-### Nextcloud
-Floccus is regularly tested with the following setups:
-
-|Nextcloud|Bookmarks|
-|---|---|
-|v17|v1.1.2|
-|v17|v2.3.4|
-|v18|v2.3.4|
-|v19|v3.4.3|
-|v20|v4.x|
-
-Syncing via WebDAV should work with any Nextcloud version.
-
-### Chrome
-
-You can [install it via the Chrome Web store](https://chrome.google.com/webstore/detail/floccus-nextcloud-sync/fnaicdffflnofjppbagibeoednhnbjhg)
-
-Alternatively, you can still install it by [downloading the Chrome package from the latest release](https://github.com/marcelklehr/floccus/releases/) and dropping it into Chrome's extension page.
-
-### Firefox
-
-You can [install it via AMO](https://addons.mozilla.org/en-US/firefox/addon/floccus/).
-
-(Note that AMO has to review all new releases, though, so you might need to wait a bit before you can install the latest release on firefox.)
-
-### Android
-
-Floccus is not supported by Firefox for Android [yet](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/bookmarks#Browser_compatibility). **But**, why wait for mozilla, if you can use [Kiwi Browser](https://play.google.com/store/apps/details?id=com.kiwibrowser.browser), which supports floccus! Install instructions are the same as for Chrome.
-
-### Permissions
-
-Floccus requests the following permissions:
-
-| Permission           | Explanation                                                                                                                                                                                                                                                                                                                                                          |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| storage, unlimitedStorage             | Necessary for maintaining a cache and mappings between server and browser bookmarks                                                                                                                                                                                                                                                                                  |
-| alarms               | Necessary for triggering synchronization in regular intervals                                                                                                                                                                                                                                                                                                        |
-| bookmarks            | Necessary for creating and reading bookmarks                                                                                                                                                                                                                                                                                                                         |
-| Unlimited web access | Necessary for accessing your self-hosted server. This cannot be limited, because everybody's server has a different URL. Unfortunately, the way webextensions work currently, floccus also gets access to all the data the browser has collected on those websites. However, floccus makes no use of that data and doesn't in any way collect information about you. |
-
-### Limitations
-
-- Note that currently you cannot sync the same folder with multiple nextcloud accounts in order to avoid data corruption. If you sync the root folder with one account and sync a sub folder with a different account, that sub-folder will not be synced with the account connected to the root folder anymore.
+ 
+## 🎬 Getting started
+If you don't know how to start with Floccus, [read this guide](https://floccus.org/start).
 
 ### Troubleshooting
 
