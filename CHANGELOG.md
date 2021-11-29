@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.8.5
+
+### Fixes
+ - [Native] Add FundDevelopment link target
+ - [Native] Fix exit on back button
+ - Account: Fix cancelSync
+ - AccountCard: Remove indeterminate loading bar animation
+
 ## v4.8.4
 
 ### Fixes
