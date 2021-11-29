@@ -206,6 +206,7 @@ import FaviconImage from '../../components/native/FaviconImage'
 import { routes } from '../../NativeRouter'
 import { Bookmark, Folder } from '../../../lib/Tree'
 import { actions } from '../../store/native'
+import { App } from '@capacitor/app'
 
 export default {
   name: 'Tree',
@@ -325,6 +326,9 @@ export default {
       })
     },
     goBack() {
+      if (!this.searchQuery && typeof this.currentFolder.parentId === 'undefined') {
+        App.exitApp()
+      }
       this.searchQuery = ''
       if (typeof this.currentFolder.parentId !== 'undefined') {
         this.currentFolderId = this.currentFolder.parentId
