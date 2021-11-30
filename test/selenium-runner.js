@@ -105,7 +105,6 @@ const VERSION = require('../package.json').version
       if (match) {
         const data = {
           testSuiteTime: parseInt(match[1]) + parseInt(match[2]) / 60,
-          normalizerTime: await getNormalizerTime(),
         }
         const label =
           process.env['FLOCCUS_TEST'] +
@@ -129,23 +128,3 @@ const VERSION = require('../package.json').version
     process.exit(1)
   }
 })()
-
-async function getNormalizerTime() {
-  const start = Date.now()
-  fibonacci(33) // get a feel for how fast this CPU is rn
-  for (let i = 0; i < 30; i++) { // get a feel for how fast this network card is rns
-    await fetch('http://google.com')
-  }
-  const end = Date.now()
-  return (end - start) / 1000
-}
-
-function fibonacci(num) {
-  if (num === 1) {
-    return 0
-  }
-  if (num === 2) {
-    return 1
-  }
-  return fibonacci(num - 1) + fibonacci(num - 2)
-}
