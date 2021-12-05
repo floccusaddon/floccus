@@ -32,6 +32,12 @@
             @click="onCreate">
             {{ t('LabelAddaccount') }}
           </v-btn>
+          <v-btn
+            :to="{ name: 'IMPORTEXPORT' }"
+            class="mr-2">
+            <v-icon>mdi-export</v-icon>
+            {{ t('LabelImportExport') }}
+          </v-btn>
         </div>
       </v-container>
     </v-card>
