@@ -19,8 +19,10 @@
           @input="$emit('update:username', $event)" />
         <v-text-field
           :value="password"
-          type="password"
           :label="t('LabelPassword')"
+          :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="showPassword ? 'text' : 'password'"
+          @click:append="showPassword = !showPassword"
           @input="$emit('update:password', $event)" />
         <v-text-field
           append-icon="mdi-file-document"
@@ -31,13 +33,14 @@
           :persistent-hint="true"
           @input="$emit('update:bookmark_file', $event)" />
         <v-text-field
-          append-icon="mdi-lock"
           class="mt-2"
-          type="password"
           :value="passphrase"
           :label="t('LabelPassphrase')"
           :hint="t('DescriptionPassphrase')"
           :persistent-hint="true"
+          :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="showPassphrase ? 'text' : 'password'"
+          @click:append="showPassphrase = !showPassphrase"
           @input="$emit('update:passphrase', $event)" />
       </v-card-text>
     </v-card>
@@ -119,7 +122,9 @@ export default {
   props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects'],
   data() {
     return {
-      panels: [0, 1]
+      panels: [0, 1],
+      showPassword: false,
+      showPassphrase: false,
     }
   },
   methods: {

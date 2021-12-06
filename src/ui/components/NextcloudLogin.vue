@@ -12,7 +12,7 @@
         <v-tooltip
           v-if="!isRunning"
           left>
-          <template v-slot:activator="{ on }">
+          <template #activator="{ on }">
             <v-btn
               icon
               @click="onFlowStart"
@@ -25,7 +25,7 @@
         <v-tooltip
           v-else
           left>
-          <template v-slot:activator="{ on }">
+          <template #activator="{ on }">
             <v-btn
               icon
               @click="onFlowStop"
@@ -39,8 +39,10 @@
     </v-text-field>
     <v-text-field
       :value="password"
-      type="password"
+      :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+      :type="showPassword ? 'text' : 'password'"
       :label="t('LabelPassword')"
+      @click:append="showPassword = !showPassword"
       @input="$emit('update:password', $event)" />
   </div>
 </template>
@@ -64,7 +66,7 @@ export default {
     }
   },
   data() {
-    return {error: null}
+    return {error: null, showPassword: false}
   },
   computed: {
     isRunning() {

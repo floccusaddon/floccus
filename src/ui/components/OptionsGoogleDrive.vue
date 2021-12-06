@@ -35,13 +35,14 @@
           :persistent-hint="true"
           @input="$emit('update:bookmark_file', $event)" />
         <v-text-field
-          append-icon="mdi-lock"
+          :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="showPassphrase ? 'text' : 'password'"
           class="mt-2"
-          type="password"
           :value="password"
           :label="t('LabelPassphrase')"
           :hint="t('DescriptionPassphrase')"
           :persistent-hint="true"
+          @click:append="showPassphrase = !showPassphrase"
           @input="$emit('update:password', $event)" />
       </v-card-text>
     </v-card>
@@ -115,6 +116,7 @@ export default {
     return {
       panels: [0, 1],
       authorized: false,
+      showPassphrase: true,
     }
   },
   methods: {
