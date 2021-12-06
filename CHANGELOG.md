@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.8.6
+
+### Fixes
+ - build.gradle: Fix version
+ - NewAccount: Link to importexport view for better discovery (only in browser)
+ - [Android] Allow self-signed certificates added to the Android user cert store
+
+
 ## v4.8.5
 
 ### Fixes
