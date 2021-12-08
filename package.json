@@ -69,6 +69,7 @@
     "@capacitor-community/http": "^1.2.0",
     "@capacitor/android": "^3.0.0",
     "@capacitor/app": "^1.0.3",
+    "@capacitor/browser": "^1.0.6",
     "@capacitor/cli": "^3.0.0",
     "@capacitor/core": "^3.0.0",
     "@capacitor/device": "^1.0.0",

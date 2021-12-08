@@ -3,6 +3,9 @@ import { mutations } from './mutations'
 import Logger from '../../../lib/Logger'
 import AdapterFactory from '../../../lib/AdapterFactory'
 import Controller from '../../../lib/Controller'
+import { Http } from '@capacitor-community/http'
+import { Browser } from '@capacitor/browser'
+import { i18n } from '../../../lib/native/I18n'
 
 export const actions = {
   LOAD_ACCOUNTS: 'LOAD_ACCOUNTS',
@@ -25,6 +28,8 @@ export const actions = {
   TRIGGER_SYNC_DOWN: 'TRIGGER_SYNC_DOWN',
   CANCEL_SYNC: 'CANCEL_SYNC',
   DOWNLOAD_LOGS: 'DOWNLOAD_LOGS',
+  START_LOGIN_FLOW: 'START_LOGIN_FLOW',
+  STOP_LOGIN_FLOW: 'STOP_LOGIN_FLOW',
 }
 export const actionsDefinition = {
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
@@ -136,5 +141,45 @@ export const actionsDefinition = {
   },
   async [actions.DOWNLOAD_LOGS]({ commit, dispatch, state }) {
     await Logger.downloadLogs()
+  },
+  async [actions.START_LOGIN_FLOW]({commit, dispatch, state}, rootUrl) {
+    commit(mutations.SET_LOGIN_FLOW_STATE, true)
+    let res = await Http.request({
+      url: `${rootUrl}/index.php/login/v2`,
+      method: 'POST',
+      headers: {'User-Agent': 'Floccus bookmarks sync'},
+      responseType: 'json',
+    })
+    if (res.status !== 200 || !state.loginFlow.isRunning) {
+      commit(mutations.SET_LOGIN_FLOW_STATE, false)
+
+      throw new Error(i18n.getMessage('LabelLoginFlowError'))
+    }
+    let json = res.data
+    try {
+      await Browser.open({ url: json.login })
+      do {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        res = await Http.request({
+          url: json.poll.endpoint,
+          method: 'POST',
+          headers: {'Content-type': 'application/x-www-form-urlencoded'},
+          data: {token: json.poll.token},
+          responseType: 'json',
+        })
+      } while (res.status === 404 && state.loginFlow.isRunning)
+      commit(mutations.SET_LOGIN_FLOW_STATE, false)
+    } catch (e) {
+      commit(mutations.SET_LOGIN_FLOW_STATE, false)
+      throw e
+    }
+    if (res.status !== 200) {
+      throw new Error(i18n.getMessage('LabelLoginFlowError'))
+    }
+    json = res.data
+    return {username: json.loginName, password: json.appPassword}
+  },
+  async [actions.STOP_LOGIN_FLOW]({commit}) {
+    commit(mutations.SET_LOGIN_FLOW_STATE, false)
   }
 }

@@ -7,7 +7,6 @@
       :error-messages="error"
       @input="$emit('update:username', $event)">
       <template
-        v-if="isBrowser"
         slot="append-outer">
         <v-tooltip
           v-if="!isRunning"
@@ -75,7 +74,12 @@ export default {
   },
   methods: {
     async onFlowStart() {
-      const { actions } = await import('../store')
+      let actions
+      if (this.isBrowser) {
+        ({ actions } = await import('../store'))
+      } else {
+        ({ actions } = await import('../store/native/'))
+      }
       this.error = null
       try {
         const credentials = await this.$store.dispatch(actions.START_LOGIN_FLOW, this.server)
@@ -86,7 +90,12 @@ export default {
       }
     },
     async onFlowStop() {
-      const { actions } = await import('../store')
+      let actions
+      if (this.isBrowser) {
+        ({ actions } = await import('../store'))
+      } else {
+        ({ actions } = await import('../store/native/'))
+      }
       await this.$store.dispatch(actions.STOP_LOGIN_FLOW)
     }
   }
