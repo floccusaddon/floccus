@@ -28,6 +28,9 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   static async authorize(interactive = true) {
+    // see https://developers.google.com/identity/protocols/oauth2/native-app
+    const challenge = Crypto.bufferToHexstr(await Crypto.getRandomBytes(128)).substr(0, 128)
+    const state = Crypto.bufferToHexstr(await Crypto.getRandomBytes(128)).substr(0, 64)
     const redirectURL = chrome.identity.getRedirectURL()
     const scopes = ['https://www.googleapis.com/auth/drive.file']
     let authURL = 'https://accounts.google.com/o/oauth2/auth'
@@ -36,6 +39,8 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     authURL += `&redirect_uri=${encodeURIComponent(redirectURL)}`
     authURL += `&scope=${encodeURIComponent(scopes.join(' '))}`
     authURL += `&approval_prompt=force&access_type=offline`
+    authURL += `&code_challenge=${challenge}`
+    authURL += `&state=${state}`
 
     const redirectResult = await browser.identity.launchWebAuthFlow({
       interactive,
@@ -47,20 +52,25 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       return null
     const params = new URLSearchParams(m[1].split('#')[0])
     const code = params.get('code')
+    const resState = params.get('state')
 
     if (!code) {
       throw new Error('Authorization failure')
+    }
+    if (resState !== state) {
+      throw new Error('Authorization failure: State param does not match')
     }
     const response = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: `code=${code}&` +
-        `client_id=${Credentials.web.client_id}&` +
-        `client_secret=${Credentials.web.client_secret}&` +
-        `redirect_uri=${encodeURIComponent(chrome.identity.getRedirectURL())}&` +
-        'grant_type=authorization_code'
+      body: `code=${code}` +
+        `&client_id=${Credentials.web.client_id}` +
+        `&client_secret=${Credentials.web.client_secret}` +
+        `&redirect_uri=${encodeURIComponent(chrome.identity.getRedirectURL())}` +
+        `&code_verifier=${challenge}` +
+        '&grant_type=authorization_code'
     })
 
     if (response.status !== 200) {
