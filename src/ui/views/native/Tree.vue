@@ -27,9 +27,13 @@
       <v-spacer />
       <v-btn
         icon
-        :disabled="Boolean(syncing) || !currentAccount"
+        :disabled="!currentAccount"
+        :color="syncing? 'primary' : ''"
         @click="onTriggerSync">
-        <v-icon>mdi-sync</v-icon>
+        <v-icon
+          :class="{'sync--active': Boolean(syncing)}">
+          mdi-sync
+        </v-icon>
       </v-btn>
       <v-btn
         v-if="currentAccount"
@@ -49,7 +53,7 @@
         v-text="syncError" />
       <v-progress-linear
         v-if="syncing"
-        indeterminate
+        :value="syncing * 100 || 0"
         color="blue darken-1" />
       <v-progress-circular
         v-if="loading"
@@ -387,6 +391,9 @@ export default {
       })
     },
     onTriggerSync() {
+      if (this.syncing) {
+        return
+      }
       this.$store.dispatch(actions.TRIGGER_SYNC, this.id)
     }
   }
@@ -396,5 +403,18 @@ export default {
 <style scoped>
 .loading {
   margin: 45vh 45vw;
+}
+
+.sync--active {
+  animation: spin 2s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(360deg);
+  }
+  99.9% {
+    transform: rotate(0deg);
+  }
 }
 </style>
