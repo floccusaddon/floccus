@@ -1,0 +1,7 @@
+With <i>Floccus</i> you can sync your bookmarks across browsers via a server of your choosing – be it Nextcloud, WebDAV or Google Drive.
+
+<b>Requirements:</b>
+
+* Nextcloud Bookmarks (v0.14 or later)
+* or a WebDAV server (like nextcloud is, too)
+* or a Google Drive Account
