@@ -1,6 +1,6 @@
 # ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/icons/logo.png) Floccus
 
-![](https://raw.githubusercontent.com/marcelklehr/floccus/develop/img/screen_chrome_wide.png)
+![](https://raw.githubusercontent.com/marcelklehr/floccus/develop/img/screen_chrome_wide.png) <img src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="left" src="https://img.shields.io/amo/users/floccus.svg">
 
 > Sync your bookmarks privately across browsers
 
@@ -14,11 +14,7 @@
 - 📦 Easily export your configuration
 - 🔒 Keep your credentials secure with an encryption passphrase
 
-|[![Chrome Webstore](https://storage.googleapis.com/chrome-gcs-uploader.appspot.com/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/tbyBjqi7Zu733AAKA5n4.png)](https://chrome.google.com/webstore/detail/floccus/fnaicdffflnofjppbagibeoednhnbjhg)|[![Mozilla Addons](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/en-US/firefox/addon/floccus/)|[<img alt="Microsoft Edge" src="https://developer.microsoft.com/en-us/store/badges/images/English_get-it-from-MS.png" height="45" >](https://microsoftedge.microsoft.com/addons/detail/gjkddcofhiifldbllobcamllmanombji)|[<img alt="Google Play" src="https://play.google.com/intl/en_gb/badges/static/images/badges/en_badge_web_generic.png" height="70">](https://play.google.com/store/apps/details?id=org.handmadeideas.floccus)<br><small>[IzzyOnDroid F-Droid Repo](https://apt.izzysoft.de/fdroid/)</small>|
-|---|-----|---|--|
-|<img align="left" src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="right" src="https://img.shields.io/chrome-web-store/rating/fnaicdffflnofjppbagibeoednhnbjhg.svg">| <img align="left" src="https://img.shields.io/amo/users/floccus.svg"> <img align="right" src="https://img.shields.io/amo/rating/floccus.svg">|[![](https://img.shields.io/badge/dynamic/json?label=rating&suffix=/5&query=%24.averageRating&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fgjkddcofhiifldbllobcamllmanombji)](https://microsoftedge.microsoft.com/addons/detail/floccus-bookmarks-sync/gjkddcofhiifldbllobcamllmanombji)||
-
-If you need help, talk to us on [gitter](https://gitter.im/marcelklehr/floccus), matrix ([`#marcelklehr_floccus:gitter.im`](https://matrix.to/#/#marcelklehr_floccus:gitter.im?utm_source=gitter)), in the [official Nextcloud Bookmarks talk channel](https://cloud.nextcloud.com/call/u52jcby9), or drop [me](https://marcelklehr.de) a mail! :wave:
+[![Download now](https://img.shields.io/badge/Download-now-lightblue.svg?&style=for-the-badge)](https://floccus.org/download)
 
 If you'd like to support the creation and maintenance of this software, please consider donating. :)
 
@@ -27,6 +23,8 @@ If you'd like to support the creation and maintenance of this software, please c
 
 ## 🎬 Getting started
 If you don't know how to start with Floccus, [read this guide](https://floccus.org/start).
+
+If you need help, talk to us on [gitter](https://gitter.im/marcelklehr/floccus), matrix ([`#marcelklehr_floccus:gitter.im`](https://matrix.to/#/#marcelklehr_floccus:gitter.im?utm_source=gitter)), in the [official Nextcloud Bookmarks talk channel](https://cloud.nextcloud.com/call/u52jcby9), or drop [me](https://marcelklehr.de) a mail! :wave:
 
 ### Troubleshooting
 
