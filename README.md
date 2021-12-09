@@ -15,7 +15,7 @@
 
 
 
-![Download now](https://img.shields.io/badge/Download-now-limegreen.svg?&style=for-the-badge)](https://floccus.org/download)
+[![Download now](https://img.shields.io/badge/Download-now-limegreen.svg?&style=for-the-badge)](https://floccus.org/download)
 
 
 
