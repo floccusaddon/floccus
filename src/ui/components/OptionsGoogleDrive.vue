@@ -47,7 +47,9 @@
       </v-card-text>
     </v-card>
 
-    <v-card class="mb-4">
+    <v-card
+      v-if="isBrowser"
+      class="mb-4">
       <v-card-title
         id="folder"
         class="text-h5">
@@ -70,12 +72,14 @@
       </v-card-title>
       <v-card-text>
         <OptionSyncInterval
+          v-if="isBrowser"
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
         <OptionSyncStrategy
           :value="strategy"
           @input="$emit('update:strategy', $event)" />
         <OptionNestedSync
+          v-if="isBrowser"
           :value="nestedSync"
           @input="$emit('update:nestedSync', $event)" />
       </v-card-text>

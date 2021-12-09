@@ -70,12 +70,14 @@
       </v-card-title>
       <v-card-text>
         <OptionSyncInterval
+          v-if="isBrowser"
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
         <OptionSyncStrategy
           :value="strategy"
           @input="$emit('update:strategy', $event)" />
         <OptionNestedSync
+          v-if="isBrowser"
           :value="nestedSync"
           @input="$emit('update:nestedSync', $event)" />
       </v-card-text>
@@ -90,9 +92,11 @@
       </v-card-title>
       <v-card-text>
         <OptionClientCert
+          v-if="isBrowser"
           :value="includeCredentials"
           @input="$emit('update:includeCredentials', $event)" />
         <OptionAllowRedirects
+          v-if="isBrowser"
           :value="allowRedirects"
           @input="$emit('update:allowRedirects', $event)" />
         <OptionResetCache @click="$emit('reset')" />
