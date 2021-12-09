@@ -13,9 +13,12 @@
 - 📦 Easily export your configuration
 - 🔒 Keep your credentials secure with an encryption passphrase
 
-<p>&nbsp;</p>
-<div style="text-align: center"><a href="https://floccus.org/download"><img src="https://img.shields.io/badge/Download-now-limegreen.svg?&style=for-the-badge"></a></div>
-<p>&nbsp;</p>
+
+
+|[![Download now](https://img.shields.io/badge/Download-now-limegreen.svg?&style=for-the-badge)](https://floccus.org/download)|
+|:-:|
+
+
 
 If you'd like to support the creation and maintenance of this software, please consider donating. :)
 
