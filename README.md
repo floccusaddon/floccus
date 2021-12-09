@@ -1,10 +1,9 @@
 # ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/icons/logo.png) Floccus
 
-![](https://raw.githubusercontent.com/marcelklehr/floccus/develop/img/screen_chrome_wide.png) <img src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="left" src="https://img.shields.io/amo/users/floccus.svg">
-
+![](https://raw.githubusercontent.com/marcelklehr/floccus/develop/img/screen_chrome_wide.png)
 > Sync your bookmarks privately across browsers
 
-[![Tests](https://github.com/marcelklehr/floccus/workflows/Tests/badge.svg)](https://github.com/marcelklehr/floccus/actions?query=workflow%3ATests)
+[![Tests](https://github.com/marcelklehr/floccus/workflows/Tests/badge.svg)](https://github.com/marcelklehr/floccus/actions?query=workflow%3ATests)  <img src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img align="left" src="https://img.shields.io/amo/users/floccus.svg">
 
 - 🔖 Syncs your real, native browser bookmarks directly
 - ☸ Sync via [Nextcloud Bookmarks](https://github.com/nextcloud/bookmarks), Google Drive or [any WebDAV-compatible service](https://community.cryptomator.org/t/webdav-urls-of-common-cloud-storage-services/75)
@@ -14,7 +13,7 @@
 - 📦 Easily export your configuration
 - 🔒 Keep your credentials secure with an encryption passphrase
 
-[![Download now](https://img.shields.io/badge/Download-now-lightblue.svg?&style=for-the-badge)](https://floccus.org/download)
+[![Download now](https://img.shields.io/badge/Download-now-limegreen.svg?&style=for-the-badge)](https://floccus.org/download)
 
 If you'd like to support the creation and maintenance of this software, please consider donating. :)
 
