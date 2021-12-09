@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.8.7
+
+### Fixes
+
+ - [Android] UI: Polish active syncing state
+ - [Android] Implement Nextcloud Login flow
+ - [Android] Don't display irrelevant options
+ - GoogleDrive: Harden OAuth using CSRF and PKCE Marcel Klehr Yesterday 13:13
+ - Allow making passwords visible
+
 ## v4.8.6
 
 ### Fixes

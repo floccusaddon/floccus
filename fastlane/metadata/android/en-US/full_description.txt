@@ -1,4 +1,4 @@
-With <i>Floccus</i> you can sync your bookmarks across browsers via a server of your choosing – be it Nextcloud, WebDAV or Google Drive.
+With <i>floccus</i> you can sync your bookmarks across browsers via a server of your choosing – be it Nextcloud, WebDAV or Google Drive.
 
 <b>Requirements:</b>
 

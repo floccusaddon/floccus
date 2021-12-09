@@ -1,1 +1,1 @@
-Lesezeichen privat und browserübergreifend synchronisieren
+Lesezeichen privat synchronisieren -- zwischen Browsern und Geräten
