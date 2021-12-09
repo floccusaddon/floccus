@@ -14,9 +14,7 @@
 - 🔒 Keep your credentials secure with an encryption passphrase
 
 <p>&nbsp;</p>
-<p style="text-align: center">
-<a href="https://floccus.org/download"><img src="https://img.shields.io/badge/Download-now-limegreen.svg?&style=for-the-badge"></a>
-</p>
+<p style="text-align: center"><a href="https://floccus.org/download"><img src="https://img.shields.io/badge/Download-now-limegreen.svg?&style=for-the-badge"></a></p>
 <p>&nbsp;</p>
 
 If you'd like to support the creation and maintenance of this software, please consider donating. :)
