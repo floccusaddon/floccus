@@ -120,7 +120,7 @@ export default {
     validateUrl(str) {
       try {
         const u = new URL(str)
-        return Boolean(u)
+        return Boolean(u) && u.protocol.startsWith('http')
       } catch (e) {
         return false
       }
