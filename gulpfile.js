@@ -44,6 +44,7 @@ const paths = {
     '!android/**',
   ],
   views: './html/*.html',
+  nativeHTML: './html/index.html',
   entries: 'src/entries/*.js',
   js: 'src/**',
   builds: './builds/',
@@ -99,7 +100,10 @@ const js = function() {
 }
 
 const html = function() {
-  return gulp.src(paths.views).pipe(gulp.dest('./dist/html/'))
+  return Promise.all([
+    gulp.src(paths.nativeHTML).pipe(gulp.dest('./dist/')),
+    gulp.src(paths.views).pipe(gulp.dest('./dist/html/')),
+  ])
 }
 
 const mochajs = function() {
