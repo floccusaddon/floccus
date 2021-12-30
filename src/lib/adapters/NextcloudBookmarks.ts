@@ -101,7 +101,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   getLabel():string {
     const data = this.getData()
-    return data.username + '@' + url.parse(data.url).hostname
+    return data.username.includes('@') ? data.username + ' on ' + url.parse(data.url).hostname : data.username + '@' + url.parse(data.url).hostname
   }
 
   acceptsBookmark(bm: Bookmark):boolean {
