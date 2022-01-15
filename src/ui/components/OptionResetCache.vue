@@ -4,7 +4,7 @@
       {{ t('LabelResetCache') }}
     </div>
     <div class="caption">
-      {{ t('DescriptionResetCache') }}
+      {{ t('DescriptionResetcache') }}
     </div>
     <v-btn
       small
