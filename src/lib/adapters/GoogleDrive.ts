@@ -1,4 +1,3 @@
-import browser from '../browser-api'
 import CachingAdapter from './Caching'
 import Logger from '../Logger'
 import XbelSerializer from '../serializers/Xbel'
@@ -6,11 +5,26 @@ import Crypto from '../Crypto'
 import Credentials from '../../../google-api.credentials.json'
 import {
   AuthenticationError,
-  DecryptionError,
+  DecryptionError, FileUnreadableError,
   GoogleDriveAuthenticationError, InterruptedSyncError,
   NetworkError,
   OAuthTokenError
 } from '../../errors/Error'
+import { OAuth2Client } from '@byteowls/capacitor-oauth2'
+import { Device } from '@capacitor/device'
+
+const OAuthConfig = {
+  authorizationBaseUrl: 'https://accounts.google.com/o/oauth2/auth',
+  accessTokenEndpoint: 'https://oauth2.googleapis.com/token',
+  scope: 'https://www.googleapis.com/auth/drive.file',
+  resourceUrl: 'https://www.googleapis.com/drive/v3/about?fields=user/displayName',
+  logsEnabled: true,
+  android: {
+    appId: Credentials.installed.client_id,
+    responseType: 'code', // if you configured a android app in google dev console the value must be "code"
+    redirectUrl: 'org.handmadeideas.floccus:/' // package name from google dev console
+  }
+}
 
 declare const chrome: any
 
@@ -28,6 +42,15 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   static async authorize(interactive = true) {
+    const { platform } = await Device.getInfo()
+
+    if (platform !== 'web') {
+      const result = await OAuth2Client.authenticate(OAuthConfig)
+      const refresh_token = result.access_token_response.refresh_token
+      const username = result.user.displayName
+      return { refresh_token, username }
+    }
+
     // see https://developers.google.com/identity/protocols/oauth2/native-app
     const challenge = Crypto.bufferToHexstr(await Crypto.getRandomBytes(128)).substr(0, 128)
     const state = Crypto.bufferToHexstr(await Crypto.getRandomBytes(128)).substr(0, 64)
@@ -41,6 +64,8 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     authURL += `&approval_prompt=force&access_type=offline`
     authURL += `&code_challenge=${challenge}`
     authURL += `&state=${state}`
+
+    const browser = (await import('../browser-api')).default
 
     const redirectResult = await browser.identity.launchWebAuthFlow({
       interactive,
@@ -93,14 +118,17 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   static async getAccessToken(refreshToken:string) {
+    const {platform} = await Device.getInfo()
+    const credentialType = platform === 'web' ? 'web' : 'installed'
+
     const response = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: `refresh_token=${refreshToken}&` +
-        `client_id=${Credentials.web.client_id}&` +
-        `client_secret=${Credentials.web.client_secret}&` +
+        `client_id=${Credentials[credentialType].client_id}&` +
+        (credentialType === 'web' ? `client_secret=${Credentials.web.client_secret}&` : '') +
         `grant_type=refresh_token`
     })
 
@@ -177,7 +205,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
           }
         }
       } else if (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
-        throw new Error(browser.i18n.getMessage('Error034'))
+        throw new FileUnreadableError()
       }
 
       /* let's get the highestId */

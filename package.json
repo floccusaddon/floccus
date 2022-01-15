@@ -66,6 +66,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
+    "@byteowls/capacitor-oauth2": "^3.0.1",
     "@capacitor-community/http": "^1.2.0",
     "@capacitor/android": "^3.0.0",
     "@capacitor/app": "^1.0.3",
@@ -81,9 +82,11 @@
     "core-js": "^3.19.0",
     "css-loader": "^3.6.0",
     "humanize-duration": "^3.25.1",
+    "i": "^0.3.7",
     "intl-messageformat": "^9.9.1",
     "js-base64": "^3.6.0",
     "lodash": "^4.17.20",
+    "npm": "^8.3.1",
     "p-queue": "^5.0.0",
     "punycode": "^2.1.1",
     "random": "^2.2.0",

@@ -12,8 +12,7 @@
               v-for="a in adapters"
               :key="a.type">
               <v-radio
-                :value="a.type"
-                :disabled="!isBrowser && a.type === 'google-drive'">
+                :value="a.type">
                 <template #label>
                   <div class="heading">
                     {{ a.label }}

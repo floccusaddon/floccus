@@ -36,6 +36,11 @@
           v-bind.sync="data"
           @reset="onReset"
           @delete="onDelete" />
+        <OptionsGoogleDrive
+          v-if="data.type === 'google-drive'"
+          v-bind.sync="data"
+          @reset="onReset"
+          @delete="onDelete" />
       </v-form>
     </v-main>
   </div>
@@ -47,11 +52,12 @@ import OptionsWebdav from '../../components/OptionsWebdav'
 import OptionsNextcloudBookmarks from '../../components/OptionsNextcloudBookmarks'
 import { actions } from '../../store/native'
 import { routes } from '../../NativeRouter'
+import OptionsGoogleDrive from '../../components/OptionsGoogleDrive'
 // iport PathHelper from '../../../lib/PathHelper'
 
 export default {
   name: 'Options',
-  components: { OptionsNextcloudBookmarks, OptionsWebdav, OptionsFake },
+  components: { OptionsGoogleDrive, OptionsNextcloudBookmarks, OptionsWebdav, OptionsFake },
   data() {
     return {
       drawer: false,
