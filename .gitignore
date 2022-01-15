@@ -3,4 +3,3 @@ dist
 node_modules
 builds
 key.pem
-google-api.credentials.json
