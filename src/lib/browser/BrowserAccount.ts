@@ -12,6 +12,7 @@ import {
   UnknownFolderItemOrderError
 } from '../../errors/Error'
 import Logger from '../Logger'
+import {i18n} from '../native/I18n'
 
 export default class BrowserAccount extends Account {
   static async get(id:string):Promise<Account> {
@@ -75,28 +76,28 @@ export default class BrowserAccount extends Account {
 
   static async stringifyError(er:any):Promise<string> {
     if (er instanceof UnknownFolderItemOrderError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.item])
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.item])
     }
     if (er instanceof MissingItemOrderError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.item])
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.item])
     }
     if (er instanceof HttpError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.status, er.method])
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.status, er.method])
     }
     if (er instanceof ParseResponseError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0')) + '\n' + er.response
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0')) + '\n' + er.response
     }
     if (er instanceof InconsistentBookmarksExistenceError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.folder, er.bookmark])
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.folder, er.bookmark])
     }
     if (er instanceof LockFileError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.status, er.lockFile])
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.status, er.lockFile])
     }
     if (er instanceof FailsafeError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
     }
     if (er instanceof FloccusError) {
-      return browser.i18n.getMessage('Error' + String(er.code).padStart(3, '0'))
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))
     }
     if (er.list) {
       return (await Promise.all(er.list
