@@ -77,7 +77,7 @@ export default class Scanner {
       }
     }, 1)
 
-    if (childrenDiff === 0 && newFolder.children.length > 1) {
+    if (newFolder.children.length > 1) {
       this.diff.commit({
         type: ActionType.REORDER,
         payload: newFolder,
