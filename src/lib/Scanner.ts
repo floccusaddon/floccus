@@ -177,7 +177,7 @@ export default class Scanner {
               oldIndex: oldIndex || removeAction.index
             })
             reconciled = true
-            if (oldItem.type === ItemType.FOLDER) {
+            if (oldItem.type === ItemType.FOLDER) { // TODO: Is this necessary?
               await this.diffItem(oldItem, createdItem)
             }
           } else {

@@ -1,5 +1,16 @@
 # Changelog
 
+## v4.9.0
+
+### New
+- [Android] Implement Google Auth
+
+### Fixes
+ - [Browser] Fix i18n for displaying error messages
+ - OptionResetCache: Fix description l10n id
+ - NextcloudBookmarks: Fix getLabel to avoid 'n@d@d' labels
+ - UI: Validate URLs to be http(s)
+
 ## v4.8.7
 
 ### Fixes
