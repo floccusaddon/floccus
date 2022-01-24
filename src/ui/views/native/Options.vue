@@ -116,6 +116,8 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style>
+.text-h6 {
+  margin-top: 20px;
+}
 </style>

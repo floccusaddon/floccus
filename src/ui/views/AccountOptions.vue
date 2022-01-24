@@ -266,4 +266,8 @@ export default {
     .v-form .v-icon {
       margin-right: 10px;
     }
+
+    .text-h6 {
+      margin-top: 20px;
+    }
 </style>
