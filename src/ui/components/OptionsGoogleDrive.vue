@@ -93,6 +93,7 @@
         {{ t('LabelOptionsDangerous') }}
       </v-card-title>
       <v-card-text>
+        <OptionDownloadLogs />
         <OptionResetCache @click="$emit('reset')" />
         <OptionFailsafe
           :value="failsafe"
@@ -111,10 +112,11 @@ import OptionDeleteAccount from './OptionDeleteAccount'
 import OptionSyncFolder from './OptionSyncFolder'
 import OptionNestedSync from './OptionNestedSync'
 import OptionFailsafe from './OptionFailsafe'
+import OptionDownloadLogs from './OptionDownloadLogs'
 
 export default {
   name: 'OptionsGoogleDrive',
-  components: { OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
+  components: { OptionDownloadLogs, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
   props: ['username', 'password', 'refreshToken', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
   data() {
     return {

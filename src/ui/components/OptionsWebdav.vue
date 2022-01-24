@@ -91,6 +91,7 @@
         {{ t('LabelOptionsDangerous') }}
       </v-card-title>
       <v-card-text>
+        <OptionDownloadLogs />
         <OptionClientCert
           v-if="isBrowser"
           :value="includeCredentials"
@@ -119,10 +120,11 @@ import OptionNestedSync from './OptionNestedSync'
 import OptionFailsafe from './OptionFailsafe'
 import OptionClientCert from './OptionClientCert'
 import OptionAllowRedirects from './OptionAllowRedirects'
+import OptionDownloadLogs from './OptionDownloadLogs'
 
 export default {
   name: 'OptionsWebdav',
-  components: { OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
+  components: { OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
   props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects'],
   data() {
     return {

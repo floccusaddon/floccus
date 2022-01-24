@@ -77,6 +77,7 @@
         {{ t('LabelOptionsDangerous') }}
       </v-card-title>
       <v-card-text>
+        <OptionDownloadLogs />
         <OptionClientCert
           v-if="isBrowser"
           :value="includeCredentials"
@@ -106,10 +107,11 @@ import OptionNestedSync from './OptionNestedSync'
 import OptionFailsafe from './OptionFailsafe'
 import OptionClientCert from './OptionClientCert'
 import OptionAllowRedirects from './OptionAllowRedirects'
+import OptionDownloadLogs from './OptionDownloadLogs'
 
 export default {
   name: 'OptionsNextcloudBookmarks',
-  components: { OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
+  components: { OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
   props: ['url', 'username', 'password', 'includeCredentials', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'nestedSync', 'failsafe', 'allowRedirects'],
   data() {
     return {

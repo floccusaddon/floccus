@@ -1,8 +1,9 @@
 /* global DEBUG */
 import { Device } from '@capacitor/device'
 import util from 'util'
-
+import * as Parallel from 'async-parallel'
 import packageJson from '../../package.json'
+import Crypto from './Crypto'
 
 export default class Logger {
   static log() {
@@ -31,9 +32,43 @@ export default class Logger {
     return Storage.default.getEntry('logs', [])
   }
 
-  static async downloadLogs() {
-    const logs = await this.getLogs()
-    console.log(logs)
+  static async anonymizeLogs(logs) {
+    const regex = /\[(.*?)\]\((.*?)\)|\[(.*?)\]/g
+    return Parallel.map(logs, async(entry) => {
+      return Logger.replaceAsync(entry, regex, async(match, p1, p2, p3) => {
+        if (p1 && p2) {
+          const hash1 = await Crypto.sha256(p1)
+          const hash2 = await Crypto.sha256(p2)
+          return '[' + hash1 + ']' + '(' + hash2 + ')'
+        } else if (p3) {
+          const hash = await Crypto.sha256(p2)
+          return '[' + hash + ']'
+        }
+      })
+    }, 1)
+  }
+
+  static async replaceAsync(str, regex, asyncFn) {
+    // Stolen from https://stackoverflow.com/questions/33631041/javascript-async-await-in-replace
+    const promises = []
+    str.replace(regex, (match, ...args) => {
+      const promise = asyncFn(match, ...args)
+      promises.push(promise)
+    })
+    let data
+    try {
+      data = await Promise.all(promises)
+    } catch (e) {
+      console.error(e)
+    }
+    return str.replace(regex, () => data.shift())
+  }
+
+  static async downloadLogs(anonymous = false) {
+    let logs = await this.getLogs()
+    if (anonymous) {
+      logs = await Logger.anonymizeLogs(logs)
+    }
     let blob = new Blob([logs.join('\n')], {
       type: 'text/plain',
       endings: 'native'

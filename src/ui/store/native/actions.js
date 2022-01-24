@@ -139,8 +139,8 @@ export const actionsDefinition = {
     const controller = await Controller.getSingleton()
     await controller.cancelSync(accountId, true)
   },
-  async [actions.DOWNLOAD_LOGS]({ commit, dispatch, state }) {
-    await Logger.downloadLogs()
+  async [actions.DOWNLOAD_LOGS]({ commit, dispatch, state }, anonymous) {
+    await Logger.downloadLogs(anonymous)
   },
   async [actions.START_LOGIN_FLOW]({commit, dispatch, state}, rootUrl) {
     commit(mutations.SET_LOGIN_FLOW_STATE, true)
