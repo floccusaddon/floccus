@@ -74,7 +74,7 @@ export default {
   filters: {
     accountIcon(type) {
       const icons = {
-        'googledrive': 'mdi-google-drive',
+        'google-drive': 'mdi-google-drive',
         'nextcloud-bookmarks': 'mdi-cloud',
         'webdav': 'mdi-folder-network'
       }

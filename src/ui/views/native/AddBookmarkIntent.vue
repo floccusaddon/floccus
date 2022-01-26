@@ -23,7 +23,7 @@
         indeterminate
         color="blue darken-1"
         class="loading" />
-      <v-card>
+      <v-card v-else>
         <v-card-text>
           <v-select
             dense
@@ -65,7 +65,7 @@ export default {
   filters: {
     accountIcon(type) {
       const icons = {
-        'googledrive': 'mdi-google-drive',
+        'google-drive': 'mdi-google-drive',
         'nextcloud-bookmarks': 'mdi-cloud',
         'webdav': 'mdi-folder-network'
       }
@@ -76,7 +76,7 @@ export default {
     return {
       url: this.$route.params.url,
       urlError: null,
-      title: '',
+      title: this.$route.params.title || '',
     }
   },
   computed: {
@@ -120,12 +120,13 @@ export default {
     }
   },
   methods: {
-    onSave() {
-      this.$store.dispatch(actions.CREATE_BOOKMARK, {
+    async onSave() {
+      await this.$store.dispatch(actions.LOAD_TREE, this.id)
+      await this.$store.dispatch(actions.CREATE_BOOKMARK, {
         accountId: this.id,
         bookmark: new Bookmark({ id: null, parentId: 0, title: this.title, url: this.url })
       })
-      this.$router.push({name: routes.TREE, params: {accountId: this.id}})
+      await this.$router.push({name: routes.TREE, params: {accountId: this.id}})
     }
   }
 }

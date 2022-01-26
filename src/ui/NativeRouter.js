@@ -43,7 +43,7 @@ export const router = new Router({
       component: NewAccount,
     },
     {
-      path: '/newBookmark/:accountId/:url',
+      path: '/newBookmark/:accountId/:url/:text?',
       name: routes.ADD_BOOKMARK,
       component: AddBookmarkIntent,
     },

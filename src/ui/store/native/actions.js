@@ -59,36 +59,42 @@ export const actionsDefinition = {
     const account = await Account.get(accountId)
     const tree = await account.getResource()
     await tree.createBookmark(bookmark)
+    await tree.save()
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
   async [actions.EDIT_BOOKMARK]({commit}, {accountId, bookmark}) {
     const account = await Account.get(accountId)
     const tree = await account.getResource()
     await tree.updateBookmark(bookmark)
+    await tree.save()
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
   async [actions.DELETE_BOOKMARK]({commit}, {accountId, bookmark}) {
     const account = await Account.get(accountId)
     const tree = await account.getResource()
     await tree.removeBookmark(bookmark)
+    await tree.save()
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
   async [actions.CREATE_FOLDER]({commit}, {accountId, folder}) {
     const account = await Account.get(accountId)
     const tree = await account.getResource()
     await tree.createFolder(folder)
+    await tree.save()
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
   async [actions.EDIT_FOLDER]({commit}, {accountId, folder}) {
     const account = await Account.get(accountId)
     const tree = await account.getResource()
     await tree.updateFolder(folder)
+    await tree.save()
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
   async [actions.DELETE_FOLDER]({commit}, {accountId, folder}) {
     const account = await Account.get(accountId)
     const tree = await account.getResource()
     await tree.removeFolder(folder)
+    await tree.save()
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
