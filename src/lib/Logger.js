@@ -4,6 +4,7 @@ import util from 'util'
 import * as Parallel from 'async-parallel'
 import packageJson from '../../package.json'
 import Crypto from './Crypto'
+import { Share } from '@capacitor/share'
 
 export default class Logger {
   static log() {
@@ -83,20 +84,28 @@ export default class Logger {
     )
   }
 
-  static download(filename, blob) {
-    const element = document.createElement('a')
+  static async download(filename, blob) {
+    if ((await Device.getInfo()).platform === 'web') {
+      const element = document.createElement('a')
 
-    let objectUrl = URL.createObjectURL(blob)
-    element.setAttribute('href', objectUrl)
-    element.setAttribute('download', filename)
+      let objectUrl = URL.createObjectURL(blob)
+      element.setAttribute('href', objectUrl)
+      element.setAttribute('download', filename)
 
-    element.style.display = 'none'
-    document.body.appendChild(element)
+      element.style.display = 'none'
+      document.body.appendChild(element)
 
-    element.click()
+      element.click()
 
-    URL.revokeObjectURL(objectUrl)
-    document.body.removeChild(element)
+      URL.revokeObjectURL(objectUrl)
+      document.body.removeChild(element)
+    } else {
+      await Share.share({
+        title: filename,
+        text: await blob.text(),
+        dialogTitle: 'Share Floccus debug logs',
+      })
+    }
   }
 }
 Logger.messages = []

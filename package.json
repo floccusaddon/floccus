@@ -74,6 +74,7 @@
     "@capacitor/cli": "^3.0.0",
     "@capacitor/core": "^3.0.0",
     "@capacitor/device": "^1.0.0",
+    "@capacitor/share": "^1.1.1",
     "@capacitor/splash-screen": "^1.1.2",
     "@capacitor/storage": "^1.0.0",
     "async-lock": "^1.2.8",

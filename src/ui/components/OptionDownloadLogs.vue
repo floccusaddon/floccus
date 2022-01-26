@@ -21,9 +21,6 @@
 </template>
 
 <script>
-
-import { actions } from '../store'
-
 export default {
   name: 'OptionDownloadLogs',
   data() {
@@ -33,7 +30,7 @@ export default {
   },
   methods: {
     onGetLogs() {
-      this.$store.dispatch(actions.DOWNLOAD_LOGS, this.anonymous)
+      this.$store.dispatch('DOWNLOAD_LOGS', this.anonymous)
     }
   }
 }
