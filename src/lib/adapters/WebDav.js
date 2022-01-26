@@ -65,43 +65,6 @@ export default class WebDavAdapter extends CachingAdapter {
     return this.getBookmarkURL() + '.lock'
   }
 
-  async downloadFile(fullURL) {
-    let res
-    let authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
-
-    try {
-      res = await Http.request({
-        url: fullURL,
-        method: 'GET',
-        headers: {
-          Authorization: 'Basic ' + authString
-        },
-        responseType: 'text',
-        webFetchExtra: {
-          credentials: 'omit',
-          ...(!this.server.allowRedirects && {redirect: 'manual'})
-        }
-      })
-    } catch (e) {
-      throw new NetworkError()
-    }
-
-    if (res.status === 0 && !this.server.allowRedirects) {
-      throw new RedirectError()
-    }
-
-    if (res.status === 401) {
-      throw new AuthenticationError()
-    }
-    if (res.status >= 300 && res.status !== 404) {
-      throw new HttpError(res.status, 'GET')
-    }
-
-    return res
-  }
-
   async checkLock() {
     let fullURL = this.getBookmarkLockURL()
     Logger.log(fullURL)
@@ -115,72 +78,6 @@ export default class WebDavAdapter extends CachingAdapter {
       setTimeout(resolve, ms)
       this.cancelCallback = () => reject(new InterruptedSyncError())
     })
-  }
-
-  async uploadFile(url, content_type, data) {
-    const info = await Device.getInfo()
-    if (info.platform === 'web') {
-      return this.uploadFileWeb(url, content_type, data)
-    } else {
-      return this.uploadFileNative(url, content_type, data)
-    }
-  }
-
-  async uploadFileWeb(url, content_type, data) {
-    let authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
-    try {
-      var res = await fetch(url,{
-        method: 'PUT',
-        headers: {
-          'Content-Type': content_type,
-          Authorization: 'Basic ' + authString
-        },
-        credentials: 'omit',
-        body: data,
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-      throw new NetworkError()
-    }
-    if (res.status === 401 || res.status === 403) {
-      throw new AuthenticationError()
-    }
-    if (res.status >= 300) {
-      throw new HttpError(res.status, 'PUT')
-    }
-  }
-
-  async uploadFileNative(url, content_type, data) {
-    let authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
-    try {
-      var res = await Http.request({
-        url,
-        method: 'PUT',
-        headers: {
-          'Content-Type': content_type,
-          Authorization: 'Basic ' + authString
-        },
-        data,
-        webFetchExtra: {
-          credentials: 'omit',
-        }
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-      throw new NetworkError()
-    }
-    if (res.status === 401 || res.status === 403) {
-      throw new AuthenticationError()
-    }
-    if (res.status >= 300) {
-      throw new HttpError(res.status, 'PUT')
-    }
   }
 
   async obtainLock() {
@@ -335,6 +232,146 @@ export default class WebDavAdapter extends CachingAdapter {
       Logger.log('No changes to the server version necessary')
     }
     await this.freeLock()
+  }
+
+  async uploadFile(url, content_type, data) {
+    const info = await Device.getInfo()
+    if (info.platform === 'web') {
+      return this.uploadFileWeb(url, content_type, data)
+    } else {
+      return this.uploadFileNative(url, content_type, data)
+    }
+  }
+
+  async uploadFileWeb(url, content_type, data) {
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+    try {
+      var res = await fetch(url,{
+        method: 'PUT',
+        headers: {
+          'Content-Type': content_type,
+          Authorization: 'Basic ' + authString
+        },
+        credentials: 'omit',
+        ...(!this.server.allowRedirects && {redirect: 'manual'}),
+        body: data,
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      throw new NetworkError()
+    }
+    if (res.status === 0 && !this.server.allowRedirects) {
+      throw new RedirectError()
+    }
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status >= 300) {
+      throw new HttpError(res.status, 'PUT')
+    }
+  }
+
+  async uploadFileNative(url, content_type, data) {
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+    try {
+      var res = await Http.request({
+        url,
+        method: 'PUT',
+        headers: {
+          'Content-Type': content_type,
+          Authorization: 'Basic ' + authString
+        },
+        data
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      throw new NetworkError()
+    }
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status >= 300) {
+      throw new HttpError(res.status, 'PUT')
+    }
+  }
+
+  async downloadFile(url) {
+    const info = await Device.getInfo()
+    if (info.platform === 'web') {
+      return this.downloadFileWeb(url)
+    } else {
+      return this.downloadFileNative(url)
+    }
+  }
+
+  async downloadFileWeb(url) {
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+    try {
+      var res = await fetch(url,{
+        method: 'GET',
+        headers: {
+          Authorization: 'Basic ' + authString
+        },
+        webFetchExtra: {
+          credentials: 'omit',
+          ...(!this.server.allowRedirects && {redirect: 'manual'})
+        }
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      throw new NetworkError()
+    }
+    if (res.status === 0 && !this.server.allowRedirects) {
+      throw new RedirectError()
+    }
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status >= 300) {
+      throw new HttpError(res.status, 'PUT')
+    }
+
+    return res
+  }
+
+  async downloadFileNative(fullURL) {
+    let res
+    let authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+
+    try {
+      res = await Http.request({
+        url: fullURL,
+        method: 'GET',
+        headers: {
+          Authorization: 'Basic ' + authString
+        },
+        responseType: 'text'
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      throw new NetworkError()
+    }
+
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status >= 300 && res.status !== 404) {
+      throw new HttpError(res.status, 'GET')
+    }
+
+    return res
   }
 }
 
