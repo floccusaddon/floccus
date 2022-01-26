@@ -340,7 +340,7 @@ export default class WebDavAdapter extends CachingAdapter {
       throw new HttpError(res.status, 'GET')
     }
 
-    return res
+    return { status: res.status, data: await res.text() }
   }
 
   async downloadFileNative(fullURL) {
