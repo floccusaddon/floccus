@@ -11,6 +11,19 @@
           v-model="temporaryTitle"
           label="Title"
           hide-details />
+        <v-text-field
+          v-model="parentTitle"
+          readonly
+          label="Parent folder"
+          @click="onTriggerFolderChooser">
+          <template #append>
+            <v-icon
+              color="blue darken-1"
+              @click="onTriggerFolderChooser">
+              mdi-folder
+            </v-icon>
+          </template>
+        </v-text-field>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
@@ -23,18 +36,24 @@
         <v-btn
           color="blue darken-1"
           text
-          @click="$emit('save', {title: temporaryTitle}); $emit('update:display', false)">
+          @click="onSave">
           {{ t('LabelSave') }}
         </v-btn>
         <v-spacer />
       </v-card-actions>
     </v-card>
+    <DialogChooseFolder
+      v-model="temporaryParent"
+      :display.sync="displayFolderChooser"
+      :tree="tree" />
   </v-dialog>
 </template>
 
 <script>
+import DialogChooseFolder from './DialogChooseFolder'
 export default {
   name: 'DialogEditFolder',
+  components: { DialogChooseFolder },
   props: {
     folder: {
       type: Object,
@@ -45,16 +64,42 @@ export default {
     },
     isNew: {
       type: Boolean,
+    },
+    tree: {
+      type: Object,
+      required: true,
     }
   },
   data() {
     return {
-      temporaryTitle: this.folder.title || '',
+      temporaryTitle: '',
+      temporaryParent: null,
+      displayFolderChooser: false,
     }
   },
-  watch: {
-    title() {
-      this.temporaryTitle = this.folder.title
+  computed: {
+    parentTitle() {
+      if (this.temporaryParent === null) {
+        return ''
+      }
+      const folder = this.tree.findFolder(this.temporaryParent)
+      return folder ? folder.title || this.t('LabelUntitledfolder') : ''
+    }
+  },
+  mounted() {
+    this.temporaryTitle = this.folder.title || ''
+    const parentFolder = this.tree.findFolder(this.folder.parentId) ||
+        this.tree.findFolder(this.$store.state.lastFolders[this.$route.params.accountId]) ||
+        this.tree.findFolder(this.tree.id)
+    this.temporaryParent = parentFolder.id
+  },
+  methods: {
+    onTriggerFolderChooser() {
+      this.displayFolderChooser = true
+    },
+    onSave() {
+      this.$emit('save', {title: this.temporaryTitle, parentId: this.temporaryParent})
+      this.$emit('update:display', false)
     }
   }
 }

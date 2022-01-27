@@ -21,7 +21,8 @@ export default new Store({
     },
     loading: {
       accounts: true,
-    }
+    },
+    lastFolders: {},
   },
   getters: {},
 })

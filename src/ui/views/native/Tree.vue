@@ -181,16 +181,19 @@
       v-if="isAddingBookmark"
       :is-new="true"
       :display.sync="isAddingBookmark"
+      :tree="tree"
       @save="createBookmark($event)" />
     <DialogEditFolder
       v-if="isAddingFolder"
       :is-new="true"
       :display.sync="isAddingFolder"
+      :tree="tree"
       @save="createFolder($event)" />
     <DialogEditBookmark
       v-if="isEditingBookmark"
       :is-new="false"
       :bookmark="currentlyEditedBookmark"
+      :tree="tree"
       :display.sync="isEditingBookmark"
       @save="editBookmark($event)" />
     <DialogEditFolder
@@ -198,6 +201,7 @@
       :is-new="false"
       :folder="currentlyEditedFolder"
       :display.sync="isEditingFolder"
+      :tree="tree"
       @save="editFolder($event)" />
   </div>
 </template>

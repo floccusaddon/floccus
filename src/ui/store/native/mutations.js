@@ -9,7 +9,8 @@ export const mutations = {
   STORE_ACCOUNT_DATA: 'STORE_ACCOUNT_DATA',
   REMOVE_ACCOUNT: 'REMOVE_ACCOUNT',
   LOAD_TREE: 'LOAD_TREE',
-  SET_LOGIN_FLOW_STATE: 'SET_LOGIN_FLOW_STATE'
+  SET_LOGIN_FLOW_STATE: 'SET_LOGIN_FLOW_STATE',
+  SET_LAST_FOLDER: 'SET_LAST_FOLDER',
 }
 export const mutationsDefinition = {
   [mutations.SET_LOCKED](state, locked) {
@@ -38,5 +39,8 @@ export const mutationsDefinition = {
   },
   [mutations.LOADING_END](state, label) {
     Vue.set(state.loading, label, false)
+  },
+  [mutations.SET_LAST_FOLDER](state, {accountId, folderId}) {
+    Vue.set(state.lastFolders, accountId, folderId)
   }
 }

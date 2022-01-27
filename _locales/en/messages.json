@@ -180,7 +180,7 @@
     "message": "Reset synchronized folder to create a new one"
   },
   "LabelChoosefolder": {
-    "message": "Choose folder"
+    "message": "Choose a folder"
   },
   "DescriptionChoosefolder": {
     "message": "Set an existing folder to sync"
