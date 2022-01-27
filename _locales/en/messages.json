@@ -518,5 +518,11 @@
   },
   "LabelAnonymizelogs": {
     "message": "Anonymize private data"
+  },
+  "ErrorFolderloopselected": {
+    "message": "Cannot move a folder into itself"
+  },
+  "ErrorNofolderselected": {
+    "message": "No folder selected"
   }
 }

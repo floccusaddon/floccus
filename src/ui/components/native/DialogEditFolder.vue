@@ -14,6 +14,8 @@
         <v-text-field
           v-model="parentTitle"
           readonly
+          :error="Boolean(parentError)"
+          :error-messages="parentError"
           label="Parent folder"
           @click="onTriggerFolderChooser">
           <template #append>
@@ -75,6 +77,7 @@ export default {
       temporaryTitle: '',
       temporaryParent: null,
       displayFolderChooser: false,
+      parentError: null,
     }
   },
   computed: {
@@ -84,6 +87,17 @@ export default {
       }
       const folder = this.tree.findFolder(this.temporaryParent)
       return folder ? folder.title || this.t('LabelUntitledfolder') : ''
+    }
+  },
+  watch: {
+    temporaryParent() {
+      if (!this.tree.findFolder(this.temporaryParent)) {
+        this.parentError = this.t('ErrorNofolderselected')
+      } else if (this.folder && this.tree.findFolder(this.folder.id).findFolder(this.temporaryParent)) {
+        this.parentError = this.t('ErrorFolderloopselected')
+      } else {
+        this.parentError = null
+      }
     }
   },
   mounted() {
@@ -98,6 +112,9 @@ export default {
       this.displayFolderChooser = true
     },
     onSave() {
+      if (this.parentError) {
+        return
+      }
       this.$emit('save', {title: this.temporaryTitle, parentId: this.temporaryParent})
       this.$emit('update:display', false)
     }
