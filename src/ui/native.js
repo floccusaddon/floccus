@@ -12,18 +12,18 @@ import { Device } from '@capacitor/device'
 Vue.mixin(i18nPlugin)
 Vue.mixin(capacitor)
 
-const app = (global['Floccus'] = new Vue({
-  el: '#app',
-  router,
-  store,
-  vuetify,
-  render: (h) => h(App),
-}))
-
-Device.getLanguageCode()
+const app = Device.getLanguageCode()
   .then(({ value }) => {
     i18n.setLocales([value])
-    i18n.load()
-  })
+    await i18n.load()
+
+    global['Floccus'] = new Vue({
+      el: '#app',
+      router,
+      store,
+      vuetify,
+      render: (h) => h(App),
+    })
+})
 
 export default app
