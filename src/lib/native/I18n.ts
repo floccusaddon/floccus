@@ -25,7 +25,7 @@ export default class I18n {
   async load():Promise<void> {
     for (const locale of this.locales) {
       try {
-        this.messages = (await import(`../../../dist/_locales/${locale}.json`)).default
+        this.messages = (await import(`../../../dist/_locales/${locale.replace('-', '_')}.json`)).default
         this.locale = locale
         break
       } catch (error) {
