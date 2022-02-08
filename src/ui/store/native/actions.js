@@ -3,7 +3,6 @@ import { mutations } from './mutations'
 import Logger from '../../../lib/Logger'
 import AdapterFactory from '../../../lib/AdapterFactory'
 import Controller from '../../../lib/Controller'
-import { Http } from '@capacitor-community/http'
 import { Browser } from '@capacitor/browser'
 import { i18n } from '../../../lib/native/I18n'
 
@@ -150,8 +149,7 @@ export const actionsDefinition = {
   },
   async [actions.START_LOGIN_FLOW]({commit, dispatch, state}, rootUrl) {
     commit(mutations.SET_LOGIN_FLOW_STATE, true)
-    let res = await Http.request({
-      url: `${rootUrl}/index.php/login/v2`,
+    let res = await fetch(`${rootUrl}/index.php/login/v2`, {
       method: 'POST',
       headers: {'User-Agent': 'Floccus bookmarks sync'},
       responseType: 'json',
@@ -166,8 +164,7 @@ export const actionsDefinition = {
       await Browser.open({ url: json.login })
       do {
         await new Promise(resolve => setTimeout(resolve, 1000))
-        res = await Http.request({
-          url: json.poll.endpoint,
+        res = await fetch(json.poll.endpoint, {
           method: 'POST',
           headers: {'Content-type': 'application/x-www-form-urlencoded'},
           data: {token: json.poll.token},
