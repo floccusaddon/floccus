@@ -13,8 +13,6 @@ import {
   NetworkError, RedirectError,
   SlashError
 } from '../../errors/Error'
-import { Http } from '@capacitor-community/http'
-import { Device } from '@capacitor/device'
 
 export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {
@@ -120,15 +118,12 @@ export default class WebDavAdapter extends CachingAdapter {
     )
 
     try {
-      await Http.request({
-        url: fullUrl,
+      await fetch(fullUrl, {
         method: 'DELETE',
         headers: {
           Authorization: 'Basic ' + authString
         },
-        webFetchExtra: {
-          credentials: 'omit',
-        }
+        credentials: 'omit',
       })
     } catch (e) {
       Logger.log('Error Caught')
@@ -235,15 +230,6 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async uploadFile(url, content_type, data) {
-    const info = await Device.getInfo()
-    if (info.platform === 'web') {
-      return this.uploadFileWeb(url, content_type, data)
-    } else {
-      return this.uploadFileNative(url, content_type, data)
-    }
-  }
-
-  async uploadFileWeb(url, content_type, data) {
     let authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
@@ -274,43 +260,7 @@ export default class WebDavAdapter extends CachingAdapter {
     }
   }
 
-  async uploadFileNative(url, content_type, data) {
-    let authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
-    try {
-      var res = await Http.request({
-        url,
-        method: 'PUT',
-        headers: {
-          'Content-Type': content_type,
-          Authorization: 'Basic ' + authString
-        },
-        data
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-      throw new NetworkError()
-    }
-    if (res.status === 401 || res.status === 403) {
-      throw new AuthenticationError()
-    }
-    if (res.status >= 300) {
-      throw new HttpError(res.status, 'PUT')
-    }
-  }
-
   async downloadFile(url) {
-    const info = await Device.getInfo()
-    if (info.platform === 'web') {
-      return this.downloadFileWeb(url)
-    } else {
-      return this.downloadFileNative(url)
-    }
-  }
-
-  async downloadFileWeb(url) {
     let authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
@@ -341,37 +291,6 @@ export default class WebDavAdapter extends CachingAdapter {
     }
 
     return { status: res.status, data: await res.text() }
-  }
-
-  async downloadFileNative(fullURL) {
-    let res
-    let authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
-
-    try {
-      res = await Http.request({
-        url: fullURL,
-        method: 'GET',
-        headers: {
-          Authorization: 'Basic ' + authString
-        },
-        responseType: 'text'
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-      throw new NetworkError()
-    }
-
-    if (res.status === 401 || res.status === 403) {
-      throw new AuthenticationError()
-    }
-    if (res.status >= 300 && res.status !== 404) {
-      throw new HttpError(res.status, 'GET')
-    }
-
-    return res
   }
 }
 
