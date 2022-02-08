@@ -149,27 +149,18 @@ export const actionsDefinition = {
   },
   async [actions.START_LOGIN_FLOW]({commit, dispatch, state}, rootUrl) {
     commit(mutations.SET_LOGIN_FLOW_STATE, true)
-    let res = await fetch(`${rootUrl}/index.php/login/v2`, {
-      method: 'POST',
-      headers: {'User-Agent': 'Floccus bookmarks sync'},
-      responseType: 'json',
-    })
+    let res = await fetch(`${rootUrl}/index.php/login/v2`, {method: 'POST', headers: {'User-Agent': 'Floccus bookmarks sync'}})
     if (res.status !== 200 || !state.loginFlow.isRunning) {
       commit(mutations.SET_LOGIN_FLOW_STATE, false)
 
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }
-    let json = res.data
+    let json = await res.json()
     try {
       await Browser.open({ url: json.login })
       do {
         await new Promise(resolve => setTimeout(resolve, 1000))
-        res = await fetch(json.poll.endpoint, {
-          method: 'POST',
-          headers: {'Content-type': 'application/x-www-form-urlencoded'},
-          data: {token: json.poll.token},
-          responseType: 'json',
-        })
+        res = await fetch(json.poll.endpoint, { method: 'POST', body: `token=${json.poll.token}`, headers: {'Content-type': 'application/x-www-form-urlencoded'} })
       } while (res.status === 404 && state.loginFlow.isRunning)
       commit(mutations.SET_LOGIN_FLOW_STATE, false)
     } catch (e) {
@@ -179,7 +170,7 @@ export const actionsDefinition = {
     if (res.status !== 200) {
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }
-    json = res.data
+    json = await res.json()
     return {username: json.loginName, password: json.appPassword}
   },
   async [actions.STOP_LOGIN_FLOW]({commit}) {
