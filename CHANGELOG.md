@@ -1,5 +1,19 @@
 # Changelog
 
+## v4.10.0
+
+### New
+- Allow producing anonymized logs
+- [Android] Allow moving items and choosing parent upon creation
+- [Android] Allow Logs download
+- [Android] SendIntent: Allow receiving title + fix cold start intent
+
+### Fixes
+- Get rid of capacitor-community/http (Fixes many unforeseen sync problems both on Android and Desktop)
+- [Android] Clean up boilerplate clutter and update deps
+- Styles: Add more spacing between option entries
+- Fix load languages with hyphens (Thanks to @binsee)
+
 ## v4.9.0
 
 ### New
