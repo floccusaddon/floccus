@@ -6,31 +6,33 @@
     <div class="caption">
       {{ t('DescriptionDownloadlogs') }}
     </div>
-    <v-checkbox
-      v-model="anonymous"
-      :true-value="true"
-      :false-value="false"
-      :label="t('LabelAnonymizelogs')" />
-    <v-btn
-      small
-      class="mb-5"
-      @click="onGetLogs">
-      {{ t('LabelDownloadlogs') }}
-    </v-btn>
+    <v-row>
+      <v-col>
+        <v-btn
+          small
+          class="mb-5"
+          @click="onGetLogs(true)">
+          {{ t('LabelDownloadanonymizedlogs') }}
+        </v-btn>
+      </v-col>
+      <v-col>
+        <v-btn
+          small
+          class="mb-5"
+          @click="onGetLogs(false)">
+          {{ t('LabelDownloadlogs') }}
+        </v-btn>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
 <script>
 export default {
   name: 'OptionDownloadLogs',
-  data() {
-    return {
-      anonymous: true,
-    }
-  },
   methods: {
-    onGetLogs() {
-      this.$store.dispatch('DOWNLOAD_LOGS', this.anonymous)
+    onGetLogs(anonymous) {
+      this.$store.dispatch('DOWNLOAD_LOGS', anonymous)
     }
   }
 }
