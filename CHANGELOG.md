@@ -1,5 +1,10 @@
 # Changelog
 
+##v4.10.1
+
+### Fixes
+- [Android] Fix WebDAV and FaviconImage
+
 ## v4.10.0
 
 ### New
