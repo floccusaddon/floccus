@@ -4,6 +4,10 @@
 		"classpath": "com.byteowls.capacitor.oauth2.OAuth2ClientPlugin"
 	},
 	{
+		"pkg": "@capacitor-community/http",
+		"classpath": "com.getcapacitor.plugin.http.Http"
+	},
+	{
 		"pkg": "@capacitor/app",
 		"classpath": "com.capacitorjs.plugins.app.AppPlugin"
 	},
