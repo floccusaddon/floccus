@@ -430,7 +430,7 @@
     "message": "Make sure you give floccus permission to not only use the bookmarks app but the Nextcloud files app as well."
   },
   "DescriptionExtension": {
-    "message": "Sync your bookmarks across browsers via Nextcloud, WebDAV or Google Drive"
+    "message": "Sync your bookmarks privately across browsers and devices"
   },
   "LabelFailsafe": {
     "message": "Failsafe"
