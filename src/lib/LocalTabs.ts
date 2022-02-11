@@ -24,7 +24,7 @@ export default class LocalTabs implements IResource {
       title: '',
       id: 'tabs',
       location: ItemLocation.LOCAL,
-      children: uniq(tabs.map(t => t.windowId)).map(id => id as number).map(windowId => {
+      children: uniq(tabs.map(t => t.windowId)).map(windowId => {
         return new Folder({
           title: '',
           id: windowId,
@@ -44,11 +44,16 @@ export default class LocalTabs implements IResource {
 
   async createBookmark(bookmark:Bookmark): Promise<string|number> {
     Logger.log('(tabs)CREATE', bookmark)
+    if (bookmark.parentId === 'tabs') {
+      Logger.log('Parent is "tabs", ignoring this one.')
+      return
+    }
     const node = await this.queue.add(() =>
       browser.tabs.create({
         windowId: bookmark.parentId,
         url: bookmark.url,
-        discarded: true
+        // Only firefox allows discarded prop
+        ...(typeof browser.BookmarkTreeNodeType !== 'undefined' && {discarded: true})
       })
     )
     return node.id
@@ -56,6 +61,10 @@ export default class LocalTabs implements IResource {
 
   async updateBookmark(bookmark:Bookmark):Promise<void> {
     Logger.log('(tabs)UPDATE', bookmark)
+    if (bookmark.parentId === 'tabs') {
+      Logger.log('Parent is "tabs", ignoring this one.')
+      return
+    }
     await this.queue.add(() =>
       browser.tabs.update(bookmark.id, {
         url: bookmark.url
@@ -72,6 +81,10 @@ export default class LocalTabs implements IResource {
   async removeBookmark(bookmark:Bookmark): Promise<void> {
     const bookmarkId = bookmark.id
     Logger.log('(tabs)REMOVE', bookmark)
+    if (bookmark.parentId === 'tabs') {
+      Logger.log('Parent is "tabs", ignoring this one.')
+      return
+    }
     await this.queue.add(() => browser.tabs.remove(bookmarkId))
   }
 
