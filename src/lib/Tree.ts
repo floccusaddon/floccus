@@ -102,6 +102,12 @@ export class Bookmark {
     return null
   }
 
+  async map(type:TItemType, fn: (Item) => void): Promise<void> {
+    if (type === this.type) {
+      await fn(this)
+    }
+  }
+
   count():number {
     return 1
   }
@@ -223,6 +229,12 @@ export class Folder {
       if (item.type === 'folder') {
         await item.traverse(fn)
       }
+    })
+  }
+
+  async map(type:TItemType, fn: (Item) => void): Promise<void> {
+    await Parallel.each(Object.values(this.index[type]), async item => {
+      await fn(item)
     })
   }
 

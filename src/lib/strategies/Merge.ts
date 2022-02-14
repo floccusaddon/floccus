@@ -21,7 +21,9 @@ export default class MergeSyncProcess extends Default {
         return false
       },
       this.preserveOrder,
-      false
+      true,
+      () => undefined,
+      () => undefined,
     )
     const serverScanner = new Scanner(
       this.localTreeRoot,
@@ -34,7 +36,9 @@ export default class MergeSyncProcess extends Default {
         return false
       },
       this.preserveOrder,
-      false
+      true,
+      () => undefined,
+      () => undefined,
     )
     const [localDiff, serverDiff] = await Promise.all([localScanner.run(), serverScanner.run()])
     await Promise.all(newMappings.map(([localItem, serverItem]) => {
@@ -95,7 +99,9 @@ export default class MergeSyncProcess extends Default {
               return false
             },
             this.preserveOrder,
-            false
+            true,
+            (item) => undefined,
+            (item) => undefined,
           )
           await subScanner.run()
           newMappings.push([concurrentCreation.payload, action.payload.id])

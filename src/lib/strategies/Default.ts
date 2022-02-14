@@ -214,7 +214,10 @@ export default class SyncProcess {
       this.localTreeRoot,
       (oldItem, newItem) =>
         (oldItem.type === newItem.type && String(oldItem.id) === String(newItem.id)),
-      this.preserveOrder
+      this.preserveOrder,
+      true,
+      (item) => item.id,
+      (item) => item.id,
     )
     const serverScanner = new Scanner(
       this.cacheTreeRoot,
@@ -227,7 +230,10 @@ export default class SyncProcess {
         }
         return false
       },
-      this.preserveOrder
+      this.preserveOrder,
+      true,
+      (item) => mappingsSnapshot.LocalToServer[item.type][item.id],
+      (item) => mappingsSnapshot.ServerToLocal[item.type][item.id],
     )
     const [localDiff, serverDiff] = await Promise.all([localScanner.run(), serverScanner.run()])
     await Promise.all(newMappings.map(([localItem, serverItem]) => this.addMapping(this.server, localItem, serverItem.id)))
@@ -301,7 +307,9 @@ export default class SyncProcess {
               return false
             },
             this.preserveOrder,
-            false
+            true,
+            (item) => undefined,
+            (item) => undefined,
           )
           await subScanner.run()
           newMappings.push([concurrentCreation.payload, action.payload.id])
@@ -529,34 +537,29 @@ export default class SyncProcess {
 
       if (item instanceof Folder && ((action.payload instanceof Folder && action.payload.children.length) || (action.oldItem instanceof Folder && action.oldItem.children.length))) {
         if ('bulkImportFolder' in resource) {
+          let imported
           try {
             // Try bulk import
-            const imported = await resource.bulkImportFolder(item.id, (action.oldItem || action.payload) as Folder)
-            const newMappings = []
-            const subScanner = new Scanner(
-              item,
-              imported,
-              (oldItem, newItem) => {
-                if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
-                  // if two items can be merged, we'll add mappings here directly
-                  newMappings.push([oldItem, newItem.id])
-                  return true
-                }
-                return false
-              },
-              this.preserveOrder,
-              false,
-            )
-            await subScanner.run()
-            await Parallel.each(newMappings, async([oldItem, newId]) => {
-              await this.addMapping(resource, oldItem, newId)
-            })
-
-            this.updateProgress()
-            return
+            imported = await resource.bulkImportFolder(item.id, (action.oldItem || action.payload) as Folder)
           } catch (e) {
             Logger.log('Bulk import failed, continuing with normal creation', e)
           }
+          const importedItems = []
+          const oldItems = []
+          await imported.traverse((item) => {
+            importedItems.push(item)
+          })
+          await item.traverse((item) => {
+            oldItems.push(item)
+          })
+          if (importedItems.length !== oldItems.length) {
+            throw new Error('Failed assertion: Imported length and original items length do not match')
+          }
+          await Parallel.map(importedItems, async(item, index) => {
+            await this.addMapping(resource, oldItems[index], item)
+          })
+          this.updateProgress()
+          return
         }
 
         // Create a sub plan
