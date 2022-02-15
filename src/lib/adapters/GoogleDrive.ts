@@ -155,6 +155,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       password: '',
       refreshToken: null,
       bookmark_file: 'bookmarks.xbel',
+      allowNetwork: false,
     }
   }
 

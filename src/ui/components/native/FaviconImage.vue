@@ -20,6 +20,10 @@ export default {
     url: {
       type: String,
       required: true,
+    },
+    useNetwork: {
+      type: Boolean,
+      required: true,
     }
   },
   data() {
@@ -28,6 +32,9 @@ export default {
     }
   },
   async created() {
+    if (!this.useNetwork) {
+      return
+    }
     await new Promise(resolve => setTimeout(resolve, Math.random() * 400))
     const key = `favicons[${this.url}]`
     const {value: cachedFavicon} = await Storage.get({key})

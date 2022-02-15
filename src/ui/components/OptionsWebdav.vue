@@ -61,6 +61,22 @@
       </v-card-text>
     </v-card>
 
+    <v-card
+      v-if="!isBrowser"
+      class="mb-4">
+      <v-card-title
+        id="mobile"
+        class="text-h5">
+        <v-icon>mdi-cellphone-settings</v-icon>
+        {{ t('LabelMobilesettings') }}
+      </v-card-title>
+      <v-card-text>
+        <OptionAllowNetwork
+          :value="allowNetwork"
+          @input="$emit('update:allowNetwork', $event)" />
+      </v-card-text>
+    </v-card>
+
     <v-card class="mb-4">
       <v-card-title
         id="sync"
@@ -121,11 +137,12 @@ import OptionFailsafe from './OptionFailsafe'
 import OptionClientCert from './OptionClientCert'
 import OptionAllowRedirects from './OptionAllowRedirects'
 import OptionDownloadLogs from './OptionDownloadLogs'
+import OptionAllowNetwork from './native/OptionAllowNetwork'
 
 export default {
   name: 'OptionsWebdav',
-  components: { OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects'],
+  components: { OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
+  props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects'],
   data() {
     return {
       panels: [0, 1],

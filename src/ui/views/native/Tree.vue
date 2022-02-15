@@ -79,7 +79,8 @@
               </v-icon>
               <FaviconImage
                 v-else
-                :url="item.url" />
+                :url="item.url"
+                :use-network="useNetwork" />
             </v-list-item-avatar>
 
             <v-list-item-content>
@@ -260,6 +261,12 @@ export default {
         return false
       }
       return this.$store.state.accounts[this.id].data.error
+    },
+    useNetwork() {
+      if (this.loading) {
+        return false
+      }
+      return this.$store.state.accounts[this.id].data.allowNetwork
     },
     items() {
       if (!this.currentFolder) {

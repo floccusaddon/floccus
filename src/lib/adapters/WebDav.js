@@ -32,6 +32,7 @@ export default class WebDavAdapter extends CachingAdapter {
       includeCredentials: false,
       allowRedirects: false,
       passphrase: '',
+      allowNetwork: false,
     }
   }
 

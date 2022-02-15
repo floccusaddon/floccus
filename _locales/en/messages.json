@@ -524,5 +524,14 @@
   },
   "ErrorNofolderselected": {
     "message": "No folder selected"
+  },
+  "LabelAllownetwork": {
+    "message": "Allow network usage"
+  },
+  "DescriptionAllownetwork": {
+    "message": "Floccus can use the network apart from connecting to your sync server, to obtain additional information about your bookmarks (like icons, etc.). Here you can enable such network usage."
+  },
+  "LabelMobilesettings": {
+    "message": "Mobile settings"
   }
 }

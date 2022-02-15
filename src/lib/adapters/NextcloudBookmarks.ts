@@ -40,6 +40,7 @@ export interface NextcloudBookmarksConfig {
   serverRoot?: string
   includeCredentials?: boolean
   allowRedirects?: boolean
+  allowNetwork?: boolean
 }
 
 interface IChildFolder {
@@ -85,7 +86,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       password: 's3cret',
       serverRoot: '',
       includeCredentials: false,
-      allowRedirects: false
+      allowRedirects: false,
+      allowNetwork: false,
     }
   }
 
