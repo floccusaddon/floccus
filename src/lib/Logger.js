@@ -42,7 +42,7 @@ export default class Logger {
           const hash2 = await Crypto.sha256(p2)
           return '[' + hash1 + ']' + '(' + hash2 + ')'
         } else if (p3) {
-          const hash = await Crypto.sha256(p2)
+          const hash = await Crypto.sha256(p3)
           return '[' + hash + ']'
         }
       })
