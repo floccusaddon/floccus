@@ -747,7 +747,7 @@ describe('Floccus', function() {
             )
           })
           it('should deduplicate unnormalized URLs without getting stuck', async function() {
-            if (ACCOUNT_DATA.type !== 'nextcloud-bookmarks' || (APP_VERSION !== 'stable' && APP_VERSION !== 'master' && APP_VERSION !== 'stable3')) {
+            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && (APP_VERSION !== 'stable' && APP_VERSION !== 'master' && APP_VERSION !== 'stable3')) {
               this.skip()
             }
             expect(
@@ -1503,9 +1503,6 @@ describe('Floccus', function() {
           it('should move items without creating a folder loop', async function() {
             if (APP_VERSION !== 'stable' && APP_VERSION !== 'master') {
               this.skip()
-            }
-            if (ACCOUNT_DATA.noCache) {
-              return this.skip()
             }
             const localRoot = account.getData().localRoot
 
