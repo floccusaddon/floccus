@@ -54,6 +54,19 @@ export default class Scanner {
       this.diff.commit({type: ActionType.UPDATE, payload: newFolder, oldItem: oldFolder})
     }
 
+    if (oldFolder.children.length === newFolder.children.length) {
+      const mergableChildren = newFolder.children.filter((newChild, index) => oldFolder.children[index].type === newChild.type && this.mergeable(oldFolder.children[index], newChild))
+      if (mergableChildren.length !== newFolder.children.length) {
+        this.diff.commit({
+          type: ActionType.REORDER,
+          payload: newFolder,
+          order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
+        })
+      } else {
+        return
+      }
+    }
+
     // Preserved Items and removed Items
     // (using map here, because 'each' doesn't provide indices)
     await Parallel.map(oldFolder.children, async(old, index) => {
@@ -78,15 +91,6 @@ export default class Scanner {
 
     if (childrenDiff > 0) {
       if (newFolder.children.length > 1) {
-        this.diff.commit({
-          type: ActionType.REORDER,
-          payload: newFolder,
-          order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
-        })
-      }
-    } else {
-      const mergableChildren = newFolder.children.filter((newChild, index) => oldFolder.children[index].type === newChild.type && this.mergeable(oldFolder.children[index], newChild))
-      if (mergableChildren.length !== newFolder.children.length) {
         this.diff.commit({
           type: ActionType.REORDER,
           payload: newFolder,
