@@ -45,6 +45,9 @@ export default class Scanner {
       if (!hasChanged) {
         return
       }
+    } else if (!oldFolder.loaded || !newFolder.loaded) {
+      // Assume, that if the folder was not loaded, everything is still the same
+      return
     }
 
     let childrenDiff = 0
