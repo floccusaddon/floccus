@@ -11,11 +11,21 @@
       </div>
     </template>
     <template v-else>
-      <AccountCard
-        v-for="account in accountData"
-        :key="account.id"
-        :account="account"
-        class="mb-3" />
+      <template v-for="account in accountData">
+        <AccountCard
+          v-if="account.data.enabled"
+          :key="account.id"
+          :account="account"
+          class="mb-3" />
+      </template>
+      <template v-for="account in accountData">
+        <!-- Sort disabled accounts last -->
+        <AccountCard
+          v-if="!account.data.enabled"
+          :key="account.id"
+          :account="account"
+          class="mb-3" />
+      </template>
       <v-container
         v-if="!Object.keys(accountData).length"
         class="mt-12 pt-12"
