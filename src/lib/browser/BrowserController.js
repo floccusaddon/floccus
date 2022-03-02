@@ -377,7 +377,7 @@ export default class BrowserController {
           await acc.setData({
             ...acc.getData(),
             syncing: false,
-            error: browser.i18n.getMessage('Error027')
+            error: false,
           })
           // reset cache after interrupted sync
           await acc.init()

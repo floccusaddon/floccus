@@ -251,7 +251,7 @@ export default class NativeController {
           await acc.setData({
             ...acc.getData(),
             syncing: false,
-            error: i18n.getMessage('Error027')
+            error: false,
           })
         }
       })
