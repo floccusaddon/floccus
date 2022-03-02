@@ -4,7 +4,6 @@ import NativeTree from './NativeTree'
 import Cryptography from '../Crypto'
 import packageJson from '../../../package.json'
 import NativeAccountStorage from './NativeAccountStorage'
-import {i18n} from './I18n'
 import _ from 'lodash'
 
 import PQueue from 'p-queue'
