@@ -379,8 +379,6 @@ export default class BrowserController {
             syncing: false,
             error: false,
           })
-          // reset cache after interrupted sync
-          await acc.init()
         }
       })
     )
