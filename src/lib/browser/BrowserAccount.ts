@@ -11,7 +11,6 @@ import {
   ParseResponseError,
   UnknownFolderItemOrderError
 } from '../../errors/Error'
-import Logger from '../Logger'
 import {i18n} from '../native/I18n'
 
 export default class BrowserAccount extends Account {
@@ -100,9 +99,12 @@ export default class BrowserAccount extends Account {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))
     }
     if (er.list) {
+      if (er.list[0].code === 27) {
+        // Do not spam log with E027 (interrupted sync)
+        return this.stringifyError(er.list[0])
+      }
       return (await Promise.all(er.list
         .map((e) => {
-          Logger.log(e)
           return this.stringifyError(e)
         })))
         .join('\n')

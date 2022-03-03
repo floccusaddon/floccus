@@ -253,7 +253,10 @@ export default class Account {
       }
 
       // reset cache and mappings after error
-      await this.init()
+      // (but not after interruption)
+      if (e.code !== 27 && e.list[0].code !== 27) {
+        await this.init()
+      }
     }
     await Logger.persist()
   }
