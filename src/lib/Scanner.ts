@@ -48,8 +48,6 @@ export default class Scanner {
       }
     }
 
-    let childrenDiff = 0
-
     if (oldFolder.title !== newFolder.title && oldFolder.parentId && newFolder.parentId) {
       // folder title changed and it's not the root folder
       this.diff.commit({type: ActionType.UPDATE, payload: newFolder, oldItem: oldFolder})
@@ -65,7 +63,6 @@ export default class Scanner {
       }
 
       this.diff.commit({type: ActionType.REMOVE, payload: old, index})
-      childrenDiff++
     }, 1)
 
     // created Items
@@ -73,7 +70,6 @@ export default class Scanner {
     await Parallel.map(newFolder.children, async(newChild, index) => {
       if (!oldFolder.children.some(old => old.type === newChild.type && this.mergeable(old, newChild))) {
         this.diff.commit({type: ActionType.CREATE, payload: newChild, index})
-        childrenDiff++
       }
     }, 1)
 
