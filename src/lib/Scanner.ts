@@ -7,13 +7,14 @@ export default class Scanner {
   private newTree: TItem
   private mergeable: (i1: TItem, i2: TItem) => boolean
   private preserveOrder: boolean
-  private checkHashes = false
+  private checkHashes: boolean
   private diff: Diff
   constructor(oldTree:TItem, newTree:TItem, mergeable:(i1:TItem, i2:TItem)=>boolean, preserveOrder:boolean, checkHashes = true) {
     this.oldTree = oldTree
     this.newTree = newTree
     this.mergeable = mergeable
     this.preserveOrder = preserveOrder
+    this.checkHashes = typeof checkHashes === 'undefined' ? true : checkHashes
     this.diff = new Diff()
   }
 
@@ -76,23 +77,12 @@ export default class Scanner {
       }
     }, 1)
 
-    if (childrenDiff > 0) {
-      if (newFolder.children.length > 1) {
-        this.diff.commit({
-          type: ActionType.REORDER,
-          payload: newFolder,
-          order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
-        })
-      }
-    } else {
-      const mergableChildren = newFolder.children.filter((newChild, index) => oldFolder.children[index].type === newChild.type && this.mergeable(oldFolder.children[index], newChild))
-      if (mergableChildren.length !== newFolder.children.length) {
-        this.diff.commit({
-          type: ActionType.REORDER,
-          payload: newFolder,
-          order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
-        })
-      }
+    if (newFolder.children.length > 1) {
+      this.diff.commit({
+        type: ActionType.REORDER,
+        payload: newFolder,
+        order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
+      })
     }
   }
 
