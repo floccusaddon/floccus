@@ -254,7 +254,7 @@ export default class Account {
 
       // reset cache and mappings after error
       // (but not after interruption)
-      if (e.code !== 27 && e.list[0].code !== 27) {
+      if (e.code !== 27 && e.list && e.list[0].code !== 27) {
         await this.init()
       }
     }
