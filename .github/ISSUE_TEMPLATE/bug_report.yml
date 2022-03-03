@@ -1,0 +1,82 @@
+name: Bug Report
+description: Create a bug report for floccus
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to file a bug report! Please fill out this form as completely as possible.
+  - type: markdown
+    attributes:
+      value: If you leave out sections there is a high likelihood it will be moved to the GitHub Discussions.
+  - type: input
+    attributes:
+      label: Which version of floccus are you using?
+      description: 'Please specify the exact version. For example: Chrome 100.0.4878.0'
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Sync method
+      description: Which sync method are you using?
+      multiple: false
+      options:
+        - label: Nextcloud Bookmarks
+        - label: WebDAV
+        - label: Google Drive
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Which browser are you using?
+      description: 'Please specify the exact version. For example: Chrome 100.0.4878.0'
+  - type: input
+    attributes:
+      label: Which version of Nextcloud Bookmarks are you using? (if relevant)
+      description: 'For example: v10.1.0'
+  - type: input
+    attributes:
+      label: Which version of Nextcloud? (if relevant)
+      description: 'For example: v23.0.1'
+  - type: textarea
+    attributes:
+      label: What kind of WebDAV server are you using? (if relevant)
+      description: Describe the setup of your WebDAV server
+  - type: textarea
+    attributes:
+      label: Describe the Bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: To Reproduce
+      description: Steps to reproduce the behavior, please provide a clear number of steps that always reproduces the issue. Screenshots can be provided in the issue body below.
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Before posting the issue go through the steps you've written down to make sure the steps provided are detailed and clear.
+  - type: markdown
+    attributes:
+      value: Contributors should be able to follow the steps provided in order to reproduce the bug.
+  - type: markdown
+    attributes:
+      value: It is often useful to provide a debug log file along with the issue. You can obtain a debug log of the most recent sync run in the account settings of your floccus account.
+  - type: markdown
+    attributes:
+      value: 'Note: As your debug log usually contains large parts of your bookmark data, instead of attaching it publicly to the issue here, I recommend uploading it privately at the following URL https://cloud.marcelklehr.de/s/PCi3iLWrzdMZSmw'
+  - type: markdown
+    attributes:
+      value: You can also let floccus automatically redact your debug logs.
+  - type: checkboxes
+    attributes:
+      label: Debug log provided
+      options:
+        - label: I have provided a debug log file
+          required: false
