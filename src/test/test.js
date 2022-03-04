@@ -3819,6 +3819,7 @@ describe('Floccus', function() {
           }
         })
         afterEach('clean up accounts', async function() {
+          RUN_INTERRUPTS = false
           await browser.bookmarks.removeTree(account1.getData().localRoot)
           if (ACCOUNT_DATA.type !== 'fake') {
             await account1.setData({
@@ -3846,8 +3847,6 @@ describe('Floccus', function() {
           await account1.delete()
           await browser.bookmarks.removeTree(account2.getData().localRoot)
           await account2.delete()
-
-          RUN_INTERRUPTS = false
         })
 
         it('should handle deep hierarchies with lots of bookmarks', async function() {
