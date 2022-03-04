@@ -36,7 +36,9 @@ jobs:
           - nextcloud-bookmarks
           - nextcloud-bookmarks-old
           - webdav
+          - webdav-encrypted
           - google-drive
+          - google-drive-encrypted
         test-name:
           - test
           - benchmark root

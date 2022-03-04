@@ -63,6 +63,13 @@ describe('Floccus', function() {
       ...CREDENTIALS
     },
     {
+      type: 'webdav',
+      url: `${SERVER}/remote.php/webdav/`,
+      bookmark_file: 'bookmarks.xbel',
+      passphrase: random.int(),
+      ...CREDENTIALS
+    },
+    {
       type: 'google-drive',
       bookmark_file: random.float() + '.xbel',
       password: '',
@@ -3759,7 +3766,14 @@ describe('Floccus', function() {
   })
 
   ACCOUNTS.forEach(ACCOUNT_DATA => {
-    describe(`${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs ? '-old' : ACCOUNT_DATA.noCache ? '-noCache' : ''} benchmark ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'}`, function() {
+    describe(`${ACCOUNT_DATA.type}${
+      ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs
+        ? '-old'
+        : ACCOUNT_DATA.noCache
+          ? '-noCache'
+          : ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase))
+            ? '-encrypted'
+            : ''} benchmark ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'}`, function() {
       context('with two clients', function() {
         this.timeout(120 * 60000) // timeout after 2h
         let account1, account2, RUN_INTERRUPTS = false
