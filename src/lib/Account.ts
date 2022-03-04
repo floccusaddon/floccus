@@ -254,7 +254,7 @@ export default class Account {
 
       // reset cache and mappings after error
       // (but not after interruption)
-      if (e.code !== 27 && e.list && e.list[0].code !== 27) {
+      if (matchAllErrors(e, e => e.code !== 27)) {
         await this.init()
       }
     }
@@ -280,4 +280,8 @@ export default class Account {
   static async getAccountsContainingLocalId(localId:string, ancestors:string[], allAccounts:Account[]):Promise<Account[]> {
     return (await this.getAccountClass()).getAccountsContainingLocalId(localId, ancestors, allAccounts)
   }
+}
+
+function matchAllErrors(e, fn:(e)=>boolean) {
+  return fn(e) && e.list && e.list.all(e => matchAllErrors(e, fn))
 }
