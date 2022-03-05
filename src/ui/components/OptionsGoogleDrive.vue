@@ -139,7 +139,7 @@ export default {
     return {
       panels: [0, 1],
       authorized: false,
-      showPassphrase: true,
+      showPassphrase: false,
     }
   },
   methods: {
