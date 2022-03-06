@@ -283,5 +283,5 @@ export default class Account {
 }
 
 function matchAllErrors(e, fn:(e)=>boolean) {
-  return fn(e) && e.list && e.list.all(e => matchAllErrors(e, fn))
+  return fn(e) && e.list && e.list.every(e => matchAllErrors(e, fn))
 }
