@@ -3781,7 +3781,7 @@ describe('Floccus', function() {
         let i = 0
         const setInterrupt = () => {
           if (!timeouts.length) {
-            timeouts = new Array(1000).fill(0).map(x => random.int(1000, 20000))
+            timeouts = new Array(1000).fill(0).map(x => random.int(1000, 35000))
           }
           const timeout = timeouts[(i++) % 1000]
           if (RUN_INTERRUPTS) {
