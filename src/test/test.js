@@ -150,7 +150,7 @@ describe('Floccus', function() {
         expect(await account.isInitialized()).to.be.false
       })
     })
-    describe(`${stringifyAccountData(ACCOUNT_DATA)}} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Sync`,
+    describe(`${stringifyAccountData(ACCOUNT_DATA)} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Sync`,
       function() {
         context('with one client', function() {
           let account
