@@ -118,42 +118,39 @@ describe('Floccus', function() {
   })
 
   ACCOUNTS.forEach(ACCOUNT_DATA => {
-    describe(
-      `${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs ? '-old' : ACCOUNT_DATA.noCache ? '-noCache' : ''} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`,
-      function() {
-        let account
-        beforeEach('set up account', async function() {
-          account = await Account.create(ACCOUNT_DATA)
-        })
-        afterEach('clean up account', async function() {
-          if (account) {
-            let localRoot = account.getData().localRoot
-            if (localRoot) await browser.bookmarks.removeTree(localRoot)
-            await account.delete()
-          }
-        })
-        it('should create an account', async function() {
-          const secondInstance = await Account.get(account.id)
-          expect(secondInstance.getData()).to.deep.equal(account.getData())
-        })
-        it('should save and restore an account', async function() {
-          await account.setData(ACCOUNT_DATA)
-          expect(account.getData()).to.deep.equal({...account.getData(), ...ACCOUNT_DATA})
-
-          const secondInstance = await Account.get(account.id)
-          expect(secondInstance.getData()).to.deep.equal({...secondInstance.getData(), ...ACCOUNT_DATA})
-        })
-        it('should delete an account', async function() {
-          await account.delete()
-          expect(Account.get(account.id)).to.be.rejected
-          account = null // so afterEach notices it's deleted already
-        })
-        it('should not be initialized upon creation', async function() {
-          expect(await account.isInitialized()).to.be.false
-        })
+    describe(`${stringifyAccountData(ACCOUNT_DATA)} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Account`, function() {
+      let account
+      beforeEach('set up account', async function() {
+        account = await Account.create(ACCOUNT_DATA)
       })
-    describe(
-      `${ACCOUNT_DATA.type}${ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs ? '-old' : ACCOUNT_DATA.noCache ? '-noCache' : ''} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Sync`,
+      afterEach('clean up account', async function() {
+        if (account) {
+          let localRoot = account.getData().localRoot
+          if (localRoot) await browser.bookmarks.removeTree(localRoot)
+          await account.delete()
+        }
+      })
+      it('should create an account', async function() {
+        const secondInstance = await Account.get(account.id)
+        expect(secondInstance.getData()).to.deep.equal(account.getData())
+      })
+      it('should save and restore an account', async function() {
+        await account.setData(ACCOUNT_DATA)
+        expect(account.getData()).to.deep.equal({...account.getData(), ...ACCOUNT_DATA})
+
+        const secondInstance = await Account.get(account.id)
+        expect(secondInstance.getData()).to.deep.equal({...secondInstance.getData(), ...ACCOUNT_DATA})
+      })
+      it('should delete an account', async function() {
+        await account.delete()
+        expect(Account.get(account.id)).to.be.rejected
+        account = null // so afterEach notices it's deleted already
+      })
+      it('should not be initialized upon creation', async function() {
+        expect(await account.isInitialized()).to.be.false
+      })
+    })
+    describe(`${stringifyAccountData(ACCOUNT_DATA)}} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Sync`,
       function() {
         context('with one client', function() {
           let account
@@ -3884,14 +3881,7 @@ describe('Floccus', function() {
   })
 
   ACCOUNTS.forEach(ACCOUNT_DATA => {
-    describe(`${ACCOUNT_DATA.type}${
-      ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs
-        ? '-old'
-        : ACCOUNT_DATA.noCache
-          ? '-noCache'
-          : ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase))
-            ? '-encrypted'
-            : ''} benchmark ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'}`, function() {
+    describe(`${stringifyAccountData(ACCOUNT_DATA)} benchmark ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'}`, function() {
       context('with two clients', function() {
         this.timeout(120 * 60000) // timeout after 2h
         let account1, account2, RUN_INTERRUPTS = false
@@ -5780,4 +5770,15 @@ async function syncAccountWithInterrupts(account) {
       await syncAccountWithInterrupts(account)
     }
   }
+}
+
+function stringifyAccountData(ACCOUNT_DATA) {
+  return `${ACCOUNT_DATA.type}${
+    ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs
+      ? '-old'
+      : ACCOUNT_DATA.noCache
+        ? '-noCache'
+        : ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase))
+          ? '-encrypted'
+          : ''}`
 }
