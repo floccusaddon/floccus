@@ -253,8 +253,8 @@ export default class Account {
       }
 
       // reset cache and mappings after error
-      // (but not after interruption)
-      if (matchAllErrors(e, e => e.code !== 27)) {
+      // (but not after interruption or NetworkError)
+      if (matchAllErrors(e, e => e.code !== 27 && e.code !== 17)) {
         await this.init()
       }
     }
