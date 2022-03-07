@@ -4820,6 +4820,9 @@ describe('Floccus', function() {
         })
 
         it('should handle fuzzed changes with deletions from two clients with interrupts', async function() {
+          if (ACCOUNT_DATA.type.includes('nextcloud')) {
+            return this.skip()
+          }
           const localRoot = account1.getData().localRoot
           let bookmarks1 = []
           let folders1 = []
