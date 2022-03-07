@@ -349,10 +349,10 @@ export default class SyncProcess {
           // target already deleted by a target|source REMOVE (connected via source MOVE|CREATEs)
           if (!concurrentTargetOriginRemoval && !concurrentSourceOriginRemoval) {
             // make sure this item is not already being removed, when it's no longer moved
-            if (targetLocation === this.masterLocation) {
-              targetPlan.commit({ ...action, type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
-              avoidTargetReorders[action.payload.id] = true
-            }
+            // if (targetLocation === this.masterLocation) {
+            targetPlan.commit({ ...action, type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
+            avoidTargetReorders[action.payload.id] = true
+            // }
           }
           return
         }
@@ -376,9 +376,9 @@ export default class SyncProcess {
             const newPayload = action.payload.clone()
             if (newPayload.type === ItemType.FOLDER) {
               newPayload.traverse((item, folder) => {
-                const extracted = sourceRemovals.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload)) ||
-                  sourceMoves.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload))
-                if (extracted) {
+                const removed = sourceRemovals.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload))
+                const movedAway = sourceMoves.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload))
+                if (removed || (movedAway && Mappings.mapParentId(mappingsSnapshot, movedAway.payload, item.location) !== item.parentId)) {
                   folder.children.splice(folder.children.indexOf(item), 1)
                 }
               })

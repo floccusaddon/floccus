@@ -3543,6 +3543,124 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
           })
+          it('should handle complex move-remove interactions', async function() {
+            const localRoot = account1.getData().localRoot
+            const zFolder = await browser.bookmarks.create({
+              title: 'z',
+              parentId: localRoot
+            })
+            const aFolder = await browser.bookmarks.create({
+              title: 'a',
+              parentId: zFolder.id
+            })
+            const bFolder = await browser.bookmarks.create({
+              title: 'b',
+              parentId: localRoot
+            })
+            const cFolder = await browser.bookmarks.create({
+              title: 'c',
+              parentId: localRoot
+            })
+            await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: aFolder.id
+            })
+            const bookmark2 = await browser.bookmarks.create({
+              title: 'urlalala',
+              url: 'http://ur.la/',
+              parentId: bFolder.id
+            })
+            const tree1 = await account1.localTree.getBookmarksTree(true)
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+            await account2.sync()
+            expect(account1.getData().error).to.not.be.ok
+
+            const serverTreeAfterFirstSync = await getAllBookmarks(account1)
+
+            const tree1AfterFirstSync = await account1.localTree.getBookmarksTree(
+              true
+            )
+            const tree2AfterFirstSync = await account2.localTree.getBookmarksTree(
+              true
+            )
+            expectTreeEqual(
+              tree1AfterFirstSync,
+              tree1,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            serverTreeAfterFirstSync.title = tree1.title
+            expectTreeEqual(
+              serverTreeAfterFirstSync,
+              tree1,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            tree2AfterFirstSync.title = tree1.title
+            expectTreeEqual(
+              tree2AfterFirstSync,
+              tree1,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            console.log('First round ok')
+
+            const newFolder = await browser.bookmarks.create({
+              title: 'new',
+              parentId: aFolder.id
+            })
+            await browser.bookmarks.move(bookmark2.id, {parentId: newFolder.id})
+            await browser.bookmarks.move(aFolder.id, {parentId: bFolder.id})
+            await browser.bookmarks.move(zFolder.id, {parentId: cFolder.id})
+
+            // ---
+
+            const tree2 = await account2.localTree.getBookmarksTree(true)
+
+            await browser.bookmarks.removeTree(tree2.children.find(i => i.title === 'z').id)
+
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+
+            const serverTreeAfterThirdSync = await getAllBookmarks(account1)
+
+            const tree1AfterThirdSync = await account1.localTree.getBookmarksTree(
+              true
+            )
+
+            serverTreeAfterThirdSync.title = tree1AfterThirdSync.title
+            expectTreeEqual(
+              serverTreeAfterThirdSync,
+              tree1AfterThirdSync,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+
+            console.log('Second round second half ok')
+
+            console.log('acc2: final sync')
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+
+            const serverTreeAfterFinalSync = await getAllBookmarks(account1)
+
+            const tree2AfterFinalSync = await account2.localTree.getBookmarksTree(
+              true
+            )
+            tree2AfterFinalSync.title = serverTreeAfterFinalSync.title
+            expectTreeEqual(
+              serverTreeAfterFinalSync,
+              tree2AfterFinalSync,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            tree1AfterThirdSync.title = tree2AfterFinalSync.title
+            expectTreeEqual(
+              tree2AfterFinalSync,
+              tree1AfterThirdSync,
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+          })
           it('should synchronize ordering', async function() {
             if (ACCOUNT_DATA.type === 'nextcloud-legacy') return this.skip()
             expect(
