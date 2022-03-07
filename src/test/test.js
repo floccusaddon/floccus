@@ -3902,14 +3902,14 @@ describe('Floccus', function() {
             timeouts = new Array(1000).fill(0).map(x => random.int(1000, 35000))
           }
           const timeout = timeouts[(i++) % 1000]
-          if (RUN_INTERRUPTS) {
-            setTimeout(() => {
+          setTimeout(() => {
+            if (RUN_INTERRUPTS) {
               console.log('INTERRUPT! (after ' + timeout + ')')
               account1.cancelSync()
               account2.cancelSync()
               setInterrupt()
-            }, timeout)
-          }
+            }
+          }, timeout)
         }
 
         beforeEach('set up accounts', async function() {
