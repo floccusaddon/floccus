@@ -84,7 +84,7 @@ export default class WebDavAdapter extends CachingAdapter {
   async obtainLock() {
     let rStatus
     const startDate = Date.now()
-    const maxTimeout = 30 * 60 * 1000 // Give up after 0.5h
+    const maxTimeout = 15 * 60 * 1000 // Give up after 0.25h
     const base = 1.25
     for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
       rStatus = await this.checkLock()
