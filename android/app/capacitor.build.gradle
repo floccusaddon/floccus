@@ -17,6 +17,7 @@ dependencies {
     implementation project(':capacitor-share')
     implementation project(':capacitor-splash-screen')
     implementation project(':capacitor-storage')
+    implementation project(':robingenz-capacitor-android-dark-mode-support')
     implementation project(':send-intent')
 
 }
