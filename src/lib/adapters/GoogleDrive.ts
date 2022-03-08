@@ -177,7 +177,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     let file
     const startDate = Date.now()
-    const maxTimeout = 30 * 60 * 1000 // Give up after 0.5h
+    const maxTimeout = 15 * 60 * 1000 // Give up after 0.25h
     const base = 1.25
     for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
       const fileList = await this.listFiles('name = ' + "'" + this.server.bookmark_file + "'")
