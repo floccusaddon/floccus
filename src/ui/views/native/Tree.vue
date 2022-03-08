@@ -183,12 +183,14 @@
       :is-new="true"
       :display.sync="isAddingBookmark"
       :tree="tree"
+      :parent-folder="currentFolderId"
       @save="createBookmark($event)" />
     <DialogEditFolder
       v-if="isAddingFolder"
       :is-new="true"
       :display.sync="isAddingFolder"
       :tree="tree"
+      :parent-folder="currentFolderId"
       @save="createFolder($event)" />
     <DialogEditBookmark
       v-if="isEditingBookmark"

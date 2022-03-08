@@ -70,6 +70,10 @@ export default {
     tree: {
       type: Object,
       required: true,
+    },
+    parentFolder: {
+      type: Number,
+      default: -1
     }
   },
   data() {
@@ -103,6 +107,7 @@ export default {
   mounted() {
     this.temporaryTitle = this.folder.title || ''
     const parentFolder = this.tree.findFolder(this.folder.parentId) ||
+        this.tree.findFolder(this.parentFolder) ||
         this.tree.findFolder(this.$store.state.lastFolders[this.$route.params.accountId]) ||
         this.tree.findFolder(this.tree.id)
     this.temporaryParent = parentFolder.id

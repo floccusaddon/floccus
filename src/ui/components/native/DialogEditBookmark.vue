@@ -73,6 +73,10 @@ export default {
     tree: {
       type: Object,
       required: true,
+    },
+    parentFolder: {
+      type: Number,
+      default: -1
     }
   },
   data() {
@@ -113,6 +117,7 @@ export default {
     this.temporaryTitle = this.bookmark.title || ''
     this.temporaryUrl = this.bookmark.url || ''
     const parentFolder = this.tree.findFolder(this.bookmark.parentId) ||
+        this.tree.findFolder(this.parentFolder) ||
         this.tree.findFolder(this.$store.state.lastFolders[this.$route.params.accountId]) ||
         this.tree.findFolder(this.tree.id)
     this.temporaryParent = parentFolder.id
