@@ -18,16 +18,16 @@ describe('Floccus', function() {
   this.timeout(60000) // no test should run longer than 60s
   this.slow(20000) // 20s is slow
 
+  const params = (new URL(window.location.href)).searchParams
   let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION, SEED
   SERVER =
-    (new URL(window.location.href)).searchParams.get('server') ||
+    params.get('server') ||
     'http://localhost'
   CREDENTIALS = {
     username: 'admin',
-    password: (new URL(window.location.href)).searchParams.get('password') || 'admin'
+    password: params.get('password') || 'admin'
   }
-  APP_VERSION = (new URL(window.location.href)).searchParams.get('app_version') ||
-    'stable'
+  APP_VERSION = params.get('app_version') || 'stable'
 
   SEED = (new URL(window.location.href)).searchParams.get('seed') || Math.random() + ''
   console.log('RANDOMNESS SEED', SEED)
@@ -66,7 +66,7 @@ describe('Floccus', function() {
       type: 'webdav',
       url: `${SERVER}/remote.php/webdav/`,
       bookmark_file: 'bookmarks.xbel',
-      passphrase: random.int(),
+      passphrase: random.float(),
       ...CREDENTIALS
     },
     {
@@ -78,7 +78,7 @@ describe('Floccus', function() {
     {
       type: 'google-drive',
       bookmark_file: random.float() + '.xbel',
-      password: random.int(),
+      password: random.float(),
       refreshToken: CREDENTIALS.password,
     },
   ]
