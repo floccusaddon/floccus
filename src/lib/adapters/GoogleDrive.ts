@@ -176,13 +176,16 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     this.accessToken = await GoogleDriveAdapter.getAccessToken(this.server.refreshToken)
 
     let file
-    const startDate = Date.now()
+    let startDate = Date.now()
     const maxTimeout = 15 * 60 * 1000 // Give up after 0.25h
     const base = 1.25
     for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
       const fileList = await this.listFiles('name = ' + "'" + this.server.bookmark_file + "'")
       file = fileList.files.filter(file => !file.trashed)[0]
       if (file && file['appProperties.locked']) {
+        if (Boolean(file['appProperties.locked']) !== file['appProperties.locked']) {
+          startDate = file['appProperties.locked']
+        }
         await this.timeout(base ** i * 1000)
       } else {
         break
@@ -355,7 +358,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       resp = await fetch(this.getUrl() + '/files/' + id,{
         method: 'PATCH',
         credentials: 'omit',
-        body: JSON.stringify({appProperties: {locked: true}}),
+        body: JSON.stringify({appProperties: {locked: Date.now()}}),
         headers: {
           Authorization: 'Bearer ' + this.accessToken,
           'Content-type': 'application/json',

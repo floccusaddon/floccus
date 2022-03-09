@@ -71,7 +71,7 @@ export default class WebDavAdapter extends CachingAdapter {
     Logger.log(fullURL)
 
     const response = await this.downloadFile(fullURL)
-    return response.status
+    return response
   }
 
   timeout(ms) {
@@ -82,22 +82,26 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async obtainLock() {
-    let rStatus
-    const startDate = Date.now()
+    let res
+    let startDate = Date.now()
     const maxTimeout = 15 * 60 * 1000 // Give up after 0.25h
     const base = 1.25
     for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
-      rStatus = await this.checkLock()
-      if (rStatus === 200) {
+      res = await this.checkLock()
+      if (res.status === 200) {
+        if (res.headers['Last-Modified']) {
+          const date = new Date(res.headers['Last-Modified'])
+          startDate = date.valueOf()
+        }
         await this.timeout(base ** i * 1000)
-      } else if (rStatus !== 200) {
+      } else if (res.status !== 200) {
         break
       }
     }
 
-    if (rStatus === 200) {
-      // continue anyway
-    } else if (rStatus === 404) {
+    if (res.status === 200) {
+      // continue anywayrStatus
+    } else if (res.status === 404) {
       let fullURL = this.getBookmarkLockURL()
       Logger.log(fullURL)
       await this.uploadFile(
@@ -107,7 +111,7 @@ export default class WebDavAdapter extends CachingAdapter {
       )
     } else {
       throw new LockFileError(
-        rStatus,
+        res.status,
         this.server.bookmark_file + '.lock'
       )
     }
@@ -339,7 +343,7 @@ export default class WebDavAdapter extends CachingAdapter {
       throw new HttpError(res.status, 'GET')
     }
 
-    return { status: res.status, data: await res.text() }
+    return { status: res.status, data: await res.text(), headers: res.headers }
   }
 
   async downloadFileNative(fullURL) {
