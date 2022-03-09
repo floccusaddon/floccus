@@ -2634,10 +2634,13 @@ describe('Floccus', function() {
               parentId: barFolder.id
             })
 
-            let sync1, resolved = false
-            await withSyncConnection(account2, async() => {
-              sync1 = account1.sync()
-              sync1.then(() => {
+            // Sync once first, so the file exists on GDrive and a lock can be set
+            await account1.sync()
+
+            let sync2, resolved = false
+            await withSyncConnection(account1, async() => {
+              sync2 = account2.sync()
+              sync2.then(() => {
                 resolved = true
               })
               await new Promise(resolve => setTimeout(resolve, 60000))
