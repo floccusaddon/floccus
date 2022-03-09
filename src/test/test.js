@@ -2615,6 +2615,37 @@ describe('Floccus', function() {
             await browser.bookmarks.removeTree(account2.getData().localRoot)
             await account2.delete()
           })
+          it('should not sync two clients at the same time', async function() {
+            if (ACCOUNT_DATA.type === 'fake') {
+              return this.skip()
+            }
+            const localRoot = account1.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: barFolder.id
+            })
+
+            let sync1, resolved = false
+            await withSyncConnection(account2, async() => {
+              sync1 = account1.sync()
+              sync1.then(() => {
+                resolved = true
+              })
+              await new Promise(resolve => setTimeout(resolve, 60000))
+              expect(resolved).toBe(false)
+            })
+            await new Promise(resolve => setTimeout(resolve, 60000))
+            expect(resolved).toBe(true)
+          })
           it('should propagate edits using "last write wins"', async function() {
             const localRoot = account1.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
