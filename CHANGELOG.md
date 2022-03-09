@@ -1,6 +1,26 @@
 # Changelog
 
-##v4.10.1
+## v4.11.0
+
+### New
+- [Android] Implement allowNetwork option
+- Tab sync: Sync tabs with names
+- Overview: Sort disabled accounts last
+- WebDAV: Reduce lock timeout to 15min
+- GoogleDrive: Reduce lock timeout to 15min
+
+### Fixes
+- Fix UX: Have two "download logs" buttons instead of "anonymous" checkbox
+- Fix tab sync
+- Logger: Fix log redaction
+- OptionsGoogleDrive: Don't show passphrase by default
+- Do not reset cache after interrupted sync
+- Do not reset cache after network error
+- Test and fix complex move-remove interactions
+- Update deps and install dark mode fix for android
+- [Native] DialogEdit{Folder,Bookmark}: Use current folder
+
+## v4.10.1
 
 ### Fixes
 - [Android] Fix WebDAV and FaviconImage
