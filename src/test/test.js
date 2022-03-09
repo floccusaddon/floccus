@@ -2641,10 +2641,10 @@ describe('Floccus', function() {
                 resolved = true
               })
               await new Promise(resolve => setTimeout(resolve, 60000))
-              expect(resolved).toBe(false)
+              expect(resolved).to.equal(false)
             })
             await new Promise(resolve => setTimeout(resolve, 60000))
-            expect(resolved).toBe(true)
+            expect(resolved).to.equal(true)
           })
           it('should propagate edits using "last write wins"', async function() {
             const localRoot = account1.getData().localRoot
@@ -5808,7 +5808,7 @@ async function syncAccountWithInterrupts(account) {
 
 function stringifyAccountData(ACCOUNT_DATA) {
   return `${ACCOUNT_DATA.type}${
-    ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs
+    (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs)
       ? '-old'
       : ACCOUNT_DATA.noCache
         ? '-noCache'
