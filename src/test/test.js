@@ -2619,6 +2619,9 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type === 'fake') {
               return this.skip()
             }
+            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ['v1.1.2', 'v2.3.4', 'stable3'].includes(APP_VERSION)) {
+              return this.skip()
+            }
             const localRoot = account1.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
