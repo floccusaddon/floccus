@@ -9,7 +9,10 @@ console.log = function() {
   window.floccusTestLogs.push(util.format.apply(util, arguments))
 }
 
-mocha.setup('bdd')
-require('./test')
-mocha.reporter(createWebdriverAndHtmlReporter(mocha._reporter))
-mocha.run()
+window.addEventListener('DOMContentLoaded', () => {
+  mocha.setup('bdd')
+  import('./test').then(() => {
+    mocha.reporter(createWebdriverAndHtmlReporter(mocha._reporter))
+    mocha.run()
+  })
+})
