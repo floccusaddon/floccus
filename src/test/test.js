@@ -4871,9 +4871,6 @@ describe('Floccus', function() {
           let bookmarks2
           let folders2
 
-          RUN_INTERRUPTS = true
-          setInterrupt()
-
           const createTree = async(parentId, i, j) => {
             const len = Math.abs(i - j)
             for (let k = i; k < j; k++) {
@@ -4941,6 +4938,9 @@ describe('Floccus', function() {
           tree1AfterFirstSync = null
           tree2AfterFirstSync = null
           console.log('Initial round ok')
+
+          RUN_INTERRUPTS = true
+          setInterrupt()
 
           for (let j = 0; j < 4; j++) {
             console.log('STARTING LOOP ' + j)
