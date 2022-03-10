@@ -176,17 +176,25 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     this.accessToken = await GoogleDriveAdapter.getAccessToken(this.server.refreshToken)
 
     let file
-    const startDate = Date.now()
+    let startDate = Date.now()
     const maxTimeout = 15 * 60 * 1000 // Give up after 0.25h
     const base = 1.25
     for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
       const fileList = await this.listFiles('name = ' + "'" + this.server.bookmark_file + "'")
       file = fileList.files.filter(file => !file.trashed)[0]
-      if (file && file['appProperties.locked']) {
-        await this.timeout(base ** i * 1000)
-      } else {
-        break
+      if (file) {
+        this.fileId = file.id
+        const data = await this.getFileMetadata(file.id, 'appProperties')
+        if (data.appProperties && data.appProperties.locked && (data.appProperties.locked === true || JSON.parse(data.appProperties.locked))) {
+          const lockedDate = JSON.parse(data.appProperties.locked)
+          if (Number.isInteger(lockedDate)) {
+            startDate = lockedDate
+          }
+          await this.timeout(base ** i * 1000)
+          continue
+        }
       }
+      break
     }
 
     if (file) {
@@ -288,6 +296,25 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     return resp.json()
   }
 
+  async getFileMetadata(id: string, fields?:string): Promise<any> {
+    let resp
+    try {
+      resp = await fetch(this.getUrl() + '/files/' + id + (fields ? `?fields=${fields}` : ''), {
+        headers: {
+          Authorization: 'Bearer ' + this.accessToken
+        }
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      throw new NetworkError()
+    }
+    if (resp.status === 401 || resp.status === 403) {
+      throw new AuthenticationError()
+    }
+    return resp.json()
+  }
+
   async downloadFile(id: string): Promise<string> {
     let resp
     try {
@@ -332,7 +359,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       resp = await fetch(this.getUrl() + '/files/' + id,{
         method: 'PATCH',
         credentials: 'omit',
-        body: JSON.stringify({appProperties: {locked: false}}),
+        body: JSON.stringify({appProperties: {locked: JSON.stringify(false)}}),
         headers: {
           Authorization: 'Bearer ' + this.accessToken,
           'Content-type': 'application/json',
@@ -355,7 +382,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       resp = await fetch(this.getUrl() + '/files/' + id,{
         method: 'PATCH',
         credentials: 'omit',
-        body: JSON.stringify({appProperties: {locked: true}}),
+        body: JSON.stringify({appProperties: {locked: JSON.stringify(Date.now())}}),
         headers: {
           Authorization: 'Bearer ' + this.accessToken,
           'Content-type': 'application/json',

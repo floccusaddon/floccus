@@ -18,16 +18,16 @@ describe('Floccus', function() {
   this.timeout(60000) // no test should run longer than 60s
   this.slow(20000) // 20s is slow
 
+  const params = (new URL(window.location.href)).searchParams
   let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION, SEED
   SERVER =
-    (new URL(window.location.href)).searchParams.get('server') ||
+    params.get('server') ||
     'http://localhost'
   CREDENTIALS = {
     username: 'admin',
-    password: (new URL(window.location.href)).searchParams.get('password') || 'admin'
+    password: params.get('password') || 'admin'
   }
-  APP_VERSION = (new URL(window.location.href)).searchParams.get('app_version') ||
-    'stable'
+  APP_VERSION = params.get('app_version') || 'stable'
 
   SEED = (new URL(window.location.href)).searchParams.get('seed') || Math.random() + ''
   console.log('RANDOMNESS SEED', SEED)
@@ -66,7 +66,7 @@ describe('Floccus', function() {
       type: 'webdav',
       url: `${SERVER}/remote.php/webdav/`,
       bookmark_file: 'bookmarks.xbel',
-      passphrase: random.int(),
+      passphrase: random.float(),
       ...CREDENTIALS
     },
     {
@@ -78,7 +78,7 @@ describe('Floccus', function() {
     {
       type: 'google-drive',
       bookmark_file: random.float() + '.xbel',
-      password: random.int(),
+      password: random.float(),
       refreshToken: CREDENTIALS.password,
     },
   ]
@@ -2614,6 +2614,50 @@ describe('Floccus', function() {
             await account1.delete()
             await browser.bookmarks.removeTree(account2.getData().localRoot)
             await account2.delete()
+          })
+          it('should not sync two clients at the same time', async function() {
+            if (ACCOUNT_DATA.type === 'fake') {
+              return this.skip()
+            }
+            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ['v1.1.2', 'v2.3.4', 'stable3', 'stable4'].includes(APP_VERSION)) {
+              return this.skip()
+            }
+            const localRoot = account1.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: barFolder.id
+            })
+
+            // Sync once first, so the file exists on GDrive and a lock can be set
+            await account1.sync()
+
+            let sync2, resolved = false
+            console.log('Starting sync with account 1')
+            await withSyncConnection(account1, async() => {
+              console.log('Syncing account 1')
+              console.log('Starting sync with account 2')
+              sync2 = account2.sync()
+              sync2.then(() => {
+                console.log('Finished sync with account 2')
+                resolved = true
+              })
+              await new Promise(resolve => setTimeout(resolve, 60000))
+              expect(account2.getData().error).to.be.not.ok
+              expect(resolved).to.equal(false)
+            })
+            console.log('Finished sync with account 1')
+            await new Promise(resolve => setTimeout(resolve, 60000))
+            expect(account2.getData().error).to.be.not.ok
+            expect(resolved).to.equal(true)
           })
           it('should propagate edits using "last write wins"', async function() {
             const localRoot = account1.getData().localRoot
@@ -5777,7 +5821,7 @@ async function syncAccountWithInterrupts(account) {
 
 function stringifyAccountData(ACCOUNT_DATA) {
   return `${ACCOUNT_DATA.type}${
-    ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs
+    (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs)
       ? '-old'
       : ACCOUNT_DATA.noCache
         ? '-noCache'
