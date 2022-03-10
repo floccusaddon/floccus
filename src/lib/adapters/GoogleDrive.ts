@@ -182,9 +182,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
       const fileList = await this.listFiles('name = ' + "'" + this.server.bookmark_file + "'")
       file = fileList.files.filter(file => !file.trashed)[0]
-      if (file && file['appProperties.locked']) {
-        if (Boolean(file['appProperties.locked']) !== file['appProperties.locked']) {
-          startDate = file['appProperties.locked']
+      if (file && file['appProperties.locked'] && (file['appProperties.locked'] === true || JSON.parse(file['appProperties.locked']))) {
+        const lockedDate = JSON.parse(file['appProperties.locked'])
+        if (Number.isInteger(lockedDate)) {
+          startDate = lockedDate
         }
         await this.timeout(base ** i * 1000)
       } else {
@@ -335,7 +336,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       resp = await fetch(this.getUrl() + '/files/' + id,{
         method: 'PATCH',
         credentials: 'omit',
-        body: JSON.stringify({appProperties: {locked: false}}),
+        body: JSON.stringify({appProperties: {locked: JSON.stringify(false)}}),
         headers: {
           Authorization: 'Bearer ' + this.accessToken,
           'Content-type': 'application/json',
@@ -358,7 +359,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       resp = await fetch(this.getUrl() + '/files/' + id,{
         method: 'PATCH',
         credentials: 'omit',
-        body: JSON.stringify({appProperties: {locked: Date.now()}}),
+        body: JSON.stringify({appProperties: {locked: JSON.stringify(Date.now())}}),
         headers: {
           Authorization: 'Bearer ' + this.accessToken,
           'Content-type': 'application/json',
