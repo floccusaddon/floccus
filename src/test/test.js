@@ -3928,7 +3928,12 @@ describe('Floccus', function() {
         let i = 0
         const setInterrupt = () => {
           if (!timeouts.length) {
-            timeouts = new Array(1000).fill(0).map(x => random.int(1000, ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? 85000 : 30000))
+            timeouts = new Array(1000).fill(0).map(x =>
+              random.int(
+                ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? 20000 : 1000,
+                ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? 85000 : 30000
+              )
+            )
           }
           const timeout = timeouts[(i++) % 1000]
           setTimeout(() => {
@@ -4859,9 +4864,6 @@ describe('Floccus', function() {
         })
 
         it('should handle fuzzed changes with deletions from two clients with interrupts', async function() {
-          if (ACCOUNT_DATA.type.includes('nextcloud')) {
-            return this.skip()
-          }
           const localRoot = account1.getData().localRoot
           let bookmarks1 = []
           let folders1 = []
