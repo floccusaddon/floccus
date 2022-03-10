@@ -2641,15 +2641,20 @@ describe('Floccus', function() {
             await account1.sync()
 
             let sync2, resolved = false
+            console.log('Starting sync with account 1')
             await withSyncConnection(account1, async() => {
+              console.log('Syncing account 1')
+              console.log('Starting sync with account 2')
               sync2 = account2.sync()
               sync2.then(() => {
+                console.log('Finished sync with account 2')
                 resolved = true
               })
               await new Promise(resolve => setTimeout(resolve, 60000))
               expect(account2.getData().error).to.be.not.ok
               expect(resolved).to.equal(false)
             })
+            console.log('Finished sync with account 1')
             await new Promise(resolve => setTimeout(resolve, 60000))
             expect(account2.getData().error).to.be.not.ok
             expect(resolved).to.equal(true)
