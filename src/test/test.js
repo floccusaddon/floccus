@@ -2619,7 +2619,7 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type === 'fake') {
               return this.skip()
             }
-            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ['v1.1.2', 'v2.3.4', 'stable3'].includes(APP_VERSION)) {
+            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ['v1.1.2', 'v2.3.4', 'stable3', 'stable4'].includes(APP_VERSION)) {
               return this.skip()
             }
             const localRoot = account1.getData().localRoot
@@ -2647,9 +2647,11 @@ describe('Floccus', function() {
                 resolved = true
               })
               await new Promise(resolve => setTimeout(resolve, 60000))
+              expect(account2.getData().error).to.be.not.ok
               expect(resolved).to.equal(false)
             })
             await new Promise(resolve => setTimeout(resolve, 60000))
+            expect(account2.getData().error).to.be.not.ok
             expect(resolved).to.equal(true)
           })
           it('should propagate edits using "last write wins"', async function() {
