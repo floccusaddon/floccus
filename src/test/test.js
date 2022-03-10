@@ -3930,8 +3930,8 @@ describe('Floccus', function() {
           if (!timeouts.length) {
             timeouts = new Array(1000).fill(0).map(x =>
               random.int(
-                ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? 20000 : 1000,
-                ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? 85000 : 30000
+                ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? 50000 : 1000,
+                ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? 100000 : 30000
               )
             )
           }
