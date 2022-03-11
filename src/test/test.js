@@ -3933,7 +3933,9 @@ describe('Floccus', function() {
         let i = 0
         const setInterrupt = () => {
           if (!timeouts.length) {
-            timeouts = new Array(1000).fill(0).map(x => random.int(1000, ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? 85000 : 30000))
+            timeouts = new Array(1000).fill(0).map(x =>
+              ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? random.int(50000, 150000) : random.int(1000,30000)
+            )
           }
           const timeout = timeouts[(i++) % 1000]
           setTimeout(() => {
@@ -4864,7 +4866,7 @@ describe('Floccus', function() {
         })
 
         it('should handle fuzzed changes with deletions from two clients with interrupts', async function() {
-          if (ACCOUNT_DATA.type.includes('nextcloud')) {
+          if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
             return this.skip()
           }
           const localRoot = account1.getData().localRoot
@@ -4873,9 +4875,6 @@ describe('Floccus', function() {
 
           let bookmarks2
           let folders2
-
-          RUN_INTERRUPTS = true
-          setInterrupt()
 
           const createTree = async(parentId, i, j) => {
             const len = Math.abs(i - j)
@@ -4944,6 +4943,9 @@ describe('Floccus', function() {
           tree1AfterFirstSync = null
           tree2AfterFirstSync = null
           console.log('Initial round ok')
+
+          RUN_INTERRUPTS = true
+          setInterrupt()
 
           for (let j = 0; j < 4; j++) {
             console.log('STARTING LOOP ' + j)
