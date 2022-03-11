@@ -343,29 +343,15 @@ export default class BrowserController {
   }
 
   async setStatusBadge(status) {
-    const badge = {
-      [STATUS_ALLGOOD]: {
-        text: ''
-      },
-      [STATUS_SYNCING]: {
-        text: '<->',
-        color: '#0088dd'
-      },
-      [STATUS_ERROR]: {
-        text: '!',
-        color: '#dd4d00'
-      },
-      [STATUS_DISABLED]: {
-        text: 'X',
-        color: '#999999'
-      }
+    const icon = {
+      [STATUS_ALLGOOD]: {path: '/icons/logo_32.png'},
+      [STATUS_SYNCING]: {path: '/icons/syncing_32.png'},
+      [STATUS_ERROR]: {path: '/icons/error_32.png'},
+      [STATUS_DISABLED]: {path: '/icons/disabled_32.png'}
     }
 
-    await browser.browserAction.setBadgeText({ text: badge[status].text })
-    if (badge[status].color) {
-      await browser.browserAction.setBadgeBackgroundColor({
-        color: badge[status].color
-      })
+    if (icon[status]) {
+      await browser.browserAction.setIcon(icon[status])
     }
   }
 
