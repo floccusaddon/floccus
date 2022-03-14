@@ -324,10 +324,10 @@ export default class BrowserController {
     const accounts = await Account.getAllAccounts()
     let overallStatus = accounts.reduce((status, account) => {
       const accData = account.getData()
-      if (status === STATUS_ERROR || (accData.error && !accData.syncing)) {
-        return STATUS_ERROR
-      } else if (status === STATUS_SYNCING || accData.syncing) {
+      if (status === STATUS_SYNCING || accData.syncing) {
         return STATUS_SYNCING
+      } else if (status === STATUS_ERROR || (accData.error && !accData.syncing)) {
+        return STATUS_ERROR
       } else {
         return STATUS_ALLGOOD
       }
