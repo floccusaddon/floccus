@@ -23,6 +23,7 @@ export default class SyncProcess {
   protected serverTreeRoot: Folder
   protected actionsDone: number
   protected actionsPlanned: number
+  protected isFirefox: boolean
 
   // The location that has precedence in case of conflicts
   protected masterLocation: TItemLocation
@@ -45,6 +46,7 @@ export default class SyncProcess {
     this.actionsDone = 0
     this.actionsPlanned = 0
     this.canceled = false
+    this.isFirefox = window.location.protocol === 'moz-extension:'
   }
 
   async cancel() :Promise<void> {
@@ -180,7 +182,7 @@ export default class SyncProcess {
   }
 
   filterOutInvalidBookmarks(tree: Folder): void {
-    if (window.location.protocol === 'moz-extension:') {
+    if (this.isFirefox) {
       tree.children = tree.children.filter(child => {
         if (child instanceof Bookmark) {
           return !child.url.startsWith('chrome')
