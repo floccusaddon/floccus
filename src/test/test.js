@@ -5608,7 +5608,7 @@ describe('Floccus', function() {
   })
 })
 
-function expectTreeEqual(tree1, tree2, ignoreEmptyFolders, checkOrder) {
+function expectTreeEqual(tree1, tree2, ignoreEmptyFolders, checkOrder = true) {
   try {
     expect(tree1.title).to.equal(tree2.title)
     if (tree2.url) {
