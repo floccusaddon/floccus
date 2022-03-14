@@ -132,6 +132,7 @@ export default class SyncProcess {
     this.localTreeRoot = await this.localTree.getBookmarksTree()
     this.serverTreeRoot = await this.server.getBookmarksTree()
     this.filterOutUnacceptedBookmarks(this.localTreeRoot)
+    this.filterOutInvalidBookmarks(this.serverTreeRoot)
     if (this.server instanceof NextcloudBookmarksAdapter) {
       await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
     }
@@ -176,6 +177,19 @@ export default class SyncProcess {
         return true
       }
     })
+  }
+
+  filterOutInvalidBookmarks(tree: Folder): void {
+    if (window.location.protocol === 'moz-extension:') {
+      tree.children = tree.children.filter(child => {
+        if (child instanceof Bookmark) {
+          return !child.url.startsWith('chrome')
+        } else {
+          this.filterOutInvalidBookmarks(child)
+          return true
+        }
+      })
+    }
   }
 
   async filterOutDuplicatesInTheSameFolder(tree: Folder): Promise<void> {
