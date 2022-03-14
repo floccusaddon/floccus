@@ -4,7 +4,7 @@ import NativeTree from './NativeTree'
 import Cryptography from '../Crypto'
 import packageJson from '../../../package.json'
 import NativeAccountStorage from './NativeAccountStorage'
-import _ from 'lodash'
+import uniqBy from 'lodash/uniqBy'
 
 import PQueue from 'p-queue'
 
@@ -155,7 +155,7 @@ export default class NativeController {
       ancestors,
       allAccounts
     )
-    accountsToSync = _.uniqBy(
+    accountsToSync = uniqBy(
       accountsToSync.concat(containingAccounts),
       acc => acc.id)
       // Filter out any accounts that are presently syncing

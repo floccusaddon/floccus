@@ -2,7 +2,7 @@ import * as Tree from '../Tree'
 import { Bookmark, Folder, ItemLocation } from '../Tree'
 import Logger from '../Logger'
 import Adapter from '../interfaces/Adapter'
-import { difference} from 'lodash'
+import difference from 'lodash/difference'
 
 import url from 'url'
 import Ordering from '../interfaces/Ordering'
