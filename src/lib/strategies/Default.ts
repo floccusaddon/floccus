@@ -23,6 +23,7 @@ export default class SyncProcess {
   protected serverTreeRoot: Folder
   protected actionsDone: number
   protected actionsPlanned: number
+  protected isFirefox: boolean
 
   // The location that has precedence in case of conflicts
   protected masterLocation: TItemLocation
@@ -45,6 +46,7 @@ export default class SyncProcess {
     this.actionsDone = 0
     this.actionsPlanned = 0
     this.canceled = false
+    this.isFirefox = window.location.protocol === 'moz-extension:'
   }
 
   async cancel() :Promise<void> {
@@ -132,6 +134,7 @@ export default class SyncProcess {
     this.localTreeRoot = await this.localTree.getBookmarksTree()
     this.serverTreeRoot = await this.server.getBookmarksTree()
     this.filterOutUnacceptedBookmarks(this.localTreeRoot)
+    this.filterOutInvalidBookmarks(this.serverTreeRoot)
     if (this.server instanceof NextcloudBookmarksAdapter) {
       await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
     }
@@ -176,6 +179,19 @@ export default class SyncProcess {
         return true
       }
     })
+  }
+
+  filterOutInvalidBookmarks(tree: Folder): void {
+    if (this.isFirefox) {
+      tree.children = tree.children.filter(child => {
+        if (child instanceof Bookmark) {
+          return !child.url.startsWith('chrome')
+        } else {
+          this.filterOutInvalidBookmarks(child)
+          return true
+        }
+      })
+    }
   }
 
   async filterOutDuplicatesInTheSameFolder(tree: Folder): Promise<void> {
