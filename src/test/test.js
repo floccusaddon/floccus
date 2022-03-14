@@ -605,17 +605,17 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'foo',
                     children: [
-                      new Bookmark({
-                        title: 'url2',
-                        url: 'http://secondur.l/',
-                      }),
                       new Folder({
                         title: 'bar',
                         children: [new Bookmark({
                           title: 'url',
                           url: 'http://ur.l/',
                         })]
-                      })
+                      }),
+                      new Bookmark({
+                        title: 'url2',
+                        url: 'http://secondur.l/',
+                      }),
                     ]
                   }),
                 ]
