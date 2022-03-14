@@ -4,7 +4,7 @@ import * as Tree from '../Tree'
 import { IResource } from '../interfaces/Resource'
 import PQueue from 'p-queue'
 import Account from '../Account'
-import { Bookmark, Folder, ItemLocation } from '../Tree'
+import { Bookmark, Folder, ItemLocation, ItemType } from '../Tree'
 import Ordering from '../interfaces/Ordering'
 
 export default class BrowserTree implements IResource {
@@ -174,12 +174,29 @@ export default class BrowserTree implements IResource {
       Logger.log('This action affects the absolute root. Skipping.')
       return
     }
+    const [realTree] = await browser.bookmarks.getSubTree(this.rootId)
     try {
       for (let index = 0; index < order.length; index++) {
         await browser.bookmarks.move(order[index].id, { index })
       }
     } catch (e) {
       throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
+    }
+    // Move items not touched by sync back to where they were
+    // Not perfect but good enough (Problem: [a,X,c] => insert(b,0) => [b, X, a, c])
+    if (realTree.children.length !== order.length) {
+      const untouchedChildren = realTree.children.map((child,i) => [i, child]).filter(([, child]) =>
+        child.url
+          ? !order.some(item => item.type === ItemType.BOOKMARK && item.id === child.id)
+          : !order.some(item => item.type === ItemType.FOLDER && item.id === child.id)
+      )
+      try {
+        for (const [index, child] of untouchedChildren) {
+          await browser.bookmarks.move(child.id, {index})
+        }
+      } catch (e) {
+        throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
+      }
     }
   }
 
