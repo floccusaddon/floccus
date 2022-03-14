@@ -250,6 +250,14 @@ export default class SyncProcess {
     return {localDiff, serverDiff}
   }
 
+  removeItemFromReorders(mappingsSnapshot: MappingSnapshot, sourceReorders:ReorderAction[], oldItem: TItem) {
+    const parentReorder = sourceReorders.find(action => Mappings.mapParentId(mappingsSnapshot, action.payload, oldItem.location) === oldItem.parentId)
+    if (!parentReorder) {
+      return
+    }
+    parentReorder.order = parentReorder.order.filter(item => !(item.type === oldItem.type && Mappings.mapId(mappingsSnapshot, oldItem, parentReorder.payload.location) === item.id))
+  }
+
   async reconcileDiffs(sourceDiff:Diff, targetDiff:Diff, targetLocation: TItemLocation):Promise<Diff> {
     const mappingsSnapshot = await this.mappings.getSnapshot()
 
@@ -262,6 +270,7 @@ export default class SyncProcess {
     const sourceCreations = sourceDiff.getActions(ActionType.CREATE).map(a => a as CreateAction)
     const sourceRemovals = sourceDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
     const sourceMoves = sourceDiff.getActions(ActionType.MOVE).map(a => a as MoveAction)
+    const sourceReorders = sourceDiff.getActions(ActionType.REORDER).map(a => a as ReorderAction)
 
     const targetTree = targetLocation === ItemLocation.LOCAL ? this.localTreeRoot : this.serverTreeRoot
     const sourceTree = targetLocation === ItemLocation.LOCAL ? this.serverTreeRoot : this.localTreeRoot
@@ -367,6 +376,7 @@ export default class SyncProcess {
             // make sure this item is not already being removed, when it's no longer moved
             // if (targetLocation === this.masterLocation) {
             targetPlan.commit({ ...action, type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
+            this.removeItemFromReorders(mappingsSnapshot, sourceReorders, action.oldItem)
             avoidTargetReorders[action.payload.id] = true
             // }
           }
@@ -376,9 +386,8 @@ export default class SyncProcess {
           // target already deleted by a source REMOVE (connected via source MOVE|CREATEs)
           if (targetLocation !== this.masterLocation) {
             targetPlan.commit({ ...action, type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
-            avoidTargetReorders[action.payload.id] = true
           }
-          avoidTargetReorders[action.payload.parentId] = true
+          this.removeItemFromReorders(mappingsSnapshot, sourceReorders, action.oldItem)
           avoidTargetReorders[action.payload.id] = true
           return
         }
@@ -439,13 +448,12 @@ export default class SyncProcess {
 
               // revert target move
               targetPlan.commit({ ...a, payload, oldItem })
-              avoidTargetReorders[payload.parentId] = true
-              avoidTargetReorders[oldItem.parentId] = true
+              this.removeItemFromReorders(mappingsSnapshot, sourceReorders, payload)
+              this.removeItemFromReorders(mappingsSnapshot, sourceReorders, oldItem)
             })
           } else {
-            // Moved sourcely and in reverse hierarchical order on target. source has precedence: do nothing sourcely
-            avoidTargetReorders[action.payload.parentId] = true
-            avoidTargetReorders[Mappings.mapParentId(mappingsSnapshot, action.oldItem, ItemLocation.SERVER)] = true
+            this.removeItemFromReorders(mappingsSnapshot, sourceReorders, action.oldItem)
+            this.removeItemFromReorders(mappingsSnapshot, sourceReorders, action.payload)
           }
           return
         }
