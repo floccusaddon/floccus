@@ -860,7 +860,6 @@ describe('Floccus', function() {
                     title: 'bar',
                     children: [
                       new Bookmark({ title: 'url', url: 'http://ur.l/' }),
-                      new Bookmark({ title: 'test', url: 'http://ureff.l/' }),
                       new Folder({
                         title: 'foo',
                         children:
@@ -873,7 +872,8 @@ describe('Floccus', function() {
                               url: 'http://ureff.l/'
                             })
                           ]
-                      })
+                      }),
+                      new Bookmark({ title: 'test', url: 'http://ureff.l/' }),
                     ]
                   })
                 ]
