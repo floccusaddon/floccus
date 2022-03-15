@@ -215,11 +215,6 @@ export default class SyncProcess {
         'Filtered out the following duplicates before syncing',
         duplicates
       )
-    if (!(this.localTree instanceof LocalTabs)) {
-      await Promise.all(
-        duplicates.map(bm => this.localTree.removeBookmark(bm))
-      )
-    }
   }
 
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
