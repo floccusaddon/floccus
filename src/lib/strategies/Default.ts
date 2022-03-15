@@ -10,7 +10,6 @@ import { TAdapter } from '../interfaces/Adapter'
 import { FailsafeError, InterruptedSyncError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
-import LocalTabs from '../LocalTabs'
 
 export default class SyncProcess {
   protected mappings: Mappings
