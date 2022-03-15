@@ -1158,7 +1158,7 @@ describe('Floccus', function() {
 
             expectTreeEqual(localTree, serverTree)
           })
-          it('should remove duplicates in the same folder', async function() {
+          it('should ignore duplicates in the same folder', async function() {
             if (ACCOUNT_DATA.type !== 'nextcloud-bookmarks') {
               return this.skip()
             }
@@ -1211,6 +1211,7 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'bar',
                     children: [
+                      new Bookmark({ title: 'url', url: 'http://ur.l/' }),
                       new Bookmark({ title: 'url', url: 'http://ur.l/' })
                     ]
                   })
