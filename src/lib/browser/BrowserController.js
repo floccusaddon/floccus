@@ -14,7 +14,7 @@ const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')
 const STATUS_ALLGOOD = Symbol('allgood')
 const STATUS_DISABLED = Symbol('disabled')
-const INACTIVITY_TIMEOUT = 1000 * 60
+const INACTIVITY_TIMEOUT = 20 * 60
 const DEFAULT_SYNC_INTERVAL = 15
 
 class AlarmManager {
