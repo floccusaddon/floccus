@@ -54,7 +54,16 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       throw new InterruptedSyncError()
     }
 
+    let mappingsSnapshot = this.mappings.getSnapshot()
     revertPlan = await this.execute(target, revertPlan, this.direction)
+    const revertOrderings = revertPlan.map(mappingsSnapshot, this.direction, (action) => action.type === ActionType.REORDER)
+    Logger.log({revertOrderings})
+
+    if ('orderFolder' in target) {
+      await Promise.all([
+        this.executeReorderings(target, revertOrderings),
+      ])
+    }
 
     // Then reconcile master modifications with new slave changes and after having fetched the new trees
     await this.prepareSync()
@@ -68,7 +77,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     // Fix UPDATEs: We want to map to new IDs instead of oldItem.id, because items may have been reinserted by revertPlan
     unmappedOverridePlan.getActions(ActionType.UPDATE).forEach(action => { action.oldItem = null })
     // have to get snapshot after reconciliation, because of concurrent creation reconciliation
-    let mappingsSnapshot = this.mappings.getSnapshot()
+    mappingsSnapshot = this.mappings.getSnapshot()
     let overridePlan = unmappedOverridePlan.map(mappingsSnapshot, this.direction, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
     // Fix MOVEs: We want execute to map to new IDs instead of oldItem.id, because items may have been reinserted by revertPlan
     overridePlan.getActions(ActionType.MOVE).forEach(action => { action.oldItem = null })
