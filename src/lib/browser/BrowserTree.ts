@@ -6,6 +6,7 @@ import PQueue from 'p-queue'
 import Account from '../Account'
 import { Bookmark, Folder, ItemLocation, ItemType } from '../Tree'
 import Ordering from '../interfaces/Ordering'
+import url from 'url'
 
 export default class BrowserTree implements IResource {
   private readonly rootId: string
@@ -78,6 +79,15 @@ export default class BrowserTree implements IResource {
         })
         folder.isRoot = isRoot
         return folder
+      } else if (window.location.protocol === 'moz-extension:' && node.type === 'separator') {
+        // Translate mozilla separators to floccus separators
+        return new Tree.Bookmark({
+          location: ItemLocation.LOCAL,
+          id: node.id,
+          parentId,
+          title: '-----',
+          url: 'https://separator.floccus.org/',
+        })
       } else {
         return new Tree.Bookmark({
           location: ItemLocation.LOCAL,
@@ -98,6 +108,15 @@ export default class BrowserTree implements IResource {
       return
     }
     try {
+      if (window.location.protocol === 'moz-extension:' && url.parse(bookmark.url).hostname === 'separator.floccus.org') {
+        const node = await this.queue.add(() =>
+          browser.bookmarks.create({
+            parentId: bookmark.parentId,
+            type: 'separator'
+          })
+        )
+        return node.id
+      }
       const node = await this.queue.add(() =>
         browser.bookmarks.create({
           parentId: bookmark.parentId,
@@ -118,12 +137,16 @@ export default class BrowserTree implements IResource {
       return
     }
     try {
-      await this.queue.add(() =>
-        browser.bookmarks.update(bookmark.id, {
-          title: bookmark.title,
-          url: bookmark.url
-        })
-      )
+      if (window.location.protocol === 'moz-extension:' && url.parse(bookmark.url).hostname === 'separator.floccus.org') {
+        // noop
+      } else {
+        await this.queue.add(() =>
+          browser.bookmarks.update(bookmark.id, {
+            title: bookmark.title,
+            url: bookmark.url
+          })
+        )
+      }
       await this.queue.add(() =>
         browser.bookmarks.move(bookmark.id, {
           parentId: bookmark.parentId

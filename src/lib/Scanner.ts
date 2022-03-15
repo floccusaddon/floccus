@@ -55,10 +55,12 @@ export default class Scanner {
 
     // Preserved Items and removed Items
     // (using map here, because 'each' doesn't provide indices)
+    const unmatchedChildren = newFolder.children.slice(0)
     await Parallel.map(oldFolder.children, async(old, index) => {
-      const newItem = newFolder.children.find((child) => old.type === child.type && this.mergeable(old, child))
+      const newItem = unmatchedChildren.find((child) => old.type === child.type && this.mergeable(old, child))
       if (newItem) {
         await this.diffItem(old, newItem)
+        unmatchedChildren.splice(unmatchedChildren.indexOf(newItem), 1)
         return
       }
 
@@ -67,10 +69,8 @@ export default class Scanner {
 
     // created Items
     // (using map here, because 'each' doesn't provide indices)
-    await Parallel.map(newFolder.children, async(newChild, index) => {
-      if (!oldFolder.children.some(old => old.type === newChild.type && this.mergeable(old, newChild))) {
-        this.diff.commit({type: ActionType.CREATE, payload: newChild, index})
-      }
+    await Parallel.map(unmatchedChildren, async(newChild, index) => {
+      this.diff.commit({type: ActionType.CREATE, payload: newChild, index})
     }, 1)
 
     if (newFolder.children.length > 1) {
