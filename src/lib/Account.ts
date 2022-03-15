@@ -1,7 +1,7 @@
 import AdapterFactory from './AdapterFactory'
 import Logger from './Logger'
 import { Folder, ItemLocation } from './Tree'
-import UnidirectionalMergeSyncProcess from './strategies/UnidirectionalMerge'
+import UnidirectionalSyncProcess from './strategies/Unidirectional'
 import MergeSyncProcess from './strategies/Merge'
 import DefaultSyncProcess from './strategies/Default'
 import IAccountStorage, { IAccountData, TAccountStrategy } from './interfaces/AccountStorage'
@@ -165,12 +165,12 @@ export default class Account {
       switch (strategy || this.getData().strategy) {
         case 'slave':
           Logger.log('Using "merge slave" strategy (no cache available)')
-          strategyClass = UnidirectionalMergeSyncProcess
+          strategyClass = UnidirectionalSyncProcess
           direction = ItemLocation.LOCAL
           break
         case 'overwrite':
           Logger.log('Using "merge overwrite" strategy (no cache available)')
-          strategyClass = UnidirectionalMergeSyncProcess
+          strategyClass = UnidirectionalSyncProcess
           direction = ItemLocation.SERVER
           break
         default:

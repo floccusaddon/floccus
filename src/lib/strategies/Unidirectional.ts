@@ -5,12 +5,21 @@ import Mappings, { MappingSnapshot } from '../Mappings'
 import { Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
 import Logger from '../Logger'
 import { InterruptedSyncError } from '../../errors/Error'
+import MergeSyncProcess from './Merge'
 
 export default class UnidirectionalSyncProcess extends DefaultStrategy {
   protected direction: TItemLocation
 
   setDirection(direction: TItemLocation): void {
     this.direction = direction
+  }
+
+  async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
+    return MergeSyncProcess.prototype.getDiffs.apply(this) // cheeky!
+  }
+
+  async loadChildren() :Promise<void> {
+    this.serverTreeRoot = await this.server.getBookmarksTree(true)
   }
 
   async sync(): Promise<void> {
@@ -54,54 +63,14 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       throw new InterruptedSyncError()
     }
 
-    let mappingsSnapshot = this.mappings.getSnapshot()
+    const mappingsSnapshot = this.mappings.getSnapshot()
     revertPlan = await this.execute(target, revertPlan, this.direction)
     const revertOrderings = revertPlan.map(mappingsSnapshot, this.direction, (action) => action.type === ActionType.REORDER)
-    Logger.log({revertOrderings})
+    Logger.log({revertOrderings: revertOrderings.getActions(ActionType.REORDER)})
 
     if ('orderFolder' in target) {
       await Promise.all([
         this.executeReorderings(target, revertOrderings),
-      ])
-    }
-
-    // Then reconcile master modifications with new slave changes and after having fetched the new trees
-    await this.prepareSync()
-    Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
-
-    if (this.canceled) {
-      throw new InterruptedSyncError()
-    }
-
-    const unmappedOverridePlan = await this.reconcileDiffs(sourceDiff, revertPlan, this.direction)
-    // Fix UPDATEs: We want to map to new IDs instead of oldItem.id, because items may have been reinserted by revertPlan
-    unmappedOverridePlan.getActions(ActionType.UPDATE).forEach(action => { action.oldItem = null })
-    // have to get snapshot after reconciliation, because of concurrent creation reconciliation
-    mappingsSnapshot = this.mappings.getSnapshot()
-    let overridePlan = unmappedOverridePlan.map(mappingsSnapshot, this.direction, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
-    // Fix MOVEs: We want execute to map to new IDs instead of oldItem.id, because items may have been reinserted by revertPlan
-    overridePlan.getActions(ActionType.MOVE).forEach(action => { action.oldItem = null })
-
-    Logger.log({overridePlan})
-
-    if (this.direction === ItemLocation.LOCAL) {
-      this.applyFailsafe(overridePlan)
-    }
-
-    if (this.canceled) {
-      throw new InterruptedSyncError()
-    }
-
-    overridePlan = await this.execute(target, overridePlan, this.direction)
-
-    // mappings have been updated, reload
-    mappingsSnapshot = await this.mappings.getSnapshot()
-    const overrideReorder = this.reconcileReorderings(overridePlan, revertPlan, mappingsSnapshot)
-      .map(mappingsSnapshot, this.direction)
-
-    if ('orderFolder' in target) {
-      await Promise.all([
-        this.executeReorderings(target, overrideReorder),
       ])
     }
   }
