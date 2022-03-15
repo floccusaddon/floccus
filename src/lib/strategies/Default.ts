@@ -10,6 +10,7 @@ import { TAdapter } from '../interfaces/Adapter'
 import { FailsafeError, InterruptedSyncError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
+import LocalTabs from '../LocalTabs'
 
 export default class SyncProcess {
   protected mappings: Mappings
@@ -214,9 +215,11 @@ export default class SyncProcess {
         'Filtered out the following duplicates before syncing',
         duplicates
       )
-    await Promise.all(
-      duplicates.map(bm => this.localTree.removeBookmark(bm))
-    )
+    if (!(this.localTree instanceof LocalTabs)) {
+      await Promise.all(
+        duplicates.map(bm => this.localTree.removeBookmark(bm))
+      )
+    }
   }
 
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
