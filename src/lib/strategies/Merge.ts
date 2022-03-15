@@ -157,10 +157,6 @@ export default class MergeSyncProcess extends Default {
           return
         }
       }
-      if (action.type === ActionType.REORDER) {
-        // Don't reorder in first sync
-        return
-      }
 
       targetPlan.commit(action)
     })

@@ -14,6 +14,45 @@ import FakeAdapter from '../lib/adapters/Fake'
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
+let expectTreeEqual = function(tree1, tree2, ignoreEmptyFolders, checkOrder = true) {
+  try {
+    expect(tree1.title).to.equal(tree2.title)
+    if (tree2.url) {
+      expect(tree1.url).to.equal(tree2.url)
+    } else {
+      if (!checkOrder) {
+        tree2.children.sort((a, b) => {
+          if (a.title < b.title) return -1
+          if (a.title > b.title) return 1
+          return 0
+        })
+        tree1.children.sort((a, b) => {
+          if (a.title < b.title) return -1
+          if (a.title > b.title) return 1
+          return 0
+        })
+      }
+      let children1 = ignoreEmptyFolders
+        ? tree1.children.filter(child => !hasNoBookmarks(child))
+        : tree1.children
+      let children2 = ignoreEmptyFolders
+        ? tree2.children.filter(child => !hasNoBookmarks(child))
+        : tree2.children
+      expect(children1).to.have.length(children2.length)
+      children2.forEach((child2, i) => {
+        expectTreeEqual(children1[i], child2, ignoreEmptyFolders, checkOrder)
+      })
+    }
+  } catch (e) {
+    console.log(
+      `Trees are not equal: (checkOrder: ${checkOrder}, ignoreEmptyFolders: ${ignoreEmptyFolders})`,
+      'Tree 1:\n' + tree1.inspect(0) + '\n',
+      'Tree 2:\n' + tree2.inspect(0)
+    )
+    throw e
+  }
+}
+
 describe('Floccus', function() {
   this.timeout(60000) // no test should run longer than 60s
   this.slow(20000) // 20s is slow
@@ -605,17 +644,17 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'foo',
                     children: [
-                      new Bookmark({
-                        title: 'url2',
-                        url: 'http://secondur.l/',
-                      }),
                       new Folder({
                         title: 'bar',
                         children: [new Bookmark({
                           title: 'url',
                           url: 'http://ur.l/',
                         })]
-                      })
+                      }),
+                      new Bookmark({
+                        title: 'url2',
+                        url: 'http://secondur.l/',
+                      }),
                     ]
                   }),
                 ]
@@ -860,7 +899,6 @@ describe('Floccus', function() {
                     title: 'bar',
                     children: [
                       new Bookmark({ title: 'url', url: 'http://ur.l/' }),
-                      new Bookmark({ title: 'test', url: 'http://ureff.l/' }),
                       new Folder({
                         title: 'foo',
                         children:
@@ -873,7 +911,8 @@ describe('Floccus', function() {
                               url: 'http://ureff.l/'
                             })
                           ]
-                      })
+                      }),
+                      new Bookmark({ title: 'test', url: 'http://ureff.l/' }),
                     ]
                   })
                 ]
@@ -1648,7 +1687,6 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'a',
                     children: [
-                      new Bookmark({ title: 'url', url: 'http://ur.l/' }),
                       new Folder({
                         title: 'b',
                         children: [
@@ -1657,12 +1695,13 @@ describe('Floccus', function() {
                             url: 'http://ur.l/dalfk'
                           })
                         ]
-                      })
+                      }),
+                      new Bookmark({ title: 'url', url: 'http://ur.l/' }),
                     ]
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              ignoreEmptyFolders(ACCOUNT_DATA),
             )
 
             expect(tree.findBookmark(bookmark1Id)).to.be.ok
@@ -1677,7 +1716,6 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'a',
                     children: [
-                      new Bookmark({ title: 'url', url: 'http://ur.l/' }),
                       new Folder({
                         title: 'b',
                         children: [
@@ -1686,7 +1724,8 @@ describe('Floccus', function() {
                             url: 'http://ur.l/dalfk'
                           })
                         ]
-                      })
+                      }),
+                      new Bookmark({ title: 'url', url: 'http://ur.l/' }),
                     ]
                   })
                 ]
@@ -3948,6 +3987,9 @@ describe('Floccus', function() {
           }, timeout)
         }
 
+        let _expectTreeEqual = expectTreeEqual
+        expectTreeEqual = (tree1, tree2, ignoreEmptyFolders, checkOrder) => _expectTreeEqual(tree1, tree2, ignoreEmptyFolders, !!checkOrder)
+
         beforeEach('set up accounts', async function() {
           // reset random seed
           random.use(seedrandom(SEED))
@@ -5607,45 +5649,6 @@ describe('Floccus', function() {
     })
   })
 })
-
-function expectTreeEqual(tree1, tree2, ignoreEmptyFolders, checkOrder) {
-  try {
-    expect(tree1.title).to.equal(tree2.title)
-    if (tree2.url) {
-      expect(tree1.url).to.equal(tree2.url)
-    } else {
-      if (!checkOrder) {
-        tree2.children.sort((a, b) => {
-          if (a.title < b.title) return -1
-          if (a.title > b.title) return 1
-          return 0
-        })
-        tree1.children.sort((a, b) => {
-          if (a.title < b.title) return -1
-          if (a.title > b.title) return 1
-          return 0
-        })
-      }
-      let children1 = ignoreEmptyFolders
-        ? tree1.children.filter(child => !hasNoBookmarks(child))
-        : tree1.children
-      let children2 = ignoreEmptyFolders
-        ? tree2.children.filter(child => !hasNoBookmarks(child))
-        : tree2.children
-      expect(children1).to.have.length(children2.length)
-      children2.forEach((child2, i) => {
-        expectTreeEqual(children1[i], child2, ignoreEmptyFolders, checkOrder)
-      })
-    }
-  } catch (e) {
-    console.log(
-      `Trees are not equal: (checkOrder: ${checkOrder}, ignoreEmptyFolders: ${ignoreEmptyFolders})`,
-      'Tree 1:\n' + tree1.inspect(0) + '\n',
-      'Tree 2:\n' + tree2.inspect(0)
-    )
-    throw e
-  }
-}
 
 function hasNoBookmarks(child) {
   if (child instanceof Bookmark) return false
