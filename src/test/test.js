@@ -204,7 +204,7 @@ describe('Floccus', function() {
             }
             await account.init()
             if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
-              // account.server.hasFeatureHashing = false
+              account.server.hasFeatureHashing = false
               account.server.hasFeatureChildren = false
             }
             if (ACCOUNT_DATA.noCache) {
@@ -4012,6 +4012,8 @@ describe('Floccus', function() {
           if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
             account1.server.hasFeatureHashing = false
             account2.server.hasFeatureHashing = false
+            account1.server.hasFeatureChildren = false
+            account2.server.hasFeatureChildren = false
           }
           if (ACCOUNT_DATA.noCache) {
             account1.storage.setCache = () => {
