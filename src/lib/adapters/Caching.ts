@@ -222,8 +222,8 @@ export default class CachingAdapter implements Adapter {
     return { ...this.server }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async onSyncStart():Promise<void|boolean> { }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+  async onSyncStart(needLock = true):Promise<void|boolean> { }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async onSyncFail():Promise<void> { }

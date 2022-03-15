@@ -194,7 +194,7 @@ export default class WebDavAdapter extends CachingAdapter {
     return response
   }
 
-  async onSyncStart(needLock) {
+  async onSyncStart(needLock = true) {
     Logger.log('onSyncStart: begin')
 
     if (this.server.bookmark_file[0] === '/') {
