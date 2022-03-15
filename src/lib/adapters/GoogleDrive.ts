@@ -35,6 +35,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   private fileId: string
   private accessToken: string
   private cancelCallback: () => void = null
+  private alwaysUpload = false
 
   constructor(server) {
     super(server)
@@ -209,6 +210,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
         } catch (e) {
           if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
             // not encrypted, yet => noop
+            this.alwaysUpload = true
           } else {
             throw new DecryptionError()
           }
@@ -231,6 +233,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
     } else {
       this.resetCache()
+      this.alwaysUpload = true
     }
 
     this.initialTreeHash = await this.bookmarksCache.hash(true)
@@ -268,8 +271,9 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       return
     }
 
-    if (newTreeHash !== this.initialTreeHash) {
+    if (newTreeHash !== this.initialTreeHash || this.alwaysUpload) {
       await this.uploadFile(this.fileId, xbel)
+      this.alwaysUpload = false // reset flag
     } else {
       Logger.log('No changes to the server version necessary')
     }
