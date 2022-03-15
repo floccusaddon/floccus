@@ -20,6 +20,7 @@ export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {
     super(server)
     this.server = server
+    this.locked = false
   }
 
   static getDefaultValues() {
@@ -115,9 +116,13 @@ export default class WebDavAdapter extends CachingAdapter {
         this.server.bookmark_file + '.lock'
       )
     }
+    this.locked = true
   }
 
   async freeLock() {
+    if (!this.locked) {
+      return
+    }
     let fullUrl = this.getBookmarkLockURL()
 
     let authString = Base64.encode(
@@ -189,14 +194,16 @@ export default class WebDavAdapter extends CachingAdapter {
     return response
   }
 
-  async onSyncStart() {
+  async onSyncStart(needLock) {
     Logger.log('onSyncStart: begin')
 
     if (this.server.bookmark_file[0] === '/') {
       throw new SlashError()
     }
 
-    await this.obtainLock()
+    if (needLock) {
+      await this.obtainLock()
+    }
 
     let resp = await this.pullFromServer()
 

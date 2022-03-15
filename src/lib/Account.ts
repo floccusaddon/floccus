@@ -152,7 +152,8 @@ export default class Account {
       }
 
       if (this.server.onSyncStart) {
-        const status = await this.server.onSyncStart()
+        const needLock = (strategy || this.getData().strategy) !== 'slave'
+        const status = await this.server.onSyncStart(needLock)
         if (status === false) {
           await this.init()
         }
