@@ -101,7 +101,31 @@ export default class LocalTabs implements IResource {
   }
 
   async orderFolder(id:string|number, order:Ordering):Promise<void> {
-    Logger.log('(tabs)ORDERFOLDER (noop)', { id, order })
+    Logger.log('(tabs)ORDERFOLDER', { id, order })
+    const originalTabs = await browser.tabs.query({
+      windowId: id
+    })
+    try {
+      for (let index = 0; index < order.length; index++) {
+        await browser.tabs.move(order[index].id, { index })
+      }
+    } catch (e) {
+      throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
+    }
+    // Move items not touched by sync back to where they were
+    // Not perfect but good enough (Problem: [a,X,c] => insert(b,0) => [b, X, a, c])
+    if (originalTabs.length !== order.length) {
+      const untouchedChildren = originalTabs.map((tab, i) => [i, tab]).filter(([, tab]) =>
+        !order.some(item => tab.id === item.id)
+      )
+      try {
+        for (const [index, child] of untouchedChildren) {
+          await browser.tabs.move(child.id, {index})
+        }
+      } catch (e) {
+        throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
+      }
+    }
   }
 
   async updateFolder(folder:Folder):Promise<void> {
