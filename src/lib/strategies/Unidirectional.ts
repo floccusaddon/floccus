@@ -23,8 +23,12 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   }
 
   async sync(): Promise<void> {
+    this.progressCb(0.15)
+
     this.masterLocation = this.direction === ItemLocation.SERVER ? ItemLocation.LOCAL : ItemLocation.SERVER
     await this.prepareSync()
+
+    this.progressCb(0.35)
 
     if (this.canceled) {
       throw new InterruptedSyncError()
@@ -32,6 +36,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     const {localDiff, serverDiff} = await this.getDiffs()
     Logger.log({localDiff, serverDiff})
+    this.progressCb(0.5)
 
     if (this.canceled) {
       throw new InterruptedSyncError()

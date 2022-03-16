@@ -59,7 +59,7 @@ export default class SyncProcess {
     this.progressCb(
       Math.min(
         1,
-        this.actionsDone / (this.actionsPlanned + 1)
+        0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
       )
     )
   }
@@ -69,8 +69,14 @@ export default class SyncProcess {
   }
 
   async sync(): Promise<void> {
+    // onSyncStart is already executed at this point
+    this.progressCb(0.15)
+
     this.masterLocation = ItemLocation.LOCAL
     await this.prepareSync()
+
+    // trees are loaded at this point
+    this.progressCb(0.35)
 
     if (this.canceled) {
       throw new InterruptedSyncError()
@@ -80,6 +86,7 @@ export default class SyncProcess {
 
     const {localDiff, serverDiff} = await this.getDiffs()
     Logger.log({localDiff, serverDiff})
+    this.progressCb(0.5)
 
     if (this.canceled) {
       throw new InterruptedSyncError()
