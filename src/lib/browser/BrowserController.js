@@ -25,7 +25,7 @@ class AlarmManager {
   async checkSync() {
     const accounts = await BrowserAccountStorage.getAllAccounts()
     for (let accountId of accounts) {
-      const account = await BrowserAccount.get(accountId)
+      const account = await Account.get(accountId)
       const data = account.getData()
       const lastSync = data.lastSync || 0
       const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
@@ -123,7 +123,7 @@ export default class BrowserController {
   }
 
   async setKey(key) {
-    let accounts = await BrowserAccount.getAllAccounts()
+    let accounts = await Account.getAllAccounts()
     await Promise.all(accounts.map(a => a.updateFromStorage()))
     this.key = key
     let hashedKey = await Cryptography.sha256(key)
@@ -258,7 +258,7 @@ export default class BrowserController {
       return
     }
 
-    let account = await BrowserAccount.get(accountId)
+    let account = await Account.get(accountId)
     if (account.getData().syncing) {
       return
     }

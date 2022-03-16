@@ -115,7 +115,7 @@ export default class BrowserAccount extends Account {
   static async getAllAccounts():Promise<Account[]> {
     return Promise.all(
       (await BrowserAccountStorage.getAllAccounts()).map((accountId) =>
-        BrowserAccount.get(accountId)
+        Account.get(accountId)
       )
     )
   }
