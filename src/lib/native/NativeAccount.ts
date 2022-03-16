@@ -98,7 +98,7 @@ export default class NativeAccount extends Account {
   static async getAllAccounts():Promise<Account[]> {
     return Promise.all(
       (await NativeAccountStorage.getAllAccounts()).map((accountId) =>
-        NativeAccount.get(accountId)
+        Account.get(accountId)
       )
     )
   }

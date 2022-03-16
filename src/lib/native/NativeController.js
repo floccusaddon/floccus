@@ -1,5 +1,4 @@
 import { Storage } from '@capacitor/storage'
-import NativeAccount from './NativeAccount'
 import NativeTree from './NativeTree'
 import Cryptography from '../Crypto'
 import packageJson from '../../../package.json'
@@ -7,6 +6,7 @@ import NativeAccountStorage from './NativeAccountStorage'
 import uniqBy from 'lodash/uniqBy'
 
 import PQueue from 'p-queue'
+import Account from '../Account'
 
 const INACTIVITY_TIMEOUT = 1000 * 60
 const DEFAULT_SYNC_INTERVAL = 15
@@ -20,7 +20,7 @@ class AlarmManager {
   async checkSync() {
     const accounts = await NativeAccountStorage.getAllAccounts()
     for (let accountId of accounts) {
-      const account = await NativeAccount.get(accountId)
+      const account = await Account.get(accountId)
       const data = account.getData()
       if (!data.lastSync ||
         Date.now() >
@@ -71,7 +71,7 @@ export default class NativeController {
   }
 
   async setKey(key) {
-    let accounts = await NativeAccount.getAllAccounts()
+    let accounts = await Account.getAllAccounts()
     await Promise.all(accounts.map(a => a.updateFromStorage()))
     this.key = key
     let hashedKey = await Cryptography.sha256(key)
@@ -113,7 +113,7 @@ export default class NativeController {
     if (!this.unlocked) {
       throw new Error('Cannot disable encryption without unlocking first')
     }
-    let accounts = await NativeAccount.getAllAccounts()
+    let accounts = await Account.getAllAccounts()
     await Promise.all(accounts.map(a => a.updateFromStorage()))
     this.key = null
     await Storage.set({ key: 'accountsLocked', value: null })
@@ -127,7 +127,7 @@ export default class NativeController {
     // Debounce this function
     this.setEnabled(false)
 
-    const allAccounts = await NativeAccount.getAllAccounts()
+    const allAccounts = await Account.getAllAccounts()
 
     // Check which accounts contain the bookmark and which used to contain (track) it
     const trackingAccountsFilter = await Promise.all(
@@ -150,7 +150,7 @@ export default class NativeController {
       return
     }
 
-    const containingAccounts = await NativeAccount.getAccountsContainingLocalId(
+    const containingAccounts = await Account.getAccountsContainingLocalId(
       localId,
       ancestors,
       allAccounts
@@ -184,7 +184,7 @@ export default class NativeController {
       return
     }
 
-    let account = await NativeAccount.get(accountId)
+    let account = await Account.get(accountId)
     if (account.getData().syncing) {
       return
     }
@@ -202,7 +202,7 @@ export default class NativeController {
   }
 
   async cancelSync(accountId, keepEnabled) {
-    let account = await NativeAccount.get(accountId)
+    let account = await Account.get(accountId)
     // Avoid starting it again automatically
     if (!keepEnabled) {
       await account.setData({ ...account.getData(), enabled: false })
@@ -215,7 +215,7 @@ export default class NativeController {
     if (!this.enabled) {
       return
     }
-    let account = await NativeAccount.get(accountId)
+    let account = await Account.get(accountId)
     if (account.getData().syncing) {
       return
     }
@@ -243,7 +243,7 @@ export default class NativeController {
   }
 
   async onLoad() {
-    const accounts = await NativeAccount.getAllAccounts()
+    const accounts = await Account.getAllAccounts()
     await Promise.all(
       accounts.map(async acc => {
         if (acc.getData().syncing) {
