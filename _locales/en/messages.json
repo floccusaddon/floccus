@@ -213,10 +213,10 @@
     "message": "Merge local and remote changes (recommended)"
   },
   "LabelStrategyslave": {
-    "message": "Always revert local changes and pull upstream remote changes"
+    "message": "Always revert local changes and download cloud changes"
   },
   "LabelStrategyoverwrite": {
-    "message": "Always revert upstream remote changes and push local changes"
+    "message": "Always revert cloud changes and upload local changes"
   },
   "LabelSave": {
     "message": "Save"
@@ -412,19 +412,19 @@
     "message": "Tabs"
   },
   "LabelSyncDown": {
-    "message": "Pull sync"
+    "message": "Download & overwrite local"
   },
   "LabelSyncUp": {
-    "message": "Push sync"
+    "message": "Upload & overwrite cloud"
   },
   "LabelSyncDownOnce": {
-    "message": "Pull sync once"
+    "message": "Download & overwrite once"
   },
   "LabelSyncUpOnce": {
-    "message": "Push sync once"
+    "message": "Upload & overwrite once"
   },
   "LabelSyncNormal": {
-    "message": "Normal sync"
+    "message": "Merge local & cloud"
   },
   "DescriptionFilesPermission": {
     "message": "Make sure you give floccus permission to not only use the bookmarks app but the Nextcloud files app as well."
