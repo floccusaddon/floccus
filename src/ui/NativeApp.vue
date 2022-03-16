@@ -9,6 +9,7 @@
 <script>
 import { version as VERSION } from '../../package.json'
 import { actions } from './store/native'
+import Controller from '../lib/Controller'
 export default {
   name: 'NativeApp',
   data() {
@@ -31,10 +32,14 @@ export default {
       }
     }
   },
-  created() {
+  async created() {
     setInterval(() => {
       this.$store.dispatch(actions.LOAD_ACCOUNTS)
     }, 5000)
+    const controller = await Controller.getSingleton()
+    controller.onStatusChange(() => {
+      this.$store.dispatch(actions.LOAD_ACCOUNTS)
+    })
   }
 }
 </script>
