@@ -10,10 +10,13 @@ import { actions } from '../../store/native'
 import { routes } from '../../NativeRouter'
 import { SplashScreen } from '@capacitor/splash-screen'
 import { SendIntent } from 'send-intent'
+import Controller from '../../../lib/Controller'
 
 export default {
   name: 'Home',
   async created() {
+    const controller = await Controller.getSingleton()
+    await controller.onLoad()
     SplashScreen.hide()
     await this.$store.dispatch(actions.LOAD_ACCOUNTS)
 
