@@ -50,7 +50,6 @@ export const actionsDefinition = {
   async [actions.LOAD_TREE]({ commit, dispatch, state }, id) {
     const account = await Account.get(id)
     const tree = await account.getResource()
-    await tree.load()
     const rootFolder = await tree.getBookmarksTree(true)
     await commit(mutations.LOAD_TREE, rootFolder)
   },
