@@ -201,7 +201,7 @@ export default class Account {
 
       // update cache
       if (localResource.constructor.name !== 'LocalTabs') {
-        const cache = await localResource.getBookmarksTree()
+        const cache = (await localResource.getBookmarksTree()).clone(false)
         this.syncProcess.filterOutUnacceptedBookmarks(cache)
         this.syncProcess.filterOutUnmappedItems(cache, await mappings.getSnapshot())
         await this.storage.setCache(cache)

@@ -39,6 +39,12 @@ export default class NativeTree extends CachingAdapter {
     }, 500)
   }
 
+  async getBookmarksTree(): Promise<Folder> {
+    const tree = await super.getBookmarksTree()
+    tree.createIndex()
+    return tree
+  }
+
   async createBookmark(bookmark:Bookmark): Promise<string|number> {
     this.triggerSave()
     return super.createBookmark(bookmark)

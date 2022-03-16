@@ -298,9 +298,6 @@ export default {
         await this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
       }
     },
-    tree() {
-      this.tree.createIndex()
-    },
   },
   mounted() {
     this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
@@ -359,13 +356,15 @@ export default {
         this.isEditingFolder = false
         return
       }
-      if (!this.searchQuery && typeof this.currentFolder.parentId === 'undefined') {
-        App.exitApp()
+      if (this.searchQuery) {
+        this.searchQuery = ''
+        return
       }
-      this.searchQuery = ''
       if (typeof this.currentFolder.parentId !== 'undefined') {
         this.currentFolderId = this.currentFolder.parentId
+        return
       }
+      App.exitApp()
     },
     editItem(item) {
       if (item.url) {
