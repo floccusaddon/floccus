@@ -1,6 +1,5 @@
 import { Storage } from '@capacitor/storage'
 import Cryptography from '../Crypto'
-import packageJson from '../../../package.json'
 import NativeAccountStorage from './NativeAccountStorage'
 
 import PQueue from 'p-queue'
@@ -47,19 +46,6 @@ export default class NativeController {
       this.unlocked = !accountsLocked
       if (accountsLocked) {
         this.key = null
-      }
-    })
-
-    // do some cleaning if this is a new version
-
-    Storage.get({key: 'currentVersion'}).then(async({value: currentVersion}) => {
-      if (packageJson.version === currentVersion) return
-      await Storage.set({key: 'currentVersion', value: packageJson.version})
-
-      const packageVersion = packageJson.version.split('.')
-      const lastVersion = currentVersion ? currentVersion.split('.') : []
-      if (packageVersion[0] !== lastVersion[0] || packageVersion[1] !== lastVersion[1]) {
-        // TODO display '/dist/html/options.html#/update',
       }
     })
   }

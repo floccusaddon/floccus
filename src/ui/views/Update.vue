@@ -33,7 +33,6 @@
               :color="'light-blue'"
               class="mr-2 mb-2"
               target="_blank"
-              width="48%"
               :href="processor.href">
               <v-card-title class="white--text">
                 {{ processor.label }}
@@ -44,6 +43,14 @@
             </v-card>
           </div>
         </v-card-text>
+        <v-card-text v-if="!isBrowser">
+          <v-btn
+            class="primary mt-2"
+            target="_blank"
+            :to="{name: nativeRoutes.HOME }">
+            {{ t('LabelContinuefloccus') }}
+          </v-btn>
+        </v-card-text>
       </v-container>
     </v-card>
   </v-container>
@@ -51,7 +58,7 @@
 
 <script>
 import {version as VERSION} from '../../../package.json'
-import browser from '../../lib/browser-api'
+import { routes } from '../NativeRouter'
 
 export default {
   name: 'Update',
@@ -61,23 +68,23 @@ export default {
       paymentOptions: [
         {
           href: 'https://www.paypal.me/marcelklehr1',
-          label: browser.i18n.getMessage('LabelPaypal'),
-          description: browser.i18n.getMessage('DescriptionPaypal')
+          label: this.t('LabelPaypal'),
+          description: this.t('DescriptionPaypal')
         },
         {
           href: 'https://opencollective.com/floccus',
-          label: browser.i18n.getMessage('LabelOpencollective'),
-          description: browser.i18n.getMessage('DescriptionOpencollective')
+          label: this.t('LabelOpencollective'),
+          description: this.t('DescriptionOpencollective')
         },
         {
           href: 'https://liberapay.com/marcelklehr/donate',
-          label: browser.i18n.getMessage('LabelLiberapay'),
-          description: browser.i18n.getMessage('DescriptionLiberapay')
+          label: this.t('LabelLiberapay'),
+          description: this.t('DescriptionLiberapay')
         },
         {
           href: 'https://github.com/users/marcelklehr/sponsorship',
-          label: browser.i18n.getMessage('LabelGithubsponsors'),
-          description: browser.i18n.getMessage('DescriptionGithubsponsors')
+          label: this.t('LabelGithubsponsors'),
+          description: this.t('DescriptionGithubsponsors')
         }
       ]
     }
@@ -85,6 +92,9 @@ export default {
   computed: {
     VERSION() {
       return VERSION
+    },
+    nativeRoutes() {
+      return routes
     }
   },
   methods: {
@@ -96,5 +106,10 @@ export default {
     .options {
         max-width: 600px;
         margin: 0 auto;
+    }
+    @media screen and (min-width: 600px) {
+      .v-card--flat {
+        width: 48%
+      }
     }
 </style>

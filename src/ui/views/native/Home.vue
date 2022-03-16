@@ -11,6 +11,8 @@ import { routes } from '../../NativeRouter'
 import { SplashScreen } from '@capacitor/splash-screen'
 import { SendIntent } from 'send-intent'
 import Controller from '../../../lib/Controller'
+import packageJson from '../../../../package.json'
+import { Storage } from '@capacitor/storage'
 
 export default {
   name: 'Home',
@@ -20,7 +22,18 @@ export default {
     SplashScreen.hide()
     await this.$store.dispatch(actions.LOAD_ACCOUNTS)
 
-    if (Object.keys(this.$store.state.accounts).length) {
+    const {value: currentVersion} = await Storage.get({key: 'currentVersion'})
+    if (currentVersion && packageJson.version !== currentVersion) {
+      await Storage.set({ key: 'currentVersion', value: packageJson.version })
+
+      const packageVersion = packageJson.version.split('.')
+      const lastVersion = currentVersion ? currentVersion.split('.') : []
+      if (packageVersion[0] !== lastVersion[0] || packageVersion[1] !== lastVersion[1]) {
+        if (this.$route !== routes.UPDATE) {
+          this.$router.push({ name: routes.UPDATE })
+        }
+      }
+    } else if (Object.keys(this.$store.state.accounts).length) {
       const intentReceived = await this.checkForIntent()
       if (!intentReceived) {
         const accountId = Object.keys(this.$store.state.accounts)[0]

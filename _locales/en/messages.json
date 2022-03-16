@@ -533,5 +533,8 @@
   },
   "LabelMobilesettings": {
     "message": "Mobile settings"
+  },
+  "LabelContinuefloccus":{
+    "message": "Continue to floccus"
   }
 }

@@ -43,6 +43,11 @@ export const router = new Router({
       component: NewAccount,
     },
     {
+      path: '/update',
+      name: routes.UPDATE,
+      component: () => import(/* webpackPrefetch: true */ './views/Update'),
+    },
+    {
       path: '/newBookmark/:accountId/:url/:text?',
       name: routes.ADD_BOOKMARK,
       component: AddBookmarkIntent,
