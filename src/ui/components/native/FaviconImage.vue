@@ -1,7 +1,9 @@
 <template>
   <img
     v-if="src"
-    :src="src">
+    ref="img"
+    :src="src"
+    @error="onError">
   <v-icon
     v-else
     large>
@@ -31,7 +33,14 @@ export default {
       src: null,
     }
   },
-  async created() {
+  watch: {
+    loadError() {
+      if (this.loadError) {
+        this.src = null
+      }
+    }
+  },
+  async mounted() {
     if (!this.useNetwork) {
       return
     }
@@ -49,6 +58,11 @@ export default {
       await Storage.set({key, value: this.src})
     } catch (e) {
       console.log(e)
+    }
+  },
+  methods: {
+    onError() {
+      this.src = null
     }
   }
 }
