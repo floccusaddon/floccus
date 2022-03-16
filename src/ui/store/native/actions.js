@@ -59,6 +59,8 @@ export const actionsDefinition = {
     await tree.createBookmark(bookmark)
     await tree.save()
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
+    const controller = await Controller.getSingleton()
+    controller.scheduleSync(accountId, true)
   },
   async [actions.EDIT_BOOKMARK]({commit}, {accountId, bookmark}) {
     const account = await Account.get(accountId)
@@ -73,6 +75,8 @@ export const actionsDefinition = {
     await tree.removeBookmark(bookmark)
     await tree.save()
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
+    const controller = await Controller.getSingleton()
+    controller.scheduleSync(accountId, true)
   },
   async [actions.CREATE_FOLDER]({commit}, {accountId, folder}) {
     const account = await Account.get(accountId)
@@ -80,6 +84,8 @@ export const actionsDefinition = {
     await tree.createFolder(folder)
     await tree.save()
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
+    const controller = await Controller.getSingleton()
+    controller.scheduleSync(accountId, true)
   },
   async [actions.EDIT_FOLDER]({commit}, {accountId, folder}) {
     const account = await Account.get(accountId)
@@ -87,6 +93,8 @@ export const actionsDefinition = {
     await tree.updateFolder(folder)
     await tree.save()
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
+    const controller = await Controller.getSingleton()
+    controller.scheduleSync(accountId, true)
   },
   async [actions.DELETE_FOLDER]({commit}, {accountId, folder}) {
     const account = await Account.get(accountId)
@@ -94,6 +102,8 @@ export const actionsDefinition = {
     await tree.removeFolder(folder)
     await tree.save()
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
+    const controller = await Controller.getSingleton()
+    controller.scheduleSync(accountId, true)
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
     const account = await Account.create({...(await AdapterFactory.getDefaultValues(type))})

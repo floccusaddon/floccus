@@ -1,14 +1,12 @@
 import { Storage } from '@capacitor/storage'
-import NativeTree from './NativeTree'
 import Cryptography from '../Crypto'
 import packageJson from '../../../package.json'
 import NativeAccountStorage from './NativeAccountStorage'
-import uniqBy from 'lodash/uniqBy'
 
 import PQueue from 'p-queue'
 import Account from '../Account'
 
-const INACTIVITY_TIMEOUT = 1000 * 60
+const INACTIVITY_TIMEOUT = 1000 * 7
 const DEFAULT_SYNC_INTERVAL = 15
 
 class AlarmManager {
@@ -118,58 +116,6 @@ export default class NativeController {
     this.key = null
     await Storage.set({ key: 'accountsLocked', value: null })
     await Promise.all(accounts.map(a => a.setData(a.getData())))
-  }
-
-  async onchange(localId, details) {
-    if (!this.enabled) {
-      return
-    }
-    // Debounce this function
-    this.setEnabled(false)
-
-    const allAccounts = await Account.getAllAccounts()
-
-    // Check which accounts contain the bookmark and which used to contain (track) it
-    const trackingAccountsFilter = await Promise.all(
-      allAccounts.map(async account => {
-        return account.tracksBookmark(localId)
-      })
-    )
-
-    let accountsToSync = allAccounts
-      // Filter out any accounts that are not tracking the bookmark
-      .filter((account, i) => trackingAccountsFilter[i])
-
-    // Now we check the account of the new folder
-
-    let ancestors
-    try {
-      ancestors = await NativeTree.getIdPathFromLocalId(localId)
-    } catch (e) {
-      this.setEnabled(true)
-      return
-    }
-
-    const containingAccounts = await Account.getAccountsContainingLocalId(
-      localId,
-      ancestors,
-      allAccounts
-    )
-    accountsToSync = uniqBy(
-      accountsToSync.concat(containingAccounts),
-      acc => acc.id)
-      // Filter out any accounts that are presently syncing
-      .filter(account => !account.getData().syncing)
-      // Filter out accounts that are not enabled
-      .filter(account => account.getData().enabled)
-
-    // schedule a new sync for all accounts involved
-    accountsToSync.forEach(account => {
-      this.cancelSync(account.id, true)
-      this.scheduleSync(account.id, true)
-    })
-
-    this.setEnabled(true)
   }
 
   async scheduleSync(accountId, wait) {
