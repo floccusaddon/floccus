@@ -58,7 +58,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     // First revert slave modifications
 
-    let revertPlan = await this.revertDiff(targetDiff, this.direction)
+    const revertPlan = await this.revertDiff(targetDiff, this.direction)
     Logger.log({revertPlan})
     if (this.direction === ItemLocation.LOCAL) {
       this.applyFailsafe(revertPlan)
@@ -68,14 +68,15 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       throw new InterruptedSyncError()
     }
 
-    const mappingsSnapshot = this.mappings.getSnapshot()
-    revertPlan = await this.execute(target, revertPlan, this.direction)
-    const revertOrderings = revertPlan.map(mappingsSnapshot, this.direction, (action) => action.type === ActionType.REORDER)
-    Logger.log({revertOrderings: revertOrderings.getActions(ActionType.REORDER)})
+    await this.execute(target, revertPlan, this.direction)
+
+    const mappingsSnapshot = await this.mappings.getSnapshot()
+    const reverOrderings = sourceDiff.map(mappingsSnapshot, this.direction)
+    Logger.log({revertOrderings: reverOrderings.getActions(ActionType.REORDER)})
 
     if ('orderFolder' in target) {
       await Promise.all([
-        this.executeReorderings(target, revertOrderings),
+        this.executeReorderings(target, reverOrderings),
       ])
     }
   }
@@ -118,6 +119,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
         oldItem.id = action.oldItem.id
         oldItem.parentId = action.oldItem.parentId
         plan.commit({ type: ActionType.UPDATE, payload, oldItem })
+      }
+      if (action.type === ActionType.REORDER) {
+        plan.commit({ ...action })
       }
     })
 
