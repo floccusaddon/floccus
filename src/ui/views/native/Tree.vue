@@ -343,6 +343,22 @@ export default {
       })
     },
     goBack() {
+      if (this.isAddingBookmark) {
+        this.isAddingBookmark = false
+        return
+      }
+      if (this.isEditingBookmark) {
+        this.isEditingBookmark = false
+        return
+      }
+      if (this.isAddingFolder) {
+        this.isAddingFolder = false
+        return
+      }
+      if (this.isEditingFolder) {
+        this.isEditingFolder = false
+        return
+      }
       if (!this.searchQuery && typeof this.currentFolder.parentId === 'undefined') {
         App.exitApp()
       }
