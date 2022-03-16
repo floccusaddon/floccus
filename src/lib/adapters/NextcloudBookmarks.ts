@@ -140,6 +140,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       if (await this.acquireLock()) {
         break
       } else {
+        Logger.log('Resource is still locked, trying again in ' + (base ** i) + 's')
         await this.timeout(base ** i * 1000)
       }
     }
