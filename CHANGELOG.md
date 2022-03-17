@@ -1,5 +1,36 @@
 # Changelog
 
+## v4.12.0
+
+### New
+- [Native] Schedule sync automatically after local edits
+- [native] Implement Update screen
+- Implement support for separators
+- More beautiful status indicators
+- Sync chrome:// URLs (but not on Firefox and not with Nextcloud bookmarks)
+- Implement timed locks for GoogleDrive and WebDAV to reduce waiting time
+- Reduce inactivity timeout to 20s
+
+### Fixed
+- [Native] Fix broken favicons
+- [Native] speed-up tree navigation
+- [native] Performance improvements
+- [native] UX: Allow pressing BACK when adding/editing items
+- UX: Improve progress bar feedback during syncing
+- UX: Improve wording around sync strategies
+- Performance: Avoid loading all of lodash
+- Google Drive: Force upload when new account or new encryption
+- Do not delete duplicate bookmarks anymore
+- Tab sync: Do not remove duplicated tabs on sync and sync tab order
+- Fix Unidirectional sync
+- Unidirectional: Fix ordering
+- LocalTabs: Implement set order
+- Improve order reconciliation
+- Keep local sort order of ignored items
+- GoogleDrive: Fix locking
+- WebDAV: Don't lock if using slave strategy
+
+
 ## v4.11.0
 
 ### New
