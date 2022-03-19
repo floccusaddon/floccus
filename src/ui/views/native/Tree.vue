@@ -1,5 +1,7 @@
 <template>
-  <div>
+  <div
+    v-touch="{down: () => onSwipeDown()}"
+    style="height:100%">
     <Drawer :visible.sync="drawer" />
     <v-app-bar
       hide-on-scroll
@@ -422,7 +424,13 @@ export default {
       if (this.syncing) {
         return
       }
+      this.currentAccount.data.syncing = 0.0001 // faaast
       this.$store.dispatch(actions.TRIGGER_SYNC, this.id)
+    },
+    onSwipeDown() {
+      if (window.scrollY === 0) {
+        this.onTriggerSync()
+      }
     }
   }
 }
