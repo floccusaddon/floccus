@@ -1,6 +1,7 @@
 <template>
   <v-container>
     <v-card
+      v-if="isBrowser"
       class="options mt-3">
       <v-container class="pa-5">
         <v-card-title>
@@ -63,7 +64,6 @@
 
 <script>
 import PathHelper from '../../lib/PathHelper'
-import {actions} from '../store'
 import Vue from 'vue'
 
 export default {
@@ -102,7 +102,7 @@ export default {
         if (!ids.length) {
           return
         }
-        await this.$store.dispatch(actions.EXPORT_ACCOUNTS, ids)
+        await this.$store.dispatch('EXPORT_ACCOUNTS', ids)
       } catch (e) {
         alert(e.message)
       }
@@ -114,7 +114,7 @@ export default {
       const file = this.$refs.filePicker.files[0]
       try {
         const accounts = JSON.parse(await file.text())
-        await this.$store.dispatch(actions.IMPORT_ACCOUNTS, accounts)
+        await this.$store.dispatch('IMPORT_ACCOUNTS', accounts)
       } catch (e) {
         alert(e.message)
       }

@@ -4,6 +4,7 @@ import Tree from './views/native/Tree'
 import Home from './views/native/Home'
 import NewAccount from './views/NewAccount'
 import AddBookmarkIntent from './views/native/AddBookmarkIntent'
+import ImportExport from './views/native/ImportExport'
 
 Vue.use(Router)
 
@@ -51,6 +52,11 @@ export const router = new Router({
       path: '/newBookmark/:accountId/:url/:text?',
       name: routes.ADD_BOOKMARK,
       component: AddBookmarkIntent,
+    },
+    {
+      path: '/importexport',
+      name: routes.IMPORTEXPORT,
+      component: ImportExport,
     },
   ],
 })

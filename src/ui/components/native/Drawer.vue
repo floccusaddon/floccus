@@ -52,13 +52,23 @@
       </v-list-item>
       <v-divider />
       <v-list-item
+        key="export"
+        link
+        :to="{name: routes.IMPORTEXPORT}">
+        <v-list-item-icon>
+          <v-icon>mdi-export</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>{{ t('LabelImportExport') }}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item
         key="donate"
         link
         href="https://floccus.org/download#support">
         <v-list-item-icon>
           <v-icon>mdi-heart-outline</v-icon>
         </v-list-item-icon>
-
         <v-list-item-content>
           <v-list-item-title>{{ t('LabelFunddevelopment') }}</v-list-item-title>
         </v-list-item-content>
