@@ -16,11 +16,14 @@ import {
 import { Http } from '@capacitor-community/http'
 import { Device } from '@capacitor/device'
 
+const LOCK_INTERVAL = 60 * 1000 // Lock every minute while syncing
+const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
 export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {
     super(server)
     this.server = server
     this.locked = false
+    this.lockingInterval = null
   }
 
   static getDefaultValues() {
@@ -85,7 +88,7 @@ export default class WebDavAdapter extends CachingAdapter {
   async obtainLock() {
     let res
     let startDate = Date.now()
-    const maxTimeout = 15 * 60 * 1000 // Give up after 0.25h
+    const maxTimeout = LOCK_TIMEOUT
     const base = 1.25
     for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
       res = await this.checkLock()
@@ -103,13 +106,7 @@ export default class WebDavAdapter extends CachingAdapter {
     if (res.status === 200) {
       // continue anywayrStatus
     } else if (res.status === 404) {
-      let fullURL = this.getBookmarkLockURL()
-      Logger.log(fullURL)
-      await this.uploadFile(
-        fullURL,
-        'text/html',
-        '<html><body>I am a lock file</body></html>'
-      )
+      await this.setLock()
     } else {
       throw new LockFileError(
         res.status,
@@ -117,6 +114,16 @@ export default class WebDavAdapter extends CachingAdapter {
       )
     }
     this.locked = true
+  }
+
+  async setLock() {
+    let fullURL = this.getBookmarkLockURL()
+    Logger.log(fullURL)
+    await this.uploadFile(
+      fullURL,
+      'text/html',
+      '<html><body>I am a lock file</body></html>'
+    )
   }
 
   async freeLock() {
@@ -213,6 +220,8 @@ export default class WebDavAdapter extends CachingAdapter {
       }
     }
 
+    this.lockingInterval = setInterval(() => this.setLock(), LOCK_INTERVAL) // Set lock every minute
+
     this.initialTreeHash = await this.bookmarksCache.hash(true)
 
     Logger.log('onSyncStart: completed')
@@ -225,6 +234,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async onSyncFail() {
     Logger.log('onSyncFail')
+    clearTimeout(this.lockingInterval)
     await this.freeLock()
   }
 
@@ -243,6 +253,7 @@ export default class WebDavAdapter extends CachingAdapter {
     } else {
       Logger.log('No changes to the server version necessary')
     }
+    clearTimeout(this.lockingInterval)
     await this.freeLock()
   }
 

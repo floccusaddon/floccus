@@ -56,6 +56,9 @@ interface IChildOrderItem {
   children?: IChildOrderItem[]
 }
 
+const LOCK_INTERVAL = 60 * 1000 // Set lock every minute while syncing
+const LOCK_TIMEOUT = 30 * 60 * 1000 // Override lock after half an hour
+
 export default class NextcloudBookmarksAdapter implements Adapter, BulkImportResource, LoadFolderChildrenResource, OrderFolderResource {
   private server: NextcloudBookmarksConfig
   private fetchQueue: PQueue<{ concurrency: 12 }>
@@ -69,6 +72,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private lockId: string | number
   private canceled = false
   private cancelCallback: () => void = null
+  private lockingInterval: any
 
   constructor(server: NextcloudBookmarksConfig) {
     this.server = server
@@ -134,7 +138,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   async onSyncStart(): Promise<void> {
     this.canceled = false
     const startDate = Date.now()
-    const maxTimeout = 30 * 60 * 1000 // Give up after 0.5h
+    const maxTimeout = LOCK_TIMEOUT
     const base = 1.25
     for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
       if (await this.acquireLock()) {
@@ -144,13 +148,16 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         await this.timeout(base ** i * 1000)
       }
     }
+    this.lockingInterval = setTimeout(() => this.acquireLock(), LOCK_INTERVAL)
   }
 
   async onSyncComplete(): Promise<void> {
+    clearInterval(this.lockingInterval)
     await this.releaseLock()
   }
 
   async onSyncFail(): Promise<void> {
+    clearInterval(this.lockingInterval)
     await this.releaseLock()
   }
 

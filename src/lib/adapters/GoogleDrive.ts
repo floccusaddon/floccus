@@ -28,6 +28,8 @@ const OAuthConfig = {
 
 declare const chrome: any
 
+const LOCK_INTERVAL = 60 * 1000 // Lock every minute while syncing
+const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 15min after last time it was set
 export default class GoogleDriveAdapter extends CachingAdapter {
   static SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly']
 
@@ -36,6 +38,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   private accessToken: string
   private cancelCallback: () => void = null
   private alwaysUpload = false
+  private lockingInterval: any
 
   constructor(server) {
     super(server)
@@ -178,7 +181,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     let file
     let startDate = Date.now()
-    const maxTimeout = 15 * 60 * 1000 // Give up after 0.25h
+    const maxTimeout = LOCK_TIMEOUT
     const base = 1.25
     for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
       const fileList = await this.listFiles('name = ' + "'" + this.server.bookmark_file + "'")
@@ -231,6 +234,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       })
 
       this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
+      this.lockingInterval = setInterval(() => this.setLock(this.fileId), LOCK_INTERVAL) // Set lock every minute
     } else {
       this.resetCache()
       this.alwaysUpload = true
@@ -249,6 +253,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   async onSyncFail() {
     Logger.log('onSyncFail')
     if (this.fileId) {
+      clearInterval(this.lockingInterval)
       await this.freeLock(this.fileId)
     }
     this.fileId = null
@@ -277,6 +282,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     } else {
       Logger.log('No changes to the server version necessary')
     }
+    clearInterval(this.lockingInterval)
     await this.freeLock(this.fileId)
     this.fileId = null
   }
