@@ -71,12 +71,12 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     await this.execute(target, revertPlan, this.direction)
 
     const mappingsSnapshot = await this.mappings.getSnapshot()
-    const reverOrderings = sourceDiff.map(mappingsSnapshot, this.direction)
-    Logger.log({revertOrderings: reverOrderings.getActions(ActionType.REORDER)})
+    const revertOrderings = sourceDiff.map(mappingsSnapshot, this.direction)
+    Logger.log({revertOrderings: revertOrderings.getActions(ActionType.REORDER)})
 
     if ('orderFolder' in target) {
       await Promise.all([
-        this.executeReorderings(target, reverOrderings),
+        this.executeReorderings(target, revertOrderings),
       ])
     }
   }
