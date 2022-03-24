@@ -4,6 +4,7 @@ import NativeAccountStorage from './NativeAccountStorage'
 
 import PQueue from 'p-queue'
 import Account from '../Account'
+import onwakeup from 'onwakeup'
 
 const INACTIVITY_TIMEOUT = 1000 * 7
 const DEFAULT_SYNC_INTERVAL = 15
@@ -38,6 +39,9 @@ export default class NativeController {
     this.listeners = []
 
     this.alarms = new AlarmManager(this)
+
+    // Set up onWakeup
+    onwakeup(() => this.onWakeup())
 
     // lock accounts when locking is enabled
 
@@ -185,6 +189,15 @@ export default class NativeController {
             error: false,
           })
         }
+      })
+    )
+  }
+
+  async onWakeup() {
+    const accounts = await Account.getAllAccounts()
+    await Promise.all(
+      accounts.map(async acc => {
+        await acc.cancelSync()
       })
     )
   }

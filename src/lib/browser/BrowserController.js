@@ -6,6 +6,7 @@ import DefunctCryptography from '../DefunctCrypto'
 import packageJson from '../../../package.json'
 import BrowserAccountStorage from './BrowserAccountStorage'
 import uniqBy from 'lodash/uniqBy'
+import onwakeup from 'onwakeup'
 
 import PQueue from 'p-queue'
 import Account from '../Account'
@@ -62,6 +63,9 @@ export default class BrowserController {
     browser.bookmarks.onCreated.addListener((localId, details) =>
       this.onchange(localId, details)
     )
+
+    // Set up onWakeup
+    onwakeup(() => this.onWakeup())
 
     // Set up the alarms
 
@@ -366,6 +370,15 @@ export default class BrowserController {
             error: false,
           })
         }
+      })
+    )
+  }
+
+  async onWakeup() {
+    const accounts = await Account.getAllAccounts()
+    await Promise.all(
+      accounts.map(async acc => {
+        await acc.cancelSync()
       })
     )
   }
