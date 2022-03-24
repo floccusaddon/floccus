@@ -53,12 +53,12 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       target = this.localTree
     }
 
-    this.actionsPlanned = sourceDiff.getActions().length + targetDiff.getActions().length
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
 
     // First revert slave modifications
 
     const revertPlan = await this.revertDiff(targetDiff, this.direction)
+    this.actionsPlanned = revertPlan.getActions().length
     Logger.log({revertPlan})
     if (this.direction === ItemLocation.LOCAL) {
       this.applyFailsafe(revertPlan)
