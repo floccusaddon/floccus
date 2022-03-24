@@ -2364,6 +2364,97 @@ describe('Floccus', function() {
                 ignoreEmptyFolders(ACCOUNT_DATA)
               )
             })
+            it('should create local bookmarks on the server respecting moves', async function() {
+              await account.setData({
+                ...account.getData(),
+                strategy: 'overwrite'
+              })
+              expect(
+                (await getAllBookmarks(account)).children
+              ).to.have.lengthOf(0)
+
+              const localRoot = account.getData().localRoot
+              const fooFolder = await browser.bookmarks.create({
+                title: 'foo',
+                parentId: localRoot
+              })
+              const barFolder = await browser.bookmarks.create({
+                title: 'bar',
+                parentId: fooFolder.id
+              })
+              const bookmark = await browser.bookmarks.create({
+                title: 'url',
+                url: 'http://ur.l/',
+                parentId: barFolder.id
+              })
+              await account.sync()
+              expect(account.getData().error).to.not.be.ok
+
+              const tree = await getAllBookmarks(account)
+              expectTreeEqual(
+                tree,
+                new Folder({
+                  title: tree.title,
+                  children: [
+                    new Folder({
+                      title: 'foo',
+                      children: [
+                        new Folder({
+                          title: 'bar',
+                          children: [
+                            new Bookmark({ title: 'url', url: bookmark.url })
+                          ]
+                        })
+                      ]
+                    })
+                  ]
+                }),
+                ignoreEmptyFolders(ACCOUNT_DATA)
+              )
+
+              const bazFolder = await browser.bookmarks.create({
+                title: 'baz',
+                parentId: localRoot
+              })
+              const barazFolder = await browser.bookmarks.create({
+                title: 'baraz',
+                parentId: bazFolder.id
+              })
+              await browser.bookmarks.move(barFolder.id, {parentId: barazFolder.id})
+              await account.sync()
+              expect(account.getData().error).to.not.be.ok
+
+              const tree2 = await getAllBookmarks(account)
+              expectTreeEqual(
+                tree2,
+                new Folder({
+                  title: tree.title,
+                  children: [
+                    new Folder({
+                      title: 'foo',
+                      children: []
+                    }),
+                    new Folder({
+                      title: 'baz',
+                      children: [
+                        new Folder({
+                          title: 'baraz',
+                          children: [
+                            new Folder({
+                              title: 'bar',
+                              children: [
+                                new Bookmark({ title: 'url', url: bookmark.url })
+                              ]
+                            })
+                          ]
+                        })
+                      ]
+                    })
+                  ]
+                }),
+                ignoreEmptyFolders(ACCOUNT_DATA)
+              )
+            })
             it('should update the server on local changes', async function() {
               if (ACCOUNT_DATA.noCache) {
                 return this.skip()
