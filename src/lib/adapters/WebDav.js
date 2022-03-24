@@ -136,17 +136,26 @@ export default class WebDavAdapter extends CachingAdapter {
       this.server.username + ':' + this.server.password
     )
 
+    let res, lockFreed, i = 0
     try {
-      await Http.request({
-        url: fullUrl,
-        method: 'DELETE',
-        headers: {
-          Authorization: 'Basic ' + authString
-        },
-        webFetchExtra: {
-          credentials: 'omit',
+      do {
+        res = await Http.request({
+          url: fullUrl,
+          method: 'DELETE',
+          headers: {
+            Authorization: 'Basic ' + authString
+          },
+          webFetchExtra: {
+            credentials: 'omit',
+          }
+        })
+        lockFreed = res.status === 200 || res.status === 204 || res.status === 404
+        if (!lockFreed) {
+          await this.timeout(1000)
         }
-      })
+        i++
+      } while (!lockFreed && i < 10)
+      return lockFreed
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
@@ -240,6 +249,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async onSyncComplete() {
     Logger.log('onSyncComplete')
+    clearTimeout(this.lockingInterval)
 
     this.bookmarksCache = this.bookmarksCache.clone()
     const newTreeHash = await this.bookmarksCache.hash(true)
@@ -253,7 +263,7 @@ export default class WebDavAdapter extends CachingAdapter {
     } else {
       Logger.log('No changes to the server version necessary')
     }
-    clearTimeout(this.lockingInterval)
+
     await this.freeLock()
   }
 

@@ -261,6 +261,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
   async onSyncComplete() {
     Logger.log('onSyncComplete')
+    clearInterval(this.lockingInterval)
 
     this.bookmarksCache = this.bookmarksCache.clone()
     const newTreeHash = await this.bookmarksCache.hash(true)
@@ -282,7 +283,6 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     } else {
       Logger.log('No changes to the server version necessary')
     }
-    clearInterval(this.lockingInterval)
     await this.freeLock(this.fileId)
     this.fileId = null
   }
@@ -364,26 +364,34 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   async freeLock(id:string) {
-    let resp
-    try {
-      resp = await fetch(this.getUrl() + '/files/' + id,{
-        method: 'PATCH',
-        credentials: 'omit',
-        body: JSON.stringify({appProperties: {locked: JSON.stringify(false)}}),
-        headers: {
-          Authorization: 'Bearer ' + this.accessToken,
-          'Content-type': 'application/json',
-        }
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-      throw new NetworkError()
-    }
-    if (resp.status === 401 || resp.status === 403) {
-      throw new AuthenticationError()
-    }
-    return resp.status === 200
+    let lockFreed, i = 0
+    do {
+      let resp
+      try {
+        resp = await fetch(this.getUrl() + '/files/' + id,{
+          method: 'PATCH',
+          credentials: 'omit',
+          body: JSON.stringify({appProperties: {locked: JSON.stringify(false)}}),
+          headers: {
+            Authorization: 'Bearer ' + this.accessToken,
+            'Content-type': 'application/json',
+          }
+        })
+      } catch (e) {
+        Logger.log('Error Caught')
+        Logger.log(e)
+        throw new NetworkError()
+      }
+      if (resp.status === 401 || resp.status === 403) {
+        throw new AuthenticationError()
+      }
+      lockFreed = resp.status === 200 || resp.status === 204
+      if (!lockFreed) {
+        await this.timeout(1000)
+      }
+      i++
+    } while (!lockFreed && i < 10)
+    return lockFreed
   }
 
   async setLock(id:string) {
