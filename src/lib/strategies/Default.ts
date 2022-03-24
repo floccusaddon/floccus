@@ -562,7 +562,7 @@ export default class SyncProcess {
             const imported = await resource.bulkImportFolder(item.id, (action.oldItem || action.payload) as Folder)
             const newMappings = []
             const subScanner = new Scanner(
-              item,
+              action.oldItem || action.payload,
               imported,
               (oldItem, newItem) => {
                 if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
