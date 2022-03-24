@@ -243,13 +243,13 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async onSyncFail() {
     Logger.log('onSyncFail')
-    clearTimeout(this.lockingInterval)
+    clearInterval(this.lockingInterval)
     await this.freeLock()
   }
 
   async onSyncComplete() {
     Logger.log('onSyncComplete')
-    clearTimeout(this.lockingInterval)
+    clearInterval(this.lockingInterval)
 
     this.bookmarksCache = this.bookmarksCache.clone()
     const newTreeHash = await this.bookmarksCache.hash(true)

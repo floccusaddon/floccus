@@ -148,7 +148,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         await this.timeout(base ** i * 1000)
       }
     }
-    this.lockingInterval = setTimeout(() => this.acquireLock(), LOCK_INTERVAL)
+    this.lockingInterval = setInterval(() => this.acquireLock(), LOCK_INTERVAL)
   }
 
   async onSyncComplete(): Promise<void> {
