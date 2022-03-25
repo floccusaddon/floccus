@@ -38,7 +38,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                         android:host="@string/oauth_redirect_host"
-                        android:scheme="@string/app_name" />
+                        android:scheme="@string/package_name" />
             </intent-filter>
         </activity>
 
