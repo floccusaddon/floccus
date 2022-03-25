@@ -28,7 +28,7 @@ const OAuthConfig = {
 
 declare const chrome: any
 
-const LOCK_INTERVAL = 60 * 1000 // Lock every minute while syncing
+const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every two minutes while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 15min after last time it was set
 export default class GoogleDriveAdapter extends CachingAdapter {
   static SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly']

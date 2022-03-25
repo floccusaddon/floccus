@@ -16,7 +16,7 @@ import {
 import { Http } from '@capacitor-community/http'
 import { Device } from '@capacitor/device'
 
-const LOCK_INTERVAL = 60 * 1000 // Lock every minute while syncing
+const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
 export default class WebDavAdapter extends CachingAdapter {
   constructor(server) {

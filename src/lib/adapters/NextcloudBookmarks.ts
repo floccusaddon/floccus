@@ -56,7 +56,7 @@ interface IChildOrderItem {
   children?: IChildOrderItem[]
 }
 
-const LOCK_INTERVAL = 60 * 1000 // Set lock every minute while syncing
+const LOCK_INTERVAL = 2 * 60 * 1000 // Set lock every two minutes while syncing
 const LOCK_TIMEOUT = 30 * 60 * 1000 // Override lock after half an hour
 
 export default class NextcloudBookmarksAdapter implements Adapter, BulkImportResource, LoadFolderChildrenResource, OrderFolderResource {
