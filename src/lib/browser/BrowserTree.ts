@@ -8,6 +8,8 @@ import { Bookmark, Folder, ItemLocation, ItemType } from '../Tree'
 import Ordering from '../interfaces/Ordering'
 import url from 'url'
 
+let absoluteRoot: {id: string}
+
 export default class BrowserTree implements IResource {
   private readonly rootId: string
   private queue: PQueue<{ concurrency: 10 }>
@@ -315,6 +317,9 @@ export default class BrowserTree implements IResource {
   }
 
   static async getAbsoluteRootFolder() {
-    return (await browser.bookmarks.getTree())[0]
+    if (!absoluteRoot) {
+      absoluteRoot = (await browser.bookmarks.getTree())[0]
+    }
+    return absoluteRoot
   }
 }
