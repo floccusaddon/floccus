@@ -1,31 +1,11 @@
 import Account from '../../lib/Account'
 import browser from '../../lib/browser-api'
-import { mutations } from './mutations'
+import { mutations, actions } from './definitions'
 import Logger from '../../lib/Logger'
 import BrowserTree from '../../lib/browser/BrowserTree'
 import AdapterFactory from '../../lib/AdapterFactory'
 import Controller from '../../lib/Controller'
 
-export const actions = {
-  LOAD_LOCKED: 'LOAD_UNLOCKED',
-  UNLOCK: 'UNLOCK',
-  SET_KEY: 'SET_KEY',
-  UNSET_KEY: 'UNSET_KEY',
-  LOAD_ACCOUNTS: 'LOAD_ACCOUNTS',
-  CREATE_ACCOUNT: 'CREATE_ACCOUNT',
-  IMPORT_ACCOUNTS: 'IMPORT_ACCOUNTS',
-  EXPORT_ACCOUNTS: 'EXPORT_ACCOUNTS',
-  DELETE_ACCOUNT: 'DELETE_ACCOUNT',
-  RESET_ACCOUNT: 'RESET_ACCOUNT',
-  STORE_ACCOUNT: 'STORE_ACCOUNT',
-  TRIGGER_SYNC: 'TRIGGER_SYNC',
-  TRIGGER_SYNC_UP: 'TRIGGER_SYNC_UP',
-  TRIGGER_SYNC_DOWN: 'TRIGGER_SYNC_DOWN',
-  CANCEL_SYNC: 'CANCEL_SYNC',
-  DOWNLOAD_LOGS: 'DOWNLOAD_LOGS',
-  START_LOGIN_FLOW: 'START_LOGIN_FLOW',
-  STOP_LOGIN_FLOW: 'STOP_LOGIN_FLOW'
-}
 export const actionsDefinition = {
   async [actions.LOAD_LOCKED]({ commit, dispatch, state }) {
     const controller = await Controller.getSingleton()

@@ -218,7 +218,7 @@ import DialogEditBookmark from '../../components/native/DialogEditBookmark'
 import FaviconImage from '../../components/native/FaviconImage'
 import { routes } from '../../NativeRouter'
 import { Bookmark, Folder } from '../../../lib/Tree'
-import { actions } from '../../store/native'
+import { actions } from '../../store/definitions'
 import { App } from '@capacitor/app'
 
 export default {

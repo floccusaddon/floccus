@@ -1,36 +1,13 @@
 import Account from '../../../lib/Account'
-import { mutations } from './mutations'
+import { actions, mutations } from '../definitions'
 import Logger from '../../../lib/Logger'
 import AdapterFactory from '../../../lib/AdapterFactory'
 import Controller from '../../../lib/Controller'
 import { Browser } from '@capacitor/browser'
 import { i18n } from '../../../lib/native/I18n'
 import { Share } from '@capacitor/share'
+import { Http } from '@capacitor-community/http'
 
-export const actions = {
-  LOAD_ACCOUNTS: 'LOAD_ACCOUNTS',
-  SELECT_ACCOUNT: 'SELECT_ACCOUNT',
-  LOAD_TREE: 'LOAD_TREE',
-  CREATE_BOOKMARK: 'CREATE_BOOKMARK',
-  EDIT_BOOKMARK: 'EDIT_BOOKMARK',
-  DELETE_BOOKMARK: 'DELETE_BOOKMARK',
-  CREATE_FOLDER: 'CREATE_FOLDER',
-  EDIT_FOLDER: 'EDIT_FOLDER',
-  DELETE_FOLDER: 'DELETE_FOLDER',
-  CREATE_ACCOUNT: 'CREATE_ACCOUNT',
-  IMPORT_ACCOUNTS: 'IMPORT_ACCOUNTS',
-  EXPORT_ACCOUNTS: 'EXPORT_ACCOUNTS',
-  DELETE_ACCOUNT: 'DELETE_ACCOUNT',
-  RESET_ACCOUNT: 'RESET_ACCOUNT',
-  STORE_ACCOUNT: 'STORE_ACCOUNT',
-  TRIGGER_SYNC: 'TRIGGER_SYNC',
-  TRIGGER_SYNC_UP: 'TRIGGER_SYNC_UP',
-  TRIGGER_SYNC_DOWN: 'TRIGGER_SYNC_DOWN',
-  CANCEL_SYNC: 'CANCEL_SYNC',
-  DOWNLOAD_LOGS: 'DOWNLOAD_LOGS',
-  START_LOGIN_FLOW: 'START_LOGIN_FLOW',
-  STOP_LOGIN_FLOW: 'STOP_LOGIN_FLOW',
-}
 export const actionsDefinition = {
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
     commit(mutations.LOADING_START, 'accounts')
