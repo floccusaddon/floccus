@@ -1,5 +1,24 @@
 # Changelog
 
+## v4.13.0
+
+### New
+- [native] Implement pull-to-refresh
+- [native] Implement ImportExport (without export for now)
+- Detect machine suspend during sync and cancel
+
+### Fixed
+ - Performance: Do not query root bookmarks folder excessively
+ - [Android] Fix app label
+ - [Android] Fix Nextcloud Login flow
+ - Locking: Adjust LOCK_INTERVAL
+ - Locking: Fix wrong usage of {set,clear}Timeout
+ - Fix lock-file being locked in GoogleDrive and WebDAV
+ - Fix "failed to map parentId" in Unidirectional strategy
+ - Unidirectional: Fix typo
+ - Unidirectional: Fix progress bar
+ - Adjust lock override strategy
+
 ## v4.12.0
 
 ### New
