@@ -69,6 +69,9 @@ This project exists thanks to all the people who contribute.
     <td align="center"><a href="https://github.com/binsee"><img src="https://avatars.githubusercontent.com/u/5285894?v=4?s=70" width="70px;" alt=""/><br /><sub><b>binsee</b></sub></a><br /><a href="https://github.com/floccusaddon/floccus/commits?author=binsee" title="Code">💻</a></td>
     <td align="center"><a href="https://daitem.io/"><img src="https://avatars.githubusercontent.com/u/8190979?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Marc Shapiro</b></sub></a><br /><a href="https://github.com/floccusaddon/floccus/commits?author=mlshapiro" title="Code">💻</a></td>
   </tr>
+  <tr>
+    <td align="center"><a href="https://marllus.com/"><img src="https://avatars.githubusercontent.com/u/29416568?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Marllus Lustosa</b></sub></a><br /><a href="https://github.com/floccusaddon/floccus/commits?author=marlluslustosa" title="Code">💻</a></td>
+  </tr>
 </table>
 
 <!-- markdownlint-restore -->

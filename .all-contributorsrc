@@ -153,6 +153,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "marlluslustosa",
+      "name": "Marllus Lustosa",
+      "avatar_url": "https://avatars.githubusercontent.com/u/29416568?v=4",
+      "profile": "https://marllus.com/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "skipCi": true,
