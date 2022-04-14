@@ -119,8 +119,25 @@
         "question",
         "bug"
       ]
+    },
+    {
+      "login": "marcelklehr",
+      "name": "Marcel Klehr",
+      "avatar_url": "https://avatars.githubusercontent.com/u/986878?v=4",
+      "profile": "https://github.com/marcelklehr",
+      "contributions": [
+        "question",
+        "code",
+        "content",
+        "design",
+        "doc",
+        "infra",
+        "maintenance",
+        "projectManagement"
+      ]
     }
   ],
   "skipCi": true,
-  "contributorsPerLine": 7
+  "contributorsPerLine": 7,
+  "commitConvention": "none"
 }
