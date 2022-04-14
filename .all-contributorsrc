@@ -135,6 +135,15 @@
         "maintenance",
         "projectManagement"
       ]
+    },
+    {
+      "login": "binsee",
+      "name": "binsee",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5285894?v=4",
+      "profile": "https://github.com/binsee",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "skipCi": true,
