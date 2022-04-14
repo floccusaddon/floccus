@@ -162,6 +162,17 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "IzzySoft",
+      "name": "Izzy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6781438?v=4",
+      "profile": "https://android.izzysoft.de/",
+      "contributions": [
+        "bug",
+        "ideas",
+        "infra"
+      ]
     }
   ],
   "skipCi": true,
