@@ -48,6 +48,7 @@
     "gulp-rename": "^2.0.0",
     "gulp-tap": "^1.0.1",
     "gulp-zip": "^5.0.2",
+    "json-loader": "^0.5.7",
     "mocha": "^8.2.1",
     "node-fetch": "^2.6.1",
     "prettier": "^2.2.1",

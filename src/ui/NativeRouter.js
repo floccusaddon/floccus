@@ -5,6 +5,7 @@ import Home from './views/native/Home'
 import NewAccount from './views/NewAccount'
 import AddBookmarkIntent from './views/native/AddBookmarkIntent'
 import ImportExport from './views/native/ImportExport'
+import About from './views/native/About'
 
 Vue.use(Router)
 
@@ -18,6 +19,8 @@ export const routes = {
   UPDATE: 'UPDATE',
   IMPORTEXPORT: 'IMPORTEXPORT',
   DONATE: 'DONATE',
+  ABOUT: 'ABOUT'
+
 }
 
 export const router = new Router({
@@ -57,6 +60,11 @@ export const router = new Router({
       path: '/importexport',
       name: routes.IMPORTEXPORT,
       component: ImportExport,
+    },
+    {
+      path: '/about',
+      name: routes.ABOUT,
+      component: About,
     },
   ],
 })

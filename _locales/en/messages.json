@@ -536,5 +536,20 @@
   },
   "LabelContinuefloccus":{
     "message": "Continue to floccus"
+  },
+  "LabelAbout":{
+    "message": "About"
+  },
+  "LabelCurrentversion": {
+    "message": "Current version"
+  },
+  "DescriptionCurrentversion": {
+    "message": "Your currently installed version of floccus is:"
+  },
+  "LabelContributors": {
+    "message": "Contributors"
+  },
+  "DescriptionContributors": {
+    "message": "These people have helped make floccus possible"
   }
 }

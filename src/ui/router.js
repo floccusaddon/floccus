@@ -6,6 +6,7 @@ import SetKey from './views/SetKey'
 import Update from './views/Update'
 import ImportExport from './views/ImportExport'
 import Donate from './views/Donate'
+import About from './views/native/About'
 
 Vue.use(Router)
 
@@ -28,6 +29,7 @@ export const router = new Router({
       name: routes.OVERVIEW,
       component: Overview,
     },
+
     {
       path: '/options/:accountId',
       name: routes.ACCOUNT_OPTIONS,
@@ -37,6 +39,11 @@ export const router = new Router({
       path: '/new',
       name: routes.NEW_ACCOUNT,
       component: NewAccount,
+    },
+    {
+      path: '/about',
+      name: 'ABOUT',
+      component: About,
     },
     {
       path: '/set-key',
