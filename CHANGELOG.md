@@ -1,5 +1,14 @@
 # Changelog
 
+## v4.13.1
+
+### New
+
+- [Native] Implement about page
+
+### Fixed
+- UI: Re-add accidentally removed actions
+
 ## v4.13.0
 
 ### New
