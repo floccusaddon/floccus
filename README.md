@@ -25,7 +25,7 @@ If you'd like to support the creation and maintenance of this software, please c
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:| :-------------------------------------------------------------------------------------------------------------------------------------------------: |:--:|:---:|
 
 ## 🎬 Getting started
-If you don't know how to start with Floccus, [read this guide](https://floccus.org/start).
+If you don't know how to start with Floccus, [read these guides](https://floccus.org/guides).
 
 If you need help, talk to us on [gitter](https://gitter.im/marcelklehr/floccus), matrix ([`#marcelklehr_floccus:gitter.im`](https://matrix.to/#/#marcelklehr_floccus:gitter.im?utm_source=gitter)), in the [official Nextcloud Bookmarks talk channel](https://cloud.nextcloud.com/call/u52jcby9), or drop [me](https://marcelklehr.de) a mail! :wave:
 
