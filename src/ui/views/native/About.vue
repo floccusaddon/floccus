@@ -30,7 +30,7 @@
             <v-card-text>
               <p>{{ t("DescriptionContributors") }}</p>
               <div
-                v-for="contributor in CONTRIBUTORS.sort((a,b) => b.contributions.length - a.contributions.length)"
+                v-for="contributor in CONTRIBUTORS"
                 :key="contributor.name">
                 <h4 class="mt-2">
                   <a
@@ -62,7 +62,7 @@ export default {
     return {
       drawer: false,
       VERSION,
-      CONTRIBUTORS,
+      CONTRIBUTORS: CONTRIBUTORS.sort((a,b) => b.contributions.length - a.contributions.length),
       CONTRIBUTION_TYPES
     }
   }

@@ -73,17 +73,6 @@
           <v-list-item-title>{{ t('LabelAbout') }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <v-list-item
-        key="donate"
-        link
-        href="https://floccus.org/download#support">
-        <v-list-item-icon>
-          <v-icon>mdi-heart-outline</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>{{ t('LabelFunddevelopment') }}</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
     </v-list>
   </v-navigation-drawer>
 </template>
