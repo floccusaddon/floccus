@@ -72,6 +72,7 @@ This project exists thanks to all the people who contribute.
   <tr>
     <td align="center"><a href="https://marllus.com/"><img src="https://avatars.githubusercontent.com/u/29416568?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Marllus Lustosa</b></sub></a><br /><a href="https://github.com/floccusaddon/floccus/commits?author=marlluslustosa" title="Code">💻</a></td>
     <td align="center"><a href="https://android.izzysoft.de/"><img src="https://avatars.githubusercontent.com/u/6781438?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Izzy</b></sub></a><br /><a href="https://github.com/floccusaddon/floccus/issues?q=author%3AIzzySoft" title="Bug reports">🐛</a> <a href="#ideas-IzzySoft" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-IzzySoft" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+    <td align="center"><a href="https://github.com/sunjam"><img src="https://avatars.githubusercontent.com/u/1787238?v=4?s=70" width="70px;" alt=""/><br /><sub><b>sunjam</b></sub></a><br /><a href="#ideas-sunjam" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/floccusaddon/floccus/commits?author=sunjam" title="Tests">⚠️</a></td>
   </tr>
 </table>
 
