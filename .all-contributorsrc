@@ -173,6 +173,16 @@
         "ideas",
         "infra"
       ]
+    },
+    {
+      "login": "sunjam",
+      "name": "sunjam",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1787238?v=4",
+      "profile": "https://github.com/sunjam",
+      "contributions": [
+        "ideas",
+        "test"
+      ]
     }
   ],
   "skipCi": true,
