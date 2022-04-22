@@ -174,7 +174,7 @@ import { Folder, Bookmark } from '../Tree'
 
 ### Account data
 
-The account data object holds all state specific to each account and is easily extensible. Floccus reserves the follwing properties for internal use:
+The account data object holds all state specific to each account and is easily extensible. Floccus reserves the following properties for internal use:
 
 ```js
 {
