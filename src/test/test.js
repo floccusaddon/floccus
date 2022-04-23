@@ -4052,6 +4052,283 @@ describe('Floccus', function() {
             )
           })
         })
+
+        context('with tabs', function() {
+          let account
+          beforeEach('set up account', async function() {
+            account = await Account.create(ACCOUNT_DATA)
+            if (ACCOUNT_DATA.type === 'fake') {
+              account.server.bookmarksCache = new Folder({
+                id: '',
+                title: 'root',
+                location: 'Server'
+              })
+            }
+            await account.init()
+            await account.setData({...account.getData(), localRoot: 'tabs'})
+            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
+              // account.server.hasFeatureHashing = false
+              account.server.hasFeatureChildren = false
+            }
+            if (ACCOUNT_DATA.noCache) {
+              account.storage.setCache = () => {
+                // noop
+              }
+              account.storage.setMappings = () => {
+                // noop
+              }
+            }
+          })
+          afterEach('clean up account', async function() {
+            if (!account) return
+            try {
+              const tabs = await browser.tabs.query({
+                windowType: 'normal' // no devtools or panels or popups
+              })
+              await browser.tabs.remove(tabs.filter(tab => tab.url.startsWith('http')).map(tab => tab.id))
+            } catch (e) {
+              console.error(e)
+            }
+            if (ACCOUNT_DATA.type !== 'fake') {
+              await account.setData({ ...account.getData(), serverRoot: null })
+              const tree = await getAllBookmarks(account)
+              await withSyncConnection(account, async() => {
+                await AsyncParallel.each(tree.children, async child => {
+                  if (child instanceof Folder) {
+                    await account.server.removeFolder(child)
+                  } else {
+                    await account.server.removeBookmark(child)
+                  }
+                })
+              })
+            }
+            if (ACCOUNT_DATA.type === 'google-drive') {
+              const fileList = await account.server.listFiles('name = ' + "'" + account.server.bookmark_file + "'")
+              const file = fileList.files[0]
+              if (file) {
+                await account.server.deleteFile(file.id)
+              }
+            }
+            await account.delete()
+          })
+          it('should create local tabs on the server', async function() {
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            browser.tabs.create({
+              index: 1,
+              url: 'https://floccus.org/#test1'
+            })
+            browser.tabs.create({
+              index: 2,
+              url: 'https://floccus.org/#test2'
+            })
+            await awaitTabsUpdated()
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: '',
+                    children: [
+                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test1' }),
+                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test2' })
+                    ]
+                  })
+                ]
+              }),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+          })
+          it('should create server bookmarks as tabs', async function() {
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            const adapter = account.server
+            const serverTree = await getAllBookmarks(account)
+            let windowFolderId, serverMark
+            await withSyncConnection(account, async() => {
+              windowFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: ''}))
+              serverMark = {
+                title: 'Private bookmarks sync - floccus.org',
+                url: 'https://floccus.org/',
+                parentId: windowFolderId
+              }
+
+              await adapter.createBookmark(
+                new Bookmark(serverMark)
+              )
+            })
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: '',
+                    children: [
+                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/' }),
+                    ]
+                  })
+                ]
+              }),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+          })
+          it('should update the server when pushing local changes', async function() {
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            await account.setData({...account.getData(), strategy: 'overwrite'})
+
+            browser.tabs.create({
+              index: 1,
+              url: 'https://floccus.org/#test1'
+            })
+            const tab = browser.tabs.create({
+              index: 2,
+              url: 'https://floccus.org/#test2'
+            })
+            await awaitTabsUpdated()
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            let tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: '',
+                    children: [
+                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test1' }),
+                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test2' })
+                    ]
+                  })
+                ]
+              }),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+
+            await browser.tabs.update(tab.id, {url: 'https://example.org'})
+            await awaitTabsUpdated()
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: '',
+                    children: [
+                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test1' }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/' })
+                    ]
+                  })
+                ]
+              }),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+          })
+          it('should update local tabs when pulling server changes', async function() {
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            const adapter = account.server
+            const serverTree = await getAllBookmarks(account)
+            let windowFolderId, serverMark, serverMarkId
+            await withSyncConnection(account, async() => {
+              windowFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: ''}))
+              serverMark = {
+                title: 'Private bookmarks sync - floccus.org',
+                url: 'https://floccus.org/',
+                parentId: windowFolderId
+              }
+
+              serverMarkId = await adapter.createBookmark(
+                new Bookmark(serverMark)
+              )
+            })
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            let tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: '',
+                    children: [
+                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/' }),
+                    ]
+                  })
+                ]
+              }),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+
+            let serverMark2
+            await withSyncConnection(account, async() => {
+              serverMark2 = {
+                title: 'Example Domain',
+                url: 'https://example.org/#test',
+                parentId: windowFolderId
+              }
+              await adapter.createBookmark(
+                new Bookmark(serverMark2)
+              )
+
+              await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: 'https://example.org/', title: 'Example Domain', parentId: windowFolderId })
+            })
+
+            await account.setData({...account.getData(), strategy: 'slave'})
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: '',
+                    children: [
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/' }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test' }),
+                    ]
+                  })
+                ]
+              }),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+          })
+        })
       })
   })
 
@@ -4064,7 +4341,7 @@ describe('Floccus', function() {
         let i = 0
         const setInterrupt = () => {
           if (!timeouts.length) {
-            timeouts = new Array(1000).fill(0).map(x =>
+            timeouts = new Array(1000).fill(0).map(() =>
               ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? random.int(50000, 150000) : random.int(1000,30000)
             )
           }
@@ -5925,4 +6202,13 @@ function stringifyAccountData(ACCOUNT_DATA) {
         : ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase))
           ? '-encrypted'
           : ''}`
+}
+
+function awaitTabsUpdated() {
+  return new Promise(resolve => {
+    browser.tabs.onUpdated.addListener(() => {
+      browser.tabs.onUpdated.removeListener(resolve)
+      setTimeout(() => resolve(), 500)
+    })
+  })
 }
