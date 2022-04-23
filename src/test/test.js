@@ -4082,10 +4082,12 @@ describe('Floccus', function() {
           afterEach('clean up account', async function() {
             if (!account) return
             try {
+              await awaitTabsUpdated()
               const tabs = await browser.tabs.query({
                 windowType: 'normal' // no devtools or panels or popups
               })
               await browser.tabs.remove(tabs.filter(tab => tab.url.startsWith('http')).map(tab => tab.id))
+              await awaitTabsUpdated()
             } catch (e) {
               console.error(e)
             }
@@ -6205,10 +6207,13 @@ function stringifyAccountData(ACCOUNT_DATA) {
 }
 
 function awaitTabsUpdated() {
-  return new Promise(resolve => {
-    browser.tabs.onUpdated.addListener(() => {
-      browser.tabs.onUpdated.removeListener(resolve)
-      setTimeout(() => resolve(), 500)
-    })
-  })
+  return Promise.race([
+    new Promise(resolve => {
+      browser.tabs.onUpdated.addListener(() => {
+        browser.tabs.onUpdated.removeListener(resolve)
+        setTimeout(() => resolve(), 1000)
+      })
+    }),
+    new Promise(resolve => setTimeout(resolve, 1100))
+  ])
 }
