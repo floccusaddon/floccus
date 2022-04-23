@@ -30,13 +30,16 @@ export default class LocalTabs implements IResource {
           id: windowId,
           parentId: 'tabs',
           location: ItemLocation.LOCAL,
-          children: tabs.filter(t => t.windowId === windowId).sort(t => t.index).map(t => new Bookmark({
-            id: t.id,
-            title: t.title,
-            url: t.url,
-            parentId: windowId,
-            location: ItemLocation.LOCAL,
-          }))
+          children: tabs
+            .filter(t => t.windowId === windowId)
+            .sort((t1,t2) => t1.index - t2.index)
+            .map(t => new Bookmark({
+              id: t.id,
+              title: t.title,
+              url: t.url,
+              parentId: windowId,
+              location: ItemLocation.LOCAL,
+            }))
         })
       })
     })
