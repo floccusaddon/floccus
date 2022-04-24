@@ -1,4 +1,5 @@
 import { Storage } from '@capacitor/storage'
+import { Network } from '@capacitor/network'
 import Cryptography from '../Crypto'
 import NativeAccountStorage from './NativeAccountStorage'
 
@@ -12,15 +13,28 @@ const DEFAULT_SYNC_INTERVAL = 15
 class AlarmManager {
   constructor(ctl) {
     this.ctl = ctl
+    this.backgroundSyncEnabled = true
     setInterval(() => this.checkSync(), 60 * 1000)
+
+    Network.addListener('networkStatusChange', status => {
+      if (status.connected && status.connectionType === 'wifi') {
+        this.backgroundSyncEnabled = true
+      } else {
+        this.backgroundSyncEnabled = false
+      }
+    })
   }
 
   async checkSync() {
+    if (!this.backgroundSyncEnabled) {
+      return
+    }
     const accounts = await NativeAccountStorage.getAllAccounts()
     for (let accountId of accounts) {
       const account = await Account.get(accountId)
       const data = account.getData()
-      if (!data.lastSync ||
+      if (
+        !data.lastSync ||
         Date.now() >
         (data.syncInterval || DEFAULT_SYNC_INTERVAL) * 1000 * 60 + data.lastSync
       ) {

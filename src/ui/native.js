@@ -11,6 +11,11 @@ import {i18n} from '../lib/native/I18n'
 Vue.mixin(i18nPlugin)
 Vue.mixin(capacitor)
 
+document.addEventListener('deviceready', function() {
+  // eslint-disable-next-line no-undef
+  cordova.plugins.backgroundMode.enable()
+}, false)
+
 const app = () => {
   i18n.setLocales(navigator.languages)
   i18n.load().then(() => {
