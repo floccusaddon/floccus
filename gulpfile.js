@@ -49,9 +49,7 @@ const paths = {
   js: 'src/**',
   builds: './builds/',
   locales: '_locales/**/messages.json',
-  icons: 'icons/*',
-  materialdesignicons: 'lib/materialdesignicons.min.css',
-  materialdesigniconsfont: 'fonts/materialdesignicons-webfont.woff2'
+  icons: 'icons/*'
 }
 const WEBSTORE_ID = 'fnaicdffflnofjppbagibeoednhnbjhg'
 
@@ -115,21 +113,9 @@ const mochacss = function() {
     .pipe(gulp.dest('./dist/css/'))
 }
 
-const materialdesignicons = function() {
-  return gulp
-    .src(paths.materialdesignicons)
-    .pipe(gulp.dest('./dist/css/'))
-}
-
-const materialdesigniconsfont = function() {
-  return gulp
-    .src(paths.materialdesigniconsfont)
-    .pipe(gulp.dest('./dist/fonts/'))
-}
-
 const mocha = gulp.parallel(mochajs, mochacss)
 
-const thirdparty = gulp.parallel(mocha, materialdesignicons, materialdesigniconsfont)
+const thirdparty = gulp.parallel(mocha)
 
 const main = gulp.series(html, locales, js, thirdparty, icons)
 

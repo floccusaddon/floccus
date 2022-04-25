@@ -7,6 +7,7 @@ import store from './store/native'
 import i18nPlugin from './plugins/i18n'
 import { router } from './NativeRouter'
 import {i18n} from '../lib/native/I18n'
+import '@mdi/font/css/materialdesignicons.css'
 
 Vue.mixin(i18nPlugin)
 Vue.mixin(capacitor)
