@@ -551,5 +551,14 @@
   },
   "DescriptionContributors": {
     "message": "These people have helped make floccus possible"
+  },
+  "LabelSortcustom": {
+    "message": "Custom"
+  },
+  "LabelSorturl": {
+    "message": "Link"
+  },
+  "LabelSorttitle": {
+    "message": "Title"
   }
 }

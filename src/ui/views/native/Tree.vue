@@ -37,11 +37,50 @@
           mdi-sync
         </v-icon>
       </v-btn>
+      <v-menu
+        bottom
+        left>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            icon
+            v-bind="attrs"
+            v-on="on">
+            <v-icon>{{ sortIcons[sortBy] }}</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list>
+          <v-list-item @click="sortBy = 'title'">
+            <v-list-item-avatar>
+              <v-icon>{{ sortIcons['title'] }}</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-title>
+              {{ t('LabelSorttitle') }}
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="sortBy = 'url'">
+            <v-list-item-avatar>
+              <v-icon>{{ sortIcons['url'] }}</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-title>
+              {{ t('LabelSorturl') }}
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="sortBy = 'index'">
+            <v-list-item-avatar>
+              <v-icon>{{ sortIcons['index'] }}</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-title>
+              {{ t('LabelSortcustom') }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
       <v-btn
         v-if="currentAccount"
         icon
         :to="{name: routes.ACCOUNT_OPTIONS, params:{accountId: currentAccount? currentAccount.id : 0}}">
-        <v-icon>mdi-settings</v-icon>
+        <v-icon>mdi-cog</v-icon>
       </v-btn>
     </v-app-bar>
     <v-main>
@@ -220,6 +259,7 @@ import { routes } from '../../NativeRouter'
 import { Bookmark, Folder } from '../../../lib/Tree'
 import { actions } from '../../store/definitions'
 import { App } from '@capacitor/app'
+import sortBy from 'lodash/sortBy'
 
 export default {
   name: 'Tree',
@@ -242,6 +282,12 @@ export default {
       isAddingFolder: false,
       fab: false,
       searchDebounceTimer: null,
+      sortIcons: {
+        title: 'mdi-sort-alphabetical-ascending',
+        url: 'mdi-sort-bool-ascending',
+        index: 'mdi-sort-ascending'
+      },
+      sortBy: 'index'
     }
   },
   computed: {
@@ -276,10 +322,22 @@ export default {
       if (!this.currentFolder) {
         return []
       }
+      let items
       if (this.searchQuery && this.searchQuery.length >= 2) {
-        return this.search(this.searchQuery.toLowerCase().trim(), this.currentFolder)
+        items = this.search(this.searchQuery.toLowerCase().trim(), this.currentFolder)
+      } else {
+        items = this.currentFolder.children
       }
-      return this.currentFolder.children
+      if (this.sortBy !== 'index') {
+        return sortBy(items, [(item) => {
+          if (this.sortBy === 'url' && item.url) {
+            return new URL(item[this.sortBy]).hostname
+          }
+          return item[this.sortBy]
+        }])
+      } else {
+        return items
+      }
     },
     routes() {
       return routes
