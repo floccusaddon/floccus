@@ -88,6 +88,7 @@ export default class Account {
       syncInterval: 15,
       nestedSync: false,
       failsafe: true,
+      allowNetwork: false,
     }
     return {...defaults, ...this.server.getData(), ...(this.server.getData().type === 'nextcloud-folders' && {type: 'nextcloud-bookmarks'})}
   }
