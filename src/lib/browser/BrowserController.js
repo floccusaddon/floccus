@@ -15,7 +15,7 @@ const STATUS_ERROR = Symbol('error')
 const STATUS_SYNCING = Symbol('syncing')
 const STATUS_ALLGOOD = Symbol('allgood')
 const STATUS_DISABLED = Symbol('disabled')
-const INACTIVITY_TIMEOUT = 20 * 60
+const INACTIVITY_TIMEOUT = 7 * 1000
 const DEFAULT_SYNC_INTERVAL = 15
 
 class AlarmManager {
@@ -237,13 +237,14 @@ export default class BrowserController {
     accountsToSync = uniqBy(
       accountsToSync.concat(containingAccounts),
       acc => acc.id)
-      // Filter out any accounts that are presently syncing
-      .filter(account => !account.getData().syncing)
       // Filter out accounts that are not enabled
       .filter(account => account.getData().enabled)
 
     // schedule a new sync for all accounts involved
     accountsToSync.forEach(account => {
+      if (account.getData().syncing) {
+        this.cancelSync(account.id, true)
+      }
       this.scheduleSync(account.id, true)
     })
 
