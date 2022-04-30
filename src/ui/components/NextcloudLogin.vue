@@ -37,7 +37,6 @@
       </template>
     </v-text-field>
     <v-text-field
-      :value="password"
       :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
       :type="showPassword ? 'text' : 'password'"
       :label="t('LabelPassword')"

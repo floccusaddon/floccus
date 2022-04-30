@@ -38,7 +38,6 @@
           :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
           :type="showPassphrase ? 'text' : 'password'"
           class="mt-2"
-          :value="password"
           :label="t('LabelPassphrase')"
           :hint="t('DescriptionPassphrase')"
           :persistent-hint="true"

@@ -18,7 +18,6 @@
           :label="t('LabelUsername')"
           @input="$emit('update:username', $event)" />
         <v-text-field
-          :value="password"
           :label="t('LabelPassword')"
           :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
           :type="showPassword ? 'text' : 'password'"
@@ -34,7 +33,6 @@
           @input="$emit('update:bookmark_file', $event)" />
         <v-text-field
           class="mt-2"
-          :value="passphrase"
           :label="t('LabelPassphrase')"
           :hint="t('DescriptionPassphrase')"
           :persistent-hint="true"
