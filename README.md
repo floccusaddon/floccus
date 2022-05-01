@@ -99,14 +99,18 @@ Translations can now be provided over at [transifex](https://www.transifex.com/f
 #### Setting up a dev environment
 
 - Clone this repository.
-- Install node.js and npm
+- Install node.js v16 and npm 8
 - In the root of your floccus repo, run `npm install && npm install -g gulp`
 - Run `gulp` to build
-- Install firefox developer edition and prepare it as follows: https://developer.mozilla.org/en-US/Add-ons/Setting_up_extension_development_environment
+- Find out more on how to develop browser extensions here: <https://extensionworkshop.com/>
 
 #### Building
 
 - `gulp`
+
+Run the following to automatically compile changes as you make them:
+
+- `gulp watch`
 
 #### Releasing
 
