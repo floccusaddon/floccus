@@ -1,7 +1,8 @@
-filters:
-  - filter_type: dir
-    file_format: CHROME
-    source_file_extension: json
-    source_language: en
-    source_file_dir: _locales/
-    translation_files_expression: '_locales/<lang>/messages.json'
+git:
+  filters:
+    - filter_type: dir
+      file_format: CHROME
+      source_file_extension: json
+      source_language: en
+      source_file_dir: _locales/
+      translation_files_expression: '_locales/<lang>/messages.json'
