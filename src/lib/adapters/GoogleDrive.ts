@@ -287,6 +287,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     this.fileId = null
   }
 
+  cancel() {
+    this.cancelCallback && this.cancelCallback()
+  }
+
   async listFiles(query: string) : Promise<any> {
     let resp
     try {
