@@ -20,7 +20,7 @@ let expectTreeEqual = function(tree1, tree2, ignoreEmptyFolders, checkOrder = tr
     if (tree2.url) {
       expect(tree1.url).to.equal(tree2.url)
     } else {
-      if (!checkOrder) {
+      if (checkOrder === false) {
         tree2.children.sort((a, b) => {
           if (a.title < b.title) return -1
           if (a.title > b.title) return 1
@@ -1870,6 +1870,214 @@ describe('Floccus', function() {
               }),
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
+          })
+          it('should sync separators', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              this.skip()
+              return
+            }
+            const localRoot = account.getData().localRoot
+
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: localRoot
+            })
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: barFolder.id
+            })
+            await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: fooFolder.id
+            })
+            await browser.bookmarks.create({
+              type: 'separator',
+              parentId: fooFolder.id
+            })
+            await browser.bookmarks.create({
+              title: 'url2',
+              url: 'http://ur2.l',
+              parentId: fooFolder.id
+            })
+            await browser.bookmarks.create({
+              type: 'separator',
+              parentId: fooFolder.id
+            })
+
+            await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
+
+            let tree = await getAllBookmarks(account)
+            let localTree = await account.localTree.getBookmarksTree(true)
+            expectTreeEqual(
+              localTree,
+              new Folder({title: localTree.title,
+                children: [
+                  new Folder({title: 'bar',
+                    children: [
+                      new Folder({title: 'foo',
+                        children: [
+                          new Bookmark({title: 'url', url: 'http://ur.l/'}),
+                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'}),
+                          new Bookmark({title: 'url2',url: 'http://ur2.l'}),
+                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                        ]}),
+                    ]}),
+                ]}),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            expectTreeEqual(
+              tree,
+              new Folder({title: tree.title,
+                children: [
+                  new Folder({title: 'bar',
+                    children: [
+                      new Folder({title: 'foo',
+                        children: [
+                          new Bookmark({title: 'url', url: 'http://ur.l/'}),
+                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'}),
+                          new Bookmark({title: 'url2',url: 'http://ur2.l'}),
+                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                        ]}),
+                    ]}),
+                ]}),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+
+            console.log('initial sync done')
+
+            await withSyncConnection(account, async() => {
+              // move first separator
+              await account.server.updateBookmark({...tree.children[0].children[0].children[1], parentId: tree.children[0].id})
+            })
+
+            console.log('move done')
+
+            await account.sync() // propagate to browser
+            expect(account.getData().error).to.not.be.ok
+
+            localTree = await account.localTree.getBookmarksTree(true)
+            expectTreeEqual(
+              localTree,
+              new Folder({title: localTree.title,
+                children: [
+                  new Folder({title: 'bar',
+                    children: [
+                      new Folder({title: 'foo',
+                        children: [
+                          new Bookmark({title: 'url', url: 'http://ur.l/'}),
+                          new Bookmark({title: 'url2',url: 'http://ur2.l'}),
+                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'})
+                        ]}),
+                      new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=379999'})
+                    ]}),
+                ]}),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({title: tree.title,
+                children: [
+                  new Folder({title: 'bar',
+                    children: [
+                      new Folder({title: 'foo',
+                        children: [
+                          new Bookmark({title: 'url', url: 'http://ur.l/'}),
+                          new Bookmark({title: 'url2',url: 'http://ur2.l'}),
+                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                        ]}),
+                      new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'})
+                    ]}),
+                ]}),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+
+            console.log('sync after move done')
+
+            await browser.bookmarks.create({
+              type: 'separator',
+              parentId: fooFolder.id
+            })
+            await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
+
+            localTree = await account.localTree.getBookmarksTree(true)
+            expectTreeEqual(
+              localTree,
+              new Folder({title: localTree.title,
+                children: [
+                  new Folder({title: 'bar',
+                    children: [
+                      new Folder({title: 'foo',
+                        children: [
+                          new Bookmark({title: 'url', url: 'http://ur.l/'}),
+                          new Bookmark({title: 'url2',url: 'http://ur2.l'}),
+                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'}),
+                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                        ]}),
+                      new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=379999'})
+                    ]}),
+                ]}),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({title: tree.title,
+                children: [
+                  new Folder({title: 'bar',
+                    children: [
+                      new Folder({title: 'foo',
+                        children: [
+                          new Bookmark({title: 'url', url: 'http://ur.l/'}),
+                          new Bookmark({title: 'url2',url: 'http://ur2.l'}),
+                          // That these two IDs are the same is inevitable, sadly
+                          // People are probably unlikely to move separators across folder boundaries, though
+                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'}),
+                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                        ]}),
+                      new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'})
+                    ]}),
+                ]}),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+
+            console.log('recreation done')
+
+            await withSyncConnection(account, async() => {
+              // remove first separator
+              await account.server.removeBookmark(tree.children[0].children[0].children[2])
+            })
+            await account.sync() // propagate to browser
+            expect(account.getData().error).to.not.be.ok
+
+            localTree = await account.localTree.getBookmarksTree(true)
+            expectTreeEqual(
+              localTree,
+              new Folder({title: localTree.title,
+                children: [
+                  new Folder({title: 'bar',
+                    children: [
+                      new Folder({title: 'foo',
+                        children: [
+                          new Bookmark({title: 'url', url: 'http://ur.l/'}),
+                          new Bookmark({title: 'url2',url: 'http://ur2.l'}),
+                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'})
+                        ]}),
+                      new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=379999'})
+                    ]}),
+
+                ]}),
+              ignoreEmptyFolders(ACCOUNT_DATA)
+            )
+            expect(localTree.children[0].children[0].children.length).to.equal(3)
+            console.log('last sync done')
           })
           it('should sync root folder successfully', async function() {
             const [root] = await browser.bookmarks.getTree()
@@ -4358,10 +4566,10 @@ describe('Floccus', function() {
           }, timeout)
         }
 
-        let _expectTreeEqual = expectTreeEqual
-        expectTreeEqual = (tree1, tree2, ignoreEmptyFolders, checkOrder) => _expectTreeEqual(tree1, tree2, ignoreEmptyFolders, !!checkOrder)
-
         beforeEach('set up accounts', async function() {
+          let _expectTreeEqual = expectTreeEqual
+          expectTreeEqual = (tree1, tree2, ignoreEmptyFolders, checkOrder) => _expectTreeEqual(tree1, tree2, ignoreEmptyFolders, !!checkOrder)
+
           // reset random seed
           random.use(seedrandom(SEED))
 
