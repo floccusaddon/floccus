@@ -207,10 +207,10 @@
     "message": "Synchronization strategy"
   },
   "DescriptionStrategy": {
-    "message": "This option determines how to synchronize the bookmarks tree on the server with the one in this browser. Usually you will want to keep changes to both trees if they are compatible, but sometimes you might want to force the local version onto the server, or vice versa."
+    "message": "This option determines how to synchronize the bookmarks on different devices. Usually you will want to keep changes from all sides if they are compatible, but sometimes you might want to overwrite changes (including additions and deletions) from other browsers, or overwrite changes you made locally."
   },
   "LabelStrategydefault": {
-    "message": "Merge local and remote changes (recommended)"
+    "message": "Merge local and cloud changes (recommended)"
   },
   "LabelStrategyslave": {
     "message": "Always revert local changes and download cloud changes"
