@@ -5,6 +5,7 @@ import Logger from '../../lib/Logger'
 import BrowserTree from '../../lib/browser/BrowserTree'
 import AdapterFactory from '../../lib/AdapterFactory'
 import Controller from '../../lib/Controller'
+import { Base64 } from 'js-base64'
 
 export const actionsDefinition = {
   async [actions.LOAD_LOCKED]({ commit, dispatch, state }) {
@@ -47,9 +48,8 @@ export const actionsDefinition = {
     await commit(mutations.LOAD_ACCOUNTS, accounts)
     commit(mutations.LOADING_END, 'accounts')
   },
-  async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
-    const rootFolder = await BrowserTree.getAbsoluteRootFolder()
-    const account = await Account.create({...(await AdapterFactory.getDefaultValues(type)), localRoot: rootFolder.id})
+  async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, data) {
+    const account = await Account.create({...(await AdapterFactory.getDefaultValues(data.type)), ...data})
     await dispatch(actions.LOAD_ACCOUNTS)
     return account.id
   },
@@ -98,6 +98,30 @@ export const actionsDefinition = {
   },
   async [actions.DOWNLOAD_LOGS]({ commit, dispatch, state }, anonymous) {
     await Logger.downloadLogs(anonymous)
+  },
+  async [actions.TEST_WEBDAV_SERVER]({commit, dispatch, state}, {rootUrl, username, password}) {
+    let res = await fetch(`${rootUrl}`, {
+      method: 'PROPFIND',
+      credentials: 'omit',
+      headers: {
+        'User-Agent': 'Floccus bookmarks sync',
+        Depth: '0',
+        Authorization: 'Basic ' + Base64.encode(
+          username + ':' + password
+        )
+      }
+    })
+    if (res.status < 200 || res.status > 299) {
+      throw new Error('Could not connect to server: ' + res.status)
+    }
+    return true
+  },
+  async [actions.TEST_NEXTCLOUD_SERVER]({commit, dispatch, state}, rootUrl) {
+    let res = await fetch(`${rootUrl}/index.php/login/v2`, {method: 'POST', headers: {'User-Agent': 'Floccus bookmarks sync'}})
+    if (res.status !== 200) {
+      throw new Error(browser.i18n.getMessage('LabelLoginFlowError'))
+    }
+    return true
   },
   async [actions.START_LOGIN_FLOW]({commit, dispatch, state}, rootUrl) {
     commit(mutations.SET_LOGIN_FLOW_STATE, true)

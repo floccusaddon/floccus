@@ -7,6 +7,7 @@ import { Browser } from '@capacitor/browser'
 import { i18n } from '../../../lib/native/I18n'
 import { Share } from '@capacitor/share'
 import { Http } from '@capacitor-community/http'
+import { Base64 } from 'js-base64'
 
 export const actionsDefinition = {
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
@@ -83,8 +84,8 @@ export const actionsDefinition = {
     const controller = await Controller.getSingleton()
     controller.scheduleSync(accountId, true)
   },
-  async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, type) {
-    const account = await Account.create({...(await AdapterFactory.getDefaultValues(type))})
+  async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, data) {
+    const account = await Account.create({...(await AdapterFactory.getDefaultValues(data.type)), data})
     await dispatch(actions.LOAD_ACCOUNTS)
     return account.id
   },
@@ -137,6 +138,34 @@ export const actionsDefinition = {
   },
   async [actions.DOWNLOAD_LOGS]({ commit, dispatch, state }, anonymous) {
     await Logger.downloadLogs(anonymous)
+  },
+  async [actions.TEST_WEBDAV_SERVER]({commit, dispatch, state}, {rootUrl, username, password}) {
+    let res = await Http.request({
+      url: `${rootUrl}`,
+      method: 'PROPFIND',
+      headers: {
+        'User-Agent': 'Floccus bookmarks sync',
+        Deptch: '0',
+        Authorization: 'Basic ' + Base64.encode(
+          username + ':' + password
+        )
+      }
+    })
+    if (res.status < 200 || res.status > 299) {
+      throw new Error('Could not connect to server: ' + res.status)
+    }
+    return true
+  },
+  async [actions.TEST_NEXTCLOUD_SERVER]({commit, dispatch, state}, rootUrl) {
+    let res = await Http.request({
+      url: `${rootUrl}/index.php/login/v2`,
+      method: 'POST',
+      headers: {'User-Agent': 'Floccus bookmarks sync'}
+    })
+    if (res.status !== 200) {
+      throw new Error(i18n.getMessage('LabelLoginFlowError'))
+    }
+    return true
   },
   async [actions.START_LOGIN_FLOW]({commit, dispatch, state}, rootUrl) {
     commit(mutations.SET_LOGIN_FLOW_STATE, true)
