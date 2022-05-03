@@ -12,7 +12,6 @@ dependencies {
     implementation project(':byteowls-capacitor-oauth2')
     implementation project(':capacitor-community-http')
     implementation project(':capacitor-app')
-    implementation project(':capacitor-browser')
     implementation project(':capacitor-device')
     implementation project(':capacitor-network')
     implementation project(':capacitor-share')

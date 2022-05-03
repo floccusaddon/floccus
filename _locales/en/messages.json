@@ -364,13 +364,13 @@
     "message": "Create a new account to sync your bookmarks or import accounts from a different device or browser."
   },
   "LabelLoginFlowStart": {
-    "message": "Sign in with Nextcloud login flow"
+    "message": "Sign in with Nextcloud"
   },
   "LabelLoginFlowStop": {
-    "message": "Abort Nextcloud login flow"
+    "message": "Abort Nextcloud login"
   },
   "LabelLoginFlowError": {
-    "message": "Nextcloud login flow failed."
+    "message": "Nextcloud login failed"
   },
   "LabelNewAccount": {
     "message": "New Account"

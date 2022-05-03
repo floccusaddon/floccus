@@ -15,6 +15,8 @@ Vue.mixin(capacitor)
 document.addEventListener('deviceready', function() {
   // eslint-disable-next-line no-undef
   cordova.plugins.backgroundMode.enable()
+  // eslint-disable-next-line no-undef
+  window.open = cordova.InAppBrowser.open
 }, false)
 
 const app = () => {

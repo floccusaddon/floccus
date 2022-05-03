@@ -17,5 +17,9 @@
     <param name="android-package" value="com.davidbriglio.foreground.ForegroundPlugin"/>
   </feature>
 
+  <feature name="InAppBrowser">
+    <param name="android-package" value="org.apache.cordova.inappbrowser.InAppBrowser"/>
+  </feature>
+
   
 </widget>

@@ -250,7 +250,7 @@
 </template>
 
 <script>
-import { actions } from '../store'
+import { actions } from '../store/definitions'
 import OptionSyncFolder from '../components/OptionSyncFolder'
 import OptionSyncInterval from '../components/OptionSyncInterval'
 import OptionSyncStrategy from '../components/OptionSyncStrategy'
@@ -300,11 +300,14 @@ export default {
   computed: {
     isLoginFlowRunning() {
       return this.$store.state.loginFlow.isRunning
-    }
+    },
+  },
+  backButton() {
+    this.$router.push({ name: 'HOME' })
   },
   methods: {
     async onCreate() {
-      await this.$store.dispatch('CREATE_ACCOUNT', {
+      const accountId = await this.$store.dispatch('CREATE_ACCOUNT', {
         type: this.adapter,
         url: this.server,
         username: this.username,
@@ -318,6 +321,11 @@ export default {
         ...(this.isBrowser && {nestedSync: this.nestedSync}),
       })
       this.currentStep++
+      if (!this.isBrowser) {
+        setTimeout(() => {
+          this.$router.push({ name: 'TREE', params: { accountId } })
+        }, 2000)
+      }
     },
     async testNextcloudServer() {
       this.isServerTestRunning = true

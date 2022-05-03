@@ -3,7 +3,6 @@ import { actions, mutations } from '../definitions'
 import Logger from '../../../lib/Logger'
 import AdapterFactory from '../../../lib/AdapterFactory'
 import Controller from '../../../lib/Controller'
-import { Browser } from '@capacitor/browser'
 import { i18n } from '../../../lib/native/I18n'
 import { Share } from '@capacitor/share'
 import { Http } from '@capacitor-community/http'
@@ -85,7 +84,7 @@ export const actionsDefinition = {
     controller.scheduleSync(accountId, true)
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, data) {
-    const account = await Account.create({...(await AdapterFactory.getDefaultValues(data.type)), data})
+    const account = await Account.create({...(await AdapterFactory.getDefaultValues(data.type)), ...data})
     await dispatch(actions.LOAD_ACCOUNTS)
     return account.id
   },
@@ -178,9 +177,9 @@ export const actionsDefinition = {
       commit(mutations.SET_LOGIN_FLOW_STATE, false)
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }
-    let json = res.data
+    let json = res.data, browserWindow
     try {
-      await Browser.open({ url: json.login })
+      browserWindow = await window.open(json.login)
       do {
         await new Promise(resolve => setTimeout(resolve, 1000))
         res = await Http.request({
@@ -198,6 +197,7 @@ export const actionsDefinition = {
     if (res.status !== 200) {
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }
+    browserWindow.close()
     json = res.data
     return {username: json.loginName, password: json.appPassword}
   },
