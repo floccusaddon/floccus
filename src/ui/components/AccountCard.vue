@@ -144,7 +144,7 @@
               small
               :to="{ name: routes.ACCOUNT_OPTIONS, params: { accountId: account.id } }"
               target="_blank">
-              <v-icon>mdi-settings</v-icon>
+              <v-icon>mdi-cog</v-icon>
               {{ t('LabelOptions') }}
             </v-btn>
           </v-row>
