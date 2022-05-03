@@ -239,12 +239,11 @@ export default class BrowserController {
       acc => acc.id)
       // Filter out accounts that are not enabled
       .filter(account => account.getData().enabled)
+      // Filter out accounts that are syncing, because the event may stem from the sync run
+      .filter(account => !account.getData().syncing)
 
     // schedule a new sync for all accounts involved
     accountsToSync.forEach(account => {
-      if (account.getData().syncing) {
-        this.cancelSync(account.id, true)
-      }
       this.scheduleSync(account.id, true)
     })
 
