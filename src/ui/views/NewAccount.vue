@@ -7,31 +7,31 @@
           <v-stepper-step
             :complete="currentStep > 1"
             step="1">
-            Sync method
+            {{ t('LabelSyncmethod') }}
           </v-stepper-step>
           <v-divider />
           <v-stepper-step
             :complete="currentStep > 2"
             step="2">
-            Sync server
+            {{ t('LabelSyncserver') }}
           </v-stepper-step>
           <v-divider />
           <v-stepper-step
             step="3"
             :complete="currentStep > 3">
-            Sync folders
+            {{ t('LabelSyncfolders') }}
           </v-stepper-step>
           <v-divider />
           <v-stepper-step
             step="4"
             :complete="currentStep > 4">
-            Sync behavior
+            {{ t('LabelSyncbehavior') }}
           </v-stepper-step>
           <v-divider />
           <v-stepper-step
             step="5"
             :complete="currentStep > 4">
-            Done
+            {{ t('LabelDone') }}
           </v-stepper-step>
         </v-stepper-header>
 
@@ -63,7 +63,7 @@
               <v-btn
                 class="primary"
                 @click="currentStep = 2">
-                {{ t('LabelAddaccount') }}
+                {{ t('LabelContinue') }}
               </v-btn>
               <v-btn
                 v-if="isBrowser"
@@ -78,7 +78,7 @@
           <v-stepper-content step="2">
             <template v-if="adapter === 'nextcloud-bookmarks'">
               <div class="headline">
-                Which server do you want to sync to?
+                {{ t('LabelServersetup') }}
               </div>
               <v-text-field
                 v-model="server"
@@ -101,7 +101,7 @@
                   v-if="!serverTestSuccessful"
                   class="primary"
                   @click="testNextcloudServer">
-                  Connect
+                  {{ t('LabelConnect') }}
                 </v-btn>
                 <template v-if="serverTestSuccessful">
                   <v-btn
@@ -120,7 +120,7 @@
             </template>
             <template v-else-if="adapter === 'webdav'">
               <div class="headline">
-                Which server do you want to sync to?
+                {{ t('LabelServersetup') }}
               </div>
               <v-text-field
                 v-model="server"
@@ -141,13 +141,13 @@
                 <v-btn
                   class="primary"
                   @click="testWebdavServer">
-                  Continue
+                  {{ t('LabelContinue') }}
                 </v-btn>
               </div>
             </template>
             <template v-else-if="adapter === 'google-drive'">
               <div class="headline">
-                Login to Google Drive
+                {{ t('LabelGoogledrivesetup') }}
               </div>
               <v-btn
                 color="primary"
@@ -162,7 +162,7 @@
 
           <v-stepper-content step="3">
             <div class="headline">
-              Which Folders do you want to sync?
+              {{ t('LabelSyncfoldersetup') }}
             </div>
 
             <template v-if="adapter === 'nextcloud-bookmarks'">
@@ -178,25 +178,31 @@
                 :rules="[validateServerRoot]"
                 :label="t('LabelServerfolder')" />
             </template>
-            <div class="text-h6">
-              {{ t('LabelBookmarksfile') }}
-            </div>
-            <v-text-field
-              v-if="adapter === 'webdav'"
-              v-model="bookmark_file"
-              append-icon="mdi-file-document"
-              :rules="[validateBookmarksFile]"
-              :label="t('LabelBookmarksfile')"
-              :hint="t('DescriptionBookmarksfile')"
-              :persistent-hint="true" />
-            <v-text-field
-              v-if="adapter === 'google-drive'"
-              v-model="bookmark_file"
-              append-icon="mdi-file-document"
-              :rules="[validateBookmarksFileGoogle]"
-              :label="t('LabelBookmarksfile')"
-              :hint="t('DescriptionBookmarksfilegoogle')"
-              :persistent-hint="true" />
+            <template v-if="adapter === 'webdav'">
+              <div class="text-h6">
+                {{ t('LabelBookmarksfile') }}
+              </div>
+              <v-text-field
+                v-model="bookmark_file"
+                append-icon="mdi-file-document"
+                :rules="[validateBookmarksFile]"
+                :label="t('LabelBookmarksfile')"
+                :hint="t('DescriptionBookmarksfile')"
+                :persistent-hint="true" />
+            </template>
+            <template v-if="adapter === 'google-drive'">
+              <div class="text-h6">
+                {{ t('LabelBookmarksfile') }}
+              </div>
+              <v-text-field
+                v-if="adapter === 'google-drive'"
+                v-model="bookmark_file"
+                append-icon="mdi-file-document"
+                :rules="[validateBookmarksFileGoogle]"
+                :label="t('LabelBookmarksfile')"
+                :hint="t('DescriptionBookmarksfilegoogle')"
+                :persistent-hint="true" />
+            </template>
             <OptionSyncFolder
               v-if="isBrowser"
               v-model="localRoot" />
@@ -206,13 +212,13 @@
                 :disabled="isBrowser? !localRoot : false"
                 color="primary"
                 @click="currentStep++">
-                Continue
+                {{ t('LabelContinue') }}
               </v-btn>
             </div>
           </v-stepper-content>
           <v-stepper-content step="4">
             <div class="headline">
-              How do you want to sync?
+              {{ t('LabelSyncbehaviorsetup') }}
             </div>
 
             <OptionSyncInterval
@@ -228,13 +234,13 @@
               <v-btn
                 color="primary"
                 @click="onCreate()">
-                Continue
+                {{ t('LabelContinue') }}
               </v-btn>
             </div>
           </v-stepper-content>
           <v-stepper-content step="5">
             <div class="headline">
-              Account created <v-icon>mdi-check</v-icon>
+              {{ t('LabelAccountcreated') }} <v-icon>mdi-check</v-icon>
             </div>
           </v-stepper-content>
         </v-stepper-items>

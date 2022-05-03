@@ -560,5 +560,41 @@
   },
   "LabelSorttitle": {
     "message": "Title"
+  },
+  "LabelSyncmethod": {
+    "message": "Sync method"
+  },
+  "LabelSyncserver": {
+    "message": "Sync server"
+  },
+  "LabelSyncfolders": {
+    "message": "Sync folders"
+  },
+  "LabelSyncbehavior": {
+    "message": "Sync behavior"
+  },
+  "LabelContinue": {
+    "message": "Continue"
+  },
+  "LabelDone": {
+    "message": "Done"
+  },
+  "LabelConnect": {
+    "message": "Connect"
+  },
+  "LabelServersetup": {
+    "message": "Which server do you want to sync to?"
+  },
+  "LabelGoogledrivesetup": {
+    "message": "Login to Google Drive"
+  },
+  "LabelSyncfoldersetup": {
+    "message": "Which Folders do you want to sync?"
+  },
+  "LabelSyncbehaviorsetup": {
+    "message": "How do you want syncing to work?"
+  },
+  "LabelAccountcreated": {
+    "message": "Account created"
   }
 }
