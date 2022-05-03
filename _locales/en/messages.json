@@ -213,10 +213,10 @@
     "message": "Merge local and cloud changes (recommended)"
   },
   "LabelStrategyslave": {
-    "message": "Always revert local changes and download cloud changes"
+    "message": "Always revert local changes, additions and deletions and download cloud changes"
   },
   "LabelStrategyoverwrite": {
-    "message": "Always revert cloud changes and upload local changes"
+    "message": "Always revert changes, additions and deletions from other browsers and upload local changes"
   },
   "LabelSave": {
     "message": "Save"
