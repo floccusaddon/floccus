@@ -144,7 +144,7 @@ export const actionsDefinition = {
       method: 'PROPFIND',
       headers: {
         'User-Agent': 'Floccus bookmarks sync',
-        Deptch: '0',
+        Depth: '0',
         Authorization: 'Basic ' + Base64.encode(
           username + ':' + password
         )
