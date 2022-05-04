@@ -2038,7 +2038,11 @@ describe('Floccus', function() {
                   new Folder({title: 'bar',
                     children: [
                       new Folder({title: 'foo',
-                        children: [
+                        children: ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? [
+                          new Bookmark({title: 'url', url: 'http://ur.l/'}),
+                          new Bookmark({title: 'url2',url: 'http://ur2.l'}),
+                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                        ] : [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
                           // That these two IDs are the same is inevitable, sadly
