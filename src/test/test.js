@@ -1703,6 +1703,7 @@ describe('Floccus', function() {
                 ]
               }),
               ignoreEmptyFolders(ACCOUNT_DATA),
+              false /* checkOrder */
             )
 
             expect(tree.findBookmark(bookmark1Id)).to.be.ok
@@ -1731,7 +1732,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              ignoreEmptyFolders(ACCOUNT_DATA),
+              false /* checkOrder */
             )
 
             expect(localTree.findBookmark(bookmark1.id)).to.be.ok
