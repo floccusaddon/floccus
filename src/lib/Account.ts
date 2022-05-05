@@ -200,6 +200,8 @@ export default class Account {
       }
       await this.syncProcess.sync()
 
+      this.setData({ ...this.getData(), syncing: 1 })
+
       // update cache
       if (localResource.constructor.name !== 'LocalTabs') {
         const cache = (await localResource.getBookmarksTree()).clone(false)
