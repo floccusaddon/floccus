@@ -7,6 +7,8 @@ import Account from '../Account'
 import { Bookmark, Folder, ItemLocation, ItemType } from '../Tree'
 import Ordering from '../interfaces/Ordering'
 import url from 'url'
+import random from 'random'
+import seedrandom from 'seedrandom'
 
 let absoluteRoot: {id: string}
 
@@ -30,7 +32,7 @@ export default class BrowserTree implements IResource {
     const [tree] = await browser.bookmarks.getSubTree(this.rootId)
     const allAccounts = await (await Account.getAccountClass()).getAllAccounts()
 
-    const recurse = (node, parentId?) => {
+    const recurse = (node, parentId?, rng?) => {
       if (
         allAccounts.some(
           acc => acc.getData().localRoot === node.id && node.id !== this.rootId && !acc.getData().nestedSync
@@ -70,13 +72,19 @@ export default class BrowserTree implements IResource {
         isRoot = true
       }
       if (node.children) {
+        // seeded pseudo random number generator for separator IDs
+        // We use this because we want IDs that are (largely) collision-free even
+        // between folders and still consistent across browsers
+        const rng = random.clone(seedrandom(node.title))
         const folder = new Tree.Folder({
           location: ItemLocation.LOCAL,
           id: node.id,
           parentId,
           title: parentId ? overrideTitle || node.title : undefined,
           children: node.children
-            .map(child => recurse(child, node.id))
+            .map((child) => {
+              return recurse(child, node.id, rng)
+            })
             .filter(child => !!child) // filter out `undefined` from nested accounts
         })
         folder.isRoot = isRoot
@@ -88,7 +96,9 @@ export default class BrowserTree implements IResource {
           id: node.id,
           parentId,
           title: '-----',
-          url: 'https://separator.floccus.org/',
+          // If you have more than a quarter million separators in one folder, call me
+          // Floccus breaks down much earlier atm
+          url: `https://separator.floccus.org/?id=${rng.int(0,1000000)}`,
         })
       } else {
         return new Tree.Bookmark({
