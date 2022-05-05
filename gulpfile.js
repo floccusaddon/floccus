@@ -49,7 +49,8 @@ const paths = {
   js: 'src/**',
   builds: './builds/',
   locales: '_locales/**/messages.json',
-  icons: 'icons/*'
+  icons: 'icons/*',
+  dist: './dist/**'
 }
 const WEBSTORE_ID = 'fnaicdffflnofjppbagibeoednhnbjhg'
 
@@ -113,11 +114,17 @@ const mochacss = function() {
     .pipe(gulp.dest('./dist/css/'))
 }
 
+const android = async function() {
+  const execa = (await import('execa')).execa
+  const {stdout} = await execa('node', ['node_modules/.bin/cap', 'sync'])
+  console.log(stdout)
+}
+
 const mocha = gulp.parallel(mochajs, mochacss)
 
 const thirdparty = gulp.parallel(mocha)
 
-const main = gulp.series(html, locales, js, thirdparty, icons)
+const main = gulp.series(html, locales, js, thirdparty, icons, android)
 
 const dev = gulp.series(html, thirdparty, locales, icons)
 
@@ -161,10 +168,12 @@ const watch = function() {
   let jsWatcher = gulp.watch(paths.js, dev)
   let viewsWatcher = gulp.watch(paths.views, html)
   let localeWatcher = gulp.watch(paths.locales, locales)
+  let androidWatcher = gulp.watch(paths.dist, android)
 
   jsWatcher.on('change', onWatchEvent)
   viewsWatcher.on('change', onWatchEvent)
   localeWatcher.on('change', onWatchEvent)
+  androidWatcher.on('change', onWatchEvent)
 
   webpack(devConfig).watch({}, (err, stats) => {
     if (err) {
@@ -192,6 +201,7 @@ exports.watch = gulp.series(dev, watch)
 exports.publish = publish
 exports.dev = dev
 exports.locales = locales
+exports.android = android
 /*
  * Define default task that can be called by just running `gulp` from cli
  */

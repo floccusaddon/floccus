@@ -43,6 +43,7 @@
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.1.0",
     "eslint-plugin-vue": "^8.0.3",
+    "execa": "^6.1.0",
     "fibers": "^5.0.0",
     "file-loader": "^6.2.0",
     "gist-client": "^1.1.1",

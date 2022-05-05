@@ -104,6 +104,11 @@ Translations can now be provided over at [transifex](https://www.transifex.com/f
 - Run `gulp` to build
 - Find out more on how to develop browser extensions here: <https://extensionworkshop.com/>
 
+For building the android app you'll need Android Studio
+
+- Open the android/ folder in Android studio and build the App like any other Android app.
+- `gulp` and `gulp watch` will push changes to android/ as necessary
+
 #### Building
 
 - `gulp`
