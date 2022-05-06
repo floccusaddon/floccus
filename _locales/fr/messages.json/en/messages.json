@@ -300,7 +300,7 @@
     "message": "Comment voulez-vous synchroniser ?"
   },
   "LabelOptionsscreen": {
-    "message": "Options (0)",
+    "message": "Options {0}",
     "description": "Title of the options screen. The placeholder holds the account type."
   },
   "LabelPaypal": {
