@@ -139,20 +139,7 @@ export const actionsDefinition = {
     await Logger.downloadLogs(anonymous)
   },
   async [actions.TEST_WEBDAV_SERVER]({commit, dispatch, state}, {rootUrl, username, password}) {
-    let res = await Http.request({
-      url: `${rootUrl}`,
-      method: 'PROPFIND',
-      headers: {
-        'User-Agent': 'Floccus bookmarks sync',
-        Depth: '0',
-        Authorization: 'Basic ' + Base64.encode(
-          username + ':' + password
-        )
-      }
-    })
-    if (res.status < 200 || res.status > 299) {
-      throw new Error('Could not connect to server: ' + res.status)
-    }
+    // noop, because capacitor Http doesn't support PROPFIND
     return true
   },
   async [actions.TEST_NEXTCLOUD_SERVER]({commit, dispatch, state}, rootUrl) {
