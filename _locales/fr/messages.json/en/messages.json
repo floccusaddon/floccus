@@ -484,7 +484,7 @@
     "message": "Chercher dans les marques-pages"
   },
   "LabelSearchfolder": {
-    "message": "Chercher (0)"
+    "message": "Chercher {0}"
   },
   "LabelEdititem": {
     "message": "Modifier"
