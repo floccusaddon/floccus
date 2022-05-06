@@ -6,7 +6,6 @@ import Controller from '../../../lib/Controller'
 import { i18n } from '../../../lib/native/I18n'
 import { Share } from '@capacitor/share'
 import { Http } from '@capacitor-community/http'
-import { Base64 } from 'js-base64'
 
 export const actionsDefinition = {
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
