@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { actions } from '../../store/native'
+import { actions } from '../../store/definitions'
 import { routes } from '../../NativeRouter'
 import { SplashScreen } from '@capacitor/splash-screen'
 import { SendIntent } from 'send-intent'

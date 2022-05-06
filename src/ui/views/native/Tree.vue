@@ -4,7 +4,7 @@
     style="height:100%">
     <Drawer :visible.sync="drawer" />
     <v-app-bar
-      hide-on-scroll
+      absolute
       app>
       <v-app-bar-nav-icon
         v-if="!tree || currentFolderId === tree.id"
