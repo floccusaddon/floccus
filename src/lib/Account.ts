@@ -200,7 +200,7 @@ export default class Account {
       }
       await this.syncProcess.sync()
 
-      this.setData({ ...this.getData(), syncing: 1 })
+      await this.setData({ ...this.getData(), syncing: 1 })
 
       // update cache
       if (localResource.constructor.name !== 'LocalTabs') {
@@ -214,6 +214,12 @@ export default class Account {
         await this.server.onSyncComplete()
       }
 
+      if (mappings) {
+        await mappings.persist()
+      }
+
+      this.syncing = false
+
       await this.setData({
         ...this.getData(),
         error: null,
@@ -221,14 +227,9 @@ export default class Account {
         lastSync: Date.now(),
       })
 
-      this.syncing = false
-
       Logger.log(
         'Successfully ended sync process for account ' + this.getLabel()
       )
-      if (mappings) {
-        await mappings.persist()
-      }
     } catch (e) {
       console.log(e)
       const message = await Account.stringifyError(e)

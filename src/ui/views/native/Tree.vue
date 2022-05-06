@@ -93,8 +93,8 @@
         class="ma-1"
         v-text="syncError" />
       <v-progress-linear
-        v-if="syncing"
-        :value="syncing * 100 || 0"
+        v-if="syncProgress"
+        :value="syncProgress * 100 || 0"
         color="blue darken-1" />
       <v-progress-circular
         v-if="loading"
@@ -287,7 +287,8 @@ export default {
         url: 'mdi-sort-bool-ascending',
         index: 'mdi-sort-ascending'
       },
-      sortBy: 'index'
+      sortBy: 'index',
+      syncProgress: 0,
     }
   },
   computed: {
@@ -353,8 +354,14 @@ export default {
     async $route() {
       await this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
     },
-    async syncing() {
-      if (!this.syncing) {
+    async syncing(current, previous) {
+      if (!current && previous) {
+        this.syncProgress = 1
+        setTimeout(() => { this.syncProgress = 0 }, 1000)
+      } else {
+        this.syncProgress = current
+      }
+      if (!current) {
         await this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
       }
     },
