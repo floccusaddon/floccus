@@ -6,7 +6,9 @@
 	"webDir": "dist",
 	"plugins": {
 		"SplashScreen": {
-			"launchAutoHide": false
+			"launchAutoHide": false,
+			"androidScaleType": "CENTER_INSIDE",
+			"backgroundColor": "#ffffff"
 		}
 	},
 	"cordova": {}
