@@ -324,6 +324,7 @@ export default {
       if (!this.isBrowser) {
         setTimeout(() => {
           this.$router.push({ name: 'TREE', params: { accountId } })
+          this.$store.dispatch(actions.TRIGGER_SYNC, accountId)
         }, 2000)
       }
     },
