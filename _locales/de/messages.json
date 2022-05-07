@@ -1,60 +1,60 @@
 {
   "Error001": {
-    "message": "E001: Der Ordner, in dem neu erzeugt werden soll, existiert nicht"
+    "message": "E001: Der Ordner, in dem neu erzeugt werden soll, existiert nicht."
   },
   "Error002": {
-    "message": "E002: Zu aktualisierendes Lesezeichen existiert nicht"
+    "message": "E002: Zu aktualisierendes Lesezeichen existiert nicht."
   },
   "Error003": {
-    "message": "E003: Ordner aus dem herausgeschoben werden soll existiert nicht. Dies ist eine Anomalie. Herzlichen Glückwunsch."
+    "message": "E003: Ordner, aus dem herausgeschoben werden soll, existiert nicht. Dies ist eine Anomalie. Herzlichen Glückwunsch."
   },
   "Error004": {
-    "message": "E004: Ordner in den verschoben werden soll existiert nicht"
+    "message": "E004: Ordner, in den verschoben werden soll, existiert nicht."
   },
   "Error005": {
-    "message": "E005: Ordner in dem erzeugt werden soll existiert nicht"
+    "message": "E005: Ordner, in dem erzeugt werden soll, existiert nicht."
   },
   "Error006": {
-    "message": "E006: Zu aktualisierender Ordner existiert nicht "
+    "message": "E006: Zu aktualisierender Ordner existiert nicht."
   },
   "Error007": {
-    "message": "E007: Zu verschiebender Ordner existiert nicht"
+    "message": "E007: Zu verschiebender Ordner existiert nicht."
   },
   "Error008": {
     "message": "E008: Der Ordner, aus dem herausgeschoben werden soll, existiert nicht."
   },
   "Error009": {
-    "message": "E009: Ordner in den verschoben werden soll existiert nicht"
+    "message": "E009: Ordner, in den verschoben werden soll, existiert nicht."
   },
   "Error010": {
-    "message": "E010: Zu ordnender Ordner konnte nicht gefunden werden"
+    "message": "E010: Zu ordnender Ordner konnte nicht gefunden werden."
   },
   "Error011": {
     "message": "E011: Der Eintrag in der Ordner-Ordnung ist kein Kind des Ordners: {0}"
   },
   "Error012": {
-    "message": "E012: Der Ordner-Ordnung fehlen einige Kinder des Ordners"
+    "message": "E012: Der Ordner-Ordnung fehlen einige Kinder des Ordners."
   },
   "Error013": {
-    "message": "E013: Zu löschender Ordner existiert nicht"
+    "message": "E013: Zu löschender Ordner existiert nicht."
   },
   "Error014": {
-    "message": "E014: Elternordner aus dem gelöscht werden soll existiert nicht mehr"
+    "message": "E014: Elternordner, aus dem gelöscht werden soll, existiert nicht mehr."
   },
   "Error015": {
-    "message": "E015: Unerwartete Antwortdaten vom Server erhalten"
+    "message": "E015: Unerwartete Antwortdaten vom Server erhalten."
   },
   "Error016": {
-    "message": "E016: Zeitüberschreitung einer Anfrage. Überprüfen Sie die Server-Konfiguration"
+    "message": "E016: Zeitüberschreitung einer Anfrage. Überprüfen Sie die Server-Konfiguration."
   },
   "Error017": {
-    "message": "E017: Netzwerk-Fehler: Überprüfen sie Ihre Netzwerkverbindung und die eingegebenen Konto-Daten"
+    "message": "E017: Netzwerk-Fehler: Überprüfen Sie Ihre Netzwerkverbindung und die eingegebenen Konto-Daten."
   },
   "Error018": {
     "message": "E018: Konnte nicht am Server authentifiziert werden."
   },
   "Error019": {
-    "message": "E019: HTTP Status {0}. Anfrage vom Typ {1}  fehlgeschlagen. Überprüfen Sie die Server-Konfiguration und das Server-Log"
+    "message": "E019: HTTP Status {0}. Anfrage vom Typ {1}  fehlgeschlagen. Überprüfen Sie die Server-Konfiguration und das Server-Log."
   },
   "Error020": {
     "message": "E020: Antwort des Servers konnte nicht gelesen werden. Ist die Bookmarks App auf Ihrem Server installiert?"
@@ -63,7 +63,7 @@
     "message": "E021: Inkonsistenter Server-Zustand. Ein Ordner ist in der Kind-Ordnung enthalten, aber nicht im Ordner-Baum."
   },
   "Error022": {
-    "message": "E022: Ordner {0} enhält angeblich ein nicht existierendes Lesezeichen: {1}"
+    "message": "E022: Ordner {0} enthält angeblich ein nicht existierendes Lesezeichen: {1}"
   },
   "Error023": {
     "message": "E023: Freigabe der Lock-Datei war nicht erfolgreich. Erwägen Sie {0} von Hand zu löschen."
@@ -72,25 +72,25 @@
     "message": "E024: HTTP status {0} während des Ermittelns des Status der Lock-Datei {1}"
   },
   "Error025": {
-    "message": "E025: Die Einstellung der Bookmarks Datei darf nicht mit einem Schrägstrich beginnen: '/'"
+    "message": "E025: Die Einstellung der Bookmarks-Datei darf nicht mit einem Schrägstrich beginnen: '/'"
   },
   "Error026": {
-    "message": "E026: HTTP status {0}. Fehler beim laden der Lesezeichen"
+    "message": "E026: HTTP status {0}. Fehler beim Laden der Lesezeichen."
   },
   "Error027": {
-    "message": "E027: Der Synchronisierungsprozess wurde unterbrochen"
+    "message": "E027: Der Synchronisierungsprozess wurde unterbrochen."
   },
   "Error028": {
-    "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
+    "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen, stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
   },
   "LabelWebdavurl": {
-    "message": "WebDAV URL"
+    "message": "WebDAV-URL"
   },
   "DescriptionWebdavurl": {
     "message": "z.B. mit Nextcloud: https://ihre-domain.com/remote.php/webdav/"
   },
   "LabelNextcloudurl": {
-    "message": "Nextcloud URL"
+    "message": "Nextcloud-URL"
   },
   "LabelUsername": {
     "message": "Benutzername"
@@ -102,7 +102,7 @@
     "message": "Pfad zur Bookmark-Datei"
   },
   "DescriptionBookmarksfile": {
-    "message": "ein Pfad zur Bookmarks-Datei relativ zur WebDAV URL (alle Ordner darin müssen bereits existieren). z.B. persönlich/lesezeichen.xbel (Kein Schrägstrich am Anfang!)"
+    "message": "Ein Pfad zur Bookmarks-Datei relativ zur WebDAV-URL (alle Ordner darin müssen bereits existieren). Beispiel: 'persönlich/lesezeichen.xbel' (Kein Schrägstrich am Anfang!)"
   },
   "LabelServerfolder": {
     "message": "Server-Ordner"
@@ -135,7 +135,7 @@
     "message": "Zuletzt synchronisiert: vor {0}"
   },
   "StatusNeversynced": {
-    "message": "Noch nie synchronisiert."
+    "message": "Noch nie synchronisiert"
   },
   "StatusAllgood": {
     "message": "Alles gut"
@@ -153,13 +153,13 @@
     "message": "Zurücksetzen"
   },
   "DescriptionReset": {
-    "message": "Setzen Sie den synchronisierten Ordner zurück um einen neuen generieren zu lassen"
+    "message": "Setzen Sie den synchronisierten Ordner zurück, um einen neuen generieren zu lassen"
   },
   "LabelChoosefolder": {
     "message": "Ordner wählen"
   },
   "DescriptionChoosefolder": {
-    "message": "Setzen Sie einen existierenden Ordner, der synchronisiert werden soll"
+    "message": "Wählen Sie einen existierenden Ordner, der synchronisiert werden soll"
   },
   "LabelRemoveaccount": {
     "message": "Konto entfernen"
@@ -171,13 +171,13 @@
     "message": "Neue Synchronisierung von Grund auf auslösen"
   },
   "DescriptionResetcache": {
-    "message": "Setzen SIe diesen Haken, um den Cache zurückzusetzen, sodass die nächste Synchronisierung garantiert keine Lesezeichen löscht, sondern lediglich Server und Lokale Lesezeichen vereinigt"
+    "message": "Setzen Sie diesen Haken, um den Cache zurückzusetzen, sodass die nächste Synchronisierung garantiert keine Lesezeichen löscht, sondern lediglich Server und lokale Lesezeichen vereinigt."
   },
   "LabelParallelsync": {
     "message": "Synchronisierung beschleunigen"
   },
   "DescriptionParallelsync": {
-    "message": "Setzen Sie diesen Haken um mehrere Ordner parallel abzuarbeiten und so die Synchronisierung zu beschleunigen. Dieses Feature ist experimentell und macht es schwieriger die Debug Logs zu lesen."
+    "message": "Setzen Sie diesen Haken, um mehrere Ordner parallel abzuarbeiten und so die Synchronisierung zu beschleunigen. Dieses Feature ist experimentell und macht es schwieriger die Debug-Logs zu lesen."
   },
   "LabelStrategy": {
     "message": "Synchronisationsstrategie"
@@ -189,7 +189,7 @@
     "message": "Verschmelze lokale und vom Server kommende Änderungen (empfohlen)"
   },
   "LabelStrategyslave": {
-    "message": "Immer lokale Änderungen verwerfen und vom Server kommende Änderungen runterladen."
+    "message": "Immer lokale Änderungen verwerfen und vom Server kommende Änderungen herunterladen."
   },
   "LabelStrategyoverwrite": {
     "message": "Immer vom Server kommende Änderungen verwerfen und lokale Änderungen hochladen."
@@ -204,19 +204,19 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "Die Option \"Nextcloud Bookmarks\" ist kompatibel mit mindestens Version v0.14 der Bookmarks app."
+    "message": "Die Option \"Nextcloud Bookmarks\" ist kompatibel mit mindestens Version v0.14 der Bookmarks App."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (alte Version)"
   },
   "DescriptionAdapternextcloud": {
-    "message": "Die Option Alte Version ist kompatibel mit mindestens Version v0.11 der Bookmarks app. Dabei werden Ordner mittels Tags simuliert, die den Ordner-Pfad enthalten. Es wird nicht empfohlen, diese Option für neue Konten zu verwenden."
+    "message": "Die Option 'Alte Version' ist kompatibel mit mindestens Version v0.11 der Bookmarks App. Dabei werden Ordner mittels Tags simuliert, die den Ordner-Pfad enthalten. Es wird nicht empfohlen, diese Option für neue Konten zu verwenden."
   },
   "LabelAdapterwebdav": {
     "message": "XBEL-Datei im WebDAV-Share"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Die WebDAV-Option synchronisiert Ihre Lesezeichen indem sie in einer XBEL-Datei im angegebenen WebDAV-Share gespeichert werden. Es gibt dafür kein entsprechendes Web Interface, aber die Option funktioniert mit jedem WebDAV-kompatiblen Server."
+    "message": "Die WebDAV-Option synchronisiert Ihre Lesezeichen indem sie in einer XBEL-Datei im angegebenen WebDAV-Share gespeichert werden. Es gibt dafür kein entsprechendes Web-Interface, aber die Option funktioniert mit jedem WebDAV-kompatiblen Server."
   },
   "LabelAddaccount": {
     "message": "Konto hinzufügen"
@@ -225,10 +225,10 @@
     "message": "Zugangsdaten absichern"
   },
   "LabelSecuredcredentials": {
-    "message": "Deine Anmeldedaten sind sicher"
+    "message": "Ihre Anmeldedaten sind sicher"
   },
   "LabelOpenintab": {
-    "message": "In tab öffnen"
+    "message": "In Tab öffnen"
   },
   "LabelDebuglogs": {
     "message": "Debug-Logs"
@@ -249,10 +249,10 @@
     "message": "Passwort für floccus setzen"
   },
   "DescriptionSetkey": {
-    "message": "Wenn Sie ein Passwort setzen, müssen sie dieses immer eingeben, wenn sie Ihren Browser starten, damit Lesezeichen synchronisiert werden."
+    "message": "Wenn Sie ein Passwort setzen, müssen Sie dieses immer eingeben, wenn Sie Ihren Browser starten, damit Lesezeichen synchronisiert werden."
   },
   "LabelKey": {
-    "message": "Passwort zum entsperren eingeben"
+    "message": "Passwort zum Entsperren eingeben"
   },
   "LabelKey2": {
     "message": "Passwort ein zweites Mal eingeben"
@@ -273,35 +273,35 @@
     "message": "Die Zeitspanne zwischen zwei Synchronisierungsläufen. Der Standard-Wert sind 15 Minuten."
   },
   "LabelChooseadapter": {
-    "message": "Wie willst du synchronisieren?"
+    "message": "Wie möchten Sie synchronisieren?"
   },
   "LabelOptionsscreen": {
     "message": "{0} Optionen",
     "description": "Title of the options screen. The placeholder holds the account type."
   },
   "LabelPaypal": {
-    "message": "Paypal"
+    "message": "PayPal"
   },
   "DescriptionPaypal": {
-    "message": "Tätige eine einmalige Spende über Paypal um das Projekt zu unterstützen."
+    "message": "Einmalig über PayPal spenden, um das Projekt zu unterstützen"
   },
   "LabelOpencollective": {
     "message": "OpenCollective"
   },
   "DescriptionOpencollective": {
-    "message": "Tätige regelmäßige Spenden über OpenCollective um das Projekt zu unterstüzten."
+    "message": "Regelmäßig über OpenCollective spenden, um das Projekt zu unterstützen"
   },
   "LabelLiberapay": {
     "message": "Liberapay"
   },
   "DescriptionLiberapay": {
-    "message": "Tätige regelmäßige Spenden über Liberapay um das Projekt zu unterstützen"
+    "message": "Regelmäßig über Liberapay spenden, um das Projekt zu unterstützen"
   },
   "LabelGithubsponsors": {
     "message": "GitHub sponsors"
   },
   "DescriptionGithubsponsors": {
-    "message": "Tätige regelmäßige Spenden über Github sponsors um das Projekt zu unterstützen"
+    "message": "Regelmäßig über Github sponsors spenden, um das Projekt zu unterstützen"
   },
   "LegacyAdapterDeprecation": {
     "message": "Warnung! Dieser Konto-Typ ist veraltet und wird bald entfernt. Bitte wechseln Sie zur neuen Nextcloud Synchronisierungsmethode mit besserer Leistungsfähigkeit und Fehlerfreiheit. "
@@ -337,7 +337,7 @@
     "message": "Keine Konten vorhanden"
   },
   "DescriptionNoAccount": {
-    "message": "Neuen Account erstellen um Lesezeichen zu synchronisieren."
+    "message": "Neuen Account erstellen, um Lesezeichen zu synchronisieren."
   },
   "LabelLoginFlowStart": {
     "message": "Mit Nextcloud anmelden"
@@ -346,7 +346,7 @@
     "message": "Anmeldung bei Nextcloud abbrechen"
   },
   "LabelLoginFlowError": {
-    "message": "Anmeldung bei Nextcloud fehlgeschlagen."
+    "message": "Anmeldung bei Nextcloud fehlgeschlagen"
   },
   "LabelNewAccount": {
     "message": "Neues Konto"
@@ -355,7 +355,7 @@
     "message": "Verschachtelte Konten"
   },
   "DescriptionNestedSync": {
-    "message": "Sie können Konten so verschachtelen, dass ein übergeordneter Ordner zu einem Konto und ein untergeordneter Ordner zu einem anderen Konto gehört. Wollen Sie den lokalen Ordner dieses Kontos im einer eventuell übergeordneten Ordnersynchronisation eines anderen Kontos einbetten?"
+    "message": "Sie können Konten so verschachteln, dass ein übergeordneter Ordner zu einem Konto und ein untergeordneter Ordner zu einem anderen Konto gehört. Wollen Sie den lokalen Ordner dieses Kontos in einer eventuell übergeordneten Ordnersynchronisation eines anderen Kontos einbetten?"
   },
   "LabelNestedSyncNo": {
     "message": "Schließe den lokalen Ordner dieses Kontos von anderen Synchronisationskonten aus"
@@ -364,7 +364,7 @@
     "message": "Bette den lokalen Ordner dieses Kontos in andere Synchronisationskonten ein"
   },
   "LabelImportExport": {
-    "message": " Konten Importieren/Exportieren"
+    "message": " Konten importieren/exportieren"
   },
   "LabelExport": {
     "message": "Konten exportieren"
@@ -388,6 +388,6 @@
     "message": "Sende zum Server"
   },
   "DescriptionFilesPermission": {
-    "message": "Stellen Sie sicher, dass floccus sowohl ausreichende Berechtigungen für die Nutzung der Lesezeichen App, als auch für die Nexcloud Files App hat."
+    "message": "Stellen Sie sicher, dass floccus sowohl ausreichende Berechtigungen für die Nutzung der Lesezeichen App, als auch für die Nextcloud Files App hat."
   }
 }
