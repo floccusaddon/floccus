@@ -33,6 +33,8 @@ jobs:
       fail-fast: false
       matrix:
         language: [ 'java', 'javascript' ]
+        node-versions: [14.x]
+        npm-versions: [8.x]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 
@@ -52,6 +54,14 @@ jobs:
         # Details on CodeQL's query packs refer to : https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
         # queries: security-extended,security-and-quality
 
+
+    - name: Set up node ${{ matrix.node-versions }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-versions }}
+
+    - name: Set up npm ${{ matrix.npm-version }}
+      run: npm i -g npm@"${{ matrix.npm-version }}"
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
