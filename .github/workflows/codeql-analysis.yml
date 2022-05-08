@@ -57,6 +57,7 @@ jobs:
     # If this step fails, then you should remove it and run the build manually (see below)
     - name: Build
       run: |
+        npm ci
         npm run build
         cd android
         chmod +x gradlew
