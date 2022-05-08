@@ -59,7 +59,7 @@ jobs:
       run: |
       cd android
       chmod +x gradlew
-      ./gradlew build
+      ./gradlew assemble
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
