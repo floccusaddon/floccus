@@ -42,5 +42,11 @@ jobs:
 
       - name: Install dependencies & build
         run: |
+          echo "Install"
           npm ci
+          echo "Build javascript"
           npm run build-release --if-present
+          echo "Build Java"
+          cd android
+          chmod +x gradlew
+          ./gradlew assemble
