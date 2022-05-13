@@ -1,5 +1,27 @@
 # Changelog
 
+## v4.14.0
+
+### New
+- New stepwise account setup flow
+- NewAccount: Trigger sync after completion
+- Improve progress bar behavior
+- Allow more than one separator per Folder on Nc Bookmarks
+- [Native] Allow sorting bookmarks
+- [Native] Background sync while on wifi
+
+### Fixed
+- [Native] Fix splash screen aspect ratio
+- [Native] Make app-bar absolute instead of hide on scroll
+- Improve wording around sync strategies
+- BrowserController: Don't get stuck in sync loop
+- GoogleDrive: Add cancel method
+- Fix transifex integration
+- UI: Do not show passwords in new options session
+- Inactivity timeout := 7s
+- [Native] Add allowNetwork to default settings
+- Fix Tab sync order on firefox
+
 ## v4.13.1
 
 ### New
