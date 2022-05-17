@@ -237,7 +237,7 @@
     "message": "Cette ancienne méthode n'est compatible qu'à partir de la version 0.11 de l'application Bookmarks. Elle émulera des dossiers en utilisant des tags contenant le chemin du dossier. Cette option n'est pas recommandée pour les nouveaux comptes."
   },
   "LabelAdapterwebdav": {
-    "message": "Fichier XBEL dans le partage WebDAV"
+    "message": "Fichier XBEL dans un serveur WebDAV"
   },
   "DescriptionAdapterwebdav": {
     "message": "L'option WebDAV synchronise vos marque-pages en les stockant dans un fichier XBEL sur le serveur WebDAV de votre choix. Il n'y a pas d'interface graphique pour cette option et vous pouvez l'utiliser avec n'importe quel serveur WebDAV compatible. Les marque-pages \"http\", \"ftp\", \"data\" et \"javascript\" peuvent être synchronisés."
