@@ -192,7 +192,7 @@
     "message": "Supprimer ce compte (cela ne supprimera pas vos marque-pages)"
   },
   "LabelResetCache": {
-    "message": "Reprendre toute la synchronisation depuis le début"
+    "message": "Réinitialiser la synchronisation"
   },
   "DescriptionResetcache": {
     "message": "Cochez cette case pour réinitialiser le cache, assurer que la prochaine synchronisation ne supprime aucune donnée et se limite à fusionner les données serveur et les marque-pages locaux"
