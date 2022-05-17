@@ -213,7 +213,7 @@
     "message": "Fusionner les données locales et celles du cloud. (Recommandé)"
   },
   "LabelStrategyslave": {
-    "message": "Toujours écraser les changements, ajouts et suppressions locaux et télécharger les changements disponibles sur le cloud."
+    "message": "Toujours écraser les changements (ajouts et suppressions) locaux et les remplacer par les changements disponibles sur le cloud."
   },
   "LabelStrategyoverwrite": {
     "message": "Toujours écraser les changements, ajouts et suppression réalisés sur d'autres navigateurs, et téléverser les changements locaux."
