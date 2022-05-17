@@ -11,7 +11,7 @@ body:
   - type: input
     attributes:
       label: Which version of floccus are you using?
-      description: 'Please specify the exact version. For example: Chrome 100.0.4878.0'
+      description: 'Please specify the exact version instead of "latest". For example: 4.14.0'
     validations:
       required: true
   - type: dropdown
@@ -28,7 +28,7 @@ body:
   - type: input
     attributes:
       label: Which browser are you using? In case you are using the Android App, specify the Android version please.
-      description: 'Please specify the exact version. For example: Chrome 100.0.4878.0'
+      description: 'Please specify the exact version instead of "latest". For example: Chrome 100.0.4878.0'
   - type: input
     attributes:
       label: Which version of Nextcloud Bookmarks are you using? (if relevant)
