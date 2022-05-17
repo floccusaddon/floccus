@@ -172,7 +172,7 @@ export default class SyncProcess {
     if (localCountTotal > 5 && localCountDeleted / localCountTotal > 0.5) {
       const failsafe = this.server.getData().failsafe
       if (failsafe !== false || typeof failsafe === 'undefined') {
-        throw new FailsafeError((localCountDeleted / localCountTotal) * 100)
+        throw new FailsafeError(Math.ceil((localCountDeleted / localCountTotal) * 100))
       }
     }
   }
