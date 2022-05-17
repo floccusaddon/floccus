@@ -430,7 +430,7 @@
     "message": "Assurez-vous de donner à floccus la permission d'utiliser l'application  Bookmarks mais aussi l'application Nextcloud Files."
   },
   "DescriptionExtension": {
-    "message": "Synchronisez de façon confidentielle vos marque-pages entre navigateurs et appareils"
+    "message": "Synchronisez de façon confidentielle vos marque-pages entre navigateurs ou entre appareils"
   },
   "LabelFailsafe": {
     "message": "Protection de secours"
