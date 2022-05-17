@@ -583,7 +583,7 @@
     "message": "Se connecter"
   },
   "LabelServersetup": {
-    "message": "Sur quel serveur souhaitez-vous engager la synchronisation ?"
+    "message": "Sur quel serveur souhaitez-vous configurer la synchronisation ?"
   },
   "LabelGoogledrivesetup": {
     "message": "Se connecter à Google Drive"
