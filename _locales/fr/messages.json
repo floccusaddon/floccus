@@ -240,7 +240,7 @@
     "message": "Fichier XBEL dans le partage WebDAV"
   },
   "DescriptionAdapterwebdav": {
-    "message": "L'option WebDAV synchronise vos marque-pages en les stockant dans un fichier XBEL sur le servzur WebDAV fourni. Il n'y a pas d'interface graphique pour cette option et vous pouvez l'utiliser avec n'importe quel serveur WebDAV compatible. Les marque-pages \"http\", \"ftp\", \"data\" et \"javascript\" peuvent être synchronisés."
+    "message": "L'option WebDAV synchronise vos marque-pages en les stockant dans un fichier XBEL sur le serveur WebDAV de votre choix. Il n'y a pas d'interface graphique pour cette option et vous pouvez l'utiliser avec n'importe quel serveur WebDAV compatible. Les marque-pages \"http\", \"ftp\", \"data\" et \"javascript\" peuvent être synchronisés."
   },
   "LabelAddaccount": {
     "message": "Ajouter un compte"
