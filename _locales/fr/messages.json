@@ -460,7 +460,7 @@
     "message": "Connectez-vous à votre compte Google pour stocker le fichier de synchronisation de vos marque-pages sur votre Google Drive."
   },
   "DescriptionLoggedingoogle": {
-    "message": "Vous êtes connecté à votre compte Google. Le fichier permettant la synchronisation de vos marque-pages est stocké sur votre Drive Google."
+    "message": "Vous êtes connecté à votre compte Google. Le fichier permettant la synchronisation de vos marque-pages est stocké sur votre Google Drive."
   },
   "LabelPassphrase": {
     "message": "Phrase secrète"
