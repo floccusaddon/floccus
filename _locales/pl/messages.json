@@ -517,7 +517,7 @@
     "message": "Pobierz zanoniizowane logi"
   },
   "DescriptionDownloadlogs": {
-    "message": "Floccus zapisuje całą swoją aktywność w pliku logu, aby można było  ją zweryfikować samodzielnie lub przesłać deweloperom do celów usuwania błędów. Zanim wyślesz nam zanonimizowane logi, upewnij się, że w pobranym pliku nic nie zostało pominięte i wszystkie Twoje prywatne dane zostały zanonimizowane. "
+    "message": "Floccus zapisuje całą swoją aktywność w pliku logu, aby można było ją zweryfikować samodzielnie lub przesłać deweloperom do celów usuwania błędów. Zanim wyślesz nam zanonimizowane logi, upewnij się, że w pobranym pliku nic nie zostało pominięte i wszystkie Twoje prywatne dane zostały zanonimizowane. "
   },
   "ErrorFolderloopselected": {
     "message": "Nie można przenieść folderu do niego samego"
