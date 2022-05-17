@@ -207,7 +207,7 @@
     "message": "Stratégie de synchronisation"
   },
   "DescriptionStrategy": {
-    "message": "Cette option détermine comment synchroniser les marque-pages entre différents appareils. D'habitude, on préfère conserver les changements réalisés sur chacun des appareils s'ils sont compatibles, mais parfois vous pouvez choisir d'écraser les changements (incluants les ajouts et suppressions) d'autres navigateurs, ou au contraire d'écraser les changements locaux."
+    "message": "Cette option détermine comment synchroniser les marque-pages entre différents navigateurs ou appareils. D'habitude, on préfère conserver tous les changements réalisés sur chaque navigateur s'ils sont compatibles, mais parfois vous pouvez choisir d'écraser les changements (ajouts et suppressions) faits sur d'autres navigateurs, ou au contraire d'écraser les changements faits sur le navigateur actuel."
   },
   "LabelStrategydefault": {
     "message": "Fusionner les données locales et celles du cloud. (Recommandé)"
