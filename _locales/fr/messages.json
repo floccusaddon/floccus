@@ -451,7 +451,7 @@
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Synchronise vos marque-pages à l'aide d'un fichier chiffré qui sera stocké sur votre Drive Google. Il peut synchroniser des marque-pages \"http\", \"ftp\", \" data\" ou \"javascript\"."
+    "message": "Synchronise vos marque-pages à l'aide d'un fichier chiffré qui sera stocké sur votre Google Drive. Il peut synchroniser des marque-pages \"http\", \"ftp\", \" data\" ou \"javascript\"."
   },
   "LabelLogingoogle": {
     "message": "Se connecter avec Google"
