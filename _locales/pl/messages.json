@@ -1,0 +1,600 @@
+{
+  "Error001": {
+    "message": "E001: Folder do utworzenia nie istnieje"
+  },
+  "Error002": {
+    "message": "E002: Aktualizowana zakładka już nie istnieje"
+  },
+  "Error003": {
+    "message": "E003: Folder do przeniesienia nie istnieje. To jest nieprawidłowość, gratulacje"
+  },
+  "Error004": {
+    "message": "E004: Folder do przeniesienia nie istnieje"
+  },
+  "Error005": {
+    "message": "E005: Folder do utworzenia nie istnieje"
+  },
+  "Error006": {
+    "message": "E006: Folder do zaktualizowania nie istnieje"
+  },
+  "Error007": {
+    "message": "E007: Folder do przeniesienia nie istnieje"
+  },
+  "Error008": {
+    "message": "E008: Folder do przeniesienia nie istnieje"
+  },
+  "Error009": {
+    "message": "E009: Folder do przeniesienia nie istnieje."
+  },
+  "Error010": {
+    "message": "E010: Nie można znaleźć folderu"
+  },
+  "Error011": {
+    "message": "E011: Element w folderze nie jest obecnie elementem podrzędnym: {0}"
+  },
+  "Error012": {
+    "message": "E012: W folderze brakuje niektórych podfolderów"
+  },
+  "Error013": {
+    "message": "E013: Folder do usunięcia nie istnieje"
+  },
+  "Error014": {
+    "message": "E014: Folder nadrzędny nie istnieje"
+  },
+  "Error015": {
+    "message": "E015: Odpowiedź serwera zawiera nieoczekiwane dane"
+  },
+  "Error016": {
+    "message": "E016: Upłynął limit czasu żądania. Sprawdź konfigurację serwera"
+  },
+  "Error017": {
+    "message": "E017: Błąd sieci: Sprawdź połączenie i dane konta"
+  },
+  "Error018": {
+    "message": "E018: Nie udało się uwierzytelnić na serwerze"
+  },
+  "Error019": {
+    "message": "E019: Status HTTP {0}. Nieudane {1} żądanie. Sprawdź konfigurację serwera i logi."
+  },
+  "Error020": {
+    "message": "E020: Nie można przetworzyć odpowiedzi serwera. Czy aplikacja Zakładki jest zainstalowana na serwerze?"
+  },
+  "Error021": {
+    "message": "E021: Niespójny stan serwera. Folder jest obecny na liście elementów podrzędnych ale nie w drzewie katalogów"
+  },
+  "Error022": {
+    "message": "E022: Folder {0} zawiera nieistniejącą zakładkę {1} "
+  },
+  "Error023": {
+    "message": "E023: Nie można wyczyścić pliku blokady, rozważ usunięcie {0} ręczne"
+  },
+  "Error024": {
+    "message": "E024: Status HTTP {0} podczas próby ustalenia stanu pliku blokady {1} "
+  },
+  "Error025": {
+    "message": "E025: Ustawienie pliku zakładek nie może zaczynać się od ukośnika: '/'"
+  },
+  "Error026": {
+    "message": "E026: Status HTTP {0}. Nie udało się pobrać zakładek"
+  },
+  "Error027": {
+    "message": "E027: Synchronizacja została przerwana"
+  },
+  "Error028": {
+    "message": "E028: Nie udało się uwierzytelnić na serwerze"
+  },
+  "Error029": {
+    "message": "E029: Zabezpieczenie: obecna synchronizacja może usunąć {0}% Twoich zakładek i nie zostanie wykonana. Zmień opcję zabezpieczeń w ustawieniach konta jeśli chcesz kontynuować."
+  },
+  "Error030": {
+    "message": "E030: Nieudane odszyfrowanie pliku zakładek. Błędne hasło lub uszkodzony plik"
+  },
+  "Error031": {
+    "message": "E031: Nie udało się uwierzytelnić w Dysku Google. Połącz ponownie Floccus ze swoim kontem Google"
+  },
+  "Error032": {
+    "message": "E032:Błąd OAuth. Błąd walidacji tokenu. Podłącz ponownie swoje konto Google."
+  },
+  "Error033": {
+    "message": "E033: Wykryto przekierowanie. Upewnij się, że serwer obsługuje wybraną metodę synchronizacji i podany adres URL nie przekierowuje w inne miejsce. Jeśli przekierowanie jest częścią Twojej konfiguracji, możesz wyłączyć to sprawdzenie w ustawieniach."
+  },
+  "Error034": {
+    "message": "E034: Nie można odczytać pliku zakładek. Czy hasło do odszyfrowania zostało wskazane? "
+  },
+  "LabelWebdavurl": {
+    "message": "Adres WebDAV"
+  },
+  "DescriptionWebdavurl": {
+    "message": "np. w nextcloud: https://example.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "Adres Nextcloud"
+  },
+  "LabelUsername": {
+    "message": "Nazwa użytkownika"
+  },
+  "LabelPassword": {
+    "message": "Hasło"
+  },
+  "LabelBookmarksfile": {
+    "message": "Ścieżka do pliku z zakładkami"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "Położenie pliku z zakładkami w kontekście adresu WebDAV (wszystkie katalogi w ścieżce muszą istnieć), np. osobiste/bookmarks.xbel"
+  },
+ "DescriptionBookmarksfilegoogle": {
+   "message": "Nazwa pliku z zakładkami w Dysku Google (upewnij się że nazwa jest unikalna na Twoim Dysku)"
+ },
+  "LabelServerfolder": {
+    "message": "Folder na serwerze"
+  },
+  "DescriptionServerfolder": {
+    "message": "To jest ścieżka, w której to konto będzie przeprowadzać operacje na serwerze. Pozostaw puste aby nie ograniczać."
+  },
+  "LabelLocalfolder": {
+    "message": "Folder lokalny"
+  },
+  "DescriptionLocalfolder": {
+    "message": "Lokalny folder z zakładkami w tej przeglądarce, który będzie synchronizowany z serwerem. Niektóre przeglądarki nie pozwalają na tworzenie nowych elementów w folderze głównym (np. Firefox i Google Chrome)"
+  },
+  "LabelRootfolder": {
+    "message": "Folder główny"
+  },
+  "LabelNewfolder": {
+    "message": "Nowo utworzony folder"
+  },
+  "LabelOptions": {
+    "message": "Opcje"
+  },
+  "LabelSyncnow": {
+    "message": "Synchronizuj"
+  },
+  "LabelCancelsync": {
+    "message": "Anuluj"
+  },
+  "LabelAutosync": {
+    "message": "Auto-synchr."
+  },
+  "StatusLastsynced": {
+    "message": "Ostatnia synchronizacja: {0} temu"
+  },
+  "StatusNeversynced": {
+    "message": "Jeszcze nie zsynchronizowane "
+  },
+  "StatusAllgood": {
+    "message": "Powodzenie"
+  },
+  "StatusDisabled": {
+    "message": "Wyłączone"
+  },
+  "StatusError": {
+    "message": "Błąd"
+  },
+  "StatusSyncing": {
+    "message": "Synchronizacja"
+  },
+  "LabelReset": {
+    "message": "Reset"
+  },
+  "DescriptionReset": {
+    "message": "Resetuj zsynchronizowany folder aby utworzyć nowy"
+  },
+  "LabelChoosefolder": {
+    "message": "Wybierz folder"
+  },
+  "DescriptionChoosefolder": {
+    "message": "Wskaż istniejący folder do synchronizacji"
+  },
+  "LabelRemoveaccount": {
+    "message": "Usuń konto"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "Usuń to konto (Twoje zakładki nie zostaną usunięte)"
+  },
+  "LabelResetCache": {
+    "message": "Wykonaj synchronizację od zera"
+  },
+  "DescriptionResetcache": {
+    "message": "Użyj aby zresetować pamięć podręczną, tak aby przy następnej synchronizacji nie zostały usunięte żadne dane, a jedynie zostały scalone zakładki z serwera i lokalne"
+  },
+  "LabelParallelsync": {
+    "message": "Przyśpiesz synchronizację"
+  },
+  "DescriptionParallelsync": {
+    "message": "Umożliwia równoległe przetwarzanie wielu folderów aby przyspieszyć synchronizację. Ta funkcja jest eksperymentalna, powoduje że trudniej jest czytać i debugować logi."
+  },
+  "LabelStrategy": {
+    "message": "Strategia synchronizacji"
+  },
+  "DescriptionStrategy": {
+    "message": "Wskaż jak synchronizować zakładki pomiędzy różnymi urządzeniami. Zazwyczaj zachowywane są zmiany ze wszystkich urządzeń, ale czasem możesz chcieć nadpisywać zmiany (także dodawanie i usuwanie) z innych przeglądarek lub te wprowadzone lokalnie."
+  },
+  "LabelStrategydefault": {
+    "message": "Połącz lokalne i zdalne zmiany (rekomendowane)"
+  },
+  "LabelStrategyslave": {
+    "message": "Priorytet serwera - zdalne dane zawsze nadpisują lokalne zmiany"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "Priorytet przeglądarki -  lokalne zmiany nadpisują dane na serwerze"
+  },
+  "LabelSave": {
+    "message": "Zapisz"
+  },
+  "LabelCancel": {
+    "message": "Anuluj"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Zakładki Nextcloud"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "Synchronizacja z aplikacją 'Zakładki Nextcloud'. Wymaga conajmniej wersji v0.14 aplikacji Zakładki. Synchronizowane będą wyłącznie zakładki http i ftp."
+  },
+  "LabelAdapternextcloud": {
+    "message": "Zakładki Nextcloud (starsza wersja)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "Umożliwia działanie ze starszą wersją - conajmniej v0.11 - aplikacji Zakładki. W tym trybie emulowane są foldery przy użyciu tagów zawierających ścieżki folderów. Nie jest zalecane używanie tego z nowymi kontami."
+  },
+  "LabelAdapterwebdav": {
+    "message": "Plik XBEL w udziale WebDAV"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "Metoda synchronizacji zakładek przy użyciu pliku XBEL znajdującego się na serwerze WebDAV. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem zgodnym z WebDAV.  Można synchronizować zakładki typu http, ftp, data, javascript.  "
+  },
+  "LabelAddaccount": {
+    "message": "Dodaj konto"
+  },
+  "LabelSecurecredentials": {
+    "message": "Zabezpiecz swoje dane"
+  },
+  "LabelSecuredcredentials": {
+    "message": "Dane są zabezpieczone"
+  },
+  "LabelOpenintab": {
+    "message": "Otwórz w karcie"
+  },
+  "LabelDebuglogs": {
+    "message": "Logi do debugowania"
+  },
+  "LabelFunddevelopment": {
+    "message": "Zasponsoruj rozwój"
+  },
+  "DescriptionFunddevelopment": {
+    "message": "Praca nad Floccus jest oparta na dobrowolnym modelu subskrypcji. Jeśli uważasz, że rozwiązanie jest tego warte i możesz przeznaczyć co miesiąc jakąś kwotę, proszę o wsparcie. Rozważ także ocenę dodatku w witrynie z dodatkami dla przeglądarki, której używasz. Dziękuję! 💙"
+  },
+  "LabelSelect": {
+    "message": "Wybierz"
+  },
+  "LabelUntitledfolder": {
+    "message": "Nienazwany folder"
+  },
+  "LabelSetkey": {
+    "message": "Ustaw hasło dla Floccus"
+  },
+  "DescriptionSetkey": {
+    "message": "Jeśli włączysz ochronę, wymagane będzie wpisanie hasła za każdym razem po włączeniu przeglądarki, aby zsynchronizować zakładki."
+  },
+  "LabelKey": {
+    "message": "Wpisz hasło odblokowujące"
+  },
+  "LabelKey2": {
+    "message": "Wpisz hasło ponownie"
+  },
+  "LabelUnlock": {
+    "message": "Odblokuj Floccus"
+  },
+  "LabelRemovekey": {
+    "message": "Usuń hasło"
+  },
+  "LabelRemovedkey": {
+    "message": "Hasło zostało usunięte"
+  },
+  "LabelSyncinterval": {
+    "message": "Częstotliwość synchronizacji"
+  },
+  "DescriptionSyncinterval": {
+    "message": "Czas pomiędzy kolejnymi synchronizacjami w minutach. Domyślnie 15 minut."
+  },
+  "LabelChooseadapter": {
+    "message": "Wybierz sposób synchronizacji"
+  },
+  "LabelOptionsscreen": {
+    "message": "{0} ustawienia",
+    "description": "Title of the options screen. The placeholder holds the account type."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "Przekaż jednorazową darowiznę przez Paypal aby wesprzeć projekt"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "Przekazuj okresową darowiznę przez OpenCollective aby wspierać projekt"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "Przekazuj okresową darowiznę przez Liberapay aby wspierać projekt"
+  },
+  "LabelGithubsponsors": {
+    "message": "Sponsorzy Github"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "Przekazuj okresową darowiznę przez Github aby wspierać projekt"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "Ten przestarzały typ konta zostanie niebawem usunięty. Przełącz się jak najszybciej na nową metodę synchronizacji z Nextcloud, która jest szybsza i pewniejsza."
+  },
+  "LabelUpdated": {
+    "message": "Floccus został zaktualizowany"
+  },
+  "DescriptionUpdated": {
+    "message": "Najnowsza aktualizacja dla Floccus została zainstalowana!"
+  },
+  "LabelReleaseNotes": {
+    "message": "Przeczytaj informacje o wydaniu"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "Szczegóły serwera"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "Mapowanie folderów"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "Synchronizacja"
+  },
+  "LabelOptionsDangerous": {
+    "message": "Zaawansowane"
+  },
+  "LabelAccountDeleted": {
+    "message": "Konto usunięte"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "To konto zostało usunięte"
+  },
+  "LabelNoAccount": {
+    "message": "Brak kont"
+  },
+  "DescriptionNoAccount": {
+    "message": "Utwórz nowe konto aby synchronizować zakładki albo zaimportuj istniejące konta z innego urządzenia lub przeglądarki."
+  },
+  "LabelLoginFlowStart": {
+    "message": "Zaloguj z Nextcloud"
+  },
+  "LabelLoginFlowStop": {
+    "message": "Anuluj logowanie Nextcloud"
+  },
+  "LabelLoginFlowError": {
+    "message": "Logowanie Nextcloud nie powiodło się"
+  },
+  "LabelNewAccount": {
+    "message": "Nowe konto"
+  },
+  "LabelNestedSync": {
+    "message": "Konta zagnieżdżone"
+  },
+  "DescriptionNestedSync": {
+    "message": "Możesz wskazać, że folder nadrzędny należy do konta A a subfolder do kont A oraz B. Czy chcesz zezwolić innym kontom również na synchronizację folderu tego konta? "
+  },
+  "LabelNestedSyncNo": {
+    "message": "Nie, ignoruj folder tego konta w innych kontach"
+  },
+  "LabelNestedSyncYes": {
+    "message": "Tak, dołącz folder tego konta do innych kont"
+  },
+  "LabelImportExport": {
+    "message": "Import/Eksport kont"
+  },
+  "LabelExport": {
+    "message": "Eksportuj konta"
+  },
+  "LabelImport": {
+    "message": "Importuj konta"
+  },
+  "DescriptionExport": {
+    "message": "Zaznacz poniżej konta, które zostaną zapisane do pliku. Dzięki temu łatwo odtworzysz te same konta na innym urządzeniu lub przeglądarce. "
+  },
+  "DescriptionImport": {
+    "message": "Wczytaj plik z wyeksportowanymi kontami z innego urządzenia lub przeglądarki. Następnie upewnij się, że wybrałeś na nowo właściwe foldery do synchronizacji. "
+  },
+  "LabelFolderNotFound": {
+    "message": "Nie znaleziono folderu"
+  },
+  "LabelSyncTabs": {
+    "message": "Synchronizuj karty"
+  },
+  "LabelTabs": {
+    "message": "Karty"
+  },
+  "LabelSyncDown": {
+    "message": "Pobieraj i nadpisuj lokalne"
+  },
+  "LabelSyncUp": {
+    "message": "Wysyłaj i nadpisuj zdalne"
+  },
+  "LabelSyncDownOnce": {
+    "message": "Pobierz i nadpisz jednorazowo"
+  },
+  "LabelSyncUpOnce": {
+    "message": "Wyślij i nadpisz jednorazowo"
+  },
+  "LabelSyncNormal": {
+    "message": "Połącz lokalne i zdalne"
+  },
+  "DescriptionFilesPermission": {
+    "message": "Upewnij się, że zezwoliłeś Floccus nie tylko na używanie aplikacji Zakładki, ale także zezwoliłeś na dostęp do aplikacji Pliki w Nextcloud."
+  },
+  "DescriptionExtension": {
+    "message": "Synchronizuj zakładki pomiędzy przeglądarkami i urządzeniami zachowując prywatność"
+  },
+  "LabelFailsafe": {
+    "message": "Zabezpieczenie"
+  },
+  "DescriptionFailsafe": {
+    "message": "Błąd w konfiguracji lub oprogramowaniu może spowodować niezamierzone usunięcie danych, które mogą zostać utracone. Aby temu zapobiec, Floccus nie usunie jednorazowo więcej niż 50% zakładek, dopóki nie zmienisz tej opcji."
+  },
+  "LabelFailsafeon": {
+    "message": "Włączone. Nie usuwaj więcej niż 50% lokalnych zakładek bez uprzedniego pytania o zgodę (zalecane)"
+  },
+  "LabelFailsafeoff": {
+    "message": "Wyłączone. Zezwolenie na usunięcie ponad 50% lokalnych zakładek bez potwierdzenia."
+  },
+  "StatusFailsafeoff": {
+    "message": "Zabezpieczenie wyłączone. Ryzykujesz niezamierzoną utratę danych. Rekomendowane jest pozostawienie tej opcji włączonej."
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google Drive"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "Synchronizuj zakładki przy użyciu zaszyfrowanego pliku przechowywanego na Dysku Google. Synchronizowane będą zakładki http, ftp, data i javascript."
+  },
+  "LabelLogingoogle": {
+    "message": "Zaloguj się z Google"
+  },
+  "DescriptionLogingoogle": {
+    "message": "Podłącz konto Google aby przechowywać plik z zakładkami na Dysku Google."
+  },
+  "DescriptionLoggedingoogle": {
+    "message": "Podłączyłeś konto Google aby przechowywać plik z zakładkami na Dysku Google."
+  },
+  "LabelPassphrase": {
+    "message": "Hasło"
+  },
+  "DescriptionPassphrase": {
+    "message": "Podaj hasło używane do zaszyfrowania pliku z zakładkami. Jeśli nie wskażesz hasła, plik nie zostanie zaszyfrowany."
+  },
+  "LabelClientcert": {
+    "message": "Wyślij dane uwierzytelniające klienta"
+  },
+  "DescriptionClientcert": {
+    "message": "Włącz tę opcję, jeśli Twój serwer wymaga certyfikatu klienta lub pliku cookie dla autoryzacji. To może spowodować nieoczekiwane efekty uboczne, gdyż Floccus będzie współdzielił cookies w ramach standardowego profilu przeglądarki."
+  },
+  "LabelAllowredirects": {
+    "message": "Zezwól na przekierowania w URL serwera"
+  },
+  "DescriptionAllowredirects": {
+    "message": "Włącz tę opcję, jeśli podczas synchronizacji wystąpią błędy przekierowań, które Twoim zdaniem są nieuzasadnione."
+  },
+  "LabelSearch": {
+    "message": "Wyszukaj"
+  },
+  "LabelSearchfolder": {
+    "message": "Wyszukaj w {0}"
+  },
+  "LabelEdititem": {
+    "message": "Edytuj"
+  },
+  "LabelDeleteitem": {
+    "message": "Usuń"
+  },
+  "LabelNobookmarks": {
+    "message": "Nie ma tutaj zakładek"
+  },
+  "LabelAddbookmark": {
+    "message": "Dodaj zakładkę"
+  },
+  "LabelEditbookmark": {
+    "message": "Edytuj zakładkę"
+  },
+  "LabelAddfolder": {
+    "message": "Dodaj folder"
+  },
+  "LabelEditfolder": {
+    "message": "Edytuj folder"
+  },
+  "LabelSlugline": {
+    "message": "Synchronizacja zakładek"
+  },
+  "LabelDownloadlogs": {
+    "message": "Pobierz logi"
+  },
+  "LabelDownloadanonymizedlogs": {
+    "message": "Pobierz zanoniizowane logi"
+  },
+  "DescriptionDownloadlogs": {
+    "message": "Floccus zapisuje całą swoją aktywność w pliku logu, aby można było  ją zweryfikować samodzielnie lub przesłać deweloperom do celów usuwania błędów. Zanim wyślesz nam zanonimizowane logi, upewnij się, że w pobranym pliku nic nie zostało pominięte i wszystkie Twoje prywatne dane zostały zanonimizowane. "
+  },
+  "ErrorFolderloopselected": {
+    "message": "Nie można przenieść folderu do niego samego"
+  },
+  "ErrorNofolderselected": {
+    "message": "Nie zaznaczono folderu"
+  },
+  "LabelAllownetwork": {
+    "message": "Pozwolenie na użycie sieci"
+  },
+  "DescriptionAllownetwork": {
+    "message": "Floccus może używać połączeń sieciowych, oprócz połączeń w celu synchronizacji z Twoim serwerem, do uzyskania dodatkowych informacji o zakładkach (jak ikony itp). Tutaj możesz zezwolić na takie użycie sieci."
+  },
+  "LabelMobilesettings": {
+    "message": "Ustawienia telefonu"
+  },
+  "LabelContinuefloccus":{
+    "message": "Kontynuuj z Floccus"
+  },
+  "LabelAbout":{
+    "message": "O aplikacji"
+  },
+  "LabelCurrentversion": {
+    "message": "Używana wersja"
+  },
+  "DescriptionCurrentversion": {
+    "message": "Aktualnie zainstalowana wersja Floccus to:"
+  },
+  "LabelContributors": {
+    "message": "Współwórcy"
+  },
+  "DescriptionContributors": {
+    "message": "Dzięki tym ludziom Floccus może istnieć"
+  },
+  "LabelSortcustom": {
+    "message": "Dostosuj"
+  },
+  "LabelSorturl": {
+    "message": "Link"
+  },
+  "LabelSorttitle": {
+    "message": "Tytuł"
+  },
+  "LabelSyncmethod": {
+    "message": "Metoda synchronizacji"
+  },
+  "LabelSyncserver": {
+    "message": "Serwer synchronizacji"
+  },
+  "LabelSyncfolders": {
+    "message": "Synchronizowane foldery"
+  },
+  "LabelSyncbehavior": {
+    "message": "Synchronizacja"
+  },
+  "LabelContinue": {
+    "message": "Kontynuuj"
+  },
+  "LabelDone": {
+    "message": "Wykonane"
+  },
+  "LabelConnect": {
+    "message": "Połącz"
+  },
+  "LabelServersetup": {
+    "message": "Podaj dane serwera, z którym chcesz synchronizować"
+  },
+  "LabelGoogledrivesetup": {
+    "message": "Zaloguj do Dysku Google"
+  },
+  "LabelSyncfoldersetup": {
+    "message": "Które foldery chcesz synchronizować?"
+  },
+  "LabelSyncbehaviorsetup": {
+    "message": "Której metody synchronizacji chcesz użyć?"
+  },
+  "LabelAccountcreated": {
+    "message": "Konto utworzone"
+  }
+}
