@@ -228,7 +228,7 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "L'option \"Marque-pages Nextcloud\" est compatible à partir de la version 0.14 de l'application Bookmarks. Elle ne peut synchroniser que les marque-pages \"http\" et \"ftp\"."
+    "message": "Cette option est compatible à partir de la version 0.14 de l'application Bookmarks. Elle ne peut synchroniser que les marque-pages \"http\" et \"ftp\"."
   },
   "LabelAdapternextcloud": {
     "message": "Marque-pages Nextcloud (ancienne méthode)"
