@@ -100,6 +100,12 @@
                   <v-icon>{{ item.icon }}</v-icon> {{ item.text }}
                 </template>
               </v-select>
+            </v-col>
+          </v-row>
+          <v-row
+            no-gutters
+            class="mt-1">
+            <v-col class="d-flex flex-row">
               <v-btn
                 v-if="!account.data.syncing"
                 class="primary"
