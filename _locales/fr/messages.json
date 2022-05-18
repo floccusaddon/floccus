@@ -192,7 +192,7 @@
     "message": "Supprimer ce compte (cela ne supprimera pas vos marque-pages)"
   },
   "LabelResetCache": {
-    "message": "Reprendre toute la synchronisation depuis le début"
+    "message": "Réinitialiser la synchronisation"
   },
   "DescriptionResetcache": {
     "message": "Cochez cette case pour réinitialiser le cache, assurer que la prochaine synchronisation ne supprime aucune donnée et se limite à fusionner les données serveur et les marque-pages locaux"
@@ -207,16 +207,16 @@
     "message": "Stratégie de synchronisation"
   },
   "DescriptionStrategy": {
-    "message": "Cette option détermine comment synchroniser les marque-pages entre différents appareils. Normalement, on préfère conserver les changements réalisés sur chacun des appareils s'ils sont compatibles, mais parfois vous pouvez choisir d'écraser les changements (incluants les ajouts et suppressions) d'autres navigateurs, ou au contraire d'écraser les changements locaux."
+    "message": "Cette option détermine comment synchroniser les marque-pages entre différents navigateurs ou appareils. D'habitude, on préfère conserver tous les changements réalisés sur chaque navigateur s'ils sont compatibles, mais parfois vous pouvez choisir d'écraser les changements (ajouts et suppressions) faits sur d'autres navigateurs (cloud), ou au contraire d'écraser les changements faits sur le navigateur actuel (local)."
   },
   "LabelStrategydefault": {
     "message": "Fusionner les données locales et celles du cloud. (Recommandé)"
   },
   "LabelStrategyslave": {
-    "message": "Toujours écraser les changements, ajouts et suppressions locaux et télécharger les changements disponibles sur le cloud."
+    "message": "Toujours écraser les changements (ajouts et suppressions) locaux et les remplacer par les changements disponibles sur le cloud."
   },
   "LabelStrategyoverwrite": {
-    "message": "Toujours écraser les changements, ajouts et suppression réalisés sur d'autres navigateurs, et téléverser les changements locaux."
+    "message": "Toujours écraser les changements (ajouts et suppressions) réalisés sur d'autres navigateurs, et les remplacer par les changements faits localement."
   },
   "LabelSave": {
     "message": "Sauvegarder"
@@ -225,10 +225,10 @@
     "message": "Annuler"
   },
   "LabelAdapternextcloudfolders": {
-    "message": "Marque-pages Nextcloud"
+    "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "L'option \"Marque-pages Nextcloud\" est compatible à partir de la version 0.14 de l'application Bookmarks. Elle ne peut synchroniser que les marque-pages \"http\" et \"ftp\"."
+    "message": "Cette option est compatible à partir de la version 0.14 de l'application Bookmarks. Elle ne peut synchroniser que les marque-pages \"http\" et \"ftp\"."
   },
   "LabelAdapternextcloud": {
     "message": "Marque-pages Nextcloud (ancienne méthode)"
@@ -237,10 +237,10 @@
     "message": "Cette ancienne méthode n'est compatible qu'à partir de la version 0.11 de l'application Bookmarks. Elle émulera des dossiers en utilisant des tags contenant le chemin du dossier. Cette option n'est pas recommandée pour les nouveaux comptes."
   },
   "LabelAdapterwebdav": {
-    "message": "Fichier XBEL dans le partage WebDAV"
+    "message": "Fichier XBEL dans un serveur WebDAV"
   },
   "DescriptionAdapterwebdav": {
-    "message": "L'option WebDAV synchronise vos marque-pages en les stockant dans un fichier XBEL sur le servzur WebDAV fourni. Il n'y a pas d'interface graphique pour cette option et vous pouvez l'utiliser avec n'importe quel serveur WebDAV compatible. Les marque-pages \"http\", \"ftp\", \"data\" et \"javascript\" peuvent être synchronisés."
+    "message": "Synchronise vos marque-pages en les stockant dans un fichier XBEL sur le serveur WebDAV de votre choix. Il n'y a pas d'interface graphique pour cette option et vous pouvez l'utiliser avec n'importe quel serveur WebDAV compatible. Les marque-pages \"http\", \"ftp\", \"data\" et \"javascript\" peuvent être synchronisés."
   },
   "LabelAddaccount": {
     "message": "Ajouter un compte"
@@ -322,10 +322,10 @@
     "message": "Faire un don récurrent via Liberapay pour aider le projet"
   },
   "LabelGithubsponsors": {
-    "message": "Commanditaires de GitHub"
+    "message": "Parrainage GitHub"
   },
   "DescriptionGithubsponsors": {
-    "message": "Faire un don récurrent via les sponsors de GitHub pour aider le projet"
+    "message": "Faire un don récurrent en devenant parrain du projet sur GitHub"
   },
   "LegacyAdapterDeprecation": {
     "message": "Cet ancien type de compte n'est plus supporté et sera bientôt supprimé. Merci de le remplacer par la nouvelle méthode de synchronisation Nextcloud. Des performances accrues vous attendent."
@@ -430,7 +430,7 @@
     "message": "Assurez-vous de donner à floccus la permission d'utiliser l'application  Bookmarks mais aussi l'application Nextcloud Files."
   },
   "DescriptionExtension": {
-    "message": "Synchronisez de façon privée vos marque-pages entre navigateurs et appareils"
+    "message": "Synchronisez de façon confidentielle vos marque-pages entre navigateurs et entre appareils"
   },
   "LabelFailsafe": {
     "message": "Protection de secours"
@@ -457,10 +457,10 @@
     "message": "Se connecter avec Google"
   },
   "DescriptionLogingoogle": {
-    "message": "Connectez-vous à votre compte Google pour stocker le fichier de synchronisation de vos marque-pages sur votre Google Drive."
+    "message": "Connectez-vous à votre compte Google pour ainsi stocker le fichier permettant la synchronisation de vos marque-pages sur votre Google Drive."
   },
   "DescriptionLoggedingoogle": {
-    "message": "Vous avez connecté votre compte Google pour stocker le fichier de synchronisation de vos marque-pages sur votre Google Drive."
+    "message": "Vous êtes connecté à votre compte Google. Le fichier permettant la synchronisation de vos marque-pages est stocké sur votre Google Drive."
   },
   "LabelPassphrase": {
     "message": "Phrase secrète"
@@ -508,16 +508,16 @@
     "message": "Modifier le dossier"
   },
   "LabelSlugline": {
-    "message": "Synchronisation privée des marque-pages"
+    "message": "Synchronisation de marque-pages respectueuse de votre vie privée"
   },
   "LabelDownloadlogs": {
-    "message": "Télécharger les journaux"
+    "message": "Télécharger journaux"
   },
   "LabelDownloadanonymizedlogs": {
-    "message": "Télécharger une version anonymisée des journaux"
+    "message": "Télécharger journaux anonymisés"
   },
   "DescriptionDownloadlogs": {
-    "message": "Floxcus conserve toutes ses actions dans des journaux que vous pouvez vous-mêmes examiner ou envoyer aux développeurs pour des raisons de débogage. Si vous décidez d'envoyer une version anonymisée de ces journaux, vérifiez tout de même que le fichier téléchargé ne comporte pas de données sensibles qui auraient pû être omises par le processus d'anonymisation."
+    "message": "Floxcus conserve toutes ses actions dans des journaux que vous pouvez vous-mêmes examiner ou envoyer aux développeurs pour des raisons de débogage. \nCes journaux sont aussi disponibles dans une version anonymisée qui cache les noms et liens de vos marque-pages.\nSi vous décidez d'envoyer une version anonymisée de ces journaux, vérifiez tout de même que le fichier téléchargé ne comporte pas de données sensibles qui auraient pû être omises par le processus d'anonymisation."
   },
   "ErrorFolderloopselected": {
     "message": "Impossible de déplacer un dossier dans ce même dossier"
@@ -550,7 +550,7 @@
     "message": "Contributeurs"
   },
   "DescriptionContributors": {
-    "message": "Ces personnes ont aidées à rendre floccus possible"
+    "message": "Ces personnes ont aidées à réaliser floccus :"
   },
   "LabelSortcustom": {
     "message": "Personnalisé"
@@ -583,7 +583,7 @@
     "message": "Se connecter"
   },
   "LabelServersetup": {
-    "message": "Sur quel serveur souhaitez-vous engager la synchronisation ?"
+    "message": "Sur quel serveur souhaitez-vous configurer la synchronisation ?"
   },
   "LabelGoogledrivesetup": {
     "message": "Se connecter à Google Drive"
