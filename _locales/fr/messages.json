@@ -325,7 +325,7 @@
     "message": "Sponsoring GitHub"
   },
   "DescriptionGithubsponsors": {
-    "message": "Faire un don récurrent via le parrainage GitHub pour aider le projet"
+    "message": "Faire un don récurrent en devenant parrain du projet sur GitHub"
   },
   "LegacyAdapterDeprecation": {
     "message": "Cet ancien type de compte n'est plus supporté et sera bientôt supprimé. Merci de le remplacer par la nouvelle méthode de synchronisation Nextcloud. Des performances accrues vous attendent."
