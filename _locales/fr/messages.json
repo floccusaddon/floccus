@@ -421,7 +421,7 @@
     "message": "Télécharger et remplacer les données locales une fois"
   },
   "LabelSyncUpOnce": {
-    "message": "Téléverser et remplacer les données du cloud une fois"
+    "message": "Téléverser et écraser le cloud une fois"
   },
   "LabelSyncNormal": {
     "message": "Fusionner données locales et sur le cloud"
