@@ -517,7 +517,7 @@
     "message": "Download anonymized logs"
   },
   "DescriptionDownloadlogs": {
-    "message": "Floccus logs all its actions in a log file that you can examine yourself or send to the developers for debugging purposes. When sending anonymized logs, make sure to still check the downloaded file for sensitive data that might not have been caught by the anonymization process."
+    "message": "Floccus logs all its actions in a log file that you can examine yourself or send to the developers for debugging purposes. This log file is also available in an anonymized version that hides the titles and links of your bookmarks. When sending anonymized logs, make sure to still check the downloaded file for sensitive data that might not have been caught by the anonymization process."
   },
   "ErrorFolderloopselected": {
     "message": "Cannot move a folder into itself"
