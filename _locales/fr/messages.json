@@ -517,7 +517,7 @@
     "message": "Télécharger journaux anonymisés"
   },
   "DescriptionDownloadlogs": {
-    "message": "Floxcus conserve toutes ses actions dans des journaux que vous pouvez vous-mêmes examiner ou envoyer aux développeurs pour des raisons de débogage. Si vous décidez d'envoyer une version anonymisée de ces journaux, vérifiez tout de même que le fichier téléchargé ne comporte pas de données sensibles qui auraient pû être omises par le processus d'anonymisation."
+    "message": "Floxcus conserve toutes ses actions dans des journaux que vous pouvez vous-mêmes examiner ou envoyer aux développeurs pour des raisons de débogage. \nCes journaux sont aussi disponibles dans une version anonymisée qui cache les noms et liens de vos marque-pages.\nSi vous décidez d'envoyer une version anonymisée de ces journaux, vérifiez tout de même que le fichier téléchargé ne comporte pas de données sensibles qui auraient pû être omises par le processus d'anonymisation."
   },
   "ErrorFolderloopselected": {
     "message": "Impossible de déplacer un dossier dans ce même dossier"
