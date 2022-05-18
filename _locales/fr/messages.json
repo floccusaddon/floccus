@@ -415,7 +415,7 @@
     "message": "Télécharger et remplacer les données locales"
   },
   "LabelSyncUp": {
-    "message": "Téléverser et écraser les données du cloud"
+    "message": "Téléverser et remplacer données du cloud"
   },
   "LabelSyncDownOnce": {
     "message": "Télécharger et remplacer les données locales une fois"
