@@ -27,12 +27,6 @@
             :complete="currentStep > 4">
             {{ t('LabelSyncbehavior') }}
           </v-stepper-step>
-          <v-divider />
-          <v-stepper-step
-            step="5"
-            :complete="currentStep > 4">
-            {{ t('LabelDone') }}
-          </v-stepper-step>
         </v-stepper-header>
 
         <v-stepper-items>
@@ -195,7 +189,6 @@
                 {{ t('LabelBookmarksfile') }}
               </div>
               <v-text-field
-                v-if="adapter === 'google-drive'"
                 v-model="bookmark_file"
                 append-icon="mdi-file-document"
                 :rules="[validateBookmarksFileGoogle]"
@@ -398,7 +391,7 @@ export default {
 
 <style scoped>
     .options {
-        max-width: 600px;
+        max-width: 700px;
         margin: 0 auto;
     }
 </style>
