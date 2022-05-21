@@ -514,10 +514,10 @@
     "message": "Download logs"
   },
   "LabelDownloadanonymizedlogs": {
-    "message": "Download anonymized logs"
+    "message": "Download redacted logs"
   },
   "DescriptionDownloadlogs": {
-    "message": "Floccus logs all its actions in a log file that you can examine yourself or send to the developers for debugging purposes. When sending anonymized logs, make sure to still check the downloaded file for sensitive data that might not have been caught by the anonymization process."
+    "message": "Floccus logs all its actions in a log file that you can examine yourself or send to the developers for debugging purposes. In redacted logs, folder and bookmark names as well as URLs are irreversibly encoded using a cryptographic hashing function. When sending redacted logs, make sure to still check the downloaded file for sensitive data that might not have been caught by the anonymization process."
   },
   "ErrorFolderloopselected": {
     "message": "Cannot move a folder into itself"
