@@ -203,6 +203,16 @@
         "ideas",
         "bug"
       ]
+    },
+    {
+      "login": "pinpontitit",
+      "name": "pinpontitit",
+      "avatar_url": "https://avatars.githubusercontent.com/u/100489443?v=4",
+      "profile": "https://github.com/pinpontitit",
+      "contributions": [
+        "ideas",
+        "bug"
+      ]
     }
   ],
   "skipCi": true,
