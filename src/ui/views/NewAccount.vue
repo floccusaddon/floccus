@@ -6,27 +6,19 @@
         <v-stepper-header>
           <v-stepper-step
             :complete="currentStep > 1"
-            step="1">
-            {{ t('LabelSyncmethod') }}
-          </v-stepper-step>
+            step="1" />
           <v-divider />
           <v-stepper-step
             :complete="currentStep > 2"
-            step="2">
-            {{ t('LabelSyncserver') }}
-          </v-stepper-step>
+            step="2" />
           <v-divider />
           <v-stepper-step
             step="3"
-            :complete="currentStep > 3">
-            {{ t('LabelSyncfolders') }}
-          </v-stepper-step>
+            :complete="currentStep > 3" />
           <v-divider />
           <v-stepper-step
             step="4"
-            :complete="currentStep > 4">
-            {{ t('LabelSyncbehavior') }}
-          </v-stepper-step>
+            :complete="currentStep > 4" />
         </v-stepper-header>
 
         <v-stepper-items>
@@ -391,7 +383,7 @@ export default {
 
 <style scoped>
     .options {
-        max-width: 700px;
+        max-width: 600px;
         margin: 0 auto;
     }
 </style>
