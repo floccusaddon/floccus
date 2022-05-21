@@ -193,6 +193,16 @@
         "test",
         "ideas"
       ]
+    },
+    {
+      "login": "Seirade",
+      "name": "Seirade",
+      "avatar_url": "https://avatars.githubusercontent.com/u/45798662?v=4",
+      "profile": "https://github.com/Seirade",
+      "contributions": [
+        "ideas",
+        "bug"
+      ]
     }
   ],
   "skipCi": true,
