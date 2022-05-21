@@ -88,25 +88,35 @@
                 v-model="account.data.strategy"
                 dense
                 :items="[
-                  {text: strategyLabels['slave'], value: 'slave', icon: strategyIcons['slave']},
-                  {text: strategyLabels['overwrite'], value: 'overwrite', icon: strategyIcons['overwrite']},
-                  {text: strategyLabels['default'], value: 'default', icon: strategyIcons['default']},
+                  {text: strategyLabels['slave'], desc: strategyDescriptions['slave'], value: 'slave', icon: strategyIcons['slave']},
+                  {text: strategyLabels['overwrite'], desc: strategyDescriptions['overwrite'], value: 'overwrite', icon: strategyIcons['overwrite']},
+                  {text: strategyLabels['default'], desc: strategyDescriptions['default'], value: 'default', icon: strategyIcons['default']},
                 ]"
                 @change="onChangeStrategy">
                 <template #prepend-inner>
                   <v-icon>{{ strategyIcons[account.data.strategy] }}</v-icon>
                 </template>
                 <template #item="{item}">
-                  <v-icon>{{ item.icon }}</v-icon> {{ item.text }}
+                  <v-list-item-icon :title="item.desc">
+                    <v-icon>{{ item.icon }}</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title
+                    class="d-flex flex-column"
+                    :title="item.desc">
+                    {{ item.text }}<v-list-item-subtitle :title="item.desc">
+                      {{ item.desc }}
+                    </v-list-item-subtitle>
+                  </v-list-item-title>
                 </template>
               </v-select>
               <v-btn
                 v-if="!account.data.syncing"
                 class="primary"
                 small
+                :title="t('LabelSyncnow')"
+                :aria-label="t('LabelSyncnow')"
                 @click="onTriggerSync">
                 <v-icon>mdi-sync</v-icon>
-                {{ t('LabelSyncnow') }}
               </v-btn>
               <v-btn
                 v-else
@@ -212,6 +222,11 @@ export default {
         slave: this.t('LabelSyncDown'),
         overwrite: this.t('LabelSyncUp'),
         default: this.t('LabelSyncNormal'),
+      },
+      strategyDescriptions: {
+        slave: this.t('DescriptionSyncDown'),
+        overwrite: this.t('DescriptionSyncUp'),
+        default: this.t('DescriptionSyncNormal'),
       },
       showDetails: false
     }

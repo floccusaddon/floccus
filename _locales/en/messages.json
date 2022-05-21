@@ -412,19 +412,28 @@
     "message": "Tabs"
   },
   "LabelSyncDown": {
-    "message": "Download & overwrite local"
+    "message": "Pull down"
+  },
+  "DescriptionSyncDown": {
+    "message": "Download changes from other browsers & overwrite local changes"
   },
   "LabelSyncUp": {
-    "message": "Upload & overwrite cloud"
+    "message": "Push up"
+  },
+  "DescriptionSyncUp": {
+    "message": "Upload local changes & overwrite changes from other browsers"
   },
   "LabelSyncDownOnce": {
-    "message": "Download & overwrite once"
+    "message": "Pull down once"
   },
   "LabelSyncUpOnce": {
-    "message": "Upload & overwrite once"
+    "message": "Push up once"
   },
   "LabelSyncNormal": {
-    "message": "Merge local & cloud"
+    "message": "Merge"
+  },
+  "DescriptionSyncNormal": {
+    "message": "Merge local changes with changes from other browsers"
   },
   "DescriptionFilesPermission": {
     "message": "Make sure you give floccus permission to not only use the bookmarks app but the Nextcloud files app as well."
