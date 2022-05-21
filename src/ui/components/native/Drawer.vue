@@ -3,7 +3,7 @@
     :value="visible"
     app
     temporary
-    absolute
+    :width="320"
     @input="$emit('update:visible')">
     <v-list-item two-line>
       <v-list-item-avatar>
@@ -32,10 +32,7 @@
           <v-list-item-icon>
             <v-icon>{{ account.data.type | accountIcon }}</v-icon>
           </v-list-item-icon>
-
-          <v-list-item-content>
-            <v-list-item-title>{{ account.label }}</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>{{ account.label }}</v-list-item-title>
         </v-list-item>
       </template>
       <v-list-item
