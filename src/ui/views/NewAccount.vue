@@ -104,6 +104,7 @@
                 </template>
               </div>
             </template>
+
             <template v-else-if="adapter === 'webdav'">
               <div class="headline">
                 {{ t('LabelServersetup') }}
@@ -123,6 +124,15 @@
                 :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassword ? 'text' : 'password'"
                 @click:append="showPassword = !showPassword" />
+              <v-text-field
+                v-model="passphrase"
+                class="mt-2"
+                :label="t('LabelPassphrase')"
+                :hint="t('DescriptionPassphrase')"
+                :persistent-hint="true"
+                :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
+                :type="showPassphrase ? 'text' : 'password'"
+                @click:append="showPassphrase = !showPassphrase" />
               <div class="d-flex flex-row-reverse">
                 <v-btn
                   class="primary"
@@ -131,6 +141,7 @@
                 </v-btn>
               </div>
             </template>
+
             <template v-else-if="adapter === 'google-drive'">
               <div class="headline">
                 {{ t('LabelGoogledrivesetup') }}
@@ -164,6 +175,7 @@
                 :rules="[validateServerRoot]"
                 :label="t('LabelServerfolder')" />
             </template>
+
             <template v-if="adapter === 'webdav'">
               <div class="text-h6">
                 {{ t('LabelBookmarksfile') }}
@@ -176,6 +188,7 @@
                 :hint="t('DescriptionBookmarksfile')"
                 :persistent-hint="true" />
             </template>
+
             <template v-if="adapter === 'google-drive'">
               <div class="text-h6">
                 {{ t('LabelBookmarksfile') }}
@@ -187,6 +200,15 @@
                 :label="t('LabelBookmarksfile')"
                 :hint="t('DescriptionBookmarksfilegoogle')"
                 :persistent-hint="true" />
+              <v-text-field
+                v-model="passphrase"
+                :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
+                :type="showPassphrase ? 'text' : 'password'"
+                class="mt-2"
+                :label="t('LabelPassphrase')"
+                :hint="t('DescriptionPassphrase')"
+                :persistent-hint="true"
+                @click:append="showPassphrase = !showPassphrase" />
             </template>
             <OptionSyncFolder
               v-if="isBrowser"
@@ -201,6 +223,7 @@
               </v-btn>
             </div>
           </v-stepper-content>
+
           <v-stepper-content step="4">
             <div class="headline">
               {{ t('LabelSyncbehaviorsetup') }}
@@ -254,6 +277,7 @@ export default {
       server: 'https://',
       username: '',
       password: '',
+      passphrase: '',
       refreshToken: '',
       bookmark_file: 'bookmarks.xbel',
       serverRoot: '',
@@ -262,6 +286,7 @@ export default {
       strategy: 'default',
       nestedSync: true,
       showPassword: false,
+      showPassphrase: false,
       adapter: 'nextcloud-bookmarks',
       adapters: [
         {
@@ -300,6 +325,7 @@ export default {
         ...(this.adapter === 'nextcloud-bookmarks' && {serverRoot: this.serverRoot}),
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive') && {bookmark_file: this.bookmark_file}),
         ...(this.adapter === 'google-drive' && {refreshToken: this.refreshToken}),
+        ...(this.passphrase && {passphrase: this.passphrase}),
         ...(this.isBrowser && {localRoot: this.localRoot}),
         syncInterval: this.syncInterval,
         strategy: this.strategy,
