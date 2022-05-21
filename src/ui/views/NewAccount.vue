@@ -228,9 +228,15 @@
             <div class="headline">
               {{ t('LabelSyncbehaviorsetup') }}
             </div>
-
-            <OptionSyncInterval
+            <v-switch
               v-if="isBrowser"
+              v-model="enabled"
+              :aria-label="t('LabelAutosync')"
+              :label="t('LabelAutosync')"
+              dense
+              class="mt-0 pt-0" />
+            <OptionSyncInterval
+              v-if="isBrowser && enabled"
               v-model="syncInterval" />
             <OptionSyncStrategy
               v-model="strategy" />
@@ -284,6 +290,7 @@ export default {
       localRoot: null,
       syncInterval: 15,
       strategy: 'default',
+      enabled: true,
       nestedSync: true,
       showPassword: false,
       showPassphrase: false,
@@ -322,6 +329,7 @@ export default {
         url: this.server,
         username: this.username,
         password: this.password,
+        enabled: this.enabled,
         ...(this.adapter === 'nextcloud-bookmarks' && {serverRoot: this.serverRoot}),
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive') && {bookmark_file: this.bookmark_file}),
         ...(this.adapter === 'google-drive' && {refreshToken: this.refreshToken}),
