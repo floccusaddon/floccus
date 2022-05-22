@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="text-h6">
-      {{ t('LabelResetCache') }}
+      {{ t('LabelSyncfromscratch') }}
     </div>
     <div class="caption">
       {{ t('DescriptionResetcache') }}

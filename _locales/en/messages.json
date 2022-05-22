@@ -191,8 +191,11 @@
   "DescriptionRemoveaccount": {
     "message": "Delete this account (this will not remove your bookmarks)"
   },
-  "LabelResetCache": {
+  "LabelSyncfromscratch": {
     "message": "Trigger sync from scratch"
+  },
+  "LabelResetCache": {
+    "message": "Reset cache"
   },
   "DescriptionResetcache": {
     "message": "Tick this box to reset the cache so that the next synchronization run is guaranteed not to delete any data and merely merges server and local bookmarks together"
