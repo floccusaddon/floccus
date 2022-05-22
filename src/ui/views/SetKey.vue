@@ -27,7 +27,7 @@
               :disabled="!key1 || !key2 || !validateKeys()"
               @click="onSubmit">
               <v-icon>mdi-lock-outline</v-icon>
-              {{ t("LabelSetkey") }}
+              {{ t("LabelSetkeybutton") }}
             </v-btn>
             <v-btn
               v-if="secured"

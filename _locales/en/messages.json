@@ -273,10 +273,13 @@
     "message": "Untitled folder"
   },
   "LabelSetkey": {
-    "message": "Set a pass phrase for floccus"
+    "message": "Set a passphrase for floccus"
   },
   "DescriptionSetkey": {
     "message": "When you set a pass phrase you will have to enter this pass phrase everytime you start your browser if you want to access and synchronize your bookmarks."
+  },
+  "LabelSetkeybutton": {
+    "message": "Set passphrase"
   },
   "LabelKey": {
     "message": "Enter your unlock passphrase"
@@ -288,10 +291,10 @@
     "message": "Unlock floccus"
   },
   "LabelRemovekey": {
-    "message": "Remove pass phrase"
+    "message": "Remove passphrase"
   },
   "LabelRemovedkey": {
-    "message": "Pass phrase removed"
+    "message": "Passphrase removed"
   },
   "LabelSyncinterval": {
     "message": "Synchronization interval"
