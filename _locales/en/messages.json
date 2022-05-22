@@ -522,8 +522,11 @@
   "LabelDownloadlogs": {
     "message": "Download logs"
   },
+  "LabelDownloadfulllogs": {
+    "message": "Full logs"
+  },
   "LabelDownloadanonymizedlogs": {
-    "message": "Download redacted logs"
+    "message": "Redacted logs"
   },
   "DescriptionDownloadlogs": {
     "message": "Floccus logs all its actions in a log file that you can examine yourself or send to the developers for debugging purposes. In redacted logs, folder and bookmark names as well as URLs are irreversibly encoded using a cryptographic hashing function. When sending redacted logs, make sure to still check the downloaded file for sensitive data that might not have been caught by the anonymization process."

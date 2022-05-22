@@ -20,7 +20,7 @@
           small
           class="mb-5"
           @click="onGetLogs(false)">
-          {{ t('LabelDownloadlogs') }}
+          {{ t('LabelDownloadfulllogs') }}
         </v-btn>
       </v-col>
     </v-row>
