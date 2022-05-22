@@ -13,6 +13,7 @@ import { SendIntent } from 'send-intent'
 import Controller from '../../../lib/Controller'
 import packageJson from '../../../../package.json'
 import { Storage } from '@capacitor/storage'
+import { Http } from '@capacitor-community/http'
 
 export default {
   name: 'Home',
@@ -61,6 +62,13 @@ export default {
           [title, , url] = result.text.split('\n', 3)
         } else {
           url = result.text
+          const response = await Http.get({url})
+          const parser = new DOMParser()
+          const document = parser.parseFromString(response.data, 'text/html')
+          const titleElement = document.getElementsByTagName('title')[0]
+          if (titleElement) {
+            title = titleElement.textContent
+          }
         }
         this.$router.push({
           name: routes.ADD_BOOKMARK,
