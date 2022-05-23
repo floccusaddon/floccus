@@ -53,10 +53,10 @@ export default class LocalTabs implements IResource {
     }
     const node = await this.queue.add(() =>
       browser.tabs.create({
-        windowId: bookmark.parentId,
+        windowId: typeof bookmark.parentId === 'string' ? parseInt(bookmark.parentId) : bookmark.parentId,
         url: bookmark.url,
         // Only firefox allows discarded prop
-        ...(typeof browser.BookmarkTreeNodeType !== 'undefined' && {discarded: true})
+        ...(typeof browser.BookmarkTreeNodeType !== 'undefined' && { discarded: true })
       })
     )
     return node.id
@@ -91,12 +91,8 @@ export default class LocalTabs implements IResource {
     await this.queue.add(() => browser.tabs.remove(bookmarkId))
   }
 
-  async createFolder(folder:Folder): Promise<string> {
+  async createFolder(folder:Folder): Promise<number> {
     Logger.log('(tabs)CREATEFOLDER', folder)
-    if (folder.parentId !== 'tabs') {
-      // Don't go deeper than one level.
-      return '0'
-    }
     const node = await this.queue.add(() =>
       browser.windows.create()
     )
