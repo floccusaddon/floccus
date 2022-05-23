@@ -129,7 +129,7 @@
     "message": "Folder na serwerze"
   },
   "DescriptionServerfolder": {
-    "message": "To jest ścieżka, w której to konto będzie przeprowadzać operacje na serwerze. Pozostaw puste aby nie ograniczać."
+    "message": "To jest ścieżka, w której to konto będzie przeprowadzać operacje na serwerze. Podaj prefix ścieżki lub pozostaw puste aby nie ograniczać."
   },
   "LabelLocalfolder": {
     "message": "Folder lokalny"
