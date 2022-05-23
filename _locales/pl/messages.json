@@ -191,8 +191,11 @@
   "DescriptionRemoveaccount": {
     "message": "Usuń to konto (Twoje zakładki nie zostaną usunięte)"
   },
-  "LabelResetCache": {
+  "LabelSyncfromscratch": {
     "message": "Wykonaj synchronizację od zera"
+  },
+  "LabelResetCache": {
+    "message": "Wyczyść pamięć podręczną"
   },
   "DescriptionResetcache": {
     "message": "Użyj aby zresetować pamięć podręczną, tak aby przy następnej synchronizacji nie zostały usunięte żadne dane, a jedynie zostały scalone zakładki z serwera i lokalne"
@@ -270,10 +273,13 @@
     "message": "Nienazwany folder"
   },
   "LabelSetkey": {
-    "message": "Ustaw hasło dla Floccus"
+    "message": "Zabezpiecz Floccusa hasłem"
   },
   "DescriptionSetkey": {
-    "message": "Jeśli włączysz ochronę, wymagane będzie wpisanie hasła za każdym razem po włączeniu przeglądarki, aby zsynchronizować zakładki."
+    "message": "Jeśli ustawisz hasło, trzeba będzie je podawać za każdym razem gdy uruchomisz przegladarkę i będziesz chcleć użyć Floccus, aby synchronizować zakładki czy zmienić konfigurację."
+  },
+  "LabelSetkeybutton": {
+    "message": "Podaj hasło"
   },
   "LabelKey": {
     "message": "Wpisz hasło odblokowujące"
@@ -288,7 +294,7 @@
     "message": "Usuń hasło"
   },
   "LabelRemovedkey": {
-    "message": "Hasło zostało usunięte"
+    "message": "Usunięto hasło"
   },
   "LabelSyncinterval": {
     "message": "Częstotliwość synchronizacji"
@@ -412,19 +418,28 @@
     "message": "Karty"
   },
   "LabelSyncDown": {
-    "message": "Pobieraj i nadpisuj lokalne"
+    "message": "Pobierz zmiany"
+  },
+  "DescriptionSyncDown": {
+    "message": "Pobierz zmiany z innych przeglądarek i nadpisz lokalne zmiany"
   },
   "LabelSyncUp": {
-    "message": "Wysyłaj i nadpisuj zdalne"
+    "message": "Wyślij zmiany"
+  },
+  "DescriptionSyncUp": {
+    "message": "Wyślij lokalne zmiany i nadpisz zmiany z innych przeglądarek"
   },
   "LabelSyncDownOnce": {
-    "message": "Pobierz i nadpisz jednorazowo"
+    "message": "Pobierz zmiany jednorazowo"
   },
   "LabelSyncUpOnce": {
-    "message": "Wyślij i nadpisz jednorazowo"
+    "message": "Wyślij zmiany jednorazowo"
   },
   "LabelSyncNormal": {
-    "message": "Połącz lokalne i zdalne"
+    "message": "Scal"
+  },
+  "DescriptionSyncNormal": {
+    "message": "Połącz zmiany lokalne ze zmianami z innych przeglądarek"
   },
   "DescriptionFilesPermission": {
     "message": "Upewnij się, że zezwoliłeś Floccus nie tylko na używanie aplikacji Zakładki, ale także zezwoliłeś na dostęp do aplikacji Pliki w Nextcloud."
@@ -466,7 +481,7 @@
     "message": "Hasło"
   },
   "DescriptionPassphrase": {
-    "message": "Podaj hasło używane do zaszyfrowania pliku z zakładkami. Jeśli nie wskażesz hasła, plik nie zostanie zaszyfrowany."
+    "message": "Podaj hasło do zaszyfrowania pliku z zakładkami. Jeśli nie wskażesz hasła, plik nie zostanie zaszyfrowany."
   },
   "LabelClientcert": {
     "message": "Wyślij dane uwierzytelniające klienta"
@@ -513,11 +528,14 @@
   "LabelDownloadlogs": {
     "message": "Pobierz logi"
   },
+  "LabelDownloadfulllogs": {
+    "message": "Pełne logi"
+  },
   "LabelDownloadanonymizedlogs": {
-    "message": "Pobierz zanoniizowane logi"
+    "message": "Zanonimizowane logi"
   },
   "DescriptionDownloadlogs": {
-    "message": "Floccus zapisuje całą swoją aktywność w pliku logu, aby można było ją zweryfikować samodzielnie lub przesłać deweloperom do celów usuwania błędów. Zanim wyślesz nam zanonimizowane logi, upewnij się, że w pobranym pliku nic nie zostało pominięte i wszystkie Twoje prywatne dane zostały zanonimizowane. "
+    "message": "Floccus zapisuje całą swoją aktywność w pliku logu, aby można było ją zweryfikować samodzielnie lub przesłać deweloperom do celów usuwania błędów. W zanonimizowanych logach takie dane jak nazwy folderów, nazwy zakładek czy adresy stron są usuwane poprzez użycie funkcji haszującej. Zanim wyślesz nam zanonimizowane logi, upewnij się, że w pobranym pliku nic nie zostało pominięte i wszystkie Twoje prywatne dane zostały zanonimizowane. "
   },
   "ErrorFolderloopselected": {
     "message": "Nie można przenieść folderu do niego samego"
@@ -596,5 +614,8 @@
   },
   "LabelAccountcreated": {
     "message": "Konto zostało utworzone"
+  },
+  "DescriptionNonhttps": {
+    "message": "Wskazany serwer nie szyfruje połączeń. Rekomendujemy korzystać wyłącznie z serwerów obsługujących protokół HTTPS."
   }
 }
