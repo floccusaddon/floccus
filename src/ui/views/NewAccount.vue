@@ -71,7 +71,7 @@
                 :rules="[validateUrl]"
                 :label="t('LabelNextcloudurl')"
                 :loading="isServerTestRunning || isLoginFlowRunning"
-                :error-messages="serverTestError || loginFlowError">
+                :error-messages="serverisNotHttps || serverTestError || loginFlowError">
                 <template
                   slot="append-outer">
                   <v-icon
@@ -114,7 +114,7 @@
                 :rules="[validateUrl]"
                 :label="t('LabelWebdavurl')"
                 :loading="isServerTestRunning"
-                :error-messages="serverTestError" />
+                :error-messages="serverTestError || serverisNotHttps" />
               <v-text-field
                 v-model="username"
                 :label="t('LabelUsername')" />
@@ -318,6 +318,9 @@ export default {
     isLoginFlowRunning() {
       return this.$store.state.loginFlow.isRunning
     },
+    serverisNotHttps() {
+      return !this.server.startsWith('https') ? this.t('DescriptionNonhttps') : ''
+    }
   },
   backButton() {
     this.$router.push({ name: 'HOME' })

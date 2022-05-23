@@ -276,7 +276,7 @@
     "message": "Set a passphrase for floccus"
   },
   "DescriptionSetkey": {
-    "message": "When you set a pass phrase you will have to enter this pass phrase everytime you start your browser if you want to access and synchronize your bookmarks."
+    "message": "When you set a passphrase you will have to enter this pass phrase everytime you start your browser if you want to access and synchronize your bookmarks, change your settings or do anything else with floccus."
   },
   "LabelSetkeybutton": {
     "message": "Set passphrase"
@@ -614,5 +614,8 @@
   },
   "LabelAccountcreated": {
     "message": "Account created"
+  },
+  "DescriptionNonhttps": {
+    "message": "You have entered a server that uses an insecure protocol. It is recommended to only use servers with support for HTTPS."
   }
 }
