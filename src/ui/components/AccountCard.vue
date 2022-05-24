@@ -121,9 +121,10 @@
               <v-btn
                 v-else
                 small
+                :title="t('LabelCancelsync')"
+                :aria-label="t('LabelCancelsync')"
                 @click="onCancelSync">
                 <v-icon>mdi-cancel</v-icon>
-                {{ t('LabelCancelsync') }}
               </v-btn>
             </v-col>
           </v-row>
