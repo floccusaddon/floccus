@@ -15,6 +15,7 @@ import {
 } from '../../errors/Error'
 import { Http } from '@capacitor-community/http'
 import { Device } from '@capacitor/device'
+import Html from '../serializers/Html'
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
@@ -37,6 +38,7 @@ export default class WebDavAdapter extends CachingAdapter {
       username: 'bob',
       password: 's3cret',
       bookmark_file: 'bookmarks.xbel',
+      bookmark_file_type: 'xbel',
       includeCredentials: false,
       allowRedirects: false,
       passphrase: '',
@@ -187,13 +189,13 @@ export default class WebDavAdapter extends CachingAdapter {
         try {
           xmlDocText = await Crypto.decryptAES(this.server.passphrase, xmlDocText, this.server.bookmark_file)
         } catch (e) {
-          if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
+          if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>') || xmlDocText.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>')) {
             // not encrypted, yet => noop
           } else {
             throw new DecryptionError()
           }
         }
-      } else if (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
+      } else if (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>') && !xmlDocText.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>')) {
         throw new FileUnreadableError()
       }
 
@@ -208,7 +210,16 @@ export default class WebDavAdapter extends CachingAdapter {
         }
       })
 
-      this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
+      switch (this.server.bookmark_file_type) {
+        case 'xbel':
+          this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
+          break
+        case 'html':
+          this.bookmarksCache = Html.deserialize(xmlDocText)
+          break
+        default:
+          throw new Error('Invalid bookmark file type')
+      }
     }
 
     return response
@@ -259,11 +270,11 @@ export default class WebDavAdapter extends CachingAdapter {
     const newTreeHash = await this.bookmarksCache.hash(true)
     if (newTreeHash !== this.initialTreeHash) {
       const fullUrl = this.getBookmarkURL()
-      let xbel = createXBEL(this.bookmarksCache, this.highestId)
+      let xbel = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)
       if (this.server.passphrase) {
         xbel = await Crypto.encryptAES(this.server.passphrase, xbel, this.server.bookmark_file)
       }
-      await this.uploadFile(fullUrl, 'application/xml', xbel)
+      await this.uploadFile(fullUrl, this.server.bookmark_file_type === 'xbel' ? 'application/xml' : 'text/html', xbel)
     } else {
       Logger.log('No changes to the server version necessary')
     }
@@ -429,6 +440,23 @@ function createXBEL(rootFolder, highestId) {
 
   output += `
 </xbel>`
+
+  return output
+}
+
+function createHTML(rootFolder, highestId) {
+  let output = `<!DOCTYPE NETSCAPE-Bookmark-file-1>
+<html>`
+
+  output +=
+    '<!--- highestId :' +
+    highestId +
+    `: for Floccus bookmark sync browser extension -->
+`
+
+  output += Html.serialize(rootFolder)
+
+  output += '</html>'
 
   return output
 }

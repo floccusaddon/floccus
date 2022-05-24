@@ -109,6 +109,21 @@ describe('Floccus', function() {
       ...CREDENTIALS
     },
     {
+      type: 'webdav',
+      url: `${SERVER}/remote.php/webdav/`,
+      bookmark_file: 'bookmarks.html',
+      bookmark_file_type: 'html',
+      ...CREDENTIALS
+    },
+    {
+      type: 'webdav',
+      url: `${SERVER}/remote.php/webdav/`,
+      bookmark_file: 'bookmarks.html',
+      bookmark_file_type: 'html',
+      passphrase: random.float(),
+      ...CREDENTIALS
+    },
+    {
       type: 'google-drive',
       bookmark_file: random.float() + '.xbel',
       password: '',

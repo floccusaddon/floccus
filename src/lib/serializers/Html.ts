@@ -1,5 +1,5 @@
 import Serializer from '../interfaces/Serializer'
-import { Bookmark, Folder } from '../Tree'
+import { Bookmark, Folder, ItemLocation } from '../Tree'
 
 class HtmlSerializer implements Serializer {
   serialize(folder) {
@@ -28,8 +28,41 @@ class HtmlSerializer implements Serializer {
       .join('\n')
   }
 
-  deserialize(): Folder {
-    throw new Error('Not implemented')
+  deserialize(html): Folder {
+    const parser = new DOMParser()
+    const document = parser.parseFromString(html, 'text/html')
+    const rootFolder = new Folder({id: '', title: '', location: ItemLocation.SERVER})
+    const dt = document.querySelector('dt')
+    deserializeDT(dt, rootFolder)
+    return rootFolder
+  }
+}
+
+function deserializeDT(dt:Element, parentFolder:Folder) {
+  const child = dt.firstElementChild
+  if (child instanceof HTMLHeadingElement) {
+    const folder = new Folder({
+      parentId: parentFolder.id,
+      title: child.textContent,
+      id: child.id,
+      location: ItemLocation.SERVER
+    })
+    parentFolder.children.push(folder)
+    if (child.nextElementSibling instanceof HTMLDListElement) {
+      const dl = child.nextElementSibling
+      let element: Element = dl.querySelector('dt')
+      for (;element !== dl.lastElementChild; element = element.nextElementSibling) {
+        deserializeDT(element, folder)
+      }
+    }
+  } else if (child instanceof HTMLAnchorElement) {
+    parentFolder.children.push(new Bookmark({
+      parentId: parentFolder.id,
+      url: child.href,
+      title: child.textContent,
+      id: child.id,
+      location: ItemLocation.SERVER
+    }))
   }
 }
 
