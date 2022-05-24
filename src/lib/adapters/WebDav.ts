@@ -19,6 +19,10 @@ import { Device } from '@capacitor/device'
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
 export default class WebDavAdapter extends CachingAdapter {
+  private lockingInterval: any
+  private locked: boolean
+  private cancelCallback: () => void
+  private initialTreeHash: string
   constructor(server) {
     super(server)
     this.server = server
@@ -45,7 +49,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   normalizeServerURL(input) {
-    let serverURL = url.parse(input)
+    const serverURL = url.parse(input)
     if (!serverURL.pathname) serverURL.pathname = ''
     return url.format({
       protocol: serverURL.protocol,
@@ -71,7 +75,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async checkLock() {
-    let fullURL = this.getBookmarkLockURL()
+    const fullURL = this.getBookmarkLockURL()
     Logger.log(fullURL)
 
     const response = await this.downloadFile(fullURL)
@@ -117,7 +121,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async setLock() {
-    let fullURL = this.getBookmarkLockURL()
+    const fullURL = this.getBookmarkLockURL()
     Logger.log(fullURL)
     await this.uploadFile(
       fullURL,
@@ -130,9 +134,9 @@ export default class WebDavAdapter extends CachingAdapter {
     if (!this.locked) {
       return
     }
-    let fullUrl = this.getBookmarkLockURL()
+    const fullUrl = this.getBookmarkLockURL()
 
-    let authString = Base64.encode(
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
 
@@ -163,9 +167,9 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async pullFromServer() {
-    let fullUrl = this.getBookmarkURL()
+    const fullUrl = this.getBookmarkURL()
 
-    let response = await this.downloadFile(fullUrl)
+    const response = await this.downloadFile(fullUrl)
 
     if (response.status === 401) {
       throw new AuthenticationError()
@@ -194,11 +198,11 @@ export default class WebDavAdapter extends CachingAdapter {
       }
 
       /* let's get the highestId */
-      let byNL = xmlDocText.split('\n')
+      const byNL = xmlDocText.split('\n')
       byNL.forEach(line => {
         if (line.indexOf('<!--- highestId :') >= 0) {
-          let idxStart = line.indexOf(':') + 1
-          let idxEnd = line.lastIndexOf(':')
+          const idxStart = line.indexOf(':') + 1
+          const idxEnd = line.lastIndexOf(':')
 
           this.highestId = parseInt(line.substring(idxStart, idxEnd))
         }
@@ -221,7 +225,7 @@ export default class WebDavAdapter extends CachingAdapter {
       await this.obtainLock()
     }
 
-    let resp = await this.pullFromServer()
+    const resp = await this.pullFromServer()
 
     if (resp.status !== 200) {
       if (resp.status !== 404) {
@@ -254,7 +258,7 @@ export default class WebDavAdapter extends CachingAdapter {
     this.bookmarksCache = this.bookmarksCache.clone()
     const newTreeHash = await this.bookmarksCache.hash(true)
     if (newTreeHash !== this.initialTreeHash) {
-      let fullUrl = this.getBookmarkURL()
+      const fullUrl = this.getBookmarkURL()
       let xbel = createXBEL(this.bookmarksCache, this.highestId)
       if (this.server.passphrase) {
         xbel = await Crypto.encryptAES(this.server.passphrase, xbel, this.server.bookmark_file)
@@ -277,11 +281,12 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async uploadFileWeb(url, content_type, data) {
-    let authString = Base64.encode(
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
+    let res
     try {
-      var res = await fetch(url,{
+      res = await fetch(url,{
         method: 'PUT',
         headers: {
           'Content-Type': content_type,
@@ -308,11 +313,12 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async uploadFileNative(url, content_type, data) {
-    let authString = Base64.encode(
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
+    let res
     try {
-      var res = await Http.request({
+      res = await Http.request({
         url,
         method: 'PUT',
         headers: {
@@ -344,11 +350,12 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async downloadFileWeb(url) {
-    let authString = Base64.encode(
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
+    let res
     try {
-      var res = await fetch(url,{
+      res = await fetch(url,{
         method: 'GET',
         headers: {
           Authorization: 'Basic ' + authString
@@ -376,7 +383,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async downloadFileNative(fullURL) {
     let res
-    let authString = Base64.encode(
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
 
