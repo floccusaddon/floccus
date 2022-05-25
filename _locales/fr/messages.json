@@ -213,7 +213,7 @@
     "message": "Cette option détermine comment synchroniser les marque-pages entre différents navigateurs ou appareils. D'habitude, on préfère conserver tous les changements réalisés sur chacun des appareils s'ils sont compatibles, mais parfois vous pouvez choisir d'écraser les changements (ajouts et suppressions) faits sur d'autres appareils (cloud), ou au contraire d'écraser les changements faits sur l'appareil actuel (local)."
   },
   "LabelStrategydefault": {
-    "message": "Fusionner changements locaux et distants. (Recommandé)"
+    "message": "Fusionner changements locaux et distants (Recommandé)"
   },
   "LabelStrategyslave": {
     "message": "Toujours écraser les changements (ajouts et suppressions) locaux et les remplacer par les changements disponibles sur le cloud."
