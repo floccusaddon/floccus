@@ -6,7 +6,7 @@
     "message": "E002: Le marque-page à mettre à jour n'existe plus"
   },
   "Error003": {
-    "message": "E003: Le dossier à retirer n'existe pas. C'est une anomalie. Toutes nos félicitations."
+    "message": "E003: Le dossier d'où vous retirez n'existe pas. C'est une anomalie. Félicitations."
   },
   "Error004": {
     "message": "E004: Le dossier de destination n'existe pas"
@@ -21,7 +21,7 @@
     "message": "E007: Le dossier à déplacer n'existe pas"
   },
   "Error008": {
-    "message": "E008: Le dossier à retirer n'existe pas"
+    "message": "E008: Le dossier d'où vous retirez n'existe pas"
   },
   "Error009": {
     "message": "E009: Le répertoire de destination n'existe pas"
@@ -30,7 +30,7 @@
     "message": "E010: Impossible de trouver le dossier à trier"
   },
   "Error011": {
-    "message": "E011: L'élément du dossier de tri n'est pas un enfant: {0}"
+    "message": "E011: L'élément n'est pas un sous-élément du dossier en cours de tri: {0}"
   },
   "Error012": {
     "message": "E012: Il manque certains de ses sous-éléments au dossier en cours de tri"
@@ -66,13 +66,13 @@
     "message": "E022: Le dossier {0} contient apparemment des marque-pages {1} qui n'existent pas"
   },
   "Error023": {
-    "message": "E023: Impossible d'effacer le fichier LOCK, considérez de supprimer {0} manuellement"
+    "message": "E023: Impossible d'effacer le fichier .lock, considérez de supprimer {0} manuellement"
   },
   "Error024": {
-    "message": "E024: HTTP status {0} pendant la détermination du statut du fichier LOCK {1}"
+    "message": "E024: HTTP status {0} pendant la détermination du statut du fichier .lock {1}"
   },
   "Error025": {
-    "message": "E025: Le paramètre du fichier des marque-pages ne doit pas commencer par un slash '/'"
+    "message": "E025: Le paramètrage du fichier des marque-pages ne doit pas commencer par un slash '/'"
   },
   "Error026": {
     "message": "E026: HTTP status {0}. Échec de la récupération des marque-pages"
@@ -84,7 +84,7 @@
     "message": "E028: Impossible de s'authentifier sur le serveur."
   },
   "Error029": {
-    "message": "E029: Protection de secours: La synchronisation en cours aurait effacé {0}% de vos marque-pages. La synchronisation a été annulée. Désactivez la Protection de secours dans les paramètres de votre compte si vous souhaitez tout de même synchroniser."
+    "message": "E029: Sécurité: La synchronisation en cours aurait effacé {0}% de vos marque-pages. La synchronisation a été annulée. Désactivez la Sécurité dans les paramètres de votre compte si vous souhaitez tout de même synchroniser."
   },
   "Error030": {
     "message": "E030: Le déchiffrement de votre fichier de marque-pages a échoué. La phrase secrète est peut être erronée ou le fichier corrompu."
@@ -99,7 +99,7 @@
     "message": "E033: Redirection détectée. Vérifiez que le serveur supporte la méthode de synchronisation choisie et que l'URL entrée est correcte et ne redirige pas vers une autre destination. Si la redirection fait partie de votre configuration, vous pouvez désactivez cette vérification dans les paramètres."
   },
   "Error034": {
-    "message": "E034: Le fichier de marque-pages est illisible. Avez-vous oublié d'entrer une phrase secrète de chiffrement ?"
+    "message": "E034: Le fichier de marque-pages est illisible. Avez-vous oublié d'entrer un mot de passe de chiffrement ?"
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -147,10 +147,10 @@
     "message": "Options"
   },
   "LabelSyncnow": {
-    "message": "Synchroniser maintenant"
+    "message": "Synchroniser"
   },
   "LabelCancelsync": {
-    "message": "Annuler la synchronisation"
+    "message": "Annuler synchronisation"
   },
   "LabelAutosync": {
     "message": "Synchronisation automatique"
@@ -191,11 +191,14 @@
   "DescriptionRemoveaccount": {
     "message": "Supprimer ce compte (cela ne supprimera pas vos marque-pages)"
   },
-  "LabelResetCache": {
+  "LabelSyncfromscratch": {
     "message": "Réinitialiser la synchronisation"
   },
+  "LabelResetCache": {
+    "message": "Vider le cache"
+  },
   "DescriptionResetcache": {
-    "message": "Cochez cette case pour réinitialiser le cache, assurer que la prochaine synchronisation ne supprime aucune donnée et se limite à fusionner les données serveur et les marque-pages locaux"
+    "message": "Cochez cette case pour vider le cache, assurer que la prochaine synchronisation ne supprime aucune donnée et se limite à fusionner les données serveur et les marque-pages locaux"
   },
   "LabelParallelsync": {
     "message": "Accélérer la synchronisation"
@@ -207,16 +210,16 @@
     "message": "Stratégie de synchronisation"
   },
   "DescriptionStrategy": {
-    "message": "Cette option détermine comment synchroniser les marque-pages entre différents navigateurs ou appareils. D'habitude, on préfère conserver tous les changements réalisés sur chaque navigateur s'ils sont compatibles, mais parfois vous pouvez choisir d'écraser les changements (ajouts et suppressions) faits sur d'autres navigateurs (cloud), ou au contraire d'écraser les changements faits sur le navigateur actuel (local)."
+    "message": "Cette option détermine comment synchroniser les marque-pages entre différents navigateurs ou appareils. D'habitude, on préfère conserver tous les changements réalisés sur chacun des appareils s'ils sont compatibles, mais parfois vous pouvez choisir d'écraser les changements (ajouts et suppressions) faits sur d'autres appareils (cloud), ou au contraire d'écraser les changements faits sur l'appareil actuel (local)."
   },
   "LabelStrategydefault": {
-    "message": "Fusionner les données locales et celles du cloud. (Recommandé)"
+    "message": "Fusionner changements locaux et changements du cloud. (Recommandé)"
   },
   "LabelStrategyslave": {
     "message": "Toujours écraser les changements (ajouts et suppressions) locaux et les remplacer par les changements disponibles sur le cloud."
   },
   "LabelStrategyoverwrite": {
-    "message": "Toujours écraser les changements (ajouts et suppressions) réalisés sur d'autres navigateurs, et les remplacer par les changements faits localement."
+    "message": "Toujours écraser les changements (ajouts et suppressions) réalisés sur d'autres navigateurs ou appareils, et les remplacer par les changements faits localement."
   },
   "LabelSave": {
     "message": "Sauvegarder"
@@ -234,7 +237,7 @@
     "message": "Marque-pages Nextcloud (ancienne méthode)"
   },
   "DescriptionAdapternextcloud": {
-    "message": "Cette ancienne méthode n'est compatible qu'à partir de la version 0.11 de l'application Bookmarks. Elle émulera des dossiers en utilisant des tags contenant le chemin du dossier. Cette option n'est pas recommandée pour les nouveaux comptes."
+    "message": "Cette ancienne option n'est compatible qu'à partir de la version 0.11 de l'application Bookmarks. Elle émulera des dossiers en utilisant des tags contenant le chemin du dossier. Cette option n'est pas recommandée pour les nouveaux comptes."
   },
   "LabelAdapterwebdav": {
     "message": "Fichier XBEL dans un serveur WebDAV"
@@ -246,10 +249,10 @@
     "message": "Ajouter un compte"
   },
   "LabelSecurecredentials": {
-    "message": "Sécurisez vos identifiants"
+    "message": "Verrouiller Floccus"
   },
   "LabelSecuredcredentials": {
-    "message": "Vos identifiants sont sécurisées"
+    "message": "Verrouillage configuré"
   },
   "LabelOpenintab": {
     "message": "Ouvrir dans un onglet"
@@ -261,7 +264,7 @@
     "message": "Financez le développement"
   },
   "DescriptionFunddevelopment": {
-    "message": "Le développement de floccus est possible grâce à un modèle d'abonnement volontaire. Si vous pensez que ce que je fais est utile, et s'il vous est possible d'y investir un montant même minime, merci de supporter mon travail. De plus, prenez aussi le temps d'aller noter floccus sur le Web Store de votre choix.\nMerci ! 💙"
+    "message": "Le développement de floccus est possible grâce à un modèle d'abonnement volontaire. Si vous pensez ce que je fais utile, et s'il vous est possible d'y investir un montant même minime, merci de supporter mon travail. De plus, prenez aussi le temps d'aller noter floccus sur le Web Store de votre choix.\nMerci ! 💙"
   },
   "LabelSelect": {
     "message": "Sélectionner"
@@ -270,25 +273,28 @@
     "message": "Dossier sans nom"
   },
   "LabelSetkey": {
-    "message": "Définissez une phrase secrète pour Floccus"
+    "message": "Configurer un mot de passe pour floccus"
   },
   "DescriptionSetkey": {
-    "message": "Lorsque vous définissez une phrase secrète, vous devez la saisir à chaque démarrage du navigateur si vous souhaitez accéder à vos favoris et les synchroniser."
+    "message": "Si vous configurez un mot de passe, vous devrez rentrer ce mot de passe chaque fois que vous démarrerez votre navigateur si vous voulez accéder à floccus, synchroniser vos marque-pages, changer vos paramètres ou n'importe quoi d'autre."
+  },
+  "LabelSetkeybutton": {
+    "message": "Configurer mot de passe"
   },
   "LabelKey": {
-    "message": "Entrez la phrase secrète de déverrouillage"
+    "message": "Entrez votre mot de passe pour déverrouiller"
   },
   "LabelKey2": {
-    "message": "Entrez votre phrase secrète une seconde fois"
+    "message": "Entrez votre mot de passe une seconde fois"
   },
   "LabelUnlock": {
     "message": "Déverrouiller Floccus"
   },
   "LabelRemovekey": {
-    "message": "Supprimer la phrase secrète"
+    "message": "Supprimer mot de passe"
   },
   "LabelRemovedkey": {
-    "message": "Phrase secrète supprimée"
+    "message": "Mot de passe supprimé"
   },
   "LabelSyncinterval": {
     "message": "Intervalle de synchronisation"
@@ -297,7 +303,7 @@
     "message": "Intervalle entre deux synchronisations. 15 minutes par défaut."
   },
   "LabelChooseadapter": {
-    "message": "Comment voulez-vous synchroniser ?"
+    "message": "Comment synchroniser ?"
   },
   "LabelOptionsscreen": {
     "message": "Options {0}",
@@ -307,7 +313,7 @@
     "message": "Paypal"
   },
   "DescriptionPaypal": {
-    "message": "Faire une donation unique via Paypal pour aider le projet"
+    "message": "Faire une don unique via Paypal pour aider le projet"
   },
   "LabelOpencollective": {
     "message": "OpenCollective"
@@ -334,7 +340,7 @@
     "message": "Floccus a été mis à jour"
   },
   "DescriptionUpdated": {
-    "message": "Félicitations, la dernière mise-à-jour de floccus est disponible sur votre appareil !"
+    "message": "Félicitations, la dernière mise à jour de floccus est disponible sur votre appareil !"
   },
   "LabelReleaseNotes": {
     "message": "Lire les notes de publication"
@@ -379,7 +385,7 @@
     "message": "Comptes emboîtés"
   },
   "DescriptionNestedSync": {
-    "message": "Vous pouvez emboîter des comptes de telle manière qu'un dossier parent appartienne à un compte A et un sous-dossier aux comptes A et B. Voulez-vous autoriser d'autres comptes à se synchroniser avec les dossiers du compte actuel ?"
+    "message": "Vous pouvez emboîter des comptes de telle manière qu'un dossier appartienne à un compte A et un de ses sous-dossier aux comptes A et B. Voulez-vous autoriser d'autres comptes à se synchroniser avec les dossiers du compte actuel ?"
   },
   "LabelNestedSyncNo": {
     "message": "Non, ignorer le dossier de ce compte pour d'autres comptes"
@@ -391,7 +397,7 @@
     "message": "Importer/Exporter un Compte"
   },
   "LabelExport": {
-    "message": "Exporter les comptes"
+    "message": "Exporter des comptes"
   },
   "LabelImport": {
     "message": "Importer des comptes"
@@ -412,19 +418,28 @@
     "message": "Onglets"
   },
   "LabelSyncDown": {
-    "message": "Télécharger et remplacer les données locales"
+    "message": "Télécharger"
+  },
+  "DescriptionSyncDown": {
+    "message": "Télécharge les changements faits sur d'autres navigateurs et remplace tout changement fait localement"
   },
   "LabelSyncUp": {
-    "message": "Téléverser et remplacer données du cloud"
+    "message": "Téléverser"
+  },
+  "DescriptionSyncUp": {
+    "message": "Téléverse les changements faits localement et remplace tout changement fait sur d'autres navigateurs"
   },
   "LabelSyncDownOnce": {
-    "message": "Télécharger et remplacer les données locales une fois"
+    "message": "Télécharger une fois"
   },
   "LabelSyncUpOnce": {
-    "message": "Téléverser et remplacer le cloud une fois"
+    "message": "Téléverser une fois"
   },
   "LabelSyncNormal": {
-    "message": "Fusionner données locales et sur le cloud"
+    "message": "Fusionner"
+  },
+  "DescriptionSyncNormal": {
+    "message": "Fusionner changements locaux avec ceux sur d'autres navigateurs"
   },
   "DescriptionFilesPermission": {
     "message": "Assurez-vous de donner à floccus la permission d'utiliser l'application  Bookmarks mais aussi l'application Nextcloud Files."
@@ -433,10 +448,10 @@
     "message": "Synchronisez de façon confidentielle vos marque-pages entre navigateurs et entre appareils"
   },
   "LabelFailsafe": {
-    "message": "Protection de secours"
+    "message": "Sécurité"
   },
   "DescriptionFailsafe": {
-    "message": "Parfois, des erreurs de configuration ou un bug logiciel peut causer la suppression involontaire de données. Ces données deviennent alors irrécupérables. Pour empêcher cela, floccus n'effacera pas d'un seul coup plus de 50% de vos marque-pages, à moins que vous ne l'y autorisiez ici."
+    "message": "Parfois, des erreurs de configuration ou un bug logiciel peut causer la suppression involontaire de données. Ces données deviennent alors irrécupérables. Pour empêcher cela, floccus n'effacera pas d'un seul coup plus de 50% de vos marque-pages, à moins que vous ne désactiviez la Sécurité ici."
   },
   "LabelFailsafeon": {
     "message": "Activée. N'effacera pas plus de 50% de vos marque-pages locaux sans vous en demander d'abord l'autorisation. (Recommandé)"
@@ -445,7 +460,7 @@
     "message": "Désactivée. Permet la suppression de plus de 50% de vos marque-pages locaux sans vous en demander l'autorisation."
   },
   "StatusFailsafeoff": {
-    "message": "Protection de secours désactivée. Il y a un risque de perte de données involontaire. Il est recommendé de laisser active la Protection de secours dans les paramètres de votre compte."
+    "message": "Sécurité désactivée. Il y a un risque de perte de données involontaire. Il est recommendé de laisser active la Protection de secours dans les paramètres de votre compte."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
@@ -508,16 +523,19 @@
     "message": "Modifier le dossier"
   },
   "LabelSlugline": {
-    "message": "Synchronisation de marque-pages respectueuse de votre vie privée"
+    "message": "Synchronisation privée des marque-pages"
   },
   "LabelDownloadlogs": {
-    "message": "Télécharger journaux"
+    "message": "Télécharger journal"
+  },
+  "LabelDownloadfulllogs": {
+    "message": "Journal complet"
   },
   "LabelDownloadanonymizedlogs": {
-    "message": "Télécharger journaux anonymisés"
+    "message": "Journal expurgé"
   },
   "DescriptionDownloadlogs": {
-    "message": "Floccus conserve toutes ses actions dans des journaux que vous pouvez vous-mêmes examiner ou envoyer aux développeurs pour des raisons de débogage. \nSi vous décidez d'envoyer une version anonymisée de ces journaux, vérifiez tout de même que le fichier téléchargé ne comporte pas de données sensibles qui auraient pû être omises par le processus d'anonymisation."
+    "message": "Floccus conserve toutes ses actions dans un journal que vous pouvez examiner vous-même ou envoyer aux développeurs pour des raisons de débogage. Dans la version expurgée de ce journal, les noms des marque-pages et des dossiers, ainsi que les liens URL, sont irréversiblement chiffrés grâce à un processus de hachage cryptographique. Si vous envoyez un journal expurgé, vérifiez quand même que le journal ne contient pas de données sensibles que le processus de chiffrement aurait raté."
   },
   "ErrorFolderloopselected": {
     "message": "Impossible de déplacer un dossier dans ce même dossier"
@@ -526,7 +544,7 @@
     "message": "Aucun dossier sélectionné"
   },
   "LabelAllownetwork": {
-    "message": "Autoriser la connexion à internet"
+    "message": "Autoriser l'usage d'internet"
   },
   "DescriptionAllownetwork": {
     "message": "Floccus peut utiliser internet pour se connecter à votre serveur de synchronisation et ainsi obtenir des informations sur vos marque-pages (comme des icônes, etc.). Vous pouvez autoriser cette connexion ici."
@@ -583,18 +601,21 @@
     "message": "Se connecter"
   },
   "LabelServersetup": {
-    "message": "Sur quel serveur souhaitez-vous configurer la synchronisation ?"
+    "message": "Sur quel serveur synchroniser ?"
   },
   "LabelGoogledrivesetup": {
     "message": "Se connecter à Google Drive"
   },
   "LabelSyncfoldersetup": {
-    "message": "Quels dossiers souhaitez-vous synchroniser ?"
+    "message": "Quels dossiers voulez-vous synchroniser ?"
   },
   "LabelSyncbehaviorsetup": {
-    "message": "Comment voulez-vous voir agir la synchronisation ?"
+    "message": "Comment synchroniser ?"
   },
   "LabelAccountcreated": {
     "message": "Compte créé"
+  },
+  "DescriptionNonhttps": {
+    "message": "Vous accédez à un serveur qui utilise un protocole non sécurisé. Il est recommandé de n'utiliser que des serveurs compatibles avec HTTPS"
   }
 }
