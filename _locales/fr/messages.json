@@ -610,7 +610,7 @@
     "message": "Quels dossiers voulez-vous synchroniser ?"
   },
   "LabelSyncbehaviorsetup": {
-    "message": "Comment synchroniser ?"
+    "message": "Paramètres de synchronisation"
   },
   "LabelAccountcreated": {
     "message": "Compte créé"
