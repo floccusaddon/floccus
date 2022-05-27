@@ -607,7 +607,7 @@
     "message": "Se connecter à Google Drive"
   },
   "LabelSyncfoldersetup": {
-    "message": "Quels dossiers voulez-vous synchroniser ?"
+    "message": "Quels dossiers synchroniser ?"
   },
   "LabelSyncbehaviorsetup": {
     "message": "Paramètres de synchronisation"
