@@ -72,7 +72,7 @@
     "message": "E024: HTTP status {0} pendant la détermination du statut du fichier .lock {1}"
   },
   "Error025": {
-    "message": "E025: Le paramètrage du fichier des marque-pages ne doit pas commencer par un slash '/'"
+    "message": "E025: Le fichier de signets défini ne doit pas commencer par un slash '/'"
   },
   "Error026": {
     "message": "E026: HTTP status {0}. Échec de la récupération des marque-pages"
