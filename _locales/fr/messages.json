@@ -478,7 +478,7 @@
     "message": "Vous êtes connecté à votre compte Google. Le fichier permettant la synchronisation de vos marque-pages est stocké sur votre Google Drive."
   },
   "LabelPassphrase": {
-    "message": "Phrase secrète"
+    "message": "Mot de passe"
   },
   "DescriptionPassphrase": {
     "message": "Configurez une phrase secrète pour chiffrer le fichier contenant vos marque-pages. Si vous n'entrez pas de phrase secrète, aucun chiffrement ne sera réalisé"
