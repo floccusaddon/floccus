@@ -367,7 +367,7 @@
     "message": "Il n'y a pas de comptes ici"
   },
   "DescriptionNoAccount": {
-    "message": "Créez un nouveau compte pour synchroniser vos marque-pages ou importez un compte depuis un autre appareil ou navigateur."
+    "message": "Créez un nouveau compte pour synchroniser vos signets ou importez un compte depuis un autre appareil ou navigateur."
   },
   "LabelLoginFlowStart": {
     "message": "Se connecter avec Nextcloud"
