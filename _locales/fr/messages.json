@@ -135,7 +135,7 @@
     "message": "Répertoire local"
   },
   "DescriptionLocalfolder": {
-    "message": "Ceci est le répertoire local de marque-pages du navigateur, qui sera synchronisé sur le serveur. Notez que certains navigateurs n'autorisent pas le création de nouveaux éléments dans le dossier racine (par exemple Firefox et Google Chrome)"
+    "message": "Il s'agit du répertoire local de signets du navigateur, qui sera synchronisé sur le serveur. Notez que certains navigateurs n'autorisent pas le création de nouveaux éléments dans le dossier racine (par exemple Firefox et Google Chrome)"
   },
   "LabelRootfolder": {
     "message": "Répertoire racine"
