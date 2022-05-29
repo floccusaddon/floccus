@@ -550,7 +550,7 @@
     "message": "Floccus peut utiliser internet pour se connecter à votre serveur de synchronisation et ainsi obtenir des informations sur vos marque-pages (comme des icônes, etc.). Vous pouvez autoriser cette connexion ici."
   },
   "LabelMobilesettings": {
-    "message": "Paramètres appareil mobile"
+    "message": "Paramètres pour mobiles"
   },
   "LabelContinuefloccus":{
     "message": "Poursuivre sur floccus"
