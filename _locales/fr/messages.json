@@ -75,7 +75,7 @@
     "message": "E025: Le fichier de signets défini ne doit pas commencer par un slash '/'"
   },
   "Error026": {
-    "message": "E026: HTTP status {0}. Échec de la récupération des marque-pages"
+    "message": "E026: HTTP status {0}. Échec de la récupération des signets"
   },
   "Error027": {
     "message": "E027: Synchronisation interrompue"
