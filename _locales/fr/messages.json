@@ -123,7 +123,7 @@
     "message": "un chemin d'accès vers le fichier de signets par rapport à votre URL WebDAV (tous les dossiers dans le chemin doivent déjà exister). Par ex: documents_perso/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "Le nom du fichier contenant vos marque-pages qui sera stocké sur votre Google Drive (assurez-vous qu'il soit unique)"
+   "message": "Le nom du fichier contenant vos signets qui sera stocké sur votre Google Drive (assurez-vous qu'il soit unique)"
  },
   "LabelServerfolder": {
     "message": "Dossier serveur"
