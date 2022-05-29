@@ -457,7 +457,7 @@
     "message": "Activée. N'effacera pas plus de 50% de vos signets locaux sans vous en demander d'abord l'autorisation. (Recommandé)"
   },
   "LabelFailsafeoff": {
-    "message": "Désactivée. Permet la suppression de plus de 50% de vos marque-pages locaux sans vous en demander l'autorisation."
+    "message": "Désactivée. Permet la suppression de plus de 50% de vos signets locaux sans vous en demander l'autorisation."
   },
   "StatusFailsafeoff": {
     "message": "Sécurité désactivée. Il y a un risque de perte de données involontaire. Il est recommendé de laisser active la Protection de secours dans les paramètres de votre compte."
