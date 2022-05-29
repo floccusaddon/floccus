@@ -57,7 +57,7 @@
     "message": "E019: HTTP status {0}. Échec de la requête {1}. Vérifiez la configuration de votre serveur et les journaux de débogage."
   },
   "Error020": {
-    "message": "E020: Impossible de lire la réponse du serveur. L'application de marque-pages est elle installée sur votre serveur?"
+    "message": "E020: Impossible de lire la réponse du serveur. L'application Bookmarks est-elle installée sur votre serveur?"
   },
   "Error021": {
     "message": "E021: État incohérent du serveur. Le dossier est présent dans la liste des membres mais pas dans l'arborescence"
