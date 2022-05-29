@@ -454,7 +454,7 @@
     "message": "Parfois, des erreurs de configuration ou un bug logiciel peut causer la suppression involontaire de données. Ces données deviennent alors irrécupérables. Pour empêcher cela, floccus n'effacera pas d'un seul coup plus de 50% de vos signets, à moins que vous ne désactiviez la Sécurité ici."
   },
   "LabelFailsafeon": {
-    "message": "Activée. N'effacera pas plus de 50% de vos marque-pages locaux sans vous en demander d'abord l'autorisation. (Recommandé)"
+    "message": "Activée. N'effacera pas plus de 50% de vos signets locaux sans vous en demander d'abord l'autorisation. (Recommandé)"
   },
   "LabelFailsafeoff": {
     "message": "Désactivée. Permet la suppression de plus de 50% de vos marque-pages locaux sans vous en demander l'autorisation."
