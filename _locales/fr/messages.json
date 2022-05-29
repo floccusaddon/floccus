@@ -481,7 +481,7 @@
     "message": "Mot de passe"
   },
   "DescriptionPassphrase": {
-    "message": "Définissez un mot de passe qui servira à chiffrer le fichier contenant vos marque-pages. Si vous ne définissez pas de mot de passe, aucun chiffrement ne sera réalisé."
+    "message": "Définissez un mot de passe qui servira à chiffrer le fichier contenant vos signets. Si vous ne définissez pas de mot de passe, aucun chiffrement ne sera réalisé."
   },
   "LabelClientcert": {
     "message": "Envoyer les identifiants clients"
