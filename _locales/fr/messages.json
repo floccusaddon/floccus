@@ -198,7 +198,7 @@
     "message": "Vider le cache"
   },
   "DescriptionResetcache": {
-    "message": "Cochez cette case pour vider le cache, assurer que la prochaine synchronisation ne supprime aucune donnée et se limite à fusionner les données serveur et les marque-pages locaux"
+    "message": "Cochez cette case pour vider le cache, assurer que la prochaine synchronisation ne supprime aucune donnée et se limite à fusionner les données serveur et les signets locaux"
   },
   "LabelParallelsync": {
     "message": "Accélérer la synchronisation"
