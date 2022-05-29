@@ -63,7 +63,7 @@
     "message": "E021: État incohérent du serveur. Le dossier est présent dans la liste des membres mais pas dans l'arborescence"
   },
   "Error022": {
-    "message": "E022: Le dossier {0} contient apparemment des marque-pages {1} qui n'existent pas"
+    "message": "E022: Le dossier {0} contient apparemment un signet {1} qui n'existe pas"
   },
   "Error023": {
     "message": "E023: Impossible d'effacer le fichier .lock, considérez de supprimer {0} manuellement"
