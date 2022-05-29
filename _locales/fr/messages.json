@@ -84,7 +84,7 @@
     "message": "E028: Impossible de s'authentifier sur le serveur."
   },
   "Error029": {
-    "message": "E029: Sécurité: La synchronisation en cours aurait effacé {0}% de vos marque-pages. La synchronisation a été annulée. Désactivez la Sécurité dans les paramètres de votre compte si vous souhaitez tout de même synchroniser."
+    "message": "E029: Sécurité: La synchronisation en cours aurait effacé {0}% de vos signets. La synchronisation a été annulée. Désactivez la Sécurité dans les paramètres de votre compte si vous souhaitez tout de même synchroniser."
   },
   "Error030": {
     "message": "E030: Le déchiffrement de votre fichier de marque-pages a échoué. Le mot de passe est peut être erronée ou le fichier corrompu."
