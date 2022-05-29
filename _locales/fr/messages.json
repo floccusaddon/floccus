@@ -87,7 +87,7 @@
     "message": "E029: Sécurité: La synchronisation en cours aurait effacé {0}% de vos signets. La synchronisation a été annulée. Désactivez la Sécurité dans les paramètres de votre compte si vous souhaitez tout de même synchroniser."
   },
   "Error030": {
-    "message": "E030: Le déchiffrement de votre fichier de marque-pages a échoué. Le mot de passe est peut être erronée ou le fichier corrompu."
+    "message": "E030: Le déchiffrement de votre fichier de signets a échoué. Le mot de passe est peut être erronée ou le fichier corrompu."
   },
   "Error031": {
     "message": "E031: N'a pas pu s'authentifier avec Google Drive. Connectez de nouveau floccus à votre compte google."
