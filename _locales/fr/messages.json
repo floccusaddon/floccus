@@ -234,7 +234,7 @@
     "message": "Cette option est compatible à partir de la version 0.14 de l'application Bookmarks. Elle ne peut synchroniser que les signets \"http\" et \"ftp\"."
   },
   "LabelAdapternextcloud": {
-    "message": "Marque-pages Nextcloud (ancienne méthode)"
+    "message": "Nextcloud Bookmarks (ancienne méthode)"
   },
   "DescriptionAdapternextcloud": {
     "message": "Cette ancienne option n'est compatible qu'à partir de la version 0.11 de l'application Bookmarks. Elle émulera des dossiers en utilisant des tags contenant le chemin du dossier. Cette option n'est pas recommandée pour les nouveaux comptes."
