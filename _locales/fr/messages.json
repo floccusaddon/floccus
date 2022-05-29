@@ -99,7 +99,7 @@
     "message": "E033: Redirection détectée. Vérifiez que le serveur supporte la méthode de synchronisation choisie et que l'URL entrée est correcte et ne redirige pas vers une autre destination. Si la redirection fait partie de votre configuration, vous pouvez désactivez cette vérification dans les paramètres."
   },
   "Error034": {
-    "message": "E034: Le fichier de marque-pages est illisible. Avez-vous oublié d'entrer un mot de passe de chiffrement ?"
+    "message": "E034: Le fichier de signets est illisible. Avez-vous oublié d'entrer un mot de passe de chiffrement ?"
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
