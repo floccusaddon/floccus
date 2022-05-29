@@ -3,7 +3,7 @@
     "message": "E001: Le dossier dans lequel créer l'item n'existe pas"
   },
   "Error002": {
-    "message": "E002: Le marque-page à mettre à jour n'existe plus"
+    "message": "E002: Le signet à mettre à jour n'existe plus"
   },
   "Error003": {
     "message": "E003: Le dossier d'où vous retirez n'existe pas. C'est une anomalie. Félicitations."
