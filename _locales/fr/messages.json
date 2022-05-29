@@ -189,7 +189,7 @@
     "message": "Supprimer le compte"
   },
   "DescriptionRemoveaccount": {
-    "message": "Supprimer ce compte (cela ne supprimera pas vos marque-pages)"
+    "message": "Supprimer ce compte (cela ne supprimera pas vos signets)"
   },
   "LabelSyncfromscratch": {
     "message": "Réinitialiser la synchronisation"
