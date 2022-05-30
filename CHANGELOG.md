@@ -1,5 +1,21 @@
 # Changelog
 
+## v4.15.0
+
+### New
+- [Native] AddBookmarkIntent: Autodetect page title
+- NewAccount: Allow setting enabled account config
+- NewAccount: Allow setting XBEL passphrase for GoogleDrive and WebDAV
+- 
+### Fixed
+- Fix order corruption of localRoot folder
+- Tabs: Fix syncing multiple windows
+- NewAccount: Warn user when using server without https
+- Improve UI so there's space for translations
+- NewAccount: Remove stepper headings so the whole stepper fits
+- Failsafe: added Math.ceil to only allow integers
+- New translations for Polish, French and Chinese
+
 ## v4.14.0
 
 ### New
