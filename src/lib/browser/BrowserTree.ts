@@ -209,7 +209,7 @@ export default class BrowserTree implements IResource {
       Logger.log('This action affects the absolute root. Skipping.')
       return
     }
-    const [realTree] = await browser.bookmarks.getSubTree(this.rootId)
+    const [realTree] = await browser.bookmarks.getSubTree(id)
     try {
       for (let index = 0; index < order.length; index++) {
         await browser.bookmarks.move(order[index].id, { index })
@@ -226,6 +226,7 @@ export default class BrowserTree implements IResource {
           : !order.some(item => item.type === ItemType.FOLDER && item.id === child.id)
       )
       try {
+        Logger.log('Move untouched children back into place', {untouchedChildren: untouchedChildren.map(([i, item]) => [i, item.id])})
         for (const [index, child] of untouchedChildren) {
           await browser.bookmarks.move(child.id, {index})
         }
