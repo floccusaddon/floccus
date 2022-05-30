@@ -535,7 +535,7 @@
     "message": "Journal expurgé"
   },
   "DescriptionDownloadlogs": {
-    "message": "Floccus conserve toutes ses actions dans un journal que vous pouvez examiner vous-même ou envoyer aux développeurs pour des raisons de débogage. Dans la version expurgée de ce journal, les noms des marque-pages et des dossiers, ainsi que les liens URL, sont irréversiblement chiffrés grâce à un processus de hachage cryptographique. Si vous envoyez un journal expurgé, vérifiez quand même que le journal ne contient pas de données sensibles que le processus de chiffrement aurait raté."
+    "message": "Floccus conserve toutes ses actions dans un journal que vous pouvez examiner vous-même ou envoyer aux développeurs pour des raisons de débogage. Dans la version expurgée de ce journal, les noms des signets et des dossiers, ainsi que les liens URL, sont irréversiblement chiffrés grâce à un processus de hachage cryptographique. Si vous envoyez un journal expurgé, vérifiez quand même que le journal ne contient pas de données sensibles que le processus de chiffrement aurait raté."
   },
   "ErrorFolderloopselected": {
     "message": "Impossible de déplacer un dossier dans ce même dossier"
