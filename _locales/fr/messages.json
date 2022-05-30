@@ -496,7 +496,7 @@
     "message": "Activez cette option si vous rencontrez des erreurs durant la synchronisation, et que vous pensez ces erreurs injustifiées."
   },
   "LabelSearch": {
-    "message": "Chercher dans les marques-pages"
+    "message": "Chercher dans les signets"
   },
   "LabelSearchfolder": {
     "message": "Chercher {0}"
