@@ -1,0 +1,28 @@
+platform :ios, '12.0'
+use_frameworks!
+
+# workaround to avoid Xcode caching of Pods that requires
+# Product -> Clean Build Folder after new Cordova plugins installed
+# Requires CocoaPods 1.6 or newer
+install! 'cocoapods', :disable_input_output_paths => true
+
+def capacitor_pods
+  pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'
+  pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/ios'
+  pod 'ByteowlsCapacitorOauth2', :path => '../../node_modules/@byteowls/capacitor-oauth2'
+  pod 'CapacitorCommunityHttp', :path => '../../node_modules/@capacitor-community/http'
+  pod 'CapacitorApp', :path => '../../node_modules/@capacitor/app'
+  pod 'CapacitorDevice', :path => '../../node_modules/@capacitor/device'
+  pod 'CapacitorNetwork', :path => '../../node_modules/@capacitor/network'
+  pod 'CapacitorShare', :path => '../../node_modules/@capacitor/share'
+  pod 'CapacitorSplashScreen', :path => '../../node_modules/@capacitor/splash-screen'
+  pod 'CapacitorStorage', :path => '../../node_modules/@capacitor/storage'
+  pod 'SendIntent', :path => '../../node_modules/send-intent'
+  pod 'CordovaPlugins', :path => '../capacitor-cordova-ios-plugins'
+  pod 'CordovaPluginsResources', :path => '../capacitor-cordova-ios-plugins'
+end
+
+target 'App' do
+  capacitor_pods
+  # Add your Pods here
+end

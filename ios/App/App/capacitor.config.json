@@ -1,0 +1,15 @@
+{
+	"appId": "org.handmadeideas.floccus",
+	"appName": "floccus",
+	"bundledWebRuntime": false,
+	"npmClient": "npm",
+	"webDir": "dist",
+	"plugins": {
+		"SplashScreen": {
+			"launchAutoHide": false,
+			"androidScaleType": "CENTER_INSIDE",
+			"backgroundColor": "#ffffff"
+		}
+	},
+	"cordova": {}
+}
