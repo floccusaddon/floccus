@@ -83,6 +83,24 @@
   "Error028": {
     "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
   },
+  "Error029": {
+    "message": "E029: Löschsicherung: Die aktuelle Synchronisierung würde {0}% der lokalen Bookmarks löschen. Floccus weigert sich dies auszüführen. Falls Sie trotzdem fortfahren wollen, deaktivieren Sie die Löschsicherung in den Konto-Einstellungen."
+  },
+  "Error030": {
+    "message": "E030: Entschlüsseln der Lesezeichendateij fehlgeschlagen. Die Passphrase könnte falsch sein oder die Datei könnte beschädigt sein."
+  },
+  "Error031": {
+    "message": "E031: Authentifizierung mit Google Drive fehlgeschlagen. Bitte verbinden Sie floccus noch einmal mit Ihrem Google Account\nCould not authenticate with Google Drive. Please connect floccus with your google account again."
+  },
+  "Error032": {
+    "message": "E032: OAuth-Fehler. Tokenvalidierungsfehler. Bitte verbinden Sie sich erneut mit ihren Google Account."
+  },
+  "Error033": {
+    "message": "E033: Weiterleitung festgestellt. Vergewissern Sie sich dass der angegebene Server die ausgewählte Synchronisierungsmethode unterstützt und die URL, die Sie eingegeben haben, stimmt und nicht auf eine andere URL weiterleitet. Falls die Weiterleitung teil Ihres Server-Setups ist, können Sie diese Kontrolle in den Einstellungen deaktivieren."
+  },
+  "Error034": {
+    "message": "E034: Liesezeichendatei ist nicht erreichbar. Haben Sie vergessen eine Verschlüsselungspassphrase anzugeben?"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -104,6 +122,9 @@
   "DescriptionBookmarksfile": {
     "message": "ein Pfad zur Bookmarks-Datei relativ zur WebDAV URL (alle Ordner darin müssen bereits existieren). z.B. persönlich/lesezeichen.xbel (Kein Schrägstrich am Anfang!)"
   },
+ "DescriptionBookmarksfilegoogle": {
+   "message": "Der Dateiname der Lesezeichen-Datei, die in Ihrem Google Drive gespeichert wird (stellen Sie sicher, dass der Dateiname in Google Drive einzigartig ist)"
+ },
   "LabelServerfolder": {
     "message": "Server-Ordner"
   },
@@ -119,6 +140,9 @@
   "LabelRootfolder": {
     "message": "Wurzel-Ordner"
   },
+  "LabelNewfolder": {
+    "message": "Neu erstellter Ordner"
+  },
   "LabelOptions": {
     "message": "Optionen"
   },
@@ -128,8 +152,8 @@
   "LabelCancelsync": {
     "message": "Abbrechen"
   },
-  "LabelEnabled": {
-    "message": "Aktiviert"
+  "LabelAutosync": {
+    "message": "Auto-sync"
   },
   "StatusLastsynced": {
     "message": "Zuletzt synchronisiert: vor {0}"
@@ -167,8 +191,11 @@
   "DescriptionRemoveaccount": {
     "message": "Lösche dieses Konto (löscht keine Lesezeichen)"
   },
-  "LabelResetCache": {
+  "LabelSyncfromscratch": {
     "message": "Neue Synchronisierung von Grund auf auslösen"
+  },
+  "LabelResetCache": {
+    "message": "Reset Cache"
   },
   "DescriptionResetcache": {
     "message": "Setzen SIe diesen Haken, um den Cache zurückzusetzen, sodass die nächste Synchronisierung garantiert keine Lesezeichen löscht, sondern lediglich Server und Lokale Lesezeichen vereinigt"
@@ -246,10 +273,13 @@
     "message": "Unbenannter Ordner"
   },
   "LabelSetkey": {
-    "message": "Passwort für floccus setzen"
+    "message": "Passphrase für floccus einstellen"
   },
   "DescriptionSetkey": {
-    "message": "Wenn Sie ein Passwort setzen, müssen sie dieses immer eingeben, wenn sie Ihren Browser starten, damit Lesezeichen synchronisiert werden."
+    "message": "Wenn Sie ein Passwort für Floccus setzen, müssen Sie dieses immer beim Browser-Start eingeben, bevor Sie Ihre Lesezeichen synchronisieren oder generell Floccus benutzen können."
+  },
+  "LabelSetkeybutton": {
+    "message": "Passphrase einstellen"
   },
   "LabelKey": {
     "message": "Passwort zum entsperren eingeben"
@@ -261,10 +291,10 @@
     "message": "Floccus entsperren"
   },
   "LabelRemovekey": {
-    "message": "Passwort löschen"
+    "message": "Passphrase entfernen"
   },
   "LabelRemovedkey": {
-    "message": "Passwort wurde gelöscht"
+    "message": "Passphrase wurde entfernt"
   },
   "LabelSyncinterval": {
     "message": "Synchronisierungsintervall"
@@ -372,6 +402,12 @@
   "LabelImport": {
     "message": "Konten importieren"
   },
+  "DescriptionExport": {
+    "message": "Wählen Sie unten Konten aus, um sie in einer Datei zu exportieren, damit Sie einfach die selben Konten auf einem anderen Gerät oder Browser erzeugen können."
+  },
+  "DescriptionImport": {
+    "message": "Importieren Sie eine Datei mit exportierten Konten aus einem anderen Browser, um sie in diesem Browser anzulegen. Stellen Sie sicher, nach dem Import in den Einstellungen die richtigen Ordner zu wählen."
+  },
   "LabelFolderNotFound": {
     "message": "Ordner nicht gefunden"
   },
@@ -382,12 +418,204 @@
     "message": "Reiter"
   },
   "LabelSyncDown": {
-    "message": "Empfange vom Server"
+    "message": "Herunterladen"
+  },
+  "DescriptionSyncDown": {
+    "message": "Lädt Änderungen von anderen Browsern herunter und überschreibt lokale Änderungen"
   },
   "LabelSyncUp": {
-    "message": "Sende zum Server"
+    "message": "Hochladen"
+  },
+  "DescriptionSyncUp": {
+    "message": "Lädt lokale Änderungen hoch und überschreibt Änderungen von anderen Browsern"
+  },
+  "LabelSyncDownOnce": {
+    "message": "Einmalig herunterladen"
+  },
+  "LabelSyncUpOnce": {
+    "message": "Einmalig hochladen"
+  },
+  "LabelSyncNormal": {
+    "message": "Zusammenführen"
+  },
+  "DescriptionSyncNormal": {
+    "message": "Führe lokale Änderungen mit denen von anderen Browsern zusammen"
   },
   "DescriptionFilesPermission": {
     "message": "Stellen Sie sicher, dass floccus sowohl ausreichende Berechtigungen für die Nutzung der Lesezeichen App, als auch für die Nexcloud Files App hat."
+  },
+  "DescriptionExtension": {
+    "message": "Synchronisiert Lesezeichen vertraulich zwischen Browsern und Geräten"
+  },
+  "LabelFailsafe": {
+    "message": "Löschsicherung"
+  },
+  "DescriptionFailsafe": {
+    "message": "Manchmal können Konfigurationsfehler oder Programmfehler zur unerwünschte Löschung von Daten führen, die dann verloren sind. Um dies zu verhindern, wird floccus nicht mehr als 50% Ihrer Lesezeichen in einem Schritt löschen, solange sie diese Löschsicherung nicht hier ausschalten."
+  },
+  "LabelFailsafeon": {
+    "message": "Eingeschaltet. Lösche nicht mehr als 50% meiner lokalen Lesezeichen ohne mich vorher zu fragen. (Empfohlen)"
+  },
+  "LabelFailsafeoff": {
+    "message": "Ausgeschaltet. Erlaube das Löschen von mehr als 50% meiner lokalen Lesezeichen.ohne mich vorher zu fragen."
+  },
+  "StatusFailsafeoff": {
+    "message": "Löschsicherung ausgeschaltet. Sie laufen Gefahr Daten zu verlieren. Es wird empfohlen die Löschsicherung in den Konto-Einstellungen einzuschalten."
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google Drive"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "Synchronisieren Sie Lesezeichen mittels einer verschlüsselten Datei, die in Ihrem Google Drive gespeichert wird. Synchronisiert werden können http, ftp, data und javascript Lesezeichen."
+  },
+  "LabelLogingoogle": {
+    "message": "Anmelden mit Google"
+  },
+  "DescriptionLogingoogle": {
+    "message": "Verbinden Sie Floccus mit Ihrem Google Konto um die Lesezeichen-Datei in Ihrem Google Drive zu speichern."
+  },
+  "DescriptionLoggedingoogle": {
+    "message": "Sie haben Ihr Google Konto mit Floccus verbunden, um die Lesezeichen-Datei in ihrem Google-Drive zu speichern."
+  },
+  "LabelPassphrase": {
+    "message": "Passphrase"
+  },
+  "DescriptionPassphrase": {
+    "message": "Setzen Sie ein Passwort, um Ihre Lesezeichen-Datei zu verschlüsseln. Wenn Sie kein Passwort setzen, wird die Datei unverschlüsselt gespeichert."
+  },
+  "LabelClientcert": {
+    "message": "Sende Client Legitimation"
+  },
+  "DescriptionClientcert": {
+    "message": "Schalten Sie diese Option an, wenn Ihr Server ein Client Zertifikat oder Cookies zur Authentifizierung benötigt. Dies kann unerwünschte Nebeneffekte haben, da Floccus sich Cookies mit Ihrem normalen Browser-Profil teilen wird."
+  },
+  "LabelAllowredirects": {
+    "message": "Erlaube Weiterleitungen in der Server URL"
+  },
+  "DescriptionAllowredirects": {
+    "message": "Aktivieren Sie diese Option, falls sie WEiterleitungs-Fehler während dem Synchronisieren bekommen, die Sie für unberechtigt halten."
+  },
+  "LabelSearch": {
+    "message": "Lesezeichen suchen"
+  },
+  "LabelSearchfolder": {
+    "message": "Suche {0}"
+  },
+  "LabelEdititem": {
+    "message": "Bearbeiten"
+  },
+  "LabelDeleteitem": {
+    "message": "Löschen"
+  },
+  "LabelNobookmarks": {
+    "message": "Keine Lesezeichen hier"
+  },
+  "LabelAddbookmark": {
+    "message": "Lesezeichen hinzufügen"
+  },
+  "LabelEditbookmark": {
+    "message": "Lesezeichen bearbeiten"
+  },
+  "LabelAddfolder": {
+    "message": "Ordner hinzufügen"
+  },
+  "LabelEditfolder": {
+    "message": "Ordner bearbeiten"
+  },
+  "LabelSlugline": {
+    "message": "Vertrauliche Lesezeichen-Synchronisierung"
+  },
+  "LabelDownloadlogs": {
+    "message": "Protokolle herunterladen"
+  },
+  "LabelDownloadfulllogs": {
+    "message": "Vollständiges Protkoll"
+  },
+  "LabelDownloadanonymizedlogs": {
+    "message": "Geschwärztes Protokoll"
+  },
+  "DescriptionDownloadlogs": {
+    "message": "Floccus protokolliert alle Aktionen in einer lokalen Protokoll-Datei, die Sie bei Bedarf selbst einsehen können oder im Fehlerfall an die Entwickler senden können. Im geschwärzten Protokoll sind Ordner und Lesezeichen Namen, wie auch URLs, mittels einer kryptographischen Hash-Funktion irreversibel verschlüsselt. Wenn Sie das geschwärzte Protokoll weitergeben, stellen Sie bitte trotzdem Sicher, dass keine sensiblen Daten einsehbar sind, die vom Anonymisierungsprozess übersehen wurden."
+  },
+  "ErrorFolderloopselected": {
+    "message": "Kann einen Ordner nicht in sich selbst verschieben"
+  },
+  "ErrorNofolderselected": {
+    "message": "Kein Ordner ausgewählt"
+  },
+  "LabelAllownetwork": {
+    "message": "Erlaube Netzwerk-Nutzung"
+  },
+  "DescriptionAllownetwork": {
+    "message": "Floccus kann das Internet neben der Synchronisierung auch zum Einholen zusätzlicher Informationen über Ihre Lesezeichen benutzen, wie z.B. Webseiten-Icons. Hier können Sie solche Netzwerk-Nutzung aktivieren."
+  },
+  "LabelMobilesettings": {
+    "message": "Mobil-Einstellungen"
+  },
+  "LabelContinuefloccus":{
+    "message": "Weiter zu Floccus"
+  },
+  "LabelAbout":{
+    "message": "Über"
+  },
+  "LabelCurrentversion": {
+    "message": "Aktuelle Version"
+  },
+  "DescriptionCurrentversion": {
+    "message": "Ihre aktuell installierte Floccus-Version ist:"
+  },
+  "LabelContributors": {
+    "message": "Mitwirkende"
+  },
+  "DescriptionContributors": {
+    "message": "Diese Menschen haben mitgeholfen Floccus möglich zu machen"
+  },
+  "LabelSortcustom": {
+    "message": "Benutzerdefiniert"
+  },
+  "LabelSorturl": {
+    "message": "Link"
+  },
+  "LabelSorttitle": {
+    "message": "Titel"
+  },
+  "LabelSyncmethod": {
+    "message": "Synchronisationsmethode"
+  },
+  "LabelSyncserver": {
+    "message": "Synchronisationsserver"
+  },
+  "LabelSyncfolders": {
+    "message": "Synchronisationsorder"
+  },
+  "LabelSyncbehavior": {
+    "message": "Synchronisationsverhalten"
+  },
+  "LabelContinue": {
+    "message": "Fortfahren"
+  },
+  "LabelDone": {
+    "message": "Fertig"
+  },
+  "LabelConnect": {
+    "message": "Verbinden"
+  },
+  "LabelServersetup": {
+    "message": "Mit welchem Server möchten Sie synchronisieren?"
+  },
+  "LabelGoogledrivesetup": {
+    "message": "Anmelden zu Google Drive"
+  },
+  "LabelSyncfoldersetup": {
+    "message": "Welche Ordner möchten Sie synchronisieren?"
+  },
+  "LabelSyncbehaviorsetup": {
+    "message": "Wie soll die Synchronisierung ablaufen?"
+  },
+  "LabelAccountcreated": {
+    "message": "Account erstellen"
+  },
+  "DescriptionNonhttps": {
+    "message": "Sie haben einen Server angegeben, der ein unsicheres Protokoll benutzt. Es wird empfohlen nur Server zu benutzen, die HTTPS unterstützen."
   }
 }
