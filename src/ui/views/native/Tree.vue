@@ -334,7 +334,7 @@ export default {
           if (this.sortBy === 'url' && item.url) {
             return new URL(item[this.sortBy]).hostname
           }
-          return item[this.sortBy]
+          return item[this.sortBy].toLowerCase()
         }])
       } else {
         return items
