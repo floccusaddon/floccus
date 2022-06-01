@@ -439,7 +439,7 @@
     "message": "Fusionner"
   },
   "DescriptionSyncNormal": {
-    "message": "Fusionner changements locaux avec ceux sur d'autres navigateurs"
+    "message": "Fusionner changements locaux avec ceux faits sur d'autres navigateurs"
   },
   "DescriptionFilesPermission": {
     "message": "Assurez-vous de donner à floccus la permission d'utiliser l'application  Bookmarks mais aussi l'application Nextcloud Files."
