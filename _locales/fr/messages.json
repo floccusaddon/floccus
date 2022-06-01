@@ -276,7 +276,7 @@
     "message": "Configurer un mot de passe pour floccus"
   },
   "DescriptionSetkey": {
-    "message": "Si vous configurez un mot de passe, vous devrez rentrer ce mot de passe à chaque démarrage de votre navigateur si vous voulez accéder à floccus, synchroniser vos signets, changer vos paramètres ou n'importe quoi d'autre."
+    "message": "Si vous configurez un mot de passe, vous devrez rentrer ce mot de passe à chaque démarrage de votre navigateur si vous voulez accéder à floccus pour lancer une synchronisation de vos signets, changer vos paramètres ou n'importe quoi d'autre."
   },
   "LabelSetkeybutton": {
     "message": "Configurer mot de passe"
