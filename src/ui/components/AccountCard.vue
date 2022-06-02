@@ -84,6 +84,24 @@
             no-gutters
             class="mt-2">
             <v-col class="d-flex flex-row">
+              <v-btn
+                v-if="!account.data.syncing"
+                class="primary"
+                small
+                :title="t('LabelSyncnow')"
+                :aria-label="t('LabelSyncnow')"
+                @click="onTriggerSync">
+                <v-icon>mdi-sync</v-icon>
+              </v-btn>
+              <v-btn
+                v-else
+                small
+                :title="t('LabelCancelsync')"
+                :aria-label="t('LabelCancelsync')"
+                @click="onCancelSync">
+                <v-icon>mdi-cancel</v-icon>
+              </v-btn>
+              <v-spacer></v-spacer>
               <v-select
                 v-model="account.data.strategy"
                 dense
@@ -109,23 +127,6 @@
                   </v-list-item-title>
                 </template>
               </v-select>
-              <v-btn
-                v-if="!account.data.syncing"
-                class="primary"
-                small
-                :title="t('LabelSyncnow')"
-                :aria-label="t('LabelSyncnow')"
-                @click="onTriggerSync">
-                <v-icon>mdi-sync</v-icon>
-              </v-btn>
-              <v-btn
-                v-else
-                small
-                :title="t('LabelCancelsync')"
-                :aria-label="t('LabelCancelsync')"
-                @click="onCancelSync">
-                <v-icon>mdi-cancel</v-icon>
-              </v-btn>
             </v-col>
           </v-row>
           <v-row :class="{'d-none': !showDetails, 'pa-2': true, 'mt-3': true, 'justify-space-between': true}">
