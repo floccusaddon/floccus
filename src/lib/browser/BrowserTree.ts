@@ -17,19 +17,20 @@ export default class BrowserTree implements IResource {
   private queue: PQueue<{ concurrency: 10 }>
   private storage: unknown
   private absoluteRoot: { id: string }
+  private absoluteRootPromise: Promise<void>
 
   constructor(storage:unknown, rootId:string) {
     this.rootId = rootId
     this.storage = storage
     this.queue = new PQueue({ concurrency: 10 })
-    BrowserTree.getAbsoluteRootFolder().then(root => {
+    this.absoluteRootPromise = BrowserTree.getAbsoluteRootFolder().then(root => {
       this.absoluteRoot = root
     })
   }
 
   async getBookmarksTree():Promise<Folder> {
-    const [rootTree] = await browser.bookmarks.getTree() // XXX: Kinda inefficient, but well.
     const [tree] = await browser.bookmarks.getSubTree(this.rootId)
+    await this.absoluteRootPromise
     const allAccounts = await (await Account.getAccountClass()).getAllAccounts()
 
     const recurse = (node, parentId?, rng?) => {
@@ -42,7 +43,7 @@ export default class BrowserTree implements IResource {
         return
       }
       let overrideTitle, isRoot
-      if (node.parentId === rootTree.id) {
+      if (node.parentId === this.absoluteRoot.id) {
         switch (node.id) {
           case '1': // Chrome
           case 'toolbar_____': // Firefox
@@ -68,7 +69,7 @@ export default class BrowserTree implements IResource {
           )
         }
       }
-      if (node.id === rootTree.id) {
+      if (node.id === this.absoluteRoot.id) {
         isRoot = true
       }
       if (node.children) {
