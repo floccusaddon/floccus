@@ -153,7 +153,7 @@
     "message": "Annuler synchronisation"
   },
   "LabelAutosync": {
-    "message": "Automatique"
+    "message": "Auto-sync."
   },
   "StatusLastsynced": {
     "message": "Dernière synchronisation : il y a {0}"
