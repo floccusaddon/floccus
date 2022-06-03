@@ -213,13 +213,13 @@
     "message": "This option determines how to synchronize the bookmarks on different devices. Usually you will want to keep changes from all sides if they are compatible, but sometimes you might want to overwrite changes (including additions and deletions) from other browsers, or overwrite changes you made locally."
   },
   "LabelStrategydefault": {
-    "message": "Merge local and cloud changes (recommended)"
+    "message": "Always merge local changes with changes from other browsers (recommended)"
   },
   "LabelStrategyslave": {
-    "message": "Always revert local changes, additions and deletions and download cloud changes"
+    "message": "Always undo local changes and download changes from other browsers"
   },
   "LabelStrategyoverwrite": {
-    "message": "Always revert changes, additions and deletions from other browsers and upload local changes"
+    "message": "Always upload local changes and undo changes from other browsers"
   },
   "LabelSave": {
     "message": "Save"
