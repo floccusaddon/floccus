@@ -217,7 +217,7 @@ export default {
       strategyIcons: {
         slave: 'mdi-arrow-down-bold',
         overwrite: 'mdi-arrow-up-bold',
-        default: 'mdi-call-merge',
+        default: 'mdi-merge',
       },
       strategyLabels: {
         slave: this.t('LabelSyncDown'),
