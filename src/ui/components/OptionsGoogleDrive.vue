@@ -91,6 +91,7 @@
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
         <OptionSyncStrategy
+          v-if="!isBrowser"
           :value="strategy"
           @input="$emit('update:strategy', $event)" />
         <OptionNestedSync
