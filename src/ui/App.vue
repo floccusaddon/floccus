@@ -149,7 +149,4 @@ export default {
 </script>
 
 <style scoped>
-#app {
-  min-width: 460px;
-}
 </style>
