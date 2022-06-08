@@ -63,5 +63,7 @@ export function getIcons(html, pageUrl) {
     }
   }
 
+  icons.push(url.protocol + '//' + url.host + '/favicon.ico')
+
   return icons
 }
