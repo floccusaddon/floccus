@@ -165,7 +165,7 @@ export const actionsDefinition = {
     }
     let json = res.data, browserWindow
     try {
-      browserWindow = await window.open(json.login)
+      browserWindow = await window.open(json.login, '_blank', 'toolbar=no,presentationstyle=pagesheet')
       do {
         await new Promise(resolve => setTimeout(resolve, 1000))
         res = await Http.request({
