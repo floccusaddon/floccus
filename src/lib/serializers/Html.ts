@@ -3,7 +3,7 @@ import { Bookmark, Folder, ItemLocation } from '../Tree'
 
 class HtmlSerializer implements Serializer {
   serialize(folder) {
-    return this._serializeFolder(folder, '')
+    return `<DL><p>${this._serializeFolder(folder, '')}</p></DL>`
   }
 
   _serializeFolder(folder, indent) {
@@ -12,12 +12,12 @@ class HtmlSerializer implements Serializer {
         if (child instanceof Bookmark) {
           return (
             `${indent}<DT>` +
-            `<A HREF="${child.url}" TAGS="${''}">${child.title}</A>`
+            `<A HREF="${child.url}" TAGS="${''}" id="${child.id}">${child.title}</A>`
           )
         } else if (child instanceof Folder) {
           const nextIndent = indent + '  '
           return (
-            `${indent}<DT><h3>${child.title}</h3>\n` +
+            `${indent}<DT><h3 id="${child.id}">${child.title}</h3>\n` +
             `${indent}<DL><p>${this._serializeFolder(
               child,
               nextIndent
@@ -32,37 +32,36 @@ class HtmlSerializer implements Serializer {
     const parser = new DOMParser()
     const document = parser.parseFromString(html, 'text/html')
     const rootFolder = new Folder({id: '', title: '', location: ItemLocation.SERVER})
-    const dt = document.querySelector('dt')
-    deserializeDT(dt, rootFolder)
+    const dl = document.querySelector('dl')
+    deserializeDL(dl, rootFolder)
     return rootFolder
   }
 }
 
-function deserializeDT(dt:Element, parentFolder:Folder) {
-  const child = dt.firstElementChild
-  if (child instanceof HTMLHeadingElement) {
-    const folder = new Folder({
-      parentId: parentFolder.id,
-      title: child.textContent,
-      id: child.id,
-      location: ItemLocation.SERVER
-    })
-    parentFolder.children.push(folder)
-    if (child.nextElementSibling instanceof HTMLDListElement) {
-      const dl = child.nextElementSibling
-      let element: Element = dl.querySelector('dt')
-      for (;element !== dl.lastElementChild; element = element.nextElementSibling) {
-        deserializeDT(element, folder)
+function deserializeDL(dl:Element, parentFolder:Folder) {
+  for (let element:Element = dl.querySelector('dt'); element; element = element.nextElementSibling) {
+    const child = element.firstElementChild
+    if (child instanceof HTMLHeadingElement) {
+      const folder = new Folder({
+        parentId: parentFolder.id,
+        title: child.textContent,
+        id: child.id,
+        location: ItemLocation.SERVER
+      })
+      parentFolder.children.push(folder)
+      if (child.nextElementSibling instanceof HTMLDListElement) {
+        const dl = child.nextElementSibling
+        deserializeDL(dl, folder)
       }
+    } else if (child instanceof HTMLAnchorElement) {
+      parentFolder.children.push(new Bookmark({
+        parentId: parentFolder.id,
+        url: child.href,
+        title: child.textContent,
+        id: child.id,
+        location: ItemLocation.SERVER
+      }))
     }
-  } else if (child instanceof HTMLAnchorElement) {
-    parentFolder.children.push(new Bookmark({
-      parentId: parentFolder.id,
-      url: child.href,
-      title: child.textContent,
-      id: child.id,
-      location: ItemLocation.SERVER
-    }))
   }
 }
 

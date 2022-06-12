@@ -6467,13 +6467,11 @@ async function syncAccountWithInterrupts(account) {
 
 function stringifyAccountData(ACCOUNT_DATA) {
   return `${ACCOUNT_DATA.type}${
-    (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs)
-      ? '-old'
-      : ACCOUNT_DATA.noCache
-        ? '-noCache'
-        : ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase))
-          ? '-encrypted'
-          : ''}`
+    (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs ? '-old' : '') +
+    (ACCOUNT_DATA.noCache ? '-noCache' : '') +
+    (typeof ACCOUNT_DATA.bookmark_file_type !== 'undefined' ? '-' + ACCOUNT_DATA.bookmark_file_type : '') +
+    ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase) ? '-encrypted' : '')
+  }`
 }
 
 function awaitTabsUpdated() {

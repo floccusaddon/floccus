@@ -35,8 +35,10 @@ jobs:
           - fake
           - nextcloud-bookmarks
           - nextcloud-bookmarks-old
-          - webdav
-          - webdav-encrypted
+          - webdav-xbel
+          - webdav-html
+          - webdav-html-encrypted
+          - webdav-xbel-encrypted
           - google-drive
           - google-drive-encrypted
         test-name:
