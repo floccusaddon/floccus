@@ -45,7 +45,7 @@ function deserializeDL(dl:Element, parentFolder:Folder) {
       const folder = new Folder({
         parentId: parentFolder.id,
         title: child.textContent,
-        id: child.id,
+        id: parseInt(child.id),
         location: ItemLocation.SERVER
       })
       parentFolder.children.push(folder)
@@ -58,7 +58,7 @@ function deserializeDL(dl:Element, parentFolder:Folder) {
         parentId: parentFolder.id,
         url: child.href,
         title: child.textContent,
-        id: child.id,
+        id: parseInt(child.id),
         location: ItemLocation.SERVER
       }))
     }
