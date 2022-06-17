@@ -43,3 +43,15 @@ export default {
   }
 }
 </script>
+<style>
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(sage-area-inset-right);
+  background: #fafafa;
+}
+.v-navigation-drawer {
+  top: env(safe-area-inset-top) !important;
+}
+</style>
