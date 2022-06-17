@@ -27,8 +27,8 @@ body:
       required: true
   - type: input
     attributes:
-      label: Which browser are you using? In case you are using the Android App, specify the Android version please.
-      description: 'Please specify the exact version instead of "latest". For example: Chrome 100.0.4878.0'
+      label: Which browser are you using? In case you are using the phone App, specify the Android or iOS version and device please.
+      description: 'Please specify the exact version instead of "latest". For example: Chrome 100.0.4878.0 or '
   - type: input
     attributes:
       label: Which version of Nextcloud Bookmarks are you using? (if relevant)
