@@ -20,9 +20,9 @@ body:
       description: Which sync method are you using?
       multiple: false
       options:
-        - label: Nextcloud Bookmarks
-        - label: WebDAV
-        - label: Google Drive
+        - Nextcloud Bookmarks
+        - WebDAV
+        - Google Drive
     validations:
       required: true
   - type: input
