@@ -265,6 +265,14 @@ export default class Account {
     if (this.syncProcess) {
       await this.syncProcess.cancel()
     }
+    const mappings = await this.storage.getMappings()
+    await mappings.persist()
+    if (this.getData().localRoot !== 'tabs') {
+      const cache = (await this.localTree.getBookmarksTree()).clone(false)
+      this.syncProcess.filterOutUnacceptedBookmarks(cache)
+      this.syncProcess.filterOutUnmappedItems(cache, await mappings.getSnapshot())
+      await this.storage.setCache(cache)
+    }
   }
 
   static async getAllAccounts():Promise<Account[]> {

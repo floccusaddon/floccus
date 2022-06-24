@@ -288,6 +288,13 @@ export default class BrowserController {
     await account.cancelSync()
   }
 
+  async cancelAll() {
+    const accounts = await Account.getAllAccounts()
+    return Promise.all(accounts.map(account =>
+      account.cancelSync()
+    ))
+  }
+
   async syncAccount(accountId, strategy) {
     this.waiting[accountId] = false
     if (!this.enabled) {
