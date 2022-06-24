@@ -33,32 +33,33 @@ class HtmlSerializer implements Serializer {
     const document = parser.parseFromString(html, 'text/html')
     const rootFolder = new Folder({id: '', title: '', location: ItemLocation.SERVER})
     const dl = document.querySelector('dl')
-    deserializeDL(dl, rootFolder)
+    const counter = {highestId: 1}
+    deserializeDL(dl, rootFolder, counter)
     return rootFolder
   }
 }
 
-function deserializeDL(dl:Element, parentFolder:Folder) {
+function deserializeDL(dl:Element, parentFolder:Folder, counter:{highestId: number}) {
   for (let element:Element = dl.querySelector('dt'); element; element = element.nextElementSibling) {
     const child = element.firstElementChild
     if (child instanceof HTMLHeadingElement) {
       const folder = new Folder({
         parentId: parentFolder.id,
         title: child.textContent,
-        id: parseInt(child.id),
+        id: child.id ? parseInt(child.id) : counter.highestId++,
         location: ItemLocation.SERVER
       })
       parentFolder.children.push(folder)
       if (child.nextElementSibling instanceof HTMLDListElement) {
         const dl = child.nextElementSibling
-        deserializeDL(dl, folder)
+        deserializeDL(dl, folder, counter)
       }
     } else if (child instanceof HTMLAnchorElement) {
       parentFolder.children.push(new Bookmark({
         parentId: parentFolder.id,
         url: child.href,
         title: child.textContent,
-        id: parseInt(child.id),
+        id: child.id ? parseInt(child.id) : counter.highestId++,
         location: ItemLocation.SERVER
       }))
     }
