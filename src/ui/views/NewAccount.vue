@@ -192,11 +192,14 @@
               </div>
               <v-text-field
                 v-model="bookmark_file"
+                class="mb-2"
                 append-icon="mdi-file-document"
                 :rules="[validateBookmarksFile]"
                 :label="t('LabelBookmarksfile')"
                 :hint="t('DescriptionBookmarksfile')"
                 :persistent-hint="true" />
+              <OptionFileType
+                v-model="bookmark_file_type" />
             </template>
 
             <template v-if="adapter === 'google-drive'">
@@ -285,10 +288,11 @@ import OptionSyncFolder from '../components/OptionSyncFolder'
 import OptionSyncInterval from '../components/OptionSyncInterval'
 import OptionSyncStrategy from '../components/OptionSyncStrategy'
 import OptionNestedSync from '../components/OptionNestedSync'
+import OptionFileType from '../components/OptionFileType'
 
 export default {
   name: 'NewAccount',
-  components: { OptionNestedSync, OptionSyncStrategy, OptionSyncInterval, OptionSyncFolder },
+  components: { OptionFileType, OptionNestedSync, OptionSyncStrategy, OptionSyncInterval, OptionSyncFolder },
   data() {
     return {
       currentStep: 1,
@@ -302,6 +306,7 @@ export default {
       passphrase: '',
       refreshToken: '',
       bookmark_file: 'bookmarks.xbel',
+      bookmark_file_type: 'xbel',
       serverRoot: '',
       localRoot: null,
       syncInterval: 15,
