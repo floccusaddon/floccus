@@ -70,7 +70,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     await this.execute(target, revertPlan, this.direction)
 
-    const mappingsSnapshot = await this.mappings.getSnapshot()
+    const mappingsSnapshot = this.mappings.getSnapshot()
     const revertOrderings = sourceDiff.map(mappingsSnapshot, this.direction)
     Logger.log({revertOrderings: revertOrderings.getActions(ActionType.REORDER)})
 
@@ -82,7 +82,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   }
 
   async revertDiff(targetDiff: Diff, targetLocation: TItemLocation): Promise<Diff> {
-    const mappingsSnapshot = await this.mappings.getSnapshot()
+    const mappingsSnapshot = this.mappings.getSnapshot()
     // Prepare slave plan
     const plan = new Diff()
 

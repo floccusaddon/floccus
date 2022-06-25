@@ -121,7 +121,7 @@ export default class SyncProcess {
     localPlan = await this.execute(this.localTree, localPlan, ItemLocation.LOCAL)
 
     // mappings have been updated, reload
-    mappingsSnapshot = await this.mappings.getSnapshot()
+    mappingsSnapshot = this.mappings.getSnapshot()
 
     const localReorder = this.reconcileReorderings(localPlan, serverPlan, mappingsSnapshot)
       .map(mappingsSnapshot, ItemLocation.LOCAL)
@@ -147,7 +147,7 @@ export default class SyncProcess {
     }
 
     await this.mappings.addFolder({ localId: this.localTreeRoot.id, remoteId: this.serverTreeRoot.id })
-    const mappingsSnapshot = await this.mappings.getSnapshot()
+    const mappingsSnapshot = this.mappings.getSnapshot()
 
     if ('loadFolderChildren' in this.server) {
       Logger.log('Loading sparse tree as necessary')
@@ -224,7 +224,7 @@ export default class SyncProcess {
   }
 
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
-    const mappingsSnapshot = await this.mappings.getSnapshot()
+    const mappingsSnapshot = this.mappings.getSnapshot()
 
     const newMappings = []
 
@@ -263,7 +263,7 @@ export default class SyncProcess {
   }
 
   async reconcileDiffs(sourceDiff:Diff, targetDiff:Diff, targetLocation: TItemLocation):Promise<Diff> {
-    const mappingsSnapshot = await this.mappings.getSnapshot()
+    const mappingsSnapshot = this.mappings.getSnapshot()
 
     const targetCreations = targetDiff.getActions(ActionType.CREATE).map(a => a as CreateAction)
     const targetRemovals = targetDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
@@ -510,7 +510,7 @@ export default class SyncProcess {
     const run = (action) => this.executeAction(resource, action, targetLocation)
 
     await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run)
-    const mappingsSnapshot = await this.mappings.getSnapshot()
+    const mappingsSnapshot = this.mappings.getSnapshot()
     const mappedPlan = plan.map(mappingsSnapshot, targetLocation, (action) => action.type === ActionType.MOVE)
     const batches = Diff.sortMoves(mappedPlan.getActions(ActionType.MOVE), targetLocation === ItemLocation.SERVER ? this.serverTreeRoot : this.localTreeRoot)
 
@@ -591,7 +591,7 @@ export default class SyncProcess {
         if (action.oldItem && action.oldItem instanceof Folder) {
           const subPlan = new Diff
           action.oldItem.children.forEach((child) => subPlan.commit({ type: ActionType.CREATE, payload: child }))
-          let mappingsSnapshot = await this.mappings.getSnapshot()
+          let mappingsSnapshot = this.mappings.getSnapshot()
           const mappedSubPlan = subPlan.map(mappingsSnapshot, targetLocation)
           await this.execute(resource, mappedSubPlan, targetLocation)
 
@@ -604,7 +604,7 @@ export default class SyncProcess {
               payload: action.oldItem,
               order: item.children.map(i => ({ type: i.type, id: i.id }))
             })
-            mappingsSnapshot = await this.mappings.getSnapshot()
+            mappingsSnapshot = this.mappings.getSnapshot()
             const mappedOrder = subOrder.map(mappingsSnapshot, targetLocation)
             if ('orderFolder' in resource) {
               await this.executeReorderings(resource, mappedOrder)
@@ -807,7 +807,7 @@ export default class SyncProcess {
   }
 
   async folderHasChanged(localItem: TItem, cacheItem: TItem, serverItem: TItem):Promise<boolean> {
-    const mappingsSnapshot = await this.mappings.getSnapshot()
+    const mappingsSnapshot = this.mappings.getSnapshot()
     const localHash = localItem
       ? await localItem.hash(this.preserveOrder)
       : null

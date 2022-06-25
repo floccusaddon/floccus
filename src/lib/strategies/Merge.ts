@@ -45,7 +45,7 @@ export default class MergeSyncProcess extends Default {
   }
 
   async reconcileDiffs(sourceDiff:Diff, targetDiff:Diff, targetLocation: TItemLocation):Promise<Diff> {
-    const mappingsSnapshot = await this.mappings.getSnapshot()
+    const mappingsSnapshot = this.mappings.getSnapshot()
 
     const targetCreations = targetDiff.getActions(ActionType.CREATE)
     const targetMoves = targetDiff.getActions(ActionType.MOVE)
