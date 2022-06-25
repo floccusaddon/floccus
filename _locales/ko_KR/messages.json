@@ -1,0 +1,621 @@
+{
+  "Error001": {
+    "message": "E001: 생성할 폴더가 존재하지 않습니다"
+  },
+  "Error002": {
+    "message": "E002: 업데이트할 북마크가 더 이상 존재하지 않습니다"
+  },
+  "Error003": {
+    "message": "E003: 이동할 폴더가 존재하지 않습니다. 이것은 이례적인 일입니다. 축하드려요."
+  },
+  "Error004": {
+    "message": "E004: 이동할 폴더가 존재하지 않습니다"
+  },
+  "Error005": {
+    "message": "E005: 생성할 폴더가 존재하지 않습니다"
+  },
+  "Error006": {
+    "message": "E006: 업데이트할 폴더가 존재하지 않습니다"
+  },
+  "Error007": {
+    "message": "E007: 이동할 폴더가 존재하지 않습니다"
+  },
+  "Error008": {
+    "message": "E008: 이동할 폴더가 존재하지 않습니다"
+  },
+  "Error009": {
+    "message": "E009: 이동할 폴더가 존재하지 않습니다"
+  },
+  "Error010": {
+    "message": "E010: 정렬할 폴더를 찾을 수 없습니다"
+  },
+  "Error011": {
+    "message": "E011: 폴더 정렬의 항목이 실제 하위 항목이 아닙니다: {0}"
+  },
+  "Error012": {
+    "message": "E012: 폴더 순서 지정 시 폴더의 일부 하위 항목이 누락되었습니다"
+  },
+  "Error013": {
+    "message": "E013: 삭제할 폴더가 존재하지 않습니다"
+  },
+  "Error014": {
+    "message": "E014: 폴더를 삭제할 부모 폴더가 존재하지 않습니다"
+  },
+  "Error015": {
+    "message": "E015: 서버로부터 예기치 않은 응답 데이터 수신"
+  },
+  "Error016": {
+    "message": "E016: 요청 시간이 초과되었습니다. 서버 환경 설정을 확인하세요"
+  },
+  "Error017": {
+    "message": "E017: 네트워크 오류: 네트워크 연결 및 계정 정보를 확인하세요"
+  },
+  "Error018": {
+    "message": "E018: 서버로 인증할 수 없습니다."
+  },
+  "Error019": {
+    "message": "E019: HTTP 상태 {0} 실패 {1} 요청. 서버 환경 설정 및 로그를 확인하세요."
+  },
+  "Error020": {
+    "message": "E020: 서버 응답을 분석할 수 없습니다. 당신의 서버에 북마크 어플리케이션이 설치되어 있나요?"
+  },
+  "Error021": {
+    "message": "E021: 서버 상태가 일정하지 않습니다. 폴더가 하위 순서 목록에는 존재하지만 폴더 트리 목록에는 존재하지 않습니다"
+  },
+  "Error022": {
+    "message": "E022: 폴더 {0} 존재하지 않는 북마크를 포함하고 있는 것으로 추정됩니다 {1}"
+  },
+  "Error023": {
+    "message": "E023: 잠금 파일을 삭제할 수 없습니다. 수동으로 {0}을 삭제하는 것을 시도하십시오."
+  },
+  "Error024": {
+    "message": "E024: HTTP 상태 {0} 잠금 파일의 상태를 확인하는 중입니다 {1}"
+  },
+  "Error025": {
+    "message": "E025: 북마크 파일 설정은 슬래시: '/' 로 시작할 수 없습니다"
+  },
+  "Error026": {
+    "message": "E026: HTTP 상태 {0} 북마크를 가져오지 못했습니다"
+  },
+  "Error027": {
+    "message": "E027: 동기화 프로세스가 중단되었습니다"
+  },
+  "Error028": {
+    "message": "E028: 서버와 인증할 수 없습니다."
+  },
+  "Error029": {
+    "message": "E029: Failsafe: 현재 동기화 작업을 실행하면 북마크의 {0}%가 삭제됩니다. 실행을 거부합니다. 계속 실행하려면 계정 설정에서 Failsafe를 비활성화 하십시오."
+  },
+  "Error030": {
+    "message": "E030: 북마크 파일을 해독하지 못했습니다. 패스프레이즈가 잘못 되었거나 파일이 손상되었을 수 있습니다."
+  },
+  "Error031": {
+    "message": "E031: Google Drive로 인증할 수 없습니다. Floccus를 Google 계정에 다시 연결하십시오."
+  },
+  "Error032": {
+    "message": "E032: OAuth 오류. 토큰 유효성 오류입니다. Google 계정을 다시 연결하십시오."
+  },
+  "Error033": {
+    "message": "E033: 리디렉션이 감지되었습니다. 서버가 지정된 동기화 방법을 지원하고 있으며 입력한 URL이 다른 위치로 리디렉션 되고 있지 않은지 확인하십시오. 리디렉션이 설정의 일부인 경우, 설정에서 이 검사를 비활성화 할 수 있습니다."
+  },
+  "Error034": {
+    "message": "E034: 북마크 파일을 읽을 수 없습니다. 혹시 암호화를 위한 패스프레이즈 설정을 잊으셨나요?"
+  },
+  "LabelWebdavurl": {
+    "message": "WebDAV URL"
+  },
+  "DescriptionWebdavurl": {
+    "message": "예시: nextcloud 사용:  https://example.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "Nextcloud URL"
+  },
+  "LabelUsername": {
+    "message": "사용자 이름"
+  },
+  "LabelPassword": {
+    "message": "사용자 비밀번호"
+  },
+  "LabelBookmarksfile": {
+    "message": "북마크 파일 경로"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "WebDAV URL과 관련이 있는 북마크 파일 경로(경로에 있는 모든 폴더가 이미 존재해야 합니다) 예시: personal_stuff/bookmarks.xbel"
+  },
+ "DescriptionBookmarksfilegoogle": {
+   "message": "Goodle Drive에 올라갈 북마크 파일의 이름 (이 이름이 Drive에서 고유해야 합니다)"
+ },
+  "LabelServerfolder": {
+    "message": "서버 폴더"
+  },
+  "DescriptionServerfolder": {
+    "message": "서버에서 이 계정이 작동할 경로 접두부 입니다. 접두부를 전혀 사용하지 않으려면 이 값을 비워두십시오."
+  },
+  "LabelLocalfolder": {
+    "message": "로컬 폴더"
+  },
+  "DescriptionLocalfolder": {
+    "message": "서버에 동기화될 브라우저의 로컬 북마크 폴더입니다. 일부 브라우저에서는 루트 폴더 아래에 새 항목을 만들 수 없습니다. (예: Firefox, Google Chrome)"
+  },
+  "LabelRootfolder": {
+    "message": "루트 폴더"
+  },
+  "LabelNewfolder": {
+    "message": "새로 생성된 폴더"
+  },
+  "LabelOptions": {
+    "message": "옵션"
+  },
+  "LabelSyncnow": {
+    "message": "지금 동기화"
+  },
+  "LabelCancelsync": {
+    "message": "동기화 취소"
+  },
+  "LabelAutosync": {
+    "message": "자동 동기화"
+  },
+  "StatusLastsynced": {
+    "message": "마지막으로 동기화됨: {0} 분 전"
+  },
+  "StatusNeversynced": {
+    "message": "아직 동기화 되지 않음"
+  },
+  "StatusAllgood": {
+    "message": "모든 상태 양호"
+  },
+  "StatusDisabled": {
+    "message": "비활성화됨"
+  },
+  "StatusError": {
+    "message": "오류"
+  },
+  "StatusSyncing": {
+    "message": "동기화 중"
+  },
+  "LabelReset": {
+    "message": "초기화"
+  },
+  "DescriptionReset": {
+    "message": "새 폴더를 생성하기 위해 동기화된 폴더를 초기화 합니다."
+  },
+  "LabelChoosefolder": {
+    "message": "폴더를 선택하세요"
+  },
+  "DescriptionChoosefolder": {
+    "message": "기존에 있는 폴더 중 동기화 할 폴더 설정"
+  },
+  "LabelRemoveaccount": {
+    "message": "계정 삭제"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "이 계정을 삭제합니다. (북마크 파일은 삭제되지 않습니다)"
+  },
+  "LabelSyncfromscratch": {
+    "message": "맨 처음의 동기화 트리거"
+  },
+  "LabelResetCache": {
+    "message": "캐시 초기화"
+  },
+  "DescriptionResetcache": {
+    "message": "다음 동기화 실행 시 데이터가 삭제되지 않고 서버와 로컬 북마크만 병합하도록 캐시를 초기화하려면 이 확인란을 선택하세요."
+  },
+  "LabelParallelsync": {
+    "message": "동기화 속도 향상"
+  },
+  "DescriptionParallelsync": {
+    "message": "동기화 속도를 향상시키기 위해 여러 폴더를 동시에 처리하려면 이 확인란을 선택하세요. 이 기능은 실험적이며 디버그 로그를 읽기 어렵게 만듭니다."
+  },
+  "LabelStrategy": {
+    "message": "동기화 전략"
+  },
+  "DescriptionStrategy": {
+    "message": "이 옵션은 다른 장치에서 북마크를 동기화하는 방법을 결정합니다. 일반적으로 모든 변경 사항이 호환되는 경우 변경 사항을 유지하고 싶지만, 다른 브라우저의 변경 사항(추가 및 삭제 포함)을 덮어쓰거나 로컬에서 변경한 내용을 덮어쓰려는 경우가 있습니다."
+  },
+  "LabelStrategydefault": {
+    "message": "항상 로컬 변경 내용을 다른 브라우저의 변경 사항과 병합합니다. (권장)"
+  },
+  "LabelStrategyslave": {
+    "message": "항상 로컬 변경 실행을 취소하고 다른 브라우저에서 변경 내용을 다운로드 합니다"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "항상 로컬 변경 내용을 업로드하고 다른 브라우저의 변경 내용을 취소합니다."
+  },
+  "LabelSave": {
+    "message": "저장"
+  },
+  "LabelCancel": {
+    "message": "취소"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Nextcloud 북마크"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "'Nexcloud 북마크' 옵션은 북마크 앱의 버전 v0.14 이상과 호환 됩니다. http와 ftp 북마크만 동기화 할 수 있습니다."
+  },
+  "LabelAdapternextcloud": {
+    "message": "Nexcloud 북마크(레거시)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "레거시 옵션은 북마크 앱의 버전 v0.11 이상과 호환됩니다. 폴더 경로를 포함하는 태그를 사용하여 폴더를 대리 실행합니다. 새 계정에는 이 옵션을 사용하지 않는 것을 권장합니다."
+  },
+  "LabelAdapterwebdav": {
+    "message": "WebDAV 공유의 XBEL 파일 "
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "WebDAV 옵션은 제공된 WebDAV 공유의 XBEL 파일을 저장함으로써 북마크를 동기화 합니다. 이 옵션에는 웹 UI가 함께 제공되지 않으며 모든 WebDAV와 호환되는 서버에 사용할 수 있습니다. http, ftp, 데이터, javascript 북마크와 동기화 할 수 있습니다."
+  },
+  "LabelAddaccount": {
+    "message": "계정 추가"
+  },
+  "LabelSecurecredentials": {
+    "message": "자격 증명을 보호합니다"
+  },
+  "LabelSecuredcredentials": {
+    "message": "자격 증명이 안전합니다"
+  },
+  "LabelOpenintab": {
+    "message": "탭에서 열기"
+  },
+  "LabelDebuglogs": {
+    "message": "디버그 로그"
+  },
+  "LabelFunddevelopment": {
+    "message": "펀드 개발"
+  },
+  "DescriptionFunddevelopment": {
+    "message": "floccus에 대한 작업은 자발적인 구독 모델에 의해 촉진됩니다. 제가 하는 일이 보람 있다고 생각하시면, 그리고 매 달 적은 양의 기부금을 나눠주시는 것에 부담이 없으시다면, 도움을 주시면 감사하겠습니다. 또한 애드온 스토어에 floccus에 대한 평점도 매겨주시면 감사하겠습니다. 감사합니다!💙"
+  },
+  "LabelSelect": {
+    "message": "선택"
+  },
+  "LabelUntitledfolder": {
+    "message": "이름 없는 폴더"
+  },
+  "LabelSetkey": {
+    "message": "floccus를 위한 패스프레이즈를 설정하십시오"
+  },
+  "DescriptionSetkey": {
+    "message": "패스프레이즈를 설정하면 북마크에 액세스하고 동기화 하거나, 설정을 변경하거나, floccus를 사용하여 다른 작업을 수행하려면 브라우저를 시작할 때마다 이 패스프레이즈를 입력해야 합니다."
+  },
+  "LabelSetkeybutton": {
+    "message": "패스프레이즈 설정"
+  },
+  "LabelKey": {
+    "message": "잠금 해제 패스프레이즈 입력"
+  },
+  "LabelKey2": {
+    "message": "패스프레이즈를 다시 입력하십시오"
+  },
+  "LabelUnlock": {
+    "message": "floccus 잠금 해제"
+  },
+  "LabelRemovekey": {
+    "message": "패스프레이즈 삭제"
+  },
+  "LabelRemovedkey": {
+    "message": "패스프레이즈가 삭제되었습니다"
+  },
+  "LabelSyncinterval": {
+    "message": "동기화 간격"
+  },
+  "DescriptionSyncinterval": {
+    "message": "두 동기화 작업은 몇 분 간격으로 실행됩니다. 기본값은 15분 입니다. "
+  },
+  "LabelChooseadapter": {
+    "message": "동기화할 방법을 선택하십시오."
+  },
+  "LabelOptionsscreen": {
+    "message": "{0} 옵션",
+    "description": "Title of the options screen. The placeholder holds the account type."
+  },
+  "LabelPaypal": {
+    "message": "페이팔"
+  },
+  "DescriptionPaypal": {
+    "message": "프로젝트를 지원하기 위해 페이팔을 통해 기부"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "프로젝트를 지원하기 위해 OpenCollective를 통해 정기적으로 기부"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "프로젝트를 지원하기 위해 Liberapay를 통해 정기적으로 기부"
+  },
+  "LabelGithubsponsors": {
+    "message": "GitHub sponsors"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "프로젝트를 지원하기 위해 GitHub sponsors를 통해 정기적으로 기부"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "이 기존 계정 유형은 더 이상 사용되지 않으며 곧 삭제됩니다. 새 nextcloud 동기화 방법으로 전환하십시오. 향상된 성능과 정확성이 당신을 기다리고 있습니다."
+  },
+  "LabelUpdated": {
+    "message": "Floccus가 업데이트 되었습니다"
+  },
+  "DescriptionUpdated": {
+    "message": "축하드립니다, 컴퓨터에 Floccus의 최신 업데이트가 도착했습니다!"
+  },
+  "LabelReleaseNotes": {
+    "message": "릴리스 노트 읽기"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "서버 디테일"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "폴더 매핑"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "동기화 동작"
+  },
+  "LabelOptionsDangerous": {
+    "message": "위험한 행동"
+  },
+  "LabelAccountDeleted": {
+    "message": "계정이 삭제되었습니다"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "이 계정은 삭제되었습니다"
+  },
+  "LabelNoAccount": {
+    "message": "여기에 존재하는 계정이 없습니다"
+  },
+  "DescriptionNoAccount": {
+    "message": "새 계정을 만들어 북마크를 동기화하거나 다른 장치 또는 다른 브라우저에서 계정을 가져옵니다."
+  },
+  "LabelLoginFlowStart": {
+    "message": "Nexcloud로 로그인"
+  },
+  "LabelLoginFlowStop": {
+    "message": "Nextcloud 로그인 중단"
+  },
+  "LabelLoginFlowError": {
+    "message": "Nextcloud 로그인에 실패하였습니다"
+  },
+  "LabelNewAccount": {
+    "message": "새 계정"
+  },
+  "LabelNestedSync": {
+    "message": "중첩된 계정"
+  },
+  "DescriptionNestedSync": {
+    "message": "부모 폴더가 계정 A에 속하고 하위 폴더가 계정 A와 B에 속하도록 계정을 중첩시킬 수 있습니다. 다른 계정도 이 계정의 폴더를 동기화하도록 허용하시겠습니까?"
+  },
+  "LabelNestedSyncNo": {
+    "message": "아니요, 다른 계정에서 이 계정의 폴더를 무시합니다"
+  },
+  "LabelNestedSyncYes": {
+    "message": "네, 다른 계정에 이 계정에 폴더를 포함하겠습니다"
+  },
+  "LabelImportExport": {
+    "message": "계정 가져오기/내보내기"
+  },
+  "LabelExport": {
+    "message": "계정 내보내기"
+  },
+  "LabelImport": {
+    "message": "계정 가져오기"
+  },
+  "DescriptionExport": {
+    "message": "다른 장치나 브라우저에서 동일한 계정을 쉽게 다시 생성할 수 있도록 파일로 내보낼 계정을 아래에서 선택하십시오."
+  },
+  "DescriptionImport": {
+    "message": "다른 장치나 브라우저에서 내보낸 계정을 다시 생성하기 위해  내보낸 계정이 있는 파일을 가져옵니다. 가져오기를 한 후 올바른 동기화 폴더를 다시 설정하십시오."
+  },
+  "LabelFolderNotFound": {
+    "message": "폴더를 찾을 수 없음"
+  },
+  "LabelSyncTabs": {
+    "message": "동기화 탭"
+  },
+  "LabelTabs": {
+    "message": "탭"
+  },
+  "LabelSyncDown": {
+    "message": "풀다운"
+  },
+  "DescriptionSyncDown": {
+    "message": "다른 브라우저에서의 변경 내용 다운로드 및 로컬 변경 내용 덮어쓰기"
+  },
+  "LabelSyncUp": {
+    "message": "푸쉬업"
+  },
+  "DescriptionSyncUp": {
+    "message": "로컬 변경 사항 업로드 및 다른 브라우저의 변경 사항 덮어쓰기"
+  },
+  "LabelSyncDownOnce": {
+    "message": "풀다운 한 번 실행"
+  },
+  "LabelSyncUpOnce": {
+    "message": "푸쉬업 한 번 실행"
+  },
+  "LabelSyncNormal": {
+    "message": "병합"
+  },
+  "DescriptionSyncNormal": {
+    "message": "로컬 변경 사항을 다른 브라우저의 변경 사항과 병합"
+  },
+  "DescriptionFilesPermission": {
+    "message": "북마크 앱 뿐만 아니라 Nextcloud 파일 앱도 사용할 수 있도록 floccus 권한을 부여해야 합니다."
+  },
+  "DescriptionExtension": {
+    "message": "브라우저 및 장치 간 북마크를 개별적으로 동기화 해야 합니다."
+  },
+  "LabelFailsafe": {
+    "message": "안전한 상태"
+  },
+  "DescriptionFailsafe": {
+    "message": "때때로 구성 오류 또는 소프트웨어 버그가 의도하지 않은 데이터 삭제를 유발하여 데이터가 손실될 수 있습니다. 이러한 문제를 방지하기 위해 이 안전 장치를 비활성화 하지 않는 이상 Floccus는 한 번에 50% 이상의 북마크를 삭제하지 않습니다."
+  },
+  "LabelFailsafeon": {
+    "message": "활성화됨. 이 기능을 이용해 먼저 확인하지 않고 50% 이상의 로컬 책갈피를 삭제하지 마십시오. (권장)"
+  },
+  "LabelFailsafeoff": {
+    "message": "비활성화됨. 이 기능을 이용해 먼저 확인하지 않아도 로컬 북마크의 50% 이상을 삭제할 수 있습니다."
+  },
+  "StatusFailsafeoff": {
+    "message": "안전장치가 비활성화 되었습니다. 의도하지 않은 데이터 손실 위험이 있습니다. 계정 설정에서 안전장치를 활성화 하는 것을 권장합니다."
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google Drive"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "Google Drive에 저장된 암호화된 파일을 통한 동기화용 북마크 입니다. http, ftp, 데이터, javascript 북마크를 동기화 할 수 있습니다."
+  },
+  "LabelLogingoogle": {
+    "message": "Google로 로그인"
+  },
+  "DescriptionLogingoogle": {
+    "message": "Google 계정을 연결하여 Google Drive에 북마크 동기화 파일을 저장합니다."
+  },
+  "DescriptionLoggedingoogle": {
+    "message": "Google 계정을 연결하여 Google Drive에 북마크 동기화 파일을 저장했습니다."
+  },
+  "LabelPassphrase": {
+    "message": "패스프레이즈"
+  },
+  "DescriptionPassphrase": {
+    "message": "북마크 파일을 암호화하기 위한 패스프레이즈를 설정합니다. 만약 패스프레이즈를 설정하지 않으면, 암호화가 진행되지 않습니다."
+  },
+  "LabelClientcert": {
+    "message": "클라이언트 자격 증명 전송"
+  },
+  "DescriptionClientcert": {
+    "message": "서버가 인증 확인을 위해 클라이언트 인증서 또는 쿠키를 필요로 하는 경우 이 옵션을 활성화합니다. Floccus가 일반 브라우저 프로필과 쿠키를 공유하기 때문에 의도하지 않은 부작용이 발생할 수 있습니다."
+  },
+  "LabelAllowredirects": {
+    "message": "서버 URL에서 리디렉션 허용"
+  },
+  "DescriptionAllowredirects": {
+    "message": "동기화하는 동안 잘못된 리디렉션 오류가 발생하면 이 옵션을 활성화하십시오."
+  },
+  "LabelSearch": {
+    "message": "북마크 검색"
+  },
+  "LabelSearchfolder": {
+    "message": "검색 {0}"
+  },
+  "LabelEdititem": {
+    "message": "편집"
+  },
+  "LabelDeleteitem": {
+    "message": "삭제"
+  },
+  "LabelNobookmarks": {
+    "message": "여기에 존재하는 북마크가 없습니다."
+  },
+  "LabelAddbookmark": {
+    "message": "북마크 추가"
+  },
+  "LabelEditbookmark": {
+    "message": "북마크 편집"
+  },
+  "LabelAddfolder": {
+    "message": "폴더 추가"
+  },
+  "LabelEditfolder": {
+    "message": "폴더 편집"
+  },
+  "LabelSlugline": {
+    "message": "개인 북마크 동기화"
+  },
+  "LabelDownloadlogs": {
+    "message": "로그 다운로드"
+  },
+  "LabelDownloadfulllogs": {
+    "message": "전체 로그"
+  },
+  "LabelDownloadanonymizedlogs": {
+    "message": "수정된 로그"
+  },
+  "DescriptionDownloadlogs": {
+    "message": "Floccus는 모든 작업을 로그 파일에 기록합니다. 로그 파일은 사용자가 직접 검사하거나 디버깅 목적으로 개발자에게 전송할 수 있습니다. 수정된 로그에서 폴더와 북마크 이름 및 URL은 암호화 해시 기능을 사용하여 되돌릴 수 없게 인코딩됩니다. 수정된 로그를 보낼 때 다운로드한 파일에서 익명화 프로세스에서 탐지 되지 않을 수 있는 중요한 데이터가 있는지 확인하십시오."
+  },
+  "ErrorFolderloopselected": {
+    "message": "폴더는 자기 자신에게 이동시킬 수 없습니다"
+  },
+  "ErrorNofolderselected": {
+    "message": "선택한 폴더 없음"
+  },
+  "LabelAllownetwork": {
+    "message": "네트워크 사용 허용"
+  },
+  "DescriptionAllownetwork": {
+    "message": "Floccus는 동기화 서버에 연결하는 것 외에도 네트워크를 사용하여 북마크(아이콘 등)에 대한 추가 정보를 얻을 수 있습니다. 네트워크 사용은 이 곳에서 활성화할 수 있습니다."
+  },
+  "LabelMobilesettings": {
+    "message": "모바일 설정"
+  },
+  "LabelContinuefloccus":{
+    "message": "Floccus 계속 이용"
+  },
+  "LabelAbout":{
+    "message": "더보기"
+  },
+  "LabelCurrentversion": {
+    "message": "현재 버전"
+  },
+  "DescriptionCurrentversion": {
+    "message": "현재 설치된 Floccus 버전:"
+  },
+  "LabelContributors": {
+    "message": "기여자"
+  },
+  "DescriptionContributors": {
+    "message": "이 사람들은 Floccus가 만들어지고 실행되는 것에 도움을 주었습니다"
+  },
+  "LabelSortcustom": {
+    "message": "커스텀"
+  },
+  "LabelSorturl": {
+    "message": "링크"
+  },
+  "LabelSorttitle": {
+    "message": "제목"
+  },
+  "LabelSyncmethod": {
+    "message": "동기화 방법"
+  },
+  "LabelSyncserver": {
+    "message": "동기화 서버"
+  },
+  "LabelSyncfolders": {
+    "message": "동기화 폴더"
+  },
+  "LabelSyncbehavior": {
+    "message": "동기화 동작"
+  },
+  "LabelContinue": {
+    "message": "계속하기"
+  },
+  "LabelDone": {
+    "message": "완료"
+  },
+  "LabelConnect": {
+    "message": "연결"
+  },
+  "LabelServersetup": {
+    "message": "동기화할 서버를 선택하십시오"
+  },
+  "LabelGoogledrivesetup": {
+    "message": "Google Drive에 로그인"
+  },
+  "LabelSyncfoldersetup": {
+    "message": "동기화할 폴더를 선택하십시오"
+  },
+  "LabelSyncbehaviorsetup": {
+    "message": "동기화 방법을 선택하십시오"
+  },
+  "LabelAccountcreated": {
+    "message": "계정이 생성되었습니다"
+  },
+  "DescriptionNonhttps": {
+    "message": "안전하지 않은 프로토콜을 사용하는 서버에 접속하셨습니다. HTTPS를 지원하는 서버만 사용하는 것을 권장합니다."
+  }
+}
