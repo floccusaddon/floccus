@@ -90,7 +90,11 @@ export default class Account {
       failsafe: true,
       allowNetwork: false,
     }
-    return {...defaults, ...this.server.getData(), ...(this.server.getData().type === 'nextcloud-folders' && {type: 'nextcloud-bookmarks'})}
+    const data = Object.assign(defaults, this.server.getData())
+    if (data.type === 'nextcloud-folders') {
+      data.type = 'nextcloud-bookmarks'
+    }
+    return data
   }
 
   async getResource():Promise<IResource> {
