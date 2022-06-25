@@ -1,7 +1,8 @@
 <template>
   <div>
     <v-app-bar
-      app>
+      app
+      absolute>
       <v-btn
         icon
         :to="{name: routes.TREE, params: {accountId: id}}">

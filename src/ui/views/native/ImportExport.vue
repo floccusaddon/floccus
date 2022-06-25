@@ -2,6 +2,7 @@
   <div>
     <Drawer :visible.sync="drawer" />
     <v-app-bar
+      absolute
       app>
       <v-app-bar-nav-icon
         class="mr-2 ml-n2"

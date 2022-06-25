@@ -1,6 +1,7 @@
 <template>
   <div>
     <v-app-bar
+      absolute
       app>
       <v-btn
         icon
