@@ -23,30 +23,30 @@ export default class Mappings {
   getSnapshot():MappingSnapshot {
     return {
       ServerToLocal: {
-        bookmark: this.bookmarks.ServerToLocal,
-        folder: this.folders.ServerToLocal
+        bookmark: {...this.bookmarks.ServerToLocal},
+        folder: {...this.folders.ServerToLocal}
       },
       LocalToServer: {
-        bookmark: this.bookmarks.LocalToServer,
-        folder: this.folders.LocalToServer
+        bookmark: {...this.bookmarks.LocalToServer},
+        folder: {...this.folders.LocalToServer}
       }
     }
   }
 
   async addFolder({ localId, remoteId }: { localId?:string|number, remoteId?:string|number }):Promise<void> {
-    this.folders = Mappings.add(this.folders, { localId, remoteId })
+    Mappings.add(this.folders, { localId, remoteId })
   }
 
   async removeFolder({ localId, remoteId }: { localId?:string|number, remoteId?:string|number }):Promise<void> {
-    this.folders = Mappings.remove(this.folders, { localId, remoteId })
+    Mappings.remove(this.folders, { localId, remoteId })
   }
 
   async addBookmark({ localId, remoteId }: { localId?:string|number, remoteId?:string|number }):Promise<void> {
-    this.bookmarks = Mappings.add(this.bookmarks, { localId, remoteId })
+    Mappings.add(this.bookmarks, { localId, remoteId })
   }
 
   async removeBookmark({ localId, remoteId }: { localId?:string|number, remoteId?:string|number }):Promise<void> {
-    this.bookmarks = Mappings.remove(this.bookmarks, { localId, remoteId })
+    Mappings.remove(this.bookmarks, { localId, remoteId })
   }
 
   async persist():Promise<void> {
@@ -56,20 +56,12 @@ export default class Mappings {
     })
   }
 
-  private static add(mappings, { localId, remoteId }: { localId?:string|number, remoteId?:string|number }):InternalItemTypeMapping {
+  private static add(mappings, { localId, remoteId }: { localId?:string|number, remoteId?:string|number }) {
     if (typeof localId === 'undefined' || typeof remoteId === 'undefined') {
       throw new Error('Cannot add empty mapping')
     }
-    return {
-      LocalToServer: {
-        ...mappings.LocalToServer,
-        [localId]: remoteId
-      },
-      ServerToLocal: {
-        ...mappings.ServerToLocal,
-        [remoteId]: localId
-      }
-    }
+    mappings.LocalToServer[localId] = remoteId
+    mappings.ServerToLocal[remoteId] = localId
   }
 
   private static remove(mappings, { localId, remoteId }: { localId?:string|number, remoteId?:string|number }):InternalItemTypeMapping {
@@ -79,27 +71,11 @@ export default class Mappings {
     }
 
     if (localId) {
-      return {
-        LocalToServer: {
-          ...mappings.LocalToServer,
-          [localId]: undefined
-        },
-        ServerToLocal: {
-          ...Object.fromEntries(Object.entries(mappings.ServerToLocal).filter(([,id]) => id !== localId)),
-          [mappings.LocalToServer[localId]]: undefined
-        }
-      }
+      delete mappings.ServerToLocal[mappings.LocalToServer[localId]]
+      delete mappings.LocalToServer[localId]
     } else {
-      return {
-        LocalToServer: {
-          ...Object.fromEntries(Object.entries(mappings.LocalToServer).filter(([,id]) => id !== remoteId)),
-          [mappings.ServerToLocal[remoteId]]: undefined
-        },
-        ServerToLocal: {
-          ...mappings.ServerToLocal,
-          [remoteId]: undefined
-        }
-      }
+      delete mappings.LocalToServer[mappings.ServerToLocal[remoteId]]
+      delete mappings.ServerToLocal[remoteId]
     }
   }
 
