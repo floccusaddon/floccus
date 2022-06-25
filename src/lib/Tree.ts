@@ -296,15 +296,12 @@ export class Folder {
   createIndex():IItemIndex {
     this.index = {
       folder: { [this.id]: this },
-      bookmark: Object.assign(
-        {},
-        this.children
-          .filter(child => child instanceof Bookmark)
-          .reduce((obj, child) => {
-            obj[child.id] = child
-            return obj
-          }, {})
-      )
+      bookmark: this.children
+        .filter(child => child instanceof Bookmark)
+        .reduce((obj, child) => {
+          obj[child.id] = child
+          return obj
+        }, {})
     }
 
     this.children
