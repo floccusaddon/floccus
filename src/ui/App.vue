@@ -148,5 +148,8 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+body {
+  min-width: 420px;
+}
 </style>
