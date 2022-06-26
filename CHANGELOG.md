@@ -1,5 +1,23 @@
 # Changelog
 
+## v4.16.0
+
+### New
+ - Performance improvements
+ - Improve speed for Nextcloud Bookmarks
+
+### Fixed
+ - SyncProcesses: Remove superfluous awaits that would stall the whole app
+ - a11y: improve syncing icon in browser
+ - ios: Hide status bar
+ - Fix InAppBrowser usage to comply with Apple policies
+ - getFavicon: Load /favicon.ico as a fallback
+ - UX: Remove min-width on #app
+ - Replace merge icon to avoid confusion with sync icon (#1198)
+ - OptionSyncStrategy: Improve wording
+ - Options: Do not show strategy if isBrowser
+ - [native] Fix Alphabetical sorting
+
 ## v4.15.0
 
 ### New
