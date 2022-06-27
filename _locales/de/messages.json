@@ -6,7 +6,7 @@
     "message": "E002: Zu aktualisierendes Lesezeichen existiert nicht"
   },
   "Error003": {
-    "message": "E003: Ordner aus dem herausgeschoben werden soll existiert nicht. Dies ist eine Anomalie. Herzlichen Glückwunsch."
+    "message": "E003: Der Ordner, aus dem herausgeschoben werden soll, existiert nicht. Dies ist eine Anomalie. Herzlichen Glückwunsch."
   },
   "Error004": {
     "message": "E004: Ordner in den verschoben werden soll existiert nicht"
