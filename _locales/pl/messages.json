@@ -216,7 +216,7 @@
     "message": "Scalaj lokalne zmiany ze zmianami z innych przeglądarek (rekomendowane)"
   },
   "LabelStrategyslave": {
-    "message": "Pomijaj lokalne zmiany i pobieraj zmiany z innych przeglądarek"
+    "message": "Cofaj lokalne zmiany i pobieraj zmiany z innych przeglądarek"
   },
   "LabelStrategyoverwrite": {
     "message": "Wysyłaj lokalne zmiany i cofaj zmiany z innych przeglądarek"
