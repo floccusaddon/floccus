@@ -213,13 +213,13 @@
     "message": "Wskaż jak synchronizować zakładki pomiędzy różnymi urządzeniami. Zazwyczaj zachowywane są zmiany ze wszystkich urządzeń, ale czasem możesz chcieć nadpisywać zmiany (także dodawanie i usuwanie) z innych przeglądarek lub te wprowadzone lokalnie."
   },
   "LabelStrategydefault": {
-    "message": "Połącz lokalne i zdalne zmiany (rekomendowane)"
+    "message": "Scalaj lokalne zmiany ze zmianami z innych przeglądarek (rekomendowane)"
   },
   "LabelStrategyslave": {
-    "message": "Priorytet serwera - zdalne dane zawsze nadpisują lokalne zmiany"
+    "message": "Pomijaj lokalne zmiany i pobieraj zmiany z innych przeglądarek"
   },
   "LabelStrategyoverwrite": {
-    "message": "Priorytet przeglądarki -  lokalne zmiany nadpisują dane na serwerze"
+    "message": "Wysyłaj lokalne zmiany i cofaj zmiany z innych przeglądarek"
   },
   "LabelSave": {
     "message": "Zapisz"
