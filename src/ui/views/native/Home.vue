@@ -14,6 +14,7 @@ import Controller from '../../../lib/Controller'
 import packageJson from '../../../../package.json'
 import { Storage } from '@capacitor/storage'
 import { Http } from '@capacitor-community/http'
+import Logger from '../../../lib/Logger'
 
 export default {
   name: 'Home',
@@ -62,12 +63,16 @@ export default {
           [title, , url] = result.text.split('\n', 3)
         } else {
           url = result.text
-          const response = await Http.get({url})
-          const parser = new DOMParser()
-          const document = parser.parseFromString(response.data, 'text/html')
-          const titleElement = document.getElementsByTagName('title')[0]
-          if (titleElement) {
-            title = titleElement.textContent
+          try {
+            const response = await Http.get({ url })
+            const parser = new DOMParser()
+            const document = parser.parseFromString(response.data, 'text/html')
+            const titleElement = document.getElementsByTagName('title')[0]
+            if (titleElement) {
+              title = titleElement.textContent
+            }
+          } catch (e) {
+            Logger.log('Failed to fetch shared URL')
           }
         }
         this.$router.push({
