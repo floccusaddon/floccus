@@ -163,23 +163,22 @@ export const actionsDefinition = {
       commit(mutations.SET_LOGIN_FLOW_STATE, false)
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }
-    let json = res.data, browserWindow
-    try {
-      browserWindow = await window.open(json.login, '_blank', 'toolbar=no,presentationstyle=pagesheet')
-      do {
-        await new Promise(resolve => setTimeout(resolve, 1000))
+    let json = res.data
+    const browserWindow = await window.open(json.login, '_blank', 'toolbar=no,presentationstyle=pagesheet')
+    do {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      try {
         res = await Http.request({
           url: json.poll.endpoint,
           method: 'POST',
           data: {token: json.poll.token},
           headers: {'Content-type': 'application/x-www-form-urlencoded'}
         })
-      } while (res.status === 404 && state.loginFlow.isRunning)
-      commit(mutations.SET_LOGIN_FLOW_STATE, false)
-    } catch (e) {
-      commit(mutations.SET_LOGIN_FLOW_STATE, false)
-      throw e
-    }
+      } catch (e) {
+        res = { status: 404 }
+      }
+    } while ((res.status === 404 || !res.data.appPassword) && state.loginFlow.isRunning)
+    commit(mutations.SET_LOGIN_FLOW_STATE, false)
     if (res.status !== 200) {
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }
