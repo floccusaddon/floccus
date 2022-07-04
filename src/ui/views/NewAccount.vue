@@ -71,7 +71,8 @@
                 :rules="[validateUrl]"
                 :label="t('LabelNextcloudurl')"
                 :loading="isServerTestRunning || isLoginFlowRunning"
-                :error-messages="serverisNotHttps || serverTestError || loginFlowError">
+                :error-messages="serverisNotHttps || serverTestError || loginFlowError"
+                @keydown.enter="testNextcloudServer">
                 <template
                   slot="append-outer">
                   <v-icon
@@ -82,7 +83,10 @@
                   </v-icon>
                 </template>
               </v-text-field>
-              <div class="d-flex flex-row-reverse">
+              <div class="d-flex flex-row justify-space-between">
+                <v-btn @click="currentStep--">
+                  {{ t('LabelBack') }}
+                </v-btn>
                 <v-btn
                   v-if="!serverTestSuccessful"
                   class="primary"
@@ -133,7 +137,10 @@
                 :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassphrase ? 'text' : 'password'"
                 @click:append="showPassphrase = !showPassphrase" />
-              <div class="d-flex flex-row-reverse">
+              <div class="d-flex flex-row justify-space-between">
+                <v-btn @click="currentStep--">
+                  {{ t('LabelBack') }}
+                </v-btn>
                 <v-btn
                   class="primary"
                   @click="testWebdavServer">
@@ -154,6 +161,9 @@
               <p class="mt-1">
                 {{ t('DescriptionLogingoogle') }}
               </p>
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
             </template>
           </v-stepper-content>
 
@@ -214,7 +224,10 @@
               v-if="isBrowser"
               v-model="localRoot" />
 
-            <div class="d-flex flex-row-reverse">
+            <div class="d-flex flex-row justify-space-between">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
               <v-btn
                 :disabled="isBrowser? !localRoot : false"
                 color="primary"
@@ -244,7 +257,10 @@
               v-if="isBrowser"
               v-model="nestedSync" />
 
-            <div class="d-flex flex-row-reverse">
+            <div class="d-flex flex-row justify-space-between">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
               <v-btn
                 color="primary"
                 @click="onCreate()">

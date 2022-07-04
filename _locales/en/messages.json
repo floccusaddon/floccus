@@ -236,6 +236,9 @@
   "LabelRemove": {
     "message": "Remove"
   },
+  "LabelBack": {
+    "message": "Back"
+  },
   "LabelAdapternextcloudfolders": {
     "message": "Nextcloud Bookmarks"
   },
