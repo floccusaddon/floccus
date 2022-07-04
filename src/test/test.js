@@ -4407,7 +4407,10 @@ describe('Floccus', function() {
             const serverTree = await getAllBookmarks(account)
             let windowFolderId, serverMark
             await withSyncConnection(account, async() => {
-              windowFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: ''}))
+              windowFolderId = await adapter.createFolder(new Folder({
+                parentId: serverTree.id,
+                title: 'Window 0'
+              }))
               serverMark = {
                 title: 'Private bookmarks sync - floccus.org',
                 url: 'https://floccus.org/',
@@ -4510,7 +4513,10 @@ describe('Floccus', function() {
             const serverTree = await getAllBookmarks(account)
             let windowFolderId, serverMark, serverMarkId
             await withSyncConnection(account, async() => {
-              windowFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: ''}))
+              windowFolderId = await adapter.createFolder(new Folder({
+                parentId: serverTree.id,
+                title: 'Window 0'
+              }))
               serverMark = {
                 title: 'Private bookmarks sync - floccus.org',
                 url: 'https://floccus.org/',
