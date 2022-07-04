@@ -1,7 +1,7 @@
 <template>
   <v-app
     id="app"
-    :style="appStyle">
+    :style="{ background }">
     <router-view />
   </v-app>
 </template>
@@ -26,10 +26,8 @@ export default {
     secured() {
       return false
     },
-    appStyle() {
-      return {
-        background: this.$vuetify.theme.dark ? '#000' : '#fff'
-      }
+    background() {
+      return this.$vuetify.theme.dark ? '#000' : '#fff'
     }
   },
   async created() {
@@ -49,7 +47,7 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(sage-area-inset-right);
-  background: #fafafa;
+  background: v-bind(background);
 }
 .v-navigation-drawer {
   top: env(safe-area-inset-top) !important;
