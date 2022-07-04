@@ -131,13 +131,15 @@ export const actionsDefinition = {
       throw new Error(browser.i18n.getMessage('LabelLoginFlowError'))
     }
     let json = await res.json()
+    const endpoint = json.poll.endpoint
+    const token = json.poll.token
     await browser.tabs.create({ url: json.login })
     do {
       await new Promise(resolve => setTimeout(resolve, 1000))
       try {
-        res = await fetch(json.poll.endpoint, {
+        res = await fetch(endpoint, {
           method: 'POST',
-          body: `token=${json.poll.token}`,
+          body: `token=${token}`,
           headers: {'Content-type': 'application/x-www-form-urlencoded'},
           redirect: 'manual'
         })
