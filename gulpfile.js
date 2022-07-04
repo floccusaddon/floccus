@@ -29,6 +29,7 @@ try {
   }))
 }
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const VERSION = require('./package.json').version
 const paths = {
   zip: [
@@ -42,6 +43,7 @@ const paths = {
     '!gulpfile.js',
     '!key.pem',
     '!android/**',
+    '!ios/**',
   ],
   views: './html/*.html',
   nativeHTML: './html/index.html',
@@ -114,9 +116,9 @@ const mochacss = function() {
     .pipe(gulp.dest('./dist/css/'))
 }
 
-const android = async function() {
+const native = async function() {
   const execa = (await import('execa')).execa
-  const {stdout} = await execa('node', ['node_modules/.bin/cap', 'sync'])
+  const {stdout} = await execa('cap', ['sync'])
   console.log(stdout)
 }
 
@@ -128,7 +130,7 @@ const assets = gulp.parallel(html, thirdparty, locales, icons)
 
 const build = gulp.parallel(assets, js)
 
-const main = gulp.series(build, android)
+const main = gulp.series(build, native)
 
 const zip = function() {
   return gulp
@@ -170,12 +172,12 @@ const watch = function() {
   let jsWatcher = gulp.watch(paths.js, assets)
   let viewsWatcher = gulp.watch(paths.views, html)
   let localeWatcher = gulp.watch(paths.locales, locales)
-  let androidWatcher = gulp.watch(paths.dist, android)
+  let nativeWatcher = gulp.watch(paths.dist, native)
 
   jsWatcher.on('change', onWatchEvent)
   viewsWatcher.on('change', onWatchEvent)
   localeWatcher.on('change', onWatchEvent)
-  androidWatcher.on('change', onWatchEvent)
+  nativeWatcher.on('change', onWatchEvent)
 
   webpack(devConfig).watch({}, (err, stats) => {
     if (err) {
@@ -188,9 +190,9 @@ const watch = function() {
   })
 }
 
-function onWatchEvent(event) {
+function onWatchEvent(path) {
   console.log(
-    'File ' + event.path + ' was ' + event.type + ', running tasks...'
+    'File ' + path + ' was changed, running tasks...'
   )
 }
 
@@ -203,7 +205,7 @@ exports.watch = gulp.series(main, watch)
 exports.publish = publish
 exports.build = build
 exports.locales = locales
-exports.android = android
+exports.native = native
 /*
  * Define default task that can be called by just running `gulp` from cli
  */
