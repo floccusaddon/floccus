@@ -31,14 +31,8 @@
           :hint="t('DescriptionBookmarksfile')"
           :persistent-hint="true"
           @input="$emit('update:bookmark_file', $event)" />
-        <v-text-field
-          class="mt-2"
-          :label="t('LabelPassphrase')"
-          :hint="t('DescriptionPassphrase')"
-          :persistent-hint="true"
-          :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
-          :type="showPassphrase ? 'text' : 'password'"
-          @click:append="showPassphrase = !showPassphrase"
+        <OptionPassphrase
+          :value="passphrase"
           @input="$emit('update:passphrase', $event)" />
       </v-card-text>
     </v-card>
@@ -137,10 +131,11 @@ import OptionClientCert from './OptionClientCert'
 import OptionAllowRedirects from './OptionAllowRedirects'
 import OptionDownloadLogs from './OptionDownloadLogs'
 import OptionAllowNetwork from './native/OptionAllowNetwork'
+import OptionPassphrase from './OptionPassphrase'
 
 export default {
   name: 'OptionsWebdav',
-  components: { OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
+  components: { OptionPassphrase, OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
   props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects'],
   data() {
     return {
