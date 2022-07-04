@@ -124,9 +124,11 @@ const mocha = gulp.parallel(mochajs, mochacss)
 
 const thirdparty = gulp.parallel(mocha)
 
-const main = gulp.series(html, locales, js, thirdparty, icons, android)
+const assets = gulp.parallel(html, thirdparty, locales, icons)
 
-const dev = gulp.series(html, thirdparty, locales, icons)
+const build = gulp.parallel(assets, js)
+
+const main = gulp.series(build, android)
 
 const zip = function() {
   return gulp
@@ -152,7 +154,7 @@ const crx = function() {
   )
 }
 
-const release = gulp.series(main, zip, xpi, crx)
+const release = gulp.series(main, gulp.parallel(zip, xpi), crx)
 
 const publish = gulp.series(main, zip, function() {
   return webstore
@@ -165,7 +167,7 @@ const publish = gulp.series(main, zip, function() {
 })
 
 const watch = function() {
-  let jsWatcher = gulp.watch(paths.js, dev)
+  let jsWatcher = gulp.watch(paths.js, assets)
   let viewsWatcher = gulp.watch(paths.views, html)
   let localeWatcher = gulp.watch(paths.locales, locales)
   let androidWatcher = gulp.watch(paths.dist, android)
@@ -197,9 +199,9 @@ exports.js = js
 exports.mocha = mocha
 exports.watch = watch
 exports.release = release
-exports.watch = gulp.series(dev, watch)
+exports.watch = gulp.series(main, watch)
 exports.publish = publish
-exports.dev = dev
+exports.build = build
 exports.locales = locales
 exports.android = android
 /*
