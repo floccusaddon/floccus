@@ -227,6 +227,15 @@
   "LabelCancel": {
     "message": "Cancel"
   },
+  "LabelAdd": {
+    "message": "Add"
+  },
+  "LabelChange": {
+    "message": "Change"
+  },
+  "LabelRemove": {
+    "message": "Remove"
+  },
   "LabelAdapternextcloudfolders": {
     "message": "Nextcloud Bookmarks"
   },

@@ -9,15 +9,15 @@
     <template v-if="!editing">
       <template v-if="value">
         <v-btn @click="editing = true; passphrase = value">
-          <v-icon>mdi-pencil-lock</v-icon>Change
+          <v-icon>mdi-pencil-lock</v-icon>{{ t('LabelChange') }}
         </v-btn>
         <v-btn @click="$emit('input', '')">
-          <v-icon>mdi-lock-remove</v-icon>Remove
+          <v-icon>mdi-lock-remove</v-icon>{{ t('LabelRemove') }}
         </v-btn>
       </template>
       <template v-else>
         <v-btn @click="editing = true">
-          <v-icon>mdi-lock-plus</v-icon>Add
+          <v-icon>mdi-lock-plus</v-icon>{{ t('LabelAdd') }}
         </v-btn>
       </template>
     </template>
@@ -33,11 +33,11 @@
         color="primary"
         @click="$emit('input', passphrase); editing = false">
         <v-icon>mdi-check</v-icon>
-        Save passphrase
+        {{ t('LabelSave') }}
       </v-btn>
       <v-btn @click="editing = false">
         <v-icon>mdi-close</v-icon>
-        Cancel
+        {{ t('LabelCancel') }}
       </v-btn>
     </template>
   </div>
