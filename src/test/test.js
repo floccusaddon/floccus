@@ -4387,7 +4387,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: [
                   new Folder({
-                    title: '',
+                    title: 'Window 0',
                     children: [
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test1' }),
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test2' })
@@ -4429,7 +4429,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: [
                   new Folder({
-                    title: '',
+                    title: 'Window 0',
                     children: [
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/' }),
                     ]
@@ -4466,7 +4466,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: [
                   new Folder({
-                    title: '',
+                    title: 'Window 0',
                     children: [
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test1' }),
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test2' })
@@ -4490,7 +4490,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: [
                   new Folder({
-                    title: '',
+                    title: 'Window 0',
                     children: [
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test1' }),
                       new Bookmark({ title: 'Example Domain', url: 'https://example.org/' })
@@ -4532,7 +4532,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: [
                   new Folder({
-                    title: '',
+                    title: 'Window 0',
                     children: [
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/' }),
                     ]
@@ -4568,7 +4568,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: [
                   new Folder({
-                    title: '',
+                    title: 'Window 0',
                     children: [
                       new Bookmark({ title: 'Example Domain', url: 'https://example.org/' }),
                       new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test' }),
