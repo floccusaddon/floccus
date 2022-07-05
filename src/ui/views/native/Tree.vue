@@ -90,8 +90,9 @@
         outlined
         text
         type="warning"
-        class="ma-1"
-        v-text="syncError" />
+        class="ma-1">
+        {{ syncError }}
+      </v-alert>
       <v-progress-linear
         v-if="syncProgress"
         :value="syncProgress * 100 || 0"
@@ -125,7 +126,7 @@
             </v-list-item-avatar>
 
             <v-list-item-content>
-              <v-list-item-title v-text="item.title" />
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
               <v-list-item-subtitle v-if="item.type === 'bookmark'">
                 {{ item.url | hostname }}
               </v-list-item-subtitle>
