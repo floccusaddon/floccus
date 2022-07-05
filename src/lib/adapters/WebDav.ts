@@ -15,10 +15,15 @@ import {
 } from '../../errors/Error'
 import { Http } from '@capacitor-community/http'
 import { Device } from '@capacitor/device'
+import Html from '../serializers/Html'
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
 export default class WebDavAdapter extends CachingAdapter {
+  private lockingInterval: any
+  private locked: boolean
+  private cancelCallback: () => void
+  private initialTreeHash: string
   constructor(server) {
     super(server)
     this.server = server
@@ -33,6 +38,7 @@ export default class WebDavAdapter extends CachingAdapter {
       username: 'bob',
       password: 's3cret',
       bookmark_file: 'bookmarks.xbel',
+      bookmark_file_type: 'xbel',
       includeCredentials: false,
       allowRedirects: false,
       passphrase: '',
@@ -45,7 +51,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   normalizeServerURL(input) {
-    let serverURL = url.parse(input)
+    const serverURL = url.parse(input)
     if (!serverURL.pathname) serverURL.pathname = ''
     return url.format({
       protocol: serverURL.protocol,
@@ -71,7 +77,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async checkLock() {
-    let fullURL = this.getBookmarkLockURL()
+    const fullURL = this.getBookmarkLockURL()
     Logger.log(fullURL)
 
     const response = await this.downloadFile(fullURL)
@@ -117,7 +123,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async setLock() {
-    let fullURL = this.getBookmarkLockURL()
+    const fullURL = this.getBookmarkLockURL()
     Logger.log(fullURL)
     await this.uploadFile(
       fullURL,
@@ -130,9 +136,9 @@ export default class WebDavAdapter extends CachingAdapter {
     if (!this.locked) {
       return
     }
-    let fullUrl = this.getBookmarkLockURL()
+    const fullUrl = this.getBookmarkLockURL()
 
-    let authString = Base64.encode(
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
 
@@ -163,9 +169,9 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async pullFromServer() {
-    let fullUrl = this.getBookmarkURL()
+    const fullUrl = this.getBookmarkURL()
 
-    let response = await this.downloadFile(fullUrl)
+    const response = await this.downloadFile(fullUrl)
 
     if (response.status === 401) {
       throw new AuthenticationError()
@@ -183,28 +189,37 @@ export default class WebDavAdapter extends CachingAdapter {
         try {
           xmlDocText = await Crypto.decryptAES(this.server.passphrase, xmlDocText, this.server.bookmark_file)
         } catch (e) {
-          if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
+          if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>') || xmlDocText.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>')) {
             // not encrypted, yet => noop
           } else {
             throw new DecryptionError()
           }
         }
-      } else if (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
+      } else if (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>') && !xmlDocText.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>')) {
         throw new FileUnreadableError()
       }
 
       /* let's get the highestId */
-      let byNL = xmlDocText.split('\n')
+      const byNL = xmlDocText.split('\n')
       byNL.forEach(line => {
         if (line.indexOf('<!--- highestId :') >= 0) {
-          let idxStart = line.indexOf(':') + 1
-          let idxEnd = line.lastIndexOf(':')
+          const idxStart = line.indexOf(':') + 1
+          const idxEnd = line.lastIndexOf(':')
 
           this.highestId = parseInt(line.substring(idxStart, idxEnd))
         }
       })
 
-      this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
+      switch (this.server.bookmark_file_type) {
+        case 'xbel':
+          this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
+          break
+        case 'html':
+          this.bookmarksCache = Html.deserialize(xmlDocText)
+          break
+        default:
+          throw new Error('Invalid bookmark file type')
+      }
     }
 
     return response
@@ -221,7 +236,7 @@ export default class WebDavAdapter extends CachingAdapter {
       await this.obtainLock()
     }
 
-    let resp = await this.pullFromServer()
+    const resp = await this.pullFromServer()
 
     if (resp.status !== 200) {
       if (resp.status !== 404) {
@@ -254,12 +269,12 @@ export default class WebDavAdapter extends CachingAdapter {
     this.bookmarksCache = this.bookmarksCache.clone()
     const newTreeHash = await this.bookmarksCache.hash(true)
     if (newTreeHash !== this.initialTreeHash) {
-      let fullUrl = this.getBookmarkURL()
-      let xbel = createXBEL(this.bookmarksCache, this.highestId)
+      const fullUrl = this.getBookmarkURL()
+      let xbel = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)
       if (this.server.passphrase) {
         xbel = await Crypto.encryptAES(this.server.passphrase, xbel, this.server.bookmark_file)
       }
-      await this.uploadFile(fullUrl, 'application/xml', xbel)
+      await this.uploadFile(fullUrl, this.server.bookmark_file_type === 'xbel' ? 'application/xml' : 'text/html', xbel)
     } else {
       Logger.log('No changes to the server version necessary')
     }
@@ -277,11 +292,12 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async uploadFileWeb(url, content_type, data) {
-    let authString = Base64.encode(
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
+    let res
     try {
-      var res = await fetch(url,{
+      res = await fetch(url,{
         method: 'PUT',
         headers: {
           'Content-Type': content_type,
@@ -308,11 +324,12 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async uploadFileNative(url, content_type, data) {
-    let authString = Base64.encode(
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
+    let res
     try {
-      var res = await Http.request({
+      res = await Http.request({
         url,
         method: 'PUT',
         headers: {
@@ -344,11 +361,12 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async downloadFileWeb(url) {
-    let authString = Base64.encode(
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
+    let res
     try {
-      var res = await fetch(url,{
+      res = await fetch(url,{
         method: 'GET',
         headers: {
           Authorization: 'Basic ' + authString
@@ -376,7 +394,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async downloadFileNative(fullURL) {
     let res
-    let authString = Base64.encode(
+    const authString = Base64.encode(
       this.server.username + ':' + this.server.password
     )
 
@@ -422,6 +440,23 @@ function createXBEL(rootFolder, highestId) {
 
   output += `
 </xbel>`
+
+  return output
+}
+
+function createHTML(rootFolder, highestId) {
+  let output = `<!DOCTYPE NETSCAPE-Bookmark-file-1>
+<html>`
+
+  output +=
+    '<!--- highestId :' +
+    highestId +
+    `: for Floccus bookmark sync browser extension -->
+`
+
+  output += Html.serialize(rootFolder)
+
+  output += '</html>'
 
   return output
 }

@@ -109,6 +109,21 @@ describe('Floccus', function() {
       ...CREDENTIALS
     },
     {
+      type: 'webdav',
+      url: `${SERVER}/remote.php/webdav/`,
+      bookmark_file: 'bookmarks.html',
+      bookmark_file_type: 'html',
+      ...CREDENTIALS
+    },
+    {
+      type: 'webdav',
+      url: `${SERVER}/remote.php/webdav/`,
+      bookmark_file: 'bookmarks.html',
+      bookmark_file_type: 'html',
+      passphrase: random.float(),
+      ...CREDENTIALS
+    },
+    {
       type: 'google-drive',
       bookmark_file: random.float() + '.xbel',
       password: '',
@@ -6452,13 +6467,11 @@ async function syncAccountWithInterrupts(account) {
 
 function stringifyAccountData(ACCOUNT_DATA) {
   return `${ACCOUNT_DATA.type}${
-    (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs)
-      ? '-old'
-      : ACCOUNT_DATA.noCache
-        ? '-noCache'
-        : ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase))
-          ? '-encrypted'
-          : ''}`
+    (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs ? '-old' : '') +
+    (ACCOUNT_DATA.noCache ? '-noCache' : '') +
+    (typeof ACCOUNT_DATA.bookmark_file_type !== 'undefined' ? '-' + ACCOUNT_DATA.bookmark_file_type : '') +
+    ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase) ? '-encrypted' : '')
+  }`
 }
 
 function awaitTabsUpdated() {
