@@ -8,7 +8,7 @@
     </div>
     <template v-if="!editing">
       <template v-if="value">
-        <v-btn @click="editing = true; passphrase = value">
+        <v-btn @click="editing = true">
           <v-icon>mdi-pencil-lock</v-icon>{{ t('LabelChange') }}
         </v-btn>
         <v-btn @click="$emit('input', '')">
@@ -23,11 +23,11 @@
     </template>
     <template v-else>
       <v-text-field
-        v-model="passphrase"
         class="mt-2"
         :label="t('LabelPassphrase')"
         :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
         :type="showPassphrase ? 'text' : 'password'"
+        @input="passphrase = $event"
         @click:append="showPassphrase = !showPassphrase" />
       <v-btn
         color="primary"
