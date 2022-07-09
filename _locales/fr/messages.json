@@ -213,13 +213,13 @@
     "message": "Cette option détermine comment synchroniser les signets entre différents navigateurs ou appareils. D'habitude, on préfère conserver tous les changements réalisés sur chacun des appareils s'ils sont compatibles, mais parfois vous pouvez choisir d'écraser les changements (ajouts et suppressions) faits sur d'autres appareils (cloud), ou au contraire d'écraser les changements faits sur l'appareil actuel (local)."
   },
   "LabelStrategydefault": {
-    "message": "Fusionner changements locaux et distants (Recommandé)"
+    "message": "Toujours fusionner les changements faits localement avec ceux faits sur d'autres navigateurs (recommandé)"
   },
   "LabelStrategyslave": {
-    "message": "Toujours écraser les changements (ajouts et suppressions) locaux et les remplacer par les changements disponibles sur le cloud."
+    "message": "Toujours annuler les changements faits localement et les remplacer par ceux faits sur d'autres navigateurs"
   },
   "LabelStrategyoverwrite": {
-    "message": "Toujours écraser les changements (ajouts et suppressions) réalisés sur d'autres navigateurs ou appareils, et les remplacer par les changements faits localement."
+    "message": "Toujours téléverser les changements faits localement en annulant ceux faits sur d'autres navigateurs"
   },
   "LabelSave": {
     "message": "Sauvegarder"
