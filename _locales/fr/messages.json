@@ -227,6 +227,18 @@
   "LabelCancel": {
     "message": "Annuler"
   },
+  "LabelAdd": {
+    "message": "Ajouter"
+  },
+  "LabelChange": {
+    "message": "Modifier"
+  },
+  "LabelRemove": {
+    "message": "Supprimer"
+  },
+  "LabelBack": {
+    "message": "Revenir"
+  },
   "LabelAdapternextcloudfolders": {
     "message": "Nextcloud Bookmarks"
   },
@@ -240,10 +252,10 @@
     "message": "Cette ancienne option n'est compatible qu'à partir de la version 0.11 de l'application Bookmarks. Elle émulera des dossiers en utilisant des tags contenant le chemin du dossier. Cette option n'est pas recommandée pour les nouveaux comptes."
   },
   "LabelAdapterwebdav": {
-    "message": "Fichier XBEL dans un serveur WebDAV"
+    "message": "Partage WebDAV"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Synchronise vos signets en les stockant dans un fichier XBEL sur le serveur WebDAV de votre choix. Il n'y a pas d'interface graphique pour cette option et vous pouvez l'utiliser avec n'importe quel serveur WebDAV compatible. Les signets \"http\", \"ftp\", \"data\" et \"javascript\" peuvent être synchronisés."
+    "message": "L'option WebDAV synchronise vos signets en les conservant dans un fichier situé dans le partage WebDAV. Il n'y a pas d'interface graphique pour vous aider à configurer cette option, et vous pouvez l'utiliser avec n'importe quel serveur WebDAV compatible. Elle permet de synchroniser des signets en http, ftp, data, et javascript."
   },
   "LabelAddaccount": {
     "message": "Ajouter un compte"
@@ -617,5 +629,17 @@
   },
   "DescriptionNonhttps": {
     "message": "Vous accédez à un serveur qui utilise un protocole non sécurisé. Il est recommandé de n'utiliser que des serveurs compatibles avec HTTPS"
+  },
+  "LabelFiletype": {
+    "message": "Format du fichier"
+  },
+  "DescriptionFiletype": {
+    "message": "Vous pouvez choisir le format du fichier qui conservera vos signets dans le cloud."
+  },
+  "LabelFiletypehtml": {
+    "message": "HTML, un format ouvert, avec une large compatibilité (experimental)"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL, un format ouvert et simple à utiliser"
   }
 }
