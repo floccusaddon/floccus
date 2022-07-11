@@ -5548,7 +5548,7 @@ describe('Floccus', function() {
           }
         })
 
-        it('should handle fuzzed changes with deletions from two clients with interrupts', async function() {
+        it.skip('should handle fuzzed changes with deletions from two clients with interrupts', async function() {
           if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
             return this.skip()
           }
