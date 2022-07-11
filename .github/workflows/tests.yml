@@ -28,7 +28,7 @@ jobs:
       matrix:
         node-version: [14.x]
         npm-version: [7.x]
-        server-version: ['20']
+        server-version: ['22']
         app-version: ['stable']
         selenium-version: ['3']
         floccus-adapter:
