@@ -61,13 +61,6 @@ jobs:
             node-version: 14.x
             npm-version: 7.x
           - app-version: stable3
-            server-version: 18
-            floccus-adapter: nextcloud-bookmarks
-            test-name: test
-            browsers: firefox
-            node-version: 14.x
-            npm-version: 7.x
-          - app-version: stable3
             server-version: 19
             floccus-adapter: nextcloud-bookmarks
             test-name: test
@@ -76,6 +69,13 @@ jobs:
             npm-version: 7.x
           - app-version: stable4
             server-version: 20
+            floccus-adapter: nextcloud-bookmarks
+            test-name: test
+            browsers: firefox
+            node-version: 14.x
+            npm-version: 7.x
+          - app-version: stable10
+            server-version: 22
             floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: firefox
