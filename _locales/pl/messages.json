@@ -227,6 +227,18 @@
   "LabelCancel": {
     "message": "Anuluj"
   },
+  "LabelAdd": {
+    "message": "Dodaj"
+  },
+  "LabelChange": {
+    "message": "Zmień"
+  },
+  "LabelRemove": {
+    "message": "Usuń"
+  },
+  "LabelBack": {
+    "message": "Wstecz"
+  },
   "LabelAdapternextcloudfolders": {
     "message": "Zakładki Nextcloud"
   },
@@ -240,10 +252,10 @@
     "message": "Umożliwia działanie ze starszą wersją - conajmniej v0.11 - aplikacji Zakładki. W tym trybie emulowane są foldery przy użyciu tagów zawierających ścieżki folderów. Nie jest zalecane używanie tego z nowymi kontami."
   },
   "LabelAdapterwebdav": {
-    "message": "Plik XBEL w udziale WebDAV"
+    "message": "Udział WebDAV"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Metoda synchronizacji zakładek przy użyciu pliku XBEL znajdującego się na serwerze WebDAV. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem zgodnym z WebDAV.  Można synchronizować zakładki typu http, ftp, data, javascript.  "
+    "message": "Metoda synchronizacji zakładek przy użyciu pliku XBEL znajdującego się na serwerze WebDAV. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem zgodnym z WebDAV. Można synchronizować zakładki typu http, ftp, data, javascript"
   },
   "LabelAddaccount": {
     "message": "Dodaj konto"
@@ -617,5 +629,17 @@
   },
   "DescriptionNonhttps": {
     "message": "Wskazany serwer nie szyfruje połączeń. Rekomendujemy korzystać wyłącznie z serwerów obsługujących protokół HTTPS."
+  },
+  "LabelFiletype": {
+    "message": "Format pliku"
+  },
+  "DescriptionFiletype": {
+    "message": "Możesz wybrać format pliku, w którym chcesz przechowywać zakładki na serwerze."
+  },
+  "LabelFiletypehtml": {
+    "message": "HTTP, szeroko wspierany, otwarty format (eksperymentalnie)"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL, prosty, otwarty format"
   }
 }
