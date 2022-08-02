@@ -371,6 +371,7 @@ export default class WebDavAdapter extends CachingAdapter {
         headers: {
           Authorization: 'Basic ' + authString
         },
+        cache: 'no-store',
         credentials: 'omit',
         ...(!this.server.allowRedirects && {redirect: 'manual'})
       })
@@ -403,7 +404,9 @@ export default class WebDavAdapter extends CachingAdapter {
         url: fullURL,
         method: 'GET',
         headers: {
-          Authorization: 'Basic ' + authString
+          Authorization: 'Basic ' + authString,
+          Pragma: 'no-cache',
+          'Cache-Control': 'no-cache'
         },
         responseType: 'text'
       })
