@@ -128,7 +128,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
   static async getAccessToken(refreshToken:string) {
     const {platform} = await Device.getInfo()
-    const credentialType = platform === 'web' ? 'web' : 'installed'
+    const credentialType = platform
 
     const response = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
