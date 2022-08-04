@@ -20,9 +20,14 @@ const OAuthConfig = {
   resourceUrl: 'https://www.googleapis.com/drive/v3/about?fields=user/displayName',
   logsEnabled: true,
   android: {
-    appId: Credentials.installed.client_id,
+    appId: Credentials.android.client_id,
     responseType: 'code', // if you configured a android app in google dev console the value must be "code"
     redirectUrl: 'org.handmadeideas.floccus:/' // package name from google dev console
+  },
+  ios: {
+    appId: Credentials.ios.client_id,
+    responseType: 'code',
+    redirectUrl: 'org.handmadeideas.floccus:/'
   }
 }
 
