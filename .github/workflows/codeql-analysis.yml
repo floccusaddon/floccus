@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'java', 'javascript' ]
+        language: [ 'javascript' ]
         node-versions: [14.x]
         npm-versions: [8.x]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
@@ -62,16 +62,6 @@ jobs:
 
     - name: Set up npm ${{ matrix.npm-version }}
       run: npm i -g npm@"${{ matrix.npm-version }}"
-
-    # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
-    # If this step fails, then you should remove it and run the build manually (see below)
-    - name: Build
-      run: |
-        npm ci
-        npm run build
-        cd android
-        chmod +x gradlew
-        ./gradlew assemble
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
