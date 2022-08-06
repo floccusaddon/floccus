@@ -343,7 +343,8 @@ export default class GoogleDriveAdapter extends CachingAdapter {
           ...(this.accessToken && {Authorization: 'Bearer ' + this.accessToken}),
           ...(contentType && {'Content-type': contentType}),
         },
-        responseType: 'text'
+        responseType: 'text',
+        ...(body && {data: body})
       })
     } catch (e) {
       Logger.log('Error Caught')
