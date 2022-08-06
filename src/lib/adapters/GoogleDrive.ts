@@ -12,6 +12,7 @@ import {
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
 import { Device } from '@capacitor/device'
+import { Http } from '@capacitor-community/http'
 
 const OAuthConfig = {
   authorizationBaseUrl: 'https://accounts.google.com/o/oauth2/auth',
@@ -29,6 +30,12 @@ const OAuthConfig = {
     responseType: 'code',
     redirectUrl: 'org.handmadeideas.floccus:/'
   }
+}
+
+interface CustomResponse {
+  status: number,
+  json(): Promise<any>,
+  text(): Promise<string>,
 }
 
 declare const chrome: any
@@ -126,20 +133,17 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     return { refresh_token: json.refresh_token, username: about.user.displayName }
   }
 
-  static async getAccessToken(refreshToken:string) {
+  async getAccessToken(refreshToken:string) {
     const {platform} = await Device.getInfo()
     const credentialType = platform
 
-    const response = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: `refresh_token=${refreshToken}&` +
+    const response = await this.request('POST' , 'https://oauth2.googleapis.com/token',
+      `refresh_token=${refreshToken}&` +
         `client_id=${Credentials[credentialType].client_id}&` +
         (credentialType === 'web' ? `client_secret=${Credentials.web.client_secret}&` : '') +
-        `grant_type=refresh_token`
-    })
+        `grant_type=refresh_token`,
+      'application/x-www-form-urlencoded'
+    )
 
     if (response.status !== 200) {
       throw new GoogleDriveAuthenticationError()
@@ -182,7 +186,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   async onSyncStart() {
     Logger.log('onSyncStart: begin')
 
-    this.accessToken = await GoogleDriveAdapter.getAccessToken(this.server.refreshToken)
+    this.accessToken = await this.getAccessToken(this.server.refreshToken)
 
     let file
     let startDate = Date.now()
@@ -296,13 +300,26 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     this.cancelCallback && this.cancelCallback()
   }
 
-  async listFiles(query: string) : Promise<any> {
+  async request(method: string, url: string, body: any = null, contentType: string = null) : Promise<CustomResponse> {
+    const info = await Device.getInfo()
+    if (info.platform === 'web') {
+      return this.requestWeb(method, url, body, contentType)
+    } else {
+      return this.requestNative(method, url, body, contentType)
+    }
+  }
+
+  async requestWeb(method: string, url: string, body: any = null, contentType: string = null) : Promise<CustomResponse> {
     let resp
     try {
-      resp = await fetch(this.getUrl() + '/files?corpora=user&q=' + query, {
+      resp = await fetch(url, {
+        method,
+        credentials: 'omit',
         headers: {
-          Authorization: 'Bearer ' + this.accessToken
-        }
+          ...(this.accessToken && {Authorization: 'Bearer ' + this.accessToken}),
+          ...(contentType && {'Content-type': contentType})
+        },
+        ...(body && {body}),
       })
     } catch (e) {
       Logger.log('Error Caught')
@@ -312,89 +329,70 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     if (resp.status === 401 || resp.status === 403) {
       throw new AuthenticationError()
     }
-    return resp.json()
+    return resp
+  }
+
+  async requestNative(method: string, url: string, body: any = null, contentType: string = null) : Promise<CustomResponse> {
+    let res
+
+    try {
+      res = await Http.request({
+        url,
+        method,
+        headers: {
+          ...(this.accessToken && {Authorization: 'Bearer ' + this.accessToken}),
+          ...(contentType && {'Content-type': contentType}),
+        },
+        responseType: 'text'
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      throw new NetworkError()
+    }
+
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+
+    return {
+      status: res.status,
+      json: () => Promise.resolve(JSON.parse(res.data)),
+      text: () => Promise.resolve(res.data),
+    }
+  }
+
+  async listFiles(query: string) : Promise<any> {
+    const res = await this.request('GET', this.getUrl() + '/files?corpora=user&q=' + query)
+    return res.json()
   }
 
   async getFileMetadata(id: string, fields?:string): Promise<any> {
-    let resp
-    try {
-      resp = await fetch(this.getUrl() + '/files/' + id + (fields ? `?fields=${fields}` : ''), {
-        headers: {
-          Authorization: 'Bearer ' + this.accessToken
-        }
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-      throw new NetworkError()
-    }
-    if (resp.status === 401 || resp.status === 403) {
-      throw new AuthenticationError()
-    }
-    return resp.json()
+    const res = await this.request('GET', this.getUrl() + '/files/' + id + (fields ? `?fields=${fields}` : ''))
+    return res.json()
   }
 
   async downloadFile(id: string): Promise<string> {
-    let resp
-    try {
-      resp = await fetch(this.getUrl() + '/files/' + id + '?alt=media', {
-        headers: {
-          Authorization: 'Bearer ' + this.accessToken
-        }
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-      throw new NetworkError()
-    }
-    if (resp.status === 401 || resp.status === 403) {
-      throw new AuthenticationError()
-    }
-    return resp.text()
+    const res = await this.request('GET', this.getUrl() + '/files/' + id + '?alt=media')
+    return res.text()
   }
 
   async deleteFile(id: string): Promise<void> {
-    let resp
-    try {
-      resp = await fetch(this.getUrl() + '/files/' + id, {
-        method: 'DELETE',
-        headers: {
-          Authorization: 'Bearer ' + this.accessToken
-        }
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-      throw new NetworkError()
-    }
-    if (resp.status === 401 || resp.status === 403) {
-      throw new AuthenticationError()
-    }
+    await this.request('DELETE', this.getUrl() + '/files/' + id)
   }
 
   async freeLock(id:string) {
     let lockFreed, i = 0
     do {
-      let resp
-      try {
-        resp = await fetch(this.getUrl() + '/files/' + id,{
-          method: 'PATCH',
-          credentials: 'omit',
-          body: JSON.stringify({appProperties: {locked: JSON.stringify(false)}}),
-          headers: {
-            Authorization: 'Bearer ' + this.accessToken,
-            'Content-type': 'application/json',
+      const res = await this.request('PATCH', this.getUrl() + '/files/' + id,
+        JSON.stringify({
+          appProperties: {
+            locked: JSON.stringify(false)
           }
-        })
-      } catch (e) {
-        Logger.log('Error Caught')
-        Logger.log(e)
-        throw new NetworkError()
-      }
-      if (resp.status === 401 || resp.status === 403) {
-        throw new AuthenticationError()
-      }
-      lockFreed = resp.status === 200 || resp.status === 204
+        }),
+        'application/json'
+      )
+      lockFreed = res.status === 200 || res.status === 204
       if (!lockFreed) {
         await this.timeout(1000)
       }
@@ -404,95 +402,34 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   async setLock(id:string) {
-    let resp
-    try {
-      resp = await fetch(this.getUrl() + '/files/' + id,{
-        method: 'PATCH',
-        credentials: 'omit',
-        body: JSON.stringify({appProperties: {locked: JSON.stringify(Date.now())}}),
-        headers: {
-          Authorization: 'Bearer ' + this.accessToken,
-          'Content-type': 'application/json',
+    const res = await this.request('PATCH', this.getUrl() + '/files/' + id,
+      JSON.stringify({
+        appProperties: {
+          locked: JSON.stringify(Date.now())
         }
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-      throw new NetworkError()
-    }
-    if (resp.status === 401 || resp.status === 403) {
-      throw new AuthenticationError()
-    }
-    return resp.status === 200
+      }),
+      'application/json'
+    )
+    return res.status === 200
   }
 
   async createFile(xbel: string) {
-    let resp
-    try {
-      resp = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=media',{
-        method: 'POST',
-        credentials: 'omit',
-        body: xbel,
-        headers: {
-          'Content-Type': 'application/xml',
-          Authorization: 'Bearer ' + this.accessToken,
-        },
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-      throw new NetworkError()
-    }
-    if (resp.status === 401 || resp.status === 403) {
-      throw new AuthenticationError()
-    }
-    if (resp.status !== 200 && resp.status !== 201) {
+    let res = await this.request('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=media', xbel, 'application/xml')
+    if (res.status !== 200 && res.status !== 201) {
       return false
     }
-    const file = await resp.json()
+    const file = await res.json()
     this.fileId = file.id
 
-    try {
-      resp = await fetch(this.getUrl() + '/files/' + this.fileId,{
-        method: 'PATCH',
-        credentials: 'omit',
-        body: JSON.stringify({name: this.server.bookmark_file}),
-        headers: {
-          Authorization: 'Bearer ' + this.accessToken,
-          'Content-type': 'application/json',
-        }
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-      throw new NetworkError()
-    }
-    if (resp.status === 401 || resp.status === 403) {
-      throw new AuthenticationError()
-    }
-    return resp.status === 200
+    res = await this.request('PATCH', this.getUrl() + '/files/' + this.fileId,
+      JSON.stringify({name: this.server.bookmark_file}),
+      'application/json'
+    )
+    return res.status === 200
   }
 
   async uploadFile(id:string, xbel: string) {
-    let resp
-    try {
-      resp = await fetch('https://www.googleapis.com/upload/drive/v3/files/' + id,{
-        method: 'PATCH',
-        credentials: 'omit',
-        body: xbel,
-        headers: {
-          'Content-Type': 'application/xml',
-          Authorization: 'Bearer ' + this.accessToken,
-        },
-      })
-    } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
-      throw new NetworkError()
-    }
-    if (resp.status === 401 || resp.status === 403) {
-      throw new AuthenticationError()
-    }
+    const resp = await this.request('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/' + id, xbel, 'application/xml')
     return resp.status === 200
   }
 }
