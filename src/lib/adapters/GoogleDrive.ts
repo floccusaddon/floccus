@@ -137,7 +137,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     const {platform} = await Device.getInfo()
     const credentialType = platform
 
-    const response = await this.request('POST' , 'https://oauth2.googleapis.com/token',
+    const response = await this.request('POST', 'https://oauth2.googleapis.com/token',
       `refresh_token=${refreshToken}&` +
         `client_id=${Credentials[credentialType].client_id}&` +
         (credentialType === 'web' ? `client_secret=${Credentials.web.client_secret}&` : '') +
@@ -364,12 +364,12 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   async listFiles(query: string) : Promise<any> {
-    const res = await this.request('GET', this.getUrl() + '/files?corpora=user&q=' + query)
+    const res = await this.request('GET', this.getUrl() + '/files?corpora=user&q=' + encodeURIComponent(query))
     return res.json()
   }
 
   async getFileMetadata(id: string, fields?:string): Promise<any> {
-    const res = await this.request('GET', this.getUrl() + '/files/' + id + (fields ? `?fields=${fields}` : ''))
+    const res = await this.request('GET', this.getUrl() + '/files/' + id + (fields ? `?fields=${encodeURIComponent(fields)}` : ''))
     return res.json()
   }
 
