@@ -358,7 +358,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     return {
       status: res.status,
-      json: () => Promise.resolve(JSON.parse(res.data)),
+      json: () => Promise.resolve(res.data),
       text: () => Promise.resolve(res.data),
     }
   }
