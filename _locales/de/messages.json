@@ -126,7 +126,7 @@
    "message": "Der Dateiname der Lesezeichen-Datei, die in Ihrem Google Drive gespeichert wird (stellen Sie sicher, dass der Dateiname in Google Drive einzigartig ist)"
  },
   "LabelServerfolder": {
-    "message": "Server Ordner"
+    "message": "Server-Ordner"
   },
   "DescriptionServerfolder": {
     "message": "Das Pfad-Präfix unter welchem dieses Konto auf dem Server agiert. Wenn Sie z.B. '/arbeit' eingeben, werden alle Lesezeichen auf dem Server mit diesem Pfad als Präfix zu ihrem eigentlichen Pfad angelegt. Dies erlaubt Ihnen Ihre Lesezeichen auf dem Server in verschiedene Profile aufzuteilen. Lassen Sie dieses Feld leer, um kein Präfix zu setzen."
