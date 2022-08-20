@@ -493,7 +493,7 @@
     "message": "Erlaube Weiterleitungen in der Server URL"
   },
   "DescriptionAllowredirects": {
-    "message": "Aktivieren Sie diese Option, falls sie WEiterleitungs-Fehler während dem Synchronisieren bekommen, die Sie für unberechtigt halten."
+    "message": "Aktivieren Sie diese Option, falls sie Weiterleitungs-Fehler während dem Synchronisieren bekommen, die Sie für unberechtigt halten."
   },
   "LabelSearch": {
     "message": "Lesezeichen suchen"
