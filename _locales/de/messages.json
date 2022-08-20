@@ -90,7 +90,7 @@
     "message": "E030: Entschlüsseln der Lesezeichendateij fehlgeschlagen. Die Passphrase könnte falsch sein oder die Datei könnte beschädigt sein."
   },
   "Error031": {
-    "message": "E031: Authentifizierung mit Google Drive fehlgeschlagen. Bitte verbinden Sie floccus noch einmal mit Ihrem Google Account\nCould not authenticate with Google Drive. Please connect floccus with your google account again."
+    "message": "E031: Authentifizierung mit Google Drive fehlgeschlagen. Bitte verbinden Sie Floccus noch einmal mit Ihrem Google Account\nCould not authenticate with Google Drive. Please connect Floccus with your google account again."
   },
   "Error032": {
     "message": "E032: OAuth-Fehler. Tokenvalidierungsfehler. Bitte verbinden Sie sich erneut mit ihren Google Account."
@@ -273,7 +273,7 @@
     "message": "Unbenannter Ordner"
   },
   "LabelSetkey": {
-    "message": "Passphrase für floccus einstellen"
+    "message": "Passphrase für Floccus einstellen"
   },
   "DescriptionSetkey": {
     "message": "Wenn Sie ein Passwort für Floccus setzen, müssen Sie dieses immer beim Browser-Start eingeben, bevor Sie Ihre Lesezeichen synchronisieren oder generell Floccus benutzen können."
@@ -340,7 +340,7 @@
     "message": "Floccus wurde aktualisiert"
   },
   "DescriptionUpdated": {
-    "message": "Glückwunsch, das aktuellste floccus-Update befindet sich auf Ihrem Rechner! 🎉"
+    "message": "Glückwunsch, das aktuellste Floccus-Update befindet sich auf Ihrem Rechner! 🎉"
   },
   "LabelReleaseNotes": {
     "message": "Release-Notes lesen"
@@ -442,7 +442,7 @@
     "message": "Führe lokale Änderungen mit denen von anderen Browsern zusammen"
   },
   "DescriptionFilesPermission": {
-    "message": "Stellen Sie sicher, dass floccus sowohl ausreichende Berechtigungen für die Nutzung der Lesezeichen App, als auch für die Nexcloud Files App hat."
+    "message": "Stellen Sie sicher, dass Floccus sowohl ausreichende Berechtigungen für die Nutzung der Lesezeichen App, als auch für die Nexcloud Files App hat."
   },
   "DescriptionExtension": {
     "message": "Synchronisiert Lesezeichen vertraulich zwischen Browsern und Geräten"
@@ -451,7 +451,7 @@
     "message": "Löschsicherung"
   },
   "DescriptionFailsafe": {
-    "message": "Manchmal können Konfigurationsfehler oder Programmfehler zur unerwünschte Löschung von Daten führen, die dann verloren sind. Um dies zu verhindern, wird floccus nicht mehr als 50% Ihrer Lesezeichen in einem Schritt löschen, solange sie diese Löschsicherung nicht hier ausschalten."
+    "message": "Manchmal können Konfigurationsfehler oder Programmfehler zur unerwünschte Löschung von Daten führen, die dann verloren sind. Um dies zu verhindern, wird Floccus nicht mehr als 50% Ihrer Lesezeichen in einem Schritt löschen, solange sie diese Löschsicherung nicht hier ausschalten."
   },
   "LabelFailsafeon": {
     "message": "Eingeschaltet. Lösche nicht mehr als 50% meiner lokalen Lesezeichen ohne mich vorher zu fragen. (Empfohlen)"
