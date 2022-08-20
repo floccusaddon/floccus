@@ -126,7 +126,7 @@
    "message": "Der Dateiname der Lesezeichen-Datei, die in Ihrem Google Drive gespeichert wird (stellen Sie sicher, dass der Dateiname in Google Drive einzigartig ist)"
  },
   "LabelServerfolder": {
-    "message": "Server-Ordner"
+    "message": "Server Ordner"
   },
   "DescriptionServerfolder": {
     "message": "Das Pfad-Präfix unter welchem dieses Konto auf dem Server agiert. Wenn Sie z.B. '/arbeit' eingeben, werden alle Lesezeichen auf dem Server mit diesem Pfad als Präfix zu ihrem eigentlichen Pfad angelegt. Dies erlaubt Ihnen Ihre Lesezeichen auf dem Server in verschiedene Profile aufzuteilen. Lassen Sie dieses Feld leer, um kein Präfix zu setzen."
@@ -227,18 +227,6 @@
   "LabelCancel": {
     "message": "Abbrechen"
   },
-  "LabelAdd": {
-    "message": "hinzufügen"
-  },
-  "LabelChange": {
-    "message": "Ändern"
-  },
-  "LabelRemove": {
-    "message": "Entfernen"
-  },
-  "LabelBack": {
-    "message": "Zurück"
-  },
   "LabelAdapternextcloudfolders": {
     "message": "Nextcloud Bookmarks"
   },
@@ -252,10 +240,10 @@
     "message": "Die Option Alte Version ist kompatibel mit mindestens Version v0.11 der Bookmarks app. Dabei werden Ordner mittels Tags simuliert, die den Ordner-Pfad enthalten. Es wird nicht empfohlen, diese Option für neue Konten zu verwenden."
   },
   "LabelAdapterwebdav": {
-    "message": "WebDaV-Freigabe"
+    "message": "XBEL-Datei im WebDAV-Share"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Die WebDAV-Option synchronisiert die Lesezeichen in einer Datei in der angegebenen WebDAV-Freigabe. Es gibt keine Weboberfläche für diese Option und sie kann mit jedem WebDAB-kompatiblen Server genutzt werden. Sie kann http, ftp, Daten und Javascript-Lesezeichen synchronisieren."
+    "message": "Die WebDAV-Option synchronisiert Ihre Lesezeichen indem sie in einer XBEL-Datei im angegebenen WebDAV-Share gespeichert werden. Es gibt dafür kein entsprechendes Web Interface, aber die Option funktioniert mit jedem WebDAV-kompatiblen Server."
   },
   "LabelAddaccount": {
     "message": "Konto hinzufügen"
@@ -629,17 +617,5 @@
   },
   "DescriptionNonhttps": {
     "message": "Sie haben einen Server angegeben, der ein unsicheres Protokoll benutzt. Es wird empfohlen nur Server zu benutzen, die HTTPS unterstützen."
-  },
-  "LabelFiletype": {
-    "message": "Dateiformat"
-  },
-  "DescriptionFiletype": {
-    "message": "Wählen Sie welches Dateiformat Sie benötigen, um Lesezeichen in der Cloud zu speichern."
-  },
-  "LabelFiletypehtml": {
-    "message": "HTML, ein weit verbreitetes offenes Format (experimentell)"
-  },
-  "LabelFiletypexbel": {
-    "message": "XBEL, ein einfaches offenes Format"
   }
 }
