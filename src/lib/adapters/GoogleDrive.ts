@@ -138,10 +138,12 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     const credentialType = platform
 
     const response = await this.request('POST', 'https://oauth2.googleapis.com/token',
-      `refresh_token=${refreshToken}&` +
-        `client_id=${Credentials[credentialType].client_id}&` +
-        (credentialType === 'web' ? `client_secret=${Credentials.web.client_secret}&` : '') +
-        `grant_type=refresh_token`,
+      {
+        refresh_token: refreshToken,
+        client_id: Credentials[credentialType].client_id,
+        ...(credentialType === 'web' && {client_secret: Credentials.web.client_secret}),
+        grant_type: 'refresh_token',
+      },
       'application/x-www-form-urlencoded'
     )
 
@@ -301,12 +303,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   async request(method: string, url: string, body: any = null, contentType: string = null) : Promise<CustomResponse> {
-    const info = await Device.getInfo()
-    if (info.platform === 'web') {
-      return this.requestWeb(method, url, body, contentType)
-    } else {
-      return this.requestNative(method, url, body, contentType)
-    }
+    return this.requestNative(method, url, body, contentType)
   }
 
   async requestWeb(method: string, url: string, body: any = null, contentType: string = null) : Promise<CustomResponse> {
