@@ -303,12 +303,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   async request(method: string, url: string, body: any = null, contentType: string = null) : Promise<CustomResponse> {
-    const info = await Device.getInfo()
-    if (info.platform === 'web') {
-      return this.requestWeb(method, url, body, contentType)
-    } else {
-      return this.requestNative(method, url, body, contentType)
-    }
+    return this.requestNative(method, url, body, contentType)
   }
 
   async requestWeb(method: string, url: string, body: any = null, contentType: string = null) : Promise<CustomResponse> {
