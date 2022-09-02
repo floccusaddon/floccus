@@ -356,6 +356,7 @@ export default {
         enabled: this.enabled,
         ...(this.adapter === 'nextcloud-bookmarks' && {serverRoot: this.serverRoot}),
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive') && {bookmark_file: this.bookmark_file}),
+        ...((this.adapter === 'webdav' || this.adapter === 'google-drive') && {bookmark_file_type: this.bookmark_file_type}),
         ...(this.adapter === 'google-drive' && {refreshToken: this.refreshToken}),
         ...(this.passphrase && {passphrase: this.passphrase}),
         ...(this.isBrowser && {localRoot: this.localRoot}),
