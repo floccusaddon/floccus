@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.17.1
+
+### Fixed
+ - Fix selecting HTML at setup (#1247)
+ - Fix Google Drive on native (#1246)
+
 ## v4.17.0
 
 ### New
