@@ -100,8 +100,12 @@ export default class WebDavAdapter extends CachingAdapter {
       res = await this.checkLock()
       if (res.status === 200) {
         if (res.headers['Last-Modified']) {
-          const date = new Date(res.headers['Last-Modified'])
-          startDate = date.valueOf()
+          const lastModifiedMs = new Date(res.headers['Last-Modified']).valueOf()
+          // if lastModifiedMs is greater than startDate, the lock file has been updated by someone else, reset the timeout logic
+          if (lastModifiedMs > startDate) {
+            startDate = lastModifiedMs
+            i = 0;
+          }
         }
         await this.timeout(base ** i * 1000)
       } else if (res.status !== 200) {
