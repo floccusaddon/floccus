@@ -112,7 +112,7 @@ export const actionsDefinition = {
       }
     })
     if (res.status < 200 || res.status > 299) {
-      throw new Error('Could not connect to server: ' + res.status)
+      throw new Error('Could not connect to your webdav server at the specified URL. The server responded with HTTP status ' + res.status + ' to a PROPFIND request with Basic Auth on the URL you entered.')
     }
     return true
   },
