@@ -81,7 +81,6 @@
       </v-card-title>
       <v-card-text>
         <OptionSyncInterval
-          v-if="isBrowser"
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
         <OptionSyncStrategy

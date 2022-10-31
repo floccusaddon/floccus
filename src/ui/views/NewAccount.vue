@@ -252,7 +252,7 @@
               dense
               class="mt-0 pt-0" />
             <OptionSyncInterval
-              v-if="isBrowser && enabled"
+              v-if="enabled"
               v-model="syncInterval" />
             <OptionSyncStrategy
               v-model="strategy" />
