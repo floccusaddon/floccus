@@ -52,7 +52,7 @@
     "gulp-tap": "^1.0.1",
     "gulp-zip": "^5.0.2",
     "json-loader": "^0.5.7",
-    "mocha": "^8.2.1",
+    "mocha": "^10.1.0",
     "node-fetch": "^2.6.1",
     "prettier": "^2.2.1",
     "sass": "~1.32",
