@@ -5,6 +5,7 @@
   "scripts": {
     "build": "gulp",
     "build-release": "gulp release",
+    "watch": "gulp watch",
     "test": "node --unhandled-rejections=strict test/selenium-runner.js"
   },
   "repository": {
@@ -44,7 +45,6 @@
     "eslint-plugin-standard": "^4.1.0",
     "eslint-plugin-vue": "9.x.x",
     "execa": "^6.1.0",
-    "fibers": "^5.0.0",
     "file-loader": "^6.2.0",
     "gist-client": "^1.1.1",
     "gulp": "^4",
