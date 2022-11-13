@@ -12,10 +12,10 @@ module.exports = {
     ),
     options: path.join(__dirname, 'src', 'entries', 'options.js'),
     test: path.join(__dirname, 'src', 'entries', 'test.js'),
-    native: path.join(__dirname, 'src', 'entries', 'native.js')
+    native: path.join(__dirname, 'src', 'entries', 'native.js'),
   },
   optimization: {
-    splitChunks: { chunks: 'async' }
+    splitChunks: { chunks: 'async' },
   },
   output: {
     path: path.resolve(__dirname, 'dist', 'js'),
@@ -45,7 +45,7 @@ module.exports = {
             options: {
               implementation: require('sass'),
               sassOptions: {
-                fiber: require('fibers'),
+                fiber: false,
                 indentedSyntax: true, // optional
               },
             },
@@ -73,7 +73,7 @@ module.exports = {
                 '@babel/preset-env',
                 {
                   useBuiltIns: 'usage',
-                  corejs: {version: '3.19', proposals: true},
+                  corejs: { version: '3.19', proposals: true },
                   shippedProposals: true,
                 },
               ],
