@@ -48,7 +48,7 @@ export default class Scanner {
       }
     }
 
-    if (oldFolder.title !== newFolder.title && oldFolder.parentId && newFolder.parentId) {
+    if (oldFolder.title !== newFolder.title && typeof oldFolder.parentId !== 'undefined' && typeof newFolder.parentId !== 'undefined') {
       // folder title changed and it's not the root folder
       this.diff.commit({type: ActionType.UPDATE, payload: newFolder, oldItem: oldFolder})
     }
