@@ -70,7 +70,7 @@ export default class Mappings {
       return this.remove(mappings, { remoteId })
     }
 
-    if (localId) {
+    if (typeof localId !== 'undefined') {
       delete mappings.ServerToLocal[mappings.LocalToServer[localId]]
       delete mappings.LocalToServer[localId]
     } else {
