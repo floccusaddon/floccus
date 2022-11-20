@@ -59,10 +59,11 @@ export default {
       if (result.text) {
         console.log(result.text)
         let url, title
-        if (result.text.includes('\n')) {
-          [title, , url] = result.text.split('\n', 3)
-        } else {
-          url = result.text
+        const match = result.text.match(/https?:\/\/\S*/i)
+        url = match[0]
+        title = result.text.substring(0, match.index) + result.text.substring(match.index + match[0].length)
+        title = title.replace('\n', ' ').trim()
+        if (!title) {
           try {
             const response = await Http.get({ url })
             const parser = new DOMParser()
