@@ -1,6 +1,5 @@
 <template>
   <div
-    v-touch="{down: () => onSwipeDown()}"
     style="height:100%">
     <Drawer :visible.sync="drawer" />
     <v-app-bar
@@ -493,11 +492,6 @@ export default {
       this.currentAccount.data.syncing = 0.0001 // faaast
       this.$store.dispatch(actions.TRIGGER_SYNC, this.id)
     },
-    onSwipeDown() {
-      if (window.scrollY === 0) {
-        this.onTriggerSync()
-      }
-    }
   }
 }
 </script>
