@@ -52,7 +52,6 @@
                 {{ t('LabelContinue') }}
               </v-btn>
               <v-btn
-                v-if="isBrowser"
                 :to="{ name: 'IMPORTEXPORT' }"
                 class="mr-2">
                 <v-icon>mdi-export</v-icon>
