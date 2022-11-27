@@ -641,5 +641,11 @@
   },
   "LabelFiletypexbel": {
     "message": "XBEL, a simple, open format"
+  },
+  "LabelImportbookmarks": {
+    "message": "Import bookmarks"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "Import a HTML file containing bookmarks into the current folder"
   }
 }

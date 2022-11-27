@@ -3,8 +3,9 @@ import { Bookmark, Folder, ItemLocation } from '../Tree'
 import Ordering from '../interfaces/Ordering'
 import CachingAdapter from '../adapters/Caching'
 import IAccountStorage from '../interfaces/AccountStorage'
+import { BulkImportResource } from '../interfaces/Resource'
 
-export default class NativeTree extends CachingAdapter {
+export default class NativeTree extends CachingAdapter implements BulkImportResource {
   private tree: Folder
   private storage: IAccountStorage
   private readonly accountId: string
@@ -78,5 +79,19 @@ export default class NativeTree extends CachingAdapter {
   async removeFolder(folder:Folder):Promise<void> {
     this.triggerSave()
     return super.removeFolder(folder)
+  }
+
+  async bulkImportFolder(id: number|string, folder:Folder):Promise<Folder> {
+    await Promise.all(folder.children.map(async child => {
+      child.parentId = id
+      if (child instanceof Bookmark) {
+        await super.createBookmark(child)
+      }
+      if (child instanceof Folder) {
+        const folderId = await super.createFolder(child)
+        await this.bulkImportFolder(folderId, child)
+      }
+    }))
+    return this.bookmarksCache.findFolder(id)
   }
 }

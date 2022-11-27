@@ -232,6 +232,14 @@
           @click="addBookmark">
           <v-icon>mdi-star</v-icon>
         </v-btn>
+        <v-btn
+          color="blue darken-1"
+          dark
+          small
+          fab
+          @click="importBookmarks">
+          <v-icon>mdi-import</v-icon>
+        </v-btn>
       </v-speed-dial>
     </v-main>
 
@@ -263,6 +271,11 @@
       :display.sync="isEditingFolder"
       :tree="tree"
       @save="editFolder($event)" />
+    <DialogImportBookmarks
+      v-if="isImportingBookmarks"
+      :parent-folder="currentFolderId"
+      :display.sync="isImportingBookmarks"
+      :account-id="id" />
   </div>
 </template>
 
@@ -276,10 +289,11 @@ import { Bookmark, Folder } from '../../../lib/Tree'
 import { actions } from '../../store/definitions'
 import { App } from '@capacitor/app'
 import sortBy from 'lodash/sortBy'
+import DialogImportBookmarks from '../../components/native/DialogImportBookmarks'
 
 export default {
   name: 'Tree',
-  components: { FaviconImage, DialogEditBookmark, DialogEditFolder, Drawer },
+  components: { DialogImportBookmarks, FaviconImage, DialogEditBookmark, DialogEditFolder, Drawer },
   filters: {
     hostname(url) {
       return new URL(url).hostname
@@ -296,6 +310,7 @@ export default {
       currentlyEditedBookmark: null,
       isAddingBookmark: false,
       isAddingFolder: false,
+      isImportingBookmarks: false,
       fab: false,
       searchDebounceTimer: null,
       sortIcons: {
@@ -480,6 +495,9 @@ export default {
     },
     addBookmark() {
       this.isAddingBookmark = true
+    },
+    importBookmarks() {
+      this.isImportingBookmarks = true
     },
     createBookmark(props) {
       this.$store.dispatch(actions.CREATE_BOOKMARK, {
