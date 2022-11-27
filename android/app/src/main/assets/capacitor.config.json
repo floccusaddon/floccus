@@ -4,6 +4,7 @@
 	"bundledWebRuntime": false,
 	"npmClient": "npm",
 	"webDir": "dist",
+	"loggingBehavior": "production",
 	"plugins": {
 		"SplashScreen": {
 			"launchAutoHide": false,

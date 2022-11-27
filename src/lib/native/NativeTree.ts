@@ -1,4 +1,4 @@
-import { Storage } from '@capacitor/storage'
+import { Preferences as Storage } from '@capacitor/preferences'
 import { Bookmark, Folder, ItemLocation } from '../Tree'
 import Ordering from '../interfaces/Ordering'
 import CachingAdapter from '../adapters/Caching'

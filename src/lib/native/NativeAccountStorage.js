@@ -1,4 +1,4 @@
-import { Storage } from '@capacitor/storage'
+import { Preferences as Storage } from '@capacitor/preferences'
 import Cryptography from '../Crypto'
 import DefunctCryptography from '../DefunctCrypto'
 import Mappings from '../Mappings'

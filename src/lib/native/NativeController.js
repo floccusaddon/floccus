@@ -1,4 +1,4 @@
-import { Storage } from '@capacitor/storage'
+import { Preferences as Storage } from '@capacitor/preferences'
 import { Network } from '@capacitor/network'
 import Cryptography from '../Crypto'
 import NativeAccountStorage from './NativeAccountStorage'
