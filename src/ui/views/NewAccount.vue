@@ -55,7 +55,9 @@
                 :to="{ name: 'IMPORTEXPORT' }"
                 class="mr-2">
                 <v-icon>mdi-export</v-icon>
-                {{ t('LabelImportExport') }}
+                <template v-if="isBrowser && true">
+                  {{ t('LabelImportExport') }}
+                </template>
               </v-btn>
             </div>
           </v-stepper-content>
