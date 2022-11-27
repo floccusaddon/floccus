@@ -83,6 +83,26 @@
       </v-btn>
     </v-app-bar>
     <v-main>
+      <v-progress-linear
+        v-if="syncProgress"
+        :value="syncProgress * 100 || 0"
+        color="blue darken-1" />
+      <v-card>
+        <v-breadcrumbs
+          v-if="breadcrumbs.length > 1"
+          :items="breadcrumbs">
+          <template #item="{ item }">
+            <v-breadcrumbs-item @click="currentFolderId = item.id">
+              <template v-if="item.id === tree.id">
+                <v-icon>mdi-home</v-icon>
+              </template>
+              <template v-else>
+                {{ item.title }}
+              </template>
+            </v-breadcrumbs-item>
+          </template>
+        </v-breadcrumbs>
+      </v-card>
       <v-alert
         v-if="Boolean(syncError)"
         dense
@@ -92,10 +112,6 @@
         class="ma-1">
         {{ syncError }}
       </v-alert>
-      <v-progress-linear
-        v-if="syncProgress"
-        :value="syncProgress * 100 || 0"
-        color="blue darken-1" />
       <v-progress-circular
         v-if="loading"
         indeterminate
@@ -348,6 +364,13 @@ export default {
     },
     currentFolder() {
       return this.findItem(this.currentFolderId, this.tree)
+    },
+    breadcrumbs() {
+      const folders = [this.currentFolder]
+      while (folders[folders.length - 1 ].id !== this.tree.id) {
+        folders.push(this.findItem(folders[folders.length - 1 ].parentId, this.tree))
+      }
+      return folders.reverse()
     },
   },
   watch: {
