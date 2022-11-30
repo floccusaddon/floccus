@@ -101,6 +101,9 @@
   "Error034": {
     "message": "E034: Bookmarks file is unreadable. Did you forget to set an encryption passphrase?"
   },
+  "Error035": {
+    "message": "E035: Failed to create the following bookmark on the server: {0}"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },

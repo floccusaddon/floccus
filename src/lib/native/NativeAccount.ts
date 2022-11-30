@@ -5,6 +5,7 @@ import Account from '../Account'
 import { IAccountData } from '../interfaces/AccountStorage'
 import Controller from '../Controller'
 import {
+  CreateBookmarkError,
   FailsafeError, FloccusError,
   HttpError,
   InconsistentBookmarksExistenceError, LockFileError,
@@ -80,6 +81,9 @@ export default class NativeAccount extends Account {
     }
     if (er instanceof FailsafeError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
+    }
+    if (er instanceof CreateBookmarkError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.bookmark])
     }
     if (er instanceof FloccusError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))
