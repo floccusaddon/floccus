@@ -6,7 +6,7 @@
     "message": "E002: Zu aktualisierendes Lesezeichen existiert nicht"
   },
   "Error003": {
-    "message": "E003: Der Ordner, aus dem herausgeschoben werden soll, existiert nicht. Dies ist eine Anomalie. Herzlichen Glückwunsch."
+    "message": "E003: Der Ordner, aus dem verschoben werden soll, existiert nicht. Dies ist eine Anomalie. Herzlichen Glückwunsch."
   },
   "Error004": {
     "message": "E004: Ordner in den verschoben werden soll existiert nicht"
@@ -21,7 +21,7 @@
     "message": "E007: Zu verschiebender Ordner existiert nicht"
   },
   "Error008": {
-    "message": "E008: Der Ordner, aus dem herausgeschoben werden soll, existiert nicht."
+    "message": "E008: Der Ordner, aus dem verschoben werden soll, existiert nicht."
   },
   "Error009": {
     "message": "E009: Ordner in den verschoben werden soll existiert nicht"
@@ -48,7 +48,7 @@
     "message": "E016: Zeitüberschreitung einer Anfrage. Überprüfen Sie die Server-Konfiguration"
   },
   "Error017": {
-    "message": "E017: Netzwerk-Fehler: Überprüfen sie Ihre Netzwerkverbindung und die eingegebenen Konto-Daten"
+    "message": "E017: Netzwerk-Fehler: Überprüfen sie Ihre Netzwerkverbindung und die eingegebenen Kontodaten"
   },
   "Error018": {
     "message": "E018: Konnte nicht am Server authentifiziert werden."
@@ -57,7 +57,7 @@
     "message": "E019: HTTP Status {0}. Anfrage vom Typ {1}  fehlgeschlagen. Überprüfen Sie die Server-Konfiguration und das Server-Log"
   },
   "Error020": {
-    "message": "E020: Antwort des Servers konnte nicht gelesen werden. Ist die Bookmarks App auf Ihrem Server installiert?"
+    "message": "E020: Antwort des Servers konnte nicht gelesen werden. Ist die Bookmarks-App auf Ihrem Server installiert?"
   },
   "Error021": {
     "message": "E021: Inkonsistenter Server-Zustand. Ein Ordner ist in der Kind-Ordnung enthalten, aber nicht im Ordner-Baum."
@@ -69,25 +69,25 @@
     "message": "E023: Freigabe der Lock-Datei war nicht erfolgreich. Erwägen Sie {0} von Hand zu löschen."
   },
   "Error024": {
-    "message": "E024: HTTP status {0} während des Ermittelns des Status der Lock-Datei {1}"
+    "message": "E024: HTTP-Status {0} während des Ermittelns des Status der Lock-Datei {1}"
   },
   "Error025": {
-    "message": "E025: Die Einstellung der Bookmarks Datei darf nicht mit einem Schrägstrich beginnen: '/'"
+    "message": "E025: Die Einstellung der Bookmarks-Datei darf nicht mit einem Schrägstrich beginnen: '/'"
   },
   "Error026": {
-    "message": "E026: HTTP status {0}. Fehler beim laden der Lesezeichen"
+    "message": "E026: HTTP-Status {0}. Fehler beim Laden der Lesezeichen"
   },
   "Error027": {
     "message": "E027: Der Synchronisierungsprozess wurde unterbrochen"
   },
   "Error028": {
-    "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
+    "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen, stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
   },
   "Error029": {
     "message": "E029: Löschsicherung: Die aktuelle Synchronisierung würde {0}% der lokalen Bookmarks löschen. Floccus weigert sich dies auszüführen. Falls Sie trotzdem fortfahren wollen, deaktivieren Sie die Löschsicherung in den Konto-Einstellungen."
   },
   "Error030": {
-    "message": "E030: Entschlüsseln der Lesezeichendateij fehlgeschlagen. Die Passphrase könnte falsch sein oder die Datei könnte beschädigt sein."
+    "message": "E030: Entschlüsseln der Lesezeichendatei fehlgeschlagen. Die Passphrase könnte falsch sein oder die Datei könnte beschädigt sein."
   },
   "Error031": {
     "message": "E031: Authentifizierung mit Google Drive fehlgeschlagen. Bitte verbinden Sie Floccus noch einmal mit Ihrem Google Account\nCould not authenticate with Google Drive. Please connect Floccus with your google account again."
