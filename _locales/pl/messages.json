@@ -101,6 +101,9 @@
   "Error034": {
     "message": "E034: Nie można odczytać pliku zakładek. Czy hasło do odszyfrowania zostało wskazane? "
   },
+  "Error035": {
+    "message": "E035: Nie udało się utworzyć następującej zakładki na serwerze: (0)"
+  },
   "LabelWebdavurl": {
     "message": "Adres WebDAV"
   },
@@ -641,5 +644,11 @@
   },
   "LabelFiletypexbel": {
     "message": "XBEL, prosty, otwarty format"
+  },
+  "LabelImportbookmarks": {
+    "message": "Importuj zakładki"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "Zaimportuj plik HTML z zakładkami do bieżącego folderu"
   }
 }
