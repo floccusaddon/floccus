@@ -24,9 +24,9 @@ export default class LocalTabs implements IResource {
       title: '',
       id: 'tabs',
       location: ItemLocation.LOCAL,
-      children: uniq(tabs.map(t => t.windowId)).map(windowId => {
+      children: uniq(tabs.map(t => t.windowId)).map((windowId, i) => {
         return new Folder({
-          title: '',
+          title: 'Window ' + i,
           id: windowId,
           parentId: 'tabs',
           location: ItemLocation.LOCAL,

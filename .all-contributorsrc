@@ -214,6 +214,16 @@
         "bug",
         "code"
       ]
+    },
+    {
+      "login": "dmotte",
+      "name": "Motte",
+      "avatar_url": "https://avatars.githubusercontent.com/u/37443982?v=4",
+      "profile": "https://dmotte.github.io/",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "skipCi": true,

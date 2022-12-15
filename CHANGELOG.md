@@ -1,5 +1,26 @@
 # Changelog
 
+## v4.17.1
+
+### Fixed
+ - Fix selecting HTML at setup (#1247)
+ - Fix Google Drive on native (#1246)
+
+## v4.17.0
+
+### New
+- WebDav: Allow syncing via HTML file
+- Tab Sync: Name folders by window number
+- NewAccount: Add back buttons
+- Options{GoogleDrive, WebDAV}: Allow removing passphrase
+
+### Fixed
+ - Fixed Google Drive integration on iOS
+ - Fix Sync with caching-enabled WebDAV servers
+ - [native] Use themed background for body
+ - Fix Nextcloud login flow for 2FA
+ - [android] Fix share intent for unreachable URLs
+
 ## v4.16.0
 
 ### New

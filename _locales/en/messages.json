@@ -101,6 +101,9 @@
   "Error034": {
     "message": "E034: Bookmarks file is unreadable. Did you forget to set an encryption passphrase?"
   },
+  "Error035": {
+    "message": "E035: Failed to create the following bookmark on the server: {0}"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -227,6 +230,18 @@
   "LabelCancel": {
     "message": "Cancel"
   },
+  "LabelAdd": {
+    "message": "Add"
+  },
+  "LabelChange": {
+    "message": "Change"
+  },
+  "LabelRemove": {
+    "message": "Remove"
+  },
+  "LabelBack": {
+    "message": "Back"
+  },
   "LabelAdapternextcloudfolders": {
     "message": "Nextcloud Bookmarks"
   },
@@ -240,10 +255,10 @@
     "message": "The legacy option is compatible with at least version v0.11 of the Bookmarks app. It will emulate folders using tags containing the folder path. It is not recommended to use this for new accounts."
   },
   "LabelAdapterwebdav": {
-    "message": "XBEL file in WebDAV share"
+    "message": "WebDAV share"
   },
   "DescriptionAdapterwebdav": {
-    "message": "The WebDAV option syncs your bookmarks by storing them in an XBEL file in the provided WebDAV share. There is no accompanying web UI for this option and you can use it with any WebDAV-compatible server. It can sync http, ftp, data and javascript bookmarks."
+    "message": "The WebDAV option syncs your bookmarks by storing them in a file in the provided WebDAV share. There is no accompanying web UI for this option and you can use it with any WebDAV-compatible server. It can sync http, ftp, data and javascript bookmarks."
   },
   "LabelAddaccount": {
     "message": "Add account"
@@ -617,5 +632,23 @@
   },
   "DescriptionNonhttps": {
     "message": "You have entered a server that uses an insecure protocol. It is recommended to only use servers with support for HTTPS."
+  },
+  "LabelFiletype": {
+    "message": "File format"
+  },
+  "DescriptionFiletype": {
+    "message": "You can choose which file format you want to use to store bookmarks in the cloud."
+  },
+  "LabelFiletypehtml": {
+    "message": "HTML, a widely supported, open format (experimental)"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL, a simple, open format"
+  },
+  "LabelImportbookmarks": {
+    "message": "Import bookmarks"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "Import a HTML file containing bookmarks into the current folder"
   }
 }

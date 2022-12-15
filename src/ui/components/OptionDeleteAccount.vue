@@ -8,6 +8,7 @@
     </div>
     <v-btn
       small
+      color="red accent-1"
       class="mt-3"
       @click="onClick">
       {{ t('LabelRemoveaccount') }}

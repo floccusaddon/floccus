@@ -6,6 +6,8 @@ import Controller from '../../../lib/Controller'
 import { i18n } from '../../../lib/native/I18n'
 import { Share } from '@capacitor/share'
 import { Http } from '@capacitor-community/http'
+import Html from '../../../lib/serializers/Html'
+import { Bookmark, Folder } from '../../../lib/Tree'
 
 export const actionsDefinition = {
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
@@ -81,6 +83,23 @@ export const actionsDefinition = {
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
     const controller = await Controller.getSingleton()
     controller.scheduleSync(accountId, true)
+  },
+  async [actions.IMPORT_BOOKMARKS]({ commit }, {accountId, parentFolder, html}) {
+    const folder = Html.deserialize(html)
+    const account = await Account.get(accountId)
+    const tree = await account.getResource()
+    await Promise.all(folder.children.map(async child => {
+      child.parentId = parentFolder
+      if (child instanceof Bookmark) {
+        await tree.createBookmark(child)
+      }
+      if (child instanceof Folder) {
+        const folderId = await tree.createFolder(child)
+        await tree.bulkImportFolder(folderId, child)
+      }
+    }))
+    await tree.save()
+    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, data) {
     const account = await Account.create({...(await AdapterFactory.getDefaultValues(data.type)), ...data})
@@ -163,23 +182,22 @@ export const actionsDefinition = {
       commit(mutations.SET_LOGIN_FLOW_STATE, false)
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }
-    let json = res.data, browserWindow
-    try {
-      browserWindow = await window.open(json.login, '_blank', 'toolbar=no,presentationstyle=pagesheet')
-      do {
-        await new Promise(resolve => setTimeout(resolve, 1000))
+    let json = res.data
+    const browserWindow = await window.open(json.login, '_blank', 'toolbar=no,presentationstyle=pagesheet')
+    do {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      try {
         res = await Http.request({
           url: json.poll.endpoint,
           method: 'POST',
           data: {token: json.poll.token},
           headers: {'Content-type': 'application/x-www-form-urlencoded'}
         })
-      } while (res.status === 404 && state.loginFlow.isRunning)
-      commit(mutations.SET_LOGIN_FLOW_STATE, false)
-    } catch (e) {
-      commit(mutations.SET_LOGIN_FLOW_STATE, false)
-      throw e
-    }
+      } catch (e) {
+        res = { status: 404 }
+      }
+    } while ((res.status === 404 || !res.data.appPassword) && state.loginFlow.isRunning)
+    commit(mutations.SET_LOGIN_FLOW_STATE, false)
     if (res.status !== 200) {
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }

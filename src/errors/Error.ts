@@ -1,3 +1,5 @@
+import { Bookmark } from '../lib/Tree'
+
 export class FloccusError extends Error {
   public code: number
 
@@ -283,5 +285,15 @@ export class FileUnreadableError extends FloccusError {
     super('E034: Bookmarks file is unreadable. Did you forget to set an encryption passphrase?')
     this.code = 34
     Object.setPrototypeOf(this, FileUnreadableError.prototype)
+  }
+}
+
+export class CreateBookmarkError extends FloccusError {
+  public bookmark: Bookmark
+  constructor(bookmark: Bookmark) {
+    super(`E035: Failed to create the following bookmark on the server: ${bookmark}`)
+    this.code = 35
+    this.bookmark = bookmark
+    Object.setPrototypeOf(this, CreateBookmarkError.prototype)
   }
 }

@@ -274,7 +274,15 @@ export default {
     },
     statusDetail() {
       if (this.account.data.error) {
-        return this.account.data.error
+        return this.account.data.error + '\n' + this.t(
+          'StatusLastsynced',
+          [humanizeDuration(Date.now() - this.account.data.lastSync, {
+            largest: 1,
+            round: true,
+            language: navigator.language.split('-')[0],
+            fallbacks: navigator.languages.map(lang => lang.split('-')[0]).concat(['en'])
+          })]
+        )
       }
       if (this.account.data.syncing) {
         return 'Synchronization in progress.'

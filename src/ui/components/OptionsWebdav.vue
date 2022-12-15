@@ -31,15 +31,12 @@
           :hint="t('DescriptionBookmarksfile')"
           :persistent-hint="true"
           @input="$emit('update:bookmark_file', $event)" />
-        <v-text-field
-          class="mt-2"
-          :label="t('LabelPassphrase')"
-          :hint="t('DescriptionPassphrase')"
-          :persistent-hint="true"
-          :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
-          :type="showPassphrase ? 'text' : 'password'"
-          @click:append="showPassphrase = !showPassphrase"
+        <OptionPassphrase
+          :value="passphrase"
           @input="$emit('update:passphrase', $event)" />
+        <OptionFileType
+          :value="bookmark_file_type"
+          @input="$emit('update:bookmark_file_type', $event)" />
       </v-card-text>
     </v-card>
 
@@ -84,7 +81,6 @@
       </v-card-title>
       <v-card-text>
         <OptionSyncInterval
-          v-if="isBrowser"
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
         <OptionSyncStrategy
@@ -137,11 +133,12 @@ import OptionClientCert from './OptionClientCert'
 import OptionAllowRedirects from './OptionAllowRedirects'
 import OptionDownloadLogs from './OptionDownloadLogs'
 import OptionAllowNetwork from './native/OptionAllowNetwork'
+import OptionFileType from './OptionFileType'
 
 export default {
   name: 'OptionsWebdav',
-  components: { OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects'],
+  components: { OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync, OptionFileType },
+  props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects', 'bookmark_file_type'],
   data() {
     return {
       panels: [0, 1],

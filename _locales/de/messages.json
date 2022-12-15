@@ -90,7 +90,7 @@
     "message": "E030: Entschlüsseln der Lesezeichendateij fehlgeschlagen. Die Passphrase könnte falsch sein oder die Datei könnte beschädigt sein."
   },
   "Error031": {
-    "message": "E031: Authentifizierung mit Google Drive fehlgeschlagen. Bitte verbinden Sie floccus noch einmal mit Ihrem Google Account\nCould not authenticate with Google Drive. Please connect floccus with your google account again."
+    "message": "E031: Authentifizierung mit Google Drive fehlgeschlagen. Bitte verbinden Sie Floccus noch einmal mit Ihrem Google Account\nCould not authenticate with Google Drive. Please connect Floccus with your google account again."
   },
   "Error032": {
     "message": "E032: OAuth-Fehler. Tokenvalidierungsfehler. Bitte verbinden Sie sich erneut mit ihren Google Account."
@@ -100,6 +100,9 @@
   },
   "Error034": {
     "message": "E034: Liesezeichendatei ist nicht erreichbar. Haben Sie vergessen eine Verschlüsselungspassphrase anzugeben?"
+  },
+  "Error035": {
+    "message": "E035: Das folgende Lesezeichen konnte nicht auf dem Server erstellt werden: {0}"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -213,19 +216,31 @@
     "message": "Diese Option bestimmt wie der Lesezeichenbaum auf dem Server mit dem im Browser synchronisiert wird. Normalerweise will man Änderungen von beiden Seiten behalten, sofern sie kompatibel sind, aber manchmal ist es nötig die lokale Version genau so auf den Server zu übertragen, oder anders herum."
   },
   "LabelStrategydefault": {
-    "message": "Verschmelze lokale und vom Server kommende Änderungen (empfohlen)"
+    "message": "Führe lokale Änderungen immer mit denen von anderen Browsern zusammen (empfohlen)"
   },
   "LabelStrategyslave": {
-    "message": "Immer lokale Änderungen verwerfen und vom Server kommende Änderungen runterladen."
+    "message": "Verwerfe lokale Änderungen und lade immer Änderungen von anderen Browsern herunter"
   },
   "LabelStrategyoverwrite": {
-    "message": "Immer vom Server kommende Änderungen verwerfen und lokale Änderungen hochladen."
+    "message": "Lade lokale Änderungen immer hoch und verwirf Änderungen von anderen Browsern"
   },
   "LabelSave": {
     "message": "Speichern"
   },
   "LabelCancel": {
     "message": "Abbrechen"
+  },
+  "LabelAdd": {
+    "message": "hinzufügen"
+  },
+  "LabelChange": {
+    "message": "Ändern"
+  },
+  "LabelRemove": {
+    "message": "Entfernen"
+  },
+  "LabelBack": {
+    "message": "Zurück"
   },
   "LabelAdapternextcloudfolders": {
     "message": "Nextcloud Bookmarks"
@@ -240,10 +255,10 @@
     "message": "Die Option Alte Version ist kompatibel mit mindestens Version v0.11 der Bookmarks app. Dabei werden Ordner mittels Tags simuliert, die den Ordner-Pfad enthalten. Es wird nicht empfohlen, diese Option für neue Konten zu verwenden."
   },
   "LabelAdapterwebdav": {
-    "message": "XBEL-Datei im WebDAV-Share"
+    "message": "WebDaV-Freigabe"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Die WebDAV-Option synchronisiert Ihre Lesezeichen indem sie in einer XBEL-Datei im angegebenen WebDAV-Share gespeichert werden. Es gibt dafür kein entsprechendes Web Interface, aber die Option funktioniert mit jedem WebDAV-kompatiblen Server."
+    "message": "Die WebDAV-Option synchronisiert die Lesezeichen in einer Datei in der angegebenen WebDAV-Freigabe. Es gibt keine Weboberfläche für diese Option und sie kann mit jedem WebDAB-kompatiblen Server genutzt werden. Sie kann http, ftp, Daten und Javascript-Lesezeichen synchronisieren."
   },
   "LabelAddaccount": {
     "message": "Konto hinzufügen"
@@ -255,7 +270,7 @@
     "message": "Deine Anmeldedaten sind sicher"
   },
   "LabelOpenintab": {
-    "message": "In tab öffnen"
+    "message": "In Tab öffnen"
   },
   "LabelDebuglogs": {
     "message": "Debug-Logs"
@@ -273,7 +288,7 @@
     "message": "Unbenannter Ordner"
   },
   "LabelSetkey": {
-    "message": "Passphrase für floccus einstellen"
+    "message": "Passphrase für Floccus einstellen"
   },
   "DescriptionSetkey": {
     "message": "Wenn Sie ein Passwort für Floccus setzen, müssen Sie dieses immer beim Browser-Start eingeben, bevor Sie Ihre Lesezeichen synchronisieren oder generell Floccus benutzen können."
@@ -340,7 +355,7 @@
     "message": "Floccus wurde aktualisiert"
   },
   "DescriptionUpdated": {
-    "message": "Glückwunsch, das aktuellste floccus-Update befindet sich auf Ihrem Rechner! 🎉"
+    "message": "Glückwunsch, das aktuellste Floccus-Update befindet sich auf Ihrem Rechner! 🎉"
   },
   "LabelReleaseNotes": {
     "message": "Release-Notes lesen"
@@ -442,7 +457,7 @@
     "message": "Führe lokale Änderungen mit denen von anderen Browsern zusammen"
   },
   "DescriptionFilesPermission": {
-    "message": "Stellen Sie sicher, dass floccus sowohl ausreichende Berechtigungen für die Nutzung der Lesezeichen App, als auch für die Nexcloud Files App hat."
+    "message": "Stellen Sie sicher, dass Floccus sowohl ausreichende Berechtigungen für die Nutzung der Lesezeichen App, als auch für die Nexcloud Files App hat."
   },
   "DescriptionExtension": {
     "message": "Synchronisiert Lesezeichen vertraulich zwischen Browsern und Geräten"
@@ -451,7 +466,7 @@
     "message": "Löschsicherung"
   },
   "DescriptionFailsafe": {
-    "message": "Manchmal können Konfigurationsfehler oder Programmfehler zur unerwünschte Löschung von Daten führen, die dann verloren sind. Um dies zu verhindern, wird floccus nicht mehr als 50% Ihrer Lesezeichen in einem Schritt löschen, solange sie diese Löschsicherung nicht hier ausschalten."
+    "message": "Manchmal können Konfigurationsfehler oder Programmfehler zur unerwünschte Löschung von Daten führen, die dann verloren sind. Um dies zu verhindern, wird Floccus nicht mehr als 50% Ihrer Lesezeichen in einem Schritt löschen, solange sie diese Löschsicherung nicht hier ausschalten."
   },
   "LabelFailsafeon": {
     "message": "Eingeschaltet. Lösche nicht mehr als 50% meiner lokalen Lesezeichen ohne mich vorher zu fragen. (Empfohlen)"
@@ -493,7 +508,7 @@
     "message": "Erlaube Weiterleitungen in der Server URL"
   },
   "DescriptionAllowredirects": {
-    "message": "Aktivieren Sie diese Option, falls sie WEiterleitungs-Fehler während dem Synchronisieren bekommen, die Sie für unberechtigt halten."
+    "message": "Aktivieren Sie diese Option, falls sie Weiterleitungs-Fehler während dem Synchronisieren bekommen, die Sie für unberechtigt halten."
   },
   "LabelSearch": {
     "message": "Lesezeichen suchen"
@@ -586,7 +601,7 @@
     "message": "Synchronisationsserver"
   },
   "LabelSyncfolders": {
-    "message": "Synchronisationsorder"
+    "message": "Synchronisationsordner"
   },
   "LabelSyncbehavior": {
     "message": "Synchronisationsverhalten"
@@ -617,5 +632,23 @@
   },
   "DescriptionNonhttps": {
     "message": "Sie haben einen Server angegeben, der ein unsicheres Protokoll benutzt. Es wird empfohlen nur Server zu benutzen, die HTTPS unterstützen."
+  },
+  "LabelFiletype": {
+    "message": "Dateiformat"
+  },
+  "DescriptionFiletype": {
+    "message": "Wählen Sie welches Dateiformat Sie benötigen, um Lesezeichen in der Cloud zu speichern."
+  },
+  "LabelFiletypehtml": {
+    "message": "HTML, ein weit verbreitetes offenes Format (experimentell)"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL, ein einfaches offenes Format"
+  },
+  "LabelImportbookmarks": {
+    "message": "Lesezeichen importieren"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "Importieren einer HTML-Datei mit Lesezeichen in den aktuellen Ordner"
   }
 }

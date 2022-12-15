@@ -52,11 +52,12 @@
                 {{ t('LabelContinue') }}
               </v-btn>
               <v-btn
-                v-if="isBrowser"
                 :to="{ name: 'IMPORTEXPORT' }"
                 class="mr-2">
                 <v-icon>mdi-export</v-icon>
-                {{ t('LabelImportExport') }}
+                <template v-if="isBrowser && true">
+                  {{ t('LabelImportExport') }}
+                </template>
               </v-btn>
             </div>
           </v-stepper-content>
@@ -71,7 +72,8 @@
                 :rules="[validateUrl]"
                 :label="t('LabelNextcloudurl')"
                 :loading="isServerTestRunning || isLoginFlowRunning"
-                :error-messages="serverisNotHttps || serverTestError || loginFlowError">
+                :error-messages="serverisNotHttps || serverTestError || loginFlowError"
+                @keydown.enter="testNextcloudServer">
                 <template
                   slot="append-outer">
                   <v-icon
@@ -82,7 +84,10 @@
                   </v-icon>
                 </template>
               </v-text-field>
-              <div class="d-flex flex-row-reverse">
+              <div class="d-flex flex-row justify-space-between">
+                <v-btn @click="currentStep--">
+                  {{ t('LabelBack') }}
+                </v-btn>
                 <v-btn
                   v-if="!serverTestSuccessful"
                   class="primary"
@@ -133,7 +138,10 @@
                 :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassphrase ? 'text' : 'password'"
                 @click:append="showPassphrase = !showPassphrase" />
-              <div class="d-flex flex-row-reverse">
+              <div class="d-flex flex-row justify-space-between">
+                <v-btn @click="currentStep--">
+                  {{ t('LabelBack') }}
+                </v-btn>
                 <v-btn
                   class="primary"
                   @click="testWebdavServer">
@@ -154,6 +162,9 @@
               <p class="mt-1">
                 {{ t('DescriptionLogingoogle') }}
               </p>
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
             </template>
           </v-stepper-content>
 
@@ -182,11 +193,14 @@
               </div>
               <v-text-field
                 v-model="bookmark_file"
+                class="mb-2"
                 append-icon="mdi-file-document"
                 :rules="[validateBookmarksFile]"
                 :label="t('LabelBookmarksfile')"
                 :hint="t('DescriptionBookmarksfile')"
                 :persistent-hint="true" />
+              <OptionFileType
+                v-model="bookmark_file_type" />
             </template>
 
             <template v-if="adapter === 'google-drive'">
@@ -214,7 +228,10 @@
               v-if="isBrowser"
               v-model="localRoot" />
 
-            <div class="d-flex flex-row-reverse">
+            <div class="d-flex flex-row justify-space-between">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
               <v-btn
                 :disabled="isBrowser? !localRoot : false"
                 color="primary"
@@ -236,7 +253,7 @@
               dense
               class="mt-0 pt-0" />
             <OptionSyncInterval
-              v-if="isBrowser && enabled"
+              v-if="enabled"
               v-model="syncInterval" />
             <OptionSyncStrategy
               v-model="strategy" />
@@ -244,7 +261,10 @@
               v-if="isBrowser"
               v-model="nestedSync" />
 
-            <div class="d-flex flex-row-reverse">
+            <div class="d-flex flex-row justify-space-between">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
               <v-btn
                 color="primary"
                 @click="onCreate()">
@@ -269,10 +289,11 @@ import OptionSyncFolder from '../components/OptionSyncFolder'
 import OptionSyncInterval from '../components/OptionSyncInterval'
 import OptionSyncStrategy from '../components/OptionSyncStrategy'
 import OptionNestedSync from '../components/OptionNestedSync'
+import OptionFileType from '../components/OptionFileType'
 
 export default {
   name: 'NewAccount',
-  components: { OptionNestedSync, OptionSyncStrategy, OptionSyncInterval, OptionSyncFolder },
+  components: { OptionFileType, OptionNestedSync, OptionSyncStrategy, OptionSyncInterval, OptionSyncFolder },
   data() {
     return {
       currentStep: 1,
@@ -286,6 +307,7 @@ export default {
       passphrase: '',
       refreshToken: '',
       bookmark_file: 'bookmarks.xbel',
+      bookmark_file_type: 'xbel',
       serverRoot: '',
       localRoot: null,
       syncInterval: 15,
@@ -335,6 +357,7 @@ export default {
         enabled: this.enabled,
         ...(this.adapter === 'nextcloud-bookmarks' && {serverRoot: this.serverRoot}),
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive') && {bookmark_file: this.bookmark_file}),
+        ...((this.adapter === 'webdav' || this.adapter === 'google-drive') && {bookmark_file_type: this.bookmark_file_type}),
         ...(this.adapter === 'google-drive' && {refreshToken: this.refreshToken}),
         ...(this.passphrase && {passphrase: this.passphrase}),
         ...(this.isBrowser && {localRoot: this.localRoot}),

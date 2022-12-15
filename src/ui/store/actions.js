@@ -112,7 +112,7 @@ export const actionsDefinition = {
       }
     })
     if (res.status < 200 || res.status > 299) {
-      throw new Error('Could not connect to server: ' + res.status)
+      throw new Error('Could not connect to your webdav server at the specified URL. The server responded with HTTP status ' + res.status + ' to a PROPFIND request with Basic Auth on the URL you entered.')
     }
     return true
   },
@@ -131,21 +131,33 @@ export const actionsDefinition = {
       throw new Error(browser.i18n.getMessage('LabelLoginFlowError'))
     }
     let json = await res.json()
-    try {
-      await browser.tabs.create({ url: json.login })
-      do {
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        res = await fetch(json.poll.endpoint, { method: 'POST', body: `token=${json.poll.token}`, headers: {'Content-type': 'application/x-www-form-urlencoded'} })
-      } while (res.status === 404 && state.loginFlow.isRunning)
-      commit(mutations.SET_LOGIN_FLOW_STATE, false)
-    } catch (e) {
-      commit(mutations.SET_LOGIN_FLOW_STATE, false)
-      throw e
-    }
+    const endpoint = json.poll.endpoint
+    const token = json.poll.token
+    await browser.tabs.create({ url: json.login })
+    do {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      try {
+        res = await fetch(endpoint, {
+          method: 'POST',
+          body: `token=${token}`,
+          headers: {'Content-type': 'application/x-www-form-urlencoded'},
+          redirect: 'manual'
+        })
+      } catch (e) {
+        commit(mutations.SET_LOGIN_FLOW_STATE, false)
+        throw e
+      }
+      try {
+        json = await res.json()
+      } catch (e) {
+        res = { status: 404 }
+      }
+    } while (res.status === 404 && state.loginFlow.isRunning)
+    commit(mutations.SET_LOGIN_FLOW_STATE, false)
+
     if (res.status !== 200) {
       throw new Error(browser.i18n.getMessage('LabelLoginFlowError'))
     }
-    json = await res.json()
     return {username: json.loginName, password: json.appPassword}
   },
   async [actions.STOP_LOGIN_FLOW]({commit}) {

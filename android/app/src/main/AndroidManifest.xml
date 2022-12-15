@@ -12,6 +12,7 @@
         android:networkSecurityConfig="@xml/network_security_config">
 
         <activity
+            android:exported="true"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
             android:name="org.handmadeideas.floccus.MainActivity"
             android:label="@string/title_activity_main"

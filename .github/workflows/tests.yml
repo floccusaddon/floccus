@@ -28,15 +28,17 @@ jobs:
       matrix:
         node-version: [14.x]
         npm-version: [7.x]
-        server-version: ['20']
+        server-version: ['22']
         app-version: ['stable']
         selenium-version: ['3']
         floccus-adapter:
           - fake
           - nextcloud-bookmarks
           - nextcloud-bookmarks-old
-          - webdav
-          - webdav-encrypted
+          - webdav-xbel
+          - webdav-html
+          - webdav-html-encrypted
+          - webdav-xbel-encrypted
           - google-drive
           - google-drive-encrypted
         test-name:
@@ -59,13 +61,6 @@ jobs:
             node-version: 14.x
             npm-version: 7.x
           - app-version: stable3
-            server-version: 18
-            floccus-adapter: nextcloud-bookmarks
-            test-name: test
-            browsers: firefox
-            node-version: 14.x
-            npm-version: 7.x
-          - app-version: stable3
             server-version: 19
             floccus-adapter: nextcloud-bookmarks
             test-name: test
@@ -79,22 +74,29 @@ jobs:
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
-          - app-version: master
-            server-version: 20
+          - app-version: stable10
+            server-version: 22
             floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
           - app-version: master
-            server-version: 20
+            server-version: 22
+            floccus-adapter: nextcloud-bookmarks
+            test-name: test
+            browsers: firefox
+            node-version: 14.x
+            npm-version: 7.x
+          - app-version: master
+            server-version: 22
             floccus-adapter: nextcloud-bookmarks
             test-name: benchmark root
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
           - app-version: master
-            server-version: 20
+            server-version: 22
             floccus-adapter: nextcloud-bookmarks-old
             test-name: benchmark root
             browsers: firefox

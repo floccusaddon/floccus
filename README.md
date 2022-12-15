@@ -76,6 +76,7 @@ This project exists thanks to all the people who contribute.
     <td align="center"><a href="https://github.com/dsiminiuk"><img src="https://avatars.githubusercontent.com/u/5713547?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Danny Siminiuk</b></sub></a><br /><a href="https://github.com/floccusaddon/floccus/commits?author=dsiminiuk" title="Tests">⚠️</a> <a href="#ideas-dsiminiuk" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="https://github.com/Seirade"><img src="https://avatars.githubusercontent.com/u/45798662?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Seirade</b></sub></a><br /><a href="#ideas-Seirade" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/floccusaddon/floccus/issues?q=author%3ASeirade" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://github.com/pinpontitit"><img src="https://avatars.githubusercontent.com/u/100489443?v=4?s=70" width="70px;" alt=""/><br /><sub><b>pinpontitit</b></sub></a><br /><a href="#ideas-pinpontitit" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/floccusaddon/floccus/issues?q=author%3Apinpontitit" title="Bug reports">🐛</a> <a href="https://github.com/floccusaddon/floccus/commits?author=pinpontitit" title="Code">💻</a></td>
+    <td align="center"><a href="https://dmotte.github.io/"><img src="https://avatars.githubusercontent.com/u/37443982?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Motte</b></sub></a><br /><a href="https://github.com/floccusaddon/floccus/commits?author=dmotte" title="Code">💻</a> <a href="https://github.com/floccusaddon/floccus/issues?q=author%3Admotte" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
@@ -101,27 +102,27 @@ Translations can now be provided over at [transifex](https://www.transifex.com/f
 #### Setting up a dev environment
 
 - Clone this repository.
-- Install node.js v16 and npm 8
-- In the root of your floccus repo, run `npm install && npm install -g gulp`
-- Run `gulp` to build
-- Find out more on how to develop browser extensions here: <https://extensionworkshop.com/>
+- Install the [latest LTS version of node.js](https://nodejs.org/en/download/).
+- In the root of your floccus repo, run `npm install`.
+- Run `npm run build` to build.
+- Find out more on how to develop browser extensions here: <https://extensionworkshop.com/>.
 
 For building the android app you'll need Android Studio
 
-- Open the android/ folder in Android studio and build the App like any other Android app.
-- `gulp` and `gulp watch` will push changes to android/ as necessary
+- Open the `android/` folder in Android studio and build the App like any other Android app.
+- `npm run build` and `npm run watch` will push changes to `android/` as necessary.
 
 #### Building
 
-- `gulp`
+- `npm run build`
 
 Run the following to automatically compile changes as you make them:
 
-- `gulp watch`
+- `npm run watch`
 
 #### Releasing
 
-- `gulp release`
+- `npm run build-release`
 
 ## Backers
 
@@ -146,5 +147,5 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 
 ## License
 
-(c) Marcel Klehr  
+(c) Marcel Klehr
 MPL-2.0 (see LICENSE.txt)

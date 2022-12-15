@@ -14,7 +14,7 @@
 <script>
 import { getIcons } from '../../../lib/getFavicon'
 import { Http } from '@capacitor-community/http'
-import {Storage} from '@capacitor/storage'
+import {Preferences as Storage} from '@capacitor/preferences'
 
 export default {
   name: 'FaviconImage',

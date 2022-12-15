@@ -109,6 +109,21 @@ describe('Floccus', function() {
       ...CREDENTIALS
     },
     {
+      type: 'webdav',
+      url: `${SERVER}/remote.php/webdav/`,
+      bookmark_file: 'bookmarks.html',
+      bookmark_file_type: 'html',
+      ...CREDENTIALS
+    },
+    {
+      type: 'webdav',
+      url: `${SERVER}/remote.php/webdav/`,
+      bookmark_file: 'bookmarks.html',
+      bookmark_file_type: 'html',
+      passphrase: random.float(),
+      ...CREDENTIALS
+    },
+    {
       type: 'google-drive',
       bookmark_file: random.float() + '.xbel',
       password: '',
@@ -4387,7 +4402,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: [
                   new Folder({
-                    title: '',
+                    title: 'Window 0',
                     children: [
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test1' }),
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test2' })
@@ -4407,7 +4422,10 @@ describe('Floccus', function() {
             const serverTree = await getAllBookmarks(account)
             let windowFolderId, serverMark
             await withSyncConnection(account, async() => {
-              windowFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: ''}))
+              windowFolderId = await adapter.createFolder(new Folder({
+                parentId: serverTree.id,
+                title: 'Window 0'
+              }))
               serverMark = {
                 title: 'Private bookmarks sync - floccus.org',
                 url: 'https://floccus.org/',
@@ -4429,7 +4447,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: [
                   new Folder({
-                    title: '',
+                    title: 'Window 0',
                     children: [
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/' }),
                     ]
@@ -4466,7 +4484,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: [
                   new Folder({
-                    title: '',
+                    title: 'Window 0',
                     children: [
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test1' }),
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test2' })
@@ -4490,7 +4508,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: [
                   new Folder({
-                    title: '',
+                    title: 'Window 0',
                     children: [
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test1' }),
                       new Bookmark({ title: 'Example Domain', url: 'https://example.org/' })
@@ -4510,7 +4528,10 @@ describe('Floccus', function() {
             const serverTree = await getAllBookmarks(account)
             let windowFolderId, serverMark, serverMarkId
             await withSyncConnection(account, async() => {
-              windowFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: ''}))
+              windowFolderId = await adapter.createFolder(new Folder({
+                parentId: serverTree.id,
+                title: 'Window 0'
+              }))
               serverMark = {
                 title: 'Private bookmarks sync - floccus.org',
                 url: 'https://floccus.org/',
@@ -4532,7 +4553,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: [
                   new Folder({
-                    title: '',
+                    title: 'Window 0',
                     children: [
                       new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/' }),
                     ]
@@ -4568,7 +4589,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: [
                   new Folder({
-                    title: '',
+                    title: 'Window 0',
                     children: [
                       new Bookmark({ title: 'Example Domain', url: 'https://example.org/' }),
                       new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test' }),
@@ -5527,7 +5548,7 @@ describe('Floccus', function() {
           }
         })
 
-        it('should handle fuzzed changes with deletions from two clients with interrupts', async function() {
+        it.skip('should handle fuzzed changes with deletions from two clients with interrupts', async function() {
           if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
             return this.skip()
           }
@@ -6446,13 +6467,11 @@ async function syncAccountWithInterrupts(account) {
 
 function stringifyAccountData(ACCOUNT_DATA) {
   return `${ACCOUNT_DATA.type}${
-    (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs)
-      ? '-old'
-      : ACCOUNT_DATA.noCache
-        ? '-noCache'
-        : ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase))
-          ? '-encrypted'
-          : ''}`
+    (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs ? '-old' : '') +
+    (ACCOUNT_DATA.noCache ? '-noCache' : '') +
+    (typeof ACCOUNT_DATA.bookmark_file_type !== 'undefined' ? '-' + ACCOUNT_DATA.bookmark_file_type : '') +
+    ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase) ? '-encrypted' : '')
+  }`
 }
 
 function awaitTabsUpdated() {

@@ -34,14 +34,8 @@
           :hint="t('DescriptionBookmarksfilegoogle')"
           :persistent-hint="true"
           @input="$emit('update:bookmark_file', $event)" />
-        <v-text-field
-          :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
-          :type="showPassphrase ? 'text' : 'password'"
-          class="mt-2"
-          :label="t('LabelPassphrase')"
-          :hint="t('DescriptionPassphrase')"
-          :persistent-hint="true"
-          @click:append="showPassphrase = !showPassphrase"
+        <OptionPassphrase
+          :value="password"
           @input="$emit('update:password', $event)" />
       </v-card-text>
     </v-card>
@@ -87,7 +81,6 @@
       </v-card-title>
       <v-card-text>
         <OptionSyncInterval
-          v-if="isBrowser"
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
         <OptionSyncStrategy
@@ -130,10 +123,11 @@ import OptionNestedSync from './OptionNestedSync'
 import OptionFailsafe from './OptionFailsafe'
 import OptionDownloadLogs from './OptionDownloadLogs'
 import OptionAllowNetwork from './native/OptionAllowNetwork'
+import OptionPassphrase from './OptionPassphrase'
 
 export default {
   name: 'OptionsGoogleDrive',
-  components: { OptionAllowNetwork, OptionDownloadLogs, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
+  components: { OptionPassphrase, OptionAllowNetwork, OptionDownloadLogs, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
   props: ['username', 'password', 'refreshToken', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
   data() {
     return {

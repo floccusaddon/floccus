@@ -13,7 +13,7 @@ import flatten from 'lodash/flatten'
 import { BulkImportResource, LoadFolderChildrenResource, OrderFolderResource } from '../interfaces/Resource'
 import Ordering from '../interfaces/Ordering'
 import {
-  AuthenticationError,
+  AuthenticationError, CreateBookmarkError,
   HttpError,
   InconsistentBookmarksExistenceError,
   InconsistentServerStateError,
@@ -754,12 +754,20 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           folders: [bm.parentId],
         }
 
-        const json = await this.sendRequest(
-          'POST',
-          'index.php/apps/bookmarks/public/rest/v2/bookmark',
-          'application/json',
-          body
-        )
+        let json
+        try {
+          json = await this.sendRequest(
+            'POST',
+            'index.php/apps/bookmarks/public/rest/v2/bookmark',
+            'application/json',
+            body
+          )
+        } catch (e) {
+          if (e instanceof HttpError) {
+            throw new CreateBookmarkError(bm)
+          }
+          throw e
+        }
         if (typeof json.item !== 'object') {
           throw new UnexpectedServerResponseError()
         }
@@ -898,7 +906,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     if (res.status === 401 || res.status === 403) {
       throw new AuthenticationError()
     }
-    if (res.status === 503) {
+    if (res.status === 503 || res.status > 400) {
       throw new HttpError(res.status, verb)
     }
     let json
