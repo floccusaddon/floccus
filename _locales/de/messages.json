@@ -1,51 +1,51 @@
 {
   "Error001": {
-    "message": "E001: Der Ordner, in dem neu erzeugt werden soll, existiert nicht"
+    "message": "E001: Der Ordner, in dem neu erzeugt werden soll, existiert nicht."
   },
   "Error002": {
-    "message": "E002: Zu aktualisierendes Lesezeichen existiert nicht"
+    "message": "E002: Zu aktualisierendes Lesezeichen existiert nicht."
   },
   "Error003": {
     "message": "E003: Der Ordner, aus dem verschoben werden soll, existiert nicht. Dies ist eine Anomalie. Herzlichen Glückwunsch."
   },
   "Error004": {
-    "message": "E004: Ordner in den verschoben werden soll existiert nicht"
+    "message": "E004: Der Ordner, in den verschoben werden soll, existiert nicht."
   },
   "Error005": {
-    "message": "E005: Ordner in dem erzeugt werden soll existiert nicht"
+    "message": "E005: Der Ordner, in dem erzeugt werden soll, existiert nicht."
   },
   "Error006": {
-    "message": "E006: Zu aktualisierender Ordner existiert nicht "
+    "message": "E006: Zu aktualisierender Ordner existiert nicht."
   },
   "Error007": {
-    "message": "E007: Zu verschiebender Ordner existiert nicht"
+    "message": "E007: Zu verschiebender Ordner existiert nicht."
   },
   "Error008": {
     "message": "E008: Der Ordner, aus dem verschoben werden soll, existiert nicht."
   },
   "Error009": {
-    "message": "E009: Ordner in den verschoben werden soll existiert nicht"
+    "message": "E009: Der Ordner, in den verschoben werden soll, existiert nicht."
   },
   "Error010": {
-    "message": "E010: Zu ordnender Ordner konnte nicht gefunden werden"
+    "message": "E010: Zu ordnender Ordner konnte nicht gefunden werden."
   },
   "Error011": {
     "message": "E011: Der Eintrag in der Ordner-Ordnung ist kein Kind des Ordners: {0}"
   },
   "Error012": {
-    "message": "E012: Der Ordner-Ordnung fehlen einige Kinder des Ordners"
+    "message": "E012: Der Ordner-Ordnung fehlen einige Kinder des Ordners."
   },
   "Error013": {
-    "message": "E013: Zu löschender Ordner existiert nicht"
+    "message": "E013: Zu löschender Ordner existiert nicht."
   },
   "Error014": {
-    "message": "E014: Elternordner aus dem gelöscht werden soll existiert nicht mehr"
+    "message": "E014: Der Elternordner, aus dem gelöscht werden soll ,existiert nicht mehr."
   },
   "Error015": {
-    "message": "E015: Unerwartete Antwortdaten vom Server erhalten"
+    "message": "E015: Unerwartete Antwortdaten vom Server erhalten."
   },
   "Error016": {
-    "message": "E016: Zeitüberschreitung einer Anfrage. Überprüfen Sie die Server-Konfiguration"
+    "message": "E016: Zeitüberschreitung einer Anfrage. Überprüfen Sie die Server-Konfiguration."
   },
   "Error017": {
     "message": "E017: Netzwerk-Fehler: Überprüfen sie Ihre Netzwerkverbindung und die eingegebenen Kontodaten"
@@ -54,7 +54,7 @@
     "message": "E018: Konnte nicht am Server authentifiziert werden."
   },
   "Error019": {
-    "message": "E019: HTTP Status {0}. Anfrage vom Typ {1}  fehlgeschlagen. Überprüfen Sie die Server-Konfiguration und das Server-Log"
+    "message": "E019: HTTP Status {0}. Anfrage vom Typ {1}  fehlgeschlagen. Überprüfen Sie die Server-Konfiguration und das Server-Log."
   },
   "Error020": {
     "message": "E020: Antwort des Servers konnte nicht gelesen werden. Ist die Bookmarks-App auf Ihrem Server installiert?"
@@ -63,22 +63,22 @@
     "message": "E021: Inkonsistenter Server-Zustand. Ein Ordner ist in der Kind-Ordnung enthalten, aber nicht im Ordner-Baum."
   },
   "Error022": {
-    "message": "E022: Ordner {0} enhält angeblich ein nicht existierendes Lesezeichen: {1}"
+    "message": "E022: Ordner {0} enthält angeblich ein nicht existierendes Lesezeichen: {1}"
   },
   "Error023": {
     "message": "E023: Freigabe der Lock-Datei war nicht erfolgreich. Erwägen Sie {0} von Hand zu löschen."
   },
   "Error024": {
-    "message": "E024: HTTP-Status {0} während des Ermittelns des Status der Lock-Datei {1}"
+    "message": "E024: HTTP-Status {0} während des Ermittelns des Status der Lock-Datei {1}."
   },
   "Error025": {
     "message": "E025: Die Einstellung der Bookmarks-Datei darf nicht mit einem Schrägstrich beginnen: '/'"
   },
   "Error026": {
-    "message": "E026: HTTP-Status {0}. Fehler beim Laden der Lesezeichen"
+    "message": "E026: HTTP-Status {0}. Fehler beim Laden der Lesezeichen."
   },
   "Error027": {
-    "message": "E027: Der Synchronisierungsprozess wurde unterbrochen"
+    "message": "E027: Der Synchronisierungsprozess wurde unterbrochen."
   },
   "Error028": {
     "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen, stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
@@ -87,31 +87,31 @@
     "message": "E029: Löschsicherung: Die aktuelle Synchronisierung würde {0}% der lokalen Bookmarks löschen. Floccus weigert sich dies auszüführen. Falls Sie trotzdem fortfahren wollen, deaktivieren Sie die Löschsicherung in den Konto-Einstellungen."
   },
   "Error030": {
-    "message": "E030: Entschlüsseln der Lesezeichendatei fehlgeschlagen. Die Passphrase könnte falsch sein oder die Datei könnte beschädigt sein."
+    "message": "E030: Entschlüsseln der Lesezeichendatei fehlgeschlagen. Die Passphrase könnte falsch oder die Datei beschädigt sein."
   },
   "Error031": {
-    "message": "E031: Authentifizierung mit Google Drive fehlgeschlagen. Bitte verbinden Sie Floccus noch einmal mit Ihrem Google Account\nCould not authenticate with Google Drive. Please connect Floccus with your google account again."
+    "message": "E031: Authentifizierung mit Google Drive fehlgeschlagen. Bitte verbinden Sie floccus noch einmal mit Ihrem Google-Konto."
   },
   "Error032": {
-    "message": "E032: OAuth-Fehler. Tokenvalidierungsfehler. Bitte verbinden Sie sich erneut mit ihren Google Account."
+    "message": "E032: OAuth-Fehler. Tokenvalidierungsfehler. Bitte verbinden Sie sich erneut mit ihrem Google-Konto."
   },
   "Error033": {
-    "message": "E033: Weiterleitung festgestellt. Vergewissern Sie sich dass der angegebene Server die ausgewählte Synchronisierungsmethode unterstützt und die URL, die Sie eingegeben haben, stimmt und nicht auf eine andere URL weiterleitet. Falls die Weiterleitung teil Ihres Server-Setups ist, können Sie diese Kontrolle in den Einstellungen deaktivieren."
+    "message": "E033: Weiterleitung festgestellt. Vergewissern Sie sich, dass der angegebene Server die ausgewählte Synchronisierungsmethode unterstützt und die URL stimmt, die Sie eingegeben haben und nicht auf eine andere URL weiterleitet. Falls die Weiterleitung teil Ihres Server-Setups ist, können Sie diese Kontrolle in den Einstellungen deaktivieren."
   },
   "Error034": {
-    "message": "E034: Liesezeichendatei ist nicht erreichbar. Haben Sie vergessen eine Verschlüsselungspassphrase anzugeben?"
+    "message": "E034: Lesezeichendatei ist nicht erreichbar. Haben Sie vergessen eine Verschlüsselungspassphrase anzugeben?"
   },
   "Error035": {
     "message": "E035: Das folgende Lesezeichen konnte nicht auf dem Server erstellt werden: {0}"
   },
   "LabelWebdavurl": {
-    "message": "WebDAV URL"
+    "message": "WebDAV-URL"
   },
   "DescriptionWebdavurl": {
-    "message": "z.B. mit Nextcloud: https://ihre-domain.com/remote.php/webdav/"
+    "message": "z. B. mit Nextcloud: https://ihre-domain.com/remote.php/webdav/"
   },
   "LabelNextcloudurl": {
-    "message": "Nextcloud URL"
+    "message": "Nextcloud-URL"
   },
   "LabelUsername": {
     "message": "Benutzername"
@@ -120,19 +120,19 @@
     "message": "Passwort"
   },
   "LabelBookmarksfile": {
-    "message": "Pfad zur Bookmark-Datei"
+    "message": "Pfad zur Lesezeichendatei"
   },
   "DescriptionBookmarksfile": {
-    "message": "ein Pfad zur Bookmarks-Datei relativ zur WebDAV URL (alle Ordner darin müssen bereits existieren). z.B. persönlich/lesezeichen.xbel (Kein Schrägstrich am Anfang!)"
+    "message": "ein Pfad zur Lesezeichendatei relativ zur WebDAV-URL (alle Ordner darin müssen bereits existieren). z.B. persönlich/lesezeichen.xbel (Kein Schrägstrich am Anfang!)"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "Der Dateiname der Lesezeichen-Datei, die in Ihrem Google Drive gespeichert wird (stellen Sie sicher, dass der Dateiname in Google Drive einzigartig ist)"
+   "message": "Der Dateiname der Lesezeichendatei, die in Ihrem Google Drive gespeichert wird (stellen Sie sicher, dass der Dateiname in Google Drive einzigartig ist)."
  },
   "LabelServerfolder": {
     "message": "Server-Ordner"
   },
   "DescriptionServerfolder": {
-    "message": "Das Pfad-Präfix unter welchem dieses Konto auf dem Server agiert. Wenn Sie z.B. '/arbeit' eingeben, werden alle Lesezeichen auf dem Server mit diesem Pfad als Präfix zu ihrem eigentlichen Pfad angelegt. Dies erlaubt Ihnen Ihre Lesezeichen auf dem Server in verschiedene Profile aufzuteilen. Lassen Sie dieses Feld leer, um kein Präfix zu setzen."
+    "message": "Das Pfad-Präfix unter welchem dieses Konto auf dem Server agiert. Wenn Sie z. B. '/arbeit' eingeben, werden alle Lesezeichen auf dem Server mit diesem Pfad als Präfix zu ihrem eigentlichen Pfad angelegt. Dies erlaubt Ihnen Ihre Lesezeichen auf dem Server in verschiedene Profile aufzuteilen. Lassen Sie dieses Feld leer, um kein Präfix zu setzen."
   },
   "LabelLocalfolder": {
     "message": "Lokaler Ordner"
@@ -141,7 +141,7 @@
     "message": "Der lokale Lesezeichen-Ordner in diesem Browser, der mit dem Server synchronisiert wird. Per Default wird ein neuer Ordner für Sie angelegt. (Hinweis: Es ist nun möglich das Wurzel-Verzeichnis zwischen verschiedenen Browser-Typen direkt zu synchronisieren.) "
   },
   "LabelRootfolder": {
-    "message": "Wurzel-Ordner"
+    "message": "Wurzelordner"
   },
   "LabelNewfolder": {
     "message": "Neu erstellter Ordner"
@@ -180,13 +180,13 @@
     "message": "Zurücksetzen"
   },
   "DescriptionReset": {
-    "message": "Setzen Sie den synchronisierten Ordner zurück um einen neuen generieren zu lassen"
+    "message": "Setzen Sie den synchronisierten Ordner zurück um einen neuen generieren zu lassen."
   },
   "LabelChoosefolder": {
     "message": "Ordner wählen"
   },
   "DescriptionChoosefolder": {
-    "message": "Setzen Sie einen existierenden Ordner, der synchronisiert werden soll"
+    "message": "Wählen Sie einen existierenden Ordner, der synchronisiert werden soll."
   },
   "LabelRemoveaccount": {
     "message": "Konto entfernen"
@@ -198,10 +198,10 @@
     "message": "Neue Synchronisierung von Grund auf auslösen"
   },
   "LabelResetCache": {
-    "message": "Reset Cache"
+    "message": "Cache zurücksetzen"
   },
   "DescriptionResetcache": {
-    "message": "Setzen SIe diesen Haken, um den Cache zurückzusetzen, sodass die nächste Synchronisierung garantiert keine Lesezeichen löscht, sondern lediglich Server und Lokale Lesezeichen vereinigt"
+    "message": "Setzen SIe diesen Haken, um den Cache zurückzusetzen, sodass die nächste Synchronisierung garantiert keine Lesezeichen löscht, sondern lediglich Server und Lokale Lesezeichen vereinigt."
   },
   "LabelParallelsync": {
     "message": "Synchronisierung beschleunigen"
@@ -246,19 +246,19 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "Die Option \"Nextcloud Bookmarks\" ist kompatibel mit mindestens Version v0.14 der Bookmarks app."
+    "message": "Die Option \"Nextcloud Bookmarks\" ist kompatibel mit mindestens Version v0.14 der Bookmarks-App."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (alte Version)"
   },
   "DescriptionAdapternextcloud": {
-    "message": "Die Option Alte Version ist kompatibel mit mindestens Version v0.11 der Bookmarks app. Dabei werden Ordner mittels Tags simuliert, die den Ordner-Pfad enthalten. Es wird nicht empfohlen, diese Option für neue Konten zu verwenden."
+    "message": "Die Option \"Alte Version\" ist kompatibel mit mindestens Version v0.11 der Bookmarks app. Dabei werden Ordner mittels Tags simuliert, die den Ordner-Pfad enthalten. Es wird nicht empfohlen, diese Option für neue Konten zu verwenden."
   },
   "LabelAdapterwebdav": {
     "message": "WebDaV-Freigabe"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Die WebDAV-Option synchronisiert die Lesezeichen in einer Datei in der angegebenen WebDAV-Freigabe. Es gibt keine Weboberfläche für diese Option und sie kann mit jedem WebDAB-kompatiblen Server genutzt werden. Sie kann http, ftp, Daten und Javascript-Lesezeichen synchronisieren."
+    "message": "Die WebDAV-Option synchronisiert die Lesezeichen in einer Datei in der angegebenen WebDAV-Freigabe. Es gibt keine Weboberfläche für diese Option und sie kann mit jedem WebDAV-kompatiblen Server genutzt werden. Sie kann http, ftp, Daten und Javascript-Lesezeichen synchronisieren."
   },
   "LabelAddaccount": {
     "message": "Konto hinzufügen"
@@ -322,7 +322,7 @@
   },
   "LabelOptionsscreen": {
     "message": "{0} Optionen",
-    "description": "Title of the options screen. The placeholder holds the account type."
+    "description": "Titel des Optionsbildschirms. Der Platzhalter enthält den Kontotyp."
   },
   "LabelPaypal": {
     "message": "Paypal"
@@ -334,19 +334,19 @@
     "message": "OpenCollective"
   },
   "DescriptionOpencollective": {
-    "message": "Tätige regelmäßige Spenden über OpenCollective um das Projekt zu unterstüzten."
+    "message": "Tätige regelmäßige Spenden über OpenCollective um das Projekt zu unterstützen."
   },
   "LabelLiberapay": {
     "message": "Liberapay"
   },
   "DescriptionLiberapay": {
-    "message": "Tätige regelmäßige Spenden über Liberapay um das Projekt zu unterstützen"
+    "message": "Tätige regelmäßige Spenden über Liberapay um das Projekt zu unterstützen."
   },
   "LabelGithubsponsors": {
     "message": "GitHub sponsors"
   },
   "DescriptionGithubsponsors": {
-    "message": "Tätige regelmäßige Spenden über Github sponsors um das Projekt zu unterstützen"
+    "message": "Tätige regelmäßige Spenden über GitHub sponsors um das Projekt zu unterstützen."
   },
   "LegacyAdapterDeprecation": {
     "message": "Warnung! Dieser Konto-Typ ist veraltet und wird bald entfernt. Bitte wechseln Sie zur neuen Nextcloud Synchronisierungsmethode mit besserer Leistungsfähigkeit und Fehlerfreiheit. "
@@ -361,10 +361,10 @@
     "message": "Release-Notes lesen"
   },
   "LabelOptionsServerDetails": {
-    "message": "Server Details"
+    "message": "Server-Details"
   },
   "LabelOptionsFolderMapping": {
-    "message": "Ordner Zuordnung"
+    "message": "Ordner-Zuordnung"
   },
   "LabelOptionsSyncBehavior": {
     "message": "Synchronisationsverhalten"
@@ -382,7 +382,7 @@
     "message": "Keine Konten vorhanden"
   },
   "DescriptionNoAccount": {
-    "message": "Neuen Account erstellen um Lesezeichen zu synchronisieren."
+    "message": "Neues Konto erstellen um Lesezeichen zu synchronisieren."
   },
   "LabelLoginFlowStart": {
     "message": "Mit Nextcloud anmelden"
@@ -409,7 +409,7 @@
     "message": "Bette den lokalen Ordner dieses Kontos in andere Synchronisationskonten ein"
   },
   "LabelImportExport": {
-    "message": " Konten Importieren/Exportieren"
+    "message": "Konten importieren/exportieren"
   },
   "LabelExport": {
     "message": "Konten exportieren"
@@ -469,10 +469,10 @@
     "message": "Manchmal können Konfigurationsfehler oder Programmfehler zur unerwünschte Löschung von Daten führen, die dann verloren sind. Um dies zu verhindern, wird Floccus nicht mehr als 50% Ihrer Lesezeichen in einem Schritt löschen, solange sie diese Löschsicherung nicht hier ausschalten."
   },
   "LabelFailsafeon": {
-    "message": "Eingeschaltet. Lösche nicht mehr als 50% meiner lokalen Lesezeichen ohne mich vorher zu fragen. (Empfohlen)"
+    "message": "Eingeschaltet. Lösche nicht mehr als 50% meiner lokalen Lesezeichen ohne mich vorher zu fragen (empfohlen)."
   },
   "LabelFailsafeoff": {
-    "message": "Ausgeschaltet. Erlaube das Löschen von mehr als 50% meiner lokalen Lesezeichen.ohne mich vorher zu fragen."
+    "message": "Ausgeschaltet. Erlaube das Löschen von mehr als 50% meiner lokalen Lesezeichen ohne mich vorher zu fragen."
   },
   "StatusFailsafeoff": {
     "message": "Löschsicherung ausgeschaltet. Sie laufen Gefahr Daten zu verlieren. Es wird empfohlen die Löschsicherung in den Konto-Einstellungen einzuschalten."
@@ -499,13 +499,13 @@
     "message": "Setzen Sie ein Passwort, um Ihre Lesezeichen-Datei zu verschlüsseln. Wenn Sie kein Passwort setzen, wird die Datei unverschlüsselt gespeichert."
   },
   "LabelClientcert": {
-    "message": "Sende Client Legitimation"
+    "message": "Sende Client-Legitimation"
   },
   "DescriptionClientcert": {
-    "message": "Schalten Sie diese Option an, wenn Ihr Server ein Client Zertifikat oder Cookies zur Authentifizierung benötigt. Dies kann unerwünschte Nebeneffekte haben, da Floccus sich Cookies mit Ihrem normalen Browser-Profil teilen wird."
+    "message": "Schalten Sie diese Option an, wenn Ihr Server ein Client-Zertifikat oder Cookies zur Authentifizierung benötigt. Dies kann unerwünschte Nebeneffekte haben, da Floccus sich Cookies mit Ihrem normalen Browser-Profil teilen wird."
   },
   "LabelAllowredirects": {
-    "message": "Erlaube Weiterleitungen in der Server URL"
+    "message": "Erlaube Weiterleitungen in der Server-URL"
   },
   "DescriptionAllowredirects": {
     "message": "Aktivieren Sie diese Option, falls sie Weiterleitungs-Fehler während dem Synchronisieren bekommen, die Sie für unberechtigt halten."
@@ -544,13 +544,13 @@
     "message": "Protokolle herunterladen"
   },
   "LabelDownloadfulllogs": {
-    "message": "Vollständiges Protkoll"
+    "message": "Vollständiges Protokoll"
   },
   "LabelDownloadanonymizedlogs": {
     "message": "Geschwärztes Protokoll"
   },
   "DescriptionDownloadlogs": {
-    "message": "Floccus protokolliert alle Aktionen in einer lokalen Protokoll-Datei, die Sie bei Bedarf selbst einsehen können oder im Fehlerfall an die Entwickler senden können. Im geschwärzten Protokoll sind Ordner und Lesezeichen Namen, wie auch URLs, mittels einer kryptographischen Hash-Funktion irreversibel verschlüsselt. Wenn Sie das geschwärzte Protokoll weitergeben, stellen Sie bitte trotzdem Sicher, dass keine sensiblen Daten einsehbar sind, die vom Anonymisierungsprozess übersehen wurden."
+    "message": "Floccus protokolliert alle Aktionen in einer lokalen Protokolldatei, die Sie bei Bedarf selbst einsehen können oder im Fehlerfall an die Entwickler senden können. Im geschwärzten Protokoll sind Ordner und Lesezeichennamen, wie auch URLs, mittels einer kryptographischen Hash-Funktion irreversibel verschlüsselt. Wenn Sie das geschwärzte Protokoll weitergeben, stellen Sie bitte trotzdem sicher, dass keine sensiblen Daten einsehbar sind, die vom Anonymisierungsprozess übersehen wurden."
   },
   "ErrorFolderloopselected": {
     "message": "Kann einen Ordner nicht in sich selbst verschieben"
@@ -562,7 +562,7 @@
     "message": "Erlaube Netzwerk-Nutzung"
   },
   "DescriptionAllownetwork": {
-    "message": "Floccus kann das Internet neben der Synchronisierung auch zum Einholen zusätzlicher Informationen über Ihre Lesezeichen benutzen, wie z.B. Webseiten-Icons. Hier können Sie solche Netzwerk-Nutzung aktivieren."
+    "message": "Floccus kann das Internet neben der Synchronisierung auch zum Einholen zusätzlicher Informationen über Ihre Lesezeichen benutzen, wie z. B. Webseiten-Icons. Hier können Sie solche Netzwerk-Nutzung aktivieren."
   },
   "LabelMobilesettings": {
     "message": "Mobil-Einstellungen"
@@ -628,7 +628,7 @@
     "message": "Wie soll die Synchronisierung ablaufen?"
   },
   "LabelAccountcreated": {
-    "message": "Account erstellen"
+    "message": "Konto erstellen"
   },
   "DescriptionNonhttps": {
     "message": "Sie haben einen Server angegeben, der ein unsicheres Protokoll benutzt. Es wird empfohlen nur Server zu benutzen, die HTTPS unterstützen."
