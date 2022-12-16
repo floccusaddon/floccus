@@ -216,10 +216,10 @@
     "message": "Diese Option bestimmt wie der Lesezeichenbaum auf dem Server mit dem im Browser synchronisiert wird. Normalerweise will man Änderungen von beiden Seiten behalten, sofern sie kompatibel sind, aber manchmal ist es nötig die lokale Version genau so auf den Server zu übertragen, oder anders herum."
   },
   "LabelStrategydefault": {
-    "message": "Führe lokale Änderungen immer mit denen von anderen Browsern zusammen (empfohlen)"
+    "message": "Führe lokale Änderungen immer mit denen von anderen Browsern zusammen (empfohlen)."
   },
   "LabelStrategyslave": {
-    "message": "Verwerfe lokale Änderungen und lade immer Änderungen von anderen Browsern herunter"
+    "message": "Verwerfe lokale Änderungen und lade immer Änderungen von anderen Browsern herunter."
   },
   "LabelStrategyoverwrite": {
     "message": "Lade lokale Änderungen immer hoch und verwirf Änderungen von anderen Browsern"
