@@ -72,7 +72,7 @@
     "message": "E024: HTTP-Status {0} während des Ermittelns des Status der Lock-Datei {1}."
   },
   "Error025": {
-    "message": "E025: Die Einstellung der Bookmarks Datei darf nicht mit einem Schrägstrich beginnen: '/'"
+    "message": "E025: Die Einstellung der Bookmarks-Datei darf nicht mit einem Schrägstrich beginnen: '/'"
   },
   "Error026": {
     "message": "E026: HTTP status {0}. Fehler beim laden der Lesezeichen"
