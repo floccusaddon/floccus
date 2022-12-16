@@ -442,7 +442,7 @@
     "message": "Hochladen"
   },
   "DescriptionSyncUp": {
-    "message": "Lädt lokale Änderungen hoch und überschreibt Änderungen von anderen Browsern"
+    "message": "Lokale Änderungen hochladen und Änderungen von anderen Browsern überschreiben"
   },
   "LabelSyncDownOnce": {
     "message": "Einmalig herunterladen"
