@@ -9,10 +9,10 @@
     "message": "E003: Der Ordner, aus dem verschoben werden soll, existiert nicht. Dies ist eine Anomalie. Herzlichen Glückwunsch."
   },
   "Error004": {
-    "message": "E004: Ordner in den verschoben werden soll existiert nicht"
+    "message": "E004: Der Ordner, in den verschoben werden soll, existiert nicht"
   },
   "Error005": {
-    "message": "E005: Ordner in dem erzeugt werden soll existiert nicht"
+    "message": "E005: Der Ordner, in dem erzeugt werden soll, existiert nicht."
   },
   "Error006": {
     "message": "E006: Zu aktualisierender Ordner existiert nicht "
