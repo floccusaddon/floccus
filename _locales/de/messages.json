@@ -198,7 +198,7 @@
     "message": "Neue Synchronisierung von Grund auf auslösen"
   },
   "LabelResetCache": {
-    "message": "Reset Cache"
+    "message": "Cache zurücksetzen"
   },
   "DescriptionResetcache": {
     "message": "Setzen SIe diesen Haken, um den Cache zurückzusetzen, sodass die nächste Synchronisierung garantiert keine Lesezeichen löscht, sondern lediglich Server und Lokale Lesezeichen vereinigt"
