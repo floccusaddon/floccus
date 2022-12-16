@@ -33,7 +33,7 @@
     "message": "E011: Der Eintrag in der Ordner-Ordnung ist kein Kind des Ordners: {0}"
   },
   "Error012": {
-    "message": "E012: Der Ordner-Ordnung fehlen einige Kinder des Ordners"
+    "message": "E012: Der Ordner-Ordnung fehlen einige Kinder des Ordners."
   },
   "Error013": {
     "message": "E013: Zu löschender Ordner existiert nicht"
