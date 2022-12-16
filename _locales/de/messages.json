@@ -382,7 +382,7 @@
     "message": "Keine Konten vorhanden"
   },
   "DescriptionNoAccount": {
-    "message": "Neuen Account erstellen um Lesezeichen zu synchronisieren."
+    "message": "Neues Konto erstellen um Lesezeichen zu synchronisieren."
   },
   "LabelLoginFlowStart": {
     "message": "Mit Nextcloud anmelden"
