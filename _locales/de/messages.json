@@ -436,7 +436,7 @@
     "message": "Herunterladen"
   },
   "DescriptionSyncDown": {
-    "message": "Lädt Änderungen von anderen Browsern herunter und überschreibt lokale Änderungen"
+    "message": "Änderungen von anderen Browsern herunterladen und lokale Änderungen überschreiben"
   },
   "LabelSyncUp": {
     "message": "Hochladen"
