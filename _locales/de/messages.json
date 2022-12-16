@@ -499,7 +499,7 @@
     "message": "Setzen Sie ein Passwort, um Ihre Lesezeichen-Datei zu verschlüsseln. Wenn Sie kein Passwort setzen, wird die Datei unverschlüsselt gespeichert."
   },
   "LabelClientcert": {
-    "message": "Sende Client Legitimation"
+    "message": "Sende Client-Legitimation"
   },
   "DescriptionClientcert": {
     "message": "Schalten Sie diese Option an, wenn Ihr Server ein Client Zertifikat oder Cookies zur Authentifizierung benötigt. Dies kann unerwünschte Nebeneffekte haben, da Floccus sich Cookies mit Ihrem normalen Browser-Profil teilen wird."
