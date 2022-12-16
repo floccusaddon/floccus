@@ -222,7 +222,7 @@
     "message": "Verwerfe lokale Änderungen und lade immer Änderungen von anderen Browsern herunter."
   },
   "LabelStrategyoverwrite": {
-    "message": "Lade lokale Änderungen immer hoch und verwirf Änderungen von anderen Browsern"
+    "message": "Lade lokale Änderungen immer hoch und verwirf Änderungen von anderen Browsern."
   },
   "LabelSave": {
     "message": "Speichern"
