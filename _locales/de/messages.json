@@ -628,7 +628,7 @@
     "message": "Wie soll die Synchronisierung ablaufen?"
   },
   "LabelAccountcreated": {
-    "message": "Account erstellen"
+    "message": "Konto erstellen"
   },
   "DescriptionNonhttps": {
     "message": "Sie haben einen Server angegeben, der ein unsicheres Protokoll benutzt. Es wird empfohlen nur Server zu benutzen, die HTTPS unterstützen."
