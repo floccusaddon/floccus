@@ -255,7 +255,7 @@
     "message": "Die Option \"Alte Version\" ist kompatibel mit mindestens Version v0.11 der Bookmarks app. Dabei werden Ordner mittels Tags simuliert, die den Ordner-Pfad enthalten. Es wird nicht empfohlen, diese Option für neue Konten zu verwenden."
   },
   "LabelAdapterwebdav": {
-    "message": "WebDaV-Freigabe"
+    "message": "WebDAV-Freigabe"
   },
   "DescriptionAdapterwebdav": {
     "message": "Die WebDAV-Option synchronisiert die Lesezeichen in einer Datei in der angegebenen WebDAV-Freigabe. Es gibt keine Weboberfläche für diese Option und sie kann mit jedem WebDAB-kompatiblen Server genutzt werden. Sie kann http, ftp, Daten und Javascript-Lesezeichen synchronisieren."
