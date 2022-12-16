@@ -111,7 +111,7 @@
     "message": "z. B. mit Nextcloud: https://ihre-domain.com/remote.php/webdav/"
   },
   "LabelNextcloudurl": {
-    "message": "Nextcloud URL"
+    "message": "Nextcloud-URL"
   },
   "LabelUsername": {
     "message": "Benutzername"
