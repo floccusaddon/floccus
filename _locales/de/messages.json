@@ -78,7 +78,7 @@
     "message": "E026: HTTP-Status {0}. Fehler beim Laden der Lesezeichen."
   },
   "Error027": {
-    "message": "E027: Der Synchronisierungsprozess wurde unterbrochen"
+    "message": "E027: Der Synchronisierungsprozess wurde unterbrochen."
   },
   "Error028": {
     "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
