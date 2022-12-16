@@ -69,7 +69,7 @@
     "message": "E023: Freigabe der Lock-Datei war nicht erfolgreich. Erwägen Sie {0} von Hand zu löschen."
   },
   "Error024": {
-    "message": "E024: HTTP status {0} während des Ermittelns des Status der Lock-Datei {1}"
+    "message": "E024: HTTP-Status {0} während des Ermittelns des Status der Lock-Datei {1}"
   },
   "Error025": {
     "message": "E025: Die Einstellung der Bookmarks Datei darf nicht mit einem Schrägstrich beginnen: '/'"
