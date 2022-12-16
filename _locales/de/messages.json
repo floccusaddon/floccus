@@ -90,7 +90,7 @@
     "message": "E030: Entschlüsseln der Lesezeichendatei fehlgeschlagen. Die Passphrase könnte falsch oder die Datei beschädigt sein."
   },
   "Error031": {
-    "message": "E031: Authentifizierung mit Google Drive fehlgeschlagen. Bitte verbinden Sie Floccus noch einmal mit Ihrem Google Account\nCould not authenticate with Google Drive. Please connect Floccus with your google account again."
+    "message": "E031: Authentifizierung mit Google Drive fehlgeschlagen. Bitte verbinden Sie Floccus noch einmal mit Ihrem Google-Konto."
   },
   "Error032": {
     "message": "E032: OAuth-Fehler. Tokenvalidierungsfehler. Bitte verbinden Sie sich erneut mit ihren Google Account."
