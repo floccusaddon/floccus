@@ -502,7 +502,7 @@
     "message": "Sende Client-Legitimation"
   },
   "DescriptionClientcert": {
-    "message": "Schalten Sie diese Option an, wenn Ihr Server ein Client Zertifikat oder Cookies zur Authentifizierung benötigt. Dies kann unerwünschte Nebeneffekte haben, da Floccus sich Cookies mit Ihrem normalen Browser-Profil teilen wird."
+    "message": "Schalten Sie diese Option an, wenn Ihr Server ein Client-Zertifikat oder Cookies zur Authentifizierung benötigt. Dies kann unerwünschte Nebeneffekte haben, da Floccus sich Cookies mit Ihrem normalen Browser-Profil teilen wird."
   },
   "LabelAllowredirects": {
     "message": "Erlaube Weiterleitungen in der Server URL"
