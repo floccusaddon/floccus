@@ -96,7 +96,7 @@
     "message": "E032: OAuth-Fehler. Tokenvalidierungsfehler. Bitte verbinden Sie sich erneut mit ihrem Google-Konto."
   },
   "Error033": {
-    "message": "E033: Weiterleitung festgestellt. Vergewissern Sie sich dass der angegebene Server die ausgewählte Synchronisierungsmethode unterstützt und die URL, die Sie eingegeben haben, stimmt und nicht auf eine andere URL weiterleitet. Falls die Weiterleitung teil Ihres Server-Setups ist, können Sie diese Kontrolle in den Einstellungen deaktivieren."
+    "message": "E033: Weiterleitung festgestellt. Vergewissern Sie sich, dass der angegebene Server die ausgewählte Synchronisierungsmethode unterstützt und die URL stimmt, die Sie eingegeben haben und nicht auf eine andere URL weiterleitet. Falls die Weiterleitung teil Ihres Server-Setups ist, können Sie diese Kontrolle in den Einstellungen deaktivieren."
   },
   "Error034": {
     "message": "E034: Liesezeichendatei ist nicht erreichbar. Haben Sie vergessen eine Verschlüsselungspassphrase anzugeben?"
