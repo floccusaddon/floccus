@@ -3,7 +3,7 @@
     "message": "E001: Der Ordner, in dem neu erzeugt werden soll, existiert nicht."
   },
   "Error002": {
-    "message": "E002: Zu aktualisierendes Lesezeichen existiert nicht"
+    "message": "E002: Zu aktualisierendes Lesezeichen existiert nicht."
   },
   "Error003": {
     "message": "E003: Ordner aus dem herausgeschoben werden soll existiert nicht. Dies ist eine Anomalie. Herzlichen Glückwunsch."
