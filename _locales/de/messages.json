@@ -252,7 +252,7 @@
     "message": "Nextcloud Bookmarks (alte Version)"
   },
   "DescriptionAdapternextcloud": {
-    "message": "Die Option Alte Version ist kompatibel mit mindestens Version v0.11 der Bookmarks app. Dabei werden Ordner mittels Tags simuliert, die den Ordner-Pfad enthalten. Es wird nicht empfohlen, diese Option für neue Konten zu verwenden."
+    "message": "Die Option \"Alte Version\" ist kompatibel mit mindestens Version v0.11 der Bookmarks app. Dabei werden Ordner mittels Tags simuliert, die den Ordner-Pfad enthalten. Es wird nicht empfohlen, diese Option für neue Konten zu verwenden."
   },
   "LabelAdapterwebdav": {
     "message": "WebDaV-Freigabe"
