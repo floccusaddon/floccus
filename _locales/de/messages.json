@@ -57,7 +57,7 @@
     "message": "E019: HTTP Status {0}. Anfrage vom Typ {1}  fehlgeschlagen. Überprüfen Sie die Server-Konfiguration und das Server-Log."
   },
   "Error020": {
-    "message": "E020: Antwort des Servers konnte nicht gelesen werden. Ist die Bookmarks App auf Ihrem Server installiert?"
+    "message": "E020: Antwort des Servers konnte nicht gelesen werden. Ist die Bookmarks-App auf Ihrem Server installiert?"
   },
   "Error021": {
     "message": "E021: Inkonsistenter Server-Zustand. Ein Ordner ist in der Kind-Ordnung enthalten, aber nicht im Ordner-Baum."
