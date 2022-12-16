@@ -484,7 +484,7 @@
     "message": "Synchronisieren Sie Lesezeichen mittels einer verschlüsselten Datei, die in Ihrem Google Drive gespeichert wird. Synchronisiert werden können http, ftp, data und javascript Lesezeichen."
   },
   "LabelLogingoogle": {
-    "message": "Anmelden mit Google"
+    "message": "Mit Google anmelden"
   },
   "DescriptionLogingoogle": {
     "message": "Verbinden Sie Floccus mit Ihrem Google Konto um die Lesezeichen-Datei in Ihrem Google Drive zu speichern."
