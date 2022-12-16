@@ -472,7 +472,7 @@
     "message": "Eingeschaltet. Lösche nicht mehr als 50% meiner lokalen Lesezeichen ohne mich vorher zu fragen (empfohlen)."
   },
   "LabelFailsafeoff": {
-    "message": "Ausgeschaltet. Erlaube das Löschen von mehr als 50% meiner lokalen Lesezeichen.ohne mich vorher zu fragen."
+    "message": "Ausgeschaltet. Erlaube das Löschen von mehr als 50% meiner lokalen Lesezeichen ohne mich vorher zu fragen."
   },
   "StatusFailsafeoff": {
     "message": "Löschsicherung ausgeschaltet. Sie laufen Gefahr Daten zu verlieren. Es wird empfohlen die Löschsicherung in den Konto-Einstellungen einzuschalten."
