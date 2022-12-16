@@ -24,10 +24,10 @@
     "message": "E008: Der Ordner, aus dem verschoben werden soll, existiert nicht."
   },
   "Error009": {
-    "message": "E009: Ordner in den verschoben werden soll existiert nicht"
+    "message": "E009: Der Ordner, in den verschoben werden soll, existiert nicht."
   },
   "Error010": {
-    "message": "E010: Zu ordnender Ordner konnte nicht gefunden werden"
+    "message": "E010: Zu ordnender Ordner konnte nicht gefunden werden."
   },
   "Error011": {
     "message": "E011: Der Eintrag in der Ordner-Ordnung ist kein Kind des Ordners: {0}"
