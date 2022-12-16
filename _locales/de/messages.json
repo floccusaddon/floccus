@@ -120,7 +120,7 @@
     "message": "Passwort"
   },
   "LabelBookmarksfile": {
-    "message": "Pfad zur Bookmark-Datei"
+    "message": "Pfad zur Lesezeichendatei"
   },
   "DescriptionBookmarksfile": {
     "message": "ein Pfad zur Bookmarks-Datei relativ zur WebDAV URL (alle Ordner darin müssen bereits existieren). z.B. persönlich/lesezeichen.xbel (Kein Schrägstrich am Anfang!)"
