@@ -75,7 +75,7 @@
     "message": "E025: Die Einstellung der Bookmarks-Datei darf nicht mit einem Schrägstrich beginnen: '/'"
   },
   "Error026": {
-    "message": "E026: HTTP status {0}. Fehler beim laden der Lesezeichen"
+    "message": "E026: HTTP-Status {0}. Fehler beim Laden der Lesezeichen."
   },
   "Error027": {
     "message": "E027: Der Synchronisierungsprozess wurde unterbrochen"
