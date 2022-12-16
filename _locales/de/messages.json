@@ -406,7 +406,7 @@
     "message": "Den lokalen Ordner dieses Kontos von anderen Synchronisationskonten ausschließen"
   },
   "LabelNestedSyncYes": {
-    "message": "Bette den lokalen Ordner dieses Kontos in andere Synchronisationskonten ein"
+    "message": "Den lokalen Ordner dieses Kontos in andere Synchronisationskonten einbetten"
   },
   "LabelImportExport": {
     "message": " Konten Importieren/Exportieren"
