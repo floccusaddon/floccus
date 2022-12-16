@@ -45,7 +45,7 @@
     "message": "E015: Unerwartete Antwortdaten vom Server erhalten."
   },
   "Error016": {
-    "message": "E016: Zeitüberschreitung einer Anfrage. Überprüfen Sie die Server-Konfiguration"
+    "message": "E016: Zeitüberschreitung einer Anfrage. Überprüfen Sie die Server-Konfiguration."
   },
   "Error017": {
     "message": "E017: Netzwerk-Fehler: Überprüfen sie Ihre Netzwerkverbindung und die eingegebenen Konto-Daten"
