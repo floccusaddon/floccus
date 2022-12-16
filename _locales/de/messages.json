@@ -36,7 +36,7 @@
     "message": "E012: Der Ordner-Ordnung fehlen einige Kinder des Ordners."
   },
   "Error013": {
-    "message": "E013: Zu löschender Ordner existiert nicht"
+    "message": "E013: Zu löschender Ordner existiert nicht."
   },
   "Error014": {
     "message": "E014: Elternordner aus dem gelöscht werden soll existiert nicht mehr"
