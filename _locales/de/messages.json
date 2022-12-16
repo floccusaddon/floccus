@@ -81,7 +81,7 @@
     "message": "E027: Der Synchronisierungsprozess wurde unterbrochen."
   },
   "Error028": {
-    "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
+    "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen, stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
   },
   "Error029": {
     "message": "E029: Löschsicherung: Die aktuelle Synchronisierung würde {0}% der lokalen Bookmarks löschen. Floccus weigert sich dies auszüführen. Falls Sie trotzdem fortfahren wollen, deaktivieren Sie die Löschsicherung in den Konto-Einstellungen."
