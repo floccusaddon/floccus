@@ -246,7 +246,7 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "Die Option \"Nextcloud Bookmarks\" ist kompatibel mit mindestens Version v0.14 der Bookmarks app."
+    "message": "Die Option \"Nextcloud Bookmarks\" ist kompatibel mit mindestens Version v0.14 der Bookmarks-App."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (alte Version)"
