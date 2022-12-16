@@ -1,6 +1,6 @@
 {
   "Error001": {
-    "message": "E001: Der Ordner, in dem neu erzeugt werden soll, existiert nicht"
+    "message": "E001: Der Ordner, in dem neu erzeugt werden soll, existiert nicht."
   },
   "Error002": {
     "message": "E002: Zu aktualisierendes Lesezeichen existiert nicht"
