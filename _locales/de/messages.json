@@ -42,7 +42,7 @@
     "message": "E014: Der Elternordner, aus dem gelöscht werden soll, existiert nicht."
   },
   "Error015": {
-    "message": "E015: Unerwartete Antwortdaten vom Server erhalten"
+    "message": "E015: Unerwartete Antwortdaten vom Server erhalten."
   },
   "Error016": {
     "message": "E016: Zeitüberschreitung einer Anfrage. Überprüfen Sie die Server-Konfiguration"
