@@ -63,7 +63,7 @@
     "message": "E021: Inkonsistenter Server-Zustand. Ein Ordner ist in der Kind-Ordnung enthalten, aber nicht im Ordner-Baum."
   },
   "Error022": {
-    "message": "E022: Ordner {0} enhält angeblich ein nicht existierendes Lesezeichen: {1}"
+    "message": "E022: Ordner {0} enthält angeblich ein nicht existierendes Lesezeichen: {1}"
   },
   "Error023": {
     "message": "E023: Freigabe der Lock-Datei war nicht erfolgreich. Erwägen Sie {0} von Hand zu löschen."
