@@ -48,7 +48,7 @@
     "message": "E016: Zeitüberschreitung einer Anfrage. Überprüfen Sie die Server-Konfiguration."
   },
   "Error017": {
-    "message": "E017: Netzwerk-Fehler: Überprüfen sie Ihre Netzwerkverbindung und die eingegebenen Konto-Daten"
+    "message": "E017: Netzwerk-Fehler: Überprüfen sie Ihre Netzwerkverbindung und die eingegebenen Kontodaten"
   },
   "Error018": {
     "message": "E018: Konnte nicht am Server authentifiziert werden."
