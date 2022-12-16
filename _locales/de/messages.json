@@ -126,7 +126,7 @@
     "message": "Ein Pfad zur Lesezeichendatei relativ zur WebDAV-URL (alle Ordner darin müssen bereits existieren). z.B. persönlich/lesezeichen.xbel (Kein Schrägstrich am Anfang!)"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "Der Dateiname der Lesezeichen-Datei, die in Ihrem Google Drive gespeichert wird (stellen Sie sicher, dass der Dateiname in Google Drive einzigartig ist)"
+   "message": "Der Dateiname der Lesezeichendatei, die in Ihrem Google Drive gespeichert wird (stellen Sie sicher, dass der Dateiname in Google Drive einzigartig ist)."
  },
   "LabelServerfolder": {
     "message": "Server-Ordner"
