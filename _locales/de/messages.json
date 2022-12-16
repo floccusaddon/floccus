@@ -39,7 +39,7 @@
     "message": "E013: Zu löschender Ordner existiert nicht."
   },
   "Error014": {
-    "message": "E014: Elternordner aus dem gelöscht werden soll existiert nicht mehr"
+    "message": "E014: Der Elternordner, aus dem gelöscht werden soll, existiert nicht."
   },
   "Error015": {
     "message": "E015: Unerwartete Antwortdaten vom Server erhalten"
