@@ -505,7 +505,7 @@
     "message": "Schalten Sie diese Option an, wenn Ihr Server ein Client-Zertifikat oder Cookies zur Authentifizierung benötigt. Dies kann unerwünschte Nebeneffekte haben, da Floccus sich Cookies mit Ihrem normalen Browser-Profil teilen wird."
   },
   "LabelAllowredirects": {
-    "message": "Erlaube Weiterleitungen in der Server URL"
+    "message": "Erlaube Weiterleitungen in der Server-URL"
   },
   "DescriptionAllowredirects": {
     "message": "Aktivieren Sie diese Option, falls sie Weiterleitungs-Fehler während dem Synchronisieren bekommen, die Sie für unberechtigt halten."
