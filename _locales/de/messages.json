@@ -490,7 +490,7 @@
     "message": "Verbinden Sie Floccus mit Ihrem Google-Konto um die Lesezeichendatei in Ihrem Google Drive zu speichern."
   },
   "DescriptionLoggedingoogle": {
-    "message": "Sie haben Ihr Google Konto mit Floccus verbunden, um die Lesezeichen-Datei in ihrem Google-Drive zu speichern."
+    "message": "Sie haben Ihr Google-Konto mit Floccus verbunden, um die Lesezeichen-Datei in ihrem Google-Drive zu speichern."
   },
   "LabelPassphrase": {
     "message": "Passphrase"
