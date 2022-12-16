@@ -550,7 +550,7 @@
     "message": "Geschwärztes Protokoll"
   },
   "DescriptionDownloadlogs": {
-    "message": "Floccus protokolliert alle Aktionen in einer lokalen Protokoll-Datei, die Sie bei Bedarf selbst einsehen können oder im Fehlerfall an die Entwickler senden können. Im geschwärzten Protokoll sind Ordner und Lesezeichen Namen, wie auch URLs, mittels einer kryptographischen Hash-Funktion irreversibel verschlüsselt. Wenn Sie das geschwärzte Protokoll weitergeben, stellen Sie bitte trotzdem Sicher, dass keine sensiblen Daten einsehbar sind, die vom Anonymisierungsprozess übersehen wurden."
+    "message": "Floccus protokolliert alle Aktionen in einer lokalen Protokolldatei, die Sie bei Bedarf selbst einsehen können oder im Fehlerfall an die Entwickler senden können. Im geschwärzten Protokoll sind Ordner und Lesezeichennamen, wie auch URLs, mittels einer kryptographischen Hash-Funktion irreversibel verschlüsselt. Wenn Sie das geschwärzte Protokoll weitergeben, stellen Sie bitte trotzdem sicher, dass keine sensiblen Daten einsehbar sind, die vom Anonymisierungsprozess übersehen wurden."
   },
   "ErrorFolderloopselected": {
     "message": "Kann einen Ordner nicht in sich selbst verschieben"
