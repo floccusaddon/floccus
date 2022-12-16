@@ -469,7 +469,7 @@
     "message": "Manchmal können Konfigurationsfehler oder Programmfehler zur unerwünschte Löschung von Daten führen, die dann verloren sind. Um dies zu verhindern, wird Floccus nicht mehr als 50% Ihrer Lesezeichen in einem Schritt löschen, solange sie diese Löschsicherung nicht hier ausschalten."
   },
   "LabelFailsafeon": {
-    "message": "Eingeschaltet. Lösche nicht mehr als 50% meiner lokalen Lesezeichen ohne mich vorher zu fragen. (Empfohlen)"
+    "message": "Eingeschaltet. Lösche nicht mehr als 50% meiner lokalen Lesezeichen ohne mich vorher zu fragen (empfohlen)."
   },
   "LabelFailsafeoff": {
     "message": "Ausgeschaltet. Erlaube das Löschen von mehr als 50% meiner lokalen Lesezeichen.ohne mich vorher zu fragen."
