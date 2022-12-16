@@ -258,7 +258,7 @@
     "message": "WebDAV-Freigabe"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Die WebDAV-Option synchronisiert die Lesezeichen in einer Datei in der angegebenen WebDAV-Freigabe. Es gibt keine Weboberfläche für diese Option und sie kann mit jedem WebDAB-kompatiblen Server genutzt werden. Sie kann http, ftp, Daten und Javascript-Lesezeichen synchronisieren."
+    "message": "Die WebDAV-Option synchronisiert die Lesezeichen in einer Datei in der angegebenen WebDAV-Freigabe. Es gibt keine Weboberfläche für diese Option und sie kann mit jedem WebDAV-kompatiblen Server genutzt werden. Sie kann http, ftp, Daten und Javascript-Lesezeichen synchronisieren."
   },
   "LabelAddaccount": {
     "message": "Konto hinzufügen"
