@@ -141,7 +141,7 @@
     "message": "Der lokale Lesezeichen-Ordner in diesem Browser, der mit dem Server synchronisiert wird. Per Default wird ein neuer Ordner für Sie angelegt. (Hinweis: Es ist nun möglich das Wurzel-Verzeichnis zwischen verschiedenen Browser-Typen direkt zu synchronisieren.) "
   },
   "LabelRootfolder": {
-    "message": "Wurzel-Ordner"
+    "message": "Wurzelordner"
   },
   "LabelNewfolder": {
     "message": "Neu erstellter Ordner"
