@@ -562,7 +562,7 @@
     "message": "Erlaube Netzwerk-Nutzung"
   },
   "DescriptionAllownetwork": {
-    "message": "Floccus kann das Internet neben der Synchronisierung auch zum Einholen zusätzlicher Informationen über Ihre Lesezeichen benutzen, wie z.B. Webseiten-Icons. Hier können Sie solche Netzwerk-Nutzung aktivieren."
+    "message": "Floccus kann das Internet neben der Synchronisierung auch zum Einholen zusätzlicher Informationen über Ihre Lesezeichen benutzen, wie z. B. Webseiten-Icons. Hier können Sie solche Netzwerk-Nutzung aktivieren."
   },
   "LabelMobilesettings": {
     "message": "Mobil-Einstellungen"
