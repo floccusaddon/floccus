@@ -15,13 +15,13 @@
     "message": "E005: Der Ordner, in dem erzeugt werden soll, existiert nicht."
   },
   "Error006": {
-    "message": "E006: Zu aktualisierender Ordner existiert nicht "
+    "message": "E006: Zu aktualisierender Ordner existiert nicht."
   },
   "Error007": {
-    "message": "E007: Zu verschiebender Ordner existiert nicht"
+    "message": "E007: Zu verschiebender Ordner existiert nicht."
   },
   "Error008": {
-    "message": "E008: Der Ordner, aus dem herausgeschoben werden soll, existiert nicht."
+    "message": "E008: Der Ordner, aus dem verschoben werden soll, existiert nicht."
   },
   "Error009": {
     "message": "E009: Ordner in den verschoben werden soll existiert nicht"
