@@ -454,7 +454,7 @@
     "message": "Zusammenführen"
   },
   "DescriptionSyncNormal": {
-    "message": "Führe lokale Änderungen mit denen von anderen Browsern zusammen"
+    "message": "Lokale Änderungen mit denen von anderen Browsern zusammenführen"
   },
   "DescriptionFilesPermission": {
     "message": "Stellen Sie sicher, dass Floccus sowohl ausreichende Berechtigungen für die Nutzung der Lesezeichen App, als auch für die Nexcloud Files App hat."
