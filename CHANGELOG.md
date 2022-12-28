@@ -1,5 +1,23 @@
 # Changelog
 
+## v4.18.0
+
+### New
+- [native] Display breadcrumbs when not in root folder
+- [native] Implement bookmarks import
+
+### Fixed
+ - NextcloudBookmarks: Improve error message when bookmark creation fails
+ - [native] Log in production
+ - [native] NewAccount: Show IMPORTEXPORT button
+ - [native] Remove pull-to-refresh for now as it's buggy
+ - [native] Home#checkForIntent: Fix share routine 
+ - Don't cast item IDs to boolean inside if statements 
+ - NextcloudBookmarks: Report all statuses > 400 as HttpError
+ - [native] Options & NewAccount: Allow setting sync interval on android 
+ - AccountCard: Display last sync time on error 
+ - TEST_WEBDAV_SERVER: Improve error message
+
 ## v4.17.1
 
 ### Fixed

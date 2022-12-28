@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "floccus bookmarks sync",
   "short_name": "floccus",
-  "version": "4.17.1",
+  "version": "4.18.0",
   "description": "__MSG_DescriptionExtension__",
   "icons": {
     "48": "icons/logo.png",
