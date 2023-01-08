@@ -12,10 +12,9 @@
       :max="syncIntervalSteps.length-1"
       :step="1"
       :persistent-hint="true"
-      :rules="[Boolean]"
       :thumb-label="'always'"
       :ticks="'always'">
-      <template v-slot:thumb-label="{ value: step }">
+      <template #thumb-label="{ value: step }">
         {{ humanizeDuration(syncIntervalSteps[step] * 1000 * 60) }}
       </template>
     </v-slider>
