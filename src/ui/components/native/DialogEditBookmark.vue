@@ -124,7 +124,7 @@ export default {
   },
   methods: {
     onSave() {
-      if (this.urlError) {
+      if (!this.temporaryUrl || this.urlError) {
         return
       }
       if (!this.tree.findFolder(this.temporaryParent)) {
