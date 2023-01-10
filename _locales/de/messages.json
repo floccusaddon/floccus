@@ -400,7 +400,7 @@
     "message": "Verschachtelte Konten"
   },
   "DescriptionNestedSync": {
-    "message": "Sie können Konten so verschachtelen, dass ein übergeordneter Ordner zu einem Konto und ein untergeordneter Ordner zu einem anderen Konto gehört. Wollen Sie den lokalen Ordner dieses Kontos im einer eventuell übergeordneten Ordnersynchronisation eines anderen Kontos einbetten?"
+    "message": "Sie können Konten so verschachteln, dass ein übergeordneter Ordner zu Konto A gehört und ein untergeordneter Ordner zu Konto A und B. Möchten Sie anderen Konten erlauben, die Ordner dieses Kontos ebenfalls zu synchronisieren?"
   },
   "LabelNestedSyncNo": {
     "message": "Den lokalen Ordner dieses Kontos von anderen Synchronisationskonten ausschließen"
