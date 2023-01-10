@@ -403,7 +403,7 @@
     "message": "Sie können Konten so verschachteln, dass ein übergeordneter Ordner zu Konto A gehört und ein untergeordneter Ordner zu Konto A und B. Möchten Sie anderen Konten erlauben, die Ordner dieses Kontos ebenfalls zu synchronisieren?"
   },
   "LabelNestedSyncNo": {
-    "message": "Den lokalen Ordner dieses Kontos von anderen Synchronisationskonten ausschließen"
+    "message": "Nein, ignoriere den lokalen Ordner dieses Kontos in anderen Konten"
   },
   "LabelNestedSyncYes": {
     "message": "Den lokalen Ordner dieses Kontos in andere Synchronisationskonten einbetten"
