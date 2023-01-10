@@ -406,7 +406,7 @@
     "message": "Nein, ignoriere den lokalen Ordner dieses Kontos in anderen Konten"
   },
   "LabelNestedSyncYes": {
-    "message": "Ja, schließe den lokalen Ordner dieses Kontos in andere Konten ein"
+    "message": "Ja, den lokalen Ordner dieses Kontos in anderen Konten einbetten"
   },
   "LabelImportExport": {
     "message": "Konten importieren/exportieren"
