@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies & build
         run: |
           echo "Install"
-          npm ci
+          npm ci -f
           echo "Build javascript"
           npm run build-release --if-present
           echo "Build Java"
