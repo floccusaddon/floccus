@@ -418,7 +418,7 @@
     "message": "Konten importieren"
   },
   "DescriptionExport": {
-    "message": "Wählen Sie unten Konten aus, um sie in einer Datei zu exportieren, damit Sie einfach die selben Konten auf einem anderen Gerät oder Browser erzeugen können."
+    "message": "Wählen Sie unten die Konten aus, um sie in einer Datei zu exportieren, damit Sie einfach die selben Konten auf einem anderen Gerät oder Browser wiederherstellen können."
   },
   "DescriptionImport": {
     "message": "Importieren Sie eine Datei mit exportierten Konten aus einem anderen Browser, um sie in diesem Browser anzulegen. Stellen Sie sicher, nach dem Import in den Einstellungen die richtigen Ordner zu wählen."
