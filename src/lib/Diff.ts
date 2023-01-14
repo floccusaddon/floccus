@@ -190,7 +190,7 @@ export default class Diff {
    * @param targetLocation
    * @param filter
    */
-  map(mappingsSnapshot:MappingSnapshot, targetLocation: TItemLocation, filter: (Action)=>boolean = () => true): Diff {
+  map(mappingsSnapshot:MappingSnapshot, targetLocation: TItemLocation, filter: (Action)=>boolean = () => true, ignoreErrors = false): Diff {
     const newDiff = new Diff
 
     // Map payloads
@@ -236,7 +236,12 @@ export default class Diff {
           newAction.oldItem.parentId = action.payload.parentId
           newAction.payload.parentId = Mappings.mapParentId(mappingsSnapshot, action.payload, targetLocation)
           if (typeof newAction.payload.parentId === 'undefined' && typeof action.payload.parentId !== 'undefined') {
-            throw new Error('Failed to map parentId: ' + action.payload.parentId)
+            if (ignoreErrors) {
+              // simply ignore this action as it appears to be no longer valid
+              return
+            } else {
+              throw new Error('Failed to map parentId: ' + action.payload.parentId)
+            }
           }
         }
 
