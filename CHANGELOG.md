@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.18.1
+
+### Fixed
+ - Update cordova-plugin-background-mode to fix frequent crashes
+ - OptionSyncInterval: Allow setting 5minutes interval
+ - DialogEditBookmark: Don't allow submitting empty URL
+ - Unidirectional: ignore errors when mapping reorders
+
 ## v4.18.0
 
 ### New
@@ -25,6 +33,7 @@
  - Fix Google Drive on native (#1246)
 
 ## v4.17.0
+
 
 ### New
 - WebDav: Allow syncing via HTML file
