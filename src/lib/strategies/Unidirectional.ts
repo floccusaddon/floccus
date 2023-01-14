@@ -1,11 +1,12 @@
 import DefaultStrategy from './Default'
-import Diff, { ActionType } from '../Diff'
+import Diff, { Action, ActionType } from '../Diff'
 import * as Parallel from 'async-parallel'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import { Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
 import Logger from '../Logger'
 import { InterruptedSyncError } from '../../errors/Error'
 import MergeSyncProcess from './Merge'
+import TResource from '../interfaces/Resource'
 
 export default class UnidirectionalSyncProcess extends DefaultStrategy {
   protected direction: TItemLocation
@@ -42,7 +43,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       throw new InterruptedSyncError()
     }
 
-    let sourceDiff, targetDiff, target
+    let sourceDiff: Diff, targetDiff: Diff, target: TResource
     if (this.direction === ItemLocation.SERVER) {
       sourceDiff = localDiff
       targetDiff = serverDiff
@@ -71,7 +72,12 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     await this.execute(target, revertPlan, this.direction)
 
     const mappingsSnapshot = this.mappings.getSnapshot()
-    const revertOrderings = sourceDiff.map(mappingsSnapshot, this.direction)
+    const revertOrderings = sourceDiff.map(
+      mappingsSnapshot,
+      this.direction,
+      (action: Action) => action.type === ActionType.REORDER,
+      true
+    )
     Logger.log({revertOrderings: revertOrderings.getActions(ActionType.REORDER)})
 
     if ('orderFolder' in target) {
