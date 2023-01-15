@@ -43,7 +43,7 @@ export default {
         const newDelta = Math.abs(value - this.value)
         if (currentDelta > newDelta) return index
         else return closestIndex
-      }, 0) || steps.indexOf(15)
+      }, 0)
     }
   },
   watch: {
