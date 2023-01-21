@@ -101,6 +101,9 @@
   "Error034": {
     "message": "E034：书签文件不可读。您是否忘记设置加密密码短语？"
   },
+  "Error035": {
+    "message": "E035: 无法在服务器上创建以下书签: {0}"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -191,8 +194,11 @@
   "DescriptionRemoveaccount": {
     "message": "删除此账户(此操作不会删除你的书签)"
   },
-  "LabelResetCache": {
+  "LabelSyncfromscratch": {
     "message": "从头开始触发同步"
+  },
+  "LabelResetCache": {
+    "message": "重置緩存"
   },
   "DescriptionResetcache": {
     "message": "勾选此框以重置缓存，以确保下一次同步运行不会删除任何数据，只是将服务器和本地书签合并在一起"
@@ -210,19 +216,31 @@
     "message": "此选项确定如何将服务器上的书签树与此浏览器中的书签树同步。如果两个树都兼容，您将希望保留对它们的更改，但有时您可能希望将本地版本强制到服务器上，反之亦然。"
   },
   "LabelStrategydefault": {
-    "message": "合并本地和远程更改（推荐）"
+    "message": "始终将本地更改与其他浏览器的更改合并（推荐）"
   },
   "LabelStrategyslave": {
-    "message": "始终还原本地更改并拉取上游远程更改"
+    "message": "始终撤消本地更改并从其他浏览器下载更改"
   },
   "LabelStrategyoverwrite": {
-    "message": "始终还原上游远程更改并推送本地更改"
+    "message": "始终上传本地更改并撤销来自其他浏览器的更改"
   },
   "LabelSave": {
     "message": "保存"
   },
   "LabelCancel": {
     "message": "取消"
+  },
+  "LabelAdd": {
+    "message": "添加"
+  },
+  "LabelChange": {
+    "message": "修改"
+  },
+  "LabelRemove": {
+    "message": "移除"
+  },
+  "LabelBack": {
+    "message": "返回"
   },
   "LabelAdapternextcloudfolders": {
     "message": "Nextcloud 书签"
@@ -237,10 +255,10 @@
     "message": "旧版选项至少与书签应用程序的 v0.11 版本兼容。它将使用包含文件夹路径的标记来模拟文件夹。不建议用于新帐户。"
   },
   "LabelAdapterwebdav": {
-    "message": "WebDAV共享中的XBEL文件"
+    "message": "WebDAV 分享"
   },
   "DescriptionAdapterwebdav": {
-    "message": "WebDAV选项通过将书签存储在提供的WebDAV共享中的XBEL文件中来同步书签。此选项没有附带的Web UI，您可以将其用于任何与WebDAV兼容的服务器。"
+    "message": "WebDAV 选项通过将书签存储在提供的 WebDAV 共享中的文件来同步您的书签。 此选项没有附带的 Web UI，您可以将它与任何 WebDAV 兼容的服务器一起使用。 它可以同步 http、ftp、数据和 javascript 书签。"
   },
   "LabelAddaccount": {
     "message": "添加账户"
@@ -270,10 +288,13 @@
     "message": "无标题文件夹"
   },
   "LabelSetkey": {
-    "message": "为floccus设置一个密码锁"
+    "message": "為 floccus 設置密碼"
   },
   "DescriptionSetkey": {
-    "message": "当你开启密码锁后，每次启动浏览器后若想操作phrase 都需要解锁"
+    "message": "设置密码后,每次启动浏览器时,如果要访问和同步书签、更改设置或使用 floccus 执行任何其他操作,都必须输入此密码。"
+  },
+  "LabelSetkeybutton": {
+    "message": "設置密碼"
   },
   "LabelKey": {
     "message": "输入解锁密码"
@@ -285,10 +306,10 @@
     "message": "解锁floccus"
   },
   "LabelRemovekey": {
-    "message": "删除密码短语"
+    "message": "刪除密碼"
   },
   "LabelRemovedkey": {
-    "message": "密码短语已删除"
+    "message": "密碼已刪除"
   },
   "LabelSyncinterval": {
     "message": "同步间隔"
@@ -412,19 +433,28 @@
     "message": "选项卡"
   },
   "LabelSyncDown": {
-    "message": "向下同步"
+    "message": "拉取"
+  },
+  "DescriptionSyncDown": {
+    "message": "从其他浏览器下载更改并覆盖本地更改"
   },
   "LabelSyncUp": {
-    "message": "向上同步"
+    "message": "推送"
+  },
+  "DescriptionSyncUp": {
+    "message": "上传本地更改并覆盖来自其他浏览器的更改"
   },
   "LabelSyncDownOnce": {
-    "message": "下载并覆盖一次"
+    "message": "拉取一次"
   },
   "LabelSyncUpOnce": {
-    "message": "上载并覆盖一次"
+    "message": "推送一次"
   },
   "LabelSyncNormal": {
-    "message": "合并本地和云"
+    "message": "合并"
+  },
+  "DescriptionSyncNormal": {
+    "message": "将本地更改与来自其他浏览器的更改合并"
   },
   "DescriptionFilesPermission": {
     "message": "确保授予 floccus 许可权，使其不仅可以使用书签应用程序，还可以使用 Nextcloud 文件应用程序。"
@@ -513,11 +543,14 @@
   "LabelDownloadlogs": {
     "message": "下载日志"
   },
+  "LabelDownloadfulllogs": {
+    "message": "完整日志"
+  },
   "LabelDownloadanonymizedlogs": {
-    "message": "下载匿名日志"
+    "message": "编辑后日志"
   },
   "DescriptionDownloadlogs": {
-    "message": "Floccus 将其所有操作记录在一个日志文件中，您可以检查自己或发送给开发人员进行调试。发送匿名日志时，请确保仍然检查下载的文件中是否存在匿名过程可能未捕获到的敏感数据。"
+    "message": "Floccus 将其所有操作记录在一个日志文件中，您可以自行检查该文件或将其发送给开发人员以进行调试。 在经过编辑的日志中，文件夹和书签名称以及 URL 都使用加密哈希函数进行了不可逆的编码。 发送编辑后的日志时，请再次检查以确保下载的文件中是否存在匿名化过程可能未处理的敏感数据。"
   },
   "ErrorFolderloopselected": {
     "message": "无法将文件夹移动到自身中"
@@ -596,5 +629,26 @@
   },
   "LabelAccountcreated": {
     "message": "创建的帐户"
+  },
+  "DescriptionNonhttps": {
+    "message": "您输入了一个使用不安全协议的服务器。 建议仅使用支持 HTTPS 的服务器。"
+  },
+  "LabelFiletype": {
+    "message": "文件格式"
+  },
+  "DescriptionFiletype": {
+    "message": "您可以选择要在云中存储书签的文件格式。"
+  },
+  "LabelFiletypehtml": {
+    "message": "HTML，一种广泛支持的开放格式（实验性）"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL，一种简单、开放的格式"
+  },
+  "LabelImportbookmarks": {
+    "message": "导入书签"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "将包含书签的 HTML 文件导入当前文件夹"
   }
 }
