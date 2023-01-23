@@ -3,7 +3,7 @@ import Logger from './Logger'
 import TResource from './interfaces/Resource'
 import * as Parallel from 'async-parallel'
 
-const STRANGE_PROTOCOLS = ['data:', 'javascript:', 'about:', 'chrome:']
+const STRANGE_PROTOCOLS = ['data:', 'javascript:', 'about:', 'chrome:', 'file:']
 
 export const ItemLocation = {
   LOCAL: 'Local',

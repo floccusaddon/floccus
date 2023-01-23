@@ -40,7 +40,7 @@ export default class CachingAdapter implements Adapter {
     if (bm.url === 'data:') {
       return false
     }
-    return Boolean(['https:', 'http:', 'ftp:', 'data:', 'javascript:', 'chrome:'].includes(
+    return Boolean(['https:', 'http:', 'ftp:', 'data:', 'javascript:', 'chrome:', 'file:'].includes(
       url.parse(bm.url).protocol
     ))
   }
