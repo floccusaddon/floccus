@@ -101,6 +101,9 @@
   "Error034": {
     "message": "E034: Le fichier de signets est illisible. Avez-vous oublié d'entrer un mot de passe de chiffrement ?"
   },
+  "Error035": {
+    "message": "E035 : Échec de la création du signet suivant sur le serveur : {0}"
+  },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
   },
@@ -641,5 +644,11 @@
   },
   "LabelFiletypexbel": {
     "message": "XBEL, un format ouvert et simple à utiliser"
+  },
+  "LabelImportbookmarks": {
+    "message": "Importer les signets"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "Importer un fichier HTML contenant des signets dans le dossier courant"
   }
 }
