@@ -90,7 +90,7 @@
     "cordova-plugin-inappbrowser": "^5.0.0",
     "core-js": "^3.27.2",
     "humanize-duration": "^3.25.1",
-    "intl-messageformat": "^9.9.1",
+    "intl-messageformat": "^10.3.1",
     "js-base64": "^3.7.5",
     "lodash": "^4.17.20",
     "onwakeup": "^0.0.2",
