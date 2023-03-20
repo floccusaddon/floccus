@@ -69,9 +69,11 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       throw new InterruptedSyncError()
     }
 
+    Logger.log('Executing ' + this.direction + ' revert plan')
     await this.execute(target, revertPlan, this.direction)
 
     const mappingsSnapshot = this.mappings.getSnapshot()
+    Logger.log('Mapping reorderings')
     const revertOrderings = sourceDiff.map(
       mappingsSnapshot,
       this.direction,

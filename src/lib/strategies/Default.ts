@@ -96,6 +96,7 @@ export default class SyncProcess {
 
     // have to get snapshot after reconciliation, because of concurrent creation reconciliation
     let mappingsSnapshot = this.mappings.getSnapshot()
+    Logger.log('Mapping server plan')
     let serverPlan = unmappedServerPlan.map(mappingsSnapshot, ItemLocation.SERVER, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
 
     if (this.canceled) {
@@ -105,6 +106,7 @@ export default class SyncProcess {
     const unmappedLocalPlan = await this.reconcileDiffs(serverDiff, localDiff, ItemLocation.LOCAL)
     // have to get snapshot after reconciliation, because of concurrent creation reconciliation
     mappingsSnapshot = this.mappings.getSnapshot()
+    Logger.log('Mapping local plan')
     let localPlan = unmappedLocalPlan.map(mappingsSnapshot, ItemLocation.LOCAL, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
 
     if (this.canceled) {
@@ -117,7 +119,9 @@ export default class SyncProcess {
 
     this.applyFailsafe(localPlan)
 
+    Logger.log('Executing server plan')
     serverPlan = await this.execute(this.server, serverPlan, ItemLocation.SERVER)
+    Logger.log('Executing local plan')
     localPlan = await this.execute(this.localTree, localPlan, ItemLocation.LOCAL)
 
     // mappings have been updated, reload
@@ -130,6 +134,7 @@ export default class SyncProcess {
       .map(mappingsSnapshot, ItemLocation.SERVER)
 
     if ('orderFolder' in this.server) {
+      Logger.log('Executing reorderings')
       await Promise.all([
         this.executeReorderings(this.server, serverReorder),
         this.executeReorderings(this.localTree, localReorder),
@@ -509,8 +514,10 @@ export default class SyncProcess {
   async execute(resource:TResource, plan:Diff, targetLocation:TItemLocation):Promise<Diff> {
     const run = (action) => this.executeAction(resource, action, targetLocation)
 
+    Logger.log(targetLocation + ': executing CREATEs and UPDATEs')
     await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run)
     const mappingsSnapshot = this.mappings.getSnapshot()
+    Logger.log(targetLocation + ': mapping MOVEs')
     const mappedPlan = plan.map(mappingsSnapshot, targetLocation, (action) => action.type === ActionType.MOVE)
     const batches = Diff.sortMoves(mappedPlan.getActions(ActionType.MOVE), targetLocation === ItemLocation.SERVER ? this.serverTreeRoot : this.localTreeRoot)
 
@@ -518,12 +525,14 @@ export default class SyncProcess {
       throw new InterruptedSyncError()
     }
 
+    Logger.log(targetLocation + ': executing MOVEs')
     await Parallel.each(batches, batch => Promise.all(batch.map(run)), 1)
 
     if (this.canceled) {
       throw new InterruptedSyncError()
     }
 
+    Logger.log(targetLocation + ': executing REMOVEs')
     await Parallel.each(plan.getActions(ActionType.REMOVE), run)
 
     return mappedPlan

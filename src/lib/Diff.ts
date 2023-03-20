@@ -2,6 +2,7 @@ import { Folder, TItem, ItemType, TItemLocation, ItemLocation } from './Tree'
 import Mappings, { MappingSnapshot } from './Mappings'
 import Ordering from './interfaces/Ordering'
 import batchingToposort from 'batching-toposort'
+import Logger from './Logger'
 
 export const ActionType = {
   CREATE: 'CREATE',
@@ -189,8 +190,9 @@ export default class Diff {
    * @param mappingsSnapshot
    * @param targetLocation
    * @param filter
+   * @param skipErroneousActions
    */
-  map(mappingsSnapshot:MappingSnapshot, targetLocation: TItemLocation, filter: (Action)=>boolean = () => true, ignoreErrors = false): Diff {
+  map(mappingsSnapshot:MappingSnapshot, targetLocation: TItemLocation, filter: (Action)=>boolean = () => true, skipErroneousActions = false): Diff {
     const newDiff = new Diff
 
     // Map payloads
@@ -236,8 +238,10 @@ export default class Diff {
           newAction.oldItem.parentId = action.payload.parentId
           newAction.payload.parentId = Mappings.mapParentId(mappingsSnapshot, action.payload, targetLocation)
           if (typeof newAction.payload.parentId === 'undefined' && typeof action.payload.parentId !== 'undefined') {
-            if (ignoreErrors) {
+            if (skipErroneousActions) {
               // simply ignore this action as it appears to be no longer valid
+              Logger.log('Failed to map parentId: ' + action.payload.parentId)
+              Logger.log('Removing MOVE action from plan:', action)
               return
             } else {
               throw new Error('Failed to map parentId: ' + action.payload.parentId)
