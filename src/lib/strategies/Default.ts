@@ -602,7 +602,7 @@ export default class SyncProcess {
               type: ActionType.REORDER,
               oldItem: action.payload,
               payload: action.oldItem,
-              order: item.children.map(i => ({ type: i.type, id: i.id }))
+              order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
             })
             mappingsSnapshot = this.mappings.getSnapshot()
             const mappedOrder = subOrder.map(mappingsSnapshot, targetLocation)
