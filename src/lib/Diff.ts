@@ -247,7 +247,7 @@ export default class Diff {
 
         if (action.type === ActionType.REORDER) {
           newAction.oldOrder = action.order
-          newAction.order = action.order.slice().map(item => {
+          newAction.order = action.order.map(item => {
             return {...item, id: mappingsSnapshot[(targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL) + 'To' + targetLocation][item.type][item.id]}
           })
         }
