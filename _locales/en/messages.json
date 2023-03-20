@@ -258,7 +258,7 @@
     "message": "WebDAV share"
   },
   "DescriptionAdapterwebdav": {
-    "message": "The WebDAV option syncs your bookmarks by storing them in a file in the provided WebDAV share. There is no accompanying web UI for this option and you can use it with any WebDAV-compatible server. It can sync http, ftp, data and javascript bookmarks."
+    "message": "The WebDAV option syncs your bookmarks by storing them in a file in the provided WebDAV share. There is no accompanying web UI for this option and you can use it with any WebDAV-compatible server. It can sync http, ftp, data, file and javascript bookmarks."
   },
   "LabelAddaccount": {
     "message": "Add account"
@@ -481,7 +481,7 @@
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Sync bookmarks via an encrypted file that is stored in your Google Drive. It can sync http, ftp, data and javascript bookmarks."
+    "message": "Sync bookmarks via an encrypted file that is stored in your Google Drive. It can sync http, ftp, data, file and javascript bookmarks."
   },
   "LabelLogingoogle": {
     "message": "Login with Google"
