@@ -2160,7 +2160,68 @@ describe('Floccus', function() {
               ignoreEmptyFolders(ACCOUNT_DATA)
             )
 
+            // Switch it back to something harmless, so we don't attempt to clean up the root folder
             await account.setData({...account.getData(), localRoot: barFolder.id})
+            account = await Account.get(account.id)
+          })
+          it('should sync root folder ignoring unsupported folders', async function() {
+            const [root] = await browser.bookmarks.getTree()
+            const originalFolderId = account.getData().localRoot
+            await account.setData({...account.getData(), localRoot: root.id, })
+            account = await Account.get(account.id)
+            const adapter = account.server
+
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            let bookmark
+            let serverTree = await getAllBookmarks(account)
+            await withSyncConnection(account, async() => {
+              const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+              const barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
+              const serverMark = {
+                title: 'url2',
+                url: 'http://ur2.l/',
+                parentId: barFolderId
+              }
+              const id = await adapter.createBookmark(
+                new Bookmark(serverMark)
+              )
+              bookmark = {...serverMark, id}
+            })
+
+            await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: root.children[0].id
+            })
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            serverTree = await getAllBookmarks(account)
+            const newRoot = await account.localTree.getBookmarksTree()
+            expect(serverTree.children).to.have.lengthOf(newRoot.children.length + 1)
+
+            await withSyncConnection(account, async() => {
+              bookmark.parentId = serverTree.children.find(folder => folder.title !== 'foo').id
+              const fooFolder = serverTree.children.find(folder => folder.title === 'foo')
+              await adapter.updateBookmark(new Bookmark(bookmark))
+              const secondBookmark = serverTree.children.filter(folder => folder.title !== 'foo')[0].children.find(item => item.type === 'bookmark')
+              secondBookmark.parentId = fooFolder.id
+              await adapter.updateBookmark(secondBookmark)
+            })
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            serverTree = await getAllBookmarks(account)
+            const localTreeAfterSync = await account.localTree.getBookmarksTree()
+            expect(serverTree.children).to.have.lengthOf(localTreeAfterSync.children.length + 1)
+
+            // Switch it back to something harmless, so we don't attempt to clean up the root folder
+            await account.setData({...account.getData(), localRoot: originalFolderId})
             account = await Account.get(account.id)
           })
           it('should synchronize ordering', async function() {
@@ -2562,6 +2623,68 @@ describe('Floccus', function() {
                 }),
                 ignoreEmptyFolders(ACCOUNT_DATA)
               )
+            })
+            it('should sync root folder ignoring unsupported folders', async function() {
+              const [root] = await browser.bookmarks.getTree()
+              const originalFolderId = account.getData().localRoot
+              await account.setData({...account.getData(), localRoot: root.id, })
+              account = await Account.get(account.id)
+              const adapter = account.server
+
+              expect(
+                (await getAllBookmarks(account)).children
+              ).to.have.lengthOf(0)
+
+              let bookmark
+              let serverTree = await getAllBookmarks(account)
+              await withSyncConnection(account, async() => {
+                const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+                const barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
+                const serverMark = {
+                  title: 'url2',
+                  url: 'http://ur2.l/',
+                  parentId: barFolderId
+                }
+                const id = await adapter.createBookmark(
+                  new Bookmark(serverMark)
+                )
+                bookmark = {...serverMark, id}
+              })
+
+              await browser.bookmarks.create({
+                title: 'url',
+                url: 'http://ur.l/',
+                parentId: root.children[0].id
+              })
+
+              await account.sync()
+              expect(account.getData().error).to.not.be.ok
+
+              serverTree = await getAllBookmarks(account)
+              const newRoot = await account.localTree.getBookmarksTree()
+              expect(serverTree.children).to.have.lengthOf(newRoot.children.length + 1)
+
+              await withSyncConnection(account, async() => {
+                bookmark.parentId = serverTree.children.find(folder => folder.title !== 'foo').id
+                const fooFolder = serverTree.children.find(folder => folder.title === 'foo')
+                await adapter.updateBookmark(new Bookmark(bookmark))
+                const secondBookmark = serverTree.children.filter(folder => folder.title !== 'foo')[0].children.find(item => item.type === 'bookmark')
+                secondBookmark.parentId = fooFolder.id
+                await adapter.updateBookmark(secondBookmark)
+              })
+
+              await account.setData({ ...account.getData(), strategy: 'slave' })
+
+              await account.sync()
+              expect(account.getData().error).to.not.be.ok
+
+              serverTree = await getAllBookmarks(account)
+              const localTreeAfterSync = await account.localTree.getBookmarksTree()
+              expect(serverTree.children).to.have.lengthOf(localTreeAfterSync.children.length + 1)
+
+              // Switch it back to something harmless, so we don't attempt to clean up the root folder
+              await account.setData({...account.getData(), localRoot: originalFolderId})
+              account = await Account.get(account.id)
             })
           })
           context('with overwrite mode', function() {
