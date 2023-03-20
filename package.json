@@ -37,7 +37,7 @@
     "deepmerge": "^4.2.2",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^12.0.0",
-    "eslint-import-resolver-webpack": "^0.12.2",
+    "eslint-import-resolver-webpack": "^0.13.2",
     "eslint-loader": "^4.0.2",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-mocha": "^6.3.0",
