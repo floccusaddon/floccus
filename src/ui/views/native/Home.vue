@@ -56,26 +56,22 @@ export default {
         console.log(e)
         return false
       }
-      if (result.text) {
-        console.log(result.text)
-        let url, title
-        const match = result.text.match(/https?:\/\/\S*/i)
-        url = match[0]
-        title = result.text.substring(0, match.index) + result.text.substring(match.index + match[0].length)
-        title = title.replace('\n', ' ').trim()
-        if (!title) {
-          try {
-            const response = await Http.get({ url })
-            const parser = new DOMParser()
-            const document = parser.parseFromString(response.data, 'text/html')
-            const titleElement = document.getElementsByTagName('title')[0]
-            if (titleElement) {
-              title = titleElement.textContent
-            }
-          } catch (e) {
-            Logger.log('Failed to fetch shared URL')
+      if (result.url) {
+        console.log(result.url)
+        let url = result.url
+        let title = ''
+        try {
+          const response = await Http.get({ url })
+          const parser = new DOMParser()
+          const document = parser.parseFromString(response.data, 'text/html')
+          const titleElement = document.getElementsByTagName('title')[0]
+          if (titleElement) {
+            title = titleElement.textContent
           }
+        } catch (e) {
+          Logger.log('Failed to fetch shared URL')
         }
+
         this.$router.push({
           name: routes.ADD_BOOKMARK,
           params: {
