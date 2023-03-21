@@ -244,6 +244,7 @@ export default class Diff {
               Logger.log('Removing MOVE action from plan:', action)
               return
             } else {
+              Logger.log('Failed to map parentId of action ' + action)
               throw new Error('Failed to map parentId: ' + action.payload.parentId)
             }
           }
