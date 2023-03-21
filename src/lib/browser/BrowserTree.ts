@@ -67,6 +67,7 @@ export default class BrowserTree implements IResource {
             '=>',
             overrideTitle
           )
+          isRoot = true
         }
       }
       if (node.id === this.absoluteRoot.id) {

@@ -1,6 +1,6 @@
 import * as Parallel from 'async-parallel'
 import Diff, { ActionType, CreateAction, RemoveAction } from './Diff'
-import { Bookmark, Folder, ItemType, TItem } from './Tree'
+import { Bookmark, Folder, ItemLocation, ItemType, TItem } from './Tree'
 
 export default class Scanner {
   private oldTree: TItem
@@ -58,9 +58,15 @@ export default class Scanner {
     const unmatchedChildren = newFolder.children.slice(0)
     await Parallel.map(oldFolder.children, async(old, index) => {
       const newItem = unmatchedChildren.find((child) => old.type === child.type && this.mergeable(old, child))
+      // we found an item in the new folder that matches the one in the old folder
       if (newItem) {
         await this.diffItem(old, newItem)
         unmatchedChildren.splice(unmatchedChildren.indexOf(newItem), 1)
+        return
+      }
+
+      if (typeof newFolder.parentId === 'undefined' && newFolder.isRoot && newFolder.location === ItemLocation.LOCAL) {
+        // We can't remove root folders locally
         return
       }
 
@@ -70,6 +76,10 @@ export default class Scanner {
     // created Items
     // (using map here, because 'each' doesn't provide indices)
     await Parallel.map(unmatchedChildren, async(newChild, index) => {
+      if (typeof oldFolder.parentId === 'undefined' && oldFolder.isRoot && oldFolder.location === ItemLocation.LOCAL) {
+        // We can't create root folders locally
+        return
+      }
       this.diff.commit({type: ActionType.CREATE, payload: newChild, index})
     }, 1)
 

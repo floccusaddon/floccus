@@ -34,6 +34,7 @@ export class Bookmark {
   public url: string
   public tags: string[]
   public location: TItemLocation
+  public isRoot = false
   private hashValue: string
 
   constructor({ id, parentId, url, title, tags, location }: { id:string|number, parentId:string|number, url:string, title:string, tags?: string[], location: TItemLocation }) {
