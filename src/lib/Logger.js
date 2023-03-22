@@ -5,6 +5,7 @@ import * as Parallel from 'async-parallel'
 import packageJson from '../../package.json'
 import Crypto from './Crypto'
 import { Share } from '@capacitor/share'
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 
 export default class Logger {
   static log() {
@@ -100,9 +101,16 @@ export default class Logger {
       URL.revokeObjectURL(objectUrl)
       document.body.removeChild(element)
     } else {
+      const {uri: fileURI} = await Filesystem.writeFile({
+        path: 'Downloads/' + filename,
+        data: await blob.text(),
+        encoding: Encoding.UTF8,
+        directory: Directory.External,
+        recursive: true
+      })
       await Share.share({
         title: filename,
-        text: await blob.text(),
+        files: [fileURI],
         dialogTitle: 'Share Floccus debug logs',
       })
     }
