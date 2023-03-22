@@ -169,6 +169,16 @@
                       {{ t('LabelEdititem') }}
                     </v-list-item-title>
                   </v-list-item>
+                  <v-list-item
+                    v-if="item.type === 'bookmark'"
+                    @click="shareBookmark(item)">
+                    <v-list-item-avatar>
+                      <v-icon>mdi-share</v-icon>
+                    </v-list-item-avatar>
+                    <v-list-item-title>
+                      {{ t('LabelShareitem') }}
+                    </v-list-item-title>
+                  </v-list-item>
                   <v-list-item @click="deleteItem(item)">
                     <v-list-item-avatar>
                       <v-icon>mdi-delete</v-icon>
@@ -525,6 +535,9 @@ export default {
         accountId: this.id,
         bookmark: new Bookmark({...this.currentlyEditedBookmark, ...props})
       })
+    },
+    shareBookmark(item) {
+      this.$store.dispatch(actions.SHARE_BOOKMARK, new Bookmark(item))
     },
     onTriggerSync() {
       if (this.syncing) {

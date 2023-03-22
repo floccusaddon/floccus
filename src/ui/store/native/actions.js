@@ -5,6 +5,7 @@ import AdapterFactory from '../../../lib/AdapterFactory'
 import Controller from '../../../lib/Controller'
 import { i18n } from '../../../lib/native/I18n'
 import { Http } from '@capacitor-community/http'
+import { Share } from '@capacitor/share'
 import Html from '../../../lib/serializers/Html'
 import { Bookmark, Folder } from '../../../lib/Tree'
 
@@ -55,6 +56,12 @@ export const actionsDefinition = {
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
     const controller = await Controller.getSingleton()
     controller.scheduleSync(accountId, true)
+  },
+  async [actions.SHARE_BOOKMARK]({commit}, bookmark) {
+    await Share.share({
+      title: bookmark.title,
+      url: bookmark.url,
+    })
   },
   async [actions.CREATE_FOLDER]({commit}, {accountId, folder}) {
     const account = await Account.get(accountId)
