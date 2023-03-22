@@ -163,7 +163,6 @@ const watch = function() {
 
   jsWatcher.on('change', onWatchEvent)
   viewsWatcher.on('change', onWatchEvent)
-  localeWatcher.on('change', onWatchEvent)
   nativeWatcher.on('change', onWatchEvent)
 
   webpack(devConfig).watch({}, (err, stats) => {
