@@ -69,6 +69,7 @@
         <OptionAllowNetwork
           :value="allowNetwork"
           @input="$emit('update:allowNetwork', $event)" />
+        <OptionExportBookmarks />
       </v-card-text>
     </v-card>
 
@@ -124,10 +125,11 @@ import OptionFailsafe from './OptionFailsafe'
 import OptionDownloadLogs from './OptionDownloadLogs'
 import OptionAllowNetwork from './native/OptionAllowNetwork'
 import OptionPassphrase from './OptionPassphrase'
+import OptionExportBookmarks from './OptionExportBookmarks.vue'
 
 export default {
   name: 'OptionsGoogleDrive',
-  components: { OptionPassphrase, OptionAllowNetwork, OptionDownloadLogs, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
+  components: { OptionExportBookmarks, OptionPassphrase, OptionAllowNetwork, OptionDownloadLogs, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
   props: ['username', 'password', 'refreshToken', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
   data() {
     return {

@@ -650,5 +650,11 @@
   },
   "DescriptionImportbookmarks": {
     "message": "Import a HTML file containing bookmarks into the current folder"
+  },
+  "LabelExportBookmarks": {
+    "message": "Export Bookmarks"
+  },
+  "DescriptionExportBookmarks" : {
+    "message": "You can export all bookmarks in this account as a HTML file compatible with all major browsers."
   }
 }

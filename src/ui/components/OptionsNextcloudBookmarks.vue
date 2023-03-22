@@ -60,6 +60,7 @@
         <OptionAllowNetwork
           :value="allowNetwork"
           @input="$emit('update:allowNetwork', $event)" />
+        <OptionExportBookmarks />
       </v-card-text>
     </v-card>
 
@@ -125,10 +126,11 @@ import OptionClientCert from './OptionClientCert'
 import OptionAllowRedirects from './OptionAllowRedirects'
 import OptionDownloadLogs from './OptionDownloadLogs'
 import OptionAllowNetwork from './native/OptionAllowNetwork'
+import OptionExportBookmarks from './OptionExportBookmarks.vue'
 
 export default {
   name: 'OptionsNextcloudBookmarks',
-  components: { OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
+  components: { OptionExportBookmarks, OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
   props: ['url', 'username', 'password', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'nestedSync', 'failsafe', 'allowRedirects'],
   data() {
     return {

@@ -69,6 +69,7 @@
         <OptionAllowNetwork
           :value="allowNetwork"
           @input="$emit('update:allowNetwork', $event)" />
+        <OptionExportBookmarks />
       </v-card-text>
     </v-card>
 
@@ -134,10 +135,11 @@ import OptionAllowRedirects from './OptionAllowRedirects'
 import OptionDownloadLogs from './OptionDownloadLogs'
 import OptionAllowNetwork from './native/OptionAllowNetwork'
 import OptionFileType from './OptionFileType'
+import OptionExportBookmarks from './OptionExportBookmarks.vue'
 
 export default {
   name: 'OptionsWebdav',
-  components: { OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync, OptionFileType },
+  components: { OptionExportBookmarks, OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync, OptionFileType },
   props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects', 'bookmark_file_type'],
   data() {
     return {

@@ -151,6 +151,16 @@ export const actionsDefinition = {
   async [actions.DOWNLOAD_LOGS]({ commit, dispatch, state }, anonymous) {
     await Logger.downloadLogs(anonymous)
   },
+  async [actions.EXPORT_BOOKMARKS]({commit, dispatch, state}, accountId) {
+    const account = await Account.get(accountId)
+    const tree = await account.localTree.getBookmarksTree()
+    const data = Html.serialize(tree)
+    const blob = new Blob([data], {
+      type: 'text/html',
+      endings: 'native'
+    })
+    Logger.download('floccus-' + new Date().toISOString().slice(0, 10) + '.export.html', blob)
+  },
   async [actions.TEST_WEBDAV_SERVER]({commit, dispatch, state}, {rootUrl, username, password}) {
     // noop, because capacitor Http doesn't support PROPFIND
     return true
