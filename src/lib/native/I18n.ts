@@ -1,6 +1,16 @@
 import IntlMessageFormat from 'intl-messageformat'
 import DEFAULT_MESSAGES from '../../../_locales/en/messages.json'
 
+// hehe, ignore all the things...
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const context = require.context(
+  '../../../_locales',
+  true,
+  /^.*?\.json$/,
+  'lazy'
+)
+
 interface TranslationEntry {
   message: string;
 }
@@ -16,6 +26,7 @@ export default class I18n {
   constructor(locale: string) {
     this.locales = [locale]
     this.defaultMessages = DEFAULT_MESSAGES
+    this.messages = DEFAULT_MESSAGES
   }
 
   setLocales(locales:string[]):void {
@@ -25,14 +36,20 @@ export default class I18n {
   async load():Promise<void> {
     for (const locale of this.locales) {
       try {
-        this.messages = (await import(`../../../dist/_locales/${locale.replace('-', '_')}.json`)).default
+        const fileName = './' + locale.replace('-', '_') + '/messages.json'
+        const imported = await context(fileName)
+        console.log(imported)
+        this.messages = imported
         this.locale = locale
         break
       } catch (error) {
         console.warn(error)
       }
       try {
-        this.messages = (await import(`../../../dist/_locales/${locale.split('-')[0]}.json`)).default
+        const fileName = './' + locale.split('-')[0] + '/messages.json'
+        const imported = await context(fileName)
+        console.log(imported)
+        this.messages = imported
         this.locale = locale.split('-')[0]
         break
       } catch (error) {

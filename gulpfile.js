@@ -50,7 +50,6 @@ const paths = {
   entries: 'src/entries/*.js',
   js: 'src/**',
   builds: './builds/',
-  locales: '_locales/**/messages.json',
   icons: 'icons/*',
   dist: './dist/**'
 }
@@ -67,17 +66,6 @@ try {
   )
 } catch (e) {
   // noop
-}
-
-const locales = function() {
-  return gulp.src(paths.locales).pipe(rename(function(file) {
-    // Returns a completely new object, make sure you return all keys needed!
-    return {
-      dirname: '.',
-      basename: path.basename(file.dirname),
-      extname: '.json'
-    }
-  })).pipe(gulp.dest('./dist/_locales/'))
 }
 
 const icons = function() {
@@ -126,7 +114,7 @@ const mocha = gulp.parallel(mochajs, mochacss)
 
 const thirdparty = gulp.parallel(mocha)
 
-const assets = gulp.parallel(html, thirdparty, locales, icons)
+const assets = gulp.parallel(html, thirdparty, icons)
 
 const build = gulp.parallel(assets, js)
 
@@ -171,7 +159,6 @@ const publish = gulp.series(main, zip, function() {
 const watch = function() {
   let jsWatcher = gulp.watch(paths.js, assets)
   let viewsWatcher = gulp.watch(paths.views, html)
-  let localeWatcher = gulp.watch(paths.locales, locales)
   let nativeWatcher = gulp.watch(paths.dist, native)
 
   jsWatcher.on('change', onWatchEvent)
@@ -204,7 +191,6 @@ exports.release = release
 exports.watch = gulp.series(main, watch)
 exports.publish = publish
 exports.build = build
-exports.locales = locales
 exports.native = native
 /*
  * Define default task that can be called by just running `gulp` from cli

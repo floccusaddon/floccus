@@ -85,6 +85,6 @@ module.exports = {
   },
   plugins: [new VueLoaderPlugin(), new VuetifyLoaderPlugin()],
   resolve: {
-    extensions: ['*', '.js', '.vue', '.ts'],
+    extensions: ['.js', '.vue', '.ts', '.json'],
   },
 }
