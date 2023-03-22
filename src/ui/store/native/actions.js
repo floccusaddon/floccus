@@ -4,7 +4,6 @@ import Logger from '../../../lib/Logger'
 import AdapterFactory from '../../../lib/AdapterFactory'
 import Controller from '../../../lib/Controller'
 import { i18n } from '../../../lib/native/I18n'
-import { Share } from '@capacitor/share'
 import { Http } from '@capacitor-community/http'
 import Html from '../../../lib/serializers/Html'
 import { Bookmark, Folder } from '../../../lib/Tree'
@@ -116,11 +115,7 @@ export const actionsDefinition = {
       type: 'text/plain',
       endings: 'native'
     })
-    await Share.share({
-      title: 'floccus.export.json',
-      text: await blob.text(),
-      dialogTitle: 'Share Exported Floccus accounts',
-    })
+    Logger.download('floccus.export.json', blob)
   },
   async [actions.DELETE_ACCOUNT]({commit, dispatch, state}, id) {
     const account = await Account.get(id)

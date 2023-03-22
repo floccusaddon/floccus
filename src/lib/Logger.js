@@ -111,7 +111,6 @@ export default class Logger {
       await Share.share({
         title: filename,
         files: [fileURI],
-        dialogTitle: 'Share Floccus debug logs',
       })
     }
   }

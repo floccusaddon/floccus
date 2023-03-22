@@ -1,7 +1,6 @@
 <template>
   <v-container>
     <v-card
-      v-if="isBrowser"
       class="options mt-3">
       <v-container class="pa-5">
         <v-card-title>
