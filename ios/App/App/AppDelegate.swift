@@ -1,14 +1,51 @@
 import UIKit
 import Capacitor
+import SendIntent
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    
+    let store = ShareStore.store
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
         return true
+    }
+    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        var success = true
+        if CAPBridge.handleOpenUrl(url, options) {
+            success = ApplicationDelegateProxy.shared.application(app, open: url, options: options)
+        }
+        
+        guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
+              let params = components.queryItems else {
+                  return false
+              }
+        let titles = params.filter { $0.name == "title" }
+        let descriptions = params.filter { $0.name == "description" }
+        let types = params.filter { $0.name == "type" }
+        let urls = params.filter { $0.name == "url" }
+        
+        store.shareItems.removeAll()
+    
+        if(titles.count > 0){
+            for index in 0...titles.count-1 {
+                var shareItem: JSObject = JSObject()
+                shareItem["title"] = titles[index].value!.removingPercentEncoding
+                shareItem["description"] = descriptions[index].value!.removingPercentEncoding
+                shareItem["type"] = types[index].value!.removingPercentEncoding
+                shareItem["url"] = urls[index].value!.removingPercentEncoding
+                store.shareItems.append(shareItem)
+            }
+        }
+        
+        store.processed = false
+        let nc = NotificationCenter.default
+        nc.post(name: Notification.Name("triggerSendIntent"), object: nil )
+        
+        return success
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
@@ -31,12 +68,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-    }
-
-    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-        // Called when the app was launched with a url. Feel free to add additional processing here,
-        // but if you want the App API to support tracking app url opens, make sure to keep this call
-        return ApplicationDelegateProxy.shared.application(app, open: url, options: options)
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {

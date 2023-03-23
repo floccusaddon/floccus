@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1899960429CCBA1B00ABC3E8 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1899960329CCBA1B00ABC3E8 /* ShareViewController.swift */; };
+		1899960729CCBA1B00ABC3E8 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1899960529CCBA1B00ABC3E8 /* MainInterface.storyboard */; };
+		1899960B29CCBA1B00ABC3E8 /* Floccus New Bookmark.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1899960129CCBA1B00ABC3E8 /* Floccus New Bookmark.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
@@ -17,7 +20,37 @@
 		6B88521CD855DCA28EAC1BE5 /* Pods_Floccus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23FA6294FCBA0AC6DC143E4E /* Pods_Floccus.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		1899960929CCBA1B00ABC3E8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1899960029CCBA1B00ABC3E8;
+			remoteInfo = "Floccus New Bookmark";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1899960C29CCBA1B00ABC3E8 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				1899960B29CCBA1B00ABC3E8 /* Floccus New Bookmark.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		1899960129CCBA1B00ABC3E8 /* Floccus New Bookmark.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Floccus New Bookmark.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1899960329CCBA1B00ABC3E8 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		1899960629CCBA1B00ABC3E8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		1899960829CCBA1B00ABC3E8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1899961029CCBD1500ABC3E8 /* Floccus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Floccus.entitlements; sourceTree = "<group>"; };
+		1899961129CCBDC200ABC3E8 /* Floccus New Bookmark.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Floccus New Bookmark.entitlements"; sourceTree = "<group>"; };
 		23FA6294FCBA0AC6DC143E4E /* Pods_Floccus.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Floccus.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
 		41DE44AD46A3CE4E928BF069 /* Pods-Floccus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Floccus.release.xcconfig"; path = "Pods/Target Support Files/Pods-Floccus/Pods-Floccus.release.xcconfig"; sourceTree = "<group>"; };
@@ -33,6 +66,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		189995FE29CCBA1B00ABC3E8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		504EC3011FED79650016851F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -44,6 +84,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1899960229CCBA1B00ABC3E8 /* Floccus New Bookmark */ = {
+			isa = PBXGroup;
+			children = (
+				1899961129CCBDC200ABC3E8 /* Floccus New Bookmark.entitlements */,
+				1899960329CCBA1B00ABC3E8 /* ShareViewController.swift */,
+				1899960529CCBA1B00ABC3E8 /* MainInterface.storyboard */,
+				1899960829CCBA1B00ABC3E8 /* Info.plist */,
+			);
+			path = "Floccus New Bookmark";
+			sourceTree = "<group>";
+		};
 		27E2DDA53C4D2A4D1A88CE4A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -55,7 +106,9 @@
 		504EC2FB1FED79650016851F = {
 			isa = PBXGroup;
 			children = (
+				1899961029CCBD1500ABC3E8 /* Floccus.entitlements */,
 				504EC3061FED79650016851F /* App */,
+				1899960229CCBA1B00ABC3E8 /* Floccus New Bookmark */,
 				504EC3051FED79650016851F /* Products */,
 				7F8756D8B27F46E3366F6CEA /* Pods */,
 				27E2DDA53C4D2A4D1A88CE4A /* Frameworks */,
@@ -66,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				504EC3041FED79650016851F /* Floccus.app */,
+				1899960129CCBA1B00ABC3E8 /* Floccus New Bookmark.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -97,6 +151,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1899960029CCBA1B00ABC3E8 /* Floccus New Bookmark */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1899960F29CCBA1B00ABC3E8 /* Build configuration list for PBXNativeTarget "Floccus New Bookmark" */;
+			buildPhases = (
+				189995FD29CCBA1B00ABC3E8 /* Sources */,
+				189995FE29CCBA1B00ABC3E8 /* Frameworks */,
+				189995FF29CCBA1B00ABC3E8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Floccus New Bookmark";
+			productName = "Floccus New Bookmark";
+			productReference = 1899960129CCBA1B00ABC3E8 /* Floccus New Bookmark.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		504EC3031FED79650016851F /* Floccus */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "Floccus" */;
@@ -107,10 +178,12 @@
 				504EC3021FED79650016851F /* Resources */,
 				9592DBEFFC6D2A0C8D5DEB22 /* [CP] Embed Pods Frameworks */,
 				BC2F32D02F5D33BF6B9D40A1 /* [CP] Copy Pods Resources */,
+				1899960C29CCBA1B00ABC3E8 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				1899960A29CCBA1B00ABC3E8 /* PBXTargetDependency */,
 			);
 			name = Floccus;
 			productName = App;
@@ -123,9 +196,13 @@
 		504EC2FC1FED79650016851F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0920;
+				LastSwiftUpdateCheck = 1420;
 				LastUpgradeCheck = 0920;
 				TargetAttributes = {
+					1899960029CCBA1B00ABC3E8 = {
+						CreatedOnToolsVersion = 14.2;
+						ProvisioningStyle = Automatic;
+					};
 					504EC3031FED79650016851F = {
 						CreatedOnToolsVersion = 9.2;
 						LastSwiftMigration = 1100;
@@ -147,11 +224,20 @@
 			projectRoot = "";
 			targets = (
 				504EC3031FED79650016851F /* Floccus */,
+				1899960029CCBA1B00ABC3E8 /* Floccus New Bookmark */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		189995FF29CCBA1B00ABC3E8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1899960729CCBA1B00ABC3E8 /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		504EC3021FED79650016851F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -219,6 +305,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		189995FD29CCBA1B00ABC3E8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1899960429CCBA1B00ABC3E8 /* ShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		504EC3001FED79650016851F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -229,7 +323,23 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		1899960A29CCBA1B00ABC3E8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1899960029CCBA1B00ABC3E8 /* Floccus New Bookmark */;
+			targetProxy = 1899960929CCBA1B00ABC3E8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXVariantGroup section */
+		1899960529CCBA1B00ABC3E8 /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1899960629CCBA1B00ABC3E8 /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
 		504EC30B1FED79650016851F /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -249,6 +359,67 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		1899960D29CCBA1B00ABC3E8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_ENTITLEMENTS = "Floccus New Bookmark/Floccus New Bookmark.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BW96RCL7W9;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Floccus New Bookmark/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Floccus New Bookmark";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.handmadeideas.floccus.Floccus-New-Bookmark";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1899960E29CCBA1B00ABC3E8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_ENTITLEMENTS = "Floccus New Bookmark/Floccus New Bookmark.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BW96RCL7W9;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Floccus New Bookmark/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Floccus New Bookmark";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.handmadeideas.floccus.Floccus-New-Bookmark";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		504EC3141FED79650016851F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -360,7 +531,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 542E249E2135C33B327D918E /* Pods-Floccus.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Floccus.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = BW96RCL7W9;
@@ -382,7 +555,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 41DE44AD46A3CE4E928BF069 /* Pods-Floccus.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Floccus.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = BW96RCL7W9;
@@ -402,6 +577,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		1899960F29CCBA1B00ABC3E8 /* Build configuration list for PBXNativeTarget "Floccus New Bookmark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1899960D29CCBA1B00ABC3E8 /* Debug */,
+				1899960E29CCBA1B00ABC3E8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		504EC2FF1FED79650016851F /* Build configuration list for PBXProject "App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
