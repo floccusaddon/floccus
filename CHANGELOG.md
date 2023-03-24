@@ -1,5 +1,21 @@
 # Changelog
 
+## v4.19.0
+
+### New
+ - Implement share extension for iOS
+ - [native] Allow sharing bookmarks to other apps
+ - [native] Implement bookmarks export
+ - [native] Allow exporting accounts
+ - [native] Download logs like in browser instead of sharing them as text
+
+### Fixed
+ - OptionSyncInterval: Allow setting 5min
+ - Avoid generating diff for local absolute root folders
+ - fix(Default#executeAction): Prepapre subOrder Diff correctly
+ - Allow syncing bookmarks with file: protocol via WebDAV and GDrive
+ - Update dependencies
+
 ## v4.18.1
 
 ### Fixed
