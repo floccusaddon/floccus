@@ -258,7 +258,7 @@
     "message": "Udział WebDAV"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Metoda synchronizacji zakładek przy użyciu pliku XBEL znajdującego się na serwerze WebDAV. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem zgodnym z WebDAV. Można synchronizować zakładki typu http, ftp, data, javascript"
+    "message": "Metoda synchronizacji zakładek przy użyciu pliku znajdującego się na serwerze WebDAV. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem zgodnym z WebDAV. Można synchronizować zakładki typu http, ftp, data, javascript"
   },
   "LabelAddaccount": {
     "message": "Dodaj konto"
@@ -481,7 +481,7 @@
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Synchronizuj zakładki przy użyciu zaszyfrowanego pliku przechowywanego na Dysku Google. Synchronizowane będą zakładki http, ftp, data i javascript."
+    "message": "Synchronizuj zakładki przy użyciu zaszyfrowanego pliku przechowywanego na Dysku Google. Synchronizowane będą zakładki http, ftp, data, file i javascript."
   },
   "LabelLogingoogle": {
     "message": "Zaloguj się z Google"
@@ -650,5 +650,14 @@
   },
   "DescriptionImportbookmarks": {
     "message": "Zaimportuj plik HTML z zakładkami do bieżącego folderu"
+  },
+  "LabelExportBookmarks": {
+    "message": "Eksportuj zakładki"
+  },
+  "DescriptionExportBookmarks" : {
+    "message": "Wyeksportuj wszystkie zakładki z tego konta do pliku HTML kompatybilnego z większością przeglądarek."
+  },
+  "LabelShareitem": {
+    "message": "Udostępnij"
   }
 }
