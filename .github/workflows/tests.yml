@@ -137,7 +137,7 @@ jobs:
         shell: bash
         run: |
           cd ${{ env.APP_NAME }}
-          composer install --ignore-platform-req=php
+          composer install --ignore-platform-req=php --no-dev
         if: matrix.floccus-adapter == 'nextcloud-bookmarks' || matrix.floccus-adapter == 'nextcloud-bookmarks-old'
 
       - name: Enable bookmarks app
