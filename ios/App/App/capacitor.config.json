@@ -12,8 +12,5 @@
 			"backgroundColor": "#ffffff"
 		}
 	},
-	"cordova": {},
-	"ios": {
-		"scheme": "Floccus"
-	}
+	"cordova": {}
 }
