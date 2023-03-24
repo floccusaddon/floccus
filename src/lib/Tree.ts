@@ -145,7 +145,7 @@ export class Folder {
   public location: TItemLocation
   private index: IItemIndex
 
-  constructor({ id, parentId, title, children, hashValue, loaded, location }
+  constructor({ id, parentId, title, children, hashValue, loaded, location, isRoot }
   :{
     id:number|string,
     parentId?:number|string,
@@ -154,7 +154,8 @@ export class Folder {
     children?: TItem[],
     hashValue?:Record<'true'|'false',string>,
     loaded?: boolean,
-    location: TItemLocation
+    location: TItemLocation,
+    isRoot?: boolean,
   }) {
     this.id = id
     this.parentId = parentId
@@ -163,6 +164,7 @@ export class Folder {
     this.hashValue = {...hashValue} || {}
     this.loaded = loaded !== false
     this.location = location
+    this.isRoot = isRoot
   }
 
   // eslint-disable-next-line no-use-before-define
@@ -342,7 +344,7 @@ export class Folder {
     return resource.removeFolder(this)
   }
 
-  static hydrate(obj: {id: string|number, parentId?: string|number, title?: string, location: TItemLocation, children: any[]}): Folder {
+  static hydrate(obj: {id: string|number, parentId?: string|number, title?: string, location: TItemLocation, children: any[], isRoot: boolean}): Folder {
     return new Folder({
       ...obj,
       children: obj.children
