@@ -258,7 +258,7 @@
     "message": "Partage WebDAV"
   },
   "DescriptionAdapterwebdav": {
-    "message": "L'option WebDAV synchronise vos signets en les conservant dans un fichier situé dans le partage WebDAV. Il n'y a pas d'interface graphique pour vous aider à configurer cette option, et vous pouvez l'utiliser avec n'importe quel serveur WebDAV compatible. Elle permet de synchroniser des signets en http, ftp, data, et javascript."
+    "message": "L'option WebDAV synchronise vos signets en les conservant dans un fichier situé dans le partage WebDAV. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur compatible WebDAV. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript."
   },
   "LabelAddaccount": {
     "message": "Ajouter un compte"
@@ -481,7 +481,7 @@
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Synchronise vos signets à l'aide d'un fichier chiffré qui sera stocké sur votre Google Drive. Les signets \"http\", \"ftp\", \" data\" ou \"javascript\" peuvent être synchronisés."
+    "message": "Synchronise vos signets à l'aide d'un fichier chiffré stocké sur votre Google Drive. Les signets HTTP, FTP, data, fichier ou JavaScript peuvent être synchronisés."
   },
   "LabelLogingoogle": {
     "message": "Se connecter avec Google"
@@ -650,5 +650,14 @@
   },
   "DescriptionImportbookmarks": {
     "message": "Importer un fichier HTML contenant des signets dans le dossier courant"
+  },
+  "LabelExportBookmarks": {
+    "message": "Exporter les signets"
+  },
+  "DescriptionExportBookmarks" : {
+    "message": "Vous pouvez exporter tous les signets de ce compte comme fichier HTML compatible avec tous les principaux navigateurs."
+  },
+  "LabelShareitem": {
+    "message": "Partager"
   }
 }
