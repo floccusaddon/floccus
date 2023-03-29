@@ -1,5 +1,10 @@
 # Changelog
 
+## V4.19.1
+
+### Fixed
+ - Fix Scanner ignore logic for root folders
+
 ## v4.19.0
 
 ### New
