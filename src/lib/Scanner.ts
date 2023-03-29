@@ -65,7 +65,7 @@ export default class Scanner {
         return
       }
 
-      if (typeof newFolder.parentId === 'undefined' && newFolder.isRoot && newFolder.location === ItemLocation.LOCAL) {
+      if (newFolder.isRoot && newFolder.location === ItemLocation.LOCAL) {
         // We can't remove root folders locally
         return
       }
@@ -76,7 +76,7 @@ export default class Scanner {
     // created Items
     // (using map here, because 'each' doesn't provide indices)
     await Parallel.map(unmatchedChildren, async(newChild, index) => {
-      if (typeof oldFolder.parentId === 'undefined' && oldFolder.isRoot && oldFolder.location === ItemLocation.LOCAL) {
+      if (oldFolder.isRoot && oldFolder.location === ItemLocation.LOCAL) {
         // We can't create root folders locally
         return
       }

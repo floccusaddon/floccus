@@ -67,7 +67,6 @@ export default class BrowserTree implements IResource {
             '=>',
             overrideTitle
           )
-          isRoot = true
         }
       }
       if (node.id === this.absoluteRoot.id) {
@@ -242,11 +241,11 @@ export default class BrowserTree implements IResource {
     const {id, title, parentId} = folder
     Logger.log('(local)UPDATEFOLDER', folder)
     if (folder.parentId === this.absoluteRoot.id) {
-      Logger.log('This action affects the absolute root. Skipping.')
+      Logger.log('This action affects a root folder. Skipping.')
       return
     }
     if (folder.isRoot) {
-      Logger.log('This is a root folder. Skip.')
+      Logger.log('This is the absolute root folder. Skip.')
       return
     }
     try {
@@ -273,11 +272,11 @@ export default class BrowserTree implements IResource {
     const id = folder.id
     Logger.log('(local)REMOVEFOLDER', id)
     if (folder.parentId === this.absoluteRoot.id) {
-      Logger.log('This action affects the absolute root. Skipping.')
+      Logger.log('This action affects a root folder. Skipping.')
       return
     }
     if (folder.isRoot) {
-      Logger.log('This is a root folder. Skip.')
+      Logger.log('This is the root folder. Skip.')
       return
     }
     try {
