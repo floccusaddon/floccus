@@ -1,4 +1,4 @@
-name: Auto-assign Issues to Project
+name: New issue workflow
 
 on:
   issues:
@@ -42,24 +42,3 @@ jobs:
             I look forward to help you on this issue
             Cheers :blue_heart:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create comment
-        uses: peter-evans/create-or-update-comment@v3
-        with:
-          issue-number: ${{ github.event.issue.id }}
-          body: |
-            Hello :wave:
-            
-            Thank you for taking the time to open this issue with floccus.
-            I know it's frustrating when software causes problems.
-            You have made the right choice to come here and open an issue to make sure your problem gets looked at
-            and if possible solved, either in the code or on your computer.
-            I'm Marcel and I created floccus and have been maintaining it ever since.
-            I currently work for Nextcloud which leaves me with less time for side projects like this one
-            than I used to have.
-            I still try to answer all issues here, but it sometimes takes a few weeks or a month until I get to it.
-            Until then, please be patient. If you can you could also look at other issues to see whether you can help
-            other people with your knowledge and experience or whether others are have faced the same problem.
-            
-            I look forward to help you on this issue
-            Cheers :blue_heart:

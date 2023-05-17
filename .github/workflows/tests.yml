@@ -6,6 +6,13 @@ on:
     branches:
       - master
       - develop
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'webpack*'
+      - 'gulpfile.js'
 
 env:
   APP_NAME: bookmarks
