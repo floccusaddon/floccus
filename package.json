@@ -98,7 +98,7 @@
     "p-queue": "^5.0.0",
     "punycode": "^2.1.1",
     "random": "^2.2.0",
-    "send-intent": "3.x",
+    "send-intent": "5.x",
     "throttle-debounce": "^2.3.0",
     "vue": "^2.7.0",
     "vue-router": "^3.4.9",
