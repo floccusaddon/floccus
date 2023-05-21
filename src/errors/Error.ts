@@ -282,7 +282,7 @@ export class RedirectError extends FloccusError {
 
 export class FileUnreadableError extends FloccusError {
   constructor() {
-    super('E034: Bookmarks file is unreadable. Did you forget to set an encryption passphrase?')
+    super('E034: Remote bookmarks file is unreadable. Did you forget to set an encryption passphrase?')
     this.code = 34
     Object.setPrototypeOf(this, FileUnreadableError.prototype)
   }
