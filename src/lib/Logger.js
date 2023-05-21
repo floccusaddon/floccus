@@ -80,6 +80,8 @@ export default class Logger {
         packageJson.version +
         '-' +
         new Date().toISOString().slice(0, 10) +
+        '-' +
+        (anonymous ? 'redacted' : 'full') +
         '.log',
       blob
     )
