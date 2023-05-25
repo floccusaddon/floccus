@@ -3,8 +3,7 @@ name: New issue workflow
 on:
   issues:
     types: [opened]
-  pull_request:
-    types: [opened]
+
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -28,17 +27,23 @@ jobs:
           message: |
             Hello :wave:
             
-            Thank you for taking the time to open this issue with floccus.
-            I know it's frustrating when software causes problems.
-            You have made the right choice to come here and open an issue to make sure your problem gets looked at
-            and if possible solved, either in the code or on your computer.
+            Thank you for taking the time to open this issue with floccus. I know it's frustrating when software
+            causes problems. You have made the right choice to come here and open an issue to make sure your problem gets looked at
+            and if possible solved.
             I'm Marcel and I created floccus and have been maintaining it ever since.
             I currently work for Nextcloud which leaves me with less time for side projects like this one
             than I used to have.
-            I still try to answer all issues here, but it sometimes takes a few weeks or a month until I get to it.
-            Until then, please be patient. If you can you could also look at other issues to see whether you can help
-            other people with your knowledge and experience or whether others are have faced the same problem.
+            I still try to answer all issues and if possible fix all bugs here, but it sometimes takes a while until I get to it.
+            Until then, please be patient. 
+            Note that GitHub is a place where people meet to make software better. Please see your issue not as a request
+            for someone else to solve your problems, but as a way to collaborate to make this software better for everyone.
+            Thus, ff you can, you could also look at other issues to see whether you can help other people with your knowledge
+            and experience. If you have coding experience it would also be awesome if you could step up to dive into the code and
+            try to fix the odd bug yourself. Everyone will be thankful for extra helping hands!
+            One last word: If you feel, at any point, like you need to vent, this is not the place for it; you can go to the forum,
+            to twitter or somewhere else. But this is a technical issue tracker, so please make sure to
+            focus on the tech and keep your opinions to yourself.
             
-            I look forward to help you on this issue
+            I look forward to working with you on this issue
             Cheers :blue_heart:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
