@@ -84,7 +84,7 @@
     "message": "E028: Não foi possível se autenticar com o servidor"
   },
   "Error029": {
-    "message": "E029: Segurança: A execução da sincronização atual removeria {0}% dos seus favoritos. Recusando-se a executar. Desabilite esta proteção à prova de falhas nas configurações da conta se você quiser prosseguir mesmo assim."
+    "message": "E029: Mecanismo de proteção: A execução da sincronização atual removeria {0}% dos seus favoritos. Recusando-se a executar. Desabilite esta proteção à prova de falhas nas configurações da conta se você quiser prosseguir mesmo assim."
   },
   "Error030": {
     "message": "E030: Falha ao descriptografar o arquivo de favoritos. A senha pode estar errada ou o arquivo pode estar corrompido."
@@ -463,7 +463,7 @@
     "message": "Sincronize seus favoritos de forma privada entre navegadores e dispositivos"
   },
   "LabelFailsafe": {
-    "message": "Failsafe"
+    "message": "Mecanismo de proteção"
   },
   "DescriptionFailsafe": {
     "message": "Algumas vezes erros de configuração ou software podem causar uma remoção de dados inesperada, que são então perdidos. Para prevenir isso de acontecer, o floccus não vai deletar mais de 50% dos seus marcadores de uma vez a não ser que você desative esse failsafe aqui."
