@@ -466,7 +466,7 @@
     "message": "Mecanismo de proteção"
   },
   "DescriptionFailsafe": {
-    "message": "Algumas vezes erros de configuração ou software podem causar uma remoção de dados inesperada, que são então perdidos. Para prevenir isso de acontecer, o floccus não vai deletar mais de 50% dos seus marcadores de uma vez a não ser que você desative esse failsafe aqui."
+    "message": "Algumas vezes erros de configuração ou software podem causar uma remoção de dados inesperada, que são então perdidos. Para prevenir isso de acontecer, o floccus não vai deletar mais de 50% dos seus marcadores de uma vez a não ser que você desative esse mecanismo de proteção aqui."
   },
   "LabelFailsafeon": {
     "message": "Ativado. Não delete mais de 50% dos meus marcadores locais sem antes me perguntar. (Recomendado)"
