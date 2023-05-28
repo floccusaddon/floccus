@@ -475,7 +475,7 @@
     "message": "Desativado. Permite remover mais de 50% dos meus marcadores locais sem minha confirmação."
   },
   "StatusFailsafeoff": {
-    "message": "Failsafe desativado. Você corre risco de perda de dados inesperada. É recomendado ativar o failsafe nas configurações de conta."
+    "message": "Failsafe desativado. Você corre risco de perda de dados inesperada. É recomendado ativar o mecanismo de proteção nas configurações de conta."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
