@@ -372,7 +372,7 @@ export default class BrowserController {
     }
 
     if (icon[status]) {
-      await browser.browserAction.setIcon(icon[status])
+      await browser.action.setIcon(icon[status])
     }
   }
 

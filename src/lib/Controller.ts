@@ -1,11 +1,22 @@
 import IController from './interfaces/Controller'
+import { Capacitor } from '@capacitor/core'
 
 export default class Controller implements IController {
   static singleton: IController
 
   static async getSingleton():Promise<IController> {
     if (!this.singleton) {
-      this.singleton = new Controller
+      // eslint-disable-next-line no-undef
+      if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+        if (Capacitor.getPlatform() === 'web') {
+          this.singleton = new (await import('./browser/BrowserController')).default
+        } else {
+          this.singleton = new (await import('./native/NativeController')).default
+        }
+        return this.singleton
+      } else {
+        this.singleton = new Controller
+      }
     }
     return this.singleton
   }
@@ -54,7 +65,7 @@ export default class Controller implements IController {
   syncAccount(accountId, strategy): Promise<void> {
     return navigator.serviceWorker.ready.then((registration) => {
       const worker = registration.active
-      worker.postMessage({type: 'setEnabled', params: [accountId, strategy]})
+      worker.postMessage({type: 'syncAccount', params: [accountId, strategy]})
     })
   }
 
