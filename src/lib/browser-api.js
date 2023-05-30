@@ -5,8 +5,6 @@ const ChromePromise = (function(root) {
   var push = Array.prototype.push,
     hasOwnProperty = Object.prototype.hasOwnProperty
 
-  return ChromePromise
-
   function ChromePromise(chrome, Promise) {
     chrome = chrome || root.chrome
     Promise = Promise || root.Promise
@@ -56,13 +54,16 @@ const ChromePromise = (function(root) {
       }
     }
   }
-})(this || window || self)
+
+  return ChromePromise
+})(typeof window !== 'undefined' ? window : self)
 
 let b
 if (typeof browser === 'undefined' && typeof chrome !== 'undefined') {
-  b = new ChromePromise()
+  b = new ChromePromise(chrome, Promise)
   b.alarms = chrome.alarms // Don't promisify alarms -- don't make sense, yo!
   b.browserAction = chrome.browserAction // apparently, they provide no callbacks for these
+  b.action = chrome.action // apparently, they provide no callbacks for these
   b.i18n = chrome.i18n
 } else {
   b = browser
