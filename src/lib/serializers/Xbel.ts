@@ -7,7 +7,7 @@ class XbelSerializer implements Serializer {
   }
 
   deserialize(xbel) {
-    const xmlDoc = new window.DOMParser().parseFromString(
+    const xmlDoc = new DOMParser().parseFromString(
       xbel,
       'application/xml'
     )

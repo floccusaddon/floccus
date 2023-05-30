@@ -11,7 +11,7 @@ import {
   OAuthTokenError
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
-import { Device } from '@capacitor/device'
+import { Capacitor } from '@capacitor/core'
 import { Http } from '@capacitor-community/http'
 
 const OAuthConfig = {
@@ -58,7 +58,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   static async authorize(interactive = true) {
-    const { platform } = await Device.getInfo()
+    const platform = Capacitor.getPlatform()
 
     if (platform !== 'web') {
       const result = await OAuth2Client.authenticate(OAuthConfig)
@@ -134,7 +134,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   async getAccessToken(refreshToken:string) {
-    const {platform} = await Device.getInfo()
+    const platform = Capacitor.getPlatform()
     const credentialType = platform
 
     const response = await this.request('POST', 'https://oauth2.googleapis.com/token',

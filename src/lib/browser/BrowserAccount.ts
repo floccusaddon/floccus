@@ -13,12 +13,14 @@ import {
   UnknownFolderItemOrderError
 } from '../../errors/Error'
 import {i18n} from '../native/I18n'
+import Controller from '../Controller'
 
 export default class BrowserAccount extends Account {
   static async get(id:string):Promise<Account> {
     const storage = new BrowserAccountStorage(id)
-    const background = await browser.runtime.getBackgroundPage()
-    const data = await storage.getAccountData(background.controller.key)
+    const controller = await Controller.getSingleton()
+    const key = await controller.getKey()
+    const data = await storage.getAccountData(key)
     const tree = new BrowserTree(storage, data.localRoot)
     return new BrowserAccount(id, storage, await AdapterFactory.factory(data), tree)
   }
@@ -28,8 +30,9 @@ export default class BrowserAccount extends Account {
     const adapter = await AdapterFactory.factory(data)
     const storage = new BrowserAccountStorage(id)
 
-    const background = await browser.runtime.getBackgroundPage()
-    await storage.setAccountData(data, background.controller.key)
+    const controller = await Controller.getSingleton()
+    const key = await controller.getKey()
+    await storage.setAccountData(data, key)
     const tree = new BrowserTree(storage, data.localRoot)
     return new BrowserAccount(id, storage, adapter, tree)
   }
@@ -68,8 +71,9 @@ export default class BrowserAccount extends Account {
   }
 
   async updateFromStorage():Promise<void> {
-    const background = await browser.runtime.getBackgroundPage()
-    const data = await this.storage.getAccountData(background.controller.key)
+    const controller = await Controller.getSingleton()
+    const key = await controller.getKey()
+    const data = await this.storage.getAccountData(key)
     this.server.setData(data)
     this.localTree = new BrowserTree(this.storage, data.localRoot)
   }

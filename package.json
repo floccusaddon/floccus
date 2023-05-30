@@ -94,7 +94,6 @@
     "intl-messageformat": "^9.9.1",
     "js-base64": "^3.7.5",
     "lodash": "^4.17.20",
-    "onwakeup": "^0.0.2",
     "p-queue": "^5.0.0",
     "punycode": "^2.1.1",
     "random": "^2.2.0",
@@ -111,6 +110,17 @@
     "> 0.25%",
     "last 2 versions and supports es6-generators",
     "Firefox ESR",
-    "not dead"
+    "not dead",
+    "not bb >= 0",
+    "not and_chr >= 0",
+    "not and_ff  >= 0",
+    "not and_qq  >= 0",
+    "not and_uc  >= 0",
+    "not ie_mob  >= 0",
+    "not op_mini all",
+    "not op_mob  >= 0",
+    "not Safari >= 0",
+    "not KaiOS >= 0",
+    "not Samsung >= 0"
   ]
 }

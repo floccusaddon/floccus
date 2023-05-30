@@ -20,7 +20,8 @@ export default class NativeAccount extends Account {
   static async get(id:string):Promise<Account> {
     const storage = new NativeAccountStorage(id)
     const controller = await Controller.getSingleton()
-    const data = await storage.getAccountData(controller.key)
+    const key = await controller.getKey()
+    const data = await storage.getAccountData(key)
     const tree = new NativeTree(storage)
     await tree.load()
     return new NativeAccount(id, storage, await AdapterFactory.factory(data), tree)
@@ -32,7 +33,8 @@ export default class NativeAccount extends Account {
     const storage = new NativeAccountStorage(id)
 
     const controller = await Controller.getSingleton()
-    await storage.setAccountData(data, controller.key)
+    const key = await controller.getKey()
+    await storage.setAccountData(data, key)
     const tree = new NativeTree(storage)
     await tree.load()
     return new NativeAccount(id, storage, adapter, tree)

@@ -5,7 +5,6 @@ import NativeAccountStorage from './NativeAccountStorage'
 
 import PQueue from 'p-queue'
 import Account from '../Account'
-import onwakeup from 'onwakeup'
 
 const INACTIVITY_TIMEOUT = 1000 * 7
 const DEFAULT_SYNC_INTERVAL = 15
@@ -54,9 +53,6 @@ export default class NativeController {
 
     this.alarms = new AlarmManager(this)
 
-    // Set up onWakeup
-    onwakeup(() => this.onWakeup())
-
     // lock accounts when locking is enabled
 
     Storage.get({key: 'accountsLocked' }).then(async({value: accountsLocked}) => {
@@ -65,6 +61,19 @@ export default class NativeController {
       if (accountsLocked) {
         this.key = null
       }
+    })
+
+    // Setup service worker messaging
+
+    this.onStatusChange(async() => {
+      const clientList = await self.clients.matchAll()
+      clientList.forEach(client => client.postMessage({type: 'onStatusChange', params: []}))
+    })
+
+    addEventListener('message', async(event) => {
+      const {type, params} = event.data
+      const result = await this[type](...params)
+      event.source.postMessage({type: type + 'Response', params: [result]})
     })
   }
 
@@ -120,6 +129,14 @@ export default class NativeController {
     this.key = null
     await Storage.set({ key: 'accountsLocked', value: null })
     await Promise.all(accounts.map(a => a.setData(a.getData())))
+  }
+
+  getKey() {
+    return Promise.resolve(this.key)
+  }
+
+  getUnlocked() {
+    return Promise.resolve(this.unlocked)
   }
 
   async scheduleSync(accountId, wait) {
@@ -203,15 +220,6 @@ export default class NativeController {
             error: false,
           })
         }
-      })
-    )
-  }
-
-  async onWakeup() {
-    const accounts = await Account.getAllAccounts()
-    await Promise.all(
-      accounts.map(async acc => {
-        await acc.cancelSync()
       })
     )
   }

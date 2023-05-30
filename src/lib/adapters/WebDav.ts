@@ -14,7 +14,7 @@ import {
   SlashError
 } from '../../errors/Error'
 import { Http } from '@capacitor-community/http'
-import { Device } from '@capacitor/device'
+import { Capacitor } from '@capacitor/core'
 import Html from '../serializers/Html'
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
@@ -283,8 +283,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async uploadFile(url, content_type, data) {
-    const info = await Device.getInfo()
-    if (info.platform === 'web') {
+    if (Capacitor.getPlatform() === 'web') {
       return this.uploadFileWeb(url, content_type, data)
     } else {
       return this.uploadFileNative(url, content_type, data)
@@ -352,8 +351,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async downloadFile(url) {
-    const info = await Device.getInfo()
-    if (info.platform === 'web') {
+    if (Capacitor.getPlatform() === 'web') {
       return this.downloadFileWeb(url)
     } else {
       return this.downloadFileNative(url)

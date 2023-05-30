@@ -8,7 +8,7 @@ import IAccountStorage, { IAccountData, TAccountStrategy } from './interfaces/Ac
 import { TAdapter } from './interfaces/Adapter'
 import { IResource, TLocalTree } from './interfaces/Resource'
 import Controller from './Controller'
-import { Device } from '@capacitor/device'
+import { Capacitor } from '@capacitor/core'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
 
@@ -24,7 +24,7 @@ export default class Account {
   static singleton : IAccount
 
   static async getAccountClass(): Promise<IAccount> {
-    if ((await Device.getInfo()).platform === 'web') {
+    if (Capacitor.getPlatform() === 'web') {
       this.singleton = (await import('./browser/BrowserAccount')).default
     } else {
       this.singleton = (await import('./native/NativeAccount')).default
@@ -109,7 +109,8 @@ export default class Account {
 
   async setData(data:IAccountData):Promise<void> {
     const controller = await Controller.getSingleton()
-    await this.storage.setAccountData(data, controller.key)
+    const key = await controller.getKey()
+    await this.storage.setAccountData(data, key)
     this.server.setData(data)
   }
 

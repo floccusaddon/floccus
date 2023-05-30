@@ -90,7 +90,7 @@ export default class BrowserTree implements IResource {
         })
         folder.isRoot = isRoot
         return folder
-      } else if (window.location.protocol === 'moz-extension:' && node.type === 'separator') {
+      } else if (self.location.protocol === 'moz-extension:' && node.type === 'separator') {
         // Translate mozilla separators to floccus separators
         return new Tree.Bookmark({
           location: ItemLocation.LOCAL,
@@ -121,7 +121,7 @@ export default class BrowserTree implements IResource {
       return
     }
     try {
-      if (window.location.protocol === 'moz-extension:' && url.parse(bookmark.url).hostname === 'separator.floccus.org') {
+      if (self.location.protocol === 'moz-extension:' && url.parse(bookmark.url).hostname === 'separator.floccus.org') {
         const node = await this.queue.add(() =>
           browser.bookmarks.create({
             parentId: bookmark.parentId,
@@ -150,7 +150,7 @@ export default class BrowserTree implements IResource {
       return
     }
     try {
-      if (window.location.protocol === 'moz-extension:' && url.parse(bookmark.url).hostname === 'separator.floccus.org') {
+      if (self.location.protocol === 'moz-extension:' && url.parse(bookmark.url).hostname === 'separator.floccus.org') {
         // noop
       } else {
         await this.queue.add(() =>
