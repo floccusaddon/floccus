@@ -1,0 +1,25 @@
+name: 'Close stale issues and PRs'
+on:
+  schedule:
+    - cron: '30 1 * * *'
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v8
+        with:
+          stale-issue-message: |
+            Hello :wave:
+            This issue appears to have had no activity for 3 months. We cannot keep track of whether individual issues
+            have resolved themselves or still require attention without user interaction. We're thus adding the stale label to this issue to schedule
+            it for getting closed in 5 days time. If you believe this issue is still valid and should be fixed, you can add a comment
+            or remove the label to avoid it getting closed.
+            
+            Cheers :blue_heart:
+          close-issue-message: 'This issue was closed because it has been stalled for 5 days with no activity.'
+          days-before-issue-stale: 90
+          days-before-issue-close: 5
+          days-before-pr-close: -1
+          only-labels: 'waiting for more information'
+          exempt-issue-labels: 'enhancement'
