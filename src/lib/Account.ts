@@ -24,6 +24,9 @@ export default class Account {
   static singleton : IAccount
 
   static async getAccountClass(): Promise<IAccount> {
+    if (this.singleton) {
+      return this.singleton
+    }
     if (Capacitor.getPlatform() === 'web') {
       this.singleton = (await import('./browser/BrowserAccount')).default
     } else {

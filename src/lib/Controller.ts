@@ -1,31 +1,45 @@
 import IController from './interfaces/Controller'
 import { Capacitor } from '@capacitor/core'
-
 export default class Controller implements IController {
-  static singleton: IController
+  public static singleton: IController
+  private worker: Worker|null
 
   static async getSingleton():Promise<IController> {
     if (!this.singleton) {
-      // eslint-disable-next-line no-undef
-      if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
-        if (Capacitor.getPlatform() === 'web') {
+      if (Capacitor.getPlatform() === 'web') {
+        // eslint-disable-next-line no-undef
+        if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+          // If we're on the web and inside a service worker
+          // load the actual implementation
           this.singleton = new (await import('./browser/BrowserController')).default
         } else {
-          this.singleton = new (await import('./native/NativeController')).default
+          // otherwise load the proxy
+          this.singleton = new Controller
         }
-        return this.singleton
       } else {
-        this.singleton = new Controller
+        // If we're not on the web, laod the implementation directly
+        this.singleton = new (await import('./native/NativeController')).default
       }
     }
     return this.singleton
   }
 
-  cancelSync(accountId, keepEnabled): Promise<void> {
-    return navigator.serviceWorker.ready.then((registration) => {
-      const worker = registration.active
-      worker.postMessage({type: 'cancelSync', params: [accountId, keepEnabled]})
-    })
+  constructor(worker?: Worker) {
+    this.worker = worker
+  }
+
+  async getWorker(): Promise<Worker|ServiceWorker> {
+    return this.worker
+      ? Promise.resolve(this.worker)
+      : navigator.serviceWorker.ready.then((registration) => registration.active)
+  }
+
+  async cancelSync(accountId, keepEnabled): Promise<void> {
+    console.log('Waiting for service worker readiness')
+    const worker = await this.getWorker()
+    const message = {type: 'cancelSync', params: [accountId, keepEnabled]}
+    worker.postMessage(message)
+    console.log('Sending message to service worker: ', message)
   }
 
   onStatusChange(listener): () => void {
@@ -35,83 +49,100 @@ export default class Controller implements IController {
         listener()
       }
     }
-    navigator.serviceWorker.addEventListener('message', eventListener)
+    let worker
+    this.getWorker().then(w => {
+      worker = w
+      worker.addEventListener('message', eventListener)
+    })
     return function() {
-      navigator.serviceWorker.removeEventListener('message', eventListener)
+      worker.removeEventListener('message', eventListener)
     }
   }
 
-  scheduleSync(accountId, wait): Promise<void> {
-    return navigator.serviceWorker.ready.then((registration) => {
-      const worker = registration.active
-      worker.postMessage({type: 'scheduleSync', params: [accountId, wait]})
-    })
+  async scheduleSync(accountId, wait): Promise<void> {
+    console.log('Waiting for service worker readiness')
+    const worker = await this.getWorker()
+    const message = {type: 'scheduleSync', params: [accountId, wait]}
+    worker.postMessage(message)
+    console.log('Sending message to service worker: ', message)
   }
 
-  setEnabled(enabled: boolean): void {
-    navigator.serviceWorker.ready.then((registration) => {
-      const worker = registration.active
-      worker.postMessage({type: 'setEnabled', params: [enabled]})
-    })
+  async setEnabled(enabled: boolean): Promise<void> {
+    const worker = await this.getWorker()
+    const message = {type: 'setEnabled', params: [enabled]}
+    worker.postMessage(message)
+    console.log('Sending message to service worker: ', message)
   }
 
-  setKey(key): Promise<void> {
-    return navigator.serviceWorker.ready.then((registration) => {
-      const worker = registration.active
-      worker.postMessage({type: 'setKey', params: [key]})
-    })
+  async setKey(key): Promise<void> {
+    console.log('Waiting for service worker readiness')
+    const worker = await this.getWorker()
+    const message = {type: 'setKey', params: [key]}
+    worker.postMessage(message)
+    console.log('Sending message to service worker: ', message)
   }
 
-  syncAccount(accountId, strategy): Promise<void> {
-    return navigator.serviceWorker.ready.then((registration) => {
-      const worker = registration.active
-      worker.postMessage({type: 'syncAccount', params: [accountId, strategy]})
-    })
+  async syncAccount(accountId, strategy): Promise<void> {
+    console.log('Waiting for service worker readiness')
+    const worker = await this.getWorker()
+    const message = {type: 'syncAccount', params: [accountId, strategy]}
+    worker.postMessage(message)
+    console.log('Sending message to service worker: ', message)
   }
 
-  unlock(key): Promise<void> {
-    return navigator.serviceWorker.ready.then((registration) => {
-      const worker = registration.active
-      worker.postMessage({type: 'unlock', params: [key]})
-    })
+  async unlock(key): Promise<void> {
+    console.log('Waiting for service worker readiness')
+    const worker = await this.getWorker()
+    const message = {type: 'unlock', params: [key]}
+    worker.postMessage(message)
+    console.log('Sending message to service worker: ', message)
   }
 
-  unsetKey(): Promise<void> {
-    return navigator.serviceWorker.ready.then((registration) => {
-      const worker = registration.active
-      worker.postMessage({type: 'unsetKey', params: []})
-    })
+  async unsetKey(): Promise<void> {
+    console.log('Waiting for service worker readiness')
+    const worker = await this.getWorker()
+    const message = {type: 'unsetKey', params: []}
+    worker.postMessage(message)
+    console.log('Sending message to service worker: ', message)
   }
 
-  getKey(): Promise<string|null> {
+  async getKey(): Promise<string|null> {
+    console.log('Waiting for service worker readiness')
+    const worker = await this.getWorker()
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise((resolve) => {
       const eventListener = (event) => {
         if (event.data.type === 'getKeyResponse') {
           resolve(event.data.params[0])
-          navigator.serviceWorker.removeEventListener('message', eventListener)
+          worker.removeEventListener('message', eventListener)
         }
       }
-      navigator.serviceWorker.addEventListener('message', eventListener)
-      navigator.serviceWorker.ready.then((registration) => {
-        const worker = registration.active
-        worker.postMessage({ type: 'getKey', params: [] })
-      })
+      worker.addEventListener('message', eventListener)
+      const message = { type: 'getKey', params: [] }
+      worker.postMessage(message)
+      console.log('Sending message to service worker: ', message)
     })
   }
 
-  getUnlocked(): Promise<boolean> {
+  async getUnlocked(): Promise<boolean> {
+    console.log('Waiting for service worker readiness')
+    const worker = await this.getWorker()
+
     return new Promise((resolve) => {
       const eventListener = (event) => {
         if (event.data.type === 'getUnlockedResponse') {
           resolve(event.data.params[0])
-          navigator.serviceWorker.removeEventListener('message', eventListener)
+          worker.removeEventListener('message', eventListener)
         }
       }
-      navigator.serviceWorker.addEventListener('message', eventListener)
-      navigator.serviceWorker.ready.then((registration) => {
-        const worker = registration.active
-        worker.postMessage({ type: 'getUnlocked', params: [] })
-      })
+      worker.addEventListener('message', eventListener)
+      const message = { type: 'getUnlocked', params: [] }
+      worker.postMessage(message)
+      console.log('Sending message to service worker: ', message)
     })
+  }
+
+  onLoad() {
+    // noop
   }
 }

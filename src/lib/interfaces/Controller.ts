@@ -9,4 +9,5 @@ export default interface IController {
   onStatusChange(listener):()=>void;
   getKey():Promise<string|null>;
   getUnlocked():Promise<boolean>;
+  onLoad():void;
 }

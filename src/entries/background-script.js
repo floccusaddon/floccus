@@ -1,4 +1,4 @@
-import BrowserController from '../lib/browser/BrowserController'
+import Controller from '../lib/Controller'
 
-const controller = new BrowserController()
-controller.onLoad()
+Controller.getSingleton()
+  .then(controller => controller.onLoad())
