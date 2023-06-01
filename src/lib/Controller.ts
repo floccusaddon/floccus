@@ -1,8 +1,15 @@
 import IController from './interfaces/Controller'
 import { Capacitor } from '@capacitor/core'
+
+interface FloccusWorker {
+  postMessage(data: any): void
+  addEventListener(event: string, fn: (event: MessageEvent) => void): void
+  removeEventListener(event: string, fn: (event: MessageEvent) => void): void
+}
+
 export default class Controller implements IController {
   public static singleton: IController
-  private worker: Worker|null
+  private worker: FloccusWorker|null
 
   static async getSingleton():Promise<IController> {
     if (!this.singleton) {
@@ -24,14 +31,18 @@ export default class Controller implements IController {
     return this.singleton
   }
 
-  constructor(worker?: Worker) {
+  constructor(worker?: FloccusWorker) {
     this.worker = worker
   }
 
-  async getWorker(): Promise<Worker|ServiceWorker> {
+  async getWorker(): Promise<FloccusWorker> {
     return this.worker
       ? Promise.resolve(this.worker)
-      : navigator.serviceWorker.ready.then((registration) => registration.active)
+      : navigator.serviceWorker.ready.then((registration) => ({
+        postMessage: (...args) => registration.active.postMessage(...args),
+        addEventListener: (...args) => navigator.serviceWorker.addEventListener(...args),
+        removeEventListener: (...args) => navigator.serviceWorker.removeEventListener(...args)
+      }))
   }
 
   async cancelSync(accountId, keepEnabled): Promise<void> {
@@ -113,6 +124,7 @@ export default class Controller implements IController {
     return new Promise((resolve) => {
       const eventListener = (event) => {
         if (event.data.type === 'getKeyResponse') {
+          console.log('Message response received', event.data)
           resolve(event.data.params[0])
           worker.removeEventListener('message', eventListener)
         }
@@ -132,6 +144,7 @@ export default class Controller implements IController {
       const eventListener = (event) => {
         if (event.data.type === 'getUnlockedResponse') {
           resolve(event.data.params[0])
+          console.log('Message response received', event.data)
           worker.removeEventListener('message', eventListener)
         }
       }

@@ -120,8 +120,10 @@ export default class BrowserController {
 
     addEventListener('message', async(event) => {
       const {type, params} = event.data
+      console.log('Message received', event.data)
       const result = await this[type](...params)
       event.source.postMessage({type: type + 'Response', params: [result]})
+      console.log('Sending message', {type: type + 'Response', params: [result]})
     })
   }
 
