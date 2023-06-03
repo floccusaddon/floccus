@@ -1,4 +1,5 @@
 import browser from '../browser-api'
+import Controller from '../Controller'
 import BrowserAccount from './BrowserAccount'
 import BrowserTree from './BrowserTree'
 import Cryptography from '../Crypto'
@@ -48,6 +49,10 @@ export default class BrowserController {
     this.listeners = []
 
     this.alarms = new AlarmManager(this)
+
+    this.setEnabled(true)
+
+    Controller.singleton = this
 
     // set up change listener
     browser.bookmarks.onChanged.addListener((localId, details) =>
@@ -250,20 +255,25 @@ export default class BrowserController {
       // Filter out any accounts that are not tracking the bookmark
       .filter((account, i) => trackingAccountsFilter[i])
 
+    console.log('onchange', {accountsToSync})
+
     // Now we check the account of the new folder
 
     let containingAccounts = []
     try {
       const ancestors = await BrowserTree.getIdPathFromLocalId(localId)
-
+      console.log('onchange:', {ancestors, allAccounts})
       containingAccounts = await BrowserAccount.getAccountsContainingLocalId(
         localId,
         ancestors,
         allAccounts
       )
     } catch (e) {
+      console.log(e)
       console.log('Could not detect containing account from localId ', localId)
     }
+
+    console.log('onchange', accountsToSync.concat(containingAccounts))
 
     accountsToSync = uniqBy(
       accountsToSync.concat(containingAccounts),

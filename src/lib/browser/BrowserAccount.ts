@@ -133,10 +133,13 @@ export default class BrowserAccount extends Account {
     allAccounts = allAccounts || (await this.getAllAccounts())
 
     const accountsInvolved = allAccounts
-      .filter(acc => ancestors.indexOf(acc.getData().localRoot) !== -1)
+      .filter(acc => ancestors.includes(acc.getData().localRoot))
+      .sort((a, b) =>
+        ancestors.indexOf(a.getData().localRoot) - ancestors.indexOf(b.getData().localRoot)
+      )
       .reverse()
 
     const lastNesterIdx = accountsInvolved.findIndex(acc => !acc.getData().nestedSync)
-    return accountsInvolved.slice(0, lastNesterIdx)
+    return accountsInvolved.slice(0, Math.max(1, lastNesterIdx))
   }
 }
