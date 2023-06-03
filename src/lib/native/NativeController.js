@@ -62,19 +62,6 @@ export default class NativeController {
         this.key = null
       }
     })
-
-    // Setup service worker messaging
-
-    this.onStatusChange(async() => {
-      const clientList = await self.clients.matchAll()
-      clientList.forEach(client => client.postMessage({type: 'onStatusChange', params: []}))
-    })
-
-    addEventListener('message', async(event) => {
-      const {type, params} = event.data
-      const result = await this[type](...params)
-      event.source.postMessage({type: type + 'Response', params: [result]})
-    })
   }
 
   setEnabled(enabled) {

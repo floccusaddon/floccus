@@ -113,18 +113,28 @@ export default class BrowserController {
 
     // Setup service worker messaging
 
+    // eslint-disable-next-line no-undef
+    if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+      addEventListener('message', (event) => this._receiveEvent(event.data, (data) => event.source.postMessage(data)))
+    } else {
+      browser.runtime.onMessage.addListener((data) => void (this._receiveEvent(data, (data) => browser.runtime.sendMessage(data))))
+    }
     this.onStatusChange(async() => {
-      const clientList = await self.clients.matchAll()
-      clientList.forEach(client => client.postMessage({type: 'onStatusChange', params: []}))
+      if (self?.clients) {
+        const clientList = await self.clients.matchAll()
+        clientList.forEach(client => client.postMessage({ type: 'status:update', params: [] }))
+      } else {
+        browser.runtime.sendMessage({data: {type: 'status:update', params: []}})
+      }
     })
+  }
 
-    addEventListener('message', async(event) => {
-      const {type, params} = event.data
-      console.log('Message received', event.data)
-      const result = await this[type](...params)
-      event.source.postMessage({type: type + 'Response', params: [result]})
-      console.log('Sending message', {type: type + 'Response', params: [result]})
-    })
+  async _receiveEvent(data, sendResponse) {
+    const {type, params} = data
+    console.log('Message received', data)
+    const result = await this[type](...params)
+    sendResponse({type: type + 'Response', params: [result]})
+    console.log('Sending message', {type: type + 'Response', params: [result]})
   }
 
   setEnabled(enabled) {

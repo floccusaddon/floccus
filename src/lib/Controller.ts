@@ -3,8 +3,8 @@ import { Capacitor } from '@capacitor/core'
 
 interface FloccusWorker {
   postMessage(data: any): void
-  addEventListener(event: string, fn: (event: MessageEvent) => void): void
-  removeEventListener(event: string, fn: (event: MessageEvent) => void): void
+  addEventListener(fn: (data: any) => void): void
+  removeEventListener(fn: (data: any) => void): void
 }
 
 export default class Controller implements IController {
@@ -14,15 +14,8 @@ export default class Controller implements IController {
   static async getSingleton():Promise<IController> {
     if (!this.singleton) {
       if (Capacitor.getPlatform() === 'web') {
-        // eslint-disable-next-line no-undef
-        if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
-          // If we're on the web and inside a service worker
-          // load the actual implementation
-          this.singleton = new (await import('./browser/BrowserController')).default
-        } else {
-          // otherwise load the proxy
-          this.singleton = new Controller
-        }
+        // otherwise load the proxy
+        this.singleton = new Controller
       } else {
         // If we're not on the web, laod the implementation directly
         this.singleton = new (await import('./native/NativeController')).default
@@ -36,13 +29,24 @@ export default class Controller implements IController {
   }
 
   async getWorker(): Promise<FloccusWorker> {
-    return this.worker
-      ? Promise.resolve(this.worker)
-      : navigator.serviceWorker.ready.then((registration) => ({
+    if (this.worker) {
+      return Promise.resolve(this.worker)
+    }
+    if (navigator.serviceWorker?.controller) {
+      return navigator.serviceWorker.ready.then((registration) => ({
         postMessage: (...args) => registration.active.postMessage(...args),
-        addEventListener: (...args) => navigator.serviceWorker.addEventListener(...args),
-        removeEventListener: (...args) => navigator.serviceWorker.removeEventListener(...args)
+        addEventListener: (fn) => navigator.serviceWorker.addEventListener('message', (event) => fn(event.data)),
+        removeEventListener: (fn) => navigator.serviceWorker.removeEventListener('message', fn)
       }))
+    }
+    if (Capacitor.getPlatform() === 'web') {
+      const browser = (await import('../lib/browser-api')).default
+      return {
+        postMessage: (data) => browser.runtime.sendMessage(data),
+        addEventListener: (fn) => browser.runtime.onMessage.addListener(fn),
+        removeEventListener: (fn) => browser.runtime.onMessage.addListener(fn)
+      }
+    }
   }
 
   async cancelSync(accountId, keepEnabled): Promise<void> {
@@ -54,19 +58,19 @@ export default class Controller implements IController {
   }
 
   onStatusChange(listener): () => void {
-    const eventListener = (event) => {
-      const {type} = event.data
-      if (type === 'onStatusChange') {
+    const eventListener = (data) => {
+      const {type} = data
+      if (type === 'status:update') {
         listener()
       }
     }
     let worker
     this.getWorker().then(w => {
       worker = w
-      worker.addEventListener('message', eventListener)
+      worker.addEventListener(eventListener)
     })
     return function() {
-      worker.removeEventListener('message', eventListener)
+      worker.removeEventListener(eventListener)
     }
   }
 
@@ -122,14 +126,14 @@ export default class Controller implements IController {
     const worker = await this.getWorker()
     // eslint-disable-next-line no-async-promise-executor
     return new Promise((resolve) => {
-      const eventListener = (event) => {
-        if (event.data.type === 'getKeyResponse') {
-          console.log('Message response received', event.data)
-          resolve(event.data.params[0])
-          worker.removeEventListener('message', eventListener)
+      const eventListener = (data) => {
+        if (data.type === 'getKeyResponse') {
+          console.log('Message response received', data)
+          resolve(data.params[0])
+          worker.removeEventListener(eventListener)
         }
       }
-      worker.addEventListener('message', eventListener)
+      worker.addEventListener(eventListener)
       const message = { type: 'getKey', params: [] }
       worker.postMessage(message)
       console.log('Sending message to service worker: ', message)
@@ -141,14 +145,14 @@ export default class Controller implements IController {
     const worker = await this.getWorker()
 
     return new Promise((resolve) => {
-      const eventListener = (event) => {
-        if (event.data.type === 'getUnlockedResponse') {
-          resolve(event.data.params[0])
-          console.log('Message response received', event.data)
-          worker.removeEventListener('message', eventListener)
+      const eventListener = (data) => {
+        if (data.type === 'getUnlockedResponse') {
+          resolve(data.params[0])
+          console.log('Message response received', data)
+          worker.removeEventListener(eventListener)
         }
       }
-      worker.addEventListener('message', eventListener)
+      worker.addEventListener(eventListener)
       const message = { type: 'getUnlocked', params: [] }
       worker.postMessage(message)
       console.log('Sending message to service worker: ', message)
