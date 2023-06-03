@@ -235,11 +235,13 @@ export default class BrowserController {
     // Debounce this function
     this.setEnabled(false)
 
+    console.log('Changes in browser Bookmarks detected...')
+
     const allAccounts = await BrowserAccount.getAllAccounts()
 
     // Check which accounts contain the bookmark and which used to contain (track) it
     const trackingAccountsFilter = await Promise.all(
-      allAccounts.map(async account => {
+      allAccounts.map(account => {
         return account.tracksBookmark(localId)
       })
     )
@@ -250,22 +252,23 @@ export default class BrowserController {
 
     // Now we check the account of the new folder
 
-    let ancestors
+    let containingAccounts = []
     try {
-      ancestors = await BrowserTree.getIdPathFromLocalId(localId)
+      const ancestors = await BrowserTree.getIdPathFromLocalId(localId)
+
+      containingAccounts = await BrowserAccount.getAccountsContainingLocalId(
+        localId,
+        ancestors,
+        allAccounts
+      )
     } catch (e) {
-      this.setEnabled(true)
-      return
+      console.log('Could not detect containing account from localId ', localId)
     }
 
-    const containingAccounts = await BrowserAccount.getAccountsContainingLocalId(
-      localId,
-      ancestors,
-      allAccounts
-    )
     accountsToSync = uniqBy(
       accountsToSync.concat(containingAccounts),
-      acc => acc.id)
+      acc => acc.id
+    )
       // Filter out accounts that are not enabled
       .filter(account => account.getData().enabled)
       // Filter out accounts that are syncing, because the event may stem from the sync run
@@ -280,10 +283,12 @@ export default class BrowserController {
   }
 
   async scheduleSync(accountId, wait) {
+    console.log('called scheduleSync')
     if (wait) {
       if (this.schedule[accountId]) {
         clearTimeout(this.schedule[accountId])
       }
+      console.log('scheduleSync: setting a timeout in ms :', INACTIVITY_TIMEOUT)
       this.schedule[accountId] = setTimeout(
         () => this.scheduleSync(accountId),
         INACTIVITY_TIMEOUT
@@ -291,15 +296,20 @@ export default class BrowserController {
       return
     }
 
+    console.log('getting account')
     let account = await Account.get(accountId)
+    console.log('got account')
     if (account.getData().syncing) {
+      console.log('Account is already syncing. Not syncing again.')
       return
     }
     if (!account.getData().enabled) {
+      console.log('Account is not enabled. Not syncing.')
       return
     }
 
     if (this.waiting[accountId]) {
+      console.log('Account is already queued to be synced')
       return
     }
 
@@ -318,12 +328,15 @@ export default class BrowserController {
   }
 
   async syncAccount(accountId, strategy) {
+    console.log('Called syncAccount ', accountId)
     this.waiting[accountId] = false
     if (!this.enabled) {
+      console.log('Flocccus controller is not enabled. Not syncing.')
       return
     }
     let account = await Account.get(accountId)
     if (account.getData().syncing) {
+      console.log('Account is already syncing. Not triggering another sync.')
       return
     }
     setTimeout(() => this.updateStatus(), 500)
