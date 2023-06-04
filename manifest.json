@@ -42,6 +42,6 @@
   },
 
   "background": {
-    "service_worker": "dist/js/background-script.js"
+    "scripts": ["dist/js/background-script.js"]
   }
 }
