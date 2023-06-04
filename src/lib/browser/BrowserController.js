@@ -3,7 +3,6 @@ import Controller from '../Controller'
 import BrowserAccount from './BrowserAccount'
 import BrowserTree from './BrowserTree'
 import Cryptography from '../Crypto'
-import DefunctCryptography from '../DefunctCrypto'
 import packageJson from '../../../package.json'
 import BrowserAccountStorage from './BrowserAccountStorage'
 import uniqBy from 'lodash/uniqBy'
@@ -129,7 +128,7 @@ export default class BrowserController {
         const clientList = await self.clients.matchAll()
         clientList.forEach(client => client.postMessage({ type: 'status:update', params: [] }))
       } else {
-        browser.runtime.sendMessage({data: {type: 'status:update', params: []}})
+        browser.runtime.sendMessage({type: 'status:update', params: []})
       }
     })
   }
@@ -174,44 +173,24 @@ export default class BrowserController {
 
   async unlock(key) {
     let d = await browser.storage.local.get({ 'accountsLocked': null })
-    let e = await browser.storage.local.get({ 'rekeyAfterUpdate': null })
     if (d.accountsLocked) {
-      if (e.rekeyAfterUpdate) {
-        let hashedKey = await DefunctCryptography.sha256(key)
-        let decryptedHash = await DefunctCryptography.decryptAES(
-          key,
-          DefunctCryptography.iv,
-          d.accountsLocked
-        )
+      let hashedKey = await Cryptography.sha256(key)
+      let decryptedHash = await Cryptography.decryptAES(
+        key,
+        d.accountsLocked,
+        'FLOCCUS'
+      )
 
-        if (decryptedHash !== hashedKey) {
-          throw new Error('The provided key was wrong')
-        }
-
-        this.unlocked = true
-        this.key = key
-        await this.unsetKey()
-        await this.setKey(key)
-
-        await browser.storage.local.set({
-          rekeyAfterUpdate: null
-        })
-      } else {
-        let hashedKey = await Cryptography.sha256(key)
-        let decryptedHash = await Cryptography.decryptAES(
-          key,
-          d.accountsLocked,
-          'FLOCCUS'
-        )
-
-        if (decryptedHash !== hashedKey) {
-          throw new Error('The provided key was wrong')
-        }
+      if (decryptedHash !== hashedKey) {
+        throw new Error('The provided key was wrong')
       }
       this.key = key
     }
     this.unlocked = true
     this.setEnabled(true)
+
+    // remove encryption
+    this.unsetKey()
   }
 
   async unsetKey() {
