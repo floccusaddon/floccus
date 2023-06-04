@@ -9,7 +9,7 @@ import {
   AuthenticationError,
   DecryptionError, FileUnreadableError,
   HttpError, InterruptedSyncError,
-  LockFileError,
+  LockFileError, MissingPermissionsError,
   NetworkError, RedirectError,
   SlashError
 } from '../../errors/Error'
@@ -227,6 +227,13 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async onSyncStart(needLock = true) {
     Logger.log('onSyncStart: begin')
+
+    if (Capacitor.getPlatform() === 'web') {
+      const browser = (await import('../browser-api')).default
+      if (!(await browser.permissions.contains({ origins: [this.server.url + '/'] }))) {
+        throw new MissingPermissionsError()
+      }
+    }
 
     if (this.server.bookmark_file[0] === '/') {
       throw new SlashError()

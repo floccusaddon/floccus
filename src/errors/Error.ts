@@ -297,3 +297,11 @@ export class CreateBookmarkError extends FloccusError {
     Object.setPrototypeOf(this, CreateBookmarkError.prototype)
   }
 }
+
+export class MissingPermissionsError extends FloccusError {
+  constructor() {
+    super(`E036: Missing permissions to access the sync server`)
+    this.code = 36
+    Object.setPrototypeOf(this, MissingPermissionsError.prototype)
+  }
+}

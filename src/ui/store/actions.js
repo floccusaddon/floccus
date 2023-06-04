@@ -56,6 +56,7 @@ export const actionsDefinition = {
     return account.id
   },
   async [actions.IMPORT_ACCOUNTS]({commit, dispatch, state}, accounts) {
+    await browser.permissions.request({origins: ['*://*/*']})
     await Account.import(accounts)
     await dispatch(actions.LOAD_ACCOUNTS)
   },
@@ -102,6 +103,7 @@ export const actionsDefinition = {
     await Logger.downloadLogs(anonymous)
   },
   async [actions.TEST_WEBDAV_SERVER]({commit, dispatch, state}, {rootUrl, username, password}) {
+    await browser.permissions.request({origins: ['*://*/*']})
     let res = await fetch(`${rootUrl}`, {
       method: 'PROPFIND',
       credentials: 'omit',
@@ -119,6 +121,7 @@ export const actionsDefinition = {
     return true
   },
   async [actions.TEST_NEXTCLOUD_SERVER]({commit, dispatch, state}, rootUrl) {
+    await browser.permissions.request({origins: ['*://*/*']})
     let res = await fetch(`${rootUrl}/index.php/login/v2`, {method: 'POST', headers: {'User-Agent': 'Floccus bookmarks sync'}})
     if (res.status !== 200) {
       throw new Error(browser.i18n.getMessage('LabelLoginFlowError'))
