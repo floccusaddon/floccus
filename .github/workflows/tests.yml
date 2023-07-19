@@ -37,7 +37,6 @@ jobs:
         npm-version: [7.x]
         server-version: ['26']
         app-version: ['stable']
-        selenium-version: ['3']
         floccus-adapter:
           - fake
           - nextcloud-bookmarks
@@ -93,17 +92,17 @@ jobs:
 
     services:
       hub:
-        image: selenium/hub:3
+        image: selenium/hub:4
         ports:
           - 4444:4444
       firefox:
-        image: selenium/node-firefox:3
+        image: selenium/node-firefox:4
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
         options: --shm-size="2g"
       chrome:
-        image: selenium/node-chrome:3
+        image: selenium/node-chrome:4
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
