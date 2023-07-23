@@ -3,8 +3,7 @@ import { Capacitor } from '@capacitor/core'
 
 interface FloccusWorker {
   postMessage(data: any): void
-  addEventListener(fn: (data: any) => void): void
-  removeEventListener(fn: (data: any) => void): void
+  addEventListener(fn: (data: any) => void): () => void
 }
 
 export default class Controller implements IController {
@@ -35,16 +34,21 @@ export default class Controller implements IController {
     if (navigator.serviceWorker?.controller) {
       return navigator.serviceWorker.ready.then((registration) => ({
         postMessage: (...args) => registration.active.postMessage(...args),
-        addEventListener: (fn) => navigator.serviceWorker.addEventListener('message', (event) => fn(event.data)),
-        removeEventListener: (fn) => navigator.serviceWorker.removeEventListener('message', fn)
+        addEventListener: (fn) => {
+          const listener = (event) => fn(event.data)
+          navigator.serviceWorker.addEventListener('message', listener)
+          return () => navigator.serviceWorker.removeEventListener('message', listener)
+        },
       }))
     }
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../lib/browser-api')).default
       return {
         postMessage: (data) => browser.runtime.sendMessage(data),
-        addEventListener: (fn) => browser.runtime.onMessage.addListener(fn),
-        removeEventListener: (fn) => browser.runtime.onMessage.addListener(fn)
+        addEventListener: (fn) => {
+          browser.runtime.onMessage.addListener(fn)
+          return () => browser.runtime.onMessage.removeListener(fn)
+        },
       }
     }
   }
@@ -64,13 +68,13 @@ export default class Controller implements IController {
         listener()
       }
     }
-    let worker
+    let worker, removeListener
     this.getWorker().then(w => {
       worker = w
-      worker.addEventListener(eventListener)
+      removeListener = worker.addEventListener(eventListener)
     })
-    return function() {
-      worker.removeEventListener(eventListener)
+    return () => {
+      removeListener && removeListener()
     }
   }
 
@@ -130,10 +134,10 @@ export default class Controller implements IController {
         if (data.type === 'getKeyResponse') {
           console.log('Message response received', data)
           resolve(data.params[0])
-          worker.removeEventListener(eventListener)
+          removeEventListener()
         }
       }
-      worker.addEventListener(eventListener)
+      const removeEventListener = worker.addEventListener(eventListener)
       const message = { type: 'getKey', params: [] }
       worker.postMessage(message)
       console.log('Sending message to service worker: ', message)
@@ -149,10 +153,10 @@ export default class Controller implements IController {
         if (data.type === 'getUnlockedResponse') {
           resolve(data.params[0])
           console.log('Message response received', data)
-          worker.removeEventListener(eventListener)
+          removeEventListener()
         }
       }
-      worker.addEventListener(eventListener)
+      const removeEventListener = worker.addEventListener(eventListener)
       const message = { type: 'getUnlocked', params: [] }
       worker.postMessage(message)
       console.log('Sending message to service worker: ', message)
