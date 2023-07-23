@@ -30,7 +30,6 @@ jobs:
       TEST_HOST: nextcloud
       SERVER_BRANCH: ${{ matrix.server-version }}
       NC_APP_VERSION: ${{ matrix.app-version }}
-      SELENIUM_VERSION: 4
       MYSQL_PASSWORD: root
 
     strategy:
@@ -96,20 +95,24 @@ jobs:
 
     services:
       hub:
-        image: selenium/hub:4
+        image: selenium/hub:4.10.0-20230607
         ports:
+          - 4442:4442
+          - 4443:4443
           - 4444:4444
       firefox:
-        image: selenium/node-firefox:4
+        image: selenium/node-firefox:4.10.0-20230607
         env:
-          HUB_HOST: hub
-          HUB_PORT: 4444
+          SE_EVENT_BUS_HOST: hub
+          SE_EVENT_BUS_PUBLISH_PORT: 4442
+          SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
         options: --shm-size="2g"
       chrome:
-        image: selenium/node-chrome:4
+        image: selenium/node-chrome:4.10.0-20230607
         env:
-          HUB_HOST: hub
-          HUB_PORT: 4444
+          SE_EVENT_BUS_HOST: hub
+          SE_EVENT_BUS_PUBLISH_PORT: 4442
+          SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
         options: --shm-size="2g"
       nextcloud:
         image: nextcloud:${{ matrix.server-version }}
@@ -195,6 +198,17 @@ jobs:
         run: |
           npm ci
           npm run build-release --if-present
+
+      - name: Wait for Selenium
+        run: |
+          apt install -y jq
+          while ! curl -sSL "http://localhost:4444/wd/hub/status" 2>&1 \
+                | jq -r '.value.ready' 2>&1 | grep "true" >/dev/null; do
+            echo 'Waiting for the Grid'
+            sleep 1
+          done
+          
+          echo "Selenium Grid is up - executing tests"
 
       - name: Run tests
         working-directory: floccus
