@@ -1,12 +1,18 @@
 const fs = require('fs')
 const url = require('url')
 const { Builder } = require('selenium-webdriver')
+const { Preferences, Level, Type } = require('selenium-webdriver/lib/logging')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
 const saveStats = require('./save-stats')
 const fetch = require('node-fetch')
 const VERSION = require('../package.json').version
 ;(async function() {
+  const loggingPrefs = new Preferences()
+  loggingPrefs.setLevel(Type.CLIENT, Level.INFO)
+  loggingPrefs.setLevel(Type.DRIVER, Level.INFO)
+  loggingPrefs.setLevel(Type.SERVER, Level.INFO)
+
   let driver = await new Builder()
     .usingServer(`http://localhost:4444/wd/hub`)
     .forBrowser(process.env.SELENIUM_BROWSER)
@@ -26,7 +32,9 @@ const VERSION = require('../package.json').version
           )
         : null
     )
+    .setLoggingPrefs(loggingPrefs)
     .build()
+  console.log('Driver built for browser ' + process.env.SELENIUM_BROWSER)
   try {
     let id, testUrl
     switch (await (await driver.getSession()).getCapability('browserName')) {
@@ -50,8 +58,7 @@ const VERSION = require('../package.json').version
       case 'firefox':
         // Scrape extension id from firefox addons page
         await driver.installAddon(
-          `./builds/floccus-build-v${VERSION}.xpi`,
-          true
+          `./builds/floccus-build-v${VERSION}.zip`
         )
         await driver.get('about:debugging')
         await new Promise(resolve => setTimeout(resolve, 10000))
