@@ -1,6 +1,6 @@
 const fs = require('fs')
 const url = require('url')
-const { Builder, By } = require('selenium-webdriver')
+const { Builder, By, until } = require('selenium-webdriver')
 const { Preferences, Level, Type, installConsoleHandler } = require('selenium-webdriver/lib/logging')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
@@ -76,12 +76,12 @@ installConsoleHandler()
 
         // Enable permission
         await driver.get('about:addons')
-        await driver.sleep(5000)
-        await (await driver.findElement(By.css('addon-card'))).click()
-        await driver.sleep(2000)
-        await (await driver.findElement(By.id('details-deck-button-permissions'))).click()
-        await driver.sleep(2000)
-        await (await driver.findElement(By.id('permission-0'))).click()
+        let card = await driver.wait(until.elementLocated(By.css('addon-card')), 10000)
+        await card.click()
+        let menu = await driver.wait(until.elementLocated(By.id('details-deck-button-permissions')), 10000)
+        await menu.click()
+        let toggle = await driver.wait(until.elementLocated(By.id('permission-0')), 10000)
+        await toggle.click()
         break
       default:
         throw new Error('Unknown browser')
