@@ -1,12 +1,14 @@
 const fs = require('fs')
 const url = require('url')
 const { Builder } = require('selenium-webdriver')
-const { Preferences, Level, Type } = require('selenium-webdriver/lib/logging')
+const { Preferences, Level, Type, installConsoleHandler } = require('selenium-webdriver/lib/logging')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
 const saveStats = require('./save-stats')
 const fetch = require('node-fetch')
 const VERSION = require('../package.json').version
+// Enable SELENIUM logging to console
+installConsoleHandler()
 ;(async function() {
   const loggingPrefs = new Preferences()
   loggingPrefs.setLevel(Type.CLIENT, Level.INFO)
@@ -58,7 +60,7 @@ const VERSION = require('../package.json').version
       case 'firefox':
         // Scrape extension id from firefox addons page
         await driver.installAddon(
-          `./builds/floccus-build-v${VERSION}.xpi`,
+          `${__dirname}/../builds/floccus-build-v${VERSION}.xpi`,
           true
         )
         await driver.get('about:debugging')
