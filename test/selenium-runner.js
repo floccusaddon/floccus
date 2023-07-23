@@ -58,7 +58,8 @@ const VERSION = require('../package.json').version
       case 'firefox':
         // Scrape extension id from firefox addons page
         await driver.installAddon(
-          `./builds/floccus-build-v${VERSION}.zip`
+          `./builds/floccus-build-v${VERSION}.xpi`,
+          true
         )
         await driver.get('about:debugging')
         await new Promise(resolve => setTimeout(resolve, 10000))
