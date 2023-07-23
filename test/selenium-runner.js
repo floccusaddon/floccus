@@ -77,7 +77,7 @@ installConsoleHandler()
         // Enable permission
         await driver.get('about:addons')
         await driver.sleep(5000)
-        await (await driver.findElement(By.name('addon-card'))).click()
+        await (await driver.findElement(By.css('addon-card'))).click()
         await driver.sleep(2000)
         await (await driver.findElement(By.id('details-deck-button-permissions'))).click()
         await driver.sleep(2000)
