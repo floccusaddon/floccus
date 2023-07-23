@@ -1,6 +1,6 @@
 const fs = require('fs')
 const url = require('url')
-const { Builder } = require('selenium-webdriver')
+const { Builder, By } = require('selenium-webdriver')
 const { Preferences, Level, Type, installConsoleHandler } = require('selenium-webdriver/lib/logging')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
@@ -63,6 +63,8 @@ installConsoleHandler()
           `${__dirname}/../builds/floccus-build-v${VERSION}.zip`,
           true
         )
+
+        // Get extension URL
         await driver.get('about:debugging')
         await new Promise(resolve => setTimeout(resolve, 10000))
         testUrl = await driver.executeScript(function() {
@@ -71,6 +73,12 @@ installConsoleHandler()
           return extension.extension.baseURL
         })
         if (!testUrl) throw new Error('Could not install extension')
+
+        // Enable permission
+        await driver.get('about:addons')
+        await (await driver.findElement(By.name('addon-card'))).click()
+        await (await driver.findElement(By.id('details-deck-button-permissions'))).click()
+        await (await driver.findElement(By.id('permission-0'))).click()
         break
       default:
         throw new Error('Unknown browser')
