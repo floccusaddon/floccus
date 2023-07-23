@@ -60,15 +60,14 @@ installConsoleHandler()
       case 'firefox':
         // Scrape extension id from firefox addons page
         await driver.installAddon(
-          `${__dirname}/`,
+          `${__dirname}/../builds/floccus-build-v${VERSION}.zip`,
           true
         )
         await driver.get('about:debugging')
         await new Promise(resolve => setTimeout(resolve, 10000))
         testUrl = await driver.executeScript(function() {
-          const extension = WebExtensionPolicy.getByID(
-            'floccus@handmadeideas.org'
-          )
+          const extension = WebExtensionPolicy.getActiveExtensions()
+            .find(({name}) => name === 'floccus bookmarks sync')
           return extension.extension.baseURL
         })
         if (!testUrl) throw new Error('Could not install extension')
