@@ -66,7 +66,7 @@ installConsoleHandler()
 
         // Get extension URL
         await driver.get('about:debugging')
-        await new Promise(resolve => setTimeout(resolve, 10000))
+        await driver.sleep(10000)
         testUrl = await driver.executeScript(function() {
           const extension = WebExtensionPolicy.getActiveExtensions()
             .find(({name}) => name === 'floccus bookmarks sync')
@@ -77,6 +77,12 @@ installConsoleHandler()
         // Enable permission
         await driver.get('about:addons')
         await driver.sleep(10000)
+        console.log(await driver.getPageSource())
+        await driver.executeScript(function() {
+          document.querySelector('button[name=extension]').click()
+        })
+        await driver.sleep(10000)
+        console.log(await driver.getPageSource())
         await driver.executeScript(function() {
           document.querySelector('addon-card').click()
         })
