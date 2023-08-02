@@ -76,12 +76,19 @@ installConsoleHandler()
 
         // Enable permission
         await driver.get('about:addons')
-        let card = await driver.wait(until.elementLocated(By.css('addon-card')), 10000)
-        await card.click()
-        let menu = await driver.wait(until.elementLocated(By.id('details-deck-button-permissions')), 10000)
-        await menu.click()
-        let toggle = await driver.wait(until.elementLocated(By.id('permission-0')), 10000)
-        await toggle.click()
+        await driver.sleep(10000)
+        await driver.executeScript(function() {
+          document.querySelector('addon-card').click()
+        })
+        await driver.sleep(10000)
+        await driver.executeScript(function() {
+          document.querySelector('#details-deck-button-permissions').click()
+        })
+        await driver.sleep(10000)
+        await driver.executeScript(function() {
+          document.querySelector('#permission-0').click()
+        })
+        await driver.sleep(5000)
         break
       default:
         throw new Error('Unknown browser')
