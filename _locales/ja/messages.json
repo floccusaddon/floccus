@@ -1,0 +1,663 @@
+{
+  "Error001": {
+    "message": "E001: 作成するフォルダーが存在しません"
+  },
+  "Error002": {
+    "message": "E002: アップデートするブックマークは既に存在しません"
+  },
+  "Error003": {
+    "message": "E003: 移動するフォルダーが存在しません。"
+  },
+  "Error004": {
+    "message": "E004: 移動先のフォルダーが存在しません"
+  },
+  "Error005": {
+    "message": "E005: 作成するフォルダーが存在しません"
+  },
+  "Error006": {
+    "message": "E006: アップデートするフォルダーが存在しません"
+  },
+  "Error007": {
+    "message": "E007: 移動するフォルダーが存在しません"
+  },
+  "Error008": {
+    "message": "E008: 移動元のフォルダーが存在しません"
+  },
+  "Error009": {
+    "message": "E009: 移動先のフォルダーが存在しません"
+  },
+  "Error010": {
+    "message": "E010: 並べ替えるフォルダーが見つかりません"
+  },
+  "Error011": {
+    "message": "E011: フォルダー内のアイテムの順序が、実際の子アイテムとは異なります: {0}"
+  },
+  "Error012": {
+    "message": "E012: フォルダーのいくつかの子アイテムは、フォルダーの並び順がありません"
+  },
+  "Error013": {
+    "message": "E013: 削除しようとしているフォルダーは存在しません"
+  },
+  "Error014": {
+    "message": "E014: フォルダーを削除しようとしている親フォルダーは、存在しません"
+  },
+  "Error015": {
+    "message": "E015: 予期せぬデータがサーバーから応答されました"
+  },
+  "Error016": {
+    "message": "E016: リクエストがタイムアウトしました。サーバーの構成を確認してください"
+  },
+  "Error017": {
+    "message": "E017: ネットワークエラー: ネットワーク接続とアカウントの詳細を確認してください"
+  },
+  "Error018": {
+    "message": "E018: サーバーで認証できません。"
+  },
+  "Error019": {
+    "message": "E019: HTTP ステータス {0}。{1} リクエスト失敗。サーバーの構成とログを確認してください。"
+  },
+  "Error020": {
+    "message": "E020: サーバーの応答を解析できませんでした。本当に、サーバーにブックマークアプリがインストールされていますか？"
+  },
+  "Error021": {
+    "message": "E021: 一貫性のないサーバーの状態。フォルダーは子のリストにはありますが、フォルダーツリーにはありません"
+  },
+  "Error022": {
+    "message": "E022: フォルダー {0} に存在しないブックマーク {1} が含まれている可能性があります"
+  },
+  "Error023": {
+    "message": "E023: ロックファイルをクリアできませんでした。{0} を手動で削除してみてください。"
+  },
+  "Error024": {
+    "message": "E024: ロックファイル {1} のステータスを確認中に、HTTP ステータス {0} が発生しました"
+  },
+  "Error025": {
+    "message": "E025: ブックマークファイルの設定は、スラッシュ: '/' で始まってはいけません"
+  },
+  "Error026": {
+    "message": "E026: HTTP ステータス {0}。ブックマークのフェッチに失敗しました"
+  },
+  "Error027": {
+    "message": "E027: 同期のプロセスが中断されました"
+  },
+  "Error028": {
+    "message": "E028: サーバーで認証できません。"
+  },
+  "Error029": {
+    "message": "E029: フィールセーフ: 現在の同期を実行すると、ブックマーク {0}% が削除されます。続行する場合は、アカウント設定でフィールセーフを無効にしてください。"
+  },
+  "Error030": {
+    "message": "E030: ブックマークファイルの復号に失敗しました。パスフレーズが間違っているか、ファイルが破損しています。"
+  },
+  "Error031": {
+    "message": "E031: Google ドライブでクラウドを認証できませんでした。もう一度、floccus を Google アカウントと接続してください。"
+  },
+  "Error032": {
+    "message": "E032: OAuth エラー。トークンの検証でエラーが発生しました。もう一度、Google アカウントと接続してください。"
+  },
+  "Error033": {
+    "message": "E033: リダイレクトが検出されました。サーバーが選択した同期の方法に対応していて、入力した URL が正確であることを確認し、間違った場所にリダイレクトされていないことを確認してください。もし、予期した通りにリダイレクトされている場合、設定でリダイレクトの確認を無効にできます。"
+  },
+  "Error034": {
+    "message": "E034: リモートのブックマークを読み取れません。暗号化パスフレーズを忘れましたか？"
+  },
+  "Error035": {
+    "message": "E035: 次のブックマークのサーバーへの作成に失敗しました: {0}"
+  },
+  "LabelWebdavurl": {
+    "message": "WebDAV URL"
+  },
+  "DescriptionWebdavurl": {
+    "message": "Nextcloud の例: https://example.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "Nextcloud URL"
+  },
+  "LabelUsername": {
+    "message": "ユーザー名"
+  },
+  "LabelPassword": {
+    "message": "パスワード"
+  },
+  "LabelBookmarksfile": {
+    "message": "ブックマークファイルのパス"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "WebDAV URL からのブックマークファイルの相対パス (パスのすべてのフォルダーがすでに存在していなければなりません) 例: personal_stuff/bookmarks.xbel"
+  },
+ "DescriptionBookmarksfilegoogle": {
+   "message": "Googleドライブに保存するブックマークファイルの名前 (ドライブ内でファイル名が重複していないことを確認してください)"
+ },
+  "LabelServerfolder": {
+    "message": "サーバーフォルダー"
+  },
+  "DescriptionServerfolder": {
+    "message": "アカウントがサーバー上で動作するためのパスのプレフィックスです。プレフィックスを使用しない場合は空欄のままにしてください。"
+  },
+  "LabelLocalfolder": {
+    "message": "ローカルフォルダー"
+  },
+  "DescriptionLocalfolder": {
+    "message": "このブラウザーからはこのローカル ブックマーク フォルダーがサーバーに同期されます。一部のブラウザー (Firefox、Google Chrome など) はルートフォルダーへの新しいアイテムの作成を許可していないことに注意してください"
+  },
+  "LabelRootfolder": {
+    "message": "ルートフォルダー"
+  },
+  "LabelNewfolder": {
+    "message": "新しく作成されたフォルダー"
+  },
+  "LabelOptions": {
+    "message": "設定"
+  },
+  "LabelSyncnow": {
+    "message": "今すぐ同期"
+  },
+  "LabelCancelsync": {
+    "message": "同期をキャンセル"
+  },
+  "LabelAutosync": {
+    "message": "自動同期"
+  },
+  "StatusLastsynced": {
+    "message": "最終同期: [0]前"
+  },
+  "StatusNeversynced": {
+    "message": "まだ同期していません"
+  },
+  "StatusAllgood": {
+    "message": "同期しました"
+  },
+  "StatusDisabled": {
+    "message": "無効"
+  },
+  "StatusError": {
+    "message": "エラー"
+  },
+  "StatusSyncing": {
+    "message": "同期中"
+  },
+  "LabelReset": {
+    "message": "リセット"
+  },
+  "DescriptionReset": {
+    "message": "同期されたフォルダーをリセットして新しいフォルダーを作成する"
+  },
+  "LabelChoosefolder": {
+    "message": "フォルダーを選択する"
+  },
+  "DescriptionChoosefolder": {
+    "message": "同期対象の既存のフォルダーを選択する"
+  },
+  "LabelRemoveaccount": {
+    "message": "アカウントを削除"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "このアカウントを削除 (ブックマークは削除しません)"
+  },
+  "LabelSyncfromscratch": {
+    "message": "スクラッチしてから同期をトリガー"
+  },
+  "LabelResetCache": {
+    "message": "キャッシュをリセット"
+  },
+  "DescriptionResetcache": {
+    "message": "選択すると、キャッシュがリセットされ、次の同期実行でデータが削除されず、サーバーとローカルのブックマークがマージされるだけになります。"
+  },
+  "LabelParallelsync": {
+    "message": "同期の高速化"
+  },
+  "DescriptionParallelsync": {
+    "message": "選択すると、同期の速度を目的として複数のフォルダーを同時に処理します。これは試験運用版の機能で、デバッグログが読みにくくなります。"
+  },
+  "LabelStrategy": {
+    "message": "同期の方法"
+  },
+  "DescriptionStrategy": {
+    "message": "この設定は他のデバイス上のブックマークとどのように同期するかを設定します。ふつう、互換性のある限りすべての変更を保持したいと考えるはずです。しかし、変更を他のブラウザーからのデータで上書き (追加と削除の両方を含む) したい場合や、ローカルで作成した変更で上書きしたい場合もあるかもしれません。"
+  },
+  "LabelStrategydefault": {
+    "message": "常にローカルの変更と他のブラウザーからの変更をマージ (推奨)"
+  },
+  "LabelStrategyslave": {
+    "message": "常にローカルの変更を取り消し、他のブラウザーから変更をダウンロード"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "常にローカルの変更をアップロードし、他のブラウザーからの変更を取り消す"
+  },
+  "LabelSave": {
+    "message": "保存"
+  },
+  "LabelCancel": {
+    "message": "キャンセル"
+  },
+  "LabelAdd": {
+    "message": "追加"
+  },
+  "LabelChange": {
+    "message": "変更"
+  },
+  "LabelRemove": {
+    "message": "削除"
+  },
+  "LabelBack": {
+    "message": "戻る"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Nextcloud Bookmarks"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "「Nextcloud Bookmarks」のオプションは Nextclound のブックマークアプリとブックマークを同期します。http と ftp のブックマークのみ同期できます。お使いの Nextcloud でブックマークアプリを Nextcloud アプリストアからインストールしていることを確認してください。"
+  },
+  "LabelAdapternextcloud": {
+    "message": "Nextcloud Bookmarks (レガシー)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "レガシーオプションは、バージョン 0.11 以降のブックマークアプリに対応しています。フォルダーのパスを含むタグを使用してフォルダーをエミュレートします。新しいアカウントを作成してこちらを使用することはおすすめできません。"
+  },
+  "LabelAdapterwebdav": {
+    "message": "WebDAV 共有"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "WebDAV オプションは、提供された WebDAV 共有のファイルにブックマークを保存して同期します。ウェブ UI はなく、任意の WebDAV 互換サーバーで使用できます。http、ftp、データ、ファイル、JavaScript のブックマークを同期できます。"
+  },
+  "LabelAddaccount": {
+    "message": "アカウントを追加"
+  },
+  "LabelSecurecredentials": {
+    "message": "認証情報を保護"
+  },
+  "LabelSecuredcredentials": {
+    "message": "認証情報は保護されています"
+  },
+  "LabelOpenintab": {
+    "message": "タブで開く"
+  },
+  "LabelDebuglogs": {
+    "message": "デバッグログ"
+  },
+  "LabelFunddevelopment": {
+    "message": "開発資金を支援"
+  },
+  "DescriptionFunddevelopment": {
+    "message": "任意のサブスクリプションによって floccus の開発を促進できます。私の活動に価値を感じてくださり、大きな苦労なしに数枚のコインを準備できるようなら、開発を支援してください。お使いになったアドオンストアで floccus を評価していただくこともお考えください。ありがとうございます！💙"
+  },
+  "LabelSelect": {
+    "message": "選択"
+  },
+  "LabelUntitledfolder": {
+    "message": "名前のないフォルダー"
+  },
+  "LabelSetkey": {
+    "message": "floccus にパスフレーズを設定"
+  },
+  "DescriptionSetkey": {
+    "message": "パスフレーズを設定すると、ブックマークを同期したいとき、設定を変更したいときなど floccus に関することをするとき、このパスフレーズをブラウザーを起動するごとに入力する必要があります。"
+  },
+  "LabelSetkeybutton": {
+    "message": "パスフレーズを設定"
+  },
+  "LabelKey": {
+    "message": "ロック解除用のパスフレーズを入力してください"
+  },
+  "LabelKey2": {
+    "message": "パスフレーズをもう一度入力してください"
+  },
+  "LabelUnlock": {
+    "message": "floccu をロック解除"
+  },
+  "LabelRemovekey": {
+    "message": "パスフレーズを削除"
+  },
+  "LabelRemovedkey": {
+    "message": "パスフレーズが削除されました"
+  },
+  "LabelSyncinterval": {
+    "message": "同期間隔"
+  },
+  "DescriptionSyncinterval": {
+    "message": "次の同期までの周期 (分)。デフォルトでは 15 分です。"
+  },
+  "LabelChooseadapter": {
+    "message": "どのように同期しますか？"
+  },
+  "LabelOptionsscreen": {
+    "message": "{0} 件のオプション",
+    "description": "Title of the options screen. The placeholder holds the account type."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "Paypal で 1 回限りの寄付をしてプロジェクトを支援する"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "OpenCollective で定期的に寄付をしてプロジェクトを支援する"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "Liberapay で定期的に寄付をしてプロジェクトを支援する"
+  },
+  "LabelGithubsponsors": {
+    "message": "GitHub sponsors"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "GitHub sponsors で定期的に寄付をしてプロジェクトを支援する"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "このレガシーアカウントタイプは非推奨になり、間もなく削除されます。新しい Nextcloud の同期方法に変更してください。改善されたパフォーマンスと精度でななたをお待ちしています。"
+  },
+  "LabelUpdated": {
+    "message": "floccus が更新されました"
+  },
+  "DescriptionUpdated": {
+    "message": "おめでとうございます。floccus の更新がマシンに到着しました！"
+  },
+  "LabelReleaseNotes": {
+    "message": "リリース・ノートを読む"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "サーバーの詳細"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "フォルダーの関連付け"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "同期の動作"
+  },
+  "LabelOptionsDangerous": {
+    "message": "危険なアクション"
+  },
+  "LabelAccountDeleted": {
+    "message": "アカウントが削除されました"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "このアカウントは削除されました"
+  },
+  "LabelNoAccount": {
+    "message": "アカウントがありません"
+  },
+  "DescriptionNoAccount": {
+    "message": "ブックマークを同期するには、新しいアカウントを作成するか、別の端末やブラウザーからアカウントをインポートしてください。"
+  },
+  "LabelLoginFlowStart": {
+    "message": "Nextcloud でログイン"
+  },
+  "LabelLoginFlowStop": {
+    "message": "Nextcloud ログインを中止"
+  },
+  "LabelLoginFlowError": {
+    "message": "Nectcloud ログインに失敗しました"
+  },
+  "LabelNewAccount": {
+    "message": "新しいアカウント"
+  },
+  "LabelNestedSync": {
+    "message": "入れ子アカウント"
+  },
+  "DescriptionNestedSync": {
+    "message": "親フォルダーがアカウント A に属し、子フォルダーがアカウント A と B に属するというように、アカウントを入れ子にすることができます。他のアカウントにこのアカウントのフォルダーを同期することを許可しますか？"
+  },
+  "LabelNestedSyncNo": {
+    "message": "いいえ、他のアカウントではこのアカウントのフォルダーを無視します"
+  },
+  "LabelNestedSyncYes": {
+    "message": "はい、他のアカウントにこのアカウントのフォルダーを含めます"
+  },
+  "LabelImportExport": {
+    "message": "アカウントのインポート/エクスポート"
+  },
+  "LabelExport": {
+    "message": "アカウントをエクスポート"
+  },
+  "LabelImport": {
+    "message": "アカウントをインポート"
+  },
+  "DescriptionExport": {
+    "message": "次から、ファイルにエクスポートするアカウントを選択してください。同じアカウントを別の端末やブラウザーで簡単に再作成できるようになります。"
+  },
+  "DescriptionImport": {
+    "message": "別の端末やブラウザーでファイルにエクスポートしたアカウントを再作成できます。インポートした後、正しい同期フォルダーを再設定してください。"
+  },
+  "LabelFolderNotFound": {
+    "message": "フォルダーが見つかりませんでした"
+  },
+  "LabelSyncTabs": {
+    "message": "タブを同期"
+  },
+  "LabelTabs": {
+    "message": "タブ"
+  },
+  "LabelSyncDown": {
+    "message": "プルダウン"
+  },
+  "DescriptionSyncDown": {
+    "message": "他のブラウザーの変更をダウンロードしてローカルの変更を上書き"
+  },
+  "LabelSyncUp": {
+    "message": "プッシュアップ"
+  },
+  "DescriptionSyncUp": {
+    "message": "ローカルの変更をアップロードして他のブラウザーの変更を上書き"
+  },
+  "LabelSyncDownOnce": {
+    "message": "一度だけプルダウン"
+  },
+  "LabelSyncUpOnce": {
+    "message": "一度だけプッシュアップ"
+  },
+  "LabelSyncNormal": {
+    "message": "マージ"
+  },
+  "DescriptionSyncNormal": {
+    "message": "ローカルの変更と他のブラウザーの変更をマージ"
+  },
+  "DescriptionFilesPermission": {
+    "message": "floccus に、ブックマークアプリを使用する権限だけでなく、Nextcloud ファイルアプリを使用する権限も付与していることを確認してください。"
+  },
+  "DescriptionExtension": {
+    "message": "ブラウザーや端末を超えて、ブックマークをプライベートに同期する"
+  },
+  "LabelFailsafe": {
+    "message": "フィールセーフ"
+  },
+  "DescriptionFailsafe": {
+    "message": "設定のエラーやソフトウエアのバグによって、意図しないデータの削除が行われ、データが失われる場合があります。この問題の発生を防ぐため、ここでフィールセーフを無効にしない限り、floccus は一度に 50% 以上のブックマークを削除しません。"
+  },
+  "LabelFailsafeon": {
+    "message": "有効。確認なしでローカルブックマークの 50% 以上を削除しません。(推奨)"
+  },
+  "LabelFailsafeoff": {
+    "message": "無効。確認なしでローカルブックマークの 50% 以上を削除することを許可します。"
+  },
+  "StatusFailsafeoff": {
+    "message": "フィールセーフが無効になりました。意図しないデータ消失のリスクがあります。アカウント設定でフィールセーフを有効にすることを推奨します。"
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google ドライブ"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "あなたの Google ドライブに保存された、暗号化されたファイルを使用してブックマークを同期します。http、ftp、データ、ファイル、JavaScript のブックマークを同期できます。"
+  },
+  "LabelLogingoogle": {
+    "message": "Google でログイン"
+  },
+  "DescriptionLogingoogle": {
+    "message": "Google ドライブにブックマークの同期ファイルを保存するために、Google アカウントに接続してください。"
+  },
+  "DescriptionLoggedingoogle": {
+    "message": "Google ドライブにブックマークの同期ファイルを保存するために、Google アカウントに接続しました。"
+  },
+  "LabelPassphrase": {
+    "message": "パスフレーズ"
+  },
+  "DescriptionPassphrase": {
+    "message": "ブックマークファイルを暗号化するためのパスフレーズを設定してください。パスフレーズを設定しない場合、暗号化は行われません。"
+  },
+  "LabelClientcert": {
+    "message": "クライアント認証情報を送信する"
+  },
+  "DescriptionClientcert": {
+    "message": "サーバーが認証にクライアント証明書または Cookie を要求する場合は、このオプションを有効にしてください。floccus は通常のブラウザーのプロファイルと Cookie を共有するため、予期せぬ副作用を引き起こす場合があります。"
+  },
+  "LabelAllowredirects": {
+    "message": "サーバー URL のリダイレクトを許可する"
+  },
+  "DescriptionAllowredirects": {
+    "message": "不当と考えられるリダイレクトエラーが同期中に発生する場合は、このオプションを有効にしてください。"
+  },
+  "LabelSearch": {
+    "message": "ブックマークを検索"
+  },
+  "LabelSearchfolder": {
+    "message": "検索 {0}"
+  },
+  "LabelEdititem": {
+    "message": "編集"
+  },
+  "LabelDeleteitem": {
+    "message": "削除"
+  },
+  "LabelNobookmarks": {
+    "message": "ブックマークがありません"
+  },
+  "LabelAddbookmark": {
+    "message": "ブックマークを追加"
+  },
+  "LabelEditbookmark": {
+    "message": "ブックマークを編集"
+  },
+  "LabelAddfolder": {
+    "message": "フォルダーを追加"
+  },
+  "LabelEditfolder": {
+    "message": "フォルダーを編集"
+  },
+  "LabelSlugline": {
+    "message": "プライベートなブックマーク同期"
+  },
+  "LabelDownloadlogs": {
+    "message": "ログをダウンロード"
+  },
+  "LabelDownloadfulllogs": {
+    "message": "完全なログ"
+  },
+  "LabelDownloadanonymizedlogs": {
+    "message": "編集されたログ"
+  },
+  "DescriptionDownloadlogs": {
+    "message": "floccus はあなたが調査に利用したり、デバッグの目的で開発者に送信したりするためにすべてのアクションをログファイルに記録しています。編集されたログでは、フォルダーとブックマークの名前、および URL が、暗号化ハッシュ関数を使用して不可逆的にエンコードされます。それでも、編集されたログを送信する際は、匿名化プロセスで処理されかったセンシティブなデータがないか、ダウンロードしたファイルを確認してください。"
+  },
+  "ErrorFolderloopselected": {
+    "message": "フォルダーをその中に移動することはできません"
+  },
+  "ErrorNofolderselected": {
+    "message": "フォルダーが選択されていません"
+  },
+  "LabelAllownetwork": {
+    "message": "ネットワークの使用を許可する"
+  },
+  "DescriptionAllownetwork": {
+    "message": "floccus は、同期サーバーへの接続とは別にネットワークを使用して、ブックマークに関する追加情報 (アイコンなど) を取得できます。ここで、そのようなネットワークの使用を有効にするか選択します。"
+  },
+  "LabelMobilesettings": {
+    "message": "モバイルの設定"
+  },
+  "LabelContinuefloccus":{
+    "message": "floccus で続行"
+  },
+  "LabelAbout":{
+    "message": "floccus について"
+  },
+  "LabelCurrentversion": {
+    "message": "現在のバージョン"
+  },
+  "DescriptionCurrentversion": {
+    "message": "あなたが使用中の floccus のバージョン:"
+  },
+  "LabelContributors": {
+    "message": "貢献者"
+  },
+  "DescriptionContributors": {
+    "message": "これらの人々が floccus の開発を可能にしました"
+  },
+  "LabelSortcustom": {
+    "message": "カスタム"
+  },
+  "LabelSorturl": {
+    "message": "リンク"
+  },
+  "LabelSorttitle": {
+    "message": "タイトル"
+  },
+  "LabelSyncmethod": {
+    "message": "同期の方法"
+  },
+  "LabelSyncserver": {
+    "message": "同期先サーバー"
+  },
+  "LabelSyncfolders": {
+    "message": "同期するフォルダー"
+  },
+  "LabelSyncbehavior": {
+    "message": "同期の動作"
+  },
+  "LabelContinue": {
+    "message": "続行"
+  },
+  "LabelDone": {
+    "message": "完了"
+  },
+  "LabelConnect": {
+    "message": "接続"
+  },
+  "LabelServersetup": {
+    "message": "どのサーバーと同期しますか？"
+  },
+  "LabelGoogledrivesetup": {
+    "message": "Google ドライブにログイン"
+  },
+  "LabelSyncfoldersetup": {
+    "message": "どのフォルダーを同期しますか？"
+  },
+  "LabelSyncbehaviorsetup": {
+    "message": "どのように同期しますか？"
+  },
+  "LabelAccountcreated": {
+    "message": "アカウントが作成されました"
+  },
+  "DescriptionNonhttps": {
+    "message": "安全ではないプロトコルを使用するサーバーを入力しました。HTTPS に対応するサーバーの使用を推奨しています。"
+  },
+  "LabelFiletype": {
+    "message": "ファイルのフォーマット"
+  },
+  "DescriptionFiletype": {
+    "message": "クラウド上に保存したいファイルのフォーマットを選択できます。"
+  },
+  "LabelFiletypehtml": {
+    "message": "HTML, 広くサポートされたオープンなフォーマット (試験運用機能)"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL, シンプルでオープンなフォーマット"
+  },
+  "LabelImportbookmarks": {
+    "message": "ブックマークをインポート"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "ブックマークを含む HTML ファイルを現在のフォルダーにインポート"
+  },
+  "LabelExportBookmarks": {
+    "message": "ブックマークをエクスポート"
+  },
+  "DescriptionExportBookmarks" : {
+    "message": "このアカウントのブックマークを、すべてのメジャーなブラウザーと互換性のある HTML ファイルとしてエクスポートできます。"
+  },
+  "LabelShareitem": {
+    "message": "共有"
+  }
+}
