@@ -329,6 +329,7 @@ describe('Floccus', function() {
               parentId: barFolder.id
             })
             await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
 
             const newData = { title: 'blah' }
             await browser.bookmarks.update(bookmark.id, newData)
@@ -383,6 +384,7 @@ describe('Floccus', function() {
               parentId: barFolder.id
             })
             await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
 
             await browser.bookmarks.remove(bookmark.id)
             await account.sync() // update on server
@@ -433,6 +435,7 @@ describe('Floccus', function() {
               parentId: barFolder.id
             })
             await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
 
             await browser.bookmarks.move(barFolder.id, { parentId: localRoot })
             await account.sync() // update on server
@@ -706,6 +709,7 @@ describe('Floccus', function() {
               parentId: barFolder.id
             })
             await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
 
             await browser.bookmarks.move(barFolder.id, { parentId: localRoot })
             await account.sync() // update on server
@@ -780,7 +784,6 @@ describe('Floccus', function() {
             })
 
             await account.sync() // propagate to server
-
             expect(account.getData().error).to.not.be.ok
 
             // Sync again, so client can deduplicate
@@ -838,6 +841,7 @@ describe('Floccus', function() {
             })
 
             await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
 
             expect(account.getData().error).to.not.be.ok
 
@@ -895,6 +899,7 @@ describe('Floccus', function() {
               parentId: barFolder.id
             })
             await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
 
             await browser.bookmarks.move(barFolder.id, { parentId: localRoot })
             await browser.bookmarks.move(fooFolder.id, {
@@ -975,6 +980,7 @@ describe('Floccus', function() {
               parentId: barFolder.id
             })
             await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
 
             await browser.bookmarks.move(barFolder.id, { parentId: localRoot })
             await browser.bookmarks.move(fooFolder.id, {
@@ -1159,6 +1165,7 @@ describe('Floccus', function() {
             if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
             await account.sync() // propagate creation
+            expect(account.getData().error).to.not.be.ok
 
             await withSyncConnection(account, async() => {
               await adapter.removeBookmark({...serverMark, id: serverMarkId})
@@ -2384,6 +2391,8 @@ describe('Floccus', function() {
                 parentId: barFolder.id
               })
               await account.sync() // propagate to server
+              expect(account.getData().error).to.not.be.ok
+
               const originalTree = await getAllBookmarks(account)
               await account.setData({ ...account.getData(), strategy: 'slave' })
 
@@ -2419,6 +2428,8 @@ describe('Floccus', function() {
                 parentId: barFolder.id
               })
               await account.sync() // propagate to server
+              expect(account.getData().error).to.not.be.ok
+
               const originalTree = await getAllBookmarks(account)
               await account.setData({ ...account.getData(), strategy: 'slave' })
 
@@ -2458,6 +2469,8 @@ describe('Floccus', function() {
                 parentId: barFolder.id
               })
               await account.sync() // propagate to server
+              expect(account.getData().error).to.not.be.ok
+
               const originalTree = await getAllBookmarks(account)
               await account.setData({ ...account.getData(), strategy: 'slave' })
 
@@ -2541,6 +2554,7 @@ describe('Floccus', function() {
               if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
               await account.sync() // propage creation
+              expect(account.getData().error).to.not.be.ok
 
               const newServerMark = {
                 ...serverMark,
@@ -2598,6 +2612,7 @@ describe('Floccus', function() {
               if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
               await account.sync() // propage creation
+              expect(account.getData().error).to.not.be.ok
 
               await withSyncConnection(account, async() => {
                 await adapter.removeBookmark({...serverMark, id: serverMarkId})
@@ -2855,6 +2870,8 @@ describe('Floccus', function() {
                 parentId: barFolder.id
               })
               await account.sync() // propagate to server
+              expect(account.getData().error).to.not.be.ok
+
               await account.setData({
                 ...account.getData(),
                 strategy: 'overwrite'
@@ -2894,6 +2911,8 @@ describe('Floccus', function() {
                 parentId: barFolder.id
               })
               await account.sync() // propagate to server
+              expect(account.getData().error).to.not.be.ok
+
               await account.setData({
                 ...account.getData(),
                 strategy: 'overwrite'
@@ -2937,6 +2956,8 @@ describe('Floccus', function() {
                 parentId: barFolder.id
               })
               await account.sync() // propagate to server
+              expect(account.getData().error).to.not.be.ok
+
               await account.setData({
                 ...account.getData(),
                 strategy: 'overwrite'
@@ -3008,6 +3029,7 @@ describe('Floccus', function() {
               if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
               await account.sync() // propage creation
+              expect(account.getData().error).to.not.be.ok
               const originalTree = await account.localTree.getBookmarksTree(true)
               await account.setData({
                 ...account.getData(),
@@ -3051,6 +3073,7 @@ describe('Floccus', function() {
               if (adapter.onSyncComplete) await adapter.onSyncComplete()
 
               await account.sync() // propage creation
+              expect(account.getData().error).to.not.be.ok
               const originalTree = await account.localTree.getBookmarksTree(true)
               await account.setData({
                 ...account.getData(),
