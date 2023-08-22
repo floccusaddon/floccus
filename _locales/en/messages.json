@@ -266,12 +266,6 @@
   "LabelAddaccount": {
     "message": "Add account"
   },
-  "LabelSecurecredentials": {
-    "message": "Secure your credentials"
-  },
-  "LabelSecuredcredentials": {
-    "message": "Your credentials are secure"
-  },
   "LabelOpenintab": {
     "message": "Open in tab"
   },
@@ -289,12 +283,6 @@
   },
   "LabelUntitledfolder": {
     "message": "Untitled folder"
-  },
-  "LabelSetkey": {
-    "message": "Set a passphrase for floccus"
-  },
-  "DescriptionSetkey": {
-    "message": "When you set a passphrase you will have to enter this pass phrase everytime you start your browser if you want to access and synchronize your bookmarks, change your settings or do anything else with floccus."
   },
   "LabelSetkeybutton": {
     "message": "Set passphrase"

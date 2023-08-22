@@ -87,9 +87,6 @@ export default {
     locked() {
       return this.$store.state.locked
     },
-    secured() {
-      return this.$store.state.secured
-    },
     routes() {
       return routes
     },

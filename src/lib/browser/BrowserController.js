@@ -151,26 +151,6 @@ export default class BrowserController {
     }
   }
 
-  async setKey(key) {
-    let accounts = await Account.getAllAccounts()
-    await Promise.all(accounts.map(a => a.updateFromStorage()))
-    this.key = key
-    let hashedKey = await Cryptography.sha256(key)
-    let encryptedHash = await Cryptography.encryptAES(
-      key,
-      hashedKey,
-      'FLOCCUS'
-    )
-    await browser.storage.local.set({ accountsLocked: encryptedHash })
-    if (accounts.length) {
-      await Promise.all(accounts.map(a => a.setData(a.getData())))
-    }
-
-    // ...aand unlock it immediately.
-    this.unlocked = true
-    this.setEnabled(true)
-  }
-
   async unlock(key) {
     let d = await browser.storage.local.get({ 'accountsLocked': null })
     if (d.accountsLocked) {
@@ -190,22 +170,16 @@ export default class BrowserController {
     this.setEnabled(true)
 
     // remove encryption
-    this.unsetKey()
-  }
-
-  async unsetKey() {
-    if (!this.unlocked) {
-      throw new Error('Cannot disable encryption without unlocking first')
+    this.key = null
+    await browser.storage.local.set({ accountsLocked: null })
+    const accountIds = BrowserAccountStorage.getAllAccounts()
+    for (let accountId of accountIds) {
+      const storage = new BrowserAccountStorage(accountId)
+      const data = await storage.getAccountData(key)
+      await storage.setAccountData(data, null)
     }
     let accounts = await BrowserAccount.getAllAccounts()
     await Promise.all(accounts.map(a => a.updateFromStorage()))
-    this.key = null
-    await browser.storage.local.set({ accountsLocked: null })
-    await Promise.all(accounts.map(a => a.setData(a.getData())))
-  }
-
-  getKey() {
-    return Promise.resolve(this.key)
   }
 
   getUnlocked() {

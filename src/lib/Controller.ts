@@ -9,6 +9,7 @@ interface FloccusWorker {
 export default class Controller implements IController {
   public static singleton: IController
   private worker: FloccusWorker|null
+  private key: string|null|undefined
 
   static async getSingleton():Promise<IController> {
     if (!this.singleton) {
@@ -93,14 +94,6 @@ export default class Controller implements IController {
     console.log('Sending message to service worker: ', message)
   }
 
-  async setKey(key): Promise<void> {
-    console.log('Waiting for service worker readiness')
-    const worker = await this.getWorker()
-    const message = {type: 'setKey', params: [key]}
-    worker.postMessage(message)
-    console.log('Sending message to service worker: ', message)
-  }
-
   async syncAccount(accountId, strategy): Promise<void> {
     console.log('Waiting for service worker readiness')
     const worker = await this.getWorker()
@@ -115,33 +108,6 @@ export default class Controller implements IController {
     const message = {type: 'unlock', params: [key]}
     worker.postMessage(message)
     console.log('Sending message to service worker: ', message)
-  }
-
-  async unsetKey(): Promise<void> {
-    console.log('Waiting for service worker readiness')
-    const worker = await this.getWorker()
-    const message = {type: 'unsetKey', params: []}
-    worker.postMessage(message)
-    console.log('Sending message to service worker: ', message)
-  }
-
-  async getKey(): Promise<string|null> {
-    console.log('Waiting for service worker readiness')
-    const worker = await this.getWorker()
-    // eslint-disable-next-line no-async-promise-executor
-    return new Promise((resolve) => {
-      const eventListener = (data) => {
-        if (data.type === 'getKeyResponse') {
-          console.log('Message response received', data)
-          resolve(data.params[0])
-          removeEventListener()
-        }
-      }
-      const removeEventListener = worker.addEventListener(eventListener)
-      const message = { type: 'getKey', params: [] }
-      worker.postMessage(message)
-      console.log('Sending message to service worker: ', message)
-    })
   }
 
   async getUnlocked(): Promise<boolean> {

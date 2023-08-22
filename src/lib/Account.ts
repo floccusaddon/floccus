@@ -7,7 +7,6 @@ import DefaultSyncProcess from './strategies/Default'
 import IAccountStorage, { IAccountData, TAccountStrategy } from './interfaces/AccountStorage'
 import { TAdapter } from './interfaces/Adapter'
 import { IResource, TLocalTree } from './interfaces/Resource'
-import Controller from './Controller'
 import { Capacitor } from '@capacitor/core'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
@@ -111,9 +110,7 @@ export default class Account {
   }
 
   async setData(data:IAccountData):Promise<void> {
-    const controller = await Controller.getSingleton()
-    const key = await controller.getKey()
-    await this.storage.setAccountData(data, key)
+    await this.storage.setAccountData(data, null)
     this.server.setData(data)
   }
 

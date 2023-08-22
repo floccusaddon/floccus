@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Overview from './views/Overview'
 import NewAccount from './views/NewAccount'
-import SetKey from './views/SetKey'
 import Update from './views/Update'
 import ImportExport from './views/ImportExport'
 import Donate from './views/Donate'
@@ -44,11 +43,6 @@ export const router = new Router({
       path: '/about',
       name: 'ABOUT',
       component: About,
-    },
-    {
-      path: '/set-key',
-      name: routes.SET_KEY,
-      component: SetKey,
     },
     {
       path: '/update',

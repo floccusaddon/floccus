@@ -3,7 +3,6 @@ import NativeTree from './NativeTree'
 import AdapterFactory from '../AdapterFactory'
 import Account from '../Account'
 import { IAccountData } from '../interfaces/AccountStorage'
-import Controller from '../Controller'
 import {
   CreateBookmarkError,
   FailsafeError, FloccusError,
@@ -19,9 +18,7 @@ import { i18n } from './I18n'
 export default class NativeAccount extends Account {
   static async get(id:string):Promise<Account> {
     const storage = new NativeAccountStorage(id)
-    const controller = await Controller.getSingleton()
-    const key = await controller.getKey()
-    const data = await storage.getAccountData(key)
+    const data = await storage.getAccountData(null)
     const tree = new NativeTree(storage)
     await tree.load()
     return new NativeAccount(id, storage, await AdapterFactory.factory(data), tree)
@@ -32,9 +29,7 @@ export default class NativeAccount extends Account {
     const adapter = await AdapterFactory.factory(data)
     const storage = new NativeAccountStorage(id)
 
-    const controller = await Controller.getSingleton()
-    const key = await controller.getKey()
-    await storage.setAccountData(data, key)
+    await storage.setAccountData(data, null)
     const tree = new NativeTree(storage)
     await tree.load()
     return new NativeAccount(id, storage, adapter, tree)

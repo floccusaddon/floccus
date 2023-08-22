@@ -10,10 +10,8 @@ import { Base64 } from 'js-base64'
 export const actionsDefinition = {
   async [actions.LOAD_LOCKED]({ commit, dispatch, state }) {
     const controller = await Controller.getSingleton()
-    const key = await controller.getKey()
     const unlocked = await controller.getUnlocked()
     commit(mutations.SET_LOCKED, !unlocked)
-    commit(mutations.SET_SECURED, typeof key === 'string' || !unlocked)
   },
   async [actions.UNLOCK]({commit, dispatch, state}, key) {
     const controller = await Controller.getSingleton()
@@ -24,14 +22,6 @@ export const actionsDefinition = {
       throw e
     }
     commit(mutations.SET_LOCKED, false)
-  },
-  async [actions.SET_KEY]({commit, dispatch, state}, key) {
-    const controller = await Controller.getSingleton()
-    await controller.setKey(key)
-  },
-  async [actions.UNSET_KEY]({commit, dispatch, state}) {
-    const controller = await Controller.getSingleton()
-    await controller.unsetKey()
   },
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
     commit(mutations.LOADING_START, 'accounts')

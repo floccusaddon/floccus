@@ -68,26 +68,6 @@ export default class NativeController {
     this.enabled = enabled
   }
 
-  async setKey(key) {
-    let accounts = await Account.getAllAccounts()
-    await Promise.all(accounts.map(a => a.updateFromStorage()))
-    this.key = key
-    let hashedKey = await Cryptography.sha256(key)
-    let encryptedHash = await Cryptography.encryptAES(
-      key,
-      hashedKey,
-      'FLOCCUS'
-    )
-    await Storage.set({ key: 'accountsLocked', value: encryptedHash })
-    if (accounts.length) {
-      await Promise.all(accounts.map(a => a.setData(a.getData())))
-    }
-
-    // ...aand unlock it immediately.
-    this.unlocked = true
-    this.setEnabled(true)
-  }
-
   async unlock(key) {
     let accountsLocked = await Storage.get({ key: 'accountsLocked' })
     if (accountsLocked) {
@@ -105,21 +85,6 @@ export default class NativeController {
     }
     this.unlocked = true
     this.setEnabled(true)
-  }
-
-  async unsetKey() {
-    if (!this.unlocked) {
-      throw new Error('Cannot disable encryption without unlocking first')
-    }
-    let accounts = await Account.getAllAccounts()
-    await Promise.all(accounts.map(a => a.updateFromStorage()))
-    this.key = null
-    await Storage.set({ key: 'accountsLocked', value: null })
-    await Promise.all(accounts.map(a => a.setData(a.getData())))
-  }
-
-  getKey() {
-    return Promise.resolve(this.key)
   }
 
   getUnlocked() {

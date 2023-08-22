@@ -23,9 +23,6 @@ export default {
     locked() {
       return false
     },
-    secured() {
-      return false
-    },
     background() {
       return this.$vuetify.theme.dark ? '#000' : '#fff'
     }
