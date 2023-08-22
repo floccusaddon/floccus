@@ -77,7 +77,6 @@ installConsoleHandler()
         // Enable permission
         await driver.get('about:addons')
         await driver.sleep(10000)
-        console.log(await driver.getPageSource())
         await driver.executeScript(function() {
           document.querySelector('button[name=extension]').click()
         })
