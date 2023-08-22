@@ -74,6 +74,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private canceled = false
   private cancelCallback: () => void = null
   private lockingInterval: any
+  private ended = false
 
   constructor(server: NextcloudBookmarksConfig) {
     this.server = server
@@ -156,15 +157,18 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         await this.timeout(base ** i * 1000)
       }
     }
-    this.lockingInterval = setInterval(() => this.acquireLock(), LOCK_INTERVAL)
+    this.ended = false
+    this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
   }
 
   async onSyncComplete(): Promise<void> {
+    this.ended = true
     clearInterval(this.lockingInterval)
     await this.releaseLock()
   }
 
   async onSyncFail(): Promise<void> {
+    this.ended = true
     clearInterval(this.lockingInterval)
     await this.releaseLock()
   }
