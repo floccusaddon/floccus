@@ -26,12 +26,7 @@ installConsoleHandler()
             '--no-sandbox', // see https://bugs.chromium.org/p/chromedriver/issues/detail?id=2473
             '--remote-debugging-port=9222'
           ])
-          .addExtensions(
-            fs.readFileSync(
-              `./builds/floccus-build-v${VERSION}.crx`,
-              'base64'
-            )
-          )
+          .addExtensions(`./builds/floccus-build-v${VERSION}.crx`)
         : null
     )
     .setLoggingPrefs(loggingPrefs)
