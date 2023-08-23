@@ -53,7 +53,9 @@ jobs:
         test-name:
           - test
           - benchmark root
-        browsers: ['firefox']
+        browsers:
+          - firefox
+          - chrome
         include:
           - app-version: stable
             server-version: 26
