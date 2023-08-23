@@ -94,7 +94,7 @@ installConsoleHandler()
         throw new Error('Unknown browser')
     }
 
-    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=http://${process.env.TEST_HOST}&app_version=${process.env.APP_VERSION}`
+    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=http://${process.env.TEST_HOST}&app_version=${process.env.APP_VERSION}&browser=${process.env.SELENIUM_BROWSER}`
 
     if (process.env.FLOCCUS_TEST.includes('google-drive')) {
       testUrl += `&password=${process.env.GOOGLE_API_REFRESH_TOKEN}`

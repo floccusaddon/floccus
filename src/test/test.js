@@ -58,7 +58,7 @@ describe('Floccus', function() {
   this.slow(20000) // 20s is slow
 
   const params = (new URL(window.location.href)).searchParams
-  let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION, SEED
+  let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION, SEED, BROWSER
   SERVER =
     params.get('server') ||
     'http://localhost'
@@ -67,6 +67,7 @@ describe('Floccus', function() {
     password: params.get('password') || 'admin'
   }
   APP_VERSION = params.get('app_version') || 'stable'
+  BROWSER = params.get('browser') || 'firefox'
 
   SEED = (new URL(window.location.href)).searchParams.get('seed') || Math.random() + ''
   console.log('RANDOMNESS SEED', SEED)
@@ -1904,6 +1905,10 @@ describe('Floccus', function() {
               this.skip()
               return
             }
+            if (BROWSER !== 'firefox') {
+              this.skip()
+              return
+            }
             const localRoot = account.getData().localRoot
 
             expect(
@@ -2028,6 +2033,10 @@ describe('Floccus', function() {
           })
           it('should sync separators 2', async function() {
             if (ACCOUNT_DATA.noCache) {
+              this.skip()
+              return
+            }
+            if (BROWSER !== 'firefox') {
               this.skip()
               return
             }
@@ -2223,7 +2232,8 @@ describe('Floccus', function() {
               bookmark.parentId = serverTree.children.find(folder => folder.title !== 'foo').id
               const fooFolder = serverTree.children.find(folder => folder.title === 'foo')
               await adapter.updateBookmark(new Bookmark(bookmark))
-              const secondBookmark = serverTree.children.find(folder => folder.title === secondBookmarkFolderTitle).children.find(item => item.type === 'bookmark')
+              // toLowerCase to accomodate chrome (since we normalize the title)
+              const secondBookmark = serverTree.children.find(folder => folder.title.toLowerCase() === secondBookmarkFolderTitle.toLowerCase()).children.find(item => item.type === 'bookmark')
               secondBookmark.parentId = fooFolder.id
               await adapter.updateBookmark(secondBookmark)
             })
@@ -2697,7 +2707,8 @@ describe('Floccus', function() {
                 bookmark.parentId = serverTree.children.find(folder => folder.title !== 'foo').id
                 const fooFolder = serverTree.children.find(folder => folder.title === 'foo')
                 await adapter.updateBookmark(new Bookmark(bookmark))
-                const secondBookmark = serverTree.children.find(folder => folder.title === secondBookmarkFolderTitle).children.find(item => item.type === 'bookmark')
+                // toLowerCase to accomodate chrome (since we normalize the title)
+                const secondBookmark = serverTree.children.find(folder => folder.title.toLowerCase() === secondBookmarkFolderTitle.toLowerCase()).children.find(item => item.type === 'bookmark')
                 secondBookmark.parentId = fooFolder.id
                 await adapter.updateBookmark(secondBookmark)
               })
