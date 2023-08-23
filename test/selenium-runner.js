@@ -60,7 +60,7 @@ installConsoleHandler()
       case 'firefox':
         // Scrape extension id from firefox addons page
         await driver.installAddon(
-          `${__dirname}/../builds/floccus-build-v${VERSION}.zip`,
+          `${__dirname}/../builds/floccus-build-v${VERSION}-firefox.zip`,
           true
         )
 
