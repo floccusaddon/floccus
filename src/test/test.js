@@ -2649,6 +2649,11 @@ describe('Floccus', function() {
             })
             it('should sync root folder ignoring unsupported folders', async function() {
               const [root] = await browser.bookmarks.getTree()
+
+              await Promise.all(
+                root.children.flatMap(child => child.children.map(child => browser.bookmarks.removeTree(child.id)))
+              )
+
               const originalFolderId = account.getData().localRoot
               await account.setData({...account.getData(), localRoot: root.id, })
               account = await Account.get(account.id)
@@ -2674,6 +2679,7 @@ describe('Floccus', function() {
                 bookmark = {...serverMark, id}
               })
 
+              const secondBookmarkFolderTitle = root.children[0].title
               await browser.bookmarks.create({
                 title: 'url',
                 url: 'http://ur.l/',
@@ -2691,7 +2697,7 @@ describe('Floccus', function() {
                 bookmark.parentId = serverTree.children.find(folder => folder.title !== 'foo').id
                 const fooFolder = serverTree.children.find(folder => folder.title === 'foo')
                 await adapter.updateBookmark(new Bookmark(bookmark))
-                const secondBookmark = serverTree.children.filter(folder => folder.title !== 'foo')[0].children.find(item => item.type === 'bookmark')
+                const secondBookmark = serverTree.children.find(folder => folder.title === secondBookmarkFolderTitle).children.find(item => item.type === 'bookmark')
                 secondBookmark.parentId = fooFolder.id
                 await adapter.updateBookmark(secondBookmark)
               })
