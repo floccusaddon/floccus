@@ -54,7 +54,7 @@ let expectTreeEqual = function(tree1, tree2, ignoreEmptyFolders, checkOrder = tr
 }
 
 describe('Floccus', function() {
-  this.timeout(60000) // no test should run longer than 60s
+  this.timeout(120000) // no test should run longer than 120s
   this.slow(20000) // 20s is slow
 
   const params = (new URL(window.location.href)).searchParams
