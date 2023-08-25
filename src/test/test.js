@@ -100,14 +100,14 @@ describe('Floccus', function() {
       type: 'webdav',
       url: `${SERVER}/remote.php/webdav/`,
       bookmark_file: 'bookmarks.xbel',
-      bookmark_file_type: 'xml',
+      bookmark_file_type: 'xbel',
       ...CREDENTIALS
     },
     {
       type: 'webdav',
       url: `${SERVER}/remote.php/webdav/`,
       bookmark_file: 'bookmarks.xbel',
-      bookmark_file_type: 'xml',
+      bookmark_file_type: 'xbel',
       passphrase: random.float(),
       ...CREDENTIALS
     },

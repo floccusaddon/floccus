@@ -145,16 +145,27 @@ export default class WebDavAdapter extends CachingAdapter {
     let res, lockFreed, i = 0
     try {
       do {
-        res = await Http.request({
-          url: fullUrl,
-          method: 'DELETE',
-          headers: {
-            Authorization: 'Basic ' + authString
-          },
-          webFetchExtra: {
+        if (Capacitor.getPlatform() === 'web') {
+          res = await fetch(fullUrl, {
+            method: 'DELETE',
             credentials: 'omit',
-          }
-        })
+            headers: {
+              Authorization: 'Basic ' + authString
+            },
+            ...(!this.server.allowRedirects && {redirect: 'manual'}),
+          })
+        } else {
+          res = await Http.request({
+            url: fullUrl,
+            method: 'DELETE',
+            headers: {
+              Authorization: 'Basic ' + authString
+            },
+            webFetchExtra: {
+              credentials: 'omit',
+            }
+          })
+        }
         lockFreed = res.status === 200 || res.status === 204 || res.status === 404
         if (!lockFreed) {
           await this.timeout(1000)
