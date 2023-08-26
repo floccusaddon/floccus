@@ -1,9 +1,10 @@
 import Serializer from '../interfaces/Serializer'
 import { Bookmark, Folder, ItemLocation } from '../Tree'
+import { DOMParser as LinkeDOMParser } from 'linkedom'
 
 class HtmlSerializer implements Serializer {
-  serialize(folder) {
-    return `<DL><p>${this._serializeFolder(folder, '')}</p></DL>`
+  serialize(folder: Folder) {
+    return `<DL><p>\n${this._serializeFolder(folder, '    ')}\n</p></DL>\n`
   }
 
   _serializeFolder(folder, indent) {
@@ -12,16 +13,16 @@ class HtmlSerializer implements Serializer {
         if (child instanceof Bookmark) {
           return (
             `${indent}<DT>` +
-            `<A HREF="${child.url}" TAGS="${''}" id="${child.id}">${child.title}</A>`
+            `<A HREF="${child.url}" TAGS="${''}" ID="${child.id}">${child.title}</A>`
           )
         } else if (child instanceof Folder) {
-          const nextIndent = indent + '  '
+          const nextIndent = indent + '    '
           return (
-            `${indent}<DT><h3 id="${child.id}">${child.title}</h3>\n` +
-            `${indent}<DL><p>${this._serializeFolder(
+            `${indent}<DT><h3 ID="${child.id}">${child.title}</h3>\n` +
+            `${indent}<DL><p>\n${indent}${this._serializeFolder(
               child,
               nextIndent
-            )}</p></DL>`
+            )}\n${indent}</p></DL>\n`
           )
         }
       })
@@ -29,7 +30,7 @@ class HtmlSerializer implements Serializer {
   }
 
   deserialize(html): Folder {
-    const parser = new DOMParser()
+    const parser = /* typeof DOMParser !== 'undefined' ? new DOMParser() : */ new LinkeDOMParser()
     const document = parser.parseFromString(html, 'text/html')
     const rootFolder = new Folder({id: '', title: '', location: ItemLocation.SERVER})
     const dl = document.querySelector('dl')
@@ -39,27 +40,27 @@ class HtmlSerializer implements Serializer {
   }
 }
 
-function deserializeDL(dl:Element, parentFolder:Folder, counter:{highestId: number}) {
-  for (let element:Element = dl.querySelector('dt'); element; element = element.nextElementSibling) {
+function deserializeDL(dl, parentFolder:Folder, counter:{highestId: number}) {
+  for (let element = dl.querySelector('dt'); element; element = element.nextElementSibling) {
     const child = element.firstElementChild
-    if (child instanceof HTMLHeadingElement) {
+    if (child.tagName === 'H3') {
       const folder = new Folder({
         parentId: parentFolder.id,
         title: child.textContent,
-        id: child.id ? parseInt(child.id) : counter.highestId++,
+        id: child.getAttribute('ID') || child.getAttribute('id') ? parseInt(child.getAttribute('ID') || child.getAttribute('id')) : counter.highestId++,
         location: ItemLocation.SERVER
       })
       parentFolder.children.push(folder)
-      if (child.nextElementSibling instanceof HTMLDListElement) {
+      if (child.nextElementSibling.tagName === 'DL') {
         const dl = child.nextElementSibling
         deserializeDL(dl, folder, counter)
       }
-    } else if (child instanceof HTMLAnchorElement) {
+    } else if (child.tagName === 'A') {
       parentFolder.children.push(new Bookmark({
         parentId: parentFolder.id,
-        url: child.href,
+        url: child.getAttribute('HREF'),
         title: child.textContent,
-        id: child.id ? parseInt(child.id) : counter.highestId++,
+        id: child.getAttribute('ID') || child.getAttribute('id') ? parseInt(child.getAttribute('ID') || child.getAttribute('id')) : counter.highestId++,
         location: ItemLocation.SERVER
       }))
     }

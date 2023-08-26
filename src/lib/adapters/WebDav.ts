@@ -465,17 +465,14 @@ function createXBEL(rootFolder, highestId) {
 
 function createHTML(rootFolder, highestId) {
   let output = `<!DOCTYPE NETSCAPE-Bookmark-file-1>
-<html>`
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<TITLE>Bookmarks</TITLE>
+<H1>Bookmarks</H1>`
 
-  output +=
-    '<!--- highestId :' +
-    highestId +
-    `: for Floccus bookmark sync browser extension -->
+  output += `<!--- highestId :${highestId}: for Floccus bookmark sync browser extension -->
 `
 
   output += Html.serialize(rootFolder)
-
-  output += '</html>'
 
   return output
 }

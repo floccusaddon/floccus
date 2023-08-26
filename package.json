@@ -94,6 +94,7 @@
     "humanize-duration": "^3.25.1",
     "intl-messageformat": "^9.9.1",
     "js-base64": "^3.7.5",
+    "linkedom": "^0.15.1",
     "lodash": "^4.17.20",
     "p-queue": "^5.0.0",
     "punycode": "^2.1.1",
