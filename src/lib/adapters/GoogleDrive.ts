@@ -6,12 +6,12 @@ import Credentials from '../../../google-api.credentials.json'
 import {
   AuthenticationError,
   DecryptionError, FileUnreadableError,
-  GoogleDriveAuthenticationError, InterruptedSyncError,
+  GoogleDriveAuthenticationError, InterruptedSyncError, MissingPermissionsError,
   NetworkError,
   OAuthTokenError
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
-import { Device } from '@capacitor/device'
+import { Capacitor } from '@capacitor/core'
 import { Http } from '@capacitor-community/http'
 
 const OAuthConfig = {
@@ -58,13 +58,21 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   static async authorize(interactive = true) {
-    const { platform } = await Device.getInfo()
+    const platform = Capacitor.getPlatform()
 
     if (platform !== 'web') {
       const result = await OAuth2Client.authenticate(OAuthConfig)
       const refresh_token = result.access_token_response.refresh_token
       const username = result.user.displayName
       return { refresh_token, username }
+    }
+
+    if (platform === 'web') {
+      const browser = (await import('../browser-api')).default
+      const origins = ['https://oauth2.googleapis.com', 'https://www.googleapis.com']
+      if (!(await browser.permissions.contains({ origins }))) {
+        throw new MissingPermissionsError()
+      }
     }
 
     // see https://developers.google.com/identity/protocols/oauth2/native-app
@@ -134,7 +142,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   async getAccessToken(refreshToken:string) {
-    const {platform} = await Device.getInfo()
+    const platform = Capacitor.getPlatform()
     const credentialType = platform
 
     const response = await this.request('POST', 'https://oauth2.googleapis.com/token',
@@ -187,6 +195,14 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
   async onSyncStart() {
     Logger.log('onSyncStart: begin')
+
+    if (Capacitor.getPlatform() === 'web') {
+      const browser = (await import('../browser-api')).default
+      const origins = ['https://oauth2.googleapis.com/', 'https://www.googleapis.com/']
+      if (!(await browser.permissions.contains({ origins }))) {
+        throw new MissingPermissionsError()
+      }
+    }
 
     this.accessToken = await this.getAccessToken(this.server.refreshToken)
 

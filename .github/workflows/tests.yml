@@ -17,6 +17,10 @@ on:
 env:
   APP_NAME: bookmarks
 
+concurrency:
+  group: floccus-tests-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   php:
     runs-on: ubuntu-latest
@@ -26,7 +30,6 @@ jobs:
       TEST_HOST: nextcloud
       SERVER_BRANCH: ${{ matrix.server-version }}
       NC_APP_VERSION: ${{ matrix.app-version }}
-      SELENIUM_VERSION: 3
       MYSQL_PASSWORD: root
 
     strategy:
@@ -35,9 +38,8 @@ jobs:
       matrix:
         node-version: [14.x]
         npm-version: [7.x]
-        server-version: ['26']
-        app-version: ['stable']
-        selenium-version: ['3']
+        server-version: ['25']
+        app-version: ['stable12']
         floccus-adapter:
           - fake
           - nextcloud-bookmarks
@@ -51,10 +53,12 @@ jobs:
         test-name:
           - test
           - benchmark root
-        browsers: ['firefox']
+        browsers:
+          - firefox
+          - chrome
         include:
-          - app-version: stable12
-            server-version: 25
+          - app-version: stable
+            server-version: 26
             floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: firefox
@@ -93,20 +97,25 @@ jobs:
 
     services:
       hub:
-        image: selenium/hub:3
+        image: selenium/hub:4.11.0-20230801
         ports:
+          - 4442:4442
+          - 4443:4443
           - 4444:4444
       firefox:
-        image: selenium/node-firefox:3
+        image: selenium/node-firefox:4.11.0-20230801
+
         env:
-          HUB_HOST: hub
-          HUB_PORT: 4444
+          SE_EVENT_BUS_HOST: hub
+          SE_EVENT_BUS_PUBLISH_PORT: 4442
+          SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
         options: --shm-size="2g"
       chrome:
-        image: selenium/node-chrome:3
+        image: selenium/node-chrome:4.11.0-20230801
         env:
-          HUB_HOST: hub
-          HUB_PORT: 4444
+          SE_EVENT_BUS_HOST: hub
+          SE_EVENT_BUS_PUBLISH_PORT: 4442
+          SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
         options: --shm-size="2g"
       nextcloud:
         image: nextcloud:${{ matrix.server-version }}
@@ -192,6 +201,17 @@ jobs:
         run: |
           npm ci
           npm run build-release --if-present
+
+      - name: Wait for Selenium
+        run: |
+          sudo apt install -y jq
+          while ! curl -sSL "http://localhost:4444/wd/hub/status" 2>&1 \
+                | jq -r '.value.ready' 2>&1 | grep "true" >/dev/null; do
+            echo 'Waiting for the Grid'
+            sleep 1
+          done
+          
+          echo "Selenium Grid is up - executing tests"
 
       - name: Run tests
         working-directory: floccus

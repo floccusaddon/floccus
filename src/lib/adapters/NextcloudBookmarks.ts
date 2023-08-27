@@ -1,5 +1,6 @@
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
+import { Capacitor } from '@capacitor/core'
 import Adapter from '../interfaces/Adapter'
 import HtmlSerializer from '../serializers/Html'
 import Logger from '../Logger'
@@ -17,7 +18,7 @@ import {
   HttpError,
   InconsistentBookmarksExistenceError,
   InconsistentServerStateError,
-  InterruptedSyncError,
+  InterruptedSyncError, MissingPermissionsError,
   NetworkError,
   ParseResponseError,
   RedirectError,
@@ -73,6 +74,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private canceled = false
   private cancelCallback: () => void = null
   private lockingInterval: any
+  private ended = false
 
   constructor(server: NextcloudBookmarksConfig) {
     this.server = server
@@ -136,6 +138,13 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async onSyncStart(): Promise<void> {
+    if (Capacitor.getPlatform() === 'web') {
+      const browser = (await import('../browser-api')).default
+      if (!(await browser.permissions.contains({ origins: [this.server.url + '/'] }))) {
+        throw new MissingPermissionsError()
+      }
+    }
+
     this.canceled = false
     const startDate = Date.now()
     const maxTimeout = LOCK_TIMEOUT
@@ -148,15 +157,18 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         await this.timeout(base ** i * 1000)
       }
     }
-    this.lockingInterval = setInterval(() => this.acquireLock(), LOCK_INTERVAL)
+    this.ended = false
+    this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
   }
 
   async onSyncComplete(): Promise<void> {
+    this.ended = true
     clearInterval(this.lockingInterval)
     await this.releaseLock()
   }
 
   async onSyncFail(): Promise<void> {
+    this.ended = true
     clearInterval(this.lockingInterval)
     await this.releaseLock()
   }

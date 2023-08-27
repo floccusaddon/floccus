@@ -9,12 +9,12 @@ import {
   AuthenticationError,
   DecryptionError, FileUnreadableError,
   HttpError, InterruptedSyncError,
-  LockFileError,
+  LockFileError, MissingPermissionsError,
   NetworkError, RedirectError,
   SlashError
 } from '../../errors/Error'
 import { Http } from '@capacitor-community/http'
-import { Device } from '@capacitor/device'
+import { Capacitor } from '@capacitor/core'
 import Html from '../serializers/Html'
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
@@ -145,16 +145,27 @@ export default class WebDavAdapter extends CachingAdapter {
     let res, lockFreed, i = 0
     try {
       do {
-        res = await Http.request({
-          url: fullUrl,
-          method: 'DELETE',
-          headers: {
-            Authorization: 'Basic ' + authString
-          },
-          webFetchExtra: {
+        if (Capacitor.getPlatform() === 'web') {
+          res = await fetch(fullUrl, {
+            method: 'DELETE',
             credentials: 'omit',
-          }
-        })
+            headers: {
+              Authorization: 'Basic ' + authString
+            },
+            ...(!this.server.allowRedirects && {redirect: 'manual'}),
+          })
+        } else {
+          res = await Http.request({
+            url: fullUrl,
+            method: 'DELETE',
+            headers: {
+              Authorization: 'Basic ' + authString
+            },
+            webFetchExtra: {
+              credentials: 'omit',
+            }
+          })
+        }
         lockFreed = res.status === 200 || res.status === 204 || res.status === 404
         if (!lockFreed) {
           await this.timeout(1000)
@@ -228,6 +239,13 @@ export default class WebDavAdapter extends CachingAdapter {
   async onSyncStart(needLock = true) {
     Logger.log('onSyncStart: begin')
 
+    if (Capacitor.getPlatform() === 'web') {
+      const browser = (await import('../browser-api')).default
+      if (!(await browser.permissions.contains({ origins: [this.server.url + '/'] }))) {
+        throw new MissingPermissionsError()
+      }
+    }
+
     if (this.server.bookmark_file[0] === '/') {
       throw new SlashError()
     }
@@ -283,8 +301,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async uploadFile(url, content_type, data) {
-    const info = await Device.getInfo()
-    if (info.platform === 'web') {
+    if (Capacitor.getPlatform() === 'web') {
       return this.uploadFileWeb(url, content_type, data)
     } else {
       return this.uploadFileNative(url, content_type, data)
@@ -352,8 +369,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async downloadFile(url) {
-    const info = await Device.getInfo()
-    if (info.platform === 'web') {
+    if (Capacitor.getPlatform() === 'web') {
       return this.downloadFileWeb(url)
     } else {
       return this.downloadFileNative(url)

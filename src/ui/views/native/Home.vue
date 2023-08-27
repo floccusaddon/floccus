@@ -10,7 +10,6 @@ import { actions } from '../../store/definitions'
 import { routes } from '../../NativeRouter'
 import { SplashScreen } from '@capacitor/splash-screen'
 import { SendIntent } from 'send-intent'
-import Controller from '../../../lib/Controller'
 import packageJson from '../../../../package.json'
 import { Preferences as Storage } from '@capacitor/preferences'
 import { Http } from '@capacitor-community/http'
@@ -19,8 +18,6 @@ import Logger from '../../../lib/Logger'
 export default {
   name: 'Home',
   async created() {
-    const controller = await Controller.getSingleton()
-    await controller.onLoad()
     SplashScreen.hide()
     await this.$store.dispatch(actions.LOAD_ACCOUNTS)
 

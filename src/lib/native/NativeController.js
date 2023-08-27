@@ -5,7 +5,6 @@ import NativeAccountStorage from './NativeAccountStorage'
 
 import PQueue from 'p-queue'
 import Account from '../Account'
-import onwakeup from 'onwakeup'
 
 const INACTIVITY_TIMEOUT = 1000 * 7
 const DEFAULT_SYNC_INTERVAL = 15
@@ -54,9 +53,6 @@ export default class NativeController {
 
     this.alarms = new AlarmManager(this)
 
-    // Set up onWakeup
-    onwakeup(() => this.onWakeup())
-
     // lock accounts when locking is enabled
 
     Storage.get({key: 'accountsLocked' }).then(async({value: accountsLocked}) => {
@@ -70,26 +66,6 @@ export default class NativeController {
 
   setEnabled(enabled) {
     this.enabled = enabled
-  }
-
-  async setKey(key) {
-    let accounts = await Account.getAllAccounts()
-    await Promise.all(accounts.map(a => a.updateFromStorage()))
-    this.key = key
-    let hashedKey = await Cryptography.sha256(key)
-    let encryptedHash = await Cryptography.encryptAES(
-      key,
-      hashedKey,
-      'FLOCCUS'
-    )
-    await Storage.set({ key: 'accountsLocked', value: encryptedHash })
-    if (accounts.length) {
-      await Promise.all(accounts.map(a => a.setData(a.getData())))
-    }
-
-    // ...aand unlock it immediately.
-    this.unlocked = true
-    this.setEnabled(true)
   }
 
   async unlock(key) {
@@ -111,15 +87,8 @@ export default class NativeController {
     this.setEnabled(true)
   }
 
-  async unsetKey() {
-    if (!this.unlocked) {
-      throw new Error('Cannot disable encryption without unlocking first')
-    }
-    let accounts = await Account.getAllAccounts()
-    await Promise.all(accounts.map(a => a.updateFromStorage()))
-    this.key = null
-    await Storage.set({ key: 'accountsLocked', value: null })
-    await Promise.all(accounts.map(a => a.setData(a.getData())))
+  getUnlocked() {
+    return Promise.resolve(this.unlocked)
   }
 
   async scheduleSync(accountId, wait) {
@@ -203,15 +172,6 @@ export default class NativeController {
             error: false,
           })
         }
-      })
-    )
-  }
-
-  async onWakeup() {
-    const accounts = await Account.getAllAccounts()
-    await Promise.all(
-      accounts.map(async acc => {
-        await acc.cancelSync()
       })
     )
   }

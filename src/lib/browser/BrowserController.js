@@ -1,12 +1,11 @@
 import browser from '../browser-api'
+import Controller from '../Controller'
 import BrowserAccount from './BrowserAccount'
 import BrowserTree from './BrowserTree'
 import Cryptography from '../Crypto'
-import DefunctCryptography from '../DefunctCrypto'
 import packageJson from '../../../package.json'
 import BrowserAccountStorage from './BrowserAccountStorage'
 import uniqBy from 'lodash/uniqBy'
-import onwakeup from 'onwakeup'
 
 import PQueue from 'p-queue'
 import Account from '../Account'
@@ -50,6 +49,10 @@ export default class BrowserController {
 
     this.alarms = new AlarmManager(this)
 
+    this.setEnabled(true)
+
+    Controller.singleton = this
+
     // set up change listener
     browser.bookmarks.onChanged.addListener((localId, details) =>
       this.onchange(localId, details)
@@ -63,9 +66,6 @@ export default class BrowserController {
     browser.bookmarks.onCreated.addListener((localId, details) =>
       this.onchange(localId, details)
     )
-
-    // Set up onWakeup
-    onwakeup(() => this.onWakeup())
 
     // Set up the alarms
 
@@ -114,6 +114,31 @@ export default class BrowserController {
 
     // Set correct badge after waiting a bit
     setTimeout(() => this.updateStatus(), 3000)
+
+    // Setup service worker messaging
+
+    // eslint-disable-next-line no-undef
+    if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+      addEventListener('message', (event) => this._receiveEvent(event.data, (data) => event.source.postMessage(data)))
+    } else {
+      browser.runtime.onMessage.addListener((data) => void (this._receiveEvent(data, (data) => browser.runtime.sendMessage(data))))
+    }
+    this.onStatusChange(async() => {
+      if (self?.clients) {
+        const clientList = await self.clients.matchAll()
+        clientList.forEach(client => client.postMessage({ type: 'status:update', params: [] }))
+      } else {
+        browser.runtime.sendMessage({type: 'status:update', params: []})
+      }
+    })
+  }
+
+  async _receiveEvent(data, sendResponse) {
+    const {type, params} = data
+    console.log('Message received', data)
+    const result = await this[type](...params)
+    sendResponse({type: type + 'Response', params: [result]})
+    console.log('Sending message', {type: type + 'Response', params: [result]})
   }
 
   setEnabled(enabled) {
@@ -126,77 +151,39 @@ export default class BrowserController {
     }
   }
 
-  async setKey(key) {
-    let accounts = await Account.getAllAccounts()
-    await Promise.all(accounts.map(a => a.updateFromStorage()))
-    this.key = key
-    let hashedKey = await Cryptography.sha256(key)
-    let encryptedHash = await Cryptography.encryptAES(
-      key,
-      hashedKey,
-      'FLOCCUS'
-    )
-    await browser.storage.local.set({ accountsLocked: encryptedHash })
-    if (accounts.length) {
-      await Promise.all(accounts.map(a => a.setData(a.getData())))
-    }
-
-    // ...aand unlock it immediately.
-    this.unlocked = true
-    this.setEnabled(true)
-  }
-
   async unlock(key) {
     let d = await browser.storage.local.get({ 'accountsLocked': null })
-    let e = await browser.storage.local.get({ 'rekeyAfterUpdate': null })
     if (d.accountsLocked) {
-      if (e.rekeyAfterUpdate) {
-        let hashedKey = await DefunctCryptography.sha256(key)
-        let decryptedHash = await DefunctCryptography.decryptAES(
-          key,
-          DefunctCryptography.iv,
-          d.accountsLocked
-        )
+      let hashedKey = await Cryptography.sha256(key)
+      let decryptedHash = await Cryptography.decryptAES(
+        key,
+        d.accountsLocked,
+        'FLOCCUS'
+      )
 
-        if (decryptedHash !== hashedKey) {
-          throw new Error('The provided key was wrong')
-        }
-
-        this.unlocked = true
-        this.key = key
-        await this.unsetKey()
-        await this.setKey(key)
-
-        await browser.storage.local.set({
-          rekeyAfterUpdate: null
-        })
-      } else {
-        let hashedKey = await Cryptography.sha256(key)
-        let decryptedHash = await Cryptography.decryptAES(
-          key,
-          d.accountsLocked,
-          'FLOCCUS'
-        )
-
-        if (decryptedHash !== hashedKey) {
-          throw new Error('The provided key was wrong')
-        }
+      if (decryptedHash !== hashedKey) {
+        throw new Error('The provided key was wrong')
       }
       this.key = key
     }
     this.unlocked = true
     this.setEnabled(true)
-  }
 
-  async unsetKey() {
-    if (!this.unlocked) {
-      throw new Error('Cannot disable encryption without unlocking first')
+    // remove encryption
+    this.key = null
+    await browser.storage.local.set({ accountsLocked: null })
+    const accountIds = BrowserAccountStorage.getAllAccounts()
+    for (let accountId of accountIds) {
+      const storage = new BrowserAccountStorage(accountId)
+      const data = await storage.getAccountData(key)
+      await storage.setAccountData(data, null)
     }
     let accounts = await BrowserAccount.getAllAccounts()
     await Promise.all(accounts.map(a => a.updateFromStorage()))
-    this.key = null
-    await browser.storage.local.set({ accountsLocked: null })
-    await Promise.all(accounts.map(a => a.setData(a.getData())))
+  }
+
+  getUnlocked() {
+    return Promise.resolve(this.unlocked)
   }
 
   async onchange(localId, details) {
@@ -206,11 +193,13 @@ export default class BrowserController {
     // Debounce this function
     this.setEnabled(false)
 
+    console.log('Changes in browser Bookmarks detected...')
+
     const allAccounts = await BrowserAccount.getAllAccounts()
 
     // Check which accounts contain the bookmark and which used to contain (track) it
     const trackingAccountsFilter = await Promise.all(
-      allAccounts.map(async account => {
+      allAccounts.map(account => {
         return account.tracksBookmark(localId)
       })
     )
@@ -219,24 +208,30 @@ export default class BrowserController {
       // Filter out any accounts that are not tracking the bookmark
       .filter((account, i) => trackingAccountsFilter[i])
 
+    console.log('onchange', {accountsToSync})
+
     // Now we check the account of the new folder
 
-    let ancestors
+    let containingAccounts = []
     try {
-      ancestors = await BrowserTree.getIdPathFromLocalId(localId)
+      const ancestors = await BrowserTree.getIdPathFromLocalId(localId)
+      console.log('onchange:', {ancestors, allAccounts})
+      containingAccounts = await BrowserAccount.getAccountsContainingLocalId(
+        localId,
+        ancestors,
+        allAccounts
+      )
     } catch (e) {
-      this.setEnabled(true)
-      return
+      console.log(e)
+      console.log('Could not detect containing account from localId ', localId)
     }
 
-    const containingAccounts = await BrowserAccount.getAccountsContainingLocalId(
-      localId,
-      ancestors,
-      allAccounts
-    )
+    console.log('onchange', accountsToSync.concat(containingAccounts))
+
     accountsToSync = uniqBy(
       accountsToSync.concat(containingAccounts),
-      acc => acc.id)
+      acc => acc.id
+    )
       // Filter out accounts that are not enabled
       .filter(account => account.getData().enabled)
       // Filter out accounts that are syncing, because the event may stem from the sync run
@@ -251,10 +246,12 @@ export default class BrowserController {
   }
 
   async scheduleSync(accountId, wait) {
+    console.log('called scheduleSync')
     if (wait) {
       if (this.schedule[accountId]) {
         clearTimeout(this.schedule[accountId])
       }
+      console.log('scheduleSync: setting a timeout in ms :', INACTIVITY_TIMEOUT)
       this.schedule[accountId] = setTimeout(
         () => this.scheduleSync(accountId),
         INACTIVITY_TIMEOUT
@@ -262,15 +259,20 @@ export default class BrowserController {
       return
     }
 
+    console.log('getting account')
     let account = await Account.get(accountId)
+    console.log('got account')
     if (account.getData().syncing) {
+      console.log('Account is already syncing. Not syncing again.')
       return
     }
     if (!account.getData().enabled) {
+      console.log('Account is not enabled. Not syncing.')
       return
     }
 
     if (this.waiting[accountId]) {
+      console.log('Account is already queued to be synced')
       return
     }
 
@@ -289,12 +291,15 @@ export default class BrowserController {
   }
 
   async syncAccount(accountId, strategy) {
+    console.log('Called syncAccount ', accountId)
     this.waiting[accountId] = false
     if (!this.enabled) {
+      console.log('Flocccus controller is not enabled. Not syncing.')
       return
     }
     let account = await Account.get(accountId)
     if (account.getData().syncing) {
+      console.log('Account is already syncing. Not triggering another sync.')
       return
     }
     setTimeout(() => this.updateStatus(), 500)
@@ -355,7 +360,7 @@ export default class BrowserController {
     }
 
     if (icon[status]) {
-      await browser.browserAction.setIcon(icon[status])
+      await browser.action.setIcon(icon[status])
     }
   }
 
@@ -370,15 +375,6 @@ export default class BrowserController {
             error: false,
           })
         }
-      })
-    )
-  }
-
-  async onWakeup() {
-    const accounts = await Account.getAllAccounts()
-    await Promise.all(
-      accounts.map(async acc => {
-        await acc.cancelSync()
       })
     )
   }

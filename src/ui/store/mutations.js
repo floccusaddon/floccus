@@ -5,9 +5,6 @@ export const mutationsDefinition = {
   [mutations.SET_LOCKED](state, locked) {
     state.locked = locked
   },
-  [mutations.SET_SECURED](state, secured) {
-    state.secured = secured
-  },
   [mutations.LOAD_ACCOUNTS](state, accounts) {
     state.accounts = accounts
   },
