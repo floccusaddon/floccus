@@ -192,7 +192,7 @@
     "message": "设置要同步的已存在文件夹"
   },
   "LabelRemoveaccount": {
-    "message": "移除帐号"
+    "message": "移除帐户"
   },
   "DescriptionRemoveaccount": {
     "message": "删除此帐号（此操作不会删除你的书签）"
