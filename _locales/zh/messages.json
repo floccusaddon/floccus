@@ -75,7 +75,7 @@
     "message": "E025：书签文件设置不能以斜杠开头"
   },
   "Error026": {
-    "message": "E026：HTTP status {0}。获取书签失败"
+    "message": "E026：HTTP状态{0}。获取书签失败"
   },
   "Error027": {
     "message": "E027：同步进程中断"
