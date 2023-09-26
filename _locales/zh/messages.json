@@ -249,7 +249,7 @@
     "message": "Nextcloud 书签"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "“NextCloud 书签” 选项可以将你的书签与 NextCloud 的书签应用程序同步。它只能同步 http 和 ftp 书签。确保你已经从你的 NextCloud 应用商店安装了 Bookmark 应用。"
+    "message": "“NextCloud 书签” 选项可以将你的书签与 NextCloud 的书签应用程序同步。它只能同步http和ftp书签。确保你已经从你的 NextCloud 应用商店安装了 Bookmark 应用。"
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud 书签（旧版）"
