@@ -493,7 +493,7 @@
     "message": "发送客户端凭据"
   },
   "DescriptionClientcert": {
-    "message": "如果您的服务器需要客户端证书或Cookie进行身份验证，请启用此选项。这可能会导致意想不到的副作用，因为floccus会与您的正常浏览器配置文件共享Cookie。"
+    "message": "如果您的服务器需要客户端证书或Cookie进行身份验证，请启用此选项。这可能会导致意想不到的副作用，因为 floccus 会与您的正常浏览器配置文件共享Cookie。"
   },
   "LabelAllowredirects": {
     "message": "允许服务器URL中的重定向"
