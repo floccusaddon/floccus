@@ -255,7 +255,7 @@
     "message": "Nextcloud 书签（旧版）"
   },
   "DescriptionAdapternextcloud": {
-    "message": "旧版选项与Bookmarks应用程序的最低版本v0.11兼容。它将使用包含文件夹路径的标记来模拟文件夹。不建议将其用于新帐户。"
+    "message": "旧版选项与 Bookmarks 应用程序的最低版本 v0.11 兼容。它将使用包含文件夹路径的标记来模拟文件夹。不建议将其用于新帐户。"
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV 分享"
