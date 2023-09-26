@@ -141,7 +141,7 @@
     "message": "本地文件夹"
   },
   "DescriptionLocalfolder": {
-    "message": "这是浏览器中的本地书签文件夹，将与服务器同步。请注意，有些浏览器不允许在根文件夹下创建新项目（例如Firefox和Google Chrome）。"
+    "message": "这是浏览器中的本地书签文件夹，将与服务器同步。请注意，有些浏览器不允许在根文件夹下创建新项目（例如 Firefox 和 Google Chrome ）。"
   },
   "LabelRootfolder": {
     "message": "根目录"
