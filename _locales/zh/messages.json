@@ -90,7 +90,7 @@
     "message": "E030：无法解密书签文件。密码短语可能错误或者文件可能已损坏。"
   },
   "Error031": {
-    "message": "E031: 无法使用 Google Drive 进行认证。 请再次将 floccus 与你的 google 账户连接。"
+    "message": "E031: 无法使用 Google Drive 进行认证。 请再次将 floccus 与你的 Google 账户连接。"
   },
   "Error032": {
     "message": "E032：OAuth 错误。令牌验证错误。请重新关联您的 Google  帐号。"
