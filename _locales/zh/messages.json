@@ -472,7 +472,7 @@
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "通过存储在Google Drive中的加密文件同步书签。它可以同步http、ftp、数据、文件和javascript书签。"
+    "message": "通过存储在 Google Drive 中的加密文件同步书签。它可以同步http、ftp、数据、文件和javascript书签。"
   },
   "LabelLogingoogle": {
     "message": "登录Google"
