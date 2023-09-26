@@ -376,7 +376,7 @@
     "message": "创建一个新帐户来同步您的书签或从不同的设备或浏览器导入帐户。"
   },
   "LabelLoginFlowStart": {
-    "message": "登录Nextcloud"
+    "message": "登录 Nextcloud"
   },
   "LabelLoginFlowStop": {
     "message": "中止NextCloud登录"
