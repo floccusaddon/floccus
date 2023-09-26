@@ -340,7 +340,7 @@
     "message": "通过 GitHub sponsors 定期捐款以支持该项目"
   },
   "LegacyAdapterDeprecation": {
-    "message": "此旧版帐户类型已弃用，很快将被删除。请切换到新的nextcloud同步方法。性能和准确性的提升等着您。"
+    "message": "此旧版帐户类型已弃用，很快将被删除。请切换到新的 NextCloud同步方法。性能和准确性的提升等着您。"
   },
   "LabelUpdated": {
     "message": "Floccus已更新"
