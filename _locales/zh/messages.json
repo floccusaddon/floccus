@@ -126,7 +126,7 @@
     "message": "书签文件路径"
   },
   "DescriptionBookmarksfile": {
-    "message": "书签文件相对于WebDAV URL的路径(路径中的所有文件夹必须已存在)。例如Personal_Stuff/bookmarks.xbel"
+    "message": "书签文件相对于 WebDAV URL 的路径(路径中的所有文件夹必须已存在)。例如Personal_Stuff/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "将保存在您的Google Drive中的书签文件的文件名（确保此名称在您的Drive中是唯一的）"
