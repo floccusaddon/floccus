@@ -475,7 +475,7 @@
     "message": "通过存储在 Google Drive 中的加密文件同步书签。它可以同步http、ftp、数据、文件和javascript书签。"
   },
   "LabelLogingoogle": {
-    "message": "登录Google"
+    "message": "登录 Google"
   },
   "DescriptionLogingoogle": {
     "message": "连接您的Google帐户以将书签同步文件存储在您的Google Drive中。"
