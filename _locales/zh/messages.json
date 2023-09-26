@@ -448,7 +448,7 @@
     "message": "将本地更改与来自其他浏览器的更改合并"
   },
   "DescriptionFilesPermission": {
-    "message": "确保您不仅允许floccus使用书签应用程序，还允许使用Nextcloud文件应用程序。"
+    "message": "确保您不仅允许 floccus 使用书签应用程序，还允许使用 NextCloud 文件应用程序。"
   },
   "DescriptionExtension": {
     "message": "跨浏览器和设备私下同步您的书签"
