@@ -195,7 +195,7 @@
     "message": "移除帐户"
   },
   "DescriptionRemoveaccount": {
-    "message": "删除此帐号（此操作不会删除你的书签）"
+    "message": "删除此帐户（此操作不会删除你的书签）"
   },
   "LabelSyncfromscratch": {
     "message": "从头开始触发同步"
