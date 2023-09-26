@@ -93,7 +93,7 @@
     "message": "E031：无法使用 Google Drive 进行认证。 请再次将 floccus 与你的 Google 账户连接。"
   },
   "Error032": {
-    "message": "E032：OAuth 错误。令牌验证错误。请重新关联您的 Google  帐户。"
+    "message": "E032：OAuth错误。令牌验证错误。请重新关联您的 Google  帐户。"
   },
   "Error033": {
     "message": "E033：检测到重定向。请确保服务器支持所选的同步方法，并且您输入的 URL 正确无误，不会重定向到其他位置。如果重定向是设置的一部分，则可以在设置中禁用此检查。"
