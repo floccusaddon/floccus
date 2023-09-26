@@ -379,7 +379,7 @@
     "message": "登录 Nextcloud"
   },
   "LabelLoginFlowStop": {
-    "message": "中止NextCloud登录"
+    "message": "中止 NextCloud 登录"
   },
   "LabelLoginFlowError": {
     "message": "Nextcloud 登录失败"
