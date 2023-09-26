@@ -553,7 +553,7 @@
     "message": "允许使用网络"
   },
   "DescriptionAllownetwork": {
-    "message": "Floccus除了连接到同步服务器外，还可以使用网络来获取有关书签的其他信息（如图标等）。您可以在此处启用此类网络使用。"
+    "message": "Floccus 除了连接到同步服务器外，还可以使用网络来获取有关书签的其他信息（如图标等）。您可以在此处启用此类网络使用。"
   },
   "LabelMobilesettings": {
     "message": "Mobile 设置"
