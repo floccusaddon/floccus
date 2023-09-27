@@ -343,7 +343,7 @@
     "message": "此旧帐户类型已弃用，不久将被删除。请切换到新的 nextcloud 同步方法。性能和准确性的提高正等着您。"
   },
   "LabelUpdated": {
-    "message": "Floccus已更新"
+    "message": "Floccus 已更新"
   },
   "DescriptionUpdated": {
     "message": "恭喜，您的计算机上已经收到了最新的 floccus 更新！"
