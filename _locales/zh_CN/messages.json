@@ -111,7 +111,7 @@
     "message": "WebDAV URL"
   },
   "DescriptionWebdavurl": {
-    "message": "例如：使用 NextCloud：https://your-domain.com/remote.php/webdav/"
+    "message": "例如使用 NextCloud：https://your-domain.com/remote.php/webdav/"
   },
   "LabelNextcloudurl": {
     "message": "Nextcloud URL"
