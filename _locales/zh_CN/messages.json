@@ -261,7 +261,7 @@
     "message": "WebDAV 分享"
   },
   "DescriptionAdapterwebdav": {
-    "message": "WebDAV 选项通过将书签存储在由 WebDAV 提供的共享文件同步书签。该选项不会附带 web UI，可以使用任何兼容 WebDAV 的服务器。可以同步 http、ftp、数据、文件和 Javascript 书签。"
+    "message": "WebDAV 选项通过将书签存储在由 WebDAV 提供的共享文件同步书签。该选项不会附带 web UI，可以使用任何兼容 WebDAV 的服务器。可同步 http、ftp、数据、文件和 Javascript 书签。"
   },
   "LabelAddaccount": {
     "message": "添加账户"
