@@ -294,7 +294,7 @@
     "message": "再次输入解锁密码"
   },
   "LabelUnlock": {
-    "message": "解锁floccus"
+    "message": "解锁 floccus"
   },
   "LabelRemovekey": {
     "message": "删除密码"
