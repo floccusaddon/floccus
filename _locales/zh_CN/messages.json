@@ -646,7 +646,7 @@
     "message": "导出书签"
   },
   "DescriptionExportBookmarks" : {
-    "message": "您可以将此帐户中的所有书签导出为兼容所有主流浏览器的HTML文件。"
+    "message": "您可以将此帐户中的所有书签导出为兼容所有主流浏览器的 HTML 文件。"
   },
   "LabelShareitem": {
     "message": "分享"
