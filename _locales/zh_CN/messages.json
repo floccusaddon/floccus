@@ -285,7 +285,7 @@
     "message": "无标题文件夹"
   },
   "LabelSetkeybutton": {
-    "message": "設置密碼"
+    "message": "设置密码"
   },
   "LabelKey": {
     "message": "输入解锁密码"
@@ -297,10 +297,10 @@
     "message": "解锁floccus"
   },
   "LabelRemovekey": {
-    "message": "刪除密碼"
+    "message": "删除密码"
   },
   "LabelRemovedkey": {
-    "message": "密碼已刪除"
+    "message": "密码已删除"
   },
   "LabelSyncinterval": {
     "message": "同步间隔"
@@ -484,7 +484,7 @@
     "message": "您已连接您的 Google 帐户以将书签同步文件存储在您的 Google Drive 中。"
   },
   "LabelPassphrase": {
-    "message": "密码短语"
+    "message": "密码"
   },
   "DescriptionPassphrase": {
     "message": "设置用于加密书签文件的密码短语，如果未设置密码短语，则不会运行加密。"
