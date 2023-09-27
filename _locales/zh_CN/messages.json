@@ -201,7 +201,7 @@
     "message": "从头开始触发同步"
   },
   "LabelResetCache": {
-    "message": "重置緩存"
+    "message": "重置缓存"
   },
   "DescriptionResetcache": {
     "message": "勾选此框以重置缓存，以确保下一次同步运行不会删除任何数据，只是将服务器和本地书签合并在一起"
