@@ -99,10 +99,13 @@
     "message": "E033: Weiterleitung festgestellt. Vergewissern Sie sich, dass der angegebene Server die ausgewählte Synchronisierungsmethode unterstützt und die URL stimmt, die Sie eingegeben haben und nicht auf eine andere URL weiterleitet. Falls die Weiterleitung teil Ihres Server-Setups ist, können Sie diese Kontrolle in den Einstellungen deaktivieren."
   },
   "Error034": {
-    "message": "E034: Lesezeichendatei ist nicht erreichbar. Haben Sie vergessen eine Verschlüsselungspassphrase anzugeben?"
+    "message": "E034: Die entfernte Lesezeichendatei ist nicht erreichbar. Haben Sie vergessen eine Verschlüsselungspassphrase anzugeben?"
   },
   "Error035": {
     "message": "E035: Das folgende Lesezeichen konnte nicht auf dem Server erstellt werden: {0}"
+  },
+  "Error036": {
+    "message": "E036: Fehlende Berechtigungen für den Zugriff auf den Sync-Server"
   },
   "LabelWebdavurl": {
     "message": "WebDAV-URL"
@@ -246,7 +249,7 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "Die Option \"Nextcloud Bookmarks\" ist kompatibel mit mindestens Version v0.14 der Bookmarks-App, die nur http- und ftp-Lesezeichen synchronisieren kann."
+    "message": "Die Option \"Nextcloud-Lesezeichen\" synchronisiert Ihre Lesezeichen mit der Lesezeichen-App für Nextcloud. Es können nur http und ftp Lesezeichen synchronisiert werden. Stellen Sie sicher, dass Sie die Lesezeichen-App aus dem Nextcloud-App-Store in Ihrer Nextcloud installiert haben."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (alte Version)"
@@ -258,16 +261,10 @@
     "message": "WebDAV-Freigabe"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Die WebDAV-Option synchronisiert die Lesezeichen in einer Datei in der angegebenen WebDAV-Freigabe. Es gibt keine Weboberfläche für diese Option und sie kann mit jedem WebDAV-kompatiblen Server genutzt werden. Sie kann http, ftp, Daten und Javascript-Lesezeichen synchronisieren."
+    "message": "Die WebDAV-Option synchronisiert die Lesezeichen in einer Datei in der angegebenen WebDAV-Freigabe. Es gibt keine Weboberfläche für diese Option und sie kann mit jedem WebDAV-kompatiblen Server genutzt werden. Es können http-, ftp-, Daten-, Datei- und Javascript-Lesezeichen synchronisiert werden."
   },
   "LabelAddaccount": {
     "message": "Konto hinzufügen"
-  },
-  "LabelSecurecredentials": {
-    "message": "Zugangsdaten absichern"
-  },
-  "LabelSecuredcredentials": {
-    "message": "Deine Anmeldedaten sind sicher"
   },
   "LabelOpenintab": {
     "message": "In Tab öffnen"
@@ -286,12 +283,6 @@
   },
   "LabelUntitledfolder": {
     "message": "Unbenannter Ordner"
-  },
-  "LabelSetkey": {
-    "message": "Passphrase für Floccus einstellen"
-  },
-  "DescriptionSetkey": {
-    "message": "Wenn Sie ein Passwort für Floccus setzen, müssen Sie dieses immer beim Browser-Start eingeben, bevor Sie Ihre Lesezeichen synchronisieren oder generell Floccus benutzen können."
   },
   "LabelSetkeybutton": {
     "message": "Passphrase einstellen"
@@ -481,7 +472,7 @@
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Synchronisieren Sie Lesezeichen mittels einer verschlüsselten Datei, die in Ihrem Google Drive gespeichert wird. Synchronisiert werden können http, ftp, data und javascript Lesezeichen."
+    "message": "Synchronisieren Sie Lesezeichen mittels einer verschlüsselten Datei, die in Ihrem Google Drive gespeichert wird. Es können http-, ftp-, Daten-, Datei- und Javascript-Lesezeichen synchronisiert werden."
   },
   "LabelLogingoogle": {
     "message": "Mit Google anmelden"
@@ -650,5 +641,14 @@
   },
   "DescriptionImportbookmarks": {
     "message": "Importieren einer HTML-Datei mit Lesezeichen in den aktuellen Ordner"
+  },
+  "LabelExportBookmarks": {
+    "message": "Lesezeichen exportieren"
+  },
+  "DescriptionExportBookmarks" : {
+    "message": "Sie können alle Lesezeichen in diesem Konto als HTML-Datei exportieren, die mit allen gängigen Browsern kompatibel ist."
+  },
+  "LabelShareitem": {
+    "message": "Teilen"
   }
 }
