@@ -104,6 +104,9 @@
   "Error035": {
     "message": "E035: Falha ao criar o seguinte favorito no servidor: {0}"
   },
+  "Error036": {
+    "message": "E036: Permissões ausentes para acessar o servidor de sincronização"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -263,12 +266,6 @@
   "LabelAddaccount": {
     "message": "Adicionar conta"
   },
-  "LabelSecurecredentials": {
-    "message": "Proteja suas credenciais"
-  },
-  "LabelSecuredcredentials": {
-    "message": "Suas credenciais estão seguras"
-  },
   "LabelOpenintab": {
     "message": "Abrir na guia"
   },
@@ -286,12 +283,6 @@
   },
   "LabelUntitledfolder": {
     "message": "Pasta sem título"
-  },
-  "LabelSetkey": {
-    "message": "Definir uma senha para o floccus"
-  },
-  "DescriptionSetkey": {
-    "message": "Ao definir uma senha, você terá que inseri-la sempre que iniciar o navegador, se quiser acessar e sincronizar seus favoritos, alterar suas configurações ou fazer qualquer outra coisa com floccus."
   },
   "LabelSetkeybutton": {
     "message": "Definir senha"
