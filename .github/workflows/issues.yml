@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Add first comment
     steps:
-      - uses: ben-z/actions-comment-on-issue@1.0.2
+      - uses: ben-z/actions-comment-on-issue@1.0.3
         with:
           message: |
             Hello :wave:
