@@ -114,6 +114,9 @@ export default class BrowserController {
 
     // Set correct badge after waiting a bit
     setTimeout(() => this.updateStatus(), 3000)
+
+    // checkSync after waiting a bit
+    setTimeout(() => this.alarms.checkSync(), 3000)
   }
 
   setEnabled(enabled) {
