@@ -139,6 +139,9 @@ export default class BrowserController {
     const result = await this[type](...params)
     sendResponse({type: type + 'Response', params: [result]})
     console.log('Sending message', {type: type + 'Response', params: [result]})
+
+    // checkSync after waiting a bit
+    setTimeout(() => this.alarms.checkSync(), 3000)
   }
 
   setEnabled(enabled) {
