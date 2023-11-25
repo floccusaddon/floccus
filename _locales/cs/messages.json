@@ -204,7 +204,7 @@
     "message": "Smazat mezipaměť"
   },
   "DescriptionResetcache": {
-    "message": "Tuto kolonku zaškrtněte, pokud chcete od znovu vytvořit mezipaměť. Tím bude zaručeno, že při příštím spuštění synchronizace nebudou smazána žádná data a pouze budou sloučeny dohromady záložky ze serveru a ty místní"
+    "message": "Tuto kolonku zaškrtněte pro smazání mezipaměti. Tím bude zaručeno, že při příštím spuštění synchronizace nebudou smazána žádná data a pouze budou sloučeny dohromady záložky ze serveru a ty místní"
   },
   "LabelParallelsync": {
     "message": "Urychlit synchronizaci"
