@@ -90,7 +90,7 @@
     "message": "E030: Failed to decrypt bookmarks file. The passphrase may be wrong or the file may be corrupted."
   },
   "Error031": {
-    "message": "E031: Could not authenticate with Google Drive. Please connect floccus with your google account again."
+    "message": "E031: Could not authenticate with Google Drive. Please connect floccus with your Google account again."
   },
   "Error032": {
     "message": "E032: OAuth error. Token validation error. Please reconnect your Google Account."
