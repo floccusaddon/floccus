@@ -2,10 +2,7 @@
   <div>
     <div>
       <div class="text-h6">
-        {{ t('LabelLocalfolder') }}
-      </div>
-      <div class="caption">
-        {{ t('DescriptionLocalfolder') }}
+        {{ t('LabelLocaltarget') }}
       </div>
       <v-radio-group
         v-model="mode"
@@ -13,8 +10,8 @@
         <v-radio value="folder">
           <template #label>
             {{ t('LabelLocalfolder') }}
-            &nbsp;
             <v-text-field
+                class="ml-2"
               v-model="path"
               readonly
               @click="onTriggerFinder">
@@ -28,9 +25,15 @@
             </v-text-field>
           </template>
         </v-radio>
+        <div class="caption ml-8 mb-6">
+          {{ t('DescriptionLocalfolder') }}
+        </div>
         <v-radio
           :label="t('LabelSyncTabs')"
           value="tabs" />
+        <div class="caption ml-8 mb-2">
+          {{ t('DescriptionSyncTabs') }}
+        </div>
       </v-radio-group>
     </div>
     <v-dialog
