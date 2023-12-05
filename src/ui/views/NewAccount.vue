@@ -360,6 +360,7 @@ export default {
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive') && {bookmark_file_type: this.bookmark_file_type}),
         ...(this.adapter === 'google-drive' && {refreshToken: this.refreshToken}),
         ...(this.passphrase && {passphrase: this.passphrase}),
+        ...(this.adapter === 'google-drive' && this.passphrase && {password: this.passphrase}),
         ...(this.isBrowser && {localRoot: this.localRoot}),
         syncInterval: this.syncInterval,
         strategy: this.strategy,
