@@ -81,6 +81,14 @@
         {{ t('LabelOptionsSyncBehavior') }}
       </v-card-title>
       <v-card-text>
+        <v-switch
+          v-if="!isBrowser"
+          :value="enabled"
+          :aria-label="t('LabelAutosync')"
+          :label="t('LabelAutosync')"
+          dense
+          class="mt-0 pt-0"
+          @input="$emit('update:enabled', $event)" />
         <OptionSyncInterval
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
@@ -130,7 +138,7 @@ import OptionExportBookmarks from './OptionExportBookmarks.vue'
 export default {
   name: 'OptionsGoogleDrive',
   components: { OptionExportBookmarks, OptionPassphrase, OptionAllowNetwork, OptionDownloadLogs, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['username', 'password', 'refreshToken', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe'],
+  props: ['username', 'password', 'refreshToken', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'enabled'],
   data() {
     return {
       panels: [0, 1],

@@ -81,6 +81,14 @@
         {{ t('LabelOptionsSyncBehavior') }}
       </v-card-title>
       <v-card-text>
+        <v-switch
+          v-if="!isBrowser"
+          :value="enabled"
+          :aria-label="t('LabelAutosync')"
+          :label="t('LabelAutosync')"
+          dense
+          class="mt-0 pt-0"
+          @input="$emit('update:enabled', $event)" />
         <OptionSyncInterval
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
@@ -140,7 +148,7 @@ import OptionExportBookmarks from './OptionExportBookmarks.vue'
 export default {
   name: 'OptionsWebdav',
   components: { OptionExportBookmarks, OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync, OptionFileType },
-  props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects', 'bookmark_file_type'],
+  props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects', 'bookmark_file_type', 'enabled'],
   data() {
     return {
       panels: [0, 1],
