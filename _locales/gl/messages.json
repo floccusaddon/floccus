@@ -1,0 +1,663 @@
+{
+  "Error001": {
+    "message": "E001: O cartafol no que crear non existe"
+  },
+  "Error002": {
+    "message": "E002: O marcador para actualizar xa non existe"
+  },
+  "Error003": {
+    "message": "E003: O cartafol do que se debe mover non existe. Isto é unha anomalía. Parabéns."
+  },
+  "Error004": {
+    "message": "E004: O cartafol ao que mover non existe"
+  },
+  "Error005": {
+    "message": "E005: O cartafol no que crear non existe"
+  },
+  "Error006": {
+    "message": "E006: O cartafol para actualizar non existe"
+  },
+  "Error007": {
+    "message": "E007: O cartafol para mover non existe"
+  },
+  "Error008": {
+    "message": "E008: O cartafol do que se debe mover non existe."
+  },
+  "Error009": {
+    "message": "E009: O cartafol ao que mover non existe"
+  },
+  "Error010": {
+    "message": "E010: Non foi posíbel atopar o cartafol para ordenar"
+  },
+  "Error011": {
+    "message": "E011: O elemento na ordenación do cartafol non é un fillo real: {0}"
+  },
+  "Error012": {
+    "message": "E012: Na ordenación do cartafol faltan algúns dos fillos do cartafol"
+  },
+  "Error013": {
+    "message": "E013: O cartafol para retirar non existe"
+  },
+  "Error014": {
+    "message": "E014: O cartafol principal do que eliminar o cartafol non existe"
+  },
+  "Error015": {
+    "message": "E015: Datos de resposta non agardados do servidor"
+  },
+  "Error016": {
+    "message": "E016: Esgotouse o tempo de espera da solicitude. Comprobe a configuración do servidor"
+  },
+  "Error017": {
+    "message": "E017: Erro de rede: Comprobe a conexión de rede e os detalles da súa conta"
+  },
+  "Error018": {
+    "message": "E018: Non foi posíbel autenticar co servidor."
+  },
+  "Error019": {
+    "message": "E019: Estado HTTP {0}. Fallo na solicitude {1}. Comprobe a configuración e o rexistro do servidor."
+  },
+  "Error020": {
+    "message": "E020: Non foi posíbel analizar a resposta do servidor. Está instalada no servidor a aplicación de marcadores?"
+  },
+  "Error021": {
+    "message": "E021: Estado do incoherente do servidor. O cartafol está presente na lista de cartafoles secundarios mais non na árbore de cartafoles"
+  },
+  "Error022": {
+    "message": "E022: O cartafol {0} supostamente contén un marcador {1} inexistente"
+  },
+  "Error023": {
+    "message": "E023: Non é posíbel borrar o ficheiro de bloqueo, considere eliminar {0} manualmente."
+  },
+  "Error024": {
+    "message": "E024: Estado HTTP {0} ao tentar determinar o estado do ficheiro de bloqueo {1}"
+  },
+  "Error025": {
+    "message": "E025: A configuración do ficheiro de marcadores non debe comezar cunha barra: «/»"
+  },
+  "Error026": {
+    "message": "E026: Estado HTTP {0}. Produciuse un erro ao recuperar os marcadores"
+  },
+  "Error027": {
+    "message": "E027: O proceso de sincronización foi interrompido"
+  },
+  "Error028": {
+    "message": "E028: Non foi posíbel autenticar co servidor."
+  },
+  "Error029": {
+    "message": "E029: A proba de fallos: a execución de sincronización actual eliminaría o {0}% dos marcadores. Rexeitouse a execución. Desactive esta función de seguranza na configuración da conta se quere continuar de todos os xeitos."
+  },
+  "Error030": {
+    "message": "E030: Produciuse un fallo ao descifrar o ficheiro de marcadores. É posíbel que a frase de contrasinal sexa incorrecta ou que o ficheiro estea estragado."
+  },
+  "Error031": {
+    "message": "E031: Non foi posíbel autenticar con Google Drive. Conecte Floccus coa súa conta de Google de novo."
+  },
+  "Error032": {
+    "message": "E032: Erro de OAuth. Produciuse un erro de validación do testemuño. Volva conectar a súa conta de Google."
+  },
+  "Error033": {
+    "message": "E033: Detectouse unha redirección. Asegúrese de que o servidor admite o método de sincronización seleccionado e que o URL que introduciu sexa correcto e non redirixa a unha localización diferente. Se a redirección forma parte da súa configuración, pode desactivar esta comprobación na configuración."
+  },
+  "Error034": {
+    "message": "E034: O ficheiro remoto de marcadores non é lexíbel. Esqueceu definir unha frase de contrasinal de cifrado?"
+  },
+  "Error035": {
+    "message": "E035: Produciuse un erro ao crear o seguinte marcador no servidor: {0}"
+  },
+  "Error036": {
+    "message": "E036: Faltan permisos para acceder ao servidor de sincronización"
+  },
+  "LabelWebdavurl": {
+    "message": "URL de WebDAV"
+  },
+  "DescriptionWebdavurl": {
+    "message": "p. ex. con Nextcloud: https://example.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "URL de Nextcloud"
+  },
+  "LabelUsername": {
+    "message": "Nome de usuario"
+  },
+  "LabelPassword": {
+    "message": "Contrasinal"
+  },
+  "LabelBookmarksfile": {
+    "message": "Ruta do ficheiro de marcadores"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "unha ruta ao ficheiro de marcadores relativo ao URL de WebDAV (xa deben existir todos os cartafoles da ruta). p. ex. cousas_persoais/bookmarks.xbel"
+  },
+ "DescriptionBookmarksfilegoogle": {
+   "message": "o nome do ficheiro de marcadores que residirá no seu Google Drive (asegúrese de que este nome é único no seu Drive)"
+ },
+  "LabelServerfolder": {
+    "message": "Servidor de destino"
+  },
+  "DescriptionServerfolder": {
+    "message": "Ao sincronizar, os marcadores neste navegador almacenaranse como ligazóns nesta ruta no servidor. Teña en conta que esta ruta representa un cartafol na aplicación Marcadores de Nextcloud, non un cartafol en Ficheiros de Nextcloud. Deixe isto baleiro para poñer todas as ligazóns no cartafol superior do servidor."
+  },
+  "LabelLocaltarget": {
+    "message": "Destino local"
+  },
+  "DescriptionLocaltarget": {
+    "message": "Escolla aquí se quere sincronizar os marcadores ou as lapelas do navegador."
+  },
+  "LabelLocalfolder": {
+    "message": "Cartafol de marcadores"
+  },
+  "DescriptionLocalfolder": {
+    "message": "Os marcadores deste cartafol de marcadores almacenaranse como ligazóns no servidor e as ligazóns do servidor almacenaranse como marcadores neste cartafol de marcadores neste navegador."
+  },
+  "LabelRootfolder": {
+    "message": "Cartafol raíz"
+  },
+  "LabelNewfolder": {
+    "message": "Cartafol recén creado"
+  },
+  "LabelOptions": {
+    "message": "Opcións"
+  },
+  "LabelSyncnow": {
+    "message": "Sincronizar agora"
+  },
+  "LabelCancelsync": {
+    "message": "Cancelar a sincronización"
+  },
+  "LabelAutosync": {
+    "message": "Sincronización automática"
+  },
+  "StatusLastsynced": {
+    "message": "Última sincronización: hai {0}"
+  },
+  "StatusNeversynced": {
+    "message": "Aínda sen sincronizar"
+  },
+  "StatusAllgood": {
+    "message": "Todo ben"
+  },
+  "StatusDisabled": {
+    "message": "Desactivado"
+  },
+  "StatusError": {
+    "message": "Erro"
+  },
+  "StatusSyncing": {
+    "message": "Sincronizando"
+  },
+  "LabelReset": {
+    "message": "Restabelecer"
+  },
+  "DescriptionReset": {
+    "message": "Restabelecer o cartafol sincronizado para crear un novo"
+  },
+  "LabelChoosefolder": {
+    "message": "Escoller un cartafol"
+  },
+  "DescriptionChoosefolder": {
+    "message": "Definir un cartafol existente para sincronizar"
+  },
+  "LabelRemoveaccount": {
+    "message": "Retirar a conta"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "Eliminar esta conta (isto non eliminará os marcadores)"
+  },
+  "LabelSyncfromscratch": {
+    "message": "Activar a sincronización dende cero"
+  },
+  "LabelResetCache": {
+    "message": "Restabelecer a caché"
+  },
+  "DescriptionResetcache": {
+    "message": "Marque esta caixa para restabelecer a caché para que a seguinte execución de sincronización non elimine ningún dato e só combine os marcadores locais e o servidor."
+  },
+  "LabelParallelsync": {
+    "message": "Acelerar a sincronización"
+  },
+  "DescriptionParallelsync": {
+    "message": "Marque esta caixa para procesar varios cartafoles en paralelo para acelerar a sincronización. Esta función é experimental e dificulta a lectura dos rexistros de depuración."
+  },
+  "LabelStrategy": {
+    "message": "Estratexia de sincronización"
+  },
+  "DescriptionStrategy": {
+    "message": "Esta opción determina como sincronizar os marcadores en diferentes dispositivos. Normalmente quererá manter os cambios de todos os lados se son compatíbeis, mais ás veces pode querer sobrescribir os cambios (incluíndo engadidos e eliminacións) doutros navegadores ou sobrescribir os cambios que teña feito localmente."
+  },
+  "LabelStrategydefault": {
+    "message": "Combinar sempre os cambios locais cos cambios doutros navegadores (recomendado)"
+  },
+  "LabelStrategyslave": {
+    "message": "Desfacer sempre os cambios locais e descargar os cambios doutros navegadores"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "Enviar sempre os cambios locais e desfacer os cambios doutros navegadores"
+  },
+  "LabelSave": {
+    "message": "Gardar"
+  },
+  "LabelCancel": {
+    "message": "Cancelar"
+  },
+  "LabelAdd": {
+    "message": "Engadir"
+  },
+  "LabelChange": {
+    "message": "Cambiar"
+  },
+  "LabelRemove": {
+    "message": "Retirar"
+  },
+  "LabelBack": {
+    "message": "Artrás"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Marcadores de Nextcloud"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "A opción «Marcadores de Nextcloud» sincroniza os marcadores coa aplicación Marcadores de Nextcloud. Só pode sincronizar os marcadores http e ftp. Asegúrese de ter instalado a aplicación Marcadores da tenda de aplicacións de Nextcloud na súa instancia de Nextcloud."
+  },
+  "LabelAdapternextcloud": {
+    "message": "Marcadores de Nextcloud (herdados)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "A opción herdada é compatíbel polo menos coa versión v0.11 da aplicación Marcadores. Emulará cartafoles usando etiquetas que conteñan a ruta do cartafol. Non se recomenda usar isto para contas novas."
+  },
+  "LabelAdapterwebdav": {
+    "message": "Compartir con WebDAV"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "A opción WebDAV sincroniza os marcadores almacenándoos nun ficheiro no recurso compartido WebDAV fornecido. Non hai unha interface de usuario web para esta opción e pode usala con calquera servidor compatíbel con WebDAV. Pode sincronizar os marcadores http, ftp, datos, ficheiros e javascript."
+  },
+  "LabelAddaccount": {
+    "message": "Engadir unha conta"
+  },
+  "LabelOpenintab": {
+    "message": "Abrir na lapela"
+  },
+  "LabelDebuglogs": {
+    "message": "Rexistros de depuración"
+  },
+  "LabelFunddevelopment": {
+    "message": "Recadación de fondos"
+  },
+  "DescriptionFunddevelopment": {
+    "message": "O traballo en Floccusfloccus fomentase cun modelo de subscrición voluntaria. Se pensa que o que fago paga a pena e pode dispoñer dalgún carto cada mes sen dificultades, apoie o meu traballo. Ademais, considere darlle a Floccus unha valoración na tenda de engadidos da súa escolle. Grazas!💙"
+  },
+  "LabelSelect": {
+    "message": "Seleccionar"
+  },
+  "LabelUntitledfolder": {
+    "message": "Cartafol sen título"
+  },
+  "LabelSetkeybutton": {
+    "message": "Definir a frase de contrasinal"
+  },
+  "LabelKey": {
+    "message": "Introduza a frase de contrasinal de desbloqueo"
+  },
+  "LabelKey2": {
+    "message": "Introduza a frase de contrasinal por segunda vez"
+  },
+  "LabelUnlock": {
+    "message": "Desbloquear Floccus"
+  },
+  "LabelRemovekey": {
+    "message": "Retirar a frase de contrasinal"
+  },
+  "LabelRemovedkey": {
+    "message": "Retirouse a frase de contrasinal"
+  },
+  "LabelSyncinterval": {
+    "message": "Intervalo de sincronización"
+  },
+  "DescriptionSyncinterval": {
+    "message": "O intervalo de tempo entre dúas sincronizacións en minutos. O predeterminado é 15 minutos."
+  },
+  "LabelChooseadapter": {
+    "message": "Como quere sincronizar?"
+  },
+  "LabelOptionsscreen": {
+    "message": "{0} opcións",
+    "description": "Title of the options screen. The placeholder holds the account type."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "Faga unha única doazón a través de PayPal para colaborar co proxecto"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "Faga unha doazón regular a través de OpenCollective para colaborar co proxecto"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "Faga unha doazón regular a través de Liberapay para colaborar co proxecto"
+  },
+  "LabelGithubsponsors": {
+    "message": "Patrocinadores de GitHub"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "Faga unha doazón regular a través dos patrocinadores de GitHub para colaborar co proxecto"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "Este tipo de conta herdado está en desuso e vai ser eliminado en pouco tempo. Cambie ao novo método de sincronización de Nextcloud. Agárdanlle melloras de rendemento e precisión."
+  },
+  "LabelUpdated": {
+    "message": "Floccus  foi actualizado"
+  },
+  "DescriptionUpdated": {
+    "message": "Parabéns, a última actualización de Floccus xa está na súa máquina."
+  },
+  "LabelReleaseNotes": {
+    "message": "Lea as notas de publicación"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "Detalles do servidor"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "Asignación de cartafoles"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "Comportamento da sincronización"
+  },
+  "LabelOptionsDangerous": {
+    "message": "Accións perigosas"
+  },
+  "LabelAccountDeleted": {
+    "message": "Conta eliminada"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "Esta conta foi eliminada"
+  },
+  "LabelNoAccount": {
+    "message": "Aquí non hai ningunha conta"
+  },
+  "DescriptionNoAccount": {
+    "message": "Crea unha conta nova para sincronizar os marcadores ou importar contas dende un dispositivo ou navegador diferente."
+  },
+  "LabelLoginFlowStart": {
+    "message": "Acceder con Nextcloud"
+  },
+  "LabelLoginFlowStop": {
+    "message": "Interromper o acceso a Nextcloud"
+  },
+  "LabelLoginFlowError": {
+    "message": "Produciuse n fallo ao acceder a Nextcloud"
+  },
+  "LabelNewAccount": {
+    "message": "Nova conta"
+  },
+  "LabelNestedSync": {
+    "message": "Contas aniñadas"
+  },
+  "DescriptionNestedSync": {
+    "message": "Pode aniñar contas para que un cartafol principal pertenza á conta A e un subcartafol á conta A e B. Quere permitir que outras contas sincronicen tamén o cartafol desta conta?"
+  },
+  "LabelNestedSyncNo": {
+    "message": "Non, ignorar o cartafol desta conta noutras contas"
+  },
+  "LabelNestedSyncYes": {
+    "message": "Si, incluír o cartafol desta conta noutras contas"
+  },
+  "LabelImportExport": {
+    "message": "Importar/Exportar contas"
+  },
+  "LabelExport": {
+    "message": "Exportar contas"
+  },
+  "LabelImport": {
+    "message": "Importar contas"
+  },
+  "DescriptionExport": {
+    "message": "Seleccione a seguir as contas que quere exportar a un ficheiro, de xeito que poida volver crear doadamente as mesmas contas nun dispositivo ou navegador diferente."
+  },
+  "DescriptionImport": {
+    "message": "Importe aquí un ficheiro coas contas exportadas para volver crear contas exportadas nun dispositivo ou navegador diferente. Asegúrese de configurar de novo os cartafoles de sincronización correctos após importar."
+  },
+  "LabelFolderNotFound": {
+    "message": "Non se atopou o cartafol"
+  },
+  "LabelSyncTabs": {
+    "message": "Lapelas do navegador"
+  },
+  "DescriptionSyncTabs": {
+    "message": "As ligazóns que se almacenan no servidor abriranse como lapelas do navegador no seu navegador e as lapelas abertas existentes almacénanse como ligazóns no seu servidor. Teña en conta que, dependendo de cantas ligazóns se almacenen no servidor, abriranse todas na seguinte sincronización, isto podería desbordar o seu navegador."
+  },
+  "LabelTabs": {
+    "message": "Lapelas"
+  },
+  "LabelSyncDown": {
+    "message": "Empurrar cara abaixo"
+  },
+  "DescriptionSyncDown": {
+    "message": "Descarga os cambios doutros navegadores e sobrescribe os cambios locais"
+  },
+  "LabelSyncUp": {
+    "message": "Empurrar cara arriba"
+  },
+  "DescriptionSyncUp": {
+    "message": "Envia os cambios locais e sobrescribe os cambios doutros navegadores"
+  },
+  "LabelSyncDownOnce": {
+    "message": "Empurrar un cara abaixo"
+  },
+  "LabelSyncUpOnce": {
+    "message": "Empurrar un cara arriba"
+  },
+  "LabelSyncNormal": {
+    "message": "Combinar"
+  },
+  "DescriptionSyncNormal": {
+    "message": "Combinar os cambios locais cos cambios doutros navegadores"
+  },
+  "DescriptionFilesPermission": {
+    "message": "Asegúrese de dar permiso a Floccus non só para usar a aplicación de marcadores senón tamén a aplicación de ficheiros de Nextcloud."
+  },
+  "DescriptionExtension": {
+    "message": "Sincronizar os marcadores de forma privada en navegadores e dispositivos"
+  },
+  "LabelFailsafe": {
+    "message": "A proba de fallos"
+  },
+  "DescriptionFailsafe": {
+    "message": "Ás veces, os erros de configuración ou os erros de software poden provocar a eliminación involuntaria de datos, que após se perden. Para evitar que isto suceda, Floccus non eliminará máis do 50% dos marcadores dunha soa vez, a non ser que desactive aquí esta «a proba de fallos»."
+  },
+  "LabelFailsafeon": {
+    "message": "Activado. Non eliminar máis do 50% dos marcadores locais sen preguntar antes. (Recomendado)"
+  },
+  "LabelFailsafeoff": {
+    "message": "Desactivado. Permitir a eliminación de máis do 50% dos marcadores locais sen preguntar para confirmar."
+  },
+  "StatusFailsafeoff": {
+    "message": "A proba de fallos desactivada. Corre o risco de perder datos de xeito involuntario. Recoméndase activar a proba de fallos na configuración da conta."
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google Drive"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "Sincroniza os marcadores mediante un ficheiro cifrado que se almacena no seu Google Drive. Pode sincronizar os marcadores http, ftp, datos, ficheiros e javascript."
+  },
+  "LabelLogingoogle": {
+    "message": "Acceder con Google"
+  },
+  "DescriptionLogingoogle": {
+    "message": "Conecte a súa conta de Google para almacenar o ficheiro de sincronización dos marcadores no seu Google Drive."
+  },
+  "DescriptionLoggedingoogle": {
+    "message": "Conectou a súa conta de Google para almacenar o ficheiro de sincronización dos marcadores no seu Google Drive."
+  },
+  "LabelPassphrase": {
+    "message": "Frase de contrasinal"
+  },
+  "DescriptionPassphrase": {
+    "message": "Definir unha frase de contrasinal para cifrar o ficheiro de marcadores; se non estabelece ningunha frase de contrasinal, non se executará ningún cifrado."
+  },
+  "LabelClientcert": {
+    "message": "Enviar as credenciais do cliente"
+  },
+  "DescriptionClientcert": {
+    "message": "Active esta opción se o seu servidor require un certificado de cliente ou cookies para a autenticación. Isto pode causar efectos secundarios non desexados, xa que Floccus compartirá cookies co seu perfil de navegador normal."
+  },
+  "LabelAllowredirects": {
+    "message": "Permitir redireccións no URL do servidor"
+  },
+  "DescriptionAllowredirects": {
+    "message": "Active esta opción se recibe erros de redirección durante a sincronización, que cree que non son xustificados."
+  },
+  "LabelSearch": {
+    "message": "Buscar marcadores"
+  },
+  "LabelSearchfolder": {
+    "message": "Buscar {0}"
+  },
+  "LabelEdititem": {
+    "message": "Editar"
+  },
+  "LabelDeleteitem": {
+    "message": "Eliminar"
+  },
+  "LabelNobookmarks": {
+    "message": "Aquí non hai marcadores"
+  },
+  "LabelAddbookmark": {
+    "message": "Engadir un marcador"
+  },
+  "LabelEditbookmark": {
+    "message": "Editar o marcador"
+  },
+  "LabelAddfolder": {
+    "message": "Engadir un cartafol"
+  },
+  "LabelEditfolder": {
+    "message": "Editar o cartafol"
+  },
+  "LabelSlugline": {
+    "message": "Sincronización de marcadores privados"
+  },
+  "LabelDownloadlogs": {
+    "message": "Descargar rexistros"
+  },
+  "LabelDownloadfulllogs": {
+    "message": "Rexistros completos"
+  },
+  "LabelDownloadanonymizedlogs": {
+    "message": "Rexistros redactados"
+  },
+  "DescriptionDownloadlogs": {
+    "message": "Floccus rexistra todas as súas accións nun ficheiro de rexistro que pode examinar vostede mesmo ou enviar aos desenvolvedores para fins de depuración. Nos rexistros redactados, os nomes de cartafoles e marcadores, así como os URL, codifícanse de xeito irreversíbel mediante unha función de resumo criptográfico. Cando envíe rexistros redactados, asegúrese de comprobar tamén o ficheiro descargado na busca de datos confidenciais que quizais non poderían non ter sido detectados polo proceso de anonimización."
+  },
+  "ErrorFolderloopselected": {
+    "message": "Non é posíbel mover un cartafol cara a si mesmo"
+  },
+  "ErrorNofolderselected": {
+    "message": "Non se seleccionou ningún cartafol"
+  },
+  "LabelAllownetwork": {
+    "message": "Permitir o uso da rede"
+  },
+  "DescriptionAllownetwork": {
+    "message": "Floccus pode usar a rede ademais de para conectarse ao seu servidor de sincronización, para obter información adicional sobre os teus marcadores (como iconas, etc.). Aquí pode activar o uso da rede."
+  },
+  "LabelMobilesettings": {
+    "message": "Axustes do móbil"
+  },
+  "LabelContinuefloccus":{
+    "message": "Continúar a floco"
+  },
+  "LabelAbout":{
+    "message": "Sobre"
+  },
+  "LabelCurrentversion": {
+    "message": "Versión actual"
+  },
+  "DescriptionCurrentversion": {
+    "message": "A versión instalada actualmente de Floccus é:"
+  },
+  "LabelContributors": {
+    "message": "Colaboradores"
+  },
+  "DescriptionContributors": {
+    "message": "Estas persoas axudaron a facer posíbel Floccus"
+  },
+  "LabelSortcustom": {
+    "message": "Personalizado"
+  },
+  "LabelSorturl": {
+    "message": "Ligazón"
+  },
+  "LabelSorttitle": {
+    "message": "Título"
+  },
+  "LabelSyncmethod": {
+    "message": "Método de sincronización"
+  },
+  "LabelSyncserver": {
+    "message": "Servidor de sincronización"
+  },
+  "LabelSyncfolders": {
+    "message": "Sincronizar cartafoles"
+  },
+  "LabelSyncbehavior": {
+    "message": "Comportamento da sincronización"
+  },
+  "LabelContinue": {
+    "message": "Continuar"
+  },
+  "LabelDone": {
+    "message": "Feito"
+  },
+  "LabelConnect": {
+    "message": "Conectar"
+  },
+  "LabelServersetup": {
+    "message": "Con que servidor quere sincronizar?"
+  },
+  "LabelGoogledrivesetup": {
+    "message": "Acceder a Google Drive"
+  },
+  "LabelSyncfoldersetup": {
+    "message": "Que cartafoles quere sincronizar?"
+  },
+  "LabelSyncbehaviorsetup": {
+    "message": "Como quere que funcione a sincronización?"
+  },
+  "LabelAccountcreated": {
+    "message": "Conta creada"
+  },
+  "DescriptionNonhttps": {
+    "message": "Introduciu un servidor que usa un protocolo inseguro. Recoméndase utilizar só servidores compatíbeis con HTTPS."
+  },
+  "LabelFiletype": {
+    "message": "Formato de ficheiro"
+  },
+  "DescriptionFiletype": {
+    "message": "Pode escoller o formato de ficheiro que quere usar para almacenar os marcadores na nube."
+  },
+  "LabelFiletypehtml": {
+    "message": "HTML, un formato aberto amplamente admitido (experimental)"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL, un formato sinxelo e aberto"
+  },
+  "LabelImportbookmarks": {
+    "message": "Importar marcadores"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "Importar un ficheiro HTML que conteña marcadores ao cartafol actual"
+  },
+  "LabelExportBookmarks": {
+    "message": "Exportar marcadores"
+  },
+  "DescriptionExportBookmarks" : {
+    "message": "Pode exportar todos os marcadores desta conta como ficheiro HTML compatíbel con todos os principais navegadores."
+  },
+  "LabelShareitem": {
+    "message": "Compartir"
+  }
+}
