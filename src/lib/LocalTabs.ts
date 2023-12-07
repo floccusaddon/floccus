@@ -57,7 +57,10 @@ export default class LocalTabs implements IResource {
         windowId: typeof bookmark.parentId === 'string' ? parseInt(bookmark.parentId) : bookmark.parentId,
         url: bookmark.url,
         // Only firefox allows discarded prop
-        ...(typeof browser.BookmarkTreeNodeType !== 'undefined' && { discarded: true })
+        ...(typeof browser.BookmarkTreeNodeType !== 'undefined' && { discarded: true }),
+        active: false,
+        // Only chrome-like browsers allow select prop
+        ...(typeof browser.BookmarkTreeNodeType === 'undefined' && { selected: false }),
       })
     )
     return node.id
