@@ -28,6 +28,11 @@ jobs:
       - name: Set up npm ${{ matrix.npm-version }}
         run: npm i -g npm@"${{ matrix.npm-version }}"
 
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'oracle'
+          java-version: '17'
+
       - name: Cache node modules
         uses: actions/cache@v1
         env:
