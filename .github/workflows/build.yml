@@ -13,8 +13,8 @@ jobs:
 
     strategy:
       matrix:
-        node-versions: [14.x]
-        npm-version: [7.x]
+        node-versions: [20.x]
+        npm-version: [10.x]
 
     name: node${{ matrix.node-versions }}
     steps:

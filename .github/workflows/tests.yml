@@ -36,8 +36,8 @@ jobs:
       # do not stop on another job's failure
       fail-fast: false
       matrix:
-        node-version: [14.x]
-        npm-version: [7.x]
+        node-versions: [20.x]
+        npm-version: [10.x]
         server-version: ['27']
         app-version: ['stable']
         floccus-adapter:
