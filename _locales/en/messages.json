@@ -630,6 +630,9 @@
   "LabelAccountcreated": {
     "message": "Account created"
   },
+  "DescriptionAccountcreated": {
+    "message": "Your account has been created. You can close this tab now."
+  },
   "DescriptionNonhttps": {
     "message": "You have entered a server that uses an insecure protocol. It is recommended to only use servers with support for HTTPS."
   },

@@ -276,6 +276,7 @@
             <div class="headline">
               {{ t('LabelAccountcreated') }} <v-icon>mdi-check</v-icon>
             </div>
+            <div v-if="isBrowser">{{t('DescriptionAccountcreated')}}</div>
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
