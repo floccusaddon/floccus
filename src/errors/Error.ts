@@ -131,7 +131,7 @@ export class RequestTimeoutError extends FloccusError {
 
 export class NetworkError extends FloccusError {
   constructor() {
-    super('E017: Network error: Check your network connection and your account details')
+    super('E017: Network error: Check your network connection and your profile details')
     this.code = 17
     Object.setPrototypeOf(this, NetworkError.prototype)
   }
@@ -241,7 +241,7 @@ export class FailsafeError extends FloccusError {
   public percent: number
 
   constructor(percent:number) {
-    super(`E029: Failsafe: The current sync run would delete ${percent}% of your bookmarks. Refusing to execute. Disable this failsafe in the account settings if you want to proceed anyway.`)
+    super(`E029: Failsafe: The current sync run would delete ${percent}% of your bookmarks. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway.`)
     this.code = 29
     this.percent = percent
     Object.setPrototypeOf(this, FailsafeError.prototype)
