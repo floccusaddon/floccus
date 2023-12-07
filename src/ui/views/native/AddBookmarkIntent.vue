@@ -77,6 +77,7 @@ import { routes } from '../../NativeRouter'
 import { actions } from '../../store/native'
 import { Bookmark } from '../../../lib/Tree'
 import DialogChooseFolder from '../../components/native/DialogChooseFolder'
+import { SendIntent } from 'send-intent'
 
 export default {
   name: 'AddBookmarkIntent',
@@ -169,6 +170,7 @@ export default {
         accountId: this.id,
         bookmark: new Bookmark({ id: null, parentId: this.temporaryParent, title: this.title, url: this.url })
       })
+      SendIntent.finish();
       await this.$router.push({name: routes.TREE, params: {accountId: this.id}})
     },
     onTriggerFolderChooser() {
