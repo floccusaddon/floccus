@@ -38,8 +38,8 @@ jobs:
       matrix:
         node-version: [14.x]
         npm-version: [7.x]
-        server-version: ['25']
-        app-version: ['stable12']
+        server-version: ['27']
+        app-version: ['stable']
         floccus-adapter:
           - fake
           - nextcloud-bookmarks
@@ -57,36 +57,29 @@ jobs:
           - firefox
           - chrome
         include:
-          - app-version: stable
-            server-version: 26
+          - app-version: master
+            server-version: 27
             floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
           - app-version: master
-            server-version: 26
-            floccus-adapter: nextcloud-bookmarks
-            test-name: test
-            browsers: firefox
-            node-version: 14.x
-            npm-version: 7.x
-          - app-version: master
-            server-version: 26
+            server-version: 27
             floccus-adapter: nextcloud-bookmarks
             test-name: benchmark root
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
           - app-version: master
-            server-version: 26
+            server-version: 27
             floccus-adapter: nextcloud-bookmarks-old
             test-name: benchmark root
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
           - app-version: stable
-            server-version: 26
+            server-version: 27
             floccus-adapter: fake-noCache
             test-name: test
             browsers: firefox
