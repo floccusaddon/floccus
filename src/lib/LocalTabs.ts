@@ -16,9 +16,10 @@ export default class LocalTabs implements IResource {
   }
 
   async getBookmarksTree():Promise<Folder> {
-    const tabs = await browser.tabs.query({
+    let tabs = await browser.tabs.query({
       windowType: 'normal' // no devtools or panels or popups
     })
+    tabs = tabs.filter(tab => !tab.incognito)
 
     return new Folder({
       title: '',
