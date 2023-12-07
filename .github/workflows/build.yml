@@ -13,17 +13,17 @@ jobs:
 
     strategy:
       matrix:
-        node-versions: [20.x]
+        node-version: [20.x]
         npm-version: [10.x]
 
     name: node${{ matrix.node-versions }}
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up node ${{ matrix.node-versions }}
+      - name: Set up node ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-versions }}
+          node-version: ${{ matrix.node-version }}
 
       - name: Set up npm ${{ matrix.npm-version }}
         run: npm i -g npm@"${{ matrix.npm-version }}"
