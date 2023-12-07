@@ -49,6 +49,7 @@ export default class BrowserController {
 
     this.alarms = new AlarmManager(this)
 
+    this.unlocked = true
     this.setEnabled(true)
 
     Controller.singleton = this
