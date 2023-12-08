@@ -41,13 +41,13 @@ class XbelSerializer implements Serializer {
             id: parseInt(node[':@']['@_id']),
             parentId: folder.id,
             url: node[':@']['@_href'],
-            title: node.bookmark[0]['#text'],
+            title: node.bookmark?.[0]?.['#text'] || '',
             location: ItemLocation.SERVER,
           })
         } else if (typeof node.folder !== 'undefined') {
           item = new Folder({
-            id: parseInt(node[':@']['@_id']),
-            title: node[':@']['@_title'],
+            id: parseInt(node[':@']?.['@_id']),
+            title: node[':@']?.['@_title'] || '',
             parentId: folder.id,
             location: ItemLocation.SERVER,
           })
