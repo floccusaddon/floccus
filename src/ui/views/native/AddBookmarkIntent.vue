@@ -170,7 +170,7 @@ export default {
         accountId: this.id,
         bookmark: new Bookmark({ id: null, parentId: this.temporaryParent, title: this.title, url: this.url })
       })
-      SendIntent.finish();
+      SendIntent.finish()
       await this.$router.push({name: routes.TREE, params: {accountId: this.id}})
     },
     onTriggerFolderChooser() {
