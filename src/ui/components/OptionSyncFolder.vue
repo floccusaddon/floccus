@@ -11,8 +11,8 @@
           <template #label>
             {{ t('LabelLocalfolder') }}
             <v-text-field
-                class="ml-2"
               v-model="path"
+              class="ml-2"
               readonly
               @click="onTriggerFinder">
               <template #append>
@@ -56,6 +56,7 @@
           </v-col>
         </v-row>
         <v-treeview
+          v-if="folders.length"
           class="pa-4"
           activatable
           :item-text="'title'"
@@ -74,6 +75,11 @@
             {{ item.title || t('LabelUntitledfolder') }}
           </template>
         </v-treeview>
+        <v-progress-circular
+          v-else
+          color="primary"
+          indeterminate
+          class="ma-8" />
       </v-card>
     </v-dialog>
   </div>
