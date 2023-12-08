@@ -4,6 +4,9 @@
       <div class="text-h6">
         {{ t('LabelLocaltarget') }}
       </div>
+      <div class="caption">
+        {{ t('DescriptionLocaltarget') }}
+      </div>
       <v-radio-group
         v-model="mode"
         column>
