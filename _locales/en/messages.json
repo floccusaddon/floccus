@@ -164,6 +164,9 @@
   "LabelCancelsync": {
     "message": "Cancel sync"
   },
+  "LabelSyncall": {
+    "message": "Sync all profiles"
+  },
   "LabelAutosync": {
     "message": "Auto-sync"
   },
@@ -184,6 +187,9 @@
   },
   "StatusSyncing": {
     "message": "Syncing"
+  },
+  "StatusScheduled": {
+    "message": "Scheduled"
   },
   "LabelReset": {
     "message": "Reset"

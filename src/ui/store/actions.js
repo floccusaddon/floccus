@@ -77,6 +77,10 @@ export const actionsDefinition = {
     const controller = await Controller.getSingleton()
     controller.syncAccount(accountId)
   },
+  async [actions.TRIGGER_SYNC_ALL]({ commit, dispatch, state }, accountId) {
+    const controller = await Controller.getSingleton()
+    controller.scheduleAll()
+  },
   async [actions.TRIGGER_SYNC_DOWN]({ commit, dispatch, state }, accountId) {
     const controller = await Controller.getSingleton()
     await controller.syncAccount(accountId, 'slave')

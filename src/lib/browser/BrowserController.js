@@ -281,8 +281,16 @@ export default class BrowserController {
     }
 
     this.waiting[accountId] = true
+    await account.setData({ ...account.getData(), scheduled: true })
 
     return this.jobs.add(() => this.syncAccount(accountId))
+  }
+
+  async scheduleAll() {
+    const accounts = await Account.getAllAccounts()
+    for (const account of accounts) {
+      this.scheduleSync(account.id)
+    }
   }
 
   async cancelSync(accountId, keepEnabled) {
@@ -302,6 +310,7 @@ export default class BrowserController {
       return
     }
     let account = await Account.get(accountId)
+    await account.setData({ ...account.getData(), scheduled: false })
     if (account.getData().syncing) {
       console.log('Account is already syncing. Not triggering another sync.')
       return

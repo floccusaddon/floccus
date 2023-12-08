@@ -111,6 +111,7 @@
               </v-select>
               <v-btn
                 v-if="!account.data.syncing"
+                :disabled="account.data.scheduled"
                 class="primary"
                 small
                 :title="t('LabelSyncnow')"
@@ -200,19 +201,22 @@ export default {
         disabled: 'rgb(125, 114, 128)',
         ok: '#3d8e39',
         error: '#8e3939',
-        syncing: '#2196F3'
+        syncing: '#2196F3',
+        scheduled: '#2196F3',
       },
       statusIcons: {
         disabled: 'mdi-sync-off',
         ok: 'mdi-check',
         error: 'mdi-sync-alert',
-        syncing: 'mdi-sync'
+        syncing: 'mdi-sync',
+        scheduled: 'mdi-timer-sync-outline'
       },
       statusLabels: {
         disabled: this.t('StatusDisabled'),
         ok: this.t('StatusAllgood'),
         error: this.t('StatusError'),
-        syncing: this.t('StatusSyncing')
+        syncing: this.t('StatusSyncing'),
+        scheduled: this.t('StatusScheduled')
       },
       strategyIcons: {
         slave: 'mdi-arrow-down-bold',
@@ -248,6 +252,9 @@ export default {
     status() {
       if (this.account.data.syncing) {
         return 'syncing'
+      }
+      if (this.account.data.scheduled) {
+        return 'scheduled'
       }
       if (this.account.data.error) {
         return 'error'

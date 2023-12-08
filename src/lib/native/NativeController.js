@@ -91,6 +91,13 @@ export default class NativeController {
     return Promise.resolve(this.unlocked)
   }
 
+  async scheduleAll() {
+    const accounts = await Account.getAllAccounts()
+    for (const account of accounts) {
+      this.scheduleSync(account.id)
+    }
+  }
+
   async scheduleSync(accountId, wait) {
     if (wait) {
       if (this.schedule[accountId]) {

@@ -87,6 +87,14 @@ export default class Controller implements IController {
     console.log('Sending message to service worker: ', message)
   }
 
+  async scheduleAll(): Promise<void> {
+    console.log('Waiting for service worker readiness')
+    const worker = await this.getWorker()
+    const message = {type: 'scheduleAll', params: []}
+    worker.postMessage(message)
+    console.log('Sending message to service worker: ', message)
+  }
+
   async setEnabled(enabled: boolean): Promise<void> {
     const worker = await this.getWorker()
     const message = {type: 'setEnabled', params: [enabled]}
