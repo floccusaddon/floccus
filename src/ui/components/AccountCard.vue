@@ -84,35 +84,36 @@
             no-gutters
             class="mt-2">
             <v-col class="d-flex flex-row">
-              <v-select
-                v-model="account.data.strategy"
-                dense
-                :items="[
-                  {text: strategyLabels['slave'], desc: strategyDescriptions['slave'], value: 'slave', icon: strategyIcons['slave']},
-                  {text: strategyLabels['overwrite'], desc: strategyDescriptions['overwrite'], value: 'overwrite', icon: strategyIcons['overwrite']},
-                  {text: strategyLabels['default'], desc: strategyDescriptions['default'], value: 'default', icon: strategyIcons['default']},
-                ]"
-                @change="onChangeStrategy">
-                <template #prepend-inner>
-                  <v-icon>{{ strategyIcons[account.data.strategy] }}</v-icon>
-                </template>
-                <template #item="{item}">
-                  <v-list-item-icon :title="item.desc">
-                    <v-icon>{{ item.icon }}</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-title
-                    class="d-flex flex-column"
-                    :title="item.desc">
-                    {{ item.text }}<v-list-item-subtitle :title="item.desc">
-                      {{ item.desc }}
-                    </v-list-item-subtitle>
-                  </v-list-item-title>
-                </template>
-              </v-select>
+              <v-btn
+                  small
+                  class="ma-1"
+                  :to="{ name: routes.ACCOUNT_OPTIONS, params: { accountId: account.id } }"
+                  target="_blank">
+                <v-icon>mdi-cog</v-icon>
+                {{ t('LabelOptions') }}
+              </v-btn>
+            </v-col>
+            <v-col class="d-flex flex-row justify-end">
+              <v-btn
+                  class="ma-1 ml-0"
+                  small
+                  :disabled="account.data.syncing || account.data.scheduled"
+                  :title="t('LabelSyncDownOnce')"
+                  @click="onTriggerSyncDown">
+                <v-icon>mdi-arrow-down-bold</v-icon>
+              </v-btn>
+              <v-btn
+                  class="ma-1"
+                  small
+                  :disabled="account.data.syncing || account.data.scheduled"
+                  :title="t('LabelSyncUpOnce')"
+                  @click="onTriggerSyncUp">
+                <v-icon>mdi-arrow-up-bold</v-icon>
+              </v-btn>
               <v-btn
                 v-if="!account.data.syncing"
                 :disabled="account.data.scheduled"
-                class="primary"
+                class="primary ma-1"
                 small
                 :title="t('LabelSyncnow')"
                 :aria-label="t('LabelSyncnow')"
@@ -121,6 +122,7 @@
               </v-btn>
               <v-btn
                 v-else
+                class="ma-1 mr-0"
                 small
                 :title="t('LabelCancelsync')"
                 :aria-label="t('LabelCancelsync')"
@@ -128,50 +130,6 @@
                 <v-icon>mdi-cancel</v-icon>
               </v-btn>
             </v-col>
-          </v-row>
-          <v-row :class="{'d-none': !showDetails, 'pa-2': true, 'mt-3': true, 'justify-space-between': true}">
-            <v-btn
-              small
-              @click="onTriggerSyncUp">
-              <v-icon>mdi-arrow-up-bold</v-icon>
-              {{ t('LabelSyncUpOnce') }}
-            </v-btn>
-            <v-switch
-              v-model="account.data.enabled"
-              :aria-label="t('LabelAutosync')"
-              :label="t('LabelAutosync')"
-              dense
-              class="mt-0 pt-0"
-              @change="onToggleEnabled" />
-          </v-row>
-          <v-row :class="{'d-none': !showDetails, 'pa-2': true, 'mb-3': true, 'justify-space-between': true}">
-            <v-btn
-              small
-              @click="onTriggerSyncDown">
-              <v-icon>mdi-arrow-down-bold</v-icon>
-              {{ t('LabelSyncDownOnce') }}
-            </v-btn>
-
-            <v-btn
-              small
-              :to="{ name: routes.ACCOUNT_OPTIONS, params: { accountId: account.id } }"
-              target="_blank">
-              <v-icon>mdi-cog</v-icon>
-              {{ t('LabelOptions') }}
-            </v-btn>
-          </v-row>
-          <v-row>
-            <v-btn
-              text
-              block
-              @click="showDetails = !showDetails">
-              <v-icon v-if="!showDetails">
-                mdi-chevron-down
-              </v-icon>
-              <v-icon v-else>
-                mdi-chevron-up
-              </v-icon>
-            </v-btn>
           </v-row>
         </v-col>
       </v-row>
