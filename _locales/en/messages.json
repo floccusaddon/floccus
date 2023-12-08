@@ -662,5 +662,8 @@
   },
   "LabelShareitem": {
     "message": "Share"
+  },
+  "LabelImportsuccessful": {
+    "message": "Successfully imported profile(s)"
   }
 }
