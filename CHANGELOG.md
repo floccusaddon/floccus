@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.2] - 2023-12-09
+
+### Fixed
+
+- Fix another XBEL parser bug
+- Fix HTML parser
+
 ## [5.0.1] - 2023-12-09
 
 ### Fixed
