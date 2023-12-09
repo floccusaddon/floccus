@@ -465,7 +465,8 @@ function createXBEL(rootFolder, highestId) {
 
 function createHTML(rootFolder, highestId) {
   let output = `<!DOCTYPE NETSCAPE-Bookmark-file-1>
-<html>`
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<TITLE>Bookmarks</TITLE>`
 
   output +=
     '<!--- highestId :' +

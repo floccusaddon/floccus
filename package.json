@@ -85,6 +85,7 @@
     "async-lock": "^1.2.8",
     "async-parallel": "^1.2.3",
     "batching-toposort": "^1.2.0",
+    "cheerio": "^1.0.0-rc.12",
     "cordova-plugin-device": "^2.1.0",
     "cordova-plugin-inappbrowser": "^5.0.0",
     "core-js": "3.x",
