@@ -1,6 +1,46 @@
 # Changelog
 
-## V4.19.1
+## [5.0.0] - 2023-12-09
+
+## New
+
+ - Avoid syncing private tabs
+ - Add a 'Sync all' button
+ - Overhaul profile overview UI
+
+## Changed
+
+ - [browser] Migrate to Manifest v3
+ - [browser] remove unlock passphrase feature
+ - [native] Remove background mode because it was buggy
+ - Sync 3s after startup
+ - Upgrade to capacitor 5
+ - Upgrade to gradle 8
+ - "Accounts" are now called "Profiles"
+
+## Fixed
+
+ - [native] Reset profile syncing state on app start
+ - [native] Allow turning auto-sync back on
+ - [native] fix(AddBookmarkIntent): Close intent after saving bookmark
+ - [ios] fix(sharing) Fix share target
+ - Allow setting sync interval to 5min
+ - Local folder option: Make more clear what each option does and the implications of that
+ - Store passphrase for google-drive encryption correctly
+ - NextcloudBookmarks: Do not write lock after onSyncCompleted
+ - Fix bookmarks change detection
+ - Fix BrowserController#onchange: Don't error out on deleted items
+ - fix(FileUnreadableError): Make error message more clear
+ - fix(downloadLogs): Add redacted/full to file name
+ - fix(messages): Make it more clear that people need to install Nextcloud Bookmarks to use it
+ - fix(BrowserController): Set unlocked to true by default
+ - fix(LocalTabs): Don't activate all tabs upon creating them
+ - fix(ImportExport): Trigger alert when import is done
+ - fix(OptionsWebdav): properly import OptionsPassphrase component
+ - fix(OptionsSyncFolder): show spinner while running getTree
+ - fix(HtmlSerializer): Make html output compatible with common browsers while maintaining backward compatibility
+
+## v4.19.1
 
 ### Fixed
  - Fix Scanner ignore logic for root folders 
