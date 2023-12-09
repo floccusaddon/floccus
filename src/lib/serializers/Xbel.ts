@@ -41,13 +41,13 @@ class XbelSerializer implements Serializer {
             id: parseInt(node[':@']['@_id']),
             parentId: folder.id,
             url: node[':@']['@_href'],
-            title: node.bookmark?.[0]?.['#text'] || '',
+            title: node.bookmark?.[0]?.title?.[0]?.['#text'] || '',
             location: ItemLocation.SERVER,
           })
         } else if (typeof node.folder !== 'undefined') {
           item = new Folder({
             id: parseInt(node[':@']?.['@_id']),
-            title: node[':@']?.['@_title'] || '',
+            title: node.folder?.[0]?.title?.[0]?.['#text'] || '',
             parentId: folder.id,
             location: ItemLocation.SERVER,
           })
@@ -66,7 +66,7 @@ class XbelSerializer implements Serializer {
         if (child instanceof Bookmark) {
           return {
             bookmark: [
-              {'#text': child.title}
+              {title: [{'#text': child.title}]}
             ],
             ':@': {
               '@_href': child.url,
@@ -77,10 +77,12 @@ class XbelSerializer implements Serializer {
 
         if (child instanceof Folder) {
           return {
-            folder: this._serializeFolder(child),
+            folder: [
+              {title: [{'#text': child.title}]},
+              ...this._serializeFolder(child)
+            ],
             ':@': {
               ...('id' in child && {'@_id': String(child.id)}),
-              '@_title': child.title,
             }
           }
         }

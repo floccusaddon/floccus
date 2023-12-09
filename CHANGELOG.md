@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.0.1] - 2023-12-09
+
+### Fixed
+
+- Fixes XBEL parser
+
 ## [5.0.0] - 2023-12-09
 
 ## New
