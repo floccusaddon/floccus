@@ -8,7 +8,7 @@ on:
       - master
 
 jobs:
-  build:
+  js:
     runs-on: ubuntu-latest
 
     strategy:
@@ -16,7 +16,7 @@ jobs:
         node-version: [20.x]
         npm-version: [10.x]
 
-    name: node${{ matrix.node-versions }}
+    name: js node${{ matrix.node-version }}
     steps:
       - uses: actions/checkout@v2
 
@@ -27,11 +27,6 @@ jobs:
 
       - name: Set up npm ${{ matrix.npm-version }}
         run: npm i -g npm@"${{ matrix.npm-version }}"
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'oracle'
-          java-version: '17'
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -45,13 +40,119 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
+      - name: Install dependencies
+        run: |
+          npm ci -f
+
       - name: Install dependencies & build
         run: |
-          echo "Install"
-          npm ci -f
-          echo "Build javascript"
           npm run build-release --if-present
-          echo "Build Java"
+
+      - name: Save context
+        uses: buildjet/cache/save@v3
+        with:
+          key: build-context-${{ github.run_id }}
+          path: ./
+
+  android:
+    needs: js
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [ 17 ]
+    name: android java${{ matrix.java-version }}
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'oracle'
+          java-version: ${{ matrix.java-version }}
+
+      - name: Restore context
+        uses: buildjet/cache/restore@v3
+        with:
+          fail-on-cache-miss: true
+          key: build-context-${{ github.run_id }}
+          path: ./
+
+      - name: Build android
+        run: |
+          npx cap sync
           cd android
           chmod +x gradlew
           ./gradlew assemble
+
+  ios:
+    needs: js
+    runs-on: macos-latest
+    name: ios
+    steps:
+      - name: Restore context
+        uses: buildjet/cache/restore@v3
+        with:
+          fail-on-cache-miss: true
+          key: build-context-${{ github.run_id }}
+          path: ./
+
+      - name: setup-cocoapods
+        uses: maxim-lobanov/setup-cocoapods@v1
+        with:
+          podfile-path: ios/App/Podfile.lock
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install certificate and provisioning profile
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+          BUILD_PROVISION_PROFILE_NEW_BOOKMARK_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_NEW_BOOKMARK_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+          PP2_PATH=$RUNNER_TEMP/build_pp2.mobileprovision
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificate and provisioning profile from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+          echo -n "$BUILD_PROVISION_PROFILE_NEW_BOOKMARK_BASE64" | base64 --decode -o $PP2_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # apply provisioning profile
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP2_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+
+      - name: Capacitor sync
+        run: |
+          npx cap sync
+
+      - name: Build ios
+        env:
+          scheme: "Floccus"
+        run: |
+          cd ios/App
+          xcodebuild build-for-testing -scheme "$scheme" -workspace App.xcworkspace
+
+  summary:
+    runs-on: ubuntu-latest
+    needs: [ js, android, ios ]
+
+    if: always()
+
+    name: build-summary
+
+    steps:
+      - name: Summary status
+        run: if ${{ needs.js.result != 'success' || ( needs.android.result != 'success' && needs.selenium.result != 'skipped' ) || ( needs.ios.result != 'success' && needs.ios.result != 'skipped' ) }}; then exit 1; fi
