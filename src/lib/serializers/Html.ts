@@ -1,6 +1,6 @@
 import Serializer from '../interfaces/Serializer'
-import { Bookmark, Folder, ItemLocation, ItemType, TItem, TItemType } from '../Tree'
-import { load } from 'cheerio'
+import { Bookmark, Folder, ItemLocation, TItem } from '../Tree'
+import * as cheerio from 'cheerio'
 
 class HtmlSerializer implements Serializer {
   serialize(folder) {
@@ -47,7 +47,7 @@ export default new HtmlSerializer()
 // Copyright (c) 2019 hold-baby
 // MIT License
 
-export const getRootFolder = (body: cheerio.Cheerio) => {
+export const getRootFolder = (body: cheerio.Cheerio<cheerio.Element>) => {
   const h3 = body.find('h3').first()
 
   const isChrome = typeof h3.attr('personal_toolbar_folder') === 'string'
@@ -78,7 +78,7 @@ export const getRootFolder = (body: cheerio.Cheerio) => {
 }
 
 export const parseByString = (content: string) => {
-  const $ = load(content, {
+  const $ = cheerio.load(content, {
     decodeEntities: false
   })
 
@@ -86,12 +86,11 @@ export const parseByString = (content: string) => {
   const root: Folder[] = []
   const rdt = getRootFolder(body).children('dt')
 
-  const parseNode = (node: cheerio.Cheerio, parentId) => {
+  const parseNode = (node: cheerio.Cheerio<cheerio.Element>, parentId?: string|number) => {
     const eq0 = node.children().eq(0)
     const title = eq0.html() || ''
-    let type: TItemType = ItemType.BOOKMARK
     let url = ''
-    let id = eq0.attr('id') || ''
+    const id = eq0.attr('id') || ''
     let children: TItem[] = []
 
     switch (eq0[0].name) {
@@ -116,7 +115,7 @@ export const parseByString = (content: string) => {
 
   rdt.each((_, item) => {
     const node = $(item)
-    const child = parseNode(node)
+    const child = parseNode(node) as Folder
     root.push(child)
   })
 
