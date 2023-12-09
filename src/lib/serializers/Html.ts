@@ -31,13 +31,8 @@ class HtmlSerializer implements Serializer {
 
   deserialize(html): Folder {
     const folders: Folder[] = parseByString(html)
-    if (folders.length === 1) {
-      folders[0].isRoot = true
-      return folders[0]
-    } else {
-      folders.forEach(f => f.parentId = '0')
-      return new Folder({id: '0', title: 'root', children: folders, location: ItemLocation.SERVER, isRoot: true})
-    }
+    folders.forEach(f => {f.parentId = '0'})
+    return new Folder({id: '0', title: 'root', children: folders, location: ItemLocation.SERVER, isRoot: true})
   }
 }
 
@@ -79,7 +74,7 @@ export const getRootFolder = (body: cheerio.Cheerio<cheerio.Element>) => {
 
 export const parseByString = (content: string) => {
   const $ = cheerio.load(content, {
-    decodeEntities: false
+    decodeEntities: true
   })
 
   const body = $('body')
