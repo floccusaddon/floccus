@@ -246,7 +246,6 @@
               {{ t('LabelSyncbehaviorsetup') }}
             </div>
             <v-switch
-              v-if="isBrowser"
               v-model="enabled"
               :aria-label="t('LabelAutosync')"
               :label="t('LabelAutosync')"

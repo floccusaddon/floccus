@@ -73,7 +73,6 @@
       </v-card-title>
       <v-card-text>
         <v-switch
-          v-if="!isBrowser"
           :value="enabled"
           :aria-label="t('LabelAutosync')"
           :label="t('LabelAutosync')"
@@ -84,7 +83,6 @@
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
         <OptionSyncStrategy
-          v-if="!isBrowser"
           :value="strategy"
           @input="$emit('update:strategy', $event)" />
         <OptionNestedSync
