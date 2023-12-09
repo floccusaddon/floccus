@@ -16,9 +16,10 @@ export default class LocalTabs implements IResource {
   }
 
   async getBookmarksTree():Promise<Folder> {
-    const tabs = await browser.tabs.query({
+    let tabs = await browser.tabs.query({
       windowType: 'normal' // no devtools or panels or popups
     })
+    tabs = tabs.filter(tab => !tab.incognito)
 
     return new Folder({
       title: '',
@@ -56,7 +57,8 @@ export default class LocalTabs implements IResource {
         windowId: typeof bookmark.parentId === 'string' ? parseInt(bookmark.parentId) : bookmark.parentId,
         url: bookmark.url,
         // Only firefox allows discarded prop
-        ...(typeof browser.BookmarkTreeNodeType !== 'undefined' && { discarded: true })
+        ...(typeof browser.BookmarkTreeNodeType !== 'undefined' && { discarded: true }),
+        active: false,
       })
     )
     return node.id

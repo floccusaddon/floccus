@@ -10,8 +10,8 @@ import { Base64 } from 'js-base64'
 export const actionsDefinition = {
   async [actions.LOAD_LOCKED]({ commit, dispatch, state }) {
     const controller = await Controller.getSingleton()
-    commit(mutations.SET_LOCKED, !controller.unlocked)
-    commit(mutations.SET_SECURED, typeof controller.key === 'string' || !controller.unlocked)
+    const unlocked = await controller.getUnlocked()
+    commit(mutations.SET_LOCKED, !unlocked)
   },
   async [actions.UNLOCK]({commit, dispatch, state}, key) {
     const controller = await Controller.getSingleton()
@@ -22,14 +22,6 @@ export const actionsDefinition = {
       throw e
     }
     commit(mutations.SET_LOCKED, false)
-  },
-  async [actions.SET_KEY]({commit, dispatch, state}, key) {
-    const controller = await Controller.getSingleton()
-    await controller.setKey(key)
-  },
-  async [actions.UNSET_KEY]({commit, dispatch, state}) {
-    const controller = await Controller.getSingleton()
-    await controller.unsetKey()
   },
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
     commit(mutations.LOADING_START, 'accounts')
@@ -54,6 +46,7 @@ export const actionsDefinition = {
     return account.id
   },
   async [actions.IMPORT_ACCOUNTS]({commit, dispatch, state}, accounts) {
+    await browser.permissions.request({origins: ['*://*/*']})
     await Account.import(accounts)
     await dispatch(actions.LOAD_ACCOUNTS)
   },
@@ -84,6 +77,10 @@ export const actionsDefinition = {
     const controller = await Controller.getSingleton()
     controller.syncAccount(accountId)
   },
+  async [actions.TRIGGER_SYNC_ALL]({ commit, dispatch, state }, accountId) {
+    const controller = await Controller.getSingleton()
+    controller.scheduleAll()
+  },
   async [actions.TRIGGER_SYNC_DOWN]({ commit, dispatch, state }, accountId) {
     const controller = await Controller.getSingleton()
     await controller.syncAccount(accountId, 'slave')
@@ -100,6 +97,7 @@ export const actionsDefinition = {
     await Logger.downloadLogs(anonymous)
   },
   async [actions.TEST_WEBDAV_SERVER]({commit, dispatch, state}, {rootUrl, username, password}) {
+    await browser.permissions.request({origins: ['*://*/*']})
     let res = await fetch(`${rootUrl}`, {
       method: 'PROPFIND',
       credentials: 'omit',
@@ -117,6 +115,7 @@ export const actionsDefinition = {
     return true
   },
   async [actions.TEST_NEXTCLOUD_SERVER]({commit, dispatch, state}, rootUrl) {
+    await browser.permissions.request({origins: ['*://*/*']})
     let res = await fetch(`${rootUrl}/index.php/login/v2`, {method: 'POST', headers: {'User-Agent': 'Floccus bookmarks sync'}})
     if (res.status !== 200) {
       throw new Error(browser.i18n.getMessage('LabelLoginFlowError'))

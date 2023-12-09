@@ -6,31 +6,89 @@ on:
     branches:
       - master
       - develop
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'webpack*'
+      - 'gulpfile.js'
 
 env:
   APP_NAME: bookmarks
 
+concurrency:
+  group: floccus-tests-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
-  php:
+  init:
     runs-on: ubuntu-latest
+
+    strategy:
+      # do not stop on another job's failure
+      fail-fast: false
+      matrix:
+        node-version: [ 20.x ]
+        npm-version: [ 10.x ]
+
+    steps:
+      - name: Checkout floccus
+        uses: actions/checkout@v2
+        with:
+          path: floccus
+
+      - name: Set up node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Set up npm ${{ matrix.npm-version }}
+        run: npm i -g npm@"${{ matrix.npm-version }}"
+
+      - name: Cache node modules
+        uses: actions/cache@v1
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install dependencies & build
+        working-directory: floccus
+        run: |
+          npm ci
+          npm run build-release --if-present
+
+      - name: Save context
+        uses: buildjet/cache/save@v3
+        with:
+          key: selenium-context-${{ github.run_id }}
+          path: ./
+
+  selenium:
+    runs-on: ubuntu-latest
+    needs: init
 
     env:
       SELENIUM_HUB_HOST: hub
       TEST_HOST: nextcloud
       SERVER_BRANCH: ${{ matrix.server-version }}
       NC_APP_VERSION: ${{ matrix.app-version }}
-      SELENIUM_VERSION: 3
       MYSQL_PASSWORD: root
 
     strategy:
       # do not stop on another job's failure
       fail-fast: false
       matrix:
-        node-version: [14.x]
-        npm-version: [7.x]
-        server-version: ['26']
+        node-version: [20.x]
+        npm-version: [10.x]
+        server-version: ['27']
         app-version: ['stable']
-        selenium-version: ['3']
         floccus-adapter:
           - fake
           - nextcloud-bookmarks
@@ -44,62 +102,62 @@ jobs:
         test-name:
           - test
           - benchmark root
-        browsers: ['firefox']
+        browsers:
+          - firefox
+          - chrome
         include:
-          - app-version: stable12
-            server-version: 25
+          - app-version: master
+            server-version: 27
             floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
           - app-version: master
-            server-version: 26
-            floccus-adapter: nextcloud-bookmarks
-            test-name: test
-            browsers: firefox
-            node-version: 14.x
-            npm-version: 7.x
-          - app-version: master
-            server-version: 26
+            server-version: 27
             floccus-adapter: nextcloud-bookmarks
             test-name: benchmark root
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
           - app-version: master
-            server-version: 26
+            server-version: 27
             floccus-adapter: nextcloud-bookmarks-old
             test-name: benchmark root
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
           - app-version: stable
-            server-version: 26
+            server-version: 27
             floccus-adapter: fake-noCache
             test-name: test
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
 
-    name: ${{matrix.floccus-adapter}}:${{ matrix.test-name}} nc@${{ matrix.server-version }} bm@${{ matrix.app-version }} ${{ matrix.browsers }}
+    name: ${{ matrix.browsers }} bm@${{ matrix.app-version }} ${{matrix.floccus-adapter}}:${{ matrix.test-name}}
 
     services:
       hub:
-        image: selenium/hub:3
+        image: selenium/hub:4.11.0-20230801
         ports:
+          - 4442:4442
+          - 4443:4443
           - 4444:4444
       firefox:
-        image: selenium/node-firefox:3
+        image: selenium/node-firefox:4.11.0-20230801
+
         env:
-          HUB_HOST: hub
-          HUB_PORT: 4444
+          SE_EVENT_BUS_HOST: hub
+          SE_EVENT_BUS_PUBLISH_PORT: 4442
+          SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
         options: --shm-size="2g"
       chrome:
-        image: selenium/node-chrome:3
+        image: selenium/node-chrome:4.11.0-20230801
         env:
-          HUB_HOST: hub
-          HUB_PORT: 4444
+          SE_EVENT_BUS_HOST: hub
+          SE_EVENT_BUS_PUBLISH_PORT: 4442
+          SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
         options: --shm-size="2g"
       nextcloud:
         image: nextcloud:${{ matrix.server-version }}
@@ -120,10 +178,13 @@ jobs:
           MYSQL_ROOT_PASSWORD: ${{env.MYSQL_PASSWORD}}
 
     steps:
-      - name: Checkout floccus
-        uses: actions/checkout@v2
+
+      - name: Restore context
+        uses: buildjet/cache/restore@v3
         with:
-          path: floccus
+          fail-on-cache-miss: true
+          key: selenium-context-${{ github.run_id }}
+          path: ./
 
       - name: Checkout bookmarks app
         uses: actions/checkout@v2
@@ -160,31 +221,16 @@ jobs:
           [ $NEXT_WAIT_TIME -lt 25 ]
         if: matrix.floccus-adapter != 'fake'
 
-      - name: Set up node ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Set up npm ${{ matrix.npm-version }}
-        run: npm i -g npm@"${{ matrix.npm-version }}"
-
-      - name: Cache node modules
-        uses: actions/cache@v1
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
-      - name: Install dependencies & build
-        working-directory: floccus
+      - name: Wait for Selenium
         run: |
-          npm ci
-          npm run build-release --if-present
+          sudo apt install -y jq
+          while ! curl -sSL "http://localhost:4444/wd/hub/status" 2>&1 \
+                | jq -r '.value.ready' 2>&1 | grep "true" >/dev/null; do
+            echo 'Waiting for the Grid'
+            sleep 1
+          done
+          
+          echo "Selenium Grid is up - executing tests"
 
       - name: Run tests
         working-directory: floccus
@@ -196,3 +242,15 @@ jobs:
           APP_VERSION: ${{ matrix.app-version }}
         run: |
           npm run test
+
+  summary:
+    runs-on: ubuntu-latest
+    needs: [ init, selenium ]
+
+    if: always()
+
+    name: selenium-summary
+
+    steps:
+      - name: Summary status
+        run: if ${{ needs.init.result != 'success' || ( needs.selenium.result != 'success' && needs.selenium.result != 'skipped' ) }}; then exit 1; fi

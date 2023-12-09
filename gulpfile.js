@@ -44,6 +44,7 @@ const paths = {
     '!key.pem',
     '!android/**',
     '!ios/**',
+    '!manifest*.json'
   ],
   views: './html/*.html',
   nativeHTML: './html/index.html',
@@ -53,6 +54,10 @@ const paths = {
   icons: 'icons/*',
   dist: './dist/**'
 }
+
+paths.chromeZip = [...paths.zip, 'manifest.chrome.json']
+paths.firefoxZip = [...paths.zip, 'manifest.firefox.json']
+
 const WEBSTORE_ID = 'fnaicdffflnofjppbagibeoednhnbjhg'
 
 let WEBSTORE_CREDENTIALS
@@ -120,23 +125,45 @@ const build = gulp.parallel(assets, js)
 
 const main = gulp.series(build, native)
 
-const zip = function() {
+const chromeZip = function() {
   return gulp
-    .src(paths.zip, { buffer: false })
-    .pipe(gulpZip(`floccus-build-v${VERSION}.zip`))
+    .src(paths.chromeZip, { buffer: false })
+    .pipe(rename((path) => {
+      if (path.basename.startsWith('manifest') && path.extname === '.json') {
+        path.basename = 'manifest'
+      }
+    }))
+    .pipe(gulpZip(`floccus-build-v${VERSION}-chrome.zip`))
+    .pipe(gulp.dest(paths.builds))
+}
+
+const firefoxZip = function() {
+  return gulp
+    .src(paths.firefoxZip, { buffer: false })
+    .pipe(rename((path) => {
+      if (path.basename.startsWith('manifest') && path.extname === '.json') {
+        path.basename = 'manifest'
+      }
+    }))
+    .pipe(gulpZip(`floccus-build-v${VERSION}-firefox.zip`))
     .pipe(gulp.dest(paths.builds))
 }
 
 const xpi = function() {
   return gulp
-    .src(paths.zip, { buffer: false })
+    .src(paths.firefoxZip, { buffer: false })
+    .pipe(rename((path) => {
+      if (path.basename.startsWith('manifest') && path.extname === '.json') {
+        path.basename = 'manifest'
+      }
+    }))
     .pipe(gulpZip(`floccus-build-v${VERSION}.xpi`))
     .pipe(gulp.dest(paths.builds))
 }
 
 const crx = function() {
   return crx3(
-    fs.createReadStream(`${paths.builds}/floccus-build-v${VERSION}.zip`),
+    fs.createReadStream(`${paths.builds}/floccus-build-v${VERSION}-chrome.zip`),
     {
       keyPath: 'key.pem',
       crxPath: `${paths.builds}/floccus-build-v${VERSION}.crx`,
@@ -144,12 +171,12 @@ const crx = function() {
   )
 }
 
-const release = gulp.series(main, gulp.parallel(zip, xpi), crx)
+const release = gulp.series(main, gulp.parallel(firefoxZip, chromeZip, xpi), crx)
 
-const publish = gulp.series(main, zip, function() {
+const publish = gulp.series(main, chromeZip, function() {
   return webstore
     .uploadExisting(
-      fs.createReadStream(`${paths.builds}floccus-build-v${VERSION}.zip`)
+      fs.createReadStream(`${paths.builds}floccus-build-v${VERSION}-chrome.zip`)
     )
     .then(function() {
       return webstore.publish('default')

@@ -4,7 +4,7 @@ const webpack = require('webpack')
 
 module.exports = merge(common, {
   mode: 'development',
-  devtool: 'eval-source-map',
+  devtool: 'cheap-module-source-map',
   plugins: [
     new webpack.DefinePlugin({
       'DEBUG': JSON.stringify(true)

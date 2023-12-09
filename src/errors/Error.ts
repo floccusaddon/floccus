@@ -131,7 +131,7 @@ export class RequestTimeoutError extends FloccusError {
 
 export class NetworkError extends FloccusError {
   constructor() {
-    super('E017: Network error: Check your network connection and your account details')
+    super('E017: Network error: Check your network connection and your profile details')
     this.code = 17
     Object.setPrototypeOf(this, NetworkError.prototype)
   }
@@ -241,7 +241,7 @@ export class FailsafeError extends FloccusError {
   public percent: number
 
   constructor(percent:number) {
-    super(`E029: Failsafe: The current sync run would delete ${percent}% of your bookmarks. Refusing to execute. Disable this failsafe in the account settings if you want to proceed anyway.`)
+    super(`E029: Failsafe: The current sync run would delete ${percent}% of your bookmarks. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway.`)
     this.code = 29
     this.percent = percent
     Object.setPrototypeOf(this, FailsafeError.prototype)
@@ -282,7 +282,7 @@ export class RedirectError extends FloccusError {
 
 export class FileUnreadableError extends FloccusError {
   constructor() {
-    super('E034: Bookmarks file is unreadable. Did you forget to set an encryption passphrase?')
+    super('E034: Remote bookmarks file is unreadable. Did you forget to set an encryption passphrase?')
     this.code = 34
     Object.setPrototypeOf(this, FileUnreadableError.prototype)
   }
@@ -295,5 +295,13 @@ export class CreateBookmarkError extends FloccusError {
     this.code = 35
     this.bookmark = bookmark
     Object.setPrototypeOf(this, CreateBookmarkError.prototype)
+  }
+}
+
+export class MissingPermissionsError extends FloccusError {
+  constructor() {
+    super(`E036: Missing permissions to access the sync server`)
+    this.code = 36
+    Object.setPrototypeOf(this, MissingPermissionsError.prototype)
   }
 }

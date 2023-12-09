@@ -53,7 +53,7 @@ export default {
         const newDelta = Math.abs(value - this.value)
         if (currentDelta > newDelta) return index
         else return closestIndex
-      }, 0) || this.syncIntervalSteps.indexOf(15)
+      }, 0)
     },
     syncIntervalStep(step) {
       this.$emit('input', this.syncIntervalSteps[step])

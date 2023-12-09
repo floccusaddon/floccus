@@ -34,28 +34,6 @@
             <span>{{ t('LabelFunddevelopment') }}</span>
           </v-tooltip>
         </v-col>
-        <v-col class="d-flex flex-row-reverse">
-          <v-btn
-            v-if="secured"
-            text
-            x-small
-            :to="{name: routes.SET_KEY}"
-            target="_blank"
-            class="white--text">
-            <v-icon>mdi-lock-outline</v-icon>
-            {{ t('LabelSecuredcredentials') }}
-          </v-btn>
-          <v-btn
-            v-else
-            text
-            x-small
-            :to="{name: routes.SET_KEY}"
-            target="_blank"
-            class="white--text">
-            <v-icon>mdi-lock-open-outline</v-icon>
-            {{ t('LabelSecurecredentials') }}
-          </v-btn>
-        </v-col>
       </v-row>
     </v-footer>
     <v-dialog
@@ -108,9 +86,6 @@ export default {
   computed: {
     locked() {
       return this.$store.state.locked
-    },
-    secured() {
-      return this.$store.state.secured
     },
     routes() {
       return routes

@@ -46,7 +46,7 @@ export default class SyncProcess {
     this.actionsDone = 0
     this.actionsPlanned = 0
     this.canceled = false
-    this.isFirefox = window.location.protocol === 'moz-extension:'
+    this.isFirefox = self.location.protocol === 'moz-extension:'
   }
 
   async cancel() :Promise<void> {

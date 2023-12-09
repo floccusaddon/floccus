@@ -6,7 +6,7 @@
     "message": "E002：暂时没有需要更新的书签"
   },
   "Error003": {
-    "message": "E003：要移出的文件夹不存在。这是一种异常。恭喜你。"
+    "message": "E003：要移出的文件夹不存在。这是一种异常。恭喜。"
   },
   "Error004": {
     "message": "E004: 要移入的文件夹不存在"
@@ -99,16 +99,19 @@
     "message": "E033：检测到重定向。请确保服务器支持所选的同步方法，并且您输入的 URL 正确无误，不会重定向到其他位置。如果重定向是设置的一部分，则可以在设置中禁用此检查。"
   },
   "Error034": {
-    "message": "E034：书签文件不可读。您是否忘记设置加密密码短语？"
+    "message": "E034: 远程书签文件不可读。请确认是否设置加密密码"
   },
   "Error035": {
     "message": "E035: 无法在服务器上创建以下书签: {0}"
+  },
+  "Error036": {
+    "message": "E036: 缺少访问同步服务器的权限"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
   "DescriptionWebdavurl": {
-    "message": "例如：使用 NextCloud：https://your-domain.com/remote.php/webdav/"
+    "message": "例如使用 NextCloud：https://your-domain.com/remote.php/webdav/"
   },
   "LabelNextcloudurl": {
     "message": "Nextcloud URL"
@@ -198,7 +201,7 @@
     "message": "从头开始触发同步"
   },
   "LabelResetCache": {
-    "message": "重置緩存"
+    "message": "重置缓存"
   },
   "DescriptionResetcache": {
     "message": "勾选此框以重置缓存，以确保下一次同步运行不会删除任何数据，只是将服务器和本地书签合并在一起"
@@ -246,7 +249,7 @@
     "message": "Nextcloud 书签"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "“Nextcloud 书签”选项至少需要Bookmarks app v0.14版本。"
+    "message": "选项 'Nextcloud 书签' 将您的书签与 Nextcloud 书签应用程序同步。它只能同步 http 和 ftp 书签。确保您已从 Nextcloud 应用商店中安装了书签应用程序。"
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud 书签（旧版）"
@@ -258,16 +261,10 @@
     "message": "WebDAV 分享"
   },
   "DescriptionAdapterwebdav": {
-    "message": "WebDAV 选项通过将书签存储在提供的 WebDAV 共享中的文件来同步您的书签。 此选项没有附带的 Web UI，您可以将它与任何 WebDAV 兼容的服务器一起使用。 它可以同步 http、ftp、数据和 javascript 书签。"
+    "message": "WebDAV 选项通过将书签存储在由 WebDAV 提供的共享文件同步书签。该选项不会附带 web UI，可以使用任何兼容 WebDAV 的服务器。可同步 http、ftp、数据、文件和 Javascript 书签。"
   },
   "LabelAddaccount": {
     "message": "添加账户"
-  },
-  "LabelSecurecredentials": {
-    "message": "保护您的凭据"
-  },
-  "LabelSecuredcredentials": {
-    "message": "您的凭证是安全的"
   },
   "LabelOpenintab": {
     "message": "在标签页中打开"
@@ -287,14 +284,8 @@
   "LabelUntitledfolder": {
     "message": "无标题文件夹"
   },
-  "LabelSetkey": {
-    "message": "為 floccus 設置密碼"
-  },
-  "DescriptionSetkey": {
-    "message": "设置密码后,每次启动浏览器时,如果要访问和同步书签、更改设置或使用 floccus 执行任何其他操作,都必须输入此密码。"
-  },
   "LabelSetkeybutton": {
-    "message": "設置密碼"
+    "message": "设置密码"
   },
   "LabelKey": {
     "message": "输入解锁密码"
@@ -303,13 +294,13 @@
     "message": "再次输入解锁密码"
   },
   "LabelUnlock": {
-    "message": "解锁floccus"
+    "message": "解锁 floccus"
   },
   "LabelRemovekey": {
-    "message": "刪除密碼"
+    "message": "删除密码"
   },
   "LabelRemovedkey": {
-    "message": "密碼已刪除"
+    "message": "密码已删除"
   },
   "LabelSyncinterval": {
     "message": "同步间隔"
@@ -321,7 +312,7 @@
     "message": "要如何同步？"
   },
   "LabelOptionsscreen": {
-    "message": "{0}选项",
+    "message": "{0} 选项",
     "description": "Title of the options screen. The placeholder holds the account type."
   },
   "LabelPaypal": {
@@ -352,7 +343,7 @@
     "message": "此旧帐户类型已弃用，不久将被删除。请切换到新的 nextcloud 同步方法。性能和准确性的提高正等着您。"
   },
   "LabelUpdated": {
-    "message": "Floccus已更新"
+    "message": "Floccus 已更新"
   },
   "DescriptionUpdated": {
     "message": "恭喜，您的计算机上已经收到了最新的 floccus 更新！"
@@ -481,7 +472,7 @@
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "通过存储在 Google Drive 中的加密文件来同步书签。 它可以同步 http、ftp、数据和 javascript 书签。"
+    "message": "通过存储在 Google Drive 中的加密文件同步书签。可同步 http、ftp、数据、文件和 Javascript 书签。"
   },
   "LabelLogingoogle": {
     "message": "使用 Google 登录"
@@ -493,7 +484,7 @@
     "message": "您已连接您的 Google 帐户以将书签同步文件存储在您的 Google Drive 中。"
   },
   "LabelPassphrase": {
-    "message": "密码短语"
+    "message": "密码"
   },
   "DescriptionPassphrase": {
     "message": "设置用于加密书签文件的密码短语，如果未设置密码短语，则不会运行加密。"
@@ -650,5 +641,14 @@
   },
   "DescriptionImportbookmarks": {
     "message": "将包含书签的 HTML 文件导入当前文件夹"
+  },
+  "LabelExportBookmarks": {
+    "message": "导出书签"
+  },
+  "DescriptionExportBookmarks" : {
+    "message": "您可以将此帐户中的所有书签导出为兼容所有主流浏览器的 HTML 文件。"
+  },
+  "LabelShareitem": {
+    "message": "分享"
   }
 }

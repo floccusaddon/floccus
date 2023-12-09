@@ -1,0 +1,654 @@
+{
+  "Error001": {
+    "message": "E001：要创建的文件夹不存在"
+  },
+  "Error002": {
+    "message": "E002：要更新的书签不存在"
+  },
+  "Error003": {
+    "message": "E003：要移出的文件夹不存在。这是一种反常现象。祝贺你。"
+  },
+  "Error004": {
+    "message": "E004：要移动到的文件夹不存在"
+  },
+  "Error005": {
+    "message": "E005：要创建的文件夹不存在"
+  },
+  "Error006": {
+    "message": "E006：要更新的文件夹不存在"
+  },
+  "Error007": {
+    "message": "E007：要移动的文件夹不存在"
+  },
+  "Error008": {
+    "message": "E008：要移出的文件夹不存在"
+  },
+  "Error009": {
+    "message": "E009：要移动到的文件夹不存在"
+  },
+  "Error010": {
+    "message": "E010：找不到指定的文件夹"
+  },
+  "Error011": {
+    "message": "E011：文件夹排序中的项不是实际的子项：{0}"
+  },
+  "Error012": {
+    "message": "E012：文件夹排序缺少文件夹的某些子项"
+  },
+  "Error013": {
+    "message": "E013：要删除的文件夹不存在"
+  },
+  "Error014": {
+    "message": "E014：要删除文件夹的父文件夹不存在"
+  },
+  "Error015": {
+    "message": "E015：来自服务器的意外响应数据"
+  },
+  "Error016": {
+    "message": "E016：请求超时。请检查你的服务器设置"
+  },
+  "Error017": {
+    "message": "E017：网络错误：请检查你的网络连接或者账户详情"
+  },
+  "Error018": {
+    "message": "E018：无法与服务器进行身份验证。"
+  },
+  "Error019": {
+    "message": "E019：HTTP状态 {0}。 {1} 请求失败。检查您的服务器配置和日志。"
+  },
+  "Error020": {
+    "message": "E020：无法解析服务器响应。书签应用程序是否安装在您的服务器上？"
+  },
+  "Error021": {
+    "message": "E021：服务器状态不一致。文件夹存在于子列表中，但不在文件夹树中"
+  },
+  "Error022": {
+    "message": "E022：文件夹{0}可能包含不存在的书签{1}"
+  },
+  "Error023": {
+    "message": "E023：无法清除锁定文件，请考虑手动删除{0}。"
+  },
+  "Error024": {
+    "message": "E024：在尝试确定锁定文件{1}的状态时，HTTP状态为{0}"
+  },
+  "Error025": {
+    "message": "E025：书签文件设置不能以斜杠开头"
+  },
+  "Error026": {
+    "message": "E026：HTTP状态{0}。获取书签失败"
+  },
+  "Error027": {
+    "message": "E027：同步进程中断"
+  },
+  "Error028": {
+    "message": "E028：无法与服务器进行身份验证。"
+  },
+  "Error029": {
+    "message": "E029：安全保护：当前同步操作将删除您书签中 {0}% 的内容。拒绝执行操作。若您需要继续执行本操作，请首先在账户设置中关闭这一安全保护。"
+  },
+  "Error030": {
+    "message": "E030：无法解密书签文件。密码短语可能错误或者文件可能已损坏。"
+  },
+  "Error031": {
+    "message": "E031：无法使用 Google Drive 进行认证。 请再次将 floccus 与你的 Google 账户连接。"
+  },
+  "Error032": {
+    "message": "E032：OAuth错误。令牌验证错误。请重新关联您的 Google  帐户。"
+  },
+  "Error033": {
+    "message": "E033：检测到重定向。请确保服务器支持所选的同步方法，并且您输入的URL正确无误，不会重定向到其他位置。如果重定向是设置的一部分，则可以在设置中禁用此检查。"
+  },
+  "Error034": {
+    "message": "E034：书签文件不可读。您是否忘记设置加密密码短语？"
+  },
+  "Error035": {
+    "message": "E035: 无法在服务器上创建以下书签：{0}"
+  },
+  "Error036": {
+    "message": "E036：缺少访问同步服务器的权限"
+  },
+  "LabelWebdavurl": {
+    "message": "WebDAV URL"
+  },
+  "DescriptionWebdavurl": {
+    "message": "例如：使用 NextCloud：https://example.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "Nextcloud URL"
+  },
+  "LabelUsername": {
+    "message": "用户名"
+  },
+  "LabelPassword": {
+    "message": "密码"
+  },
+  "LabelBookmarksfile": {
+    "message": "书签文件路径"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "书签文件相对于 WebDAV URL 的路径(路径中的所有文件夹必须已存在)。例如Personal_Stuff/bookmarks.xbel"
+  },
+ "DescriptionBookmarksfilegoogle": {
+   "message": "将保存在您的 Google Drive 中的书签文件的文件名（确保此名称在您的 Google Drive 中是唯一的）"
+ },
+  "LabelServerfolder": {
+    "message": "服务器文件夹"
+  },
+  "DescriptionServerfolder": {
+    "message": "这是该帐户在服务器上操作时使用的路径前缀。将此保留为空以不使用任何前缀。"
+  },
+  "LabelLocalfolder": {
+    "message": "本地文件夹"
+  },
+  "DescriptionLocalfolder": {
+    "message": "这是浏览器中的本地书签文件夹，将与服务器同步。请注意，有些浏览器不允许在根文件夹下创建新项目（例如 Firefox 和 Google Chrome ）。"
+  },
+  "LabelRootfolder": {
+    "message": "根目录"
+  },
+  "LabelNewfolder": {
+    "message": "新建文件夹"
+  },
+  "LabelOptions": {
+    "message": "选项"
+  },
+  "LabelSyncnow": {
+    "message": "立即同步"
+  },
+  "LabelCancelsync": {
+    "message": "取消同步"
+  },
+  "LabelAutosync": {
+    "message": "自动同步"
+  },
+  "StatusLastsynced": {
+    "message": "上次同步: {0} 之前"
+  },
+  "StatusNeversynced": {
+    "message": "从未同步过"
+  },
+  "StatusAllgood": {
+    "message": "一切正常"
+  },
+  "StatusDisabled": {
+    "message": "禁用"
+  },
+  "StatusError": {
+    "message": "错误"
+  },
+  "StatusSyncing": {
+    "message": "同步中"
+  },
+  "LabelReset": {
+    "message": "重置"
+  },
+  "DescriptionReset": {
+    "message": "重置同步文件夹以创建新文件夹"
+  },
+  "LabelChoosefolder": {
+    "message": "选择文件夹"
+  },
+  "DescriptionChoosefolder": {
+    "message": "设置要同步的已存在文件夹"
+  },
+  "LabelRemoveaccount": {
+    "message": "移除帐户"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "删除此帐户（此操作不会删除你的书签）"
+  },
+  "LabelSyncfromscratch": {
+    "message": "从头开始触发同步"
+  },
+  "LabelResetCache": {
+    "message": "重置缓存"
+  },
+  "DescriptionResetcache": {
+    "message": "勾选此框可重置高速缓存，以确保下一次同步运行不会删除任何数据，而只是将服务器和本地书签合并在一起"
+  },
+  "LabelParallelsync": {
+    "message": "加速同步速度"
+  },
+  "DescriptionParallelsync": {
+    "message": "勾选此框可并行处理多个文件夹，以加快同步速度。此功能是试验性的，使读取调试日志变得更加困难。"
+  },
+  "LabelStrategy": {
+    "message": "同步策略"
+  },
+  "DescriptionStrategy": {
+    "message": "此选项确定如何同步不同设备上的书签。通常，您会希望保留来自所有方面的更改（如果它们是兼容的），但有时您可能希望覆盖来自其他浏览器的更改（包括添加和删除），或者覆盖您在本地所做的更改。"
+  },
+  "LabelStrategydefault": {
+    "message": "始终将本地更改与来自其他浏览器的更改合并（推荐）"
+  },
+  "LabelStrategyslave": {
+    "message": "始终撤消本地更改并从其他浏览器下载更改"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "始终上载本地更改并从其他浏览器撤消更改"
+  },
+  "LabelSave": {
+    "message": "保存"
+  },
+  "LabelCancel": {
+    "message": "取消"
+  },
+  "LabelAdd": {
+    "message": "添加"
+  },
+  "LabelChange": {
+    "message": "修改"
+  },
+  "LabelRemove": {
+    "message": "移除"
+  },
+  "LabelBack": {
+    "message": "返回"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Nextcloud 书签"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "“NextCloud 书签” 选项可以将你的书签与 NextCloud 的书签应用程序同步。它只能同步http和ftp书签。确保你已经从你的 NextCloud 应用商店安装了 Bookmark 应用。"
+  },
+  "LabelAdapternextcloud": {
+    "message": "Nextcloud 书签（旧版）"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "旧版选项与 Bookmarks 应用程序的最低版本 v0.11 兼容。它将使用包含文件夹路径的标记来模拟文件夹。不建议将其用于新帐户。"
+  },
+  "LabelAdapterwebdav": {
+    "message": "WebDAV 分享"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "WebDAV 选项通过将书签存储在提供的 WebDAV 共享中的文件中来同步书签。此选项没有附带的 Web UI，您可以将其与任何 WebDAV 兼容的服务器一起使用。它可以同步http、ftp、数据、文件和javascript书签。"
+  },
+  "LabelAddaccount": {
+    "message": "添加帐户"
+  },
+  "LabelOpenintab": {
+    "message": "在标签页中打开"
+  },
+  "LabelDebuglogs": {
+    "message": "调试日志"
+  },
+  "LabelFunddevelopment": {
+    "message": "赞助开发"
+  },
+  "DescriptionFunddevelopment": {
+    "message": "关于 floccus 的工作是由自愿订阅模式推动的。如果你认为我做的事情是值得的，如果你每个月能不辛苦地省出几个硬币，请支持我的工作。另外，请考虑给 floccus 一个评价，你选择的插件商店。谢谢💙"
+  },
+  "LabelSelect": {
+    "message": "选择"
+  },
+  "LabelUntitledfolder": {
+    "message": "无标题文件夹"
+  },
+  "LabelSetkeybutton": {
+    "message": "设置密码短语"
+  },
+  "LabelKey": {
+    "message": "输入解锁密码短语"
+  },
+  "LabelKey2": {
+    "message": "再次输入密码短语"
+  },
+  "LabelUnlock": {
+    "message": "解锁 floccus"
+  },
+  "LabelRemovekey": {
+    "message": "删除密码短语"
+  },
+  "LabelRemovedkey": {
+    "message": "密码短语已删除"
+  },
+  "LabelSyncinterval": {
+    "message": "同步间隔"
+  },
+  "DescriptionSyncinterval": {
+    "message": "两次同步之间的时间跨度以分钟为单位。默认值为15分钟。"
+  },
+  "LabelChooseadapter": {
+    "message": "您希望如何同步？"
+  },
+  "LabelOptionsscreen": {
+    "message": "{0} 选项",
+    "description": "Title of the options screen. The placeholder holds the account type."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "通过 Paypal 进行一次性捐赠以支持该项目"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "通过 OpenCollective 定期捐款以支持这个项目"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "通过 Liberapay 定期捐款以支持该项目"
+  },
+  "LabelGithubsponsors": {
+    "message": "GitHub sponsors"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "通过 GitHub sponsors 定期捐款以支持该项目"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "此旧版帐户类型已弃用，很快将被删除。请切换到新的 NextCloud同步方法。性能和准确性的提升等着您。"
+  },
+  "LabelUpdated": {
+    "message": "Floccus 已更新"
+  },
+  "DescriptionUpdated": {
+    "message": "恭喜，最新版本的 floccus 已经抵达您的设备！"
+  },
+  "LabelReleaseNotes": {
+    "message": "阅读发行说明"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "服务器详情"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "文件夹映射"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "同步行为"
+  },
+  "LabelOptionsDangerous": {
+    "message": "危险行为"
+  },
+  "LabelAccountDeleted": {
+    "message": "帐户已删除"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "此帐户已被删除"
+  },
+  "LabelNoAccount": {
+    "message": "这里没有帐户"
+  },
+  "DescriptionNoAccount": {
+    "message": "创建一个新帐户来同步您的书签或从不同的设备或浏览器导入帐户。"
+  },
+  "LabelLoginFlowStart": {
+    "message": "登录 Nextcloud"
+  },
+  "LabelLoginFlowStop": {
+    "message": "中止 NextCloud 登录"
+  },
+  "LabelLoginFlowError": {
+    "message": "Nextcloud 登录失败"
+  },
+  "LabelNewAccount": {
+    "message": "新帐户"
+  },
+  "LabelNestedSync": {
+    "message": "嵌套帐户"
+  },
+  "DescriptionNestedSync": {
+    "message": "您可以嵌套帐户，以便父文件夹属于帐户A，子文件夹属于帐户A和B。是否允许其他帐户也同步此帐户的文件夹？"
+  },
+  "LabelNestedSyncNo": {
+    "message": "否，忽略其他帐户中的此帐户的文件夹"
+  },
+  "LabelNestedSyncYes": {
+    "message": "是，将此帐户的文件夹包括在其他帐户中"
+  },
+  "LabelImportExport": {
+    "message": "导入/导出 帐户"
+  },
+  "LabelExport": {
+    "message": "导出帐户"
+  },
+  "LabelImport": {
+    "message": "导入帐户"
+  },
+  "DescriptionExport": {
+    "message": "在下面选择您要导出到文件的帐户，以便您可以在不同的设备或浏览器上轻松重新创建相同的帐户。"
+  },
+  "DescriptionImport": {
+    "message": "在此处导入包含导出帐户的文件，以重新创建在其他设备或浏览器上导出的帐户。请确保在导入后再次设置正确的同步文件夹。"
+  },
+  "LabelFolderNotFound": {
+    "message": "文件夹未找到"
+  },
+  "LabelSyncTabs": {
+    "message": "同步选项卡"
+  },
+  "LabelTabs": {
+    "message": "选项卡"
+  },
+  "LabelSyncDown": {
+    "message": "拉取"
+  },
+  "DescriptionSyncDown": {
+    "message": "从其他浏览器下载更改并覆盖本地更改"
+  },
+  "LabelSyncUp": {
+    "message": "推送"
+  },
+  "DescriptionSyncUp": {
+    "message": "上传本地更改并覆盖来自其他浏览器的更改"
+  },
+  "LabelSyncDownOnce": {
+    "message": "拉取一次"
+  },
+  "LabelSyncUpOnce": {
+    "message": "推送一次"
+  },
+  "LabelSyncNormal": {
+    "message": "合并"
+  },
+  "DescriptionSyncNormal": {
+    "message": "将本地更改与来自其他浏览器的更改合并"
+  },
+  "DescriptionFilesPermission": {
+    "message": "确保您不仅允许 floccus 使用书签应用程序，还允许使用 NextCloud 文件应用程序。"
+  },
+  "DescriptionExtension": {
+    "message": "跨浏览器和设备私下同步您的书签"
+  },
+  "LabelFailsafe": {
+    "message": "安全保护"
+  },
+  "DescriptionFailsafe": {
+    "message": "有时，配置错误或软件错误可能会导致意外删除数据，从而导致数据丢失。为了防止这种情况发生，除非您在此处禁用此故障保护功能，否则 floccus 不会一次删除超过50%的书签。"
+  },
+  "LabelFailsafeon": {
+    "message": "已启用。在没有征得我同意的情况下，不要删除超过50%的本地书签。（推荐）"
+  },
+  "LabelFailsafeoff": {
+    "message": "已禁用。允许删除超过50%的本地书签，而无需与我确认。"
+  },
+  "StatusFailsafeoff": {
+    "message": "安全保护已禁用。您将面临意外数据丢失的风险。建议在帐户设置中启用安全保护功能。"
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google Drive"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "通过存储在 Google Drive 中的加密文件同步书签。它可以同步http、ftp、数据、文件和javascript书签。"
+  },
+  "LabelLogingoogle": {
+    "message": "登录 Google"
+  },
+  "DescriptionLogingoogle": {
+    "message": "连接您的 Google 帐户以将书签同步文件存储在您的 Google Drive 中。"
+  },
+  "DescriptionLoggedingoogle": {
+    "message": "您已连接到您的Google帐户以将书签同步文件存储在您的Google Drive中。"
+  },
+  "LabelPassphrase": {
+    "message": "密码短语"
+  },
+  "DescriptionPassphrase": {
+    "message": "设置用于加密书签文件的密码短语，如果不设置密码短语，则不会运行加密。"
+  },
+  "LabelClientcert": {
+    "message": "发送客户端凭据"
+  },
+  "DescriptionClientcert": {
+    "message": "如果您的服务器需要客户端证书或Cookie进行身份验证，请启用此选项。这可能会导致意想不到的副作用，因为 floccus 会与您的正常浏览器配置文件共享Cookie。"
+  },
+  "LabelAllowredirects": {
+    "message": "允许服务器URL中的重定向"
+  },
+  "DescriptionAllowredirects": {
+    "message": "如果在同步过程中遇到您认为不必要的重定向错误，请启用此选项。"
+  },
+  "LabelSearch": {
+    "message": "搜索书签"
+  },
+  "LabelSearchfolder": {
+    "message": "搜索 {0}"
+  },
+  "LabelEdititem": {
+    "message": "编辑"
+  },
+  "LabelDeleteitem": {
+    "message": "删除"
+  },
+  "LabelNobookmarks": {
+    "message": "此处没有书签"
+  },
+  "LabelAddbookmark": {
+    "message": "添加书签"
+  },
+  "LabelEditbookmark": {
+    "message": "编辑书签"
+  },
+  "LabelAddfolder": {
+    "message": "添加文件夹"
+  },
+  "LabelEditfolder": {
+    "message": "编辑文件夹"
+  },
+  "LabelSlugline": {
+    "message": "私人书签同步"
+  },
+  "LabelDownloadlogs": {
+    "message": "下载日志"
+  },
+  "LabelDownloadfulllogs": {
+    "message": "完整日志"
+  },
+  "LabelDownloadanonymizedlogs": {
+    "message": "已编码的日志"
+  },
+  "DescriptionDownloadlogs": {
+    "message": "Floccus 将其所有操作记录在日志文件中，您可以检查该文件，也可以将其发送给开发人员进行调试。在已编码的日志中，文件夹和书签名称以及URL使用加密散列函数进行不可逆编码。在发送经过编码的日志时，请确保仍然检查下载的文件中是否有可能未被匿名化过程捕获的敏感数据。"
+  },
+  "ErrorFolderloopselected": {
+    "message": "无法将文件夹移动到自身中"
+  },
+  "ErrorNofolderselected": {
+    "message": "没有选择文件夹"
+  },
+  "LabelAllownetwork": {
+    "message": "允许使用网络"
+  },
+  "DescriptionAllownetwork": {
+    "message": "Floccus 除了连接到同步服务器外，还可以使用网络来获取有关书签的其他信息（如图标等）。您可以在此处启用此类网络使用。"
+  },
+  "LabelMobilesettings": {
+    "message": "Mobile 设置"
+  },
+  "LabelContinuefloccus":{
+    "message": "继续到 floccus"
+  },
+  "LabelAbout":{
+    "message": "关于"
+  },
+  "LabelCurrentversion": {
+    "message": "当前版本"
+  },
+  "DescriptionCurrentversion": {
+    "message": "您当前安装的 floccus 版本为："
+  },
+  "LabelContributors": {
+    "message": "贡献者"
+  },
+  "DescriptionContributors": {
+    "message": "这些人帮助 floccus 成为可能"
+  },
+  "LabelSortcustom": {
+    "message": "自定义"
+  },
+  "LabelSorturl": {
+    "message": "链接"
+  },
+  "LabelSorttitle": {
+    "message": "标题"
+  },
+  "LabelSyncmethod": {
+    "message": "同步方法"
+  },
+  "LabelSyncserver": {
+    "message": "同步服务器"
+  },
+  "LabelSyncfolders": {
+    "message": "同步文件夹"
+  },
+  "LabelSyncbehavior": {
+    "message": "同步行为"
+  },
+  "LabelContinue": {
+    "message": "继续"
+  },
+  "LabelDone": {
+    "message": "完成"
+  },
+  "LabelConnect": {
+    "message": "连接"
+  },
+  "LabelServersetup": {
+    "message": "要同步到哪个服务器？"
+  },
+  "LabelGoogledrivesetup": {
+    "message": "登录 Google Drive"
+  },
+  "LabelSyncfoldersetup": {
+    "message": "要同步哪些文件夹？"
+  },
+  "LabelSyncbehaviorsetup": {
+    "message": "希望同步如何工作？"
+  },
+  "LabelAccountcreated": {
+    "message": "帐户已创建"
+  },
+  "DescriptionNonhttps": {
+    "message": "您输入的服务器使用了不安全的协议。建议仅使用支持HTTPS的服务器。"
+  },
+  "LabelFiletype": {
+    "message": "文件格式"
+  },
+  "DescriptionFiletype": {
+    "message": "您可以选择要用于在云中存储书签的文件格式。"
+  },
+  "LabelFiletypehtml": {
+    "message": "HTML，一种广泛支持的开放格式（实验性）"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL，一种简单、开放的格式"
+  },
+  "LabelImportbookmarks": {
+    "message": "导入书签"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "将包含书签的 HTML 文件导入当前文件夹"
+  },
+  "LabelExportBookmarks": {
+    "message": "导出书签"
+  },
+  "DescriptionExportBookmarks" : {
+    "message": "您可以将此帐户中的所有书签导出为与所有主要浏览器兼容的HTML文件。"
+  },
+  "LabelShareitem": {
+    "message": "分享"
+  }
+}

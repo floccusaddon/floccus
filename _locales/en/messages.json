@@ -90,7 +90,7 @@
     "message": "E030: Failed to decrypt bookmarks file. The passphrase may be wrong or the file may be corrupted."
   },
   "Error031": {
-    "message": "E031: Could not authenticate with Google Drive. Please connect floccus with your google account again."
+    "message": "E031: Could not authenticate with Google Drive. Please connect floccus with your Google account again."
   },
   "Error032": {
     "message": "E032: OAuth error. Token validation error. Please reconnect your Google Account."
@@ -99,10 +99,13 @@
     "message": "E033: Redirect detected. Please make sure the server supports the selected sync method and URL you entered is correct doesn't redirect to a different location. If the redirect is part of your setup, you can disable this check in the settings."
   },
   "Error034": {
-    "message": "E034: Bookmarks file is unreadable. Did you forget to set an encryption passphrase?"
+    "message": "E034: Remote bookmarks file is unreadable. Did you forget to set an encryption passphrase?"
   },
   "Error035": {
     "message": "E035: Failed to create the following bookmark on the server: {0}"
+  },
+  "Error036": {
+    "message": "E036: Missing permissions to access the sync server"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -129,16 +132,22 @@
    "message": "the file name of the bookmarks file that will reside in your Google Drive (make sure this name is unique in your Drive)"
  },
   "LabelServerfolder": {
-    "message": "Server folder"
+    "message": "Server target"
   },
   "DescriptionServerfolder": {
-    "message": "This is the path prefix under which this account will operate on the server. Leave this empty to use no prefix at all."
+    "message": "When syncing, your bookmarks in this browser will be stored as links under this path on the server. Note, that this path represents a folder in the Nextcloud Bookmarks app, not a folder in Nextcloud Files. Leave this empty to just put all links in the topmost folder on the server."
+  },
+  "LabelLocaltarget": {
+    "message": "Local target"
+  },
+  "DescriptionLocaltarget": {
+    "message": "Choose here, whether you want to sync browser bookmarks, or browser tabs."
   },
   "LabelLocalfolder": {
-    "message": "Local folder"
+    "message": "Bookmarks folder"
   },
   "DescriptionLocalfolder": {
-    "message": "This is the local bookmarks folder in this browser that will be synced to the server. Note that some browser don't allow creating new items under the root folder (e.g. Firefox and Google Chrome)"
+    "message": "Bookmarks in this bookmarks folder will be stored as links on the server and links on the server will be stored as bookmarks in this bookmarks folder in this browser."
   },
   "LabelRootfolder": {
     "message": "Root folder"
@@ -154,6 +163,9 @@
   },
   "LabelCancelsync": {
     "message": "Cancel sync"
+  },
+  "LabelSyncall": {
+    "message": "Sync all profiles"
   },
   "LabelAutosync": {
     "message": "Auto-sync"
@@ -176,6 +188,9 @@
   "StatusSyncing": {
     "message": "Syncing"
   },
+  "StatusScheduled": {
+    "message": "Scheduled"
+  },
   "LabelReset": {
     "message": "Reset"
   },
@@ -189,10 +204,10 @@
     "message": "Set an existing folder to sync"
   },
   "LabelRemoveaccount": {
-    "message": "Remove account"
+    "message": "Remove profile"
   },
   "DescriptionRemoveaccount": {
-    "message": "Delete this account (this will not remove your bookmarks)"
+    "message": "Delete this profile (this will not remove your bookmarks)"
   },
   "LabelSyncfromscratch": {
     "message": "Trigger sync from scratch"
@@ -246,13 +261,13 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "The option 'Nextcloud Bookmarks' is compatible with at least version v0.14 of the Bookmarks app. It can only sync http and ftp bookmarks."
+    "message": "The option 'Nextcloud Bookmarks' syncs your bookmarks with the Bookmarks app for Nextcloud. It can only sync http and ftp bookmarks. Make sure you have installed the Bookmarks app from the Nextcloud app store in your Nextcloud."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (legacy)"
   },
   "DescriptionAdapternextcloud": {
-    "message": "The legacy option is compatible with at least version v0.11 of the Bookmarks app. It will emulate folders using tags containing the folder path. It is not recommended to use this for new accounts."
+    "message": "The legacy option is compatible with at least version v0.11 of the Bookmarks app. It will emulate folders using tags containing the folder path. It is not recommended to use this for new profiles."
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV share"
@@ -261,13 +276,7 @@
     "message": "The WebDAV option syncs your bookmarks by storing them in a file in the provided WebDAV share. There is no accompanying web UI for this option and you can use it with any WebDAV-compatible server. It can sync http, ftp, data, file and javascript bookmarks."
   },
   "LabelAddaccount": {
-    "message": "Add account"
-  },
-  "LabelSecurecredentials": {
-    "message": "Secure your credentials"
-  },
-  "LabelSecuredcredentials": {
-    "message": "Your credentials are secure"
+    "message": "Add profile"
   },
   "LabelOpenintab": {
     "message": "Open in tab"
@@ -286,12 +295,6 @@
   },
   "LabelUntitledfolder": {
     "message": "Untitled folder"
-  },
-  "LabelSetkey": {
-    "message": "Set a passphrase for floccus"
-  },
-  "DescriptionSetkey": {
-    "message": "When you set a passphrase you will have to enter this pass phrase everytime you start your browser if you want to access and synchronize your bookmarks, change your settings or do anything else with floccus."
   },
   "LabelSetkeybutton": {
     "message": "Set passphrase"
@@ -322,7 +325,7 @@
   },
   "LabelOptionsscreen": {
     "message": "{0} options",
-    "description": "Title of the options screen. The placeholder holds the account type."
+    "description": "Title of the options screen. The placeholder holds the profile type."
   },
   "LabelPaypal": {
     "message": "Paypal"
@@ -349,7 +352,7 @@
     "message": "Make a regular donation via GitHub sponsors to support the project"
   },
   "LegacyAdapterDeprecation": {
-    "message": "This legacy account type is deprecated and will soon be removed. Please switch to the new nextcloud sync method. Improved performance and accuracy await you."
+    "message": "This legacy profile type is deprecated and will soon be removed. Please switch to the new nextcloud sync method. Improved performance and accuracy await you."
   },
   "LabelUpdated": {
     "message": "Floccus was updated"
@@ -373,16 +376,16 @@
     "message": "Dangerous actions"
   },
   "LabelAccountDeleted": {
-    "message": "Account deleted"
+    "message": "Profile deleted"
   },
   "DescriptionAccountDeleted": {
-    "message": "This account was deleted"
+    "message": "This profile was deleted"
   },
   "LabelNoAccount": {
-    "message": "No accounts here"
+    "message": "No profiles here"
   },
   "DescriptionNoAccount": {
-    "message": "Create a new account to sync your bookmarks or import accounts from a different device or browser."
+    "message": "Create a new profile to sync your bookmarks or import profiles from a different device or browser."
   },
   "LabelLoginFlowStart": {
     "message": "Sign in with Nextcloud"
@@ -394,40 +397,43 @@
     "message": "Nextcloud login failed"
   },
   "LabelNewAccount": {
-    "message": "New Account"
+    "message": "New Profile"
   },
   "LabelNestedSync": {
-    "message": "Nested accounts"
+    "message": "Nested profiles"
   },
   "DescriptionNestedSync": {
-    "message": "You can nest accounts so that a parent folder belongs to account A and a sub folder to account A and B. Do you want to allow other accounts to sync this account's folder as well?"
+    "message": "You can nest profiles so that a parent folder belongs to profile A and a sub folder to profile A and B. Do you want to allow other profiles to sync this profile's folder as well?"
   },
   "LabelNestedSyncNo": {
-    "message": "No, ignore this account's folder in other accounts"
+    "message": "No, ignore this profile's folder in other profiles"
   },
   "LabelNestedSyncYes": {
-    "message": "Yes, include this account's folder in other accounts"
+    "message": "Yes, include this profile's folder in other profiles"
   },
   "LabelImportExport": {
-    "message": "Import/Export Accounts"
+    "message": "Import/Export Profiles"
   },
   "LabelExport": {
-    "message": "Export accounts"
+    "message": "Export profiles"
   },
   "LabelImport": {
-    "message": "Import accounts"
+    "message": "Import profiles"
   },
   "DescriptionExport": {
-    "message": "Select accounts below that you would like to export to a file, so you can easily re-create the same accounts on a different device or browser."
+    "message": "Select profiles below that you would like to export to a file, so you can easily re-create the same profiles on a different device or browser."
   },
   "DescriptionImport": {
-    "message": "Import a file with exported accounts here to re-create accounts exported on a different device or browser. Please make sure to set the correct sync folders again after importing."
+    "message": "Import a file with exported profiles here to re-create profiles exported on a different device or browser. Please make sure to set the correct sync folders again after importing."
   },
   "LabelFolderNotFound": {
     "message": "Folder not found"
   },
   "LabelSyncTabs": {
-    "message": "Sync Tabs"
+    "message": "Browser tabs"
+  },
+  "DescriptionSyncTabs": {
+    "message": "Links that are stored on the server will be opened as browser tabs in your browser and existing open browser tabs are stored as links on your server. Note that depending how many links are stored on the server, since they will all be opened as tabs on the next sync run, this may possibly overwhelm your browser."
   },
   "LabelTabs": {
     "message": "Tabs"
@@ -475,7 +481,7 @@
     "message": "Disabled. Allow the removal of more than 50% of my local bookmarks without confirming with me."
   },
   "StatusFailsafeoff": {
-    "message": "Failsafe disabled. You are at risk for unintended data loss. It is recommended to enable the failsafe in the account settings."
+    "message": "Failsafe disabled. You are at risk for unintended data loss. It is recommended to enable the failsafe in the profile settings."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
@@ -628,7 +634,10 @@
     "message": "How do you want syncing to work?"
   },
   "LabelAccountcreated": {
-    "message": "Account created"
+    "message": "Profile created"
+  },
+  "DescriptionAccountcreated": {
+    "message": "Your profile has been created. You can close this tab now."
   },
   "DescriptionNonhttps": {
     "message": "You have entered a server that uses an insecure protocol. It is recommended to only use servers with support for HTTPS."
@@ -655,9 +664,12 @@
     "message": "Export Bookmarks"
   },
   "DescriptionExportBookmarks" : {
-    "message": "You can export all bookmarks in this account as a HTML file compatible with all major browsers."
+    "message": "You can export all bookmarks in this profile as a HTML file compatible with all major browsers."
   },
   "LabelShareitem": {
     "message": "Share"
+  },
+  "LabelImportsuccessful": {
+    "message": "Successfully imported profile(s)"
   }
 }

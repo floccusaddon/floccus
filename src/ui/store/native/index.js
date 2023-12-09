@@ -12,7 +12,6 @@ export default new Store({
   actions: actionsDefinition,
   state: {
     locked: false,
-    secured: false,
     accounts: {},
     tree: null,
     loginFlow: {

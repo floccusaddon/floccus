@@ -114,6 +114,7 @@ export default {
       try {
         const accounts = JSON.parse(await file.text())
         await this.$store.dispatch('IMPORT_ACCOUNTS', accounts)
+        alert(this.t('LabelImportsuccessful'))
       } catch (e) {
         alert(e.message)
       }

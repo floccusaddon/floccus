@@ -17,8 +17,7 @@ import {i18n} from '../native/I18n'
 export default class BrowserAccount extends Account {
   static async get(id:string):Promise<Account> {
     const storage = new BrowserAccountStorage(id)
-    const background = await browser.runtime.getBackgroundPage()
-    const data = await storage.getAccountData(background.controller.key)
+    const data = await storage.getAccountData(null)
     const tree = new BrowserTree(storage, data.localRoot)
     return new BrowserAccount(id, storage, await AdapterFactory.factory(data), tree)
   }
@@ -28,8 +27,7 @@ export default class BrowserAccount extends Account {
     const adapter = await AdapterFactory.factory(data)
     const storage = new BrowserAccountStorage(id)
 
-    const background = await browser.runtime.getBackgroundPage()
-    await storage.setAccountData(data, background.controller.key)
+    await storage.setAccountData(data, null)
     const tree = new BrowserTree(storage, data.localRoot)
     return new BrowserAccount(id, storage, adapter, tree)
   }
@@ -68,8 +66,7 @@ export default class BrowserAccount extends Account {
   }
 
   async updateFromStorage():Promise<void> {
-    const background = await browser.runtime.getBackgroundPage()
-    const data = await this.storage.getAccountData(background.controller.key)
+    const data = await this.storage.getAccountData(null)
     this.server.setData(data)
     this.localTree = new BrowserTree(this.storage, data.localRoot)
   }
@@ -129,10 +126,13 @@ export default class BrowserAccount extends Account {
     allAccounts = allAccounts || (await this.getAllAccounts())
 
     const accountsInvolved = allAccounts
-      .filter(acc => ancestors.indexOf(acc.getData().localRoot) !== -1)
+      .filter(acc => ancestors.includes(acc.getData().localRoot))
+      .sort((a, b) =>
+        ancestors.indexOf(a.getData().localRoot) - ancestors.indexOf(b.getData().localRoot)
+      )
       .reverse()
 
     const lastNesterIdx = accountsInvolved.findIndex(acc => !acc.getData().nestedSync)
-    return accountsInvolved.slice(0, lastNesterIdx)
+    return accountsInvolved.slice(0, Math.max(1, lastNesterIdx))
   }
 }

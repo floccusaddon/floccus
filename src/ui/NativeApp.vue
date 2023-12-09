@@ -23,9 +23,6 @@ export default {
     locked() {
       return false
     },
-    secured() {
-      return false
-    },
     background() {
       return this.$vuetify.theme.dark ? '#000' : '#fff'
     }
@@ -35,6 +32,7 @@ export default {
       this.$store.dispatch(actions.LOAD_ACCOUNTS)
     }, 5000)
     const controller = await Controller.getSingleton()
+    controller.onLoad()
     controller.onStatusChange(() => {
       this.$store.dispatch(actions.LOAD_ACCOUNTS)
     })

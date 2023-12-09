@@ -2,11 +2,6 @@
 <widget version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <access origin="*" />
   
-  <feature name="BackgroundMode">
-    <param name="ios-package" value="APPBackgroundMode" onload="true"/>
-    <param name="onload" value="true"/>
-  </feature>
-
   <feature name="Device">
     <param name="ios-package" value="CDVDevice"/>
   </feature>

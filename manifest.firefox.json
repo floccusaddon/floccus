@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "floccus bookmarks sync",
+  "short_name": "floccus",
+  "version": "5.0.0",
+  "description": "__MSG_DescriptionExtension__",
+  "icons": {
+    "48": "icons/logo.png",
+    "64": "icons/logo_64.png",
+    "128": "icons/logo_128.png"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "floccus@handmadeideas.org",
+      "strict_min_version": "109.0"
+    }
+  },
+
+  "default_locale": "en",
+
+  "permissions": ["alarms", "bookmarks", "storage", "unlimitedStorage", "tabs", "identity"],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+
+  "options_ui": {
+    "page": "dist/html/options.html",
+    "browser_style": false
+  },
+
+  "action": {
+    "browser_style": false,
+    "default_icon": {
+      "48": "icons/logo.png"
+    },
+    "default_title": "Open Floccus options",
+    "default_popup": "dist/html/options.html"
+  },
+
+  "background": {
+    "scripts": ["dist/js/background-script.js"]
+  }
+}

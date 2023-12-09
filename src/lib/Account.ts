@@ -7,8 +7,7 @@ import DefaultSyncProcess from './strategies/Default'
 import IAccountStorage, { IAccountData, TAccountStrategy } from './interfaces/AccountStorage'
 import { TAdapter } from './interfaces/Adapter'
 import { IResource, TLocalTree } from './interfaces/Resource'
-import Controller from './Controller'
-import { Device } from '@capacitor/device'
+import { Capacitor } from '@capacitor/core'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
 
@@ -24,7 +23,10 @@ export default class Account {
   static singleton : IAccount
 
   static async getAccountClass(): Promise<IAccount> {
-    if ((await Device.getInfo()).platform === 'web') {
+    if (this.singleton) {
+      return this.singleton
+    }
+    if (Capacitor.getPlatform() === 'web') {
       this.singleton = (await import('./browser/BrowserAccount')).default
     } else {
       this.singleton = (await import('./native/NativeAccount')).default
@@ -108,8 +110,7 @@ export default class Account {
   }
 
   async setData(data:IAccountData):Promise<void> {
-    const controller = await Controller.getSingleton()
-    await this.storage.setAccountData(data, controller.key)
+    await this.storage.setAccountData(data, null)
     this.server.setData(data)
   }
 
@@ -120,9 +121,14 @@ export default class Account {
   async tracksBookmark(localId:string):Promise<boolean> {
     if (!(await this.isInitialized())) return false
     const mappings = await this.storage.getMappings()
-    return Object.keys(mappings.getSnapshot().LocalToServer.bookmark).some(
-      (id) => localId === id
+    const snapshot = mappings.getSnapshot()
+    const foundBookmark = Object.keys(snapshot.LocalToServer.bookmark).some(
+      (id) => String(localId) === String(id)
     )
+    const foundFolder = Object.keys(snapshot.LocalToServer.folder).some(
+      (id) => String(localId) === String(id)
+    )
+    return foundBookmark || foundFolder
   }
 
   async init():Promise<void> {

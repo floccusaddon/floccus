@@ -1,11 +1,11 @@
 /* global DEBUG */
-import { Device } from '@capacitor/device'
 import util from 'util'
 import * as Parallel from 'async-parallel'
 import packageJson from '../../package.json'
 import Crypto from './Crypto'
 import { Share } from '@capacitor/share'
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
+import { Capacitor } from '@capacitor/core'
 
 export default class Logger {
   static log() {
@@ -17,7 +17,7 @@ export default class Logger {
   }
 
   static async persist() {
-    const Storage = ((await Device.getInfo()).platform === 'web') ? await import('./browser/BrowserAccountStorage') : await import('./native/NativeAccountStorage')
+    const Storage = (Capacitor.getPlatform() === 'web') ? await import('./browser/BrowserAccountStorage') : await import('./native/NativeAccountStorage')
     await Storage.default.changeEntry(
       'logs',
       log => {
@@ -30,7 +30,7 @@ export default class Logger {
   }
 
   static async getLogs() {
-    const Storage = ((await Device.getInfo()).platform === 'web') ? await import('./browser/BrowserAccountStorage') : await import('./native/NativeAccountStorage')
+    const Storage = (Capacitor.getPlatform() === 'web') ? await import('./browser/BrowserAccountStorage') : await import('./native/NativeAccountStorage')
     return Storage.default.getEntry('logs', [])
   }
 
@@ -80,13 +80,15 @@ export default class Logger {
         packageJson.version +
         '-' +
         new Date().toISOString().slice(0, 10) +
+        '-' +
+        (anonymous ? 'redacted' : 'full') +
         '.log',
       blob
     )
   }
 
   static async download(filename, blob) {
-    if ((await Device.getInfo()).platform === 'web') {
+    if (Capacitor.getPlatform() === 'web') {
       const element = document.createElement('a')
 
       let objectUrl = URL.createObjectURL(blob)

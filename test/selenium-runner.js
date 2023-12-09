@@ -1,12 +1,20 @@
 const fs = require('fs')
 const url = require('url')
-const { Builder } = require('selenium-webdriver')
+const { Builder, By, until } = require('selenium-webdriver')
+const { Preferences, Level, Type, installConsoleHandler } = require('selenium-webdriver/lib/logging')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
 const saveStats = require('./save-stats')
 const fetch = require('node-fetch')
 const VERSION = require('../package.json').version
+// Enable SELENIUM logging to console
+installConsoleHandler()
 ;(async function() {
+  const loggingPrefs = new Preferences()
+  loggingPrefs.setLevel(Type.CLIENT, Level.INFO)
+  loggingPrefs.setLevel(Type.DRIVER, Level.INFO)
+  loggingPrefs.setLevel(Type.SERVER, Level.INFO)
+
   let driver = await new Builder()
     .usingServer(`http://localhost:4444/wd/hub`)
     .forBrowser(process.env.SELENIUM_BROWSER)
@@ -18,15 +26,12 @@ const VERSION = require('../package.json').version
             '--no-sandbox', // see https://bugs.chromium.org/p/chromedriver/issues/detail?id=2473
             '--remote-debugging-port=9222'
           ])
-          .addExtensions(
-            fs.readFileSync(
-              `./builds/floccus-build-v${VERSION}.crx`,
-              'base64'
-            )
-          )
+          .addExtensions(`./builds/floccus-build-v${VERSION}.crx`)
         : null
     )
+    .setLoggingPrefs(loggingPrefs)
     .build()
+  console.log('Driver built for browser ' + process.env.SELENIUM_BROWSER)
   try {
     let id, testUrl
     switch (await (await driver.getSession()).getCapability('browserName')) {
@@ -50,24 +55,46 @@ const VERSION = require('../package.json').version
       case 'firefox':
         // Scrape extension id from firefox addons page
         await driver.installAddon(
-          `./builds/floccus-build-v${VERSION}.xpi`,
+          `${__dirname}/../builds/floccus-build-v${VERSION}-firefox.zip`,
           true
         )
+
+        // Get extension URL
         await driver.get('about:debugging')
-        await new Promise(resolve => setTimeout(resolve, 10000))
+        await driver.sleep(10000)
         testUrl = await driver.executeScript(function() {
-          const extension = WebExtensionPolicy.getByID(
-            'floccus@handmadeideas.org'
-          )
+          const extension = WebExtensionPolicy.getActiveExtensions()
+            .find(({name}) => name === 'floccus bookmarks sync')
           return extension.extension.baseURL
         })
         if (!testUrl) throw new Error('Could not install extension')
+
+        // Enable permission
+        await driver.get('about:addons')
+        await driver.sleep(10000)
+        await driver.executeScript(function() {
+          document.querySelector('button[name=extension]').click()
+        })
+        await driver.sleep(10000)
+        console.log(await driver.getPageSource())
+        await driver.executeScript(function() {
+          document.querySelector('addon-card').click()
+        })
+        await driver.sleep(10000)
+        await driver.executeScript(function() {
+          document.querySelector('#details-deck-button-permissions').click()
+        })
+        await driver.sleep(10000)
+        await driver.executeScript(function() {
+          document.querySelector('#permission-0').click()
+        })
+        await driver.sleep(5000)
         break
       default:
         throw new Error('Unknown browser')
     }
 
-    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=http://${process.env.TEST_HOST}&app_version=${process.env.APP_VERSION}`
+    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=http://${process.env.TEST_HOST}&app_version=${process.env.APP_VERSION}&browser=${process.env.SELENIUM_BROWSER}`
 
     if (process.env.FLOCCUS_TEST.includes('google-drive')) {
       testUrl += `&password=${process.env.GOOGLE_API_REFRESH_TOKEN}`
