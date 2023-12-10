@@ -83,7 +83,7 @@ export const parseByString = (content: string) => {
 
   const parseNode = (node: cheerio.Cheerio<cheerio.Element>, parentId?: string|number) => {
     const eq0 = node.children().eq(0)
-    const title = eq0.html() || ''
+    const title = eq0.text() || ''
     let url = ''
     const id = eq0.attr('id') || ''
     let children: TItem[] = []
