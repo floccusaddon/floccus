@@ -117,7 +117,7 @@ export default class LocalTabs implements IResource {
     // Not perfect but good enough (Problem: [a,X,c] => insert(b,0) => [b, X, a, c])
     if (originalTabs.length !== order.length) {
       const untouchedChildren = originalTabs.map((tab, i) => [i, tab]).filter(([, tab]) =>
-        !order.some(item => tab.id === item.id)
+        !order.some(item => String(tab.id) === String(item.id))
       )
       try {
         for (const [index, child] of untouchedChildren) {

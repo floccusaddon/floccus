@@ -395,7 +395,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           }
         })
       }
-      return recurseChildren(folderId, children).filter(item => item.id !== this.lockId)
+      return recurseChildren(folderId, children).filter(item => String(item.id) !== String(this.lockId))
     } else {
       // We don't have the children endpoint available, so we have to query all bookmarks that exist :(
       await this.getBookmarksList()
@@ -483,7 +483,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         )
       }
       await recurseChildFolders(tree, childFolders, childrenOrder, childBookmarks, layers)
-      return tree.children.filter(item => item.id !== this.lockId)
+      return tree.children.filter(item => String(item.id) !== String(this.lockId))
     }
   }
 
@@ -829,7 +829,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       )
 
       const newFolder = this.tree.findFolder(newBm.parentId)
-      if (!newFolder.children.find(item => item.id === newBm.id && item.type === 'bookmark')) {
+      if (!newFolder.children.find(item => String(item.id) === String(newBm.id) && item.type === 'bookmark')) {
         newFolder.children.push(newBm)
       }
       newBm.id = upstreamId + ';' + newBm.parentId

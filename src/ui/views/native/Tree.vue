@@ -392,7 +392,7 @@ export default {
     },
     breadcrumbs() {
       const folders = [this.currentFolder]
-      while (folders[folders.length - 1 ].id !== this.tree.id) {
+      while (String(folders[folders.length - 1 ].id) !== String(this.tree.id)) {
         folders.push(this.findItem(folders[folders.length - 1 ].parentId, this.tree))
       }
       return folders.reverse()

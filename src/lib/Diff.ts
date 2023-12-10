@@ -158,7 +158,7 @@ export default class Diff {
     const DAG = folderMoves
       .reduce((DAG, action1) => {
         DAG[action1.payload.id] = folderMoves.filter(action2 => {
-          if (action1 === action2 || action1.payload.id === action2.payload.id) {
+          if (action1 === action2 || String(action1.payload.id) === String(action2.payload.id)) {
             return false
           }
           return (

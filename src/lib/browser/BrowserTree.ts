@@ -36,7 +36,7 @@ export default class BrowserTree implements IResource {
     const recurse = (node, parentId?, rng?) => {
       if (
         allAccounts.some(
-          acc => acc.getData().localRoot === node.id && node.id !== this.rootId && !acc.getData().nestedSync
+          acc => acc.getData().localRoot === node.id && String(node.id) !== String(this.rootId) && !acc.getData().nestedSync
         )
       ) {
         // This is the root folder of a different account and the user doesn't want nested sync
@@ -223,8 +223,8 @@ export default class BrowserTree implements IResource {
     if (realTree.children.length !== order.length) {
       const untouchedChildren = realTree.children.map((child,i) => [i, child]).filter(([, child]) =>
         child.url
-          ? !order.some(item => item.type === ItemType.BOOKMARK && item.id === child.id)
-          : !order.some(item => item.type === ItemType.FOLDER && item.id === child.id)
+          ? !order.some(item => item.type === ItemType.BOOKMARK && String(item.id) === String(child.id))
+          : !order.some(item => item.type === ItemType.FOLDER && String(item.id) === String(child.id))
       )
       try {
         Logger.log('Move untouched children back into place', {untouchedChildren: untouchedChildren.map(([i, item]) => [i, item.id])})

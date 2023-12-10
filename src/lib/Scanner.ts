@@ -224,7 +224,7 @@ export default class Scanner {
     const moves = this.diff.getActions(ActionType.MOVE)
     const updates = this.diff.getActions(ActionType.UPDATE)
     updates.forEach(update => {
-      if (moves.find(move => move.payload.id === update.payload.id)) {
+      if (moves.find(move => String(move.payload.id) === String(update.payload.id))) {
         this.diff.retract(update)
       }
     })
@@ -265,7 +265,7 @@ export default class Scanner {
 
     for (const folderId in targets) {
       const newFolder = this.newTree.findItem(ItemType.FOLDER, folderId) as Folder
-      const duplicate = this.diff.getActions(ActionType.REORDER).find(a => a.payload.id === newFolder.id)
+      const duplicate = this.diff.getActions(ActionType.REORDER).find(a => String(a.payload.id) === String(newFolder.id))
       if (duplicate) {
         this.diff.retract(duplicate)
       }

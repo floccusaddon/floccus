@@ -446,8 +446,8 @@ export default class SyncProcess {
 
               if (
                 // Don't create duplicates!
-                targetPlan.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id) ||
-                sourceDiff.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id) ||
+                targetPlan.getActions(ActionType.MOVE).find(move => String(move.payload.id) === String(payload.id)) ||
+                sourceDiff.getActions(ActionType.MOVE).find(move => String(move.payload.id) === String(payload.id)) ||
                 // Don't move back into removed territory
                 targetRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, remove)) ||
                 sourceRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.payload, remove))
@@ -829,12 +829,12 @@ export default class SyncProcess {
     const reconciled = !cacheItem
     const changedLocally =
       (localHash !== cacheHash) ||
-      (cacheItem && localItem.parentId !== cacheItem.parentId)
+      (cacheItem && String(localItem.parentId) !== String(cacheItem.parentId))
     const changedUpstream =
       (cacheHash !== serverHash) ||
       (cacheItem &&
-        cacheItem.parentId !==
-        mappingsSnapshot.ServerToLocal.folder[serverItem.parentId])
+        String(cacheItem.parentId) !==
+        String(mappingsSnapshot.ServerToLocal.folder[serverItem.parentId]))
     return changedLocally || changedUpstream || reconciled
   }
 

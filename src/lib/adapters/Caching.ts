@@ -65,7 +65,7 @@ export default class CachingAdapter implements Adapter {
     }
     foundBookmark.url = newBm.url
     foundBookmark.title = newBm.title
-    if (foundBookmark.parentId === newBm.parentId) {
+    if (String(foundBookmark.parentId) === String(newBm.parentId)) {
       return
     }
     const foundOldFolder = this.bookmarksCache.findFolder(
@@ -154,12 +154,12 @@ export default class CachingAdapter implements Adapter {
     }
     order.forEach(item => {
       const child = folder.findItem(item.type, item.id)
-      if (!child || child.parentId !== folder.id) {
+      if (!child || String(child.parentId) !== String(folder.id)) {
         throw new UnknownFolderItemOrderError(id + ':' + JSON.stringify(item))
       }
     })
     folder.children.forEach(child => {
-      const item = order.find((item) => item.type === child.type && item.id === child.id)
+      const item = order.find((item) => item.type === child.type && String(item.id) === String(child.id))
       if (!item) {
         throw new MissingItemOrderError(
           id + ':' + child.inspect()
