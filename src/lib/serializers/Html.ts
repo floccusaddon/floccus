@@ -12,8 +12,7 @@ class HtmlSerializer implements Serializer {
       .map(child => {
         if (child instanceof Bookmark) {
           return (
-            `${indent}<DT>` +
-            `<A HREF="${child.url}" TAGS="${''}" ID="${child.id}">${child.title}</A>\n`
+            `${indent}<DT><A HREF="${child.url}" TAGS="${''}" ID="${child.id}">${child.title}</A>\n`
           )
         } else if (child instanceof Folder) {
           const nextIndent = indent + '  '
@@ -30,9 +29,9 @@ class HtmlSerializer implements Serializer {
   }
 
   deserialize(html): Folder {
-    const folders: Folder[] = parseByString(html)
-    folders.forEach(f => {f.parentId = '0'})
-    return new Folder({id: '0', title: 'root', children: folders, location: ItemLocation.SERVER, isRoot: true})
+    const items: TItem[] = parseByString(html)
+    items.forEach(f => { f.parentId = '0' })
+    return new Folder({id: '0', title: 'root', children: items, location: ItemLocation.SERVER, isRoot: true})
   }
 }
 
@@ -78,7 +77,7 @@ export const parseByString = (content: string) => {
   })
 
   const body = $('body')
-  const root: Folder[] = []
+  const root: TItem[] = []
   const rdt = getRootFolder(body).children('dt')
 
   const parseNode = (node: cheerio.Cheerio<cheerio.Element>, parentId?: string|number) => {
@@ -110,7 +109,7 @@ export const parseByString = (content: string) => {
 
   rdt.each((_, item) => {
     const node = $(item)
-    const child = parseNode(node) as Folder
+    const child = parseNode(node)
     root.push(child)
   })
 
