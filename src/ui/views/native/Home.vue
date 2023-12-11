@@ -12,7 +12,7 @@ import { SplashScreen } from '@capacitor/splash-screen'
 import { SendIntent } from 'send-intent'
 import packageJson from '../../../../package.json'
 import { Preferences as Storage } from '@capacitor/preferences'
-import { Http } from '@capacitor-community/http'
+import { CapacitorHttp as Http } from '@capacitor/core'
 import Logger from '../../../lib/Logger'
 
 export default {

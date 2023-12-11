@@ -13,7 +13,7 @@ import {
   NetworkError, RedirectError,
   SlashError
 } from '../../errors/Error'
-import { Http } from '@capacitor-community/http'
+import { CapacitorHttp as Http } from '@capacitor/core'
 import { Capacitor } from '@capacitor/core'
 import Html from '../serializers/Html'
 

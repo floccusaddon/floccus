@@ -12,7 +12,7 @@ import {
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
 import { Capacitor } from '@capacitor/core'
-import { Http } from '@capacitor-community/http'
+import { CapacitorHttp as Http } from '@capacitor/core'
 
 const OAuthConfig = {
   authorizationBaseUrl: 'https://accounts.google.com/o/oauth2/auth',
