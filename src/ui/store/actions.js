@@ -46,7 +46,6 @@ export const actionsDefinition = {
     return account.id
   },
   async [actions.IMPORT_ACCOUNTS]({commit, dispatch, state}, accounts) {
-    await browser.permissions.request({origins: ['*://*/*']})
     await Account.import(accounts)
     await dispatch(actions.LOAD_ACCOUNTS)
   },
