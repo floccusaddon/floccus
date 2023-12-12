@@ -78,7 +78,7 @@
           :label="t('LabelAutosync')"
           dense
           class="mt-0 pt-0"
-          @input="$emit('update:enabled', $event)" />
+          @change="$emit('update:enabled', $event)" />
         <OptionSyncInterval
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
