@@ -93,16 +93,6 @@ export default class BrowserController {
         currentVersion: packageJson.version
       })
 
-      // Set flag to switch to new encryption implementation
-      const oldVersion = d.currentVersion.split('.')
-      const e = await browser.storage.local.get('accountsLocked')
-      // eslint-disable-next-line eqeqeq
-      if (e.accountsLocked && oldVersion[0] === '4' && (oldVersion[1] < 5 || (oldVersion[1] == 5 && oldVersion[2] == 0))) {
-        await browser.storage.local.set({
-          rekeyAfterUpdate: true
-        })
-      }
-
       const packageVersion = packageJson.version.split('.')
       const lastVersion = d.currentVersion ? d.currentVersion.split('.') : []
       if (packageVersion[0] !== lastVersion[0] || packageVersion[1] !== lastVersion[1]) {
@@ -176,7 +166,7 @@ export default class BrowserController {
     // remove encryption
     this.key = null
     await browser.storage.local.set({ accountsLocked: null })
-    const accountIds = BrowserAccountStorage.getAllAccounts()
+    const accountIds = await BrowserAccountStorage.getAllAccounts()
     for (let accountId of accountIds) {
       const storage = new BrowserAccountStorage(accountId)
       const data = await storage.getAccountData(key)
