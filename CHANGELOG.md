@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.0.3] - 2023-12-12
+
+### Fixed
+
+- [native] Remove capacitor community http Marcel Klehr 36 minutes ago
+- [native] fix(DialogImportBookmarks): accept="text/html"
+- [android] fix(webdav): Use new builtin CapacitorHttp
+- fix(Unlock with credentials): Missing await 🙈
+- fix(Profile import)
+- fix(options): Auto-sync option was not saved
+- fix(GoogleDrive): Fix permissions.contains syntax
+- fix: Always cast to string before comparing item ids
+- fix(HtmlSerializer): Try to fix ordering test
+- fix(HtmlSerializer): Use Cheerio.text() for getting title
+
 ## [5.0.2] - 2023-12-09
 
 ### Fixed

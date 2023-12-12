@@ -2,12 +2,19 @@
   "manifest_version": 3,
   "name": "floccus bookmarks sync",
   "short_name": "floccus",
-  "version": "5.0.2",
+  "version": "5.0.3",
   "description": "__MSG_DescriptionExtension__",
   "icons": {
     "48": "icons/logo.png",
     "64": "icons/logo_64.png",
     "128": "icons/logo_128.png"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "floccus@handmadeideas.org",
+      "strict_min_version": "109.0"
+    }
   },
 
   "default_locale": "en",
@@ -35,6 +42,6 @@
   },
 
   "background": {
-    "service_worker": "dist/js/background-script.js"
+    "scripts": ["dist/js/background-script.js"]
   }
 }
