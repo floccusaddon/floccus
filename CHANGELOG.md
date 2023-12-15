@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.0.4] - 2023-12-15
+
+### Fixed
+
+* [native] upgrade capacitor-oauth2
+* [native] fix(GoogleDrive): CapacitorHttp no longer encodes x-form-urlencoded
+* fix(Import): Request network permissions before import
+* fix(GoogleDrive): Request network permissions before login
+
 ## [5.0.3] - 2023-12-12
 
 ### Fixed
