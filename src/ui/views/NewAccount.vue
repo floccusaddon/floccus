@@ -398,6 +398,10 @@ export default {
       this.isServerTestRunning = false
     },
     async loginGoogleDrive() {
+      if (this.isBrowser) {
+        const {default: browser} = await import('../../lib/browser-api')
+        await browser.permissions.request({ origins: ['*://*/*'] })
+      }
       const GoogleDriveAdapter = (await import('../../lib/adapters/GoogleDrive')).default
       const { refresh_token, username } = await GoogleDriveAdapter.authorize()
       if (refresh_token) {
