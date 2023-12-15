@@ -11,8 +11,7 @@ import {
   OAuthTokenError
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
-import { Capacitor } from '@capacitor/core'
-import { CapacitorHttp as Http } from '@capacitor/core'
+import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
 
 const OAuthConfig = {
   authorizationBaseUrl: 'https://accounts.google.com/o/oauth2/auth',
@@ -143,13 +142,12 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
   async getAccessToken(refreshToken:string) {
     const platform = Capacitor.getPlatform()
-    const credentialType = platform
 
     const response = await this.request('POST', 'https://oauth2.googleapis.com/token',
       {
         refresh_token: refreshToken,
-        client_id: Credentials[credentialType].client_id,
-        ...(credentialType === 'web' && {client_secret: Credentials.web.client_secret}),
+        client_id: Credentials[platform].client_id,
+        ...(platform === 'web' && {client_secret: Credentials.web.client_secret}),
         grant_type: 'refresh_token',
       },
       'application/x-www-form-urlencoded'
@@ -348,6 +346,14 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   async requestNative(method: string, url: string, body: any = null, contentType: string = null) : Promise<CustomResponse> {
     let res
 
+    if (contentType === 'application/x-www-form-urlencoded') {
+      const params = new URLSearchParams()
+      for (const [key, value] of Object.entries(body || {})) {
+        params.set(key, value as string)
+      }
+      body = params.toString()
+    }
+
     try {
       res = await Http.request({
         url,
@@ -364,6 +370,8 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       Logger.log(e)
       throw new NetworkError()
     }
+
+    console.log(JSON.stringify(res))
 
     if (res.status === 401 || res.status === 403) {
       throw new AuthenticationError()
