@@ -200,10 +200,12 @@ export const actionsDefinition = {
     do {
       await new Promise(resolve => setTimeout(resolve, 1000))
       try {
+        const data = new URLSearchParams()
+        data.set('token', json.poll.token)
         res = await Http.request({
           url: json.poll.endpoint,
           method: 'POST',
-          data: {token: json.poll.token},
+          data: data.toString(),
           headers: {'Content-type': 'application/x-www-form-urlencoded'}
         })
       } catch (e) {
