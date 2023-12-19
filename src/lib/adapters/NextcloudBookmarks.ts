@@ -22,7 +22,7 @@ import {
   NetworkError,
   ParseResponseError,
   RedirectError,
-  RequestTimeoutError,
+  RequestTimeoutError, ResourceLockedError,
   UnexpectedServerResponseError,
   UnknownCreateTargetError,
   UnknownFolderParentUpdateError,
@@ -137,7 +137,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     })
   }
 
-  async onSyncStart(): Promise<void> {
+  async onSyncStart(needLock = true): Promise<void> {
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
       if (!(await browser.permissions.contains({ origins: [this.server.url + '/'] }))) {
@@ -145,18 +145,13 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       }
     }
 
-    this.canceled = false
-    const startDate = Date.now()
-    const maxTimeout = LOCK_TIMEOUT
-    const base = 1.25
-    for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
-      if (await this.acquireLock()) {
-        break
-      } else {
-        Logger.log('Resource is still locked, trying again in ' + (base ** i) + 's')
-        await this.timeout(base ** i * 1000)
+    if (needLock) {
+      if (!(await this.acquireLock())) {
+        throw new ResourceLockedError()
       }
     }
+
+    this.canceled = false
     this.ended = false
     this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
   }

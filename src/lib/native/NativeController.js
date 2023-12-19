@@ -2,9 +2,8 @@ import { Preferences as Storage } from '@capacitor/preferences'
 import { Network } from '@capacitor/network'
 import Cryptography from '../Crypto'
 import NativeAccountStorage from './NativeAccountStorage'
-
-import PQueue from 'p-queue'
 import Account from '../Account'
+import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
 
 const INACTIVITY_TIMEOUT = 1000 * 7
 const DEFAULT_SYNC_INTERVAL = 15
@@ -13,10 +12,10 @@ class AlarmManager {
   constructor(ctl) {
     this.ctl = ctl
     this.backgroundSyncEnabled = true
-    setInterval(() => this.checkSync(), 60 * 1000)
+    setInterval(() => this.checkSync(), 25 * 1000)
 
     Network.addListener('networkStatusChange', status => {
-      if (status.connected && status.connectionType === 'wifi') {
+      if (status.connected) {
         this.backgroundSyncEnabled = true
       } else {
         this.backgroundSyncEnabled = false
@@ -32,12 +31,14 @@ class AlarmManager {
     for (let accountId of accounts) {
       const account = await Account.get(accountId)
       const data = account.getData()
+      if (data.scheduled) {
+        this.ctl.scheduleSync(accountId)
+      }
       if (
         !data.lastSync ||
         Date.now() >
         (data.syncInterval || DEFAULT_SYNC_INTERVAL) * 1000 * 60 + data.lastSync
       ) {
-        // noinspection ES6MissingAwait
         this.ctl.scheduleSync(accountId)
       }
     }
@@ -46,8 +47,6 @@ class AlarmManager {
 
 export default class NativeController {
   constructor() {
-    this.jobs = new PQueue({ concurrency: 1 })
-    this.waiting = {}
     this.schedule = {}
     this.listeners = []
 
@@ -118,13 +117,13 @@ export default class NativeController {
       return
     }
 
-    if (this.waiting[accountId]) {
+    const status = await this.getStatus()
+    if (status === STATUS_SYNCING) {
+      await account.setData({ ...account.getData(), scheduled: true })
       return
     }
 
-    this.waiting[accountId] = true
-
-    return this.jobs.add(() => this.syncAccount(accountId))
+    this.syncAccount(accountId)
   }
 
   async cancelSync(accountId, keepEnabled) {
@@ -137,7 +136,6 @@ export default class NativeController {
   }
 
   async syncAccount(accountId, strategy) {
-    this.waiting[accountId] = false
     if (!this.enabled) {
       return
     }
@@ -158,6 +156,31 @@ export default class NativeController {
     this.listeners.forEach(fn => fn())
   }
 
+  async getStatus() {
+    if (!this.unlocked) {
+      return STATUS_ERROR
+    }
+    const accounts = await Account.getAllAccounts()
+    let overallStatus = accounts.reduce((status, account) => {
+      const accData = account.getData()
+      if (status === STATUS_SYNCING || accData.syncing) {
+        return STATUS_SYNCING
+      } else if (status === STATUS_ERROR || (accData.error && !accData.syncing)) {
+        return STATUS_ERROR
+      } else {
+        return STATUS_ALLGOOD
+      }
+    }, STATUS_ALLGOOD)
+
+    if (overallStatus === STATUS_ALLGOOD) {
+      if (accounts.every(account => !account.getData().enabled)) {
+        overallStatus = STATUS_DISABLED
+      }
+    }
+
+    return overallStatus
+  }
+
   onStatusChange(listener) {
     this.listeners.push(listener)
     let unregistered = false
@@ -176,7 +199,7 @@ export default class NativeController {
           await acc.setData({
             ...acc.getData(),
             syncing: false,
-            error: false,
+            scheduled: false,
           })
         }
       })

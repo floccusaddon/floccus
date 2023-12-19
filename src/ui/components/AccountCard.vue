@@ -250,7 +250,10 @@ export default {
         )
       }
       if (this.account.data.syncing) {
-        return 'Synchronization in progress.'
+        return this.t('DescriptionSyncinprogress')
+      }
+      if (this.account.data.scheduled) {
+        return this.t('DescriptionSyncscheduled')
       }
       if (this.account.data.lastSync) {
         return this.t(

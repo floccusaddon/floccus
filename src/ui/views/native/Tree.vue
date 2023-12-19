@@ -26,16 +26,24 @@
         hide-details
         @input="onSearch" />
       <v-spacer />
-      <v-btn
-        icon
-        :disabled="!currentAccount"
-        :color="syncing? 'primary' : ''"
-        @click="onTriggerSync">
-        <v-icon
-          :class="{'sync--active': Boolean(syncing)}">
-          mdi-sync
-        </v-icon>
-      </v-btn>
+      <v-tooltip
+        :value="scheduled"
+        bottom>
+        <span>{{ t('DescriptionSyncscheduled') }}</span>
+        <template #activator="{props}">
+          <v-btn
+            v-bind="props"
+            icon
+            :disabled="!currentAccount"
+            :color="syncing || scheduled? 'primary' : ''"
+            @click="onTriggerSync">
+            <v-icon
+              :class="{'sync--active': Boolean(syncing)}">
+              {{ scheduled ? 'mdi-timer-sync-outline' : 'mdi-sync' }}
+            </v-icon>
+          </v-btn>
+        </template>
+      </v-tooltip>
       <v-menu
         bottom
         left>
@@ -348,6 +356,12 @@ export default {
       }
       return this.$store.state.accounts[this.id].data.syncing
     },
+    scheduled() {
+      if (this.loading) {
+        return false
+      }
+      return this.$store.state.accounts[this.id].data.scheduled
+    },
     syncError() {
       if (this.loading) {
         return false
@@ -540,7 +554,7 @@ export default {
       this.$store.dispatch(actions.SHARE_BOOKMARK, new Bookmark(item))
     },
     onTriggerSync() {
-      if (this.syncing) {
+      if (this.syncing || this.scheduled) {
         return
       }
       this.currentAccount.data.syncing = 0.0001 // faaast

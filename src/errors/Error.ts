@@ -305,3 +305,11 @@ export class MissingPermissionsError extends FloccusError {
     Object.setPrototypeOf(this, MissingPermissionsError.prototype)
   }
 }
+
+export class ResourceLockedError extends FloccusError {
+  constructor() {
+    super(`E037: Resource is locked`)
+    this.code = 37
+    Object.setPrototypeOf(this, MissingPermissionsError.prototype)
+  }
+}
