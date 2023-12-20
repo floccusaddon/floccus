@@ -1,6 +1,6 @@
 {
   "name": "floccus",
-  "version": "5.0.2",
+  "version": "5.0.5",
   "description": "Sync your bookmarks privately across browsers and devices",
   "scripts": {
     "build": "gulp",
@@ -70,8 +70,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "@byteowls/capacitor-oauth2": "4.x",
-    "@capacitor-community/http": "^1.4.1",
+    "@byteowls/capacitor-oauth2": "5.x",
     "@capacitor/android": "^5.0.0",
     "@capacitor/app": "^5.0.0",
     "@capacitor/core": "^5.0.0",

@@ -106,8 +106,12 @@ export default {
         alert(e.message)
       }
     },
-    onTriggerFilePicker() {
+    async onTriggerFilePicker() {
       this.$refs.filePicker.click()
+      if (this.isBrowser) {
+        const {default: browser} = await import('../../lib/browser-api')
+        await browser.permissions.request({ origins: ['*://*/*'] })
+      }
     },
     async onFileSelect() {
       const file = this.$refs.filePicker.files[0]

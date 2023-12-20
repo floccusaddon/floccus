@@ -4,7 +4,7 @@ import Logger from '../../../lib/Logger'
 import AdapterFactory from '../../../lib/AdapterFactory'
 import Controller from '../../../lib/Controller'
 import { i18n } from '../../../lib/native/I18n'
-import { Http } from '@capacitor-community/http'
+import { CapacitorHttp as Http } from '@capacitor/core'
 import { Share } from '@capacitor/share'
 import Html from '../../../lib/serializers/Html'
 import { Bookmark, Folder } from '../../../lib/Tree'
@@ -200,10 +200,12 @@ export const actionsDefinition = {
     do {
       await new Promise(resolve => setTimeout(resolve, 1000))
       try {
+        const data = new URLSearchParams()
+        data.set('token', json.poll.token)
         res = await Http.request({
           url: json.poll.endpoint,
           method: 'POST',
-          data: {token: json.poll.token},
+          data: data.toString(),
           headers: {'Content-type': 'application/x-www-form-urlencoded'}
         })
       } catch (e) {

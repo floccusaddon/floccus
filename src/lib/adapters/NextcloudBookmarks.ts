@@ -1,6 +1,6 @@
 // Nextcloud ADAPTER
 // All owncloud specifc stuff goes in here
-import { Capacitor } from '@capacitor/core'
+import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
 import Adapter from '../interfaces/Adapter'
 import HtmlSerializer from '../serializers/Html'
 import Logger from '../Logger'
@@ -22,7 +22,7 @@ import {
   NetworkError,
   ParseResponseError,
   RedirectError,
-  RequestTimeoutError,
+  RequestTimeoutError, ResourceLockedError,
   UnexpectedServerResponseError,
   UnknownCreateTargetError,
   UnknownFolderParentUpdateError,
@@ -137,7 +137,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     })
   }
 
-  async onSyncStart(): Promise<void> {
+  async onSyncStart(needLock = true): Promise<void> {
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
       if (!(await browser.permissions.contains({ origins: [this.server.url + '/'] }))) {
@@ -145,18 +145,13 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       }
     }
 
-    this.canceled = false
-    const startDate = Date.now()
-    const maxTimeout = LOCK_TIMEOUT
-    const base = 1.25
-    for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
-      if (await this.acquireLock()) {
-        break
-      } else {
-        Logger.log('Resource is still locked, trying again in ' + (base ** i) + 's')
-        await this.timeout(base ** i * 1000)
+    if (needLock) {
+      if (!(await this.acquireLock())) {
+        throw new ResourceLockedError()
       }
     }
+
+    this.canceled = false
     this.ended = false
     this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
   }
@@ -395,7 +390,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           }
         })
       }
-      return recurseChildren(folderId, children).filter(item => item.id !== this.lockId)
+      return recurseChildren(folderId, children).filter(item => String(item.id) !== String(this.lockId))
     } else {
       // We don't have the children endpoint available, so we have to query all bookmarks that exist :(
       await this.getBookmarksList()
@@ -483,7 +478,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         )
       }
       await recurseChildFolders(tree, childFolders, childrenOrder, childBookmarks, layers)
-      return tree.children.filter(item => item.id !== this.lockId)
+      return tree.children.filter(item => String(item.id) !== String(this.lockId))
     }
   }
 
@@ -829,7 +824,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       )
 
       const newFolder = this.tree.findFolder(newBm.parentId)
-      if (!newFolder.children.find(item => item.id === newBm.id && item.type === 'bookmark')) {
+      if (!newFolder.children.find(item => String(item.id) === String(newBm.id) && item.type === 'bookmark')) {
         newFolder.children.push(newBm)
       }
       newBm.id = upstreamId + ';' + newBm.parentId
@@ -867,9 +862,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     const url = this.normalizeServerURL(this.server.url) + relUrl
     let res
     let timedOut = false
-    const authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
 
     if (type && type.includes('application/json')) {
       body = JSON.stringify(body)
@@ -880,6 +872,14 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       }
       body = params.toString()
     }
+
+    if (Capacitor.getPlatform() !== 'web') {
+      return this.sendRequestNative(verb, url, type, body, returnRawResponse)
+    }
+
+    const authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
 
     try {
       res = await this.fetchQueue.add(() =>
@@ -963,5 +963,61 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     )
 
     return res.status === 200
+  }
+
+  private async sendRequestNative(verb: string, url: string, type: string, body: any, returnRawResponse: boolean) {
+    let res
+    let timedOut = false
+    const authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+    try {
+      res = await this.fetchQueue.add(() =>
+        Promise.race([
+          Http.request({
+            url,
+            method: verb,
+            disableRedirects: !this.server.allowRedirects,
+            headers: {
+              ...(type && type !== 'multipart/form-data' && { 'Content-type': type }),
+              Authorization: 'Basic ' + authString,
+            },
+            responseType: 'json',
+            ...(body && !['get', 'head'].includes(verb.toLowerCase()) && { data: body }),
+          }),
+          new Promise((resolve, reject) =>
+            setTimeout(() => {
+              timedOut = true
+              reject(new RequestTimeoutError())
+            }, TIMEOUT)
+          ),
+        ])
+      )
+    } catch (e) {
+      if (timedOut) throw e
+      console.log(e)
+      throw new NetworkError()
+    }
+
+    if (res.status < 400 && res.status >= 300) {
+      throw new RedirectError()
+    }
+
+    if (returnRawResponse) {
+      return res
+    }
+
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status === 503 || res.status > 400) {
+      throw new HttpError(res.status, verb)
+    }
+    const json = res.data
+    if (json.status !== 'success') {
+      throw new Error('Nextcloud API error: \n' + JSON.stringify(json))
+    }
+
+    return json
   }
 }

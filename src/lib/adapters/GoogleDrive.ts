@@ -8,11 +8,10 @@ import {
   DecryptionError, FileUnreadableError,
   GoogleDriveAuthenticationError, InterruptedSyncError, MissingPermissionsError,
   NetworkError,
-  OAuthTokenError
+  OAuthTokenError, ResourceLockedError
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
-import { Capacitor } from '@capacitor/core'
-import { Http } from '@capacitor-community/http'
+import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
 
 const OAuthConfig = {
   authorizationBaseUrl: 'https://accounts.google.com/o/oauth2/auth',
@@ -69,7 +68,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     if (platform === 'web') {
       const browser = (await import('../browser-api')).default
-      const origins = ['https://oauth2.googleapis.com', 'https://www.googleapis.com']
+      const origins = ['https://oauth2.googleapis.com/', 'https://www.googleapis.com/']
       if (!(await browser.permissions.contains({ origins }))) {
         throw new MissingPermissionsError()
       }
@@ -143,13 +142,12 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
   async getAccessToken(refreshToken:string) {
     const platform = Capacitor.getPlatform()
-    const credentialType = platform
 
     const response = await this.request('POST', 'https://oauth2.googleapis.com/token',
       {
         refresh_token: refreshToken,
-        client_id: Credentials[credentialType].client_id,
-        ...(credentialType === 'web' && {client_secret: Credentials.web.client_secret}),
+        client_id: Credentials[platform].client_id,
+        ...(platform === 'web' && {client_secret: Credentials.web.client_secret}),
         grant_type: 'refresh_token',
       },
       'application/x-www-form-urlencoded'
@@ -193,7 +191,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     })
   }
 
-  async onSyncStart() {
+  async onSyncStart(needLock = true) {
     Logger.log('onSyncStart: begin')
 
     if (Capacitor.getPlatform() === 'web') {
@@ -206,31 +204,29 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     this.accessToken = await this.getAccessToken(this.server.refreshToken)
 
-    let file
-    let startDate = Date.now()
-    const maxTimeout = LOCK_TIMEOUT
-    const base = 1.25
-    for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
-      const fileList = await this.listFiles('name = ' + "'" + this.server.bookmark_file + "'")
-      file = fileList.files.filter(file => !file.trashed)[0]
-      if (file) {
-        this.fileId = file.id
+    const fileList = await this.listFiles('name = ' + "'" + this.server.bookmark_file + "'")
+    const file = fileList.files.filter(file => !file.trashed)[0]
+    if (file) {
+      this.fileId = file.id
+      if (needLock) {
         const data = await this.getFileMetadata(file.id, 'appProperties')
         if (data.appProperties && data.appProperties.locked && (data.appProperties.locked === true || JSON.parse(data.appProperties.locked))) {
           const lockedDate = JSON.parse(data.appProperties.locked)
-          if (Number.isInteger(lockedDate)) {
-            startDate = lockedDate
+          if (!Number.isInteger(lockedDate)) {
+            throw new ResourceLockedError()
           }
-          await this.timeout(base ** i * 1000)
-          continue
+          if (Date.now() - lockedDate < LOCK_TIMEOUT) {
+            throw new ResourceLockedError()
+          }
         }
       }
-      break
     }
 
     if (file) {
       this.fileId = file.id
-      await this.setLock(this.fileId)
+      if (needLock) {
+        await this.setLock(this.fileId)
+      }
 
       let xmlDocText = await this.downloadFile(this.fileId)
 
@@ -348,6 +344,14 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   async requestNative(method: string, url: string, body: any = null, contentType: string = null) : Promise<CustomResponse> {
     let res
 
+    if (contentType === 'application/x-www-form-urlencoded') {
+      const params = new URLSearchParams()
+      for (const [key, value] of Object.entries(body || {})) {
+        params.set(key, value as string)
+      }
+      body = params.toString()
+    }
+
     try {
       res = await Http.request({
         url,
@@ -364,6 +368,8 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       Logger.log(e)
       throw new NetworkError()
     }
+
+    console.log(JSON.stringify(res))
 
     if (res.status === 401 || res.status === 403) {
       throw new AuthenticationError()

@@ -363,7 +363,7 @@ export class Folder {
   static getAncestorsOf(item: TItem, tree: Folder): TItem[] {
     const ancestors = [item]
     let parent = item
-    while (parent.id !== tree.id) {
+    while (String(parent.id) !== String(tree.id)) {
       ancestors.push(parent)
       parent = tree.findItem(ItemType.FOLDER, parent.parentId)
       if (!parent) {

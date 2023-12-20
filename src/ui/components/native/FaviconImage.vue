@@ -13,7 +13,7 @@
 
 <script>
 import { getIcons } from '../../../lib/getFavicon'
-import { Http } from '@capacitor-community/http'
+import { CapacitorHttp as Http } from '@capacitor/core'
 import {Preferences as Storage} from '@capacitor/preferences'
 
 export default {

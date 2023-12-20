@@ -1,5 +1,37 @@
 # Changelog
 
+## [5.0.5] - 2023-12-20
+
+### Fixed
+
+* Fix: Move waiting for lock out of adapters into controller
+* fix(NextcloudBookmarks): Use CapacitorHttp to avoid cors errors in capacitor 5
+* fix(native/START_LOGIN_FLOW): migrate to new capacitor http API
+
+## [5.0.4] - 2023-12-15
+
+### Fixed
+
+* [native] upgrade capacitor-oauth2
+* [native] fix(GoogleDrive): CapacitorHttp no longer encodes x-form-urlencoded
+* fix(Import): Request network permissions before import
+* fix(GoogleDrive): Request network permissions before login
+
+## [5.0.3] - 2023-12-12
+
+### Fixed
+
+- [native] Remove capacitor community http Marcel Klehr 36 minutes ago
+- [native] fix(DialogImportBookmarks): accept="text/html"
+- [android] fix(webdav): Use new builtin CapacitorHttp
+- fix(Unlock with credentials): Missing await 🙈
+- fix(Profile import)
+- fix(options): Auto-sync option was not saved
+- fix(GoogleDrive): Fix permissions.contains syntax
+- fix: Always cast to string before comparing item ids
+- fix(HtmlSerializer): Try to fix ordering test
+- fix(HtmlSerializer): Use Cheerio.text() for getting title
+
 ## [5.0.2] - 2023-12-09
 
 ### Fixed

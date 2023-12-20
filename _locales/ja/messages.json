@@ -90,7 +90,7 @@
     "message": "E030: ブックマークファイルの復号に失敗しました。パスフレーズが間違っているか、ファイルが破損しています。"
   },
   "Error031": {
-    "message": "E031: Google ドライブでクラウドを認証できませんでした。もう一度、floccus を Google アカウントと接続してください。"
+    "message": "E031: Google ドライブに認証できませんでした。floccus を Google アカウントと再接続してください。"
   },
   "Error032": {
     "message": "E032: OAuth エラー。トークンの検証でエラーが発生しました。もう一度、Google アカウントと接続してください。"
@@ -103,6 +103,9 @@
   },
   "Error035": {
     "message": "E035: 次のブックマークのサーバーへの作成に失敗しました: {0}"
+  },
+  "Error036": {
+    "message": "E036: サーバーと同期する権限がありません"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -129,16 +132,22 @@
    "message": "Googleドライブに保存するブックマークファイルの名前 (ドライブ内でファイル名が重複していないことを確認してください)"
  },
   "LabelServerfolder": {
-    "message": "サーバーフォルダー"
+    "message": "サーバーの対象"
   },
   "DescriptionServerfolder": {
-    "message": "アカウントがサーバー上で動作するためのパスのプレフィックスです。プレフィックスを使用しない場合は空欄のままにしてください。"
+    "message": "同期するとき、このブラウザーのブックマークはサーバーのこのパスにリンクとして保存されます。このパスは Nextcloud Bookmarks アプリ内のフォルダーを示すもので、Nextcloud Files でのフォルダーを示すものではありません。サーバーの最上位フォルダーにあるすべてのリンクを同期するには、空白のままにしてください。"
+  },
+  "LabelLocaltarget": {
+    "message": "ローカルの対象"
+  },
+  "DescriptionLocaltarget": {
+    "message": "ブラウザーのブックマークを同期するか、タブを同期するか選択してください。"
   },
   "LabelLocalfolder": {
-    "message": "ローカルフォルダー"
+    "message": "ブックマークフォルダー"
   },
   "DescriptionLocalfolder": {
-    "message": "このブラウザーからはこのローカル ブックマーク フォルダーがサーバーに同期されます。一部のブラウザー (Firefox、Google Chrome など) はルートフォルダーへの新しいアイテムの作成を許可していないことに注意してください"
+    "message": "ブックマークフォルダーのブックマークはサーバーにリンクとして保存され、サーバーのリンクはブラウザーのブックマークフォルダーにブックマークとして保存されます。"
   },
   "LabelRootfolder": {
     "message": "ルートフォルダー"
@@ -154,6 +163,9 @@
   },
   "LabelCancelsync": {
     "message": "同期をキャンセル"
+  },
+  "LabelSyncall": {
+    "message": "すべてのプロファイルを同期"
   },
   "LabelAutosync": {
     "message": "自動同期"
@@ -176,6 +188,9 @@
   "StatusSyncing": {
     "message": "同期中"
   },
+  "StatusScheduled": {
+    "message": "設定済み"
+  },
   "LabelReset": {
     "message": "リセット"
   },
@@ -189,10 +204,10 @@
     "message": "同期対象の既存のフォルダーを選択する"
   },
   "LabelRemoveaccount": {
-    "message": "アカウントを削除"
+    "message": "プロファイルを削除"
   },
   "DescriptionRemoveaccount": {
-    "message": "このアカウントを削除 (ブックマークは削除しません)"
+    "message": "このプロファイルを削除 (ブックマークは削除しません)"
   },
   "LabelSyncfromscratch": {
     "message": "スクラッチしてから同期をトリガー"
@@ -252,7 +267,7 @@
     "message": "Nextcloud Bookmarks (レガシー)"
   },
   "DescriptionAdapternextcloud": {
-    "message": "レガシーオプションは、バージョン 0.11 以降のブックマークアプリに対応しています。フォルダーのパスを含むタグを使用してフォルダーをエミュレートします。新しいアカウントを作成してこちらを使用することはおすすめできません。"
+    "message": "レガシーオプションは、バージョン 0.11 以降のブックマークアプリに対応しています。フォルダーのパスを含むタグを使用してフォルダーをエミュレートします。新しいプロファイルを作成してこちらを使用することはおすすめできません。"
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV 共有"
@@ -261,13 +276,7 @@
     "message": "WebDAV オプションは、提供された WebDAV 共有のファイルにブックマークを保存して同期します。ウェブ UI はなく、任意の WebDAV 互換サーバーで使用できます。http、ftp、データ、ファイル、JavaScript のブックマークを同期できます。"
   },
   "LabelAddaccount": {
-    "message": "アカウントを追加"
-  },
-  "LabelSecurecredentials": {
-    "message": "認証情報を保護"
-  },
-  "LabelSecuredcredentials": {
-    "message": "認証情報は保護されています"
+    "message": "プロファイルを追加"
   },
   "LabelOpenintab": {
     "message": "タブで開く"
@@ -286,12 +295,6 @@
   },
   "LabelUntitledfolder": {
     "message": "名前のないフォルダー"
-  },
-  "LabelSetkey": {
-    "message": "floccus にパスフレーズを設定"
-  },
-  "DescriptionSetkey": {
-    "message": "パスフレーズを設定すると、ブックマークを同期したいとき、設定を変更したいときなど floccus に関することをするとき、このパスフレーズをブラウザーを起動するごとに入力する必要があります。"
   },
   "LabelSetkeybutton": {
     "message": "パスフレーズを設定"
@@ -322,7 +325,7 @@
   },
   "LabelOptionsscreen": {
     "message": "{0} 件のオプション",
-    "description": "Title of the options screen. The placeholder holds the account type."
+    "description": "Title of the options screen. The placeholder holds the profile type."
   },
   "LabelPaypal": {
     "message": "Paypal"
@@ -349,7 +352,7 @@
     "message": "GitHub sponsors で定期的に寄付をしてプロジェクトを支援する"
   },
   "LegacyAdapterDeprecation": {
-    "message": "このレガシーアカウントタイプは非推奨になり、間もなく削除されます。新しい Nextcloud の同期方法に変更してください。改善されたパフォーマンスと精度でななたをお待ちしています。"
+    "message": "このレガシープロファイルタイプは非推奨になり、間もなく削除されます。新しい Nextcloud の同期方法に変更してください。改善されたパフォーマンスと精度でななたをお待ちしています。"
   },
   "LabelUpdated": {
     "message": "floccus が更新されました"
@@ -373,16 +376,16 @@
     "message": "危険なアクション"
   },
   "LabelAccountDeleted": {
-    "message": "アカウントが削除されました"
+    "message": "プロファイルが削除されました"
   },
   "DescriptionAccountDeleted": {
-    "message": "このアカウントは削除されました"
+    "message": "このプロファイルは削除されました"
   },
   "LabelNoAccount": {
-    "message": "アカウントがありません"
+    "message": "プロファイルがありません"
   },
   "DescriptionNoAccount": {
-    "message": "ブックマークを同期するには、新しいアカウントを作成するか、別の端末やブラウザーからアカウントをインポートしてください。"
+    "message": "新しいプロファイルを作成してブックマークを同期するか、他の端末やブラウザーからプロファイルをインポートしてください。"
   },
   "LabelLoginFlowStart": {
     "message": "Nextcloud でログイン"
@@ -394,40 +397,43 @@
     "message": "Nectcloud ログインに失敗しました"
   },
   "LabelNewAccount": {
-    "message": "新しいアカウント"
+    "message": "新しいプロファイル"
   },
   "LabelNestedSync": {
-    "message": "入れ子アカウント"
+    "message": "入れ子プロファイル"
   },
   "DescriptionNestedSync": {
-    "message": "親フォルダーがアカウント A に属し、子フォルダーがアカウント A と B に属するというように、アカウントを入れ子にすることができます。他のアカウントにこのアカウントのフォルダーを同期することを許可しますか？"
+    "message": "親フォルダーがプロファイル A に属し、子フォルダーがプロファイル A と B に属するというように、プロファイルを入れ子にすることができます。他のプロファイルにこのプロファイル内のフォルダーを同期することを許可しますか？"
   },
   "LabelNestedSyncNo": {
-    "message": "いいえ、他のアカウントではこのアカウントのフォルダーを無視します"
+    "message": "いいえ、他のプロファイルではこのアカウントのフォルダーを無視します"
   },
   "LabelNestedSyncYes": {
-    "message": "はい、他のアカウントにこのアカウントのフォルダーを含めます"
+    "message": "はい、他のプロファイルにこのアカウントのフォルダーを含めます"
   },
   "LabelImportExport": {
-    "message": "アカウントのインポート/エクスポート"
+    "message": "プロファイルのインポート/エクスポート"
   },
   "LabelExport": {
-    "message": "アカウントをエクスポート"
+    "message": "プロファイルをエクスポート"
   },
   "LabelImport": {
-    "message": "アカウントをインポート"
+    "message": "プロファイルをインポート"
   },
   "DescriptionExport": {
-    "message": "次から、ファイルにエクスポートするアカウントを選択してください。同じアカウントを別の端末やブラウザーで簡単に再作成できるようになります。"
+    "message": "次から、ファイルにエクスポートするプロファイルを選択してください。同じプロファイルを別の端末やブラウザーで簡単に再設定できるようになります。"
   },
   "DescriptionImport": {
-    "message": "別の端末やブラウザーでファイルにエクスポートしたアカウントを再作成できます。インポートした後、正しい同期フォルダーを再設定してください。"
+    "message": "別の端末やブラウザーでファイルにエクスポートしたプロファイルを再作成できます。インポートした後、正しい同期フォルダーを再設定してください。"
   },
   "LabelFolderNotFound": {
     "message": "フォルダーが見つかりませんでした"
   },
   "LabelSyncTabs": {
-    "message": "タブを同期"
+    "message": "ブラウザーのタブ"
+  },
+  "DescriptionSyncTabs": {
+    "message": "サーバーに保存されているリンクはブラウザーのタブとして開かれ、既に開いているタブはサーバーにリンクとして保存されます。次の同期実行時にすべてのリンクがタブとして開かれるため、サーバーに保存されているリンクの数によってはブラウザーが負荷に耐えられない可能性があります。"
   },
   "LabelTabs": {
     "message": "タブ"
@@ -475,7 +481,7 @@
     "message": "無効。確認なしでローカルブックマークの 50% 以上を削除することを許可します。"
   },
   "StatusFailsafeoff": {
-    "message": "フィールセーフが無効になりました。意図しないデータ消失のリスクがあります。アカウント設定でフィールセーフを有効にすることを推奨します。"
+    "message": "フィールセーフが無効になりました。意図しないデータ消失のリスクがあります。プロファイル設定でフィールセーフを有効にすることを推奨します。"
   },
   "LabelAdaptergoogledrive": {
     "message": "Google ドライブ"
@@ -628,7 +634,10 @@
     "message": "どのように同期しますか？"
   },
   "LabelAccountcreated": {
-    "message": "アカウントが作成されました"
+    "message": "プロファイルを作成しました"
+  },
+  "DescriptionAccountcreated": {
+    "message": "プロファイルが作成されました。このタブは閉じても構いません。"
   },
   "DescriptionNonhttps": {
     "message": "安全ではないプロトコルを使用するサーバーを入力しました。HTTPS に対応するサーバーの使用を推奨しています。"
@@ -655,9 +664,12 @@
     "message": "ブックマークをエクスポート"
   },
   "DescriptionExportBookmarks" : {
-    "message": "このアカウントのブックマークを、すべてのメジャーなブラウザーと互換性のある HTML ファイルとしてエクスポートできます。"
+    "message": "このプロファイルのブックマークを、すべてのメジャーなブラウザーと互換性のある HTML ファイルとしてエクスポートできます。"
   },
   "LabelShareitem": {
     "message": "共有"
+  },
+  "LabelImportsuccessful": {
+    "message": "正常にプロファイルをインポートしました"
   }
 }

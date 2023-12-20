@@ -12,7 +12,7 @@
           ref="filePicker"
           type="file"
           class="d-none"
-          accept="application/html"
+          accept="text/html"
           @change="onFileSelect">
         <v-btn
           block

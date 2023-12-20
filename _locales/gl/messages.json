@@ -164,6 +164,9 @@
   "LabelCancelsync": {
     "message": "Cancelar a sincronización"
   },
+  "LabelSyncall": {
+    "message": "Sincronizar todos os perfís"
+  },
   "LabelAutosync": {
     "message": "Sincronización automática"
   },
@@ -185,6 +188,9 @@
   "StatusSyncing": {
     "message": "Sincronizando"
   },
+  "StatusScheduled": {
+    "message": "Programada"
+  },
   "LabelReset": {
     "message": "Restabelecer"
   },
@@ -198,10 +204,10 @@
     "message": "Definir un cartafol existente para sincronizar"
   },
   "LabelRemoveaccount": {
-    "message": "Retirar a conta"
+    "message": "Retirar o perfil"
   },
   "DescriptionRemoveaccount": {
-    "message": "Eliminar esta conta (isto non eliminará os marcadores)"
+    "message": "Eliminar este perfil (isto non eliminará os marcadores)"
   },
   "LabelSyncfromscratch": {
     "message": "Activar a sincronización dende cero"
@@ -261,7 +267,7 @@
     "message": "Marcadores de Nextcloud (herdados)"
   },
   "DescriptionAdapternextcloud": {
-    "message": "A opción herdada é compatíbel polo menos coa versión v0.11 da aplicación Marcadores. Emulará cartafoles usando etiquetas que conteñan a ruta do cartafol. Non se recomenda usar isto para contas novas."
+    "message": "A opción herdada é compatíbel polo menos coa versión v0.11 da aplicación Marcadores. Emulará cartafoles usando etiquetas que conteñan a ruta do cartafol. Non se recomenda usar isto para novos perfís."
   },
   "LabelAdapterwebdav": {
     "message": "Compartir con WebDAV"
@@ -270,7 +276,7 @@
     "message": "A opción WebDAV sincroniza os marcadores almacenándoos nun ficheiro no recurso compartido WebDAV fornecido. Non hai unha interface de usuario web para esta opción e pode usala con calquera servidor compatíbel con WebDAV. Pode sincronizar os marcadores http, ftp, datos, ficheiros e javascript."
   },
   "LabelAddaccount": {
-    "message": "Engadir unha conta"
+    "message": "Engadir perfil"
   },
   "LabelOpenintab": {
     "message": "Abrir na lapela"
@@ -319,7 +325,7 @@
   },
   "LabelOptionsscreen": {
     "message": "{0} opcións",
-    "description": "Title of the options screen. The placeholder holds the account type."
+    "description": "Title of the options screen. The placeholder holds the profile type."
   },
   "LabelPaypal": {
     "message": "Paypal"
@@ -346,7 +352,7 @@
     "message": "Faga unha doazón regular a través dos patrocinadores de GitHub para colaborar co proxecto"
   },
   "LegacyAdapterDeprecation": {
-    "message": "Este tipo de conta herdado está en desuso e vai ser eliminado en pouco tempo. Cambie ao novo método de sincronización de Nextcloud. Agárdanlle melloras de rendemento e precisión."
+    "message": "Este tipo de perfil herdado está en desuso e vai ser eliminado en pouco tempo. Cambie ao novo método de sincronización de Nextcloud. Agárdanlle melloras de rendemento e precisión."
   },
   "LabelUpdated": {
     "message": "Floccus  foi actualizado"
@@ -370,16 +376,16 @@
     "message": "Accións perigosas"
   },
   "LabelAccountDeleted": {
-    "message": "Conta eliminada"
+    "message": "Perfil eliminado"
   },
   "DescriptionAccountDeleted": {
-    "message": "Esta conta foi eliminada"
+    "message": "Este perfil foi eliminado"
   },
   "LabelNoAccount": {
-    "message": "Aquí non hai ningunha conta"
+    "message": "Aquí non hai ningún perfil"
   },
   "DescriptionNoAccount": {
-    "message": "Crea unha conta nova para sincronizar os marcadores ou importar contas dende un dispositivo ou navegador diferente."
+    "message": "Crea un novo perfil para sincronizar os marcadores ou importar perfís dende un dispositivo ou navegador diferente."
   },
   "LabelLoginFlowStart": {
     "message": "Acceder con Nextcloud"
@@ -391,34 +397,34 @@
     "message": "Produciuse n fallo ao acceder a Nextcloud"
   },
   "LabelNewAccount": {
-    "message": "Nova conta"
+    "message": "Perfil novo"
   },
   "LabelNestedSync": {
-    "message": "Contas aniñadas"
+    "message": "Perfís aniñados"
   },
   "DescriptionNestedSync": {
-    "message": "Pode aniñar contas para que un cartafol principal pertenza á conta A e un subcartafol á conta A e B. Quere permitir que outras contas sincronicen tamén o cartafol desta conta?"
+    "message": "Pode aniñar perfís para que un cartafol principal pertenza ao perfil A e un subcartafol ao perfil A e B. Quere permitir que outros perfís sincronicen tamén o cartafol deste perfil?"
   },
   "LabelNestedSyncNo": {
-    "message": "Non, ignorar o cartafol desta conta noutras contas"
+    "message": "Non, ignorar o cartafol deste perfil noutros perfís"
   },
   "LabelNestedSyncYes": {
-    "message": "Si, incluír o cartafol desta conta noutras contas"
+    "message": "Si, incluír o cartafol deste perfil noutros perfís"
   },
   "LabelImportExport": {
-    "message": "Importar/Exportar contas"
+    "message": "Importar/exportar perfís"
   },
   "LabelExport": {
-    "message": "Exportar contas"
+    "message": "Exportar perfís"
   },
   "LabelImport": {
-    "message": "Importar contas"
+    "message": "Importar perfís"
   },
   "DescriptionExport": {
-    "message": "Seleccione a seguir as contas que quere exportar a un ficheiro, de xeito que poida volver crear doadamente as mesmas contas nun dispositivo ou navegador diferente."
+    "message": "Seleccione a seguir os perfís que quere exportar a un ficheiro, de xeito que poida volver crear doadamente os mesmos perfís nun dispositivo ou navegador diferente."
   },
   "DescriptionImport": {
-    "message": "Importe aquí un ficheiro coas contas exportadas para volver crear contas exportadas nun dispositivo ou navegador diferente. Asegúrese de configurar de novo os cartafoles de sincronización correctos após importar."
+    "message": "Importe aquí un ficheiro cos perfís exportados para volver crear perfís exportados nun dispositivo ou navegador diferente. Asegúrese de configurar de novo os cartafoles de sincronización correctos após importar."
   },
   "LabelFolderNotFound": {
     "message": "Non se atopou o cartafol"
@@ -475,7 +481,7 @@
     "message": "Desactivado. Permitir a eliminación de máis do 50% dos marcadores locais sen preguntar para confirmar."
   },
   "StatusFailsafeoff": {
-    "message": "A proba de fallos desactivada. Corre o risco de perder datos de xeito involuntario. Recoméndase activar a proba de fallos na configuración da conta."
+    "message": "A proba de fallos desactivada. Corre o risco de perder datos de xeito involuntario. Recoméndase activar a proba de fallos na configuración do perfíl."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
@@ -628,7 +634,10 @@
     "message": "Como quere que funcione a sincronización?"
   },
   "LabelAccountcreated": {
-    "message": "Conta creada"
+    "message": "Perfil creado"
+  },
+  "DescriptionAccountcreated": {
+    "message": "Creouse o seu perfil. Xa pode pechar esta lapela."
   },
   "DescriptionNonhttps": {
     "message": "Introduciu un servidor que usa un protocolo inseguro. Recoméndase utilizar só servidores compatíbeis con HTTPS."
@@ -655,9 +664,12 @@
     "message": "Exportar marcadores"
   },
   "DescriptionExportBookmarks" : {
-    "message": "Pode exportar todos os marcadores desta conta como ficheiro HTML compatíbel con todos os principais navegadores."
+    "message": "Pode exportar todos os marcadores deste perfil como ficheiro HTML compatíbel con todos os principais navegadores."
   },
   "LabelShareitem": {
     "message": "Compartir"
+  },
+  "LabelImportsuccessful": {
+    "message": "Perfís importados correctamente"
   }
 }

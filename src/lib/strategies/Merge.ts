@@ -128,8 +128,8 @@ export default class MergeSyncProcess extends Default {
               oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, oldItem, action.payload.location)
 
               if (
-                targetPlan.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id) ||
-                sourceDiff.getActions(ActionType.MOVE).find(move => move.payload.id === payload.id)
+                targetPlan.getActions(ActionType.MOVE).find(move => String(move.payload.id) === String(payload.id)) ||
+                sourceDiff.getActions(ActionType.MOVE).find(move => String(move.payload.id) === String(payload.id))
               ) {
                 // Don't create duplicates!
                 return

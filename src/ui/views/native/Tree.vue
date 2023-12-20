@@ -29,11 +29,11 @@
       <v-btn
         icon
         :disabled="!currentAccount"
-        :color="syncing? 'primary' : ''"
+        :color="syncing || scheduled? 'primary' : ''"
         @click="onTriggerSync">
         <v-icon
           :class="{'sync--active': Boolean(syncing)}">
-          mdi-sync
+          {{ scheduled ? 'mdi-timer-sync-outline' : 'mdi-sync' }}
         </v-icon>
       </v-btn>
       <v-menu
@@ -111,6 +111,15 @@
         type="warning"
         class="ma-1">
         {{ syncError }}
+      </v-alert>
+      <v-alert
+        v-if="scheduled"
+        dense
+        outlined
+        text
+        type="info"
+        class="ma-1">
+        {{ t('DescriptionSyncscheduled') }}
       </v-alert>
       <v-progress-circular
         v-if="loading"
@@ -348,6 +357,12 @@ export default {
       }
       return this.$store.state.accounts[this.id].data.syncing
     },
+    scheduled() {
+      if (this.loading) {
+        return false
+      }
+      return this.$store.state.accounts[this.id].data.scheduled
+    },
     syncError() {
       if (this.loading) {
         return false
@@ -392,7 +407,7 @@ export default {
     },
     breadcrumbs() {
       const folders = [this.currentFolder]
-      while (folders[folders.length - 1 ].id !== this.tree.id) {
+      while (String(folders[folders.length - 1 ].id) !== String(this.tree.id)) {
         folders.push(this.findItem(folders[folders.length - 1 ].parentId, this.tree))
       }
       return folders.reverse()
@@ -540,7 +555,7 @@ export default {
       this.$store.dispatch(actions.SHARE_BOOKMARK, new Bookmark(item))
     },
     onTriggerSync() {
-      if (this.syncing) {
+      if (this.syncing || this.scheduled) {
         return
       }
       this.currentAccount.data.syncing = 0.0001 // faaast
