@@ -10,7 +10,7 @@ import {
   DecryptionError, FileUnreadableError,
   HttpError, InterruptedSyncError,
   LockFileError, MissingPermissionsError,
-  NetworkError, RedirectError,
+  NetworkError, RedirectError, ResourceLockedError,
   SlashError
 } from '../../errors/Error'
 import { CapacitorHttp as Http } from '@capacitor/core'
@@ -92,20 +92,16 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async obtainLock() {
-    let res
-    let startDate = Date.now()
-    const maxTimeout = LOCK_TIMEOUT
-    const base = 1.25
-    for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
-      res = await this.checkLock()
-      if (res.status === 200) {
-        if (res.headers['Last-Modified']) {
-          const date = new Date(res.headers['Last-Modified'])
-          startDate = date.valueOf()
+    const res = await this.checkLock()
+    if (res.status === 200) {
+      if (res.headers['Last-Modified']) {
+        const date = new Date(res.headers['Last-Modified'])
+        const dateLocked = date.valueOf()
+        if (Date.now() - dateLocked < LOCK_TIMEOUT) {
+          throw new ResourceLockedError()
         }
-        await this.timeout(base ** i * 1000)
-      } else if (res.status !== 200) {
-        break
+      } else {
+        throw new ResourceLockedError()
       }
     }
 

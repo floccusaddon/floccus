@@ -6,14 +6,9 @@ import Cryptography from '../Crypto'
 import packageJson from '../../../package.json'
 import BrowserAccountStorage from './BrowserAccountStorage'
 import uniqBy from 'lodash/uniqBy'
-
-import PQueue from 'p-queue'
 import Account from '../Account'
+import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
 
-const STATUS_ERROR = Symbol('error')
-const STATUS_SYNCING = Symbol('syncing')
-const STATUS_ALLGOOD = Symbol('allgood')
-const STATUS_DISABLED = Symbol('disabled')
 const INACTIVITY_TIMEOUT = 7 * 1000
 const DEFAULT_SYNC_INTERVAL = 15
 
@@ -29,6 +24,9 @@ class AlarmManager {
       const data = account.getData()
       const lastSync = data.lastSync || 0
       const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
+      if (data.scheduled) {
+        this.ctl.scheduleSync(accountId)
+      }
       if (
         Date.now() >
         interval * 1000 * 60 + lastSync
@@ -42,8 +40,6 @@ class AlarmManager {
 
 export default class BrowserController {
   constructor() {
-    this.jobs = new PQueue({ concurrency: 1 })
-    this.waiting = {}
     this.schedule = {}
     this.listeners = []
 
@@ -265,22 +261,21 @@ export default class BrowserController {
       return
     }
 
-    if (this.waiting[accountId]) {
-      console.log('Account is already queued to be synced')
+    const status = await this.getStatus()
+    if (status === STATUS_SYNCING) {
+      await account.setData({ ...account.getData(), scheduled: true })
       return
     }
 
-    this.waiting[accountId] = true
-    await account.setData({ ...account.getData(), scheduled: true })
-
-    return this.jobs.add(() => this.syncAccount(accountId))
+    this.syncAccount(accountId)
   }
 
   async scheduleAll() {
     const accounts = await Account.getAllAccounts()
     for (const account of accounts) {
-      this.scheduleSync(account.id)
+      await account.setData({...account.getData(), scheduled: true})
     }
+    this.updateStatus()
   }
 
   async cancelSync(accountId, keepEnabled) {
@@ -294,13 +289,11 @@ export default class BrowserController {
 
   async syncAccount(accountId, strategy) {
     console.log('Called syncAccount ', accountId)
-    this.waiting[accountId] = false
     if (!this.enabled) {
       console.log('Flocccus controller is not enabled. Not syncing.')
       return
     }
     let account = await Account.get(accountId)
-    await account.setData({ ...account.getData(), scheduled: false })
     if (account.getData().syncing) {
       console.log('Account is already syncing. Not triggering another sync.')
       return
@@ -329,14 +322,14 @@ export default class BrowserController {
     }
   }
 
-  async updateBadge() {
+  async getStatus() {
     if (!this.unlocked) {
-      return this.setStatusBadge(STATUS_ERROR)
+      return STATUS_ERROR
     }
     const accounts = await Account.getAllAccounts()
     let overallStatus = accounts.reduce((status, account) => {
       const accData = account.getData()
-      if (status === STATUS_SYNCING || accData.syncing) {
+      if (status === STATUS_SYNCING || accData.syncing || account.syncing) {
         return STATUS_SYNCING
       } else if (status === STATUS_ERROR || (accData.error && !accData.syncing)) {
         return STATUS_ERROR
@@ -351,7 +344,11 @@ export default class BrowserController {
       }
     }
 
-    this.setStatusBadge(overallStatus)
+    return overallStatus
+  }
+
+  async updateBadge() {
+    await this.setStatusBadge(await this.getStatus())
   }
 
   async setStatusBadge(status) {
@@ -375,7 +372,6 @@ export default class BrowserController {
           await acc.setData({
             ...acc.getData(),
             syncing: false,
-            error: false,
           })
         }
       })

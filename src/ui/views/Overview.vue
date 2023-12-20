@@ -56,7 +56,6 @@
           <v-icon>mdi-export</v-icon>
         </v-btn>
         <v-btn
-            :disabled="!canScheduleAll"
             :title="t('LabelSyncall')"
             @click="clickSyncAll">
           <v-icon>mdi-sync-circle</v-icon>
@@ -84,9 +83,6 @@ export default {
     loading() {
       return this.$store.state.loading.accounts
     },
-    canScheduleAll() {
-      return !(this.$store.state.accounts && Object.values(this.$store.state.accounts).some(account => account.data.scheduled))
-    }
   },
   methods: {
     clickSyncAll() {
