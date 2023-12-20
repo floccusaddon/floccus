@@ -26,24 +26,16 @@
         hide-details
         @input="onSearch" />
       <v-spacer />
-      <v-tooltip
-        :value="scheduled"
-        bottom>
-        <span>{{ t('DescriptionSyncscheduled') }}</span>
-        <template #activator="{props}">
-          <v-btn
-            v-bind="props"
-            icon
-            :disabled="!currentAccount"
-            :color="syncing || scheduled? 'primary' : ''"
-            @click="onTriggerSync">
-            <v-icon
-              :class="{'sync--active': Boolean(syncing)}">
-              {{ scheduled ? 'mdi-timer-sync-outline' : 'mdi-sync' }}
-            </v-icon>
-          </v-btn>
-        </template>
-      </v-tooltip>
+      <v-btn
+        icon
+        :disabled="!currentAccount"
+        :color="syncing || scheduled? 'primary' : ''"
+        @click="onTriggerSync">
+        <v-icon
+          :class="{'sync--active': Boolean(syncing)}">
+          {{ scheduled ? 'mdi-timer-sync-outline' : 'mdi-sync' }}
+        </v-icon>
+      </v-btn>
       <v-menu
         bottom
         left>
@@ -119,6 +111,15 @@
         type="warning"
         class="ma-1">
         {{ syncError }}
+      </v-alert>
+      <v-alert
+        v-if="scheduled"
+        dense
+        outlined
+        text
+        type="info"
+        class="ma-1">
+        {{ t('DescriptionSyncscheduled') }}
       </v-alert>
       <v-progress-circular
         v-if="loading"
