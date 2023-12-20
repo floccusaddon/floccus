@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.0.5] - 2023-12-20
+
+### Fixed
+
+* Fix: Move waiting for lock out of adapters into controller
+* fix(NextcloudBookmarks): Use CapacitorHttp to avoid cors errors in capacitor 5
+* fix(native/START_LOGIN_FLOW): migrate to new capacitor http API
+
 ## [5.0.4] - 2023-12-15
 
 ### Fixed
