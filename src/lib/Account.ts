@@ -111,6 +111,9 @@ export default class Account {
   }
 
   async setData(data:IAccountData):Promise<void> {
+    if (this.getData().localRoot !== data.localRoot) {
+      this.init()
+    }
     await this.storage.setAccountData(data, null)
     this.server.setData(data)
   }
