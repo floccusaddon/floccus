@@ -64,6 +64,7 @@
 <script>
 import PathHelper from '../../lib/PathHelper'
 import Vue from 'vue'
+import { actions } from '../store'
 
 export default {
   name: 'ImportExport',
