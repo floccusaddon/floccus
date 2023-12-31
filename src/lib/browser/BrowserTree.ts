@@ -122,7 +122,7 @@ export default class BrowserTree implements IResource {
     }
     try {
       if (self.location.protocol === 'moz-extension:' && url.parse(bookmark.url).hostname === 'separator.floccus.org') {
-        const node = await this.queue.add(() => {
+        const node = await this.queue.add(async() => {
           Logger.log('(local)CREATE: executing create ', bookmark)
           return browser.bookmarks.create({
             parentId: bookmark.parentId,
@@ -131,7 +131,7 @@ export default class BrowserTree implements IResource {
         })
         return node.id
       }
-      const node = await this.queue.add(() => {
+      const node = await this.queue.add(async() => {
         Logger.log('(local)CREATE: executing create ', bookmark)
         return browser.bookmarks.create({
           parentId: bookmark.parentId,
@@ -155,17 +155,17 @@ export default class BrowserTree implements IResource {
       if (self.location.protocol === 'moz-extension:' && url.parse(bookmark.url).hostname === 'separator.floccus.org') {
         // noop
       } else {
-        await this.queue.add(() => {
+        await this.queue.add(async() => {
           Logger.log('(local)UPDATE: executing update ', bookmark)
-          browser.bookmarks.update(bookmark.id, {
+          return browser.bookmarks.update(bookmark.id, {
             title: bookmark.title,
             url: bookmark.url
           })
         })
       }
-      await this.queue.add(() => {
+      await this.queue.add(async() => {
         Logger.log('(local)UPDATE: executing move ', bookmark)
-        browser.bookmarks.move(bookmark.id, {
+        return browser.bookmarks.move(bookmark.id, {
           parentId: bookmark.parentId
         })
       })
@@ -182,9 +182,9 @@ export default class BrowserTree implements IResource {
     const bookmarkId = bookmark.id
     Logger.log('(local)REMOVE', bookmark)
     try {
-      await this.queue.add(() => {
+      await this.queue.add(async() => {
         Logger.log('(local)REMOVE: executing remove ', bookmark)
-        browser.bookmarks.remove(bookmarkId)
+        return browser.bookmarks.remove(bookmarkId)
       })
     } catch (e) {
       Logger.log('Could not remove ' + bookmark.inspect() + ': ' + e.message + '\n Moving on')
@@ -199,7 +199,7 @@ export default class BrowserTree implements IResource {
       return
     }
     try {
-      const node = await this.queue.add(() => {
+      const node = await this.queue.add(async() => {
         Logger.log('(local)CREATEFOLDER: executing create ', folder)
         return browser.bookmarks.create({
           parentId,
@@ -257,9 +257,9 @@ export default class BrowserTree implements IResource {
       return
     }
     try {
-      await this.queue.add(() => {
+      await this.queue.add(async() => {
         Logger.log('(local)UPDATEFOLDER: executing update ', folder)
-        browser.bookmarks.update(id, {
+        return browser.bookmarks.update(id, {
           title
         })
       })
@@ -271,9 +271,9 @@ export default class BrowserTree implements IResource {
       throw new Error('Detected creation of folder loop. Moving ' + id + ' into its descendant ' + parentId)
     }
     try {
-      await this.queue.add(() => {
+      await this.queue.add(async() => {
         Logger.log('(local)CREATEFOLDER: executing move ', folder)
-        browser.bookmarks.move(id, { parentId })
+        return browser.bookmarks.move(id, { parentId })
       })
     } catch (e) {
       throw new Error('Failed to move folder ' + id + ': ' + e.message)
@@ -292,9 +292,9 @@ export default class BrowserTree implements IResource {
       return
     }
     try {
-      await this.queue.add(() => {
+      await this.queue.add(async() => {
         Logger.log('(local)REMOVEFOLDER: executing remove ', folder)
-        browser.bookmarks.removeTree(id)
+        return browser.bookmarks.removeTree(id)
       })
     } catch (e) {
       Logger.log('Could not remove ' + folder.inspect() + ': ' + e.message + '\n Moving on.')
