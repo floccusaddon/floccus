@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.0.6] - 2023-12-31
+
+### Fixed
+* fix(background sync): Move back to manifest v2 for firefox
+* fix(Account#setData): re-init if localRoot is changed
+* fix(Options): Fix v-switch input
+* fix(Controller#scheduleSync): Allow syncing if account is disabled and scheduled
+
 ## [5.0.5] - 2023-12-20
 
 ### Fixed
