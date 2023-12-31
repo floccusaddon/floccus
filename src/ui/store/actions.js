@@ -69,7 +69,11 @@ export const actionsDefinition = {
   },
   async [actions.STORE_ACCOUNT]({ commit, dispatch, state }, { id,data }) {
     const account = await Account.get(id)
+    const oldData = account.getData()
     await account.setData(data)
+    if (oldData.localRoot !== data.localRoot) {
+      await account.init()
+    }
     commit(mutations.STORE_ACCOUNT_DATA, {id, data})
   },
   async [actions.TRIGGER_SYNC]({ commit, dispatch, state }, accountId) {
