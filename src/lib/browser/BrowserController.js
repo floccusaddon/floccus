@@ -107,7 +107,7 @@ export default class BrowserController {
     // Setup service worker messaging
 
     // eslint-disable-next-line no-undef
-    if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+    if (!navigator.userAgent.includes('Firefox') && typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
       addEventListener('message', (event) => this._receiveEvent(event.data, (data) => event.source.postMessage(data)))
     } else {
       browser.runtime.onMessage.addListener((data) => void (this._receiveEvent(data, (data) => browser.runtime.sendMessage(data))))
@@ -363,7 +363,11 @@ export default class BrowserController {
     }
 
     if (icon[status]) {
-      await browser.action.setIcon(icon[status])
+      if (navigator.userAgent.includes('Firefox')) {
+        await browser.browserAction.setIcon(icon[status])
+      } else {
+        await browser.action.setIcon(icon[status])
+      }
     }
   }
 
