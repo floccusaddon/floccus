@@ -873,6 +873,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       body = params.toString()
     }
 
+    Logger.log(`QUEUING ${verb} ${url}`)
+
     if (Capacitor.getPlatform() !== 'web') {
       return this.sendRequestNative(verb, url, type, body, returnRawResponse)
     }
@@ -882,8 +884,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     )
 
     try {
-      res = await this.fetchQueue.add(() =>
-        Promise.race([
+      res = await this.fetchQueue.add(() => {
+        Logger.log(`FETCHING ${verb} ${url}`)
+        return Promise.race([
           fetch(url, {
             method: verb,
             credentials: this.server.includeCredentials ? 'include' : 'omit',
@@ -900,12 +903,14 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             }, TIMEOUT)
           ),
         ])
-      )
+      })
     } catch (e) {
       if (timedOut) throw e
       console.log(e)
       throw new NetworkError()
     }
+
+    Logger.log(`Receiving response for ${verb} ${url}`)
 
     if (res.redirected && !this.server.allowRedirects) {
       throw new RedirectError()
@@ -972,8 +977,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       this.server.username + ':' + this.server.password
     )
     try {
-      res = await this.fetchQueue.add(() =>
-        Promise.race([
+      res = await this.fetchQueue.add(() => {
+        Logger.log(`FETCHING ${verb} ${url}`)
+        return Promise.race([
           Http.request({
             url,
             method: verb,
@@ -992,12 +998,14 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             }, TIMEOUT)
           ),
         ])
-      )
+      })
     } catch (e) {
       if (timedOut) throw e
       console.log(e)
       throw new NetworkError()
     }
+
+    Logger.log(`Receiving response for ${verb} ${url}`)
 
     if (res.status < 400 && res.status >= 300) {
       throw new RedirectError()

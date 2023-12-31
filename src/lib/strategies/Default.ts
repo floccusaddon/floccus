@@ -55,6 +55,7 @@ export default class SyncProcess {
   }
 
   updateProgress():void {
+    Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
     this.actionsDone++
     this.progressCb(
       Math.min(
@@ -143,11 +144,16 @@ export default class SyncProcess {
   }
 
   protected async prepareSync() {
+    Logger.log('Retrieving local tree')
     this.localTreeRoot = await this.localTree.getBookmarksTree()
+    Logger.log('Retrieving server tree')
     this.serverTreeRoot = await this.server.getBookmarksTree()
+    Logger.log('Filtering out unaccepted local bookmarks')
     this.filterOutUnacceptedBookmarks(this.localTreeRoot)
+    Logger.log('Filtering out invalid server bookmarks')
     this.filterOutInvalidBookmarks(this.serverTreeRoot)
     if (this.server instanceof NextcloudBookmarksAdapter) {
+      Logger.log('Filtering out duplicate bookmarks')
       await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
     }
 
@@ -164,8 +170,11 @@ export default class SyncProcess {
     this.cacheTreeRoot.id = this.localTreeRoot.id
 
     // generate hash tables to find items faster
+    Logger.log('Generating indices for local tree')
     this.localTreeRoot.createIndex()
+    Logger.log('Generating indices for cache tree')
     this.cacheTreeRoot.createIndex()
+    Logger.log('Generating indices for server tree')
     this.serverTreeRoot.createIndex()
   }
 
@@ -254,6 +263,7 @@ export default class SyncProcess {
       },
       this.preserveOrder
     )
+    Logger.log('Calculating diffs for local and server trees relative to cache tree')
     const [localDiff, serverDiff] = await Promise.all([localScanner.run(), serverScanner.run()])
     await Promise.all(newMappings.map(([localItem, serverItem]) => this.addMapping(this.server, localItem, serverItem.id)))
     return {localDiff, serverDiff}
@@ -268,6 +278,7 @@ export default class SyncProcess {
   }
 
   async reconcileDiffs(sourceDiff:Diff, targetDiff:Diff, targetLocation: TItemLocation):Promise<Diff> {
+    Logger.log('Reconciling diffs to prepare a plan for ' + targetLocation)
     const mappingsSnapshot = this.mappings.getSnapshot()
 
     const targetCreations = targetDiff.getActions(ActionType.CREATE).map(a => a as CreateAction)
@@ -298,6 +309,7 @@ export default class SyncProcess {
     // Prepare target plan
     const targetPlan = new Diff() // to be mapped
     await Parallel.each(sourceDiff.getActions(), async(action:Action) => {
+      Logger.log('Examining action: ', action)
       if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = targetRemovals.find(targetRemoval =>
           (action.payload.type === targetRemoval.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetRemoval.payload)) ||
@@ -512,10 +524,16 @@ export default class SyncProcess {
   }
 
   async execute(resource:TResource, plan:Diff, targetLocation:TItemLocation):Promise<Diff> {
+    Logger.log('Executing plan for ' + targetLocation)
     const run = (action) => this.executeAction(resource, action, targetLocation)
 
     Logger.log(targetLocation + ': executing CREATEs and UPDATEs')
     await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run)
+
+    if (this.canceled) {
+      throw new InterruptedSyncError()
+    }
+
     const mappingsSnapshot = this.mappings.getSnapshot()
     Logger.log(targetLocation + ': mapping MOVEs')
     const mappedPlan = plan.map(mappingsSnapshot, targetLocation, (action) => action.type === ActionType.MOVE)
@@ -539,6 +557,7 @@ export default class SyncProcess {
   }
 
   async executeAction(resource:TResource, action:Action, targetLocation:TItemLocation):Promise<void> {
+    Logger.log('Executing action ', action)
     const item = action.payload
 
     if (this.canceled) {
@@ -635,6 +654,7 @@ export default class SyncProcess {
   }
 
   reconcileReorderings(targetTreePlan: Diff, sourceTreePlan: Diff, mappingSnapshot: MappingSnapshot) : Diff {
+    Logger.log('Reconciling reorders to create a plan')
     const newPlan = new Diff
     targetTreePlan
       .getActions(ActionType.REORDER)
@@ -642,6 +662,7 @@ export default class SyncProcess {
     // MOVEs have oldItem from cacheTree and payload now mapped to their corresponding target tree
     // REORDERs have payload in source tree
       .forEach(oldReorderAction => {
+        Logger.log('Examining old reorder action', oldReorderAction)
         // clone action
         const reorderAction = {...oldReorderAction, order: oldReorderAction.order.slice()}
 
@@ -712,9 +733,11 @@ export default class SyncProcess {
   }
 
   async executeReorderings(resource:OrderFolderResource, reorderings:Diff):Promise<void> {
+    Logger.log('Executing reorderings')
     Logger.log({ reorderings })
 
     await Parallel.each(reorderings.getActions(ActionType.REORDER).map(a => a as ReorderAction), async(action) => {
+      Logger.log('Executing reorder action', action)
       const item = action.payload
 
       if (this.canceled) {
@@ -748,6 +771,7 @@ export default class SyncProcess {
   }
 
   async addMapping(resource:TResource, item:TItem, newId:string|number):Promise<void> {
+    Logger.log(`Adding mapping between ${item.type}:${item.id} and ${item.type}:${newId}`)
     let localId, remoteId
     if (resource === this.server) {
       localId = item.id
@@ -764,6 +788,7 @@ export default class SyncProcess {
   }
 
   async removeMapping(resource:TResource, item:TItem):Promise<void> {
+    Logger.log(`Adding mapping for ${item.type}:${item.id}`)
     let localId, remoteId
     if (resource === this.server) {
       remoteId = item.id
@@ -839,6 +864,7 @@ export default class SyncProcess {
   }
 
   filterOutUnmappedItems(tree: Folder, mapping: MappingSnapshot) {
+    Logger.log('Filtering out unmapped items from tree')
     tree.children = tree.children.filter(child => {
       if (child instanceof Bookmark) {
         return child.id in mapping.LocalToServer.bookmark
