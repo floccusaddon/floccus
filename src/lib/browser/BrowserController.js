@@ -19,22 +19,24 @@ class AlarmManager {
 
   async checkSync() {
     const accounts = await BrowserAccountStorage.getAllAccounts()
+    const promises = []
     for (let accountId of accounts) {
       const account = await Account.get(accountId)
       const data = account.getData()
       const lastSync = data.lastSync || 0
       const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
       if (data.scheduled) {
-        this.ctl.scheduleSync(accountId)
+        promises.push(this.ctl.scheduleSync(accountId))
       }
       if (
         Date.now() >
         interval * 1000 * 60 + lastSync
       ) {
         // noinspection ES6MissingAwait
-        this.ctl.scheduleSync(accountId)
+        promises.push(this.ctl.scheduleSync(accountId))
       }
     }
+    await Promise.all(promises)
   }
 }
 
@@ -67,8 +69,8 @@ export default class BrowserController {
     // Set up the alarms
 
     browser.alarms.create('checkSync', { periodInMinutes: 1 })
-    browser.alarms.onAlarm.addListener(alarm => {
-      this.alarms[alarm.name]()
+    browser.alarms.onAlarm.addListener(async alarm => {
+      await this.alarms[alarm.name]()
     })
 
     // lock accounts when locking is enabled
@@ -268,7 +270,7 @@ export default class BrowserController {
       return
     }
 
-    this.syncAccount(accountId)
+    await this.syncAccount(accountId)
   }
 
   async scheduleAll() {
