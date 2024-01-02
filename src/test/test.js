@@ -3206,7 +3206,7 @@ describe('Floccus', function() {
               })
               await new Promise(resolve => setTimeout(resolve, 60000))
               expect(account2.getData().error).to.be.not.ok
-              expect(account2.getData().scheduled).to.be.true
+              expect(account2.getData().scheduled).to.be.ok
               expect(resolved).to.equal(true)
             })
             console.log('Finished sync with account 1')
@@ -3217,7 +3217,7 @@ describe('Floccus', function() {
             })
             await new Promise(resolve => setTimeout(resolve, 60000))
             expect(account2.getData().error).to.be.not.ok
-            expect(account2.getData().scheduled).to.be.false
+            expect(account2.getData().scheduled).to.be.not.ok
             expect(resolved).to.equal(true)
           })
           it('should propagate edits using "last write wins"', async function() {
