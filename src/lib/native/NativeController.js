@@ -113,7 +113,8 @@ export default class NativeController {
     if (account.getData().syncing) {
       return
     }
-    if (!account.getData().enabled) {
+    if (!account.getData().enabled && !account.getData().scheduled) {
+      console.log('Account is not enabled. Not syncing.')
       return
     }
 

@@ -73,7 +73,7 @@
       </v-card-title>
       <v-card-text>
         <v-switch
-          :value="enabled"
+          :input-value="enabled"
           :aria-label="t('LabelAutosync')"
           :label="t('LabelAutosync')"
           dense

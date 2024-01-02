@@ -69,7 +69,11 @@ export const actionsDefinition = {
   },
   async [actions.STORE_ACCOUNT]({ commit, dispatch, state }, { id,data }) {
     const account = await Account.get(id)
+    const oldData = account.getData()
     await account.setData(data)
+    if (oldData.localRoot !== data.localRoot) {
+      await account.init()
+    }
     commit(mutations.STORE_ACCOUNT_DATA, {id, data})
   },
   async [actions.TRIGGER_SYNC]({ commit, dispatch, state }, accountId) {
@@ -96,7 +100,7 @@ export const actionsDefinition = {
     await Logger.downloadLogs(anonymous)
   },
   async [actions.TEST_WEBDAV_SERVER]({commit, dispatch, state}, {rootUrl, username, password}) {
-    await browser.permissions.request({origins: ['*://*/*']})
+    await dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
     let res = await fetch(`${rootUrl}`, {
       method: 'PROPFIND',
       credentials: 'omit',
@@ -114,7 +118,7 @@ export const actionsDefinition = {
     return true
   },
   async [actions.TEST_NEXTCLOUD_SERVER]({commit, dispatch, state}, rootUrl) {
-    await browser.permissions.request({origins: ['*://*/*']})
+    await dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
     let res = await fetch(`${rootUrl}/index.php/login/v2`, {method: 'POST', headers: {'User-Agent': 'Floccus bookmarks sync'}})
     if (res.status !== 200) {
       throw new Error(browser.i18n.getMessage('LabelLoginFlowError'))
@@ -160,5 +164,11 @@ export const actionsDefinition = {
   },
   async [actions.STOP_LOGIN_FLOW]({commit}) {
     commit(mutations.SET_LOGIN_FLOW_STATE, false)
+  },
+  async [actions.REQUEST_NETWORK_PERMISSIONS]() {
+    if (navigator.userAgent.includes('Firefox')) {
+      return
+    }
+    await browser.permissions.request({ origins: ['*://*/*'] })
   }
 }

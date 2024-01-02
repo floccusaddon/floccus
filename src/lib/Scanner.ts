@@ -1,6 +1,7 @@
 import * as Parallel from 'async-parallel'
 import Diff, { ActionType, CreateAction, RemoveAction } from './Diff'
 import { Bookmark, Folder, ItemLocation, ItemType, TItem } from './Tree'
+import Logger from './Logger'
 
 export default class Scanner {
   private oldTree: TItem
@@ -31,6 +32,7 @@ export default class Scanner {
   }
 
   async diffItem(oldItem:TItem, newItem:TItem):Promise<void> {
+    Logger.log('Calculating diff for ', oldItem, newItem)
     if (oldItem.type === 'folder' && newItem.type === 'folder') {
       return this.diffFolder(oldItem, newItem)
     } else if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
