@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.0.7] - 2024-01-04
+
+### Fixed
+
+* [native] Fix hanging splash screen
+* fix(Controller): Remember strategy when scheduling sync after lock error
+* Complete translations for Japanese, Spanish and German
+
 ## [5.0.6] - 2023-12-31
 
 ### Fixed
