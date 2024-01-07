@@ -238,7 +238,6 @@ export default class BrowserController {
   }
 
   async scheduleSync(accountId, wait) {
-    console.log('called scheduleSync')
     if (wait) {
       if (this.schedule[accountId]) {
         clearTimeout(this.schedule[accountId])
@@ -266,11 +265,15 @@ export default class BrowserController {
 
     const status = await this.getStatus()
     if (status === STATUS_SYNCING) {
-      await account.setData({ ...account.getData(), scheduled: true })
+      await account.setData({ ...account.getData(), scheduled: account.getData().scheduled || true })
       return
     }
 
-    await this.syncAccount(accountId)
+    if (account.getData().scheduled === true) {
+      await this.syncAccount(accountId)
+    } else {
+      await this.syncAccount(accountId, account.getData().scheduled)
+    }
   }
 
   async scheduleAll() {

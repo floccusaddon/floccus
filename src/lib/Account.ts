@@ -170,7 +170,7 @@ export default class Account {
         } catch (e) {
           // Resource locked
           if (e.code === 37) {
-            await this.setData({ ...this.getData(), error: null, syncing: false, scheduled: true })
+            await this.setData({ ...this.getData(), error: null, syncing: false, scheduled: strategy || this.getData().strategy })
             this.syncing = false
             Logger.log(
               'Resource is locked, trying again soon'

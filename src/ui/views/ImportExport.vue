@@ -64,7 +64,6 @@
 <script>
 import PathHelper from '../../lib/PathHelper'
 import Vue from 'vue'
-import { actions } from '../store'
 
 export default {
   name: 'ImportExport',
@@ -110,7 +109,7 @@ export default {
     async onTriggerFilePicker() {
       this.$refs.filePicker.click()
       if (this.isBrowser) {
-        await this.$store.dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
+        await this.$store.dispatch('REQUEST_NETWORK_PERMISSIONS')
       }
     },
     async onFileSelect() {

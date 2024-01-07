@@ -132,16 +132,22 @@
    "message": "Der Dateiname der Lesezeichendatei, die in Ihrem Google Drive gespeichert wird (stellen Sie sicher, dass der Dateiname in Google Drive einzigartig ist)."
  },
   "LabelServerfolder": {
-    "message": "Server-Ordner"
+    "message": "Ziel auf dem Server"
   },
   "DescriptionServerfolder": {
-    "message": "Das Pfad-Präfix unter welchem dieses Konto auf dem Server agiert. Wenn Sie z. B. '/arbeit' eingeben, werden alle Lesezeichen auf dem Server mit diesem Pfad als Präfix zu ihrem eigentlichen Pfad angelegt. Dies erlaubt Ihnen Ihre Lesezeichen auf dem Server in verschiedene Profile aufzuteilen. Lassen Sie dieses Feld leer, um kein Präfix zu setzen."
+    "message": "Beim Synchronisieren werden Ihre Lesezeichen in diesem Browser als Links unter diesem Pfad auf dem Server gespeichert. Beachten Sie, dass dieser Pfad einen Ordner in der Nextcloud Bookmarks-App darstellt, nicht einen Ordner in Nextcloud Files. Lassen Sie dieses Feld leer, um alle Links direkt im obersten Ordner auf dem Server zu platzieren."
+  },
+  "LabelLocaltarget": {
+    "message": "Lokales Ziel"
+  },
+  "DescriptionLocaltarget": {
+    "message": "Wählen Sie hier aus, ob Sie Browser-Lesezeichen oder Browser-Tabs synchronisieren möchten."
   },
   "LabelLocalfolder": {
-    "message": "Lokaler Ordner"
+    "message": "Lesezeichenordner"
   },
   "DescriptionLocalfolder": {
-    "message": "Der lokale Lesezeichen-Ordner in diesem Browser, der mit dem Server synchronisiert wird. Per Default wird ein neuer Ordner für Sie angelegt. (Hinweis: Es ist nun möglich das Wurzel-Verzeichnis zwischen verschiedenen Browser-Typen direkt zu synchronisieren.) "
+    "message": "Lesezeichen in diesem Lesezeichenordner werden als Links auf dem Server gespeichert und Links auf dem Server werden als Lesezeichen in diesem Lesezeichenordner in diesem Browser gespeichert."
   },
   "LabelRootfolder": {
     "message": "Wurzelordner"
@@ -157,6 +163,9 @@
   },
   "LabelCancelsync": {
     "message": "Abbrechen"
+  },
+  "LabelSyncall": {
+    "message": "Alle Profile synchronisieren"
   },
   "LabelAutosync": {
     "message": "Auto-sync"
@@ -179,6 +188,9 @@
   "StatusSyncing": {
     "message": "Synchronisiere"
   },
+  "StatusScheduled": {
+    "message": "Geplant"
+  },
   "LabelReset": {
     "message": "Zurücksetzen"
   },
@@ -192,10 +204,10 @@
     "message": "Setzen Sie einen existierenden Ordner, der synchronisiert werden soll."
   },
   "LabelRemoveaccount": {
-    "message": "Konto entfernen"
+    "message": "Profil löschen"
   },
   "DescriptionRemoveaccount": {
-    "message": "Lösche dieses Konto (löscht keine Lesezeichen)"
+    "message": "Löschen Sie dieses Profil (dies entfernt nicht Ihre Lesezeichen)"
   },
   "LabelSyncfromscratch": {
     "message": "Neue Synchronisierung von Grund auf auslösen"
@@ -255,7 +267,7 @@
     "message": "Nextcloud Bookmarks (alte Version)"
   },
   "DescriptionAdapternextcloud": {
-    "message": "Die Option \"Alte Version\" ist kompatibel mit mindestens Version v0.11 der Bookmarks app. Dabei werden Ordner mittels Tags simuliert, die den Ordner-Pfad enthalten. Es wird nicht empfohlen, diese Option für neue Konten zu verwenden."
+    "message": "Die Legacy-Option ist kompatibel mit mindestens Version v0.11 der Bookmarks-App. Sie wird Ordner mit Hilfe von Tags emulieren, die den Ordnerpfad enthalten. Es wird nicht empfohlen, dies für neue Profile zu verwenden."
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV-Freigabe"
@@ -264,7 +276,7 @@
     "message": "Die WebDAV-Option synchronisiert die Lesezeichen in einer Datei in der angegebenen WebDAV-Freigabe. Es gibt keine Weboberfläche für diese Option und sie kann mit jedem WebDAV-kompatiblen Server genutzt werden. Es können http-, ftp-, Daten-, Datei- und Javascript-Lesezeichen synchronisiert werden."
   },
   "LabelAddaccount": {
-    "message": "Konto hinzufügen"
+    "message": "Profil hinzufügen"
   },
   "LabelOpenintab": {
     "message": "In Tab öffnen"
@@ -313,7 +325,7 @@
   },
   "LabelOptionsscreen": {
     "message": "{0} Optionen",
-    "description": "Title of the options screen. The placeholder holds the account type."
+    "description": "Title of the options screen. The placeholder holds the profile type."
   },
   "LabelPaypal": {
     "message": "Paypal"
@@ -340,7 +352,7 @@
     "message": "Tätige regelmäßige Spenden über GitHub sponsors um das Projekt zu unterstützen"
   },
   "LegacyAdapterDeprecation": {
-    "message": "Warnung! Dieser Konto-Typ ist veraltet und wird bald entfernt. Bitte wechseln Sie zur neuen Nextcloud Synchronisierungsmethode mit besserer Leistungsfähigkeit und Fehlerfreiheit. "
+    "message": "Dieser veraltete Profiltyp wird nicht mehr unterstützt und wird bald entfernt. Bitte wechseln Sie zur neuen Nextcloud-Synchronisierungsmethode. Verbesserte Leistung und Genauigkeit erwarten Sie."
   },
   "LabelUpdated": {
     "message": "Floccus wurde aktualisiert"
@@ -364,16 +376,16 @@
     "message": "Gefährliche Funktionen"
   },
   "LabelAccountDeleted": {
-    "message": "Konto gelöscht"
+    "message": "Profil gelöscht"
   },
   "DescriptionAccountDeleted": {
-    "message": "Dieses Konto wurde gelöscht"
+    "message": "Dieses Profil wurde gelöscht."
   },
   "LabelNoAccount": {
-    "message": "Keine Konten vorhanden"
+    "message": "Keine Profile hier"
   },
   "DescriptionNoAccount": {
-    "message": "Neues Konto erstellen um Lesezeichen zu synchronisieren."
+    "message": "Erstellen Sie ein neues Profil, um Ihre Lesezeichen zu synchronisieren oder importieren Sie Profile von einem anderen Gerät oder Browser."
   },
   "LabelLoginFlowStart": {
     "message": "Mit Nextcloud anmelden"
@@ -385,40 +397,43 @@
     "message": "Anmeldung bei Nextcloud fehlgeschlagen."
   },
   "LabelNewAccount": {
-    "message": "Neues Konto"
+    "message": "Neues Profil"
   },
   "LabelNestedSync": {
-    "message": "Verschachtelte Konten"
+    "message": "Verschachtelte Profile"
   },
   "DescriptionNestedSync": {
-    "message": "Sie können Konten so verschachteln, dass ein übergeordneter Ordner zu Konto A gehört und ein untergeordneter Ordner zu Konto A und B. Möchten Sie anderen Konten erlauben, die Ordner dieses Kontos ebenfalls zu synchronisieren?"
+    "message": "Sie können Profile verschachteln, sodass ein übergeordneter Ordner zu Profil A gehört und ein Unterordner zu Profil A und B. Möchten Sie anderen Profilen erlauben, diesen Ordner des Profils zu synchronisieren?"
   },
   "LabelNestedSyncNo": {
-    "message": "Nein, ignoriere den lokalen Ordner dieses Kontos in anderen Konten"
+    "message": "Nein, ignoriere den Ordner dieses Profils in anderen Profilen."
   },
   "LabelNestedSyncYes": {
-    "message": "Ja, den lokalen Ordner dieses Kontos in anderen Konten einbetten"
+    "message": "Ja, nehme den Ordner dieses Profils bei anderen Profilen hinzu."
   },
   "LabelImportExport": {
-    "message": "Konten importieren/exportieren"
+    "message": "Profile importieren/exportieren"
   },
   "LabelExport": {
-    "message": "Konten exportieren"
+    "message": "Profile exportieren"
   },
   "LabelImport": {
-    "message": "Konten importieren"
+    "message": "Profile importieren"
   },
   "DescriptionExport": {
-    "message": "Wählen Sie unten die Konten aus, um sie in einer Datei zu exportieren, damit Sie einfach die selben Konten auf einem anderen Gerät oder Browser wiederherstellen können."
+    "message": "Wählen Sie unten die Profile aus, die Sie in eine Datei exportieren möchten, damit Sie die gleichen Profile problemlos auf einem anderen Gerät oder Browser wiederherstellen können."
   },
   "DescriptionImport": {
-    "message": "Importieren Sie eine Datei mit exportierten Konten aus einem anderen Browser, um sie in diesem Browser anzulegen. Stellen Sie sicher, nach dem Import in den Einstellungen die richtigen Ordner zu wählen."
+    "message": "Importieren Sie hier eine Datei mit exportierten Profilen, um Profile, die auf einem anderen Gerät oder Browser exportiert wurden, wiederherzustellen. Bitte stellen Sie sicher, dass Sie nach dem Importieren erneut die richtigen Synchronisationsordner festlegen."
   },
   "LabelFolderNotFound": {
     "message": "Ordner nicht gefunden"
   },
   "LabelSyncTabs": {
-    "message": "Synchronisiere Reiter"
+    "message": "Browser-Tabs"
+  },
+  "DescriptionSyncTabs": {
+    "message": "Links, die auf dem Server gespeichert sind, werden als Browser-Tabs in Ihrem Browser geöffnet und bestehende geöffnete Browser-Tabs werden als Links auf Ihrem Server gespeichert. Beachten Sie, dass je nach Anzahl der auf dem Server gespeicherten Links möglicherweise Ihr Browser überlastet werden kann, da beim nächsten Synchronisierungslauf alle Links des Servers als Tabs geöffnet werden."
   },
   "LabelTabs": {
     "message": "Reiter"
@@ -466,7 +481,7 @@
     "message": "Ausgeschaltet. Erlaube das Löschen von mehr als 50% meiner lokalen Lesezeichen ohne mich vorher zu fragen."
   },
   "StatusFailsafeoff": {
-    "message": "Löschsicherung ausgeschaltet. Sie laufen Gefahr Daten zu verlieren. Es wird empfohlen die Löschsicherung in den Konto-Einstellungen einzuschalten."
+    "message": "Failsafe deaktiviert. Sie laufen Gefahr unbeabsichtigten Datenverlust zu erleiden. Es wird empfohlen, den Failsafe in den Profil-Einstellungen zu aktivieren."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
@@ -619,7 +634,10 @@
     "message": "Wie soll die Synchronisierung ablaufen?"
   },
   "LabelAccountcreated": {
-    "message": "Konto erstellen"
+    "message": "Profil erstellt"
+  },
+  "DescriptionAccountcreated": {
+    "message": "Ihr Profil wurde erstellt. Sie können diesen Tab jetzt schließen."
   },
   "DescriptionNonhttps": {
     "message": "Sie haben einen Server angegeben, der ein unsicheres Protokoll benutzt. Es wird empfohlen nur Server zu benutzen, die HTTPS unterstützen."
@@ -646,9 +664,18 @@
     "message": "Lesezeichen exportieren"
   },
   "DescriptionExportBookmarks" : {
-    "message": "Sie können alle Lesezeichen in diesem Konto als HTML-Datei exportieren, die mit allen gängigen Browsern kompatibel ist."
+    "message": "Sie können alle Lesezeichen in diesem Profil als HTML-Datei exportieren, die mit allen gängigen Browsern kompatibel ist."
   },
   "LabelShareitem": {
     "message": "Teilen"
+  },
+  "LabelImportsuccessful": {
+    "message": "Profil(e) erfolgreich importiert"
+  },
+  "DescriptionSyncinprogress": {
+    "message": "Synchronisierung wird gerade durchgeführt"
+  },
+  "DescriptionSyncscheduled": {
+    "message": "Dieses Profil wird bald synchronisiert. Wir warten darauf, dass entweder andere Geräte von Ihnen oder auf andere Profile auf diesem Gerät ihre Synchronisierung abschließen, um mit dieser Synchronisierung zu beginnen."
   }
 }

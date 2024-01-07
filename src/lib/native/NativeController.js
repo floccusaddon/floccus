@@ -111,8 +111,10 @@ export default class NativeController {
 
     let account = await Account.get(accountId)
     if (account.getData().syncing) {
+      console.log('Account is already syncing. Not syncing again.')
       return
     }
+    // if the account is already scheduled, don't prevent it, to avoid getting stuck
     if (!account.getData().enabled && !account.getData().scheduled) {
       console.log('Account is not enabled. Not syncing.')
       return
@@ -120,11 +122,15 @@ export default class NativeController {
 
     const status = await this.getStatus()
     if (status === STATUS_SYNCING) {
-      await account.setData({ ...account.getData(), scheduled: true })
+      await account.setData({ ...account.getData(), scheduled: account.getData().scheduled || true })
       return
     }
 
-    this.syncAccount(accountId)
+    if (account.getData().scheduled === true) {
+      await this.syncAccount(accountId)
+    } else {
+      await this.syncAccount(accountId, account.getData().scheduled)
+    }
   }
 
   async cancelSync(accountId, keepEnabled) {
