@@ -4,7 +4,7 @@ import Logger from '../../../lib/Logger'
 import AdapterFactory from '../../../lib/AdapterFactory'
 import Controller from '../../../lib/Controller'
 import { i18n } from '../../../lib/native/I18n'
-import { CapacitorHttp as Http } from '@capacitor/core'
+import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
 import { Share } from '@capacitor/share'
 import Html from '../../../lib/serializers/Html'
 import { Bookmark, Folder } from '../../../lib/Tree'
@@ -200,7 +200,9 @@ export const actionsDefinition = {
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }
     let json = res.data
-    const browserWindow = await window.open(json.login, '_blank', 'toolbar=no,presentationstyle=pagesheet')
+    // iOS browser doesn't allow 3rd party cookies, so we have to open a standalone browser
+    const target = Capacitor.getPlatform() === 'ios' ? '_system' : '_blank'
+    const browserWindow = await window.open(json.login, target, 'toolbar=no,presentationstyle=pagesheet')
     do {
       await new Promise(resolve => setTimeout(resolve, 1000))
       try {
