@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.8] - 2024-01-07
+
+### Fixed
+
+* fix(nextcloud login flow): Use standalone browser on iOS
+* fix(manifest.firefox.json): Make sure host permission matches the one in the code
+
 ## [5.0.7] - 2024-01-04
 
 ### Fixed

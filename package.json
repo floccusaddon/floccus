@@ -1,6 +1,6 @@
 {
   "name": "floccus",
-  "version": "5.0.7",
+  "version": "5.0.8",
   "description": "Sync your bookmarks privately across browsers and devices",
   "scripts": {
     "build": "gulp",
