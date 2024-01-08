@@ -304,12 +304,15 @@ export default class BrowserController {
       console.log('Account is already syncing. Not triggering another sync.')
       return
     }
+    // executes long-running async work without letting the service worker to die
+    const interval = setInterval(() => browser.tabs.getCurrent(), 2e4)
     setTimeout(() => this.updateStatus(), 500)
     try {
       await account.sync(strategy)
     } catch (error) {
       console.error(error)
     }
+    clearInterval(interval)
     this.updateStatus()
   }
 
