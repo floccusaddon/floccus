@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.0.9] - 2024-01-08
+
+### Fixed
+
+* [chrome] fix(background sync): Apply hack to keep service worker alive
+
 ## [5.0.8] - 2024-01-07
 
 ### Fixed
