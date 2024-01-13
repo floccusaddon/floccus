@@ -91,9 +91,9 @@ export default class GitAdapter extends CachingAdapter {
     await git.init({ fs, dir: this.dir })
     await git.addRemote({ fs, dir: this.dir, url: this.server.url, remote: 'origin' })
     Logger.log('(git) fetch from remote')
-    await git.fetch({ http, fs, dir: this.dir, ref: this.server.branch || 'main', depth: 10, onAuth: () => this.onAuth() })
-    Logger.log('(git) checkout branch ' + (this.server.branch || 'main'))
-    await git.checkout({ fs, dir: this.dir, ref: this.server.branch || 'main' })
+    await git.fetch({ http, fs, dir: this.dir, ref: this.server.branch, remote: 'origin', depth: 10, onAuth: () => this.onAuth() })
+    Logger.log('(git) checkout branch ' + (this.server.branch))
+    await git.checkout({ fs, dir: this.dir, ref: this.server.branch })
 
     if (this.server.bookmark_file[0] === '/') {
       throw new SlashError()
