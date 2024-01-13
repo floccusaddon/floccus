@@ -112,7 +112,7 @@ export default class GitAdapter extends CachingAdapter {
       Logger.log('(git) checkout branch ' + (this.server.branch))
       await git.checkout({ fs, dir: this.dir, ref: this.server.branch })
     } catch (e) {
-      if (e.code === git.Errors.NotFoundError.code) {
+      if (e && e.code === git.Errors.NotFoundError.code) {
         Logger.log('(git) init')
         await git.init({ fs, dir: this.dir, defaultBranch: this.server.branch })
         await git.addRemote({
