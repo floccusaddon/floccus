@@ -127,6 +127,22 @@ describe('Floccus', function() {
       ...CREDENTIALS
     },
     {
+      type: 'git',
+      url: `${SERVER}/test.git`,
+      branch: 'main',
+      bookmark_file: 'bookmarks.xbel',
+      bookmark_file_type: 'xbel',
+      ...CREDENTIALS
+    },
+    {
+      type: 'git',
+      url: `${SERVER}/test.git`,
+      branch: 'main',
+      bookmark_file: 'bookmarks.html',
+      bookmark_file_type: 'html',
+      ...CREDENTIALS
+    },
+    {
       type: 'google-drive',
       bookmark_file: random.float() + '.xbel',
       password: '',

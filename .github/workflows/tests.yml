@@ -97,6 +97,8 @@ jobs:
           - webdav-html
           - webdav-html-encrypted
           - webdav-xbel-encrypted
+          - git-xbel
+          - git-html
           - google-drive
           - google-drive-encrypted
         test-name:
@@ -232,6 +234,25 @@ jobs:
           
           echo "Selenium Grid is up - executing tests"
 
+      - name: Setup git http server
+        run: |
+          mkdir __fixtures__
+          cd __fixtures__
+          git init --bar test.git
+          npx git-http-mock-server start
+          npx htpasswd -cb test.git/.htpasswd admin admin
+        if: matrix.floccus-adapter == 'git-xbel' || matrix.floccus-adapter == 'git-html'
+
+      - name: Run git adapter tests
+        working-directory: floccus
+        env:
+          SELENIUM_BROWSER: ${{ matrix.browsers }}
+          FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
+          TEST_HOST: 172.17.0.1:8174
+        run: |
+          npm run test
+        if: matrix.floccus-adapter == 'git-xbel' || matrix.floccus-adapter == 'git-html'
+
       - name: Run tests
         working-directory: floccus
         env:
@@ -242,6 +263,7 @@ jobs:
           APP_VERSION: ${{ matrix.app-version }}
         run: |
           npm run test
+        if: matrix.floccus-adapter != 'git-xbel' && matrix.floccus-adapter != 'git-html'
 
   summary:
     runs-on: ubuntu-latest
