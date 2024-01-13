@@ -243,20 +243,6 @@ jobs:
           npx htpasswd -cb test.git/.htpasswd admin admin
         if: matrix.floccus-adapter == 'git-xbel' || matrix.floccus-adapter == 'git-html'
 
-      - name: Setup git remote repo
-        run: |
-          mkdir __repo__
-          cd __repo__
-          git config --global user.email "you@example.com"
-          git config --global user.name "Your Name"
-          git init -b main
-          git remote add origin http://localhost:8174/test.git
-          echo '# test' >> README.md
-          git add README.md
-          git commit -m 'Add README'
-          git push origin main
-        if: matrix.floccus-adapter == 'git-xbel' || matrix.floccus-adapter == 'git-html'
-
       - name: Run git adapter tests
         working-directory: floccus
         env:

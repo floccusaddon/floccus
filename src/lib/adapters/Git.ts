@@ -11,7 +11,6 @@ import FS from '@isomorphic-git/lightning-fs'
 import Html from '../serializers/Html'
 import {
   FileUnreadableError,
-  InterruptedSyncError,
   MissingPermissionsError,
   ResourceLockedError,
   SlashError
@@ -75,6 +74,7 @@ export default class GitAdapter extends CachingAdapter {
 
   async onSyncStart(needLock = true) {
     Logger.log('onSyncStart: begin')
+    console.log(this.server.url)
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -87,29 +87,63 @@ export default class GitAdapter extends CachingAdapter {
       }
     }
 
-    Logger.log('(git) init')
-    await git.init({ fs, dir: this.dir })
-    await git.addRemote({
-      fs,
-      dir: this.dir,
-      url: this.server.url,
-      remote: 'origin'
-    })
-    Logger.log('(git) fetch from remote')
-    await git.fetch({
-      http,
-      fs,
-      dir: this.dir,
-      tags: true,
-      singleBranch: true,
-      ref: this.server.branch,
-      remoteRef: this.server.branch,
-      remote: 'origin',
-      depth: 10,
-      onAuth: () => this.onAuth()
-    })
-    Logger.log('(git) checkout branch ' + (this.server.branch))
-    await git.checkout({ fs, dir: this.dir, ref: this.server.branch })
+    try {
+      Logger.log('(git) init')
+      await git.init({ fs, dir: this.dir })
+      await git.addRemote({
+        fs,
+        dir: this.dir,
+        url: this.server.url,
+        remote: 'origin'
+      })
+      Logger.log('(git) fetch from remote')
+      await git.fetch({
+        http,
+        fs,
+        dir: this.dir,
+        tags: true,
+        singleBranch: true,
+        ref: this.server.branch,
+        remoteRef: this.server.branch,
+        remote: 'origin',
+        depth: 10,
+        onAuth: () => this.onAuth()
+      })
+      Logger.log('(git) checkout branch ' + (this.server.branch))
+      await git.checkout({ fs, dir: this.dir, ref: this.server.branch })
+    } catch (e) {
+      if (e.code === git.Errors.NotFoundError.code) {
+        Logger.log('(git) init')
+        await git.init({ fs, dir: this.dir, defaultBranch: this.server.branch })
+        await git.addRemote({
+          fs,
+          dir: this.dir,
+          url: this.server.url,
+          remote: 'origin'
+        })
+        Logger.log('(git) writeFile ' + this.dir + '/README.md')
+        await fs.promises.writeFile(this.dir + '/README.md', 'This repository is used to syncrhonize bookmarks via [floccus](https://floccus.org).', {mode: 0o777, encoding: 'utf8'})
+        Logger.log('(git) add .')
+        await git.add({fs, dir: this.dir, filepath: '.'})
+        Logger.log('(git) commit')
+        await git.commit({
+          fs,
+          dir: this.dir,
+          message: 'Floccus bookmarks update',
+          author: {
+            name: 'Floccus bookmarks sync',
+          }
+        })
+        const currentBranch = await git.currentBranch({fs, dir: this.dir})
+        if (currentBranch && currentBranch !== this.server.branch) {
+          await git.renameBranch({ fs, dir: this.dir, ref: this.server.branch, oldref: currentBranch })
+        }
+        Logger.log('(git) push')
+        await git.push({fs, http, dir: this.dir, ref: this.server.branch, remoteRef: this.server.branch, force: true, onAuth: () => this.onAuth()})
+      } else {
+        throw e
+      }
+    }
 
     if (this.server.bookmark_file[0] === '/') {
       throw new SlashError()
@@ -144,7 +178,7 @@ export default class GitAdapter extends CachingAdapter {
     const newTreeHash = await this.bookmarksCache.hash(true)
     if (newTreeHash !== this.initialTreeHash) {
       const fileContents = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)
-      Logger.log('(git) writeFile '+this.dir + '/' + this.server.bookmark_file)
+      Logger.log('(git) writeFile ' + this.dir + '/' + this.server.bookmark_file)
       await fs.promises.writeFile(this.dir + '/' + this.server.bookmark_file, fileContents, {mode: 0o777, encoding: 'utf8'})
       Logger.log('(git) add .')
       await git.add({fs, dir: this.dir, filepath: '.'})
@@ -184,7 +218,7 @@ export default class GitAdapter extends CachingAdapter {
     const tag = 'floccus-lock-' + Date.now()
     Logger.log('(git) tag ' + tag)
     await git.tag({ fs, dir: this.dir, ref: tag })
-    Logger.log('(git) push tag '+tag)
+    Logger.log('(git) push tag ' + tag)
     await git.push({ fs, http, dir: this.dir, ref: tag, onAuth: () => this.onAuth() })
     this.locked = tag
   }
