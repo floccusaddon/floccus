@@ -309,7 +309,6 @@ export default class SyncProcess {
     // Prepare target plan
     const targetPlan = new Diff() // to be mapped
     await Parallel.each(sourceDiff.getActions(), async(action:Action) => {
-      Logger.log('Examining action: ', action)
       if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = targetRemovals.find(targetRemoval =>
           (action.payload.type === targetRemoval.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetRemoval.payload)) ||
@@ -662,7 +661,6 @@ export default class SyncProcess {
     // MOVEs have oldItem from cacheTree and payload now mapped to their corresponding target tree
     // REORDERs have payload in source tree
       .forEach(oldReorderAction => {
-        Logger.log('Examining old reorder action', oldReorderAction)
         // clone action
         const reorderAction = {...oldReorderAction, order: oldReorderAction.order.slice()}
 
@@ -771,7 +769,6 @@ export default class SyncProcess {
   }
 
   async addMapping(resource:TResource, item:TItem, newId:string|number):Promise<void> {
-    Logger.log(`Adding mapping between ${item.type}:${item.id} and ${item.type}:${newId}`)
     let localId, remoteId
     if (resource === this.server) {
       localId = item.id
@@ -788,7 +785,6 @@ export default class SyncProcess {
   }
 
   async removeMapping(resource:TResource, item:TItem):Promise<void> {
-    Logger.log(`Adding mapping for ${item.type}:${item.id}`)
     let localId, remoteId
     if (resource === this.server) {
       remoteId = item.id
@@ -864,7 +860,6 @@ export default class SyncProcess {
   }
 
   filterOutUnmappedItems(tree: Folder, mapping: MappingSnapshot) {
-    Logger.log('Filtering out unmapped items from tree')
     tree.children = tree.children.filter(child => {
       if (child instanceof Bookmark) {
         return child.id in mapping.LocalToServer.bookmark

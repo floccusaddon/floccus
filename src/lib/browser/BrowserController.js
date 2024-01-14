@@ -250,16 +250,12 @@ export default class BrowserController {
       return
     }
 
-    console.log('getting account')
     let account = await Account.get(accountId)
-    console.log('got account')
     if (account.getData().syncing) {
-      console.log('Account is already syncing. Not syncing again.')
       return
     }
     // if the account is already scheduled, don't prevent it, to avoid getting stuck
     if (!account.getData().enabled && !account.getData().scheduled) {
-      console.log('Account is not enabled. Not syncing.')
       return
     }
 
