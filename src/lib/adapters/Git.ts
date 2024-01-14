@@ -104,6 +104,7 @@ export default class GitAdapter extends CachingAdapter {
         fs,
         dir: this.dir,
         tags: true,
+        pruneTags: true,
         remote: 'origin',
         depth: 10,
         onAuth: () => this.onAuth()
@@ -215,7 +216,6 @@ export default class GitAdapter extends CachingAdapter {
 
   async obtainLock() {
     const tags = await git.listTags({ fs, dir: this.dir })
-    console.log(tags.sort().reverse())
     const lockTag = tags.sort().reverse().find((tag) => tag.startsWith('floccus-lock-'))
     if (lockTag) {
       const dateLocked = Number(lockTag.slice('floccus-lock-'.length))
