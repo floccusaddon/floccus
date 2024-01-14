@@ -15,8 +15,11 @@ import {
   ResourceLockedError,
   SlashError
 } from '../../errors/Error'
+import Crypto from '../Crypto'
 
-let fs: FS
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const fs: FS = new FS('floccus', {wipe: true})
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
@@ -32,7 +35,6 @@ export default class GitAdapter extends CachingAdapter {
     this.server = server
     this.locked = false
     this.lockingInterval = null
-    this.dir = '/' + server.id + '/'
   }
 
   static getDefaultValues() {
@@ -74,11 +76,9 @@ export default class GitAdapter extends CachingAdapter {
 
   async onSyncStart(needLock = true) {
     Logger.log('onSyncStart: begin')
-    console.log(this.server.url)
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    fs = new FS('floccus', {wipe: true})
+    const hash = await Crypto.sha256(JSON.stringify(this.server)) + Date.now()
+    this.dir = '/' + hash + '/'
 
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
@@ -87,24 +87,23 @@ export default class GitAdapter extends CachingAdapter {
       }
     }
 
+    Logger.log('(git) init')
+    await git.init({ fs, dir: this.dir })
+    await git.addRemote({
+      fs,
+      dir: this.dir,
+      url: this.server.url,
+      remote: 'origin',
+      force: true
+    })
+
     try {
-      Logger.log('(git) init')
-      await git.init({ fs, dir: this.dir })
-      await git.addRemote({
-        fs,
-        dir: this.dir,
-        url: this.server.url,
-        remote: 'origin'
-      })
       Logger.log('(git) fetch from remote')
       await git.fetch({
         http,
         fs,
         dir: this.dir,
         tags: true,
-        singleBranch: true,
-        ref: this.server.branch,
-        remoteRef: this.server.branch,
         remote: 'origin',
         depth: 10,
         onAuth: () => this.onAuth()
@@ -113,14 +112,6 @@ export default class GitAdapter extends CachingAdapter {
       await git.checkout({ fs, dir: this.dir, ref: this.server.branch })
     } catch (e) {
       if (e && e.code === git.Errors.NotFoundError.code) {
-        Logger.log('(git) init')
-        await git.init({ fs, dir: this.dir, defaultBranch: this.server.branch })
-        await git.addRemote({
-          fs,
-          dir: this.dir,
-          url: this.server.url,
-          remote: 'origin'
-        })
         Logger.log('(git) writeFile ' + this.dir + '/README.md')
         await fs.promises.writeFile(this.dir + '/README.md', 'This repository is used to syncrhonize bookmarks via [floccus](https://floccus.org).', {mode: 0o777, encoding: 'utf8'})
         Logger.log('(git) add .')
@@ -139,7 +130,15 @@ export default class GitAdapter extends CachingAdapter {
           await git.renameBranch({ fs, dir: this.dir, ref: this.server.branch, oldref: currentBranch })
         }
         Logger.log('(git) push')
-        await git.push({fs, http, dir: this.dir, ref: this.server.branch, remoteRef: this.server.branch, force: true, onAuth: () => this.onAuth()})
+        await git.push({
+          fs,
+          http,
+          dir: this.dir,
+          ref: this.server.branch,
+          remoteRef: this.server.branch,
+          force: true,
+          onAuth: () => this.onAuth()
+        })
       } else {
         throw e
       }
@@ -191,8 +190,22 @@ export default class GitAdapter extends CachingAdapter {
           name: 'Floccus bookmarks sync',
         }
       })
-      Logger.log('(git) push')
-      await git.push({fs, http, dir: this.dir, remote: 'origin', onAuth: () => this.onAuth()})
+      try {
+        Logger.log('(git) push')
+        await git.push({
+          fs,
+          http,
+          dir: this.dir,
+          remote: 'origin',
+          force: true,
+          onAuth: () => this.onAuth()
+        })
+      } catch (e) {
+        if (e.code && e.code === git.Errors.PushRejectedError.code) {
+          this.freeLock()
+          throw new ResourceLockedError
+        }
+      }
     } else {
       Logger.log('No changes to the server version necessary')
     }
@@ -202,10 +215,10 @@ export default class GitAdapter extends CachingAdapter {
 
   async obtainLock() {
     const tags = await git.listTags({ fs, dir: this.dir })
-
-    const lockTag = tags.find((tag) => tag.startsWith('floccus-lock-'))
+    console.log(tags.sort().reverse())
+    const lockTag = tags.sort().reverse().find((tag) => tag.startsWith('floccus-lock-'))
     if (lockTag) {
-      const dateLocked = (new Date(lockTag.slice('floccus-lock-'.length))).valueOf()
+      const dateLocked = Number(lockTag.slice('floccus-lock-'.length))
       if (Date.now() - dateLocked < LOCK_TIMEOUT) {
         throw new ResourceLockedError()
       }
