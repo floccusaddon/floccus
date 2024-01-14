@@ -346,6 +346,21 @@ export default class GitAdapter extends CachingAdapter {
       force: true,
       onAuth: () => this.onAuth()
     })
+    await git.fetch({
+      http,
+      fs,
+      dir: this.dir,
+      tags: true,
+      pruneTags: true,
+      remote: 'origin',
+      depth: 10,
+      onAuth: () => this.onAuth()
+    })
+    const tags = await git.listTags({ fs, dir: this.dir })
+    const lockTags = tags.filter(tag => tag.startsWith('floccus-lock-'))
+    for (const tag of lockTags) {
+      await git.push({ fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
+    }
   }
 }
 

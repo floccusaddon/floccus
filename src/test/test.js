@@ -258,7 +258,10 @@ describe('Floccus', function() {
             } catch (e) {
               console.error(e)
             }
-            if (ACCOUNT_DATA.type !== 'fake') {
+            if (ACCOUNT_DATA.type === 'git') {
+              await account.server.clearServer()
+              GitAdapter.resetFilesystem()
+            } else if (ACCOUNT_DATA.type !== 'fake') {
               await account.setData({ ...account.getData(), serverRoot: null })
               const tree = await getAllBookmarks(account)
               await withSyncConnection(account, async() => {
@@ -277,9 +280,6 @@ describe('Floccus', function() {
               if (file) {
                 await account.server.deleteFile(file.id)
               }
-            }
-            if (ACCOUNT_DATA.type === 'git') {
-              GitAdapter.resetFilesystem()
             }
             await account.delete()
           })
@@ -3162,7 +3162,10 @@ describe('Floccus', function() {
           })
           afterEach('clean up accounts', async function() {
             await browser.bookmarks.removeTree(account1.getData().localRoot)
-            if (ACCOUNT_DATA.type !== 'fake') {
+            if (ACCOUNT_DATA.type === 'git') {
+              await account1.server.clearServer()
+              GitAdapter.resetFilesystem()
+            } else if (ACCOUNT_DATA.type !== 'fake') {
               await account1.setData({
                 ...account1.getData(),
                 serverRoot: null
@@ -3184,9 +3187,6 @@ describe('Floccus', function() {
               if (file) {
                 await account1.server.deleteFile(file.id)
               }
-            }
-            if (ACCOUNT_DATA.type === 'git') {
-              GitAdapter.resetFilesystem()
             }
             await account1.delete()
             await browser.bookmarks.removeTree(account2.getData().localRoot)
@@ -4556,7 +4556,10 @@ describe('Floccus', function() {
             } catch (e) {
               console.error(e)
             }
-            if (ACCOUNT_DATA.type !== 'fake') {
+            if (ACCOUNT_DATA.type === 'git') {
+              await account.server.clearServer()
+              GitAdapter.resetFilesystem()
+            } else if (ACCOUNT_DATA.type !== 'fake') {
               await account.setData({ ...account.getData(), serverRoot: null })
               const tree = await getAllBookmarks(account)
               await withSyncConnection(account, async() => {
@@ -4575,9 +4578,6 @@ describe('Floccus', function() {
               if (file) {
                 await account.server.deleteFile(file.id)
               }
-            }
-            if (ACCOUNT_DATA.type === 'git') {
-              GitAdapter.resetFilesystem()
             }
             await account.delete()
           })
@@ -4876,7 +4876,10 @@ describe('Floccus', function() {
         afterEach('clean up accounts', async function() {
           RUN_INTERRUPTS = false
           await browser.bookmarks.removeTree(account1.getData().localRoot)
-          if (ACCOUNT_DATA.type !== 'fake') {
+          if (ACCOUNT_DATA.type === 'git') {
+            await account1.server.clearServer()
+            GitAdapter.resetFilesystem()
+          } else if (ACCOUNT_DATA.type !== 'fake') {
             await account1.setData({
               ...account1.getData(),
               serverRoot: null
@@ -4898,9 +4901,6 @@ describe('Floccus', function() {
             if (file) {
               await account1.server.deleteFile(file.id)
             }
-          }
-          if (ACCOUNT_DATA.type === 'git') {
-            GitAdapter.resetFilesystem()
           }
           await account1.delete()
           await browser.bookmarks.removeTree(account2.getData().localRoot)
