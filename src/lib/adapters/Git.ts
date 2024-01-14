@@ -19,7 +19,7 @@ import Crypto from '../Crypto'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-const fs: FS = new FS('floccus', {wipe: true})
+let fs: FS = new FS('floccus', {wipe: true})
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
@@ -29,6 +29,12 @@ export default class GitAdapter extends CachingAdapter {
   private cancelCallback: () => void
   private initialTreeHash: string
   private dir: string
+
+  static resetFilesystem(): void {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    fs = new FS('floccus', {wipe: true})
+  }
 
   constructor(server) {
     super(server)

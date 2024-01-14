@@ -10,6 +10,7 @@ import * as AsyncParallel from 'async-parallel'
 import DefunctCrypto from '../lib/DefunctCrypto'
 import Controller from '../lib/Controller'
 import FakeAdapter from '../lib/adapters/Fake'
+import GitAdapter from '../lib/adapters/Git'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -276,6 +277,9 @@ describe('Floccus', function() {
               if (file) {
                 await account.server.deleteFile(file.id)
               }
+            }
+            if (ACCOUNT_DATA.type === 'git') {
+              GitAdapter.resetFilesystem()
             }
             await account.delete()
           })
@@ -3181,6 +3185,9 @@ describe('Floccus', function() {
                 await account1.server.deleteFile(file.id)
               }
             }
+            if (ACCOUNT_DATA.type === 'git') {
+              GitAdapter.resetFilesystem()
+            }
             await account1.delete()
             await browser.bookmarks.removeTree(account2.getData().localRoot)
             await account2.delete()
@@ -4569,6 +4576,9 @@ describe('Floccus', function() {
                 await account.server.deleteFile(file.id)
               }
             }
+            if (ACCOUNT_DATA.type === 'git') {
+              GitAdapter.resetFilesystem()
+            }
             await account.delete()
           })
           it('should create local tabs on the server', async function() {
@@ -4888,6 +4898,9 @@ describe('Floccus', function() {
             if (file) {
               await account1.server.deleteFile(file.id)
             }
+          }
+          if (ACCOUNT_DATA.type === 'git') {
+            GitAdapter.resetFilesystem()
           }
           await account1.delete()
           await browser.bookmarks.removeTree(account2.getData().localRoot)
