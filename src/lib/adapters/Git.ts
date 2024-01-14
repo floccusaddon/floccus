@@ -246,9 +246,12 @@ export default class GitAdapter extends CachingAdapter {
     }
 
     try {
-      // await git.deleteTag({ fs, dir: this.dir, ref: this.locked })
-      Logger.log('(git) push: delete tag ' + this.locked)
-      await git.push({ fs, http, dir: this.dir, ref: this.locked, delete: true, onAuth: () => this.onAuth() })
+      const tags = await git.listTags({ fs, dir: this.dir })
+      const lockTags = tags.filter((tag) => tag.startsWith('floccus-lock-'))
+      for (const tag of lockTags) {
+        Logger.log('(git) push: delete tag ' + tag)
+        await git.push({ fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
+      }
       return true
     } catch (e) {
       Logger.log('Error Caught')
