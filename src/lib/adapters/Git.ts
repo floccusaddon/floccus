@@ -143,6 +143,7 @@ export default class GitAdapter extends CachingAdapter {
           dir: this.dir,
           ref: this.server.branch,
           remoteRef: this.server.branch,
+          remote: 'origin',
           force: true,
           onAuth: () => this.onAuth()
         })
@@ -256,6 +257,7 @@ export default class GitAdapter extends CachingAdapter {
         Logger.log('(git) push: delete tag ' + tag)
         await git.push({ fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
       }
+      this.locked = []
       return true
     } catch (e) {
       Logger.log('Error Caught')
@@ -305,6 +307,45 @@ export default class GitAdapter extends CachingAdapter {
 
     // Found file, we can keep the cache from the previous run
     return true
+  }
+
+  async clearServer() {
+    const hash = await Crypto.sha256(JSON.stringify(this.server)) + Date.now()
+    this.dir = '/' + hash + '/'
+
+    Logger.log('(git) init')
+    await git.init({ fs, dir: this.dir })
+    await git.addRemote({
+      fs,
+      dir: this.dir,
+      url: this.server.url,
+      remote: 'origin',
+      force: true
+    })
+    await fs.promises.writeFile(this.dir + '/README.md', 'This repository is used to syncrhonize bookmarks via [floccus](https://floccus.org).', {mode: 0o777, encoding: 'utf8'})
+    await git.add({fs, dir: this.dir, filepath: '.'})
+    await git.commit({
+      fs,
+      dir: this.dir,
+      message: 'Floccus bookmarks update',
+      author: {
+        name: 'Floccus bookmarks sync',
+      }
+    })
+    const currentBranch = await git.currentBranch({fs, dir: this.dir})
+    if (currentBranch && currentBranch !== this.server.branch) {
+      await git.renameBranch({ fs, dir: this.dir, ref: this.server.branch, oldref: currentBranch })
+    }
+    await git.push({
+      fs,
+      http,
+      dir: this.dir,
+      ref: this.server.branch,
+      remoteRef: this.server.branch,
+      remote: 'origin',
+      force: true,
+      onAuth: () => this.onAuth()
+    })
   }
 }
 
