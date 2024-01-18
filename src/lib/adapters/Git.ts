@@ -314,7 +314,7 @@ export default class GitAdapter extends CachingAdapter {
     this.dir = '/' + hash + '/'
 
     Logger.log('(git) init')
-    await git.init({ fs, dir: this.dir })
+    await git.init({ fs, dir: this.dir, defaultBranch: this.server.branch })
     await git.addRemote({
       fs,
       dir: this.dir,
