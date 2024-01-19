@@ -277,7 +277,7 @@ export default class GitAdapter extends CachingAdapter {
       return false
     }
 
-    if (!fileContents.includes('<?xml version="1.0" encoding="UTF-8"?>') && !fileContents.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>')) {
+    if (!fileContents || (!fileContents.includes('<?xml version="1.0" encoding="UTF-8"?>') && !fileContents.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>'))) {
       throw new FileUnreadableError()
     }
 
@@ -312,6 +312,10 @@ export default class GitAdapter extends CachingAdapter {
   async clearServer() {
     const hash = await Crypto.sha256(JSON.stringify(this.server)) + Date.now()
     this.dir = '/' + hash + '/'
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const fs = new FS('floccus', {wipe: true})
 
     Logger.log('(git) init')
     await git.init({ fs, dir: this.dir, defaultBranch: this.server.branch })
