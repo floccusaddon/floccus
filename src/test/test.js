@@ -10,7 +10,6 @@ import * as AsyncParallel from 'async-parallel'
 import DefunctCrypto from '../lib/DefunctCrypto'
 import Controller from '../lib/Controller'
 import FakeAdapter from '../lib/adapters/Fake'
-import GitAdapter from '../lib/adapters/Git'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -260,7 +259,6 @@ describe('Floccus', function() {
             }
             if (ACCOUNT_DATA.type === 'git') {
               await account.server.clearServer()
-              GitAdapter.resetFilesystem()
             } else if (ACCOUNT_DATA.type !== 'fake') {
               await account.setData({ ...account.getData(), serverRoot: null })
               const tree = await getAllBookmarks(account)
@@ -3164,7 +3162,6 @@ describe('Floccus', function() {
             await browser.bookmarks.removeTree(account1.getData().localRoot)
             if (ACCOUNT_DATA.type === 'git') {
               await account1.server.clearServer()
-              GitAdapter.resetFilesystem()
             } else if (ACCOUNT_DATA.type !== 'fake') {
               await account1.setData({
                 ...account1.getData(),
@@ -4558,7 +4555,6 @@ describe('Floccus', function() {
             }
             if (ACCOUNT_DATA.type === 'git') {
               await account.server.clearServer()
-              GitAdapter.resetFilesystem()
             } else if (ACCOUNT_DATA.type !== 'fake') {
               await account.setData({ ...account.getData(), serverRoot: null })
               const tree = await getAllBookmarks(account)
@@ -4878,7 +4874,6 @@ describe('Floccus', function() {
           await browser.bookmarks.removeTree(account1.getData().localRoot)
           if (ACCOUNT_DATA.type === 'git') {
             await account1.server.clearServer()
-            GitAdapter.resetFilesystem()
           } else if (ACCOUNT_DATA.type !== 'fake') {
             await account1.setData({
               ...account1.getData(),
