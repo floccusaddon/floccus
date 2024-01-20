@@ -95,6 +95,14 @@ export default class GitAdapter extends CachingAdapter {
 
     Logger.log('(git) init')
     await git.init({ fs, dir: this.dir })
+    await git.addRemote({
+      fs,
+      dir: this.dir,
+      url: this.server.url,
+      remote: 'origin',
+      force: true
+    })
+
     try {
       Logger.log('(git) fetch from remote')
       await git.fetch({
@@ -103,7 +111,7 @@ export default class GitAdapter extends CachingAdapter {
         dir: this.dir,
         tags: true,
         pruneTags: true,
-        url: this.server.url,
+        remote: 'origin',
         depth: 10,
         onAuth: () => this.onAuth()
       })
@@ -135,7 +143,7 @@ export default class GitAdapter extends CachingAdapter {
           dir: this.dir,
           ref: this.server.branch,
           remoteRef: this.server.branch,
-          url: this.server.url,
+          remote: 'origin',
           force: true,
           onAuth: () => this.onAuth()
         })
@@ -196,7 +204,7 @@ export default class GitAdapter extends CachingAdapter {
           fs,
           http,
           dir: this.dir,
-          url: this.server.url,
+          remote: 'origin',
           force: true,
           onAuth: () => this.onAuth()
         })
@@ -231,7 +239,7 @@ export default class GitAdapter extends CachingAdapter {
     Logger.log('(git) tag ' + tag)
     await git.tag({ fs, dir: this.dir, ref: tag })
     Logger.log('(git) push tag ' + tag)
-    await git.push({ fs, http, dir: this.dir, ref: tag, url: this.server.url, onAuth: () => this.onAuth() })
+    await git.push({ fs, http, dir: this.dir, ref: tag, onAuth: () => this.onAuth() })
     this.locked.push(tag)
   }
 
@@ -247,7 +255,7 @@ export default class GitAdapter extends CachingAdapter {
     try {
       for (const tag of this.locked) {
         Logger.log('(git) push: delete tag ' + tag)
-        await git.push({ fs, http, dir: this.dir, ref: tag, delete: true, url: this.server.url, onAuth: () => this.onAuth() })
+        await git.push({ fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
       }
       this.locked = []
       return true
@@ -311,6 +319,13 @@ export default class GitAdapter extends CachingAdapter {
 
     Logger.log('(git) init')
     await git.init({ fs, dir: this.dir, defaultBranch: this.server.branch })
+    await git.addRemote({
+      fs,
+      dir: this.dir,
+      url: this.server.url,
+      remote: 'origin',
+      force: true
+    })
     await fs.promises.writeFile(this.dir + '/README.md', 'This repository is used to syncrhonize bookmarks via [floccus](https://floccus.org).', {mode: 0o777, encoding: 'utf8'})
     await git.add({fs, dir: this.dir, filepath: '.'})
     await git.commit({
@@ -331,7 +346,7 @@ export default class GitAdapter extends CachingAdapter {
       dir: this.dir,
       ref: this.server.branch,
       remoteRef: this.server.branch,
-      url: this.server.url,
+      remote: 'origin',
       force: true,
       onAuth: () => this.onAuth()
     })
@@ -341,7 +356,7 @@ export default class GitAdapter extends CachingAdapter {
       dir: this.dir,
       tags: true,
       pruneTags: true,
-      url: this.server.url,
+      remote: 'origin',
       depth: 10,
       onAuth: () => this.onAuth()
     })
