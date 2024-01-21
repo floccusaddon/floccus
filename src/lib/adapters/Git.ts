@@ -5,7 +5,9 @@ import url from 'url'
 import { Capacitor } from '@capacitor/core'
 import * as git from 'isomorphic-git'
 import http from 'isomorphic-git/http/web'
-import { IFs, memfs } from 'memfs'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import FS from '@isomorphic-git/lightning-fs'
 import Html from '../serializers/Html'
 import {
   FileUnreadableError,
@@ -23,7 +25,7 @@ export default class GitAdapter extends CachingAdapter {
   private cancelCallback: () => void
   private initialTreeHash: string
   private dir: string
-  private fs: IFs
+  private fs: FS|null
 
   constructor(server) {
     super(server)
@@ -82,7 +84,9 @@ export default class GitAdapter extends CachingAdapter {
       }
     }
 
-    this.fs = memfs().fs
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this.fs = new FS(hash, {wipe: true})
 
     Logger.log('(git) init')
     await git.init({ fs: this.fs, dir: this.dir })
@@ -111,7 +115,7 @@ export default class GitAdapter extends CachingAdapter {
     } catch (e) {
       if (e && e.code === git.Errors.NotFoundError.code) {
         Logger.log('(git) writeFile ' + this.dir + '/README.md')
-        this.fs.writeFileSync(this.dir + '/README.md', 'This repository is used to syncrhonize bookmarks via [floccus](https://floccus.org).', {mode: 0o777, encoding: 'utf8'})
+        await this.fs.promises.writeFile(this.dir + '/README.md', 'This repository is used to syncrhonize bookmarks via [floccus](https://floccus.org).', {mode: 0o777, encoding: 'utf8'})
         Logger.log('(git) add .')
         await git.add({fs: this.fs, dir: this.dir, filepath: '.'})
         Logger.log('(git) commit')
@@ -177,7 +181,7 @@ export default class GitAdapter extends CachingAdapter {
     if (newTreeHash !== this.initialTreeHash) {
       const fileContents = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)
       Logger.log('(git) writeFile ' + this.dir + '/' + this.server.bookmark_file)
-      this.fs.writeFileSync(this.dir + '/' + this.server.bookmark_file, fileContents, {mode: 0o777, encoding: 'utf8'})
+      await this.fs.promises.writeFile(this.dir + '/' + this.server.bookmark_file, fileContents, {mode: 0o777, encoding: 'utf8'})
       Logger.log('(git) add .')
       await git.add({fs: this.fs, dir: this.dir, filepath: '.'})
       Logger.log('(git) commit')
@@ -261,7 +265,7 @@ export default class GitAdapter extends CachingAdapter {
     let fileContents
     try {
       Logger.log('(git) readFile')
-      fileContents = this.fs.readFileSync(this.dir + '/' + this.server.bookmark_file, { encoding: 'utf8' })
+      fileContents = await this.fs.promises.readFile(this.dir + '/' + this.server.bookmark_file, { encoding: 'utf8' })
     } catch (e) {
       this.resetCache()
       // Could not find file
@@ -304,7 +308,9 @@ export default class GitAdapter extends CachingAdapter {
     const hash = await Crypto.sha256(JSON.stringify(this.server)) + Date.now()
     this.dir = '/' + hash + '/'
 
-    const {fs} = memfs()
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const fs = new FS(hash, {wipe: true})
 
     Logger.log('(git) init')
     await git.init({ fs, dir: this.dir, defaultBranch: this.server.branch })
@@ -315,7 +321,7 @@ export default class GitAdapter extends CachingAdapter {
       remote: 'origin',
       force: true
     })
-    fs.writeFileSync(this.dir + '/README.md', 'This repository is used to syncrhonize bookmarks via [floccus](https://floccus.org).', {mode: 0o777, encoding: 'utf8'})
+    await fs.promises.writeFile(this.dir + '/README.md', 'This repository is used to syncrhonize bookmarks via [floccus](https://floccus.org).', {mode: 0o777, encoding: 'utf8'})
     await git.add({fs, dir: this.dir, filepath: '.'})
     await git.commit({
       fs,
