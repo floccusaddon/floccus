@@ -90,7 +90,7 @@
     "core-js": "3.x",
     "fast-xml-parser": "^4.2.7",
     "humanize-duration": "^3.25.1",
-    "intl-messageformat": "^9.9.1",
+    "intl-messageformat": "^10.5.10",
     "js-base64": "^3.7.5",
     "lodash": "^4.17.20",
     "p-queue": "^5.0.0",
