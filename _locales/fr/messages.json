@@ -90,7 +90,7 @@
     "message": "E030: Le déchiffrement de votre fichier de signets a échoué. Le mot de passe est peut être erronée ou le fichier corrompu."
   },
   "Error031": {
-    "message": "E031: N'a pas pu s'authentifier avec Google Drive. Connectez de nouveau floccus à votre compte google."
+    "message": "E031: Impossible de s'authentifier avec Google Drive. Connectez de nouveau floccus à votre compte Google."
   },
   "Error032": {
     "message": "E032: Erreur OAuth. Erreur de validation du token. Merci de vous reconnecter à votre compte Google."
@@ -99,10 +99,13 @@
     "message": "E033: Redirection détectée. Vérifiez que le serveur supporte la méthode de synchronisation choisie et que l'URL entrée est correcte et ne redirige pas vers une autre destination. Si la redirection fait partie de votre configuration, vous pouvez désactivez cette vérification dans les paramètres."
   },
   "Error034": {
-    "message": "E034: Le fichier de signets est illisible. Avez-vous oublié d'entrer un mot de passe de chiffrement ?"
+    "message": "E034: Le fichier de signets distant est illisible. Avez-vous oublié d'entrer un mot de passe de chiffrement ?"
   },
   "Error035": {
     "message": "E035 : Échec de la création du signet suivant sur le serveur : {0}"
+  },
+  "Error036": {
+    "message": "E036: Permission manquante pour accéder au serveur de synchronisation"
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -132,13 +135,19 @@
     "message": "Dossier serveur"
   },
   "DescriptionServerfolder": {
-    "message": "Ceci est le préfixe du chemin d'accès qu'utilisera votre compte sur le serveur. Laisser vide pour ne pas utiliser de préfixe."
+    "message": "Lors de la synchronisation, vos signets seront stockés sous ce chemin d'accès sur le serveur. Ce chemin représente un dossier dans l'application Nextcloud Bookmarks, et non un dossier dans NextCloud Files. Laisser vide pour stocker tous les liens dans le dossier racine du serveur."
+  },
+  "LabelLocaltarget": {
+    "message": "Dossier local"
+  },
+  "DescriptionLocaltarget": {
+    "message": "Choisissez ici si vous désirez synchroniser les signets ou les onglets de votre navigateur."
   },
   "LabelLocalfolder": {
-    "message": "Répertoire local"
+    "message": "Dossier de signets"
   },
   "DescriptionLocalfolder": {
-    "message": "Il s'agit du répertoire local de signets du navigateur, qui sera synchronisé sur le serveur. Notez que certains navigateurs n'autorisent pas le création de nouveaux éléments dans le dossier racine (par exemple Firefox et Google Chrome)"
+    "message": "Les signets dans ce dossiers seront stockés en tant que liens sur le serveurs. Les liens sur le serveur seront stockés comme des signets dans ce dossier sur ce navigateur. "
   },
   "LabelRootfolder": {
     "message": "Répertoire racine"
@@ -154,6 +163,9 @@
   },
   "LabelCancelsync": {
     "message": "Annuler synchronisation"
+  },
+  "LabelSyncall": {
+    "message": "Synchroniser tous les profils"
   },
   "LabelAutosync": {
     "message": "Automatique"
@@ -176,6 +188,9 @@
   "StatusSyncing": {
     "message": "Synchronisation"
   },
+  "StatusScheduled": {
+    "message": "Planifié"
+  },
   "LabelReset": {
     "message": "Réinitialisation"
   },
@@ -189,10 +204,10 @@
     "message": "Définir un répertoire existant à synchroniser"
   },
   "LabelRemoveaccount": {
-    "message": "Supprimer le compte"
+    "message": "Supprimer le profil"
   },
   "DescriptionRemoveaccount": {
-    "message": "Supprimer ce compte (cela ne supprimera pas vos signets)"
+    "message": "Supprimer ce profil (cela ne supprimera pas vos signets)"
   },
   "LabelSyncfromscratch": {
     "message": "Réinitialiser la synchronisation"
@@ -246,13 +261,13 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "Cette option est compatible à partir de la version 0.14 de l'application Bookmarks. Elle ne peut synchroniser que les signets \"http\" et \"ftp\"."
+    "message": "L'option \"Signets Nextcloud\" synchronise vos signets avec l'application Bookmark de Nextcloud. Elle ne peut synchroniser que les signets \"http\" et \"ftp\". Assurez-vous d'avoir installé l'application Bookmark de l'App Store Nextcloud dans votre espace Nextcloud."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (ancienne méthode)"
   },
   "DescriptionAdapternextcloud": {
-    "message": "Cette ancienne option n'est compatible qu'à partir de la version 0.11 de l'application Bookmarks. Elle émulera des dossiers en utilisant des tags contenant le chemin du dossier. Cette option n'est pas recommandée pour les nouveaux comptes."
+    "message": "Cette ancienne option n'est compatible qu'à partir de la version 0.11 de l'application Bookmarks. Elle émulera des dossiers en utilisant des tags contenant le chemin du dossier. Cette option n'est pas recommandée pour les nouveaux profils."
   },
   "LabelAdapterwebdav": {
     "message": "Partage WebDAV"
@@ -261,13 +276,7 @@
     "message": "L'option WebDAV synchronise vos signets en les conservant dans un fichier situé dans le partage WebDAV. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur compatible WebDAV. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript."
   },
   "LabelAddaccount": {
-    "message": "Ajouter un compte"
-  },
-  "LabelSecurecredentials": {
-    "message": "Verrouiller Floccus"
-  },
-  "LabelSecuredcredentials": {
-    "message": "Verrouillage configuré"
+    "message": "Ajouter un profil"
   },
   "LabelOpenintab": {
     "message": "Ouvrir dans un onglet"
@@ -286,12 +295,6 @@
   },
   "LabelUntitledfolder": {
     "message": "Dossier sans nom"
-  },
-  "LabelSetkey": {
-    "message": "Configurer un mot de passe pour floccus"
-  },
-  "DescriptionSetkey": {
-    "message": "Si vous configurez un mot de passe, vous devrez rentrer ce mot de passe à chaque démarrage de votre navigateur si vous voulez accéder à floccus pour lancer une synchronisation de vos signets, changer vos paramètres ou n'importe quoi d'autre."
   },
   "LabelSetkeybutton": {
     "message": "Configurer mot de passe"
@@ -322,7 +325,7 @@
   },
   "LabelOptionsscreen": {
     "message": "Options {0}",
-    "description": "Title of the options screen. The placeholder holds the account type."
+    "description": "Title of the options screen. The placeholder holds the profile type."
   },
   "LabelPaypal": {
     "message": "Paypal"
@@ -349,7 +352,7 @@
     "message": "Faire un don récurrent en devenant parrain du projet sur GitHub"
   },
   "LegacyAdapterDeprecation": {
-    "message": "Cet ancien type de compte n'est plus supporté et sera bientôt supprimé. Merci de le remplacer par la nouvelle méthode de synchronisation Nextcloud. Des performances accrues vous attendent."
+    "message": "Cet ancien type de profil n'est plus supporté et sera bientôt supprimé. Merci de le remplacer par la nouvelle méthode de synchronisation Nextcloud. Elle vous apportera des performances accrues."
   },
   "LabelUpdated": {
     "message": "Floccus a été mis à jour"
@@ -373,16 +376,16 @@
     "message": "Actions risquées"
   },
   "LabelAccountDeleted": {
-    "message": "Compte supprimé"
+    "message": "Profil supprimé"
   },
   "DescriptionAccountDeleted": {
-    "message": "Ce compte a été supprimé"
+    "message": "Ce profil a été supprimé"
   },
   "LabelNoAccount": {
-    "message": "Il n'y a pas de comptes ici"
+    "message": "Il n'y a pas de profil ici"
   },
   "DescriptionNoAccount": {
-    "message": "Créez un nouveau compte pour synchroniser vos signets ou importez un compte depuis un autre appareil ou navigateur."
+    "message": "Créez un nouveau profil pour synchroniser vos signets ou importez un compte depuis un autre appareil ou navigateur."
   },
   "LabelLoginFlowStart": {
     "message": "Se connecter avec Nextcloud"
@@ -394,40 +397,43 @@
     "message": "La connexion avec Nextcloud a échouée"
   },
   "LabelNewAccount": {
-    "message": "Nouveau Compte"
+    "message": "Nouveau Profil"
   },
   "LabelNestedSync": {
-    "message": "Comptes emboîtés"
+    "message": "Profils emboîtés"
   },
   "DescriptionNestedSync": {
-    "message": "Vous pouvez emboîter des comptes de telle manière qu'un dossier appartienne à un compte A et un de ses sous-dossier aux comptes A et B. Voulez-vous autoriser d'autres comptes à se synchroniser avec les dossiers du compte actuel ?"
+    "message": "Vous pouvez emboîter des profils de telle manière qu'un dossier appartienne à un profil A et un de ses sous-dossier aux profils A et B. Voulez-vous autoriser d'autres profils à se synchroniser avec les dossiers du profil actuel ?"
   },
   "LabelNestedSyncNo": {
-    "message": "Non, ignorer le dossier de ce compte pour d'autres comptes"
+    "message": "Non, ignorer le dossier de ce profil pour d'autres profils"
   },
   "LabelNestedSyncYes": {
-    "message": "Oui, inclure le dossier de ce compte dans d'autres comptes"
+    "message": "Oui, inclure le dossier de ce profil dans d'autres profils"
   },
   "LabelImportExport": {
-    "message": "Importer/Exporter un Compte"
+    "message": "Importer/Exporter un Profil"
   },
   "LabelExport": {
-    "message": "Exporter des comptes"
+    "message": "Exporter des profils"
   },
   "LabelImport": {
-    "message": "Importer des comptes"
+    "message": "Importer des profils"
   },
   "DescriptionExport": {
-    "message": "Choisissez les comptes ci-dessous que vous souhaitez exporter dans un fichier. Ainsi vous pourrez facilement recréer le même compte dans un autre appareil ou navigateur."
+    "message": "Choisissez les profils ci-dessous que vous souhaitez exporter dans un fichier. Ainsi vous pourrez facilement recréer le même profil dans un autre appareil ou navigateur."
   },
   "DescriptionImport": {
-    "message": "Importez ici un fichier exporté depuis un autre appareil ou navigateur, qui contient les données de votre compte. Assurez-vous de configurer le bon dossier à synchroniser une fois l'importation réalisée."
+    "message": "Importez ici un fichier exporté depuis un autre appareil ou navigateur, qui contient les données de votre profil. Assurez-vous de configurer le bon dossier à synchroniser une fois l'importation réalisée."
   },
   "LabelFolderNotFound": {
     "message": "Dossier non trouvé"
   },
   "LabelSyncTabs": {
-    "message": "Synchroniser les onglets"
+    "message": "Onglets du navigateur"
+  },
+  "DescriptionSyncTabs": {
+    "message": "Les liens qui sont stockés sur le serveur seront ouverts en tant qu'onglets dans votre navigateur. Les onglets ouverts sur votre navigateur seront stockés sur votre server. Etant donné que les liens sur le serveur seront tous ouverts comme des onglets sur votre navigateur lors de la prochaine synchronisation, votre navigateur pourrait être submergé."
   },
   "LabelTabs": {
     "message": "Onglets"
@@ -475,7 +481,7 @@
     "message": "Désactivée. Permet la suppression de plus de 50% de vos signets locaux sans vous en demander l'autorisation."
   },
   "StatusFailsafeoff": {
-    "message": "Sécurité désactivée. Il y a un risque de perte de données involontaire. Il est recommendé de laisser active la Protection de secours dans les paramètres de votre compte."
+    "message": "Sécurité désactivée. Il y a un risque de perte de données involontaire. Il est recommendé de laisser active la Protection de secours dans les paramètres de votre profil."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
@@ -628,7 +634,10 @@
     "message": "Paramètres de synchronisation"
   },
   "LabelAccountcreated": {
-    "message": "Compte créé"
+    "message": "Profil créé"
+  },
+  "DescriptionAccountcreated": {
+    "message": "Votre profil a été créé. Vous pouvez à présent fermer cet onglet."
   },
   "DescriptionNonhttps": {
     "message": "Vous accédez à un serveur qui utilise un protocole non sécurisé. Il est recommandé de n'utiliser que des serveurs compatibles avec HTTPS"
@@ -655,9 +664,18 @@
     "message": "Exporter les signets"
   },
   "DescriptionExportBookmarks" : {
-    "message": "Vous pouvez exporter tous les signets de ce compte comme fichier HTML compatible avec tous les principaux navigateurs."
+    "message": "Vous pouvez exporter tous les signets de ce profil comme fichier HTML compatible avec tous les principaux navigateurs."
   },
   "LabelShareitem": {
     "message": "Partager"
+  },
+  "LabelImportsuccessful": {
+    "message": "Profil(s) importé(s) avec succès."
+  },
+  "DescriptionSyncinprogress": {
+    "message": "Synchronisation en cours"
+  },
+  "DescriptionSyncscheduled": {
+    "message": "Ce profil sera bientôt synchronisé. Nous attendons que vos autres appareils ou vos autres profils sur cet appareil aient terminé leur synchronisation."
   }
 }

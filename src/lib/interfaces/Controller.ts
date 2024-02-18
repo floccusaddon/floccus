@@ -9,3 +9,8 @@ export default interface IController {
   getUnlocked():Promise<boolean>;
   onLoad():void;
 }
+
+export const STATUS_ERROR = Symbol('error')
+export const STATUS_SYNCING = Symbol('syncing')
+export const STATUS_ALLGOOD = Symbol('allgood')
+export const STATUS_DISABLED = Symbol('disabled')

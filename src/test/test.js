@@ -3206,11 +3206,18 @@ describe('Floccus', function() {
               })
               await new Promise(resolve => setTimeout(resolve, 60000))
               expect(account2.getData().error).to.be.not.ok
-              expect(resolved).to.equal(false)
+              expect(account2.getData().scheduled).to.be.ok
+              expect(resolved).to.equal(true)
             })
             console.log('Finished sync with account 1')
+            sync2 = account2.sync()
+            sync2.then(() => {
+              console.log('Finished sync with account 2')
+              resolved = true
+            })
             await new Promise(resolve => setTimeout(resolve, 60000))
             expect(account2.getData().error).to.be.not.ok
+            expect(account2.getData().scheduled).to.be.not.ok
             expect(resolved).to.equal(true)
           })
           it('should propagate edits using "last write wins"', async function() {
@@ -4575,8 +4582,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test1' }),
-                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test2' })
+                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/#test1' }),
+                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/#test2' })
                     ]
                   })
                 ]
@@ -4598,7 +4605,7 @@ describe('Floccus', function() {
                 title: 'Window 0'
               }))
               serverMark = {
-                title: 'Private bookmarks sync - floccus.org',
+                title: 'Private bookmarks syncing - floccus.org',
                 url: 'https://floccus.org/',
                 parentId: windowFolderId
               }
@@ -4620,7 +4627,7 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/' }),
+                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/' }),
                     ]
                   })
                 ]
@@ -4657,8 +4664,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test1' }),
-                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test2' })
+                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/#test1' }),
+                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/#test2' })
                     ]
                   })
                 ]
@@ -4681,7 +4688,7 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/#test1' }),
+                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/#test1' }),
                       new Bookmark({ title: 'Example Domain', url: 'https://example.org/' })
                     ]
                   })
@@ -4704,7 +4711,7 @@ describe('Floccus', function() {
                 title: 'Window 0'
               }))
               serverMark = {
-                title: 'Private bookmarks sync - floccus.org',
+                title: 'Private bookmarks syncing - floccus.org',
                 url: 'https://floccus.org/',
                 parentId: windowFolderId
               }
@@ -4726,7 +4733,7 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Private bookmarks sync - floccus.org', url: 'https://floccus.org/' }),
+                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/' }),
                     ]
                   })
                 ]

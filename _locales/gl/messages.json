@@ -671,5 +671,11 @@
   },
   "LabelImportsuccessful": {
     "message": "Perfís importados correctamente"
+  },
+  "DescriptionSyncinprogress": {
+    "message": "Sincronización en curso."
+  },
+  "DescriptionSyncscheduled": {
+    "message": "Este perfil sincronizarase en breve. Estamos a agardar que outros dispositivos seus ou outros perfís deste dispositivo rematen de sincronizar."
   }
 }

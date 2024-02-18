@@ -1,5 +1,42 @@
 # Changelog
 
+## [5.0.9] - 2024-01-08
+
+### Fixed
+
+* [chrome] fix(background sync): Apply hack to keep service worker alive
+
+## [5.0.8] - 2024-01-07
+
+### Fixed
+
+* fix(nextcloud login flow): Use standalone browser on iOS
+* fix(manifest.firefox.json): Make sure host permission matches the one in the code
+
+## [5.0.7] - 2024-01-04
+
+### Fixed
+
+* [native] Fix hanging splash screen
+* fix(Controller): Remember strategy when scheduling sync after lock error
+* Complete translations for Japanese, Spanish and German
+
+## [5.0.6] - 2023-12-31
+
+### Fixed
+* fix(background sync): Move back to manifest v2 for firefox
+* fix(Account#setData): re-init if localRoot is changed
+* fix(Options): Fix v-switch input
+* fix(Controller#scheduleSync): Allow syncing if account is disabled and scheduled
+
+## [5.0.5] - 2023-12-20
+
+### Fixed
+
+* Fix: Move waiting for lock out of adapters into controller
+* fix(NextcloudBookmarks): Use CapacitorHttp to avoid cors errors in capacitor 5
+* fix(native/START_LOGIN_FLOW): migrate to new capacitor http API
+
 ## [5.0.4] - 2023-12-15
 
 ### Fixed

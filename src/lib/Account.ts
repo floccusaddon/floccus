@@ -10,6 +10,7 @@ import { IResource, TLocalTree } from './interfaces/Resource'
 import { Capacitor } from '@capacitor/core'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
+import { ResourceLockedError } from '../errors/Error'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', async() => (await import('./adapters/NextcloudBookmarks')).default)
@@ -146,7 +147,7 @@ export default class Account {
 
       Logger.log('Starting sync process for account ' + this.getLabel())
       this.syncing = true
-      await this.setData({ ...this.getData(), syncing: 0.05, error: null })
+      await this.setData({ ...this.getData(), syncing: 0.05, scheduled: false, error: null })
 
       if (!(await this.isInitialized())) {
         await this.init()
@@ -163,7 +164,23 @@ export default class Account {
 
       if (this.server.onSyncStart) {
         const needLock = (strategy || this.getData().strategy) !== 'slave'
-        const status = await this.server.onSyncStart(needLock)
+        let status
+        try {
+          status = await this.server.onSyncStart(needLock)
+        } catch (e) {
+          // Resource locked
+          if (e.code === 37) {
+            await this.setData({ ...this.getData(), error: null, syncing: false, scheduled: strategy || this.getData().strategy })
+            this.syncing = false
+            Logger.log(
+              'Resource is locked, trying again soon'
+            )
+            await Logger.persist()
+            return
+          } else {
+            throw e
+          }
+        }
         if (status === false) {
           await this.init()
         }
@@ -210,7 +227,7 @@ export default class Account {
       }
       await this.syncProcess.sync()
 
-      await this.setData({ ...this.getData(), syncing: 1 })
+      await this.setData({ ...this.getData(), scheduled: false, syncing: 1 })
 
       // update cache
       if (localResource.constructor.name !== 'LocalTabs') {
@@ -234,6 +251,7 @@ export default class Account {
         ...this.getData(),
         error: null,
         syncing: false,
+        scheduled: false,
         lastSync: Date.now(),
       })
 
@@ -250,6 +268,7 @@ export default class Account {
         ...this.getData(),
         error: message,
         syncing: false,
+        scheduled: false,
       })
       this.syncing = false
       if (this.server.onSyncFail) {

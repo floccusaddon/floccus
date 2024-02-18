@@ -32,7 +32,7 @@ export default class Controller implements IController {
     if (this.worker) {
       return Promise.resolve(this.worker)
     }
-    if (navigator.serviceWorker?.controller) {
+    if (!navigator.userAgent.includes('Firefox') && navigator.serviceWorker?.controller) {
       return navigator.serviceWorker.ready.then((registration) => ({
         postMessage: (...args) => registration.active.postMessage(...args),
         addEventListener: (fn) => {

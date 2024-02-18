@@ -68,27 +68,6 @@ installConsoleHandler()
           return extension.extension.baseURL
         })
         if (!testUrl) throw new Error('Could not install extension')
-
-        // Enable permission
-        await driver.get('about:addons')
-        await driver.sleep(10000)
-        await driver.executeScript(function() {
-          document.querySelector('button[name=extension]').click()
-        })
-        await driver.sleep(10000)
-        console.log(await driver.getPageSource())
-        await driver.executeScript(function() {
-          document.querySelector('addon-card').click()
-        })
-        await driver.sleep(10000)
-        await driver.executeScript(function() {
-          document.querySelector('#details-deck-button-permissions').click()
-        })
-        await driver.sleep(10000)
-        await driver.executeScript(function() {
-          document.querySelector('#permission-0').click()
-        })
-        await driver.sleep(5000)
         break
       default:
         throw new Error('Unknown browser')

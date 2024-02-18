@@ -9,6 +9,7 @@ import Ordering from '../interfaces/Ordering'
 import url from 'url'
 import random from 'random'
 import seedrandom from 'seedrandom'
+import { isVivaldi } from './BrowserDetection'
 
 let absoluteRoot: {id: string}
 
@@ -29,6 +30,7 @@ export default class BrowserTree implements IResource {
   }
 
   async getBookmarksTree():Promise<Folder> {
+    const isVivaldiBrowser = await isVivaldi()
     const [tree] = await browser.bookmarks.getSubTree(this.rootId)
     await this.absoluteRootPromise
     const allAccounts = await (await Account.getAccountClass()).getAllAccounts()
@@ -43,7 +45,7 @@ export default class BrowserTree implements IResource {
         return
       }
       let overrideTitle, isRoot
-      if (node.parentId === this.absoluteRoot.id) {
+      if (node.parentId === this.absoluteRoot.id && !isVivaldiBrowser) {
         switch (node.id) {
           case '1': // Chrome
           case 'toolbar_____': // Firefox
@@ -122,21 +124,23 @@ export default class BrowserTree implements IResource {
     }
     try {
       if (self.location.protocol === 'moz-extension:' && url.parse(bookmark.url).hostname === 'separator.floccus.org') {
-        const node = await this.queue.add(() =>
-          browser.bookmarks.create({
+        const node = await this.queue.add(async() => {
+          Logger.log('(local)CREATE: executing create ', bookmark)
+          return browser.bookmarks.create({
             parentId: bookmark.parentId,
             type: 'separator'
           })
-        )
+        })
         return node.id
       }
-      const node = await this.queue.add(() =>
-        browser.bookmarks.create({
+      const node = await this.queue.add(async() => {
+        Logger.log('(local)CREATE: executing create ', bookmark)
+        return browser.bookmarks.create({
           parentId: bookmark.parentId,
           title: bookmark.title,
           url: bookmark.url
         })
-      )
+      })
       return node.id
     } catch (e) {
       throw new Error('Could not create ' + bookmark.inspect() + ': ' + e.message)
@@ -153,18 +157,20 @@ export default class BrowserTree implements IResource {
       if (self.location.protocol === 'moz-extension:' && url.parse(bookmark.url).hostname === 'separator.floccus.org') {
         // noop
       } else {
-        await this.queue.add(() =>
-          browser.bookmarks.update(bookmark.id, {
+        await this.queue.add(async() => {
+          Logger.log('(local)UPDATE: executing update ', bookmark)
+          return browser.bookmarks.update(bookmark.id, {
             title: bookmark.title,
             url: bookmark.url
           })
-        )
+        })
       }
-      await this.queue.add(() =>
-        browser.bookmarks.move(bookmark.id, {
+      await this.queue.add(async() => {
+        Logger.log('(local)UPDATE: executing move ', bookmark)
+        return browser.bookmarks.move(bookmark.id, {
           parentId: bookmark.parentId
         })
-      )
+      })
     } catch (e) {
       throw new Error('Could not update ' + bookmark.inspect() + ': ' + e.message)
     }
@@ -178,7 +184,10 @@ export default class BrowserTree implements IResource {
     const bookmarkId = bookmark.id
     Logger.log('(local)REMOVE', bookmark)
     try {
-      await this.queue.add(() => browser.bookmarks.remove(bookmarkId))
+      await this.queue.add(async() => {
+        Logger.log('(local)REMOVE: executing remove ', bookmark)
+        return browser.bookmarks.remove(bookmarkId)
+      })
     } catch (e) {
       Logger.log('Could not remove ' + bookmark.inspect() + ': ' + e.message + '\n Moving on')
     }
@@ -192,12 +201,13 @@ export default class BrowserTree implements IResource {
       return
     }
     try {
-      const node = await this.queue.add(() =>
-        browser.bookmarks.create({
+      const node = await this.queue.add(async() => {
+        Logger.log('(local)CREATEFOLDER: executing create ', folder)
+        return browser.bookmarks.create({
           parentId,
           title
         })
-      )
+      })
       return node.id
     } catch (e) {
       throw new Error('Could not create ' + folder.inspect() + ': ' + e.message)
@@ -249,11 +259,12 @@ export default class BrowserTree implements IResource {
       return
     }
     try {
-      await this.queue.add(() =>
-        browser.bookmarks.update(id, {
+      await this.queue.add(async() => {
+        Logger.log('(local)UPDATEFOLDER: executing update ', folder)
+        return browser.bookmarks.update(id, {
           title
         })
-      )
+      })
     } catch (e) {
       throw new Error('Failed to rename folder ' + id + ': ' + e.message)
     }
@@ -262,7 +273,10 @@ export default class BrowserTree implements IResource {
       throw new Error('Detected creation of folder loop. Moving ' + id + ' into its descendant ' + parentId)
     }
     try {
-      await this.queue.add(() => browser.bookmarks.move(id, { parentId }))
+      await this.queue.add(async() => {
+        Logger.log('(local)CREATEFOLDER: executing move ', folder)
+        return browser.bookmarks.move(id, { parentId })
+      })
     } catch (e) {
       throw new Error('Failed to move folder ' + id + ': ' + e.message)
     }
@@ -280,7 +294,10 @@ export default class BrowserTree implements IResource {
       return
     }
     try {
-      await this.queue.add(() => browser.bookmarks.removeTree(id))
+      await this.queue.add(async() => {
+        Logger.log('(local)REMOVEFOLDER: executing remove ', folder)
+        return browser.bookmarks.removeTree(id)
+      })
     } catch (e) {
       Logger.log('Could not remove ' + folder.inspect() + ': ' + e.message + '\n Moving on.')
     }

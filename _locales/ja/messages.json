@@ -671,5 +671,11 @@
   },
   "LabelImportsuccessful": {
     "message": "正常にプロファイルをインポートしました"
+  },
+  "DescriptionSyncinprogress": {
+    "message": "進行中の同期。"
+  },
+  "DescriptionSyncscheduled": {
+    "message": "このプロファイルはまもなく同期されます。他のデバイスまたはこのデバイス上の他のプロファイルの同期が完了するのを待っています。"
   }
 }

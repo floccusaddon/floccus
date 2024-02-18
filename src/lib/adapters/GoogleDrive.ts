@@ -8,7 +8,7 @@ import {
   DecryptionError, FileUnreadableError,
   GoogleDriveAuthenticationError, InterruptedSyncError, MissingPermissionsError,
   NetworkError,
-  OAuthTokenError
+  OAuthTokenError, ResourceLockedError
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
 import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
@@ -191,7 +191,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     })
   }
 
-  async onSyncStart() {
+  async onSyncStart(needLock = true) {
     Logger.log('onSyncStart: begin')
 
     if (Capacitor.getPlatform() === 'web') {
@@ -204,31 +204,29 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     this.accessToken = await this.getAccessToken(this.server.refreshToken)
 
-    let file
-    let startDate = Date.now()
-    const maxTimeout = LOCK_TIMEOUT
-    const base = 1.25
-    for (let i = 0; Date.now() - startDate < maxTimeout; i++) {
-      const fileList = await this.listFiles('name = ' + "'" + this.server.bookmark_file + "'")
-      file = fileList.files.filter(file => !file.trashed)[0]
-      if (file) {
-        this.fileId = file.id
+    const fileList = await this.listFiles('name = ' + "'" + this.server.bookmark_file + "'")
+    const file = fileList.files.filter(file => !file.trashed)[0]
+    if (file) {
+      this.fileId = file.id
+      if (needLock) {
         const data = await this.getFileMetadata(file.id, 'appProperties')
         if (data.appProperties && data.appProperties.locked && (data.appProperties.locked === true || JSON.parse(data.appProperties.locked))) {
           const lockedDate = JSON.parse(data.appProperties.locked)
-          if (Number.isInteger(lockedDate)) {
-            startDate = lockedDate
+          if (!Number.isInteger(lockedDate)) {
+            throw new ResourceLockedError()
           }
-          await this.timeout(base ** i * 1000)
-          continue
+          if (Date.now() - lockedDate < LOCK_TIMEOUT) {
+            throw new ResourceLockedError()
+          }
         }
       }
-      break
     }
 
     if (file) {
       this.fileId = file.id
-      await this.setLock(this.fileId)
+      if (needLock) {
+        await this.setLock(this.fileId)
+      }
 
       let xmlDocText = await this.downloadFile(this.fileId)
 
