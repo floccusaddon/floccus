@@ -10,7 +10,6 @@ import { IResource, TLocalTree } from './interfaces/Resource'
 import { Capacitor } from '@capacitor/core'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
-import { ResourceLockedError } from '../errors/Error'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', async() => (await import('./adapters/NextcloudBookmarks')).default)
@@ -18,6 +17,9 @@ AdapterFactory.register('nextcloud-bookmarks', async() => (await import('./adapt
 AdapterFactory.register('webdav', async() => (await import('./adapters/WebDav')).default)
 AdapterFactory.register('google-drive', async() => (await import('./adapters/GoogleDrive')).default)
 AdapterFactory.register('fake', async() => (await import('./adapters/Fake')).default)
+
+// 2h
+const LOCK_TIMEOUT = 1000 * 60 * 60 * 2
 
 export default class Account {
   static cache = {}
@@ -170,13 +172,25 @@ export default class Account {
         } catch (e) {
           // Resource locked
           if (e.code === 37) {
-            await this.setData({ ...this.getData(), error: null, syncing: false, scheduled: strategy || this.getData().strategy })
-            this.syncing = false
-            Logger.log(
-              'Resource is locked, trying again soon'
-            )
-            await Logger.persist()
-            return
+            // We got a resource locked error
+            if (this.getData().lastSync < Date.now() - LOCK_TIMEOUT) {
+              // but if we've been waiting for the lock for more than 2h
+              // start again without locking the resource
+              status = await this.server.onSyncStart(false)
+            } else {
+              await this.setData({
+                ...this.getData(),
+                error: null,
+                syncing: false,
+                scheduled: strategy || this.getData().strategy
+              })
+              this.syncing = false
+              Logger.log(
+                'Resource is locked, trying again soon'
+              )
+              await Logger.persist()
+              return
+            }
           } else {
             throw e
           }
