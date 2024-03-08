@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.10] - 2024-03-08
+
+### Fixed
+
+* fix(Account#sync): Break lock after 2h
+* bookmarks folder selection: Select sub folder in Vivaldi
+
 ## [5.0.9] - 2024-01-08
 
 ### Fixed

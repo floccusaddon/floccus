@@ -9,6 +9,7 @@ import Ordering from '../interfaces/Ordering'
 import url from 'url'
 import random from 'random'
 import seedrandom from 'seedrandom'
+import { isVivaldi } from './BrowserDetection'
 
 let absoluteRoot: {id: string}
 
@@ -29,6 +30,7 @@ export default class BrowserTree implements IResource {
   }
 
   async getBookmarksTree():Promise<Folder> {
+    const isVivaldiBrowser = await isVivaldi()
     const [tree] = await browser.bookmarks.getSubTree(this.rootId)
     await this.absoluteRootPromise
     const allAccounts = await (await Account.getAccountClass()).getAllAccounts()
@@ -43,7 +45,7 @@ export default class BrowserTree implements IResource {
         return
       }
       let overrideTitle, isRoot
-      if (node.parentId === this.absoluteRoot.id) {
+      if (node.parentId === this.absoluteRoot.id && !isVivaldiBrowser) {
         switch (node.id) {
           case '1': // Chrome
           case 'toolbar_____': // Firefox

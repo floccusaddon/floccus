@@ -89,6 +89,8 @@
 </template>
 
 <script>
+import { isVivaldi } from '../../lib/browser/BrowserDetection'
+
 export default {
   name: 'OptionSyncFolder',
   props: { value: { type: String, default: undefined } },
@@ -137,7 +139,7 @@ export default {
       const browser = (await import('../../lib/browser-api')).default
       this.selectedLocalRoot = this.value
       this.finder = true
-      this.folders = this.filterOutBookmarks(await browser.bookmarks.getTree())
+      this.folders = this.filterOutBookmarks(await isVivaldi() ? await browser.bookmarks.getSubTree('1') : await browser.bookmarks.getTree())
     },
     filterOutBookmarks(children) {
       return children.filter(item => {
