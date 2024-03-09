@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.0.11] - 2024-03-09
+
+### Fixed
+
+* fix: Android app stuck on splash screen
+
 ## [5.0.10] - 2024-03-08
 
 ### Fixed
