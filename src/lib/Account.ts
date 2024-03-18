@@ -103,13 +103,7 @@ export default class Account {
   }
 
   async getResource():Promise<IResource> {
-    if (this.getData().localRoot !== 'tabs') {
-      return this.localTree
-    } else {
-      const LocalTabs = (await import('./LocalTabs')).default
-      this.localTabs = new LocalTabs(this.storage)
-      return this.localTabs
-    }
+    return this.localTree
   }
 
   async setData(data:IAccountData):Promise<void> {
@@ -155,14 +149,7 @@ export default class Account {
         await this.init()
       }
 
-      let localResource
-      if (this.getData().localRoot !== 'tabs') {
-        localResource = this.localTree
-      } else {
-        const LocalTabs = (await import('./LocalTabs')).default
-        this.localTabs = new LocalTabs(this.storage)
-        localResource = this.localTabs
-      }
+      const localResource = await this.getResource()
 
       if (this.server.onSyncStart) {
         const needLock = (strategy || this.getData().strategy) !== 'slave'

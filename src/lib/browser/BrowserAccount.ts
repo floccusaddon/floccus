@@ -13,6 +13,7 @@ import {
   UnknownFolderItemOrderError
 } from '../../errors/Error'
 import {i18n} from '../native/I18n'
+import { IResource } from '../interfaces/Resource'
 
 export default class BrowserAccount extends Account {
   static async get(id:string):Promise<Account> {
@@ -62,6 +63,16 @@ export default class BrowserAccount extends Account {
     } catch (e) {
       console.log('Apparently not initialized, because:', e)
       return false
+    }
+  }
+
+  async getResource():Promise<IResource> {
+    if (this.getData().localRoot !== 'tabs') {
+      return this.localTree
+    } else {
+      const LocalTabs = (await import('../LocalTabs')).default
+      this.localTabs = new LocalTabs(this.storage)
+      return this.localTabs
     }
   }
 
