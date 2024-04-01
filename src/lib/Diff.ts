@@ -1,4 +1,4 @@
-import { Folder, TItem, ItemType, TItemLocation, ItemLocation } from './Tree'
+import { Folder, TItem, ItemType, TItemLocation, ItemLocation, hydrate } from './Tree'
 import Mappings, { MappingSnapshot } from './Mappings'
 import Ordering from './interfaces/Ordering'
 import batchingToposort from 'batching-toposort'
@@ -71,6 +71,15 @@ export default class Diff {
       [ActionType.REMOVE]: [],
       [ActionType.REORDER]: []
     }
+  }
+
+  clone() {
+    const newDiff = new Diff
+    this.getActions().forEach((action: Action) => {
+      newDiff.commit(action)
+    })
+
+    return newDiff
   }
 
   commit(action: Action):void {
@@ -260,5 +269,19 @@ export default class Diff {
         newDiff.commit(newAction)
       })
     return newDiff
+  }
+
+  toJSON() {
+    return this.getActions()
+  }
+
+  static fromJSON(json) {
+    const diff = new Diff
+    json.forEach((action: Action): void => {
+      action.payload = hydrate(action.payload)
+      action.oldItem = hydrate(action.oldItem)
+      diff.commit(action)
+    })
+    return diff
   }
 }

@@ -1,12 +1,12 @@
 import AdapterFactory from './AdapterFactory'
 import Logger from './Logger'
-import { Folder, ItemLocation } from './Tree'
+import { Folder, ItemLocation, TItemLocation } from './Tree'
 import UnidirectionalSyncProcess from './strategies/Unidirectional'
 import MergeSyncProcess from './strategies/Merge'
 import DefaultSyncProcess from './strategies/Default'
 import IAccountStorage, { IAccountData, TAccountStrategy } from './interfaces/AccountStorage'
 import { TAdapter } from './interfaces/Adapter'
-import { IResource, TLocalTree } from './interfaces/Resource'
+import { IResource, OrderFolderResource, TLocalTree } from './interfaces/Resource'
 import { Capacitor } from '@capacitor/core'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
@@ -102,7 +102,7 @@ export default class Account {
     return data
   }
 
-  async getResource():Promise<IResource> {
+  async getResource():Promise<OrderFolderResource> {
     return this.localTree
   }
 
@@ -191,43 +191,67 @@ export default class Account {
       mappings = await this.storage.getMappings()
       const cacheTree = localResource.constructor.name !== 'LocalTabs' ? await this.storage.getCache() : new Folder({title: '', id: 'tabs', location: ItemLocation.LOCAL})
 
-      let strategyClass, direction
-      switch (strategy || this.getData().strategy) {
-        case 'slave':
-          Logger.log('Using "merge slave" strategy (no cache available)')
-          strategyClass = UnidirectionalSyncProcess
-          direction = ItemLocation.LOCAL
-          break
-        case 'overwrite':
-          Logger.log('Using "merge overwrite" strategy (no cache available)')
-          strategyClass = UnidirectionalSyncProcess
-          direction = ItemLocation.SERVER
-          break
-        default:
-          if (!cacheTree.children.length) {
-            Logger.log('Using "merge default" strategy (no cache available)')
-            strategyClass = MergeSyncProcess
-          } else {
-            Logger.log('Using "default" strategy')
-            strategyClass = DefaultSyncProcess
-          }
-          break
-      }
+      const continuation = this.storage.getCurrentContinuation()
 
-      this.syncProcess = new strategyClass(
-        mappings,
-        localResource,
-        cacheTree,
-        this.server,
-        (progress) => {
-          this.setData({ ...this.getData(), syncing: progress })
+      if (continuation === null) {
+        // If there is no pending continuation, we just sync normally
+
+        let strategyClass: typeof DefaultSyncProcess|typeof MergeSyncProcess|typeof UnidirectionalSyncProcess, direction: TItemLocation
+        switch (strategy || this.getData().strategy) {
+          case 'slave':
+            Logger.log('Using "merge slave" strategy (no cache available)')
+            strategyClass = UnidirectionalSyncProcess
+            direction = ItemLocation.LOCAL
+            break
+          case 'overwrite':
+            Logger.log('Using "merge overwrite" strategy (no cache available)')
+            strategyClass = UnidirectionalSyncProcess
+            direction = ItemLocation.SERVER
+            break
+          default:
+            if (!cacheTree.children.length) {
+              Logger.log('Using "merge default" strategy (no cache available)')
+              strategyClass = MergeSyncProcess
+            } else {
+              Logger.log('Using "default" strategy')
+              strategyClass = DefaultSyncProcess
+            }
+            break
         }
-      )
-      if (direction) {
-        this.syncProcess.setDirection(direction)
-      }
-      await this.syncProcess.sync()
 
+        this.syncProcess = new strategyClass(
+          mappings,
+          localResource,
+          this.server,
+          async(progress) => {
+            await this.setData({ ...this.getData(), syncing: progress })
+            await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
+            await mappings.persist()
+          }
+        )
+        this.syncProcess.setCacheTree(cacheTree)
+        if (direction) {
+          this.syncProcess.setDirection(direction)
+        }
+        await this.syncProcess.sync()
+      } else {
+        // if there is a pending continuation, we resume it
+
+        this.syncProcess = DefaultSyncProcess.fromJSON(
+          mappings,
+          localResource,
+          this.server,
+          async(progress) => {
+            await this.setData({ ...this.getData(), syncing: progress })
+            await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
+            await mappings.persist()
+          },
+          continuation
+        )
+        await this.syncProcess.resumeSync()
+      }
+
+      await this.storage.setCurrentContinuation(null)
       await this.setData({ ...this.getData(), scheduled: false, syncing: 1 })
 
       // update cache
@@ -271,6 +295,9 @@ export default class Account {
         syncing: false,
         scheduled: false,
       })
+      if (matchAllErrors(e, e => e.code !== 27)) {
+        await this.storage.setCurrentContinuation(null)
+      }
       this.syncing = false
       if (this.server.onSyncFail) {
         await this.server.onSyncFail()

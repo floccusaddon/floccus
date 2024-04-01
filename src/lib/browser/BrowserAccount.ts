@@ -13,7 +13,7 @@ import {
   UnknownFolderItemOrderError
 } from '../../errors/Error'
 import {i18n} from '../native/I18n'
-import { IResource } from '../interfaces/Resource'
+import { IResource, OrderFolderResource } from '../interfaces/Resource'
 
 export default class BrowserAccount extends Account {
   static async get(id:string):Promise<Account> {
@@ -66,7 +66,7 @@ export default class BrowserAccount extends Account {
     }
   }
 
-  async getResource():Promise<IResource> {
+  async getResource():Promise<OrderFolderResource> {
     if (this.getData().localRoot !== 'tabs') {
       return this.localTree
     } else {

@@ -168,4 +168,10 @@ export default class MergeSyncProcess extends Default {
     Logger.log('Merge strategy: Load complete tree from server')
     this.serverTreeRoot = await this.server.getBookmarksTree(true)
   }
+  toJSON() {
+    return {
+      ...Default.prototype.toJSON.apply(this),
+      strategy: 'merge'
+    }
+  }
 }

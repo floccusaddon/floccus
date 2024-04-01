@@ -153,4 +153,12 @@ export default class BrowserAccountStorage {
   async deleteMappings() {
     await BrowserAccountStorage.deleteEntry(`bookmarks[${this.accountId}].mappings`)
   }
+
+  async getCurrentContinuation() {
+    return BrowserAccountStorage.getEntry(`bookmarks[${this.accountId}].continuation`)
+  }
+
+  async setCurrentContinuation(continuation) {
+    await BrowserAccountStorage.changeEntry(`bookmarks[${this.accountId}].continuation`, (_) => continuation, null)
+  }
 }
