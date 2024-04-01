@@ -237,7 +237,7 @@ export default class Account {
       } else {
         // if there is a pending continuation, we resume it
 
-        this.syncProcess = DefaultSyncProcess.fromJSON(
+        this.syncProcess = await DefaultSyncProcess.fromJSON(
           mappings,
           localResource,
           this.server,

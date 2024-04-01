@@ -10,8 +10,6 @@ import { TAdapter } from '../interfaces/Adapter'
 import { FailsafeError, InterruptedSyncError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
-import MergeSyncProcess from './Merge'
-import UnidirectionalSyncProcess from './Unidirectional'
 
 export default class SyncProcess {
   protected mappings: Mappings
@@ -979,20 +977,24 @@ export default class SyncProcess {
     }
   }
 
-  static fromJSON(mappings:Mappings,
+  static async fromJSON(mappings:Mappings,
     localTree:TLocalTree,
     server:TAdapter,
     progressCb:(progress:number)=>void,
     json: any) {
     let strategy: SyncProcess
+    let MergeSyncProcess: typeof SyncProcess
+    let UnidirectionalSyncProcess: typeof SyncProcess
     switch (json.strategy) {
       case 'default':
         strategy = new SyncProcess(mappings, localTree, server, progressCb)
         break
       case 'merge':
+        MergeSyncProcess = (await import('./Merge')).default
         strategy = new MergeSyncProcess(mappings, localTree, server, progressCb)
         break
       case 'unidirectional':
+        UnidirectionalSyncProcess = (await import('./Unidirectional')).default
         strategy = new UnidirectionalSyncProcess(mappings, localTree, server, progressCb)
     }
     strategy.setProgress(json)

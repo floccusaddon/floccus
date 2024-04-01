@@ -2,11 +2,11 @@ import { ItemLocation, TItemLocation } from '../Tree'
 import Diff, { Action, ActionType, CreateAction, MoveAction } from '../Diff'
 import Scanner from '../Scanner'
 import * as Parallel from 'async-parallel'
-import Default from './Default'
+import DefaultSyncProcess, { ISerializedSyncProcess } from './Default'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import Logger from '../Logger'
 
-export default class MergeSyncProcess extends Default {
+export default class MergeSyncProcess extends DefaultSyncProcess {
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
     // If there's no cache, diff the two trees directly
     const newMappings = []
@@ -168,9 +168,9 @@ export default class MergeSyncProcess extends Default {
     Logger.log('Merge strategy: Load complete tree from server')
     this.serverTreeRoot = await this.server.getBookmarksTree(true)
   }
-  toJSON() {
+  toJSON(): ISerializedSyncProcess {
     return {
-      ...Default.prototype.toJSON.apply(this),
+      ...DefaultSyncProcess.prototype.toJSON.apply(this),
       strategy: 'merge'
     }
   }

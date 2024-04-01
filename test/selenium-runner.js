@@ -92,6 +92,7 @@ installConsoleHandler()
     }
 
     await driver.get(testUrl)
+    console.log('Opened test page')
 
     let logs = [],
       fin
