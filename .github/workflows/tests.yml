@@ -237,6 +237,7 @@ jobs:
         env:
           SELENIUM_BROWSER: ${{ matrix.browsers }}
           FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
+          FLOCCUS_TEST_SEED: ${{ github.sha }}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GOOGLE_API_REFRESH_TOKEN: ${{ secrets.GOOGLE_API_REFRESH_TOKEN }}
           APP_VERSION: ${{ matrix.app-version }}

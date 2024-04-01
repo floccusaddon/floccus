@@ -79,6 +79,10 @@ installConsoleHandler()
       testUrl += `&password=${process.env.GOOGLE_API_REFRESH_TOKEN}`
     }
 
+    if (process.env.FLOCCUS_TEST_SEED) {
+      testUrl += `&seed=${process.env.FLOCCUS_TEST_SEED}`
+    }
+
     await driver.get(testUrl)
 
     let logs = [],
