@@ -237,22 +237,24 @@ export default class Account {
       } else {
         // if there is a pending continuation, we resume it
 
+        Logger.log('Found existing persisted pending continuation. Resuming last sync')
         this.syncProcess = await DefaultSyncProcess.fromJSON(
           mappings,
           localResource,
           this.server,
           async(progress) => {
-            await this.setData({ ...this.getData(), syncing: progress })
+            if (!this.syncing) {
+              return
+            }
             await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
+            await this.setData({ ...this.getData(), syncing: progress })
             await mappings.persist()
           },
           continuation
         )
-        this.syncProcess.setCacheTree(cacheTree)
         await this.syncProcess.resumeSync()
       }
 
-      await this.storage.setCurrentContinuation(null)
       await this.setData({ ...this.getData(), scheduled: false, syncing: 1 })
 
       // update cache
@@ -273,6 +275,7 @@ export default class Account {
 
       this.syncing = false
 
+      await this.storage.setCurrentContinuation(null)
       await this.setData({
         ...this.getData(),
         error: null,

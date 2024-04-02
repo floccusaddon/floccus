@@ -61,7 +61,10 @@ export default class SyncProcess {
     this.cacheTreeRoot = cacheTree
   }
 
-  setState({localPlan, doneLocalPlan, serverPlan, doneServerPlan, serverReorderPlan, localReorderPlan, flagLocalPostMoveMapping, flagServerPostMoveMapping, flagPostReorderReconciliation}: any) {
+  setState({localTreeRoot, cacheTreeRoot, serverTreeRoot, localPlan, doneLocalPlan, serverPlan, doneServerPlan, serverReorderPlan, localReorderPlan, flagLocalPostMoveMapping, flagServerPostMoveMapping, flagPostReorderReconciliation}: any) {
+    this.localTreeRoot = Folder.hydrate(localTreeRoot)
+    this.cacheTreeRoot = Folder.hydrate(cacheTreeRoot)
+    this.serverTreeRoot = Folder.hydrate(serverTreeRoot)
     if (typeof localPlan !== 'undefined') {
       this.localPlan = Diff.fromJSON(localPlan)
     }
@@ -197,8 +200,10 @@ export default class SyncProcess {
 
   async resumeSync(): Promise<void> {
     if (typeof this.localPlan === 'undefined' || typeof this.serverPlan === 'undefined') {
+      Logger.log('Continuation loaded from storage is incomplete. Falling back to a complete new sync iteration')
       return this.sync()
     }
+    Logger.log('Resuming sync with the following plans:')
     Logger.log({localPlan: this.localPlan, serverPlan: this.serverPlan})
 
     Logger.log('Executing server plan')
@@ -992,6 +997,9 @@ export default class SyncProcess {
   toJSON(): ISerializedSyncProcess {
     return {
       strategy: 'default',
+      localTreeRoot: this.localTreeRoot && this.localTreeRoot.clone(false),
+      cacheTreeRoot: this.cacheTreeRoot && this.cacheTreeRoot.clone(false),
+      serverTreeRoot: this.serverTreeRoot && this.serverTreeRoot.clone(false),
       localPlan: this.localPlan && this.localPlan.toJSON(),
       serverPlan: this.serverPlan && this.serverPlan.toJSON(),
       serverReorderPlan: this.serverReorderPlan && this.serverReorderPlan.toJSON(),

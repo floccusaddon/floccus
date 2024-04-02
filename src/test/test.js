@@ -5032,7 +5032,7 @@ describe('Floccus', function() {
           tree1AfterFinalSync = null
         })
 
-        it('should handle fuzzed changes', async function() {
+        it('should handle fuzzed changes from one client', async function() {
           const localRoot = account1.getData().localRoot
           let bookmarks = []
           let folders = []

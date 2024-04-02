@@ -2,7 +2,7 @@ import DefaultStrategy, { ISerializedSyncProcess } from './Default'
 import Diff, { Action, ActionType } from '../Diff'
 import * as Parallel from 'async-parallel'
 import Mappings, { MappingSnapshot } from '../Mappings'
-import { Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
+import { Folder, hydrate, ItemLocation, TItem, TItemLocation } from '../Tree'
 import Logger from '../Logger'
 import { InterruptedSyncError } from '../../errors/Error'
 import MergeSyncProcess from './Merge'
@@ -93,8 +93,10 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
   async resumeSync(): Promise<void> {
     if (typeof this.revertPlan === 'undefined') {
+      Logger.log('Continuation loaded from storage is incomplete. Falling back to a complete new sync iteration')
       return this.sync()
     }
+    Logger.log('Resuming sync with the following plan:')
     Logger.log({revertPlan: this.revertPlan})
 
     let target: IResource|OrderFolderResource
@@ -201,8 +203,11 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     return newItem
   }
 
-  setState({direction, revertPlan, revertOrderings, flagPreReordering, sourceDiff}: any) {
+  setState({localTreeRoot, cacheTreeRoot, serverTreeRoot, direction, revertPlan, revertOrderings, flagPreReordering, sourceDiff}: any) {
     this.setDirection(direction)
+    this.localTreeRoot = Folder.hydrate(localTreeRoot)
+    this.cacheTreeRoot = Folder.hydrate(cacheTreeRoot)
+    this.serverTreeRoot = Folder.hydrate(serverTreeRoot)
     if (typeof revertPlan !== 'undefined') {
       this.revertPlan = Diff.fromJSON(revertPlan)
     }
@@ -219,6 +224,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     return {
       strategy: 'unidirectional',
       direction: this.direction,
+      localTreeRoot: this.localTreeRoot.clone(false),
+      cacheTreeRoot: this.cacheTreeRoot.clone(false),
+      serverTreeRoot: this.serverTreeRoot.clone(false),
       sourceDiff: this.sourceDiff,
       revertPlan: this.revertPlan,
       revertOrderings: this.revertOrderings,
