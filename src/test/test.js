@@ -5726,7 +5726,7 @@ describe('Floccus', function() {
           }
         })
 
-        it.skip('should handle fuzzed changes with deletions from two clients with interrupts', async function() {
+        it('should handle fuzzed changes with deletions from two clients with interrupts', async function() {
           const localRoot = account1.getData().localRoot
           let bookmarks1 = []
           let folders1 = []
