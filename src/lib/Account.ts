@@ -193,7 +193,7 @@ export default class Account {
 
       const continuation = await this.storage.getCurrentContinuation()
 
-      if (typeof continuation === 'undefined') {
+      if (typeof continuation === 'undefined' || continuation === null) {
         // If there is no pending continuation, we just sync normally
 
         let strategyClass: typeof DefaultSyncProcess|typeof MergeSyncProcess|typeof UnidirectionalSyncProcess, direction: TItemLocation
