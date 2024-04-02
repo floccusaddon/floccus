@@ -21,8 +21,8 @@ export default class SyncProcess {
   protected progressCb: (progress:number)=>void
   protected localTreeRoot: Folder
   protected serverTreeRoot: Folder
-  protected actionsDone: number
-  protected actionsPlanned: number
+  protected actionsDone = 0
+  protected actionsPlanned = 0
   protected isFirefox: boolean
   protected doneLocalPlan: Diff
   protected doneServerPlan: Diff
@@ -60,9 +60,12 @@ export default class SyncProcess {
   }
 
   setState({localPlan, serverPlan, serverReorderPlan, localReorderPlan, flagPostMoveMapping, flagPostReorderReconciliation}: any) {
-    this.localPlan = Diff.fromJSON(localPlan)
-    this.localPlan = Diff.fromJSON(localPlan)
-    this.serverPlan = Diff.fromJSON(serverPlan)
+    if (typeof localPlan !== 'undefined') {
+      this.localPlan = Diff.fromJSON(localPlan)
+    }
+    if (typeof serverPlan !== 'undefined') {
+      this.serverPlan = Diff.fromJSON(serverPlan)
+    }
     if (typeof localReorderPlan !== 'undefined') {
       this.localReorderPlan = Diff.fromJSON(localReorderPlan)
     }
@@ -182,6 +185,9 @@ export default class SyncProcess {
   }
 
   async resumeSync(): Promise<void> {
+    if (typeof this.localPlan === 'undefined' || typeof this.serverPlan === 'undefined') {
+      return this.sync()
+    }
     Logger.log({localPlan: this.localPlan, serverPlan: this.serverPlan})
 
     Logger.log('Executing server plan')
@@ -614,6 +620,8 @@ export default class SyncProcess {
         this.serverPlan = mappedPlan
       }
       this.flagPostMoveMapping = true
+    } else {
+      mappedPlan = plan
     }
 
     if (this.canceled) {
@@ -966,10 +974,10 @@ export default class SyncProcess {
   toJSON(): ISerializedSyncProcess {
     return {
       strategy: 'default',
-      localPlan: this.localPlan.toJSON(),
-      serverPlan: this.serverPlan.toJSON(),
-      serverReorderPlan: this.serverReorderPlan.toJSON(),
-      localReorderPlan: this.serverPlan.toJSON(),
+      localPlan: this.localPlan && this.localPlan.toJSON(),
+      serverPlan: this.serverPlan && this.serverPlan.toJSON(),
+      serverReorderPlan: this.serverReorderPlan && this.serverReorderPlan.toJSON(),
+      localReorderPlan: this.localReorderPlan && this.localReorderPlan.toJSON(),
       actionsDone: this.actionsDone,
       actionsPlanned: this.actionsPlanned,
       flagPostMoveMapping: this.flagPostMoveMapping,
@@ -996,6 +1004,9 @@ export default class SyncProcess {
       case 'unidirectional':
         UnidirectionalSyncProcess = (await import('./Unidirectional')).default
         strategy = new UnidirectionalSyncProcess(mappings, localTree, server, progressCb)
+        break
+      default:
+        throw new Error('Unknown strategy: ' + json.strategy)
     }
     strategy.setProgress(json)
     strategy.setState(json)

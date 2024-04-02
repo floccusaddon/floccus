@@ -92,6 +92,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   }
 
   async resumeSync(): Promise<void> {
+    if (typeof this.revertPlan === 'undefined') {
+      return this.sync()
+    }
     Logger.log({revertPlan: this.revertPlan})
 
     let target: IResource|OrderFolderResource
@@ -200,8 +203,12 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
   setState({direction, revertPlan, revertOrderings, flagPreReordering, sourceDiff}: any) {
     this.setDirection(direction)
-    this.revertPlan = Diff.fromJSON(revertPlan)
-    this.sourceDiff = Diff.fromJSON(sourceDiff)
+    if (typeof revertPlan !== 'undefined') {
+      this.revertPlan = Diff.fromJSON(revertPlan)
+    }
+    if (typeof sourceDiff !== 'undefined') {
+      this.sourceDiff = Diff.fromJSON(sourceDiff)
+    }
     if (typeof revertOrderings !== 'undefined') {
       this.revertOrderings = Diff.fromJSON(revertOrderings)
     }

@@ -272,7 +272,13 @@ export default class Diff {
   }
 
   toJSON() {
-    return this.getActions()
+    return this.getActions().map((action: Action) => {
+      return {
+        ...action,
+        payload: action.payload.clone(false),
+        oldItem: action.payload.clone(false),
+      }
+    })
   }
 
   static fromJSON(json) {

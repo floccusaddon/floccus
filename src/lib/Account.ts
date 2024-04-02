@@ -191,9 +191,9 @@ export default class Account {
       mappings = await this.storage.getMappings()
       const cacheTree = localResource.constructor.name !== 'LocalTabs' ? await this.storage.getCache() : new Folder({title: '', id: 'tabs', location: ItemLocation.LOCAL})
 
-      const continuation = this.storage.getCurrentContinuation()
+      const continuation = await this.storage.getCurrentContinuation()
 
-      if (continuation === null) {
+      if (typeof continuation === 'undefined') {
         // If there is no pending continuation, we just sync normally
 
         let strategyClass: typeof DefaultSyncProcess|typeof MergeSyncProcess|typeof UnidirectionalSyncProcess, direction: TItemLocation
@@ -248,6 +248,7 @@ export default class Account {
           },
           continuation
         )
+        this.syncProcess.setCacheTree(cacheTree)
         await this.syncProcess.resumeSync()
       }
 
