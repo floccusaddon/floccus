@@ -30,7 +30,9 @@ export default class SyncProcess {
   protected serverPlan: Diff
   protected localReorderPlan: Diff
   protected serverReorderPlan: Diff
-  protected flagPostMoveMapping = false
+  protected flagLocalPostMoveMapping = false
+  protected flagLocalPostReorderReconciliation = false
+  protected flagServerPostMoveMapping = false
   protected flagPostReorderReconciliation = false
 
   // The location that has precedence in case of conflicts
@@ -59,7 +61,7 @@ export default class SyncProcess {
     this.cacheTreeRoot = cacheTree
   }
 
-  setState({localPlan, serverPlan, serverReorderPlan, localReorderPlan, flagPostMoveMapping, flagPostReorderReconciliation}: any) {
+  setState({localPlan, serverPlan, serverReorderPlan, localReorderPlan, flagLocalPostMoveMapping, flagServerPostMoveMapping, flagPostReorderReconciliation}: any) {
     if (typeof localPlan !== 'undefined') {
       this.localPlan = Diff.fromJSON(localPlan)
     }
@@ -72,7 +74,8 @@ export default class SyncProcess {
     if (typeof serverReorderPlan !== 'undefined') {
       this.serverReorderPlan = Diff.fromJSON(serverReorderPlan)
     }
-    this.flagPostMoveMapping = flagPostMoveMapping
+    this.flagLocalPostMoveMapping = flagLocalPostMoveMapping
+    this.flagServerPostMoveMapping = flagServerPostMoveMapping
     this.flagPostReorderReconciliation = flagPostReorderReconciliation
   }
 
@@ -602,7 +605,7 @@ export default class SyncProcess {
     const run = (action) => this.executeAction(resource, action, targetLocation, plan)
     let mappedPlan
 
-    if (!this.flagPostMoveMapping) {
+    if ((targetLocation === ItemLocation.LOCAL && !this.flagLocalPostMoveMapping) || (targetLocation === ItemLocation.SERVER && !this.flagServerPostMoveMapping)) {
       Logger.log(targetLocation + ': executing CREATEs and UPDATEs')
       await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run, 1)
 
@@ -616,10 +619,11 @@ export default class SyncProcess {
 
       if (targetLocation === ItemLocation.LOCAL) {
         this.localPlan = mappedPlan
+        this.flagLocalPostMoveMapping = true
       } else {
         this.serverPlan = mappedPlan
+        this.flagServerPostMoveMapping = true
       }
-      this.flagPostMoveMapping = true
     } else {
       mappedPlan = plan
     }
@@ -980,7 +984,9 @@ export default class SyncProcess {
       localReorderPlan: this.localReorderPlan && this.localReorderPlan.toJSON(),
       actionsDone: this.actionsDone,
       actionsPlanned: this.actionsPlanned,
-      flagPostMoveMapping: this.flagPostMoveMapping,
+      flagLocalPostMoveMapping: this.flagLocalPostMoveMapping,
+      flagLocalPostReorderReconciliation: this.flagLocalPostReorderReconciliation,
+      flagServerPostMoveMapping: this.flagServerPostMoveMapping,
       flagPostReorderReconciliation: this.flagPostReorderReconciliation
     }
   }
