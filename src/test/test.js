@@ -128,13 +128,13 @@ describe('Floccus', function() {
     },
     {
       type: 'google-drive',
-      bookmark_file: random.float() + '.xbel',
+      bookmark_file: Math.random() + '.xbel',
       password: '',
       refreshToken: CREDENTIALS.password,
     },
     {
       type: 'google-drive',
-      bookmark_file: random.float() + '.xbel',
+      bookmark_file: Math.random() + '.xbel',
       password: random.float(),
       refreshToken: CREDENTIALS.password,
     },
