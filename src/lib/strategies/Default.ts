@@ -24,10 +24,10 @@ export default class SyncProcess {
   protected actionsDone = 0
   protected actionsPlanned = 0
   protected isFirefox: boolean
-  protected doneLocalPlan: Diff
-  protected doneServerPlan: Diff
   protected localPlan: Diff
   protected serverPlan: Diff
+  protected doneLocalPlan: Diff
+  protected doneServerPlan: Diff
   protected localReorderPlan: Diff
   protected serverReorderPlan: Diff
   protected flagLocalPostMoveMapping = false
@@ -61,12 +61,18 @@ export default class SyncProcess {
     this.cacheTreeRoot = cacheTree
   }
 
-  setState({localPlan, serverPlan, serverReorderPlan, localReorderPlan, flagLocalPostMoveMapping, flagServerPostMoveMapping, flagPostReorderReconciliation}: any) {
+  setState({localPlan, doneLocalPlan, serverPlan, doneServerPlan, serverReorderPlan, localReorderPlan, flagLocalPostMoveMapping, flagServerPostMoveMapping, flagPostReorderReconciliation}: any) {
     if (typeof localPlan !== 'undefined') {
       this.localPlan = Diff.fromJSON(localPlan)
     }
     if (typeof serverPlan !== 'undefined') {
       this.serverPlan = Diff.fromJSON(serverPlan)
+    }
+    if (typeof doneLocalPlan !== 'undefined') {
+      this.doneLocalPlan = Diff.fromJSON(doneLocalPlan)
+    }
+    if (typeof doneServerPlan !== 'undefined') {
+      this.doneServerPlan = Diff.fromJSON(doneServerPlan)
     }
     if (typeof localReorderPlan !== 'undefined') {
       this.localReorderPlan = Diff.fromJSON(localReorderPlan)
@@ -155,19 +161,19 @@ export default class SyncProcess {
       throw new InterruptedSyncError()
     }
 
-    Logger.log({localPlan: this.localPlan, serverPlan: this.serverPlan})
+    this.doneServerPlan = new Diff
+    this.doneLocalPlan = new Diff
 
-    this.doneLocalPlan = new Diff()
-    this.doneServerPlan = new Diff()
+    Logger.log({localPlan: this.localPlan, serverPlan: this.serverPlan})
 
     this.actionsPlanned = this.serverPlan.getActions().length + this.localPlan.getActions().length
 
     this.applyFailsafe(this.localPlan)
 
     Logger.log('Executing server plan')
-    await this.execute(this.server, this.serverPlan, ItemLocation.SERVER)
+    await this.execute(this.server, this.serverPlan, ItemLocation.SERVER, this.doneServerPlan)
     Logger.log('Executing local plan')
-    await this.execute(this.localTree, this.localPlan, ItemLocation.LOCAL)
+    await this.execute(this.localTree, this.localPlan, ItemLocation.LOCAL, this.doneLocalPlan)
 
     // mappings have been updated, reload
     mappingsSnapshot = this.mappings.getSnapshot()
@@ -178,6 +184,8 @@ export default class SyncProcess {
 
       this.serverReorderPlan = this.reconcileReorderings(this.serverPlan, this.doneLocalPlan, mappingsSnapshot)
         .map(mappingsSnapshot, ItemLocation.SERVER)
+
+      this.flagPostReorderReconciliation = true
 
       Logger.log('Executing reorderings')
       await Promise.all([
@@ -194,19 +202,19 @@ export default class SyncProcess {
     Logger.log({localPlan: this.localPlan, serverPlan: this.serverPlan})
 
     Logger.log('Executing server plan')
-    this.serverPlan = await this.execute(this.server, this.serverPlan, ItemLocation.SERVER)
+    await this.execute(this.server, this.serverPlan, ItemLocation.SERVER, this.doneServerPlan)
     Logger.log('Executing local plan')
-    this.localPlan = await this.execute(this.localTree, this.localPlan, ItemLocation.LOCAL)
+    await this.execute(this.localTree, this.localPlan, ItemLocation.LOCAL, this.doneLocalPlan)
 
     // mappings have been updated, reload
     const mappingsSnapshot = this.mappings.getSnapshot()
 
     if ('orderFolder' in this.server) {
       if (!this.flagPostReorderReconciliation) {
-        this.localReorderPlan = this.reconcileReorderings(this.localPlan, this.serverPlan, mappingsSnapshot)
+        this.localReorderPlan = this.reconcileReorderings(this.localPlan, this.doneServerPlan, mappingsSnapshot)
           .map(mappingsSnapshot, ItemLocation.LOCAL)
 
-        this.serverReorderPlan = this.reconcileReorderings(this.serverPlan, this.localPlan, mappingsSnapshot)
+        this.serverReorderPlan = this.reconcileReorderings(this.serverPlan, this.doneLocalPlan, mappingsSnapshot)
           .map(mappingsSnapshot, ItemLocation.SERVER)
       }
 
@@ -600,12 +608,12 @@ export default class SyncProcess {
     return targetPlan
   }
 
-  async execute(resource:TResource, plan:Diff, targetLocation:TItemLocation):Promise<Diff> {
+  async execute(resource:TResource, plan:Diff, targetLocation:TItemLocation, donePlan: Diff = null, isSubPlan = false):Promise<Diff> {
     Logger.log('Executing plan for ' + targetLocation)
-    const run = (action) => this.executeAction(resource, action, targetLocation, plan)
+    const run = (action) => this.executeAction(resource, action, targetLocation, plan, donePlan)
     let mappedPlan
 
-    if ((targetLocation === ItemLocation.LOCAL && !this.flagLocalPostMoveMapping) || (targetLocation === ItemLocation.SERVER && !this.flagServerPostMoveMapping)) {
+    if (isSubPlan || ((targetLocation === ItemLocation.LOCAL && !this.flagLocalPostMoveMapping) || (targetLocation === ItemLocation.SERVER && !this.flagServerPostMoveMapping))) {
       Logger.log(targetLocation + ': executing CREATEs and UPDATEs')
       await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run, 1)
 
@@ -617,12 +625,14 @@ export default class SyncProcess {
       Logger.log(targetLocation + ': mapping MOVEs')
       mappedPlan = plan.map(mappingsSnapshot, targetLocation, (action) => action.type === ActionType.MOVE)
 
-      if (targetLocation === ItemLocation.LOCAL) {
-        this.localPlan = mappedPlan
-        this.flagLocalPostMoveMapping = true
-      } else {
-        this.serverPlan = mappedPlan
-        this.flagServerPostMoveMapping = true
+      if (!isSubPlan) {
+        if (targetLocation === ItemLocation.LOCAL) {
+          this.localPlan = mappedPlan
+          this.flagLocalPostMoveMapping = true
+        } else {
+          this.serverPlan = mappedPlan
+          this.flagServerPostMoveMapping = true
+        }
       }
     } else {
       mappedPlan = plan
@@ -647,12 +657,15 @@ export default class SyncProcess {
     return mappedPlan
   }
 
-  async executeAction(resource:TResource, action:Action, targetLocation:TItemLocation, plan: Diff):Promise<void> {
+  async executeAction(resource:TResource, action:Action, targetLocation:TItemLocation, plan: Diff, donePlan: Diff = null):Promise<void> {
     Logger.log('Executing action ', action)
     const item = action.payload
     const done = () => {
-      this.updateProgress()
       plan.retract(action)
+      if (donePlan) {
+        donePlan.commit(action)
+      }
+      this.updateProgress()
     }
 
     if (this.canceled) {
@@ -716,7 +729,8 @@ export default class SyncProcess {
           action.oldItem.children.forEach((child) => subPlan.commit({ type: ActionType.CREATE, payload: child }))
           let mappingsSnapshot = this.mappings.getSnapshot()
           const mappedSubPlan = subPlan.map(mappingsSnapshot, targetLocation)
-          await this.execute(resource, mappedSubPlan, targetLocation)
+          Logger.log('executing sub plan')
+          await this.execute(resource, mappedSubPlan, targetLocation, null, true)
 
           if (item.children.length > 1) {
             // Order created items after the fact, as they've been created concurrently
