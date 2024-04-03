@@ -94,6 +94,13 @@ export default class SyncProcess {
   }
 
   updateProgress():void {
+    if (this.serverPlan && this.localPlan) {
+      this.actionsPlanned = this.serverPlan.getActions().length + this.localPlan.getActions().length
+    } else if ('revertPlan' in this) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      this.actionsPlanned = this.revertPlan.getActions().length
+    }
     Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
     this.actionsDone++
     this.progressCb(
@@ -667,6 +674,16 @@ export default class SyncProcess {
     const item = action.payload
     const done = () => {
       plan.retract(action)
+      if (targetLocation === ItemLocation.LOCAL) {
+        this.localPlan && this.localPlan.retract(action)
+      } else {
+        this.localPlan && this.serverPlan.retract(action)
+      }
+      if ('revertPlan' in this) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        this.revertPlan.retract(action)
+      }
       if (donePlan) {
         donePlan.commit(action)
       }
@@ -731,26 +748,24 @@ export default class SyncProcess {
         // Create a sub plan
         if (action.oldItem && action.oldItem instanceof Folder) {
           const subPlan = new Diff
-          action.oldItem.children.forEach((child) => subPlan.commit({ type: ActionType.CREATE, payload: child }))
-          let mappingsSnapshot = this.mappings.getSnapshot()
+          action.oldItem.children.forEach((child) => {
+            const newAction : Action = { type: ActionType.CREATE, payload: child }
+            subPlan.commit(newAction)
+            plan.commit(newAction)
+          })
+          const mappingsSnapshot = this.mappings.getSnapshot()
           const mappedSubPlan = subPlan.map(mappingsSnapshot, targetLocation)
           Logger.log('executing sub plan')
           await this.execute(resource, mappedSubPlan, targetLocation, null, true)
 
-          if (item.children.length > 1) {
+          if ('orderFolder' in resource && item.children.length > 1) {
             // Order created items after the fact, as they've been created concurrently
-            const subOrder = new Diff()
-            subOrder.commit({
+            plan.commit({
               type: ActionType.REORDER,
               oldItem: action.payload,
               payload: action.oldItem,
               order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
             })
-            mappingsSnapshot = this.mappings.getSnapshot()
-            const mappedOrder = subOrder.map(mappingsSnapshot, targetLocation)
-            if ('orderFolder' in resource) {
-              await this.executeReorderings(resource, mappedOrder)
-            }
           }
         }
       }
