@@ -62,9 +62,15 @@ export default class SyncProcess {
   }
 
   setState({localTreeRoot, cacheTreeRoot, serverTreeRoot, localPlan, doneLocalPlan, serverPlan, doneServerPlan, serverReorderPlan, localReorderPlan, flagLocalPostMoveMapping, flagServerPostMoveMapping, flagPostReorderReconciliation}: any) {
-    this.localTreeRoot = Folder.hydrate(localTreeRoot)
-    this.cacheTreeRoot = Folder.hydrate(cacheTreeRoot)
-    this.serverTreeRoot = Folder.hydrate(serverTreeRoot)
+    if (typeof localTreeRoot !== 'undefined') {
+      this.localTreeRoot = Folder.hydrate(localTreeRoot)
+    }
+    if (typeof cacheTreeRoot !== 'undefined') {
+      this.cacheTreeRoot = Folder.hydrate(cacheTreeRoot)
+    }
+    if (typeof serverTreeRoot !== 'undefined') {
+      this.serverTreeRoot = Folder.hydrate(serverTreeRoot)
+    }
     if (typeof localPlan !== 'undefined') {
       this.localPlan = Diff.fromJSON(localPlan)
     }
