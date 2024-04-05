@@ -285,7 +285,7 @@ export default class Diff {
     const diff = new Diff
     json.forEach((action: Action): void => {
       action.payload = hydrate(action.payload)
-      action.oldItem = hydrate(action.oldItem)
+      action.oldItem = action.oldItem && hydrate(action.oldItem)
       diff.commit(action)
     })
     return diff
