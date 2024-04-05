@@ -276,7 +276,7 @@ export default class Diff {
       return {
         ...action,
         payload: action.payload.clone(false),
-        oldItem: action.payload.clone(false),
+        oldItem: action.oldItem && action.oldItem.clone(false),
       }
     })
   }
