@@ -2232,7 +2232,7 @@ describe('Floccus', function() {
               bookmark.parentId = serverTree.children.find(folder => folder.title !== 'foo').id
               const fooFolder = serverTree.children.find(folder => folder.title === 'foo')
               await adapter.updateBookmark(new Bookmark(bookmark))
-              // toLowerCase to accomodate chrome (since we normalize the title)
+              // toLowerCase to accommodate chrome (since we normalize the title)
               const secondBookmark = serverTree.children.find(folder => folder.title.toLowerCase() === secondBookmarkFolderTitle.toLowerCase()).children.find(item => item.type === 'bookmark')
               secondBookmark.parentId = fooFolder.id
               await adapter.updateBookmark(secondBookmark)
@@ -2707,7 +2707,7 @@ describe('Floccus', function() {
                 bookmark.parentId = serverTree.children.find(folder => folder.title !== 'foo').id
                 const fooFolder = serverTree.children.find(folder => folder.title === 'foo')
                 await adapter.updateBookmark(new Bookmark(bookmark))
-                // toLowerCase to accomodate chrome (since we normalize the title)
+                // toLowerCase to accommodate chrome (since we normalize the title)
                 const secondBookmark = serverTree.children.find(folder => folder.title.toLowerCase() === secondBookmarkFolderTitle.toLowerCase()).children.find(item => item.type === 'bookmark')
                 secondBookmark.parentId = fooFolder.id
                 await adapter.updateBookmark(secondBookmark)
