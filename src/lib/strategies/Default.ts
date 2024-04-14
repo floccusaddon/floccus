@@ -7,7 +7,7 @@ import { throttle } from 'throttle-debounce'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import TResource, { OrderFolderResource, TLocalTree } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
-import { FailsafeError, InterruptedSyncError } from '../../errors/Error'
+import { CancelledSyncError, FailsafeError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 
@@ -143,7 +143,7 @@ export default class SyncProcess {
     this.progressCb(0.35)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
@@ -153,7 +153,7 @@ export default class SyncProcess {
     this.progressCb(0.5)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     const unmappedServerPlan = await this.reconcileDiffs(localDiff, serverDiff, ItemLocation.SERVER)
@@ -164,7 +164,7 @@ export default class SyncProcess {
     this.serverPlan = unmappedServerPlan.map(mappingsSnapshot, ItemLocation.SERVER, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     const unmappedLocalPlan = await this.reconcileDiffs(serverDiff, localDiff, ItemLocation.LOCAL)
@@ -174,7 +174,7 @@ export default class SyncProcess {
     this.localPlan = unmappedLocalPlan.map(mappingsSnapshot, ItemLocation.LOCAL, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     this.doneServerPlan = new Diff
@@ -636,7 +636,7 @@ export default class SyncProcess {
       await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run, 1)
 
       if (this.canceled) {
-        throw new InterruptedSyncError()
+        throw new CancelledSyncError()
       }
 
       const mappingsSnapshot = this.mappings.getSnapshot()
@@ -657,7 +657,7 @@ export default class SyncProcess {
     }
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     const batches = Diff.sortMoves(mappedPlan.getActions(ActionType.MOVE), targetLocation === ItemLocation.SERVER ? this.serverTreeRoot : this.localTreeRoot)
@@ -666,7 +666,7 @@ export default class SyncProcess {
     await Parallel.each(batches, batch => Parallel.each(batch, run, 1), 1)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     Logger.log(targetLocation + ': executing REMOVEs')
@@ -697,7 +697,7 @@ export default class SyncProcess {
     }
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     if (action.type === ActionType.REMOVE) {
@@ -876,7 +876,7 @@ export default class SyncProcess {
       const item = action.payload
 
       if (this.canceled) {
-        throw new InterruptedSyncError()
+        throw new CancelledSyncError()
       }
 
       if (action.order.length <= 1) {
@@ -940,7 +940,7 @@ export default class SyncProcess {
 
   async loadChildren(serverItem:TItem, mappingsSnapshot:MappingSnapshot):Promise<void> {
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
     if (!(serverItem instanceof Folder)) return
     if (!('loadFolderChildren' in this.server)) return

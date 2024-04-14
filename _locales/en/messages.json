@@ -75,7 +75,7 @@
     "message": "E025: Bookmarks file setting mustn't begin with a slash: '/'"
   },
   "Error026": {
-    "message": "E026: HTTP status {0}. Failed to fetch bookmarks"
+    "message": "E026: Sync process was cancelled"
   },
   "Error027": {
     "message": "E027: Sync process was interrupted"

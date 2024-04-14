@@ -2,9 +2,9 @@ import DefaultStrategy, { ISerializedSyncProcess } from './Default'
 import Diff, { Action, ActionType } from '../Diff'
 import * as Parallel from 'async-parallel'
 import Mappings, { MappingSnapshot } from '../Mappings'
-import { Folder, hydrate, ItemLocation, TItem, TItemLocation } from '../Tree'
+import { Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
 import Logger from '../Logger'
-import { InterruptedSyncError } from '../../errors/Error'
+import { CancelledSyncError } from '../../errors/Error'
 import MergeSyncProcess from './Merge'
 import TResource, { IResource, OrderFolderResource } from '../interfaces/Resource'
 
@@ -36,7 +36,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     this.progressCb(0.35)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     const {localDiff, serverDiff} = await this.getDiffs()
@@ -44,7 +44,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     this.progressCb(0.5)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     let sourceDiff: Diff, targetDiff: Diff, target: TResource
@@ -70,7 +70,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     }
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     Logger.log('Executing ' + this.direction + ' revert plan')
