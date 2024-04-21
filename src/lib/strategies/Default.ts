@@ -18,7 +18,7 @@ export default class SyncProcess {
   protected cacheTreeRoot: Folder|null
   protected canceled: boolean
   protected preserveOrder: boolean
-  protected progressCb: (progress:number)=>void
+  protected progressCb: (progress:number, actionsDone?:number)=>void
   protected localTreeRoot: Folder
   protected serverTreeRoot: Folder
   protected actionsDone = 0
@@ -42,7 +42,7 @@ export default class SyncProcess {
     mappings:Mappings,
     localTree:TLocalTree,
     server:TAdapter,
-    progressCb:(progress:number)=>void
+    progressCb:(progress:number, actionsDone?:number)=>void
   ) {
     this.mappings = mappings
     this.localTree = localTree
@@ -50,7 +50,7 @@ export default class SyncProcess {
 
     this.preserveOrder = 'orderFolder' in this.server
 
-    this.progressCb = throttle(250, true, progressCb) as (progress:number)=>void
+    this.progressCb = throttle(250, true, progressCb) as (progress:number, actionsDone?:number)=>void
     this.actionsDone = 0
     this.actionsPlanned = 0
     this.canceled = false
@@ -116,7 +116,8 @@ export default class SyncProcess {
       Math.min(
         1,
         0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
-      )
+      ),
+      this.actionsDone
     )
   }
 
@@ -127,7 +128,8 @@ export default class SyncProcess {
       Math.min(
         1,
         0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
-      )
+      ),
+      this.actionsDone
     )
   }
 

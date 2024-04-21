@@ -247,9 +247,11 @@ export default class Account {
           mappings,
           localResource,
           this.server,
-          async(progress) => {
+          async(progress, actionsDone?) => {
             await this.setData({ ...this.getData(), syncing: progress })
-            await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
+            if (actionsDone) {
+              await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
+            }
             await mappings.persist()
           }
         )
