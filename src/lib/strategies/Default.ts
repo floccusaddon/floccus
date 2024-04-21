@@ -108,6 +108,9 @@ export default class SyncProcess {
       this.actionsPlanned = this.revertPlan.getActions().length
     }
     Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
+    if (typeof this.actionsDone === 'undefined') {
+      this.actionsDone = 0
+    }
     this.actionsDone++
     this.progressCb(
       Math.min(

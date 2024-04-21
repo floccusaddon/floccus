@@ -62,11 +62,11 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     // First revert slave modifications
 
-    const revertPlan = await this.revertDiff(targetDiff, this.direction)
-    this.actionsPlanned = revertPlan.getActions().length
-    Logger.log({revertPlan})
+    this.revertPlan = await this.revertDiff(targetDiff, this.direction)
+    this.actionsPlanned = this.revertPlan.getActions().length
+    Logger.log({revertPlan: this.revertPlan})
     if (this.direction === ItemLocation.LOCAL) {
-      this.applyFailsafe(revertPlan)
+      this.applyFailsafe(this.revertPlan)
     }
 
     if (this.canceled) {
@@ -74,7 +74,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     }
 
     Logger.log('Executing ' + this.direction + ' revert plan')
-    await this.execute(target, revertPlan, this.direction)
+    await this.execute(target, this.revertPlan, this.direction)
 
     const mappingsSnapshot = this.mappings.getSnapshot()
     Logger.log('Mapping reorderings')
@@ -230,7 +230,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       sourceDiff: this.sourceDiff,
       revertPlan: this.revertPlan,
       revertOrderings: this.revertOrderings,
-      flagPreReordering: this.flagPreReordering
+      flagPreReordering: this.flagPreReordering,
+      actionsDone: this.actionsDone,
+      actionsPlanned: this.actionsPlanned,
     }
   }
 }
