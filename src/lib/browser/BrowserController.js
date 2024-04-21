@@ -369,6 +369,7 @@ export default class BrowserController {
           await acc.setData({
             ...acc.getData(),
             syncing: false,
+            scheduled: true,
           })
         }
       })
