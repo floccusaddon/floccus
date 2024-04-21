@@ -62,6 +62,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     // First revert slave modifications
 
+    this.sourceDiff = sourceDiff
     this.revertPlan = await this.revertDiff(targetDiff, this.direction)
     this.actionsPlanned = this.revertPlan.getActions().length
     Logger.log({revertPlan: this.revertPlan})
