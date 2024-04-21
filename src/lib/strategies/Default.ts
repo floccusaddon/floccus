@@ -685,6 +685,7 @@ export default class SyncProcess {
     const item = action.payload
     const done = () => {
       plan.retract(action)
+      // TODO: This is kind of a hack :/
       if (targetLocation === ItemLocation.LOCAL) {
         this.localPlan && this.localPlan.retract(action)
       } else {

@@ -225,9 +225,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     return {
       strategy: 'unidirectional',
       direction: this.direction,
-      localTreeRoot: this.localTreeRoot.clone(false),
-      cacheTreeRoot: this.cacheTreeRoot.clone(false),
-      serverTreeRoot: this.serverTreeRoot.clone(false),
+      localTreeRoot: this.localTreeRoot && this.localTreeRoot.clone(false),
+      cacheTreeRoot: this.localTreeRoot && this.cacheTreeRoot.clone(false),
+      serverTreeRoot: this.localTreeRoot && this.serverTreeRoot.clone(false),
       sourceDiff: this.sourceDiff,
       revertPlan: this.revertPlan,
       revertOrderings: this.revertOrderings,
