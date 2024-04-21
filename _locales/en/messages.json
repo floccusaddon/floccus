@@ -351,6 +351,18 @@
   "DescriptionGithubsponsors": {
     "message": "Make a regular donation via GitHub sponsors to support the project"
   },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "Make a regular donation via Patreon to support the project"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "Make a regular or one-time donation via Ko-fi to support the project"
+  },
   "LegacyAdapterDeprecation": {
     "message": "This legacy profile type is deprecated and will soon be removed. Please switch to the new nextcloud sync method. Improved performance and accuracy await you."
   },

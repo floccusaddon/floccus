@@ -59,6 +59,7 @@
 <script>
 import {version as VERSION} from '../../../package.json'
 import { routes } from '../NativeRouter'
+import browser from '../../lib/browser-api'
 
 export default {
   name: 'Update',
@@ -85,7 +86,17 @@ export default {
           href: 'https://github.com/users/marcelklehr/sponsorship',
           label: this.t('LabelGithubsponsors'),
           description: this.t('DescriptionGithubsponsors')
-        }
+        },
+        {
+          href: 'https://www.patreon.com/marcelklehr',
+          label: this.t('LabelPatreon'),
+          description: this.t('DescriptionPatreon')
+        },
+        {
+          href: 'https://www.ko-fi.com/marcelklehr',
+          label: this.t('LabelKofi'),
+          description: this.t('DescriptionKofi')
+        },
       ]
     }
   },
