@@ -6631,7 +6631,7 @@ async function syncAccountWithInterrupts(account) {
   try {
     expect(account.getData().error).to.not.be.ok
   } catch (e) {
-    if (!account.getData().error.includes('E027')) {
+    if (!account.getData().error.includes('E026')) {
       throw e
     } else {
       console.log(account.getData().error)
