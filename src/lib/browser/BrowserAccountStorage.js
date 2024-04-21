@@ -159,6 +159,6 @@ export default class BrowserAccountStorage {
   }
 
   async setCurrentContinuation(continuation) {
-    await BrowserAccountStorage.changeEntry(`bookmarks[${this.accountId}].continuation`, (_) => continuation, null)
+    await BrowserAccountStorage.changeEntry(`bookmarks[${this.accountId}].continuation`, (_) => ({...continuation, createdAt: Date.now()}), null)
   }
 }

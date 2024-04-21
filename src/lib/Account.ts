@@ -193,8 +193,10 @@ export default class Account {
 
       const continuation = await this.storage.getCurrentContinuation()
 
-      if (typeof continuation === 'undefined' || continuation === null) {
+      if (typeof continuation === 'undefined' || continuation === null || (typeof strategy !== 'undefined' && continuation.strategy !== strategy) || Date.now() - continuation.createdAt > 1000 * 60 * 30) {
         // If there is no pending continuation, we just sync normally
+        // Same if the pending continuation was overridden by a different strategy
+        // same if the continuation is older than half an hour. We don't want old zombie continuations
 
         let strategyClass: typeof DefaultSyncProcess|typeof MergeSyncProcess|typeof UnidirectionalSyncProcess, direction: TItemLocation
         switch (strategy || this.getData().strategy) {
