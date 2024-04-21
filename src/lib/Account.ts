@@ -191,7 +191,29 @@ export default class Account {
       mappings = await this.storage.getMappings()
       const cacheTree = localResource.constructor.name !== 'LocalTabs' ? await this.storage.getCache() : new Folder({title: '', id: 'tabs', location: ItemLocation.LOCAL})
 
-      const continuation = await this.storage.getCurrentContinuation()
+      let continuation = await this.storage.getCurrentContinuation()
+
+      if (typeof continuation !== 'undefined' && continuation !== null) {
+        try {
+          this.syncProcess = await DefaultSyncProcess.fromJSON(
+            mappings,
+            localResource,
+            this.server,
+            async (progress) => {
+              if (!this.syncing) {
+                return
+              }
+              await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
+              await this.setData({ ...this.getData(), syncing: progress })
+              await mappings.persist()
+            },
+            continuation
+          )
+        } catch (e) {
+          continuation = null
+          Logger.log('Failed to load pending continuation. Continuing with normal sync')
+        }
+      }
 
       if (typeof continuation === 'undefined' || continuation === null || (typeof strategy !== 'undefined' && continuation.strategy !== strategy) || Date.now() - continuation.createdAt > 1000 * 60 * 30) {
         // If there is no pending continuation, we just sync normally
@@ -240,20 +262,6 @@ export default class Account {
         // if there is a pending continuation, we resume it
 
         Logger.log('Found existing persisted pending continuation. Resuming last sync')
-        this.syncProcess = await DefaultSyncProcess.fromJSON(
-          mappings,
-          localResource,
-          this.server,
-          async(progress) => {
-            if (!this.syncing) {
-              return
-            }
-            await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
-            await this.setData({ ...this.getData(), syncing: progress })
-            await mappings.persist()
-          },
-          continuation
-        )
         await this.syncProcess.resumeSync()
       }
 
