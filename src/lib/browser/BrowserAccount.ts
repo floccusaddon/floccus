@@ -111,8 +111,8 @@ export default class BrowserAccount extends Account {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))
     }
     if (er.list) {
-      if (er.list[0].code === 27) {
-        // Do not spam log with E027 (interrupted sync)
+      if (er.list[0].code === 26) {
+        // Do not spam log with E026 (cancelled sync)
         return this.stringifyError(er.list[0])
       }
       return (await Promise.all(er.list
