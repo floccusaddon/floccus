@@ -216,7 +216,7 @@
     "message": "Reset cache"
   },
   "DescriptionResetcache": {
-    "message": "Tick this box to reset the cache so that the next synchronization run is guaranteed not to delete any data and merely merges server and local bookmarks together"
+    "message": "Click this button to reset the cache so that the next synchronization run is guaranteed not to delete any data and merely merges server and local bookmarks together"
   },
   "LabelParallelsync": {
     "message": "Speed up synchronization"
