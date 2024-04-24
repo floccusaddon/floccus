@@ -520,7 +520,7 @@
     "message": "Send client credentials"
   },
   "DescriptionClientcert": {
-    "message": "Enable this option if your server requires a client certificate or cookies for authentication. This may cause unintended side effects, as floccus will share cookies with your normal browser profile."
+    "message": "Enable this option if your server requires a client certificate or cookies for authentication. This may cause unintended side effects, as floccus will share cookies with your normal browser sessions."
   },
   "LabelAllowredirects": {
     "message": "Allow redirects in Server URL"
