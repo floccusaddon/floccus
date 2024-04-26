@@ -59,7 +59,6 @@
 <script>
 import {version as VERSION} from '../../../package.json'
 import { routes } from '../NativeRouter'
-import browser from '../../lib/browser-api'
 
 export default {
   name: 'Update',
