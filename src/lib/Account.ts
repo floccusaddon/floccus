@@ -10,6 +10,7 @@ import { OrderFolderResource, TLocalTree } from './interfaces/Resource'
 import { Capacitor } from '@capacitor/core'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
+import { isTest } from './isTest'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', async() => (await import('./adapters/NextcloudBookmarks')).default)
@@ -311,7 +312,7 @@ export default class Account {
         syncing: false,
         scheduled: false,
       })
-      if (matchAllErrors(e, e => e.code !== 27)) {
+      if (matchAllErrors(e, e => e.code !== 27 && (!isTest || e.code !== 26))) {
         await this.storage.setCurrentContinuation(null)
       }
       this.syncing = false
@@ -321,7 +322,7 @@ export default class Account {
 
       // reset cache and mappings after error
       // (but not after interruption or NetworkError)
-      if (matchAllErrors(e, e => e.code !== 27 && e.code !== 17)) {
+      if (matchAllErrors(e, e => e.code !== 27 && e.code !== 17  && (!isTest || e.code !== 26))) {
         await this.init()
       }
     }
