@@ -5745,7 +5745,7 @@ describe('Floccus', function() {
           }
         })
         let interruptBenchmark
-        it('should handle fuzzed changes with deletions from two clients with interrupts'+(ACCOUNT_DATA.type === 'fake'? ' (with caching)' : ''), interruptBenchmark = async function() {
+        it('should handle fuzzed changes with deletions from two clients with interrupts' + (ACCOUNT_DATA.type === 'fake' ? ' (with caching)' : ''), interruptBenchmark = async function() {
           const localRoot = account1.getData().localRoot
           let bookmarks1 = []
           let folders1 = []
