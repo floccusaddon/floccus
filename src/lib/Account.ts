@@ -11,6 +11,7 @@ import { Capacitor } from '@capacitor/core'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
 import { isTest } from './isTest'
+import CachingAdapter from './adapters/Caching'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', async() => (await import('./adapters/NextcloudBookmarks')).default)
@@ -204,7 +205,9 @@ export default class Account {
               if (!this.syncing) {
                 return
               }
-              await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
+              if (!(this.server instanceof CachingAdapter) || !('onSyncComplete' in this.server)) {
+                await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
+              }
               await this.setData({ ...this.getData(), syncing: progress })
               await mappings.persist()
             },

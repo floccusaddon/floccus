@@ -4792,7 +4792,7 @@ describe('Floccus', function() {
         const setInterrupt = () => {
           if (!timeouts.length) {
             timeouts = new Array(1000).fill(0).map(() =>
-              ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? random.int(50000, 150000) : random.int(500,6000)
+              ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? random.int(50000, 150000) : random.int(100,3000)
             )
           }
           const timeout = timeouts[(i++) % 1000]
@@ -4819,10 +4819,29 @@ describe('Floccus', function() {
           await account2.init()
 
           if (ACCOUNT_DATA.type === 'fake') {
-            // Wrire both accounts to the same fake db
-            account2.server.bookmarksCache = account1.server.bookmarksCache = new Folder(
+            // Wire both accounts to the same fake db
+            // We do not set the cache properties to the same object, because we want to only write onSynComplete
+            let fakeServerDb = new Folder(
               { id: '', title: 'root', location: 'Server' }
             )
+            account1.server.bookmarksCache = new Folder(
+              { id: '', title: 'root', location: 'Server' }
+            )
+            account2.server.bookmarksCache = new Folder(
+              { id: '', title: 'root', location: 'Server' }
+            )
+            account1.server.onSyncStart = () => {
+              account1.server.bookmarksCache = fakeServerDb.clone(false)
+            }
+            account1.server.onSyncComplete = () => {
+              fakeServerDb = account1.server.bookmarksCache.clone(false)
+            }
+            account2.server.onSyncStart = () => {
+              account2.server.bookmarksCache = fakeServerDb.clone(false)
+            }
+            account2.server.onSyncComplete = () => {
+              fakeServerDb = account2.server.bookmarksCache.clone(false)
+            }
             account2.server.__defineSetter__('highestId', (id) => {
               account1.server.highestId = id
             })
@@ -5608,7 +5627,7 @@ describe('Floccus', function() {
             await randomlyManipulateTreeWithDeletions(account1, folders1, bookmarks1, 35)
             await randomlyManipulateTreeWithDeletions(account2, folders2, bookmarks2, 35)
 
-            console.log(' acc1: Moved items')
+            console.log(' acc1&acc2: Moved items')
 
             let tree1BeforeSync = await account1.localTree.getBookmarksTree(
               true
@@ -5644,8 +5663,8 @@ describe('Floccus', function() {
             expect(account2.getData().error).to.not.be.ok
 
             // Sync twice, because some removal-move mixes are hard to sort out consistently
-            await account2.sync()
-            expect(account2.getData().error).to.not.be.ok
+            //await account2.sync()
+            //expect(account2.getData().error).to.not.be.ok
 
             console.log('second round: account2 completed')
 
@@ -5725,8 +5744,8 @@ describe('Floccus', function() {
             serverTreeAfterInit = null
           }
         })
-
-        it('should handle fuzzed changes with deletions from two clients with interrupts', async function() {
+        let interruptBenchmark
+        it('should handle fuzzed changes with deletions from two clients with interrupts'+(ACCOUNT_DATA.type === 'fake'? ' (with caching)' : ''), interruptBenchmark = async function() {
           const localRoot = account1.getData().localRoot
           let bookmarks1 = []
           let folders1 = []
@@ -5845,7 +5864,7 @@ describe('Floccus', function() {
             await randomlyManipulateTreeWithDeletions(account1, folders1, bookmarks1, 35)
             await randomlyManipulateTreeWithDeletions(account2, folders2, bookmarks2, 35)
 
-            console.log(' acc1: Moved items')
+            console.log(' acc1 &acc2: Moved items')
 
             let tree1BeforeSync = await account1.localTree.getBookmarksTree(
               true
@@ -5957,6 +5976,21 @@ describe('Floccus', function() {
             serverTreeAfterInit = null
           }
         })
+
+        if (ACCOUNT_DATA.type === 'fake') {
+          it('should handle fuzzed changes with deletions from two clients with interrupts (no caching adapter)', async function() {
+            // Wire both accounts to the same fake db
+            // We set the cache properties to the same object, because we want to simulate nextcloud-bookmarks
+            account1.server.bookmarksCache = account2.server.bookmarksCache = new Folder(
+              { id: '', title: 'root', location: 'Server' }
+            )
+            delete account1.server.onSyncStart
+            delete account1.server.onSyncComplete
+            delete account2.server.onSyncStart
+            delete account2.server.onSyncComplete
+            await interruptBenchmark()
+          })
+        }
 
         it('unidirectional should handle fuzzed changes from two clients', async function() {
           await account2.setData({...account2.getData(), strategy: 'slave'})
