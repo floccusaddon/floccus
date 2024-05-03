@@ -137,7 +137,13 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   async onSyncStart(needLock = true): Promise<void> {
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
-      if (!(await browser.permissions.contains({ origins: [this.server.url + '/'] }))) {
+      let hasPermissions
+      try {
+        hasPermissions = await browser.permissions.contains({ origins: [this.server.url + '/'] })
+      } catch (e) {
+        console.warn(e)
+      }
+      if (!hasPermissions) {
         throw new MissingPermissionsError()
       }
     }
