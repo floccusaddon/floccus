@@ -638,7 +638,7 @@ export default class SyncProcess {
 
     if (isSubPlan || ((targetLocation === ItemLocation.LOCAL && !this.flagLocalPostMoveMapping) || (targetLocation === ItemLocation.SERVER && !this.flagServerPostMoveMapping))) {
       Logger.log(targetLocation + ': executing CREATEs and UPDATEs')
-      await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run, 1)
+      await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run)
 
       if (this.canceled) {
         throw new CancelledSyncError()
@@ -668,14 +668,14 @@ export default class SyncProcess {
     const batches = Diff.sortMoves(mappedPlan.getActions(ActionType.MOVE), targetLocation === ItemLocation.SERVER ? this.serverTreeRoot : this.localTreeRoot)
 
     Logger.log(targetLocation + ': executing MOVEs')
-    await Parallel.each(batches, batch => Parallel.each(batch, run, 1), 1)
+    await Parallel.each(batches, batch => Parallel.each(batch, run), 1)
 
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
     Logger.log(targetLocation + ': executing REMOVEs')
-    await Parallel.each(plan.getActions(ActionType.REMOVE), run, 1)
+    await Parallel.each(plan.getActions(ActionType.REMOVE), run)
 
     return mappedPlan
   }
