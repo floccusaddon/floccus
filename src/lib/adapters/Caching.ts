@@ -4,7 +4,6 @@ import Logger from '../Logger'
 import Adapter from '../interfaces/Adapter'
 import difference from 'lodash/difference'
 
-import url from 'url'
 import Ordering from '../interfaces/Ordering'
 import {
   MissingItemOrderError,
@@ -30,7 +29,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource {
 
   getLabel():string {
     const data = this.getData()
-    return data.username + '@' + url.parse(data.url).hostname
+    return data.username + '@' + new URL(data.url).hostname
   }
 
   async getBookmarksTree(): Promise<Folder> {
@@ -41,9 +40,13 @@ export default class CachingAdapter implements Adapter, BulkImportResource {
     if (bm.url === 'data:') {
       return false
     }
-    return Boolean(['https:', 'http:', 'ftp:', 'data:', 'javascript:', 'chrome:', 'file:'].includes(
-      url.parse(bm.url).protocol
-    ))
+    try {
+      return Boolean(['https:', 'http:', 'ftp:', 'data:', 'javascript:', 'chrome:', 'file:'].includes(
+        new URL(bm.url).protocol
+      ))
+    } catch (e) {
+      return false
+    }
   }
 
   async createBookmark(bm:Bookmark):Promise<string|number> {

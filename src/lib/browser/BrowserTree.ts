@@ -6,7 +6,6 @@ import PQueue from 'p-queue'
 import Account from '../Account'
 import { Bookmark, Folder, ItemLocation, ItemType } from '../Tree'
 import Ordering from '../interfaces/Ordering'
-import url from 'url'
 import random from 'random'
 import seedrandom from 'seedrandom'
 import { isVivaldi } from './BrowserDetection'
@@ -123,7 +122,7 @@ export default class BrowserTree implements IResource {
       return
     }
     try {
-      if (self.location.protocol === 'moz-extension:' && url.parse(bookmark.url).hostname === 'separator.floccus.org') {
+      if (self.location.protocol === 'moz-extension:' && new URL(bookmark.url).hostname === 'separator.floccus.org') {
         const node = await this.queue.add(async() => {
           Logger.log('(local)CREATE: executing create ', bookmark)
           return browser.bookmarks.create({
@@ -154,7 +153,7 @@ export default class BrowserTree implements IResource {
       return
     }
     try {
-      if (self.location.protocol === 'moz-extension:' && url.parse(bookmark.url).hostname === 'separator.floccus.org') {
+      if (self.location.protocol === 'moz-extension:' && new URL(bookmark.url).hostname === 'separator.floccus.org') {
         // noop
       } else {
         await this.queue.add(async() => {
