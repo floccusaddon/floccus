@@ -143,6 +143,9 @@ export default class Account {
     try {
       if (this.getData().syncing || this.syncing) return
 
+      const localResource = await this.getResource()
+      if (!(await this.server.isAvailable()) || !(await localResource.isAvailable())) return
+
       Logger.log('Starting sync process for account ' + this.getLabel())
       this.syncing = true
       await this.setData({ ...this.getData(), syncing: 0.05, scheduled: false, error: null })
@@ -150,8 +153,6 @@ export default class Account {
       if (!(await this.isInitialized())) {
         await this.init()
       }
-
-      const localResource = await this.getResource()
 
       if (this.server.onSyncStart) {
         const needLock = (strategy || this.getData().strategy) !== 'slave'
