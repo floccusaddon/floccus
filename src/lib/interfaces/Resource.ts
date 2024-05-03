@@ -10,6 +10,7 @@ export interface IResource {
   createFolder(folder:Folder):Promise<string|number>
   updateFolder(folder:Folder):Promise<void>
   removeFolder(folder:Folder):Promise<void>
+  isAvailable():Promise<boolean>
 }
 
 export interface BulkImportResource extends IResource {

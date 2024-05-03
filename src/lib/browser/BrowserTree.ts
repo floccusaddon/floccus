@@ -351,4 +351,8 @@ export default class BrowserTree implements IResource {
     }
     return absoluteRoot
   }
+
+  isAvailable(): Promise<boolean> {
+    return Promise.resolve(true)
+  }
 }

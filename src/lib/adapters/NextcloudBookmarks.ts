@@ -1027,4 +1027,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
     return json
   }
+
+  isAvailable(): Promise<boolean> {
+    return Promise.resolve(true)
+  }
 }

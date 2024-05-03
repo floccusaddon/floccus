@@ -13,8 +13,9 @@ import {
   UnknownMoveOriginError,
   UnknownMoveTargetError
 } from '../../errors/Error'
+import { BulkImportResource } from '../interfaces/Resource'
 
-export default class CachingAdapter implements Adapter {
+export default class CachingAdapter implements Adapter, BulkImportResource {
   protected highestId: number
   protected bookmarksCache: Folder
   protected server: any
@@ -233,5 +234,9 @@ export default class CachingAdapter implements Adapter {
 
   cancel() {
     // noop
+  }
+
+  isAvailable(): Promise<boolean> {
+    return Promise.resolve(true)
   }
 }
