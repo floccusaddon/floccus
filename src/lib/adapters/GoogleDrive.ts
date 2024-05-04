@@ -125,7 +125,6 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       throw new OAuthTokenError()
     }
     const json = await response.json()
-    console.log(json)
     if (!json.access_token || !json.refresh_token) {
       throw new OAuthTokenError()
     }
@@ -368,8 +367,6 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       Logger.log(e)
       throw new NetworkError()
     }
-
-    console.log(JSON.stringify(res))
 
     if (res.status === 401 || res.status === 403) {
       throw new AuthenticationError()
