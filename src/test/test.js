@@ -4052,19 +4052,22 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              ignoreEmptyFolders(ACCOUNT_DATA),
+              false
             )
             serverTreeAfterFirstSync.title = tree1.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              ignoreEmptyFolders(ACCOUNT_DATA),
+              false
             )
             tree2AfterFirstSync.title = tree1.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              ignoreEmptyFolders(ACCOUNT_DATA),
+              false
             )
             console.log('First round ok')
 
@@ -4124,7 +4127,8 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTreeAfterThirdSync,
               tree1AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              ignoreEmptyFolders(ACCOUNT_DATA),
+              false
             )
 
             console.log('Second round second half ok')
@@ -4142,13 +4146,15 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTreeAfterFinalSync,
               tree2AfterFinalSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              ignoreEmptyFolders(ACCOUNT_DATA),
+              false
             )
             tree1AfterThirdSync.title = tree2AfterFinalSync.title
             expectTreeEqual(
               tree2AfterFinalSync,
               tree1AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              ignoreEmptyFolders(ACCOUNT_DATA),
+              false
             )
           })
           it('should handle complex move-remove interactions', async function() {
