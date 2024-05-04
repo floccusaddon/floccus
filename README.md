@@ -1,12 +1,12 @@
 # ![](https://raw.githubusercontent.com/marcelklehr/floccus/master/icons/logo.png) Floccus
 
 ![](https://raw.githubusercontent.com/marcelklehr/floccus/develop/img/screen_chrome_wide.png)
-> Sync your bookmarks privately across browsers an devices
+> Sync your bookmarks privately across browsers and devices
 
 [![Tests](https://github.com/marcelklehr/floccus/workflows/Tests/badge.svg)](https://github.com/marcelklehr/floccus/actions?query=workflow%3ATests) <img src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img src="https://img.shields.io/amo/users/floccus.svg">
 
 - 🔖 Syncs your real, native browser bookmarks directly
-- ☸ Sync via [Nextcloud Bookmarks](https://github.com/nextcloud/bookmarks), Google Drive or [any WebDAV-compatible service](https://community.cryptomator.org/t/webdav-urls-of-common-cloud-storage-services/75)
+- ☸ Sync via [Nextcloud Bookmarks](https://github.com/nextcloud/bookmarks), Google Drive, any Git server (like GitHub, Gitlab, Gitea, etc.) or [any WebDAV-compatible service](https://community.cryptomator.org/t/webdav-urls-of-common-cloud-storage-services/75)
 - ⚛ Use any browser that supports Web extensions (e.g. Firefox, Chrome, Edge, Opera, Brave, Vivaldi, ...; Safari [not yet](https://github.com/floccusaddon/floccus/issues/23))
 - 📲 Install the floccus Android app to access your bookmarks on your phone
 - 💼 Create as many sync profiles as you need
