@@ -58,7 +58,7 @@ describe('Floccus', function() {
   this.slow(20000) // 20s is slow
 
   const params = (new URL(window.location.href)).searchParams
-  let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION, SEED, BROWSER
+  let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION, SEED, BROWSER, RANDOM_MANIPULATION_ITERATIONS
   SERVER =
     params.get('server') ||
     'http://localhost'
@@ -72,6 +72,8 @@ describe('Floccus', function() {
   SEED = (new URL(window.location.href)).searchParams.get('seed') || Math.random() + ''
   console.log('RANDOMNESS SEED', SEED)
   random.use(seedrandom(SEED))
+
+  RANDOM_MANIPULATION_ITERATIONS = 35
 
   ACCOUNTS = [
     FakeAdapter.getDefaultValues(),
@@ -5410,6 +5412,8 @@ describe('Floccus', function() {
               tree2AfterFirstSync.createIndex()
               bookmarks2 = Object.values(tree2AfterFirstSync.index.bookmark)
               folders2 = Object.values(tree2AfterFirstSync.index.folder)
+                // Make sure we don't delete the root folder :see_no_evil:
+                .filter(item => item.id !== tree2AfterFirstSync.id)
             }
 
             await randomlyManipulateTree(account1, folders1, bookmarks1, 20)
@@ -5642,10 +5646,12 @@ describe('Floccus', function() {
               tree2AfterFirstSync.createIndex()
               bookmarks2 = Object.values(tree2AfterFirstSync.index.bookmark)
               folders2 = Object.values(tree2AfterFirstSync.index.folder)
+                // Make sure we don't delete the root folder :see_no_evil:
+                .filter(item => item.id !== tree2AfterFirstSync.id)
             }
 
-            await randomlyManipulateTreeWithDeletions(account1, folders1, bookmarks1, 35)
-            await randomlyManipulateTreeWithDeletions(account2, folders2, bookmarks2, 35)
+            await randomlyManipulateTreeWithDeletions(account1, folders1, bookmarks1, RANDOM_MANIPULATION_ITERATIONS)
+            await randomlyManipulateTreeWithDeletions(account2, folders2, bookmarks2, RANDOM_MANIPULATION_ITERATIONS)
 
             console.log(' acc1&acc2: Moved items')
 
@@ -5879,10 +5885,14 @@ describe('Floccus', function() {
               tree2AfterFirstSync.createIndex()
               bookmarks2 = Object.values(tree2AfterFirstSync.index.bookmark)
               folders2 = Object.values(tree2AfterFirstSync.index.folder)
+                // Make sure we don't delete the root folder :see_no_evil:
+                .filter(item => item.id !== tree2AfterFirstSync.id)
             }
 
-            await randomlyManipulateTreeWithDeletions(account1, folders1, bookmarks1, 35)
-            await randomlyManipulateTreeWithDeletions(account2, folders2, bookmarks2, 35)
+            RUN_INTERRUPTS = false
+            await randomlyManipulateTreeWithDeletions(account1, folders1, bookmarks1, RANDOM_MANIPULATION_ITERATIONS)
+            await randomlyManipulateTreeWithDeletions(account2, folders2, bookmarks2, RANDOM_MANIPULATION_ITERATIONS)
+            RUN_INTERRUPTS = true
 
             console.log(' acc1 &acc2: Moved items')
 
@@ -6125,6 +6135,8 @@ describe('Floccus', function() {
               tree2AfterFirstSync.createIndex()
               bookmarks2 = Object.values(tree2AfterFirstSync.index.bookmark)
               folders2 = Object.values(tree2AfterFirstSync.index.folder)
+                // Make sure we don't delete the root folder :see_no_evil:
+                .filter(item => item.id !== tree2AfterFirstSync.id)
             }
 
             await randomlyManipulateTree(account1, folders1, bookmarks1, 20)
@@ -6369,10 +6381,12 @@ describe('Floccus', function() {
               tree2AfterFirstSync.createIndex()
               bookmarks2 = Object.values(tree2AfterFirstSync.index.bookmark)
               folders2 = Object.values(tree2AfterFirstSync.index.folder)
+                // Make sure we don't delete the root folder :see_no_evil:
+                .filter(item => item.id !== tree2AfterFirstSync.id)
             }
 
-            await randomlyManipulateTreeWithDeletions(account1, folders1, bookmarks1, 35)
-            await randomlyManipulateTreeWithDeletions(account2, folders2, bookmarks2, 35)
+            await randomlyManipulateTreeWithDeletions(account1, folders1, bookmarks1, RANDOM_MANIPULATION_ITERATIONS)
+            await randomlyManipulateTreeWithDeletions(account2, folders2, bookmarks2, RANDOM_MANIPULATION_ITERATIONS)
 
             console.log(' acc1: Moved items')
 
@@ -6620,6 +6634,7 @@ async function randomlyManipulateTreeWithDeletions(account, folders, bookmarks, 
       await browser.bookmarks.update(magicBookmark.id, {title: newTitle})
       console.log('Rename #' + magicBookmark.id + '[' + magicBookmark.title + '] to ' + newTitle)
 
+      // randomly remove one folder
       magicFolder1 = folders[random.int(0, folders.length - 1)]
       await browser.bookmarks.removeTree(magicFolder1.id)
       folders.splice(folders.indexOf(magicFolder1), 1)
