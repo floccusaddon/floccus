@@ -49,22 +49,15 @@ export default class GitAdapter extends CachingAdapter {
     }
   }
 
-  getData() {
-    return { ...GitAdapter.getDefaultValues(), ...this.server }
+  getLabel():string {
+    const data = this.getData()
+    const url = new URL(data.url)
+    url.protocol = ''
+    return data.username + '@' + url.hostname + ':' + data.bookmark_file
   }
 
-  normalizeServerURL(input) {
-    const serverURL = url.parse(input)
-    if (!serverURL.pathname) serverURL.pathname = ''
-    return url.format({
-      protocol: serverURL.protocol,
-      auth: serverURL.auth,
-      host: serverURL.host,
-      port: serverURL.port,
-      pathname:
-        serverURL.pathname +
-        (serverURL.pathname[serverURL.pathname.length - 1] !== '/' ? '/' : '')
-    })
+  getData() {
+    return { ...GitAdapter.getDefaultValues(), ...this.server }
   }
 
   cancel() {
