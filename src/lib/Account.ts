@@ -1,15 +1,17 @@
 import AdapterFactory from './AdapterFactory'
 import Logger from './Logger'
-import { Folder, ItemLocation } from './Tree'
+import { Folder, ItemLocation, TItemLocation } from './Tree'
 import UnidirectionalSyncProcess from './strategies/Unidirectional'
 import MergeSyncProcess from './strategies/Merge'
 import DefaultSyncProcess from './strategies/Default'
 import IAccountStorage, { IAccountData, TAccountStrategy } from './interfaces/AccountStorage'
 import { TAdapter } from './interfaces/Adapter'
-import { IResource, TLocalTree } from './interfaces/Resource'
+import { OrderFolderResource, TLocalTree } from './interfaces/Resource'
 import { Capacitor } from '@capacitor/core'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
+import { isTest } from './isTest'
+import CachingAdapter from './adapters/Caching'
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', async() => (await import('./adapters/NextcloudBookmarks')).default)
@@ -18,6 +20,9 @@ AdapterFactory.register('webdav', async() => (await import('./adapters/WebDav'))
 AdapterFactory.register('git', async() => (await import('./adapters/Git')).default)
 AdapterFactory.register('google-drive', async() => (await import('./adapters/GoogleDrive')).default)
 AdapterFactory.register('fake', async() => (await import('./adapters/Fake')).default)
+
+// 2h
+const LOCK_TIMEOUT = 1000 * 60 * 60 * 2
 
 export default class Account {
   static cache = {}
@@ -100,14 +105,8 @@ export default class Account {
     return data
   }
 
-  async getResource():Promise<IResource> {
-    if (this.getData().localRoot !== 'tabs') {
-      return this.localTree
-    } else {
-      const LocalTabs = (await import('./LocalTabs')).default
-      this.localTabs = new LocalTabs(this.storage)
-      return this.localTabs
-    }
+  async getResource():Promise<OrderFolderResource> {
+    return this.localTree
   }
 
   async setData(data:IAccountData):Promise<void> {
@@ -145,21 +144,15 @@ export default class Account {
     try {
       if (this.getData().syncing || this.syncing) return
 
+      const localResource = await this.getResource()
+      if (!(await this.server.isAvailable()) || !(await localResource.isAvailable())) return
+
       Logger.log('Starting sync process for account ' + this.getLabel())
       this.syncing = true
       await this.setData({ ...this.getData(), syncing: 0.05, scheduled: false, error: null })
 
       if (!(await this.isInitialized())) {
         await this.init()
-      }
-
-      let localResource
-      if (this.getData().localRoot !== 'tabs') {
-        localResource = this.localTree
-      } else {
-        const LocalTabs = (await import('./LocalTabs')).default
-        this.localTabs = new LocalTabs(this.storage)
-        localResource = this.localTabs
       }
 
       if (this.server.onSyncStart) {
@@ -170,13 +163,25 @@ export default class Account {
         } catch (e) {
           // Resource locked
           if (e.code === 37) {
-            await this.setData({ ...this.getData(), error: null, syncing: false, scheduled: strategy || this.getData().strategy })
-            this.syncing = false
-            Logger.log(
-              'Resource is locked, trying again soon'
-            )
-            await Logger.persist()
-            return
+            // We got a resource locked error
+            if (this.getData().lastSync < Date.now() - LOCK_TIMEOUT) {
+              // but if we've been waiting for the lock for more than 2h
+              // start again without locking the resource
+              status = await this.server.onSyncStart(false)
+            } else {
+              await this.setData({
+                ...this.getData(),
+                error: null,
+                syncing: false,
+                scheduled: strategy || this.getData().strategy
+              })
+              this.syncing = false
+              Logger.log(
+                'Resource is locked, trying again soon'
+              )
+              await Logger.persist()
+              return
+            }
           } else {
             throw e
           }
@@ -190,42 +195,83 @@ export default class Account {
       mappings = await this.storage.getMappings()
       const cacheTree = localResource.constructor.name !== 'LocalTabs' ? await this.storage.getCache() : new Folder({title: '', id: 'tabs', location: ItemLocation.LOCAL})
 
-      let strategyClass, direction
-      switch (strategy || this.getData().strategy) {
-        case 'slave':
-          Logger.log('Using "merge slave" strategy (no cache available)')
-          strategyClass = UnidirectionalSyncProcess
-          direction = ItemLocation.LOCAL
-          break
-        case 'overwrite':
-          Logger.log('Using "merge overwrite" strategy (no cache available)')
-          strategyClass = UnidirectionalSyncProcess
-          direction = ItemLocation.SERVER
-          break
-        default:
-          if (!cacheTree.children.length) {
-            Logger.log('Using "merge default" strategy (no cache available)')
-            strategyClass = MergeSyncProcess
-          } else {
-            Logger.log('Using "default" strategy')
-            strategyClass = DefaultSyncProcess
-          }
-          break
+      let continuation = await this.storage.getCurrentContinuation()
+
+      if (typeof continuation !== 'undefined' && continuation !== null) {
+        try {
+          this.syncProcess = await DefaultSyncProcess.fromJSON(
+            mappings,
+            localResource,
+            this.server,
+            async (progress) => {
+              if (!this.syncing) {
+                return
+              }
+              if (!(this.server instanceof CachingAdapter) || !('onSyncComplete' in this.server)) {
+                await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
+              }
+              await this.setData({ ...this.getData(), syncing: progress })
+              await mappings.persist()
+            },
+            continuation
+          )
+        } catch (e) {
+          continuation = null
+          Logger.log('Failed to load pending continuation. Continuing with normal sync')
+        }
       }
 
-      this.syncProcess = new strategyClass(
-        mappings,
-        localResource,
-        cacheTree,
-        this.server,
-        (progress) => {
-          this.setData({ ...this.getData(), syncing: progress })
+      if (typeof continuation === 'undefined' || continuation === null || (typeof strategy !== 'undefined' && continuation.strategy !== strategy) || Date.now() - continuation.createdAt > 1000 * 60 * 30) {
+        // If there is no pending continuation, we just sync normally
+        // Same if the pending continuation was overridden by a different strategy
+        // same if the continuation is older than half an hour. We don't want old zombie continuations
+
+        let strategyClass: typeof DefaultSyncProcess|typeof MergeSyncProcess|typeof UnidirectionalSyncProcess, direction: TItemLocation
+        switch (strategy || this.getData().strategy) {
+          case 'slave':
+            Logger.log('Using "merge slave" strategy (no cache available)')
+            strategyClass = UnidirectionalSyncProcess
+            direction = ItemLocation.LOCAL
+            break
+          case 'overwrite':
+            Logger.log('Using "merge overwrite" strategy (no cache available)')
+            strategyClass = UnidirectionalSyncProcess
+            direction = ItemLocation.SERVER
+            break
+          default:
+            if (!cacheTree.children.length) {
+              Logger.log('Using "merge default" strategy (no cache available)')
+              strategyClass = MergeSyncProcess
+            } else {
+              Logger.log('Using "default" strategy')
+              strategyClass = DefaultSyncProcess
+            }
+            break
         }
-      )
-      if (direction) {
-        this.syncProcess.setDirection(direction)
+
+        this.syncProcess = new strategyClass(
+          mappings,
+          localResource,
+          this.server,
+          async(progress, actionsDone?) => {
+            await this.setData({ ...this.getData(), syncing: progress })
+            if (actionsDone) {
+              await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
+            }
+            await mappings.persist()
+          }
+        )
+        this.syncProcess.setCacheTree(cacheTree)
+        if (direction) {
+          this.syncProcess.setDirection(direction)
+        }
+        await this.syncProcess.sync()
+      } else {
+        // if there is a pending continuation, we resume it
+
+        Logger.log('Found existing persisted pending continuation. Resuming last sync')
+        await this.syncProcess.resumeSync()
       }
-      await this.syncProcess.sync()
 
       await this.setData({ ...this.getData(), scheduled: false, syncing: 1 })
 
@@ -247,6 +293,7 @@ export default class Account {
 
       this.syncing = false
 
+      await this.storage.setCurrentContinuation(null)
       await this.setData({
         ...this.getData(),
         error: null,
@@ -270,6 +317,9 @@ export default class Account {
         syncing: false,
         scheduled: false,
       })
+      if (matchAllErrors(e, e => e.code !== 27 && (!isTest || e.code !== 26))) {
+        await this.storage.setCurrentContinuation(null)
+      }
       this.syncing = false
       if (this.server.onSyncFail) {
         await this.server.onSyncFail()
@@ -277,7 +327,7 @@ export default class Account {
 
       // reset cache and mappings after error
       // (but not after interruption or NetworkError)
-      if (matchAllErrors(e, e => e.code !== 27 && e.code !== 17)) {
+      if (matchAllErrors(e, e => e.code !== 27 && e.code !== 17  && (!isTest || e.code !== 26))) {
         await this.init()
       }
     }

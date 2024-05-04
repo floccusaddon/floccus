@@ -94,4 +94,8 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
     }))
     return this.bookmarksCache.findFolder(id)
   }
+
+  isAvailable(): Promise<boolean> {
+    return Promise.resolve(true)
+  }
 }

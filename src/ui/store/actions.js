@@ -166,9 +166,10 @@ export const actionsDefinition = {
     commit(mutations.SET_LOGIN_FLOW_STATE, false)
   },
   async [actions.REQUEST_NETWORK_PERMISSIONS]() {
-    if (navigator.userAgent.includes('Firefox')) {
-      return
+    try {
+      await browser.permissions.request({ origins: ['*://*/*'] })
+    } catch (e) {
+      console.warn(e)
     }
-    await browser.permissions.request({ origins: ['*://*/*'] })
   }
 }

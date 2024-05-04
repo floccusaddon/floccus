@@ -75,7 +75,7 @@
     "message": "E025: Die Einstellung der Bookmarks-Datei darf nicht mit einem Schrägstrich beginnen: '/'"
   },
   "Error026": {
-    "message": "E026: HTTP-Status {0}. Fehler beim Laden der Lesezeichen."
+    "message": "E026: Der Synchronisierungsprozess wurde abgebrochen"
   },
   "Error027": {
     "message": "E027: Der Synchronisierungsprozess wurde unterbrochen."
@@ -216,7 +216,7 @@
     "message": "Cache zurücksetzen"
   },
   "DescriptionResetcache": {
-    "message": "Setzen SIe diesen Haken, um den Cache zurückzusetzen, sodass die nächste Synchronisierung garantiert keine Lesezeichen löscht, sondern lediglich Server und Lokale Lesezeichen vereinigt."
+    "message": "Klicken Sie diesen Button, um den Cache zurückzusetzen, sodass die nächste Synchronisierung garantiert keine Lesezeichen löscht, sondern lediglich Server und Lokale Lesezeichen vereinigt."
   },
   "LabelParallelsync": {
     "message": "Synchronisierung beschleunigen"
@@ -350,6 +350,18 @@
   },
   "DescriptionGithubsponsors": {
     "message": "Tätige regelmäßige Spenden über GitHub sponsors um das Projekt zu unterstützen"
+  },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "Tätige regelmäßige Spenden über Patreon um das Projekt zu unterstützen."
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "Tätige regelmäßige oder einmalige Spenden über Kofi um das Projekt zu unterstützen."
   },
   "LegacyAdapterDeprecation": {
     "message": "Dieser veraltete Profiltyp wird nicht mehr unterstützt und wird bald entfernt. Bitte wechseln Sie zur neuen Nextcloud-Synchronisierungsmethode. Verbesserte Leistung und Genauigkeit erwarten Sie."
@@ -508,7 +520,7 @@
     "message": "Sende Client-Legitimation"
   },
   "DescriptionClientcert": {
-    "message": "Schalten Sie diese Option an, wenn Ihr Server ein Client-Zertifikat oder Cookies zur Authentifizierung benötigt. Dies kann unerwünschte Nebeneffekte haben, da Floccus sich Cookies mit Ihrem normalen Browser-Profil teilen wird."
+    "message": "Schalten Sie diese Option an, wenn Ihr Server ein Client-Zertifikat oder Cookies zur Authentifizierung benötigt. Dies kann unerwünschte Nebeneffekte haben, da Floccus sich Cookies mit Ihren normalen Browser-Sitzungen teilen wird."
   },
   "LabelAllowredirects": {
     "message": "Erlaube Weiterleitungen in der Server-URL"

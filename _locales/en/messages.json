@@ -75,7 +75,7 @@
     "message": "E025: Bookmarks file setting mustn't begin with a slash: '/'"
   },
   "Error026": {
-    "message": "E026: HTTP status {0}. Failed to fetch bookmarks"
+    "message": "E026: Sync process was cancelled"
   },
   "Error027": {
     "message": "E027: Sync process was interrupted"
@@ -216,7 +216,7 @@
     "message": "Reset cache"
   },
   "DescriptionResetcache": {
-    "message": "Tick this box to reset the cache so that the next synchronization run is guaranteed not to delete any data and merely merges server and local bookmarks together"
+    "message": "Click this button to reset the cache so that the next synchronization run is guaranteed not to delete any data and merely merges server and local bookmarks together"
   },
   "LabelParallelsync": {
     "message": "Speed up synchronization"
@@ -350,6 +350,18 @@
   },
   "DescriptionGithubsponsors": {
     "message": "Make a regular donation via GitHub sponsors to support the project"
+  },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "Make a regular donation via Patreon to support the project"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "Make a regular or one-time donation via Ko-fi to support the project"
   },
   "LegacyAdapterDeprecation": {
     "message": "This legacy profile type is deprecated and will soon be removed. Please switch to the new nextcloud sync method. Improved performance and accuracy await you."
@@ -508,7 +520,7 @@
     "message": "Send client credentials"
   },
   "DescriptionClientcert": {
-    "message": "Enable this option if your server requires a client certificate or cookies for authentication. This may cause unintended side effects, as floccus will share cookies with your normal browser profile."
+    "message": "Enable this option if your server requires a client certificate or cookies for authentication. This may cause unintended side effects, as floccus will share cookies with your normal browser sessions."
   },
   "LabelAllowredirects": {
     "message": "Allow redirects in Server URL"

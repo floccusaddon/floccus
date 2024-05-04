@@ -13,6 +13,7 @@ import {
   UnknownFolderItemOrderError
 } from '../../errors/Error'
 import {i18n} from '../native/I18n'
+import { IResource, OrderFolderResource } from '../interfaces/Resource'
 
 export default class BrowserAccount extends Account {
   static async get(id:string):Promise<Account> {
@@ -65,6 +66,16 @@ export default class BrowserAccount extends Account {
     }
   }
 
+  async getResource():Promise<OrderFolderResource> {
+    if (this.getData().localRoot !== 'tabs') {
+      return this.localTree
+    } else {
+      const LocalTabs = (await import('../LocalTabs')).default
+      this.localTabs = new LocalTabs(this.storage)
+      return this.localTabs
+    }
+  }
+
   async updateFromStorage():Promise<void> {
     const data = await this.storage.getAccountData(null)
     this.server.setData(data)
@@ -100,8 +111,8 @@ export default class BrowserAccount extends Account {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))
     }
     if (er.list) {
-      if (er.list[0].code === 27) {
-        // Do not spam log with E027 (interrupted sync)
+      if (er.list[0].code === 26) {
+        // Do not spam log with E026 (cancelled sync)
         return this.stringifyError(er.list[0])
       }
       return (await Promise.all(er.list

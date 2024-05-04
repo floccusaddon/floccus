@@ -1,5 +1,6 @@
 import Mappings from '../Mappings'
 import { Folder } from '../Tree'
+import { ISerializedSyncProcess } from '../strategies/Default'
 
 export type TAccountStrategy = 'default' | 'overwrite' | 'slave'
 
@@ -27,4 +28,6 @@ export default interface IAccountStorage {
   getMappings(): Promise<Mappings>;
   setMappings(data): Promise<void>;
   deleteMappings(): Promise<void>;
+  getCurrentContinuation(): Promise<ISerializedSyncProcess|null>;
+  setCurrentContinuation(continuation: ISerializedSyncProcess|null): Promise<void>;
 }

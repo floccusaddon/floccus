@@ -138,4 +138,11 @@ export default class LocalTabs implements IResource {
     Logger.log('(tabs)REMOVEFOLDER', id)
     await this.queue.add(() => browser.tabs.remove(id))
   }
+
+  async isAvailable(): Promise<boolean> {
+    const tabs = await browser.tabs.query({
+      windowType: 'normal' // no devtools or panels or popups
+    })
+    return Boolean(tabs.length)
+  }
 }

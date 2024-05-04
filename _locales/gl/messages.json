@@ -75,7 +75,7 @@
     "message": "E025: A configuración do ficheiro de marcadores non debe comezar cunha barra: «/»"
   },
   "Error026": {
-    "message": "E026: Estado HTTP {0}. Produciuse un erro ao recuperar os marcadores"
+    "message": "E026: O proceso de sincronización foi cancelado"
   },
   "Error027": {
     "message": "E027: O proceso de sincronización foi interrompido"
@@ -216,7 +216,7 @@
     "message": "Restabelecer a caché"
   },
   "DescriptionResetcache": {
-    "message": "Marque esta caixa para restabelecer a caché para que a seguinte execución de sincronización non elimine ningún dato e só combine os marcadores locais e o servidor."
+    "message": "Prema neste botón para restabelecer a caché para que a próxima sincronización non borre ningún dato e se limite a combinar os marcadores locais e do servidor."
   },
   "LabelParallelsync": {
     "message": "Acelerar a sincronización"
@@ -350,6 +350,18 @@
   },
   "DescriptionGithubsponsors": {
     "message": "Faga unha doazón regular a través dos patrocinadores de GitHub para colaborar co proxecto"
+  },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "Faga unha doazón periódica a través de Patreon para colaborar co proxecto"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "Faga unha doazón periódica ou unha puntual a través de Ko-fi para colaborar co proxecto"
   },
   "LegacyAdapterDeprecation": {
     "message": "Este tipo de perfil herdado está en desuso e vai ser eliminado en pouco tempo. Cambie ao novo método de sincronización de Nextcloud. Agárdanlle melloras de rendemento e precisión."
@@ -508,7 +520,7 @@
     "message": "Enviar as credenciais do cliente"
   },
   "DescriptionClientcert": {
-    "message": "Active esta opción se o seu servidor require un certificado de cliente ou cookies para a autenticación. Isto pode causar efectos secundarios non desexados, xa que Floccus compartirá cookies co seu perfil de navegador normal."
+    "message": "Active esta opción se o seu servidor require un certificado de cliente ou cookies para a autenticación. Isto pode causar efectos secundarios non desexados, xa que Floccus compartirá cookies coas sesións normais do seu navegador."
   },
   "LabelAllowredirects": {
     "message": "Permitir redireccións no URL do servidor"

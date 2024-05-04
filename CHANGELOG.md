@@ -1,5 +1,30 @@
 # Changelog
 
+## [5.0.12] - 2024-04-26
+
+### Fixed
+ - fix(tests/gdrive): Don't derive file name from seed
+ - chore: Allow fuzzed testing with interrupts on nextcloud-bookmarks
+ - enh(ci/tests); Use github sha as seed
+ - fix: Store continuation while sync is running to be able to resume after interrupts
+ - chore: Update donation methods Marcel Klehr 21.04.24, 20:57
+- fix: Distinguish between InterruptedSyncError and CancelledSyncError
+- [android] Include dependenciesInfo in gradle file
+- [native] fix(Account): Don't try to load LocalTabs resource
+
+## [5.0.11] - 2024-03-09
+
+### Fixed
+
+* fix: Android app stuck on splash screen
+
+## [5.0.10] - 2024-03-08
+
+### Fixed
+
+* fix(Account#sync): Break lock after 2h
+* bookmarks folder selection: Select sub folder in Vivaldi
+
 ## [5.0.9] - 2024-01-08
 
 ### Fixed

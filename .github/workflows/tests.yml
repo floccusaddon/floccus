@@ -87,7 +87,7 @@ jobs:
       matrix:
         node-version: [20.x]
         npm-version: [10.x]
-        server-version: ['27']
+        server-version: ['28']
         app-version: ['stable']
         floccus-adapter:
           - fake
@@ -109,28 +109,28 @@ jobs:
           - chrome
         include:
           - app-version: master
-            server-version: 27
+            server-version: 28
             floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
           - app-version: master
-            server-version: 27
+            server-version: 28
             floccus-adapter: nextcloud-bookmarks
             test-name: benchmark root
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
           - app-version: master
-            server-version: 27
+            server-version: 28
             floccus-adapter: nextcloud-bookmarks-old
             test-name: benchmark root
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
           - app-version: stable
-            server-version: 27
+            server-version: 28
             floccus-adapter: fake-noCache
             test-name: test
             browsers: firefox
@@ -258,6 +258,7 @@ jobs:
         env:
           SELENIUM_BROWSER: ${{ matrix.browsers }}
           FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
+          FLOCCUS_TEST_SEED: ${{ github.sha }}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GOOGLE_API_REFRESH_TOKEN: ${{ secrets.GOOGLE_API_REFRESH_TOKEN }}
           APP_VERSION: ${{ matrix.app-version }}

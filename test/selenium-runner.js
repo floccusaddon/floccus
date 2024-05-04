@@ -38,7 +38,10 @@ installConsoleHandler()
       case 'chrome':
         // Scrape extension id from chrome extension page
         await driver.get('chrome://extensions')
-        await new Promise(resolve => setTimeout(resolve, 5000))
+        console.log('Opened chrome://extensions')
+        await driver.sleep(5000)
+        console.log('Slept 5s')
+
         id = await driver.executeAsyncScript(function() {
           var callback = arguments[arguments.length - 1]
           var extension = document
@@ -48,6 +51,7 @@ installConsoleHandler()
             )
           callback(extension.id)
         })
+        console.log('Extracted extension.id')
         if (!id) throw new Error('Could not install extension')
         testUrl = `chrome-extension://${id}/`
         break
@@ -58,15 +62,19 @@ installConsoleHandler()
           `${__dirname}/../builds/floccus-build-v${VERSION}-firefox.zip`,
           true
         )
+        console.log('Installed extension')
 
         // Get extension URL
         await driver.get('about:debugging')
+        console.log('Opened about:debugging')
         await driver.sleep(10000)
+        console.log('Slept 10s')
         testUrl = await driver.executeScript(function() {
           const extension = WebExtensionPolicy.getActiveExtensions()
             .find(({name}) => name === 'floccus bookmarks sync')
           return extension.extension.baseURL
         })
+        console.log('Extracted extension.baseURL')
         if (!testUrl) throw new Error('Could not install extension')
         break
       default:
@@ -79,7 +87,12 @@ installConsoleHandler()
       testUrl += `&password=${process.env.GOOGLE_API_REFRESH_TOKEN}`
     }
 
+    if (process.env.FLOCCUS_TEST_SEED) {
+      testUrl += `&seed=${process.env.FLOCCUS_TEST_SEED}`
+    }
+
     await driver.get(testUrl)
+    console.log('Opened test page')
 
     let logs = [],
       fin
