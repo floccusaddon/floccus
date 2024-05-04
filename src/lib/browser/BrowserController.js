@@ -9,8 +9,9 @@ import uniqBy from 'lodash/uniqBy'
 import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
 
-const INACTIVITY_TIMEOUT = 7 * 1000
-const DEFAULT_SYNC_INTERVAL = 15
+const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
+const DEFAULT_SYNC_INTERVAL = 15 // 15 minutes
+const STALE_SYNC_TIME = 1000 * 60 * 60 * 24 * 2 // two days
 
 class AlarmManager {
   constructor(ctl) {
@@ -323,16 +324,20 @@ export default class BrowserController {
     let overallStatus = accounts.reduce((status, account) => {
       const accData = account.getData()
       if (status === STATUS_SYNCING || accData.syncing || account.syncing) {
+        // Show syncing symbol if any account is syncing
         return STATUS_SYNCING
-      } else if (status === STATUS_ERROR || (accData.error && !accData.syncing)) {
+      } else if (status === STATUS_ERROR || (accData.error && !accData.syncing) || (accData.enabled && accData.lastSync < Date.now() - STALE_SYNC_TIME)) {
+        // Show error symbol if any account has an error and not currently syncing, or if any account is enabled but hasn't been synced for two days
         return STATUS_ERROR
       } else {
+        // show allgood symbol otherwise
         return STATUS_ALLGOOD
       }
     }, STATUS_ALLGOOD)
 
     if (overallStatus === STATUS_ALLGOOD) {
       if (accounts.every(account => !account.getData().enabled)) {
+        // if status is allgood but no account is enabled, show disabled
         overallStatus = STATUS_DISABLED
       }
     }
