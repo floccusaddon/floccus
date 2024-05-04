@@ -1,1 +1,1 @@
-export const isTest = (new URL(window.location.href)).pathname.includes('test')
+export const isTest = typeof window !== 'undefined' && (new URL(window.location.href)).pathname.includes('test')
