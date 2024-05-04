@@ -1,6 +1,7 @@
 const path = require('path')
 const { VueLoaderPlugin } = require('vue-loader')
 const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
+const webpack = require('webpack')
 
 module.exports = {
   entry: {
@@ -83,8 +84,22 @@ module.exports = {
       },
     ],
   },
-  plugins: [new VueLoaderPlugin(), new VuetifyLoaderPlugin()],
+  plugins: [
+    new VueLoaderPlugin(),
+    new VuetifyLoaderPlugin(),
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    }),
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
+  ],
   resolve: {
     extensions: ['.js', '.vue', '.ts', '.json'],
+    fallback: {
+      buffer: require.resolve('buffer'),
+      process: require.resolve('process/browser'),
+      stream: require.resolve('stream-browserify'),
+    },
   },
 }

@@ -17,6 +17,7 @@ import CachingAdapter from './adapters/Caching'
 AdapterFactory.register('nextcloud-folders', async() => (await import('./adapters/NextcloudBookmarks')).default)
 AdapterFactory.register('nextcloud-bookmarks', async() => (await import('./adapters/NextcloudBookmarks')).default)
 AdapterFactory.register('webdav', async() => (await import('./adapters/WebDav')).default)
+AdapterFactory.register('git', async() => (await import('./adapters/Git')).default)
 AdapterFactory.register('google-drive', async() => (await import('./adapters/GoogleDrive')).default)
 AdapterFactory.register('fake', async() => (await import('./adapters/Fake')).default)
 

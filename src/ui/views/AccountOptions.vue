@@ -143,6 +143,11 @@
                 v-bind.sync="data"
                 @reset="onReset"
                 @delete="onDelete" />
+              <OptionsGit
+                v-if="data.type === 'git'"
+                v-bind.sync="data"
+                @reset="onReset"
+                @delete="onDelete" />
               <OptionsFake
                 v-if="data.type === 'fake'"
                 v-bind.sync="data"
@@ -191,11 +196,11 @@ import OptionsNextcloudFolders from '../components/OptionsNextcloudBookmarks'
 import OptionsWebdav from '../components/OptionsWebdav'
 import OptionsFake from '../components/OptionsFake'
 import OptionsGoogleDrive from '../components/OptionsGoogleDrive'
-// import OptionsGoogleDrive from '../components/OptionsGoogleDrive'
+import OptionsGit from '../components/OptionsGit.vue'
 
 export default {
   name: 'AccountOptions',
-  components: { OptionsGoogleDrive, OptionsFake, OptionsWebdav, OptionsNextcloudFolders },
+  components: { OptionsGit, OptionsGoogleDrive, OptionsFake, OptionsWebdav, OptionsNextcloudFolders },
   data() {
     return {
       folderName: '',

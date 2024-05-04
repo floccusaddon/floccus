@@ -127,6 +127,22 @@ describe('Floccus', function() {
       ...CREDENTIALS
     },
     {
+      type: 'git',
+      url: `${SERVER}/test.git`,
+      branch: 'main',
+      bookmark_file: 'bookmarks.xbel',
+      bookmark_file_type: 'xbel',
+      ...CREDENTIALS
+    },
+    {
+      type: 'git',
+      url: `${SERVER}/test.git`,
+      branch: 'main',
+      bookmark_file: 'bookmarks.html',
+      bookmark_file_type: 'html',
+      ...CREDENTIALS
+    },
+    {
       type: 'google-drive',
       bookmark_file: Math.random() + '.xbel',
       password: '',
@@ -241,7 +257,9 @@ describe('Floccus', function() {
             } catch (e) {
               console.error(e)
             }
-            if (ACCOUNT_DATA.type !== 'fake') {
+            if (ACCOUNT_DATA.type === 'git') {
+              await account.server.clearServer()
+            } else if (ACCOUNT_DATA.type !== 'fake') {
               await account.setData({ ...account.getData(), serverRoot: null })
               const tree = await getAllBookmarks(account)
               await withSyncConnection(account, async() => {
@@ -3142,7 +3160,9 @@ describe('Floccus', function() {
           })
           afterEach('clean up accounts', async function() {
             await browser.bookmarks.removeTree(account1.getData().localRoot)
-            if (ACCOUNT_DATA.type !== 'fake') {
+            if (ACCOUNT_DATA.type === 'git') {
+              await account1.server.clearServer()
+            } else if (ACCOUNT_DATA.type !== 'fake') {
               await account1.setData({
                 ...account1.getData(),
                 serverRoot: null
@@ -4533,7 +4553,9 @@ describe('Floccus', function() {
             } catch (e) {
               console.error(e)
             }
-            if (ACCOUNT_DATA.type !== 'fake') {
+            if (ACCOUNT_DATA.type === 'git') {
+              await account.server.clearServer()
+            } else if (ACCOUNT_DATA.type !== 'fake') {
               await account.setData({ ...account.getData(), serverRoot: null })
               const tree = await getAllBookmarks(account)
               await withSyncConnection(account, async() => {
@@ -4869,7 +4891,9 @@ describe('Floccus', function() {
         afterEach('clean up accounts', async function() {
           RUN_INTERRUPTS = false
           await browser.bookmarks.removeTree(account1.getData().localRoot)
-          if (ACCOUNT_DATA.type !== 'fake') {
+          if (ACCOUNT_DATA.type === 'git') {
+            await account1.server.clearServer()
+          } else if (ACCOUNT_DATA.type !== 'fake') {
             await account1.setData({
               ...account1.getData(),
               serverRoot: null
