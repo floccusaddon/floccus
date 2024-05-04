@@ -135,7 +135,7 @@ jobs:
             node-version: 14.x
             npm-version: 7.x
 
-    name: ${{ matrix.browsers }} bm@${{ matrix.app-version }} ${{matrix.floccus-adapter}}:${{ matrix.test-name}}
+    name: ${{ matrix.browsers }} ${{matrix.floccus-adapter}}:${{ matrix.test-name}} bm@${{ matrix.app-version }}
 
     services:
       hub:
