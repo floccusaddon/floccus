@@ -10,6 +10,7 @@ import { TAdapter } from '../interfaces/Adapter'
 import { CancelledSyncError, FailsafeError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
+import { setImmediate } from 'timers'
 
 export default class SyncProcess {
   protected mappings: Mappings
@@ -686,6 +687,8 @@ export default class SyncProcess {
   }
 
   async executeAction(resource:TResource, action:Action, targetLocation:TItemLocation, plan: Diff, donePlan: Diff = null):Promise<void> {
+    // defer execution of actions to allow the this.canceled check below to work when cancelling in interrupt tests
+    await new Promise((resolve) => setTimeout(resolve, 0))
     Logger.log('Executing action ', action)
     const item = action.payload
     const done = () => {
