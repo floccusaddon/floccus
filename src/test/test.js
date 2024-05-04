@@ -322,7 +322,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should update the server on local changes', async function() {
@@ -377,7 +377,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should update the server on local removals', async function() {
@@ -426,7 +426,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should update the server on local folder moves', async function() {
@@ -480,7 +480,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should create server bookmarks locally', async function() {
@@ -526,7 +526,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should update local bookmarks on server changes', async function() {
@@ -588,7 +588,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should update local bookmarks on server removals', async function() {
@@ -639,7 +639,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should not delete additions while sync is running', async function() {
@@ -698,7 +698,7 @@ describe('Floccus', function() {
                   }),
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should be able to handle duplicates', async function() {
@@ -750,7 +750,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should deduplicate unnormalized URLs', async function() {
@@ -825,7 +825,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should deduplicate unnormalized URLs without getting stuck', async function() {
@@ -887,7 +887,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should not fail when moving both folders and contents', async function() {
@@ -942,23 +942,14 @@ describe('Floccus', function() {
                       new Bookmark({ title: 'url', url: 'http://ur.l/' }),
                       new Folder({
                         title: 'foo',
-                        children:
-                        ACCOUNT_DATA.type !== 'nextcloud-legacy'
-                          ? []
-                          : [
-                            // This is because of a peculiarity of the legacy adapter
-                            new Bookmark({
-                              title: 'test',
-                              url: 'http://ureff.l/'
-                            })
-                          ]
+                        children: [],
                       }),
                       new Bookmark({ title: 'test', url: 'http://ureff.l/' }),
                     ]
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should not fail when both moving folders and deleting their contents', async function() {
@@ -1030,7 +1021,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should handle strange characters well', async function() {
@@ -1080,7 +1071,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should be able to delete a server folder', async function() {
@@ -1120,7 +1111,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: []
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should be able to delete a local folder', async function() {
@@ -1164,7 +1155,7 @@ describe('Floccus', function() {
                 title: tree.title,
                 children: []
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should be ok if both server and local bookmark are removed', async function() {
@@ -1242,7 +1233,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1260,7 +1251,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should move items successfully even into new folders', async function() {
@@ -1318,7 +1309,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1344,7 +1335,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should move items successfully when mixing creation and moving (1)', async function() {
@@ -1416,7 +1407,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1451,7 +1442,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should move items successfully when mixing creation and moving (2)', async function() {
@@ -1540,7 +1531,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1584,7 +1575,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should move items without creating a folder loop', async function() {
@@ -1654,7 +1645,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1662,7 +1653,7 @@ describe('Floccus', function() {
             expectTreeEqual(
               localTree,
               tree,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should integrate existing items from both sides', async function() {
@@ -1745,7 +1736,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false /* checkOrder */
             )
 
@@ -1775,7 +1766,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false /* checkOrder */
             )
 
@@ -1887,7 +1878,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
 
@@ -1914,7 +1905,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
           })
@@ -1980,7 +1971,7 @@ describe('Floccus', function() {
                         ]}),
                     ]}),
                 ]}),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             expectTreeEqual(
               tree,
@@ -1997,7 +1988,7 @@ describe('Floccus', function() {
                         ]}),
                     ]}),
                 ]}),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             console.log('initial sync done')
@@ -2028,7 +2019,7 @@ describe('Floccus', function() {
                       new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=379999'})
                     ]}),
                 ]}),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             tree = await getAllBookmarks(account)
             expectTreeEqual(
@@ -2046,7 +2037,7 @@ describe('Floccus', function() {
                       new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'})
                     ]}),
                 ]}),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should sync separators 2', async function() {
@@ -2111,7 +2102,7 @@ describe('Floccus', function() {
                         ]}),
                     ]}),
                 ]}),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             expectTreeEqual(
               tree,
@@ -2128,7 +2119,7 @@ describe('Floccus', function() {
                         ]}),
                     ]}),
                 ]}),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             console.log('initial sync done')
@@ -2156,7 +2147,7 @@ describe('Floccus', function() {
                     ]}),
 
                 ]}),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should sync root folder successfully', async function() {
@@ -2193,7 +2184,7 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree,
               newRoot,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             // Switch it back to something harmless, so we don't attempt to clean up the root folder
@@ -2268,9 +2259,6 @@ describe('Floccus', function() {
             account = await Account.get(account.id)
           })
           it('should synchronize ordering', async function() {
-            if (ACCOUNT_DATA.type === 'nextcloud-legacy') {
-              this.skip()
-            }
             if (ACCOUNT_DATA.noCache) {
               return this.skip()
             }
@@ -2439,7 +2427,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
             it("shouldn't update the server on local removals", async function() {
@@ -2475,7 +2463,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
             it("shouldn't update the server on local folder moves", async function() {
@@ -2518,7 +2506,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
             it('should create server bookmarks locally', async function() {
@@ -2563,7 +2551,7 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
             it('should update local bookmarks on server changes', async function() {
@@ -2625,7 +2613,7 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
             it('should update local bookmarks on server removals', async function() {
@@ -2672,7 +2660,7 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
             it('should sync root folder ignoring unsupported folders', async function() {
@@ -2746,9 +2734,6 @@ describe('Floccus', function() {
             })
           })
           context('with overwrite mode', function() {
-            before(function() {
-              if (ACCOUNT_DATA.type === 'nextcloud-legacy') return this.skip()
-            })
             it('should create local bookmarks on the server', async function() {
               await account.setData({
                 ...account.getData(),
@@ -2794,7 +2779,7 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
             it('should create local bookmarks on the server respecting moves', async function() {
@@ -2842,7 +2827,7 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
 
               const bazFolder = await browser.bookmarks.create({
@@ -2885,7 +2870,7 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
             it('should update the server on local changes', async function() {
@@ -2929,7 +2914,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
             it('should update the server on local removals', async function() {
@@ -2969,7 +2954,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
             it('should update the server on local folder moves', async function() {
@@ -3016,7 +3001,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
             it("shouldn't create server bookmarks locally", async function() {
@@ -3049,7 +3034,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
             it("shouldn't update local bookmarks on server changes", async function() {
@@ -3094,7 +3079,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
             it("shouldn't update local bookmarks on server removals", async function() {
@@ -3133,7 +3118,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
             })
           })
@@ -3298,7 +3283,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             const tree1AfterSyncing = await account1.localTree.getBookmarksTree(
@@ -3310,13 +3295,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterSyncing,
               tree2AfterSyncing,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             tree2AfterSyncing.title = serverTreeAfterSyncing.title
             expectTreeEqual(
               tree2AfterSyncing,
               serverTreeAfterSyncing,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should overtake moves to a different client', async function() {
@@ -3349,19 +3334,19 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             serverTreeAfterFirstSync.title = tree1.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             tree2AfterFirstSync.title = tree1.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('First round ok')
 
@@ -3383,13 +3368,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterSecondSync,
               tree1BeforeSecondSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             serverTreeAfterSecondSync.title = tree1AfterSecondSync.title
             expectTreeEqual(
               serverTreeAfterSecondSync,
               tree1AfterSecondSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Second round first half ok')
 
@@ -3403,13 +3388,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree2AfterThirdSync,
               tree1AfterSecondSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             serverTreeAfterThirdSync.title = tree2AfterThirdSync.title
             expectTreeEqual(
               serverTreeAfterThirdSync,
               tree2AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Second round second half ok')
 
@@ -3424,13 +3409,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFinalSync,
               tree2AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             tree2AfterThirdSync.title = serverTreeAfterFinalSync.title
             expectTreeEqual(
               tree2AfterThirdSync,
               serverTreeAfterFinalSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should handle creations inside deletions gracefully', async function() {
@@ -3465,19 +3450,19 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             serverTreeAfterFirstSync.title = tree1.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             tree2AfterFirstSync.title = tree1.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('First round ok')
 
@@ -3511,13 +3496,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterThirdSync,
               tree2BeforeSecondSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             serverTreeAfterThirdSync.title = tree2BeforeSecondSync.title
             expectTreeEqual(
               serverTreeAfterThirdSync,
               tree2BeforeSecondSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             console.log('Second round second half ok')
@@ -3534,13 +3519,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree2AfterFinalSync,
               tree2BeforeSecondSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             tree2BeforeSecondSync.title = serverTreeAfterFinalSync.title
             expectTreeEqual(
               serverTreeAfterFinalSync,
               tree2BeforeSecondSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should handle duplicate bookmarks in different serverRoot folders', async function() {
@@ -3612,12 +3597,12 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTree1,
               tree1AfterSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             expectTreeEqual(
               tree2AfterSync,
               tree1AfterSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should handle concurrent hierarchy reversals', async function() {
@@ -3661,19 +3646,19 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             serverTreeAfterFirstSync.title = tree1.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             tree2AfterFirstSync.title = tree1.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('First round ok')
 
@@ -3707,7 +3692,7 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTreeAfterThirdSync,
               tree1AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             console.log('Second round second half ok')
@@ -3725,13 +3710,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTreeAfterFinalSync,
               tree2AfterFinalSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             tree1AfterThirdSync.title = tree2AfterFinalSync.title
             expectTreeEqual(
               tree2AfterFinalSync,
               tree1AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should handle complex hierarchy reversals', async function() {
@@ -3796,21 +3781,21 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
             serverTreeAfterFirstSync.title = tree1.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
             tree2AfterFirstSync.title = tree1.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
             console.log('First round ok')
@@ -3854,7 +3839,7 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTreeAfterThirdSync,
               tree1AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
 
@@ -3873,14 +3858,14 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTreeAfterFinalSync,
               tree2AfterFinalSync,
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
             tree1AfterThirdSync.title = tree2AfterFinalSync.title
             expectTreeEqual(
               tree2AfterFinalSync,
               tree1AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
           })
@@ -3936,19 +3921,22 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false,
+              false
             )
             serverTreeAfterFirstSync.title = tree1.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false,
+              false
             )
             tree2AfterFirstSync.title = tree1.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false,
+              false
             )
             console.log('First round ok')
 
@@ -3996,7 +3984,8 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTreeAfterThirdSync,
               tree1AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false,
+              false
             )
 
             console.log('Second round second half ok')
@@ -4014,13 +4003,15 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTreeAfterFinalSync,
               tree2AfterFinalSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false,
+              false
             )
             tree1AfterThirdSync.title = tree2AfterFinalSync.title
             expectTreeEqual(
               tree2AfterFinalSync,
               tree1AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false,
+              false
             )
           })
           it('should handle faux hierarchy reversals', async function() {
@@ -4072,19 +4063,22 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false,
+              false
             )
             serverTreeAfterFirstSync.title = tree1.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false,
+              false
             )
             tree2AfterFirstSync.title = tree1.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false,
+              false
             )
             console.log('First round ok')
 
@@ -4144,7 +4138,8 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTreeAfterThirdSync,
               tree1AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false,
+              false
             )
 
             console.log('Second round second half ok')
@@ -4162,13 +4157,15 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTreeAfterFinalSync,
               tree2AfterFinalSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false,
+              false
             )
             tree1AfterThirdSync.title = tree2AfterFinalSync.title
             expectTreeEqual(
               tree2AfterFinalSync,
               tree1AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false,
+              false
             )
           })
           it('should handle complex move-remove interactions', async function() {
@@ -4216,21 +4213,21 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
             serverTreeAfterFirstSync.title = tree1.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
             tree2AfterFirstSync.title = tree1.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
             console.log('First round ok')
@@ -4265,7 +4262,7 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTreeAfterThirdSync,
               tree1AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
 
@@ -4284,19 +4281,18 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTreeAfterFinalSync,
               tree2AfterFinalSync,
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
             tree1AfterThirdSync.title = tree2AfterFinalSync.title
             expectTreeEqual(
               tree2AfterFinalSync,
               tree1AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA),
+              false,
               false
             )
           })
           it('should synchronize ordering', async function() {
-            if (ACCOUNT_DATA.type === 'nextcloud-legacy') return this.skip()
             expect(
               (await getAllBookmarks(account1)).children
             ).to.have.lengthOf(0)
@@ -4423,19 +4419,19 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             serverTreeAfterFirstSync.title = tree1.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             tree2AfterFirstSync.title = tree1.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('First round ok')
 
@@ -4456,13 +4452,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterSecondSync,
               tree1BeforeSecondSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             serverTreeAfterSecondSync.title = tree1AfterSecondSync.title
             expectTreeEqual(
               serverTreeAfterSecondSync,
               tree1AfterSecondSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Second round first half ok')
 
@@ -4484,13 +4480,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree2AfterThirdSync,
               tree2BeforeThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             serverTreeAfterThirdSync.title = tree2AfterThirdSync.title
             expectTreeEqual(
               serverTreeAfterThirdSync,
               tree2AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Second round second half ok')
 
@@ -4504,13 +4500,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFinalSync,
               tree2AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             tree2AfterThirdSync.title = serverTreeAfterFinalSync.title
             expectTreeEqual(
               tree2AfterThirdSync,
               serverTreeAfterFinalSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
         })
@@ -4610,7 +4606,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should create server bookmarks as tabs', async function() {
@@ -4654,7 +4650,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should update the server when pushing local changes', async function() {
@@ -4692,7 +4688,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             await browser.tabs.update(tab.id, {url: 'https://example.org'})
@@ -4716,7 +4712,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
           it('should update local tabs when pulling server changes', async function() {
@@ -4760,7 +4756,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             let serverMark2
@@ -4797,7 +4793,7 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           })
         })
@@ -4972,19 +4968,19 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             serverTreeAfterFirstSync.title = tree1Initial.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             tree2AfterFirstSync.title = tree1Initial.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           }
           serverTreeAfterFirstSync = null
@@ -5012,13 +5008,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterSecondSync,
               tree1BeforeSecondSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             serverTreeAfterSecondSync.title = tree1AfterSecondSync.title
             expectTreeEqual(
               serverTreeAfterSecondSync,
               tree1AfterSecondSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           }
           tree1BeforeSecondSync = null
@@ -5037,13 +5033,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree2AfterThirdSync,
               tree1AfterSecondSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             serverTreeAfterThirdSync.title = tree2AfterThirdSync.title
             expectTreeEqual(
               serverTreeAfterThirdSync,
               tree2AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           }
           serverTreeAfterThirdSync = null
@@ -5062,13 +5058,13 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFinalSync,
               tree2AfterThirdSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             tree2AfterThirdSync.title = serverTreeAfterFinalSync.title
             expectTreeEqual(
               tree2AfterThirdSync,
               serverTreeAfterFinalSync,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
           }
           serverTreeAfterFinalSync = null
@@ -5125,7 +5121,7 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
 
             console.log('Initial round: first tree ok')
@@ -5133,14 +5129,14 @@ describe('Floccus', function() {
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: server tree ok')
             tree2AfterFirstSync.title = tree1Initial.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: second tree ok')
           }
@@ -5166,14 +5162,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterFirstSync,
                 serverTreeAfterFirstSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('first tree ok')
               tree2AfterFirstSync.title = serverTreeAfterFirstSync.title
               expectTreeEqual(
                 tree2AfterFirstSync,
                 serverTreeAfterFirstSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Initial round: second tree ok')
             }
@@ -5199,14 +5195,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterSync,
                 tree1BeforeSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: local tree tree ok')
               serverTreeAfterSync.title = tree1AfterSync.title
               expectTreeEqual(
                 serverTreeAfterSync,
                 tree1AfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: server tree tree ok')
             }
@@ -5227,14 +5223,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree2AfterSecondSync,
                 tree1AfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: second local tree tree ok')
               serverTreeAfterSecondSync.title = tree2AfterSecondSync.title
               expectTreeEqual(
                 serverTreeAfterSecondSync,
                 tree2AfterSecondSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: second server tree tree ok')
             }
@@ -5255,14 +5251,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterFinalSync,
                 tree2AfterSecondSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round: local tree tree ok')
               tree2AfterSecondSync.title = serverTreeAfterFinalSync.title
               expectTreeEqual(
                 tree2AfterSecondSync,
                 serverTreeAfterFinalSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round: server tree tree ok')
             }
@@ -5285,14 +5281,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterInit,
                 serverTreeAfterInit,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round after init: local tree ok')
               tree2AfterSecondSync.title = serverTreeAfterInit.title
               expectTreeEqual(
                 tree2AfterSecondSync,
                 serverTreeAfterInit,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round after init: server tree ok')
             }
@@ -5356,21 +5352,21 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: first tree ok')
             serverTreeAfterFirstSync.title = tree1Initial.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: server tree ok')
             tree2AfterFirstSync.title = tree1Initial.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: second tree ok')
           }
@@ -5395,14 +5391,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterFirstSync,
                 serverTreeAfterFirstSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('first tree ok')
               tree2AfterFirstSync.title = serverTreeAfterFirstSync.title
               expectTreeEqual(
                 tree2AfterFirstSync,
                 serverTreeAfterFirstSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Initial round: second tree ok')
             }
@@ -5435,14 +5431,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterSync,
                 tree1BeforeSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: local tree tree ok')
               serverTreeAfterSync.title = tree1AfterSync.title
               expectTreeEqual(
                 serverTreeAfterSync,
                 tree1AfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: server tree tree ok')
             }
@@ -5465,7 +5461,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 serverTreeAfterSecondSync,
                 tree2AfterSecondSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: second server tree tree ok')
             }
@@ -5486,14 +5482,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterFinalSync,
                 tree2AfterSecondSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round: local tree tree ok')
               tree2AfterSecondSync.title = serverTreeAfterFinalSync.title
               expectTreeEqual(
                 tree2AfterSecondSync,
                 serverTreeAfterFinalSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round: server tree tree ok')
             }
@@ -5516,14 +5512,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterInit,
                 serverTreeAfterInit,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round after init: local tree ok')
               tree2AfterSecondSync.title = serverTreeAfterInit.title
               expectTreeEqual(
                 tree2AfterSecondSync,
                 serverTreeAfterInit,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round after init: server tree ok')
             }
@@ -5587,21 +5583,21 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: first tree ok')
             serverTreeAfterFirstSync.title = tree1Initial.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: server tree ok')
             tree2AfterFirstSync.title = tree1Initial.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: second tree ok')
           }
@@ -5627,14 +5623,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterFirstSync,
                 serverTreeAfterFirstSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('first tree ok')
               tree2AfterFirstSync.title = serverTreeAfterFirstSync.title
               expectTreeEqual(
                 tree2AfterFirstSync,
                 serverTreeAfterFirstSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Initial round: second tree ok')
             }
@@ -5667,14 +5663,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterSync,
                 tree1BeforeSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: local tree tree ok')
               serverTreeAfterSync.title = tree1AfterSync.title
               expectTreeEqual(
                 serverTreeAfterSync,
                 tree1AfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: server tree tree ok')
             }
@@ -5702,7 +5698,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 serverTreeAfterSecondSync,
                 tree2AfterSecondSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: second server tree tree ok')
             }
@@ -5723,14 +5719,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterFinalSync,
                 tree2AfterSecondSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round: local tree tree ok')
               tree2AfterSecondSync.title = serverTreeAfterFinalSync.title
               expectTreeEqual(
                 tree2AfterSecondSync,
                 serverTreeAfterFinalSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round: server tree tree ok')
             }
@@ -5752,14 +5748,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterInit,
                 serverTreeAfterInit,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round after init: local tree ok')
               tree2AfterSecondSync.title = serverTreeAfterFinalSync.title
               expectTreeEqual(
                 tree2AfterSecondSync,
                 serverTreeAfterInit,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round after init: server tree ok')
             }
@@ -5821,21 +5817,21 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: first tree ok')
             serverTreeAfterFirstSync.title = tree1Initial.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: server tree ok')
             tree2AfterFirstSync.title = tree1Initial.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: second tree ok')
           }
@@ -5864,14 +5860,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterFirstSync,
                 serverTreeAfterFirstSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('first tree ok')
               tree2AfterFirstSync.title = serverTreeAfterFirstSync.title
               expectTreeEqual(
                 tree2AfterFirstSync,
                 serverTreeAfterFirstSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Initial round: second tree ok')
             }
@@ -5903,14 +5899,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterSync,
                 tree1BeforeSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: local tree tree ok')
               serverTreeAfterSync.title = tree1AfterSync.title
               expectTreeEqual(
                 serverTreeAfterSync,
                 tree1AfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: server tree tree ok')
             }
@@ -5936,7 +5932,7 @@ describe('Floccus', function() {
               expectTreeEqual(
                 serverTreeAfterSecondSync,
                 tree2AfterSecondSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: second server tree tree ok')
             }
@@ -5956,14 +5952,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterFinalSync,
                 tree2AfterSecondSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round: local tree tree ok')
               tree2AfterSecondSync.title = serverTreeAfterFinalSync.title
               expectTreeEqual(
                 tree2AfterSecondSync,
                 serverTreeAfterFinalSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round: server tree tree ok')
             }
@@ -5984,14 +5980,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterInit,
                 serverTreeAfterInit,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round after init: local tree ok')
               tree2AfterSecondSync.title = serverTreeAfterFinalSync.title
               expectTreeEqual(
                 tree2AfterSecondSync,
                 serverTreeAfterInit,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round after init: server tree ok')
             }
@@ -6071,21 +6067,21 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: first tree ok')
             serverTreeAfterFirstSync.title = tree1Initial.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: server tree ok')
             tree2AfterFirstSync.title = tree1Initial.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: second tree ok')
           }
@@ -6110,14 +6106,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterFirstSync,
                 serverTreeAfterFirstSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('first tree ok')
               tree2AfterFirstSync.title = serverTreeAfterFirstSync.title
               expectTreeEqual(
                 tree2AfterFirstSync,
                 serverTreeAfterFirstSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Initial round: second tree ok')
             }
@@ -6150,14 +6146,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterSync,
                 tree1BeforeSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: local tree tree ok')
               serverTreeAfterSync.title = tree1AfterSync.title
               expectTreeEqual(
                 serverTreeAfterSync,
                 tree1AfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: server tree tree ok')
             }
@@ -6178,13 +6174,13 @@ describe('Floccus', function() {
               expectTreeEqual(
                 serverTreeAfterSecondSync,
                 tree1AfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               serverTreeAfterSecondSync.title = tree2AfterSecondSync.title
               expectTreeEqual(
                 serverTreeAfterSecondSync,
                 tree2AfterSecondSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: second server tree tree ok')
             }
@@ -6205,14 +6201,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterFinalSync,
                 tree2AfterSecondSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round: local tree tree ok')
               tree2AfterSecondSync.title = serverTreeAfterFinalSync.title
               expectTreeEqual(
                 tree2AfterSecondSync,
                 serverTreeAfterFinalSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round: server tree tree ok')
             }
@@ -6235,20 +6231,20 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterSync,
                 serverTreeAfterInit,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               tree1AfterInit.title = serverTreeAfterSync.title
               expectTreeEqual(
                 tree1AfterInit,
                 serverTreeAfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round after init: local tree ok')
               tree2AfterSecondSync.title = serverTreeAfterInit.title
               expectTreeEqual(
                 tree2AfterSecondSync,
                 serverTreeAfterInit,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round after init: server tree ok')
             }
@@ -6314,21 +6310,21 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree1AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: first tree ok')
             serverTreeAfterFirstSync.title = tree1Initial.title
             expectTreeEqual(
               serverTreeAfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: server tree ok')
             tree2AfterFirstSync.title = tree1Initial.title
             expectTreeEqual(
               tree2AfterFirstSync,
               tree1Initial,
-              ignoreEmptyFolders(ACCOUNT_DATA)
+              false
             )
             console.log('Initial round: second tree ok')
           }
@@ -6354,14 +6350,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterFirstSync,
                 serverTreeAfterFirstSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('first tree ok')
               tree2AfterFirstSync.title = serverTreeAfterFirstSync.title
               expectTreeEqual(
                 tree2AfterFirstSync,
                 serverTreeAfterFirstSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Initial round: second tree ok')
             }
@@ -6395,14 +6391,14 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterSync,
                 tree1BeforeSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: local tree tree ok')
               serverTreeAfterSync.title = tree1AfterSync.title
               expectTreeEqual(
                 serverTreeAfterSync,
                 tree1AfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: server tree tree ok')
             }
@@ -6428,13 +6424,13 @@ describe('Floccus', function() {
               expectTreeEqual(
                 serverTreeAfterSecondSync,
                 serverTreeAfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               serverTreeAfterSecondSync.title = tree2AfterSecondSync.title
               expectTreeEqual(
                 serverTreeAfterSecondSync,
                 tree2AfterSecondSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Second round: second server tree tree ok')
             }
@@ -6456,26 +6452,26 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterFinalSync,
                 tree1AfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               tree2AfterSecondSync.title = tree1AfterFinalSync.title
               expectTreeEqual(
                 tree1AfterFinalSync,
                 tree2AfterSecondSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round: local tree tree ok')
               serverTreeAfterSync.title = serverTreeAfterFinalSync.title
               expectTreeEqual(
                 serverTreeAfterFinalSync,
                 serverTreeAfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               tree2AfterSecondSync.title = serverTreeAfterFinalSync.title
               expectTreeEqual(
                 tree2AfterSecondSync,
                 serverTreeAfterFinalSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round: server tree tree ok')
             }
@@ -6497,20 +6493,20 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree1AfterInit,
                 serverTreeAfterInit,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               tree1AfterInit.title = tree1AfterSync.title
               expectTreeEqual(
                 tree1AfterInit,
                 tree1AfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round after init: local tree ok')
               serverTreeAfterInit.title = serverTreeAfterSync.title
               expectTreeEqual(
                 serverTreeAfterInit,
                 serverTreeAfterSync,
-                ignoreEmptyFolders(ACCOUNT_DATA)
+                false
               )
               console.log('Final round after init: server tree ok')
             }
@@ -6527,10 +6523,6 @@ describe('Floccus', function() {
 function hasNoBookmarks(child) {
   if (child instanceof Bookmark) return false
   else return !child.children.some(child => !hasNoBookmarks(child))
-}
-
-function ignoreEmptyFolders(account_data) {
-  return account_data.type === 'nextcloud-legacy'
 }
 
 async function getAllBookmarks(account) {

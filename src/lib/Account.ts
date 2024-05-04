@@ -203,7 +203,7 @@ export default class Account {
             mappings,
             localResource,
             this.server,
-            async (progress) => {
+            async(progress) => {
               if (!this.syncing) {
                 return
               }
