@@ -248,6 +248,7 @@ jobs:
         env:
           SELENIUM_BROWSER: ${{ matrix.browsers }}
           FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
+          FLOCCUS_TEST_SEED: ${{ github.sha }}
           TEST_HOST: 172.17.0.1:8174
         run: |
           npm run test
