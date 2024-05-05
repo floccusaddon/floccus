@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.1.0] - 2024-05-05
+
+### New
+ - enh(ui): Add git adapter: You can now sync via git
+
+### Fixed
+* fix(GoogleDrive): Don't pollute console
+* fix(BrowserController#getStatus): Show error icon if an account hasn't been synced in two days
+* fix: Ignore errors from browser.permissions.contains
+* fix: Ignore errors in REQUEST_NET_PERMS
+* fix: Replace node.js' url with whatwg URL
+* fix(browserslist): support and_chr >=60
+* fix: Don't sync tabs if floccus' browser profile is not active
+* fix(performance): Turn parallel processing back on Marcel Klehr 03.05.24, 19:30
+* fix(Account#sync): Don't store continuation if the adapter is caching changes internally
+
 ## [5.0.12] - 2024-04-26
 
 ### Fixed
