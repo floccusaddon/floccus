@@ -75,7 +75,7 @@
     "message": "E025: Ustawienie pliku zakładek nie może zaczynać się od ukośnika: '/'"
   },
   "Error026": {
-    "message": "E026: Status HTTP {0}. Nie udało się pobrać zakładek"
+    "message": "E026: Synchronizacja została anulowana"
   },
   "Error027": {
     "message": "E027: Synchronizacja została przerwana"
@@ -90,7 +90,7 @@
     "message": "E030: Nieudane odszyfrowanie pliku zakładek. Błędne hasło lub uszkodzony plik"
   },
   "Error031": {
-    "message": "E031: Nie udało się uwierzytelnić w Dysku Google. Połącz ponownie Floccus ze swoim kontem Google"
+    "message": "E031: Nie udało się uwierzytelnić w Dysku Google. Połącz ponownie Floccus ze swoim kontem Google."
   },
   "Error032": {
     "message": "E032:Błąd OAuth. Błąd walidacji tokenu. Podłącz ponownie swoje konto Google."
@@ -99,10 +99,13 @@
     "message": "E033: Wykryto przekierowanie. Upewnij się, że serwer obsługuje wybraną metodę synchronizacji i podany adres URL nie przekierowuje w inne miejsce. Jeśli przekierowanie jest częścią Twojej konfiguracji, możesz wyłączyć to sprawdzenie w ustawieniach."
   },
   "Error034": {
-    "message": "E034: Nie można odczytać pliku zakładek. Czy hasło do odszyfrowania zostało wskazane? "
+    "message": "E034: Nie można odczytać zdalnego pliku zakładek. Czy ustawiłeś hasło do odszyfrowania? "
   },
   "Error035": {
     "message": "E035: Nie udało się utworzyć następującej zakładki na serwerze: (0)"
+  },
+  "Error036": {
+    "message": "E036: Brak uprawnień dostępu do serwera synchronizacji."
   },
   "LabelWebdavurl": {
     "message": "Adres WebDAV"
@@ -128,17 +131,26 @@
  "DescriptionBookmarksfilegoogle": {
    "message": "Nazwa pliku z zakładkami w Dysku Google (upewnij się że nazwa jest unikalna na Twoim Dysku)"
  },
+  "DescriptionBookmarksfilegit": {
+    "message": "Ścieżka do pliku z zakładkami w odniesieniu do głównego katalogu (roota) twojego repozytorium Git (wszystkie katalogi w ścieżce muszą istnieć), np. osobiste/bookmarks.xbel"
+  },
   "LabelServerfolder": {
-    "message": "Folder na serwerze"
+    "message": "Cel na serwerze"
   },
   "DescriptionServerfolder": {
-    "message": "To jest ścieżka, w której to konto będzie przeprowadzać operacje na serwerze. Podaj prefix ścieżki lub pozostaw puste aby nie ograniczać."
+    "message": "Podczas synchronizacji, zakładki w tej przeglądarce będą zapisywane jako linki w tej lokalizacji na serwerze. Uwaga, ścieżka reprezentuje folder w aplikacji Zakładki Nextcloud a nie folder w aplikacji Pliki Nextcloud. Pozostaw puste aby umieszczać linki w głównym folderze na serwerze."
+  },
+  "LabelLocaltarget": {
+    "message": "Cel lokalny"
+  },
+  "DescriptionLocaltarget": {
+    "message": "Wybierz czy chcesz synchronizować zakładki przeglądarki czy karty przeglądarki."
   },
   "LabelLocalfolder": {
-    "message": "Folder lokalny"
+    "message": "Folder zakładek"
   },
   "DescriptionLocalfolder": {
-    "message": "Lokalny folder z zakładkami w tej przeglądarce, który będzie synchronizowany z serwerem. Niektóre przeglądarki nie pozwalają na tworzenie nowych elementów w folderze głównym (np. Firefox i Google Chrome)"
+    "message": "Zakładki w tym folderze zakładek będą przechowywane jako linki na serwerze oraz linki na serwerze będą przechowywane jako zakładki w tym folderze zakładek w tej przeglądarce."
   },
   "LabelRootfolder": {
     "message": "Folder główny"
@@ -154,6 +166,9 @@
   },
   "LabelCancelsync": {
     "message": "Anuluj"
+  },
+  "LabelSyncall": {
+    "message": "Synchronizuj wszystkie profile"
   },
   "LabelAutosync": {
     "message": "Auto-synchr."
@@ -176,6 +191,9 @@
   "StatusSyncing": {
     "message": "Synchronizacja"
   },
+  "StatusScheduled": {
+    "message": "Zaplanowane"
+  },
   "LabelReset": {
     "message": "Reset"
   },
@@ -189,10 +207,10 @@
     "message": "Wskaż istniejący folder do synchronizacji"
   },
   "LabelRemoveaccount": {
-    "message": "Usuń konto"
+    "message": "Usuń profil"
   },
   "DescriptionRemoveaccount": {
-    "message": "Usuń to konto (Twoje zakładki nie zostaną usunięte)"
+    "message": "Skasuj ten profil (to nie usunie zakładek)"
   },
   "LabelSyncfromscratch": {
     "message": "Wykonaj synchronizację od zera"
@@ -201,7 +219,7 @@
     "message": "Wyczyść pamięć podręczną"
   },
   "DescriptionResetcache": {
-    "message": "Użyj aby zresetować pamięć podręczną, tak aby przy następnej synchronizacji nie zostały usunięte żadne dane, a jedynie zostały scalone zakładki z serwera i lokalne"
+    "message": "Kliknij ten przycisk aby zresetować pamięć podręczną co sprawi, że przy następnej synchronizacji żadne dane nie zostaną usunięte lecz nastąpi scalenie lokalnych i zdalnych zakładek"
   },
   "LabelParallelsync": {
     "message": "Przyśpiesz synchronizację"
@@ -246,13 +264,13 @@
     "message": "Zakładki Nextcloud"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "Synchronizacja z aplikacją 'Zakładki Nextcloud'. Wymaga conajmniej wersji v0.14 aplikacji Zakładki. Synchronizowane będą wyłącznie zakładki http i ftp."
+    "message": "Opcja 'Zakładki Nextcloud' synchronizuje zakładki z aplikacją Zakładki Nextcloud. Może synchronizować tylko zakładki http i ftp. Upewnij się, że zainstalowałeś aplikację Zakładki ze sklepu Nextcloud w swojej instancji."
   },
   "LabelAdapternextcloud": {
     "message": "Zakładki Nextcloud (starsza wersja)"
   },
   "DescriptionAdapternextcloud": {
-    "message": "Umożliwia działanie ze starszą wersją - conajmniej v0.11 - aplikacji Zakładki. W tym trybie emulowane są foldery przy użyciu tagów zawierających ścieżki folderów. Nie jest zalecane używanie tego z nowymi kontami."
+    "message": "Umożliwia działanie ze starszą wersją - co najmniej v0.11 - aplikacji Zakładki. W tym trybie emulowane są foldery przy użyciu tagów zawierających ścieżki folderów. Nie jest zalecane używanie tego z nowymi profilami."
   },
   "LabelAdapterwebdav": {
     "message": "Udział WebDAV"
@@ -261,13 +279,7 @@
     "message": "Metoda synchronizacji zakładek przy użyciu pliku znajdującego się na serwerze WebDAV. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem zgodnym z WebDAV. Można synchronizować zakładki typu http, ftp, data, javascript"
   },
   "LabelAddaccount": {
-    "message": "Dodaj konto"
-  },
-  "LabelSecurecredentials": {
-    "message": "Zabezpiecz swoje dane"
-  },
-  "LabelSecuredcredentials": {
-    "message": "Dane są zabezpieczone"
+    "message": "Dodaj profil"
   },
   "LabelOpenintab": {
     "message": "Otwórz w karcie"
@@ -286,12 +298,6 @@
   },
   "LabelUntitledfolder": {
     "message": "Nienazwany folder"
-  },
-  "LabelSetkey": {
-    "message": "Zabezpiecz Floccusa hasłem"
-  },
-  "DescriptionSetkey": {
-    "message": "Jeśli ustawisz hasło, trzeba będzie je podawać za każdym razem gdy uruchomisz przegladarkę i będziesz chcleć użyć Floccus, aby synchronizować zakładki czy zmienić konfigurację."
   },
   "LabelSetkeybutton": {
     "message": "Podaj hasło"
@@ -322,7 +328,7 @@
   },
   "LabelOptionsscreen": {
     "message": "{0} ustawienia",
-    "description": "Title of the options screen. The placeholder holds the account type."
+    "description": "Title of the options screen. The placeholder holds the profile type."
   },
   "LabelPaypal": {
     "message": "Paypal"
@@ -348,8 +354,20 @@
   "DescriptionGithubsponsors": {
     "message": "Przekazuj okresową darowiznę przez Github aby wspierać projekt"
   },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "Przekazuj okresową darowiznę przez Patreon aby wspierać projekt"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "Zrób okresową lub jednorazową darowiznę przez Ko-fi aby wspierać projekt"
+  },
   "LegacyAdapterDeprecation": {
-    "message": "Ten przestarzały typ konta zostanie niebawem usunięty. Przełącz się jak najszybciej na nową metodę synchronizacji z Nextcloud, która jest szybsza i pewniejsza."
+    "message": "Ten przestarzały typ profilu zostanie niebawem usunięty. Przełącz się jak najszybciej na nową metodę synchronizacji z Nextcloud, która jest szybsza i pewniejsza."
   },
   "LabelUpdated": {
     "message": "Floccus został zaktualizowany"
@@ -373,16 +391,16 @@
     "message": "Zaawansowane"
   },
   "LabelAccountDeleted": {
-    "message": "Konto usunięte"
+    "message": "Profil usunięty"
   },
   "DescriptionAccountDeleted": {
-    "message": "To konto zostało usunięte"
+    "message": "Ten profil został usunięty"
   },
   "LabelNoAccount": {
-    "message": "Brak kont"
+    "message": "Brak profili"
   },
   "DescriptionNoAccount": {
-    "message": "Utwórz nowe konto aby synchronizować zakładki albo zaimportuj istniejące konta z innego urządzenia lub przeglądarki."
+    "message": "Utwórz nowy profil aby synchronizować zakładki albo zaimportuj istniejące profile z innego urządzenia lub przeglądarki."
   },
   "LabelLoginFlowStart": {
     "message": "Zaloguj z Nextcloud"
@@ -394,40 +412,43 @@
     "message": "Logowanie Nextcloud nie powiodło się"
   },
   "LabelNewAccount": {
-    "message": "Nowe konto"
+    "message": "Nowy profil"
   },
   "LabelNestedSync": {
-    "message": "Konta zagnieżdżone"
+    "message": "Zagnieżdżone profile"
   },
   "DescriptionNestedSync": {
-    "message": "Możesz wskazać, że folder nadrzędny należy do konta A a subfolder do kont A oraz B. Czy chcesz zezwolić innym kontom również na synchronizację folderu tego konta? "
+    "message": "Możesz wskazać, że folder nadrzędny należy do profilu A a subfolder do profili A oraz B. Czy chcesz zezwolić innym profilom również na synchronizację folderu tego profilu?"
   },
   "LabelNestedSyncNo": {
-    "message": "Nie, ignoruj folder tego konta w innych kontach"
+    "message": "Nie, ignoruj folder tego profilu w innych profilach"
   },
   "LabelNestedSyncYes": {
-    "message": "Tak, dołącz folder tego konta do innych kont"
+    "message": "Tak, dołącz folder tego profilu do innych profili"
   },
   "LabelImportExport": {
-    "message": "Import/Eksport kont"
+    "message": "Import/Eksport profili"
   },
   "LabelExport": {
-    "message": "Eksportuj konta"
+    "message": "Eksport profili"
   },
   "LabelImport": {
-    "message": "Importuj konta"
+    "message": "Import profili"
   },
   "DescriptionExport": {
-    "message": "Zaznacz poniżej konta, które zostaną zapisane do pliku. Dzięki temu łatwo odtworzysz te same konta na innym urządzeniu lub przeglądarce. "
+    "message": "Zaznacz poniżej profile, które zostaną zapisane do pliku. Dzięki temu łatwo odtworzysz te same profile na innym urządzeniu lub przeglądarce. "
   },
   "DescriptionImport": {
-    "message": "Wczytaj plik z wyeksportowanymi kontami z innego urządzenia lub przeglądarki. Następnie upewnij się, że wybrałeś na nowo właściwe foldery do synchronizacji. "
+    "message": "Wczytaj plik z wyeksportowanymi profilami z innego urządzenia lub przeglądarki. Następnie upewnij się, że wybrałeś na nowo właściwe foldery do synchronizacji. "
   },
   "LabelFolderNotFound": {
     "message": "Nie znaleziono folderu"
   },
   "LabelSyncTabs": {
-    "message": "Synchronizuj karty"
+    "message": "Karty przeglądarki"
+  },
+  "DescriptionSyncTabs": {
+    "message": "Linki przechowywane na serwerze będą otwierane jako karty w twojej przeglądarce oraz istniejące otwarte karty przeglądarki będą zapisywane jako linki na serwerze. W zależności od tego, ile linków jest przechowywanych na serwerze, może to przeciążyć przeglądarkę, gdyż wszystkie zostaną otwarte jako karty przy następnym uruchomieniu synchronizacji."
   },
   "LabelTabs": {
     "message": "Karty"
@@ -502,7 +523,7 @@
     "message": "Wyślij dane uwierzytelniające klienta"
   },
   "DescriptionClientcert": {
-    "message": "Włącz tę opcję, jeśli Twój serwer wymaga certyfikatu klienta lub pliku cookie dla autoryzacji. To może spowodować nieoczekiwane efekty uboczne, gdyż Floccus będzie współdzielił cookies w ramach standardowego profilu przeglądarki."
+    "message": "Włącz tę opcję, jeśli Twój serwer wymaga certyfikatu klienta lub pliku cookie dla autoryzacji. To może spowodować nieoczekiwane efekty uboczne, gdyż Floccus będzie współdzielił cookies w ramach standardowych sesji przeglądarki."
   },
   "LabelAllowredirects": {
     "message": "Zezwól na przekierowania w URL serwera"
@@ -628,7 +649,10 @@
     "message": "Której metody synchronizacji chcesz użyć?"
   },
   "LabelAccountcreated": {
-    "message": "Konto zostało utworzone"
+    "message": "Profil utworzony"
+  },
+  "DescriptionAccountcreated": {
+    "message": "Profil został utworzony. Możesz zamknąć tę kartę."
   },
   "DescriptionNonhttps": {
     "message": "Wskazany serwer nie szyfruje połączeń. Rekomendujemy korzystać wyłącznie z serwerów obsługujących protokół HTTPS."
@@ -655,9 +679,30 @@
     "message": "Eksportuj zakładki"
   },
   "DescriptionExportBookmarks" : {
-    "message": "Wyeksportuj wszystkie zakładki z tego konta do pliku HTML kompatybilnego z większością przeglądarek."
+    "message": "Wyeksportuj wszystkie zakładki z tego profilu do pliku HTML kompatybilnego z większością przeglądarek."
   },
   "LabelShareitem": {
     "message": "Udostępnij"
+  },
+  "LabelImportsuccessful": {
+    "message": "Profil(e) zaimportowane poprawnie"
+  },
+  "DescriptionSyncinprogress": {
+    "message": "Trwa synchronizacja."
+  },
+  "DescriptionSyncscheduled": {
+    "message": "Ten profil zostanie niebawem zsynchronizowany. Czekam, aż inne twoje urządzenia lub inne profile na tym urządzeniu ukończą synchronizację."
+  },
+  "LabelAdaptergit": {
+    "message": "Git przez HTTPS"
+  },
+  "DescriptionAdaptergit": {
+    "message": "Metoda synchronizacji zakładek przy użyciu pliku znajdującego się w repozytorium Git. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem Git, np. Github, Gitlab, Gitea. Można synchronizować zakładki typu http, ftp, data, javascript."
+  },
+  "LabelGiturl": {
+    "message": "Adres HTTP repozytorium"
+  },
+  "LabelGitbranch": {
+    "message": "Gałąź Git"
   }
 }
