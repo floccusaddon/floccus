@@ -57,6 +57,10 @@ export default class SyncProcess {
     this.isFirefox = self.location.protocol === 'moz-extension:'
   }
 
+  getMappingsInstance(): Mappings {
+    return this.mappings
+  }
+
   setCacheTree(cacheTree: Folder) {
     this.cacheTreeRoot = cacheTree
   }
@@ -1045,7 +1049,7 @@ export default class SyncProcess {
   static async fromJSON(mappings:Mappings,
     localTree:TLocalTree,
     server:TAdapter,
-    progressCb:(progress:number)=>void,
+    progressCb:(progress:number, actionsDone:number)=>void,
     json: any) {
     let strategy: SyncProcess
     let MergeSyncProcess: typeof SyncProcess
