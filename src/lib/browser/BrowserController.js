@@ -9,8 +9,9 @@ import uniqBy from 'lodash/uniqBy'
 import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
 
-const INACTIVITY_TIMEOUT = 7 * 1000
-const DEFAULT_SYNC_INTERVAL = 15
+const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
+const DEFAULT_SYNC_INTERVAL = 15 // 15 minutes
+const STALE_SYNC_TIME = 1000 * 60 * 60 * 24 * 2 // two days
 
 class AlarmManager {
   constructor(ctl) {
@@ -124,10 +125,8 @@ export default class BrowserController {
 
   async _receiveEvent(data, sendResponse) {
     const {type, params} = data
-    console.log('Message received', data)
     const result = await this[type](...params)
     sendResponse({type: type + 'Response', params: [result]})
-    console.log('Sending message', {type: type + 'Response', params: [result]})
 
     // checkSync after waiting a bit
     setTimeout(() => this.alarms.checkSync(), 3000)
@@ -185,8 +184,6 @@ export default class BrowserController {
     // Debounce this function
     this.setEnabled(false)
 
-    console.log('Changes in browser Bookmarks detected...')
-
     const allAccounts = await BrowserAccount.getAllAccounts()
 
     // Check which accounts contain the bookmark and which used to contain (track) it
@@ -200,14 +197,11 @@ export default class BrowserController {
       // Filter out any accounts that are not tracking the bookmark
       .filter((account, i) => trackingAccountsFilter[i])
 
-    console.log('onchange', {accountsToSync})
-
     // Now we check the account of the new folder
 
     let containingAccounts = []
     try {
       const ancestors = await BrowserTree.getIdPathFromLocalId(localId)
-      console.log('onchange:', {ancestors, allAccounts})
       containingAccounts = await BrowserAccount.getAccountsContainingLocalId(
         localId,
         ancestors,
@@ -217,8 +211,6 @@ export default class BrowserController {
       console.log(e)
       console.log('Could not detect containing account from localId ', localId)
     }
-
-    console.log('onchange', accountsToSync.concat(containingAccounts))
 
     accountsToSync = uniqBy(
       accountsToSync.concat(containingAccounts),
@@ -250,16 +242,12 @@ export default class BrowserController {
       return
     }
 
-    console.log('getting account')
     let account = await Account.get(accountId)
-    console.log('got account')
     if (account.getData().syncing) {
-      console.log('Account is already syncing. Not syncing again.')
       return
     }
     // if the account is already scheduled, don't prevent it, to avoid getting stuck
     if (!account.getData().enabled && !account.getData().scheduled) {
-      console.log('Account is not enabled. Not syncing.')
       return
     }
 
@@ -294,14 +282,11 @@ export default class BrowserController {
   }
 
   async syncAccount(accountId, strategy) {
-    console.log('Called syncAccount ', accountId)
     if (!this.enabled) {
-      console.log('Flocccus controller is not enabled. Not syncing.')
       return
     }
     let account = await Account.get(accountId)
     if (account.getData().syncing) {
-      console.log('Account is already syncing. Not triggering another sync.')
       return
     }
     // executes long-running async work without letting the service worker to die
@@ -339,16 +324,20 @@ export default class BrowserController {
     let overallStatus = accounts.reduce((status, account) => {
       const accData = account.getData()
       if (status === STATUS_SYNCING || accData.syncing || account.syncing) {
+        // Show syncing symbol if any account is syncing
         return STATUS_SYNCING
-      } else if (status === STATUS_ERROR || (accData.error && !accData.syncing)) {
+      } else if (status === STATUS_ERROR || (accData.error && !accData.syncing) || (accData.enabled && accData.lastSync < Date.now() - STALE_SYNC_TIME)) {
+        // Show error symbol if any account has an error and not currently syncing, or if any account is enabled but hasn't been synced for two days
         return STATUS_ERROR
       } else {
+        // show allgood symbol otherwise
         return STATUS_ALLGOOD
       }
     }, STATUS_ALLGOOD)
 
     if (overallStatus === STATUS_ALLGOOD) {
       if (accounts.every(account => !account.getData().enabled)) {
+        // if status is allgood but no account is enabled, show disabled
         overallStatus = STATUS_DISABLED
       }
     }
@@ -385,6 +374,7 @@ export default class BrowserController {
           await acc.setData({
             ...acc.getData(),
             syncing: false,
+            scheduled: true,
           })
         }
       })

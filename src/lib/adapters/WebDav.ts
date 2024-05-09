@@ -3,7 +3,6 @@ import XbelSerializer from '../serializers/Xbel'
 import Logger from '../Logger'
 import { Base64 } from 'js-base64'
 
-import url from 'url'
 import Crypto from '../Crypto'
 import {
   AuthenticationError,
@@ -51,17 +50,12 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   normalizeServerURL(input) {
-    const serverURL = url.parse(input)
+    const serverURL = new URL(input)
     if (!serverURL.pathname) serverURL.pathname = ''
-    return url.format({
-      protocol: serverURL.protocol,
-      auth: serverURL.auth,
-      host: serverURL.host,
-      port: serverURL.port,
-      pathname:
-        serverURL.pathname +
-        (serverURL.pathname[serverURL.pathname.length - 1] !== '/' ? '/' : '')
-    })
+    serverURL.search = ''
+    serverURL.hash = ''
+    const output = serverURL.toString()
+    return output + (output[output.length - 1] !== '/' ? '/' : '')
   }
 
   cancel() {

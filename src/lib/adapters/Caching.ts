@@ -4,7 +4,6 @@ import Logger from '../Logger'
 import Adapter from '../interfaces/Adapter'
 import difference from 'lodash/difference'
 
-import url from 'url'
 import Ordering from '../interfaces/Ordering'
 import {
   MissingItemOrderError,
@@ -13,8 +12,9 @@ import {
   UnknownMoveOriginError,
   UnknownMoveTargetError
 } from '../../errors/Error'
+import { BulkImportResource } from '../interfaces/Resource'
 
-export default class CachingAdapter implements Adapter {
+export default class CachingAdapter implements Adapter, BulkImportResource {
   protected highestId: number
   protected bookmarksCache: Folder
   protected server: any
@@ -29,7 +29,7 @@ export default class CachingAdapter implements Adapter {
 
   getLabel():string {
     const data = this.getData()
-    return data.username + '@' + url.parse(data.url).hostname
+    return data.username + '@' + new URL(data.url).hostname
   }
 
   async getBookmarksTree(): Promise<Folder> {
@@ -40,9 +40,13 @@ export default class CachingAdapter implements Adapter {
     if (bm.url === 'data:') {
       return false
     }
-    return Boolean(['https:', 'http:', 'ftp:', 'data:', 'javascript:', 'chrome:', 'file:'].includes(
-      url.parse(bm.url).protocol
-    ))
+    try {
+      return Boolean(['https:', 'http:', 'ftp:', 'data:', 'javascript:', 'chrome:', 'file:'].includes(
+        new URL(bm.url).protocol
+      ))
+    } catch (e) {
+      return false
+    }
   }
 
   async createBookmark(bm:Bookmark):Promise<string|number> {
@@ -233,5 +237,9 @@ export default class CachingAdapter implements Adapter {
 
   cancel() {
     // noop
+  }
+
+  isAvailable(): Promise<boolean> {
+    return Promise.resolve(true)
   }
 }

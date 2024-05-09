@@ -111,12 +111,10 @@ export default class NativeController {
 
     let account = await Account.get(accountId)
     if (account.getData().syncing) {
-      console.log('Account is already syncing. Not syncing again.')
       return
     }
     // if the account is already scheduled, don't prevent it, to avoid getting stuck
     if (!account.getData().enabled && !account.getData().scheduled) {
-      console.log('Account is not enabled. Not syncing.')
       return
     }
 

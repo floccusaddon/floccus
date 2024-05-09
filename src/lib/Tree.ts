@@ -376,3 +376,13 @@ export class Folder {
 }
 
 export type TItem = Bookmark | Folder
+
+export function hydrate(obj: any) {
+  if (obj.type === ItemType.FOLDER) {
+    return Folder.hydrate(obj)
+  }
+  if (obj.type === ItemType.BOOKMARK) {
+    return Bookmark.hydrate(obj)
+  }
+  throw new Error(`Cannot hydrate object ${JSON.stringify(obj)}`)
+}

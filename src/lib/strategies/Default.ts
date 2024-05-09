@@ -7,23 +7,34 @@ import { throttle } from 'throttle-debounce'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import TResource, { OrderFolderResource, TLocalTree } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
-import { FailsafeError, InterruptedSyncError } from '../../errors/Error'
+import { CancelledSyncError, FailsafeError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
+import { setImmediate } from 'timers'
 
 export default class SyncProcess {
   protected mappings: Mappings
   protected localTree: TLocalTree
   protected server: TAdapter
-  protected cacheTreeRoot: Folder
+  protected cacheTreeRoot: Folder|null
   protected canceled: boolean
   protected preserveOrder: boolean
-  protected progressCb: (progress:number)=>void
+  protected progressCb: (progress:number, actionsDone?:number)=>void
   protected localTreeRoot: Folder
   protected serverTreeRoot: Folder
-  protected actionsDone: number
-  protected actionsPlanned: number
+  protected actionsDone = 0
+  protected actionsPlanned = 0
   protected isFirefox: boolean
+  protected localPlan: Diff
+  protected serverPlan: Diff
+  protected doneLocalPlan: Diff
+  protected doneServerPlan: Diff
+  protected localReorderPlan: Diff
+  protected serverReorderPlan: Diff
+  protected flagLocalPostMoveMapping = false
+  protected flagLocalPostReorderReconciliation = false
+  protected flagServerPostMoveMapping = false
+  protected flagPostReorderReconciliation = false
 
   // The location that has precedence in case of conflicts
   protected masterLocation: TItemLocation
@@ -31,22 +42,63 @@ export default class SyncProcess {
   constructor(
     mappings:Mappings,
     localTree:TLocalTree,
-    cacheTreeRoot:Folder,
     server:TAdapter,
-    progressCb:(progress:number)=>void
+    progressCb:(progress:number, actionsDone?:number)=>void
   ) {
     this.mappings = mappings
     this.localTree = localTree
     this.server = server
-    this.cacheTreeRoot = cacheTreeRoot
 
     this.preserveOrder = 'orderFolder' in this.server
 
-    this.progressCb = throttle(250, true, progressCb) as (progress:number)=>void
+    this.progressCb = throttle(250, true, progressCb) as (progress:number, actionsDone?:number)=>void
     this.actionsDone = 0
     this.actionsPlanned = 0
     this.canceled = false
     this.isFirefox = self.location.protocol === 'moz-extension:'
+  }
+
+  setCacheTree(cacheTree: Folder) {
+    this.cacheTreeRoot = cacheTree
+  }
+
+  setState({localTreeRoot, cacheTreeRoot, serverTreeRoot, localPlan, doneLocalPlan, serverPlan, doneServerPlan, serverReorderPlan, localReorderPlan, flagLocalPostMoveMapping, flagServerPostMoveMapping, flagPostReorderReconciliation}: any) {
+    if (typeof localTreeRoot !== 'undefined') {
+      this.localTreeRoot = Folder.hydrate(localTreeRoot)
+    } else {
+      throw new Error('No localTreeRoot found in continuation')
+    }
+    if (typeof cacheTreeRoot !== 'undefined') {
+      this.cacheTreeRoot = Folder.hydrate(cacheTreeRoot)
+    } else {
+      throw new Error('No cacheTreeRoot found in continuation')
+    }
+    if (typeof serverTreeRoot !== 'undefined') {
+      this.serverTreeRoot = Folder.hydrate(serverTreeRoot)
+    } else {
+      throw new Error('No serverTreeRoot found in continuation')
+    }
+    if (typeof localPlan !== 'undefined') {
+      this.localPlan = Diff.fromJSON(localPlan)
+    }
+    if (typeof serverPlan !== 'undefined') {
+      this.serverPlan = Diff.fromJSON(serverPlan)
+    }
+    if (typeof doneLocalPlan !== 'undefined') {
+      this.doneLocalPlan = Diff.fromJSON(doneLocalPlan)
+    }
+    if (typeof doneServerPlan !== 'undefined') {
+      this.doneServerPlan = Diff.fromJSON(doneServerPlan)
+    }
+    if (typeof localReorderPlan !== 'undefined') {
+      this.localReorderPlan = Diff.fromJSON(localReorderPlan)
+    }
+    if (typeof serverReorderPlan !== 'undefined') {
+      this.serverReorderPlan = Diff.fromJSON(serverReorderPlan)
+    }
+    this.flagLocalPostMoveMapping = flagLocalPostMoveMapping
+    this.flagServerPostMoveMapping = flagServerPostMoveMapping
+    this.flagPostReorderReconciliation = flagPostReorderReconciliation
   }
 
   async cancel() :Promise<void> {
@@ -55,13 +107,36 @@ export default class SyncProcess {
   }
 
   updateProgress():void {
+    if (this.serverPlan && this.localPlan) {
+      this.actionsPlanned = this.serverPlan.getActions().length + this.localPlan.getActions().length
+    } else if ('revertPlan' in this) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      this.actionsPlanned = this.revertPlan.getActions().length
+    }
     Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
+    if (typeof this.actionsDone === 'undefined') {
+      this.actionsDone = 0
+    }
     this.actionsDone++
     this.progressCb(
       Math.min(
         1,
         0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
-      )
+      ),
+      this.actionsDone
+    )
+  }
+
+  setProgress({actionsDone, actionsPlanned}: {actionsDone: number, actionsPlanned: number}) {
+    this.actionsDone = actionsDone
+    this.actionsPlanned = actionsPlanned
+    this.progressCb(
+      Math.min(
+        1,
+        0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
+      ),
+      this.actionsDone
     )
   }
 
@@ -80,7 +155,7 @@ export default class SyncProcess {
     this.progressCb(0.35)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
@@ -90,7 +165,7 @@ export default class SyncProcess {
     this.progressCb(0.5)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     const unmappedServerPlan = await this.reconcileDiffs(localDiff, serverDiff, ItemLocation.SERVER)
@@ -98,47 +173,87 @@ export default class SyncProcess {
     // have to get snapshot after reconciliation, because of concurrent creation reconciliation
     let mappingsSnapshot = this.mappings.getSnapshot()
     Logger.log('Mapping server plan')
-    let serverPlan = unmappedServerPlan.map(mappingsSnapshot, ItemLocation.SERVER, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
+    this.serverPlan = unmappedServerPlan.map(mappingsSnapshot, ItemLocation.SERVER, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     const unmappedLocalPlan = await this.reconcileDiffs(serverDiff, localDiff, ItemLocation.LOCAL)
     // have to get snapshot after reconciliation, because of concurrent creation reconciliation
     mappingsSnapshot = this.mappings.getSnapshot()
     Logger.log('Mapping local plan')
-    let localPlan = unmappedLocalPlan.map(mappingsSnapshot, ItemLocation.LOCAL, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
+    this.localPlan = unmappedLocalPlan.map(mappingsSnapshot, ItemLocation.LOCAL, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
-    Logger.log({localPlan, serverPlan})
+    this.doneServerPlan = new Diff
+    this.doneLocalPlan = new Diff
 
-    this.actionsPlanned = serverPlan.getActions().length + localPlan.getActions().length
+    Logger.log({localPlan: this.localPlan, serverPlan: this.serverPlan})
 
-    this.applyFailsafe(localPlan)
+    this.actionsPlanned = this.serverPlan.getActions().length + this.localPlan.getActions().length
+
+    this.applyFailsafe(this.localPlan)
 
     Logger.log('Executing server plan')
-    serverPlan = await this.execute(this.server, serverPlan, ItemLocation.SERVER)
+    await this.execute(this.server, this.serverPlan, ItemLocation.SERVER, this.doneServerPlan)
     Logger.log('Executing local plan')
-    localPlan = await this.execute(this.localTree, localPlan, ItemLocation.LOCAL)
+    await this.execute(this.localTree, this.localPlan, ItemLocation.LOCAL, this.doneLocalPlan)
 
     // mappings have been updated, reload
     mappingsSnapshot = this.mappings.getSnapshot()
 
-    const localReorder = this.reconcileReorderings(localPlan, serverPlan, mappingsSnapshot)
-      .map(mappingsSnapshot, ItemLocation.LOCAL)
-
-    const serverReorder = this.reconcileReorderings(serverPlan, localPlan, mappingsSnapshot)
-      .map(mappingsSnapshot, ItemLocation.SERVER)
-
     if ('orderFolder' in this.server) {
+      this.localReorderPlan = this.reconcileReorderings(this.localPlan, this.doneServerPlan, mappingsSnapshot)
+        .map(mappingsSnapshot, ItemLocation.LOCAL)
+
+      this.serverReorderPlan = this.reconcileReorderings(this.serverPlan, this.doneLocalPlan, mappingsSnapshot)
+        .map(mappingsSnapshot, ItemLocation.SERVER)
+
+      this.flagPostReorderReconciliation = true
+
       Logger.log('Executing reorderings')
       await Promise.all([
-        this.executeReorderings(this.server, serverReorder),
-        this.executeReorderings(this.localTree, localReorder),
+        this.executeReorderings(this.server, this.serverReorderPlan),
+        this.executeReorderings(this.localTree, this.localReorderPlan),
+      ])
+    }
+  }
+
+  async resumeSync(): Promise<void> {
+    if (typeof this.localPlan === 'undefined' || typeof this.serverPlan === 'undefined') {
+      Logger.log('Continuation loaded from storage is incomplete. Falling back to a complete new sync iteration')
+      return this.sync()
+    }
+    Logger.log('Resuming sync with the following plans:')
+    Logger.log({localPlan: this.localPlan, serverPlan: this.serverPlan})
+
+    Logger.log('Executing server plan')
+    await this.execute(this.server, this.serverPlan, ItemLocation.SERVER, this.doneServerPlan)
+    Logger.log('Executing local plan')
+    await this.execute(this.localTree, this.localPlan, ItemLocation.LOCAL, this.doneLocalPlan)
+
+    // mappings have been updated, reload
+    const mappingsSnapshot = this.mappings.getSnapshot()
+
+    if ('orderFolder' in this.server) {
+      if (!this.flagPostReorderReconciliation) {
+        this.localReorderPlan = this.reconcileReorderings(this.localPlan, this.doneServerPlan, mappingsSnapshot)
+          .map(mappingsSnapshot, ItemLocation.LOCAL)
+
+        this.serverReorderPlan = this.reconcileReorderings(this.serverPlan, this.doneLocalPlan, mappingsSnapshot)
+          .map(mappingsSnapshot, ItemLocation.SERVER)
+      }
+
+      this.flagPostReorderReconciliation = true
+
+      Logger.log('Executing reorderings')
+      await Promise.all([
+        this.executeReorderings(this.server, this.serverReorderPlan),
+        this.executeReorderings(this.localTree, this.localReorderPlan),
       ])
     }
   }
@@ -309,7 +424,6 @@ export default class SyncProcess {
     // Prepare target plan
     const targetPlan = new Diff() // to be mapped
     await Parallel.each(sourceDiff.getActions(), async(action:Action) => {
-      Logger.log('Examining action: ', action)
       if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = targetRemovals.find(targetRemoval =>
           (action.payload.type === targetRemoval.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetRemoval.payload)) ||
@@ -523,31 +637,47 @@ export default class SyncProcess {
     return targetPlan
   }
 
-  async execute(resource:TResource, plan:Diff, targetLocation:TItemLocation):Promise<Diff> {
+  async execute(resource:TResource, plan:Diff, targetLocation:TItemLocation, donePlan: Diff = null, isSubPlan = false):Promise<Diff> {
     Logger.log('Executing plan for ' + targetLocation)
-    const run = (action) => this.executeAction(resource, action, targetLocation)
+    const run = (action) => this.executeAction(resource, action, targetLocation, plan, donePlan)
+    let mappedPlan
 
-    Logger.log(targetLocation + ': executing CREATEs and UPDATEs')
-    await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run)
+    if (isSubPlan || ((targetLocation === ItemLocation.LOCAL && !this.flagLocalPostMoveMapping) || (targetLocation === ItemLocation.SERVER && !this.flagServerPostMoveMapping))) {
+      Logger.log(targetLocation + ': executing CREATEs and UPDATEs')
+      await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run)
 
-    if (this.canceled) {
-      throw new InterruptedSyncError()
+      if (this.canceled) {
+        throw new CancelledSyncError()
+      }
+
+      const mappingsSnapshot = this.mappings.getSnapshot()
+      Logger.log(targetLocation + ': mapping MOVEs')
+      mappedPlan = plan.map(mappingsSnapshot, targetLocation, (action) => action.type === ActionType.MOVE)
+
+      if (!isSubPlan) {
+        if (targetLocation === ItemLocation.LOCAL) {
+          this.localPlan = mappedPlan
+          this.flagLocalPostMoveMapping = true
+        } else {
+          this.serverPlan = mappedPlan
+          this.flagServerPostMoveMapping = true
+        }
+      }
+    } else {
+      mappedPlan = plan
     }
 
-    const mappingsSnapshot = this.mappings.getSnapshot()
-    Logger.log(targetLocation + ': mapping MOVEs')
-    const mappedPlan = plan.map(mappingsSnapshot, targetLocation, (action) => action.type === ActionType.MOVE)
+    if (this.canceled) {
+      throw new CancelledSyncError()
+    }
+
     const batches = Diff.sortMoves(mappedPlan.getActions(ActionType.MOVE), targetLocation === ItemLocation.SERVER ? this.serverTreeRoot : this.localTreeRoot)
 
-    if (this.canceled) {
-      throw new InterruptedSyncError()
-    }
-
     Logger.log(targetLocation + ': executing MOVEs')
-    await Parallel.each(batches, batch => Promise.all(batch.map(run)), 1)
+    await Parallel.each(batches, batch => Parallel.each(batch, run), 1)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     Logger.log(targetLocation + ': executing REMOVEs')
@@ -556,18 +686,38 @@ export default class SyncProcess {
     return mappedPlan
   }
 
-  async executeAction(resource:TResource, action:Action, targetLocation:TItemLocation):Promise<void> {
+  async executeAction(resource:TResource, action:Action, targetLocation:TItemLocation, plan: Diff, donePlan: Diff = null):Promise<void> {
+    // defer execution of actions to allow the this.canceled check below to work when cancelling in interrupt tests
+    await new Promise((resolve) => setTimeout(resolve, 0))
     Logger.log('Executing action ', action)
     const item = action.payload
+    const done = () => {
+      plan.retract(action)
+      // TODO: This is kind of a hack :/
+      if (targetLocation === ItemLocation.LOCAL) {
+        this.localPlan && this.localPlan.retract(action)
+      } else {
+        this.localPlan && this.serverPlan.retract(action)
+      }
+      if ('revertPlan' in this) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        this.revertPlan.retract(action)
+      }
+      if (donePlan) {
+        donePlan.commit(action)
+      }
+      this.updateProgress()
+    }
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     if (action.type === ActionType.REMOVE) {
       await action.payload.visitRemove(resource)
       await this.removeMapping(resource, item)
-      this.updateProgress()
+      done()
       return
     }
 
@@ -575,7 +725,7 @@ export default class SyncProcess {
       const id = await action.payload.visitCreate(resource)
       if (typeof id === 'undefined') {
         // undefined means we couldn't create the item. we're ignoring it
-        this.updateProgress()
+        done()
         return
       }
       item.id = id
@@ -608,7 +758,7 @@ export default class SyncProcess {
               await this.addMapping(resource, oldItem, newId)
             })
 
-            this.updateProgress()
+            done()
             return
           } catch (e) {
             Logger.log('Bulk import failed, continuing with normal creation', e)
@@ -618,30 +768,29 @@ export default class SyncProcess {
         // Create a sub plan
         if (action.oldItem && action.oldItem instanceof Folder) {
           const subPlan = new Diff
-          action.oldItem.children.forEach((child) => subPlan.commit({ type: ActionType.CREATE, payload: child }))
-          let mappingsSnapshot = this.mappings.getSnapshot()
+          action.oldItem.children.forEach((child) => {
+            const newAction : Action = { type: ActionType.CREATE, payload: child }
+            subPlan.commit(newAction)
+            plan.commit(newAction)
+          })
+          const mappingsSnapshot = this.mappings.getSnapshot()
           const mappedSubPlan = subPlan.map(mappingsSnapshot, targetLocation)
-          await this.execute(resource, mappedSubPlan, targetLocation)
+          Logger.log('executing sub plan')
+          await this.execute(resource, mappedSubPlan, targetLocation, null, true)
 
-          if (item.children.length > 1) {
+          if ('orderFolder' in resource && item.children.length > 1) {
             // Order created items after the fact, as they've been created concurrently
-            const subOrder = new Diff()
-            subOrder.commit({
+            plan.commit({
               type: ActionType.REORDER,
               oldItem: action.payload,
               payload: action.oldItem,
               order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
             })
-            mappingsSnapshot = this.mappings.getSnapshot()
-            const mappedOrder = subOrder.map(mappingsSnapshot, targetLocation)
-            if ('orderFolder' in resource) {
-              await this.executeReorderings(resource, mappedOrder)
-            }
           }
         }
       }
 
-      this.updateProgress()
+      done()
 
       return
     }
@@ -649,7 +798,7 @@ export default class SyncProcess {
     if (action.type === ActionType.UPDATE || action.type === ActionType.MOVE) {
       await action.payload.visitUpdate(resource)
       await this.addMapping(resource, action.oldItem, item.id)
-      this.updateProgress()
+      done()
     }
   }
 
@@ -662,7 +811,6 @@ export default class SyncProcess {
     // MOVEs have oldItem from cacheTree and payload now mapped to their corresponding target tree
     // REORDERs have payload in source tree
       .forEach(oldReorderAction => {
-        Logger.log('Examining old reorder action', oldReorderAction)
         // clone action
         const reorderAction = {...oldReorderAction, order: oldReorderAction.order.slice()}
 
@@ -741,7 +889,7 @@ export default class SyncProcess {
       const item = action.payload
 
       if (this.canceled) {
-        throw new InterruptedSyncError()
+        throw new CancelledSyncError()
       }
 
       if (action.order.length <= 1) {
@@ -766,12 +914,12 @@ export default class SyncProcess {
         Logger.log('Failed to execute REORDER: ' + e.message + '\nMoving on.')
         Logger.log(e)
       }
+      reorderings.retract(action)
       this.updateProgress()
     })
   }
 
   async addMapping(resource:TResource, item:TItem, newId:string|number):Promise<void> {
-    Logger.log(`Adding mapping between ${item.type}:${item.id} and ${item.type}:${newId}`)
     let localId, remoteId
     if (resource === this.server) {
       localId = item.id
@@ -788,7 +936,6 @@ export default class SyncProcess {
   }
 
   async removeMapping(resource:TResource, item:TItem):Promise<void> {
-    Logger.log(`Adding mapping for ${item.type}:${item.id}`)
     let localId, remoteId
     if (resource === this.server) {
       remoteId = item.id
@@ -804,7 +951,7 @@ export default class SyncProcess {
 
   async loadChildren(serverItem:TItem, mappingsSnapshot:MappingSnapshot):Promise<void> {
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
     if (!(serverItem instanceof Folder)) return
     if (!('loadFolderChildren' in this.server)) return
@@ -864,7 +1011,6 @@ export default class SyncProcess {
   }
 
   filterOutUnmappedItems(tree: Folder, mapping: MappingSnapshot) {
-    Logger.log('Filtering out unmapped items from tree')
     tree.children = tree.children.filter(child => {
       if (child instanceof Bookmark) {
         return child.id in mapping.LocalToServer.bookmark
@@ -878,4 +1024,58 @@ export default class SyncProcess {
       }
     })
   }
+
+  toJSON(): ISerializedSyncProcess {
+    return {
+      strategy: 'default',
+      localTreeRoot: this.localTreeRoot && this.localTreeRoot.clone(false),
+      cacheTreeRoot: this.cacheTreeRoot && this.cacheTreeRoot.clone(false),
+      serverTreeRoot: this.serverTreeRoot && this.serverTreeRoot.clone(false),
+      localPlan: this.localPlan && this.localPlan.toJSON(),
+      doneLocalPlan: this.doneLocalPlan && this.doneLocalPlan.toJSON(),
+      serverPlan: this.serverPlan && this.serverPlan.toJSON(),
+      doneServerPlan: this.doneServerPlan && this.doneServerPlan.toJSON(),
+      serverReorderPlan: this.serverReorderPlan && this.serverReorderPlan.toJSON(),
+      localReorderPlan: this.localReorderPlan && this.localReorderPlan.toJSON(),
+      actionsDone: this.actionsDone,
+      actionsPlanned: this.actionsPlanned,
+      flagLocalPostMoveMapping: this.flagLocalPostMoveMapping,
+      flagLocalPostReorderReconciliation: this.flagLocalPostReorderReconciliation,
+      flagServerPostMoveMapping: this.flagServerPostMoveMapping,
+      flagPostReorderReconciliation: this.flagPostReorderReconciliation
+    }
+  }
+
+  static async fromJSON(mappings:Mappings,
+    localTree:TLocalTree,
+    server:TAdapter,
+    progressCb:(progress:number)=>void,
+    json: any) {
+    let strategy: SyncProcess
+    let MergeSyncProcess: typeof SyncProcess
+    let UnidirectionalSyncProcess: typeof SyncProcess
+    switch (json.strategy) {
+      case 'default':
+        strategy = new SyncProcess(mappings, localTree, server, progressCb)
+        break
+      case 'merge':
+        MergeSyncProcess = (await import('./Merge')).default
+        strategy = new MergeSyncProcess(mappings, localTree, server, progressCb)
+        break
+      case 'unidirectional':
+        UnidirectionalSyncProcess = (await import('./Unidirectional')).default
+        strategy = new UnidirectionalSyncProcess(mappings, localTree, server, progressCb)
+        break
+      default:
+        throw new Error('Unknown strategy: ' + json.strategy)
+    }
+    strategy.setProgress(json)
+    strategy.setState(json)
+    return strategy
+  }
+}
+
+export interface ISerializedSyncProcess {
+  strategy: 'default' | 'merge' | 'unidirectional'
+  [k: string]: any
 }

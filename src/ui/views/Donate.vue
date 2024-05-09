@@ -63,7 +63,17 @@ export default {
           href: 'https://github.com/users/marcelklehr/sponsorship',
           label: browser.i18n.getMessage('LabelGithubsponsors'),
           description: browser.i18n.getMessage('DescriptionGithubsponsors')
-        }
+        },
+        {
+          href: 'https://www.patreon.com/marcelklehr',
+          label: browser.i18n.getMessage('LabelPatreon'),
+          description: browser.i18n.getMessage('DescriptionPatreon')
+        },
+        {
+          href: 'https://www.ko-fi.com/marcelklehr',
+          label: browser.i18n.getMessage('LabelKofi'),
+          description: browser.i18n.getMessage('DescriptionKofi')
+        },
       ]
     }
   }

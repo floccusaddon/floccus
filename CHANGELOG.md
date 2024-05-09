@@ -1,5 +1,39 @@
 # Changelog
 
+## [5.1.0] - 2024-05-05
+
+### New
+ - enh(ui): Add git adapter: You can now sync via git
+
+### Fixed
+* fix(GoogleDrive): Don't pollute console
+* fix(BrowserController#getStatus): Show error icon if an account hasn't been synced in two days
+* fix: Ignore errors from browser.permissions.contains
+* fix: Ignore errors in REQUEST_NET_PERMS
+* fix: Replace node.js' url with whatwg URL
+* fix(browserslist): support and_chr >=60
+* fix: Don't sync tabs if floccus' browser profile is not active
+* fix(performance): Turn parallel processing back on Marcel Klehr 03.05.24, 19:30
+* fix(Account#sync): Don't store continuation if the adapter is caching changes internally
+
+## [5.0.12] - 2024-04-26
+
+### Fixed
+ - fix(tests/gdrive): Don't derive file name from seed
+ - chore: Allow fuzzed testing with interrupts on nextcloud-bookmarks
+ - enh(ci/tests); Use github sha as seed
+ - fix: Store continuation while sync is running to be able to resume after interrupts
+ - chore: Update donation methods Marcel Klehr 21.04.24, 20:57
+- fix: Distinguish between InterruptedSyncError and CancelledSyncError
+- [android] Include dependenciesInfo in gradle file
+- [native] fix(Account): Don't try to load LocalTabs resource
+
+## [5.0.11] - 2024-03-09
+
+### Fixed
+
+* fix: Android app stuck on splash screen
+
 ## [5.0.10] - 2024-03-08
 
 ### Fixed

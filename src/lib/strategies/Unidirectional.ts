@@ -1,15 +1,19 @@
-import DefaultStrategy from './Default'
+import DefaultStrategy, { ISerializedSyncProcess } from './Default'
 import Diff, { Action, ActionType } from '../Diff'
 import * as Parallel from 'async-parallel'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import { Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
 import Logger from '../Logger'
-import { InterruptedSyncError } from '../../errors/Error'
+import { CancelledSyncError } from '../../errors/Error'
 import MergeSyncProcess from './Merge'
-import TResource from '../interfaces/Resource'
+import TResource, { IResource, OrderFolderResource } from '../interfaces/Resource'
 
 export default class UnidirectionalSyncProcess extends DefaultStrategy {
   protected direction: TItemLocation
+  protected revertPlan: Diff
+  protected revertOrderings: Diff
+  protected flagPreReordering = false
+  protected sourceDiff: Diff
 
   setDirection(direction: TItemLocation): void {
     this.direction = direction
@@ -32,7 +36,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     this.progressCb(0.35)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     const {localDiff, serverDiff} = await this.getDiffs()
@@ -40,7 +44,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     this.progressCb(0.5)
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     let sourceDiff: Diff, targetDiff: Diff, target: TResource
@@ -58,19 +62,20 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     // First revert slave modifications
 
-    const revertPlan = await this.revertDiff(targetDiff, this.direction)
-    this.actionsPlanned = revertPlan.getActions().length
-    Logger.log({revertPlan})
+    this.sourceDiff = sourceDiff
+    this.revertPlan = await this.revertDiff(targetDiff, this.direction)
+    this.actionsPlanned = this.revertPlan.getActions().length
+    Logger.log({revertPlan: this.revertPlan})
     if (this.direction === ItemLocation.LOCAL) {
-      this.applyFailsafe(revertPlan)
+      this.applyFailsafe(this.revertPlan)
     }
 
     if (this.canceled) {
-      throw new InterruptedSyncError()
+      throw new CancelledSyncError()
     }
 
     Logger.log('Executing ' + this.direction + ' revert plan')
-    await this.execute(target, revertPlan, this.direction)
+    await this.execute(target, this.revertPlan, this.direction)
 
     const mappingsSnapshot = this.mappings.getSnapshot()
     Logger.log('Mapping reorderings')
@@ -83,9 +88,45 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     Logger.log({revertOrderings: revertOrderings.getActions(ActionType.REORDER)})
 
     if ('orderFolder' in target) {
-      await Promise.all([
-        this.executeReorderings(target, revertOrderings),
-      ])
+      await this.executeReorderings(target, revertOrderings)
+    }
+  }
+
+  async resumeSync(): Promise<void> {
+    if (typeof this.revertPlan === 'undefined') {
+      Logger.log('Continuation loaded from storage is incomplete. Falling back to a complete new sync iteration')
+      return this.sync()
+    }
+    Logger.log('Resuming sync with the following plan:')
+    Logger.log({revertPlan: this.revertPlan})
+
+    let target: IResource|OrderFolderResource
+    if (this.direction === ItemLocation.SERVER) {
+      target = this.server
+    } else {
+      target = this.localTree
+    }
+
+    Logger.log('Executing ' + this.direction + ' revert plan')
+    await this.execute(target, this.revertPlan, this.direction)
+
+    if ('orderFolder' in target) {
+      if (!this.flagPostReorderReconciliation) {
+        // mappings have been updated, reload
+        const mappingsSnapshot = this.mappings.getSnapshot()
+        Logger.log('Mapping reorderings')
+        this.revertOrderings = this.sourceDiff.map(
+          mappingsSnapshot,
+          this.direction,
+          (action: Action) => action.type === ActionType.REORDER,
+          true
+        )
+      }
+
+      this.flagPostReorderReconciliation = true
+
+      Logger.log('Executing reorderings')
+      await this.executeReorderings(target, this.revertOrderings)
     }
   }
 
@@ -161,5 +202,38 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       newItem.createIndex()
     }
     return newItem
+  }
+
+  setState({localTreeRoot, cacheTreeRoot, serverTreeRoot, direction, revertPlan, revertOrderings, flagPreReordering, sourceDiff}: any) {
+    this.setDirection(direction)
+    this.localTreeRoot = Folder.hydrate(localTreeRoot)
+    this.cacheTreeRoot = Folder.hydrate(cacheTreeRoot)
+    this.serverTreeRoot = Folder.hydrate(serverTreeRoot)
+    if (typeof revertPlan !== 'undefined') {
+      this.revertPlan = Diff.fromJSON(revertPlan)
+    }
+    if (typeof sourceDiff !== 'undefined') {
+      this.sourceDiff = Diff.fromJSON(sourceDiff)
+    }
+    if (typeof revertOrderings !== 'undefined') {
+      this.revertOrderings = Diff.fromJSON(revertOrderings)
+    }
+    this.flagPreReordering = flagPreReordering
+  }
+
+  toJSON(): ISerializedSyncProcess {
+    return {
+      strategy: 'unidirectional',
+      direction: this.direction,
+      localTreeRoot: this.localTreeRoot && this.localTreeRoot.clone(false),
+      cacheTreeRoot: this.localTreeRoot && this.cacheTreeRoot.clone(false),
+      serverTreeRoot: this.localTreeRoot && this.serverTreeRoot.clone(false),
+      sourceDiff: this.sourceDiff,
+      revertPlan: this.revertPlan,
+      revertOrderings: this.revertOrderings,
+      flagPreReordering: this.flagPreReordering,
+      actionsDone: this.actionsDone,
+      actionsPlanned: this.actionsPlanned,
+    }
   }
 }

@@ -75,7 +75,7 @@
     "message": "E025: Bookmarks file setting mustn't begin with a slash: '/'"
   },
   "Error026": {
-    "message": "E026: HTTP status {0}. Failed to fetch bookmarks"
+    "message": "E026: Sync process was cancelled"
   },
   "Error027": {
     "message": "E027: Sync process was interrupted"
@@ -131,6 +131,9 @@
  "DescriptionBookmarksfilegoogle": {
    "message": "the file name of the bookmarks file that will reside in your Google Drive (make sure this name is unique in your Drive)"
  },
+  "DescriptionBookmarksfilegit": {
+    "message": "a path to the bookmarks file relative to your Git repository root (all folders in the path must already exist). e.g. personal_stuff/bookmarks.xbel"
+  },
   "LabelServerfolder": {
     "message": "Server target"
   },
@@ -216,7 +219,7 @@
     "message": "Reset cache"
   },
   "DescriptionResetcache": {
-    "message": "Tick this box to reset the cache so that the next synchronization run is guaranteed not to delete any data and merely merges server and local bookmarks together"
+    "message": "Click this button to reset the cache so that the next synchronization run is guaranteed not to delete any data and merely merges server and local bookmarks together"
   },
   "LabelParallelsync": {
     "message": "Speed up synchronization"
@@ -350,6 +353,18 @@
   },
   "DescriptionGithubsponsors": {
     "message": "Make a regular donation via GitHub sponsors to support the project"
+  },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "Make a regular donation via Patreon to support the project"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "Make a regular or one-time donation via Ko-fi to support the project"
   },
   "LegacyAdapterDeprecation": {
     "message": "This legacy profile type is deprecated and will soon be removed. Please switch to the new nextcloud sync method. Improved performance and accuracy await you."
@@ -508,7 +523,7 @@
     "message": "Send client credentials"
   },
   "DescriptionClientcert": {
-    "message": "Enable this option if your server requires a client certificate or cookies for authentication. This may cause unintended side effects, as floccus will share cookies with your normal browser profile."
+    "message": "Enable this option if your server requires a client certificate or cookies for authentication. This may cause unintended side effects, as floccus will share cookies with your normal browser sessions."
   },
   "LabelAllowredirects": {
     "message": "Allow redirects in Server URL"
@@ -677,5 +692,17 @@
   },
   "DescriptionSyncscheduled": {
     "message": "This profile will be synced soon. We're either waiting for other devices of yours, or other profiles on this device, to finish syncing."
+  },
+  "LabelAdaptergit": {
+    "message": "Git over HTTPS"
+  },
+  "DescriptionAdaptergit": {
+    "message": "The Git option syncs your bookmarks by storing them in a file in the provided Git repository. There is no accompanying web UI for this option, but you can use it with any Git hosting server, like Github, Gitlab, Gitea, etc. It can sync http, ftp, data, file and javascript bookmarks."
+  },
+  "LabelGiturl": {
+    "message": "Repository URL using HTTP"
+  },
+  "LabelGitbranch": {
+    "message": "Git branch"
   }
 }

@@ -8,7 +8,6 @@ import { Bookmark, Folder, ItemLocation, TItem } from '../Tree'
 import { Base64 } from 'js-base64'
 import AsyncLock from 'async-lock'
 import * as Parallel from 'async-parallel'
-import url from 'url'
 import PQueue from 'p-queue'
 import flatten from 'lodash/flatten'
 import { BulkImportResource, LoadFolderChildrenResource, OrderFolderResource } from '../interfaces/Resource'
@@ -106,27 +105,26 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   getLabel():string {
     const data = this.getData()
-    return data.username.includes('@') ? data.username + ' on ' + url.parse(data.url).hostname : data.username + '@' + url.parse(data.url).hostname
+    return data.username.includes('@') ? data.username + ' on ' + new URL(data.url).hostname : data.username + '@' + new URL(data.url).hostname
   }
 
   acceptsBookmark(bm: Bookmark):boolean {
-    return Boolean(~['https:', 'http:', 'ftp:'].indexOf(url.parse(bm.url).protocol))
+    try {
+      return Boolean(~['https:', 'http:', 'ftp:'].indexOf(new URL(bm.url).protocol))
+    } catch (e) {
+      return false
+    }
   }
 
   normalizeServerURL(input:string):string {
-    const serverURL = url.parse(input)
+    const serverURL = new URL(input)
     const indexLoc = serverURL.pathname.indexOf('index.php')
-    return url.format({
-      protocol: serverURL.protocol,
-      auth: serverURL.auth,
-      host: serverURL.host,
-      port: serverURL.port,
-      pathname:
-        serverURL.pathname.substr(0, ~indexLoc ? indexLoc : undefined) +
-        (!~indexLoc && serverURL.pathname[serverURL.pathname.length - 1] !== '/'
-          ? '/'
-          : ''),
-    })
+    if (!serverURL.pathname) serverURL.pathname = ''
+    serverURL.search = ''
+    serverURL.hash = ''
+    serverURL.pathname = serverURL.pathname.substring(0, ~indexLoc ? indexLoc : undefined)
+    const output = serverURL.toString()
+    return output + (output[output.length - 1] !== '/' ? '/' : '')
   }
 
   timeout(ms) {
@@ -139,7 +137,13 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   async onSyncStart(needLock = true): Promise<void> {
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
-      if (!(await browser.permissions.contains({ origins: [this.server.url + '/'] }))) {
+      let hasPermissions
+      try {
+        hasPermissions = await browser.permissions.contains({ origins: [this.server.url + '/'] })
+      } catch (e) {
+        console.warn(e)
+      }
+      if (!hasPermissions) {
         throw new MissingPermissionsError()
       }
     }
@@ -1026,5 +1030,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
 
     return json
+  }
+
+  isAvailable(): Promise<boolean> {
+    return Promise.resolve(true)
   }
 }
