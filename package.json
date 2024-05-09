@@ -84,6 +84,8 @@
     "@capacitor/share": "^5.0.0",
     "@capacitor/splash-screen": "^5.0.0",
     "@isomorphic-git/lightning-fs": "^4.6.0",
+    "@sentry/vue": "^7.113.0",
+    "@sentry/webpack-plugin": "^2.16.1",
     "async-lock": "^1.2.8",
     "async-parallel": "^1.2.3",
     "batching-toposort": "^1.2.0",
