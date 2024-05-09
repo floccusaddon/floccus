@@ -72,6 +72,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private canceled = false
   private cancelCallback: () => void = null
   private lockingInterval: any
+  private lockingPromise: Promise<boolean>
   private ended = false
 
   constructor(server: NextcloudBookmarksConfig) {
@@ -943,25 +944,31 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   private async acquireLock():Promise<boolean> {
-    const res = await this.sendRequest(
-      'POST',
-      'index.php/apps/bookmarks/public/rest/v2/lock',
-      null,
-      null,
-      true
-    )
+    this.lockingPromise = (async() => {
+      const res = await this.sendRequest(
+        'POST',
+        'index.php/apps/bookmarks/public/rest/v2/lock',
+        null,
+        null,
+        true
+      )
 
-    if (res.status === 401 || res.status === 403) {
-      throw new AuthenticationError()
-    }
-    if (res.status !== 200 && res.status !== 405 && res.status !== 423) {
-      throw new HttpError(res.status, 'POST')
-    }
+      if (res.status === 401 || res.status === 403) {
+        throw new AuthenticationError()
+      }
+      if (res.status !== 200 && res.status !== 405 && res.status !== 423) {
+        throw new HttpError(res.status, 'POST')
+      }
 
-    return res.status === 200 || res.status === 405
+      return res.status === 200 || res.status === 405
+    })()
+    return this.lockingPromise
   }
 
   private async releaseLock():Promise<boolean> {
+    if (this.lockingPromise) {
+      await this.lockingPromise
+    }
     const res = await this.sendRequest(
       'DELETE',
       'index.php/apps/bookmarks/public/rest/v2/lock',

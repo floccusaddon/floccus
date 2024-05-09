@@ -50,6 +50,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   private cancelCallback: () => void = null
   private alwaysUpload = false
   private lockingInterval: any
+  private lockingPromise: Promise<CustomResponse>
 
   constructor(server) {
     super(server)
@@ -399,6 +400,9 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   async freeLock(id:string) {
+    if (this.lockingPromise) {
+      await this.lockingPromise
+    }
     let lockFreed, i = 0
     do {
       const res = await this.request('PATCH', this.getUrl() + '/files/' + id,
@@ -419,7 +423,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   async setLock(id:string) {
-    const res = await this.request('PATCH', this.getUrl() + '/files/' + id,
+    this.lockingPromise = this.request('PATCH', this.getUrl() + '/files/' + id,
       JSON.stringify({
         appProperties: {
           locked: JSON.stringify(Date.now())
@@ -427,6 +431,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       }),
       'application/json'
     )
+    const res = await this.lockingPromise
     return res.status === 200
   }
 
