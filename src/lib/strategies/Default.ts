@@ -36,6 +36,7 @@ export default class SyncProcess {
   protected flagLocalPostReorderReconciliation = false
   protected flagServerPostMoveMapping = false
   protected flagPostReorderReconciliation = false
+  protected staticContinuation: any = null
 
   // The location that has precedence in case of conflicts
   protected masterLocation: TItemLocation
@@ -1026,14 +1027,16 @@ export default class SyncProcess {
   }
 
   toJSON(): ISerializedSyncProcess {
+    if (!this.staticContinuation){
+      this.staticContinuation = {
+        localTreeRoot: this.localTreeRoot && this.localTreeRoot.clone(false),
+        cacheTreeRoot: this.cacheTreeRoot && this.cacheTreeRoot.clone(false),
+        serverTreeRoot: this.serverTreeRoot && this.serverTreeRoot.clone(false),
+      }
+    }
     return {
+      ...this.staticContinuation,
       strategy: 'default',
-      localTreeRoot: this.localTreeRoot && this.localTreeRoot.clone(false),
-      cacheTreeRoot: this.cacheTreeRoot && this.cacheTreeRoot.clone(false),
-      serverTreeRoot: this.serverTreeRoot && this.serverTreeRoot.clone(false),
-      localPlan: this.localPlan && this.localPlan.toJSON(),
-      doneLocalPlan: this.doneLocalPlan && this.doneLocalPlan.toJSON(),
-      serverPlan: this.serverPlan && this.serverPlan.toJSON(),
       doneServerPlan: this.doneServerPlan && this.doneServerPlan.toJSON(),
       serverReorderPlan: this.serverReorderPlan && this.serverReorderPlan.toJSON(),
       localReorderPlan: this.localReorderPlan && this.localReorderPlan.toJSON(),
