@@ -20,6 +20,7 @@ const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
 export default class WebDavAdapter extends CachingAdapter {
   private lockingInterval: any
+  private lockingPromise: Promise<any>
   private locked: boolean
   private cancelCallback: () => void
   private initialTreeHash: string
@@ -91,7 +92,7 @@ export default class WebDavAdapter extends CachingAdapter {
       if (res.headers['Last-Modified']) {
         const date = new Date(res.headers['Last-Modified'])
         const dateLocked = date.valueOf()
-        if (Date.now() - dateLocked < LOCK_TIMEOUT) {
+        if (dateLocked > Date.now() - LOCK_TIMEOUT) {
           throw new ResourceLockedError()
         }
       } else {
@@ -100,7 +101,7 @@ export default class WebDavAdapter extends CachingAdapter {
     }
 
     if (res.status === 200) {
-      // continue anywayrStatus
+      // continue anyway
     } else if (res.status === 404) {
       await this.setLock()
     } else {
@@ -109,23 +110,28 @@ export default class WebDavAdapter extends CachingAdapter {
         this.server.bookmark_file + '.lock'
       )
     }
-    this.locked = true
   }
 
   async setLock() {
     const fullURL = this.getBookmarkLockURL()
-    Logger.log(fullURL)
-    await this.uploadFile(
+    Logger.log('Setting lock: ' + fullURL)
+    this.lockingPromise = this.uploadFile(
       fullURL,
       'text/html',
       '<html><body>I am a lock file</body></html>'
     )
+    await this.lockingPromise
+    this.locked = true
   }
 
   async freeLock() {
+    if (this.lockingPromise) {
+      await this.lockingPromise
+    }
     if (!this.locked) {
       return
     }
+
     const fullUrl = this.getBookmarkLockURL()
 
     const authString = Base64.encode(
@@ -135,6 +141,7 @@ export default class WebDavAdapter extends CachingAdapter {
     let res, lockFreed, i = 0
     try {
       do {
+        Logger.log('Freeing lock: ' + fullUrl)
         if (Capacitor.getPlatform() === 'web') {
           res = await fetch(fullUrl, {
             method: 'DELETE',

@@ -21,6 +21,7 @@ const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
 export default class GitAdapter extends CachingAdapter {
   private lockingInterval: any
+  private lockingPromise: Promise<void>
   private locked: string[]
   private cancelCallback: () => void
   private initialTreeHash: string
@@ -223,12 +224,15 @@ export default class GitAdapter extends CachingAdapter {
   }
 
   async setLock() {
-    const tag = 'floccus-lock-' + Date.now()
-    Logger.log('(git) tag ' + tag)
-    await git.tag({ fs: this.fs, dir: this.dir, ref: tag })
-    Logger.log('(git) push tag ' + tag)
-    await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, onAuth: () => this.onAuth() })
-    this.locked.push(tag)
+    this.lockingPromise = (async() => {
+      const tag = 'floccus-lock-' + Date.now()
+      Logger.log('(git) tag ' + tag)
+      await git.tag({ fs: this.fs, dir: this.dir, ref: tag })
+      Logger.log('(git) push tag ' + tag)
+      await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, onAuth: () => this.onAuth() })
+      this.locked.push(tag)
+    })()
+    await this.lockingPromise
   }
 
   async onAuth() {
@@ -236,6 +240,9 @@ export default class GitAdapter extends CachingAdapter {
   }
 
   async freeLock() {
+    if (this.lockingPromise) {
+      await this.lockingPromise
+    }
     if (!this.locked.length) {
       return
     }
