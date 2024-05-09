@@ -1,7 +1,6 @@
 import CachingAdapter from './Caching'
 import XbelSerializer from '../serializers/Xbel'
 import Logger from '../Logger'
-import url from 'url'
 import { Capacitor } from '@capacitor/core'
 import * as git from 'isomorphic-git'
 import http from 'isomorphic-git/http/web'
