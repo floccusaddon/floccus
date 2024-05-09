@@ -132,7 +132,6 @@ export default class GitAdapter extends CachingAdapter {
           ref: this.server.branch,
           remoteRef: this.server.branch,
           remote: 'origin',
-          force: true,
           onAuth: () => this.onAuth()
         })
       } else {
