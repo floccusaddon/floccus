@@ -370,7 +370,7 @@ export default class SyncProcess {
       this.serverTreeRoot,
       // We also allow canMergeWith here, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
       (oldItem, newItem) => {
-        if ((oldItem.type === newItem.type && String(mappingsSnapshot.LocalToServer[oldItem.type][oldItem.id]) === String(newItem.id)) || (oldItem.type === 'bookmark' && oldItem.canMergeWith(newItem))) {
+        if ((oldItem.type === newItem.type && Mappings.mappable(mappingsSnapshot, oldItem, newItem)) || (oldItem.type === 'bookmark' && oldItem.canMergeWith(newItem))) {
           newMappings.push([oldItem, newItem])
           return true
         }

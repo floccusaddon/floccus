@@ -7,6 +7,7 @@ import Logger from '../Logger'
 import { CancelledSyncError } from '../../errors/Error'
 import MergeSyncProcess from './Merge'
 import TResource, { IResource, OrderFolderResource } from '../interfaces/Resource'
+import Scanner from '../Scanner'
 
 export default class UnidirectionalSyncProcess extends DefaultStrategy {
   protected direction: TItemLocation
@@ -20,7 +21,41 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   }
 
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
-    return MergeSyncProcess.prototype.getDiffs.apply(this) // cheeky!
+    const mappingsSnapshot = this.mappings.getSnapshot()
+
+    const newMappings = []
+    const localScanner = new Scanner(
+      this.serverTreeRoot,
+      this.localTreeRoot,
+      (serverItem, localItem) => {
+        if (localItem.type === serverItem.type && (serverItem.canMergeWith(localItem) || Mappings.mappable(mappingsSnapshot, serverItem, localItem))) {
+          newMappings.push([localItem, serverItem])
+          return true
+        }
+        return false
+      },
+      this.preserveOrder,
+      false
+    )
+    const serverScanner = new Scanner(
+      this.localTreeRoot,
+      this.serverTreeRoot,
+      (localItem, serverItem) => {
+        if (serverItem.type === localItem.type && (serverItem.canMergeWith(localItem) || Mappings.mappable(mappingsSnapshot, serverItem, localItem))) {
+          newMappings.push([localItem, serverItem])
+          return true
+        }
+        return false
+      },
+      this.preserveOrder,
+      false
+    )
+    const [localDiff, serverDiff] = await Promise.all([localScanner.run(), serverScanner.run()])
+    await Promise.all(newMappings.map(([localItem, serverItem]) => {
+      this.addMapping(this.server, localItem, serverItem.id)
+    }))
+
+    return {localDiff, serverDiff}
   }
 
   async loadChildren() :Promise<void> {
