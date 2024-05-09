@@ -52,7 +52,7 @@ export default class SyncProcess {
 
     this.preserveOrder = 'orderFolder' in this.server
 
-    this.progressCb = throttle(250, true, progressCb) as (progress:number, actionsDone?:number)=>void
+    this.progressCb = throttle(500, true, progressCb) as (progress:number, actionsDone?:number)=>void
     this.canceled = false
     this.isFirefox = self.location.protocol === 'moz-extension:'
   }
