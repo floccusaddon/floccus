@@ -82,9 +82,9 @@ export const parseByString = (content: string) => {
 
   const parseNode = (node: cheerio.Cheerio<cheerio.Element>, parentId?: string|number) => {
     const eq0 = node.children().eq(0)
-    const title = eq0.text() || ''
+    const title = typeof eq0.text() !== 'undefined' ? eq0.text() : ''
     let url = ''
-    const id = eq0.attr('id') || ''
+    const id = typeof eq0.attr('id') !== 'undefined' ? eq0.attr('id') : ''
     let children: TItem[] = []
 
     switch (eq0[0].name) {
