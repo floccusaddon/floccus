@@ -1,7 +1,6 @@
 import CachingAdapter from './Caching'
 import XbelSerializer from '../serializers/Xbel'
 import Logger from '../Logger'
-import url from 'url'
 import { Capacitor } from '@capacitor/core'
 import * as git from 'isomorphic-git'
 import http from 'isomorphic-git/http/web'
@@ -107,7 +106,7 @@ export default class GitAdapter extends CachingAdapter {
       Logger.log('(git) checkout branch ' + (this.server.branch))
       await git.checkout({ fs: this.fs, dir: this.dir, ref: this.server.branch })
     } catch (e) {
-      if (e && e.code === git.Errors.NotFoundError.code) {
+      if (e && e.code === git.Errors.NotFoundError.code && (e.data.what === 'HEAD' || e.data.what === this.server.branch)) {
         Logger.log('(git) writeFile ' + this.dir + '/README.md')
         await this.fs.promises.writeFile(this.dir + '/README.md', 'This repository is used to syncrhonize bookmarks via [floccus](https://floccus.org).', {mode: 0o777, encoding: 'utf8'})
         Logger.log('(git) add .')
@@ -133,7 +132,6 @@ export default class GitAdapter extends CachingAdapter {
           ref: this.server.branch,
           remoteRef: this.server.branch,
           remote: 'origin',
-          force: true,
           onAuth: () => this.onAuth()
         })
       } else {
