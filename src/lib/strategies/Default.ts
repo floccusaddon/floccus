@@ -11,6 +11,8 @@ import { CancelledSyncError, FailsafeError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 
+const ACTION_CONCURRENCY = 12
+
 export default class SyncProcess {
   protected mappings: Mappings
   protected localTree: TLocalTree
@@ -638,7 +640,7 @@ export default class SyncProcess {
 
     if (isSubPlan || ((targetLocation === ItemLocation.LOCAL && !this.flagLocalPostMoveMapping) || (targetLocation === ItemLocation.SERVER && !this.flagServerPostMoveMapping))) {
       Logger.log(targetLocation + ': executing CREATEs and UPDATEs')
-      await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run)
+      await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run, ACTION_CONCURRENCY)
 
       if (this.canceled) {
         throw new CancelledSyncError()
@@ -668,14 +670,14 @@ export default class SyncProcess {
     const batches = Diff.sortMoves(mappedPlan.getActions(ActionType.MOVE), targetLocation === ItemLocation.SERVER ? this.serverTreeRoot : this.localTreeRoot)
 
     Logger.log(targetLocation + ': executing MOVEs')
-    await Parallel.each(batches, batch => Parallel.each(batch, run), 1)
+    await Parallel.each(batches, batch => Parallel.each(batch, run, ACTION_CONCURRENCY), 1)
 
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
     Logger.log(targetLocation + ': executing REMOVEs')
-    await Parallel.each(plan.getActions(ActionType.REMOVE), run)
+    await Parallel.each(plan.getActions(ActionType.REMOVE), run, ACTION_CONCURRENCY)
 
     return mappedPlan
   }
