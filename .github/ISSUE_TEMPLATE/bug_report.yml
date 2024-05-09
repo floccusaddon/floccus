@@ -23,6 +23,7 @@ body:
         - Nextcloud Bookmarks
         - WebDAV
         - Google Drive
+        - Git
     validations:
       required: true
   - type: input
