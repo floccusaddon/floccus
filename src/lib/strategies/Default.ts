@@ -10,7 +10,6 @@ import { TAdapter } from '../interfaces/Adapter'
 import { CancelledSyncError, FailsafeError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
-import { setImmediate } from 'timers'
 
 export default class SyncProcess {
   protected mappings: Mappings
@@ -52,8 +51,6 @@ export default class SyncProcess {
     this.preserveOrder = 'orderFolder' in this.server
 
     this.progressCb = throttle(250, true, progressCb) as (progress:number, actionsDone?:number)=>void
-    this.actionsDone = 0
-    this.actionsPlanned = 0
     this.canceled = false
     this.isFirefox = self.location.protocol === 'moz-extension:'
   }
@@ -106,14 +103,13 @@ export default class SyncProcess {
     this.server.cancel()
   }
 
+  countPlannedActions() {
+    this.actionsPlanned = this.serverPlan.getActions().length + this.localPlan.getActions().length
+    this.actionsPlanned += this.localPlan.getActions(ActionType.CREATE).map(action => action.payload.count()).reduce((a, i) => a + i, 0)
+  }
+
   updateProgress():void {
-    if (this.serverPlan && this.localPlan) {
-      this.actionsPlanned = this.serverPlan.getActions().length + this.localPlan.getActions().length
-    } else if ('revertPlan' in this) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      this.actionsPlanned = this.revertPlan.getActions().length
-    }
+    this.countPlannedActions()
     Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
     if (typeof this.actionsDone === 'undefined') {
       this.actionsDone = 0
@@ -193,8 +189,6 @@ export default class SyncProcess {
     this.doneLocalPlan = new Diff
 
     Logger.log({localPlan: this.localPlan, serverPlan: this.serverPlan})
-
-    this.actionsPlanned = this.serverPlan.getActions().length + this.localPlan.getActions().length
 
     this.applyFailsafe(this.localPlan)
 

@@ -5,7 +5,6 @@ import Mappings, { MappingSnapshot } from '../Mappings'
 import { Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
 import Logger from '../Logger'
 import { CancelledSyncError } from '../../errors/Error'
-import MergeSyncProcess from './Merge'
 import TResource, { IResource, OrderFolderResource } from '../interfaces/Resource'
 import Scanner from '../Scanner'
 
@@ -18,6 +17,11 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
   setDirection(direction: TItemLocation): void {
     this.direction = direction
+  }
+
+  countPlannedActions() {
+    this.actionsPlanned = this.revertPlan.getActions().length
+    this.actionsPlanned += this.revertPlan.getActions(ActionType.CREATE).map(action => action.payload.count()).reduce((a, i) => a + i, 0)
   }
 
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
