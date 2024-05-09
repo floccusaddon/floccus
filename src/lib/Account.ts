@@ -1,4 +1,3 @@
-/* global DEBUG */
 import AdapterFactory from './AdapterFactory'
 import Logger from './Logger'
 import { Folder, ItemLocation, TItemLocation } from './Tree'
@@ -14,6 +13,8 @@ import Mappings from './Mappings'
 import { isTest } from './isTest'
 import CachingAdapter from './adapters/Caching'
 import * as Sentry from '@sentry/vue'
+
+declare const DEBUG: boolean
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', async() => (await import('./adapters/NextcloudBookmarks')).default)
@@ -322,7 +323,7 @@ export default class Account {
         password: 'SENSITIVEVALUVALUEHIDDEN',
         passphrase: 'SENSITIVEVALUVALUEHIDDEN'
       })
-      if (!(window || self)['DEBUG']) {
+      if (!DEBUG) {
         Sentry.getCurrentScope().addAttachment({
           filename: 'floccus-log.txt',
           data: logData.slice(-200000).join('\n'),
