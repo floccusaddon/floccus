@@ -266,6 +266,10 @@ jobs:
           npm run test
         if: matrix.floccus-adapter != 'git-xbel' && matrix.floccus-adapter != 'git-html'
 
+      - name: Cancelling parallel jobs
+        if: failure() && matrix.floccus-adapter == 'fake' && matrix.test-name == 'test'
+        uses: andymckay/cancel-action@0.2
+
   summary:
     runs-on: ubuntu-latest
     needs: [ init, selenium ]
