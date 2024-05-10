@@ -1027,7 +1027,7 @@ export default class SyncProcess {
   }
 
   toJSON(): ISerializedSyncProcess {
-    if (!this.staticContinuation){
+    if (!this.staticContinuation) {
       this.staticContinuation = {
         localTreeRoot: this.localTreeRoot && this.localTreeRoot.clone(false),
         cacheTreeRoot: this.cacheTreeRoot && this.cacheTreeRoot.clone(false),
