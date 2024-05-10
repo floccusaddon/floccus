@@ -74,6 +74,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private lockingInterval: any
   private lockingPromise: Promise<boolean>
   private ended = false
+  private hasFeatureJavascriptLinks: boolean = null
 
   constructor(server: NextcloudBookmarksConfig) {
     this.server = server
@@ -111,7 +112,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   acceptsBookmark(bm: Bookmark):boolean {
     try {
-      return Boolean(~['https:', 'http:', 'ftp:'].indexOf(new URL(bm.url).protocol))
+      return Boolean(~['https:', 'http:', 'ftp:'].concat(this.hasFeatureJavascriptLinks ? ['javascript:'] : []).indexOf(new URL(bm.url).protocol))
     } catch (e) {
       return false
     }
@@ -126,13 +127,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     serverURL.pathname = serverURL.pathname.substring(0, ~indexLoc ? indexLoc : undefined)
     const output = serverURL.toString()
     return output + (output[output.length - 1] !== '/' ? '/' : '')
-  }
-
-  timeout(ms) {
-    return new Promise((resolve, reject) => {
-      setTimeout(resolve, ms)
-      this.cancelCallback = () => reject(new InterruptedSyncError())
-    })
   }
 
   async onSyncStart(needLock = true): Promise<void> {
@@ -374,6 +368,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       const recurseChildren = (folderId, children) => {
         return children.map((item) => {
           if (item.type === 'bookmark') {
+            if ('href' in item && this.hasFeatureJavascriptLinks === null) {
+              this.hasFeatureJavascriptLinks = true
+            }
             return new Bookmark({
               id: item.id + ';' + folderId,
               title: item.title,
@@ -760,7 +757,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         await this.updateBookmark(updatedBookmark)
       } else {
         const body = {
-          url: bm.url,
+          ...(this.hasFeatureJavascriptLinks ? {href: bm.url} : {url: bm.url}),
           title: bm.title,
           folders: [bm.parentId],
         }

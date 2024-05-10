@@ -242,6 +242,7 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
               // account.server.hasFeatureHashing = false
               account.server.hasFeatureChildren = false
+              account.server.hasFeatureJavascriptLinks = false
             }
             if (ACCOUNT_DATA.noCache) {
               account.storage.setCache = () => {
@@ -300,6 +301,53 @@ describe('Floccus', function() {
             const bookmark = await browser.bookmarks.create({
               title: 'url',
               url: 'http://ur.l/',
+              parentId: barFolder.id
+            })
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Folder({
+                        title: 'bar',
+                        children: [
+                          new Bookmark({ title: 'url', url: bookmark.url })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+          })
+          it('should create local javascript bookmarks on the server', async function() {
+            if (ACCOUNT_DATA.oldAPIs) {
+              return this.skip()
+            }
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            const localRoot = account.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            const bookmark = await browser.bookmarks.create({
+              title: 'url',
+              url: 'javascript:void(0)',
               parentId: barFolder.id
             })
             await account.sync()
@@ -1829,7 +1877,7 @@ describe('Floccus', function() {
             expect(account.getData().error).to.be.ok // should have errored
           })
           it('should leave alone unaccepted bookmarks entirely', async function() {
-            if (!~ACCOUNT_DATA.type.indexOf('nextcloud')) {
+            if (!~ACCOUNT_DATA.type.indexOf('nextcloud') || !ACCOUNT_DATA.oldAPIs) {
               this.skip()
             }
             const localRoot = account.getData().localRoot
@@ -4870,6 +4918,8 @@ describe('Floccus', function() {
           if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
             account1.server.hasFeatureHashing = false
             account2.server.hasFeatureHashing = false
+            account1.server.hasFeatureJavascriptLinks = false
+            account2.server.hasFeatureJavascriptLinks = false
           }
           if (ACCOUNT_DATA.noCache) {
             account1.storage.setCache = () => {
