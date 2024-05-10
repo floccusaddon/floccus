@@ -15,9 +15,6 @@ module.exports = {
     test: path.join(__dirname, 'src', 'entries', 'test.js'),
     native: path.join(__dirname, 'src', 'entries', 'native.js'),
   },
-  optimization: {
-    splitChunks: { chunks: 'all' },
-  },
   output: {
     path: path.resolve(__dirname, 'dist', 'js'),
     publicPath: '/dist/js/',

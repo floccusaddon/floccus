@@ -8,6 +8,9 @@ const webpack = require('webpack')
 module.exports = merge(common, {
   mode: 'production',
   devtool: 'source-map',
+  optimization: {
+    splitChunks: { chunks: 'all' },
+  },
   plugins: [
     new webpack.DefinePlugin({
       DEBUG: JSON.stringify(!process.env['CI'])

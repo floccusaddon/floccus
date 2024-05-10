@@ -137,7 +137,7 @@ const thirdparty = gulp.parallel(mocha)
 
 const assets = gulp.parallel(html, thirdparty, icons)
 
-const build = gulp.parallel(assets, js)
+const build = gulp.series(js, assets)
 
 const main = gulp.series(build, native)
 
