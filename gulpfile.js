@@ -234,6 +234,7 @@ exports.watch = gulp.series(gulp.parallel(assets, devjs), native, watch)
 exports.publish = publish
 exports.build = build
 exports.native = native
+exports.package = gulp.parallel(firefoxZip, chromeZip, xpi)
 /*
  * Define default task that can be called by just running `gulp` from cli
  */

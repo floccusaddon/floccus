@@ -16,7 +16,7 @@ module.exports = {
     native: path.join(__dirname, 'src', 'entries', 'native.js'),
   },
   optimization: {
-    splitChunks: { chunks: 'async' },
+    splitChunks: { chunks: 'all' },
   },
   output: {
     path: path.resolve(__dirname, 'dist', 'js'),
