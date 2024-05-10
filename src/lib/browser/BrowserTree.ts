@@ -346,7 +346,21 @@ export default class BrowserTree implements IResource {
 
   static async getAbsoluteRootFolder() {
     if (!absoluteRoot) {
-      absoluteRoot = (await browser.bookmarks.getTree())[0]
+      try {
+        // chromium
+        absoluteRoot = (await browser.bookmarks.get('0'))[0]
+      } catch (e) {
+        try {
+          // firefox
+          absoluteRoot = (await browser.bookmarks.get('root________'))[0]
+        } catch (e) {
+          // any other browser
+          absoluteRoot = (await browser.bookmarks.getTree())[0]
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          delete absoluteRoot.children
+        }
+      }
     }
     return absoluteRoot
   }

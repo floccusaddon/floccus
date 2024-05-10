@@ -14,6 +14,18 @@ body:
       description: 'Please specify the exact version instead of "latest". For example: 4.14.0'
     validations:
       required: true
+  - type: input
+    attributes:
+      label: How many bookmarks do you have, roughly?
+      description: 'e.g. 10, 300 or 12k'
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Are you using other means to sync bookmarks in parallel to floccus?
+      description: 'e.g. "No" or "Yes, I also sync via Mozilla account"'
+    validations:
+      required: true
   - type: dropdown
     attributes:
       label: Sync method
@@ -23,6 +35,7 @@ body:
         - Nextcloud Bookmarks
         - WebDAV
         - Google Drive
+        - Git
     validations:
       required: true
   - type: input

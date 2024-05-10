@@ -1,7 +1,6 @@
 import CachingAdapter from './Caching'
 import XbelSerializer from '../serializers/Xbel'
 import Logger from '../Logger'
-import url from 'url'
 import { Capacitor } from '@capacitor/core'
 import * as git from 'isomorphic-git'
 import http from 'isomorphic-git/http/web'
@@ -21,6 +20,7 @@ const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
 export default class GitAdapter extends CachingAdapter {
   private lockingInterval: any
+  private lockingPromise: Promise<void>
   private locked: string[]
   private cancelCallback: () => void
   private initialTreeHash: string
@@ -106,7 +106,7 @@ export default class GitAdapter extends CachingAdapter {
       Logger.log('(git) checkout branch ' + (this.server.branch))
       await git.checkout({ fs: this.fs, dir: this.dir, ref: this.server.branch })
     } catch (e) {
-      if (e && e.code === git.Errors.NotFoundError.code) {
+      if (e && e.code === git.Errors.NotFoundError.code && (e.data.what === 'HEAD' || e.data.what === this.server.branch)) {
         Logger.log('(git) writeFile ' + this.dir + '/README.md')
         await this.fs.promises.writeFile(this.dir + '/README.md', 'This repository is used to syncrhonize bookmarks via [floccus](https://floccus.org).', {mode: 0o777, encoding: 'utf8'})
         Logger.log('(git) add .')
@@ -132,7 +132,6 @@ export default class GitAdapter extends CachingAdapter {
           ref: this.server.branch,
           remoteRef: this.server.branch,
           remote: 'origin',
-          force: true,
           onAuth: () => this.onAuth()
         })
       } else {
@@ -223,12 +222,15 @@ export default class GitAdapter extends CachingAdapter {
   }
 
   async setLock() {
-    const tag = 'floccus-lock-' + Date.now()
-    Logger.log('(git) tag ' + tag)
-    await git.tag({ fs: this.fs, dir: this.dir, ref: tag })
-    Logger.log('(git) push tag ' + tag)
-    await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, onAuth: () => this.onAuth() })
-    this.locked.push(tag)
+    this.lockingPromise = (async() => {
+      const tag = 'floccus-lock-' + Date.now()
+      Logger.log('(git) tag ' + tag)
+      await git.tag({ fs: this.fs, dir: this.dir, ref: tag })
+      Logger.log('(git) push tag ' + tag)
+      await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, onAuth: () => this.onAuth() })
+      this.locked.push(tag)
+    })()
+    await this.lockingPromise
   }
 
   async onAuth() {
@@ -236,6 +238,9 @@ export default class GitAdapter extends CachingAdapter {
   }
 
   async freeLock() {
+    if (this.lockingPromise) {
+      await this.lockingPromise
+    }
     if (!this.locked.length) {
       return
     }

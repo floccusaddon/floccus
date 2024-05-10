@@ -10,7 +10,8 @@ import { TAdapter } from '../interfaces/Adapter'
 import { CancelledSyncError, FailsafeError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
-import { setImmediate } from 'timers'
+
+const ACTION_CONCURRENCY = 12
 
 export default class SyncProcess {
   protected mappings: Mappings
@@ -35,6 +36,7 @@ export default class SyncProcess {
   protected flagLocalPostReorderReconciliation = false
   protected flagServerPostMoveMapping = false
   protected flagPostReorderReconciliation = false
+  protected staticContinuation: any = null
 
   // The location that has precedence in case of conflicts
   protected masterLocation: TItemLocation
@@ -51,11 +53,13 @@ export default class SyncProcess {
 
     this.preserveOrder = 'orderFolder' in this.server
 
-    this.progressCb = throttle(250, true, progressCb) as (progress:number, actionsDone?:number)=>void
-    this.actionsDone = 0
-    this.actionsPlanned = 0
+    this.progressCb = throttle(500, true, progressCb) as (progress:number, actionsDone?:number)=>void
     this.canceled = false
     this.isFirefox = self.location.protocol === 'moz-extension:'
+  }
+
+  getMappingsInstance(): Mappings {
+    return this.mappings
   }
 
   setCacheTree(cacheTree: Folder) {
@@ -106,14 +110,13 @@ export default class SyncProcess {
     this.server.cancel()
   }
 
+  countPlannedActions() {
+    this.actionsPlanned = this.serverPlan.getActions().length + this.localPlan.getActions().length
+    this.actionsPlanned += this.localPlan.getActions(ActionType.CREATE).map(action => action.payload.count()).reduce((a, i) => a + i, 0)
+  }
+
   updateProgress():void {
-    if (this.serverPlan && this.localPlan) {
-      this.actionsPlanned = this.serverPlan.getActions().length + this.localPlan.getActions().length
-    } else if ('revertPlan' in this) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      this.actionsPlanned = this.revertPlan.getActions().length
-    }
+    this.countPlannedActions()
     Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
     if (typeof this.actionsDone === 'undefined') {
       this.actionsDone = 0
@@ -193,8 +196,6 @@ export default class SyncProcess {
     this.doneLocalPlan = new Diff
 
     Logger.log({localPlan: this.localPlan, serverPlan: this.serverPlan})
-
-    this.actionsPlanned = this.serverPlan.getActions().length + this.localPlan.getActions().length
 
     this.applyFailsafe(this.localPlan)
 
@@ -370,7 +371,7 @@ export default class SyncProcess {
       this.serverTreeRoot,
       // We also allow canMergeWith here, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
       (oldItem, newItem) => {
-        if ((oldItem.type === newItem.type && String(mappingsSnapshot.LocalToServer[oldItem.type][oldItem.id]) === String(newItem.id)) || (oldItem.type === 'bookmark' && oldItem.canMergeWith(newItem))) {
+        if ((oldItem.type === newItem.type && Mappings.mappable(mappingsSnapshot, oldItem, newItem)) || (oldItem.type === 'bookmark' && oldItem.canMergeWith(newItem))) {
           newMappings.push([oldItem, newItem])
           return true
         }
@@ -644,7 +645,7 @@ export default class SyncProcess {
 
     if (isSubPlan || ((targetLocation === ItemLocation.LOCAL && !this.flagLocalPostMoveMapping) || (targetLocation === ItemLocation.SERVER && !this.flagServerPostMoveMapping))) {
       Logger.log(targetLocation + ': executing CREATEs and UPDATEs')
-      await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run)
+      await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run, ACTION_CONCURRENCY)
 
       if (this.canceled) {
         throw new CancelledSyncError()
@@ -674,14 +675,14 @@ export default class SyncProcess {
     const batches = Diff.sortMoves(mappedPlan.getActions(ActionType.MOVE), targetLocation === ItemLocation.SERVER ? this.serverTreeRoot : this.localTreeRoot)
 
     Logger.log(targetLocation + ': executing MOVEs')
-    await Parallel.each(batches, batch => Parallel.each(batch, run), 1)
+    await Parallel.each(batches, batch => Parallel.each(batch, run, ACTION_CONCURRENCY), 1)
 
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
     Logger.log(targetLocation + ': executing REMOVEs')
-    await Parallel.each(plan.getActions(ActionType.REMOVE), run)
+    await Parallel.each(plan.getActions(ActionType.REMOVE), run, ACTION_CONCURRENCY)
 
     return mappedPlan
   }
@@ -1026,14 +1027,16 @@ export default class SyncProcess {
   }
 
   toJSON(): ISerializedSyncProcess {
+    if (!this.staticContinuation) {
+      this.staticContinuation = {
+        localTreeRoot: this.localTreeRoot && this.localTreeRoot.clone(false),
+        cacheTreeRoot: this.cacheTreeRoot && this.cacheTreeRoot.clone(false),
+        serverTreeRoot: this.serverTreeRoot && this.serverTreeRoot.clone(false),
+      }
+    }
     return {
+      ...this.staticContinuation,
       strategy: 'default',
-      localTreeRoot: this.localTreeRoot && this.localTreeRoot.clone(false),
-      cacheTreeRoot: this.cacheTreeRoot && this.cacheTreeRoot.clone(false),
-      serverTreeRoot: this.serverTreeRoot && this.serverTreeRoot.clone(false),
-      localPlan: this.localPlan && this.localPlan.toJSON(),
-      doneLocalPlan: this.doneLocalPlan && this.doneLocalPlan.toJSON(),
-      serverPlan: this.serverPlan && this.serverPlan.toJSON(),
       doneServerPlan: this.doneServerPlan && this.doneServerPlan.toJSON(),
       serverReorderPlan: this.serverReorderPlan && this.serverReorderPlan.toJSON(),
       localReorderPlan: this.localReorderPlan && this.localReorderPlan.toJSON(),
@@ -1049,7 +1052,7 @@ export default class SyncProcess {
   static async fromJSON(mappings:Mappings,
     localTree:TLocalTree,
     server:TAdapter,
-    progressCb:(progress:number)=>void,
+    progressCb:(progress:number, actionsDone:number)=>void,
     json: any) {
     let strategy: SyncProcess
     let MergeSyncProcess: typeof SyncProcess

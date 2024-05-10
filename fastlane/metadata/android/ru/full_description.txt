@@ -1,0 +1,5 @@
+С помощью <i>floccus</i> вы можете синхронизировать ваши закладки между браузерами через выбранный вами сервер - будь то Nextcloud, WebDAV или Google Drive.
+
+* Сервер Nextcloud Bookmarks
+* Ваш Google Drive
+* или любой сервер WebDAV

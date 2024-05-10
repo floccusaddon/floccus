@@ -77,6 +77,22 @@ const icons = function() {
   return gulp.src(paths.icons).pipe(gulp.dest('./dist/icons/'))
 }
 
+const devjs = function() {
+  return new Promise((resolve) =>
+    webpack(devConfig, (err, stats) => {
+      if (err) console.log('Webpack', err)
+
+      console.log(
+        stats.toString({
+          /* stats options */
+        })
+      )
+
+      resolve()
+    })
+  )
+}
+
 const js = function() {
   return new Promise((resolve) =>
     webpack(config, (err, stats) => {
@@ -214,7 +230,7 @@ exports.js = js
 exports.mocha = mocha
 exports.watch = watch
 exports.release = release
-exports.watch = gulp.series(main, watch)
+exports.watch = gulp.series(gulp.parallel(assets, devjs), native, watch)
 exports.publish = publish
 exports.build = build
 exports.native = native

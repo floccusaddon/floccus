@@ -1,5 +1,23 @@
 # Changelog
 
+## [5.1.1] - 2024-05-10
+
+### Fixed
+
+* fix(SyncProcess): Do not serialize all trees each progress tick
+* fix(SyncProcess): Call progressCb 2x less
+* fix(Account): Extract and unify progressCallback
+* fix(SyncProcess): Limit action execution concurrency to 12
+* fix(Account): Properly declare DEBUG the typescript way
+* fix(syncProcess): Properly count planned actions
+* fix(Git): On init don't use force push
+* fix(Git): Only bulldoze the repository if HEAD or branch cannot be found
+* Add optional automatic error reporting to discover dormant bugs
+* fix(Unidirectional): Scanner should use mappings if possible
+* fix({html,xbel} parsers): Don't replace '0' by ''
+* fix: Don't set lock after freeing it
+* Fix(BrowserTree): Don't load full Tree on startup
+
 ## [5.1.0] - 2024-05-05
 
 ### New

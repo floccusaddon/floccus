@@ -12,6 +12,9 @@ import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
 import { isTest } from './isTest'
 import CachingAdapter from './adapters/Caching'
+import * as Sentry from '@sentry/vue'
+
+declare const DEBUG: boolean
 
 // register Adapters
 AdapterFactory.register('nextcloud-folders', async() => (await import('./adapters/NextcloudBookmarks')).default)
@@ -148,6 +151,7 @@ export default class Account {
       if (!(await this.server.isAvailable()) || !(await localResource.isAvailable())) return
 
       Logger.log('Starting sync process for account ' + this.getLabel())
+      Sentry.setUser({ id: this.id })
       this.syncing = true
       await this.setData({ ...this.getData(), syncing: 0.05, scheduled: false, error: null })
 
@@ -163,6 +167,7 @@ export default class Account {
         } catch (e) {
           // Resource locked
           if (e.code === 37) {
+            Sentry.captureException(e)
             // We got a resource locked error
             if (this.getData().lastSync < Date.now() - LOCK_TIMEOUT) {
               // but if we've been waiting for the lock for more than 2h
@@ -203,15 +208,8 @@ export default class Account {
             mappings,
             localResource,
             this.server,
-            async(progress) => {
-              if (!this.syncing) {
-                return
-              }
-              if (!(this.server instanceof CachingAdapter) || !('onSyncComplete' in this.server)) {
-                await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
-              }
-              await this.setData({ ...this.getData(), syncing: progress })
-              await mappings.persist()
+            async(progress, actionDone) => {
+              await this.progressCallback(progress, actionDone)
             },
             continuation
           )
@@ -254,11 +252,7 @@ export default class Account {
           localResource,
           this.server,
           async(progress, actionsDone?) => {
-            await this.setData({ ...this.getData(), syncing: progress })
-            if (actionsDone) {
-              await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
-            }
-            await mappings.persist()
+            await this.progressCallback(progress, actionsDone)
           }
         )
         this.syncProcess.setCacheTree(cacheTree)
@@ -310,6 +304,25 @@ export default class Account {
       const message = await Account.stringifyError(e)
       console.error('Syncing failed with', message)
       Logger.log('Syncing failed with', message)
+      // send error to sentry
+      const logData = await Logger.anonymizeLogs(Logger.messages)
+      Sentry.setContext('accountData', {
+        ...this.getData(),
+        username: 'SENSITIVEVALUEHIDDEN',
+        password: 'SENSITIVEVALUVALUEHIDDEN',
+        passphrase: 'SENSITIVEVALUVALUEHIDDEN'
+      })
+      if (!DEBUG) {
+        Sentry.getCurrentScope().addAttachment({
+          filename: 'floccus-log.txt',
+          data: logData.slice(-200000).join('\n'),
+        })
+      }
+      if (e.list) {
+        Sentry.captureException(message)
+      } else {
+        Sentry.captureException(e)
+      }
 
       await this.setData({
         ...this.getData(),
@@ -327,7 +340,7 @@ export default class Account {
 
       // reset cache and mappings after error
       // (but not after interruption or NetworkError)
-      if (matchAllErrors(e, e => e.code !== 27 && e.code !== 17  && (!isTest || e.code !== 26))) {
+      if (matchAllErrors(e, e => e.code !== 27 && e.code !== 17 && (!isTest || e.code !== 26))) {
         await this.init()
       }
     }
@@ -344,6 +357,17 @@ export default class Account {
     if (this.syncProcess) {
       await this.syncProcess.cancel()
     }
+  }
+
+  private async progressCallback(progress: number, actionsDone: number) {
+    if (!this.syncing) {
+      return
+    }
+    if (actionsDone && (!(this.server instanceof CachingAdapter) || !('onSyncComplete' in this.server))) {
+      await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
+      await this.syncProcess.getMappingsInstance().persist()
+    }
+    await this.setData({ ...this.getData(), syncing: progress })
   }
 
   static async getAllAccounts():Promise<Account[]> {
