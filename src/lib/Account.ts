@@ -363,11 +363,14 @@ export default class Account {
     if (!this.syncing) {
       return
     }
+    await this.setData({ ...this.getData(), syncing: progress })
+    if (!this.syncProcess) {
+      return
+    }
     if (actionsDone && (!(this.server instanceof CachingAdapter) || !('onSyncComplete' in this.server))) {
       await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
       await this.syncProcess.getMappingsInstance().persist()
     }
-    await this.setData({ ...this.getData(), syncing: progress })
   }
 
   static async getAllAccounts():Promise<Account[]> {
