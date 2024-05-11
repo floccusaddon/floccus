@@ -238,7 +238,13 @@ export default class WebDavAdapter extends CachingAdapter {
 
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
-      if (!(await browser.permissions.contains({ origins: [this.server.url + '/'] }))) {
+      let hasPermissions
+      try {
+        hasPermissions = await browser.permissions.contains({ origins: [this.server.url + '/'] })
+      } catch (e) {
+        console.warn(e)
+      }
+      if (!hasPermissions) {
         throw new MissingPermissionsError()
       }
     }
