@@ -270,7 +270,7 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "The option 'Nextcloud Bookmarks' syncs your bookmarks with the Bookmarks app for Nextcloud. It can only sync http and ftp bookmarks. Make sure you have installed the Bookmarks app from the Nextcloud app store in your Nextcloud."
+    "message": "The option 'Nextcloud Bookmarks' syncs your bookmarks with the Bookmarks app for Nextcloud. It can only sync http, ftp and javascript bookmarks. Make sure you have installed the Bookmarks app from the Nextcloud app store in your Nextcloud."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (legacy)"
