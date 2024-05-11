@@ -198,7 +198,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         data.map((bm) => {
           const bookmark = {
             id: bm.id as number | string,
-            url: bm.url as string,
+            url: bm.href || bm.url as string,
             title: bm.title as string,
             parentId: null,
             location: ItemLocation.SERVER,
@@ -375,7 +375,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
               id: item.id + ';' + folderId,
               title: item.title,
               parentId: folderId,
-              url: item.url,
+              url: item.href || item.url,
               location: ItemLocation.SERVER,
             })
           } else if (item.type === 'folder') {
@@ -599,7 +599,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             return new Bookmark({
               id: item.id + ';' + id,
               title: item.title,
-              url: item.url,
+              url: item.href || item.url,
               parentId: id,
               location: ItemLocation.SERVER,
             })
@@ -709,7 +709,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return bm.folders.map((parentId) => {
       return new Bookmark({
         id: bm.id + ';' + parentId,
-        url: bm.url,
+        url: bm.href || bm.url,
         title: bm.title,
         parentId: parentId,
         tags: bm.tags,
@@ -803,7 +803,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       const bms = await this._getBookmark(upstreamId)
 
       const body = {
-        url: newBm.url,
+        ...(this.hasFeatureJavascriptLinks ? {href: newBm.url} : {url: newBm.url}),
         title: newBm.title,
         folders: bms
           .map((bm) => bm.parentId)
