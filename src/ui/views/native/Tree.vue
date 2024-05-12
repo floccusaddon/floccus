@@ -407,7 +407,7 @@ export default {
     },
     breadcrumbs() {
       const folders = [this.currentFolder]
-      while (String(folders[folders.length - 1 ].id) !== String(this.tree.id)) {
+      while (this.tree && folders[folders.length - 1 ] && String(folders[folders.length - 1 ].id) !== String(this.tree.id)) {
         folders.push(this.findItem(folders[folders.length - 1 ].parentId, this.tree))
       }
       return folders.reverse()
@@ -428,6 +428,11 @@ export default {
         await this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
       }
     },
+  },
+  created() {
+    App.addListener('resume', () => {
+      this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
+    })
   },
   mounted() {
     this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
