@@ -6,7 +6,7 @@ import Credentials from '../../../google-api.credentials.json'
 import {
   AuthenticationError,
   DecryptionError, FileUnreadableError,
-  GoogleDriveAuthenticationError, InterruptedSyncError, MissingPermissionsError,
+  GoogleDriveAuthenticationError, HttpError, InterruptedSyncError, MissingPermissionsError,
   NetworkError,
   OAuthTokenError, ResourceLockedError
 } from '../../errors/Error'
@@ -377,6 +377,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     if (res.status === 401 || res.status === 403) {
       throw new AuthenticationError()
+    }
+
+    if (res.status >= 500) {
+      throw new HttpError(res.status, method)
     }
 
     return {
