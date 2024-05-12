@@ -89,12 +89,6 @@ describe('Floccus', function() {
     {
       type: 'nextcloud-bookmarks',
       url: SERVER,
-      oldAPIs: true,
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-bookmarks',
-      url: SERVER,
       serverRoot: '/my folder/some subfolder',
       ...CREDENTIALS
     },
@@ -239,11 +233,6 @@ describe('Floccus', function() {
               })
             }
             await account.init()
-            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
-              // account.server.hasFeatureHashing = false
-              account.server.hasFeatureChildren = false
-              account.server.hasFeatureJavascriptLinks = false
-            }
             if (ACCOUNT_DATA.noCache) {
               account.storage.setCache = () => {
                 // noop
@@ -329,9 +318,6 @@ describe('Floccus', function() {
             )
           })
           it('should create local javascript bookmarks on the server', async function() {
-            if (ACCOUNT_DATA.oldAPIs) {
-              return this.skip()
-            }
             expect(
               (await getAllBookmarks(account)).children
             ).to.have.lengthOf(0)
@@ -1908,7 +1894,7 @@ describe('Floccus', function() {
             expect(account.getData().error).to.be.ok // should have errored
           })
           it('should leave alone unaccepted bookmarks entirely', async function() {
-            if (!~ACCOUNT_DATA.type.indexOf('nextcloud') || !ACCOUNT_DATA.oldAPIs) {
+            if (!~ACCOUNT_DATA.type.indexOf('nextcloud')) {
               this.skip()
             }
             const localRoot = account.getData().localRoot
@@ -1932,7 +1918,7 @@ describe('Floccus', function() {
             })
             await browser.bookmarks.create({
               title: 'url2',
-              url: 'javascript:void(0)',
+              url: 'chrome://extensions',
               parentId: fooFolder.id
             })
             await account.sync() // propagate to server
@@ -1978,7 +1964,7 @@ describe('Floccus', function() {
                         children: [
                           new Bookmark({
                             title: 'url2',
-                            url: 'javascript:void(0)'
+                            url: 'chrome://extensions'
                           })
                         ]
                       })
@@ -4605,10 +4591,6 @@ describe('Floccus', function() {
             }
             await account.init()
             await account.setData({...account.getData(), localRoot: 'tabs'})
-            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
-              // account.server.hasFeatureHashing = false
-              account.server.hasFeatureChildren = false
-            }
             if (ACCOUNT_DATA.noCache) {
               account.storage.setCache = () => {
                 // noop
@@ -4945,12 +4927,6 @@ describe('Floccus', function() {
               account1.server.highestId = id
             })
             account2.server.__defineGetter__('highestId', () => account1.server.highestId)
-          }
-          if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
-            account1.server.hasFeatureHashing = false
-            account2.server.hasFeatureHashing = false
-            account1.server.hasFeatureJavascriptLinks = false
-            account2.server.hasFeatureJavascriptLinks = false
           }
           if (ACCOUNT_DATA.noCache) {
             account1.storage.setCache = () => {
@@ -6788,7 +6764,6 @@ async function syncAccountWithInterrupts(account) {
 
 function stringifyAccountData(ACCOUNT_DATA) {
   return `${ACCOUNT_DATA.type}${
-    (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs ? '-old' : '') +
     (ACCOUNT_DATA.noCache ? '-noCache' : '') +
     (typeof ACCOUNT_DATA.bookmark_file_type !== 'undefined' ? '-' + ACCOUNT_DATA.bookmark_file_type : '') +
     ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase) ? '-encrypted' : '')

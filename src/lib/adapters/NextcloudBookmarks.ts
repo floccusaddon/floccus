@@ -15,9 +15,7 @@ import Ordering from '../interfaces/Ordering'
 import {
   AuthenticationError, CreateBookmarkError,
   HttpError,
-  InconsistentBookmarksExistenceError,
-  InconsistentServerStateError,
-  InterruptedSyncError, MissingPermissionsError,
+  MissingPermissionsError,
   NetworkError,
   ParseResponseError,
   RedirectError,
@@ -62,9 +60,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private server: NextcloudBookmarksConfig
   private fetchQueue: PQueue<{ concurrency: 12 }>
   private bookmarkLock: AsyncLock
-  public hasFeatureHashing:boolean = null
-  public hasFeatureExistenceCheck:boolean = null
-  public hasFeatureChildren:boolean = null
   public hasFeatureBulkImport:boolean = null
   private list: Bookmark[]
   private tree: Folder
@@ -81,8 +76,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     this.server = server
     this.fetchQueue = new PQueue({ concurrency: 12 })
     this.bookmarkLock = new AsyncLock()
-    this.hasFeatureHashing = false
-    this.hasFeatureExistenceCheck = false
   }
 
   static getDefaultValues(): NextcloudBookmarksConfig {
@@ -223,13 +216,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     this.list = null // clear cache before starting a new sync
 
     await this.checkFeatureJavascriptLinks()
-    if (this.hasFeatureJavascriptLinks) {
-      this.hasFeatureHashing = true
-    } else {
-      await this.checkFeatureHashing()
-    }
 
-    if (!loadAll && this.hasFeatureHashing) {
+    if (!loadAll) {
       return this.getSparseBookmarksTree()
     } else {
       return this.getCompleteBookmarksTree()
@@ -305,9 +293,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async getSparseBookmarksTree() :Promise<Folder> {
-    this.hasFeatureHashing = true
-    this.hasFeatureExistenceCheck = true
-
     let tree = new Folder({ id: -1, location: ItemLocation.SERVER })
 
     if (this.server.serverRoot) {
@@ -316,7 +301,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
     this.list = null
     tree.loaded = false
-    tree.hashValue = { true: this.rootHash || await this._getFolderHash(tree.id) }
+    tree.hashValue = { true: await this._getFolderHash(tree.id) }
     this.tree = tree.clone(true) // we clone (withHash), so we can mess with our own version
     return tree
   }
@@ -335,145 +320,41 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async _getChildren(folderId:string|number, layers:number):Promise<TItem[]> {
-    let childrenJson
-    if (
-      this.hasFeatureChildren === null ||
-      this.hasFeatureChildren
-    ) {
-      try {
-        childrenJson = await this.sendRequest(
-          'GET',
-          `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/children?layers=${layers}`
-        )
-        this.hasFeatureChildren = true
-      } catch (e) {
-        this.hasFeatureChildren = false
-      }
-    }
-    if (this.hasFeatureChildren) {
-      const children = childrenJson.data
-      const recurseChildren = (folderId, children) => {
-        return children.map((item) => {
-          if (item.type === 'bookmark') {
-            if ('target' in item && this.hasFeatureJavascriptLinks === null) {
-              this.hasFeatureJavascriptLinks = true
-            }
-            return new Bookmark({
-              id: item.id + ';' + folderId,
-              title: item.title,
-              parentId: folderId,
-              url: item.target || item.url,
-              location: ItemLocation.SERVER,
-            })
-          } else if (item.type === 'folder') {
-            const childFolder = new Folder({
-              id: item.id,
-              parentId: folderId,
-              title: item.title,
-              location: ItemLocation.SERVER,
-            })
-            childFolder.loaded = Boolean(item.children) // not children.length but whether the whole children field exists
-            childFolder.children = recurseChildren(item.id, item.children || [])
-            return childFolder
+    const childrenJson = await this.sendRequest(
+      'GET',
+      `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/children?layers=${layers}`
+    )
+    const children = childrenJson.data
+    const recurseChildren = (folderId, children) => {
+      return children.map((item) => {
+        if (item.type === 'bookmark') {
+          if ('target' in item && this.hasFeatureJavascriptLinks === null) {
+            this.hasFeatureJavascriptLinks = true
           }
-        })
-      }
-      return recurseChildren(folderId, children).filter(item => String(item.id) !== String(this.lockId))
-    } else {
-      // We don't have the children endpoint available, so we have to query all bookmarks that exist :(
-      await this.getBookmarksList()
-
-      const tree = new Folder({id: folderId, location: ItemLocation.SERVER})
-      const [childrenOrder, childFolders, childBookmarks] = await Promise.all([
-        this._getChildOrder(folderId, layers),
-        this._getChildFolders(folderId, layers),
-        Promise.resolve().then(
-          () =>
-            this.list ||
-            this.sendRequest(
-              'GET',
-              `index.php/apps/bookmarks/public/rest/v2/bookmark?folder=${folderId}&page=-1`
-            ).then((json) => json.data)
-        ),
-      ])
-      const recurseChildFolders = async(tree:Folder, childFolders:IChildFolder[], childrenOrder:IChildOrderItem[], childBookmarks:any[], layers:number) => {
-        const folders = await Parallel.map(
-          childrenOrder,
-          async(child) => {
-            if (child.type === 'folder') {
-              // get the folder from the tree we've fetched above
-              const folder = childFolders.find((folder) => String(folder.id) === String(child.id))
-              if (!folder) throw new InconsistentServerStateError()
-              const newFolder = new Folder({
-                id: child.id,
-                title: folder.title,
-                parentId: tree.id,
-                loaded: false,
-                location: ItemLocation.SERVER,
-              })
-              tree.children.push(newFolder)
-              return { newFolder, child, folder}
-            } else {
-              // get the bookmark from the list we've fetched above
-              // which might either be Bookmark[] or a raw bookmark list response with no parentId but a folders array
-              let childBookmark = childBookmarks.find(
-                (bookmark) =>
-                  String(bookmark.id) === String(child.id) &&
-                  (!bookmark.parentId || String(bookmark.parentId) === String(tree.id))
-              )
-              if (!childBookmark) {
-                throw new InconsistentBookmarksExistenceError(
-                  `#${tree.id}[${tree.title}]`,
-                  String(child.id)
-                )
-              }
-              if (!(childBookmark instanceof Bookmark)) {
-                childBookmark = new Bookmark(childBookmark)
-              }
-              childBookmark = childBookmark.clone()
-              childBookmark.id = childBookmark.id + ';' + tree.id
-              childBookmark.parentId = tree.id
-              tree.children.push(childBookmark)
-            }
-          },
-          1
-        )
-        tree.loaded = true
-        if (layers === 0) {
-          return
+          return new Bookmark({
+            id: item.id + ';' + folderId,
+            title: item.title,
+            parentId: folderId,
+            url: item.target || item.url,
+            location: ItemLocation.SERVER,
+          })
+        } else if (item.type === 'folder') {
+          const childFolder = new Folder({
+            id: item.id,
+            parentId: folderId,
+            title: item.title,
+            location: ItemLocation.SERVER,
+          })
+          childFolder.loaded = Boolean(item.children) // not children.length but whether the whole children field exists
+          childFolder.children = recurseChildren(item.id, item.children || [])
+          return childFolder
         }
-
-        const nextLayer = layers < 0 ? -1 : layers - 1
-        await Parallel.each(
-          folders.filter(Boolean),
-          async({ newFolder, child, folder}) => {
-            if (typeof child.children === 'undefined') {
-              child.children = await this._getChildOrder(child.id, nextLayer)
-            }
-            if (typeof folder.children === 'undefined') {
-              folder.children = await this._getChildFolders(folder.id, nextLayer)
-            }
-            const childBookmarks = this.list ||
-            await this.sendRequest(
-              'GET',
-              `index.php/apps/bookmarks/public/rest/v2/bookmark?folder=${newFolder.id}&page=-1`
-            ).then((json) => json.data)
-
-            // ... and recurse
-            return recurseChildFolders(newFolder, folder.children, child.children, childBookmarks, nextLayer)
-          },
-          3
-        )
-      }
-      await recurseChildFolders(tree, childFolders, childrenOrder, childBookmarks, layers)
-      return tree.children.filter(item => String(item.id) !== String(this.lockId))
+      })
     }
+    return recurseChildren(folderId, children).filter(item => String(item.id) !== String(this.lockId))
   }
 
   async loadFolderChildren(folderId:string|number, all?: boolean): Promise<TItem[]> {
-    if (!this.hasFeatureHashing) {
-      return
-    }
     const folder = this.tree.findFolder(folderId)
     if (!folder) {
       throw new Error('Could not find folder for loadFolderChildren')
@@ -496,7 +377,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             child.hashValue = { true: folderHash }
           }
           await recurse(child.children)
-        })
+        }, 5)
       }
       await recurse(children)
     }
@@ -710,23 +591,16 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
    * querying urls directly
    */
   async getExistingBookmark(url:string):Promise<false|Bookmark> {
-    if (this.hasFeatureExistenceCheck) {
-      const json = await this.sendRequest(
-        'GET',
-        `index.php/apps/bookmarks/public/rest/v2/bookmark?url=${encodeURIComponent(
-          url
-        )}`
-      )
-      if (json.data.length) {
-        return {...json.data[0], parentId: json.data[0].folders[0], url}
-      } else {
-        return false
-      }
+    const json = await this.sendRequest(
+      'GET',
+      `index.php/apps/bookmarks/public/rest/v2/bookmark?url=${encodeURIComponent(
+        url
+      )}`
+    )
+    if (json.data.length) {
+      return {...json.data[0], parentId: json.data[0].folders[0], url}
     } else {
-      await this.getBookmarksList()
-      const existing = this.list.find((bookmark) => bookmark.url === url)
-      if (!existing) return false
-      return existing
+      return false
     }
   }
 
@@ -846,37 +720,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         Logger.log('Error removing bookmark from folder: ' + e.message + '\n Moving on.')
       }
     })
-  }
-
-  async checkFeatureHashing(): Promise<void> {
-    if (this.hasFeatureHashing !== null) {
-      return
-    }
-    // feature detection: Check if the server offers hashes
-    const hashResponse = await this.sendRequest(
-      'GET',
-      'index.php/apps/bookmarks/public/rest/v2/folder/-1/hash',
-      null,
-      null,
-      true
-    )
-    let json
-    try {
-      json = await hashResponse.json()
-    } catch (e) {
-      json = hashResponse.data
-      // noop
-    }
-
-    if (
-      ((hashResponse.status === 200 && json && json.status === 'success') ||
-        hashResponse.status === 504)
-    ) {
-      this.hasFeatureHashing = true
-      this.rootHash = json.data
-    } else {
-      this.hasFeatureHashing = false
-    }
   }
 
   async checkFeatureJavascriptLinks(): Promise<void> {

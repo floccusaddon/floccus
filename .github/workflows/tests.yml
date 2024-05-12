@@ -92,7 +92,6 @@ jobs:
         floccus-adapter:
           - fake
           - nextcloud-bookmarks
-          - nextcloud-bookmarks-old
           - webdav-xbel
           - webdav-html
           - webdav-html-encrypted
@@ -118,13 +117,6 @@ jobs:
           - app-version: master
             server-version: 28
             floccus-adapter: nextcloud-bookmarks
-            test-name: benchmark root
-            browsers: firefox
-            node-version: 14.x
-            npm-version: 7.x
-          - app-version: master
-            server-version: 28
-            floccus-adapter: nextcloud-bookmarks-old
             test-name: benchmark root
             browsers: firefox
             node-version: 14.x
