@@ -75,6 +75,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private lockingPromise: Promise<boolean>
   private ended = false
   private hasFeatureJavascriptLinks: boolean = null
+  private rootHash: string = null
 
   constructor(server: NextcloudBookmarksConfig) {
     this.server = server
@@ -198,7 +199,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         data.map((bm) => {
           const bookmark = {
             id: bm.id as number | string,
-            url: bm.href || bm.url as string,
+            url: (bm.target || bm.url) as string,
             title: bm.title as string,
             parentId: null,
             location: ItemLocation.SERVER,
@@ -221,30 +222,16 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   async getBookmarksTree(loadAll = false):Promise<Folder> {
     this.list = null // clear cache before starting a new sync
 
-    // feature detection: Check if the server offers hashes
-    const hashResponse = await this.sendRequest(
-      'GET',
-      'index.php/apps/bookmarks/public/rest/v2/folder/-1/hash',
-      null,
-      null,
-      true
-    )
-    let json
-    try {
-      json = await hashResponse.json()
-    } catch (e) {
-      json = hashResponse.data
-      // noop
+    await this.checkFeatureJavascriptLinks()
+    if (this.hasFeatureJavascriptLinks) {
+      this.hasFeatureHashing = true
+    } else {
+      await this.checkFeatureHashing()
     }
 
-    if (
-      !loadAll &&
-      ((hashResponse.status === 200 && json && json.status === 'success') ||
-        hashResponse.status === 504)
-    ) {
+    if (!loadAll && this.hasFeatureHashing) {
       return this.getSparseBookmarksTree()
     } else {
-      this.hasFeatureHashing = false
       return this.getCompleteBookmarksTree()
     }
   }
@@ -329,7 +316,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
     this.list = null
     tree.loaded = false
-    tree.hashValue = { true: await this._getFolderHash(tree.id) }
+    tree.hashValue = { true: this.rootHash || await this._getFolderHash(tree.id) }
     this.tree = tree.clone(true) // we clone (withHash), so we can mess with our own version
     return tree
   }
@@ -368,14 +355,14 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       const recurseChildren = (folderId, children) => {
         return children.map((item) => {
           if (item.type === 'bookmark') {
-            if ('href' in item && this.hasFeatureJavascriptLinks === null) {
+            if ('target' in item && this.hasFeatureJavascriptLinks === null) {
               this.hasFeatureJavascriptLinks = true
             }
             return new Bookmark({
               id: item.id + ';' + folderId,
               title: item.title,
               parentId: folderId,
-              url: item.href || item.url,
+              url: item.target || item.url,
               location: ItemLocation.SERVER,
             })
           } else if (item.type === 'folder') {
@@ -599,7 +586,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             return new Bookmark({
               id: item.id + ';' + id,
               title: item.title,
-              url: item.href || item.url,
+              url: item.target || item.url,
               parentId: id,
               location: ItemLocation.SERVER,
             })
@@ -709,7 +696,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return bm.folders.map((parentId) => {
       return new Bookmark({
         id: bm.id + ';' + parentId,
-        url: bm.href || bm.url,
+        url: bm.target || bm.url,
         title: bm.title,
         parentId: parentId,
         tags: bm.tags,
@@ -731,7 +718,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         )}`
       )
       if (json.data.length) {
-        return {...json.data[0], parentId: json.data[0].folders[0]}
+        return {...json.data[0], parentId: json.data[0].folders[0], url}
       } else {
         return false
       }
@@ -757,7 +744,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         await this.updateBookmark(updatedBookmark)
       } else {
         const body = {
-          ...(this.hasFeatureJavascriptLinks ? {href: bm.url} : {url: bm.url}),
+          url: bm.url,
           title: bm.title,
           folders: [bm.parentId],
         }
@@ -785,8 +772,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       const upstreamMark = bm.clone()
       upstreamMark.id = bm.id.split(';')[0]
       this.list && this.list.push(upstreamMark)
-      this.tree.findFolder(bm.parentId).children.push(upstreamMark)
-      this.tree.createIndex()
+      if (this.tree) {
+        this.tree.findFolder(bm.parentId).children.push(upstreamMark)
+        this.tree.createIndex()
+      }
 
       return bm.id
     })
@@ -803,7 +792,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       const bms = await this._getBookmark(upstreamId)
 
       const body = {
-        ...(this.hasFeatureJavascriptLinks ? {href: newBm.url} : {url: newBm.url}),
+        url: newBm.url,
         title: newBm.title,
         folders: bms
           .map((bm) => bm.parentId)
@@ -857,6 +846,64 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         Logger.log('Error removing bookmark from folder: ' + e.message + '\n Moving on.')
       }
     })
+  }
+
+  async checkFeatureHashing(): Promise<void> {
+    if (this.hasFeatureHashing !== null) {
+      return
+    }
+    // feature detection: Check if the server offers hashes
+    const hashResponse = await this.sendRequest(
+      'GET',
+      'index.php/apps/bookmarks/public/rest/v2/folder/-1/hash',
+      null,
+      null,
+      true
+    )
+    let json
+    try {
+      json = await hashResponse.json()
+    } catch (e) {
+      json = hashResponse.data
+      // noop
+    }
+
+    if (
+      ((hashResponse.status === 200 && json && json.status === 'success') ||
+        hashResponse.status === 504)
+    ) {
+      this.hasFeatureHashing = true
+      this.rootHash = json.data
+    } else {
+      this.hasFeatureHashing = false
+    }
+  }
+
+  async checkFeatureJavascriptLinks(): Promise<void> {
+    if (this.hasFeatureJavascriptLinks !== null) {
+      return
+    }
+    try {
+      const json = await this.sendRequest(
+        'GET',
+        `index.php/apps/bookmarks/public/rest/v2/bookmark?page=1&limit=1`
+      )
+      console.log(json)
+      if (!json.data.length) {
+        this.hasFeatureJavascriptLinks = true
+        try {
+          const id = await this.createBookmark(new Bookmark({id: null, parentId: '-1', title: 'floccus', url: 'javascript:void(0)', location: ItemLocation.SERVER}))
+          await this.removeBookmark(new Bookmark({id, parentId: '-1', title: 'floccus', url: 'javascript:void(0)', location: ItemLocation.SERVER}))
+        } catch (e) {
+          console.log(e)
+          this.hasFeatureJavascriptLinks = false
+        }
+        return
+      }
+      this.hasFeatureJavascriptLinks = 'target' in json.data[0]
+    } catch (e) {
+      this.hasFeatureJavascriptLinks = false
+    }
   }
 
   async sendRequest(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false):Promise<any> {

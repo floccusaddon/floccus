@@ -374,6 +374,37 @@ describe('Floccus', function() {
               }),
               false
             )
+
+            const bookmark2 = await browser.bookmarks.create({
+              title: 'url2',
+              url: 'javascript:void(1)',
+              parentId: barFolder.id
+            })
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            const tree2 = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree2,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Folder({
+                        title: 'bar',
+                        children: [
+                          new Bookmark({ title: 'url', url: bookmark.url }),
+                          new Bookmark({ title: 'url2', url: bookmark2.url }),
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
           })
           it('should update the server on local changes', async function() {
             if (ACCOUNT_DATA.noCache) {
