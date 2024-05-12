@@ -133,7 +133,11 @@ const native = async function() {
 }
 
 const cleanJs = async function() {
-  fs.rmSync(paths.distJs, {recursive: true})
+  try {
+    fs.rmSync(paths.distJs, { recursive: true })
+  } catch (e) {
+    // noop
+  }
 }
 
 const mocha = gulp.parallel(mochajs, mochacss)
