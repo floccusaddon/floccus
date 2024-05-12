@@ -52,7 +52,8 @@ const paths = {
   js: 'src/**',
   builds: './builds/',
   icons: 'icons/*',
-  dist: './dist/**'
+  dist: './dist/**',
+  distJs: './dist/js',
 }
 
 paths.chromeZip = [...paths.zip, 'manifest.chrome.json']
@@ -131,13 +132,17 @@ const native = async function() {
   console.log(stdout)
 }
 
+const cleanJs = async function() {
+  fs.rmSync(paths.distJs, {recursive: true})
+}
+
 const mocha = gulp.parallel(mochajs, mochacss)
 
 const thirdparty = gulp.parallel(mocha)
 
 const assets = gulp.parallel(html, thirdparty, icons)
 
-const build = gulp.series(js, assets)
+const build = gulp.series(cleanJs, js, assets)
 
 const main = gulp.series(build, native)
 
@@ -228,9 +233,8 @@ function onWatchEvent(path) {
 exports.html = html
 exports.js = js
 exports.mocha = mocha
-exports.watch = watch
 exports.release = release
-exports.watch = gulp.series(gulp.parallel(assets, devjs), native, watch)
+exports.watch = gulp.series(cleanJs,gulp.parallel(assets, devjs), native, watch)
 exports.publish = publish
 exports.build = build
 exports.native = native
