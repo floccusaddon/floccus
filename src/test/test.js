@@ -89,12 +89,6 @@ describe('Floccus', function() {
     {
       type: 'nextcloud-bookmarks',
       url: SERVER,
-      oldAPIs: true,
-      ...CREDENTIALS
-    },
-    {
-      type: 'nextcloud-bookmarks',
-      url: SERVER,
       serverRoot: '/my folder/some subfolder',
       ...CREDENTIALS
     },
@@ -239,10 +233,6 @@ describe('Floccus', function() {
               })
             }
             await account.init()
-            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
-              // account.server.hasFeatureHashing = false
-              account.server.hasFeatureChildren = false
-            }
             if (ACCOUNT_DATA.noCache) {
               account.storage.setCache = () => {
                 // noop
@@ -318,6 +308,81 @@ describe('Floccus', function() {
                         title: 'bar',
                         children: [
                           new Bookmark({ title: 'url', url: bookmark.url })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+          })
+          it('should create local javascript bookmarks on the server', async function() {
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            const localRoot = account.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            const bookmark = await browser.bookmarks.create({
+              title: 'url',
+              url: 'javascript:void(0)',
+              parentId: barFolder.id
+            })
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Folder({
+                        title: 'bar',
+                        children: [
+                          new Bookmark({ title: 'url', url: bookmark.url })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+
+            const bookmark2 = await browser.bookmarks.create({
+              title: 'url2',
+              url: 'javascript:void(1)',
+              parentId: barFolder.id
+            })
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            const tree2 = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree2,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Folder({
+                        title: 'bar',
+                        children: [
+                          new Bookmark({ title: 'url', url: bookmark.url }),
+                          new Bookmark({ title: 'url2', url: bookmark2.url }),
                         ]
                       })
                     ]
@@ -1853,7 +1918,7 @@ describe('Floccus', function() {
             })
             await browser.bookmarks.create({
               title: 'url2',
-              url: 'javascript:void(0)',
+              url: 'chrome://extensions/',
               parentId: fooFolder.id
             })
             await account.sync() // propagate to server
@@ -1899,7 +1964,7 @@ describe('Floccus', function() {
                         children: [
                           new Bookmark({
                             title: 'url2',
-                            url: 'javascript:void(0)'
+                            url: 'chrome://extensions/'
                           })
                         ]
                       })
@@ -4526,10 +4591,6 @@ describe('Floccus', function() {
             }
             await account.init()
             await account.setData({...account.getData(), localRoot: 'tabs'})
-            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
-              // account.server.hasFeatureHashing = false
-              account.server.hasFeatureChildren = false
-            }
             if (ACCOUNT_DATA.noCache) {
               account.storage.setCache = () => {
                 // noop
@@ -4866,10 +4927,6 @@ describe('Floccus', function() {
               account1.server.highestId = id
             })
             account2.server.__defineGetter__('highestId', () => account1.server.highestId)
-          }
-          if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs) {
-            account1.server.hasFeatureHashing = false
-            account2.server.hasFeatureHashing = false
           }
           if (ACCOUNT_DATA.noCache) {
             account1.storage.setCache = () => {
@@ -6707,7 +6764,6 @@ async function syncAccountWithInterrupts(account) {
 
 function stringifyAccountData(ACCOUNT_DATA) {
   return `${ACCOUNT_DATA.type}${
-    (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ACCOUNT_DATA.oldAPIs ? '-old' : '') +
     (ACCOUNT_DATA.noCache ? '-noCache' : '') +
     (typeof ACCOUNT_DATA.bookmark_file_type !== 'undefined' ? '-' + ACCOUNT_DATA.bookmark_file_type : '') +
     ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase) ? '-encrypted' : '')
