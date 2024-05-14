@@ -1,4 +1,18 @@
 # Changelog
+## [5.1.2] - 2024-05-14
+
+### Fixed
+* fix(GoogleDrive): Catch 500 errors
+* [native] fix: Reload tree on app resume
+* fix(NextcloudBookmarks): Remove feature detection of 5yo features
+* [native] fix(intent): Register intent activity properly
+* feat(NextcloudBookmarks): Accept javascript: links
+* fix(webpack): Don't set DEBUG to true in production
+* fix(BrowserController#setStatusBadge): Don't throw when setting icon
+* fix(Account#progressCallback): Don't error if syncProcess is not defined yet
+* fix: Don't error in old Chrome versions if browser.permissions.contains fails
+* fix: Wrap local tree fetch error
+* fix(webpack): Split initial chunks to avoid AMO review complaining
 
 ## [5.1.1] - 2024-05-10
 
