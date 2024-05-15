@@ -104,10 +104,23 @@ const js = function() {
           /* stats options */
         })
       )
-
       resolve()
     })
   )
+}
+
+const fixupBgScript = async function () {
+  const bgScript = fs.readFileSync(paths.distJs + '/background-script.js', 'utf8')
+  const addition = `
+if ("undefined"!=typeof self && 'importScripts' in self) {
+  self.importScripts('./79.js')
+  self.importScripts('./88.js')
+  self.importScripts('./206.js')
+  self.importScripts('./895.js')
+  self.importScripts('./80.js')
+}
+`
+  fs.writeFileSync(paths.distJs + '/background-script.js', addition + bgScript)
 }
 
 const html = function() {
@@ -146,7 +159,7 @@ const thirdparty = gulp.parallel(mocha)
 
 const assets = gulp.parallel(html, thirdparty, icons)
 
-const build = gulp.series(cleanJs, js, assets)
+const build = gulp.series(cleanJs, js, fixupBgScript, assets)
 
 const main = gulp.series(build, native)
 
@@ -243,6 +256,7 @@ exports.publish = publish
 exports.build = build
 exports.native = native
 exports.package = gulp.parallel(firefoxZip, chromeZip, xpi)
+exports.fixupBgScript = fixupBgScript
 /*
  * Define default task that can be called by just running `gulp` from cli
  */
