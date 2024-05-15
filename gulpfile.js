@@ -255,7 +255,7 @@ exports.watch = gulp.series(cleanJs,gulp.parallel(assets, devjs), native, watch)
 exports.publish = publish
 exports.build = build
 exports.native = native
-exports.package = gulp.parallel(firefoxZip, chromeZip, xpi)
+exports.package = gulp.series(gulp.parallel(firefoxZip, chromeZip, xpi),  crx)
 exports.fixupBgScript = fixupBgScript
 /*
  * Define default task that can be called by just running `gulp` from cli
