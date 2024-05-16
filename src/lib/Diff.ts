@@ -189,10 +189,6 @@ export default class Diff {
     return batches
   }
 
-  inspect(): Action[] {
-    return this.getActions()
-  }
-
   /**
    * on ServerToLocal: don't map removals
    * on LocalToServer:
@@ -279,6 +275,12 @@ export default class Diff {
         oldItem: action.oldItem && action.oldItem.clone(false),
       }
     })
+  }
+
+  inspect(depth = 0):string {
+    return 'Diff\n' + this.getActions().map((action: Action) => {
+      return `\nAction: ${action.type}\nPayload: ${action.payload.inspect()}${'index' in action ? `Index: ${action.index}\n` : ''}${'order' in action ? `Order: ${JSON.stringify(action.order, null, '\t')}` : ''}`
+    }).join('\n')
   }
 
   static fromJSON(json) {
