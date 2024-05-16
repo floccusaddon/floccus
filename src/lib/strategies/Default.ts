@@ -990,7 +990,7 @@ export default class SyncProcess {
       }
       reorderings.retract(action)
       this.updateProgress()
-    })
+    }, ACTION_CONCURRENCY)
   }
 
   async addMapping(resource:TResource, item:TItem, newId:string|number):Promise<void> {
