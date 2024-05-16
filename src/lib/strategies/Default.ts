@@ -10,6 +10,7 @@ import { TAdapter } from '../interfaces/Adapter'
 import { CancelledSyncError, FailsafeError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
+import CachingAdapter from '../adapters/Caching'
 
 const ACTION_CONCURRENCY = 12
 
@@ -111,8 +112,12 @@ export default class SyncProcess {
   }
 
   countPlannedActions() {
-    this.actionsPlanned = this.serverPlan.getActions().length + this.localPlan.getActions().length
-    this.actionsPlanned += this.localPlan.getActions(ActionType.CREATE).map(action => action.payload.count()).reduce((a, i) => a + i, 0)
+    let actionsPlanned = this.serverPlan.getActions().length + this.localPlan.getActions().length
+    actionsPlanned += this.localPlan.getActions(ActionType.CREATE).map(action => action.payload.count()).reduce((a, i) => a + i, 0)
+    if (this.actionsPlanned < actionsPlanned) {
+      // only update if there is not more plans already
+      this.actionsPlanned = actionsPlanned
+    }
   }
 
   updateProgress():void {
@@ -736,47 +741,115 @@ export default class SyncProcess {
 
       if (item instanceof Folder && ((action.payload instanceof Folder && action.payload.children.length) || (action.oldItem instanceof Folder && action.oldItem.children.length))) {
         if ('bulkImportFolder' in resource) {
-          try {
-            // Try bulk import
-            const imported = await resource.bulkImportFolder(item.id, (action.oldItem || action.payload) as Folder)
-            const newMappings = []
-            const subScanner = new Scanner(
-              action.oldItem || action.payload,
-              imported,
-              (oldItem, newItem) => {
-                if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
-                  // if two items can be merged, we'll add mappings here directly
-                  newMappings.push([oldItem, newItem.id])
-                  return true
-                }
-                return false
-              },
-              this.preserveOrder,
-              false,
-            )
-            await subScanner.run()
-            await Parallel.each(newMappings, async([oldItem, newId]) => {
-              await this.addMapping(resource, oldItem, newId)
-            })
+          if (action.payload.count() < 75 || this.server instanceof CachingAdapter) {
+            Logger.log('Attempting full bulk import')
+            try {
+              // Try bulk import with sub folders
+              const imported = await resource.bulkImportFolder(item.id, (action.oldItem || action.payload) as Folder)
+              const newMappings = []
+              const subScanner = new Scanner(
+                action.oldItem || action.payload,
+                imported,
+                (oldItem, newItem) => {
+                  if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
+                    // if two items can be merged, we'll add mappings here directly
+                    newMappings.push([oldItem, newItem.id])
+                    return true
+                  }
+                  return false
+                },
+                this.preserveOrder,
+                false,
+              )
+              await subScanner.run()
+              await Parallel.each(newMappings, async ([oldItem, newId]) => {
+                await this.addMapping(resource, oldItem, newId)
+              })
 
-            done()
-            return
-          } catch (e) {
-            Logger.log('Bulk import failed, continuing with normal creation', e)
+              done()
+              return
+            } catch (e) {
+              Logger.log('Bulk import failed, continuing with normal creation', e)
+            }
+          } else {
+            try {
+              // Try bulk import without sub folders
+              const tempItem = (action.oldItem ? action.oldItem.clone(false) : action.payload.clone(false)) as Folder
+              const bookmarks = tempItem.children.filter(child => child instanceof Bookmark)
+              while (bookmarks.length > 0) {
+                Logger.log('Attempting chunked bulk import')
+                tempItem.children = bookmarks.splice(0, 70)
+                const imported = await resource.bulkImportFolder(item.id, tempItem)
+                const newMappings = []
+                const subScanner = new Scanner(
+                  tempItem,
+                  imported,
+                  (oldItem, newItem) => {
+                    if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
+                      // if two items can be merged, we'll add mappings here directly
+                      newMappings.push([oldItem, newItem.id])
+                      return true
+                    }
+                    return false
+                  },
+                  this.preserveOrder,
+                  false,
+                )
+                await subScanner.run()
+                await Parallel.each(newMappings, async([oldItem, newId]) => {
+                  await this.addMapping(resource, oldItem, newId)
+                })
+              }
+
+              // create sub plan for the folders
+
+              if (action.oldItem && action.oldItem instanceof Folder) {
+                const subPlan = new Diff
+                action.oldItem.children
+                  .filter(child => child instanceof Folder)
+                  .forEach((child) => {
+                    const newAction : Action = { type: ActionType.CREATE, payload: child }
+                    subPlan.commit(newAction)
+                    plan.commit(newAction)
+                  })
+                const mappingsSnapshot = this.mappings.getSnapshot()
+                const mappedSubPlan = subPlan.map(mappingsSnapshot, targetLocation)
+                Logger.log('executing sub plan')
+                this.actionsPlanned += mappedSubPlan.getActions().length
+                await this.execute(resource, mappedSubPlan, targetLocation, null, true)
+
+                if ('orderFolder' in resource && item.children.length > 1) {
+                  // Order created items after the fact, as they've been created concurrently
+                  plan.commit({
+                    type: ActionType.REORDER,
+                    oldItem: action.payload,
+                    payload: action.oldItem,
+                    order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
+                  })
+                }
+              }
+
+              done()
+              return
+            } catch (e) {
+              Logger.log('Bulk import failed, continuing with normal creation', e)
+            }
           }
         }
 
-        // Create a sub plan
+        // Create a sub plan and create each child individually (worst performance)
         if (action.oldItem && action.oldItem instanceof Folder) {
           const subPlan = new Diff
-          action.oldItem.children.forEach((child) => {
-            const newAction : Action = { type: ActionType.CREATE, payload: child }
-            subPlan.commit(newAction)
-            plan.commit(newAction)
-          })
+          action.oldItem.children
+            .forEach((child) => {
+              const newAction : Action = { type: ActionType.CREATE, payload: child }
+              subPlan.commit(newAction)
+              plan.commit(newAction)
+            })
           const mappingsSnapshot = this.mappings.getSnapshot()
           const mappedSubPlan = subPlan.map(mappingsSnapshot, targetLocation)
           Logger.log('executing sub plan')
+          this.actionsPlanned += mappedSubPlan.getActions().length
           await this.execute(resource, mappedSubPlan, targetLocation, null, true)
 
           if ('orderFolder' in resource && item.children.length > 1) {

@@ -422,7 +422,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new Error('Current server does not support bulk import')
     }
     if (folder.count() > 75) {
-      throw new Error('Refusing to bulk import more than 300 bookmarks')
+      throw new Error('Refusing to bulk import more than 75 bookmarks')
     }
     Logger.log('(nextcloud-folders)BULKIMPORT', { parentId, folder })
     const parentFolder = this.tree.findFolder(parentId)
