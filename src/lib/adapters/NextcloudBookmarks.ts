@@ -586,11 +586,28 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     })
   }
 
-  /*
-   * This is pretty expensive! We need to wait until NcBookmarks has support for
-   * querying urls directly
-   */
   async getExistingBookmark(url:string):Promise<false|Bookmark> {
+    if (url.toLowerCase().startsWith('javascript:')) {
+      if (!this.hasFeatureJavascriptLinks) {
+        return false
+      }
+      const json = await this.sendRequest(
+        'GET',
+        `index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1&search[]=${encodeURIComponent(
+          'javascript:'
+        )}`
+      )
+      if (json.data.length) {
+        const bookmark = json.data.find(bookmark => bookmark.target === url)
+        if (bookmark) {
+          return {...bookmark, parentId: bookmark.folders[0], url}
+        } else {
+          return false
+        }
+      } else {
+        return false
+      }
+    }
     const json = await this.sendRequest(
       'GET',
       `index.php/apps/bookmarks/public/rest/v2/bookmark?url=${encodeURIComponent(
