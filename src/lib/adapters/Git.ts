@@ -149,13 +149,15 @@ export default class GitAdapter extends CachingAdapter {
       throw new SlashError()
     }
 
+    if (this.lockingInterval) {
+      clearInterval(this.lockingInterval)
+    }
     if (needLock) {
       await this.obtainLock()
+      this.lockingInterval = setInterval(() => this.setLock(), LOCK_INTERVAL) // Set lock every minute
     }
 
     const status = await this.pullFromServer()
-
-    this.lockingInterval = setInterval(() => this.setLock(), LOCK_INTERVAL) // Set lock every minute
 
     this.initialTreeHash = await this.bookmarksCache.hash(true)
 

@@ -92,7 +92,7 @@ export default class WebDavAdapter extends CachingAdapter {
       if (res.headers['Last-Modified']) {
         const date = new Date(res.headers['Last-Modified'])
         const dateLocked = date.valueOf()
-        if (dateLocked > Date.now() - LOCK_TIMEOUT) {
+        if (dateLocked + LOCK_TIMEOUT > Date.now()) {
           throw new ResourceLockedError()
         }
       } else {
@@ -120,7 +120,15 @@ export default class WebDavAdapter extends CachingAdapter {
       'text/html',
       '<html><body>I am a lock file</body></html>'
     )
-    await this.lockingPromise
+    try {
+      await this.lockingPromise
+    } catch (e) {
+      if (e instanceof HttpError && e.status === 423) {
+        this.locked = false
+        throw new ResourceLockedError()
+      }
+      throw e
+    }
     this.locked = true
   }
 
@@ -253,8 +261,13 @@ export default class WebDavAdapter extends CachingAdapter {
       throw new SlashError()
     }
 
+    if (this.lockingInterval) {
+      clearInterval(this.lockingInterval)
+    }
     if (needLock) {
       await this.obtainLock()
+      this.lockingInterval = setInterval(() => this.setLock(), LOCK_INTERVAL) // Set lock every minute
+
     }
 
     const resp = await this.pullFromServer()
@@ -264,8 +277,6 @@ export default class WebDavAdapter extends CachingAdapter {
         throw new HttpError(resp.status, 'GET')
       }
     }
-
-    this.lockingInterval = setInterval(() => this.setLock(), LOCK_INTERVAL) // Set lock every minute
 
     this.initialTreeHash = await this.bookmarksCache.hash(true)
 

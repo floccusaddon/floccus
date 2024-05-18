@@ -263,7 +263,12 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       })
 
       this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
-      this.lockingInterval = setInterval(() => this.setLock(this.fileId), LOCK_INTERVAL) // Set lock every minute
+      if (this.lockingInterval) {
+        clearInterval(this.lockingInterval)
+      }
+      if (needLock) {
+        this.lockingInterval = setInterval(() => this.setLock(this.fileId), LOCK_INTERVAL) // Set lock every minute
+      }
     } else {
       this.resetCache()
       this.alwaysUpload = true

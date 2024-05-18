@@ -39,6 +39,7 @@ export interface NextcloudBookmarksConfig {
   includeCredentials?: boolean
   allowRedirects?: boolean
   allowNetwork?: boolean
+  label?: string
 }
 
 interface IChildFolder {
@@ -101,7 +102,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   getLabel():string {
     const data = this.getData()
-    return data.username.includes('@') ? data.username + ' on ' + new URL(data.url).hostname : data.username + '@' + new URL(data.url).hostname
+    return data.label || data.username.includes('@') ? data.username + ' on ' + new URL(data.url).hostname : data.username + '@' + new URL(data.url).hostname
   }
 
   acceptsBookmark(bm: Bookmark):boolean {
@@ -137,15 +138,19 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       }
     }
 
+    if (this.lockingInterval) {
+      clearInterval(this.lockingInterval)
+    }
     if (needLock) {
       if (!(await this.acquireLock())) {
         throw new ResourceLockedError()
       }
+      this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
     }
 
     this.canceled = false
     this.ended = false
-    this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
+
   }
 
   async onSyncComplete(): Promise<void> {
