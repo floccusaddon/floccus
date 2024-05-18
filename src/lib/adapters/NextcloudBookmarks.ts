@@ -141,16 +141,15 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     if (this.lockingInterval) {
       clearInterval(this.lockingInterval)
     }
-    if (needLock) {
-      if (!(await this.acquireLock())) {
-        throw new ResourceLockedError()
-      }
-      this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
+
+    // if needLock -- we always need it
+    if (!(await this.acquireLock())) {
+      throw new ResourceLockedError()
     }
+    this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
 
     this.canceled = false
     this.ended = false
-
   }
 
   async onSyncComplete(): Promise<void> {
@@ -227,18 +226,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     } else {
       return this.getCompleteBookmarksTree()
     }
-  }
-
-  async _getChildOrder(folderId:string|number, layers:number):Promise<IChildOrderItem[]> {
-    const childrenOrderJson = await this.sendRequest(
-      'GET',
-      `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/childorder` +
-        (layers ? `?layers=${layers}` : '')
-    )
-    if (!Array.isArray(childrenOrderJson.data)) {
-      throw new UnexpectedServerResponseError()
-    }
-    return childrenOrderJson.data
   }
 
   async _getChildFolders(folderId:string|number, layers = 0):Promise<IChildFolder[]> {

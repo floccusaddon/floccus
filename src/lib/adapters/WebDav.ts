@@ -102,6 +102,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
     if (res.status === 200) {
       // continue anyway
+      this.locked = true
     } else if (res.status === 404) {
       await this.setLock()
     } else {
@@ -267,7 +268,6 @@ export default class WebDavAdapter extends CachingAdapter {
     if (needLock) {
       await this.obtainLock()
       this.lockingInterval = setInterval(() => this.setLock(), LOCK_INTERVAL) // Set lock every minute
-
     }
 
     const resp = await this.pullFromServer()
