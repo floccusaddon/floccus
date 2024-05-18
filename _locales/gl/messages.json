@@ -107,6 +107,12 @@
   "Error036": {
     "message": "E036: Faltan permisos para acceder ao servidor de sincronización"
   },
+  "Error037": {
+    "message": "E036: O recurso está bloqueado"
+  },
+  "Error038": {
+    "message": "E036: Non foi posíbel atopar o cartafol local"
+  },
   "LabelWebdavurl": {
     "message": "URL de WebDAV"
   },
@@ -126,11 +132,14 @@
     "message": "Ruta do ficheiro de marcadores"
   },
   "DescriptionBookmarksfile": {
-    "message": "unha ruta ao ficheiro de marcadores relativo ao URL de WebDAV (xa deben existir todos os cartafoles da ruta). p. ex. cousas_persoais/bookmarks.xbel"
+    "message": "unha ruta ao ficheiro de marcadores relativa ao URL de WebDAV (xa deben existir todos os cartafoles da ruta). p. ex. cousas_persoais/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "o nome do ficheiro de marcadores que residirá no seu Google Drive (asegúrese de que este nome é único no seu Drive)"
  },
+  "DescriptionBookmarksfilegit": {
+    "message": "unha ruta ao ficheiro de marcadores relativa á raíz do repositorio de Git (xa deben existir todos os cartafoles da ruta). p. ex. cousas_persoais/bookmarks.xbel"
+  },
   "LabelServerfolder": {
     "message": "Servidor de destino"
   },
@@ -261,7 +270,7 @@
     "message": "Marcadores de Nextcloud"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "A opción «Marcadores de Nextcloud» sincroniza os marcadores coa aplicación Marcadores de Nextcloud. Só pode sincronizar os marcadores http e ftp. Asegúrese de ter instalado a aplicación Marcadores da tenda de aplicacións de Nextcloud na súa instancia de Nextcloud."
+    "message": "A opción «Marcadores de Nextcloud» sincroniza os marcadores coa aplicación Marcadores de Nextcloud. Só pode sincronizar os marcadores http, ftp e javascript. Asegúrese de ter instalada a aplicación Marcadores da tenda de aplicacións de Nextcloud na súa instancia de Nextcloud."
   },
   "LabelAdapternextcloud": {
     "message": "Marcadores de Nextcloud (herdados)"
@@ -689,5 +698,29 @@
   },
   "DescriptionSyncscheduled": {
     "message": "Este perfil sincronizarase en breve. Estamos a agardar que outros dispositivos seus ou outros perfís deste dispositivo rematen de sincronizar."
+  },
+  "LabelAdaptergit": {
+    "message": "Git sobre HTTPS"
+  },
+  "DescriptionAdaptergit": {
+    "message": "A opción Git sincroniza os seus marcadores almacenándoos nun ficheiro no repositorio de Git fornecido. Non hai unha interface de usuario web para esta opción, mais pode usala con calquera servidor de aloxamento de Git, como Github, Gitlab, Gitea, etc. Pode sincronizar os marcadores http, ftp, datos, ficheiros e javascript."
+  },
+  "LabelGiturl": {
+    "message": "URL do repositorio usando HTTP"
+  },
+  "LabelGitbranch": {
+    "message": "Póla de Git"
+  },
+  "LabelTelemetry": {
+    "message": "Informe automatizado de erros"
+  },
+  "DescriptionTelemetry": {
+    "message": "Floccus pode enviarme automaticamente os datos de erros a min, o desenvolvedor. Esta é unha gran axuda para descubrir e resolver os erros en floccus máis rápido e axudará a mellorar a súa experiencia con floccus a longo prazo. Aínda que estea activado o informe de erros, os desenvolvedores de floccus nunca poderán ver os seus marcadores."
+  },
+  "LabelTelemetryenable": {
+    "message": "Envíiar automaticamente os datos de erros aos desenvolvedores de floccus"
+  },
+  "LabelTelemetrydisable": {
+    "message": "Non enviar os datos de erros aos desenvolvedores de floccus"
   }
 }
