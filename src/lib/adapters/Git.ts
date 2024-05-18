@@ -72,7 +72,13 @@ export default class GitAdapter extends CachingAdapter {
 
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
-      if (!(await browser.permissions.contains({ origins: [this.server.url + '/'] }))) {
+      let hasPermissions
+      try {
+        hasPermissions = await browser.permissions.contains({ origins: [this.server.url + '/'] })
+      } catch (e) {
+        console.warn(e)
+      }
+      if (!hasPermissions) {
         throw new MissingPermissionsError()
       }
     }
@@ -143,13 +149,15 @@ export default class GitAdapter extends CachingAdapter {
       throw new SlashError()
     }
 
+    if (this.lockingInterval) {
+      clearInterval(this.lockingInterval)
+    }
     if (needLock) {
       await this.obtainLock()
+      this.lockingInterval = setInterval(() => this.setLock(), LOCK_INTERVAL) // Set lock every minute
     }
 
     const status = await this.pullFromServer()
-
-    this.lockingInterval = setInterval(() => this.setLock(), LOCK_INTERVAL) // Set lock every minute
 
     this.initialTreeHash = await this.bookmarksCache.hash(true)
 

@@ -52,7 +52,8 @@ const paths = {
   js: 'src/**',
   builds: './builds/',
   icons: 'icons/*',
-  dist: './dist/**'
+  dist: './dist/**',
+  distJs: './dist/js',
 }
 
 paths.chromeZip = [...paths.zip, 'manifest.chrome.json']
@@ -103,10 +104,23 @@ const js = function() {
           /* stats options */
         })
       )
-
       resolve()
     })
   )
+}
+
+const fixupBgScript = async function () {
+  const bgScript = fs.readFileSync(paths.distJs + '/background-script.js', 'utf8')
+  const addition = `
+if ("undefined"!=typeof self && 'importScripts' in self) {
+  self.importScripts('./79.js')
+  self.importScripts('./88.js')
+  self.importScripts('./206.js')
+  self.importScripts('./895.js')
+  self.importScripts('./80.js')
+}
+`
+  fs.writeFileSync(paths.distJs + '/background-script.js', addition + bgScript)
 }
 
 const html = function() {
@@ -131,13 +145,21 @@ const native = async function() {
   console.log(stdout)
 }
 
+const cleanJs = async function() {
+  try {
+    fs.rmSync(paths.distJs, { recursive: true })
+  } catch (e) {
+    // noop
+  }
+}
+
 const mocha = gulp.parallel(mochajs, mochacss)
 
 const thirdparty = gulp.parallel(mocha)
 
 const assets = gulp.parallel(html, thirdparty, icons)
 
-const build = gulp.parallel(assets, js)
+const build = gulp.series(cleanJs, js, fixupBgScript, assets)
 
 const main = gulp.series(build, native)
 
@@ -228,12 +250,13 @@ function onWatchEvent(path) {
 exports.html = html
 exports.js = js
 exports.mocha = mocha
-exports.watch = watch
 exports.release = release
-exports.watch = gulp.series(gulp.parallel(assets, devjs), native, watch)
+exports.watch = gulp.series(cleanJs,gulp.parallel(assets, devjs), native, watch)
 exports.publish = publish
 exports.build = build
 exports.native = native
+exports.package = gulp.series(gulp.parallel(firefoxZip, chromeZip, xpi),  crx)
+exports.fixupBgScript = fixupBgScript
 /*
  * Define default task that can be called by just running `gulp` from cli
  */

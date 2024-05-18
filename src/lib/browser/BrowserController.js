@@ -119,7 +119,11 @@ export default class BrowserController {
         const clientList = await self.clients.matchAll()
         clientList.forEach(client => client.postMessage({ type: 'status:update', params: [] }))
       } else {
-        browser.runtime.sendMessage({type: 'status:update', params: []})
+        try {
+          browser.runtime.sendMessage({ type: 'status:update', params: [] })
+        } catch (e) {
+          console.warning(e)
+        }
       }
     })
   }
@@ -359,10 +363,15 @@ export default class BrowserController {
     }
 
     if (icon[status]) {
-      if (navigator.userAgent.includes('Firefox')) {
+      try {
         await browser.browserAction.setIcon(icon[status])
-      } else {
+      } catch (e) {
+        console.warn(e)
+      }
+      try {
         await browser.action.setIcon(icon[status])
+      } catch (e) {
+        console.warn(e)
       }
     }
   }

@@ -42,6 +42,11 @@
           v-bind.sync="data"
           @reset="onReset"
           @delete="onDelete" />
+        <OptionsGit
+          v-if="data.type === 'git'"
+          v-bind.sync="data"
+          @reset="onReset"
+          @delete="onDelete" />
       </v-form>
     </v-main>
   </div>
@@ -54,11 +59,11 @@ import OptionsNextcloudBookmarks from '../../components/OptionsNextcloudBookmark
 import { actions } from '../../store/native'
 import { routes } from '../../NativeRouter'
 import OptionsGoogleDrive from '../../components/OptionsGoogleDrive'
-// iport PathHelper from '../../../lib/PathHelper'
+import OptionsGit from '../../components/OptionsGit.vue'
 
 export default {
   name: 'Options',
-  components: { OptionsGoogleDrive, OptionsNextcloudBookmarks, OptionsWebdav, OptionsFake },
+  components: { OptionsGit, OptionsGoogleDrive, OptionsNextcloudBookmarks, OptionsWebdav, OptionsFake },
   data() {
     return {
       drawer: false,

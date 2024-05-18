@@ -1,5 +1,32 @@
 # Changelog
 
+## [5.1.3] - 2024-05-18
+
+### Fixed
+
+[native] fix: set largeHeap to true on android + fix git settings
+fix: Improve locking logic
+fix(NextcloudBookmarks#getExistingBookmarks): Don't use search-by-url for javascript links
+fix: Make Diff#inspect() output more readable
+fix: Limit concurrency for reorderings
+fix: Improve bulkImport performance by chunking
+fix: Unhandled error "Receiving end does not exist"
+
+## [5.1.2] - 2024-05-14
+
+### Fixed
+* fix(GoogleDrive): Catch 500 errors
+* [native] fix: Reload tree on app resume
+* fix(NextcloudBookmarks): Remove feature detection of 5yo features
+* [native] fix(intent): Register intent activity properly
+* feat(NextcloudBookmarks): Accept javascript: links
+* fix(webpack): Don't set DEBUG to true in production
+* fix(BrowserController#setStatusBadge): Don't throw when setting icon
+* fix(Account#progressCallback): Don't error if syncProcess is not defined yet
+* fix: Don't error in old Chrome versions if browser.permissions.contains fails
+* fix: Wrap local tree fetch error
+* fix(webpack): Split initial chunks to avoid AMO review complaining
+
 ## [5.1.1] - 2024-05-10
 
 ### Fixed

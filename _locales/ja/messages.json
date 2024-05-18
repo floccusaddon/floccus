@@ -75,7 +75,7 @@
     "message": "E025: ブックマークファイルの設定は、スラッシュ: '/' で始まってはいけません"
   },
   "Error026": {
-    "message": "E026: HTTP ステータス {0}。ブックマークのフェッチに失敗しました"
+    "message": "E026: 同期プロセスがキャンセルされました"
   },
   "Error027": {
     "message": "E027: 同期のプロセスが中断されました"
@@ -107,6 +107,12 @@
   "Error036": {
     "message": "E036: サーバーと同期する権限がありません"
   },
+  "Error037": {
+    "message": "E036: リソースがロックされています"
+  },
+  "Error038": {
+    "message": "E036: ローカルフォルダーを見つけられません"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -126,11 +132,14 @@
     "message": "ブックマークファイルのパス"
   },
   "DescriptionBookmarksfile": {
-    "message": "WebDAV URL からのブックマークファイルの相対パス (パスのすべてのフォルダーがすでに存在していなければなりません) 例: personal_stuff/bookmarks.xbel"
+    "message": "WebDAV URL からのブックマークファイルの相対パス (パスのすべてのフォルダーが先に存在していなければなりません) 例: personal_stuff/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "Googleドライブに保存するブックマークファイルの名前 (ドライブ内でファイル名が重複していないことを確認してください)"
  },
+  "DescriptionBookmarksfilegit": {
+    "message": "Git リポジトリーのルートからのブックマークファイルの相対パス (パスのすべてのフォルダーが先に存在していなければなりません) 例: personal_stuff/bookmarks.xbel"
+  },
   "LabelServerfolder": {
     "message": "サーバーの対象"
   },
@@ -216,7 +225,7 @@
     "message": "キャッシュをリセット"
   },
   "DescriptionResetcache": {
-    "message": "選択すると、キャッシュがリセットされ、次の同期実行でデータが削除されず、サーバーとローカルのブックマークがマージされるだけになります。"
+    "message": "選択するとキャッシュがリセットされ、次の同期実行でデータが削除されず、サーバーとローカルのブックマークがマージされるだけになります。"
   },
   "LabelParallelsync": {
     "message": "同期の高速化"
@@ -261,7 +270,7 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "「Nextcloud Bookmarks」のオプションは Nextclound のブックマークアプリとブックマークを同期します。http と ftp のブックマークのみ同期できます。お使いの Nextcloud でブックマークアプリを Nextcloud アプリストアからインストールしていることを確認してください。"
+    "message": "「Nextcloud Bookmarks」のオプションは Nextclound のブックマークアプリとブックマークを同期します。http、ftp、JavaScript のブックマークのみ同期できます。お使いの Nextcloud でブックマークアプリを Nextcloud アプリストアからインストールしていることを確認してください。"
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (レガシー)"
@@ -350,6 +359,18 @@
   },
   "DescriptionGithubsponsors": {
     "message": "GitHub sponsors で定期的に寄付をしてプロジェクトを支援する"
+  },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "Patreon で定期的に寄付してプロジェクトを支援する"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "Ko-fi で 1 回限りまたは定期的な寄付をしてプロジェクトを支援する"
   },
   "LegacyAdapterDeprecation": {
     "message": "このレガシープロファイルタイプは非推奨になり、間もなく削除されます。新しい Nextcloud の同期方法に変更してください。改善されたパフォーマンスと精度でななたをお待ちしています。"
@@ -508,7 +529,7 @@
     "message": "クライアント認証情報を送信する"
   },
   "DescriptionClientcert": {
-    "message": "サーバーが認証にクライアント証明書または Cookie を要求する場合は、このオプションを有効にしてください。floccus は通常のブラウザーのプロファイルと Cookie を共有するため、予期せぬ副作用を引き起こす場合があります。"
+    "message": "サーバーが認証にクライアント証明書または Cookie を要求する場合は、このオプションを有効にしてください。floccus は通常のブラウザーセッションと Cookie を共有するため、予期せぬ副作用を引き起こす場合があります。"
   },
   "LabelAllowredirects": {
     "message": "サーバー URL のリダイレクトを許可する"
@@ -673,9 +694,33 @@
     "message": "正常にプロファイルをインポートしました"
   },
   "DescriptionSyncinprogress": {
-    "message": "進行中の同期。"
+    "message": "同期が進行中。"
   },
   "DescriptionSyncscheduled": {
     "message": "このプロファイルはまもなく同期されます。他のデバイスまたはこのデバイス上の他のプロファイルの同期が完了するのを待っています。"
+  },
+  "LabelAdaptergit": {
+    "message": "Git over HTTPS"
+  },
+  "DescriptionAdaptergit": {
+    "message": "Git オプションは、提供された Git リポジトリー内のファイルにブックマークを保存して同期します。ウェブ UI はありませんが、Github、Gitlab、Gitea などのすべての Git ホスティングサーバーに対応しています。http、ftp、データ、ファイル、JavaScript のブックマークを同期できます。 "
+  },
+  "LabelGiturl": {
+    "message": "リポジトリーの URL (HTTP)"
+  },
+  "LabelGitbranch": {
+    "message": "Git ブランチ"
+  },
+  "LabelTelemetry": {
+    "message": "自動エラーレポート"
+  },
+  "DescriptionTelemetry": {
+    "message": "floccus は開発者に自動でエラーデータを送信できます。エラーデータは floccus のバグの迅速な発見と解消に役立ち、長期的には floccus のユーザー体験を向上させます。エラーレポートを有効にしても、floccus の開発者はあなたのブックマークを閲覧できません。"
+  },
+  "LabelTelemetryenable": {
+    "message": "floccus の開発者にエラーデータを自動送信する"
+  },
+  "LabelTelemetrydisable": {
+    "message": "floccus の開発者にエラーデータを送信しない"
   }
 }

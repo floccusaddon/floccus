@@ -6,7 +6,7 @@ import Credentials from '../../../google-api.credentials.json'
 import {
   AuthenticationError,
   DecryptionError, FileUnreadableError,
-  GoogleDriveAuthenticationError, InterruptedSyncError, MissingPermissionsError,
+  GoogleDriveAuthenticationError, HttpError, InterruptedSyncError, MissingPermissionsError,
   NetworkError,
   OAuthTokenError, ResourceLockedError
 } from '../../errors/Error'
@@ -197,7 +197,13 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
       const origins = ['https://oauth2.googleapis.com/', 'https://www.googleapis.com/']
-      if (!(await browser.permissions.contains({ origins }))) {
+      let hasPermissions
+      try {
+        hasPermissions = await browser.permissions.contains({ origins })
+      } catch (e) {
+        console.warn(e)
+      }
+      if (!hasPermissions) {
         throw new MissingPermissionsError()
       }
     }
@@ -257,7 +263,12 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       })
 
       this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
-      this.lockingInterval = setInterval(() => this.setLock(this.fileId), LOCK_INTERVAL) // Set lock every minute
+      if (this.lockingInterval) {
+        clearInterval(this.lockingInterval)
+      }
+      if (needLock) {
+        this.lockingInterval = setInterval(() => this.setLock(this.fileId), LOCK_INTERVAL) // Set lock every minute
+      }
     } else {
       this.resetCache()
       this.alwaysUpload = true
@@ -371,6 +382,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     if (res.status === 401 || res.status === 403) {
       throw new AuthenticationError()
+    }
+
+    if (res.status >= 500) {
+      throw new HttpError(res.status, method)
     }
 
     return {

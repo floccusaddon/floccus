@@ -9,6 +9,7 @@ import Ordering from '../interfaces/Ordering'
 import random from 'random'
 import seedrandom from 'seedrandom'
 import { isVivaldi } from './BrowserDetection'
+import { LocalFolderNotFoundError } from '../../errors/Error'
 
 let absoluteRoot: {id: string}
 
@@ -30,7 +31,12 @@ export default class BrowserTree implements IResource {
 
   async getBookmarksTree():Promise<Folder> {
     const isVivaldiBrowser = await isVivaldi()
-    const [tree] = await browser.bookmarks.getSubTree(this.rootId)
+    let tree
+    try {
+      [tree] = await browser.bookmarks.getSubTree(this.rootId)
+    } catch (e) {
+      throw new LocalFolderNotFoundError()
+    }
     await this.absoluteRootPromise
     const allAccounts = await (await Account.getAccountClass()).getAllAccounts()
 
