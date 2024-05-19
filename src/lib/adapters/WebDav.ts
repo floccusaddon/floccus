@@ -22,12 +22,14 @@ export default class WebDavAdapter extends CachingAdapter {
   private lockingInterval: any
   private lockingPromise: Promise<any>
   private locked: boolean
+  private ended: boolean
   private cancelCallback: () => void
   private initialTreeHash: string
   constructor(server) {
     super(server)
     this.server = server
     this.locked = false
+    this.ended = true
     this.lockingInterval = null
   }
 
@@ -124,7 +126,7 @@ export default class WebDavAdapter extends CachingAdapter {
     try {
       await this.lockingPromise
     } catch (e) {
-      if (e instanceof HttpError && e.status === 423) {
+      if (e instanceof HttpError && (e.status === 423 || e.status === 409)) {
         this.locked = false
         throw new ResourceLockedError()
       }
@@ -135,7 +137,11 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async freeLock() {
     if (this.lockingPromise) {
-      await this.lockingPromise
+      try {
+        await this.lockingPromise
+      } catch (e) {
+        console.warn(e)
+      }
     }
     if (!this.locked) {
       return
@@ -244,6 +250,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async onSyncStart(needLock = true) {
     Logger.log('onSyncStart: begin')
+    this.ended = false
 
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
@@ -267,7 +274,7 @@ export default class WebDavAdapter extends CachingAdapter {
     }
     if (needLock) {
       await this.obtainLock()
-      this.lockingInterval = setInterval(() => this.setLock(), LOCK_INTERVAL) // Set lock every minute
+      this.lockingInterval = setInterval(() => !this.ended && this.setLock(), LOCK_INTERVAL) // Set lock every minute
     }
 
     const resp = await this.pullFromServer()
@@ -290,12 +297,14 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async onSyncFail() {
     Logger.log('onSyncFail')
+    this.ended = true
     clearInterval(this.lockingInterval)
     await this.freeLock()
   }
 
   async onSyncComplete() {
     Logger.log('onSyncComplete')
+    this.ended = true
     clearInterval(this.lockingInterval)
 
     this.bookmarksCache = this.bookmarksCache.clone()
