@@ -165,8 +165,15 @@ export default class Account {
         try {
           status = await this.server.onSyncStart(needLock)
         } catch (e) {
+          await this.server.onSyncFail()
           // Resource locked
           if (e.code === 37) {
+            Sentry.setContext('accountData', {
+              ...this.getData(),
+              username: 'SENSITIVEVALUEHIDDEN',
+              password: 'SENSITIVEVALUVALUEHIDDEN',
+              passphrase: 'SENSITIVEVALUVALUEHIDDEN'
+            })
             Sentry.captureException(e)
             // We got a resource locked error
             if (this.getData().lastSync < Date.now() - LOCK_TIMEOUT) {
