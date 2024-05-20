@@ -83,7 +83,8 @@ export default {
       const icons = {
         'google-drive': 'mdi-google-drive',
         'nextcloud-bookmarks': 'mdi-cloud',
-        'webdav': 'mdi-folder-network'
+        'webdav': 'mdi-folder-network',
+        'git': 'mdi-source-repository'
       }
       return icons[type]
     },
