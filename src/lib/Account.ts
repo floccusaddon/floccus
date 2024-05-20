@@ -179,7 +179,7 @@ export default class Account {
             if (this.getData().lastSync < Date.now() - LOCK_TIMEOUT) {
               // but if we've been waiting for the lock for more than 2h
               // start again without locking the resource
-              status = await this.server.onSyncStart(false)
+              status = await this.server.onSyncStart(false, true)
             } else {
               await this.setData({
                 ...this.getData(),

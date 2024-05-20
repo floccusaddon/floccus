@@ -248,7 +248,7 @@ export default class WebDavAdapter extends CachingAdapter {
     return response
   }
 
-  async onSyncStart(needLock = true) {
+  async onSyncStart(needLock = true, forceLock = false) {
     Logger.log('onSyncStart: begin')
     this.ended = false
 
@@ -269,12 +269,10 @@ export default class WebDavAdapter extends CachingAdapter {
       throw new SlashError()
     }
 
-    if (this.lockingInterval) {
-      clearInterval(this.lockingInterval)
-    }
-    if (needLock) {
+    if (forceLock) {
+      await this.setLock()
+    } else if (needLock) {
       await this.obtainLock()
-      this.lockingInterval = setInterval(() => !this.ended && this.setLock(), LOCK_INTERVAL) // Set lock every minute
     }
 
     const resp = await this.pullFromServer()
@@ -288,6 +286,13 @@ export default class WebDavAdapter extends CachingAdapter {
     this.initialTreeHash = await this.bookmarksCache.hash(true)
 
     Logger.log('onSyncStart: completed')
+
+    if (this.lockingInterval) {
+      clearInterval(this.lockingInterval)
+    }
+    if (needLock || forceLock) {
+      this.lockingInterval = setInterval(() => !this.ended && this.setLock(), LOCK_INTERVAL) // Set lock every minute
+    }
 
     if (resp.status === 404) {
       // Notify sync process that we need to reset cache

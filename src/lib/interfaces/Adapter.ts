@@ -7,7 +7,7 @@ export default interface IAdapter {
   getData() :IAccountData
   getLabel(): string
   acceptsBookmark(bookmark:Bookmark): boolean
-  onSyncStart(lock?:boolean):Promise<void|boolean>
+  onSyncStart(needLock?:boolean, forceLock?: boolean):Promise<void|boolean>
   onSyncComplete():Promise<void>
   onSyncFail():Promise<void>
   cancel():void

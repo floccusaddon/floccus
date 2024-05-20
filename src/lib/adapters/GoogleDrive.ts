@@ -191,7 +191,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     })
   }
 
-  async onSyncStart(needLock = true) {
+  async onSyncStart(needLock = true, forceLock = false) {
     Logger.log('onSyncStart: begin')
 
     if (Capacitor.getPlatform() === 'web') {
@@ -214,7 +214,9 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     const file = fileList.files.filter(file => !file.trashed)[0]
     if (file) {
       this.fileId = file.id
-      if (needLock) {
+      if (forceLock) {
+        await this.setLock(this.fileId)
+      } else if (needLock) {
         const data = await this.getFileMetadata(file.id, 'appProperties')
         if (data.appProperties && data.appProperties.locked && (data.appProperties.locked === true || JSON.parse(data.appProperties.locked))) {
           const lockedDate = JSON.parse(data.appProperties.locked)
@@ -225,12 +227,6 @@ export default class GoogleDriveAdapter extends CachingAdapter {
             throw new ResourceLockedError()
           }
         }
-      }
-    }
-
-    if (file) {
-      this.fileId = file.id
-      if (needLock) {
         await this.setLock(this.fileId)
       }
 
@@ -266,7 +262,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       if (this.lockingInterval) {
         clearInterval(this.lockingInterval)
       }
-      if (needLock) {
+      if (needLock || forceLock) {
         this.lockingInterval = setInterval(() => this.setLock(this.fileId), LOCK_INTERVAL) // Set lock every minute
       }
     } else {

@@ -124,7 +124,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return output + (output[output.length - 1] !== '/' ? '/' : '')
   }
 
-  async onSyncStart(needLock = true): Promise<void> {
+  async onSyncStart(needLock = true, forceLock = false): Promise<void> {
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
       let hasPermissions
@@ -143,7 +143,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
 
     // if needLock -- we always need it
-    if (!(await this.acquireLock())) {
+    const couldAcquireLock = await this.acquireLock()
+    if (!forceLock && !couldAcquireLock) {
       throw new ResourceLockedError()
     }
     this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
