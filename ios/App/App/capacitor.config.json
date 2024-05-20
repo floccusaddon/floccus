@@ -10,6 +10,9 @@
 			"launchAutoHide": false,
 			"androidScaleType": "CENTER_INSIDE",
 			"backgroundColor": "#ffffff"
+		},
+		"CapacitorHttp": {
+			"enabled": true
 		}
 	},
 	"cordova": {}
