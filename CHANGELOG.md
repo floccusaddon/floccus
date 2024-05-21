@@ -1,16 +1,25 @@
 # Changelog
 
+## [5.1.4] - 2024-05-21
+
+### Fixed
+
+* [native] fix(Drawer): Add icon for git profiles
+* fix: Improve locking logic
+* fix(BrowserController): Don't spam setIcon warnings
+* fix(Account): call onSyncFail if onSyncStart fails
+
 ## [5.1.3] - 2024-05-18
 
 ### Fixed
 
-[native] fix: set largeHeap to true on android + fix git settings
-fix: Improve locking logic
-fix(NextcloudBookmarks#getExistingBookmarks): Don't use search-by-url for javascript links
-fix: Make Diff#inspect() output more readable
-fix: Limit concurrency for reorderings
-fix: Improve bulkImport performance by chunking
-fix: Unhandled error "Receiving end does not exist"
+* [native] fix: set largeHeap to true on android + fix git settings
+* fix: Improve locking logic
+* fix(NextcloudBookmarks#getExistingBookmarks): Don't use search-by-url for javascript links
+* fix: Make Diff#inspect() output more readable
+* fix: Limit concurrency for reorderings
+* fix: Improve bulkImport performance by chunking
+* fix: Unhandled error "Receiving end does not exist"
 
 ## [5.1.2] - 2024-05-14
 
