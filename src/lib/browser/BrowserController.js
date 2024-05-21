@@ -363,15 +363,10 @@ export default class BrowserController {
     }
 
     if (icon[status]) {
-      try {
+      if (browser.browserAction) {
         await browser.browserAction.setIcon(icon[status])
-      } catch (e) {
-        console.warn(e)
-      }
-      try {
+      } else if (browser.action) {
         await browser.action.setIcon(icon[status])
-      } catch (e) {
-        console.warn(e)
       }
     }
   }

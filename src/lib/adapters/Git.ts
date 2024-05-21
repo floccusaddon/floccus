@@ -64,7 +64,7 @@ export default class GitAdapter extends CachingAdapter {
     this.cancelCallback && this.cancelCallback()
   }
 
-  async onSyncStart(needLock = true) {
+  async onSyncStart(needLock = true, forceLock = false) {
     Logger.log('onSyncStart: begin')
 
     const hash = await Crypto.sha256(JSON.stringify(this.server)) + Date.now()
@@ -152,8 +152,12 @@ export default class GitAdapter extends CachingAdapter {
     if (this.lockingInterval) {
       clearInterval(this.lockingInterval)
     }
-    if (needLock) {
+    if (forceLock) {
+      await this.setLock()
+    } else if (needLock) {
       await this.obtainLock()
+    }
+    if (needLock || forceLock) {
       this.lockingInterval = setInterval(() => this.setLock(), LOCK_INTERVAL) // Set lock every minute
     }
 
