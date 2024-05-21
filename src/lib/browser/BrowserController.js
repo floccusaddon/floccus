@@ -120,7 +120,7 @@ export default class BrowserController {
         clientList.forEach(client => client.postMessage({ type: 'status:update', params: [] }))
       } else {
         try {
-          browser.runtime.sendMessage({ type: 'status:update', params: [] })
+          await browser.runtime.sendMessage({ type: 'status:update', params: [] })
         } catch (e) {
           console.warning(e)
         }
