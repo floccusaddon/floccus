@@ -101,6 +101,7 @@ export default class Account {
       failsafe: true,
       allowNetwork: false,
       label: '',
+      errorCount: 0,
     }
     const data = Object.assign(defaults, this.server.getData())
     if (data.type === 'nextcloud-folders') {
@@ -299,6 +300,7 @@ export default class Account {
       await this.setData({
         ...this.getData(),
         error: null,
+        errorCount: 0,
         syncing: false,
         scheduled: false,
         lastSync: Date.now(),
@@ -335,8 +337,10 @@ export default class Account {
       await this.setData({
         ...this.getData(),
         error: message,
+        errorCount: this.getData().errorCount + 1,
         syncing: false,
         scheduled: false,
+        ...(this.getData().errorCount > 9 && {enabled: false}), // After 10 errors in a row, disable the account
       })
       if (matchAllErrors(e, e => e.code !== 27 && (!isTest || e.code !== 26))) {
         await this.storage.setCurrentContinuation(null)

@@ -13,6 +13,7 @@ export interface IAccountData {
   username?: string
   password?: string
   label?: string
+  errorCount?: number
   [p:string]: any
 }
 
