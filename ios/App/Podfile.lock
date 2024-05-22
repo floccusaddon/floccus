@@ -4,7 +4,7 @@ PODS:
     - OAuthSwift (= 2.2.0)
   - Capacitor (5.5.1):
     - CapacitorCordova
-  - CapacitorApp (5.0.6):
+  - CapacitorApp (5.0.7):
     - Capacitor
   - CapacitorCordova (5.5.1)
   - CapacitorDevice (5.0.6):
@@ -19,7 +19,7 @@ PODS:
     - Capacitor
   - CapacitorSplashScreen (5.0.6):
     - Capacitor
-  - CordovaPlugins (5.5.1):
+  - CordovaPlugins (5.7.5):
     - CapacitorCordova
   - OAuthSwift (2.2.0)
   - SendIntent (0.0.1):
@@ -72,7 +72,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   ByteowlsCapacitorOauth2: 9e7cdae2bf251463a6ad89493e27fb288bf694d7
   Capacitor: 9da0a2415e3b6098511f8b5ffdb578d91ee79f8f
-  CapacitorApp: 024e1b1bea5f883d79f6330d309bc441c88ad04a
+  CapacitorApp: 17fecd0e6cb23feafac7eb0939417389038b0979
   CapacitorCordova: e128cc7688c070ca0bfa439898a5f609da8dbcfe
   CapacitorDevice: 2c968f98a1ec4d22357418c1521e7ddc46c675e6
   CapacitorFilesystem: af704badfbc69f6f8623d9ed313e5490e3723dcb
@@ -80,7 +80,7 @@ SPEC CHECKSUMS:
   CapacitorPreferences: f03954bcb0ff09c792909e46bff88e3183c16b10
   CapacitorShare: cd41743331cb71d217c029de54b681cbd91e0fcc
   CapacitorSplashScreen: 5fa2ab5e46cf5cc530cf16a51c80c7a986579ccd
-  CordovaPlugins: ed4ad4b471e30dae7a9f57ee30aed67e71f69a3d
+  CordovaPlugins: 95c3561aee8b676a4358d0cb037c4dd4a4af690e
   OAuthSwift: 75efbb5bd9a4b2b71a37bd7e986bf3f55ddd54c6
   SendIntent: 0a17b6984c4f27e9dfa56513267ba2c044a5a6c8
 
