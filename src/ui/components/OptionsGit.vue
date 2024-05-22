@@ -1,5 +1,15 @@
 <template>
   <v-container>
+    <div>
+      <v-text-field
+        append-icon="mdi-label"
+        class="mt-2 mb-2"
+        :value="label"
+        :label="t('LabelAccountlabel')"
+        :hint="t('DescriptionAccountlabel')"
+        :persistent-hint="true"
+        @input="$emit('update:label', $event)" />
+    </div>
     <v-card class="mb-4">
       <v-card-text
         id="server"
@@ -35,9 +45,9 @@
           :value="bookmark_file_type"
           @input="$emit('update:bookmark_file_type', $event)" />
         <v-text-field
-            v-model="branch"
-            class="mb-2"
-            :label="t('LabelGitbranch')" />
+          v-model="branch"
+          class="mb-2"
+          :label="t('LabelGitbranch')" />
       </v-card-text>
     </v-card>
 
@@ -147,7 +157,7 @@ import OptionExportBookmarks from './OptionExportBookmarks.vue'
 export default {
   name: 'OptionsGit',
   components: { OptionExportBookmarks, OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync, OptionFileType },
-  props: ['url', 'username', 'password', 'branch', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects', 'bookmark_file_type', 'enabled'],
+  props: ['url', 'username', 'password', 'branch', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects', 'bookmark_file_type', 'enabled', 'label'],
   data() {
     return {
       panels: [0, 1],

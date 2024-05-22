@@ -722,5 +722,11 @@
   },
   "LabelTelemetrydisable": {
     "message": "Do not send error data to floccus developers"
+  },
+  "LabelAccountlabel": {
+    "message": "Profile label"
+  },
+  "DescriptionAccountlabel": {
+    "message": "Give this profile a name so you can recognize it more easily"
   }
 }

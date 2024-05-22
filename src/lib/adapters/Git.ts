@@ -53,7 +53,7 @@ export default class GitAdapter extends CachingAdapter {
     const data = this.getData()
     const url = new URL(data.url)
     url.protocol = ''
-    return data.username + '@' + url.hostname + ':' + data.bookmark_file
+    return data.label || data.username + '@' + url.hostname + ':' + data.bookmark_file
   }
 
   getData() {

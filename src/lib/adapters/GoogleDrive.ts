@@ -166,7 +166,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   getLabel():string {
-    return 'Google Drive: ' + this.server.bookmark_file
+    return this.server.label || 'Google Drive: ' + this.server.bookmark_file
   }
 
   static getDefaultValues() {

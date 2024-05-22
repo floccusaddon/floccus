@@ -12,6 +12,7 @@ export interface IAccountData {
   failsafe?: boolean
   username?: string
   password?: string
+  label?: string
   [p:string]: any
 }
 

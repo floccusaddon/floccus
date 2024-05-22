@@ -29,7 +29,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource {
 
   getLabel():string {
     const data = this.getData()
-    return data.username + '@' + new URL(data.url).hostname
+    return data.label || data.username + '@' + new URL(data.url).hostname
   }
 
   async getBookmarksTree(): Promise<Folder> {

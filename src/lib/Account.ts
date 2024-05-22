@@ -100,6 +100,7 @@ export default class Account {
       nestedSync: false,
       failsafe: true,
       allowNetwork: false,
+      label: '',
     }
     const data = Object.assign(defaults, this.server.getData())
     if (data.type === 'nextcloud-folders') {
