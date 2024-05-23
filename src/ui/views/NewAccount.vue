@@ -155,25 +155,25 @@
                 {{ t('LabelServersetup') }}
               </div>
               <v-text-field
-                  v-model="server"
-                  :rules="[validateUrl]"
-                  :label="t('LabelGiturl')" />
+                v-model="server"
+                :rules="[validateUrl]"
+                :label="t('LabelGiturl')" />
               <v-text-field
-                  v-model="username"
-                  :label="t('LabelUsername')" />
+                v-model="username"
+                :label="t('LabelUsername')" />
               <v-text-field
-                  v-model="password"
-                  :label="t('LabelPassword')"
-                  :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                  :type="showPassword ? 'text' : 'password'"
-                  @click:append="showPassword = !showPassword" />
+                v-model="password"
+                :label="t('LabelPassword')"
+                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                :type="showPassword ? 'text' : 'password'"
+                @click:append="showPassword = !showPassword" />
               <div class="d-flex flex-row justify-space-between">
                 <v-btn @click="currentStep--">
                   {{ t('LabelBack') }}
                 </v-btn>
                 <v-btn
-                    class="primary"
-                    @click="currentStep++">
+                  class="primary"
+                  @click="currentStep++">
                   {{ t('LabelContinue') }}
                 </v-btn>
               </div>
@@ -237,15 +237,15 @@
                 {{ t('LabelBookmarksfile') }}
               </div>
               <v-text-field
-                  v-model="bookmark_file"
-                  class="mb-2"
-                  append-icon="mdi-file-document"
-                  :rules="[validateBookmarksFile]"
-                  :label="t('LabelBookmarksfile')"
-                  :hint="t('DescriptionBookmarksfilegit')"
-                  :persistent-hint="true" />
+                v-model="bookmark_file"
+                class="mb-2"
+                append-icon="mdi-file-document"
+                :rules="[validateBookmarksFile]"
+                :label="t('LabelBookmarksfile')"
+                :hint="t('DescriptionBookmarksfilegit')"
+                :persistent-hint="true" />
               <OptionFileType
-                  v-model="bookmark_file_type" />
+                v-model="bookmark_file_type" />
               <v-text-field
                 v-model="branch"
                 class="mb-2"
@@ -308,6 +308,15 @@
             <OptionNestedSync
               v-if="isBrowser"
               v-model="nestedSync" />
+            <v-switch
+              v-if="adapter === 'nextcloud-bookmarks'"
+              v-model="clickCountEnabled"
+              :aria-label="t('LabelClickcount')"
+              :label="t('LabelClickcount')"
+              :hint="t('DescriptionClickcount')"
+              :persistent-hint="true"
+              dense
+              class="mt-0 pt-0" />
 
             <div class="d-flex flex-row justify-space-between">
               <v-btn @click="currentStep--">
@@ -324,7 +333,9 @@
             <div class="headline">
               {{ t('LabelAccountcreated') }} <v-icon>mdi-check</v-icon>
             </div>
-            <div v-if="isBrowser">{{t('DescriptionAccountcreated')}}</div>
+            <div v-if="isBrowser">
+              {{ t('DescriptionAccountcreated') }}
+            </div>
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
@@ -366,6 +377,7 @@ export default {
       nestedSync: true,
       showPassword: false,
       showPassphrase: false,
+      clickCountEnabled: false,
       adapter: 'nextcloud-bookmarks',
       adapters: [
         {
@@ -410,7 +422,7 @@ export default {
         username: this.username,
         password: this.password,
         enabled: this.enabled,
-        ...(this.adapter === 'nextcloud-bookmarks' && {serverRoot: this.serverRoot}),
+        ...(this.adapter === 'nextcloud-bookmarks' && {serverRoot: this.serverRoot, clickCountEnabled: this.clickCountEnabled}),
         ...(this.adapter === 'git' && {branch: this.branch}),
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'git') && {bookmark_file: this.bookmark_file}),
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'git') && {bookmark_file_type: this.bookmark_file_type}),
