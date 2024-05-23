@@ -68,6 +68,13 @@
                 {{ t('LabelServersetup') }}
               </div>
               <v-text-field
+                v-model="label"
+                append-icon="mdi-label"
+                class="mt-2 mb-2"
+                :label="t('LabelAccountlabel')"
+                :hint="t('DescriptionAccountlabel')"
+                :persistent-hint="true" />
+              <v-text-field
                 v-model="server"
                 :rules="[validateUrl]"
                 :label="t('LabelNextcloudurl')"
@@ -115,6 +122,13 @@
                 {{ t('LabelServersetup') }}
               </div>
               <v-text-field
+                v-model="label"
+                append-icon="mdi-label"
+                class="mt-2 mb-2"
+                :label="t('LabelAccountlabel')"
+                :hint="t('DescriptionAccountlabel')"
+                :persistent-hint="true" />
+              <v-text-field
                 v-model="server"
                 :rules="[validateUrl]"
                 :label="t('LabelWebdavurl')"
@@ -155,6 +169,13 @@
                 {{ t('LabelServersetup') }}
               </div>
               <v-text-field
+                v-model="label"
+                append-icon="mdi-label"
+                class="mt-2 mb-2"
+                :label="t('LabelAccountlabel')"
+                :hint="t('DescriptionAccountlabel')"
+                :persistent-hint="true" />
+              <v-text-field
                 v-model="server"
                 :rules="[validateUrl]"
                 :label="t('LabelGiturl')" />
@@ -183,6 +204,13 @@
               <div class="headline">
                 {{ t('LabelGoogledrivesetup') }}
               </div>
+              <v-text-field
+                v-model="label"
+                append-icon="mdi-label"
+                class="mt-2 mb-2"
+                :label="t('LabelAccountlabel')"
+                :hint="t('DescriptionAccountlabel')"
+                :persistent-hint="true" />
               <v-btn
                 color="primary"
                 @click="loginGoogleDrive">
@@ -378,6 +406,7 @@ export default {
       showPassword: false,
       showPassphrase: false,
       clickCountEnabled: false,
+      label: '',
       adapter: 'nextcloud-bookmarks',
       adapters: [
         {
@@ -422,6 +451,7 @@ export default {
         username: this.username,
         password: this.password,
         enabled: this.enabled,
+        label: this.label,
         ...(this.adapter === 'nextcloud-bookmarks' && {serverRoot: this.serverRoot, clickCountEnabled: this.clickCountEnabled}),
         ...(this.adapter === 'git' && {branch: this.branch}),
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'git') && {bookmark_file: this.bookmark_file}),
