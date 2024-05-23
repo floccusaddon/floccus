@@ -19,7 +19,7 @@
 
   "default_locale": "en",
 
-  "permissions": ["*://*/*", "alarms", "bookmarks", "storage", "unlimitedStorage", "tabs", "identity"],
+  "permissions": ["*://*/*", "alarms", "bookmarks", "storage", "unlimitedStorage", "tabs", "identity", "history"],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
 
   "options_ui": {

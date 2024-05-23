@@ -25,6 +25,10 @@ export interface OrderFolderResource extends IResource {
   orderFolder(id: number|string, order:Ordering):Promise<void>
 }
 
+export interface ClickCountResource extends IResource {
+  countClick(url:string):Promise<void>
+}
+
 export type TLocalTree = IResource & OrderFolderResource
 
 type TResource = IResource|BulkImportResource|LoadFolderChildrenResource|OrderFolderResource

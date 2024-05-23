@@ -53,6 +53,17 @@ export const actionsDefinition = {
     await tree.save()
     await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
   },
+  async [actions.COUNT_BOOKMARK_CLICK]({state}, {accountId, bookmark}) {
+    if (!state.accounts[accountId].data.clickCountEnabled) {
+      return
+    }
+    const account = await Account.get(accountId)
+    const tree = await account.getServer()
+    if (!tree.countClick) {
+      return
+    }
+    await tree.countClick(bookmark.url)
+  },
   async [actions.DELETE_BOOKMARK]({commit}, {accountId, bookmark}) {
     const account = await Account.get(accountId)
     const tree = await account.getResource()

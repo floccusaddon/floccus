@@ -10,7 +10,12 @@ import AsyncLock from 'async-lock'
 import * as Parallel from 'async-parallel'
 import PQueue from 'p-queue'
 import flatten from 'lodash/flatten'
-import { BulkImportResource, LoadFolderChildrenResource, OrderFolderResource } from '../interfaces/Resource'
+import {
+  BulkImportResource,
+  ClickCountResource,
+  LoadFolderChildrenResource,
+  OrderFolderResource
+} from '../interfaces/Resource'
 import Ordering from '../interfaces/Ordering'
 import {
   AuthenticationError, CreateBookmarkError,
@@ -57,7 +62,7 @@ interface IChildOrderItem {
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Set lock every two minutes while syncing
 
-export default class NextcloudBookmarksAdapter implements Adapter, BulkImportResource, LoadFolderChildrenResource, OrderFolderResource {
+export default class NextcloudBookmarksAdapter implements Adapter, BulkImportResource, LoadFolderChildrenResource, OrderFolderResource, ClickCountResource {
   private server: NextcloudBookmarksConfig
   private fetchQueue: PQueue<{ concurrency: 12 }>
   private bookmarkLock: AsyncLock
@@ -938,5 +943,20 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   isAvailable(): Promise<boolean> {
     return Promise.resolve(true)
+  }
+
+  async countClick(url: string): Promise<void> {
+    try {
+      await this.sendRequest(
+        'POST',
+        'index.php/apps/bookmarks/public/rest/v2/bookmark/click',
+        'application/json',
+        {
+          url,
+        }
+      )
+    } catch (e) {
+      console.warn(e)
+    }
   }
 }

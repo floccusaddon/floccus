@@ -13,7 +13,7 @@ import {
   UnknownFolderItemOrderError
 } from '../../errors/Error'
 import {i18n} from '../native/I18n'
-import { IResource, OrderFolderResource } from '../interfaces/Resource'
+import { OrderFolderResource } from '../interfaces/Resource'
 
 export default class BrowserAccount extends Account {
   static async get(id:string):Promise<Account> {
@@ -132,7 +132,7 @@ export default class BrowserAccount extends Account {
     )
   }
 
-  static async getAccountsContainingLocalId(localId:string, ancestors:string[], allAccounts:Account[]):Promise<Account[]> {
+  static async getAccountsContainingLocalId(localId:string, ancestors:string[], allAccounts:Account[], withDisallowNested = false):Promise<Account[]> {
     ancestors = ancestors || (await BrowserTree.getIdPathFromLocalId(localId))
     allAccounts = allAccounts || (await this.getAllAccounts())
 
@@ -143,7 +143,11 @@ export default class BrowserAccount extends Account {
       )
       .reverse()
 
-    const lastNesterIdx = accountsInvolved.findIndex(acc => !acc.getData().nestedSync)
-    return accountsInvolved.slice(0, Math.max(1, lastNesterIdx))
+    if (!withDisallowNested) {
+      const lastNesterIdx = accountsInvolved.findIndex(acc => !acc.getData().nestedSync)
+      return accountsInvolved.slice(0, Math.max(1, lastNesterIdx))
+    } else {
+      return accountsInvolved
+    }
   }
 }

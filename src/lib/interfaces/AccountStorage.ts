@@ -14,6 +14,7 @@ export interface IAccountData {
   password?: string
   label?: string
   errorCount?: number
+  clickCountEnabled?: boolean
   [p:string]: any
 }
 

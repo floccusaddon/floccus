@@ -728,5 +728,11 @@
   },
   "DescriptionAccountlabel": {
     "message": "Give this profile a name so you can recognize it more easily"
+  },
+  "LabelClickcount": {
+    "message": "Count clicks"
+  },
+  "DescriptionClickcount": {
+    "message": "Send statistics about which bookmarks you visit the most to your Nextcloud server, so you can sort by number of clicks"
   }
 }

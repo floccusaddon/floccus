@@ -102,6 +102,7 @@ export default class Account {
       allowNetwork: false,
       label: '',
       errorCount: 0,
+      clickCountEnabled: false,
     }
     const data = Object.assign(defaults, this.server.getData())
     if (data.type === 'nextcloud-folders') {
@@ -112,6 +113,10 @@ export default class Account {
 
   async getResource():Promise<OrderFolderResource> {
     return this.localTree
+  }
+
+  async getServer():Promise<TAdapter> {
+    return this.server
   }
 
   async setData(data:IAccountData):Promise<void> {

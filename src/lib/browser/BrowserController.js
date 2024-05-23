@@ -68,6 +68,8 @@ export default class BrowserController {
       this.onchange(localId, details)
     )
 
+    browser.history.onVisited.addListener((historyItem) => this.onVisitUrl(historyItem))
+
     // Set up the alarms
 
     browser.alarms.create('checkSync', { periodInMinutes: 1 })
@@ -396,5 +398,42 @@ export default class BrowserController {
         debug: true,
       })
     })
+  }
+
+  async onVisitUrl(historyItem) {
+    if (!historyItem.url) {
+      return
+    }
+    let accounts = await Account.getAllAccounts()
+    accounts = accounts.filter(account => account.getData().clickCountEnabled)
+    if (!accounts.length) {
+      return
+    }
+    const bookmarks = await browser.bookmarks.search({url: historyItem.url})
+    for (let bookmark of bookmarks) {
+      let matchingAccounts = []
+      try {
+        const ancestors = await BrowserTree.getIdPathFromLocalId(bookmark.id)
+        matchingAccounts = await BrowserAccount.getAccountsContainingLocalId(
+          bookmark.id,
+          ancestors,
+          accounts,
+          true
+        )
+      } catch (e) {
+        console.log(e)
+        console.log('Could not detect containing account from localId ', bookmark.id)
+      }
+      if (matchingAccounts.length) {
+        await Promise.all(
+          matchingAccounts.map(async account => {
+            const server = await account.getServer()
+            if (server.countClick) {
+              await server.countClick(historyItem.url)
+            }
+          })
+        )
+      }
+    }
   }
 }

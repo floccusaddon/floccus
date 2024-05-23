@@ -443,6 +443,7 @@ export default {
   methods: {
     clickItem(item) {
       if (item.url) {
+        this.$store.dispatch(actions.COUNT_BOOKMARK_CLICK, {accountId: this.$route.params.accountId, bookmark: item})
         window.location = item.url
       } else {
         this.searchQuery = ''
