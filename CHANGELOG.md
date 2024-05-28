@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.1.7] - 2024-05-28
+
+### Fixed
+
+* [native] Don't reload tree in TREE_LOAD
+
 ## [5.1.5] - 2024-05-28
 
 ### Fixed

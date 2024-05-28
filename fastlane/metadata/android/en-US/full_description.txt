@@ -1,5 +1,13 @@
-With <i>floccus</i> you can sync your bookmarks across browsers via a server of your choosing – be it Nextcloud, WebDAV or Google Drive.
+Manage and synchronize your bookmarks via Nextcloud, any WebDAV server, any Git server or via Google Drive.
 
-* A Nextcloud Bookmarks instance
-* Your Google Drive
-* or any WebDAV server
+This is the standalone bookmarks manager android app variant of floccus. You can also install floccus on your Desktop browsers to sync bookmarks with them. This App, due to technical reasons, cannot access bookmarks in your mobile browser apps directly, which is why you can only view them in the app or import and export them as a html file.
+
+Support
+
+My work on floccus i fuelled by a voluntary subscription model. If you can, please support me here:
+https://floccus.org/donate/
+
+Problems?
+
+I used to request bug reports via email, but my inbox is not like it used to be... If you need help or want to report a bug nowadays, please file an issue GitHub, I'll get back to you. I promise.
+https://github.com/floccusaddon/floccus
