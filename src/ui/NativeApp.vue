@@ -30,7 +30,6 @@ export default {
   async created() {
     setInterval(() => {
       this.$store.dispatch(actions.LOAD_ACCOUNTS)
-      this.$store.dispatch(actions.LOAD_TREE)
     }, 5000)
     const controller = await Controller.getSingleton()
     controller.onLoad()

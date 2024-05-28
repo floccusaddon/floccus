@@ -429,11 +429,6 @@ export default {
       }
     },
   },
-  created() {
-    App.addListener('resume', () => {
-      this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
-    })
-  },
   mounted() {
     this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
   },
