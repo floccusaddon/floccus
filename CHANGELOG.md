@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.1.6] - 2024-05-28
+
+### Fixed
+
+* [native] Don't load tree in a loop
+
 ## [5.1.5] - 2024-05-28
 
 ### Fixed
