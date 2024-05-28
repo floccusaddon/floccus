@@ -1,10 +1,10 @@
 # Changelog
 
-## [5.1.6] - 2024-05-28
+## [5.1.7] - 2024-05-28
 
 ### Fixed
 
-* [native] Don't load tree in a loop
+* [native] Don't reload tree in TREE_LOAD
 
 ## [5.1.5] - 2024-05-28
 
