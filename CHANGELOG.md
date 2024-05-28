@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.1.5] - 2024-05-28
+
+### Fixed
+
+* [native] fix tree loading mechanism that would cause issues with syncing
+
 ## [5.1.4] - 2024-05-21
 
 ### Fixed
