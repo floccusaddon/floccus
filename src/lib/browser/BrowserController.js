@@ -13,6 +13,7 @@ import * as Sentry from '@sentry/browser'
 const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
 const DEFAULT_SYNC_INTERVAL = 15 // 15 minutes
 const STALE_SYNC_TIME = 1000 * 60 * 60 * 24 * 2 // two days
+const INTERVENTION_INTERVAL = 1000 * 60 * 60 * 25 * 70 // 70 days
 
 class AlarmManager {
   constructor(ctl) {
@@ -102,6 +103,17 @@ export default class BrowserController {
           url: '/dist/html/options.html#/update',
           active: false
         })
+        browser.storage.local.set({ lastInterventionAt: Date.now() })
+      }
+    })
+
+    browser.storage.local.get('lastInterventionAt').then(async d => {
+      if (d.lastInterventionAt && d.lastInterventionAt < Date.now() - INTERVENTION_INTERVAL) {
+        browser.tabs.create({
+          url: 'https://floccus.org/donate/',
+          active: false
+        })
+        browser.storage.local.set({ lastInterventionAt: Date.now() })
       }
     })
 
