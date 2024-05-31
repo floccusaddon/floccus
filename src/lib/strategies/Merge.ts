@@ -155,7 +155,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
       }
 
       targetPlan.commit(action)
-    })
+    }, 10)
 
     return targetPlan
   }

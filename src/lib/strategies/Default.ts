@@ -638,7 +638,7 @@ export default class SyncProcess {
       }
 
       targetPlan.commit(action)
-    })
+    }, 10)
 
     return targetPlan
   }
@@ -762,9 +762,9 @@ export default class SyncProcess {
                 false,
               )
               await subScanner.run()
-              await Parallel.each(newMappings, async ([oldItem, newId]) => {
+              await Parallel.each(newMappings, async([oldItem, newId]) => {
                 await this.addMapping(resource, oldItem, newId)
-              })
+              }, 10)
 
               done()
               return
@@ -798,7 +798,7 @@ export default class SyncProcess {
                 await subScanner.run()
                 await Parallel.each(newMappings, async([oldItem, newId]) => {
                   await this.addMapping(resource, oldItem, newId)
-                })
+                }, 10)
               }
 
               // create sub plan for the folders
@@ -1057,7 +1057,8 @@ export default class SyncProcess {
     // recurse
     await Parallel.each(
       serverItem.children,
-      child => this.loadChildren(child, mappingsSnapshot)
+      child => this.loadChildren(child, mappingsSnapshot),
+      10
     )
   }
 

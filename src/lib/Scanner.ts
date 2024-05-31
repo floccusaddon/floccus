@@ -32,6 +32,8 @@ export default class Scanner {
   }
 
   async diffItem(oldItem:TItem, newItem:TItem):Promise<void> {
+    // give the browser time to breathe
+    await new Promise(resolve => setTimeout(resolve, 0))
     Logger.log('Calculating diff for ', oldItem, newItem)
     if (oldItem.type === 'folder' && newItem.type === 'folder') {
       return this.diffFolder(oldItem, newItem)

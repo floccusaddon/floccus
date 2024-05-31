@@ -211,7 +211,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       if (action.type === ActionType.REORDER) {
         plan.commit({ ...action })
       }
-    })
+    }, 10)
 
     return plan
   }
