@@ -228,7 +228,7 @@ export default class BrowserTree implements IResource {
     const [realTree] = await browser.bookmarks.getSubTree(id)
     try {
       for (let index = 0; index < order.length; index++) {
-        await browser.bookmarks.move(order[index].id, { index })
+        await browser.bookmarks.move(order[index].id, { parentId: id, index })
       }
     } catch (e) {
       throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
@@ -244,7 +244,7 @@ export default class BrowserTree implements IResource {
       try {
         Logger.log('Move untouched children back into place', {untouchedChildren: untouchedChildren.map(([i, item]) => [i, item.id])})
         for (const [index, child] of untouchedChildren) {
-          await browser.bookmarks.move(child.id, {index})
+          await browser.bookmarks.move(child.id, { parentId: id, index})
         }
       } catch (e) {
         throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
