@@ -247,6 +247,7 @@ function onWatchEvent(path) {
   )
 }
 
+exports.assets = assets
 exports.html = html
 exports.js = js
 exports.mocha = mocha

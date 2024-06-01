@@ -13,7 +13,7 @@ module.exports = merge(common, {
   },
   plugins: [
     new webpack.DefinePlugin({
-      DEBUG: JSON.stringify(false)
+      DEBUG: JSON.stringify(true)
     }),
     sentryWebpackPlugin({
       authToken: process.env.SENTRY_AUTH_TOKEN,
