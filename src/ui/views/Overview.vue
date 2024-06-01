@@ -49,15 +49,15 @@
           {{ t('LabelNewAccount') }}
         </v-btn>
         <v-btn
-            class="me-1"
-            :title="t('LabelImportExport')"
-            :to="{ name: routes.IMPORTEXPORT }"
-            target="_blank">
+          class="me-1"
+          :title="t('LabelImportExport')"
+          :to="{ name: routes.IMPORTEXPORT }"
+          target="_blank">
           <v-icon>mdi-export</v-icon>
         </v-btn>
         <v-btn
-            :title="t('LabelSyncall')"
-            @click="clickSyncAll">
+          :title="t('LabelSyncall')"
+          @click="clickSyncAll">
           <v-icon>mdi-sync-circle</v-icon>
         </v-btn>
       </v-container>

@@ -2,6 +2,13 @@
   <v-app
     id="app"
     :style="appStyle">
+    <v-banner v-if="isBrowser"
+        color="primary" class="mb-1 mt-3 white--text"
+        single-line>Floccus is open source software
+      <template #actions>
+        <v-btn small target="_blank" href="https://floccus.org/donate/">Donate</v-btn>
+      </template>
+    </v-banner>
     <v-content>
       <router-view />
     </v-content>
