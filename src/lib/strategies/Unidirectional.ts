@@ -55,9 +55,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       false
     )
     const [localDiff, serverDiff] = await Promise.all([localScanner.run(), serverScanner.run()])
-    await Promise.all(newMappings.map(([localItem, serverItem]) => {
-      this.addMapping(this.server, localItem, serverItem.id)
-    }))
+    await Parallel.map(newMappings, ([localItem, serverItem]) => {
+      return this.addMapping(this.server, localItem, serverItem.id)
+    })
 
     return {localDiff, serverDiff}
   }

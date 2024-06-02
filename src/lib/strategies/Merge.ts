@@ -1,4 +1,4 @@
-import { ItemLocation, TItemLocation } from '../Tree'
+import { ItemLocation, TItem, TItemLocation } from '../Tree'
 import Diff, { Action, ActionType, CreateAction, MoveAction } from '../Diff'
 import Scanner from '../Scanner'
 import * as Parallel from 'async-parallel'
@@ -9,7 +9,7 @@ import Logger from '../Logger'
 export default class MergeSyncProcess extends DefaultSyncProcess {
   async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
     // If there's no cache, diff the two trees directly
-    const newMappings = []
+    const newMappings: TItem[][] = []
     const localScanner = new Scanner(
       this.serverTreeRoot,
       this.localTreeRoot,
@@ -37,9 +37,9 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
       false
     )
     const [localDiff, serverDiff] = await Promise.all([localScanner.run(), serverScanner.run()])
-    await Promise.all(newMappings.map(([localItem, serverItem]) => {
-      this.addMapping(this.server, localItem, serverItem.id)
-    }))
+    await Parallel.map(newMappings, ([localItem, serverItem]) => {
+      return this.addMapping(this.server, localItem, serverItem.id)
+    }, 10)
 
     return {localDiff, serverDiff}
   }
