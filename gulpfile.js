@@ -115,6 +115,7 @@ const js = function() {
 }
 
 const html = function(statsJson) {
+  fs.mkdirSync('dist/html/', { recursive: true })
   let html, scripts, bgScript, addition
   ;['index.html', 'options.html', 'background.html', 'test.html'].forEach(htmlFile => {
     switch (htmlFile) {
