@@ -136,7 +136,7 @@ export default class BrowserController {
         try {
           await browser.runtime.sendMessage({ type: 'status:update', params: [] })
         } catch (e) {
-          console.warning(e)
+          console.warn(e)
         }
       }
     })
