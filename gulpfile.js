@@ -99,35 +99,61 @@ const js = function() {
     webpack(config, (err, stats) => {
       if (err) console.log('Webpack', err)
 
-      console.log(
+      console.log(stats.toJson().entrypoints)
+
+      const statsJson = stats.toJson()
+      html(statsJson)
+
+      /* console.log(
         stats.toString({
-          /* stats options */
+          /* stats options *
         })
-      )
+      ) */
       resolve()
     })
   )
 }
 
-const fixupBgScript = async function () {
-  const bgScript = fs.readFileSync(paths.distJs + '/background-script.js', 'utf8')
-  const addition = `
+const html = function(statsJson) {
+  let html, scripts, bgScript, addition
+  ;['index.html', 'options.html', 'background.html', 'test.html'].forEach(htmlFile => {
+    switch (htmlFile) {
+      case 'index.html':
+        html = fs.readFileSync('html/' + htmlFile, 'utf8')
+        scripts = statsJson.entrypoints.native.assets.map(asset => `<script src="js/${asset.name}"></script>`).join('\n')
+        html = html.replace('{{ scripts }}', scripts)
+        fs.writeFileSync('dist/' + htmlFile, html)
+        break
+      case 'options.html':
+        html = fs.readFileSync('html/' + htmlFile, 'utf8')
+        scripts = statsJson.entrypoints.options.assets.map(asset => `<script src="../js/${asset.name}"></script>`).join('\n')
+        html = html.replace('{{ scripts }}', scripts)
+        console.log(statsJson.entrypoints.options.assets)
+        fs.writeFileSync('dist/html/' + htmlFile, html)
+        break
+      case 'test.html':
+        html = fs.readFileSync('html/' + htmlFile, 'utf8')
+        scripts = statsJson.entrypoints.test.assets.map(asset => `<script src="../js/${asset.name}"></script>`).join('\n')
+        html = html.replace('{{ scripts }}', scripts)
+        fs.writeFileSync('dist/html/' + htmlFile, html)
+        break
+      case 'background.html':
+        html = fs.readFileSync('html/' + htmlFile, 'utf8')
+        scripts = statsJson.entrypoints['background-script'].assets.map(asset => `<script src="../js/${asset.name}"></script>`).join('\n')
+        html = html.replace('{{ scripts }}', scripts)
+        fs.writeFileSync('dist/html/' + htmlFile, html)
+
+        bgScript = fs.readFileSync(paths.distJs + '/background-script.js', 'utf8')
+        addition = `
 if ("undefined"!=typeof self && 'importScripts' in self) {
-  self.importScripts('./79.js')
-  self.importScripts('./88.js')
-  self.importScripts('./206.js')
-  self.importScripts('./895.js')
-  self.importScripts('./80.js')
+  ${statsJson.entrypoints['background-script'].assets.map(asset => asset.name !== 'background-script.js' ? `self.importScripts('./${asset.name}')` : '').join('\n')}
 }
 `
-  fs.writeFileSync(paths.distJs + '/background-script.js', addition + bgScript)
-}
+        fs.writeFileSync(paths.distJs + '/background-script.js', addition + bgScript)
 
-const html = function() {
-  return Promise.all([
-    gulp.src(paths.nativeHTML).pipe(gulp.dest('./dist/')),
-    gulp.src(paths.views).pipe(gulp.dest('./dist/html/')),
-  ])
+        break
+    }
+  })
 }
 
 const mochajs = function() {
@@ -157,9 +183,9 @@ const mocha = gulp.parallel(mochajs, mochacss)
 
 const thirdparty = gulp.parallel(mocha)
 
-const assets = gulp.parallel(html, thirdparty, icons)
+const assets = gulp.parallel(thirdparty, icons)
 
-const build = gulp.series(cleanJs, js, fixupBgScript, assets)
+const build = gulp.series(cleanJs, js, assets)
 
 const main = gulp.series(build, native)
 
@@ -223,17 +249,22 @@ const publish = gulp.series(main, chromeZip, function() {
 
 const watch = function() {
   let jsWatcher = gulp.watch(paths.js, assets)
-  let viewsWatcher = gulp.watch(paths.views, html)
   let nativeWatcher = gulp.watch(paths.dist, native)
 
   jsWatcher.on('change', onWatchEvent)
-  viewsWatcher.on('change', onWatchEvent)
   nativeWatcher.on('change', onWatchEvent)
 
   webpack(devConfig).watch({}, (err, stats) => {
     if (err) {
       console.log(err)
     }
+    html({
+      native: {chunks: []},
+      options: {chunks: []},
+      'background-script': {chunks: []},
+      'test': {chunks: []},
+    })
+
     console.log(stats.toString({
       chunks: false,
       colors: true
@@ -248,7 +279,6 @@ function onWatchEvent(path) {
 }
 
 exports.assets = assets
-exports.html = html
 exports.js = js
 exports.mocha = mocha
 exports.release = release
@@ -256,8 +286,7 @@ exports.watch = gulp.series(cleanJs,gulp.parallel(assets, devjs), native, watch)
 exports.publish = publish
 exports.build = build
 exports.native = native
-exports.package = gulp.series(gulp.parallel(firefoxZip, chromeZip, xpi),  crx)
-exports.fixupBgScript = fixupBgScript
+exports.package = gulp.series(gulp.parallel(firefoxZip, chromeZip, xpi), crx)
 /*
  * Define default task that can be called by just running `gulp` from cli
  */
