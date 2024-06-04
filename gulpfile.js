@@ -259,12 +259,12 @@ const watch = function() {
     if (err) {
       console.log(err)
     }
-    html({
-      native: {chunks: []},
-      options: {chunks: []},
-      'background-script': {chunks: []},
-      'test': {chunks: []},
-    })
+    html({entrypoints: {
+      native: {assets: []},
+      options: {assets: []},
+      'background-script': {assets: []},
+      'test': {assets: []},
+    }})
 
     console.log(stats.toString({
       chunks: false,
