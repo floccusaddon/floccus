@@ -260,10 +260,10 @@ const watch = function() {
       console.log(err)
     }
     html({entrypoints: {
-      native: {assets: []},
-      options: {assets: []},
-      'background-script': {assets: []},
-      'test': {assets: []},
+      native: {assets: [{name: 'native.js'}]},
+      options: {assets: [{name: 'options.js'}]},
+      'background-script': {assets: [{name: 'background-script.js'}]},
+      'test': {assets: [{name: 'test.js'}]},
     }})
 
     console.log(stats.toString({
