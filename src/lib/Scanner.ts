@@ -121,6 +121,7 @@ export default class Scanner {
   }
 
   async findMoves():Promise<void> {
+    Logger.log('Scanner: Finding moves')
     let createActions
     let removeActions
     let reconciled = true
@@ -243,6 +244,7 @@ export default class Scanner {
   }
 
   async addReorders(): Promise<void> {
+    Logger.log('Scanner: Generate reorders')
     const targets = {}
     const sources = {}
 
