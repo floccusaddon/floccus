@@ -33,7 +33,7 @@ export default class Scanner {
 
   async diffItem(oldItem:TItem, newItem:TItem):Promise<void> {
     // give the browser time to breathe
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await Promise.resolve()
     Logger.log('Calculating diff for ', oldItem, newItem)
     if (oldItem.type === 'folder' && newItem.type === 'folder') {
       return this.diffFolder(oldItem, newItem)
@@ -134,9 +134,13 @@ export default class Scanner {
       // First find direct matches (avoids glitches when folders and their contents have been moved)
       createActions = this.diff.getActions(ActionType.CREATE).map(a => a as CreateAction)
       while (!reconciled && (createAction = createActions.shift())) {
+        // give the browser time to breathe
+        await Promise.resolve()
         const createdItem = createAction.payload
         removeActions = this.diff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
         while (!reconciled && (removeAction = removeActions.shift())) {
+          // give the browser time to breathe
+          await Promise.resolve()
           const removedItem = removeAction.payload
 
           if (this.mergeable(removedItem, createdItem)) {
@@ -159,9 +163,13 @@ export default class Scanner {
       // Then find descendant matches
       createActions = this.diff.getActions(ActionType.CREATE).map(a => a as CreateAction)
       while (!reconciled && (createAction = createActions.shift())) {
+        // give the browser time to breathe
+        await Promise.resolve()
         const createdItem = createAction.payload
         removeActions = this.diff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
         while (!reconciled && (removeAction = removeActions.shift())) {
+          // give the browser time to breathe
+          await Promise.resolve()
           const removedItem = removeAction.payload
           const oldItem = removedItem.findItemFilter(createdItem.type, item => this.mergeable(item, createdItem))
           if (oldItem) {

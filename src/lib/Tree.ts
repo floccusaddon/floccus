@@ -223,7 +223,7 @@ export class Folder {
   async traverse(fn: (Item, Folder)=>void): Promise<void> {
     await Parallel.each(this.children, async item => {
       // give the browser time to breathe
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await Promise.resolve()
       await fn(item, this)
       if (item.type === 'folder') {
         await item.traverse(fn)
