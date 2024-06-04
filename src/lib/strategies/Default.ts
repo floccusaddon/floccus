@@ -385,7 +385,8 @@ export default class SyncProcess {
       this.preserveOrder
     )
     Logger.log('Calculating diffs for local and server trees relative to cache tree')
-    const [localDiff, serverDiff] = await Promise.all([localScanner.run(), serverScanner.run()])
+    const localDiff = await localScanner.run()
+    const serverDiff = await serverScanner.run()
     await Parallel.map(newMappings, ([localItem, serverItem]) => this.addMapping(this.server, localItem, serverItem.id), 10)
     return {localDiff, serverDiff}
   }
@@ -994,6 +995,7 @@ export default class SyncProcess {
   }
 
   async addMapping(resource:TResource, item:TItem, newId:string|number):Promise<void> {
+    await Promise.resolve()
     let localId, remoteId
     if (resource === this.server) {
       localId = item.id
