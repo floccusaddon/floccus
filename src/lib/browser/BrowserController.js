@@ -97,8 +97,9 @@ export default class BrowserController {
       })
 
       const packageVersion = packageJson.version.split('.')
+      const accounts = await Account.getAllAccounts()
       const lastVersion = d.currentVersion ? d.currentVersion.split('.') : []
-      if (packageVersion[0] !== lastVersion[0] || packageVersion[1] !== lastVersion[1]) {
+      if ((packageVersion[0] !== lastVersion[0] || packageVersion[1] !== lastVersion[1]) && accounts.length !== 0) {
         browser.tabs.create({
           url: '/dist/html/options.html#/update',
           active: false
@@ -108,7 +109,8 @@ export default class BrowserController {
     })
 
     browser.storage.local.get('lastInterventionAt').then(async d => {
-      if (d.lastInterventionAt && d.lastInterventionAt < Date.now() - INTERVENTION_INTERVAL) {
+      const accounts = await Account.getAllAccounts()
+      if (d.lastInterventionAt && d.lastInterventionAt < Date.now() - INTERVENTION_INTERVAL && accounts.length !== 0) {
         browser.tabs.create({
           url: 'https://floccus.org/donate/',
           active: false
