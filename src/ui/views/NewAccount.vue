@@ -70,7 +70,7 @@
               <v-text-field
                 v-model="label"
                 append-icon="mdi-label"
-                class="mt-2 mb-2"
+                class="mt-2 mb-4"
                 :label="t('LabelAccountlabel')"
                 :hint="t('DescriptionAccountlabel')"
                 :persistent-hint="true" />

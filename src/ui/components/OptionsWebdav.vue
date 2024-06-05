@@ -3,7 +3,7 @@
     <div>
       <v-text-field
         append-icon="mdi-label"
-        class="mt-2 mb-2"
+        class="mt-2 mb-4"
         :value="label"
         :label="t('LabelAccountlabel')"
         :hint="t('DescriptionAccountlabel')"
