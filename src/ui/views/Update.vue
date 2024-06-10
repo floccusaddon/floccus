@@ -154,33 +154,7 @@ export default {
           description: this.t('DescriptionKofi')
         },
       ],
-      reviewOptions: (!this.isBrowser ? [
-        {
-          href: 'https://play.google.com/store/apps/details?id=org.handmadeideas.floccus',
-          label: 'Google Play',
-          description: this.t('DescriptionGoogleplayreview')
-        },
-        {
-          href: 'https://apps.apple.com/us/app/floccus/id1626998357',
-          label: 'Apple App Store',
-          description: this.t('DescriptionAppstorereview')
-        }] : []).concat([
-        {
-          href: 'https://addons.mozilla.org/de/firefox/addon/floccus/reviews/',
-          label: 'Mozilla Addons',
-          description: this.t('DescriptionMozillareview')
-        },
-        {
-          href: 'https://chromewebstore.google.com/detail/floccus-bookmarks-sync/fnaicdffflnofjppbagibeoednhnbjhg',
-          label: 'Chrome WebStore',
-          description: this.t('DescriptionChromereview')
-        },
-        {
-          href: 'https://alternativeto.net/software/floccus/about/',
-          label: 'AlternativeTo.net',
-          description: this.t('DescriptionAlternativereview')
-        },
-      ]),
+      reviewOptions: [],
     }
   },
   computed: {
@@ -199,6 +173,33 @@ export default {
   async created() {
     const {telemetryEnabled} = await browser.storage.local.get({'telemetryEnabled': false})
     this.telemetry = telemetryEnabled
+    this.reviewOptions = (!this.isBrowser ? [
+      {
+        href: 'https://play.google.com/store/apps/details?id=org.handmadeideas.floccus',
+        label: 'Google Play',
+        description: this.t('DescriptionGoogleplayreview')
+      },
+      {
+        href: 'https://apps.apple.com/us/app/floccus/id1626998357',
+        label: 'Apple App Store',
+        description: this.t('DescriptionAppstorereview')
+      }] : []).concat([
+      {
+        href: 'https://addons.mozilla.org/de/firefox/addon/floccus/reviews/',
+        label: 'Mozilla Addons',
+        description: this.t('DescriptionMozillareview')
+      },
+      {
+        href: 'https://chromewebstore.google.com/detail/floccus-bookmarks-sync/fnaicdffflnofjppbagibeoednhnbjhg',
+        label: 'Chrome WebStore',
+        description: this.t('DescriptionChromereview')
+      },
+      {
+        href: 'https://alternativeto.net/software/floccus/about/',
+        label: 'AlternativeTo.net',
+        description: this.t('DescriptionAlternativereview')
+      },
+    ])
   },
 }
 </script>
