@@ -376,7 +376,7 @@
     "message": "This legacy profile type is deprecated and will soon be removed. Please switch to the new nextcloud sync method. Improved performance and accuracy await you."
   },
   "LabelUpdated": {
-    "message": "Floccus was updated"
+    "message": "⚡ Floccus was updated"
   },
   "DescriptionUpdated": {
     "message": "Congrats, the latest update of floccus has arrived on your machine!"
@@ -712,7 +712,7 @@
     "message": "Git branch"
   },
   "LabelTelemetry": {
-    "message": "Automated Error Reporting"
+    "message": "\uD83D\uDC1B Automated Error Reporting"
   },
   "DescriptionTelemetry": {
     "message": "Floccus can automatically send error data to me, the developer. This is a tremendous help for discovering and resolving bugs in floccus more quickly and will help improve your experience with floccus in the long run. Even when error reporting is enabled, the floccus developers will never be able to see your bookmarks."
