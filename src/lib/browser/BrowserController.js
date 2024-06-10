@@ -28,7 +28,7 @@ class AlarmManager {
       const data = account.getData()
       const lastSync = data.lastSync || 0
       const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
-      if (data.scheduled) {
+      if (data.scheduled && data.enabled) {
         promises.push(this.ctl.scheduleSync(accountId))
       }
       if (
