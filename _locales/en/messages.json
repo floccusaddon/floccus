@@ -294,7 +294,7 @@
     "message": "Debug logs"
   },
   "LabelFunddevelopment": {
-    "message": "Fund development"
+    "message": "\uD83D\uDCB8 Fund development"
   },
   "DescriptionFunddevelopment": {
     "message": "Work on floccus is fuelled by a voluntary subscription model. If you think what I do is worthwhile, and if you can spare a few coins each month without hardship, please support my work. Also, please consider giving floccus a rating on the addon store of your choice. Thank you!💙"
@@ -734,5 +734,26 @@
   },
   "DescriptionClickcount": {
     "message": "Send statistics about which bookmarks you visit the most to your Nextcloud server, so you can sort by number of clicks"
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "Write a review on Google Play"
+  },
+  "DescriptionAppstorereview": {
+    "message": "Write a review on the App Store"
+  },
+  "DescriptionChromereview": {
+    "message": "Write a review on the Chrome WebStore"
+  },
+  "DescriptionAlternativereview": {
+    "message": "Write a review on AlternativeTo.net"
+  },
+  "DescriptionMozillareview": {
+    "message": "Write a review on Mozilla Addons"
+  },
+  "LabelWritereview": {
+    "message": "\uD83D\uDC99 Share the love!"
+  },
+  "DescriptionWritereview": {
+    "message": "If you're excited about floccus, let the world know by leaving a rating on one of the platforms below."
   }
 }

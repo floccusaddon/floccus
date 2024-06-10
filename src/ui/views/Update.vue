@@ -17,6 +17,62 @@
             {{ t('LabelReleaseNotes') }}
           </v-btn>
         </v-card-text>
+        <template v-if="donateOrReview">
+          <v-card-title>
+            {{ t("LabelWritereview") }}
+          </v-card-title>
+          <v-card-text>
+            <div class="body-1">
+              {{ t("DescriptionWritereview") }}
+            </div>
+            <div class="d-flex flex-wrap mt-4">
+              <v-card
+                  v-for="platform in reviewOptions"
+                  :key="platform.label"
+                  tile
+                  flat
+                  :color="'light-blue'"
+                  class="mr-2 mb-2"
+                  target="_blank"
+                  :href="platform.href">
+                <v-card-title class="white--text">
+                  {{ platform.label }}
+                </v-card-title>
+                <v-card-text class="white--text">
+                  {{ platform.description }}
+                </v-card-text>
+              </v-card>
+            </div>
+          </v-card-text>
+        </template>
+        <template v-else>
+          <v-card-title>
+            {{ t("LabelFunddevelopment") }}
+          </v-card-title>
+          <v-card-text>
+            <div class="body-1">
+              {{ t("DescriptionFunddevelopment") }}
+            </div>
+            <div class="d-flex flex-wrap mt-4">
+              <v-card
+                v-for="processor in paymentOptions"
+                :key="processor.label"
+                tile
+                flat
+                :color="'light-blue'"
+                class="mr-2 mb-2"
+                target="_blank"
+                :href="processor.href">
+                <v-card-title class="white--text">
+                  {{ processor.label }}
+                </v-card-title>
+                <v-card-text class="white--text">
+                  {{ processor.description }}
+                </v-card-text>
+              </v-card>
+            </div>
+          </v-card-text>
+        </template>
         <v-card-title>
           {{ t("LabelTelemetry") }}
         </v-card-title>
@@ -41,32 +97,6 @@
             </v-radio>
           </v-radio-group>
         </v-card-text>
-        <v-card-title>
-          {{ t("LabelFunddevelopment") }}
-        </v-card-title>
-        <v-card-text>
-          <div class="body-1">
-            {{ t("DescriptionFunddevelopment") }}
-          </div>
-          <div class="d-flex flex-wrap mt-4">
-            <v-card
-              v-for="processor in paymentOptions"
-              :key="processor.label"
-              tile
-              flat
-              :color="'light-blue'"
-              class="mr-2 mb-2"
-              target="_blank"
-              :href="processor.href">
-              <v-card-title class="white--text">
-                {{ processor.label }}
-              </v-card-title>
-              <v-card-text class="white--text">
-                {{ processor.description }}
-              </v-card-text>
-            </v-card>
-          </div>
-        </v-card-text>
         <v-card-text v-if="!isBrowser">
           <v-btn
             class="primary mt-2"
@@ -90,6 +120,7 @@ export default {
   components: {},
   data() {
     return {
+      donateOrReview: Boolean(Math.round(Math.random())),
       telemetry: false,
       paymentOptions: [
         {
@@ -122,7 +153,34 @@ export default {
           label: this.t('LabelKofi'),
           description: this.t('DescriptionKofi')
         },
-      ]
+      ],
+      reviewOptions: (!this.isBrowser ? [
+        {
+          href: 'https://play.google.com/store/apps/details?id=org.handmadeideas.floccus',
+          label: 'Google Play',
+          description: this.t('DescriptionGoogleplayreview')
+        },
+        {
+          href: 'https://apps.apple.com/us/app/floccus/id1626998357',
+          label: 'Apple App Store',
+          description: this.t('DescriptionAppstorereview')
+        }] : []).concat([
+        {
+          href: 'https://addons.mozilla.org/de/firefox/addon/floccus/reviews/',
+          label: 'Mozilla Addons',
+          description: this.t('DescriptionMozillareview')
+        },
+        {
+          href: 'https://chromewebstore.google.com/detail/floccus-bookmarks-sync/fnaicdffflnofjppbagibeoednhnbjhg',
+          label: 'Chrome WebStore',
+          description: this.t('DescriptionChromereview')
+        },
+        {
+          href: 'https://alternativeto.net/software/floccus/about/',
+          label: 'AlternativeTo.net',
+          description: this.t('DescriptionAlternativereview')
+        },
+      ]),
     }
   },
   computed: {
