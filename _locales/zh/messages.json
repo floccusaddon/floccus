@@ -294,7 +294,7 @@
     "message": "调试日志"
   },
   "LabelFunddevelopment": {
-    "message": "赞助开发"
+    "message": "资助开发"
   },
   "DescriptionFunddevelopment": {
     "message": "关于 floccus 的工作是由自愿订阅模式推动的。如果你认为我做的事情是值得的，如果你每个月能不辛苦地省出几个硬币，请支持我的工作。另外，请考虑给 floccus 一个评价，你选择的插件商店。谢谢💙"
@@ -376,7 +376,7 @@
     "message": "这个老式的配置类型已被废弃，将在不久后被删除。请切换到你的 nextcloud 同步方式。新方式改善了性能和精确度。"
   },
   "LabelUpdated": {
-    "message": "Floccus 已更新"
+    "message": "⚡ Floccus 已更新"
   },
   "DescriptionUpdated": {
     "message": "恭喜，最新版本的 floccus 已经抵达您的设备！"
@@ -712,7 +712,7 @@
     "message": "Git 分支"
   },
   "LabelTelemetry": {
-    "message": "自动错误报告"
+    "message": "🐛 自动的错误报告"
   },
   "DescriptionTelemetry": {
     "message": "Floccus 可自动发送错误数据给我，也就是开发者。这对更快地发现并解决 floccus 故障帮助巨大并有助于改善在长时段内改善你的 floccus 体验。即使启用了错误报告，开发者也永远无法看到你的书签。"
@@ -734,5 +734,26 @@
   },
   "DescriptionClickcount": {
     "message": "发送有关哪些书签你访问得最多的统计数据到你的 Nextcloud 服务器，这样你可以按点击次数对书签排序。"
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "在 Google Play 上评价"
+  },
+  "DescriptionAppstorereview": {
+    "message": "在 App Store 上评价"
+  },
+  "DescriptionChromereview": {
+    "message": "在 Chrome Webstore 上评价"
+  },
+  "DescriptionAlternativereview": {
+    "message": "在 AlternativeTo.net 上评价"
+  },
+  "DescriptionMozillareview": {
+    "message": "在 Mozilla Addons 上评价"
+  },
+  "LabelWritereview": {
+    "message": "💙 分享爱！"
+  },
+  "DescriptionWritereview": {
+    "message": "如果你对 floccus 感到兴奋，通过在下列平台中的一个留下评分让世界知道这一点"
   }
 }
