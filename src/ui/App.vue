@@ -4,9 +4,9 @@
     :style="appStyle">
     <v-banner v-if="isBrowser"
         color="primary" class="mb-1 mt-3 white--text"
-        single-line>Love Bookmark Syncing? Support us!
+        single-line>{{ t('DescriptionDonateintervention') }}
       <template #actions>
-        <v-btn small target="_blank" href="https://floccus.org/donate/">Donate</v-btn>
+        <v-btn small target="_blank" href="https://floccus.org/donate/">{{ t('LabelDonate') }}</v-btn>
       </template>
     </v-banner>
     <v-content>

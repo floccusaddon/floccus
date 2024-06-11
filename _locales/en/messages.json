@@ -755,5 +755,11 @@
   },
   "DescriptionWritereview": {
     "message": "If you're excited about floccus, let the world know by leaving a rating on one of the platforms below."
+  },
+  "DescriptionDonateintervention": {
+    "message": "Love Bookmark Syncing? Support me!"
+  },
+  "LabelDonate": {
+    "message": "Donate"
   }
 }
