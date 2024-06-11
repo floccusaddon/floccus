@@ -1,5 +1,23 @@
 # Changelog
 
+## [5.2.0] - 2024-06-11
+
+### New
+
+* feat: Allow custom labels for profiles
+* feat: Allow counting clicks with Nextcloud Bookmarks
+* feat: Add some UI interventions asking for donations
+* feat: Opt-in automated error reporting using Sentry
+
+### Fixed
+
+* fix: Don't sync scheduled profiles if they're disabled
+* fix: Don't show update notification if the user doesn't use floccus
+* fix: Do not run two scanners at the same time
+* fix: Improve build script to avoid faulty builds
+* fix: Give browser more time to breathe to avoid freezing browser
+* fix: Disable profile after 10 errors in a row
+
 ## [5.1.7] - 2024-05-28
 
 ### Fixed
