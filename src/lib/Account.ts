@@ -330,7 +330,7 @@ export default class Account {
       if (!DEBUG) {
         Sentry.getCurrentScope().addAttachment({
           filename: 'floccus-log.txt',
-          data: logData.slice(-200000).join('\n'),
+          data: logData.slice(-10).join('\n'),
         })
       }
       if (e.list) {
