@@ -4663,8 +4663,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/#test1' }),
-                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/#test2' })
+                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/#test1' }),
+                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/#test2' })
                     ]
                   })
                 ]
@@ -4686,7 +4686,7 @@ describe('Floccus', function() {
                 title: 'Window 0'
               }))
               serverMark = {
-                title: 'Private bookmarks syncing - floccus.org',
+                title: 'Cross-browser bookmarks syncing - floccus.org',
                 url: 'https://floccus.org/',
                 parentId: windowFolderId
               }
@@ -4708,7 +4708,7 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/' }),
+                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/' }),
                     ]
                   })
                 ]
@@ -4745,8 +4745,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/#test1' }),
-                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/#test2' })
+                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/#test1' }),
+                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/#test2' })
                     ]
                   })
                 ]
@@ -4769,7 +4769,7 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/#test1' }),
+                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/#test1' }),
                       new Bookmark({ title: 'Example Domain', url: 'https://example.org/' })
                     ]
                   })
@@ -4792,7 +4792,7 @@ describe('Floccus', function() {
                 title: 'Window 0'
               }))
               serverMark = {
-                title: 'Private bookmarks syncing - floccus.org',
+                title: 'Cross-browser bookmarks syncing - floccus.org',
                 url: 'https://floccus.org/',
                 parentId: windowFolderId
               }
@@ -4814,7 +4814,7 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Private bookmarks syncing - floccus.org', url: 'https://floccus.org/' }),
+                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/' }),
                     ]
                   })
                 ]
