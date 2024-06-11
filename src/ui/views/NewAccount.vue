@@ -5,6 +5,10 @@
       <v-stepper v-model="currentStep">
         <v-stepper-header>
           <v-stepper-step
+            :complete="currentStep > 0"
+            step="0" />
+          <v-divider />
+          <v-stepper-step
             :complete="currentStep > 1"
             step="1" />
           <v-divider />
@@ -22,7 +26,7 @@
         </v-stepper-header>
 
         <v-stepper-items>
-          <v-stepper-content step="1">
+          <v-stepper-content step="0">
             <div class="headline">
               {{ t('LabelChooseadapter') }}
             </div>
@@ -48,7 +52,7 @@
             <div class="d-flex flex-row-reverse">
               <v-btn
                 class="primary"
-                @click="currentStep = 2">
+                @click="currentStep++">
                 {{ t('LabelContinue') }}
               </v-btn>
               <v-btn
@@ -62,11 +66,11 @@
             </div>
           </v-stepper-content>
 
-          <v-stepper-content step="2">
-            <template v-if="adapter === 'nextcloud-bookmarks'">
-              <div class="headline">
-                {{ t('LabelServersetup') }}
-              </div>
+          <v-stepper-content step="1">
+            <div class="headline">
+              {{ t('LabelAccountlabel') }}
+            </div>
+            <v-form>
               <v-text-field
                 v-model="label"
                 append-icon="mdi-label"
@@ -74,6 +78,24 @@
                 :label="t('LabelAccountlabel')"
                 :hint="t('DescriptionAccountlabel')"
                 :persistent-hint="true" />
+            </v-form>
+            <div class="d-flex flex-row justify-space-between">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
+              <v-btn
+                class="primary"
+                @click="currentStep++">
+                {{ t('LabelContinue') }}
+              </v-btn>
+            </div>
+          </v-stepper-content>
+
+          <v-stepper-content step="2">
+            <template v-if="adapter === 'nextcloud-bookmarks'">
+              <div class="headline">
+                {{ t('LabelServersetup') }}
+              </div>
               <v-text-field
                 v-model="server"
                 :rules="[validateUrl]"
@@ -122,13 +144,6 @@
                 {{ t('LabelServersetup') }}
               </div>
               <v-text-field
-                v-model="label"
-                append-icon="mdi-label"
-                class="mt-2 mb-2"
-                :label="t('LabelAccountlabel')"
-                :hint="t('DescriptionAccountlabel')"
-                :persistent-hint="true" />
-              <v-text-field
                 v-model="server"
                 :rules="[validateUrl]"
                 :label="t('LabelWebdavurl')"
@@ -169,13 +184,6 @@
                 {{ t('LabelServersetup') }}
               </div>
               <v-text-field
-                v-model="label"
-                append-icon="mdi-label"
-                class="mt-2 mb-2"
-                :label="t('LabelAccountlabel')"
-                :hint="t('DescriptionAccountlabel')"
-                :persistent-hint="true" />
-              <v-text-field
                 v-model="server"
                 :rules="[validateUrl]"
                 :label="t('LabelGiturl')" />
@@ -204,13 +212,6 @@
               <div class="headline">
                 {{ t('LabelGoogledrivesetup') }}
               </div>
-              <v-text-field
-                v-model="label"
-                append-icon="mdi-label"
-                class="mt-2 mb-2"
-                :label="t('LabelAccountlabel')"
-                :hint="t('DescriptionAccountlabel')"
-                :persistent-hint="true" />
               <v-btn
                 color="primary"
                 @click="loginGoogleDrive">
@@ -344,7 +345,7 @@
               :hint="t('DescriptionClickcount')"
               :persistent-hint="true"
               dense
-              class="mt-0 pt-0" />
+              class="mt-0 pt-0 mb-4" />
 
             <div class="d-flex flex-row justify-space-between">
               <v-btn @click="currentStep--">
@@ -384,7 +385,7 @@ export default {
   components: { OptionFileType, OptionNestedSync, OptionSyncStrategy, OptionSyncInterval, OptionSyncFolder },
   data() {
     return {
-      currentStep: 1,
+      currentStep: 0,
       isServerTestRunning: false,
       serverTestError: '',
       serverTestSuccessful: false,
