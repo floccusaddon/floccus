@@ -90,7 +90,7 @@ export default class BrowserController {
 
     // do some cleaning if this is a new version
 
-    browser.storage.local.get('currentVersion').then(async d => {
+    browser.storage.local.get(['currentVersion', 'lastInterventionAt']).then(async d => {
       if (packageJson.version === d.currentVersion) return
       await browser.storage.local.set({
         currentVersion: packageJson.version
@@ -100,6 +100,9 @@ export default class BrowserController {
       const accounts = await Account.getAllAccounts()
       const lastVersion = d.currentVersion ? d.currentVersion.split('.') : []
       if ((packageVersion[0] !== lastVersion[0] || packageVersion[1] !== lastVersion[1]) && accounts.length !== 0) {
+        if (d.lastInterventionAt && d.lastInterventionAt > Date.now() - INTERVENTION_INTERVAL) {
+          return
+        }
         browser.tabs.create({
           url: '/dist/html/options.html#/update',
           active: false
