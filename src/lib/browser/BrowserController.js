@@ -13,7 +13,7 @@ import * as Sentry from '@sentry/browser'
 const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
 const DEFAULT_SYNC_INTERVAL = 15 // 15 minutes
 const STALE_SYNC_TIME = 1000 * 60 * 60 * 24 * 2 // two days
-const INTERVENTION_INTERVAL = 1000 * 60 * 60 * 25 * 35 // 35 days
+const INTERVENTION_INTERVAL = 1000 * 60 * 60 * 25 * 75 // 75 days
 
 class AlarmManager {
   constructor(ctl) {
