@@ -750,6 +750,9 @@
   "DescriptionMozillareview": {
     "message": "Write a review on Mozilla Addons"
   },
+  "DescriptionEdgereview": {
+    "message": "Write a review on Edge Addons"
+  },
   "LabelWritereview": {
     "message": "\uD83D\uDC99 Share the love!"
   },

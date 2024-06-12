@@ -195,6 +195,11 @@ export default {
         description: this.t('DescriptionChromereview')
       },
       {
+        href: 'https://microsoftedge.microsoft.com/addons/detail/gjkddcofhiifldbllobcamllmanombji',
+        label: 'Edge Addons',
+        description: this.t('DescriptionEdgereview')
+      },
+      {
         href: 'https://alternativeto.net/software/floccus/about/',
         label: 'AlternativeTo.net',
         description: this.t('DescriptionAlternativereview')
