@@ -755,5 +755,11 @@
   },
   "DescriptionWritereview": {
     "message": "如果你对 floccus 感到兴奋，通过在下列平台中的一个留下评分让世界知道这一点"
+  },
+  "DescriptionDonateintervention": {
+    "message": "喜欢书签同步？支持我吧！"
+  },
+  "LabelDonate": {
+    "message": "捐赠"
   }
 }
