@@ -441,6 +441,13 @@ export default {
       return !this.server.startsWith('https') ? this.t('DescriptionNonhttps') : ''
     }
   },
+  watch: {
+    clickCountEnabled() {
+      if (this.clickCountEnabled) {
+        this.requestHistoryPermissions()
+      }
+    }
+  },
   backButton() {
     this.$router.push({ name: 'HOME' })
   },
@@ -540,6 +547,9 @@ export default {
     validateBookmarksFileGoogle(path) {
       return !path.includes('/')
     },
+    requestHistoryPermissions() {
+      this.$store.dispatch(actions.REQUEST_HISTORY_PERMISSIONS)
+    }
   }
 }
 </script>

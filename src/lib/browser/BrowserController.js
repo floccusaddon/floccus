@@ -69,7 +69,11 @@ export default class BrowserController {
       this.onchange(localId, details)
     )
 
-    browser.history.onVisited.addListener((historyItem) => this.onVisitUrl(historyItem))
+    browser.permissions.contains({permissions: ['history']}).then((historyAllowed) => {
+      if (historyAllowed) {
+        browser.history.onVisited.addListener((historyItem) => this.onVisitUrl(historyItem))
+      }
+    })
 
     // Set up the alarms
 

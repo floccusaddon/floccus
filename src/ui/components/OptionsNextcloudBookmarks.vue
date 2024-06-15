@@ -107,7 +107,7 @@
           :persistent-hint="true"
           dense
           class="mt-0 pt-0"
-          @change="$emit('update:clickCountEnabled', $event)" />
+          @change="$emit('update:clickCountEnabled', $event); requestHistoryPermissions()" />
       </v-card-text>
     </v-card>
 
@@ -152,6 +152,7 @@ import OptionAllowRedirects from './OptionAllowRedirects'
 import OptionDownloadLogs from './OptionDownloadLogs'
 import OptionAllowNetwork from './native/OptionAllowNetwork'
 import OptionExportBookmarks from './OptionExportBookmarks.vue'
+import { actions } from '../store'
 
 export default {
   name: 'OptionsNextcloudBookmarks',
@@ -174,6 +175,9 @@ export default {
     validateServerRoot(path) {
       return !path || path === '/' || (path[0] === '/' && path[path.length - 1] !== '/')
     },
+    requestHistoryPermissions() {
+      this.$store.dispatch(actions.REQUEST_HISTORY_PERMISSIONS)
+    }
   }
 }
 </script>

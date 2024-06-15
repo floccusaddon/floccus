@@ -171,5 +171,12 @@ export const actionsDefinition = {
     } catch (e) {
       console.warn(e)
     }
-  }
+  },
+  async [actions.REQUEST_HISTORY_PERMISSIONS]() {
+    try {
+      await browser.permissions.request({ permissions: ['history'] })
+    } catch (e) {
+      console.warn(e)
+    }
+  },
 }

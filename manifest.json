@@ -12,7 +12,8 @@
 
   "default_locale": "en",
 
-  "permissions": ["alarms", "bookmarks", "storage", "unlimitedStorage", "tabs", "identity", "history"],
+  "permissions": ["alarms", "bookmarks", "storage", "unlimitedStorage", "tabs", "identity"],
+  "optional_permissions": ["history"],
   "host_permissions": [
     "*://*/*"
   ],
