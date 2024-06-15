@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.2.1] - 2024-06-15
+
+### Fixed
+
+* fix: make history permission optional and request on demand only
+
 ## [5.2.0] - 2024-06-11
 
 ### New
