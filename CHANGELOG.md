@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.2.2] - 2024-06-16
+
+### Fixed
+
+* iOS: Fix sharing from apps other than Safari
+
 ## [5.2.1] - 2024-06-15
 
 ### Fixed
