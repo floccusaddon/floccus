@@ -53,33 +53,40 @@ export default {
         console.log(e)
         return false
       }
-      if (result.url) {
-        console.log(result.url)
-        let url = result.url
-        let title = ''
-        try {
-          const response = await Http.get({ url })
-          const parser = new DOMParser()
-          const document = parser.parseFromString(response.data, 'text/html')
-          const titleElement = document.getElementsByTagName('title')[0]
-          if (titleElement) {
-            title = titleElement.textContent
-          }
-        } catch (e) {
-          Logger.log('Failed to fetch shared URL')
+      let url, title
+      if (!result.url) {
+        if (!result.additionalItems) {
+          return false
         }
-
-        this.$router.push({
-          name: routes.ADD_BOOKMARK,
-          params: {
-            accountId: Object.keys(this.$store.state.accounts)[0],
-            url,
-            title
-          }
-        })
-        return true
+        url = result.additionalItems[0].url
+        title = ''
+      } else {
+        url = result.url
+        title = ''
       }
-      return false
+
+      console.log(url)
+      try {
+        const response = await Http.get({ url })
+        const parser = new DOMParser()
+        const document = parser.parseFromString(response.data, 'text/html')
+        const titleElement = document.getElementsByTagName('title')[0]
+        if (titleElement) {
+          title = titleElement.textContent
+        }
+      } catch (e) {
+        Logger.log('Failed to fetch shared URL')
+      }
+
+      this.$router.push({
+        name: routes.ADD_BOOKMARK,
+        params: {
+          accountId: Object.keys(this.$store.state.accounts)[0],
+          url,
+          title
+        }
+      })
+      return true
     }
   }
 }
