@@ -55,11 +55,14 @@ export default {
       }
       let url, title
       if (!result.url) {
-        if (!result.additionalItems) {
+        if (!result.additionalItems || !result.additionalItems.length) {
           return false
         }
-        url = result.additionalItems[0].url
-        title = ''
+        result.additionalItems.forEach(share => {
+          if (!share.url) return
+          url = share.url
+          title = ''
+        })
       } else {
         url = result.url
         title = ''
