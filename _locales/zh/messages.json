@@ -750,6 +750,9 @@
   "DescriptionMozillareview": {
     "message": "在 Mozilla Addons 上评价"
   },
+  "DescriptionEdgereview": {
+    "message": "在 Edge Addons 上评价"
+  },
   "LabelWritereview": {
     "message": "💙 分享爱！"
   },
