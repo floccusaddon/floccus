@@ -75,7 +75,7 @@
     "message": "E025：书签文件不允许以'/'开头"
   },
   "Error026": {
-    "message": "E026：HTTP status {0}。获取书签失败"
+    "message": "E026: 同步过程被取消"
   },
   "Error027": {
     "message": "E027：同步进程中断"
@@ -90,7 +90,7 @@
     "message": "E030：解密书签文件失败。密码短语可能错误，或者文件可能已损坏。"
   },
   "Error031": {
-    "message": "E031: 无法通过 Google Drive 进行认证。 请再次将 floccus 与你的 google 账户连接。"
+    "message": "E031：无法用 Google Drive 进行身份验证。请重新将 floccus与您的Google账户连接。"
   },
   "Error032": {
     "message": "E032：OAuth 错误。令牌验证错误。请重新关联您的 Google  帐号。"
@@ -106,6 +106,12 @@
   },
   "Error036": {
     "message": "E036: 缺少访问同步服务器的权限"
+  },
+  "Error037": {
+    "message": "E036: 资源被锁定"
+  },
+  "Error038": {
+    "message": "E036: 找不到本地文件夹"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -131,17 +137,26 @@
  "DescriptionBookmarksfilegoogle": {
    "message": "书签文件的文件名，该文件将存放在 Google Drive 中（确保该名称在 Google Drive 中是唯一的）。"
  },
+  "DescriptionBookmarksfilegit": {
+    "message": "相对于你的 Git 存储库根目录的书签文件路径 (路径中的所有文件夹必须都已存在)。如，personal_stuff/bookmarks.xbel"
+  },
   "LabelServerfolder": {
-    "message": "服务器文件夹"
+    "message": "服务器目标"
   },
   "DescriptionServerfolder": {
-    "message": "这是此帐户在服务器上运行的路径前缀。例如如果使用''/work'，在服务器上创建所有书签，将在其原始路径的前面加上此路径前缀（相对于您在上面指定的本地文件夹的路径）。这允许您将服务器书签分成多个“配置文件”。将其留空以完全不使用前缀。"
+    "message": "同步时，您在此浏览器中的书签将作为链接存储在服务器上的此路径下。请注意，此路径表示Nextcloud书签应用中的一个文件夹，而不是Nextcloud文件中的文件夹。留空此处可以将所有链接放在服务器上的最顶层文件夹中。"
+  },
+  "LabelLocaltarget": {
+    "message": "本地目标"
+  },
+  "DescriptionLocaltarget": {
+    "message": "请选择你是想同步浏览器书签还是浏览器标签。"
   },
   "LabelLocalfolder": {
-    "message": "本地文件夹"
+    "message": "书签文件夹"
   },
   "DescriptionLocalfolder": {
-    "message": "这是此浏览器中的本地书签文件夹，将被同步到服务器。 默认情况下，将在此浏览器中为您创建一个新的空文件夹，如果要同步现有文件夹，请在此处选择它。 （注意：您现在可以立即在不同浏览器供应商之间同步根文件夹。）"
+    "message": "此书签文件夹中的书签将被存储为服务器上的链接，服务器上的链接将被存储为此浏览器中此书签文件夹中的书签。"
   },
   "LabelRootfolder": {
     "message": "根目录"
@@ -157,6 +172,9 @@
   },
   "LabelCancelsync": {
     "message": "取消同步"
+  },
+  "LabelSyncall": {
+    "message": "同步所有配置"
   },
   "LabelAutosync": {
     "message": "自动同步"
@@ -179,6 +197,9 @@
   "StatusSyncing": {
     "message": "同步中"
   },
+  "StatusScheduled": {
+    "message": "已安排时间"
+  },
   "LabelReset": {
     "message": "重置"
   },
@@ -192,10 +213,10 @@
     "message": "选择一个已存在的文件夹用来同步"
   },
   "LabelRemoveaccount": {
-    "message": "移除账户"
+    "message": "删除配置"
   },
   "DescriptionRemoveaccount": {
-    "message": "删除此账户(此操作不会删除你的书签)"
+    "message": "删除这个配置（这不会删除您的书签）"
   },
   "LabelSyncfromscratch": {
     "message": "从头开始触发同步"
@@ -204,7 +225,7 @@
     "message": "重置缓存"
   },
   "DescriptionResetcache": {
-    "message": "勾选此框以重置缓存，以确保下一次同步运行不会删除任何数据，只是将服务器和本地书签合并在一起"
+    "message": "单击此按钮来重置缓存，确保下次同步运行不会删除任何数据只是将服务器和本地书签合并在一起"
   },
   "LabelParallelsync": {
     "message": "加速同步速度"
@@ -249,22 +270,22 @@
     "message": "Nextcloud 书签"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "选项 'Nextcloud 书签' 将您的书签与 Nextcloud 书签应用程序同步。它只能同步 http 和 ftp 书签。确保您已从 Nextcloud 应用商店中安装了书签应用程序。"
+    "message": "'Nextcloud 书签' 选项将你的书签和 Nextcloud 的 Bookmarks 应用同步。它只能同步 http、ftp和 javascript 书签。请确保你已经从 Nextcloud 应用商店安装了 Bookmarks 应用。此选项无法使用端到端加密。"
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud 书签（旧版）"
   },
   "DescriptionAdapternextcloud": {
-    "message": "旧版选项至少与书签应用程序的 v0.11 版本兼容。它将使用包含文件夹路径的标记来模拟文件夹。不建议用于新帐户。"
+    "message": "兼容旧选项的 Bookmarks 应用的最低版本为 v0.11 。它会使用包含文件路径的标签模拟文件夹。新配置不建议使用旧选项。"
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV 分享"
   },
   "DescriptionAdapterwebdav": {
-    "message": "WebDAV 选项通过将书签存储在由 WebDAV 提供的共享文件同步书签。该选项不会附带 web UI，可以使用任何兼容 WebDAV 的服务器。可同步 http、ftp、数据、文件和 Javascript 书签。"
+    "message": "WebDAV 选项通过将你的书签存储在所提供的 WebDAV 分享中来同步它们。此选项没有伴随的 web 用户界面，不过你可以使用任何兼容 WebDAV 的服务器。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时你可以选择使用端到端加密。"
   },
   "LabelAddaccount": {
-    "message": "添加账户"
+    "message": "添加配置"
   },
   "LabelOpenintab": {
     "message": "在标签页中打开"
@@ -273,7 +294,7 @@
     "message": "Debug日志"
   },
   "LabelFunddevelopment": {
-    "message": "开发信息"
+    "message": "💸 资助开发"
   },
   "DescriptionFunddevelopment": {
     "message": "我借此机会向您请求捐赠，以支持这个项目的维护，使这项努力更具可持续性。您可以在下面找到受支持的付款提供商。任何金额都值得赞赏。谢谢！💙"
@@ -313,7 +334,7 @@
   },
   "LabelOptionsscreen": {
     "message": "{0} 选项",
-    "description": "Title of the options screen. The placeholder holds the account type."
+    "description": "Title of the options screen. The placeholder holds the profile type."
   },
   "LabelPaypal": {
     "message": "Paypal"
@@ -339,11 +360,23 @@
   "DescriptionGithubsponsors": {
     "message": "通过 GitHub sponsors 定期捐款以支持该项目"
   },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "通过 Patreon 进行定期捐赠来支持此项目"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "通过 Ko-fi 进行定期或一次性捐款来支持本项目"
+  },
   "LegacyAdapterDeprecation": {
-    "message": "此旧帐户类型已弃用，不久将被删除。请切换到新的 nextcloud 同步方法。性能和准确性的提高正等着您。"
+    "message": "这个老式的配置类型已被废弃，将在不久后被删除。请切换到你的 nextcloud 同步方式。新方式改善了性能和精确度。"
   },
   "LabelUpdated": {
-    "message": "Floccus 已更新"
+    "message": "⚡ Floccus 已更新"
   },
   "DescriptionUpdated": {
     "message": "恭喜，您的计算机上已经收到了最新的 floccus 更新！"
@@ -364,16 +397,16 @@
     "message": "危险行为"
   },
   "LabelAccountDeleted": {
-    "message": "帐户已删除"
+    "message": "删除了配置"
   },
   "DescriptionAccountDeleted": {
-    "message": "此帐户已被删除"
+    "message": "此配置已被删除"
   },
   "LabelNoAccount": {
-    "message": "这里没有帐户"
+    "message": "此处没有配置"
   },
   "DescriptionNoAccount": {
-    "message": "创建新帐户以同步书签。"
+    "message": "创建一个新的配置文件来同步您的书签，或者从其他设备或浏览器导入配置文件。"
   },
   "LabelLoginFlowStart": {
     "message": "以 Nextcloud login flow 登录"
@@ -385,40 +418,43 @@
     "message": "Nextcloud 登录失败。"
   },
   "LabelNewAccount": {
-    "message": "新建帐户"
+    "message": "新配置文件"
   },
   "LabelNestedSync": {
-    "message": "嵌套帐户"
+    "message": "嵌套的配置"
   },
   "DescriptionNestedSync": {
-    "message": "您可以嵌套帐户，以便父文件夹属于一个帐户，子文件夹属于另一个帐户。是否要将此帐户的本地文件夹包含在来自其他帐户任何可能的父文件夹同步中？"
+    "message": "你可以嵌套配置，以便主文件夹属于配置 A，而子文件夹属于配置 A 和 配置B。你想允许其他配置也同步此配置的文件夹吗？"
   },
   "LabelNestedSyncNo": {
-    "message": "从其他帐户同步中排除此帐户的本地文件夹"
+    "message": "否，在其他配置中忽略此配置的文件夹"
   },
   "LabelNestedSyncYes": {
-    "message": "在其他帐户同步中包括此帐户的本地文件夹"
+    "message": "是，将此配置的文件夹包括在其他配置中"
   },
   "LabelImportExport": {
-    "message": "导入/导出 帐户"
+    "message": "导入/导出配置"
   },
   "LabelExport": {
-    "message": "导出帐户"
+    "message": "导出配置"
   },
   "LabelImport": {
-    "message": "导入帐户"
+    "message": "导入配置"
   },
   "DescriptionExport": {
-    "message": "在下面选择要导出到文件的帐户，以便在不同的设备或浏览器上轻松地重新创建相同的帐户。"
+    "message": "请在下面选择想要导出到文件的配置，以便你可以轻松地在不同设备或浏览器中重新创建相同的配置。"
   },
   "DescriptionImport": {
-    "message": "在此处导入带有导出帐户的文件，以重新创建在其他设备或浏览器上导出的帐户。请确保在导入后再次设置正确的同步文件夹。"
+    "message": "在此处导入一个带有已导出配置的文件在不同设备或浏览器中重新创建导出的配置文件。请确保导入后再次设置正确的同步文件夹"
   },
   "LabelFolderNotFound": {
     "message": "文件夹未找到"
   },
   "LabelSyncTabs": {
-    "message": "同步选项卡"
+    "message": "浏览器标签页"
+  },
+  "DescriptionSyncTabs": {
+    "message": "储存在服务器上的链接将作为浏览器标签页在你的浏览器中打开，现有的已打开的浏览器标签作为链接存储在你的服务器上。请注意，如果服务器上存储的链接数很多，你的浏览器可能不堪重负，因为所有这些链接在下次运行同步时都将作为标签页在浏览器中打开。"
   },
   "LabelTabs": {
     "message": "选项卡"
@@ -466,13 +502,13 @@
     "message": "关闭。在未提前告知的情况下，允许删除50%以上的本地书签。"
   },
   "StatusFailsafeoff": {
-    "message": "安全保护已关闭。您处于无意识情况下的数据丢失风险中。推荐您打开账户设置中的安全保护功能。"
+    "message": "已停用安全保护。你有意外丢失数据的风险。建议在配置文件设置中启用它。"
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "通过存储在 Google Drive 中的加密文件同步书签。可同步 http、ftp、数据、文件和 Javascript 书签。"
+    "message": "通过储存在你的 Google 云盘中的 (可选加密的) 文件同步书签。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时，你可以选择使用端到端加密。"
   },
   "LabelLogingoogle": {
     "message": "使用 Google 登录"
@@ -493,7 +529,7 @@
     "message": "发送客户端凭据"
   },
   "DescriptionClientcert": {
-    "message": "如果服务器需要客户端证书或 cookie 进行身份验证，请启用此选项。这可能会导致意外的副作用，因为 floccus 会与您的正常浏览器配置文件共享 cookie。"
+    "message": "如果你的服务器需要客户端证书或 cookies 进行身份认证，请开启此选项。这可能导致意料之外的副作用，因 floccus 会和你的常规浏览器会话共享cookies。"
   },
   "LabelAllowredirects": {
     "message": "允许在服务器 URL 中重定向"
@@ -619,7 +655,10 @@
     "message": "希望同步如何工作？"
   },
   "LabelAccountcreated": {
-    "message": "创建的帐户"
+    "message": "创建了配置"
+  },
+  "DescriptionAccountcreated": {
+    "message": "您的配置已创建。您现在可以关闭此选项卡。"
   },
   "DescriptionNonhttps": {
     "message": "您输入了一个使用不安全协议的服务器。 建议仅使用支持 HTTPS 的服务器。"
@@ -646,9 +685,84 @@
     "message": "导出书签"
   },
   "DescriptionExportBookmarks" : {
-    "message": "您可以将此帐户中的所有书签导出为兼容所有主流浏览器的 HTML 文件。"
+    "message": "你可以将此配置文件内所有书签导出为兼容所有主流浏览器的 HTML 文件"
   },
   "LabelShareitem": {
     "message": "分享"
+  },
+  "LabelImportsuccessful": {
+    "message": "成功导入了配置"
+  },
+  "DescriptionSyncinprogress": {
+    "message": "同步中"
+  },
+  "DescriptionSyncscheduled": {
+    "message": "这个配置文件将很快同步。我们正在等待您的其他设备或此设备上的其他配置文件完成同步。"
+  },
+  "LabelAdaptergit": {
+    "message": "HTTPS 连接的 Git"
+  },
+  "DescriptionAdaptergit": {
+    "message": "Git 选项通过将书签存储在所提供的 Git 仓库中的一个文件内来进行书签同步。此选项没有伴随的 web 用户界面，但你可以通过任意 Git 托管服务器，比如 GitHub、Gitlab、Gitea 等使用它。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时，你无法使用端到端加密。"
+  },
+  "LabelGiturl": {
+    "message": "使用 HTTP 的存储库 URL"
+  },
+  "LabelGitbranch": {
+    "message": "Git 分支"
+  },
+  "LabelTelemetry": {
+    "message": "🐛 自动的错误报告"
+  },
+  "DescriptionTelemetry": {
+    "message": "Floccus 可自动发送错误数据给我，也就是开发者。这对更快地发现并解决 floccus 故障帮助巨大并有助于改善在长时段内改善你的 floccus 体验。即使启用了错误报告，开发者也永远无法看到你的书签。"
+  },
+  "LabelTelemetryenable": {
+    "message": "自动发送错误数据给 floccus 开发者"
+  },
+  "LabelTelemetrydisable": {
+    "message": "不发送错误数据给 floccus 开发者"
+  },
+  "LabelAccountlabel": {
+    "message": "配置文件标签"
+  },
+  "DescriptionAccountlabel": {
+    "message": "给这个配置一个名称以便你可以更轻松地识别它"
+  },
+  "LabelClickcount": {
+    "message": "计算点击数"
+  },
+  "DescriptionClickcount": {
+    "message": "发送哪些书签你访问得最多的统计数据到你的 Nextcloud 服务器，这样你可以按点击次数对书签排序。"
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "在 Google Play 上评价"
+  },
+  "DescriptionAppstorereview": {
+    "message": "在 App Store 上评价"
+  },
+  "DescriptionChromereview": {
+    "message": "在 Chrome Webstore 上评价"
+  },
+  "DescriptionAlternativereview": {
+    "message": "在 AlternativeTo.net 上评价"
+  },
+  "DescriptionMozillareview": {
+    "message": "在 Mozilla Addons 上评价"
+  },
+  "DescriptionEdgereview": {
+    "message": "在 Edge Addons 上评价"
+  },
+  "LabelWritereview": {
+    "message": "💙 分享爱！"
+  },
+  "DescriptionWritereview": {
+    "message": "如果你对 floccus 感到兴奋，通过在下列平台中的一个留下评价让世界知道这一点"
+  },
+  "DescriptionDonateintervention": {
+    "message": "喜欢书签同步？支持我吧！"
+  },
+  "LabelDonate": {
+    "message": "捐赠"
   }
 }
