@@ -460,13 +460,13 @@
     "message": "Sekmeler"
   },
   "LabelSyncDown": {
-    "message": "Aşağı çek"
+    "message": "Sunucudan indir"
   },
   "DescriptionSyncDown": {
     "message": "Diğer tarayıcılardan gelen değişiklikleri indir ve yerel değişiklikleri geçersiz kıl"
   },
 "LabelSyncUp": {
-  "message": "Yukarı çek"
+  "message": "Sunucuya yükle"
   },
   "DescriptionSyncUp": {
     "message": "Yerel değişiklikleri yükle ve diğer tarayıcılardan gelen değişiklikleri geçersiz kıl"
