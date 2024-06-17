@@ -472,10 +472,10 @@
     "message": "Yerel değişiklikleri yükle ve diğer tarayıcılardan gelen değişiklikleri geçersiz kıl"
   },
   "LabelSyncDownOnce": {
-    "message": "Bir kez aşağı çek"
+    "message": "Sunucudan bir kez indir"
   },
   "LabelSyncUpOnce": {
-    "message": "Bir kez yukarı çek"
+    "message": "Sunucuya bir kez yükle"
   },
   "LabelSyncNormal": {
     "message": "Birleştir"
