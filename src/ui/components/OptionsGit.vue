@@ -48,7 +48,7 @@
           :value="branch"
           class="mb-2"
           :label="t('LabelGitbranch')"
-          @input="$emit('update:branch', $event)"/>
+          @input="$emit('update:branch', $event)" />
       </v-card-text>
     </v-card>
 

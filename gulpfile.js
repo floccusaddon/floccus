@@ -94,21 +94,22 @@ const devjs = function() {
   )
 }
 
-const js = function() {
-  return new Promise((resolve) =>
+const js = async function() {
+  fs.mkdirSync(paths.distJs,{ recursive: true })
+  await new Promise((resolve) =>
     webpack(config, (err, stats) => {
-      if (err) console.log('Webpack', err)
+      console.log(
+        stats.toString({
+          /* stats options */
+        })
+      )
 
-      console.log(stats.toJson().entrypoints)
-
+      if (err) {
+        console.log('Webpack', err)
+        return
+      }
       const statsJson = stats.toJson()
       html(statsJson)
-
-      /* console.log(
-        stats.toString({
-          /* stats options *
-        })
-      ) */
       resolve()
     })
   )
