@@ -45,9 +45,10 @@
           :value="bookmark_file_type"
           @input="$emit('update:bookmark_file_type', $event)" />
         <v-text-field
-          v-model="branch"
+          :value="branch"
           class="mb-2"
-          :label="t('LabelGitbranch')" />
+          :label="t('LabelGitbranch')"
+          @input="$emit('update:branch', $event)"/>
       </v-card-text>
     </v-card>
 
