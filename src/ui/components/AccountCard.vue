@@ -65,6 +65,13 @@
             </v-btn>
           </v-alert>
           <v-alert
+            v-if="account.data.error && !account.data.enabled && Number(account.data.errorCount) > 9"
+            dense
+            outlined
+            :type="'warning'">
+            {{ t('DescriptionDisabledaftererror') }}
+          </v-alert>
+          <v-alert
             v-if="legacyWarning"
             dense
             outlined
@@ -85,29 +92,29 @@
             class="mt-2">
             <v-col class="d-flex flex-row">
               <v-btn
-                  small
-                  class="ma-1"
-                  :to="{ name: routes.ACCOUNT_OPTIONS, params: { accountId: account.id } }"
-                  target="_blank">
+                small
+                class="ma-1"
+                :to="{ name: routes.ACCOUNT_OPTIONS, params: { accountId: account.id } }"
+                target="_blank">
                 <v-icon>mdi-cog</v-icon>
                 {{ t('LabelOptions') }}
               </v-btn>
             </v-col>
             <v-col class="d-flex flex-row justify-end">
               <v-btn
-                  class="ma-1 ml-0"
-                  small
-                  :disabled="account.data.syncing || account.data.scheduled"
-                  :title="t('LabelSyncDownOnce')"
-                  @click="onTriggerSyncDown">
+                class="ma-1 ml-0"
+                small
+                :disabled="account.data.syncing || account.data.scheduled"
+                :title="t('LabelSyncDownOnce')"
+                @click="onTriggerSyncDown">
                 <v-icon>mdi-arrow-down-bold</v-icon>
               </v-btn>
               <v-btn
-                  class="ma-1"
-                  small
-                  :disabled="account.data.syncing || account.data.scheduled"
-                  :title="t('LabelSyncUpOnce')"
-                  @click="onTriggerSyncUp">
+                class="ma-1"
+                small
+                :disabled="account.data.syncing || account.data.scheduled"
+                :title="t('LabelSyncUpOnce')"
+                @click="onTriggerSyncUp">
                 <v-icon>mdi-arrow-up-bold</v-icon>
               </v-btn>
               <v-btn

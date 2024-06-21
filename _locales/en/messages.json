@@ -764,5 +764,8 @@
   },
   "LabelDonate": {
     "message": "Donate"
+  },
+  "DescriptionDisabledaftererror": {
+    "message": "Retried 10 times before disabling this profile"
   }
 }
