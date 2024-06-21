@@ -1,0 +1,768 @@
+{
+  "Error001": {
+    "message": "E001: Oluşturulacak klasör mevcut değil"
+  },
+  "Error002": {
+    "message": "E002: Güncellenecek yer imi artık mevcut değil"
+  },
+  "Error003": {
+    "message": "E003: Klasörü taşımak istediğiniz yer mevcut değil. Anormal bir durum. Helal olsun."
+  },
+  "Error004": {
+    "message": "E004: Taşınacak klasör mevcut değil"
+  },
+  "Error005": {
+    "message": "E005: Oluşturulacak klasör mevcut değil"
+  },
+  "Error006": {
+    "message": "E006: Güncellenecek klasör mevcut değil"
+  },
+  "Error007": {
+    "message": "E007: Taşınacak klasör mevcut değil"
+  },
+  "Error008": {
+    "message": "E008: Klasörü taşımak istediğiniz yer mevcut değil."
+  },
+  "Error009": {
+    "message": "E009: Taşınacak klasör mevcut değil"
+  },
+  "Error010": {
+    "message": "E010: Sıralanacak klasör bulunamadı"
+  },
+"Error011": {
+  "message": "E011: Klasördeki sıralanan öğe, gerçek bir alt öğe değil: {0}"
+  },
+  "Error012": {
+    "message": "E012: Klasör sıralamasında bazı alt öğeler eksik"
+  },
+  "Error013": {
+    "message": "E013: Kaldırılacak klasör mevcut değil"
+  },
+  "Error014": {
+    "message": "E014: Klasörü kaldıracak üst klasör mevcut değil"
+  },
+  "Error015": {
+    "message": "E015: Sunucudan beklenmeyen yanıt verisi"
+  },
+  "Error016": {
+    "message": "E016: İstek zaman aşımına uğradı. Sunucu yapılandırmanızı kontrol edin"
+  },
+  "Error017": {
+    "message": "E017: Ağ hatası: Ağ bağlantınızı ve hesap bilgilerinizi kontrol edin"
+  },
+  "Error018": {
+    "message": "E018: Sunucuyla kimlik doğrulama yapılamadı."
+  },
+  "Error019": {
+    "message": "E019: HTTP durumu {0}. {1} isteği başarısız oldu. Sunucu yapılandırmanızı ve logları kontrol edin."
+  },
+  "Error020": {
+    "message": "E020: Sunucu yanıtı çözümlenemedi. Sunucunuzda yer imi uygulaması yüklü mü?"
+  },
+"Error021": {
+  "message": "E021: Sunucu durumu tutarsız. Klasör, alt sıra listesinde mevcut ama klasör ağacında değil"
+  },
+  "Error022": {
+    "message": "E022: Klasör {0} içinde mevcut olmayan yer imi {1} bulunuyor"
+  },
+  "Error023": {
+    "message": "E023: Kilit dosyasını temizleyemedik, {0}'ı manuel olarak silmeyi düşünün."
+  },
+  "Error024": {
+    "message": "E024: Kilit dosyasının durumunu belirlemeye çalışırken HTTP durumu {0}"
+  },
+  "Error025": {
+    "message": "E025: Yer imleri dosya ayarı bir eğik çizgi ile başlamamalıdır: '/'"
+  },
+  "Error026": {
+    "message": "E026: Senkronizasyon işlemi iptal edildi"
+  },
+  "Error027": {
+    "message": "E027: Senkronizasyon işlemi kesildi"
+  },
+  "Error028": {
+    "message": "E028: Sunucuyla kimlik doğrulama yapılamadı."
+  },
+  "Error029": {
+    "message": "E029: Güvenlik önlemi: Mevcut senkronizasyon işlemi yer imlerinizin %{0} kadarını silecekti. Çalıştırmayı reddediyor. Devam etmek istiyorsanız, bu güvenlik önlemini hesap ayarlarında devre dışı bırakın."
+  },
+  "Error030": {
+    "message": "E030: Yer imleri dosyasını şifre çözme işlemi başarısız oldu. Parola yanlış olabilir veya dosya bozulmuş olabilir."
+  },
+  "Error031": {
+    "message": "E031: Google Drive ile kimlik doğrulaması yapılamadı. Lütfen floccus'u Google hesabınızla tekrar bağlayın."
+  },
+  "Error032": {
+    "message": "E032: OAuth hatası. Jeton doğrulama hatası. Lütfen Google Hesabınızı yeniden bağlayın."
+  },
+  "Error033": {
+    "message": "E033: Yönlendirme tespit edildi. Lütfen sunucunun seçilen senkronizasyon yöntemini desteklediğinden ve girdiğiniz URL'nin farklı bir konuma yönlendirilmediğinden emin olun. Yönlendirme yapılandırmanızın bir parçasıysa, bu denetimi ayarlardan devre dışı bırakabilirsiniz."
+  },
+  "Error034": {
+    "message": "E034: Uzaktaki yer imleri dosyası okunamıyor. Şifreleme parolasını ayarlamayı unuttunuz mu?"
+  },
+  "Error035": {
+    "message": "E035: Aşağıdaki yer imini sunucuda oluşturma başarısız oldu: {0}"
+  },
+  "Error036": {
+    "message": "E036: Senkronizasyon sunucusuna erişim izni yok"
+  },
+  "Error037": {
+    "message": "E037: Kaynak kilitlendi"
+  },
+  "Error038": {
+    "message": "E038: Yerel klasör bulunamadı"
+  },
+  "LabelWebdavurl": {
+    "message": "WebDAV URL"
+  },
+  "DescriptionWebdavurl": {
+    "message": "Örnek olarak nextcloud ile: https://example.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "Nextcloud URL"
+  },
+  "LabelUsername": {
+    "message": "Kullanıcı Adı"
+  },
+  "LabelPassword": {
+    "message": "Parola"
+  },
+  "LabelBookmarksfile": {
+    "message": "Yer imleri dosya yolu"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "WebDAV URL'nize göre yer imleri dosyasının göreli yolu (yoldaki tüm klasörler zaten mevcut olmalıdır). Örneğin, personal_stuff/bookmarks.xbel"
+  },
+  "DescriptionBookmarksfilegoogle": {
+    "message": "Google Drive'ınızda yer alacak yer imleri dosyasının adı (bu ismin Drive'ınızda benzersiz olduğundan emin olun)"
+  },
+  "DescriptionBookmarksfilegit": {
+    "message": "Git deposu köküne göre yer imleri dosyasının göreli yolu (yoldaki tüm klasörler zaten mevcut olmalıdır). Örneğin, personal_stuff/bookmarks.xbel"
+  },
+  "LabelServerfolder": {
+    "message": "Sunucu hedefi"
+  },
+  "DescriptionServerfolder": {
+    "message": "Senkronizasyon sırasında, bu tarayıcıdaki yer imleriniz bu yolda sunucuda bağlantılar olarak saklanacaktır. Bu yolun Nextcloud Bookmarks uygulamasındaki bir klasörü temsil ettiğini, Nextcloud Dosyalarındaki bir klasörü temsil etmediğini unutmayın. Tüm bağlantıları sunucudaki en üst klasöre yerleştirmek için burayı boş bırakın."
+  },
+  "LabelLocaltarget": {
+    "message": "Yerel hedef"
+  },
+"DescriptionLocaltarget": {
+  "message": "Tarayıcı yer imlerini mi yoksa tarayıcı sekmelerini mi senkronize etmek istediğinizi burada seçin."
+  },
+  "LabelLocalfolder": {
+    "message": "Yer İmleri Klasörü"
+  },
+  "DescriptionLocalfolder": {
+    "message": "Bu yer imleri klasöründeki yer imleri sunucuda bağlantılar olarak saklanacak ve sunucudaki bağlantılar bu tarayıcıdaki bu yer imleri klasöründe yer imleri olarak saklanacaktır."
+  },
+  "LabelRootfolder": {
+    "message": "Kök klasör"
+  },
+  "LabelNewfolder": {
+    "message": "Yeni oluşturulan klasör"
+  },
+  "LabelOptions": {
+    "message": "Seçenekler"
+  },
+  "LabelSyncnow": {
+    "message": "Şimdi senkronize et"
+  },
+  "LabelCancelsync": {
+    "message": "Senkronizasyonu iptal et"
+  },
+  "LabelSyncall": {
+    "message": "Tüm profilleri senkronize et"
+  },
+  "LabelAutosync": {
+    "message": "Otomatik senkronizasyon"
+  },
+  "StatusLastsynced": {
+    "message": "Son senkronizasyon: {0} önce"
+  },
+  "StatusNeversynced": {
+    "message": "Henüz senkronize edilmedi"
+  },
+  "StatusAllgood": {
+    "message": "Her şey yolunda"
+  },
+  "StatusDisabled": {
+    "message": "Devre dışı"
+  },
+  "StatusError": {
+    "message": "Hata"
+  },
+  "StatusSyncing": {
+    "message": "Senkronize ediliyor"
+  },
+  "StatusScheduled": {
+    "message": "Zamanlanmış"
+  },
+  "LabelReset": {
+    "message": "Sıfırla"
+  },
+  "DescriptionReset": {
+    "message": "Yeni bir klasör oluşturmak için senkronize edilen klasörü sıfırla"
+  },
+  "LabelChoosefolder": {
+    "message": "Bir klasör seçin"
+  },
+  "DescriptionChoosefolder": {
+    "message": "Senkronize etmek için mevcut bir klasör ayarlayın"
+  },
+  "LabelRemoveaccount": {
+    "message": "Profili kaldır"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "Bu profili sil (bu yer imlerinizi kaldırmaz)"
+  },
+  "LabelSyncfromscratch": {
+    "message": "Başlangıçtan senkronizasyonu tetikleyin"
+  },
+  "LabelResetCache": {
+    "message": "Önbelleği sıfırla"
+  },
+  "DescriptionResetcache": {
+    "message": "Önbelleği sıfırlamak için bu düğmeye tıklayın, böylece bir sonraki senkronizasyon işlemi hiçbir veriyi silmez ve sadece sunucu ve yerel yer imlerini birleştirir"
+  },
+  "LabelParallelsync": {
+    "message": "Senkronizasyonu hızlandır"
+  },
+  "DescriptionParallelsync": {
+    "message": "Senkronizasyonu hızlandırmak için bu kutuyu işaretleyin. Bu özellik deneyseldir ve hata ayıklama günlüklerini okumayı zorlaştırır."
+  },
+  "LabelStrategy": {
+    "message": "Senkronizasyon stratejisi"
+  },
+  "DescriptionStrategy": {
+    "message": "Bu seçenek, farklı cihazlardaki yer imlerinin nasıl senkronize edileceğini belirler. Genellikle uyumlu ise tüm taraflardan gelen değişiklikleri korumak istersiniz, ancak bazen diğer tarayıcılardan gelen değişiklikleri (eklemeler ve silmeler dahil) veya yerel olarak yaptığınız değişiklikleri geçersiz kılmak isteyebilirsiniz."
+  },
+  "LabelStrategydefault": {
+    "message": "Her zaman yerel değişiklikleri diğer tarayıcılardan gelen değişikliklerle birleştir (önerilir)"
+  },
+  "LabelStrategyslave": {
+    "message": "Her zaman yerel değişiklikleri geri al ve diğer tarayıcılardan gelen değişiklikleri indir"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "Her zaman yerel değişiklikleri yükle ve diğer tarayıcılardan gelen değişiklikleri geri al"
+  },
+  "LabelSave": {
+    "message": "Kaydet"
+  },
+  "LabelCancel": {
+    "message": "İptal"
+  },
+  "LabelAdd": {
+    "message": "Ekle"
+  },
+  "LabelChange": {
+    "message": "Değiştir"
+  },
+  "LabelRemove": {
+    "message": "Kaldır"
+  },
+  "LabelBack": {
+    "message": "Geri"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Nextcloud Yer İmleri"
+  },
+"DescriptionAdapternextcloudfolders": {
+  "message": "Nextcloud Yer İmleri seçeneği, yer imlerinizi Nextcloud için Yer İmleri uygulamasıyla senkronize eder. Sadece http, ftp ve javascript yer imlerini senkronize edebilir. Nextcloud uygulama mağazasından Yer İmleri uygulamasını yüklediğinizden emin olun. Bu seçenek uçtan uca şifrelemeyi kullanamaz."
+  },
+  "LabelAdapternextcloud": {
+    "message": "Nextcloud Yer İmleri (eski)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "Eski seçenek, Yer İmleri uygulamasının en az v0.11 sürümüyle uyumludur. Klasörleri, klasör yolunu içeren etiketler kullanarak taklit eder. Yeni profiller için bu seçeneği kullanmanız önerilmez."
+  },
+  "LabelAdapterwebdav": {
+    "message": "WebDAV paylaşımı"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "WebDAV seçeneği, yer imlerinizi sağlanan WebDAV paylaşımındaki bir dosyada saklayarak senkronize eder. Bu seçenek için eşlik eden bir web arayüzü yoktur ve herhangi bir WebDAV uyumlu sunucuyla kullanabilirsiniz. Http, ftp, data, file ve javascript yer imlerini senkronize edebilir. Bu seçeneği kullanırken uçtan uca şifrelemeyi tercih edebilirsiniz."
+  },
+  "LabelAddaccount": {
+    "message": "Profil ekle"
+  },
+  "LabelOpenintab": {
+    "message": "Sekmede aç"
+  },
+  "LabelDebuglogs": {
+    "message": "Hata ayıklama günlükleri"
+  },
+  "LabelFunddevelopment": {
+    "message": "\uD83D\uDCB8 Geliştirmeyi finanse et"
+  },
+  "DescriptionFunddevelopment": {
+    "message": "Floccus üzerinde çalışma, gönüllü bir abonelik modeli ile desteklenmektedir. Yaptığım işin değerli olduğunu düşünüyorsanız ve her ay birkaç kuruş (cent) ayırabiliyorsanız, lütfen çalışmamı destekleyin. Ayrıca, floccus'a tercih ettiğiniz eklenti mağazasında bir puan vermeyi düşünün. Teşekkürler!💙"
+  },
+  "LabelSelect": {
+    "message": "Seç"
+  },
+  "LabelUntitledfolder": {
+    "message": "Başlıksız klasör"
+  },
+  "LabelSetkeybutton": {
+    "message": "Parola belirle"
+  },
+  "LabelKey": {
+    "message": "Parolanızı girin"
+  },
+  "LabelKey2": {
+    "message": "Parolanızı tekrar girin"
+  },
+  "LabelUnlock": {
+    "message": "Floccus'u aç"
+  },
+  "LabelRemovekey": {
+    "message": "Parolayı kaldır"
+  },
+  "LabelRemovedkey": {
+    "message": "Parola kaldırıldı"
+  },
+  "LabelSyncinterval": {
+    "message": "Senkronizasyon aralığı"
+  },
+  "DescriptionSyncinterval": {
+    "message": "İki senkronizasyon çalıştırması arasındaki süre (dakika olarak): Varsayılan 15 dakikadır."
+  },
+"LabelChooseadapter": {
+  "message": "Nasıl senkronize etmek istiyorsunuz?"
+  },
+  "LabelOptionsscreen": {
+    "message": "{0} seçenekler",
+    "description": "Seçenekler ekranının başlığı. Yer tutucu profil türünü içerir."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "Projeyi desteklemek için paypal üzerinden tek seferlik bağış yapın"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "Projeyi desteklemek için OpenCollective üzerinden düzenli bağış yapın"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "Projeyi desteklemek için Liberapay üzerinden düzenli bağış yapın"
+  },
+  "LabelGithubsponsors": {
+    "message": "GitHub sponsorları"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "Projeyi desteklemek için GitHub sponsorları üzerinden düzenli bağış yapın"
+  },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+"DescriptionPatreon": {
+  "message": "Projeyi desteklemek için Patreon üzerinden düzenli bağış yapın"
+  },
+  "LabelKofi": {
+    "message": "Ko-fi"
+  },
+  "DescriptionKofi": {
+    "message": "Projeyi desteklemek için Ko-fi üzerinden düzenli veya tek seferlik bağış yapın"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "Bu eski profil türü kullanımdan kaldırıldı ve yakında kaldırılacak. Lütfen yeni nextcloud senkronizasyon yöntemine geçin. Gelişmiş performans ve doğruluk sizi bekliyor."
+  },
+  "LabelUpdated": {
+    "message": "⚡ Floccus güncellendi"
+  },
+  "DescriptionUpdated": {
+    "message": "Tebrikler, floccus'un en son güncellemesi cihazınıza geldi!"
+  },
+  "LabelReleaseNotes": {
+    "message": "Sürüm notlarını oku"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "Sunucu detayları"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "Klasör eşleştirme"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "Senkronizasyon davranışı"
+  },
+  "LabelOptionsDangerous": {
+    "message": "Tehlikeli işlemler"
+  },
+  "LabelAccountDeleted": {
+    "message": "Profil silindi"
+  },
+"DescriptionAccountDeleted": {
+  "message": "Bu profil silindi"
+  },
+  "LabelNoAccount": {
+    "message": "Burada profil yok"
+  },
+  "DescriptionNoAccount": {
+    "message": "Yer imlerinizi senkronize etmek için yeni bir profil oluşturun veya farklı bir cihazdan veya tarayıcıdan profilleri içe aktarın."
+  },
+  "LabelLoginFlowStart": {
+    "message": "Nextcloud ile oturum aç"
+  },
+  "LabelLoginFlowStop": {
+    "message": "Nextcloud oturum açmayı iptal et"
+  },
+  "LabelLoginFlowError": {
+    "message": "Nextcloud oturum açma başarısız"
+  },
+  "LabelNewAccount": {
+    "message": "Yeni Profil"
+  },
+  "LabelNestedSync": {
+    "message": "İç içe profiller"
+  },
+  "DescriptionNestedSync": {
+    "message": "Profilleri iç içe yerleştirebilirsiniz, böylece bir üst klasör profil A'ya ve bir alt klasör hem profil A hem de B'ye ait olabilir. Diğer profillerin bu profilin klasörünü de senkronize etmesine izin vermek istiyor musunuz?"
+  },
+  "LabelNestedSyncNo": {
+    "message": "Hayır, bu profilin klasörünü diğer profillerde görmezden gel"
+  },
+  "LabelNestedSyncYes": {
+    "message": "Evet, bu profilin klasörünü diğer profillere dahil et"
+  },
+  "LabelImportExport": {
+    "message": "Profilleri İçe/Dışa Aktar"
+  },
+  "LabelExport": {
+    "message": "Profilleri dışa aktar"
+  },
+  "LabelImport": {
+    "message": "Profilleri içe aktar"
+  },
+  "DescriptionExport": {
+    "message": "Aşağıda, farklı bir cihazda veya tarayıcıda aynı profilleri kolayca yeniden oluşturmak için dosyaya aktarmak istediğiniz profilleri seçin."
+  },
+  "DescriptionImport": {
+    "message": "Buradan, farklı bir cihazda veya tarayıcıda dışa aktarılan profilleri yeniden oluşturmak için içe aktarılan profillerin bulunduğu bir dosyayı içe aktarın. İçe aktardıktan sonra doğru senkronizasyon klasörlerini tekrar ayarladığınızdan emin olun."
+  },
+  "LabelFolderNotFound": {
+    "message": "Klasör bulunamadı"
+  },
+  "LabelSyncTabs": {
+    "message": "Tarayıcı sekmeleri"
+  },
+  "DescriptionSyncTabs": {
+    "message": "Sunucuda saklanan bağlantılar tarayıcınızda sekme olarak açılacak ve mevcut açık tarayıcı sekmeleri sunucunuzda bağlantı olarak saklanacaktır. Sunucuda kaç bağlantı saklandığına bağlı olarak, bunların tümü bir sonraki senkronizasyon çalıştırmasında sekme olarak açılacağı için tarayıcınızı aşırı yükleyebilir."
+  },
+  "LabelTabs": {
+    "message": "Sekmeler"
+  },
+  "LabelSyncDown": {
+    "message": "Sunucudan indir"
+  },
+  "DescriptionSyncDown": {
+    "message": "Diğer tarayıcılardan gelen değişiklikleri indir ve yerel değişiklikleri geçersiz kıl"
+  },
+"LabelSyncUp": {
+  "message": "Sunucuya yükle"
+  },
+  "DescriptionSyncUp": {
+    "message": "Yerel değişiklikleri yükle ve diğer tarayıcılardan gelen değişiklikleri geçersiz kıl"
+  },
+  "LabelSyncDownOnce": {
+    "message": "Sunucudan bir kez indir"
+  },
+  "LabelSyncUpOnce": {
+    "message": "Sunucuya bir kez yükle"
+  },
+  "LabelSyncNormal": {
+    "message": "Birleştir"
+  },
+  "DescriptionSyncNormal": {
+    "message": "Yerel değişiklikleri diğer tarayıcılardan gelen değişikliklerle birleştir"
+  },
+  "DescriptionFilesPermission": {
+    "message": "Floccus'a yalnızca yer imleri uygulamasını değil, aynı zamanda Nextcloud dosyalar uygulamasını da kullanma izni verdiğinizden emin olun."
+  },
+  "DescriptionExtension": {
+    "message": "Yer imlerinizi tarayıcılar ve cihazlar arasında özel olarak senkronize edin"
+  },
+  "LabelFailsafe": {
+    "message": "Güvenlik önlemi"
+  },
+  "DescriptionFailsafe": {
+    "message": "Bazen yapılandırma hataları veya yazılım hataları, verilerin yanlışlıkla silinmesine ve kaybolmasına neden olabilir. Bunu önlemek için floccus, burada bu güvenlik önlemini devre dışı bırakmadığınız sürece, yer imlerinizin %50'sinden fazlasını bir kerede silmez."
+  },
+  "LabelFailsafeon": {
+    "message": "Etkin. Bana sormadan yerel yer imlerimin %50'sinden fazlasını silmeyin. (Önerilir)"
+  },
+"LabelFailsafeoff": {
+  "message": "Devre dışı. Yerel yer imlerimin %50'sinden fazlasının bana sormadan silinmesine izin ver."
+  },
+  "StatusFailsafeoff": {
+    "message": "Güvenlik önlemi devre dışı. Beklenmedik veri kaybı riski altındasınız. Profil ayarlarında güvenlik önlemini etkinleştirmeniz önerilir."
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google Drive"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "Yer imlerini Google Drive'ınızda saklanan (isteğe bağlı olarak şifrelenmiş) bir dosya aracılığıyla senkronize edin. http, ftp, data, file ve javascript yer imlerini senkronize edebilir. Bu seçeneği kullanırken uçtan uca şifrelemeyi tercih edebilirsiniz."
+  },
+  "LabelLogingoogle": {
+    "message": "Google ile oturum aç"
+  },
+  "DescriptionLogingoogle": {
+    "message": "Yer imi senkronizasyon dosyasını Google Drive'ınızda saklamak için Google hesabınızı bağlayın."
+  },
+  "DescriptionLoggedingoogle": {
+    "message": "Google hesabınızı, yer imi senkronizasyon dosyasını Google Drive'ınızda saklamak için bağladınız."
+  },
+  "LabelPassphrase": {
+    "message": "Parola"
+  },
+  "DescriptionPassphrase": {
+    "message": "Yer imleri dosyanızı şifrelemek için bir parola belirleyin, eğer parola belirlemezseniz, şifreleme yapılmaz."
+  },
+  "LabelClientcert": {
+    "message": "İstemci kimlik bilgilerini gönder"
+  },
+  "DescriptionClientcert": {
+    "message": "Sunucunuz kimlik doğrulama için istemci sertifikası veya çerezler gerektiriyorsa bu seçeneği etkinleştirin. Bu, floccus'un normal tarayıcı oturumlarınızla çerezleri paylaşacağı için istenmeyen yan etkilere neden olabilir."
+  },
+  "LabelAllowredirects": {
+    "message": "Sunucu URL'sinde yönlendirmelere izin ver"
+  },
+  "DescriptionAllowredirects": {
+    "message": "Senkronizasyon sırasında haksız olduğunu düşündüğünüz yönlendirme hataları alıyorsanız bu seçeneği etkinleştirin."
+  },
+  "LabelSearch": {
+    "message": "Yer imlerini ara"
+  },
+  "LabelSearchfolder": {
+    "message": "{0} klasörünü ara"
+  },
+  "LabelEdititem": {
+    "message": "Düzenle"
+  },
+  "LabelDeleteitem": {
+    "message": "Sil"
+  },
+"LabelNobookmarks": {
+  "message": "Burada yer imi yok"
+  },
+  "LabelAddbookmark": {
+    "message": "Yer imi ekle"
+  },
+  "LabelEditbookmark": {
+    "message": "Yer imini düzenle"
+  },
+  "LabelAddfolder": {
+    "message": "Klasör ekle"
+  },
+  "LabelEditfolder": {
+    "message": "Klasörü düzenle"
+  },
+  "LabelSlugline": {
+    "message": "Özel Yer İmi Senkronizasyonu"
+  },
+  "LabelDownloadlogs": {
+    "message": "Günlükleri indir"
+  },
+  "LabelDownloadfulllogs": {
+    "message": "Kapsamlı günlükler"
+  },
+  "LabelDownloadanonymizedlogs": {
+    "message": "Anonimleştirilmiş günlükler"
+  },
+  "DescriptionDownloadlogs": {
+    "message": "Floccus tüm eylemlerini bir günlük dosyasında kaydeder. Bu dosyayı kendiniz inceleyebilir veya hata ayıklama amaçları için geliştiricilere gönderebilirsiniz. Anonimleştirilmiş günlüklerde klasör ve yer imi adları ile URL'ler kriptografik bir hash fonksiyonu kullanılarak geri döndürülemez şekilde kodlanır. Anonimleştirilmiş günlükleri gönderirken, indirilen dosyada anonimleştirme sürecinde yakalanmamış hassas veriler olup olmadığını kontrol etmeyi unutmayın."
+  },
+  "ErrorFolderloopselected": {
+    "message": "Bir klasör kendi içine taşınamaz"
+  },
+  "ErrorNofolderselected": {
+    "message": "Klasör seçilmedi"
+  },
+  "LabelAllownetwork": {
+    "message": "Ağ kullanımına izin ver"
+  },
+  "DescriptionAllownetwork": {
+    "message": "Floccus, senkronizasyon sunucunuza bağlanmanın yanı sıra, yer imleriniz hakkında ek bilgiler elde etmek için ağı kullanabilir (örneğin simgeler vb.). Burada bu ağ kullanımını etkinleştirebilirsiniz."
+  },
+  "LabelMobilesettings": {
+    "message": "Mobil ayarlar"
+  },
+  "LabelContinuefloccus": {
+    "message": "Floccus'a devam et"
+  },
+  "LabelAbout": {
+    "message": "Hakkında"
+  },
+"LabelCurrentversion": {
+  "message": "Mevcut sürüm"
+  },
+  "DescriptionCurrentversion": {
+    "message": "Şu anda yüklü olan floccus sürümünüz:"
+  },
+  "LabelContributors": {
+    "message": "Katkıda Bulunanlar"
+  },
+  "DescriptionContributors": {
+    "message": "Bu kişiler floccus'un mümkün olmasını sağladı"
+  },
+  "LabelSortcustom": {
+    "message": "Özel"
+  },
+  "LabelSorturl": {
+    "message": "Bağlantı"
+  },
+  "LabelSorttitle": {
+    "message": "Başlık"
+  },
+  "LabelSyncmethod": {
+    "message": "Senkronizasyon yöntemi"
+  },
+  "LabelSyncserver": {
+    "message": "Senkronizasyon sunucusu"
+  },
+  "LabelSyncfolders": {
+    "message": "Senkronizasyon klasörleri"
+  },
+  "LabelSyncbehavior": {
+    "message": "Senkronizasyon davranışı"
+  },
+  "LabelContinue": {
+    "message": "Devam et"
+  },
+  "LabelDone": {
+    "message": "Tamamlandı"
+  },
+  "LabelConnect": {
+    "message": "Bağlan"
+  },
+  "LabelServersetup": {
+    "message": "Hangi sunucuyla senkronize etmek istiyorsunuz?"
+  },
+  "LabelGoogledrivesetup": {
+    "message": "Google Drive ile oturum aç"
+  },
+  "LabelSyncfoldersetup": {
+    "message": "Hangi klasörleri senkronize etmek istiyorsunuz?"
+  },
+  "LabelSyncbehaviorsetup": {
+    "message": "Senkronizasyonun nasıl çalışmasını istiyorsunuz?"
+  },
+  "LabelAccountcreated": {
+    "message": "Profil oluşturuldu"
+  },
+  "DescriptionAccountcreated": {
+    "message": "Profiliniz oluşturuldu. Bu sekmeyi şimdi kapatabilirsiniz."
+  },
+  "DescriptionNonhttps": {
+    "message": "Güvensiz bir protokol kullanan bir sunucu girdiniz. HTTPS desteği olan sunucuları kullanmanız önerilir."
+  },
+  "LabelFiletype": {
+    "message": "Dosya formatı"
+  },
+  "DescriptionFiletype": {
+    "message": "Yer imlerini bulutta saklamak için hangi dosya formatını kullanmak istediğinizi seçebilirsiniz."
+  },
+  "LabelFiletypehtml": {
+    "message": "HTML, yaygın olarak desteklenen, açık format (deneysel)"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL, basit, açık format"
+  },
+  "LabelImportbookmarks": {
+    "message": "Yer imlerini içe aktar"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "Yer imleri içeren bir HTML dosyasını mevcut klasöre içe aktarın"
+  },
+  "LabelExportBookmarks": {
+    "message": "Yer İmlerini Dışa Aktar"
+  },
+  "DescriptionExportBookmarks": {
+    "message": "Bu profildeki tüm yer imlerini, tüm büyük tarayıcılarla uyumlu bir HTML dosyası olarak dışa aktarabilirsiniz."
+  },
+  "LabelShareitem": {
+    "message": "Paylaş"
+  },
+  "LabelImportsuccessful": {
+    "message": "Profil(ler) başarıyla içe aktarıldı"
+  },
+  "DescriptionSyncinprogress": {
+    "message": "Senkronizasyon devam ediyor."
+  },
+  "DescriptionSyncscheduled": {
+    "message": "Bu profil yakında senkronize edilecek. Diğer cihazlarınızın veya bu cihazdaki diğer profillerin senkronizasyonunun bitmesini bekliyoruz."
+  },
+"LabelAdaptergit": {
+  "message": "HTTPS üzerinden Git"
+  },
+  "DescriptionAdaptergit": {
+    "message": "Git seçeneği, yer imlerinizi sağlanan Git deposunda bir dosyada saklayarak senkronize eder. Bu seçenek için eşlik eden bir web arayüzü yoktur, ancak Github, Gitlab, Gitea gibi herhangi bir Git barındırma sunucusuyla kullanabilirsiniz. Http, ftp, data, file ve javascript yer imlerini senkronize edebilir. Bu seçeneği kullanırken uçtan uca şifreleme yapamazsınız."
+  },
+  "LabelGiturl": {
+    "message": "HTTP kullanarak Depo URL'si"
+  },
+  "LabelGitbranch": {
+    "message": "Git dalı"
+  },
+  "LabelTelemetry": {
+    "message": "\uD83D\uDC1B Otomatik Hata Raporlama"
+  },
+  "DescriptionTelemetry": {
+    "message": "Floccus, hata verilerini otomatik olarak bana, geliştiriciye gönderebilir. Bu, floccus'taki hataları daha hızlı keşfetmek ve çözmek için büyük bir yardımcıdır ve uzun vadede floccus deneyiminizi iyileştirecektir. Hata raporlaması etkinleştirildiğinde bile, floccus geliştiricileri yer imlerinizi asla göremez."
+  },
+  "LabelTelemetryenable": {
+    "message": "Hata verilerini otomatik olarak floccus geliştiricilerine gönder"
+  },
+  "LabelTelemetrydisable": {
+    "message": "Hata verilerini floccus geliştiricilerine gönderme"
+  },
+  "LabelAccountlabel": {
+    "message": "Profil etiketi"
+  },
+  "DescriptionAccountlabel": {
+    "message": "Bu profile kolayca tanıyabileceğiniz bir ad verin"
+  },
+  "LabelClickcount": {
+    "message": "Tıklama sayısını say"
+  },
+  "DescriptionClickcount": {
+    "message": "Hangi yer imlerini en çok ziyaret ettiğinize dair istatistikleri Nextcloud sunucunuza gönderin, böylece tıklama sayısına göre sıralayabilirsiniz"
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "Google Play'de inceleme yazın"
+  },
+  "DescriptionAppstorereview": {
+    "message": "App Store'da inceleme yazın"
+  },
+  "DescriptionChromereview": {
+    "message": "Chrome WebStore'da inceleme yazın"
+  },
+  "DescriptionAlternativereview": {
+    "message": "AlternativeTo.net'te inceleme yazın"
+  },
+  "DescriptionMozillareview": {
+    "message": "Mozilla Eklentileri'nde inceleme yazın"
+  },
+  "DescriptionEdgereview": {
+    "message": "Edge Eklentileri'nde inceleme yazın"
+  },
+  "LabelWritereview": {
+    "message": "\uD83D\uDC99 Sevgini Paylaş!"
+  },
+  "DescriptionWritereview": {
+    "message": "Floccus'tan heyecan duyuyorsanız, aşağıdaki platformlardan birinde puan vererek dünyaya duyurun."
+  },
+  "DescriptionDonateintervention": {
+    "message": "Yer İmi Senkronizasyonunu Seviyor musunuz? Beni Destekleyin!"
+  },
+  "LabelDonate": {
+    "message": "Bağış Yap"
+  }
+}
