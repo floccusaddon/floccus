@@ -625,6 +625,14 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     // We need this lock to avoid creating two boomarks with the same url
     // in parallel
     return this.bookmarkLock.acquire(bm.url, async() => {
+      let newParentFolder
+      if (this.tree) {
+        newParentFolder = this.tree.findFolder(bm.parentId)
+        if (!newParentFolder) {
+          throw new UnknownCreateTargetError()
+        }
+      }
+
       const existingBookmark = await this.getExistingBookmark(bm.url)
       if (existingBookmark) {
         bm.id = existingBookmark.id + ';' + bm.parentId // We already use the new parentId here, to avoid moving it away from the old location
@@ -662,7 +670,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       upstreamMark.id = bm.id.split(';')[0]
       this.list && this.list.push(upstreamMark)
       if (this.tree) {
-        this.tree.findFolder(bm.parentId).children.push(upstreamMark)
+        newParentFolder.children.push(upstreamMark)
         this.tree.createIndex()
       }
 
@@ -679,6 +687,11 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     // in parallel
     return this.bookmarkLock.acquire(upstreamId, async() => {
       const bms = await this._getBookmark(upstreamId)
+
+      const newFolder = this.tree.findFolder(newBm.parentId)
+      if (!newFolder) {
+        throw new UnknownCreateTargetError()
+      }
 
       const body = {
         url: newBm.url,
@@ -702,7 +715,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         body
       )
 
-      const newFolder = this.tree.findFolder(newBm.parentId)
       if (!newFolder.children.find(item => String(item.id) === String(newBm.id) && item.type === 'bookmark')) {
         newFolder.children.push(newBm)
       }
