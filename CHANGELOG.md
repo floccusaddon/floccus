@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.2.3] - 2024-06-21
+
+### Fixed
+
+* fix(AccountCard): mention if profile was disabled after error
+* fix(OptionsGit): Branch option didn't propagate new value
+
 ## [5.2.2] - 2024-06-16
 
 ### Fixed
