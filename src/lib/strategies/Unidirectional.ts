@@ -1,5 +1,5 @@
 import DefaultStrategy, { ISerializedSyncProcess } from './Default'
-import Diff, { Action, ActionType } from '../Diff'
+import Diff, { Action, ActionType, ReorderAction } from '../Diff'
 import * as Parallel from 'async-parallel'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import { Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
@@ -124,8 +124,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       this.direction,
       (action: Action) => action.type === ActionType.REORDER,
       true
-    )
-    Logger.log({revertOrderings: revertOrderings.getActions(ActionType.REORDER)})
+    ).clone(action => action.type === ActionType.REORDER)
 
     if ('orderFolder' in target) {
       await this.executeReorderings(target, revertOrderings)
@@ -242,6 +241,10 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       newItem.createIndex()
     }
     return newItem
+  }
+
+  addReorderOnDemand(action: ReorderAction, targetLocation: TItemLocation) {
+    this.sourceDiff.commit(action)
   }
 
   setState({localTreeRoot, cacheTreeRoot, serverTreeRoot, direction, revertPlan, revertOrderings, flagPreReordering, sourceDiff}: any) {

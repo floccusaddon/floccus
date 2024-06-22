@@ -73,10 +73,12 @@ export default class Diff {
     }
   }
 
-  clone() {
+  clone(filter: (Action)=>boolean = () => true) {
     const newDiff = new Diff
     this.getActions().forEach((action: Action) => {
-      newDiff.commit(action)
+      if (filter(action)) {
+        newDiff.commit(action)
+      }
     })
 
     return newDiff
@@ -279,7 +281,7 @@ export default class Diff {
 
   inspect(depth = 0):string {
     return 'Diff\n' + this.getActions().map((action: Action) => {
-      return `\nAction: ${action.type}\nPayload: ${action.payload.inspect()}${'index' in action ? `Index: ${action.index}\n` : ''}${'order' in action ? `Order: ${JSON.stringify(action.order, null, '\t')}` : ''}`
+      return `\nAction: ${action.type}\nPayload: #${action.payload.id}[${action.payload.title}]${'url' in action.payload ? `(${action.payload.url})` : ''} ${'index' in action ? `Index: ${action.index}\n` : ''}${'order' in action ? `Order: ${JSON.stringify(action.order, null, '\t')}` : ''}`
     }).join('\n')
   }
 

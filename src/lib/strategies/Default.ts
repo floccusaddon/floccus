@@ -214,9 +214,11 @@ export default class SyncProcess {
 
     if ('orderFolder' in this.server) {
       this.localReorderPlan = this.reconcileReorderings(this.localPlan, this.doneServerPlan, mappingsSnapshot)
+        .clone(action => action.type === ActionType.REORDER)
         .map(mappingsSnapshot, ItemLocation.LOCAL)
 
       this.serverReorderPlan = this.reconcileReorderings(this.serverPlan, this.doneLocalPlan, mappingsSnapshot)
+        .clone(action => action.type === ActionType.REORDER)
         .map(mappingsSnapshot, ItemLocation.SERVER)
 
       this.flagPostReorderReconciliation = true
@@ -693,6 +695,14 @@ export default class SyncProcess {
     return mappedPlan
   }
 
+  addReorderOnDemand(action: ReorderAction, targetLocation: TItemLocation) {
+    if (targetLocation === ItemLocation.LOCAL) {
+      this.localPlan && this.localPlan.commit(action)
+    } else {
+      this.localPlan && this.serverPlan.commit(action)
+    }
+  }
+
   async executeAction(resource:TResource, action:Action, targetLocation:TItemLocation, plan: Diff, donePlan: Diff = null):Promise<void> {
     // defer execution of actions to allow the this.canceled check below to work when cancelling in interrupt tests
     await Promise.resolve()
@@ -742,6 +752,7 @@ export default class SyncProcess {
 
       if (item instanceof Folder && ((action.payload instanceof Folder && action.payload.children.length) || (action.oldItem instanceof Folder && action.oldItem.children.length))) {
         if ('bulkImportFolder' in resource) {
+          // eslint-disable-next-line no-constant-condition
           if (action.payload.count() < 75 || this.server instanceof CachingAdapter) {
             Logger.log('Attempting full bulk import')
             try {
@@ -763,9 +774,33 @@ export default class SyncProcess {
                 false,
               )
               await subScanner.run()
-              await Parallel.each(newMappings, async([oldItem, newId]) => {
+              await Parallel.each(newMappings, async([oldItem, newId]: [TItem, string|number]) => {
                 await this.addMapping(resource, oldItem, newId)
               }, 10)
+
+              if ('orderFolder' in resource && action.oldItem instanceof Folder) {
+                const mappingsSnapshot = this.mappings.getSnapshot()
+                this.addReorderOnDemand({
+                  type: ActionType.REORDER,
+                  oldItem: imported,
+                  payload: action.oldItem,
+                  order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
+                }, targetLocation)
+                await action.oldItem.traverse((item) => {
+                  if (item instanceof Folder && item.children.length > 1) {
+                    // Correct the order after bulk import. Usually we expect bulk import to do the order correctly
+                    // on its own, but Nextcloud Bookmarks pre v14.2.0 does not
+                    const payload = imported.findFolder(Mappings.mapId(mappingsSnapshot, item, targetLocation))
+                    // Order created items after the fact, as they've been created concurrently
+                    this.addReorderOnDemand({
+                      type: ActionType.REORDER,
+                      oldItem: payload,
+                      payload: item,
+                      order: item.children.map(i => ({ type: i.type, id: i.id }))
+                    }, targetLocation)
+                  }
+                })
+              }
 
               done()
               return
@@ -806,8 +841,11 @@ export default class SyncProcess {
 
               if (action.oldItem && action.oldItem instanceof Folder) {
                 const subPlan = new Diff
-                action.oldItem.children
-                  .filter(child => child instanceof Folder)
+                const folders = action.oldItem.children
+                  .filter(item => item instanceof Folder)
+                  .filter(item => item as Folder)
+
+                folders
                   .forEach((child) => {
                     const newAction : Action = { type: ActionType.CREATE, payload: child }
                     subPlan.commit(newAction)
@@ -819,14 +857,14 @@ export default class SyncProcess {
                 this.actionsPlanned += mappedSubPlan.getActions().length
                 await this.execute(resource, mappedSubPlan, targetLocation, null, true)
 
-                if ('orderFolder' in resource && item.children.length > 1) {
+                if ('orderFolder' in resource) {
                   // Order created items after the fact, as they've been created concurrently
-                  plan.commit({
+                  this.addReorderOnDemand({
                     type: ActionType.REORDER,
                     oldItem: action.payload,
                     payload: action.oldItem,
                     order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
-                  })
+                  }, targetLocation)
                 }
               }
 
@@ -855,12 +893,12 @@ export default class SyncProcess {
 
           if ('orderFolder' in resource && item.children.length > 1) {
             // Order created items after the fact, as they've been created concurrently
-            plan.commit({
+            this.addReorderOnDemand({
               type: ActionType.REORDER,
               oldItem: action.payload,
               payload: action.oldItem,
               order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
-            })
+            }, targetLocation)
           }
         }
       }
