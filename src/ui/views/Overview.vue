@@ -68,7 +68,7 @@
 <script>
 import AccountCard from '../components/AccountCard'
 import { routes } from '../router'
-import { actions } from '../store'
+import { actions } from '../store/definitions'
 
 export default {
   name: 'Overview',

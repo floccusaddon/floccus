@@ -93,7 +93,7 @@
 
 <script>
 import { version as VERSION } from '../../package.json'
-import { actions } from './store'
+import { actions } from './store/definitions'
 import { routes } from './router'
 import Controller from '../lib/Controller'
 import browser from '../lib/browser-api'

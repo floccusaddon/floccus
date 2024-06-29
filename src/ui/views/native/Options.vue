@@ -56,7 +56,7 @@
 import OptionsFake from '../../components/OptionsFake'
 import OptionsWebdav from '../../components/OptionsWebdav'
 import OptionsNextcloudBookmarks from '../../components/OptionsNextcloudBookmarks'
-import { actions } from '../../store/native'
+import { actions } from '../../store/definitions'
 import { routes } from '../../NativeRouter'
 import OptionsGoogleDrive from '../../components/OptionsGoogleDrive'
 import OptionsGit from '../../components/OptionsGit.vue'

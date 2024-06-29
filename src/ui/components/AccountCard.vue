@@ -147,7 +147,7 @@
 <script>
 import PathHelper from '../../lib/PathHelper'
 import humanizeDuration from 'humanize-duration'
-import { actions } from '../store'
+import { actions } from '../store/definitions'
 import { routes } from '../router'
 import BrowserTree from '../../lib/browser/BrowserTree'
 

@@ -5,8 +5,6 @@ import { actionsDefinition } from './actions'
 
 Vue.use(Vuex)
 
-export { mutations, actions } from '../definitions'
-
 export default new Store({
   mutations: mutationsDefinition,
   actions: actionsDefinition,
