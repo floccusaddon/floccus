@@ -10,7 +10,9 @@
           <div class="body-1">
             {{ t("DescriptionTelemetry") }}
           </div>
-          <v-radio-group v-model="telemetry" class="mt-4">
+          <v-radio-group
+            v-model="telemetry"
+            class="mt-4">
             <v-radio :value="true">
               <template #label>
                 <div class="heading">

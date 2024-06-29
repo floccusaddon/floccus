@@ -6,7 +6,9 @@
     "build": "gulp",
     "build-release": "gulp release",
     "watch": "gulp watch",
-    "test": "node --unhandled-rejections=strict test/selenium-runner.js"
+    "test": "node --unhandled-rejections=strict test/selenium-runner.js",
+    "lint": "eslint --ext .js,.vue src",
+    "lint:fix": "eslint --ext .js,.vue src --fix"
   },
   "repository": {
     "type": "git",
