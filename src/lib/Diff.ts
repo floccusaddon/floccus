@@ -1,4 +1,4 @@
-import { Folder, TItem, ItemType, TItemLocation, ItemLocation, hydrate } from './Tree'
+import { Folder, TItem, ItemType, TItemLocation, ItemLocation, hydrate, TOppositeLocation } from './Tree'
 import Mappings, { MappingSnapshot } from './Mappings'
 import Ordering from './interfaces/Ordering'
 import batchingToposort from 'batching-toposort'
@@ -14,68 +14,61 @@ export const ActionType = {
 
 export type TActionType = (typeof ActionType)[keyof typeof ActionType];
 
-export interface CreateAction {
+export interface CreateAction<L1 extends TItemLocation, L2 extends TItemLocation> {
   type: 'CREATE',
-  payload: TItem,
-  oldItem?: TItem,
+  payload: TItem<L1>,
+  oldItem?: TItem<L2>,
   index?: number,
   oldIndex?: number,
 }
 
-export interface UpdateAction {
+export interface UpdateAction<L1 extends TItemLocation, L2 extends TItemLocation> {
   type: 'UPDATE',
-  payload: TItem,
-  oldItem?: TItem,
+  payload: TItem<L1>,
+  oldItem?: TItem<L2>,
 }
 
-export interface RemoveAction {
+export interface RemoveAction<L1 extends TItemLocation, L2 extends TItemLocation> {
   type: 'REMOVE',
-  payload: TItem,
-  oldItem?: TItem,
+  payload: TItem<L1>,
+  oldItem?: TItem<L2>,
   index?: number,
   oldIndex?: number,
 }
 
-export interface ReorderAction {
+export interface ReorderAction<L1 extends TItemLocation, L2 extends TItemLocation> {
   type: 'REORDER',
-  payload: TItem,
-  oldItem?: TItem,
-  order: Ordering,
-  oldOrder?: Ordering,
+  payload: TItem<L1>,
+  oldItem?: TItem<L2>,
+  order: Ordering<L1>,
+  oldOrder?: Ordering<L2>,
 }
 
-export interface MoveAction {
+export interface MoveAction<L1 extends TItemLocation, L2 extends TItemLocation> {
   type: 'MOVE',
-  payload: TItem,
-  oldItem: TItem,
+  payload: TItem<L1>,
+  oldItem?: TItem<L2>,
   index?: number,
   oldIndex?: number,
 }
 
-export type Action = CreateAction|UpdateAction|RemoveAction|ReorderAction|MoveAction
+export type Action<L1 extends TItemLocation, L2 extends TItemLocation> = CreateAction<L1, L2>|UpdateAction<L1, L2>|RemoveAction<L1, L2>|ReorderAction<L1,L2>|MoveAction<L1,L2>
 
-export default class Diff {
-  private readonly actions: {
-    [ActionType.CREATE]: CreateAction[],
-    [ActionType.UPDATE]: UpdateAction[],
-    [ActionType.MOVE]: MoveAction[],
-    [ActionType.REMOVE]: RemoveAction[],
-    [ActionType.REORDER]: ReorderAction[]
-  }
+export type LocationOfAction<A> = A extends Action<infer L, TItemLocation> ? L : never
+export type OldLocationOfAction<A> = A extends Action<TItemLocation, infer L> ? L : never
+
+export type MapLocation<A extends Action<TItemLocation, TItemLocation>, NewLocation extends TItemLocation> = A extends Action<infer O, infer P> ? Action<NewLocation, O> : never
+
+export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A extends Action<L1, L2>> {
+  private readonly actions: A[]
 
   constructor() {
-    this.actions = {
-      [ActionType.CREATE]: [],
-      [ActionType.UPDATE]: [],
-      [ActionType.MOVE]: [],
-      [ActionType.REMOVE]: [],
-      [ActionType.REORDER]: []
-    }
+    this.actions = []
   }
 
-  clone(filter: (Action)=>boolean = () => true) {
-    const newDiff = new Diff
-    this.getActions().forEach((action: Action) => {
+  clone(filter: (action:A)=>boolean = () => true): Diff<L1, L2, A> {
+    const newDiff : Diff<L1, L2, A> = new Diff
+    this.getActions().forEach((action: A) => {
       if (filter(action)) {
         newDiff.commit(action)
       }
@@ -84,59 +77,21 @@ export default class Diff {
     return newDiff
   }
 
-  commit(action: Action):void {
-    switch (action.type) {
-      case ActionType.CREATE:
-        this.actions[action.type].push({ ...action })
-        break
-      case ActionType.UPDATE:
-        this.actions[action.type].push({ ...action })
-        break
-      case ActionType.MOVE:
-        this.actions[action.type].push({ ...action })
-        break
-      case ActionType.REMOVE:
-        this.actions[action.type].push({ ...action })
-        break
-      case ActionType.REORDER:
-        this.actions[action.type].push({ ...action })
-    }
+  commit(action: A):void {
+    this.actions.push({ ...action })
   }
 
-  retract(action: Action):void {
-    switch (action.type) {
-      case ActionType.CREATE:
-        this.actions[action.type].splice(this.actions[action.type].indexOf(action), 1)
-        break
-      case ActionType.UPDATE:
-        this.actions[action.type].splice(this.actions[action.type].indexOf(action), 1)
-        break
-      case ActionType.MOVE:
-        this.actions[action.type].splice(this.actions[action.type].indexOf(action), 1)
-        break
-      case ActionType.REMOVE:
-        this.actions[action.type].splice(this.actions[action.type].indexOf(action), 1)
-        break
-      case ActionType.REORDER:
-        this.actions[action.type].splice(this.actions[action.type].indexOf(action), 1)
-        break
-    }
+  retract(action: A):void {
+    this.actions.splice(this.actions.indexOf(action), 1)
   }
 
-  getActions(type?: TActionType):Action[] {
-    if (type) {
-      return this.actions[type].slice()
-    }
+  getActions():A[] {
     return [].concat(
-      this.actions[ActionType.UPDATE],
-      this.actions[ActionType.CREATE],
-      this.actions[ActionType.MOVE],
-      this.actions[ActionType.REMOVE],
-      this.actions[ActionType.REORDER],
+      this.actions
     )
   }
 
-  static findChain(mappingsSnapshot: MappingSnapshot, actions: Action[], itemTree: Folder, currentItem: TItem, targetAction: Action, chain: Action[] = []): boolean {
+  static findChain<L1 extends TItemLocation, L2 extends TItemLocation, L3 extends TItemLocation, L4 extends TItemLocation, L5 extends TItemLocation, L6 extends TItemLocation>(mappingsSnapshot: MappingSnapshot, actions: Action<L1, L5>[], itemTree: Folder<L2>, currentItem: TItem<L3>, targetAction: Action<L4, L6>, chain: Action<L1, L5>[] = []): boolean {
     const targetItemInTree = itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location))
     if (
       targetAction.payload.findItem(ItemType.FOLDER,
@@ -163,7 +118,7 @@ export default class Diff {
     return false
   }
 
-  static sortMoves(actions: Action[], tree: Folder) :Action[][] {
+  static sortMoves<L1 extends TItemLocation, L2 extends TItemLocation>(actions: Action<L1, L2>[], tree: Folder<L1>) :Action<L1, L2>[][] {
     const bookmarks = actions.filter(a => a.payload.type === ItemType.BOOKMARK)
     const folderMoves = actions.filter(a => a.payload.type === ItemType.FOLDER)
     const DAG = folderMoves
@@ -199,17 +154,16 @@ export default class Diff {
    * @param filter
    * @param skipErroneousActions
    */
-  map(mappingsSnapshot:MappingSnapshot, targetLocation: TItemLocation, filter: (Action)=>boolean = () => true, skipErroneousActions = false): Diff {
-    const newDiff = new Diff
+  map<L3 extends TItemLocation>(mappingsSnapshot:MappingSnapshot, targetLocation: L3, filter: (action: A)=>boolean = () => true, skipErroneousActions = false): Diff<L3, L1, MapLocation<A, L3>> {
+    const newDiff : Diff<L3, L1, MapLocation<A, L3>> = new Diff
 
     // Map payloads
     this.getActions()
-      .map(a => a as Action)
+      .map(a => a as A)
       .forEach(action => {
         let newAction
 
         if (!filter(action)) {
-          newDiff.commit(action)
           return
         }
 
@@ -224,15 +178,15 @@ export default class Diff {
           const newId = action.payload.id
           newAction = {
             ...action,
-            payload: action.payload.clone(false, targetLocation),
-            oldItem: action.oldItem.clone(false, action.payload.location)
+            payload: action.payload.cloneWithLocation(false, targetLocation),
+            oldItem: action.oldItem.cloneWithLocation(false, action.payload.location)
           }
           newAction.payload.id = oldId
           newAction.oldItem.id = newId
         } else {
           newAction = {
             ...action,
-            payload: action.payload.clone(false, targetLocation),
+            payload: action.payload.cloneWithLocation(false, targetLocation),
             oldItem: action.payload.clone(false)
           }
           newAction.payload.id = Mappings.mapId(mappingsSnapshot, action.payload, targetLocation)
@@ -270,7 +224,7 @@ export default class Diff {
   }
 
   toJSON() {
-    return this.getActions().map((action: Action) => {
+    return this.getActions().map((action: A) => {
       return {
         ...action,
         payload: action.payload.clone(false),
@@ -280,16 +234,16 @@ export default class Diff {
   }
 
   inspect(depth = 0):string {
-    return 'Diff\n' + this.getActions().map((action: Action) => {
+    return 'Diff\n' + this.getActions().map((action: A) => {
       return `\nAction: ${action.type}\nPayload: #${action.payload.id}[${action.payload.title}]${'url' in action.payload ? `(${action.payload.url})` : ''} ${'index' in action ? `Index: ${action.index}\n` : ''}${'order' in action ? `Order: ${JSON.stringify(action.order, null, '\t')}` : ''}`
     }).join('\n')
   }
 
-  static fromJSON(json) {
-    const diff = new Diff
-    json.forEach((action: Action): void => {
-      action.payload = hydrate(action.payload)
-      action.oldItem = action.oldItem && hydrate(action.oldItem)
+  static fromJSON<L1 extends TItemLocation, L2 extends TItemLocation, A2 extends Action<L1, L2>>(json) {
+    const diff: Diff<L1, L2, A2> = new Diff
+    json.forEach((action: A2): void => {
+      action.payload = hydrate<L1>(action.payload)
+      action.oldItem = action.oldItem && hydrate<L2>(action.oldItem)
       diff.commit(action)
     })
     return diff

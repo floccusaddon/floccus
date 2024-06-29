@@ -1,7 +1,7 @@
-import { Bookmark, Folder, TItem, ItemType, ItemLocation, TItemLocation } from '../Tree'
+import { Bookmark, Folder, TItem, ItemType, ItemLocation, TItemLocation, TOppositeLocation } from '../Tree'
 import Logger from '../Logger'
 import Diff, { Action, ActionType, CreateAction, MoveAction, RemoveAction, ReorderAction, UpdateAction } from '../Diff'
-import Scanner from '../Scanner'
+import Scanner, { ScanResult } from '../Scanner'
 import * as Parallel from 'async-parallel'
 import { throttle } from 'throttle-debounce'
 import Mappings, { MappingSnapshot } from '../Mappings'
@@ -18,21 +18,26 @@ export default class SyncProcess {
   protected mappings: Mappings
   protected localTree: TLocalTree
   protected server: TAdapter
-  protected cacheTreeRoot: Folder|null
+  protected cacheTreeRoot: Folder<typeof ItemLocation.LOCAL>|null
   protected canceled: boolean
   protected preserveOrder: boolean
   protected progressCb: (progress:number, actionsDone?:number)=>void
-  protected localTreeRoot: Folder
-  protected serverTreeRoot: Folder
+  protected localTreeRoot: Folder<typeof ItemLocation.LOCAL>
+  protected serverTreeRoot: Folder<typeof ItemLocation.SERVER>
   protected actionsDone = 0
   protected actionsPlanned = 0
   protected isFirefox: boolean
-  protected localPlan: Diff
-  protected serverPlan: Diff
-  protected doneLocalPlan: Diff
-  protected doneServerPlan: Diff
-  protected localReorderPlan: Diff
-  protected serverReorderPlan: Diff
+  protected localPlan: Diff<typeof ItemLocation.LOCAL>
+  protected serverPlan: Diff<typeof ItemLocation.SERVER>
+  protected doneLocalPlan: Diff<typeof ItemLocation.LOCAL>
+  protected doneServerPlan: Diff<typeof ItemLocation.SERVER>
+  protected unmappedLocalMovePlan: Diff<typeof ItemLocation.SERVER>
+  protected unmappedServerMovePlan: Diff<typeof ItemLocation.SERVER>
+  protected unmappedLocalReorderPlan: Diff<typeof ItemLocation.SERVER>
+  protected unmappedServerReorderPlan: Diff<typeof ItemLocation.SERVER>
+  protected localReorderPlan: Diff<typeof ItemLocation.LOCAL>
+  protected serverReorderPlan: Diff<typeof ItemLocation.SERVER>
+
   protected flagLocalPostMoveMapping = false
   protected flagLocalPostReorderReconciliation = false
   protected flagServerPostMoveMapping = false
@@ -63,7 +68,7 @@ export default class SyncProcess {
     return this.mappings
   }
 
-  setCacheTree(cacheTree: Folder) {
+  setCacheTree(cacheTree: Folder<typeof ItemLocation.LOCAL>) {
     this.cacheTreeRoot = cacheTree
   }
 
@@ -182,6 +187,8 @@ export default class SyncProcess {
     let mappingsSnapshot = this.mappings.getSnapshot()
     Logger.log('Mapping server plan')
     this.serverPlan = unmappedServerPlan.map(mappingsSnapshot, ItemLocation.SERVER, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
+    this.unmappedServerMovePlan = unmappedServerPlan.clone((action) => action.type === ActionType.MOVE)
+    this.unmappedServerReorderPlan = unmappedServerPlan.clone((action) => action.type === ActionType.REORDER)
 
     if (this.canceled) {
       throw new CancelledSyncError()
@@ -192,6 +199,8 @@ export default class SyncProcess {
     mappingsSnapshot = this.mappings.getSnapshot()
     Logger.log('Mapping local plan')
     this.localPlan = unmappedLocalPlan.map(mappingsSnapshot, ItemLocation.LOCAL, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
+    this.unmappedLocalMovePlan = unmappedLocalPlan.clone((action) => action.type === ActionType.MOVE)
+    this.unmappedLocalReorderPlan = unmappedLocalPlan.clone((action) => action.type === ActionType.REORDER)
 
     if (this.canceled) {
       throw new CancelledSyncError()
@@ -213,11 +222,11 @@ export default class SyncProcess {
     mappingsSnapshot = this.mappings.getSnapshot()
 
     if ('orderFolder' in this.server) {
-      this.localReorderPlan = this.reconcileReorderings(this.localPlan, this.doneServerPlan, mappingsSnapshot)
+      this.localReorderPlan = this.reconcileReorderings(this.localReorderPlan, this.doneServerPlan, mappingsSnapshot)
         .clone(action => action.type === ActionType.REORDER)
         .map(mappingsSnapshot, ItemLocation.LOCAL)
 
-      this.serverReorderPlan = this.reconcileReorderings(this.serverPlan, this.doneLocalPlan, mappingsSnapshot)
+      this.serverReorderPlan = this.reconcileReorderings(this.serverReorderPlan, this.doneLocalPlan, mappingsSnapshot)
         .clone(action => action.type === ActionType.REORDER)
         .map(mappingsSnapshot, ItemLocation.SERVER)
 
@@ -360,7 +369,7 @@ export default class SyncProcess {
       )
   }
 
-  async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
+  async getDiffs():Promise<{localScanResult:ScanResult<typeof ItemLocation.LOCAL, any>, serverScanResult:ScanResult<typeof ItemLocation.SERVER, any>}> {
     const mappingsSnapshot = this.mappings.getSnapshot()
 
     const newMappings = []
@@ -387,10 +396,10 @@ export default class SyncProcess {
       this.preserveOrder
     )
     Logger.log('Calculating diffs for local and server trees relative to cache tree')
-    const localDiff = await localScanner.run()
-    const serverDiff = await serverScanner.run()
+    const localScanResult = await localScanner.run()
+    const serverScanResult = await serverScanner.run()
     await Parallel.map(newMappings, ([localItem, serverItem]) => this.addMapping(this.server, localItem, serverItem.id), 10)
-    return {localDiff, serverDiff}
+    return {localScanResult, serverScanResult}
   }
 
   removeItemFromReorders(mappingsSnapshot: MappingSnapshot, sourceReorders:ReorderAction[], oldItem: TItem) {
@@ -401,38 +410,38 @@ export default class SyncProcess {
     parentReorder.order = parentReorder.order.filter(item => !(item.type === oldItem.type && Mappings.mapId(mappingsSnapshot, oldItem, parentReorder.payload.location) === item.id))
   }
 
-  async reconcileDiffs(sourceDiff:Diff, targetDiff:Diff, targetLocation: TItemLocation):Promise<Diff> {
+  async reconcileDiffs<L1 extends TItemLocation>(sourceDiff:Diff<L1>, targetDiff:Diff<TOppositeLocation<L1>>, targetLocation: TOppositeLocation<L1>):Promise<Diff<L1>> {
     Logger.log('Reconciling diffs to prepare a plan for ' + targetLocation)
     const mappingsSnapshot = this.mappings.getSnapshot()
 
-    const targetCreations = targetDiff.getActions(ActionType.CREATE).map(a => a as CreateAction)
-    const targetRemovals = targetDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
-    const targetMoves = targetDiff.getActions(ActionType.MOVE).map(a => a as MoveAction)
-    const targetUpdates = targetDiff.getActions(ActionType.UPDATE).map(a => a as UpdateAction)
-    const targetReorders = targetDiff.getActions(ActionType.REORDER).map(a => a as ReorderAction)
+    const targetCreations = targetDiff.getActions(ActionType.CREATE).map(a => a as CreateAction<TOppositeLocation<L1>>)
+    const targetRemovals = targetDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction<TOppositeLocation<L1>>)
+    const targetMoves = targetDiff.getActions(ActionType.MOVE).map(a => a as MoveAction<TOppositeLocation<L1>>)
+    const targetUpdates = targetDiff.getActions(ActionType.UPDATE).map(a => a as UpdateAction<TOppositeLocation<L1>>)
+    const targetReorders = targetDiff.getActions(ActionType.REORDER).map(a => a as ReorderAction<TOppositeLocation<L1>>)
 
-    const sourceCreations = sourceDiff.getActions(ActionType.CREATE).map(a => a as CreateAction)
-    const sourceRemovals = sourceDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction)
-    const sourceMoves = sourceDiff.getActions(ActionType.MOVE).map(a => a as MoveAction)
-    const sourceReorders = sourceDiff.getActions(ActionType.REORDER).map(a => a as ReorderAction)
+    const sourceCreations = sourceDiff.getActions(ActionType.CREATE).map(a => a as CreateAction<L1>)
+    const sourceRemovals = sourceDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction<L1>)
+    const sourceMoves = sourceDiff.getActions(ActionType.MOVE).map(a => a as MoveAction<L1>)
+    const sourceReorders = sourceDiff.getActions(ActionType.REORDER).map(a => a as ReorderAction<L1>)
 
-    const targetTree = targetLocation === ItemLocation.LOCAL ? this.localTreeRoot : this.serverTreeRoot
-    const sourceTree = targetLocation === ItemLocation.LOCAL ? this.serverTreeRoot : this.localTreeRoot
+    const targetTree : Folder<TOppositeLocation<L1>> = (targetLocation === ItemLocation.LOCAL ? this.localTreeRoot : this.serverTreeRoot) as Folder<TOppositeLocation<L1>>
+    const sourceTree : Folder<L1> = (targetLocation === ItemLocation.LOCAL ? this.serverTreeRoot : this.localTreeRoot) as Folder<L1>
 
     const allCreateAndMoveActions = targetDiff.getActions()
       .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
-      .map(a => a as CreateAction|MoveAction)
+      .map(a => a as CreateAction<TOppositeLocation<L1>>|MoveAction<TOppositeLocation<L1>>)
       .concat(
         sourceDiff.getActions()
           .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
-          .map(a => a as CreateAction|MoveAction)
+          .map(a => a as CreateAction<L1>|MoveAction<L1>)
       )
 
     const avoidTargetReorders = {}
 
     // Prepare target plan
-    const targetPlan = new Diff() // to be mapped
-    await Parallel.each(sourceDiff.getActions(), async(action:Action) => {
+    const targetPlan: Diff<L1> = new Diff() // to be mapped
+    await Parallel.each(sourceDiff.getActions(), async(action:Action<L1>) => {
       if (action.type === ActionType.REMOVE) {
         const concurrentRemoval = targetRemovals.find(targetRemoval =>
           (action.payload.type === targetRemoval.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetRemoval.payload)) ||
