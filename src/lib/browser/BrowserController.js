@@ -33,7 +33,6 @@ class AlarmManager {
         continue
       }
       if (data.error && data.errorCount > 1) {
-        const interval = 1000 * 60 * 5 // 5min
         if (Date.now() > interval * 2 ** data.errorCount + lastSync) {
           promises.push(this.ctl.scheduleSync(accountId))
         }
