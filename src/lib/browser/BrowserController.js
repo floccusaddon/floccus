@@ -422,6 +422,7 @@ export default class BrowserController {
       Sentry.init({
         dsn: 'https://836f0f772fbf2e12b9dd651b8e6b6338@o4507214911307776.ingest.de.sentry.io/4507216408870992',
         integrations: [],
+        sampleRate: 0.15,
         release: packageJson.version,
         debug: true,
       })
