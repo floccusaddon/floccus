@@ -30,12 +30,19 @@ class AlarmManager {
       const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
       if (data.scheduled && data.enabled) {
         promises.push(this.ctl.scheduleSync(accountId))
+        continue
+      }
+      if (data.error && data.errorCount > 1) {
+        const interval = 1000 * 60 * 5 // 5min
+        if (Date.now() > interval * 2 ** data.errorCount + lastSync) {
+          promises.push(this.ctl.scheduleSync(accountId))
+        }
+        continue
       }
       if (
         Date.now() >
         interval * 1000 * 60 + lastSync
       ) {
-        // noinspection ES6MissingAwait
         promises.push(this.ctl.scheduleSync(accountId))
       }
     }

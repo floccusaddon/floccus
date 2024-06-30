@@ -338,7 +338,6 @@ export default class Account {
         errorCount: this.getData().errorCount + 1,
         syncing: false,
         scheduled: false,
-        ...(this.getData().errorCount > 9 && {enabled: false}), // After 10 errors in a row, disable the account
       })
       if (matchAllErrors(e, e => e.code !== 27 && (!isTest || e.code !== 26))) {
         await this.storage.setCurrentContinuation(null)

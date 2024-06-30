@@ -65,13 +65,6 @@
             </v-btn>
           </v-alert>
           <v-alert
-            v-if="account.data.error && !account.data.enabled && Number(account.data.errorCount) > 9"
-            dense
-            outlined
-            :type="'warning'">
-            {{ t('DescriptionDisabledaftererror') }}
-          </v-alert>
-          <v-alert
             v-if="legacyWarning"
             dense
             outlined
