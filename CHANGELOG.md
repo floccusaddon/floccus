@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.2.4] - 2024-07-02
+
+### Fixed
+
+* fix(Account): Use exponential backoff instead of disabling profile after 10 errors
+* [native] fix(font-size): set default font-size using cm
+* fix(imports): Don't allow importing actions definitions from store/index
+* [native] fix(Options): Avoid importing browser-only module
+* fix(Folder#traverse)
+* fix typo in README.md in git repos
+* fix(Default#executeAction): fix ordering when doing bulkImport in Unidirectional strategy
+* fix(NextcloudBookmarks): Make sure folder exists before appending children
+
+
 ## [5.2.3] - 2024-06-21
 
 ### Fixed
