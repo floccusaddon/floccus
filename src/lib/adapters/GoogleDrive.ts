@@ -249,14 +249,15 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
       /* let's get the highestId */
       const byNL = xmlDocText.split('\n')
-      byNL.forEach(line => {
+      for (const line of byNL) {
         if (line.indexOf('<!--- highestId :') >= 0) {
           const idxStart = line.indexOf(':') + 1
           const idxEnd = line.lastIndexOf(':')
 
           this.highestId = parseInt(line.substring(idxStart, idxEnd))
+          break
         }
-      })
+      }
 
       this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
       if (this.lockingInterval) {
