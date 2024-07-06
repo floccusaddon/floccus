@@ -3,9 +3,9 @@
   "version": "5.2.4",
   "description": "Sync your bookmarks privately across browsers and devices",
   "scripts": {
-    "build": "gulp",
-    "build-release": "gulp release",
-    "watch": "gulp watch",
+    "build": "NODE_OPTIONS=--max-old-space-size=5000 gulp",
+    "build-release": "NODE_OPTIONS=--max-old-space-size=5000 gulp release",
+    "watch": "NODE_OPTIONS=--max-old-space-size=5000 gulp watch",
     "test": "node --unhandled-rejections=strict test/selenium-runner.js",
     "lint": "eslint --ext .js,.vue src",
     "lint:fix": "eslint --ext .js,.vue src --fix"
