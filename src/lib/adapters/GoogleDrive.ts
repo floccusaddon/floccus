@@ -210,7 +210,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     this.accessToken = await this.getAccessToken(this.server.refreshToken)
 
-    const fileList = await this.listFiles('name = ' + "'" + this.server.bookmark_file + "'")
+    const fileList = await this.listFiles(`name = '${this.server.bookmark_file}'`)
     const file = fileList.files.filter(file => !file.trashed)[0]
     if (file) {
       this.fileId = file.id
@@ -234,7 +234,13 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
       if (this.server.password) {
         try {
-          xmlDocText = await Crypto.decryptAES(this.server.password, xmlDocText, this.server.bookmark_file)
+          try {
+            // TODO: Use this when encrypting
+            const json = JSON.parse(xmlDocText)
+            xmlDocText = await Crypto.decryptAES(this.server.password, json.ciphertext, json.salt)
+          } catch (e) {
+            xmlDocText = await Crypto.decryptAES(this.server.password, xmlDocText, this.server.bookmark_file)
+          }
         } catch (e) {
           if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
             // not encrypted, yet => noop

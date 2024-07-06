@@ -210,7 +210,12 @@ export default class WebDavAdapter extends CachingAdapter {
 
       if (this.server.passphrase) {
         try {
-          xmlDocText = await Crypto.decryptAES(this.server.passphrase, xmlDocText, this.server.bookmark_file)
+          try {
+            const json = JSON.parse(xmlDocText)
+            xmlDocText = await Crypto.decryptAES(this.server.passphrase, json.ciphertext, json.salt)
+          } catch (e) {
+            xmlDocText = await Crypto.decryptAES(this.server.passphrase, xmlDocText, this.server.bookmark_file)
+          }
         } catch (e) {
           if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>') || xmlDocText.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>')) {
             // not encrypted, yet => noop
