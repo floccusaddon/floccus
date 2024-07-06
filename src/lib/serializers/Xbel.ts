@@ -10,7 +10,12 @@ class XbelSerializer implements Serializer {
   }
 
   deserialize(xbel: string) {
-    const parser = new XMLParser({preserveOrder: true, ignorePiTags: true, ignoreAttributes: false})
+    const parser = new XMLParser({
+      preserveOrder: true,
+      ignorePiTags: true,
+      ignoreAttributes: false,
+      parseTagValue: true,
+    })
     const xmlObj = parser.parse(xbel)
 
     if (!Array.isArray(xmlObj[0].xbel)) {
