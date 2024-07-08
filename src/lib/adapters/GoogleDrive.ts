@@ -305,7 +305,9 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     let xbel = createXBEL(this.bookmarksCache, this.highestId)
 
     if (this.server.password) {
-      xbel = await Crypto.encryptAES(this.server.password, xbel, this.server.bookmark_file)
+      const salt = Crypto.bufferToHexstr(Crypto.getRandomBytes(64))
+      const ciphertext = await Crypto.encryptAES(this.server.password, xbel, salt)
+      xbel = JSON.stringify({ciphertext, salt})
     }
 
     if (!this.fileId) {

@@ -324,7 +324,9 @@ export default class WebDavAdapter extends CachingAdapter {
       const fullUrl = this.getBookmarkURL()
       let xbel = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)
       if (this.server.passphrase) {
-        xbel = await Crypto.encryptAES(this.server.passphrase, xbel, this.server.bookmark_file)
+        const salt = Crypto.bufferToHexstr(Crypto.getRandomBytes(64))
+        const ciphertext = await Crypto.encryptAES(this.server.passphrase, xbel, salt)
+        xbel = JSON.stringify({ciphertext, salt})
       }
       await this.uploadFile(fullUrl, this.server.bookmark_file_type === 'xbel' ? 'application/xml' : 'text/html', xbel)
     } else {
