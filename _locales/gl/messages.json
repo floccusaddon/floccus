@@ -270,7 +270,7 @@
     "message": "Marcadores de Nextcloud"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "A opción «Marcadores de Nextcloud» sincroniza os marcadores coa aplicación Marcadores de Nextcloud. Só pode sincronizar os marcadores http, ftp e javascript. Asegúrese de ter instalada a aplicación Marcadores da tenda de aplicacións de Nextcloud na súa instancia de Nextcloud."
+    "message": "A opción «Marcadores de Nextcloud» sincroniza os marcadores coa aplicación Marcadores de Nextcloud. Só pode sincronizar os marcadores http, ftp e javascript. Asegúrese de ter instalada a aplicación Marcadores da tenda de aplicacións de Nextcloud na súa instancia de Nextcloud. Esta opción non pode facer uso do cifrado de extremo a extremo."
   },
   "LabelAdapternextcloud": {
     "message": "Marcadores de Nextcloud (herdados)"
@@ -282,7 +282,7 @@
     "message": "Compartir con WebDAV"
   },
   "DescriptionAdapterwebdav": {
-    "message": "A opción WebDAV sincroniza os marcadores almacenándoos nun ficheiro no recurso compartido WebDAV fornecido. Non hai unha interface de usuario web para esta opción e pode usala con calquera servidor compatíbel con WebDAV. Pode sincronizar os marcadores http, ftp, datos, ficheiros e javascript."
+    "message": "A opción WebDAV sincroniza os marcadores almacenándoos nun ficheiro no recurso compartido WebDAV fornecido. Non hai unha interface de usuario web para esta opción e pode usala con calquera servidor compatíbel con WebDAV. Pode sincronizar os marcadores http, ftp, datos, ficheiros e javascript. Cando use esta opción pode escoller o cifrado de extremo a extremo."
   },
   "LabelAddaccount": {
     "message": "Engadir perfil"
@@ -294,7 +294,7 @@
     "message": "Rexistros de depuración"
   },
   "LabelFunddevelopment": {
-    "message": "Recadación de fondos"
+    "message": "\uD83D\uDCB8 Recadación de fondos"
   },
   "DescriptionFunddevelopment": {
     "message": "O traballo en Floccusfloccus fomentase cun modelo de subscrición voluntaria. Se pensa que o que fago paga a pena e pode dispoñer dalgún carto cada mes sen dificultades, apoie o meu traballo. Ademais, considere darlle a Floccus unha valoración na tenda de engadidos da súa escolle. Grazas!💙"
@@ -376,7 +376,7 @@
     "message": "Este tipo de perfil herdado está en desuso e vai ser eliminado en pouco tempo. Cambie ao novo método de sincronización de Nextcloud. Agárdanlle melloras de rendemento e precisión."
   },
   "LabelUpdated": {
-    "message": "Floccus  foi actualizado"
+    "message": "⚡ Floccus foi actualizado"
   },
   "DescriptionUpdated": {
     "message": "Parabéns, a última actualización de Floccus xa está na súa máquina."
@@ -508,7 +508,7 @@
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Sincroniza os marcadores mediante un ficheiro cifrado que se almacena no seu Google Drive. Pode sincronizar os marcadores http, ftp, datos, ficheiros e javascript."
+    "message": "Sincroniza os marcadores mediante un ficheiro (opcionalmente cifrado) que se almacena no seu Google Drive. Pode sincronizar os marcadores http, ftp, datos, ficheiros e javascript. Cando use esta opción pode escoller o cifrado de extremo a extremo"
   },
   "LabelLogingoogle": {
     "message": "Acceder con Google"
@@ -703,7 +703,7 @@
     "message": "Git sobre HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "A opción Git sincroniza os seus marcadores almacenándoos nun ficheiro no repositorio de Git fornecido. Non hai unha interface de usuario web para esta opción, mais pode usala con calquera servidor de aloxamento de Git, como Github, Gitlab, Gitea, etc. Pode sincronizar os marcadores http, ftp, datos, ficheiros e javascript."
+    "message": "A opción Git sincroniza os seus marcadores almacenándoos nun ficheiro no repositorio de Git fornecido. Non hai unha interface de usuario web para esta opción, mais pode usala con calquera servidor de aloxamento de Git, como Github, Gitlab, Gitea, etc. Pode sincronizar os marcadores http, ftp, datos, ficheiros e javascript. Cando use esta opción non poderá empregar o cifrado de extremo a extremo."
   },
   "LabelGiturl": {
     "message": "URL do repositorio usando HTTP"
@@ -712,7 +712,7 @@
     "message": "Póla de Git"
   },
   "LabelTelemetry": {
-    "message": "Informe automatizado de erros"
+    "message": "\uD83D\uDC1B Informe automatizado de erros"
   },
   "DescriptionTelemetry": {
     "message": "Floccus pode enviarme automaticamente os datos de erros a min, o desenvolvedor. Esta é unha gran axuda para descubrir e resolver os erros en floccus máis rápido e axudará a mellorar a súa experiencia con floccus a longo prazo. Aínda que estea activado o informe de erros, os desenvolvedores de floccus nunca poderán ver os seus marcadores."
@@ -722,5 +722,50 @@
   },
   "LabelTelemetrydisable": {
     "message": "Non enviar os datos de erros aos desenvolvedores de floccus"
+  },
+  "LabelAccountlabel": {
+    "message": "Etiqueta do perfil"
+  },
+  "DescriptionAccountlabel": {
+    "message": "Déalle un nome a este perfil para poder recoñecelo máis doadamente"
+  },
+  "LabelClickcount": {
+    "message": "Contar os clics"
+  },
+  "DescriptionClickcount": {
+    "message": "Envíe estatísticas sobre os marcadores que máis visita ao seu servidor Nextcloud, así poderá ordenalos por número de clics"
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "Escriba unha nota en Google Play"
+  },
+  "DescriptionAppstorereview": {
+    "message": "Escriba unha nota na App Store"
+  },
+  "DescriptionChromereview": {
+    "message": "Escriba unha nota na WebStore de Chrome"
+  },
+  "DescriptionAlternativereview": {
+    "message": "Escriba unha nota en AlternativeTo.net"
+  },
+  "DescriptionMozillareview": {
+    "message": "Escriba unha nota en Engadidos de Mozilla"
+  },
+  "DescriptionEdgereview": {
+    "message": "Escriba unha nota en Engadidos de Edge"
+  },
+  "LabelWritereview": {
+    "message": "\uD83D\uDC99  Comparte o amor!"
+  },
+  "DescriptionWritereview": {
+    "message": "Se lle gustou floccus, dígallo a todo o mundo deixando unha valoración nunha das plataformas que aparecen a seguir."
+  },
+  "DescriptionDonateintervention": {
+    "message": "Gústalle a sincronización de marcadores? Apoie o meu traballo!"
+  },
+  "LabelDonate": {
+    "message": "Doar"
+  },
+  "DescriptionDisabledaftererror": {
+    "message": "Tentouse 10 veces antes de desactivar este perfil"
   }
 }
