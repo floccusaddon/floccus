@@ -141,12 +141,24 @@ export default class BrowserController {
     if (!navigator.userAgent.includes('Firefox') && typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
       addEventListener('message', (event) => this._receiveEvent(event.data, (data) => event.source.postMessage(data)))
     } else {
-      browser.runtime.onMessage.addListener((data) => void (this._receiveEvent(data, (data) => browser.runtime.sendMessage(data))))
+      browser.runtime.onMessage.addListener((data) => void (this._receiveEvent(data, (data) => {
+        try {
+          browser.runtime.sendMessage(data)
+        } catch (e) {
+          console.warn(e)
+        }
+      })))
     }
     this.onStatusChange(async() => {
       if (self?.clients) {
         const clientList = await self.clients.matchAll()
-        clientList.forEach(client => client.postMessage({ type: 'status:update', params: [] }))
+        clientList.forEach(client => {
+          try {
+            client.postMessage({ type: 'status:update', params: [] })
+          } catch (e) {
+            console.warn(e)
+          }
+        })
       } else {
         try {
           await browser.runtime.sendMessage({ type: 'status:update', params: [] })
