@@ -312,20 +312,12 @@ export default class Account {
       const message = await Account.stringifyError(e)
       console.error('Syncing failed with', message)
       Logger.log('Syncing failed with', message)
-      // send error to sentry
-      const logData = await Logger.anonymizeLogs(Logger.messages)
       Sentry.setContext('accountData', {
         ...this.getData(),
         username: 'SENSITIVEVALUEHIDDEN',
         password: 'SENSITIVEVALUVALUEHIDDEN',
         passphrase: 'SENSITIVEVALUVALUEHIDDEN'
       })
-      if (!DEBUG) {
-        Sentry.getCurrentScope().addAttachment({
-          filename: 'floccus-log.txt',
-          data: logData.slice(-10).join('\n'),
-        })
-      }
       if (e.list) {
         Sentry.captureException(message)
       } else {
