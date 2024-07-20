@@ -88,14 +88,14 @@ module.exports = {
       Buffer: ['buffer', 'Buffer'],
     }),
     new webpack.ProvidePlugin({
-      process: 'process/browser',
+      process: 'process/browser.js',
     }),
   ],
   resolve: {
     extensions: ['.js', '.vue', '.ts', '.json'],
     fallback: {
       buffer: require.resolve('buffer'),
-      process: require.resolve('process/browser'),
+      process: require.resolve('process/browser.js'),
       stream: require.resolve('stream-browserify'),
     },
   },

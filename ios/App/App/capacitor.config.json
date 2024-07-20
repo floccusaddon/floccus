@@ -5,6 +5,9 @@
 	"npmClient": "npm",
 	"webDir": "dist",
 	"loggingBehavior": "production",
+	"server": {
+		"androidScheme": "http"
+	},
 	"plugins": {
 		"SplashScreen": {
 			"launchAutoHide": false,
@@ -15,5 +18,17 @@
 			"enabled": true
 		}
 	},
-	"cordova": {}
+	"cordova": {},
+	"packageClassList": [
+		"OAuth2ClientPlugin",
+		"AppPlugin",
+		"DevicePlugin",
+		"FilesystemPlugin",
+		"CAPNetworkPlugin",
+		"PreferencesPlugin",
+		"SharePlugin",
+		"SplashScreenPlugin",
+		"SendIntent",
+		"CDVPlugin"
+	]
 }
