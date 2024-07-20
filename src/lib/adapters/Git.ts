@@ -25,6 +25,7 @@ export default class GitAdapter extends CachingAdapter {
   private cancelCallback: () => void
   private initialTreeHash: string
   private dir: string
+  private hash: string
   private fs: FS|null
 
   constructor(server) {
@@ -67,8 +68,8 @@ export default class GitAdapter extends CachingAdapter {
   async onSyncStart(needLock = true, forceLock = false) {
     Logger.log('onSyncStart: begin')
 
-    const hash = await Crypto.sha256(JSON.stringify(this.server)) + Date.now()
-    this.dir = '/' + hash + '/'
+    this.hash = await Crypto.sha256(JSON.stringify(this.server)) + Date.now()
+    this.dir = '/' + this.hash + '/'
 
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
@@ -85,7 +86,7 @@ export default class GitAdapter extends CachingAdapter {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    this.fs = new FS(hash, {wipe: true})
+    this.fs = new FS(this.hash, {wipe: true})
 
     Logger.log('(git) init')
     await git.init({ fs: this.fs, dir: this.dir })
@@ -174,6 +175,7 @@ export default class GitAdapter extends CachingAdapter {
     Logger.log('onSyncFail')
     clearInterval(this.lockingInterval)
     await this.freeLock()
+    indexedDB.deleteDatabase(this.hash)
   }
 
   async onSyncComplete() {
@@ -218,6 +220,7 @@ export default class GitAdapter extends CachingAdapter {
     }
 
     await this.freeLock()
+    indexedDB.deleteDatabase(this.hash)
   }
 
   async obtainLock() {
