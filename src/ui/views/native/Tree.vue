@@ -431,6 +431,7 @@ export default {
   },
   mounted() {
     this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
+    App.addListener('resume', () => this.$store.dispatch(actions.LOAD_TREE_FROM_DISK, this.$route.params.accountId))
   },
   backButton() {
     this.goBack()

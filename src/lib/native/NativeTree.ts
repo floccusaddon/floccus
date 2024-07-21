@@ -21,7 +21,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
     const {value: tree} = await Storage.get({key: `bookmarks[${this.accountId}].tree`})
     const {value: highestId} = await Storage.get({key: `bookmarks[${this.accountId}].highestId`})
     if (tree) {
-      const oldHash = this.bookmarksCache && await this.bookmarksCache.hash(true)
+      const oldHash = this.bookmarksCache && await this.bookmarksCache.clone(false).hash(true)
       this.bookmarksCache = Folder.hydrate(JSON.parse(tree))
       const newHash = await this.bookmarksCache.hash(true)
       this.highestId = parseInt(highestId)

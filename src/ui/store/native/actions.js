@@ -33,6 +33,19 @@ export const actionsDefinition = {
     const rootFolder = await tree.getBookmarksTree(true)
     await commit(mutations.LOAD_TREE, rootFolder)
   },
+  async [actions.LOAD_TREE_FROM_DISK]({ commit, dispatch, state }, id) {
+    const account = await Account.get(id)
+    if (account.syncing) {
+      return
+    }
+    const tree = await account.getResource()
+    const changed = await tree.load()
+    const rootFolder = await tree.getBookmarksTree(true)
+    await commit(mutations.LOAD_TREE, rootFolder)
+    if (changed) {
+      await dispatch(actions.TRIGGER_SYNC, id)
+    }
+  },
   async [actions.CREATE_BOOKMARK]({commit}, {accountId, bookmark}) {
     const account = await Account.get(accountId)
     const tree = await account.getResource()
