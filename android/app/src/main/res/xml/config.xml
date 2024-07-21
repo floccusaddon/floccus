@@ -2,13 +2,5 @@
 <widget version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <access origin="*" />
   
-  <feature name="Device">
-    <param name="android-package" value="org.apache.cordova.device.Device"/>
-  </feature>
-
-  <feature name="InAppBrowser">
-    <param name="android-package" value="org.apache.cordova.inappbrowser.InAppBrowser"/>
-  </feature>
-
   
 </widget>

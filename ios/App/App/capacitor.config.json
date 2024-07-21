@@ -22,13 +22,13 @@
 	"packageClassList": [
 		"OAuth2ClientPlugin",
 		"AppPlugin",
+		"CAPBrowserPlugin",
 		"DevicePlugin",
 		"FilesystemPlugin",
 		"CAPNetworkPlugin",
 		"PreferencesPlugin",
 		"SharePlugin",
 		"SplashScreenPlugin",
-		"SendIntent",
-		"CDVPlugin"
+		"SendIntent"
 	]
 }
