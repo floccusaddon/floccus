@@ -324,7 +324,8 @@ export default class BrowserController {
     if (!keepEnabled) {
       await account.setData({ ...account.getData(), enabled: false })
     }
-    await account.cancelSync()
+    await account.cancelSync() // does not block until cancelled, luckily
+    browser.runtime.reload()
   }
 
   async syncAccount(accountId, strategy) {
