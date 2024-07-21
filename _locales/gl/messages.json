@@ -767,5 +767,8 @@
   },
   "DescriptionDisabledaftererror": {
     "message": "Tentouse 10 veces antes de desactivar este perfil"
+  },
+  "DescriptionBookmarkexists": {
+    "message": "Este marcador xa existe no perfil seleccionado"
   }
 }
