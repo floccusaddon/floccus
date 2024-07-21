@@ -3,11 +3,6 @@
     <v-app-bar
       absolute
       app>
-      <v-btn
-        icon
-        :to="{name: routes.TREE, params: {accountId: id}}">
-        <v-icon>mdi-arrow-left</v-icon>
-      </v-btn>
       <v-app-bar-title>Add Bookmark</v-app-bar-title>
       <v-spacer />
       <v-btn
@@ -24,7 +19,9 @@
         indeterminate
         color="blue darken-1"
         class="loading" />
-      <v-card v-else>
+      <v-card
+        v-else
+        style="min-height: 95vh">
         <v-card-text>
           <v-select
             dense
@@ -40,6 +37,15 @@
               <v-icon>{{ item.data.type | accountIcon }}</v-icon> {{ item.label }}
             </template>
           </v-select>
+          <v-alert
+            v-if="exists"
+            dense
+            outlined
+            text
+            type="info"
+            class="mb-2">
+            {{ t('DescriptionBookmarkexists') }}
+          </v-alert>
           <v-text-field
             v-model="title"
             label="Title"
@@ -75,7 +81,7 @@
 <script>
 import { routes } from '../../NativeRouter'
 import { actions } from '../../store/definitions'
-import { Bookmark } from '../../../lib/Tree'
+import { Bookmark, ItemType } from '../../../lib/Tree'
 import DialogChooseFolder from '../../components/native/DialogChooseFolder'
 import { SendIntent } from 'send-intent'
 
@@ -87,7 +93,8 @@ export default {
       const icons = {
         'google-drive': 'mdi-google-drive',
         'nextcloud-bookmarks': 'mdi-cloud',
-        'webdav': 'mdi-folder-network'
+        'webdav': 'mdi-folder-network',
+        'git': 'mdi-source-repository',
       }
       return icons[type]
     },
@@ -129,12 +136,18 @@ export default {
       }
       const folder = this.tree.findFolder(this.temporaryParent)
       return folder ? folder.title || this.t('LabelUntitledfolder') : ''
+    },
+    exists() {
+      return !this.loading && this.tree && this.tree.findItemFilter(ItemType.BOOKMARK, (bm) => bm.url === this.url)
     }
   },
   watch: {
     loading() {
       if (this.loading) return
       this.data = this.$store.state.accounts[this.id].data
+    },
+    id() {
+      this.$store.dispatch(actions.LOAD_TREE, this.id)
     },
     url() {
       this.urlError = null

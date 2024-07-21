@@ -767,5 +767,8 @@
   },
   "DescriptionDisabledaftererror": {
     "message": "Retried 10 times before disabling this profile"
+  },
+  "DescriptionBookmarkexists": {
+    "message": "This bookmark exists already in the selected profile"
   }
 }
