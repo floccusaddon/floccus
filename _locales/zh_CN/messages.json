@@ -767,5 +767,8 @@
   },
   "DescriptionDisabledaftererror": {
     "message": "停用此配置前重试了 10 次"
+  },
+  "DescriptionBookmarkexists": {
+    "message": "所选配置文件中已经有此书签"
   }
 }
