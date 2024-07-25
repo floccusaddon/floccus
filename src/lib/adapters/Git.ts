@@ -113,7 +113,7 @@ export default class GitAdapter extends CachingAdapter {
       Logger.log('(git) checkout branch ' + (this.server.branch))
       await git.checkout({ fs: this.fs, dir: this.dir, ref: this.server.branch })
     } catch (e) {
-      if (e && e.code === git.Errors.NotFoundError.code && (e.data.what === 'HEAD' || e.data.what === this.server.branch)) {
+      if (e && e.code === git.Errors.NotFoundError.code && (e.data.what === 'HEAD' || e.data.what === this.server.branch || e.data.what === 'origin/' + this.server.branch)) {
         Logger.log('(git) writeFile ' + this.dir + '/README.md')
         await this.fs.promises.writeFile(this.dir + '/README.md', 'This repository is used to synchronize bookmarks via [floccus](https://floccus.org).', {mode: 0o777, encoding: 'utf8'})
         Logger.log('(git) add .')
