@@ -33,7 +33,7 @@ import {
 } from '../../errors/Error'
 
 const PAGE_SIZE = 300
-const TIMEOUT = 180000
+const TIMEOUT = 300000
 
 export interface NextcloudBookmarksConfig {
   type: 'nextcloud-folders'|'nextcloud-bookmarks'
@@ -758,14 +758,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         'GET',
         `index.php/apps/bookmarks/public/rest/v2/bookmark?page=1&limit=1`
       )
-      console.log(json)
       if (!json.data.length) {
         this.hasFeatureJavascriptLinks = true
         try {
           const id = await this.createBookmark(new Bookmark({id: null, parentId: '-1', title: 'floccus', url: 'javascript:void(0)', location: ItemLocation.SERVER}))
           await this.removeBookmark(new Bookmark({id, parentId: '-1', title: 'floccus', url: 'javascript:void(0)', location: ItemLocation.SERVER}))
         } catch (e) {
-          console.log(e)
           this.hasFeatureJavascriptLinks = false
         }
         return
