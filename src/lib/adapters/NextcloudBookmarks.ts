@@ -77,6 +77,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private lockingInterval: any
   private lockingPromise: Promise<boolean>
   private ended = false
+  private locked = false
   private hasFeatureJavascriptLinks: boolean = null
   private rootHash: string = null
 
@@ -155,8 +156,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
 
     // if needLock -- we always need it
-    const couldAcquireLock = await this.acquireLock()
-    if (!forceLock && !couldAcquireLock) {
+    this.locked = await this.acquireLock()
+    if (!forceLock && !this.locked) {
       throw new ResourceLockedError()
     }
     this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
@@ -890,6 +891,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private async releaseLock():Promise<boolean> {
     if (this.lockingPromise) {
       await this.lockingPromise
+    }
+    if (!this.locked) {
+      return
     }
     const res = await this.sendRequest(
       'DELETE',

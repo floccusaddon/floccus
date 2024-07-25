@@ -773,5 +773,8 @@
   },
   "LabelReportproblem": {
     "message": "Report problem"
+  },
+  "DescriptionReportproblem": {
+    "message": "If you would like to directly contact the developers with a concrete issue, you can do so here:"
   }
 }
