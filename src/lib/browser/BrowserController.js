@@ -28,7 +28,7 @@ class AlarmManager {
       const data = account.getData()
       const lastSync = data.lastSync || 0
       const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
-      if (data.scheduled && data.enabled) {
+      if (data.scheduled) {
         promises.push(this.ctl.scheduleSync(accountId))
         continue
       }
@@ -324,8 +324,7 @@ export default class BrowserController {
     if (!keepEnabled) {
       await account.setData({ ...account.getData(), enabled: false })
     }
-    await account.cancelSync() // does not block until cancelled, luckily
-    browser.runtime.reload()
+    await account.cancelSync()
   }
 
   async syncAccount(accountId, strategy) {
@@ -421,7 +420,7 @@ export default class BrowserController {
           await acc.setData({
             ...acc.getData(),
             syncing: false,
-            scheduled: true,
+            scheduled: acc.getData().enabled,
           })
         }
       })

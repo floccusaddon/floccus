@@ -23,6 +23,8 @@ export default class WebDavAdapter extends CachingAdapter {
   private lockingPromise: Promise<any>
   private locked: boolean
   private ended: boolean
+  private abortController: AbortController
+  private abortSignal: AbortSignal
   private cancelCallback: () => void
   private initialTreeHash: string
   constructor(server) {
@@ -62,6 +64,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   cancel() {
+    this.abortController.abort()
     this.cancelCallback && this.cancelCallback()
   }
 
@@ -164,6 +167,7 @@ export default class WebDavAdapter extends CachingAdapter {
             headers: {
               Authorization: 'Basic ' + authString
             },
+            signal: this.abortSignal,
             ...(!this.server.allowRedirects && {redirect: 'manual'}),
           })
         } else {
@@ -275,6 +279,9 @@ export default class WebDavAdapter extends CachingAdapter {
       throw new SlashError()
     }
 
+    this.abortController = new AbortController()
+    this.abortSignal = this.abortController.signal
+
     if (forceLock) {
       await this.setLock()
     } else if (needLock) {
@@ -355,12 +362,14 @@ export default class WebDavAdapter extends CachingAdapter {
           Authorization: 'Basic ' + authString
         },
         credentials: 'omit',
+        signal: this.abortSignal,
         ...(!this.server.allowRedirects && {redirect: 'manual'}),
         body: data,
       })
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
+      if (this.abortSignal.aborted) throw new InterruptedSyncError()
       throw new NetworkError()
     }
     if (res.status === 0 && !this.server.allowRedirects) {
@@ -423,11 +432,13 @@ export default class WebDavAdapter extends CachingAdapter {
         },
         cache: 'no-store',
         credentials: 'omit',
+        signal: this.abortSignal,
         ...(!this.server.allowRedirects && {redirect: 'manual'})
       })
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
+      if (this.abortSignal.aborted) throw new InterruptedSyncError()
       throw new NetworkError()
     }
     if (res.status === 0 && !this.server.allowRedirects) {

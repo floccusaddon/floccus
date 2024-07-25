@@ -19,7 +19,7 @@ import {
 import Ordering from '../interfaces/Ordering'
 import {
   AuthenticationError, CreateBookmarkError,
-  HttpError,
+  HttpError, InterruptedSyncError,
   MissingPermissionsError,
   NetworkError,
   ParseResponseError,
@@ -70,6 +70,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private list: Bookmark[]
   private tree: Folder
   private lockId: string | number
+  private abortController: AbortController
+  private abortSignal: AbortSignal
   private canceled = false
   private cancelCallback: () => void = null
   private lockingInterval: any
@@ -82,6 +84,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     this.server = server
     this.fetchQueue = new PQueue({ concurrency: 12 })
     this.bookmarkLock = new AsyncLock()
+    this.abortController = new AbortController()
+    this.abortSignal = this.abortController.signal
   }
 
   static getDefaultValues(): NextcloudBookmarksConfig {
@@ -143,6 +147,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       }
     }
 
+    this.abortController = new AbortController()
+    this.abortSignal = this.abortController.signal
+
     if (this.lockingInterval) {
       clearInterval(this.lockingInterval)
     }
@@ -173,6 +180,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   cancel() {
     this.canceled = true
     this.fetchQueue.clear()
+    this.abortController.abort()
     this.cancelCallback && this.cancelCallback()
   }
 
@@ -810,6 +818,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
               ...(type && type !== 'multipart/form-data' && { 'Content-type': type }),
               Authorization: 'Basic ' + authString,
             },
+            signal: this.abortSignal,
             ...(body && !['get', 'head'].includes(verb.toLowerCase()) && { body }),
           }),
           new Promise((resolve, reject) =>
@@ -822,6 +831,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       })
     } catch (e) {
       if (timedOut) throw e
+      if (this.canceled) throw new InterruptedSyncError()
       console.log(e)
       throw new NetworkError()
     }
