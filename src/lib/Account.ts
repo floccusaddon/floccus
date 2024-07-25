@@ -76,12 +76,14 @@ export default class Account {
   protected server: TAdapter
   protected localTree: TLocalTree
   protected localTabs: TLocalTree
+  protected lockTimeout: number
 
   constructor(id:string, storageAdapter:IAccountStorage, serverAdapter: TAdapter, treeAdapter:TLocalTree) {
     this.server = serverAdapter
     this.id = id
     this.storage = storageAdapter
     this.localTree = treeAdapter
+    this.lockTimeout = LOCK_TIMEOUT
   }
 
   async delete():Promise<void> {
@@ -176,7 +178,7 @@ export default class Account {
           // Resource locked
           if (e.code === 37) {
             // We got a resource locked error
-            if (this.getData().lastSync < Date.now() - LOCK_TIMEOUT) {
+            if (this.getData().lastSync < Date.now() - this.lockTimeout) {
               // but if we've been waiting for the lock for more than 2h
               // start again without locking the resource
               status = await this.server.onSyncStart(false, true)
