@@ -7,7 +7,7 @@ import Crypto from '../Crypto'
 import {
   AuthenticationError,
   DecryptionError, FileUnreadableError,
-  HttpError, InterruptedSyncError,
+  HttpError, CancelledSyncError,
   LockFileError, MissingPermissionsError,
   NetworkError, RedirectError, ResourceLockedError,
   SlashError
@@ -87,7 +87,7 @@ export default class WebDavAdapter extends CachingAdapter {
   timeout(ms) {
     return new Promise((resolve, reject) => {
       setTimeout(resolve, ms)
-      this.cancelCallback = () => reject(new InterruptedSyncError())
+      this.cancelCallback = () => reject(new CancelledSyncError())
     })
   }
 
@@ -369,7 +369,7 @@ export default class WebDavAdapter extends CachingAdapter {
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
-      if (this.abortSignal.aborted) throw new InterruptedSyncError()
+      if (this.abortSignal.aborted) throw new CancelledSyncError()
       throw new NetworkError()
     }
     if (res.status === 0 && !this.server.allowRedirects) {
@@ -438,7 +438,7 @@ export default class WebDavAdapter extends CachingAdapter {
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
-      if (this.abortSignal.aborted) throw new InterruptedSyncError()
+      if (this.abortSignal.aborted) throw new CancelledSyncError()
       throw new NetworkError()
     }
     if (res.status === 0 && !this.server.allowRedirects) {

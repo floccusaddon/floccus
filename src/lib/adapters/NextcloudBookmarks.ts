@@ -19,7 +19,7 @@ import {
 import Ordering from '../interfaces/Ordering'
 import {
   AuthenticationError, CreateBookmarkError,
-  HttpError, InterruptedSyncError,
+  HttpError, CancelledSyncError,
   MissingPermissionsError,
   NetworkError,
   ParseResponseError,
@@ -832,7 +832,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       })
     } catch (e) {
       if (timedOut) throw e
-      if (this.canceled) throw new InterruptedSyncError()
+      if (this.canceled) throw new CancelledSyncError()
       console.log(e)
       throw new NetworkError()
     }
