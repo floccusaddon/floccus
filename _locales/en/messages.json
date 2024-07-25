@@ -770,5 +770,8 @@
   },
   "DescriptionBookmarkexists": {
     "message": "This bookmark exists already in the selected profile"
+  },
+  "LabelReportproblem": {
+    "message": "Report problem"
   }
 }
