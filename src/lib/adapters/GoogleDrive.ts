@@ -50,6 +50,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   private cancelCallback: () => void = null
   private alwaysUpload = false
   private lockingInterval: any
+  private locked = false
   private lockingPromise: Promise<CustomResponse>
 
   constructor(server) {
@@ -215,7 +216,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     if (file) {
       this.fileId = file.id
       if (forceLock) {
-        await this.setLock(this.fileId)
+        this.locked = await this.setLock(this.fileId)
       } else if (needLock) {
         const data = await this.getFileMetadata(file.id, 'appProperties')
         if (data.appProperties && data.appProperties.locked && (data.appProperties.locked === true || JSON.parse(data.appProperties.locked))) {
@@ -227,7 +228,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
             throw new ResourceLockedError()
           }
         }
-        await this.setLock(this.fileId)
+        this.locked = await this.setLock(this.fileId)
       }
 
       let xmlDocText = await this.downloadFile(this.fileId)
@@ -291,7 +292,9 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     Logger.log('onSyncFail')
     if (this.fileId) {
       clearInterval(this.lockingInterval)
-      await this.freeLock(this.fileId)
+      if (this.locked) {
+        await this.freeLock(this.fileId)
+      }
     }
     this.fileId = null
   }
