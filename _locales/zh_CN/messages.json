@@ -770,5 +770,11 @@
   },
   "DescriptionBookmarkexists": {
     "message": "所选配置文件中已经有此书签"
+  },
+  "LabelReportproblem": {
+    "message": "报告问题"
+  },
+  "DescriptionReportproblem": {
+    "message": "如果你想直接就具体问题联系开发者，可以访问："
   }
 }
