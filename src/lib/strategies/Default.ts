@@ -1,6 +1,24 @@
-import { Bookmark, Folder, TItem, ItemType, ItemLocation, TItemLocation, TOppositeLocation } from '../Tree'
+import {
+  Bookmark,
+  Folder,
+  TItem,
+  ItemType,
+  ItemLocation,
+  TItemLocation,
+  TOppositeLocation,
+  TDeOppositeLocation
+} from '../Tree'
 import Logger from '../Logger'
-import Diff, { Action, ActionType, CreateAction, MoveAction, RemoveAction, ReorderAction, UpdateAction } from '../Diff'
+import Diff, {
+  Action,
+  ActionType,
+  CreateAction,
+  MoveAction,
+  PlanStage1, PlanStage2, PlanStage3,
+  RemoveAction,
+  ReorderAction,
+  UpdateAction
+} from '../Diff'
 import Scanner, { ScanResult } from '../Scanner'
 import * as Parallel from 'async-parallel'
 import { throttle } from 'throttle-debounce'
@@ -173,34 +191,45 @@ export default class SyncProcess {
 
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
 
-    const {localDiff, serverDiff} = await this.getDiffs()
-    Logger.log({localDiff, serverDiff})
+    const {localScanResult, serverScanResult} = await this.getDiffs()
+    Logger.log({localScanResult, serverScanResult})
     this.progressCb(0.5)
 
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
-    const unmappedServerPlan = await this.reconcileDiffs(localDiff, serverDiff, ItemLocation.SERVER)
+    const serverPlanStage1 = await this.reconcileDiffs(localScanResult, serverScanResult, ItemLocation.SERVER)
 
     // have to get snapshot after reconciliation, because of concurrent creation reconciliation
     let mappingsSnapshot = this.mappings.getSnapshot()
     Logger.log('Mapping server plan')
-    this.serverPlan = unmappedServerPlan.map(mappingsSnapshot, ItemLocation.SERVER, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
-    this.unmappedServerMovePlan = unmappedServerPlan.clone((action) => action.type === ActionType.MOVE)
-    this.unmappedServerReorderPlan = unmappedServerPlan.clone((action) => action.type === ActionType.REORDER)
+
+    const serverPlanStage2: PlanStage2<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER> = {
+      CREATE: serverPlanStage1.CREATE.map(mappingsSnapshot, ItemLocation.SERVER),
+      UPDATE: serverPlanStage1.UPDATE.map(mappingsSnapshot, ItemLocation.SERVER),
+      MOVE: serverPlanStage1.MOVE,
+      REMOVE: serverPlanStage1.REMOVE.map(mappingsSnapshot, ItemLocation.SERVER),
+      REORDER: serverPlanStage1.REORDER,
+    }
 
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
-    const unmappedLocalPlan = await this.reconcileDiffs(serverDiff, localDiff, ItemLocation.LOCAL)
+    const localPlanStage1 = await this.reconcileDiffs(serverScanResult, localScanResult, ItemLocation.LOCAL)
+
     // have to get snapshot after reconciliation, because of concurrent creation reconciliation
     mappingsSnapshot = this.mappings.getSnapshot()
     Logger.log('Mapping local plan')
-    this.localPlan = unmappedLocalPlan.map(mappingsSnapshot, ItemLocation.LOCAL, (action) => action.type !== ActionType.REORDER && action.type !== ActionType.MOVE)
-    this.unmappedLocalMovePlan = unmappedLocalPlan.clone((action) => action.type === ActionType.MOVE)
-    this.unmappedLocalReorderPlan = unmappedLocalPlan.clone((action) => action.type === ActionType.REORDER)
+
+    const localPlanStage2: PlanStage2<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL> = {
+      CREATE: localPlanStage1.CREATE.map(mappingsSnapshot, ItemLocation.LOCAL),
+      UPDATE: localPlanStage1.UPDATE.map(mappingsSnapshot, ItemLocation.LOCAL),
+      MOVE: localPlanStage1.MOVE,
+      REMOVE: localPlanStage1.REMOVE.map(mappingsSnapshot, ItemLocation.LOCAL),
+      REORDER: localPlanStage1.REORDER,
+    }
 
     if (this.canceled) {
       throw new CancelledSyncError()
@@ -214,9 +243,9 @@ export default class SyncProcess {
     this.applyFailsafe(this.localPlan)
 
     Logger.log('Executing server plan')
-    await this.execute(this.server, this.serverPlan, ItemLocation.SERVER, this.doneServerPlan)
+    await this.execute(this.server, serverPlanStage2, ItemLocation.SERVER, this.doneServerPlan)
     Logger.log('Executing local plan')
-    await this.execute(this.localTree, this.localPlan, ItemLocation.LOCAL, this.doneLocalPlan)
+    await this.execute(this.localTree, localPlanStage2, ItemLocation.LOCAL, this.doneLocalPlan)
 
     // mappings have been updated, reload
     mappingsSnapshot = this.mappings.getSnapshot()
@@ -369,7 +398,7 @@ export default class SyncProcess {
       )
   }
 
-  async getDiffs():Promise<{localScanResult:ScanResult<typeof ItemLocation.LOCAL, any>, serverScanResult:ScanResult<typeof ItemLocation.SERVER, any>}> {
+  async getDiffs():Promise<{localScanResult:ScanResult<typeof ItemLocation.LOCAL, TItemLocation>, serverScanResult:ScanResult<typeof ItemLocation.SERVER, TItemLocation>}> {
     const mappingsSnapshot = this.mappings.getSnapshot()
 
     const newMappings = []
@@ -410,366 +439,421 @@ export default class SyncProcess {
     parentReorder.order = parentReorder.order.filter(item => !(item.type === oldItem.type && Mappings.mapId(mappingsSnapshot, oldItem, parentReorder.payload.location) === item.id))
   }
 
-  async reconcileDiffs<L1 extends TItemLocation>(sourceDiff:Diff<L1>, targetDiff:Diff<TOppositeLocation<L1>>, targetLocation: TOppositeLocation<L1>):Promise<Diff<L1>> {
+  async reconcileDiffs<L1 extends TItemLocation, L2 extends TItemLocation, L3 extends TItemLocation>(sourceScanResult:ScanResult<L1, L2>, targetScanResult:ScanResult<TOppositeLocation<L1>, L3>, targetLocation: TOppositeLocation<L1>):Promise<PlanStage1<L1, L2>> {
     Logger.log('Reconciling diffs to prepare a plan for ' + targetLocation)
     const mappingsSnapshot = this.mappings.getSnapshot()
 
-    const targetCreations = targetDiff.getActions(ActionType.CREATE).map(a => a as CreateAction<TOppositeLocation<L1>>)
-    const targetRemovals = targetDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction<TOppositeLocation<L1>>)
-    const targetMoves = targetDiff.getActions(ActionType.MOVE).map(a => a as MoveAction<TOppositeLocation<L1>>)
-    const targetUpdates = targetDiff.getActions(ActionType.UPDATE).map(a => a as UpdateAction<TOppositeLocation<L1>>)
-    const targetReorders = targetDiff.getActions(ActionType.REORDER).map(a => a as ReorderAction<TOppositeLocation<L1>>)
+    const targetCreations = targetScanResult.CREATE.getActions()
+    const targetRemovals = targetScanResult.REMOVE.getActions()
+    const targetMoves = targetScanResult.MOVE.getActions()
+    const targetUpdates = targetScanResult.UPDATE.getActions()
+    const targetReorders = targetScanResult.REORDER.getActions()
 
-    const sourceCreations = sourceDiff.getActions(ActionType.CREATE).map(a => a as CreateAction<L1>)
-    const sourceRemovals = sourceDiff.getActions(ActionType.REMOVE).map(a => a as RemoveAction<L1>)
-    const sourceMoves = sourceDiff.getActions(ActionType.MOVE).map(a => a as MoveAction<L1>)
-    const sourceReorders = sourceDiff.getActions(ActionType.REORDER).map(a => a as ReorderAction<L1>)
+    const sourceCreations = sourceScanResult.CREATE.getActions()
+    const sourceRemovals = sourceScanResult.REMOVE.getActions()
+    const sourceMoves = sourceScanResult.MOVE.getActions()
+    const sourceReorders = sourceScanResult.REORDER.getActions()
 
     const targetTree : Folder<TOppositeLocation<L1>> = (targetLocation === ItemLocation.LOCAL ? this.localTreeRoot : this.serverTreeRoot) as Folder<TOppositeLocation<L1>>
     const sourceTree : Folder<L1> = (targetLocation === ItemLocation.LOCAL ? this.serverTreeRoot : this.localTreeRoot) as Folder<L1>
 
-    const allCreateAndMoveActions = targetDiff.getActions()
-      .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
-      .map(a => a as CreateAction<TOppositeLocation<L1>>|MoveAction<TOppositeLocation<L1>>)
-      .concat(
-        sourceDiff.getActions()
-          .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
-          .map(a => a as CreateAction<L1>|MoveAction<L1>)
-      )
+    const allCreateAndMoveActions = (sourceScanResult.CREATE.getActions() as Array<CreateAction<L1, L2> | MoveAction<L1, L2> | CreateAction<TOppositeLocation<L1>, L3> | MoveAction<TOppositeLocation<L1>, L3>>)
+      .concat(sourceScanResult.MOVE.getActions())
+      .concat(targetScanResult.CREATE.getActions())
+      .concat(targetScanResult.MOVE.getActions())
 
     const avoidTargetReorders = {}
 
     // Prepare target plan
-    const targetPlan: Diff<L1> = new Diff() // to be mapped
-    await Parallel.each(sourceDiff.getActions(), async(action:Action<L1>) => {
-      if (action.type === ActionType.REMOVE) {
-        const concurrentRemoval = targetRemovals.find(targetRemoval =>
-          (action.payload.type === targetRemoval.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetRemoval.payload)) ||
-          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.payload, targetRemoval))
-        if (concurrentRemoval) {
-          // Already deleted on target, do nothing.
-          return
-        }
+    const targetPlan: PlanStage1<L1, L2> = {
+      CREATE: new Diff(),
+      UPDATE: new Diff(),
+      MOVE: new Diff(),
+      REMOVE: new Diff(),
+      REORDER: new Diff(),
+    }
 
-        const concurrentMove = targetMoves.find(targetMove =>
-          action.payload.type === targetMove.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetMove.payload)
+    await Parallel.each(sourceScanResult.REMOVE.getActions(), async(action) => {
+      const concurrentRemoval = targetRemovals.find(targetRemoval =>
+        (action.payload.type === targetRemoval.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetRemoval.payload)) ||
+        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.payload, targetRemoval))
+      if (concurrentRemoval) {
+        // Already deleted on target, do nothing.
+        return
+      }
+
+      const concurrentMove = targetMoves.find(targetMove =>
+        action.payload.type === targetMove.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetMove.payload)
+      )
+      if (concurrentMove && targetLocation === this.masterLocation) {
+        // moved on the target, moves from master take precedence, do nothing (i.e. leave target version intact)
+        return
+      }
+
+      targetPlan.REMOVE.commit(action)
+    }, ACTION_CONCURRENCY)
+
+    await Parallel.each(sourceScanResult.CREATE.getActions(), async(action) => {
+      const concurrentCreation = targetCreations.find(a => (
+        action.payload.parentId === Mappings.mapParentId(mappingsSnapshot, a.payload, action.payload.location) &&
+        action.payload.canMergeWith(a.payload)
+      ))
+      if (concurrentCreation) {
+        // created on both the target and sourcely, try to reconcile
+        const newMappings = []
+        const subScanner = new Scanner(
+          concurrentCreation.payload, // target tree
+          action.payload, // source tree
+          (oldItem, newItem) => {
+            if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
+              // if two items can be merged, we'll add mappings here directly
+              newMappings.push([oldItem, newItem.id])
+              return true
+            }
+            return false
+          },
+          this.preserveOrder,
+          false
         )
-        if (concurrentMove && targetLocation === this.masterLocation) {
-          // moved on the target, moves from master take precedence, do nothing (i.e. leave target version intact)
+        await subScanner.run()
+        newMappings.push([concurrentCreation.payload, action.payload.id])
+        await Parallel.each(newMappings, async([oldItem, newId]) => {
+          await this.addMapping(action.payload.location === ItemLocation.LOCAL ? this.localTree : this.server, oldItem, newId)
+        },1)
+        // TODO: subScanner may contain residual CREATE/REMOVE actions that need to be added to mappings
+        return
+      }
+      const concurrentRemoval = targetScanResult.REMOVE.getActions().find(targetRemoval =>
+        // target removal removed this creation's target (via some chain)
+        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval)
+      )
+      if (concurrentRemoval) {
+        avoidTargetReorders[action.payload.parentId] = true
+        // Already deleted on target, do nothing.
+        return
+      }
+
+      targetPlan.CREATE.commit(action)
+    }, ACTION_CONCURRENCY)
+
+    await Parallel.each(sourceScanResult.MOVE.getActions(), async(action) => {
+      if (targetLocation === this.masterLocation) {
+        const concurrentMove = targetMoves.find(a =>
+          action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
+        if (concurrentMove) {
+          // Moved both on target and sourcely, source has precedence: do nothing sourcely
           return
         }
       }
-      if (action.type === ActionType.CREATE) {
-        const concurrentCreation = targetCreations.find(a => (
-          action.payload.parentId === Mappings.mapParentId(mappingsSnapshot, a.payload, action.payload.location) &&
-          action.payload.canMergeWith(a.payload)
-        ))
-        if (concurrentCreation) {
-          // created on both the target and sourcely, try to reconcile
-          const newMappings = []
-          const subScanner = new Scanner(
-            concurrentCreation.payload, // target tree
-            action.payload, // source tree
-            (oldItem, newItem) => {
-              if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
-                // if two items can be merged, we'll add mappings here directly
-                newMappings.push([oldItem, newItem.id])
-                return true
-              }
-              return false
-            },
-            this.preserveOrder,
-            false
-          )
-          await subScanner.run()
-          newMappings.push([concurrentCreation.payload, action.payload.id])
-          await Parallel.each(newMappings, async([oldItem, newId]) => {
-            await this.addMapping(action.payload.location === ItemLocation.LOCAL ? this.localTree : this.server, oldItem, newId)
-          },1)
-          // TODO: subScanner may contain residual CREATE/REMOVE actions that need to be added to mappings
-          return
-        }
-        const concurrentRemoval = targetRemovals.find(targetRemoval =>
-          // target removal removed this creation's target (via some chain)
-          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval)
-        )
-        if (concurrentRemoval) {
-          avoidTargetReorders[action.payload.parentId] = true
-          // Already deleted on target, do nothing.
-          return
-        }
-      }
-      if (action.type === ActionType.MOVE) {
-        if (targetLocation === this.masterLocation) {
-          const concurrentMove = targetMoves.find(a =>
-            action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
-          if (concurrentMove) {
-            // Moved both on target and sourcely, source has precedence: do nothing sourcely
-            return
-          }
-        }
-        // FInd out if there's a removal in the target diff which already deletes this item (via some chain of MOVE|CREATEs)
-        const complexTargetTargetRemoval = targetRemovals.find(targetRemoval => {
-          return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval)
-        })
-        const concurrentTargetOriginRemoval = targetRemovals.find(targetRemoval =>
-          (action.payload.type === targetRemoval.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetRemoval.payload)) ||
-            Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.oldItem, targetRemoval)
-        )
-        const concurrentSourceOriginRemoval = sourceRemovals.find(sourceRemoval => {
-          return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.oldItem, sourceRemoval)
-        })
-        const concurrentSourceTargetRemoval = sourceRemovals.find(sourceRemoval =>
-          // We pass an empty folder here, because we don't want direct deletions of the moved folder's parent to count, as it's moved away anyway
-          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, new Folder({id: 0, location: targetLocation}), action.payload, sourceRemoval)
-        )
-        if (complexTargetTargetRemoval) {
-          // target already deleted by a target|source REMOVE (connected via source MOVE|CREATEs)
-          if (!concurrentTargetOriginRemoval && !concurrentSourceOriginRemoval) {
-            // make sure this item is not already being removed, when it's no longer moved
-            // if (targetLocation === this.masterLocation) {
-            targetPlan.commit({ ...action, type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
-            this.removeItemFromReorders(mappingsSnapshot, sourceReorders, action.oldItem)
-            avoidTargetReorders[action.payload.id] = true
-            // }
-          }
-          return
-        }
-        if (concurrentSourceTargetRemoval) {
-          // target already deleted by a source REMOVE (connected via source MOVE|CREATEs)
-          if (targetLocation !== this.masterLocation) {
-            targetPlan.commit({ ...action, type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
-          }
+      // FInd out if there's a removal in the target diff which already deletes this item (via some chain of MOVE|CREATEs)
+      const complexTargetTargetRemoval = targetRemovals.find(targetRemoval => {
+        return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval)
+      })
+      const concurrentTargetOriginRemoval = targetRemovals.find(targetRemoval =>
+        (action.payload.type === targetRemoval.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetRemoval.payload)) ||
+        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.oldItem, targetRemoval)
+      )
+      const concurrentSourceOriginRemoval = sourceRemovals.find(sourceRemoval => {
+        return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.oldItem, sourceRemoval)
+      })
+      const concurrentSourceTargetRemoval = sourceRemovals.find(sourceRemoval =>
+        // We pass an empty folder here, because we don't want direct deletions of the moved folder's parent to count, as it's moved away anyway
+        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, new Folder({id: 0, location: targetLocation}), action.payload, sourceRemoval)
+      )
+      if (complexTargetTargetRemoval) {
+        // target already deleted by a target|source REMOVE (connected via source MOVE|CREATEs)
+        if (!concurrentTargetOriginRemoval && !concurrentSourceOriginRemoval) {
+          // make sure this item is not already being removed, when it's no longer moved
+          // if (targetLocation === this.masterLocation) {
+          targetPlan.REMOVE.commit({ type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
           this.removeItemFromReorders(mappingsSnapshot, sourceReorders, action.oldItem)
           avoidTargetReorders[action.payload.id] = true
-          return
+          // }
         }
-        if (concurrentTargetOriginRemoval) {
-          // moved sourcely but removed on the target, recreate it on the target
-          if (targetLocation !== this.masterLocation) {
-            // only when coming from master do we recreate
-            const originalCreation = sourceCreations.find(creation => creation.payload.findItem(ItemType.FOLDER, action.payload.parentId))
-
-            // Remove subitems that have been (re)moved already by other actions
-            const newPayload = action.payload.clone()
-            if (newPayload.type === ItemType.FOLDER) {
-              newPayload.traverse((item, folder) => {
-                const removed = sourceRemovals.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload))
-                const movedAway = sourceMoves.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload))
-                if (removed || (movedAway && Mappings.mapParentId(mappingsSnapshot, movedAway.payload, item.location) !== item.parentId)) {
-                  folder.children.splice(folder.children.indexOf(item), 1)
-                }
-              })
-            }
-
-            if (originalCreation && originalCreation.payload.type === ItemType.FOLDER) {
-              // in case the new parent is already a newly created item, merge it into that creation
-              const folder = originalCreation.payload.findFolder(action.payload.parentId)
-              folder.children.splice(action.index, 0, newPayload)
-            } else {
-              targetPlan.commit({ ...action, type: ActionType.CREATE, oldItem: null, payload: newPayload })
-            }
-          }
-          return
+        return
+      }
+      if (concurrentSourceTargetRemoval) {
+        // target already deleted by a source REMOVE (connected via source MOVE|CREATEs)
+        if (targetLocation !== this.masterLocation) {
+          targetPlan.REMOVE.commit({ type: ActionType.REMOVE, payload: action.oldItem, oldItem: null })
         }
-        // Find concurrent moves that form a hierarchy reversal together with this one
-        const concurrentHierarchyReversals = targetMoves.filter(targetMove => {
-          return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetMove) &&
-            Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, targetMove.payload, action)
-        })
-        if (concurrentHierarchyReversals.length) {
-          if (targetLocation !== this.masterLocation) {
-            targetPlan.commit(action)
+        this.removeItemFromReorders(mappingsSnapshot, sourceReorders, action.oldItem)
+        avoidTargetReorders[action.payload.id] = true
+        return
+      }
+      if (concurrentTargetOriginRemoval) {
+        // moved sourcely but removed on the target, recreate it on the target
+        if (targetLocation !== this.masterLocation) {
+          // only when coming from master do we recreate
+          const originalCreation = sourceCreations.find(creation => creation.payload.findItem(ItemType.FOLDER, action.payload.parentId))
 
-            concurrentHierarchyReversals.forEach(a => {
-              // moved sourcely but moved in reverse hierarchical order on target
-              const payload = a.oldItem.clone(false, targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL) // we don't map here as we want this to look like a source action
-              const oldItem = a.payload.clone(false, action.payload.location)
-              oldItem.id = Mappings.mapId(mappingsSnapshot, a.payload, action.payload.location)
-              oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, a.payload, action.payload.location)
-
-              if (
-                // Don't create duplicates!
-                targetPlan.getActions(ActionType.MOVE).find(move => String(move.payload.id) === String(payload.id)) ||
-                sourceDiff.getActions(ActionType.MOVE).find(move => String(move.payload.id) === String(payload.id)) ||
-                // Don't move back into removed territory
-                targetRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, remove)) ||
-                sourceRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.payload, remove))
-              ) {
-                return
+          // Remove subitems that have been (re)moved already by other actions
+          const newPayload = action.payload.clone()
+          if (newPayload.type === ItemType.FOLDER) {
+            newPayload.traverse((item, folder) => {
+              const removed = sourceRemovals.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload))
+              const movedAway = sourceMoves.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload))
+              if (removed || (movedAway && Mappings.mapParentId(mappingsSnapshot, movedAway.payload, item.location) !== item.parentId)) {
+                folder.children.splice(folder.children.indexOf(item), 1)
               }
-
-              // revert target move
-              targetPlan.commit({ ...a, payload, oldItem })
-              this.removeItemFromReorders(mappingsSnapshot, sourceReorders, payload)
-              this.removeItemFromReorders(mappingsSnapshot, sourceReorders, oldItem)
             })
+          }
+
+          if (originalCreation && originalCreation.payload.type === ItemType.FOLDER) {
+            // in case the new parent is already a newly created item, merge it into that creation
+            const folder = originalCreation.payload.findFolder(action.payload.parentId)
+            folder.children.splice(action.index, 0, newPayload)
           } else {
-            this.removeItemFromReorders(mappingsSnapshot, sourceReorders, action.oldItem)
-            this.removeItemFromReorders(mappingsSnapshot, sourceReorders, action.payload)
+            targetPlan.CREATE.commit({ type: ActionType.CREATE, oldItem: null, payload: newPayload })
           }
-          return
         }
+        return
+      }
+      // Find concurrent moves that form a hierarchy reversal together with this one
+      const concurrentHierarchyReversals = targetMoves.filter(targetMove => {
+        return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetMove) &&
+          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, targetMove.payload, action)
+      })
+      if (concurrentHierarchyReversals.length) {
+        if (targetLocation !== this.masterLocation) {
+          targetPlan.MOVE.commit(action)
+
+          concurrentHierarchyReversals.forEach(a => {
+            // moved sourcely but moved in reverse hierarchical order on target
+            const payload = a.oldItem.cloneWithLocation(false, targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL) as TItem<L1>
+            const oldItem = a.payload.cloneWithLocation(false, action.payload.location)
+            oldItem.id = Mappings.mapId(mappingsSnapshot, a.payload, action.payload.location)
+            oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, a.payload, action.payload.location)
+
+            if (
+              // Don't create duplicates!
+              targetPlan.MOVE.getActions().find(move => String(move.payload.id) === String(payload.id)) ||
+              sourceMoves.find(move => String(move.payload.id) === String(payload.id)) ||
+              // Don't move back into removed territory
+              targetRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, remove)) ||
+              sourceRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.payload, remove))
+            ) {
+              return
+            }
+
+            // revert target move
+            targetPlan.MOVE.commit({ ...a, payload, oldItem })
+            this.removeItemFromReorders(mappingsSnapshot, sourceReorders, payload)
+            this.removeItemFromReorders(mappingsSnapshot, sourceReorders, oldItem)
+          })
+        } else {
+          this.removeItemFromReorders(mappingsSnapshot, sourceReorders, action.oldItem)
+          this.removeItemFromReorders(mappingsSnapshot, sourceReorders, action.payload)
+        }
+        return
       }
 
-      if (action.type === ActionType.UPDATE) {
-        const concurrentUpdate = targetUpdates.find(a =>
+      targetPlan.MOVE.commit(action)
+    }, 1)
+
+    await Parallel.each(sourceScanResult.UPDATE.getActions(), async(action) => {
+      const concurrentUpdate = targetUpdates.find(a =>
+        action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
+      if (concurrentUpdate && targetLocation === this.masterLocation) {
+        // Updated both on target and sourcely, source has precedence: do nothing sourcely
+        return
+      }
+      const concurrentRemoval = targetRemovals.find(a =>
+        a.payload.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, a.payload.location)) ||
+        a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location)))
+      if (concurrentRemoval) {
+        // Already deleted on target, do nothing.
+        return
+      }
+
+      targetPlan.UPDATE.commit(action)
+    })
+
+    await Parallel.each(sourceScanResult.REORDER.getActions(), async(action) => {
+      if (avoidTargetReorders[action.payload.id]) {
+        return
+      }
+
+      if (targetLocation === this.masterLocation) {
+        const concurrentReorder = targetReorders.find(a =>
           action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
-        if (concurrentUpdate && targetLocation === this.masterLocation) {
-          // Updated both on target and sourcely, source has precedence: do nothing sourcely
-          return
-        }
-        const concurrentRemoval = targetRemovals.find(a =>
-          a.payload.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, a.payload.location)) ||
-          a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location)))
-        if (concurrentRemoval) {
-          // Already deleted on target, do nothing.
+        if (concurrentReorder) {
           return
         }
       }
 
-      if (action.type === ActionType.REORDER) {
-        if (avoidTargetReorders[action.payload.id]) {
-          return
-        }
-
-        if (targetLocation === this.masterLocation) {
-          const concurrentReorder = targetReorders.find(a =>
-            action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
-          if (concurrentReorder) {
-            return
-          }
-        }
-
-        const concurrentRemoval = targetRemovals.find(a =>
-          a.payload.findItem('folder', action.payload.id))
-        if (concurrentRemoval) {
-          // Already deleted on target, do nothing.
-          return
-        }
+      const concurrentRemoval = targetRemovals.find(a =>
+        a.payload.findItem('folder', action.payload.id))
+      if (concurrentRemoval) {
+        // Already deleted on target, do nothing.
+        return
       }
 
-      targetPlan.commit(action)
-    }, 10)
+      targetPlan.REORDER.commit(action)
+    })
 
     return targetPlan
   }
 
-  async execute(resource:TResource, plan:Diff, targetLocation:TItemLocation, donePlan: Diff = null, isSubPlan = false):Promise<Diff> {
-    Logger.log('Executing plan for ' + targetLocation)
-    const run = (action) => this.executeAction(resource, action, targetLocation, plan, donePlan)
-    let mappedPlan
+  async execute<L1 extends TItemLocation>(resource:TResource, planStage2:PlanStage2<TOppositeLocation<L1>, TItemLocation, L1>, targetLocation:L1):Promise<void> {
+    Logger.log('Executing ' + targetLocation + ' plan for ')
 
-    if (isSubPlan || ((targetLocation === ItemLocation.LOCAL && !this.flagLocalPostMoveMapping) || (targetLocation === ItemLocation.SERVER && !this.flagServerPostMoveMapping))) {
-      Logger.log(targetLocation + ': executing CREATEs and UPDATEs')
-      await Parallel.each(plan.getActions().filter(action => action.type === ActionType.CREATE || action.type === ActionType.UPDATE), run, ACTION_CONCURRENCY)
-
-      if (this.canceled) {
-        throw new CancelledSyncError()
-      }
-
-      const mappingsSnapshot = this.mappings.getSnapshot()
-      Logger.log(targetLocation + ': mapping MOVEs')
-      mappedPlan = plan.map(mappingsSnapshot, targetLocation, (action) => action.type === ActionType.MOVE)
-
-      if (!isSubPlan) {
-        if (targetLocation === ItemLocation.LOCAL) {
-          this.localPlan = mappedPlan
-          this.flagLocalPostMoveMapping = true
-        } else {
-          this.serverPlan = mappedPlan
-          this.flagServerPostMoveMapping = true
-        }
-      }
-    } else {
-      mappedPlan = plan
+    Logger.log(targetLocation + ': executing CREATEs')
+    let createActions = planStage2.CREATE.getActions()
+    while (createActions.length > 0) {
+      await Parallel.each(
+        planStage2.CREATE.getActions(),
+        (action) => this.executeCreate(resource, action, targetLocation, planStage2.CREATE, planStage2.REORDER),
+        ACTION_CONCURRENCY
+      )
+      createActions = planStage2.CREATE.getActions()
     }
 
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
-    const batches = Diff.sortMoves(mappedPlan.getActions(ActionType.MOVE), targetLocation === ItemLocation.SERVER ? this.serverTreeRoot : this.localTreeRoot)
+    Logger.log(targetLocation + ': executing CREATEs')
+
+    await Parallel.each(
+      planStage2.UPDATE.getActions(),
+      (action) => this.executeUpdate(resource, action, targetLocation, planStage2.UPDATE),
+      ACTION_CONCURRENCY
+    )
+
+    if (this.canceled) {
+      throw new CancelledSyncError()
+    }
+
+    const mappingsSnapshot = this.mappings.getSnapshot()
+    Logger.log(targetLocation + ': mapping MOVEs')
+
+    const planStage3: PlanStage3<TItemLocation, TItemLocation, typeof targetLocation> = {
+      CREATE: planStage2.CREATE,
+      UPDATE: planStage2.UPDATE,
+      MOVE: planStage2.MOVE.map(mappingsSnapshot, targetLocation),
+      REMOVE: planStage2.REMOVE,
+      REORDER: planStage2.REORDER,
+    }
+
+    if (this.canceled) {
+      throw new CancelledSyncError()
+    }
+
+    const batches = Diff.sortMoves(planStage3.MOVE.getActions(), this.getTargetTree(targetLocation))
 
     Logger.log(targetLocation + ': executing MOVEs')
-    await Parallel.each(batches, batch => Parallel.each(batch, run, ACTION_CONCURRENCY), 1)
+    await Parallel.each(batches, batch => Parallel.each(batch, (action) => {
+      return this.executeUpdate(resource, action, targetLocation, planStage3.MOVE)
+    }, ACTION_CONCURRENCY), 1)
 
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
     Logger.log(targetLocation + ': executing REMOVEs')
-    await Parallel.each(plan.getActions(ActionType.REMOVE), run, ACTION_CONCURRENCY)
-
-    return mappedPlan
+    await Parallel.each(planStage3.REMOVE.getActions(), (action) => {
+      return this.executeRemove(resource, action, targetLocation, planStage3.REMOVE)
+    }, ACTION_CONCURRENCY)
   }
 
-  addReorderOnDemand(action: ReorderAction, targetLocation: TItemLocation) {
-    if (targetLocation === ItemLocation.LOCAL) {
-      this.localPlan && this.localPlan.commit(action)
-    } else {
-      this.localPlan && this.serverPlan.commit(action)
-    }
-  }
-
-  async executeAction(resource:TResource, action:Action, targetLocation:TItemLocation, plan: Diff, donePlan: Diff = null):Promise<void> {
+  async executeCreate<L1 extends TItemLocation>(resource: TResource, action: CreateAction<L1, TOppositeLocation<L1>>, targetLocation: L1, diff: Diff<L1, TOppositeLocation<L1>, CreateAction<L1, TOppositeLocation<L1>>>, reorders: Diff<TOppositeLocation<L1>, TItemLocation, ReorderAction<TOppositeLocation<L1>, TItemLocation>>): Promise<void> {
     // defer execution of actions to allow the this.canceled check below to work when cancelling in interrupt tests
     await Promise.resolve()
     Logger.log('Executing action ', action)
-    const item = action.payload
-    const done = () => {
-      plan.retract(action)
-      // TODO: This is kind of a hack :/
-      if (targetLocation === ItemLocation.LOCAL) {
-        this.localPlan && this.localPlan.retract(action)
-      } else {
-        this.localPlan && this.serverPlan.retract(action)
-      }
-      if ('revertPlan' in this) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        this.revertPlan.retract(action)
-      }
-      if (donePlan) {
-        donePlan.commit(action)
-      }
-      this.updateProgress()
-    }
 
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
-    if (action.type === ActionType.REMOVE) {
-      await action.payload.visitRemove(resource)
-      await this.removeMapping(resource, item)
+    const done = () => {
+      diff.retract(action)
+      this.updateProgress()
+    }
+
+    const id = await action.payload.visitCreate(resource)
+    if (typeof id === 'undefined') {
+      // undefined means we couldn't create the item. we're ignoring it
       done()
       return
     }
 
-    if (action.type === ActionType.CREATE) {
-      const id = await action.payload.visitCreate(resource)
-      if (typeof id === 'undefined') {
-        // undefined means we couldn't create the item. we're ignoring it
-        done()
-        return
-      }
-      item.id = id
-      if (action.oldItem) {
-        await this.addMapping(resource, action.oldItem, id)
-      }
+    action.payload.id = id
 
-      if (item instanceof Folder && ((action.payload instanceof Folder && action.payload.children.length) || (action.oldItem instanceof Folder && action.oldItem.children.length))) {
-        if ('bulkImportFolder' in resource) {
-          // eslint-disable-next-line no-constant-condition
-          if (action.payload.count() < 75 || this.server instanceof CachingAdapter) {
-            Logger.log('Attempting full bulk import')
-            try {
-              // Try bulk import with sub folders
-              const imported = await resource.bulkImportFolder(item.id, (action.oldItem || action.payload) as Folder)
+    if (action.oldItem) {
+      await this.addMapping(resource, action.oldItem, id)
+    }
+
+    if (action.payload instanceof Folder && action.payload.children.length && action.oldItem instanceof Folder) {
+      // We *know* that oldItem exists here, because actions are mapped before being executed
+      if ('bulkImportFolder' in resource) {
+        if (action.payload.count() < 75 || this.server instanceof CachingAdapter) {
+          Logger.log('Attempting full bulk import')
+          try {
+            // Try bulk import with sub folders
+            const imported = await resource.bulkImportFolder(id, action.oldItem || action.payload) as Folder<typeof targetLocation>
+            const newMappings = []
+            const subScanner = new Scanner(
+              action.oldItem,
+              imported,
+              (oldItem, newItem) => {
+                if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
+                  // if two items can be merged, we'll add mappings here directly
+                  newMappings.push([oldItem, newItem.id])
+                  return true
+                }
+                return false
+              },
+              this.preserveOrder,
+              false,
+            )
+            await subScanner.run()
+            await Parallel.each(newMappings, async([oldItem, newId]: [TItem<TItemLocation>, string|number]) => {
+              await this.addMapping(resource, oldItem, newId)
+            }, 10)
+
+            if ('orderFolder' in resource) {
+              const mappingsSnapshot = this.mappings.getSnapshot()
+              reorders.commit({
+                type: ActionType.REORDER,
+                oldItem: imported,
+                payload: action.oldItem,
+                // payload children's IDs are not mapped
+                order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
+              })
+              await action.oldItem.traverse((oldChildItem) => {
+                if (oldChildItem instanceof Folder && oldChildItem.children.length > 1) {
+                  // Correct the order after bulk import. Usually we expect bulk import to do the order correctly
+                  // on its own, but Nextcloud Bookmarks pre v14.2.0 does not
+                  const payload = imported.findFolder(Mappings.mapId(mappingsSnapshot, oldChildItem, targetLocation))
+                  // Order created items after the fact, as they've been created concurrently
+                  reorders.commit({
+                    type: ActionType.REORDER,
+                    oldItem: payload,
+                    payload: oldChildItem,
+                    order: oldChildItem.children.map(i => ({ type: i.type, id: i.id }))
+                  })
+                }
+              })
+            }
+
+            done()
+            return
+          } catch (e) {
+            Logger.log('Bulk import failed, continuing with normal creation', e)
+          }
+        } else {
+          try {
+            // Try bulk import without sub folders
+            const tempItem = action.oldItem.clone(false)
+            const bookmarks = tempItem.children.filter(child => child instanceof Bookmark)
+            while (bookmarks.length > 0) {
+              Logger.log('Attempting chunked bulk import')
+              tempItem.children = bookmarks.splice(0, 70)
+              const imported = await resource.bulkImportFolder(action.payload.id, tempItem)
               const newMappings = []
               const subScanner = new Scanner(
-                action.oldItem || action.payload,
+                tempItem,
                 imported,
                 (oldItem, newItem) => {
                   if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
@@ -783,145 +867,95 @@ export default class SyncProcess {
                 false,
               )
               await subScanner.run()
-              await Parallel.each(newMappings, async([oldItem, newId]: [TItem, string|number]) => {
+              await Parallel.each(newMappings, async([oldItem, newId]: [TItem<TItemLocation>, string|number]) => {
                 await this.addMapping(resource, oldItem, newId)
               }, 10)
-
-              if ('orderFolder' in resource && action.oldItem instanceof Folder) {
-                const mappingsSnapshot = this.mappings.getSnapshot()
-                this.addReorderOnDemand({
-                  type: ActionType.REORDER,
-                  oldItem: imported,
-                  payload: action.oldItem,
-                  order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
-                }, targetLocation)
-                await action.oldItem.traverse((item) => {
-                  if (item instanceof Folder && item.children.length > 1) {
-                    // Correct the order after bulk import. Usually we expect bulk import to do the order correctly
-                    // on its own, but Nextcloud Bookmarks pre v14.2.0 does not
-                    const payload = imported.findFolder(Mappings.mapId(mappingsSnapshot, item, targetLocation))
-                    // Order created items after the fact, as they've been created concurrently
-                    this.addReorderOnDemand({
-                      type: ActionType.REORDER,
-                      oldItem: payload,
-                      payload: item,
-                      order: item.children.map(i => ({ type: i.type, id: i.id }))
-                    }, targetLocation)
-                  }
-                })
-              }
-
-              done()
-              return
-            } catch (e) {
-              Logger.log('Bulk import failed, continuing with normal creation', e)
             }
-          } else {
-            try {
-              // Try bulk import without sub folders
-              const tempItem = (action.oldItem ? action.oldItem.clone(false) : action.payload.clone(false)) as Folder
-              const bookmarks = tempItem.children.filter(child => child instanceof Bookmark)
-              while (bookmarks.length > 0) {
-                Logger.log('Attempting chunked bulk import')
-                tempItem.children = bookmarks.splice(0, 70)
-                const imported = await resource.bulkImportFolder(item.id, tempItem)
-                const newMappings = []
-                const subScanner = new Scanner(
-                  tempItem,
-                  imported,
-                  (oldItem, newItem) => {
-                    if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
-                      // if two items can be merged, we'll add mappings here directly
-                      newMappings.push([oldItem, newItem.id])
-                      return true
-                    }
-                    return false
-                  },
-                  this.preserveOrder,
-                  false,
-                )
-                await subScanner.run()
-                await Parallel.each(newMappings, async([oldItem, newId]) => {
-                  await this.addMapping(resource, oldItem, newId)
-                }, 10)
-              }
 
-              // create sub plan for the folders
+            // create sub plan for the folders
 
-              if (action.oldItem && action.oldItem instanceof Folder) {
-                const subPlan = new Diff
-                const folders = action.oldItem.children
-                  .filter(item => item instanceof Folder)
-                  .filter(item => item as Folder)
+            const mappingsSnapshot = this.mappings.getSnapshot()
 
-                folders
-                  .forEach((child) => {
-                    const newAction : Action = { type: ActionType.CREATE, payload: child }
-                    subPlan.commit(newAction)
-                    plan.commit(newAction)
-                  })
-                const mappingsSnapshot = this.mappings.getSnapshot()
-                const mappedSubPlan = subPlan.map(mappingsSnapshot, targetLocation)
-                Logger.log('executing sub plan')
-                this.actionsPlanned += mappedSubPlan.getActions().length
-                await this.execute(resource, mappedSubPlan, targetLocation, null, true)
+            const folders = action.payload.children
+              .filter(item => item instanceof Folder)
+              .filter(item => item as Folder<L1>)
 
-                if ('orderFolder' in resource) {
-                  // Order created items after the fact, as they've been created concurrently
-                  this.addReorderOnDemand({
-                    type: ActionType.REORDER,
-                    oldItem: action.payload,
-                    payload: action.oldItem,
-                    order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
-                  }, targetLocation)
-                }
-              }
+            folders
+              .forEach((child) => {
+                const newAction = { type: ActionType.CREATE, payload: child, oldItem: action.oldItem && action.oldItem.findItem(child.type, Mappings.mapId(mappingsSnapshot, child, action.oldItem.location)) }
+                diff.commit(newAction)
+              })
 
-              done()
-              return
-            } catch (e) {
-              Logger.log('Bulk import failed, continuing with normal creation', e)
+            if ('orderFolder' in resource) {
+              // Order created items after the fact, as they've been created concurrently
+              reorders.commit({
+                type: ActionType.REORDER,
+                oldItem: action.payload,
+                payload: action.oldItem,
+                // payload children's IDs are not mapped
+                order: action.payload.children.map(i => ({ type: i.type, id: i.id }))
+              })
             }
-          }
-        }
 
-        // Create a sub plan and create each child individually (worst performance)
-        if (action.oldItem && action.oldItem instanceof Folder) {
-          const subPlan = new Diff
-          action.oldItem.children
-            .forEach((child) => {
-              const newAction : Action = { type: ActionType.CREATE, payload: child }
-              subPlan.commit(newAction)
-              plan.commit(newAction)
-            })
-          const mappingsSnapshot = this.mappings.getSnapshot()
-          const mappedSubPlan = subPlan.map(mappingsSnapshot, targetLocation)
-          Logger.log('executing sub plan')
-          this.actionsPlanned += mappedSubPlan.getActions().length
-          await this.execute(resource, mappedSubPlan, targetLocation, null, true)
-
-          if ('orderFolder' in resource && item.children.length > 1) {
-            // Order created items after the fact, as they've been created concurrently
-            this.addReorderOnDemand({
-              type: ActionType.REORDER,
-              oldItem: action.payload,
-              payload: action.oldItem,
-              order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
-            }, targetLocation)
+            done()
+            return
+          } catch (e) {
+            Logger.log('Bulk import failed, continuing with normal creation', e)
           }
         }
       }
 
-      done()
+      // Create a sub plan and create each child individually (worst performance)
+      const mappingsSnapshot = this.mappings.getSnapshot()
+      action.payload.children
+        .forEach((child) => {
+          const oldItem = action.oldItem.findItem(child.type, Mappings.mapId(mappingsSnapshot, child, targetLocation))
+          const newAction = { type: ActionType.CREATE, payload: child, oldItem }
+          diff.commit(newAction)
+        })
 
-      return
+      if ('orderFolder' in resource) {
+        // Order created items after the fact, as they've been created concurrently
+        reorders.commit({
+          type: ActionType.REORDER,
+          oldItem: action.payload,
+          payload: action.oldItem,
+          order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
+        })
+      }
     }
 
-    if (action.type === ActionType.UPDATE || action.type === ActionType.MOVE) {
-      await action.payload.visitUpdate(resource)
-      await this.addMapping(resource, action.oldItem, item.id)
-      done()
+    done()
+  }
+
+  async executeRemove<L1 extends TItemLocation>(resource: TResource, action: RemoveAction<L1, TItemLocation>, targetLocation: L1, diff: Diff<L1, TItemLocation, RemoveAction<L1, TItemLocation>>): Promise<void> {
+    // defer execution of actions to allow the this.canceled check below to work when cancelling in interrupt tests
+    await Promise.resolve()
+    Logger.log('Executing action ', action)
+
+    if (this.canceled) {
+      throw new CancelledSyncError()
     }
+
+    await action.payload.visitRemove(resource)
+    await this.removeMapping(resource, action.payload)
+    diff.retract(action)
+    this.updateProgress()
+  }
+
+  async executeUpdate<L1 extends TItemLocation>(resource: TResource, action: UpdateAction<L1, TItemLocation> | MoveAction<L1, TItemLocation>, targetLocation: L1, diff: Diff<L1, TItemLocation, UpdateAction<L1, TItemLocation> | MoveAction<L1, TItemLocation>>): Promise<void> {
+    // defer execution of actions to allow the this.canceled check below to work when cancelling in interrupt tests
+    await Promise.resolve()
+    Logger.log('Executing action ', action)
+
+    if (this.canceled) {
+      throw new CancelledSyncError()
+    }
+
+    await action.payload.visitUpdate(resource)
+    await this.addMapping(resource, action.oldItem, action.payload.id)
+    diff.retract(action)
+    this.updateProgress()
   }
 
   reconcileReorderings(targetTreePlan: Diff, sourceTreePlan: Diff, mappingSnapshot: MappingSnapshot) : Diff {
@@ -1198,6 +1232,10 @@ export default class SyncProcess {
     strategy.setProgress(json)
     strategy.setState(json)
     return strategy
+  }
+
+  public getTargetTree<L1 extends TItemLocation>(targetLocation: L1): Folder<L1> {
+    return (targetLocation === ItemLocation.SERVER ? this.serverTreeRoot : this.localTreeRoot) as Folder<L1>
   }
 }
 

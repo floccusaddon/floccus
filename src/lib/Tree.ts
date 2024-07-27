@@ -12,7 +12,7 @@ export const ItemLocation = {
 
 export type TItemLocation = (typeof ItemLocation)[keyof typeof ItemLocation];
 
-export type TOppositeLocation<L extends TItemLocation> = L extends typeof ItemLocation.LOCAL ? typeof ItemLocation.SERVER : typeof ItemLocation.LOCAL
+export type TOppositeLocation<L extends TItemLocation> = L extends typeof ItemLocation.LOCAL ? typeof ItemLocation.SERVER : L extends typeof ItemLocation.SERVER ? typeof ItemLocation.LOCAL : never
 
 export const ItemType = {
   FOLDER: 'folder',

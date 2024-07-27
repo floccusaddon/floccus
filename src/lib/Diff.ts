@@ -57,7 +57,23 @@ export type Action<L1 extends TItemLocation, L2 extends TItemLocation> = CreateA
 export type LocationOfAction<A> = A extends Action<infer L, TItemLocation> ? L : never
 export type OldLocationOfAction<A> = A extends Action<TItemLocation, infer L> ? L : never
 
-export type MapLocation<A extends Action<TItemLocation, TItemLocation>, NewLocation extends TItemLocation> = A extends Action<infer O, infer P> ? Action<NewLocation, O> : never
+export type MapLocation<A extends Action<TItemLocation, TItemLocation>, NewLocation extends TItemLocation> =
+// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+  A extends CreateAction<infer O, infer P> ?
+    CreateAction<NewLocation, O>
+    // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+    : A extends UpdateAction<infer O, infer P> ?
+      UpdateAction<NewLocation, O>
+      // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+      : A extends MoveAction<infer O, infer P> ?
+        MoveAction<NewLocation, O>
+        // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+        : A extends RemoveAction<infer O, infer P> ?
+          RemoveAction<NewLocation, O>
+          // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+          : A extends ReorderAction<infer O, infer P> ?
+            ReorderAction<NewLocation, O>
+            : never
 
 export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A extends Action<L1, L2>> {
   private readonly actions: A[]
@@ -91,7 +107,7 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
     )
   }
 
-  static findChain<L1 extends TItemLocation, L2 extends TItemLocation, L3 extends TItemLocation, L4 extends TItemLocation, L5 extends TItemLocation, L6 extends TItemLocation>(mappingsSnapshot: MappingSnapshot, actions: Action<L1, L5>[], itemTree: Folder<L2>, currentItem: TItem<L3>, targetAction: Action<L4, L6>, chain: Action<L1, L5>[] = []): boolean {
+  static findChain<L1 extends TItemLocation, L2 extends TItemLocation, L3 extends TItemLocation, L4 extends TItemLocation, L5 extends TItemLocation, L6 extends TItemLocation>(mappingsSnapshot: MappingSnapshot, actions: Action<TItemLocation, TItemLocation>[], itemTree: Folder<L2>, currentItem: TItem<L3>, targetAction: Action<L4, L6>, chain: Action<L1, L5>[] = []): boolean {
     const targetItemInTree = itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location))
     if (
       targetAction.payload.findItem(ItemType.FOLDER,
@@ -118,7 +134,7 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
     return false
   }
 
-  static sortMoves<L1 extends TItemLocation, L2 extends TItemLocation>(actions: Action<L1, L2>[], tree: Folder<L1>) :Action<L1, L2>[][] {
+  static sortMoves<L1 extends TItemLocation, L2 extends TItemLocation>(actions: MoveAction<L1, L2>[], tree: Folder<L1>) :MoveAction<L1, L2>[][] {
     const bookmarks = actions.filter(a => a.payload.type === ItemType.BOOKMARK)
     const folderMoves = actions.filter(a => a.payload.type === ItemType.FOLDER)
     const DAG = folderMoves
@@ -248,4 +264,28 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
     })
     return diff
   }
+}
+
+export interface PlanStage1<L1 extends TItemLocation, L2 extends TItemLocation> {
+  CREATE: Diff<L1, L2, CreateAction<L1, L2>>
+  UPDATE: Diff<L1, L2, UpdateAction<L1, L2>>
+  MOVE: Diff<L1, L2, MoveAction<L1, L2>>
+  REMOVE: Diff<L2, L1, RemoveAction<L2, L1>>
+  REORDER: Diff<L1, L2, ReorderAction<L1, L2>>
+}
+
+export interface PlanStage2<L1 extends TItemLocation, L2 extends TItemLocation, L3 extends TItemLocation> {
+  CREATE: Diff<L3, L1, CreateAction<L3, L1>>
+  UPDATE: Diff<L3, L1, UpdateAction<L3, L1>>
+  MOVE: Diff<L1, L2, MoveAction<L1, L2>>
+  REMOVE: Diff<L3, L2, RemoveAction<L3, L2>>
+  REORDER: Diff<L1, L2, ReorderAction<L1, L2>>
+}
+
+export interface PlanStage3<L1 extends TItemLocation, L2 extends TItemLocation, L3 extends TItemLocation> {
+  CREATE: Diff<L3, L1, CreateAction<L3, L1>>
+  UPDATE: Diff<L3, L1, UpdateAction<L3, L1>>
+  MOVE: Diff<L3, L1, MoveAction<L3, L1>>
+  REMOVE: Diff<L3, L2, RemoveAction<L3, L2>>
+  REORDER: Diff<L1, L2, ReorderAction<L1, L2>>
 }
