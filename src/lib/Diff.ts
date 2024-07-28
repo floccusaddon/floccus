@@ -299,7 +299,7 @@ export interface PlanStage3<L1 extends TItemLocation, L2 extends TItemLocation, 
 export interface PlanRevert<L1 extends TItemLocation, L2 extends TItemLocation> {
   CREATE: Diff<L1, L2, CreateAction<L1, L2>>
   UPDATE: Diff<L1, L2, UpdateAction<L1, L2>>
-  MOVE: Diff<L1, L2, MoveAction<L1, L2>>
+  MOVE: Diff<L2, L1, MoveAction<L2, L1>>
   REMOVE: Diff<L1, L2, RemoveAction<L1, L2>>
   REORDER: Diff<L1, L2, ReorderAction<L1, L2>>
 }

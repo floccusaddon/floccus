@@ -162,7 +162,11 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     }
   }
 
-  async revertDiff<L1 extends TItemLocation, L2 extends TItemLocation>(targetScanResult: ScanResult<L1, L2>, sourceScanResult: ScanResult<L2, L1>, targetLocation: L1): Promise<PlanRevert<L1, L2>> {
+  async revertDiff<L1 extends TItemLocation, L2 extends TItemLocation>(
+    targetScanResult: ScanResult<L1, L2>,
+    sourceScanResult: ScanResult<L2, L1>,
+    targetLocation: L1
+  ): Promise<PlanRevert<L1, L2>> {
     const mappingsSnapshot = this.mappings.getSnapshot()
 
     const slavePlan: PlanRevert<L1, L2> = {
@@ -201,15 +205,11 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     }, ACTION_CONCURRENCY)
 
     await Parallel.each(targetScanResult.MOVE.getActions(), async(action) => {
-      const oldPayload = action.payload.cloneWithLocation(false, action.oldItem.location)
-      oldPayload.id = action.oldItem.id
-      oldPayload.parentId = action.oldItem.parentId
+      const payload = action.payload.cloneWithLocation(false, action.oldItem.location)
+      payload.id = action.oldItem.id
+      payload.parentId = action.oldItem.parentId
 
-      const oldOldItem = action.oldItem.cloneWithLocation(false, action.payload.location)
-      oldOldItem.id = action.payload.id
-      oldOldItem.parentId = action.payload.parentId
-
-      slavePlan.MOVE.commit({ type: ActionType.MOVE, payload: oldOldItem, oldItem: oldPayload })
+      slavePlan.MOVE.commit({ type: ActionType.MOVE, payload }) // no oldItem, because we want to map the id after having executed the CREATEs
     }, ACTION_CONCURRENCY)
 
     return slavePlan
@@ -275,11 +275,15 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       throw new CancelledSyncError()
     }
 
+    const mappingsSnapshot = this.mappings.getSnapshot()
+    // TODO: Store this in continuation
+    const mappedMoves = planRevert.MOVE.map(mappingsSnapshot, targetLocation)
+
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
-    const batches = Diff.sortMoves(planRevert.MOVE.getActions(), this.getTargetTree(targetLocation))
+    const batches = Diff.sortMoves(mappedMoves.getActions(), this.getTargetTree(targetLocation))
 
     if (this.canceled) {
       throw new CancelledSyncError()
@@ -287,7 +291,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     Logger.log(targetLocation + ': executing MOVEs')
     await Parallel.each(batches, batch => Parallel.each(batch, (action) => {
-      return this.executeUpdate(resource, action, targetLocation, planRevert.MOVE, donePlan)
+      return this.executeUpdate(resource, action, targetLocation, mappedMoves, donePlan)
     }, ACTION_CONCURRENCY), 1)
 
     if (this.canceled) {
