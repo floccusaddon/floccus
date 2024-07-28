@@ -28,14 +28,20 @@ class AlarmManager {
       const data = account.getData()
       const lastSync = data.lastSync || 0
       const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
-      if (data.scheduled && data.enabled) {
+      if (data.scheduled) {
         promises.push(this.ctl.scheduleSync(accountId))
+        continue
+      }
+      if (data.error && data.errorCount > 1) {
+        if (Date.now() > interval * 2 ** data.errorCount + lastSync) {
+          promises.push(this.ctl.scheduleSync(accountId))
+        }
+        continue
       }
       if (
         Date.now() >
         interval * 1000 * 60 + lastSync
       ) {
-        // noinspection ES6MissingAwait
         promises.push(this.ctl.scheduleSync(accountId))
       }
     }
@@ -135,12 +141,24 @@ export default class BrowserController {
     if (!navigator.userAgent.includes('Firefox') && typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
       addEventListener('message', (event) => this._receiveEvent(event.data, (data) => event.source.postMessage(data)))
     } else {
-      browser.runtime.onMessage.addListener((data) => void (this._receiveEvent(data, (data) => browser.runtime.sendMessage(data))))
+      browser.runtime.onMessage.addListener((data) => void (this._receiveEvent(data, (data) => {
+        try {
+          browser.runtime.sendMessage(data)
+        } catch (e) {
+          console.warn(e)
+        }
+      })))
     }
     this.onStatusChange(async() => {
       if (self?.clients) {
         const clientList = await self.clients.matchAll()
-        clientList.forEach(client => client.postMessage({ type: 'status:update', params: [] }))
+        clientList.forEach(client => {
+          try {
+            client.postMessage({ type: 'status:update', params: [] })
+          } catch (e) {
+            console.warn(e)
+          }
+        })
       } else {
         try {
           await browser.runtime.sendMessage({ type: 'status:update', params: [] })
@@ -402,7 +420,7 @@ export default class BrowserController {
           await acc.setData({
             ...acc.getData(),
             syncing: false,
-            scheduled: true,
+            scheduled: acc.getData().enabled,
           })
         }
       })
@@ -415,6 +433,7 @@ export default class BrowserController {
       Sentry.init({
         dsn: 'https://836f0f772fbf2e12b9dd651b8e6b6338@o4507214911307776.ingest.de.sentry.io/4507216408870992',
         integrations: [],
+        sampleRate: 0.15,
         release: packageJson.version,
         debug: true,
       })

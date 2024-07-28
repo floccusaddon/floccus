@@ -76,12 +76,14 @@ export default class Account {
   protected server: TAdapter
   protected localTree: TLocalTree
   protected localTabs: TLocalTree
+  protected lockTimeout: number
 
   constructor(id:string, storageAdapter:IAccountStorage, serverAdapter: TAdapter, treeAdapter:TLocalTree) {
     this.server = serverAdapter
     this.id = id
     this.storage = storageAdapter
     this.localTree = treeAdapter
+    this.lockTimeout = LOCK_TIMEOUT
   }
 
   async delete():Promise<void> {
@@ -176,7 +178,7 @@ export default class Account {
           // Resource locked
           if (e.code === 37) {
             // We got a resource locked error
-            if (this.getData().lastSync < Date.now() - LOCK_TIMEOUT) {
+            if (this.getData().lastSync < Date.now() - this.lockTimeout) {
               // but if we've been waiting for the lock for more than 2h
               // start again without locking the resource
               status = await this.server.onSyncStart(false, true)
@@ -312,20 +314,12 @@ export default class Account {
       const message = await Account.stringifyError(e)
       console.error('Syncing failed with', message)
       Logger.log('Syncing failed with', message)
-      // send error to sentry
-      const logData = await Logger.anonymizeLogs(Logger.messages)
       Sentry.setContext('accountData', {
         ...this.getData(),
         username: 'SENSITIVEVALUEHIDDEN',
         password: 'SENSITIVEVALUVALUEHIDDEN',
         passphrase: 'SENSITIVEVALUVALUEHIDDEN'
       })
-      if (!DEBUG) {
-        Sentry.getCurrentScope().addAttachment({
-          filename: 'floccus-log.txt',
-          data: logData.slice(-10).join('\n'),
-        })
-      }
       if (e.list) {
         Sentry.captureException(message)
       } else {
@@ -338,7 +332,6 @@ export default class Account {
         errorCount: this.getData().errorCount + 1,
         syncing: false,
         scheduled: false,
-        ...(this.getData().errorCount > 9 && {enabled: false}), // After 10 errors in a row, disable the account
       })
       if (matchAllErrors(e, e => e.code !== 27 && (!isTest || e.code !== 26))) {
         await this.storage.setCurrentContinuation(null)

@@ -55,21 +55,23 @@
             :icon="false"
             :type="statusType"
             class="pa-2 text-caption">
-            {{ statusDetail }} <v-btn
-              v-if="account.data.error"
-              :color="statusType"
-              class="float-right"
-              x-small
-              @click="onGetLogs">
-              {{ t('LabelDebuglogs') }}
-            </v-btn>
-          </v-alert>
-          <v-alert
-            v-if="account.data.error && !account.data.enabled && Number(account.data.errorCount) > 9"
-            dense
-            outlined
-            :type="'warning'">
-            {{ t('DescriptionDisabledaftererror') }}
+            {{ statusDetail }} <template v-if="account.data.error">
+              <v-btn
+                :color="statusType"
+                class="float-right ml-1"
+                x-small
+                target="_blank"
+                href="https://github.com/floccusaddon/floccus/issues">
+                {{ t('LabelReportproblem') }}
+              </v-btn>
+              <v-btn
+                :color="statusType"
+                class="float-right"
+                x-small
+                @click="onGetLogs">
+                {{ t('LabelDebuglogs') }}
+              </v-btn>
+            </template>
           </v-alert>
           <v-alert
             v-if="legacyWarning"
@@ -147,7 +149,7 @@
 <script>
 import PathHelper from '../../lib/PathHelper'
 import humanizeDuration from 'humanize-duration'
-import { actions } from '../store'
+import { actions } from '../store/definitions'
 import { routes } from '../router'
 import BrowserTree from '../../lib/browser/BrowserTree'
 
@@ -246,7 +248,7 @@ export default {
     },
     statusDetail() {
       if (this.account.data.error) {
-        return this.account.data.error + '\n' + this.t(
+        return this.account.data.error + ' | ' + this.t(
           'StatusLastsynced',
           [humanizeDuration(Date.now() - this.account.data.lastSync, {
             largest: 1,

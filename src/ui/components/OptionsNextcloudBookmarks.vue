@@ -152,7 +152,7 @@ import OptionAllowRedirects from './OptionAllowRedirects'
 import OptionDownloadLogs from './OptionDownloadLogs'
 import OptionAllowNetwork from './native/OptionAllowNetwork'
 import OptionExportBookmarks from './OptionExportBookmarks.vue'
-import { actions } from '../store'
+import { actions } from '../store/definitions'
 
 export default {
   name: 'OptionsNextcloudBookmarks',

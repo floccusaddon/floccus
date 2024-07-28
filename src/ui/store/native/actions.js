@@ -4,10 +4,11 @@ import Logger from '../../../lib/Logger'
 import AdapterFactory from '../../../lib/AdapterFactory'
 import Controller from '../../../lib/Controller'
 import { i18n } from '../../../lib/native/I18n'
-import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
+import { CapacitorHttp as Http } from '@capacitor/core'
 import { Share } from '@capacitor/share'
 import Html from '../../../lib/serializers/Html'
 import { Bookmark, Folder } from '../../../lib/Tree'
+import { Browser } from '@capacitor/browser'
 
 export const actionsDefinition = {
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
@@ -31,6 +32,19 @@ export const actionsDefinition = {
     const tree = await account.getResource()
     const rootFolder = await tree.getBookmarksTree(true)
     await commit(mutations.LOAD_TREE, rootFolder)
+  },
+  async [actions.LOAD_TREE_FROM_DISK]({ commit, dispatch, state }, id) {
+    const account = await Account.get(id)
+    if (account.syncing) {
+      return
+    }
+    const tree = await account.getResource()
+    const changed = await tree.load()
+    const rootFolder = await tree.getBookmarksTree(true)
+    await commit(mutations.LOAD_TREE, rootFolder)
+    if (changed) {
+      await dispatch(actions.TRIGGER_SYNC, id)
+    }
   },
   async [actions.CREATE_BOOKMARK]({commit}, {accountId, bookmark}) {
     const account = await Account.get(accountId)
@@ -211,9 +225,7 @@ export const actionsDefinition = {
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }
     let json = res.data
-    // iOS browser doesn't allow 3rd party cookies, so we have to open a standalone browser
-    const target = Capacitor.getPlatform() === 'ios' ? '_system' : '_blank'
-    const browserWindow = await window.open(json.login, target, 'toolbar=no,presentationstyle=pagesheet')
+    await Browser.open({ url: json.login, presentationStyle: 'popover' })
     do {
       await new Promise(resolve => setTimeout(resolve, 1000))
       try {
@@ -230,10 +242,10 @@ export const actionsDefinition = {
       }
     } while ((res.status === 404 || !res.data.appPassword) && state.loginFlow.isRunning)
     commit(mutations.SET_LOGIN_FLOW_STATE, false)
+    await Browser.close()
     if (res.status !== 200) {
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }
-    browserWindow.close()
     json = res.data
     return {username: json.loginName, password: json.appPassword}
   },

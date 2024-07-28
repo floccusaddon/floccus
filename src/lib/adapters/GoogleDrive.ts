@@ -6,7 +6,7 @@ import Credentials from '../../../google-api.credentials.json'
 import {
   AuthenticationError,
   DecryptionError, FileUnreadableError,
-  GoogleDriveAuthenticationError, HttpError, InterruptedSyncError, MissingPermissionsError,
+  GoogleDriveAuthenticationError, HttpError, CancelledSyncError, MissingPermissionsError,
   NetworkError,
   OAuthTokenError, ResourceLockedError
 } from '../../errors/Error'
@@ -50,6 +50,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   private cancelCallback: () => void = null
   private alwaysUpload = false
   private lockingInterval: any
+  private locked = false
   private lockingPromise: Promise<CustomResponse>
 
   constructor(server) {
@@ -187,7 +188,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   timeout(ms) {
     return new Promise((resolve, reject) => {
       setTimeout(resolve, ms)
-      this.cancelCallback = () => reject(new InterruptedSyncError())
+      this.cancelCallback = () => reject(new CancelledSyncError())
     })
   }
 
@@ -210,12 +211,12 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     this.accessToken = await this.getAccessToken(this.server.refreshToken)
 
-    const fileList = await this.listFiles('name = ' + "'" + this.server.bookmark_file + "'")
+    const fileList = await this.listFiles(`name = '${this.server.bookmark_file}'`)
     const file = fileList.files.filter(file => !file.trashed)[0]
     if (file) {
       this.fileId = file.id
       if (forceLock) {
-        await this.setLock(this.fileId)
+        this.locked = await this.setLock(this.fileId)
       } else if (needLock) {
         const data = await this.getFileMetadata(file.id, 'appProperties')
         if (data.appProperties && data.appProperties.locked && (data.appProperties.locked === true || JSON.parse(data.appProperties.locked))) {
@@ -227,14 +228,20 @@ export default class GoogleDriveAdapter extends CachingAdapter {
             throw new ResourceLockedError()
           }
         }
-        await this.setLock(this.fileId)
+        this.locked = await this.setLock(this.fileId)
       }
 
       let xmlDocText = await this.downloadFile(this.fileId)
 
       if (this.server.password) {
         try {
-          xmlDocText = await Crypto.decryptAES(this.server.password, xmlDocText, this.server.bookmark_file)
+          try {
+            // TODO: Use this when encrypting
+            const json = JSON.parse(xmlDocText)
+            xmlDocText = await Crypto.decryptAES(this.server.password, json.ciphertext, json.salt)
+          } catch (e) {
+            xmlDocText = await Crypto.decryptAES(this.server.password, xmlDocText, this.server.bookmark_file)
+          }
         } catch (e) {
           if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
             // not encrypted, yet => noop
@@ -249,14 +256,15 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
       /* let's get the highestId */
       const byNL = xmlDocText.split('\n')
-      byNL.forEach(line => {
+      for (const line of byNL) {
         if (line.indexOf('<!--- highestId :') >= 0) {
           const idxStart = line.indexOf(':') + 1
           const idxEnd = line.lastIndexOf(':')
 
           this.highestId = parseInt(line.substring(idxStart, idxEnd))
+          break
         }
-      })
+      }
 
       this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
       if (this.lockingInterval) {
@@ -284,7 +292,9 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     Logger.log('onSyncFail')
     if (this.fileId) {
       clearInterval(this.lockingInterval)
-      await this.freeLock(this.fileId)
+      if (this.locked) {
+        await this.freeLock(this.fileId)
+      }
     }
     this.fileId = null
   }

@@ -191,7 +191,7 @@
 <script>
 import PathHelper from '../../lib/PathHelper'
 import BrowserTree from '../../lib/browser/BrowserTree'
-import { actions } from '../store'
+import { actions } from '../store/definitions'
 import OptionsNextcloudFolders from '../components/OptionsNextcloudBookmarks'
 import OptionsWebdav from '../components/OptionsWebdav'
 import OptionsFake from '../components/OptionsFake'

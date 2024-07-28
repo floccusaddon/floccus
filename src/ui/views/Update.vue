@@ -27,14 +27,14 @@
             </div>
             <div class="d-flex flex-wrap mt-4">
               <v-card
-                  v-for="platform in reviewOptions"
-                  :key="platform.label"
-                  tile
-                  flat
-                  :color="'light-blue'"
-                  class="mr-2 mb-2"
-                  target="_blank"
-                  :href="platform.href">
+                v-for="platform in reviewOptions"
+                :key="platform.label"
+                tile
+                flat
+                :color="'light-blue'"
+                class="mr-2 mb-2"
+                target="_blank"
+                :href="platform.href">
                 <v-card-title class="white--text">
                   {{ platform.label }}
                 </v-card-title>
@@ -80,7 +80,9 @@
           <div class="body-1">
             {{ t("DescriptionTelemetry") }}
           </div>
-          <v-radio-group v-model="telemetry" class="mt-4">
+          <v-radio-group
+            v-model="telemetry"
+            class="mt-4">
             <v-radio :value="true">
               <template #label>
                 <div class="heading">

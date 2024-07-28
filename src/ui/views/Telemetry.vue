@@ -10,7 +10,9 @@
           <div class="body-1">
             {{ t("DescriptionTelemetry") }}
           </div>
-          <v-radio-group v-model="telemetry" class="mt-4">
+          <v-radio-group
+            v-model="telemetry"
+            class="mt-4">
             <v-radio :value="true">
               <template #label>
                 <div class="heading">
@@ -26,6 +28,15 @@
               </template>
             </v-radio>
           </v-radio-group>
+        </v-card-text>
+        <v-card-title>
+          {{ t("LabelReportproblem") }}
+        </v-card-title>
+        <v-card-text>
+          <div class="body-1">
+            {{ t("DescriptionReportproblem") }}
+          </div>
+          <v-btn href="https://github.com/floccusaddon/floccus/issues">{{ t("LabelReportproblem") }}</v-btn>
         </v-card-text>
       </v-container>
     </v-card>

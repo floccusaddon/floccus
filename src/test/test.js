@@ -63,7 +63,7 @@ describe('Floccus', function() {
     params.get('server') ||
     'http://localhost'
   CREDENTIALS = {
-    username: 'admin',
+    username: params.get('username') || 'admin',
     password: params.get('password') || 'admin'
   }
   APP_VERSION = params.get('app_version') || 'stable'
@@ -253,6 +253,7 @@ describe('Floccus', function() {
               await account.server.clearServer()
             } else if (ACCOUNT_DATA.type !== 'fake') {
               await account.setData({ ...account.getData(), serverRoot: null })
+              account.lockTimeout = 0
               const tree = await getAllBookmarks(account)
               await withSyncConnection(account, async() => {
                 await AsyncParallel.each(tree.children, async child => {
@@ -3219,6 +3220,7 @@ describe('Floccus', function() {
                 ...account1.getData(),
                 serverRoot: null
               })
+              account1.lockTimeout = 0
               await withSyncConnection(account1, async() => {
                 const tree = await account1.server.getBookmarksTree(true)
                 await AsyncParallel.each(tree.children, async child => {
@@ -4616,6 +4618,7 @@ describe('Floccus', function() {
               await account.server.clearServer()
             } else if (ACCOUNT_DATA.type !== 'fake') {
               await account.setData({ ...account.getData(), serverRoot: null })
+              account.lockTimeout = 0
               const tree = await getAllBookmarks(account)
               await withSyncConnection(account, async() => {
                 await AsyncParallel.each(tree.children, async child => {
@@ -4953,6 +4956,7 @@ describe('Floccus', function() {
               ...account1.getData(),
               serverRoot: null
             })
+            account1.lockTimeout = 0
             const tree = await getAllBookmarks(account1)
             await withSyncConnection(account1, async() => {
               await AsyncParallel.each(tree.children, async child => {
@@ -6753,10 +6757,11 @@ async function syncAccountWithInterrupts(account) {
   try {
     expect(account.getData().error).to.not.be.ok
   } catch (e) {
-    if (!account.getData().error.includes('E026')) {
+    if (!account.getData().error.includes('E026') && !account.getData().error.includes('E027')) {
       throw e
     } else {
       console.log(account.getData().error)
+      account.lockTimeout = 0
       await syncAccountWithInterrupts(account)
     }
   }

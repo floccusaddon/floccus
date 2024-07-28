@@ -1,5 +1,44 @@
 # Changelog
 
+## [5.2.5] - 2024-07-25
+
+### Fixed
+* [native] feat: warn user if URL is already bookmarked
+* [native] fix: small visual fixes
+* [native] fix: Automatically reload from disk when resuming app
+* [native] fix: replace cordova-inappbrowser with capacitor/browser
+* [native] chore: Upgrade capacitor to v6
+* feat(AccountCard): Link to github issues on error
+* perf(GoogleDrive, WebDav): Don't loop through all lines when finding highest ID
+* feat(Telemetry): Add report problem button to Telemetry page
+* feat(AccountCard): Link to github issues on error
+* fix(Cancel): Improve cancel UX
+* fix(NextcloudBookmarks): Increase timeout
+* fix(Git): Clean up used indexedDB instances
+* fix(Controller logic): Catch all 'Receiving end does not exist' errors
+* fix(Account): Don't compile logs for each error
+* fix(Xbel): Don't attempt to parse numbers
+* fix(GoogleDrive,WebDAV): Allow passing salt in file contents
+* fix(GoogleDrive): Don't free lock if it wasn't locked
+* fix(Cancel): Improve cancel UX
+* fix(NextcloudBookmarks): Increase timeout
+* chore(package.json): Add necessary NODE_OPTIONS to scripts
+* chore(ios): Update ios assets
+
+## [5.2.4] - 2024-07-02
+
+### Fixed
+
+* fix(Account): Use exponential backoff instead of disabling profile after 10 errors
+* [native] fix(font-size): set default font-size using cm
+* fix(imports): Don't allow importing actions definitions from store/index
+* [native] fix(Options): Avoid importing browser-only module
+* fix(Folder#traverse)
+* fix typo in README.md in git repos
+* fix(Default#executeAction): fix ordering when doing bulkImport in Unidirectional strategy
+* fix(NextcloudBookmarks): Make sure folder exists before appending children
+
+
 ## [5.2.3] - 2024-06-21
 
 ### Fixed

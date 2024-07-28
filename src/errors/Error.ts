@@ -224,7 +224,7 @@ export class SlashError extends FloccusError {
 
 export class CancelledSyncError extends FloccusError {
   constructor() {
-    super('E027: Sync process was cancelled')
+    super('E026: Sync process was cancelled')
     this.code = 26
     Object.setPrototypeOf(this, InterruptedSyncError.prototype)
   }

@@ -5,6 +5,9 @@
   "npmClient": "npm",
   "webDir": "dist",
   "loggingBehavior": "production",
+  "server": {
+    "androidScheme": "http"
+  },
   "plugins": {
     "SplashScreen": {
         "launchAutoHide": false,

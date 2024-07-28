@@ -19,7 +19,7 @@ import {
 import Ordering from '../interfaces/Ordering'
 import {
   AuthenticationError, CreateBookmarkError,
-  HttpError,
+  HttpError, CancelledSyncError,
   MissingPermissionsError,
   NetworkError,
   ParseResponseError,
@@ -33,7 +33,7 @@ import {
 } from '../../errors/Error'
 
 const PAGE_SIZE = 300
-const TIMEOUT = 180000
+const TIMEOUT = 300000
 
 export interface NextcloudBookmarksConfig {
   type: 'nextcloud-folders'|'nextcloud-bookmarks'
@@ -70,11 +70,14 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private list: Bookmark<typeof ItemLocation.SERVER>[]
   private tree: Folder<typeof ItemLocation.SERVER>
   private lockId: string | number
+  private abortController: AbortController
+  private abortSignal: AbortSignal
   private canceled = false
   private cancelCallback: () => void = null
   private lockingInterval: any
   private lockingPromise: Promise<boolean>
   private ended = false
+  private locked = false
   private hasFeatureJavascriptLinks: boolean = null
   private rootHash: string = null
 
@@ -82,6 +85,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     this.server = server
     this.fetchQueue = new PQueue({ concurrency: 12 })
     this.bookmarkLock = new AsyncLock()
+    this.abortController = new AbortController()
+    this.abortSignal = this.abortController.signal
   }
 
   static getDefaultValues(): NextcloudBookmarksConfig {
@@ -143,13 +148,16 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       }
     }
 
+    this.abortController = new AbortController()
+    this.abortSignal = this.abortController.signal
+
     if (this.lockingInterval) {
       clearInterval(this.lockingInterval)
     }
 
     // if needLock -- we always need it
-    const couldAcquireLock = await this.acquireLock()
-    if (!forceLock && !couldAcquireLock) {
+    this.locked = await this.acquireLock()
+    if (!forceLock && !this.locked) {
       throw new ResourceLockedError()
     }
     this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
@@ -173,6 +181,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   cancel() {
     this.canceled = true
     this.fetchQueue.clear()
+    this.abortController.abort()
     this.cancelCallback && this.cancelCallback()
   }
 
@@ -758,14 +767,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         'GET',
         `index.php/apps/bookmarks/public/rest/v2/bookmark?page=1&limit=1`
       )
-      console.log(json)
       if (!json.data.length) {
         this.hasFeatureJavascriptLinks = true
         try {
           const id = await this.createBookmark(new Bookmark({id: null, parentId: '-1', title: 'floccus', url: 'javascript:void(0)', location: ItemLocation.SERVER}))
           await this.removeBookmark(new Bookmark({id, parentId: '-1', title: 'floccus', url: 'javascript:void(0)', location: ItemLocation.SERVER}))
         } catch (e) {
-          console.log(e)
           this.hasFeatureJavascriptLinks = false
         }
         return
@@ -812,6 +819,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
               ...(type && type !== 'multipart/form-data' && { 'Content-type': type }),
               Authorization: 'Basic ' + authString,
             },
+            signal: this.abortSignal,
             ...(body && !['get', 'head'].includes(verb.toLowerCase()) && { body }),
           }),
           new Promise((resolve, reject) =>
@@ -824,6 +832,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       })
     } catch (e) {
       if (timedOut) throw e
+      if (this.canceled) throw new CancelledSyncError()
       console.log(e)
       throw new NetworkError()
     }
@@ -882,6 +891,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private async releaseLock():Promise<boolean> {
     if (this.lockingPromise) {
       await this.lockingPromise
+    }
+    if (!this.locked) {
+      return
     }
     const res = await this.sendRequest(
       'DELETE',

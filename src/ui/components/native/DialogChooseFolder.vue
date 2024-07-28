@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { mutations } from '../../store/native'
+import { mutations } from '../../store/definitions'
 
 export default {
   name: 'DialogChooseFolder',

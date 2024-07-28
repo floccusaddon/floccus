@@ -45,10 +45,26 @@ export default class Controller implements IController {
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../lib/browser-api')).default
       return {
-        postMessage: (data) => browser.runtime.sendMessage(data),
+        postMessage: (data) => {
+          try {
+            browser.runtime.sendMessage(data)
+          } catch (e) {
+            console.warn(e)
+          }
+        },
         addEventListener: (fn) => {
-          browser.runtime.onMessage.addListener(fn)
-          return () => browser.runtime.onMessage.removeListener(fn)
+          try {
+            browser.runtime.onMessage.addListener(fn)
+          } catch (e) {
+            console.warn(e)
+          }
+          return () => {
+            try {
+              browser.runtime.onMessage.removeListener(fn)
+            } catch (e) {
+              console.warn(e)
+            }
+          }
         },
       }
     }

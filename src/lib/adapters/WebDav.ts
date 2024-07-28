@@ -7,7 +7,7 @@ import Crypto from '../Crypto'
 import {
   AuthenticationError,
   DecryptionError, FileUnreadableError,
-  HttpError, InterruptedSyncError,
+  HttpError, CancelledSyncError,
   LockFileError, MissingPermissionsError,
   NetworkError, RedirectError, ResourceLockedError,
   SlashError
@@ -23,6 +23,8 @@ export default class WebDavAdapter extends CachingAdapter {
   private lockingPromise: Promise<any>
   private locked: boolean
   private ended: boolean
+  private abortController: AbortController
+  private abortSignal: AbortSignal
   private cancelCallback: () => void
   private initialTreeHash: string
   constructor(server) {
@@ -62,6 +64,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   cancel() {
+    this.abortController.abort()
     this.cancelCallback && this.cancelCallback()
   }
 
@@ -84,7 +87,7 @@ export default class WebDavAdapter extends CachingAdapter {
   timeout(ms) {
     return new Promise((resolve, reject) => {
       setTimeout(resolve, ms)
-      this.cancelCallback = () => reject(new InterruptedSyncError())
+      this.cancelCallback = () => reject(new CancelledSyncError())
     })
   }
 
@@ -164,6 +167,7 @@ export default class WebDavAdapter extends CachingAdapter {
             headers: {
               Authorization: 'Basic ' + authString
             },
+            signal: this.abortSignal,
             ...(!this.server.allowRedirects && {redirect: 'manual'}),
           })
         } else {
@@ -210,7 +214,12 @@ export default class WebDavAdapter extends CachingAdapter {
 
       if (this.server.passphrase) {
         try {
-          xmlDocText = await Crypto.decryptAES(this.server.passphrase, xmlDocText, this.server.bookmark_file)
+          try {
+            const json = JSON.parse(xmlDocText)
+            xmlDocText = await Crypto.decryptAES(this.server.passphrase, json.ciphertext, json.salt)
+          } catch (e) {
+            xmlDocText = await Crypto.decryptAES(this.server.passphrase, xmlDocText, this.server.bookmark_file)
+          }
         } catch (e) {
           if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>') || xmlDocText.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>')) {
             // not encrypted, yet => noop
@@ -224,14 +233,15 @@ export default class WebDavAdapter extends CachingAdapter {
 
       /* let's get the highestId */
       const byNL = xmlDocText.split('\n')
-      byNL.forEach(line => {
+      for (const line of byNL) {
         if (line.indexOf('<!--- highestId :') >= 0) {
           const idxStart = line.indexOf(':') + 1
           const idxEnd = line.lastIndexOf(':')
 
           this.highestId = parseInt(line.substring(idxStart, idxEnd))
+          break
         }
-      })
+      }
 
       switch (this.server.bookmark_file_type) {
         case 'xbel':
@@ -268,6 +278,9 @@ export default class WebDavAdapter extends CachingAdapter {
     if (this.server.bookmark_file[0] === '/') {
       throw new SlashError()
     }
+
+    this.abortController = new AbortController()
+    this.abortSignal = this.abortController.signal
 
     if (forceLock) {
       await this.setLock()
@@ -349,12 +362,14 @@ export default class WebDavAdapter extends CachingAdapter {
           Authorization: 'Basic ' + authString
         },
         credentials: 'omit',
+        signal: this.abortSignal,
         ...(!this.server.allowRedirects && {redirect: 'manual'}),
         body: data,
       })
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
+      if (this.abortSignal.aborted) throw new CancelledSyncError()
       throw new NetworkError()
     }
     if (res.status === 0 && !this.server.allowRedirects) {
@@ -417,11 +432,13 @@ export default class WebDavAdapter extends CachingAdapter {
         },
         cache: 'no-store',
         credentials: 'omit',
+        signal: this.abortSignal,
         ...(!this.server.allowRedirects && {redirect: 'manual'})
       })
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
+      if (this.abortSignal.aborted) throw new CancelledSyncError()
       throw new NetworkError()
     }
     if (res.status === 0 && !this.server.allowRedirects) {

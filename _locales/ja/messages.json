@@ -270,7 +270,7 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "「Nextcloud Bookmarks」のオプションは Nextclound のブックマークアプリとブックマークを同期します。http、ftp、JavaScript のブックマークのみ同期できます。お使いの Nextcloud でブックマークアプリを Nextcloud アプリストアからインストールしていることを確認してください。"
+    "message": "「Nextcloud Bookmarks」のオプションは Nextclound のブックマークアプリとブックマークを同期します。http、ftp、JavaScript のブックマークのみ同期できます。お使いの Nextcloud でブックマークアプリを Nextcloud アプリストアからインストールしていることを確認してください。このオプションでは、エンドツーエンド暗号化は使用できません。"
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (レガシー)"
@@ -282,7 +282,7 @@
     "message": "WebDAV 共有"
   },
   "DescriptionAdapterwebdav": {
-    "message": "WebDAV オプションは、提供された WebDAV 共有のファイルにブックマークを保存して同期します。ウェブ UI はなく、任意の WebDAV 互換サーバーで使用できます。http、ftp、データ、ファイル、JavaScript のブックマークを同期できます。"
+    "message": "WebDAV オプションは、提供された WebDAV 共有のファイルにブックマークを保存して同期します。ウェブ UI はなく、任意の WebDAV 互換サーバーで使用できます。http、ftp、データ、ファイル、JavaScript のブックマークを同期できます。このオプションでは、エンドツーエンド暗号化を選択できます。"
   },
   "LabelAddaccount": {
     "message": "プロファイルを追加"
@@ -294,7 +294,7 @@
     "message": "デバッグログ"
   },
   "LabelFunddevelopment": {
-    "message": "開発資金を支援"
+    "message": "💸 開発を支援します"
   },
   "DescriptionFunddevelopment": {
     "message": "任意のサブスクリプションによって floccus の開発を促進できます。私の活動に価値を感じてくださり、大きな苦労なしに数枚のコインを準備できるようなら、開発を支援してください。お使いになったアドオンストアで floccus を評価していただくこともお考えください。ありがとうございます！💙"
@@ -376,7 +376,7 @@
     "message": "このレガシープロファイルタイプは非推奨になり、間もなく削除されます。新しい Nextcloud の同期方法に変更してください。改善されたパフォーマンスと精度でななたをお待ちしています。"
   },
   "LabelUpdated": {
-    "message": "floccus が更新されました"
+    "message": "⚡ floccus を更新しました"
   },
   "DescriptionUpdated": {
     "message": "おめでとうございます。floccus の更新がマシンに到着しました！"
@@ -508,7 +508,7 @@
     "message": "Google ドライブ"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "あなたの Google ドライブに保存された、暗号化されたファイルを使用してブックマークを同期します。http、ftp、データ、ファイル、JavaScript のブックマークを同期できます。"
+    "message": "あなたの Google ドライブに保存されたファイルを使用してブックマークを同期します。http、ftp、データ、ファイル、JavaScript のブックマークを同期できます。このオプションでは、エンドツーエンド暗号化を選択できます。"
   },
   "LabelLogingoogle": {
     "message": "Google でログイン"
@@ -703,7 +703,7 @@
     "message": "Git over HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Git オプションは、提供された Git リポジトリー内のファイルにブックマークを保存して同期します。ウェブ UI はありませんが、Github、Gitlab、Gitea などのすべての Git ホスティングサーバーに対応しています。http、ftp、データ、ファイル、JavaScript のブックマークを同期できます。 "
+    "message": "Git オプションは、提供された Git リポジトリー内のファイルにブックマークを保存して同期します。ウェブ UI はありませんが、Github、Gitlab、Gitea などのすべての Git ホスティングサーバーに対応しています。http、ftp、データ、ファイル、JavaScript のブックマークを同期できます。このオプションでは、エンドツーエンド暗号化は使用できません。 "
   },
   "LabelGiturl": {
     "message": "リポジトリーの URL (HTTP)"
@@ -712,7 +712,7 @@
     "message": "Git ブランチ"
   },
   "LabelTelemetry": {
-    "message": "自動エラーレポート"
+    "message": "🐛 自動エラー報告"
   },
   "DescriptionTelemetry": {
     "message": "floccus は開発者に自動でエラーデータを送信できます。エラーデータは floccus のバグの迅速な発見と解消に役立ち、長期的には floccus のユーザー体験を向上させます。エラーレポートを有効にしても、floccus の開発者はあなたのブックマークを閲覧できません。"
@@ -722,5 +722,50 @@
   },
   "LabelTelemetrydisable": {
     "message": "floccus の開発者にエラーデータを送信しない"
+  },
+  "LabelAccountlabel": {
+    "message": "プロファイル ラベル"
+  },
+  "DescriptionAccountlabel": {
+    "message": "プロファイルに名前をつけて簡単に区別しましょう"
+  },
+  "LabelClickcount": {
+    "message": "クリック集計"
+  },
+  "DescriptionClickcount": {
+    "message": "どのブックマークをよく使っているかの統計を Nextcloud サーバーに送信し、クリック数で並べ替えられるようにします。"
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "Google Play でレビュー"
+  },
+  "DescriptionAppstorereview": {
+    "message": "App Store でレビュー"
+  },
+  "DescriptionChromereview": {
+    "message": "Chrome ウェブストアでレビュー"
+  },
+  "DescriptionAlternativereview": {
+    "message": "AlternativeTo.net  でレビュー"
+  },
+  "DescriptionMozillareview": {
+    "message": "Mozilla Addons でレビュー"
+  },
+  "DescriptionEdgereview": {
+    "message": "Edge アドオン でレビュー"
+  },
+  "LabelWritereview": {
+    "message": "💙 お気に入りを共有！"
+  },
+  "DescriptionWritereview": {
+    "message": "floccus を楽しんでいただけているなら、これらのプラットフォームのどれかで評価して私たちに是非教えてください。"
+  },
+  "DescriptionDonateintervention": {
+    "message": "ブックマーク同期は役立っていますか？支援してください！"
+  },
+  "LabelDonate": {
+    "message": "寄付"
+  },
+  "DescriptionDisabledaftererror": {
+    "message": "このプロファイルを無効にする前に 10 回再試行しました"
   }
 }

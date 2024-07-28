@@ -2,11 +2,19 @@
   <v-app
     id="app"
     :style="appStyle">
-    <v-banner v-if="isBrowser"
-        color="primary" class="mb-1 mt-3 white--text"
-        single-line>{{ t('DescriptionDonateintervention') }}
+    <v-banner
+      v-if="isBrowser"
+      color="primary"
+      class="mb-1 mt-3 white--text"
+      single-line>
+      {{ t('DescriptionDonateintervention') }}
       <template #actions>
-        <v-btn small target="_blank" href="https://floccus.org/donate/">{{ t('LabelDonate') }}</v-btn>
+        <v-btn
+          small
+          target="_blank"
+          href="https://floccus.org/donate/">
+          {{ t('LabelDonate') }}
+        </v-btn>
       </template>
     </v-banner>
     <v-content>
@@ -43,13 +51,13 @@
           <v-tooltip top>
             <template #activator="{ on, attrs }">
               <v-btn
-                  x-small
-                  text
-                  class="white--text"
-                  v-bind="attrs"
-                  :to="{name: routes.TELEMETRY}"
-                  target="_blank"
-                  v-on="on">
+                x-small
+                text
+                class="white--text"
+                v-bind="attrs"
+                :to="{name: routes.TELEMETRY}"
+                target="_blank"
+                v-on="on">
                 <v-icon>{{ telemetryEnabled ? 'mdi-bug-play-outline' : 'mdi-bug-pause-outline' }}</v-icon>
               </v-btn>
             </template>
@@ -93,7 +101,7 @@
 
 <script>
 import { version as VERSION } from '../../package.json'
-import { actions } from './store'
+import { actions } from './store/definitions'
 import { routes } from './router'
 import Controller from '../lib/Controller'
 import browser from '../lib/browser-api'

@@ -128,8 +128,9 @@
         class="loading" />
       <v-list
         v-else-if="currentFolder && items && items.length"
+        style="min-height: 95vh"
         two-line
-        class="mb-10">
+        class="pb-10">
         <template v-for="item in items">
           <v-list-item
             :key="item.type+item.id"
@@ -208,7 +209,7 @@
         v-else
         flat
         tile
-        :style="{margin: '10vh auto', width: '90vw'}">
+        :style="{height: '100vh', width: '100vw', padding: '10vh auto'}">
         <img
           src="icons/tree-swing.svg"
           :style="{width: '95%', maxHeight: '40vh'}">
@@ -431,6 +432,7 @@ export default {
   },
   mounted() {
     this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
+    App.addListener('resume', () => this.$store.dispatch(actions.LOAD_TREE_FROM_DISK, this.$route.params.accountId))
   },
   backButton() {
     this.goBack()
