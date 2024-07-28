@@ -78,7 +78,7 @@ export class Bookmark<L extends TItemLocation> {
   }
 
   clone(withHash?: boolean):Bookmark<L> {
-    return new Bookmark({...this})
+    return new Bookmark(this)
   }
 
   cloneWithLocation<L2 extends TItemLocation>(withHash:boolean, location: L2): Bookmark<L2> {
@@ -170,8 +170,8 @@ export class Folder<L extends TItemLocation> {
     this.loaded = loaded !== false
     this.location = location
     this.isRoot = isRoot
-    if (this.location !== ItemLocation.LOCAL && this.location !== ItemLocation.SERVER) {
-      throw new Error('Wrong location')
+    if (this.location && this.location !== ItemLocation.LOCAL && this.location !== ItemLocation.SERVER) {
+      throw new Error('Location failed validation')
     }
   }
 
@@ -287,7 +287,6 @@ export class Folder<L extends TItemLocation> {
     return new Folder({
       ...this,
       ...(!withHash && { hashValue: {} }),
-      ...(location && {location}),
       children: this.children.map(child => child.clone(withHash))
     })
   }
