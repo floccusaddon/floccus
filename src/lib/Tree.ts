@@ -44,7 +44,13 @@ export class Bookmark<L extends TItemLocation> {
     this.parentId = parentId
     this.title = title
     this.tags = tags
-    this.location = location
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this.location = location || ItemLocation.LOCAL
+
+    if (this.location !== ItemLocation.LOCAL && this.location !== ItemLocation.SERVER) {
+      throw new Error('Location failed validation')
+    }
 
     // not a regular bookmark
     if (STRANGE_PROTOCOLS.some(proto => url.indexOf(proto) === 0)) {
@@ -168,9 +174,12 @@ export class Folder<L extends TItemLocation> {
     this.children = children || []
     this.hashValue = {...hashValue} || {}
     this.loaded = loaded !== false
-    this.location = location
     this.isRoot = isRoot
-    if (this.location && this.location !== ItemLocation.LOCAL && this.location !== ItemLocation.SERVER) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this.location = location || ItemLocation.LOCAL
+
+    if (this.location !== ItemLocation.LOCAL && this.location !== ItemLocation.SERVER) {
       throw new Error('Location failed validation')
     }
   }

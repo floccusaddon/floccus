@@ -136,7 +136,6 @@ export default class SyncProcess {
   }
 
   updateProgress():void {
-    Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
     if (typeof this.actionsDone === 'undefined') {
       this.actionsDone = 0
     }
@@ -148,6 +147,7 @@ export default class SyncProcess {
       ),
       this.actionsDone
     )
+    Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
   }
 
   setProgress({actionsDone, actionsPlanned}: {actionsDone: number, actionsPlanned: number}) {
@@ -267,8 +267,8 @@ export default class SyncProcess {
     }
 
     if (!this.localReorders) {
-      this.localReorders = new Diff<typeof ItemLocation.SERVER, TItemLocation, ReorderAction<typeof ItemLocation.SERVER, TItemLocation>>()
-      this.serverReorders = new Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>>()
+      this.localReorders = this.localPlanStage2.REORDER
+      this.serverReorders = this.serverPlanStage2.REORDER
     }
 
     if (!this.actionsPlanned) {
@@ -720,11 +720,11 @@ export default class SyncProcess {
     reorders: Diff<TOppositeLocation<L1>, TItemLocation, ReorderAction<TOppositeLocation<L1>, TItemLocation>>): Promise<void> {
     Logger.log('Executing ' + targetLocation + ' plan for ')
 
-    Logger.log(targetLocation + ': executing CREATEs')
     let createActions = planStage2.CREATE.getActions()
     while (createActions.length > 0) {
+      Logger.log(targetLocation + ': executing CREATEs')
       await Parallel.each(
-        planStage2.CREATE.getActions(),
+        createActions,
         (action) => this.executeCreate(resource, action, targetLocation, planStage2.CREATE, reorders, donePlan),
         ACTION_CONCURRENCY
       )
@@ -819,6 +819,10 @@ export default class SyncProcess {
     }
 
     if (action.payload instanceof Folder && action.payload.children.length && action.oldItem instanceof Folder) {
+      // Fix for Unidirectional reverted REMOVEs, for all other strategies this should be a noop
+      action.payload.children.forEach((item) => {
+        item.parentId = id
+      })
       // We *know* that oldItem exists here, because actions are mapped before being executed
       if ('bulkImportFolder' in resource) {
         if (action.payload.count() < 75 || this.server instanceof CachingAdapter) {
@@ -918,6 +922,8 @@ export default class SyncProcess {
 
             folders
               .forEach((child) => {
+                // Necessary for Unidirectional reverted REMOVEs
+                child.parentId = Mappings.mapParentId(mappingsSnapshot, child, targetLocation)
                 const newAction = { type: ActionType.CREATE, payload: child, oldItem: action.oldItem && action.oldItem.findItem(child.type, Mappings.mapId(mappingsSnapshot, child, action.oldItem.location)) }
                 this.actionsPlanned++
                 diff.commit(newAction)
@@ -947,6 +953,8 @@ export default class SyncProcess {
       const mappingsSnapshot = this.mappings.getSnapshot()
       action.payload.children
         .forEach((child) => {
+          // Necessary for Unidirectional reverted REMOVEs
+          child.parentId = Mappings.mapParentId(mappingsSnapshot, child, targetLocation)
           const oldItem = action.oldItem.findItem(child.type, Mappings.mapId(mappingsSnapshot, child, targetLocation))
           const newAction = { type: ActionType.CREATE, payload: child, oldItem }
           this.actionsPlanned++

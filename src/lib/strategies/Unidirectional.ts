@@ -121,7 +121,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     // First revert slave modifications
 
     if (!this.revertPlan) {
-      this.revertPlan = await this.revertDiff(targetScanResult, this.direction)
+      this.revertPlan = await this.revertDiff(targetScanResult, sourceScanResult, this.direction)
       Logger.log({revertPlan: this.revertPlan})
     }
 
@@ -162,7 +162,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     }
   }
 
-  async revertDiff<L1 extends TItemLocation, L2 extends TItemLocation>(targetScanResult: ScanResult<L1, L2>, targetLocation: L1): Promise<PlanRevert<L1, L2>> {
+  async revertDiff<L1 extends TItemLocation, L2 extends TItemLocation>(targetScanResult: ScanResult<L1, L2>, sourceScanResult: ScanResult<L2, L1>, targetLocation: L1): Promise<PlanRevert<L1, L2>> {
     const mappingsSnapshot = this.mappings.getSnapshot()
 
     const slavePlan: PlanRevert<L1, L2> = {
@@ -175,10 +175,10 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     // Prepare slave plan for reversing slave changes
 
-    await Parallel.each(targetScanResult.REMOVE.getActions(), async(action) => {
+    await Parallel.each(sourceScanResult.CREATE.getActions(), async(action) => {
       // recreate it on slave resource otherwise
       const payload = await this.translateCompleteItem(action.payload, mappingsSnapshot, targetLocation)
-      const oldItem = await this.translateCompleteItem(action.payload, mappingsSnapshot, targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL) as TItem<L2>
+      const oldItem = action.payload
       payload.createIndex()
       oldItem.createIndex()
 
@@ -248,11 +248,11 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     reorders: Diff<TOppositeLocation<L1>, TItemLocation, ReorderAction<TOppositeLocation<L1>, TItemLocation>>): Promise<void> {
     Logger.log('Executing revert plan for ' + targetLocation)
 
-    Logger.log(targetLocation + ': executing CREATEs')
     let createActions = planRevert.CREATE.getActions()
     while (createActions.length > 0) {
+      Logger.log(targetLocation + ': executing CREATEs')
       await Parallel.each(
-        planRevert.CREATE.getActions(),
+        createActions,
         (action) => this.executeCreate(resource, action, targetLocation, planRevert.CREATE, reorders, donePlan),
         ACTION_CONCURRENCY
       )

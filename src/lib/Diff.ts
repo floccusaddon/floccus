@@ -257,7 +257,7 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
 
   inspect(depth = 0):string {
     return 'Diff\n' + this.getActions().map((action: A) => {
-      return `\nAction: ${action.type}\nPayload: #${action.payload.id}[${action.payload.title}]${'url' in action.payload ? `(${action.payload.url})` : ''} ${'index' in action ? `Index: ${action.index}\n` : ''}${'order' in action ? `Order: ${JSON.stringify(action.order, null, '\t')}` : ''}`
+      return `\nAction: ${action.type}\nPayload: #${action.payload.id}[${action.payload.title}]${'url' in action.payload ? `(${action.payload.url})` : ''} parentId: ${action.payload.parentId} ${'index' in action ? `Index: ${action.index}\n` : ''}${'order' in action ? `Order: ${JSON.stringify(action.order, null, '\t')}` : ''}`
     }).join('\n')
   }
 

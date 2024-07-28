@@ -132,7 +132,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
         const node = await this.queue.add(async() => {
           Logger.log('(local)CREATE: executing create ', bookmark)
           return browser.bookmarks.create({
-            parentId: bookmark.parentId,
+            parentId: bookmark.parentId.toString(),
             type: 'separator'
           })
         })
@@ -141,7 +141,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
       const node = await this.queue.add(async() => {
         Logger.log('(local)CREATE: executing create ', bookmark)
         return browser.bookmarks.create({
-          parentId: bookmark.parentId,
+          parentId: bookmark.parentId.toString(),
           title: bookmark.title,
           url: bookmark.url
         })
@@ -173,7 +173,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
       await this.queue.add(async() => {
         Logger.log('(local)UPDATE: executing move ', bookmark)
         return browser.bookmarks.move(bookmark.id, {
-          parentId: bookmark.parentId
+          parentId: bookmark.parentId.toString()
         })
       })
     } catch (e) {
@@ -209,7 +209,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
       const node = await this.queue.add(async() => {
         Logger.log('(local)CREATEFOLDER: executing create ', folder)
         return browser.bookmarks.create({
-          parentId,
+          parentId: parentId.toString(),
           title
         })
       })
@@ -228,7 +228,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     const [realTree] = await browser.bookmarks.getSubTree(id)
     try {
       for (let index = 0; index < order.length; index++) {
-        await browser.bookmarks.move(order[index].id, { parentId: id, index })
+        await browser.bookmarks.move(order[index].id, { parentId: id.toString(), index })
       }
     } catch (e) {
       throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
@@ -244,7 +244,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
       try {
         Logger.log('Move untouched children back into place', {untouchedChildren: untouchedChildren.map(([i, item]) => [i, item.id])})
         for (const [index, child] of untouchedChildren) {
-          await browser.bookmarks.move(child.id, { parentId: id, index})
+          await browser.bookmarks.move(child.id, { parentId: id.toString(), index})
         }
       } catch (e) {
         throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
@@ -266,7 +266,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     try {
       await this.queue.add(async() => {
         Logger.log('(local)UPDATEFOLDER: executing update ', folder)
-        return browser.bookmarks.update(id, {
+        return browser.bookmarks.update(id.toString(), {
           title
         })
       })
@@ -280,7 +280,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     try {
       await this.queue.add(async() => {
         Logger.log('(local)CREATEFOLDER: executing move ', folder)
-        return browser.bookmarks.move(id, { parentId })
+        return browser.bookmarks.move(id.toString(), { parentId })
       })
     } catch (e) {
       throw new Error('Failed to move folder ' + id + ': ' + e.message)
@@ -301,7 +301,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     try {
       await this.queue.add(async() => {
         Logger.log('(local)REMOVEFOLDER: executing remove ', folder)
-        return browser.bookmarks.removeTree(id)
+        return browser.bookmarks.removeTree(id.toString())
       })
     } catch (e) {
       Logger.log('Could not remove ' + folder.inspect() + ': ' + e.message + '\n Moving on.')
