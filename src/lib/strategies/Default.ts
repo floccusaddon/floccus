@@ -331,7 +331,7 @@ export default class SyncProcess {
       Logger.log('Retrieving server tree')
       const serverTreeRoot = await this.server.getBookmarksTree()
       Logger.log('Filtering out invalid server bookmarks')
-      this.filterOutInvalidBookmarks(this.serverTreeRoot)
+      this.filterOutInvalidBookmarks(serverTreeRoot)
 
       if (this.canceled) {
         throw new CancelledSyncError()
