@@ -830,14 +830,16 @@ describe('Floccus', function() {
             // create bookmark on server
             const serverTree = await getAllBookmarks(account)
             if (adapter.onSyncStart) await adapter.onSyncStart()
-            const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+            const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo', location: ItemLocation.SERVER}))
             const serverMark1 = {
               title: 'url',
-              url: 'http://ur.l/foo/bar?a=b&foo=b%C3%A1r+foo'
+              url: 'http://ur.l/foo/bar?a=b&foo=b%C3%A1r+foo',
+              location: ItemLocation.SERVER
             }
             const serverMark2 = {
               title: 'url2',
-              url: 'http://ur2.l/foo/bar?a=b&foo=b%C3%A1r+foo'
+              url: 'http://ur2.l/foo/bar?a=b&foo=b%C3%A1r+foo',
+              location: ItemLocation.SERVER
             }
             await adapter.createBookmark(
               new Bookmark({ ...serverMark1, parentId: fooFolderId })
@@ -1230,12 +1232,13 @@ describe('Floccus', function() {
             const adapter = account.server
             let serverTree = await getAllBookmarks(account)
             if (adapter.onSyncStart) await adapter.onSyncStart()
-            const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
-            const barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
+            const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo', location: ItemLocation.SERVER}))
+            const barFolderId = await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar', location: ItemLocation.SERVER}))
             const serverMark = {
               title: 'url',
               url: 'http://ur.l/',
-              parentId: barFolderId
+              parentId: barFolderId,
+              location: ItemLocation.SERVER
             }
             const serverMarkId = await adapter.createBookmark(
               new Bookmark(serverMark)

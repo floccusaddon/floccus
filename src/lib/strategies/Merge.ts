@@ -179,9 +179,9 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
     return super.reconcileReorderings(targetReorders, sourceDonePlan, targetLocation, mappingSnapshot)
   }
 
-  async loadChildren():Promise<void> {
+  async loadChildren(serverTreeRoot: Folder<typeof ItemLocation.SERVER>):Promise<void> {
     Logger.log('Merge strategy: Load complete tree from server')
-    this.serverTreeRoot = await this.server.getBookmarksTree(true)
+    serverTreeRoot.children = (await this.server.getBookmarksTree(true)).children
   }
 
   toJSON(): ISerializedSyncProcess {
