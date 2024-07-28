@@ -1,5 +1,5 @@
 import * as Tree from '../Tree'
-import { Bookmark, Folder, ItemLocation } from '../Tree'
+import { Bookmark, Folder, ItemLocation, TItemLocation } from '../Tree'
 import Logger from '../Logger'
 import Adapter from '../interfaces/Adapter'
 import difference from 'lodash/difference'
@@ -14,9 +14,9 @@ import {
 } from '../../errors/Error'
 import { BulkImportResource } from '../interfaces/Resource'
 
-export default class CachingAdapter implements Adapter, BulkImportResource {
+export default class CachingAdapter implements Adapter, BulkImportResource<TItemLocation> {
   protected highestId: number
-  protected bookmarksCache: Folder
+  protected bookmarksCache: Folder<TItemLocation>
   protected server: any
   constructor(server: any) {
     this.resetCache()
@@ -32,11 +32,11 @@ export default class CachingAdapter implements Adapter, BulkImportResource {
     return data.label || data.username + '@' + new URL(data.url).hostname
   }
 
-  async getBookmarksTree(): Promise<Folder> {
+  async getBookmarksTree(): Promise<Folder<TItemLocation>> {
     return this.bookmarksCache.clone()
   }
 
-  acceptsBookmark(bm:Bookmark):boolean {
+  acceptsBookmark(bm:Bookmark<TItemLocation>):boolean {
     if (bm.url === 'data:') {
       return false
     }
@@ -49,7 +49,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource {
     }
   }
 
-  async createBookmark(bm:Bookmark):Promise<string|number> {
+  async createBookmark(bm:Bookmark<TItemLocation>):Promise<string|number> {
     Logger.log('CREATE', bm)
     bm.id = ++this.highestId
     const foundFolder = this.bookmarksCache.findFolder(bm.parentId)
@@ -61,7 +61,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource {
     return bm.id
   }
 
-  async updateBookmark(newBm: Bookmark): Promise<void> {
+  async updateBookmark(newBm: Bookmark<TItemLocation>): Promise<void> {
     Logger.log('UPDATE', newBm)
     const foundBookmark = this.bookmarksCache.findBookmark(newBm.id)
     if (!foundBookmark) {
@@ -91,7 +91,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource {
     this.bookmarksCache.createIndex()
   }
 
-  async removeBookmark(bookmark:Bookmark): Promise<void> {
+  async removeBookmark(bookmark:Bookmark<TItemLocation>): Promise<void> {
     Logger.log('REMOVE', { bookmark })
     const id = bookmark.id
     const foundBookmark = this.bookmarksCache.findBookmark(id)
@@ -111,7 +111,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource {
     this.bookmarksCache.createIndex()
   }
 
-  async createFolder(folder:Folder): Promise<string|number> {
+  async createFolder(folder:Folder<TItemLocation>): Promise<string|number> {
     Logger.log('CREATEFOLDER', { folder })
     const newFolder = new Tree.Folder({ id: ++this.highestId, parentId: folder.parentId, title: folder.title, location: ItemLocation.SERVER })
     const foundParentFolder = this.bookmarksCache.findFolder(newFolder.parentId)
@@ -123,7 +123,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource {
     return newFolder.id
   }
 
-  async updateFolder(folder:Folder): Promise<void> {
+  async updateFolder(folder:Folder<TItemLocation>): Promise<void> {
     Logger.log('UPDATEFOLDER', { folder })
     const id = folder.id
     const oldFolder = this.bookmarksCache.findFolder(id)
@@ -149,7 +149,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource {
     this.bookmarksCache.createIndex()
   }
 
-  async orderFolder(id:string|number, order:Ordering):Promise<void> {
+  async orderFolder(id:string|number, order:Ordering<TItemLocation>):Promise<void> {
     Logger.log('ORDERFOLDER', { id, order })
 
     const folder = this.bookmarksCache.findFolder(id)
@@ -182,7 +182,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource {
     folder.children = newChildren
   }
 
-  async removeFolder(folder:Folder):Promise<void> {
+  async removeFolder(folder:Folder<TItemLocation>):Promise<void> {
     Logger.log('REMOVEFOLDER', { folder })
     const id = folder.id
     const oldFolder = this.bookmarksCache.findFolder(id)
@@ -198,7 +198,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource {
     this.bookmarksCache.createIndex()
   }
 
-  async bulkImportFolder(id:string|number, folder:Folder):Promise<Folder> {
+  async bulkImportFolder(id:string|number, folder:Folder<TItemLocation>):Promise<Folder<TItemLocation>> {
     Logger.log('BULKIMPORT', { id, folder })
     const foundFolder = this.bookmarksCache.findFolder(id)
     if (!foundFolder) {

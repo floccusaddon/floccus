@@ -1,5 +1,5 @@
 import Mappings from '../Mappings'
-import { Folder } from '../Tree'
+import { Folder, ItemLocation } from '../Tree'
 import { ISerializedSyncProcess } from '../strategies/Default'
 
 export type TAccountStrategy = 'default' | 'overwrite' | 'slave'
@@ -24,7 +24,7 @@ export default interface IAccountStorage {
   setAccountData(data:IAccountData, key:string): Promise<void>;
   deleteAccountData(): Promise<void>
   initCache(): Promise<void>
-  getCache(): Promise<Folder>
+  getCache(): Promise<Folder<typeof ItemLocation.LOCAL>>
   setCache(data): Promise<void>
   deleteCache(): Promise<void>
   initMappings(): Promise<void>;

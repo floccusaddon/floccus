@@ -105,7 +105,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       throw new CancelledSyncError()
     }
 
-    let sourceScanResult: ScanResult<TItemLocation, TItemLocation>, targetScanResult: ScanResult<TItemLocation, TItemLocation>, target: TResource
+    let sourceScanResult: ScanResult<TItemLocation, TItemLocation>,
+      targetScanResult: ScanResult<TItemLocation, TItemLocation>,
+      target: TResource<TItemLocation>
     if (this.direction === ItemLocation.SERVER) {
       sourceScanResult = this.localScanResult
       targetScanResult = this.serverScanResult
@@ -220,7 +222,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     if (newItem instanceof Folder) {
       const nonexistingItems = []
       await newItem.traverse(async(child, parentFolder) => {
-        child.id = Mappings.mapId(mappingsSnapshot, {...child, location: item.location}, fakeLocation)
+        child.id = Mappings.mapId(mappingsSnapshot, child, fakeLocation)
         if (typeof child.id === 'undefined') {
           nonexistingItems.push(child)
         }
@@ -239,7 +241,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   }
 
   async executeRevert<L1 extends TItemLocation>(
-    resource:TResource,
+    resource:TResource<L1>,
     planRevert:PlanRevert<L1, TOppositeLocation<L1>>,
     targetLocation:L1,
     donePlan: PlanStage3<TOppositeLocation<L1>, TItemLocation, L1>,

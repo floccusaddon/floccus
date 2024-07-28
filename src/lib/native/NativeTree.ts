@@ -5,8 +5,8 @@ import CachingAdapter from '../adapters/Caching'
 import IAccountStorage from '../interfaces/AccountStorage'
 import { BulkImportResource } from '../interfaces/Resource'
 
-export default class NativeTree extends CachingAdapter implements BulkImportResource {
-  private tree: Folder
+export default class NativeTree extends CachingAdapter implements BulkImportResource<typeof ItemLocation.LOCAL> {
+  private tree: Folder<typeof ItemLocation.LOCAL>
   private storage: IAccountStorage
   private readonly accountId: string
   private saveTimeout: any
@@ -33,7 +33,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   }
 
   async save():Promise<void> {
-    await Storage.set({key: `bookmarks[${this.accountId}].tree`, value: JSON.stringify(this.bookmarksCache.clone(true, ItemLocation.LOCAL))})
+    await Storage.set({key: `bookmarks[${this.accountId}].tree`, value: JSON.stringify(this.bookmarksCache.cloneWithLocation(true, ItemLocation.LOCAL))})
     await Storage.set({key: `bookmarks[${this.accountId}].highestId`, value: this.highestId + ''})
   }
 
@@ -44,48 +44,48 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
     }, 500)
   }
 
-  async getBookmarksTree(): Promise<Folder> {
+  async getBookmarksTree(): Promise<Folder<typeof ItemLocation.LOCAL>> {
     const tree = await super.getBookmarksTree()
     tree.createIndex()
-    return tree
+    return tree as Folder<typeof ItemLocation.LOCAL>
   }
 
-  async createBookmark(bookmark:Bookmark): Promise<string|number> {
+  async createBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<string|number> {
     this.triggerSave()
     return super.createBookmark(bookmark)
   }
 
-  async updateBookmark(bookmark:Bookmark):Promise<void> {
+  async updateBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>):Promise<void> {
     this.triggerSave()
     return super.updateBookmark(bookmark)
   }
 
-  async removeBookmark(bookmark:Bookmark): Promise<void> {
+  async removeBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<void> {
     this.triggerSave()
     return super.removeBookmark(bookmark)
   }
 
-  async createFolder(folder:Folder): Promise<string|number> {
+  async createFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<string|number> {
     this.triggerSave()
     return super.createFolder(folder)
   }
 
-  async orderFolder(id:string|number, order:Ordering) :Promise<void> {
+  async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>) :Promise<void> {
     this.triggerSave()
     return super.orderFolder(id, order)
   }
 
-  async updateFolder(folder:Folder):Promise<void> {
+  async updateFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {
     this.triggerSave()
     return super.updateFolder(folder)
   }
 
-  async removeFolder(folder:Folder):Promise<void> {
+  async removeFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {
     this.triggerSave()
     return super.removeFolder(folder)
   }
 
-  async bulkImportFolder(id: number|string, folder:Folder):Promise<Folder> {
+  async bulkImportFolder(id: number|string, folder:Folder<typeof ItemLocation.LOCAL>):Promise<Folder<typeof ItemLocation.LOCAL>> {
     await Promise.all(folder.children.map(async child => {
       child.parentId = id
       if (child instanceof Bookmark) {
@@ -96,7 +96,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
         await this.bulkImportFolder(folderId, child)
       }
     }))
-    return this.bookmarksCache.findFolder(id)
+    return this.bookmarksCache.findFolder(id) as Folder<typeof ItemLocation.LOCAL>
   }
 
   isAvailable(): Promise<boolean> {

@@ -111,7 +111,7 @@ export default class Account {
     return data
   }
 
-  async getResource():Promise<OrderFolderResource> {
+  async getResource():Promise<OrderFolderResource<typeof ItemLocation.LOCAL>> {
     return this.localTree
   }
 
@@ -271,7 +271,7 @@ export default class Account {
         // if there is a pending continuation, we resume it
 
         Logger.log('Found existing persisted pending continuation. Resuming last sync')
-        await this.syncProcess.resumeSync()
+        await this.syncProcess.sync()
       }
 
       await this.setData({ ...this.getData(), scheduled: false, syncing: 1 })

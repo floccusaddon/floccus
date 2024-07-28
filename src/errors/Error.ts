@@ -1,4 +1,4 @@
-import { Bookmark } from '../lib/Tree'
+import { Bookmark, TItemLocation } from '../lib/Tree'
 
 export class FloccusError extends Error {
   public code: number
@@ -292,8 +292,8 @@ export class FileUnreadableError extends FloccusError {
 }
 
 export class CreateBookmarkError extends FloccusError {
-  public bookmark: Bookmark
-  constructor(bookmark: Bookmark) {
+  public bookmark: Bookmark<TItemLocation>
+  constructor(bookmark: Bookmark<TItemLocation>) {
     super(`E035: Failed to create the following bookmark on the server: ${JSON.stringify(bookmark)}`)
     this.code = 35
     this.bookmark = bookmark

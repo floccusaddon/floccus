@@ -3,7 +3,7 @@ import { Bookmark, Folder, ItemLocation } from '../Tree'
 import { XMLParser, XMLBuilder } from 'fast-xml-parser'
 
 class XbelSerializer implements Serializer {
-  serialize(folder: Folder) {
+  serialize(folder: Folder<typeof ItemLocation.SERVER>) {
     const xbelObj = this._serializeFolder(folder)
     const xmlBuilder = new XMLBuilder({format: true, preserveOrder: true, ignoreAttributes: false})
     return xmlBuilder.build(xbelObj)
@@ -30,7 +30,7 @@ class XbelSerializer implements Serializer {
     return rootFolder
   }
 
-  _parseFolder(xbelObj, folder: Folder) {
+  _parseFolder(xbelObj, folder: Folder<typeof ItemLocation.SERVER>) {
     /* parse depth first */
 
     xbelObj
@@ -60,7 +60,7 @@ class XbelSerializer implements Serializer {
       })
   }
 
-  _serializeFolder(folder: Folder) {
+  _serializeFolder(folder: Folder<typeof ItemLocation.SERVER>) {
     return folder.children
       .map(child => {
         if (child instanceof Bookmark) {

@@ -79,21 +79,21 @@ export default class Mappings {
     }
   }
 
-  static mapId(mappingsSnapshot:MappingSnapshot, item: TItem, target: TItemLocation) : string|number {
+  static mapId(mappingsSnapshot:MappingSnapshot, item: TItem<TItemLocation>, target: TItemLocation) : string|number {
     if (item.location === target) {
       return item.id
     }
     return mappingsSnapshot[item.location + 'To' + target][item.type][item.id]
   }
 
-  static mapParentId(mappingsSnapshot:MappingSnapshot, item: TItem, target: TItemLocation) : string|number {
+  static mapParentId(mappingsSnapshot:MappingSnapshot, item: TItem<TItemLocation>, target: TItemLocation) : string|number {
     if (item.location === target) {
       return item.parentId
     }
     return mappingsSnapshot[item.location + 'To' + target].folder[item.parentId]
   }
 
-  static mappable(mappingsSnapshot: MappingSnapshot, item1: TItem, item2: TItem) : boolean {
+  static mappable(mappingsSnapshot: MappingSnapshot, item1: TItem<TItemLocation>, item2: TItem<TItemLocation>) : boolean {
     if (Mappings.mapId(mappingsSnapshot, item1, item2.location) === item2.id) {
       return true
     }

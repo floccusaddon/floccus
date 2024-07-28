@@ -713,7 +713,7 @@ export default class SyncProcess {
   }
 
   async execute<L1 extends TItemLocation>(
-    resource:TResource,
+    resource:TResource<L1>,
     planStage2:PlanStage2<TOppositeLocation<L1>, TItemLocation, L1>,
     targetLocation:L1,
     donePlan: PlanStage3<TOppositeLocation<L1>, TItemLocation, L1>,
@@ -784,7 +784,7 @@ export default class SyncProcess {
   }
 
   async executeCreate<L1 extends TItemLocation>(
-    resource: TResource,
+    resource: TResource<L1>,
     action: CreateAction<L1, TOppositeLocation<L1>>,
     targetLocation: L1,
     diff: Diff<L1, TOppositeLocation<L1>, CreateAction<L1, TOppositeLocation<L1>>>,
@@ -825,7 +825,7 @@ export default class SyncProcess {
           Logger.log('Attempting full bulk import')
           try {
             // Try bulk import with sub folders
-            const imported = await resource.bulkImportFolder(id, action.oldItem || action.payload) as Folder<typeof targetLocation>
+            const imported = await resource.bulkImportFolder(id, action.oldItem.cloneWithLocation(false, action.payload.location)) as Folder<typeof targetLocation>
             const newMappings = []
             const subScanner = new Scanner(
               action.oldItem,
@@ -881,7 +881,7 @@ export default class SyncProcess {
         } else {
           try {
             // Try bulk import without sub folders
-            const tempItem = action.oldItem.clone(false)
+            const tempItem = action.oldItem.cloneWithLocation(false, action.payload.location)
             const bookmarks = tempItem.children.filter(child => child instanceof Bookmark)
             while (bookmarks.length > 0) {
               Logger.log('Attempting chunked bulk import')
@@ -969,7 +969,7 @@ export default class SyncProcess {
   }
 
   async executeRemove<L1 extends TItemLocation>(
-    resource: TResource,
+    resource: TResource<L1>,
     action: RemoveAction<L1, TItemLocation>,
     targetLocation: L1,
     diff: Diff<L1, TItemLocation, RemoveAction<L1, TItemLocation>>,
@@ -991,7 +991,7 @@ export default class SyncProcess {
   }
 
   async executeUpdate<L1 extends TItemLocation>(
-    resource: TResource,
+    resource: TResource<L1>,
     action: UpdateAction<L1, TItemLocation> | MoveAction<L1, TItemLocation>,
     targetLocation: L1,
     diff: Diff<L1, TItemLocation, UpdateAction<L1, TItemLocation> | MoveAction<L1, TItemLocation>>,
@@ -1102,7 +1102,7 @@ export default class SyncProcess {
     return newReorders.map(mappingSnapshot, targetLocation)
   }
 
-  async executeReorderings(resource:OrderFolderResource, reorderings:Diff<TItemLocation, TItemLocation, ReorderAction<TItemLocation, TItemLocation>>):Promise<void> {
+  async executeReorderings(resource:OrderFolderResource<TItemLocation>, reorderings:Diff<TItemLocation, TItemLocation, ReorderAction<TItemLocation, TItemLocation>>):Promise<void> {
     Logger.log('Executing reorderings')
     Logger.log({ reorderings })
 
@@ -1141,7 +1141,7 @@ export default class SyncProcess {
     }, ACTION_CONCURRENCY)
   }
 
-  async addMapping(resource:TResource, item:TItem<TItemLocation>, newId:string|number):Promise<void> {
+  async addMapping(resource:TResource<TItemLocation>, item:TItem<TItemLocation>, newId:string|number):Promise<void> {
     await Promise.resolve()
     let localId, remoteId
     if (resource === this.server) {
@@ -1158,7 +1158,7 @@ export default class SyncProcess {
     }
   }
 
-  async removeMapping(resource:TResource, item:TItem<TItemLocation>):Promise<void> {
+  async removeMapping(resource:TResource<TItemLocation>, item:TItem<TItemLocation>):Promise<void> {
     let localId, remoteId
     if (resource === this.server) {
       remoteId = item.id

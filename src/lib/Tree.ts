@@ -121,15 +121,15 @@ export class Bookmark<L extends TItemLocation> {
     )
   }
 
-  visitCreate(resource: TResource):Promise<number | string> {
+  visitCreate(resource: TResource<L>):Promise<number | string> {
     return resource.createBookmark(this)
   }
 
-  visitUpdate(resource: TResource): Promise<void> {
+  visitUpdate(resource: TResource<L>): Promise<void> {
     return resource.updateBookmark(this)
   }
 
-  visitRemove(resource: TResource): Promise<void> {
+  visitRemove(resource: TResource<L>): Promise<void> {
     return resource.removeBookmark(this)
   }
 
@@ -170,6 +170,9 @@ export class Folder<L extends TItemLocation> {
     this.loaded = loaded !== false
     this.location = location
     this.isRoot = isRoot
+    if (this.location !== ItemLocation.LOCAL && this.location !== ItemLocation.SERVER) {
+      throw new Error('Wrong location')
+    }
   }
 
   // eslint-disable-next-line no-use-before-define
@@ -348,15 +351,15 @@ export class Folder<L extends TItemLocation> {
     )
   }
 
-  visitCreate(resource: TResource):Promise<number | string> {
+  visitCreate(resource: TResource<L>):Promise<number | string> {
     return resource.createFolder(this)
   }
 
-  visitUpdate(resource: TResource): Promise<void> {
+  visitUpdate(resource: TResource<L>): Promise<void> {
     return resource.updateFolder(this)
   }
 
-  visitRemove(resource: TResource): Promise<void> {
+  visitRemove(resource: TResource<L>): Promise<void> {
     return resource.removeFolder(this)
   }
 

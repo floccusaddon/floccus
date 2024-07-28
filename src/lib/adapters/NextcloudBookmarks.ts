@@ -62,13 +62,13 @@ interface IChildOrderItem {
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Set lock every two minutes while syncing
 
-export default class NextcloudBookmarksAdapter implements Adapter, BulkImportResource, LoadFolderChildrenResource, OrderFolderResource, ClickCountResource {
+export default class NextcloudBookmarksAdapter implements Adapter, BulkImportResource<typeof ItemLocation.SERVER>, LoadFolderChildrenResource<typeof ItemLocation.SERVER>, OrderFolderResource<typeof ItemLocation.SERVER>, ClickCountResource<typeof ItemLocation.SERVER> {
   private server: NextcloudBookmarksConfig
   private fetchQueue: PQueue<{ concurrency: 12 }>
   private bookmarkLock: AsyncLock
   public hasFeatureBulkImport:boolean = null
-  private list: Bookmark[]
-  private tree: Folder
+  private list: Bookmark<typeof ItemLocation.SERVER>[]
+  private tree: Folder<typeof ItemLocation.SERVER>
   private lockId: string | number
   private canceled = false
   private cancelCallback: () => void = null
@@ -110,7 +110,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return data.label || (data.username.includes('@') ? data.username + ' on ' + new URL(data.url).hostname : data.username + '@' + new URL(data.url).hostname)
   }
 
-  acceptsBookmark(bm: Bookmark):boolean {
+  acceptsBookmark(bm: Bookmark<typeof ItemLocation.SERVER>):boolean {
     try {
       return Boolean(~['https:', 'http:', 'ftp:'].concat(this.hasFeatureJavascriptLinks ? ['javascript:'] : []).indexOf(new URL(bm.url).protocol))
     } catch (e) {
@@ -176,7 +176,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     this.cancelCallback && this.cancelCallback()
   }
 
-  async getBookmarksList():Promise<Bookmark[]> {
+  async getBookmarksList():Promise<Bookmark<typeof ItemLocation.SERVER>[]> {
     return this.bookmarkLock.acquire('list', async() => {
       if (this.list) {
         return this.list
@@ -222,7 +222,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     })
   }
 
-  async getBookmarksTree(loadAll = false):Promise<Folder> {
+  async getBookmarksTree(loadAll = false):Promise<Folder<typeof ItemLocation.SERVER>> {
     this.list = null // clear cache before starting a new sync
 
     await this.checkFeatureJavascriptLinks()
@@ -245,7 +245,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return folderJson.data
   }
 
-  async _findServerRoot():Promise<Folder> {
+  async _findServerRoot():Promise<Folder<typeof ItemLocation.SERVER>> {
     let tree = new Folder({ id: -1, location: ItemLocation.SERVER })
     let childFolders
     await Parallel.each(
@@ -279,7 +279,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return tree
   }
 
-  async getCompleteBookmarksTree():Promise<Folder> {
+  async getCompleteBookmarksTree():Promise<Folder<typeof ItemLocation.SERVER>> {
     let tree = new Folder({ id: -1, location: ItemLocation.SERVER })
     if (this.server.serverRoot) {
       tree = await this._findServerRoot()
@@ -290,7 +290,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return tree.clone()
   }
 
-  async getSparseBookmarksTree() :Promise<Folder> {
+  async getSparseBookmarksTree() :Promise<Folder<typeof ItemLocation.SERVER>> {
     let tree = new Folder({ id: -1, location: ItemLocation.SERVER })
 
     if (this.server.serverRoot) {
@@ -317,7 +317,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       })
   }
 
-  async _getChildren(folderId:string|number, layers:number):Promise<TItem[]> {
+  async _getChildren(folderId:string|number, layers:number):Promise<TItem<typeof ItemLocation.SERVER>[]> {
     const childrenJson = await this.sendRequest(
       'GET',
       `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/children?layers=${layers}`
@@ -352,7 +352,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return recurseChildren(folderId, children).filter(item => String(item.id) !== String(this.lockId))
   }
 
-  async loadFolderChildren(folderId:string|number, all?: boolean): Promise<TItem[]> {
+  async loadFolderChildren(folderId:string|number, all?: boolean): Promise<TItem<typeof ItemLocation.SERVER>[]> {
     const folder = this.tree.findFolder(folderId)
     if (!folder) {
       throw new Error('Could not find folder for loadFolderChildren')
@@ -385,7 +385,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return folder.clone(true).children
   }
 
-  async createFolder(folder:Folder):Promise<string|number> {
+  async createFolder(folder:Folder<typeof ItemLocation.SERVER>):Promise<string|number> {
     Logger.log('(nextcloud-folders)CREATEFOLDER', {folder})
     const parentId = folder.parentId
     const title = folder.title
@@ -415,7 +415,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return json.item.id
   }
 
-  async bulkImportFolder(parentId:string|number, folder:Folder):Promise<Folder> {
+  async bulkImportFolder(parentId:string|number, folder:Folder<typeof ItemLocation.SERVER>):Promise<Folder<typeof ItemLocation.SERVER>> {
     if (this.hasFeatureBulkImport === false) {
       throw new Error('Current server does not support bulk import')
     }
@@ -484,7 +484,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return imported
   }
 
-  async updateFolder(folder:Folder):Promise<void> {
+  async updateFolder(folder:Folder<typeof ItemLocation.SERVER>):Promise<void> {
     Logger.log('(nextcloud-folders)UPDATEFOLDER', { folder })
     const id = folder.id
     const oldFolder = this.tree.findFolder(folder.id)
@@ -521,7 +521,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     this.tree.createIndex()
   }
 
-  async orderFolder(id:string|number, order:Ordering):Promise<void> {
+  async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.SERVER>):Promise<void> {
     Logger.log('(nextcloud-folders)ORDERFOLDER', { id, order })
     const body = {
       data: order.map((item) => ({
@@ -537,7 +537,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     )
   }
 
-  async removeFolder(folder:Folder):Promise<void> {
+  async removeFolder(folder:Folder<typeof ItemLocation.SERVER>):Promise<void> {
     Logger.log('(nextcloud-folders)REMOVEFOLDER', { folder })
     const id = folder.id
     const oldFolder = this.tree.findFolder(id)
@@ -557,7 +557,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
   }
 
-  async _getBookmark(id:string|number):Promise<Bookmark[]> {
+  async _getBookmark(id:string|number):Promise<Bookmark<typeof ItemLocation.SERVER>[]> {
     Logger.log('Fetching single bookmark')
 
     const json = await this.sendRequest(
@@ -584,7 +584,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     })
   }
 
-  async getExistingBookmark(url:string):Promise<false|Bookmark> {
+  async getExistingBookmark(url:string):Promise<false|Bookmark<typeof ItemLocation.SERVER>> {
     if (url.toLowerCase().startsWith('javascript:')) {
       if (!this.hasFeatureJavascriptLinks) {
         return false
@@ -619,7 +619,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
   }
 
-  async createBookmark(bm:Bookmark):Promise<string|number> {
+  async createBookmark(bm:Bookmark<typeof ItemLocation.SERVER>):Promise<string|number> {
     Logger.log('(nextcloud-folders)CREATE', bm)
 
     // We need this lock to avoid creating two boomarks with the same url
@@ -678,7 +678,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     })
   }
 
-  async updateBookmark(newBm:Bookmark):Promise<void> {
+  async updateBookmark(newBm:Bookmark<typeof ItemLocation.SERVER>):Promise<void> {
     Logger.log('(nextcloud-folders)UPDATE', newBm)
 
     const [upstreamId, oldParentId] = String(newBm.id).split(';')
@@ -725,7 +725,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     })
   }
 
-  async removeBookmark(bookmark:Bookmark):Promise<void> {
+  async removeBookmark(bookmark:Bookmark<typeof ItemLocation.SERVER>):Promise<void> {
     Logger.log('(nextcloud-folders)REMOVE', { bookmark })
     const id = bookmark.id
     const [upstreamId, parentId] = String(id).split(';')

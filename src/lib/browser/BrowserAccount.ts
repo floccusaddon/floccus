@@ -14,12 +14,15 @@ import {
 } from '../../errors/Error'
 import {i18n} from '../native/I18n'
 import { OrderFolderResource } from '../interfaces/Resource'
+import { ItemLocation } from '../Tree'
 
 export default class BrowserAccount extends Account {
   static async get(id:string):Promise<Account> {
     const storage = new BrowserAccountStorage(id)
     const data = await storage.getAccountData(null)
     const tree = new BrowserTree(storage, data.localRoot)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return new BrowserAccount(id, storage, await AdapterFactory.factory(data), tree)
   }
 
@@ -30,6 +33,8 @@ export default class BrowserAccount extends Account {
 
     await storage.setAccountData(data, null)
     const tree = new BrowserTree(storage, data.localRoot)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return new BrowserAccount(id, storage, adapter, tree)
   }
 
@@ -66,7 +71,7 @@ export default class BrowserAccount extends Account {
     }
   }
 
-  async getResource():Promise<OrderFolderResource> {
+  async getResource():Promise<OrderFolderResource<typeof ItemLocation.LOCAL>> {
     if (this.getData().localRoot !== 'tabs') {
       return this.localTree
     } else {
