@@ -318,7 +318,7 @@ export default class SyncProcess {
       this.filterOutUnacceptedBookmarks(localTreeRoot)
       if (this.server instanceof NextcloudBookmarksAdapter) {
         Logger.log('Filtering out duplicate bookmarks')
-        await this.filterOutDuplicatesInTheSameFolder(this.localTreeRoot)
+        await this.filterOutDuplicatesInTheSameFolder(localTreeRoot)
       }
       this.localTreeRoot = localTreeRoot
     }
