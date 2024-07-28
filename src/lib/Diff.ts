@@ -1,4 +1,4 @@
-import { Folder, TItem, ItemType, TItemLocation, ItemLocation, hydrate, TOppositeLocation } from './Tree'
+import { Folder, TItem, ItemType, TItemLocation, ItemLocation, hydrate } from './Tree'
 import Mappings, { MappingSnapshot } from './Mappings'
 import Ordering from './interfaces/Ordering'
 import batchingToposort from 'batching-toposort'
@@ -287,5 +287,13 @@ export interface PlanStage3<L1 extends TItemLocation, L2 extends TItemLocation, 
   UPDATE: Diff<L3, L1, UpdateAction<L3, L1>>
   MOVE: Diff<L3, L1, MoveAction<L3, L1>>
   REMOVE: Diff<L3, L2, RemoveAction<L3, L2>>
+  REORDER: Diff<L1, L2, ReorderAction<L1, L2>>
+}
+
+export interface PlanRevert<L1 extends TItemLocation, L2 extends TItemLocation> {
+  CREATE: Diff<L1, L2, CreateAction<L1, L2>>
+  UPDATE: Diff<L1, L2, UpdateAction<L1, L2>>
+  MOVE: Diff<L1, L2, MoveAction<L1, L2>>
+  REMOVE: Diff<L1, L2, RemoveAction<L1, L2>>
   REORDER: Diff<L1, L2, ReorderAction<L1, L2>>
 }

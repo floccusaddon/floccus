@@ -453,7 +453,11 @@ export default class SyncProcess {
     return {localScanResult, serverScanResult}
   }
 
-  async reconcileDiffs<L1 extends TItemLocation, L2 extends TItemLocation, L3 extends TItemLocation>(sourceScanResult:ScanResult<L1, L2>, targetScanResult:ScanResult<TOppositeLocation<L1>, L3>, targetLocation: TOppositeLocation<L1>):Promise<PlanStage1<L1, L2>> {
+  async reconcileDiffs<L1 extends TItemLocation, L2 extends TItemLocation, L3 extends TItemLocation>(
+    sourceScanResult:ScanResult<L1, L2>,
+    targetScanResult:ScanResult<TOppositeLocation<L1>, L3>,
+    targetLocation: TOppositeLocation<L1>
+  ): Promise<PlanStage1<L1, L2>> {
     Logger.log('Reconciling diffs to prepare a plan for ' + targetLocation)
     const mappingsSnapshot = this.mappings.getSnapshot()
 
@@ -759,6 +763,10 @@ export default class SyncProcess {
     }
 
     const batches = Diff.sortMoves(planStage3.MOVE.getActions(), this.getTargetTree(targetLocation))
+
+    if (this.canceled) {
+      throw new CancelledSyncError()
+    }
 
     Logger.log(targetLocation + ': executing MOVEs')
     await Parallel.each(batches, batch => Parallel.each(batch, (action) => {
@@ -1281,10 +1289,12 @@ export default class SyncProcess {
         strategy = new SyncProcess(mappings, localTree, server, progressCb)
         break
       case 'merge':
+        // eslint-disable-next-line no-case-declarations
         const MergeSyncProcess = (await import('./Merge')).default
         strategy = new MergeSyncProcess(mappings, localTree, server, progressCb)
         break
       case 'unidirectional':
+        // eslint-disable-next-line no-case-declarations
         const UnidirectionalSyncProcess = (await import('./Unidirectional')).default
         strategy = new UnidirectionalSyncProcess(mappings, localTree, server, progressCb)
         break
@@ -1292,7 +1302,15 @@ export default class SyncProcess {
         throw new Error('Unknown strategy: ' + json.strategy)
     }
     strategy.setProgress(json)
-
+    if (json.serverTreeRoot) {
+      strategy.serverTreeRoot = Folder.hydrate(json.serverTreeRoot)
+    }
+    if (json.localTreeRoot) {
+      strategy.localTreeRoot = Folder.hydrate(json.localTreeRoot)
+    }
+    if (json.cacheTreeRoot) {
+      strategy.cacheTreeRoot = Folder.hydrate(json.cacheTreeRoot)
+    }
     strategy.getMembersToPersist().forEach((member) => {
       if (member in json) {
         if (member.toLowerCase().includes('scanresult') || member.toLowerCase().includes('plan')) {

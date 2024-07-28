@@ -1,30 +1,42 @@
 import DefaultStrategy, { ISerializedSyncProcess } from './Default'
-import Diff, { Action, ActionType, ReorderAction } from '../Diff'
+import Diff, { ActionType, PlanRevert, PlanStage1, PlanStage3, ReorderAction } from '../Diff'
 import * as Parallel from 'async-parallel'
 import Mappings, { MappingSnapshot } from '../Mappings'
-import { Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
+import { Folder, ItemLocation, TItem, TItemLocation, TOppositeLocation } from '../Tree'
 import Logger from '../Logger'
 import { CancelledSyncError } from '../../errors/Error'
-import TResource, { IResource, OrderFolderResource } from '../interfaces/Resource'
-import Scanner from '../Scanner'
+import TResource from '../interfaces/Resource'
+import Scanner, { ScanResult } from '../Scanner'
+import DefaultSyncProcess from './Default'
+
+const ACTION_CONCURRENCY = 12
 
 export default class UnidirectionalSyncProcess extends DefaultStrategy {
   protected direction: TItemLocation
-  protected revertPlan: Diff
-  protected revertOrderings: Diff
-  protected flagPreReordering = false
-  protected sourceDiff: Diff
+  protected revertPlan: PlanStage1<TItemLocation, TOppositeLocation<TItemLocation>>
+  protected revertDonePlan: PlanRevert<TItemLocation, TOppositeLocation<TItemLocation>>
+  protected revertReorders: Diff<TItemLocation, TOppositeLocation<TItemLocation>, ReorderAction<TItemLocation, TOppositeLocation<TItemLocation>>>
 
   setDirection(direction: TItemLocation): void {
     this.direction = direction
   }
 
-  countPlannedActions() {
-    this.actionsPlanned = this.revertPlan.getActions().length
-    this.actionsPlanned += this.revertPlan.getActions(ActionType.CREATE).map(action => action.payload.count()).reduce((a, i) => a + i, 0)
+  getMembersToPersist() {
+    return [
+      // Stage 0
+      'localScanResult',
+      'serverScanResult',
+
+      // Stage 1
+      'revertPlan',
+      'revertDonePlan',
+
+      // Stage 2
+      'revertReorders',
+    ]
   }
 
-  async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
+  async getDiffs():Promise<{localScanResult:ScanResult<typeof ItemLocation.LOCAL, TItemLocation>, serverScanResult:ScanResult<typeof ItemLocation.SERVER, TItemLocation>}> {
     const mappingsSnapshot = this.mappings.getSnapshot()
 
     const newMappings = []
@@ -54,13 +66,13 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       this.preserveOrder,
       false
     )
-    const localDiff = await localScanner.run()
-    const serverDiff = await serverScanner.run()
+    const localScanResult = await localScanner.run()
+    const serverScanResult = await serverScanner.run()
     await Parallel.map(newMappings, ([localItem, serverItem]) => {
       return this.addMapping(this.server, localItem, serverItem.id)
     })
 
-    return {localDiff, serverDiff}
+    return {localScanResult, serverScanResult}
   }
 
   async loadChildren() :Promise<void> {
@@ -79,35 +91,46 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       throw new CancelledSyncError()
     }
 
-    const {localDiff, serverDiff} = await this.getDiffs()
-    Logger.log({localDiff, serverDiff})
-    this.progressCb(0.5)
+    Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
+
+    if (!this.localScanResult && !this.serverScanResult) {
+      const { localScanResult, serverScanResult } = await this.getDiffs()
+      Logger.log({ localScanResult, serverScanResult })
+      this.localScanResult = localScanResult
+      this.serverScanResult = serverScanResult
+      this.progressCb(0.45)
+    }
 
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
-    let sourceDiff: Diff, targetDiff: Diff, target: TResource
+    let sourceScanResult: ScanResult<TItemLocation, TItemLocation>, targetScanResult: ScanResult<TItemLocation, TItemLocation>, target: TResource
     if (this.direction === ItemLocation.SERVER) {
-      sourceDiff = localDiff
-      targetDiff = serverDiff
+      sourceScanResult = this.localScanResult
+      targetScanResult = this.serverScanResult
       target = this.server
     } else {
-      sourceDiff = serverDiff
-      targetDiff = localDiff
+      sourceScanResult = this.serverScanResult
+      targetScanResult = this.localScanResult
       target = this.localTree
     }
-
-    Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
 
     // First revert slave modifications
 
-    this.sourceDiff = sourceDiff
-    this.revertPlan = await this.revertDiff(targetDiff, this.direction)
-    this.actionsPlanned = this.revertPlan.getActions().length
-    Logger.log({revertPlan: this.revertPlan})
+    if (!this.revertPlan) {
+      this.revertPlan = await this.revertDiff(targetScanResult, this.direction)
+      Logger.log({revertPlan: this.revertPlan})
+    }
+
+    if (this.canceled) {
+      throw new CancelledSyncError()
+    }
+
+    this.actionsPlanned = Object.values(this.revertPlan).reduce((acc, diff) => diff.getActions().length + acc, 0)
+
     if (this.direction === ItemLocation.LOCAL) {
-      this.applyFailsafe(this.revertPlan)
+      this.applyFailsafe(this.revertPlan.REMOVE)
     }
 
     if (this.canceled) {
@@ -115,121 +138,93 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     }
 
     Logger.log('Executing ' + this.direction + ' revert plan')
-    await this.execute(target, this.revertPlan, this.direction)
 
-    const mappingsSnapshot = this.mappings.getSnapshot()
-    Logger.log('Mapping reorderings')
-    const revertOrderings = sourceDiff.map(
-      mappingsSnapshot,
-      this.direction,
-      (action: Action) => action.type === ActionType.REORDER,
-      true
-    ).clone(action => action.type === ActionType.REORDER)
+    this.revertDonePlan = {
+      CREATE: new Diff(),
+      UPDATE: new Diff(),
+      MOVE: new Diff(),
+      REMOVE: new Diff(),
+      REORDER: new Diff(),
+    }
+
+    await this.executeRevert(target, this.revertPlan, this.direction, this.revertDonePlan, sourceScanResult.REORDER)
+
+    if (!this.revertReorders) {
+      const mappingsSnapshot = this.mappings.getSnapshot()
+      Logger.log('Mapping reorderings')
+      this.revertReorders = sourceScanResult.REORDER.map(mappingsSnapshot, this.direction)
+    }
 
     if ('orderFolder' in target) {
-      await this.executeReorderings(target, revertOrderings)
+      await this.executeReorderings(target, this.revertReorders)
     }
   }
 
-  async resumeSync(): Promise<void> {
-    if (typeof this.revertPlan === 'undefined') {
-      Logger.log('Continuation loaded from storage is incomplete. Falling back to a complete new sync iteration')
-      return this.sync()
-    }
-    Logger.log('Resuming sync with the following plan:')
-    Logger.log({revertPlan: this.revertPlan})
-
-    let target: IResource|OrderFolderResource
-    if (this.direction === ItemLocation.SERVER) {
-      target = this.server
-    } else {
-      target = this.localTree
-    }
-
-    Logger.log('Executing ' + this.direction + ' revert plan')
-    await this.execute(target, this.revertPlan, this.direction)
-
-    if ('orderFolder' in target) {
-      if (!this.flagPostReorderReconciliation) {
-        // mappings have been updated, reload
-        const mappingsSnapshot = this.mappings.getSnapshot()
-        Logger.log('Mapping reorderings')
-        this.revertOrderings = this.sourceDiff.map(
-          mappingsSnapshot,
-          this.direction,
-          (action: Action) => action.type === ActionType.REORDER,
-          true
-        )
-      }
-
-      this.flagPostReorderReconciliation = true
-
-      Logger.log('Executing reorderings')
-      await this.executeReorderings(target, this.revertOrderings)
-    }
-  }
-
-  async revertDiff(targetDiff: Diff, targetLocation: TItemLocation): Promise<Diff> {
+  async revertDiff<L1 extends TItemLocation, L2 extends TItemLocation>(targetScanResult: ScanResult<L1, L2>, targetLocation: L1): Promise<PlanRevert<L1, L2>> {
     const mappingsSnapshot = this.mappings.getSnapshot()
-    // Prepare slave plan
-    const plan = new Diff()
+
+    const slavePlan: PlanRevert<L1, L2> = {
+      CREATE: new Diff(),
+      UPDATE: new Diff(),
+      MOVE: new Diff(),
+      REMOVE: new Diff(),
+      REORDER: targetScanResult.REORDER.clone(),
+    }
 
     // Prepare slave plan for reversing slave changes
-    await Parallel.each(targetDiff.getActions(), async action => {
-      if (action.type === ActionType.REMOVE) {
-        // recreate it on slave resource otherwise
-        const payload = await this.translateCompleteItem(action.payload, mappingsSnapshot, targetLocation)
-        const oldItem = await this.translateCompleteItem(action.payload, mappingsSnapshot, targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL)
-        payload.createIndex()
-        oldItem.createIndex()
 
-        plan.commit({...action, type: ActionType.CREATE, payload, oldItem })
-        return
-      }
-      if (action.type === ActionType.CREATE) {
-        plan.commit({ ...action, type: ActionType.REMOVE })
-        return
-      }
-      if (action.type === ActionType.MOVE) {
-        const oldItem = action.oldItem.clone(false, targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL)
-        oldItem.id = Mappings.mapId(mappingsSnapshot, action.oldItem, oldItem.location)
-        oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, action.oldItem, oldItem.location)
-        oldItem.createIndex()
+    await Parallel.each(targetScanResult.REMOVE.getActions(), async(action) => {
+      // recreate it on slave resource otherwise
+      const payload = await this.translateCompleteItem(action.payload, mappingsSnapshot, targetLocation)
+      const oldItem = await this.translateCompleteItem(action.payload, mappingsSnapshot, targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL) as TItem<L2>
+      payload.createIndex()
+      oldItem.createIndex()
 
-        plan.commit({ type: ActionType.MOVE, payload: oldItem, oldItem: action.payload })
-        return
-      }
-      if (action.type === ActionType.UPDATE) {
-        const payload = action.oldItem.clone(false, action.payload.location)
-        payload.id = action.payload.id
-        payload.parentId = action.payload.parentId
-        const oldItem = action.payload.clone(false, action.oldItem.location)
-        oldItem.id = action.oldItem.id
-        oldItem.parentId = action.oldItem.parentId
-        plan.commit({ type: ActionType.UPDATE, payload, oldItem })
-      }
-      if (action.type === ActionType.REORDER) {
-        plan.commit({ ...action })
-      }
-    }, 10)
+      slavePlan.CREATE.commit({...action, type: ActionType.CREATE, payload, oldItem })
+    }, ACTION_CONCURRENCY)
 
-    return plan
+    await Parallel.each(targetScanResult.CREATE.getActions(), async(action) => {
+      slavePlan.REMOVE.commit({ ...action, type: ActionType.REMOVE })
+    }, ACTION_CONCURRENCY)
+
+    await Parallel.each(targetScanResult.UPDATE.getActions(), async(action) => {
+      const payload = action.oldItem.cloneWithLocation(false, action.payload.location)
+      payload.id = action.payload.id
+      payload.parentId = action.payload.parentId
+
+      const oldItem = action.payload.cloneWithLocation(false, action.oldItem.location)
+      oldItem.id = action.oldItem.id
+      oldItem.parentId = action.oldItem.parentId
+      slavePlan.UPDATE.commit({ type: ActionType.UPDATE, payload, oldItem })
+    }, ACTION_CONCURRENCY)
+
+    await Parallel.each(targetScanResult.MOVE.getActions(), async(action) => {
+      const oldPayload = action.payload.cloneWithLocation(false, action.oldItem.location)
+      oldPayload.id = action.oldItem.id
+      oldPayload.parentId = action.oldItem.parentId
+
+      const oldOldItem = action.oldItem.cloneWithLocation(false, action.payload.location)
+      oldOldItem.id = action.payload.id
+      oldOldItem.parentId = action.payload.parentId
+
+      slavePlan.MOVE.commit({ type: ActionType.MOVE, payload: oldOldItem, oldItem: oldPayload })
+    }, ACTION_CONCURRENCY)
+
+    return slavePlan
   }
 
-  private async translateCompleteItem(item: TItem, mappingsSnapshot: MappingSnapshot, fakeLocation: TItemLocation) {
-    const newItem = item.clone(false, fakeLocation)
+  private async translateCompleteItem<L1 extends TItemLocation, L2 extends TItemLocation>(item: TItem<L1>, mappingsSnapshot: MappingSnapshot, fakeLocation: L2) {
+    const newItem = item.cloneWithLocation(false, fakeLocation)
     newItem.id = Mappings.mapId(mappingsSnapshot, item, fakeLocation)
     newItem.parentId = Mappings.mapParentId(mappingsSnapshot, item, fakeLocation)
     if (newItem instanceof Folder) {
       const nonexistingItems = []
       await newItem.traverse(async(child, parentFolder) => {
-        child.location = item.location // has been set to fakeLocation already by clone(), but for map to work we need to reset it
-        child.id = Mappings.mapId(mappingsSnapshot, child, fakeLocation)
+        child.id = Mappings.mapId(mappingsSnapshot, {...child, location: item.location}, fakeLocation)
         if (typeof child.id === 'undefined') {
           nonexistingItems.push(child)
         }
         child.parentId = parentFolder.id
-        child.location = fakeLocation
       })
       newItem.createIndex()
       // filter out all items that couldn't be mapped: These are creations from the slave side
@@ -243,40 +238,70 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     return newItem
   }
 
-  addReorderOnDemand(action: ReorderAction, targetLocation: TItemLocation) {
-    this.sourceDiff.commit(action)
-  }
+  async executeRevert<L1 extends TItemLocation>(
+    resource:TResource,
+    planRevert:PlanRevert<L1, TOppositeLocation<L1>>,
+    targetLocation:L1,
+    donePlan: PlanStage3<TOppositeLocation<L1>, TItemLocation, L1>,
+    reorders: Diff<TOppositeLocation<L1>, TItemLocation, ReorderAction<TOppositeLocation<L1>, TItemLocation>>): Promise<void> {
+    Logger.log('Executing revert plan for ' + targetLocation)
 
-  setState({localTreeRoot, cacheTreeRoot, serverTreeRoot, direction, revertPlan, revertOrderings, flagPreReordering, sourceDiff}: any) {
-    this.setDirection(direction)
-    this.localTreeRoot = Folder.hydrate(localTreeRoot)
-    this.cacheTreeRoot = Folder.hydrate(cacheTreeRoot)
-    this.serverTreeRoot = Folder.hydrate(serverTreeRoot)
-    if (typeof revertPlan !== 'undefined') {
-      this.revertPlan = Diff.fromJSON(revertPlan)
+    Logger.log(targetLocation + ': executing CREATEs')
+    let createActions = planRevert.CREATE.getActions()
+    while (createActions.length > 0) {
+      await Parallel.each(
+        planRevert.CREATE.getActions(),
+        (action) => this.executeCreate(resource, action, targetLocation, planRevert.CREATE, reorders, donePlan),
+        ACTION_CONCURRENCY
+      )
+      createActions = planRevert.CREATE.getActions()
     }
-    if (typeof sourceDiff !== 'undefined') {
-      this.sourceDiff = Diff.fromJSON(sourceDiff)
+
+    if (this.canceled) {
+      throw new CancelledSyncError()
     }
-    if (typeof revertOrderings !== 'undefined') {
-      this.revertOrderings = Diff.fromJSON(revertOrderings)
+
+    Logger.log(targetLocation + ': executing CREATEs')
+
+    await Parallel.each(
+      planRevert.UPDATE.getActions(),
+      (action) => this.executeUpdate(resource, action, targetLocation, planRevert.UPDATE, donePlan),
+      ACTION_CONCURRENCY
+    )
+
+    if (this.canceled) {
+      throw new CancelledSyncError()
     }
-    this.flagPreReordering = flagPreReordering
+
+    if (this.canceled) {
+      throw new CancelledSyncError()
+    }
+
+    const batches = Diff.sortMoves(planRevert.MOVE.getActions(), this.getTargetTree(targetLocation))
+
+    if (this.canceled) {
+      throw new CancelledSyncError()
+    }
+
+    Logger.log(targetLocation + ': executing MOVEs')
+    await Parallel.each(batches, batch => Parallel.each(batch, (action) => {
+      return this.executeUpdate(resource, action, targetLocation, planRevert.MOVE, donePlan)
+    }, ACTION_CONCURRENCY), 1)
+
+    if (this.canceled) {
+      throw new CancelledSyncError()
+    }
+
+    Logger.log(targetLocation + ': executing REMOVEs')
+    await Parallel.each(planRevert.REMOVE.getActions(), (action) => {
+      return this.executeRemove(resource, action, targetLocation, planRevert.REMOVE, donePlan)
+    }, ACTION_CONCURRENCY)
   }
 
   toJSON(): ISerializedSyncProcess {
     return {
-      strategy: 'unidirectional',
-      direction: this.direction,
-      localTreeRoot: this.localTreeRoot && this.localTreeRoot.clone(false),
-      cacheTreeRoot: this.localTreeRoot && this.cacheTreeRoot.clone(false),
-      serverTreeRoot: this.localTreeRoot && this.serverTreeRoot.clone(false),
-      sourceDiff: this.sourceDiff,
-      revertPlan: this.revertPlan,
-      revertOrderings: this.revertOrderings,
-      flagPreReordering: this.flagPreReordering,
-      actionsDone: this.actionsDone,
-      actionsPlanned: this.actionsPlanned,
+      ...DefaultSyncProcess.prototype.toJSON.apply(this),
+      strategy: 'unidirectional'
     }
   }
 }
