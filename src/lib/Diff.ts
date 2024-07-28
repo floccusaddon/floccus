@@ -107,7 +107,13 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
     )
   }
 
-  static findChain<L1 extends TItemLocation, L2 extends TItemLocation, L3 extends TItemLocation, L4 extends TItemLocation, L5 extends TItemLocation, L6 extends TItemLocation>(mappingsSnapshot: MappingSnapshot, actions: Action<TItemLocation, TItemLocation>[], itemTree: Folder<L2>, currentItem: TItem<L3>, targetAction: Action<L4, L6>, chain: Action<L1, L5>[] = []): boolean {
+  static findChain(
+    mappingsSnapshot: MappingSnapshot,
+    actions: Action<TItemLocation, TItemLocation>[], itemTree: Folder<TItemLocation>,
+    currentItem: TItem<TItemLocation>,
+    targetAction: Action<TItemLocation, TItemLocation>,
+    chain: Action<TItemLocation, TItemLocation>[] = []
+  ): boolean {
     const targetItemInTree = itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location))
     if (
       targetAction.payload.findItem(ItemType.FOLDER,
