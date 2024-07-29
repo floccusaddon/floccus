@@ -817,7 +817,12 @@ export default class SyncProcess {
       await this.addMapping(resource, action.oldItem, id)
     }
 
+    if (action.payload instanceof Folder && !(action.oldItem instanceof Folder)) {
+      throw new Error('Assertion failed: action.oldItem should be set')
+    }
+
     if (action.payload instanceof Folder && action.payload.children.length && action.oldItem instanceof Folder) {
+
       // Fix for Unidirectional reverted REMOVEs, for all other strategies this should be a noop
       action.payload.children.forEach((item) => {
         item.parentId = id
@@ -922,8 +927,10 @@ export default class SyncProcess {
             folders
               .forEach((child) => {
                 // Necessary for Unidirectional reverted REMOVEs
-                child.parentId = Mappings.mapParentId(mappingsSnapshot, child, targetLocation)
-                const newAction = { type: ActionType.CREATE, payload: child, oldItem: action.oldItem && action.oldItem.findItem(child.type, Mappings.mapId(mappingsSnapshot, child, action.oldItem.location)) }
+                const payload = child
+                payload.parentId = Mappings.mapParentId(mappingsSnapshot, child, targetLocation)
+                const oldItem = action.oldItem.findItem(child.type, child.id)
+                const newAction = { type: ActionType.CREATE, payload, oldItem }
                 this.actionsPlanned++
                 diff.commit(newAction)
               })
@@ -954,7 +961,7 @@ export default class SyncProcess {
         .forEach((child) => {
           // Necessary for Unidirectional reverted REMOVEs
           child.parentId = Mappings.mapParentId(mappingsSnapshot, child, targetLocation)
-          const oldItem = action.oldItem.findItem(child.type, Mappings.mapId(mappingsSnapshot, child, targetLocation))
+          const oldItem = action.oldItem.findItem(child.type, child.id)
           const newAction = { type: ActionType.CREATE, payload: child, oldItem }
           this.actionsPlanned++
           diff.commit(newAction)
