@@ -323,6 +323,9 @@ export default class SyncProcess {
       this.localTreeRoot = localTreeRoot
     }
 
+    // Cache tree might not have been initialized and thus have no id
+    this.cacheTreeRoot.id = this.localTreeRoot.id
+
     if (this.canceled) {
       throw new CancelledSyncError()
     }
@@ -343,14 +346,10 @@ export default class SyncProcess {
       if ('loadFolderChildren' in this.server) {
         Logger.log('Loading sparse tree as necessary')
         // Load sparse tree
-        await this.loadChildren(serverTreeRoot, mappingsSnapshot)
+        await this.loadChildren(serverTreeRoot, mappingsSnapshot, true)
       }
-
       this.serverTreeRoot = serverTreeRoot
     }
-
-    // Cache tree might not have been initialized and thus have no id
-    this.cacheTreeRoot.id = this.localTreeRoot.id
 
     // generate hash tables to find items faster
     Logger.log('Generating indices for local tree')
@@ -1180,14 +1179,18 @@ export default class SyncProcess {
     }
   }
 
-  async loadChildren(serverItem:TItem<typeof ItemLocation.SERVER>, mappingsSnapshot:MappingSnapshot):Promise<void> {
+  async loadChildren(
+    serverItem:TItem<typeof ItemLocation.SERVER>,
+    mappingsSnapshot:MappingSnapshot,
+    isRoot = false
+  ):Promise<void> {
     if (this.canceled) {
       throw new CancelledSyncError()
     }
     if (!(serverItem instanceof Folder)) return
     if (!('loadFolderChildren' in this.server)) return
     let localItem, cacheItem
-    if (serverItem === this.serverTreeRoot) {
+    if (isRoot) {
       localItem = this.localTreeRoot
       cacheItem = this.cacheTreeRoot
     } else {
@@ -1199,7 +1202,6 @@ export default class SyncProcess {
       localItem &&
       !(await this.folderHasChanged(localItem, cacheItem, serverItem))
     ) {
-      this.actionsDone += localItem.count()
       return
     }
     Logger.log('LOADCHILDREN', serverItem)

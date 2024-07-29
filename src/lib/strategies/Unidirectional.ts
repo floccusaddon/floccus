@@ -75,8 +75,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     return {localScanResult, serverScanResult}
   }
 
-  async loadChildren() :Promise<void> {
-    this.serverTreeRoot = await this.server.getBookmarksTree(true)
+  async loadChildren(serverTreeRoot:Folder<typeof ItemLocation.SERVER>) :Promise<void> {
+    Logger.log('Unidirectional: Loading whole tree')
+    serverTreeRoot.children = (await this.server.getBookmarksTree(true)).children
   }
 
   async sync(): Promise<void> {
