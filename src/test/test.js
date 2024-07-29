@@ -2255,6 +2255,7 @@ describe('Floccus', function() {
             expectTreeEqual(
               tree,
               newRoot,
+              false,
               false
             )
 
