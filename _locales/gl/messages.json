@@ -770,5 +770,11 @@
   },
   "DescriptionBookmarkexists": {
     "message": "Este marcador xa existe no perfil seleccionado"
+  },
+  "LabelReportproblem": {
+    "message": "Informar dun problema"
+  },
+  "DescriptionReportproblem": {
+    "message": "Se quere contactar directamente cos desenvolvedores para formular unha incidencia concreta, pode facelo aquí:"
   }
 }
