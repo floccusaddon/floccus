@@ -5541,6 +5541,15 @@ describe('Floccus', function() {
             expect(account2.getData().error).to.not.be.ok
             console.log('second round: account1 completed')
 
+            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks') {
+              // Extra round-trip for Nextcloud Bookmarks' different ID system
+              await account1.sync()
+              expect(account1.getData().error).to.not.be.ok
+              await account2.sync()
+              expect(account2.getData().error).to.not.be.ok
+              console.log('Extra round-trip for Nextcloud Bookmarks completed')
+            }
+
             let serverTreeAfterSecondSync = await getAllBookmarks(account1)
 
             let tree2AfterSecondSync = await account2.localTree.getBookmarksTree(
