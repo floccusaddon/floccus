@@ -130,8 +130,8 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
         if (targetLocation === ItemLocation.SERVER) {
           concurrentHierarchyReversals.forEach(a => {
             // moved locally but moved in reverse hierarchical order on server
-            const payload = a.oldItem.clone() as unknown as TItem<L1> // we don't map here as we want this to look like a local action
-            const oldItem = a.payload.clone() as unknown as TItem<L2>
+            const payload = a.oldItem.cloneWithLocation(false, action.payload.location) // we don't map here as we want this to look like a local action
+            const oldItem = a.payload.cloneWithLocation(false, action.oldItem.location)
             oldItem.id = Mappings.mapId(mappingsSnapshot, oldItem, action.payload.location)
             oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, oldItem, action.payload.location)
 
