@@ -28,8 +28,8 @@ class HtmlSerializer implements Serializer {
       .join('')
   }
 
-  deserialize(html): Folder {
-    const items: TItem[] = parseByString(html)
+  deserialize(html): Folder<typeof ItemLocation.SERVER> {
+    const items: TItem<typeof ItemLocation.SERVER>[] = parseByString(html)
     items.forEach(f => { f.parentId = '0' })
     return new Folder({id: '0', title: 'root', children: items, location: ItemLocation.SERVER, isRoot: true})
   }
@@ -77,7 +77,7 @@ export const parseByString = (content: string) => {
   })
 
   const body = $('body')
-  const root: TItem[] = []
+  const root: TItem<typeof ItemLocation.SERVER>[] = []
   const rdt = getRootFolder(body).children('dt')
 
   const parseNode = (node: cheerio.Cheerio<cheerio.Element>, parentId?: string|number) => {
@@ -85,7 +85,7 @@ export const parseByString = (content: string) => {
     const title = typeof eq0.text() !== 'undefined' ? eq0.text() : ''
     let url = ''
     const id = typeof eq0.attr('id') !== 'undefined' ? eq0.attr('id') : ''
-    let children: TItem[] = []
+    let children: TItem<typeof ItemLocation.SERVER>[] = []
 
     switch (eq0[0].name) {
       case 'h3':
@@ -97,7 +97,7 @@ export const parseByString = (content: string) => {
           if (ele.name !== 'dt') return null
           return parseNode($(ele), id)
         })
-        children = ls.filter((item) => item !== null) as TItem[]
+        children = ls.filter((item) => item !== null) as TItem<typeof ItemLocation.SERVER>[]
         return new Folder({id, title, parentId, children, location: ItemLocation.SERVER})
       case 'a':
         // site

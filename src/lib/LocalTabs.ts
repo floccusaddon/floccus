@@ -6,7 +6,7 @@ import { Bookmark, Folder, ItemLocation } from './Tree'
 import Ordering from './interfaces/Ordering'
 import uniq from 'lodash/uniq'
 
-export default class LocalTabs implements IResource {
+export default class LocalTabs implements IResource<typeof ItemLocation.LOCAL> {
   private queue: PQueue<{ concurrency: 10 }>
   private storage: unknown
 
@@ -15,7 +15,7 @@ export default class LocalTabs implements IResource {
     this.queue = new PQueue({ concurrency: 10 })
   }
 
-  async getBookmarksTree():Promise<Folder> {
+  async getBookmarksTree():Promise<Folder<typeof ItemLocation.LOCAL>> {
     let tabs = await browser.tabs.query({
       windowType: 'normal' // no devtools or panels or popups
     })
@@ -46,7 +46,7 @@ export default class LocalTabs implements IResource {
     })
   }
 
-  async createBookmark(bookmark:Bookmark): Promise<string|number> {
+  async createBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<string|number> {
     Logger.log('(tabs)CREATE', bookmark)
     if (bookmark.parentId === 'tabs') {
       Logger.log('Parent is "tabs", ignoring this one.')
@@ -64,7 +64,7 @@ export default class LocalTabs implements IResource {
     return node.id
   }
 
-  async updateBookmark(bookmark:Bookmark):Promise<void> {
+  async updateBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>):Promise<void> {
     Logger.log('(tabs)UPDATE', bookmark)
     if (bookmark.parentId === 'tabs') {
       Logger.log('Parent is "tabs", ignoring this one.')
@@ -83,7 +83,7 @@ export default class LocalTabs implements IResource {
     )
   }
 
-  async removeBookmark(bookmark:Bookmark): Promise<void> {
+  async removeBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<void> {
     const bookmarkId = bookmark.id
     Logger.log('(tabs)REMOVE', bookmark)
     if (bookmark.parentId === 'tabs') {
@@ -93,7 +93,7 @@ export default class LocalTabs implements IResource {
     await this.queue.add(() => browser.tabs.remove(bookmarkId))
   }
 
-  async createFolder(folder:Folder): Promise<number> {
+  async createFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<number> {
     Logger.log('(tabs)CREATEFOLDER', folder)
     const node = await this.queue.add(() =>
       browser.windows.create()
@@ -101,7 +101,7 @@ export default class LocalTabs implements IResource {
     return node.id
   }
 
-  async orderFolder(id:string|number, order:Ordering):Promise<void> {
+  async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>):Promise<void> {
     Logger.log('(tabs)ORDERFOLDER', { id, order })
     const originalTabs = await browser.tabs.query({
       windowId: id
@@ -129,11 +129,11 @@ export default class LocalTabs implements IResource {
     }
   }
 
-  async updateFolder(folder:Folder):Promise<void> {
+  async updateFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {
     Logger.log('(tabs)UPDATEFOLDER (noop)', folder)
   }
 
-  async removeFolder(folder:Folder):Promise<void> {
+  async removeFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {
     const id = folder.id
     Logger.log('(tabs)REMOVEFOLDER', id)
     await this.queue.add(() => browser.tabs.remove(id))

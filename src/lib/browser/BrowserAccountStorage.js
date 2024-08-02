@@ -2,7 +2,7 @@ import browser from '../browser-api'
 import Cryptography from '../Crypto'
 import DefunctCryptography from '../DefunctCrypto'
 import Mappings from '../Mappings'
-import { Folder } from '../Tree'
+import { Folder, ItemLocation } from '../Tree'
 import AsyncLock from 'async-lock'
 
 const storageLock = new AsyncLock()
@@ -101,7 +101,7 @@ export default class BrowserAccountStorage {
     const data = await BrowserAccountStorage.getEntry(
       `bookmarks[${this.accountId}].cache`
     )
-    return Folder.hydrate(data && Object.keys(data).length ? data : {})
+    return Folder.hydrate(data && Object.keys(data).length ? data : {location: ItemLocation.LOCAL})
   }
 
   async setCache(data) {

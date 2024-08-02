@@ -1,15 +1,17 @@
-import { ItemLocation, TItem, TItemLocation } from '../Tree'
-import Diff, { Action, ActionType, CreateAction, MoveAction } from '../Diff'
-import Scanner from '../Scanner'
+import { Folder, ItemLocation, TItem, TItemLocation, TOppositeLocation } from '../Tree'
+import Diff, { CreateAction, MoveAction, PlanStage1, PlanStage3, ReorderAction } from '../Diff'
+import Scanner, { ScanResult } from '../Scanner'
 import * as Parallel from 'async-parallel'
 import DefaultSyncProcess, { ISerializedSyncProcess } from './Default'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import Logger from '../Logger'
 
+const ACTION_CONCURRENCY = 12
+
 export default class MergeSyncProcess extends DefaultSyncProcess {
-  async getDiffs():Promise<{localDiff:Diff, serverDiff:Diff}> {
+  async getDiffs():Promise<{localScanResult:ScanResult<typeof ItemLocation.LOCAL, TItemLocation>, serverScanResult:ScanResult<typeof ItemLocation.SERVER, TItemLocation>}> {
     // If there's no cache, diff the two trees directly
-    const newMappings: TItem[][] = []
+    const newMappings: TItem<TItemLocation>[][] = []
     const localScanner = new Scanner(
       this.serverTreeRoot,
       this.localTreeRoot,
@@ -36,139 +38,152 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
       this.preserveOrder,
       false
     )
-    const localDiff = await localScanner.run()
-    const serverDiff = await serverScanner.run()
+    const localScanResult = await localScanner.run()
+    const serverScanResult = await serverScanner.run()
     await Parallel.map(newMappings, ([localItem, serverItem]) => {
       return this.addMapping(this.server, localItem, serverItem.id)
     }, 10)
 
-    return {localDiff, serverDiff}
+    return {localScanResult, serverScanResult}
   }
 
-  async reconcileDiffs(sourceDiff:Diff, targetDiff:Diff, targetLocation: TItemLocation):Promise<Diff> {
+  async reconcileDiffs<L1 extends TItemLocation, L2 extends TItemLocation, L3 extends TItemLocation>(
+    sourceScanResult:ScanResult<L1, L2>,
+    targetScanResult:ScanResult<TOppositeLocation<L1>, L3>,
+    targetLocation: TOppositeLocation<L1>
+  ): Promise<PlanStage1<L1, L2>> {
     const mappingsSnapshot = this.mappings.getSnapshot()
 
-    const targetCreations = targetDiff.getActions(ActionType.CREATE)
-    const targetMoves = targetDiff.getActions(ActionType.MOVE)
+    const targetCreations = targetScanResult.CREATE.getActions()
+    const targetMoves = targetScanResult.MOVE.getActions()
 
-    const sourceMoves = sourceDiff.getActions(ActionType.MOVE)
-    const sourceUpdates = sourceDiff.getActions(ActionType.UPDATE)
+    const sourceMoves = sourceScanResult.MOVE.getActions()
+    const sourceUpdates = sourceScanResult.UPDATE.getActions()
 
-    const targetTree = targetLocation === ItemLocation.LOCAL ? this.localTreeRoot : this.serverTreeRoot
-    const sourceTree = targetLocation === ItemLocation.LOCAL ? this.serverTreeRoot : this.localTreeRoot
+    const targetTree = this.getTargetTree(targetLocation)
+    const sourceTree = this.getTargetTree(targetLocation === ItemLocation.LOCAL ? ItemLocation.SERVER : ItemLocation.LOCAL) as Folder<L1>
 
-    const allCreateAndMoveActions = targetDiff.getActions()
-      .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
-      .map(a => a as CreateAction|MoveAction)
-      .concat(
-        sourceDiff.getActions()
-          .filter(a => a.type === ActionType.CREATE || a.type === ActionType.MOVE)
-          .map(a => a as CreateAction|MoveAction)
-      )
+    const allCreateAndMoveActions = (sourceScanResult.CREATE.getActions() as Array<CreateAction<L1, L2> | MoveAction<L1, L2> | CreateAction<TOppositeLocation<L1>, L3> | MoveAction<TOppositeLocation<L1>, L3>>)
+      .concat(sourceScanResult.MOVE.getActions())
+      .concat(targetScanResult.CREATE.getActions())
+      .concat(targetScanResult.MOVE.getActions())
 
-    // Prepare server plan
-    const targetPlan = new Diff() // to be mapped
-    await Parallel.each(sourceDiff.getActions(), async(action:Action) => {
-      if (action.type === ActionType.REMOVE) {
-        // don't execute deletes
+    // Prepare target plan
+    const targetPlan: PlanStage1<L1, L2> = {
+      CREATE: new Diff(),
+      UPDATE: new Diff(),
+      MOVE: new Diff(),
+      REMOVE: new Diff(),
+      REORDER: new Diff(),
+    }
+
+    await Parallel.each(sourceScanResult.CREATE.getActions(), async(action) => {
+      const concurrentCreation = targetCreations.find(a =>
+        a.payload.parentId === Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location) &&
+        action.payload.canMergeWith(a.payload))
+      if (concurrentCreation) {
+        // created on both the server and locally, try to reconcile
+        const newMappings = []
+        const subScanner = new Scanner(
+          concurrentCreation.payload, // server tree
+          action.payload, // local tree
+          (oldItem, newItem) => {
+            if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
+              // if two items can be merged, we'll add mappings here directly
+              newMappings.push([oldItem, newItem.id])
+              return true
+            }
+            return false
+          },
+          this.preserveOrder,
+          false
+        )
+        await subScanner.run()
+        newMappings.push([concurrentCreation.payload, action.payload.id])
+        await Parallel.each(newMappings, async([oldItem, newId]) => {
+          await this.addMapping(action.payload.location === ItemLocation.LOCAL ? this.localTree : this.server, oldItem, newId)
+        },1)
+        // TODO: subScanner may contain residual CREATE/REMOVE actions that need to be added to mappings
         return
       }
-      if (action.type === ActionType.CREATE) {
-        const concurrentCreation = targetCreations.find(a =>
-          a.payload.parentId === Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location) &&
-          action.payload.canMergeWith(a.payload))
-        if (concurrentCreation) {
-          // created on both the server and locally, try to reconcile
-          const newMappings = []
-          const subScanner = new Scanner(
-            concurrentCreation.payload, // server tree
-            action.payload, // local tree
-            (oldItem, newItem) => {
-              if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
-                // if two items can be merged, we'll add mappings here directly
-                newMappings.push([oldItem, newItem.id])
-                return true
-              }
-              return false
-            },
-            this.preserveOrder,
-            false
-          )
-          await subScanner.run()
-          newMappings.push([concurrentCreation.payload, action.payload.id])
-          await Parallel.each(newMappings, async([oldItem, newId]) => {
-            await this.addMapping(action.payload.location === ItemLocation.LOCAL ? this.localTree : this.server, oldItem, newId)
-          },1)
-          // TODO: subScanner may contain residual CREATE/REMOVE actions that need to be added to mappings
+
+      targetPlan.CREATE.commit(action)
+    }, ACTION_CONCURRENCY)
+
+    await Parallel.each(sourceScanResult.MOVE.getActions(), async(action) => {
+      if (targetLocation === ItemLocation.LOCAL) {
+        const concurrentMove = sourceMoves.find(a =>
+          (action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload)) ||
+          (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload))
+        )
+        if (concurrentMove) {
+          // Moved both on server and locally, local has precedence: do nothing locally
           return
         }
       }
-      if (action.type === ActionType.MOVE) {
-        if (targetLocation === ItemLocation.LOCAL) {
-          const concurrentMove = sourceMoves.find(a =>
-            (action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload)) ||
-            (action.payload.type === 'bookmark' && action.payload.canMergeWith(a.payload))
-          )
-          if (concurrentMove) {
-            // Moved both on server and locally, local has precedence: do nothing locally
-            return
-          }
-        }
-        // Find concurrent moves that form a hierarchy reversal together with this one
-        const concurrentHierarchyReversals = targetMoves.filter(targetMove => {
-          return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetMove) &&
-            Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, targetMove.payload, action)
-        })
-        if (concurrentHierarchyReversals.length) {
-          if (targetLocation === ItemLocation.SERVER) {
-            concurrentHierarchyReversals.forEach(a => {
-              // moved locally but moved in reverse hierarchical order on server
-              const payload = a.oldItem.clone() // we don't map here as we want this to look like a local action
-              const oldItem = a.payload.clone()
-              oldItem.id = Mappings.mapId(mappingsSnapshot, oldItem, action.payload.location)
-              oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, oldItem, action.payload.location)
+      // Find concurrent moves that form a hierarchy reversal together with this one
+      const concurrentHierarchyReversals = targetMoves.filter(targetMove => {
+        return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetMove) &&
+          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, targetMove.payload, action)
+      })
+      if (concurrentHierarchyReversals.length) {
+        if (targetLocation === ItemLocation.SERVER) {
+          concurrentHierarchyReversals.forEach(a => {
+            // moved locally but moved in reverse hierarchical order on server
+            const payload = a.oldItem.cloneWithLocation(false, action.payload.location) // we don't map here as we want this to look like a local action
+            const oldItem = a.payload.cloneWithLocation(false, action.oldItem.location)
+            oldItem.id = Mappings.mapId(mappingsSnapshot, oldItem, action.payload.location)
+            oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, oldItem, action.payload.location)
 
-              if (
-                targetPlan.getActions(ActionType.MOVE).find(move => String(move.payload.id) === String(payload.id)) ||
-                sourceDiff.getActions(ActionType.MOVE).find(move => String(move.payload.id) === String(payload.id))
-              ) {
-                // Don't create duplicates!
-                return
-              }
+            if (
+              targetPlan.MOVE.getActions().find(move => String(move.payload.id) === String(payload.id)) ||
+              sourceMoves.find(move => String(move.payload.id) === String(payload.id))
+            ) {
+              // Don't create duplicates!
+              return
+            }
 
-              // revert server move
-              targetPlan.commit({ ...a, payload, oldItem })
-            })
-            targetPlan.commit(action)
-          }
+            // revert server move
+            targetPlan.MOVE.commit({ ...a, payload, oldItem })
+          })
+          targetPlan.MOVE.commit(action)
+        }
 
-          // if target === LOCAL: Moved locally and in reverse hierarchical order on server. local has precedence: do nothing locally
-          return
-        }
-      }
-      if (action.type === ActionType.UPDATE) {
-        const concurrentUpdate = sourceUpdates.find(a =>
-          action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
-        if (concurrentUpdate && targetLocation === ItemLocation.LOCAL) {
-          // Updated both on server and locally, local has precedence: do nothing locally
-          return
-        }
+        // if target === LOCAL: Moved locally and in reverse hierarchical order on server. local has precedence: do nothing locally
+        return
       }
 
-      targetPlan.commit(action)
-    }, 10)
+      targetPlan.MOVE.commit(action)
+    }, ACTION_CONCURRENCY)
+
+    await Parallel.each(sourceScanResult.UPDATE.getActions(), async(action) => {
+      const concurrentUpdate = sourceUpdates.find(a =>
+        action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
+      if (concurrentUpdate && targetLocation === ItemLocation.LOCAL) {
+        // Updated both on server and locally, local has precedence: do nothing locally
+        return
+      }
+
+      targetPlan.UPDATE.commit(action)
+    }, ACTION_CONCURRENCY)
 
     return targetPlan
   }
 
-  reconcileReorderings(targetTreePlan:Diff, sourceTreePlan:Diff, mappingSnapshot:MappingSnapshot) : Diff {
-    return super.reconcileReorderings(targetTreePlan, sourceTreePlan, mappingSnapshot)
+  reconcileReorderings<L1 extends TItemLocation, L2 extends TItemLocation>(
+    targetReorders: Diff<L2, TItemLocation, ReorderAction<L2, TItemLocation>>,
+    sourceDonePlan: PlanStage3<L1, TItemLocation, L2>,
+    targetLocation: L1,
+    mappingSnapshot: MappingSnapshot
+  ) : Diff<L1, TItemLocation, ReorderAction<L1, TItemLocation>> {
+    return super.reconcileReorderings(targetReorders, sourceDonePlan, targetLocation, mappingSnapshot)
   }
 
-  async loadChildren():Promise<void> {
+  async loadChildren(serverTreeRoot: Folder<typeof ItemLocation.SERVER>):Promise<void> {
     Logger.log('Merge strategy: Load complete tree from server')
-    this.serverTreeRoot = await this.server.getBookmarksTree(true)
+    serverTreeRoot.children = (await this.server.getBookmarksTree(true)).children
   }
+
   toJSON(): ISerializedSyncProcess {
     return {
       ...DefaultSyncProcess.prototype.toJSON.apply(this),

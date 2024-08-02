@@ -19,8 +19,12 @@ export default class NativeAccount extends Account {
   static async get(id:string):Promise<Account> {
     const storage = new NativeAccountStorage(id)
     const data = await storage.getAccountData(null)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const tree = new NativeTree(storage)
     await tree.load()
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return new NativeAccount(id, storage, await AdapterFactory.factory(data), tree)
   }
 
@@ -30,8 +34,12 @@ export default class NativeAccount extends Account {
     const storage = new NativeAccountStorage(id)
 
     await storage.setAccountData(data, null)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const tree = new NativeTree(storage)
     await tree.load()
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return new NativeAccount(id, storage, adapter, tree)
   }
 

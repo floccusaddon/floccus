@@ -13,7 +13,7 @@ import { LocalFolderNotFoundError } from '../../errors/Error'
 
 let absoluteRoot: {id: string}
 
-export default class BrowserTree implements IResource {
+export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL> {
   private readonly rootId: string
   private queue: PQueue<{ concurrency: 10 }>
   private storage: unknown
@@ -29,7 +29,7 @@ export default class BrowserTree implements IResource {
     })
   }
 
-  async getBookmarksTree():Promise<Folder> {
+  async getBookmarksTree():Promise<Folder<typeof ItemLocation.LOCAL>> {
     const isVivaldiBrowser = await isVivaldi()
     let tree
     try {
@@ -118,10 +118,10 @@ export default class BrowserTree implements IResource {
         })
       }
     }
-    return recurse(tree) as Folder
+    return recurse(tree) as Folder<typeof ItemLocation.LOCAL>
   }
 
-  async createBookmark(bookmark:Bookmark): Promise<string|number> {
+  async createBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<string|number> {
     Logger.log('(local)CREATE', bookmark)
     if (bookmark.parentId === this.absoluteRoot.id) {
       Logger.log('This action affects the absolute root. Skipping.')
@@ -132,7 +132,7 @@ export default class BrowserTree implements IResource {
         const node = await this.queue.add(async() => {
           Logger.log('(local)CREATE: executing create ', bookmark)
           return browser.bookmarks.create({
-            parentId: bookmark.parentId,
+            parentId: bookmark.parentId.toString(),
             type: 'separator'
           })
         })
@@ -141,7 +141,7 @@ export default class BrowserTree implements IResource {
       const node = await this.queue.add(async() => {
         Logger.log('(local)CREATE: executing create ', bookmark)
         return browser.bookmarks.create({
-          parentId: bookmark.parentId,
+          parentId: bookmark.parentId.toString(),
           title: bookmark.title,
           url: bookmark.url
         })
@@ -152,7 +152,7 @@ export default class BrowserTree implements IResource {
     }
   }
 
-  async updateBookmark(bookmark:Bookmark):Promise<void> {
+  async updateBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>):Promise<void> {
     Logger.log('(local)UPDATE', bookmark)
     if (bookmark.parentId === this.absoluteRoot.id) {
       Logger.log('This action affects the absolute root. Skipping.')
@@ -173,7 +173,7 @@ export default class BrowserTree implements IResource {
       await this.queue.add(async() => {
         Logger.log('(local)UPDATE: executing move ', bookmark)
         return browser.bookmarks.move(bookmark.id, {
-          parentId: bookmark.parentId
+          parentId: bookmark.parentId.toString()
         })
       })
     } catch (e) {
@@ -181,7 +181,7 @@ export default class BrowserTree implements IResource {
     }
   }
 
-  async removeBookmark(bookmark:Bookmark): Promise<void> {
+  async removeBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<void> {
     if (bookmark.parentId === this.absoluteRoot.id) {
       Logger.log('This action affects the absolute root. Skipping.')
       return
@@ -198,7 +198,7 @@ export default class BrowserTree implements IResource {
     }
   }
 
-  async createFolder(folder:Folder): Promise<string> {
+  async createFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<string> {
     const {parentId, title} = folder
     Logger.log('(local)CREATEFOLDER', folder)
     if (folder.parentId === this.absoluteRoot.id) {
@@ -209,7 +209,7 @@ export default class BrowserTree implements IResource {
       const node = await this.queue.add(async() => {
         Logger.log('(local)CREATEFOLDER: executing create ', folder)
         return browser.bookmarks.create({
-          parentId,
+          parentId: parentId.toString(),
           title
         })
       })
@@ -219,7 +219,7 @@ export default class BrowserTree implements IResource {
     }
   }
 
-  async orderFolder(id:string|number, order:Ordering) :Promise<void> {
+  async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>) :Promise<void> {
     Logger.log('(local)ORDERFOLDER', { id, order })
     if (id === this.absoluteRoot.id) {
       Logger.log('This action affects the absolute root. Skipping.')
@@ -228,7 +228,7 @@ export default class BrowserTree implements IResource {
     const [realTree] = await browser.bookmarks.getSubTree(id)
     try {
       for (let index = 0; index < order.length; index++) {
-        await browser.bookmarks.move(order[index].id, { parentId: id, index })
+        await browser.bookmarks.move(order[index].id, { parentId: id.toString(), index })
       }
     } catch (e) {
       throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
@@ -244,7 +244,7 @@ export default class BrowserTree implements IResource {
       try {
         Logger.log('Move untouched children back into place', {untouchedChildren: untouchedChildren.map(([i, item]) => [i, item.id])})
         for (const [index, child] of untouchedChildren) {
-          await browser.bookmarks.move(child.id, { parentId: id, index})
+          await browser.bookmarks.move(child.id, { parentId: id.toString(), index})
         }
       } catch (e) {
         throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
@@ -252,7 +252,7 @@ export default class BrowserTree implements IResource {
     }
   }
 
-  async updateFolder(folder:Folder):Promise<void> {
+  async updateFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {
     const {id, title, parentId} = folder
     Logger.log('(local)UPDATEFOLDER', folder)
     if (folder.parentId === this.absoluteRoot.id) {
@@ -266,7 +266,7 @@ export default class BrowserTree implements IResource {
     try {
       await this.queue.add(async() => {
         Logger.log('(local)UPDATEFOLDER: executing update ', folder)
-        return browser.bookmarks.update(id, {
+        return browser.bookmarks.update(id.toString(), {
           title
         })
       })
@@ -280,14 +280,14 @@ export default class BrowserTree implements IResource {
     try {
       await this.queue.add(async() => {
         Logger.log('(local)CREATEFOLDER: executing move ', folder)
-        return browser.bookmarks.move(id, { parentId })
+        return browser.bookmarks.move(id.toString(), { parentId })
       })
     } catch (e) {
       throw new Error('Failed to move folder ' + id + ': ' + e.message)
     }
   }
 
-  async removeFolder(folder:Folder):Promise<void> {
+  async removeFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {
     const id = folder.id
     Logger.log('(local)REMOVEFOLDER', id)
     if (folder.parentId === this.absoluteRoot.id) {
@@ -301,7 +301,7 @@ export default class BrowserTree implements IResource {
     try {
       await this.queue.add(async() => {
         Logger.log('(local)REMOVEFOLDER: executing remove ', folder)
-        return browser.bookmarks.removeTree(id)
+        return browser.bookmarks.removeTree(id.toString())
       })
     } catch (e) {
       Logger.log('Could not remove ' + folder.inspect() + ': ' + e.message + '\n Moving on.')
