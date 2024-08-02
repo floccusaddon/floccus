@@ -215,8 +215,8 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
         }
 
         if (oldItem && targetLocation !== ItemLocation.SERVER && action.type !== ActionType.MOVE && action.type !== ActionType.UPDATE) {
-          newAction.payload.parentId = action.oldItem.parentId
           newAction.oldItem.parentId = action.payload.parentId
+          newAction.payload.parentId = Mappings.mapParentId(mappingsSnapshot, action.oldItem, targetLocation)
         } else {
           newAction.oldItem.parentId = action.payload.parentId
           newAction.payload.parentId = Mappings.mapParentId(mappingsSnapshot, action.payload, targetLocation)
