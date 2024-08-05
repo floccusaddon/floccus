@@ -46,11 +46,11 @@ body {
   padding-left: env(safe-area-inset-left);
   padding-right: env(sage-area-inset-right);
   background: v-bind(background);
-  font-size: 0.45cm !important;
+  font-size: 0.55cm !important;
 }
 
 html {
-  font-size: 0.45cm !important;
+  font-size: 0.55cm !important;
 }
 
 .v-navigation-drawer {
