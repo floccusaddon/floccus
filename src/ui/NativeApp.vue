@@ -47,10 +47,12 @@ body {
   padding-right: env(sage-area-inset-right);
   background: v-bind(background);
   font-size: 0.55cm !important;
+  font: -apple-system-body;
 }
 
 html {
   font-size: 0.55cm !important;
+  font: -apple-system-body;
 }
 
 .v-navigation-drawer {
