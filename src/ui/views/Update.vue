@@ -4,6 +4,9 @@
       class="options mt-3">
       <v-container class="pa-5">
         <v-card-title>
+          <a href="https://floccus.org" class="d-flex align-center"><img src="/dist/icons/logo_128.png"> Floccus: Cross-browser bookmark syncing</a>
+        </v-card-title>
+        <v-card-title>
           {{ t("LabelUpdated") }}
         </v-card-title>
         <v-card-text>
@@ -220,5 +223,9 @@ export default {
       .v-card--flat {
         width: 48%
       }
+    }
+    a:link {
+      color: inherit;
+      text-decoration: none;
     }
 </style>
