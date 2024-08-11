@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.2.6] - 2024-08-11
+
+### Fixed
+
+* chore: update capacitor/core Marcel Klehr 2 minutes ago
+* fix(Update): Show floccus logo on update page Marcel Klehr Today 10:32
+* fix: Refactor sync algorithm introducing location types (fixed 6 correctness bugs along the way)
+
 ## [5.2.5] - 2024-07-25
 
 ### Fixed
