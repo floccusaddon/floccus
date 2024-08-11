@@ -108,14 +108,14 @@ jobs:
           - chrome
         include:
           - app-version: master
-            server-version: 28
+            server-version: 30
             floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
           - app-version: master
-            server-version: 28
+            server-version: 30
             floccus-adapter: nextcloud-bookmarks
             test-name: benchmark root
             browsers: firefox
