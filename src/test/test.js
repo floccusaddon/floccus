@@ -1105,7 +1105,7 @@ describe('Floccus', function() {
               parentId: localRoot
             })
             const barFolder = await browser.bookmarks.create({
-              title: "bar=?*'Ä_:-^;",
+              title: "bar=?*'Ä_:-^;<script>",
               parentId: fooFolder.id
             })
             const bookmark = await browser.bookmarks.create({
@@ -1129,7 +1129,7 @@ describe('Floccus', function() {
                     title: 'foo!"§$%&/()=?"',
                     children: [
                       new Folder({
-                        title: "bar=?*'Ä_:-^;",
+                        title: "bar=?*'Ä_:-^;<script>",
                         children: [
                           new Bookmark({
                             title: 'url|!"=)/§_:;Ä\'*ü"',

@@ -7,17 +7,21 @@ class HtmlSerializer implements Serializer {
     return `<DL><p>\n${this._serializeFolder(folder, '')}</DL><p>\n`
   }
 
+  _htmlentities_encode(string) {
+    return string.replace(/[\u00A0-\u9999<>&"]/g, char => '&#' + char.charCodeAt(0) + ';')
+  }
+
   _serializeFolder(folder, indent) {
     return folder.children
       .map(child => {
         if (child instanceof Bookmark) {
           return (
-            `${indent}<DT><A HREF="${child.url}" TAGS="${''}" ID="${child.id}">${child.title}</A>\n`
+            `${indent}<DT><A HREF="${this._htmlentities_encode(child.url)}" TAGS="${''}" ID="${child.id}">${this._htmlentities_encode(child.title)}</A>\n`
           )
         } else if (child instanceof Folder) {
           const nextIndent = indent + '  '
           return (
-            `${indent}<DT><H3 ID="${child.id}">${child.title}</H3>\n` +
+            `${indent}<DT><H3 ID="${child.id}">${this._htmlentities_encode(child.title)}</H3>\n` +
             `${indent}<DL><p>\n${this._serializeFolder(
               child,
               nextIndent
