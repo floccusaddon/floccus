@@ -129,7 +129,7 @@ export default {
       telemetry: false,
       paymentOptions: [
         {
-          href: 'https://www.paypal.me/marcelklehr1',
+          href: 'https://www.paypal.com/donate/?hosted_button_id=R3SDCC7AFSYZU',
           label: this.t('LabelPaypal'),
           description: this.t('DescriptionPaypal')
         },

@@ -340,7 +340,7 @@
     "message": "Paypal"
   },
   "DescriptionPaypal": {
-    "message": "Make a one-time donation via paypal to support the project"
+    "message": "Make a one-time or regular donation via paypal to support the project"
   },
   "LabelOpencollective": {
     "message": "OpenCollective"
