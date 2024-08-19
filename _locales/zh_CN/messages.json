@@ -340,7 +340,7 @@
     "message": "Paypal"
   },
   "DescriptionPaypal": {
-    "message": "通过 Paypal 一次性捐款以支持该项目"
+    "message": "通过 PayPal 一次性或定期捐款支持本项目"
   },
   "LabelOpencollective": {
     "message": "OpenCollective"
