@@ -297,7 +297,7 @@
     "message": "\uD83D\uDCB8 Recadación de fondos"
   },
   "DescriptionFunddevelopment": {
-    "message": "O traballo en Floccusfloccus fomentase cun modelo de subscrición voluntaria. Se pensa que o que fago paga a pena e pode dispoñer dalgún carto cada mes sen dificultades, apoie o meu traballo. Ademais, considere darlle a Floccus unha valoración na tenda de engadidos da súa escolle. Grazas!💙"
+    "message": "O traballo en Floccus fomentase cun modelo de subscrición voluntaria. Se pensa que o que fago paga a pena e pode dispoñer  sen dificultades dalgún carto cada mes, apoie o meu traballo. Ademais, considere darlle a Floccus unha valoración na tenda de engadidos da súa escolle. Grazas!💙"
   },
   "LabelSelect": {
     "message": "Seleccionar"
@@ -346,7 +346,7 @@
     "message": "OpenCollective"
   },
   "DescriptionOpencollective": {
-    "message": "Faga unha doazón regular a través de OpenCollective para colaborar co proxecto"
+    "message": "Faga unha doazón periódica a través de OpenCollective para axudar a soster o proxecto"
   },
   "LabelLiberapay": {
     "message": "Liberapay"
@@ -370,7 +370,7 @@
     "message": "Kofi"
   },
   "DescriptionKofi": {
-    "message": "Faga unha doazón periódica ou unha puntual a través de Ko-fi para colaborar co proxecto"
+    "message": "Faga unha doazón periódica ou unha puntual a través de Ko-fi para axudar a soster o proxecto"
   },
   "LegacyAdapterDeprecation": {
     "message": "Este tipo de perfil herdado está en desuso e vai ser eliminado en pouco tempo. Cambie ao novo método de sincronización de Nextcloud. Agárdanlle melloras de rendemento e precisión."
