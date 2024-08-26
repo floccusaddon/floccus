@@ -52,6 +52,10 @@ export default class LocalTabs implements IResource<typeof ItemLocation.LOCAL> {
       Logger.log('Parent is "tabs", ignoring this one.')
       return
     }
+    if (self.location.protocol === 'moz-extension:' && new URL(bookmark.url).protocol === 'file:') {
+      Logger.log('URL is a file URL and we are on firefox, ignoring this one.')
+      return
+    }
     const node = await this.queue.add(() =>
       browser.tabs.create({
         windowId: typeof bookmark.parentId === 'string' ? parseInt(bookmark.parentId) : bookmark.parentId,
