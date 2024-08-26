@@ -93,3 +93,6 @@ body:
       options:
         - label: I have provided a debug log file
           required: false
+  - type: markdown
+    attributes:
+      value: "Please note: To continue development and maintenance of this project in a sustainable way, it is expected that you donate to the project when opening a ticket, if you're not a donor already. You can find donation options at <https://floccus.org/donate/>. Thank you!"

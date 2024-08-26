@@ -29,9 +29,8 @@ jobs:
             Thank you for taking the time to open this issue with floccus. I know it's frustrating when software
             causes problems. You have made the right choice to come here and open an issue to make sure your problem gets looked at
             and if possible solved.
-            I'm Marcel and I created floccus and have been maintaining it ever since.
-            I currently work for Nextcloud which leaves me with less time for side projects like this one
-            than I used to have.
+            I'm Marcel and I created floccus a few years ago, maintaining it ever since. I currently work for Nextcloud
+            which leaves me with less time for side projects like this one than I used to have.
             I still try to answer all issues and if possible fix all bugs here, but it sometimes takes a while until I get to it.
             Until then, please be patient. 
             Note also that GitHub is a place where people meet to make software better *together*. Nobody here is under any obligation
@@ -40,7 +39,10 @@ jobs:
             Thus, if you can, you could also have a look at other issues to see whether you can help other people with your knowledge
             and experience. If you have coding experience it would also be awesome if you could step up to dive into the code and
             try to fix the odd bug yourself. Everyone will be thankful for extra helping hands!
-            One last word: If you feel, at any point, like you need to vent, this is not the place for it; you can go to the forum,
+            To continue the development and maintenance of this project in a sustainable way it is expected that you donate to the project when opening a ticket,
+            if you're not a donor already. You can find donation options at <https://floccus.org/donate/>. Thank you!
+            
+            One last word: If you feel, at any point, like you need to vent, this is not the place for it; you can go to the Nextcloud forum,
             to twitter or somewhere else. But this is a technical issue tracker, so please make sure to
             focus on the tech and keep your opinions to yourself.
             
