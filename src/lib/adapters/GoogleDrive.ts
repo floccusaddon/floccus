@@ -124,10 +124,12 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     })
 
     if (response.status !== 200) {
+      Logger.log('Failed to retrieve refresh token from Google API: ' + await response.text())
       throw new OAuthTokenError()
     }
     const json = await response.json()
     if (!json.access_token || !json.refresh_token) {
+      Logger.log('Failed to retrieve refresh token from Google API: ' + JSON.stringify(json))
       throw new OAuthTokenError()
     }
 
@@ -155,6 +157,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     )
 
     if (response.status !== 200) {
+      Logger.log('Failed to retrieve access token from Google API: ' + await response.text())
       throw new GoogleDriveAuthenticationError()
     }
 
