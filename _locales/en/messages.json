@@ -406,7 +406,7 @@
     "message": "No profiles yet"
   },
   "DescriptionNoAccount": {
-    "message": "Add new & existing profiles, or Import from a file, then you can begin syncing."
+    "message": "Add new profiles, or import profiles from a file, then you can begin syncing."
   },
   "LabelLoginFlowStart": {
     "message": "Sign in with Nextcloud"
