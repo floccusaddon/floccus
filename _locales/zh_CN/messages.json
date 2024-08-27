@@ -403,10 +403,10 @@
     "message": "此配置已被删除"
   },
   "LabelNoAccount": {
-    "message": "此处没有配置"
+    "message": "尚无配置"
   },
   "DescriptionNoAccount": {
-    "message": "创建一个新的配置文件来同步您的书签，或者从其他设备或浏览器导入配置文件。"
+    "message": "添加新配置，或者从文件导入配置，接着你可以开始同步。"
   },
   "LabelLoginFlowStart": {
     "message": "以 Nextcloud login flow 登录"
@@ -418,7 +418,10 @@
     "message": "Nextcloud 登录失败。"
   },
   "LabelNewAccount": {
-    "message": "新配置文件"
+    "message": "添加配置"
+  },
+  "LabelNewImport": {
+    "message": "导入"
   },
   "LabelNestedSync": {
     "message": "嵌套的配置"
