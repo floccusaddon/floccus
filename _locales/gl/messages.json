@@ -403,10 +403,10 @@
     "message": "Este perfil foi eliminado"
   },
   "LabelNoAccount": {
-    "message": "Aquí non hai ningún perfil"
+    "message": "Aínda non hai ningún perfíl"
   },
   "DescriptionNoAccount": {
-    "message": "Crea un novo perfil para sincronizar os marcadores ou importar perfís dende un dispositivo ou navegador diferente."
+    "message": "Engada novos perfís ou importe perfís dende un ficheiro, entón poderá comezar a sincronizar."
   },
   "LabelLoginFlowStart": {
     "message": "Acceder con Nextcloud"
@@ -418,7 +418,10 @@
     "message": "Produciuse n fallo ao acceder a Nextcloud"
   },
   "LabelNewAccount": {
-    "message": "Perfil novo"
+    "message": "Engadir un perfil"
+  },
+  "LabelNewImport": {
+    "message": "Importar"
   },
   "LabelNestedSync": {
     "message": "Perfís aniñados"
