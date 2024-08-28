@@ -103,7 +103,6 @@ jobs:
           - linkwarden
         test-name:
           - test
-          - benchmark root
         browsers:
           - firefox
           - chrome
