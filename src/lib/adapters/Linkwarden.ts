@@ -53,8 +53,12 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     }
   }
 
-  acceptsBookmark(bookmark: Bookmark<TItemLocation>): boolean {
-    return true
+  acceptsBookmark(bm: Bookmark<typeof ItemLocation.SERVER>):boolean {
+    try {
+      return ['https:', 'http:', 'ftp:', 'javascript:'].includes(new URL(bm.url).protocol)
+    } catch (e) {
+      return false
+    }
   }
 
   cancel(): void {
