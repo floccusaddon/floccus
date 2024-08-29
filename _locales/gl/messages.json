@@ -427,7 +427,7 @@
     "message": "Perfís aniñados"
   },
   "DescriptionNestedSync": {
-    "message": "Pode aniñar perfís para que un cartafol principal pertenza ao perfil A e un subcartafol ao perfil A e B. Quere permitir que outros perfís sincronicen tamén o cartafol deste perfil?"
+    "message": "Pode aniñar perfís para que un cartafol superior pertenza ao perfil A e un subcartafol ao perfil A e B. Quere permitir que outros perfís sincronicen tamén o cartafol deste perfil?"
   },
   "LabelNestedSyncNo": {
     "message": "Non, ignorar o cartafol deste perfil noutros perfís"
