@@ -39,7 +39,7 @@
     "message": "E013: O cartafol para retirar non existe"
   },
   "Error014": {
-    "message": "E014: O cartafol principal do que eliminar o cartafol non existe"
+    "message": "E014: O cartafol superior do que eliminar o cartafol non existe"
   },
   "Error015": {
     "message": "E015: Datos de resposta non agardados do servidor"
