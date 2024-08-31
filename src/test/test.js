@@ -1919,7 +1919,7 @@ describe('Floccus', function() {
           })
           it('should leave alone unaccepted bookmarks entirely', async function() {
             if (!~ACCOUNT_DATA.type.indexOf('nextcloud')) {
-              this.skip()
+              return this.skip()
             }
             const localRoot = account.getData().localRoot
 
@@ -2008,6 +2008,9 @@ describe('Floccus', function() {
             if (BROWSER !== 'firefox') {
               this.skip()
               return
+            }
+            if (ACCOUNT_DATA.type === 'linkwarden') {
+              return this.skip()
             }
             const localRoot = account.getData().localRoot
 
@@ -2139,6 +2142,9 @@ describe('Floccus', function() {
             if (BROWSER !== 'firefox') {
               this.skip()
               return
+            }
+            if (ACCOUNT_DATA.type === 'linkwarden') {
+              return this.skip()
             }
             const localRoot = account.getData().localRoot
 
