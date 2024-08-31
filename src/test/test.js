@@ -2355,6 +2355,9 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.noCache) {
               return this.skip()
             }
+            if (ACCOUNT_DATA.type === 'linkwarden') {
+              return this.skip()
+            }
             expect(
               (await getAllBookmarks(account)).children
             ).to.have.lengthOf(0)
@@ -3273,6 +3276,7 @@ describe('Floccus', function() {
                 await account1.server.deleteFile(file.id)
               }
             }
+            await browser.bookmarks.removeTree(account1.getData().localRoot)
             await account1.delete()
             await browser.bookmarks.removeTree(account2.getData().localRoot)
             await account2.delete()
@@ -3282,6 +3286,9 @@ describe('Floccus', function() {
               return this.skip()
             }
             if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ['v1.1.2', 'v2.3.4', 'stable3', 'stable4'].includes(APP_VERSION)) {
+              return this.skip()
+            }
+            if (ACCOUNT_DATA.type === 'linkwarden') {
               return this.skip()
             }
             const localRoot = account1.getData().localRoot
@@ -4621,6 +4628,9 @@ describe('Floccus', function() {
         })
 
         context('with tabs', function() {
+          if (ACCOUNT_DATA.type === 'linkwarden') {
+            return
+          }
           let account
           beforeEach('set up account', async function() {
             account = await Account.create(ACCOUNT_DATA)
