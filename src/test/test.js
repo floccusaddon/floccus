@@ -3276,9 +3276,17 @@ describe('Floccus', function() {
                 await account1.server.deleteFile(file.id)
               }
             }
-            await browser.bookmarks.removeTree(account1.getData().localRoot)
+            try {
+              await browser.bookmarks.removeTree(account1.getData().localRoot)
+            } catch (e) {
+              // noop
+            }
             await account1.delete()
-            await browser.bookmarks.removeTree(account2.getData().localRoot)
+            try {
+              await browser.bookmarks.removeTree(account2.getData().localRoot)
+            } catch (e) {
+              // noop
+            }
             await account2.delete()
           })
           it('should not sync two clients at the same time', async function() {
