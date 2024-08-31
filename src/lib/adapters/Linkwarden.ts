@@ -157,7 +157,20 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
 
   async removeFolder(folder: Folder<typeof ItemLocation.SERVER>): Promise<void> {
     Logger.log('(linkwarden)DELETEFOLDER', {folder})
-    await this.sendRequest('DELETE', `/api/v1/collections/${folder.id}`)
+    let success = false
+    let count = 0
+    do {
+      try {
+        count++
+        await this.sendRequest('DELETE', `/api/v1/collections/${folder.id}`)
+        success = true
+      } catch (e) {
+        if (count > 3) {
+          throw e
+        }
+        // noop
+      }
+    } while (!success)
   }
 
   async getBookmarksTree(loadAll?: boolean): Promise<Folder<typeof ItemLocation.SERVER>> {
