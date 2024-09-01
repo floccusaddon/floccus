@@ -4423,6 +4423,9 @@ describe('Floccus', function() {
             )
           })
           it('should synchronize ordering', async function() {
+            if (ACCOUNT_DATA.type === 'linkwarden') {
+              return this.skip()
+            }
             expect(
               (await getAllBookmarks(account1)).children
             ).to.have.lengthOf(0)
@@ -4520,7 +4523,10 @@ describe('Floccus', function() {
           // Skipping this, because nextcloud adapter currently
           // isn't able to track bookmarks across dirs, thus in this
           // scenario both bookmarks survive :/
-          it.skip('should propagate moves using "last write wins"', async function() {
+          it('should propagate moves using "last write wins"', async function() {
+            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks') {
+              return this.skip()
+            }
             const localRoot = account1.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
