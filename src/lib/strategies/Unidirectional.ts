@@ -152,13 +152,13 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     await this.executeRevert(target, this.revertPlan, this.direction, this.revertDonePlan, sourceScanResult.REORDER)
 
-    if (!this.revertReorders) {
+    if ('orderFolder' in this.server && !this.revertReorders) {
       const mappingsSnapshot = this.mappings.getSnapshot()
       Logger.log('Mapping reorderings')
       this.revertReorders = sourceScanResult.REORDER.map(mappingsSnapshot, this.direction)
     }
 
-    if ('orderFolder' in target) {
+    if ('orderFolder' in this.server && 'orderFolder' in target) {
       await this.executeReorderings(target, this.revertReorders)
     }
   }
