@@ -165,7 +165,10 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
         await this.sendRequest('DELETE', `/api/v1/collections/${folder.id}`)
         success = true
       } catch (e) {
-        if (count > 3) {
+        if (e instanceof HttpError && e.status === 401) {
+          success = true
+        }
+        else if (count > 3) {
           throw e
         }
         // noop
@@ -276,7 +279,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       return res
     }
 
-    if (res.status === 401 || res.status === 403) {
+    if (res.status === 403) {
       throw new AuthenticationError()
     }
     if (res.status === 503 || res.status > 400) {
