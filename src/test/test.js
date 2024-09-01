@@ -2977,7 +2977,8 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                false
+                false,
+                Boolean(account.server.orderFolder)
               )
             })
             it('should update the server on local changes', async function() {
