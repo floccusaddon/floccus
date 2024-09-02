@@ -718,7 +718,7 @@
     "message": "\uD83D\uDC1B Informe automatizado de erros"
   },
   "DescriptionTelemetry": {
-    "message": "Floccus pode enviarme automaticamente os datos de erros a min, o desenvolvedor. Esta é unha gran axuda para descubrir e resolver os erros en floccus máis rápido e axudará a mellorar a súa experiencia con floccus a longo prazo. Aínda que estea activado o informe de erros, os desenvolvedores de floccus nunca poderán ver os seus marcadores."
+    "message": "Floccus pode enviarme automaticamente os datos de erros a min, o desenvolvedor. Esta é unha grande axuda para descubrir e resolver os erros en floccus máis rápido e axudará a mellorar a súa experiencia con floccus a longo prazo. Aínda que estea activado o informe de erros, os desenvolvedores de floccus nunca poderán ver os seus marcadores."
   },
   "LabelTelemetryenable": {
     "message": "Envíiar automaticamente os datos de erros aos desenvolvedores de floccus"
