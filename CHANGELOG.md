@@ -1,11 +1,21 @@
 # Changelog
 
+## [5.2.7] - 2024-09-03
+
+### Fixed
+
+* fix: Filter out "file:" URLs when syncing tabs on firefox
+* fix: Log error from google API when retrieving access token
+* [native] fix: Tree comparison on RELOAD_TREE_FROM_DISK was broken
+* [native] fix: make builds reproducible again
+* fix(Html): Encode unsafe characters as HTML entities
+
 ## [5.2.6] - 2024-08-11
 
 ### Fixed
 
-* chore: update capacitor/core Marcel Klehr 2 minutes ago
-* fix(Update): Show floccus logo on update page Marcel Klehr Today 10:32
+* chore: update capacitor/core
+* fix(Update): Show floccus logo on update page
 * fix: Refactor sync algorithm introducing location types (fixed 6 correctness bugs along the way)
 
 ## [5.2.5] - 2024-07-25
