@@ -84,7 +84,7 @@
     "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen, stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
   },
   "Error029": {
-    "message": "E029: Löschsicherung: Die aktuelle Synchronisierung würde {0}% der lokalen Bookmarks löschen. Floccus weigert sich dies auszüführen. Falls Sie trotzdem fortfahren wollen, deaktivieren Sie die Löschsicherung in den Konto-Einstellungen."
+    "message": "E029: Löschsicherung: Die aktuelle Synchronisierung würde {0}% der lokalen Lesezeichen löschen. Floccus weigert sich dies auszüführen. Falls Sie trotzdem fortfahren wollen, deaktivieren Sie die Löschsicherung in den Konto-Einstellungen."
   },
   "Error030": {
     "message": "E030: Entschlüsseln der Lesezeichendatei fehlgeschlagen. Die Passphrase könnte falsch oder die Datei beschädigt sein."
@@ -106,6 +106,12 @@
   },
   "Error036": {
     "message": "E036: Fehlende Berechtigungen für den Zugriff auf den Sync-Server"
+  },
+  "Error037": {
+    "message": "E036: Ressource ist gesperrt"
+  },
+  "Error038": {
+    "message": "E036: Konnte lokalen Ordner nicht finden"
   },
   "LabelWebdavurl": {
     "message": "WebDAV-URL"
@@ -131,6 +137,9 @@
  "DescriptionBookmarksfilegoogle": {
    "message": "Der Dateiname der Lesezeichendatei, die in Ihrem Google Drive gespeichert wird (stellen Sie sicher, dass der Dateiname in Google Drive einzigartig ist)."
  },
+  "DescriptionBookmarksfilegit": {
+    "message": "Pfad zur Lesezeichen-Datei, relativ zu deinem Git-Repository Wurzelverzeichnis (alle Verzeichnisse auf diesem Pfad müssen bereits existieren), z.B. personal_stuff/bookmarks.xbel"
+  },
   "LabelServerfolder": {
     "message": "Ziel auf dem Server"
   },
@@ -261,7 +270,7 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "Die Option \"Nextcloud-Lesezeichen\" synchronisiert Ihre Lesezeichen mit der Lesezeichen-App für Nextcloud. Es können nur http und ftp Lesezeichen synchronisiert werden. Stellen Sie sicher, dass Sie die Lesezeichen-App aus dem Nextcloud-App-Store in Ihrer Nextcloud installiert haben."
+    "message": "Die Option 'Nextcloud Bookmarks' synchronisiert deine Lesezeichen mit der Bookmarks-App für Nextcloud. Sie kann nur http-, ftp- und Javascript-Lesezeichen synchronisieren. Stelle sicher, dass du die Bookmarks-App aus dem Nextcloud App Store in deiner Nextcloud installiert hast. Diese Option kann keine Ende-zu-Ende-Verschlüsselung nutzen."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (alte Version)"
@@ -273,7 +282,7 @@
     "message": "WebDAV-Freigabe"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Die WebDAV-Option synchronisiert die Lesezeichen in einer Datei in der angegebenen WebDAV-Freigabe. Es gibt keine Weboberfläche für diese Option und sie kann mit jedem WebDAV-kompatiblen Server genutzt werden. Es können http-, ftp-, Daten-, Datei- und Javascript-Lesezeichen synchronisiert werden."
+    "message": "Die WebDAV-Option synchronisiert deine Lesezeichen, indem es sie in einer Datei auf dem angegebenen WebDAV-Share speichert. Es gibt zu dieser Option keine Web UI, aber du kannst sie mit jedem WebDAV-kompatiblen Server nutzen. Es können http-, ftp-, Daten-, Datei- und Javascript-Lesezeichen synchronisiert werden. Du kannst bei dieser Option eine Ende-zu-Ende-Verschlüsselung wählen. "
   },
   "LabelAddaccount": {
     "message": "Profil hinzufügen"
@@ -285,7 +294,7 @@
     "message": "Debug-Logs"
   },
   "LabelFunddevelopment": {
-    "message": "Entwicklung unterstützen"
+    "message": "💸 Unterstütze die Entwicklung finanziell"
   },
   "DescriptionFunddevelopment": {
     "message": "Die Arbeit an floccus wird gefördert durch ein freiwilliges Abo-Modell. Wenn Sie glauben, dass das was ich tue nutzbringend ist, und Sie ohne Not einen kleinen Betrag erübrigen können, freue ich mich wenn Sie meine Arbeit unterstützen. Über eine Bewertung im Addon-Store Ihrer Wall freue ich mich ebenfalls. Vielen Dank. 💙"
@@ -331,7 +340,7 @@
     "message": "Paypal"
   },
   "DescriptionPaypal": {
-    "message": "Tätige eine einmalige Spende über Paypal um das Projekt zu unterstützen."
+    "message": "Spende einmalig oder regelmäßig via Paypal, um das Projekt zu unterstützen"
   },
   "LabelOpencollective": {
     "message": "OpenCollective"
@@ -367,7 +376,7 @@
     "message": "Dieser veraltete Profiltyp wird nicht mehr unterstützt und wird bald entfernt. Bitte wechseln Sie zur neuen Nextcloud-Synchronisierungsmethode. Verbesserte Leistung und Genauigkeit erwarten Sie."
   },
   "LabelUpdated": {
-    "message": "Floccus wurde aktualisiert"
+    "message": "⚡ Floccus wurde aktualisiert"
   },
   "DescriptionUpdated": {
     "message": "Glückwunsch, das aktuellste Floccus-Update befindet sich auf Ihrem Rechner! 🎉"
@@ -394,10 +403,10 @@
     "message": "Dieses Profil wurde gelöscht."
   },
   "LabelNoAccount": {
-    "message": "Keine Profile hier"
+    "message": "Es gibt noch keine Profile"
   },
   "DescriptionNoAccount": {
-    "message": "Erstellen Sie ein neues Profil, um Ihre Lesezeichen zu synchronisieren oder importieren Sie Profile von einem anderen Gerät oder Browser."
+    "message": "Lege neue Profile an oder importiere Profile aus einer Datei. Danach kannst du mit der Synchronisierung beginnen."
   },
   "LabelLoginFlowStart": {
     "message": "Mit Nextcloud anmelden"
@@ -409,7 +418,10 @@
     "message": "Anmeldung bei Nextcloud fehlgeschlagen."
   },
   "LabelNewAccount": {
-    "message": "Neues Profil"
+    "message": "Profil hinzufügen"
+  },
+  "LabelNewImport": {
+    "message": "Import"
   },
   "LabelNestedSync": {
     "message": "Verschachtelte Profile"
@@ -499,7 +511,7 @@
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Synchronisieren Sie Lesezeichen mittels einer verschlüsselten Datei, die in Ihrem Google Drive gespeichert wird. Es können http-, ftp-, Daten-, Datei- und Javascript-Lesezeichen synchronisiert werden."
+    "message": "Synchronisiere Lesezeichen über eine (optional verschlüsselte) Datei, die in deinem Google Drive gespeichert ist. Es können http-, ftp-, Daten-, Datei- und Javascript-Lesezeichen synchronisiert werden. Du kannst bei dieser Option eine Ende-zu-Ende-Verschlüsselung wählen."
   },
   "LabelLogingoogle": {
     "message": "Mit Google anmelden"
@@ -689,5 +701,83 @@
   },
   "DescriptionSyncscheduled": {
     "message": "Dieses Profil wird bald synchronisiert. Wir warten darauf, dass entweder andere Geräte von Ihnen oder auf andere Profile auf diesem Gerät ihre Synchronisierung abschließen, um mit dieser Synchronisierung zu beginnen."
+  },
+  "LabelAdaptergit": {
+    "message": "Git über HTTPS"
+  },
+  "DescriptionAdaptergit": {
+    "message": "Die Git-Option synchronisiert deine Lesezeichen, indem es sie in einer Datei im angegebenen Git-Repository speichert. Es gibt zu dieser Option keine Web UI, aber du kannst sie mit jedem Git Hostingserver wie Github, Gitlab, Gitea usw. nutzen. Sie kann http-, ftp-, Daten-, Datei- und Javascript-Lesezeichen synchronisieren. Du kannst bei dieser Option keine Ende-zu-Ende-Verschlüsselung nutzen."
+  },
+  "LabelGiturl": {
+    "message": "Repository-URL (HTTP)"
+  },
+  "LabelGitbranch": {
+    "message": "Git Branch"
+  },
+  "LabelTelemetry": {
+    "message": "🐛 Automatisierte Fehlerberichte"
+  },
+  "DescriptionTelemetry": {
+    "message": "Floccus kann automatisiert Fehlerberichte an mich, den Entwickler, senden. Dies kann extrem hilfreich sein, um Fehler in floccus schneller zu finden und zu beheben und wird langfristig deine Nutzererfahrung verbessern. Auch wenn die Fehlerberichte aktiviert sind, werden die floccus-Entwickler niemals in der Lage sein, deine Lesezeichen zu sehen."
+  },
+  "LabelTelemetryenable": {
+    "message": "Sende automatisch Fehlerberichte an die floccus-Entwickler"
+  },
+  "LabelTelemetrydisable": {
+    "message": "Sende keine Fehlerberichte an die floccus-Entwickler"
+  },
+  "LabelAccountlabel": {
+    "message": "Profilname"
+  },
+  "DescriptionAccountlabel": {
+    "message": "Gib diesem Profil einen Namen, damit du es leichter wiedererkennst"
+  },
+  "LabelClickcount": {
+    "message": "Zähle Klicks"
+  },
+  "DescriptionClickcount": {
+    "message": "Sende Statistiken über die Nutzung deiner Lesezeichen an deinen Nextcloud-Server, damit du die Lesezeichen nach der Anzahl der Besuche sortieren kannst"
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "Schreibe eine Rezension bei Google Play"
+  },
+  "DescriptionAppstorereview": {
+    "message": "Schreibe eine Rezension im App Store"
+  },
+  "DescriptionChromereview": {
+    "message": "Schreibe eine Rezension im Chrome WebStore"
+  },
+  "DescriptionAlternativereview": {
+    "message": "Schreibe eine Rezension auf AlternativeTo.net"
+  },
+  "DescriptionMozillareview": {
+    "message": "Schreibe eine Rezension bei Mozilla Addons"
+  },
+  "DescriptionEdgereview": {
+    "message": "Schreibe eine Rezension bei Edge Addons"
+  },
+  "LabelWritereview": {
+    "message": "💙 Erzähle es weiter!"
+  },
+  "DescriptionWritereview": {
+    "message": "Wenn dir floccus gefällt, lass es die Welt wissen, indem du auf einer der untenstehenden Plattformen eine Bewertung hinterlässt."
+  },
+  "DescriptionDonateintervention": {
+    "message": "Du liebst Bookmark Syncing? Unterstütze mich!"
+  },
+  "LabelDonate": {
+    "message": "Spenden"
+  },
+  "DescriptionDisabledaftererror": {
+    "message": "Profil wurde nach 10 Wiederholungsversuchen deaktiviert"
+  },
+  "DescriptionBookmarkexists": {
+    "message": "Dieses Lesezeichen existiert bereits im ausgewählten Profil"
+  },
+  "LabelReportproblem": {
+    "message": "Melde ein Problem"
+  },
+  "DescriptionReportproblem": {
+    "message": "Wenn du zu einem konkreten Problem direkt die Entwickler kontaktieren möchtest, dann kannst du das hier tun:"
   }
 }
