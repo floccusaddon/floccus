@@ -826,7 +826,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
           })
           it('should deduplicate unnormalized URLs', async function() {
