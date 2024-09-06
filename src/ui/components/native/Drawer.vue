@@ -81,10 +81,11 @@ export default {
   filters: {
     accountIcon(type) {
       const icons = {
-        'google-drive': 'mdi-google-drive',
         'nextcloud-bookmarks': 'mdi-cloud',
+        'linkwarden': 'mdi-link-box-variant-outline',
         'webdav': 'mdi-folder-network',
-        'git': 'mdi-source-repository'
+        'git': 'mdi-source-repository',
+        'google-drive': 'mdi-google-drive'
       }
       return icons[type]
     },

@@ -17,6 +17,7 @@ import * as Sentry from '@sentry/vue'
 declare const DEBUG: boolean
 
 // register Adapters
+AdapterFactory.register('linkwarden', async() => (await import('./adapters/Linkwarden')).default)
 AdapterFactory.register('nextcloud-folders', async() => (await import('./adapters/NextcloudBookmarks')).default)
 AdapterFactory.register('nextcloud-bookmarks', async() => (await import('./adapters/NextcloudBookmarks')).default)
 AdapterFactory.register('webdav', async() => (await import('./adapters/WebDav')).default)

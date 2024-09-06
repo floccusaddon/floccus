@@ -9,6 +9,7 @@ import { Share } from '@capacitor/share'
 import Html from '../../../lib/serializers/Html'
 import { Bookmark, Folder } from '../../../lib/Tree'
 import { Browser } from '@capacitor/browser'
+import browser from '../../../lib/browser-api'
 
 export const actionsDefinition = {
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
@@ -200,6 +201,21 @@ export const actionsDefinition = {
   },
   async [actions.TEST_WEBDAV_SERVER]({commit, dispatch, state}, {rootUrl, username, password}) {
     // noop, because capacitor Http doesn't support PROPFIND
+    return true
+  },
+  async [actions.TEST_LINKWARDEN_SERVER]({commit, dispatch, state}, {rootUrl, token}) {
+    await dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
+    let res = await Http.request({
+      url: `${rootUrl}/api/v1/collections`,
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Floccus bookmarks sync',
+        Authorization: 'Bearer ' + token,
+      }
+    })
+    if (res.status !== 200) {
+      throw new Error(browser.i18n.getMessage('LabelLinkwardenconnectionerror'))
+    }
     return true
   },
   async [actions.TEST_NEXTCLOUD_SERVER]({commit, dispatch, state}, rootUrl) {

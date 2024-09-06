@@ -81,10 +81,21 @@ installConsoleHandler()
         throw new Error('Unknown browser')
     }
 
-    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=http://${process.env.TEST_HOST}&app_version=${process.env.APP_VERSION}&browser=${process.env.SELENIUM_BROWSER}`
+    let server = `http://${process.env.TEST_HOST}`
+
+    if (process.env.FLOCCUS_TEST.includes('linkwarden')) {
+      server = `https://cloud.linkwarden.app`
+    }
+
+    testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=${server}&app_version=${process.env.APP_VERSION}&browser=${process.env.SELENIUM_BROWSER}`
 
     if (process.env.FLOCCUS_TEST.includes('google-drive')) {
       testUrl += `&password=${process.env.GOOGLE_API_REFRESH_TOKEN}`
+    }
+
+    if (process.env.FLOCCUS_TEST.includes('linkwarden')) {
+      testUrl += `&username=mk`
+      testUrl += `&password=${process.env.LINKWARDEN_TOKEN}`
     }
 
     if (process.env.FLOCCUS_TEST_SEED) {

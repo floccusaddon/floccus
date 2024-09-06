@@ -146,6 +146,9 @@
   "DescriptionServerfolder": {
     "message": "When syncing, your bookmarks in this browser will be stored as links under this path on the server. Note, that this path represents a folder in the Nextcloud Bookmarks app, not a folder in Nextcloud Files. Leave this empty to just put all links in the topmost folder on the server."
   },
+  "DescriptionServerfolderlinkwarden": {
+    "message": "When syncing, your bookmarks in this browser will be stored as links under this collection."
+  },
   "LabelLocaltarget": {
     "message": "Local target"
   },
@@ -270,7 +273,7 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "The option 'Nextcloud Bookmarks' syncs your bookmarks with the Bookmarks app for Nextcloud. It can only sync http, ftp and javascript bookmarks. Make sure you have installed the Bookmarks app from the Nextcloud app store in your Nextcloud. This option cannot make use of end-to-end encryption."
+    "message": "Sync your bookmarks with the open-source Bookmarks app for Nextcloud (an open-source collaboration platform that you can either self-host or get an account for an instance in the cloud from one of the various hosters). With Nextcloud Bookmarks you can only sync http, ftp and javascript bookmarks. Make sure you have installed the Bookmarks app from the Nextcloud app store in your Nextcloud. This option cannot make use of end-to-end encryption."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (legacy)"
@@ -282,7 +285,7 @@
     "message": "WebDAV share"
   },
   "DescriptionAdapterwebdav": {
-    "message": "The WebDAV option syncs your bookmarks by storing them in a file in the provided WebDAV share. There is no accompanying web UI for this option and you can use it with any WebDAV-compatible server. It can sync http, ftp, data, file and javascript bookmarks. You can choose to use end-to-end encryption when using this option."
+    "message": "Sync your bookmarks by storing them in a file in the provided WebDAV share. There is no accompanying web UI for this option and you can use it with any WebDAV-compatible server, either selfhosted or in the cloud. It can sync http, ftp, data, file and javascript bookmarks. You can choose to use end-to-end encryption when using this option."
   },
   "LabelAddaccount": {
     "message": "Add profile"
@@ -779,5 +782,20 @@
   },
   "DescriptionReportproblem": {
     "message": "If you would like to directly contact the developers with a concrete issue, you can do so here:"
+  },
+  "LabelAdapterlinkwarden":  {
+    "message": "Linkwarden"
+  },
+  "DescriptionAdapterlinkwarden":  {
+    "message": "Sync your bookmarks with the open-source Linkwarden app, either hosted on your own server or in the cloud at cloud.linkwarden.app. It can only sync http, ftp and javascript bookmarks. This option cannot make use of end-to-end encryption."
+  },
+  "LabelLinkwardenurl":  {
+    "message": "The URL of your Linkwarden server"
+  },
+  "LabelAccesstoken":  {
+    "message": "Access token"
+  },
+  "LabelLinkwardenconnectionerror": {
+    "message": "Failed to connect to your Linkwarden server"
   }
 }

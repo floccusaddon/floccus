@@ -139,6 +139,38 @@
               </div>
             </template>
 
+            <template v-else-if="adapter === 'linkwarden'">
+              <div class="headline">
+                {{ t('LabelServersetup') }}
+              </div>
+              <v-text-field
+                  v-model="server"
+                  :rules="[validateUrl]"
+                  :label="t('LabelLinkwardenurl')"
+                  :loading="isServerTestRunning"
+                  :error-messages="serverTestError || serverisNotHttps" />
+              <v-text-field
+                  v-model="username"
+                  :label="t('LabelUsername')" />
+              <v-text-field
+                  v-model="password"
+                  :label="t('LabelAccesstoken')"
+                  :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  :type="showPassword ? 'text' : 'password'"
+                  @click:append="showPassword = !showPassword" />
+
+              <div class="d-flex flex-row justify-space-between">
+                <v-btn @click="currentStep--">
+                  {{ t('LabelBack') }}
+                </v-btn>
+                <v-btn
+                    class="primary"
+                    @click="testLinkwardenServer">
+                  {{ t('LabelContinue') }}
+                </v-btn>
+              </div>
+            </template>
+
             <template v-else-if="adapter === 'webdav'">
               <div class="headline">
                 {{ t('LabelServersetup') }}
@@ -245,6 +277,18 @@
                 :label="t('LabelServerfolder')" />
             </template>
 
+            <template v-if="adapter === 'linkwarden'">
+              <div class="text-h6">
+                {{ t('LabelServerfolder') }}
+              </div>
+              <div class="caption">
+                {{ t('DescriptionServerfolderlinkwarden') }}
+              </div>
+              <v-text-field
+                  v-model="serverFolder"
+                  :label="t('LabelServerfolder')" />
+            </template>
+
             <template v-if="adapter === 'webdav'">
               <div class="text-h6">
                 {{ t('LabelBookmarksfile') }}
@@ -302,6 +346,7 @@
                 :persistent-hint="true"
                 @click:append="showPassphrase = !showPassphrase" />
             </template>
+
             <OptionSyncFolder
               v-if="isBrowser"
               v-model="localRoot" />
@@ -398,6 +443,7 @@ export default {
       refreshToken: '',
       bookmark_file: 'bookmarks.xbel',
       bookmark_file_type: 'xbel',
+      serverFolder: 'Floccus',
       serverRoot: '',
       localRoot: null,
       syncInterval: 15,
@@ -414,6 +460,11 @@ export default {
           type: 'nextcloud-bookmarks',
           label: this.t('LabelAdapternextcloudfolders'),
           description: this.t('DescriptionAdapternextcloudfolders')
+        },
+        {
+          type: 'linkwarden',
+          label: this.t('LabelAdapterlinkwarden'),
+          description: this.t('DescriptionAdapterlinkwarden')
         },
         {
           type: 'webdav',
@@ -461,6 +512,7 @@ export default {
         enabled: this.enabled,
         label: this.label,
         ...(this.adapter === 'nextcloud-bookmarks' && {serverRoot: this.serverRoot, clickCountEnabled: this.clickCountEnabled}),
+        ...(this.adapter === 'linkwarden' && {serverFolder: this.serverFolder}),
         ...(this.adapter === 'git' && {branch: this.branch}),
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'git') && {bookmark_file: this.bookmark_file}),
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'git') && {bookmark_file_type: this.bookmark_file_type}),
@@ -486,6 +538,18 @@ export default {
       try {
         await this.$store.dispatch(actions.TEST_NEXTCLOUD_SERVER, this.server)
         this.serverTestSuccessful = true
+      } catch (e) {
+        this.serverTestError = e.message
+      }
+      this.isServerTestRunning = false
+    },
+    async testLinkwardenServer() {
+      this.isServerTestRunning = true
+      this.serverTestError = ''
+      try {
+        await this.$store.dispatch(actions.TEST_LINKWARDEN_SERVER, {rootUrl: this.server, username: this.username, token: this.password})
+        this.serverTestSuccessful = true
+        this.currentStep++
       } catch (e) {
         this.serverTestError = e.message
       }

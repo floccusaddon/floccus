@@ -100,9 +100,9 @@ jobs:
           - git-html
           - google-drive
           - google-drive-encrypted
+          - linkwarden
         test-name:
           - test
-          - benchmark root
         browsers:
           - firefox
           - chrome
@@ -253,6 +253,7 @@ jobs:
           FLOCCUS_TEST_SEED: ${{ github.sha }}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GOOGLE_API_REFRESH_TOKEN: ${{ secrets.GOOGLE_API_REFRESH_TOKEN }}
+          LINKWARDEN_TOKEN: ${{ secrets.LINKWARDEN_TOKEN }}
           APP_VERSION: ${{ matrix.app-version }}
         run: |
           npm run test

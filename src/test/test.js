@@ -150,6 +150,12 @@ describe('Floccus', function() {
       password: random.float(),
       refreshToken: CREDENTIALS.password,
     },
+    {
+      type: 'linkwarden',
+      url: SERVER,
+      serverFolder: 'Floccus-' + Math.random(),
+      ...CREDENTIALS,
+    },
   ]
 
   before(async function() {
@@ -359,7 +365,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
 
             const bookmark2 = await browser.bookmarks.create({
@@ -390,7 +397,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
           })
           it('should update the server on local changes', async function() {
@@ -818,7 +826,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
           })
           it('should deduplicate unnormalized URLs', async function() {
@@ -895,7 +904,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
           })
           it('should deduplicate unnormalized URLs without getting stuck', async function() {
@@ -913,7 +923,7 @@ describe('Floccus', function() {
               url: 'http://nextcloud.com/'
             }
             const localMark2 = {
-              title: 'url',
+              title: 'url2',
               url: 'https://nextcloud.com'
             }
             const fooFolder = await browser.bookmarks.create({
@@ -957,7 +967,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
           })
           it('should not fail when moving both folders and contents', async function() {
@@ -1019,7 +1030,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
           })
           it('should not fail when both moving folders and deleting their contents', async function() {
@@ -1091,7 +1103,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
           })
           it('should handle strange characters well', async function() {
@@ -1380,7 +1393,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1406,7 +1420,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
           })
           it('should move items successfully when mixing creation and moving (1)', async function() {
@@ -1478,7 +1493,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1513,7 +1529,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
           })
           it('should move items successfully when mixing creation and moving (2)', async function() {
@@ -1602,7 +1619,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1646,7 +1664,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
           })
           it('should move items without creating a folder loop', async function() {
@@ -1716,7 +1735,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1724,7 +1744,8 @@ describe('Floccus', function() {
             expectTreeEqual(
               localTree,
               tree,
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
           })
           it('should integrate existing items from both sides', async function() {
@@ -1899,7 +1920,7 @@ describe('Floccus', function() {
           })
           it('should leave alone unaccepted bookmarks entirely', async function() {
             if (!~ACCOUNT_DATA.type.indexOf('nextcloud')) {
-              this.skip()
+              return this.skip()
             }
             const localRoot = account.getData().localRoot
 
@@ -1988,6 +2009,9 @@ describe('Floccus', function() {
             if (BROWSER !== 'firefox') {
               this.skip()
               return
+            }
+            if (ACCOUNT_DATA.type === 'linkwarden') {
+              return this.skip()
             }
             const localRoot = account.getData().localRoot
 
@@ -2119,6 +2143,9 @@ describe('Floccus', function() {
             if (BROWSER !== 'firefox') {
               this.skip()
               return
+            }
+            if (ACCOUNT_DATA.type === 'linkwarden') {
+              return this.skip()
             }
             const localRoot = account.getData().localRoot
 
@@ -2333,6 +2360,9 @@ describe('Floccus', function() {
           })
           it('should synchronize ordering', async function() {
             if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
+            if (ACCOUNT_DATA.type === 'linkwarden') {
               return this.skip()
             }
             expect(
@@ -2948,7 +2978,8 @@ describe('Floccus', function() {
                     })
                   ]
                 }),
-                false
+                false,
+                Boolean(account.server.orderFolder)
               )
             })
             it('should update the server on local changes', async function() {
@@ -3253,8 +3284,17 @@ describe('Floccus', function() {
                 await account1.server.deleteFile(file.id)
               }
             }
+            try {
+              await browser.bookmarks.removeTree(account1.getData().localRoot)
+            } catch (e) {
+              // noop
+            }
             await account1.delete()
-            await browser.bookmarks.removeTree(account2.getData().localRoot)
+            try {
+              await browser.bookmarks.removeTree(account2.getData().localRoot)
+            } catch (e) {
+              // noop
+            }
             await account2.delete()
           })
           it('should not sync two clients at the same time', async function() {
@@ -3262,6 +3302,9 @@ describe('Floccus', function() {
               return this.skip()
             }
             if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ['v1.1.2', 'v2.3.4', 'stable3', 'stable4'].includes(APP_VERSION)) {
+              return this.skip()
+            }
+            if (ACCOUNT_DATA.type === 'linkwarden') {
               return this.skip()
             }
             const localRoot = account1.getData().localRoot
@@ -4382,6 +4425,9 @@ describe('Floccus', function() {
             )
           })
           it('should synchronize ordering', async function() {
+            if (ACCOUNT_DATA.type === 'linkwarden') {
+              return this.skip()
+            }
             expect(
               (await getAllBookmarks(account1)).children
             ).to.have.lengthOf(0)
@@ -4479,7 +4525,10 @@ describe('Floccus', function() {
           // Skipping this, because nextcloud adapter currently
           // isn't able to track bookmarks across dirs, thus in this
           // scenario both bookmarks survive :/
-          it.skip('should propagate moves using "last write wins"', async function() {
+          it('should propagate moves using "last write wins"', async function() {
+            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks') {
+              return this.skip()
+            }
             const localRoot = account1.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
@@ -4601,6 +4650,9 @@ describe('Floccus', function() {
         })
 
         context('with tabs', function() {
+          if (ACCOUNT_DATA.type === 'linkwarden') {
+            return
+          }
           let account
           beforeEach('set up account', async function() {
             account = await Account.create(ACCOUNT_DATA)

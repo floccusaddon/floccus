@@ -138,6 +138,11 @@
                 v-bind.sync="data"
                 @reset="onReset"
                 @delete="onDelete" />
+              <OptionsLinkwarden
+                  v-if="data.type === 'linkwarden'"
+                  v-bind.sync="data"
+                  @reset="onReset"
+                  @delete="onDelete" />
               <OptionsWebdav
                 v-if="data.type === 'webdav'"
                 v-bind.sync="data"
@@ -193,6 +198,7 @@ import PathHelper from '../../lib/PathHelper'
 import BrowserTree from '../../lib/browser/BrowserTree'
 import { actions } from '../store/definitions'
 import OptionsNextcloudFolders from '../components/OptionsNextcloudBookmarks'
+import OptionsLinkwarden from '../components/OptionsLinkwarden'
 import OptionsWebdav from '../components/OptionsWebdav'
 import OptionsFake from '../components/OptionsFake'
 import OptionsGoogleDrive from '../components/OptionsGoogleDrive'
@@ -200,7 +206,7 @@ import OptionsGit from '../components/OptionsGit.vue'
 
 export default {
   name: 'AccountOptions',
-  components: { OptionsGit, OptionsGoogleDrive, OptionsFake, OptionsWebdav, OptionsNextcloudFolders },
+  components: { OptionsGit, OptionsGoogleDrive, OptionsFake, OptionsWebdav, OptionsNextcloudFolders, OptionsLinkwarden },
   data() {
     return {
       folderName: '',
