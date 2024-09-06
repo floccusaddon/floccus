@@ -125,6 +125,21 @@ export const actionsDefinition = {
     }
     return true
   },
+  async [actions.TEST_LINKWARDEN_SERVER]({commit, dispatch, state}, {rootUrl, token}) {
+    await dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
+    let res = await fetch(`${rootUrl}/api/v1/collections`, {
+      method: 'GET',
+      credentials: 'omit',
+      headers: {
+        'User-Agent': 'Floccus bookmarks sync',
+        Authorization: 'Bearer ' + token,
+      }
+    })
+    if (res.status !== 200) {
+      throw new Error(browser.i18n.getMessage('LabelLinkwardenconnectionerror'))
+    }
+    return true
+  },
   async [actions.START_LOGIN_FLOW]({commit, dispatch, state}, rootUrl) {
     commit(mutations.SET_LOGIN_FLOW_STATE, true)
     let res = await fetch(`${rootUrl}/index.php/login/v2`, {method: 'POST', headers: {'User-Agent': 'Floccus bookmarks sync'}})
