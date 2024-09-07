@@ -146,6 +146,9 @@
   "DescriptionServerfolder": {
     "message": "同步时，您在此浏览器中的书签将作为链接存储在服务器上的此路径下。请注意，此路径表示Nextcloud书签应用中的一个文件夹，而不是Nextcloud文件中的文件夹。留空此处可以将所有链接放在服务器上的最顶层文件夹中。"
   },
+  "DescriptionServerfolderlinkwarden": {
+    "message": "同步时，你在此浏览器中的书签将被存储为此书签集下的链接。"
+  },
   "LabelLocaltarget": {
     "message": "本地目标"
   },
@@ -270,7 +273,7 @@
     "message": "Nextcloud 书签"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "'Nextcloud 书签' 选项将你的书签和 Nextcloud 的 Bookmarks 应用同步。它只能同步 http、ftp和 javascript 书签。请确保你已经从 Nextcloud 应用商店安装了 Bookmarks 应用。此选项无法使用端到端加密。"
+    "message": "用开源的 Nextcloud Bookmarks 应用同步你的书签（一个开源的协作平台，你可以选择自托管，也可以选择从服务商那里获得实例的账户）。Nextcloud Bookmark 只能同步 http、ftp 和 javascript 书签。请确保你从 Nexecloud 内的 Nextcloud 应用商店安装了 Bookmarks 应用。此选项无法使用端到端加密。"
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud 书签（旧版）"
@@ -282,7 +285,7 @@
     "message": "WebDAV 分享"
   },
   "DescriptionAdapterwebdav": {
-    "message": "WebDAV 选项通过将你的书签存储在所提供的 WebDAV 分享中来同步它们。此选项没有伴随的 web 用户界面，不过你可以使用任何兼容 WebDAV 的服务器。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时你可以选择使用端到端加密。"
+    "message": "将书签存储在所提供 WebDAV 分享中的一个文件内来同步书签。此选项没有伴随的 web 用户界面，但任何兼容 WebDAV 的服务器都可，不管是自托管的还是托管的。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时你可以选择使用端到端加密。"
   },
   "LabelAddaccount": {
     "message": "添加配置"
@@ -779,5 +782,20 @@
   },
   "DescriptionReportproblem": {
     "message": "如果你想直接就具体问题联系开发者，可以访问："
+  },
+  "LabelAdapterlinkwarden":  {
+    "message": "Linkwarden"
+  },
+  "DescriptionAdapterlinkwarden":  {
+    "message": "用开源的 Linkwarden 应用同步书签，不管是自托管在你自己的服务器上还是托管在 cloud.linkwarden.app 上。它可以同步 http、ftp 和 javascript 书签。此选项无法使用端到端加密。"
+  },
+  "LabelLinkwardenurl":  {
+    "message": "Linkwarden 服务器 URL"
+  },
+  "LabelAccesstoken":  {
+    "message": "访问令牌"
+  },
+  "LabelLinkwardenconnectionerror": {
+    "message": "未能连接到你的 Linkwarden 服务器"
   }
 }
