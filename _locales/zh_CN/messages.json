@@ -787,7 +787,7 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "用开源的 Linkwarden 应用同步书签，不管是自托管在你自己的服务器上还是托管在 cloud.linkwarden.app 上。它可以同步 http、ftp 和 javascript 书签。此选项无法使用端到端加密。"
+    "message": "用开源的 Linkwarden 应用同步书签，可以自托管在你自己的服务器上也可以托管在 cloud.linkwarden.app 上。它可以同步 http、ftp 和 javascript 书签。此选项无法使用端到端加密。"
   },
   "LabelLinkwardenurl":  {
     "message": "Linkwarden 服务器 URL"
