@@ -775,7 +775,7 @@
     "message": "Réessayé 10 fois avant de désactiver ce profil."
   },
   "DescriptionBookmarkexists": {
-    "message": "Ce signet existe déja dans le profil selectionné"
+    "message": "Ce signet existe déjà dans le profil sélectionné"
   },
   "LabelReportproblem": {
     "message": "Rapporter ce probleme"
