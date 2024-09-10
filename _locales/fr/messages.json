@@ -418,7 +418,7 @@
     "message": "Annuler la connexion avec Nextcloud"
   },
   "LabelLoginFlowError": {
-    "message": "La connexion avec Nextcloud a échouée"
+    "message": "La connexion avec Nextcloud a échoué"
   },
   "LabelNewAccount": {
     "message": "Ajouter un profil"
