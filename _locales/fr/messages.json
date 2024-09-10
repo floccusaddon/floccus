@@ -712,7 +712,7 @@
     "message": "Synchronisez vos signets en les conservant dans un fichier situé sur un dépôt Git. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur Git, tel que Github, Gitlab, Gitea, etc. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option ne supporte pas le cryptage point à point."
   },
   "LabelGiturl": {
-    "message": "URL du répertoire utilisant HTTP"
+    "message": "URL du dépôt utilisant HTTP"
   },
   "LabelGitbranch": {
     "message": "Branche"
