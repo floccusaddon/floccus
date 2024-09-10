@@ -676,7 +676,7 @@
     "message": "Vous pouvez choisir le format du fichier qui conservera vos signets dans le cloud."
   },
   "LabelFiletypehtml": {
-    "message": "HTML, un format ouvert, avec une large compatibilité (experimental)"
+    "message": "HTML, un format ouvert, avec une large compatibilité (expérimental)"
   },
   "LabelFiletypexbel": {
     "message": "XBEL, un format ouvert et simple à utiliser"
@@ -709,7 +709,7 @@
     "message": "Git via HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Synchronisez vos signets en les conservant dans un fichier situé sur le répertoire Git. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur compatible WebDAV, hébergé sur votre serveur ou dans le cloud. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option ne supporte pas le cryptage point à point."
+    "message": "Synchronisez vos signets en les conservant dans un fichier situé sur le répertoire Git. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur Git, tel que Github, Gitlab, Gitea, etc. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option ne supporte pas le cryptage point à point."
   },
   "LabelGiturl": {
     "message": "URL du répertoire utilisant HTTP"
