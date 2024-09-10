@@ -75,7 +75,7 @@
     "message": "E025: Le fichier de signets défini ne doit pas commencer par un slash '/'"
   },
   "Error026": {
-    "message": "E026: HTTP status {0}. Échec de la récupération des signets"
+    "message": "E026 : Processus de synchronisation interrompu"
   },
   "Error027": {
     "message": "E027: Synchronisation interrompue"
@@ -107,6 +107,12 @@
   "Error036": {
     "message": "E036: Permission manquante pour accéder au serveur de synchronisation"
   },
+  "Error037": {
+    "message": "E036 : Ressource verrouillée"
+  },
+  "Error038": {
+    "message": "E036 : Impossible de trouver le dossier locale"
+  },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
   },
@@ -131,11 +137,17 @@
  "DescriptionBookmarksfilegoogle": {
    "message": "Le nom du fichier contenant vos signets qui sera stocké sur votre Google Drive (assurez-vous qu'il soit unique)"
  },
+  "DescriptionBookmarksfilegit": {
+    "message": "un chemin d'accès vers le fichier de signets relatif à la racine de votre dépôt Git (tous les dossiers du chemin doivent déjà être existants). Ex : documents/favoris-signets.xbel"
+  },
   "LabelServerfolder": {
     "message": "Dossier serveur"
   },
   "DescriptionServerfolder": {
     "message": "Lors de la synchronisation, vos signets seront stockés sous ce chemin d'accès sur le serveur. Ce chemin représente un dossier dans l'application Nextcloud Bookmarks, et non un dossier dans NextCloud Files. Laisser vide pour stocker tous les liens dans le dossier racine du serveur."
+  },
+  "DescriptionServerfolderlinkwarden": {
+    "message": "Lors de la synchronisation, vos signets seront stockés dans cette collection."
   },
   "LabelLocaltarget": {
     "message": "Dossier local"
@@ -216,7 +228,7 @@
     "message": "Vider le cache"
   },
   "DescriptionResetcache": {
-    "message": "Cochez cette case pour vider le cache, assurer que la prochaine synchronisation ne supprime aucune donnée et se limite à fusionner les données serveur et les signets locaux"
+    "message": "Cliquer sur ce bouton pour vider le cache afin d'assurer que la prochaine synchronisation ne supprime pas de données en se limitant à fusionner les données serveur et les signets locaux ensemble"
   },
   "LabelParallelsync": {
     "message": "Accélérer la synchronisation"
@@ -261,7 +273,7 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "L'option \"Signets Nextcloud\" synchronise vos signets avec l'application Bookmark de Nextcloud. Elle ne peut synchroniser que les signets \"http\" et \"ftp\". Assurez-vous d'avoir installé l'application Bookmark de l'App Store Nextcloud dans votre espace Nextcloud."
+    "message": "Synchronisez vos signets avec l'application open-source Bookmarks de Nextcloud (une plate-forme collaborative que vous pouvez soit héberger vous même, ou utiliser via une instance tournant dans le cloud, fournie par un hébergeur). Avec Nextcloud Bookmarks, vous ne pouvez synchroniser que des signets au format http, ftp et javascript. Assurez-vous d'avoir installé l'application Bookmarks depuis l'app store Nextcloud. Cette option ne supporte pas le cryptage point à point."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (ancienne méthode)"
@@ -273,7 +285,7 @@
     "message": "Partage WebDAV"
   },
   "DescriptionAdapterwebdav": {
-    "message": "L'option WebDAV synchronise vos signets en les conservant dans un fichier situé dans le partage WebDAV. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur compatible WebDAV. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript."
+    "message": "Synchronisez vos signets en les conservant dans un fichier situé dans le partage WebDAV. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur compatible WebDAV, hébergé sur votre serveur ou dans le cloud. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option supporte le cryptage point à point."
   },
   "LabelAddaccount": {
     "message": "Ajouter un profil"
@@ -331,7 +343,7 @@
     "message": "Paypal"
   },
   "DescriptionPaypal": {
-    "message": "Faire une don unique via Paypal pour aider le projet"
+    "message": "Faire un don unique ou récurrent via Paypal pour soutenir le projet"
   },
   "LabelOpencollective": {
     "message": "OpenCollective"
@@ -350,6 +362,18 @@
   },
   "DescriptionGithubsponsors": {
     "message": "Faire un don récurrent en devenant parrain du projet sur GitHub"
+  },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "Faire un don récurrent via Patreon pour soutenir le projet"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "Faire un don récurrent ou ponctuel via Ko-fi pour soutenir le projet"
   },
   "LegacyAdapterDeprecation": {
     "message": "Cet ancien type de profil n'est plus supporté et sera bientôt supprimé. Merci de le remplacer par la nouvelle méthode de synchronisation Nextcloud. Elle vous apportera des performances accrues."
@@ -382,10 +406,10 @@
     "message": "Ce profil a été supprimé"
   },
   "LabelNoAccount": {
-    "message": "Il n'y a pas de profil ici"
+    "message": "Il n'y a pas encore de profil ici"
   },
   "DescriptionNoAccount": {
-    "message": "Créez un nouveau profil pour synchroniser vos signets ou importez un compte depuis un autre appareil ou navigateur."
+    "message": "Ajoutez de nouveaux profils, ou importez des profils à partir d'un fichier. Vous pourrez alors commencer la synchronisation."
   },
   "LabelLoginFlowStart": {
     "message": "Se connecter avec Nextcloud"
@@ -397,7 +421,10 @@
     "message": "La connexion avec Nextcloud a échouée"
   },
   "LabelNewAccount": {
-    "message": "Nouveau Profil"
+    "message": "Ajouter un profil"
+  },
+  "LabelNewImport": {
+    "message": "Importer"
   },
   "LabelNestedSync": {
     "message": "Profils emboîtés"
@@ -487,7 +514,7 @@
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Synchronise vos signets à l'aide d'un fichier chiffré stocké sur votre Google Drive. Les signets HTTP, FTP, data, fichier ou JavaScript peuvent être synchronisés."
+    "message": "Synchronise vos signets à l'aide d'un fichier chiffré stocké sur votre Google Drive. Les signets HTTP, FTP, data, fichier ou JavaScript peuvent être synchronisés. Cette option supporte le cryptage point à point."
   },
   "LabelLogingoogle": {
     "message": "Se connecter avec Google"
@@ -508,7 +535,7 @@
     "message": "Envoyer les identifiants clients"
   },
   "DescriptionClientcert": {
-    "message": "Activez cette option si votre serveur requiert un certificat client ou une authentification à l'aide de cookies. Ceci peut causer des effets inattendus, car floccus partagera des cookies avec votre profil de navigateur."
+    "message": "Activer cette option si votre serveur requiert un certificat client ou une authentification par cookies. Cela peut causer des effets secondaires inattendus, puisque floccus partagera les cookies avec les sessions de votre navigateur."
   },
   "LabelAllowredirects": {
     "message": "Autoriser les redirections pour l'URL du serveur"
@@ -677,5 +704,98 @@
   },
   "DescriptionSyncscheduled": {
     "message": "Ce profil sera bientôt synchronisé. Nous attendons que vos autres appareils ou vos autres profils sur cet appareil aient terminé leur synchronisation."
+  },
+  "LabelAdaptergit": {
+    "message": "Git via HTTPS"
+  },
+  "DescriptionAdaptergit": {
+    "message": "Synchronisez vos signets en les conservant dans un fichier situé sur le répertoire Git. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur compatible WebDAV, hébergé sur votre serveur ou dans le cloud. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option ne supporte pas le cryptage point à point."
+  },
+  "LabelGiturl": {
+    "message": "URL du répertoire utilisant HTTP"
+  },
+  "LabelGitbranch": {
+    "message": "Branche"
+  },
+  "LabelTelemetry": {
+    "message": "Rapport d'erreur automatique"
+  },
+  "DescriptionTelemetry": {
+    "message": "Floccus peut automatiquement envoyer des rapports d'erreur aux développeurs. Ceci constitue une aide inestimable pour découvrir et résoudre les bugs de floccus plus rapidement, et améliorer votre expérience avec floccus à long terme. Même lorsque le rapport d'erreur est actif, les développeurs de floccus ne pourront jamais accéder à vos signets."
+  },
+  "LabelTelemetryenable": {
+    "message": "Envoyer automatiquement les données d'erreurs aux développeurs de floccus"
+  },
+  "LabelTelemetrydisable": {
+    "message": "Ne pas envoyer les données d'erreurs aux développeurs de floccus"
+  },
+  "LabelAccountlabel": {
+    "message": "Etiquette du profil"
+  },
+  "DescriptionAccountlabel": {
+    "message": "Donnez un nom à ce profil afin de le reconnaître plus facilement."
+  },
+  "LabelClickcount": {
+    "message": "Compter les clics"
+  },
+  "DescriptionClickcount": {
+    "message": "Envoyerdes statistiques concernant les signets que vous accédez le plus a votre serveur Nextcloud, afin que vous puissiez trier par nombre de clics."
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "Rédiger un avis sur Google Play"
+  },
+  "DescriptionAppstorereview": {
+    "message": "Rédiger un avis sur l'App Store"
+  },
+  "DescriptionChromereview": {
+    "message": "Rédiger un avis sur le Chrome WebStore"
+  },
+  "DescriptionAlternativereview": {
+    "message": "Rédiger un avis sur AlternativeTo.net"
+  },
+  "DescriptionMozillareview": {
+    "message": "Rédiger un avis sur Mozilla Addons"
+  },
+  "DescriptionEdgereview": {
+    "message": "Rédiger un avis sur Edge Addons"
+  },
+  "LabelWritereview": {
+    "message": "A votre bon cœur !"
+  },
+  "DescriptionWritereview": {
+    "message": "Si vous aimez floccus, dites-le au monde entier en rédigeant un avis sur l'une des plate-formes ci-dessous."
+  },
+  "DescriptionDonateintervention": {
+    "message": "Fan de la synchronisation de signets ? Soutenez-moi !"
+  },
+  "LabelDonate": {
+    "message": "Contribuer"
+  },
+  "DescriptionDisabledaftererror": {
+    "message": "Réessayé 10 fois avant de désactiver ce profil."
+  },
+  "DescriptionBookmarkexists": {
+    "message": "Ce signet existe déja dans le profil selectionné"
+  },
+  "LabelReportproblem": {
+    "message": "Rapporter ce probleme"
+  },
+  "DescriptionReportproblem": {
+    "message": "Si vous désirez contacter directement les développeurs pour discuter d'un probleme, vous pouvez le faire ici."
+  },
+  "LabelAdapterlinkwarden":  {
+    "message": "Linkwarden"
+  },
+  "DescriptionAdapterlinkwarden":  {
+    "message": "Synchronisez vos signets avec l'application open-source Linkwarden, soit hébergée sur votre serveur ou dans le cloud sur cloud.linkwarden.app. Cette option ne permet de synchroniser que des signets au format http, ftp et javascript. Cette option ne supporte pas le cryptage point à point."
+  },
+  "LabelLinkwardenurl":  {
+    "message": "L'URL de votre serveur Linkwarden"
+  },
+  "LabelAccesstoken":  {
+    "message": "Jeton d'accès"
+  },
+  "LabelLinkwardenconnectionerror": {
+    "message": "Impossible de se connecter à votre serveur Linkwarden"
   }
 }
