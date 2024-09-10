@@ -460,7 +460,7 @@
     "message": "Onglets du navigateur"
   },
   "DescriptionSyncTabs": {
-    "message": "Les liens qui sont stockés sur le serveur seront ouverts en tant qu'onglets dans votre navigateur. Les onglets ouverts sur votre navigateur seront stockés sur votre server. Etant donné que les liens sur le serveur seront tous ouverts comme des onglets sur votre navigateur lors de la prochaine synchronisation, votre navigateur pourrait être submergé."
+    "message": "Les liens qui sont stockés sur le serveur seront ouverts en tant qu'onglets dans votre navigateur. Les onglets ouverts sur votre navigateur seront stockés sur votre serveur. Etant donné que les liens sur le serveur seront tous ouverts comme des onglets sur votre navigateur lors de la prochaine synchronisation, votre navigateur pourrait être submergé."
   },
   "LabelTabs": {
     "message": "Onglets"
