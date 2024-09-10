@@ -273,9 +273,12 @@ describe('Floccus', function() {
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
               const fileList = await account.server.listFiles('name = ' + "'" + account.server.bookmark_file + "'")
-              const file = fileList.files[0]
-              if (file) {
+              const files = fileList.files
+              for (const file of files) {
                 await account.server.deleteFile(file.id)
+              }
+              if (files.length > 1) {
+                throw new Error('Google Drive sync left more than one file behind')
               }
             }
             await account.delete()
@@ -3279,9 +3282,12 @@ describe('Floccus', function() {
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
               const fileList = await account1.server.listFiles('name = ' + "'" + account1.server.bookmark_file + "'")
-              const file = fileList.files[0]
-              if (file) {
+              const files = fileList.files
+              for (const file of files) {
                 await account1.server.deleteFile(file.id)
+              }
+              if (files.length > 1) {
+                throw new Error('Google Drive sync left more than one file behind')
               }
             }
             try {
@@ -4704,9 +4710,12 @@ describe('Floccus', function() {
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
               const fileList = await account.server.listFiles('name = ' + "'" + account.server.bookmark_file + "'")
-              const file = fileList.files[0]
-              if (file) {
+              const files = fileList.files
+              for (const file of files) {
                 await account.server.deleteFile(file.id)
+              }
+              if (files.length > 1) {
+                throw new Error('Google Drive sync left more than one file behind')
               }
             }
             await account.delete()
@@ -5047,9 +5056,12 @@ describe('Floccus', function() {
           }
           if (ACCOUNT_DATA.type === 'google-drive') {
             const fileList = await account1.server.listFiles('name = ' + "'" + account1.server.bookmark_file + "'")
-            const file = fileList.files[0]
-            if (file) {
+            const files = fileList.files
+            for (const file of files) {
               await account1.server.deleteFile(file.id)
+            }
+            if (files.length > 1) {
+              throw new Error('Google Drive sync left more than one file behind')
             }
           }
           await account1.delete()

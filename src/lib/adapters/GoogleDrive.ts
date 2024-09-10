@@ -214,7 +214,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     this.accessToken = await this.getAccessToken(this.server.refreshToken)
 
-    const fileList = await this.listFiles(`name = '${this.server.bookmark_file}'`)
+    const fileList = await this.listFiles(`name = '${this.server.bookmark_file}'`, 10)
     const file = fileList.files.filter(file => !file.trashed)[0]
     if (file) {
       this.fileId = file.id
@@ -404,8 +404,8 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     }
   }
 
-  async listFiles(query: string) : Promise<any> {
-    const res = await this.request('GET', this.getUrl() + '/files?corpora=user&q=' + encodeURIComponent(query))
+  async listFiles(query: string, limit = 1) : Promise<any> {
+    const res = await this.request('GET', this.getUrl() + `/files?corpora=user&q=${encodeURIComponent(query)}&orderBy=modifiedTime%20desc&fields=files(id%2Cname%2Ctrashed)&pageSize=${limit}`)
     return res.json()
   }
 
