@@ -9,7 +9,6 @@ import { Share } from '@capacitor/share'
 import Html from '../../../lib/serializers/Html'
 import { Bookmark, Folder } from '../../../lib/Tree'
 import { Browser } from '@capacitor/browser'
-import browser from '../../../lib/browser-api'
 
 export const actionsDefinition = {
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
@@ -214,7 +213,7 @@ export const actionsDefinition = {
       }
     })
     if (res.status !== 200) {
-      throw new Error(browser.i18n.getMessage('LabelLinkwardenconnectionerror'))
+      throw new Error(i18n.getMessage('LabelLinkwardenconnectionerror'))
     }
     return true
   },
