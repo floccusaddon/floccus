@@ -589,6 +589,89 @@ describe('Floccus', function() {
               false
             )
           })
+          it('should update the server on local removals and recreations', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            const localRoot = account.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            const bookmark = await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: barFolder.id
+            })
+            await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
+
+            await browser.bookmarks.remove(bookmark.id)
+            await account.sync() // update on server
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Folder({
+                        title: 'bar',
+                        children: []
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+
+            const bookmark2 = await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: barFolder.id
+            })
+
+            await account.sync() // update on server
+            expect(account.getData().error).to.not.be.ok
+
+            const tree2 = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree2,
+              new Folder({
+                title: tree2.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Folder({
+                        title: 'bar',
+                        children: [
+                          new Bookmark({
+                            url: bookmark2.url,
+                            title: bookmark2.title
+                          })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+          })
           it('should update the server on local folder moves', async function() {
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
