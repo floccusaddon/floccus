@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.3.0-beta.1] - 2024-09-12
+
+### New
+
+* Add support for Linkwarden
+
 ## [5.2.7] - 2024-09-03
 
 ### Fixed
