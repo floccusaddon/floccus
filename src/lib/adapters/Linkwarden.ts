@@ -1,5 +1,5 @@
 import Adapter from '../interfaces/Adapter'
-import { Bookmark, Folder, ItemLocation, TItemLocation } from '../Tree'
+import { Bookmark, Folder, ItemLocation } from '../Tree'
 import PQueue from 'p-queue'
 import { IResource } from '../interfaces/Resource'
 import Logger from '../Logger'
@@ -167,8 +167,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       } catch (e) {
         if (e instanceof HttpError && e.status === 401) {
           success = true
-        }
-        else if (count > 3) {
+        } else if (count > 3) {
           throw e
         }
         // noop
@@ -177,8 +176,14 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
   }
 
   async getBookmarksTree(loadAll?: boolean): Promise<Folder<typeof ItemLocation.SERVER>> {
-    const {response: links} = await this.sendRequest('GET', `/api/v1/links`)
-    const {response: collections} = await this.sendRequest('GET', `/api/v1/collections`)
+    const links = []
+    let response
+    do {
+      ({ response } = await this.sendRequest('GET', `/api/v1/links?cursor=${links.length ? links[links.length - 1].id : ''}`))
+      links.push(...response)
+    } while (response.length !== 0)
+
+    const { response: collections } = await this.sendRequest('GET', `/api/v1/collections`)
 
     let rootCollection = collections.find(collection => collection.name === this.server.serverFolder && collection.parentId === null)
     if (!rootCollection) {
