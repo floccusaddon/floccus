@@ -497,6 +497,70 @@ describe('Floccus', function() {
               false
             )
           })
+          it('should update the server on local changes of duplicates', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            const localRoot = account.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            const bookmark1 = await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: fooFolder.id
+            })
+            const bookmark2 = await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: barFolder.id
+            })
+            await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
+
+            const newData = { title: 'blah' }
+            await browser.bookmarks.update(bookmark1.id, newData)
+            await account.sync() // update on server
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Bookmark({
+                        title: ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? newData.title : bookmark2.title,
+                        url: bookmark1.url
+                      }),
+                      new Folder({
+                        title: 'bar',
+                        children: [
+                          new Bookmark({
+                            title: newData.title,
+                            url: bookmark1.url
+                          })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+          })
           it('should update the server on local removals', async function() {
             if (ACCOUNT_DATA.noCache) {
               return this.skip()
