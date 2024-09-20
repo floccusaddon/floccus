@@ -327,6 +327,44 @@ describe('Floccus', function() {
               false
             )
           })
+          it('should create empty local folders on the server', async function() {
+            expect(
+              (await getAllBookmarks(account)).children
+            ).to.have.lengthOf(0)
+
+            const localRoot = account.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Folder({
+                        title: 'bar',
+                        children: [
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+          })
           it('should create local javascript bookmarks on the server', async function() {
             expect(
               (await getAllBookmarks(account)).children
@@ -599,6 +637,38 @@ describe('Floccus', function() {
                             title: serverMark.title,
                             url: serverMark.url
                           })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+          })
+          it('should create empty server folders locally', async function() {
+            const adapter = account.server
+            const serverTree = await getAllBookmarks(account)
+            await withSyncConnection(account, async() => {
+              const fooFolderId = await adapter.createFolder(new Folder({parentId: serverTree.id, title: 'foo'}))
+              await adapter.createFolder(new Folder({parentId: fooFolderId, title: 'bar'}))
+            })
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Folder({
+                        title: 'bar',
+                        children: [
                         ]
                       })
                     ]
