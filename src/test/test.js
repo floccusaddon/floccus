@@ -528,7 +528,7 @@ describe('Floccus', function() {
             expect(account.getData().error).to.not.be.ok
 
             const newData = { title: 'blah' }
-            await browser.bookmarks.update(bookmark1.id, newData)
+            await browser.bookmarks.update(bookmark2.id, newData)
             await account.sync() // update on server
             expect(account.getData().error).to.not.be.ok
 
@@ -541,10 +541,6 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'foo',
                     children: [
-                      new Bookmark({
-                        title: ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? newData.title : bookmark2.title,
-                        url: bookmark1.url
-                      }),
                       new Folder({
                         title: 'bar',
                         children: [
@@ -553,7 +549,11 @@ describe('Floccus', function() {
                             url: bookmark1.url
                           })
                         ]
-                      })
+                      }),
+                      new Bookmark({
+                        title: ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? newData.title : bookmark2.title,
+                        url: bookmark1.url
+                      }),
                     ]
                   })
                 ]
