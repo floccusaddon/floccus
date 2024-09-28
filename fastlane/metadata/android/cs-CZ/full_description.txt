@@ -1,5 +1,0 @@
-S <i>floccus</i> můžete synchronizovat vaše záložky napříč prohlížeči pomocí serveru vašeho výběru – ať je to Nextcloud, WebDAV nebo Google Drive.
-
-* Instance Nextcloud Záložky
-* Váš Google Drive
-* nebo jakýkoliv server WebDAV

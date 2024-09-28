@@ -1,6 +1,20 @@
 # Changelog
 
+## [5.3.0] - 2024-09-28
+
+(aka v5.3.0.2)
+
+### New
+
+* Add support for Linkwarden
+
+### Fixed
+
+* fix(GoogleDrive): Sort files by modified date
+
 ## [5.3.0-beta.1] - 2024-09-12
+
+(aka v5.3.0.1)
 
 ### New
 

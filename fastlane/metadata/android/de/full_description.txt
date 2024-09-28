@@ -1,7 +1,0 @@
-Mit <i>Floccus</i> synchronisieren Sie Ihre Lesezeichen browserübergreifend über einen Server Ihrer Wahl – sei es Nextcloud, WebDAV oder Google Drive.
-
-<b>Anforderungen:</b>
-
-* Nextcloud-Lesezeichen (v0.14 oder höher)
-* oder ein WebDAV-Server (wie nextcloud auch)
-* oder ein Google Drive-Konto
