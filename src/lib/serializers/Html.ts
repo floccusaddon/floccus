@@ -8,7 +8,7 @@ class HtmlSerializer implements Serializer {
   }
 
   _htmlentities_encode(string) {
-    return string.replace(/[\u00A0-\u9999<>&"]/g, char => '&#' + char.charCodeAt(0) + ';')
+    return string.replace(/[<>&"']/g, char => '&#' + char.charCodeAt(0) + ';')
   }
 
   _serializeFolder(folder, indent) {
