@@ -580,7 +580,7 @@
     "message": "Täydet lokit"
   },
   "LabelDownloadanonymizedlogs": {
-    "message": "Rajoitetut lokit"
+    "message": "Peitetyt lokit"
   },
   "DescriptionDownloadlogs": {
     "message": "Floccus kirjaa kaiken toimintansa lokitiedostoon, jota voit tutkia itse tai lähettää kehittäjille vianselvitystä varten. Peitetyissä lokeissa kansioiden ja kirjanmerkkien nimet sekä URL-osoitteet koodataan peruuttamattomasti kryptografisella hajautustoiminnolla. Kannattaa kuitenkin tarkistaa ennen tällaisten lokien lähetystä, ettei niihin ole jäänyt arkaluontoisia tietoja, joita automaattinen anonymisointiprosessi ei ole havainnut."
