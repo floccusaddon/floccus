@@ -117,7 +117,7 @@
     "message": "WebDAV URL-osoite"
   },
   "DescriptionWebdavurl": {
-    "message": "esim. Nextcloudilla: https://example.com/remote.php/webdav/"
+    "message": "esim. Nextcloudilla: https://esimerkki.fi/remote.php/webdav/"
   },
   "LabelNextcloudurl": {
     "message": "Nextcloud URL"
