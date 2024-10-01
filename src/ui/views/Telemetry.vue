@@ -36,7 +36,9 @@
           <div class="body-1">
             {{ t("DescriptionReportproblem") }}
           </div>
-          <v-btn href="https://github.com/floccusaddon/floccus/issues">{{ t("LabelReportproblem") }}</v-btn>
+          <v-btn href="https://github.com/floccusaddon/floccus/issues">
+            {{ t("LabelReportproblem") }}
+          </v-btn>
         </v-card-text>
       </v-container>
     </v-card>

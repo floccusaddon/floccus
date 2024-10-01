@@ -53,8 +53,8 @@
           {{ t('DescriptionServerfolderlinkwarden') }}
         </div>
         <v-text-field
-            v-model="serverFolder"
-            :label="t('LabelServerfolder')" />
+          v-model="serverFolder"
+          :label="t('LabelServerfolder')" />
         <OptionSyncFolder
           :value="localRoot"
           @input="$emit('update:localRoot', $event)" />

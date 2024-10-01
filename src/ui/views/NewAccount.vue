@@ -144,28 +144,28 @@
                 {{ t('LabelServersetup') }}
               </div>
               <v-text-field
-                  v-model="server"
-                  :rules="[validateUrl]"
-                  :label="t('LabelLinkwardenurl')"
-                  :loading="isServerTestRunning"
-                  :error-messages="serverTestError || serverisNotHttps" />
+                v-model="server"
+                :rules="[validateUrl]"
+                :label="t('LabelLinkwardenurl')"
+                :loading="isServerTestRunning"
+                :error-messages="serverTestError || serverisNotHttps" />
               <v-text-field
-                  v-model="username"
-                  :label="t('LabelUsername')" />
+                v-model="username"
+                :label="t('LabelUsername')" />
               <v-text-field
-                  v-model="password"
-                  :label="t('LabelAccesstoken')"
-                  :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                  :type="showPassword ? 'text' : 'password'"
-                  @click:append="showPassword = !showPassword" />
+                v-model="password"
+                :label="t('LabelAccesstoken')"
+                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                :type="showPassword ? 'text' : 'password'"
+                @click:append="showPassword = !showPassword" />
 
               <div class="d-flex flex-row justify-space-between">
                 <v-btn @click="currentStep--">
                   {{ t('LabelBack') }}
                 </v-btn>
                 <v-btn
-                    class="primary"
-                    @click="testLinkwardenServer">
+                  class="primary"
+                  @click="testLinkwardenServer">
                   {{ t('LabelContinue') }}
                 </v-btn>
               </div>
@@ -285,8 +285,8 @@
                 {{ t('DescriptionServerfolderlinkwarden') }}
               </div>
               <v-text-field
-                  v-model="serverFolder"
-                  :label="t('LabelServerfolder')" />
+                v-model="serverFolder"
+                :label="t('LabelServerfolder')" />
             </template>
 
             <template v-if="adapter === 'webdav'">

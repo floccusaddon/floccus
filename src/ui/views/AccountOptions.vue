@@ -139,10 +139,10 @@
                 @reset="onReset"
                 @delete="onDelete" />
               <OptionsLinkwarden
-                  v-if="data.type === 'linkwarden'"
-                  v-bind.sync="data"
-                  @reset="onReset"
-                  @delete="onDelete" />
+                v-if="data.type === 'linkwarden'"
+                v-bind.sync="data"
+                @reset="onReset"
+                @delete="onDelete" />
               <OptionsWebdav
                 v-if="data.type === 'webdav'"
                 v-bind.sync="data"
