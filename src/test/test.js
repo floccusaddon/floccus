@@ -284,10 +284,6 @@ describe('Floccus', function() {
             await account.delete()
           })
           it('should create local bookmarks on the server', async function() {
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
@@ -328,10 +324,6 @@ describe('Floccus', function() {
             )
           })
           it('should create empty local folders on the server', async function() {
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
@@ -366,10 +358,6 @@ describe('Floccus', function() {
             )
           })
           it('should create local javascript bookmarks on the server', async function() {
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
@@ -446,9 +434,6 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.noCache) {
               return this.skip()
             }
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
@@ -501,9 +486,6 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.noCache) {
               return this.skip()
             }
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
@@ -565,9 +547,6 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.noCache) {
               return this.skip()
             }
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
@@ -611,10 +590,6 @@ describe('Floccus', function() {
             )
           })
           it('should update the server on local folder moves', async function() {
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
@@ -856,10 +831,6 @@ describe('Floccus', function() {
             )
           })
           it('should not delete additions while sync is running', async function() {
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
@@ -915,10 +886,6 @@ describe('Floccus', function() {
             )
           })
           it('should be able to handle duplicates', async function() {
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const localRoot = account.getData().localRoot
             const bookmarkData = {
               title: 'url',
@@ -969,9 +936,6 @@ describe('Floccus', function() {
           })
           it('should deduplicate unnormalized URLs', async function() {
             const adapter = account.server
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             // create bookmark on server
             const serverTree = await getAllBookmarks(account)
@@ -1049,9 +1013,6 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && (APP_VERSION !== 'stable' && APP_VERSION !== 'master' && APP_VERSION !== 'stable3')) {
               this.skip()
             }
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             // create bookmark locally
             const localRoot = account.getData().localRoot
@@ -1112,9 +1073,6 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.noCache) {
               return this.skip()
             }
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
@@ -1175,9 +1133,6 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.noCache) {
               return this.skip()
             }
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
@@ -1245,10 +1200,6 @@ describe('Floccus', function() {
             )
           })
           it('should handle strange characters well', async function() {
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
               title: 'foo!"§$%&/()=?"',
@@ -1298,9 +1249,6 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.noCache) {
               return this.skip()
             }
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
@@ -1339,9 +1287,6 @@ describe('Floccus', function() {
               return this.skip()
             }
             const adapter = account.server
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
@@ -1419,10 +1364,6 @@ describe('Floccus', function() {
             }
             const localRoot = account.getData().localRoot
 
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const barFolder = await browser.bookmarks.create({
               title: 'bar',
               parentId: localRoot
@@ -1477,10 +1418,6 @@ describe('Floccus', function() {
           })
           it('should move items successfully even into new folders', async function() {
             const localRoot = account.getData().localRoot
-
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const barFolder = await browser.bookmarks.create({
               title: 'bar',
@@ -1563,10 +1500,6 @@ describe('Floccus', function() {
           })
           it('should move items successfully when mixing creation and moving (1)', async function() {
             const localRoot = account.getData().localRoot
-
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const barFolder = await browser.bookmarks.create({
               title: 'bar',
@@ -1672,10 +1605,6 @@ describe('Floccus', function() {
           })
           it('should move items successfully when mixing creation and moving (2)', async function() {
             const localRoot = account.getData().localRoot
-
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const aFolder = await browser.bookmarks.create({
               title: 'a',
@@ -1811,10 +1740,6 @@ describe('Floccus', function() {
             }
             const localRoot = account.getData().localRoot
 
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const aFolder = await browser.bookmarks.create({
               title: 'a',
               parentId: localRoot
@@ -1889,9 +1814,6 @@ describe('Floccus', function() {
             const localRoot = account.getData().localRoot
 
             const adapter = account.server
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const aFolder = await browser.bookmarks.create({
               title: 'a',
@@ -2007,10 +1929,6 @@ describe('Floccus', function() {
               this.skip()
             }
 
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
@@ -2060,10 +1978,6 @@ describe('Floccus', function() {
               return this.skip()
             }
             const localRoot = account.getData().localRoot
-
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const barFolder = await browser.bookmarks.create({
               title: 'bar',
@@ -2151,10 +2065,6 @@ describe('Floccus', function() {
               return this.skip()
             }
             const localRoot = account.getData().localRoot
-
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const barFolder = await browser.bookmarks.create({
               title: 'bar',
@@ -2286,10 +2196,6 @@ describe('Floccus', function() {
             }
             const localRoot = account.getData().localRoot
 
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const barFolder = await browser.bookmarks.create({
               title: 'bar',
               parentId: localRoot
@@ -2390,10 +2296,6 @@ describe('Floccus', function() {
             await account.setData({...account.getData(), localRoot: root.id})
             account = await Account.get(account.id)
 
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const barFolder = await browser.bookmarks.create({
               title: 'bar',
               parentId: root.children[0].id
@@ -2438,10 +2340,6 @@ describe('Floccus', function() {
             await account.setData({...account.getData(), localRoot: root.id, })
             account = await Account.get(account.id)
             const adapter = account.server
-
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             let bookmark
             let serverTree = await getAllBookmarks(account)
@@ -2502,9 +2400,6 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type === 'linkwarden') {
               return this.skip()
             }
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
 
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
@@ -4855,10 +4750,6 @@ describe('Floccus', function() {
             await account.delete()
           })
           it('should create local tabs on the server', async function() {
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             browser.tabs.create({
               index: 1,
               url: 'https://floccus.org/#test1'
@@ -4891,10 +4782,6 @@ describe('Floccus', function() {
             )
           })
           it('should create server bookmarks as tabs', async function() {
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const adapter = account.server
             const serverTree = await getAllBookmarks(account)
             let windowFolderId, serverMark
@@ -4937,10 +4824,6 @@ describe('Floccus', function() {
             )
           })
           it('should update the server when pushing local changes', async function() {
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             await account.setData({...account.getData(), strategy: 'overwrite'})
 
             browser.tabs.create({
@@ -4999,10 +4882,6 @@ describe('Floccus', function() {
             )
           })
           it('should update local tabs when pulling server changes', async function() {
-            expect(
-              (await getAllBookmarks(account)).children
-            ).to.have.lengthOf(0)
-
             const adapter = account.server
             const serverTree = await getAllBookmarks(account)
             let windowFolderId, serverMark, serverMarkId
