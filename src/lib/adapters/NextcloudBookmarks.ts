@@ -148,6 +148,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       }
     }
 
+    await this.checkFeatureJavascriptLinks()
+
     this.abortController = new AbortController()
     this.abortSignal = this.abortController.signal
 
@@ -233,8 +235,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   async getBookmarksTree(loadAll = false):Promise<Folder<typeof ItemLocation.SERVER>> {
     this.list = null // clear cache before starting a new sync
-
-    await this.checkFeatureJavascriptLinks()
 
     if (!loadAll) {
       return this.getSparseBookmarksTree()
