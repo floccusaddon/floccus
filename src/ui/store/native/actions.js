@@ -203,7 +203,6 @@ export const actionsDefinition = {
     return true
   },
   async [actions.TEST_LINKWARDEN_SERVER]({commit, dispatch, state}, {rootUrl, token}) {
-    await dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
     let res = await Http.request({
       url: `${rootUrl}/api/v1/collections`,
       method: 'GET',
