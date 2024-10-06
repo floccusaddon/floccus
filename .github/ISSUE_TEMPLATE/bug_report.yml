@@ -33,6 +33,7 @@ body:
       multiple: false
       options:
         - Nextcloud Bookmarks
+        - Linkwarden
         - WebDAV
         - Google Drive
         - Git
