@@ -214,8 +214,18 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     this.accessToken = await this.getAccessToken(this.server.refreshToken)
 
-    const fileList = await this.listFiles(`name = '${this.server.bookmark_file}'`, 10)
+    const fileList = await this.listFiles(`name = '${this.server.bookmark_file}'`, 100)
     const file = fileList.files.filter(file => !file.trashed)[0]
+
+    const filesToDelete = fileList.slice(1)
+    for (const fileToDelete of filesToDelete) {
+      try {
+        await this.deleteFile(fileToDelete.id)
+      } catch (e) {
+        Logger.log('Failed to delete superfluous file: ' + e.message)
+      }
+    }
+
     if (file) {
       this.fileId = file.id
       if (forceLock) {
