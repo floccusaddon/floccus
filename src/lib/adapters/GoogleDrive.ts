@@ -201,13 +201,14 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
       const origins = ['https://oauth2.googleapis.com/', 'https://www.googleapis.com/']
-      let hasPermissions
+      let hasPermissions, error = false
       try {
         hasPermissions = await browser.permissions.contains({ origins })
       } catch (e) {
+        error = true
         console.warn(e)
       }
-      if (!hasPermissions) {
+      if (!error && !hasPermissions) {
         throw new MissingPermissionsError()
       }
     }
