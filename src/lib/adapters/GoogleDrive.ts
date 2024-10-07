@@ -218,7 +218,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     const fileList = await this.listFiles(`name = '${this.server.bookmark_file}'`, 100)
     const file = fileList.files.filter(file => !file.trashed)[0]
 
-    const filesToDelete = fileList.files.slice(1)
+    const filesToDelete = fileList.files.filter(file => !file.trashed).slice(1)
     for (const fileToDelete of filesToDelete) {
       try {
         await this.deleteFile(fileToDelete.id)
