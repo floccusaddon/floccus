@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.3.1] - 2024-10-09
+
+### Fixed
+
+* [native] fix(Linkwarden): Remove dispatch of REQUEST_NETWORK_PERMISSIONS
+* [native] fix(Linkwarden): Options were not showing
+* fix: Don't break if browser doesn't implement permissions API
+* fix(GoogleDrive): Try to delete superfluous files
+* fix(NextcloudBookmarks): Run javascript feature detection earlier to avoid losing javascript bookmarks upon browser start
+* fix(Html): Only escape unsafe characters in HTML
+
 ## [5.3.0] - 2024-09-28
 
 (aka v5.3.0.2)
