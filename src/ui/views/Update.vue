@@ -6,7 +6,7 @@
         <v-card-title>
           <a
             href="https://floccus.org"
-            class="d-flex align-center"><img src="/dist/icons/logo_128.png"> Floccus: Cross-browser bookmark syncing</a>
+            class="d-flex align-center"><img src="/dist/icons/logo_128.png"> Cross-browser bookmark syncing</a>
         </v-card-title>
         <v-card-title>
           {{ t("LabelUpdated") }}
