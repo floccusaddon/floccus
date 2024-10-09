@@ -195,7 +195,7 @@ export default class GitAdapter extends CachingAdapter {
       await git.commit({
         fs: this.fs,
         dir: this.dir,
-        message: 'Floccus bookmarks update',
+        message: `Floccus update: ${this.getLabel()}`,
         author: {
           name: 'Floccus bookmarks sync',
         }
