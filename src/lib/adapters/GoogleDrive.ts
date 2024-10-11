@@ -257,7 +257,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
             xmlDocText = await Crypto.decryptAES(this.server.password, xmlDocText, this.server.bookmark_file)
           }
         } catch (e) {
-          if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
+          if (xmlDocText && xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
             // not encrypted, yet => noop
             this.alwaysUpload = true
           } else {
