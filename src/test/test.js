@@ -4835,11 +4835,11 @@ describe('Floccus', function() {
           it('should create local tabs on the server', async function() {
             browser.tabs.create({
               index: 1,
-              url: 'https://floccus.org/#test1'
+              url: 'https://example.org/#test1'
             })
             browser.tabs.create({
               index: 2,
-              url: 'https://floccus.org/#test2'
+              url: 'https://example.org/#test2'
             })
             await awaitTabsUpdated()
 
@@ -4855,8 +4855,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/#test1' }),
-                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/#test2' })
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test1' }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test2' })
                     ]
                   })
                 ]
@@ -4875,8 +4875,8 @@ describe('Floccus', function() {
                 location: ItemLocation.SERVER
               }))
               serverMark = {
-                title: 'Cross-browser bookmarks syncing - floccus.org',
-                url: 'https://floccus.org/',
+                title: 'Example Domain',
+                url: 'https://example.org/',
                 parentId: windowFolderId,
                 location: ItemLocation.SERVER
               }
@@ -4898,7 +4898,7 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/' }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/' }),
                     ]
                   })
                 ]
@@ -4911,11 +4911,11 @@ describe('Floccus', function() {
 
             browser.tabs.create({
               index: 1,
-              url: 'https://floccus.org/#test1'
+              url: 'https://example.org/#test1'
             })
             const tab = browser.tabs.create({
               index: 2,
-              url: 'https://floccus.org/#test2'
+              url: 'https://example.org/#test2'
             })
             await awaitTabsUpdated()
 
@@ -4931,8 +4931,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/#test1' }),
-                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/#test2' })
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test1' }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test2' })
                     ]
                   })
                 ]
@@ -4940,7 +4940,7 @@ describe('Floccus', function() {
               false
             )
 
-            await browser.tabs.update(tab.id, {url: 'https://example.org'})
+            await browser.tabs.update(tab.id, {url: 'https://example.org/#test3'})
             await awaitTabsUpdated()
 
             await account.sync()
@@ -4955,8 +4955,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/#test1' }),
-                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/' })
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test1' }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test3' })
                     ]
                   })
                 ]
@@ -4975,8 +4975,8 @@ describe('Floccus', function() {
                 location: ItemLocation.SERVER
               }))
               serverMark = {
-                title: 'Cross-browser bookmarks syncing - floccus.org',
-                url: 'https://floccus.org/',
+                title: 'Example Domain',
+                url: 'https://example.org/#test1',
                 parentId: windowFolderId,
                 location: ItemLocation.SERVER
               }
@@ -4998,7 +4998,7 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Cross-browser bookmarks syncing - floccus.org', url: 'https://floccus.org/' }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test1' }),
                     ]
                   })
                 ]
@@ -5010,7 +5010,7 @@ describe('Floccus', function() {
             await withSyncConnection(account, async() => {
               serverMark2 = {
                 title: 'Example Domain',
-                url: 'https://example.org/#test',
+                url: 'https://example.org/#test3',
                 parentId: windowFolderId,
                 location: ItemLocation.SERVER
               }
@@ -5018,7 +5018,7 @@ describe('Floccus', function() {
                 new Bookmark(serverMark2)
               )
 
-              await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: 'https://example.org/', title: 'Example Domain', parentId: windowFolderId })
+              await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: 'https://example.org/#test2', title: 'Example Domain', parentId: windowFolderId })
             })
 
             await account.setData({...account.getData(), strategy: 'slave'})
@@ -5035,8 +5035,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/' }),
-                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test' }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test2' }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test3' }),
                     ]
                   })
                 ]
