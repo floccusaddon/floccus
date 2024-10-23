@@ -523,7 +523,7 @@ function createHTML(rootFolder, highestId) {
 `
 
   output += Html.serialize(rootFolder)
-
+  output = output.replace(/&#38;/g,'&')
   output += '</html>'
 
   return output
