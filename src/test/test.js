@@ -1294,7 +1294,7 @@ describe('Floccus', function() {
             })
             const bookmark = await browser.bookmarks.create({
               title: 'url|!"=)/§_:;Ä\'*ü"',
-              url: 'http://ur.l/<script>',
+              url: 'http://ur.l/?a&b=<script>',
               parentId: barFolder.id
             })
             await account.sync()
