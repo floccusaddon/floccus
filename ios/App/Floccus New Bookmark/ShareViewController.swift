@@ -183,7 +183,20 @@ class ShareViewController: UIViewController {
         var responder: UIResponder? = self
         while responder != nil {
             if let application = responder as? UIApplication {
-                return application.perform(#selector(openURL(_:)), with: url) != nil
+                if #available(iOS 10.0, *) {
+                    // Use the updated API for iOS 10 and later
+                    application.open(url, options: [:], completionHandler: { success in
+                        if success {
+                            print("URL opened successfully")
+                        } else {
+                            print("Failed to open URL")
+                        }
+                    })
+                    return true
+                } else {
+                    // Fallback for iOS 9 or earlier, if needed
+                    return application.openURL(url)
+                }
             }
             responder = responder?.next
         }

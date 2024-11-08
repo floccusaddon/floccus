@@ -2,25 +2,25 @@ PODS:
   - ByteowlsCapacitorOauth2 (5.0.0):
     - Capacitor
     - OAuthSwift (= 2.2.0)
-  - Capacitor (5.5.1):
+  - Capacitor (6.1.1):
     - CapacitorCordova
-  - CapacitorApp (5.0.7):
+  - CapacitorApp (6.0.0):
     - Capacitor
-  - CapacitorCordova (5.5.1)
-  - CapacitorDevice (5.0.6):
+  - CapacitorBrowser (6.0.1):
     - Capacitor
-  - CapacitorFilesystem (5.1.4):
+  - CapacitorCordova (6.1.1)
+  - CapacitorDevice (6.0.0):
     - Capacitor
-  - CapacitorNetwork (5.0.6):
+  - CapacitorFilesystem (6.0.0):
     - Capacitor
-  - CapacitorPreferences (5.0.6):
+  - CapacitorNetwork (6.0.1):
     - Capacitor
-  - CapacitorShare (5.0.6):
+  - CapacitorPreferences (6.0.1):
     - Capacitor
-  - CapacitorSplashScreen (5.0.6):
+  - CapacitorShare (6.0.1):
     - Capacitor
-  - CordovaPlugins (5.7.5):
-    - CapacitorCordova
+  - CapacitorSplashScreen (6.0.1):
+    - Capacitor
   - OAuthSwift (2.2.0)
   - SendIntent (0.0.1):
     - Capacitor
@@ -29,6 +29,7 @@ DEPENDENCIES:
   - "ByteowlsCapacitorOauth2 (from `../../node_modules/@byteowls/capacitor-oauth2`)"
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
+  - "CapacitorBrowser (from `../../node_modules/@capacitor/browser`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
   - "CapacitorFilesystem (from `../../node_modules/@capacitor/filesystem`)"
@@ -36,7 +37,6 @@ DEPENDENCIES:
   - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
   - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
   - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
-  - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
   - SendIntent (from `../../node_modules/send-intent`)
 
 SPEC REPOS:
@@ -50,6 +50,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorApp:
     :path: "../../node_modules/@capacitor/app"
+  CapacitorBrowser:
+    :path: "../../node_modules/@capacitor/browser"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorDevice:
@@ -64,26 +66,24 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/share"
   CapacitorSplashScreen:
     :path: "../../node_modules/@capacitor/splash-screen"
-  CordovaPlugins:
-    :path: "../capacitor-cordova-ios-plugins"
   SendIntent:
     :path: "../../node_modules/send-intent"
 
 SPEC CHECKSUMS:
   ByteowlsCapacitorOauth2: 9e7cdae2bf251463a6ad89493e27fb288bf694d7
-  Capacitor: 9da0a2415e3b6098511f8b5ffdb578d91ee79f8f
-  CapacitorApp: 17fecd0e6cb23feafac7eb0939417389038b0979
-  CapacitorCordova: e128cc7688c070ca0bfa439898a5f609da8dbcfe
-  CapacitorDevice: 2c968f98a1ec4d22357418c1521e7ddc46c675e6
-  CapacitorFilesystem: af704badfbc69f6f8623d9ed313e5490e3723dcb
-  CapacitorNetwork: d80b3e79bef6ec37640ee2806c19771f07ff2d0c
-  CapacitorPreferences: f03954bcb0ff09c792909e46bff88e3183c16b10
-  CapacitorShare: cd41743331cb71d217c029de54b681cbd91e0fcc
-  CapacitorSplashScreen: 5fa2ab5e46cf5cc530cf16a51c80c7a986579ccd
-  CordovaPlugins: 95c3561aee8b676a4358d0cb037c4dd4a4af690e
+  Capacitor: 8941aba4364ba9d1b22188569001f2ce45cc2b00
+  CapacitorApp: 9d53aec7101f7b030a950c5bdc4df8612576b279
+  CapacitorBrowser: 473c7fd70ddbe541608ff09ec1be14da0078279e
+  CapacitorCordova: 8f2cc8d8d3619c566e9418fe8772064a94266106
+  CapacitorDevice: f8fd88f9edd1261c55a109f32015b09bbbfdc4a0
+  CapacitorFilesystem: 60e59ba274c234a979e7a3be2552feaadcee4263
+  CapacitorNetwork: 5c94acfdddc22043f2ffaff224ce9b4aa5a179f0
+  CapacitorPreferences: 72909b165bc7807103778ddbb86d5d8ce06abf71
+  CapacitorShare: 02222f2457ff003e642370a9c1ecd101baaa27c8
+  CapacitorSplashScreen: 61645214e8f955ff2b80f16a6a3648960fe4c89f
   OAuthSwift: 75efbb5bd9a4b2b71a37bd7e986bf3f55ddd54c6
   SendIntent: 0a17b6984c4f27e9dfa56513267ba2c044a5a6c8
 
-PODFILE CHECKSUM: c782f610b4a22377261d553bd8de5783a1fee26b
+PODFILE CHECKSUM: ec4a5e49843d3546e8e3d2415a3cc07be4758a27
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
