@@ -1,5 +1,23 @@
 # Changelog
 
+## [5.3.3] - 2024-11-09
+
+### New
+
+* enh(Git): Mention profile label in commit message
+ 
+### Fixed
+* fix(ios/sharing-extension): Add compat for newer ios versions
+* fix(GoogleDrive): includes is not a function
+* fix(Update): Fix visual glitch
+
+## [5.3.2] - 2024-11-01
+
+### Fixed
+
+* [iOS] Attempt to fix inbound sharing 
+
+
 ## [5.3.1] - 2024-10-09
 
 ### Fixed
