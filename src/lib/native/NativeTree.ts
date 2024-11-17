@@ -1,12 +1,13 @@
 import { Preferences as Storage } from '@capacitor/preferences'
-import { Bookmark, Folder, ItemLocation } from '../Tree'
+import { Bookmark, Folder, ItemLocation, TItemLocation } from '../Tree'
 import Ordering from '../interfaces/Ordering'
 import CachingAdapter from '../adapters/Caching'
 import IAccountStorage from '../interfaces/AccountStorage'
 import { BulkImportResource } from '../interfaces/Resource'
 
 export default class NativeTree extends CachingAdapter implements BulkImportResource<typeof ItemLocation.LOCAL> {
-  private tree: Folder<typeof ItemLocation.LOCAL>
+  protected location: TItemLocation = ItemLocation.LOCAL
+
   private storage: IAccountStorage
   private readonly accountId: string
   private saveTimeout: any
@@ -21,7 +22,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
     const {value: tree} = await Storage.get({key: `bookmarks[${this.accountId}].tree`})
     const {value: highestId} = await Storage.get({key: `bookmarks[${this.accountId}].highestId`})
     if (tree) {
-      const oldHash = this.bookmarksCache && await this.bookmarksCache.clone(false).hash(true)
+      const oldHash = this.bookmarksCache && await this.bookmarksCache.cloneWithLocation(false, this.location).hash(true)
       this.bookmarksCache = Folder.hydrate(JSON.parse(tree)).clone(false)
       const newHash = await this.bookmarksCache.hash(true)
       this.highestId = parseInt(highestId)

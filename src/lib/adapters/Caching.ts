@@ -18,13 +18,15 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
   protected highestId: number
   protected bookmarksCache: Folder<TItemLocation>
   protected server: any
+  protected location: TItemLocation = ItemLocation.SERVER
+
   constructor(server: any) {
     this.resetCache()
   }
 
   resetCache() {
     this.highestId = 0
-    this.bookmarksCache = new Folder({ id: 0, title: 'root', location: ItemLocation.SERVER })
+    this.bookmarksCache = new Folder({ id: 0, title: 'root', location: this.location })
   }
 
   getLabel():string {
@@ -113,7 +115,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
 
   async createFolder(folder:Folder<TItemLocation>): Promise<string|number> {
     Logger.log('CREATEFOLDER', { folder })
-    const newFolder = new Tree.Folder({ id: ++this.highestId, parentId: folder.parentId, title: folder.title, location: ItemLocation.SERVER })
+    const newFolder = new Tree.Folder({ id: ++this.highestId, parentId: folder.parentId, title: folder.title, location: this.location })
     const foundParentFolder = this.bookmarksCache.findFolder(newFolder.parentId)
     if (!foundParentFolder) {
       throw new UnknownCreateTargetError()
