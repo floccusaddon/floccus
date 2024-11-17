@@ -114,6 +114,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       'PUT', `/api/v1/links/${bookmark.id}`,
       'application/json',
       {
+        id: bookmark.id,
         url: bookmark.url,
         name: bookmark.title,
         tags: [],
