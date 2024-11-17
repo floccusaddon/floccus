@@ -227,8 +227,12 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
               Logger.log('Removing MOVE action from plan:', action)
               return
             } else {
-              Logger.log('Failed to map parentId of action ' + action)
-              throw new Error('Failed to map parentId: ' + action.payload.parentId)
+              Logger.log('payload.location = ' + action.payload.location + ' | targetLocation = ' + targetLocation)
+              const diff = new Diff()
+              diff.commit(action)
+              Logger.log('Failed to map parentId of action ' + diff.inspect())
+              Logger.log(JSON.stringify(mappingsSnapshot, null,'\t'))
+              throw new Error('Failed to map parentId to ' + targetLocation + ': ' + action.payload.parentId)
             }
           }
         }
