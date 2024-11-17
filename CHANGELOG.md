@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.3.4] - 2024-11-17
+
+### Fixed
+
+* fix(NativeTree): Set location to Local (fixes "Failed to map parentId: 0" error)
+* fix(Linkwarden): Set Folder#isRoot
+* fix(Linkwarden): Correctly update bookmarks on the server
+
 ## [5.3.3] - 2024-11-09
 
 ### New
