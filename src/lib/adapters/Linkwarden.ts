@@ -196,12 +196,13 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
         }))
     }
 
-    const buildTree = (collection) => {
+    const buildTree = (collection, isRoot = false) => {
       return new Folder({
         id: collection.id,
         title: collection.name,
         parentId: collection.parentId,
         location: ItemLocation.SERVER,
+        isRoot,
         children: collections
           .filter(col => col.parentId === collection.id)
           .map(buildTree).concat(
@@ -218,7 +219,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       })
     }
 
-    return buildTree(rootCollection)
+    return buildTree(rootCollection, true)
   }
 
   async isAvailable(): Promise<boolean> {
@@ -288,7 +289,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     if (res.status === 403) {
       throw new AuthenticationError()
     }
-    if (res.status === 503 || res.status > 400) {
+    if (res.status === 503 || res.status >= 400) {
       throw new HttpError(res.status, verb)
     }
     let json
