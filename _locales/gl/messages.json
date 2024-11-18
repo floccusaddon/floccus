@@ -409,7 +409,7 @@
     "message": "Aínda non hai ningún perfíl"
   },
   "DescriptionNoAccount": {
-    "message": "Engada novos perfís ou importe perfís dende un ficheiro, entón poderá comezar a sincronizar."
+    "message": "Engada novos perfís ou importe perfís desde un ficheiro, entón poderá comezar a sincronizar."
   },
   "LabelLoginFlowStart": {
     "message": "Acceder con Nextcloud"
