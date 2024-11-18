@@ -222,7 +222,7 @@
     "message": "Eliminar este perfil (isto non eliminará os marcadores)"
   },
   "LabelSyncfromscratch": {
-    "message": "Activar a sincronización dende cero"
+    "message": "Activar a sincronización desde cero"
   },
   "LabelResetCache": {
     "message": "Restabelecer a caché"
