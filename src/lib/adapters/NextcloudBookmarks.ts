@@ -851,7 +851,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     if (res.status === 401 || res.status === 403) {
       throw new AuthenticationError()
     }
-    if (res.status === 503 || res.status > 400) {
+    if (res.status === 503 || res.status >= 400) {
       throw new HttpError(res.status, verb)
     }
     let json
@@ -955,12 +955,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     if (res.status === 401 || res.status === 403) {
       throw new AuthenticationError()
     }
-    if (res.status === 503 || res.status > 400) {
+    if (res.status === 503 || res.status >= 400) {
       throw new HttpError(res.status, verb)
     }
     const json = res.data
     if (json.status !== 'success') {
-      throw new Error('Nextcloud API error: \n' + JSON.stringify(json))
+      throw new Error('Nextcloud API error for request ' + verb + ' ' + url + ' : \n' + JSON.stringify(json))
     }
 
     return json
