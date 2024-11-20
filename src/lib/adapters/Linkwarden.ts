@@ -347,7 +347,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     if (res.status === 401 || res.status === 403) {
       throw new AuthenticationError()
     }
-    if (res.status === 503 || res.status > 400) {
+    if (res.status === 503 || res.status >= 400) {
       throw new HttpError(res.status, verb)
     }
     const json = res.data
