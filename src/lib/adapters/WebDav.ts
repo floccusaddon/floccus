@@ -227,7 +227,7 @@ export default class WebDavAdapter extends CachingAdapter {
             throw new DecryptionError()
           }
         }
-      } else if (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>') && !xmlDocText.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>')) {
+      } else if (!xmlDocText || (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>') && !xmlDocText.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>'))) {
         throw new FileUnreadableError()
       }
 

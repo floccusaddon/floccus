@@ -264,7 +264,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
             throw new DecryptionError()
           }
         }
-      } else if (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
+      } else if (!xmlDocText || !xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
         throw new FileUnreadableError()
       }
 
