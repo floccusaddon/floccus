@@ -797,5 +797,8 @@
   },
   "LabelLinkwardenconnectionerror": {
     "message": "Failed to connect to your Linkwarden server"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "Results from other folders"
   }
 }

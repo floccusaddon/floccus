@@ -38,8 +38,9 @@
             :disabled="!currentAccount"
             :color="syncing || scheduled? 'primary' : ''"
             v-bind="attrs"
+            :class="{'sync-dropdown-hint': !Boolean(syncing)}"
             v-on="on"
-            @click="onTriggerSync" :class="{'sync-dropdown-hint': !Boolean(syncing)}">
+            @click="onTriggerSync">
             <v-icon
               :class="{'sync--active': Boolean(syncing)}">
               {{ scheduled ? 'mdi-timer-sync-outline' : 'mdi-sync' }}
@@ -157,9 +158,8 @@
         class="loading" />
       <v-list
         v-else-if="currentFolder && items && items.length"
-        style="min-height: 95vh"
         two-line
-        class="pb-10">
+        :class="{'pb-10': true, 'list-full-height': !(searchQuery && otherSearchItems && otherSearchItems.length)}">
         <template v-for="item in items">
           <v-list-item
             :key="item.type+item.id"
@@ -246,6 +246,90 @@
           {{ t('LabelNobookmarks') }}
         </h3>
       </v-card>
+      <v-card class="pt-5">
+        <v-list-item
+          v-if="searchQuery && otherSearchItems && otherSearchItems.length">
+          <v-list-item-avatar><v-icon>mdi-select-search</v-icon></v-list-item-avatar> {{ t('LabelSearchresultsotherfolders') }}
+        </v-list-item>
+      </v-card>
+      <v-list
+        v-if="searchQuery && otherSearchItems && otherSearchItems.length"
+        two-line
+        class="list-full-height">
+        <template v-for="item in otherSearchItems">
+          <v-list-item
+            :key="item.type+item.id"
+            class="pl-3"
+            dense
+            @click="clickItem(item)">
+            <v-list-item-avatar>
+              <v-icon
+                v-if="item.type === 'folder'"
+                color="blue darken-1"
+                large>
+                mdi-folder
+              </v-icon>
+              <FaviconImage
+                v-else
+                :url="item.url"
+                :use-network="useNetwork" />
+            </v-list-item-avatar>
+
+            <v-list-item-content>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
+              <v-list-item-subtitle v-if="item.type === 'bookmark'">
+                {{ item.url | hostname }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+
+            <v-list-item-action>
+              <v-menu
+                bottom
+                left>
+                <template #activator="{ on, attrs }">
+                  <v-btn
+                    icon
+                    v-bind="attrs"
+                    v-on="on">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+
+                <v-list>
+                  <v-list-item @click="editItem(item)">
+                    <v-list-item-avatar>
+                      <v-icon>mdi-pencil</v-icon>
+                    </v-list-item-avatar>
+                    <v-list-item-title>
+                      {{ t('LabelEdititem') }}
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item
+                    v-if="item.type === 'bookmark'"
+                    @click="shareBookmark(item)">
+                    <v-list-item-avatar>
+                      <v-icon>mdi-share</v-icon>
+                    </v-list-item-avatar>
+                    <v-list-item-title>
+                      {{ t('LabelShareitem') }}
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="deleteItem(item)">
+                    <v-list-item-avatar>
+                      <v-icon>mdi-delete</v-icon>
+                    </v-list-item-avatar>
+                    <v-list-item-title>
+                      {{ t('LabelDeleteitem') }}
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </v-list-item-action>
+          </v-list-item>
+          <v-divider
+            :key="String(item.id)+item.type+'divider'" />
+        </template>
+      </v-list>
       <v-speed-dial
         v-model="fab"
         fixed
@@ -429,6 +513,12 @@ export default {
       } else {
         return items
       }
+    },
+    otherSearchItems() {
+      if (!this.currentFolder && (!this.searchQuery || this.searchQuery.length < 2)) {
+        return []
+      }
+      return this.search(this.searchQuery.toLowerCase().trim(), this.tree).filter(item => !this.items.includes(item))
     },
     routes() {
       return routes
@@ -645,5 +735,9 @@ export default {
   font-size: 0.45em;
   top: 30px;
   left: 30px;
+}
+
+.list-full-height {
+  min-height: 95vh;
 }
 </style>
