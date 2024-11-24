@@ -382,7 +382,7 @@ export default {
       }
       let items
       if (this.searchQuery && this.searchQuery.length >= 2) {
-        items = this.search(this.searchQuery.toLowerCase().trim(), this.currentFolder)
+        return this.search(this.searchQuery.toLowerCase().trim(), this.currentFolder)
       } else {
         items = this.currentFolder.children
       }
@@ -466,11 +466,17 @@ export default {
       }, 500)
     },
     search(query, tree) {
-      return Object.values(tree.index.bookmark).filter(item => {
-        const matchTitle = item.title ? query.split(' ').every(term => item.title.toLowerCase().includes(term)) : false
-        const matchUrl = query.split(' ').every(term => item.url.toLowerCase().includes(term))
-        return matchUrl || matchTitle
-      })
+      return Object.values(tree.index.bookmark)
+        .filter(item => {
+          const matchTitle = item.title ? query.split(' ').every(term => item.title.toLowerCase().split(' ').some(word => word === term)) : false
+          const matchUrl = query.split(' ').every(term => item.url.toLowerCase().includes(term))
+          return matchUrl || matchTitle
+        })
+        .sort((a, b) => {
+          const matchTitleA = a.title ? query.split(' ').every(term => a.title.toLowerCase().split(' ').some(word => word === term)) : false
+          const matchTitleB = b.title ? query.split(' ').every(term => b.title.toLowerCase().split(' ').some(word => word === term)) : false
+          return matchTitleA ? (matchTitleB ? 0 : -1) : 1
+        })
     },
     goBack() {
       if (this.isAddingBookmark) {
