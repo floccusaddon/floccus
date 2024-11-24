@@ -265,5 +265,9 @@ export const actionsDefinition = {
   },
   async [actions.STOP_LOGIN_FLOW]({commit}) {
     commit(mutations.SET_LOGIN_FLOW_STATE, false)
+  },
+  async [actions.SET_SORTBY]({state}, {accountId, sortBy}) {
+    const account = await Account.get(accountId)
+    await account.setData({...account.getData(), sortBy})
   }
 }

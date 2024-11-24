@@ -392,10 +392,10 @@ export default {
             if (item.url) {
               return new URL(item.url).hostname
             } else {
-              return '0' // folders to the top
+              return '0000000' // folders to the top
             }
           }
-          return item[this.sortBy].toLowerCase()
+          return item.type === 'folder' ? '0000000' : item[this.sortBy].toLowerCase()
         }])
       } else {
         return items
@@ -421,6 +421,7 @@ export default {
   watch: {
     async $route() {
       await this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
+      this.sortBy = this.$store.state.accounts[this.id].data.sortBy || 'index'
     },
     async syncing(current, previous) {
       if (!current && previous) {
@@ -433,9 +434,13 @@ export default {
         await this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
       }
     },
+    async sortBy(current) {
+      await this.$store.dispatch(actions.SET_SORTBY, {accountId: this.$route.params.accountId, sortBy: current})
+    }
   },
   mounted() {
     this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
+    this.sortBy = this.$store.state.accounts[this.id].data.sortBy || 'index'
     App.addListener('resume', () => this.$store.dispatch(actions.LOAD_TREE_FROM_DISK, this.$route.params.accountId))
   },
   backButton() {
