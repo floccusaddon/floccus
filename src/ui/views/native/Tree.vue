@@ -388,8 +388,12 @@ export default {
       }
       if (this.sortBy !== 'index') {
         return sortBy(items, [(item) => {
-          if (this.sortBy === 'url' && item.url) {
-            return new URL(item[this.sortBy]).hostname
+          if (this.sortBy === 'url') {
+            if (item.url) {
+              return new URL(item.url).hostname
+            } else {
+              return '0' // folders to the top
+            }
           }
           return item[this.sortBy].toLowerCase()
         }])
