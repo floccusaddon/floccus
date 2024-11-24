@@ -26,16 +26,45 @@
         hide-details
         @input="onSearch" />
       <v-spacer />
-      <v-btn
-        icon
-        :disabled="!currentAccount"
-        :color="syncing || scheduled? 'primary' : ''"
-        @click="onTriggerSync">
-        <v-icon
-          :class="{'sync--active': Boolean(syncing)}">
-          {{ scheduled ? 'mdi-timer-sync-outline' : 'mdi-sync' }}
-        </v-icon>
-      </v-btn>
+      <v-menu
+        bottom
+        left
+        open-on-hover
+        :open-delay="450"
+        :disabled="Boolean(syncing) || !currentAccount">
+        <template #activator="{ on, attrs }">
+          <v-btn
+            icon
+            :disabled="!currentAccount"
+            :color="syncing || scheduled? 'primary' : ''"
+            v-bind="attrs"
+            v-on="on"
+            @click="onTriggerSync" :class="{'sync-dropdown-hint': !Boolean(syncing)}">
+            <v-icon
+              :class="{'sync--active': Boolean(syncing)}">
+              {{ scheduled ? 'mdi-timer-sync-outline' : 'mdi-sync' }}
+            </v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item @click="onTriggerSync('up')">
+            <v-list-item-avatar>
+              <v-icon>mdi-arrow-up-bold</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-title>
+              {{ t('LabelSyncUpOnce') }}
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="onTriggerSync('down')">
+            <v-list-item-avatar>
+              <v-icon>mdi-arrow-down-bold</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-title>
+              {{ t('LabelSyncDownOnce') }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
       <v-menu
         bottom
         left>
@@ -572,12 +601,21 @@ export default {
     shareBookmark(item) {
       this.$store.dispatch(actions.SHARE_BOOKMARK, new Bookmark(item))
     },
-    onTriggerSync() {
+    onTriggerSync(direction) {
       if (this.syncing || this.scheduled) {
         return
       }
       this.currentAccount.data.syncing = 0.0001 // faaast
-      this.$store.dispatch(actions.TRIGGER_SYNC, this.id)
+      switch (direction) {
+        case 'down':
+          this.$store.dispatch(actions.TRIGGER_SYNC_DOWN, this.id)
+          break
+        case 'up':
+          this.$store.dispatch(actions.TRIGGER_SYNC_UP, this.id)
+          break
+        default:
+          this.$store.dispatch(actions.TRIGGER_SYNC, this.id)
+      }
     },
   }
 }
@@ -599,5 +637,13 @@ export default {
   99.9% {
     transform: rotate(0deg);
   }
+}
+
+.sync-dropdown-hint::after {
+  content: '⛛';
+  position: absolute;
+  font-size: 0.45em;
+  top: 30px;
+  left: 30px;
 }
 </style>
