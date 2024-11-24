@@ -74,6 +74,10 @@ export class Bookmark<L extends TItemLocation> {
     return false
   }
 
+  childrenSimilarity<L2 extends TItemLocation>(otherItem: TItem<L2>): number {
+    return 0
+  }
+
   async hash():Promise<string> {
     if (!this.hashValue) {
       this.hashValue = await Crypto.sha256(
@@ -107,7 +111,7 @@ export class Bookmark<L extends TItemLocation> {
   }
 
   // TODO: Make this return the correct type based on the type param
-  findItemFilter(type:TItemType, fn:(Item)=>boolean):TItem<L>|null {
+  findItemFilter(type:TItemType, fn:(item:TItem<L>)=>boolean, prefer:(item: TItem<L>)=>number = () => 1):TItem<L>|null {
     if (type === ItemType.BOOKMARK && fn(this)) {
       return this
     }
@@ -185,11 +189,13 @@ export class Folder<L extends TItemLocation> {
   }
 
   // eslint-disable-next-line no-use-before-define
-  findItemFilter(type:TItemType, fn:(Item)=>boolean):TItem<L>|null {
+  findItemFilter(type:TItemType, fn:(Item)=>boolean, prefer:(Item)=>number = () => 1):TItem<L>|null {
     if (!this.index) {
       this.createIndex()
     }
-    return Object.values(this.index[type]).find(fn)
+    const candidates = Object.values(this.index[type]).filter(fn)
+    // return the preferred match based on a preference measure
+    return candidates.sort((a,b) => prefer(a) - prefer(b)).pop()
   }
 
   findFolder(id:string|number): Folder<L> {
@@ -254,6 +260,17 @@ export class Folder<L extends TItemLocation> {
       return this.title === otherItem.title
     }
     return false
+  }
+
+  childrenSimilarity<L2 extends TItemLocation>(otherItem: TItem<L2>): number {
+    if (otherItem instanceof Folder) {
+      return this.children.reduce(
+        (count, item) =>
+          otherItem.children.filter(i => i.title === item.title).length > 0 ? count + 1 : count,
+        0
+      ) / Math.max(this.children.length, otherItem.children.length)
+    }
+    return 0
   }
 
   async hash(preserveOrder = false): Promise<string> {
