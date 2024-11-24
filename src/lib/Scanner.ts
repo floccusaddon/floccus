@@ -159,7 +159,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
           await Promise.resolve()
           const removedItem = removeAction.payload
 
-          if (this.mergeable(removedItem, createdItem)) {
+          if (this.mergeable(removedItem, createdItem) && (removedItem.type !== 'folder' || removedItem.childrenSimilarity(createdItem) > 0.8)) {
             this.result.CREATE.retract(createAction)
             this.result.REMOVE.retract(removeAction)
             this.result.MOVE.commit({
@@ -222,7 +222,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
             const newItem = createdItem.findItemFilter(
               removedItem.type,
               item => this.mergeable(removedItem, item),
-              item => item.childrenSimilarity(createdItem)
+              item => item.childrenSimilarity(removedItem)
             )
             let index
             if (newItem) {

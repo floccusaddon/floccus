@@ -266,7 +266,7 @@ export class Folder<L extends TItemLocation> {
     if (otherItem instanceof Folder) {
       return this.children.reduce(
         (count, item) =>
-          otherItem.children.filter(i => i.title === item.title).length > 0 ? count + 1 : count,
+          otherItem.children.find(i => i.title === item.title) ? count + 1 : count,
         0
       ) / Math.max(this.children.length, otherItem.children.length)
     }
