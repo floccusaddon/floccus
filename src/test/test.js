@@ -1960,8 +1960,8 @@ describe('Floccus', function() {
                         title: 'c',
                         children: [
                           new Bookmark({
-                            title: 'url',
-                            url: 'http://ur.l/',
+                            title: 'test',
+                            url: 'http://urrr.l/',
                           })
                         ]
                       })
@@ -1971,8 +1971,8 @@ describe('Floccus', function() {
                     title: 'c',
                     children: [
                       new Bookmark({
-                        title: 'test',
-                        url: 'http://urrr.l/',
+                        title: 'url',
+                        url: 'http://ur.l/',
                       })
                     ]
                   }),
