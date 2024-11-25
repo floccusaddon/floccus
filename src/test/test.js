@@ -1930,6 +1930,9 @@ describe('Floccus', function() {
             await account.sync() // propagate to server
             expect(account.getData().error).to.not.be.ok
 
+            await account.sync() // make sure order is propagated
+            expect(account.getData().error).to.not.be.ok
+
             await account.init()
 
             // move b into a in client
