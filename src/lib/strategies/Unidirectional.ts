@@ -51,6 +51,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
         return false
       },
       this.preserveOrder,
+      false,
       false
     )
     const serverScanner = new Scanner(
@@ -64,6 +65,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
         return false
       },
       this.preserveOrder,
+      false,
       false
     )
     const localScanResult = await localScanner.run()

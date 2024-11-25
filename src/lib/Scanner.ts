@@ -17,15 +17,17 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
   private mergeable: (i1: TItem<TItemLocation>, i2: TItem<TItemLocation>) => boolean
   private preserveOrder: boolean
   private checkHashes: boolean
+  private hasCache: boolean
 
   private result: ScanResult<L2, L1>
 
-  constructor(oldTree:TItem<L1>, newTree:TItem<L2>, mergeable:(i1:TItem<TItemLocation>, i2:TItem<TItemLocation>)=>boolean, preserveOrder:boolean, checkHashes = true) {
+  constructor(oldTree:TItem<L1>, newTree:TItem<L2>, mergeable:(i1:TItem<TItemLocation>, i2:TItem<TItemLocation>)=>boolean, preserveOrder:boolean, checkHashes = true, hasCache = true) {
     this.oldTree = oldTree
     this.newTree = newTree
     this.mergeable = mergeable
     this.preserveOrder = preserveOrder
     this.checkHashes = typeof checkHashes === 'undefined' ? true : checkHashes
+    this.hasCache = hasCache
     this.result = {
       CREATE: new Diff(),
       UPDATE: new Diff(),
@@ -159,7 +161,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
           await Promise.resolve()
           const removedItem = removeAction.payload
 
-          if (this.mergeable(removedItem, createdItem)) {
+          if (this.mergeable(removedItem, createdItem) &&
+            (removedItem.type !== 'folder' ||
+              (!this.hasCache && removedItem.childrenSimilarity(createdItem) > 0.8))) {
             this.result.CREATE.retract(createAction)
             this.result.REMOVE.retract(removeAction)
             this.result.MOVE.commit({
@@ -187,7 +191,11 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
           // give the browser time to breathe
           await Promise.resolve()
           const removedItem = removeAction.payload
-          const oldItem = removedItem.findItemFilter(createdItem.type, item => this.mergeable(item, createdItem))
+          const oldItem = removedItem.findItemFilter(
+            createdItem.type,
+            item => this.mergeable(item, createdItem),
+            item => item.childrenSimilarity(createdItem)
+          )
           if (oldItem) {
             let oldIndex
             this.result.CREATE.retract(createAction)
@@ -215,7 +223,11 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
               await this.diffItem(oldItem, createdItem)
             }
           } else {
-            const newItem = createdItem.findItemFilter(removedItem.type, item => this.mergeable(removedItem, item))
+            const newItem = createdItem.findItemFilter(
+              removedItem.type,
+              item => this.mergeable(removedItem, item),
+              item => item.childrenSimilarity(removedItem)
+            )
             let index
             if (newItem) {
               this.result.REMOVE.retract(removeAction)

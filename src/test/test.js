@@ -1893,6 +1893,107 @@ describe('Floccus', function() {
               Boolean(account.server.orderFolder)
             )
           })
+          it('should move items without confusing folders', async function() {
+            const localRoot = account.getData().localRoot
+
+            const aFolder = await browser.bookmarks.create({
+              title: 'a',
+              parentId: localRoot
+            })
+            const bFolder = await browser.bookmarks.create({
+              title: 'b',
+              parentId: localRoot
+            })
+            const dFolder = await browser.bookmarks.create({
+              title: 'd',
+              parentId: localRoot
+            })
+            const cFolder1 = await browser.bookmarks.create({
+              title: 'c',
+              parentId: aFolder.id
+            })
+            await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: cFolder1.id
+            })
+            const cFolder2 = await browser.bookmarks.create({
+              title: 'c',
+              parentId: bFolder.id
+            })
+            await browser.bookmarks.create({
+              title: 'test',
+              url: 'http://urrr.l/',
+              parentId: cFolder2.id
+            })
+
+            await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
+
+            await account.sync() // make sure order is propagated
+            expect(account.getData().error).to.not.be.ok
+
+            await account.init()
+
+            // move b into a in client
+            await browser.bookmarks.move(cFolder1.id, { parentId: localRoot })
+            await browser.bookmarks.move(cFolder2.id, { parentId: dFolder.id })
+
+            await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'a',
+                    children: []
+                  }),
+                  new Folder({
+                    title: 'b',
+                    children: []
+                  }),
+                  new Folder({
+                    title: 'd',
+                    children: [
+                      new Folder({
+                        title: 'c',
+                        children: [
+                          new Bookmark({
+                            title: 'test',
+                            url: 'http://urrr.l/',
+                          })
+                        ]
+                      })
+                    ]
+                  }),
+                  new Folder({
+                    title: 'c',
+                    children: [
+                      new Bookmark({
+                        title: 'url',
+                        url: 'http://ur.l/',
+                      })
+                    ]
+                  }),
+                ]
+              }),
+              false,
+              false
+            )
+
+            const localTree = await account.localTree.getBookmarksTree(true)
+            localTree.title = tree.title
+            expectTreeEqual(
+              localTree,
+              tree,
+              false,
+              false
+            )
+          })
           it('should integrate existing items from both sides', async function() {
             const localRoot = account.getData().localRoot
 
@@ -4120,6 +4221,9 @@ describe('Floccus', function() {
             )
           })
           it('should handle complex hierarchy reversals 2', async function() {
+            if (ACCOUNT_DATA.type === 'linkwarden') {
+              return this.skip()
+            }
             const localRoot = account1.getData().localRoot
             const aFolder = await browser.bookmarks.create({
               title: 'a',

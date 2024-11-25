@@ -23,6 +23,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
         return false
       },
       this.preserveOrder,
+      false,
       false
     )
     const serverScanner = new Scanner(
@@ -36,6 +37,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
         return false
       },
       this.preserveOrder,
+      false,
       false
     )
     const localScanResult = await localScanner.run()
@@ -96,6 +98,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
             return false
           },
           this.preserveOrder,
+          false,
           false
         )
         await subScanner.run()
