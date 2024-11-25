@@ -797,5 +797,8 @@
   },
   "LabelLinkwardenconnectionerror": {
     "message": "未能连接到你的 Linkwarden 服务器"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "来自其他文件夹的结果"
   }
 }
