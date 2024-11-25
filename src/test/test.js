@@ -1982,7 +1982,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              false
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1991,7 +1991,7 @@ describe('Floccus', function() {
               localTree,
               tree,
               false,
-              Boolean(account.server.orderFolder)
+              false
             )
           })
           it('should integrate existing items from both sides', async function() {
