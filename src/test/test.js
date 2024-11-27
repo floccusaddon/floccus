@@ -5149,6 +5149,9 @@ describe('Floccus', function() {
             )
           })
           it('should sync tabs correctly when merging server and local changes', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
             const adapter = account.server
             const serverTree = await getAllBookmarks(account)
             let windowFolderId, serverMark, serverMarkId
