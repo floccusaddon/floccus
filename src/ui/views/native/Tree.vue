@@ -505,10 +505,10 @@ export default {
             if (item.url) {
               return new URL(item.url).hostname
             } else {
-              return '0000000' // folders to the top
+              return '0000000' + item.title.toLowerCase() // folders to the top
             }
           }
-          return item.type === 'folder' ? '0000000' : item[this.sortBy].toLowerCase()
+          return item.type === 'folder' ? '0000000' + item.title.toLowerCase() : item[this.sortBy].toLowerCase()
         }])
       } else {
         return items
