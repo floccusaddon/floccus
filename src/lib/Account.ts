@@ -208,7 +208,7 @@ export default class Account {
 
       // main sync steps:
       mappings = await this.storage.getMappings()
-      const cacheTree = localResource.constructor.name !== 'LocalTabs' ? await this.storage.getCache() : new Folder({title: '', id: 'tabs', location: ItemLocation.LOCAL})
+      const cacheTree = await this.storage.getCache()
 
       let continuation = await this.storage.getCurrentContinuation()
 
@@ -280,12 +280,10 @@ export default class Account {
       await this.setData({ ...this.getData(), scheduled: false, syncing: 1 })
 
       // update cache
-      if (localResource.constructor.name !== 'LocalTabs') {
-        const cache = (await localResource.getBookmarksTree()).clone(false)
-        this.syncProcess.filterOutUnacceptedBookmarks(cache)
-        this.syncProcess.filterOutUnmappedItems(cache, await mappings.getSnapshot())
-        await this.storage.setCache(cache)
-      }
+      const cache = (await localResource.getBookmarksTree()).clone(false)
+      this.syncProcess.filterOutUnacceptedBookmarks(cache)
+      this.syncProcess.filterOutUnmappedItems(cache, await mappings.getSnapshot())
+      await this.storage.setCache(cache)
 
       if (this.server.onSyncComplete) {
         await this.server.onSyncComplete()

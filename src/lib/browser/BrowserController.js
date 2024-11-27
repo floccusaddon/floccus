@@ -167,6 +167,9 @@ export default class BrowserController {
         }
       }
     })
+
+    // Run some things on browser startup
+    browser.runtime.onStartup.addListener(this.onStartup)
   }
 
   async _receiveEvent(data, sendResponse) {
@@ -412,7 +415,7 @@ export default class BrowserController {
     }
   }
 
-  async onLoad() {
+  async onStartup() {
     const accounts = await Account.getAllAccounts()
     await Promise.all(
       accounts.map(async acc => {
@@ -423,9 +426,14 @@ export default class BrowserController {
             scheduled: acc.getData().enabled,
           })
         }
+        if (acc.getData().localRoot === 'tabs') {
+          await acc.init()
+        }
       })
     )
+  }
 
+  async onLoad() {
     browser.storage.local.get('telemetryEnabled').then(async d => {
       if (!d.telemetryEnabled) {
         return

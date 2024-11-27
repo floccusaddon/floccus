@@ -27,6 +27,7 @@ import { CancelledSyncError, FailsafeError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 import CachingAdapter from '../adapters/Caching'
+import LocalTabs from '../LocalTabs'
 
 const ACTION_CONCURRENCY = 12
 
@@ -424,27 +425,55 @@ export default class SyncProcess {
 
     const newMappings = []
 
-    // if we have the cache available, Diff cache and both trees
-    const localScanner = new Scanner(
-      this.cacheTreeRoot,
-      this.localTreeRoot,
-      (oldItem, newItem) =>
-        (oldItem.type === newItem.type && String(oldItem.id) === String(newItem.id)),
-      this.preserveOrder
-    )
-    const serverScanner = new Scanner(
-      this.cacheTreeRoot,
-      this.serverTreeRoot,
-      // We also allow canMergeWith here, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
-      (oldItem, newItem) => {
-        if ((oldItem.type === newItem.type && Mappings.mappable(mappingsSnapshot, oldItem, newItem)) || (oldItem.type === 'bookmark' && oldItem.canMergeWith(newItem))) {
-          newMappings.push([oldItem, newItem])
-          return true
-        }
-        return false
-      },
-      this.preserveOrder
-    )
+    let localScanner, serverScanner
+    if (this.localTree instanceof LocalTabs) {
+      // if we have the cache available, Diff cache and both trees
+      localScanner = new Scanner(
+        this.cacheTreeRoot,
+        this.localTreeRoot,
+        // We also allow canMergeWith for folders here, because Window IDs are not stable
+        (oldItem, newItem) =>
+          (oldItem.type === newItem.type && String(oldItem.id) === String(newItem.id)) || (oldItem.type === 'folder' && oldItem.canMergeWith(newItem)),
+        this.preserveOrder,
+      )
+      serverScanner = new Scanner(
+        this.cacheTreeRoot,
+        this.serverTreeRoot,
+        // We also allow canMergeWith here
+        // (for bookmarks, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
+        // (for folders because Window IDs are not stable)
+        (oldItem, newItem) => {
+          if ((oldItem.type === newItem.type && Mappings.mappable(mappingsSnapshot, oldItem, newItem)) || (oldItem.canMergeWith(newItem))) {
+            newMappings.push([oldItem, newItem])
+            return true
+          }
+          return false
+        },
+        this.preserveOrder,
+      )
+    } else {
+      // if we have the cache available, Diff cache and both trees
+      localScanner = new Scanner(
+        this.cacheTreeRoot,
+        this.localTreeRoot,
+        (oldItem, newItem) =>
+          (oldItem.type === newItem.type && String(oldItem.id) === String(newItem.id)),
+        this.preserveOrder
+      )
+      serverScanner = new Scanner(
+        this.cacheTreeRoot,
+        this.serverTreeRoot,
+        // We also allow canMergeWith here, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
+        (oldItem, newItem) => {
+          if ((oldItem.type === newItem.type && Mappings.mappable(mappingsSnapshot, oldItem, newItem)) || (oldItem.type === 'bookmark' && oldItem.canMergeWith(newItem))) {
+            newMappings.push([oldItem, newItem])
+            return true
+          }
+          return false
+        },
+        this.preserveOrder
+      )
+    }
     Logger.log('Calculating diffs for local and server trees relative to cache tree')
     const localScanResult = await localScanner.run()
     const serverScanResult = await serverScanner.run()
