@@ -26,7 +26,7 @@
         :item-key="'id'"
         :active="[value]"
         :open="[tree.id]"
-        :items="[filterOutBookmarks(tree)]"
+        :items="[privateTree]"
         dense
         @update:active="onUpdateSelection">
         <template #prepend="{ open }">
@@ -37,16 +37,28 @@
         <template #label="{item}">
           {{ item.title || t('LabelUntitledfolder') }}
         </template>
+        <template #append="{item}">
+          <v-btn
+            small
+            rounded
+            @click="onCreate(item.id)">
+            <v-icon>
+              mdi-plus
+            </v-icon>
+          </v-btn>
+        </template>
       </v-treeview>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
-import { mutations } from '../../store/definitions'
+import { actions, mutations } from '../../store/definitions'
+import { Folder } from '../../../lib/Tree'
 
 export default {
   name: 'DialogChooseFolder',
+  components: {},
   props: {
     value: {
       type: Number,
@@ -64,6 +76,7 @@ export default {
   data() {
     return {
       selectedFolder: this.value,
+      privateTree: [],
     }
   },
   computed: {
@@ -73,6 +86,17 @@ export default {
     sortBy() {
       return this.accountId && this.$store.state.accounts[this.accountId].data.sortBy
     }
+  },
+  watch: {
+    async tree(newTree, oldTree) {
+      if (await newTree.hash() === await oldTree.hash()) {
+        return
+      }
+      this.privateTree = this.filterOutBookmarks(newTree)
+    }
+  },
+  mounted() {
+    this.privateTree = this.filterOutBookmarks(this.tree)
   },
   methods: {
     filterOutBookmarks(item) {
@@ -90,6 +114,13 @@ export default {
     },
     onUpdateSelection(active) {
       this.selectedFolder = active[0]
+    },
+    onCreate(parentId) {
+      const title = prompt('New folder title')
+      this.$store.dispatch(actions.CREATE_FOLDER, {
+        accountId: this.accountId,
+        folder: new Folder({title, id: null, parentId})
+      })
     },
     onSave() {
       this.$store.commit(mutations.SET_LAST_FOLDER, {folderId: this.selectedFolder, accountId: this.$route.params.accountId})
