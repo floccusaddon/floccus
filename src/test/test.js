@@ -5227,7 +5227,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              false, // We're merging which doesn't guarantee an order
             )
           })
         })
