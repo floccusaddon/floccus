@@ -4904,10 +4904,10 @@ describe('Floccus', function() {
                 windowType: 'normal' // no devtools or panels or popups
               })
               await browser.tabs.remove(tabs.filter(tab => tab.url.startsWith('http')).map(tab => tab.id))
-              await awaitTabsUpdated()
             } catch (e) {
               console.error(e)
             }
+            await awaitTabsUpdated()
             if (ACCOUNT_DATA.type === 'git') {
               await account.server.clearServer()
             } else if (ACCOUNT_DATA.type !== 'fake') {
@@ -5115,14 +5115,14 @@ describe('Floccus', function() {
               serverMark2 = {
                 title: 'Example Domain',
                 url: 'https://example.org/#test3',
-                parentId: windowFolderId,
+                parentId: tree.children[0].id,
                 location: ItemLocation.SERVER
               }
               await adapter.createBookmark(
                 new Bookmark(serverMark2)
               )
 
-              await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: 'https://example.org/#test2', title: 'Example Domain', parentId: windowFolderId })
+              await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: 'https://example.org/#test2', title: 'Example Domain', parentId: tree.children[0].id })
             })
 
             await account.setData({...account.getData(), strategy: 'slave'})
@@ -5141,6 +5141,88 @@ describe('Floccus', function() {
                     children: [
                       new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test2' }),
                       new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test3' }),
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+          })
+          it('should sync tabs correctly when merging server and local changes', async function() {
+            const adapter = account.server
+            const serverTree = await getAllBookmarks(account)
+            let windowFolderId, serverMark, serverMarkId
+            await withSyncConnection(account, async() => {
+              windowFolderId = await adapter.createFolder(new Folder({
+                parentId: serverTree.id,
+                title: 'Window 0',
+                location: ItemLocation.SERVER
+              }))
+              serverMark = {
+                title: 'Example Domain',
+                url: 'https://example.org/#test1',
+                parentId: windowFolderId,
+                location: ItemLocation.SERVER
+              }
+
+              serverMarkId = await adapter.createBookmark(
+                new Bookmark(serverMark)
+              )
+            })
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            let tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test1' }),
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+
+            let serverMark2
+            await withSyncConnection(account, async() => {
+              serverMark2 = {
+                title: 'Example Domain',
+                url: 'https://example.org/#test3',
+                parentId: tree.children[0].id,
+                location: ItemLocation.SERVER
+              }
+              await adapter.createBookmark(
+                new Bookmark(serverMark2)
+              )
+
+              await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: 'https://example.org/#test2', title: 'Example Domain', parentId: tree.children[0].id })
+            })
+
+            await browser.tabs.create({url: 'https://example.org/#test4'})
+            await awaitTabsUpdated()
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test3' }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test2' }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test4' }),
                     ]
                   })
                 ]
