@@ -66,13 +66,26 @@ export default {
       selectedFolder: this.value,
     }
   },
+  computed: {
+    accountId() {
+      return this.$route.params.accountId
+    },
+    sortBy() {
+      return this.accountId && this.$store.state.accounts[this.accountId].data.sortBy
+    }
+  },
   methods: {
     filterOutBookmarks(item) {
+      let children = item.children
+        .filter(child => !child.url)
+        .map(child => this.filterOutBookmarks(child))
+      if (this.sortBy === 'title') {
+        children = children.toSorted((a, b) =>
+          a.title < b.title ? -1 : a.title > b.title ? 1 : 0)
+      }
       return {
         ...item,
-        children: item.children
-          .filter(child => !child.url)
-          .map(child => this.filterOutBookmarks(child))
+        children,
       }
     },
     onUpdateSelection(active) {
