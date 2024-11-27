@@ -1,12 +1,12 @@
 import browser from './browser-api'
 import Logger from './Logger'
-import { IResource } from './interfaces/Resource'
+import { OrderFolderResource } from './interfaces/Resource'
 import PQueue from 'p-queue'
 import { Bookmark, Folder, ItemLocation } from './Tree'
 import Ordering from './interfaces/Ordering'
 import uniq from 'lodash/uniq'
 
-export default class LocalTabs implements IResource<typeof ItemLocation.LOCAL> {
+export default class LocalTabs implements OrderFolderResource<typeof ItemLocation.LOCAL> {
   private queue: PQueue<{ concurrency: 10 }>
   private storage: unknown
 
