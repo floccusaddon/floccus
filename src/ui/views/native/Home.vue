@@ -70,8 +70,13 @@ export default {
 
       console.log(url)
       try {
-        const response = await Http.get({ url })
+        const response = await Http.get({ url,
+          headers: {
+            'user-agent': 'curl/8.6.0'
+          }
+        })
         const parser = new DOMParser()
+        console.log(response.data)
         const document = parser.parseFromString(response.data, 'text/html')
         const titleElement = document.getElementsByTagName('title')[0]
         if (titleElement) {
