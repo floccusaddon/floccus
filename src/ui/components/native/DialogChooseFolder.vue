@@ -116,7 +116,10 @@ export default {
       this.selectedFolder = active[0]
     },
     onCreate(parentId) {
-      const title = prompt('New folder title')
+      const title = prompt(this.t('LabelAddfolder'))
+      if (!title) {
+        return
+      }
       this.$store.dispatch(actions.CREATE_FOLDER, {
         accountId: this.accountId,
         folder: new Folder({title, id: null, parentId})
