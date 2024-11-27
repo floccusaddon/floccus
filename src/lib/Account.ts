@@ -1,6 +1,6 @@
 import AdapterFactory from './AdapterFactory'
 import Logger from './Logger'
-import { Folder, ItemLocation, TItemLocation } from './Tree'
+import { ItemLocation, TItemLocation } from './Tree'
 import UnidirectionalSyncProcess from './strategies/Unidirectional'
 import MergeSyncProcess from './strategies/Merge'
 import DefaultSyncProcess from './strategies/Default'

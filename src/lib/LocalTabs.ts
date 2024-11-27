@@ -65,6 +65,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         active: false,
       })
     )
+    await awaitTabsUpdated()
     return node.id
   }
 
@@ -85,6 +86,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         index: -1 // last
       })
     )
+    await awaitTabsUpdated()
   }
 
   async removeBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<void> {
@@ -95,6 +97,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       return
     }
     await this.queue.add(() => browser.tabs.remove(bookmarkId))
+    await awaitTabsUpdated()
   }
 
   async createFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<number> {
@@ -131,6 +134,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
       }
     }
+    await awaitTabsUpdated()
   }
 
   async updateFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {
@@ -140,7 +144,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
   async removeFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {
     const id = folder.id
     Logger.log('(tabs)REMOVEFOLDER', id)
-    await this.queue.add(() => browser.tabs.remove(id))
+    await this.queue.add(() => browser.window.remove(id))
   }
 
   async isAvailable(): Promise<boolean> {
@@ -149,4 +153,16 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     })
     return Boolean(tabs.length)
   }
+}
+
+function awaitTabsUpdated() {
+  return Promise.race([
+    new Promise<void>(resolve => {
+      browser.tabs.onUpdated.addListener(() => {
+        browser.tabs.onUpdated.removeListener(resolve)
+        setTimeout(() => resolve(), 1000)
+      })
+    }),
+    new Promise(resolve => setTimeout(resolve, 1100))
+  ])
 }
