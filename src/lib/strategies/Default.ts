@@ -426,7 +426,7 @@ export default class SyncProcess {
     const newMappings = []
 
     let localScanner, serverScanner
-    if (this.localTree instanceof LocalTabs) {
+    if (this.localTree.constructor.name === 'LocalTabs') {
       // if we have the cache available, Diff cache and both trees
       localScanner = new Scanner(
         this.cacheTreeRoot,
