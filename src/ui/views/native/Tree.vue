@@ -643,6 +643,9 @@ export default {
       }
     },
     deleteItem(item) {
+      if (!confirm(this.t('DescriptionReallydeleteitem'))) {
+        return
+      }
       if (item.type === 'bookmark') {
         this.$store.dispatch(actions.DELETE_BOOKMARK, {
           accountId: this.id,
