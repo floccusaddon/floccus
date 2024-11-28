@@ -555,6 +555,9 @@
   "LabelDeleteitem": {
     "message": "Sil"
   },
+  "DescriptionReallydeleteitem": {
+    "message": "Bu öğeyi gerçekten silmek istiyor musunuz?"
+  },
   "LabelNobookmarks": {
     "message": "Burada yer işareti yok"
   },
@@ -797,5 +800,8 @@
   },
   "LabelLinkwardenconnectionerror": {
     "message": "Linkwarden sunucunuza bağlanılamadı"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "Diğer klasörlerdeki sonuçlar"
   }
 }
