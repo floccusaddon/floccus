@@ -555,6 +555,9 @@
   "LabelDeleteitem": {
     "message": "删除"
   },
+  "DescriptionReallydeleteitem": {
+    "message": "你真要删除此项目吗？"
+  },
   "LabelNobookmarks": {
     "message": "此处没有书签"
   },
