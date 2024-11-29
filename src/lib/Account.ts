@@ -152,7 +152,7 @@ export default class Account {
     throw new Error('Not implemented')
   }
 
-  async sync(strategy?:TAccountStrategy):Promise<void> {
+  async sync(strategy?:TAccountStrategy, forceSync = false):Promise<void> {
     let mappings: Mappings
     try {
       if (this.getData().syncing || this.syncing) return
@@ -173,13 +173,13 @@ export default class Account {
         const needLock = (strategy || this.getData().strategy) !== 'slave'
         let status
         try {
-          status = await this.server.onSyncStart(needLock)
+          status = await this.server.onSyncStart(needLock, forceSync)
         } catch (e) {
           await this.server.onSyncFail()
           // Resource locked
           if (e.code === 37) {
             // We got a resource locked error
-            if (this.getData().lastSync < Date.now() - this.lockTimeout) {
+            if (this.getData().lastSync < Date.now() - this.lockTimeout || forceSync) {
               // but if we've been waiting for the lock for more than 2h
               // start again without locking the resource
               status = await this.server.onSyncStart(false, true)

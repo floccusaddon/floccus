@@ -118,10 +118,10 @@ export default class Controller implements IController {
     console.log('Sending message to service worker: ', message)
   }
 
-  async syncAccount(accountId, strategy): Promise<void> {
+  async syncAccount(accountId, strategy, forceSync = false): Promise<void> {
     console.log('Waiting for service worker readiness')
     const worker = await this.getWorker()
-    const message = {type: 'syncAccount', params: [accountId, strategy]}
+    const message = {type: 'syncAccount', params: [accountId, strategy, forceSync]}
     worker.postMessage(message)
     console.log('Sending message to service worker: ', message)
   }

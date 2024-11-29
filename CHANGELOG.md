@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.4.0] - 2024-11-28
+
+### New
+* enh(Tree): Add confirmation before deleting items
+* enh(tabs): Make merge strategy work with tabs
+* [native] enh(DialogChooseFolder): Allow creating folders
+* [native] enh(Drawer): Add github issues link
+* [native] enh(search): Show search results from other folders
+* [native] enh: Allow selecting up down sync by long press on sync button
+* [native] enh: Remember sort option & sort folders first
+* [native] enh: Improve search by ranking better matches higher
+* [native] fix(DialogChooseFolder): Sort folders according to sort order setting
+* [native] fix(newbookmark): Use neutral user agent to get correct title
+* fix(Scanner): Improve move stability with same-titled folders
+* [native] fix(Tree): Sorting by link
+* fix(GoogleDrive|WebDAV): fix _.includes is not a function error
+
 ## [5.3.4] - 2024-11-17
 
 ### Fixed

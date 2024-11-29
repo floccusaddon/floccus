@@ -803,5 +803,11 @@
   },
   "LabelSearchresultsotherfolders": {
     "message": "Results from other folders"
+  },
+  "LabelScheduledforcesync": {
+    "message": "Force sync"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "Do you really want to force sync? Syncing with two devices at the same time can have unforeseen consequences including corruption of your data. Make sure that no other device is syncing at the moment before confirming."
   }
 }

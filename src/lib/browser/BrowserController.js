@@ -330,7 +330,7 @@ export default class BrowserController {
     await account.cancelSync()
   }
 
-  async syncAccount(accountId, strategy) {
+  async syncAccount(accountId, strategy, forceSync = false) {
     if (!this.enabled) {
       return
     }
@@ -342,7 +342,7 @@ export default class BrowserController {
     const interval = setInterval(() => browser.tabs.getCurrent(), 2e4)
     setTimeout(() => this.updateStatus(), 500)
     try {
-      await account.sync(strategy)
+      await account.sync(strategy, forceSync)
     } catch (error) {
       console.error(error)
     }

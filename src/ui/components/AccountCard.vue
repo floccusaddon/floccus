@@ -72,6 +72,15 @@
                 {{ t('LabelDebuglogs') }}
               </v-btn>
             </template>
+            <template v-if="status === 'scheduled'">
+              <v-btn
+                  :color="statusType"
+                  class="float-right"
+                  x-small
+                  @click="onForceSync">
+                {{ t('LabelScheduledforcesync') }}
+              </v-btn>
+            </template>
           </v-alert>
           <v-alert
             v-if="legacyWarning"
@@ -317,6 +326,11 @@ export default {
     },
     onGetLogs() {
       this.$store.dispatch(actions.DOWNLOAD_LOGS)
+    },
+    onForceSync() {
+      if (confirm(this.t('DescriptionScheduledforcesync'))) {
+        this.$store.dispatch(actions.FORCE_SYNC, this.account.id)
+      }
     }
   }
 }

@@ -4,7 +4,7 @@ export default interface IController {
   scheduleSync(accountId, wait):Promise<void>;
   scheduleAll():Promise<void>;
   cancelSync(accountId, keepEnabled):Promise<void>;
-  syncAccount(accountId, strategy):Promise<void>;
+  syncAccount(accountId, strategy, forceSync):Promise<void>;
   onStatusChange(listener):()=>void;
   getUnlocked():Promise<boolean>;
   onLoad():void;
