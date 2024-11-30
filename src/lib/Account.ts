@@ -175,7 +175,6 @@ export default class Account {
         try {
           status = await this.server.onSyncStart(needLock, forceSync)
         } catch (e) {
-          await this.server.onSyncFail()
           // Resource locked
           if (e.code === 37) {
             // We got a resource locked error
@@ -198,6 +197,7 @@ export default class Account {
               return
             }
           } else {
+            await this.server.onSyncFail()
             throw e
           }
         }
