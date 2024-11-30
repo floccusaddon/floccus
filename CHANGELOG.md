@@ -1,6 +1,6 @@
 # Changelog
 
-## [5.4.0] - 2024-11-28
+## [5.4.0] - 2024-11-30
 
 ### New
 * enh(Tree): Add confirmation before deleting items
@@ -11,11 +11,16 @@
 * [native] enh: Allow selecting up down sync by long press on sync button
 * [native] enh: Remember sort option & sort folders first
 * [native] enh: Improve search by ranking better matches higher
+* enh(Account#sync): Allow forcing sync when profile is scheduled
+
+### Fixed
 * [native] fix(DialogChooseFolder): Sort folders according to sort order setting
 * [native] fix(newbookmark): Use neutral user agent to get correct title
-* fix(Scanner): Improve move stability with same-titled folders
 * [native] fix(Tree): Sorting by link
+* [native] fix: Properly reset accounts on load
+* fix(Scanner): Improve move stability with same-titled folders
 * fix(GoogleDrive|WebDAV): fix _.includes is not a function error
+* fix(Account#sync): Do not break lock automatically
 
 ## [5.3.4] - 2024-11-17
 
