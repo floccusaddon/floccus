@@ -803,5 +803,11 @@
   },
   "LabelSearchresultsotherfolders": {
     "message": "来自其他文件夹的结果"
+  },
+  "LabelScheduledforcesync": {
+    "message": "强制同步"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "你真要强制同步吗？同时和两台设备同步可能会有预想不到的后果，包括数据损坏。在确认前，请确保此刻没有其他设备正在同步。"
   }
 }
