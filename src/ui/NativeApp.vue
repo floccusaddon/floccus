@@ -32,7 +32,7 @@ export default {
       this.$store.dispatch(actions.LOAD_ACCOUNTS)
     }, 5000)
     const controller = await Controller.getSingleton()
-    controller.onLoad()
+    await controller.onLoad()
     controller.onStatusChange(() => {
       this.$store.dispatch(actions.LOAD_ACCOUNTS)
     })
