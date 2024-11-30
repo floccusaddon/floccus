@@ -31,7 +31,7 @@
         left
         open-on-hover
         :open-delay="450"
-        :disabled="Boolean(syncing) || !currentAccount">
+        :disabled="Boolean(syncing) || Boolean(scheduled) || !currentAccount">
         <template #activator="{ on, attrs }">
           <v-btn
             icon
@@ -150,6 +150,13 @@
         type="info"
         class="ma-1">
         {{ t('DescriptionSyncscheduled') }}
+        <v-btn
+          color="info"
+          class="float-right"
+          x-small
+          @click="onForceSync">
+          {{ t('LabelScheduledforcesync') }}
+        </v-btn>
       </v-alert>
       <v-progress-circular
         v-if="loading"
@@ -710,6 +717,11 @@ export default {
           this.$store.dispatch(actions.TRIGGER_SYNC, this.id)
       }
     },
+    onForceSync() {
+      if (confirm(this.t('DescriptionScheduledforcesync'))) {
+        this.$store.dispatch(actions.FORCE_SYNC, this.id)
+      }
+    }
   }
 }
 </script>
