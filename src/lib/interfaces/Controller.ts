@@ -7,7 +7,7 @@ export default interface IController {
   syncAccount(accountId, strategy, forceSync):Promise<void>;
   onStatusChange(listener):()=>void;
   getUnlocked():Promise<boolean>;
-  onLoad():void;
+  onLoad():Promise<void>;
 }
 
 export const STATUS_ERROR = Symbol('error')

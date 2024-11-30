@@ -153,7 +153,7 @@ export default class Controller implements IController {
     })
   }
 
-  onLoad() {
+  async onLoad() {
     // noop
   }
 }
