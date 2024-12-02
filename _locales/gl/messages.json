@@ -555,6 +555,9 @@
   "LabelDeleteitem": {
     "message": "Eliminar"
   },
+  "DescriptionReallydeleteitem": {
+    "message": "Confirma que quere eliminar este elemento?"
+  },
   "LabelNobookmarks": {
     "message": "Aquí non hai marcadores"
   },
@@ -797,5 +800,14 @@
   },
   "LabelLinkwardenconnectionerror": {
     "message": "Produciuse un fallo ao conectar co seu servidor Linkwarden"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "Resultados doutros cartafoles"
+  },
+  "LabelScheduledforcesync": {
+    "message": "Forzar a sincronización"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "Confirma que quere forzar a sincronización? A sincronización con dous dispositivos ao mesmo tempo pode ter consecuencias imprevistas, incluíndo o estragado dos datos. Asegúrese de que ningún outro dispositivo estea a sincronizar neste intre antes de confirmar."
   }
 }
