@@ -69,7 +69,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   public hasFeatureBulkImport:boolean = null
   private list: Bookmark<typeof ItemLocation.SERVER>[]
   private tree: Folder<typeof ItemLocation.SERVER>
-  private lockId: string | number
   private abortController: AbortController
   private abortSignal: AbortSignal
   private canceled = false
@@ -79,7 +78,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private ended = false
   private locked = false
   private hasFeatureJavascriptLinks: boolean = null
-  private rootHash: string = null
 
   constructor(server: NextcloudBookmarksConfig) {
     this.server = server
@@ -359,7 +357,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         }
       })
     }
-    return recurseChildren(folderId, children).filter(item => String(item.id) !== String(this.lockId))
+    return recurseChildren(folderId, children)
   }
 
   async loadFolderChildren(folderId:string|number, all?: boolean): Promise<TItem<typeof ItemLocation.SERVER>[]> {
