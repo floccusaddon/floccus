@@ -386,16 +386,21 @@ export default class SyncProcess {
   }
 
   filterOutInvalidBookmarks(tree: Folder<TItemLocation>): void {
-    if (this.isFirefox) {
-      tree.children = tree.children.filter(child => {
-        if (child instanceof Bookmark) {
-          return !child.url.startsWith('chrome')
-        } else {
-          this.filterOutInvalidBookmarks(child)
-          return true
+    tree.children = tree.children.filter(child => {
+      if (child instanceof Bookmark) {
+        // Chrome URLs cannot be added in firefox
+        if (this.isFirefox && child.url.startsWith('chrome')) {
+          return false
         }
-      })
-    }
+        // Linkwarden supports bookmarks that have no URL eg. for directly uploaded files
+        if (child.url === null) {
+          return false
+        }
+      } else {
+        this.filterOutInvalidBookmarks(child)
+      }
+      return true
+    })
   }
 
   async filterOutDuplicatesInTheSameFolder(tree: Folder<TItemLocation>): Promise<void> {
