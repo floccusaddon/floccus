@@ -24,7 +24,7 @@ export default {
       return false
     },
     background() {
-      return this.$vuetify.theme.dark ? '#000' : '#fff'
+      return this.$vuetify.theme.dark ? '#000000' : '#ffffff'
     }
   },
   async created() {
@@ -48,12 +48,16 @@ body {
   background: v-bind(background);
   font-size: 0.45cm !important;
 }
-
+@media (prefers-color-scheme: dark) {
+  html {
+    background-color: #000000;
+  }
+}
 html {
   font-size: 0.45cm !important;
 }
-
 .v-navigation-drawer {
   top: env(safe-area-inset-top) !important;
+  bottom: 0;
 }
 </style>
