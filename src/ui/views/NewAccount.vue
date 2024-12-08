@@ -77,7 +77,8 @@
                 class="mt-2 mb-4"
                 :label="t('LabelAccountlabel')"
                 :hint="t('DescriptionAccountlabel')"
-                :persistent-hint="true" />
+                :persistent-hint="true"
+                @keydown.enter.prevent="currentStep++" />
             </v-form>
             <div class="d-flex flex-row justify-space-between">
               <v-btn @click="currentStep--">
