@@ -108,10 +108,10 @@
     "message": "E036: 缺少访问同步服务器的权限"
   },
   "Error037": {
-    "message": "E036: 资源被锁定"
+    "message": "E037: 资源被锁定"
   },
   "Error038": {
-    "message": "E036: 找不到本地文件夹"
+    "message": "E038: 找不到本地文件夹"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"

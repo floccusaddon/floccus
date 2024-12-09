@@ -108,10 +108,10 @@
     "message": "E036: Faltan permisos para acceder ao servidor de sincronización"
   },
   "Error037": {
-    "message": "E036: O recurso está bloqueado"
+    "message": "E037: O recurso está bloqueado"
   },
   "Error038": {
-    "message": "E036: Non foi posíbel atopar o cartafol local"
+    "message": "E038: Non foi posíbel atopar o cartafol local"
   },
   "LabelWebdavurl": {
     "message": "URL de WebDAV"

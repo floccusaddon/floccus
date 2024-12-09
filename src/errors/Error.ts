@@ -319,7 +319,7 @@ export class ResourceLockedError extends FloccusError {
 
 export class LocalFolderNotFoundError extends FloccusError {
   constructor() {
-    super(`E037: Could not find local folder`)
+    super(`E038: Could not find local folder`)
     this.code = 38
     Object.setPrototypeOf(this, LocalFolderNotFoundError.prototype)
   }

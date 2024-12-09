@@ -108,10 +108,10 @@
     "message": "E036: サーバーと同期する権限がありません"
   },
   "Error037": {
-    "message": "E036: リソースがロックされています"
+    "message": "E037: リソースがロックされています"
   },
   "Error038": {
-    "message": "E036: ローカルフォルダーを見つけられません"
+    "message": "E038: ローカルフォルダーを見つけられません"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
