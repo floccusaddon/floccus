@@ -108,10 +108,10 @@
     "message": "E036: Missing permissions to access the sync server"
   },
   "Error037": {
-    "message": "E036: Resource is locked"
+    "message": "E037: Resource is locked"
   },
   "Error038": {
-    "message": "E036: Could not find local folder"
+    "message": "E038: Could not find local folder"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"

@@ -108,10 +108,10 @@
     "message": "E036: Senkronizasyon sunucusuna erişim izinleri eksik"
   },
   "Error037": {
-    "message": "E036: Kaynak kilitli"
+    "message": "E037: Kaynak kilitli"
   },
   "Error038": {
-    "message": "E036: Yerel klasör bulunamadı"
+    "message": "E038: Yerel klasör bulunamadı"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"

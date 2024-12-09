@@ -108,10 +108,10 @@
     "message": "E036: Permission manquante pour accéder au serveur de synchronisation"
   },
   "Error037": {
-    "message": "E036 : Ressource verrouillée"
+    "message": "E037 : Ressource verrouillée"
   },
   "Error038": {
-    "message": "E036 : Impossible de trouver le dossier locale"
+    "message": "E038 : Impossible de trouver le dossier locale"
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
