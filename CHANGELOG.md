@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.4.1]
+
+### Fixed
+
+* [native] fix(AddBookmarkIntent): Folder selector was broken
+* [ios] fix(design): Make top bar dark when in dark mode
+* fix(NewAccount): Don't refresh page on enter in accountlable field
+* fix(Bookmark): Accept url = null
+* fix(NextcloudBookmarks): Remove unnecessary code
+* fix(Linkwarden): Ignore bookmarks with url = null
+
 ## [5.4.0] - 2024-11-30
 
 ### New
