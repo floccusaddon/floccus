@@ -99,7 +99,7 @@
     "message": "E033: Redirect detected. Please make sure the server supports the selected sync method and URL you entered is correct doesn't redirect to a different location. If the redirect is part of your setup, you can disable this check in the settings."
   },
   "Error034": {
-    "message": "E034: Remote bookmarks file is unreadable. Did you forget to set an encryption passphrase?"
+    "message": "E034: Remote bookmarks file is unreadable. Perhaps you forgot to set an encryption passphrase, or you set the wrong file format."
   },
   "Error035": {
     "message": "E035: Failed to create the following bookmark on the server: {0}"
