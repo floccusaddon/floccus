@@ -99,7 +99,7 @@
     "message": "E033: Detectouse unha redirección. Asegúrese de que o servidor admite o método de sincronización seleccionado e que o URL que introduciu sexa correcto e non redirixa a unha localización diferente. Se a redirección forma parte da súa configuración, pode desactivar esta comprobación na configuración."
   },
   "Error034": {
-    "message": "E034: O ficheiro remoto de marcadores non é lexíbel. Esqueceu definir unha frase de contrasinal de cifrado?"
+    "message": "E034: Non é posíbel ler o ficheiro de marcadores remotos. Quizais esqueceu definir unha frase de paso de cifrado ou definiu un formato de ficheiro incorrecto."
   },
   "Error035": {
     "message": "E035: Produciuse un erro ao crear o seguinte marcador no servidor: {0}"
