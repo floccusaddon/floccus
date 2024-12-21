@@ -43,7 +43,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       return false
     }
     try {
-      return Boolean(['https:', 'http:', 'ftp:', 'data:', 'javascript:', 'chrome:', 'file:'].includes(
+      return Boolean(['https:', 'http:', 'ftp:', 'data:', 'javascript:', 'file:', 'chrome:', 'edge:'].includes(
         new URL(bm.url).protocol
       ))
     } catch (e) {
