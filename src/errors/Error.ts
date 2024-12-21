@@ -324,3 +324,13 @@ export class LocalFolderNotFoundError extends FloccusError {
     Object.setPrototypeOf(this, LocalFolderNotFoundError.prototype)
   }
 }
+
+export class UpdateBookmarkError extends FloccusError {
+  public bookmark: Bookmark<TItemLocation>
+  constructor(bookmark: Bookmark<TItemLocation>) {
+    super(`E039: Failed to update the following bookmark on the server: ${bookmark.inspect()}`)
+    this.code = 39
+    this.bookmark = bookmark
+    Object.setPrototypeOf(this, UpdateBookmarkError.prototype)
+  }
+}

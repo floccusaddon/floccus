@@ -113,6 +113,9 @@
   "Error038": {
     "message": "E038: Could not find local folder"
   },
+  "Error039": {
+    "message": "E039: Failed to update the following bookmark on the server: {0}"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },

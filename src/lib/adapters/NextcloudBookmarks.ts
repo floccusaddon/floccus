@@ -29,7 +29,7 @@ import {
   UnknownCreateTargetError,
   UnknownFolderParentUpdateError,
   UnknownFolderUpdateError,
-  UnknownMoveTargetError
+  UnknownMoveTargetError, UpdateBookmarkError
 } from '../../errors/Error'
 
 const PAGE_SIZE = 300
@@ -716,12 +716,19 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         tags: bms[0].tags,
       }
 
-      await this.sendRequest(
-        'PUT',
-        `index.php/apps/bookmarks/public/rest/v2/bookmark/${upstreamId}`,
-        'application/json',
-        body
-      )
+      try {
+        await this.sendRequest(
+          'PUT',
+          `index.php/apps/bookmarks/public/rest/v2/bookmark/${upstreamId}`,
+          'application/json',
+          body
+        )
+      } catch (e) {
+        if (e instanceof HttpError) {
+          throw new UpdateBookmarkError(newBm)
+        }
+        throw e
+      }
 
       if (!newFolder.children.find(item => String(item.id) === String(newBm.id) && item.type === 'bookmark')) {
         newFolder.children.push(newBm)

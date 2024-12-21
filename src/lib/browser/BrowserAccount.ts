@@ -10,7 +10,7 @@ import {
   InconsistentBookmarksExistenceError, LockFileError,
   MissingItemOrderError,
   ParseResponseError,
-  UnknownFolderItemOrderError
+  UnknownFolderItemOrderError, UpdateBookmarkError
 } from '../../errors/Error'
 import {i18n} from '../native/I18n'
 import { OrderFolderResource } from '../interfaces/Resource'
@@ -110,6 +110,9 @@ export default class BrowserAccount extends Account {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
     }
     if (er instanceof CreateBookmarkError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.bookmark.inspect()])
+    }
+    if (er instanceof UpdateBookmarkError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.bookmark.inspect()])
     }
     if (er instanceof FloccusError) {

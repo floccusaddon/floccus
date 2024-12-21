@@ -10,7 +10,7 @@ import {
   InconsistentBookmarksExistenceError, LockFileError,
   MissingItemOrderError,
   ParseResponseError,
-  UnknownFolderItemOrderError
+  UnknownFolderItemOrderError, UpdateBookmarkError
 } from '../../errors/Error'
 import Logger from '../Logger'
 import { i18n } from './I18n'
@@ -88,6 +88,9 @@ export default class NativeAccount extends Account {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
     }
     if (er instanceof CreateBookmarkError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.bookmark.inspect()])
+    }
+    if (er instanceof UpdateBookmarkError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.bookmark.inspect()])
     }
     if (er instanceof FloccusError) {
