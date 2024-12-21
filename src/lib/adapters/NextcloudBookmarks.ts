@@ -857,6 +857,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new AuthenticationError()
     }
     if (res.status === 503 || res.status >= 400) {
+      Logger.log(`${verb} ${url}: Server responded with ${res.status}: ` + (await res.text()).substring(0, 250))
       throw new HttpError(res.status, verb)
     }
     let json
