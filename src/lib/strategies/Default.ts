@@ -1155,7 +1155,7 @@ export default class SyncProcess {
     Logger.log({ reorderings })
 
     await Parallel.each(reorderings.getActions(), async(action) => {
-      Logger.log('Executing reorder action', action)
+      Logger.log('Executing reorder action', `${action.type} Payload: #${action.payload.id}[${action.payload.title}]${'url' in action.payload ? `(${action.payload.url})` : ''} parentId: ${action.payload.parentId}`)
       const item = action.payload
 
       if (this.canceled) {
