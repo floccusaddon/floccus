@@ -113,6 +113,9 @@
   "Error038": {
     "message": "E038: 找不到本地文件夹"
   },
+  "Error039": {
+    "message": "E039: 未能在服务器上更新下列书签: {0}"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
