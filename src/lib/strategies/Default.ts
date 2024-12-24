@@ -436,20 +436,19 @@ export default class SyncProcess {
         this.cacheTreeRoot,
         this.localTreeRoot,
         // We also allow canMergeWith for folders here, because Window IDs are not stable
+        // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
         (oldItem, newItem) => {
           if (oldItem.type !== newItem.type) {
             return false
           }
-          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
-            return oldItem.url === newItem.url
+          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
+            return false
           }
-          if (oldItem.type === 'folder') {
-            if (String(oldItem.id) === String(newItem.id)) {
-              return true
-            }
-            if (oldItem.canMergeWith(newItem)) {
-              return true
-            }
+          if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
+            return true
+          }
+          if (oldItem.type === 'folder' && oldItem.canMergeWith(newItem)) {
+            return true
           }
           return false
         },
@@ -461,22 +460,21 @@ export default class SyncProcess {
         // We also allow canMergeWith here
         // (for bookmarks, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
         // (for folders because Window IDs are not stable)
+        // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
         (oldItem, newItem) => {
           if (oldItem.type !== newItem.type) {
             return false
           }
-          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
-            return oldItem.url === newItem.url
+          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
+            return false
           }
-          if (oldItem.type === 'folder') {
-            if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
-              newMappings.push([oldItem, newItem])
-              return true
-            }
-            if (oldItem.canMergeWith(newItem)) {
-              newMappings.push([oldItem, newItem])
-              return true
-            }
+          if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
+            newMappings.push([oldItem, newItem])
+            return true
+          }
+          if (oldItem.canMergeWith(newItem)) {
+            newMappings.push([oldItem, newItem])
+            return true
           }
           return false
         },
@@ -491,15 +489,12 @@ export default class SyncProcess {
           if (oldItem.type !== newItem.type) {
             return false
           }
-          if (oldItem.type === 'folder') {
-            if (String(oldItem.id) === String(newItem.id)) {
-              return true
-            }
+          // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
+          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
+            return false
           }
-          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
-            if (String(oldItem.id) === String(newItem.id) && oldItem.url === newItem.url) {
-              return true
-            }
+          if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
+            return true
           }
           return false
         },
@@ -508,22 +503,20 @@ export default class SyncProcess {
       serverScanner = new Scanner(
         this.cacheTreeRoot,
         this.serverTreeRoot,
-        // We also allow canMergeWith here, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
+        // We also allow canMergeWith here, because e.g. for NextcloudBookmarks the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
         (oldItem, newItem) => {
           if (oldItem.type !== newItem.type) {
             return false
           }
-          if (oldItem.type === 'folder') {
-            if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
-              newMappings.push([oldItem, newItem])
-              return true
-            }
+          // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
+          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
+            return false
+          }
+          if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
+            newMappings.push([oldItem, newItem])
+            return true
           }
           if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
-            if (Mappings.mappable(mappingsSnapshot, oldItem, newItem) && oldItem.url === newItem.url) {
-              newMappings.push([oldItem, newItem])
-              return true
-            }
             if (oldItem.canMergeWith(newItem)) {
               newMappings.push([oldItem, newItem])
               return true
