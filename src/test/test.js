@@ -5284,8 +5284,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test3' }),
                       new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test2' }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test3' }),
                       new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test4' }),
                     ]
                   })

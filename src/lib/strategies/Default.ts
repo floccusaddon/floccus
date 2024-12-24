@@ -487,8 +487,22 @@ export default class SyncProcess {
       localScanner = new Scanner(
         this.cacheTreeRoot,
         this.localTreeRoot,
-        (oldItem, newItem) =>
-          (oldItem.type === newItem.type && String(oldItem.id) === String(newItem.id)),
+        (oldItem, newItem) => {
+          if (oldItem.type !== newItem.type) {
+            return false
+          }
+          if (oldItem.type === 'folder') {
+            if (String(oldItem.id) === String(newItem.id)) {
+              return true
+            }
+          }
+          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
+            if (String(oldItem.id) === String(newItem.id) && oldItem.url === newItem.url) {
+              return true
+            }
+          }
+          return false
+        },
         this.preserveOrder
       )
       serverScanner = new Scanner(
@@ -496,9 +510,24 @@ export default class SyncProcess {
         this.serverTreeRoot,
         // We also allow canMergeWith here, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
         (oldItem, newItem) => {
-          if ((oldItem.type === newItem.type && Mappings.mappable(mappingsSnapshot, oldItem, newItem)) || (oldItem.type === 'bookmark' && oldItem.canMergeWith(newItem))) {
-            newMappings.push([oldItem, newItem])
-            return true
+          if (oldItem.type !== newItem.type) {
+            return false
+          }
+          if (oldItem.type === 'folder') {
+            if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
+              newMappings.push([oldItem, newItem])
+              return true
+            }
+          }
+          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
+            if (Mappings.mappable(mappingsSnapshot, oldItem, newItem) && oldItem.url === newItem.url) {
+              newMappings.push([oldItem, newItem])
+              return true
+            }
+            if (oldItem.canMergeWith(newItem)) {
+              newMappings.push([oldItem, newItem])
+              return true
+            }
           }
           return false
         },
@@ -882,7 +911,6 @@ export default class SyncProcess {
     }
 
     if (action.payload instanceof Folder && action.payload.children.length && action.oldItem instanceof Folder) {
-
       // Fix for Unidirectional reverted REMOVEs, for all other strategies this should be a noop
       action.payload.children.forEach((item) => {
         item.parentId = id
