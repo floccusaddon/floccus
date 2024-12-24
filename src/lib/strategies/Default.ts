@@ -27,7 +27,6 @@ import { CancelledSyncError, FailsafeError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 import CachingAdapter from '../adapters/Caching'
-import LocalTabs from '../LocalTabs'
 
 const ACTION_CONCURRENCY = 12
 
@@ -437,8 +436,23 @@ export default class SyncProcess {
         this.cacheTreeRoot,
         this.localTreeRoot,
         // We also allow canMergeWith for folders here, because Window IDs are not stable
-        (oldItem, newItem) =>
-          (oldItem.type === newItem.type && String(oldItem.id) === String(newItem.id)) || (oldItem.type === 'folder' && oldItem.canMergeWith(newItem)),
+        (oldItem, newItem) => {
+          if (oldItem.type !== newItem.type) {
+            return false
+          }
+          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
+            return oldItem.url === newItem.url
+          }
+          if (oldItem.type === 'folder') {
+            if (String(oldItem.id) === String(newItem.id)) {
+              return true
+            }
+            if (oldItem.canMergeWith(newItem)) {
+              return true
+            }
+          }
+          return false
+        },
         this.preserveOrder,
       )
       serverScanner = new Scanner(
@@ -448,9 +462,21 @@ export default class SyncProcess {
         // (for bookmarks, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
         // (for folders because Window IDs are not stable)
         (oldItem, newItem) => {
-          if ((oldItem.type === newItem.type && Mappings.mappable(mappingsSnapshot, oldItem, newItem)) || (oldItem.canMergeWith(newItem))) {
-            newMappings.push([oldItem, newItem])
-            return true
+          if (oldItem.type !== newItem.type) {
+            return false
+          }
+          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
+            return oldItem.url === newItem.url
+          }
+          if (oldItem.type === 'folder') {
+            if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
+              newMappings.push([oldItem, newItem])
+              return true
+            }
+            if (oldItem.canMergeWith(newItem)) {
+              newMappings.push([oldItem, newItem])
+              return true
+            }
           }
           return false
         },
