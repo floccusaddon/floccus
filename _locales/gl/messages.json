@@ -102,7 +102,7 @@
     "message": "E034: Non é posíbel ler o ficheiro de marcadores remotos. Quizais esqueceu definir unha frase de paso de cifrado ou definiu un formato de ficheiro incorrecto."
   },
   "Error035": {
-    "message": "E035: Produciuse un erro ao crear o seguinte marcador no servidor: {0}"
+    "message": "E035: Produciuse un fallo ao crear o seguinte marcador no servidor: {0}"
   },
   "Error036": {
     "message": "E036: Faltan permisos para acceder ao servidor de sincronización"
