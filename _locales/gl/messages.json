@@ -113,6 +113,9 @@
   "Error038": {
     "message": "E038: Non foi posíbel atopar o cartafol local"
   },
+  "Error039": {
+    "message": "E035: Produciuse un fallo ao actualizar o seguinte marcador no servidor: {0}"
+  },
   "LabelWebdavurl": {
     "message": "URL de WebDAV"
   },
