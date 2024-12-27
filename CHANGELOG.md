@@ -1,5 +1,26 @@
 # Changelog
 
+## [5.4.2-alpha.1]
+
+### New
+
+* [native] enh(Search): Match partial words
+* enh(Caching): Add edge:// to supported schemes
+* enh: Don't produce UPDATE actions when URLs change
+
+### Fixed
+
+* fix(SyncProcess): Refactor mergeable functions
+* fix(SyncProcess): Fix URL collisions on NC Bookmarks
+* fix(SyncProcess): Shorten excessive logging of REORDER actions
+* fix(Logger): Improve log redaction
+* fix(NextcloudBookmarks): More info in log when requests fail
+* fix(NextcloudBookmarks): Better error message when UPDATE fails
+* fix(OptionsWebDAV): re-init file when bookmark_file option is changed
+* fix(WebDAV): Fail when trying to sync to XBEL file with html setting and vice versa
+* fix(stringifyError): inspect bookmark to avoid [object Object]
+* Fix copy/paste typos for E037 & E038 error messages. (Thanks to John Hein)
+
 ## [5.4.1]
 
 ### Fixed
