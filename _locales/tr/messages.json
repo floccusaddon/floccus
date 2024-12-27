@@ -99,7 +99,7 @@
     "message": "E033: Yönlendirme algılandı. Lütfen sunucunun seçilen senkronizasyon yöntemini desteklediğinden ve girdiğiniz URL'nin doğru olduğundan ve farklı bir konuma yönlendirmediğinden emin olun. Yönlendirme kurulumunuzun bir parçasıysa bu kontrolü ayarlardan devre dışı bırakabilirsiniz."
   },
   "Error034": {
-    "message": "E034: Uzak yer imleri dosyası okunamıyor. Bir şifreleme parolası ayarlamayı mı unuttunuz?"
+    "message": "E034: Uzak yer imleri dosyası okunamıyor. Belki bir şifreleme parolası ayarlamayı unuttunuz veya yanlış dosya biçimini ayarladınız."
   },
   "Error035": {
     "message": "E035: Sunucuda aşağıdaki yer işareti oluşturulamadı: {0}"
@@ -112,6 +112,9 @@
   },
   "Error038": {
     "message": "E038: Yerel klasör bulunamadı"
+  },
+  "Error039": {
+    "message": "E039: Sunucudaki aşağıdaki yer işareti güncellenemedi: {0}"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
