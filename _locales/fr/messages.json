@@ -811,6 +811,6 @@
     "message": "Forcer une synchronisation"
   },
   "DescriptionScheduledforcesync": {
-    "message": "Voulez-vous vraiment forcer une synchronisation? Synchroniser à partir deux deux instances simultanément peut avoir des conséquences imprévues, allant jusqu'à la corruption de vos données. Assurez-vous qu'aucune autre instance ne soit en train de synchroniser avant de confirmer cette action."
+    "message": "Voulez-vous vraiment forcer une synchronisation? Synchroniser à partir de deux instances simultanément peut avoir des conséquences imprévues, allant jusqu'à la corruption de vos données. Assurez-vous qu'aucune autre instance ne soit en train de synchroniser avant de confirmer cette action."
   }
 }
