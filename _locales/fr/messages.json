@@ -33,7 +33,7 @@
     "message": "E011: L'élément n'est pas un sous-élément du dossier en cours de tri: {0}"
   },
   "Error012": {
-    "message": "E012: Il manque certains de ses sous-éléments au dossier en cours de tri"
+    "message": "E012: Il manque certains des sous-éléments du dossier en cours de tri"
   },
   "Error013": {
     "message": "E013: Le dossier à supprimer n'existe pas"
@@ -93,13 +93,13 @@
     "message": "E031: Impossible de s'authentifier avec Google Drive. Connectez de nouveau floccus à votre compte Google."
   },
   "Error032": {
-    "message": "E032: Erreur OAuth. Erreur de validation du token. Merci de vous reconnecter à votre compte Google."
+    "message": "E032: Erreur OAuth. Erreur de validation du jeton. Merci de vous reconnecter à votre compte Google."
   },
   "Error033": {
     "message": "E033: Redirection détectée. Vérifiez que le serveur supporte la méthode de synchronisation choisie et que l'URL entrée est correcte et ne redirige pas vers une autre destination. Si la redirection fait partie de votre configuration, vous pouvez désactivez cette vérification dans les paramètres."
   },
   "Error034": {
-    "message": "E034: Le fichier de signets distant est illisible. Avez-vous oublié d'entrer un mot de passe de chiffrement ?"
+    "message": "E034: Le fichier de signets distant est illisible. Peut-être avez-vous oublié d'entrer un mot de passe de chiffrement, ou utilisé un mauvais format de fichier."
   },
   "Error035": {
     "message": "E035 : Échec de la création du signet suivant sur le serveur : {0}"
@@ -108,10 +108,13 @@
     "message": "E036: Permission manquante pour accéder au serveur de synchronisation"
   },
   "Error037": {
-    "message": "E037 : Ressource verrouillée"
+    "message": "E037: Ressource verrouillée"
   },
   "Error038": {
-    "message": "E038 : Impossible de trouver le dossier locale"
+    "message": "E038: Impossible de trouver le dossier local"
+  },
+  "Error039": {
+    "message": "E039: Impossible de mettre à jour le signet suivant sur le serveur: {0}"
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -273,7 +276,7 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "Synchronisez vos signets avec l'application open-source Bookmarks de Nextcloud (une plate-forme collaborative que vous pouvez soit héberger vous même, ou utiliser via une instance tournant dans le cloud, fournie par un hébergeur). Avec Nextcloud Bookmarks, vous ne pouvez synchroniser que des signets au format http, ftp et javascript. Assurez-vous d'avoir installé l'application Bookmarks depuis l'app store Nextcloud. Cette option ne supporte pas le cryptage point à point."
+    "message": "Synchronisez vos signets avec l'application open-source Bookmarks de Nextcloud (une plate-forme collaborative que vous pouvez soit héberger vous même, ou utiliser via une instance tournant dans le cloud, fournie par un hébergeur). Avec Nextcloud Bookmarks, vous ne pouvez synchroniser que des signets au format http, ftp et javascript. Assurez-vous d'avoir installé l'application Bookmarks depuis l'app store Nextcloud. Cette option ne supporte pas le chiffrement point à point."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (ancienne méthode)"
@@ -285,7 +288,7 @@
     "message": "Partage WebDAV"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Synchronisez vos signets en les conservant dans un fichier situé dans le partage WebDAV. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur compatible WebDAV, hébergé sur votre serveur ou dans le cloud. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option supporte le cryptage point à point."
+    "message": "Synchronisez vos signets en les conservant dans un fichier situé dans le partage WebDAV. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur compatible WebDAV, hébergé sur votre serveur ou dans le cloud. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option supporte le chiffrement point à point."
   },
   "LabelAddaccount": {
     "message": "Ajouter un profil"
@@ -379,7 +382,7 @@
     "message": "Cet ancien type de profil n'est plus supporté et sera bientôt supprimé. Merci de le remplacer par la nouvelle méthode de synchronisation Nextcloud. Elle vous apportera des performances accrues."
   },
   "LabelUpdated": {
-    "message": "Floccus a été mis à jour"
+    "message": "⚡ Floccus a été mis à jour"
   },
   "DescriptionUpdated": {
     "message": "Félicitations, la dernière version de floccus a été installée sur votre appareil !"
@@ -448,7 +451,7 @@
     "message": "Importer des profils"
   },
   "DescriptionExport": {
-    "message": "Choisissez les profils ci-dessous que vous souhaitez exporter dans un fichier. Ainsi vous pourrez facilement recréer le même profil dans un autre appareil ou navigateur."
+    "message": "Choisissez les profils ci-dessous que vous souhaitez exporter dans un fichier. Ainsi vous pourrez facilement recréer les mêmes profils dans un autre appareil ou navigateur."
   },
   "DescriptionImport": {
     "message": "Importez ici un fichier exporté depuis un autre appareil ou navigateur, qui contient les données de votre profil. Assurez-vous de configurer le bon dossier à synchroniser une fois l'importation réalisée."
@@ -460,7 +463,7 @@
     "message": "Onglets du navigateur"
   },
   "DescriptionSyncTabs": {
-    "message": "Les liens qui sont stockés sur le serveur seront ouverts en tant qu'onglets dans votre navigateur. Les onglets ouverts sur votre navigateur seront stockés sur votre serveur. Etant donné que les liens sur le serveur seront tous ouverts comme des onglets sur votre navigateur lors de la prochaine synchronisation, votre navigateur pourrait être submergé."
+    "message": "Les liens qui sont stockés sur le serveur seront ouverts en tant qu'onglets dans votre navigateur. Les onglets ouverts sur votre navigateur seront stockés sur votre serveur. Étant donné que les liens sur le serveur seront tous ouverts comme des onglets sur votre navigateur lors de la prochaine synchronisation, votre navigateur pourrait être submergé."
   },
   "LabelTabs": {
     "message": "Onglets"
@@ -499,7 +502,7 @@
     "message": "Sécurité"
   },
   "DescriptionFailsafe": {
-    "message": "Parfois, des erreurs de configuration ou un bug logiciel peuvent causer la suppression involontaire de données. Ces données deviennent alors irrécupérables. Pour empêcher cela, floccus n'effacera pas d'un seul coup plus de 50% de vos signets, à moins que vous ne désactiviez la Sécurité ici."
+    "message": "Parfois, des erreurs de configuration ou un bogue logiciel peuvent causer la suppression involontaire de données. Ces données deviennent alors irrécupérables. Pour empêcher cela, floccus n'effacera pas d'un seul coup plus de 50% de vos signets, à moins que vous ne désactiviez la Sécurité ici."
   },
   "LabelFailsafeon": {
     "message": "Activée. N'effacera pas plus de 50% de vos signets locaux sans vous en demander d'abord l'autorisation. (Recommandé)"
@@ -508,13 +511,13 @@
     "message": "Désactivée. Permet la suppression de plus de 50% de vos signets locaux sans vous en demander l'autorisation."
   },
   "StatusFailsafeoff": {
-    "message": "Sécurité désactivée. Il y a un risque de perte de données involontaire. Il est recommendé de laisser active la Protection de secours dans les paramètres de votre profil."
+    "message": "Sécurité désactivée. Il y a un risque de perte de données involontaire. Il est recommandé de laisser active la Protection de secours dans les paramètres de votre profil."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Synchronise vos signets à l'aide d'un fichier chiffré stocké sur votre Google Drive. Les signets HTTP, FTP, data, fichier ou JavaScript peuvent être synchronisés. Cette option supporte le cryptage point à point."
+    "message": "Synchronise vos signets à l'aide d'un fichier chiffré stocké sur votre Google Drive. Les signets HTTP, FTP, data, fichier ou JavaScript peuvent être synchronisés. Cette option supporte le chiffrement point à point."
   },
   "LabelLogingoogle": {
     "message": "Se connecter avec Google"
@@ -554,6 +557,9 @@
   },
   "LabelDeleteitem": {
     "message": "Supprimer"
+  },
+  "DescriptionReallydeleteitem": {
+    "message": "Voulez-vous vraiment supprimer cet objet?"
   },
   "LabelNobookmarks": {
     "message": "Aucun signet ici"
@@ -709,7 +715,7 @@
     "message": "Git via HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Synchronisez vos signets en les conservant dans un fichier situé sur un dépôt Git. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur Git, tel que Github, Gitlab, Gitea, etc. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option ne supporte pas le cryptage point à point."
+    "message": "Synchronisez vos signets en les conservant dans un fichier situé sur un dépôt Git. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur Git, tel que Github, Gitlab, Gitea, etc. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option ne supporte pas le chiffrement point à point."
   },
   "LabelGiturl": {
     "message": "URL du dépôt utilisant HTTP"
@@ -718,10 +724,10 @@
     "message": "Branche"
   },
   "LabelTelemetry": {
-    "message": "Rapport d'erreur automatique"
+    "message": "🐛 Rapport d'erreur automatique"
   },
   "DescriptionTelemetry": {
-    "message": "Floccus peut automatiquement envoyer des rapports d'erreur aux développeurs. Ceci constitue une aide inestimable pour découvrir et résoudre les bugs de floccus plus rapidement, et améliorer votre expérience avec floccus à long terme. Même lorsque le rapport d'erreur est actif, les développeurs de floccus ne pourront jamais accéder à vos signets."
+    "message": "Floccus peut automatiquement envoyer des rapports d'erreur aux développeurs. Ceci constitue une aide inestimable pour découvrir et résoudre les bogues de floccus plus rapidement, et améliorer votre expérience avec floccus à long terme. Même lorsque le rapport d'erreur est actif, les développeurs de floccus ne pourront jamais accéder à vos signets."
   },
   "LabelTelemetryenable": {
     "message": "Envoyer automatiquement les données d'erreurs aux développeurs de floccus"
@@ -730,7 +736,7 @@
     "message": "Ne pas envoyer les données d'erreurs aux développeurs de floccus"
   },
   "LabelAccountlabel": {
-    "message": "Etiquette du profil"
+    "message": "Étiquette du profil"
   },
   "DescriptionAccountlabel": {
     "message": "Donnez un nom à ce profil afin de le reconnaître plus facilement."
@@ -739,7 +745,7 @@
     "message": "Compter les clics"
   },
   "DescriptionClickcount": {
-    "message": "Envoyer des statistiques concernant les signets que vous accédez le plus a votre serveur Nextcloud, afin que vous puissiez trier par nombre de clics."
+    "message": "Envoyer des statistiques concernant les signets que vous accédez le plus à votre serveur Nextcloud, afin que vous puissiez trier par nombre de clics."
   },
   "DescriptionGoogleplayreview": {
     "message": "Rédiger un avis sur Google Play"
@@ -760,7 +766,7 @@
     "message": "Rédiger un avis sur Edge Addons"
   },
   "LabelWritereview": {
-    "message": "A votre bon cœur !"
+    "message": "💙 Partagez!"
   },
   "DescriptionWritereview": {
     "message": "Si vous aimez floccus, dites-le au monde entier en rédigeant un avis sur l'une des plate-formes ci-dessous."
@@ -781,13 +787,13 @@
     "message": "Rapporter ce probleme"
   },
   "DescriptionReportproblem": {
-    "message": "Si vous désirez contacter directement les développeurs pour discuter d'un problème, vous pouvez le faire ici."
+    "message": "Si vous désirez contacter directement les développeurs pour discuter d'un problème, vous pouvez le faire ici:"
   },
   "LabelAdapterlinkwarden":  {
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Synchronisez vos signets avec l'application open-source Linkwarden, soit hébergée sur votre serveur ou dans le cloud sur cloud.linkwarden.app. Cette option ne permet de synchroniser que des signets au format http, ftp et javascript. Cette option ne supporte pas le cryptage point à point."
+    "message": "Synchronisez vos signets avec l'application open-source Linkwarden, soit hébergée sur votre serveur ou dans le cloud sur cloud.linkwarden.app. Cette option ne permet de synchroniser que des signets au format http, ftp et javascript. Cette option ne supporte pas le chiffrement point à point."
   },
   "LabelLinkwardenurl":  {
     "message": "L'URL de votre serveur Linkwarden"
@@ -797,5 +803,14 @@
   },
   "LabelLinkwardenconnectionerror": {
     "message": "Impossible de se connecter à votre serveur Linkwarden"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "Résultats provenant d'autres dossiers"
+  },
+  "LabelScheduledforcesync": {
+    "message": "Forcer une synchronisation"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "Voulez-vous vraiment forcer une synchronisation? Synchroniser à partir deux deux instances simultanément peut avoir des conséquences imprévues, allant jusqu'à la corruption de vos données. Assurez-vous qu'aucune autre instance ne soit en train de synchroniser avant de confirmer cette action."
   }
 }
