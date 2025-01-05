@@ -369,6 +369,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       throw new NetworkError()
     }
     if (resp.status === 401 || resp.status === 403) {
+      Logger.log('Failed to authenticate to Google API: ' + await resp.text())
       throw new AuthenticationError()
     }
     return resp
@@ -403,6 +404,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     }
 
     if (res.status === 401 || res.status === 403) {
+      Logger.log('Failed to authenticate to Google API: ' + res.data)
       throw new AuthenticationError()
     }
 
