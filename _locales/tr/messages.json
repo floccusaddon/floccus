@@ -99,7 +99,7 @@
     "message": "E033: Yönlendirme algılandı. Lütfen sunucunun seçilen senkronizasyon yöntemini desteklediğinden ve girdiğiniz URL'nin doğru olduğundan ve farklı bir konuma yönlendirmediğinden emin olun. Yönlendirme kurulumunuzun bir parçasıysa bu kontrolü ayarlardan devre dışı bırakabilirsiniz."
   },
   "Error034": {
-    "message": "E034: Uzak yer imleri dosyası okunamıyor. Bir şifreleme parolası ayarlamayı mı unuttunuz?"
+    "message": "E034: Uzak yer imleri dosyası okunamıyor. Belki bir şifreleme parolası ayarlamayı unuttunuz veya yanlış dosya biçimini ayarladınız."
   },
   "Error035": {
     "message": "E035: Sunucuda aşağıdaki yer işareti oluşturulamadı: {0}"
@@ -108,10 +108,13 @@
     "message": "E036: Senkronizasyon sunucusuna erişim izinleri eksik"
   },
   "Error037": {
-    "message": "E036: Kaynak kilitli"
+    "message": "E037: Kaynak kilitli"
   },
   "Error038": {
-    "message": "E036: Yerel klasör bulunamadı"
+    "message": "E038: Yerel klasör bulunamadı"
+  },
+  "Error039": {
+    "message": "E039: Sunucudaki aşağıdaki yer işareti güncellenemedi: {0}"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -803,5 +806,11 @@
   },
   "LabelSearchresultsotherfolders": {
     "message": "Diğer klasörlerdeki sonuçlar"
+  },
+  "LabelScheduledforcesync": {
+    "message": "Senkronizasyona zorla"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "Gerçekten senkronizasyona zorlamak istiyor musunuz? Aynı anda iki cihazla senkronizasyon yapılması, verilerinizin bozulması dahil öngörülemeyen sonuçlara yol açabilir. Onaylamadan önce şu anda başka hiçbir cihazın senkronize edilmediğinden emin olun."
   }
 }

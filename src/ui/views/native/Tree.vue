@@ -603,9 +603,15 @@ export default {
     search(query, tree) {
       return Object.values(tree.index.bookmark)
         .filter(item => {
-          const matchTitle = item.title ? query.split(' ').every(term => item.title.toLowerCase().split(' ').some(word => word === term)) : false
+          const matchTitleFully = item.title ? query.split(' ').every(term => item.title.toLowerCase().split(' ').some(word => word === term)) : false
+          const matchTitlePartially = item.title ? query.split(' ').every(term => item.title.toLowerCase().includes(term)) : false
           const matchUrl = query.split(' ').every(term => item.url.toLowerCase().includes(term))
-          return matchUrl || matchTitle
+          return matchUrl || matchTitleFully || matchTitlePartially
+        })
+        .sort((a, b) => {
+          const matchTitlePartiallyA = a.title ? query.split(' ').every(term => a.title.toLowerCase().includes(term)) : false
+          const matchTitlePartiallyB = b.title ? query.split(' ').every(term => b.title.toLowerCase().includes(term)) : false
+          return matchTitlePartiallyA ? (matchTitlePartiallyB ? 0 : -1) : 1
         })
         .sort((a, b) => {
           const matchTitleA = a.title ? query.split(' ').every(term => a.title.toLowerCase().split(' ').some(word => word === term)) : false

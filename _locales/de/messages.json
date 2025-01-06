@@ -108,10 +108,10 @@
     "message": "E036: Fehlende Berechtigungen für den Zugriff auf den Sync-Server"
   },
   "Error037": {
-    "message": "E036: Ressource ist gesperrt"
+    "message": "E037: Ressource ist gesperrt"
   },
   "Error038": {
-    "message": "E036: Konnte lokalen Ordner nicht finden"
+    "message": "E038: Konnte lokalen Ordner nicht finden"
   },
   "LabelWebdavurl": {
     "message": "WebDAV-URL"

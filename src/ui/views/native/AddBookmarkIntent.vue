@@ -72,6 +72,7 @@
       </v-card>
     </v-main>
     <DialogChooseFolder
+      v-if="tree"
       v-model="temporaryParent"
       :display.sync="displayFolderChooser"
       :tree="tree" />

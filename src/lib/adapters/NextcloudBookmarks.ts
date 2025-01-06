@@ -29,7 +29,7 @@ import {
   UnknownCreateTargetError,
   UnknownFolderParentUpdateError,
   UnknownFolderUpdateError,
-  UnknownMoveTargetError
+  UnknownMoveTargetError, UpdateBookmarkError
 } from '../../errors/Error'
 
 const PAGE_SIZE = 300
@@ -69,7 +69,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   public hasFeatureBulkImport:boolean = null
   private list: Bookmark<typeof ItemLocation.SERVER>[]
   private tree: Folder<typeof ItemLocation.SERVER>
-  private lockId: string | number
   private abortController: AbortController
   private abortSignal: AbortSignal
   private canceled = false
@@ -79,7 +78,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private ended = false
   private locked = false
   private hasFeatureJavascriptLinks: boolean = null
-  private rootHash: string = null
 
   constructor(server: NextcloudBookmarksConfig) {
     this.server = server
@@ -359,7 +357,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         }
       })
     }
-    return recurseChildren(folderId, children).filter(item => String(item.id) !== String(this.lockId))
+    return recurseChildren(folderId, children)
   }
 
   async loadFolderChildren(folderId:string|number, all?: boolean): Promise<TItem<typeof ItemLocation.SERVER>[]> {
@@ -718,12 +716,19 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         tags: bms[0].tags,
       }
 
-      await this.sendRequest(
-        'PUT',
-        `index.php/apps/bookmarks/public/rest/v2/bookmark/${upstreamId}`,
-        'application/json',
-        body
-      )
+      try {
+        await this.sendRequest(
+          'PUT',
+          `index.php/apps/bookmarks/public/rest/v2/bookmark/${upstreamId}`,
+          'application/json',
+          body
+        )
+      } catch (e) {
+        if (e instanceof HttpError) {
+          throw new UpdateBookmarkError(newBm)
+        }
+        throw e
+      }
 
       if (!newFolder.children.find(item => String(item.id) === String(newBm.id) && item.type === 'bookmark')) {
         newFolder.children.push(newBm)
@@ -852,6 +857,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new AuthenticationError()
     }
     if (res.status === 503 || res.status >= 400) {
+      Logger.log(`${verb} ${url}: Server responded with ${res.status}: ` + (await res.text()).substring(0, 250))
       throw new HttpError(res.status, verb)
     }
     let json

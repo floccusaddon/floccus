@@ -108,10 +108,10 @@
     "message": "E036: Synkronointipalvelimen käyttöön tarvittavia oikeuksia puuttuu."
   },
   "Error037": {
-    "message": "E036: Resurssi on lukittu."
+    "message": "E037: Resurssi on lukittu."
   },
   "Error038": {
-    "message": "E036: Paikallista kansiota ei löytynyt."
+    "message": "E038: Paikallista kansiota ei löytynyt."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL-osoite"

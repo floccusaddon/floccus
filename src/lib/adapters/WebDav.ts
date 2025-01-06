@@ -221,7 +221,7 @@ export default class WebDavAdapter extends CachingAdapter {
             xmlDocText = await Crypto.decryptAES(this.server.passphrase, xmlDocText, this.server.bookmark_file)
           }
         } catch (e) {
-          if (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>') || xmlDocText.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>')) {
+          if (xmlDocText && (xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>') || xmlDocText.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>'))) {
             // not encrypted, yet => noop
           } else {
             throw new DecryptionError()
@@ -245,9 +245,15 @@ export default class WebDavAdapter extends CachingAdapter {
 
       switch (this.server.bookmark_file_type) {
         case 'xbel':
+          if (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
+            throw new FileUnreadableError()
+          }
           this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
           break
         case 'html':
+          if (!xmlDocText.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>')) {
+            throw new FileUnreadableError()
+          }
           this.bookmarksCache = Html.deserialize(xmlDocText)
           break
         default:

@@ -1,5 +1,63 @@
 # Changelog
 
+## [5.4.2]
+
+(aka 5.4.2.1)
+
+### New
+
+* [native] enh(Search): Match partial words
+* enh(Caching): Add edge:// to supported schemes
+* enh: Don't produce UPDATE actions when URLs change
+
+### Fixed
+
+* fix(SyncProcess): Refactor mergeable functions
+* fix(SyncProcess): Fix URL collisions on NC Bookmarks
+* fix(SyncProcess): Shorten excessive logging of REORDER actions
+* fix(Logger): Improve log redaction
+* fix(NextcloudBookmarks): More info in log when requests fail
+* fix(NextcloudBookmarks): Better error message when UPDATE fails
+* fix(OptionsWebDAV): re-init file when bookmark_file option is changed
+* fix(WebDAV): Fail when trying to sync to XBEL file with html setting and vice versa
+* fix(stringifyError): inspect bookmark to avoid [object Object]
+* Fix copy/paste typos for E037 & E038 error messages. (Thanks to John Hein)
+* fix(WebDAV): Fix "includes is not a function" error
+* fix(GoogleDrive): Log response on auth failure
+
+
+## [5.4.2-alpha.1]
+
+### New
+
+* [native] enh(Search): Match partial words
+* enh(Caching): Add edge:// to supported schemes
+* enh: Don't produce UPDATE actions when URLs change
+
+### Fixed
+
+* fix(SyncProcess): Refactor mergeable functions
+* fix(SyncProcess): Fix URL collisions on NC Bookmarks
+* fix(SyncProcess): Shorten excessive logging of REORDER actions
+* fix(Logger): Improve log redaction
+* fix(NextcloudBookmarks): More info in log when requests fail
+* fix(NextcloudBookmarks): Better error message when UPDATE fails
+* fix(OptionsWebDAV): re-init file when bookmark_file option is changed
+* fix(WebDAV): Fail when trying to sync to XBEL file with html setting and vice versa
+* fix(stringifyError): inspect bookmark to avoid [object Object]
+* Fix copy/paste typos for E037 & E038 error messages. (Thanks to John Hein)
+
+## [5.4.1]
+
+### Fixed
+
+* [native] fix(AddBookmarkIntent): Folder selector was broken
+* [ios] fix(design): Make top bar dark when in dark mode
+* fix(NewAccount): Don't refresh page on enter in accountlable field
+* fix(Bookmark): Accept url = null
+* fix(NextcloudBookmarks): Remove unnecessary code
+* fix(Linkwarden): Ignore bookmarks with url = null
+
 ## [5.4.0] - 2024-11-30
 
 ### New

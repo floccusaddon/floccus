@@ -36,7 +36,7 @@ export default class Logger {
 
   static async anonymizeLogs(logs) {
     const regex = /\[(.*?)\]\((.*?)\)|\[(.*?)\]/g
-    return Parallel.map(logs, async(entry) => {
+    const newLogs = await Parallel.map(logs, async(entry) => {
       return Logger.replaceAsync(entry, regex, async(match, p1, p2, p3) => {
         if (p1 && p2) {
           const hash1 = await Crypto.sha256(p1)
@@ -48,6 +48,10 @@ export default class Logger {
         }
       })
     }, 1)
+    const regex2 = /url=https?%3A%2F%2F.*$|url=https?%3A%2F%2F[^ ]*/
+    const regex3 = /https?:\/\/[^ /]*\//
+    return newLogs
+      .map(line => line.replace(regex2, '###url###').replace(regex3, '###server###'))
   }
 
   static async replaceAsync(str, regex, asyncFn) {

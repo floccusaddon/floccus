@@ -52,13 +52,13 @@ export class Bookmark<L extends TItemLocation> {
       throw new Error('Location failed validation')
     }
 
-    // not a regular bookmark
-    if (STRANGE_PROTOCOLS.some(proto => url.indexOf(proto) === 0)) {
-      this.url = url
-      return
-    }
-
     try {
+      // not a regular bookmark
+      if (STRANGE_PROTOCOLS.some(proto => url.indexOf(proto) === 0)) {
+        this.url = url
+        return
+      }
+
       const urlObj = new URL(url)
       this.url = urlObj.href
     } catch (e) {

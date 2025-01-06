@@ -27,7 +27,6 @@ import { CancelledSyncError, FailsafeError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 import CachingAdapter from '../adapters/Caching'
-import LocalTabs from '../LocalTabs'
 
 const ACTION_CONCURRENCY = 12
 
@@ -386,16 +385,21 @@ export default class SyncProcess {
   }
 
   filterOutInvalidBookmarks(tree: Folder<TItemLocation>): void {
-    if (this.isFirefox) {
-      tree.children = tree.children.filter(child => {
-        if (child instanceof Bookmark) {
-          return !child.url.startsWith('chrome')
-        } else {
-          this.filterOutInvalidBookmarks(child)
-          return true
+    tree.children = tree.children.filter(child => {
+      if (child instanceof Bookmark) {
+        // Chrome URLs cannot be added in firefox
+        if (this.isFirefox && child.url.startsWith('chrome')) {
+          return false
         }
-      })
-    }
+        // Linkwarden supports bookmarks that have no URL eg. for directly uploaded files
+        if (child.url === null) {
+          return false
+        }
+      } else {
+        this.filterOutInvalidBookmarks(child)
+      }
+      return true
+    })
   }
 
   async filterOutDuplicatesInTheSameFolder(tree: Folder<TItemLocation>): Promise<void> {
@@ -432,8 +436,22 @@ export default class SyncProcess {
         this.cacheTreeRoot,
         this.localTreeRoot,
         // We also allow canMergeWith for folders here, because Window IDs are not stable
-        (oldItem, newItem) =>
-          (oldItem.type === newItem.type && String(oldItem.id) === String(newItem.id)) || (oldItem.type === 'folder' && oldItem.canMergeWith(newItem)),
+        // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
+        (oldItem, newItem) => {
+          if (oldItem.type !== newItem.type) {
+            return false
+          }
+          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
+            return false
+          }
+          if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
+            return true
+          }
+          if (oldItem.type === 'folder' && oldItem.canMergeWith(newItem)) {
+            return true
+          }
+          return false
+        },
         this.preserveOrder,
       )
       serverScanner = new Scanner(
@@ -442,8 +460,19 @@ export default class SyncProcess {
         // We also allow canMergeWith here
         // (for bookmarks, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
         // (for folders because Window IDs are not stable)
+        // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
         (oldItem, newItem) => {
-          if ((oldItem.type === newItem.type && Mappings.mappable(mappingsSnapshot, oldItem, newItem)) || (oldItem.canMergeWith(newItem))) {
+          if (oldItem.type !== newItem.type) {
+            return false
+          }
+          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
+            return false
+          }
+          if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
+            newMappings.push([oldItem, newItem])
+            return true
+          }
+          if (oldItem.canMergeWith(newItem)) {
             newMappings.push([oldItem, newItem])
             return true
           }
@@ -456,18 +485,42 @@ export default class SyncProcess {
       localScanner = new Scanner(
         this.cacheTreeRoot,
         this.localTreeRoot,
-        (oldItem, newItem) =>
-          (oldItem.type === newItem.type && String(oldItem.id) === String(newItem.id)),
+        (oldItem, newItem) => {
+          if (oldItem.type !== newItem.type) {
+            return false
+          }
+          // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
+          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
+            return false
+          }
+          if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
+            return true
+          }
+          return false
+        },
         this.preserveOrder
       )
       serverScanner = new Scanner(
         this.cacheTreeRoot,
         this.serverTreeRoot,
-        // We also allow canMergeWith here, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
+        // We also allow canMergeWith here, because e.g. for NextcloudBookmarks the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
         (oldItem, newItem) => {
-          if ((oldItem.type === newItem.type && Mappings.mappable(mappingsSnapshot, oldItem, newItem)) || (oldItem.type === 'bookmark' && oldItem.canMergeWith(newItem))) {
+          if (oldItem.type !== newItem.type) {
+            return false
+          }
+          // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
+          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
+            return false
+          }
+          if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
             newMappings.push([oldItem, newItem])
             return true
+          }
+          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
+            if (oldItem.canMergeWith(newItem)) {
+              newMappings.push([oldItem, newItem])
+              return true
+            }
           }
           return false
         },
@@ -851,7 +904,6 @@ export default class SyncProcess {
     }
 
     if (action.payload instanceof Folder && action.payload.children.length && action.oldItem instanceof Folder) {
-
       // Fix for Unidirectional reverted REMOVEs, for all other strategies this should be a noop
       action.payload.children.forEach((item) => {
         item.parentId = id
@@ -1150,7 +1202,7 @@ export default class SyncProcess {
     Logger.log({ reorderings })
 
     await Parallel.each(reorderings.getActions(), async(action) => {
-      Logger.log('Executing reorder action', action)
+      Logger.log('Executing reorder action', `${action.type} Payload: #${action.payload.id}[${action.payload.title}]${'url' in action.payload ? `(${action.payload.url})` : ''} parentId: ${action.payload.parentId}`)
       const item = action.payload
 
       if (this.canceled) {

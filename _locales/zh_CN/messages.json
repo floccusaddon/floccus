@@ -99,7 +99,7 @@
     "message": "E033：检测到重定向。请确保服务器支持所选的同步方法，并且您输入的 URL 正确无误，不会重定向到其他位置。如果重定向是设置的一部分，则可以在设置中禁用此检查。"
   },
   "Error034": {
-    "message": "E034: 远程书签文件不可读。请确认是否设置加密密码"
+    "message": "E034: 远程书签文件不可读。可能你忘了设置加密密码短语，或者设置了错误的文件格式。"
   },
   "Error035": {
     "message": "E035: 无法在服务器上创建以下书签: {0}"
@@ -108,10 +108,13 @@
     "message": "E036: 缺少访问同步服务器的权限"
   },
   "Error037": {
-    "message": "E036: 资源被锁定"
+    "message": "E037: 资源被锁定"
   },
   "Error038": {
-    "message": "E036: 找不到本地文件夹"
+    "message": "E038: 找不到本地文件夹"
+  },
+  "Error039": {
+    "message": "E039: 未能在服务器上更新下列书签: {0}"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -803,5 +806,11 @@
   },
   "LabelSearchresultsotherfolders": {
     "message": "来自其他文件夹的结果"
+  },
+  "LabelScheduledforcesync": {
+    "message": "强制同步"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "你真要强制同步吗？同时和两台设备同步可能会有预想不到的后果，包括数据损坏。在确认前，请确保此刻没有其他设备正在同步。"
   }
 }

@@ -99,19 +99,22 @@
     "message": "E033: Detectouse unha redirección. Asegúrese de que o servidor admite o método de sincronización seleccionado e que o URL que introduciu sexa correcto e non redirixa a unha localización diferente. Se a redirección forma parte da súa configuración, pode desactivar esta comprobación na configuración."
   },
   "Error034": {
-    "message": "E034: O ficheiro remoto de marcadores non é lexíbel. Esqueceu definir unha frase de contrasinal de cifrado?"
+    "message": "E034: Non é posíbel ler o ficheiro de marcadores remotos. Quizais esqueceu definir unha frase de paso de cifrado ou definiu un formato de ficheiro incorrecto."
   },
   "Error035": {
-    "message": "E035: Produciuse un erro ao crear o seguinte marcador no servidor: {0}"
+    "message": "E035: Produciuse un fallo ao crear o seguinte marcador no servidor: {0}"
   },
   "Error036": {
     "message": "E036: Faltan permisos para acceder ao servidor de sincronización"
   },
   "Error037": {
-    "message": "E036: O recurso está bloqueado"
+    "message": "E037: O recurso está bloqueado"
   },
   "Error038": {
-    "message": "E036: Non foi posíbel atopar o cartafol local"
+    "message": "E038: Non foi posíbel atopar o cartafol local"
+  },
+  "Error039": {
+    "message": "E035: Produciuse un fallo ao actualizar o seguinte marcador no servidor: {0}"
   },
   "LabelWebdavurl": {
     "message": "URL de WebDAV"
@@ -300,7 +303,7 @@
     "message": "\uD83D\uDCB8 Recadación de fondos"
   },
   "DescriptionFunddevelopment": {
-    "message": "O traballo en Floccus fomentase cun modelo de subscrición voluntaria. Se pensa que o que fago paga a pena e pode dispoñer  sen dificultades dalgún carto cada mes, apoie o meu traballo. Ademais, considere darlle a Floccus unha valoración na tenda de engadidos da súa escolle. Grazas!💙"
+    "message": "O traballo en Floccus fomentase cun modelo de subscrición voluntaria. Se pensa que o que fago paga a pena e pode dispoñer  sen dificultades dalgún carto cada mes, apoie o meu traballo. Ademais, considere darlle a Floccus unha valoración na tenda de engadidos da súa escolla. Grazas!💙"
   },
   "LabelSelect": {
     "message": "Seleccionar"
@@ -555,6 +558,9 @@
   "LabelDeleteitem": {
     "message": "Eliminar"
   },
+  "DescriptionReallydeleteitem": {
+    "message": "Confirma que quere eliminar este elemento?"
+  },
   "LabelNobookmarks": {
     "message": "Aquí non hai marcadores"
   },
@@ -797,5 +803,14 @@
   },
   "LabelLinkwardenconnectionerror": {
     "message": "Produciuse un fallo ao conectar co seu servidor Linkwarden"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "Resultados doutros cartafoles"
+  },
+  "LabelScheduledforcesync": {
+    "message": "Forzar a sincronización"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "Confirma que quere forzar a sincronización? A sincronización con dous dispositivos ao mesmo tempo pode ter consecuencias imprevistas, incluíndo o estragado dos datos. Asegúrese de que ningún outro dispositivo estea a sincronizar neste intre antes de confirmar."
   }
 }

@@ -167,6 +167,12 @@ export const actionsDefinition = {
     if (oldData.localRoot !== data.localRoot) {
       await account.init()
     }
+    if (oldData.bookmark_file !== data.bookmark_file) {
+      await account.init()
+    }
+    if (oldData.bookmark_file_type !== data.bookmark_file_type) {
+      await account.init()
+    }
     commit(mutations.STORE_ACCOUNT_DATA, {id, data})
   },
   async [actions.TRIGGER_SYNC]({ commit, dispatch, state }, accountId) {

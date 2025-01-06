@@ -43,8 +43,20 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     const localScanner = new Scanner(
       this.serverTreeRoot,
       this.localTreeRoot,
+      // We can't rely on a cacheTree, thus we have to accept canMergeWith results as well
       (serverItem, localItem) => {
-        if (localItem.type === serverItem.type && (serverItem.canMergeWith(localItem) || Mappings.mappable(mappingsSnapshot, serverItem, localItem))) {
+        if (localItem.type !== serverItem.type) {
+          return false
+        }
+        // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
+        if (serverItem.type === 'bookmark' && localItem.type === 'bookmark' && serverItem.url !== localItem.url) {
+          return false
+        }
+        if (serverItem.canMergeWith(localItem)) {
+          newMappings.push([localItem, serverItem])
+          return true
+        }
+        if (Mappings.mappable(mappingsSnapshot, serverItem, localItem)) {
           newMappings.push([localItem, serverItem])
           return true
         }
@@ -58,7 +70,18 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       this.localTreeRoot,
       this.serverTreeRoot,
       (localItem, serverItem) => {
-        if (serverItem.type === localItem.type && (serverItem.canMergeWith(localItem) || Mappings.mappable(mappingsSnapshot, serverItem, localItem))) {
+        if (serverItem.type !== localItem.type) {
+          return false
+        }
+        // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
+        if (serverItem.type === 'bookmark' && localItem.type === 'bookmark' && serverItem.url !== localItem.url) {
+          return false
+        }
+        if (serverItem.canMergeWith(localItem)) {
+          newMappings.push([localItem, serverItem])
+          return true
+        }
+        if (Mappings.mappable(mappingsSnapshot, serverItem, localItem)) {
           newMappings.push([localItem, serverItem])
           return true
         }
