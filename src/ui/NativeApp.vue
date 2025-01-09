@@ -46,7 +46,8 @@ body {
   padding-left: env(safe-area-inset-left);
   padding-right: env(sage-area-inset-right);
   background: v-bind(background);
-  font-size: 0.45cm !important;
+  font-size: 0.55cm !important;
+  font: -apple-system-body;
 }
 @media (prefers-color-scheme: dark) {
   html {
@@ -54,7 +55,8 @@ body {
   }
 }
 html {
-  font-size: 0.45cm !important;
+  font-size: 0.55cm !important;
+  font: -apple-system-body;
 }
 .v-navigation-drawer {
   top: env(safe-area-inset-top) !important;

@@ -806,41 +806,57 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
     Logger.log(`QUEUING ${verb} ${url}`)
 
-    if (Capacitor.getPlatform() !== 'web') {
-      return this.sendRequestNative(verb, url, type, body, returnRawResponse)
-    }
+    let i = 0
+    let isError = false
 
-    const authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
+    do {
+      try {
+        if (Capacitor.getPlatform() !== 'web') {
+          return this.sendRequestNative(verb, url, type, body, returnRawResponse)
+        }
 
-    try {
-      res = await this.fetchQueue.add(() => {
-        Logger.log(`FETCHING ${verb} ${url}`)
-        return Promise.race([
-          fetch(url, {
-            method: verb,
-            credentials: this.server.includeCredentials ? 'include' : 'omit',
-            headers: {
-              ...(type && type !== 'multipart/form-data' && { 'Content-type': type }),
-              Authorization: 'Basic ' + authString,
-            },
-            signal: this.abortSignal,
-            ...(body && !['get', 'head'].includes(verb.toLowerCase()) && { body }),
-          }),
-          new Promise((resolve, reject) =>
-            setTimeout(() => {
-              timedOut = true
-              reject(new RequestTimeoutError())
-            }, TIMEOUT)
-          ),
-        ])
-      })
-    } catch (e) {
-      if (timedOut) throw e
-      if (this.canceled) throw new CancelledSyncError()
-      console.log(e)
-      throw new NetworkError()
+        const authString = Base64.encode(
+          this.server.username + ':' + this.server.password
+        )
+
+        try {
+          res = await this.fetchQueue.add(() => {
+            Logger.log(`FETCHING ${verb} ${url}`)
+            return Promise.race([
+              fetch(url, {
+                method: verb,
+                credentials: this.server.includeCredentials ? 'include' : 'omit',
+                headers: {
+                  ...(type && type !== 'multipart/form-data' && { 'Content-type': type }),
+                  Authorization: 'Basic ' + authString,
+                },
+                signal: this.abortSignal,
+                ...(body && !['get', 'head'].includes(verb.toLowerCase()) && { body }),
+              }),
+              new Promise((resolve, reject) =>
+                setTimeout(() => {
+                  timedOut = true
+                  reject(new RequestTimeoutError())
+                }, TIMEOUT)
+              ),
+            ])
+          })
+        } catch (e) {
+          if (timedOut) throw e
+          if (this.canceled) throw new CancelledSyncError()
+          console.log(e)
+          throw new NetworkError()
+        }
+        isError = false
+      } catch (e) {
+        isError = e
+        await new Promise((resolve) => setTimeout(resolve, 1000 * 2 ** i))
+      }
+      i++
+    } while (i < 6 && isError)
+
+    if (isError) {
+      throw isError
     }
 
     Logger.log(`Receiving response for ${verb} ${url}`)
