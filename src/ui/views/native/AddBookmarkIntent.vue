@@ -177,7 +177,7 @@ export default {
   },
   methods: {
     async onSave() {
-      if (!this.tree.findFolder(this.temporaryParent)) {
+      if (!this.tree.findFolder(this.temporaryParent) || this.urlError) {
         return
       }
       await this.$store.dispatch(actions.CREATE_BOOKMARK, {
