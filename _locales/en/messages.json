@@ -814,6 +814,6 @@
     "message": "Do you really want to force sync? Syncing with two devices at the same time can have unforeseen consequences including corruption of your data. Make sure that no other device is syncing at the moment before confirming."
   },
   "DescriptionAutosync": {
-    "message": "Turning on automatic sync, will make sure a sync run is triggered regularly within a certain configurable interval as well as on demand a few seconds after you make changes. If you don't turn on automatic sync you will need to trigger sync runs manually by press the sync button."
+    "message": "Turning on automatic sync will make sure a sync run is triggered regularly within a certain configurable interval as well as on demand a few seconds after you make changes. If you don't turn on automatic sync you will need to trigger sync runs manually by pressing the sync button."
   }
 }
