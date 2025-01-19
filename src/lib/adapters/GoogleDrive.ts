@@ -250,7 +250,6 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       if (this.server.password) {
         try {
           try {
-            // TODO: Use this when encrypting
             const json = JSON.parse(xmlDocText)
             xmlDocText = await Crypto.decryptAES(this.server.password, json.ciphertext, json.salt)
           } catch (e) {
@@ -264,7 +263,8 @@ export default class GoogleDriveAdapter extends CachingAdapter {
             throw new DecryptionError()
           }
         }
-      } else if (!xmlDocText || !xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
+      }
+      if (!xmlDocText || !xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
         throw new FileUnreadableError()
       }
 
