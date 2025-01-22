@@ -127,6 +127,7 @@ export default class Account {
 
   async setData(data:Partial<IAccountData>):Promise<void> {
     await dataLock.acquire(this.id, async() => {
+      await this.updateFromStorage()
       data = {...this.server.getData(), data}
       await this.storage.setAccountData(data, null)
       this.server.setData(data)
