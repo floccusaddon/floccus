@@ -120,7 +120,7 @@ export default class NativeController {
 
     const status = await this.getStatus()
     if (status === STATUS_SYNCING) {
-      await account.setData({  scheduled: account.getData().scheduled || true })
+      await account.setData({ scheduled: account.getData().scheduled || true })
       return
     }
 
