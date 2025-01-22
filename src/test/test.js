@@ -258,7 +258,7 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type === 'git') {
               await account.server.clearServer()
             } else if (ACCOUNT_DATA.type !== 'fake') {
-              await account.setData({ ...account.getData(), serverRoot: null })
+              await account.setData({ serverRoot: null })
               account.lockTimeout = 0
               const tree = await getAllBookmarks(account)
               await withSyncConnection(account, async() => {
@@ -2538,7 +2538,7 @@ describe('Floccus', function() {
           })
           it('should sync root folder successfully', async function() {
             const [root] = await browser.bookmarks.getTree()
-            await account.setData({...account.getData(), localRoot: root.id})
+            await account.setData({ localRoot: root.id })
             account = await Account.get(account.id)
 
             const barFolder = await browser.bookmarks.create({
@@ -2571,7 +2571,7 @@ describe('Floccus', function() {
             )
 
             // Switch it back to something harmless, so we don't attempt to clean up the root folder
-            await account.setData({...account.getData(), localRoot: barFolder.id})
+            await account.setData({ localRoot: barFolder.id})
             account = await Account.get(account.id)
           })
           it('should sync root folder ignoring unsupported folders', async function() {
@@ -2582,7 +2582,7 @@ describe('Floccus', function() {
             )
 
             const originalFolderId = account.getData().localRoot
-            await account.setData({...account.getData(), localRoot: root.id, })
+            await account.setData({ localRoot: root.id, })
             account = await Account.get(account.id)
             const adapter = account.server
 
@@ -2635,7 +2635,7 @@ describe('Floccus', function() {
             expect(serverTree.children).to.have.lengthOf(localTreeAfterSync.children.length + 1)
 
             // Switch it back to something harmless, so we don't attempt to clean up the root folder
-            await account.setData({...account.getData(), localRoot: originalFolderId})
+            await account.setData({ localRoot: originalFolderId})
             account = await Account.get(account.id)
           })
           it('should synchronize ordering', async function() {
@@ -2748,7 +2748,7 @@ describe('Floccus', function() {
           })
           context('with slave mode', function() {
             it("shouldn't create local bookmarks on the server", async function() {
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
               expect(
                 (await getAllBookmarks(account)).children
               ).to.have.lengthOf(0)
@@ -2796,7 +2796,7 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               const originalTree = await getAllBookmarks(account)
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
 
               const newData = { title: 'blah' }
               await browser.bookmarks.update(bookmark.id, newData)
@@ -2833,7 +2833,7 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               const originalTree = await getAllBookmarks(account)
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
 
               await browser.bookmarks.remove(bookmark.id)
               await account.sync() // update on server
@@ -2874,7 +2874,7 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               const originalTree = await getAllBookmarks(account)
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
 
               await browser.bookmarks.move(barFolder.id, {
                 parentId: localRoot
@@ -2890,7 +2890,7 @@ describe('Floccus', function() {
               )
             })
             it('should create server bookmarks locally', async function() {
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
               const adapter = account.server
               const serverTree = await getAllBookmarks(account)
               if (adapter.onSyncStart) await adapter.onSyncStart()
@@ -2939,7 +2939,7 @@ describe('Floccus', function() {
               if (ACCOUNT_DATA.noCache) {
                 return this.skip()
               }
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
               const adapter = account.server
 
               const serverTree = await getAllBookmarks(account)
@@ -3000,7 +3000,7 @@ describe('Floccus', function() {
               )
             })
             it('should update local bookmarks on server removals', async function() {
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
               const adapter = account.server
               const serverTree = await getAllBookmarks(account)
               if (adapter.onSyncStart) await adapter.onSyncStart()
@@ -3055,7 +3055,7 @@ describe('Floccus', function() {
               )
 
               const originalFolderId = account.getData().localRoot
-              await account.setData({...account.getData(), localRoot: root.id, })
+              await account.setData({ localRoot: root.id, })
               account = await Account.get(account.id)
               const adapter = account.server
 
@@ -3104,7 +3104,7 @@ describe('Floccus', function() {
                 await adapter.updateBookmark(secondBookmark)
               })
 
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
 
               await account.sync()
               expect(account.getData().error).to.not.be.ok
@@ -3114,14 +3114,13 @@ describe('Floccus', function() {
               expect(serverTree.children).to.have.lengthOf(localTreeAfterSync.children.length + 1)
 
               // Switch it back to something harmless, so we don't attempt to clean up the root folder
-              await account.setData({...account.getData(), localRoot: originalFolderId})
+              await account.setData({ localRoot: originalFolderId})
               account = await Account.get(account.id)
             })
           })
           context('with overwrite mode', function() {
             it('should create local bookmarks on the server', async function() {
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
               expect(
@@ -3169,7 +3168,6 @@ describe('Floccus', function() {
             })
             it('should create local bookmarks on the server respecting moves', async function() {
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
               expect(
@@ -3285,7 +3283,6 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
 
@@ -3326,7 +3323,6 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
 
@@ -3371,7 +3367,6 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
 
@@ -3392,7 +3387,6 @@ describe('Floccus', function() {
             })
             it("shouldn't create server bookmarks locally", async function() {
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
               const adapter = account.server
@@ -3446,7 +3440,6 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
               const originalTree = await account.localTree.getBookmarksTree(true)
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
 
@@ -3492,7 +3485,6 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
               const originalTree = await account.localTree.getBookmarksTree(true)
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
 
@@ -3539,7 +3531,6 @@ describe('Floccus', function() {
               await account1.server.clearServer()
             } else if (ACCOUNT_DATA.type !== 'fake') {
               await account1.setData({
-                ...account1.getData(),
                 serverRoot: null
               })
               account1.lockTimeout = 0
@@ -3938,8 +3929,8 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type !== 'nextcloud-bookmarks') {
               return this.skip()
             }
-            await account1.setData({...account1.getData(), serverRoot: '/folder1'})
-            await account2.setData({...account2.getData(), serverRoot: '/folder2'})
+            await account1.setData({ serverRoot: '/folder1'})
+            await account2.setData({ serverRoot: '/folder2'})
 
             const localRoot = account1.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
@@ -4947,7 +4938,7 @@ describe('Floccus', function() {
               })
             }
             await account.init()
-            await account.setData({...account.getData(), localRoot: 'tabs'})
+            await account.setData({ localRoot: 'tabs'})
             if (ACCOUNT_DATA.noCache) {
               account.storage.setCache = () => {
                 // noop
@@ -4972,7 +4963,7 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type === 'git') {
               await account.server.clearServer()
             } else if (ACCOUNT_DATA.type !== 'fake') {
-              await account.setData({ ...account.getData(), serverRoot: null })
+              await account.setData({ serverRoot: null })
               account.lockTimeout = 0
               const tree = await getAllBookmarks(account)
               await withSyncConnection(account, async() => {
@@ -5072,7 +5063,7 @@ describe('Floccus', function() {
             )
           })
           it('should update the server when pushing local changes', async function() {
-            await account.setData({...account.getData(), strategy: 'overwrite'})
+            await account.setData({ strategy: 'overwrite'})
 
             browser.tabs.create({
               index: 1,
@@ -5186,7 +5177,7 @@ describe('Floccus', function() {
               await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: 'https://example.org/#test2', title: 'Example Domain', parentId: tree.children[0].id })
             })
 
-            await account.setData({...account.getData(), strategy: 'slave'})
+            await account.setData({ strategy: 'slave'})
 
             await account.sync()
             expect(account.getData().error).to.not.be.ok
@@ -5386,7 +5377,6 @@ describe('Floccus', function() {
             await account1.server.clearServer()
           } else if (ACCOUNT_DATA.type !== 'fake') {
             await account1.setData({
-              ...account1.getData(),
               serverRoot: null
             })
             account1.lockTimeout = 0
@@ -6529,7 +6519,7 @@ describe('Floccus', function() {
         }
 
         it('unidirectional should handle fuzzed changes from two clients', async function() {
-          await account2.setData({...account2.getData(), strategy: 'slave'})
+          await account2.setData({ strategy: 'slave'})
           const localRoot = account1.getData().localRoot
           let bookmarks1 = []
           let folders1 = []
@@ -6773,7 +6763,7 @@ describe('Floccus', function() {
         })
 
         it('unidirectional should handle fuzzed changes with deletions from two clients', async function() {
-          await account2.setData({...account2.getData(), strategy: 'slave'})
+          await account2.setData({ strategy: 'slave'})
           const localRoot = account1.getData().localRoot
           let bookmarks1 = []
           let folders1 = []
