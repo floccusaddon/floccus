@@ -120,7 +120,7 @@ export default class NativeController {
 
     const status = await this.getStatus()
     if (status === STATUS_SYNCING) {
-      await account.setData({ ...account.getData(), scheduled: account.getData().scheduled || true })
+      await account.setData({  scheduled: account.getData().scheduled || true })
       return
     }
 
@@ -135,7 +135,7 @@ export default class NativeController {
     let account = await Account.get(accountId)
     // Avoid starting it again automatically
     if (!keepEnabled) {
-      await account.setData({ ...account.getData(), enabled: false })
+      await account.setData({ enabled: false })
     }
     await account.cancelSync()
   }
@@ -202,7 +202,6 @@ export default class NativeController {
       accounts.map(async acc => {
         if (acc.getData().syncing) {
           await acc.setData({
-            ...acc.getData(),
             syncing: false,
             scheduled: false,
           })

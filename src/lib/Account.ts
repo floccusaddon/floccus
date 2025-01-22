@@ -13,6 +13,7 @@ import Mappings from './Mappings'
 import { isTest } from './isTest'
 import CachingAdapter from './adapters/Caching'
 import * as Sentry from '@sentry/vue'
+import AsyncLock from 'async-lock'
 
 declare const DEBUG: boolean
 
@@ -27,6 +28,8 @@ AdapterFactory.register('fake', async() => (await import('./adapters/Fake')).def
 
 // 2h
 const LOCK_TIMEOUT = 1000 * 60 * 60 * 2
+
+const dataLock = new AsyncLock()
 
 export default class Account {
   static cache = {}
@@ -107,7 +110,7 @@ export default class Account {
       errorCount: 0,
       clickCountEnabled: false,
     }
-    const data = Object.assign(defaults, this.server.getData())
+    const data = {...defaults, ...this.server.getData()}
     if (data.type === 'nextcloud-folders') {
       data.type = 'nextcloud-bookmarks'
     }
@@ -122,9 +125,12 @@ export default class Account {
     return this.server
   }
 
-  async setData(data:IAccountData):Promise<void> {
-    await this.storage.setAccountData(data, null)
-    this.server.setData(data)
+  async setData(data:Partial<IAccountData>):Promise<void> {
+    await dataLock.acquire(this.id, async() => {
+      data = {...this.server.getData(), data}
+      await this.storage.setAccountData(data, null)
+      this.server.setData(data)
+    })
   }
 
   async updateFromStorage():Promise<void> {
@@ -163,7 +169,7 @@ export default class Account {
       Logger.log('Starting sync process for account ' + this.getLabel())
       Sentry.setUser({ id: this.id })
       this.syncing = true
-      await this.setData({ ...this.getData(), syncing: 0.05, scheduled: false, error: null })
+      await this.setData({ syncing: 0.05, scheduled: false, error: null })
 
       if (!(await this.isInitialized())) {
         await this.init()
@@ -184,7 +190,6 @@ export default class Account {
               status = await this.server.onSyncStart(false, true)
             } else {
               await this.setData({
-                ...this.getData(),
                 error: null,
                 syncing: false,
                 scheduled: strategy || this.getData().strategy
@@ -277,7 +282,7 @@ export default class Account {
         await this.syncProcess.sync()
       }
 
-      await this.setData({ ...this.getData(), scheduled: false, syncing: 1 })
+      await this.setData({ scheduled: false, syncing: 1 })
 
       // update cache
       const cache = (await localResource.getBookmarksTree()).clone(false)
@@ -297,7 +302,6 @@ export default class Account {
 
       await this.storage.setCurrentContinuation(null)
       await this.setData({
-        ...this.getData(),
         error: null,
         errorCount: 0,
         syncing: false,
@@ -326,7 +330,6 @@ export default class Account {
       }
 
       await this.setData({
-        ...this.getData(),
         error: message,
         errorCount: this.getData().errorCount + 1,
         syncing: false,
@@ -365,7 +368,7 @@ export default class Account {
     if (!this.syncing) {
       return
     }
-    await this.setData({ ...this.getData(), syncing: progress })
+    await this.setData({ syncing: progress })
     if (!this.syncProcess) {
       return
     }

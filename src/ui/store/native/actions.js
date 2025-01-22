@@ -278,6 +278,6 @@ export const actionsDefinition = {
   },
   async [actions.SET_SORTBY]({state}, {accountId, sortBy}) {
     const account = await Account.get(accountId)
-    await account.setData({...account.getData(), sortBy})
+    await account.setData({ sortBy })
   }
 }
