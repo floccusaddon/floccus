@@ -99,7 +99,7 @@ export default class Account {
   }
 
   getData():IAccountData {
-    const defaults = {
+    const data = {
       localRoot: null,
       strategy: 'default' as TAccountStrategy,
       syncInterval: 15,
@@ -109,9 +109,9 @@ export default class Account {
       label: '',
       errorCount: 0,
       clickCountEnabled: false,
+      ...this.server.getData()
     }
-    const data = {...defaults, ...this.server.getData()}
-    if (data.type === 'nextcloud-folders') {
+    if ('type' in data && data.type === 'nextcloud-folders') {
       data.type = 'nextcloud-bookmarks'
     }
     return data
@@ -127,7 +127,6 @@ export default class Account {
 
   async setData(data:Partial<IAccountData>):Promise<void> {
     await dataLock.acquire(this.id, async() => {
-      await this.updateFromStorage()
       data = {...this.server.getData(), data}
       await this.storage.setAccountData(data, null)
       this.server.setData(data)
