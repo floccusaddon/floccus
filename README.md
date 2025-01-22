@@ -17,6 +17,11 @@
 
 [![Download now](https://img.shields.io/badge/Download-now-limegreen.svg?&style=for-the-badge)](https://floccus.org/download)
 
+This is the SHA-256 fingerprint of the certificate used to sign the floccus APKs:
+
+```
+ffed2778ff07371e6367b6dcf5d7c1327c57ff7158b8444029182a9aa2dd7085
+```
 
 
 If you'd like to support the creation and maintenance of this software, please consider donating. :)
