@@ -812,5 +812,8 @@
   },
   "DescriptionScheduledforcesync": {
     "message": "Confirma que quere forzar a sincronización? A sincronización con dous dispositivos ao mesmo tempo pode ter consecuencias imprevistas, incluíndo o estragado dos datos. Asegúrese de que ningún outro dispositivo estea a sincronizar neste intre antes de confirmar."
+  },
+  "DescriptionAutosync": {
+    "message": "Ao activar a sincronización automática asegurarase de que unha execución de sincronización se active regularmente dentro dun determinado intervalo configurábel, así como baixo demanda uns segundos após facer cambios. Se non activa a sincronización automática, terá que activar a sincronización manualmente premendo o botón de sincronización."
   }
 }
