@@ -54,7 +54,8 @@
         </div>
         <v-text-field
           v-model="serverFolder"
-          :label="t('LabelServerfolder')" />
+          :label="t('LabelServerfolder')"
+          @input="$emit('update:serverFolder', $event)" />
         <OptionSyncFolder
           :value="localRoot"
           @input="$emit('update:localRoot', $event)" />
