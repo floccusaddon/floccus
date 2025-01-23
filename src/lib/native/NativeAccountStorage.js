@@ -4,6 +4,7 @@ import DefunctCryptography from '../DefunctCrypto'
 import Mappings from '../Mappings'
 import { Folder, ItemLocation } from '../Tree'
 import AsyncLock from 'async-lock'
+import Logger from '../Logger'
 
 const storageLock = new AsyncLock()
 
@@ -23,12 +24,18 @@ export default class NativeAccountStorage {
 
   static async getEntry(entryName, defaultVal) {
     let entry = await Storage.get({key: entryName })
-    if (entry.value) {
-      while (typeof entry.value === 'string') {
-        entry.value = JSON.parse(entry.value)
+    try {
+      if (entry.value) {
+        while (typeof entry.value === 'string') {
+          entry.value = JSON.parse(entry.value)
+        }
+        return entry.value
+      } else {
+        return defaultVal
       }
-      return entry.value
-    } else {
+    } catch (e) {
+      Logger.log('Error while parsing NativeAccountStorage entry value ' + e.message)
+      console.error(e)
       return defaultVal
     }
   }

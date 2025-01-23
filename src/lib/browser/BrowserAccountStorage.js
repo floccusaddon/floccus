@@ -4,6 +4,7 @@ import DefunctCryptography from '../DefunctCrypto'
 import Mappings from '../Mappings'
 import { Folder, ItemLocation } from '../Tree'
 import AsyncLock from 'async-lock'
+import Logger from '../Logger'
 
 const storageLock = new AsyncLock()
 
@@ -23,12 +24,18 @@ export default class BrowserAccountStorage {
 
   static async getEntry(entryName, defaultVal) {
     let entry = await browser.storage.local.get(entryName)
-    if (entry[entryName]) {
-      while (typeof entry[entryName] === 'string') {
-        entry[entryName] = JSON.parse(entry[entryName])
+    try {
+      if (entry[entryName]) {
+        while (typeof entry[entryName] === 'string') {
+          entry[entryName] = JSON.parse(entry[entryName])
+        }
+        return entry[entryName]
+      } else {
+        return defaultVal
       }
-      return entry[entryName]
-    } else {
+    } catch (e) {
+      Logger.log('Error while parsing BrowserAccountStorage entry value ' + e.message)
+      console.error(e)
       return defaultVal
     }
   }
