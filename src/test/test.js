@@ -2352,9 +2352,9 @@ describe('Floccus', function() {
                       new Folder({title: 'foo',
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=731368'})
                         ]}),
                     ]}),
                 ]}),
@@ -2369,9 +2369,9 @@ describe('Floccus', function() {
                       new Folder({title: 'foo',
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=731368'})
                         ]}),
                     ]}),
                 ]}),
@@ -2401,9 +2401,9 @@ describe('Floccus', function() {
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'})
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'})
                         ]}),
-                      new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=379999'})
+                      new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=379999'})
                     ]}),
                 ]}),
               false
@@ -2419,9 +2419,9 @@ describe('Floccus', function() {
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=731368'})
                         ]}),
-                      new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'})
+                      new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'})
                     ]}),
                 ]}),
               false
@@ -2482,9 +2482,9 @@ describe('Floccus', function() {
                       new Folder({title: 'foo',
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=731368'})
                         ]}),
                     ]}),
                 ]}),
@@ -2499,9 +2499,9 @@ describe('Floccus', function() {
                       new Folder({title: 'foo',
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=731368'})
                         ]}),
                     ]}),
                 ]}),
@@ -2528,7 +2528,7 @@ describe('Floccus', function() {
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'})
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'})
                         ]}),
                     ]}),
 

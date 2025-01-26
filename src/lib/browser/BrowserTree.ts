@@ -103,7 +103,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
           location: ItemLocation.LOCAL,
           id: node.id,
           parentId,
-          title: '-----',
+          title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯',
           // If you have more than a quarter million separators in one folder, call me
           // Floccus breaks down much earlier atm
           url: `https://separator.floccus.org/?id=${rng.int(0,1000000)}`,
