@@ -132,13 +132,13 @@
     "message": "密码"
   },
   "LabelBookmarksfile": {
-    "message": "书签路径"
+    "message": "书签文件"
   },
   "DescriptionBookmarksfile": {
     "message": "相对于WebDAV URL的书签路径(所有路径必须已经存在).例如:personal_stuff/bookmarks.xbel "
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "书签文件的文件名，该文件将存放在 Google Drive 中（确保该名称在 Google Drive 中是唯一的）。"
+   "message": " Google 云盘内保存的书签文件的名称。不要输入完整的文件路径，只输入文件名即可。请确保该名称在你的 Google 云盘内是唯一的。"
  },
   "DescriptionBookmarksfilegit": {
     "message": "相对于你的 Git 存储库根目录的书签文件路径 (路径中的所有文件夹必须都已存在)。如，personal_stuff/bookmarks.xbel"
