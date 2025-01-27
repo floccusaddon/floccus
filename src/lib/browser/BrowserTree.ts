@@ -103,7 +103,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
         return folder
       } else if (self.location.protocol === 'moz-extension:' && node.type === 'separator') {
         // Translate mozilla separators to floccus separators
-        const mockSeparator = (overrideTitle == TITLE_BOOKMARKS_BAR)
+        const mockSeparator = (overrideTitle === TITLE_BOOKMARKS_BAR)
           ? {title: '', page: 'vertical.html'}
           : {title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', page: 'index.html'}
         return new Tree.Bookmark({

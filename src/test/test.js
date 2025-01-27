@@ -2386,7 +2386,7 @@ describe('Floccus', function() {
                           new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/index.html?id=467366'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
                           new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/index.html?id=731368'})
-                        ]})                      
+                        ]})
                     ]}),
                     new Folder({title: 'Bookmarks Bar',
                       children: [
