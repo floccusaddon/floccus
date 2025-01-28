@@ -2340,11 +2340,11 @@ describe('Floccus', function() {
             await browser.bookmarks.create({
               title: 'url3',
               url: 'http://ur3.l',
-              parentId: 'toolbar_____'              
+              parentId: 'toolbar_____'
             })
             await browser.bookmarks.create({
               type: 'separator',
-              parentId: 'toolbar_____'              
+              parentId: 'toolbar_____'
             })
 
             await account.sync() // propagate to server
