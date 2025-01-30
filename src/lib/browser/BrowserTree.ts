@@ -41,6 +41,10 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     const allAccounts = await (await Account.getAccountClass()).getAllAccounts()
 
     const recurse = (node, parentId?, rng?) => {
+      const TITLE_BOOKMARKS_BAR = 'Bookmarks Bar',
+            TITLE_OTHER_BOOKMARKS = 'Other Bookmarks',
+            TITLE_BOOKMARKS_MENU = 'Bookmarks Menu',
+            TITLE_MOBILE_BOOKMARKS = 'Mobile Bookmarks'
       if (
         allAccounts.some(
           acc => acc.getData().localRoot === node.id && String(node.id) !== String(this.rootId) && !acc.getData().nestedSync
@@ -54,17 +58,17 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
         switch (node.id) {
           case '1': // Chrome
           case 'toolbar_____': // Firefox
-            overrideTitle = 'Bookmarks Bar'
+            overrideTitle = TITLE_BOOKMARKS_BAR
             break
           case '2': // Chrome
           case 'unfiled_____': // Firefox
-            overrideTitle = 'Other Bookmarks'
+            overrideTitle = TITLE_OTHER_BOOKMARKS
             break
           case 'menu________': // Firefox
-            overrideTitle = 'Bookmarks Menu'
+            overrideTitle = TITLE_BOOKMARKS_MENU
             break
           case 'mobile______': // Firefox
-            overrideTitle = 'Mobile Bookmarks'
+            overrideTitle = TITLE_MOBILE_BOOKMARKS
         }
         if (overrideTitle) {
           Logger.log(
@@ -99,14 +103,17 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
         return folder
       } else if (self.location.protocol === 'moz-extension:' && node.type === 'separator') {
         // Translate mozilla separators to floccus separators
+        const mockSeparator = (overrideTitle === TITLE_BOOKMARKS_BAR)
+          ? {title: '', page: 'vertical.html'}
+          : {title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', page: 'index.html'}
         return new Tree.Bookmark({
           location: ItemLocation.LOCAL,
           id: node.id,
           parentId,
-          title: '-----',
+          title: mockSeparator.title,
           // If you have more than a quarter million separators in one folder, call me
           // Floccus breaks down much earlier atm
-          url: `https://separator.floccus.org/?id=${rng.int(0,1000000)}`,
+          url: `https://separator.floccus.org/${mockSeparator.page}?id=${rng.int(0,1000000)}`,            
         })
       } else {
         return new Tree.Bookmark({
