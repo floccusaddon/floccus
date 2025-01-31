@@ -10,11 +10,16 @@ import * as AsyncParallel from 'async-parallel'
 import DefunctCrypto from '../lib/DefunctCrypto'
 import Controller from '../lib/Controller'
 import FakeAdapter from '../lib/adapters/Fake'
+import BrowserTree from '../lib/browser/BrowserTree'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
 let expectTreeEqual = function(tree1, tree2, ignoreEmptyFolders, checkOrder = true) {
+  expectTreeEqualRec(tree1, tree2, 0, ignoreEmptyFolders, checkOrder)
+}
+
+let expectTreeEqualRec = function(tree1, tree2, recDepth, ignoreEmptyFolders, checkOrder) {
   try {
     expect(tree1.title).to.equal(tree2.title)
     if (tree2.url) {
@@ -40,12 +45,12 @@ let expectTreeEqual = function(tree1, tree2, ignoreEmptyFolders, checkOrder = tr
         : tree2.children
       expect(children1).to.have.length(children2.length)
       children2.forEach((child2, i) => {
-        expectTreeEqual(children1[i], child2, ignoreEmptyFolders, checkOrder)
+        expectTreeEqualRec(children1[i], child2, recDepth + 1, ignoreEmptyFolders, checkOrder)
       })
     }
   } catch (e) {
     console.log(
-      `Trees are not equal: (checkOrder: ${checkOrder}, ignoreEmptyFolders: ${ignoreEmptyFolders})`,
+      `Trees are not equal: (recDepth: ${recDepth}, checkOrder: ${checkOrder}, ignoreEmptyFolders: ${ignoreEmptyFolders})\n`,
       'Tree 1:\n' + tree1.inspect(0) + '\n',
       'Tree 2:\n' + tree2.inspect(0)
     )
@@ -2297,6 +2302,102 @@ describe('Floccus', function() {
               false
             )
           })
+          it('should convert vertical and horizontal separators', async function() {
+            if (BROWSER !== 'firefox') {
+              this.skip()
+              return
+            }
+
+            // Remove all nodes except the system nodes:
+            const deleteNonSysNodes = async(delNodeId) => {
+              let delChildren = await browser.bookmarks.getChildren(delNodeId)
+              for (const delChild of delChildren) {
+                await deleteNonSysNodes(delChild.id)
+              }
+              if (!delNodeId.endsWith('_____')) {
+                await browser.bookmarks.remove(delNodeId)
+              }
+            }
+            await deleteNonSysNodes('root________')
+
+            await browser.bookmarks.create({
+              title: 'url1',
+              url: 'http://url1/',
+              parentId: 'menu________'
+            })
+            await browser.bookmarks.create({
+              type: 'separator',
+              parentId: 'menu________'
+            })
+            const toolbarNameNormalFolder = await browser.bookmarks.create({
+              title: BrowserTree.TITLE_BOOKMARKS_BAR,
+              parentId: 'menu________'
+            })
+            await browser.bookmarks.create({
+              title: 'url2',
+              url: 'http://url2/',
+              parentId: toolbarNameNormalFolder.id
+            })
+            await browser.bookmarks.create({
+              type: 'separator',
+              parentId: toolbarNameNormalFolder.id
+            })
+
+            await browser.bookmarks.create({
+              title: 'url3',
+              url: 'http://url3/',
+              parentId: 'toolbar_____'
+            })
+            await browser.bookmarks.create({
+              type: 'separator',
+              parentId: 'toolbar_____'
+            })
+            const onToolbarNormalFolder = await browser.bookmarks.create({
+              title: 'A Folder',
+              parentId: 'toolbar_____'
+            })
+            await browser.bookmarks.create({
+              title: 'url4',
+              url: 'http://url4/',
+              parentId: onToolbarNormalFolder.id
+            })
+            await browser.bookmarks.create({
+              type: 'separator',
+              parentId: onToolbarNormalFolder.id
+            })
+
+            let brTree = new BrowserTree('Dummy Storage', 'root________')
+            let bmTree = await brTree.getBookmarksTree()
+
+            expectTreeEqual(
+              bmTree,
+              new Folder({title: undefined,
+                children: [
+                  new Folder({title: 'Bookmarks Menu',
+                    children: [
+                      new Bookmark({title: 'url1', url: 'http://url1/'}),
+                      new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=242649'}),
+                      new Folder({title: 'Bookmarks Bar',
+                        children: [
+                          new Bookmark({title: 'url2', url: 'http://url2/'}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=591710'}),
+                        ]}),
+                    ]}),
+                  new Folder({title: 'Bookmarks Bar',
+                    children: [
+                      new Bookmark({title: 'url3', url: 'http://url3/'}),
+                      new Bookmark({title: '', url: 'https://separator.floccus.org/vertical.html?id=616887'}),
+                      new Folder({title: 'A Folder',
+                        children: [
+                          new Bookmark({title: 'url4', url: 'http://url4/'}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=890296'}),
+                        ]}),
+                    ]})
+                ]}),
+              true
+            )
+            await deleteNonSysNodes('root________')
+          })
           it('should sync separators', async function() {
             if (ACCOUNT_DATA.noCache) {
               this.skip()
@@ -2310,7 +2411,6 @@ describe('Floccus', function() {
               return this.skip()
             }
             const localRoot = account.getData().localRoot
-
             const barFolder = await browser.bookmarks.create({
               title: 'bar',
               parentId: localRoot
@@ -2318,10 +2418,6 @@ describe('Floccus', function() {
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
               parentId: barFolder.id
-            })
-            const bookmarksBar = await browser.bookmarks.create({
-              title: 'Bookmarks Bar',
-              parentId: localRoot
             })
             await browser.bookmarks.create({
               title: 'url',
@@ -2341,15 +2437,6 @@ describe('Floccus', function() {
               type: 'separator',
               parentId: fooFolder.id
             })
-            await browser.bookmarks.create({
-              title: 'url3',
-              url: 'http://ur3.l',
-              parentId: bookmarksBar.id
-            })
-            await browser.bookmarks.create({
-              type: 'separator',
-              parentId: bookmarksBar.id
-            })
 
             await account.sync() // propagate to server
             expect(account.getData().error).to.not.be.ok
@@ -2368,12 +2455,7 @@ describe('Floccus', function() {
                           new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
                           new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=731368'})
-                        ]}),
-                    ]}),
-                  new Folder({title: 'Bookmarks Bar',
-                    children: [
-                      new Bookmark({title: 'url3',url: 'http://ur3.l'}),
-                      new Bookmark({title: '', url: 'https://separator.floccus.org/vertical.html?id=591710'})
+                        ]})
                     ]})
                 ]}),
               false
@@ -2391,11 +2473,6 @@ describe('Floccus', function() {
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
                           new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=731368'})
                         ]})
-                    ]}),
-                  new Folder({title: 'Bookmarks Bar',
-                    children: [
-                      new Bookmark({title: 'url3',url: 'http://ur3.l'}),
-                      new Bookmark({title: '', url: 'https://separator.floccus.org/vertical.html?id=591710'})
                     ]})
                 ]}),
               false
@@ -2427,11 +2504,6 @@ describe('Floccus', function() {
                           new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'})
                         ]}),
                       new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=379999'})
-                    ]}),
-                  new Folder({title: 'Bookmarks Bar',
-                    children: [
-                      new Bookmark({title: 'url3',url: 'http://ur3.l'}),
-                      new Bookmark({title: '', url: 'https://separator.floccus.org/vertical.html?id=591710'})
                     ]})
                 ]}),
               false
@@ -2450,11 +2522,6 @@ describe('Floccus', function() {
                           new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=731368'})
                         ]}),
                       new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'})
-                    ]}),
-                  new Folder({title: 'Bookmarks Bar',
-                    children: [
-                      new Bookmark({title: 'url3',url: 'http://ur3.l'}),
-                      new Bookmark({title: '', url: 'https://separator.floccus.org/vertical.html?id=591710'})
                     ]})
                 ]}),
               false

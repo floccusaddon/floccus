@@ -20,6 +20,13 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
   private absoluteRoot: { id: string }
   private absoluteRootPromise: Promise<void>
 
+  static readonly TITLE_BOOKMARKS_BAR: string = 'Bookmarks Bar'
+  static readonly TITLE_OTHER_BOOKMARKS: string = 'Other Bookmarks'
+  static readonly TITLE_BOOKMARKS_MENU: string = 'Bookmarks Menu'
+  static readonly TITLE_MOBILE_BOOKMARKS: string = 'Mobile Bookmarks'
+  static readonly TITLE_SEPARATOR_HORZ: string = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯'
+  static readonly TITLE_SEPARATOR_VERT: string = ''
+
   constructor(storage:unknown, rootId:string) {
     this.rootId = rootId
     this.storage = storage
@@ -41,10 +48,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     const allAccounts = await (await Account.getAccountClass()).getAllAccounts()
 
     const recurse = (node, parentId?, isOnToolbar?, rng?) => {
-      const TITLE_BOOKMARKS_BAR = 'Bookmarks Bar',
-            TITLE_OTHER_BOOKMARKS = 'Other Bookmarks',
-            TITLE_BOOKMARKS_MENU = 'Bookmarks Menu',
-            TITLE_MOBILE_BOOKMARKS = 'Mobile Bookmarks'
+      
       if (
         allAccounts.some(
           acc => acc.getData().localRoot === node.id && String(node.id) !== String(this.rootId) && !acc.getData().nestedSync
@@ -58,18 +62,18 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
         switch (node.id) {
           case '1': // Chrome
           case 'toolbar_____': // Firefox
-            overrideTitle = TITLE_BOOKMARKS_BAR
+            overrideTitle = BrowserTree.TITLE_BOOKMARKS_BAR
             isToolbar = true
             break
           case '2': // Chrome
           case 'unfiled_____': // Firefox
-            overrideTitle = TITLE_OTHER_BOOKMARKS
+            overrideTitle = BrowserTree.TITLE_OTHER_BOOKMARKS
             break
           case 'menu________': // Firefox
-            overrideTitle = TITLE_BOOKMARKS_MENU
+            overrideTitle = BrowserTree.TITLE_BOOKMARKS_MENU
             break
           case 'mobile______': // Firefox
-            overrideTitle = TITLE_MOBILE_BOOKMARKS
+            overrideTitle = BrowserTree.TITLE_MOBILE_BOOKMARKS
         }
         if (overrideTitle) {
           Logger.log(
@@ -108,7 +112,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
           location: ItemLocation.LOCAL,
           id: node.id,
           parentId,
-          title: isOnToolbar ? '' : '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯',
+          title: isOnToolbar ? BrowserTree.TITLE_SEPARATOR_VERT : BrowserTree.TITLE_SEPARATOR_HORZ,
           // If you have more than a quarter million separators in one folder, call me
           // Floccus breaks down much earlier atm
           url: 'https://separator.floccus.org/' +
