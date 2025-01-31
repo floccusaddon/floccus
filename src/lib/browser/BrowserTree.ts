@@ -40,7 +40,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     await this.absoluteRootPromise
     const allAccounts = await (await Account.getAccountClass()).getAllAccounts()
 
-    const recurse = (node, parentId?, rng?, parent?) => {
+    const recurse = (node, parentId?, isOnToolbar?, rng?) => {
       const TITLE_BOOKMARKS_BAR = 'Bookmarks Bar',
             TITLE_OTHER_BOOKMARKS = 'Other Bookmarks',
             TITLE_BOOKMARKS_MENU = 'Bookmarks Menu',
@@ -53,12 +53,13 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
         // This is the root folder of a different account and the user doesn't want nested sync
         return
       }
-      let overrideTitle, isRoot
+      let overrideTitle, isRoot, isToolbar
       if (node.parentId === this.absoluteRoot.id && !isVivaldiBrowser) {
         switch (node.id) {
           case '1': // Chrome
           case 'toolbar_____': // Firefox
             overrideTitle = TITLE_BOOKMARKS_BAR
+            isToolbar = true
             break
           case '2': // Chrome
           case 'unfiled_____': // Firefox
@@ -95,7 +96,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
           title: parentId ? overrideTitle || node.title : undefined,
           children: node.children
             .map((child) => {
-              return recurse(child, node.id, rng, node)
+              return recurse(child, node.id, isToolbar, rng)
             })
             .filter(child => !!child) // filter out `undefined` from nested accounts
         })
@@ -103,22 +104,16 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
         return folder
       } else if (self.location.protocol === 'moz-extension:' && node.type === 'separator') {
         // Translate mozilla separators to floccus separators
-        let title, page
-        if (parent.title === TITLE_BOOKMARKS_BAR) {
-          title = ''
-          page = 'vertical.html'
-        } else {
-          title = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯'
-          page = ''
-        }
         return new Tree.Bookmark({
           location: ItemLocation.LOCAL,
           id: node.id,
           parentId,
-          title,
+          title: isOnToolbar ? '' : '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯',
           // If you have more than a quarter million separators in one folder, call me
           // Floccus breaks down much earlier atm
-          url: `https://separator.floccus.org/${page}?id=${rng.int(0,1000000)}`,
+          url: 'https://separator.floccus.org/' +
+               (isOnToolbar ? 'vertical.html' : '') +
+               `?id=${rng.int(0,1000000)}`,
         })
       } else {
         return new Tree.Bookmark({
