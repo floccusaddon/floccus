@@ -1,5 +1,10 @@
 # Changelog
 
+## [5.4.4]
+
+### Fixed
+* fix(SyncProcess): When creating dummy bookmarks representing separators, make sure to use vertical lines on the Toolbar, and horizontal lines otherwise.
+
 ## [5.4.3]
 
 ### Fixed
