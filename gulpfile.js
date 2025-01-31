@@ -33,18 +33,11 @@ try {
 const VERSION = require('./package.json').version
 const paths = {
   zip: [
-    './**',
     (process.env['CI'] ? './' : '!') + 'dist/js/test.js',
-    '!builds/**',
-    '!src/**',
-    '!node_modules/**',
-    '!img/**',
-    '!ISSUE_TEMPLATE.md',
-    '!gulpfile.js',
-    '!key.pem',
-    '!android/**',
-    '!ios/**',
-    '!manifest*.json'
+    'dist/**',
+    'LICENSE.txt',
+    'PRIVACY_POLICY.md',
+    'README.md',
   ],
   views: './html/*.html',
   nativeHTML: './html/index.html',
