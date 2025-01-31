@@ -4,7 +4,6 @@ const { Builder, By, until } = require('selenium-webdriver')
 const { Preferences, Level, Type, installConsoleHandler } = require('selenium-webdriver/lib/logging')
 const { Options: ChromeOptions } = require('selenium-webdriver/chrome')
 const { Options: FirefoxOptions } = require('selenium-webdriver/firefox')
-const saveStats = require('./save-stats')
 const fetch = require('node-fetch')
 const VERSION = require('../package.json').version
 // Enable SELENIUM logging to console
@@ -131,25 +130,6 @@ installConsoleHandler()
       await driver.quit()
       process.exit(1)
     } else {
-      const match = fin.match(/duration: (\d+):(\d+)/i)
-      if (match) {
-        const data = {
-          testSuiteTime: parseInt(match[1]) + parseInt(match[2]) / 60,
-        }
-        const label =
-          process.env['FLOCCUS_TEST'] +
-          ' ' +
-          process.env['SELENIUM_BROWSER'] +
-          ' nc@' +
-          process.env['SERVER_BRANCH'] +
-          ' bm@' +
-          process.env['NC_APP_VERSION']
-        try {
-          await saveStats(process.env['GITHUB_SHA'], label, data)
-        } catch (e) {
-          console.log('FAILED TO SAVE BENCHMARK STATS', e)
-        }
-      }
       await driver.quit()
     }
   } catch (e) {
