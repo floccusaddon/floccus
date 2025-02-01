@@ -92,8 +92,8 @@
       </v-card-title>
       <v-card-text>
         <OptionAutoSync
-            :value="enabled"
-            @input="$emit('update:enabled', $event)" />
+          :value="enabled"
+          @input="$emit('update:enabled', $event)" />
         <OptionSyncInterval
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
