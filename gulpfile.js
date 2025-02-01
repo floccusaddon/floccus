@@ -34,10 +34,10 @@ const VERSION = require('./package.json').version
 const paths = {
   zip: [
     (process.env['CI'] ? './' : '!') + 'dist/js/test.js',
-    'dist',
-    'icons',
-    'lib',
-    '_locales',
+    './dist/**',
+    './icons/**',
+    './lib/**',
+    './_locales/**',
     'LICENSE.txt',
     'PRIVACY_POLICY.md',
     'README.md',
@@ -189,7 +189,7 @@ const main = gulp.series(build, native)
 
 const chromeZip = function() {
   return gulp
-    .src(paths.chromeZip, { buffer: false })
+    .src(paths.chromeZip, { buffer: false, base: './' })
     .pipe(rename((path) => {
       if (path.basename.startsWith('manifest') && path.extname === '.json') {
         path.basename = 'manifest'
@@ -201,7 +201,7 @@ const chromeZip = function() {
 
 const firefoxZip = function() {
   return gulp
-    .src(paths.firefoxZip, { buffer: false })
+    .src(paths.firefoxZip, { buffer: false, base: './' })
     .pipe(rename((path) => {
       if (path.basename.startsWith('manifest') && path.extname === '.json') {
         path.basename = 'manifest'
@@ -213,7 +213,7 @@ const firefoxZip = function() {
 
 const xpi = function() {
   return gulp
-    .src(paths.firefoxZip, { buffer: false })
+    .src(paths.firefoxZip, { buffer: false, base: './' })
     .pipe(rename((path) => {
       if (path.basename.startsWith('manifest') && path.extname === '.json') {
         path.basename = 'manifest'
