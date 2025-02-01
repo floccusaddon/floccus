@@ -52,8 +52,6 @@
     "eslint-plugin-vue": "9.x.x",
     "execa": "^6.1.0",
     "file-loader": "^6.2.0",
-    "gist-client": "^1.1.1",
-    "git-http-server": "^0.0.0",
     "gulp": "^4",
     "gulp-rename": "^2.0.0",
     "gulp-tap": "^1.0.1",

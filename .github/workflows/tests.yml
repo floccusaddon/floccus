@@ -230,6 +230,7 @@ jobs:
           mkdir __fixtures__
           cd __fixtures__
           git init --bare test.git -b main
+          npm i git-http-server
           npx git-http-server &
           npx htpasswd -cb test.git/.htpasswd admin admin
         if: matrix.floccus-adapter == 'git-xbel' || matrix.floccus-adapter == 'git-html'
