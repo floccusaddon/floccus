@@ -35,6 +35,7 @@ const paths = {
   zip: [
     (process.env['CI'] ? './' : '!') + 'dist/js/test.js',
     'dist/**',
+    'icons/**',
     'LICENSE.txt',
     'PRIVACY_POLICY.md',
     'README.md',
