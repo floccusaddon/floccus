@@ -36,6 +36,7 @@ const paths = {
     (process.env['CI'] ? './' : '!') + 'dist/js/test.js',
     'dist/**',
     'icons/**',
+    'lib/**',
     'LICENSE.txt',
     'PRIVACY_POLICY.md',
     'README.md',
