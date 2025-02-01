@@ -45,7 +45,7 @@ export default new HtmlSerializer()
 // Copyright (c) 2019 hold-baby
 // MIT License
 
-export const getRootFolder = (body: cheerio.Cheerio<cheerio.Element>) => {
+export const getRootFolder = (body: cheerio.Cheerio<any>) => {
   const h3 = body.find('h3').first()
 
   const isChrome = typeof h3.attr('personal_toolbar_folder') === 'string'
@@ -76,15 +76,13 @@ export const getRootFolder = (body: cheerio.Cheerio<cheerio.Element>) => {
 }
 
 export const parseByString = (content: string) => {
-  const $ = cheerio.load(content, {
-    decodeEntities: true
-  })
+  const $ = cheerio.load(content)
 
   const body = $('body')
   const root: TItem<typeof ItemLocation.SERVER>[] = []
   const rdt = getRootFolder(body).children('dt')
 
-  const parseNode = (node: cheerio.Cheerio<cheerio.Element>, parentId?: string|number) => {
+  const parseNode = (node: cheerio.Cheerio<any>, parentId?: string|number) => {
     const eq0 = node.children().eq(0)
     const title = typeof eq0.text() !== 'undefined' ? eq0.text() : ''
     let url = ''
