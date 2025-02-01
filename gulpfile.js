@@ -37,6 +37,7 @@ const paths = {
     'dist/**',
     'icons/**',
     'lib/**',
+    '_locales/**',
     'LICENSE.txt',
     'PRIVACY_POLICY.md',
     'README.md',
