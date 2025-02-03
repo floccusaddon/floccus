@@ -132,13 +132,13 @@
     "message": "Contrasinal"
   },
   "LabelBookmarksfile": {
-    "message": "Ruta do ficheiro de marcadores"
+    "message": "Ficheiro de marcadores"
   },
   "DescriptionBookmarksfile": {
     "message": "unha ruta ao ficheiro de marcadores relativa ao URL de WebDAV (xa deben existir todos os cartafoles da ruta). p. ex. cousas_persoais/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "o nome do ficheiro de marcadores que residirá no seu Google Drive (asegúrese de que este nome é único no seu Drive)"
+   "message": "o nome do ficheiro de marcadores que residirá no seu Google Drive. Non introduza a ruta completa do ficheiro, só o nome do ficheiro. Asegúrese de que este nome é único no seu Drive."
  },
   "DescriptionBookmarksfilegit": {
     "message": "unha ruta ao ficheiro de marcadores relativa á raíz do repositorio de Git (xa deben existir todos os cartafoles da ruta). p. ex. cousas_persoais/bookmarks.xbel"
