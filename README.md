@@ -129,6 +129,63 @@ Run the following to automatically compile changes as you make them:
 
 - `npm run build-release`
 
+#### Windows-specific considerations
+
+Follow the above general guidance on setting up a dev environment.  
+There are Windows-specific versions of some npm scripts:
+ - build: `npm run build-win`
+ - build-release: `npm run build-release-win`
+ - watch: `watch-win`
+
+When building for the first time you may get an error about `gulp` not being found.  
+You can install gulp globally on your system by executing `npm install -g gulp` from your repo root.
+It is recommended that you do this proactively after executing `npm install` in the repo root for the first time.
+
+#### Running the browser extension and corresponding tests locally
+
+- Build the browser extension:  
+`npm run build-release`  
+(`npm run build-release-win` if you use Windows)
+
+- After a successful build, the extension package will be found in:  
+`RepoRoot/builds/`
+
+- The following steps use _Firefox_ as an example; other browsers work similarly.  
+The Firefox extension package is a file with an `.xpi`-extension. It is a simple archive. To modify it, you can rename it to `.zip`, make the changes, and then rename it back to `.xpi`. Many archive-related tools know this and allow you to work with the `.xpi`-file directly (e.g. [Total Commander](https://www.ghisler.com/download.htm)).
+
+- Enable the extension package for local testing:  
+By default, tests are not included into the release archive. To run tests in your local browser, copy the file  
+`RepoRoot/dist/js/test.js`  
+into the release package, so that it is located at  
+`FloccusPackage.xpi/dist/js/test.js`
+
+- Open Firefox using a dedicated test-profile:  
+**If you use your main profile for testing, the test scripts will likely destroy your existing bookmarks and open tabs!**  
+To interact with profiles, go to this address:  
+`about:profiles`
+
+- Load the extension:  
+In the a dedicated Firefox profile window, go to  
+`about:debugging`  
+Select "This Firefox", and then under "Temporary Extensions", select "Load Temporary Add-on...". Then select the `.xpi`-file you prepared earlier.  
+(Remember to unload the extension if you need to modify/rebuild the extension package.)
+
+- The extension is now loaded. You can access it via the browser's extensions menu. 
+
+- Run tests:  
+After loading the extension, click on "Manifest URL". It will open a new tab with the URL
+`moz-extension://SomeGuid/manifest.json`
+Modify the URL to read  
+`moz-extension://SomeGuid/dist/html/test.html`  
+, keeping the same GUID and press enter. The test run should start automatically.
+
+- Debug or pause tests:  
+Press `F12` to open developer tools.  
+On the "Debugger" tab, you can pause the execution, set breakpoints and step through the code.
+
+Happy developing and thank you for your contributions!
+
+
 ## Backers
 
 Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/floccus#backer)]
