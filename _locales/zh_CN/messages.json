@@ -116,6 +116,9 @@
   "Error039": {
     "message": "E039: 未能在服务器上更新下列书签: {0}"
   },
+  "Error040": {
+    "message": "E040: 无法在你的 Google 云盘中搜索你的文件名"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
