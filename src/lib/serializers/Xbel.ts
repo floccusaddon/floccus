@@ -14,7 +14,7 @@ class XbelSerializer implements Serializer {
       preserveOrder: true,
       ignorePiTags: true,
       ignoreAttributes: false,
-      parseTagValue: true,
+      parseTagValue: false,
     })
     const xmlObj = parser.parse(xbel)
 
