@@ -86,6 +86,7 @@ This project exists thanks to all the people who contribute.
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/macrogreg"><img src="https://avatars.githubusercontent.com/u/20691812?v=4?s=70" width="70px;" alt="macrogreg"/><br /><sub><b>macrogreg</b></sub></a><br /><a href="https://github.com/floccusaddon/floccus/commits?author=macrogreg" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://www.artificialworlds.net"><img src="https://avatars.githubusercontent.com/u/76812?v=4?s=70" width="70px;" alt="Andy Balaam"/><br /><sub><b>Andy Balaam</b></sub></a><br /><a href="https://github.com/floccusaddon/floccus/commits?author=andybalaam" title="Code">💻</a> <a href="https://github.com/floccusaddon/floccus/issues?q=author%3Aandybalaam" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
