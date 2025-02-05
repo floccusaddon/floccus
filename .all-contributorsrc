@@ -233,6 +233,16 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "andybalaam",
+      "name": "Andy Balaam",
+      "avatar_url": "https://avatars.githubusercontent.com/u/76812?v=4",
+      "profile": "http://www.artificialworlds.net",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "skipCi": true,
