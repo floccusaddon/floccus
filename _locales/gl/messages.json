@@ -116,6 +116,9 @@
   "Error039": {
     "message": "E035: Produciuse un fallo ao actualizar o seguinte marcador no servidor: {0}"
   },
+  "Error040": {
+    "message": "E040: non foi posíbel buscar o nome de ficheiro en Google Drive"
+  },
   "LabelWebdavurl": {
     "message": "URL de WebDAV"
   },
