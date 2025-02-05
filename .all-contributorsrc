@@ -224,9 +224,19 @@
         "code",
         "bug"
       ]
+    },
+    {
+      "login": "macrogreg",
+      "name": "macrogreg",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20691812?v=4",
+      "profile": "https://github.com/macrogreg",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "skipCi": true,
   "contributorsPerLine": 7,
-  "commitConvention": "none"
+  "commitConvention": "none",
+  "commitType": "docs"
 }
