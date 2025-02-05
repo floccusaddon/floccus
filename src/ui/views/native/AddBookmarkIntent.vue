@@ -103,7 +103,7 @@ export default {
   data() {
     return {
       url: this.$route.params.url,
-      urlError: null,
+      urlError: this.checkUrl(this.$route.params.url),
       title: this.$route.params.title || '',
       temporaryParent: null,
       displayFolderChooser: false,
@@ -151,13 +151,7 @@ export default {
       this.$store.dispatch(actions.LOAD_TREE, this.id)
     },
     url() {
-      this.urlError = null
-      try {
-        // eslint-disable-next-line
-        new URL(this.url)
-      } catch (e) {
-        this.urlError = 'Invalid URL'
-      }
+      this.urlError = this.checkUrl(this.url)
     },
     tree() {
       const parentFolder = this.tree.findFolder(this.$store.state.lastFolders[this.id]) || this.tree.findFolder(this.tree.id)
@@ -177,7 +171,7 @@ export default {
   },
   methods: {
     async onSave() {
-      if (!this.tree.findFolder(this.temporaryParent)) {
+      if (!this.tree.findFolder(this.temporaryParent) || this.urlError) {
         return
       }
       await this.$store.dispatch(actions.CREATE_BOOKMARK, {
@@ -189,6 +183,15 @@ export default {
     },
     onTriggerFolderChooser() {
       this.displayFolderChooser = true
+    },
+    checkUrl(url) {
+      try {
+        // eslint-disable-next-line
+        new URL(url)
+        return null
+      } catch (e) {
+        return 'Invalid URL'
+      }
     }
   }
 }

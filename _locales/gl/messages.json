@@ -116,6 +116,9 @@
   "Error039": {
     "message": "E035: Produciuse un fallo ao actualizar o seguinte marcador no servidor: {0}"
   },
+  "Error040": {
+    "message": "E040: non foi posíbel buscar o nome de ficheiro en Google Drive"
+  },
   "LabelWebdavurl": {
     "message": "URL de WebDAV"
   },
@@ -132,13 +135,13 @@
     "message": "Contrasinal"
   },
   "LabelBookmarksfile": {
-    "message": "Ruta do ficheiro de marcadores"
+    "message": "Ficheiro de marcadores"
   },
   "DescriptionBookmarksfile": {
     "message": "unha ruta ao ficheiro de marcadores relativa ao URL de WebDAV (xa deben existir todos os cartafoles da ruta). p. ex. cousas_persoais/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "o nome do ficheiro de marcadores que residirá no seu Google Drive (asegúrese de que este nome é único no seu Drive)"
+   "message": "o nome do ficheiro de marcadores que residirá no seu Google Drive. Non introduza a ruta completa do ficheiro, só o nome do ficheiro. Asegúrese de que este nome é único no seu Drive."
  },
   "DescriptionBookmarksfilegit": {
     "message": "unha ruta ao ficheiro de marcadores relativa á raíz do repositorio de Git (xa deben existir todos os cartafoles da ruta). p. ex. cousas_persoais/bookmarks.xbel"
@@ -812,5 +815,8 @@
   },
   "DescriptionScheduledforcesync": {
     "message": "Confirma que quere forzar a sincronización? A sincronización con dous dispositivos ao mesmo tempo pode ter consecuencias imprevistas, incluíndo o estragado dos datos. Asegúrese de que ningún outro dispositivo estea a sincronizar neste intre antes de confirmar."
+  },
+  "DescriptionAutosync": {
+    "message": "Ao activar a sincronización automática asegurarase de que unha execución de sincronización se active regularmente dentro dun determinado intervalo configurábel, así como baixo demanda uns segundos após facer cambios. Se non activa a sincronización automática, terá que activar a sincronización manualmente premendo o botón de sincronización."
   }
 }

@@ -302,7 +302,7 @@ export default class BrowserController {
 
     const status = await this.getStatus()
     if (status === STATUS_SYNCING) {
-      await account.setData({ ...account.getData(), scheduled: account.getData().scheduled || true })
+      await account.setData({ scheduled: account.getData().scheduled || true })
       return
     }
 
@@ -316,7 +316,7 @@ export default class BrowserController {
   async scheduleAll() {
     const accounts = await Account.getAllAccounts()
     for (const account of accounts) {
-      await account.setData({...account.getData(), scheduled: true})
+      await account.setData({ scheduled: true })
     }
     this.updateStatus()
   }
@@ -325,7 +325,7 @@ export default class BrowserController {
     let account = await Account.get(accountId)
     // Avoid starting it again automatically
     if (!keepEnabled) {
-      await account.setData({ ...account.getData(), enabled: false })
+      await account.setData({ enabled: false })
     }
     await account.cancelSync()
   }
@@ -421,7 +421,6 @@ export default class BrowserController {
       accounts.map(async acc => {
         if (acc.getData().syncing) {
           await acc.setData({
-            ...acc.getData(),
             syncing: false,
             scheduled: acc.getData().enabled,
           })

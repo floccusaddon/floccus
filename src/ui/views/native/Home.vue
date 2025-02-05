@@ -64,7 +64,7 @@ export default {
           title = ''
         })
       } else {
-        url = result.url
+        url = this.findUrl(result.url)
         title = ''
       }
 
@@ -95,6 +95,32 @@ export default {
         }
       })
       return true
+    },
+    /**
+     * Check that the supplied string is a valid URL. If not, look for a
+     * URL at the end of the string, to match the input we see from the
+     * Share action in some apps.
+     */
+    findUrl(url) {
+      try {
+        // If we can parse this string as a URL, we are done.
+        // eslint-disable-next-line no-new
+        new URL(url)
+        return url
+      } catch (e1) {
+        // If not, see whether we can find a URL at the end of this string.
+        // This happens when we share from the Amazon Shopping app.
+        const lastWord = url.trim().split(' ').slice(-1)[0]
+        try {
+          // eslint-disable-next-line no-new
+          new URL(lastWord)
+          // The last word is a URL - return it
+          return lastWord
+        } catch (e2) {
+          // We didn't find a valid URL - return our input unchanged
+          return url
+        }
+      }
     }
   }
 }

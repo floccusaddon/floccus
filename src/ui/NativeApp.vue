@@ -28,11 +28,11 @@ export default {
     }
   },
   async created() {
+    const controller = await Controller.getSingleton()
+    await controller.onLoad()
     setInterval(() => {
       this.$store.dispatch(actions.LOAD_ACCOUNTS)
     }, 5000)
-    const controller = await Controller.getSingleton()
-    await controller.onLoad()
     controller.onStatusChange(() => {
       this.$store.dispatch(actions.LOAD_ACCOUNTS)
     })

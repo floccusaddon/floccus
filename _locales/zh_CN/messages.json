@@ -116,6 +116,9 @@
   "Error039": {
     "message": "E039: 未能在服务器上更新下列书签: {0}"
   },
+  "Error040": {
+    "message": "E040: 无法在你的 Google 云盘中搜索你的文件名"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -132,13 +135,13 @@
     "message": "密码"
   },
   "LabelBookmarksfile": {
-    "message": "书签路径"
+    "message": "书签文件"
   },
   "DescriptionBookmarksfile": {
     "message": "相对于WebDAV URL的书签路径(所有路径必须已经存在).例如:personal_stuff/bookmarks.xbel "
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "书签文件的文件名，该文件将存放在 Google Drive 中（确保该名称在 Google Drive 中是唯一的）。"
+   "message": " Google 云盘内保存的书签文件的名称。不要输入完整的文件路径，只输入文件名即可。请确保该名称在你的 Google 云盘内是唯一的。"
  },
   "DescriptionBookmarksfilegit": {
     "message": "相对于你的 Git 存储库根目录的书签文件路径 (路径中的所有文件夹必须都已存在)。如，personal_stuff/bookmarks.xbel"
@@ -812,5 +815,8 @@
   },
   "DescriptionScheduledforcesync": {
     "message": "你真要强制同步吗？同时和两台设备同步可能会有预想不到的后果，包括数据损坏。在确认前，请确保此刻没有其他设备正在同步。"
+  },
+  "DescriptionAutosync": {
+    "message": "打开自动更新会确保同步运行在某一可配置间隔内被定期触发，以及在你做出更改数秒后按需触发。如果不打开自动同步，你需要按下同步按钮手动触发同步。"
   }
 }

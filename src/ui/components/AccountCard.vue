@@ -74,10 +74,10 @@
             </template>
             <template v-if="status === 'scheduled'">
               <v-btn
-                  :color="statusType"
-                  class="float-right"
-                  x-small
-                  @click="onForceSync">
+                :color="statusType"
+                class="float-right"
+                x-small
+                @click="onForceSync">
                 {{ t('LabelScheduledforcesync') }}
               </v-btn>
             </template>

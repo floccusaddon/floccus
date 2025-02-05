@@ -20,6 +20,13 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
   private absoluteRoot: { id: string }
   private absoluteRootPromise: Promise<void>
 
+  static readonly TITLE_BOOKMARKS_BAR: string = 'Bookmarks Bar'
+  static readonly TITLE_OTHER_BOOKMARKS: string = 'Other Bookmarks'
+  static readonly TITLE_BOOKMARKS_MENU: string = 'Bookmarks Menu'
+  static readonly TITLE_MOBILE_BOOKMARKS: string = 'Mobile Bookmarks'
+  static readonly TITLE_SEPARATOR_HORZ: string = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯'
+  static readonly TITLE_SEPARATOR_VERT: string = ''
+
   constructor(storage:unknown, rootId:string) {
     this.rootId = rootId
     this.storage = storage
@@ -40,7 +47,8 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     await this.absoluteRootPromise
     const allAccounts = await (await Account.getAccountClass()).getAllAccounts()
 
-    const recurse = (node, parentId?, rng?) => {
+    const recurse = (node, parentId?, isOnToolbar?, rng?) => {
+      
       if (
         allAccounts.some(
           acc => acc.getData().localRoot === node.id && String(node.id) !== String(this.rootId) && !acc.getData().nestedSync
@@ -49,22 +57,23 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
         // This is the root folder of a different account and the user doesn't want nested sync
         return
       }
-      let overrideTitle, isRoot
+      let overrideTitle, isRoot, isToolbar
       if (node.parentId === this.absoluteRoot.id && !isVivaldiBrowser) {
         switch (node.id) {
           case '1': // Chrome
           case 'toolbar_____': // Firefox
-            overrideTitle = 'Bookmarks Bar'
+            overrideTitle = BrowserTree.TITLE_BOOKMARKS_BAR
+            isToolbar = true
             break
           case '2': // Chrome
           case 'unfiled_____': // Firefox
-            overrideTitle = 'Other Bookmarks'
+            overrideTitle = BrowserTree.TITLE_OTHER_BOOKMARKS
             break
           case 'menu________': // Firefox
-            overrideTitle = 'Bookmarks Menu'
+            overrideTitle = BrowserTree.TITLE_BOOKMARKS_MENU
             break
           case 'mobile______': // Firefox
-            overrideTitle = 'Mobile Bookmarks'
+            overrideTitle = BrowserTree.TITLE_MOBILE_BOOKMARKS
         }
         if (overrideTitle) {
           Logger.log(
@@ -91,7 +100,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
           title: parentId ? overrideTitle || node.title : undefined,
           children: node.children
             .map((child) => {
-              return recurse(child, node.id, rng)
+              return recurse(child, node.id, isToolbar, rng)
             })
             .filter(child => !!child) // filter out `undefined` from nested accounts
         })
@@ -103,10 +112,12 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
           location: ItemLocation.LOCAL,
           id: node.id,
           parentId,
-          title: '-----',
+          title: isOnToolbar ? BrowserTree.TITLE_SEPARATOR_VERT : BrowserTree.TITLE_SEPARATOR_HORZ,
           // If you have more than a quarter million separators in one folder, call me
           // Floccus breaks down much earlier atm
-          url: `https://separator.floccus.org/?id=${rng.int(0,1000000)}`,
+          url: 'https://separator.floccus.org/' +
+               (isOnToolbar ? 'vertical.html' : '') +
+               `?id=${rng.int(0,1000000)}`,
         })
       } else {
         return new Tree.Bookmark({

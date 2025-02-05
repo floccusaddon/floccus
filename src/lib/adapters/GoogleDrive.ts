@@ -8,7 +8,7 @@ import {
   DecryptionError, FileUnreadableError,
   GoogleDriveAuthenticationError, HttpError, CancelledSyncError, MissingPermissionsError,
   NetworkError,
-  OAuthTokenError, ResourceLockedError
+  OAuthTokenError, ResourceLockedError, GoogleDriveSearchError
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
 import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
@@ -216,6 +216,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     this.accessToken = await this.getAccessToken(this.server.refreshToken)
 
     const fileList = await this.listFiles(`name = '${this.server.bookmark_file}'`, 100)
+    if (!fileList.files) {
+      throw new GoogleDriveSearchError()
+    }
+
     const file = fileList.files.filter(file => !file.trashed)[0]
 
     const filesToDelete = fileList.files.filter(file => !file.trashed).slice(1)
@@ -250,7 +254,6 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       if (this.server.password) {
         try {
           try {
-            // TODO: Use this when encrypting
             const json = JSON.parse(xmlDocText)
             xmlDocText = await Crypto.decryptAES(this.server.password, json.ciphertext, json.salt)
           } catch (e) {
@@ -264,7 +267,8 @@ export default class GoogleDriveAdapter extends CachingAdapter {
             throw new DecryptionError()
           }
         }
-      } else if (!xmlDocText || !xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
+      }
+      if (!xmlDocText || !xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
         throw new FileUnreadableError()
       }
 

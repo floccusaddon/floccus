@@ -116,6 +116,9 @@
   "Error039": {
     "message": "E039: Failed to update the following bookmark on the server: {0}"
   },
+  "Error040": {
+    "message": "E040: Could not search for your file name in your Google Drive"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -132,13 +135,13 @@
     "message": "Password"
   },
   "LabelBookmarksfile": {
-    "message": "Bookmarks file path"
+    "message": "Bookmarks file"
   },
   "DescriptionBookmarksfile": {
     "message": "a path to the bookmarks file relative to your WebDAV URL (all folders in the path must already exist). e.g. personal_stuff/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "the file name of the bookmarks file that will reside in your Google Drive (make sure this name is unique in your Drive)"
+   "message": "the file name of the bookmarks file that will reside in your Google Drive. Do not enter the full file path, only the file name. Make sure this name is unique in your Drive."
  },
   "DescriptionBookmarksfilegit": {
     "message": "a path to the bookmarks file relative to your Git repository root (all folders in the path must already exist). e.g. personal_stuff/bookmarks.xbel"
@@ -812,5 +815,8 @@
   },
   "DescriptionScheduledforcesync": {
     "message": "Do you really want to force sync? Syncing with two devices at the same time can have unforeseen consequences including corruption of your data. Make sure that no other device is syncing at the moment before confirming."
+  },
+  "DescriptionAutosync": {
+    "message": "Turning on automatic sync will make sure a sync run is triggered regularly within a certain configurable interval as well as on demand a few seconds after you make changes. If you don't turn on automatic sync you will need to trigger sync runs manually by pressing the sync button."
   }
 }

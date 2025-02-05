@@ -29,6 +29,6 @@
 		"PreferencesPlugin",
 		"SharePlugin",
 		"SplashScreenPlugin",
-		"SendIntent"
+		"SendIntentPlugin"
 	]
 }

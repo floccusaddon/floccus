@@ -334,3 +334,11 @@ export class UpdateBookmarkError extends FloccusError {
     Object.setPrototypeOf(this, UpdateBookmarkError.prototype)
   }
 }
+
+export class GoogleDriveSearchError extends FloccusError {
+  constructor() {
+    super('E040: Could not search for your file name in your Google Drive')
+    this.code = 40
+    Object.setPrototypeOf(this, GoogleDriveSearchError.prototype)
+  }
+}

@@ -1,5 +1,29 @@
 # Changelog
 
+## [5.4.4]
+
+### Fixed
+* fix(SyncProcess): When creating dummy bookmarks representing separators, make sure to use vertical lines on the Toolbar, and horizontal lines otherwise. (thanks to @macrogreg)
+* fix(Xbel): Don't parse tag values
+* fix: Throw nice error for when gdrive search fails
+* fix: Clean up dependencies (#1851)
+* fix(messages): Specify that the file path doesn't matter for Google Drive
+
+## [5.4.3]
+
+### Fixed
+
+* fix(OptionsLinkwarden): Allow changing server folder
+* fix(Storage): Don't give up when storage entry can not be parsed
+* refactor(Account#setData): Accept partial data and use lock to set data (fixes hanging sync on iOS)
+* fix(README): Add APK cert fingerprint
+* fix(GoogleDrive|WebDAV): Try to catch more errors when file is encrypted
+* enh(AutoSync): Add an explantion in settings
+* [native] Try to find a valid URL when an app shares title+URL stuffed together (thanks to Andy Balaam)
+* [native] Check that a URL is valid as soon as we load the Add Bookmark dialog (thanks to Andy Balaam)
+* [native] Prevent saving a newly-added bookmark if the URL is bad (thanks to Andy Balaam)
+* [native] Catch and log any errors we encounter when parsing a URL to display its hostname (thanks to Andy Balaam)
+
 ## [5.4.2]
 
 (aka 5.4.2.1)

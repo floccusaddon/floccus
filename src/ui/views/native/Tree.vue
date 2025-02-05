@@ -436,7 +436,12 @@ export default {
   components: { DialogImportBookmarks, FaviconImage, DialogEditBookmark, DialogEditFolder, Drawer },
   filters: {
     hostname(url) {
-      return new URL(url).hostname
+      try {
+        return new URL(url).hostname
+      } catch (e) {
+        console.error(`${e}: ${url}`)
+        return '(bad url)'
+      }
     }
   },
   data() {

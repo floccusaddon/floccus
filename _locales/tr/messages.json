@@ -812,5 +812,8 @@
   },
   "DescriptionScheduledforcesync": {
     "message": "Gerçekten senkronizasyona zorlamak istiyor musunuz? Aynı anda iki cihazla senkronizasyon yapılması, verilerinizin bozulması dahil öngörülemeyen sonuçlara yol açabilir. Onaylamadan önce şu anda başka hiçbir cihazın senkronize edilmediğinden emin olun."
+  },
+  "DescriptionAutosync": {
+    "message": "Otomatik senkronizasyonun açılması, bir senkronizasyon çalıştırmalarını belirli bir aralıkta düzenli olarak ve ayrıca değişiklik yaptıktan birkaç saniye sonra isteğe bağlı olarak tetiklenmesini sağlar. Otomatik senkronizasyonu açmazsanız, senkronizasyon düğmesine basarak senkronizasyon çalıştırmalarını manuel olarak tetiklemeniz gerekecektir."
   }
 }

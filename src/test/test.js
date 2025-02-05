@@ -10,11 +10,16 @@ import * as AsyncParallel from 'async-parallel'
 import DefunctCrypto from '../lib/DefunctCrypto'
 import Controller from '../lib/Controller'
 import FakeAdapter from '../lib/adapters/Fake'
+import BrowserTree from '../lib/browser/BrowserTree'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
 let expectTreeEqual = function(tree1, tree2, ignoreEmptyFolders, checkOrder = true) {
+  expectTreeEqualRec(tree1, tree2, 0, ignoreEmptyFolders, checkOrder)
+}
+
+let expectTreeEqualRec = function(tree1, tree2, recDepth, ignoreEmptyFolders, checkOrder) {
   try {
     expect(tree1.title).to.equal(tree2.title)
     if (tree2.url) {
@@ -40,12 +45,12 @@ let expectTreeEqual = function(tree1, tree2, ignoreEmptyFolders, checkOrder = tr
         : tree2.children
       expect(children1).to.have.length(children2.length)
       children2.forEach((child2, i) => {
-        expectTreeEqual(children1[i], child2, ignoreEmptyFolders, checkOrder)
+        expectTreeEqualRec(children1[i], child2, recDepth + 1, ignoreEmptyFolders, checkOrder)
       })
     }
   } catch (e) {
     console.log(
-      `Trees are not equal: (checkOrder: ${checkOrder}, ignoreEmptyFolders: ${ignoreEmptyFolders})`,
+      `Trees are not equal: (recDepth: ${recDepth}, checkOrder: ${checkOrder}, ignoreEmptyFolders: ${ignoreEmptyFolders})\n`,
       'Tree 1:\n' + tree1.inspect(0) + '\n',
       'Tree 2:\n' + tree2.inspect(0)
     )
@@ -258,7 +263,7 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type === 'git') {
               await account.server.clearServer()
             } else if (ACCOUNT_DATA.type !== 'fake') {
-              await account.setData({ ...account.getData(), serverRoot: null })
+              await account.setData({ serverRoot: null })
               account.lockTimeout = 0
               const tree = await getAllBookmarks(account)
               await withSyncConnection(account, async() => {
@@ -2297,6 +2302,102 @@ describe('Floccus', function() {
               false
             )
           })
+          it('should convert vertical and horizontal separators', async function() {
+            if (BROWSER !== 'firefox') {
+              this.skip()
+              return
+            }
+
+            // Remove all nodes except the system nodes:
+            const deleteNonSysNodes = async(delNodeId) => {
+              let delChildren = await browser.bookmarks.getChildren(delNodeId)
+              for (const delChild of delChildren) {
+                await deleteNonSysNodes(delChild.id)
+              }
+              if (!delNodeId.endsWith('_____')) {
+                await browser.bookmarks.remove(delNodeId)
+              }
+            }
+            await deleteNonSysNodes('root________')
+
+            await browser.bookmarks.create({
+              title: 'url1',
+              url: 'http://url1/',
+              parentId: 'menu________'
+            })
+            await browser.bookmarks.create({
+              type: 'separator',
+              parentId: 'menu________'
+            })
+            const toolbarNameNormalFolder = await browser.bookmarks.create({
+              title: BrowserTree.TITLE_BOOKMARKS_BAR,
+              parentId: 'menu________'
+            })
+            await browser.bookmarks.create({
+              title: 'url2',
+              url: 'http://url2/',
+              parentId: toolbarNameNormalFolder.id
+            })
+            await browser.bookmarks.create({
+              type: 'separator',
+              parentId: toolbarNameNormalFolder.id
+            })
+
+            await browser.bookmarks.create({
+              title: 'url3',
+              url: 'http://url3/',
+              parentId: 'toolbar_____'
+            })
+            await browser.bookmarks.create({
+              type: 'separator',
+              parentId: 'toolbar_____'
+            })
+            const onToolbarNormalFolder = await browser.bookmarks.create({
+              title: 'A Folder',
+              parentId: 'toolbar_____'
+            })
+            await browser.bookmarks.create({
+              title: 'url4',
+              url: 'http://url4/',
+              parentId: onToolbarNormalFolder.id
+            })
+            await browser.bookmarks.create({
+              type: 'separator',
+              parentId: onToolbarNormalFolder.id
+            })
+
+            let brTree = new BrowserTree('Dummy Storage', 'root________')
+            let bmTree = await brTree.getBookmarksTree()
+
+            expectTreeEqual(
+              bmTree,
+              new Folder({title: undefined,
+                children: [
+                  new Folder({title: 'Bookmarks Menu',
+                    children: [
+                      new Bookmark({title: 'url1', url: 'http://url1/'}),
+                      new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=242649'}),
+                      new Folder({title: 'Bookmarks Bar',
+                        children: [
+                          new Bookmark({title: 'url2', url: 'http://url2/'}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=591710'}),
+                        ]}),
+                    ]}),
+                  new Folder({title: 'Bookmarks Bar',
+                    children: [
+                      new Bookmark({title: 'url3', url: 'http://url3/'}),
+                      new Bookmark({title: '', url: 'https://separator.floccus.org/vertical.html?id=616887'}),
+                      new Folder({title: 'A Folder',
+                        children: [
+                          new Bookmark({title: 'url4', url: 'http://url4/'}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=890296'}),
+                        ]}),
+                    ]})
+                ]}),
+              true
+            )
+            await deleteNonSysNodes('root________')
+          })
           it('should sync separators', async function() {
             if (ACCOUNT_DATA.noCache) {
               this.skip()
@@ -2310,7 +2411,6 @@ describe('Floccus', function() {
               return this.skip()
             }
             const localRoot = account.getData().localRoot
-
             const barFolder = await browser.bookmarks.create({
               title: 'bar',
               parentId: localRoot
@@ -2352,11 +2452,11 @@ describe('Floccus', function() {
                       new Folder({title: 'foo',
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
-                        ]}),
-                    ]}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=731368'})
+                        ]})
+                    ]})
                 ]}),
               false
             )
@@ -2369,11 +2469,11 @@ describe('Floccus', function() {
                       new Folder({title: 'foo',
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
-                        ]}),
-                    ]}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=731368'})
+                        ]})
+                    ]})
                 ]}),
               false
             )
@@ -2401,10 +2501,10 @@ describe('Floccus', function() {
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'})
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'})
                         ]}),
-                      new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=379999'})
-                    ]}),
+                      new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=379999'})
+                    ]})
                 ]}),
               false
             )
@@ -2419,10 +2519,10 @@ describe('Floccus', function() {
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=731368'})
                         ]}),
-                      new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'})
-                    ]}),
+                      new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'})
+                    ]})
                 ]}),
               false
             )
@@ -2482,9 +2582,9 @@ describe('Floccus', function() {
                       new Folder({title: 'foo',
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=731368'})
                         ]}),
                     ]}),
                 ]}),
@@ -2499,9 +2599,9 @@ describe('Floccus', function() {
                       new Folder({title: 'foo',
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'}),
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=731368'})
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=731368'})
                         ]}),
                     ]}),
                 ]}),
@@ -2528,7 +2628,7 @@ describe('Floccus', function() {
                         children: [
                           new Bookmark({title: 'url', url: 'http://ur.l/'}),
                           new Bookmark({title: 'url2',url: 'http://ur2.l'}),
-                          new Bookmark({title: '-----', url: 'https://separator.floccus.org/?id=467366'})
+                          new Bookmark({title: '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯', url: 'https://separator.floccus.org/?id=467366'})
                         ]}),
                     ]}),
 
@@ -2538,7 +2638,7 @@ describe('Floccus', function() {
           })
           it('should sync root folder successfully', async function() {
             const [root] = await browser.bookmarks.getTree()
-            await account.setData({...account.getData(), localRoot: root.id})
+            await account.setData({ localRoot: root.id })
             account = await Account.get(account.id)
 
             const barFolder = await browser.bookmarks.create({
@@ -2571,7 +2671,7 @@ describe('Floccus', function() {
             )
 
             // Switch it back to something harmless, so we don't attempt to clean up the root folder
-            await account.setData({...account.getData(), localRoot: barFolder.id})
+            await account.setData({ localRoot: barFolder.id})
             account = await Account.get(account.id)
           })
           it('should sync root folder ignoring unsupported folders', async function() {
@@ -2582,7 +2682,7 @@ describe('Floccus', function() {
             )
 
             const originalFolderId = account.getData().localRoot
-            await account.setData({...account.getData(), localRoot: root.id, })
+            await account.setData({ localRoot: root.id, })
             account = await Account.get(account.id)
             const adapter = account.server
 
@@ -2635,7 +2735,7 @@ describe('Floccus', function() {
             expect(serverTree.children).to.have.lengthOf(localTreeAfterSync.children.length + 1)
 
             // Switch it back to something harmless, so we don't attempt to clean up the root folder
-            await account.setData({...account.getData(), localRoot: originalFolderId})
+            await account.setData({ localRoot: originalFolderId})
             account = await Account.get(account.id)
           })
           it('should synchronize ordering', async function() {
@@ -2748,7 +2848,7 @@ describe('Floccus', function() {
           })
           context('with slave mode', function() {
             it("shouldn't create local bookmarks on the server", async function() {
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
               expect(
                 (await getAllBookmarks(account)).children
               ).to.have.lengthOf(0)
@@ -2796,7 +2896,7 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               const originalTree = await getAllBookmarks(account)
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
 
               const newData = { title: 'blah' }
               await browser.bookmarks.update(bookmark.id, newData)
@@ -2833,7 +2933,7 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               const originalTree = await getAllBookmarks(account)
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
 
               await browser.bookmarks.remove(bookmark.id)
               await account.sync() // update on server
@@ -2874,7 +2974,7 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               const originalTree = await getAllBookmarks(account)
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
 
               await browser.bookmarks.move(barFolder.id, {
                 parentId: localRoot
@@ -2890,7 +2990,7 @@ describe('Floccus', function() {
               )
             })
             it('should create server bookmarks locally', async function() {
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
               const adapter = account.server
               const serverTree = await getAllBookmarks(account)
               if (adapter.onSyncStart) await adapter.onSyncStart()
@@ -2939,7 +3039,7 @@ describe('Floccus', function() {
               if (ACCOUNT_DATA.noCache) {
                 return this.skip()
               }
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
               const adapter = account.server
 
               const serverTree = await getAllBookmarks(account)
@@ -3000,7 +3100,7 @@ describe('Floccus', function() {
               )
             })
             it('should update local bookmarks on server removals', async function() {
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
               const adapter = account.server
               const serverTree = await getAllBookmarks(account)
               if (adapter.onSyncStart) await adapter.onSyncStart()
@@ -3055,7 +3155,7 @@ describe('Floccus', function() {
               )
 
               const originalFolderId = account.getData().localRoot
-              await account.setData({...account.getData(), localRoot: root.id, })
+              await account.setData({ localRoot: root.id, })
               account = await Account.get(account.id)
               const adapter = account.server
 
@@ -3104,7 +3204,7 @@ describe('Floccus', function() {
                 await adapter.updateBookmark(secondBookmark)
               })
 
-              await account.setData({ ...account.getData(), strategy: 'slave' })
+              await account.setData({ strategy: 'slave' })
 
               await account.sync()
               expect(account.getData().error).to.not.be.ok
@@ -3114,14 +3214,13 @@ describe('Floccus', function() {
               expect(serverTree.children).to.have.lengthOf(localTreeAfterSync.children.length + 1)
 
               // Switch it back to something harmless, so we don't attempt to clean up the root folder
-              await account.setData({...account.getData(), localRoot: originalFolderId})
+              await account.setData({ localRoot: originalFolderId})
               account = await Account.get(account.id)
             })
           })
           context('with overwrite mode', function() {
             it('should create local bookmarks on the server', async function() {
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
               expect(
@@ -3169,7 +3268,6 @@ describe('Floccus', function() {
             })
             it('should create local bookmarks on the server respecting moves', async function() {
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
               expect(
@@ -3285,7 +3383,6 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
 
@@ -3326,7 +3423,6 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
 
@@ -3371,7 +3467,6 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
 
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
 
@@ -3392,7 +3487,6 @@ describe('Floccus', function() {
             })
             it("shouldn't create server bookmarks locally", async function() {
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
               const adapter = account.server
@@ -3446,7 +3540,6 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
               const originalTree = await account.localTree.getBookmarksTree(true)
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
 
@@ -3492,7 +3585,6 @@ describe('Floccus', function() {
               expect(account.getData().error).to.not.be.ok
               const originalTree = await account.localTree.getBookmarksTree(true)
               await account.setData({
-                ...account.getData(),
                 strategy: 'overwrite'
               })
 
@@ -3539,7 +3631,6 @@ describe('Floccus', function() {
               await account1.server.clearServer()
             } else if (ACCOUNT_DATA.type !== 'fake') {
               await account1.setData({
-                ...account1.getData(),
                 serverRoot: null
               })
               account1.lockTimeout = 0
@@ -3938,8 +4029,8 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type !== 'nextcloud-bookmarks') {
               return this.skip()
             }
-            await account1.setData({...account1.getData(), serverRoot: '/folder1'})
-            await account2.setData({...account2.getData(), serverRoot: '/folder2'})
+            await account1.setData({ serverRoot: '/folder1'})
+            await account2.setData({ serverRoot: '/folder2'})
 
             const localRoot = account1.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
@@ -4947,7 +5038,7 @@ describe('Floccus', function() {
               })
             }
             await account.init()
-            await account.setData({...account.getData(), localRoot: 'tabs'})
+            await account.setData({ localRoot: 'tabs'})
             if (ACCOUNT_DATA.noCache) {
               account.storage.setCache = () => {
                 // noop
@@ -4972,7 +5063,7 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type === 'git') {
               await account.server.clearServer()
             } else if (ACCOUNT_DATA.type !== 'fake') {
-              await account.setData({ ...account.getData(), serverRoot: null })
+              await account.setData({ serverRoot: null })
               account.lockTimeout = 0
               const tree = await getAllBookmarks(account)
               await withSyncConnection(account, async() => {
@@ -5072,7 +5163,7 @@ describe('Floccus', function() {
             )
           })
           it('should update the server when pushing local changes', async function() {
-            await account.setData({...account.getData(), strategy: 'overwrite'})
+            await account.setData({ strategy: 'overwrite'})
 
             browser.tabs.create({
               index: 1,
@@ -5186,7 +5277,7 @@ describe('Floccus', function() {
               await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: 'https://example.org/#test2', title: 'Example Domain', parentId: tree.children[0].id })
             })
 
-            await account.setData({...account.getData(), strategy: 'slave'})
+            await account.setData({ strategy: 'slave'})
 
             await account.sync()
             expect(account.getData().error).to.not.be.ok
@@ -5386,7 +5477,6 @@ describe('Floccus', function() {
             await account1.server.clearServer()
           } else if (ACCOUNT_DATA.type !== 'fake') {
             await account1.setData({
-              ...account1.getData(),
               serverRoot: null
             })
             account1.lockTimeout = 0
@@ -6529,7 +6619,7 @@ describe('Floccus', function() {
         }
 
         it('unidirectional should handle fuzzed changes from two clients', async function() {
-          await account2.setData({...account2.getData(), strategy: 'slave'})
+          await account2.setData({ strategy: 'slave'})
           const localRoot = account1.getData().localRoot
           let bookmarks1 = []
           let folders1 = []
@@ -6773,7 +6863,7 @@ describe('Floccus', function() {
         })
 
         it('unidirectional should handle fuzzed changes with deletions from two clients', async function() {
-          await account2.setData({...account2.getData(), strategy: 'slave'})
+          await account2.setData({ strategy: 'slave'})
           const localRoot = account1.getData().localRoot
           let bookmarks1 = []
           let folders1 = []
