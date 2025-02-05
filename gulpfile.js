@@ -33,7 +33,7 @@ try {
 const VERSION = require('./package.json').version
 const paths = {
   zip: [
-    (process.env['CI'] ? './' : '!') + 'dist/js/test.js',
+    (process.env['CI'] ? './' : '!') + './dist/js/test.js',
     './dist/**',
     './icons/**',
     './lib/**',

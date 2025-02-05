@@ -3,7 +3,11 @@
 ## [5.4.4]
 
 ### Fixed
-* fix(SyncProcess): When creating dummy bookmarks representing separators, make sure to use vertical lines on the Toolbar, and horizontal lines otherwise.
+* fix(SyncProcess): When creating dummy bookmarks representing separators, make sure to use vertical lines on the Toolbar, and horizontal lines otherwise. (thanks to @macrogreg)
+* fix(Xbel): Don't parse tag values
+* fix: Throw nice error for when gdrive search fails
+* fix: Clean up dependencies (#1851)
+* fix(messages): Specify that the file path doesn't matter for Google Drive
 
 ## [5.4.3]
 
