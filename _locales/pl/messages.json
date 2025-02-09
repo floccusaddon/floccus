@@ -745,7 +745,7 @@
     "message": "Nazwij ten profil aby łatwiej go rozróżniać"
   },
   "LabelClickcount": {
-    "message": "Licznik kliknięć"
+    "message": "Licz kliknięcia"
   },
   "DescriptionClickcount": {
     "message": "Wysyłaj statystyki o użytych zakładkach do serwera Nextcloud, aby móc sortować do liczbie kliknięć"
