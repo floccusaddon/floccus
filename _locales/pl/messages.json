@@ -186,7 +186,7 @@
     "message": "Synchronizuj wszystkie profile"
   },
   "LabelAutosync": {
-    "message": "Auto-synchr."
+    "message": "Automatyczna synchronizacja"
   },
   "StatusLastsynced": {
     "message": "Ostatnia synchronizacja: {0} temu"
