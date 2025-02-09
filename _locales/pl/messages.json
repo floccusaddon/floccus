@@ -99,13 +99,25 @@
     "message": "E033: Wykryto przekierowanie. Upewnij się, że serwer obsługuje wybraną metodę synchronizacji i podany adres URL nie przekierowuje w inne miejsce. Jeśli przekierowanie jest częścią Twojej konfiguracji, możesz wyłączyć to sprawdzenie w ustawieniach."
   },
   "Error034": {
-    "message": "E034: Nie można odczytać zdalnego pliku zakładek. Czy ustawiłeś hasło do odszyfrowania? "
+    "message": "E034: Nie można odczytać pliku zakładek. Być może nie ustawiłeś hasła szyfrującego lub wskazałeś niewłaściwy format."
   },
   "Error035": {
     "message": "E035: Nie udało się utworzyć następującej zakładki na serwerze: (0)"
   },
   "Error036": {
     "message": "E036: Brak uprawnień dostępu do serwera synchronizacji."
+  },
+  "Error037": {
+    "message": "E037: Zasób jest zablokowany"
+  },
+  "Error038": {
+    "message": "E038: Nie można znaleźć lokalnego folderu"
+  },
+  "Error039": {
+    "message": "E039: Nie udało się zaktualizować następującej zakładki na serwerze: {0}"
+  },
+  "Error040": {
+    "message": "E040: Nie można znaleźć podanej nazwy pliku w Google Drive"
   },
   "LabelWebdavurl": {
     "message": "Adres WebDAV"
@@ -123,13 +135,13 @@
     "message": "Hasło"
   },
   "LabelBookmarksfile": {
-    "message": "Ścieżka do pliku z zakładkami"
+    "message": "Plik zakładek"
   },
   "DescriptionBookmarksfile": {
     "message": "Położenie pliku z zakładkami w kontekście adresu WebDAV (wszystkie katalogi w ścieżce muszą istnieć), np. osobiste/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "Nazwa pliku z zakładkami w Dysku Google (upewnij się że nazwa jest unikalna na Twoim Dysku)"
+   "message": "Nazwa pliku z zakładkami w Dysku Google. Nie wprowadzaj pełnej ścieżki, tylko samą nazwę pliku. Upewnij się, że nazwa jest unikalna na Twoim Dysku."
  },
   "DescriptionBookmarksfilegit": {
     "message": "Ścieżka do pliku z zakładkami w odniesieniu do głównego katalogu (roota) twojego repozytorium Git (wszystkie katalogi w ścieżce muszą istnieć), np. osobiste/bookmarks.xbel"
@@ -139,6 +151,9 @@
   },
   "DescriptionServerfolder": {
     "message": "Podczas synchronizacji, zakładki w tej przeglądarce będą zapisywane jako linki w tej lokalizacji na serwerze. Uwaga, ścieżka reprezentuje folder w aplikacji Zakładki Nextcloud a nie folder w aplikacji Pliki Nextcloud. Pozostaw puste aby umieszczać linki w głównym folderze na serwerze."
+  },
+  "DescriptionServerfolderlinkwarden": {
+    "message": "Podczas synchronizacji, zakładki w tej przeglądarce będą przechowywane jako linki w tej kolekcji."
   },
   "LabelLocaltarget": {
     "message": "Cel lokalny"
@@ -264,7 +279,7 @@
     "message": "Zakładki Nextcloud"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "Opcja 'Zakładki Nextcloud' synchronizuje zakładki z aplikacją Zakładki Nextcloud. Może synchronizować tylko zakładki http i ftp. Upewnij się, że zainstalowałeś aplikację Zakładki ze sklepu Nextcloud w swojej instancji."
+    "message": "Synchronizuj swoje zakładki z otwartożródłową aplikacją Zakładki w Nextcloud (tę platformę możesz utrzymywać na swoim własnym serwerze lub wykupić instancję u jednego z dostawców). Z aplikacją Zakładki Nextcloud możesz synchronizować zakładki http, ftp i javascript. Upewnij się że masz zainstalowaną aplikację Zakładki ze sklepu Nextcloud w swojej instancji. Ta opcja nie może być użyta do szyfrowania typu end-to-end."
   },
   "LabelAdapternextcloud": {
     "message": "Zakładki Nextcloud (starsza wersja)"
@@ -276,7 +291,7 @@
     "message": "Udział WebDAV"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Metoda synchronizacji zakładek przy użyciu pliku znajdującego się na serwerze WebDAV. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem zgodnym z WebDAV. Można synchronizować zakładki typu http, ftp, data, javascript"
+    "message": "Metoda synchronizacji zakładek przy użyciu udziału WebDAV. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem zgodnym z WebDAV, na swoim własnym serwerze lub w chmurze. Można synchronizować zakładki typu http, ftp, data, javascript."
   },
   "LabelAddaccount": {
     "message": "Dodaj profil"
@@ -288,7 +303,7 @@
     "message": "Logi do debugowania"
   },
   "LabelFunddevelopment": {
-    "message": "Zasponsoruj rozwój"
+    "message": "💸 Zasponsoruj rozwój"
   },
   "DescriptionFunddevelopment": {
     "message": "Praca nad Floccus jest oparta na dobrowolnym modelu subskrypcji. Jeśli uważasz, że rozwiązanie jest tego warte i możesz przeznaczyć co miesiąc jakąś kwotę, proszę o wsparcie. Rozważ także ocenę dodatku w witrynie z dodatkami dla przeglądarki, której używasz. Dziękuję! 💙"
@@ -334,7 +349,7 @@
     "message": "Paypal"
   },
   "DescriptionPaypal": {
-    "message": "Przekaż jednorazową darowiznę przez Paypal aby wesprzeć projekt"
+    "message": "Przekaż jednorazową lub okresową darowiznę przez Paypal aby wesprzeć projekt"
   },
   "LabelOpencollective": {
     "message": "OpenCollective"
@@ -370,7 +385,7 @@
     "message": "Ten przestarzały typ profilu zostanie niebawem usunięty. Przełącz się jak najszybciej na nową metodę synchronizacji z Nextcloud, która jest szybsza i pewniejsza."
   },
   "LabelUpdated": {
-    "message": "Floccus został zaktualizowany"
+    "message": "⚡ Floccus został zaktualizowany"
   },
   "DescriptionUpdated": {
     "message": "Najnowsza aktualizacja dla Floccus została zainstalowana!"
@@ -397,10 +412,10 @@
     "message": "Ten profil został usunięty"
   },
   "LabelNoAccount": {
-    "message": "Brak profili"
+    "message": "Jeszcze brak profili"
   },
   "DescriptionNoAccount": {
-    "message": "Utwórz nowy profil aby synchronizować zakładki albo zaimportuj istniejące profile z innego urządzenia lub przeglądarki."
+    "message": "Dodaj nowe profile lub zaimportuj je z pliku, aby rozpocząć synchronizowanie."
   },
   "LabelLoginFlowStart": {
     "message": "Zaloguj z Nextcloud"
@@ -412,7 +427,10 @@
     "message": "Logowanie Nextcloud nie powiodło się"
   },
   "LabelNewAccount": {
-    "message": "Nowy profil"
+    "message": "Dodaj profil"
+  },
+  "LabelNewImport": {
+    "message": "Zaimportuj"
   },
   "LabelNestedSync": {
     "message": "Zagnieżdżone profile"
@@ -502,7 +520,7 @@
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Synchronizuj zakładki przy użyciu zaszyfrowanego pliku przechowywanego na Dysku Google. Synchronizowane będą zakładki http, ftp, data, file i javascript."
+    "message": "Synchronizuj zakładki przy użyciu (opcjonalnie zaszyfrowanego) pliku przechowywanego na Dysku Google. Synchronizowane będą zakładki http, ftp, data, file i javascript. Z tą metodą możesz użyć szyfrowania typu end-to-end."
   },
   "LabelLogingoogle": {
     "message": "Zaloguj się z Google"
@@ -542,6 +560,9 @@
   },
   "LabelDeleteitem": {
     "message": "Usuń"
+  },
+  "DescriptionReallydeleteitem": {
+    "message": "Na pewno usunąć ten element?"
   },
   "LabelNobookmarks": {
     "message": "Nie ma tutaj zakładek"
@@ -697,12 +718,105 @@
     "message": "Git przez HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Metoda synchronizacji zakładek przy użyciu pliku znajdującego się w repozytorium Git. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem Git, np. Github, Gitlab, Gitea. Można synchronizować zakładki typu http, ftp, data, javascript."
+    "message": "Metoda synchronizacji zakładek przy użyciu pliku znajdującego się w repozytorium Git. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem Git, np. Github, Gitlab, Gitea. Można synchronizować zakładki typu http, ftp, data, javascript. Ta opcja nie może być użyta do szyfrowania typu end-to-end."
   },
   "LabelGiturl": {
     "message": "Adres HTTP repozytorium"
   },
   "LabelGitbranch": {
     "message": "Gałąź Git"
+  },
+  "LabelTelemetry": {
+    "message": "🐛 Automatyczne zgłaszanie błędów"
+  },
+  "DescriptionTelemetry": {
+    "message": "Floccus może automatycznie zgłosić błędy do deweloperów. To znaczna pomoc dla szybkiego wykrywania i usuwania błędów, co w dłuższym okresie pomaga podnosić jakość Floccus. Nawet jeśli włączysz raportowanie błędów, deweloperzy nie będą mieli dostępu do Twoich zakładek."
+  },
+  "LabelTelemetryenable": {
+    "message": "Automatycznie wysyłaj szczegóły błędów do deweloperów Floccus"
+  },
+  "LabelTelemetrydisable": {
+    "message": "Nie wysyłaj szczegółów błędów do deweloperów Floccus"
+  },
+  "LabelAccountlabel": {
+    "message": "Etykieta profilu"
+  },
+  "DescriptionAccountlabel": {
+    "message": "Nazwij ten profil aby łatwiej go rozróżniać"
+  },
+  "LabelClickcount": {
+    "message": "Licznik kliknięć"
+  },
+  "DescriptionClickcount": {
+    "message": "Wysyłaj statystyki o użytych zakładkach do serwera Nextcloud, aby móc sortować do liczbie kliknięć"
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "Napisz recenzję w Google Play"
+  },
+  "DescriptionAppstorereview": {
+    "message": "Napisz recenzję w App Store"
+  },
+  "DescriptionChromereview": {
+    "message": "Napisz recenzję w Chrome WebStore"
+  },
+  "DescriptionAlternativereview": {
+    "message": "Napisz recenzję w AlternativeTo.net"
+  },
+  "DescriptionMozillareview": {
+    "message": "Napisz recenzję w Mozilla Addons"
+  },
+  "DescriptionEdgereview": {
+    "message": "Napisz recenzję w Edge Addons"
+  },
+  "LabelWritereview": {
+    "message": "💙 Podziel się!"
+  },
+  "DescriptionWritereview": {
+    "message": "Jeśli jesteś zadowolony z Floccus, podziel się oceną na jednej z platform poniżej."
+  },
+  "DescriptionDonateintervention": {
+    "message": "Lubisz synchronizację zakładek? Wspieraj mnie!"
+  },
+  "LabelDonate": {
+    "message": "Sponsoruj"
+  },
+  "DescriptionDisabledaftererror": {
+    "message": "Ponowiono 10 razy przed wyłączeniem tego profilu"
+  },
+  "DescriptionBookmarkexists": {
+    "message": "Ta zakładka już istnieje w wybranym profilu"
+  },
+  "LabelReportproblem": {
+    "message": "Zgłoś problem"
+  },
+  "DescriptionReportproblem": {
+    "message": "Jeśli chcesz skontaktować się bezpośrednio z programistami w konkretnej sprawie, możesz to zrobić tutaj:"
+  },
+  "LabelAdapterlinkwarden":  {
+    "message": "Linkwarden"
+  },
+  "DescriptionAdapterlinkwarden":  {
+    "message": "Synchronizuj zakładki z otwartoźródłową aplikacją Linkwarden, uruchomioną na swoim serwerze albo w chmurze cloud.linkwarden.app. Można synchronizować zakładki http, ftp and javascript. Ta opcja nie może być użyta do szyfrowania typu end-to-end."
+  },
+  "LabelLinkwardenurl":  {
+    "message": "Adres serwera Linkwarden"
+  },
+  "LabelAccesstoken":  {
+    "message": "Token dostępowy"
+  },
+  "LabelLinkwardenconnectionerror": {
+    "message": "Połączenie z serwerem Linkwarden nie udało się"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "Wyniki z innych folderów"
+  },
+  "LabelScheduledforcesync": {
+    "message": "Wymuś synchronizację"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "Na pewno chcesz wymusić synchronizację? Synchronizowanie dwóch urządzeń naraz może spowodować nieprzewidziane problemy, włącznie z popsuciem danych. Upewnij się zanim potwierdzisz, że żadne inne urządzenie w tej chwili nie synchronizuje."
+  },
+  "DescriptionAutosync": {
+    "message": "Włączenie uruchamia regularną synchronizację w wybranych odstępach czasu a także na bieżąco, kilka sekund po tym jak wprowadzisz zmiany. Jeśli nie włączysz automatycznej synchronizacji, będziesz mógł synchronizować ręcznie używając przycisk synchronizacji."
   }
 }
