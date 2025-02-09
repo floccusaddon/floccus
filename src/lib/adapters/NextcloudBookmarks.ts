@@ -158,7 +158,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
     // if needLock -- we always need it
     this.locked = await this.acquireLock()
-    if (!forceLock && !this.locked) {
+    if (forceLock) {
+      this.locked = true
+    } else if (!this.locked) {
       throw new ResourceLockedError()
     }
     this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
