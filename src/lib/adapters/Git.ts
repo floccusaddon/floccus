@@ -155,6 +155,7 @@ export default class GitAdapter extends CachingAdapter {
       clearInterval(this.lockingInterval)
     }
     if (forceLock) {
+      await this.clearAllLocks()
       await this.setLock()
     } else if (needLock) {
       await this.obtainLock()
@@ -212,7 +213,7 @@ export default class GitAdapter extends CachingAdapter {
         })
       } catch (e) {
         if (e.code && e.code === git.Errors.PushRejectedError.code) {
-          this.freeLock()
+          await this.freeLock() // Only clears the locks set in the current adapter instance
           throw new ResourceLockedError
         }
       }
@@ -272,6 +273,14 @@ export default class GitAdapter extends CachingAdapter {
       Logger.log('Error Caught')
       Logger.log(e)
       return false
+    }
+  }
+
+  async clearAllLocks(): Promise<void> {
+    const tags = await git.listTags({ fs: this.fs, dir: this.dir })
+    const lockTags = tags.filter(tag => tag.startsWith('floccus-lock-'))
+    for (const tag of lockTags) {
+      await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
     }
   }
 
@@ -369,11 +378,7 @@ export default class GitAdapter extends CachingAdapter {
       depth: 10,
       onAuth: () => this.onAuth()
     })
-    const tags = await git.listTags({ fs, dir: this.dir })
-    const lockTags = tags.filter(tag => tag.startsWith('floccus-lock-'))
-    for (const tag of lockTags) {
-      await git.push({ fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
-    }
+    await this.clearAllLocks()
   }
 }
 
