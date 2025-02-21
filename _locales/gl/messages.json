@@ -818,5 +818,8 @@
   },
   "DescriptionAutosync": {
     "message": "Ao activar a sincronización automática asegurarase de que unha execución de sincronización se active regularmente dentro dun determinado intervalo configurábel, así como baixo demanda uns segundos após facer cambios. Se non activa a sincronización automática, terá que activar a sincronización manualmente premendo o botón de sincronización."
+  },
+  "LabelOpeninnewtab": {
+    "message": "Abrir esta vista nunha nova lapela"
   }
 }
