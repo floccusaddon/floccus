@@ -276,11 +276,12 @@ export default class GitAdapter extends CachingAdapter {
     }
   }
 
-  async clearAllLocks(): Promise<void> {
-    const tags = await git.listTags({ fs: this.fs, dir: this.dir })
+  async clearAllLocks(fs:FS = null): Promise<void> {
+    fs = fs || this.fs
+    const tags = await git.listTags({ fs, dir: this.dir })
     const lockTags = tags.filter(tag => tag.startsWith('floccus-lock-'))
     for (const tag of lockTags) {
-      await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
+      await git.push({ fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
     }
   }
 
@@ -378,7 +379,7 @@ export default class GitAdapter extends CachingAdapter {
       depth: 10,
       onAuth: () => this.onAuth()
     })
-    await this.clearAllLocks()
+    await this.clearAllLocks(fs)
   }
 }
 
