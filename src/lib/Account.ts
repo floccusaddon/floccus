@@ -202,7 +202,6 @@ export default class Account {
               return
             }
           } else {
-            await this.server.onSyncFail()
             throw e
           }
         }
