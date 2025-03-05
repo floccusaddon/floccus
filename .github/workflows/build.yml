@@ -49,7 +49,7 @@ jobs:
           npm run build-release --if-present
 
       - name: Save context
-        uses: buildjet/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           key: build-context-${{ github.run_id }}
           path: ./
@@ -68,7 +68,7 @@ jobs:
           java-version: ${{ matrix.java-version }}
 
       - name: Restore context
-        uses: buildjet/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           fail-on-cache-miss: true
           key: build-context-${{ github.run_id }}
