@@ -176,7 +176,7 @@ export class Folder<L extends TItemLocation> {
     this.parentId = parentId
     this.title = title
     this.children = children || []
-    this.hashValue = {...hashValue} || {}
+    this.hashValue = {...hashValue}
     this.loaded = loaded !== false
     this.isRoot = isRoot
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
