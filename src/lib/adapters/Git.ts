@@ -15,6 +15,7 @@ import {
   SlashError
 } from '../../errors/Error'
 import Crypto from '../Crypto'
+import { isOrion } from '../isOrion'
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
@@ -71,7 +72,7 @@ export default class GitAdapter extends CachingAdapter {
     this.hash = await Crypto.sha256(JSON.stringify(this.server)) + Date.now()
     this.dir = '/' + this.hash + '/'
 
-    if (Capacitor.getPlatform() === 'web') {
+    if (Capacitor.getPlatform() === 'web' && !isOrion) {
       const browser = (await import('../browser-api')).default
       let hasPermissions, error = false
       try {
@@ -155,6 +156,7 @@ export default class GitAdapter extends CachingAdapter {
       clearInterval(this.lockingInterval)
     }
     if (forceLock) {
+      await this.clearAllLocks()
       await this.setLock()
     } else if (needLock) {
       await this.obtainLock()
@@ -212,7 +214,7 @@ export default class GitAdapter extends CachingAdapter {
         })
       } catch (e) {
         if (e.code && e.code === git.Errors.PushRejectedError.code) {
-          this.freeLock()
+          await this.freeLock() // Only clears the locks set in the current adapter instance
           throw new ResourceLockedError
         }
       }
@@ -272,6 +274,15 @@ export default class GitAdapter extends CachingAdapter {
       Logger.log('Error Caught')
       Logger.log(e)
       return false
+    }
+  }
+
+  async clearAllLocks(fs:FS = null): Promise<void> {
+    fs = fs || this.fs
+    const tags = await git.listTags({ fs, dir: this.dir })
+    const lockTags = tags.filter(tag => tag.startsWith('floccus-lock-'))
+    for (const tag of lockTags) {
+      await git.push({ fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
     }
   }
 
@@ -369,11 +380,7 @@ export default class GitAdapter extends CachingAdapter {
       depth: 10,
       onAuth: () => this.onAuth()
     })
-    const tags = await git.listTags({ fs, dir: this.dir })
-    const lockTags = tags.filter(tag => tag.startsWith('floccus-lock-'))
-    for (const tag of lockTags) {
-      await git.push({ fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
-    }
+    await this.clearAllLocks(fs)
   }
 }
 

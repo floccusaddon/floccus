@@ -818,5 +818,8 @@
   },
   "DescriptionAutosync": {
     "message": "Turning on automatic sync will make sure a sync run is triggered regularly within a certain configurable interval as well as on demand a few seconds after you make changes. If you don't turn on automatic sync you will need to trigger sync runs manually by pressing the sync button."
+  },
+  "LabelOpeninnewtab": {
+    "message": "Open this view in a new tab"
   }
 }

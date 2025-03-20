@@ -506,7 +506,7 @@ export default {
         return []
       }
       let items
-      if (this.searchQuery && this.searchQuery.length >= 2) {
+      if (this.searchQuery && this.searchQuery.trim().length >= 2) {
         return this.search(this.searchQuery.toLowerCase().trim(), this.currentFolder)
       } else {
         items = this.currentFolder.children
@@ -515,7 +515,11 @@ export default {
         return sortBy(items, [(item) => {
           if (this.sortBy === 'url') {
             if (item.url) {
-              return new URL(item.url).hostname
+              try {
+                return new URL(item.url).hostname
+              } catch (e) {
+                return item.url.toLowerCase()
+              }
             } else {
               return '0000000' + item.title.toLowerCase() // folders to the top
             }
@@ -527,7 +531,7 @@ export default {
       }
     },
     otherSearchItems() {
-      if (!this.currentFolder && (!this.searchQuery || this.searchQuery.length < 2)) {
+      if (!this.currentFolder && (!this.searchQuery || this.searchQuery.trim().length < 2)) {
         return []
       }
       return this.search(this.searchQuery.toLowerCase().trim(), this.tree).filter(item => !this.items.includes(item))

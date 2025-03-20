@@ -31,6 +31,7 @@ import {
   UnknownFolderUpdateError,
   UnknownMoveTargetError, UpdateBookmarkError
 } from '../../errors/Error'
+import { isOrion } from '../isOrion'
 
 const PAGE_SIZE = 300
 const TIMEOUT = 300000
@@ -133,7 +134,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async onSyncStart(needLock = true, forceLock = false): Promise<void> {
-    if (Capacitor.getPlatform() === 'web') {
+    if (Capacitor.getPlatform() === 'web' && !isOrion) {
       const browser = (await import('../browser-api')).default
       let hasPermissions, error = false
       try {
@@ -158,7 +159,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
     // if needLock -- we always need it
     this.locked = await this.acquireLock()
-    if (!forceLock && !this.locked) {
+    if (forceLock) {
+      this.locked = true
+    } else if (!this.locked) {
       throw new ResourceLockedError()
     }
     this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)

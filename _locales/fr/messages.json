@@ -116,6 +116,9 @@
   "Error039": {
     "message": "E039: Impossible de mettre à jour le signet suivant sur le serveur: {0}"
   },
+  "Error040": {
+    "message": "E040: Impossible de rechercher ce nom de fichier sur votre Google Drive"
+  },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
   },
@@ -132,13 +135,13 @@
     "message": "Mot de passe"
   },
   "LabelBookmarksfile": {
-    "message": "Chemin d'accès vers le fichier de signets"
+    "message": "Fichier de signets"
   },
   "DescriptionBookmarksfile": {
     "message": "un chemin d'accès vers le fichier de signets par rapport à votre URL WebDAV (tous les dossiers dans le chemin doivent déjà exister). Par ex: documents_perso/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "Le nom du fichier contenant vos signets qui sera stocké sur votre Google Drive (assurez-vous qu'il soit unique)"
+   "message": "Le nom du fichier contenant vos signets qui sera stocké sur votre Google Drive. N'entrez pas le chemin complet, uniquement le nom du fichier. Assurez-vous qu'il soit unique sur votre Drive."
  },
   "DescriptionBookmarksfilegit": {
     "message": "un chemin d'accès vers le fichier de signets relatif à la racine de votre dépôt Git (tous les dossiers du chemin doivent déjà être existants). Ex : documents/favoris-signets.xbel"
@@ -812,5 +815,8 @@
   },
   "DescriptionScheduledforcesync": {
     "message": "Voulez-vous vraiment forcer une synchronisation? Synchroniser à partir de deux instances simultanément peut avoir des conséquences imprévues, allant jusqu'à la corruption de vos données. Assurez-vous qu'aucune autre instance ne soit en train de synchroniser avant de confirmer cette action."
+  },
+  "DescriptionAutosync": {
+    "message": "Activer la synchronisation automatique déclenchera automatiquement une synchronisation, à un intervalle de temps configurable, ainsi qu'à la demande, quelques secondes après chaque changement. Si vous n'activez pas la synchronisation automatique, vous devrez la déclencher manuellement en cliquant sur le bouton de synchronisation."
   }
 }

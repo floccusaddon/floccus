@@ -6,6 +6,7 @@ import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
 
 const INACTIVITY_TIMEOUT = 1000 * 7
+const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
 const DEFAULT_SYNC_INTERVAL = 15
 
 class AlarmManager {
@@ -31,16 +32,46 @@ class AlarmManager {
     for (let accountId of accounts) {
       const account = await Account.get(accountId)
       const data = account.getData()
+      const lastSync = data.lastSync || 0
+      const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
       if (data.scheduled) {
         this.ctl.scheduleSync(accountId)
+        continue
+      }
+      if (data.error && data.errorCount > 1) {
+        if (Date.now() > this.getBackoffInterval(interval, data.errorCount, lastSync) + lastSync) {
+          this.ctl.scheduleSync(accountId)
+          continue
+        }
+        continue
       }
       if (
-        !data.lastSync ||
         Date.now() >
-        (data.syncInterval || DEFAULT_SYNC_INTERVAL) * 1000 * 60 + data.lastSync
+        interval * 1000 * 60 + data.lastSync
       ) {
         this.ctl.scheduleSync(accountId)
       }
+    }
+  }
+
+  /**
+   * Calculates the backoff interval based on the synchronization interval and the error count.
+   *
+   * This method determines the delay before retrying a synchronization
+   * after one or more errors have occurred. It uses an exponential
+   * backoff algorithm with a cap at the maximum backoff interval.
+   *
+   * @param {number} interval - The synchronization interval in minutes.
+   * @param {number} errorCount - The number of consecutive errors encountered.
+   * @param {number} lastSync - The timestamp of when the last successful sync happened.
+   * @returns {number} - The calculated backoff interval in milliseconds.
+   */
+  getBackoffInterval(interval, errorCount, lastSync) {
+    const maxErrorCount = Math.log2(MAX_BACKOFF_INTERVAL / (interval * 1000 * 60))
+    if (errorCount < maxErrorCount || lastSync + MAX_BACKOFF_INTERVAL > Date.now()) {
+      return Math.min(MAX_BACKOFF_INTERVAL, interval * 1000 * 60 * Math.pow(2, errorCount))
+    } else {
+      return MAX_BACKOFF_INTERVAL + MAX_BACKOFF_INTERVAL * (errorCount - maxErrorCount)
     }
   }
 }

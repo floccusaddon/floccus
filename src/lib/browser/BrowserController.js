@@ -11,9 +11,10 @@ import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '.
 import * as Sentry from '@sentry/browser'
 
 const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
+const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
 const DEFAULT_SYNC_INTERVAL = 15 // 15 minutes
 const STALE_SYNC_TIME = 1000 * 60 * 60 * 24 * 2 // two days
-const INTERVENTION_INTERVAL = 1000 * 60 * 60 * 25 * 75 // 75 days
+const INTERVENTION_INTERVAL = 1000 * 60 * 60 * 24 * 182 // 182 days
 
 class AlarmManager {
   constructor(ctl) {
@@ -33,8 +34,9 @@ class AlarmManager {
         continue
       }
       if (data.error && data.errorCount > 1) {
-        if (Date.now() > interval * 2 ** data.errorCount + lastSync) {
+        if (Date.now() > this.getBackoffInterval(interval, data.errorCount, lastSync) + lastSync) {
           promises.push(this.ctl.scheduleSync(accountId))
+          continue
         }
         continue
       }
@@ -46,6 +48,27 @@ class AlarmManager {
       }
     }
     await Promise.all(promises)
+  }
+
+  /**
+   * Calculates the backoff interval based on the synchronization interval and the error count.
+   *
+   * This method determines the delay before retrying a synchronization
+   * after one or more errors have occurred. It uses an exponential
+   * backoff algorithm with a cap at the maximum backoff interval.
+   *
+   * @param {number} interval - The synchronization interval in minutes.
+   * @param {number} errorCount - The number of consecutive errors encountered.
+   * @param {number} lastSync - The timestamp of when the last successful sync happened.
+   * @returns {number} - The calculated backoff interval in milliseconds.
+   */
+  getBackoffInterval(interval, errorCount, lastSync) {
+    const maxErrorCount = Math.log2(MAX_BACKOFF_INTERVAL / (interval * 1000 * 60))
+    if (errorCount < maxErrorCount || lastSync + MAX_BACKOFF_INTERVAL > Date.now()) {
+      return Math.min(MAX_BACKOFF_INTERVAL, interval * 1000 * 60 * Math.pow(2, errorCount))
+    } else {
+      return MAX_BACKOFF_INTERVAL + MAX_BACKOFF_INTERVAL * (errorCount - maxErrorCount)
+    }
   }
 }
 

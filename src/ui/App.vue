@@ -63,6 +63,21 @@
             </template>
             <span>{{ t('LabelTelemetry') }}</span>
           </v-tooltip>
+          <v-tooltip top>
+            <template #activator="{ on, attrs }">
+              <v-btn
+                x-small
+                text
+                class="white--text"
+                v-bind="attrs"
+                target="_blank"
+                @click="openInNewTab"
+                v-on="on">
+                <v-icon>mdi-open-in-new</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ t('LabelOpeninnewtab') }}</span>
+          </v-tooltip>
         </v-col>
       </v-row>
     </v-footer>
@@ -152,6 +167,9 @@ export default {
         this.unlockError = e.message
         this.key = ''
       }
+    },
+    openInNewTab() {
+      window.open(window.location.href, '_blank')
     }
   }
 }

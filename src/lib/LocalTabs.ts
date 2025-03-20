@@ -158,11 +158,11 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
 function awaitTabsUpdated() {
   return Promise.race([
     new Promise<void>(resolve => {
-      browser.tabs.onUpdated.addListener(() => {
-        browser.tabs.onUpdated.removeListener(resolve)
-        setTimeout(() => resolve(), 1000)
+      browser.tabs.onUpdated.addListener(function listener() {
+        browser.tabs.onUpdated.removeListener(listener)
+        setTimeout(() => resolve(), 100)
       })
     }),
-    new Promise(resolve => setTimeout(resolve, 1100))
+    new Promise(resolve => setTimeout(resolve, 300))
   ])
 }
