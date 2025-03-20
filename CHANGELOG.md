@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.4.5] - 2025-03-20
+
+### Fixed
+
+* Upgrade to capacitor 7 and Java 21
+* fix(Tree#search): Harden search
+* fix(Controller): Cap exponential backoff at 1h
+* fix(Account): Don't call onSyncFail twice if onSyncStart failed
+* fix: Reduce intervention frequency to avoid annoying users
+* fix(App): Allow opening any view in a new tab
+* fix(Git): Make sure foreign locks are freed when forceLock is set
+* fix(NextcloudBookmarks): Make sure lock is freed when forceLock is set
+* fix(LocalTabs): Speed up tabs updated callback
+
 ## [5.4.4]
 
 ### Fixed

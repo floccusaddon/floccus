@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ 17 ]
+        java-version: [ 21 ]
     name: android java${{ matrix.java-version }}
     steps:
       - uses: actions/setup-java@v4
