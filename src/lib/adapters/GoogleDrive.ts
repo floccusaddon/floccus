@@ -12,6 +12,7 @@ import {
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
 import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
+import { isOrion } from '../isOrion'
 
 const OAuthConfig = {
   authorizationBaseUrl: 'https://accounts.google.com/o/oauth2/auth',
@@ -198,7 +199,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   async onSyncStart(needLock = true, forceLock = false) {
     Logger.log('onSyncStart: begin')
 
-    if (Capacitor.getPlatform() === 'web') {
+    if (Capacitor.getPlatform() === 'web' && !isOrion) {
       const browser = (await import('../browser-api')).default
       const origins = ['https://oauth2.googleapis.com/', 'https://www.googleapis.com/']
       let hasPermissions, error = false

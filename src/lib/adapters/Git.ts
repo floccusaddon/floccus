@@ -15,6 +15,7 @@ import {
   SlashError
 } from '../../errors/Error'
 import Crypto from '../Crypto'
+import { isOrion } from '../isOrion'
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
@@ -71,7 +72,7 @@ export default class GitAdapter extends CachingAdapter {
     this.hash = await Crypto.sha256(JSON.stringify(this.server)) + Date.now()
     this.dir = '/' + this.hash + '/'
 
-    if (Capacitor.getPlatform() === 'web') {
+    if (Capacitor.getPlatform() === 'web' && !isOrion) {
       const browser = (await import('../browser-api')).default
       let hasPermissions, error = false
       try {
