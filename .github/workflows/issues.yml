@@ -28,25 +28,27 @@ jobs:
             
             Thank you for taking the time to open this issue with floccus. I know it's frustrating when software
             causes problems. You have made the right choice to come here and open an issue to make sure your problem gets looked at
-            and if possible solved.
-            I'm Marcel and I created floccus a few years ago, maintaining it ever since. I currently work for Nextcloud
+            and if possible solved. Let me give you a short introduction on what to expect from this issue tracker to avoid misunderstandings.
+            I'm Marcel. I created floccus a few years ago, and have been maintaining it since. I currently work for Nextcloud
             which leaves me with less time for side projects like this one than I used to have.
             I still try to answer all issues and if possible fix all bugs here, but it sometimes takes a while until I get to it.
-            Until then, please be patient. 
-            Note also that GitHub is a place where people meet to make software better *together*. Nobody here is under any obligation
+            Until then, please be patient. It helps when you stick around to answer follow up questions I may have,
+            as very few bugs can be fixed directly from the first bug report, without any interaction. If information is missing in your bug report
+            and the issue cannot be solved without it, I will have to close the issue after a while.
+            Note also that GitHub in general is a place where people meet to make software better *together*. Nobody here is under any obligation
             to help you, solve your problems or deliver on any expectations or demands you may have, but if enough people come together we can
             collaborate to make this software better. For everyone.
             Thus, if you can, you could also have a look at other issues to see whether you can help other people with your knowledge
             and experience. If you have coding experience it would also be awesome if you could step up to dive into the code and
             try to fix the odd bug yourself. Everyone will be thankful for extra helping hands!
-            To continue the development and maintenance of this project in a sustainable way I ask that you donate to the project when opening an issue
-            (or at least once your issue is solved), if you're not a donor already.
+            If you cannot lend a helping hand, to continue the development and maintenance of this project in a sustainable way,
+            I ask that you donate to the project when opening an issue (or at least once your issue is solved), if you're not a donor already.
             You can find donation options at <https://floccus.org/donate/>. Thank you!
             
             One last word: If you feel, at any point, like you need to vent, this is not the place for it; you can go to the Nextcloud forum,
             to twitter or somewhere else. But this is a technical issue tracker, so please make sure to
             focus on the tech and keep your opinions to yourself.
             
-            I look forward to working with you on this issue
+            Thank you for reading through this primer. I look forward to working with you on this issue!
             Cheers :blue_heart:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
