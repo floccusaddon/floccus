@@ -365,7 +365,8 @@ export default class SyncProcess {
     const localCountDeleted = removals.getActions().reduce((count, action) => count + action.payload.count(), 0)
 
     Logger.log('Checking failsafe: ' + localCountDeleted + '/' + localCountTotal + '=' + (localCountDeleted / localCountTotal))
-    if (localCountTotal > 5 && localCountDeleted / localCountTotal > 0.5) {
+    // Failsafe kicks in if more than 20% is deleted or more than 1k bookmarks
+    if ((localCountTotal > 5 && localCountDeleted / localCountTotal > 0.2) || localCountDeleted > 1000) {
       const failsafe = this.server.getData().failsafe
       if (failsafe !== false || typeof failsafe === 'undefined') {
         throw new FailsafeError(Math.ceil((localCountDeleted / localCountTotal) * 100))
