@@ -1,1 +1,0 @@
-export const isOrion = 'userAgentData' in navigator && JSON.stringify(navigator.userAgentData).includes('Orion')
