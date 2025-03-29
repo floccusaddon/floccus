@@ -342,3 +342,11 @@ export class GoogleDriveSearchError extends FloccusError {
     Object.setPrototypeOf(this, GoogleDriveSearchError.prototype)
   }
 }
+
+export class FileSizeMismatch extends FloccusError {
+  constructor() {
+    super('E041: Remote bookmarks file size differs from the content that was actually downloaded from the server. This might be a temporary network issue. If this error persists please contact the server administrator.')
+    this.code = 41
+    Object.setPrototypeOf(this, FileSizeMismatch.prototype)
+  }
+}

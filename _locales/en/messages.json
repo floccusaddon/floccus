@@ -119,6 +119,9 @@
   "Error040": {
     "message": "E040: Could not search for your file name in your Google Drive"
   },
+  "Error041": {
+    "message": "E041: Remote bookmarks file size differs from the content that was actually downloaded from the server. This might be a temporary network issue. If this error persists please contact the server administrator."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
