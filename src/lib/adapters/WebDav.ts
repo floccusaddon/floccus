@@ -15,7 +15,6 @@ import {
 import { CapacitorHttp as Http } from '@capacitor/core'
 import { Capacitor } from '@capacitor/core'
 import Html from '../serializers/Html'
-import { isOrion } from '../isOrion'
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
@@ -270,7 +269,7 @@ export default class WebDavAdapter extends CachingAdapter {
     Logger.log('onSyncStart: begin')
     this.ended = false
 
-    if (Capacitor.getPlatform() === 'web' && !isOrion) {
+    if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
       let hasPermissions, error = false
       try {
