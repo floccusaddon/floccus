@@ -231,12 +231,12 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       }
     }
 
-    if (file) {
+    if (file && file.id) {
       this.fileId = file.id
       if (forceLock) {
         this.locked = await this.setLock(this.fileId)
       } else if (needLock) {
-        const data = await this.getFileMetadata(file.id, 'appProperties')
+        const data = await this.getFileMetadata(this.fileId, 'appProperties')
         if (data.appProperties && data.appProperties.locked && (data.appProperties.locked === true || JSON.parse(data.appProperties.locked))) {
           const lockedDate = JSON.parse(data.appProperties.locked)
           if (!Number.isInteger(lockedDate)) {
