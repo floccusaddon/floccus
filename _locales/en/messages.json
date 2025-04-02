@@ -724,7 +724,7 @@
     "message": "Git over HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "The Git option syncs your bookmarks by storing them in a file in the provided Git repository. There is no accompanying web UI for this option, but you can use it with any Git hosting server, like Github, Gitlab, Gitea, etc. It can sync http, ftp, data, file and javascript bookmarks. You can not make use of end-to-end encryption when using this option."
+    "message": "The Git option syncs your bookmarks by storing them in a file in the provided Git repository. There is no accompanying web UI for this option, but you can use it with any Git hosting server, like Github, Gitlab, Gitea, etc. It can sync http, ftp, data, file and javascript bookmarks. You can not make use of end-to-end encryption when using this option. This option is currently not available in the mobile app."
   },
   "LabelGiturl": {
     "message": "Repository URL using HTTP"

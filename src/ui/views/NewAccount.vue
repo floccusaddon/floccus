@@ -36,6 +36,7 @@
                   v-for="a in adapters"
                   :key="a.type">
                   <v-radio
+                    :disabled="!isBrowser && a.type === 'git'"
                     :value="a.type">
                     <template #label>
                       <div class="heading">
