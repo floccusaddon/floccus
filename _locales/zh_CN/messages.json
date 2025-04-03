@@ -724,7 +724,7 @@
     "message": "HTTPS 连接的 Git"
   },
   "DescriptionAdaptergit": {
-    "message": "Git 选项通过将书签存储在所提供的 Git 仓库中的一个文件内来进行书签同步。此选项没有伴随的 web 用户界面，但你可以通过任意 Git 托管服务器，比如 GitHub、Gitlab、Gitea 等使用它。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时，你无法使用端到端加密。"
+    "message": "Git 选项通过将书签存储在所提供的 Git 仓库中的一个文件内来进行书签同步。此选项没有伴随的 web 用户界面，但你可以通过任意 Git 托管服务器，比如 GitHub、Gitlab、Gitea 等使用它。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时，你无法使用端到端加密。此选项当前在手机应用上不可用。"
   },
   "LabelGiturl": {
     "message": "使用 HTTP 的存储库 URL"
