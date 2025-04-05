@@ -4,8 +4,9 @@ import browser from '../browser-api'
 import AdapterFactory from '../AdapterFactory'
 import Account from '../Account'
 import {
+  AdditionFailsafeError,
   CreateBookmarkError,
-  FailsafeError, FloccusError,
+  DeletionFailsafeError, FloccusError,
   HttpError,
   InconsistentBookmarksExistenceError, LockFileError,
   MissingItemOrderError,
@@ -106,7 +107,10 @@ export default class BrowserAccount extends Account {
     if (er instanceof LockFileError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.status, er.lockFile])
     }
-    if (er instanceof FailsafeError) {
+    if (er instanceof DeletionFailsafeError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
+    }
+    if (er instanceof AdditionFailsafeError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
     }
     if (er instanceof CreateBookmarkError) {

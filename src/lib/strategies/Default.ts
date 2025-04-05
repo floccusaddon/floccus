@@ -23,7 +23,7 @@ import { throttle } from 'throttle-debounce'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import TResource, { OrderFolderResource, TLocalTree } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
-import { CancelledSyncError, FailsafeError } from '../../errors/Error'
+import { AdditionFailsafeError, CancelledSyncError, DeletionFailsafeError } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 import CachingAdapter from '../adapters/Caching'
@@ -246,7 +246,8 @@ export default class SyncProcess {
 
     Logger.log({localPlan: this.localPlanStage2, serverPlan: this.serverPlanStage2})
 
-    this.applyFailsafe(this.localPlanStage2.REMOVE)
+    this.applyDeletionFailsafe(this.localPlanStage2.REMOVE)
+    this.applyAdditionFailsafe(this.localPlanStage2.CREATE)
 
     if (!this.localDonePlan) {
       this.localDonePlan = {
@@ -360,16 +361,30 @@ export default class SyncProcess {
     this.serverTreeRoot.createIndex()
   }
 
-  protected applyFailsafe(removals: Diff<TItemLocation, TItemLocation, RemoveAction<TItemLocation, TItemLocation>>) {
+  protected applyDeletionFailsafe(removals: Diff<TItemLocation, TItemLocation, RemoveAction<TItemLocation, TItemLocation>>) {
     const localCountTotal = this.localTreeRoot.count()
     const localCountDeleted = removals.getActions().reduce((count, action) => count + action.payload.count(), 0)
 
-    Logger.log('Checking failsafe: ' + localCountDeleted + '/' + localCountTotal + '=' + (localCountDeleted / localCountTotal))
+    Logger.log('Checking deletion failsafe: ' + localCountDeleted + '/' + localCountTotal + '=' + (localCountDeleted / localCountTotal))
     // Failsafe kicks in if more than 20% is deleted or more than 1k bookmarks
     if ((localCountTotal > 5 && localCountDeleted / localCountTotal > 0.2) || localCountDeleted > 1000) {
       const failsafe = this.server.getData().failsafe
       if (failsafe !== false || typeof failsafe === 'undefined') {
-        throw new FailsafeError(Math.ceil((localCountDeleted / localCountTotal) * 100))
+        throw new DeletionFailsafeError(Math.ceil((localCountDeleted / localCountTotal) * 100))
+      }
+    }
+  }
+
+  protected applyAdditionFailsafe(creations: Diff<TItemLocation, TItemLocation, CreateAction<TItemLocation, TItemLocation>>) {
+    const localCountTotal = this.localTreeRoot.count()
+    const localCountAdded = creations.getActions().reduce((count, action) => count + action.payload.count(), 0)
+
+    Logger.log('Checking addition failsafe: ' + localCountAdded + '/' + localCountTotal + '=' + (localCountAdded / localCountTotal))
+    // Failsafe kicks in if more than 20% is added or more than 1k bookmarks
+    if (localCountTotal > 5 && (localCountAdded / localCountTotal > 0.2 || localCountAdded > 1000)) {
+      const failsafe = this.server.getData().failsafe
+      if (failsafe !== false || typeof failsafe === 'undefined') {
+        throw new AdditionFailsafeError(Math.ceil((localCountAdded / localCountTotal) * 100))
       }
     }
   }
