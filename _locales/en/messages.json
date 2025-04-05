@@ -125,6 +125,9 @@
   "Error042": {
     "message": "E042: Remote bookmarks file size could not be retrieved. It is impossible to verify that the bookmarks file was downloaded in full. If this error persists please contact the server administrator."
   },
+  "Error043": {
+    "message": "E043: Failsafe: The current sync run would increase your bookmarks count by {0}%. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -511,16 +514,16 @@
     "message": "Failsafe"
   },
   "DescriptionFailsafe": {
-    "message": "Sometimes configuration errors or software bugs can cause the unintended removal of data, which is then lost. To prevent that from happening, floccus will not delete more than 50% of your bookmarks in one go unless you disable this failsafe here."
+    "message": "Sometimes configuration errors or software bugs can cause the unintended removal of data, which is then lost, or the unintended duplication of data, which is then hard to sort out. To prevent this from happening, floccus will not delete more than 20% of your bookmarks in one go and will also not add more than 20% to your bookmarks count in one go, unless you disable this failsafe here."
   },
   "LabelFailsafeon": {
-    "message": "Enabled. Don't delete more than 50% of my local bookmarks without asking me first. (Recommended)"
+    "message": "Enabled. Will not delete or add more than 20% from/to your local bookmarks without asking you first. (Recommended)"
   },
   "LabelFailsafeoff": {
-    "message": "Disabled. Allow the removal of more than 50% of my local bookmarks without confirming with me."
+    "message": "Disabled. Will allow removing or adding more than 20% from/to your local bookmarks without confirming with you."
   },
   "StatusFailsafeoff": {
-    "message": "Failsafe disabled. You are at risk for unintended data loss. It is recommended to enable the failsafe in the profile settings."
+    "message": "Failsafe disabled. You are at risk for unintended data loss or duplication. It is recommended to enable the failsafe in the profile settings."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"

@@ -158,7 +158,8 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     this.actionsPlanned = Object.values(this.revertPlan).reduce((acc, diff) => diff.getActions().length + acc, 0)
 
     if (this.direction === ItemLocation.LOCAL) {
-      this.applyFailsafe(this.revertPlan.REMOVE)
+      this.applyDeletionFailsafe(this.revertPlan.REMOVE)
+      this.applyAdditionFailsafe(this.revertPlan.CREATE)
     }
 
     if (this.canceled) {
