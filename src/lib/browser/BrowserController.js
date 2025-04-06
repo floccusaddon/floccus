@@ -24,19 +24,18 @@ class AlarmManager {
 
   async checkSync() {
     const accounts = await BrowserAccountStorage.getAllAccounts()
-    const promises = []
     for (let accountId of accounts) {
       const account = await Account.get(accountId)
       const data = account.getData()
       const lastSync = data.lastSync || 0
       const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
       if (data.scheduled) {
-        promises.push(this.ctl.scheduleSync(accountId))
+        await this.ctl.scheduleSync(accountId)
         continue
       }
       if (data.error && data.errorCount > 1) {
         if (Date.now() > this.getBackoffInterval(interval, data.errorCount, lastSync) + lastSync) {
-          promises.push(this.ctl.scheduleSync(accountId))
+          await this.ctl.scheduleSync(accountId)
           continue
         }
         continue
@@ -45,10 +44,9 @@ class AlarmManager {
         Date.now() >
         interval * 1000 * 60 + lastSync
       ) {
-        promises.push(this.ctl.scheduleSync(accountId))
+        await this.ctl.scheduleSync(accountId)
       }
     }
-    await Promise.all(promises)
   }
 
   /**

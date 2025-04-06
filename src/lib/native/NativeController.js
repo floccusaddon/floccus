@@ -36,12 +36,12 @@ class AlarmManager {
       const lastSync = data.lastSync || 0
       const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
       if (data.scheduled) {
-        this.ctl.scheduleSync(accountId)
+        await this.ctl.scheduleSync(accountId)
         continue
       }
       if (data.error && data.errorCount > 1) {
         if (Date.now() > this.getBackoffInterval(interval, data.errorCount, lastSync) + lastSync) {
-          this.ctl.scheduleSync(accountId)
+          await this.ctl.scheduleSync(accountId)
           continue
         }
         continue
@@ -50,7 +50,7 @@ class AlarmManager {
         Date.now() >
         interval * 1000 * 60 + data.lastSync
       ) {
-        this.ctl.scheduleSync(accountId)
+        await this.ctl.scheduleSync(accountId)
       }
     }
   }
@@ -145,6 +145,7 @@ export default class NativeController {
       if (this.schedule[accountId]) {
         clearTimeout(this.schedule[accountId])
       }
+      console.log('scheduleSync: setting a timeout in ms :', INACTIVITY_TIMEOUT)
       this.schedule[accountId] = setTimeout(
         () => this.scheduleSync(accountId),
         INACTIVITY_TIMEOUT
