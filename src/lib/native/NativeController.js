@@ -4,6 +4,7 @@ import Cryptography from '../Crypto'
 import NativeAccountStorage from './NativeAccountStorage'
 import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
+import { freeStorageIfNecessary } from '../IndexedDB'
 
 const INACTIVITY_TIMEOUT = 1000 * 7
 const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
@@ -82,6 +83,17 @@ export default class NativeController {
     this.listeners = []
 
     this.alarms = new AlarmManager(this)
+
+    // Remove old logs
+
+    NativeAccountStorage.changeEntry(
+      'logs',
+      log => {
+        return []
+      },
+      []
+    )
+    freeStorageIfNecessary()
 
     // lock accounts when locking is enabled
 

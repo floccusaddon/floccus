@@ -9,6 +9,7 @@ import uniqBy from 'lodash/uniqBy'
 import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
 import * as Sentry from '@sentry/browser'
+import { freeStorageIfNecessary } from '../IndexedDB'
 
 const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
 const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
@@ -120,6 +121,17 @@ export default class BrowserController {
         this.key = null
       }
     })
+
+    // Remove old logs
+
+    BrowserAccountStorage.changeEntry(
+      'logs',
+      log => {
+        return []
+      },
+      []
+    )
+    freeStorageIfNecessary()
 
     // do some cleaning if this is a new version
 
