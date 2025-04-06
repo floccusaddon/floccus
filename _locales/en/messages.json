@@ -682,7 +682,7 @@
     "message": "Profile created"
   },
   "DescriptionAccountcreated": {
-    "message": "Your profile has been created. You can close this tab now."
+    "message": "Your profile has been created. You can close this tab now. One more thing: Sync is not a backup. Make sure you have regular backups of your bookmarks."
   },
   "DescriptionNonhttps": {
     "message": "You have entered a server that uses an insecure protocol. It is recommended to only use servers with support for HTTPS."
