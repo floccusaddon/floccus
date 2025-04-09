@@ -31,7 +31,6 @@ import {
   UnknownFolderUpdateError,
   UnknownMoveTargetError, UpdateBookmarkError
 } from '../../errors/Error'
-import { isOrion } from '../isOrion'
 
 const PAGE_SIZE = 300
 const TIMEOUT = 300000
@@ -134,7 +133,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async onSyncStart(needLock = true, forceLock = false): Promise<void> {
-    if (Capacitor.getPlatform() === 'web' && !isOrion) {
+    if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
       let hasPermissions, error = false
       try {

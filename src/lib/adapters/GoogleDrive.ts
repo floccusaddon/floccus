@@ -12,7 +12,6 @@ import {
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
 import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
-import { isOrion } from '../isOrion'
 
 const OAuthConfig = {
   authorizationBaseUrl: 'https://accounts.google.com/o/oauth2/auth',
@@ -199,7 +198,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   async onSyncStart(needLock = true, forceLock = false) {
     Logger.log('onSyncStart: begin')
 
-    if (Capacitor.getPlatform() === 'web' && !isOrion) {
+    if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
       const origins = ['https://oauth2.googleapis.com/', 'https://www.googleapis.com/']
       let hasPermissions, error = false
@@ -232,12 +231,12 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       }
     }
 
-    if (file) {
+    if (file && file.id) {
       this.fileId = file.id
       if (forceLock) {
         this.locked = await this.setLock(this.fileId)
       } else if (needLock) {
-        const data = await this.getFileMetadata(file.id, 'appProperties')
+        const data = await this.getFileMetadata(this.fileId, 'appProperties')
         if (data.appProperties && data.appProperties.locked && (data.appProperties.locked === true || JSON.parse(data.appProperties.locked))) {
           const lockedDate = JSON.parse(data.appProperties.locked)
           if (!Number.isInteger(lockedDate)) {

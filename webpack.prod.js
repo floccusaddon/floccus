@@ -22,6 +22,9 @@ module.exports = merge(common, {
       project: "floccus",
       release: {
         name: packageJSON.version
+      },
+      sourcemaps: {
+        disable: true,
       }
     }),
   ]

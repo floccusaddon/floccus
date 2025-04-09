@@ -240,14 +240,14 @@ export class InterruptedSyncError extends FloccusError {
 
 // code 28 is unused
 
-export class FailsafeError extends FloccusError {
+export class DeletionFailsafeError extends FloccusError {
   public percent: number
 
   constructor(percent:number) {
     super(`E029: Failsafe: The current sync run would delete ${percent}% of your bookmarks. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway.`)
     this.code = 29
     this.percent = percent
-    Object.setPrototypeOf(this, FailsafeError.prototype)
+    Object.setPrototypeOf(this, DeletionFailsafeError.prototype)
   }
 }
 
@@ -340,5 +340,32 @@ export class GoogleDriveSearchError extends FloccusError {
     super('E040: Could not search for your file name in your Google Drive')
     this.code = 40
     Object.setPrototypeOf(this, GoogleDriveSearchError.prototype)
+  }
+}
+
+export class FileSizeMismatch extends FloccusError {
+  constructor() {
+    super('E041: Remote bookmarks file size differs from the content that was actually downloaded from the server. This might be a temporary network issue. If this error persists please contact the server administrator.')
+    this.code = 41
+    Object.setPrototypeOf(this, FileSizeMismatch.prototype)
+  }
+}
+
+export class FileSizeUnknown extends FloccusError {
+  constructor() {
+    super('E042: Remote bookmarks file size could not be retrieved. It is impossible to verify that the bookmarks file was downloaded in full. If this error persists please contact the server administrator.')
+    this.code = 42
+    Object.setPrototypeOf(this, FileSizeUnknown.prototype)
+  }
+}
+
+export class AdditionFailsafeError extends FloccusError {
+  public percent: number
+
+  constructor(percent:number) {
+    super(`E043: Failsafe: The current sync run would increase your bookmarks count by ${percent}%. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway.`)
+    this.code = 43
+    this.percent = percent
+    Object.setPrototypeOf(this, AdditionFailsafeError.prototype)
   }
 }

@@ -11,6 +11,7 @@ import DefunctCrypto from '../lib/DefunctCrypto'
 import Controller from '../lib/Controller'
 import FakeAdapter from '../lib/adapters/Fake'
 import BrowserTree from '../lib/browser/BrowserTree'
+import { AdditionFailsafeError, DeletionFailsafeError } from '../errors/Error'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -2174,7 +2175,7 @@ describe('Floccus', function() {
             expect(localTree.findBookmark(bookmark1.id)).to.be.ok
             expect(localTree.findBookmark(bookmark2.id)).to.be.ok
           })
-          it('should error when deleting too much local data', async function() {
+          it('should error when deleting too much local data (failsafe)', async function() {
             if (ACCOUNT_DATA.noCache) {
               this.skip()
             }
@@ -2188,6 +2189,7 @@ describe('Floccus', function() {
               title: 'bar',
               parentId: fooFolder.id
             })
+            // We need more than 5 bookmarks to be above the negligibility threshold
             await Promise.all([
               'http://ur.l/',
               'http://ur.ll/',
@@ -2222,6 +2224,176 @@ describe('Floccus', function() {
 
             await account.sync()
             expect(account.getData().error).to.be.ok // should have errored
+            expect(account.getData().error).to.include((new DeletionFailsafeError).code)
+          })
+          it('should error when adding too much local data (failsafe)', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              this.skip()
+            }
+
+            const localRoot = account.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            // Create 6 bookmarks to be above the negligibility threshold
+            await Promise.all([
+              'http://ur.1l/',
+              'http://ur2.l/',
+              'http://ur3.l/',
+              'http://ur4.l/',
+              'http://ur5.l/',
+              'http://ur6.l/'
+            ].map(url => browser.bookmarks.create({
+              title: 'url',
+              url,
+              parentId: barFolder.id
+            })))
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            // Simulate an extreme increase of bookmarks
+            const tree = await getAllBookmarks(account)
+            await withSyncConnection(account, async() => {
+              await Promise.all([
+                'http://ur.1l/',
+                'http://ur2.l/',
+                'http://ur3.l/',
+                'http://ur4.l/',
+                'http://ur5.l/',
+                'http://ur6.l/',
+                'http://ur7.l/',
+                'http://ur8.l/',
+                'http://ur9.l/',
+                'http://ur10.l/',
+                'http://ur.11l/',
+                'http://ur12.l/',
+                'http://ur13.l/',
+                'http://ur14.l/',
+                'http://ur15.l/',
+                'http://ur16.l/',
+                'http://ur17.l/',
+                'http://ur18.l/',
+                'http://ur19.l/',
+                'http://ur20.l/',
+              ].map(url => account.server.createBookmark(new Bookmark({
+                title: 'url',
+                url,
+                parentId: tree.id
+              }))))
+            })
+
+            await account.sync()
+            expect(account.getData().error).to.be.ok // should have errored
+            expect(account.getData().error).to.include((new AdditionFailsafeError).code)
+          })
+          it('should error when deleting too much remote data (failsafe)', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              this.skip()
+            }
+
+            const localRoot = account.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            // We need more than 5 bookmarks to be above the negligibility threshold
+            await Promise.all([
+              'http://ur.l/',
+              'http://ur.ll/',
+              'http://ur2.l/',
+              'http://ur3.l/',
+              'http://ur4.l/',
+              'http://ur5.l/',
+              'http://ur6.l/',
+              'http://ur7.l/',
+              'http://ur8.l/',
+              'http://ur9.l/',
+              'http://ur10.l/',
+            ].map(url => browser.bookmarks.create({
+              title: 'url',
+              url,
+              parentId: barFolder.id
+            })))
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            // Remove everything
+            await browser.bookmarks.removeTree(barFolder.id)
+
+            await account.sync()
+            expect(account.getData().error).to.be.ok // should have errored
+            expect(account.getData().error).to.include((new DeletionFailsafeError).code)
+          })
+          it('should error when adding too much remote data (failsafe)', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              this.skip()
+            }
+
+            const localRoot = account.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            // Create 6 bookmarks to be above the negligibility threshold
+            await Promise.all([
+              'http://ur.1l/',
+              'http://ur2.l/',
+              'http://ur3.l/',
+              'http://ur4.l/',
+              'http://ur5.l/',
+              'http://ur6.l/'
+            ].map(url => browser.bookmarks.create({
+              title: 'url',
+              url,
+              parentId: barFolder.id
+            })))
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            // Simulate an extreme increase of bookmarks
+            await Promise.all([
+              'http://ur.1l/',
+              'http://ur2.l/',
+              'http://ur3.l/',
+              'http://ur4.l/',
+              'http://ur5.l/',
+              'http://ur6.l/',
+              'http://ur7.l/',
+              'http://ur8.l/',
+              'http://ur9.l/',
+              'http://ur10.l/',
+              'http://ur.11l/',
+              'http://ur12.l/',
+              'http://ur13.l/',
+              'http://ur14.l/',
+              'http://ur15.l/',
+              'http://ur16.l/',
+              'http://ur17.l/',
+              'http://ur18.l/',
+              'http://ur19.l/',
+              'http://ur20.l/',
+            ].map(url => browser.bookmarks.create({
+              title: 'url',
+              url,
+              parentId: barFolder.id
+            })))
+
+            await account.sync()
+            expect(account.getData().error).to.be.ok // should have errored
+            expect(account.getData().error).to.include((new AdditionFailsafeError).code)
           })
           it('should leave alone unaccepted bookmarks entirely', async function() {
             if (!~ACCOUNT_DATA.type.indexOf('nextcloud')) {

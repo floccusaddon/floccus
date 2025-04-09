@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.5.0] - 2025-04-09
+
+### New
+
+* feat(Logger): Use IndexedDB to store logs in order to store more
+* feat(AdditionFailsafe): Extend failsafe mechanism to prevent creation of excessive amounts of bookmarks
+* fix(failsafe): Reduce threshold to 20% OR 1k bookmarks
+
+### Fixed
+
+* fix(Controller): Do not run scheduleSync concurrently for all accounts
+* fix(failsafe): Also apply failsafe on upstream changes
+* fix(NewAccount): Disable git backend on android/ios
+* fix(GoogleDrive): fix "T.includes is not a function" error
+* fix(webdav): Validate filesize via PROPFIND to detect partial downloads
+
 ## [5.4.5] - 2025-03-20
 
 ### Fixed

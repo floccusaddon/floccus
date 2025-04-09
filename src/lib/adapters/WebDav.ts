@@ -10,12 +10,11 @@ import {
   HttpError, CancelledSyncError,
   LockFileError, MissingPermissionsError,
   NetworkError, RedirectError, ResourceLockedError,
-  SlashError
+  SlashError, FileSizeMismatch, FileSizeUnknown
 } from '../../errors/Error'
 import { CapacitorHttp as Http } from '@capacitor/core'
 import { Capacitor } from '@capacitor/core'
 import Html from '../serializers/Html'
-import { isOrion } from '../isOrion'
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
@@ -212,6 +211,25 @@ export default class WebDavAdapter extends CachingAdapter {
 
     if (response.status === 200) {
       let xmlDocText = response.data
+      if (Capacitor.getPlatform() === 'web') {
+        let fileSize = null
+        try {
+          fileSize = await this.getFileSize(fullUrl)
+        } catch (e) {
+          console.warn(e)
+          Logger.log('Error getting file size: ' + e.message)
+        }
+
+        if (fileSize === null) {
+          throw new FileSizeUnknown()
+        }
+
+        const byteLength = new TextEncoder().encode(xmlDocText).length
+        if (fileSize !== byteLength) {
+          Logger.log('File size mismatch: ' + fileSize + ' != ' + byteLength)
+          throw new FileSizeMismatch()
+        }
+      }
 
       if (this.server.passphrase) {
         try {
@@ -270,7 +288,7 @@ export default class WebDavAdapter extends CachingAdapter {
     Logger.log('onSyncStart: begin')
     this.ended = false
 
-    if (Capacitor.getPlatform() === 'web' && !isOrion) {
+    if (Capacitor.getPlatform() === 'web') {
       const browser = (await import('../browser-api')).default
       let hasPermissions, error = false
       try {
@@ -430,6 +448,86 @@ export default class WebDavAdapter extends CachingAdapter {
     }
   }
 
+  async getFileSize(url) {
+    if (Capacitor.getPlatform() === 'web') {
+      return this.getFileSizeWeb(url)
+    } else {
+      return this.getFileSizeNative(url)
+    }
+  }
+
+  async getFileSizeWeb(url): Promise<number|null> {
+    const authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+    let res
+    try {
+      res = await fetch(url,{
+        method: 'PROPFIND',
+        headers: {
+          Authorization: 'Basic ' + authString
+        },
+        cache: 'no-store',
+        credentials: 'omit',
+        signal: this.abortSignal,
+        ...(!this.server.allowRedirects && {redirect: 'manual'})
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      if (this.abortSignal.aborted) throw new CancelledSyncError()
+      throw new NetworkError()
+    }
+    if (res.status === 0 && !this.server.allowRedirects) {
+      throw new RedirectError()
+    }
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status >= 300 && res.status !== 404) {
+      throw new HttpError(res.status, 'PROPFIND')
+    }
+
+    const xml = await res.text()
+    const match = xml.match(/<.*?:?getcontentlength>(.*?)</)
+    return match ? parseInt(match[1]) : null
+  }
+
+  async getFileSizeNative(url): Promise<number|null> {
+    let res
+    const authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+
+    try {
+      res = await Http.request({
+        url: url,
+        method: 'PROPFIND',
+        headers: {
+          Authorization: 'Basic ' + authString,
+          Pragma: 'no-cache',
+          'Cache-Control': 'no-cache'
+        },
+        responseType: 'text'
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      throw new NetworkError()
+    }
+
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status >= 300 && res.status !== 404) {
+      throw new HttpError(res.status, 'PROPFIND')
+    }
+
+    const xml = res.data
+    const match = xml.match(/<.*?:?getcontentlength>(.*?)</)
+    return match ? parseInt(match[1]) : null
+  }
+
   async downloadFileWeb(url) {
     const authString = Base64.encode(
       this.server.username + ':' + this.server.password
@@ -462,7 +560,7 @@ export default class WebDavAdapter extends CachingAdapter {
       throw new HttpError(res.status, 'GET')
     }
 
-    return { status: res.status, data: await res.text(), headers: res.headers }
+    return { status: res.status, data: await res.text(), headers: Object.fromEntries(res.headers.entries()) }
   }
 
   async downloadFileNative(fullURL) {
