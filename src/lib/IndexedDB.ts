@@ -41,5 +41,14 @@ export async function freeStorageIfNecessary() {
         .where('dateTime').below(oneDayAgo)
         .delete()
     }
+
+    ({usage, quota} = await navigator.storage.estimate())
+    if (usage / quota > 0.6 || usage > MAX_STORAGE_SIZE) {
+      const lastHour = Date.now() - 60 * 60 * 1000
+
+      await db.logs
+        .where('dateTime').below(lastHour)
+        .delete()
+    }
   }
 }
