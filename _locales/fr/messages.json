@@ -84,7 +84,7 @@
     "message": "E028: Impossible de s'authentifier sur le serveur."
   },
   "Error029": {
-    "message": "E029: Sécurité: La synchronisation en cours aurait effacé {0}% de vos signets. La synchronisation a été annulée. Désactivez la Sécurité dans les paramètres de votre compte si vous souhaitez tout de même synchroniser."
+    "message": "E029: Sécurité: La synchronisation en cours aurait effacé {0}% de vos signets. La synchronisation a été annulée. Désactivez la sécurité dans les paramètres de votre compte si vous souhaitez tout de même synchroniser."
   },
   "Error030": {
     "message": "E030: Le déchiffrement de votre fichier de signets a échoué. Le mot de passe est peut être erronée ou le fichier corrompu."
@@ -118,6 +118,15 @@
   },
   "Error040": {
     "message": "E040: Impossible de rechercher ce nom de fichier sur votre Google Drive"
+  },
+  "Error041": {
+    "message": "E041: La taille du fichier de signets distant est différente de celle obtenue depuis le serveur. C'est peut-être dû à une erreur réseau. Si cette erreur persiste, contactez l'administrateur du serveur."
+  },
+  "Error042": {
+    "message": "E042: La taille du fichier de signets distant n'a pu être obtenue. Il est impossible de vérifier que le fichier de signet a été complètement téléchargé. Si cette erreur persiste, contactez l'administrateur du serveur."
+  },
+  "Error043": {
+    "message": "E043: Sécurité: La synchronisation en cours aurait ajouté {0}% à la quantité de vos signets. La synchronisation a été annulée. Désactivez la sécurité dans les paramètres de votre compte si vous souhaitez tout de même synchroniser."
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -303,7 +312,7 @@
     "message": "Journaux de débogage"
   },
   "LabelFunddevelopment": {
-    "message": "Soutenir le développement"
+    "message": "💸 Soutenir le développement"
   },
   "DescriptionFunddevelopment": {
     "message": "Le développement de floccus est possible grâce à un modèle d'abonnement volontaire. Si vous pensez que mon travail est utile, et s'il vous est possible d'y investir un montant même minime, merci de le soutenir. De plus, prenez aussi le temps d'aller noter floccus sur le Web Store de votre choix.\nMerci ! 💙"
@@ -505,22 +514,22 @@
     "message": "Sécurité"
   },
   "DescriptionFailsafe": {
-    "message": "Parfois, des erreurs de configuration ou un bogue logiciel peuvent causer la suppression involontaire de données. Ces données deviennent alors irrécupérables. Pour empêcher cela, floccus n'effacera pas d'un seul coup plus de 50% de vos signets, à moins que vous ne désactiviez la Sécurité ici."
+    "message": "Parfois, des erreurs de configuration ou des bogues logiciel peuvent causer la suppression involontaire de données, qui deviennent alors irrécupérables, ou la duplication involontaire de données, ce qui crée des conflits difficiles à résoudre. Pour empêcher cela, floccus n'effacera pas d'un seul coup plus de 20% de vos signets, ni n'ajoutera plus de 20% de la quantité de vos signet d'un seul coup, à moins que vous ne désactiviez la sécurité ici."
   },
   "LabelFailsafeon": {
-    "message": "Activée. N'effacera pas plus de 50% de vos signets locaux sans vous en demander d'abord l'autorisation. (Recommandé)"
+    "message": "Activée. N'enlèvera ou n'ajoutera pas plus 20% de/à la quantité de vos signets locaux sans vous en demander d'abord l'autorisation. (Recommandé)"
   },
   "LabelFailsafeoff": {
-    "message": "Désactivée. Permet la suppression de plus de 50% de vos signets locaux sans vous en demander l'autorisation."
+    "message": "Désactivée. Permet la suppression ou l'ajout de plus de 20% à la quantité de vos signets locaux sans vous en demander d'abord l'autorisation."
   },
   "StatusFailsafeoff": {
-    "message": "Sécurité désactivée. Il y a un risque de perte de données involontaire. Il est recommandé de laisser active la Protection de secours dans les paramètres de votre profil."
+    "message": "Sécurité désactivée. Il y a un risque de perte ou de duplication de données involontaire. Il est recommandé d'activer la sécurité dans les paramètres de votre profil."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Synchronise vos signets à l'aide d'un fichier chiffré stocké sur votre Google Drive. Les signets HTTP, FTP, data, fichier ou JavaScript peuvent être synchronisés. Cette option supporte le chiffrement point à point."
+    "message": "Synchronise vos signets à l'aide d'un fichier (potentiellement chiffré) stocké sur votre Google Drive. Les signets HTTP, FTP, data, fichier ou JavaScript peuvent être synchronisés. Cette option supporte le chiffrement point à point."
   },
   "LabelLogingoogle": {
     "message": "Se connecter avec Google"
@@ -673,7 +682,7 @@
     "message": "Profil créé"
   },
   "DescriptionAccountcreated": {
-    "message": "Votre profil a été créé. Vous pouvez à présent fermer cet onglet."
+    "message": "Votre profil a été créé. Vous pouvez à présent fermer cet onglet. Avertissement: synchronisation et sauvegarde sont des opérations différentes. Assurez-vous d'effectuer régulièrement des sauvegardes de vos signets."
   },
   "DescriptionNonhttps": {
     "message": "Vous accédez à un serveur qui utilise un protocole non sécurisé. Il est recommandé de n'utiliser que des serveurs compatibles avec HTTPS"
@@ -709,7 +718,7 @@
     "message": "Profil(s) importé(s) avec succès."
   },
   "DescriptionSyncinprogress": {
-    "message": "Synchronisation en cours"
+    "message": "Synchronisation en cours."
   },
   "DescriptionSyncscheduled": {
     "message": "Ce profil sera bientôt synchronisé. Nous attendons que vos autres appareils ou vos autres profils sur cet appareil aient terminé leur synchronisation."
@@ -718,7 +727,7 @@
     "message": "Git via HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Synchronisez vos signets en les conservant dans un fichier situé sur un dépôt Git. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur Git, tel que Github, Gitlab, Gitea, etc. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option ne supporte pas le chiffrement point à point."
+    "message": "L'option Git synchronise vos signets en les conservant dans un fichier situé sur un dépôt Git. Il n'y a pas d'interface web accompagnant cette option, mais vous pouvez l'utiliser avec n'importe quel serveur Git, tel que Github, Gitlab, Gitea, etc. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option ne supporte pas le chiffrement point à point. Cette option n'est actuellement pas disponible pour l'application mobile."
   },
   "LabelGiturl": {
     "message": "URL du dépôt utilisant HTTP"
@@ -787,7 +796,7 @@
     "message": "Ce signet existe déjà dans le profil sélectionné"
   },
   "LabelReportproblem": {
-    "message": "Rapporter ce probleme"
+    "message": "Signaler ce problème"
   },
   "DescriptionReportproblem": {
     "message": "Si vous désirez contacter directement les développeurs pour discuter d'un problème, vous pouvez le faire ici:"
@@ -818,5 +827,8 @@
   },
   "DescriptionAutosync": {
     "message": "Activer la synchronisation automatique déclenchera automatiquement une synchronisation, à un intervalle de temps configurable, ainsi qu'à la demande, quelques secondes après chaque changement. Si vous n'activez pas la synchronisation automatique, vous devrez la déclencher manuellement en cliquant sur le bouton de synchronisation."
+  },
+  "LabelOpeninnewtab": {
+    "message": "Ouvrir cette vue dans un nouvel onglet"
   }
 }
