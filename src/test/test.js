@@ -2349,12 +2349,12 @@ describe('Floccus', function() {
             })
             // Create 6 bookmarks to be above the negligibility threshold
             await Promise.all([
-              'http://ur.1l/',
-              'http://ur2.l/',
-              'http://ur3.l/',
-              'http://ur4.l/',
-              'http://ur5.l/',
-              'http://ur6.l/'
+              'http://ur1.ll/',
+              'http://ur2.ll/',
+              'http://ur3.ll/',
+              'http://ur4.ll/',
+              'http://ur5.ll/',
+              'http://ur6.ll/'
             ].map(url => browser.bookmarks.create({
               title: 'url',
               url,
@@ -2364,8 +2364,9 @@ describe('Floccus', function() {
             expect(account.getData().error).to.not.be.ok
 
             // Simulate an extreme increase of bookmarks
+            // More than 20 bookmarks need to be added at once to trigger the failsafe
             await Promise.all([
-              'http://ur.1l/',
+              'http://ur1.l/',
               'http://ur2.l/',
               'http://ur3.l/',
               'http://ur4.l/',
@@ -2375,7 +2376,7 @@ describe('Floccus', function() {
               'http://ur8.l/',
               'http://ur9.l/',
               'http://ur10.l/',
-              'http://ur.11l/',
+              'http://ur11.l/',
               'http://ur12.l/',
               'http://ur13.l/',
               'http://ur14.l/',
@@ -2385,6 +2386,7 @@ describe('Floccus', function() {
               'http://ur18.l/',
               'http://ur19.l/',
               'http://ur20.l/',
+              'http://ur21.l/',
             ].map(url => browser.bookmarks.create({
               title: 'url',
               url,
