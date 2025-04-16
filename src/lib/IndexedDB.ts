@@ -20,10 +20,12 @@ db.version(1).stores({
 export { db }
 export { LogMessage }
 
+const MAX_STORAGE_SIZE = 50 * 1024 * 1024 // 50MB
+
 export async function freeStorageIfNecessary() {
   if (navigator.storage && navigator.storage.estimate) {
     let {usage, quota} = await navigator.storage.estimate()
-    if (usage / quota > 0.9) {
+    if (usage / quota > 0.9 || usage > MAX_STORAGE_SIZE) {
       const oneWeekAgo = Date.now() - 60 * 60 * 1000 * 24 * 7
 
       await db.logs
@@ -32,11 +34,20 @@ export async function freeStorageIfNecessary() {
     }
 
     ({usage, quota} = await navigator.storage.estimate())
-    if (usage / quota > 0.6) {
+    if (usage / quota > 0.6 || usage > MAX_STORAGE_SIZE) {
       const oneDayAgo = Date.now() - 60 * 60 * 1000 * 24
 
       await db.logs
         .where('dateTime').below(oneDayAgo)
+        .delete()
+    }
+
+    ({usage, quota} = await navigator.storage.estimate())
+    if (usage / quota > 0.6 || usage > MAX_STORAGE_SIZE) {
+      const lastHour = Date.now() - 60 * 60 * 1000
+
+      await db.logs
+        .where('dateTime').below(lastHour)
         .delete()
     }
   }

@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.5.2] - 2025-04-16
+
+### Fixed
+
+* fix(IndexedDB): Delete up to the last hour of logs
+* fix(storage): Add checkStorage method to freeStorage regularly
+* fix(IndexedDB): Don't store more than 50MB of logs
+
 ## [5.5.1] - 2025-04-09
 
 ### Fixed

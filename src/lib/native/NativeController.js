@@ -15,6 +15,7 @@ class AlarmManager {
     this.ctl = ctl
     this.backgroundSyncEnabled = true
     setInterval(() => this.checkSync(), 25 * 1000)
+    setInterval(() => this.checkStorage(), 30 * 1000)
 
     Network.addListener('networkStatusChange', status => {
       if (status.connected) {
@@ -23,6 +24,10 @@ class AlarmManager {
         this.backgroundSyncEnabled = false
       }
     })
+  }
+
+  async checkStorage() {
+    await freeStorageIfNecessary()
   }
 
   async checkSync() {
@@ -93,7 +98,6 @@ export default class NativeController {
       },
       []
     )
-    freeStorageIfNecessary()
 
     // lock accounts when locking is enabled
 

@@ -22,6 +22,10 @@ class AlarmManager {
     this.ctl = ctl
   }
 
+  async checkStorage() {
+    await freeStorageIfNecessary()
+  }
+
   async checkSync() {
     const accounts = await BrowserAccountStorage.getAllAccounts()
     for (let accountId of accounts) {
@@ -105,6 +109,7 @@ export default class BrowserController {
 
     // Set up the alarms
 
+    browser.alarms.create('checkStorage', { periodInMinutes: 15 })
     browser.alarms.create('checkSync', { periodInMinutes: 1 })
     browser.alarms.onAlarm.addListener(async alarm => {
       await this.alarms[alarm.name]()
@@ -129,7 +134,6 @@ export default class BrowserController {
       },
       []
     )
-    freeStorageIfNecessary()
 
     // do some cleaning if this is a new version
 
