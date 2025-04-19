@@ -169,7 +169,7 @@ export default {
       }
     },
     openInNewTab() {
-      window.open(window.location.href, '_blank')
+      browser.tabs.create({url: window.location.href})
     }
   }
 }
