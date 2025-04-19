@@ -383,7 +383,7 @@ export default class SyncProcess {
 
     Logger.log('Checking addition failsafe: ' + countAdded + '/' + countTotal + '=' + (countAdded / countTotal))
     // Failsafe kicks in if more than 20% is added or more than 1k bookmarks
-    if (countTotal > 5 && (countAdded / countTotal > 0.2 || countAdded > 1000)) {
+    if (countTotal > 5 && ((countAdded >= 20 && countAdded / countTotal > 0.2) || countAdded > 1000)) {
       const failsafe = this.server.getData().failsafe
       if (failsafe !== false || typeof failsafe === 'undefined') {
         throw new AdditionFailsafeError(Math.ceil((countAdded / countTotal) * 100))
