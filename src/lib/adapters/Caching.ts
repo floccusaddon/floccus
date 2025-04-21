@@ -16,7 +16,7 @@ import { BulkImportResource } from '../interfaces/Resource'
 
 export default class CachingAdapter implements Adapter, BulkImportResource<TItemLocation> {
   protected highestId: number
-  protected bookmarksCache: Folder<TItemLocation>
+  public bookmarksCache: Folder<TItemLocation>
   protected server: any
   protected location: TItemLocation = ItemLocation.SERVER
 

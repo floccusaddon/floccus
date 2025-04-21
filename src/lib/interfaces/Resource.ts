@@ -13,6 +13,10 @@ export interface IResource<L extends TItemLocation> {
   isAvailable():Promise<boolean>
 }
 
+export interface CachingResource <L extends TItemLocation> extends IResource<L> {
+  getCacheTree():Promise<Folder<L>>
+}
+
 export interface BulkImportResource<L extends TItemLocation> extends IResource<L> {
   bulkImportFolder(id: number|string, folder:Folder<L>):Promise<Folder<L>>
 }
