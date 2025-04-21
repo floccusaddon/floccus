@@ -447,104 +447,69 @@ export default class SyncProcess {
 
     const newMappings = []
 
-    let localScanner, serverScanner
-    if (this.localTree.constructor.name === 'LocalTabs') {
-      // if we have the cache available, Diff cache and both trees
-      localScanner = new Scanner(
-        this.cacheTreeRoot,
-        this.localTreeRoot,
-        // We also allow canMergeWith for folders here, because Window IDs are not stable
+    const isUsingTabs = await this.localTree.isUsingBrowserTabs?.()
+
+    // Since we have the cache available, Diff cache and both trees..
+    const localScanner = new Scanner(
+      this.cacheTreeRoot,
+      this.localTreeRoot,
+      (oldItem, newItem) => {
+        if (oldItem.type !== newItem.type) {
+          return false
+        }
+
         // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
-        (oldItem, newItem) => {
-          if (oldItem.type !== newItem.type) {
-            return false
-          }
-          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
-            return false
-          }
-          if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
-            return true
-          }
-          if (oldItem.type === 'folder' && oldItem.canMergeWith(newItem)) {
-            return true
-          }
+        if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
           return false
-        },
-        this.preserveOrder,
-      )
-      serverScanner = new Scanner(
-        this.cacheTreeRoot,
-        this.serverTreeRoot,
-        // We also allow canMergeWith here
-        // (for bookmarks, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
-        // (for folders because Window IDs are not stable)
+        }
+
+        // The two are mappable, no-brainer...
+        if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
+          return true
+        }
+
+        // We also allow canMergeWith for folders here, if we're dealing with tabs, because Window IDs are not stable
+        if (isUsingTabs && oldItem.type === 'folder' && oldItem.canMergeWith(newItem)) {
+          return true
+        }
+        return false
+      },
+      this.preserveOrder,
+    )
+    const serverScanner = new Scanner(
+      this.cacheTreeRoot,
+      this.serverTreeRoot,
+      (oldItem, newItem) => {
+        if (oldItem.type !== newItem.type) {
+          return false
+        }
         // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
-        (oldItem, newItem) => {
-          if (oldItem.type !== newItem.type) {
-            return false
-          }
-          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
-            return false
-          }
-          if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
-            newMappings.push([oldItem, newItem])
-            return true
-          }
-          if (oldItem.canMergeWith(newItem)) {
-            newMappings.push([oldItem, newItem])
-            return true
-          }
+        if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
           return false
-        },
-        this.preserveOrder,
-      )
-    } else {
-      // if we have the cache available, Diff cache and both trees
-      localScanner = new Scanner(
-        this.cacheTreeRoot,
-        this.localTreeRoot,
-        (oldItem, newItem) => {
-          if (oldItem.type !== newItem.type) {
-            return false
-          }
-          // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
-          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
-            return false
-          }
-          if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
-            return true
-          }
-          return false
-        },
-        this.preserveOrder
-      )
-      serverScanner = new Scanner(
-        this.cacheTreeRoot,
-        this.serverTreeRoot,
-        // We also allow canMergeWith here, because e.g. for NextcloudBookmarks the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
-        (oldItem, newItem) => {
-          if (oldItem.type !== newItem.type) {
-            return false
-          }
-          // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
-          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
-            return false
-          }
-          if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
-            newMappings.push([oldItem, newItem])
-            return true
-          }
-          if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
-            if (oldItem.canMergeWith(newItem)) {
-              newMappings.push([oldItem, newItem])
-              return true
-            }
-          }
-          return false
-        },
-        this.preserveOrder
-      )
-    }
+        }
+
+        // The two are mappable, no-brainer...
+        if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
+          newMappings.push([oldItem, newItem])
+          return true
+        }
+
+        //  We also allow canMergeWith here for bookmarks, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
+        if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.canMergeWith(newItem)) {
+          newMappings.push([oldItem, newItem])
+          return true
+        }
+
+        // We also allow canMergeWith here for folders, if we're dealing with tabs, because Window IDs are not stable
+        if (isUsingTabs && oldItem.type === 'folder' && newItem.type === 'folder' && oldItem.canMergeWith(newItem)) {
+          newMappings.push([oldItem, newItem])
+          return true
+        }
+
+        return false
+      },
+      this.preserveOrder,
+    )
     Logger.log('Calculating diffs for local and server trees relative to cache tree')
     const localScanResult = await localScanner.run()
     const serverScanResult = await serverScanner.run()

@@ -153,6 +153,10 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     })
     return Boolean(tabs.length)
   }
+
+  async isUsingBrowserTabs() {
+    return true
+  }
 }
 
 function awaitTabsUpdated() {

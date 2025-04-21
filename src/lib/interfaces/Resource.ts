@@ -11,6 +11,7 @@ export interface IResource<L extends TItemLocation> {
   updateFolder(folder:Folder<L>):Promise<void>
   removeFolder(folder:Folder<L>):Promise<void>
   isAvailable():Promise<boolean>
+  isUsingBrowserTabs?: () => Promise<boolean>
 }
 
 export interface CachingResource <L extends TItemLocation> extends IResource<L> {
