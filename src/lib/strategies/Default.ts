@@ -669,7 +669,7 @@ export default class SyncProcess {
           const originalCreation = sourceCreations.find(creation => creation.payload.findItem(ItemType.FOLDER, action.payload.parentId))
 
           // Remove subitems that have been (re)moved already by other actions
-          const newPayload = action.payload.clone()
+          const newPayload = action.payload.copy()
           if (newPayload.type === ItemType.FOLDER) {
             newPayload.traverse((item, folder) => {
               const removed = sourceRemovals.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload))
@@ -701,8 +701,8 @@ export default class SyncProcess {
 
           concurrentHierarchyReversals.forEach(a => {
             // moved sourcely but moved in reverse hierarchical order on target
-            const payload = a.oldItem.cloneWithLocation(false, action.payload.location)
-            const oldItem = a.payload.cloneWithLocation(false, action.oldItem.location)
+            const payload = a.oldItem.copyWithLocation(false, action.payload.location)
+            const oldItem = a.payload.copyWithLocation(false, action.oldItem.location)
             oldItem.id = Mappings.mapId(mappingsSnapshot, a.payload, action.oldItem.location)
             oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, a.payload, action.oldItem.location)
 
@@ -876,6 +876,7 @@ export default class SyncProcess {
       return
     }
 
+    action.payload = action.payload.copy()
     action.payload.id = id
 
     if (action.oldItem) {
@@ -897,7 +898,7 @@ export default class SyncProcess {
           Logger.log('Attempting full bulk import')
           try {
             // Try bulk import with sub folders
-            const imported = await resource.bulkImportFolder(id, action.oldItem.cloneWithLocation(false, action.payload.location)) as Folder<typeof targetLocation>
+            const imported = await resource.bulkImportFolder(id, action.oldItem.copyWithLocation(false, action.payload.location)) as Folder<typeof targetLocation>
             const newMappings = []
             const subScanner = new Scanner(
               action.oldItem,
@@ -953,7 +954,7 @@ export default class SyncProcess {
         } else {
           try {
             // Try bulk import without sub folders
-            const tempItem = action.oldItem.cloneWithLocation(false, action.payload.location)
+            const tempItem = action.oldItem.copyWithLocation(false, action.payload.location)
             const bookmarks = tempItem.children.filter(child => child instanceof Bookmark)
             while (bookmarks.length > 0) {
               Logger.log('Attempting chunked bulk import')

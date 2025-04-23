@@ -88,14 +88,43 @@ export class Bookmark<L extends TItemLocation> {
   }
 
   clone(withHash?: boolean):Bookmark<L> {
-    return new Bookmark(this)
+    return Object.create(this)
   }
 
   cloneWithLocation<L2 extends TItemLocation>(withHash:boolean, location: L2): Bookmark<L2> {
+    const newBookmark = Object.create(this)
+    newBookmark.location = location
+    return newBookmark
+  }
+
+  copy(withHash?: boolean):Bookmark<L> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return new Bookmark(this.toJSON())
+  }
+
+  copyWithLocation<L2 extends TItemLocation>(withHash:boolean, location: L2): Bookmark<L2> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return new Bookmark({
-      ...this,
+      ...this.toJSON(),
       location,
     })
+  }
+
+  toJSON() {
+    // Flatten inherited properties for serialization
+    const result = {}
+    let obj = this
+    while (obj) {
+      Object.entries(obj).forEach(([key, value]) => {
+        if (!(key in result)) {
+          result[key] = value
+        }
+      })
+      obj = Object.getPrototypeOf(obj)
+    }
+    return result
   }
 
   createIndex():any {
@@ -309,21 +338,62 @@ export class Folder<L extends TItemLocation> {
     return this.hashValue[String(preserveOrder)]
   }
 
-  clone(withHash?:boolean):Folder<L> {
+  copy(withHash?:boolean):Folder<L> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return new Folder({
-      ...this,
+      ...this.toJSON(),
       ...(!withHash && { hashValue: {} }),
-      children: this.children.map(child => child.clone(withHash))
+      children: this.children.map(child => child.copy(withHash))
     })
   }
 
-  cloneWithLocation<L2 extends TItemLocation>(withHash:boolean, location: L2):Folder<L2> {
+  copyWithLocation<L2 extends TItemLocation>(withHash:boolean, location: L2):Folder<L2> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return new Folder({
-      ...this,
+      ...this.toJSON(),
       location,
       ...(!withHash && { hashValue: {} }),
-      children: this.children.map(child => child.cloneWithLocation(withHash, location))
+      children: this.children.map(child => child.copyWithLocation(withHash, location))
     })
+  }
+
+  clone(withHash?:boolean):Folder<L> {
+    const newFolder = Object.create(this)
+    newFolder.index = null
+    if (!withHash) {
+      newFolder.hashValue = {}
+    }
+    newFolder.children = this.children.map(child => child.clone(withHash))
+    return newFolder
+  }
+
+  cloneWithLocation<L2 extends TItemLocation>(withHash:boolean, location: L2):Folder<L2> {
+    const newFolder = Object.create(this)
+    if (!withHash) {
+      newFolder.hashValue = {}
+    }
+    newFolder.index = null
+    newFolder.location = location
+    newFolder.children = this.children.map(child => child.cloneWithLocation(withHash, location))
+    return newFolder
+  }
+
+  toJSON(): Folder<L> {
+    // Flatten inherited properties for serialization
+    const result: Folder<L> = {} as any as Folder<L>
+    let obj = this
+    while (obj) {
+      Object.entries(obj).forEach(([key, value]) => {
+        if (key === 'index') return
+        if (!(key in result)) {
+          result[key] = value
+        }
+      })
+      obj = Object.getPrototypeOf(obj)
+    }
+    return result
   }
 
   count():number {

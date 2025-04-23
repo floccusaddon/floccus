@@ -5758,16 +5758,16 @@ describe('Floccus', function() {
               { id: '', title: 'root', location: 'Server' }
             )
             account1.server.onSyncStart = () => {
-              account1.server.bookmarksCache = fakeServerDb.clone(false)
+              account1.server.bookmarksCache = fakeServerDb.copy(false)
             }
             account1.server.onSyncComplete = () => {
-              fakeServerDb = account1.server.bookmarksCache.clone(false)
+              fakeServerDb = account1.server.bookmarksCache.copy(false)
             }
             account2.server.onSyncStart = () => {
-              account2.server.bookmarksCache = fakeServerDb.clone(false)
+              account2.server.bookmarksCache = fakeServerDb.copy(false)
             }
             account2.server.onSyncComplete = () => {
-              fakeServerDb = account2.server.bookmarksCache.clone(false)
+              fakeServerDb = account2.server.bookmarksCache.copy(false)
             }
             account2.server.__defineSetter__('highestId', (id) => {
               account1.server.highestId = id

@@ -203,7 +203,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
               this.result.REMOVE.retract(removeAction)
             } else {
               // We clone the item here, because we don't want to mutate all copies of this tree (item)
-              const removedItemClone = removedItem.clone(true)
+              const removedItemClone = removedItem.copy(true)
               const oldParentClone = removedItemClone.findItem(ItemType.FOLDER, oldItem.parentId) as Folder<L1>
               const oldItemClone = removedItemClone.findItem(oldItem.type, oldItem.id)
               oldIndex = oldParentClone.children.indexOf(oldItemClone)
@@ -235,7 +235,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
                 this.result.CREATE.retract(createAction)
               } else {
                 // We clone the item here, because we don't want to mutate all copies of this tree (item)
-                const createdItemClone = createdItem.clone(true)
+                const createdItemClone = createdItem.copy(true)
                 const newParentClone = createdItemClone.findItem(ItemType.FOLDER, newItem.parentId) as Folder<L2>
                 const newClonedItem = createdItemClone.findItem(newItem.type, newItem.id)
                 index = newParentClone.children.indexOf(newClonedItem)

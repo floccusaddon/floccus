@@ -20,7 +20,7 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
 
   async createBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<string|number> {
     const id = await this.innerTree.createBookmark(bookmark)
-    const cacheId = await this.cacheTree.createBookmark(bookmark.clone(false))
+    const cacheId = await this.cacheTree.createBookmark(bookmark.copy(false))
     const cacheBookmark = this.cacheTree.bookmarksCache.findBookmark(cacheId)
     cacheBookmark.id = id
     cacheBookmark.parentId = bookmark.parentId
@@ -30,7 +30,7 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
 
   async updateBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>):Promise<void> {
     await this.innerTree.updateBookmark(bookmark)
-    await this.cacheTree.updateBookmark(bookmark.clone(false))
+    await this.cacheTree.updateBookmark(bookmark.copy(false))
   }
 
   async removeBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<void> {
@@ -40,7 +40,7 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
 
   async createFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<string|number> {
     const id = await this.innerTree.createFolder(folder)
-    const cacheId = await this.cacheTree.createFolder(folder.clone(false))
+    const cacheId = await this.cacheTree.createFolder(folder.copy(false))
     const cacheFolder = this.cacheTree.bookmarksCache.findFolder(cacheId)
     cacheFolder.id = id
     cacheFolder.parentId = folder.parentId
@@ -55,7 +55,7 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
 
   async updateFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<void> {
     await this.innerTree.updateFolder(folder)
-    await this.cacheTree.updateFolder(folder.clone(false))
+    await this.cacheTree.updateFolder(folder.copy(false))
   }
 
   async removeFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<void> {
