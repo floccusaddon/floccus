@@ -317,12 +317,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     this.fileId = null
   }
 
-  async onSyncComplete() {
-    Logger.log('onSyncComplete')
-    clearInterval(this.lockingInterval)
-
-    this.bookmarksCache = this.bookmarksCache.clone(false)
-    const newTreeHash = await this.bookmarksCache.hash(true)
+  async getXBELContent() {
     let xbel = createXBEL(this.bookmarksCache, this.highestId)
 
     if (this.server.password) {
@@ -330,15 +325,24 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       const ciphertext = await Crypto.encryptAES(this.server.password, xbel, salt)
       xbel = JSON.stringify({ciphertext, salt})
     }
+    return xbel
+  }
+
+  async onSyncComplete() {
+    Logger.log('onSyncComplete')
+    clearInterval(this.lockingInterval)
+
+    this.bookmarksCache = this.bookmarksCache.clone(false)
+    const newTreeHash = await this.bookmarksCache.hash(true)
 
     if (!this.fileId) {
-      await this.createFile(xbel)
+      await this.createFile(await this.getXBELContent())
       this.fileId = null
       return
     }
 
     if (newTreeHash !== this.initialTreeHash || this.alwaysUpload) {
-      await this.uploadFile(this.fileId, xbel)
+      await this.uploadFile(this.fileId, await this.getXBELContent())
       this.alwaysUpload = false // reset flag
     } else {
       Logger.log('No changes to the server version necessary')
