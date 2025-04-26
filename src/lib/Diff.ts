@@ -200,16 +200,16 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
           const newId = action.payload.id
           newAction = {
             ...action,
-            payload: action.payload.cloneWithLocation(false, targetLocation),
-            oldItem: action.oldItem.cloneWithLocation(false, action.payload.location)
+            payload: action.payload.copyWithLocation(false, targetLocation),
+            oldItem: action.oldItem.copyWithLocation(false, action.payload.location)
           }
           newAction.payload.id = oldId
           newAction.oldItem.id = newId
         } else {
           newAction = {
             ...action,
-            payload: action.payload.cloneWithLocation(false, targetLocation),
-            oldItem: action.payload.clone(false)
+            payload: action.payload.copyWithLocation(false, targetLocation),
+            oldItem: action.payload.copy(false)
           }
           newAction.payload.id = Mappings.mapId(mappingsSnapshot, action.payload, targetLocation)
         }
@@ -253,8 +253,8 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
     return this.getActions().map((action: A) => {
       return {
         ...action,
-        payload: action.payload.clone(false),
-        oldItem: action.oldItem && action.oldItem.clone(false),
+        payload: action.payload.copy(false),
+        oldItem: action.oldItem && action.oldItem.copy(false),
       }
     })
   }

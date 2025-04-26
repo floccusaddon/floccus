@@ -14,6 +14,7 @@ import { isTest } from './isTest'
 import CachingAdapter from './adapters/Caching'
 import * as Sentry from '@sentry/vue'
 import AsyncLock from 'async-lock'
+import CachingTreeWrapper from './CachingTreeWrapper'
 
 declare const DEBUG: boolean
 
@@ -163,7 +164,7 @@ export default class Account {
     try {
       if (this.getData().syncing || this.syncing) return
 
-      const localResource = await this.getResource()
+      const localResource = new CachingTreeWrapper(await this.getResource())
       if (!(await this.server.isAvailable()) || !(await localResource.isAvailable())) return
 
       Logger.log('Starting sync process for account ' + this.getLabel())
@@ -283,9 +284,8 @@ export default class Account {
       await this.setData({ scheduled: false, syncing: 1 })
 
       // update cache
-      const cache = (await localResource.getBookmarksTree()).clone(false)
+      const cache = (await localResource.getCacheTree()).clone(false)
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
-      this.syncProcess.filterOutUnmappedItems(cache, await mappings.getSnapshot())
       await this.storage.setCache(cache)
 
       if (this.server.onSyncComplete) {

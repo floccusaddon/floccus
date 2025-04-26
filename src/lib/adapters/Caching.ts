@@ -16,7 +16,7 @@ import { BulkImportResource } from '../interfaces/Resource'
 
 export default class CachingAdapter implements Adapter, BulkImportResource<TItemLocation> {
   protected highestId: number
-  protected bookmarksCache: Folder<TItemLocation>
+  public bookmarksCache: Folder<TItemLocation>
   protected server: any
   protected location: TItemLocation = ItemLocation.SERVER
 
@@ -35,7 +35,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
   }
 
   async getBookmarksTree(): Promise<Folder<TItemLocation>> {
-    return this.bookmarksCache.clone()
+    return this.bookmarksCache.copy()
   }
 
   acceptsBookmark(bm:Bookmark<TItemLocation>):boolean {
@@ -53,6 +53,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
 
   async createBookmark(bm:Bookmark<TItemLocation>):Promise<string|number> {
     Logger.log('CREATE', bm)
+    bm = bm.copy()
     bm.id = ++this.highestId
     const foundFolder = this.bookmarksCache.findFolder(bm.parentId)
     if (!foundFolder) {
@@ -207,7 +208,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       throw new UnknownCreateTargetError()
     }
     // clone and adjust ids
-    const imported = folder.clone()
+    const imported = folder.copy()
     imported.id = id
     await imported.traverse(async(item, parentFolder) => {
       item.id = ++this.highestId

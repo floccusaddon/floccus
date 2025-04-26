@@ -3020,6 +3020,151 @@ describe('Floccus', function() {
               true
             )
           })
+          it('should not be confused by changes while syncing', async function() {
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
+
+            const localRoot = account.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot
+            })
+            const barFolder = await browser.bookmarks.create({
+              title: 'bar',
+              parentId: fooFolder.id
+            })
+            const bookmark = await browser.bookmarks.create({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: barFolder.id
+            })
+
+            await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
+
+            const bookmark2 = await browser.bookmarks.create({
+              title: 'url2',
+              url: 'http://ur2.l/',
+              parentId: barFolder.id
+            })
+
+            // Make changes while sync is happening
+            let bookmark3
+            const getBookmarksTree = account.localTree.getBookmarksTree
+            account.localTree.getBookmarksTree = async() => {
+              const result = await getBookmarksTree.call(account.localTree)
+              console.log('CHANGING TREE NOW WHILE SYNCING')
+              await browser.bookmarks.remove(bookmark2.id)
+              bookmark3 = await browser.bookmarks.create({
+                title: 'url3',
+                url: 'http://ur3.l/',
+                parentId: barFolder.id
+              })
+              account.localTree.getBookmarksTree = getBookmarksTree
+              return result
+            }
+            await account.sync()
+
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Folder({
+                        title: 'bar',
+                        children: [
+                          new Bookmark({
+                            title: bookmark.title,
+                            url: bookmark.url
+                          }),
+                          new Bookmark({
+                            title: bookmark2.title,
+                            url: bookmark2.url
+                          }),
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+            const localTree = await account.localTree.getBookmarksTree(true)
+            expectTreeEqual(
+              localTree,
+              new Folder({
+                title: localTree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Folder({
+                        title: 'bar',
+                        children: [
+                          new Bookmark({
+                            title: bookmark.title,
+                            url: bookmark.url
+                          }),
+                          new Bookmark({
+                            title: bookmark3.title,
+                            url: bookmark3.url
+                          }),
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+
+            // Sync again to check if bookmark 3 gets picked
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            const tree2 = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree2,
+              new Folder({
+                title: tree2.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Folder({
+                        title: 'bar',
+                        children: [
+                          new Bookmark({
+                            title: bookmark.title,
+                            url: bookmark.url
+                          }),
+                          new Bookmark({
+                            title: bookmark3.title,
+                            url: bookmark3.url
+                          }),
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+            const localTree2 = await account.localTree.getBookmarksTree(true)
+            localTree2.title = tree2.title
+            expectTreeEqual(
+              localTree2,
+              tree2,
+              false
+            )
+          })
           context('with slave mode', function() {
             it("shouldn't create local bookmarks on the server", async function() {
               await account.setData({ strategy: 'slave' })
@@ -5613,16 +5758,16 @@ describe('Floccus', function() {
               { id: '', title: 'root', location: 'Server' }
             )
             account1.server.onSyncStart = () => {
-              account1.server.bookmarksCache = fakeServerDb.clone(false)
+              account1.server.bookmarksCache = fakeServerDb.copy(false)
             }
             account1.server.onSyncComplete = () => {
-              fakeServerDb = account1.server.bookmarksCache.clone(false)
+              fakeServerDb = account1.server.bookmarksCache.copy(false)
             }
             account2.server.onSyncStart = () => {
-              account2.server.bookmarksCache = fakeServerDb.clone(false)
+              account2.server.bookmarksCache = fakeServerDb.copy(false)
             }
             account2.server.onSyncComplete = () => {
-              fakeServerDb = account2.server.bookmarksCache.clone(false)
+              fakeServerDb = account2.server.bookmarksCache.copy(false)
             }
             account2.server.__defineSetter__('highestId', (id) => {
               account1.server.highestId = id

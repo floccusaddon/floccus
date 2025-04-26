@@ -43,8 +43,8 @@ export default class BrowserAccount extends Account {
     console.log('initializing account ' + this.id)
     const accData = this.getData()
     if (!(await this.isInitialized()) && accData.localRoot !== 'tabs') {
-      const parentNode = await browser.bookmarks.getTree()
-      const bookmarksBar = parentNode[0].children[0]
+      const parentNode = await BrowserTree.getAbsoluteRootFolder()
+      const bookmarksBar = (await browser.bookmarks.getChildren(parentNode.id))[0]
       const node = await browser.bookmarks.create({
         title: 'Floccus (' + this.getLabel() + ')',
         parentId: bookmarksBar.id,
@@ -64,7 +64,7 @@ export default class BrowserAccount extends Account {
       if (localRoot === 'tabs') {
         return true
       }
-      await browser.bookmarks.getSubTree(localRoot)
+      await browser.bookmarks.get(localRoot)
       return true
     } catch (e) {
       console.log('Apparently not initialized, because:', e)
