@@ -352,7 +352,7 @@ export default class WebDavAdapter extends CachingAdapter {
     this.ended = true
     clearInterval(this.lockingInterval)
 
-    this.bookmarksCache = this.bookmarksCache.clone()
+    this.bookmarksCache = this.bookmarksCache.clone(false)
     const newTreeHash = await this.bookmarksCache.hash(true)
     if (newTreeHash !== this.initialTreeHash) {
       const fullUrl = this.getBookmarkURL()

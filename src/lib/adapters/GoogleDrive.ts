@@ -321,7 +321,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     Logger.log('onSyncComplete')
     clearInterval(this.lockingInterval)
 
-    this.bookmarksCache = this.bookmarksCache.clone()
+    this.bookmarksCache = this.bookmarksCache.clone(false)
     const newTreeHash = await this.bookmarksCache.hash(true)
     let xbel = createXBEL(this.bookmarksCache, this.highestId)
 

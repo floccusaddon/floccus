@@ -184,7 +184,7 @@ export default class GitAdapter extends CachingAdapter {
     Logger.log('onSyncComplete')
     clearInterval(this.lockingInterval)
 
-    this.bookmarksCache = this.bookmarksCache.clone()
+    this.bookmarksCache = this.bookmarksCache.clone(false)
     const newTreeHash = await this.bookmarksCache.hash(true)
     if (newTreeHash !== this.initialTreeHash) {
       const fileContents = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)

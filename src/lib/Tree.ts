@@ -88,7 +88,11 @@ export class Bookmark<L extends TItemLocation> {
   }
 
   clone(withHash?: boolean):Bookmark<L> {
-    return Object.create(this)
+    const bookmark = Object.create(this)
+    if (!withHash) {
+      bookmark.hashValue = {}
+    }
+    return bookmark
   }
 
   cloneWithLocation<L2 extends TItemLocation>(withHash:boolean, location: L2): Bookmark<L2> {
