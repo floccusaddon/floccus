@@ -3094,7 +3094,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder),
             )
             const localTree = await account.localTree.getBookmarksTree(true)
             expectTreeEqual(
@@ -3122,7 +3123,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
 
             // Sync again to check if bookmark 3 gets picked
