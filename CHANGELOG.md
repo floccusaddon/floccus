@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.5.3] - 2025-04-27
+
+### Fixed
+* perf(GoogleDrive): Speed up "no changes" code path
+* perf(Folder#clone): Make Folder#clone use prototype inheritance to save ALOT of memory
+* perf(BrowserAccount): Don't use browser.bookmarks.getTree() if avoidable
+* refactor(isUsingBrowserTabs): Expose Resource#isUsingBrowserTabs
+* fix(CachingTreeWrapper): Allow changes to the live tree without disturbing the cache
+* fix(App#openInNewTab): Use browser.tabs to open new tab instead of window.open (Didn't work in Edge for Android)
+* fix(Default#applyAdditionFailsafe): Only kick in if at least 20 bookmarks are being added
+* fix(WebDAV): Add Depth header to PROPFIND for getting filesize
+
 ## [5.5.2] - 2025-04-16
 
 ### Fixed

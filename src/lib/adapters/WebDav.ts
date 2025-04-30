@@ -352,7 +352,7 @@ export default class WebDavAdapter extends CachingAdapter {
     this.ended = true
     clearInterval(this.lockingInterval)
 
-    this.bookmarksCache = this.bookmarksCache.clone()
+    this.bookmarksCache = this.bookmarksCache.clone(false)
     const newTreeHash = await this.bookmarksCache.hash(true)
     if (newTreeHash !== this.initialTreeHash) {
       const fullUrl = this.getBookmarkURL()
@@ -465,7 +465,8 @@ export default class WebDavAdapter extends CachingAdapter {
       res = await fetch(url,{
         method: 'PROPFIND',
         headers: {
-          Authorization: 'Basic ' + authString
+          Authorization: 'Basic ' + authString,
+          Depth: '0',
         },
         cache: 'no-store',
         credentials: 'omit',
@@ -505,6 +506,7 @@ export default class WebDavAdapter extends CachingAdapter {
         method: 'PROPFIND',
         headers: {
           Authorization: 'Basic ' + authString,
+          Depth: '0',
           Pragma: 'no-cache',
           'Cache-Control': 'no-cache'
         },

@@ -297,7 +297,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
     tree.children = await this._getChildren(tree.id, -1)
     this.tree = tree
-    return tree.clone()
+    return tree.copy()
   }
 
   async getSparseBookmarksTree() :Promise<Folder<typeof ItemLocation.SERVER>> {
@@ -310,7 +310,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     this.list = null
     tree.loaded = false
     tree.hashValue = { true: await this._getFolderHash(tree.id) }
-    this.tree = tree.clone(true) // we clone (withHash), so we can mess with our own version
+    this.tree = tree.copy(true) // we clone (withHash), so we can mess with our own version
     return tree
   }
 
@@ -368,7 +368,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new Error('Could not find folder for loadFolderChildren')
     }
     if (folder.loaded) {
-      return folder.clone(true).children
+      return folder.copy(true).children
     }
     let children
     if (all) {
@@ -392,7 +392,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     folder.children = children
     folder.loaded = true
     this.tree.createIndex()
-    return folder.clone(true).children
+    return folder.copy(true).children
   }
 
   async createFolder(folder:Folder<typeof ItemLocation.SERVER>):Promise<string|number> {
@@ -489,7 +489,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       })
     }
     const imported = recurseChildren(json.data, parentId, folder.title, folder.parentId)
-    parentFolder.children = imported.clone(true).children
+    parentFolder.children = imported.copy(true).children
     this.tree.createIndex()
     return imported
   }
@@ -646,7 +646,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       const existingBookmark = await this.getExistingBookmark(bm.url)
       if (existingBookmark) {
         bm.id = existingBookmark.id + ';' + bm.parentId // We already use the new parentId here, to avoid moving it away from the old location
-        const updatedBookmark = bm.clone()
+        const updatedBookmark = bm.copy()
         updatedBookmark.title = existingBookmark.title
         await this.updateBookmark(updatedBookmark)
       } else {
@@ -676,7 +676,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         bm.id = json.item.id + ';' + bm.parentId
       }
       // add bookmark to cached list
-      const upstreamMark = bm.clone()
+      const upstreamMark = bm.copy()
       upstreamMark.id = bm.id.split(';')[0]
       this.list && this.list.push(upstreamMark)
       if (this.tree) {
