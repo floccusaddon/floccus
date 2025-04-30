@@ -116,6 +116,18 @@
   "Error039": {
     "message": "E039: Sunucudaki aşağıdaki yer işareti güncellenemedi: {0}"
   },
+  "Error040": {
+    "message": "E040: Google Drive'ınızda dosya adınız aranamadı"
+  },
+  "Error041": {
+    "message": "E041: Uzaktan yer imleri dosya boyutu sunucudan gerçekten indirilen içerikten farklı. Bu geçici bir ağ sorunu olabilir. Bu hata devam ederse lütfen sunucu yöneticisiyle iletişime geçin."
+  },
+  "Error042": {
+    "message": "E042: Uzaktan yer imleri dosya boyutu alınamadı. Yer imleri dosyasının tam olarak indirildiğini doğrulamak mümkün değil. Bu hata devam ederse lütfen sunucu yöneticisiyle iletişime geçin."
+  },
+  "Error043": {
+    "message": "E043: Arıza güvenliği: Geçerli eşitleme çalışması yer imi sayınızı {0}% oranında artıracaktır. Yürütmeyi reddediliyor. Yine de devam etmek istiyorsanız profil ayarlarında bu hata güvenliğini devre dışı bırakın."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -132,13 +144,13 @@
     "message": "Şifre"
   },
   "LabelBookmarksfile": {
-    "message": "Yer imi Lokasyonu"
+    "message": "Yer imleri dosyası"
   },
   "DescriptionBookmarksfile": {
     "message": "WebDAV URL'niz ile ilişkili yer imi dosyanızın konumu (konumdaki tüm klasörler zaten var olmalı). mesela kişisel_şeyler/yerimleri.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "Google Drive'ınızda yer alacak yer işaretleri dosyasının dosya adı (bu adın Drive'ınızda benzersiz olduğundan emin olun)"
+   "message": "Google Drive'ınızda bulunacak yer imleri dosyasının dosya adı. Tam dosya yolunu girmeyin, yalnızca dosya adını girin. Bu adın Drive'ınızda benzersiz olduğundan emin olun."
  },
   "DescriptionBookmarksfilegit": {
     "message": "Git deposu kökünüze göre yer işaretleri dosyasının yolu (yoldaki tüm klasörlerin zaten mevcut olması gerekir). örneğin dosyalarım/bookmarks.xbel"
@@ -502,16 +514,16 @@
     "message": "Arıza Güvencesi"
   },
   "DescriptionFailsafe": {
-    "message": "Bazen konfigürasyon ve yazılım hataları kasıtsız veri kaybına neden olabilir, bu durumda veri kurtarılamaz. Bunun önüne geçmek için floccus yer imlerinizin %50'sini tekte arıza güvencesini devre dışı bırakmadığınız sürece silmez."
+    "message": "Bazen yapılandırma hataları veya yazılım hataları, verilerin istenmeyen şekilde silinmesine ve daha sonra kaybolmasına veya verilerin istenmeyen şekilde çoğaltılmasına ve daha sonra çözülmesinin zor olmasına neden olabilir. Bunun olmasını önlemek için, floccus tek seferde yer imlerinizin %20'sinden fazlasını silmeyecek ve bu güvenlik önlemini burada devre dışı bırakmadığınız sürece tek seferde yer imlerinizin sayısına %20'den fazlasını eklemeyecektir."
   },
   "LabelFailsafeon": {
-    "message": "Etkinleştirildi. Bana sormadan yerel yer imlerimin %50'sinden fazlasını silme. (Önerilen)"
+    "message": "Etkinleştirildi. Önce sizden istemeden yerel yer imlerinizden %20'den fazlasını silmeyecek veya eklemeyecektir. (Önerilen)"
   },
   "LabelFailsafeoff": {
-    "message": "Devre dışı. Bana sormadan yerel yer imlerimin %50'sinden fazlasının silinmesine izin ver."
+    "message": "Devre dışı. Yerel yer imlerinizden %20'den fazlasının onayınız alınmadan kaldırılmasına veya eklenmesine izin verecektir."
   },
   "StatusFailsafeoff": {
-    "message": "Arıza güvenliği devre dışı bırakıldı. İstenmeyen veri kaybı riskiyle karşı karşıyasınız. Profil ayarlarında arıza güvenliğini etkinleştirmeniz önerilir."
+    "message": "Hata güvenliği devre dışı bırakıldı. İstenmeyen veri kaybı veya çoğaltma riski altındasınız. Profil ayarlarında hata güvenliğini etkinleştirmeniz önerilir."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
@@ -670,7 +682,7 @@
     "message": "Profil oluşturuldu"
   },
   "DescriptionAccountcreated": {
-    "message": "Profiliniz oluşturuldu. Artık bu sekmeyi kapatabilirsiniz."
+    "message": "Profiliniz oluşturuldu. Şimdi bu sekmeyi kapatabilirsiniz. Bir şey daha: Sync bir yedekleme değildir. Yer imlerinizin düzenli yedeklerine sahip olduğunuzdan emin olun."
   },
   "DescriptionNonhttps": {
     "message": "Güvenli olmayan bir protokol kullanan bir sunucuya girdiniz. Yalnızca HTTPS desteğine sahip sunucuların kullanılması önerilir."
@@ -715,7 +727,7 @@
     "message": "HTTPS üzerinden Git"
   },
   "DescriptionAdaptergit": {
-    "message": "Git seçeneği, yer işaretlerinizi sağlanan Git deposundaki bir dosyada saklayarak senkronize eder. Bu seçeneğe eşlik eden bir web kullanıcı arayüzü yoktur, ancak bunu Github, Gitlab, Gitea vb. gibi herhangi bir Git barındırma sunucusuyla kullanabilirsiniz. http, ftp, veri, dosya ve javascript yer imlerini senkronize edebilir. Bu seçeneği kullanırken uçtan uca şifrelemeden yararlanamazsınız."
+    "message": "Git seçeneği, yer imlerinizi sağlanan Git deposundaki bir dosyada depolayarak senkronize eder. Bu seçenek için eşlik eden bir web kullanıcı arayüzü yoktur, ancak Github, Gitlab, Gitea, vb. gibi herhangi bir Git barındırma sunucusuyla kullanabilirsiniz. http, ftp, veri, dosya ve javascript yer imlerini senkronize edebilir. Bu seçeneği kullanırken uçtan uca şifrelemeyi kullanamazsınız. Bu seçenek şu anda mobil uygulamada mevcut değildir."
   },
   "LabelGiturl": {
     "message": "HTTP kullanan repo URL'si"
@@ -815,5 +827,8 @@
   },
   "DescriptionAutosync": {
     "message": "Otomatik senkronizasyonun açılması, bir senkronizasyon çalıştırmalarını belirli bir aralıkta düzenli olarak ve ayrıca değişiklik yaptıktan birkaç saniye sonra isteğe bağlı olarak tetiklenmesini sağlar. Otomatik senkronizasyonu açmazsanız, senkronizasyon düğmesine basarak senkronizasyon çalıştırmalarını manuel olarak tetiklemeniz gerekecektir."
+  },
+  "LabelOpeninnewtab": {
+    "message": "Bu görünümü yeni bir sekmede aç"
   }
 }
