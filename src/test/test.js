@@ -3949,7 +3949,6 @@ describe('Floccus', function() {
             }
           })
           afterEach('clean up accounts', async function() {
-            await browser.bookmarks.removeTree(account1.getData().localRoot)
             if (ACCOUNT_DATA.type === 'git') {
               await account1.server.clearServer()
             } else if (ACCOUNT_DATA.type !== 'fake') {
@@ -5720,6 +5719,7 @@ describe('Floccus', function() {
         let account1, account2, RUN_INTERRUPTS = false
         let timeouts = []
         let i = 0
+        let timer = null
         const setInterrupt = () => {
           if (!timeouts.length) {
             timeouts = new Array(1000).fill(0).map(() =>
@@ -5727,14 +5727,19 @@ describe('Floccus', function() {
             )
           }
           const timeout = timeouts[(i++) % 1000]
-          setTimeout(() => {
+          timer = setTimeout(() => {
             if (RUN_INTERRUPTS) {
               console.log('INTERRUPT! (after ' + timeout + ')')
               account1.cancelSync()
               account2.cancelSync()
-              setInterrupt()
             }
+            setInterrupt()
           }, timeout)
+        }
+        const stopInterrupts = () => {
+          clearTimeout(timer)
+          timeouts = []
+          i = 0
         }
 
         beforeEach('set up accounts', async function() {
@@ -5743,6 +5748,7 @@ describe('Floccus', function() {
 
           // reset random seed
           random.use(seedrandom(SEED))
+          stopInterrupts()
 
           account1 = await Account.create({...ACCOUNT_DATA, failsafe: false})
           await account1.init()
@@ -5795,7 +5801,7 @@ describe('Floccus', function() {
         })
         afterEach('clean up accounts', async function() {
           RUN_INTERRUPTS = false
-          await browser.bookmarks.removeTree(account1.getData().localRoot)
+          stopInterrupts()
           if (ACCOUNT_DATA.type === 'git') {
             await account1.server.clearServer()
           } else if (ACCOUNT_DATA.type !== 'fake') {
@@ -5824,6 +5830,7 @@ describe('Floccus', function() {
               throw new Error('Google Drive sync left more than one file behind')
             }
           }
+          await browser.bookmarks.removeTree(account1.getData().localRoot)
           await account1.delete()
           await browser.bookmarks.removeTree(account2.getData().localRoot)
           await account2.delete()
@@ -6690,7 +6697,7 @@ describe('Floccus', function() {
           }
         })
         let interruptBenchmark
-        it.skip('should handle fuzzed changes with deletions from two clients with interrupts' + (ACCOUNT_DATA.type === 'fake' ? ' (with caching)' : ''), interruptBenchmark = async function() {
+        it('should handle fuzzed changes with deletions from two clients with interrupts' + (ACCOUNT_DATA.type === 'fake' ? ' (with caching)' : ''), interruptBenchmark = async function() {
           const localRoot = account1.getData().localRoot
           let bookmarks1 = []
           let folders1 = []
@@ -6927,16 +6934,16 @@ describe('Floccus', function() {
         })
 
         if (ACCOUNT_DATA.type === 'fake') {
-          it.skip('should handle fuzzed changes with deletions from two clients with interrupts (no caching adapter)', async function() {
+          it('should handle fuzzed changes with deletions from two clients with interrupts (no caching adapter)', async function() {
             // Wire both accounts to the same fake db
             // We set the cache properties to the same object, because we want to simulate nextcloud-bookmarks
             account1.server.bookmarksCache = account2.server.bookmarksCache = new Folder(
               { id: '', title: 'root', location: 'Server' }
             )
-            delete account1.server.onSyncStart
-            delete account1.server.onSyncComplete
-            delete account2.server.onSyncStart
-            delete account2.server.onSyncComplete
+            account1.server.onSyncStart = null
+            account1.server.onSyncComplete = null
+            account2.server.onSyncStart = null
+            account2.server.onSyncComplete = null
             await interruptBenchmark()
           })
         }
