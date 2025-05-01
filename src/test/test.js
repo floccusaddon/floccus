@@ -6773,7 +6773,6 @@ describe('Floccus', function() {
           tree2AfterFirstSync = null
           console.log('Initial round ok')
 
-          RUN_INTERRUPTS = true
           setInterrupt()
 
           for (let j = 0; j < 4; j++) {
@@ -6815,10 +6814,8 @@ describe('Floccus', function() {
                 .filter(item => item.id !== tree2AfterFirstSync.id)
             }
 
-            RUN_INTERRUPTS = false
             await randomlyManipulateTreeWithDeletions(account1, folders1, bookmarks1, RANDOM_MANIPULATION_ITERATIONS)
             await randomlyManipulateTreeWithDeletions(account2, folders2, bookmarks2, RANDOM_MANIPULATION_ITERATIONS)
-            RUN_INTERRUPTS = true
 
             console.log(' acc1 &acc2: Moved items')
 
@@ -6851,10 +6848,14 @@ describe('Floccus', function() {
             serverTreeAfterSync = null
             console.log('first half ok')
 
+            RUN_INTERRUPTS = true
+
             await syncAccountWithInterrupts(account2)
 
             // Sync twice, because some removal-move mixes are hard to sort out consistently
             await syncAccountWithInterrupts(account2)
+
+            RUN_INTERRUPTS = false
 
             console.log('second round: account2 completed')
 
@@ -6876,7 +6877,9 @@ describe('Floccus', function() {
             console.log('second half ok')
 
             console.log('final sync')
+            RUN_INTERRUPTS = true
             await syncAccountWithInterrupts(account1)
+            RUN_INTERRUPTS = false
             console.log('final sync completed')
 
             let serverTreeAfterFinalSync = await getAllBookmarks(account1)
@@ -6902,7 +6905,9 @@ describe('Floccus', function() {
             tree1AfterFinalSync = null
 
             await account1.init()
+            RUN_INTERRUPTS = true
             await syncAccountWithInterrupts(account1)
+            RUN_INTERRUPTS = false
             console.log('final sync after init completed')
 
             let serverTreeAfterInit = await getAllBookmarks(account1)
