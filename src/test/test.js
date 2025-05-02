@@ -6732,9 +6732,11 @@ describe('Floccus', function() {
           await createTree(localRoot, 0, 100)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
-          await syncAccountWithInterrupts(account1)
+          await account1.sync()
+          expect(account1.getData().error).to.not.be.ok
           console.log('Initial round account1 completed')
-          await syncAccountWithInterrupts(account2)
+          await account2.sync()
+          expect(account2.getData().error).to.not.be.ok
           console.log('Initial round account2 completed')
 
           let serverTreeAfterFirstSync = await getAllBookmarks(account1)
@@ -6822,7 +6824,9 @@ describe('Floccus', function() {
             let tree1BeforeSync = await account1.localTree.getBookmarksTree(
               true
             )
-            await syncAccountWithInterrupts(account1)
+
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
             console.log('second round: account1 completed')
 
             let serverTreeAfterSync = await getAllBookmarks(account1)
@@ -6851,15 +6855,19 @@ describe('Floccus', function() {
             RUN_INTERRUPTS = true
 
             await syncAccountWithInterrupts(account2)
-
-            // Sync twice, because some removal-move mixes are hard to sort out consistently
-            await syncAccountWithInterrupts(account2)
+            account2 = await BrowserAccount.get(account2.id) // Reload account, because the adapter was interrupted
+            expect(account2.getData().error).to.not.be.ok
 
             RUN_INTERRUPTS = false
 
+            // Sync twice, because some removal-move mixes are hard to sort out consistently
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+
+
             console.log('second round: account2 completed')
 
-            let serverTreeAfterSecondSync = await getAllBookmarks(account1)
+            let serverTreeAfterSecondSync = await getAllBookmarks(account2)
 
             let tree2AfterSecondSync = await account2.localTree.getBookmarksTree(
               true
@@ -6877,9 +6885,8 @@ describe('Floccus', function() {
             console.log('second half ok')
 
             console.log('final sync')
-            RUN_INTERRUPTS = true
-            await syncAccountWithInterrupts(account1)
-            RUN_INTERRUPTS = false
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
             console.log('final sync completed')
 
             let serverTreeAfterFinalSync = await getAllBookmarks(account1)
@@ -6905,9 +6912,8 @@ describe('Floccus', function() {
             tree1AfterFinalSync = null
 
             await account1.init()
-            RUN_INTERRUPTS = true
-            await syncAccountWithInterrupts(account1)
-            RUN_INTERRUPTS = false
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
             console.log('final sync after init completed')
 
             let serverTreeAfterInit = await getAllBookmarks(account1)
@@ -7623,14 +7629,17 @@ async function randomlyManipulateTreeWithDeletions(account, folders, bookmarks, 
 }
 
 async function syncAccountWithInterrupts(account) {
-  await account.sync()
   try {
-    expect(account.getData().error).to.not.be.ok
+    await account.sync()
   } catch (e) {
+    console.log(e)
+  }
+  if (typeof account.getData().error === 'string') {
+    console.log(account.getData().error)
     if (!account.getData().error.includes('E026') && !account.getData().error.includes('E027')) {
-      throw e
+      expect(account.getData().error).to.not.be.ok
     } else {
-      console.log(account.getData().error)
+      account = await BrowserAccount.get(account.id)
       account.lockTimeout = 0
       await syncAccountWithInterrupts(account)
     }
