@@ -302,16 +302,21 @@ export default class Account {
         syncing: false,
         scheduled: false,
       })
-      if (matchAllErrors(e, e => e.code !== 27 && (!isTest || e.code !== 26))) {
-        if (this.server.onSyncFail) {
+
+      if (this.server.onSyncFail) {
+        try {
           await this.server.onSyncFail()
+        } catch (e) {
+          console.log(e)
+          Logger.log(e)
+          Logger.log('Error during onSyncFail hooK: ' + e.message)
         }
       }
       this.syncing = false
 
       // reset cache and mappings after error
-      // (but not after interruption or NetworkError)
-      if (matchAllErrors(e, e => e.code !== 27 && e.code !== 17 && (!isTest || e.code !== 26))) {
+      // (but not after NetworkError)
+      if (matchAllErrors(e, (e) => e.code !== 17)) {
         await this.init()
       }
     }
@@ -346,5 +351,5 @@ export default class Account {
 }
 
 function matchAllErrors(e, fn:(e)=>boolean) {
-  return fn(e) && e.list && e.list.every(e => matchAllErrors(e, fn))
+  return fn(e) && (!e.list || e.list.every(e => matchAllErrors(e, fn)))
 }
