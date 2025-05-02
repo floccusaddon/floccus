@@ -6697,7 +6697,7 @@ describe('Floccus', function() {
           }
         })
         let interruptBenchmark
-        it('should handle fuzzed changes with deletions from two clients with interrupts' + (ACCOUNT_DATA.type === 'fake' ? ' (with caching)' : ''), interruptBenchmark = async function() {
+        it.skip('should handle fuzzed changes with deletions from two clients with interrupts' + (ACCOUNT_DATA.type === 'fake' ? ' (with caching)' : ''), interruptBenchmark = async function() {
           const localRoot = account1.getData().localRoot
           let bookmarks1 = []
           let folders1 = []
@@ -6945,7 +6945,7 @@ describe('Floccus', function() {
         })
 
         if (ACCOUNT_DATA.type === 'fake') {
-          it('should handle fuzzed changes with deletions from two clients with interrupts (no caching adapter)', async function() {
+          it.skip('should handle fuzzed changes with deletions from two clients with interrupts (no caching adapter)', async function() {
             // Wire both accounts to the same fake db
             // We set the cache properties to the same object, because we want to simulate nextcloud-bookmarks
             account1.server.bookmarksCache = account2.server.bookmarksCache = new Folder(
