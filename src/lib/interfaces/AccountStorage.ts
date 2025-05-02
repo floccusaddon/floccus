@@ -1,6 +1,5 @@
 import Mappings from '../Mappings'
 import { Folder, ItemLocation } from '../Tree'
-import { ISerializedSyncProcess } from '../strategies/Default'
 
 export type TAccountStrategy = 'default' | 'overwrite' | 'slave'
 

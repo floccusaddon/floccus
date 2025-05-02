@@ -160,12 +160,4 @@ export default class NativeAccountStorage {
   async deleteMappings() {
     await NativeAccountStorage.deleteEntry(`bookmarks[${this.accountId}].mappings`)
   }
-
-  async getCurrentContinuation() {
-    return NativeAccountStorage.getEntry(`bookmarks[${this.accountId}].continuation`)
-  }
-
-  async setCurrentContinuation(continuation) {
-    await NativeAccountStorage.changeEntry(`bookmarks[${this.accountId}].continuation`, (_) => continuation, null)
-  }
 }
