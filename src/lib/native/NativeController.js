@@ -5,6 +5,7 @@ import NativeAccountStorage from './NativeAccountStorage'
 import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
 import { freeStorageIfNecessary } from '../IndexedDB'
+import Logger from '../Logger'
 
 const INACTIVITY_TIMEOUT = 1000 * 7
 const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
@@ -249,10 +250,12 @@ export default class NativeController {
     await Promise.all(
       accounts.map(async acc => {
         if (acc.getData().syncing) {
+          Logger.log('Discovered account stuck syncing, resetting: ', acc.getLabel())
           await acc.setData({
             syncing: false,
-            scheduled: false,
+            scheduled: acc.getData().enabled,
           })
+          await acc.init()
         }
       })
     )

@@ -241,6 +241,8 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       body = params.toString()
     }
 
+    if (this.canceled) throw new CancelledSyncError()
+
     Logger.log(`QUEUING ${verb} ${url}`)
 
     if (Capacitor.getPlatform() !== 'web') {

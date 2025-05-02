@@ -31,6 +31,4 @@ export default interface IAccountStorage {
   getMappings(): Promise<Mappings>;
   setMappings(data): Promise<void>;
   deleteMappings(): Promise<void>;
-  getCurrentContinuation(): Promise<ISerializedSyncProcess|null>;
-  setCurrentContinuation(continuation: ISerializedSyncProcess|null): Promise<void>;
 }

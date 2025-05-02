@@ -949,6 +949,10 @@ export default class SyncProcess {
             done()
             return
           } catch (e) {
+            if (this.canceled) {
+              Logger.log('Bulk import failed, but sync is canceled so we just do nothing')
+              throw e
+            }
             Logger.log('Bulk import failed, continuing with normal creation', e)
           }
         } else {
@@ -1410,6 +1414,12 @@ export default class SyncProcess {
         }
       }
     })
+
+    // Load the complete tree because we don't know what was loaded last time
+    // If we don't do this here, adapters that don't have onSyncStart will never see their own tree
+    await server.getBookmarksTree(true)
+    // Load the local tree to populate CachingTreeWrapper
+    await localTree.getBookmarksTree(true)
 
     return strategy
   }

@@ -214,72 +214,42 @@ export default class Account {
       mappings = await this.storage.getMappings()
       const cacheTree = await this.storage.getCache()
 
-      let continuation = await this.storage.getCurrentContinuation()
-
-      if (typeof continuation !== 'undefined' && continuation !== null) {
-        try {
-          this.syncProcess = await DefaultSyncProcess.fromJSON(
-            mappings,
-            localResource,
-            this.server,
-            async(progress, actionDone) => {
-              await this.progressCallback(progress, actionDone)
-            },
-            continuation
-          )
-        } catch (e) {
-          continuation = null
-          Logger.log('Failed to load pending continuation. Continuing with normal sync')
-        }
-      }
-
-      if (typeof continuation === 'undefined' || continuation === null || (typeof strategy !== 'undefined' && continuation.strategy !== strategy) || Date.now() - continuation.createdAt > 1000 * 60 * 30) {
-        // If there is no pending continuation, we just sync normally
-        // Same if the pending continuation was overridden by a different strategy
-        // same if the continuation is older than half an hour. We don't want old zombie continuations
-
-        let strategyClass: typeof DefaultSyncProcess|typeof MergeSyncProcess|typeof UnidirectionalSyncProcess, direction: TItemLocation
-        switch (strategy || this.getData().strategy) {
-          case 'slave':
-            Logger.log('Using "merge slave" strategy (no cache available)')
-            strategyClass = UnidirectionalSyncProcess
-            direction = ItemLocation.LOCAL
-            break
-          case 'overwrite':
-            Logger.log('Using "merge overwrite" strategy (no cache available)')
-            strategyClass = UnidirectionalSyncProcess
-            direction = ItemLocation.SERVER
-            break
-          default:
-            if (!cacheTree.children.length) {
-              Logger.log('Using "merge default" strategy (no cache available)')
-              strategyClass = MergeSyncProcess
-            } else {
-              Logger.log('Using "default" strategy')
-              strategyClass = DefaultSyncProcess
-            }
-            break
-        }
-
-        this.syncProcess = new strategyClass(
-          mappings,
-          localResource,
-          this.server,
-          async(progress, actionsDone?) => {
-            await this.progressCallback(progress, actionsDone)
+      let strategyClass: typeof DefaultSyncProcess|typeof MergeSyncProcess|typeof UnidirectionalSyncProcess, direction: TItemLocation
+      switch (strategy || this.getData().strategy) {
+        case 'slave':
+          Logger.log('Using "merge slave" strategy (no cache available)')
+          strategyClass = UnidirectionalSyncProcess
+          direction = ItemLocation.LOCAL
+          break
+        case 'overwrite':
+          Logger.log('Using "merge overwrite" strategy (no cache available)')
+          strategyClass = UnidirectionalSyncProcess
+          direction = ItemLocation.SERVER
+          break
+        default:
+          if (!cacheTree.children.length) {
+            Logger.log('Using "merge default" strategy (no cache available)')
+            strategyClass = MergeSyncProcess
+          } else {
+            Logger.log('Using "default" strategy')
+            strategyClass = DefaultSyncProcess
           }
-        )
-        this.syncProcess.setCacheTree(cacheTree)
-        if (direction) {
-          this.syncProcess.setDirection(direction)
-        }
-        await this.syncProcess.sync()
-      } else {
-        // if there is a pending continuation, we resume it
-
-        Logger.log('Found existing persisted pending continuation. Resuming last sync')
-        await this.syncProcess.sync()
+          break
       }
+
+      this.syncProcess = new strategyClass(
+        mappings,
+        localResource,
+        this.server,
+        async(progress, actionsDone?) => {
+          await this.progressCallback(progress, actionsDone)
+        }
+      )
+      this.syncProcess.setCacheTree(cacheTree)
+      if (direction) {
+        this.syncProcess.setDirection(direction)
+      }
+      await this.syncProcess.sync()
 
       await this.setData({ scheduled: false, syncing: 1 })
 
@@ -298,7 +268,6 @@ export default class Account {
 
       this.syncing = false
 
-      await this.storage.setCurrentContinuation(null)
       await this.setData({
         error: null,
         errorCount: 0,
@@ -334,12 +303,11 @@ export default class Account {
         scheduled: false,
       })
       if (matchAllErrors(e, e => e.code !== 27 && (!isTest || e.code !== 26))) {
-        await this.storage.setCurrentContinuation(null)
+        if (this.server.onSyncFail) {
+          await this.server.onSyncFail()
+        }
       }
       this.syncing = false
-      if (this.server.onSyncFail) {
-        await this.server.onSyncFail()
-      }
 
       // reset cache and mappings after error
       // (but not after interruption or NetworkError)
@@ -354,24 +322,17 @@ export default class Account {
   }
 
   async cancelSync():Promise<void> {
-    if (!this.syncing) return
-    this.server.cancel()
+    if (this.syncing) {
+      this.server.cancel()
+    }
     if (this.syncProcess) {
       await this.syncProcess.cancel()
     }
   }
 
   private async progressCallback(progress: number, actionsDone: number) {
-    if (!this.syncing) {
-      return
-    }
-    await this.setData({ syncing: progress })
-    if (!this.syncProcess) {
-      return
-    }
-    if (actionsDone && (!(this.server instanceof CachingAdapter) || !('onSyncComplete' in this.server))) {
-      await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
-      await this.syncProcess.getMappingsInstance().persist()
+    if (this.syncing) {
+      await this.setData({ syncing: progress })
     }
   }
 

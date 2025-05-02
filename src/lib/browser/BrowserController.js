@@ -10,6 +10,7 @@ import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
 import * as Sentry from '@sentry/browser'
 import { freeStorageIfNecessary } from '../IndexedDB'
+import Logger from '../Logger'
 
 const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
 const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
@@ -457,10 +458,12 @@ export default class BrowserController {
     await Promise.all(
       accounts.map(async acc => {
         if (acc.getData().syncing) {
+          Logger.log('Discovered account stuck syncing, resetting: ', acc.getLabel())
           await acc.setData({
             syncing: false,
             scheduled: acc.getData().enabled,
           })
+          await acc.init()
         }
         if (acc.getData().localRoot === 'tabs') {
           await acc.init()
@@ -482,6 +485,19 @@ export default class BrowserController {
         debug: true,
       })
     })
+    const accounts = await Account.getAllAccounts()
+    await Promise.all(
+      accounts.map(async acc => {
+        if (acc.getData().syncing) {
+          Logger.log('Discovered account stuck syncing, resetting: ', acc.getLabel())
+          await acc.setData({
+            syncing: false,
+            scheduled: acc.getData().enabled,
+          })
+          await acc.init()
+        }
+      })
+    )
   }
 
   async onVisitUrl(historyItem) {
