@@ -12,6 +12,7 @@ import Controller from '../lib/Controller'
 import FakeAdapter from '../lib/adapters/Fake'
 import BrowserTree from '../lib/browser/BrowserTree'
 import { AdditionFailsafeError, DeletionFailsafeError } from '../errors/Error'
+import BrowserAccount from '../lib/browser/BrowserAccount'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -6863,7 +6864,6 @@ describe('Floccus', function() {
             // Sync twice, because some removal-move mixes are hard to sort out consistently
             await account2.sync()
             expect(account2.getData().error).to.not.be.ok
-
 
             console.log('second round: account2 completed')
 
