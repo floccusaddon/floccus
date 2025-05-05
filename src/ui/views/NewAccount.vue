@@ -141,6 +141,35 @@
               </div>
             </template>
 
+            <template v-else-if="adapter === 'linkding'">
+              <div class="headline">
+                {{ t('LabelServersetup') }}
+              </div>
+              <v-text-field
+                v-model="server"
+                :rules="[validateUrl]"
+                :label="t('LabelLinkdingURL')"
+                :loading="isServerTestRunning"
+                :error-messages="serverTestError || serverisNotHttps" />
+              <v-text-field
+                v-model="apiToken"
+                :label="t('LabelLinkdingAPIToken')"
+                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                :type="showPassword ? 'text' : 'password'"
+                @click:append="showPassword = !showPassword" />
+
+              <div class="d-flex flex-row justify-space-between">
+                <v-btn @click="currentStep--">
+                  {{ t('LabelBack') }}
+                </v-btn>
+                <v-btn
+                  class="primary"
+                  @click="testLinkdingServer">
+                  {{ t('LabelContinue') }}
+                </v-btn>
+              </div>
+            </template>
+
             <template v-else-if="adapter === 'linkwarden'">
               <div class="headline">
                 {{ t('LabelServersetup') }}
@@ -393,6 +422,15 @@
               :persistent-hint="true"
               dense
               class="mt-0 pt-0 mb-4" />
+            <v-switch
+              v-if="adapter === 'linkding'"
+              v-model="syncTags"
+              :aria-label="t('LabelSyncTags')"
+              :label="t('LabelSyncTags')"
+              :hint="t('DescriptionSyncTags')"
+              :persistent-hint="true"
+              dense
+              class="mt-0 pt-0 mb-4" />
 
             <div class="d-flex flex-row justify-space-between">
               <v-btn @click="currentStep--">
@@ -442,6 +480,7 @@ export default {
       username: '',
       password: '',
       passphrase: '',
+      apiToken: '',
       refreshToken: '',
       bookmark_file: 'bookmarks.xbel',
       bookmark_file_type: 'xbel',
@@ -457,11 +496,17 @@ export default {
       clickCountEnabled: false,
       label: '',
       adapter: 'nextcloud-bookmarks',
+      syncTags: true,
       adapters: [
         {
           type: 'nextcloud-bookmarks',
           label: this.t('LabelAdapternextcloudfolders'),
           description: this.t('DescriptionAdapternextcloudfolders')
+        },
+        {
+          type: 'linkding',
+          label: this.t('LabelAdapterLinkding'),
+          description: this.t('DescriptionAdapterLinkding')
         },
         {
           type: 'linkwarden',
@@ -515,6 +560,7 @@ export default {
         label: this.label,
         ...(this.adapter === 'nextcloud-bookmarks' && {serverRoot: this.serverRoot, clickCountEnabled: this.clickCountEnabled}),
         ...(this.adapter === 'linkwarden' && {serverFolder: this.serverFolder}),
+        ...(this.adapter === 'linkding' && {apiToken: this.apiToken, syncTags: this.syncTags}),
         ...(this.adapter === 'git' && {branch: this.branch}),
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'git') && {bookmark_file: this.bookmark_file}),
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'git') && {bookmark_file_type: this.bookmark_file_type}),
@@ -540,6 +586,18 @@ export default {
       try {
         await this.$store.dispatch(actions.TEST_NEXTCLOUD_SERVER, this.server)
         this.serverTestSuccessful = true
+      } catch (e) {
+        this.serverTestError = e.message
+      }
+      this.isServerTestRunning = false
+    },
+    async testLinkdingServer() {
+      this.isServerTestRunning = true
+      this.serverTestError = ''
+      try {
+        await this.$store.dispatch(actions.TEST_LINKDING_SERVER, {rootUrl: this.server, apiToken: this.apiToken})
+        this.serverTestSuccessful = true
+        this.currentStep++
       } catch (e) {
         this.serverTestError = e.message
       }

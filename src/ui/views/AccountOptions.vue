@@ -143,6 +143,11 @@
                 v-bind.sync="data"
                 @reset="onReset"
                 @delete="onDelete" />
+              <OptionsLinkding
+                v-if="data.type === 'linkding'"
+                v-bind.sync="data"
+                @reset="onReset"
+                @delete="onDelete" />
               <OptionsWebdav
                 v-if="data.type === 'webdav'"
                 v-bind.sync="data"
@@ -203,10 +208,11 @@ import OptionsWebdav from '../components/OptionsWebdav'
 import OptionsFake from '../components/OptionsFake'
 import OptionsGoogleDrive from '../components/OptionsGoogleDrive'
 import OptionsGit from '../components/OptionsGit.vue'
+import OptionsLinkding from '../components/OptionsLinkding'
 
 export default {
   name: 'AccountOptions',
-  components: { OptionsGit, OptionsGoogleDrive, OptionsFake, OptionsWebdav, OptionsNextcloudFolders, OptionsLinkwarden },
+  components: { OptionsGit, OptionsGoogleDrive, OptionsFake, OptionsWebdav, OptionsNextcloudFolders, OptionsLinkwarden, OptionsLinkding },
   data() {
     return {
       folderName: '',

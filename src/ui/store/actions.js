@@ -150,6 +150,29 @@ export const actionsDefinition = {
     }
     return true
   },
+  async [actions.TEST_LINKDING_SERVER]({commit, dispatch, state}, {rootUrl, apiToken}) {
+    await dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
+    let res = await fetch(`${rootUrl}/api/bookmarks/?limit=1`, {
+      method: 'GET',
+      credentials: 'omit',
+      headers: {
+        'User-Agent': 'Floccus bookmarks sync',
+        'Authorization': `Token ${apiToken}`
+      }
+    })
+    if (res.status === 401) {
+      throw new Error(browser.i18n.getMessage('LabelAuthenticationError') || 'Authentication failed. Please check your API token.')
+    }
+    if (res.status !== 200) {
+      throw new Error(`Could not connect to your Linkding server. The server responded with HTTP status ${res.status}.`)
+    }
+    try {
+      await res.json()
+    } catch (e) {
+      throw new Error('Could not parse server response. Is Linkding installed on your server?')
+    }
+    return true
+  },
   async [actions.START_LOGIN_FLOW]({commit, dispatch, state}, rootUrl) {
     commit(mutations.SET_LOGIN_FLOW_STATE, true)
     let res = await fetch(`${rootUrl}/index.php/login/v2`, {method: 'POST', headers: {'User-Agent': 'Floccus bookmarks sync'}})

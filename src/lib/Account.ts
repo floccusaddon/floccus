@@ -26,6 +26,8 @@ AdapterFactory.register('webdav', async() => (await import('./adapters/WebDav'))
 AdapterFactory.register('git', async() => (await import('./adapters/Git')).default)
 AdapterFactory.register('google-drive', async() => (await import('./adapters/GoogleDrive')).default)
 AdapterFactory.register('fake', async() => (await import('./adapters/Fake')).default)
+AdapterFactory.register('linkding', async() => (await import('./adapters/Linkding')).default)
+
 
 // 2h
 const LOCK_TIMEOUT = 1000 * 60 * 60 * 2

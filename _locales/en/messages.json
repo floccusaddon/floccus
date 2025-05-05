@@ -828,7 +828,25 @@
   "DescriptionAutosync": {
     "message": "Turning on automatic sync will make sure a sync run is triggered regularly within a certain configurable interval as well as on demand a few seconds after you make changes. If you don't turn on automatic sync you will need to trigger sync runs manually by pressing the sync button."
   },
+  "LabelAdapterLinkding": {
+    "message": "Linkding"
+  },
+  "DescriptionAdapterLinkding": {
+    "message": "Sync your bookmarks with the open-source Linkding app, either hosted on your own server."
+  },
   "LabelOpeninnewtab": {
     "message": "Open this view in a new tab"
+  },
+  "LabelLinkdingURL": {
+    "message": "Server URL"
+  },
+  "LabelLinkdingAPIToken": {
+    "message": "API Token"
+  },
+  "LabelSyncTags": {
+    "message": "Sync tags"
+  },
+  "DescriptionSyncTags": {
+    "message": "If your browser supports tags, sync them with Linkding."
   }
 }

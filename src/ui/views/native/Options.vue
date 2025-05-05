@@ -32,6 +32,11 @@
           v-bind.sync="data"
           @reset="onReset"
           @delete="onDelete" />
+        <OptionsLinkding
+          v-if="data.type === 'linkding'"
+          v-bind.sync="data"
+          @reset="onReset"
+          @delete="onDelete" />
         <OptionsWebdav
           v-if="data.type === 'webdav'"
           v-bind.sync="data"
@@ -66,10 +71,11 @@ import { routes } from '../../NativeRouter'
 import OptionsGoogleDrive from '../../components/OptionsGoogleDrive'
 import OptionsGit from '../../components/OptionsGit.vue'
 import OptionsLinkwarden from '../../components/OptionsLinkwarden.vue'
+import OptionsLinkding from '../../components/OptionsLinkding'
 
 export default {
   name: 'Options',
-  components: { OptionsLinkwarden, OptionsGit, OptionsGoogleDrive, OptionsNextcloudBookmarks, OptionsWebdav, OptionsFake },
+  components: { OptionsLinkwarden, OptionsGit, OptionsGoogleDrive, OptionsNextcloudBookmarks, OptionsWebdav, OptionsFake, OptionsLinkding },
   data() {
     return {
       drawer: false,
