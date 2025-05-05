@@ -162,7 +162,7 @@
     "message": "同步时，您在此浏览器中的书签将作为链接存储在服务器上的此路径下。请注意，此路径表示Nextcloud书签应用中的一个文件夹，而不是Nextcloud文件中的文件夹。留空此处可以将所有链接放在服务器上的最顶层文件夹中。"
   },
   "DescriptionServerfolderlinkwarden": {
-    "message": "同步时，你在此浏览器中的书签将被存储为此书签集下的链接。"
+    "message": "同步时，此浏览器中的书签将被存储为该书签集下的链接，且只有该书签集下的链接会和此浏览器同步"
   },
   "LabelLocaltarget": {
     "message": "本地目标"
