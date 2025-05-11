@@ -164,6 +164,9 @@
   "DescriptionServerfolderlinkwarden": {
     "message": "When syncing, your bookmarks in this browser will be stored as links under this collection and only links under this collection will be synced with this browser."
   },
+  "DescriptionServerfolderkarakeep": {
+    "message": "When syncing, your bookmarks in this browser will be stored as links under this collection and only links under this collection will be synced with this browser."
+  },
   "LabelLocaltarget": {
     "message": "Local target"
   },
@@ -800,6 +803,21 @@
   },
   "DescriptionReportproblem": {
     "message": "If you would like to directly contact the developers with a concrete issue, you can do so here:"
+  },
+  "LabelAdapterKarakeep":  {
+    "message": "Karakeep"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "Sync your bookmarks with the open-source self-hosted Karakeep app. This option cannot make use of end-to-end encryption."
+  },
+  "LabelApiKey":  {
+    "message": "API key"
+  },
+  "LabelKarakeepurl":  {
+    "message": "The URL of your Karakeep server"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "Failed to connect to your Karakeep server"
   },
   "LabelAdapterlinkwarden":  {
     "message": "Linkwarden"

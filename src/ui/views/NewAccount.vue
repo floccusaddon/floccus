@@ -173,6 +173,35 @@
               </div>
             </template>
 
+            <template v-else-if="adapter === 'karakeep'">
+              <div class="headline">
+                {{ t('LabelServersetup') }}
+              </div>
+              <v-text-field
+                v-model="server"
+                :rules="[validateUrl]"
+                :label="t('LabelKarakeepurl')"
+                :loading="isServerTestRunning"
+                :error-messages="serverTestError || serverisNotHttps" />
+              <v-text-field
+                v-model="password"
+                :label="t('LabelApiKey')"
+                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                :type="showPassword ? 'text' : 'password'"
+                @click:append="showPassword = !showPassword" />
+
+              <div class="d-flex flex-row justify-space-between">
+                <v-btn @click="currentStep--">
+                  {{ t('LabelBack') }}
+                </v-btn>
+                <v-btn
+                  class="primary"
+                  @click="testKarakeepServer">
+                  {{ t('LabelContinue') }}
+                </v-btn>
+              </div>
+            </template>
+
             <template v-else-if="adapter === 'webdav'">
               <div class="headline">
                 {{ t('LabelServersetup') }}
@@ -285,6 +314,18 @@
               </div>
               <div class="caption">
                 {{ t('DescriptionServerfolderlinkwarden') }}
+              </div>
+              <v-text-field
+                v-model="serverFolder"
+                :label="t('LabelServerfolder')" />
+            </template>
+            
+            <template v-if="adapter === 'karakeep'">
+              <div class="text-h6">
+                {{ t('LabelServerfolder') }}
+              </div>
+              <div class="caption">
+                {{ t('DescriptionServerfolderkarakeep') }}
               </div>
               <v-text-field
                 v-model="serverFolder"
@@ -469,6 +510,11 @@ export default {
           description: this.t('DescriptionAdapterlinkwarden')
         },
         {
+          type: 'karakeep',
+          label: this.t('LabelAdapterKarakeep'),
+          description: this.t('DescriptionAdapterKarakeep')
+        },
+        {
           type: 'webdav',
           label: this.t('LabelAdapterwebdav'),
           description: this.t('DescriptionAdapterwebdav')
@@ -515,6 +561,7 @@ export default {
         label: this.label,
         ...(this.adapter === 'nextcloud-bookmarks' && {serverRoot: this.serverRoot, clickCountEnabled: this.clickCountEnabled}),
         ...(this.adapter === 'linkwarden' && {serverFolder: this.serverFolder}),
+        ...(this.adapter === 'karakeep' && {serverFolder: this.serverFolder}),
         ...(this.adapter === 'git' && {branch: this.branch}),
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'git') && {bookmark_file: this.bookmark_file}),
         ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'git') && {bookmark_file_type: this.bookmark_file_type}),
@@ -550,6 +597,18 @@ export default {
       this.serverTestError = ''
       try {
         await this.$store.dispatch(actions.TEST_LINKWARDEN_SERVER, {rootUrl: this.server, username: this.username, token: this.password})
+        this.serverTestSuccessful = true
+        this.currentStep++
+      } catch (e) {
+        this.serverTestError = e.message
+      }
+      this.isServerTestRunning = false
+    },
+    async testKarakeepServer() {
+      this.isServerTestRunning = true
+      this.serverTestError = ''
+      try {
+        await this.$store.dispatch(actions.TEST_KARAKEEP_SERVER, {rootUrl: this.server, username: this.username, token: this.password})
         this.serverTestSuccessful = true
         this.currentStep++
       } catch (e) {

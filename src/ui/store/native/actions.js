@@ -226,6 +226,20 @@ export const actionsDefinition = {
     }
     return true
   },
+  async [actions.TEST_KARAKEEP_SERVER]({commit, dispatch, state}, {rootUrl, token}) {
+    let res = await Http.request({
+      url: `${rootUrl}/api/v1/users/me`,
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Floccus bookmarks sync',
+        Authorization: 'Bearer ' + token,
+      }
+    })
+    if (res.status !== 200) {
+      throw new Error(i18n.getMessage('LabelKarakeepconnectionerror'))
+    }
+    return true
+  },
   async [actions.TEST_NEXTCLOUD_SERVER]({commit, dispatch, state}, rootUrl) {
     let res = await Http.request({
       url: `${rootUrl}/index.php/login/v2`,
