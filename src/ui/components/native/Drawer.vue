@@ -94,7 +94,7 @@ export default {
       const icons = {
         'nextcloud-bookmarks': 'mdi-cloud',
         'linkwarden': 'mdi-link-box-variant-outline',
-        'karakeep': 'mdi-link-box-variant-outline',
+        'karakeep': 'mdi-bookmark-box',
         'webdav': 'mdi-folder-network',
         'git': 'mdi-source-repository',
         'google-drive': 'mdi-google-drive'
