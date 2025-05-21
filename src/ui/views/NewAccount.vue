@@ -319,7 +319,7 @@
                 v-model="serverFolder"
                 :label="t('LabelServerfolder')" />
             </template>
-            
+
             <template v-if="adapter === 'karakeep'">
               <div class="text-h6">
                 {{ t('LabelServerfolder') }}
