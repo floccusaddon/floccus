@@ -1,0 +1,520 @@
+import Adapter from '../interfaces/Adapter'
+import { Bookmark, Folder, ItemLocation } from '../Tree'
+import PQueue from 'p-queue'
+import { IResource } from '../interfaces/Resource'
+import Logger from '../Logger'
+import {
+  AuthenticationError,
+  CancelledSyncError,
+  HttpError,
+  NetworkError,
+  ParseResponseError,
+  RedirectError,
+  RequestTimeoutError,
+} from '../../errors/Error'
+import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
+
+export interface KarakeepConfig {
+  type: 'karakeep'
+  url: string
+  password: string
+  serverFolder: string
+  includeCredentials?: boolean
+  allowRedirects?: boolean
+  allowNetwork?: boolean
+  label?: string
+}
+
+const TIMEOUT = 300000
+
+export default class KarakeepAdapter
+  implements Adapter, IResource<typeof ItemLocation.SERVER>
+{
+  private server: KarakeepConfig
+  private fetchQueue: PQueue
+  private abortController: AbortController
+  private abortSignal: AbortSignal
+  private canceled: boolean
+
+  constructor(server: KarakeepConfig) {
+    this.server = server
+    this.fetchQueue = new PQueue({ concurrency: 12 })
+    this.abortController = new AbortController()
+    this.abortSignal = this.abortController.signal
+  }
+
+  static getDefaultValues(): KarakeepConfig {
+    return {
+      type: 'karakeep',
+      url: 'https://example.org',
+      password: 's3cret',
+      serverFolder: 'Floccus',
+      includeCredentials: false,
+      allowRedirects: false,
+      allowNetwork: false,
+    }
+  }
+
+  acceptsBookmark(bm: Bookmark<typeof ItemLocation.SERVER>): boolean {
+    try {
+      return ['https:', 'http:'].includes(new URL(bm.url).protocol)
+    } catch (e) {
+      return false
+    }
+  }
+
+  cancel(): void {
+    this.canceled = true
+    this.abortController.abort()
+  }
+
+  setData(data: KarakeepConfig): void {
+    this.server = { ...data }
+  }
+
+  getData(): KarakeepConfig {
+    return { ...KarakeepAdapter.getDefaultValues(), ...this.server }
+  }
+
+  getLabel(): string {
+    const data = this.getData()
+    return data.label || new URL(data.url).hostname
+  }
+
+  onSyncComplete(): Promise<void> {
+    return Promise.resolve(undefined)
+  }
+
+  onSyncFail(): Promise<void> {
+    return Promise.resolve(undefined)
+  }
+
+  onSyncStart(
+    needLock?: boolean,
+    forceLock?: boolean
+  ): Promise<void | boolean> {
+    this.canceled = false
+    return Promise.resolve(undefined)
+  }
+
+  async createBookmark(bookmark: {
+    id: string | number
+    url: string
+    title: string
+    parentId: string | number
+  }): Promise<string | number> {
+    Logger.log('(karakeep)CREATE', { bookmark })
+    const response = await this.sendRequest(
+      'POST',
+      '/api/v1/bookmarks',
+      'application/json',
+      {
+        type: 'link',
+        url: bookmark.url,
+        title: bookmark.title,
+      }
+    )
+    await this.sendRequest(
+      'PUT',
+      `/api/v1/lists/${bookmark.parentId}/bookmarks/${response.id}`,
+      'application/json',
+      undefined,
+      /* returnRawResponse */ true
+    )
+    return response.id
+  }
+
+  async updateBookmark(bookmark: {
+    id: string | number
+    url: string
+    title: string
+    parentId: string | number
+  }): Promise<void> {
+    Logger.log('(karakeep)UPDATE', { bookmark })
+    await this.sendRequest(
+      'PATCH',
+      `/api/v1/bookmarks/${bookmark.id}`,
+      'application/json',
+      {
+        url: bookmark.url,
+        name: bookmark.title,
+      }
+    )
+
+    const [managedLists, bookmarkLists] = await Promise.all([
+      this.getManagedLists(),
+      this.getListsOfBookmark(bookmark.id),
+    ])
+
+    // Karakeep supports having the same bookmark in multiple lists.
+    // Floccus on the other hand does not. So if we have to update the parent id,
+    // we need to remove the bookmark from all the lists under the root, then add it to the new parent.
+
+    if (bookmarkLists.has(bookmark.parentId as string)) {
+      // The bookmark is already in the list, no changes need to happen.
+      return
+    }
+
+    const toDetach = []
+    bookmarkLists.forEach((listId) => {
+      if (managedLists.has(listId)) {
+        toDetach.push(listId)
+      }
+    })
+    await Promise.all(
+      toDetach.map((listId) =>
+        this.sendRequest(
+          'DELETE',
+          `/api/v1/lists/${listId}/bookmarks/${bookmark.id}`,
+          'application/json',
+          undefined,
+          /* returnRawResponse */ true
+        )
+      )
+    )
+
+    // Attach the bookmark to the needed list
+    await this.sendRequest(
+      'PUT',
+      `/api/v1/lists/${bookmark.parentId}/bookmarks/${bookmark.id}`,
+      'application/json',
+      undefined,
+      /* returnRawResponse */ true
+    )
+  }
+
+  async removeBookmark(bookmark: { id: string | number }): Promise<void> {
+    Logger.log('(karakeep)DELETE', { bookmark })
+    await this.sendRequest('DELETE', `/api/v1/bookmarks/${bookmark.id}`)
+  }
+
+  async createFolder(folder: {
+    id: string | number
+    title?: string
+    parentId: string | number
+  }): Promise<string | number> {
+    Logger.log('(karakeep)CREATEFOLDER', { folder })
+    const response = await this.sendRequest(
+      'POST',
+      '/api/v1/lists',
+      'application/json',
+      {
+        name: folder.title,
+        icon: '📔',
+        type: 'manual',
+        parentId: folder.parentId,
+      }
+    )
+    return response.id
+  }
+
+  async updateFolder(folder: {
+    id: string | number
+    title?: string
+    parentId: string | number
+  }): Promise<void> {
+    Logger.log('(karakeep)UPDATEFOLDER', { folder })
+    await this.sendRequest(
+      'PATCH',
+      `/api/v1/lists/${folder.id}`,
+      'application/json',
+      {
+        name: folder.title,
+        parentId: folder.parentId,
+      }
+    )
+  }
+
+  async removeFolder(folder: { id: string | number }): Promise<void> {
+    Logger.log('(karakeep)DELETEFOLDER', { folder })
+    await this.sendRequest(
+      'DELETE',
+      `/api/v1/lists/${folder.id}`,
+      'application/json',
+      undefined,
+      /* returnRawResponse */ true
+    )
+  }
+
+  async getBookmarksTree(
+    loadAll?: boolean
+  ): Promise<Folder<typeof ItemLocation.SERVER>> {
+    const fetchBookmarks = async (listId: string) => {
+      const links = []
+      let nextCursor = null
+      do {
+        let response = await this.sendRequest(
+          'GET',
+          `/api/v1/lists/${listId}/bookmarks?includeContent=false&${
+            nextCursor ? 'cursor=' + nextCursor : ''
+          }`
+        )
+        nextCursor = response.nextCursor
+        links.push(...response.bookmarks)
+      } while (nextCursor !== null)
+      return links
+    }
+
+    const { lists } = await this.sendRequest('GET', `/api/v1/lists`)
+
+
+    let rootList = lists.find(
+      (list) => list.name === this.server.serverFolder && list.parentId === null
+    )
+    if (!rootList) {
+      rootList = await this.sendRequest(
+        'POST',
+        '/api/v1/lists',
+        'application/json',
+        {
+          name: this.server.serverFolder,
+          icon: '📔',
+          type: 'manual',
+        }
+      )
+    }
+    const rootId = rootList.id
+
+    const listIdtoList = {
+      [rootId]: rootList,
+    }
+    lists.forEach((list) => {
+      listIdtoList[list.id] = list
+    })
+
+    const listTree: Record<string, string[]> = {
+      [rootId]: [],
+      ...lists.reduce((acc, list) => {
+        acc[list.id] = []
+        return acc
+      }, {}),
+    }
+    lists.forEach((list) => {
+      if (list.parentId === null) {
+        return
+      }
+      listTree[list.parentId].push(list.id)
+    })
+
+    const buildTree = async (listId, isRoot = false) => {
+      const list = listIdtoList[listId]
+
+      const childrenBookmarks = (await fetchBookmarks(listId))
+        .filter((b) => b.content.type === 'link')
+        .map(
+          (b) =>
+            new Bookmark({
+              id: b.id,
+              title: b.content.title ?? b.title,
+              parentId: listId,
+              url: b.content.url,
+              location: ItemLocation.SERVER,
+            })
+        )
+      const childrenFolders = await Promise.all(
+        listTree[listId].map((l) => buildTree(l, false))
+      )
+
+      return new Folder({
+        id: list.id,
+        title: list.name,
+        parentId: list.parentId,
+        location: ItemLocation.SERVER,
+        isRoot,
+        children: [...childrenBookmarks, ...childrenFolders],
+      })
+    }
+
+    return await buildTree(rootId, true)
+  }
+
+  /** Returns the ids of all the lists under the root list */
+  async getManagedLists() {
+    const { lists } = await this.sendRequest('GET', `/api/v1/lists`)
+
+    let rootList = lists.find(
+      (list) => list.name === this.server.serverFolder && list.parentId === null
+    )
+    if (!rootList) {
+      return new Set<string>()
+    }
+
+    const listTree: Record<string, string[]> = lists.reduce((acc, list) => {
+      acc[list.id] = []
+      return acc
+    }, {})
+    lists.forEach((list) => {
+      if (list.parentId === null) {
+        return
+      }
+      listTree[list.parentId].push(list.id)
+    })
+
+    const retLists = new Set<string>()
+    const traverse = (listId) => {
+      retLists.add(listId)
+      listTree[listId].forEach(traverse)
+      return retLists
+    }
+
+    return traverse(rootList.id)
+  }
+
+  async getListsOfBookmark(bookmarkId: string | number): Promise<Set<string>> {
+    const { lists } = await this.sendRequest(
+      'GET',
+      `/api/v1/bookmarks/${bookmarkId}/lists`
+    )
+
+    return new Set<string>(lists.map((list) => list.id))
+  }
+
+  async isAvailable(): Promise<boolean> {
+    return true
+  }
+
+  async sendRequest(
+    verb: string,
+    relUrl: string,
+    type: string = null,
+    body: any = null,
+    returnRawResponse = false
+  ): Promise<any> {
+    const url = this.server.url + relUrl
+    let res
+    let timedOut = false
+
+    if (type && type.includes('application/json')) {
+      body = JSON.stringify(body)
+    } else if (type && type.includes('application/x-www-form-urlencoded')) {
+      const params = new URLSearchParams()
+      for (const [key, value] of Object.entries(body || {})) {
+        params.set(key, value as any)
+      }
+      body = params.toString()
+    }
+
+    Logger.log(`QUEUING ${verb} ${url}`)
+
+    if (Capacitor.getPlatform() !== 'web') {
+      return this.sendRequestNative(verb, url, type, body, returnRawResponse)
+    }
+
+    try {
+      res = await this.fetchQueue.add(() => {
+        Logger.log(`FETCHING ${verb} ${url}`)
+        return Promise.race([
+          fetch(url, {
+            method: verb,
+            credentials: this.server.includeCredentials ? 'include' : 'omit',
+            headers: {
+              ...(type &&
+                type !== 'multipart/form-data' && { 'Content-type': type }),
+              Authorization: 'Bearer ' + this.server.password,
+            },
+            signal: this.abortSignal,
+            ...(body &&
+              !['get', 'head'].includes(verb.toLowerCase()) && { body }),
+          }),
+          new Promise((resolve, reject) =>
+            setTimeout(() => {
+              timedOut = true
+              reject(new RequestTimeoutError())
+            }, TIMEOUT)
+          ),
+        ])
+      })
+    } catch (e) {
+      if (timedOut) throw e
+      if (this.canceled) throw new CancelledSyncError()
+      console.log(e)
+      throw new NetworkError()
+    }
+
+    Logger.log(`Receiving response for ${verb} ${url}`)
+
+    if (res.redirected && !this.server.allowRedirects) {
+      throw new RedirectError()
+    }
+
+    if (returnRawResponse) {
+      return res
+    }
+
+    if (res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status === 503 || res.status >= 400) {
+      throw new HttpError(res.status, verb)
+    }
+    let json
+    try {
+      json = await res.json()
+    } catch (e) {
+      throw new ParseResponseError(e.message)
+    }
+
+    return json
+  }
+
+  private async sendRequestNative(
+    verb: string,
+    url: string,
+    type: string,
+    body: any,
+    returnRawResponse: boolean
+  ) {
+    let res
+    let timedOut = false
+    try {
+      res = await this.fetchQueue.add(() => {
+        Logger.log(`FETCHING ${verb} ${url}`)
+        return Promise.race([
+          Http.request({
+            url,
+            method: verb,
+            disableRedirects: !this.server.allowRedirects,
+            headers: {
+              ...(type &&
+                type !== 'multipart/form-data' && { 'Content-type': type }),
+              Authorization: 'Bearer ' + this.server.password,
+            },
+            responseType: 'json',
+            ...(body &&
+              !['get', 'head'].includes(verb.toLowerCase()) && { data: body }),
+          }),
+          new Promise((resolve, reject) =>
+            setTimeout(() => {
+              timedOut = true
+              reject(new RequestTimeoutError())
+            }, TIMEOUT)
+          ),
+        ])
+      })
+    } catch (e) {
+      if (timedOut) throw e
+      console.log(e)
+      throw new NetworkError()
+    }
+
+    Logger.log(`Receiving response for ${verb} ${url}`)
+
+    if (res.status < 400 && res.status >= 300) {
+      throw new RedirectError()
+    }
+
+    if (returnRawResponse) {
+      return res
+    }
+
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status === 503 || res.status >= 400) {
+      throw new HttpError(res.status, verb)
+    }
+    const json = res.data
+
+    return json
+  }
+}

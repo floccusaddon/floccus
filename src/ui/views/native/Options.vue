@@ -32,6 +32,11 @@
           v-bind.sync="data"
           @reset="onReset"
           @delete="onDelete" />
+        <OptionsKarakeep
+          v-if="data.type === 'karakeep'"
+          v-bind.sync="data"
+          @reset="onReset"
+          @delete="onDelete" />
         <OptionsWebdav
           v-if="data.type === 'webdav'"
           v-bind.sync="data"
@@ -66,10 +71,11 @@ import { routes } from '../../NativeRouter'
 import OptionsGoogleDrive from '../../components/OptionsGoogleDrive'
 import OptionsGit from '../../components/OptionsGit.vue'
 import OptionsLinkwarden from '../../components/OptionsLinkwarden.vue'
+import OptionsKarakeep from '../../components/OptionsKarakeep.vue'
 
 export default {
   name: 'Options',
-  components: { OptionsLinkwarden, OptionsGit, OptionsGoogleDrive, OptionsNextcloudBookmarks, OptionsWebdav, OptionsFake },
+  components: { OptionsLinkwarden, OptionsKarakeep, OptionsGit, OptionsGoogleDrive, OptionsNextcloudBookmarks, OptionsWebdav, OptionsFake },
   data() {
     return {
       drawer: false,

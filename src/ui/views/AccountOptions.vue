@@ -143,6 +143,11 @@
                 v-bind.sync="data"
                 @reset="onReset"
                 @delete="onDelete" />
+              <OptionsKarakeep
+                v-if="data.type === 'karakeep'"
+                v-bind.sync="data"
+                @reset="onReset"
+                @delete="onDelete" />
               <OptionsWebdav
                 v-if="data.type === 'webdav'"
                 v-bind.sync="data"
@@ -199,6 +204,7 @@ import BrowserTree from '../../lib/browser/BrowserTree'
 import { actions } from '../store/definitions'
 import OptionsNextcloudFolders from '../components/OptionsNextcloudBookmarks'
 import OptionsLinkwarden from '../components/OptionsLinkwarden'
+import OptionsKarakeep from '../components/OptionsKarakeep'
 import OptionsWebdav from '../components/OptionsWebdav'
 import OptionsFake from '../components/OptionsFake'
 import OptionsGoogleDrive from '../components/OptionsGoogleDrive'
@@ -206,7 +212,7 @@ import OptionsGit from '../components/OptionsGit.vue'
 
 export default {
   name: 'AccountOptions',
-  components: { OptionsGit, OptionsGoogleDrive, OptionsFake, OptionsWebdav, OptionsNextcloudFolders, OptionsLinkwarden },
+  components: { OptionsGit, OptionsGoogleDrive, OptionsFake, OptionsWebdav, OptionsNextcloudFolders, OptionsLinkwarden, OptionsKarakeep },
   data() {
     return {
       folderName: '',

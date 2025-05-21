@@ -101,6 +101,7 @@ jobs:
           - google-drive
           - google-drive-encrypted
           - linkwarden
+          - karakeep
         test-name:
           - test
         browsers:
@@ -176,6 +177,11 @@ jobs:
         image: mariadb:10.5 # see https://github.com/nextcloud/docker/issues/1536
         env:
           MYSQL_ROOT_PASSWORD: ${{env.MYSQL_PASSWORD}}
+      karakeep:
+        image: ghcr.io/karakeep-app/karakeep:release
+        env:
+          DATA_DIR: /data
+          NEXTAUTH_SECRET: super_random_string
 
     steps:
 
