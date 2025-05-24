@@ -370,6 +370,9 @@ describe('Floccus', function() {
             )
           })
           it('should create local javascript bookmarks on the server', async function() {
+            if (ACCOUNT_DATA.type === 'karakeep') {
+              return this.skip()
+            }
             const localRoot = account.getData().localRoot
             const fooFolder = await browser.bookmarks.create({
               title: 'foo',
@@ -545,7 +548,7 @@ describe('Floccus', function() {
                         ]
                       }),
                       new Bookmark({
-                        title: ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? newData.title : bookmark2.title,
+                        title: ACCOUNT_DATA.type === 'nextcloud-bookmarks' || ACCOUNT_DATA.type === 'karakeep' ? newData.title : bookmark2.title,
                         url: bookmark1.url
                       }),
                     ]
@@ -606,7 +609,7 @@ describe('Floccus', function() {
                         ]
                       }),
                       new Bookmark({
-                        title: ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? bookmark2.title : bookmark1.title,
+                        title: ACCOUNT_DATA.type === 'nextcloud-bookmarks' || ACCOUNT_DATA.type === 'karakeep' ? bookmark1.title : bookmark1.url,
                         url: newData.url
                       }),
                     ]
@@ -2587,7 +2590,7 @@ describe('Floccus', function() {
               this.skip()
               return
             }
-            if (ACCOUNT_DATA.type === 'linkwarden') {
+            if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
               return this.skip()
             }
             const localRoot = account.getData().localRoot
@@ -2716,7 +2719,7 @@ describe('Floccus', function() {
               this.skip()
               return
             }
-            if (ACCOUNT_DATA.type === 'linkwarden') {
+            if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
               return this.skip()
             }
             const localRoot = account.getData().localRoot
@@ -2922,7 +2925,7 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.noCache) {
               return this.skip()
             }
-            if (ACCOUNT_DATA.type === 'linkwarden') {
+            if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
               return this.skip()
             }
 
@@ -4003,7 +4006,7 @@ describe('Floccus', function() {
             if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ['v1.1.2', 'v2.3.4', 'stable3', 'stable4'].includes(APP_VERSION)) {
               return this.skip()
             }
-            if (ACCOUNT_DATA.type === 'linkwarden') {
+            if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
               return this.skip()
             }
             const localRoot = account1.getData().localRoot
@@ -5127,7 +5130,7 @@ describe('Floccus', function() {
             )
           })
           it('should synchronize ordering', async function() {
-            if (ACCOUNT_DATA.type === 'linkwarden') {
+            if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
               return this.skip()
             }
             expect(
@@ -5228,7 +5231,7 @@ describe('Floccus', function() {
           // isn't able to track bookmarks across dirs, thus in this
           // scenario both bookmarks survive :/
           it('should propagate moves using "last write wins"', async function() {
-            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks') {
+            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' || ACCOUNT_DATA.type === 'karakeep') {
               return this.skip()
             }
             const localRoot = account1.getData().localRoot
@@ -5352,7 +5355,7 @@ describe('Floccus', function() {
         })
 
         context('with tabs', function() {
-          if (ACCOUNT_DATA.type === 'linkwarden') {
+          if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
             return
           }
           let account

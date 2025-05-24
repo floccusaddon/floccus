@@ -55,6 +55,14 @@ export default class KarakeepAdapter
     }
   }
 
+  parseBookmarkId(id: string | number): [string, string] {
+    if (typeof id === 'number') {
+      throw new Error('IDs should be strings')
+    }
+    const s = id.split(';')
+    return [s[0], s[1]]
+  }
+
   acceptsBookmark(bm: Bookmark<typeof ItemLocation.SERVER>): boolean {
     try {
       return ['https:', 'http:'].includes(new URL(bm.url).protocol)
@@ -114,6 +122,16 @@ export default class KarakeepAdapter
         title: bookmark.title,
       }
     )
+    if (response.alreadyExists) {
+      await this.sendRequest(
+        'PATCH',
+        `/api/v1/bookmarks/${response.id}`,
+        'application/json',
+        {
+          title: bookmark.title,
+        }
+      )
+    }
     await this.sendRequest(
       'PUT',
       `/api/v1/lists/${bookmark.parentId}/bookmarks/${response.id}`,
@@ -121,7 +139,7 @@ export default class KarakeepAdapter
       undefined,
       /* returnRawResponse */ true
     )
-    return response.id
+    return `${response.id};${bookmark.parentId}`
   }
 
   async updateBookmark(bookmark: {
@@ -131,61 +149,65 @@ export default class KarakeepAdapter
     parentId: string | number
   }): Promise<void> {
     Logger.log('(karakeep)UPDATE', { bookmark })
+    const [id, oldParentId] = this.parseBookmarkId(bookmark.id)
     await this.sendRequest(
       'PATCH',
-      `/api/v1/bookmarks/${bookmark.id}`,
+      `/api/v1/bookmarks/${id}`,
       'application/json',
       {
         url: bookmark.url,
-        name: bookmark.title,
+        title: bookmark.title,
       }
     )
 
-    const [managedLists, bookmarkLists] = await Promise.all([
-      this.getManagedLists(),
-      this.getListsOfBookmark(bookmark.id),
-    ])
-
-    // Karakeep supports having the same bookmark in multiple lists.
-    // Floccus on the other hand does not. So if we have to update the parent id,
-    // we need to remove the bookmark from all the lists under the root, then add it to the new parent.
-
-    if (bookmarkLists.has(bookmark.parentId as string)) {
-      // The bookmark is already in the list, no changes need to happen.
-      return
-    }
-
-    const toDetach = []
-    bookmarkLists.forEach((listId) => {
-      if (managedLists.has(listId)) {
-        toDetach.push(listId)
-      }
-    })
-    await Promise.all(
-      toDetach.map((listId) =>
+    if (oldParentId !== bookmark.parentId) {
+      await Promise.all([
         this.sendRequest(
           'DELETE',
-          `/api/v1/lists/${listId}/bookmarks/${bookmark.id}`,
+          `/api/v1/lists/${oldParentId}/bookmarks/${id}`,
           'application/json',
           undefined,
           /* returnRawResponse */ true
-        )
-      )
-    )
+        ),
+        this.sendRequest(
+          'PUT',
+          `/api/v1/lists/${bookmark.parentId}/bookmarks/${id}`,
+          'application/json',
+          undefined,
+          /* returnRawResponse */ true
+        ),
+      ])
+    }
+  }
 
-    // Attach the bookmark to the needed list
+  async removeBookmark(bookmark: {
+    id: string | number
+    parentId: string | number
+  }): Promise<void> {
+    Logger.log('(karakeep)DELETE', { bookmark })
+
+    const [id, parentId] = this.parseBookmarkId(bookmark.id)
+
+    // Remove the bookmark from the list
     await this.sendRequest(
-      'PUT',
-      `/api/v1/lists/${bookmark.parentId}/bookmarks/${bookmark.id}`,
+      'DELETE',
+      `/api/v1/lists/${parentId}/bookmarks/${id}`,
       'application/json',
       undefined,
       /* returnRawResponse */ true
     )
-  }
 
-  async removeBookmark(bookmark: { id: string | number }): Promise<void> {
-    Logger.log('(karakeep)DELETE', { bookmark })
-    await this.sendRequest('DELETE', `/api/v1/bookmarks/${bookmark.id}`)
+    // If the bookmark is not in any list, delete it from the server
+    const bookmarkLists = await this.getListsOfBookmark(id)
+    if (bookmarkLists.size === 0) {
+      await this.sendRequest(
+        'DELETE',
+        `/api/v1/bookmarks/${id}`,
+        'application/json',
+        undefined,
+        /* returnRawResponse */ true
+      )
+    }
   }
 
   async createFolder(folder: {
@@ -257,7 +279,6 @@ export default class KarakeepAdapter
 
     const { lists } = await this.sendRequest('GET', `/api/v1/lists`)
 
-
     let rootList = lists.find(
       (list) => list.name === this.server.serverFolder && list.parentId === null
     )
@@ -304,8 +325,8 @@ export default class KarakeepAdapter
         .map(
           (b) =>
             new Bookmark({
-              id: b.id,
-              title: b.content.title ?? b.title,
+              id: `${b.id};${listId}`,
+              title: b.title ?? b.content.title,
               parentId: listId,
               url: b.content.url,
               location: ItemLocation.SERVER,
@@ -326,38 +347,6 @@ export default class KarakeepAdapter
     }
 
     return await buildTree(rootId, true)
-  }
-
-  /** Returns the ids of all the lists under the root list */
-  async getManagedLists() {
-    const { lists } = await this.sendRequest('GET', `/api/v1/lists`)
-
-    let rootList = lists.find(
-      (list) => list.name === this.server.serverFolder && list.parentId === null
-    )
-    if (!rootList) {
-      return new Set<string>()
-    }
-
-    const listTree: Record<string, string[]> = lists.reduce((acc, list) => {
-      acc[list.id] = []
-      return acc
-    }, {})
-    lists.forEach((list) => {
-      if (list.parentId === null) {
-        return
-      }
-      listTree[list.parentId].push(list.id)
-    })
-
-    const retLists = new Set<string>()
-    const traverse = (listId) => {
-      retLists.add(listId)
-      listTree[listId].forEach(traverse)
-      return retLists
-    }
-
-    return traverse(rootList.id)
   }
 
   async getListsOfBookmark(bookmarkId: string | number): Promise<Set<string>> {
