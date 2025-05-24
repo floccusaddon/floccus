@@ -180,7 +180,6 @@ jobs:
       karakeep:
         image: ghcr.io/karakeep-app/karakeep:release
         env:
-          DATA_DIR: /data
           NEXTAUTH_SECRET: super_random_string
 
     steps:
