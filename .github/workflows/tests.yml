@@ -179,6 +179,8 @@ jobs:
           MYSQL_ROOT_PASSWORD: ${{env.MYSQL_PASSWORD}}
       karakeep:
         image: ghcr.io/karakeep-app/karakeep:release
+        ports:
+          - 3000:3000
         env:
           NEXTAUTH_SECRET: super_random_string
 

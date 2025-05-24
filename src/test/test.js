@@ -164,7 +164,7 @@ describe('Floccus', function() {
     },
     {
       type: 'karakeep',
-      url: SERVER,
+      url: `${SERVER}:3000`,
       serverFolder: 'Floccus-' + Math.random(),
       ...CREDENTIALS,
     },

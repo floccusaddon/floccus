@@ -110,7 +110,7 @@ installConsoleHandler()
     if (process.env.FLOCCUS_TEST.includes('karakeep')) {
       // We need to create the user for karakeep first and get its API key
       const createUserResp = await fetch(
-        'http://karakeep:3000/api/trpc/users.create',
+        'http://localhost:3000/api/trpc/users.create',
         {
           method: 'POST',
           headers: {
@@ -128,7 +128,7 @@ installConsoleHandler()
       console.log('Created user', await createUserResp.json())
 
       const apiKeyResp = await fetch(
-        'http://karakeep:3000/api/trpc/apiKeys.exchange',
+        'http://localhost:3000/api/trpc/apiKeys.exchange',
         {
           method: 'POST',
           headers: {
