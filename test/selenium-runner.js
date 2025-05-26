@@ -91,6 +91,9 @@ installConsoleHandler()
     if (process.env.FLOCCUS_TEST.includes('linkwarden')) {
       server = `https://cloud.linkwarden.app`
     }
+    if (process.env.FLOCCUS_TEST.includes('karakeep')) {
+      server = `http://${process.env.KARAKEEP_TEST_HOST}`
+    }
 
     testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=${server}&app_version=${process.env.APP_VERSION}&browser=${process.env.SELENIUM_BROWSER}`
 
@@ -110,7 +113,7 @@ installConsoleHandler()
     if (process.env.FLOCCUS_TEST.includes('karakeep')) {
       // We need to create the user for karakeep first and get its API key
       const createUserResp = await fetch(
-        'http://localhost:3000/api/trpc/users.create',
+        `${server}/api/trpc/users.create`,
         {
           method: 'POST',
           headers: {
@@ -128,7 +131,7 @@ installConsoleHandler()
       console.log('Created user', await createUserResp.json())
 
       const apiKeyResp = await fetch(
-        'http://localhost:3000/api/trpc/apiKeys.exchange',
+        `${server}/api/trpc/apiKeys.exchange`,
         {
           method: 'POST',
           headers: {
