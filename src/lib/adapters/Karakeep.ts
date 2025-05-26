@@ -178,6 +178,7 @@ export default class KarakeepAdapter
         ),
       ])
     }
+    bookmark.id = `${id};${bookmark.parentId}`
   }
 
   async removeBookmark(bookmark: {
@@ -342,7 +343,7 @@ export default class KarakeepAdapter
         parentId: list.parentId,
         location: ItemLocation.SERVER,
         isRoot,
-        children: [...childrenBookmarks, ...childrenFolders],
+        children: [...childrenFolders, ...childrenBookmarks],
       })
     }
 
