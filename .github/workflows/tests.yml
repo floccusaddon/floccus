@@ -181,6 +181,8 @@ jobs:
         image: ghcr.io/karakeep-app/karakeep:release
         ports:
           - 3000:3000
+        volumes:
+          - data:/data
         env:
           NEXTAUTH_SECRET: super_random_string
           NEXTAUTH_URL: http://karakeep:3000
