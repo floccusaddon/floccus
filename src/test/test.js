@@ -164,7 +164,7 @@ describe('Floccus', function() {
     },
     {
       type: 'karakeep',
-      url: `${SERVER}:3000`,
+      url: SERVER,
       serverFolder: 'Floccus-' + Math.random(),
       ...CREDENTIALS,
     },
@@ -603,13 +603,13 @@ describe('Floccus', function() {
                         title: 'bar',
                         children: [
                           new Bookmark({
-                            title: bookmark2.title,
+                            title: (ACCOUNT_DATA.type === 'karakeep') ? bookmark1.title : bookmark2.title,
                             url: bookmark2.url
                           })
                         ]
                       }),
                       new Bookmark({
-                        title: (ACCOUNT_DATA.type === 'nextcloud-bookmarks' || ACCOUNT_DATA.type === 'karakeep') ? bookmark1.title : bookmark1.title,
+                        title: (ACCOUNT_DATA.type === 'nextcloud-bookmarks') ? bookmark2.title : bookmark1.title,
                         url: newData.url
                       }),
                     ]
