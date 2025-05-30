@@ -609,7 +609,7 @@ describe('Floccus', function() {
                         ]
                       }),
                       new Bookmark({
-                        title: ACCOUNT_DATA.type === 'nextcloud-bookmarks' || ACCOUNT_DATA.type === 'karakeep' ? bookmark1.title : bookmark1.title,
+                        title: (ACCOUNT_DATA.type === 'nextcloud-bookmarks' || ACCOUNT_DATA.type === 'karakeep') ? bookmark1.title : bookmark1.title,
                         url: newData.url
                       }),
                     ]
