@@ -243,6 +243,16 @@
         "code",
         "bug"
       ]
+    },
+    {
+      "login": "balthanon",
+      "name": "Balthanon",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5367358?v=4",
+      "profile": "https://github.com/balthanon",
+      "contributions": [
+        "ideas",
+        "bug"
+      ]
     }
   ],
   "skipCi": true,
