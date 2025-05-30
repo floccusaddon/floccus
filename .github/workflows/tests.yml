@@ -183,6 +183,8 @@ jobs:
           - 3000:3000
         env:
           NEXTAUTH_SECRET: super_random_string
+          NEXTAUTH_URL: http://karakeep:3000
+          DATA_DIR: /data
 
     steps:
 
