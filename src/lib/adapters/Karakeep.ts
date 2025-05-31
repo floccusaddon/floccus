@@ -248,8 +248,55 @@ export default class KarakeepAdapter
     )
   }
 
+  /**
+   * Removes the list from karakeep, but also all its content recursively
+   */
   async removeFolder(folder: { id: string | number }): Promise<void> {
     Logger.log('(karakeep)DELETEFOLDER', { folder })
+
+    const deleteListContent = async () => {
+      // Get the list of bookmarks in the list
+      const bookmarkIds = []
+      let nextCursor = null
+      do {
+        let response = await this.sendRequest(
+          'GET',
+          `/api/v1/lists/${folder.id}/bookmarks?includeContent=false&${
+            nextCursor ? 'cursor=' + nextCursor : ''
+          }`
+        )
+        nextCursor = response.nextCursor
+        bookmarkIds.push(...response.bookmarks.map((b) => b.id))
+      } while (nextCursor !== null)
+      await Promise.all(
+        bookmarkIds.map((id) =>
+          this.removeBookmark({
+            id: `${id};${folder.id}`,
+            parentId: folder.id,
+          })
+        )
+      )
+    }
+
+    const deleteListFolders = async () => {
+      // Get the list of lists in the list
+      const { lists } = await this.sendRequest('GET', `/api/v1/lists`)
+      let childrenListIds = lists
+        .filter((list) => list.parentId === folder.id)
+        .map((l) => l.id)
+
+      await Promise.all(
+        childrenListIds.map((listId) =>
+          this.removeFolder({
+            id: listId,
+          })
+        )
+      )
+    }
+
+    await Promise.all([deleteListContent(), deleteListFolders()])
+
+    // Delete the list itself "after" deleting all its content in case any failure occurs in the previous steps
     await this.sendRequest(
       'DELETE',
       `/api/v1/lists/${folder.id}`,
