@@ -274,7 +274,7 @@ jobs:
           GOOGLE_API_REFRESH_TOKEN: ${{ secrets.GOOGLE_API_REFRESH_TOKEN }}
           LINKWARDEN_TOKEN: ${{ secrets.LINKWARDEN_TOKEN }}
           APP_VERSION: ${{ matrix.app-version }}
-          KARAKEEP_TEST_HOST: localhost:3000
+          KARAKEEP_TEST_HOST: 172.17.0.1:3000
         run: |
           npm run test
         if: matrix.floccus-adapter != 'git-xbel' && matrix.floccus-adapter != 'git-html'
