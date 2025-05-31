@@ -123,8 +123,8 @@ installConsoleHandler()
             json: {
               name: 'floccus',
               email: 'floccus@example.com',
-              password: 'floccus',
-              confirmPassword: 'floccus',
+              password: '12345678',
+              confirmPassword: '12345678',
             }
           }),
         }
@@ -143,7 +143,7 @@ installConsoleHandler()
             json: {
               keyName: 'karakeep',
               email: 'floccus@example.com',
-              password: 'floccus',
+              password: '12345678',
             }
           }),
         }
