@@ -120,10 +120,12 @@ installConsoleHandler()
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            name: 'floccus',
-            email: 'floccus@example.com',
-            password: 'floccus',
-            confirmPassword: 'floccus',
+            json: {
+              name: 'floccus',
+              email: 'floccus@example.com',
+              password: 'floccus',
+              confirmPassword: 'floccus',
+            }
           }),
         }
       )
@@ -138,14 +140,16 @@ installConsoleHandler()
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            keyName: 'karakeep',
-            email: 'floccus@example.com',
-            password: 'floccus',
+            json: {
+              keyName: 'karakeep',
+              email: 'floccus@example.com',
+              password: 'floccus',
+            }
           }),
         }
       )
       const apiKey = await apiKeyResp.json()
-      testUrl += `&password=${apiKey.key}`
+      testUrl += `&password=${apiKey.result.data.json.key}`
     }
 
     await driver.get(testUrl)
