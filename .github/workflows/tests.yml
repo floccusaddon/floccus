@@ -80,6 +80,9 @@ jobs:
       SERVER_BRANCH: ${{ matrix.server-version }}
       NC_APP_VERSION: ${{ matrix.app-version }}
       MYSQL_PASSWORD: root
+      LINKWARDEN_ADMIN_EMAIL: admin@example.com
+      LINKWARDEN_ADMIN_PASSWORD: admin
+
 
     strategy:
       # do not stop on another job's failure
@@ -176,6 +179,22 @@ jobs:
         image: mariadb:10.5 # see https://github.com/nextcloud/docker/issues/1536
         env:
           MYSQL_ROOT_PASSWORD: ${{env.MYSQL_PASSWORD}}
+      linkwarden:
+        image: ghcr.io/linkwarden/linkwarden:latest
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/postgres
+          NEXTAUTH_SECRET: random_secret_string
+          NEXTAUTH_URL: http://linkwarden:3000
+          NODE_ENV: production
+        options: --name linkwarden --network-alias linkwarden
+      postgres:
+          image: postgres:14
+          env:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: postgres
+          options: --name postgres --network-alias postgres
+
 
     steps:
 
@@ -242,6 +261,29 @@ jobs:
           npx htpasswd -cb test.git/.htpasswd admin admin
         if: matrix.floccus-adapter == 'git-xbel' || matrix.floccus-adapter == 'git-html'
 
+      - name: Setup Linkwarden admin account
+        run: |
+          # Wait for Linkwarden to be ready
+          NEXT_WAIT_TIME=0
+          until [ $NEXT_WAIT_TIME -eq 30 ] || curl -s http://linkwarden:3000 > /dev/null; do
+            echo 'Waiting for Linkwarden'
+            sleep $(( NEXT_WAIT_TIME++ ))
+          done
+          [ $NEXT_WAIT_TIME -lt 30 ]
+          
+          # Create admin account via API
+          curl -X POST http://linkwarden:3000/api/auth/signup \
+            -H "Content-Type: application/json" \
+            -d "{\"name\":\"admin\",\"email\":\"$LINKWARDEN_ADMIN_EMAIL\",\"password\":\"$LINKWARDEN_ADMIN_PASSWORD\"}"
+          
+          # Generate API token and export it
+          TOKEN=$(curl -X POST http://linkwarden:3000/api/auth/login \
+            -H "Content-Type: application/json" \
+            -d "{\"email\":\"$LINKWARDEN_ADMIN_EMAIL\",\"password\":\"$LINKWARDEN_ADMIN_PASSWORD\"}" | jq -r '.token')
+          echo "LINKWARDEN_TOKEN=$TOKEN" >> $GITHUB_ENV
+        if: matrix.floccus-adapter == 'linkwarden'
+
+
       - name: Run git adapter tests
         working-directory: floccus
         env:
@@ -261,7 +303,7 @@ jobs:
           FLOCCUS_TEST_SEED: ${{ github.sha }}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GOOGLE_API_REFRESH_TOKEN: ${{ secrets.GOOGLE_API_REFRESH_TOKEN }}
-          LINKWARDEN_TOKEN: ${{ secrets.LINKWARDEN_TOKEN }}
+          LINKWARDEN_URL: http://linkwarden:3000
           APP_VERSION: ${{ matrix.app-version }}
         run: |
           npm run test
