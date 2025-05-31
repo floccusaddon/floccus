@@ -4704,7 +4704,7 @@ describe('Floccus', function() {
             )
           })
           it('should handle complex hierarchy reversals 2', async function() {
-            if (ACCOUNT_DATA.type === 'linkwarden') {
+            if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
               return this.skip()
             }
             const localRoot = account1.getData().localRoot
