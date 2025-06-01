@@ -1,16 +1,23 @@
 # Changelog
 
+## [5.5.5] - 2025-06-01
+
+### Fixed
+
+* Removed the use of Dexie as it doesn't play nice with Sentry and causes crashes
+
 ## [5.5.4] - 2025-05-30
 
 ### Fixed
-fix(build): Transpile async to generators to avoid Crashing Chrome and Edge due to leaking transactions
-fix(NextcloudBookmarks): Do not remember result of checkFeatureJavascriptLinks() across syncs
-fix(NextcloudBookmarks): Fix checkFeatureJavascriptLinks()
-fix(BrowserController): set syncing to false onLoad
-fix(GoogleDrive): Set acknowledge abuse parameter to avoid failing syncs
-fix(Bookmark#clone): reset hashValue correctly
-fix(WebDAV): Fix file size check
-fix(messages): Improve Linkwarden serverfolder explanation
+
+* fix(build): Transpile async to generators to avoid Crashing Chrome and Edge due to leaking transactions
+* fix(NextcloudBookmarks): Do not remember result of checkFeatureJavascriptLinks() across syncs
+* fix(NextcloudBookmarks): Fix checkFeatureJavascriptLinks()
+* fix(BrowserController): set syncing to false onLoad
+* fix(GoogleDrive): Set acknowledge abuse parameter to avoid failing syncs
+* fix(Bookmark#clone): reset hashValue correctly
+* fix(WebDAV): Fix file size check
+* fix(messages): Improve Linkwarden serverfolder explanation
 
 ## [5.5.3] - 2025-04-27
 
