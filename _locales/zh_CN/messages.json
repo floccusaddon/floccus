@@ -164,6 +164,9 @@
   "DescriptionServerfolderlinkwarden": {
     "message": "同步时，此浏览器中的书签将被存储为该书签集下的链接，且只有该书签集下的链接会和此浏览器同步"
   },
+  "DescriptionServerfolderkarakeep": {
+    "message": "同步时，此浏览器中的书签将被存储为该书签集下的链接，且只有该书签集下的链接会和此浏览器同步"
+  },
   "LabelLocaltarget": {
     "message": "本地目标"
   },
@@ -800,6 +803,21 @@
   },
   "DescriptionReportproblem": {
     "message": "如果你想直接就具体问题联系开发者，可以访问："
+  },
+  "LabelAdapterKarakeep":  {
+    "message": "Karakeep"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "用开源自托管的 Karakeep 应用同步你的书签。此选项无法利用端到端加密。"
+  },
+  "LabelApiKey":  {
+    "message": "API 密钥"
+  },
+  "LabelKarakeepurl":  {
+    "message": "Karakeep 服务器 URL"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "连接 Karakeep 服务器失败"
   },
   "LabelAdapterlinkwarden":  {
     "message": "Linkwarden"
