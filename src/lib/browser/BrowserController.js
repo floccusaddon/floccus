@@ -482,6 +482,17 @@ export default class BrowserController {
         debug: true,
       })
     })
+    const accounts = await Account.getAllAccounts()
+    await Promise.all(
+      accounts.map(async acc => {
+        if (acc.getData().syncing) {
+          await acc.setData({
+            syncing: false,
+            scheduled: acc.getData().enabled,
+          })
+        }
+      })
+    )
   }
 
   async onVisitUrl(historyItem) {

@@ -767,19 +767,17 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async checkFeatureJavascriptLinks(): Promise<void> {
-    if (this.hasFeatureJavascriptLinks !== null) {
-      return
-    }
     try {
       const json = await this.sendRequest(
         'GET',
-        `index.php/apps/bookmarks/public/rest/v2/bookmark?page=1&limit=1`
+        `index.php/apps/bookmarks/public/rest/v2/bookmark?page=0&limit=1`
       )
       if (!json.data.length) {
         this.hasFeatureJavascriptLinks = true
         try {
-          const id = await this.createBookmark(new Bookmark({id: null, parentId: '-1', title: 'floccus', url: 'javascript:void(0)', location: ItemLocation.SERVER}))
-          await this.removeBookmark(new Bookmark({id, parentId: '-1', title: 'floccus', url: 'javascript:void(0)', location: ItemLocation.SERVER}))
+          const url = `javascript:void(${Math.random()})`
+          const id = await this.createBookmark(new Bookmark({id: null, parentId: '-1', title: 'floccus', url, location: ItemLocation.SERVER}))
+          await this.removeBookmark(new Bookmark({id, parentId: '-1', title: 'floccus', url, location: ItemLocation.SERVER}))
         } catch (e) {
           this.hasFeatureJavascriptLinks = false
         }

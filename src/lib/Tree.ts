@@ -90,7 +90,7 @@ export class Bookmark<L extends TItemLocation> {
   clone(withHash?: boolean):Bookmark<L> {
     const bookmark = Object.create(this)
     if (!withHash) {
-      bookmark.hashValue = {}
+      bookmark.hashValue = null
     }
     return bookmark
   }
@@ -307,7 +307,7 @@ export class Folder<L extends TItemLocation> {
   }
 
   async hash(preserveOrder = false): Promise<string> {
-    if (this.hashValue && this.hashValue[String(preserveOrder)]) {
+    if (this.hashValue && typeof this.hashValue[String(preserveOrder)] !== 'undefined') {
       return this.hashValue[String(preserveOrder)]
     }
 
@@ -333,7 +333,7 @@ export class Folder<L extends TItemLocation> {
       JSON.stringify({
         title: this.title,
         children: await Parallel.map(
-          this.children,
+          children,
           child => child.hash(preserveOrder),
           1
         )
@@ -347,7 +347,7 @@ export class Folder<L extends TItemLocation> {
     // @ts-ignore
     return new Folder({
       ...this.toJSON(),
-      ...(!withHash && { hashValue: {} }),
+      ...(!withHash && { hashValue: null }),
       children: this.children.map(child => child.copy(withHash))
     })
   }
@@ -358,7 +358,7 @@ export class Folder<L extends TItemLocation> {
     return new Folder({
       ...this.toJSON(),
       location,
-      ...(!withHash && { hashValue: {} }),
+      ...(!withHash && { hashValue: null }),
       children: this.children.map(child => child.copyWithLocation(withHash, location))
     })
   }

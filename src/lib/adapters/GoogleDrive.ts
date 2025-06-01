@@ -411,12 +411,18 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       throw new NetworkError()
     }
 
-    if (res.status === 401 || res.status === 403) {
-      Logger.log('Failed to authenticate to Google API: ' + res.data)
+    if (res.status === 401) {
+      Logger.log('Failed to authenticate to Google API: ' + JSON.stringify(res.data))
       throw new AuthenticationError()
     }
 
+    if (res.status === 403) {
+      Logger.log('Google API error: ' + JSON.stringify(res.data))
+      throw new HttpError(res.status, method)
+    }
+
     if (res.status >= 500) {
+      Logger.log('Google API error: ' + JSON.stringify(res.data))
       throw new HttpError(res.status, method)
     }
 
@@ -438,7 +444,8 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   async downloadFile(id: string): Promise<string> {
-    const res = await this.request('GET', this.getUrl() + '/files/' + id + '?alt=media')
+    // We acknowledge abuse so that Google Drive will give us the file contents even if it thinks it's a virus.
+    const res = await this.request('GET', this.getUrl() + '/files/' + id + '?alt=media' + '&acknowledgeAbuse=true')
     return res.text()
   }
 

@@ -128,6 +128,13 @@ jobs:
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
+          - app-version: master
+            server-version: 30
+            floccus-adapter: fake
+            test-name: benchmark root
+            browsers: firefox
+            node-version: 14.x
+            npm-version: 7.x
 
     name: ${{ matrix.browsers == 'firefox' && '🦊' || '🔵' }} ${{matrix.floccus-adapter}}:${{ matrix.test-name}} ⭐${{ matrix.app-version }}
 

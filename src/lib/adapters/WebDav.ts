@@ -220,7 +220,7 @@ export default class WebDavAdapter extends CachingAdapter {
           Logger.log('Error getting file size: ' + e.message)
         }
 
-        if (fileSize === null) {
+        if (fileSize === null || Number.isNaN(fileSize)) {
           throw new FileSizeUnknown()
         }
 
@@ -490,7 +490,7 @@ export default class WebDavAdapter extends CachingAdapter {
     }
 
     const xml = await res.text()
-    const match = xml.match(/<.*?:?getcontentlength>(.*?)</)
+    const match = xml.match(/<.*?:?getcontentlength[^>]*?>(.*?)</)
     return match ? parseInt(match[1]) : null
   }
 
@@ -526,7 +526,7 @@ export default class WebDavAdapter extends CachingAdapter {
     }
 
     const xml = res.data
-    const match = xml.match(/<.*?:?getcontentlength>(.*?)</)
+    const match = xml.match(/<.*?:?getcontentlength[^>]*?>(.*?)</)
     return match ? parseInt(match[1]) : null
   }
 
