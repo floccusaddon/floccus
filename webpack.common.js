@@ -76,10 +76,6 @@ module.exports = {
                 },
               ],
             ],
-            // https://github.com/dexie/Dexie.js/issues/2143
-            plugins: [
-              '@babel/plugin-transform-async-to-generator'
-            ]
           },
         },
       },
