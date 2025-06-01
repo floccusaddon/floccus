@@ -6,31 +6,38 @@ import Crypto from './Crypto'
 import { Share } from '@capacitor/share'
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { Capacitor } from '@capacitor/core'
-import { db } from './IndexedDB'
 
 export default class Logger {
   static log() {
-    const dateTime = Date.now()
-    const logMsg = [...arguments]
-    const message = util.format.apply(util, logMsg)
+    const logMsg = [new Date().toISOString(), ...arguments]
 
     // log to console
     DEBUG && console.log(util.format.apply(util, logMsg))
-    db.logs.add({dateTime, message})
-      .catch(e => {
-        console.error('Failed to log to IndexedDB: ', e)
-        console.error(e)
-      })
+    this.messages.push(util.format.apply(util, logMsg)) // TODO: Use a linked list here to get O(n)
+  }
+
+  static async persist() {
+    const Storage = (Capacitor.getPlatform() === 'web') ? await import('./browser/BrowserAccountStorage') : await import('./native/NativeAccountStorage')
+    await Storage.default.changeEntry(
+      'logs',
+      log => {
+        const messages = this.messages
+        this.messages = []
+        return messages // only save the last sync run
+      },
+      []
+    )
   }
 
   static async getLogs() {
-    return db.logs.orderBy('dateTime').toArray()
+    const Storage = (Capacitor.getPlatform() === 'web') ? await import('./browser/BrowserAccountStorage') : await import('./native/NativeAccountStorage')
+    return Storage.default.getEntry('logs', [])
   }
 
   static async anonymizeLogs(logs) {
     const regex = /\[(.*?)\]\((.*?)\)|\[(.*?)\]/g
-    await Parallel.map(logs, async(logMessage) => {
-      logMessage.message = await Logger.replaceAsync(logMessage.message, regex, async(match, p1, p2, p3) => {
+    const newLogs = await Parallel.map(logs, async(entry) => {
+      return Logger.replaceAsync(entry, regex, async(match, p1, p2, p3) => {
         if (p1 && p2) {
           const hash1 = await Crypto.sha256(p1)
           const hash2 = await Crypto.sha256(p2)
@@ -43,11 +50,8 @@ export default class Logger {
     }, 1)
     const regex2 = /url=https?%3A%2F%2F.*$|url=https?%3A%2F%2F[^ ]*/
     const regex3 = /https?:\/\/[^ /]*\//
-    logs
-      .forEach(logMessage => {
-        logMessage.message = logMessage.message.replace(regex2, '###url###').replace(regex3, '###server###')
-      })
-    return logs
+    return newLogs
+      .map(line => line.replace(regex2, '###url###').replace(regex3, '###server###'))
   }
 
   static async replaceAsync(str, regex, asyncFn) {
@@ -71,23 +75,18 @@ export default class Logger {
     if (anonymous) {
       logs = await Logger.anonymizeLogs(logs)
     }
-    logs = logs
-      .map(logMessage => {
-        return new Date(logMessage.dateTime).toISOString() + ' ' + logMessage.message
-      })
-      .join('\n')
-    let blob = new Blob([logs], {
+    let blob = new Blob([logs.join('\n')], {
       type: 'text/plain',
       endings: 'native'
     })
     this.download(
       'floccus-' +
-        packageJson.version +
-        '-' +
-        new Date().toISOString().slice(0, 10) +
-        '-' +
-        (anonymous ? 'redacted' : 'full') +
-        '.log',
+      packageJson.version +
+      '-' +
+      new Date().toISOString().slice(0, 10) +
+      '-' +
+      (anonymous ? 'redacted' : 'full') +
+      '.log',
       blob
     )
   }
@@ -122,3 +121,4 @@ export default class Logger {
     }
   }
 }
+Logger.messages = []

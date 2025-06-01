@@ -200,6 +200,7 @@ export default class Account {
               Logger.log(
                 'Resource is locked, trying again soon'
               )
+              await Logger.persist()
               return
             }
           } else {
@@ -348,6 +349,7 @@ export default class Account {
         await this.init()
       }
     }
+    await Logger.persist()
   }
 
   static async stringifyError(er:any):Promise<string> {
