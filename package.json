@@ -100,7 +100,7 @@
     "dexie": "^4.0.11",
     "fast-xml-parser": "^4.2.7",
     "humanize-duration": "^3.25.1",
-    "intl-messageformat": "^9.9.1",
+    "intl-messageformat": "^10.7.16",
     "isomorphic-git": "1.x",
     "js-base64": "^3.7.5",
     "lodash": "^4.17.20",
