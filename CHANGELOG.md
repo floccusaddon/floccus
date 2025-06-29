@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.5.6] - 2025-06-29
+
+### Fixed
+
+* Remove all traces of IndexedDB usage
+
 ## [5.5.5] - 2025-06-01
 
 ### Fixed
