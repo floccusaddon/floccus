@@ -9,7 +9,6 @@ import uniqBy from 'lodash/uniqBy'
 import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
 import * as Sentry from '@sentry/browser'
-import { freeStorageIfNecessary } from '../IndexedDB'
 
 const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
 const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
@@ -23,7 +22,7 @@ class AlarmManager {
   }
 
   async checkStorage() {
-    await freeStorageIfNecessary()
+    // empty
   }
 
   async checkSync() {
