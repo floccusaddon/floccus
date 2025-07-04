@@ -162,7 +162,10 @@
     "message": "Lors de la synchronisation, vos signets seront stockés sous ce chemin d'accès sur le serveur. Ce chemin représente un dossier dans l'application Nextcloud Bookmarks, et non un dossier dans NextCloud Files. Laisser vide pour stocker tous les liens dans le dossier racine du serveur."
   },
   "DescriptionServerfolderlinkwarden": {
-    "message": "Lors de la synchronisation, vos signets seront stockés dans cette collection."
+    "message": "Lors de la synchronisation, vos signets dans ce navigateur seront stockés dans cette collection, et seuls les liens dans cette collection seront synchronisés avec ce navigateur."
+  },
+  "DescriptionServerfolderkarakeep": {
+    "message": "Lors de la synchronisation, vos signets dans ce navigateur seront stockés dans cette collection, et seuls les liens dans cette collection seront synchronisés avec ce navigateur."
   },
   "LabelLocaltarget": {
     "message": "Dossier local"
@@ -800,6 +803,21 @@
   },
   "DescriptionReportproblem": {
     "message": "Si vous désirez contacter directement les développeurs pour discuter d'un problème, vous pouvez le faire ici:"
+  },
+  "LabelAdapterKarakeep":  {
+    "message": "Karakeep"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "Synchronisez vos signets avec l'application open-source auto-hébergée Karakeep. Cette option de supporte pas le chiffrement point à point."
+  },
+  "LabelApiKey":  {
+    "message": "Clé d'API"
+  },
+  "LabelKarakeepurl":  {
+    "message": "L'URL de votre serveur Karakeep"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "Impossible de se connecter à votre serveur Karakeep"
   },
   "LabelAdapterlinkwarden":  {
     "message": "Linkwarden"
