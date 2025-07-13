@@ -60,12 +60,10 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
       let overrideTitle, isRoot, isToolbar
       if (node.parentId === this.absoluteRoot.id && !isVivaldiBrowser) {
         switch (node.id) {
-          case '1': // Chrome
           case 'toolbar_____': // Firefox
             overrideTitle = BrowserTree.TITLE_BOOKMARKS_BAR
             isToolbar = true
             break
-          case '2': // Chrome
           case 'unfiled_____': // Firefox
             overrideTitle = BrowserTree.TITLE_OTHER_BOOKMARKS
             break
@@ -364,19 +362,14 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
   static async getAbsoluteRootFolder() {
     if (!absoluteRoot) {
       try {
-        // chromium
-        absoluteRoot = (await browser.bookmarks.get('0'))[0]
+        // firefox
+        absoluteRoot = (await browser.bookmarks.get('root________'))[0]
       } catch (e) {
-        try {
-          // firefox
-          absoluteRoot = (await browser.bookmarks.get('root________'))[0]
-        } catch (e) {
-          // any other browser
-          absoluteRoot = (await browser.bookmarks.getTree())[0]
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          delete absoluteRoot.children
-        }
+        // any other browser
+        absoluteRoot = (await browser.bookmarks.getTree())[0]
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        delete absoluteRoot.children
       }
     }
     return absoluteRoot
