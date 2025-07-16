@@ -369,3 +369,14 @@ export class AdditionFailsafeError extends FloccusError {
     Object.setPrototypeOf(this, AdditionFailsafeError.prototype)
   }
 }
+
+export class GitPushError extends FloccusError {
+  public errorMessage: string
+
+  constructor(errorMessage:string) {
+    super(`E044: Git push operation failed: ${errorMessage}`)
+    this.code = 44
+    this.errorMessage = errorMessage
+    Object.setPrototypeOf(this, GitPushError.prototype)
+  }
+}
