@@ -377,6 +377,6 @@ export class GitPushError extends FloccusError {
     super(`E044: Git push operation failed: ${errorMessage}`)
     this.code = 44
     this.errorMessage = errorMessage
-    Object.setPrototypeOf(this, AdditionFailsafeError.prototype)
+    Object.setPrototypeOf(this, GitPushError.prototype)
   }
 }
