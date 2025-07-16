@@ -9,7 +9,7 @@ import http from 'isomorphic-git/http/web'
 import FS from '@isomorphic-git/lightning-fs'
 import Html from '../serializers/Html'
 import {
-  FileUnreadableError,
+  FileUnreadableError, GitPushError,
   MissingPermissionsError,
   ResourceLockedError,
   SlashError
@@ -133,7 +133,7 @@ export default class GitAdapter extends CachingAdapter {
           await git.renameBranch({ fs: this.fs, dir: this.dir, ref: this.server.branch, oldref: currentBranch })
         }
         Logger.log('(git) push')
-        await git.push({
+        const result = await git.push({
           fs: this.fs,
           http,
           dir: this.dir,
@@ -142,6 +142,9 @@ export default class GitAdapter extends CachingAdapter {
           remote: 'origin',
           onAuth: () => this.onAuth()
         })
+        if (result.error) {
+          throw new GitPushError(result.error)
+        }
       } else {
         throw e
       }
@@ -203,7 +206,7 @@ export default class GitAdapter extends CachingAdapter {
       })
       try {
         Logger.log('(git) push')
-        await git.push({
+        const result = await git.push({
           fs: this.fs,
           http,
           dir: this.dir,
@@ -211,11 +214,15 @@ export default class GitAdapter extends CachingAdapter {
           force: true,
           onAuth: () => this.onAuth()
         })
+        if (result.error) {
+          throw new GitPushError(result.error)
+        }
       } catch (e) {
         if (e.code && e.code === git.Errors.PushRejectedError.code) {
           await this.freeLock() // Only clears the locks set in the current adapter instance
           throw new ResourceLockedError
         }
+        throw e
       }
     } else {
       Logger.log('No changes to the server version necessary')
@@ -244,7 +251,10 @@ export default class GitAdapter extends CachingAdapter {
       Logger.log('(git) tag ' + tag)
       await git.tag({ fs: this.fs, dir: this.dir, ref: tag })
       Logger.log('(git) push tag ' + tag)
-      await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, onAuth: () => this.onAuth() })
+      const result = await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, onAuth: () => this.onAuth() })
+      if (result.error) {
+        throw new GitPushError(result.error)
+      }
       this.locked.push(tag)
     })()
     await this.lockingPromise
@@ -265,6 +275,7 @@ export default class GitAdapter extends CachingAdapter {
     try {
       for (const tag of this.locked) {
         Logger.log('(git) push: delete tag ' + tag)
+        // Ignoring result.error
         await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
       }
       this.locked = []
@@ -281,6 +292,7 @@ export default class GitAdapter extends CachingAdapter {
     const tags = await git.listTags({ fs, dir: this.dir })
     const lockTags = tags.filter(tag => tag.startsWith('floccus-lock-'))
     for (const tag of lockTags) {
+      // ignoring result.error
       await git.push({ fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
     }
   }
@@ -359,7 +371,7 @@ export default class GitAdapter extends CachingAdapter {
     if (currentBranch && currentBranch !== this.server.branch) {
       await git.renameBranch({ fs, dir: this.dir, ref: this.server.branch, oldref: currentBranch })
     }
-    await git.push({
+    const result = await git.push({
       fs,
       http,
       dir: this.dir,
@@ -369,6 +381,9 @@ export default class GitAdapter extends CachingAdapter {
       force: true,
       onAuth: () => this.onAuth()
     })
+    if (result.error) {
+      throw new GitPushError(result.error)
+    }
     await git.fetch({
       http,
       fs,

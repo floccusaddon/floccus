@@ -6,7 +6,7 @@ import { IAccountData } from '../interfaces/AccountStorage'
 import {
   AdditionFailsafeError,
   CreateBookmarkError,
-  DeletionFailsafeError, FloccusError,
+  DeletionFailsafeError, FloccusError, GitPushError,
   HttpError,
   InconsistentBookmarksExistenceError, LockFileError,
   MissingItemOrderError,
@@ -96,6 +96,9 @@ export default class NativeAccount extends Account {
     }
     if (er instanceof UpdateBookmarkError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.bookmark.inspect()])
+    }
+    if (er instanceof GitPushError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.errorMessage])
     }
     if (er instanceof FloccusError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))

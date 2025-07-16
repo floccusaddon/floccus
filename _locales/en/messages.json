@@ -128,6 +128,9 @@
   "Error043": {
     "message": "E043: Failsafe: The current sync run would increase your bookmarks count by {0}%. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway."
   },
+  "Error044": {
+    "message": "E044: Git push operation failed: {0}"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
