@@ -48,7 +48,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     const allAccounts = await (await Account.getAccountClass()).getAllAccounts()
 
     const recurse = (node, parentId?, isOnToolbar?, rng?) => {
-      
+
       if (
         allAccounts.some(
           acc => acc.getData().localRoot === node.id && String(node.id) !== String(this.rootId) && !acc.getData().nestedSync
@@ -72,6 +72,18 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
             break
           case 'mobile______': // Firefox
             overrideTitle = BrowserTree.TITLE_MOBILE_BOOKMARKS
+        }
+        if ('folderType' in node) {
+          // Chromium since 138.0.7196.0
+          switch (node.folderType) {
+            case 'bookmarks-bar':
+              overrideTitle = BrowserTree.TITLE_BOOKMARKS_BAR
+              isToolbar = true
+              break
+            case 'other':
+              overrideTitle = BrowserTree.TITLE_OTHER_BOOKMARKS
+              break
+          }
         }
         if (overrideTitle) {
           Logger.log(
