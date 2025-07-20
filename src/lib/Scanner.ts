@@ -74,6 +74,15 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       this.result.UPDATE.commit({type: ActionType.UPDATE, payload: newFolder, oldItem: oldFolder})
     }
 
+    // Generate REORDERS before diffing anything to make sure REORDERS are from top to bottom
+    if (newFolder.children.length > 1) {
+      this.result.REORDER.commit({
+        type: ActionType.REORDER,
+        payload: newFolder,
+        order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
+      })
+    }
+
     // Preserved Items and removed Items
     // (using map here, because 'each' doesn't provide indices)
     const unmatchedChildren = newFolder.children.slice(0)
@@ -103,14 +112,6 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       }
       this.result.CREATE.commit({type: ActionType.CREATE, payload: newChild, index})
     }, 1)
-
-    if (newFolder.children.length > 1) {
-      this.result.REORDER.commit({
-        type: ActionType.REORDER,
-        payload: newFolder,
-        order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
-      })
-    }
   }
 
   async diffBookmark(oldBookmark:Bookmark<L1>, newBookmark:Bookmark<L2>):Promise<void> {
