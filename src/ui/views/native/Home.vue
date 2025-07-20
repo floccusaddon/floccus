@@ -108,19 +108,32 @@ export default {
         new URL(url)
         return url
       } catch (e1) {
-        // If not, see whether we can find a URL at the end of this string.
-        // This happens when we share from the Amazon Shopping app.
-        const lastWord = url.trim().split(' ').slice(-1)[0]
+        // noop
+      }
+      // If not, see whether we can find a URL at the end of this string.
+      // This happens e.g. when we share from the Amazon Shopping app.
+      const lastWord = url.trim().split(' ').slice(-1)[0]
+      try {
+        // eslint-disable-next-line no-new
+        new URL(lastWord)
+        // The last word is a URL - return it
+        return lastWord
+      } catch (e2) {
+        // noop
+      }
+      const indexOfHttp = url.lastIndexOf('http')
+      if (indexOfHttp > 0) {
+        const couldBeUrl = url.substring(indexOfHttp)
         try {
           // eslint-disable-next-line no-new
-          new URL(lastWord)
-          // The last word is a URL - return it
-          return lastWord
-        } catch (e2) {
-          // We didn't find a valid URL - return our input unchanged
-          return url
+          new URL(couldBeUrl)
+          return couldBeUrl
+        } catch (e3) {
+          // noop
         }
       }
+      // We didn't find a valid URL - return our input unchanged
+      return url
     }
   }
 }
