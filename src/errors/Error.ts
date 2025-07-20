@@ -244,7 +244,7 @@ export class DeletionFailsafeError extends FloccusError {
   public percent: number
 
   constructor(percent:number) {
-    super(`E029: Failsafe: The current sync run would delete ${percent}% of your bookmarks. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway.`)
+    super(`E029: Failsafe: The current sync run would delete ${percent}% of your links. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway.`)
     this.code = 29
     this.percent = percent
     Object.setPrototypeOf(this, DeletionFailsafeError.prototype)

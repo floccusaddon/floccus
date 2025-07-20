@@ -84,7 +84,7 @@
     "message": "E028: Couldn't authenticate with the server."
   },
   "Error029": {
-    "message": "E029: Failsafe: The current sync run would delete {0}% of your bookmarks. Refusing to execute. Disable this failsafe in the account settings if you want to proceed anyway."
+    "message": "E029: Failsafe: The current sync run would delete {0}% of your links. Refusing to execute. Disable this failsafe in the account settings if you want to proceed anyway."
   },
   "Error030": {
     "message": "E030: Failed to decrypt bookmarks file. The passphrase may be wrong or the file may be corrupted."
