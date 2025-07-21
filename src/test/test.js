@@ -5718,6 +5718,403 @@ describe('Floccus', function() {
             )
           })
         })
+        context('with tab groups', function() {
+          if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
+            return
+          }
+          let account
+          beforeEach('set up account', async function() {
+            account = await Account.create(ACCOUNT_DATA)
+            if (ACCOUNT_DATA.type === 'fake') {
+              account.server.bookmarksCache = new Folder({
+                id: '',
+                title: 'root',
+                location: 'Server'
+              })
+            }
+            await account.init()
+            await account.setData({ localRoot: 'tabs'})
+            if (ACCOUNT_DATA.noCache) {
+              account.storage.setCache = () => {
+                // noop
+              }
+              account.storage.setMappings = () => {
+                // noop
+              }
+            }
+          })
+          afterEach('clean up account', async function() {
+            if (!account) return
+            try {
+              await awaitTabsUpdated()
+              const tabs = await browser.tabs.query({
+                windowType: 'normal' // no devtools or panels or popups
+              })
+              await browser.tabs.remove(tabs.filter(tab => tab.url.startsWith('http')).map(tab => tab.id))
+            } catch (e) {
+              console.error(e)
+            }
+            await awaitTabsUpdated()
+            if (ACCOUNT_DATA.type === 'git') {
+              await account.server.clearServer()
+            } else if (ACCOUNT_DATA.type !== 'fake') {
+              await account.setData({ serverRoot: null })
+              account.lockTimeout = 0
+              const tree = await getAllBookmarks(account)
+              await withSyncConnection(account, async() => {
+                await AsyncParallel.each(tree.children, async child => {
+                  if (child instanceof Folder) {
+                    await account.server.removeFolder(child)
+                  } else {
+                    await account.server.removeBookmark(child)
+                  }
+                })
+              })
+            }
+            if (ACCOUNT_DATA.type === 'google-drive') {
+              const fileList = await account.server.listFiles('name = ' + "'" + account.server.bookmark_file + "'")
+              const files = fileList.files
+              for (const file of files) {
+                await account.server.deleteFile(file.id)
+              }
+              if (files.length > 1) {
+                throw new Error('Google Drive sync left more than one file behind')
+              }
+            }
+            await account.delete()
+          })
+
+          it('should create a tab group with two new tabs', async function() {
+            // Skip if browser doesn't support tab groups
+            if (typeof browser.tabGroups === 'undefined') {
+              return this.skip()
+            }
+
+            // Create two tabs
+            const tab1 = await browser.tabs.create({
+              url: 'https://example.org/#test1'
+            })
+            const tab2 = await browser.tabs.create({
+              url: 'https://example.org/#test2'
+            })
+            await awaitTabsUpdated()
+
+            // Group the tabs
+            const groupId = await browser.tabs.group({
+              tabIds: [tab1.id, tab2.id]
+            })
+
+            // Set the group title
+            await browser.tabGroups.update(groupId, {
+              title: 'Test Group'
+            })
+            await awaitTabsUpdated()
+
+            // Sync
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            // Verify the result
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Folder({
+                        title: 'Test Group',
+                        children: [
+                          new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test1' }),
+                          new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test2' })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+          })
+
+          it('should create two tabs, then add them both to a tab group', async function() {
+            // Skip if browser doesn't support tab groups
+            if (typeof browser.tabGroups === 'undefined') {
+              return this.skip()
+            }
+
+            // Create two tabs
+            const tab1 = await browser.tabs.create({
+              url: 'https://example.org/#test1'
+            })
+            const tab2 = await browser.tabs.create({
+              url: 'https://example.org/#test2'
+            })
+            await awaitTabsUpdated()
+
+            // Sync first to create the tabs on the server
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            // Verify the initial state
+            let tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test1' }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test2' })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+
+            // Now group the tabs
+            const groupId = await browser.tabs.group({
+              tabIds: [tab1.id, tab2.id]
+            })
+
+            // Set the group title
+            await browser.tabGroups.update(groupId, {
+              title: 'Test Group'
+            })
+            await awaitTabsUpdated()
+
+            // Sync again
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            // Verify the result
+            tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Folder({
+                        title: 'Test Group',
+                        children: [
+                          new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test1' }),
+                          new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test2' })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+          })
+
+          it('should move one tab out of a tab group', async function() {
+            // Skip if browser doesn't support tab groups
+            if (typeof browser.tabGroups === 'undefined') {
+              return this.skip()
+            }
+
+            // Create two tabs
+            const tab1 = await browser.tabs.create({
+              url: 'https://example.org/#test1'
+            })
+            const tab2 = await browser.tabs.create({
+              url: 'https://example.org/#test2'
+            })
+            await awaitTabsUpdated()
+
+            // Group the tabs
+            const groupId = await browser.tabs.group({
+              tabIds: [tab1.id, tab2.id]
+            })
+
+            // Set the group title
+            await browser.tabGroups.update(groupId, {
+              title: 'Test Group'
+            })
+            await awaitTabsUpdated()
+
+            // Sync
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            // Verify the initial state
+            let tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Folder({
+                        title: 'Test Group',
+                        children: [
+                          new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test1' }),
+                          new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test2' })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+
+            // Move one tab out of the group
+            await browser.tabs.ungroup([tab1.id])
+            await awaitTabsUpdated()
+
+            // Sync again
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            // Verify the result
+            tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test1' }),
+                      new Folder({
+                        title: 'Test Group',
+                        children: [
+                          new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test2' })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+          })
+
+          it('should reorder tabs and tab groups', async function() {
+            // Skip if browser doesn't support tab groups
+            if (typeof browser.tabGroups === 'undefined') {
+              return this.skip()
+            }
+
+            // Create tabs and groups
+            const tab1 = await browser.tabs.create({
+              url: 'https://example.org/#test1'
+            })
+            const tab2 = await browser.tabs.create({
+              url: 'https://example.org/#test2'
+            })
+            const tab3 = await browser.tabs.create({
+              url: 'https://example.org/#test3'
+            })
+            await awaitTabsUpdated()
+
+            // Create first group with tab1
+            const groupId1 = await browser.tabs.group({
+              tabIds: [tab1.id]
+            })
+            await browser.tabGroups.update(groupId1, {
+              title: 'Group 1'
+            })
+
+            // Create second group with tab2
+            const groupId2 = await browser.tabs.group({
+              tabIds: [tab2.id]
+            })
+            await browser.tabGroups.update(groupId2, {
+              title: 'Group 2'
+            })
+            await awaitTabsUpdated()
+
+            // Sync
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            // Verify the initial state
+            let tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Folder({
+                        title: 'Group 1',
+                        children: [
+                          new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test1' })
+                        ]
+                      }),
+                      new Folder({
+                        title: 'Group 2',
+                        children: [
+                          new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test2' })
+                        ]
+                      }),
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test3' })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+
+            // Reorder the tabs and groups
+            // Move tab3 to index 0
+            await browser.tabs.move(tab3.id, { index: 0 })
+            // Move group2 to index 1
+            await browser.tabGroups.move(groupId2, { index: 1 })
+            await awaitTabsUpdated()
+
+            // Sync again
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            // Verify the result
+            tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test3' }),
+                      new Folder({
+                        title: 'Group 2',
+                        children: [
+                          new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test2' })
+                        ]
+                      }),
+                      new Folder({
+                        title: 'Group 1',
+                        children: [
+                          new Bookmark({ title: 'Example Domain', url: 'https://example.org/#test1' })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+          })
+        })
       })
   })
 
