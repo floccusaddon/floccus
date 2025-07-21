@@ -6,13 +6,12 @@
 [![Tests](https://github.com/marcelklehr/floccus/workflows/Tests/badge.svg)](https://github.com/marcelklehr/floccus/actions?query=workflow%3ATests) <img src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img src="https://img.shields.io/amo/users/floccus.svg">
 
 - 🔖 Syncs your real, native browser bookmarks directly
-- ☸ Sync via [Nextcloud Bookmarks](https://github.com/nextcloud/bookmarks), Google Drive, any Git server (like GitHub, Gitlab, Gitea, etc.) or [any WebDAV-compatible service](https://community.cryptomator.org/t/webdav-urls-of-common-cloud-storage-services/75)
+- ☸ Sync via [Nextcloud Bookmarks](https://github.com/nextcloud/bookmarks), [Linkwarden](https://linkwarden.app/), [KaraKeep](https://karakeep.app/), Google Drive, any Git server (like GitHub, Gitlab, Gitea, etc.) or [any WebDAV-compatible service](https://community.cryptomator.org/t/webdav-urls-of-common-cloud-storage-services/75)
 - ⚛ Use any browser that supports Web extensions (e.g. Firefox, Chrome, Edge, Opera, Brave, Vivaldi, ...; Safari [not yet](https://github.com/floccusaddon/floccus/issues/23))
-- 📲 Install the floccus Android app to access your bookmarks on your phone
+- 📲 Install the floccus Android/iOS app to access your bookmarks on your phone (Most mobile browsers do not support floccus, sadly)
 - 💼 Create as many sync profiles as you need
 - 🚚 Control sync strategy (i.e. uni- or bidirectional), ⏳ sync interval and 📂 synced folder
 - 📦 Easily export your configuration
-- 🔒 Keep your credentials secure with an encryption passphrase
 
 
 [![Download now](https://img.shields.io/badge/Download-now-limegreen.svg?&style=for-the-badge)](https://floccus.org/download)
