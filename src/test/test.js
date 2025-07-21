@@ -5476,6 +5476,8 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             const tree = await getAllBookmarks(account)
             expectTreeEqual(
               tree,
@@ -5576,6 +5578,8 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             let tree = await getAllBookmarks(account)
             expectTreeEqual(
               tree,
@@ -5612,6 +5616,8 @@ describe('Floccus', function() {
 
             await account.sync()
             expect(account.getData().error).to.not.be.ok
+
+            await awaitTabsUpdated()
 
             tree = await getAllBookmarks(account)
             expectTreeEqual(
@@ -5659,6 +5665,8 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             let tree = await getAllBookmarks(account)
             expectTreeEqual(
               tree,
@@ -5696,6 +5704,8 @@ describe('Floccus', function() {
 
             await account.sync()
             expect(account.getData().error).to.not.be.ok
+
+            await awaitTabsUpdated()
 
             tree = await getAllBookmarks(account)
             expectTreeEqual(
@@ -6183,6 +6193,8 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             // Verify the local tab state
             const localTree = await account.localTabs.getBookmarksTree(true)
             localTree.children[0].children = localTree.children[0].children.filter(item => !item.url || item.url.startsWith('http'))
@@ -6307,6 +6319,8 @@ describe('Floccus', function() {
             // Sync to propagate server changes to local tabs
             await account.sync()
             expect(account.getData().error).to.not.be.ok
+
+            await awaitTabsUpdated()
 
             // Verify the local tab state
             const localTree = await account.localTabs.getBookmarksTree(true)
@@ -6436,6 +6450,8 @@ describe('Floccus', function() {
             // Sync to propagate server changes to local tabs
             await account.sync()
             expect(account.getData().error).to.not.be.ok
+
+            await awaitTabsUpdated()
 
             // Verify the local tab state
             const localTree = await account.localTabs.getBookmarksTree(true)
