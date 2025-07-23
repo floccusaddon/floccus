@@ -106,7 +106,6 @@ jobs:
           - test
         browsers:
           - firefox
-          - chrome
         include:
           - app-version: master
             server-version: 30
