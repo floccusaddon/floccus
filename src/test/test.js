@@ -5420,11 +5420,11 @@ describe('Floccus', function() {
             await account.delete()
           })
           it('should create local tabs on the server', async function() {
-            browser.tabs.create({
+            await browser.tabs.create({
               index: 1,
               url: 'https://example.org/#test1'
             })
-            browser.tabs.create({
+            await browser.tabs.create({
               index: 2,
               url: 'https://example.org/#test2'
             })
@@ -5498,11 +5498,11 @@ describe('Floccus', function() {
           it('should update the server when pushing local changes', async function() {
             await account.setData({ strategy: 'overwrite'})
 
-            browser.tabs.create({
+            await browser.tabs.create({
               index: 1,
               url: 'https://example.org/#test1'
             })
-            const tab = browser.tabs.create({
+            const tab = await browser.tabs.create({
               index: 2,
               url: 'https://example.org/#test2'
             })
@@ -8432,11 +8432,11 @@ function stringifyAccountData(ACCOUNT_DATA) {
 function awaitTabsUpdated() {
   return Promise.race([
     new Promise(resolve => {
-      browser.tabs.onUpdated.addListener(() => {
-        browser.tabs.onUpdated.removeListener(resolve)
-        setTimeout(() => resolve(), 1000)
+      browser.tabs.onUpdated.addListener(function listener() {
+        browser.tabs.onUpdated.removeListener(listener)
+        setTimeout(() => resolve(), 1300)
       })
     }),
-    new Promise(resolve => setTimeout(resolve, 1100))
+    new Promise(resolve => setTimeout(resolve, 1500))
   ])
 }
