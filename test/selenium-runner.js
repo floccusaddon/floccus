@@ -97,6 +97,8 @@ installConsoleHandler()
 
     testUrl += `dist/html/test.html?grep=${process.env.FLOCCUS_TEST}&server=${server}&app_version=${process.env.APP_VERSION}&browser=${process.env.SELENIUM_BROWSER}`
 
+    testUrl += `&test_url=${server}`
+
     if (process.env.FLOCCUS_TEST.includes('google-drive')) {
       testUrl += `&password=${process.env.GOOGLE_API_REFRESH_TOKEN}`
     }
