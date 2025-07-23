@@ -5421,7 +5421,6 @@ describe('Floccus', function() {
             await account.delete()
           })
           it('should create local tabs on the server', async function() {
-
             await browser.tabs.create({
               index: 1,
               url: TEST_URL + '#test1'
@@ -8436,9 +8435,9 @@ function awaitTabsUpdated() {
     new Promise(resolve => {
       browser.tabs.onUpdated.addListener(function listener() {
         browser.tabs.onUpdated.removeListener(listener)
-        setTimeout(() => resolve(), 5000)
+        setTimeout(() => resolve(), 1000)
       })
     }),
-    new Promise(resolve => setTimeout(resolve, 10000))
+    new Promise(resolve => setTimeout(resolve, 1300))
   ])
 }
