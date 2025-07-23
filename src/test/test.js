@@ -5360,6 +5360,22 @@ describe('Floccus', function() {
             return
           }
           let account
+          let TEST_URL_TITLE
+          before(async function() {
+            // Set up TEST_URL and TEST_URL_TITLE
+            await browser.tabs.create({
+              index: 1,
+              url: TEST_URL
+            })
+            await awaitTabsUpdated()
+            const tabs = await browser.tabs.query({
+              windowType: 'normal' // no devtools or panels or popups
+            })
+            const tab = tabs.filter(tab => tab.url.startsWith('http'))[0]
+            TEST_URL = tab.url
+            TEST_URL_TITLE = tab.title
+            await browser.tabs.remove(tab.id)
+          })
           beforeEach('set up account', async function() {
             account = await Account.create(ACCOUNT_DATA)
             if (ACCOUNT_DATA.type === 'fake') {
@@ -5443,8 +5459,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                     ]
                   })
                 ]
@@ -5463,7 +5479,7 @@ describe('Floccus', function() {
                 location: ItemLocation.SERVER
               }))
               serverMark = {
-                title: 'Example Domain',
+                title: TEST_URL_TITLE,
                 url: TEST_URL + '',
                 parentId: windowFolderId,
                 location: ItemLocation.SERVER
@@ -5488,7 +5504,7 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '' }),
                     ]
                   })
                 ]
@@ -5521,8 +5537,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                     ]
                   })
                 ]
@@ -5545,8 +5561,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test3' })
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test3' })
                     ]
                   })
                 ]
@@ -5565,7 +5581,7 @@ describe('Floccus', function() {
                 location: ItemLocation.SERVER
               }))
               serverMark = {
-                title: 'Example Domain',
+                title: TEST_URL_TITLE,
                 url: TEST_URL + '#test1',
                 parentId: windowFolderId,
                 location: ItemLocation.SERVER
@@ -5590,7 +5606,7 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
                     ]
                   })
                 ]
@@ -5601,7 +5617,7 @@ describe('Floccus', function() {
             let serverMark2
             await withSyncConnection(account, async() => {
               serverMark2 = {
-                title: 'Example Domain',
+                title: TEST_URL_TITLE,
                 url: TEST_URL + '#test3',
                 parentId: tree.children[0].id,
                 location: ItemLocation.SERVER
@@ -5610,7 +5626,7 @@ describe('Floccus', function() {
                 new Bookmark(serverMark2)
               )
 
-              await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: TEST_URL + '#test2', title: 'Example Domain', parentId: tree.children[0].id })
+              await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: TEST_URL + '#test2', title: TEST_URL_TITLE, parentId: tree.children[0].id })
             })
 
             await account.setData({ strategy: 'slave'})
@@ -5629,8 +5645,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' }),
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test3' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test3' }),
                     ]
                   })
                 ]
@@ -5652,7 +5668,7 @@ describe('Floccus', function() {
                 location: ItemLocation.SERVER
               }))
               serverMark = {
-                title: 'Example Domain',
+                title: TEST_URL_TITLE,
                 url: TEST_URL + '#test1',
                 parentId: windowFolderId,
                 location: ItemLocation.SERVER
@@ -5677,7 +5693,7 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
                     ]
                   })
                 ]
@@ -5688,7 +5704,7 @@ describe('Floccus', function() {
             let serverMark2
             await withSyncConnection(account, async() => {
               serverMark2 = {
-                title: 'Example Domain',
+                title: TEST_URL_TITLE,
                 url: TEST_URL + '#test3',
                 parentId: tree.children[0].id,
                 location: ItemLocation.SERVER
@@ -5697,7 +5713,7 @@ describe('Floccus', function() {
                 new Bookmark(serverMark2)
               )
 
-              await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: TEST_URL + '#test2', title: 'Example Domain', parentId: tree.children[0].id })
+              await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: TEST_URL + '#test2', title: TEST_URL_TITLE, parentId: tree.children[0].id })
             })
 
             await browser.tabs.create({url: TEST_URL + '#test4'})
@@ -5717,9 +5733,9 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' }),
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test3' }),
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test4' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test3' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test4' }),
                     ]
                   })
                 ]
@@ -5733,6 +5749,22 @@ describe('Floccus', function() {
           if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
             return
           }
+          let TEST_URL_TITLE
+          before(async function() {
+            // Set up TEST_URL and TEST_URL_TITLE
+            await browser.tabs.create({
+              index: 1,
+              url: TEST_URL
+            })
+            await awaitTabsUpdated()
+            const tabs = await browser.tabs.query({
+              windowType: 'normal' // no devtools or panels or popups
+            })
+            const tab = tabs.filter(tab => tab.url.startsWith('http'))[0]
+            TEST_URL = tab.url
+            TEST_URL_TITLE = tab.title
+            await browser.tabs.remove(tab.id)
+          })
           let account
           beforeEach('set up account', async function() {
             account = await Account.create(ACCOUNT_DATA)
@@ -5838,8 +5870,8 @@ describe('Floccus', function() {
                       new Folder({
                         title: 'Test Group',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                         ]
                       })
                     ]
@@ -5879,8 +5911,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                     ]
                   })
                 ]
@@ -5916,8 +5948,8 @@ describe('Floccus', function() {
                       new Folder({
                         title: 'Test Group',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                         ]
                       })
                     ]
@@ -5971,8 +6003,8 @@ describe('Floccus', function() {
                       new Folder({
                         title: 'Test Group',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                         ]
                       })
                     ]
@@ -6000,11 +6032,11 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
                       new Folder({
                         title: 'Test Group',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                         ]
                       })
                     ]
@@ -6067,16 +6099,16 @@ describe('Floccus', function() {
                       new Folder({
                         title: 'Group 1',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' })
                         ]
                       }),
                       new Folder({
                         title: 'Group 2',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                         ]
                       }),
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test3' })
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test3' })
                     ]
                   })
                 ]
@@ -6105,17 +6137,17 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test3' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test3' }),
                       new Folder({
                         title: 'Group 2',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                         ]
                       }),
                       new Folder({
                         title: 'Group 1',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' })
                         ]
                       })
                     ]
@@ -6155,8 +6187,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                     ]
                   })
                 ]
@@ -6210,8 +6242,8 @@ describe('Floccus', function() {
                       new Folder({
                         title: 'Server Group',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                         ]
                       })
                     ]
@@ -6235,8 +6267,8 @@ describe('Floccus', function() {
                       new Folder({
                         title: 'Server Group',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                         ]
                       })
                     ]
@@ -6290,8 +6322,8 @@ describe('Floccus', function() {
                       new Folder({
                         title: 'Original Group',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                         ]
                       })
                     ]
@@ -6337,8 +6369,8 @@ describe('Floccus', function() {
                       new Folder({
                         title: 'Renamed Group',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                         ]
                       })
                     ]
@@ -6361,8 +6393,8 @@ describe('Floccus', function() {
                       new Folder({
                         title: 'Renamed Group',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                         ]
                       })
                     ]
@@ -6416,8 +6448,8 @@ describe('Floccus', function() {
                       new Folder({
                         title: 'Test Group',
                         children: [
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                          new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                         ]
                       })
                     ]
@@ -6465,8 +6497,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                     ]
                   })
                 ]
@@ -6484,8 +6516,8 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'Window 0',
                     children: [
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test1' }),
-                      new Bookmark({ title: 'Example Domain', url: TEST_URL + '#test2' })
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
                     ]
                   })
                 ]
