@@ -141,20 +141,20 @@ jobs:
 
     services:
       hub:
-        image: selenium/hub:4.20.0-20240425
+        image: selenium/hub:4.34.0-20250717
         ports:
           - 4442:4442
           - 4443:4443
           - 4444:4444
       firefox:
-        image: selenium/node-firefox:4.20.0-20240425
+        image: selenium/node-firefox:4.34.0-20250717
         env:
           SE_EVENT_BUS_HOST: hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
         options: --shm-size="2g"
       chrome:
-        image: selenium/node-chrome:4.20.0-20240425
+        image: selenium/node-chrome:4.34.0-20250717
         env:
           SE_EVENT_BUS_HOST: hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
