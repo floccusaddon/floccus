@@ -106,6 +106,7 @@ jobs:
           - test
         browsers:
           - firefox
+          - chrome
         include:
           - app-version: master
             server-version: 30
@@ -153,7 +154,7 @@ jobs:
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
         options: --shm-size="2g"
       chrome:
-        image: selenium/node-chrome:4.34.0-20250717
+        image: selenium/node-chrome:4.20.0-20240425
         env:
           SE_EVENT_BUS_HOST: hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
@@ -278,9 +279,9 @@ jobs:
           npm run test
         if: matrix.floccus-adapter != 'git-xbel' && matrix.floccus-adapter != 'git-html'
 
-      - name: Cancelling parallel jobs
-        if: failure() && matrix.floccus-adapter == 'fake' && matrix.test-name == 'test'
-        uses: andymckay/cancel-action@0.2
+#      - name: Cancelling parallel jobs
+#        if: failure() && matrix.floccus-adapter == 'fake' && matrix.test-name == 'test'
+#        uses: andymckay/cancel-action@0.2
 
   summary:
     runs-on: ubuntu-latest

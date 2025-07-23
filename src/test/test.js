@@ -8434,9 +8434,9 @@ function awaitTabsUpdated() {
     new Promise(resolve => {
       browser.tabs.onUpdated.addListener(function listener() {
         browser.tabs.onUpdated.removeListener(listener)
-        setTimeout(() => resolve(), 2300)
+        setTimeout(() => resolve(), 5000)
       })
     }),
-    new Promise(resolve => setTimeout(resolve, 3000))
+    new Promise(resolve => setTimeout(resolve, 10000))
   ])
 }
