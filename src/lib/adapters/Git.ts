@@ -211,7 +211,6 @@ export default class GitAdapter extends CachingAdapter {
           http,
           dir: this.dir,
           remote: 'origin',
-          force: true,
           onAuth: () => this.onAuth()
         })
         if (result.error) {
