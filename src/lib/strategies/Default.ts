@@ -1185,6 +1185,8 @@ export default class SyncProcess {
     Logger.log('Executing reorderings')
     Logger.log({ reorderings })
 
+    const isUsingTabs = await this.localTree.isUsingBrowserTabs?.()
+
     await Parallel.each(reorderings.getActions(), async(action) => {
       Logger.log('Executing reorder action', `${action.type} Payload: #${action.payload.id}[${action.payload.title}]${'url' in action.payload ? `(${action.payload.url})` : ''} parentId: ${action.payload.parentId}`)
       const item = action.payload
@@ -1217,7 +1219,7 @@ export default class SyncProcess {
       }
       reorderings.retract(action)
       this.updateProgress()
-    }, ACTION_CONCURRENCY)
+    }, isUsingTabs ? 1 : ACTION_CONCURRENCY)
   }
 
   async addMapping(resource:TResource<TItemLocation>, item:TItem<TItemLocation>, newId:string|number):Promise<void> {
