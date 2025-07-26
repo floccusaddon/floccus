@@ -6011,7 +6011,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              !ACCOUNT_DATA.noCache,
             )
 
             // Move one tab out of the group
@@ -6043,7 +6044,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              !ACCOUNT_DATA.noCache,
             )
           })
 
@@ -6113,7 +6115,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              !ACCOUNT_DATA.noCache,
             )
 
             // Reorder the tabs and groups
@@ -6154,13 +6157,18 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              !ACCOUNT_DATA.noCache,
             )
           })
 
           it('should create a tab group on the server and sync to local tabs', async function() {
             // Skip if browser doesn't support tab groups
             if (typeof browser.tabGroups === 'undefined') {
+              return this.skip()
+            }
+
+            if (ACCOUNT_DATA.noCache) {
               return this.skip()
             }
 
@@ -6193,7 +6201,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              !ACCOUNT_DATA.noCache,
             )
 
             // Create a tab group on the server by modifying the bookmarks tree
@@ -6250,7 +6259,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              !ACCOUNT_DATA.noCache,
             )
             console.log('localTree ok')
 
@@ -6275,13 +6285,18 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              !ACCOUNT_DATA.noCache,
             )
           })
 
           it('should rename a tab group on the server and sync to local tabs', async function() {
             // Skip if browser doesn't support tab groups
             if (typeof browser.tabGroups === 'undefined') {
+              return this.skip()
+            }
+
+            if (ACCOUNT_DATA.noCache) {
               return this.skip()
             }
 
@@ -6330,7 +6345,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              !ACCOUNT_DATA.noCache,
             )
 
             // Rename the tab group on the server
@@ -6377,7 +6393,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              !ACCOUNT_DATA.noCache,
             )
 
             // Verify the server state
@@ -6401,13 +6418,17 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              !ACCOUNT_DATA.noCache,
             )
           })
 
           it('should move tabs out of a group on the server and sync to local tabs', async function() {
             // Skip if browser doesn't support tab groups
             if (typeof browser.tabGroups === 'undefined') {
+              return this.skip()
+            }
+            if (ACCOUNT_DATA.noCache) {
               return this.skip()
             }
 
@@ -6456,7 +6477,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              !ACCOUNT_DATA.noCache,
             )
 
             // Move tabs out of the group on the server
@@ -6503,7 +6525,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              !ACCOUNT_DATA.noCache,
             )
 
             // Verify the server state
@@ -6522,7 +6545,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              !ACCOUNT_DATA.noCache,
             )
           })
         })
