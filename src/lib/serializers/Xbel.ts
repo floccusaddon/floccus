@@ -1,6 +1,7 @@
 import Serializer from '../interfaces/Serializer'
 import { Bookmark, Folder, ItemLocation } from '../Tree'
 import { XMLParser, XMLBuilder } from 'fast-xml-parser'
+import Logger from '../Logger'
 
 class XbelSerializer implements Serializer {
   serialize(folder: Folder<typeof ItemLocation.SERVER>) {
@@ -16,7 +17,13 @@ class XbelSerializer implements Serializer {
       ignoreAttributes: false,
       parseTagValue: false,
     })
-    const xmlObj = parser.parse(xbel)
+    let xmlObj
+    try {
+      xmlObj = parser.parse(xbel)
+    } catch (e) {
+      Logger.log('Parse Error: ' + e.message)
+      throw new Error('Parse Error: ' + e.message)
+    }
 
     if (!Array.isArray(xmlObj[0].xbel)) {
       throw new Error(
