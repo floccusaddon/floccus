@@ -144,7 +144,7 @@ export default {
     }
   },
   async created() {
-    if ('KAGI' in window && window.KAGI) {
+    if (window.KAGI) {
       browser.storage.local.set({'isOrion': true})
     }
 
