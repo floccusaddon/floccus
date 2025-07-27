@@ -150,10 +150,10 @@
     "message": "Bookmarks file"
   },
   "DescriptionBookmarksfile": {
-    "message": "a path to the bookmarks file relative to your WebDAV URL (all folders in the path must already exist). e.g. personal_stuff/bookmarks.xbel"
+    "message": "a path to where the bookmarks file will reside on the server, relative to your WebDAV URL (all folders in the path must already exist). e.g. personal_stuff/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "the file name of the bookmarks file that will reside in your Google Drive. Do not enter the full file path, only the file name. Make sure this name is unique in your Drive."
+   "message": "the file name of the bookmarks file that will reside in your Google Drive. Do not enter the full file path, only the file name. Make sure this name is unique in your Drive. e.g. mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "a path to the bookmarks file relative to your Git repository root (all folders in the path must already exist). e.g. personal_stuff/bookmarks.xbel"
