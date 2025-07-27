@@ -250,7 +250,7 @@ export default class GitAdapter extends CachingAdapter {
       Logger.log('(git) tag ' + tag)
       await git.tag({ fs: this.fs, dir: this.dir, ref: tag })
       Logger.log('(git) push tag ' + tag)
-      const result = await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, onAuth: () => this.onAuth() })
+      const result = await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, remote: 'origin', onAuth: () => this.onAuth() })
       if (result.error) {
         throw new GitPushError(result.error)
       }
@@ -275,7 +275,7 @@ export default class GitAdapter extends CachingAdapter {
       for (const tag of this.locked) {
         Logger.log('(git) push: delete tag ' + tag)
         // Ignoring result.error
-        await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
+        await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, delete: true, remote: 'origin', onAuth: () => this.onAuth() })
       }
       this.locked = []
       return true
@@ -292,7 +292,7 @@ export default class GitAdapter extends CachingAdapter {
     const lockTags = tags.filter(tag => tag.startsWith('floccus-lock-'))
     for (const tag of lockTags) {
       // ignoring result.error
-      await git.push({ fs, http, dir: this.dir, ref: tag, delete: true, onAuth: () => this.onAuth() })
+      await git.push({ fs, http, dir: this.dir, ref: tag, delete: true, remote: 'origin', onAuth: () => this.onAuth() })
     }
   }
 
