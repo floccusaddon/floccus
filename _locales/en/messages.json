@@ -188,6 +188,9 @@
   "LabelNewfolder": {
     "message": "Newly created folder"
   },
+  "LabelSelectfolder": {
+    "message": "Select a folder"
+  },
   "LabelOptions": {
     "message": "Options"
   },

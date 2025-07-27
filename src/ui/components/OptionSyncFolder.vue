@@ -132,7 +132,7 @@ export default {
           await BrowserTree.getPathFromLocalId(this.value)
         ) + '/'
       } else {
-        this.path = this.t('LabelNewfolder')
+        this.path = this.t('LabelSelectfolder')
       }
     },
     async onTriggerFinder() {
