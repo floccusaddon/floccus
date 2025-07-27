@@ -5,7 +5,7 @@ import { IResource } from '../interfaces/Resource'
 import Logger from '../Logger'
 import {
   AuthenticationError,
-  CancelledSyncError, HttpError,
+  CancelledSyncError, HttpError, MissingPermissionsError,
   NetworkError, ParseResponseError,
   RedirectError,
   RequestTimeoutError
@@ -87,9 +87,22 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     return Promise.resolve(undefined)
   }
 
-  onSyncStart(needLock?: boolean, forceLock?: boolean): Promise<void | boolean> {
+  async onSyncStart(needLock?: boolean, forceLock?: boolean): Promise<void | boolean> {
     this.canceled = false
-    return Promise.resolve(undefined)
+    if (Capacitor.getPlatform() === 'web') {
+      const browser = (await import('../browser-api')).default
+      let hasPermissions, error = false
+      try {
+        hasPermissions = await browser.permissions.contains({ origins: [this.server.url + '/'] })
+      } catch (e) {
+        error = true
+        console.warn(e)
+      }
+      const {isOrion} = await browser.storage.local.get({'isOrion': false})
+      if (!error && !hasPermissions && !isOrion) {
+        throw new MissingPermissionsError()
+      }
+    }
   }
 
   async createBookmark(bookmark: Bookmark<typeof ItemLocation.SERVER>): Promise<string | number> {

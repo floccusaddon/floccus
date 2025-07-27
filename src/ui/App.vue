@@ -144,6 +144,10 @@ export default {
     }
   },
   async created() {
+    if (window.KAGI) {
+      browser.storage.local.set({'isOrion': true})
+    }
+
     await Promise.all([
       this.$store.dispatch(actions.LOAD_LOCKED),
       this.$store.dispatch(actions.LOAD_ACCOUNTS)

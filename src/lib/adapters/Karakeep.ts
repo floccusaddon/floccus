@@ -6,11 +6,11 @@ import Logger from '../Logger'
 import {
   AuthenticationError,
   CancelledSyncError,
-  HttpError,
+  HttpError, MissingPermissionsError,
   NetworkError,
   ParseResponseError,
   RedirectError,
-  RequestTimeoutError,
+  RequestTimeoutError
 } from '../../errors/Error'
 import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
 
@@ -27,9 +27,7 @@ export interface KarakeepConfig {
 
 const TIMEOUT = 300000
 
-export default class KarakeepAdapter
-  implements Adapter, IResource<typeof ItemLocation.SERVER>
-{
+export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLocation.SERVER> {
   private server: KarakeepConfig
   private fetchQueue: PQueue
   private abortController: AbortController
@@ -97,12 +95,25 @@ export default class KarakeepAdapter
     return Promise.resolve(undefined)
   }
 
-  onSyncStart(
+  async onSyncStart(
     needLock?: boolean,
     forceLock?: boolean
   ): Promise<void | boolean> {
     this.canceled = false
-    return Promise.resolve(undefined)
+    if (Capacitor.getPlatform() === 'web') {
+      const browser = (await import('../browser-api')).default
+      let hasPermissions, error = false
+      try {
+        hasPermissions = await browser.permissions.contains({ origins: [this.server.url + '/'] })
+      } catch (e) {
+        error = true
+        console.warn(e)
+      }
+      const {isOrion} = await browser.storage.local.get({'isOrion': false})
+      if (!error && !hasPermissions && !isOrion) {
+        throw new MissingPermissionsError()
+      }
+    }
   }
 
   async createBookmark(bookmark: {
@@ -254,12 +265,12 @@ export default class KarakeepAdapter
   async removeFolder(folder: { id: string | number }): Promise<void> {
     Logger.log('(karakeep)DELETEFOLDER', { folder })
 
-    const deleteListContent = async () => {
+    const deleteListContent = async() => {
       // Get the list of bookmarks in the list
       const bookmarkIds = []
       let nextCursor = null
       do {
-        let response = await this.sendRequest(
+        const response = await this.sendRequest(
           'GET',
           `/api/v1/lists/${folder.id}/bookmarks?includeContent=false&${
             nextCursor ? 'cursor=' + nextCursor : ''
@@ -278,10 +289,10 @@ export default class KarakeepAdapter
       )
     }
 
-    const deleteListFolders = async () => {
+    const deleteListFolders = async() => {
       // Get the list of lists in the list
       const { lists } = await this.sendRequest('GET', `/api/v1/lists`)
-      let childrenListIds = lists
+      const childrenListIds = lists
         .filter((list) => list.parentId === folder.id)
         .map((l) => l.id)
 
@@ -309,11 +320,11 @@ export default class KarakeepAdapter
   async getBookmarksTree(
     loadAll?: boolean
   ): Promise<Folder<typeof ItemLocation.SERVER>> {
-    const fetchBookmarks = async (listId: string) => {
+    const fetchBookmarks = async(listId: string) => {
       const links = []
       let nextCursor = null
       do {
-        let response = await this.sendRequest(
+        const response = await this.sendRequest(
           'GET',
           `/api/v1/lists/${listId}/bookmarks?includeContent=false&${
             nextCursor ? 'cursor=' + nextCursor : ''
@@ -365,7 +376,7 @@ export default class KarakeepAdapter
       listTree[list.parentId].push(list.id)
     })
 
-    const buildTree = async (listId, isRoot = false) => {
+    const buildTree = async(listId, isRoot = false) => {
       const list = listIdtoList[listId]
 
       const childrenBookmarks = (await fetchBookmarks(listId))
@@ -394,7 +405,7 @@ export default class KarakeepAdapter
       })
     }
 
-    return await buildTree(rootId, true)
+    return buildTree(rootId, true)
   }
 
   async getListsOfBookmark(bookmarkId: string | number): Promise<Set<string>> {

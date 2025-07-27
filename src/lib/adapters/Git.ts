@@ -80,7 +80,8 @@ export default class GitAdapter extends CachingAdapter {
         error = true
         console.warn(e)
       }
-      if (!error && !hasPermissions) {
+      const {isOrion} = await browser.storage.local.get({'isOrion': false})
+      if (!error && !hasPermissions && !isOrion) {
         throw new MissingPermissionsError()
       }
     }
