@@ -150,10 +150,10 @@
     "message": "书签文件"
   },
   "DescriptionBookmarksfile": {
-    "message": "相对于WebDAV URL的书签路径(所有路径必须已经存在).例如:personal_stuff/bookmarks.xbel "
+    "message": "书签文件在服务器上的路径，相对于你的 WebDAV URL（路径中的所有文件必须已经存在）。如，personal_stuff/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": " Google 云盘内保存的书签文件的名称。不要输入完整的文件路径，只输入文件名即可。请确保该名称在你的 Google 云盘内是唯一的。"
+   "message": "Google 云盘中的书签文件的文件名。不要输入完整文件路径，只输入文件名。请确保该文件名在你的云盘中是独有的。如，mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "相对于你的 Git 存储库根目录的书签文件路径 (路径中的所有文件夹必须都已存在)。如，personal_stuff/bookmarks.xbel"
@@ -187,6 +187,9 @@
   },
   "LabelNewfolder": {
     "message": "新建文件夹"
+  },
+  "LabelSelectfolder": {
+    "message": "选择文件夹"
   },
   "LabelOptions": {
     "message": "选项"
