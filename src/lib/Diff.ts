@@ -109,25 +109,45 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
 
   static findChain(
     mappingsSnapshot: MappingSnapshot,
-    actions: Action<TItemLocation, TItemLocation>[], itemTree: Folder<TItemLocation>,
+    actions: Action<TItemLocation, TItemLocation>[],
+    itemTree: Folder<TItemLocation>,
     currentItem: TItem<TItemLocation>,
     targetAction: Action<TItemLocation, TItemLocation>,
     chain: Action<TItemLocation, TItemLocation>[] = []
   ): boolean {
-    const targetItemInTree = itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location))
+    const targetItemInTree = itemTree.findItem(targetAction.payload.type, Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location))
     if (
+      // target action payload contains currentItem's parent
       targetAction.payload.findItem(ItemType.FOLDER,
         Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location)) ||
-      (targetItemInTree && targetItemInTree.findFolder(Mappings.mapParentId(mappingsSnapshot, currentItem, itemTree.location)))
+      // target action payload contains currentItem
+      targetAction.payload.findItem(ItemType.FOLDER,
+        Mappings.mapId(mappingsSnapshot, currentItem, targetAction.payload.location)) ||
+      // or target in tree contains currentItem
+      (targetItemInTree && targetItemInTree.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentItem, itemTree.location))) ||
+      // or target action payload is the currentItem
+      Mappings.mapId(mappingsSnapshot, targetAction.payload, currentItem.location) === currentItem.id ||
+      // or target action payload is the currentItem's parent
+      Mappings.mapId(mappingsSnapshot, targetAction.payload, currentItem.location) === currentItem.parentId ||
+      // or target action payload is the currentItem
+      Mappings.mapId(mappingsSnapshot, currentItem, targetAction.payload.location) === targetAction.payload.id ||
+      // or target action payload is the currentItems parent
+      Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location) === targetAction.payload.id
     ) {
       return true
     }
     const newCurrentActions = actions.filter(targetAction =>
       !chain.includes(targetAction) && (
         targetAction.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location)) ||
+        targetAction.payload.findItem(currentItem.type, Mappings.mapId(mappingsSnapshot, currentItem, targetAction.payload.location)) ||
         (
           itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location)) &&
-          itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location)).findFolder(Mappings.mapParentId(mappingsSnapshot, currentItem, itemTree.location)))
+          itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location)).findFolder(Mappings.mapParentId(mappingsSnapshot, currentItem, itemTree.location))
+        ) ||
+        (
+          itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location)) &&
+          itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location)).findItem(currentItem.type, Mappings.mapId(mappingsSnapshot, currentItem, itemTree.location))
+        )
       )
     )
     if (newCurrentActions.length) {

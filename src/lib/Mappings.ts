@@ -79,6 +79,13 @@ export default class Mappings {
     }
   }
 
+  static mapRawId(mappingsSnapshot:MappingSnapshot, id: string|number, type: TItemType, source: TItemLocation, target: TItemLocation) : string|number {
+    if (target === source) {
+      return id
+    }
+    return mappingsSnapshot[source + 'To' + target][type][id]
+  }
+
   static mapId(mappingsSnapshot:MappingSnapshot, item: TItem<TItemLocation>, target: TItemLocation) : string|number {
     if (item.location === target) {
       return item.id

@@ -9,6 +9,7 @@ import {
 } from '../Tree'
 import Logger from '../Logger'
 import Diff, {
+  Action,
   ActionType,
   CreateAction,
   MoveAction,
@@ -296,8 +297,8 @@ export default class SyncProcess {
     if ('orderFolder' in this.server && !this.localReordersFinal) {
       // mappings have been updated, reload
       mappingsSnapshot = this.mappings.getSnapshot()
-      this.localReordersFinal = this.reconcileReorderings(this.localReorders, this.serverDonePlan, ItemLocation.LOCAL, mappingsSnapshot)
-      this.serverReorderFinal = this.reconcileReorderings(this.serverReorders, this.localDonePlan, ItemLocation.SERVER, mappingsSnapshot)
+      this.localReordersFinal = this.reconcileReorderings(this.localReorders, this.localDonePlan, ItemLocation.LOCAL, mappingsSnapshot)
+      this.serverReorderFinal = this.reconcileReorderings(this.serverReorders, this.serverDonePlan, ItemLocation.SERVER, mappingsSnapshot)
     }
 
     if (this.canceled) {
@@ -763,8 +764,9 @@ export default class SyncProcess {
         }
       }
 
-      const concurrentRemoval = targetRemovals.find(a =>
-        a.payload.findItem('folder', action.payload.id))
+      const concurrentRemoval = targetRemovals.find(targetRemoval =>
+        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval)
+      )
       if (concurrentRemoval) {
         // Already deleted on target, do nothing.
         return
@@ -1096,15 +1098,17 @@ export default class SyncProcess {
 
   reconcileReorderings<L1 extends TItemLocation, L2 extends TItemLocation>(
     targetReorders: Diff<L2, TItemLocation, ReorderAction<L2, TItemLocation>>,
-    sourceDonePlan: PlanStage3<L1, TItemLocation, L2>,
+    targetDonePlan: PlanStage3<L2, TItemLocation, L1>,
     targetLocation: L1,
     mappingSnapshot: MappingSnapshot
   ) : Diff<L1, TItemLocation, ReorderAction<L1, TItemLocation>> {
     Logger.log('Reconciling reorders to create a plan')
 
-    const sourceCreations = sourceDonePlan.CREATE.getActions()
-    const sourceRemovals = sourceDonePlan.REMOVE.getActions()
-    const sourceMoves = sourceDonePlan.MOVE.getActions()
+    const sourceCreations = targetDonePlan.CREATE.getActions()
+    const sourceRemovals = targetDonePlan.REMOVE.getActions()
+    const sourceMoves = targetDonePlan.MOVE.getActions()
+    const sourceCreationsAndMoves : Action<TItemLocation, TItemLocation>[] = (sourceCreations as Action<TItemLocation, TItemLocation>[]).concat(sourceMoves)
+    const sourceTree = targetLocation === ItemLocation.LOCAL ? this.localTreeRoot : this.serverTreeRoot
 
     const newReorders = new Diff<L2, TItemLocation, ReorderAction<L2, TItemLocation>>
 
@@ -1117,7 +1121,8 @@ export default class SyncProcess {
         const reorderAction = {...oldReorderAction, order: oldReorderAction.order.slice()}
 
         const removed = sourceRemovals
-          .filter(removal => removal.payload.findItem(reorderAction.payload.type, removal.payload.id))
+          .filter(removal =>
+            Diff.findChain(mappingSnapshot, sourceCreationsAndMoves, sourceTree, oldReorderAction.payload, removal))
         if (removed.length) {
           return
         }
@@ -1125,13 +1130,16 @@ export default class SyncProcess {
         // Find Away-moves
         const childAwayMoves = sourceMoves
           .filter(move =>
-            (String(reorderAction.payload.id) !== String(move.payload.parentId) && // reorder IDs are from localTree (source of this plan), move.oldItem IDs are from server tree (source of other plan)
-                reorderAction.order.find(item => String(item.id) === String(move.payload.id) && item.type === move.payload.type))// move.payload IDs are from localTree (target of the other plan
+            Mappings.mapId(mappingSnapshot, reorderAction.payload, move.payload.location) !== String(move.payload.parentId) &&
+                reorderAction.order.find(item =>
+                  Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, move.payload.location) === String(move.payload.id) && item.type === move.payload.type)
           )
 
         // Find removals
         const concurrentRemovals = sourceRemovals
-          .filter(removal => reorderAction.order.find(item => String(item.id) === String(removal.payload.id) && item.type === removal.payload.type))
+          .filter(removal =>
+            reorderAction.order.find(item =>
+              Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, removal.payload.location) === String(removal.payload.id) && item.type === removal.payload.type))
 
         // Remove away-moves and removals
         reorderAction.order = reorderAction.order.filter(item => {
@@ -1139,7 +1147,7 @@ export default class SyncProcess {
           if (
             // eslint-disable-next-line no-cond-assign
             action = childAwayMoves.find(move =>
-              String(item.id) === String(move.payload.id) && move.payload.type === item.type)) {
+              Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, move.payload.location) === String(move.payload.id) && move.payload.type === item.type)) {
             Logger.log('ReconcileReorders: Removing moved item from order', {move: action, reorder: reorderAction})
             return false
           }
@@ -1147,7 +1155,7 @@ export default class SyncProcess {
           if (
             // eslint-disable-next-line no-cond-assign
             action = concurrentRemovals.find(removal =>
-              String(item.id) === String(removal.payload.id) && removal.payload.type === item.type)
+              Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, removal.payload.location) === String(removal.payload.id) && removal.payload.type === item.type)
           ) {
             Logger.log('ReconcileReorders: Removing removed item from order', {item, reorder: reorderAction, removal: action})
             return false
