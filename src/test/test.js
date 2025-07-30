@@ -5321,15 +5321,18 @@ describe('Floccus', function() {
             const tree2AfterThirdSync = await account2.localTree.getBookmarksTree(
               true
             )
+            console.log('Checking local tree of acc2')
             expectTreeEqual(
               tree2AfterThirdSync,
               tree2BeforeThirdSync,
               false
             )
-            serverTreeAfterThirdSync.title = tree2AfterThirdSync.title
+            console.log('All good')
+            console.log('Checking server tree')
+            serverTreeAfterThirdSync.title = tree2BeforeThirdSync.title
             expectTreeEqual(
               serverTreeAfterThirdSync,
-              tree2AfterThirdSync,
+              tree2BeforeThirdSync,
               false
             )
             console.log('Second round second half ok')
@@ -7174,8 +7177,8 @@ describe('Floccus', function() {
                 .filter(item => item.id !== tree2AfterFirstSync.id)
             }
 
-            await randomlyManipulateTree(account1, folders1, bookmarks1, 20)
-            await randomlyManipulateTree(account2, folders2, bookmarks2, 20)
+            await randomlyManipulateTree(account1, folders1, bookmarks1, RANDOM_MANIPULATION_ITERATIONS)
+            await randomlyManipulateTree(account2, folders2, bookmarks2, RANDOM_MANIPULATION_ITERATIONS)
 
             console.log(' acc1: Moved items')
 
@@ -7300,7 +7303,7 @@ describe('Floccus', function() {
           }
         })
 
-        it('should handle fuzzed changes with deletions from two clients', async function() {
+        it('should handle fuzzed changes with deletions from two clients (normal)', async function() {
           const localRoot = account1.getData().localRoot
           let bookmarks1 = []
           let folders1 = []

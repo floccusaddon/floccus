@@ -175,11 +175,11 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
 
   reconcileReorderings<L1 extends TItemLocation, L2 extends TItemLocation>(
     targetReorders: Diff<L2, TItemLocation, ReorderAction<L2, TItemLocation>>,
-    targetDonePlan: PlanStage3<L2, TItemLocation, L1>,
+    targetOrSourceDonePlan: PlanStage3<TItemLocation, TItemLocation, TItemLocation>,
     targetLocation: L1,
     mappingSnapshot: MappingSnapshot
-  ) : Diff<L1, TItemLocation, ReorderAction<L1, TItemLocation>> {
-    return super.reconcileReorderings(targetReorders, targetDonePlan, targetLocation, mappingSnapshot)
+  ) : Diff<L2, TItemLocation, ReorderAction<L2, TItemLocation>> {
+    return super.reconcileReorderings(targetReorders, targetOrSourceDonePlan, targetLocation, mappingSnapshot)
   }
 
   async loadChildren(serverTreeRoot: Folder<typeof ItemLocation.SERVER>):Promise<void> {
