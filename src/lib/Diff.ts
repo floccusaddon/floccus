@@ -151,7 +151,11 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
     chain: Action<TItemLocation, TItemLocation>[] = []
   ): boolean {
 
-    const cacheKey = 'hasChain:' + Mappings.mapId(mappingsSnapshot, currentItem, ItemLocation.LOCAL) + ':' + Mappings.mapId(mappingsSnapshot, currentItem, ItemLocation.SERVER) + '-' + Mappings.mapId(mappingsSnapshot, targetAction.payload, ItemLocation.LOCAL) + ':' + Mappings.mapId(mappingsSnapshot, targetAction.payload, ItemLocation.SERVER)
+    const currentItemLocalId = Mappings.mapId(mappingsSnapshot, currentItem, ItemLocation.LOCAL);
+    const currentItemServerId = Mappings.mapId(mappingsSnapshot, currentItem, ItemLocation.SERVER);
+    const targetPayloadLocalId = Mappings.mapId(mappingsSnapshot, targetAction.payload, ItemLocation.LOCAL);
+    const targetPayloadServerId = Mappings.mapId(mappingsSnapshot, targetAction.payload, ItemLocation.SERVER);
+    const cacheKey = `hasChain:${currentItemLocalId}:${currentItemServerId}-${targetPayloadLocalId}:${targetPayloadServerId}`;
     if (typeof cache[cacheKey] !== 'undefined') {
       return cache[cacheKey]
     }
