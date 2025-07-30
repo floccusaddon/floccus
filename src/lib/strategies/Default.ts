@@ -292,7 +292,7 @@ export default class SyncProcess {
 
     // Remove mappings only after both plans have been executed
     this.localDonePlan.REMOVE.getActions().forEach(action => this.removeMapping(this.localTree, action.payload))
-    this.serverDonePlan.REMOVE.getActions().forEach(action => this.removeMapping(this.localTree, action.payload))
+    this.serverDonePlan.REMOVE.getActions().forEach(action => this.removeMapping(this.server, action.payload))
 
     if (this.canceled) {
       throw new CancelledSyncError()
