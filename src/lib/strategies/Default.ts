@@ -1104,11 +1104,11 @@ export default class SyncProcess {
   ) : Diff<L1, TItemLocation, ReorderAction<L1, TItemLocation>> {
     Logger.log('Reconciling reorders to create a plan')
 
-    const sourceCreations = targetDonePlan.CREATE.getActions()
-    const sourceRemovals = targetDonePlan.REMOVE.getActions()
-    const sourceMoves = targetDonePlan.MOVE.getActions()
-    const sourceCreationsAndMoves : Action<TItemLocation, TItemLocation>[] = (sourceCreations as Action<TItemLocation, TItemLocation>[]).concat(sourceMoves)
-    const sourceTree = targetLocation === ItemLocation.LOCAL ? this.localTreeRoot : this.serverTreeRoot
+    const targetCreations = targetDonePlan.CREATE.getActions()
+    const targetRemovals = targetDonePlan.REMOVE.getActions()
+    const targetMoves = targetDonePlan.MOVE.getActions()
+    const targetCreationsAndMoves : Action<TItemLocation, TItemLocation>[] = (targetCreations as Action<TItemLocation, TItemLocation>[]).concat(targetMoves)
+    const targetTree = targetLocation === ItemLocation.LOCAL ? this.localTreeRoot : this.serverTreeRoot
 
     const newReorders = new Diff<L2, TItemLocation, ReorderAction<L2, TItemLocation>>
 
@@ -1120,15 +1120,15 @@ export default class SyncProcess {
         // clone action
         const reorderAction = {...oldReorderAction, order: oldReorderAction.order.slice()}
 
-        const removed = sourceRemovals
+        const removed = targetRemovals
           .filter(removal =>
-            Diff.findChain(mappingSnapshot, sourceCreationsAndMoves, sourceTree, oldReorderAction.payload, removal))
+            Diff.findChain(mappingSnapshot, targetCreationsAndMoves, targetTree, oldReorderAction.payload, removal))
         if (removed.length) {
           return
         }
 
         // Find Away-moves
-        const childAwayMoves = sourceMoves
+        const childAwayMoves = targetMoves
           .filter(move =>
             Mappings.mapId(mappingSnapshot, reorderAction.payload, move.payload.location) !== String(move.payload.parentId) &&
                 reorderAction.order.find(item =>
@@ -1136,7 +1136,7 @@ export default class SyncProcess {
           )
 
         // Find removals
-        const concurrentRemovals = sourceRemovals
+        const concurrentRemovals = targetRemovals
           .filter(removal =>
             reorderAction.order.find(item =>
               Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, removal.payload.location) === String(removal.payload.id) && item.type === removal.payload.type))
@@ -1164,7 +1164,7 @@ export default class SyncProcess {
         })
 
         // Find and insert creations
-        const concurrentCreations = sourceCreations
+        const concurrentCreations = targetCreations
           .filter(creation => String(reorderAction.payload.id) === String(creation.payload.parentId))
         concurrentCreations
           .forEach(a => {
@@ -1173,7 +1173,7 @@ export default class SyncProcess {
           })
 
         // Find and insert moves at move target
-        const moves = sourceMoves
+        const moves = targetMoves
           .filter(move =>
             String(reorderAction.payload.id) === String(move.payload.parentId) &&
                   !reorderAction.order.find(item => String(item.id) === String(move.payload.id) && item.type === move.payload.type)
