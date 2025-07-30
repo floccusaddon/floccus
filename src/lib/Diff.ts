@@ -106,6 +106,40 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
       this.actions
     )
   }
+  
+  static contains(mappingsSnapshot: MappingSnapshot, item1: TItem<TItemLocation>, item2: TItem<TItemLocation>, itemTree: Folder<TItemLocation>, cache: Record<string, boolean>): boolean {
+    const cacheKey = 'contains:' + Mappings.mapId(mappingsSnapshot, item2, ItemLocation.LOCAL) + ':' + Mappings.mapId(mappingsSnapshot, item2, ItemLocation.SERVER) +
+      '-' + Mappings.mapId(mappingsSnapshot, item1, ItemLocation.LOCAL) + ':' + Mappings.mapId(mappingsSnapshot, item1, ItemLocation.SERVER)
+    if (typeof cache[cacheKey] !== 'undefined') {
+      return cache[cacheKey]
+    }
+    const item1InTree = itemTree.findItem(item1.type, Mappings.mapId(mappingsSnapshot, item1, itemTree.location))
+    if (
+      // target action payload contains item2's parent
+      item1.findItem(ItemType.FOLDER,
+        Mappings.mapParentId(mappingsSnapshot, item2, item1.location)) ||
+      // target action payload contains item2
+      item1.findItem(ItemType.FOLDER,
+        Mappings.mapId(mappingsSnapshot, item2, item1.location)) ||
+      // or target in tree contains item2's parent
+      (item1InTree && item1InTree.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, item2, itemTree.location))) ||
+      // or target in tree contains item2
+      (item1InTree && item1InTree.findItem(item2.type, Mappings.mapId(mappingsSnapshot, item2, itemTree.location))) ||
+      // or target action payload is the item2
+      Mappings.mapId(mappingsSnapshot, item1, item2.location) === item2.id ||
+      // or target action payload is the item2's parent
+      Mappings.mapId(mappingsSnapshot, item1, item2.location) === item2.parentId ||
+      // or target action payload is the item2
+      Mappings.mapId(mappingsSnapshot, item2, item1.location) === item1.id ||
+      // or target action payload is the item2s parent
+      Mappings.mapParentId(mappingsSnapshot, item2, item1.location) === item1.id
+    ) {
+      cache[cacheKey] = true
+      return true
+    }
+    cache[cacheKey] = false
+    return false
+  }
 
   static findChain(
     mappingsSnapshot: MappingSnapshot,
@@ -113,50 +147,29 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
     itemTree: Folder<TItemLocation>,
     currentItem: TItem<TItemLocation>,
     targetAction: Action<TItemLocation, TItemLocation>,
+    cache: Record<string, boolean> = {},
     chain: Action<TItemLocation, TItemLocation>[] = []
   ): boolean {
-    const targetItemInTree = itemTree.findItem(targetAction.payload.type, Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location))
-    if (
-      // target action payload contains currentItem's parent
-      targetAction.payload.findItem(ItemType.FOLDER,
-        Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location)) ||
-      // target action payload contains currentItem
-      targetAction.payload.findItem(ItemType.FOLDER,
-        Mappings.mapId(mappingsSnapshot, currentItem, targetAction.payload.location)) ||
-      // or target in tree contains currentItem
-      (targetItemInTree && targetItemInTree.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentItem, itemTree.location))) ||
-      // or target action payload is the currentItem
-      Mappings.mapId(mappingsSnapshot, targetAction.payload, currentItem.location) === currentItem.id ||
-      // or target action payload is the currentItem's parent
-      Mappings.mapId(mappingsSnapshot, targetAction.payload, currentItem.location) === currentItem.parentId ||
-      // or target action payload is the currentItem
-      Mappings.mapId(mappingsSnapshot, currentItem, targetAction.payload.location) === targetAction.payload.id ||
-      // or target action payload is the currentItems parent
-      Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location) === targetAction.payload.id
-    ) {
+
+    const cacheKey = 'hasChain:' + Mappings.mapId(mappingsSnapshot, currentItem, ItemLocation.LOCAL) + ':' + Mappings.mapId(mappingsSnapshot, currentItem, ItemLocation.SERVER) + '-' + Mappings.mapId(mappingsSnapshot, targetAction.payload, ItemLocation.LOCAL) + ':' + Mappings.mapId(mappingsSnapshot, targetAction.payload, ItemLocation.SERVER)
+    if (typeof cache[cacheKey] !== 'undefined') {
+      return cache[cacheKey]
+    }
+    if (Diff.contains(mappingsSnapshot, targetAction.payload, currentItem, itemTree, cache)) {
+      cache[cacheKey] = true
       return true
     }
-    const newCurrentActions = actions.filter(targetAction =>
-      !chain.includes(targetAction) && (
-        targetAction.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, currentItem, targetAction.payload.location)) ||
-        targetAction.payload.findItem(currentItem.type, Mappings.mapId(mappingsSnapshot, currentItem, targetAction.payload.location)) ||
-        (
-          itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location)) &&
-          itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location)).findFolder(Mappings.mapParentId(mappingsSnapshot, currentItem, itemTree.location))
-        ) ||
-        (
-          itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location)) &&
-          itemTree.findFolder(Mappings.mapId(mappingsSnapshot, targetAction.payload, itemTree.location)).findItem(currentItem.type, Mappings.mapId(mappingsSnapshot, currentItem, itemTree.location))
-        )
-      )
+    const newCurrentActions = actions.filter(newTargetAction =>
+      !chain.includes(newTargetAction) && Diff.contains(mappingsSnapshot, newTargetAction.payload, currentItem, itemTree, cache)
     )
     if (newCurrentActions.length) {
       for (const newCurrentAction of newCurrentActions) {
-        if (Diff.findChain(mappingsSnapshot, actions, itemTree, newCurrentAction.payload, targetAction, [...chain, newCurrentAction])) {
+        if (Diff.findChain(mappingsSnapshot, actions, itemTree, newCurrentAction.payload, targetAction, cache,[...chain, newCurrentAction])) {
           return true
         }
       }
     }
+    cache[cacheKey] = false
     return false
   }
 
