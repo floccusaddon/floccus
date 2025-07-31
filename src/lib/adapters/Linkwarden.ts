@@ -195,7 +195,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     do {
       ({ data } = await this.sendRequest('GET', `/api/v1/search?cursor=${links.length ? links[links.length - 1].id : ''}`))
       links.push(...data.links)
-    } while (response.length !== 0)
+    } while (data.length !== 0)
 
     const { response: collections } = await this.sendRequest('GET', `/api/v1/collections`)
 
