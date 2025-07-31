@@ -191,7 +191,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
 
   async getBookmarksTree(loadAll?: boolean): Promise<Folder<typeof ItemLocation.SERVER>> {
     const links = []
-    let response
+    let data
     do {
       ({ data } = await this.sendRequest('GET', `/api/v1/search?cursor=${links.length ? links[links.length - 1].id : ''}`))
       links.push(...data.links)
