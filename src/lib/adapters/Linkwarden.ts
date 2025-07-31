@@ -193,7 +193,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     const links = []
     let data
     do {
-      ({ data } = await this.sendRequest('GET', `/api/v1/search?searchQueryString=&cursor=${data?.nextCursor || : ''}`))
+      ({ data } = await this.sendRequest('GET', `/api/v1/search?searchQueryString=&cursor=${data?.nextCursor ||''}`))
       links.push(...data.links)
     } while (data.links.length !== 0)
 
