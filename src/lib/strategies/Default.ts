@@ -1136,16 +1136,16 @@ export default class SyncProcess {
         // Find Away-moves
         const childAwayMoves = targetMoves
           .filter(move =>
-            Mappings.mapId(mappingSnapshot, reorderAction.payload, move.payload.location) !== String(move.payload.parentId) &&
+            String(Mappings.mapId(mappingSnapshot, reorderAction.payload, move.payload.location)) !== String(move.payload.parentId) &&
                 reorderAction.order.find(item =>
-                  Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, move.payload.location) === String(move.payload.id) && item.type === move.payload.type)
+                  String(Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, move.payload.location)) === String(move.payload.id) && item.type === move.payload.type)
           )
 
         // Find removals
         const concurrentRemovals = targetRemovals
           .filter(removal =>
             reorderAction.order.find(item =>
-              Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, removal.payload.location) === String(removal.payload.id) && item.type === removal.payload.type))
+              String(Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, removal.payload.location)) === String(removal.payload.id) && item.type === removal.payload.type))
 
         // Remove away-moves and removals
         reorderAction.order = reorderAction.order.filter(item => {
@@ -1153,7 +1153,7 @@ export default class SyncProcess {
           if (
             // eslint-disable-next-line no-cond-assign
             action = childAwayMoves.find(move =>
-              Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, move.payload.location) === String(move.payload.id) && move.payload.type === item.type)) {
+              String(Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, move.payload.location)) === String(move.payload.id) && move.payload.type === item.type)) {
             Logger.log('ReconcileReorders: Removing moved item from order', {move: action, reorder: reorderAction})
             return false
           }
@@ -1161,7 +1161,7 @@ export default class SyncProcess {
           if (
             // eslint-disable-next-line no-cond-assign
             action = concurrentRemovals.find(removal =>
-              Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, removal.payload.location) === String(removal.payload.id) && removal.payload.type === item.type)
+              String(Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, removal.payload.location)) === String(removal.payload.id) && removal.payload.type === item.type)
           ) {
             Logger.log('ReconcileReorders: Removing removed item from order', {item, reorder: reorderAction, removal: action})
             return false
@@ -1351,11 +1351,11 @@ export default class SyncProcess {
     mappingsSnapshot: MappingSnapshot,
     sourceReorders:Diff<TItemLocation, TItemLocation, ReorderAction<TItemLocation, TItemLocation>>,
     oldItem: TItem<TItemLocation>) {
-    const parentReorder = sourceReorders.getActions().find(action => Mappings.mapId(mappingsSnapshot, action.payload, oldItem.location) === oldItem.parentId)
+    const parentReorder = sourceReorders.getActions().find(action => String(Mappings.mapId(mappingsSnapshot, action.payload, oldItem.location)) === String(oldItem.parentId))
     if (!parentReorder) {
       return
     }
-    parentReorder.order = parentReorder.order.filter(item => !(item.type === oldItem.type && Mappings.mapId(mappingsSnapshot, oldItem, parentReorder.payload.location) === item.id))
+    parentReorder.order = parentReorder.order.filter(item => !(item.type === oldItem.type && String(Mappings.mapId(mappingsSnapshot, oldItem, parentReorder.payload.location)) === String(item.id)))
   }
 
   toJSON(): ISerializedSyncProcess {
