@@ -1,5 +1,5 @@
 <template>
-  <div style="padding-top: env(safe-area-inset-top); position: absolute; inset: 0; overflow: hidden;">
+  <div style="position: absolute; inset: 0; overflow: hidden;">
     <v-app-bar
       fixed
       style="top: env(safe-area-inset-top);"
@@ -15,7 +15,6 @@
       </v-btn>
     </v-app-bar>
     <v-main
-      :class="{'pt-10': true }"
       style="height: 100%; overflow-y: auto;">
       <v-progress-circular
         v-if="loading"
@@ -24,6 +23,7 @@
         class="loading" />
       <v-card
         v-else
+        class="mt-2"
         style="min-height: 95vh">
         <v-card-text>
           <v-select

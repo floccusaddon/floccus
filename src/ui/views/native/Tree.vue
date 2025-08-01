@@ -1,5 +1,5 @@
 <template>
-  <div style="padding-top: env(safe-area-inset-top); position: absolute; inset: 0; overflow: hidden;">
+  <div style="position: absolute; inset: 0; overflow: hidden;">
     <Drawer :visible.sync="drawer" />
     <v-app-bar
       fixed
@@ -112,9 +112,7 @@
         <v-icon>mdi-cog</v-icon>
       </v-btn>
     </v-app-bar>
-    <v-main
-      :class="{'pt-8': true }"
-      style="height: 100%; overflow-y: auto;">
+    <v-main style="height: 100%; overflow-y: auto;">
       <v-progress-linear
         v-if="syncProgress"
         :value="syncProgress * 100 || 0"
@@ -771,5 +769,6 @@ export default {
 
 .list-full-height {
   min-height: 95vh;
+  margin-bottom: 60px;
 }
 </style>

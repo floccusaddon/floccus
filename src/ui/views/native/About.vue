@@ -1,5 +1,5 @@
 <template>
-  <div style="padding-top: env(safe-area-inset-top); position: absolute; inset: 0; overflow: hidden;">
+  <div style="position: absolute; inset: 0; overflow: hidden;">
     <Drawer :visible.sync="drawer" />
     <v-app-bar
       fixed
@@ -11,7 +11,6 @@
       <v-app-bar-title>{{ t('LabelAbout') }}</v-app-bar-title>
     </v-app-bar>
     <v-main
-      :class="{'pt-9': true }"
       style="height: 100%; overflow-y: auto;">
       <v-container>
         <v-card>
@@ -26,7 +25,7 @@
           </v-container>
         </v-card>
         <v-card
-          class="mt-3 mb-9">
+          class="mt-3 mb-16">
           <v-container class="pa-5">
             <v-card-title>
               {{ t("LabelContributors") }}

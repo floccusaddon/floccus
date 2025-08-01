@@ -1,5 +1,5 @@
 <template>
-  <div style="padding-top: env(safe-area-inset-top); position: absolute; inset: 0; overflow: hidden;">
+  <div style="position: absolute; inset: 0; overflow: hidden;">
     <v-app-bar
       app
       fixed
@@ -20,11 +20,10 @@
       </v-btn>
     </v-app-bar>
     <v-main
-      :class="{'pt-6': true }"
       style="height: 100%; overflow-y: auto;">
       <v-form
         v-if="!loading"
-        class="mt-3 mb-9">
+        class="mt-3">
         <OptionsNextcloudBookmarks
           v-if="data.type === 'nextcloud-folders' || data.type === 'nextcloud-bookmarks'"
           v-bind.sync="data"
@@ -60,6 +59,7 @@
           v-bind.sync="data"
           @reset="onReset"
           @delete="onDelete" />
+        <v-spacer style="padding-bottom: 80px;" />
       </v-form>
     </v-main>
   </div>
