@@ -1,9 +1,9 @@
 <template>
-  <div
-    style="height:100%">
+  <div style="padding-top: env(safe-area-inset-top); position: absolute; inset: 0; overflow: hidden;">
     <Drawer :visible.sync="drawer" />
     <v-app-bar
-      absolute
+      fixed
+      style="top: env(safe-area-inset-top);"
       app>
       <v-app-bar-nav-icon
         v-if="!tree || currentFolderId === tree.id"
@@ -112,7 +112,9 @@
         <v-icon>mdi-cog</v-icon>
       </v-btn>
     </v-app-bar>
-    <v-main>
+    <v-main
+      :class="{'pt-8': true }"
+      style="height: 100%; overflow-y: auto;">
       <v-progress-linear
         v-if="syncProgress"
         :value="syncProgress * 100 || 0"

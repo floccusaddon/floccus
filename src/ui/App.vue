@@ -17,7 +17,7 @@
         </v-btn>
       </template>
     </v-banner>
-    <v-content>
+    <v-content style="padding-top: env(safe-area-inset-top); position: absolute; inset: 0; overflow: hidden;">
       <router-view />
     </v-content>
     <v-footer

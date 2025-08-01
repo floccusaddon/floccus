@@ -1,15 +1,18 @@
 <template>
-  <div>
+  <div style="padding-top: env(safe-area-inset-top); position: absolute; inset: 0; overflow: hidden;">
     <Drawer :visible.sync="drawer" />
     <v-app-bar
-      absolute
+      fixed
+      style="top: env(safe-area-inset-top);"
       app>
       <v-app-bar-nav-icon
         class="mr-2 ml-n2"
         @click="drawer = !drawer" />
       <v-app-bar-title>{{ t('LabelImportExport') }}</v-app-bar-title>
     </v-app-bar>
-    <v-main>
+    <v-main
+      :class="{'pt-7': true }"
+      style="height: 100%; overflow-y: auto;">
       <ImportExportContent />
     </v-main>
   </div>

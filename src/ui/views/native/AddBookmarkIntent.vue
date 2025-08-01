@@ -1,7 +1,8 @@
 <template>
-  <div>
+  <div style="padding-top: env(safe-area-inset-top); position: absolute; inset: 0; overflow: hidden;">
     <v-app-bar
-      absolute
+      fixed
+      style="top: env(safe-area-inset-top);"
       app>
       <v-app-bar-title>Add Bookmark</v-app-bar-title>
       <v-spacer />
@@ -13,7 +14,9 @@
         Save
       </v-btn>
     </v-app-bar>
-    <v-main>
+    <v-main
+      :class="{'pt-10': true }"
+      style="height: 100%; overflow-y: auto;">
       <v-progress-circular
         v-if="loading"
         indeterminate

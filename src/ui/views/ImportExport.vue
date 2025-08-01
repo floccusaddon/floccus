@@ -37,7 +37,7 @@
       </v-container>
     </v-card>
     <v-card
-      class="options mt-3">
+      class="options mt-3 mb-9">
       <v-container class="pa-5">
         <v-card-title>
           {{ t("LabelImport") }}
