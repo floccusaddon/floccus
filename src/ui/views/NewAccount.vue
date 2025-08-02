@@ -1,6 +1,8 @@
 <template>
   <v-container>
-    <v-stepper v-model="currentStep" class="options mt-3 mb-9">
+    <v-stepper
+      v-model="currentStep"
+      class="options mt-3 mb-9">
       <v-stepper-header>
         <v-stepper-step
           :complete="currentStep > 0"
@@ -145,7 +147,7 @@
             <div class="headline">
               {{ t('LabelServersetup') }}
             </div>
-             <v-form>
+            <v-form>
               <v-text-field
                 v-model="server"
                 :rules="[validateUrl]"
@@ -717,5 +719,4 @@ export default {
         }
       }
     }
-    
 </style>

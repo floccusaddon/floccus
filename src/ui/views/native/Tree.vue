@@ -1,7 +1,8 @@
 <template>
   <div class="native-scroll-container">
     <Drawer :visible.sync="drawer" />
-    <v-app-bar fixed
+    <v-app-bar
+      fixed
       app>
       <v-app-bar-nav-icon
         v-if="!tree || currentFolderId === tree.id"
@@ -111,8 +112,9 @@
       </v-btn>
     </v-app-bar>
     <v-main>
-      <v-progress-linear fixed
+      <v-progress-linear
         v-if="syncProgress"
+        fixed
         :value="syncProgress * 100 || 0"
         color="blue darken-1" />
       <v-card>

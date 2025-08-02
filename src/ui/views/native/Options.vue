@@ -1,6 +1,7 @@
 <template>
-  <div  class="native-scroll-container">
-    <v-app-bar fixed
+  <div class="native-scroll-container">
+    <v-app-bar
+      fixed
       app>
       <v-btn
         icon

@@ -1,6 +1,7 @@
 <template>
   <div class="native-scroll-container">
-    <v-app-bar fixed
+    <v-app-bar
+      fixed
       app>
       <v-app-bar-title>Add Bookmark</v-app-bar-title>
       <v-spacer />

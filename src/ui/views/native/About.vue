@@ -1,7 +1,8 @@
 <template>
-  <div  class="native-scroll-container">
+  <div class="native-scroll-container">
     <Drawer :visible.sync="drawer" />
-    <v-app-bar fixed
+    <v-app-bar
+      fixed
       app>
       <v-app-bar-nav-icon
         class="mr-2 ml-n2"
