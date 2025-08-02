@@ -1,17 +1,14 @@
 <template>
-  <div style="position: absolute; inset: 0; overflow: hidden;">
+  <div  class="native-scroll-container">
     <Drawer :visible.sync="drawer" />
-    <v-app-bar
-      fixed
-      style="top: env(safe-area-inset-top);"
+    <v-app-bar fixed
       app>
       <v-app-bar-nav-icon
         class="mr-2 ml-n2"
         @click="drawer = !drawer" />
       <v-app-bar-title>{{ t('LabelAbout') }}</v-app-bar-title>
     </v-app-bar>
-    <v-main
-      style="height: 100%; overflow-y: auto;">
+    <v-main>
       <v-container>
         <v-card>
           <v-container class="pa-5">
