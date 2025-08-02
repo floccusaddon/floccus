@@ -1,9 +1,7 @@
 <template>
-  <div style="position: absolute; inset: 0; overflow: hidden;">
+  <div class="native-scroll-container">
     <Drawer :visible.sync="drawer" />
-    <v-app-bar
-      fixed
-      style="top: env(safe-area-inset-top);"
+    <v-app-bar fixed
       app>
       <v-app-bar-nav-icon
         v-if="!tree || currentFolderId === tree.id"
@@ -112,7 +110,7 @@
         <v-icon>mdi-cog</v-icon>
       </v-btn>
     </v-app-bar>
-    <v-main style="height: 100%; overflow-y: auto;">
+    <v-main>
       <v-progress-linear
         v-if="syncProgress"
         :value="syncProgress * 100 || 0"
@@ -245,7 +243,7 @@
         v-else
         flat
         tile
-        :style="{height: '100vh', width: '100vw', padding: '10vh auto'}">
+        :style="{height: '100%', width: '100vw', padding: '10vh auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}">
         <img
           src="icons/tree-swing.svg"
           :style="{width: '95%', maxHeight: '40vh'}">

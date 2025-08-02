@@ -71,7 +71,7 @@ html {
   overflow: hidden;
 
   .v-app-bar {
-    top: env(safe-area-inset-top);
+    top: env(safe-area-inset-top) !important;
     background: green;
   }
 
