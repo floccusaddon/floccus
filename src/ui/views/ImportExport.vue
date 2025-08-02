@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-card
-      class="options mt-3">
+      class="options">
       <v-container class="pa-5">
         <v-card-title>
           {{ t("LabelExport") }}
