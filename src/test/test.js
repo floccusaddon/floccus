@@ -6592,7 +6592,7 @@ describe('Floccus', function() {
 
         beforeEach('set up accounts', async function() {
           let _expectTreeEqual = expectTreeEqual
-          expectTreeEqual = (tree1, tree2, ignoreEmptyFolders, checkOrder) => _expectTreeEqual(tree1, tree2, ignoreEmptyFolders, !!checkOrder)
+          expectTreeEqual = (tree1, tree2, ignoreEmptyFolders, checkOrder) => _expectTreeEqual(tree1, tree2, ignoreEmptyFolders, false)
 
           // reset random seed
           random.use(seedrandom(SEED))
