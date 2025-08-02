@@ -767,5 +767,6 @@ export default {
 
 .list-full-height {
   min-height: 95vh;
+  margin-bottom: 60px;
 }
 </style>
