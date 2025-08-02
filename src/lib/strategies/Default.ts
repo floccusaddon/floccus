@@ -561,10 +561,11 @@ export default class SyncProcess {
       REORDER: new Diff(),
     }
 
+    const findChainCacheForRemovals = {}
     await Parallel.each(sourceScanResult.REMOVE.getActions(), async(action) => {
       const concurrentRemoval = targetRemovals.find(targetRemoval =>
         (action.payload.type === targetRemoval.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetRemoval.payload)) ||
-        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.payload, targetRemoval))
+        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.payload, targetRemoval, findChainCacheForRemovals))
       if (concurrentRemoval) {
         // Already deleted on target, do nothing.
         return
@@ -581,6 +582,7 @@ export default class SyncProcess {
       targetPlan.REMOVE.commit(action)
     }, ACTION_CONCURRENCY)
 
+    const findChainCacheForCreations = {}
     await Parallel.each(sourceScanResult.CREATE.getActions(), async(action) => {
       const concurrentCreation = targetCreations.find(a => (
         action.payload.parentId === Mappings.mapParentId(mappingsSnapshot, a.payload, action.payload.location) &&
@@ -611,9 +613,10 @@ export default class SyncProcess {
         // TODO: subScanner may contain residual CREATE/REMOVE actions that need to be added to mappings
         return
       }
+
       const concurrentRemoval = targetScanResult.REMOVE.getActions().find(targetRemoval =>
         // target removal removed this creation's target (via some chain)
-        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval)
+        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval, findChainCacheForCreations)
       )
       if (concurrentRemoval) {
         avoidTargetReorders[action.payload.parentId] = true
@@ -633,20 +636,24 @@ export default class SyncProcess {
           return
         }
       }
+      let findChainCache = {}
       // FInd out if there's a removal in the target diff which already deletes this item (via some chain of MOVE|CREATEs)
       const complexTargetTargetRemoval = targetRemovals.find(targetRemoval => {
-        return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval)
+        return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval, findChainCache)
       })
+      findChainCache = {}
       const concurrentTargetOriginRemoval = targetRemovals.find(targetRemoval =>
         (action.payload.type === targetRemoval.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetRemoval.payload)) ||
-        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.oldItem, targetRemoval)
+        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.oldItem, targetRemoval, findChainCache)
       )
+      findChainCache = {}
       const concurrentSourceOriginRemoval = sourceRemovals.find(sourceRemoval => {
-        return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.oldItem, sourceRemoval)
+        return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.oldItem, sourceRemoval, findChainCache)
       })
+      findChainCache = {}
       const concurrentSourceTargetRemoval = sourceRemovals.find(sourceRemoval =>
         // We pass an empty folder here, because we don't want direct deletions of the moved folder's parent to count, as it's moved away anyway
-        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, new Folder({id: 0, location: targetLocation}), action.payload, sourceRemoval)
+        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, new Folder({id: 0, location: targetLocation}), action.payload, sourceRemoval, findChainCache)
       )
       if (complexTargetTargetRemoval) {
         // target already deleted by a target|source REMOVE (connected via source MOVE|CREATEs)
@@ -697,15 +704,18 @@ export default class SyncProcess {
         }
         return
       }
+      let findChainCache1 = {}, findChainCache2 = {}
       // Find concurrent moves that form a hierarchy reversal together with this one
       const concurrentHierarchyReversals = targetMoves.filter(targetMove => {
-        return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetMove) &&
-          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, targetMove.payload, action)
+        return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetMove, findChainCache1) &&
+          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, targetMove.payload, action, findChainCache2)
       })
       if (concurrentHierarchyReversals.length) {
         if (targetLocation !== this.masterLocation) {
           targetPlan.MOVE.commit(action)
 
+          findChainCache1 = {}
+          findChainCache2 = {}
           concurrentHierarchyReversals.forEach(a => {
             // moved sourcely but moved in reverse hierarchical order on target
             const payload = a.oldItem.copyWithLocation(false, action.payload.location)
@@ -718,8 +728,8 @@ export default class SyncProcess {
               targetPlan.MOVE.getActions().find(move => String(move.payload.id) === String(payload.id)) ||
               sourceMoves.find(move => String(move.payload.id) === String(payload.id)) ||
               // Don't move back into removed territory
-              targetRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, remove)) ||
-              sourceRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.payload, remove))
+              targetRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, remove, findChainCache)) ||
+              sourceRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.payload, remove, findChainCache))
             ) {
               return
             }
@@ -770,8 +780,9 @@ export default class SyncProcess {
         }
       }
 
+      const findChainCache = {}
       const concurrentRemoval = targetRemovals.find(targetRemoval =>
-        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval)
+        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval, findChainCache)
       )
       if (concurrentRemoval) {
         // Already deleted on target, do nothing.
@@ -1117,6 +1128,8 @@ export default class SyncProcess {
 
     const newReorders = new Diff<L2, TItemLocation, ReorderAction<L2, TItemLocation>>
 
+    const findChainCache = {}
+
     targetReorders
       .getActions()
     // MOVEs have oldItem from cacheTree and payload now mapped to their corresponding target tree
@@ -1128,7 +1141,7 @@ export default class SyncProcess {
         const removed = targetRemovals
           .filter(removal =>
             removal.payload.findItem(reorderAction.payload.type, reorderAction.payload.id) ||
-            Diff.findChain(mappingSnapshot, targetCreationsAndMoves, targetTree, reorderAction.payload, removal))
+            Diff.findChain(mappingSnapshot, targetCreationsAndMoves, targetTree, reorderAction.payload, removal, findChainCache))
         if (removed.length) {
           return
         }
