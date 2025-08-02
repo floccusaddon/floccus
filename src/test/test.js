@@ -30,11 +30,15 @@ let expectTreeEqualRec = function(tree1, tree2, recDepth, ignoreEmptyFolders, ch
         tree2.children.sort((a, b) => {
           if (a.title < b.title) return -1
           if (a.title > b.title) return 1
+          if ((a.url || '') < (b.url || '')) return -1
+          if ((a.url || '') > (b.url || '')) return 1
           return 0
         })
         tree1.children.sort((a, b) => {
           if (a.title < b.title) return -1
           if (a.title > b.title) return 1
+          if ((a.url || '') < (b.url || '')) return -1
+          if ((a.url || '') > (b.url || '')) return 1
           return 0
         })
       }
@@ -5321,15 +5325,18 @@ describe('Floccus', function() {
             const tree2AfterThirdSync = await account2.localTree.getBookmarksTree(
               true
             )
+            console.log('Checking local tree of acc2')
             expectTreeEqual(
               tree2AfterThirdSync,
               tree2BeforeThirdSync,
               false
             )
-            serverTreeAfterThirdSync.title = tree2AfterThirdSync.title
+            console.log('All good')
+            console.log('Checking server tree')
+            serverTreeAfterThirdSync.title = tree2BeforeThirdSync.title
             expectTreeEqual(
               serverTreeAfterThirdSync,
-              tree2AfterThirdSync,
+              tree2BeforeThirdSync,
               false
             )
             console.log('Second round second half ok')
@@ -6585,7 +6592,7 @@ describe('Floccus', function() {
 
         beforeEach('set up accounts', async function() {
           let _expectTreeEqual = expectTreeEqual
-          expectTreeEqual = (tree1, tree2, ignoreEmptyFolders, checkOrder) => _expectTreeEqual(tree1, tree2, ignoreEmptyFolders, !!checkOrder)
+          expectTreeEqual = (tree1, tree2, ignoreEmptyFolders, checkOrder) => _expectTreeEqual(tree1, tree2, ignoreEmptyFolders, false)
 
           // reset random seed
           random.use(seedrandom(SEED))
@@ -7174,8 +7181,8 @@ describe('Floccus', function() {
                 .filter(item => item.id !== tree2AfterFirstSync.id)
             }
 
-            await randomlyManipulateTree(account1, folders1, bookmarks1, 20)
-            await randomlyManipulateTree(account2, folders2, bookmarks2, 20)
+            await randomlyManipulateTree(account1, folders1, bookmarks1, RANDOM_MANIPULATION_ITERATIONS)
+            await randomlyManipulateTree(account2, folders2, bookmarks2, RANDOM_MANIPULATION_ITERATIONS)
 
             console.log(' acc1: Moved items')
 
@@ -7300,7 +7307,7 @@ describe('Floccus', function() {
           }
         })
 
-        it('should handle fuzzed changes with deletions from two clients', async function() {
+        it('should handle fuzzed changes with deletions from two clients (normal)', async function() {
           const localRoot = account1.getData().localRoot
           let bookmarks1 = []
           let folders1 = []

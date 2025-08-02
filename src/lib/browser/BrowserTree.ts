@@ -249,6 +249,10 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     const [realTree] = await browser.bookmarks.getSubTree(id)
     try {
       for (let index = 0; index < order.length; index++) {
+        if (!realTree.children.find(item => String(item.id) === String(order[index].id))) {
+          Logger.log('(local)ORDERFOLDER: skipping item ', order[index])
+          continue
+        }
         await browser.bookmarks.move(order[index].id, { parentId: id.toString(), index })
       }
     } catch (e) {
