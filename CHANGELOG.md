@@ -1,5 +1,29 @@
 # Changelog
 
+## [5.6.0] - 2025-08-02
+
+### New
+
+- New backend: KaraKeep
+- Support syncing tab groups
+- [Native app] Improved handling of share intents 
+
+### Fixed
+
+* Make syncing with Linkwarden work again: Switch to new search endpoint
+* Improve syncing correctness: Fix ID comparisons
+* Improve syncing correctness: reconcileReorderings based on both donePlans
+* Improve syncing correctness: Fix mappable() function
+* Improve syncing correctness: Do not move items across folders in orderFolder()
+* fix: Fix "failed to map parentId" errors
+* Ignore permissions when using Orion
+* Improve Description for Bookmarksfile
+* Display more meaningful explanation for server target
+* Never force-push when syncing via git
+* Catch errors when parsing XML
+* Allow syncing root folder in chrome again 
+* catch errors from git.push operations
+
 ## [5.5.6] - 2025-06-29
 
 ### Fixed

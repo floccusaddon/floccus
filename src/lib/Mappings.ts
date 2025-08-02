@@ -79,6 +79,13 @@ export default class Mappings {
     }
   }
 
+  static mapRawId(mappingsSnapshot:MappingSnapshot, id: string|number, type: TItemType, source: TItemLocation, target: TItemLocation) : string|number {
+    if (target === source) {
+      return id
+    }
+    return mappingsSnapshot[source + 'To' + target][type][id]
+  }
+
   static mapId(mappingsSnapshot:MappingSnapshot, item: TItem<TItemLocation>, target: TItemLocation) : string|number {
     if (item.location === target) {
       return item.id
@@ -94,10 +101,10 @@ export default class Mappings {
   }
 
   static mappable(mappingsSnapshot: MappingSnapshot, item1: TItem<TItemLocation>, item2: TItem<TItemLocation>) : boolean {
-    if (Mappings.mapId(mappingsSnapshot, item1, item2.location) === item2.id) {
+    if (String(Mappings.mapId(mappingsSnapshot, item1, item2.location)) === String(item2.id)) {
       return true
     }
-    if (Mappings.mapId(mappingsSnapshot, item2, item1.location) === item1.id) {
+    if (String(Mappings.mapId(mappingsSnapshot, item2, item1.location)) === String(item1.id)) {
       return true
     }
     return false
