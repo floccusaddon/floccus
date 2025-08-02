@@ -3,7 +3,7 @@
     "message": "E001: Der Ordner, in dem neu erzeugt werden soll, existiert nicht."
   },
   "Error002": {
-    "message": "E002: Zu aktualisierendes Lesezeichen existiert nicht."
+    "message": "E002: Zu aktualisierendes Lesezeichen existiert nicht mehr."
   },
   "Error003": {
     "message": "E003: Der Ordner, aus dem verschoben werden soll, existiert nicht. Dies ist eine Anomalie. Herzlichen Glückwunsch."
@@ -84,7 +84,7 @@
     "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen, stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
   },
   "Error029": {
-    "message": "E029: Löschsicherung: Die aktuelle Synchronisierung würde {0}% der lokalen Lesezeichen löschen. Floccus weigert sich dies auszüführen. Falls Sie trotzdem fortfahren wollen, deaktivieren Sie die Löschsicherung in den Konto-Einstellungen."
+    "message": "E029: Löschsicherung: Die aktuelle Synchronisierung würde {0}% der Links löschen. Floccus weigert sich dies auszüführen. Falls Sie trotzdem fortfahren wollen, deaktivieren Sie die Löschsicherung in den Konto-Einstellungen."
   },
   "Error030": {
     "message": "E030: Entschlüsseln der Lesezeichendatei fehlgeschlagen. Die Passphrase könnte falsch oder die Datei beschädigt sein."
@@ -99,7 +99,7 @@
     "message": "E033: Weiterleitung festgestellt. Vergewissern Sie sich, dass der angegebene Server die ausgewählte Synchronisierungsmethode unterstützt und die URL stimmt, die Sie eingegeben haben und nicht auf eine andere URL weiterleitet. Falls die Weiterleitung teil Ihres Server-Setups ist, können Sie diese Kontrolle in den Einstellungen deaktivieren."
   },
   "Error034": {
-    "message": "E034: Die entfernte Lesezeichendatei ist nicht erreichbar. Haben Sie vergessen eine Verschlüsselungspassphrase anzugeben?"
+    "message": "E034: Die entfernte Lesezeichendatei ist nicht lesbar. Vielleicht hast du vergessen eine Verschlüsselungspassphrase anzugeben oder das falsche Dateiformat genutzt."
   },
   "Error035": {
     "message": "E035: Das folgende Lesezeichen konnte nicht auf dem Server erstellt werden: {0}"
@@ -112,6 +112,24 @@
   },
   "Error038": {
     "message": "E038: Konnte lokalen Ordner nicht finden"
+  },
+  "Error039": {
+    "message": "E039: Das folgende Lesezeichen konnte nicht auf dem Server aktualisiert werden: {0}"
+  },
+  "Error040": {
+    "message": "E040: Es konnte nicht nach Ihrem gewählten Dateinamen in Google Drive gesucht werden"
+  },
+  "Error041": {
+    "message": "E041: Die Größe der Lesezeichen-Datei auf dem Server unterscheidet sich von der heruntergeladenen Datei. Dies könnte ein temporäres Netzwerk-Problem sein. Falls dieser Fehler jedoch bestehen bleibt, kontaktieren sie den Server-Administrator."
+  },
+  "Error042": {
+    "message": "E042: Die Größe der Lesezeichen-Datei auf dem Server kontte nicht ermittelt werden. Es ist somit nicht möglich zu überprüfen, ob die Datei vollständig heruntergeladen wurde. Falls dieser Fehler bestehen bleibt kontaktieren Sie den Server-Administrator."
+  },
+  "Error043": {
+    "message": "E043: Löschsicherung: Die aktuelle Synchronisierung würde die Anzahl der Links um {0}% erhöhen. Floccus weigert sich dies auszuführen. Falls Sie trotzdem fortfahren wollen, deaktivieren Sie die Löschsicherung in den Konto-Einstellungen."
+  },
+  "Error044": {
+    "message": "E044: Git push Operation fehlgeschlagen: {0}"
   },
   "LabelWebdavurl": {
     "message": "WebDAV-URL"
@@ -129,13 +147,13 @@
     "message": "Passwort"
   },
   "LabelBookmarksfile": {
-    "message": "Pfad zur Lesezeichendatei"
+    "message": "Lesezeichen-Datei"
   },
   "DescriptionBookmarksfile": {
-    "message": "Ein Pfad zur Lesezeichendatei relativ zur WebDAV-URL (alle Ordner darin müssen bereits existieren). z.B. persönlich/lesezeichen.xbel (Kein Schrägstrich am Anfang!)"
+    "message": "Ein Pfad zur Lesezeichendatei auf dem Server, relativ zur WebDAV-URL (alle Ordner darin müssen bereits existieren). z.B. persönlich/lesezeichen.xbel (Kein Schrägstrich am Anfang!)"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "Der Dateiname der Lesezeichendatei, die in Ihrem Google Drive gespeichert wird (stellen Sie sicher, dass der Dateiname in Google Drive einzigartig ist)."
+   "message": "Der Dateiname der Lesezeichendatei, die in Ihrem Google Drive gespeichert wird. Stellen Sie sicher, dass der Dateiname in Google Drive einzigartig ist. z.B. MeineLesezeichen.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "Pfad zur Lesezeichen-Datei, relativ zu deinem Git-Repository Wurzelverzeichnis (alle Verzeichnisse auf diesem Pfad müssen bereits existieren), z.B. personal_stuff/bookmarks.xbel"
@@ -145,6 +163,12 @@
   },
   "DescriptionServerfolder": {
     "message": "Beim Synchronisieren werden Ihre Lesezeichen in diesem Browser als Links unter diesem Pfad auf dem Server gespeichert. Beachten Sie, dass dieser Pfad einen Ordner in der Nextcloud Bookmarks-App darstellt, nicht einen Ordner in Nextcloud Files. Lassen Sie dieses Feld leer, um alle Links direkt im obersten Ordner auf dem Server zu platzieren."
+  },
+  "DescriptionServerfolderlinkwarden": {
+    "message": "Beim Synchronisieren werden deine Lesezeichen in diesem Browser als Links in dieser Kollektion in Linkwarden gespeichert und nur Links in dieser Kollektion werden mit diesem Browser synchronisiert."
+  },
+  "DescriptionServerfolderkarakeep": {
+    "message": "Beim Synchronisieren werden deine Lesezeichen in diesem Browser als Links in dieser Kollektion in KaraKeep gespeichert und nur Links in dieser Kollektion werden mit diesem Browser synchronisiert."
   },
   "LabelLocaltarget": {
     "message": "Lokales Ziel"
@@ -163,6 +187,9 @@
   },
   "LabelNewfolder": {
     "message": "Neu erstellter Ordner"
+  },
+  "LabelSelectfolder": {
+    "message": "Ordner wählen"
   },
   "LabelOptions": {
     "message": "Optionen"
@@ -270,7 +297,7 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "Die Option 'Nextcloud Bookmarks' synchronisiert deine Lesezeichen mit der Bookmarks-App für Nextcloud. Sie kann nur http-, ftp- und Javascript-Lesezeichen synchronisieren. Stelle sicher, dass du die Bookmarks-App aus dem Nextcloud App Store in deiner Nextcloud installiert hast. Diese Option kann keine Ende-zu-Ende-Verschlüsselung nutzen."
+    "message": "Synchronisieren Sie Ihre Lesezeichen mit der Open-Source Lesezeichen Applikation für Nextcloud (eine Open-Source Kollaborationsplatform, die Sie selbst hosten können oder für die Sie ein Konto auf einer Instanz in der Cloud bei verschiedenen Hostern bekommen können). Mit Nextcloud Bookmarks können Sie nur HTTP, FTP und JavaScript Lesezeichen synchronisieren. Vergewissern Sie sich, dass sie die Bookmarks Applikation aus dem Nextcloud App Store in Ihrer Nextcloud installiert haben, wenn Sie diese Option nutzen wollen. Diese Option kann keine Ende-zu-Ende-Verschlüsselung nutzen."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (alte Version)"
@@ -282,7 +309,7 @@
     "message": "WebDAV-Freigabe"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Die WebDAV-Option synchronisiert deine Lesezeichen, indem es sie in einer Datei auf dem angegebenen WebDAV-Share speichert. Es gibt zu dieser Option keine Web UI, aber du kannst sie mit jedem WebDAV-kompatiblen Server nutzen. Es können http-, ftp-, Daten-, Datei- und Javascript-Lesezeichen synchronisiert werden. Du kannst bei dieser Option eine Ende-zu-Ende-Verschlüsselung wählen. "
+    "message": "Synchronisieren Sie Ihre Lesezeichen indem Sie sie in einer Datei in einem konfigurierbaren WebDAV-Verzeichnis speichern. Es gibt keine dazugehörige Benutzeroberfläche im Web für diese Option, aber Sie können jeden beliebigen WebDAV-kompatiblen Server benutzen, ob selbst gehostet oder in der Cloud. Diese Option unterstützt HTTP, FTP, DATA, FILE und JavaScript Lesezeichen. Sie haben die Möglichkeit Ende-zu-Ende-Verschlüsselung zu nutzen, wenn sie diese Option wählen."
   },
   "LabelAddaccount": {
     "message": "Profil hinzufügen"
@@ -496,16 +523,16 @@
     "message": "Löschsicherung"
   },
   "DescriptionFailsafe": {
-    "message": "Manchmal können Konfigurationsfehler oder Programmfehler zur unerwünschte Löschung von Daten führen, die dann verloren sind. Um dies zu verhindern, wird Floccus nicht mehr als 50% Ihrer Lesezeichen in einem Schritt löschen, solange sie diese Löschsicherung nicht hier ausschalten."
+    "message": "Manchmal können Konfigurationsfehler oder Programmfehler zur unerwünschte Löschung von Daten führen, die dann verloren sind, oder sogar zur unerwünschten Vervielfachung von Daten, die dann schwer wieder herauszufiltern sind. Um dies zu verhindern, wird Floccus nicht mehr als 20% Ihrer Lesezeichen in einem Schritt löschen und auch nicht mehr als 20% zu Ihren Lesezeichen in einem Schritt hinzufügen, solange sie diese Löschsicherung nicht hier ausschalten."
   },
   "LabelFailsafeon": {
-    "message": "Eingeschaltet. Lösche nicht mehr als 50% meiner lokalen Lesezeichen ohne mich vorher zu fragen (empfohlen)."
+    "message": "Eingeschaltet. Lösche nicht mehr als 20% und füge nicht mehr als 20% zu meinen lokalen Lesezeichen hinzu ohne mich vorher zu fragen (empfohlen)."
   },
   "LabelFailsafeoff": {
-    "message": "Ausgeschaltet. Erlaube das Löschen von mehr als 50% meiner lokalen Lesezeichen ohne mich vorher zu fragen."
+    "message": "Ausgeschaltet. Erlaube das Löschen oder Hinzufügen von mehr als 20% meiner lokalen Lesezeichen ohne mich vorher zu fragen."
   },
   "StatusFailsafeoff": {
-    "message": "Failsafe deaktiviert. Sie laufen Gefahr unbeabsichtigten Datenverlust zu erleiden. Es wird empfohlen, den Failsafe in den Profil-Einstellungen zu aktivieren."
+    "message": "Failsafe deaktiviert. Sie laufen Gefahr unbeabsichtigten Datenverlust oder Vervielfachung zu erleiden. Es wird empfohlen, den Failsafe in den Profil-Einstellungen zu aktivieren."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
@@ -551,6 +578,9 @@
   },
   "LabelDeleteitem": {
     "message": "Löschen"
+  },
+  "DescriptionReallydeleteitem": {
+    "message": "Möchtest du dieses Objekt wirklich löschen?"
   },
   "LabelNobookmarks": {
     "message": "Keine Lesezeichen hier"
@@ -661,7 +691,7 @@
     "message": "Profil erstellt"
   },
   "DescriptionAccountcreated": {
-    "message": "Ihr Profil wurde erstellt. Sie können diesen Tab jetzt schließen."
+    "message": "Ihr Konto wurde erstellt. Sie können diesen Tab jetzt schließen. Eine Sache noch: Synchronisation ersetzt kein Backup. Gehen Sie sicher, dass sie regelmäßige Backups von Ihren Lesezeichen haben."
   },
   "DescriptionNonhttps": {
     "message": "Sie haben einen Server angegeben, der ein unsicheres Protokoll benutzt. Es wird empfohlen nur Server zu benutzen, die HTTPS unterstützen."
@@ -706,7 +736,7 @@
     "message": "Git über HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Die Git-Option synchronisiert deine Lesezeichen, indem es sie in einer Datei im angegebenen Git-Repository speichert. Es gibt zu dieser Option keine Web UI, aber du kannst sie mit jedem Git Hostingserver wie Github, Gitlab, Gitea usw. nutzen. Sie kann http-, ftp-, Daten-, Datei- und Javascript-Lesezeichen synchronisieren. Du kannst bei dieser Option keine Ende-zu-Ende-Verschlüsselung nutzen."
+    "message": "Die Git-Option synchronisiert Ihre Lesezeichen, indem es sie in einer Datei im angegebenen Git-Repository speichert. Es gibt zu dieser Option keine Benutzeroberfläche im Web, aber du kannst sie mit jedem Git Hosting-Server wie Github, Gitlab, Gitea usw. nutzen. Sie kann http-, ftp-, Data-, File- und Javascript-Lesezeichen synchronisieren. Du kannst bei dieser Option keine Ende-zu-Ende-Verschlüsselung nutzen."
   },
   "LabelGiturl": {
     "message": "Repository-URL (HTTP)"
@@ -779,5 +809,50 @@
   },
   "DescriptionReportproblem": {
     "message": "Wenn du zu einem konkreten Problem direkt die Entwickler kontaktieren möchtest, dann kannst du das hier tun:"
+  },
+  "LabelAdapterKarakeep":  {
+    "message": "KaraKeep"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "Synchronisieren Sie Ihre Lesezeichen mit der Open-Source selbst-gehosteten KaraKeep Anwendung. Diese Option unterstützt keine Ende-zu-Ende-Verschlüsselung und kann nicht die Reihenfolge Ihrer Lesezeichen synchronisieren."
+  },
+  "LabelApiKey":  {
+    "message": "API-Schlüssel"
+  },
+  "LabelKarakeepurl":  {
+    "message": "Die URL Ihres KaraKeep-Servers"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "Verbindung zu KaraKeep-Server konnte nicht hergestellt werden"
+  },
+  "LabelAdapterlinkwarden":  {
+    "message": "Linkwarden"
+  },
+  "DescriptionAdapterlinkwarden":  {
+    "message": "Synchronisieren SIe Ihre Lesezeichen mit der quelloffenen Linkwarden App, die auf deinem Server oder in der Cloud über cloud.linkwarden.app gehostet ist. Linkwarden kann nur http-, ftp- oder javascript-Lesezeichen synchronisieren. Diese Option unterstützt keine Ende-zu-Ende-Verschlüsselung und kann nicht die Reihenfolge Ihrer Lesezeichen synchronisieren."
+  },
+  "LabelLinkwardenurl":  {
+    "message": "Die URL deines Linkwarden-Servers"
+  },
+  "LabelAccesstoken":  {
+    "message": "Zugriffstoken"
+  },
+  "LabelLinkwardenconnectionerror": {
+    "message": "Verbindung zu Linkwarden-Server konnte nicht hergestellt werden"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "Ergebnisse aus anderen Ordnern"
+  },
+  "LabelScheduledforcesync": {
+    "message": "Synchronisierung erzwingen"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "Möchtest du wirklich die Synchronisierung erzwingen? Gleichzeitige Synchronisierung mit zwei Geräten kann unvorhergesehene Konsequenzen wie Beschädigung von Daten haben. Stelle bevor du fortfährst sicher, dass keine anderen Geräte gleichzeitig synchronisieren."
+  },
+  "DescriptionAutosync": {
+    "message": "Wenn Sie Automatische Synchronisierung anschalten, wird regelmäßig innerhalb eines einstellbaren Zeitabstands synchronisiert, aber auch bei Bedarf, nachdem Sie Änderungen machen. Falls Sie diese Option nicht anschalten, müssen Sie die Synchronisierung manuell anstoßen indem Sie den Synchronisieren-Knopf klicken."
+  },
+  "LabelOpeninnewtab": {
+    "message": "Öffne diese Ansicht in einem neuen Tab"
   }
 }
