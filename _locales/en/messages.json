@@ -814,7 +814,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Sync your bookmarks with the open-source self-hosted Karakeep app. This option cannot make use of end-to-end encryption."
+    "message": "Sync your bookmarks with the open-source self-hosted Karakeep app. This option cannot make use of end-to-end encryption and does not support keeping the order of bookmarks across syncs."
   },
   "LabelApiKey":  {
     "message": "API key"
@@ -829,7 +829,7 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Sync your bookmarks with the open-source Linkwarden app, either hosted on your own server or in the cloud at cloud.linkwarden.app. It can only sync http, ftp and javascript bookmarks. This option cannot make use of end-to-end encryption."
+    "message": "Sync your bookmarks with the open-source Linkwarden app, either hosted on your own server or in the cloud at cloud.linkwarden.app. It can only sync http, ftp and javascript bookmarks. This option cannot make use of end-to-end encryption and does not support keeping the bookmark order across syncs."
   },
   "LabelLinkwardenurl":  {
     "message": "The URL of your Linkwarden server"
