@@ -2,27 +2,29 @@ PODS:
   - ByteowlsCapacitorOauth2 (5.0.0):
     - Capacitor
     - OAuthSwift (= 2.2.0)
-  - Capacitor (6.1.1):
+  - Capacitor (7.1.0):
     - CapacitorCordova
-  - CapacitorApp (6.0.0):
+  - CapacitorApp (7.0.0):
     - Capacitor
-  - CapacitorBrowser (6.0.1):
+  - CapacitorBrowser (7.0.0):
     - Capacitor
-  - CapacitorCordova (6.1.1)
-  - CapacitorDevice (6.0.0):
+  - CapacitorCordova (7.1.0)
+  - CapacitorDevice (7.0.0):
     - Capacitor
-  - CapacitorFilesystem (6.0.0):
+  - CapacitorFilesystem (7.0.0):
     - Capacitor
-  - CapacitorNetwork (6.0.1):
+  - CapacitorNetwork (7.0.0):
     - Capacitor
-  - CapacitorPreferences (6.0.1):
+  - CapacitorPreferences (7.0.0):
     - Capacitor
-  - CapacitorShare (6.0.1):
+  - CapacitorShare (7.0.0):
     - Capacitor
-  - CapacitorSplashScreen (6.0.1):
+  - CapacitorSplashScreen (7.0.0):
+    - Capacitor
+  - CapacitorStatusBar (7.0.1):
     - Capacitor
   - OAuthSwift (2.2.0)
-  - SendIntent (0.0.1):
+  - SendIntent (7.0.0):
     - Capacitor
 
 DEPENDENCIES:
@@ -37,6 +39,7 @@ DEPENDENCIES:
   - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
   - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
   - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
+  - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - SendIntent (from `../../node_modules/send-intent`)
 
 SPEC REPOS:
@@ -66,24 +69,27 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/share"
   CapacitorSplashScreen:
     :path: "../../node_modules/@capacitor/splash-screen"
+  CapacitorStatusBar:
+    :path: "../../node_modules/@capacitor/status-bar"
   SendIntent:
     :path: "../../node_modules/send-intent"
 
 SPEC CHECKSUMS:
   ByteowlsCapacitorOauth2: 9e7cdae2bf251463a6ad89493e27fb288bf694d7
-  Capacitor: 8941aba4364ba9d1b22188569001f2ce45cc2b00
-  CapacitorApp: 9d53aec7101f7b030a950c5bdc4df8612576b279
-  CapacitorBrowser: 473c7fd70ddbe541608ff09ec1be14da0078279e
-  CapacitorCordova: 8f2cc8d8d3619c566e9418fe8772064a94266106
-  CapacitorDevice: f8fd88f9edd1261c55a109f32015b09bbbfdc4a0
-  CapacitorFilesystem: 60e59ba274c234a979e7a3be2552feaadcee4263
-  CapacitorNetwork: 5c94acfdddc22043f2ffaff224ce9b4aa5a179f0
-  CapacitorPreferences: 72909b165bc7807103778ddbb86d5d8ce06abf71
-  CapacitorShare: 02222f2457ff003e642370a9c1ecd101baaa27c8
-  CapacitorSplashScreen: 61645214e8f955ff2b80f16a6a3648960fe4c89f
+  Capacitor: 68ff8eabbcce387e69767c13b5fbcc1c5399eabc
+  CapacitorApp: 45cb7cbef4aa380b9236fd6980033eb5cde6fcd2
+  CapacitorBrowser: 352a66541b15ceadae1d703802b11979023705e3
+  CapacitorCordova: 866217f32c1d25b326c568a10ea3ed0c36b13e29
+  CapacitorDevice: 62066b65e148a133df7b8c5bf972ba835b329748
+  CapacitorFilesystem: 2881ad012b5c8d0ffbfed1216aadfc2cca16d5b5
+  CapacitorNetwork: cd17b98182841055ff58629213242a1f22f4a76b
+  CapacitorPreferences: e24a50a936f0e4f54a6b43be6121f923b4d91c27
+  CapacitorShare: 2fcf1758cd07e0558f6aed40d7437bf8a3a42297
+  CapacitorSplashScreen: f4e58cc02aafd91c7cbaf32a3d1b44d02a115125
+  CapacitorStatusBar: 275cbf2f4dfc00388f519ef80c7ec22edda342c9
   OAuthSwift: 75efbb5bd9a4b2b71a37bd7e986bf3f55ddd54c6
-  SendIntent: 0a17b6984c4f27e9dfa56513267ba2c044a5a6c8
+  SendIntent: 1f4f65c7103eb423067c566682dfcda973b5fb29
 
-PODFILE CHECKSUM: ec4a5e49843d3546e8e3d2415a3cc07be4758a27
+PODFILE CHECKSUM: 5f190d3cd506bedc6bc77c16b4323e26407cdc66
 
 COCOAPODS: 1.16.2

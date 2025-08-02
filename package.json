@@ -88,6 +88,7 @@
     "@capacitor/preferences": "7.x",
     "@capacitor/share": "7.x",
     "@capacitor/splash-screen": "7.x",
+    "@capacitor/status-bar": "7.x",
     "@isomorphic-git/lightning-fs": "^4.6.0",
     "@sentry/vue": "7.x",
     "@sentry/webpack-plugin": "2.x",
