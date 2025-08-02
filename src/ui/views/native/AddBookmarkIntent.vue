@@ -1,8 +1,6 @@
 <template>
-  <div style="position: absolute; inset: 0; overflow: hidden;">
-    <v-app-bar
-      fixed
-      style="top: env(safe-area-inset-top);"
+  <div class="native-scroll-container">
+    <v-app-bar fixed
       app>
       <v-app-bar-title>Add Bookmark</v-app-bar-title>
       <v-spacer />
@@ -14,8 +12,7 @@
         Save
       </v-btn>
     </v-app-bar>
-    <v-main
-      style="height: 100%; overflow-y: auto;">
+    <v-main>
       <v-progress-circular
         v-if="loading"
         indeterminate
