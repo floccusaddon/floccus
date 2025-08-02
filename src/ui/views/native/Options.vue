@@ -1,9 +1,7 @@
 <template>
-  <div style="position: absolute; inset: 0; overflow: hidden;">
-    <v-app-bar
-      app
-      fixed
-      style="top: env(safe-area-inset-top);">
+  <div  class="native-scroll-container">
+    <v-app-bar fixed
+      app>
       <v-btn
         icon
         :to="{name: routes.TREE, params: {accountId: id}}">
@@ -19,11 +17,9 @@
         {{ t('LabelSave') }}
       </v-btn>
     </v-app-bar>
-    <v-main
-      style="height: 100%; overflow-y: auto;">
+    <v-main>
       <v-form
-        v-if="!loading"
-        class="mt-3">
+        v-if="!loading">
         <OptionsNextcloudBookmarks
           v-if="data.type === 'nextcloud-folders' || data.type === 'nextcloud-bookmarks'"
           v-bind.sync="data"
