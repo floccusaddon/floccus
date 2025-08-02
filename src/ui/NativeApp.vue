@@ -65,20 +65,17 @@ html {
 }
 
 .native-scroll-container {
-  background: red;
   position: absolute;
   inset: 0;
   overflow: hidden;
 
   .v-app-bar {
     top: env(safe-area-inset-top) !important;
-    background: green;
   }
 
   .v-main {
     height: 100%;
     overflow-y: auto;
-    background: yellow;
   }
 }
 </style>
