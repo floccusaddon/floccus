@@ -1,7 +1,6 @@
 <template>
   <v-container>
-    <v-card
-      class="options mt-3">
+    <v-card class="mt-3 mb-9">
       <v-stepper v-model="currentStep">
         <v-stepper-header>
           <v-stepper-step
@@ -50,7 +49,7 @@
                 </div>
               </v-radio-group>
             </v-form>
-            <div class="d-flex flex-row-reverse">
+            <div class="d-flex flex-row-reverse pb-2">
               <v-btn
                 class="primary"
                 @click="currentStep++">
@@ -81,7 +80,7 @@
                 :persistent-hint="true"
                 @keydown.enter.prevent="currentStep++" />
             </v-form>
-            <div class="d-flex flex-row justify-space-between">
+            <div class="d-flex flex-row justify-space-between pb-2">
               <v-btn @click="currentStep--">
                 {{ t('LabelBack') }}
               </v-btn>
@@ -115,7 +114,7 @@
                   </v-icon>
                 </template>
               </v-text-field>
-              <div class="d-flex flex-row justify-space-between">
+              <div class="d-flex flex-row justify-space-between pb-2">
                 <v-btn @click="currentStep--">
                   {{ t('LabelBack') }}
                 </v-btn>
@@ -161,7 +160,7 @@
                 :type="showPassword ? 'text' : 'password'"
                 @click:append="showPassword = !showPassword" />
 
-              <div class="d-flex flex-row justify-space-between">
+              <div class="d-flex flex-row justify-space-between pb-2">
                 <v-btn @click="currentStep--">
                   {{ t('LabelBack') }}
                 </v-btn>
@@ -190,7 +189,7 @@
                 :type="showPassword ? 'text' : 'password'"
                 @click:append="showPassword = !showPassword" />
 
-              <div class="d-flex flex-row justify-space-between">
+              <div class="d-flex flex-row justify-space-between pb-2">
                 <v-btn @click="currentStep--">
                   {{ t('LabelBack') }}
                 </v-btn>
@@ -230,7 +229,7 @@
                 :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassphrase ? 'text' : 'password'"
                 @click:append="showPassphrase = !showPassphrase" />
-              <div class="d-flex flex-row justify-space-between">
+              <div class="d-flex flex-row justify-space-between pb-2">
                 <v-btn @click="currentStep--">
                   {{ t('LabelBack') }}
                 </v-btn>
@@ -259,7 +258,7 @@
                 :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassword ? 'text' : 'password'"
                 @click:append="showPassword = !showPassword" />
-              <div class="d-flex flex-row justify-space-between">
+              <div class="d-flex flex-row justify-space-between pb-2">
                 <v-btn @click="currentStep--">
                   {{ t('LabelBack') }}
                 </v-btn>
@@ -283,9 +282,11 @@
               <p class="mt-1">
                 {{ t('DescriptionLogingoogle') }}
               </p>
-              <v-btn @click="currentStep--">
-                {{ t('LabelBack') }}
-              </v-btn>
+              <div class="d-flex flex-row justify-space-between pb-2">
+                <v-btn @click="currentStep--">
+                  {{ t('LabelBack') }}
+                </v-btn>
+              </div>
             </template>
           </v-stepper-content>
 
@@ -394,7 +395,7 @@
               v-if="isBrowser"
               v-model="localRoot" />
 
-            <div class="d-flex flex-row justify-space-between">
+            <div class="d-flex flex-row justify-space-between pb-2">
               <v-btn @click="currentStep--">
                 {{ t('LabelBack') }}
               </v-btn>
@@ -435,7 +436,7 @@
               dense
               class="mt-0 pt-0 mb-4" />
 
-            <div class="d-flex flex-row justify-space-between">
+            <div class="d-flex flex-row justify-space-between pb-2">
               <v-btn @click="currentStep--">
                 {{ t('LabelBack') }}
               </v-btn>
@@ -446,6 +447,7 @@
               </v-btn>
             </div>
           </v-stepper-content>
+
           <v-stepper-content step="5">
             <div class="headline">
               {{ t('LabelAccountcreated') }} <v-icon>mdi-check</v-icon>
