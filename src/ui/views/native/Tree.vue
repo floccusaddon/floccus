@@ -111,7 +111,7 @@
       </v-btn>
     </v-app-bar>
     <v-main>
-      <v-progress-linear
+      <v-progress-linear fixed
         v-if="syncProgress"
         :value="syncProgress * 100 || 0"
         color="blue darken-1" />
@@ -767,6 +767,5 @@ export default {
 
 .list-full-height {
   min-height: 95vh;
-  margin-bottom: 60px;
 }
 </style>
