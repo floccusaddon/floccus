@@ -30,11 +30,15 @@ let expectTreeEqualRec = function(tree1, tree2, recDepth, ignoreEmptyFolders, ch
         tree2.children.sort((a, b) => {
           if (a.title < b.title) return -1
           if (a.title > b.title) return 1
+          if ((a.url || '') < (b.url || '')) return -1
+          if ((a.url || '') > (b.url || '')) return 1
           return 0
         })
         tree1.children.sort((a, b) => {
           if (a.title < b.title) return -1
           if (a.title > b.title) return 1
+          if ((a.url || '') < (b.url || '')) return -1
+          if ((a.url || '') > (b.url || '')) return 1
           return 0
         })
       }
