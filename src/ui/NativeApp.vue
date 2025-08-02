@@ -41,9 +41,6 @@ export default {
 </script>
 <style>
 body {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
@@ -58,9 +55,30 @@ body {
 }
 html {
   font-size: 0.45cm !important;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
 }
 .v-navigation-drawer {
   top: env(safe-area-inset-top) !important;
   bottom: 0;
+}
+
+.native-scroll-container {
+  background: red;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+
+  .v-app-bar {
+    top: env(safe-area-inset-top);
+    background: green;
+  }
+
+  .v-main {
+    height: 100%;
+    overflow-y: auto;
+    background: yellow;
+  }
 }
 </style>
