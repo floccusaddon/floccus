@@ -1,464 +1,462 @@
 <template>
   <v-container>
-    <v-card class="mt-3 mb-9">
-      <v-stepper v-model="currentStep">
-        <v-stepper-header>
-          <v-stepper-step
-            :complete="currentStep > 0"
-            step="0" />
-          <v-divider />
-          <v-stepper-step
-            :complete="currentStep > 1"
-            step="1" />
-          <v-divider />
-          <v-stepper-step
-            :complete="currentStep > 2"
-            step="2" />
-          <v-divider />
-          <v-stepper-step
-            step="3"
-            :complete="currentStep > 3" />
-          <v-divider />
-          <v-stepper-step
-            step="4"
-            :complete="currentStep > 4" />
-        </v-stepper-header>
+    <v-stepper v-model="currentStep" class="mt-3 mb-9">
+      <v-stepper-header>
+        <v-stepper-step
+          :complete="currentStep > 0"
+          step="0" />
+        <v-divider />
+        <v-stepper-step
+          :complete="currentStep > 1"
+          step="1" />
+        <v-divider />
+        <v-stepper-step
+          :complete="currentStep > 2"
+          step="2" />
+        <v-divider />
+        <v-stepper-step
+          step="3"
+          :complete="currentStep > 3" />
+        <v-divider />
+        <v-stepper-step
+          step="4"
+          :complete="currentStep > 4" />
+      </v-stepper-header>
 
-        <v-stepper-items>
-          <v-stepper-content step="0">
-            <div class="headline">
-              {{ t('LabelChooseadapter') }}
-            </div>
-            <v-form>
-              <v-radio-group v-model="adapter">
-                <div
-                  v-for="a in adapters"
-                  :key="a.type">
-                  <v-radio
-                    :disabled="!isBrowser && a.type === 'git'"
-                    :value="a.type">
-                    <template #label>
-                      <div class="heading">
-                        {{ a.label }}
-                      </div>
-                    </template>
-                  </v-radio>
-                  <div class="caption pl-8 mb-5">
-                    {{ a.description }}
-                  </div>
+      <v-stepper-items>
+        <v-stepper-content step="0">
+          <div class="headline">
+            {{ t('LabelChooseadapter') }}
+          </div>
+          <v-form>
+            <v-radio-group v-model="adapter">
+              <div
+                v-for="a in adapters"
+                :key="a.type">
+                <v-radio
+                  :disabled="!isBrowser && a.type === 'git'"
+                  :value="a.type">
+                  <template #label>
+                    <div class="heading">
+                      {{ a.label }}
+                    </div>
+                  </template>
+                </v-radio>
+                <div class="caption pl-8 mb-5">
+                  {{ a.description }}
                 </div>
-              </v-radio-group>
-            </v-form>
-            <div class="d-flex flex-row-reverse pb-2">
-              <v-btn
-                class="primary"
-                @click="currentStep++">
-                {{ t('LabelContinue') }}
-              </v-btn>
-              <v-btn
-                :to="{ name: 'IMPORTEXPORT' }"
-                class="mr-2">
-                <v-icon>mdi-export</v-icon>
-                <template v-if="isBrowser && true">
-                  {{ t('LabelImportExport') }}
-                </template>
-              </v-btn>
-            </div>
-          </v-stepper-content>
+              </div>
+            </v-radio-group>
+          </v-form>
+          <div class="d-flex flex-row-reverse pb-2">
+            <v-btn
+              class="primary"
+              @click="currentStep++">
+              {{ t('LabelContinue') }}
+            </v-btn>
+            <v-btn
+              :to="{ name: 'IMPORTEXPORT' }"
+              class="mr-2">
+              <v-icon>mdi-export</v-icon>
+              <template v-if="isBrowser && true">
+                {{ t('LabelImportExport') }}
+              </template>
+            </v-btn>
+          </div>
+        </v-stepper-content>
 
-          <v-stepper-content step="1">
-            <div class="headline">
-              {{ t('LabelAccountlabel') }}
-            </div>
-            <v-form>
-              <v-text-field
-                v-model="label"
-                append-icon="mdi-label"
-                class="mt-2 mb-4"
-                :label="t('LabelAccountlabel')"
-                :hint="t('DescriptionAccountlabel')"
-                :persistent-hint="true"
-                @keydown.enter.prevent="currentStep++" />
-            </v-form>
-            <div class="d-flex flex-row justify-space-between pb-2">
-              <v-btn @click="currentStep--">
-                {{ t('LabelBack') }}
-              </v-btn>
-              <v-btn
-                class="primary"
-                @click="currentStep++">
-                {{ t('LabelContinue') }}
-              </v-btn>
-            </div>
-          </v-stepper-content>
-
-          <v-stepper-content step="2">
-            <template v-if="adapter === 'nextcloud-bookmarks'">
-              <div class="headline">
-                {{ t('LabelServersetup') }}
-              </div>
-              <v-text-field
-                v-model="server"
-                :rules="[validateUrl]"
-                :label="t('LabelNextcloudurl')"
-                :loading="isServerTestRunning || isLoginFlowRunning"
-                :error-messages="serverisNotHttps || serverTestError || loginFlowError"
-                @keydown.enter="testNextcloudServer">
-                <template
-                  slot="append-outer">
-                  <v-icon
-                    v-if="serverTestSuccessful"
-                    color="green"
-                    title="Server connection successful">
-                    mdi-check
-                  </v-icon>
-                </template>
-              </v-text-field>
-              <div class="d-flex flex-row justify-space-between pb-2">
-                <v-btn @click="currentStep--">
-                  {{ t('LabelBack') }}
-                </v-btn>
-                <v-btn
-                  v-if="!serverTestSuccessful"
-                  class="primary"
-                  @click="testNextcloudServer">
-                  {{ t('LabelConnect') }}
-                </v-btn>
-                <template v-if="serverTestSuccessful">
-                  <v-btn
-                    v-if="!isLoginFlowRunning"
-                    class="primary"
-                    @click="onFlowStart">
-                    {{ t('LabelLoginFlowStart') }}
-                  </v-btn>
-                  <v-btn
-                    v-if="isLoginFlowRunning"
-                    @click="onFlowStop">
-                    {{ t('LabelLoginFlowStop') }}
-                  </v-btn>
-                </template>
-              </div>
-            </template>
-
-            <template v-else-if="adapter === 'linkwarden'">
-              <div class="headline">
-                {{ t('LabelServersetup') }}
-              </div>
-              <v-text-field
-                v-model="server"
-                :rules="[validateUrl]"
-                :label="t('LabelLinkwardenurl')"
-                :loading="isServerTestRunning"
-                :error-messages="serverTestError || serverisNotHttps" />
-              <v-text-field
-                v-model="username"
-                :label="t('LabelUsername')" />
-              <v-text-field
-                v-model="password"
-                :label="t('LabelAccesstoken')"
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showPassword ? 'text' : 'password'"
-                @click:append="showPassword = !showPassword" />
-
-              <div class="d-flex flex-row justify-space-between pb-2">
-                <v-btn @click="currentStep--">
-                  {{ t('LabelBack') }}
-                </v-btn>
-                <v-btn
-                  class="primary"
-                  @click="testLinkwardenServer">
-                  {{ t('LabelContinue') }}
-                </v-btn>
-              </div>
-            </template>
-
-            <template v-else-if="adapter === 'karakeep'">
-              <div class="headline">
-                {{ t('LabelServersetup') }}
-              </div>
-              <v-text-field
-                v-model="server"
-                :rules="[validateUrl]"
-                :label="t('LabelKarakeepurl')"
-                :loading="isServerTestRunning"
-                :error-messages="serverTestError || serverisNotHttps" />
-              <v-text-field
-                v-model="password"
-                :label="t('LabelApiKey')"
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showPassword ? 'text' : 'password'"
-                @click:append="showPassword = !showPassword" />
-
-              <div class="d-flex flex-row justify-space-between pb-2">
-                <v-btn @click="currentStep--">
-                  {{ t('LabelBack') }}
-                </v-btn>
-                <v-btn
-                  class="primary"
-                  @click="testKarakeepServer">
-                  {{ t('LabelContinue') }}
-                </v-btn>
-              </div>
-            </template>
-
-            <template v-else-if="adapter === 'webdav'">
-              <div class="headline">
-                {{ t('LabelServersetup') }}
-              </div>
-              <v-text-field
-                v-model="server"
-                :rules="[validateUrl]"
-                :label="t('LabelWebdavurl')"
-                :loading="isServerTestRunning"
-                :error-messages="serverTestError || serverisNotHttps" />
-              <v-text-field
-                v-model="username"
-                :label="t('LabelUsername')" />
-              <v-text-field
-                v-model="password"
-                :label="t('LabelPassword')"
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showPassword ? 'text' : 'password'"
-                @click:append="showPassword = !showPassword" />
-              <v-text-field
-                v-model="passphrase"
-                class="mt-2"
-                :label="t('LabelPassphrase')"
-                :hint="t('DescriptionPassphrase')"
-                :persistent-hint="true"
-                :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showPassphrase ? 'text' : 'password'"
-                @click:append="showPassphrase = !showPassphrase" />
-              <div class="d-flex flex-row justify-space-between pb-2">
-                <v-btn @click="currentStep--">
-                  {{ t('LabelBack') }}
-                </v-btn>
-                <v-btn
-                  class="primary"
-                  @click="testWebdavServer">
-                  {{ t('LabelContinue') }}
-                </v-btn>
-              </div>
-            </template>
-
-            <template v-else-if="adapter === 'git'">
-              <div class="headline">
-                {{ t('LabelServersetup') }}
-              </div>
-              <v-text-field
-                v-model="server"
-                :rules="[validateUrl]"
-                :label="t('LabelGiturl')" />
-              <v-text-field
-                v-model="username"
-                :label="t('LabelUsername')" />
-              <v-text-field
-                v-model="password"
-                :label="t('LabelPassword')"
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showPassword ? 'text' : 'password'"
-                @click:append="showPassword = !showPassword" />
-              <div class="d-flex flex-row justify-space-between pb-2">
-                <v-btn @click="currentStep--">
-                  {{ t('LabelBack') }}
-                </v-btn>
-                <v-btn
-                  class="primary"
-                  @click="currentStep++">
-                  {{ t('LabelContinue') }}
-                </v-btn>
-              </div>
-            </template>
-
-            <template v-else-if="adapter === 'google-drive'">
-              <div class="headline">
-                {{ t('LabelGoogledrivesetup') }}
-              </div>
-              <v-btn
-                color="primary"
-                @click="loginGoogleDrive">
-                {{ t('LabelLogingoogle') }}
-              </v-btn>
-              <p class="mt-1">
-                {{ t('DescriptionLogingoogle') }}
-              </p>
-              <div class="d-flex flex-row justify-space-between pb-2">
-                <v-btn @click="currentStep--">
-                  {{ t('LabelBack') }}
-                </v-btn>
-              </div>
-            </template>
-          </v-stepper-content>
-
-          <v-stepper-content step="3">
-            <div class="headline">
-              {{ t('LabelSyncfoldersetup') }}
-            </div>
-
-            <template v-if="adapter === 'nextcloud-bookmarks'">
-              <div class="text-h6">
-                {{ t('LabelServerfolder') }}
-              </div>
-              <div class="caption">
-                {{ t('DescriptionServerfolder') }}
-              </div>
-              <v-text-field
-                v-model="serverRoot"
-                :placeholder="'/'"
-                :rules="[validateServerRoot]"
-                :label="t('LabelServerfolder')" />
-            </template>
-
-            <template v-if="adapter === 'linkwarden'">
-              <div class="text-h6">
-                {{ t('LabelServerfolder') }}
-              </div>
-              <div class="caption">
-                {{ t('DescriptionServerfolderlinkwarden') }}
-              </div>
-              <v-text-field
-                v-model="serverFolder"
-                :label="t('LabelServerfolder')" />
-            </template>
-
-            <template v-if="adapter === 'karakeep'">
-              <div class="text-h6">
-                {{ t('LabelServerfolder') }}
-              </div>
-              <div class="caption">
-                {{ t('DescriptionServerfolderkarakeep') }}
-              </div>
-              <v-text-field
-                v-model="serverFolder"
-                :label="t('LabelServerfolder')" />
-            </template>
-
-            <template v-if="adapter === 'webdav'">
-              <div class="text-h6">
-                {{ t('LabelBookmarksfile') }}
-              </div>
-              <v-text-field
-                v-model="bookmark_file"
-                class="mb-2"
-                append-icon="mdi-file-document"
-                :rules="[validateBookmarksFile]"
-                :label="t('LabelBookmarksfile')"
-                :hint="t('DescriptionBookmarksfile')"
-                :persistent-hint="true" />
-              <OptionFileType
-                v-model="bookmark_file_type" />
-            </template>
-
-            <template v-if="adapter === 'git'">
-              <div class="text-h6">
-                {{ t('LabelBookmarksfile') }}
-              </div>
-              <v-text-field
-                v-model="bookmark_file"
-                class="mb-2"
-                append-icon="mdi-file-document"
-                :rules="[validateBookmarksFile]"
-                :label="t('LabelBookmarksfile')"
-                :hint="t('DescriptionBookmarksfilegit')"
-                :persistent-hint="true" />
-              <OptionFileType
-                v-model="bookmark_file_type" />
-              <v-text-field
-                v-model="branch"
-                class="mb-2"
-                :label="t('LabelGitbranch')" />
-            </template>
-
-            <template v-if="adapter === 'google-drive'">
-              <div class="text-h6">
-                {{ t('LabelBookmarksfile') }}
-              </div>
-              <v-text-field
-                v-model="bookmark_file"
-                append-icon="mdi-file-document"
-                :rules="[validateBookmarksFileGoogle]"
-                :label="t('LabelBookmarksfile')"
-                :hint="t('DescriptionBookmarksfilegoogle')"
-                :persistent-hint="true" />
-              <v-text-field
-                v-model="passphrase"
-                :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showPassphrase ? 'text' : 'password'"
-                class="mt-2"
-                :label="t('LabelPassphrase')"
-                :hint="t('DescriptionPassphrase')"
-                :persistent-hint="true"
-                @click:append="showPassphrase = !showPassphrase" />
-            </template>
-
-            <OptionSyncFolder
-              v-if="isBrowser"
-              v-model="localRoot" />
-
-            <div class="d-flex flex-row justify-space-between pb-2">
-              <v-btn @click="currentStep--">
-                {{ t('LabelBack') }}
-              </v-btn>
-              <v-btn
-                :disabled="isBrowser? !localRoot : false"
-                color="primary"
-                @click="currentStep++">
-                {{ t('LabelContinue') }}
-              </v-btn>
-            </div>
-          </v-stepper-content>
-
-          <v-stepper-content step="4">
-            <div class="headline">
-              {{ t('LabelSyncbehaviorsetup') }}
-            </div>
-            <v-switch
-              v-model="enabled"
-              :aria-label="t('LabelAutosync')"
-              :label="t('LabelAutosync')"
-              dense
-              class="mt-0 pt-0" />
-            <OptionSyncInterval
-              v-if="enabled"
-              v-model="syncInterval" />
-            <OptionSyncStrategy
-              v-model="strategy" />
-            <OptionNestedSync
-              v-if="isBrowser"
-              v-model="nestedSync" />
-            <v-switch
-              v-if="adapter === 'nextcloud-bookmarks'"
-              v-model="clickCountEnabled"
-              :aria-label="t('LabelClickcount')"
-              :label="t('LabelClickcount')"
-              :hint="t('DescriptionClickcount')"
+        <v-stepper-content step="1">
+          <div class="headline">
+            {{ t('LabelAccountlabel') }}
+          </div>
+          <v-form>
+            <v-text-field
+              v-model="label"
+              append-icon="mdi-label"
+              class="mt-2 mb-4"
+              :label="t('LabelAccountlabel')"
+              :hint="t('DescriptionAccountlabel')"
               :persistent-hint="true"
-              dense
-              class="mt-0 pt-0 mb-4" />
+              @keydown.enter.prevent="currentStep++" />
+          </v-form>
+          <div class="d-flex flex-row justify-space-between pb-2">
+            <v-btn @click="currentStep--">
+              {{ t('LabelBack') }}
+            </v-btn>
+            <v-btn
+              class="primary"
+              @click="currentStep++">
+              {{ t('LabelContinue') }}
+            </v-btn>
+          </div>
+        </v-stepper-content>
+
+        <v-stepper-content step="2">
+          <template v-if="adapter === 'nextcloud-bookmarks'">
+            <div class="headline">
+              {{ t('LabelServersetup') }}
+            </div>
+            <v-text-field
+              v-model="server"
+              :rules="[validateUrl]"
+              :label="t('LabelNextcloudurl')"
+              :loading="isServerTestRunning || isLoginFlowRunning"
+              :error-messages="serverisNotHttps || serverTestError || loginFlowError"
+              @keydown.enter="testNextcloudServer">
+              <template
+                slot="append-outer">
+                <v-icon
+                  v-if="serverTestSuccessful"
+                  color="green"
+                  title="Server connection successful">
+                  mdi-check
+                </v-icon>
+              </template>
+            </v-text-field>
+            <div class="d-flex flex-row justify-space-between pb-2">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
+              <v-btn
+                v-if="!serverTestSuccessful"
+                class="primary"
+                @click="testNextcloudServer">
+                {{ t('LabelConnect') }}
+              </v-btn>
+              <template v-if="serverTestSuccessful">
+                <v-btn
+                  v-if="!isLoginFlowRunning"
+                  class="primary"
+                  @click="onFlowStart">
+                  {{ t('LabelLoginFlowStart') }}
+                </v-btn>
+                <v-btn
+                  v-if="isLoginFlowRunning"
+                  @click="onFlowStop">
+                  {{ t('LabelLoginFlowStop') }}
+                </v-btn>
+              </template>
+            </div>
+          </template>
+
+          <template v-else-if="adapter === 'linkwarden'">
+            <div class="headline">
+              {{ t('LabelServersetup') }}
+            </div>
+            <v-text-field
+              v-model="server"
+              :rules="[validateUrl]"
+              :label="t('LabelLinkwardenurl')"
+              :loading="isServerTestRunning"
+              :error-messages="serverTestError || serverisNotHttps" />
+            <v-text-field
+              v-model="username"
+              :label="t('LabelUsername')" />
+            <v-text-field
+              v-model="password"
+              :label="t('LabelAccesstoken')"
+              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              :type="showPassword ? 'text' : 'password'"
+              @click:append="showPassword = !showPassword" />
 
             <div class="d-flex flex-row justify-space-between pb-2">
               <v-btn @click="currentStep--">
                 {{ t('LabelBack') }}
               </v-btn>
               <v-btn
-                color="primary"
-                @click="onCreate()">
+                class="primary"
+                @click="testLinkwardenServer">
                 {{ t('LabelContinue') }}
               </v-btn>
             </div>
-          </v-stepper-content>
+          </template>
 
-          <v-stepper-content step="5">
+          <template v-else-if="adapter === 'karakeep'">
             <div class="headline">
-              {{ t('LabelAccountcreated') }} <v-icon>mdi-check</v-icon>
+              {{ t('LabelServersetup') }}
             </div>
-            <div v-if="isBrowser">
-              {{ t('DescriptionAccountcreated') }}
+            <v-text-field
+              v-model="server"
+              :rules="[validateUrl]"
+              :label="t('LabelKarakeepurl')"
+              :loading="isServerTestRunning"
+              :error-messages="serverTestError || serverisNotHttps" />
+            <v-text-field
+              v-model="password"
+              :label="t('LabelApiKey')"
+              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              :type="showPassword ? 'text' : 'password'"
+              @click:append="showPassword = !showPassword" />
+
+            <div class="d-flex flex-row justify-space-between pb-2">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
+              <v-btn
+                class="primary"
+                @click="testKarakeepServer">
+                {{ t('LabelContinue') }}
+              </v-btn>
             </div>
-          </v-stepper-content>
-        </v-stepper-items>
-      </v-stepper>
-    </v-card>
+          </template>
+
+          <template v-else-if="adapter === 'webdav'">
+            <div class="headline">
+              {{ t('LabelServersetup') }}
+            </div>
+            <v-text-field
+              v-model="server"
+              :rules="[validateUrl]"
+              :label="t('LabelWebdavurl')"
+              :loading="isServerTestRunning"
+              :error-messages="serverTestError || serverisNotHttps" />
+            <v-text-field
+              v-model="username"
+              :label="t('LabelUsername')" />
+            <v-text-field
+              v-model="password"
+              :label="t('LabelPassword')"
+              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              :type="showPassword ? 'text' : 'password'"
+              @click:append="showPassword = !showPassword" />
+            <v-text-field
+              v-model="passphrase"
+              class="mt-2"
+              :label="t('LabelPassphrase')"
+              :hint="t('DescriptionPassphrase')"
+              :persistent-hint="true"
+              :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
+              :type="showPassphrase ? 'text' : 'password'"
+              @click:append="showPassphrase = !showPassphrase" />
+            <div class="d-flex flex-row justify-space-between pb-2">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
+              <v-btn
+                class="primary"
+                @click="testWebdavServer">
+                {{ t('LabelContinue') }}
+              </v-btn>
+            </div>
+          </template>
+
+          <template v-else-if="adapter === 'git'">
+            <div class="headline">
+              {{ t('LabelServersetup') }}
+            </div>
+            <v-text-field
+              v-model="server"
+              :rules="[validateUrl]"
+              :label="t('LabelGiturl')" />
+            <v-text-field
+              v-model="username"
+              :label="t('LabelUsername')" />
+            <v-text-field
+              v-model="password"
+              :label="t('LabelPassword')"
+              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              :type="showPassword ? 'text' : 'password'"
+              @click:append="showPassword = !showPassword" />
+            <div class="d-flex flex-row justify-space-between pb-2">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
+              <v-btn
+                class="primary"
+                @click="currentStep++">
+                {{ t('LabelContinue') }}
+              </v-btn>
+            </div>
+          </template>
+
+          <template v-else-if="adapter === 'google-drive'">
+            <div class="headline">
+              {{ t('LabelGoogledrivesetup') }}
+            </div>
+            <v-btn
+              color="primary"
+              @click="loginGoogleDrive">
+              {{ t('LabelLogingoogle') }}
+            </v-btn>
+            <p class="mt-1">
+              {{ t('DescriptionLogingoogle') }}
+            </p>
+            <div class="d-flex flex-row justify-space-between pb-2">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
+            </div>
+          </template>
+        </v-stepper-content>
+
+        <v-stepper-content step="3">
+          <div class="headline">
+            {{ t('LabelSyncfoldersetup') }}
+          </div>
+
+          <template v-if="adapter === 'nextcloud-bookmarks'">
+            <div class="text-h6">
+              {{ t('LabelServerfolder') }}
+            </div>
+            <div class="caption">
+              {{ t('DescriptionServerfolder') }}
+            </div>
+            <v-text-field
+              v-model="serverRoot"
+              :placeholder="'/'"
+              :rules="[validateServerRoot]"
+              :label="t('LabelServerfolder')" />
+          </template>
+
+          <template v-if="adapter === 'linkwarden'">
+            <div class="text-h6">
+              {{ t('LabelServerfolder') }}
+            </div>
+            <div class="caption">
+              {{ t('DescriptionServerfolderlinkwarden') }}
+            </div>
+            <v-text-field
+              v-model="serverFolder"
+              :label="t('LabelServerfolder')" />
+          </template>
+
+          <template v-if="adapter === 'karakeep'">
+            <div class="text-h6">
+              {{ t('LabelServerfolder') }}
+            </div>
+            <div class="caption">
+              {{ t('DescriptionServerfolderkarakeep') }}
+            </div>
+            <v-text-field
+              v-model="serverFolder"
+              :label="t('LabelServerfolder')" />
+          </template>
+
+          <template v-if="adapter === 'webdav'">
+            <div class="text-h6">
+              {{ t('LabelBookmarksfile') }}
+            </div>
+            <v-text-field
+              v-model="bookmark_file"
+              class="mb-2"
+              append-icon="mdi-file-document"
+              :rules="[validateBookmarksFile]"
+              :label="t('LabelBookmarksfile')"
+              :hint="t('DescriptionBookmarksfile')"
+              :persistent-hint="true" />
+            <OptionFileType
+              v-model="bookmark_file_type" />
+          </template>
+
+          <template v-if="adapter === 'git'">
+            <div class="text-h6">
+              {{ t('LabelBookmarksfile') }}
+            </div>
+            <v-text-field
+              v-model="bookmark_file"
+              class="mb-2"
+              append-icon="mdi-file-document"
+              :rules="[validateBookmarksFile]"
+              :label="t('LabelBookmarksfile')"
+              :hint="t('DescriptionBookmarksfilegit')"
+              :persistent-hint="true" />
+            <OptionFileType
+              v-model="bookmark_file_type" />
+            <v-text-field
+              v-model="branch"
+              class="mb-2"
+              :label="t('LabelGitbranch')" />
+          </template>
+
+          <template v-if="adapter === 'google-drive'">
+            <div class="text-h6">
+              {{ t('LabelBookmarksfile') }}
+            </div>
+            <v-text-field
+              v-model="bookmark_file"
+              append-icon="mdi-file-document"
+              :rules="[validateBookmarksFileGoogle]"
+              :label="t('LabelBookmarksfile')"
+              :hint="t('DescriptionBookmarksfilegoogle')"
+              :persistent-hint="true" />
+            <v-text-field
+              v-model="passphrase"
+              :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
+              :type="showPassphrase ? 'text' : 'password'"
+              class="mt-2"
+              :label="t('LabelPassphrase')"
+              :hint="t('DescriptionPassphrase')"
+              :persistent-hint="true"
+              @click:append="showPassphrase = !showPassphrase" />
+          </template>
+
+          <OptionSyncFolder
+            v-if="isBrowser"
+            v-model="localRoot" />
+
+          <div class="d-flex flex-row justify-space-between pb-2">
+            <v-btn @click="currentStep--">
+              {{ t('LabelBack') }}
+            </v-btn>
+            <v-btn
+              :disabled="isBrowser? !localRoot : false"
+              color="primary"
+              @click="currentStep++">
+              {{ t('LabelContinue') }}
+            </v-btn>
+          </div>
+        </v-stepper-content>
+
+        <v-stepper-content step="4">
+          <div class="headline">
+            {{ t('LabelSyncbehaviorsetup') }}
+          </div>
+          <v-switch
+            v-model="enabled"
+            :aria-label="t('LabelAutosync')"
+            :label="t('LabelAutosync')"
+            dense
+            class="mt-0 pt-0" />
+          <OptionSyncInterval
+            v-if="enabled"
+            v-model="syncInterval" />
+          <OptionSyncStrategy
+            v-model="strategy" />
+          <OptionNestedSync
+            v-if="isBrowser"
+            v-model="nestedSync" />
+          <v-switch
+            v-if="adapter === 'nextcloud-bookmarks'"
+            v-model="clickCountEnabled"
+            :aria-label="t('LabelClickcount')"
+            :label="t('LabelClickcount')"
+            :hint="t('DescriptionClickcount')"
+            :persistent-hint="true"
+            dense
+            class="mt-0 pt-0 mb-4" />
+
+          <div class="d-flex flex-row justify-space-between pb-2">
+            <v-btn @click="currentStep--">
+              {{ t('LabelBack') }}
+            </v-btn>
+            <v-btn
+              color="primary"
+              @click="onCreate()">
+              {{ t('LabelContinue') }}
+            </v-btn>
+          </div>
+        </v-stepper-content>
+
+        <v-stepper-content step="5">
+          <div class="headline">
+            {{ t('LabelAccountcreated') }} <v-icon>mdi-check</v-icon>
+          </div>
+          <div v-if="isBrowser">
+            {{ t('DescriptionAccountcreated') }}
+          </div>
+        </v-stepper-content>
+      </v-stepper-items>
+    </v-stepper>
   </v-container>
 </template>
 
