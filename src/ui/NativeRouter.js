@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Tree from './views/native/Tree'
 import Home from './views/native/Home'
-import NewAccount from './views/NewAccount'
 import AddBookmarkIntent from './views/native/AddBookmarkIntent'
 import ImportExport from './views/native/ImportExport'
 import About from './views/native/About'
@@ -44,7 +43,7 @@ export const router = new Router({
     {
       path: '/new',
       name: routes.NEW_ACCOUNT,
-      component: NewAccount,
+      component: () => import(/* webpackPrefetch: true */ './views/native/NewAccount')
     },
     {
       path: '/update',

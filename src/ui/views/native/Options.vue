@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="native-scroll-container">
     <v-app-bar
-      app
-      absolute>
+      fixed
+      app>
       <v-btn
         icon
         :to="{name: routes.TREE, params: {accountId: id}}">
@@ -20,8 +20,7 @@
     </v-app-bar>
     <v-main>
       <v-form
-        v-if="!loading"
-        class="mt-3 mb-3">
+        v-if="!loading">
         <OptionsNextcloudBookmarks
           v-if="data.type === 'nextcloud-folders' || data.type === 'nextcloud-bookmarks'"
           v-bind.sync="data"
@@ -57,6 +56,7 @@
           v-bind.sync="data"
           @reset="onReset"
           @delete="onDelete" />
+        <v-spacer style="padding-bottom: 80px;" />
       </v-form>
     </v-main>
   </div>

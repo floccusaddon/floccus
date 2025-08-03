@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="native-scroll-container">
     <Drawer :visible.sync="drawer" />
     <v-app-bar
-      absolute
+      fixed
       app>
       <v-app-bar-nav-icon
         class="mr-2 ml-n2"
@@ -23,7 +23,7 @@
           </v-container>
         </v-card>
         <v-card
-          class="mt-3">
+          class="mt-3 mb-16">
           <v-container class="pa-5">
             <v-card-title>
               {{ t("LabelContributors") }}

@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="native-scroll-container">
     <v-app-bar
-      absolute
+      fixed
       app>
       <v-app-bar-title>Add Bookmark</v-app-bar-title>
       <v-spacer />
@@ -21,6 +21,7 @@
         class="loading" />
       <v-card
         v-else
+        class="mt-2"
         style="min-height: 95vh">
         <v-card-text>
           <v-select

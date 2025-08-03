@@ -36,6 +36,10 @@
 		"classpath": "com.capacitorjs.plugins.splashscreen.SplashScreenPlugin"
 	},
 	{
+		"pkg": "@capacitor/status-bar",
+		"classpath": "com.capacitorjs.plugins.statusbar.StatusBarPlugin"
+	},
+	{
 		"pkg": "send-intent",
 		"classpath": "de.mindlib.sendIntent.SendIntent"
 	}

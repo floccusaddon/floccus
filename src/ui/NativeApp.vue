@@ -55,9 +55,27 @@ body {
 }
 html {
   font-size: 0.45cm !important;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
 }
 .v-navigation-drawer {
   top: env(safe-area-inset-top) !important;
   bottom: 0;
+}
+
+.native-scroll-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+
+  .v-app-bar {
+    top: env(safe-area-inset-top) !important;
+  }
+
+  .v-main {
+    height: 100%;
+    overflow-y: auto;
+  }
 }
 </style>

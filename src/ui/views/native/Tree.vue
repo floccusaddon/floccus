@@ -1,9 +1,8 @@
 <template>
-  <div
-    style="height:100%">
+  <div class="native-scroll-container">
     <Drawer :visible.sync="drawer" />
     <v-app-bar
-      absolute
+      fixed
       app>
       <v-app-bar-nav-icon
         v-if="!tree || currentFolderId === tree.id"
@@ -115,6 +114,7 @@
     <v-main>
       <v-progress-linear
         v-if="syncProgress"
+        fixed
         :value="syncProgress * 100 || 0"
         color="blue darken-1" />
       <v-card>
@@ -245,7 +245,7 @@
         v-else
         flat
         tile
-        :style="{height: '100vh', width: '100vw', padding: '10vh auto'}">
+        :style="{height: '100%', width: '100vw', padding: '10vh auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}">
         <img
           src="icons/tree-swing.svg"
           :style="{width: '95%', maxHeight: '40vh'}">
@@ -769,5 +769,6 @@ export default {
 
 .list-full-height {
   min-height: 95vh;
+  margin-bottom: 60px;
 }
 </style>
