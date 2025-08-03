@@ -814,7 +814,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "用开源自托管的 Karakeep 应用同步你的书签。此选项无法利用端到端加密。"
+    "message": "用开源自托管的 Karakeep 应用同步你的书签。此选项无法利用端到端加密且不支持在同步间保持书签顺序。"
   },
   "LabelApiKey":  {
     "message": "API 密钥"
@@ -829,7 +829,7 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "用开源的 Linkwarden 应用同步书签，可以自托管在你自己的服务器上也可以托管在 cloud.linkwarden.app 上。它可以同步 http、ftp 和 javascript 书签。此选项无法使用端到端加密。"
+    "message": "用开源的 Linkwarden 应用同步书签，可以自托管在你自己的服务器上也可以托管在 cloud.linkwarden.app 上。它只能同步 http、ftp 和 javascript 书签。此选项无法使用端到端加密且不支持在同步间保留书签顺序。"
   },
   "LabelLinkwardenurl":  {
     "message": "Linkwarden 服务器 URL"
