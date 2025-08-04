@@ -52,7 +52,7 @@
     "eslint-plugin-vue": "9.x.x",
     "execa": "^6.1.0",
     "file-loader": "^6.2.0",
-    "gulp": "^4",
+    "gulp": "^5",
     "gulp-rename": "^2.0.0",
     "gulp-tap": "^1.0.1",
     "gulp-zip": "^5.0.2",
