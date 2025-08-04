@@ -81,12 +81,13 @@ export const parseByString = (content: string) => {
   const body = $('body')
   const root: TItem<typeof ItemLocation.SERVER>[] = []
   const rdt = getRootFolder(body).children('dt')
+  let idCounter = 1
 
   const parseNode = (node: cheerio.Cheerio<any>, parentId?: string|number) => {
     const eq0 = node.children().eq(0)
     const title = typeof eq0.text() !== 'undefined' ? eq0.text() : ''
     let url = ''
-    const id = typeof eq0.attr('id') !== 'undefined' ? eq0.attr('id') : ''
+    const id = typeof eq0.attr('id') !== 'undefined' ? eq0.attr('id') : idCounter++
     let children: TItem<typeof ItemLocation.SERVER>[] = []
 
     switch (eq0[0].name) {
