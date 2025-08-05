@@ -323,11 +323,14 @@ export default class Account {
         password: 'SENSITIVEVALUVALUEHIDDEN',
         passphrase: 'SENSITIVEVALUVALUEHIDDEN'
       })
-      if (e.list) {
-        Sentry.captureException(message)
-      } else {
-        Sentry.captureException(e)
-      }
+      Sentry.withScope((scope) => {
+        scope.setTag('adapter', this.getData().type)
+        if (e.list) {
+          Sentry.captureException(message)
+        } else {
+          Sentry.captureException(e)
+        }
+      })
 
       await this.setData({
         error: message,
