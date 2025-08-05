@@ -71,6 +71,17 @@
         </v-list-item-content>
       </v-list-item>
       <v-list-item
+        key="bugs"
+        link
+        :to="{name: routes.FEEDBACK}">
+        <v-list-item-icon>
+          <v-icon>mdi-bullhorn-variant-outline</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>{{ t('LabelGivefeedback') }}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item
         key="about"
         link
         :to="{name: routes.ABOUT}">

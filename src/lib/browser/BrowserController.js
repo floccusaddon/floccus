@@ -8,7 +8,7 @@ import BrowserAccountStorage from './BrowserAccountStorage'
 import uniqBy from 'lodash/uniqBy'
 import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
-import * as Sentry from '@sentry/browser'
+import { initSharp } from '../sentry'
 
 const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
 const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
@@ -473,13 +473,7 @@ export default class BrowserController {
       if (!d.telemetryEnabled) {
         return
       }
-      Sentry.init({
-        dsn: 'https://836f0f772fbf2e12b9dd651b8e6b6338@o4507214911307776.ingest.de.sentry.io/4507216408870992',
-        integrations: [],
-        sampleRate: 0.15,
-        release: packageJson.version,
-        debug: true,
-      })
+      initSharp()
     })
     const accounts = await Account.getAllAccounts()
     await Promise.all(

@@ -90,7 +90,7 @@
     "@capacitor/splash-screen": "7.x",
     "@capacitor/status-bar": "7.x",
     "@isomorphic-git/lightning-fs": "^4.6.0",
-    "@sentry/vue": "7.x",
+    "@sentry/vue": "10.x",
     "@sentry/webpack-plugin": "2.x",
     "async-lock": "^1.2.8",
     "async-parallel": "^1.2.3",

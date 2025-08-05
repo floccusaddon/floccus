@@ -5,6 +5,7 @@ import Home from './views/native/Home'
 import AddBookmarkIntent from './views/native/AddBookmarkIntent'
 import ImportExport from './views/native/ImportExport'
 import About from './views/native/About'
+import Feedback from './views/native/Feedback.vue'
 
 Vue.use(Router)
 
@@ -17,9 +18,9 @@ export const routes = {
   FUNDING: 'FUNDING',
   UPDATE: 'UPDATE',
   IMPORTEXPORT: 'IMPORTEXPORT',
+  FEEDBACK: 'FEEDBACK',
   DONATE: 'DONATE',
   ABOUT: 'ABOUT'
-
 }
 
 export const router = new Router({
@@ -59,6 +60,11 @@ export const router = new Router({
       path: '/importexport',
       name: routes.IMPORTEXPORT,
       component: ImportExport,
+    },
+    {
+      path: '/feedback',
+      name: routes.FEEDBACK,
+      component: Feedback,
     },
     {
       path: '/about',

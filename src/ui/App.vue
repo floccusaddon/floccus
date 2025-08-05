@@ -70,6 +70,21 @@
                 text
                 class="white--text"
                 v-bind="attrs"
+                :to="{name: routes.FEEDBACK}"
+                target="_blank"
+                v-on="on">
+                <v-icon>mdi-bullhorn-variant-outline</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ t('LabelGivefeedback') }}</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template #activator="{ on, attrs }">
+              <v-btn
+                x-small
+                text
+                class="white--text"
+                v-bind="attrs"
                 target="_blank"
                 @click="openInNewTab"
                 v-on="on">

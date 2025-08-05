@@ -751,10 +751,10 @@
     "message": "Floccus can automatically send error data to me, the developer. This is a tremendous help for discovering and resolving bugs in floccus more quickly and will help improve your experience with floccus in the long run. Even when error reporting is enabled, the floccus developers will never be able to see your bookmarks."
   },
   "LabelTelemetryenable": {
-    "message": "Automatically send error data to floccus developers"
+    "message": "Automatically send error data and information about which sync method you are using to floccus developers"
   },
   "LabelTelemetrydisable": {
-    "message": "Do not send error data to floccus developers"
+    "message": "Do not send any data to floccus developers"
   },
   "LabelAccountlabel": {
     "message": "Profile label"
@@ -854,5 +854,29 @@
   },
   "LabelOpeninnewtab": {
     "message": "Open this view in a new tab"
+  },
+  "LabelGivefeedback": {
+    "message": "Give feedback"
+  },
+  "LabelYourname": {
+    "message": "Your name"
+  },
+  "LabelYouremail": {
+    "message": "Your email (optional)"
+  },
+  "LabelYourmessage": {
+    "message": "Your feedback message"
+  },
+  "LabelSubmitfeedback": {
+    "message": "Submit feedback"
+  },
+  "DescriptionFeedbacklegal": {
+    "message": "This feedback form is powered by Sentry. By pressing submit you agree to store the entered data on Sentry's servers. None of your bookmark data will be sent to Sentry."
+  },
+  "DescriptionFeedbackhowto": {
+    "message": "Thank you for taking the time to give feedback to the developers of floccus! If your feedback is related to a problem, make sure to include the steps you took, what you expected and what happened instead. If your feedback is about a feature request, make sure to include the use case or problem that this feature would solve for you. If you include your email, we may get back to you. Thank you!"
+  },
+  "LabelFeedbacksent": {
+    "message": "Thank you for your feedback!"
   }
 }

@@ -7,6 +7,7 @@ import ImportExport from './views/ImportExport'
 import Donate from './views/Donate'
 import About from './views/native/About'
 import Telemetry from './views/Telemetry.vue'
+import Feedback from './views/Feedback.vue'
 
 Vue.use(Router)
 
@@ -20,7 +21,7 @@ export const routes = {
   IMPORTEXPORT: 'IMPORTEXPORT',
   DONATE: 'DONATE',
   TELEMETRY: 'TELEMETRY',
-
+  FEEDBACK: 'FEEDBACK',
 }
 
 export const router = new Router({
@@ -66,6 +67,11 @@ export const router = new Router({
       path: '/telemetry',
       name: routes.TELEMETRY,
       component: Telemetry,
+    },
+    {
+      path: '/feedback',
+      name: routes.FEEDBACK,
+      component: Feedback,
     },
   ],
 })
