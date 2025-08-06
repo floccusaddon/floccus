@@ -4,6 +4,7 @@ import Cryptography from '../Crypto'
 import NativeAccountStorage from './NativeAccountStorage'
 import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
+import { initSharp } from '../sentry'
 
 const INACTIVITY_TIMEOUT = 1000 * 7
 const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
@@ -244,6 +245,10 @@ export default class NativeController {
   }
 
   async onLoad() {
+    if (await NativeAccountStorage.getEntry('telemetryEnabled', false)) {
+      initSharp()
+    }
+
     const accounts = await Account.getAllAccounts()
     await Promise.all(
       accounts.map(async acc => {

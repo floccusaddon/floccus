@@ -71,7 +71,7 @@
         </v-list-item-content>
       </v-list-item>
       <v-list-item
-        key="bugs"
+        key="feedback"
         link
         :to="{name: routes.FEEDBACK}">
         <v-list-item-icon>
@@ -79,6 +79,17 @@
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>{{ t('LabelGivefeedback') }}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item
+        key="telemetry"
+        link
+        :to="{name: routes.TELEMETRY}">
+        <v-list-item-icon>
+          <v-icon>mdi-bug-play-outline</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>{{ t('LabelTelemetry') }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <v-list-item

@@ -4,8 +4,6 @@ import Tree from './views/native/Tree'
 import Home from './views/native/Home'
 import AddBookmarkIntent from './views/native/AddBookmarkIntent'
 import ImportExport from './views/native/ImportExport'
-import About from './views/native/About'
-import Feedback from './views/native/Feedback.vue'
 
 Vue.use(Router)
 
@@ -20,7 +18,8 @@ export const routes = {
   IMPORTEXPORT: 'IMPORTEXPORT',
   FEEDBACK: 'FEEDBACK',
   DONATE: 'DONATE',
-  ABOUT: 'ABOUT'
+  ABOUT: 'ABOUT',
+  TELEMETRY: 'TELEMETRY',
 }
 
 export const router = new Router({
@@ -64,12 +63,17 @@ export const router = new Router({
     {
       path: '/feedback',
       name: routes.FEEDBACK,
-      component: Feedback,
+      component: () => import(/* webpackPrefetch: true */ './views/native/Feedback'),
+    },
+    {
+      path: '/telemetry',
+      name: routes.TELEMETRY,
+      component: () => import(/* webpackPrefetch: true */ './views/native/Telemetry'),
     },
     {
       path: '/about',
       name: routes.ABOUT,
-      component: About,
+      component: () => import(/* webpackPrefetch: true */ './views/native/About'),
     },
   ],
 })

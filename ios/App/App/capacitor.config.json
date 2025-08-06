@@ -18,10 +18,13 @@
 			"enabled": true
 		},
 		"StatusBar": {
-			"overlaysWebView": true
+			"overlaysWebView": false
 		}
 	},
 	"cordova": {},
+	"android": {
+		"adjustMarginsForEdgeToEdge": "force"
+	},
 	"packageClassList": [
 		"OAuth2ClientPlugin",
 		"AppPlugin",

@@ -10,6 +10,7 @@
 import { version as VERSION } from '../../package.json'
 import { actions } from './store/definitions'
 import Controller from '../lib/Controller'
+import {StatusBar, Style} from '@capacitor/status-bar'
 export default {
   name: 'NativeApp',
   data() {
@@ -28,6 +29,13 @@ export default {
     }
   },
   async created() {
+    if (this.$vuetify.theme.dark) {
+      StatusBar.setStyle({ style: Style.Light })
+      StatusBar.setBackgroundColor(this.background)
+    } else {
+      StatusBar.setStyle({ style: Style.Dark })
+      StatusBar.setBackgroundColor(this.background)
+    }
     const controller = await Controller.getSingleton()
     await controller.onLoad()
     setInterval(() => {

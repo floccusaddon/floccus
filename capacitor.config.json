@@ -18,8 +18,11 @@
       "enabled": true
     },
     "StatusBar": {
-      "overlaysWebView": true
+      "overlaysWebView": false
     }
   },
-  "cordova": {}
+  "cordova": {},
+  "android": {
+    "adjustMarginsForEdgeToEdge": "force"
+  }
 }

@@ -745,7 +745,7 @@
     "message": "Git branch"
   },
   "LabelTelemetry": {
-    "message": "\uD83D\uDC1B Automated Error Reporting"
+    "message": "Automated Error Reporting"
   },
   "DescriptionTelemetry": {
     "message": "Floccus can automatically send error data to me, the developer. This is a tremendous help for discovering and resolving bugs in floccus more quickly and will help improve your experience with floccus in the long run. Even when error reporting is enabled, the floccus developers will never be able to see your bookmarks."
