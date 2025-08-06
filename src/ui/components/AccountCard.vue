@@ -58,7 +58,7 @@
             {{ statusDetail }} <template v-if="account.data.error">
               <v-btn
                 :color="statusType"
-                class="float-right ml-1"
+                class="float-right ml-1 mt-1"
                 x-small
                 target="_blank"
                 href="https://github.com/floccusaddon/floccus/issues">
@@ -66,7 +66,15 @@
               </v-btn>
               <v-btn
                 :color="statusType"
-                class="float-right"
+                class="float-right ml-1 mt-1"
+                x-small
+                target="_blank"
+                href="https://floccus.org/faq/">
+                {{ t('LabelFaq') }}
+              </v-btn>
+              <v-btn
+                :color="statusType"
+                class="float-right ml-1 mt-1"
                 x-small
                 @click="onGetLogs">
                 {{ t('LabelDebuglogs') }}

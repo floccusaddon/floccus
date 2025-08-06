@@ -878,5 +878,8 @@
   },
   "LabelFeedbacksent": {
     "message": "Thank you for your feedback!"
+  },
+  "LabelFaq":{
+    "message": "Check the FAQ"
   }
 }
