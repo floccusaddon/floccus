@@ -12,6 +12,7 @@ import Controller from '../lib/Controller'
 import FakeAdapter from '../lib/adapters/Fake'
 import BrowserTree from '../lib/browser/BrowserTree'
 import { AdditionFailsafeError, DeletionFailsafeError } from '../errors/Error'
+import SyncProcess from '../lib/strategies/Default'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -5864,12 +5865,38 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             // Verify the result
             const tree = await getAllBookmarks(account)
             expectTreeEqual(
               tree,
               new Folder({
                 title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Folder({
+                        title: 'Test Group',
+                        children: [
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+
+            const localTree = await account.localTabs.getBookmarksTree(true)
+            filterBookmarksInTree(localTree, b => b.url.startsWith('http'))
+            expectTreeEqual(
+              localTree,
+              new Folder({
+                title: localTree.title,
                 children: [
                   new Folder({
                     title: 'Window 0',
@@ -5908,12 +5935,33 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             // Verify the initial state
             let tree = await getAllBookmarks(account)
             expectTreeEqual(
               tree,
               new Folder({
                 title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+
+            const localTree = await account.localTabs.getBookmarksTree(true)
+            filterBookmarksInTree(localTree, b => b.url.startsWith('http'))
+            expectTreeEqual(
+              localTree,
+              new Folder({
+                title: localTree.title,
                 children: [
                   new Folder({
                     title: 'Window 0',
@@ -5942,12 +5990,38 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             // Verify the result
             tree = await getAllBookmarks(account)
             expectTreeEqual(
               tree,
               new Folder({
                 title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Folder({
+                        title: 'Test Group',
+                        children: [
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false
+            )
+
+            const localTreeAfter = await account.localTabs.getBookmarksTree(true)
+            filterBookmarksInTree(localTreeAfter, b => b.url.startsWith('http'))
+            expectTreeEqual(
+              localTreeAfter,
+              new Folder({
+                title: localTreeAfter.title,
                 children: [
                   new Folder({
                     title: 'Window 0',
@@ -5997,6 +6071,8 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             // Verify the initial state
             let tree = await getAllBookmarks(account)
             expectTreeEqual(
@@ -6022,6 +6098,32 @@ describe('Floccus', function() {
               !ACCOUNT_DATA.noCache,
             )
 
+            const localTree = await account.localTabs.getBookmarksTree(true)
+            filterBookmarksInTree(localTree, b => b.url.startsWith('http'))
+            expectTreeEqual(
+              localTree,
+              new Folder({
+                title: localTree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Folder({
+                        title: 'Test Group',
+                        children: [
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false,
+              !ACCOUNT_DATA.noCache,
+            )
+
+
             // Move one tab out of the group
             await browser.tabs.ungroup([tab1.id])
             await awaitTabsUpdated()
@@ -6030,12 +6132,39 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             // Verify the result
             tree = await getAllBookmarks(account)
             expectTreeEqual(
               tree,
               new Folder({
                 title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                      new Folder({
+                        title: 'Test Group',
+                        children: [
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false,
+              !ACCOUNT_DATA.noCache,
+            )
+
+            const localTreeAfter = await account.localTabs.getBookmarksTree(true)
+            filterBookmarksInTree(localTreeAfter, b => b.url.startsWith('http'))
+            expectTreeEqual(
+              localTreeAfter,
+              new Folder({
+                title: localTreeAfter.title,
                 children: [
                   new Folder({
                     title: 'Window 0',
@@ -6095,12 +6224,45 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             // Verify the initial state
             let tree = await getAllBookmarks(account)
             expectTreeEqual(
               tree,
               new Folder({
                 title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Folder({
+                        title: 'Group 1',
+                        children: [
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' })
+                        ]
+                      }),
+                      new Folder({
+                        title: 'Group 2',
+                        children: [
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
+                        ]
+                      }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test3' })
+                    ]
+                  })
+                ]
+              }),
+              false,
+              !ACCOUNT_DATA.noCache,
+            )
+
+            const localTree = await account.localTabs.getBookmarksTree(true)
+            filterBookmarksInTree(localTree, b => b.url.startsWith('http'))
+            expectTreeEqual(
+              localTree,
+              new Folder({
+                title: localTree.title,
                 children: [
                   new Folder({
                     title: 'Window 0',
@@ -6137,12 +6299,45 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             // Verify the result
             tree = await getAllBookmarks(account)
             expectTreeEqual(
               tree,
               new Folder({
                 title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test3' }),
+                      new Folder({
+                        title: 'Group 2',
+                        children: [
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
+                        ]
+                      }),
+                      new Folder({
+                        title: 'Group 1',
+                        children: [
+                          new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              }),
+              false,
+              !ACCOUNT_DATA.noCache,
+            )
+
+            const localTreeAfter = await account.localTabs.getBookmarksTree(true)
+            filterBookmarksInTree(localTreeAfter, b => b.url.startsWith('http'))
+            expectTreeEqual(
+              localTreeAfter,
+              new Folder({
+                title: localTreeAfter.title,
                 children: [
                   new Folder({
                     title: 'Window 0',
@@ -6192,12 +6387,34 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             // Verify the initial state
             let tree = await getAllBookmarks(account)
             expectTreeEqual(
               tree,
               new Folder({
                 title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'Window 0',
+                    children: [
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test1' }),
+                      new Bookmark({ title: TEST_URL_TITLE, url: TEST_URL + '#test2' })
+                    ]
+                  })
+                ]
+              }),
+              false,
+              !ACCOUNT_DATA.noCache,
+            )
+
+            const localTreeBefore = await account.localTabs.getBookmarksTree(true)
+            filterBookmarksInTree(localTreeBefore, b => b.url.startsWith('http'))
+            expectTreeEqual(
+              localTreeBefore,
+              new Folder({
+                title: localTreeBefore.title,
                 children: [
                   new Folder({
                     title: 'Window 0',
@@ -6246,7 +6463,7 @@ describe('Floccus', function() {
 
             // Verify the local tab state
             const localTree = await account.localTabs.getBookmarksTree(true)
-            localTree.children[0].children = localTree.children[0].children.filter(item => !item.url || item.url.startsWith('http'))
+            filterBookmarksInTree(localTree, b => b.url.startsWith('http'))
             expectTreeEqual(
               localTree,
               new Folder({
@@ -6331,6 +6548,8 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             // Verify the initial state
             let tree = await getAllBookmarks(account)
             expectTreeEqual(
@@ -6380,7 +6599,7 @@ describe('Floccus', function() {
 
             // Verify the local tab state
             const localTree = await account.localTabs.getBookmarksTree(true)
-            localTree.children[0].children = localTree.children[0].children.filter(item => !item.url || item.url.startsWith('http'))
+            filterBookmarksInTree(localTree, b => b.url.startsWith('http'))
             expectTreeEqual(
               localTree,
               new Folder({
@@ -6463,6 +6682,8 @@ describe('Floccus', function() {
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
+            await awaitTabsUpdated()
+
             // Verify the initial state
             let tree = await getAllBookmarks(account)
             expectTreeEqual(
@@ -6517,7 +6738,7 @@ describe('Floccus', function() {
 
             // Verify the local tab state
             const localTree = await account.localTabs.getBookmarksTree(true)
-            localTree.children[0].children = localTree.children[0].children.filter(item => !item.url || item.url.startsWith('http'))
+            filterBookmarksInTree(localTree, b => b.url.startsWith('http'))
             expectTreeEqual(
               localTree,
               new Folder({
@@ -8503,4 +8724,15 @@ function awaitTabsUpdated() {
     }),
     new Promise(resolve => setTimeout(resolve, 1300))
   ])
+}
+
+function filterBookmarksInTree(tree, fn) {
+  tree.children = tree.children.filter(item => {
+    if (item instanceof Bookmark) return fn(item)
+    else {
+      filterBookmarksInTree(item, fn)
+      return true
+    }
+  })
+  return tree
 }
