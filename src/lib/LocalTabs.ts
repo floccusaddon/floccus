@@ -315,14 +315,14 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
 
         // Remove the dummy tab after a timeout
         setTimeout(async() => {
-          await awaitTabsUpdated()
           try {
             await browser.tabs.remove(dummyTab.id)
           } catch (e) {
             Logger.log('Failed to remove dummy tab', e)
           }
-        }, 0)
+        }, 1000)
 
+        await awaitTabsUpdated()
         return groupId
       } catch (e) {
         Logger.log('Failed to create tab group', e)
