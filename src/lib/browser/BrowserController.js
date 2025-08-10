@@ -99,6 +99,32 @@ export default class BrowserController {
     browser.bookmarks.onCreated.addListener((localId, details) =>
       this.onchange(localId, details)
     )
+    browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) =>
+      this.onTabsChanged(tabId)
+    )
+    browser.tabs.onRemoved.addListener((tabId, changeInfo, tab) =>
+      this.onTabsChanged(tabId)
+    )
+    browser.tabs.onMoved.addListener((tabId, changeInfo, tab) =>
+      this.onTabsChanged(tabId)
+    )
+    browser.tabs.onDetached.addListener((tabId, changeInfo, tab) =>
+      this.onTabsChanged(tabId)
+    )
+    if (typeof browser.tabGroups !== 'undefined') {
+      browser.tabGroups.onCreated.addListener((tabId, changeInfo, tab) =>
+        this.onTabsChanged(tabId)
+      )
+      browser.tabGroups.onMoved.addListener((tabId, changeInfo, tab) =>
+        this.onTabsChanged(tabId)
+      )
+      browser.tabGroups.onRemoved.addListener((tabId, changeInfo, tab) =>
+        this.onTabsChanged(tabId)
+      )
+      browser.tabGroups.onUpdated.addListener((tabId, changeInfo, tab) =>
+        this.onTabsChanged(tabId)
+      )
+    }
 
     browser.permissions.contains({permissions: ['history']}).then((historyAllowed) => {
       if (historyAllowed) {
@@ -301,6 +327,34 @@ export default class BrowserController {
       accountsToSync.concat(containingAccounts),
       acc => acc.id
     )
+      // Filter out accounts that are not enabled
+      .filter(account => account.getData().enabled)
+      // Filter out accounts that are syncing, because the event may stem from the sync run
+      .filter(account => !account.getData().syncing)
+
+    // schedule a new sync for all accounts involved
+    accountsToSync.forEach(account => {
+      this.scheduleSync(account.id, true)
+    })
+
+    this.setEnabled(true)
+  }
+
+  async onTabsChanged() {
+    if (!this.enabled) {
+      return
+    }
+    // Debounce this function
+    this.setEnabled(false)
+
+    const allAccounts = await BrowserAccount.getAllAccounts()
+
+    // Check which accounts contain the bookmark and which used to contain (track) it
+    const tabAccounts = allAccounts.filter(account => {
+      return account.getData().localRoot === 'tabs'
+    })
+
+    const accountsToSync = tabAccounts
       // Filter out accounts that are not enabled
       .filter(account => account.getData().enabled)
       // Filter out accounts that are syncing, because the event may stem from the sync run
