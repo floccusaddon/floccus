@@ -12,7 +12,6 @@ import Controller from '../lib/Controller'
 import FakeAdapter from '../lib/adapters/Fake'
 import BrowserTree from '../lib/browser/BrowserTree'
 import { AdditionFailsafeError, DeletionFailsafeError } from '../errors/Error'
-import SyncProcess from '../lib/strategies/Default'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -6122,7 +6121,6 @@ describe('Floccus', function() {
               false,
               !ACCOUNT_DATA.noCache,
             )
-
 
             // Move one tab out of the group
             await browser.tabs.ungroup([tab1.id])
