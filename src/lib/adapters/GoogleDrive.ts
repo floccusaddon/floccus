@@ -437,17 +437,29 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
   async listFiles(query: string, limit = 1) : Promise<any> {
     const res = await this.request('GET', this.getUrl() + `/files?corpora=user&q=${encodeURIComponent(query)}&orderBy=modifiedTime%20desc&fields=files(id%2Cname%2Ctrashed)&pageSize=${limit}`)
+    if (res.status >= 400) {
+      Logger.log('Google API error: ' + JSON.stringify(res.text()))
+      throw new HttpError(res.status, 'GET')
+    }
     return res.json()
   }
 
   async getFileMetadata(id: string, fields?:string): Promise<any> {
     const res = await this.request('GET', this.getUrl() + '/files/' + id + (fields ? `?fields=${encodeURIComponent(fields)}` : ''))
+    if (res.status >= 400) {
+      Logger.log('Google API error: ' + JSON.stringify(res.text()))
+      throw new HttpError(res.status, 'GET')
+    }
     return res.json()
   }
 
   async downloadFile(id: string): Promise<string> {
     // We acknowledge abuse so that Google Drive will give us the file contents even if it thinks it's a virus.
     const res = await this.request('GET', this.getUrl() + '/files/' + id + '?alt=media' + '&acknowledgeAbuse=true')
+    if (res.status >= 400) {
+      Logger.log('Google API error: ' + JSON.stringify(res.text()))
+      throw new HttpError(res.status, 'GET')
+    }
     return res.text()
   }
 
@@ -508,6 +520,10 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
   async uploadFile(id:string, xbel: string) {
     const resp = await this.request('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/' + id, xbel, 'application/xml')
+    if (resp.status >= 400) {
+      Logger.log('Google API error: ' + JSON.stringify(resp.text()))
+      throw new HttpError(resp.status, 'GET')
+    }
     return resp.status === 200
   }
 }
