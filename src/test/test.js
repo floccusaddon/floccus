@@ -5232,6 +5232,132 @@ describe('Floccus', function() {
             expectTreeEqual(secondLocalTree1, secondLocalTree2, true, true)
           })
 
+          it('should synchronize ordering (2)', async function() {
+            if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
+              return this.skip()
+            }
+            expect(
+              (await getAllBookmarks(account1)).children
+            ).to.have.lengthOf(0)
+
+            const localRoot1 = account1.getData().localRoot
+            const fooFolder = await browser.bookmarks.create({
+              title: 'foo',
+              parentId: localRoot1
+            })
+            const folder11 = await browser.bookmarks.create({
+              title: 'folder11',
+              parentId: fooFolder.id
+            })
+            const folder12 = await browser.bookmarks.create({
+              title: 'folder12',
+              parentId: fooFolder.id
+            })
+            const bookmark11 = await browser.bookmarks.create({
+              title: 'url11',
+              url: 'http://ur.l/',
+              parentId: fooFolder.id
+            })
+            const bookmark12 = await browser.bookmarks.create({
+              title: 'url12',
+              url: 'http://ur.ll/',
+              parentId: fooFolder.id
+            })
+
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+
+            console.log('Checking local folder after initial sync')
+
+            const localTree1 = await account1.localTree.getBookmarksTree(true)
+            const localTree2 = await account2.localTree.getBookmarksTree(true)
+            localTree2.title = localTree1.title
+            expectTreeEqual(localTree1, localTree2, true, true)
+
+            const localTree1Foo = localTree1.children.find(item => item.title === 'foo')
+            const localTree2Foo = localTree2.children.find(item => item.title === 'foo')
+
+            const newBookmark1 = await browser.bookmarks.create({
+              title: 'newBookmark1',
+              url: 'http://ur.lllll/',
+              parentId: localTree1Foo.id
+            })
+            await browser.bookmarks.move(newBookmark1.id, { index: 0 })
+            await browser.bookmarks.move(folder11.id, { index: 4 })
+            await browser.bookmarks.move(folder12.id, { index: 3 })
+            await browser.bookmarks.move(bookmark11.id, { index: 2 })
+            await browser.bookmarks.move(bookmark12.id, { index: 1 })
+
+            const newBookmark2 = await browser.bookmarks.create({
+              title: 'newBookmark2',
+              url: 'http://ur.llllll/',
+              parentId: localTree2Foo.id
+            })
+            await browser.bookmarks.move(newBookmark2.id, { index: 3 })
+
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+
+            const secondLocalTree1 = await account1.localTree.getBookmarksTree(
+              true
+            )
+
+            expectTreeEqual(
+              secondLocalTree1,
+              new Folder({
+                title: secondLocalTree1.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Bookmark({
+                        title: 'newBookmark1',
+                        url: newBookmark1.url
+                      }),
+                      new Bookmark({
+                        title: 'url12',
+                        url: bookmark12.url
+                      }),
+                      new Bookmark({
+                        title: 'url11',
+                        url: bookmark11.url
+                      }),
+                      new Folder({
+                        title: 'folder12',
+                        children: []
+                      }),
+                      new Bookmark({
+                        title: 'newBookmark2',
+                        url: newBookmark2.url
+                      }),
+                      new Folder({
+                        title: 'folder11',
+                        children: []
+                      }),
+                    ]
+                  }),
+                ]
+              }),
+              true,
+              true
+            )
+
+            const secondLocalTree2 = await account2.localTree.getBookmarksTree(
+              true
+            )
+            secondLocalTree2.title = secondLocalTree1.title
+            expectTreeEqual(secondLocalTree1, secondLocalTree2, true, true)
+          })
+
           // Skipping this, because nextcloud adapter currently
           // isn't able to track bookmarks across dirs, thus in this
           // scenario both bookmarks survive :/

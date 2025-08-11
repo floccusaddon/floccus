@@ -74,13 +74,22 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       this.result.UPDATE.commit({type: ActionType.UPDATE, payload: newFolder, oldItem: oldFolder})
     }
 
-    // Generate REORDERS before diffing anything to make sure REORDERS are from top to bottom
+    // Generate REORDERS before diffing anything to make sure REORDERS are from top to bottom (necessary for tab sync)
     if (newFolder.children.length > 1) {
-      this.result.REORDER.commit({
-        type: ActionType.REORDER,
-        payload: newFolder,
-        order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
-      })
+      let needReorder = false
+      for (let i = 0; i < Math.max(newFolder.children.length, oldFolder.children.length); i++) {
+        if (!oldFolder.children[i] || !newFolder.children[i] || !this.mergeable(oldFolder.children[i], newFolder.children[i])) {
+          needReorder = true
+          break
+        }
+      }
+      if (needReorder) {
+        this.result.REORDER.commit({
+          type: ActionType.REORDER,
+          payload: newFolder,
+          order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
+        })
+      }
     }
 
     // Preserved Items and removed Items
@@ -105,12 +114,12 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
     // created Items
     // (using map here, because 'each' doesn't provide indices)
-    await Parallel.map(unmatchedChildren, async(newChild, index) => {
+    await Parallel.map(unmatchedChildren, async(newChild) => {
       if (oldFolder.isRoot && oldFolder.location === ItemLocation.LOCAL) {
         // We can't create root folders locally
         return
       }
-      this.result.CREATE.commit({type: ActionType.CREATE, payload: newChild, index})
+      this.result.CREATE.commit({type: ActionType.CREATE, payload: newChild, index: newFolder.children.findIndex(child => child === newChild)})
     }, 1)
   }
 

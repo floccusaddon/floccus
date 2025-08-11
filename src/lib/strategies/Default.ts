@@ -772,7 +772,7 @@ export default class SyncProcess {
         return
       }
 
-      if (targetLocation === this.masterLocation) {
+      if (targetLocation !== this.masterLocation) {
         const concurrentReorder = targetReorders.find(a =>
           action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
         if (concurrentReorder) {
