@@ -78,6 +78,12 @@ export class Bookmark<L extends TItemLocation> {
     return 0
   }
 
+  setHashCacheValue(hashSettings: IHashSettings, value: string): void {
+    const cacheKey = `${hashSettings.preserveOrder}-${hashSettings.hashFn}`
+    if (!this.hashValue) this.hashValue = {}
+    this.hashValue[cacheKey] = value
+  }
+
   async hash({preserveOrder = false, hashFn = 'sha256'}):Promise<string> {
     if (!this.hashValue) {
       this.hashValue = {}
@@ -311,6 +317,12 @@ export class Folder<L extends TItemLocation> {
       ) / Math.max(this.children.length, otherItem.children.length)
     }
     return 0
+  }
+
+  setHashCacheValue(hashSettings: IHashSettings, value: string): void {
+    const cacheKey = `${hashSettings.preserveOrder}-${hashSettings.hashFn}`
+    if (!this.hashValue) this.hashValue = {}
+    this.hashValue[cacheKey] = value
   }
 
   async hash({preserveOrder = false, hashFn = 'sha256'}: IHashSettings = {preserveOrder: false, hashFn: 'sha256'}): Promise<string> {

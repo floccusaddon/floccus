@@ -310,7 +310,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
     this.list = null
     tree.loaded = false
-    tree.hashValue = { true: await this._getFolderHash(tree.id) }
+    const treeHash = await this._getFolderHash(tree.id)
+    tree.setHashCacheValue(this.hashSettings, treeHash)
     this.tree = tree.copy(true) // we clone (withHash), so we can mess with our own version
     return tree
   }
@@ -386,7 +387,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           }
           if (!child.loaded) {
             const folderHash = await this._getFolderHash(child.id)
-            child.hashValue = { true: folderHash }
+            child.setHashCacheValue(this.hashSettings, folderHash)
           }
           await recurse(child.children)
         }, 5)
