@@ -22,7 +22,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
         }
         return false
       },
-      this.preserveOrder,
+      this.hashSettings,
       false,
       false
     )
@@ -36,7 +36,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
         }
         return false
       },
-      this.preserveOrder,
+      this.hashSettings,
       false,
       false
     )
@@ -97,7 +97,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
             }
             return false
           },
-          this.preserveOrder,
+          this.hashSettings,
           false,
           false
         )

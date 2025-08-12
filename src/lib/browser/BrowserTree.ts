@@ -1,7 +1,7 @@
 import browser from '../browser-api'
 import Logger from '../Logger'
 import * as Tree from '../Tree'
-import { IResource } from '../interfaces/Resource'
+import { ICapabilities, IHashSettings, IResource } from '../interfaces/Resource'
 import PQueue from 'p-queue'
 import Account from '../Account'
 import { Bookmark, Folder, ItemLocation, ItemType } from '../Tree'
@@ -48,7 +48,6 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     const allAccounts = await (await Account.getAccountClass()).getAllAccounts()
 
     const recurse = (node, parentId?, isOnToolbar?, rng?) => {
-
       if (
         allAccounts.some(
           acc => acc.getData().localRoot === node.id && String(node.id) !== String(this.rootId) && !acc.getData().nestedSync
@@ -393,5 +392,17 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
 
   isAvailable(): Promise<boolean> {
     return Promise.resolve(true)
+  }
+
+  async getCapabilities(): Promise<ICapabilities> {
+    return {
+      preserveOrder: true,
+      hashFn: ['murmur3', 'sha256']
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setHashSettings(hashSettings: IHashSettings): void {
+    // noop
   }
 }

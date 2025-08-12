@@ -324,7 +324,7 @@ export default class WebDavAdapter extends CachingAdapter {
       }
     }
 
-    this.initialTreeHash = await this.bookmarksCache.hash(true)
+    this.initialTreeHash = await this.bookmarksCache.hash(this.hashSettings)
 
     Logger.log('onSyncStart: completed')
 
@@ -354,7 +354,7 @@ export default class WebDavAdapter extends CachingAdapter {
     clearInterval(this.lockingInterval)
 
     this.bookmarksCache = this.bookmarksCache.clone(false)
-    const newTreeHash = await this.bookmarksCache.hash(true)
+    const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
     if (newTreeHash !== this.initialTreeHash) {
       const fullUrl = this.getBookmarkURL()
       let xbel = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)

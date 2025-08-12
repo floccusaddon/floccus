@@ -12,13 +12,14 @@ import {
   UnknownMoveOriginError,
   UnknownMoveTargetError
 } from '../../errors/Error'
-import { BulkImportResource } from '../interfaces/Resource'
+import { BulkImportResource, ICapabilities, IHashSettings } from '../interfaces/Resource'
 
 export default class CachingAdapter implements Adapter, BulkImportResource<TItemLocation> {
   protected highestId: number
   public bookmarksCache: Folder<TItemLocation>
   protected server: any
   protected location: TItemLocation = ItemLocation.SERVER
+  protected hashSettings: IHashSettings
 
   constructor(server: any) {
     this.resetCache()
@@ -244,5 +245,16 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
 
   isAvailable(): Promise<boolean> {
     return Promise.resolve(true)
+  }
+
+  async getCapabilities(): Promise<ICapabilities> {
+    return {
+      preserveOrder: true,
+      hashFn: ['murmur3', 'sha256'],
+    }
+  }
+
+  setHashSettings(hashSettings: IHashSettings): void {
+    this.hashSettings = hashSettings
   }
 }

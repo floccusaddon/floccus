@@ -22,7 +22,7 @@ import Scanner, { ScanResult } from '../Scanner'
 import * as Parallel from 'async-parallel'
 import { throttle } from 'throttle-debounce'
 import Mappings, { MappingSnapshot } from '../Mappings'
-import TResource, { OrderFolderResource, TLocalTree } from '../interfaces/Resource'
+import TResource, { IHashSettings, OrderFolderResource, TLocalTree } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
 import { AdditionFailsafeError, CancelledSyncError, DeletionFailsafeError } from '../../errors/Error'
 
@@ -75,6 +75,7 @@ export default class SyncProcess {
 
   // The location that has precedence in case of conflicts
   protected masterLocation: TItemLocation
+  protected hashSettings: IHashSettings
 
   constructor(
     mappings:Mappings,
@@ -321,6 +322,18 @@ export default class SyncProcess {
   }
 
   protected async prepareSync() {
+    // Negotiate capabilities
+    const localCapabilities = await this.localTree.getCapabilities()
+    const serverCapabilities = await this.server.getCapabilities()
+    this.hashSettings = {
+      preserveOrder: localCapabilities.preserveOrder && serverCapabilities.preserveOrder,
+      // Find the first hFn that localTree supports as well, ie order matters
+      hashFn: serverCapabilities.hashFn.find(hashFn => localCapabilities.hashFn.includes(hashFn)),
+    }
+    Logger.log(`using the following HashSettings: ${JSON.stringify(this.hashSettings)}`)
+    this.localTree.setHashSettings(this.hashSettings)
+    this.server.setHashSettings(this.hashSettings)
+
     if (!this.localTreeRoot) {
       Logger.log('Retrieving local tree')
       const localTreeRoot = await this.localTree.getBookmarksTree()
@@ -481,7 +494,7 @@ export default class SyncProcess {
         }
         return false
       },
-      this.preserveOrder,
+      this.hashSettings,
     )
     const serverScanner = new Scanner(
       this.cacheTreeRoot,
@@ -515,7 +528,7 @@ export default class SyncProcess {
 
         return false
       },
-      this.preserveOrder,
+      this.hashSettings,
     )
     Logger.log('Calculating diffs for local and server trees relative to cache tree')
     const localScanResult = await localScanner.run()
@@ -602,7 +615,7 @@ export default class SyncProcess {
             }
             return false
           },
-          this.preserveOrder,
+          this.hashSettings,
           false
         )
         await subScanner.run()
@@ -930,7 +943,7 @@ export default class SyncProcess {
                 }
                 return false
               },
-              this.preserveOrder,
+              this.hashSettings,
               false,
             )
             await subScanner.run()
@@ -991,7 +1004,7 @@ export default class SyncProcess {
                   }
                   return false
                 },
-                this.preserveOrder,
+                this.hashSettings,
                 false,
               )
               await subScanner.run()
@@ -1325,13 +1338,13 @@ export default class SyncProcess {
   async folderHasChanged(localItem: TItem<typeof ItemLocation.LOCAL>, cacheItem: TItem<typeof ItemLocation.LOCAL>, serverItem: TItem<typeof ItemLocation.SERVER>):Promise<boolean> {
     const mappingsSnapshot = this.mappings.getSnapshot()
     const localHash = localItem
-      ? await localItem.hash(this.preserveOrder)
+      ? await localItem.hash(this.hashSettings)
       : null
     const cacheHash = cacheItem
-      ? await cacheItem.hash(this.preserveOrder)
+      ? await cacheItem.hash(this.hashSettings)
       : null
     const serverHash = serverItem
-      ? await serverItem.hash(this.preserveOrder)
+      ? await serverItem.hash(this.hashSettings)
       : null
     const reconciled = !cacheItem
     const changedLocally =
