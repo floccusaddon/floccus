@@ -37,7 +37,6 @@ export default class SyncProcess {
   protected server: TAdapter
   protected cacheTreeRoot: Folder<typeof ItemLocation.LOCAL>|null
   protected canceled: boolean
-  protected preserveOrder: boolean
   protected progressCb: (progress:number, actionsDone?:number)=>void
 
   // Stage -1
@@ -86,8 +85,6 @@ export default class SyncProcess {
     this.mappings = mappings
     this.localTree = localTree
     this.server = server
-
-    this.preserveOrder = 'orderFolder' in this.server
 
     this.progressCb = throttle(500, true, progressCb) as (progress:number, actionsDone?:number)=>void
     this.canceled = false

@@ -313,7 +313,7 @@ export class Folder<L extends TItemLocation> {
     return 0
   }
 
-  async hash({preserveOrder = false, hashFn = 'sha256'}: IHashSettings): Promise<string> {
+  async hash({preserveOrder = false, hashFn = 'sha256'}: IHashSettings = {preserveOrder: false, hashFn: 'sha256'}): Promise<string> {
     const cacheKey = `${preserveOrder}-${hashFn}`
     if (this.hashValue && typeof this.hashValue[cacheKey] !== 'undefined') {
       return this.hashValue[cacheKey]
