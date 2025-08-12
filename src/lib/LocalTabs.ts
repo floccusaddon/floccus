@@ -288,7 +288,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         // Create a dummy tab in the parent window to hold the group
         const dummyTab = await this.queue.add(() =>
           browser.tabs.create({
-            windowId: typeof folder.parentId === 'string' ? parseInt(folder.parentId) : folder.parentId,
+            windowId: folder.parentId,
             url: 'about:blank',
             active: false
           })
@@ -299,7 +299,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
           browser.tabs.group({
             tabIds: [dummyTab.id],
             createProperties: {
-              windowId: typeof folder.parentId === 'string' ? parseInt(folder.parentId) : folder.parentId
+              windowId: folder.parentId
             }
           })
         )
@@ -320,7 +320,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
           } catch (e) {
             Logger.log('Failed to remove dummy tab', e)
           }
-        }, 1000)
+        }, 2000)
 
         await awaitTabsUpdated()
         return groupId
