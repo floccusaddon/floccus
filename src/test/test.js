@@ -68,7 +68,7 @@ describe('Floccus', function() {
   this.slow(20000) // 20s is slow
 
   const params = (new URL(window.location.href)).searchParams
-  let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION, SEED, BROWSER, RANDOM_MANIPULATION_ITERATIONS, TEST_URL
+  let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION, SEED, BROWSER, RANDOM_MANIPULATION_ITERATIONS, TEST_URL, IS_CI
   SERVER =
     params.get('server') ||
     'http://localhost'
@@ -79,6 +79,7 @@ describe('Floccus', function() {
   }
   APP_VERSION = params.get('app_version') || 'stable'
   BROWSER = params.get('browser') || 'firefox'
+  IS_CI = (params.get('ci') || 'false') === 'true'
 
   SEED = (new URL(window.location.href)).searchParams.get('seed') || Math.random() + ''
   console.log('RANDOMNESS SEED', SEED)
@@ -6916,7 +6917,7 @@ describe('Floccus', function() {
         const setInterrupt = () => {
           if (!timeouts.length) {
             timeouts = new Array(1000).fill(0).map(() =>
-              ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? random.int(50000, 150000) : random.int(200, 6000)
+              ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? random.int(50000, 150000) : (IS_CI ? random.int(200, 10000) : random.int(200, 5000))
             )
           }
           const timeout = timeouts[(i++) % 1000]
