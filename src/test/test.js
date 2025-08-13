@@ -68,7 +68,7 @@ describe('Floccus', function() {
   this.slow(20000) // 20s is slow
 
   const params = (new URL(window.location.href)).searchParams
-  let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION, SEED, BROWSER, RANDOM_MANIPULATION_ITERATIONS, TEST_URL, IS_CI
+  let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION, SEED, BROWSER, RANDOM_MANIPULATION_ITERATIONS, TEST_URL
   SERVER =
     params.get('server') ||
     'http://localhost'
