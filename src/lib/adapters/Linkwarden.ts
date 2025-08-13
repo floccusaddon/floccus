@@ -371,7 +371,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
   async getCapabilities(): Promise<ICapabilities> {
     return {
       preserveOrder: false,
-      hashFn: ['murmur3', 'sha256'],
+      hashFn: ['xxhash3', 'murmur3', 'sha256'],
     }
   }
 

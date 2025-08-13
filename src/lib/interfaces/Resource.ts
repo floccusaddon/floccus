@@ -1,7 +1,7 @@
 import { Bookmark, Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
 import Ordering from './Ordering'
 
-export type THashFunction = 'sha256' | 'murmur3'
+export type THashFunction = 'sha256' | 'murmur3' | 'xxhash3'
 
 export interface ICapabilities {
   preserveOrder: boolean,

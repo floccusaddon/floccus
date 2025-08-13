@@ -111,6 +111,7 @@
     "send-intent": "7.x",
     "stream-browserify": "^3.0.0",
     "throttle-debounce": "^2.3.0",
+    "ts-xxhash": "^1.0.6",
     "vue": "^2.7.0",
     "vue-router": "^3.4.9",
     "vuelidate": "^0.7.6",

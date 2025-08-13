@@ -569,7 +569,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
   async getCapabilities(): Promise<ICapabilities> {
     return {
       preserveOrder: false,
-      hashFn: ['murmur3', 'sha256'],
+      hashFn: ['xxhash3', 'murmur3', 'sha256'],
     }
   }
 
