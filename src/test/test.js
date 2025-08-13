@@ -6916,7 +6916,7 @@ describe('Floccus', function() {
         const setInterrupt = () => {
           if (!timeouts.length) {
             timeouts = new Array(1000).fill(0).map((_, index) =>
-              ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? random.int(50000, 150000) : random.int(200, 4000 + (10000 - 4000) * index / 10000)
+              ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? random.int(50000, 150000) : random.int(200, Math.round(4000 + (10000 - 4000) * index / 10000))
             )
           }
           const timeout = timeouts[(i++) % 1000]
