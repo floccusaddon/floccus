@@ -79,7 +79,6 @@ describe('Floccus', function() {
   }
   APP_VERSION = params.get('app_version') || 'stable'
   BROWSER = params.get('browser') || 'firefox'
-  IS_CI = (params.get('ci') || 'false') === 'true'
 
   SEED = (new URL(window.location.href)).searchParams.get('seed') || Math.random() + ''
   console.log('RANDOMNESS SEED', SEED)
