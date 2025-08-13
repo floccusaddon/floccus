@@ -8674,6 +8674,8 @@ async function getAllBookmarks(account) {
 async function withSyncConnection(account, fn) {
   const adapter = account.server
   if (adapter.onSyncStart) await adapter.onSyncStart()
+  const capabilities = await adapter.getCapabilities()
+  if (adapter.setHashSettings) adapter.setHashSettings({preserveOrder: capabilities.preserveOrder, hashFn: capabilities.hashFn[0]})
   await fn()
   if (adapter.onSyncComplete) await adapter.onSyncComplete()
 }

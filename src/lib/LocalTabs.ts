@@ -1,6 +1,6 @@
 import browser from './browser-api'
 import Logger from './Logger'
-import { OrderFolderResource } from './interfaces/Resource'
+import { ICapabilities, IHashSettings, OrderFolderResource } from './interfaces/Resource'
 import PQueue from 'p-queue'
 import { Bookmark, Folder, ItemLocation } from './Tree'
 import Ordering from './interfaces/Ordering'
@@ -501,6 +501,18 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
 
   async isUsingBrowserTabs() {
     return true
+  }
+
+  async getCapabilities(): Promise<ICapabilities> {
+    return {
+      preserveOrder: true,
+      hashFn: ['murmur3', 'sha256']
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setHashSettings(hashSettings: IHashSettings): void {
+    // noop
   }
 }
 

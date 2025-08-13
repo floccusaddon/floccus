@@ -2,6 +2,7 @@ import * as Parallel from 'async-parallel'
 import Diff, { ActionType, CreateAction, MoveAction, RemoveAction, ReorderAction, UpdateAction } from './Diff'
 import { Bookmark, Folder, ItemLocation, ItemType, TItem, TItemLocation } from './Tree'
 import Logger from './Logger'
+import { IHashSettings } from './interfaces/Resource'
 
 export interface ScanResult<L1 extends TItemLocation, L2 extends TItemLocation> {
   CREATE: Diff<L1, L2, CreateAction<L1, L2>>
@@ -15,17 +16,17 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
   private oldTree: TItem<L1>
   private newTree: TItem<L2>
   private mergeable: (i1: TItem<TItemLocation>, i2: TItem<TItemLocation>) => boolean
-  private preserveOrder: boolean
+  private hashSettings: IHashSettings
   private checkHashes: boolean
   private hasCache: boolean
 
   private result: ScanResult<L2, L1>
 
-  constructor(oldTree:TItem<L1>, newTree:TItem<L2>, mergeable:(i1:TItem<TItemLocation>, i2:TItem<TItemLocation>)=>boolean, preserveOrder:boolean, checkHashes = true, hasCache = true) {
+  constructor(oldTree:TItem<L1>, newTree:TItem<L2>, mergeable:(i1:TItem<TItemLocation>, i2:TItem<TItemLocation>)=>boolean, hashSettings: IHashSettings, checkHashes = true, hasCache = true) {
     this.oldTree = oldTree
     this.newTree = newTree
     this.mergeable = mergeable
-    this.preserveOrder = preserveOrder
+    this.hashSettings = hashSettings
     this.checkHashes = typeof checkHashes === 'undefined' ? true : checkHashes
     this.hasCache = hasCache
     this.result = {
@@ -136,14 +137,14 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
   }
 
   async bookmarkHasChanged(oldBookmark:Bookmark<L1>, newBookmark:Bookmark<L2>):Promise<boolean> {
-    const oldHash = await oldBookmark.hash()
-    const newHash = await newBookmark.hash()
+    const oldHash = await oldBookmark.hash(this.hashSettings)
+    const newHash = await newBookmark.hash(this.hashSettings)
     return oldHash !== newHash
   }
 
   async folderHasChanged(oldFolder:Folder<L1>, newFolder:Folder<L2>):Promise<boolean> {
-    const oldHash = await oldFolder.hash(this.preserveOrder)
-    const newHash = await newFolder.hash(this.preserveOrder)
+    const oldHash = await oldFolder.hash(this.hashSettings)
+    const newHash = await newFolder.hash(this.hashSettings)
     return oldHash !== newHash
   }
 

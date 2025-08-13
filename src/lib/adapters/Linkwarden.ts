@@ -1,7 +1,7 @@
 import Adapter from '../interfaces/Adapter'
 import { Bookmark, Folder, ItemLocation } from '../Tree'
 import PQueue from 'p-queue'
-import { IResource } from '../interfaces/Resource'
+import { ICapabilities, IHashSettings, IResource } from '../interfaces/Resource'
 import Logger from '../Logger'
 import {
   AuthenticationError,
@@ -366,5 +366,17 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     const json = res.data
 
     return json
+  }
+
+  async getCapabilities(): Promise<ICapabilities> {
+    return {
+      preserveOrder: false,
+      hashFn: ['murmur3', 'sha256'],
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setHashSettings(hashSettings: IHashSettings): void {
+    // noop
   }
 }

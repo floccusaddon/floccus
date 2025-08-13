@@ -62,7 +62,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
         }
         return false
       },
-      this.preserveOrder,
+      this.hashSettings,
       false,
       false
     )
@@ -87,7 +87,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
         }
         return false
       },
-      this.preserveOrder,
+      this.hashSettings,
       false,
       false
     )

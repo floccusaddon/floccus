@@ -1,4 +1,4 @@
-import { CachingResource, OrderFolderResource } from './interfaces/Resource'
+import { CachingResource, ICapabilities, IHashSettings, OrderFolderResource } from './interfaces/Resource'
 import { Bookmark, Folder, ItemLocation } from './Tree'
 import CacheTree from './CacheTree'
 import Ordering from './interfaces/Ordering'
@@ -73,5 +73,13 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
 
   getCacheTree(): Promise<Folder<typeof ItemLocation.LOCAL>> {
     return this.cacheTree.getBookmarksTree()
+  }
+
+  getCapabilities(): Promise<ICapabilities> {
+    return this.innerTree.getCapabilities()
+  }
+
+  setHashSettings(hashSettings: IHashSettings): void {
+    this.innerTree.setHashSettings(hashSettings)
   }
 }

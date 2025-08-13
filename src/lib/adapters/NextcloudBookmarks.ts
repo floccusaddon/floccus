@@ -1,5 +1,4 @@
 // Nextcloud ADAPTER
-// All owncloud specifc stuff goes in here
 import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
 import Adapter from '../interfaces/Adapter'
 import HtmlSerializer from '../serializers/Html'
@@ -12,7 +11,7 @@ import PQueue from 'p-queue'
 import flatten from 'lodash/flatten'
 import {
   BulkImportResource,
-  ClickCountResource,
+  ClickCountResource, ICapabilities, IHashSettings,
   LoadFolderChildrenResource,
   OrderFolderResource
 } from '../interfaces/Resource'
@@ -78,6 +77,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private ended = false
   private locked = false
   private hasFeatureJavascriptLinks: boolean = null
+  private hashSettings: IHashSettings
 
   constructor(server: NextcloudBookmarksConfig) {
     this.server = server
@@ -310,12 +310,16 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
     this.list = null
     tree.loaded = false
-    tree.hashValue = { true: await this._getFolderHash(tree.id) }
+    const treeHash = await this._getFolderHash(tree.id)
+    tree.setHashCacheValue(this.hashSettings, treeHash)
     this.tree = tree.copy(true) // we clone (withHash), so we can mess with our own version
     return tree
   }
 
   async _getFolderHash(folderId:string|number):Promise<string> {
+    if (this.hashSettings.hashFn !== 'sha256') {
+      throw new Error('Unsupported hash function: ' + this.hashSettings.hashFn + ' - Nextcloud Bookmarks only supports sha256')
+    }
     return this.sendRequest(
       'GET',
       `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/hash`
@@ -383,7 +387,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           }
           if (!child.loaded) {
             const folderHash = await this._getFolderHash(child.id)
-            child.hashValue = { true: folderHash }
+            child.setHashCacheValue(this.hashSettings, folderHash)
           }
           await recurse(child.children)
         }, 5)
@@ -977,6 +981,13 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return Promise.resolve(true)
   }
 
+  async getCapabilities(): Promise<ICapabilities> {
+    return {
+      preserveOrder: true,
+      hashFn: ['sha256'],
+    }
+  }
+
   async countClick(url: string): Promise<void> {
     try {
       await this.sendRequest(
@@ -990,5 +1001,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     } catch (e) {
       console.warn(e)
     }
+  }
+
+  setHashSettings(hashSettings: IHashSettings): void {
+    this.hashSettings = hashSettings
   }
 }

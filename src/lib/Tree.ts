@@ -1,6 +1,6 @@
 import Crypto from './Crypto'
 import Logger from './Logger'
-import TResource from './interfaces/Resource'
+import TResource, { IHashSettings } from './interfaces/Resource'
 import * as Parallel from 'async-parallel'
 
 const STRANGE_PROTOCOLS = ['data:', 'javascript:', 'about:', 'chrome:', 'file:']
@@ -37,7 +37,7 @@ export class Bookmark<L extends TItemLocation> {
   public tags: string[]
   public location: L
   public isRoot = false
-  private hashValue: string
+  private hashValue: Record<string, string>
 
   constructor({ id, parentId, url, title, tags, location }: { id:string|number, parentId:string|number, url:string, title:string, tags?: string[], location: L }) {
     this.id = id
@@ -78,13 +78,25 @@ export class Bookmark<L extends TItemLocation> {
     return 0
   }
 
-  async hash():Promise<string> {
+  setHashCacheValue(hashSettings: IHashSettings, value: string): void {
+    const cacheKey = `${hashSettings.preserveOrder}-${hashSettings.hashFn}`
+    if (!this.hashValue) this.hashValue = {}
+    this.hashValue[cacheKey] = value
+  }
+
+  async hash({preserveOrder = false, hashFn = 'sha256'}):Promise<string> {
     if (!this.hashValue) {
-      this.hashValue = await Crypto.sha256(
-        JSON.stringify({ title: this.title, url: this.url })
-      )
+      this.hashValue = {}
+      const json = JSON.stringify({ title: this.title, url: this.url })
+      if (hashFn === 'sha256') {
+        this.hashValue[hashFn] = await Crypto.sha256(json)
+      } else if (hashFn === 'murmur3') {
+        this.hashValue[hashFn] = await Crypto.murmurHash3(json)
+      } else {
+        throw new Error('Unsupported hash function specified')
+      }
     }
-    return this.hashValue
+    return this.hashValue[hashFn]
   }
 
   clone(withHash?: boolean):Bookmark<L> {
@@ -119,6 +131,7 @@ export class Bookmark<L extends TItemLocation> {
   toJSON() {
     // Flatten inherited properties for serialization
     const result = {}
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let obj = this
     while (obj) {
       Object.entries(obj).forEach(([key, value]) => {
@@ -306,9 +319,16 @@ export class Folder<L extends TItemLocation> {
     return 0
   }
 
-  async hash(preserveOrder = false): Promise<string> {
-    if (this.hashValue && typeof this.hashValue[String(preserveOrder)] !== 'undefined') {
-      return this.hashValue[String(preserveOrder)]
+  setHashCacheValue(hashSettings: IHashSettings, value: string): void {
+    const cacheKey = `${hashSettings.preserveOrder}-${hashSettings.hashFn}`
+    if (!this.hashValue) this.hashValue = {}
+    this.hashValue[cacheKey] = value
+  }
+
+  async hash({preserveOrder = false, hashFn = 'sha256'}: IHashSettings = {preserveOrder: false, hashFn: 'sha256'}): Promise<string> {
+    const cacheKey = `${preserveOrder}-${hashFn}`
+    if (this.hashValue && typeof this.hashValue[cacheKey] !== 'undefined') {
+      return this.hashValue[cacheKey]
     }
 
     if (!this.loaded) {
@@ -329,17 +349,22 @@ export class Folder<L extends TItemLocation> {
       })
     }
     if (!this.hashValue) this.hashValue = {}
-    this.hashValue[String(preserveOrder)] = await Crypto.sha256(
-      JSON.stringify({
-        title: this.title,
-        children: await Parallel.map(
-          children,
-          child => child.hash(preserveOrder),
-          1
-        )
-      })
-    )
-    return this.hashValue[String(preserveOrder)]
+    const json = JSON.stringify({
+      title: this.title,
+      children: await Parallel.map(
+        children,
+        child => child.hash({preserveOrder, hashFn}),
+        1
+      )
+    })
+    if (hashFn === 'sha256') {
+      this.hashValue[cacheKey] = await Crypto.sha256(json)
+    } else if (hashFn === 'murmur3') {
+      this.hashValue[cacheKey] = await Crypto.murmurHash3(json)
+    } else {
+      throw new Error('Unsupported hash function specified')
+    }
+    return this.hashValue[cacheKey]
   }
 
   copy(withHash?:boolean):Folder<L> {

@@ -1,7 +1,20 @@
 import { Bookmark, Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
 import Ordering from './Ordering'
 
+export type THashFunction = 'sha256' | 'murmur3'
+
+export interface ICapabilities {
+  preserveOrder: boolean,
+  hashFn: THashFunction[],
+}
+
+export interface IHashSettings {
+  preserveOrder: boolean,
+  hashFn: THashFunction,
+}
+
 export interface IResource<L extends TItemLocation> {
+  setHashSettings(hashSettings: IHashSettings):void
   getBookmarksTree(loadAll?: boolean):Promise<Folder<L>>
   createBookmark(bookmark: Bookmark<L>):Promise<string|number>
   updateBookmark(bookmark: Bookmark<L>):Promise<void>
@@ -11,6 +24,7 @@ export interface IResource<L extends TItemLocation> {
   updateFolder(folder:Folder<L>):Promise<void>
   removeFolder(folder:Folder<L>):Promise<void>
   isAvailable():Promise<boolean>
+  getCapabilities():Promise<ICapabilities>
   isUsingBrowserTabs?: () => Promise<boolean>
 }
 

@@ -298,7 +298,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       this.alwaysUpload = true
     }
 
-    this.initialTreeHash = await this.bookmarksCache.hash(true)
+    this.initialTreeHash = await this.bookmarksCache.hash(this.hashSettings)
 
     Logger.log('onSyncStart: completed')
 
@@ -335,7 +335,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     clearInterval(this.lockingInterval)
 
     this.bookmarksCache = this.bookmarksCache.clone(false)
-    const newTreeHash = await this.bookmarksCache.hash(true)
+    const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
 
     if (!this.fileId) {
       await this.createFile(await this.getXBELContent())

@@ -170,7 +170,7 @@ export default class GitAdapter extends CachingAdapter {
 
     const status = await this.pullFromServer()
 
-    this.initialTreeHash = await this.bookmarksCache.hash(true)
+    this.initialTreeHash = await this.bookmarksCache.hash(this.hashSettings)
 
     Logger.log('onSyncStart: completed')
 
@@ -189,7 +189,7 @@ export default class GitAdapter extends CachingAdapter {
     clearInterval(this.lockingInterval)
 
     this.bookmarksCache = this.bookmarksCache.clone(false)
-    const newTreeHash = await this.bookmarksCache.hash(true)
+    const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
     if (newTreeHash !== this.initialTreeHash) {
       const fileContents = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)
       Logger.log('(git) writeFile ' + this.dir + '/' + this.server.bookmark_file)
