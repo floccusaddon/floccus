@@ -148,6 +148,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       }
     }
 
+    this.canceled = false
+    this.ended = false
+
     await this.checkFeatureJavascriptLinks()
 
     this.abortController = new AbortController()
@@ -165,9 +168,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new ResourceLockedError()
     }
     this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
-
-    this.canceled = false
-    this.ended = false
   }
 
   async onSyncComplete(): Promise<void> {
