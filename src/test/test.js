@@ -7060,7 +7060,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 100)
+          await createTree(localRoot, 0, 600) // n ~ 3000
 
           const tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -7211,7 +7211,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 100)
+          await createTree(localRoot, 0, 600) // n ~ 3000
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -7442,7 +7442,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 100)
+          await createTree(localRoot, 0, 600) // n ~ 3000
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -7684,7 +7684,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 100)
+          await createTree(localRoot, 0, 600) // n ~ 3000
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -7922,7 +7922,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 100)
+          await createTree(localRoot, 0, 600) // n ~ 3000
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await syncAccountWithInterrupts(account1)
@@ -8179,7 +8179,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 100)
+          await createTree(localRoot, 0, 600) // n ~ 3000
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -8423,7 +8423,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 100)
+          await createTree(localRoot, 0, 600) // n ~ 3000
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
