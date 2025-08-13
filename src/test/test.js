@@ -6917,7 +6917,7 @@ describe('Floccus', function() {
         const setInterrupt = () => {
           if (!timeouts.length) {
             timeouts = new Array(1000).fill(0).map(() =>
-              ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? random.int(50000, 150000) : (IS_CI ? random.int(200, 10000) : random.int(200, 5000))
+              ACCOUNT_DATA.type === 'nextcloud-bookmarks' ? random.int(50000, 150000) : (IS_CI ? random.int(200, 10000) : random.int(200, 4000))
             )
           }
           const timeout = timeouts[(i++) % 1000]
@@ -7061,7 +7061,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 600) // n ~ 3000
+          await createTree(localRoot, 0, 1000)
 
           const tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -7212,7 +7212,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 600) // n ~ 3000
+          await createTree(localRoot, 0, 1000)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -7443,7 +7443,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 600) // n ~ 3000
+          await createTree(localRoot, 0, 1000)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -7685,7 +7685,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 600) // n ~ 3000
+          await createTree(localRoot, 0, 1000)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -7923,7 +7923,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 600) // n ~ 3000
+          await createTree(localRoot, 0, 1000)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await syncAccountWithInterrupts(account1)
@@ -8180,7 +8180,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 600) // n ~ 3000
+          await createTree(localRoot, 0, 1000)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -8424,7 +8424,7 @@ describe('Floccus', function() {
             }
           }
 
-          await createTree(localRoot, 0, 600) // n ~ 3000
+          await createTree(localRoot, 0, 1000)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
