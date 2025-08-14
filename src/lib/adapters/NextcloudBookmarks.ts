@@ -886,16 +886,17 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new RedirectError()
     }
 
+    if (res.status > 400 && res.status !== 423 && authString.startsWith('Bearer')) {
+      this.ticket = null
+      this.ticketTimestamp = 0
+      return this.sendRequest(verb, url, type, body, returnRawResponse, headers)
+    }
+
     if (returnRawResponse) {
       return res
     }
 
     if (res.status === 401 || res.status === 403) {
-      if (authString.startsWith('Bearer')) {
-        this.ticket = null
-        this.ticketTimestamp = 0
-        return this.sendRequest(verb, url, type, body, returnRawResponse, headers)
-      }
       throw new AuthenticationError()
     }
     if (res.status === 503 || res.status >= 400) {
@@ -1002,16 +1003,17 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new RedirectError()
     }
 
+    if (res.status > 400 && res.status !== 423 && authString.startsWith('Bearer')) {
+      this.ticket = null
+      this.ticketTimestamp = 0
+      return this.sendRequestNative(verb, url, type, body, returnRawResponse, headers)
+    }
+
     if (returnRawResponse) {
       return res
     }
 
     if (res.status === 401 || res.status === 403) {
-      if (authString.startsWith('Bearer')) {
-        this.ticket = null
-        this.ticketTimestamp = 0
-        return this.sendRequestNative(verb, url, type, body, returnRawResponse, headers)
-      }
       throw new AuthenticationError()
     }
     if (res.status === 503 || res.status >= 400) {
