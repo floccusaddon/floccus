@@ -774,7 +774,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   async checkFeatureJavascriptLinks(): Promise<void> {
     if (this.capabilities && this.capabilities.bookmarks && typeof this.capabilities.bookmarks['javascript-bookmarks'] !== 'undefined') {
-      return this.capabilities.bookmarks['javascript-bookmarks']
+      this.hasFeatureJavascriptLinks = this.capabilities.bookmarks['javascript-bookmarks']
+      return
     }
     try {
       const json = await this.sendRequest(
