@@ -78,6 +78,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private hasFeatureJavascriptLinks: boolean = null
   private hashSettings: IHashSettings
   private capabilities: any
+  private ticket: string
+  private ticketTimestamp: number
 
   constructor(server: NextcloudBookmarksConfig) {
     this.server = server
@@ -102,6 +104,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   setData(data:NextcloudBookmarksConfig):void {
     this.server = { ...data }
+    this.ticket = null
+    this.ticketTimestamp = 0
   }
 
   getData():NextcloudBookmarksConfig {
@@ -842,9 +846,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       return this.sendRequestNative(verb, url, type, body, returnRawResponse, headers)
     }
 
-    const authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
+    const authString = !this.ticket || this.ticketTimestamp + 60 * 60 * 1000 < Date.now()
+      ? 'Basic ' + Base64.encode(this.server.username + ':' + this.server.password)
+      : 'Bearer ' + this.ticket
 
     try {
       res = await this.fetchQueue.add(() => {
@@ -855,7 +859,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             credentials: this.server.includeCredentials ? 'include' : 'omit',
             headers: {
               ...(type && type !== 'multipart/form-data' && { 'Content-type': type }),
-              Authorization: 'Basic ' + authString,
+              Authorization: authString,
               ...headers
             },
             signal: this.abortSignal,
@@ -887,6 +891,11 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
 
     if (res.status === 401 || res.status === 403) {
+      if (authString.startsWith('Bearer')) {
+        this.ticket = null
+        this.ticketTimestamp = 0
+        return this.sendRequest(verb, url, type, body, returnRawResponse, headers)
+      }
       throw new AuthenticationError()
     }
     if (res.status === 503 || res.status >= 400) {
@@ -901,6 +910,11 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
     if (json.status !== 'success') {
       throw new Error('Nextcloud API error for request ' + verb + ' ' + relUrl + ' : \n' + JSON.stringify(json))
+    }
+
+    if (json.ticket) {
+      this.ticket = json.ticket
+      this.ticketTimestamp = Date.now()
     }
 
     return json
@@ -949,9 +963,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private async sendRequestNative(verb: string, url: string, type: string, body: any, returnRawResponse: boolean, headers = {}) {
     let res
     let timedOut = false
-    const authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
+    const authString = !this.ticket || this.ticketTimestamp + 60 * 60 * 1000 < Date.now()
+      ? 'Basic ' + Base64.encode(this.server.username + ':' + this.server.password)
+      : 'Bearer ' + this.ticket
     try {
       res = await this.fetchQueue.add(() => {
         Logger.log(`FETCHING ${verb} ${url}`)
@@ -962,7 +976,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             disableRedirects: !this.server.allowRedirects,
             headers: {
               ...(type && type !== 'multipart/form-data' && { 'Content-type': type }),
-              Authorization: 'Basic ' + authString,
+              Authorization: authString,
               ...headers,
             },
             responseType: 'json',
@@ -993,6 +1007,11 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
 
     if (res.status === 401 || res.status === 403) {
+      if (authString.startsWith('Bearer')) {
+        this.ticket = null
+        this.ticketTimestamp = 0
+        return this.sendRequestNative(verb, url, type, body, returnRawResponse, headers)
+      }
       throw new AuthenticationError()
     }
     if (res.status === 503 || res.status >= 400) {
@@ -1001,6 +1020,11 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     const json = res.data
     if (json.status !== 'success') {
       throw new Error('Nextcloud API error for request ' + verb + ' ' + url + ' : \n' + JSON.stringify(json))
+    }
+
+    if (json.ticket) {
+      this.ticket = json.ticket
+      this.ticketTimestamp = Date.now()
     }
 
     return json
