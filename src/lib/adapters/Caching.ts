@@ -250,7 +250,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
   async getCapabilities(): Promise<ICapabilities> {
     return {
       preserveOrder: true,
-      hashFn: ['murmur3', 'sha256'],
+      hashFn: ['xxhash3', 'murmur3', 'sha256'],
     }
   }
 

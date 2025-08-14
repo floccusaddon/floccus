@@ -84,12 +84,14 @@ export class Bookmark<L extends TItemLocation> {
     this.hashValue[cacheKey] = value
   }
 
-  async hash({preserveOrder = false, hashFn = 'sha256'}):Promise<string> {
+  async hash({preserveOrder = false, hashFn = 'sha256'}: IHashSettings = {preserveOrder: false, hashFn: 'sha256'}):Promise<string> {
     if (!this.hashValue) {
       this.hashValue = {}
       const json = JSON.stringify({ title: this.title, url: this.url })
       if (hashFn === 'sha256') {
         this.hashValue[hashFn] = await Crypto.sha256(json)
+      } else if (hashFn === 'xxhash3') {
+        this.hashValue[hashFn] = await Crypto.xxhash32(json)
       } else if (hashFn === 'murmur3') {
         this.hashValue[hashFn] = await Crypto.murmurHash3(json)
       } else {
@@ -361,6 +363,8 @@ export class Folder<L extends TItemLocation> {
       this.hashValue[cacheKey] = await Crypto.sha256(json)
     } else if (hashFn === 'murmur3') {
       this.hashValue[cacheKey] = await Crypto.murmurHash3(json)
+    } else if (hashFn === 'xxhash3') {
+      this.hashValue[cacheKey] = await Crypto.xxhash32(json)
     } else {
       throw new Error('Unsupported hash function specified')
     }
