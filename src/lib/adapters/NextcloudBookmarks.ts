@@ -67,8 +67,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private bookmarkLock: AsyncLock
   private list: Bookmark<typeof ItemLocation.SERVER>[]
   private tree: Folder<typeof ItemLocation.SERVER>
-  private abortController: AbortController
-  private abortSignal: AbortSignal
   private canceled = false
   private cancelCallback: () => void = null
   private lockingInterval: any
@@ -85,8 +83,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     this.server = server
     this.fetchQueue = new PQueue({ concurrency: 12 })
     this.bookmarkLock = new AsyncLock()
-    this.abortController = new AbortController()
-    this.abortSignal = this.abortController.signal
   }
 
   static getDefaultValues(): NextcloudBookmarksConfig {
@@ -158,9 +154,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     this.capabilities = await this.getNextcloudCapabilities()
     await this.checkFeatureJavascriptLinks()
 
-    this.abortController = new AbortController()
-    this.abortSignal = this.abortController.signal
-
     if (this.lockingInterval) {
       clearInterval(this.lockingInterval)
     }
@@ -172,7 +165,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     } else if (!this.locked) {
       throw new ResourceLockedError()
     }
-    this.lockingInterval = setInterval(() => !this.ended && this.acquireLock(), LOCK_INTERVAL)
+    this.lockingInterval = setInterval(() => {
+      if (!this.ended) {
+        this.acquireLock()
+          .catch(() => { /* pass */ })
+      }
+    }, LOCK_INTERVAL)
   }
 
   async onSyncComplete(): Promise<void> {
@@ -190,7 +188,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   cancel() {
     this.canceled = true
     this.fetchQueue.clear()
-    this.abortController.abort()
     this.cancelCallback && this.cancelCallback()
   }
 
@@ -851,6 +848,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       ? 'Basic ' + Base64.encode(this.server.username + ':' + this.server.password)
       : 'Bearer ' + this.ticket
 
+    const abortController = new AbortController()
+    const abortSignal = abortController.signal
+
     try {
       res = await this.fetchQueue.add(() => {
         Logger.log(`FETCHING ${verb} ${url}`)
@@ -863,13 +863,14 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
               Authorization: authString,
               ...headers
             },
-            signal: this.abortSignal,
+            signal: abortSignal,
             ...(body && !['get', 'head'].includes(verb.toLowerCase()) && { body }),
           }),
           new Promise((resolve, reject) =>
             setTimeout(() => {
               timedOut = true
               reject(new RequestTimeoutError())
+              abortController.abort()
             }, TIMEOUT)
           ),
         ])
