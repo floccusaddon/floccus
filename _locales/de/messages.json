@@ -745,16 +745,16 @@
     "message": "Git Branch"
   },
   "LabelTelemetry": {
-    "message": "🐛 Automatisierte Fehlerberichte"
+    "message": "Automatisierte Fehlerberichte"
   },
   "DescriptionTelemetry": {
     "message": "Floccus kann automatisiert Fehlerberichte an mich, den Entwickler, senden. Dies kann extrem hilfreich sein, um Fehler in floccus schneller zu finden und zu beheben und wird langfristig deine Nutzererfahrung verbessern. Auch wenn die Fehlerberichte aktiviert sind, werden die floccus-Entwickler niemals in der Lage sein, deine Lesezeichen zu sehen."
   },
   "LabelTelemetryenable": {
-    "message": "Sende automatisch Fehlerberichte an die floccus-Entwickler"
+    "message": "Sende automatisch Fehlerberichte und Infromationen über Ihre benutzte Synchronisierungsmethode an die floccus-Entwickler"
   },
   "LabelTelemetrydisable": {
-    "message": "Sende keine Fehlerberichte an die floccus-Entwickler"
+    "message": "Sende keine Daten an die floccus-Entwickler"
   },
   "LabelAccountlabel": {
     "message": "Profilname"
@@ -854,5 +854,32 @@
   },
   "LabelOpeninnewtab": {
     "message": "Öffne diese Ansicht in einem neuen Tab"
+  },
+  "LabelGivefeedback": {
+    "message": "Feedback geben"
+  },
+  "LabelYourname": {
+    "message": "Ihr Name"
+  },
+  "LabelYouremail": {
+    "message": "Ihre E-Mail-Adresse (optional)"
+  },
+  "LabelYourmessage": {
+    "message": "Ihr Feedback"
+  },
+  "LabelSubmitfeedback": {
+    "message": "Feedback abschicken"
+  },
+  "DescriptionFeedbacklegal": {
+    "message": "Dieses Feedback-Formular wird betrieben durch Sentry. Indem Sie auf abschicken drücken, willigen Sie in die Speicherung der eingegebenen Daten auf den Servern von Sentry ein. Keine Ihrer Lesezeichen-Daten wird an Sentry gesendet."
+  },
+  "DescriptionFeedbackhowto": {
+    "message": "Danke, dass Sie sich Zeit nehmen, um den floccus-Entwicklern Feedback zu geben! Falls Ihr Feedback sich um ein Problem dreht, erwähnen Sie bitte die Schritte, die Sie unternommen haben, bis es zu dem Problem kam, was Sie erwarteten und was stattdessen passiert ist. Falls Ihr Feedback sich um eine Feature-Anfrage dreht, erwähnen Sie bitte den Einsatzzweck oder das Problem, welches das Feature für Sie lösen würde. Falls Sie Ihre E-Mail-Adresse angeben, melden wir uns gegebenenfalls bei Ihnen. Vielen Dank!"
+  },
+  "LabelFeedbacksent": {
+    "message": "Danke für Ihr Feedback!"
+  },
+  "LabelFaq":{
+    "message": "FAQs lesen"
   }
 }
