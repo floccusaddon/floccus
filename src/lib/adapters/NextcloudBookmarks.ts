@@ -825,11 +825,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return json.ocs.data
   }
 
-  async sendRequest(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false, headers = {}):Promise<any> {
+  async sendRequest(verb:string, relUrl:string, type:string = null, originalBody:any = null, returnRawResponse = false, headers = {}):Promise<any> {
     const url = this.normalizeServerURL(this.server.url) + relUrl
     let res
     let timedOut = false
 
+    let body = originalBody
     if (type && type.includes('application/json')) {
       body = JSON.stringify(body)
     } else if (type && type.includes('application/x-www-form-urlencoded')) {
@@ -886,10 +887,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new RedirectError()
     }
 
-    if (res.status > 400 && res.status !== 423 && authString.startsWith('Bearer')) {
+    if ((res.status === 401 || res.status === 403 || res.status === 404) && authString.startsWith('Bearer')) {
       this.ticket = null
       this.ticketTimestamp = 0
-      return this.sendRequest(verb, relUrl, type, body, returnRawResponse, headers)
+      return this.sendRequest(verb, relUrl, type, originalBody, returnRawResponse, headers)
     }
 
     if (returnRawResponse) {
@@ -1003,7 +1004,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new RedirectError()
     }
 
-    if (res.status > 400 && res.status !== 423 && authString.startsWith('Bearer')) {
+    if ((res.status === 401 || res.status === 403 || res.status === 404) && authString.startsWith('Bearer')) {
       this.ticket = null
       this.ticketTimestamp = 0
       return this.sendRequestNative(verb, url, type, body, returnRawResponse, headers)
