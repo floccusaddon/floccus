@@ -889,7 +889,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     if (res.status > 400 && res.status !== 423 && authString.startsWith('Bearer')) {
       this.ticket = null
       this.ticketTimestamp = 0
-      return this.sendRequest(verb, url, type, body, returnRawResponse, headers)
+      return this.sendRequest(verb, relUrl, type, body, returnRawResponse, headers)
     }
 
     if (returnRawResponse) {
