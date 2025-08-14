@@ -13,7 +13,7 @@ import {
   BulkImportResource,
   ClickCountResource, ICapabilities, IHashSettings,
   LoadFolderChildrenResource,
-  OrderFolderResource
+  OrderFolderResource, THashFunction
 } from '../interfaces/Resource'
 import Ordering from '../interfaces/Ordering'
 import {
@@ -65,7 +65,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private server: NextcloudBookmarksConfig
   private fetchQueue: PQueue<{ concurrency: 12 }>
   private bookmarkLock: AsyncLock
-  public hasFeatureBulkImport:boolean = null
   private list: Bookmark<typeof ItemLocation.SERVER>[]
   private tree: Folder<typeof ItemLocation.SERVER>
   private abortController: AbortController
@@ -78,6 +77,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private locked = false
   private hasFeatureJavascriptLinks: boolean = null
   private hashSettings: IHashSettings
+  private capabilities: any
+  private ticket: string
+  private ticketTimestamp: number
 
   constructor(server: NextcloudBookmarksConfig) {
     this.server = server
@@ -102,6 +104,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   setData(data:NextcloudBookmarksConfig):void {
     this.server = { ...data }
+    this.ticket = null
+    this.ticketTimestamp = 0
   }
 
   getData():NextcloudBookmarksConfig {
@@ -151,6 +155,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     this.canceled = false
     this.ended = false
 
+    this.capabilities = await this.getNextcloudCapabilities()
     await this.checkFeatureJavascriptLinks()
 
     this.abortController = new AbortController()
@@ -317,12 +322,13 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async _getFolderHash(folderId:string|number):Promise<string> {
-    if (this.hashSettings.hashFn !== 'sha256') {
-      throw new Error('Unsupported hash function: ' + this.hashSettings.hashFn + ' - Nextcloud Bookmarks only supports sha256')
+    const hashFn = {'sha256': 'sha256', 'murmur3': 'murmur3a', 'xxhash3': 'xxh32'}[this.hashSettings.hashFn]
+    if (this.capabilities && this.capabilities.bookmarks && this.capabilities.bookmarks['hash-function'] && !this.capabilities.bookmarks['hash-function'].includes[hashFn]) {
+      throw new Error('Selected hash function is not supported by server')
     }
     return this.sendRequest(
       'GET',
-      `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/hash`
+      `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/hash?hashFn=${hashFn}`
     )
       .catch(() => {
         return { data: '0' } // fallback
@@ -431,9 +437,6 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async bulkImportFolder(parentId:string|number, folder:Folder<typeof ItemLocation.SERVER>):Promise<Folder<typeof ItemLocation.SERVER>> {
-    if (this.hasFeatureBulkImport === false) {
-      throw new Error('Current server does not support bulk import')
-    }
     if (folder.count() > 75) {
       throw new Error('Refusing to bulk import more than 75 bookmarks')
     }
@@ -456,18 +459,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     const body = new FormData()
     body.append('bm_import', blob, 'upload.html')
 
-    let json
-    try {
-      json = await this.sendRequest(
-        'POST',
-        `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/import`,
-        'multipart/form-data',
-        body
-      )
-    } catch (e) {
-      this.hasFeatureBulkImport = false
-      throw e
-    }
+    const json = await this.sendRequest(
+      'POST',
+      `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/import`,
+      'multipart/form-data',
+      body
+    )
 
     const recurseChildren = (children, id, title, parentId) => {
       return new Folder({
@@ -771,7 +768,19 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     })
   }
 
+  async getNextcloudCapabilities(): Promise<any> {
+    const data = await this.sendOCSRequest(
+      'GET',
+      `/ocs/v2.php/cloud/capabilities?format=json`,
+    )
+    return data.capabilities
+  }
+
   async checkFeatureJavascriptLinks(): Promise<void> {
+    if (this.capabilities && this.capabilities.bookmarks && typeof this.capabilities.bookmarks['javascript-bookmarks'] !== 'undefined') {
+      this.hasFeatureJavascriptLinks = this.capabilities.bookmarks['javascript-bookmarks']
+      return
+    }
     try {
       const json = await this.sendRequest(
         'GET',
@@ -794,11 +803,34 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
   }
 
-  async sendRequest(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false):Promise<any> {
+  async sendOCSRequest(verb: string, relUrl: string, type: string = null, body: any = null) {
+    const res = await this.sendRequest(verb, relUrl, type, body, true, {
+      'OCS-APIRequest': 'true',
+    })
+
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status === 503 || res.status >= 400) {
+      const url = this.normalizeServerURL(this.server.url) + relUrl
+      Logger.log(`${verb} ${url}: Server responded with ${res.status}: ` + (await res.text()).substring(0, 250))
+      throw new HttpError(res.status, verb)
+    }
+    let json
+    try {
+      json = await res.json()
+    } catch (e) {
+      throw new ParseResponseError(e.message)
+    }
+    return json.ocs.data
+  }
+
+  async sendRequest(verb:string, relUrl:string, type:string = null, originalBody:any = null, returnRawResponse = false, headers = {}):Promise<any> {
     const url = this.normalizeServerURL(this.server.url) + relUrl
     let res
     let timedOut = false
 
+    let body = originalBody
     if (type && type.includes('application/json')) {
       body = JSON.stringify(body)
     } else if (type && type.includes('application/x-www-form-urlencoded')) {
@@ -812,12 +844,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     Logger.log(`QUEUING ${verb} ${url}`)
 
     if (Capacitor.getPlatform() !== 'web') {
-      return this.sendRequestNative(verb, url, type, body, returnRawResponse)
+      return this.sendRequestNative(verb, url, type, body, returnRawResponse, headers)
     }
 
-    const authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
+    const authString = !this.ticket || this.ticketTimestamp + 60 * 60 * 1000 < Date.now()
+      ? 'Basic ' + Base64.encode(this.server.username + ':' + this.server.password)
+      : 'Bearer ' + this.ticket
 
     try {
       res = await this.fetchQueue.add(() => {
@@ -828,7 +860,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             credentials: this.server.includeCredentials ? 'include' : 'omit',
             headers: {
               ...(type && type !== 'multipart/form-data' && { 'Content-type': type }),
-              Authorization: 'Basic ' + authString,
+              Authorization: authString,
+              ...headers
             },
             signal: this.abortSignal,
             ...(body && !['get', 'head'].includes(verb.toLowerCase()) && { body }),
@@ -854,6 +887,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new RedirectError()
     }
 
+    if ((res.status === 401 || res.status === 403 || res.status === 404) && authString.startsWith('Bearer')) {
+      this.ticket = null
+      this.ticketTimestamp = 0
+      return this.sendRequest(verb, relUrl, type, originalBody, returnRawResponse, headers)
+    }
+
     if (returnRawResponse) {
       return res
     }
@@ -873,6 +912,11 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
     if (json.status !== 'success') {
       throw new Error('Nextcloud API error for request ' + verb + ' ' + relUrl + ' : \n' + JSON.stringify(json))
+    }
+
+    if (json.ticket) {
+      this.ticket = json.ticket
+      this.ticketTimestamp = Date.now()
     }
 
     return json
@@ -918,12 +962,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return res.status === 200
   }
 
-  private async sendRequestNative(verb: string, url: string, type: string, body: any, returnRawResponse: boolean) {
+  private async sendRequestNative(verb: string, url: string, type: string, body: any, returnRawResponse: boolean, headers = {}) {
     let res
     let timedOut = false
-    const authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
+    const authString = !this.ticket || this.ticketTimestamp + 60 * 60 * 1000 < Date.now()
+      ? 'Basic ' + Base64.encode(this.server.username + ':' + this.server.password)
+      : 'Bearer ' + this.ticket
     try {
       res = await this.fetchQueue.add(() => {
         Logger.log(`FETCHING ${verb} ${url}`)
@@ -934,7 +978,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             disableRedirects: !this.server.allowRedirects,
             headers: {
               ...(type && type !== 'multipart/form-data' && { 'Content-type': type }),
-              Authorization: 'Basic ' + authString,
+              Authorization: authString,
+              ...headers,
             },
             responseType: 'json',
             ...(body && !['get', 'head'].includes(verb.toLowerCase()) && { data: body }),
@@ -959,6 +1004,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new RedirectError()
     }
 
+    if ((res.status === 401 || res.status === 403 || res.status === 404) && authString.startsWith('Bearer')) {
+      this.ticket = null
+      this.ticketTimestamp = 0
+      return this.sendRequestNative(verb, url, type, body, returnRawResponse, headers)
+    }
+
     if (returnRawResponse) {
       return res
     }
@@ -974,6 +1025,11 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new Error('Nextcloud API error for request ' + verb + ' ' + url + ' : \n' + JSON.stringify(json))
     }
 
+    if (json.ticket) {
+      this.ticket = json.ticket
+      this.ticketTimestamp = Date.now()
+    }
+
     return json
   }
 
@@ -982,9 +1038,17 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async getCapabilities(): Promise<ICapabilities> {
+    let hashFn : THashFunction[] = ['sha256']
+    if (this.capabilities && this.capabilities.bookmarks && typeof this.capabilities.bookmarks['hash-functions'] !== 'undefined') {
+      hashFn = this.capabilities.bookmarks['hash-functions'].map(hashFn => ({
+        'sha256': 'sha256',
+        'xxh32': 'xxhash3',
+        'murmur3a': 'murmur3',
+      }[hashFn]))
+    }
     return {
       preserveOrder: true,
-      hashFn: ['sha256'],
+      hashFn,
     }
   }
 
