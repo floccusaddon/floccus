@@ -318,12 +318,13 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async _getFolderHash(folderId:string|number):Promise<string> {
-    if (this.hashSettings.hashFn !== 'sha256') {
-      throw new Error('Unsupported hash function: ' + this.hashSettings.hashFn + ' - Nextcloud Bookmarks only supports sha256')
+    const hashFn = {'sha256': 'sha256', 'murmur3': 'murmur3a', 'xxhash3': 'xxh32'}[this.hashSettings.hashFn]
+    if (this.capabilities && this.capabilities.bookmarks && this.capabilities.bookmarks['hash-function'] && !this.capabilities.bookmarks['hash-function'].includes[hashFn]) {
+      throw new Error('Selected hash function is not supported by server')
     }
     return this.sendRequest(
       'GET',
-      `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/hash`
+      `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/hash?hashFn=${hashFn}`
     )
       .catch(() => {
         return { data: '0' } // fallback
