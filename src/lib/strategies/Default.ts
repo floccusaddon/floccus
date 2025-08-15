@@ -1061,6 +1061,8 @@ export default class SyncProcess {
           diff.commit(newAction)
         })
 
+      done()
+
       if ('orderFolder' in resource) {
         // Order created items after the fact, as they've been created concurrently
         this.actionsPlanned++
@@ -1072,8 +1074,6 @@ export default class SyncProcess {
         })
       }
     }
-
-    done()
   }
 
   async executeRemove<L1 extends TItemLocation>(
@@ -1435,7 +1435,7 @@ export default class SyncProcess {
     strategy.getMembersToPersist().forEach((member) => {
       if (member in json) {
         if (member.toLowerCase().includes('scanresult') || member.toLowerCase().includes('plan')) {
-          this[member] = {
+          strategy[member] = {
             CREATE: Diff.fromJSON(json[member].CREATE),
             UPDATE: Diff.fromJSON(json[member].UPDATE),
             MOVE: Diff.fromJSON(json[member].MOVE),
@@ -1443,9 +1443,9 @@ export default class SyncProcess {
             REORDER: Diff.fromJSON(json[member].REORDER),
           }
         } else if (member.toLowerCase().includes('reorders')) {
-          this[member] = Diff.fromJSON(json[member])
+          strategy[member] = Diff.fromJSON(json[member])
         } else {
-          this[member] = json[member]
+          strategy[member] = json[member]
         }
       }
     })
