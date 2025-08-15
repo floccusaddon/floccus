@@ -86,4 +86,8 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
   setHashSettings(hashSettings: IHashSettings): void {
     this.innerTree.setHashSettings(hashSettings)
   }
+
+  cancel(): void {
+    this.innerTree.cancel()
+  }
 }

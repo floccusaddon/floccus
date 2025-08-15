@@ -26,10 +26,12 @@ export interface IResource<L extends TItemLocation> {
   isAvailable():Promise<boolean>
   getCapabilities():Promise<ICapabilities>
   isUsingBrowserTabs?: () => Promise<boolean>
+  cancel():void
 }
 
 export interface CachingResource <L extends TItemLocation> extends IResource<L> {
   getCacheTree():Promise<Folder<L>>
+  setCacheTree(folder:Folder<L>):Promise<void>
 }
 
 export interface BulkImportResource<L extends TItemLocation> extends IResource<L> {

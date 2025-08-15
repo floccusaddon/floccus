@@ -10,7 +10,6 @@ export default interface IAdapter {
   onSyncStart(needLock?:boolean, forceLock?: boolean):Promise<void|boolean>
   onSyncComplete():Promise<void>
   onSyncFail():Promise<void>
-  cancel():void
 }
 
 export type TAdapter = IAdapter & TResource<typeof ItemLocation.SERVER>

@@ -405,4 +405,8 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
   setHashSettings(hashSettings: IHashSettings): void {
     // noop
   }
+
+  cancel(): void {
+    this.queue.clear()
+  }
 }

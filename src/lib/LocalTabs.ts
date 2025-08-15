@@ -514,6 +514,10 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
   setHashSettings(hashSettings: IHashSettings): void {
     // noop
   }
+
+  cancel(): void {
+    this.queue.clear()
+  }
 }
 
 function awaitTabsUpdated() {
