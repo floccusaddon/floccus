@@ -301,7 +301,6 @@ export default class Account {
 
       this.syncing = false
 
-      await this.storage.setCurrentContinuation(null)
       await this.setData({
         error: null,
         errorCount: 0,
@@ -309,6 +308,8 @@ export default class Account {
         scheduled: false,
         lastSync: Date.now(),
       })
+
+      await this.storage.setCurrentContinuation(null)
 
       Logger.log(
         'Successfully ended sync process for account ' + this.getLabel()

@@ -317,7 +317,6 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
-
     Logger.log('Executing local stage 2 plan')
     await this.executeStage2(this.localTree, this.localPlanStage2, ItemLocation.LOCAL, this.localDonePlan, this.prelimLocalReorders)
 
