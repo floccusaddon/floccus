@@ -140,6 +140,7 @@ export default class SyncProcess {
   async cancel() :Promise<void> {
     this.canceled = true
     this.server.cancel()
+    this.localTree.cancel()
   }
 
   updateProgress():void {

@@ -363,6 +363,7 @@ export default class Account {
   async cancelSync():Promise<void> {
     if (!this.syncing) return
     this.server.cancel()
+    this.getResource().then(resource => resource.cancel())
     if (this.syncProcess) {
       await this.syncProcess.cancel()
     }
