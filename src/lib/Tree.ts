@@ -135,7 +135,7 @@ export class Bookmark<L extends TItemLocation> {
     const result = {}
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let obj = this
-    while (obj) {
+    while (obj instanceof Bookmark) {
       Object.entries(obj).forEach(([key, value]) => {
         if (!(key in result)) {
           result[key] = value
@@ -416,8 +416,9 @@ export class Folder<L extends TItemLocation> {
   toJSON(): Folder<L> {
     // Flatten inherited properties for serialization
     const result: Folder<L> = {} as any as Folder<L>
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let obj = this
-    while (obj) {
+    while (obj instanceof Folder) {
       Object.entries(obj).forEach(([key, value]) => {
         if (key === 'index') return
         if (!(key in result)) {

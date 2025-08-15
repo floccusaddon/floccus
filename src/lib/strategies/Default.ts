@@ -20,7 +20,7 @@ import Diff, {
 } from '../Diff'
 import Scanner, { ScanResult } from '../Scanner'
 import * as Parallel from 'async-parallel'
-import { throttle } from 'throttle-debounce'
+import throttle from '@jcoreio/async-throttle'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import TResource, { IHashSettings, OrderFolderResource, TLocalTree } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
@@ -86,7 +86,7 @@ export default class SyncProcess {
     this.localTree = localTree
     this.server = server
 
-    this.progressCb = throttle(500, true, progressCb) as (progress:number, actionsDone?:number)=>void
+    this.progressCb = throttle(progressCb, 1500) as (progress:number, actionsDone?:number)=>void
     this.canceled = false
     this.isFirefox = self.location.protocol === 'moz-extension:'
   }
