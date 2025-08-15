@@ -56,14 +56,16 @@ export default class SyncProcess {
   private serverPlanStage2: PlanStage2<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER>
 
   // Stage 3
+  private planStage3Local: PlanStage3<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL>
+  private planStage3Server: PlanStage3<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER>
   private localDonePlan: PlanStage3<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL>
   private serverDonePlan: PlanStage3<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER>
-  private localReorders: Diff<typeof ItemLocation.SERVER, TItemLocation, ReorderAction<typeof ItemLocation.SERVER, TItemLocation>>
-  private serverReorders: Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>>
+  private prelimLocalReorders: Diff<typeof ItemLocation.SERVER, TItemLocation, ReorderAction<typeof ItemLocation.SERVER, TItemLocation>>
+  private prelimServerReorders: Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>>
 
   // Stage 4
-  private localReordersFinal: Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>>
-  private serverReorderFinal: Diff<typeof ItemLocation.SERVER, TItemLocation, ReorderAction<typeof ItemLocation.SERVER, TItemLocation>>
+  private localReorders: Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>>
+  private serverReorders: Diff<typeof ItemLocation.SERVER, TItemLocation, ReorderAction<typeof ItemLocation.SERVER, TItemLocation>>
 
   protected actionsDone = 0
   protected actionsPlanned = 0
@@ -106,14 +108,16 @@ export default class SyncProcess {
       'serverPlanStage2',
 
       // Stage 3
+      'planStage3Local',
+      'planStage3Server',
       'localDonePlan',
       'serverDonePlan',
-      'localReorders',
-      'serverReorders',
+      'prelimLocalReorders',
+      'prelimServerReorders',
 
       // Stage 4
-      'localReorderPlan',
-      'serverReorderPlan',
+      'localReorders',
+      'serverReorders',
     ]
   }
 
@@ -123,6 +127,10 @@ export default class SyncProcess {
 
   setCacheTree(cacheTree: Folder<typeof ItemLocation.LOCAL>) {
     this.cacheTreeRoot = cacheTree
+  }
+
+  getCacheTree(): Folder<typeof ItemLocation.LOCAL> {
+    return this.cacheTreeRoot
   }
 
   public getTargetTree<L1 extends TItemLocation>(targetLocation: L1): Folder<L1> {
@@ -268,9 +276,9 @@ export default class SyncProcess {
       }
     }
 
-    if (!this.localReorders) {
-      this.localReorders = this.localPlanStage2.REORDER
-      this.serverReorders = this.serverPlanStage2.REORDER
+    if (!this.prelimLocalReorders) {
+      this.prelimLocalReorders = this.localPlanStage2.REORDER
+      this.prelimServerReorders = this.serverPlanStage2.REORDER
     }
 
     if (!this.actionsPlanned) {
@@ -278,15 +286,58 @@ export default class SyncProcess {
         Object.values(this.localPlanStage2).reduce((acc, diff) => diff.getActions().length + acc, 0)
     }
 
-    Logger.log('Executing server plan')
-    await this.execute(this.server, this.serverPlanStage2, ItemLocation.SERVER, this.serverDonePlan, this.serverReorders)
+    if (!this.planStage3Server) {
+      Logger.log('Executing server stage2 plan')
+      await this.executeStage2(this.server, this.serverPlanStage2, ItemLocation.SERVER, this.serverDonePlan, this.prelimServerReorders)
+
+      if (this.canceled) {
+        throw new CancelledSyncError()
+      }
+
+      Logger.log('Mapping server MOVEs:')
+      mappingsSnapshot = this.mappings.getSnapshot()
+      this.planStage3Server = {
+        CREATE: this.serverPlanStage2.CREATE,
+        UPDATE: this.serverPlanStage2.UPDATE,
+        MOVE: this.serverPlanStage2.MOVE.map(mappingsSnapshot, ItemLocation.SERVER),
+        REMOVE: this.serverPlanStage2.REMOVE,
+        REORDER: this.serverPlanStage2.REORDER,
+      }
+
+      if (this.canceled) {
+        throw new CancelledSyncError()
+      }
+    }
+
+    Logger.log('Executing local stage 3 plan')
+    await this.executeStage3(this.server, this.planStage3Server, ItemLocation.SERVER, this.serverDonePlan)
 
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
-    Logger.log('Executing local plan')
-    await this.execute(this.localTree, this.localPlanStage2, ItemLocation.LOCAL, this.localDonePlan, this.localReorders)
+    if (!this.planStage3Local) {
+      Logger.log('Executing local stage 2 plan')
+      await this.executeStage2(this.localTree, this.localPlanStage2, ItemLocation.LOCAL, this.localDonePlan, this.prelimLocalReorders)
+
+      if (this.canceled) {
+        throw new CancelledSyncError()
+      }
+
+      Logger.log('Mapping local MOVEs:')
+      mappingsSnapshot = this.mappings.getSnapshot()
+      this.planStage3Local = {
+        CREATE: this.localPlanStage2.CREATE,
+        UPDATE: this.localPlanStage2.UPDATE,
+        MOVE: this.localPlanStage2.MOVE.map(mappingsSnapshot, ItemLocation.LOCAL),
+        REMOVE: this.localPlanStage2.REMOVE,
+        REORDER: this.localPlanStage2.REORDER,
+      }
+
+      if (this.canceled) {
+        throw new CancelledSyncError()
+      }
+    }
 
     // Remove mappings only after both plans have been executed
     this.localDonePlan.REMOVE.getActions().forEach(action => this.removeMapping(this.localTree, action.payload))
@@ -296,13 +347,13 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
-    if ('orderFolder' in this.server && !this.localReordersFinal) {
+    if ('orderFolder' in this.server && !this.localReorders) {
       // mappings have been updated, reload
       mappingsSnapshot = this.mappings.getSnapshot()
-      const localReorders = this.reconcileReorderings(this.localReorders, this.localDonePlan, ItemLocation.LOCAL, mappingsSnapshot)
-      const serverReorders = this.reconcileReorderings(this.serverReorders, this.serverDonePlan, ItemLocation.SERVER, mappingsSnapshot)
-      this.localReordersFinal = this.reconcileReorderings(localReorders, this.serverDonePlan, ItemLocation.LOCAL, mappingsSnapshot).map(mappingsSnapshot, ItemLocation.LOCAL)
-      this.serverReorderFinal = this.reconcileReorderings(serverReorders, this.localDonePlan, ItemLocation.SERVER, mappingsSnapshot).map(mappingsSnapshot, ItemLocation.SERVER)
+      const localReorders = this.reconcileReorderings(this.prelimLocalReorders, this.localDonePlan, ItemLocation.LOCAL, mappingsSnapshot)
+      const serverReorders = this.reconcileReorderings(this.prelimServerReorders, this.serverDonePlan, ItemLocation.SERVER, mappingsSnapshot)
+      this.localReorders = this.reconcileReorderings(localReorders, this.serverDonePlan, ItemLocation.LOCAL, mappingsSnapshot).map(mappingsSnapshot, ItemLocation.LOCAL)
+      this.serverReorders = this.reconcileReorderings(serverReorders, this.localDonePlan, ItemLocation.SERVER, mappingsSnapshot).map(mappingsSnapshot, ItemLocation.SERVER)
     }
 
     if (this.canceled) {
@@ -312,8 +363,8 @@ export default class SyncProcess {
     if ('orderFolder' in this.server) {
       Logger.log('Executing reorderings')
       await Promise.all([
-        this.executeReorderings(this.server, this.serverReorderFinal),
-        this.executeReorderings(this.localTree, this.localReordersFinal),
+        this.executeReorderings(this.server, this.serverReorders),
+        this.executeReorderings(this.localTree, this.localReorders),
       ])
     }
   }
@@ -805,14 +856,13 @@ export default class SyncProcess {
     return targetPlan
   }
 
-  async execute<L1 extends TItemLocation>(
+  async executeStage2<L1 extends TItemLocation>(
     resource:TResource<L1>,
     planStage2:PlanStage2<TOppositeLocation<L1>, TItemLocation, L1>,
     targetLocation:L1,
     donePlan: PlanStage3<TOppositeLocation<L1>, TItemLocation, L1>,
     reorders: Diff<TOppositeLocation<L1>, TItemLocation, ReorderAction<TOppositeLocation<L1>, TItemLocation>>): Promise<void> {
     Logger.log('Executing ' + targetLocation + ' plan for ')
-
     let createActions = planStage2.CREATE.getActions()
     while (createActions.length > 0) {
       Logger.log(targetLocation + ': executing CREATEs')
@@ -835,26 +885,13 @@ export default class SyncProcess {
       (action) => this.executeUpdate(resource, action, targetLocation, planStage2.UPDATE, donePlan),
       ACTION_CONCURRENCY
     )
+  }
 
-    if (this.canceled) {
-      throw new CancelledSyncError()
-    }
-
-    const mappingsSnapshot = this.mappings.getSnapshot()
-    Logger.log(targetLocation + ': mapping MOVEs')
-
-    const planStage3: PlanStage3<TOppositeLocation<L1>, TItemLocation, typeof targetLocation> = {
-      CREATE: planStage2.CREATE,
-      UPDATE: planStage2.UPDATE,
-      MOVE: planStage2.MOVE.map(mappingsSnapshot, targetLocation),
-      REMOVE: planStage2.REMOVE,
-      REORDER: planStage2.REORDER,
-    }
-
-    if (this.canceled) {
-      throw new CancelledSyncError()
-    }
-
+  async executeStage3<L1 extends TItemLocation>(
+    resource:TResource<L1>,
+    planStage3: PlanStage3<TOppositeLocation<L1>, TItemLocation, L1>,
+    targetLocation: L1,
+    donePlan: PlanStage3<TOppositeLocation<L1>, TItemLocation, L1>) {
     const batches = Diff.sortMoves(planStage3.MOVE.getActions(), this.getTargetTree(targetLocation))
 
     if (this.canceled) {
@@ -912,25 +949,92 @@ export default class SyncProcess {
       await this.addMapping(resource, action.oldItem, id)
     }
 
-    if (action.payload instanceof Folder && !(action.oldItem instanceof Folder)) {
-      throw new Error('Assertion failed: action.oldItem should be set')
+    if (action.payload instanceof Bookmark || action.oldItem instanceof Bookmark) {
+      done()
+      return
     }
 
-    if (action.payload instanceof Folder && action.payload.children.length && action.oldItem instanceof Folder) {
-      // Fix for Unidirectional reverted REMOVEs, for all other strategies this should be a noop
-      action.payload.children.forEach((item) => {
-        item.parentId = id
-      })
-      // We *know* that oldItem exists here, because actions are mapped before being executed
-      if ('bulkImportFolder' in resource) {
-        if (action.payload.count() < 75 || this.server instanceof CachingAdapter) {
-          Logger.log('Attempting full bulk import')
-          try {
-            // Try bulk import with sub folders
-            const imported = await resource.bulkImportFolder(id, action.oldItem.copyWithLocation(false, action.payload.location)) as Folder<typeof targetLocation>
+    if (action.payload.children.length === 0) {
+      done()
+      return
+    }
+
+    // Now, Insert folder children
+
+    // Fix for Unidirectional reverted REMOVEs, for all other strategies this should be a noop
+    action.payload.children.forEach((item) => {
+      item.parentId = id
+    })
+    // We *know* that oldItem exists here, because actions are mapped before being executed
+    if ('bulkImportFolder' in resource) {
+      if (action.payload.count() < 75 || this.server instanceof CachingAdapter) {
+        Logger.log('Attempting full bulk import')
+        try {
+          // Try bulk import with sub folders
+          const imported = await resource.bulkImportFolder(id, action.oldItem.copyWithLocation(false, action.payload.location)) as Folder<typeof targetLocation>
+          done()
+          const newMappings = []
+          const subScanner = new Scanner(
+            action.oldItem,
+            imported,
+            (oldItem, newItem) => {
+              if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
+                // if two items can be merged, we'll add mappings here directly
+                newMappings.push([oldItem, newItem.id])
+                return true
+              }
+              return false
+            },
+            this.hashSettings,
+            false,
+          )
+          await subScanner.run()
+          await Parallel.each(newMappings, async([oldItem, newId]: [TItem<TItemLocation>, string|number]) => {
+            await this.addMapping(resource, oldItem, newId)
+          }, 10)
+
+          if ('orderFolder' in resource) {
+            const mappingsSnapshot = this.mappings.getSnapshot()
+            this.actionsPlanned++
+            reorders.commit({
+              type: ActionType.REORDER,
+              oldItem: imported,
+              payload: action.oldItem,
+              // payload children's IDs are not mapped
+              order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
+            })
+            await action.oldItem.traverse((oldChildItem) => {
+              if (oldChildItem instanceof Folder && oldChildItem.children.length > 1) {
+                // Correct the order after bulk import. Usually we expect bulk import to do the order correctly
+                // on its own, but Nextcloud Bookmarks pre v14.2.0 does not
+                const payload = imported.findFolder(Mappings.mapId(mappingsSnapshot, oldChildItem, targetLocation))
+                // Order created items after the fact, as they've been created concurrently
+                this.actionsPlanned++
+                reorders.commit({
+                  type: ActionType.REORDER,
+                  oldItem: payload,
+                  payload: oldChildItem,
+                  order: oldChildItem.children.map(i => ({ type: i.type, id: i.id }))
+                })
+              }
+            })
+          }
+          return
+        } catch (e) {
+          Logger.log('Bulk import failed, continuing with normal creation', e)
+        }
+      } else {
+        try {
+          // Try bulk import without sub folders
+          const tempItem = action.oldItem.copyWithLocation(false, action.payload.location)
+          const bookmarks = tempItem.children.filter(child => child instanceof Bookmark)
+          while (bookmarks.length > 0) {
+            Logger.log('Attempting chunked bulk import')
+            tempItem.children = bookmarks.splice(0, 70)
+            const imported = await resource.bulkImportFolder(action.payload.id, tempItem)
             const newMappings = []
             const subScanner = new Scanner(
-              action.oldItem,
+              tempItem,
               imported,
               (oldItem, newItem) => {
                 if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
@@ -947,132 +1051,70 @@ export default class SyncProcess {
             await Parallel.each(newMappings, async([oldItem, newId]: [TItem<TItemLocation>, string|number]) => {
               await this.addMapping(resource, oldItem, newId)
             }, 10)
-
-            if ('orderFolder' in resource) {
-              const mappingsSnapshot = this.mappings.getSnapshot()
-              this.actionsPlanned++
-              reorders.commit({
-                type: ActionType.REORDER,
-                oldItem: imported,
-                payload: action.oldItem,
-                // payload children's IDs are not mapped
-                order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
-              })
-              await action.oldItem.traverse((oldChildItem) => {
-                if (oldChildItem instanceof Folder && oldChildItem.children.length > 1) {
-                  // Correct the order after bulk import. Usually we expect bulk import to do the order correctly
-                  // on its own, but Nextcloud Bookmarks pre v14.2.0 does not
-                  const payload = imported.findFolder(Mappings.mapId(mappingsSnapshot, oldChildItem, targetLocation))
-                  // Order created items after the fact, as they've been created concurrently
-                  this.actionsPlanned++
-                  reorders.commit({
-                    type: ActionType.REORDER,
-                    oldItem: payload,
-                    payload: oldChildItem,
-                    order: oldChildItem.children.map(i => ({ type: i.type, id: i.id }))
-                  })
-                }
-              })
-            }
-
-            done()
-            return
-          } catch (e) {
-            Logger.log('Bulk import failed, continuing with normal creation', e)
           }
-        } else {
-          try {
-            // Try bulk import without sub folders
-            const tempItem = action.oldItem.copyWithLocation(false, action.payload.location)
-            const bookmarks = tempItem.children.filter(child => child instanceof Bookmark)
-            while (bookmarks.length > 0) {
-              Logger.log('Attempting chunked bulk import')
-              tempItem.children = bookmarks.splice(0, 70)
-              const imported = await resource.bulkImportFolder(action.payload.id, tempItem)
-              const newMappings = []
-              const subScanner = new Scanner(
-                tempItem,
-                imported,
-                (oldItem, newItem) => {
-                  if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
-                    // if two items can be merged, we'll add mappings here directly
-                    newMappings.push([oldItem, newItem.id])
-                    return true
-                  }
-                  return false
-                },
-                this.hashSettings,
-                false,
-              )
-              await subScanner.run()
-              await Parallel.each(newMappings, async([oldItem, newId]: [TItem<TItemLocation>, string|number]) => {
-                await this.addMapping(resource, oldItem, newId)
-              }, 10)
-            }
 
-            // create sub plan for the folders
+          // create sub plan for the folders
 
-            const mappingsSnapshot = this.mappings.getSnapshot()
+          const mappingsSnapshot = this.mappings.getSnapshot()
 
-            const folders = action.payload.children
-              .filter(item => item instanceof Folder)
-              .filter(item => item as Folder<L1>)
+          const folders = action.payload.children
+            .filter(item => item instanceof Folder)
+            .filter(item => item as Folder<L1>)
 
-            folders
-              .forEach((child) => {
-                // Necessary for Unidirectional reverted REMOVEs
-                const payload = child
-                payload.parentId = Mappings.mapParentId(mappingsSnapshot, child, targetLocation)
-                const oldItem = action.oldItem.findItem(child.type, child.id)
-                const newAction = { type: ActionType.CREATE, payload, oldItem }
-                this.actionsPlanned++
-                diff.commit(newAction)
-              })
-
-            if ('orderFolder' in resource) {
-              // Order created items after the fact, as they've been created concurrently
+          folders
+            .forEach((child) => {
+              // Necessary for Unidirectional reverted REMOVEs
+              const payload = child
+              payload.parentId = Mappings.mapParentId(mappingsSnapshot, child, targetLocation)
+              const oldItem = action.oldItem.findItem(child.type, child.id)
+              const newAction = { type: ActionType.CREATE, payload, oldItem }
               this.actionsPlanned++
-              reorders.commit({
-                type: ActionType.REORDER,
-                oldItem: action.payload,
-                payload: action.oldItem,
-                // payload children's IDs are not mapped
-                order: action.payload.children.map(i => ({ type: i.type, id: i.id }))
-              })
-            }
+              diff.commit(newAction)
+            })
 
-            done()
-            return
-          } catch (e) {
-            Logger.log('Bulk import failed, continuing with normal creation', e)
+          done()
+
+          if ('orderFolder' in resource) {
+            // Order created items after the fact, as they've been created concurrently
+            this.actionsPlanned++
+            reorders.commit({
+              type: ActionType.REORDER,
+              oldItem: action.payload,
+              payload: action.oldItem,
+              // payload children's IDs are not mapped
+              order: action.payload.children.map(i => ({ type: i.type, id: i.id }))
+            })
           }
+          return
+        } catch (e) {
+          Logger.log('Bulk import failed, continuing with normal creation', e)
         }
       }
+    }
 
-      // Create a sub plan and create each child individually (worst performance)
-      const mappingsSnapshot = this.mappings.getSnapshot()
-      action.payload.children
-        .forEach((child) => {
-          // Necessary for Unidirectional reverted REMOVEs
-          child.parentId = Mappings.mapParentId(mappingsSnapshot, child, targetLocation)
-          const oldItem = action.oldItem.findItem(child.type, child.id)
-          const newAction = { type: ActionType.CREATE, payload: child, oldItem }
-          this.actionsPlanned++
-          diff.commit(newAction)
-        })
-
-      done()
-
-      if ('orderFolder' in resource) {
-        // Order created items after the fact, as they've been created concurrently
+    // Create a sub plan and create each child individually (worst performance)
+    const mappingsSnapshot = this.mappings.getSnapshot()
+    action.payload.children
+      .forEach((child) => {
+        // Necessary for Unidirectional reverted REMOVEs
+        child.parentId = Mappings.mapParentId(mappingsSnapshot, child, targetLocation)
+        const oldItem = action.oldItem.findItem(child.type, child.id)
+        const newAction = { type: ActionType.CREATE, payload: child, oldItem }
         this.actionsPlanned++
-        reorders.commit({
-          type: ActionType.REORDER,
-          oldItem: action.payload,
-          payload: action.oldItem,
-          order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
-        })
-      }
+        diff.commit(newAction)
+      })
+
+    done()
+
+    if ('orderFolder' in resource) {
+      // Order created items after the fact, as they've been created concurrently
+      this.actionsPlanned++
+      reorders.commit({
+        type: ActionType.REORDER,
+        oldItem: action.payload,
+        payload: action.oldItem,
+        order: action.oldItem.children.map(i => ({ type: i.type, id: i.id }))
+      })
     }
   }
 
