@@ -18,6 +18,10 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
     return tree
   }
 
+  async setCacheTree(tree: Folder<typeof ItemLocation.LOCAL>) {
+    this.cacheTree.setTree(tree)
+  }
+
   async createBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<string|number> {
     const id = await this.innerTree.createBookmark(bookmark)
     const cacheId = await this.cacheTree.createBookmark(bookmark.copy(false))

@@ -280,6 +280,7 @@ export default class Account {
         // if there is a pending continuation, we resume it
 
         Logger.log('Found existing persisted pending continuation. Resuming last sync')
+        await localResource.setCacheTree(this.syncProcess.getCacheTree())
         await this.syncProcess.sync()
       }
 
