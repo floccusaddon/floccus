@@ -375,7 +375,7 @@ export default class Account {
     if (!this.syncProcess) {
       return
     }
-    if (actionsDone && (!(this.server instanceof CachingAdapter) || !('onSyncComplete' in this.server))) {
+    if (actionsDone && (!(this.server instanceof CachingAdapter) || 'onSyncComplete' in this.server)) {
       await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
       await this.syncProcess.getMappingsInstance().persist()
     }
