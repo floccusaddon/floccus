@@ -106,12 +106,12 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   }
 
   async sync(): Promise<void> {
-    this.progressCb(0.15)
+    this.progressCb(0.15, 0)
 
     this.masterLocation = this.direction === ItemLocation.SERVER ? ItemLocation.LOCAL : ItemLocation.SERVER
     await this.prepareSync()
 
-    this.progressCb(0.35)
+    this.progressCb(0.35, 0)
 
     if (this.canceled) {
       throw new CancelledSyncError()
@@ -124,7 +124,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       Logger.log({ localScanResult, serverScanResult })
       this.localScanResult = localScanResult
       this.serverScanResult = serverScanResult
-      this.progressCb(0.45)
+      this.progressCb(0.45, 0)
     }
 
     if (this.canceled) {
@@ -196,6 +196,8 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     if ('orderFolder' in this.server && 'orderFolder' in target) {
       await this.executeReorderings(target, this.revertReorders)
     }
+
+    this.progressCb.cancel()
   }
 
   async revertDiff<L1 extends TItemLocation, L2 extends TItemLocation>(

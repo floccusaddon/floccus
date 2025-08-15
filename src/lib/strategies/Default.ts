@@ -21,6 +21,7 @@ import Diff, {
 import Scanner, { ScanResult } from '../Scanner'
 import * as Parallel from 'async-parallel'
 import throttle from '@jcoreio/async-throttle'
+import type { ThrottledFunction } from '@jcoreio/async-throttle'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import TResource, { IHashSettings, OrderFolderResource, TLocalTree } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
@@ -37,7 +38,7 @@ export default class SyncProcess {
   protected server: TAdapter
   protected cacheTreeRoot: Folder<typeof ItemLocation.LOCAL>|null
   protected canceled: boolean
-  protected progressCb: (progress:number, actionsDone?:number)=>void
+  protected progressCb: ThrottledFunction<[progress: number, actionsDone: number | undefined], void>
 
   // Stage -1
   protected localTreeRoot: Folder<typeof ItemLocation.LOCAL> = null
@@ -88,7 +89,7 @@ export default class SyncProcess {
     this.localTree = localTree
     this.server = server
 
-    this.progressCb = throttle(progressCb, 1500) as (progress:number, actionsDone?:number)=>void
+    this.progressCb = throttle(progressCb, 1500)
     this.canceled = false
     this.isFirefox = self.location.protocol === 'moz-extension:'
   }
@@ -141,6 +142,7 @@ export default class SyncProcess {
     this.canceled = true
     this.server.cancel()
     this.localTree.cancel()
+    this.progressCb.cancel()
   }
 
   updateProgress():void {
@@ -176,13 +178,13 @@ export default class SyncProcess {
 
   async sync(): Promise<void> {
     // onSyncStart is already executed at this point
-    this.progressCb(0.15)
+    this.progressCb(0.15, 0)
 
     this.masterLocation = ItemLocation.LOCAL
     await this.prepareSync()
 
     // trees are loaded at this point
-    this.progressCb(0.35)
+    this.progressCb(0.35, 0)
 
     if (this.canceled) {
       throw new CancelledSyncError()
@@ -195,7 +197,7 @@ export default class SyncProcess {
       Logger.log({ localScanResult, serverScanResult })
       this.localScanResult = localScanResult
       this.serverScanResult = serverScanResult
-      this.progressCb(0.45)
+      this.progressCb(0.45, 0)
     }
 
     if (this.canceled) {
@@ -371,6 +373,8 @@ export default class SyncProcess {
         this.executeReorderings(this.localTree, this.localReorders),
       ])
     }
+
+    this.progressCb.cancel()
   }
 
   protected async prepareSync() {
