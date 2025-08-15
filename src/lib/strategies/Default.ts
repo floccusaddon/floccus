@@ -1280,6 +1280,7 @@ export default class SyncProcess {
       }
 
       if (action.order.length <= 1) {
+        reorderings.retract(action)
         return
       }
 
