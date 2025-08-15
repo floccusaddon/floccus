@@ -6918,10 +6918,10 @@ describe('Floccus', function() {
           if (!timeouts.length) {
             timeouts = new Array(1000).fill(0).map((_, index) =>
               ACCOUNT_DATA.type === 'nextcloud-bookmarks'
-                // Produce random numbers of timeouts between 30s and increasing numbers between 30s and 180s (increasing for streches of 20, then going back to 30s)
+                // Produce random numbers of timeouts between 30s and increasing numbers between 30s and 180s (increasing for stretches of 20 items, then going back to 30s)
                 ? random.int(30000, Math.round(30000 + (180000 - 30000) * (index % 20) / 20))
-                // Produce random numbers of timeouts between 4s and increasing numbers between 4s and 20s (increasing for streches of 20, then going back to 4s)
-                : random.int(200, Math.round(4000 + (20000 - 4000) * (index % 20) / 20))
+                // Produce random numbers of timeouts between 4s and increasing numbers between 4s and 20s (increasing for stretches of 20 items, then going back to 4s)
+                : random.int(4000, Math.round(4000 + (20000 - 4000) * (index % 20) / 20))
             )
           }
           const timeout = timeouts[(i++) % 1000]
@@ -8140,12 +8140,12 @@ describe('Floccus', function() {
           it('should handle fuzzed changes with deletions from two clients with interrupts (no caching adapter)', async function() {
             // Wire both accounts to the same fake db
             // We set the cache properties to the same object, because we want to simulate nextcloud-bookmarks
-            account1.server.bookmarksCache = account2.server.bookmarksCache = new Folder(
+            const bmDb = account1.server.bookmarksCache = account2.server.bookmarksCache = new Folder(
               { id: '', title: 'root', location: 'Server' }
             )
-            account1.server.onSyncStart = null
+            account1.server.onSyncStart = function() { this.bookmarksCache = bmDb }
             account1.server.onSyncComplete = null
-            account2.server.onSyncStart = null
+            account2.server.onSyncStart = function() { this.bookmarksCache = bmDb }
             account2.server.onSyncComplete = null
             await interruptBenchmark()
           })
