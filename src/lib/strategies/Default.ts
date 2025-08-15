@@ -286,10 +286,10 @@ export default class SyncProcess {
         Object.values(this.localPlanStage2).reduce((acc, diff) => diff.getActions().length + acc, 0)
     }
 
-    if (!this.planStage3Server) {
-      Logger.log('Executing server stage2 plan')
-      await this.executeStage2(this.server, this.serverPlanStage2, ItemLocation.SERVER, this.serverDonePlan, this.prelimServerReorders)
+    Logger.log('Executing server stage2 plan')
+    await this.executeStage2(this.server, this.serverPlanStage2, ItemLocation.SERVER, this.serverDonePlan, this.prelimServerReorders)
 
+    if (!this.planStage3Server) {
       if (this.canceled) {
         throw new CancelledSyncError()
       }
@@ -316,10 +316,11 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
-    if (!this.planStage3Local) {
-      Logger.log('Executing local stage 2 plan')
-      await this.executeStage2(this.localTree, this.localPlanStage2, ItemLocation.LOCAL, this.localDonePlan, this.prelimLocalReorders)
 
+    Logger.log('Executing local stage 2 plan')
+    await this.executeStage2(this.localTree, this.localPlanStage2, ItemLocation.LOCAL, this.localDonePlan, this.prelimLocalReorders)
+
+    if (!this.planStage3Local) {
       if (this.canceled) {
         throw new CancelledSyncError()
       }
@@ -338,6 +339,9 @@ export default class SyncProcess {
         throw new CancelledSyncError()
       }
     }
+
+    Logger.log('Executing local stage 3 plan')
+    await this.executeStage3(this.localTree, this.planStage3Local, ItemLocation.LOCAL, this.localDonePlan)
 
     // Remove mappings only after both plans have been executed
     this.localDonePlan.REMOVE.getActions().forEach(action => this.removeMapping(this.localTree, action.payload))
