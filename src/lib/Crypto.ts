@@ -96,7 +96,7 @@ export default class Crypto {
     return result
   }
 
-  static getRandomBytes(bytelength: number) : Uint8Array {
+  static getRandomBytes(bytelength: number) : Uint8Array<ArrayBuffer> {
     const rand = new Uint8Array(bytelength)
     crypto.getRandomValues(rand)
     return rand
