@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import { actions, mutations } from '../../store/definitions'
+import { actions} from '../../store/definitions'
 import { Folder } from '../../../lib/Tree'
 
 export default {
@@ -126,7 +126,7 @@ export default {
       })
     },
     onSave() {
-      this.$store.commit(mutations.SET_LAST_FOLDER, {folderId: this.selectedFolder, accountId: this.$route.params.accountId})
+      this.$store.dispatch(actions.SET_LAST_FOLDER, {folderId: this.selectedFolder, accountId: this.$route.params.accountId})
       this.$emit('update:display', false)
       this.$emit('input', this.selectedFolder)
     }

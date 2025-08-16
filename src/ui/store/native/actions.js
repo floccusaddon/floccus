@@ -9,6 +9,7 @@ import { Share } from '@capacitor/share'
 import Html from '../../../lib/serializers/Html'
 import { Bookmark, Folder } from '../../../lib/Tree'
 import { Browser } from '@capacitor/browser'
+import NativeAccountStorage from '../../../lib/native/NativeAccountStorage'
 
 export const actionsDefinition = {
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
@@ -25,6 +26,10 @@ export const actionsDefinition = {
       })
     )
     await commit(mutations.LOAD_ACCOUNTS, accounts)
+    const lastFolders = await NativeAccountStorage.getEntry('lastFolders', {})
+    await Promise.all(Object.entries(lastFolders).map(async([accountId, folderId]) => {
+      await commit(mutations.SET_LAST_FOLDER, {accountId, folderId})
+    }))
     commit(mutations.LOADING_END, 'accounts')
   },
   async [actions.LOAD_TREE]({ commit, dispatch, state }, id) {
@@ -293,5 +298,12 @@ export const actionsDefinition = {
   async [actions.SET_SORTBY]({state}, {accountId, sortBy}) {
     const account = await Account.get(accountId)
     await account.setData({ sortBy })
+  },
+  async [actions.SET_LAST_FOLDER]({commit}, {accountId, folderId}) {
+    await NativeAccountStorage.changeEntry('lastFolders', (lastFolders) => {
+      lastFolders[accountId] = folderId
+      return lastFolders
+    }, {})
+    await commit(mutations.SET_LAST_FOLDER, {accountId, folderId})
   }
 }

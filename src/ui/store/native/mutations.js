@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import { mutations } from '../definitions'
+import NativeAccountStorage from '../../../lib/native/NativeAccountStorage'
 
 export const mutationsDefinition = {
   [mutations.SET_LOCKED](state, locked) {
