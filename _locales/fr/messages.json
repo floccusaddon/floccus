@@ -84,7 +84,7 @@
     "message": "E028: Impossible de s'authentifier sur le serveur."
   },
   "Error029": {
-    "message": "E029: Sécurité: La synchronisation en cours aurait effacé {0}% de vos signets. La synchronisation a été annulée. Désactivez la sécurité dans les paramètres de votre compte si vous souhaitez tout de même synchroniser."
+    "message": "E029 : Sécurité intégrée : L'exécution de la synchronisation actuelle supprimerait {0}% de vos liens. Refus d'exécution. Désactivez cette sécurité dans les paramètres du compte si vous voulez quand même continuer."
   },
   "Error030": {
     "message": "E030: Le déchiffrement de votre fichier de signets a échoué. Le mot de passe est peut être erronée ou le fichier corrompu."
@@ -128,6 +128,9 @@
   "Error043": {
     "message": "E043: Sécurité: La synchronisation en cours aurait ajouté {0}% à la quantité de vos signets. La synchronisation a été annulée. Désactivez la sécurité dans les paramètres de votre compte si vous souhaitez tout de même synchroniser."
   },
+  "Error044": {
+    "message": "E044 : L'opération Git push a échoué : {0}"
+  },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
   },
@@ -147,10 +150,10 @@
     "message": "Fichier de signets"
   },
   "DescriptionBookmarksfile": {
-    "message": "un chemin d'accès vers le fichier de signets par rapport à votre URL WebDAV (tous les dossiers dans le chemin doivent déjà exister). Par ex: documents_perso/bookmarks.xbel"
+    "message": "un chemin vers l'emplacement du fichier de signets sur le serveur, par rapport à votre URL WebDAV (tous les dossiers du chemin doivent déjà exister). par exemple : personal_stuff/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "Le nom du fichier contenant vos signets qui sera stocké sur votre Google Drive. N'entrez pas le chemin complet, uniquement le nom du fichier. Assurez-vous qu'il soit unique sur votre Drive."
+   "message": "le nom du fichier de signets qui résidera dans votre Google Drive. Ne saisissez pas le chemin d'accès complet, mais uniquement le nom du fichier. Veillez à ce que ce nom soit unique dans votre Drive. par exemple : mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "un chemin d'accès vers le fichier de signets relatif à la racine de votre dépôt Git (tous les dossiers du chemin doivent déjà être existants). Ex : documents/favoris-signets.xbel"
@@ -184,6 +187,9 @@
   },
   "LabelNewfolder": {
     "message": "Dossier nouvellement créé"
+  },
+  "LabelSelectfolder": {
+    "message": "Sélectionnez un dossier"
   },
   "LabelOptions": {
     "message": "Options"
@@ -739,16 +745,16 @@
     "message": "Branche"
   },
   "LabelTelemetry": {
-    "message": "🐛 Rapport d'erreur automatique"
+    "message": "Surveillance d'erreur automatisée"
   },
   "DescriptionTelemetry": {
     "message": "Floccus peut automatiquement envoyer des rapports d'erreur aux développeurs. Ceci constitue une aide inestimable pour découvrir et résoudre les bogues de floccus plus rapidement, et améliorer votre expérience avec floccus à long terme. Même lorsque le rapport d'erreur est actif, les développeurs de floccus ne pourront jamais accéder à vos signets."
   },
   "LabelTelemetryenable": {
-    "message": "Envoyer automatiquement les données d'erreurs aux développeurs de floccus"
+    "message": "Envoyez automatiquement aux développeurs de floccus les données d'erreur et les informations sur la méthode de synchronisation que vous utilisez."
   },
   "LabelTelemetrydisable": {
-    "message": "Ne pas envoyer les données d'erreurs aux développeurs de floccus"
+    "message": "N'envoyez pas de données aux développeurs de floccus"
   },
   "LabelAccountlabel": {
     "message": "Étiquette du profil"
@@ -808,7 +814,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Synchronisez vos signets avec l'application open-source auto-hébergée Karakeep. Cette option de supporte pas le chiffrement point à point."
+    "message": "Synchronisez vos signets avec l'application open-source auto-hébergée Karakeep. Cette option ne peut pas utiliser le chiffrement de bout en bout et ne permet pas de conserver l'ordre des signets lors des synchronisations."
   },
   "LabelApiKey":  {
     "message": "Clé d'API"
@@ -823,7 +829,7 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Synchronisez vos signets avec l'application open-source Linkwarden, soit hébergée sur votre serveur ou dans le cloud sur cloud.linkwarden.app. Cette option ne permet de synchroniser que des signets au format http, ftp et javascript. Cette option ne supporte pas le chiffrement point à point."
+    "message": "Synchronisez vos signets avec l'application open-source Linkwarden, hébergée sur votre propre serveur ou dans le nuage à cloud.linkwarden.app. Elle ne peut synchroniser que les signets http, ftp et javascript. Cette option ne peut pas utiliser le cryptage de bout en bout et ne permet pas de conserver l'ordre des signets lors des synchronisations."
   },
   "LabelLinkwardenurl":  {
     "message": "L'URL de votre serveur Linkwarden"
@@ -848,5 +854,47 @@
   },
   "LabelOpeninnewtab": {
     "message": "Ouvrir cette vue dans un nouvel onglet"
+  },
+  "LabelGivefeedback": {
+    "message": "Donnez votre avis"
+  },
+  "LabelYourname": {
+    "message": "Votre nom"
+  },
+  "LabelYouremail": {
+    "message": "Votre adresse électronique (facultatif)"
+  },
+  "LabelYourmessage": {
+    "message": "Votre message d'information"
+  },
+  "LabelSubmitfeedback": {
+    "message": "Soumettre un retour d'information"
+  },
+  "DescriptionFeedbacklegal": {
+    "message": "Ce formulaire de retour d'information est alimenté par Sentry. En cliquant sur soumettre, vous acceptez que les données saisies soient stockées sur les serveurs de Sentry. Aucune de vos données de signets ne sera envoyée à Sentry."
+  },
+  "DescriptionFeedbackhowto": {
+    "message": "Merci d'avoir pris le temps de donner votre avis aux développeurs de floccus ! Si votre commentaire concerne un problème, assurez-vous d'inclure les étapes que vous avez suivies, ce que vous attendiez et ce qui s'est passé à la place. Si votre feedback concerne une demande de fonctionnalité, assurez-vous d'inclure le cas d'utilisation ou le problème que cette fonctionnalité résoudrait pour vous. Si vous indiquez votre adresse électronique, nous pourrons vous recontacter. Nous vous remercions de votre attention."
+  },
+  "LabelFeedbacksent": {
+    "message": "Merci pour vos commentaires !"
+  },
+  "LabelFaq":{
+    "message": "Consultez la FAQ"
+  },
+  "StatusSyncingfailed": {
+    "message": "Échec de la synchronisation"
+  },
+  "StatusSyncingcomplete": {
+    "message": "Synchronisation terminée"
+  },
+  "NotificationSyncingprofile": {
+    "message": "Profil de synchronisation {0}"
+  },
+  "NotificationSyncingsucceeded": {
+    "message": "La synchronisation du profil {0} a réussi"
+  },
+  "NotificationSyncingfailed": {
+    "message": "Échec de la synchronisation du profil {0}"
   }
 }
