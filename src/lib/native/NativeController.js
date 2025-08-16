@@ -5,6 +5,8 @@ import NativeAccountStorage from './NativeAccountStorage'
 import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
 import { initSharp } from '../sentry'
+import { LocalNotifications } from '@capacitor/local-notifications'
+import { i18n } from './I18n'
 
 const INACTIVITY_TIMEOUT = 1000 * 7
 const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
@@ -196,11 +198,49 @@ export default class NativeController {
     if (account.getData().syncing) {
       return
     }
+    const startTime = Date.now()
     setTimeout(() => this.updateStatus(), 500)
+    let notifications
+    if ((await LocalNotifications.checkPermissions()).display !== 'denied') {
+      ({ notifications } = await LocalNotifications.schedule({
+        notifications: [
+          {
+            id: Math.round((Math.random() * 2 - 1) * 2147483647),
+            title: i18n.getMessage('StatusSyncing'),
+            body: i18n.getMessage('NotificationSyncingprofile', [account.getLabel()]),
+            ongoing: true,
+            smallIcon: 'notification_icon',
+            largeIcon: 'notification_icon',
+          }
+        ]
+      }))
+    }
     try {
       await account.sync(strategy, forceSync)
     } catch (error) {
       console.error(error)
+    }
+    if ((await LocalNotifications.checkPermissions()).display !== 'denied') {
+      // Cancel the ongoing notification
+      await LocalNotifications.cancel({ notifications })
+      // eslint-disable-next-line no-constant-condition
+      if (Date.now() - startTime > 60 * 1000) {
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              id: Math.round((Math.random() * 2 - 1) * 2147483647),
+              title: account.getData().error
+                ? i18n.getMessage('StatusSyncingfailed')
+                : i18n.getMessage('StatusSyncingcomplete'),
+              body: account.getData().error
+                ? i18n.getMessage('NotificationSyncingfailed', [account.getLabel()])
+                : i18n.getMessage('NotificationSyncingsucceeded', [account.getLabel()]),
+              smallIcon: 'notification_icon',
+              largeIcon: 'notification_icon',
+            }
+          ]
+        })
+      }
     }
     this.updateStatus()
   }
@@ -247,6 +287,10 @@ export default class NativeController {
   async onLoad() {
     if (await NativeAccountStorage.getEntry('telemetryEnabled', false)) {
       initSharp()
+    }
+
+    if ((await LocalNotifications.checkPermissions()).display !== 'denied') {
+      LocalNotifications.requestPermissions()
     }
 
     const accounts = await Account.getAllAccounts()

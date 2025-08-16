@@ -84,6 +84,7 @@
     "@capacitor/device": "7.x",
     "@capacitor/filesystem": "7.x",
     "@capacitor/ios": "7.x",
+    "@capacitor/local-notifications": "^7.0.2",
     "@capacitor/network": "7.x",
     "@capacitor/preferences": "7.x",
     "@capacitor/share": "7.x",
