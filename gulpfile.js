@@ -92,6 +92,7 @@ const devjs = function() {
 
 const js = async function() {
   fs.mkdirSync(paths.distJs,{ recursive: true })
+  let statsJson
   await new Promise((resolve) =>
     webpack(config, (err, stats) => {
       console.log(
@@ -104,11 +105,11 @@ const js = async function() {
         console.log('Webpack', err)
         return
       }
-      const statsJson = stats.toJson()
-      html(statsJson)
+      statsJson = stats.toJson()
       resolve()
     })
   )
+  html(statsJson)
 }
 
 const html = function(statsJson) {
