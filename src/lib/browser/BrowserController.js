@@ -167,6 +167,7 @@ export default class BrowserController {
       await browser.storage.local.set({
         currentVersion: packageJson.version
       })
+      browser.runtime.setUninstallURL(`https://floccus.org/uninstall/?version=${packageJson.version}`)
 
       const packageVersion = packageJson.version.split('.')
       const accounts = await Account.getAllAccounts()
