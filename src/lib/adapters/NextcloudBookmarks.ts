@@ -1012,7 +1012,11 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
 
     if (returnRawResponse) {
-      return res
+      return {
+        status: res.status,
+        text: () => res.data,
+        json: () => res.data,
+      }
     }
 
     if (res.status === 401 || res.status === 403) {
