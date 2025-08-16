@@ -467,12 +467,11 @@ export default {
       }, 500)
     },
     search(query, tree) {
-      return Object.values(tree.index.bookmark)
+      return Object.values(tree.index.folder)
         .filter(item => {
           const matchTitleFully = item.title ? query.split(' ').every(term => item.title.toLowerCase().split(' ').some(word => word === term)) : false
           const matchTitlePartially = item.title ? query.split(' ').every(term => item.title.toLowerCase().includes(term)) : false
-          const matchUrl = query.split(' ').every(term => item.url.toLowerCase().includes(term))
-          return matchUrl || matchTitleFully || matchTitlePartially
+          return matchTitleFully || matchTitlePartially
         })
         .sort((a, b) => {
           const matchTitlePartiallyA = a.title ? query.split(' ').every(term => a.title.toLowerCase().includes(term)) : false
@@ -483,7 +482,25 @@ export default {
           const matchTitleA = a.title ? query.split(' ').every(term => a.title.toLowerCase().split(' ').some(word => word === term)) : false
           const matchTitleB = b.title ? query.split(' ').every(term => b.title.toLowerCase().split(' ').some(word => word === term)) : false
           return matchTitleA ? (matchTitleB ? 0 : -1) : 1
-        })
+        }).concat(
+          Object.values(tree.index.bookmark)
+            .filter(item => {
+              const matchTitleFully = item.title ? query.split(' ').every(term => item.title.toLowerCase().split(' ').some(word => word === term)) : false
+              const matchTitlePartially = item.title ? query.split(' ').every(term => item.title.toLowerCase().includes(term)) : false
+              const matchUrl = query.split(' ').every(term => item.url.toLowerCase().includes(term))
+              return matchUrl || matchTitleFully || matchTitlePartially
+            })
+            .sort((a, b) => {
+              const matchTitlePartiallyA = a.title ? query.split(' ').every(term => a.title.toLowerCase().includes(term)) : false
+              const matchTitlePartiallyB = b.title ? query.split(' ').every(term => b.title.toLowerCase().includes(term)) : false
+              return matchTitlePartiallyA ? (matchTitlePartiallyB ? 0 : -1) : 1
+            })
+            .sort((a, b) => {
+              const matchTitleA = a.title ? query.split(' ').every(term => a.title.toLowerCase().split(' ').some(word => word === term)) : false
+              const matchTitleB = b.title ? query.split(' ').every(term => b.title.toLowerCase().split(' ').some(word => word === term)) : false
+              return matchTitleA ? (matchTitleB ? 0 : -1) : 1
+            })
+        )
     },
     goBack() {
       if (this.isAddingBookmark) {

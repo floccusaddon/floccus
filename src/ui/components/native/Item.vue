@@ -22,10 +22,10 @@
       <v-list-item-subtitle v-if="item.type === 'bookmark'">
         {{ item.url | hostname }}
       </v-list-item-subtitle>
-      <v-list-item-subtitle v-if="item.type === 'bookmark' && showFolderPath">
+      <v-list-item-subtitle v-if="showFolderPath">
         <Breadcrumbs
           in-item
-          :items="getBookmarkPath(item)"
+          :items="item.type === 'bookmark' ? getBookmarkPath(item) : getFolderPath(item)"
           :tree="tree" />
       </v-list-item-subtitle>
     </v-list-item-content>
@@ -121,6 +121,14 @@ export default {
     },
   },
   methods: {
+    getFolderPath(item) {
+      const folders = [item]
+      while (this.tree && folders[folders.length - 1 ] && String(folders[folders.length - 1 ].id) !== String(this.tree.id)) {
+        folders.push(this.findItem(folders[folders.length - 1 ].parentId, this.tree))
+      }
+      folders.pop() // remove last folder
+      return folders.reverse()
+    },
     getBookmarkPath(item) {
       const folders = [item]
       while (this.tree && folders[folders.length - 1 ] && String(folders[folders.length - 1 ].id) !== String(this.tree.id)) {
