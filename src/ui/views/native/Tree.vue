@@ -118,20 +118,11 @@
         :value="syncProgress * 100 || 0"
         color="blue darken-1" />
       <v-card>
-        <v-breadcrumbs
+        <Breadcrumbs
           v-if="breadcrumbs.length > 1"
-          :items="breadcrumbs">
-          <template #item="{ item }">
-            <v-breadcrumbs-item @click="currentFolderId = item.id">
-              <template v-if="item.id === tree.id">
-                <v-icon>mdi-home</v-icon>
-              </template>
-              <template v-else>
-                {{ item.title }}
-              </template>
-            </v-breadcrumbs-item>
-          </template>
-        </v-breadcrumbs>
+          :tree="tree"
+          :items="breadcrumbs"
+          @click="currentFolderId = item.id" />
       </v-card>
       <v-alert
         v-if="Boolean(syncError)"
@@ -168,75 +159,14 @@
         two-line
         :class="{'pb-10': true, 'list-full-height': !(searchQuery && otherSearchItems && otherSearchItems.length)}">
         <template v-for="item in items">
-          <v-list-item
+          <Item
             :key="item.type+item.id"
-            class="pl-3"
-            dense
-            @click="clickItem(item)">
-            <v-list-item-avatar>
-              <v-icon
-                v-if="item.type === 'folder'"
-                color="blue darken-1"
-                large>
-                mdi-folder
-              </v-icon>
-              <FaviconImage
-                v-else
-                :url="item.url"
-                :use-network="useNetwork" />
-            </v-list-item-avatar>
-
-            <v-list-item-content>
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
-              <v-list-item-subtitle v-if="item.type === 'bookmark'">
-                {{ item.url | hostname }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-
-            <v-list-item-action>
-              <v-menu
-                bottom
-                left>
-                <template #activator="{ on, attrs }">
-                  <v-btn
-                    icon
-                    v-bind="attrs"
-                    v-on="on">
-                    <v-icon>mdi-dots-vertical</v-icon>
-                  </v-btn>
-                </template>
-
-                <v-list>
-                  <v-list-item @click="editItem(item)">
-                    <v-list-item-avatar>
-                      <v-icon>mdi-pencil</v-icon>
-                    </v-list-item-avatar>
-                    <v-list-item-title>
-                      {{ t('LabelEdititem') }}
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item
-                    v-if="item.type === 'bookmark'"
-                    @click="shareBookmark(item)">
-                    <v-list-item-avatar>
-                      <v-icon>mdi-share</v-icon>
-                    </v-list-item-avatar>
-                    <v-list-item-title>
-                      {{ t('LabelShareitem') }}
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="deleteItem(item)">
-                    <v-list-item-avatar>
-                      <v-icon>mdi-delete</v-icon>
-                    </v-list-item-avatar>
-                    <v-list-item-title>
-                      {{ t('LabelDeleteitem') }}
-                    </v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </v-list-item-action>
-          </v-list-item>
+            :show-folder-path="!!searchQuery"
+            :item="item"
+            @click="clickItem(item)"
+            @share="shareBookmark(item)"
+            @edit="editItem(item)"
+            @delete="deleteItem(item)" />
           <v-divider
             :key="String(item.id)+item.type+'divider'" />
         </template>
@@ -264,75 +194,14 @@
         two-line
         class="list-full-height">
         <template v-for="item in otherSearchItems">
-          <v-list-item
+          <Item
             :key="item.type+item.id"
-            class="pl-3"
-            dense
-            @click="clickItem(item)">
-            <v-list-item-avatar>
-              <v-icon
-                v-if="item.type === 'folder'"
-                color="blue darken-1"
-                large>
-                mdi-folder
-              </v-icon>
-              <FaviconImage
-                v-else
-                :url="item.url"
-                :use-network="useNetwork" />
-            </v-list-item-avatar>
-
-            <v-list-item-content>
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
-              <v-list-item-subtitle v-if="item.type === 'bookmark'">
-                {{ item.url | hostname }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-
-            <v-list-item-action>
-              <v-menu
-                bottom
-                left>
-                <template #activator="{ on, attrs }">
-                  <v-btn
-                    icon
-                    v-bind="attrs"
-                    v-on="on">
-                    <v-icon>mdi-dots-vertical</v-icon>
-                  </v-btn>
-                </template>
-
-                <v-list>
-                  <v-list-item @click="editItem(item)">
-                    <v-list-item-avatar>
-                      <v-icon>mdi-pencil</v-icon>
-                    </v-list-item-avatar>
-                    <v-list-item-title>
-                      {{ t('LabelEdititem') }}
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item
-                    v-if="item.type === 'bookmark'"
-                    @click="shareBookmark(item)">
-                    <v-list-item-avatar>
-                      <v-icon>mdi-share</v-icon>
-                    </v-list-item-avatar>
-                    <v-list-item-title>
-                      {{ t('LabelShareitem') }}
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="deleteItem(item)">
-                    <v-list-item-avatar>
-                      <v-icon>mdi-delete</v-icon>
-                    </v-list-item-avatar>
-                    <v-list-item-title>
-                      {{ t('LabelDeleteitem') }}
-                    </v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </v-list-item-action>
-          </v-list-item>
+            :show-folder-path="!!searchQuery"
+            :item="item"
+            @click="clickItem(item)"
+            @share="shareBookmark(item)"
+            @edit="editItem(item)"
+            @delete="deleteItem(item)" />
           <v-divider
             :key="String(item.id)+item.type+'divider'" />
         </template>
@@ -423,27 +292,18 @@
 import Drawer from '../../components/native/Drawer'
 import DialogEditFolder from '../../components/native/DialogEditFolder'
 import DialogEditBookmark from '../../components/native/DialogEditBookmark'
-import FaviconImage from '../../components/native/FaviconImage'
 import { routes } from '../../NativeRouter'
 import { Bookmark, Folder } from '../../../lib/Tree'
 import { actions } from '../../store/definitions'
 import { App } from '@capacitor/app'
 import sortBy from 'lodash/sortBy'
 import DialogImportBookmarks from '../../components/native/DialogImportBookmarks'
+import Breadcrumbs from '../../components/native/Breadcrumbs.vue'
+import Item from '../../components/native/Item.vue'
 
 export default {
   name: 'Tree',
-  components: { DialogImportBookmarks, FaviconImage, DialogEditBookmark, DialogEditFolder, Drawer },
-  filters: {
-    hostname(url) {
-      try {
-        return new URL(url).hostname
-      } catch (e) {
-        console.error(`${e}: ${url}`)
-        return '(bad url)'
-      }
-    }
-  },
+  components: { Item, Breadcrumbs, DialogImportBookmarks, DialogEditBookmark, DialogEditFolder, Drawer },
   data() {
     return {
       currentFolderId: 0,
@@ -495,12 +355,6 @@ export default {
       }
       return this.$store.state.accounts[this.id].data.error
     },
-    useNetwork() {
-      if (this.loading) {
-        return false
-      }
-      return this.$store.state.accounts[this.id].data.allowNetwork
-    },
     items() {
       if (!this.currentFolder) {
         return []
@@ -546,11 +400,7 @@ export default {
       return this.findItem(this.currentFolderId, this.tree)
     },
     breadcrumbs() {
-      const folders = [this.currentFolder]
-      while (this.tree && folders[folders.length - 1 ] && String(folders[folders.length - 1 ].id) !== String(this.tree.id)) {
-        folders.push(this.findItem(folders[folders.length - 1 ].parentId, this.tree))
-      }
-      return folders.reverse()
+      return this.getFolderPath(this.currentFolder)
     },
   },
   watch: {
@@ -582,6 +432,13 @@ export default {
     this.goBack()
   },
   methods: {
+    getFolderPath(item) {
+      const folders = [item]
+      while (this.tree && folders[folders.length - 1 ] && String(folders[folders.length - 1 ].id) !== String(this.tree.id)) {
+        folders.push(this.findItem(folders[folders.length - 1 ].parentId, this.tree))
+      }
+      return folders.reverse()
+    },
     clickItem(item) {
       if (item.url) {
         this.$store.dispatch(actions.COUNT_BOOKMARK_CLICK, {accountId: this.$route.params.accountId, bookmark: item})
