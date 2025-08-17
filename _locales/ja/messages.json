@@ -84,7 +84,7 @@
     "message": "E028: サーバーで認証できません。"
   },
   "Error029": {
-    "message": "E029: フィールセーフ: 現在の同期を実行すると、ブックマーク {0}% が削除されます。続行する場合は、アカウント設定でフィールセーフを無効にしてください。"
+    "message": "E029：フェイルセーフ：現在の同期を実行すると、リンクの{0}% が削除されます。実行を拒否します。とにかく実行したい場合は、アカウント設定でこのフェイルセーフを無効にしてください。"
   },
   "Error030": {
     "message": "E030: ブックマークファイルの復号に失敗しました。パスフレーズが間違っているか、ファイルが破損しています。"
@@ -99,7 +99,7 @@
     "message": "E033: リダイレクトが検出されました。サーバーが選択した同期の方法に対応していて、入力した URL が正確であることを確認し、間違った場所にリダイレクトされていないことを確認してください。もし、予期した通りにリダイレクトされている場合、設定でリダイレクトの確認を無効にできます。"
   },
   "Error034": {
-    "message": "E034: リモートのブックマークを読み取れません。暗号化パスフレーズを忘れましたか？"
+    "message": "E034：リモートブックマークファイルが読めません。暗号化パスフレーズを設定し忘れたか、間違ったファイル形式を設定した可能性があります。"
   },
   "Error035": {
     "message": "E035: 次のブックマークのサーバーへの作成に失敗しました: {0}"
@@ -108,10 +108,28 @@
     "message": "E036: サーバーと同期する権限がありません"
   },
   "Error037": {
-    "message": "E037: リソースがロックされています"
+    "message": "E037：リソースがロックされています"
   },
   "Error038": {
-    "message": "E038: ローカルフォルダーを見つけられません"
+    "message": "E038: ローカルフォルダが見つかりません"
+  },
+  "Error039": {
+    "message": "E039：サーバー上の次のブックマークの更新に失敗しました：{0}"
+  },
+  "Error040": {
+    "message": "E040：Googleドライブでファイル名を検索できませんでした"
+  },
+  "Error041": {
+    "message": "E041：リモートのブックマークファイルのサイズが、サーバーから実際にダウンロードされたコンテンツと異なります。これは一時的なネットワークの問題かもしれません。このエラーが続く場合は、サーバー管理者にお問い合わせください。"
+  },
+  "Error042": {
+    "message": "E042：リモートのブックマークファイルのサイズを取得できませんでした。ブックマークファイルが完全にダウンロードされたかどうかを確認することはできません。このエラーが続く場合は、サーバー管理者にお問い合わせください。"
+  },
+  "Error043": {
+    "message": "E043: フェイルセーフ：現在の同期を実行すると、ブックマークの数が{0}% 増えます。実行を拒否します。とにかく実行したい場合は、プロファイル設定でこのフェイルセーフを無効にしてください。"
+  },
+  "Error044": {
+    "message": "E044: Git のプッシュ操作に失敗しました：{0}"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -129,13 +147,13 @@
     "message": "パスワード"
   },
   "LabelBookmarksfile": {
-    "message": "ブックマークファイルのパス"
+    "message": "ブックマーク・ファイル"
   },
   "DescriptionBookmarksfile": {
-    "message": "WebDAV URL からのブックマークファイルの相対パス (パスのすべてのフォルダーが先に存在していなければなりません) 例: personal_stuff/bookmarks.xbel"
+    "message": "WebDAV URLからの相対パスで、ブックマークファイルがサーバーに存在する場所を指定します（パス内のすべてのフォルダがすでに存在する必要があります）。"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "Googleドライブに保存するブックマークファイルの名前 (ドライブ内でファイル名が重複していないことを確認してください)"
+   "message": "Googleドライブに保存するブックマークファイルのファイル名です。ファイル名はフルパスで入力しないでください。この名前はドライブ内で一意であることを確認してください。"
  },
   "DescriptionBookmarksfilegit": {
     "message": "Git リポジトリーのルートからのブックマークファイルの相対パス (パスのすべてのフォルダーが先に存在していなければなりません) 例: personal_stuff/bookmarks.xbel"
@@ -145,6 +163,12 @@
   },
   "DescriptionServerfolder": {
     "message": "同期するとき、このブラウザーのブックマークはサーバーのこのパスにリンクとして保存されます。このパスは Nextcloud Bookmarks アプリ内のフォルダーを示すもので、Nextcloud Files でのフォルダーを示すものではありません。サーバーの最上位フォルダーにあるすべてのリンクを同期するには、空白のままにしてください。"
+  },
+  "DescriptionServerfolderlinkwarden": {
+    "message": "同期の際、このブラウザのブックマークはこのコレクションのリンクとして保存され、このコレクションのリンクのみがこのブラウザと同期されます。"
+  },
+  "DescriptionServerfolderkarakeep": {
+    "message": "同期の際、このブラウザのブックマークはこのコレクションのリンクとして保存され、このコレクションのリンクのみがこのブラウザと同期されます。"
   },
   "LabelLocaltarget": {
     "message": "ローカルの対象"
@@ -163,6 +187,9 @@
   },
   "LabelNewfolder": {
     "message": "新しく作成されたフォルダー"
+  },
+  "LabelSelectfolder": {
+    "message": "フォルダを選択"
   },
   "LabelOptions": {
     "message": "設定"
@@ -270,7 +297,7 @@
     "message": "Nextcloud Bookmarks"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "「Nextcloud Bookmarks」のオプションは Nextclound のブックマークアプリとブックマークを同期します。http、ftp、JavaScript のブックマークのみ同期できます。お使いの Nextcloud でブックマークアプリを Nextcloud アプリストアからインストールしていることを確認してください。このオプションでは、エンドツーエンド暗号化は使用できません。"
+    "message": "Nextcloud（オープンソースのコラボレーションプラットフォームで、自分でホストするか、さまざまなホストからクラウド上のインスタンスのアカウントを取得することができます）用のオープンソースのブックマークアプリでブックマークを同期します。Nextcloud Bookmarksでは、http、ftp、javascriptのブックマークのみ同期できます。NextcloudアプリストアからブックマークアプリをNextcloudにインストールしてください。このオプションでは、エンドツーエンドの暗号化は利用できません。"
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Bookmarks (レガシー)"
@@ -282,7 +309,7 @@
     "message": "WebDAV 共有"
   },
   "DescriptionAdapterwebdav": {
-    "message": "WebDAV オプションは、提供された WebDAV 共有のファイルにブックマークを保存して同期します。ウェブ UI はなく、任意の WebDAV 互換サーバーで使用できます。http、ftp、データ、ファイル、JavaScript のブックマークを同期できます。このオプションでは、エンドツーエンド暗号化を選択できます。"
+    "message": "提供されるWebDAV共有のファイルに保存することで、ブックマークを同期します。このオプションにはWeb UIは付属しておらず、セルフホストまたはクラウド上のWebDAV互換サーバーで使用できます。http、ftp、データ、ファイル、javascriptのブックマークを同期できます。このオプションを使用する際、エンドツーエンドの暗号化を使用するかどうかを選択できます。"
   },
   "LabelAddaccount": {
     "message": "プロファイルを追加"
@@ -340,7 +367,7 @@
     "message": "Paypal"
   },
   "DescriptionPaypal": {
-    "message": "Paypal で 1 回限りの寄付をしてプロジェクトを支援する"
+    "message": "ペイパルを通じて、1回限りまたは定期的に寄付をする。"
   },
   "LabelOpencollective": {
     "message": "OpenCollective"
@@ -403,10 +430,10 @@
     "message": "このプロファイルは削除されました"
   },
   "LabelNoAccount": {
-    "message": "プロファイルがありません"
+    "message": "プロフィールはまだない"
   },
   "DescriptionNoAccount": {
-    "message": "新しいプロファイルを作成してブックマークを同期するか、他の端末やブラウザーからプロファイルをインポートしてください。"
+    "message": "新しいプロファイルを追加するか、ファイルからプロファイルをインポートすると、同期を開始できます。"
   },
   "LabelLoginFlowStart": {
     "message": "Nextcloud でログイン"
@@ -418,7 +445,10 @@
     "message": "Nectcloud ログインに失敗しました"
   },
   "LabelNewAccount": {
-    "message": "新しいプロファイル"
+    "message": "プロファイルを追加"
+  },
+  "LabelNewImport": {
+    "message": "インポート"
   },
   "LabelNestedSync": {
     "message": "入れ子プロファイル"
@@ -493,16 +523,16 @@
     "message": "フィールセーフ"
   },
   "DescriptionFailsafe": {
-    "message": "設定のエラーやソフトウエアのバグによって、意図しないデータの削除が行われ、データが失われる場合があります。この問題の発生を防ぐため、ここでフィールセーフを無効にしない限り、floccus は一度に 50% 以上のブックマークを削除しません。"
+    "message": "設定ミスやソフトウェアのバグにより、意図せずデータが削除され、消えてしまったり、意図せずデータが重複してしまい、整理するのが大変になることがあります。このような事態を防ぐため、floccusは一度に20%以上のブックマークを削除したり、一度に20%以上のブックマークを追加することはありません。"
   },
   "LabelFailsafeon": {
-    "message": "有効。確認なしでローカルブックマークの 50% 以上を削除しません。(推奨)"
+    "message": "有効にする。ローカルブックマークから、またはローカルブックマークへの20%以上の削除または追加を、あなたに最初に尋ねることなく行いません。(推奨)"
   },
   "LabelFailsafeoff": {
-    "message": "無効。確認なしでローカルブックマークの 50% 以上を削除することを許可します。"
+    "message": "無効にする。ローカルブックマークから、またはローカルブックマークへの20%以上の削除または追加が許可されます。"
   },
   "StatusFailsafeoff": {
-    "message": "フィールセーフが無効になりました。意図しないデータ消失のリスクがあります。プロファイル設定でフィールセーフを有効にすることを推奨します。"
+    "message": "フェイルセーフは無効です。意図しないデータ損失や複製の危険性があります。プロファイル設定でフェイルセーフを有効にすることをお勧めします。"
   },
   "LabelAdaptergoogledrive": {
     "message": "Google ドライブ"
@@ -548,6 +578,9 @@
   },
   "LabelDeleteitem": {
     "message": "削除"
+  },
+  "DescriptionReallydeleteitem": {
+    "message": "本当にこの項目を削除しますか？"
   },
   "LabelNobookmarks": {
     "message": "ブックマークがありません"
@@ -658,7 +691,7 @@
     "message": "プロファイルを作成しました"
   },
   "DescriptionAccountcreated": {
-    "message": "プロファイルが作成されました。このタブは閉じても構いません。"
+    "message": "プロフィールが作成されました。これでこのタブを閉じることができます。もう一つ：同期はバックアップではありません。ブックマークのバックアップを定期的に取ってください。"
   },
   "DescriptionNonhttps": {
     "message": "安全ではないプロトコルを使用するサーバーを入力しました。HTTPS に対応するサーバーの使用を推奨しています。"
@@ -703,7 +736,7 @@
     "message": "Git over HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Git オプションは、提供された Git リポジトリー内のファイルにブックマークを保存して同期します。ウェブ UI はありませんが、Github、Gitlab、Gitea などのすべての Git ホスティングサーバーに対応しています。http、ftp、データ、ファイル、JavaScript のブックマークを同期できます。このオプションでは、エンドツーエンド暗号化は使用できません。 "
+    "message": "Gitオプションは、提供されたGitリポジトリ内のファイルにブックマークを保存することでブックマークを同期します。このオプションにはウェブUIは付属していませんが、Github、Gitlab、GiteaなどのGitホスティングサーバーで使うことができます。http、ftp、データ、ファイル、javascriptのブックマークを同期できます。このオプションを使うと、エンドツーエンドの暗号化は使えません。このオプションは現在モバイルアプリでは利用できません。"
   },
   "LabelGiturl": {
     "message": "リポジトリーの URL (HTTP)"
@@ -712,16 +745,16 @@
     "message": "Git ブランチ"
   },
   "LabelTelemetry": {
-    "message": "🐛 自動エラー報告"
+    "message": "自動エラーレポート"
   },
   "DescriptionTelemetry": {
     "message": "floccus は開発者に自動でエラーデータを送信できます。エラーデータは floccus のバグの迅速な発見と解消に役立ち、長期的には floccus のユーザー体験を向上させます。エラーレポートを有効にしても、floccus の開発者はあなたのブックマークを閲覧できません。"
   },
   "LabelTelemetryenable": {
-    "message": "floccus の開発者にエラーデータを自動送信する"
+    "message": "エラーデータと、どの同期方法を使用しているかという情報を自動的にfloccusの開発者に送信します。"
   },
   "LabelTelemetrydisable": {
-    "message": "floccus の開発者にエラーデータを送信しない"
+    "message": "フロッカスの開発者にデータを送信しない"
   },
   "LabelAccountlabel": {
     "message": "プロファイル ラベル"
@@ -767,5 +800,101 @@
   },
   "DescriptionDisabledaftererror": {
     "message": "このプロファイルを無効にする前に 10 回再試行しました"
+  },
+  "DescriptionBookmarkexists": {
+    "message": "このブックマークは選択したプロファイルに既に存在します。"
+  },
+  "LabelReportproblem": {
+    "message": "問題を報告"
+  },
+  "DescriptionReportproblem": {
+    "message": "具体的な問題について開発者に直接問い合わせたい場合は、こちらからどうぞ："
+  },
+  "LabelAdapterKarakeep":  {
+    "message": "カラキープ"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "オープンソースのセルフホスティングKarakeepアプリでブックマークを同期します。このオプションは、エンドツーエンドの暗号化を使用することができず、同期間でブックマークの順序を保持することはできません。"
+  },
+  "LabelApiKey":  {
+    "message": "APIキー"
+  },
+  "LabelKarakeepurl":  {
+    "message": "KarakeepサーバーのURL"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "Karakeepサーバーへの接続に失敗しました。"
+  },
+  "LabelAdapterlinkwarden":  {
+    "message": "Linkwarden"
+  },
+  "DescriptionAdapterlinkwarden":  {
+    "message": "オープンソースのLinkwardenアプリでブックマークを同期します。自分のサーバーか、クラウド上のcloud.linkwarden.appでホストしてください。同期できるのはhttp、ftp、javascriptブックマークのみです。このオプションでは、エンドツーエンドの暗号化は使用できず、同期をまたいだブックマークの順序の保持はサポートされていません。"
+  },
+  "LabelLinkwardenurl":  {
+    "message": "LinkwardenサーバーのURL"
+  },
+  "LabelAccesstoken":  {
+    "message": "アクセストークン"
+  },
+  "LabelLinkwardenconnectionerror": {
+    "message": "Linkwardenサーバーへの接続に失敗しました。"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "他のフォルダからの結果"
+  },
+  "LabelScheduledforcesync": {
+    "message": "強制同期"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "本当に強制同期しますか？同時に2台のデバイスと同期すると、データの破損など予期せぬ結果を招く可能性があります。確認する前に、現時点で他のデバイスが同期していないことを確認してください。"
+  },
+  "DescriptionAutosync": {
+    "message": "自動同期をオンにすると、設定可能な一定の間隔で定期的に同期が実行され、変更を加えた数秒後にはオンデマンドで同期が実行されます。自動同期をオンにしない場合は、同期ボタンを押して手動で同期を実行する必要があります。"
+  },
+  "LabelOpeninnewtab": {
+    "message": "このビューを新しいタブで開く"
+  },
+  "LabelGivefeedback": {
+    "message": "フィードバック"
+  },
+  "LabelYourname": {
+    "message": "お名前"
+  },
+  "LabelYouremail": {
+    "message": "Eメール（オプション）"
+  },
+  "LabelYourmessage": {
+    "message": "ご意見・ご感想"
+  },
+  "LabelSubmitfeedback": {
+    "message": "フィードバックを投稿する"
+  },
+  "DescriptionFeedbacklegal": {
+    "message": "このフィードバックフォームはSentryによって提供されています。送信を押すことで、入力されたデータをSentryのサーバーに保存することに同意したことになります。あなたのブックマークデータがSentryに送信されることはありません。"
+  },
+  "DescriptionFeedbackhowto": {
+    "message": "floccus開発者へのフィードバックをありがとうございます！問題についてのフィードバックの場合は、どのような手順を踏んだか、何を期待したか、その代わりに何が起こったかを必ず書いてください。機能要望に関するフィードバックの場合は、その機能によって解決できるユースケースや問題を必ず記載してください。Eメールをご記入いただければ、折り返しご連絡させていただきます。ありがとうございました！"
+  },
+  "LabelFeedbacksent": {
+    "message": "ご意見ありがとう！"
+  },
+  "LabelFaq":{
+    "message": "よくある質問をチェック"
+  },
+  "StatusSyncingfailed": {
+    "message": "同期に失敗"
+  },
+  "StatusSyncingcomplete": {
+    "message": "同期完了"
+  },
+  "NotificationSyncingprofile": {
+    "message": "同期プロファイル{0}"
+  },
+  "NotificationSyncingsucceeded": {
+    "message": "{0} プロファイルの同期に成功"
+  },
+  "NotificationSyncingfailed": {
+    "message": "プロファイルの同期に失敗しました{0}"
   }
 }
