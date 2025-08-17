@@ -881,5 +881,20 @@
   },
   "LabelFaq":{
     "message": "查看常见问题解答"
+  },
+  "StatusSyncingfailed": {
+    "message": "同步失败了"
+  },
+  "StatusSyncingcomplete": {
+    "message": "同步完毕"
+  },
+  "NotificationSyncingprofile": {
+    "message": "同步配置文件 {0}"
+  },
+  "NotificationSyncingsucceeded": {
+    "message": "成功同步了配置文件 {0}"
+  },
+  "NotificationSyncingfailed": {
+    "message": "同步配置文件 {0} 失败了"
   }
 }
