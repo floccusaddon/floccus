@@ -889,7 +889,7 @@
     "message": "Synchronisierung abgeschlossen"
   },
   "NotificationSyncingprofile": {
-    "message": "Profil synchronisieren {0}"
+    "message": "Synchronisiere Profil {0}"
   },
   "NotificationSyncingsucceeded": {
     "message": "Synchronisierung des Profils {0} erfolgreich"
