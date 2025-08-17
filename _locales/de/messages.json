@@ -881,5 +881,20 @@
   },
   "LabelFaq":{
     "message": "FAQs lesen"
+  },
+  "StatusSyncingfailed": {
+    "message": "Synchronisierung fehlgeschlagen"
+  },
+  "StatusSyncingcomplete": {
+    "message": "Synchronisierung abgeschlossen"
+  },
+  "NotificationSyncingprofile": {
+    "message": "Profil synchronisieren {0}"
+  },
+  "NotificationSyncingsucceeded": {
+    "message": "Synchronisierung des Profils {0} erfolgreich"
+  },
+  "NotificationSyncingfailed": {
+    "message": "Profil kann nicht synchronisiert werden {0}"
   }
 }
