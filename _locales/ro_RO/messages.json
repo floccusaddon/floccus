@@ -1,0 +1,900 @@
+{
+  "Error001": {
+    "message": "E001: Dosarul în care se creează nu există"
+  },
+  "Error002": {
+    "message": "E002: Marcajul pentru actualizare nu mai există"
+  },
+  "Error003": {
+    "message": "E003: Folder to move out of doesn't exist. Aceasta este o anomalie. Felicitări."
+  },
+  "Error004": {
+    "message": "E004: Dosarul în care urmează să se mute nu există"
+  },
+  "Error005": {
+    "message": "E005: Dosarul în care se creează nu există"
+  },
+  "Error006": {
+    "message": "E006: Dosarul pentru actualizare nu există"
+  },
+  "Error007": {
+    "message": "E007: Dosarul de mutat nu există"
+  },
+  "Error008": {
+    "message": "E008: Dosarul din care trebuie să ieși nu există"
+  },
+  "Error009": {
+    "message": "E009: Dosarul în care urmează să se mute nu există"
+  },
+  "Error010": {
+    "message": "E010: Nu s-a putut găsi dosarul pentru comandă"
+  },
+  "Error011": {
+    "message": "E011: Elementul din folderul de comandă nu este un copil real: {0}"
+  },
+  "Error012": {
+    "message": "E012: La ordonarea dosarelor lipsesc unii dintre copiii dosarului"
+  },
+  "Error013": {
+    "message": "E013: Dosarul de eliminat nu există"
+  },
+  "Error014": {
+    "message": "E014: Dosarul părinte din care se elimină dosarul nu există"
+  },
+  "Error015": {
+    "message": "E015: Date de răspuns neașteptate de la server"
+  },
+  "Error016": {
+    "message": "E016: Cererea a expirat. Verificați configurația serverului dvs."
+  },
+  "Error017": {
+    "message": "E017: Eroare de rețea: Verificați conexiunea la rețea și detaliile contului dvs."
+  },
+  "Error018": {
+    "message": "E018: Nu s-a putut autentifica cu serverul."
+  },
+  "Error019": {
+    "message": "E019: Stare HTTP {0}. Cerere {1} eșuată. Verificați configurația serverului și jurnalul."
+  },
+  "Error020": {
+    "message": "E020: Nu s-a putut analiza răspunsul serverului. Aplicația Bookmarks este instalată pe serverul dvs.?"
+  },
+  "Error021": {
+    "message": "E021: Stare server inconsistentă. Dosarul este prezent în lista de ordine a copiilor, dar nu și în arborele de dosare"
+  },
+  "Error022": {
+    "message": "E022: Folderul {0} se presupune că conține un marcaj inexistent {1}"
+  },
+  "Error023": {
+    "message": "E023: Nu se poate șterge fișierul de blocare, luați în considerare ștergerea manuală a {0}."
+  },
+  "Error024": {
+    "message": "E024: Stare HTTP {0} în încercarea de a determina starea fișierului de blocare {1}"
+  },
+  "Error025": {
+    "message": "E025: Setarea fișierului de marcaje nu trebuie să înceapă cu o bară oblică: \"/"
+  },
+  "Error026": {
+    "message": "E026: Procesul de sincronizare a fost anulat"
+  },
+  "Error027": {
+    "message": "E027: Procesul de sincronizare a fost întrerupt"
+  },
+  "Error028": {
+    "message": "E028: Nu s-a putut autentifica cu serverul."
+  },
+  "Error029": {
+    "message": "E029: Failsafe: Actuala execuție de sincronizare ar șterge {0}% din link-uri. Refuză să execute. Dezactivați această măsură de siguranță în setările contului dacă doriți să continuați oricum."
+  },
+  "Error030": {
+    "message": "E030: A eșuat decriptarea fișierului de marcaje. Este posibil ca fraza de acces să fie greșită sau fișierul să fie corupt."
+  },
+  "Error031": {
+    "message": "E031: Nu s-a putut autentifica cu Google Drive. Vă rugăm să vă conectați din nou la floccus cu contul dvs. Google."
+  },
+  "Error032": {
+    "message": "E032: Eroare OAuth. Eroare de validare a tokenului. Vă rugăm să vă reconectați contul Google."
+  },
+  "Error033": {
+    "message": "E033: Redirecționare detectată. Vă rugăm să vă asigurați că serverul acceptă metoda de sincronizare selectată și că URL-ul introdus este corect și nu redirecționează către o altă locație. Dacă redirecționarea face parte din configurația dvs., puteți dezactiva această verificare în setări."
+  },
+  "Error034": {
+    "message": "E034: Fișierul de marcaje de la distanță este ilizibil. Poate ați uitat să setați o frază de criptare sau ați setat un format de fișier greșit."
+  },
+  "Error035": {
+    "message": "E035: A eșuat crearea următorului semn de carte pe server: {0}"
+  },
+  "Error036": {
+    "message": "E036: Lipsește permisiunea de a accesa serverul de sincronizare"
+  },
+  "Error037": {
+    "message": "E037: Resursa este blocată"
+  },
+  "Error038": {
+    "message": "E038: Nu s-a putut găsi folderul local"
+  },
+  "Error039": {
+    "message": "E039: A eșuat actualizarea următorului marcaj de pe server: {0}"
+  },
+  "Error040": {
+    "message": "E040: Nu s-a putut căuta numele fișierului dvs. în Google Drive"
+  },
+  "Error041": {
+    "message": "E041: Dimensiunea fișierului marcajelor de la distanță diferă de conținutul care a fost descărcat efectiv de pe server. Aceasta ar putea fi o problemă temporară de rețea. Dacă această eroare persistă, vă rugăm să contactați administratorul serverului."
+  },
+  "Error042": {
+    "message": "E042: Dimensiunea fișierului de marcaje de la distanță nu a putut fi recuperată. Este imposibil să se verifice dacă fișierul de marcaje a fost descărcat în întregime. Dacă această eroare persistă, vă rugăm să contactați administratorul serverului."
+  },
+  "Error043": {
+    "message": "E043: Failsafe: Executarea curentă a sincronizării ar crește numărul de marcaje cu {0}%. Refuză să execute. Dezactivați această măsură de siguranță în setările profilului dacă doriți să continuați oricum."
+  },
+  "Error044": {
+    "message": "E044: Operațiunea Git push a eșuat: {0}"
+  },
+  "LabelWebdavurl": {
+    "message": "URL WebDAV"
+  },
+  "DescriptionWebdavurl": {
+    "message": "de exemplu, cu nextcloud: https://example.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "URL-ul Nextcloud"
+  },
+  "LabelUsername": {
+    "message": "Nume utilizator"
+  },
+  "LabelPassword": {
+    "message": "Parolă"
+  },
+  "LabelBookmarksfile": {
+    "message": "Fișier de marcaje"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "o cale către locul unde se va afla fișierul de marcaje pe server, în raport cu URL-ul WebDAV (toate folderele din cale trebuie să existe deja). de exemplu, personal_stuff/bookmarks.xbel"
+  },
+ "DescriptionBookmarksfilegoogle": {
+   "message": "numele fișierului de marcaje care va fi stocat în Google Drive. Nu introduceți calea completă a fișierului, ci doar numele fișierului. Asigurați-vă că acest nume este unic în unitatea dumneavoastră. de exemplu, mybookmarks.xbel"
+ },
+  "DescriptionBookmarksfilegit": {
+    "message": "o cale către fișierul de marcaje referitoare la rădăcina depozitului Git (toate folderele din cale trebuie să existe deja). de exemplu, personal_stuff/bookmarks.xbel"
+  },
+  "LabelServerfolder": {
+    "message": "Ținta serverului"
+  },
+  "DescriptionServerfolder": {
+    "message": "La sincronizare, marcajele dvs. din acest browser vor fi stocate ca linkuri în această cale pe server. Rețineți că această cale reprezintă un folder în aplicația Nextcloud Bookmarks, nu un folder în Nextcloud Files. Lăsați-o goală pentru a plasa toate linkurile în cel mai de sus folder de pe server."
+  },
+  "DescriptionServerfolderlinkwarden": {
+    "message": "La sincronizare, marcajele dvs. din acest browser vor fi stocate ca linkuri în această colecție și numai linkurile din această colecție vor fi sincronizate cu acest browser."
+  },
+  "DescriptionServerfolderkarakeep": {
+    "message": "La sincronizare, marcajele dvs. din acest browser vor fi stocate ca linkuri în această colecție și numai linkurile din această colecție vor fi sincronizate cu acest browser."
+  },
+  "LabelLocaltarget": {
+    "message": "Țintă locală"
+  },
+  "DescriptionLocaltarget": {
+    "message": "Alegeți aici dacă doriți să sincronizați marcajele sau filele browserului."
+  },
+  "LabelLocalfolder": {
+    "message": "Folder de marcaje"
+  },
+  "DescriptionLocalfolder": {
+    "message": "Marcajele din acest dosar de marcaje vor fi stocate ca link-uri pe server, iar link-urile de pe server vor fi stocate ca marcaje în acest dosar de marcaje din acest browser."
+  },
+  "LabelRootfolder": {
+    "message": "Dosar rădăcină"
+  },
+  "LabelNewfolder": {
+    "message": "Dosar nou creat"
+  },
+  "LabelSelectfolder": {
+    "message": "Selectați un dosar"
+  },
+  "LabelOptions": {
+    "message": "Opțiuni"
+  },
+  "LabelSyncnow": {
+    "message": "Sincronizați acum"
+  },
+  "LabelCancelsync": {
+    "message": "Anulează sincronizarea"
+  },
+  "LabelSyncall": {
+    "message": "Sincronizați toate profilurile"
+  },
+  "LabelAutosync": {
+    "message": "Auto-sincronizare"
+  },
+  "StatusLastsynced": {
+    "message": "Ultima sincronizare: {0} în urmă"
+  },
+  "StatusNeversynced": {
+    "message": "Nu este încă sincronizat"
+  },
+  "StatusAllgood": {
+    "message": "Toate bune"
+  },
+  "StatusDisabled": {
+    "message": "Dezactivat"
+  },
+  "StatusError": {
+    "message": "Eroare"
+  },
+  "StatusSyncing": {
+    "message": "Sincronizare"
+  },
+  "StatusScheduled": {
+    "message": "Programat"
+  },
+  "LabelReset": {
+    "message": "Resetare"
+  },
+  "DescriptionReset": {
+    "message": "Resetați folderul sincronizat pentru a crea unul nou"
+  },
+  "LabelChoosefolder": {
+    "message": "Alegeți un dosar"
+  },
+  "DescriptionChoosefolder": {
+    "message": "Setați un dosar existent pentru sincronizare"
+  },
+  "LabelRemoveaccount": {
+    "message": "Elimină profilul"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "Ștergeți acest profil (acest lucru nu vă va șterge marcajele)"
+  },
+  "LabelSyncfromscratch": {
+    "message": "Trigger sync de la zero"
+  },
+  "LabelResetCache": {
+    "message": "Resetați memoria cache"
+  },
+  "DescriptionResetcache": {
+    "message": "Faceți clic pe acest buton pentru a reseta memoria cache, astfel încât următoarea execuție de sincronizare să nu șteargă niciun fel de date și doar să unească serverul și marcajele locale"
+  },
+  "LabelParallelsync": {
+    "message": "Accelerarea sincronizării"
+  },
+  "DescriptionParallelsync": {
+    "message": "Bifați această casetă pentru a procesa mai multe foldere în paralel pentru a accelera sincronizarea. Această caracteristică este experimentală și face mai dificilă citirea jurnalelor de depanare."
+  },
+  "LabelStrategy": {
+    "message": "Strategia de sincronizare"
+  },
+  "DescriptionStrategy": {
+    "message": "Această opțiune determină modul de sincronizare a marcajelor pe diferite dispozitive. De obicei, veți dori să păstrați modificările din toate părțile dacă acestea sunt compatibile, dar uneori este posibil să doriți să suprascrieți modificările (inclusiv adăugirile și ștergerile) din alte browsere sau să suprascrieți modificările pe care le-ați făcut local."
+  },
+  "LabelStrategydefault": {
+    "message": "Întotdeauna îmbinați modificările locale cu modificările din alte browsere (recomandat)"
+  },
+  "LabelStrategyslave": {
+    "message": "Anulați întotdeauna modificările locale și descărcați modificările din alte browsere"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "Încărcați întotdeauna modificările locale și anulați modificările din alte browsere"
+  },
+  "LabelSave": {
+    "message": "Salvați"
+  },
+  "LabelCancel": {
+    "message": "Anulează"
+  },
+  "LabelAdd": {
+    "message": "Adaugă"
+  },
+  "LabelChange": {
+    "message": "Schimbare"
+  },
+  "LabelRemove": {
+    "message": "Eliminați"
+  },
+  "LabelBack": {
+    "message": "Înapoi"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Marcaje Nextcloud"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "Sincronizați marcajele dvs. cu aplicația Bookmarks open-source pentru Nextcloud (o platformă de colaborare open-source pe care o puteți găzdui singur sau puteți obține un cont pentru o instanță în cloud de la unul dintre diverșii găzduitori). Cu Nextcloud Bookmarks puteți sincroniza doar marcajele http, ftp și javascript. Asigurați-vă că ați instalat aplicația Bookmarks din magazinul de aplicații Nextcloud în Nextcloud. Această opțiune nu poate utiliza criptarea end-to-end."
+  },
+  "LabelAdapternextcloud": {
+    "message": "Marcaje Nextcloud (moștenire)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "Opțiunea veche este compatibilă cu cel puțin versiunea v0.11 a aplicației Bookmarks. Aceasta va emula folderele utilizând etichete care conțin calea folderului. Nu este recomandată utilizarea acestei opțiuni pentru profilurile noi."
+  },
+  "LabelAdapterwebdav": {
+    "message": "Partajare WebDAV"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "Sincronizați marcajele prin stocarea acestora într-un fișier din partajul WebDAV furnizat. Nu există nicio interfață web însoțitoare pentru această opțiune și o puteți utiliza cu orice server compatibil WebDAV, fie autohton, fie în cloud. Aceasta poate sincroniza http, ftp, date, fișiere și marcaje javascript. Puteți alege să utilizați criptarea end-to-end atunci când utilizați această opțiune."
+  },
+  "LabelAddaccount": {
+    "message": "Adaugă profil"
+  },
+  "LabelOpenintab": {
+    "message": "Deschide în tab"
+  },
+  "LabelDebuglogs": {
+    "message": "Jurnale de depanare"
+  },
+  "LabelFunddevelopment": {
+    "message": "💸 Dezvoltarea fondurilor"
+  },
+  "DescriptionFunddevelopment": {
+    "message": "Lucrul la floccus este alimentat de un model de abonament voluntar. Dacă credeți că ceea ce fac merită și dacă puteți renunța la câteva monede în fiecare lună fără greutăți, vă rog să sprijiniți munca mea. De asemenea, vă rugăm să luați în considerare acordarea floccus un rating pe magazinul addon de alegerea ta. Vă mulțumesc!💙"
+  },
+  "LabelSelect": {
+    "message": "Selectați"
+  },
+  "LabelUntitledfolder": {
+    "message": "Dosar fără titlu"
+  },
+  "LabelSetkeybutton": {
+    "message": "Setați fraza de acces"
+  },
+  "LabelKey": {
+    "message": "Introduceți fraza de acces pentru deblocare"
+  },
+  "LabelKey2": {
+    "message": "Introduceți fraza de acces a doua oară"
+  },
+  "LabelUnlock": {
+    "message": "Deblocați floccus"
+  },
+  "LabelRemovekey": {
+    "message": "Eliminați fraza de acces"
+  },
+  "LabelRemovedkey": {
+    "message": "Frază de acces eliminată"
+  },
+  "LabelSyncinterval": {
+    "message": "Interval de sincronizare"
+  },
+  "DescriptionSyncinterval": {
+    "message": "Intervalul de timp dintre două execuții de sincronizare în minute. Valoarea implicită este 15 minute."
+  },
+  "LabelChooseadapter": {
+    "message": "Cum doriți să vă sincronizați?"
+  },
+  "LabelOptionsscreen": {
+    "message": "{0} opțiuni",
+    "description": "Title of the options screen. The placeholder holds the profile type."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "Faceți o donație unică sau periodică prin paypal pentru a sprijini proiectul"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "Faceți o donație periodică prin intermediul OpenCollective pentru a sprijini proiectul"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "Faceți o donație periodică prin Liberapay pentru a sprijini proiectul"
+  },
+  "LabelGithubsponsors": {
+    "message": "Sponsori GitHub"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "Faceți o donație periodică prin intermediul sponsorilor GitHub pentru a sprijini proiectul"
+  },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "Faceți o donație periodică prin Patreon pentru a sprijini proiectul"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "Faceți o donație periodică sau unică prin Ko-fi pentru a sprijini proiectul"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "Acest tip de profil moștenit este depreciat și va fi eliminat în curând. Vă rugăm să treceți la noua metodă de sincronizare nextcloud. Vă așteaptă performanțe și acuratețe îmbunătățite."
+  },
+  "LabelUpdated": {
+    "message": "⚡ Floccus a fost actualizat"
+  },
+  "DescriptionUpdated": {
+    "message": "Felicitări, cea mai recentă actualizare a floccus a ajuns pe calculatorul dvs.!"
+  },
+  "LabelReleaseNotes": {
+    "message": "Citiți notele de lansare"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "Detalii server"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "Maparea dosarelor"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "Comportamentul de sincronizare"
+  },
+  "LabelOptionsDangerous": {
+    "message": "Acțiuni periculoase"
+  },
+  "LabelAccountDeleted": {
+    "message": "Profil șters"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "Acest profil a fost șters"
+  },
+  "LabelNoAccount": {
+    "message": "Nu există încă profiluri"
+  },
+  "DescriptionNoAccount": {
+    "message": "Adăugați profiluri noi sau importați profiluri dintr-un fișier, apoi puteți începe sincronizarea."
+  },
+  "LabelLoginFlowStart": {
+    "message": "Conectați-vă cu Nextcloud"
+  },
+  "LabelLoginFlowStop": {
+    "message": "Anulați autentificarea Nextcloud"
+  },
+  "LabelLoginFlowError": {
+    "message": "Conectarea la Nextcloud a eșuat"
+  },
+  "LabelNewAccount": {
+    "message": "Adaugă profil"
+  },
+  "LabelNewImport": {
+    "message": "Import"
+  },
+  "LabelNestedSync": {
+    "message": "Profiluri imbricate"
+  },
+  "DescriptionNestedSync": {
+    "message": "Puteți anida profiluri astfel încât un dosar părinte să aparțină profilului A și un subdosar profilurilor A și B. Doriți să permiteți și altor profiluri să sincronizeze dosarul acestui profil?"
+  },
+  "LabelNestedSyncNo": {
+    "message": "Nu, ignorați folderul acestui profil în alte profiluri"
+  },
+  "LabelNestedSyncYes": {
+    "message": "Da, includeți folderul acestui profil în alte profiluri"
+  },
+  "LabelImportExport": {
+    "message": "Profiluri de import/export"
+  },
+  "LabelExport": {
+    "message": "Profiluri de export"
+  },
+  "LabelImport": {
+    "message": "Profiluri de import"
+  },
+  "DescriptionExport": {
+    "message": "Selectați mai jos profilurile pe care doriți să le exportați într-un fișier, astfel încât să puteți recrea cu ușurință aceleași profiluri pe un alt dispozitiv sau browser."
+  },
+  "DescriptionImport": {
+    "message": "Importați aici un fișier cu profiluri exportate pentru a recrea din nou profilurile exportate pe un alt dispozitiv sau browser. Vă rugăm să vă asigurați că setați din nou folderele de sincronizare corecte după import."
+  },
+  "LabelFolderNotFound": {
+    "message": "Folderul nu a fost găsit"
+  },
+  "LabelSyncTabs": {
+    "message": "File browser"
+  },
+  "DescriptionSyncTabs": {
+    "message": "Link-urile care sunt stocate pe server vor fi deschise ca file de browser în browserul dvs., iar filele de browser deschise existente sunt stocate ca link-uri pe serverul dvs. Rețineți că, în funcție de câte linkuri sunt stocate pe server, deoarece toate vor fi deschise ca file la următoarea execuție de sincronizare, este posibil ca browserul dvs. să fie copleșit."
+  },
+  "LabelTabs": {
+    "message": "File"
+  },
+  "LabelSyncDown": {
+    "message": "Trageți în jos"
+  },
+  "DescriptionSyncDown": {
+    "message": "Descărcați modificările din alte browsere și suprascrieți modificările locale"
+  },
+  "LabelSyncUp": {
+    "message": "Împinge în sus"
+  },
+  "DescriptionSyncUp": {
+    "message": "Încărcați modificările locale și suprascrieți modificările din alte browsere"
+  },
+  "LabelSyncDownOnce": {
+    "message": "Trageți în jos o dată"
+  },
+  "LabelSyncUpOnce": {
+    "message": "Împingeți în sus o dată"
+  },
+  "LabelSyncNormal": {
+    "message": "Unire"
+  },
+  "DescriptionSyncNormal": {
+    "message": "Fuzionați modificările locale cu modificările din alte browsere"
+  },
+  "DescriptionFilesPermission": {
+    "message": "Asigurați-vă că dați permisiunea floccus să utilizeze nu numai aplicația de marcaje, ci și aplicația de fișiere Nextcloud."
+  },
+  "DescriptionExtension": {
+    "message": "Sincronizați marcajele private între browsere și dispozitive"
+  },
+  "LabelFailsafe": {
+    "message": "Failsafe"
+  },
+  "DescriptionFailsafe": {
+    "message": "Uneori, erorile de configurare sau bug-urile software pot cauza eliminarea neintenționată a datelor, care sunt apoi pierdute, sau duplicarea neintenționată a datelor, care este apoi greu de rezolvat. Pentru a preveni acest lucru, floccus nu va șterge mai mult de 20% din marcajele dvs. dintr-o dată și, de asemenea, nu va adăuga mai mult de 20% la numărul dvs. de marcaje dintr-o dată, cu excepția cazului în care dezactivați această măsură de siguranță aici."
+  },
+  "LabelFailsafeon": {
+    "message": "Activat. Nu va șterge sau adăuga mai mult de 20% din/la marcajele dvs. locale fără să vă întrebe mai întâi. (Recomandat)"
+  },
+  "LabelFailsafeoff": {
+    "message": "Dezactivat. Va permite eliminarea sau adăugarea a mai mult de 20% din/în marcajele dvs. locale fără confirmarea dvs."
+  },
+  "StatusFailsafeoff": {
+    "message": "Failsafe dezactivat. Riscați pierderea sau duplicarea neintenționată a datelor. Este recomandat să activați Failsafe în setările profilului."
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google Drive"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "Sincronizează marcajele prin intermediul unui fișier (criptat opțional) care este stocat în Google Drive. Se pot sincroniza marcaje http, ftp, date, fișiere și javascript. Puteți alege să utilizați criptarea end-to-end atunci când utilizați această opțiune."
+  },
+  "LabelLogingoogle": {
+    "message": "Conectați-vă cu Google"
+  },
+  "DescriptionLogingoogle": {
+    "message": "Conectați-vă la contul Google pentru a stoca fișierul de sincronizare a marcajelor în Google Drive."
+  },
+  "DescriptionLoggedingoogle": {
+    "message": "V-ați conectat contul Google pentru a stoca fișierul de sincronizare a marcajelor în Google Drive."
+  },
+  "LabelPassphrase": {
+    "message": "Frază de acces"
+  },
+  "DescriptionPassphrase": {
+    "message": "Setați o frază de acces pentru criptarea fișierului dvs. de marcaje; dacă nu setați nicio frază de acces, nu se va executa nicio criptare."
+  },
+  "LabelClientcert": {
+    "message": "Trimiteți acreditările clientului"
+  },
+  "DescriptionClientcert": {
+    "message": "Activați această opțiune dacă serverul dvs. necesită un certificat de client sau cookie-uri pentru autentificare. Acest lucru poate provoca efecte secundare neintenționate, deoarece floccus va partaja module cookie cu sesiunile normale ale browserului."
+  },
+  "LabelAllowredirects": {
+    "message": "Permiteți redirecționările în URL-ul serverului"
+  },
+  "DescriptionAllowredirects": {
+    "message": "Activați această opțiune, dacă primiți erori de redirecționare în timpul sincronizării, pe care le considerați nejustificate."
+  },
+  "LabelSearch": {
+    "message": "Căutare marcaje"
+  },
+  "LabelSearchfolder": {
+    "message": "Căutare {0}"
+  },
+  "LabelEdititem": {
+    "message": "Editare"
+  },
+  "LabelDeleteitem": {
+    "message": "Ștergeți"
+  },
+  "DescriptionReallydeleteitem": {
+    "message": "Chiar doriți să ștergeți acest element?"
+  },
+  "LabelNobookmarks": {
+    "message": "Nu există marcaje aici"
+  },
+  "LabelAddbookmark": {
+    "message": "Adăugați marcaj"
+  },
+  "LabelEditbookmark": {
+    "message": "Editare marcaj"
+  },
+  "LabelAddfolder": {
+    "message": "Adăugați folder"
+  },
+  "LabelEditfolder": {
+    "message": "Editează folderul"
+  },
+  "LabelSlugline": {
+    "message": "Private Bookmark Sync"
+  },
+  "LabelDownloadlogs": {
+    "message": "Descărcați jurnalele"
+  },
+  "LabelDownloadfulllogs": {
+    "message": "Jurnale complete"
+  },
+  "LabelDownloadanonymizedlogs": {
+    "message": "Jurnale redactate"
+  },
+  "DescriptionDownloadlogs": {
+    "message": "Floccus înregistrează toate acțiunile sale într-un fișier jurnal pe care îl puteți examina singur sau îl puteți trimite dezvoltatorilor în scopuri de depanare. În jurnalele redactate, numele dosarelor și marcajelor, precum și URL-urile sunt codificate ireversibil utilizând o funcție de hashing criptografic. Atunci când trimiteți jurnale redactate, asigurați-vă că verificați în continuare fișierul descărcat pentru date sensibile care ar fi putut să nu fie surprinse de procesul de anonimizare."
+  },
+  "ErrorFolderloopselected": {
+    "message": "Nu se poate muta un folder în el însuși"
+  },
+  "ErrorNofolderselected": {
+    "message": "Niciun dosar selectat"
+  },
+  "LabelAllownetwork": {
+    "message": "Permiteți utilizarea rețelei"
+  },
+  "DescriptionAllownetwork": {
+    "message": "Floccus poate utiliza rețeaua în afară de conectarea la serverul dvs. de sincronizare, pentru a obține informații suplimentare despre marcajele dvs. (cum ar fi pictograme etc.). Aici puteți activa o astfel de utilizare a rețelei."
+  },
+  "LabelMobilesettings": {
+    "message": "Setări mobile"
+  },
+  "LabelContinuefloccus":{
+    "message": "Continuați la floccus"
+  },
+  "LabelAbout":{
+    "message": "Despre"
+  },
+  "LabelCurrentversion": {
+    "message": "Versiunea curentă"
+  },
+  "DescriptionCurrentversion": {
+    "message": "Versiunea dvs. instalată în prezent a floccus este:"
+  },
+  "LabelContributors": {
+    "message": "Contributori"
+  },
+  "DescriptionContributors": {
+    "message": "Aceste persoane au contribuit la realizarea floccus"
+  },
+  "LabelSortcustom": {
+    "message": "Personalizat"
+  },
+  "LabelSorturl": {
+    "message": "Legătură"
+  },
+  "LabelSorttitle": {
+    "message": "Titlu"
+  },
+  "LabelSyncmethod": {
+    "message": "Metoda de sincronizare"
+  },
+  "LabelSyncserver": {
+    "message": "Server de sincronizare"
+  },
+  "LabelSyncfolders": {
+    "message": "Sincronizarea folderelor"
+  },
+  "LabelSyncbehavior": {
+    "message": "Comportamentul de sincronizare"
+  },
+  "LabelContinue": {
+    "message": "Continuați"
+  },
+  "LabelDone": {
+    "message": "Efectuat"
+  },
+  "LabelConnect": {
+    "message": "Conectare"
+  },
+  "LabelServersetup": {
+    "message": "La ce server doriți să vă sincronizați?"
+  },
+  "LabelGoogledrivesetup": {
+    "message": "Conectați-vă la Google Drive"
+  },
+  "LabelSyncfoldersetup": {
+    "message": "Ce foldere doriți să sincronizați?"
+  },
+  "LabelSyncbehaviorsetup": {
+    "message": "Cum doriți să funcționeze sincronizarea?"
+  },
+  "LabelAccountcreated": {
+    "message": "Profil creat"
+  },
+  "DescriptionAccountcreated": {
+    "message": "Profilul dvs. a fost creat. Puteți închide această filă acum. Încă un lucru: sincronizarea nu este o copie de siguranță. Asigurați-vă că aveți backup-uri regulate ale marcajelor dvs."
+  },
+  "DescriptionNonhttps": {
+    "message": "Ați introdus un server care utilizează un protocol nesigur. Se recomandă utilizarea numai a serverelor cu suport pentru HTTPS."
+  },
+  "LabelFiletype": {
+    "message": "Formatul fișierului"
+  },
+  "DescriptionFiletype": {
+    "message": "Puteți alege ce format de fișier doriți să utilizați pentru a stoca marcajele în cloud."
+  },
+  "LabelFiletypehtml": {
+    "message": "HTML, un format deschis, acceptat pe scară largă (experimental)"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL, un format simplu, deschis"
+  },
+  "LabelImportbookmarks": {
+    "message": "Importați marcaje"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "Importați un fișier HTML care conține marcaje în folderul curent"
+  },
+  "LabelExportBookmarks": {
+    "message": "Exportați marcaje"
+  },
+  "DescriptionExportBookmarks" : {
+    "message": "Puteți exporta toate marcajele din acest profil ca fișier HTML compatibil cu toate browserele majore."
+  },
+  "LabelShareitem": {
+    "message": "Share"
+  },
+  "LabelImportsuccessful": {
+    "message": "Profil(e) importat(e) cu succes"
+  },
+  "DescriptionSyncinprogress": {
+    "message": "Sincronizare în curs."
+  },
+  "DescriptionSyncscheduled": {
+    "message": "Acest profil va fi sincronizat în curând. Așteptăm fie ca alte dispozitive ale dvs., fie ca alte profiluri de pe acest dispozitiv să termine sincronizarea."
+  },
+  "LabelAdaptergit": {
+    "message": "Git pe HTTPS"
+  },
+  "DescriptionAdaptergit": {
+    "message": "Opțiunea Git vă sincronizează marcajele prin stocarea acestora într-un fișier din depozitul Git furnizat. Nu există o interfață web însoțitoare pentru această opțiune, dar o puteți utiliza cu orice server de găzduire Git, precum Github, Gitlab, Gitea etc. Poate sincroniza http, ftp, date, fișiere și marcaje javascript. Nu puteți utiliza criptarea end-to-end atunci când utilizați această opțiune. Această opțiune nu este disponibilă în prezent în aplicația mobilă."
+  },
+  "LabelGiturl": {
+    "message": "URL-ul depozitului utilizând HTTP"
+  },
+  "LabelGitbranch": {
+    "message": "Filială Git"
+  },
+  "LabelTelemetry": {
+    "message": "Raportare automată a erorilor"
+  },
+  "DescriptionTelemetry": {
+    "message": "Floccus poate trimite automat date de eroare către mine, dezvoltatorul. Acesta este un ajutor extraordinar pentru descoperirea și rezolvarea mai rapidă a erorilor în floccus și va contribui la îmbunătățirea experienței dvs. cu floccus pe termen lung. Chiar și atunci când raportarea erorilor este activată, dezvoltatorii floccus nu vor putea niciodată să vă vadă marcajele."
+  },
+  "LabelTelemetryenable": {
+    "message": "Trimiteți automat dezvoltatorilor floccus date de eroare și informații despre metoda de sincronizare pe care o utilizați"
+  },
+  "LabelTelemetrydisable": {
+    "message": "Nu trimiteți niciun fel de date dezvoltatorilor floccus"
+  },
+  "LabelAccountlabel": {
+    "message": "Etichetă de profil"
+  },
+  "DescriptionAccountlabel": {
+    "message": "Dați un nume acestui profil, astfel încât să îl puteți recunoaște mai ușor"
+  },
+  "LabelClickcount": {
+    "message": "Numărați clicurile"
+  },
+  "DescriptionClickcount": {
+    "message": "Trimiteți statistici despre semnele de carte pe care le vizitați cel mai des către serverul dumneavoastră Nextcloud, astfel încât să puteți sorta după numărul de clicuri"
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "Scrieți o recenzie pe Google Play"
+  },
+  "DescriptionAppstorereview": {
+    "message": "Scrieți o recenzie pe App Store"
+  },
+  "DescriptionChromereview": {
+    "message": "Scrieți o recenzie despre Chrome WebStore"
+  },
+  "DescriptionAlternativereview": {
+    "message": "Scrieți o recenzie despre AlternativeTo.net"
+  },
+  "DescriptionMozillareview": {
+    "message": "Scrieți o recenzie despre Mozilla Addons"
+  },
+  "DescriptionEdgereview": {
+    "message": "Scrieți o recenzie despre Edge Addons"
+  },
+  "LabelWritereview": {
+    "message": "💙 Împărtășește dragostea!"
+  },
+  "DescriptionWritereview": {
+    "message": "Dacă sunteți încântat de floccus, lăsați lumea să afle lăsând un rating pe una dintre platformele de mai jos."
+  },
+  "DescriptionDonateintervention": {
+    "message": "Iubești sincronizarea marcajelor? Susține-mă!"
+  },
+  "LabelDonate": {
+    "message": "Donează"
+  },
+  "DescriptionDisabledaftererror": {
+    "message": "Reîncercat de 10 ori înainte de a dezactiva acest profil"
+  },
+  "DescriptionBookmarkexists": {
+    "message": "Acest marcaj există deja în profilul selectat"
+  },
+  "LabelReportproblem": {
+    "message": "Raportați problema"
+  },
+  "DescriptionReportproblem": {
+    "message": "Dacă doriți să contactați direct dezvoltatorii cu o problemă concretă, o puteți face aici:"
+  },
+  "LabelAdapterKarakeep":  {
+    "message": "Karakeep"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "Sincronizați marcajele dvs. cu aplicația Karakeep cu sursă deschisă, găzduită de sine. Această opțiune nu poate utiliza criptarea end-to-end și nu permite păstrarea ordinii marcajelor în timpul sincronizărilor."
+  },
+  "LabelApiKey":  {
+    "message": "Cheie API"
+  },
+  "LabelKarakeepurl":  {
+    "message": "Adresa URL a serverului Karakeep"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "A eșuat conectarea la serverul Karakeep"
+  },
+  "LabelAdapterlinkwarden":  {
+    "message": "Linkwarden"
+  },
+  "DescriptionAdapterlinkwarden":  {
+    "message": "Sincronizați-vă marcajele cu aplicația open-source Linkwarden, găzduită pe propriul server sau în cloud la cloud.linkwarden.app. Aceasta poate sincroniza doar marcajele http, ftp și javascript. Această opțiune nu poate utiliza criptarea end-to-end și nu permite păstrarea ordinii marcajelor în timpul sincronizărilor."
+  },
+  "LabelLinkwardenurl":  {
+    "message": "Adresa URL a serverului Linkwarden"
+  },
+  "LabelAccesstoken":  {
+    "message": "Jeton de acces"
+  },
+  "LabelLinkwardenconnectionerror": {
+    "message": "A eșuat conectarea la serverul Linkwarden"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "Rezultate din alte dosare"
+  },
+  "LabelScheduledforcesync": {
+    "message": "Forțați sincronizarea"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "Chiar doriți să forțați sincronizarea? Sincronizarea cu două dispozitive în același timp poate avea consecințe neprevăzute, inclusiv coruperea datelor dvs. Asigurați-vă că niciun alt dispozitiv nu este sincronizat în acel moment înainte de a confirma."
+  },
+  "DescriptionAutosync": {
+    "message": "Activarea sincronizării automate va asigura declanșarea unei execuții de sincronizare în mod regulat într-un anumit interval configurabil, precum și la cerere, la câteva secunde după ce efectuați modificări. Dacă nu activați sincronizarea automată, va trebui să declanșați manual execuțiile de sincronizare prin apăsarea butonului de sincronizare."
+  },
+  "LabelOpeninnewtab": {
+    "message": "Deschideți această vizualizare într-o filă nouă"
+  },
+  "LabelGivefeedback": {
+    "message": "Oferiți feedback"
+  },
+  "LabelYourname": {
+    "message": "Numele dvs."
+  },
+  "LabelYouremail": {
+    "message": "Adresa dvs. de e-mail (opțional)"
+  },
+  "LabelYourmessage": {
+    "message": "Mesajul dvs. de feedback"
+  },
+  "LabelSubmitfeedback": {
+    "message": "Trimiteți feedback"
+  },
+  "DescriptionFeedbacklegal": {
+    "message": "Acest formular de feedback este gestionat de Sentry. Prin apăsarea butonului Trimiteți sunteți de acord să stocați datele introduse pe serverele Sentry. Niciuna dintre datele dvs. de marcaj nu va fi trimisă către Sentry."
+  },
+  "DescriptionFeedbackhowto": {
+    "message": "Vă mulțumim pentru că v-ați făcut timp să oferiți feedback dezvoltatorilor floccus! Dacă feedback-ul dvs. este legat de o problemă, asigurați-vă că includeți pașii pe care i-ați urmat, ce v-ați așteptat și ce s-a întâmplat în schimb. Dacă feedback-ul dvs. se referă la o cerere de caracteristică, asigurați-vă că includeți cazul de utilizare sau problema pe care această caracteristică ar rezolva-o pentru dvs. Dacă vă includeți adresa de e-mail, este posibil să vă răspundem. Vă mulțumim!"
+  },
+  "LabelFeedbacksent": {
+    "message": "Vă mulțumim pentru feedback-ul dumneavoastră!"
+  },
+  "LabelFaq":{
+    "message": "Consultați FAQ"
+  },
+  "StatusSyncingfailed": {
+    "message": "Sincronizarea a eșuat"
+  },
+  "StatusSyncingcomplete": {
+    "message": "Sincronizare completă"
+  },
+  "NotificationSyncingprofile": {
+    "message": "Profil de sincronizare {0}"
+  },
+  "NotificationSyncingsucceeded": {
+    "message": "Sincronizarea profilului {0} a reușit"
+  },
+  "NotificationSyncingfailed": {
+    "message": "A eșuat sincronizarea profilului {0}"
+  }
+}
