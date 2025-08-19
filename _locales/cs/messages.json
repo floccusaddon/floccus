@@ -75,7 +75,7 @@
     "message": "E025: Je třeba, aby nastavení pro soubor se záložkami nezačínalo na dopředné lomítko: „/“"
   },
   "Error026": {
-    "message": "E026: HTTP stav {0}. Získávání záložek selhalo"
+    "message": "E026: Proces synchronizace byl zrušen"
   },
   "Error027": {
     "message": "E027: Proces synchronizace byl přerušen"
@@ -84,7 +84,7 @@
     "message": "E028: Nepodařilo se ověřit vůči serveru."
   },
   "Error029": {
-    "message": "E029: Bezpečnostní pojistka: současná synchronizace by odstranila {0}% vašich záložek. Vykonání odmítnuto. Zakažte tuto bezpečnostní pojistku v nastavení účtu pro pokračování."
+    "message": "E029: Zabezpečení proti selhání: Aktuální běh synchronizace by smazal {0}% vašich odkazů. Odmítá se provést. Pokud chcete přesto pokračovat, zakažte tuto pojistku proti selhání v nastavení účtu."
   },
   "Error030": {
     "message": "E030: Dešifrování souboru záložek selhalo. Heslo může být špatně, nebo soubor poškozený."
@@ -99,13 +99,37 @@
     "message": "E033: Zjištěno přesměrování. Prosíme, ujistěte se, že server podporuje vybranou synchronizační metodu a zadaná URL je správně. Pokud je přesměrování součást vašeho nastavení, můžete zakázat ověření přesměrování v nastavení."
   },
   "Error034": {
-    "message": "E034: Vzdálený soubor se záložkami je nečitelný. Nezapomněli jste zadat heslo šifrování?"
+    "message": "E034: Vzdálený soubor záložek je nečitelný.  Možná jste zapomněli nastavit heslo pro šifrování nebo jste nastavili špatný formát souboru."
   },
   "Error035": {
     "message": "E035: Chyba při vytváření následující záložky na serveru: {0}"
   },
   "Error036": {
     "message": "E036: Chybějící oprávnění na přístup k serveru"
+  },
+  "Error037": {
+    "message": "E037: Zdroj je uzamčen"
+  },
+  "Error038": {
+    "message": "E038: Nepodařilo se najít místní složku"
+  },
+  "Error039": {
+    "message": "E039: Nezdařilo se aktualizovat následující záložku na serveru: {0}"
+  },
+  "Error040": {
+    "message": "E040: Na Disku Google se nepodařilo vyhledat název souboru."
+  },
+  "Error041": {
+    "message": "E041: Velikost souboru vzdálených záložek se liší od obsahu, který byl skutečně stažen ze serveru. Může se jednat o dočasný problém v síti. Pokud tato chyba přetrvává, obraťte se na správce serveru."
+  },
+  "Error042": {
+    "message": "E042: Nelze načíst velikost souboru vzdálených záložek. Nelze ověřit, zda byl soubor záložek stažen celý. Pokud tato chyba přetrvává, obraťte se na správce serveru."
+  },
+  "Error043": {
+    "message": "E043: Zabezpečení proti selhání: Aktuální synchronizace by zvýšila počet záložek o {0}%. Odmítá se provést. Pokud chcete přesto pokračovat, zakažte tuto pojistku proti selhání v nastavení profilu."
+  },
+  "Error044": {
+    "message": "E044: Operace Git push selhala: {0}"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -123,31 +147,49 @@
     "message": "Heslo"
   },
   "LabelBookmarksfile": {
-    "message": "Cesta k umístění záložek"
+    "message": "Soubor záložek"
   },
   "DescriptionBookmarksfile": {
-    "message": "cesta k umístění souboru se záložkami, vztažený k WebDAV URL (je třeba, aby všechny složky, uvedené v cestě, už existovaly). např. moje_data/zalozky.xbel"
+    "message": "cesta k místu, kde bude soubor záložek na serveru umístěn, vzhledem k adrese WebDAV URL (všechny složky v cestě již musí existovat), např. personal_stuff/bookmarks.xbel."
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "název souboru se záložkami, pod kterým bude uložen do Google Disk (ujistěte se, že tento název je unikátní napříč Google Diskem)"
+   "message": "název souboru záložek, který bude uložen na Disku Google. Nezadávejte celou cestu k souboru, pouze jeho název. Ujistěte se, že je tento název na vašem Disku jedinečný, např. mybookmarks.xbel."
  },
+  "DescriptionBookmarksfilegit": {
+    "message": "cesta k souboru záložek relativní ke kořenu repozitáři Git (všechny složky cesty již musí existovat). Například personal_stuff/bookmarks.xbel"
+  },
   "LabelServerfolder": {
-    "message": "Složka na serveru"
+    "message": "Adresář na serveru"
   },
   "DescriptionServerfolder": {
-    "message": "Toto je prefix cesty pod kterým bude tento účet pracovat na serveru. Ponechte prázdné, pokud nemá být prefix použit."
+    "message": "Při synchronizaci budou vaše záložky v tomto prohlížeči uloženy jako odkazy pod touto cestou na serveru. Všimněte si, že tato cesta představuje složku v aplikaci Nextcloud Bookmarks, nikoli složku v Nextcloud Files. Nechte ji prázdnou, chcete-li všechny odkazy ukládat pouze do nejvyšší složky na serveru."
+  },
+  "DescriptionServerfolderlinkwarden": {
+    "message": "Při synchronizaci budou vaše záložky v tomto prohlížeči uloženy jako odkazy v této kolekci a s tímto prohlížečem budou synchronizovány pouze odkazy v této kolekci."
+  },
+  "DescriptionServerfolderkarakeep": {
+    "message": "Při synchronizaci budou vaše záložky v tomto prohlížeči uloženy jako odkazy v této kolekci a s tímto prohlížečem budou synchronizovány pouze odkazy v této kolekci."
+  },
+  "LabelLocaltarget": {
+    "message": "Místní cíl"
+  },
+  "DescriptionLocaltarget": {
+    "message": "Vyberte, zda chcete synchronizovat záložky nebo karty prohlížeče."
   },
   "LabelLocalfolder": {
-    "message": "Místní složka"
+    "message": "Složka záložek"
   },
   "DescriptionLocalfolder": {
-    "message": "Toto je místní složka záložek v tomto prohlížeči, která bude synchronizována se serverem. Uvědomte si, že některé prohlížeče nepodporují vytváření nových položek v kořenové složce (například Firefox a Google Chrome)"
+    "message": "Bookmarks in this bookmarks folder will be stored as links on the server and links on the server will be stored as bookmarks in this bookmarks folder in this browser."
   },
   "LabelRootfolder": {
     "message": "Kořenová složka"
   },
   "LabelNewfolder": {
     "message": "Nově vytvořená složka"
+  },
+  "LabelSelectfolder": {
+    "message": "Výběr složky"
   },
   "LabelOptions": {
     "message": "Nastavení"
@@ -157,6 +199,9 @@
   },
   "LabelCancelsync": {
     "message": "Zastavit synchronizaci"
+  },
+  "LabelSyncall": {
+    "message": "Synchronizovat všechny profily"
   },
   "LabelAutosync": {
     "message": "Automatická synchronizace"
@@ -179,6 +224,9 @@
   "StatusSyncing": {
     "message": "Synchronizuje se"
   },
+  "StatusScheduled": {
+    "message": "Naplánováno"
+  },
   "LabelReset": {
     "message": "Vrátit do výchozího stavu"
   },
@@ -192,10 +240,10 @@
     "message": "Použít pro synchronizaci existující složku"
   },
   "LabelRemoveaccount": {
-    "message": "Odstranit účet"
+    "message": "Odebrat profil"
   },
   "DescriptionRemoveaccount": {
-    "message": "Smazat tento účet (toto neodstraní vaše záložky)"
+    "message": "Odstranit tento profil (neodstraní vaše záložky)"
   },
   "LabelSyncfromscratch": {
     "message": "Vyvolat synchronizaci od znovu"
@@ -204,7 +252,7 @@
     "message": "Smazat mezipaměť"
   },
   "DescriptionResetcache": {
-    "message": "Tuto kolonku zaškrtněte pro smazání mezipaměti. Tím bude zaručeno, že při příštím spuštění synchronizace nebudou smazána žádná data a pouze budou sloučeny dohromady záložky ze serveru a ty místní"
+    "message": "Pro vymazání mezipaměti klikněte na toto tlačítko. Další synchronizace bude mít garantováno, že nesmaže žádná data pouze sloučí záložky serveru a lokální dohromady"
   },
   "LabelParallelsync": {
     "message": "Urychlit synchronizaci"
@@ -249,22 +297,22 @@
     "message": "Záložky Nextcloud "
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "Možnost \"Záložky Nextcloud\" synchronizuje vaše záložky s aplikací Záložky pro Nextcloud. Může synchronizovat jen záložky http a ftp. Ujistěte se, že máte nainstalovanou aplikaci Záložky na vaší instanci Nextcloud."
+    "message": "Synchronizujte své záložky pomocí open-source aplikace Bookmarks pro Nextcloud (open-source platforma pro spolupráci, kterou můžete buď hostovat sami, nebo si u některého z různých hostitelů pořídit účet pro instanci v cloudu). Pomocí aplikace Nextcloud Bookmarks můžete synchronizovat pouze záložky http, ftp a javascript. Ujistěte se, že máte v Nextcloudu nainstalovanou aplikaci Bookmarks z obchodu s aplikacemi Nextcloud. Tato možnost nemůže využívat end-to-end šifrování."
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud Záložky (původní)"
   },
   "DescriptionAdapternextcloud": {
-    "message": "Volba původní je kompatibilní s aplikací záložky verze nejméně 0.11. Bude emulovat složky pomocí štítků obsahujících popis umístění složky. Není doporučeno používat toto pro nové účty."
+    "message": "Starší varianta je kompatibilní alespoň s verzí v0.11 aplikace Záložky. Bude emulovat složky pomocí značek obsahujících cestu ke složce. U nových profilů se nedoporučuje používat."
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV oddíl"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Možnost WebDAV synchronizuje vaše záložky jejich ukládáním v souboru v poskytnutém WebDAV oddílu. Není žádné webové uživatelské rozhraní pro tuto možnost a můžete ji použít s jakýmkolivkompatibilním  WebDAV serverem. Může synchronizovat záložky http, ftp, dat, souborů a javascriptu."
+    "message": "Záložky můžete synchronizovat uložením do souboru v poskytnuté sdílené složce WebDAV. Pro tuto možnost neexistuje žádné doprovodné webové uživatelské rozhraní a můžete ji použít s libovolným serverem kompatibilním s WebDAV, ať už vlastním, nebo v cloudu. Lze synchronizovat záložky http, ftp, datové, souborové a javascriptové. Při použití této možnosti můžete zvolit použití šifrování end-to-end."
   },
   "LabelAddaccount": {
-    "message": "Přidat účet"
+    "message": "Přidat profil"
   },
   "LabelOpenintab": {
     "message": "Otevřít v panelu"
@@ -273,7 +321,7 @@
     "message": "Záznamy ladících informací"
   },
   "LabelFunddevelopment": {
-    "message": "Podpořit vývoj"
+    "message": "💸 Financovat vývoj"
   },
   "DescriptionFunddevelopment": {
     "message": "Práce na floccus je poháněna dobrovolným předplatným. Pokud uznáte mou práci za užitečnou a můžete postrádat nějaké drobné bez nesnází, prosím, podpořte mou práci. Též prosím o hodnocení doplňku v obchodu vašeho výběru. Děkuji! 💙"
@@ -313,13 +361,13 @@
   },
   "LabelOptionsscreen": {
     "message": "{0} možností",
-    "description": "Title of the options screen. The placeholder holds the account type."
+    "description": "Title of the options screen. The placeholder holds the profile type."
   },
   "LabelPaypal": {
     "message": "Paypal"
   },
   "DescriptionPaypal": {
-    "message": "Pokud chcete tento projekt podpořit, jednorázově darujte prostřednictvím služby paypal"
+    "message": "Přispějte na projekt jednorázově nebo pravidelně prostřednictvím služby PayPal."
   },
   "LabelOpencollective": {
     "message": "OpenCollective"
@@ -339,11 +387,23 @@
   "DescriptionGithubsponsors": {
     "message": "Pokud chcete tento projekt podpořit, pravidelně darujte prostřednictvím služby GitHub sponsors"
   },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "Přispívejte pravidelně pomocí Patreonu pro podporu projektu"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "Přispívejte pravidelně nebo jednorázově pomocí Ko-fi pro podporu projektu"
+  },
   "LegacyAdapterDeprecation": {
-    "message": "Tento starý typ účtu zastaralý a brzy bude odebrán. Přejděte na novou metodu synchronizace s nextcloud. Čeká vás zlepšený výkon a přesnost."
+    "message": "Tento starší typ profilu je zastaralý, a bude brzy odebrán. Přepněte prosím na nový způsob synchronizace nextcloud. Čeká na vás vyšší výkon a přesnost."
   },
   "LabelUpdated": {
-    "message": "Floccus byl aktualizován"
+    "message": "⚡ Floccus byl aktualizován"
   },
   "DescriptionUpdated": {
     "message": "Gratulujeme, na váš stroj dorazila nejnovější aktualizace doplňku floccus!"
@@ -364,16 +424,16 @@
     "message": "Nebezpečné akce"
   },
   "LabelAccountDeleted": {
-    "message": "Účet smazán"
+    "message": "Profil odstraněn"
   },
   "DescriptionAccountDeleted": {
-    "message": "Tento účet byl smazán"
+    "message": "Tento profil byl odstraněn"
   },
   "LabelNoAccount": {
-    "message": "Nejsou zde žádné účty"
+    "message": "Zatím bez profilů"
   },
   "DescriptionNoAccount": {
-    "message": "Vytvořit nový účet pro synchronizaci vašich záložek nebo importovat účet z jiného zařízení či prohlížeče."
+    "message": "Přidejte nové nebo importujte profily ze souboru a můžete začít synchronizovat."
   },
   "LabelLoginFlowStart": {
     "message": "Přihlásit se pomocí Nextcloud"
@@ -385,40 +445,46 @@
     "message": "Přihlášení pomocí Nextcloud selhalo"
   },
   "LabelNewAccount": {
-    "message": "Nový účet"
+    "message": "Přidat profil"
+  },
+  "LabelNewImport": {
+    "message": "Importovat"
   },
   "LabelNestedSync": {
-    "message": "Vnořené účty"
+    "message": "Vnořené profily"
   },
   "DescriptionNestedSync": {
-    "message": "Můžete vnořovat účty, aby nadřazená složka patřila účtu A a podsložka účtu A a B. Chcete povolit ostatním účtům i synchronizaci složky tohoto účtu?"
+    "message": "Profily je možné vnořovat, takže nadřazená složka náleží  účtu A a podřízená účtu B. Chcete povolit ostatním profilům synchronizaci i složky tohoto profilu?"
   },
   "LabelNestedSyncNo": {
-    "message": "Ne, vynechat složky tohoto účtu v jiných účtech."
+    "message": "Ne, vynechat složky tohoto profilu v jiných profilech."
   },
   "LabelNestedSyncYes": {
-    "message": "Ano, zahnout složky tohoto účtu v jiných účtech."
+    "message": "Ano, zahnout složky tohoto profilu v jiných profilech."
   },
   "LabelImportExport": {
-    "message": "Importovat/exportovat účty"
+    "message": "Importovat/exportovat profily"
   },
   "LabelExport": {
-    "message": "Exportovat účty"
+    "message": "Exportovat profily"
   },
   "LabelImport": {
-    "message": "Importovat účty"
+    "message": "Importovat profily"
   },
   "DescriptionExport": {
-    "message": "Vyberte účty, které byste chtěli exportovat do souboru, abyste mohli jednoduše přidat tyto účty v jiném zařízení nebo prohlížeči."
+    "message": "Vyberte profily, které byste chtěli exportovat do souboru, abyste je mohli jednoduše přidat v jiném zařízení nebo prohlížeči."
   },
   "DescriptionImport": {
-    "message": "Importujte soubor s exportovanými účty pro přidání účtů exportovaných na jiném zařízení nebo prohlížeči. Prosíme, ujistěte se, že po importu nastavíte správné synchronizační složky."
+    "message": "Importovat soubor s exportovanými profily pro opětovné vytvoření profilů z jiného zařízení nebo prohlížeče. Prosíme, ujistěte se, že po importu znovu nastavíte správné složky synchronizace."
   },
   "LabelFolderNotFound": {
     "message": "Složka nenalezena"
   },
   "LabelSyncTabs": {
-    "message": "Synchronizovat panely"
+    "message": "Karty prohlížeče"
+  },
+  "DescriptionSyncTabs": {
+    "message": "Záložky uložené na serveru budou otevřeny jako karty prohližeče ve vašem prohlížeči a stávající karty budou odeslány na server. V závislosti na počtu otevřených odkazů ze serveru může být při jejich prohlížení váš prohlížeč značně zatížen."
   },
   "LabelTabs": {
     "message": "Panely"
@@ -457,22 +523,22 @@
     "message": "Pojistka"
   },
   "DescriptionFailsafe": {
-    "message": "Občas se stává, že chybná nastavení nebo chyby v software mohou způsobit nezamýšlené odebrání dat, která jsou tím ztracena. Abychom tomu zabránili, doplněk floccus nesmaže více než 50% vašich záložek najednou, pokud zde tuto pojistku nevypnete."
+    "message": "Někdy mohou chyby v konfiguraci nebo softwarové chyby způsobit nechtěné odstranění dat, která se pak ztratí, nebo nechtěnou duplikaci dat, kterou je pak obtížné vyřešit. Aby k tomu nedocházelo, floccus neodstraní více než 20 % vašich záložek najednou a také nepřidá více než 20 % k počtu záložek najednou, pokud zde tuto pojistku nezakážete."
   },
   "LabelFailsafeon": {
-    "message": "Zapnuto. Nemazat více než 50% mých místních záložek, aniž by se mne nejdříve nezeptalo (doporučeno)."
+    "message": "Povoleno. Neodstraní nebo nepřidá více než 20 % z/do vašich místních záložek, aniž by se vás na to zeptal. (Doporučeno)"
   },
   "LabelFailsafeoff": {
-    "message": "Vypnuto. Umožnit odebrání více než 50% mých místních záložek aniž by ode mne bylo žádáno o potvrzení."
+    "message": "Postižení. Povolí odebrání nebo přidání více než 20 % z/do místních záložek bez potvrzení."
   },
   "StatusFailsafeoff": {
-    "message": "Pojistka vypnuta. Riskujete nezamýšlenou ztrátu dat. Je doporučeno zapnout pojistku v nastaveních účtu."
+    "message": "Zabezpečení proti selhání je vypnuto. Hrozí nechtěná ztráta nebo duplikace dat. Doporučujeme zapnout funkci failsafe v nastavení profilu."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Disk"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Synchronizovat záložky přes zašifrovaný soubor uložený ve vašem Google Drive. Může synchronizovat záložky http, ftp, dat a javascriptu."
+    "message": "Synchronizujte záložky přes (voltelně zašifrovaný) soubor, který bude uložen na vašem Google Drive. Mohou být synchronizovány záložky http, ftp, datové, souborové a javascriptové. Můžete si vybrat použití šifrování mezi koncovými body."
   },
   "LabelLogingoogle": {
     "message": "Přihlášení pomocí Google"
@@ -493,7 +559,7 @@
     "message": "Poslat klientské přístupové údaje"
   },
   "DescriptionClientcert": {
-    "message": "Povolte tuto možnost, pokud server vyžaduje klientský certifikát nebo cookies pro ověření. Může to způsobit nečekané vedlejší účinky, protože floccus bude sdílet cookies s vašim profilem prohlížeče."
+    "message": "Povolte tuto možnost, pokud váš server vyžaduje certifikát klienta nebo cookie pro ověření. Může to způsobit nechtěné vedlejší účinky, jelikož floccus bude sdílet cookies s vaší běžnou relací prohlížení."
   },
   "LabelAllowredirects": {
     "message": "Povolit přesměrování v URL serveru"
@@ -512,6 +578,9 @@
   },
   "LabelDeleteitem": {
     "message": "Odstranit"
+  },
+  "DescriptionReallydeleteitem": {
+    "message": "Opravdu chcete tuto položku smazat?"
   },
   "LabelNobookmarks": {
     "message": "Nejsou tu žádné záložky"
@@ -619,7 +688,10 @@
     "message": "Jak chcete, aby synchronizace fungovala?"
   },
   "LabelAccountcreated": {
-    "message": "Účet vytvoření"
+    "message": "Profil vytvořen"
+  },
+  "DescriptionAccountcreated": {
+    "message": "Váš profil byl vytvořen. Nyní můžete tuto kartu zavřít. Ještě jedna věc: Synchronizace není zálohování. Ujistěte se, že pravidelně zálohujete své záložky."
   },
   "DescriptionNonhttps": {
     "message": "Byl zadán server, který používá nezabezpečený protokol. Je doporučeno používat pouze servery podporujícíc HTTPS."
@@ -646,9 +718,183 @@
     "message": "Exportovat záložky"
   },
   "DescriptionExportBookmarks" : {
-    "message": "Můžete exportovat všechny záložky tohoto účtu ve formátu HTML, který je kompatibilní se všemi hlavními prohlížeči."
+    "message": "Můžete exportovat všechny záložky tohoto profilu ve formátu HTML, který je kompatibilní se všemi hlavními prohlížeči."
   },
   "LabelShareitem": {
     "message": "Sdílet"
+  },
+  "LabelImportsuccessful": {
+    "message": "Profil(y) úspěšně importován(y)"
+  },
+  "DescriptionSyncinprogress": {
+    "message": "Synchronizace probíhá."
+  },
+  "DescriptionSyncscheduled": {
+    "message": "Tento profil bude brzy synchronizován. Čekáme na dokončení synchronizace vašich ostatních zařízení nebo jiných profilů na tomto zařízení."
+  },
+  "LabelAdaptergit": {
+    "message": "Git přes HTTPS"
+  },
+  "DescriptionAdaptergit": {
+    "message": "Možnost Git synchronizuje záložky tak, že je uloží do souboru v poskytnutém úložišti Git. Pro tuto možnost není k dispozici žádné doprovodné webové rozhraní, ale můžete ji použít s jakýmkoli hostingovým serverem Git, jako je Github, Gitlab, Gitea atd. Dokáže synchronizovat záložky http, ftp, datové, souborové a javascriptové. Při použití této možnosti nelze využít end-to-end šifrování. Tato možnost není v mobilní aplikaci v současné době k dispozici."
+  },
+  "LabelGiturl": {
+    "message": "URL repozitáře pomocí HTTP"
+  },
+  "LabelGitbranch": {
+    "message": "Větev Gitu"
+  },
+  "LabelTelemetry": {
+    "message": "Automatizované hlášení chyb"
+  },
+  "DescriptionTelemetry": {
+    "message": "Floccus může automaticky posílat data o chybách mně - vývojáři. Toto je obrovská pomoc při zjišťování a rychlejší řešení chyb ve floccus a zlepší se vaše zkušenost s floccus v dlouhodobém horizontu. I když je hlášení chyb povolené, vývojáři floccus nikdy nebudou mít přístup k vašim záložkám."
+  },
+  "LabelTelemetryenable": {
+    "message": "Automatické odesílání chybových údajů a informací o tom, jakou metodu synchronizace používáte, vývojářům aplikace floccus."
+  },
+  "LabelTelemetrydisable": {
+    "message": "Neposílejte vývojářům floccus žádná data"
+  },
+  "LabelAccountlabel": {
+    "message": "Označení profilu"
+  },
+  "DescriptionAccountlabel": {
+    "message": "Dejte tomuto profilu název pro snazší rozpoznání"
+  },
+  "LabelClickcount": {
+    "message": "Počet kliknutí"
+  },
+  "DescriptionClickcount": {
+    "message": "Posílat statistiky o otevírání záložek na Nextcloud server, abyste je mohli řadit dle počtu otevření"
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "Napište recenzi na Google Play"
+  },
+  "DescriptionAppstorereview": {
+    "message": "Napište recenzi na App Store"
+  },
+  "DescriptionChromereview": {
+    "message": "Napište recenzi na Chrome WebStore"
+  },
+  "DescriptionAlternativereview": {
+    "message": "Napište recenzi na AlternativeTo.net"
+  },
+  "DescriptionMozillareview": {
+    "message": "Napište recenzi na Rozšířeních Mozilla"
+  },
+  "DescriptionEdgereview": {
+    "message": "Napište recenzi na Rozšířeních Edge"
+  },
+  "LabelWritereview": {
+    "message": "💙 Sdílejte lásku!"
+  },
+  "DescriptionWritereview": {
+    "message": "Pokud vás floccus zajímá, dejte o tom světu vědět na jedné z platforem níže."
+  },
+  "DescriptionDonateintervention": {
+    "message": "Máte rádi synchronizaci záložek? Podpořte mě."
+  },
+  "LabelDonate": {
+    "message": "Přispět"
+  },
+  "DescriptionDisabledaftererror": {
+    "message": "Vyzkoušeno 10x před zakázáním tohoto profilu"
+  },
+  "DescriptionBookmarkexists": {
+    "message": "Tato záložka ve vybraném profilu již existuje"
+  },
+  "LabelReportproblem": {
+    "message": "Ohlásit problém"
+  },
+  "DescriptionReportproblem": {
+    "message": "Pokud se chcete obrátit s konkrétním problémem přímo na vývojáře, můžete tak učinit zde:"
+  },
+  "LabelAdapterKarakeep":  {
+    "message": "Karakeep"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "Synchronizujte své záložky s aplikací Karakeep s otevřeným zdrojovým kódem. Tato možnost nemůže využívat end-to-end šifrování a nepodporuje zachování pořadí záložek při synchronizaci."
+  },
+  "LabelApiKey":  {
+    "message": "Klíč API"
+  },
+  "LabelKarakeepurl":  {
+    "message": "Adresa URL vašeho serveru Karakeep"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "Nepodařilo se připojit k serveru Karakeep"
+  },
+  "LabelAdapterlinkwarden":  {
+    "message": "Linkwarden"
+  },
+  "DescriptionAdapterlinkwarden":  {
+    "message": "Synchronizujte své záložky s aplikací Linkwarden s otevřeným zdrojovým kódem, která je umístěna na vašem vlastním serveru nebo v cloudu na adrese cloud.linkwarden.app. Lze synchronizovat pouze záložky http, ftp a javascriptové záložky. Tato možnost nemůže využívat end-to-end šifrování a nepodporuje zachování pořadí záložek napříč synchronizacemi."
+  },
+  "LabelLinkwardenurl":  {
+    "message": "Adresa URL vašeho serveru Linkwarden"
+  },
+  "LabelAccesstoken":  {
+    "message": "Přístupový token"
+  },
+  "LabelLinkwardenconnectionerror": {
+    "message": "Nepodařilo se připojit k serveru Linkwarden"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "Výsledky z jiných složek"
+  },
+  "LabelScheduledforcesync": {
+    "message": "Vynutit synchronizaci"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "Opravdu chcete vynutit synchronizaci? Synchronizace se dvěma zařízeními současně může mít nepředvídatelné následky včetně poškození dat. Před potvrzením se ujistěte, že v danou chvíli neprobíhá synchronizace s žádným jiným zařízením."
+  },
+  "DescriptionAutosync": {
+    "message": "Zapnutím automatické synchronizace zajistíte, aby se synchronizace spouštěla pravidelně v určitém konfigurovatelném intervalu a také na vyžádání několik sekund po provedení změn. Pokud automatickou synchronizaci nezapnete, budete muset spouštět synchronizační běhy ručně stisknutím tlačítka synchronizace."
+  },
+  "LabelOpeninnewtab": {
+    "message": "Otevření tohoto zobrazení na nové kartě"
+  },
+  "LabelGivefeedback": {
+    "message": "Poskytněte zpětnou vazbu"
+  },
+  "LabelYourname": {
+    "message": "Vaše jméno"
+  },
+  "LabelYouremail": {
+    "message": "Váš e-mail (nepovinné)"
+  },
+  "LabelYourmessage": {
+    "message": "Vaše zpětná vazba"
+  },
+  "LabelSubmitfeedback": {
+    "message": "Odeslat zpětnou vazbu"
+  },
+  "DescriptionFeedbacklegal": {
+    "message": "Tento formulář pro zpětnou vazbu využívá službu Sentry. Stisknutím tlačítka odeslat souhlasíte s uložením zadaných údajů na serverech společnosti Sentry. Žádné z vašich údajů o záložkách nebudou odeslány společnosti Sentry."
+  },
+  "DescriptionFeedbackhowto": {
+    "message": "Děkujeme, že jste věnovali čas a poskytli vývojářům floccusu zpětnou vazbu! Pokud se vaše zpětná vazba týká problému, nezapomeňte uvést, jaké kroky jste podnikli, co jste očekávali a co se místo toho stalo. Pokud se vaše zpětná vazba týká požadavku na funkci, nezapomeňte uvést případ použití nebo problém, který by pro vás tato funkce vyřešila. Pokud uvedete svůj e-mail, můžeme se vám ozvat. Děkujeme vám!"
+  },
+  "LabelFeedbacksent": {
+    "message": "Děkujeme za vaši zpětnou vazbu!"
+  },
+  "LabelFaq":{
+    "message": "Podívejte se na často kladené dotazy"
+  },
+  "StatusSyncingfailed": {
+    "message": "Synchronizace se nezdařila"
+  },
+  "StatusSyncingcomplete": {
+    "message": "Synchronizace dokončena"
+  },
+  "NotificationSyncingprofile": {
+    "message": "Synchronizační profil {0}"
+  },
+  "NotificationSyncingsucceeded": {
+    "message": "Synchronizace profilu {0} byla úspěšná"
+  },
+  "NotificationSyncingfailed": {
+    "message": "Nepodařilo se synchronizovat profil {0}"
   }
 }
