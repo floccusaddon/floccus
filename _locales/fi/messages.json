@@ -84,7 +84,7 @@
     "message": "E028: Tunnistautuminen palvelimelle epäonnistui."
   },
   "Error029": {
-    "message": "E029: Varmistus: Nykyinen synkronointi poistaisi {0} % kirjanmerkeistäsi, joten se peruttiin. Jos haluat tästä huolimatta jatkaa, voit poistaa rajoituksen asetuksista."
+    "message": "E029: Vikasietoinen: {0} % linkeistäsi. Kieltäytyy suorittamasta. Poista tämä vikasietoturva käytöstä tilin asetuksissa, jos haluat jatkaa joka tapauksessa."
   },
   "Error030": {
     "message": "E030: Kirjanmerkkitiedoston salauksen purku epäonnistui. Salauslauseke ei ehkä ole oikein tai tiedosto on viallinen."
@@ -99,7 +99,7 @@
     "message": "E033: Havaittiin uudelleenohjaus. Varmista, että palvelin tukee valittua synkronointitapaa ja syöttämäsi URL-osoite on oikein, eikä ohjaa eri sijaintiin. Jos ohjaus on järjestelmässäsi normaalia, voit poistaa tarkastuksen käytöstä asetuksista."
   },
   "Error034": {
-    "message": "E034: Kirjanmerkkien etätiedosto ei ole luettavissa. Unohditko määrittää salauksen salauslausekkeen?"
+    "message": "E034: Etäkäytössä oleva kirjanmerkkitiedosto ei ole luettavissa. Ehkä unohdit asettaa salauslausekkeen tai asetit väärän tiedostomuodon."
   },
   "Error035": {
     "message": "E035: Kirjanmerkin {0} luonti palvelimelle epäonnistui."
@@ -108,10 +108,28 @@
     "message": "E036: Synkronointipalvelimen käyttöön tarvittavia oikeuksia puuttuu."
   },
   "Error037": {
-    "message": "E037: Resurssi on lukittu."
+    "message": "E037: Resurssi on lukittu"
   },
   "Error038": {
-    "message": "E038: Paikallista kansiota ei löytynyt."
+    "message": "E038: Paikallista kansiota ei löytynyt"
+  },
+  "Error039": {
+    "message": "E039: Palvelimen seuraavan kirjanmerkin päivittäminen epäonnistui: {0}"
+  },
+  "Error040": {
+    "message": "E040: Tiedoston nimeä ei pystytty etsimään Google Drivesta."
+  },
+  "Error041": {
+    "message": "E041: Etäkirjanmerkkitiedoston koko poikkeaa palvelimelta ladatusta sisällöstä. Tämä saattaa olla väliaikainen verkko-ongelma. Jos tämä virhe jatkuu, ota yhteyttä palvelimen ylläpitäjään."
+  },
+  "Error042": {
+    "message": "E042: Kirjanmerkkitiedoston kokoa ei voitu hakea. On mahdotonta tarkistaa, että kirjanmerkkitiedosto on ladattu kokonaisuudessaan. Jos tämä virhe jatkuu, ota yhteys palvelimen ylläpitäjään."
+  },
+  "Error043": {
+    "message": "E043: Vikasietoinen: {0} %. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat jatkaa kuitenkin."
+  },
+  "Error044": {
+    "message": "E044: Git-työntöoperaatio epäonnistui: {0}"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL-osoite"
@@ -129,13 +147,13 @@
     "message": "Salasana"
   },
   "LabelBookmarksfile": {
-    "message": "Kirjanmerkkitiedoston sijainti"
+    "message": "Kirjanmerkit-tiedosto"
   },
   "DescriptionBookmarksfile": {
-    "message": "Kirjanmerkkitiedoston sijainti suhteessa WebDAV URL-osoitteeseen (kaikkien sijainnin kansioiden on oltava jo olemassa). Esim. omat_tiedostot/kirjanmerkit.xbel."
+    "message": "polku, jossa kirjanmerkkitiedosto sijaitsee palvelimella, suhteessa WebDAV URL-osoitteeseen (kaikkien polun kansioiden on oltava jo olemassa). esim. personal_stuff/bookmarks.xbel."
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "Nimi, jolla kirjanmerkkitiedosto tallennetaan Google Driveesi (varmista, että nimi on Drivessa ainutlaatuinen)."
+   "message": "kirjanmerkkitiedoston tiedostonimi, joka tallennetaan Google Driveen. Älä kirjoita koko tiedostopolkua, ainoastaan tiedoston nimi. Varmista, että tämä nimi on ainutlaatuinen Drive-asemassasi. esim. mybookmarks.xbel."
  },
   "DescriptionBookmarksfilegit": {
     "message": "Kirjanmerkkitiedoston sijainti suhteessa Git-arkistosi juureen (kaikkien sijainnin kansioiden on oltava jo olemassa). Esim. omat_tiedostot/kirjanmerkit.xbel."
@@ -147,7 +165,10 @@
     "message": "Synkronoitaessa tämän selaimen kirjanmerkit tallennetaan palvelimella tähän sijaintiin. Huomioi, että polku kuvastaa Nextcloud Bookmarks -kansiota, ei Nextcloud Files -kansiota. Sijoita kaikki linkit palvelimen juurikansioon jättämällä tämä tyhjäksi."
   },
   "DescriptionServerfolderlinkwarden": {
-    "message": "Synkronoitaessa tämän selaimen kirjanmerkit tallennetaan palvelimella linkeiksi tähän kokoelmaan."
+    "message": "Synkronoitaessa tämän selaimen kirjanmerkit tallennetaan tämän kokoelman linkkeinä, ja vain tämän kokoelman linkit synkronoidaan tämän selaimen kanssa."
+  },
+  "DescriptionServerfolderkarakeep": {
+    "message": "Synkronoitaessa tämän selaimen kirjanmerkit tallennetaan tämän kokoelman linkkeinä, ja vain tämän kokoelman linkit synkronoidaan tämän selaimen kanssa."
   },
   "LabelLocaltarget": {
     "message": "Paikallinen kohde"
@@ -166,6 +187,9 @@
   },
   "LabelNewfolder": {
     "message": "Juuri luotu kansio"
+  },
+  "LabelSelectfolder": {
+    "message": "Valitse kansio"
   },
   "LabelOptions": {
     "message": "Asetukset"
@@ -499,16 +523,16 @@
     "message": "Varmistus"
   },
   "DescriptionFailsafe": {
-    "message": "Joskus asetusvirheet tai ohjelmistoviat saattavat johtaa tietojen menetykseen tarkoituksettoman poiston seurauksena. Tämän estämiseksi Floccus ei yhden synkronoinnin yhteydessä poista yli 50 % kirjamerkeistäsi ellei tätä varmistusta poisteta käytöstä."
+    "message": "Joskus konfigurointivirheet tai ohjelmistovirheet voivat aiheuttaa tietojen tahattoman poistamisen, jolloin tiedot katoavat, tai tietojen tahattoman kopioimisen, jolloin niitä on vaikea selvittää. Tämän estämiseksi floccus ei poista kerralla yli 20 % kirjanmerkeistäsi eikä myöskään lisää kerralla yli 20 % kirjanmerkkien lukumäärääsi, ellet poista tätä vikasietoisuutta käytöstä tässä."
   },
   "LabelFailsafeon": {
-    "message": "Käytössä. Älä poista yli 50 % paikallisista kirjanmerkeistäni vahvistamatta. (Suositus)"
+    "message": "Käytössä. Ei poista tai lisää yli 20 % paikallisista kirjanmerkeistäsi kyselemättä sinulta ensin. (Suositellaan)"
   },
   "LabelFailsafeoff": {
-    "message": "Ei käytössä. Salli yli 50 %:n poistaminen paikallisista kirjanmerkeistäni pyytämättä vahvistusta."
+    "message": "Vammainen. Sallii yli 20 %:n poistamisen tai lisäämisen paikallisista kirjanmerkeistäsi tai paikallisiin kirjanmerkkeihisi ilman vahvistusta sinulta."
   },
   "StatusFailsafeoff": {
-    "message": "Varmistus ei ole käytössä. Tarkoituksettoman tietojen menetyksen riksi on olemassa. Varmistuksen käyttöönotto on suositeltavaa."
+    "message": "Vikasieto pois käytöstä. Olet vaarassa menettää tai kopioida tietoja tahattomasti. On suositeltavaa ottaa vikasietoturva käyttöön profiilin asetuksissa."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
@@ -554,6 +578,9 @@
   },
   "LabelDeleteitem": {
     "message": "Poista"
+  },
+  "DescriptionReallydeleteitem": {
+    "message": "Haluatko todella poistaa tämän kohteen?"
   },
   "LabelNobookmarks": {
     "message": "Täällä ei ole kirjanmerkkejä"
@@ -664,7 +691,7 @@
     "message": "Profiili on luotu"
   },
   "DescriptionAccountcreated": {
-    "message": "Profiilisi on valmis ja voit nyt sulkea tämän välilehden."
+    "message": "Profiilisi on luotu. Voit nyt sulkea tämän välilehden. Vielä yksi asia: Synkronointi ei ole varmuuskopiointi. Varmista, että teet säännöllisiä varmuuskopioita kirjanmerkeistäsi."
   },
   "DescriptionNonhttps": {
     "message": "Olet syöttänyt salaamatonta protokollaa käyttävän palvelimen. On suositeltavaa käyttää vain HTPPS-protokollaa tukevia palvelimia."
@@ -709,7 +736,7 @@
     "message": "Git – HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Git-vaihtoehto synkronoi kirjanmerkit tallentamalla ne tiedostoksi määritettyyn Git-arkistoon. Tässä ei ole mahdollista käyttää verkkokäyttöliittymää, mutta voit käyttää sitä minkä tahansa Git-palvelimen, kuten GitHubin, GitLabin, Gitean yms. kanssa. Tukee HTTP-, FTP-, tieto-, tiedosto- ja JavaScript-kirjanmerkkejä, muttei päästä päähän -salausta."
+    "message": "Git-vaihtoehto synkronoi kirjanmerkkisi tallentamalla ne tiedostoon annetussa Git-arkistossa. Tähän vaihtoehtoon ei ole liitetty web-käyttöliittymää, mutta voit käyttää sitä minkä tahansa Git-hostauspalvelimen, kuten Githubin, Gitlabin, Gitean jne. kanssa. Se voi synkronoida http-, ftp-, data-, tiedosto- ja javascript-kirjanmerkit. Et voi käyttää päästä päähän -salausta tätä vaihtoehtoa käytettäessä. Tämä vaihtoehto ei ole tällä hetkellä käytettävissä mobiilisovelluksessa."
   },
   "LabelGiturl": {
     "message": "Arkiston HTTP URL -osoite"
@@ -718,16 +745,16 @@
     "message": "Git-haara"
   },
   "LabelTelemetry": {
-    "message": "🐛 Automaattinen virheraportointi"
+    "message": "Automatisoitu virheraportointi"
   },
   "DescriptionTelemetry": {
     "message": "Floccus voi lähettää automaattisesti virhetiedot kehittäjille. Tämä auttaa ja nopeuttaa Floccuksen virheiden havainnointia ja korjausta merkittävästi auttaen parantamaan käyttökokemustasi. Floccuksen kehittäjät eivät koskaan näe kirjanmerkkejäsi raportoinnin ollessa käytsössä."
   },
   "LabelTelemetryenable": {
-    "message": "Lähetä Floccuksen kehittäjille virheraportteja"
+    "message": "Lähetä automaattisesti virhetiedot ja tiedot siitä, mitä synkronointimenetelmää käytät, floccus-kehittäjille."
   },
   "LabelTelemetrydisable": {
-    "message": "Älä lähetä Floccuksen kehittäjille virheraportteja"
+    "message": "Älä lähetä mitään tietoja floccus-kehittäjille."
   },
   "LabelAccountlabel": {
     "message": "Profiilin nimi"
@@ -783,11 +810,26 @@
   "DescriptionReportproblem": {
     "message": "Jos haluat ilmoittaa vuorenvarmasta ongelmasta yhteyttä suoraan kehittäjiin suoraan, onnistuu se täältä:"
   },
+  "LabelAdapterKarakeep":  {
+    "message": "Karakeep"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "Synkronoi kirjanmerkkisi avoimen lähdekoodin Karakeep-sovelluksen kanssa. Tämä vaihtoehto ei voi käyttää päästä päähän -salausta, eikä se tue kirjanmerkkien järjestyksen säilyttämistä synkronointien välillä."
+  },
+  "LabelApiKey":  {
+    "message": "API-avain"
+  },
+  "LabelKarakeepurl":  {
+    "message": "Karakeep-palvelimen URL-osoite"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "Yhteyden muodostaminen Karakeep-palvelimeen epäonnistui"
+  },
   "LabelAdapterlinkwarden":  {
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Synkronoi kirjanmerkit avointa lähdekoodia olevalle Linkwarden-palvelimelle, joko itse ylläpitämällesi palvelimelle tai osoitteessa cloud.linkwarden.app olevalle pilvipalvelimelle. Vain HTTP-, FTP- ja JavaScript-kirjanmerkkien synkronointia tuetaan. Päästä päähän -salausta ei tueta."
+    "message": "Synkronoi kirjanmerkkisi avoimen lähdekoodin Linkwarden-sovelluksella, joka on joko omalla palvelimellasi tai pilvessä osoitteessa cloud.linkwarden.app. Se voi synkronoida vain http-, ftp- ja javascript-kirjanmerkit. Tämä vaihtoehto ei voi käyttää päästä päähän -salausta eikä se tue kirjanmerkkien järjestyksen säilyttämistä synkronointien välillä."
   },
   "LabelLinkwardenurl":  {
     "message": "Linkwarden-palvelimen URL-osoite"
@@ -797,5 +839,62 @@
   },
   "LabelLinkwardenconnectionerror": {
     "message": "Linkwarden-palvelintasi ei tavoitettu"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "Tulokset muista kansioista"
+  },
+  "LabelScheduledforcesync": {
+    "message": "Pakota synkronointi"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "Haluatko todella pakottaa synkronoinnin? Synkronoinnilla kahdella laitteella samanaikaisesti voi olla odottamattomia seurauksia, kuten tietojen vahingoittuminen. Varmista ennen vahvistamista, että mikään muu laite ei synkronoi parhaillaan."
+  },
+  "DescriptionAutosync": {
+    "message": "Automaattisen synkronoinnin kytkeminen päälle varmistaa, että synkronointi käynnistyy säännöllisesti tietyn määritettävissä olevan ajanjakson sisällä sekä tarvittaessa muutaman sekunnin kuluttua muutosten tekemisestä. Jos et ota automaattista synkronointia käyttöön, sinun on käynnistettävä synkronointi manuaalisesti painamalla synkronointipainiketta."
+  },
+  "LabelOpeninnewtab": {
+    "message": "Avaa tämä näkymä uudessa välilehdessä"
+  },
+  "LabelGivefeedback": {
+    "message": "Anna palautetta"
+  },
+  "LabelYourname": {
+    "message": "Nimesi"
+  },
+  "LabelYouremail": {
+    "message": "Sähköpostiosoitteesi (valinnainen)"
+  },
+  "LabelYourmessage": {
+    "message": "Palauteviestisi"
+  },
+  "LabelSubmitfeedback": {
+    "message": "Lähetä palautetta"
+  },
+  "DescriptionFeedbacklegal": {
+    "message": "Tämä palautelomake toimii Sentryn avulla. Painamalla lähetä hyväksyt, että syötetyt tiedot tallennetaan Sentryn palvelimille. Mitään kirjanmerkkisi tietoja ei lähetetä Sentrylle."
+  },
+  "DescriptionFeedbackhowto": {
+    "message": "Kiitos, että otit aikaa antaa palautetta floccuksen kehittäjille! Jos palautteesi liittyy ongelmaan, muista mainita, mitä teit, mitä odotit ja mitä sen sijaan tapahtui. Jos palautteesi koskee ominaisuutta koskevaa pyyntöä, muista sisällyttää käyttötapaus tai ongelma, jonka tämä ominaisuus ratkaisisi sinulle. Jos ilmoitat sähköpostiosoitteesi, saatamme ottaa sinuun yhteyttä. Kiitos!"
+  },
+  "LabelFeedbacksent": {
+    "message": "Kiitos palautteestasi!"
+  },
+  "LabelFaq":{
+    "message": "Tarkista FAQ"
+  },
+  "StatusSyncingfailed": {
+    "message": "Synkronointi epäonnistui"
+  },
+  "StatusSyncingcomplete": {
+    "message": "Synkronointi valmis"
+  },
+  "NotificationSyncingprofile": {
+    "message": "Synkronointiprofiili {0}"
+  },
+  "NotificationSyncingsucceeded": {
+    "message": "Profiilin {0} synkronointi onnistui"
+  },
+  "NotificationSyncingfailed": {
+    "message": "Profiilin synkronointi epäonnistui {0}"
   }
 }
