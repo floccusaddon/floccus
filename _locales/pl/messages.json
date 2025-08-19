@@ -84,7 +84,7 @@
     "message": "E028: Nie udało się uwierzytelnić na serwerze"
   },
   "Error029": {
-    "message": "E029: Zabezpieczenie: obecna synchronizacja może usunąć {0}% Twoich zakładek i nie zostanie wykonana. Zmień opcję zabezpieczeń w ustawieniach konta jeśli chcesz kontynuować."
+    "message": "E029: Zabezpieczenie przed awarią: Bieżące uruchomienie synchronizacji spowodowałoby usunięcie {0}% linków. Odmowa wykonania. Wyłącz to zabezpieczenie w ustawieniach konta, jeśli mimo wszystko chcesz kontynuować."
   },
   "Error030": {
     "message": "E030: Nieudane odszyfrowanie pliku zakładek. Błędne hasło lub uszkodzony plik"
@@ -119,6 +119,18 @@
   "Error040": {
     "message": "E040: Nie można znaleźć podanej nazwy pliku w Google Drive"
   },
+  "Error041": {
+    "message": "E041: Rozmiar pliku zdalnych zakładek różni się od zawartości faktycznie pobranej z serwera. Może to być tymczasowy problem z siecią. Jeśli ten błąd będzie się powtarzał, skontaktuj się z administratorem serwera."
+  },
+  "Error042": {
+    "message": "E042: Nie można pobrać rozmiaru pliku zdalnych zakładek. Nie można zweryfikować, czy plik zakładek został pobrany w całości. Jeśli ten błąd będzie się powtarzał, skontaktuj się z administratorem serwera."
+  },
+  "Error043": {
+    "message": "E043: Zabezpieczenie przed awarią: Bieżące uruchomienie synchronizacji zwiększyłoby liczbę zakładek o {0}%. Odmowa wykonania. Wyłącz to zabezpieczenie w ustawieniach profilu, jeśli mimo wszystko chcesz kontynuować."
+  },
+  "Error044": {
+    "message": "E044: Operacja Git push nie powiodła się: {0}"
+  },
   "LabelWebdavurl": {
     "message": "Adres WebDAV"
   },
@@ -138,10 +150,10 @@
     "message": "Plik zakładek"
   },
   "DescriptionBookmarksfile": {
-    "message": "Położenie pliku z zakładkami w kontekście adresu WebDAV (wszystkie katalogi w ścieżce muszą istnieć), np. osobiste/bookmarks.xbel"
+    "message": "ścieżka do miejsca, w którym plik zakładek będzie znajdował się na serwerze, względem adresu URL WebDAV (wszystkie foldery w ścieżce muszą już istnieć), np. personal_stuff/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "Nazwa pliku z zakładkami w Dysku Google. Nie wprowadzaj pełnej ścieżki, tylko samą nazwę pliku. Upewnij się, że nazwa jest unikalna na Twoim Dysku."
+   "message": "nazwa pliku zakładek, który będzie znajdował się na Dysku Google. Nie wprowadzaj pełnej ścieżki do pliku, a jedynie jego nazwę. Upewnij się, że nazwa ta jest unikalna na Twoim Dysku. np. mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "Ścieżka do pliku z zakładkami w odniesieniu do głównego katalogu (roota) twojego repozytorium Git (wszystkie katalogi w ścieżce muszą istnieć), np. osobiste/bookmarks.xbel"
@@ -153,7 +165,10 @@
     "message": "Podczas synchronizacji, zakładki w tej przeglądarce będą zapisywane jako linki w tej lokalizacji na serwerze. Uwaga, ścieżka reprezentuje folder w aplikacji Zakładki Nextcloud a nie folder w aplikacji Pliki Nextcloud. Pozostaw puste aby umieszczać linki w głównym folderze na serwerze."
   },
   "DescriptionServerfolderlinkwarden": {
-    "message": "Podczas synchronizacji, zakładki w tej przeglądarce będą przechowywane jako linki w tej kolekcji."
+    "message": "Podczas synchronizacji zakładki w tej przeglądarce będą przechowywane jako linki w tej kolekcji i tylko linki w tej kolekcji będą synchronizowane z tą przeglądarką."
+  },
+  "DescriptionServerfolderkarakeep": {
+    "message": "Podczas synchronizacji zakładki w tej przeglądarce będą przechowywane jako linki w tej kolekcji i tylko linki w tej kolekcji będą synchronizowane z tą przeglądarką."
   },
   "LabelLocaltarget": {
     "message": "Cel lokalny"
@@ -172,6 +187,9 @@
   },
   "LabelNewfolder": {
     "message": "Nowo utworzony folder"
+  },
+  "LabelSelectfolder": {
+    "message": "Wybierz folder"
   },
   "LabelOptions": {
     "message": "Opcje"
@@ -505,16 +523,16 @@
     "message": "Zabezpieczenie"
   },
   "DescriptionFailsafe": {
-    "message": "Błąd w konfiguracji lub oprogramowaniu może spowodować niezamierzone usunięcie danych, które mogą zostać utracone. Aby temu zapobiec, Floccus nie usunie jednorazowo więcej niż 50% zakładek, dopóki nie zmienisz tej opcji."
+    "message": "Czasami błędy konfiguracji lub błędy oprogramowania mogą spowodować niezamierzone usunięcie danych, które są następnie tracone, lub niezamierzone duplikowanie danych, które są następnie trudne do uporządkowania. Aby temu zapobiec, floccus nie usunie więcej niż 20% zakładek za jednym razem, a także nie doda więcej niż 20% do liczby zakładek za jednym razem, chyba że wyłączysz to zabezpieczenie awaryjne tutaj."
   },
   "LabelFailsafeon": {
-    "message": "Włączone. Nie usuwaj więcej niż 50% lokalnych zakładek bez uprzedniego pytania o zgodę (zalecane)"
+    "message": "Włączone. Nie usunie ani nie doda więcej niż 20% z/do lokalnych zakładek bez uprzedniego zapytania. (Zalecane)"
   },
   "LabelFailsafeoff": {
-    "message": "Wyłączone. Zezwolenie na usunięcie ponad 50% lokalnych zakładek bez potwierdzenia."
+    "message": "Wyłączone. Zezwala na usunięcie lub dodanie więcej niż 20% z/do lokalnych zakładek bez potwierdzenia."
   },
   "StatusFailsafeoff": {
-    "message": "Zabezpieczenie wyłączone. Ryzykujesz niezamierzoną utratę danych. Rekomendowane jest pozostawienie tej opcji włączonej."
+    "message": "Wyłączone zabezpieczenie przed awarią. Istnieje ryzyko niezamierzonej utraty lub powielenia danych. Zaleca się włączenie zabezpieczenia przed awarią w ustawieniach profilu."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
@@ -673,7 +691,7 @@
     "message": "Profil utworzony"
   },
   "DescriptionAccountcreated": {
-    "message": "Profil został utworzony. Możesz zamknąć tę kartę."
+    "message": "Twój profil został utworzony. Możesz teraz zamknąć tę kartę. Jeszcze jedno: synchronizacja nie jest kopią zapasową. Upewnij się, że regularnie tworzysz kopie zapasowe swoich zakładek."
   },
   "DescriptionNonhttps": {
     "message": "Wskazany serwer nie szyfruje połączeń. Rekomendujemy korzystać wyłącznie z serwerów obsługujących protokół HTTPS."
@@ -718,7 +736,7 @@
     "message": "Git przez HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Metoda synchronizacji zakładek przy użyciu pliku znajdującego się w repozytorium Git. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem Git, np. Github, Gitlab, Gitea. Można synchronizować zakładki typu http, ftp, data, javascript. Ta opcja nie może być użyta do szyfrowania typu end-to-end."
+    "message": "Opcja Git synchronizuje zakładki, przechowując je w pliku w dostarczonym repozytorium Git. Dla tej opcji nie ma towarzyszącego interfejsu użytkownika, ale można jej używać z dowolnym serwerem hostingowym Git, takim jak Github, Gitlab, Gitea itp. Może synchronizować zakładki http, ftp, dane, pliki i javascript. Podczas korzystania z tej opcji nie można korzystać z szyfrowania end-to-end. Opcja ta nie jest obecnie dostępna w aplikacji mobilnej."
   },
   "LabelGiturl": {
     "message": "Adres HTTP repozytorium"
@@ -727,16 +745,16 @@
     "message": "Gałąź Git"
   },
   "LabelTelemetry": {
-    "message": "🐛 Automatyczne zgłaszanie błędów"
+    "message": "Automatyczne raportowanie błędów"
   },
   "DescriptionTelemetry": {
     "message": "Floccus może automatycznie zgłosić błędy do deweloperów. To znaczna pomoc dla szybkiego wykrywania i usuwania błędów, co w dłuższym okresie pomaga podnosić jakość Floccus. Nawet jeśli włączysz raportowanie błędów, deweloperzy nie będą mieli dostępu do Twoich zakładek."
   },
   "LabelTelemetryenable": {
-    "message": "Automatycznie wysyłaj szczegóły błędów do deweloperów Floccus"
+    "message": "Automatycznie wysyłaj dane o błędach i informacje o używanej metodzie synchronizacji do programistów floccus."
   },
   "LabelTelemetrydisable": {
-    "message": "Nie wysyłaj szczegółów błędów do deweloperów Floccus"
+    "message": "Nie wysyłaj żadnych danych do deweloperów floccus"
   },
   "LabelAccountlabel": {
     "message": "Etykieta profilu"
@@ -792,11 +810,26 @@
   "DescriptionReportproblem": {
     "message": "Jeśli chcesz skontaktować się bezpośrednio z programistami w konkretnej sprawie, możesz to zrobić tutaj:"
   },
+  "LabelAdapterKarakeep":  {
+    "message": "Karakeep"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "Synchronizuj zakładki z samoobsługową aplikacją Karakeep o otwartym kodzie źródłowym. Ta opcja nie może korzystać z szyfrowania end-to-end i nie obsługuje zachowania kolejności zakładek podczas synchronizacji."
+  },
+  "LabelApiKey":  {
+    "message": "Klucz API"
+  },
+  "LabelKarakeepurl":  {
+    "message": "Adres URL serwera Karakeep"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "Nie udało się połączyć z serwerem Karakeep"
+  },
   "LabelAdapterlinkwarden":  {
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Synchronizuj zakładki z otwartoźródłową aplikacją Linkwarden, uruchomioną na swoim serwerze albo w chmurze cloud.linkwarden.app. Można synchronizować zakładki http, ftp and javascript. Ta opcja nie może być użyta do szyfrowania typu end-to-end."
+    "message": "Synchronizuj swoje zakładki za pomocą aplikacji Linkwarden o otwartym kodzie źródłowym, hostowanej na własnym serwerze lub w chmurze pod adresem cloud.linkwarden.app. Może synchronizować tylko zakładki http, ftp i javascript. Ta opcja nie może korzystać z szyfrowania end-to-end i nie obsługuje zachowania kolejności zakładek podczas synchronizacji."
   },
   "LabelLinkwardenurl":  {
     "message": "Adres serwera Linkwarden"
@@ -818,5 +851,50 @@
   },
   "DescriptionAutosync": {
     "message": "Włączenie uruchamia regularną synchronizację w wybranych odstępach czasu a także na bieżąco, kilka sekund po tym jak wprowadzisz zmiany. Jeśli nie włączysz automatycznej synchronizacji, będziesz mógł synchronizować ręcznie używając przycisk synchronizacji."
+  },
+  "LabelOpeninnewtab": {
+    "message": "Otwórz ten widok w nowej karcie"
+  },
+  "LabelGivefeedback": {
+    "message": "Przekazywanie informacji zwrotnych"
+  },
+  "LabelYourname": {
+    "message": "Imię i nazwisko"
+  },
+  "LabelYouremail": {
+    "message": "Twój adres e-mail (opcjonalnie)"
+  },
+  "LabelYourmessage": {
+    "message": "Wiadomość zwrotna"
+  },
+  "LabelSubmitfeedback": {
+    "message": "Prześlij opinię"
+  },
+  "DescriptionFeedbacklegal": {
+    "message": "Ten formularz opinii jest obsługiwany przez Sentry. Naciśnięcie przycisku Wyślij oznacza zgodę na przechowywanie wprowadzonych danych na serwerach Sentry. Żadne dane z Twojej zakładki nie zostaną wysłane do Sentry."
+  },
+  "DescriptionFeedbackhowto": {
+    "message": "Dziękujemy za poświęcenie czasu na przekazanie opinii twórcom floccus! Jeśli Twoja opinia dotyczy problemu, pamiętaj, aby uwzględnić podjęte kroki, czego oczekiwałeś i co się stało. Jeśli twoja opinia dotyczy prośby o funkcję, pamiętaj, aby dołączyć przypadek użycia lub problem, który ta funkcja mogłaby rozwiązać. Jeśli podasz swój adres e-mail, będziemy mogli się z Tobą skontaktować. Dziękujemy!"
+  },
+  "LabelFeedbacksent": {
+    "message": "Dziękujemy za opinię!"
+  },
+  "LabelFaq":{
+    "message": "Sprawdź FAQ"
+  },
+  "StatusSyncingfailed": {
+    "message": "Synchronizacja nie powiodła się"
+  },
+  "StatusSyncingcomplete": {
+    "message": "Synchronizacja zakończona"
+  },
+  "NotificationSyncingprofile": {
+    "message": "Profil synchronizacji {0}"
+  },
+  "NotificationSyncingsucceeded": {
+    "message": "Synchronizacja profilu {0} powiodła się"
+  },
+  "NotificationSyncingfailed": {
+    "message": "Nie udało się zsynchronizować profilu {0}"
   }
 }
