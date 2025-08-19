@@ -1,0 +1,900 @@
+{
+  "Error001": {
+    "message": "E001: La cartella da creare non esiste"
+  },
+  "Error002": {
+    "message": "E002: Il segnalibro da aggiornare non esiste più"
+  },
+  "Error003": {
+    "message": "E003: La cartella da cui uscire non esiste. Questa è un'anomalia. Congratulazioni."
+  },
+  "Error004": {
+    "message": "E004: La cartella in cui spostarsi non esiste"
+  },
+  "Error005": {
+    "message": "E005: La cartella da creare non esiste"
+  },
+  "Error006": {
+    "message": "E006: La cartella da aggiornare non esiste"
+  },
+  "Error007": {
+    "message": "E007: La cartella da spostare non esiste"
+  },
+  "Error008": {
+    "message": "E008: La cartella da cui uscire non esiste"
+  },
+  "Error009": {
+    "message": "E009: La cartella in cui spostarsi non esiste"
+  },
+  "Error010": {
+    "message": "E010: Impossibile trovare la cartella da ordinare"
+  },
+  "Error011": {
+    "message": "E011: L'elemento nell'ordinamento della cartella non è un sotto-elemento effettivo: {0}"
+  },
+  "Error012": {
+    "message": "E012: Nell'ordinamento delle cartelle mancano alcuni elementi della sottocartella"
+  },
+  "Error013": {
+    "message": "E013: La cartella da rimuovere non esiste"
+  },
+  "Error014": {
+    "message": "E014: La cartella principale da cui rimuovere la cartella non esiste"
+  },
+  "Error015": {
+    "message": "E015: Dati di risposta inattesi dal server"
+  },
+  "Error016": {
+    "message": "E016: Richiesta scaduta. Controlla la configurazione del tuo server"
+  },
+  "Error017": {
+    "message": "E017: Errore di rete: Controlla la tua connessione di rete e i dettagli del tuo account"
+  },
+  "Error018": {
+    "message": "E018: Impossibile autenticarsi con il server."
+  },
+  "Error019": {
+    "message": "E019: Stato HTTP {0}. Richiesta {1} non riuscita. Controllare la configurazione e il registro del tuo server."
+  },
+  "Error020": {
+    "message": "E020: Impossibile analizzare la risposta del server. L'app dei segnalibri è installata sul tuo server?"
+  },
+  "Error021": {
+    "message": "E021: Stato del server incoerente. La cartella è presente nell'elenco degli ordini secondari ma non nell'albero delle cartelle"
+  },
+  "Error022": {
+    "message": "E022: La cartella {0} presumibilmente contiene un segnalibro {1} inesistente"
+  },
+  "Error023": {
+    "message": "E023: Impossibile cancellare il file di blocco, considerare l'eliminazione manuale di {0}."
+  },
+  "Error024": {
+    "message": "E024: Stato HTTP {0} mentre si cerca di determinare lo stato del file di blocco {1}"
+  },
+  "Error025": {
+    "message": "E025: L'impostazione del file dei segnalibri non deve iniziare con una barra: '/'"
+  },
+  "Error026": {
+    "message": "E026: Il processo di sincronizzazione è stato annullato"
+  },
+  "Error027": {
+    "message": "E027: Il processo di sincronizzazione è stato interrotto"
+  },
+  "Error028": {
+    "message": "E028: Impossibile autenticarsi con il server."
+  },
+  "Error029": {
+    "message": "E029: Failsafe: L'esecuzione corrente della sincronizzazione cancellerebbe {0}% dei collegamenti. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni dell'account se si vuole procedere comunque."
+  },
+  "Error030": {
+    "message": "E030: Impossibile decriptare il file dei segnalibri. La frase d'accesso (passphrase) potrebbe essere errata o il file potrebbe essere danneggiato."
+  },
+  "Error031": {
+    "message": "E031: Impossibile eseguire l'autenticazione con Google Drive. Collegare nuovamente floccus al tuo account Google."
+  },
+  "Error032": {
+    "message": "E032: Errore di OAuth. Errore di convalida del token. Ricollegare l'account Google."
+  },
+  "Error033": {
+    "message": "E033: Rilevato reindirizzamento. Assicurarsi che il server supporti il metodo di sincronizzazione selezionato e che l'URL inserito sia corretto e non reindirizzi a una posizione diversa. Se il reindirizzamento fa parte della configurazione, è possibile disattivare questo controllo nelle impostazioni."
+  },
+  "Error034": {
+    "message": "E034: Il file dei segnalibri remoti non è leggibile. Forse si è dimenticato di impostare una passphrase di crittografia o si è impostato un formato di file sbagliato."
+  },
+  "Error035": {
+    "message": "E035: Impossibile creare il seguente segnalibro sul server: {0}"
+  },
+  "Error036": {
+    "message": "E036: Autorizzazioni mancanti per l'accesso al server di sincronizzazione"
+  },
+  "Error037": {
+    "message": "E037: La risorsa è bloccata"
+  },
+  "Error038": {
+    "message": "E038: Impossibile trovare la cartella locale"
+  },
+  "Error039": {
+    "message": "E039: Non è stato possibile aggiornare il seguente segnalibro sul server: {0}"
+  },
+  "Error040": {
+    "message": "E040: impossibile cercare il nome del file in Google Drive"
+  },
+  "Error041": {
+    "message": "E041: La dimensione del file dei segnalibri remoti differisce dal contenuto effettivamente scaricato dal server. Potrebbe trattarsi di un problema di rete temporaneo. Se l'errore persiste, contattare l'amministratore del server."
+  },
+  "Error042": {
+    "message": "E042: Non è stato possibile recuperare le dimensioni del file dei segnalibri remoti. È impossibile verificare che il file dei segnalibri sia stato scaricato per intero. Se l'errore persiste, contattare l'amministratore del server."
+  },
+  "Error043": {
+    "message": "E043: Failsafe: L'esecuzione corrente della sincronizzazione aumenterebbe il numero di segnalibri di {0}%. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si desidera procedere comunque."
+  },
+  "Error044": {
+    "message": "E044: Operazione Git push fallita: {0}"
+  },
+  "LabelWebdavurl": {
+    "message": "URL WebDAV"
+  },
+  "DescriptionWebdavurl": {
+    "message": "per esempio con Nextcloud: https://example.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "URL Nextcloud"
+  },
+  "LabelUsername": {
+    "message": "Nome Utente"
+  },
+  "LabelPassword": {
+    "message": "Password"
+  },
+  "LabelBookmarksfile": {
+    "message": "File segnalibri"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "un percorso che indica dove risiederà il file dei segnalibri sul server, rispetto all'URL WebDAV (tutte le cartelle del percorso devono essere già esistenti), ad esempio personal_stuff/bookmarks.xbel"
+  },
+ "DescriptionBookmarksfilegoogle": {
+   "message": "il nome del file dei segnalibri che risiederà in Google Drive. Non inserire il percorso completo del file, ma solo il nome del file. Assicurarsi che il nome sia unico in Drive, ad esempio mybookmarks.xbel."
+ },
+  "DescriptionBookmarksfilegit": {
+    "message": "un percorso al file dei segnalibri relativo alla root del repository Git (tutte le cartelle nel percorso devono già esistere). per es. roba_personale/segnalibri.xbel"
+  },
+  "LabelServerfolder": {
+    "message": "Obiettivo del server"
+  },
+  "DescriptionServerfolder": {
+    "message": "Durante la sincronizzazione, i tuoi segnalibri in questo browser verranno archiviati come link in questo percorso sul server. Tieni presente che questo percorso rappresenta una cartella nell'app Nextcloud Bookmarks, non una cartella in Nextcloud Files. Lascialo vuoto per inserire tutti i link nella cartella più in alto sul server."
+  },
+  "DescriptionServerfolderlinkwarden": {
+    "message": "Durante la sincronizzazione, i segnalibri di questo browser saranno memorizzati come collegamenti sotto questa raccolta e solo i collegamenti sotto questa raccolta saranno sincronizzati con questo browser."
+  },
+  "DescriptionServerfolderkarakeep": {
+    "message": "Durante la sincronizzazione, i segnalibri di questo browser saranno memorizzati come collegamenti sotto questa raccolta e solo i collegamenti sotto questa raccolta saranno sincronizzati con questo browser."
+  },
+  "LabelLocaltarget": {
+    "message": "Obiettivo locale"
+  },
+  "DescriptionLocaltarget": {
+    "message": "Scegli qui se desideri sincronizzare i segnalibri del browser o le schede del browser."
+  },
+  "LabelLocalfolder": {
+    "message": "Cartella dei segnalibri"
+  },
+  "DescriptionLocalfolder": {
+    "message": "I segnalibri in questa cartella di segnalibri saranno memorizzati come link sul server e i link sul server saranno memorizzati come segnalibri in questa cartella di segnalibri in questo browser."
+  },
+  "LabelRootfolder": {
+    "message": "Cartella principale"
+  },
+  "LabelNewfolder": {
+    "message": "Cartella appena creata"
+  },
+  "LabelSelectfolder": {
+    "message": "Selezionare una cartella"
+  },
+  "LabelOptions": {
+    "message": "Opzioni"
+  },
+  "LabelSyncnow": {
+    "message": "Sincronizzare ora"
+  },
+  "LabelCancelsync": {
+    "message": "Annulla la sincronizzazione"
+  },
+  "LabelSyncall": {
+    "message": "Sincronizzare tutti i profili"
+  },
+  "LabelAutosync": {
+    "message": "Auto-sincronizzazione"
+  },
+  "StatusLastsynced": {
+    "message": "Ultima sincronizzazione: {0} fa"
+  },
+  "StatusNeversynced": {
+    "message": "Non ancora sincronizzato"
+  },
+  "StatusAllgood": {
+    "message": "Tutto bene"
+  },
+  "StatusDisabled": {
+    "message": "Disabilitato"
+  },
+  "StatusError": {
+    "message": "Errore"
+  },
+  "StatusSyncing": {
+    "message": "Sincronizzando"
+  },
+  "StatusScheduled": {
+    "message": "Programmato"
+  },
+  "LabelReset": {
+    "message": "Reimposta"
+  },
+  "DescriptionReset": {
+    "message": "Reimposta la cartella sincronizzata per crearne una nuova"
+  },
+  "LabelChoosefolder": {
+    "message": "Scegli una cartella"
+  },
+  "DescriptionChoosefolder": {
+    "message": "Imposta una cartella esistente da sincronizzare"
+  },
+  "LabelRemoveaccount": {
+    "message": "Rimuovi profilo"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "Elimina questo profilo (questo non rimuoverà i tuoi segnalibri)"
+  },
+  "LabelSyncfromscratch": {
+    "message": "Innescare la sincronizzazione da zero"
+  },
+  "LabelResetCache": {
+    "message": "Reimposta la cache"
+  },
+  "DescriptionResetcache": {
+    "message": "Fare clic su questo pulsante per reimpostare la cache in modo che la prossima sincronizzazione non cancelli alcun dato e si limiti a unire i segnalibri del server e quelli locali."
+  },
+  "LabelParallelsync": {
+    "message": "Velocizza la sincronizzazione"
+  },
+  "DescriptionParallelsync": {
+    "message": "Spunta questa casella per elaborare più cartelle in parallelo per velocizzare la sincronizzazione. Questa funzionalità è sperimentale e rende più difficile la lettura dei log di debug."
+  },
+  "LabelStrategy": {
+    "message": "Strategia di sincronizzazione"
+  },
+  "DescriptionStrategy": {
+    "message": "Questa opzione determina come sincronizzare i segnalibri su diversi dispositivi. Di solito si desidera mantenere le modifiche da tutti i lati se sono compatibili, ma a volte si potrebbe voler sovrascrivere le modifiche (comprese le aggiunte e le eliminazioni) da altri browser, o sovrascrivere le modifiche apportate localmente."
+  },
+  "LabelStrategydefault": {
+    "message": "Unisci sempre le modifiche locali con le modifiche provenienti da altri browser (consigliato)"
+  },
+  "LabelStrategyslave": {
+    "message": "Annulla sempre le modifiche locali e scarica le modifiche da altri browser"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "Carica sempre le modifiche locali e annulla le modifiche da altri browser"
+  },
+  "LabelSave": {
+    "message": "Salva"
+  },
+  "LabelCancel": {
+    "message": "Annulla"
+  },
+  "LabelAdd": {
+    "message": "Aggiungi"
+  },
+  "LabelChange": {
+    "message": "Cambia"
+  },
+  "LabelRemove": {
+    "message": "Rimuovi"
+  },
+  "LabelBack": {
+    "message": "Indietro"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Segnalibri di Nextcloud"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "Sincronizzate i vostri segnalibri con l'applicazione open-source Bookmarks per Nextcloud (una piattaforma di collaborazione open-source che potete ospitare autonomamente o ottenere un account per un'istanza nel cloud da uno dei vari hoster). Con Nextcloud Bookmarks è possibile sincronizzare solo i segnalibri http, ftp e javascript. Assicuratevi di aver installato l'applicazione Segnalibri dall'app store di Nextcloud nel vostro Nextcloud. Questa opzione non può utilizzare la crittografia end-to-end."
+  },
+  "LabelAdapternextcloud": {
+    "message": "Segnalibri di Nextcloud (legacy)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "L'opzione legacy è compatibile con almeno la versione v0.11 dell'applicazione Segnalibri. Emulerà le cartelle utilizzando i tag contenenti il percorso della cartella. Si sconsiglia l'uso di questa opzione per i nuovi profili."
+  },
+  "LabelAdapterwebdav": {
+    "message": "Condivisione WebDAV"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "Sincronizzare i segnalibri memorizzandoli in un file nella condivisione WebDAV fornita. Questa opzione non è accompagnata da un'interfaccia utente web e può essere utilizzata con qualsiasi server compatibile con WebDAV, sia selfhosted che nel cloud. Può sincronizzare segnalibri http, ftp, dati, file e javascript. È possibile scegliere di utilizzare la crittografia end-to-end quando si utilizza questa opzione."
+  },
+  "LabelAddaccount": {
+    "message": "Aggiungi profilo"
+  },
+  "LabelOpenintab": {
+    "message": "Apri nella scheda"
+  },
+  "LabelDebuglogs": {
+    "message": "Log di debug"
+  },
+  "LabelFunddevelopment": {
+    "message": "💸 Sviluppo del fondo"
+  },
+  "DescriptionFunddevelopment": {
+    "message": "Il lavoro su floccus è alimentato da un modello di sottoscrizione volontaria. Se pensi che valga la pena fare quello che faccio, e se puoi risparmiare qualche soldo ogni mese senza difficoltà, per favore sostieni il mio lavoro. Inoltre, considera di dare a Floccus una valutazione sul negozio di componenti aggiuntivi di tua scelta. Grazie!💙"
+  },
+  "LabelSelect": {
+    "message": "Seleziona"
+  },
+  "LabelUntitledfolder": {
+    "message": "Cartella senza titolo"
+  },
+  "LabelSetkeybutton": {
+    "message": "Imposta una frase d'accesso"
+  },
+  "LabelKey": {
+    "message": "Inserisci la tua frase d'accesso di sblocco"
+  },
+  "LabelKey2": {
+    "message": "Inserisci la tua frase d'accesso una seconda volta"
+  },
+  "LabelUnlock": {
+    "message": "Sblocca floccus"
+  },
+  "LabelRemovekey": {
+    "message": "Rimuovi la frase d'accesso"
+  },
+  "LabelRemovedkey": {
+    "message": "Frase d'accesso rimossa"
+  },
+  "LabelSyncinterval": {
+    "message": "Intervallo di sincronizzazione"
+  },
+  "DescriptionSyncinterval": {
+    "message": "L'intervallo di tempo tra due sincronizzazioni in minuti. L'impostazione predefinita è 15 minuti."
+  },
+  "LabelChooseadapter": {
+    "message": "Come si vuole sincronizzare?"
+  },
+  "LabelOptionsscreen": {
+    "message": "{0}opzioni",
+    "description": "Title of the options screen. The placeholder holds the profile type."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "Effettuare una donazione una tantum o regolare tramite paypal per sostenere il progetto"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "Fai una donazione regolare tramite OpenCollective per sostenere il progetto"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "Fai una donazione regolare tramite Liberapay per sostenere il progetto"
+  },
+  "LabelGithubsponsors": {
+    "message": "GitHub sponsors"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "Fai una donazione regolare tramite GitHub sponsors per supportare il progetto"
+  },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "Fai una donazione regolare tramite Patreon per sostenere il progetto"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "Fai una donazione regolare o una tantum tramite Ko-fi per sostenere il progetto"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "Questo tipo di profilo legacy è obsoleto e verrà presto rimosso. Passa al nuovo metodo di sincronizzazione Nextcloud. Ti aspettano prestazioni e accuratezza migliorate."
+  },
+  "LabelUpdated": {
+    "message": "⚡ Floccus è stato aggiornato"
+  },
+  "DescriptionUpdated": {
+    "message": "Congratulazioni, l'ultimo aggiornamento di floccus è arrivato sul tuo dispositivo!"
+  },
+  "LabelReleaseNotes": {
+    "message": "Leggi le note di rilascio"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "Dettagli del server"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "Mappatura delle cartelle"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "Comportamento della sincronizzazione"
+  },
+  "LabelOptionsDangerous": {
+    "message": "Azioni pericolose"
+  },
+  "LabelAccountDeleted": {
+    "message": "Profilo cancellato"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "Questo profilo è stato cancellato"
+  },
+  "LabelNoAccount": {
+    "message": "Non ci sono ancora profili"
+  },
+  "DescriptionNoAccount": {
+    "message": "Aggiungere nuovi profili o importare profili da un file, quindi iniziare la sincronizzazione."
+  },
+  "LabelLoginFlowStart": {
+    "message": "Accedi con Nextcloud"
+  },
+  "LabelLoginFlowStop": {
+    "message": "Interrompere l'accesso a Nextcloud"
+  },
+  "LabelLoginFlowError": {
+    "message": "Accesso a Nextcloud non riuscito"
+  },
+  "LabelNewAccount": {
+    "message": "Aggiungi profilo"
+  },
+  "LabelNewImport": {
+    "message": "Importazione"
+  },
+  "LabelNestedSync": {
+    "message": "Profili nidificati"
+  },
+  "DescriptionNestedSync": {
+    "message": "È possibile annidare i profili in modo che una cartella principale appartenga al profilo A e una cartella secondaria ai profili A e B. Si vuole consentire anche ad altri profili di sincronizzare la cartella di questo profilo?"
+  },
+  "LabelNestedSyncNo": {
+    "message": "No, ignora la cartella di questo profilo in altri profili"
+  },
+  "LabelNestedSyncYes": {
+    "message": "Sì, includi la cartella di questo profilo in altri profili"
+  },
+  "LabelImportExport": {
+    "message": "Importa/Esporta profili"
+  },
+  "LabelExport": {
+    "message": "Esporta profili"
+  },
+  "LabelImport": {
+    "message": "Importa profili"
+  },
+  "DescriptionExport": {
+    "message": "Seleziona di seguito i profili che desideri esportare in un file, in modo da poter ricreare facilmente gli stessi profili su un altro dispositivo o browser."
+  },
+  "DescriptionImport": {
+    "message": "Importare qui un file con i profili esportati per ricreare i profili esportati su un altro dispositivo o browser. Assicurarsi di impostare nuovamente le cartelle di sincronizzazione corrette dopo l'importazione."
+  },
+  "LabelFolderNotFound": {
+    "message": "Cartella non trovata"
+  },
+  "LabelSyncTabs": {
+    "message": "Schede del browser"
+  },
+  "DescriptionSyncTabs": {
+    "message": "I link memorizzati sul server vengono aperti come schede del browser e le schede aperte del browser vengono memorizzati come link sul server. Si noti che, a seconda del numero di collegamenti memorizzati sul server, poiché verranno tutti aperti come schede alla successiva esecuzione della sincronizzazione, è possibile che il browser risulti sovraccarico."
+  },
+  "LabelTabs": {
+    "message": "Schede"
+  },
+  "LabelSyncDown": {
+    "message": "Ricevi"
+  },
+  "DescriptionSyncDown": {
+    "message": "Scarica le modifiche da altri browser e sovrascrivi le modifiche locali"
+  },
+  "LabelSyncUp": {
+    "message": "Invia"
+  },
+  "DescriptionSyncUp": {
+    "message": "Carica le modifiche locali e sovrascrivi quelle di altri browser"
+  },
+  "LabelSyncDownOnce": {
+    "message": "Ricevi una volta"
+  },
+  "LabelSyncUpOnce": {
+    "message": "Invia una volta"
+  },
+  "LabelSyncNormal": {
+    "message": "Unisci"
+  },
+  "DescriptionSyncNormal": {
+    "message": "Unisci le modifiche locali con le modifiche di altri browser"
+  },
+  "DescriptionFilesPermission": {
+    "message": "Assicurati di concedere a floccus l'autorizzazione non solo per utilizzare l'app dei segnalibri ma anche per l'app dei file di Nextcloud."
+  },
+  "DescriptionExtension": {
+    "message": "Sincronizza privatamente i tuoi segnalibri su browser e dispositivi"
+  },
+  "LabelFailsafe": {
+    "message": "Sistema di sicurezza"
+  },
+  "DescriptionFailsafe": {
+    "message": "A volte errori di configurazione o bug del software possono causare la rimozione involontaria di dati, che vanno quindi persi, o la duplicazione involontaria di dati, che è poi difficile da risolvere. Per evitare che ciò accada, floccus non cancellerà più del 20% dei vostri segnalibri in una sola volta e non aggiungerà più del 20% al vostro numero di segnalibri in una sola volta, a meno che non disattiviate questo failsafe qui."
+  },
+  "LabelFailsafeon": {
+    "message": "Abilitato. Non eliminerà o aggiungerà più del 20% dai/ai segnalibri locali senza chiedere prima all'utente. (consigliato)"
+  },
+  "LabelFailsafeoff": {
+    "message": "Disattivato. Permette di rimuovere o aggiungere più del 20% dai/ai segnalibri locali senza confermare l'utente."
+  },
+  "StatusFailsafeoff": {
+    "message": "Failsafe disattivato. Si rischia la perdita o la duplicazione involontaria dei dati. Si consiglia di attivare il failsafe nelle impostazioni del profilo."
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google Drive"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "Sincronizza i segnalibri tramite un file (facoltativamente crittografato) memorizzato in Google Drive. Può sincronizzare segnalibri http, ftp, dati, file e javascript. È possibile scegliere di utilizzare la crittografia end-to-end quando si utilizza questa opzione."
+  },
+  "LabelLogingoogle": {
+    "message": "Accedi con Google"
+  },
+  "DescriptionLogingoogle": {
+    "message": "Connetti il tuo account Google per archiviare il file di sincronizzazione dei segnalibri nel tuo Google Drive."
+  },
+  "DescriptionLoggedingoogle": {
+    "message": "Hai collegato il tuo account Google per archiviare il file di sincronizzazione dei segnalibri nel tuo Google Drive."
+  },
+  "LabelPassphrase": {
+    "message": "Frase d'accesso"
+  },
+  "DescriptionPassphrase": {
+    "message": "Imposta una frase d'accesso per crittografare il file dei segnalibri. Se non imposti alcuna frase d'accesso, non verrà eseguita alcuna crittografia."
+  },
+  "LabelClientcert": {
+    "message": "Invia le credenziali del client"
+  },
+  "DescriptionClientcert": {
+    "message": "Attiva questa opzione se il tuo server richiede un certificato client o cookie per l'autenticazione. Ciò potrebbe causare effetti collaterali indesiderati, poiché floccus condividerà i cookie con le normali sessioni del browser."
+  },
+  "LabelAllowredirects": {
+    "message": "Consenti reindirizzamenti nell'URL del Server"
+  },
+  "DescriptionAllowredirects": {
+    "message": "Attiva questa opzione se durante la sincronizzazione ricevi errori di reindirizzamento che ritieni ingiustificati."
+  },
+  "LabelSearch": {
+    "message": "Ricerca segnalibri"
+  },
+  "LabelSearchfolder": {
+    "message": "Cerca {0}"
+  },
+  "LabelEdititem": {
+    "message": "Modifica"
+  },
+  "LabelDeleteitem": {
+    "message": "Cancella"
+  },
+  "DescriptionReallydeleteitem": {
+    "message": "Vuoi davvero cancellare questo elemento?"
+  },
+  "LabelNobookmarks": {
+    "message": "Nessun segnalibro qui"
+  },
+  "LabelAddbookmark": {
+    "message": "Aggiungi segnalibro"
+  },
+  "LabelEditbookmark": {
+    "message": "Modifica segnalibro"
+  },
+  "LabelAddfolder": {
+    "message": "Aggiungi cartella"
+  },
+  "LabelEditfolder": {
+    "message": "Modifica cartella"
+  },
+  "LabelSlugline": {
+    "message": "Sincronizzazione privata dei segnalibri"
+  },
+  "LabelDownloadlogs": {
+    "message": "Scarica i log"
+  },
+  "LabelDownloadfulllogs": {
+    "message": "Registro completo"
+  },
+  "LabelDownloadanonymizedlogs": {
+    "message": "Log redatti"
+  },
+  "DescriptionDownloadlogs": {
+    "message": "Floccus registra tutte le sue azioni in un file di registro che puoi esaminare tu stesso o inviare agli sviluppatori per scopi di debug. Nei registri redatti, i nomi delle cartelle e dei segnalibri, nonché gli URL, vengono codificati in modo irreversibile utilizzando una funzione di hashing crittografico. Quando invii log oscurati, assicurati di controllare comunque il file scaricato per i dati sensibili che potrebbero non essere stati rilevati dal processo di anonimizzazione."
+  },
+  "ErrorFolderloopselected": {
+    "message": "Non è possibile spostare una cartella in se stessa"
+  },
+  "ErrorNofolderselected": {
+    "message": "Nessuna cartella selezionata"
+  },
+  "LabelAllownetwork": {
+    "message": "Consentire l'utilizzo della rete"
+  },
+  "DescriptionAllownetwork": {
+    "message": "Oltre a connettersi al server di sincronizzazione, Floccus può utilizzare la rete per ottenere informazioni aggiuntive sui segnalibri (come le icone, ecc.). Qui è possibile abilitare l'uso della rete."
+  },
+  "LabelMobilesettings": {
+    "message": "Impostazioni mobili"
+  },
+  "LabelContinuefloccus":{
+    "message": "Continua su floccus"
+  },
+  "LabelAbout":{
+    "message": "Riguardo..."
+  },
+  "LabelCurrentversion": {
+    "message": "Versione attuale"
+  },
+  "DescriptionCurrentversion": {
+    "message": "La versione di floccus attualmente installata è:"
+  },
+  "LabelContributors": {
+    "message": "Collaboratori"
+  },
+  "DescriptionContributors": {
+    "message": "Queste persone hanno contribuito a rendere possibile floccus"
+  },
+  "LabelSortcustom": {
+    "message": "Personalizzato"
+  },
+  "LabelSorturl": {
+    "message": "Link"
+  },
+  "LabelSorttitle": {
+    "message": "Titolo"
+  },
+  "LabelSyncmethod": {
+    "message": "Metodo di sincronizzazione"
+  },
+  "LabelSyncserver": {
+    "message": "Server di sincronizzazione"
+  },
+  "LabelSyncfolders": {
+    "message": "Sincronizzazione delle cartelle"
+  },
+  "LabelSyncbehavior": {
+    "message": "Comportamento della sincronizzazione"
+  },
+  "LabelContinue": {
+    "message": "Continua"
+  },
+  "LabelDone": {
+    "message": "Fatto"
+  },
+  "LabelConnect": {
+    "message": "Collegare"
+  },
+  "LabelServersetup": {
+    "message": "Su quale server si desidera effettuare la sincronizzazione?"
+  },
+  "LabelGoogledrivesetup": {
+    "message": "Accedi a Google Drive"
+  },
+  "LabelSyncfoldersetup": {
+    "message": "Quali cartelle si desidera sincronizzare?"
+  },
+  "LabelSyncbehaviorsetup": {
+    "message": "Come vuoi sincronizzare?"
+  },
+  "LabelAccountcreated": {
+    "message": "Profilo creato"
+  },
+  "DescriptionAccountcreated": {
+    "message": "Il vostro profilo è stato creato. Ora è possibile chiudere questa scheda. Un'ultima cosa: la sincronizzazione non è un backup. Assicuratevi di avere un backup regolare dei vostri segnalibri."
+  },
+  "DescriptionNonhttps": {
+    "message": "Hai inserito un server che utilizza un protocollo non sicuro. Si consiglia di utilizzare solo server che supportano HTTPS."
+  },
+  "LabelFiletype": {
+    "message": "Formato del file"
+  },
+  "DescriptionFiletype": {
+    "message": "Puoi scegliere il formato file che desideri utilizzare per archiviare i segnalibri nel cloud."
+  },
+  "LabelFiletypehtml": {
+    "message": "HTML, un formato aperto ampiamente supportato (sperimentale)"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL, un formato semplice e aperto"
+  },
+  "LabelImportbookmarks": {
+    "message": "Importa segnalibri"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "Importa un file HTML contenente i segnalibri nella cartella corrente"
+  },
+  "LabelExportBookmarks": {
+    "message": "Esporta segnalibri"
+  },
+  "DescriptionExportBookmarks" : {
+    "message": "Puoi esportare tutti i segnalibri di questo profilo in un file HTML compatibile con tutti i principali browser."
+  },
+  "LabelShareitem": {
+    "message": "Condividi"
+  },
+  "LabelImportsuccessful": {
+    "message": "Profilo/i importato/i con successo"
+  },
+  "DescriptionSyncinprogress": {
+    "message": "Sincronizzazione in corso."
+  },
+  "DescriptionSyncscheduled": {
+    "message": "Questo profilo sarà sincronizzato a breve. Stiamo aspettando che altri dispositivi dell'utente o altri profili su questo dispositivo finiscano di sincronizzarsi."
+  },
+  "LabelAdaptergit": {
+    "message": "Git su HTTPS"
+  },
+  "DescriptionAdaptergit": {
+    "message": "L'opzione Git sincronizza i segnalibri memorizzandoli in un file nel repository Git fornito. Questa opzione non è accompagnata da un'interfaccia web, ma può essere utilizzata con qualsiasi server di hosting Git, come Github, Gitlab, Gitea, ecc. Può sincronizzare segnalibri http, ftp, dati, file e javascript. Non è possibile utilizzare la crittografia end-to-end quando si utilizza questa opzione. Questa opzione non è attualmente disponibile nell'app mobile."
+  },
+  "LabelGiturl": {
+    "message": "URL del repository tramite HTTP"
+  },
+  "LabelGitbranch": {
+    "message": "Branch di Git"
+  },
+  "LabelTelemetry": {
+    "message": "Segnalazione automatica degli errori"
+  },
+  "DescriptionTelemetry": {
+    "message": "Floccus può inviare automaticamente i dati di errore a me, lo sviluppatore. Questo è di enorme aiuto per scoprire e risolvere più rapidamente i bug in floccus e aiuterà a migliorare la tua esperienza con floccus a lungo termine. Anche quando la segnalazione degli errori è abilitata, gli sviluppatori di floccus non saranno mai in grado di vedere i tuoi segnalibri."
+  },
+  "LabelTelemetryenable": {
+    "message": "Inviare automaticamente agli sviluppatori di floccus i dati sugli errori e le informazioni sul metodo di sincronizzazione utilizzato."
+  },
+  "LabelTelemetrydisable": {
+    "message": "Non inviare alcun dato agli sviluppatori di floccus"
+  },
+  "LabelAccountlabel": {
+    "message": "Etichetta del profilo"
+  },
+  "DescriptionAccountlabel": {
+    "message": "Assegna un nome a questo profilo in modo da poterlo riconoscere più facilmente"
+  },
+  "LabelClickcount": {
+    "message": "Conteggio dei clic"
+  },
+  "DescriptionClickcount": {
+    "message": "Invia statistiche sui segnalibri più visitati al tuo server Nextcloud, in modo da poterli ordinare in base al numero di clic."
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "Scrivi una recensione su Google Play"
+  },
+  "DescriptionAppstorereview": {
+    "message": "Scrivi una recensione sull'App Store"
+  },
+  "DescriptionChromereview": {
+    "message": "Scrivi una recensione su Chrome WebStore"
+  },
+  "DescriptionAlternativereview": {
+    "message": "Scrivi una recensione su AlternativeTo.net"
+  },
+  "DescriptionMozillareview": {
+    "message": "Scrivi una recensione su Mozilla Addons"
+  },
+  "DescriptionEdgereview": {
+    "message": "Scrivi una recensione su Edge Addons"
+  },
+  "LabelWritereview": {
+    "message": "💙 Condividete l'amore!"
+  },
+  "DescriptionWritereview": {
+    "message": "Se siete entusiasti di floccus, fatelo sapere al mondo lasciando una valutazione su una delle piattaforme qui sotto."
+  },
+  "DescriptionDonateintervention": {
+    "message": "Ami la sincronizzazione dei segnalibri? Sostenetemi!"
+  },
+  "LabelDonate": {
+    "message": "Donare"
+  },
+  "DescriptionDisabledaftererror": {
+    "message": "Riprovato 10 volte prima di disabilitare questo profilo"
+  },
+  "DescriptionBookmarkexists": {
+    "message": "Questo segnalibro esiste già nel profilo selezionato"
+  },
+  "LabelReportproblem": {
+    "message": "Segnala il problema"
+  },
+  "DescriptionReportproblem": {
+    "message": "Se volete contattare direttamente gli sviluppatori con un problema concreto, potete farlo qui:"
+  },
+  "LabelAdapterKarakeep":  {
+    "message": "Karakeep"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "Sincronizzare i segnalibri con l'applicazione open-source self-hosted Karakeep. Questa opzione non può utilizzare la crittografia end-to-end e non supporta il mantenimento dell'ordine dei segnalibri tra le varie sincronizzazioni."
+  },
+  "LabelApiKey":  {
+    "message": "Chiave API"
+  },
+  "LabelKarakeepurl":  {
+    "message": "L'URL del vostro server Karakeep"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "Impossibile connettersi al server di Karakeep"
+  },
+  "LabelAdapterlinkwarden":  {
+    "message": "Linkwarden"
+  },
+  "DescriptionAdapterlinkwarden":  {
+    "message": "Sincronizzate i vostri segnalibri con l'applicazione open-source Linkwarden, ospitata sul vostro server o nel cloud all'indirizzo cloud.linkwarden.app. Può sincronizzare solo i segnalibri http, ftp e javascript. Questa opzione non può utilizzare la crittografia end-to-end e non supporta il mantenimento dell'ordine dei segnalibri tra le varie sincronizzazioni."
+  },
+  "LabelLinkwardenurl":  {
+    "message": "L'URL del vostro server Linkwarden"
+  },
+  "LabelAccesstoken":  {
+    "message": "Token di accesso"
+  },
+  "LabelLinkwardenconnectionerror": {
+    "message": "Impossibile connettersi al server Linkwarden"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "Risultati da altre cartelle"
+  },
+  "LabelScheduledforcesync": {
+    "message": "Forza la sincronizzazione"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "Volete davvero forzare la sincronizzazione? La sincronizzazione con due dispositivi contemporaneamente può avere conseguenze impreviste, tra cui la corruzione dei dati. Assicuratevi che nessun altro dispositivo stia sincronizzando al momento prima di confermare."
+  },
+  "DescriptionAutosync": {
+    "message": "Se si attiva la sincronizzazione automatica, l'esecuzione della sincronizzazione viene attivata regolarmente entro un certo intervallo configurabile e su richiesta pochi secondi dopo aver apportato le modifiche. Se non si attiva la sincronizzazione automatica, è necessario attivare manualmente l'esecuzione della sincronizzazione premendo il pulsante di sincronizzazione."
+  },
+  "LabelOpeninnewtab": {
+    "message": "Aprire questa vista in una nuova scheda"
+  },
+  "LabelGivefeedback": {
+    "message": "Dare un feedback"
+  },
+  "LabelYourname": {
+    "message": "Il tuo nome"
+  },
+  "LabelYouremail": {
+    "message": "Il vostro indirizzo e-mail (facoltativo)"
+  },
+  "LabelYourmessage": {
+    "message": "Il vostro messaggio di feedback"
+  },
+  "LabelSubmitfeedback": {
+    "message": "Invia un feedback"
+  },
+  "DescriptionFeedbacklegal": {
+    "message": "Questo modulo di feedback è gestito da Sentry. Premendo l'invio, l'utente accetta di memorizzare i dati inseriti sui server di Sentry. Nessuno dei dati dei vostri segnalibri sarà inviato a Sentry."
+  },
+  "DescriptionFeedbackhowto": {
+    "message": "Grazie per aver dedicato del tempo a fornire un feedback agli sviluppatori di floccus! Se il vostro feedback riguarda un problema, assicuratevi di includere i passi che avete fatto, cosa vi aspettavate e cosa invece è successo. Se il vostro feedback riguarda una richiesta di funzionalità, assicuratevi di includere il caso d'uso o il problema che questa funzionalità risolverebbe per voi. Se includete il vostro indirizzo e-mail, potremo ricontattarvi. Grazie!"
+  },
+  "LabelFeedbacksent": {
+    "message": "Grazie per il vostro feedback!"
+  },
+  "LabelFaq":{
+    "message": "Controllare le FAQ"
+  },
+  "StatusSyncingfailed": {
+    "message": "Sincronizzazione fallita"
+  },
+  "StatusSyncingcomplete": {
+    "message": "Sincronizzazione completata"
+  },
+  "NotificationSyncingprofile": {
+    "message": "Profilo di sincronizzazione {0}"
+  },
+  "NotificationSyncingsucceeded": {
+    "message": "La sincronizzazione del profilo {0} è riuscita"
+  },
+  "NotificationSyncingfailed": {
+    "message": "Impossibile sincronizzare il profilo {0}"
+  }
+}
