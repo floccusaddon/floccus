@@ -6920,8 +6920,8 @@ describe('Floccus', function() {
               ACCOUNT_DATA.type === 'nextcloud-bookmarks'
                 // Produce random numbers of timeouts between 30s and increasing numbers between 30s and 180s (increasing for stretches of 20 items, then going back to 30s)
                 ? random.int(30000, Math.round(30000 + (180000 - 30000) * (index % 20) / 20))
-                // Produce random numbers of timeouts between 4s and increasing numbers between 4s and 20s (increasing for stretches of 20 items, then going back to 4s)
-                : random.int(4000, Math.round(4000 + (20000 - 4000) * (index % 20) / 20))
+                // Produce random numbers of timeouts between 4s and increasing numbers between 4s and 60s (increasing for stretches of 20 items, then going back to 4s)
+                : random.int(4000, Math.round(4000 + (60000 - 4000) * (index % 20) / 20))
             )
           }
           const timeout = timeouts[(i++) % 1000]
