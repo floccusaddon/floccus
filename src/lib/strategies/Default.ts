@@ -20,7 +20,7 @@ import Diff, {
 } from '../Diff'
 import Scanner, { ScanResult } from '../Scanner'
 import * as Parallel from 'async-parallel'
-import throttle from '@jcoreio/async-throttle'
+import throttle, { CanceledError } from '@jcoreio/async-throttle'
 import type { ThrottledFunction } from '@jcoreio/async-throttle'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import TResource, { IHashSettings, OrderFolderResource, TLocalTree } from '../interfaces/Resource'
@@ -79,6 +79,9 @@ export default class SyncProcess {
   protected masterLocation: TItemLocation
   protected hashSettings: IHashSettings
 
+  protected cancelPromise: Promise<void>
+  protected cancelCb: (error: any) => void
+
   constructor(
     mappings:Mappings,
     localTree:TLocalTree,
@@ -90,6 +93,9 @@ export default class SyncProcess {
     this.server = server
 
     this.progressCb = throttle(progressCb, 1500)
+    this.cancelPromise = new Promise<void>((resolve, reject) => {
+      this.cancelCb = reject
+    })
     this.canceled = false
     this.isFirefox = self.location.protocol === 'moz-extension:'
   }
@@ -140,6 +146,7 @@ export default class SyncProcess {
 
   async cancel() :Promise<void> {
     this.canceled = true
+    this.cancelCb(new CancelledSyncError())
     this.server.cancel()
     this.localTree.cancel()
     this.progressCb.cancel()
@@ -156,7 +163,12 @@ export default class SyncProcess {
         0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
       ),
       this.actionsDone
-    )
+    ).catch((er) => {
+      if (er instanceof CanceledError) {
+        return
+      }
+      throw er
+    })
     Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
   }
 
@@ -943,7 +955,10 @@ export default class SyncProcess {
       this.updateProgress()
     }
 
-    const id = await action.payload.visitCreate(resource)
+    const id = await Promise.race([
+      action.payload.visitCreate(resource),
+      this.cancelPromise
+    ])
     if (typeof id === 'undefined') {
       // undefined means we couldn't create the item. we're ignoring it
       done()
@@ -1141,7 +1156,10 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
-    await action.payload.visitRemove(resource)
+    await Promise.race([
+      action.payload.visitRemove(resource),
+      this.cancelPromise,
+    ])
     diff.retract(action)
     donePlan.REMOVE.commit(action)
     this.updateProgress()
@@ -1161,7 +1179,11 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
-    await action.payload.visitUpdate(resource)
+    await Promise.race([
+      action.payload.visitUpdate(resource),
+      this.cancelPromise,
+    ])
+
     await this.addMapping(resource, action.oldItem, action.payload.id)
     diff.retract(action)
     if (action.type === ActionType.UPDATE) {
@@ -1289,18 +1311,21 @@ export default class SyncProcess {
 
       const items = {}
       try {
-        await resource.orderFolder(item.id, action.order
-          // in rare situations the diff generates a REMOVE for an item that is still in the tree,
-          // make sure to sort out those failed mapings (value: undefined)
-          // also make sure that items are unique
-          .filter(item => {
-            if (items[item.type + '' + item.id]) {
-              return false
-            }
-            items[item.type + '' + item.id] = true
-            return item.id
-          })
-        )
+        await Promise.race([
+          resource.orderFolder(item.id, action.order
+            // in rare situations the diff generates a REMOVE for an item that is still in the tree,
+            // make sure to sort out those failed mapings (value: undefined)
+            // also make sure that items are unique
+            .filter(item => {
+              if (items[item.type + '' + item.id]) {
+                return false
+              }
+              items[item.type + '' + item.id] = true
+              return item.id
+            })
+          ),
+          this.cancelPromise,
+        ])
       } catch (e) {
         Logger.log('Failed to execute REORDER: ' + e.message + '\nMoving on.')
         Logger.log(e)
