@@ -30,7 +30,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
   constructor(storage:unknown, rootId:string) {
     this.rootId = rootId
     this.storage = storage
-    this.queue = new PQueue({ concurrency: 10 })
+    this.queue = new PQueue({ concurrency: 1 })
     this.absoluteRootPromise = BrowserTree.getAbsoluteRootFolder().then(root => {
       this.absoluteRoot = root
     })
