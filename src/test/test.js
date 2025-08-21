@@ -8144,9 +8144,9 @@ describe('Floccus', function() {
               { id: '', title: 'root', location: 'Server' }
             )
             account1.server.onSyncStart = function() { this.bookmarksCache = bmDb }
-            account1.server.onSyncComplete = null
+            account1.server.isAtomic = () => false
             account2.server.onSyncStart = function() { this.bookmarksCache = bmDb }
-            account2.server.onSyncComplete = null
+            account2.server.isAtomic = () => false
             await interruptBenchmark()
           })
         }
