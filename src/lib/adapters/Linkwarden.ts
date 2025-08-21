@@ -375,6 +375,10 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     }
   }
 
+  isAtomic(): boolean {
+    return false
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setHashSettings(hashSettings: IHashSettings): void {
     // noop

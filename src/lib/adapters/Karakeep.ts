@@ -573,6 +573,10 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
     }
   }
 
+  isAtomic(): boolean {
+    return false
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setHashSettings(hashSettings: IHashSettings): void {
     // noop

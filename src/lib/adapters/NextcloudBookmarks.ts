@@ -1072,6 +1072,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
   }
 
+  isAtomic(): boolean {
+    return false
+  }
+
   setHashSettings(hashSettings: IHashSettings): void {
     this.hashSettings = hashSettings
   }

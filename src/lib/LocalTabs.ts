@@ -518,6 +518,10 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
   cancel(): void {
     this.queue.clear()
   }
+
+  isAtomic(): boolean {
+    return false
+  }
 }
 
 function awaitTabsUpdated() {

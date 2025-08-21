@@ -247,6 +247,10 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     return Promise.resolve(true)
   }
 
+  isAtomic(): boolean {
+    return true
+  }
+
   async getCapabilities(): Promise<ICapabilities> {
     return {
       preserveOrder: true,

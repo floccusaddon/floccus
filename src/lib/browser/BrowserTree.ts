@@ -409,4 +409,8 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
   cancel(): void {
     this.queue.clear()
   }
+
+  isAtomic(): boolean {
+    return false
+  }
 }

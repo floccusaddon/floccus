@@ -11,7 +11,6 @@ import { Capacitor } from '@capacitor/core'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
 import { isTest } from './isTest'
-import CachingAdapter from './adapters/Caching'
 import * as Sentry from '@sentry/vue'
 import AsyncLock from 'async-lock'
 import CachingTreeWrapper from './CachingTreeWrapper'
@@ -378,7 +377,7 @@ export default class Account {
     if (!this.syncProcess) {
       return
     }
-    if (actionsDone && (!(this.server instanceof CachingAdapter) || 'onSyncComplete' in this.server)) {
+    if (actionsDone && !this.server.isAtomic()) {
       await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
       await this.syncProcess.getMappingsInstance().persist()
     }

@@ -25,6 +25,7 @@ export interface IResource<L extends TItemLocation> {
   removeFolder(folder:Folder<L>):Promise<void>
   isAvailable():Promise<boolean>
   getCapabilities():Promise<ICapabilities>
+  isAtomic():boolean
   isUsingBrowserTabs?: () => Promise<boolean>
   cancel():void
 }

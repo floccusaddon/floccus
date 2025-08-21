@@ -90,4 +90,8 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
   cancel(): void {
     this.innerTree.cancel()
   }
+
+  isAtomic(): boolean {
+    return this.innerTree.isAtomic()
+  }
 }
