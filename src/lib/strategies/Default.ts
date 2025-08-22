@@ -810,8 +810,8 @@ export default class SyncProcess {
               targetPlan.MOVE.getActions().find(move => String(move.payload.id) === String(payload.id)) ||
               sourceMoves.find(move => String(move.payload.id) === String(payload.id)) ||
               // Don't move back into removed territory
-              targetRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, remove, findChainCache)) ||
-              sourceRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.payload, remove, findChainCache))
+              targetRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, remove, findChainCache1)) ||
+              sourceRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.payload, remove, findChainCache2))
             ) {
               return
             }
