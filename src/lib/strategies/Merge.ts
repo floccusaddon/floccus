@@ -118,16 +118,6 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
         return
       }
 
-      const concurrentRemoval = targetScanResult.REMOVE.getActions().find(targetRemoval =>
-        // target removal removed this creation's target (via some chain)
-        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval, findChainCacheForCreations)
-      )
-      if (concurrentRemoval) {
-        avoidTargetReorders[action.payload.parentId] = true
-        // Already deleted on target, do nothing.
-        return
-      }
-
       targetPlan.CREATE.commit(action)
     }, ACTION_CONCURRENCY)
 
@@ -193,16 +183,9 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
         // Updated both on target and sourcely, source has precedence: do nothing sourcely
         return
       }
-      const concurrentRemoval = targetRemovals.find(a =>
-        a.payload.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, a.payload.location)) ||
-        a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location)))
-      if (concurrentRemoval) {
-        // Already deleted on target, do nothing.
-        return
-      }
 
       targetPlan.UPDATE.commit(action)
-    })
+    }, ACTION_CONCURRENCY)
 
     await Parallel.each(sourceScanResult.REORDER.getActions(), async(action) => {
       if (avoidTargetReorders[action.payload.id]) {
@@ -217,17 +200,8 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
         }
       }
 
-      const findChainCache = {}
-      const concurrentRemoval = targetRemovals.find(targetRemoval =>
-        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval, findChainCache)
-      )
-      if (concurrentRemoval) {
-        // Already deleted on target, do nothing.
-        return
-      }
-
       targetPlan.REORDER.commit(action)
-    })
+    }, ACTION_CONCURRENCY)
 
     return targetPlan
   }

@@ -847,7 +847,7 @@ export default class SyncProcess {
       }
 
       targetPlan.UPDATE.commit(action)
-    })
+    }, ACTION_CONCURRENCY)
 
     await Parallel.each(sourceScanResult.REORDER.getActions(), async(action) => {
       if (avoidTargetReorders[action.payload.id]) {
@@ -872,7 +872,7 @@ export default class SyncProcess {
       }
 
       targetPlan.REORDER.commit(action)
-    })
+    }, ACTION_CONCURRENCY)
 
     return targetPlan
   }
