@@ -194,7 +194,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
 
       if (targetLocation !== this.masterLocation) {
         const concurrentReorder = targetReorders.find(a =>
-          action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
+          action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload) && a.order.length > 0)
         if (concurrentReorder) {
           return
         }
