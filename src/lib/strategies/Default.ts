@@ -605,6 +605,7 @@ export default class SyncProcess {
     return {localScanResult, serverScanResult}
   }
 
+  // Note: Parts of this are duplicated to MergeSyncProcess!
   async reconcileDiffs<L1 extends TItemLocation, L2 extends TItemLocation, L3 extends TItemLocation>(
     sourceScanResult:ScanResult<L1, L2>,
     targetScanResult:ScanResult<TOppositeLocation<L1>, L3>,
