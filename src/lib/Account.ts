@@ -83,12 +83,15 @@ export default class Account {
   protected localTabs: TLocalTree
   protected lockTimeout: number
 
+  private localCachingResource: CachingTreeWrapper
+
   constructor(id:string, storageAdapter:IAccountStorage, serverAdapter: TAdapter, treeAdapter:TLocalTree) {
     this.server = serverAdapter
     this.id = id
     this.storage = storageAdapter
     this.localTree = treeAdapter
     this.lockTimeout = LOCK_TIMEOUT
+    this.localCachingResource = null
   }
 
   async delete():Promise<void> {
@@ -164,8 +167,9 @@ export default class Account {
     try {
       if (this.getData().syncing || this.syncing) return
 
-      const localResource = new CachingTreeWrapper(await this.getResource())
-      if (!(await this.server.isAvailable()) || !(await localResource.isAvailable())) return
+      if (!(await this.server.isAvailable()) || !(await (await this.getResource()).isAvailable())) return
+
+      this.localCachingResource = new CachingTreeWrapper(await this.getResource())
 
       Logger.log('Starting sync process for account ' + this.getLabel())
       Sentry.setUser({ id: this.id })
@@ -221,7 +225,7 @@ export default class Account {
         try {
           this.syncProcess = await DefaultSyncProcess.fromJSON(
             mappings,
-            localResource,
+            this.localCachingResource,
             this.server,
             async(progress, actionDone) => {
               await this.progressCallback(progress, actionDone)
@@ -264,7 +268,7 @@ export default class Account {
 
         this.syncProcess = new strategyClass(
           mappings,
-          localResource,
+          this.localCachingResource,
           this.server,
           async(progress, actionsDone?) => {
             await this.progressCallback(progress, actionsDone)
@@ -279,14 +283,14 @@ export default class Account {
         // if there is a pending continuation, we resume it
 
         Logger.log('Found existing persisted pending continuation. Resuming last sync')
-        await localResource.setCacheTree(await localResource.getBookmarksTree())
+        await this.localCachingResource.setCacheTree(await this.localCachingResource.getBookmarksTree())
         await this.syncProcess.sync()
       }
 
       await this.setData({ scheduled: false, syncing: 1 })
 
       // update cache
-      const cache = (await localResource.getCacheTree()).clone(false)
+      const cache = (await this.localCachingResource.getCacheTree()).clone(false)
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
       await this.storage.setCache(cache)
 
@@ -333,6 +337,12 @@ export default class Account {
         }
       })
 
+      if (this.server.onSyncFail) {
+        await this.server.onSyncFail()
+      }
+
+      this.syncing = false
+
       await this.setData({
         error: message,
         errorCount: this.getData().errorCount + 1,
@@ -341,10 +351,6 @@ export default class Account {
       })
       if (matchAllErrors(e, e => e.code !== 27 && (!isTest || e.code !== 26))) {
         await this.storage.setCurrentContinuation(null)
-      }
-      this.syncing = false
-      if (this.server.onSyncFail) {
-        await this.server.onSyncFail()
       }
 
       // reset cache and mappings after error
@@ -377,9 +383,16 @@ export default class Account {
     if (!this.syncProcess) {
       return
     }
-    if (actionsDone && !this.server.isAtomic()) {
-      await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
-      await this.syncProcess.getMappingsInstance().persist()
+    if (actionsDone) {
+      if (this.server.isAtomic()) {
+        const cache = (await this.localCachingResource.getCacheTree()).clone(false)
+        this.syncProcess.filterOutUnacceptedBookmarks(cache)
+        await this.storage.setCache(cache)
+        await this.syncProcess.getMappingsInstance().persist()
+      } else {
+        await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
+        await this.syncProcess.getMappingsInstance().persist()
+      }
     }
   }
 
