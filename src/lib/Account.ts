@@ -359,6 +359,7 @@ export default class Account {
         await this.init()
       }
     }
+    this.localCachingResource = null
     await Logger.persist()
   }
 
