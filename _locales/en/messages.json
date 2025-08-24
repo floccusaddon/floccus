@@ -48,7 +48,7 @@
     "message": "E016: Request timed out. Check your server configuration"
   },
   "Error017": {
-    "message": "E017: Network error: Check your network connection and your account details"
+    "message": "E017: Network error: Check your network connection, your account details and your TLS/SSL settings."
   },
   "Error018": {
     "message": "E018: Couldn't authenticate with the server."
