@@ -3,7 +3,6 @@ import Router from 'vue-router'
 import Tree from './views/native/Tree'
 import Home from './views/native/Home'
 import AddBookmarkIntent from './views/native/AddBookmarkIntent'
-import ImportExport from './views/native/ImportExport'
 
 Vue.use(Router)
 
@@ -48,7 +47,7 @@ export const router = new Router({
     {
       path: '/update',
       name: routes.UPDATE,
-      component: () => import(/* webpackPrefetch: true */ './views/Update'),
+      component: () => import(/* webpackPrefetch: true */ './views/native/Update'),
     },
     {
       path: '/newBookmark/:accountId/:url/:text?',
@@ -58,7 +57,7 @@ export const router = new Router({
     {
       path: '/importexport',
       name: routes.IMPORTEXPORT,
-      component: ImportExport,
+      component: () => import(/* webpackPrefetch: true */ './views/native/ImportExport')
     },
     {
       path: '/feedback',
