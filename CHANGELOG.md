@@ -1,5 +1,69 @@
 # Changelog
 
+## [5.7.0] - 2025-08-24
+
+### Summary
+
+* Sync notifications – You’ll now see “sync in progress” and “sync complete” alerts on Android and iOS
+* Search improvements – The app remembers the last folder you searched in, shows folder paths in results and lets you search for folders.
+* Feedback – Submit one‑off feedback directly from the app.
+
+* Messaging – TLS is now mentioned in the E017 explanation.
+* Sync logic – Fixed issues with reorders, concurrency and continuation handling during interrupted syncs.
+* Account progress – Cache and mappings now persist for atomic backends.
+* Browser tree – Concurrency limited to 1 to avoid race conditions.
+* Localization – Added translations for many languages (ro_RO, el, it, fi, cs, pl, sv, tr, et, ko_KR, ru, de, ja, pt, zh_CN, fr, es).
+* Scrolling – Capacitor status bar plugin now prevents content from scrolling under the status bar.
+* Local tabs – New tab groups stay alive long enough for tabs to be added.
+* General – Cancelled local tree operations, ensured skipped reorders are retracted and cleared continuations properly.
+
+* Overall sync performance has been optimized, reducing wait times and resource usage.
+
+
+### New
+
+* [native] feat(notifications): Send 'sync in progress' and 'sync complete' notifications
+* [native] feat(search): Remember last used folder across app starts
+* [native] feat(search): Display folder path for folder search results
+* [native] feat(search): Allow searching for folders
+* feat(BrowserController): setUninstallURL
+* [native] feat(search): display folder path for search results
+* feat(hashing): Add support for xxhash3
+* feat: Optionally support murmur3 + implement capabilities negotiation
+* feat(BrowserController): Listen to tab events
+* feat(AccountCard): Mention FAQ when errors occur
+* feat(telemetry): send used adapter along with error events to sentry, if enabled (opt-in)
+* feat(Feedback form): Allow submitting one-off feedback
+* feat(HtmlSerializer): Use auto-inc IDs as a fallback when parsing
+
+### Fixed
+
+* fix(messages): Mention TLS in E017 explanation
+* fix(reconcileDiffs): Don't throw away REORDERs if concurrent reorder is empty
+* fix(Account#progressCallback): persist cache and mappings for atomic backends
+* fix({Default,Merge}SyncProcess#reconcileDiffs): Restrict concurrency
+* fix(DefaultSyncProcess#reconcileDiffs): Use the right findChainCache
+* fix(MergeSyncProcess): reconcileDiffs was outdated
+* fix(BrowserTree): Set concurrency to 1
+* Translate messages.json in ro_RO,el,it,fi,cs,pl,sv,tr,et,ko_KR,ru,de,de,ja,pt,zh_CN,fr,es
+* [native] fix: added the capacitor status bar plugin to fix scrolling content over the status bar (Thanks to @yougotwill)
+* fix(SyncProcess): Make sure to cancel progress callback throttling in the end
+* fix(continuations): Set current continuation to null at the very end
+* fix(SyncProcess): Make sure skipped reorders are retracted
+* fix: Allow cancelling local tree operations as well
+* fix(interrupted sync): Allow storing + restart of stage 3 to/from continuation
+* fix(interrupted sync): Set back old cacheTree upon loading pending continuation
+* fix(SyncStrategy): Fix Continuation loading
+* perf: Improve overall sync performance
+* fix(NextcloudBookmarks): Fix ticket failure retry mechanism
+* fix(NextcloudBookmarks): Improve ticket failure retry mechanism
+* feat(NextcloudBookmarks): Support ticket authentication
+* fix(NextcloudBookmarks): Fix checkFeatureJavascriptLinks
+* feat(NextcloudBookmarks): Use negotiated hash function from hashSettings
+* feat(NextcloudBookmarks): Use capabilities for feature detection
+* fix(LocalTabs): Make sure new groups live long enough for tabs to be added to them
+* fix(GoogleDrive): Improve error handling
+
 ## [5.6.0] - 2025-08-02
 
 ### New
