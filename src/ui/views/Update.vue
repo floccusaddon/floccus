@@ -85,6 +85,9 @@
           <div class="body-1">
             {{ t("DescriptionTelemetry") }}
           </div>
+          <v-alert type="info">
+            {{ t('DescriptionTelemetrysyncmethod') }}
+          </v-alert>
           <v-radio-group
             v-model="telemetry"
             class="mt-4">

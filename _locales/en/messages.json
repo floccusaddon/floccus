@@ -750,6 +750,9 @@
   "DescriptionTelemetry": {
     "message": "Floccus can automatically send error data to me, the developer. This is a tremendous help for discovering and resolving bugs in floccus more quickly and will help improve your experience with floccus in the long run. Even when error reporting is enabled, the floccus developers will never be able to see your bookmarks."
   },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "New: In addition to the error information, floccus now also sends information about which sync method you are using, if this option is enabled. This helps us to improve floccus and to make sure that the sync methods are working as expected."
+  },
   "LabelTelemetryenable": {
     "message": "Automatically send error data and information about which sync method you are using to floccus developers"
   },
