@@ -750,6 +750,9 @@
   "DescriptionTelemetry": {
     "message": "Floccus 可自动发送错误数据给我，也就是开发者。这对更快地发现并解决 floccus 故障帮助巨大并有助于改善在长时段内改善你的 floccus 体验。即使启用了错误报告，开发者也永远无法看到你的书签。"
   },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "新：如果启用了该选项，那么除了错误信息，floccus 现在还发送你正在用的同步方式信息。这帮助我们改进 floccus 并确保同步方式正在如预期的那样工作。"
+  },
   "LabelTelemetryenable": {
     "message": "自动发送错误数据和您在使用的同步方式的信息给 floccus 开发者"
   },
