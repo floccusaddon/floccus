@@ -11,7 +11,7 @@ import { Capacitor } from '@capacitor/core'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
 import { isTest } from './isTest'
-import * as Sentry from '@sentry/vue'
+import { setUser, setContext, withScope, captureException } from '@sentry/browser'
 import AsyncLock from 'async-lock'
 import CachingTreeWrapper from './CachingTreeWrapper'
 
@@ -172,7 +172,7 @@ export default class Account {
       this.localCachingResource = new CachingTreeWrapper(await this.getResource())
 
       Logger.log('Starting sync process for account ' + this.getLabel())
-      Sentry.setUser({ id: this.id })
+      setUser({ id: this.id })
       this.syncing = true
       await this.setData({ syncing: 0.05, scheduled: false, error: null })
 
@@ -322,18 +322,18 @@ export default class Account {
       const message = await Account.stringifyError(e)
       console.error('Syncing failed with', message)
       Logger.log('Syncing failed with', message)
-      Sentry.setContext('accountData', {
+      setContext('accountData', {
         ...this.getData(),
         username: 'SENSITIVEVALUEHIDDEN',
         password: 'SENSITIVEVALUVALUEHIDDEN',
         passphrase: 'SENSITIVEVALUVALUEHIDDEN'
       })
-      Sentry.withScope((scope) => {
+      withScope((scope) => {
         scope.setTag('adapter', this.getData().type)
         if (e.list) {
-          Sentry.captureException(message)
+          captureException(message)
         } else {
-          Sentry.captureException(e)
+          captureException(e)
         }
       })
 

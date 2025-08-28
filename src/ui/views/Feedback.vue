@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import * as Sentry from '@sentry/browser'
+import { isInitialized, captureFeedback } from '@sentry/browser'
 import { initEmpty } from '../../lib/sentry'
 
 export default {
@@ -61,10 +61,10 @@ export default {
       if (!this.submitEnabled) {
         return
       }
-      if (!(await Sentry.isInitialized())) {
+      if (!(await isInitialized())) {
         initEmpty()
       }
-      Sentry.captureFeedback({
+      captureFeedback({
         name: this.name,
         email: this.email,
         message: this.message,

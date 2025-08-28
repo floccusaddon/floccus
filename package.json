@@ -92,7 +92,7 @@
     "@capacitor/status-bar": "7.x",
     "@isomorphic-git/lightning-fs": "4.x",
     "@jcoreio/async-throttle": "^1.6.1",
-    "@sentry/vue": "10.x",
+    "@sentry/browser": "10.x",
     "@sentry/webpack-plugin": "2.x",
     "async-lock": "^1.2.8",
     "async-parallel": "^1.2.3",
