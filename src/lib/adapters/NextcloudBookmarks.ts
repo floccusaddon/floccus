@@ -768,7 +768,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   async getNextcloudCapabilities(): Promise<any> {
     const data = await this.sendOCSRequest(
       'GET',
-      `/ocs/v2.php/cloud/capabilities?format=json`,
+      `ocs/v2.php/cloud/capabilities?format=json`,
     )
     return data.capabilities
   }
