@@ -16,12 +16,14 @@ import {
 import {i18n} from '../native/I18n'
 import { OrderFolderResource } from '../interfaces/Resource'
 import { ItemLocation } from '../Tree'
+import { isSafari } from '../isSafari'
+import { SafariTree } from '../safari/SafariTree'
 
 export default class BrowserAccount extends Account {
   static async get(id:string):Promise<Account> {
     const storage = new BrowserAccountStorage(id)
     const data = await storage.getAccountData(null)
-    const tree = new BrowserTree(storage, data.localRoot)
+    const tree = isSafari ? new SafariTree() : new BrowserTree(storage, data.localRoot)
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new BrowserAccount(id, storage, await AdapterFactory.factory(data), tree)
