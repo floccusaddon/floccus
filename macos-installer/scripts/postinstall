@@ -1,0 +1,18 @@
+
+#!/bin/zsh
+
+set -e
+
+HELPER_DIR="$HOME/Library/PrivilegedHelperTools"
+LAUNCH_DIR="$HOME/Library/LaunchAgents"
+
+# copy files
+
+mkdir -p "$HELPER_DIR"
+cp "$INSTALLER_TEMP/org.handmadeideas.floccus-macos" "$HELPER_DIR/"
+chmod 755 "$HELPER_DIR/org.handmadeideas.floccus-macos"
+cp "$INSTALLER_TEMP/org.handmadeideas.floccus-macos.plist" "$LAUNCH_DIR/"
+
+# load agent for this user
+
+launchctl load "$LAUNCH_DIR/org.handmadeideas.floccus-macos.plist"

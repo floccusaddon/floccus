@@ -1,0 +1,920 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1F48D8792E642AFB0084FDDA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F48D8782E642AFB0084FDDA /* AppDelegate.swift */; };
+		1F48D87B2E642AFB0084FDDA /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F48D87A2E642AFB0084FDDA /* SceneDelegate.swift */; };
+		1F48D87E2E642AFB0084FDDA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F48D87C2E642AFB0084FDDA /* LaunchScreen.storyboard */; };
+		1F48D8812E642AFB0084FDDA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F48D87F2E642AFB0084FDDA /* Main.storyboard */; };
+		1F48D88A2E642AFB0084FDDA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F48D8892E642AFB0084FDDA /* AppDelegate.swift */; };
+		1F48D88D2E642AFB0084FDDA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F48D88B2E642AFB0084FDDA /* Main.storyboard */; };
+		1F48D8952E642AFB0084FDDA /* floccus bookmarks sync Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1F48D8942E642AFB0084FDDA /* floccus bookmarks sync Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		1F48D89F2E642AFB0084FDDA /* floccus bookmarks sync Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1F48D89E2E642AFB0084FDDA /* floccus bookmarks sync Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		1F48D8A52E642AFB0084FDDA /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 1F48D8682E642AF90084FDDA /* Main.html */; };
+		1F48D8A62E642AFB0084FDDA /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 1F48D8682E642AF90084FDDA /* Main.html */; };
+		1F48D8A72E642AFB0084FDDA /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 1F48D86A2E642AF90084FDDA /* Icon.png */; };
+		1F48D8A82E642AFB0084FDDA /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 1F48D86A2E642AF90084FDDA /* Icon.png */; };
+		1F48D8A92E642AFB0084FDDA /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 1F48D86B2E642AF90084FDDA /* Style.css */; };
+		1F48D8AA2E642AFB0084FDDA /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 1F48D86B2E642AF90084FDDA /* Style.css */; };
+		1F48D8AB2E642AFB0084FDDA /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 1F48D86C2E642AF90084FDDA /* Script.js */; };
+		1F48D8AC2E642AFB0084FDDA /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 1F48D86C2E642AF90084FDDA /* Script.js */; };
+		1F48D8AD2E642AFB0084FDDA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F48D86D2E642AF90084FDDA /* ViewController.swift */; };
+		1F48D8AE2E642AFB0084FDDA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F48D86D2E642AF90084FDDA /* ViewController.swift */; };
+		1F48D8AF2E642AFB0084FDDA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F48D86E2E642AFB0084FDDA /* Assets.xcassets */; };
+		1F48D8B02E642AFB0084FDDA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F48D86E2E642AFB0084FDDA /* Assets.xcassets */; };
+		1F48D8B12E642AFB0084FDDA /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F48D8702E642AFB0084FDDA /* SafariWebExtensionHandler.swift */; };
+		1F48D8B22E642AFB0084FDDA /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F48D8702E642AFB0084FDDA /* SafariWebExtensionHandler.swift */; };
+		1F95DE602E64372400B47975 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 1F95DE5F2E64372400B47975 /* manifest.json */; };
+		1F95DEF12E64374D00B47975 /* dist in Resources */ = {isa = PBXBuildFile; fileRef = 1F95DEF02E64374500B47975 /* dist */; };
+		1F95DEF22E64375500B47975 /* lib in Resources */ = {isa = PBXBuildFile; fileRef = 1F95DDD12E64366900B47975 /* lib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1F48D8962E642AFB0084FDDA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F48D8622E642AF90084FDDA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1F48D8932E642AFB0084FDDA;
+			remoteInfo = "floccus bookmarks sync Extension (iOS)";
+		};
+		1F48D8A02E642AFB0084FDDA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F48D8622E642AF90084FDDA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1F48D89D2E642AFB0084FDDA;
+			remoteInfo = "floccus bookmarks sync Extension (macOS)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1F48D8B82E642AFB0084FDDA /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				1F48D8952E642AFB0084FDDA /* floccus bookmarks sync Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1F48D8BF2E642AFB0084FDDA /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				1F48D89F2E642AFB0084FDDA /* floccus bookmarks sync Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1F48D8692E642AF90084FDDA /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		1F48D86A2E642AF90084FDDA /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		1F48D86B2E642AF90084FDDA /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		1F48D86C2E642AF90084FDDA /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		1F48D86D2E642AF90084FDDA /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		1F48D86E2E642AFB0084FDDA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1F48D8702E642AFB0084FDDA /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		1F48D8752E642AFB0084FDDA /* floccus bookmarks sync.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "floccus bookmarks sync.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F48D8782E642AFB0084FDDA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1F48D87A2E642AFB0084FDDA /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		1F48D87D2E642AFB0084FDDA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		1F48D8802E642AFB0084FDDA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		1F48D8822E642AFB0084FDDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1F48D8872E642AFB0084FDDA /* floccus bookmarks sync.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "floccus bookmarks sync.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F48D8892E642AFB0084FDDA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1F48D88C2E642AFB0084FDDA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		1F48D88E2E642AFB0084FDDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1F48D88F2E642AFB0084FDDA /* floccus bookmarks sync.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "floccus bookmarks sync.entitlements"; sourceTree = "<group>"; };
+		1F48D8942E642AFB0084FDDA /* floccus bookmarks sync Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "floccus bookmarks sync Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F48D8992E642AFB0084FDDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1F48D89E2E642AFB0084FDDA /* floccus bookmarks sync Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "floccus bookmarks sync Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F48D8A32E642AFB0084FDDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1F48D8A42E642AFB0084FDDA /* floccus bookmarks sync.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "floccus bookmarks sync.entitlements"; sourceTree = "<group>"; };
+		1F95DDD12E64366900B47975 /* lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = lib; path = ../lib; sourceTree = SOURCE_ROOT; };
+		1F95DE5F2E64372400B47975 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../manifest.json; sourceTree = SOURCE_ROOT; };
+		1F95DEF02E64374500B47975 /* dist */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dist; path = ../dist; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1F48D8722E642AFB0084FDDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1F48D8842E642AFB0084FDDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1F48D8912E642AFB0084FDDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1F48D89B2E642AFB0084FDDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1F48D8612E642AF90084FDDA = {
+			isa = PBXGroup;
+			children = (
+				1F48D8662E642AF90084FDDA /* Shared (App) */,
+				1F48D86F2E642AFB0084FDDA /* Shared (Extension) */,
+				1F48D8772E642AFB0084FDDA /* iOS (App) */,
+				1F48D8882E642AFB0084FDDA /* macOS (App) */,
+				1F48D8982E642AFB0084FDDA /* iOS (Extension) */,
+				1F48D8A22E642AFB0084FDDA /* macOS (Extension) */,
+				1F48D8762E642AFB0084FDDA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1F48D8662E642AF90084FDDA /* Shared (App) */ = {
+			isa = PBXGroup;
+			children = (
+				1F48D86D2E642AF90084FDDA /* ViewController.swift */,
+				1F48D86E2E642AFB0084FDDA /* Assets.xcassets */,
+				1F48D8672E642AF90084FDDA /* Resources */,
+			);
+			path = "Shared (App)";
+			sourceTree = "<group>";
+		};
+		1F48D8672E642AF90084FDDA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				1F48D8682E642AF90084FDDA /* Main.html */,
+				1F48D86A2E642AF90084FDDA /* Icon.png */,
+				1F48D86B2E642AF90084FDDA /* Style.css */,
+				1F48D86C2E642AF90084FDDA /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		1F48D86F2E642AFB0084FDDA /* Shared (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				1F95DE5F2E64372400B47975 /* manifest.json */,
+				1F95DEF02E64374500B47975 /* dist */,
+				1F95DDD12E64366900B47975 /* lib */,
+				1F48D8702E642AFB0084FDDA /* SafariWebExtensionHandler.swift */,
+			);
+			path = "Shared (Extension)";
+			sourceTree = "<group>";
+		};
+		1F48D8762E642AFB0084FDDA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1F48D8752E642AFB0084FDDA /* floccus bookmarks sync.app */,
+				1F48D8872E642AFB0084FDDA /* floccus bookmarks sync.app */,
+				1F48D8942E642AFB0084FDDA /* floccus bookmarks sync Extension.appex */,
+				1F48D89E2E642AFB0084FDDA /* floccus bookmarks sync Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1F48D8772E642AFB0084FDDA /* iOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				1F48D8782E642AFB0084FDDA /* AppDelegate.swift */,
+				1F48D87A2E642AFB0084FDDA /* SceneDelegate.swift */,
+				1F48D87C2E642AFB0084FDDA /* LaunchScreen.storyboard */,
+				1F48D87F2E642AFB0084FDDA /* Main.storyboard */,
+				1F48D8822E642AFB0084FDDA /* Info.plist */,
+			);
+			path = "iOS (App)";
+			sourceTree = "<group>";
+		};
+		1F48D8882E642AFB0084FDDA /* macOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				1F48D8892E642AFB0084FDDA /* AppDelegate.swift */,
+				1F48D88B2E642AFB0084FDDA /* Main.storyboard */,
+				1F48D88E2E642AFB0084FDDA /* Info.plist */,
+				1F48D88F2E642AFB0084FDDA /* floccus bookmarks sync.entitlements */,
+			);
+			path = "macOS (App)";
+			sourceTree = "<group>";
+		};
+		1F48D8982E642AFB0084FDDA /* iOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				1F48D8992E642AFB0084FDDA /* Info.plist */,
+			);
+			path = "iOS (Extension)";
+			sourceTree = "<group>";
+		};
+		1F48D8A22E642AFB0084FDDA /* macOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				1F48D8A32E642AFB0084FDDA /* Info.plist */,
+				1F48D8A42E642AFB0084FDDA /* floccus bookmarks sync.entitlements */,
+			);
+			path = "macOS (Extension)";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1F48D8742E642AFB0084FDDA /* floccus bookmarks sync (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1F48D8B92E642AFB0084FDDA /* Build configuration list for PBXNativeTarget "floccus bookmarks sync (iOS)" */;
+			buildPhases = (
+				1F48D8712E642AFB0084FDDA /* Sources */,
+				1F48D8722E642AFB0084FDDA /* Frameworks */,
+				1F48D8732E642AFB0084FDDA /* Resources */,
+				1F48D8B82E642AFB0084FDDA /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1F48D8972E642AFB0084FDDA /* PBXTargetDependency */,
+			);
+			name = "floccus bookmarks sync (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "floccus bookmarks sync (iOS)";
+			productReference = 1F48D8752E642AFB0084FDDA /* floccus bookmarks sync.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1F48D8862E642AFB0084FDDA /* floccus bookmarks sync (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1F48D8C02E642AFB0084FDDA /* Build configuration list for PBXNativeTarget "floccus bookmarks sync (macOS)" */;
+			buildPhases = (
+				1F48D8832E642AFB0084FDDA /* Sources */,
+				1F48D8842E642AFB0084FDDA /* Frameworks */,
+				1F48D8852E642AFB0084FDDA /* Resources */,
+				1F48D8BF2E642AFB0084FDDA /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1F48D8A12E642AFB0084FDDA /* PBXTargetDependency */,
+			);
+			name = "floccus bookmarks sync (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "floccus bookmarks sync (macOS)";
+			productReference = 1F48D8872E642AFB0084FDDA /* floccus bookmarks sync.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1F48D8932E642AFB0084FDDA /* floccus bookmarks sync Extension (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1F48D8B52E642AFB0084FDDA /* Build configuration list for PBXNativeTarget "floccus bookmarks sync Extension (iOS)" */;
+			buildPhases = (
+				1F48D8902E642AFB0084FDDA /* Sources */,
+				1F48D8912E642AFB0084FDDA /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "floccus bookmarks sync Extension (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "floccus bookmarks sync Extension (iOS)";
+			productReference = 1F48D8942E642AFB0084FDDA /* floccus bookmarks sync Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		1F48D89D2E642AFB0084FDDA /* floccus bookmarks sync Extension (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1F48D8BC2E642AFB0084FDDA /* Build configuration list for PBXNativeTarget "floccus bookmarks sync Extension (macOS)" */;
+			buildPhases = (
+				1F48D89A2E642AFB0084FDDA /* Sources */,
+				1F48D89B2E642AFB0084FDDA /* Frameworks */,
+				1F48D89C2E642AFB0084FDDA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "floccus bookmarks sync Extension (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "floccus bookmarks sync Extension (macOS)";
+			productReference = 1F48D89E2E642AFB0084FDDA /* floccus bookmarks sync Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1F48D8622E642AF90084FDDA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1610;
+				LastUpgradeCheck = 1610;
+				TargetAttributes = {
+					1F48D8742E642AFB0084FDDA = {
+						CreatedOnToolsVersion = 16.1;
+					};
+					1F48D8862E642AFB0084FDDA = {
+						CreatedOnToolsVersion = 16.1;
+					};
+					1F48D8932E642AFB0084FDDA = {
+						CreatedOnToolsVersion = 16.1;
+					};
+					1F48D89D2E642AFB0084FDDA = {
+						CreatedOnToolsVersion = 16.1;
+					};
+				};
+			};
+			buildConfigurationList = 1F48D8652E642AF90084FDDA /* Build configuration list for PBXProject "floccus bookmarks sync" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1F48D8612E642AF90084FDDA;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 1F48D8762E642AFB0084FDDA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1F48D8742E642AFB0084FDDA /* floccus bookmarks sync (iOS) */,
+				1F48D8862E642AFB0084FDDA /* floccus bookmarks sync (macOS) */,
+				1F48D8932E642AFB0084FDDA /* floccus bookmarks sync Extension (iOS) */,
+				1F48D89D2E642AFB0084FDDA /* floccus bookmarks sync Extension (macOS) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1F48D8732E642AFB0084FDDA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1F48D8A72E642AFB0084FDDA /* Icon.png in Resources */,
+				1F48D87E2E642AFB0084FDDA /* LaunchScreen.storyboard in Resources */,
+				1F48D8A52E642AFB0084FDDA /* Main.html in Resources */,
+				1F48D8AB2E642AFB0084FDDA /* Script.js in Resources */,
+				1F48D8AF2E642AFB0084FDDA /* Assets.xcassets in Resources */,
+				1F48D8812E642AFB0084FDDA /* Main.storyboard in Resources */,
+				1F48D8A92E642AFB0084FDDA /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1F48D8852E642AFB0084FDDA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1F48D8A82E642AFB0084FDDA /* Icon.png in Resources */,
+				1F48D8AA2E642AFB0084FDDA /* Style.css in Resources */,
+				1F48D88D2E642AFB0084FDDA /* Main.storyboard in Resources */,
+				1F48D8AC2E642AFB0084FDDA /* Script.js in Resources */,
+				1F48D8B02E642AFB0084FDDA /* Assets.xcassets in Resources */,
+				1F48D8A62E642AFB0084FDDA /* Main.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1F48D89C2E642AFB0084FDDA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1F95DEF22E64375500B47975 /* lib in Resources */,
+				1F95DEF12E64374D00B47975 /* dist in Resources */,
+				1F95DE602E64372400B47975 /* manifest.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1F48D8712E642AFB0084FDDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1F48D8AD2E642AFB0084FDDA /* ViewController.swift in Sources */,
+				1F48D8792E642AFB0084FDDA /* AppDelegate.swift in Sources */,
+				1F48D87B2E642AFB0084FDDA /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1F48D8832E642AFB0084FDDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1F48D8AE2E642AFB0084FDDA /* ViewController.swift in Sources */,
+				1F48D88A2E642AFB0084FDDA /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1F48D8902E642AFB0084FDDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1F48D8B12E642AFB0084FDDA /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1F48D89A2E642AFB0084FDDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1F48D8B22E642AFB0084FDDA /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1F48D8972E642AFB0084FDDA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1F48D8932E642AFB0084FDDA /* floccus bookmarks sync Extension (iOS) */;
+			targetProxy = 1F48D8962E642AFB0084FDDA /* PBXContainerItemProxy */;
+		};
+		1F48D8A12E642AFB0084FDDA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1F48D89D2E642AFB0084FDDA /* floccus bookmarks sync Extension (macOS) */;
+			targetProxy = 1F48D8A02E642AFB0084FDDA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		1F48D8682E642AF90084FDDA /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1F48D8692E642AF90084FDDA /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		1F48D87C2E642AFB0084FDDA /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1F48D87D2E642AFB0084FDDA /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		1F48D87F2E642AFB0084FDDA /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1F48D8802E642AFB0084FDDA /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		1F48D88B2E642AFB0084FDDA /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1F48D88C2E642AFB0084FDDA /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		1F48D8B32E642AFB0084FDDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1F48D8B42E642AFB0084FDDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		1F48D8B62E642AFB0084FDDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "floccus bookmarks sync Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync.Extension";
+				PRODUCT_NAME = "floccus bookmarks sync Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1F48D8B72E642AFB0084FDDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "floccus bookmarks sync Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync.Extension";
+				PRODUCT_NAME = "floccus bookmarks sync Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		1F48D8BA2E642AFB0084FDDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "floccus bookmarks sync";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync";
+				PRODUCT_NAME = "floccus bookmarks sync";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1F48D8BB2E642AFB0084FDDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "floccus bookmarks sync";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync";
+				PRODUCT_NAME = "floccus bookmarks sync";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		1F48D8BD2E642AFB0084FDDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/floccus bookmarks sync.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "floccus bookmarks sync Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync.Extension";
+				PRODUCT_NAME = "floccus bookmarks sync Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		1F48D8BE2E642AFB0084FDDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/floccus bookmarks sync.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "floccus bookmarks sync Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync.Extension";
+				PRODUCT_NAME = "floccus bookmarks sync Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		1F48D8C12E642AFB0084FDDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "macOS (App)/floccus bookmarks sync.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "floccus bookmarks sync";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync";
+				PRODUCT_NAME = "floccus bookmarks sync";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		1F48D8C22E642AFB0084FDDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "macOS (App)/floccus bookmarks sync.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "floccus bookmarks sync";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync";
+				PRODUCT_NAME = "floccus bookmarks sync";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1F48D8652E642AF90084FDDA /* Build configuration list for PBXProject "floccus bookmarks sync" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1F48D8B32E642AFB0084FDDA /* Debug */,
+				1F48D8B42E642AFB0084FDDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1F48D8B52E642AFB0084FDDA /* Build configuration list for PBXNativeTarget "floccus bookmarks sync Extension (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1F48D8B62E642AFB0084FDDA /* Debug */,
+				1F48D8B72E642AFB0084FDDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1F48D8B92E642AFB0084FDDA /* Build configuration list for PBXNativeTarget "floccus bookmarks sync (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1F48D8BA2E642AFB0084FDDA /* Debug */,
+				1F48D8BB2E642AFB0084FDDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1F48D8BC2E642AFB0084FDDA /* Build configuration list for PBXNativeTarget "floccus bookmarks sync Extension (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1F48D8BD2E642AFB0084FDDA /* Debug */,
+				1F48D8BE2E642AFB0084FDDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1F48D8C02E642AFB0084FDDA /* Build configuration list for PBXNativeTarget "floccus bookmarks sync (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1F48D8C12E642AFB0084FDDA /* Debug */,
+				1F48D8C22E642AFB0084FDDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1F48D8622E642AF90084FDDA /* Project object */;
+}
