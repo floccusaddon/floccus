@@ -607,6 +607,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BW96RCL7W9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "floccus bookmarks sync Extension";
@@ -622,7 +623,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync.Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.handmadeideas.floccus-safari.Extension";
 				PRODUCT_NAME = "floccus bookmarks sync Extension";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -637,6 +638,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BW96RCL7W9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "floccus bookmarks sync Extension";
@@ -652,7 +654,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync.Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.handmadeideas.floccus-safari.Extension";
 				PRODUCT_NAME = "floccus bookmarks sync Extension";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -670,6 +672,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BW96RCL7W9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "floccus bookmarks sync";
@@ -690,7 +693,7 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.handmadeideas.floccus-safari";
 				PRODUCT_NAME = "floccus bookmarks sync";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -706,6 +709,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BW96RCL7W9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "floccus bookmarks sync";
@@ -726,7 +730,7 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.handmadeideas.floccus-safari";
 				PRODUCT_NAME = "floccus bookmarks sync";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -742,6 +746,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/floccus bookmarks sync.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BW96RCL7W9;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
@@ -758,7 +763,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync.Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.handmadeideas.floccus-safari.Extension";
 				PRODUCT_NAME = "floccus bookmarks sync Extension";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -773,6 +778,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/floccus bookmarks sync.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BW96RCL7W9;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
@@ -789,7 +795,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync.Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.handmadeideas.floccus-safari.Extension";
 				PRODUCT_NAME = "floccus bookmarks sync Extension";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -806,6 +812,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (App)/floccus bookmarks sync.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BW96RCL7W9;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "macOS (App)/Info.plist";
@@ -824,7 +831,7 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.handmadeideas.floccus-safari";
 				PRODUCT_NAME = "floccus bookmarks sync";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -840,6 +847,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (App)/floccus bookmarks sync.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BW96RCL7W9;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "macOS (App)/Info.plist";
@@ -858,7 +866,7 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.floccus-bookmarks-sync";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.handmadeideas.floccus-safari";
 				PRODUCT_NAME = "floccus bookmarks sync";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
