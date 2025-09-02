@@ -102,7 +102,7 @@
     "message": "E034: Remote bookmarks file is unreadable. Perhaps you forgot to set an encryption passphrase, or you set the wrong file format."
   },
   "Error035": {
-    "message": "E035: Failed to create the following bookmark on the server: {0}"
+    "message": "E035: Failed to create the following bookmark on the server: {0} -- Is the bookmarks app up to date?"
   },
   "Error036": {
     "message": "E036: Missing permissions to access the sync server"

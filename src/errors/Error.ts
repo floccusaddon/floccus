@@ -294,7 +294,7 @@ export class FileUnreadableError extends FloccusError {
 export class CreateBookmarkError extends FloccusError {
   public bookmark: Bookmark<TItemLocation>
   constructor(bookmark: Bookmark<TItemLocation>) {
-    super(`E035: Failed to create the following bookmark on the server: ${bookmark.inspect()}`)
+    super(`E035: Failed to create the following bookmark on the server: ${bookmark.inspect()} -- Is the bookmarks app up to date?`)
     this.code = 35
     this.bookmark = bookmark
     Object.setPrototypeOf(this, CreateBookmarkError.prototype)
