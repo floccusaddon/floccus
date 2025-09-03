@@ -181,7 +181,12 @@ export default class SyncProcess {
         0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
       ),
       this.actionsDone
-    )
+    ).catch((er) => {
+      if (er instanceof CanceledError) {
+        return
+      }
+      throw er
+    })
   }
 
   setDirection(direction:TItemLocation):void {
@@ -190,13 +195,23 @@ export default class SyncProcess {
 
   async sync(): Promise<void> {
     // onSyncStart is already executed at this point
-    this.progressCb(0.15, 0)
+    this.progressCb(0.15, 0).catch((er) => {
+      if (er instanceof CanceledError) {
+        return
+      }
+      throw er
+    })
 
     this.masterLocation = ItemLocation.LOCAL
     await this.prepareSync()
 
     // trees are loaded at this point
-    this.progressCb(0.35, 0)
+    this.progressCb(0.35, 0).catch((er) => {
+      if (er instanceof CanceledError) {
+        return
+      }
+      throw er
+    })
 
     if (this.canceled) {
       throw new CancelledSyncError()
@@ -209,7 +224,12 @@ export default class SyncProcess {
       Logger.log({ localScanResult, serverScanResult })
       this.localScanResult = localScanResult
       this.serverScanResult = serverScanResult
-      this.progressCb(0.45, 0)
+      this.progressCb(0.45, 0).catch((er) => {
+        if (er instanceof CanceledError) {
+          return
+        }
+        throw er
+      })
     }
 
     if (this.canceled) {
