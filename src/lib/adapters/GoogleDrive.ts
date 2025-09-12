@@ -8,7 +8,7 @@ import {
   DecryptionError, FileUnreadableError,
   GoogleDriveAuthenticationError, HttpError, CancelledSyncError, MissingPermissionsError,
   NetworkError,
-  OAuthTokenError, ResourceLockedError, GoogleDriveSearchError
+  OAuthTokenError, ResourceLockedError, GoogleDriveSearchError, RequestTimeoutError
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
 import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
@@ -41,6 +41,7 @@ declare const chrome: any
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every two minutes while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 15min after last time it was set
+const HTTP_TIMEOUT = 60000
 export default class GoogleDriveAdapter extends CachingAdapter {
   static SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly']
 
@@ -362,20 +363,29 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   async requestWeb(method: string, url: string, body: any = null, contentType: string = null) : Promise<CustomResponse> {
-    let resp
+    let resp, timedOut = false
     try {
-      resp = await fetch(url, {
-        method,
-        credentials: 'omit',
-        headers: {
-          ...(this.accessToken && {Authorization: 'Bearer ' + this.accessToken}),
-          ...(contentType && {'Content-type': contentType})
-        },
-        ...(body && {body}),
-      })
+      resp = await Promise.race([
+        fetch(url, {
+          method,
+          credentials: 'omit',
+          headers: {
+            ...(this.accessToken && {Authorization: 'Bearer ' + this.accessToken}),
+            ...(contentType && {'Content-type': contentType})
+          },
+          ...(body && {body}),
+        }),
+        new Promise((resolve, reject) =>
+          setTimeout(() => {
+            timedOut = true
+            reject(new RequestTimeoutError())
+          }, HTTP_TIMEOUT)
+        )
+      ])
     } catch (e) {
       Logger.log('Error Caught')
       Logger.log(e)
+      if (timedOut) throw e
       throw new NetworkError()
     }
     if (resp.status === 401 || resp.status === 403) {
@@ -387,6 +397,8 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
   async requestNative(method: string, url: string, body: any = null, contentType: string = null) : Promise<CustomResponse> {
     let res
+
+    Logger.log(`FETCHING ${method} ${url}`)
 
     if (contentType === 'application/x-www-form-urlencoded') {
       const params = new URLSearchParams()
@@ -412,6 +424,8 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       Logger.log(e)
       throw new NetworkError()
     }
+
+    Logger.log(`Receiving response for ${method} ${url}`)
 
     if (res.status === 401) {
       Logger.log('Failed to authenticate to Google API: ' + JSON.stringify(res.data))
