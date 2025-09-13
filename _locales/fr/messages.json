@@ -48,7 +48,7 @@
     "message": "E016: Temps d'attente dépassé durant la requête. Vérifiez la configuration du serveur"
   },
   "Error017": {
-    "message": "E017: Erreur réseau: Vérifiez votre connexion réseau et vos paramètres de compte"
+    "message": "E017: Erreur réseau: Vérifiez votre connexion réseau, vos paramètres de compte et vos paramètres SSL/TLS."
   },
   "Error018": {
     "message": "E018: Impossible de s'authentifier sur le serveur."
@@ -102,7 +102,7 @@
     "message": "E034: Le fichier de signets distant est illisible. Peut-être avez-vous oublié d'entrer un mot de passe de chiffrement, ou utilisé un mauvais format de fichier."
   },
   "Error035": {
-    "message": "E035 : Échec de la création du signet suivant sur le serveur : {0}"
+    "message": "E035 : Échec de la création du signet suivant sur le serveur : {0} -- L'application de gestion de signet est-elle a jour ?"
   },
   "Error036": {
     "message": "E036: Permission manquante pour accéder au serveur de synchronisation"
@@ -749,6 +749,9 @@
   },
   "DescriptionTelemetry": {
     "message": "Floccus peut automatiquement envoyer des rapports d'erreur aux développeurs. Ceci constitue une aide inestimable pour découvrir et résoudre les bogues de floccus plus rapidement, et améliorer votre expérience avec floccus à long terme. Même lorsque le rapport d'erreur est actif, les développeurs de floccus ne pourront jamais accéder à vos signets."
+  },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "Nouveauté: si cette option est activée, en plus d'informations relatives à l'erreur, floccus envoie maintenant des informations sur la méthode de synchronisation que vous utilisez. Cela nous permet d'améliorer floccus et de nous assurer que les méthodes de synchronisation fonctionnent comme prévu."
   },
   "LabelTelemetryenable": {
     "message": "Envoyez automatiquement aux développeurs de floccus les données d'erreur et les informations sur la méthode de synchronisation que vous utilisez."
