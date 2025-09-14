@@ -57,7 +57,10 @@ body {
 html {
   font-size: 0.45cm !important;
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
   overflow: hidden;
 }
 .v-navigation-drawer {
@@ -67,7 +70,10 @@ html {
 
 .native-scroll-container {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
   overflow: hidden;
 
   .v-app-bar {
