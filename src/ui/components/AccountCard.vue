@@ -243,7 +243,7 @@ export default {
       if (this.account.data.error) {
         return 'error'
       }
-      if (!this.account.data.enabled) {
+      if (!this.account.data.enabled && !this.account.data.syncIntervalEnabled) {
         return 'disabled'
       }
       return 'ok'

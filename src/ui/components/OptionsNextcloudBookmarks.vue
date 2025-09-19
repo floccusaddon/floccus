@@ -85,7 +85,11 @@
         <OptionAutoSync
           :value="enabled"
           @input="$emit('update:enabled', $event)" />
+        <OptionSyncIntervalEnabled
+          :value="syncIntervalEnabled"
+          @input="$emit('update:syncIntervalEnabled', $event)" />
         <OptionSyncInterval
+          v-if="syncIntervalEnabled"
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
         <OptionSyncStrategy
@@ -150,11 +154,12 @@ import OptionAllowNetwork from './native/OptionAllowNetwork'
 import OptionExportBookmarks from './OptionExportBookmarks.vue'
 import { actions } from '../store/definitions'
 import OptionAutoSync from './OptionAutoSync.vue'
+import OptionSyncIntervalEnabled from './OptionSyncIntervalEnabled.vue'
 
 export default {
   name: 'OptionsNextcloudBookmarks',
-  components: { OptionAutoSync, OptionExportBookmarks, OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
-  props: ['url', 'username', 'password', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'nestedSync', 'failsafe', 'allowRedirects', 'enabled', 'label', 'clickCountEnabled'],
+  components: { OptionSyncIntervalEnabled, OptionAutoSync, OptionExportBookmarks, OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionNestedSync, NextcloudLogin, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval },
+  props: ['url', 'username', 'password', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'nestedSync', 'failsafe', 'allowRedirects', 'enabled', 'label', 'clickCountEnabled', 'syncIntervalEnabled'],
   data() {
     return {
       panels: [0, 1]

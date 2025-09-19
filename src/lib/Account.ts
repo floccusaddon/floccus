@@ -64,7 +64,7 @@ export default class Account {
 
   static async import(accounts:IAccountData[]):Promise<void> {
     for (const accountData of accounts) {
-      await this.create({...accountData, enabled: false})
+      await this.create({...accountData, enabled: false, syncIntervalEnabled: false})
     }
   }
 
@@ -104,6 +104,7 @@ export default class Account {
 
   getData():IAccountData {
     const data = {
+      enabled: false,
       localRoot: null,
       strategy: 'default' as TAccountStrategy,
       syncInterval: 15,
@@ -114,6 +115,9 @@ export default class Account {
       errorCount: 0,
       clickCountEnabled: false,
       ...this.server.getData()
+    }
+    if (!('syncIntervalEnabled' in data) && 'enabled' in data) {
+      data.syncIntervalEnabled = data.enabled
     }
     if ('type' in data && data.type === 'nextcloud-folders') {
       data.type = 'nextcloud-bookmarks'

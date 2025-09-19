@@ -96,7 +96,11 @@
         <OptionAutoSync
           :value="enabled"
           @input="$emit('update:enabled', $event)" />
+        <OptionSyncIntervalEnabled
+          :value="syncIntervalEnabled"
+          @input="$emit('update:syncIntervalEnabled', $event)" />
         <OptionSyncInterval
+          v-if="syncIntervalEnabled"
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
         <OptionSyncStrategy
@@ -151,11 +155,12 @@ import OptionAllowNetwork from './native/OptionAllowNetwork'
 import OptionFileType from './OptionFileType'
 import OptionExportBookmarks from './OptionExportBookmarks.vue'
 import OptionAutoSync from './OptionAutoSync.vue'
+import OptionSyncIntervalEnabled from './OptionSyncIntervalEnabled.vue'
 
 export default {
   name: 'OptionsGit',
-  components: { OptionAutoSync, OptionExportBookmarks, OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync, OptionFileType },
-  props: ['url', 'username', 'password', 'branch', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects', 'bookmark_file_type', 'enabled', 'label'],
+  components: { OptionSyncIntervalEnabled, OptionAutoSync, OptionExportBookmarks, OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync, OptionFileType },
+  props: ['url', 'username', 'password', 'branch', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects', 'bookmark_file_type', 'enabled', 'label', 'syncIntervalEnabled'],
   data() {
     return {
       panels: [0, 1],

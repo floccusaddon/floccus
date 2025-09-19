@@ -44,6 +44,7 @@ class AlarmManager {
         continue
       }
       if (
+        data.syncIntervalEnabled &&
         Date.now() >
         interval * 1000 * 60 + lastSync
       ) {
@@ -386,10 +387,6 @@ export default class BrowserController {
     if (account.getData().syncing) {
       return
     }
-    // if the account is already scheduled, don't prevent it, to avoid getting stuck
-    if (!account.getData().enabled && !account.getData().scheduled) {
-      return
-    }
 
     const status = await this.getStatus()
     if (status === STATUS_SYNCING) {
@@ -476,7 +473,7 @@ export default class BrowserController {
     }, STATUS_ALLGOOD)
 
     if (overallStatus === STATUS_ALLGOOD) {
-      if (accounts.every(account => !account.getData().enabled)) {
+      if (accounts.every(account => !account.getData().enabled && !account.getData().syncIntervalEnabled)) {
         // if status is allgood but no account is enabled, show disabled
         overallStatus = STATUS_DISABLED
       }

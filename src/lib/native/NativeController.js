@@ -54,6 +54,7 @@ class AlarmManager {
         continue
       }
       if (
+        data.syncIntervalEnabled &&
         Date.now() >
         interval * 1000 * 60 + data.lastSync
       ) {
@@ -163,10 +164,6 @@ export default class NativeController {
     if (account.getData().syncing) {
       return
     }
-    // if the account is already scheduled, don't prevent it, to avoid getting stuck
-    if (!account.getData().enabled && !account.getData().scheduled) {
-      return
-    }
 
     const status = await this.getStatus()
     if (status === STATUS_SYNCING) {
@@ -266,7 +263,7 @@ export default class NativeController {
     }, STATUS_ALLGOOD)
 
     if (overallStatus === STATUS_ALLGOOD) {
-      if (accounts.every(account => !account.getData().enabled)) {
+      if (accounts.every(account => !account.getData().enabled && !account.getData().syncIntervalEnabled)) {
         overallStatus = STATUS_DISABLED
       }
     }

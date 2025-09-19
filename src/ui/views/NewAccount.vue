@@ -424,14 +424,12 @@
             {{ t('LabelSyncbehaviorsetup') }}
           </div>
           <v-form>
-            <v-switch
-              v-model="enabled"
-              :aria-label="t('LabelAutosync')"
-              :label="t('LabelAutosync')"
-              dense
-              class="mt-1 pt-1" />
+            <OptionAutoSync
+              v-model="enabled" />
+            <OptionSyncIntervalEnabled
+              v-model="syncIntervalEnabled" />
             <OptionSyncInterval
-              v-if="enabled"
+              v-if="syncIntervalEnabled"
               v-model="syncInterval" />
             <OptionSyncStrategy
               v-model="strategy" />
@@ -482,10 +480,12 @@ import OptionSyncInterval from '../components/OptionSyncInterval'
 import OptionSyncStrategy from '../components/OptionSyncStrategy'
 import OptionNestedSync from '../components/OptionNestedSync'
 import OptionFileType from '../components/OptionFileType'
+import OptionSyncIntervalEnabled from '../components/OptionSyncIntervalEnabled.vue'
+import OptionAutoSync from '../components/OptionAutoSync.vue'
 
 export default {
   name: 'NewAccount',
-  components: { OptionFileType, OptionNestedSync, OptionSyncStrategy, OptionSyncInterval, OptionSyncFolder },
+  components: { OptionAutoSync, OptionSyncIntervalEnabled, OptionFileType, OptionNestedSync, OptionSyncStrategy, OptionSyncInterval, OptionSyncFolder },
   data() {
     return {
       currentStep: 0,
@@ -507,6 +507,7 @@ export default {
       syncInterval: 15,
       strategy: 'default',
       enabled: true,
+      syncIntervalEnabled: true,
       nestedSync: true,
       showPassword: false,
       showPassphrase: false,
@@ -573,6 +574,7 @@ export default {
         username: this.username,
         password: this.password,
         enabled: this.enabled,
+        syncIntervalEnabled: this.syncIntervalEnabled,
         label: this.label,
         ...(this.adapter === 'nextcloud-bookmarks' && {serverRoot: this.serverRoot, clickCountEnabled: this.clickCountEnabled}),
         ...(this.adapter === 'linkwarden' && {serverFolder: this.serverFolder}),

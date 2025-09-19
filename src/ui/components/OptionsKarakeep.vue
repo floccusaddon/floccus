@@ -86,7 +86,11 @@
         <OptionAutoSync
           :value="enabled"
           @input="$emit('update:enabled', $event)" />
+        <OptionSyncIntervalEnabled
+          :value="syncIntervalEnabled"
+          @input="$emit('update:syncIntervalEnabled', $event)" />
         <OptionSyncInterval
+          v-if="syncIntervalEnabled"
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
         <OptionSyncStrategy
@@ -140,10 +144,12 @@ import OptionDownloadLogs from './OptionDownloadLogs'
 import OptionAllowNetwork from './native/OptionAllowNetwork'
 import OptionExportBookmarks from './OptionExportBookmarks.vue'
 import OptionAutoSync from './OptionAutoSync.vue'
+import OptionSyncIntervalEnabled from './OptionSyncIntervalEnabled.vue'
 
 export default {
   name: 'OptionsKarakeep',
   components: {
+    OptionSyncIntervalEnabled,
     OptionAutoSync,
     OptionExportBookmarks,
     OptionAllowNetwork,
@@ -174,6 +180,7 @@ export default {
     'allowRedirects',
     'enabled',
     'label',
+    'syncIntervalEnabled',
   ],
   data() {
     return {
