@@ -470,8 +470,8 @@ export class Folder<L extends TItemLocation> {
       Array(depth < 0 ? 0 : depth)
         .fill('  ')
         .join('') +
-      `+ #${this.id}[${this.title}] parentId: ${this.parentId}, hash: ${this
-        .hashValue[String(true)] || this.hashValue[String(false)]}\n` +
+      `+ #${this.id}[${this.title}] parentId: ${this.parentId}, hash: ${Object.values(this
+        .hashValue)[0]}\n` +
       this.children
         .map(child =>
           child && child.inspect ? child.inspect(depth + 1) : String(child)
