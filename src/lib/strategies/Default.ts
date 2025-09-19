@@ -904,6 +904,7 @@ export default class SyncProcess {
     donePlan: PlanStage3<TOppositeLocation<L1>, TItemLocation, L1>,
     reorders: Diff<TOppositeLocation<L1>, TItemLocation, ReorderAction<TOppositeLocation<L1>, TItemLocation>>): Promise<void> {
     Logger.log('Executing ' + targetLocation + ' plan for ')
+
     let createActions = planStage2.CREATE.getActions()
     while (createActions.length > 0) {
       Logger.log(targetLocation + ': executing CREATEs')
@@ -913,13 +914,13 @@ export default class SyncProcess {
         ACTION_CONCURRENCY
       )
       createActions = planStage2.CREATE.getActions()
+
+      if (this.canceled) {
+        throw new CancelledSyncError()
+      }
     }
 
-    if (this.canceled) {
-      throw new CancelledSyncError()
-    }
-
-    Logger.log(targetLocation + ': executing CREATEs')
+    Logger.log(targetLocation + ': executing UPDATEs')
 
     await Parallel.each(
       planStage2.UPDATE.getActions(),

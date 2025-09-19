@@ -295,13 +295,13 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
         ACTION_CONCURRENCY
       )
       createActions = planRevert.CREATE.getActions()
+
+      if (this.canceled) {
+        throw new CancelledSyncError()
+      }
     }
 
-    if (this.canceled) {
-      throw new CancelledSyncError()
-    }
-
-    Logger.log(targetLocation + ': executing CREATEs')
+    Logger.log(targetLocation + ': executing UPDATEs')
 
     await Parallel.each(
       planRevert.UPDATE.getActions(),
