@@ -90,7 +90,11 @@
         <OptionAutoSync
           :value="enabled"
           @input="$emit('update:enabled', $event)" />
+        <OptionSyncIntervalEnabled
+          :value="syncIntervalEnabled"
+          @input="$emit('update:syncIntervalEnabled', $event)" />
         <OptionSyncInterval
+          v-if="syncIntervalEnabled"
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
         <OptionSyncStrategy
@@ -144,11 +148,12 @@ import OptionDownloadLogs from './OptionDownloadLogs'
 import OptionAllowNetwork from './native/OptionAllowNetwork'
 import OptionExportBookmarks from './OptionExportBookmarks.vue'
 import OptionAutoSync from './OptionAutoSync.vue'
+import OptionSyncIntervalEnabled from './OptionSyncIntervalEnabled.vue'
 
 export default {
   name: 'OptionsLinkwarden',
-  components: { OptionAutoSync, OptionExportBookmarks, OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['url', 'username', 'password', 'serverFolder', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'nestedSync', 'failsafe', 'allowRedirects', 'enabled', 'label'],
+  components: { OptionSyncIntervalEnabled, OptionAutoSync, OptionExportBookmarks, OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
+  props: ['url', 'username', 'password', 'serverFolder', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'nestedSync', 'failsafe', 'allowRedirects', 'enabled', 'label', 'syncIntervalEnabled'],
   data() {
     return {
       panels: [0, 1],

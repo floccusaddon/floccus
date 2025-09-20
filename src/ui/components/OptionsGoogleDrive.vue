@@ -94,7 +94,11 @@
         <OptionAutoSync
           :value="enabled"
           @input="$emit('update:enabled', $event)" />
+        <OptionSyncIntervalEnabled
+          :value="syncIntervalEnabled"
+          @input="$emit('update:syncIntervalEnabled', $event)" />
         <OptionSyncInterval
+          v-if="syncIntervalEnabled"
           :value="syncInterval"
           @input="$emit('update:syncInterval', $event)" />
         <OptionSyncStrategy
@@ -139,11 +143,12 @@ import OptionAllowNetwork from './native/OptionAllowNetwork'
 import OptionPassphrase from './OptionPassphrase'
 import OptionExportBookmarks from './OptionExportBookmarks.vue'
 import OptionAutoSync from './OptionAutoSync.vue'
+import OptionSyncIntervalEnabled from './OptionSyncIntervalEnabled.vue'
 
 export default {
   name: 'OptionsGoogleDrive',
-  components: { OptionAutoSync, OptionExportBookmarks, OptionPassphrase, OptionAllowNetwork, OptionDownloadLogs, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['username', 'password', 'refreshToken', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'enabled', 'label'],
+  components: { OptionSyncIntervalEnabled, OptionAutoSync, OptionExportBookmarks, OptionPassphrase, OptionAllowNetwork, OptionDownloadLogs, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
+  props: ['username', 'password', 'refreshToken', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'enabled', 'label', 'syncIntervalEnabled'],
   data() {
     return {
       panels: [0, 1],

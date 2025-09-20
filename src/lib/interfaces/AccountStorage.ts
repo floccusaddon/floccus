@@ -5,8 +5,10 @@ import { ISerializedSyncProcess } from '../strategies/Default'
 export type TAccountStrategy = 'default' | 'overwrite' | 'slave'
 
 export interface IAccountData {
+  enabled?: boolean
   localRoot?: string
   strategy?: TAccountStrategy
+  syncIntervalEnabled?: boolean
   syncInterval?: number
   nestedSync?: boolean
   failsafe?: boolean
