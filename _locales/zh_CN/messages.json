@@ -204,7 +204,7 @@
     "message": "同步所有配置"
   },
   "LabelAutosync": {
-    "message": "自动同步"
+    "message": "基于更改的同步"
   },
   "StatusLastsynced": {
     "message": "上次同步: {0} 之前"
@@ -853,7 +853,7 @@
     "message": "你真要强制同步吗？同时和两台设备同步可能会有预想不到的后果，包括数据损坏。在确认前，请确保此刻没有其他设备正在同步。"
   },
   "DescriptionAutosync": {
-    "message": "打开自动更新会确保同步运行在某一可配置间隔内被定期触发，以及在你做出更改数秒后按需触发。如果不打开自动同步，你需要按下同步按钮手动触发同步。"
+    "message": "打开基于更改的同步保证每次你在本地进行更改时运行同步。"
   },
   "LabelOpeninnewtab": {
     "message": "在新标签中打开此视图"
@@ -899,5 +899,11 @@
   },
   "NotificationSyncingfailed": {
     "message": "同步配置文件 {0} 失败了"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "基于时间的同步"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "打开基于时间的同步会每隔几分钟定期运行同步"
   }
 }
