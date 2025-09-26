@@ -278,6 +278,9 @@
   "LabelSave": {
     "message": "Save"
   },
+  "LabelSelect": {
+    "message": "Select"
+  },
   "LabelCancel": {
     "message": "Cancel"
   },
