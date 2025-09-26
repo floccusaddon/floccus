@@ -8,7 +8,7 @@
       <!-- Fixed header row -->
       <div class="d-flex align-center justify-space-between px-4 py-2">
         <span class="text-h6">{{ t('LabelChoosefolder') }}</span>
-        <v-btn color="primary" @click="onSave">Select</v-btn>
+        <v-btn color="primary" @click="onSave">{{ t('LabelSelect') }}</v-btn>
       </div>
       <!-- <v-row no-gutters>
         <v-col class="flex-grow-1">
