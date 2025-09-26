@@ -26,6 +26,10 @@ export const actionsDefinition = {
       })
     )
     await commit(mutations.LOAD_ACCOUNTS, accounts)
+    console.log(Object.keys(accounts))
+    const lastAccount = await NativeAccountStorage.getEntry('lastAccount', null)
+    if (lastAccount) await commit(mutations.SET_LAST_ACCOUNT, lastAccount)
+    console.log('lastAccount', lastAccount)
     const lastFolders = await NativeAccountStorage.getEntry('lastFolders', {})
     await Promise.all(Object.entries(lastFolders).map(async([accountId, folderId]) => {
       await commit(mutations.SET_LAST_FOLDER, {accountId, folderId})
@@ -37,6 +41,7 @@ export const actionsDefinition = {
     const tree = await account.getResource()
     const rootFolder = await tree.getBookmarksTree(true)
     await commit(mutations.LOAD_TREE, rootFolder)
+    await dispatch(actions.SET_LAST_ACCOUNT, id)
   },
   async [actions.LOAD_TREE_FROM_DISK]({ commit, dispatch, state }, id) {
     const account = await Account.get(id)
@@ -305,5 +310,11 @@ export const actionsDefinition = {
       return lastFolders
     }, {})
     await commit(mutations.SET_LAST_FOLDER, {accountId, folderId})
+  },
+  async [actions.SET_LAST_ACCOUNT]({commit}, accountId) {
+    await NativeAccountStorage.changeEntry('lastAccount', () => {
+      return accountId
+    }, null)
+    await commit(mutations.SET_LAST_FOLDER, accountId)
   }
 }

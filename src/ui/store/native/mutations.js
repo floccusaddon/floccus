@@ -28,5 +28,8 @@ export const mutationsDefinition = {
   },
   [mutations.SET_LAST_FOLDER](state, {accountId, folderId}) {
     Vue.set(state.lastFolders, accountId, folderId)
+  },
+  [mutations.SET_LAST_ACCOUNT](state, accountId) {
+    state.lastAccount = accountId
   }
 }

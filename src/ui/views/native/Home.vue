@@ -35,7 +35,7 @@ export default {
     } else if (Object.keys(this.$store.state.accounts).length) {
       const intentReceived = await this.checkForIntent()
       if (!intentReceived) {
-        const accountId = Object.keys(this.$store.state.accounts)[0]
+        const accountId = this.$store.state.lastAccount || Object.keys(this.$store.state.accounts)[0]
         this.$router.push({ name: routes.TREE, params: { accountId } })
       }
     } else {
@@ -89,7 +89,7 @@ export default {
       this.$router.push({
         name: routes.ADD_BOOKMARK,
         params: {
-          accountId: Object.keys(this.$store.state.accounts)[0],
+          accountId: this.$store.state.lastAccount || Object.keys(this.$store.state.accounts)[0],
           url,
           title
         }

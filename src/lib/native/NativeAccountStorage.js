@@ -26,7 +26,7 @@ export default class NativeAccountStorage {
     let entry = await Storage.get({key: entryName })
     try {
       if (entry.value) {
-        while (typeof entry.value === 'string') {
+        if (typeof entry.value === 'string') {
           entry.value = JSON.parse(entry.value)
         }
         return entry.value

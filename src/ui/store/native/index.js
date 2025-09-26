@@ -19,6 +19,7 @@ export default new Store({
       accounts: true,
     },
     lastFolders: {},
+    lastAccount: null,
   },
   getters: {},
 })
