@@ -10,21 +10,6 @@
         <span class="text-h6">{{ t('LabelChoosefolder') }}</span>
         <v-btn color="primary" @click="onSave">{{ t('LabelSelect') }}</v-btn>
       </div>
-      <!-- <v-row no-gutters>
-        <v-col class="flex-grow-1">
-          <v-card-title class="headline">
-            {{ t('LabelChoosefolder') }}
-          </v-card-title>
-        </v-col>
-        <v-col class="flex-grow-0">
-          <v-btn
-            color="primary"
-            class="ma-2"
-            @click="onSave">
-            select
-          </v-btn>
-        </v-col>
-      </v-row> -->
 
       <!-- Scrollable area -->
       <v-card-text class="flex-grow-1 overflow-y-auto">
