@@ -4,11 +4,17 @@
     max-width="500"
     :style="{height: '500px !important'}"
     @input="$emit('update:display', $event)">
-    <v-card class="d-flex flex-column" max-height="calc(100vh - 100px)">
+    <v-card
+      class="d-flex flex-column"
+      max-height="calc(100vh - 100px)">
       <!-- Fixed header row -->
       <div class="d-flex align-center justify-space-between px-4 py-2">
         <span class="text-h6">{{ t('LabelChoosefolder') }}</span>
-        <v-btn color="primary" @click="onSave">{{ t('LabelSelect') }}</v-btn>
+        <v-btn
+          color="primary"
+          @click="onSave">
+          {{ t('LabelSelect') }}
+        </v-btn>
       </div>
 
       <!-- Scrollable area -->
