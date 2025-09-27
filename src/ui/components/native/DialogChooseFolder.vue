@@ -4,8 +4,13 @@
     max-width="500"
     :style="{height: '500px !important'}"
     @input="$emit('update:display', $event)">
-    <v-card>
-      <v-row no-gutters>
+    <v-card class="d-flex flex-column" max-height="calc(100vh - 100px)">
+      <!-- Fixed header row -->
+      <div class="d-flex align-center justify-space-between px-4 py-2">
+        <span class="text-h6">{{ t('LabelChoosefolder') }}</span>
+        <v-btn color="primary" @click="onSave">{{ t('LabelSelect') }}</v-btn>
+      </div>
+      <!-- <v-row no-gutters>
         <v-col class="flex-grow-1">
           <v-card-title class="headline">
             {{ t('LabelChoosefolder') }}
@@ -13,41 +18,46 @@
         </v-col>
         <v-col class="flex-grow-0">
           <v-btn
-            class="primary ma-2"
+            color="primary"
+            class="ma-2"
             @click="onSave">
-            save
+            select
           </v-btn>
         </v-col>
-      </v-row>
-      <v-treeview
-        class="pa-4"
-        activatable
-        :item-text="'title'"
-        :item-key="'id'"
-        :active="[value]"
-        :open="[tree.id]"
-        :items="[privateTree]"
-        dense
-        @update:active="onUpdateSelection">
-        <template #prepend="{ open }">
-          <v-icon>
-            {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
-          </v-icon>
-        </template>
-        <template #label="{item}">
-          {{ item.title || t('LabelUntitledfolder') }}
-        </template>
-        <template #append="{item}">
-          <v-btn
-            small
-            rounded
-            @click="onCreate(item.id)">
+      </v-row> -->
+
+      <!-- Scrollable area -->
+      <v-card-text class="flex-grow-1 overflow-y-auto">
+        <v-treeview
+          class="pa-4"
+          activatable
+          :item-text="'title'"
+          :item-key="'id'"
+          :active="[value]"
+          :open="[tree.id]"
+          :items="[privateTree]"
+          dense
+          @update:active="onUpdateSelection">
+          <template #prepend="{ open }">
             <v-icon>
-              mdi-plus
+              {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
             </v-icon>
-          </v-btn>
-        </template>
-      </v-treeview>
+          </template>
+          <template #label="{item}">
+            {{ item.title || t('LabelUntitledfolder') }}
+          </template>
+          <template #append="{item}">
+            <v-btn
+              small
+              rounded
+              @click="onCreate(item.id)">
+              <v-icon>
+                mdi-plus
+              </v-icon>
+            </v-btn>
+          </template>
+        </v-treeview>
+      </v-card-text>
     </v-card>
   </v-dialog>
 </template>
