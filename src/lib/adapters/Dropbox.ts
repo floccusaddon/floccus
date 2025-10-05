@@ -8,11 +8,11 @@ import {
   DecryptionError, FileUnreadableError,
   DropboxAuthenticationError, HttpError, CancelledSyncError, MissingPermissionsError,
   NetworkError,
+  ParseResponseError,
   DropboxOAuthTokenError, ResourceLockedError, DropboxSearchError, RequestTimeoutError, DropboxTemplateError
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
 import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
-import get from "lodash/get"
 
 // Dropbox API Reference
 // https://www.dropbox.com/developers/documentation/http/documentation
@@ -149,7 +149,14 @@ export default class DropboxAdapter extends CachingAdapter {
       Logger.log('Failed to retrieve refresh token from Dropbox API: ' + await response.text())
       throw new DropboxOAuthTokenError()
     }
-    const json = await response.json()
+    
+    let json:any
+    try {
+      json = await response.json()
+    } catch (e) {
+      throw new ParseResponseError(e.message)
+    }
+
     if (!json.access_token || !json.refresh_token) {
       Logger.log('Failed to retrieve refresh token from Dropbox API: ' + JSON.stringify(json))
       throw new DropboxOAuthTokenError()
@@ -163,7 +170,13 @@ export default class DropboxAdapter extends CachingAdapter {
       },
       body: JSON.stringify({account_id: json.account_id})
     })
-    const about = await res.json()
+    
+    let about:any
+    try {
+      about = await res.json()
+    } catch (e) {
+      throw new ParseResponseError(e.message)
+    }
 
     return { refresh_token: json.refresh_token, username: about.name.display_name }
   }
@@ -191,7 +204,13 @@ export default class DropboxAdapter extends CachingAdapter {
       throw new DropboxAuthenticationError()
     }
 
-    const json = await response.json()
+    let json:any
+    try {
+      json = await response.json()
+    } catch (e) {
+      throw new ParseResponseError(e.message)
+    }
+
     if (json.access_token) {
       return json.access_token
     } else {
@@ -295,8 +314,8 @@ export default class DropboxAdapter extends CachingAdapter {
         const data = await this.getFileMetadata(this.fileId)
         // Here we know that we are trying to get property for "locked" as we sent template_id to search for the same. 
         // The value is either empty or epoch date as string
-        let lockedValue = get(data, 'property_groups[0].fields[0].value', '')
-        if (lockedValue !== "") {
+        let lockedValue = data?.property_groups?.[0]?.fields?.[0]?.value
+        if (lockedValue !== "" && lockedValue !== undefined) {
           let lockedDate = parseInt(lockedValue)
           if (!Number.isInteger(lockedDate)) {
             throw new ResourceLockedError()
@@ -809,7 +828,7 @@ export default class DropboxAdapter extends CachingAdapter {
 
   /**
    * Free up lock on bookmarks.xbel file so that file editing can happen again
-   * @param {string} id A unieuq identifier for file
+   * @param {string} id A unique identifier for file
    * @returns {boolean} True if lock is set on bookmarks.xbel file and false if not
    */
   async freeLock(id:string) {
