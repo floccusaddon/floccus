@@ -13,39 +13,13 @@ var path = require('path')
 try {
   fs.accessSync('./dropbox-api.credentials.json')
 } catch (e) {
-  fs.writeFileSync('./dropbox-api.credentials.json', JSON.stringify({
-    'web': {
-      "client_id": "YOUR APP ID",
-      "project_id": "YOUR APP ID",
-      "auth_uri": "https://www.dropbox.com/oauth2/authorize",
-      "token_uri": "https://www.dropbox.com/oauth2/token",
-      "auth_provider_x509_cert_url": "",
-      "client_secret": "YOUR CLIENT SECRET",
-      "redirect_uris": [
-        "https://yourappidhere.chromiumapp.org/",
-        "https://yourappidhere.extensions.allizom.org/"
-      ]
-    }
-  }))
+  console.log(`error loading dropbox api credentials: ${e.message}`)
 }
 
 try {
   fs.accessSync('./google-api.credentials.json')
 } catch (e) {
-  fs.writeFileSync('./google-api.credentials.json', JSON.stringify({
-    'web': {
-      'client_id': 'yourappidhere.apps.googleusercontent.com',
-      'project_id': 'YOUR PROJECT ID HERE',
-      'auth_uri': 'https://accounts.google.com/o/oauth2/auth',
-      'token_uri': 'https://oauth2.googleapis.com/token',
-      'auth_provider_x509_cert_url': 'https://www.googleapis.com/oauth2/v1/certs',
-      'client_secret': 'YOUR CLIENT SECRET HERE',
-      'redirect_uris': [
-        'https://yourappidhere.chromiumapp.org/',
-        'https://yourappidhere.extensions.allizom.org/'
-      ]
-    }
-  }))
+  console.log(`error loading google api credentials: ${e.message}`)
 }
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
