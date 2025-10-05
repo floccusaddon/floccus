@@ -267,11 +267,11 @@ export class GoogleDriveAuthenticationError extends FloccusError {
   }
 }
 
-export class OAuthTokenError extends FloccusError {
+export class GoogleOAuthTokenError extends FloccusError {
   constructor() {
     super('E032: OAuth error. Token validation error. Please reconnect your Google Account.')
     this.code = 32
-    Object.setPrototypeOf(this, OAuthTokenError.prototype)
+    Object.setPrototypeOf(this, GoogleOAuthTokenError.prototype)
   }
 }
 
@@ -410,5 +410,37 @@ export class XbelParseError extends FloccusError {
     super(`E047: Failed to parse XBEL file. The XBEL data seems to be corrupted or incomplete. You can try removing the file on the server to let floccus recreate it. Make sure to take a backup first.`)
     this.code = 47
     Object.setPrototypeOf(this, XbelParseError.prototype)
+  }
+}
+
+export class DropboxAuthenticationError extends FloccusError {
+  constructor() {
+    super('E048: Could not authenticate with Dropbox. Please connect floccus with your Dropbox account again.')
+    this.code = 48
+    Object.setPrototypeOf(this, DropboxAuthenticationError.prototype)
+  }
+}
+
+export class DropboxOAuthTokenError extends FloccusError {
+  constructor() {
+    super('E049: OAuth error. Token validation error. Please reconnect your Dropbox Account.')
+    this.code = 49
+    Object.setPrototypeOf(this, DropboxOAuthTokenError.prototype)
+  }
+}
+
+export class DropboxSearchError extends FloccusError {
+  constructor() {
+    super('E050: Could not search for your file name in your Dropbox')
+    this.code = 50
+    Object.setPrototypeOf(this, DropboxSearchError.prototype)
+  }
+}
+
+export class DropboxTemplateError extends FloccusError {
+  constructor() {
+    super('E051: Could not get template for Dropbox')
+    this.code = 51
+    Object.setPrototypeOf(this, DropboxTemplateError.prototype)
   }
 }

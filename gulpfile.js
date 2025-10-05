@@ -11,6 +11,25 @@ var path = require('path')
 
 // Provide a dummy credential file for third-party builders
 try {
+  fs.accessSync('./dropbox-api.credentials.json')
+} catch (e) {
+  fs.writeFileSync('./dropbox-api.credentials.json', JSON.stringify({
+    'web': {
+      "client_id": "YOUR APP ID",
+      "project_id": "YOUR APP ID",
+      "auth_uri": "https://www.dropbox.com/oauth2/authorize",
+      "token_uri": "https://www.dropbox.com/oauth2/token",
+      "auth_provider_x509_cert_url": "",
+      "client_secret": "YOUR CLIENT SECRET",
+      "redirect_uris": [
+        "https://yourappidhere.chromiumapp.org/",
+        "https://yourappidhere.extensions.allizom.org/"
+      ]
+    }
+  }))
+}
+
+try {
   fs.accessSync('./google-api.credentials.json')
 } catch (e) {
   fs.writeFileSync('./google-api.credentials.json', JSON.stringify({
