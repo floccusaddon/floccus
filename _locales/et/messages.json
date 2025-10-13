@@ -48,7 +48,7 @@
     "message": "E016: Taotlus on aegunud. Kontrollige oma serveri konfiguratsiooni"
   },
   "Error017": {
-    "message": "E017: Võrguviga: Kontrollige oma võrguühendust ja kontoandmeid"
+    "message": "E017: Võrguviga: Palun kontrolli võrguühenduse toimimist, kasutajakonto andmeid ja TLS/SSL-seadistusi."
   },
   "Error018": {
     "message": "E018: Ei õnnestunud serveriga autentimine."
@@ -102,7 +102,7 @@
     "message": "E034: Kauglehtede fail ei ole loetav. Võib-olla unustasite määrata krüpteerimisfraasi või seadsite vale failiformaadi."
   },
   "Error035": {
-    "message": "E035: Ei õnnestunud veebiserveris luua järgnevat järjehoidjat: {0}"
+    "message": "E035: Ei õnnestunud veebiserveris luua järgnevat järjehoidjat: {0} - kas ikka kasutad järjehoidjate rakenduse viimast versiooni?"
   },
   "Error036": {
     "message": "E036: Puuduvad õigused ligipääsuks sünkroniseerimisserverile"
@@ -204,7 +204,7 @@
     "message": "Sünkroniseeri kõik profiilid"
   },
   "LabelAutosync": {
-    "message": "Automaatne sünkroniseerimine"
+    "message": "Muutusepõhine sünkroonimine"
   },
   "StatusLastsynced": {
     "message": "Viimati sünkroniseeritud: {0} tagasi"
@@ -750,6 +750,9 @@
   "DescriptionTelemetry": {
     "message": "Floccus saab automaatselt saata veaandmeid mulle, arendajale. See on tohutu abi floccuse vigade kiiremaks avastamiseks ja lahendamiseks ning aitab pikemas perspektiivis parandada teie kogemust floccusega. Isegi kui veateade on sisse lülitatud, ei näe floccuse arendajad kunagi teie järjehoidjaid."
   },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "Uus: Lisaks veateabele saadab floccus nüüd ka teavet kasutatud sünkroonimismeetodi kohta (kui selline valik on sisse lülitatud). See aitab meil floccust arendada ja tagada, et sünkroonimimeetodid toimivad nii nagu vaja."
+  },
   "LabelTelemetryenable": {
     "message": "Saadab automaatselt veaandmed ja teabe selle kohta, millist sünkroonimismeetodit te kasutate, floccuse arendajatele."
   },
@@ -850,7 +853,7 @@
     "message": "Kas sa tõesti tahad sünkroonimist sundida? Kahe seadmega samaaegne sünkroonimine võib kaasa tuua ettenägematuid tagajärgi, sealhulgas teie andmete kahjustumise. Enne kinnitamist veenduge, et ükski teine seade ei ole hetkel sünkroonimas."
   },
   "DescriptionAutosync": {
-    "message": "Automaatse sünkroonimise sisselülitamine tagab, et sünkroonimine käivitub regulaarselt teatud seadistatava intervalli jooksul ja ka nõudmisel paar sekundit pärast muudatuste tegemist. Kui te ei lülita automaatset sünkroonimist sisse, peate sünkroonimise käivitama käsitsi, vajutades sünkroonimisnuppu."
+    "message": "Ajapõhise sünkroonimise sisselülitamisel käivitub selle profiili sünkroonimine siis, kui oled kohalikke andmeid muutnud."
   },
   "LabelOpeninnewtab": {
     "message": "Avage see vaade uues vahekaardis"
@@ -883,7 +886,7 @@
     "message": "Vaata KKK-dest"
   },
   "StatusSyncingfailed": {
-    "message": "Sünkroonimine ebaõnnestus"
+    "message": "Sünkroonimine ei õnnestunud"
   },
   "StatusSyncingcomplete": {
     "message": "Sünkroonimine lõpetatud"
@@ -896,5 +899,11 @@
   },
   "NotificationSyncingfailed": {
     "message": "Profiili sünkroonimine ebaõnnestus {0}"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "Ajapõhine sünkroonimine"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "Ajapõhise sünkroonimise sisselülitamisel käivitub selle profiili sünkroonimine iga paari minuti järel"
   }
 }
