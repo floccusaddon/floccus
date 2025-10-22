@@ -204,7 +204,7 @@
     "message": "Synchroniser tous les profils"
   },
   "LabelAutosync": {
-    "message": "Automatique"
+    "message": "Synchronisation sur changement"
   },
   "StatusLastsynced": {
     "message": "Dernière synchronisation : il y a {0}"
@@ -853,7 +853,7 @@
     "message": "Voulez-vous vraiment forcer une synchronisation? Synchroniser à partir de deux instances simultanément peut avoir des conséquences imprévues, allant jusqu'à la corruption de vos données. Assurez-vous qu'aucune autre instance ne soit en train de synchroniser avant de confirmer cette action."
   },
   "DescriptionAutosync": {
-    "message": "Activer la synchronisation automatique déclenchera automatiquement une synchronisation, à un intervalle de temps configurable, ainsi qu'à la demande, quelques secondes après chaque changement. Si vous n'activez pas la synchronisation automatique, vous devrez la déclencher manuellement en cliquant sur le bouton de synchronisation."
+    "message": "Activer la synchronisation sur changement provoquera une synchronisation chaque fois que vous effectuerez un changement local."
   },
   "LabelOpeninnewtab": {
     "message": "Ouvrir cette vue dans un nouvel onglet"
@@ -899,5 +899,11 @@
   },
   "NotificationSyncingfailed": {
     "message": "Échec de la synchronisation du profil {0}"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "Synchronisation périodique"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "Activer la synchronisation périodique lancera une synchronisation de ce profil automatiquement à intervalle régulier."
   }
 }
