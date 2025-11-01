@@ -48,7 +48,7 @@
     "message": "E016：請求超時。請檢查您的伺服器設定"
   },
   "Error017": {
-    "message": "E017：網路錯誤：請檢查您的網路連線或賬戶資訊"
+    "message": "E017：網路錯誤：請檢查你的網路連線、帳號資訊及 TLS/SSL 設定。"
   },
   "Error018": {
     "message": "E018：無法通過伺服器進行身份驗證"
@@ -75,10 +75,61 @@
     "message": "E025：書籤資料夾必須不以 '/' 開頭"
   },
   "Error026": {
-    "message": "E026：HTTP 狀態 {0}。獲取書籤失敗"
+    "message": "E026：同步程序已被取消"
   },
   "Error027": {
     "message": "E027：同步進程終端"
+  },
+  "Error028": {
+    "message": "E028: 無法通過服務器進行身份驗證。"
+  },
+  "Error029": {
+    "message": "E029：安全防護：目前的同步執行將刪除 {0}% 的連結，已拒絕執行。若仍要繼續，請在帳號設定中停用此安全防護。"
+  },
+  "Error030": {
+    "message": "E030: 無法解密書籤文件。密碼可能錯誤或文件可能已損壞。"
+  },
+  "Error031": {
+    "message": "E031：無法透過 Google Drive 驗證。請重新將 floccus 連結至你的 Google 帳號。"
+  },
+  "Error032": {
+    "message": "E032：OAuth 錯誤。令牌驗證錯誤。請重新關聯您的 Google 帳戶。"
+  },
+  "Error033": {
+    "message": "E033：檢測到重定向。請確保服務器支持所選同步方法，並且您輸入的 URL 正確，不會重定向到其他位置。如果重定向是您設置的一部分，您可以在設置中禁用此檢查。"
+  },
+  "Error034": {
+    "message": "E034：遠端書籤檔案無法讀取。可能是你忘了設定加密密碼，或選擇了錯誤的檔案格式。"
+  },
+  "Error035": {
+    "message": "E035：無法在伺服器上建立以下書籤：{0} —— 書籤應用程式是否為最新版本？"
+  },
+  "Error036": {
+    "message": "E036：缺少存取同步伺服器的權限"
+  },
+  "Error037": {
+    "message": "E037：資源已被鎖定"
+  },
+  "Error038": {
+    "message": "E038：找不到本機資料夾"
+  },
+  "Error039": {
+    "message": "E039：無法在伺服器上更新以下書籤：{0}"
+  },
+  "Error040": {
+    "message": "E040：無法在你的 Google Drive 中搜尋檔案名稱"
+  },
+  "Error041": {
+    "message": "E041：遠端書籤檔案大小與實際從伺服器下載的內容不一致。這可能是暫時的網路問題。若此錯誤持續發生，請聯絡伺服器管理員。"
+  },
+  "Error042": {
+    "message": "E042：無法取得遠端書籤檔案大小，因此無法確認書籤檔是否已完整下載。若此錯誤持續發生，請聯絡伺服器管理員。"
+  },
+  "Error043": {
+    "message": "E043：安全防護：目前的同步執行將使書籤數量增加 {0}%，已拒絕執行。若仍要繼續，請在設定檔中停用此安全防護。"
+  },
+  "Error044": {
+    "message": "E044：Git 推送操作失敗：{0}"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -96,25 +147,49 @@
     "message": "密碼"
   },
   "LabelBookmarksfile": {
-    "message": "書籤路徑"
+    "message": "書籤檔案"
   },
   "DescriptionBookmarksfile": {
-    "message": "相對於 WebDAV URL 的書籤路徑（路徑內的所有資料夾必須已經存在），比如：personal_stuff/bookmarks.xbel "
+    "message": "書籤檔案在伺服器上的路徑，相對於你的 WebDAV URL（路徑中的所有資料夾必須已存在）。例如：personal_stuff/bookmarks.xbel"
+  },
+ "DescriptionBookmarksfilegoogle": {
+   "message": "書籤檔案在你的 Google Drive 中的檔名。請勿輸入完整路徑，只需輸入檔名。請確保此名稱在 Drive 中是唯一的。例如：mybookmarks.xbel"
+ },
+  "DescriptionBookmarksfilegit": {
+    "message": "書籤檔案的路徑，需相對於你的 Git 儲存庫根目錄（路徑中的所有資料夾必須已存在）。例如：personal_stuff/bookmarks.xbel"
   },
   "LabelServerfolder": {
-    "message": "伺服器資料夾"
+    "message": "伺服器目標"
   },
   "DescriptionServerfolder": {
-    "message": "這是此賬戶在伺服器上的路徑前綴，例如如果您使用 \"/work\"，則在此伺服器上創建的所有書籤的路徑都將被加上此前綴。這允許您將伺服器書籤分成多個“設定檔”。將其留空以不使用前綴。"
+    "message": "同步時，此瀏覽器中的書籤將作為連結儲存在伺服器上此路徑下。請注意，此路徑代表的是 Nextcloud 書籤應用程式中的資料夾，而非 Nextcloud 檔案中的資料夾。若留空，所有連結將放置在伺服器的最上層資料夾中。"
+  },
+  "DescriptionServerfolderlinkwarden": {
+    "message": "同步時，此瀏覽器中的書籤將作為連結儲存在此集合下，且僅此集合下的連結會與此瀏覽器同步。"
+  },
+  "DescriptionServerfolderkarakeep": {
+    "message": "同步時，此瀏覽器中的書籤將作為連結儲存在此集合下，且僅此集合下的連結會與此瀏覽器同步。"
+  },
+  "LabelLocaltarget": {
+    "message": "本機目標"
+  },
+  "DescriptionLocaltarget": {
+    "message": "請在此選擇要同步「瀏覽器書籤」或「瀏覽器分頁」。"
   },
   "LabelLocalfolder": {
-    "message": "本地資料夾"
+    "message": "書籤資料夾"
   },
   "DescriptionLocalfolder": {
-    "message": "這是會和伺服器同步的本地資料夾。預設會爲您創建一個新的資料夾。（注意：現在您可以在不同瀏覽器同步根資料夾）"
+    "message": "此書籤資料夾中的書籤會作為連結儲存在伺服器上，而伺服器上的連結也會同步為此瀏覽器中該資料夾的書籤。"
   },
   "LabelRootfolder": {
     "message": "根資料夾"
+  },
+  "LabelNewfolder": {
+    "message": "新建文件夾"
+  },
+  "LabelSelectfolder": {
+    "message": "選擇資料夾"
   },
   "LabelOptions": {
     "message": "選項"
@@ -125,8 +200,11 @@
   "LabelCancelsync": {
     "message": "取消同步"
   },
-  "LabelEnabled": {
-    "message": "已啓用"
+  "LabelSyncall": {
+    "message": "同步所有設定檔"
+  },
+  "LabelAutosync": {
+    "message": "基於變更的同步方式"
   },
   "StatusLastsynced": {
     "message": "上次同步：{0} 之前"
@@ -146,6 +224,9 @@
   "StatusSyncing": {
     "message": "同步中"
   },
+  "StatusScheduled": {
+    "message": "已排程"
+  },
   "LabelReset": {
     "message": "重設"
   },
@@ -159,16 +240,19 @@
     "message": "選擇一個已存在的資料夾以進行同步"
   },
   "LabelRemoveaccount": {
-    "message": "移除帳號"
+    "message": "移除設定檔"
   },
   "DescriptionRemoveaccount": {
-    "message": "刪除此帳號（這將不會刪除您的書籤）"
+    "message": "刪除此設定檔（這不會刪除你的書籤）"
   },
-  "LabelResetCache": {
+  "LabelSyncfromscratch": {
     "message": "從頭開始同步"
   },
+  "LabelResetCache": {
+    "message": "重置緩存"
+  },
   "DescriptionResetcache": {
-    "message": "勾選此框以重設快取，以確保下一次同步不會刪除任何數據，只將伺服器和本地的書籤合併在一起"
+    "message": "點擊此按鈕以重設快取，確保下一次同步執行時不會刪除任何資料，而只會合併伺服器與本機的書籤。"
   },
   "LabelParallelsync": {
     "message": "加速同步速度"
@@ -183,13 +267,13 @@
     "message": "此選項將決定如何將伺服器上的書籤樹與此瀏覽器中的書籤樹同步。通常您會想合併兩個樹的更改（如果它們兼容的話），但有時您可能會想以本地版本強制覆蓋伺服器上的版本，反之依然。"
   },
   "LabelStrategydefault": {
-    "message": "合併本地和遠端更改（推薦）"
+    "message": "始終將本地更改與其他瀏覽器的更改合併（推薦）"
   },
   "LabelStrategyslave": {
-    "message": "始終覆蓋並還原本地更改"
+    "message": "始終撤消本地更改並從其他瀏覽器下載更改"
   },
   "LabelStrategyoverwrite": {
-    "message": "始終覆蓋和還原遠端修改"
+    "message": "始終上傳本地更改並撤消其他瀏覽器的更改"
   },
   "LabelSave": {
     "message": "保存"
@@ -197,29 +281,38 @@
   "LabelCancel": {
     "message": "取消"
   },
+  "LabelAdd": {
+    "message": "新增"
+  },
+  "LabelChange": {
+    "message": "變更"
+  },
+  "LabelRemove": {
+    "message": "移除"
+  },
+  "LabelBack": {
+    "message": "返回"
+  },
   "LabelAdapternextcloudfolders": {
     "message": "Nextcloud 書籤"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "“Nextcloud 書籤” 選項需要書籤應用程式的版本爲 v0.14 以上。"
+    "message": "將你的書籤與 Nextcloud 的開源書籤應用程式同步（Nextcloud 是一個開源協作平台，你可以自行架設，或從雲端服務供應商那裡申請帳號使用）。使用 Nextcloud Bookmarks 時，只能同步 http、ftp 與 javascript 類型的書籤。請確認你已在 Nextcloud 應用程式商店中安裝 Bookmarks 應用程式。此選項無法使用端對端加密。"
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud 書籤（舊版）"
   },
   "DescriptionAdapternextcloud": {
-    "message": "\"舊版\" 選項相容於書籤應用程式 v0.11 以上的版本，這將使用包含資料夾的標籤來模擬資料夾。對於新帳號，不建議使用此選項。"
+    "message": "舊版選項與 Bookmarks 應用程式至少 v0.11 版本相容。此模式會使用包含資料夾路徑的標籤來模擬資料夾。不建議在新設定檔中使用。"
   },
   "LabelAdapterwebdav": {
-    "message": "WebDAV 共享中的 XBEL 檔案"
+    "message": "WebDAV 共用"
   },
   "DescriptionAdapterwebdav": {
-    "message": "WebDAV 選項通過將書籤儲存在提供的 WebDAV 共享中的XBEL 檔案中來同步書籤。此選項沒有隨附的 Web UI，您可以將其與任何 WebDAV 相容的伺服器一起使用。"
+    "message": "透過將書籤儲存在指定的 WebDAV 共用中的檔案內來進行同步。此選項沒有對應的網頁介面，你可以搭配任何支援 WebDAV 的伺服器使用，無論是自架或雲端服務皆可。可同步 http、ftp、data、file 與 javascript 類型的書籤。使用此選項時，你可以選擇啟用端對端加密。"
   },
   "LabelAddaccount": {
-    "message": "添加帳號"
-  },
-  "LabelSecurecredentials": {
-    "message": "保護您的憑據"
+    "message": "新增設定檔"
   },
   "LabelOpenintab": {
     "message": "在標籤頁中打開"
@@ -228,7 +321,7 @@
     "message": "除錯日誌"
   },
   "LabelFunddevelopment": {
-    "message": "贊助開發"
+    "message": "💸 支持開發"
   },
   "DescriptionFunddevelopment": {
     "message": "實踐並反饋給 floccus 的創作者以在財務上支持此計畫的創建及維護。不論多小的金額都十分歡迎，Thank you 💙"
@@ -239,11 +332,8 @@
   "LabelUntitledfolder": {
     "message": "無標題資料夾"
   },
-  "LabelSetkey": {
-    "message": "爲 floccus 設定密碼"
-  },
-  "DescriptionSetkey": {
-    "message": "如果您設定了密碼，您每次重啓瀏覽器後都需要輸入密碼才能存取和同步您的書籤。"
+  "LabelSetkeybutton": {
+    "message": "設置密碼"
   },
   "LabelKey": {
     "message": "輸入解鎖密碼"
@@ -253,6 +343,12 @@
   },
   "LabelUnlock": {
     "message": "解鎖 floccus"
+  },
+  "LabelRemovekey": {
+    "message": "刪除密碼"
+  },
+  "LabelRemovedkey": {
+    "message": "密碼已刪除"
   },
   "LabelSyncinterval": {
     "message": "同步間隔"
@@ -265,13 +361,13 @@
   },
   "LabelOptionsscreen": {
     "message": "{0} 選項",
-    "description": "Title of the options screen. The placeholder holds the account type."
+    "description": "Title of the options screen. The placeholder holds the profile type."
   },
   "LabelPaypal": {
     "message": "Paypal"
   },
   "DescriptionPaypal": {
-    "message": "以 Paypal 的一次性捐款支持這個計畫"
+    "message": "透過 PayPal 單次或定期捐款以支持本專案"
   },
   "LabelOpencollective": {
     "message": "OpenCollective"
@@ -290,5 +386,524 @@
   },
   "DescriptionGithubsponsors": {
     "message": "以 GitHub sponsors 的定期捐款支持這個計畫"
+  },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "透過 Patreon 定期捐款以支持本專案"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "透過 Ko-fi 單次或定期捐款以支持本專案"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "此舊版設定檔類型已被棄用，並將於不久後移除。請改用新的 Nextcloud 同步方式，以獲得更佳的效能與準確性。"
+  },
+  "LabelUpdated": {
+    "message": "⚡ Floccus 已更新"
+  },
+  "DescriptionUpdated": {
+    "message": "恭喜，最新的 floccus 更新已抵達您的機器！"
+  },
+  "LabelReleaseNotes": {
+    "message": "閱讀發行說明"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "服務器詳情"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "資料夾對應"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "同步行為"
+  },
+  "LabelOptionsDangerous": {
+    "message": "危險動作"
+  },
+  "LabelAccountDeleted": {
+    "message": "設定檔已刪除"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "此設定檔已被刪除"
+  },
+  "LabelNoAccount": {
+    "message": "尚無設定檔"
+  },
+  "DescriptionNoAccount": {
+    "message": "新增設定檔或從檔案匯入設定檔後即可開始同步。"
+  },
+  "LabelLoginFlowStart": {
+    "message": "使用 Nextcloud 登錄"
+  },
+  "LabelLoginFlowStop": {
+    "message": "中止 Nextcloud 登錄"
+  },
+  "LabelLoginFlowError": {
+    "message": "Nextcloud 登錄失敗"
+  },
+  "LabelNewAccount": {
+    "message": "新增設定檔"
+  },
+  "LabelNewImport": {
+    "message": "匯入"
+  },
+  "LabelNestedSync": {
+    "message": "巢狀設定檔"
+  },
+  "DescriptionNestedSync": {
+    "message": "你可以建立巢狀設定檔，讓父資料夾屬於設定檔 A，而子資料夾同時屬於設定檔 A 與 B。是否允許其他設定檔也同步此設定檔的資料夾？"
+  },
+  "LabelNestedSyncNo": {
+    "message": "否，在其他設定檔中忽略此設定檔的資料夾"
+  },
+  "LabelNestedSyncYes": {
+    "message": "是，讓其他設定檔也包含此設定檔的資料夾"
+  },
+  "LabelImportExport": {
+    "message": "匯出/匯入"
+  },
+  "LabelExport": {
+    "message": "匯出設定檔"
+  },
+  "LabelImport": {
+    "message": "匯入設定檔"
+  },
+  "DescriptionExport": {
+    "message": "請在下方選擇要匯出至檔案的設定檔，以便在其他裝置或瀏覽器上輕鬆重新建立相同的設定檔。"
+  },
+  "DescriptionImport": {
+    "message": "在此匯入包含已匯出設定檔的檔案，以重新建立在其他裝置或瀏覽器上匯出的設定檔。匯入後請務必重新設定正確的同步資料夾。"
+  },
+  "LabelFolderNotFound": {
+    "message": "找不到文件夾"
+  },
+  "LabelSyncTabs": {
+    "message": "瀏覽器分頁"
+  },
+  "DescriptionSyncTabs": {
+    "message": "儲存在伺服器上的連結將會在你的瀏覽器中開啟為分頁，而目前開啟的瀏覽器分頁則會作為連結儲存在伺服器上。請注意，若伺服器上儲存的連結過多，下一次同步時這些連結都會開啟為分頁，可能會使瀏覽器負擔過重。"
+  },
+  "LabelTabs": {
+    "message": "分頁"
+  },
+  "LabelSyncDown": {
+    "message": "下拉更新"
+  },
+  "DescriptionSyncDown": {
+    "message": "從其他瀏覽器下載變更並覆蓋本機變更"
+  },
+  "LabelSyncUp": {
+    "message": "推送"
+  },
+  "DescriptionSyncUp": {
+    "message": "推送本機變更並覆蓋其他瀏覽器的變更"
+  },
+  "LabelSyncDownOnce": {
+    "message": "僅拉取一次"
+  },
+  "LabelSyncUpOnce": {
+    "message": "僅推送一次"
+  },
+  "LabelSyncNormal": {
+    "message": "合併"
+  },
+  "DescriptionSyncNormal": {
+    "message": "將本機變更與其他瀏覽器的變更合併"
+  },
+  "DescriptionFilesPermission": {
+    "message": "請確保你已授予 floccus 不僅可使用書籤應用程式，也可使用 Nextcloud 檔案應用程式的權限。"
+  },
+  "DescriptionExtension": {
+    "message": "在不同瀏覽器與裝置間私密同步你的書籤"
+  },
+  "LabelFailsafe": {
+    "message": "安全防護機制"
+  },
+  "DescriptionFailsafe": {
+    "message": "有時候設定錯誤或軟體漏洞可能導致資料被誤刪而遺失，或誤重複而難以整理。為防止此情況發生，floccus 會限制單次同步時刪除不超過 20% 的書籤，也不會在單次同步時新增超過 20% 的書籤數量，除非你在此停用這項安全防護。"
+  },
+  "LabelFailsafeon": {
+    "message": "已啟用。未經你的確認，將不會刪除或新增超過 20% 的本機書籤。（建議使用）"
+  },
+  "LabelFailsafeoff": {
+    "message": "已停用。允許在未經確認的情況下刪除或新增超過 20% 的本機書籤。"
+  },
+  "StatusFailsafeoff": {
+    "message": "安全防護已停用。你可能面臨資料遺失或重複的風險。建議在設定檔中啟用安全防護。"
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google Drive"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "透過儲存在 Google Drive 中的檔案（可選擇加密）來同步書籤。可同步 http、ftp、data、file 與 javascript 類型的書籤。使用此選項時可選擇啟用端對端加密。"
+  },
+  "LabelLogingoogle": {
+    "message": "使用 Google 登入"
+  },
+  "DescriptionLogingoogle": {
+    "message": "連結你的 Google 帳號以將書籤同步檔儲存在 Google Drive 中。"
+  },
+  "DescriptionLoggedingoogle": {
+    "message": "你已成功連結 Google 帳號，書籤同步檔將儲存在你的 Google Drive 中。"
+  },
+  "LabelPassphrase": {
+    "message": "加密密語"
+  },
+  "DescriptionPassphrase": {
+    "message": "設定加密書籤檔案的密語，若未設定密語，則不會執行加密。"
+  },
+  "LabelClientcert": {
+    "message": "傳送用戶端認證資訊"
+  },
+  "DescriptionClientcert": {
+    "message": "若你的伺服器需要用戶端憑證或 Cookie 驗證，請啟用此選項。啟用後 floccus 會與你的正常瀏覽器工作階段共用 Cookie，可能導致非預期的副作用。"
+  },
+  "LabelAllowredirects": {
+    "message": "允許伺服器 URL 重新導向"
+  },
+  "DescriptionAllowredirects": {
+    "message": "若你在同步過程中遇到重導向錯誤，且確定該錯誤並非正常情況，請啟用此選項。"
+  },
+  "LabelSearch": {
+    "message": "搜尋書籤"
+  },
+  "LabelSearchfolder": {
+    "message": "搜尋 {0}"
+  },
+  "LabelEdititem": {
+    "message": "編輯"
+  },
+  "LabelDeleteitem": {
+    "message": "刪除"
+  },
+  "DescriptionReallydeleteitem": {
+    "message": "你確定要刪除此項目嗎？"
+  },
+  "LabelNobookmarks": {
+    "message": "這裡沒有書籤"
+  },
+  "LabelAddbookmark": {
+    "message": "新增書籤"
+  },
+  "LabelEditbookmark": {
+    "message": "編輯書籤"
+  },
+  "LabelAddfolder": {
+    "message": "新增資料夾"
+  },
+  "LabelEditfolder": {
+    "message": "編輯資料夾"
+  },
+  "LabelSlugline": {
+    "message": "私人書籤同步"
+  },
+  "LabelDownloadlogs": {
+    "message": "下載記錄"
+  },
+  "LabelDownloadfulllogs": {
+    "message": "完整記錄"
+  },
+  "LabelDownloadanonymizedlogs": {
+    "message": "隱私版記錄"
+  },
+  "DescriptionDownloadlogs": {
+    "message": "Floccus 會將所有操作記錄在一個日誌檔中，你可以自行檢視，或在除錯時提供給開發者使用。在「隱私版記錄」中，資料夾名稱、書籤名稱與網址會以加密雜湊函式不可逆地編碼。當你傳送隱私版記錄時，請務必檢查下載的檔案，確保沒有遺漏任何尚未被匿名化的敏感資料。"
+  },
+  "ErrorFolderloopselected": {
+    "message": "無法將資料夾移動到自身之內"
+  },
+  "ErrorNofolderselected": {
+    "message": "未選擇資料夾"
+  },
+  "LabelAllownetwork": {
+    "message": "允許網路使用"
+  },
+  "DescriptionAllownetwork": {
+    "message": "Floccus 除了連線到同步伺服器外，還可使用網路以取得關於書籤的額外資訊（例如圖示等）。你可以在此啟用該網路使用權限。"
+  },
+  "LabelMobilesettings": {
+    "message": "行動裝置設定"
+  },
+  "LabelContinuefloccus":{
+    "message": "繼續前往 floccus"
+  },
+  "LabelAbout":{
+    "message": "關於"
+  },
+  "LabelCurrentversion": {
+    "message": "目前版本"
+  },
+  "DescriptionCurrentversion": {
+    "message": "你目前安裝的 floccus 版本為："
+  },
+  "LabelContributors": {
+    "message": "貢獻者"
+  },
+  "DescriptionContributors": {
+    "message": "以下這些人協助讓 floccus 成為可能"
+  },
+  "LabelSortcustom": {
+    "message": "自訂"
+  },
+  "LabelSorturl": {
+    "message": "連結"
+  },
+  "LabelSorttitle": {
+    "message": "標題"
+  },
+  "LabelSyncmethod": {
+    "message": "同步方式"
+  },
+  "LabelSyncserver": {
+    "message": "同步伺服器"
+  },
+  "LabelSyncfolders": {
+    "message": "同步資料夾"
+  },
+  "LabelSyncbehavior": {
+    "message": "同步行為"
+  },
+  "LabelContinue": {
+    "message": "繼續"
+  },
+  "LabelDone": {
+    "message": "完成"
+  },
+  "LabelConnect": {
+    "message": "連線"
+  },
+  "LabelServersetup": {
+    "message": "你想要同步到哪個伺服器？"
+  },
+  "LabelGoogledrivesetup": {
+    "message": "登入 Google Drive"
+  },
+  "LabelSyncfoldersetup": {
+    "message": "你想要同步哪些資料夾？"
+  },
+  "LabelSyncbehaviorsetup": {
+    "message": "你希望同步的運作方式是什麼？"
+  },
+  "LabelAccountcreated": {
+    "message": "設定檔已建立"
+  },
+  "DescriptionAccountcreated": {
+    "message": "你的設定檔已建立。現在可以關閉此分頁。還有一件事要提醒：同步不是備份，請務必定期備份你的書籤。"
+  },
+  "DescriptionNonhttps": {
+    "message": "你輸入的伺服器使用了不安全的通訊協定。建議僅使用支援 HTTPS 的伺服器。"
+  },
+  "LabelFiletype": {
+    "message": "檔案格式"
+  },
+  "DescriptionFiletype": {
+    "message": "你可以選擇要使用哪種檔案格式將書籤儲存在雲端中。"
+  },
+  "LabelFiletypehtml": {
+    "message": "HTML，一種被廣泛支援的開放格式（實驗性）"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL，一種簡單且開放的格式"
+  },
+  "LabelImportbookmarks": {
+    "message": "匯入書籤"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "將包含書籤的 HTML 檔案匯入至目前資料夾"
+  },
+  "LabelExportBookmarks": {
+    "message": "匯出書籤"
+  },
+  "DescriptionExportBookmarks" : {
+    "message": "你可以將此設定檔中的所有書籤匯出為相容於所有主流瀏覽器的 HTML 檔案。"
+  },
+  "LabelShareitem": {
+    "message": "分享"
+  },
+  "LabelImportsuccessful": {
+    "message": "成功匯入設定檔"
+  },
+  "DescriptionSyncinprogress": {
+    "message": "同步進行中。"
+  },
+  "DescriptionSyncscheduled": {
+    "message": "此設定檔即將開始同步。我們正在等待你其他裝置或此裝置上其他設定檔的同步完成。"
+  },
+  "LabelAdaptergit": {
+    "message": "透過 HTTPS 的 Git"
+  },
+  "DescriptionAdaptergit": {
+    "message": "Git 選項會將你的書籤儲存在指定的 Git 儲存庫檔案中以進行同步。此選項沒有對應的網頁介面，但可搭配任何 Git 代管伺服器使用，如 Github、Gitlab、Gitea 等。可同步 http、ftp、data、file 與 javascript 類型的書籤。使用此選項時無法啟用端對端加密。此選項目前不支援行動裝置版應用程式。"
+  },
+  "LabelGiturl": {
+    "message": "使用 HTTP 的儲存庫網址"
+  },
+  "LabelGitbranch": {
+    "message": "Git 分支"
+  },
+  "LabelTelemetry": {
+    "message": "自動錯誤回報"
+  },
+  "DescriptionTelemetry": {
+    "message": "Floccus 可自動將錯誤資料傳送給我（開發者）。這對於更快發現與修正錯誤非常有幫助，也能在長期上改善你使用 floccus 的體驗。即使啟用了錯誤回報，floccus 開發者也無法看到你的書籤內容。"
+  },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "新功能：若啟用此選項，除了錯誤資訊外，floccus 現在也會傳送你使用的同步方式資訊。這有助於我們改進 floccus，並確保各種同步方式如預期運作。"
+  },
+  "LabelTelemetryenable": {
+    "message": "自動將錯誤資料與使用的同步方式資訊傳送給 floccus 開發者"
+  },
+  "LabelTelemetrydisable": {
+    "message": "不要將任何資料傳送給 floccus 開發者"
+  },
+  "LabelAccountlabel": {
+    "message": "設定檔標籤"
+  },
+  "DescriptionAccountlabel": {
+    "message": "請為此設定檔命名，以便更容易辨識"
+  },
+  "LabelClickcount": {
+    "message": "統計點擊次數"
+  },
+  "DescriptionClickcount": {
+    "message": "將你最常造訪的書籤統計資料傳送到你的 Nextcloud 伺服器，以便依點擊次數排序"
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "在 Google Play 撰寫評論"
+  },
+  "DescriptionAppstorereview": {
+    "message": "在 App Store 撰寫評論"
+  },
+  "DescriptionChromereview": {
+    "message": "在 Chrome WebStore 撰寫評論"
+  },
+  "DescriptionAlternativereview": {
+    "message": "在 AlternativeTo.net 撰寫評論"
+  },
+  "DescriptionMozillareview": {
+    "message": "在 Mozilla Addons 撰寫評論"
+  },
+  "DescriptionEdgereview": {
+    "message": "在 Edge Addons 撰寫評論"
+  },
+  "LabelWritereview": {
+    "message": "💙 分享愛！"
+  },
+  "DescriptionWritereview": {
+    "message": "如果你喜歡 floccus，請在以下平台留下評價，讓更多人知道這個專案。"
+  },
+  "DescriptionDonateintervention": {
+    "message": "喜歡書籤同步嗎？支持我吧！"
+  },
+  "LabelDonate": {
+    "message": "捐款"
+  },
+  "DescriptionDisabledaftererror": {
+    "message": "在停用此設定檔前已重試 10 次"
+  },
+  "DescriptionBookmarkexists": {
+    "message": "此書籤已存在於選取的設定檔中"
+  },
+  "LabelReportproblem": {
+    "message": "回報問題"
+  },
+  "DescriptionReportproblem": {
+    "message": "若你想直接向開發者反映具體問題，可以在此進行："
+  },
+  "LabelAdapterKarakeep":  {
+    "message": "Karakeep"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "將你的書籤與開源自架的 Karakeep 應用程式同步。此選項無法使用端對端加密，且不支援跨同步保持書籤順序。"
+  },
+  "LabelApiKey":  {
+    "message": "API 金鑰"
+  },
+  "LabelKarakeepurl":  {
+    "message": "你的 Karakeep 伺服器網址"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "無法連線至你的 Karakeep 伺服器"
+  },
+  "LabelAdapterlinkwarden":  {
+    "message": "Linkwarden"
+  },
+  "DescriptionAdapterlinkwarden":  {
+    "message": "將你的書籤與開源的 Linkwarden 應用程式同步，可選擇自架或使用雲端服務（cloud.linkwarden.app）。僅支援同步 http、ftp 與 javascript 書籤。此選項無法使用端對端加密，且不支援跨同步保持書籤順序。"
+  },
+  "LabelLinkwardenurl":  {
+    "message": "你的 Linkwarden 伺服器網址"
+  },
+  "LabelAccesstoken":  {
+    "message": "存取權杖"
+  },
+  "LabelLinkwardenconnectionerror": {
+    "message": "無法連線至你的 Linkwarden 伺服器"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "來自其他資料夾的結果"
+  },
+  "LabelScheduledforcesync": {
+    "message": "強制同步"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "你確定要強制同步嗎？同時在兩個裝置上進行同步可能導致不可預期的後果，包括資料損毀。請在確認前確保目前沒有其他裝置正在同步。"
+  },
+  "DescriptionAutosync": {
+    "message": "啟用基於變更的同步後，將在每次你在本機進行變更時自動執行同步。"
+  },
+  "LabelOpeninnewtab": {
+    "message": "在新分頁中開啟此檢視畫面"
+  },
+  "LabelGivefeedback": {
+    "message": "提供回饋"
+  },
+  "LabelYourname": {
+    "message": "你的名字"
+  },
+  "LabelYouremail": {
+    "message": "你的電子郵件（選填）"
+  },
+  "LabelYourmessage": {
+    "message": "你的回饋訊息"
+  },
+  "LabelSubmitfeedback": {
+    "message": "送出回饋"
+  },
+  "DescriptionFeedbacklegal": {
+    "message": "此回饋表單由 Sentry 提供服務。按下送出即表示你同意將輸入的資料儲存在 Sentry 的伺服器上。你的書籤資料不會被傳送至 Sentry。"
+  },
+  "DescriptionFeedbackhowto": {
+    "message": "感謝你撥空向 floccus 開發者提供回饋！若你的回饋與問題相關，請務必說明你執行的步驟、預期結果以及實際發生的情況。若你的回饋是功能建議，請描述該功能能解決的使用情境或問題。若你留下電子郵件，我們可能會與你聯絡。謝謝！"
+  },
+  "LabelFeedbacksent": {
+    "message": "感謝你的回饋！"
+  },
+  "LabelFaq":{
+    "message": "查看常見問題（FAQ）"
+  },
+  "StatusSyncingfailed": {
+    "message": "同步失敗"
+  },
+  "StatusSyncingcomplete": {
+    "message": "同步完成"
+  },
+  "NotificationSyncingprofile": {
+    "message": "正在同步設定檔 {0}"
+  },
+  "NotificationSyncingsucceeded": {
+    "message": "設定檔 {0} 同步成功"
+  },
+  "NotificationSyncingfailed": {
+    "message": "設定檔 {0} 同步失敗"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "基於時間的同步"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "啟用基於時間的同步後，將自動每隔幾分鐘排程執行此設定檔的同步。"
   }
 }
