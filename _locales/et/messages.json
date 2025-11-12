@@ -131,6 +131,9 @@
   "Error044": {
     "message": "E044: Git push operatsioon ebaõnnestus: {0}"
   },
+  "Error045": {
+    "message": "E045: Kausta ootamatu asukoht. Selle profiili kohalik sünkroonimiskaust oli asukohas `{0}`, aga nüüd on uues kohas `{1}`. Palun kontrolli, kas see nii peabki olema ja seadista profiili seadistustest kohalik sünkroonimiskaust uuesti."
+  },
   "LabelWebdavurl": {
     "message": "WebDAVi võrguaadress"
   },
@@ -278,6 +281,9 @@
   "LabelSave": {
     "message": "Salvesta"
   },
+  "LabelSelect": {
+    "message": "Valige"
+  },
   "LabelCancel": {
     "message": "Tühista"
   },
@@ -325,9 +331,6 @@
   },
   "DescriptionFunddevelopment": {
     "message": "Töö floccuse kallal toimub vabatahtliku tellimusmudeli alusel. Kui te arvate, et see, mida ma teen, on seda väärt ja kui te suudate iga kuu ilma raskusteta paar münti säästa, siis palun toetage minu tööd. Palun kaaluge ka floccuse hindamist oma valitud addonipoes. Aitäh! 💙"
-  },
-  "LabelSelect": {
-    "message": "Valige"
   },
   "LabelUntitledfolder": {
     "message": "Untitled folder (pealkirjata kaust)"
