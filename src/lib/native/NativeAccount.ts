@@ -10,7 +10,7 @@ import {
   HttpError,
   InconsistentBookmarksExistenceError, LockFileError,
   MissingItemOrderError,
-  ParseResponseError,
+  ParseResponseError, UnexpectedFolderPathError,
   UnknownFolderItemOrderError, UpdateBookmarkError
 } from '../../errors/Error'
 import Logger from '../Logger'
@@ -99,6 +99,9 @@ export default class NativeAccount extends Account {
     }
     if (er instanceof GitPushError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.errorMessage])
+    }
+    if (er instanceof UnexpectedFolderPathError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.originalPath, er.newPath])
     }
     if (er instanceof FloccusError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))

@@ -10,7 +10,7 @@ import {
   HttpError,
   InconsistentBookmarksExistenceError, LockFileError,
   MissingItemOrderError,
-  ParseResponseError,
+  ParseResponseError, UnexpectedFolderPathError,
   UnknownFolderItemOrderError, UpdateBookmarkError
 } from '../../errors/Error'
 import {i18n} from '../native/I18n'
@@ -53,6 +53,7 @@ export default class BrowserAccount extends Account {
       accData.rootPath = await BrowserTree.getPathFromLocalId(node.id)
       await this.setData(accData)
     }
+    await this.setData({rootPath: await BrowserTree.getPathFromLocalId(accData.localRoot)})
     await this.storage.initMappings()
     await this.storage.initCache()
     this.localTree = new BrowserTree(this.storage, accData.localRoot)
@@ -121,6 +122,9 @@ export default class BrowserAccount extends Account {
     }
     if (er instanceof GitPushError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.errorMessage])
+    }
+    if (er instanceof UnexpectedFolderPathError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.originalPath, er.newPath])
     }
     if (er instanceof FloccusError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))

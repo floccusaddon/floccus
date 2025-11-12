@@ -74,6 +74,9 @@ export const actionsDefinition = {
     if (oldData.localRoot !== data.localRoot) {
       await account.init()
     }
+    if (data.rootPath !== await BrowserTree.getPathFromLocalId(data.localRoot)) {
+      await account.init()
+    }
     if (oldData.bookmark_file !== data.bookmark_file) {
       await account.init()
     }

@@ -131,6 +131,9 @@
   "Error044": {
     "message": "E044: Git push operation failed: {0}"
   },
+  "Error045": {
+    "message": "E045: Unexpected folder path. The local sync folder for this profile used to be at `{0}` but is now at `{1}`. Please make sure this is intended and set the local sync folder again in the profile settings."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -328,9 +331,6 @@
   },
   "DescriptionFunddevelopment": {
     "message": "Work on floccus is fuelled by a voluntary subscription model. If you think what I do is worthwhile, and if you can spare a few coins each month without hardship, please support my work. Also, please consider giving floccus a rating on the addon store of your choice. Thank you!💙"
-  },
-  "LabelSelect": {
-    "message": "Select"
   },
   "LabelUntitledfolder": {
     "message": "Untitled folder"

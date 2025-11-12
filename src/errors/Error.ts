@@ -380,3 +380,16 @@ export class GitPushError extends FloccusError {
     Object.setPrototypeOf(this, GitPushError.prototype)
   }
 }
+
+export class UnexpectedFolderPathError extends FloccusError {
+  public originalPath: string
+  public newPath: string
+
+  constructor(originalPath: string, newPath: string) {
+    super(`E045: Unexpected folder path. The local sync folder for this profile used to be at '${originalPath}' but is now at '${newPath}'. Please make sure this is intended and set the local sync folder again in the profile settings.`)
+    this.code = 45
+    this.originalPath = originalPath
+    this.newPath = newPath
+    Object.setPrototypeOf(this, UnexpectedFolderPathError.prototype)
+  }
+}
