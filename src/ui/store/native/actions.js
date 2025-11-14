@@ -149,8 +149,12 @@ export const actionsDefinition = {
     return account.id
   },
   async [actions.IMPORT_ACCOUNTS]({commit, dispatch, state}, accounts) {
-    await Account.import(accounts)
+    const filteredAccounts = accounts.filter(account => account.type !== 'google-drive')
+    await Account.import(filteredAccounts)
     await dispatch(actions.LOAD_ACCOUNTS)
+    if (filteredAccounts.length !== accounts.length) {
+      throw new Error('Cannot import Google Drive profiles on mobile. Please create the profile(s) manually.')
+    }
   },
   async [actions.EXPORT_ACCOUNTS]({commit, dispatch, state}, accountIds) {
     const data = await Account.export(accountIds)
