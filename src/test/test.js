@@ -2826,7 +2826,7 @@ describe('Floccus', function() {
           })
           it('should sync root folder successfully', async function() {
             const [root] = await browser.bookmarks.getTree()
-            await account.setData({ localRoot: root.id })
+            await account.setData({ localRoot: root.id, rootPath: '' })
             account = await Account.get(account.id)
 
             const barFolder = await browser.bookmarks.create({
@@ -2870,7 +2870,7 @@ describe('Floccus', function() {
             )
 
             const originalFolderId = account.getData().localRoot
-            await account.setData({ localRoot: root.id, })
+            await account.setData({ localRoot: root.id, rootPath: ''})
             account = await Account.get(account.id)
             const adapter = account.server
 
@@ -3492,7 +3492,7 @@ describe('Floccus', function() {
               )
 
               const originalFolderId = account.getData().localRoot
-              await account.setData({ localRoot: root.id, })
+              await account.setData({ localRoot: root.id, rootPath: ''})
               account = await Account.get(account.id)
               const adapter = account.server
 
@@ -5524,7 +5524,7 @@ describe('Floccus', function() {
               })
             }
             await account.init()
-            await account.setData({ localRoot: 'tabs'})
+            await account.setData({ localRoot: 'tabs', rootPath: 'Tabs'})
             if (ACCOUNT_DATA.noCache) {
               account.storage.setCache = () => {
                 // noop
@@ -5914,7 +5914,7 @@ describe('Floccus', function() {
               })
             }
             await account.init()
-            await account.setData({ localRoot: 'tabs'})
+            await account.setData({ localRoot: 'tabs', rootPath: 'Tabs'})
             if (ACCOUNT_DATA.noCache) {
               account.storage.setCache = () => {
                 // noop
