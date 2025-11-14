@@ -57,7 +57,7 @@
     "message": "E019: HTTP staatus {0}. Ebaõnnestunud {1} taotlus. Kontrollige oma serveri konfiguratsiooni ja logi."
   },
   "Error020": {
-    "message": "E020: Serveri vastust ei õnnestunud töödelda. Kas järjehoidjate rakendus on ikka serveris olemas?"
+    "message": "E020: Serveri vastuse töötlemine ei õnnestunud."
   },
   "Error021": {
     "message": "E021: Vastuoluline serveri olek. Kaust on olemas lapsjärjestuse nimekirjas, kuid mitte kaustapuus."
