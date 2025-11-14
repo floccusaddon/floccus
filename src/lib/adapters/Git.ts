@@ -15,6 +15,7 @@ import {
   SlashError
 } from '../../errors/Error'
 import Crypto from '../Crypto'
+import { Folder, TItemLocation } from '../Tree'
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
@@ -63,6 +64,13 @@ export default class GitAdapter extends CachingAdapter {
 
   cancel() {
     this.cancelCallback && this.cancelCallback()
+  }
+
+  async getBookmarksTree(): Promise<Folder<TItemLocation>> {
+    // setHashSettings is called after onSyncStart only but before getBookmarksTree
+    // thus we get the hash here again
+    this.initialTreeHash = await this.bookmarksCache.hash(this.hashSettings)
+    return super.getBookmarksTree()
   }
 
   async onSyncStart(needLock = true, forceLock = false) {

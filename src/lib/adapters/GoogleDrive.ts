@@ -12,6 +12,7 @@ import {
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
 import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
+import { Folder, TItemLocation } from '../Tree'
 
 const OAuthConfig = {
   authorizationBaseUrl: 'https://accounts.google.com/o/oauth2/auth',
@@ -195,6 +196,13 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       setTimeout(resolve, ms)
       this.cancelCallback = () => reject(new CancelledSyncError())
     })
+  }
+
+  async getBookmarksTree(): Promise<Folder<TItemLocation>> {
+    // setHashSettings is called after onSyncStart only but before getBookmarksTree
+    // thus we get the hash here again
+    this.initialTreeHash = await this.bookmarksCache.hash(this.hashSettings)
+    return super.getBookmarksTree()
   }
 
   async onSyncStart(needLock = true, forceLock = false) {

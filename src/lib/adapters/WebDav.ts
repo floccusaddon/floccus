@@ -15,6 +15,7 @@ import {
 import { CapacitorHttp as Http } from '@capacitor/core'
 import { Capacitor } from '@capacitor/core'
 import Html from '../serializers/Html'
+import { Folder, TItemLocation } from '../Tree'
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
@@ -282,6 +283,13 @@ export default class WebDavAdapter extends CachingAdapter {
     }
 
     return response
+  }
+
+  async getBookmarksTree(): Promise<Folder<TItemLocation>> {
+    // setHashSettings is called after onSyncStart only but before getBookmarksTree
+    // thus we get the hash here again
+    this.initialTreeHash = await this.bookmarksCache.hash(this.hashSettings)
+    return super.getBookmarksTree()
   }
 
   async onSyncStart(needLock = true, forceLock = false) {

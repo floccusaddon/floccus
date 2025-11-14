@@ -87,6 +87,8 @@ export class Bookmark<L extends TItemLocation> {
   async hash({preserveOrder = false, hashFn = 'sha256'}: IHashSettings = {preserveOrder: false, hashFn: 'sha256'}):Promise<string> {
     if (!this.hashValue) {
       this.hashValue = {}
+    }
+    if (typeof this.hashValue[hashFn] !== 'undefined') {
       const json = JSON.stringify({ title: this.title, url: this.url })
       if (hashFn === 'sha256') {
         this.hashValue[hashFn] = await Crypto.sha256(json)
