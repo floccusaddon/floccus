@@ -57,7 +57,7 @@
     "message": "E019: HTTP status {0}. Failed {1} request. Check your server configuration and log."
   },
   "Error020": {
-    "message": "E020: Could not parse server response. Is the bookmarks app installed on your server?"
+    "message": "E020: Could not parse server response."
   },
   "Error021": {
     "message": "E021: Inconsistent server state. Folder is present in childorder list but not in folder tree"

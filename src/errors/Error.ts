@@ -160,7 +160,7 @@ export class HttpError extends FloccusError {
 export class ParseResponseError extends FloccusError {
   public response: string
   constructor(response: string) {
-    super('E020: Could not parse server response. Is the bookmarks app installed on your server?')
+    super('E020: Could not parse server response.')
     this.code = 20
     this.response = response
     Object.setPrototypeOf(this, ParseResponseError.prototype)
