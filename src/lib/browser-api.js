@@ -20,16 +20,18 @@ const ChromePromise = (function(root) {
         var args = arguments
 
         return new Promise(function(resolve, reject) {
-          function callback() {
-            var err = runtime.lastError
-            if (err) {
-              reject(err)
-            } else {
-              resolve.apply(null, arguments)
+          const callback = (function() {
+            return function callback(runtime, resolve, reject, ...args) {
+              var err = runtime.lastError
+              if (err) {
+                reject(err)
+              } else {
+                resolve.apply(null, args)
+              }
             }
-          }
+          })()
 
-          push.call(args, callback)
+          push.call(args, callback.bind(null, runtime, resolve, reject))
 
           fn.apply(thisArg, args)
         })
