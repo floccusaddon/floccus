@@ -87,7 +87,7 @@ jobs:
       matrix:
         node-version: [20.x]
         npm-version: [10.x]
-        server-version: ['30']
+        server-version: ['32']
         app-version: ['stable']
         floccus-adapter:
           - fake
@@ -109,7 +109,7 @@ jobs:
           - chrome
         include:
           - app-version: master
-            server-version: 30
+            server-version: 32
             floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: firefox
@@ -123,14 +123,14 @@ jobs:
             node-version: 14.x
             npm-version: 7.x
           - app-version: stable
-            server-version: 28
+            server-version: 32
             floccus-adapter: fake-noCache
             test-name: test
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
           - app-version: master
-            server-version: 30
+            server-version: 32
             floccus-adapter: fake
             test-name: benchmark root
             browsers: firefox
