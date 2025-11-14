@@ -116,7 +116,7 @@ jobs:
             node-version: 14.x
             npm-version: 7.x
           - app-version: master
-            server-version: 30
+            server-version: 32
             floccus-adapter: nextcloud-bookmarks
             test-name: benchmark root
             browsers: firefox
