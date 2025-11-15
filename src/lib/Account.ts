@@ -14,7 +14,6 @@ import { isTest } from './isTest'
 import { setUser, setContext, withScope, captureException } from '@sentry/browser'
 import AsyncLock from 'async-lock'
 import CachingTreeWrapper from './CachingTreeWrapper'
-import BrowserTree from './browser/BrowserTree'
 import { UnexpectedFolderPathError } from '../errors/Error'
 
 declare const DEBUG: boolean
@@ -187,7 +186,7 @@ export default class Account {
       }
 
       if (Capacitor.getPlatform() === 'web') {
-        const newPath = await BrowserTree.getPathFromLocalId(this.getData().localRoot)
+        const newPath = await (await import('./browser/BrowserTree')).default.getPathFromLocalId(this.getData().localRoot)
         const oldPath = this.getData().rootPath
         if (oldPath && newPath !== oldPath) {
           throw new UnexpectedFolderPathError(oldPath, newPath)
