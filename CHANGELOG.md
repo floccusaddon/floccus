@@ -1,5 +1,23 @@
 # Changelog
 
+## [5.8.0] - 2025-11-16
+
+### New
+- enh: Remember last used account
+- enh(GoogleDrive): Add a HTTP request timeout
+- feat: Split interval based sync and change-based sync into two options
+
+### Fixed
+* [native] fix(NativeApp): Don't use css inset property
+* [native] fix: Refuse to import gdrive profiles, because it doesn't work anymore
+* fix(CachingAdapter): set initialTreeHash after getBookmarksTree
+* fix(browser-api): Do not carry context into each callback (Improves memory consumption)
+* fix: Remove confusing detail from E020 message Marcel Klehr 11/14/25, 9:33 AM
+* fix(Folder#inspect): Make hash visible again
+* Fix DialogChooseFolder2: keep header fixed, make treeview scrollable with dynamic max-height unknown
+* fix(SyncProcess): Catch throttledCb cancelled error
+* fix(Nextcloudbookmarks): Fix 404 error on capabilities endpoint
+
 ## [5.7.0] - 2025-08-24
 
 ### Summary
