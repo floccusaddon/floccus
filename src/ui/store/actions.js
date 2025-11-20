@@ -112,18 +112,20 @@ export const actionsDefinition = {
   async [actions.DOWNLOAD_LOGS]({ commit, dispatch, state }, anonymous) {
     await Logger.downloadLogs(anonymous)
   },
-  async [actions.TEST_WEBDAV_SERVER]({commit, dispatch, state}, {rootUrl, username, password}) {
+  async [actions.TEST_WEBDAV_SERVER]({commit, dispatch, state}, {rootUrl, username, password, customHeaders = {}}) {
     await dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
+    const headers = {
+      'User-Agent': 'Floccus bookmarks sync',
+      Depth: '0',
+      Authorization: 'Basic ' + Base64.encode(
+        username + ':' + password
+      ),
+      ...customHeaders
+    }
     let res = await fetch(`${rootUrl}`, {
       method: 'PROPFIND',
       credentials: 'omit',
-      headers: {
-        'User-Agent': 'Floccus bookmarks sync',
-        Depth: '0',
-        Authorization: 'Basic ' + Base64.encode(
-          username + ':' + password
-        )
-      }
+      headers: headers
     })
     if (res.status < 200 || res.status > 299) {
       throw new Error('Could not connect to your webdav server at the specified URL. The server responded with HTTP status ' + res.status + ' to a PROPFIND request with Basic Auth on the URL you entered.')

@@ -140,6 +140,12 @@
   "DescriptionWebdavurl": {
     "message": "e.g. with nextcloud: https://example.com/remote.php/webdav/"
   },
+  "LabelCustomHeaders": {
+    "message": "Custom Headers"
+  },
+  "DescriptionCustomHeaders": {
+    "message": "Optional: Add custom headers in key:value format, one per line. These will be added to all WebDAV requests."
+  },
   "LabelNextcloudurl": {
     "message": "Nextcloud URL"
   },

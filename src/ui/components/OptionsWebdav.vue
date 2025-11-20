@@ -23,6 +23,16 @@
           :rules="[validateUrl]"
           :label="t('LabelWebdavurl')"
           @input="$emit('update:url', $event)" />
+        <v-textarea
+          :value="customHeadersText"
+          class="mt-2"
+          :label="t('LabelCustomHeaders')"
+          :hint="t('DescriptionCustomHeaders')"
+          :persistent-hint="true"
+          rows="3"
+          auto-grow
+          placeholder="Authorization=Bearer token&#10;X-Custom-Header=value"
+          @input="onCustomHeadersInput" />
         <v-text-field
           :value="username"
           :label="t('LabelUsername')"
@@ -159,12 +169,29 @@ import OptionSyncIntervalEnabled from './OptionSyncIntervalEnabled.vue'
 export default {
   name: 'OptionsWebdav',
   components: { OptionSyncIntervalEnabled, OptionAutoSync, OptionExportBookmarks, OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync, OptionFileType, OptionPassphrase },
-  props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects', 'bookmark_file_type', 'enabled', 'label', 'syncIntervalEnabled'],
+  props: ['url', 'username', 'password','passphrase', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'allowRedirects', 'bookmark_file_type', 'enabled', 'label', 'syncIntervalEnabled', 'customHeaders'],
   data() {
     return {
       panels: [0, 1],
       showPassword: false,
       showPassphrase: false,
+    }
+  },
+  computed: {
+    customHeadersText: {
+      get() {
+        if (!this.customHeaders) return ''
+        if (typeof this.customHeaders === 'string') return this.customHeaders
+        if (typeof this.customHeaders === 'object') {
+          return Object.entries(this.customHeaders)
+            .map(([key, value]) => `${key}=${value}`)
+            .join('\n')
+        }
+        return ''
+      },
+      set(value) {
+        this.$emit('update:customHeaders', value)
+      }
     }
   },
   methods: {
@@ -179,6 +206,9 @@ export default {
     validateBookmarksFile(path) {
       return path[0] !== '/' && path[path.length - 1] !== '/'
     },
+    onCustomHeadersInput(value) {
+      this.customHeadersText = value
+    }
   }
 }
 </script>

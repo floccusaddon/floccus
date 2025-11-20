@@ -235,6 +235,15 @@
                 :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassphrase ? 'text' : 'password'"
                 @click:append="showPassphrase = !showPassphrase" />
+              <v-textarea
+                v-model="customHeaders"
+                class="mt-2"
+                :label="t('LabelCustomHeaders')"
+                :hint="t('DescriptionCustomHeaders')"
+                :persistent-hint="true"
+                rows="3"
+                auto-grow
+                placeholder="Authorization=Bearer token&#10;X-Custom-Header=value" />
             </v-form>
             <div class="form-buttons">
               <v-btn @click="currentStep--">
@@ -513,6 +522,7 @@ export default {
       showPassphrase: false,
       clickCountEnabled: false,
       label: '',
+      customHeaders: '',
       adapter: 'nextcloud-bookmarks',
       adapters: [
         {
@@ -585,6 +595,7 @@ export default {
         ...(this.adapter === 'google-drive' && {refreshToken: this.refreshToken}),
         ...(this.passphrase && {passphrase: this.passphrase}),
         ...(this.adapter === 'google-drive' && this.passphrase && {password: this.passphrase}),
+        ...(this.adapter === 'webdav' && this.customHeaders && {customHeaders: this.parseCustomHeaders()}),
         ...(this.isBrowser && {localRoot: this.localRoot}),
         syncInterval: this.syncInterval,
         strategy: this.strategy,
@@ -637,7 +648,14 @@ export default {
       this.isServerTestRunning = true
       this.serverTestError = ''
       try {
-        await this.$store.dispatch(actions.TEST_WEBDAV_SERVER, {rootUrl: this.server, username: this.username, password: this.password})
+        const customHeaders = this.parseCustomHeaders()
+        console.log('debug customerHeader:', customHeaders)
+        await this.$store.dispatch(actions.TEST_WEBDAV_SERVER, {
+          rootUrl: this.server,
+          username: this.username,
+          password: this.password,
+          customHeaders
+        })
         this.serverTestSuccessful = true
         this.currentStep++
       } catch (e) {
@@ -688,6 +706,23 @@ export default {
     },
     validateBookmarksFileGoogle(path) {
       return !path.includes('/')
+    },
+    parseCustomHeaders() {
+      const headers = {}
+      if (!this.customHeaders.trim()) return headers
+
+      const lines = this.customHeaders.split('\n')
+      lines.forEach(line => {
+        const trimmedLine = line.trim()
+        if (trimmedLine && trimmedLine.includes(':')) {
+          const [key, ...valueParts] = trimmedLine.split(':')
+          const value = valueParts.join(':').trim()
+          if (key.trim() && value) {
+            headers[key.trim()] = value
+          }
+        }
+      })
+      return headers
     },
     requestHistoryPermissions() {
       this.$store.dispatch(actions.REQUEST_HISTORY_PERMISSIONS)

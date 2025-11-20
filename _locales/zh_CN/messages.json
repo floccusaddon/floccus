@@ -137,6 +137,12 @@
   "DescriptionWebdavurl": {
     "message": "例如使用 NextCloud：https://your-domain.com/remote.php/webdav/"
   },
+    "LabelCustomHeaders": {
+    "message": "自定义header"
+  },
+  "DescriptionCustomHeaders": {
+    "message": "可选：添加自定义 header 键值对，类似key1:value1, 每行一个。这些 header 将被添加到所有 WebDAV 请求中。"
+  },
   "LabelNextcloudurl": {
     "message": "Nextcloud URL"
   },

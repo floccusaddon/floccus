@@ -48,6 +48,7 @@ export default class WebDavAdapter extends CachingAdapter {
       allowRedirects: false,
       passphrase: '',
       allowNetwork: false,
+      customHeaders: {},
     }
   }
 
@@ -166,7 +167,8 @@ export default class WebDavAdapter extends CachingAdapter {
             method: 'DELETE',
             credentials: 'omit',
             headers: {
-              Authorization: 'Basic ' + authString
+              Authorization: 'Basic ' + authString,
+              ...(this.server.customHeaders || {}),
             },
             signal: this.abortSignal,
             ...(!this.server.allowRedirects && {redirect: 'manual'}),
@@ -176,7 +178,8 @@ export default class WebDavAdapter extends CachingAdapter {
             url: fullUrl,
             method: 'DELETE',
             headers: {
-              Authorization: 'Basic ' + authString
+              Authorization: 'Basic ' + authString,
+              ...(this.server.customHeaders || {}),
             },
             webFetchExtra: {
               credentials: 'omit',
@@ -397,7 +400,8 @@ export default class WebDavAdapter extends CachingAdapter {
         method: 'PUT',
         headers: {
           'Content-Type': content_type,
-          Authorization: 'Basic ' + authString
+          Authorization: 'Basic ' + authString,
+          ...(this.server.customHeaders || {})
         },
         credentials: 'omit',
         signal: this.abortSignal,
@@ -432,7 +436,8 @@ export default class WebDavAdapter extends CachingAdapter {
         method: 'PUT',
         headers: {
           'Content-Type': content_type,
-          Authorization: 'Basic ' + authString
+          Authorization: 'Basic ' + authString,
+          ...(this.server.customHeaders || {})
         },
         data
       })
@@ -476,6 +481,7 @@ export default class WebDavAdapter extends CachingAdapter {
         headers: {
           Authorization: 'Basic ' + authString,
           Depth: '0',
+          ...(this.server.customHeaders || {}),
         },
         cache: 'no-store',
         credentials: 'omit',
@@ -517,7 +523,8 @@ export default class WebDavAdapter extends CachingAdapter {
           Authorization: 'Basic ' + authString,
           Depth: '0',
           Pragma: 'no-cache',
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache',
+          ...(this.server.customHeaders || {}),
         },
         responseType: 'text'
       })
@@ -548,7 +555,8 @@ export default class WebDavAdapter extends CachingAdapter {
       res = await fetch(url,{
         method: 'GET',
         headers: {
-          Authorization: 'Basic ' + authString
+          Authorization: 'Basic ' + authString,
+          ...(this.server.customHeaders || {})
         },
         cache: 'no-store',
         credentials: 'omit',
@@ -587,7 +595,8 @@ export default class WebDavAdapter extends CachingAdapter {
         headers: {
           Authorization: 'Basic ' + authString,
           Pragma: 'no-cache',
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache',
+          ...(this.server.customHeaders || {})
         },
         responseType: 'text'
       })
