@@ -9,6 +9,7 @@ import uniqBy from 'lodash/uniqBy'
 import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
 import { initSharp } from '../sentry'
+import { onWakeUp } from '../on-wake-up'
 
 const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
 const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
@@ -86,6 +87,14 @@ export default class BrowserController {
     this.setEnabled(true)
 
     Controller.singleton = this
+
+    if (self.constructor.name !== 'ServiceWorkerGlobalScope') {
+      // If we're running in a static background page
+      onWakeUp(() => {
+        // reload
+        window.location = window.location.toString()
+      })
+    }
 
     // set up change listener
     browser.bookmarks.onChanged.addListener((localId, details) =>
