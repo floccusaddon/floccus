@@ -153,7 +153,12 @@ export const actionsDefinition = {
     await Account.import(filteredAccounts)
     await dispatch(actions.LOAD_ACCOUNTS)
     if (filteredAccounts.length !== accounts.length) {
-      throw new Error('Cannot import Google Drive profiles on mobile. Please create the profile(s) manually.')
+      if (accounts.find(account => account.type === 'google-drive')) {
+        throw new Error('Cannot import Google Drive profiles on mobile. Please create the profile(s) manually.')
+      }
+      if (accounts.find(account => account.type === 'git')) {
+        throw new Error('Cannot import Git profiles on mobile. Git is not supported on mobile, yet.')
+      }
     }
   },
   async [actions.EXPORT_ACCOUNTS]({commit, dispatch, state}, accountIds) {
