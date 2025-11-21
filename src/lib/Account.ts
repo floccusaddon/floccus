@@ -382,6 +382,13 @@ export default class Account {
 
   async cancelSync():Promise<void> {
     if (!this.syncing) return
+    if (self.constructor.name !== 'ServiceWorkerGlobalScope') {
+      // If we're running in a static background page
+      // reload
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      window.location = window.location.toString()
+    }
     this.server.cancel()
     this.getResource().then(resource => resource.cancel())
     if (this.syncProcess) {
