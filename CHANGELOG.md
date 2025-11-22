@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.8.1] - 2025-11-22
+
+### Fixed
+
+* [native] fix: Don't allow import of git profiles
+* fix: Make cancelSync work more immediately on Firefox
+* fix: Don't get stuck on syncing in firefox
+
 ## [5.8.0] - 2025-11-16
 
 ### New
