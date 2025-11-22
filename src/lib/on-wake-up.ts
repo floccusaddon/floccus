@@ -1,4 +1,5 @@
 const CLOCK = 1000
+const TIMEOUT = 2 * 60 * 1000 // 2 mins
 
 export function onWakeUp(fn: () => void) {
   let then = Date.now()
@@ -11,7 +12,7 @@ export function onWakeUp(fn: () => void) {
 
   function tick() {
     const now = Date.now()
-    if (now - then > 2 * CLOCK) fn()
+    if (now - then > TIMEOUT) fn()
     then = now
   }
 }
