@@ -57,7 +57,7 @@
     "message": "E019：HTTP状态 {0}。 {1} 请求失败。检查您的服务器配置和日志。"
   },
   "Error020": {
-    "message": "E020：无法分析服务器响应。书签应用程序是否安装在您的服务器上？"
+    "message": "E020: 无法解析服务器响应。"
   },
   "Error021": {
     "message": "E021：服务器状态不一致。文件夹存在于子列表中，但不在文件夹树中"
@@ -130,6 +130,9 @@
   },
   "Error044": {
     "message": "E044: Git 推送操作失败: {0}"
+  },
+  "Error045": {
+    "message": "E045: 意料之外的文件夹路径。 此配置文件的本地同步文件夹之前是  `{0}` ，现在是 `{1}`。请确保这是预期行为，并在配置文件设置中再次设定本地同步文件夹。"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -278,6 +281,9 @@
   "LabelSave": {
     "message": "保存"
   },
+  "LabelSelect": {
+    "message": "选取"
+  },
   "LabelCancel": {
     "message": "取消"
   },
@@ -325,9 +331,6 @@
   },
   "DescriptionFunddevelopment": {
     "message": "我借此机会向您请求捐赠，以支持这个项目的维护，使这项努力更具可持续性。您可以在下面找到受支持的付款提供商。任何金额都值得赞赏。谢谢！💙"
-  },
-  "LabelSelect": {
-    "message": "选取"
   },
   "LabelUntitledfolder": {
     "message": "无标题文件夹"
