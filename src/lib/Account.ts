@@ -382,7 +382,7 @@ export default class Account {
 
   async cancelSync():Promise<void> {
     if (!this.syncing) return
-    if (self.constructor.name !== 'ServiceWorkerGlobalScope') {
+    if (self.constructor.name !== 'ServiceWorkerGlobalScope' && window.location.toString().includes('background.html')) {
       // If we're running in a static background page
       // reload
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
