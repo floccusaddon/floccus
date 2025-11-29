@@ -6,7 +6,6 @@ import difference from 'lodash/difference'
 
 import Ordering from '../interfaces/Ordering'
 import {
-  MissingItemOrderError,
   UnknownBookmarkUpdateError,
   UnknownCreateTargetError, UnknownFolderItemOrderError, UnknownFolderOrderError, UnknownFolderUpdateError,
   UnknownMoveOriginError,
@@ -166,23 +165,22 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
         throw new UnknownFolderItemOrderError(id + ':' + JSON.stringify(item))
       }
     })
-    folder.children.forEach(child => {
-      const item = order.find((item) => item.type === child.type && String(item.id) === String(child.id))
-      if (!item) {
-        throw new MissingItemOrderError(
-          id + ':' + child.inspect()
-        )
-      }
-    })
-    if (order.length !== folder.children.length) {
-      const diff = difference(folder.children.map(i => i.id), order.map(i => i.id))
-      throw new MissingItemOrderError(id + ':' + JSON.stringify(diff))
-    }
     const newChildren = []
     order.forEach(item => {
       const child = folder.findItem(item.type, item.id)
       newChildren.push(child)
     })
+    const diff = difference(folder.children.map(i => i.id), order.map(i => i.id))
+    if (diff.length) {
+      Logger.log('Folder ordering is missing some of the folders children (moving on): ' + id + ':' + JSON.stringify(diff))
+      // We don't just append at the end but put them back where they were
+      // In order to be in line with BrowserTree
+      diff.forEach(item => {
+        const child = folder.findItem(item.type, item.id)
+        const index = folder.children.indexOf(child)
+        newChildren.slice(0, index - 1).concat([child],newChildren.slice(index - 1))
+      })
+    }
     folder.children = newChildren
   }
 
