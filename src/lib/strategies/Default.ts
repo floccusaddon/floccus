@@ -1381,11 +1381,7 @@ export default class SyncProcess {
     } else {
       localId = item.id
     }
-    if (item.type === 'folder') {
-      await this.mappings.removeFolder({ localId, remoteId })
-    } else {
-      await this.mappings.removeBookmark({ localId, remoteId })
-    }
+    // We don't remove from mappings immediately anymore, but wait for GC
   }
 
   async loadChildren(

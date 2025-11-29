@@ -1,4 +1,4 @@
-import { TItem, TItemLocation, TItemType } from './Tree'
+import { Folder, ItemLocation, ItemType, TItem, TItemLocation, TItemType } from './Tree'
 
 type InternalItemTypeMapping = { LocalToServer: Record<string, string>, ServerToLocal: Record<string, string> }
 
@@ -29,6 +29,20 @@ export default class Mappings {
       LocalToServer: {
         bookmark: {...this.bookmarks.LocalToServer},
         folder: {...this.folders.LocalToServer}
+      }
+    }
+  }
+
+  async gc(tree: Folder<typeof ItemLocation.LOCAL>) {
+    const index = tree.createIndex()
+    for (const localId in this.bookmarks.LocalToServer) {
+      if (!(localId in index[ItemType.BOOKMARK])) {
+        await this.removeBookmark({localId})
+      }
+    }
+    for (const localId in this.folders.LocalToServer) {
+      if (!(localId in index[ItemType.FOLDER])) {
+        await this.removeFolder({localId})
       }
     }
   }
