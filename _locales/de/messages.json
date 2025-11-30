@@ -48,7 +48,7 @@
     "message": "E016: Zeitüberschreitung einer Anfrage. Überprüfen Sie die Server-Konfiguration."
   },
   "Error017": {
-    "message": "E017: Netzwerk-Fehler: Überprüfen sie Ihre Netzwerkverbindung und die eingegebenen Kontodaten"
+    "message": "E017: Netzwerkfehler: Überprüfen Sie Ihre Netzwerkverbindung, Ihre Kontodaten und Ihre TLS/SSL-Einstellungen."
   },
   "Error018": {
     "message": "E018: Konnte nicht am Server authentifiziert werden."
@@ -57,7 +57,7 @@
     "message": "E019: HTTP Status {0}. Anfrage vom Typ {1}  fehlgeschlagen. Überprüfen Sie die Server-Konfiguration und das Server-Log."
   },
   "Error020": {
-    "message": "E020: Antwort des Servers konnte nicht gelesen werden. Ist die Bookmarks-App auf Ihrem Server installiert?"
+    "message": "E020: Die Serverantwort konnte nicht geparst werden."
   },
   "Error021": {
     "message": "E021: Inkonsistenter Server-Zustand. Ein Ordner ist in der Kind-Ordnung enthalten, aber nicht im Ordner-Baum."
@@ -102,7 +102,7 @@
     "message": "E034: Die entfernte Lesezeichendatei ist nicht lesbar. Vielleicht hast du vergessen eine Verschlüsselungspassphrase anzugeben oder das falsche Dateiformat genutzt."
   },
   "Error035": {
-    "message": "E035: Das folgende Lesezeichen konnte nicht auf dem Server erstellt werden: {0}"
+    "message": "E035: Das folgende Lesezeichen konnte nicht auf dem Server erstellt werden: {0} -- Ist die Lesezeichen-App auf dem neuesten Stand?"
   },
   "Error036": {
     "message": "E036: Fehlende Berechtigungen für den Zugriff auf den Sync-Server"
@@ -130,6 +130,15 @@
   },
   "Error044": {
     "message": "E044: Git push Operation fehlgeschlagen: {0}"
+  },
+  "Error045": {
+    "message": "E045: Unerwarteter Ordnerpfad. Der lokale Sync-Ordner für dieses Profil befand sich früher unter \"{0}\", ist aber jetzt unter \"{1}\". Bitte vergewissern Sie sich, dass dies beabsichtigt ist, und stellen Sie den lokalen Synchronisierungsordner in den Profileinstellungen erneut ein."
+  },
+  "Error046": {
+    "message": "E046: Ungültige URL. {0} \" ist keine gültige URL."
+  },
+  "Error047": {
+    "message": "E047: XBEL-Datei konnte nicht geparst werden. Die XBEL-Daten scheinen beschädigt oder unvollständig zu sein. Sie können versuchen, die Datei auf dem Server zu löschen, damit Floccus sie neu erstellen kann. Stellen Sie sicher, dass Sie vorher ein Backup erstellen."
   },
   "LabelWebdavurl": {
     "message": "WebDAV-URL"
@@ -204,7 +213,7 @@
     "message": "Alle Profile synchronisieren"
   },
   "LabelAutosync": {
-    "message": "Auto-sync"
+    "message": "Änderungsbasierte Synchronisierung"
   },
   "StatusLastsynced": {
     "message": "Zuletzt synchronisiert: vor {0}"
@@ -278,6 +287,9 @@
   "LabelSave": {
     "message": "Speichern"
   },
+  "LabelSelect": {
+    "message": "Auswählen"
+  },
   "LabelCancel": {
     "message": "Abbrechen"
   },
@@ -325,9 +337,6 @@
   },
   "DescriptionFunddevelopment": {
     "message": "Die Arbeit an floccus wird gefördert durch ein freiwilliges Abo-Modell. Wenn Sie glauben, dass das was ich tue nutzbringend ist, und Sie ohne Not einen kleinen Betrag erübrigen können, freue ich mich wenn Sie meine Arbeit unterstützen. Über eine Bewertung im Addon-Store Ihrer Wall freue ich mich ebenfalls. Vielen Dank. 💙"
-  },
-  "LabelSelect": {
-    "message": "Auswählen"
   },
   "LabelUntitledfolder": {
     "message": "Unbenannter Ordner"
@@ -750,6 +759,9 @@
   "DescriptionTelemetry": {
     "message": "Floccus kann automatisiert Fehlerberichte an mich, den Entwickler, senden. Dies kann extrem hilfreich sein, um Fehler in floccus schneller zu finden und zu beheben und wird langfristig deine Nutzererfahrung verbessern. Auch wenn die Fehlerberichte aktiviert sind, werden die floccus-Entwickler niemals in der Lage sein, deine Lesezeichen zu sehen."
   },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "Neu: Zusätzlich zu den Fehlerinformationen sendet floccus jetzt auch Informationen darüber, welche Synchronisationsmethode Sie verwenden, wenn diese Option aktiviert ist. Dies hilft uns, floccus zu verbessern und sicherzustellen, dass die Sync-Methoden wie erwartet funktionieren."
+  },
   "LabelTelemetryenable": {
     "message": "Sende automatisch Fehlerberichte und Infromationen über Ihre benutzte Synchronisierungsmethode an die floccus-Entwickler"
   },
@@ -850,7 +862,7 @@
     "message": "Möchtest du wirklich die Synchronisierung erzwingen? Gleichzeitige Synchronisierung mit zwei Geräten kann unvorhergesehene Konsequenzen wie Beschädigung von Daten haben. Stelle bevor du fortfährst sicher, dass keine anderen Geräte gleichzeitig synchronisieren."
   },
   "DescriptionAutosync": {
-    "message": "Wenn Sie Automatische Synchronisierung anschalten, wird regelmäßig innerhalb eines einstellbaren Zeitabstands synchronisiert, aber auch bei Bedarf, nachdem Sie Änderungen machen. Falls Sie diese Option nicht anschalten, müssen Sie die Synchronisierung manuell anstoßen indem Sie den Synchronisieren-Knopf klicken."
+    "message": "Durch die Aktivierung der änderungsbasierten Synchronisierung wird sichergestellt, dass jedes Mal eine Synchronisierung durchgeführt wird, wenn Sie lokal Änderungen vornehmen."
   },
   "LabelOpeninnewtab": {
     "message": "Öffne diese Ansicht in einem neuen Tab"
@@ -896,5 +908,11 @@
   },
   "NotificationSyncingfailed": {
     "message": "Profil kann nicht synchronisiert werden {0}"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "Zeitbasierte Synchronisierung"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "Wenn Sie die zeitbasierte Synchronisierung aktivieren, wird automatisch alle paar Minuten ein Synchronisierungslauf dieses Profils geplant."
   }
 }
