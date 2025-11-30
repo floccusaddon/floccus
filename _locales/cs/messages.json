@@ -48,7 +48,7 @@
     "message": "E016: Překročen časový limit na vyřízení požadavku. Zkontrolujte nastavení pro vámi využívaný server"
   },
   "Error017": {
-    "message": "E017: Chyba sítě. Zkontrolujte připojení k síti a podrobnosti svého účtu"
+    "message": "E017: Chyba sítě: Zkontrolujte síťové připojení, údaje o účtu a nastavení TLS/SSL."
   },
   "Error018": {
     "message": "E018: Nepodařilo se ověřit vůči serveru."
@@ -57,7 +57,7 @@
     "message": "E019: HTTP status {0}. Selhalo {1} požadavků. Zkontrolujte vaše nastavení serveru a záznam událostí."
   },
   "Error020": {
-    "message": "E020: Nedaří se zpracovat odpověď ze serveru. Je na serveru nainstalovaná aplikace pro správu záložek?"
+    "message": "E020: Nelze analyzovat odpověď serveru."
   },
   "Error021": {
     "message": "E021: Nekonzistentní stav serveru. Složka je přítomná v seznamu pořadí potomků ale už ne ve stromu složek"
@@ -102,7 +102,7 @@
     "message": "E034: Vzdálený soubor záložek je nečitelný.  Možná jste zapomněli nastavit heslo pro šifrování nebo jste nastavili špatný formát souboru."
   },
   "Error035": {
-    "message": "E035: Chyba při vytváření následující záložky na serveru: {0}"
+    "message": "E035: Na serveru se nepodařilo vytvořit následující záložku: {0} -- Je aplikace záložek aktuální?"
   },
   "Error036": {
     "message": "E036: Chybějící oprávnění na přístup k serveru"
@@ -130,6 +130,15 @@
   },
   "Error044": {
     "message": "E044: Operace Git push selhala: {0}"
+  },
+  "Error045": {
+    "message": "E045: Neočekávaná cesta ke složce. Místní synchronizační složka pro tento profil se dříve nacházela na adrese `{0}`, ale nyní se nachází na adrese `{1}`. Ujistěte se, že je to záměr, a v nastavení profilu znovu nastavte místní synchronizační složku."
+  },
+  "Error046": {
+    "message": "E046: Neplatná adresa URL. `{0}` není platná adresa URL."
+  },
+  "Error047": {
+    "message": "E047: Nepodařilo se analyzovat soubor XBEL. Data XBEL jsou zřejmě poškozená nebo neúplná. Můžete zkusit soubor na serveru odstranit, aby jej floccus mohl znovu vytvořit. Nezapomeňte si nejprve vytvořit zálohu."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -204,7 +213,7 @@
     "message": "Synchronizovat všechny profily"
   },
   "LabelAutosync": {
-    "message": "Automatická synchronizace"
+    "message": "Synchronizace na základě změn"
   },
   "StatusLastsynced": {
     "message": "Naposledy synchronizováno před: {0}"
@@ -278,6 +287,9 @@
   "LabelSave": {
     "message": "Uložit"
   },
+  "LabelSelect": {
+    "message": "Vybrat"
+  },
   "LabelCancel": {
     "message": "Storno"
   },
@@ -325,9 +337,6 @@
   },
   "DescriptionFunddevelopment": {
     "message": "Práce na floccus je poháněna dobrovolným předplatným. Pokud uznáte mou práci za užitečnou a můžete postrádat nějaké drobné bez nesnází, prosím, podpořte mou práci. Též prosím o hodnocení doplňku v obchodu vašeho výběru. Děkuji! 💙"
-  },
-  "LabelSelect": {
-    "message": "Vybrat"
   },
   "LabelUntitledfolder": {
     "message": "Nepojmenovaná složka"
@@ -750,6 +759,9 @@
   "DescriptionTelemetry": {
     "message": "Floccus může automaticky posílat data o chybách mně - vývojáři. Toto je obrovská pomoc při zjišťování a rychlejší řešení chyb ve floccus a zlepší se vaše zkušenost s floccus v dlouhodobém horizontu. I když je hlášení chyb povolené, vývojáři floccus nikdy nebudou mít přístup k vašim záložkám."
   },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "Novinka: Kromě informací o chybách nyní floccus odesílá také informace o tom, jakou metodu synchronizace používáte, pokud je tato možnost povolena. To nám pomáhá vylepšovat aplikaci floccus a ujišťovat se, že synchronizační metody fungují podle očekávání."
+  },
   "LabelTelemetryenable": {
     "message": "Automatické odesílání chybových údajů a informací o tom, jakou metodu synchronizace používáte, vývojářům aplikace floccus."
   },
@@ -850,7 +862,7 @@
     "message": "Opravdu chcete vynutit synchronizaci? Synchronizace se dvěma zařízeními současně může mít nepředvídatelné následky včetně poškození dat. Před potvrzením se ujistěte, že v danou chvíli neprobíhá synchronizace s žádným jiným zařízením."
   },
   "DescriptionAutosync": {
-    "message": "Zapnutím automatické synchronizace zajistíte, aby se synchronizace spouštěla pravidelně v určitém konfigurovatelném intervalu a také na vyžádání několik sekund po provedení změn. Pokud automatickou synchronizaci nezapnete, budete muset spouštět synchronizační běhy ručně stisknutím tlačítka synchronizace."
+    "message": "Zapnutím synchronizace na základě změn zajistíte, že se synchronizace spustí pokaždé, když provedete místní změny."
   },
   "LabelOpeninnewtab": {
     "message": "Otevření tohoto zobrazení na nové kartě"
@@ -896,5 +908,11 @@
   },
   "NotificationSyncingfailed": {
     "message": "Nepodařilo se synchronizovat profil {0}"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "Časová synchronizace"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "Zapnutím synchronizace podle času se automaticky naplánuje synchronizace tohoto profilu každých několik minut."
   }
 }
