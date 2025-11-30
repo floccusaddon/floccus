@@ -57,7 +57,7 @@
     "message": "E019: HTTP status {0}. Échec de la requête {1}. Vérifiez la configuration de votre serveur et les journaux de débogage."
   },
   "Error020": {
-    "message": "E020: Impossible de lire la réponse du serveur. L'application Bookmarks est-elle installée sur votre serveur?"
+    "message": "E020 : Impossible d'analyser la réponse du serveur."
   },
   "Error021": {
     "message": "E021: État incohérent du serveur. Le dossier est présent dans la liste des membres mais pas dans l'arborescence"
@@ -130,6 +130,15 @@
   },
   "Error044": {
     "message": "E044 : L'opération Git push a échoué : {0}"
+  },
+  "Error045": {
+    "message": "E045 : Chemin de dossier inattendu. Le dossier de synchronisation locale pour ce profil était à `{0}` mais est maintenant à `{1}`. Veuillez vous assurer que c'est bien le cas et redéfinir le dossier de synchronisation local dans les paramètres du profil."
+  },
+  "Error046": {
+    "message": "E046 : URL invalide. `{0}` n'est pas une URL valide."
+  },
+  "Error047": {
+    "message": "E047 : Échec de l'analyse du fichier XBEL. Les données XBEL semblent corrompues ou incomplètes. Vous pouvez essayer de supprimer le fichier sur le serveur pour permettre à floccus de le recréer. Veillez à effectuer une sauvegarde au préalable."
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -278,6 +287,9 @@
   "LabelSave": {
     "message": "Sauvegarder"
   },
+  "LabelSelect": {
+    "message": "Sélectionner"
+  },
   "LabelCancel": {
     "message": "Annuler"
   },
@@ -325,9 +337,6 @@
   },
   "DescriptionFunddevelopment": {
     "message": "Le développement de floccus est possible grâce à un modèle d'abonnement volontaire. Si vous pensez que mon travail est utile, et s'il vous est possible d'y investir un montant même minime, merci de le soutenir. De plus, prenez aussi le temps d'aller noter floccus sur le Web Store de votre choix.\nMerci ! 💙"
-  },
-  "LabelSelect": {
-    "message": "Sélectionner"
   },
   "LabelUntitledfolder": {
     "message": "Dossier sans nom"
