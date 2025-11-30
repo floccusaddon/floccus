@@ -376,6 +376,7 @@ export default class Account {
         await this.init()
       }
     }
+    this.syncProcess = null
     this.localCachingResource = null
     await Logger.persist()
   }
