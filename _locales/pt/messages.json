@@ -48,7 +48,7 @@
     "message": "E016: Tempo limite para o pedido excedido. Verifique a configuração do servidor."
   },
   "Error017": {
-    "message": "E017: Erro de rede. Verifique a sua ligação à rede e os detalhes da conta."
+    "message": "E017: Erro de rede: Verifique a sua ligação de rede, os detalhes da sua conta e as definições de TLS/SSL."
   },
   "Error018": {
     "message": "E018: Não foi possível autenticar no servidor"
@@ -57,7 +57,7 @@
     "message": "E019: HTTP {0}. O pedido {1} falhou. Verifique a configuração do servidor."
   },
   "Error020": {
-    "message": "E020: Não foi possível processar a resposta do servidor. A aplicação dos marcadores está instalada no servidor?"
+    "message": "E020: Não foi possível analisar a resposta do servidor."
   },
   "Error021": {
     "message": "E021: O estado do servidor é inconsistente. A pasta está presente na lista do childorder mas não está na árvore de pastas."
@@ -102,7 +102,7 @@
     "message": "E034: O ficheiro de marcadores remotos não é legível. Talvez se tenha esquecido de definir uma frase-chave de encriptação ou tenha definido o formato de ficheiro errado."
   },
   "Error035": {
-    "message": "E035: Falha ao criar o seguinte marcador no servidor: {0}"
+    "message": "E035: Falha ao criar o seguinte marcador no servidor: {0} -- A aplicação de marcadores está actualizada?"
   },
   "Error036": {
     "message": "E036: Faltam permissões para aceder ao servidor de sincronização"
@@ -130,6 +130,15 @@
   },
   "Error044": {
     "message": "E044: Falha na operação de envio do Git: {0}"
+  },
+  "Error045": {
+    "message": "E045: Caminho de pasta inesperado. A pasta de sincronização local para este perfil costumava estar em `{0}`, mas agora está em `{1}`. Certifique-se de que é essa a intenção e defina novamente a pasta de sincronização local nas definições do perfil."
+  },
+  "Error046": {
+    "message": "E046: URL inválido. `{0}` não é um URL válido."
+  },
+  "Error047": {
+    "message": "E047: Falha ao analisar o ficheiro XBEL. Os dados XBEL parecem estar corrompidos ou incompletos. Pode tentar remover o ficheiro no servidor para permitir que o floccus o recrie. Certifique-se de que faz primeiro uma cópia de segurança."
   },
   "LabelWebdavurl": {
     "message": "URL do WebDAV"
@@ -204,7 +213,7 @@
     "message": "Sincronizar todos os perfis"
   },
   "LabelAutosync": {
-    "message": "Sincronização automática"
+    "message": "Sincronização baseada em alterações"
   },
   "StatusLastsynced": {
     "message": "Útima sincronização há: {0}"
@@ -278,6 +287,9 @@
   "LabelSave": {
     "message": "Guardar"
   },
+  "LabelSelect": {
+    "message": "Selecionar"
+  },
   "LabelCancel": {
     "message": "Cancelar"
   },
@@ -325,9 +337,6 @@
   },
   "DescriptionFunddevelopment": {
     "message": "O trabalho no floccus é alimentado por um modelo de subscrição voluntária. Se achas que o que faço vale a pena, e se podes dispensar algumas moedas por mês sem dificuldades, por favor apoia o meu trabalho. Além disso, por favor considere dar ao floccus uma classificação na loja de addons da sua escolha. Obrigado!💙"
-  },
-  "LabelSelect": {
-    "message": "Selecionar"
   },
   "LabelUntitledfolder": {
     "message": "Pasta sem nome"
@@ -750,6 +759,9 @@
   "DescriptionTelemetry": {
     "message": "O floccus pode enviar automaticamente dados de erro para mim, o programador. Isto é uma ajuda tremenda para descobrir e resolver bugs no floccus mais rapidamente e irá ajudar a melhorar a sua experiência com o floccus a longo prazo. Mesmo quando o relatório de erros está ativado, os programadores do floccus nunca poderão ver os seus bookmarks."
   },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "Novo: Para além da informação de erro, o floccus agora também envia informação sobre o método de sincronização que está a usar, se esta opção estiver activada. Isto ajuda-nos a melhorar o floccus e a certificarmo-nos de que os métodos de sincronização estão a funcionar como esperado."
+  },
   "LabelTelemetryenable": {
     "message": "Enviar automaticamente dados de erro e informações sobre o método de sincronização que está a utilizar para os programadores do floccus"
   },
@@ -850,7 +862,7 @@
     "message": "Quer mesmo forçar a sincronização? A sincronização com dois dispositivos ao mesmo tempo pode ter consequências imprevistas, incluindo a corrupção dos seus dados. Certifique-se de que nenhum outro dispositivo está a sincronizar no momento antes de confirmar."
   },
   "DescriptionAutosync": {
-    "message": "A ativação da sincronização automática garante que uma execução de sincronização é activada regularmente dentro de um determinado intervalo configurável, bem como a pedido, alguns segundos depois de efetuar alterações. Se não ativar a sincronização automática, terá de ativar as execuções de sincronização manualmente, premindo o botão de sincronização."
+    "message": "A ativação da sincronização baseada em alterações irá garantir que é executada uma sincronização sempre que fizer alterações localmente."
   },
   "LabelOpeninnewtab": {
     "message": "Abrir esta vista num novo separador"
@@ -896,5 +908,11 @@
   },
   "NotificationSyncingfailed": {
     "message": "Falha na sincronização do perfil {0}"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "Sincronização baseada no tempo"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "Ao ativar a sincronização com base no tempo, será automaticamente agendada uma execução de sincronização deste perfil a cada poucos minutos"
   }
 }
