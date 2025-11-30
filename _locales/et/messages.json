@@ -134,6 +134,12 @@
   "Error045": {
     "message": "E045: Kausta ootamatu asukoht. Selle profiili kohalik sünkroonimiskaust oli asukohas `{0}`, aga nüüd on uues kohas `{1}`. Palun kontrolli, kas see nii peabki olema ja seadista profiili seadistustest kohalik sünkroonimiskaust uuesti."
   },
+  "Error046": {
+    "message": "E046: Vale URL. \"{0}\" ei ole kehtiv URL."
+  },
+  "Error047": {
+    "message": "E047: XBEL-faili analüüsimine ebaõnnestus. XBEL-andmed tunduvad olevat vigased või ebatäielikud. Võite proovida eemaldada faili serverist, et floccus saaks selle uuesti luua. Tehke kindlasti esmalt varukoopia."
+  },
   "LabelWebdavurl": {
     "message": "WebDAVi võrguaadress"
   },
