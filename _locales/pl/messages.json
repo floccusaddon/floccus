@@ -48,7 +48,7 @@
     "message": "E016: Upłynął limit czasu żądania. Sprawdź konfigurację serwera"
   },
   "Error017": {
-    "message": "E017: Błąd sieci: Sprawdź połączenie i dane konta"
+    "message": "E017: Błąd sieci: Sprawdź połączenie sieciowe, dane konta i ustawienia TLS/SSL."
   },
   "Error018": {
     "message": "E018: Nie udało się uwierzytelnić na serwerze"
@@ -57,7 +57,7 @@
     "message": "E019: Status HTTP {0}. Nieudane {1} żądanie. Sprawdź konfigurację serwera i logi."
   },
   "Error020": {
-    "message": "E020: Nie można przetworzyć odpowiedzi serwera. Czy aplikacja Zakładki jest zainstalowana na serwerze?"
+    "message": "E020: Nie można przeanalizować odpowiedzi serwera."
   },
   "Error021": {
     "message": "E021: Niespójny stan serwera. Folder jest obecny na liście elementów podrzędnych ale nie w drzewie katalogów"
@@ -102,7 +102,7 @@
     "message": "E034: Nie można odczytać pliku zakładek. Być może nie ustawiłeś hasła szyfrującego lub wskazałeś niewłaściwy format."
   },
   "Error035": {
-    "message": "E035: Nie udało się utworzyć następującej zakładki na serwerze: (0)"
+    "message": "E035: Nie udało się utworzyć następującej zakładki na serwerze: {0} -- Czy aplikacja zakładek jest aktualna?"
   },
   "Error036": {
     "message": "E036: Brak uprawnień dostępu do serwera synchronizacji."
@@ -130,6 +130,15 @@
   },
   "Error044": {
     "message": "E044: Operacja Git push nie powiodła się: {0}"
+  },
+  "Error045": {
+    "message": "E045: Nieoczekiwana ścieżka folderu. Lokalny folder synchronizacji dla tego profilu znajdował się pod adresem `{0}`, ale teraz znajduje się pod adresem `{1}`. Upewnij się, że jest to zamierzone i ponownie ustaw lokalny folder synchronizacji w ustawieniach profilu."
+  },
+  "Error046": {
+    "message": "E046: Nieprawidłowy adres URL. `{0}` nie jest prawidłowym adresem URL."
+  },
+  "Error047": {
+    "message": "E047: Nie udało się przeanalizować pliku XBEL. Dane XBEL wydają się być uszkodzone lub niekompletne. Możesz spróbować usunąć plik na serwerze, aby floccus mógł go odtworzyć. Upewnij się, że najpierw wykonałeś kopię zapasową."
   },
   "LabelWebdavurl": {
     "message": "Adres WebDAV"
@@ -204,7 +213,7 @@
     "message": "Synchronizuj wszystkie profile"
   },
   "LabelAutosync": {
-    "message": "Automatyczna synchronizacja"
+    "message": "Synchronizacja oparta na zmianach"
   },
   "StatusLastsynced": {
     "message": "Ostatnia synchronizacja: {0} temu"
@@ -278,6 +287,9 @@
   "LabelSave": {
     "message": "Zapisz"
   },
+  "LabelSelect": {
+    "message": "Wybierz"
+  },
   "LabelCancel": {
     "message": "Anuluj"
   },
@@ -325,9 +337,6 @@
   },
   "DescriptionFunddevelopment": {
     "message": "Praca nad Floccus jest oparta na dobrowolnym modelu subskrypcji. Jeśli uważasz, że rozwiązanie jest tego warte i możesz przeznaczyć co miesiąc jakąś kwotę, proszę o wsparcie. Rozważ także ocenę dodatku w witrynie z dodatkami dla przeglądarki, której używasz. Dziękuję! 💙"
-  },
-  "LabelSelect": {
-    "message": "Wybierz"
   },
   "LabelUntitledfolder": {
     "message": "Nienazwany folder"
@@ -750,6 +759,9 @@
   "DescriptionTelemetry": {
     "message": "Floccus może automatycznie zgłosić błędy do deweloperów. To znaczna pomoc dla szybkiego wykrywania i usuwania błędów, co w dłuższym okresie pomaga podnosić jakość Floccus. Nawet jeśli włączysz raportowanie błędów, deweloperzy nie będą mieli dostępu do Twoich zakładek."
   },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "Nowość: Oprócz informacji o błędach, floccus wysyła teraz również informacje o używanej metodzie synchronizacji, jeśli ta opcja jest włączona. Pomaga nam to ulepszyć floccus i upewnić się, że metody synchronizacji działają zgodnie z oczekiwaniami."
+  },
   "LabelTelemetryenable": {
     "message": "Automatycznie wysyłaj dane o błędach i informacje o używanej metodzie synchronizacji do programistów floccus."
   },
@@ -850,7 +862,7 @@
     "message": "Na pewno chcesz wymusić synchronizację? Synchronizowanie dwóch urządzeń naraz może spowodować nieprzewidziane problemy, włącznie z popsuciem danych. Upewnij się zanim potwierdzisz, że żadne inne urządzenie w tej chwili nie synchronizuje."
   },
   "DescriptionAutosync": {
-    "message": "Włączenie uruchamia regularną synchronizację w wybranych odstępach czasu a także na bieżąco, kilka sekund po tym jak wprowadzisz zmiany. Jeśli nie włączysz automatycznej synchronizacji, będziesz mógł synchronizować ręcznie używając przycisk synchronizacji."
+    "message": "Włączenie synchronizacji opartej na zmianach sprawi, że synchronizacja będzie uruchamiana za każdym razem, gdy wprowadzisz zmiany lokalnie."
   },
   "LabelOpeninnewtab": {
     "message": "Otwórz ten widok w nowej karcie"
@@ -896,5 +908,11 @@
   },
   "NotificationSyncingfailed": {
     "message": "Nie udało się zsynchronizować profilu {0}"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "Synchronizacja oparta na czasie"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "Włączenie synchronizacji czasowej automatycznie zaplanuje synchronizację tego profilu co kilka minut"
   }
 }
