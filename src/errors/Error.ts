@@ -404,3 +404,11 @@ export class InvalidUrlError extends FloccusError {
     Object.setPrototypeOf(this, InvalidUrlError.prototype)
   }
 }
+
+export class XbelParseError extends FloccusError {
+  constructor() {
+    super(`E047: Failed to parse XBEL file. The XBEL data seems to be corrupted or incomplete. You can try removing the file on the server to let floccus recreate it. Make sure to take a backup first.`)
+    this.code = 47
+    Object.setPrototypeOf(this, XbelParseError.prototype)
+  }
+}

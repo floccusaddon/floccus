@@ -137,6 +137,9 @@
   "Error046": {
     "message": "E046: Invalid URL. `{0}` is not a valid URL."
   },
+  "Error047": {
+    "message": "E047: Failed to parse XBEL file. The XBEL data seems to be corrupted or incomplete. You can try removing the file on the server to let floccus recreate it. Make sure to take a backup first."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
