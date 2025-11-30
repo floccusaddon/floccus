@@ -165,20 +165,21 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
         throw new UnknownFolderItemOrderError(id + ':' + JSON.stringify(item))
       }
     })
-    const newChildren = []
+    let newChildren = []
     order.forEach(item => {
       const child = folder.findItem(item.type, item.id)
       newChildren.push(child)
     })
-    const diff = difference(folder.children.map(i => i.id), order.map(i => i.id))
+    const diff = difference(folder.children.map(i => i.type + ':' + i.id), order.map(i => i.type + ':' + i.id))
     if (diff.length) {
       Logger.log('Folder ordering is missing some of the folders children (moving on): ' + id + ':' + JSON.stringify(diff))
       // We don't just append at the end but put them back where they were
       // In order to be in line with BrowserTree
       diff.forEach(item => {
-        const child = folder.findItem(item.type, item.id)
+        const [type, id] = item.split(':')
+        const child = folder.findItem(type, id)
         const index = folder.children.indexOf(child)
-        newChildren.slice(0, index - 1).concat([child],newChildren.slice(index - 1))
+        newChildren = newChildren.slice(0, index - 1).concat([child], newChildren.slice(index - 1))
       })
     }
     folder.children = newChildren
