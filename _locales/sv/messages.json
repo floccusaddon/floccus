@@ -48,7 +48,7 @@
     "message": "E016: Begäran tog för lång tid. Kontrollera dina serverinställningar"
   },
   "Error017": {
-    "message": "E017: Nätverksfel: Kontrollera din nätverksanslutning och dina kontoinställningar"
+    "message": "E017: Fel i nätverket: Kontrollera din nätverksanslutning, dina kontouppgifter och dina TLS/SSL-inställningar."
   },
   "Error018": {
     "message": "E018: Det gick inte att verifiera med servern"
@@ -57,7 +57,7 @@
     "message": "E019: HTTP status {0}. Misslyckades med {1} begäran. Kontrollera dina serverinställningar och logg."
   },
   "Error020": {
-    "message": "E020: Det gick inte att analysera serverns svar. Är bokmärken-appen installerad på din server?"
+    "message": "E020: Det gick inte att tolka serversvaret."
   },
   "Error021": {
     "message": "E021: Inkonsekvent servertillstånd. Mappen finns i listan över underordnade mappar men inte i mappträdet"
@@ -102,7 +102,7 @@
     "message": "E034: Filen med fjärrbokmärken är oläslig. Kanske har du glömt att ange en lösenfras för kryptering eller så har du angett fel filformat."
   },
   "Error035": {
-    "message": "E035: Följande bokmärke kunde inte skapas på servern: {0}"
+    "message": "E035: Följande bokmärke kunde inte skapas på servern: {0} -- Är bokmärkesappen uppdaterad?"
   },
   "Error036": {
     "message": "E036: Saknar behörigheter för åtkomst till synkroniseringsservern"
@@ -130,6 +130,15 @@
   },
   "Error044": {
     "message": "E044: Git push-operationen misslyckades: {0}"
+  },
+  "Error045": {
+    "message": "E045: Oväntad sökväg till mappen. Den lokala synkroniseringsmappen för den här profilen brukade vara på `{0}` men är nu på `{1}`. Kontrollera att detta är avsett och ställ in den lokala synkroniseringsmappen igen i profilinställningarna."
+  },
+  "Error046": {
+    "message": "E046: Ogiltig URL. `{0}` är inte en giltig URL."
+  },
+  "Error047": {
+    "message": "E047: Misslyckades med att analysera filen XBEL. XBEL-data verkar vara skadad eller ofullständig. Du kan försöka ta bort filen på servern för att låta floccus återskapa den. Se till att ta en säkerhetskopia först."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -204,7 +213,7 @@
     "message": "Synkronisera alla profiler"
   },
   "LabelAutosync": {
-    "message": "Auto-synkronisering"
+    "message": "Förändringsbaserad synkronisering"
   },
   "StatusLastsynced": {
     "message": "Tid sedan synkronisering: {0}"
@@ -278,6 +287,9 @@
   "LabelSave": {
     "message": "Spara"
   },
+  "LabelSelect": {
+    "message": "Välj"
+  },
   "LabelCancel": {
     "message": "Avbryt"
   },
@@ -325,9 +337,6 @@
   },
   "DescriptionFunddevelopment": {
     "message": "Jag använder denna möjlighet för att be dig om en donation för att stödja underhållet av detta projekt och göra detta arbete mer hållbart. Du hittar de betalningsleverantörer som stöds nedan. Varje belopp uppskattas. Tack! 💙"
-  },
-  "LabelSelect": {
-    "message": "Välj"
   },
   "LabelUntitledfolder": {
     "message": "Namnlös mapp"
@@ -750,6 +759,9 @@
   "DescriptionTelemetry": {
     "message": "Floccus kan automatiskt skicka feldata till mig som utvecklare. Detta är en enorm hjälp för att upptäcka och lösa buggar i floccus snabbare och kommer att bidra till att förbättra din upplevelse av floccus i det långa loppet. Även om felrapportering är aktiverad kommer floccus-utvecklarna aldrig att kunna se dina bokmärken."
   },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "Nytt: Förutom felinformationen skickar floccus nu också information om vilken synkroniseringsmetod du använder, om detta alternativ är aktiverat. Detta hjälper oss att förbättra floccus och att se till att synkroniseringsmetoderna fungerar som förväntat."
+  },
   "LabelTelemetryenable": {
     "message": "Automatiskt skicka feldata och information om vilken synkroniseringsmetod du använder till floccus utvecklare"
   },
@@ -850,7 +862,7 @@
     "message": "Vill du verkligen tvinga fram en synkronisering? Om du synkroniserar med två enheter samtidigt kan det få oförutsedda konsekvenser, t.ex. att dina data skadas. Kontrollera att ingen annan enhet synkroniserar för tillfället innan du bekräftar."
   },
   "DescriptionAutosync": {
-    "message": "Om du aktiverar automatisk synkronisering ser du till att en synkroniseringskörning utlöses regelbundet inom ett visst konfigurerbart intervall samt på begäran några sekunder efter att du har gjort ändringar. Om du inte aktiverar automatisk synkning måste du utlösa synkningskörningar manuellt genom att trycka på synkningsknappen."
+    "message": "Om du aktiverar ändringsbaserad synkronisering ser du till att en synkronisering körs varje gång du gör ändringar lokalt."
   },
   "LabelOpeninnewtab": {
     "message": "Öppna denna vy i en ny flik"
@@ -896,5 +908,11 @@
   },
   "NotificationSyncingfailed": {
     "message": "Synkronisering av profil misslyckades {0}"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "Tidsbaserad synkronisering"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "Om du aktiverar tidsbaserad synkronisering schemaläggs automatiskt en synkroniseringskörning av den här profilen med några minuters mellanrum"
   }
 }
