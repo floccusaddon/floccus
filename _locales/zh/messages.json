@@ -48,7 +48,7 @@
     "message": "E016：请求超时。请检查你的服务器设置"
   },
   "Error017": {
-    "message": "E017：网络错误：请检查你的网络连接或者账户详情"
+    "message": "E017:网络错误：检查网络连接、账户详情和 TLS/SSL 设置。"
   },
   "Error018": {
     "message": "E018：无法与服务器进行身份验证。"
@@ -57,7 +57,7 @@
     "message": "E019：HTTP状态 {0}。 {1} 请求失败。检查您的服务器配置和日志。"
   },
   "Error020": {
-    "message": "E020：无法解析服务器响应。书签应用程序是否安装在您的服务器上？"
+    "message": "E020:无法解析服务器响应。"
   },
   "Error021": {
     "message": "E021：服务器状态不一致。文件夹存在于子列表中，但不在文件夹树中"
@@ -84,7 +84,7 @@
     "message": "E028：无法与服务器进行身份验证。"
   },
   "Error029": {
-    "message": "E029：安全保护：当前同步操作将删除您书签中 {0}% 的内容。拒绝执行操作。若您需要继续执行本操作，请首先在账户设置中关闭这一安全保护。"
+    "message": "E029：故障安全：当前同步运行将删除{0}% 的链接。拒绝执行。如果想继续执行，请在账户设置中禁用此故障保护。"
   },
   "Error030": {
     "message": "E030：无法解密书签文件。密码短语可能错误或者文件可能已损坏。"
@@ -99,19 +99,46 @@
     "message": "E033：检测到重定向。请确保服务器支持所选的同步方法，并且您输入的URL正确无误，不会重定向到其他位置。如果重定向是设置的一部分，则可以在设置中禁用此检查。"
   },
   "Error034": {
-    "message": "E034：书签文件不可读。您是否忘记设置加密密码短语？"
+    "message": "E034：远程书签文件无法读取。可能您忘记设置加密口令，或者设置了错误的文件格式。"
   },
   "Error035": {
-    "message": "E035: 无法在服务器上创建以下书签：{0}"
+    "message": "E035:在服务器上创建以下书签失败： {0} -- 书签应用程序是最新的吗？"
   },
   "Error036": {
     "message": "E036：缺少访问同步服务器的权限"
   },
   "Error037": {
-    "message": "E037: 资源被锁定"
+    "message": "E037：资源已锁定"
   },
   "Error038": {
-    "message": "E038: 找不到本地文件夹"
+    "message": "E038：找不到本地文件夹"
+  },
+  "Error039": {
+    "message": "E039：更新服务器上的以下书签失败：{0}"
+  },
+  "Error040": {
+    "message": "E040：无法在 Google Drive 中搜索到您的文件名"
+  },
+  "Error041": {
+    "message": "E041：远程书签文件大小与实际从服务器下载的内容不同。这可能是暂时的网络问题。如果该错误持续存在，请联系服务器管理员。"
+  },
+  "Error042": {
+    "message": "E042：无法检索远程书签文件大小。无法验证书签文件是否已全部下载。如果该错误持续存在，请联系服务器管理员。"
+  },
+  "Error043": {
+    "message": "E043：故障安全：当前同步运行将使您的书签数量增加{0}%。拒绝执行。如果想继续执行，请在配置文件设置中禁用此故障保护。"
+  },
+  "Error044": {
+    "message": "E044：Git 推送操作失败：{0}"
+  },
+  "Error045": {
+    "message": "E045：意外文件夹路径。此配置文件的本地同步文件夹曾位于 `{0}`，但现在位于 `{1}`。请确保这是正确的，并在配置文件设置中重新设置本地同步文件夹。"
+  },
+  "Error046": {
+    "message": "E046：无效 URL。{0}` 不是有效的 URL。"
+  },
+  "Error047": {
+    "message": "E047：解析 XBEL 文件失败。XBEL 数据似乎已损坏或不完整。您可以尝试删除服务器上的文件，让 floccus 重新创建。确保先进行备份。"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -129,13 +156,13 @@
     "message": "密码"
   },
   "LabelBookmarksfile": {
-    "message": "书签文件路径"
+    "message": "书签文件"
   },
   "DescriptionBookmarksfile": {
-    "message": "书签文件相对于 WebDAV URL 的路径(路径中的所有文件夹必须已存在)。例如Personal_Stuff/bookmarks.xbel"
+    "message": "书签文件在服务器上的存放路径，相对于 WebDAV URL（路径中的所有文件夹必须已经存在）。 例如：personal_stuff/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "将保存在您的 Google Drive 中的书签文件的文件名（确保此名称在您的 Google Drive 中是唯一的）"
+   "message": "将存放在 Google Drive 中的书签文件的文件名。不要输入完整的文件路径，只输入文件名。确保该名称在驱动器中是唯一的。例如：mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "相对于你的 Git 存储库根目录的书签文件路径 (路径中的所有文件夹必须都已存在)。如，personal_stuff/bookmarks.xbel"
@@ -145,6 +172,12 @@
   },
   "DescriptionServerfolder": {
     "message": "当同步时，您在此浏览器中的书签将作为链接存储在服务器上的此路径下。请注意，此路径表示Nextcloud书签应用中的一个文件夹，而不是Nextcloud文件中的文件夹。将此留空以将所有链接放在服务器上的最顶层文件夹中。"
+  },
+  "DescriptionServerfolderlinkwarden": {
+    "message": "同步时，您在此浏览器中的书签将作为此收藏夹下的链接存储，只有此收藏夹下的链接才会与此浏览器同步。"
+  },
+  "DescriptionServerfolderkarakeep": {
+    "message": "同步时，您在此浏览器中的书签将作为此收藏夹下的链接存储，只有此收藏夹下的链接才会与此浏览器同步。"
   },
   "LabelLocaltarget": {
     "message": "本地目标"
@@ -164,6 +197,9 @@
   "LabelNewfolder": {
     "message": "新建文件夹"
   },
+  "LabelSelectfolder": {
+    "message": "选择文件夹"
+  },
   "LabelOptions": {
     "message": "选项"
   },
@@ -177,7 +213,7 @@
     "message": "同步所有配置文件"
   },
   "LabelAutosync": {
-    "message": "自动同步"
+    "message": "基于变化的同步"
   },
   "StatusLastsynced": {
     "message": "上次同步: {0} 之前"
@@ -251,6 +287,9 @@
   "LabelSave": {
     "message": "保存"
   },
+  "LabelSelect": {
+    "message": "选择"
+  },
   "LabelCancel": {
     "message": "取消"
   },
@@ -270,7 +309,7 @@
     "message": "Nextcloud 书签"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "'Nextcloud 书签' 选项将你的书签和 Nextcloud 的 Bookmarks 应用同步。它只能同步 http、ftp和 javascript 书签。请确保你已经从 Nextcloud 应用商店安装了 Bookmarks 应用。此选项无法使用端到端加密。"
+    "message": "使用 Nextcloud 的开源书签应用程序同步您的书签（Nextcloud 是一个开源协作平台，您可以自行托管，也可以从不同的托管商处获得云实例账户）。通过 Nextcloud 书签，您只能同步 http、ftp 和 javascript 书签。请确保在 Nextcloud 应用程序商店中安装了书签应用程序。此选项不能使用端到端加密。"
   },
   "LabelAdapternextcloud": {
     "message": "Nextcloud 书签（旧版）"
@@ -282,7 +321,7 @@
     "message": "WebDAV 分享"
   },
   "DescriptionAdapterwebdav": {
-    "message": "WebDAV 选项通过将你的书签存储在所提供的 WebDAV 分享中来同步它们。此选项没有伴随的 web 用户界面，不过你可以使用任何兼容 WebDAV 的服务器。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时你可以选择使用端到端加密。"
+    "message": "通过将书签存储到提供的 WebDAV 共享文件中来同步书签。该选项没有附带的 Web UI，可以与任何兼容 WebDAV 的服务器一起使用，可以是自托管服务器，也可以是云服务器。它可以同步 http、ftp、数据、文件和 javascript 书签。使用该选项时，你可以选择使用端到端加密。"
   },
   "LabelAddaccount": {
     "message": "添加新的个人资料"
@@ -298,9 +337,6 @@
   },
   "DescriptionFunddevelopment": {
     "message": "关于 floccus 的工作是由自愿订阅模式推动的。如果你认为我做的事情是值得的，如果你每个月能不辛苦地省出几个硬币，请支持我的工作。另外，请考虑给 floccus 一个评价，你选择的插件商店。谢谢💙"
-  },
-  "LabelSelect": {
-    "message": "选择"
   },
   "LabelUntitledfolder": {
     "message": "无标题文件夹"
@@ -340,7 +376,7 @@
     "message": "Paypal"
   },
   "DescriptionPaypal": {
-    "message": "通过 Paypal 进行一次性捐赠以支持该项目"
+    "message": "通过 Paypal 一次性或定期捐款支持该项目"
   },
   "LabelOpencollective": {
     "message": "OpenCollective"
@@ -403,10 +439,10 @@
     "message": "该个人资料已被删除"
   },
   "LabelNoAccount": {
-    "message": "没有个人资料在这里"
+    "message": "尚无简介"
   },
   "DescriptionNoAccount": {
-    "message": "创建一个新的配置文件来同步您的书签，或者从其他设备或浏览器导入配置文件。"
+    "message": "添加新的配置文件，或从文件中导入配置文件，然后就可以开始同步了。"
   },
   "LabelLoginFlowStart": {
     "message": "登录 Nextcloud"
@@ -418,7 +454,10 @@
     "message": "Nextcloud 登录失败"
   },
   "LabelNewAccount": {
-    "message": "新配置文件"
+    "message": "添加简介"
+  },
+  "LabelNewImport": {
+    "message": "进口"
   },
   "LabelNestedSync": {
     "message": "嵌套的配置"
@@ -493,16 +532,16 @@
     "message": "安全保护"
   },
   "DescriptionFailsafe": {
-    "message": "有时，配置错误或软件错误可能会导致意外删除数据，从而导致数据丢失。为了防止这种情况发生，除非您在此处禁用此故障保护功能，否则 floccus 不会一次删除超过50%的书签。"
+    "message": "有时，配置错误或软件错误会导致数据被意外删除而丢失，或导致数据被意外复制而难以理清。为了防止这种情况发生，floccus 不会一次性删除超过 20% 的书签，也不会一次性增加超过 20% 的书签数量，除非你在这里禁用这一故障保护功能。"
   },
   "LabelFailsafeon": {
-    "message": "已启用。在没有征得我同意的情况下，不要删除超过50%的本地书签。（推荐）"
+    "message": "已启用。在未询问您的情况下，不会从本地书签中删除或添加超过 20% 的内容。(建议使用）"
   },
   "LabelFailsafeoff": {
-    "message": "已禁用。允许删除超过50%的本地书签，而无需与我确认。"
+    "message": "已禁用。将允许从本地书签中删除或添加超过 20% 的内容，而无需与您确认。"
   },
   "StatusFailsafeoff": {
-    "message": "已停用安全保护。你有意外丢失数据的风险。建议在配置文件设置中启用它。"
+    "message": "故障安全保护禁用。您将面临数据意外丢失或复制的风险。建议在配置文件设置中启用故障安全功能。"
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
@@ -548,6 +587,9 @@
   },
   "LabelDeleteitem": {
     "message": "删除"
+  },
+  "DescriptionReallydeleteitem": {
+    "message": "您真的要删除此项目吗？"
   },
   "LabelNobookmarks": {
     "message": "此处没有书签"
@@ -658,7 +700,7 @@
     "message": "新配置文件已创建"
   },
   "DescriptionAccountcreated": {
-    "message": "您的个人资料已创建。您现在可以关闭此选项卡。"
+    "message": "您的个人资料已创建。现在可以关闭此选项卡。还有一点：同步不是备份。请确保您定期备份书签。"
   },
   "DescriptionNonhttps": {
     "message": "您输入的服务器使用了不安全的协议。建议仅使用支持HTTPS的服务器。"
@@ -703,7 +745,7 @@
     "message": "HTTPS 连接的 Git"
   },
   "DescriptionAdaptergit": {
-    "message": "Git 选项通过将书签存储在所提供的 Git 仓库中的一个文件内来进行书签同步。此选项没有伴随的 web 用户界面，但你可以通过任意 Git 托管服务器，比如 GitHub、Gitlab、Gitea 等使用它。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时，你无法使用端到端加密。"
+    "message": "Git 选项通过将书签存储在所提供的 Git 仓库中的文件中来同步书签。该选项没有配套的网页用户界面，但可以与任何 Git 托管服务器一起使用，如 Github、Gitlab、Gitea 等。它可以同步 http、ftp、数据、文件和 javascript 书签。使用该选项时，不能使用端到端加密。该选项目前不适用于手机应用。"
   },
   "LabelGiturl": {
     "message": "使用 HTTP 的存储库 URL"
@@ -712,16 +754,19 @@
     "message": "Git 分支"
   },
   "LabelTelemetry": {
-    "message": "🐛 自动的错误报告"
+    "message": "自动错误报告"
   },
   "DescriptionTelemetry": {
     "message": "Floccus 可自动发送错误数据给我，也就是开发者。这对更快地发现并解决 floccus 故障帮助巨大并有助于改善在长时段内改善你的 floccus 体验。即使启用了错误报告，开发者也永远无法看到你的书签。"
   },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "新功能：除了错误信息外，如果启用了同步选项，floccus 现在还会发送有关您使用的同步方法的信息。这有助于我们改进 floccus，确保同步方法按预期运行。"
+  },
   "LabelTelemetryenable": {
-    "message": "自动发送错误数据给 floccus 开发者"
+    "message": "自动向 floccus 开发人员发送错误数据和同步方法的相关信息"
   },
   "LabelTelemetrydisable": {
-    "message": "不发送错误数据给 floccus 开发者"
+    "message": "不要向 floccus 开发人员发送任何数据"
   },
   "LabelAccountlabel": {
     "message": "配置标签"
@@ -764,5 +809,110 @@
   },
   "LabelDonate": {
     "message": "捐赠"
+  },
+  "DescriptionDisabledaftererror": {
+    "message": "重试 10 次后才禁用此配置文件"
+  },
+  "DescriptionBookmarkexists": {
+    "message": "该书签已存在于所选配置文件中"
+  },
+  "LabelReportproblem": {
+    "message": "报告问题"
+  },
+  "DescriptionReportproblem": {
+    "message": "如果您想就具体问题直接与开发人员联系，可以在这里进行："
+  },
+  "LabelAdapterKarakeep":  {
+    "message": "卡拉凯普"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "使用开源自托管 Karakeep 应用程序同步书签。此选项不能使用端到端加密，也不支持在同步时保持书签顺序。"
+  },
+  "LabelApiKey":  {
+    "message": "API 密钥"
+  },
+  "LabelKarakeepurl":  {
+    "message": "Karakeep 服务器的 URL"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "连接 Karakeep 服务器失败"
+  },
+  "LabelAdapterlinkwarden":  {
+    "message": "林克沃登"
+  },
+  "DescriptionAdapterlinkwarden":  {
+    "message": "使用开源的 Linkwarden 应用程序同步您的书签，该程序可托管在您自己的服务器上或云端 cloud.linkwarden.app。它只能同步 http、ftp 和 javascript 书签。此选项不能使用端到端加密，也不支持在同步时保持书签顺序。"
+  },
+  "LabelLinkwardenurl":  {
+    "message": "Linkwarden 服务器的 URL"
+  },
+  "LabelAccesstoken":  {
+    "message": "访问令牌"
+  },
+  "LabelLinkwardenconnectionerror": {
+    "message": "连接 Linkwarden 服务器失败"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "其他文件夹的结果"
+  },
+  "LabelScheduledforcesync": {
+    "message": "强制同步"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "您真的想强制同步吗？同时与两台设备同步可能会产生不可预见的后果，包括数据损坏。在确认之前，请确保没有其他设备正在同步。"
+  },
+  "DescriptionAutosync": {
+    "message": "打开基于更改的同步，将确保每次在本地进行更改时都会运行同步。"
+  },
+  "LabelOpeninnewtab": {
+    "message": "在新标签页中打开此视图"
+  },
+  "LabelGivefeedback": {
+    "message": "提供反馈"
+  },
+  "LabelYourname": {
+    "message": "您的姓名"
+  },
+  "LabelYouremail": {
+    "message": "您的电子邮件（可选）"
+  },
+  "LabelYourmessage": {
+    "message": "您的反馈信息"
+  },
+  "LabelSubmitfeedback": {
+    "message": "提交反馈"
+  },
+  "DescriptionFeedbacklegal": {
+    "message": "本反馈表由 Sentry 提供。按提交键即表示您同意将输入的数据存储在 Sentry 的服务器上。您的任何书签数据都不会发送给 Sentry。"
+  },
+  "DescriptionFeedbackhowto": {
+    "message": "感谢您花时间向 floccus 开发人员提供反馈意见！如果您的反馈与问题有关，请务必说明您所采取的步骤、您的期望和结果。如果您的反馈与功能请求有关，请务必注明该功能将为您解决的用例或问题。如果您附上电子邮件，我们可能会给您回复。谢谢！"
+  },
+  "LabelFeedbacksent": {
+    "message": "感谢您的反馈！"
+  },
+  "LabelFaq":{
+    "message": "查看常见问题"
+  },
+  "StatusSyncingfailed": {
+    "message": "同步失败"
+  },
+  "StatusSyncingcomplete": {
+    "message": "同步完成"
+  },
+  "NotificationSyncingprofile": {
+    "message": "同步配置文件{0}"
+  },
+  "NotificationSyncingsucceeded": {
+    "message": "同步个人资料{0} 成功"
+  },
+  "NotificationSyncingfailed": {
+    "message": "同步配置文件失败{0}"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "基于时间的同步"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "打开基于时间的同步，将每隔几分钟自动安排该配置文件的同步运行"
   }
 }
