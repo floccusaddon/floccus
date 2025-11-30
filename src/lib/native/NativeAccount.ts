@@ -8,7 +8,7 @@ import {
   CreateBookmarkError,
   DeletionFailsafeError, FloccusError, GitPushError,
   HttpError,
-  InconsistentBookmarksExistenceError, LockFileError,
+  InconsistentBookmarksExistenceError, InvalidUrlError, LockFileError,
   MissingItemOrderError,
   ParseResponseError, UnexpectedFolderPathError,
   UnknownFolderItemOrderError, UpdateBookmarkError
@@ -102,6 +102,9 @@ export default class NativeAccount extends Account {
     }
     if (er instanceof UnexpectedFolderPathError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.originalPath, er.newPath])
+    }
+    if (er instanceof InvalidUrlError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.url])
     }
     if (er instanceof FloccusError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))

@@ -393,3 +393,14 @@ export class UnexpectedFolderPathError extends FloccusError {
     Object.setPrototypeOf(this, UnexpectedFolderPathError.prototype)
   }
 }
+
+export class InvalidUrlError extends FloccusError {
+  public url: string
+
+  constructor(url: string) {
+    super(`E046: Invalid URL. '${url}' is not a valid URL.`)
+    this.code = 46
+    this.url = url
+    Object.setPrototypeOf(this, InvalidUrlError.prototype)
+  }
+}

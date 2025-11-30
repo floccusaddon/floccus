@@ -10,7 +10,7 @@ import {
   HttpError, CancelledSyncError,
   LockFileError, MissingPermissionsError,
   NetworkError, RedirectError, ResourceLockedError,
-  SlashError, FileSizeMismatch, FileSizeUnknown
+  SlashError, FileSizeMismatch, FileSizeUnknown, InvalidUrlError
 } from '../../errors/Error'
 import { CapacitorHttp as Http } from '@capacitor/core'
 import { Capacitor } from '@capacitor/core'
@@ -56,7 +56,12 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   normalizeServerURL(input) {
-    const serverURL = new URL(input)
+    let serverURL
+    try {
+      serverURL = new URL(input)
+    } catch (e) {
+      throw new InvalidUrlError(input)
+    }
     if (!serverURL.pathname) serverURL.pathname = ''
     serverURL.search = ''
     serverURL.hash = ''

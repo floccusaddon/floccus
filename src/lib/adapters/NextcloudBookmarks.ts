@@ -28,7 +28,7 @@ import {
   UnknownCreateTargetError,
   UnknownFolderParentUpdateError,
   UnknownFolderUpdateError,
-  UnknownMoveTargetError, UpdateBookmarkError
+  UnknownMoveTargetError, UpdateBookmarkError, InvalidUrlError
 } from '../../errors/Error'
 
 const PAGE_SIZE = 300
@@ -122,7 +122,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   normalizeServerURL(input:string):string {
-    const serverURL = new URL(input)
+    let serverURL
+    try {
+      serverURL = new URL(input)
+    } catch (e) {
+      throw new InvalidUrlError(input)
+    }
     const indexLoc = serverURL.pathname.indexOf('index.php')
     if (!serverURL.pathname) serverURL.pathname = ''
     serverURL.search = ''

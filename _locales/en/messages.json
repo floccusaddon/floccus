@@ -134,6 +134,9 @@
   "Error045": {
     "message": "E045: Unexpected folder path. The local sync folder for this profile used to be at `{0}` but is now at `{1}`. Please make sure this is intended and set the local sync folder again in the profile settings."
   },
+  "Error046": {
+    "message": "E046: Invalid URL. `{0}` is not a valid URL."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
