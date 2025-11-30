@@ -48,7 +48,7 @@
     "message": "E016: Cererea a expirat. Verificați configurația serverului dvs."
   },
   "Error017": {
-    "message": "E017: Eroare de rețea: Verificați conexiunea la rețea și detaliile contului dvs."
+    "message": "E017: Eroare de rețea: Verificați conexiunea la rețea, detaliile contului dvs. și setările TLS/SSL."
   },
   "Error018": {
     "message": "E018: Nu s-a putut autentifica cu serverul."
@@ -57,7 +57,7 @@
     "message": "E019: Stare HTTP {0}. Cerere {1} eșuată. Verificați configurația serverului și jurnalul."
   },
   "Error020": {
-    "message": "E020: Nu s-a putut analiza răspunsul serverului. Aplicația Bookmarks este instalată pe serverul dvs.?"
+    "message": "E020: Nu s-a putut analiza răspunsul serverului."
   },
   "Error021": {
     "message": "E021: Stare server inconsistentă. Dosarul este prezent în lista de ordine a copiilor, dar nu și în arborele de dosare"
@@ -102,7 +102,7 @@
     "message": "E034: Fișierul de marcaje de la distanță este ilizibil. Poate ați uitat să setați o frază de criptare sau ați setat un format de fișier greșit."
   },
   "Error035": {
-    "message": "E035: A eșuat crearea următorului semn de carte pe server: {0}"
+    "message": "E035: Nu s-a reușit crearea următorului semn de carte pe server: {0} -- Aplicația marcaje este actualizată?"
   },
   "Error036": {
     "message": "E036: Lipsește permisiunea de a accesa serverul de sincronizare"
@@ -130,6 +130,15 @@
   },
   "Error044": {
     "message": "E044: Operațiunea Git push a eșuat: {0}"
+  },
+  "Error045": {
+    "message": "E045: Calea dosarului neașteptată. Dosarul de sincronizare locală pentru acest profil era `{0}`, dar acum este `{1}`. Vă rugăm să vă asigurați că acest lucru este intenționat și să setați din nou folderul local de sincronizare în setările profilului."
+  },
+  "Error046": {
+    "message": "E046: URL invalid. `{0}` nu este un URL valid."
+  },
+  "Error047": {
+    "message": "E047: A eșuat analizarea fișierului XBEL. Datele XBEL par a fi corupte sau incomplete. Puteți încerca să eliminați fișierul de pe server pentru a permite floccus să îl recreeze. Asigurați-vă că faceți mai întâi o copie de rezervă."
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -204,7 +213,7 @@
     "message": "Sincronizați toate profilurile"
   },
   "LabelAutosync": {
-    "message": "Auto-sincronizare"
+    "message": "Sincronizare bazată pe modificări"
   },
   "StatusLastsynced": {
     "message": "Ultima sincronizare: {0} în urmă"
@@ -278,6 +287,9 @@
   "LabelSave": {
     "message": "Salvați"
   },
+  "LabelSelect": {
+    "message": "Selectați"
+  },
   "LabelCancel": {
     "message": "Anulează"
   },
@@ -325,9 +337,6 @@
   },
   "DescriptionFunddevelopment": {
     "message": "Lucrul la floccus este alimentat de un model de abonament voluntar. Dacă credeți că ceea ce fac merită și dacă puteți renunța la câteva monede în fiecare lună fără greutăți, vă rog să sprijiniți munca mea. De asemenea, vă rugăm să luați în considerare acordarea floccus un rating pe magazinul addon de alegerea ta. Vă mulțumesc!💙"
-  },
-  "LabelSelect": {
-    "message": "Selectați"
   },
   "LabelUntitledfolder": {
     "message": "Dosar fără titlu"
@@ -750,6 +759,9 @@
   "DescriptionTelemetry": {
     "message": "Floccus poate trimite automat date de eroare către mine, dezvoltatorul. Acesta este un ajutor extraordinar pentru descoperirea și rezolvarea mai rapidă a erorilor în floccus și va contribui la îmbunătățirea experienței dvs. cu floccus pe termen lung. Chiar și atunci când raportarea erorilor este activată, dezvoltatorii floccus nu vor putea niciodată să vă vadă marcajele."
   },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "Nou: În plus față de informațiile despre erori, floccus trimite acum și informații despre metoda de sincronizare pe care o utilizați, dacă această opțiune este activată. Acest lucru ne ajută să îmbunătățim floccus și să ne asigurăm că metodele de sincronizare funcționează conform așteptărilor."
+  },
   "LabelTelemetryenable": {
     "message": "Trimiteți automat dezvoltatorilor floccus date de eroare și informații despre metoda de sincronizare pe care o utilizați"
   },
@@ -850,7 +862,7 @@
     "message": "Chiar doriți să forțați sincronizarea? Sincronizarea cu două dispozitive în același timp poate avea consecințe neprevăzute, inclusiv coruperea datelor dvs. Asigurați-vă că niciun alt dispozitiv nu este sincronizat în acel moment înainte de a confirma."
   },
   "DescriptionAutosync": {
-    "message": "Activarea sincronizării automate va asigura declanșarea unei execuții de sincronizare în mod regulat într-un anumit interval configurabil, precum și la cerere, la câteva secunde după ce efectuați modificări. Dacă nu activați sincronizarea automată, va trebui să declanșați manual execuțiile de sincronizare prin apăsarea butonului de sincronizare."
+    "message": "Activarea sincronizării bazate pe modificări va asigura executarea unei sincronizări de fiecare dată când efectuați modificări la nivel local."
   },
   "LabelOpeninnewtab": {
     "message": "Deschideți această vizualizare într-o filă nouă"
@@ -896,5 +908,11 @@
   },
   "NotificationSyncingfailed": {
     "message": "A eșuat sincronizarea profilului {0}"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "Sincronizare în funcție de timp"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "Activarea sincronizării în funcție de timp va programa automat o execuție de sincronizare a acestui profil la fiecare câteva minute"
   }
 }
