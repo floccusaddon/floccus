@@ -48,7 +48,7 @@
     "message": "E016: Pyyntö aikakatkaistiin. Tarkista palvelinasetuksesi."
   },
   "Error017": {
-    "message": "E017: Verkkovirhe. Tarkista verkkoyhteytesi ja tiliasetuksesi."
+    "message": "E017: Verkkovirhe: Tarkista verkkoyhteytesi, tilisi tiedot ja TLS/SSL-asetukset."
   },
   "Error018": {
     "message": "E018: Palvelimelle ei voitu tunnistautua."
@@ -57,7 +57,7 @@
     "message": "E019: HTTP-tila {0}. Pyyntö {0} epäonnistui. Tarkista palvelinasetukset ja loki."
   },
   "Error020": {
-    "message": "E020: Palvelimen vastausta ei voida jäsentää. Onko kirjanmerkkisovellus asennettu palvelimellesi?"
+    "message": "E020: Palvelimen vastausta ei pystytty jäsentämään."
   },
   "Error021": {
     "message": "E021: Palvelimen tilan ristiriita. Kansio löytyy alikansioiden järjestysluettelosta, muttei hakemistorakenteesta."
@@ -102,7 +102,7 @@
     "message": "E034: Etäkäytössä oleva kirjanmerkkitiedosto ei ole luettavissa. Ehkä unohdit asettaa salauslausekkeen tai asetit väärän tiedostomuodon."
   },
   "Error035": {
-    "message": "E035: Kirjanmerkin {0} luonti palvelimelle epäonnistui."
+    "message": "E035: Failed to create the following bookmark on the server: {0} -- Onko kirjanmerkkisovellus ajan tasalla?"
   },
   "Error036": {
     "message": "E036: Synkronointipalvelimen käyttöön tarvittavia oikeuksia puuttuu."
@@ -130,6 +130,15 @@
   },
   "Error044": {
     "message": "E044: Git-työntöoperaatio epäonnistui: {0}"
+  },
+  "Error045": {
+    "message": "E045: Odottamaton kansiopolku. Tämän profiilin paikallinen synkronointikansio oli aiemmin osoitteessa `{0}`, mutta nyt se on osoitteessa `{1}`. Varmista, että tämä on tarkoitettu ja aseta paikallinen synkronointikansio uudelleen profiilin asetuksissa."
+  },
+  "Error046": {
+    "message": "E046: Virheellinen URL-osoite. `{0}` ei ole kelvollinen URL-osoite."
+  },
+  "Error047": {
+    "message": "E047: XBEL-tiedoston jäsentäminen epäonnistui. XBEL-tiedot näyttävät olevan vioittuneita tai epätäydellisiä. Voit yrittää poistaa tiedoston palvelimelta, jotta floccus voi luoda sen uudelleen. Varmista, että otat varmuuskopion ensin."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL-osoite"
@@ -204,7 +213,7 @@
     "message": "Synkronoi kaikki profiilit"
   },
   "LabelAutosync": {
-    "message": "Automaattinen synkronointi"
+    "message": "Muutoksiin perustuva synkronointi"
   },
   "StatusLastsynced": {
     "message": "Edellinen synkronointi: {0} sitten"
@@ -278,6 +287,9 @@
   "LabelSave": {
     "message": "Tallenna"
   },
+  "LabelSelect": {
+    "message": "Valitse"
+  },
   "LabelCancel": {
     "message": "Peruuta"
   },
@@ -325,9 +337,6 @@
   },
   "DescriptionFunddevelopment": {
     "message": "Floccuksen kehitystä rahoitetaan vapaaehtoispohjaisella tilausmallilla, joten jos koet panokseni sen arvoiseksi ja jos sinulla on mahdollisuus luopua muutamasta lantista kuukausittain, arvostaisin tukeasi. Harkitse myös Floccuksen arvostelemista omassa lisäosakaupassasi. Kiitos! 💙"
-  },
-  "LabelSelect": {
-    "message": "Valitse"
   },
   "LabelUntitledfolder": {
     "message": "Nimetön kansio"
@@ -750,6 +759,9 @@
   "DescriptionTelemetry": {
     "message": "Floccus voi lähettää automaattisesti virhetiedot kehittäjille. Tämä auttaa ja nopeuttaa Floccuksen virheiden havainnointia ja korjausta merkittävästi auttaen parantamaan käyttökokemustasi. Floccuksen kehittäjät eivät koskaan näe kirjanmerkkejäsi raportoinnin ollessa käytsössä."
   },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "Uusi: Virhetietojen lisäksi floccus lähettää nyt myös tiedon siitä, mitä synkronointimenetelmää käytät, jos tämä vaihtoehto on käytössä. Tämä auttaa meitä parantamaan floccusta ja varmistamaan, että synkronointimenetelmät toimivat odotetulla tavalla."
+  },
   "LabelTelemetryenable": {
     "message": "Lähetä automaattisesti virhetiedot ja tiedot siitä, mitä synkronointimenetelmää käytät, floccus-kehittäjille."
   },
@@ -850,7 +862,7 @@
     "message": "Haluatko todella pakottaa synkronoinnin? Synkronoinnilla kahdella laitteella samanaikaisesti voi olla odottamattomia seurauksia, kuten tietojen vahingoittuminen. Varmista ennen vahvistamista, että mikään muu laite ei synkronoi parhaillaan."
   },
   "DescriptionAutosync": {
-    "message": "Automaattisen synkronoinnin kytkeminen päälle varmistaa, että synkronointi käynnistyy säännöllisesti tietyn määritettävissä olevan ajanjakson sisällä sekä tarvittaessa muutaman sekunnin kuluttua muutosten tekemisestä. Jos et ota automaattista synkronointia käyttöön, sinun on käynnistettävä synkronointi manuaalisesti painamalla synkronointipainiketta."
+    "message": "Muutoksiin perustuvan synkronoinnin ottaminen käyttöön varmistaa, että synkronointi suoritetaan aina, kun teet muutoksia paikallisesti."
   },
   "LabelOpeninnewtab": {
     "message": "Avaa tämä näkymä uudessa välilehdessä"
@@ -896,5 +908,11 @@
   },
   "NotificationSyncingfailed": {
     "message": "Profiilin synkronointi epäonnistui {0}"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "Aikaan perustuva synkronointi"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "Jos otat aikapohjaisen synkronoinnin käyttöön, tämän profiilin synkronointi ajoitetaan automaattisesti muutaman minuutin välein."
   }
 }
