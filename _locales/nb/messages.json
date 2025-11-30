@@ -1,0 +1,918 @@
+{
+  "Error001": {
+    "message": "E001: Mappen du oppretter i, finnes ikke"
+  },
+  "Error002": {
+    "message": "E002: Dette bokmerket finnes ikke lengre"
+  },
+  "Error003": {
+    "message": "E003: Kan ikke gå tilbake i overordnet mappe. Dette er en feil. Gratulerer."
+  },
+  "Error004": {
+    "message": "E004: Mappen du flytter til, eksisterer ikke"
+  },
+  "Error005": {
+    "message": "E005: Mappen du lager i, finnes ikke"
+  },
+  "Error006": {
+    "message": "E006: Mappen du oppdaterer, finnes ikke"
+  },
+  "Error007": {
+    "message": "E007: Mappen du flytter, finnes ikke"
+  },
+  "Error008": {
+    "message": "E008: Mappen du flytter fra, finnes ikke"
+  },
+  "Error009": {
+    "message": "E009: Mappen du flytter inn i, finnes ikke"
+  },
+  "Error010": {
+    "message": "E010: Kunne ikke finne mappen til sortering"
+  },
+  "Error011": {
+    "message": "E011: Objektet i mappesorteringen er ikke underordnet: {0}"
+  },
+  "Error012": {
+    "message": "E012: Mappesorteringen mangler noen av mappens under-elementer"
+  },
+  "Error013": {
+    "message": "E013: Mappen du prøver å fjerne, finnes ikke"
+  },
+  "Error014": {
+    "message": "E014: Overordnet mappe du prøver å fjerne, finnes ikke"
+  },
+  "Error015": {
+    "message": "E015: Uventet data returnert fra server"
+  },
+  "Error016": {
+    "message": "E016: Forespørsel tok for lang tid. Sjekk server-konfigurasjonen din"
+  },
+  "Error017": {
+    "message": "E017: Nettverksfeil: Kontroller nettverkstilkoblingen, kontoopplysningene og TLS/SSL-innstillingene."
+  },
+  "Error018": {
+    "message": "E018: Kunne ikke autentisere seg med serveren."
+  },
+  "Error019": {
+    "message": "E019: HTTP status {0} - {1} forespørsel. Sjekk server-konfigurasjonen og loggene dine"
+  },
+  "Error020": {
+    "message": "E020: Kunne ikke analysere serverrespons."
+  },
+  "Error021": {
+    "message": "E021: Uregelmessig server status. Mappen er listet i underordnet liste men er ikke i mappetreet"
+  },
+  "Error022": {
+    "message": "E022: Mappe {0} inneholder tydeligvis ikke-eksisterende bokmerke {1}"
+  },
+  "Error023": {
+    "message": "E023: Klarte ikke å fjerne lås-fil, vurder å fjern {0} på manuelt vis. "
+  },
+  "Error024": {
+    "message": "E024: Fikk returnert HTTP status {0} mens låsefilen {1} ble sjekket "
+  },
+  "Error025": {
+    "message": "E025: Bokmerke-fil instillingene må ikke begynne med en skråstrek: '/'"
+  },
+  "Error026": {
+    "message": "E026: Synkroniseringsprosessen ble avbrutt"
+  },
+  "Error027": {
+    "message": "E027: Synkroniseringsprosessen ble stoppet"
+  },
+  "Error028": {
+    "message": "E028: Kunne ikke autentisere seg med serveren."
+  },
+  "Error029": {
+    "message": "E029: Feilsikring: Den nåværende synkroniseringskjøringen vil slette {0}% av koblingene dine. Nekter å utføre. Deaktiver denne feilsikringen i kontoinnstillingene hvis du vil fortsette likevel."
+  },
+  "Error030": {
+    "message": "E030: Kunne ikke dekryptere bokmerkefilen. Passordfrasen kan være feil, eller filen kan være ødelagt."
+  },
+  "Error031": {
+    "message": "E031: Kunne ikke autentisere med Google Disk. Vennligst koble floccus til Google-kontoen din igjen."
+  },
+  "Error032": {
+    "message": "E032: OAuth-feil. Token-valideringsfeil. Vennligst koble til Google-kontoen din på nytt."
+  },
+  "Error033": {
+    "message": "E033: Omdirigering oppdaget. Kontroller at serveren støtter den valgte synkroniseringsmetoden, og at URL-adressen du har angitt, ikke omdirigerer til et annet sted. Hvis viderekoblingen er en del av oppsettet ditt, kan du deaktivere denne kontrollen i innstillingene."
+  },
+  "Error034": {
+    "message": "E034: Filen med eksterne bokmerker er uleselig. Kanskje du har glemt å angi en passordfrase for kryptering, eller du har angitt feil filformat."
+  },
+  "Error035": {
+    "message": "E035: Følgende bokmerke kunne ikke opprettes på serveren: {0} -- Er bokmerke-appen oppdatert?"
+  },
+  "Error036": {
+    "message": "E036: Mangler tillatelser for å få tilgang til synkroniseringsserveren"
+  },
+  "Error037": {
+    "message": "E037: Ressursen er låst"
+  },
+  "Error038": {
+    "message": "E038: Fant ikke lokal mappe"
+  },
+  "Error039": {
+    "message": "E039: Følgende bokmerke kunne ikke oppdateres på serveren: {0}"
+  },
+  "Error040": {
+    "message": "E040: Kunne ikke søke etter filnavnet ditt i Google Disk"
+  },
+  "Error041": {
+    "message": "E041: Størrelsen på filen for eksterne bokmerker avviker fra innholdet som faktisk ble lastet ned fra serveren. Dette kan være et midlertidig nettverksproblem. Kontakt serveradministratoren hvis denne feilen vedvarer."
+  },
+  "Error042": {
+    "message": "E042: Størrelsen på den eksterne bokmerkefilen kunne ikke hentes. Det er umulig å verifisere at bokmerkefilen ble lastet ned i sin helhet. Kontakt serveradministratoren hvis denne feilen vedvarer."
+  },
+  "Error043": {
+    "message": "E043: Failsafe: Den nåværende synkroniseringskjøringen vil øke antall bokmerker med {0}%. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel."
+  },
+  "Error044": {
+    "message": "E044: Git-push-operasjonen mislyktes: {0}"
+  },
+  "Error045": {
+    "message": "E045: Uventet mappebane. Den lokale synkroniseringsmappen for denne profilen pleide å være på `{0}`, men er nå på `{1}`. Kontroller at dette er tiltenkt, og angi den lokale synkroniseringsmappen på nytt i profilinnstillingene."
+  },
+  "Error046": {
+    "message": "E046: Ugyldig URL. `{0}` er ikke en gyldig URL."
+  },
+  "Error047": {
+    "message": "E047: XBEL-filen kunne ikke analyseres. XBEL-dataene ser ut til å være ødelagte eller ufullstendige. Du kan prøve å fjerne filen på serveren for å la floccus gjenskape den. Sørg for å ta en sikkerhetskopi først."
+  },
+  "LabelWebdavurl": {
+    "message": "WebDAV URL"
+  },
+  "DescriptionWebdavurl": {
+    "message": "f.eks. med nextcloud: https://example.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "Nextcloud URL"
+  },
+  "LabelUsername": {
+    "message": "Brukernavn"
+  },
+  "LabelPassword": {
+    "message": "Passord"
+  },
+  "LabelBookmarksfile": {
+    "message": "Bokmerkefil"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "en bane til hvor bokmerkefilen skal ligge på serveren, i forhold til WebDAV-URL-en din (alle mappene i banen må allerede finnes). f.eks. personal_stuff/bookmarks.xbel"
+  },
+ "DescriptionBookmarksfilegoogle": {
+   "message": "filnavnet på bokmerkefilen som skal ligge på Google Disk. Ikke skriv inn hele filbanen, bare filnavnet. Sørg for at dette navnet er unikt i Stasjonen, f.eks. mybookmarks.xbel."
+ },
+  "DescriptionBookmarksfilegit": {
+    "message": "en sti til bokmerkefilen i forhold til roten til Git-arkivet ditt (alle mappene i stien må allerede finnes). f.eks. personal_stuff/bookmarks.xbel"
+  },
+  "LabelServerfolder": {
+    "message": "Servermål"
+  },
+  "DescriptionServerfolder": {
+    "message": "Når du synkroniserer, vil bokmerkene dine i denne nettleseren bli lagret som lenker under denne banen på serveren. Merk at denne banen representerer en mappe i Nextcloud Bookmarks-appen, ikke en mappe i Nextcloud Files. La denne stå tom for å bare legge alle lenker i den øverste mappen på serveren."
+  },
+  "DescriptionServerfolderlinkwarden": {
+    "message": "Når du synkroniserer, lagres bokmerkene dine i denne nettleseren som lenker under denne samlingen, og bare lenker under denne samlingen blir synkronisert med denne nettleseren."
+  },
+  "DescriptionServerfolderkarakeep": {
+    "message": "Når du synkroniserer, lagres bokmerkene dine i denne nettleseren som lenker under denne samlingen, og bare lenker under denne samlingen blir synkronisert med denne nettleseren."
+  },
+  "LabelLocaltarget": {
+    "message": "Lokalt mål"
+  },
+  "DescriptionLocaltarget": {
+    "message": "Her velger du om du vil synkronisere nettleserbokmerker eller nettleserfaner."
+  },
+  "LabelLocalfolder": {
+    "message": "Bokmerkemappe"
+  },
+  "DescriptionLocalfolder": {
+    "message": "Bokmerker i denne bokmerkemappen lagres som lenker på serveren, og lenker på serveren lagres som bokmerker i denne bokmerkemappen i denne nettleseren."
+  },
+  "LabelRootfolder": {
+    "message": "Rotmappe"
+  },
+  "LabelNewfolder": {
+    "message": "Nyopprettet mappe"
+  },
+  "LabelSelectfolder": {
+    "message": "Velg en mappe"
+  },
+  "LabelOptions": {
+    "message": "Valg"
+  },
+  "LabelSyncnow": {
+    "message": "Synkroniser nå"
+  },
+  "LabelCancelsync": {
+    "message": "Avbryt synkronisering"
+  },
+  "LabelSyncall": {
+    "message": "Synkroniser alle profiler"
+  },
+  "LabelAutosync": {
+    "message": "Endringsbasert synkronisering"
+  },
+  "StatusLastsynced": {
+    "message": "Sist synkronisert: {0} siden "
+  },
+  "StatusNeversynced": {
+    "message": "Ikke synkronisert enda"
+  },
+  "StatusAllgood": {
+    "message": "Alt vel"
+  },
+  "StatusDisabled": {
+    "message": "Deaktivert"
+  },
+  "StatusError": {
+    "message": "Feil"
+  },
+  "StatusSyncing": {
+    "message": "Synkroniserer"
+  },
+  "StatusScheduled": {
+    "message": "Planlagt"
+  },
+  "LabelReset": {
+    "message": "Tilbakestill"
+  },
+  "DescriptionReset": {
+    "message": "Tilbakestill synkronisert mappe for å lage en ny en"
+  },
+  "LabelChoosefolder": {
+    "message": "Velg en mappe"
+  },
+  "DescriptionChoosefolder": {
+    "message": "Sett en eksisterende mappe for å synkronisere"
+  },
+  "LabelRemoveaccount": {
+    "message": "Fjern profil"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "Slett denne profilen (dette vil ikke fjerne bokmerkene dine)"
+  },
+  "LabelSyncfromscratch": {
+    "message": "Start en synkronisering fra bunnen av"
+  },
+  "LabelResetCache": {
+    "message": "Tilbakestill hurtigbufferen"
+  },
+  "DescriptionResetcache": {
+    "message": "Klikk på denne knappen for å tilbakestille hurtigbufferen slik at neste synkroniseringskjøring garantert ikke sletter noen data, men bare slår sammen bokmerker på serveren og lokale bokmerker."
+  },
+  "LabelParallelsync": {
+    "message": "Synkroniser raskere"
+  },
+  "DescriptionParallelsync": {
+    "message": "Merk av denne boksen for å prosessere flere mapper parallelt, slik at synkroniseringen går raskere. Denne funksjonen er under testing, og kan hende det blir vanskeligere å lese feilsøkings-loggene."
+  },
+  "LabelStrategy": {
+    "message": "Synkroniserings-strategi"
+  },
+  "DescriptionStrategy": {
+    "message": "Dette alternativet bestemmer hvordan bokmerkene skal synkroniseres på ulike enheter. Vanligvis vil du beholde endringer fra alle sider hvis de er kompatible, men noen ganger vil du kanskje overskrive endringer (inkludert tilføyelser og slettinger) fra andre nettlesere, eller overskrive endringer du har gjort lokalt."
+  },
+  "LabelStrategydefault": {
+    "message": "Slå alltid sammen lokale endringer med endringer fra andre nettlesere (anbefales)"
+  },
+  "LabelStrategyslave": {
+    "message": "Angre alltid lokale endringer og last ned endringer fra andre nettlesere"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "Last alltid opp lokale endringer og angre endringer fra andre nettlesere"
+  },
+  "LabelSave": {
+    "message": "Spar"
+  },
+  "LabelSelect": {
+    "message": "Velg"
+  },
+  "LabelCancel": {
+    "message": "Avbryt"
+  },
+  "LabelAdd": {
+    "message": "Legg til"
+  },
+  "LabelChange": {
+    "message": "Forandring"
+  },
+  "LabelRemove": {
+    "message": "Fjern"
+  },
+  "LabelBack": {
+    "message": "Tilbake"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Nextcloud Bokmerker"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "Synkroniser bokmerkene dine med Bookmarks-appen med åpen kildekode for Nextcloud (en samarbeidsplattform med åpen kildekode som du enten kan hoste selv eller få en konto for en instans i skyen fra en av de ulike hosterne). Med Nextcloud Bookmarks kan du bare synkronisere http-, ftp- og javascript-bokmerker. Forsikre deg om at du har installert Bookmarks-appen fra Nextcloud app store i Nextcloud. Dette alternativet kan ikke bruke ende-til-ende-kryptering."
+  },
+  "LabelAdapternextcloud": {
+    "message": "Nextcloud Bokmerker (eldre)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "Det eldre alternativet er kompatibelt med minst versjon v0.11 av Bokmerker-appen. Det vil emulere mapper ved hjelp av tagger som inneholder mappebanen. Det anbefales ikke å bruke dette for nye profiler."
+  },
+  "LabelAdapterwebdav": {
+    "message": "WebDAV-deling"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "Synkroniser bokmerkene dine ved å lagre dem i en fil i den medfølgende WebDAV-delingen. Det er ikke noe medfølgende webgrensesnitt for dette alternativet, og du kan bruke det med en hvilken som helst WebDAV-kompatibel server, enten den er selvhostet eller i skyen. Den kan synkronisere http-, ftp-, data-, fil- og javascript-bokmerker. Du kan velge å bruke ende-til-ende-kryptering når du bruker dette alternativet."
+  },
+  "LabelAddaccount": {
+    "message": "Legg til profil"
+  },
+  "LabelOpenintab": {
+    "message": "Åpne i en fane"
+  },
+  "LabelDebuglogs": {
+    "message": "Feilsøkingslogger"
+  },
+  "LabelFunddevelopment": {
+    "message": "💸 Utvikling av fond"
+  },
+  "DescriptionFunddevelopment": {
+    "message": "Arbeidet med floccus drives av en frivillig abonnementsmodell. Hvis du synes det jeg gjør er verdt det, og hvis du kan avse noen mynter hver måned uten å lide nød, vennligst støtt arbeidet mitt. Du kan også vurdere å gi floccus en vurdering i addon-butikken du velger. Takk skal du ha!💙"
+  },
+  "LabelUntitledfolder": {
+    "message": "Mappe uten tittel"
+  },
+  "LabelSetkeybutton": {
+    "message": "Angi passordfrase"
+  },
+  "LabelKey": {
+    "message": "Skriv inn passordfrasen din for å låse opp"
+  },
+  "LabelKey2": {
+    "message": "Skriv inn passordfrasen din en gang til"
+  },
+  "LabelUnlock": {
+    "message": "Lås opp floccus"
+  },
+  "LabelRemovekey": {
+    "message": "Fjern passordfrasen"
+  },
+  "LabelRemovedkey": {
+    "message": "Passordfrase fjernet"
+  },
+  "LabelSyncinterval": {
+    "message": "Synkroniseringsintervall"
+  },
+  "DescriptionSyncinterval": {
+    "message": "Tidsrommet mellom to synkroniseringskjøringer i minutter. Standard er 15 minutter."
+  },
+  "LabelChooseadapter": {
+    "message": "Hvordan ønsker du å synkronisere?"
+  },
+  "LabelOptionsscreen": {
+    "message": "{0} alternativer",
+    "description": "Title of the options screen. The placeholder holds the profile type."
+  },
+  "LabelPaypal": {
+    "message": "Paypal"
+  },
+  "DescriptionPaypal": {
+    "message": "Gi en engangsdonasjon eller en regelmessig donasjon via PayPal for å støtte prosjektet"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "Gi en regelmessig donasjon via OpenCollective for å støtte prosjektet"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "Gi en regelmessig donasjon via Liberapay for å støtte prosjektet"
+  },
+  "LabelGithubsponsors": {
+    "message": "GitHub-sponsorer"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "Gi en regelmessig donasjon via GitHub-sponsorer for å støtte prosjektet"
+  },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "Gi en regelmessig donasjon via Patreon for å støtte prosjektet"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "Gi en regelmessig donasjon eller en engangsdonasjon via Ko-fi for å støtte prosjektet"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "Denne gamle profiltypen er utdatert og vil snart bli fjernet. Vennligst bytt til den nye nextcloud-synkroniseringsmetoden. Forbedret ytelse og nøyaktighet venter på deg."
+  },
+  "LabelUpdated": {
+    "message": "⚡ Floccus ble oppdatert"
+  },
+  "DescriptionUpdated": {
+    "message": "Gratulerer, den siste oppdateringen av floccus har ankommet maskinen din!"
+  },
+  "LabelReleaseNotes": {
+    "message": "Les utgivelsesmerknader"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "Serverdetaljer"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "Mappekartlegging"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "Synkroniseringsatferd"
+  },
+  "LabelOptionsDangerous": {
+    "message": "Farlige handlinger"
+  },
+  "LabelAccountDeleted": {
+    "message": "Profil slettet"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "Denne profilen ble slettet"
+  },
+  "LabelNoAccount": {
+    "message": "Ingen profiler ennå"
+  },
+  "DescriptionNoAccount": {
+    "message": "Legg til nye profiler, eller importer profiler fra en fil, så kan du begynne å synkronisere."
+  },
+  "LabelLoginFlowStart": {
+    "message": "Logg inn med Nextcloud"
+  },
+  "LabelLoginFlowStop": {
+    "message": "Avbryt Nextcloud-pålogging"
+  },
+  "LabelLoginFlowError": {
+    "message": "Nextcloud-pålogging mislyktes"
+  },
+  "LabelNewAccount": {
+    "message": "Legg til profil"
+  },
+  "LabelNewImport": {
+    "message": "Import"
+  },
+  "LabelNestedSync": {
+    "message": "Nestede profiler"
+  },
+  "DescriptionNestedSync": {
+    "message": "Du kan hekke profiler slik at en overordnet mappe tilhører profil A og en undermappe tilhører profil A og B. Ønsker du å tillate andre profiler å synkronisere denne profilens mappe også?"
+  },
+  "LabelNestedSyncNo": {
+    "message": "Nei, ignorer denne profilens mappe i andre profiler"
+  },
+  "LabelNestedSyncYes": {
+    "message": "Ja, inkluder denne profilens mappe i andre profiler"
+  },
+  "LabelImportExport": {
+    "message": "Import/eksport-profiler"
+  },
+  "LabelExport": {
+    "message": "Eksporter profiler"
+  },
+  "LabelImport": {
+    "message": "Importer profiler"
+  },
+  "DescriptionExport": {
+    "message": "Velg profilene nedenfor som du vil eksportere til en fil, slik at du enkelt kan gjenskape de samme profilene på en annen enhet eller i en annen nettleser."
+  },
+  "DescriptionImport": {
+    "message": "Importer en fil med eksporterte profiler her for å gjenskape profiler som er eksportert på en annen enhet eller nettleser. Sørg for å angi de riktige synkroniseringsmappene på nytt etter import."
+  },
+  "LabelFolderNotFound": {
+    "message": "Mappen ble ikke funnet"
+  },
+  "LabelSyncTabs": {
+    "message": "Nettleserfaner"
+  },
+  "DescriptionSyncTabs": {
+    "message": "Lenker som er lagret på serveren, åpnes som faner i nettleseren din, og eksisterende åpne faner lagres som lenker på serveren. Vær oppmerksom på at avhengig av hvor mange lenker som er lagret på serveren, kan dette føre til at nettleseren din blir overbelastet, siden alle blir åpnet som faner ved neste synkronisering."
+  },
+  "LabelTabs": {
+    "message": "Faner"
+  },
+  "LabelSyncDown": {
+    "message": "Trekk ned"
+  },
+  "DescriptionSyncDown": {
+    "message": "Last ned endringer fra andre nettlesere og overskriv lokale endringer"
+  },
+  "LabelSyncUp": {
+    "message": "Press opp"
+  },
+  "DescriptionSyncUp": {
+    "message": "Last opp lokale endringer og overskriv endringer fra andre nettlesere"
+  },
+  "LabelSyncDownOnce": {
+    "message": "Trekk ned én gang"
+  },
+  "LabelSyncUpOnce": {
+    "message": "Skyv opp én gang"
+  },
+  "LabelSyncNormal": {
+    "message": "Slå sammen"
+  },
+  "DescriptionSyncNormal": {
+    "message": "Slå sammen lokale endringer med endringer fra andre nettlesere"
+  },
+  "DescriptionFilesPermission": {
+    "message": "Sørg for at du gir floccus tillatelse til ikke bare å bruke bokmerke-appen, men også Nextcloud Files-appen."
+  },
+  "DescriptionExtension": {
+    "message": "Synkroniser bokmerkene dine privat på tvers av nettlesere og enheter"
+  },
+  "LabelFailsafe": {
+    "message": "Failsafe"
+  },
+  "DescriptionFailsafe": {
+    "message": "Noen ganger kan konfigurasjonsfeil eller programvarefeil føre til utilsiktet fjerning av data, som da går tapt, eller utilsiktet duplisering av data, som da er vanskelig å sortere ut. For å forhindre at dette skjer, vil floccus ikke slette mer enn 20 % av bokmerkene dine på én gang, og vil heller ikke legge til mer enn 20 % av bokmerkene dine på én gang, med mindre du deaktiverer denne sikkerhetsfeilen her."
+  },
+  "LabelFailsafeon": {
+    "message": "Aktivert. Vil ikke slette eller legge til mer enn 20 % fra/til de lokale bokmerkene dine uten å spørre deg først. (Anbefalt)"
+  },
+  "LabelFailsafeoff": {
+    "message": "Deaktivert. Tillater at du fjerner eller legger til mer enn 20 % fra/til de lokale bokmerkene dine uten at du må bekrefte det."
+  },
+  "StatusFailsafeoff": {
+    "message": "Failsafe er deaktivert. Du risikerer utilsiktet tap eller duplisering av data. Det anbefales å aktivere feilsikringen i profilinnstillingene."
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google Disk"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "Synkroniser bokmerker via en (eventuelt kryptert) fil som lagres i Google Disk. Den kan synkronisere http-, ftp-, data-, fil- og javascript-bokmerker. Du kan velge å bruke ende-til-ende-kryptering når du bruker dette alternativet."
+  },
+  "LabelLogingoogle": {
+    "message": "Logg inn med Google"
+  },
+  "DescriptionLogingoogle": {
+    "message": "Koble til Google-kontoen din for å lagre bokmerkesynkroniseringsfilen i Google Disk."
+  },
+  "DescriptionLoggedingoogle": {
+    "message": "Du har koblet til Google-kontoen din for å lagre bokmerkesynkroniseringsfilen i Google Disk."
+  },
+  "LabelPassphrase": {
+    "message": "Passordfrase"
+  },
+  "DescriptionPassphrase": {
+    "message": "Angi en passordfrase for kryptering av bokmerkefilen. Hvis du ikke angir noen passordfrase, kjøres ingen kryptering."
+  },
+  "LabelClientcert": {
+    "message": "Send klientlegitimasjon"
+  },
+  "DescriptionClientcert": {
+    "message": "Aktiver dette alternativet hvis serveren din krever et klientsertifikat eller informasjonskapsler for autentisering. Dette kan føre til utilsiktede bivirkninger, ettersom floccus vil dele informasjonskapsler med dine vanlige nettleserøkter."
+  },
+  "LabelAllowredirects": {
+    "message": "Tillat viderekoblinger i server-URL"
+  },
+  "DescriptionAllowredirects": {
+    "message": "Aktiver dette alternativet hvis du får viderekoblingsfeil under synkronisering, som du mener er uberettiget."
+  },
+  "LabelSearch": {
+    "message": "Søk i bokmerker"
+  },
+  "LabelSearchfolder": {
+    "message": "Søk {0}"
+  },
+  "LabelEdititem": {
+    "message": "Rediger"
+  },
+  "LabelDeleteitem": {
+    "message": "Slett"
+  },
+  "DescriptionReallydeleteitem": {
+    "message": "Vil du virkelig slette dette elementet?"
+  },
+  "LabelNobookmarks": {
+    "message": "Ingen bokmerker her"
+  },
+  "LabelAddbookmark": {
+    "message": "Legg til bokmerke"
+  },
+  "LabelEditbookmark": {
+    "message": "Rediger bokmerke"
+  },
+  "LabelAddfolder": {
+    "message": "Legg til mappe"
+  },
+  "LabelEditfolder": {
+    "message": "Rediger mappe"
+  },
+  "LabelSlugline": {
+    "message": "Privat synkronisering av bokmerker"
+  },
+  "LabelDownloadlogs": {
+    "message": "Last ned logger"
+  },
+  "LabelDownloadfulllogs": {
+    "message": "Fullstendige logger"
+  },
+  "LabelDownloadanonymizedlogs": {
+    "message": "Redigerte logger"
+  },
+  "DescriptionDownloadlogs": {
+    "message": "Floccus logger alle handlinger i en loggfil som du kan undersøke selv eller sende til utviklerne for feilsøkingsformål. I redigerte logger er mappe- og bokmerkenavn samt nettadresser irreversibelt kodet ved hjelp av en kryptografisk hashing-funksjon. Når du sender redigerte logger, må du likevel sjekke den nedlastede filen for sensitive data som kanskje ikke ble fanget opp av anonymiseringsprosessen."
+  },
+  "ErrorFolderloopselected": {
+    "message": "Kan ikke flytte en mappe inn i seg selv"
+  },
+  "ErrorNofolderselected": {
+    "message": "Ingen mappe valgt"
+  },
+  "LabelAllownetwork": {
+    "message": "Tillat bruk av nettverket"
+  },
+  "DescriptionAllownetwork": {
+    "message": "Floccus kan bruke nettverket, i tillegg til å koble seg til synkroniseringsserveren, til å innhente tilleggsinformasjon om bokmerkene dine (som ikoner osv.). Her kan du aktivere slik nettverksbruk."
+  },
+  "LabelMobilesettings": {
+    "message": "Mobilinnstillinger"
+  },
+  "LabelContinuefloccus":{
+    "message": "Fortsett til floccus"
+  },
+  "LabelAbout":{
+    "message": "Om"
+  },
+  "LabelCurrentversion": {
+    "message": "Nåværende versjon"
+  },
+  "DescriptionCurrentversion": {
+    "message": "Den installerte versjonen av floccus er:"
+  },
+  "LabelContributors": {
+    "message": "Bidragsytere"
+  },
+  "DescriptionContributors": {
+    "message": "Disse menneskene har bidratt til å gjøre floccus mulig"
+  },
+  "LabelSortcustom": {
+    "message": "Tilpasset"
+  },
+  "LabelSorturl": {
+    "message": "Lenke"
+  },
+  "LabelSorttitle": {
+    "message": "Tittel"
+  },
+  "LabelSyncmethod": {
+    "message": "Synkroniseringsmetode"
+  },
+  "LabelSyncserver": {
+    "message": "Synkroniseringsserver"
+  },
+  "LabelSyncfolders": {
+    "message": "Synkroniser mapper"
+  },
+  "LabelSyncbehavior": {
+    "message": "Synkroniseringsatferd"
+  },
+  "LabelContinue": {
+    "message": "Fortsett"
+  },
+  "LabelDone": {
+    "message": "Ferdig"
+  },
+  "LabelConnect": {
+    "message": "Koble til"
+  },
+  "LabelServersetup": {
+    "message": "Hvilken server ønsker du å synkronisere til?"
+  },
+  "LabelGoogledrivesetup": {
+    "message": "Logg inn på Google Disk"
+  },
+  "LabelSyncfoldersetup": {
+    "message": "Hvilke mapper ønsker du å synkronisere?"
+  },
+  "LabelSyncbehaviorsetup": {
+    "message": "Hvordan vil du at synkroniseringen skal fungere?"
+  },
+  "LabelAccountcreated": {
+    "message": "Profil opprettet"
+  },
+  "DescriptionAccountcreated": {
+    "message": "Profilen din er opprettet. Du kan lukke denne fanen nå. En ting til: Synkronisering er ikke en sikkerhetskopi. Sørg for at du har regelmessige sikkerhetskopier av bokmerkene dine."
+  },
+  "DescriptionNonhttps": {
+    "message": "Du har angitt en server som bruker en usikker protokoll. Vi anbefaler at du bare bruker servere med støtte for HTTPS."
+  },
+  "LabelFiletype": {
+    "message": "Filformat"
+  },
+  "DescriptionFiletype": {
+    "message": "Du kan velge hvilket filformat du vil bruke til å lagre bokmerker i nettskyen."
+  },
+  "LabelFiletypehtml": {
+    "message": "HTML, et åpent format med bred støtte (eksperimentelt)"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL, et enkelt, åpent format"
+  },
+  "LabelImportbookmarks": {
+    "message": "Importer bokmerker"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "Importerer en HTML-fil som inneholder bokmerker til den aktuelle mappen"
+  },
+  "LabelExportBookmarks": {
+    "message": "Eksporter bokmerker"
+  },
+  "DescriptionExportBookmarks" : {
+    "message": "Du kan eksportere alle bokmerkene i denne profilen som en HTML-fil som er kompatibel med alle større nettlesere."
+  },
+  "LabelShareitem": {
+    "message": "Del"
+  },
+  "LabelImportsuccessful": {
+    "message": "Vellykket import av profil(er)"
+  },
+  "DescriptionSyncinprogress": {
+    "message": "Synkronisering pågår."
+  },
+  "DescriptionSyncscheduled": {
+    "message": "Denne profilen vil snart bli synkronisert. Vi venter enten på at andre enheter, eller andre profiler på denne enheten, skal bli ferdig synkronisert."
+  },
+  "LabelAdaptergit": {
+    "message": "Git over HTTPS"
+  },
+  "DescriptionAdaptergit": {
+    "message": "Git-alternativet synkroniserer bokmerkene dine ved å lagre dem i en fil i det medfølgende Git-depotet. Det finnes ikke noe medfølgende webgrensesnitt for dette alternativet, men du kan bruke det med alle Git-hostingservere, som Github, Gitlab, Gitea osv. Den kan synkronisere http, ftp, data, fil- og javascript-bokmerker. Du kan ikke bruke ende-til-ende-kryptering når du bruker dette alternativet. Dette alternativet er for øyeblikket ikke tilgjengelig i mobilappen."
+  },
+  "LabelGiturl": {
+    "message": "URL til depotet ved hjelp av HTTP"
+  },
+  "LabelGitbranch": {
+    "message": "Git-gren"
+  },
+  "LabelTelemetry": {
+    "message": "Automatisert feilrapportering"
+  },
+  "DescriptionTelemetry": {
+    "message": "Floccus kan automatisk sende feildata til meg, utvikleren. Dette er til stor hjelp for å oppdage og løse feil i floccus raskere, og vil bidra til å forbedre opplevelsen din med floccus i det lange løp. Selv når feilrapportering er aktivert, vil floccus-utviklerne aldri kunne se bokmerkene dine."
+  },
+  "DescriptionTelemetrysyncmethod": {
+    "message": "Nytt: I tillegg til feilinformasjonen sender floccus nå også informasjon om hvilken synkroniseringsmetode du bruker, hvis dette alternativet er aktivert. Dette hjelper oss med å forbedre floccus og sørge for at synkroniseringsmetodene fungerer som forventet."
+  },
+  "LabelTelemetryenable": {
+    "message": "Send automatisk feildata og informasjon om hvilken synkroniseringsmetode du bruker til floccus-utviklere"
+  },
+  "LabelTelemetrydisable": {
+    "message": "Ikke send data til floccus-utviklere"
+  },
+  "LabelAccountlabel": {
+    "message": "Profiletikett"
+  },
+  "DescriptionAccountlabel": {
+    "message": "Gi denne profilen et navn slik at du lettere kan gjenkjenne den"
+  },
+  "LabelClickcount": {
+    "message": "Tell klikk"
+  },
+  "DescriptionClickcount": {
+    "message": "Send statistikk over hvilke bokmerker du besøker mest til Nextcloud-serveren din, slik at du kan sortere etter antall klikk"
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "Skriv en anmeldelse på Google Play"
+  },
+  "DescriptionAppstorereview": {
+    "message": "Skriv en anmeldelse på App Store"
+  },
+  "DescriptionChromereview": {
+    "message": "Skriv en anmeldelse av Chrome WebStore"
+  },
+  "DescriptionAlternativereview": {
+    "message": "Skriv en anmeldelse av AlternativeTo.net"
+  },
+  "DescriptionMozillareview": {
+    "message": "Skriv en anmeldelse på Mozilla Addons"
+  },
+  "DescriptionEdgereview": {
+    "message": "Skriv en anmeldelse på Edge Addons"
+  },
+  "LabelWritereview": {
+    "message": "💙 Del kjærligheten!"
+  },
+  "DescriptionWritereview": {
+    "message": "Hvis du er begeistret for floccus, kan du gi verden beskjed ved å legge igjen en vurdering på en av plattformene nedenfor."
+  },
+  "DescriptionDonateintervention": {
+    "message": "Elsker du synkronisering av bokmerker? Støtt meg!"
+  },
+  "LabelDonate": {
+    "message": "Gi en gave"
+  },
+  "DescriptionDisabledaftererror": {
+    "message": "Prøvde på nytt 10 ganger før denne profilen ble deaktivert"
+  },
+  "DescriptionBookmarkexists": {
+    "message": "Dette bokmerket finnes allerede i den valgte profilen"
+  },
+  "LabelReportproblem": {
+    "message": "Rapporter problem"
+  },
+  "DescriptionReportproblem": {
+    "message": "Hvis du ønsker å kontakte utviklerne direkte med et konkret problem, kan du gjøre det her:"
+  },
+  "LabelAdapterKarakeep":  {
+    "message": "Karakeep"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "Synkroniser bokmerkene dine med Karakeep-appen med åpen kildekode. Dette alternativet kan ikke bruke ende-til-ende-kryptering og støtter ikke opprettholdelse av rekkefølgen på bokmerkene på tvers av synkroniseringer."
+  },
+  "LabelApiKey":  {
+    "message": "API-nøkkel"
+  },
+  "LabelKarakeepurl":  {
+    "message": "URL-adressen til Karakeep-serveren din"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "Kunne ikke koble til Karakeep-serveren din"
+  },
+  "LabelAdapterlinkwarden":  {
+    "message": "Linkwarden"
+  },
+  "DescriptionAdapterlinkwarden":  {
+    "message": "Synkroniser bokmerkene dine med Linkwarden-appen med åpen kildekode, enten på din egen server eller i skyen på cloud.linkwarden.app. Den kan bare synkronisere http-, ftp- og javascript-bokmerker. Dette alternativet kan ikke bruke ende-til-ende-kryptering og støtter ikke bevaring av bokmerkerekkefølgen på tvers av synkroniseringer."
+  },
+  "LabelLinkwardenurl":  {
+    "message": "URL-adressen til Linkwarden-serveren din"
+  },
+  "LabelAccesstoken":  {
+    "message": "Tilgangstoken"
+  },
+  "LabelLinkwardenconnectionerror": {
+    "message": "Kunne ikke koble til Linkwarden-serveren din"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "Resultater fra andre mapper"
+  },
+  "LabelScheduledforcesync": {
+    "message": "Tving synkronisering"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "Vil du virkelig tvinge frem synkronisering? Synkronisering med to enheter samtidig kan få uforutsette konsekvenser, blant annet at dataene dine blir ødelagt. Forsikre deg om at ingen andre enheter synkroniserer for øyeblikket før du bekrefter."
+  },
+  "DescriptionAutosync": {
+    "message": "Hvis du slår på endringsbasert synkronisering, sørger du for at det kjøres en synkronisering hver gang du gjør endringer lokalt."
+  },
+  "LabelOpeninnewtab": {
+    "message": "Åpne denne visningen i en ny fane"
+  },
+  "LabelGivefeedback": {
+    "message": "Gi tilbakemelding"
+  },
+  "LabelYourname": {
+    "message": "Ditt navn"
+  },
+  "LabelYouremail": {
+    "message": "E-postadressen din (valgfritt)"
+  },
+  "LabelYourmessage": {
+    "message": "Tilbakemeldingen din"
+  },
+  "LabelSubmitfeedback": {
+    "message": "Send inn tilbakemelding"
+  },
+  "DescriptionFeedbacklegal": {
+    "message": "Dette tilbakemeldingsskjemaet drives av Sentry. Ved å trykke på send samtykker du til å lagre de oppgitte dataene på Sentrys servere. Ingen av dine bokmerkedata vil bli sendt til Sentry."
+  },
+  "DescriptionFeedbackhowto": {
+    "message": "Takk for at du tar deg tid til å gi tilbakemelding til utviklerne av floccus! Hvis tilbakemeldingen din er relatert til et problem, må du sørge for å inkludere trinnene du tok, hva du forventet og hva som skjedde i stedet. Hvis tilbakemeldingen din gjelder en funksjonsforespørsel, må du sørge for å inkludere brukstilfellet eller problemet som denne funksjonen vil løse for deg. Hvis du oppgir e-postadressen din, kan det hende at vi ringer deg tilbake. Takk skal du ha!"
+  },
+  "LabelFeedbacksent": {
+    "message": "Takk for din tilbakemelding!"
+  },
+  "LabelFaq":{
+    "message": "Sjekk vanlige spørsmål"
+  },
+  "StatusSyncingfailed": {
+    "message": "Synkronisering mislyktes"
+  },
+  "StatusSyncingcomplete": {
+    "message": "Synkronisering fullført"
+  },
+  "NotificationSyncingprofile": {
+    "message": "Synkroniseringsprofil {0}"
+  },
+  "NotificationSyncingsucceeded": {
+    "message": "Synkronisering av profilen {0} lyktes"
+  },
+  "NotificationSyncingfailed": {
+    "message": "Kunne ikke synkronisere profilen {0}"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "Tidsbasert synkronisering"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "Hvis du slår på tidsbasert synkronisering, planlegges det automatisk en synkroniseringskjøring av denne profilen med noen minutters mellomrom"
+  }
+}
