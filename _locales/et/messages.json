@@ -138,7 +138,7 @@
     "message": "E046: Vale URL. \"{0}\" ei ole kehtiv URL."
   },
   "Error047": {
-    "message": "E047: XBEL-faili analüüsimine ebaõnnestus. XBEL-andmed tunduvad olevat vigased või ebatäielikud. Võite proovida eemaldada faili serverist, et floccus saaks selle uuesti luua. Tehke kindlasti esmalt varukoopia."
+    "message": "E047: XBEL-faili analüüsimine ei õnnestunud. XBEL-andmed tunduvad olevat vigased või ebatäielikud. Võid proovida eemaldada faili serverist, et floccus saaks selle uuesti luua. Tee kindlasti esmalt varukoopia."
   },
   "LabelWebdavurl": {
     "message": "WebDAVi võrguaadress"
