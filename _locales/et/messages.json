@@ -135,7 +135,7 @@
     "message": "E045: Kausta ootamatu asukoht. Selle profiili kohalik sünkroonimiskaust oli asukohas `{0}`, aga nüüd on uues kohas `{1}`. Palun kontrolli, kas see nii peabki olema ja seadista profiili seadistustest kohalik sünkroonimiskaust uuesti."
   },
   "Error046": {
-    "message": "E046: Vale URL. \"{0}\" ei ole kehtiv URL."
+    "message": "E046: Vale võrguaadress. „{0}“ ei ole korrektne või õige võrguaadress."
   },
   "Error047": {
     "message": "E047: XBEL-faili analüüsimine ei õnnestunud. XBEL-andmed tunduvad olevat vigased või ebatäielikud. Võid proovida eemaldada faili serverist, et floccus saaks selle uuesti luua. Tee kindlasti esmalt varukoopia."
