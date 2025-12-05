@@ -7085,15 +7085,15 @@ describe('Floccus', function() {
             }
           }
           if (ACCOUNT_DATA.type === 'dropbox') {
-              const fileList = await account1.server.listFiles(account1.server.bookmark_file)
-              const files = fileList.matches
-              for (const file of files) {
-                await account1.server.deleteFile(file.metadata.metadata.id)
-              }
-              if (files.length > 1) {
-                throw new Error('Dropbox sync left more than one file behind')
-              }
+            const fileList = await account1.server.listFiles(account1.server.bookmark_file)
+            const files = fileList.matches
+            for (const file of files) {
+              await account1.server.deleteFile(file.metadata.metadata.id)
             }
+            if (files.length > 1) {
+              throw new Error('Dropbox sync left more than one file behind')
+            }
+          }
           await browser.bookmarks.removeTree(account1.getData().localRoot)
           await account1.delete()
           await browser.bookmarks.removeTree(account2.getData().localRoot)
