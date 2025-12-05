@@ -700,7 +700,7 @@
     "message": "Loodud profiil"
   },
   "DescriptionAccountcreated": {
-    "message": "Teie profiil on loodud. Võite selle vahekaardi nüüd sulgeda. Veel üks asi: sünkroonimine ei ole varundamine. Veenduge, et teil on regulaarselt varukoopiaid oma järjehoidjatest."
+    "message": "Veel üks oluline asi: sünkroonimine ei tähenda varundust. Palun kontrolli, et sul on oma järjehoidjatest olemas varukoopia.\n\nLisaks palun arvesta, et floccuse kombineerimine baruseri sisemise järjehoidjate sünkroonimisega pole toetatud ja võib lõppeda järjehoidjate topeltkirjete tekkimisega."
   },
   "DescriptionNonhttps": {
     "message": "Olete sisenenud serverisse, mis kasutab ebaturvalist protokolli. Soovitatav on kasutada ainult HTTPS-i toetavaid servereid."
