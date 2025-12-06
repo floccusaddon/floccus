@@ -3,6 +3,7 @@ import Mappings, { MappingSnapshot } from './Mappings'
 import Ordering from './interfaces/Ordering'
 import batchingToposort from 'batching-toposort'
 import Logger from './Logger'
+import { MappingFailureError } from '../errors/Error'
 
 export const ActionType = {
   CREATE: 'CREATE',
@@ -255,7 +256,7 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
               diff.commit(action)
               Logger.log('Failed to map parentId of action ' + diff.inspect())
               Logger.log(JSON.stringify(mappingsSnapshot, null,'\t'))
-              throw new Error('Failed to map parentId to ' + targetLocation + ': ' + action.payload.parentId)
+              throw new MappingFailureError(action.payload.parentId.toString())
             }
           }
         }

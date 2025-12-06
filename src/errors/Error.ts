@@ -412,3 +412,14 @@ export class XbelParseError extends FloccusError {
     Object.setPrototypeOf(this, XbelParseError.prototype)
   }
 }
+
+export class MappingFailureError extends FloccusError {
+  public id: string
+
+  constructor(id: string) {
+    super(`E048: Failed to map ID: ${id}`)
+    this.id = id
+    this.code = 48
+    Object.setPrototypeOf(this, MappingFailureError.prototype)
+  }
+}

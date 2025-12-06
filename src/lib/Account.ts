@@ -337,6 +337,19 @@ export default class Account {
     } catch (e) {
       console.log(e)
       const message = await Account.stringifyError(e)
+
+      // Catch MappingFailureError and gracefully resume with reset cache
+      if (matchAllErrors(e, e => e.code === 48)) {
+        Logger.log('Caught MappingFailureError: Gracefully resuming with reset cache')
+        await this.init()
+        await this.storage.setCurrentContinuation(null)
+        this.syncProcess = null
+        this.localCachingResource = null
+        await this.setData({ syncing: false })
+        this.syncing = false
+        return this.sync(strategy, forceSync)
+      }
+
       console.error('Syncing failed with', message)
       Logger.log('Syncing failed with', message)
       setContext('accountData', {
@@ -432,5 +445,5 @@ export default class Account {
 }
 
 function matchAllErrors(e, fn:(e)=>boolean) {
-  return fn(e) && e.list && e.list.every(e => matchAllErrors(e, fn))
+  return fn(e) && (e.list ? e.list.every(e => matchAllErrors(e, fn)) : true)
 }
