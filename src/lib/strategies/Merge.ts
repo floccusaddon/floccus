@@ -1,4 +1,4 @@
-import { Folder, ItemLocation, ItemType, TItem, TItemLocation, TOppositeLocation } from '../Tree'
+import { Folder, ItemLocation, TItem, TItemLocation, TOppositeLocation } from '../Tree'
 import Diff, { CreateAction, MoveAction, PlanStage1 } from '../Diff'
 import Scanner, { ScanResult } from '../Scanner'
 import * as Parallel from 'async-parallel'
