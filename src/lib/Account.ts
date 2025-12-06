@@ -313,7 +313,7 @@ export default class Account {
 
       if (mappings) {
         // Remove superfluous items from mappings
-        // as we don't remove items immediately anymore, due to possible interrupts
+        // as we don't remove items immediately for anymore (for Atomic adapters), due to possible interrupts
         await mappings.gc(cache)
         // store mappings
         await mappings.persist()
