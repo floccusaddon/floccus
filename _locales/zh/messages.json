@@ -700,7 +700,7 @@
     "message": "新配置文件已创建"
   },
   "DescriptionAccountcreated": {
-    "message": "您的个人资料已创建。现在可以关闭此选项卡。还有一点：同步不是备份。请确保您定期备份书签。"
+    "message": "还有一点：同步不是备份。确保定期备份书签。\n\n还要注意的是，不支持将 Floccus 与浏览器内置书签同步结合使用，这样会出现重复书签。"
   },
   "DescriptionNonhttps": {
     "message": "您输入的服务器使用了不安全的协议。建议仅使用支持HTTPS的服务器。"
