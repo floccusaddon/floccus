@@ -700,7 +700,7 @@
     "message": "Profiel aangemaakt"
   },
   "DescriptionAccountcreated": {
-    "message": "Je profiel is aangemaakt. Je kunt dit tabblad nu sluiten. Nog één ding: Synchroniseren is geen back-up. Zorg ervoor dat je regelmatig back-ups maakt van je bladwijzers."
+    "message": "Nog één ding: synchroniseren is geen back-up. Zorg ervoor dat je regelmatig back-ups van je bladwijzers maakt.\n\nMerk ook op dat het combineren van floccus met de browser-ingebouwde bladwijzersynchronisatie niet wordt ondersteund en dat je dubbele bestanden kunt krijgen."
   },
   "DescriptionNonhttps": {
     "message": "Je hebt een server ingevoerd die een onveilig protocol gebruikt. Het wordt aanbevolen om alleen servers te gebruiken die HTTPS ondersteunen."
