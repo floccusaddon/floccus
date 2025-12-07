@@ -700,7 +700,7 @@
     "message": "Profil opprettet"
   },
   "DescriptionAccountcreated": {
-    "message": "Profilen din er opprettet. Du kan lukke denne fanen nå. En ting til: Synkronisering er ikke en sikkerhetskopi. Sørg for at du har regelmessige sikkerhetskopier av bokmerkene dine."
+    "message": "En ting til: Synkronisering er ikke en sikkerhetskopi. Sørg for at du har regelmessige sikkerhetskopier av bokmerkene dine.\n\nVær også oppmerksom på at det ikke er støtte for å kombinere floccus med nettleserens innebygde bokmerkesynkronisering, og at du kan ende opp med duplikater."
   },
   "DescriptionNonhttps": {
     "message": "Du har angitt en server som bruker en usikker protokoll. Vi anbefaler at du bare bruker servere med støtte for HTTPS."
