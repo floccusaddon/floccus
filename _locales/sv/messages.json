@@ -700,7 +700,7 @@
     "message": "Profil skapad"
   },
   "DescriptionAccountcreated": {
-    "message": "Din profil har skapats. Du kan stänga den här fliken nu. En sak till: Synkronisering är inte en säkerhetskopia. Se till att du har regelbundna säkerhetskopior av dina bokmärken."
+    "message": "En sak till: Synkronisering är inte en säkerhetskopia. Se till att du har regelbundna säkerhetskopior av dina bokmärken.\n\nObservera också att det inte stöds att kombinera floccus med den webbläsarinbyggda bokmärkessynkroniseringen och att du kan få dubbletter."
   },
   "DescriptionNonhttps": {
     "message": "Du har angett en server som använder ett osäkert protokoll. Vi rekommenderar att du endast använder servrar med stöd för HTTPS."
