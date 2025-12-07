@@ -700,7 +700,7 @@
     "message": "Profil creat"
   },
   "DescriptionAccountcreated": {
-    "message": "Profilul dvs. a fost creat. Puteți închide această filă acum. Încă un lucru: sincronizarea nu este o copie de siguranță. Asigurați-vă că aveți backup-uri regulate ale marcajelor dvs."
+    "message": "Încă un lucru: sincronizarea nu este o copie de rezervă. Asigurați-vă că aveți backup-uri regulate ale marcajelor dvs.\n\nDe asemenea, rețineți că combinarea floccus cu sincronizarea marcajelor încorporată în browser nu este acceptată și vă puteți trezi cu duplicate."
   },
   "DescriptionNonhttps": {
     "message": "Ați introdus un server care utilizează un protocol nesigur. Se recomandă utilizarea numai a serverelor cu suport pentru HTTPS."
