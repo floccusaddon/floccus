@@ -700,7 +700,7 @@
     "message": "Profilo creato"
   },
   "DescriptionAccountcreated": {
-    "message": "Il vostro profilo è stato creato. Ora è possibile chiudere questa scheda. Un'ultima cosa: la sincronizzazione non è un backup. Assicuratevi di avere un backup regolare dei vostri segnalibri."
+    "message": "Un'altra cosa: la sincronizzazione non è un backup. Assicuratevi di avere un backup regolare dei vostri segnalibri.\n\nSi noti inoltre che la combinazione di floccus con la sincronizzazione dei segnalibri integrata nel browser non è supportata e si possono avere duplicati."
   },
   "DescriptionNonhttps": {
     "message": "Hai inserito un server che utilizza un protocollo non sicuro. Si consiglia di utilizzare solo server che supportano HTTPS."
