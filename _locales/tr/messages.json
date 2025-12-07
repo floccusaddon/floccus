@@ -700,7 +700,7 @@
     "message": "Profil oluşturuldu"
   },
   "DescriptionAccountcreated": {
-    "message": "Profiliniz oluşturuldu. Şimdi bu sekmeyi kapatabilirsiniz. Bir şey daha: Sync bir yedekleme değildir. Yer imlerinizin düzenli yedeklerine sahip olduğunuzdan emin olun."
+    "message": "Bir şey daha: Senkronizasyon bir yedekleme değildir. Yer imlerinizi düzenli olarak yedeklediğinizden emin olun.\n\nAyrıca, floccus'u tarayıcıda yerleşik yer imi senkronizasyonu ile birleştirmenin desteklenmediğini ve yinelemelerle sonuçlanabileceğini unutmayın."
   },
   "DescriptionNonhttps": {
     "message": "Güvenli olmayan bir protokol kullanan bir sunucuya girdiniz. Yalnızca HTTPS desteğine sahip sunucuların kullanılması önerilir."
