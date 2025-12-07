@@ -700,7 +700,7 @@
     "message": "Perfil criado"
   },
   "DescriptionAccountcreated": {
-    "message": "O seu perfil foi criado. Pode fechar este separador agora. Mais uma coisa: a sincronização não é uma cópia de segurança. Certifique-se de que faz cópias de segurança regulares dos seus marcadores."
+    "message": "Mais uma coisa: a sincronização não é uma cópia de segurança. Certifique-se de que faz cópias de segurança regulares dos seus marcadores.\n\nTenha também em atenção que a combinação do floccus com a sincronização de marcadores incorporada no browser não é suportada e pode acabar por ter duplicados."
   },
   "DescriptionNonhttps": {
     "message": "Introduziu um servidor que utiliza um protocolo inseguro. Recomenda-se a utilização apenas de servidores com suporte para HTTPS."
