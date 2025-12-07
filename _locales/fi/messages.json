@@ -700,7 +700,7 @@
     "message": "Profiili on luotu"
   },
   "DescriptionAccountcreated": {
-    "message": "Profiilisi on luotu. Voit nyt sulkea tämän välilehden. Vielä yksi asia: Synkronointi ei ole varmuuskopiointi. Varmista, että teet säännöllisiä varmuuskopioita kirjanmerkeistäsi."
+    "message": "Vielä yksi asia: Synkronointi ei ole varmuuskopiointi. Varmista, että kirjanmerkeistäsi on säännölliset varmuuskopiot.\n\nHuomaa myös, että floccuksen ja selaimen sisäänrakennetun kirjanmerkkien synkronoinnin yhdistämistä ei tueta, ja voit saada päällekkäisiä kirjanmerkkejä."
   },
   "DescriptionNonhttps": {
     "message": "Olet syöttänyt salaamatonta protokollaa käyttävän palvelimen. On suositeltavaa käyttää vain HTPPS-protokollaa tukevia palvelimia."
