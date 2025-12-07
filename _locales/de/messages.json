@@ -700,7 +700,7 @@
     "message": "Profil erstellt"
   },
   "DescriptionAccountcreated": {
-    "message": "Ihr Konto wurde erstellt. Sie können diesen Tab jetzt schließen. Eine Sache noch: Synchronisation ersetzt kein Backup. Gehen Sie sicher, dass sie regelmäßige Backups von Ihren Lesezeichen haben."
+    "message": "Und noch etwas: Die Synchronisierung ist keine Sicherung. Stellen Sie sicher, dass Sie regelmäßig Backups Ihrer Lesezeichen erstellen.\n\nBeachten Sie auch, dass die Kombination von Floccus mit der im Browser eingebauten Lesezeichen-Synchronisierung nicht unterstützt wird und es zu Duplikaten kommen kann."
   },
   "DescriptionNonhttps": {
     "message": "Sie haben einen Server angegeben, der ein unsicheres Protokoll benutzt. Es wird empfohlen nur Server zu benutzen, die HTTPS unterstützen."
