@@ -700,7 +700,7 @@
     "message": "Profil utworzony"
   },
   "DescriptionAccountcreated": {
-    "message": "Twój profil został utworzony. Możesz teraz zamknąć tę kartę. Jeszcze jedno: synchronizacja nie jest kopią zapasową. Upewnij się, że regularnie tworzysz kopie zapasowe swoich zakładek."
+    "message": "Jeszcze jedno: synchronizacja nie jest kopią zapasową. Upewnij się, że regularnie tworzysz kopie zapasowe swoich zakładek.\n\nNależy również pamiętać, że łączenie floccusa z wbudowaną w przeglądarkę synchronizacją zakładek nie jest obsługiwane i może skończyć się duplikatami."
   },
   "DescriptionNonhttps": {
     "message": "Wskazany serwer nie szyfruje połączeń. Rekomendujemy korzystać wyłącznie z serwerów obsługujących protokół HTTPS."
