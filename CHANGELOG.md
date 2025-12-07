@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.8.2]  - 2025-12-07
+
+### Fixed
+ - fix: Resume sync with reset cache after MappingFailure
+ - fix(DescriptionAccountcreated): Mention that combining floccus with browser sync doesn't work
+ - fix: Introduce proper XbelParseError
+ - fix: Introduce proper error for invalid URL
+ - fix: Try to fix 'Calling getCacheTree() of undefined' error
+ - fix: Make Caching#orderFolder behave like BrowserTree#orderFolder to avoid ordering mistakes
+ - fix: Implement GC for mappings
+
 ## [5.8.1] - 2025-11-22
 
 ### Fixed
