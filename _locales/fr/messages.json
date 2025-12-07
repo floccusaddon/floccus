@@ -700,7 +700,7 @@
     "message": "Profil créé"
   },
   "DescriptionAccountcreated": {
-    "message": "Votre profil a été créé. Vous pouvez à présent fermer cet onglet. Avertissement: synchronisation et sauvegarde sont des opérations différentes. Assurez-vous d'effectuer régulièrement des sauvegardes de vos signets."
+    "message": "Encore une chose : la synchronisation n'est pas une sauvegarde. Veillez à sauvegarder régulièrement vos signets.\n\nNotez également que la combinaison de floccus avec la synchronisation des signets intégrée au navigateur n'est pas prise en charge et que vous risquez de vous retrouver avec des doublons."
   },
   "DescriptionNonhttps": {
     "message": "Vous accédez à un serveur qui utilise un protocole non sécurisé. Il est recommandé de n'utiliser que des serveurs compatibles avec HTTPS"
