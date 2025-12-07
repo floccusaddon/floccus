@@ -700,7 +700,7 @@
     "message": "Profil vytvořen"
   },
   "DescriptionAccountcreated": {
-    "message": "Váš profil byl vytvořen. Nyní můžete tuto kartu zavřít. Ještě jedna věc: Synchronizace není zálohování. Ujistěte se, že pravidelně zálohujete své záložky."
+    "message": "A ještě jedna věc: Synchronizace není zálohování. Zajistěte si pravidelné zálohování záložek.\n\nTaké si uvědomte, že kombinace floccus se synchronizací záložek zabudovaných v prohlížeči není podporována a můžete skončit s duplicitami."
   },
   "DescriptionNonhttps": {
     "message": "Byl zadán server, který používá nezabezpečený protokol. Je doporučeno používat pouze servery podporujícíc HTTPS."
