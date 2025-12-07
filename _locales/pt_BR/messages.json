@@ -700,7 +700,7 @@
     "message": "Perfil criado"
   },
   "DescriptionAccountcreated": {
-    "message": "Seu perfil foi criado. Você pode fechar essa guia agora. Mais uma coisa: a sincronização não é um backup. Certifique-se de fazer backups regulares de seus favoritos."
+    "message": "Mais um detalhe: a sincronização não é um backup. Certifique-se de ter backups regulares de seus favoritos.\n\nObserve também que a combinação do floccus com a sincronização de favoritos incorporada no navegador não é compatível e você pode acabar com duplicatas."
   },
   "DescriptionNonhttps": {
     "message": "Você entrou em um servidor que usa um protocolo inseguro. Recomenda-se usar apenas servidores com suporte para HTTPS."
