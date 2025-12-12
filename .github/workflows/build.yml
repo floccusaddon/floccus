@@ -123,11 +123,13 @@ jobs:
       - name: Build android release
         if: github.ref_name == 'develop' || github.ref_name == 'master'
         run: |
+          cd android
           ./gradlew assembleRelease
 
       - name: Build android
         if: github.ref_name != 'develop' && github.ref_name != 'master'
         run: |
+          cd android
           ./gradlew assemble
 
       - name: Upload build artifact
