@@ -15,6 +15,7 @@ import { setUser, setContext, withScope, captureException } from '@sentry/browse
 import AsyncLock from 'async-lock'
 import CachingTreeWrapper from './CachingTreeWrapper'
 import { UnexpectedFolderPathError } from '../errors/Error'
+import { createOffscreen, destroyOffscreen } from './offscreen'
 
 declare const DEBUG: boolean
 
@@ -84,6 +85,7 @@ export default class Account {
   protected localTabs: TLocalTree
   protected lockTimeout: number
 
+  private offscreenPingInterval: any = null
   private localCachingResource: CachingTreeWrapper
 
   constructor(id:string, storageAdapter:IAccountStorage, serverAdapter: TAdapter, treeAdapter:TLocalTree) {
@@ -190,6 +192,16 @@ export default class Account {
         const oldPath = this.getData().rootPath
         if (oldPath && newPath !== oldPath) {
           throw new UnexpectedFolderPathError(oldPath, newPath)
+        }
+
+        // eslint-disable-next-line no-undef
+        if (self.constructor.name === 'ServiceWorkerGlobalScope' || (typeof chrome !== 'undefined' && 'offscreen' in chrome)) {
+          // Create an offscreen page in chrome and ping it regularly to prevent this worker from getting killed
+          await createOffscreen()
+          this.offscreenPingInterval = setInterval(() => {
+            // eslint-disable-next-line no-undef
+            chrome.runtime.sendMessage({type: 'sync-progress'})
+          }, 20000)
         }
       }
 
@@ -389,6 +401,12 @@ export default class Account {
         await this.init()
       }
     }
+    // eslint-disable-next-line no-undef
+    if (self.constructor.name === 'ServiceWorkerGlobalScope' || (typeof chrome !== 'undefined' && 'offscreen' in chrome)) {
+      // We destroy the offscreen page when the sync is done to allow the worker to be killed
+      await destroyOffscreen()
+    }
+    clearInterval(this.offscreenPingInterval)
     this.syncProcess = null
     this.localCachingResource = null
     await Logger.persist()
@@ -421,6 +439,10 @@ export default class Account {
     await this.setData({ syncing: progress })
     if (!this.syncProcess) {
       return
+    }
+    if (self.constructor.name === 'ServiceWorkerGlobalScope') {
+      // eslint-disable-next-line no-undef
+      chrome.runtime.sendMessage({ type: 'sync-progress' })
     }
     if (actionsDone) {
       if (this.server.isAtomic()) {

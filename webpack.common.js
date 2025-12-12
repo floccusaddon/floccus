@@ -14,6 +14,7 @@ module.exports = {
     options: path.join(__dirname, 'src', 'entries', 'options.js'),
     test: path.join(__dirname, 'src', 'entries', 'test.js'),
     native: path.join(__dirname, 'src', 'entries', 'native.js'),
+    offscreen: path.join(__dirname, 'src', 'entries', 'offscreen.js'),
   },
   output: {
     path: path.resolve(__dirname, 'dist', 'js'),

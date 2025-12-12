@@ -118,7 +118,7 @@ const js = async function() {
 const html = function(statsJson) {
   fs.mkdirSync('dist/html/', { recursive: true })
   let html, scripts, bgScript, addition
-  ;['index.html', 'options.html', 'background.html', 'test.html'].forEach(htmlFile => {
+  ;['index.html', 'options.html', 'background.html', 'test.html', 'offscreen.html'].forEach(htmlFile => {
     switch (htmlFile) {
       case 'index.html':
         html = fs.readFileSync('html/' + htmlFile, 'utf8')
@@ -137,6 +137,10 @@ const html = function(statsJson) {
         html = fs.readFileSync('html/' + htmlFile, 'utf8')
         scripts = statsJson.entrypoints.test.assets.map(asset => `<script src="../js/${asset.name}"></script>`).join('\n')
         html = html.replace('{{ scripts }}', scripts)
+        fs.writeFileSync('dist/html/' + htmlFile, html)
+        break
+      case 'offscreen.html':
+        html = fs.readFileSync('html/' + htmlFile, 'utf8')
         fs.writeFileSync('dist/html/' + htmlFile, html)
         break
       case 'background.html':
