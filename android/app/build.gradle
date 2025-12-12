@@ -19,8 +19,17 @@ android {
                 "appAuthRedirectScheme": "org.handmadeideas.floccus"
         ]
     }
+    signingConfigs {
+        release {
+            storeFile file(FLOCCUS_STORE_FILE)
+            storePassword FLOCCUS_STORE_PASSWORD
+            keyAlias FLOCCUS_KEY_ALIAS
+            keyPassword FLOCCUS_KEY_PASSWORD
+        }
+    }
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
