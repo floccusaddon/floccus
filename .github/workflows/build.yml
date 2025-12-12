@@ -75,6 +75,7 @@ jobs:
           path: ./
 
       - name: Create JKS file from secrets
+        if: github.ref_name == 'develop' || github.ref_name == 'master'
         env:
           ANDROID_CERT: ${{ secrets.ANDROID_CERT }}
           ANDROID_PRIV_KEY: ${{ secrets.ANDROID_PRIV_KEY }}
@@ -104,6 +105,7 @@ jobs:
           chmod 600 keystore/app.jks
           
       - name: Create gradle.properties file
+        if: github.ref_name == 'develop' || github.ref_name == 'master'
         run: |
           cat >> android/gradle.properties << EOF
           FLOCCUS_STORE_FILE=../../keystore/app.jks
@@ -112,14 +114,24 @@ jobs:
           FLOCCUS_KEY_PASSWORD=${{ secrets.ANDROID_JKS_PASSWORD }}
           EOF
 
-      - name: Build android
+      - name: Prepare build
         run: |
           npx cap sync
           cd android
           chmod +x gradlew
+
+      - name: Build android release
+        if: github.ref_name == 'develop' || github.ref_name == 'master'
+        run: |
           ./gradlew assembleRelease
 
+      - name: Build android
+        if: github.ref_name != 'develop' && github.ref_name != 'master'
+        run: |
+          ./gradlew assemble
+
       - name: Upload build artifact
+        if: github.ref_name == 'develop' || github.ref_name == 'master'
         uses: actions/upload-artifact@v4
         with:
           name: "floccus-build-${{ github.sha }}.apk"
