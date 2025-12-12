@@ -74,12 +74,57 @@ jobs:
           key: build-context-${{ github.run_id }}
           path: ./
 
+      - name: Create JKS file from secrets
+        env:
+          ANDROID_CERT: ${{ secrets.ANDROID_CERT }}
+          ANDROID_PRIV_KEY: ${{ secrets.ANDROID_PRIV_KEY }}
+          ANDROID_JKS_PASSWORD: ${{ secrets.ANDROID_JKS_PASSWORD }}
+        run: |
+          # Create temporary directory
+          mkdir -p keystore
+          
+          # Combine certificate and private key into PEM format
+          echo "$ANDROID_CERT" > keystore/cert.pem
+          echo "$ANDROID_PRIV_KEY" > keystore/key.pem
+          
+          # Combine certificate and private key into PKCS12 format
+          # Use a temporary password since we need to specify one
+          openssl pkcs12 -export -in keystore/cert.pem -inkey keystore/key.pem \
+            -out keystore/app.p12 -name key0 -password pass:temp-password
+          
+          # Convert PKCS12 to JKS format
+          keytool -importkeystore -srckeystore keystore/app.p12 -srcstoretype PKCS12 \
+            -destkeystore keystore/app.jks -deststoretype JKS -srcstorepass temp-password \
+            -deststorepass "$ANDROID_JKS_PASSWORD" -destkeypass "$ANDROID_JKS_PASSWORD"
+          
+          # Clean up temporary files
+          rm keystore/cert.pem keystore/key.pem keystore/app.p12
+          
+          # Make sure the keystore file is not readable by others
+          chmod 600 keystore/app.jks
+          
+      - name: Create gradle.properties file
+        run: |
+          cat >> android/gradle.properties << EOF
+          FLOCCUS_STORE_FILE=../../keystore/app.jks
+          FLOCCUS_STORE_PASSWORD=${{ secrets.ANDROID_JKS_PASSWORD }}
+          FLOCCUS_KEY_ALIAS=key0
+          FLOCCUS_KEY_PASSWORD=${{ secrets.ANDROID_JKS_PASSWORD }}
+          EOF
+
       - name: Build android
         run: |
           npx cap sync
           cd android
           chmod +x gradlew
-          ./gradlew assemble
+          ./gradlew assembleRelease
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "floccus-build-${{ github.sha }}.apk"
+          path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 7
 
   ios:
     needs: js
