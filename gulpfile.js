@@ -8,6 +8,7 @@ var crx3 = require('crx3')
 var webstoreClient = require('chrome-webstore-upload')
 var rename = require('gulp-rename')
 var path = require('path')
+var child_process = require('child_process')
 
 // Provide a dummy credential file for third-party builders
 try {
@@ -109,6 +110,8 @@ const js = async function() {
       resolve()
     })
   )
+  // Remove lazy loading from sentry
+  child_process.execSync(`sed -i 's!"https://browser.sentry-cdn.com"!""!' ${paths.distJs}/*`)
   html(statsJson)
 }
 
