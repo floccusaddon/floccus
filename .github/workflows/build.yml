@@ -47,6 +47,7 @@ jobs:
       - name: Install dependencies & build
         run: |
           npm run build-release --if-present
+          grep -qvrni '"https://browser.sentry-cdn.com"' ./dist/js/ || echo 'Problem: Build includes lazy-loading of components from sentry-cdn.com. This will get rejected by Chrome Webstore review!'
 
       - name: Save context
         uses: actions/cache/save@v4
