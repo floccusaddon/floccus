@@ -25,7 +25,11 @@ import type { ThrottledFunction } from '@jcoreio/async-throttle'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import TResource, { IHashSettings, OrderFolderResource, TLocalTree } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
-import { AdditionFailsafeError, CancelledSyncError, DeletionFailsafeError } from '../../errors/Error'
+import {
+  CancelledSyncError, ClientsideAdditionFailsafeError,
+  ClientsideDeletionFailsafeError, ServersideAdditionFailsafeError,
+  ServersideDeletionFailsafeError
+} from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 import CachingAdapter from '../adapters/Caching'
@@ -288,10 +292,10 @@ export default class SyncProcess {
 
     Logger.log({localPlan: this.localPlanStage2, serverPlan: this.serverPlanStage2})
 
-    this.applyDeletionFailsafe(this.localTreeRoot, this.localPlanStage2.REMOVE)
-    this.applyAdditionFailsafe(this.localTreeRoot, this.localPlanStage2.CREATE)
-    this.applyDeletionFailsafe(this.serverTreeRoot, this.serverPlanStage2.REMOVE)
-    this.applyAdditionFailsafe(this.serverTreeRoot, this.serverPlanStage2.CREATE)
+    this.applyDeletionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.REMOVE)
+    this.applyAdditionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.CREATE)
+    this.applyDeletionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.REMOVE)
+    this.applyAdditionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.CREATE)
 
     if (!this.localDonePlan) {
       this.localDonePlan = {
@@ -471,7 +475,7 @@ export default class SyncProcess {
     this.serverTreeRoot.createIndex()
   }
 
-  protected applyDeletionFailsafe(tree: Folder<TItemLocation>, removals: Diff<TItemLocation, TItemLocation, RemoveAction<TItemLocation, TItemLocation>>) {
+  protected applyDeletionFailsafe(direction: TItemLocation, tree: Folder<TItemLocation>, removals: Diff<TItemLocation, TItemLocation, RemoveAction<TItemLocation, TItemLocation>>) {
     const countTotal = tree.count()
     const countDeleted = removals.getActions().reduce((count, action) => count + action.payload.count(), 0)
 
@@ -480,12 +484,17 @@ export default class SyncProcess {
     if ((countTotal > 5 && countDeleted / countTotal > 0.2) || countDeleted > 1000) {
       const failsafe = this.server.getData().failsafe
       if (failsafe !== false || typeof failsafe === 'undefined') {
-        throw new DeletionFailsafeError(Math.ceil((countDeleted / countTotal) * 100))
+        const percentage = Math.ceil((countDeleted / countTotal) * 100)
+        if (direction === ItemLocation.LOCAL) {
+          throw new ClientsideDeletionFailsafeError(percentage)
+        } else {
+          throw new ServersideDeletionFailsafeError(percentage)
+        }
       }
     }
   }
 
-  protected applyAdditionFailsafe(tree: Folder<TItemLocation>, creations: Diff<TItemLocation, TItemLocation, CreateAction<TItemLocation, TItemLocation>>) {
+  protected applyAdditionFailsafe(direction: TItemLocation, tree: Folder<TItemLocation>, creations: Diff<TItemLocation, TItemLocation, CreateAction<TItemLocation, TItemLocation>>) {
     const countTotal = tree.count()
     const countAdded = creations.getActions().reduce((count, action) => count + action.payload.count(), 0)
 
@@ -494,7 +503,12 @@ export default class SyncProcess {
     if (countTotal > 5 && ((countAdded >= 20 && countAdded / countTotal > 0.2) || countAdded > 1000)) {
       const failsafe = this.server.getData().failsafe
       if (failsafe !== false || typeof failsafe === 'undefined') {
-        throw new AdditionFailsafeError(Math.ceil((countAdded / countTotal) * 100))
+        const percentage = Math.ceil((countAdded / countTotal) * 100)
+        if (direction === ItemLocation.LOCAL) {
+          throw new ClientsideAdditionFailsafeError(percentage)
+        } else {
+          throw new ServersideAdditionFailsafeError(percentage)
+        }
       }
     }
   }
