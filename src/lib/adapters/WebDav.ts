@@ -169,7 +169,7 @@ export default class WebDavAdapter extends CachingAdapter {
         if (Capacitor.getPlatform() === 'web') {
           res = await fetch(fullUrl, {
             method: 'DELETE',
-            credentials: 'omit',
+            credentials: this.server.includeCredentials ? 'include' : 'omit',
             headers: {
               Authorization: 'Basic ' + authString
             },
@@ -404,7 +404,7 @@ export default class WebDavAdapter extends CachingAdapter {
           'Content-Type': content_type,
           Authorization: 'Basic ' + authString
         },
-        credentials: 'omit',
+        credentials: this.server.includeCredentials ? 'include' : 'omit',
         signal: this.abortSignal,
         ...(!this.server.allowRedirects && {redirect: 'manual'}),
         body: data,
@@ -483,7 +483,7 @@ export default class WebDavAdapter extends CachingAdapter {
           Depth: '0',
         },
         cache: 'no-store',
-        credentials: 'omit',
+        credentials: this.server.includeCredentials ? 'include' : 'omit',
         signal: this.abortSignal,
         ...(!this.server.allowRedirects && {redirect: 'manual'})
       })
@@ -556,7 +556,7 @@ export default class WebDavAdapter extends CachingAdapter {
           Authorization: 'Basic ' + authString
         },
         cache: 'no-store',
-        credentials: 'omit',
+        credentials: this.server.includeCredentials ? 'include' : 'omit',
         signal: this.abortSignal,
         ...(!this.server.allowRedirects && {redirect: 'manual'})
       })
