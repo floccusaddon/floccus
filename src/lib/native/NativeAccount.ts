@@ -4,13 +4,13 @@ import AdapterFactory from '../AdapterFactory'
 import Account from '../Account'
 import { IAccountData } from '../interfaces/AccountStorage'
 import {
-  AdditionFailsafeError,
+  ClientsideAdditionFailsafeError, ClientsideDeletionFailsafeError,
   CreateBookmarkError,
-  DeletionFailsafeError, FloccusError, GitPushError,
+  FloccusError, GitPushError,
   HttpError,
   InconsistentBookmarksExistenceError, InvalidUrlError, LockFileError,
   MissingItemOrderError,
-  ParseResponseError, UnexpectedFolderPathError,
+  ParseResponseError, ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, UnexpectedFolderPathError,
   UnknownFolderItemOrderError, UpdateBookmarkError
 } from '../../errors/Error'
 import Logger from '../Logger'
@@ -85,10 +85,16 @@ export default class NativeAccount extends Account {
     if (er instanceof LockFileError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.status, er.lockFile])
     }
-    if (er instanceof DeletionFailsafeError) {
+    if (er instanceof ServersideDeletionFailsafeError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
     }
-    if (er instanceof AdditionFailsafeError) {
+    if (er instanceof ServersideAdditionFailsafeError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
+    }
+    if (er instanceof ClientsideDeletionFailsafeError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
+    }
+    if (er instanceof ClientsideAdditionFailsafeError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.percent])
     }
     if (er instanceof CreateBookmarkError) {

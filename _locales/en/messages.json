@@ -84,7 +84,7 @@
     "message": "E028: Couldn't authenticate with the server."
   },
   "Error029": {
-    "message": "E029: Failsafe: The current sync run would delete {0}% of your links. Refusing to execute. Disable this failsafe in the account settings if you want to proceed anyway."
+    "message": "E029: Failsafe: The current sync run would delete {0}% of your links on the server. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway."
   },
   "Error030": {
     "message": "E030: Failed to decrypt bookmarks file. The passphrase may be wrong or the file may be corrupted."
@@ -126,7 +126,7 @@
     "message": "E042: Remote bookmarks file size could not be retrieved. It is impossible to verify that the bookmarks file was downloaded in full. If this error persists please contact the server administrator."
   },
   "Error043": {
-    "message": "E043: Failsafe: The current sync run would increase your bookmarks count by {0}%. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway."
+    "message": "E043: Failsafe: The current sync run would increase your links count on the server by {0}%. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway."
   },
   "Error044": {
     "message": "E044: Git push operation failed: {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047: Failed to parse XBEL file. The XBEL data seems to be corrupted or incomplete. You can try removing the file on the server to let floccus recreate it. Make sure to take a backup first."
+  },
+  "Error049": {
+    "message": "E049: Failsafe: The current sync run would increase your local links count in this profile by {0}%. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway."
+  },
+  "Error050": {
+    "message": "E050: Failsafe: The current sync run would delete {0}% of your local links in this profile. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -532,7 +538,7 @@
     "message": "Failsafe"
   },
   "DescriptionFailsafe": {
-    "message": "Sometimes configuration errors or software bugs can cause the unintended removal of data, which is then lost, or the unintended duplication of data, which is then hard to sort out. To prevent this from happening, floccus will not delete more than 20% of your bookmarks in one go and will also not add more than 20% to your bookmarks count in one go, unless you disable this failsafe here."
+    "message": "Sometimes configuration errors or software bugs can cause the unintended removal of data, which is then lost, or the unintended duplication of data, which is then hard to sort out. To prevent this from happening, floccus will not delete more than 20% of your bookmarks in one go and will also not add more than 20% to your links count in one go, unless you disable this failsafe here."
   },
   "LabelFailsafeon": {
     "message": "Enabled. Will not delete or add more than 20% from/to your local bookmarks without asking you first. (Recommended)"

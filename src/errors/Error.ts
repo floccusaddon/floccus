@@ -240,14 +240,14 @@ export class InterruptedSyncError extends FloccusError {
 
 // code 28 is unused
 
-export class DeletionFailsafeError extends FloccusError {
+export class ServersideDeletionFailsafeError extends FloccusError {
   public percent: number
 
   constructor(percent:number) {
-    super(`E029: Failsafe: The current sync run would delete ${percent}% of your links. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway.`)
+    super(`E029: Failsafe: The current sync run would delete ${percent}% of your links on the server. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway.`)
     this.code = 29
     this.percent = percent
-    Object.setPrototypeOf(this, DeletionFailsafeError.prototype)
+    Object.setPrototypeOf(this, ServersideDeletionFailsafeError.prototype)
   }
 }
 
@@ -359,14 +359,14 @@ export class FileSizeUnknown extends FloccusError {
   }
 }
 
-export class AdditionFailsafeError extends FloccusError {
+export class ServersideAdditionFailsafeError extends FloccusError {
   public percent: number
 
   constructor(percent:number) {
-    super(`E043: Failsafe: The current sync run would increase your bookmarks count by ${percent}%. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway.`)
+    super(`E043: Failsafe: The current sync run would increase your links count on the server by ${percent}%. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway.`)
     this.code = 43
     this.percent = percent
-    Object.setPrototypeOf(this, AdditionFailsafeError.prototype)
+    Object.setPrototypeOf(this, ServersideAdditionFailsafeError.prototype)
   }
 }
 
@@ -421,5 +421,27 @@ export class MappingFailureError extends FloccusError {
     this.id = id
     this.code = 48
     Object.setPrototypeOf(this, MappingFailureError.prototype)
+  }
+}
+
+export class ClientsideAdditionFailsafeError extends FloccusError {
+  public percent: number
+
+  constructor(percent:number) {
+    super(`E049: Failsafe: The current sync run would increase your local links count in this profile by ${percent}%. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway.`)
+    this.code = 49
+    this.percent = percent
+    Object.setPrototypeOf(this, ClientsideAdditionFailsafeError.prototype)
+  }
+}
+
+export class ClientsideDeletionFailsafeError extends FloccusError {
+  public percent: number
+
+  constructor(percent:number) {
+    super(`E050: Failsafe: The current sync run would delete ${percent}% of your local links in this profile. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway.`)
+    this.code = 50
+    this.percent = percent
+    Object.setPrototypeOf(this, ClientsideDeletionFailsafeError.prototype)
   }
 }

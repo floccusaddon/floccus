@@ -11,7 +11,11 @@ import DefunctCrypto from '../lib/DefunctCrypto'
 import Controller from '../lib/Controller'
 import FakeAdapter from '../lib/adapters/Fake'
 import BrowserTree from '../lib/browser/BrowserTree'
-import { AdditionFailsafeError, DeletionFailsafeError } from '../errors/Error'
+import {
+  ClientsideAdditionFailsafeError,
+  ClientsideDeletionFailsafeError,
+  ServersideAdditionFailsafeError, ServersideDeletionFailsafeError
+} from '../errors/Error'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -2238,7 +2242,7 @@ describe('Floccus', function() {
 
             await account.sync()
             expect(account.getData().error).to.be.ok // should have errored
-            expect(account.getData().error).to.include((new DeletionFailsafeError).code)
+            expect(account.getData().error).to.include((new ClientsideDeletionFailsafeError()).code)
           })
           it('should error when adding too much local data (failsafe)', async function() {
             if (ACCOUNT_DATA.noCache) {
@@ -2303,7 +2307,7 @@ describe('Floccus', function() {
 
             await account.sync()
             expect(account.getData().error).to.be.ok // should have errored
-            expect(account.getData().error).to.include((new AdditionFailsafeError).code)
+            expect(account.getData().error).to.include((new ClientsideAdditionFailsafeError()).code)
           })
           it('should error when deleting too much remote data (failsafe)', async function() {
             if (ACCOUNT_DATA.noCache) {
@@ -2345,7 +2349,7 @@ describe('Floccus', function() {
 
             await account.sync()
             expect(account.getData().error).to.be.ok // should have errored
-            expect(account.getData().error).to.include((new DeletionFailsafeError).code)
+            expect(account.getData().error).to.include((new ServersideDeletionFailsafeError()).code)
           })
           it('should error when adding too much remote data (failsafe)', async function() {
             if (ACCOUNT_DATA.noCache) {
@@ -2409,7 +2413,7 @@ describe('Floccus', function() {
 
             await account.sync()
             expect(account.getData().error).to.be.ok // should have errored
-            expect(account.getData().error).to.include((new AdditionFailsafeError).code)
+            expect(account.getData().error).to.include((new ServersideAdditionFailsafeError()).code)
           })
           it('should leave alone unaccepted bookmarks entirely', async function() {
             if (!~ACCOUNT_DATA.type.indexOf('nextcloud')) {
