@@ -90,7 +90,6 @@ export default class Account {
   protected localTabs: TLocalTree
   protected lockTimeout: number
 
-  private offscreenPingInterval: any = null
   private localCachingResource: CachingTreeWrapper
 
   constructor(id:string, storageAdapter:IAccountStorage, serverAdapter: TAdapter, treeAdapter:TLocalTree) {
@@ -197,17 +196,6 @@ export default class Account {
         const oldPath = this.getData().rootPath
         if (oldPath && newPath !== oldPath) {
           throw new UnexpectedFolderPathError(oldPath, newPath)
-        }
-
-        // eslint-disable-next-line no-undef
-        if (self.constructor.name === 'ServiceWorkerGlobalScope' || (typeof chrome !== 'undefined' && 'offscreen' in chrome)) {
-          const {createOffscreen} = await import('./offscreen')
-          // Create an offscreen page in chrome and ping it regularly to prevent this worker from getting killed
-          await createOffscreen()
-          this.offscreenPingInterval = setInterval(() => {
-            // eslint-disable-next-line no-undef
-            chrome.runtime.sendMessage({type: 'sync-progress'})
-          }, 20000)
         }
       }
 
@@ -388,16 +376,6 @@ export default class Account {
 
       if (this.server.onSyncFail) {
         await this.server.onSyncFail()
-      }
-
-      if (IS_BROWSER) {
-        // eslint-disable-next-line no-undef
-        if (self.constructor.name === 'ServiceWorkerGlobalScope' || (typeof chrome !== 'undefined' && 'offscreen' in chrome)) {
-          const {destroyOffscreen} = await import('./offscreen')
-          // We destroy the offscreen page when the sync is done to allow the worker to be killed
-          await destroyOffscreen()
-          clearInterval(this.offscreenPingInterval)
-        }
       }
 
       this.syncing = false
