@@ -538,7 +538,7 @@
     "message": "Failsafe"
   },
   "DescriptionFailsafe": {
-    "message": "Mõnikord võivad seadistuse ja tarkvara vead põhjustada andmete ettekavatsemata eemaldamist ja seega ka jäädavat andmekadu. Aga sams võib tekkida topeltandmeid, mida hiljem on vaevaline korda saada. Selliste olukordade vältimiseks floccus ei kustuta ega lisa ühe korraga enam kui 20% sinu järjehoidjatest. Kui sa seda aga ise teadlikult soovid, siis saad siin tõrkekindluse loogika välja lülitada."
+    "message": "Mõnikord võivad seadistuse ja tarkvara vead põhjustada andmete ettekavatsemata eemaldamist ja seega ka jäädavat andmekadu. Aga samas võib tekkida ka topeltandmeid, mida hiljem on vaevaline korda saada. Selliste olukordade vältimiseks floccus ei kustuta ega lisa ühe korraga enam kui 20% sinu järjehoidjatest. Kui sa seda aga ise teadlikult soovid, siis saad siin tõrkekindluse loogika välja lülitada."
   },
   "LabelFailsafeon": {
     "message": "Lubatud. Ei kustuta ega lisa rohkem kui 20% oma kohalikest järjehoidjatest ilma teid eelnevalt küsimata. (Soovitatav)"
