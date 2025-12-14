@@ -6,7 +6,7 @@ const common = require('./webpack.common.js')
 const webpack = require('webpack')
 const packageJSON = require('./package.json')
 
-module.exports = merge(common, {
+module.exports = common.map(common => merge(common, {
   mode: 'production',
   devtool: 'source-map',
   optimization: {
@@ -28,4 +28,4 @@ module.exports = merge(common, {
       }
     }),
   ]
-})
+}))

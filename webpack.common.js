@@ -3,19 +3,7 @@ const { VueLoaderPlugin } = require('vue-loader')
 const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 const webpack = require('webpack')
 
-module.exports = {
-  entry: {
-    'background-script': path.join(
-      __dirname,
-      'src',
-      'entries',
-      'background-script.js'
-    ),
-    options: path.join(__dirname, 'src', 'entries', 'options.js'),
-    test: path.join(__dirname, 'src', 'entries', 'test.js'),
-    native: path.join(__dirname, 'src', 'entries', 'native.js'),
-    offscreen: path.join(__dirname, 'src', 'entries', 'offscreen.js'),
-  },
+const common = {
   output: {
     path: path.resolve(__dirname, 'dist', 'js'),
     publicPath: '/dist/js/',
@@ -82,6 +70,29 @@ module.exports = {
       },
     ],
   },
+  resolve: {
+    extensions: ['.js', '.vue', '.ts', '.json'],
+    fallback: {
+      buffer: require.resolve('buffer'),
+      process: require.resolve('process/browser.js'),
+      stream: require.resolve('stream-browserify'),
+    },
+  },
+}
+
+module.exports = [{
+  ...common,
+  entry: {
+    'background-script': path.join(
+      __dirname,
+      'src',
+      'entries',
+      'background-script.js'
+    ),
+    options: path.join(__dirname, 'src', 'entries', 'options.js'),
+    test: path.join(__dirname, 'src', 'entries', 'test.js'),
+    offscreen: path.join(__dirname, 'src', 'entries', 'offscreen.js'),
+  },
   plugins: [
     new VueLoaderPlugin(),
     new VuetifyLoaderPlugin(),
@@ -94,14 +105,32 @@ module.exports = {
     new webpack.NormalModuleReplacementPlugin(
       /@sentry\/browser\/.*?lazyLoadIntegration/,
       path.resolve(__dirname, 'src/build-fixtures/lazyLoadIntegration.js')
-    )
-  ],
-  resolve: {
-    extensions: ['.js', '.vue', '.ts', '.json'],
-    fallback: {
-      buffer: require.resolve('buffer'),
-      process: require.resolve('process/browser.js'),
-      stream: require.resolve('stream-browserify'),
-    },
+    ),
+    new webpack.DefinePlugin({
+      'IS_BROWSER': 'true'
+    })
+  ]
+}, {
+  ...common,
+  entry: {
+    native: path.join(__dirname, 'src', 'entries', 'native.js'),
   },
-}
+  plugins: [
+    new VueLoaderPlugin(),
+    new VuetifyLoaderPlugin(),
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    }),
+    new webpack.ProvidePlugin({
+      process: 'process/browser.js',
+    }),
+    new webpack.NormalModuleReplacementPlugin(
+      /@sentry\/browser\/.*?lazyLoadIntegration/,
+      path.resolve(__dirname, 'src/build-fixtures/lazyLoadIntegration.js')
+    ),
+    new webpack.DefinePlugin({
+      IS_BROWSER: 'false'
+    })
+  ]
+},
+]

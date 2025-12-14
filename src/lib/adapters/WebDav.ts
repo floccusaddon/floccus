@@ -13,9 +13,10 @@ import {
   SlashError, FileSizeMismatch, FileSizeUnknown, InvalidUrlError
 } from '../../errors/Error'
 import { CapacitorHttp as Http } from '@capacitor/core'
-import { Capacitor } from '@capacitor/core'
 import Html from '../serializers/Html'
 import { Folder, TItemLocation } from '../Tree'
+
+declare const IS_BROWSER: boolean
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
@@ -166,7 +167,7 @@ export default class WebDavAdapter extends CachingAdapter {
     try {
       do {
         Logger.log('Freeing lock: ' + fullUrl)
-        if (Capacitor.getPlatform() === 'web') {
+        if (IS_BROWSER) {
           res = await fetch(fullUrl, {
             method: 'DELETE',
             credentials: this.server.includeCredentials ? 'include' : 'omit',
@@ -217,7 +218,7 @@ export default class WebDavAdapter extends CachingAdapter {
 
     if (response.status === 200) {
       let xmlDocText = response.data
-      if (Capacitor.getPlatform() === 'web') {
+      if (IS_BROWSER) {
         let fileSize = null
         try {
           fileSize = await this.getFileSize(fullUrl)
@@ -301,7 +302,7 @@ export default class WebDavAdapter extends CachingAdapter {
     Logger.log('onSyncStart: begin')
     this.ended = false
 
-    if (Capacitor.getPlatform() === 'web') {
+    if (IS_BROWSER) {
       const browser = (await import('../browser-api')).default
       let hasPermissions, error = false
       try {
@@ -385,7 +386,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async uploadFile(url, content_type, data) {
-    if (Capacitor.getPlatform() === 'web') {
+    if (IS_BROWSER) {
       return this.uploadFileWeb(url, content_type, data)
     } else {
       return this.uploadFileNative(url, content_type, data)
@@ -455,7 +456,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async downloadFile(url) {
-    if (Capacitor.getPlatform() === 'web') {
+    if (IS_BROWSER) {
       return this.downloadFileWeb(url)
     } else {
       return this.downloadFileNative(url)
@@ -463,7 +464,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async getFileSize(url) {
-    if (Capacitor.getPlatform() === 'web') {
+    if (IS_BROWSER) {
       return this.getFileSizeWeb(url)
     } else {
       return this.getFileSizeNative(url)

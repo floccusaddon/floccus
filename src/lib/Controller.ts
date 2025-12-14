@@ -1,5 +1,6 @@
 import IController from './interfaces/Controller'
-import { Capacitor } from '@capacitor/core'
+
+declare const IS_BROWSER: boolean
 
 interface FloccusWorker {
   postMessage(data: any): void
@@ -13,7 +14,7 @@ export default class Controller implements IController {
 
   static async getSingleton():Promise<IController> {
     if (!this.singleton) {
-      if (Capacitor.getPlatform() === 'web') {
+      if (IS_BROWSER) {
         // otherwise load the proxy
         this.singleton = new Controller
       } else {
@@ -42,7 +43,7 @@ export default class Controller implements IController {
         },
       }))
     }
-    if (Capacitor.getPlatform() === 'web') {
+    if (IS_BROWSER) {
       const browser = (await import('../lib/browser-api')).default
       return {
         postMessage: (data) => {

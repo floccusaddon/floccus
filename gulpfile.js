@@ -95,11 +95,13 @@ const js = async function() {
   let statsJson
   await new Promise((resolve) =>
     webpack(config, (err, stats) => {
-      console.log(
-        stats.toString({
-          /* stats options */
-        })
-      )
+      if (stats) {
+        console.log(
+          stats.toString({
+            /* stats options */
+          })
+        )
+      }
 
       if (err) {
         console.log('Webpack', err)
@@ -110,38 +112,66 @@ const js = async function() {
     })
   )
   await new Promise(resolve => setTimeout(resolve, 5000))
-  html(statsJson)
+  statsJson.children.forEach(statsJson => html(statsJson))
+  statsJson.children.forEach(statsJson => webpackCheck(statsJson))
+}
+
+const webpackCheck = function(statsJson) {
+  const browserApiModule = statsJson.modules.find(module => module.name.includes('browser-api'))
+  if (!browserApiModule || !statsJson.entrypoints.native) {
+    return
+  }
+  const nativeChunks = statsJson.entrypoints.native.chunks
+  console.log({nativeChunks, browserApiChunks: browserApiModule.chunks})
+  if (browserApiModule.chunks.some(chunk => nativeChunks.includes(chunk))) {
+    throw new Error('Problem: Native chunk contains reference to browser-api')
+  }
 }
 
 const html = function(statsJson) {
   fs.mkdirSync('dist/html/', { recursive: true })
-  let html, scripts, bgScript, addition
+  let html, scripts, bgScript, addition, assets
   ;['index.html', 'options.html', 'background.html', 'test.html', 'offscreen.html'].forEach(htmlFile => {
     switch (htmlFile) {
       case 'index.html':
+        if (!statsJson.entrypoints?.native) {
+          break
+        }
         html = fs.readFileSync('html/' + htmlFile, 'utf8')
-        scripts = statsJson.entrypoints.native.assets.map(asset => `<script src="js/${asset.name}"></script>`).join('\n')
+        assets = statsJson.entrypoints?.native?.assets
+        scripts = assets.map(asset => `<script src="js/${asset.name}"></script>`).join('\n')
         html = html.replace('{{ scripts }}', scripts)
         fs.writeFileSync('dist/' + htmlFile, html)
         break
       case 'options.html':
+        if (!statsJson.entrypoints?.options) {
+          break
+        }
         html = fs.readFileSync('html/' + htmlFile, 'utf8')
         scripts = statsJson.entrypoints.options.assets.map(asset => `<script src="../js/${asset.name}"></script>`).join('\n')
         html = html.replace('{{ scripts }}', scripts)
-        console.log(statsJson.entrypoints.options.assets)
         fs.writeFileSync('dist/html/' + htmlFile, html)
         break
       case 'test.html':
+        if (!statsJson.entrypoints?.test) {
+          break
+        }
         html = fs.readFileSync('html/' + htmlFile, 'utf8')
         scripts = statsJson.entrypoints.test.assets.map(asset => `<script src="../js/${asset.name}"></script>`).join('\n')
         html = html.replace('{{ scripts }}', scripts)
         fs.writeFileSync('dist/html/' + htmlFile, html)
         break
       case 'offscreen.html':
+        if (!statsJson.entrypoints?.offscreen) {
+          break
+        }
         html = fs.readFileSync('html/' + htmlFile, 'utf8')
         fs.writeFileSync('dist/html/' + htmlFile, html)
         break
       case 'background.html':
+        if (!statsJson.entrypoints?.['background-script']) {
+          break
+        }
         html = fs.readFileSync('html/' + htmlFile, 'utf8')
         scripts = statsJson.entrypoints['background-script'].assets.map(asset => `<script src="../js/${asset.name}"></script>`).join('\n')
         html = html.replace('{{ scripts }}', scripts)
@@ -273,6 +303,9 @@ const watch = function() {
       chunks: false,
       colors: true
     }))
+
+    const statsJson = stats.toJson()
+    webpackCheck(statsJson)
   })
 }
 
