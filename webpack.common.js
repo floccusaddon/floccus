@@ -108,6 +108,12 @@ module.exports = [{
     ),
     new webpack.DefinePlugin({
       'IS_BROWSER': 'true'
+    }),
+    new webpack.DefinePlugin({
+      IS_BROWSER: 'false'
+    }),
+    new webpack.DefinePlugin({
+      BROWSERSLIST_REGEX: require('./supportedBrowsers')
     })
   ]
 }, {
@@ -130,6 +136,9 @@ module.exports = [{
     ),
     new webpack.DefinePlugin({
       IS_BROWSER: 'false'
+    }),
+    new webpack.DefinePlugin({
+      BROWSERSLIST_REGEX: require('./supportedBrowsers')
     })
   ]
 },

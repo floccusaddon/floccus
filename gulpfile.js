@@ -303,9 +303,6 @@ const watch = function() {
       chunks: false,
       colors: true
     }))
-
-    const statsJson = stats.toJson()
-    webpackCheck(statsJson)
   })
 }
 
