@@ -1,4 +1,4 @@
-import { Capacitor } from '@capacitor/core'
+/* global IS_BROWSER */
 import { App } from '@capacitor/app'
 
 let backButtonListener = null
@@ -6,7 +6,7 @@ let backButtonListener = null
 export default {
   computed: {
     isBrowser() {
-      return Capacitor.getPlatform() === 'web' || !Capacitor.getPlatform()
+      return IS_BROWSER
     },
   },
   mounted() {

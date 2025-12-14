@@ -7,7 +7,6 @@ import DefaultSyncProcess from './strategies/Default'
 import IAccountStorage, { IAccountData, TAccountStrategy } from './interfaces/AccountStorage'
 import { TAdapter } from './interfaces/Adapter'
 import { OrderFolderResource, TLocalTree } from './interfaces/Resource'
-import { Capacitor } from '@capacitor/core'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
 import { isTest } from './isTest'
@@ -15,9 +14,8 @@ import { setUser, setContext, withScope, captureException } from '@sentry/browse
 import AsyncLock from 'async-lock'
 import CachingTreeWrapper from './CachingTreeWrapper'
 import { UnexpectedFolderPathError } from '../errors/Error'
-import { createOffscreen, destroyOffscreen } from './offscreen'
 
-declare const DEBUG: boolean
+declare const IS_BROWSER: boolean
 
 // register Adapters
 AdapterFactory.register('linkwarden', async() => (await import('./adapters/Linkwarden')).default)
@@ -42,7 +40,7 @@ export default class Account {
     if (this.singleton) {
       return this.singleton
     }
-    if (Capacitor.getPlatform() === 'web') {
+    if (IS_BROWSER) {
       this.singleton = (await import('./browser/BrowserAccount')).default
     } else {
       this.singleton = (await import('./native/NativeAccount')).default
@@ -187,7 +185,7 @@ export default class Account {
         await this.init()
       }
 
-      if (Capacitor.getPlatform() === 'web') {
+      if (IS_BROWSER) {
         const newPath = await (await import('./browser/BrowserTree')).default.getPathFromLocalId(this.getData().localRoot)
         const oldPath = this.getData().rootPath
         if (oldPath && newPath !== oldPath) {
@@ -196,6 +194,7 @@ export default class Account {
 
         // eslint-disable-next-line no-undef
         if (self.constructor.name === 'ServiceWorkerGlobalScope' || (typeof chrome !== 'undefined' && 'offscreen' in chrome)) {
+          const {createOffscreen} = await import('./offscreen')
           // Create an offscreen page in chrome and ping it regularly to prevent this worker from getting killed
           await createOffscreen()
           this.offscreenPingInterval = setInterval(() => {
@@ -401,10 +400,13 @@ export default class Account {
         await this.init()
       }
     }
-    // eslint-disable-next-line no-undef
-    if (self.constructor.name === 'ServiceWorkerGlobalScope' || (typeof chrome !== 'undefined' && 'offscreen' in chrome)) {
-      // We destroy the offscreen page when the sync is done to allow the worker to be killed
-      await destroyOffscreen()
+    if (IS_BROWSER) {
+      // eslint-disable-next-line no-undef
+      if (self.constructor.name === 'ServiceWorkerGlobalScope' || (typeof chrome !== 'undefined' && 'offscreen' in chrome)) {
+        const {destroyOffscreen} = await import('./offscreen')
+        // We destroy the offscreen page when the sync is done to allow the worker to be killed
+        await destroyOffscreen()
+      }
     }
     clearInterval(this.offscreenPingInterval)
     this.syncProcess = null

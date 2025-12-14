@@ -10,7 +10,9 @@ import {
   RedirectError,
   RequestTimeoutError
 } from '../../errors/Error'
-import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
+import { CapacitorHttp as Http } from '@capacitor/core'
+
+declare const IS_BROWSER: boolean
 
 export interface LinkwardenConfig {
   type: 'linkwarden'
@@ -89,7 +91,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
 
   async onSyncStart(needLock?: boolean, forceLock?: boolean): Promise<void | boolean> {
     this.canceled = false
-    if (Capacitor.getPlatform() === 'web') {
+    if (IS_BROWSER) {
       const browser = (await import('../browser-api')).default
       let hasPermissions, error = false
       try {
@@ -256,7 +258,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
 
     Logger.log(`QUEUING ${verb} ${url}`)
 
-    if (Capacitor.getPlatform() !== 'web') {
+    if (!IS_BROWSER) {
       return this.sendRequestNative(verb, url, type, body, returnRawResponse)
     }
 

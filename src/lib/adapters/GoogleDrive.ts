@@ -14,6 +14,8 @@ import { OAuth2Client } from '@byteowls/capacitor-oauth2'
 import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
 import { Folder, TItemLocation } from '../Tree'
 
+declare const IS_BROWSER: boolean
+
 const OAuthConfig = {
   authorizationBaseUrl: 'https://accounts.google.com/o/oauth2/auth',
   accessTokenEndpoint: 'https://oauth2.googleapis.com/token',
@@ -61,99 +63,91 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   static async authorize(interactive = true) {
-    const platform = Capacitor.getPlatform()
-
-    if (platform !== 'web') {
+    if (!IS_BROWSER) {
       const result = await OAuth2Client.authenticate(OAuthConfig)
       const refresh_token = result.access_token_response.refresh_token
       const username = result.user.displayName
       return { refresh_token, username }
-    }
-
-    if (platform === 'web') {
+    } else {
       const browser = (await import('../browser-api')).default
       const origins = ['https://oauth2.googleapis.com/', 'https://www.googleapis.com/']
-      const {isOrion} = await browser.storage.local.get({'isOrion': false})
+      const { isOrion } = await browser.storage.local.get({ 'isOrion': false })
       if (!(await browser.permissions.contains({ origins })) && !isOrion) {
         throw new MissingPermissionsError()
       }
-    }
 
-    // see https://developers.google.com/identity/protocols/oauth2/native-app
-    const challenge = Crypto.bufferToHexstr(await Crypto.getRandomBytes(128)).substr(0, 128)
-    const state = Crypto.bufferToHexstr(await Crypto.getRandomBytes(128)).substr(0, 64)
-    const redirectURL = chrome.identity.getRedirectURL()
-    const scopes = ['https://www.googleapis.com/auth/drive.file']
-    let authURL = 'https://accounts.google.com/o/oauth2/auth'
-    authURL += `?client_id=${Credentials.web.client_id}`
-    authURL += `&response_type=code`
-    authURL += `&redirect_uri=${encodeURIComponent(redirectURL)}`
-    authURL += `&scope=${encodeURIComponent(scopes.join(' '))}`
-    authURL += `&approval_prompt=force&access_type=offline`
-    authURL += `&code_challenge=${challenge}`
-    authURL += `&state=${state}`
+      // see https://developers.google.com/identity/protocols/oauth2/native-app
+      const challenge = Crypto.bufferToHexstr(await Crypto.getRandomBytes(128)).substr(0, 128)
+      const state = Crypto.bufferToHexstr(await Crypto.getRandomBytes(128)).substr(0, 64)
+      const redirectURL = chrome.identity.getRedirectURL()
+      const scopes = ['https://www.googleapis.com/auth/drive.file']
+      let authURL = 'https://accounts.google.com/o/oauth2/auth'
+      authURL += `?client_id=${Credentials.web.client_id}`
+      authURL += `&response_type=code`
+      authURL += `&redirect_uri=${encodeURIComponent(redirectURL)}`
+      authURL += `&scope=${encodeURIComponent(scopes.join(' '))}`
+      authURL += `&approval_prompt=force&access_type=offline`
+      authURL += `&code_challenge=${challenge}`
+      authURL += `&state=${state}`
 
-    const browser = (await import('../browser-api')).default
+      const redirectResult = await browser.identity.launchWebAuthFlow({
+        interactive,
+        url: authURL
+      })
 
-    const redirectResult = await browser.identity.launchWebAuthFlow({
-      interactive,
-      url: authURL
-    })
+      const m = redirectResult.match(/[#?](.*)/)
+      if (!m || m.length < 1)
+        return null
+      const params = new URLSearchParams(m[1].split('#')[0])
+      const code = params.get('code')
+      const resState = params.get('state')
 
-    const m = redirectResult.match(/[#?](.*)/)
-    if (!m || m.length < 1)
-      return null
-    const params = new URLSearchParams(m[1].split('#')[0])
-    const code = params.get('code')
-    const resState = params.get('state')
-
-    if (!code) {
-      throw new Error('Authorization failure')
-    }
-    if (resState !== state) {
-      throw new Error('Authorization failure: State param does not match')
-    }
-    const response = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: `code=${code}` +
-        `&client_id=${Credentials.web.client_id}` +
-        `&client_secret=${Credentials.web.client_secret}` +
-        `&redirect_uri=${encodeURIComponent(chrome.identity.getRedirectURL())}` +
-        `&code_verifier=${challenge}` +
-        '&grant_type=authorization_code'
-    })
-
-    if (response.status !== 200) {
-      Logger.log('Failed to retrieve refresh token from Google API: ' + await response.text())
-      throw new OAuthTokenError()
-    }
-    const json = await response.json()
-    if (!json.access_token || !json.refresh_token) {
-      Logger.log('Failed to retrieve refresh token from Google API: ' + JSON.stringify(json))
-      throw new OAuthTokenError()
-    }
-
-    const res = await fetch('https://www.googleapis.com/drive/v3/about?fields=user/displayName', {
-      headers: {
-        Authorization: 'Bearer ' + json.access_token
+      if (!code) {
+        throw new Error('Authorization failure')
       }
-    })
-    const about = await res.json()
+      if (resState !== state) {
+        throw new Error('Authorization failure: State param does not match')
+      }
+      const response = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `code=${code}` +
+          `&client_id=${Credentials.web.client_id}` +
+          `&client_secret=${Credentials.web.client_secret}` +
+          `&redirect_uri=${encodeURIComponent(chrome.identity.getRedirectURL())}` +
+          `&code_verifier=${challenge}` +
+          '&grant_type=authorization_code'
+      })
 
-    return { refresh_token: json.refresh_token, username: about.user.displayName }
+      if (response.status !== 200) {
+        Logger.log('Failed to retrieve refresh token from Google API: ' + await response.text())
+        throw new OAuthTokenError()
+      }
+      const json = await response.json()
+      if (!json.access_token || !json.refresh_token) {
+        Logger.log('Failed to retrieve refresh token from Google API: ' + JSON.stringify(json))
+        throw new OAuthTokenError()
+      }
+
+      const res = await fetch('https://www.googleapis.com/drive/v3/about?fields=user/displayName', {
+        headers: {
+          Authorization: 'Bearer ' + json.access_token
+        }
+      })
+      const about = await res.json()
+
+      return { refresh_token: json.refresh_token, username: about.user.displayName }
+    }
   }
 
   async getAccessToken(refreshToken:string) {
-    const platform = Capacitor.getPlatform()
-
     const response = await this.request('POST', 'https://oauth2.googleapis.com/token',
       {
         refresh_token: refreshToken,
-        client_id: Credentials[platform].client_id,
-        ...(platform === 'web' && {client_secret: Credentials.web.client_secret}),
+        client_id: Credentials[Capacitor.getPlatform()].client_id,
+        ...(IS_BROWSER && {client_secret: Credentials.web.client_secret}),
         grant_type: 'refresh_token',
       },
       'application/x-www-form-urlencoded'
@@ -208,7 +202,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   async onSyncStart(needLock = true, forceLock = false) {
     Logger.log('onSyncStart: begin')
 
-    if (Capacitor.getPlatform() === 'web') {
+    if (IS_BROWSER) {
       const browser = (await import('../browser-api')).default
       const origins = ['https://oauth2.googleapis.com/', 'https://www.googleapis.com/']
       let hasPermissions, error = false

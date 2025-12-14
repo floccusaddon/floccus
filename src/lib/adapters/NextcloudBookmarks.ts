@@ -1,5 +1,5 @@
 // Nextcloud ADAPTER
-import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
+import { CapacitorHttp as Http } from '@capacitor/core'
 import Adapter from '../interfaces/Adapter'
 import HtmlSerializer from '../serializers/Html'
 import Logger from '../Logger'
@@ -30,6 +30,8 @@ import {
   UnknownFolderUpdateError,
   UnknownMoveTargetError, UpdateBookmarkError, InvalidUrlError
 } from '../../errors/Error'
+
+declare const IS_BROWSER: boolean
 
 const PAGE_SIZE = 300
 const TIMEOUT = 300000
@@ -138,7 +140,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   }
 
   async onSyncStart(needLock = true, forceLock = false): Promise<void> {
-    if (Capacitor.getPlatform() === 'web') {
+    if (IS_BROWSER) {
       const browser = (await import('../browser-api')).default
       let hasPermissions, error = false
       try {
@@ -845,7 +847,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
     Logger.log(`QUEUING ${verb} ${url}`)
 
-    if (Capacitor.getPlatform() !== 'web') {
+    if (!IS_BROWSER) {
       return this.sendRequestNative(verb, url, type, body, returnRawResponse, headers)
     }
 

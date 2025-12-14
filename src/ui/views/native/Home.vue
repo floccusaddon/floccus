@@ -1,11 +1,18 @@
 <template>
+  <v-alert
+    v-if="!isBrowserSupported"
+    type="error">
+    {{ 'This browser or WebView is not supported' }}
+  </v-alert>
   <v-progress-circular
+    v-else
     indeterminate
     color="blue darken-1"
     class="ma-auto" />
 </template>
 
 <script>
+/* global BROWSERSLIST_REGEX */
 import { actions } from '../../store/definitions'
 import { routes } from '../../NativeRouter'
 import { SplashScreen } from '@capacitor/splash-screen'
@@ -17,6 +24,11 @@ import Logger from '../../../lib/Logger'
 
 export default {
   name: 'Home',
+  computed: {
+    isBrowserSupported() {
+      return BROWSERSLIST_REGEX.test(navigator.userAgent)
+    }
+  },
   async created() {
     SplashScreen.hide()
     await this.$store.dispatch(actions.LOAD_ACCOUNTS)
