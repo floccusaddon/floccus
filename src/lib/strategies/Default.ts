@@ -426,7 +426,7 @@ export default class SyncProcess {
     this.localTree.setHashSettings(this.hashSettings)
     this.server.setHashSettings(this.hashSettings)
 
-    if (!this.localTreeRoot) {
+    if (!this.localTreeRoot || typeof this.localTreeRoot.children === 'undefined') {
       Logger.log('Retrieving local tree')
       const localTreeRoot = await this.localTree.getBookmarksTree()
       Logger.log('Filtering out unaccepted local bookmarks')
@@ -525,14 +525,17 @@ export default class SyncProcess {
   }
 
   filterOutInvalidBookmarks(tree: Folder<TItemLocation>): void {
+    const invalidBookmarks = []
     tree.children = tree.children.filter(child => {
       if (child instanceof Bookmark) {
         // Chrome URLs cannot be added in firefox
         if (this.isFirefox && child.url.startsWith('chrome')) {
+          invalidBookmarks.push(child)
           return false
         }
         // Linkwarden supports bookmarks that have no URL eg. for directly uploaded files
         if (child.url === null) {
+          invalidBookmarks.push(child)
           return false
         }
       } else {
@@ -540,6 +543,11 @@ export default class SyncProcess {
       }
       return true
     })
+    invalidBookmarks.length &&
+    Logger.log(
+      'Filtered out the following invalid bookmarks before syncing',
+      invalidBookmarks
+    )
   }
 
   async filterOutDuplicatesInTheSameFolder(tree: Folder<TItemLocation>): Promise<void> {

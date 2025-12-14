@@ -97,7 +97,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
       if (node.id === this.absoluteRoot.id) {
         isRoot = true
       }
-      if (node.children) {
+      if (Array.isArray(node.children)) {
         // seeded pseudo random number generator for separator IDs
         // We use this because we want IDs that are (largely) collision-free even
         // between folders and still consistent across browsers
@@ -138,7 +138,11 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
         })
       }
     }
-    return recurse(tree) as Folder<typeof ItemLocation.LOCAL>
+    const processedTree = recurse(tree) as Folder<typeof ItemLocation.LOCAL>
+    if (!processedTree) {
+      throw new LocalFolderNotFoundError()
+    }
+    return processedTree
   }
 
   async createBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<string|number> {

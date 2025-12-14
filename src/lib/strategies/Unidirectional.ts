@@ -33,6 +33,8 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
       // Stage 2
       'revertReorders',
+
+      'direction'
     ]
   }
 

@@ -286,7 +286,7 @@ export default class Account {
             direction = ItemLocation.SERVER
             break
           default:
-            if (!cacheTree.children.length) {
+            if (!cacheTree.children?.length) {
               Logger.log('Using "merge default" strategy (no cache available)')
               strategyClass = MergeSyncProcess
             } else {
@@ -308,14 +308,15 @@ export default class Account {
         if (direction) {
           this.syncProcess.setDirection(direction)
         }
-        await this.syncProcess.sync()
       } else {
-        // if there is a pending continuation, we resume it
-
+        // if there is a pending continuation, we resume it (see construction above)
         Logger.log('Found existing persisted pending continuation. Resuming last sync')
+        // When resuming a continuation, the CachingTreeWrapper is usually not initialized yet, because the localTree is
+        // set from the persisted continuation
         await this.localCachingResource.setCacheTree(await this.localCachingResource.getBookmarksTree())
-        await this.syncProcess.sync()
       }
+
+      await this.syncProcess.sync()
 
       await this.setData({ scheduled: false, syncing: 1 })
 
