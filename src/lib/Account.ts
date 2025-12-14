@@ -13,7 +13,13 @@ import { isTest } from './isTest'
 import { setUser, setContext, withScope, captureException } from '@sentry/browser'
 import AsyncLock from 'async-lock'
 import CachingTreeWrapper from './CachingTreeWrapper'
-import { UnexpectedFolderPathError } from '../errors/Error'
+import {
+  ClientsideAdditionFailsafeError, ClientsideDeletionFailsafeError,
+  InterruptedSyncError,
+  NetworkError,
+  ServersideAdditionFailsafeError, ServersideDeletionFailsafeError,
+  UnexpectedFolderPathError
+} from '../errors/Error'
 
 declare const IS_BROWSER: boolean
 
@@ -382,6 +388,16 @@ export default class Account {
         await this.server.onSyncFail()
       }
 
+      if (IS_BROWSER) {
+        // eslint-disable-next-line no-undef
+        if (self.constructor.name === 'ServiceWorkerGlobalScope' || (typeof chrome !== 'undefined' && 'offscreen' in chrome)) {
+          const {destroyOffscreen} = await import('./offscreen')
+          // We destroy the offscreen page when the sync is done to allow the worker to be killed
+          await destroyOffscreen()
+          clearInterval(this.offscreenPingInterval)
+        }
+      }
+
       this.syncing = false
 
       await this.setData({
@@ -390,25 +406,19 @@ export default class Account {
         syncing: false,
         scheduled: false,
       })
-      if (matchAllErrors(e, e => e.code !== 27 && (!isTest || e.code !== 26))) {
+      if (matchAllErrors(e, e => ![
+        new InterruptedSyncError().code,
+        new NetworkError().code,
+        new ServersideAdditionFailsafeError(0).code,
+        new ServersideDeletionFailsafeError(0).code,
+        new ClientsideAdditionFailsafeError(0).code,
+        new ClientsideDeletionFailsafeError(0).code,
+      ].includes(e.code) && (!isTest || e.code !== 26))) {
         await this.storage.setCurrentContinuation(null)
-      }
-
-      // reset cache and mappings after error
-      // (but not after interruption or NetworkError)
-      if (matchAllErrors(e, e => e.code !== 27 && e.code !== 17 && (!isTest || e.code !== 26))) {
         await this.init()
       }
     }
-    if (IS_BROWSER) {
-      // eslint-disable-next-line no-undef
-      if (self.constructor.name === 'ServiceWorkerGlobalScope' || (typeof chrome !== 'undefined' && 'offscreen' in chrome)) {
-        const {destroyOffscreen} = await import('./offscreen')
-        // We destroy the offscreen page when the sync is done to allow the worker to be killed
-        await destroyOffscreen()
-      }
-    }
-    clearInterval(this.offscreenPingInterval)
+
     this.syncProcess = null
     this.localCachingResource = null
     await Logger.persist()
