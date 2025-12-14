@@ -124,13 +124,12 @@
     "vuex-router-sync": "^5.0.0"
   },
   "browserslist": [
-    "> 0.25% and fully supports es6",
-    "last 2 versions and fully supports es6",
-    "Firefox ESR and fully supports es6",
-    "not dead and fully supports es6",
+    "> 0.25%",
+    "last 2 versions",
+    "Firefox ESR",
+    "not dead",
     "not bb >= 0",
     "not and_ff  >= 0",
-    "not and_qq  >= 0",
     "not and_uc  >= 0",
     "not ie_mob  >= 0",
     "not op_mini all",
