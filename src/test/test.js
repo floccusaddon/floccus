@@ -7234,9 +7234,9 @@ describe('Floccus', function() {
           await createTree(localRoot, 0, BENCHMARK_SIZE)
 
           const tree1Initial = await account1.localTree.getBookmarksTree(true)
-          await (await Controller.getSingleton()).syncAccount(account1.id)
+          await (await Controller.getSingleton()).syncAccount(account1.id, undefined, true)
           expect(account1.getData().error).to.not.be.ok
-          await (await Controller.getSingleton()).syncAccount(account2.id)
+          await (await Controller.getSingleton()).syncAccount(account2.id, undefined, true)
           expect(account2.getData().error).to.not.be.ok
 
           let serverTreeAfterFirstSync = await getAllBookmarks(account1)
@@ -7279,7 +7279,7 @@ describe('Floccus', function() {
           let tree1BeforeSecondSync = await account1.localTree.getBookmarksTree(
             true
           )
-          await account1.sync()
+          await (await Controller.getSingleton()).syncAccount(account1.id, undefined, true)
           expect(account1.getData().error).to.not.be.ok
 
           let serverTreeAfterSecondSync = await getAllBookmarks(account1)
@@ -7304,7 +7304,7 @@ describe('Floccus', function() {
           serverTreeAfterSecondSync = null
           console.log('Second round first half ok')
 
-          await (await Controller.getSingleton()).syncAccount(account2.id)
+          await (await Controller.getSingleton()).syncAccount(account2.id, undefined, true)
           expect(account2.getData().error).to.not.be.ok
 
           let serverTreeAfterThirdSync = await getAllBookmarks(account1)
@@ -7329,7 +7329,7 @@ describe('Floccus', function() {
           console.log('Second round second half ok')
 
           console.log('acc1: final sync')
-          await account1.sync()
+          await (await Controller.getSingleton()).syncAccount(account1.id, undefined, true)
           expect(account1.getData().error).to.not.be.ok
 
           let serverTreeAfterFinalSync = await getAllBookmarks(account1)
