@@ -84,7 +84,7 @@
     "message": "E028: Ei õnnestunud autentida veebiserveris."
   },
   "Error029": {
-    "message": "E029: Veaohutus: {0} % teie linkidest. Keeldub täitmisest. Lülitage see failsafe konto seadetes välja, kui soovite siiski jätkata."
+    "message": "E050: Tõrkekindluse teade: Praegune sünkroonimine kustutaks sellest profiilist {0}% sinu serveris olevatest linkidest. Seetõttu me vaikimisi ei jätka. Kui sa aga ikkagi tahaksid sünkroonida, siis lülita profiili seadistustest see tõrkekindluse nõue välja."
   },
   "Error030": {
     "message": "E030: Ei õnnestunud järjehoidjate faili dekrüpteerimine. Salasõna võib olla vale või fail võib olla rikutud."
@@ -126,7 +126,7 @@
     "message": "E042: Kaugse järjehoidjate faili suurust ei õnnestunud välja selgitada. Ei ole võimalik kontrollida, kas järjehoidjate faili laaditi alla täies mahus. Kui see viga püsib, võtke ühendust serveri administraatoriga."
   },
   "Error043": {
-    "message": "E043: Veaohutus: {0} %. Keeldub täitmisest. Lülitage see failsafe profiili seadetes välja, kui soovite siiski jätkata."
+    "message": "E043: Tõrkekindluse teade: Praegune sünkroonimine suurendaks selles profiilis sinu serveris olevate linkide arvu {0}% võrra. Seetõttu me vaikimisi ei jätka. Kui sa aga ikkagi tahaksid sünkroonida, siis lülita profiili seadistustest see tõrkekindluse nõue välja."
   },
   "Error044": {
     "message": "E044: Git push operatsioon ebaõnnestus: {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047: XBEL-faili analüüsimine ei õnnestunud. XBEL-andmed tunduvad olevat vigased või ebatäielikud. Võid proovida eemaldada faili serverist, et floccus saaks selle uuesti luua. Tee kindlasti esmalt varukoopia."
+  },
+  "Error049": {
+    "message": "E049: Tõrkekindluse teade: Praegune sünkroonimine suurendaks selles profiilis sinu kohalike linkide arvu {0}% võrra. Seetõttu me vaikimisi ei jätka. Kui sa aga ikkagi tahaksid sünkroonida, siis lülita profiili seadistustest see tõrkekindluse nõue välja."
+  },
+  "Error050": {
+    "message": "E050: Tõrkekindluse teade: Praegune sünkroonimine kustutaks sellest profiilist {0}% sinu kohalikest linkidest. Seetõttu me vaikimisi ei jätka. Kui sa aga ikkagi tahaksid sünkroonida, siis lülita profiili seadistustest see tõrkekindluse nõue välja."
   },
   "LabelWebdavurl": {
     "message": "WebDAVi võrguaadress"
@@ -532,7 +538,7 @@
     "message": "Failsafe"
   },
   "DescriptionFailsafe": {
-    "message": "Mõnikord võivad konfiguratsioonivead või tarkvaravigad põhjustada andmete tahtmatut eemaldamist, mis seejärel kaovad, või andmete tahtmatut dubleerimist, mida on seejärel raske välja selgitada. Selle vältimiseks ei kustuta floccus korraga rohkem kui 20% teie järjehoidjatest ja ei lisa ka korraga rohkem kui 20% teie järjehoidjate arvule, kui te ei lülita seda turvameedet siinkohal välja."
+    "message": "Mõnikord võivad seadistuse ja tarkvara vead põhjustada andmete ettekavatsemata eemaldamist ja seega ka jäädavat andmekadu. Aga sams võib tekkida topeltandmeid, mida hiljem on vaevaline korda saada. Selliste olukordade vältimiseks floccus ei kustuta ega lisa ühe korraga enam kui 20% sinu järjehoidjatest. Kui sa seda aga ise teadlikult soovid, siis saad siin tõrkekindluse loogika välja lülitada."
   },
   "LabelFailsafeon": {
     "message": "Lubatud. Ei kustuta ega lisa rohkem kui 20% oma kohalikest järjehoidjatest ilma teid eelnevalt küsimata. (Soovitatav)"
