@@ -22,6 +22,7 @@ import {
 } from '../errors/Error'
 
 declare const IS_BROWSER: boolean
+declare const chrome: any
 
 // register Adapters
 AdapterFactory.register('linkwarden', async() => (await import('./adapters/Linkwarden')).default)
