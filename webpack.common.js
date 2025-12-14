@@ -91,7 +91,6 @@ module.exports = [{
     ),
     options: path.join(__dirname, 'src', 'entries', 'options.js'),
     test: path.join(__dirname, 'src', 'entries', 'test.js'),
-    offscreen: path.join(__dirname, 'src', 'entries', 'offscreen.js'),
   },
   plugins: [
     new VueLoaderPlugin(),
