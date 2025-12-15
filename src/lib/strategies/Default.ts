@@ -90,13 +90,14 @@ export default class SyncProcess {
     mappings:Mappings,
     localTree:TLocalTree,
     server:TAdapter,
-    progressCb:(progress:number, actionsDone?:number)=>void
+    progressCb:(progress:number, actionsDone?:number)=>Promise<void>
   ) {
     this.mappings = mappings
     this.localTree = localTree
     this.server = server
 
-    this.progressCb = throttle(progressCb, 1500)
+    const PROGRESS_INTERVAL = self.constructor.name === 'ServiceWorkerGlobalScope' ? 100 : 1500
+    this.progressCb = throttle(progressCb, PROGRESS_INTERVAL)
     this.cancelPromise = new Promise<void>((resolve, reject) => {
       this.cancelCb = reject
     })
@@ -156,12 +157,12 @@ export default class SyncProcess {
     this.progressCb.cancel()
   }
 
-  updateProgress():void {
+  async updateProgress():Promise<void> {
     if (typeof this.actionsDone === 'undefined') {
       this.actionsDone = 0
     }
     this.actionsDone++
-    this.progressCb(
+    const promise = this.progressCb(
       Math.min(
         1,
         0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
@@ -173,6 +174,9 @@ export default class SyncProcess {
       }
       throw er
     })
+    if (self.constructor.name === 'ServiceWorkerGlobalScope') {
+      await promise
+    }
     Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
   }
 
@@ -993,10 +997,10 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
-    const done = () => {
+    const done = async() => {
       diff.retract(action)
       donePlan.CREATE.commit(action)
-      this.updateProgress()
+      await this.updateProgress()
     }
 
     const id = await Promise.race([
@@ -1005,7 +1009,7 @@ export default class SyncProcess {
     ])
     if (typeof id === 'undefined') {
       // undefined means we couldn't create the item. we're ignoring it
-      done()
+      await done()
       return
     }
 
@@ -1017,12 +1021,12 @@ export default class SyncProcess {
     }
 
     if (action.payload instanceof Bookmark || action.oldItem instanceof Bookmark) {
-      done()
+      await done()
       return
     }
 
     if (action.payload.children.length === 0) {
-      done()
+      await done()
       return
     }
 
@@ -1039,7 +1043,7 @@ export default class SyncProcess {
         try {
           // Try bulk import with sub folders
           const imported = await resource.bulkImportFolder(id, action.oldItem.copyWithLocation(false, action.payload.location)) as Folder<typeof targetLocation>
-          done()
+          await done()
           const newMappings = []
           const subScanner = new Scanner(
             action.oldItem,
@@ -1139,7 +1143,7 @@ export default class SyncProcess {
               diff.commit(newAction)
             })
 
-          done()
+          await done()
 
           if ('orderFolder' in resource) {
             // Order created items after the fact, as they've been created concurrently
@@ -1171,7 +1175,7 @@ export default class SyncProcess {
         diff.commit(newAction)
       })
 
-    done()
+    await done()
 
     if ('orderFolder' in resource) {
       // Order created items after the fact, as they've been created concurrently
@@ -1206,7 +1210,7 @@ export default class SyncProcess {
     ])
     diff.retract(action)
     donePlan.REMOVE.commit(action)
-    this.updateProgress()
+    await this.updateProgress()
   }
 
   async executeUpdate<L1 extends TItemLocation>(
@@ -1235,7 +1239,7 @@ export default class SyncProcess {
     } else {
       donePlan.MOVE.commit(action)
     }
-    this.updateProgress()
+    await this.updateProgress()
   }
 
   reconcileReorderings<L1 extends TItemLocation, L2 extends TItemLocation>(
@@ -1375,7 +1379,7 @@ export default class SyncProcess {
         Logger.log(e)
       }
       reorderings.retract(action)
-      this.updateProgress()
+      await this.updateProgress()
     }, isUsingTabs ? 1 : ACTION_CONCURRENCY)
   }
 
@@ -1526,7 +1530,7 @@ export default class SyncProcess {
   static async fromJSON(mappings:Mappings,
     localTree:TLocalTree,
     server:TAdapter,
-    progressCb:(progress:number, actionsDone:number)=>void,
+    progressCb:(progress:number, actionsDone:number)=>Promise<void>,
     json: any) {
     let strategy: SyncProcess
     switch (json.strategy) {
