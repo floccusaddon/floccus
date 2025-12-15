@@ -287,14 +287,19 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     const sources = {}
 
     // Collect folders to reorder
+
     this.result.CREATE.getActions()
       .forEach(action => {
         targets[action.payload.parentId] = true
       })
+    // Give the browser time to breathe
+    await Promise.resolve()
     this.result.REMOVE.getActions()
       .forEach(action => {
         sources[action.payload.parentId] = true
       })
+    // Give the browser time to breathe
+    await Promise.resolve()
     this.result.MOVE.getActions()
       .forEach(action => {
         targets[action.payload.parentId] = true
@@ -302,6 +307,8 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       })
 
     for (const folderId in sources) {
+      // Give the browser time to breathe
+      await Promise.resolve()
       const oldFolder = this.oldTree.findItem(ItemType.FOLDER, folderId) as Folder<L1>
       if (!oldFolder) {
         // In case a MOVE's old parent was removed
@@ -314,10 +321,15 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     }
 
     for (const folderId in targets) {
+      // Give the browser time to breathe
+      await Promise.resolve()
       const newFolder = this.newTree.findItem(ItemType.FOLDER, folderId) as Folder<L2>
       const duplicate = this.result.REORDER.getActions().find(a => String(a.payload.id) === String(newFolder.id))
       if (duplicate) {
         this.result.REORDER.retract(duplicate)
+      }
+      if (newFolder.children.length > 10000) {
+        continue
       }
       this.result.REORDER.commit({
         type: ActionType.REORDER,
