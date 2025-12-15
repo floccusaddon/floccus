@@ -123,8 +123,19 @@ export default class Controller implements IController {
     console.log('Waiting for service worker readiness')
     const worker = await this.getWorker()
     const message = {type: 'syncAccount', params: [accountId, strategy, forceSync]}
-    worker.postMessage(message)
-    console.log('Sending message to service worker: ', message)
+
+    return new Promise((resolve) => {
+      const eventListener = (data) => {
+        if (data.type === 'syncAccountResponse') {
+          resolve()
+          console.log('Message response received', data)
+          removeEventListener()
+        }
+      }
+      const removeEventListener = worker.addEventListener(eventListener)
+      worker.postMessage(message)
+      console.log('Sending message to service worker: ', message)
+    })
   }
 
   async unlock(key): Promise<void> {
