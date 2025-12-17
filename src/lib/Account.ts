@@ -22,7 +22,6 @@ import {
 } from '../errors/Error'
 
 declare const IS_BROWSER: boolean
-declare const chrome: any
 
 // register Adapters
 AdapterFactory.register('linkwarden', async() => (await import('./adapters/Linkwarden')).default)
@@ -431,10 +430,6 @@ export default class Account {
     await this.setData({ syncing: progress })
     if (!this.syncProcess) {
       return
-    }
-    if (self.constructor.name === 'ServiceWorkerGlobalScope') {
-      // eslint-disable-next-line no-undef
-      chrome.runtime.sendMessage({ type: 'sync-progress' })
     }
     if (actionsDone) {
       if (this.server.isAtomic()) {
