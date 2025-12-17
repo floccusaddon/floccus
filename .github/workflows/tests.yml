@@ -122,6 +122,13 @@ jobs:
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
+          - app-version: master
+            server-version: 32
+            floccus-adapter: nextcloud-bookmarks
+            test-name: benchmark root
+            browsers: chrome
+            node-version: 14.x
+            npm-version: 7.x
           - app-version: stable
             server-version: 32
             floccus-adapter: fake-noCache
@@ -134,6 +141,13 @@ jobs:
             floccus-adapter: fake
             test-name: benchmark root
             browsers: firefox
+            node-version: 14.x
+            npm-version: 7.x
+          - app-version: master
+            server-version: 32
+            floccus-adapter: fake
+            test-name: benchmark root
+            browsers: chrome
             node-version: 14.x
             npm-version: 7.x
 
