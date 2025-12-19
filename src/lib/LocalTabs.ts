@@ -280,42 +280,42 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     } else {
       // Otherwise, create a tab group
       try {
-        // Create a dummy tab in the parent window to hold the group
-        const dummyTab = await this.queue.add(() =>
-          browser.tabs.create({
+        const groupId = await this.queue.add(async() => {
+          // Create a dummy tab in the parent window to hold the group
+          const dummyTab = await browser.tabs.create({
             windowId: folder.parentId,
             url: 'about:blank',
             active: false
           })
-        )
 
-        // Create a tab group with the dummy tab
-        const groupId = await this.queue.add(() =>
-          browser.tabs.group({
+          // Create a tab group with the dummy tab
+          const groupId = await browser.tabs.group({
             tabIds: [dummyTab.id],
             createProperties: {
               windowId: folder.parentId
             }
           })
-        )
 
-        // Update the tab group title
-        if (folder.title) {
-          await this.queue.add(() =>
-            browser.tabGroups.update(groupId, {
+          // Update the tab group title
+          if (folder.title) {
+            await browser.tabGroups.update(groupId, {
               title: folder.title
             })
-          )
-        }
-
-        // Remove the dummy tab after a timeout
-        setTimeout(async() => {
-          try {
-            await browser.tabs.remove(dummyTab.id)
-          } catch (e) {
-            Logger.log('Failed to remove dummy tab', e)
           }
-        }, 2000)
+
+          await awaitTabsUpdated()
+
+          // Remove the dummy tab after a timeout
+          setTimeout(async() => {
+            try {
+              await browser.tabs.remove(dummyTab.id)
+            } catch (e) {
+              Logger.log('Failed to remove dummy tab', e)
+            }
+          }, 2000)
+
+          return groupId
+        })
 
         await awaitTabsUpdated()
         return groupId
