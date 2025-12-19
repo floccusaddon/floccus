@@ -33,6 +33,7 @@ import {
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 import CachingAdapter from '../adapters/Caching'
+import { yieldToEventLoop } from '../yieldToEventLoop'
 
 const ACTION_CONCURRENCY = 12
 
@@ -990,7 +991,7 @@ export default class SyncProcess {
     donePlan: PlanStage3<TOppositeLocation<L1>, TItemLocation, L1>
   ): Promise<void> {
     // defer execution of actions to allow the this.canceled check below to work when cancelling in interrupt tests
-    await Promise.resolve()
+    await yieldToEventLoop()
     Logger.log('Executing action ', action)
 
     if (this.canceled) {
@@ -1197,7 +1198,7 @@ export default class SyncProcess {
     donePlan: PlanStage3<TOppositeLocation<L1>, TItemLocation, L1>
   ): Promise<void> {
     // defer execution of actions to allow the this.canceled check below to work when cancelling in interrupt tests
-    await Promise.resolve()
+    await yieldToEventLoop()
     Logger.log('Executing action ', action)
 
     if (this.canceled) {
@@ -1220,7 +1221,7 @@ export default class SyncProcess {
     diff: Diff<L1, TItemLocation, UpdateAction<L1, TItemLocation> | MoveAction<L1, TItemLocation>>,
     donePlan: PlanStage3<TItemLocation, TItemLocation, L1>): Promise<void> {
     // defer execution of actions to allow the this.canceled check below to work when cancelling in interrupt tests
-    await Promise.resolve()
+    await yieldToEventLoop()
     Logger.log('Executing action ', action)
 
     if (this.canceled) {
@@ -1384,7 +1385,7 @@ export default class SyncProcess {
   }
 
   async addMapping(resource:TResource<TItemLocation>, item:TItem<TItemLocation>, newId:string|number):Promise<void> {
-    await Promise.resolve()
+    await yieldToEventLoop()
     let localId, remoteId
     if (resource === this.server) {
       localId = item.id

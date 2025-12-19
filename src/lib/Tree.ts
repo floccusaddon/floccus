@@ -2,6 +2,7 @@ import Crypto from './Crypto'
 import Logger from './Logger'
 import TResource, { IHashSettings } from './interfaces/Resource'
 import * as Parallel from 'async-parallel'
+import { yieldToEventLoop } from './yieldToEventLoop'
 
 const STRANGE_PROTOCOLS = ['data:', 'javascript:', 'about:', 'chrome:', 'file:']
 
@@ -298,7 +299,7 @@ export class Folder<L extends TItemLocation> {
       await fn(item, this)
       if (item.type === 'folder') {
         // give the browser time to breathe
-        await Promise.resolve()
+        await yieldToEventLoop()
         await item.traverse(fn)
       }
     }, 10)
