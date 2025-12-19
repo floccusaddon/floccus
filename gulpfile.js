@@ -162,7 +162,7 @@ const html = function(statsJson) {
         fs.writeFileSync('dist/html/' + htmlFile, html)
         break
       case 'background.html':
-        if (!statsJson.entrypoints?.['background-script']) {
+        if (!statsJson.entrypoints?.['background-script'] || !fs.existsSync('dist/js/background-script.js')) {
           break
         }
         html = fs.readFileSync('html/' + htmlFile, 'utf8')
