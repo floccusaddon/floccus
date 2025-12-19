@@ -61,7 +61,8 @@ html {
   left: 0;
   bottom: 0;
   right: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 .v-navigation-drawer {
   top: env(safe-area-inset-top) !important;
@@ -74,15 +75,16 @@ html {
   left: 0;
   bottom: 0;
   right: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
 
-  .v-app-bar {
-    top: env(safe-area-inset-top) !important;
-  }
+.native-scroll-container .v-app-bar {
+  top: env(safe-area-inset-top) !important;
+}
 
-  .v-main {
-    height: 100%;
-    overflow-y: auto;
-  }
+.native-scroll-container .v-main {
+  height: 100%;
+  overflow-y: auto;
 }
 </style>
