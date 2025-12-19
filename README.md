@@ -31,7 +31,7 @@ If you'd like to support the creation and maintenance of this software, please c
 ## 🎬 Getting started
 If you don't know how to start with Floccus, [read these guides](https://floccus.org/guides).
 
-If you need help, talk to us on [gitter](https://gitter.im/marcelklehr/floccus), matrix ([`#marcelklehr_floccus:gitter.im`](https://matrix.to/#/#marcelklehr_floccus:gitter.im?utm_source=gitter)), in the [official Nextcloud Bookmarks talk channel](https://cloud.nextcloud.com/call/u52jcby9), or drop [me](https://marcelklehr.de) a mail! :wave:
+If you need help, talk to us on [gitter](https://gitter.im/marcelklehr/floccus), matrix ([`#marcelklehr_floccus:gitter.im`](https://matrix.to/#/#marcelklehr_floccus:gitter.im?utm_source=gitter)), in the [official Nextcloud Bookmarks talk channel](https://cloud.nextcloud.com/call/u52jcby9) or on [r/floccus on reddit](https://reddit.com/r/floccus) :wave:
 
 ### Troubleshooting
 
@@ -100,7 +100,7 @@ This project follows the [all-contributors](https://github.com/kentcdodds/all-co
 
 ## Contribute
 
-All contributions, code, feedback and strategic advice, are welcome. If you have a question you can contact me directly via email or simply [open an issue](https://github.com/marcelklehr/floccus/issues/new) on the repository. I'm also always happy for people helping me test new features -- see the issues for announcements of beta versions.
+All contributions, code, feedback and strategic advice, are welcome. If you have a question you can [open an issue](https://github.com/marcelklehr/floccus/issues/new) on the repository, talk to us on [gitter](https://gitter.im/marcelklehr/floccus), matrix ([`#marcelklehr_floccus:gitter.im`](https://matrix.to/#/#marcelklehr_floccus:gitter.im?utm_source=gitter)), in the [official Nextcloud Bookmarks talk channel](https://cloud.nextcloud.com/call/u52jcby9) or on [r/floccus on reddit](https://reddit.com/r/floccus). I'm also always happy for people helping me test new features -- see the issues for announcements of beta versions.
 
 ### Translating
 
