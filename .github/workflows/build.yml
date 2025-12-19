@@ -50,7 +50,7 @@ jobs:
 
       - name: Static check if sentry lazy loading is absent
         run: |
-          grep -qvrni '"https://browser.sentry-cdn.com"' ./dist/js/ || echo 'Problem: Build includes lazy-loading of components from sentry-cdn.com. This will get rejected by Chrome Webstore review!'
+          grep -qvrni '"https://browser.sentry-cdn.com"' ./dist/js/ || (echo 'Problem: Build includes lazy-loading of components from sentry-cdn.com. This will get rejected by Chrome Webstore review!' && exit 1)
 
       - name: Static check if css is compatible with the required browsers
         run: |
