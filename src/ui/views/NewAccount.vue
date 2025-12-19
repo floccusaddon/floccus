@@ -710,7 +710,6 @@ export default {
       padding-bottom: 8px;
     }
 
-
     .v-stepper__content {
       margin-left: 0;
       margin-right: 0;
