@@ -152,11 +152,6 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         isTabGroup = false
       }
 
-      // If it's not a tab group, use the parentId as the windowId
-      if (!isTabGroup) {
-        windowId = typeof bookmark.parentId === 'string' ? parseInt(bookmark.parentId) : bookmark.parentId
-      }
-
       // Create the tab in the appropriate window
       const node = await this.queue.add(() =>
         browser.tabs.create({
