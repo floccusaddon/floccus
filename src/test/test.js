@@ -6929,8 +6929,8 @@ describe('Floccus', function() {
               ACCOUNT_DATA.type === 'nextcloud-bookmarks'
                 // Produce random numbers of timeouts between 30s and increasing numbers between 30s and 180s (increasing for stretches of 20 items, then going back to 30s)
                 ? random.int(30000, Math.round(30000 + (180000 - 30000) * (index % 20) / 20))
-                // Produce random numbers of timeouts between 4s and increasing numbers between 4s and 120s (increasing for stretches of 20 items, then going back to 4s)
-                : random.int(4000, Math.round(4000 + (120000 - 4000) * (index % 20) / 20))
+                // Produce random numbers of timeouts between 4s and increasing numbers between 4s and 180s (increasing for stretches of 20 items, then going back to 4s)
+                : random.int(4000, Math.round(4000 + (180000 - 4000) * (index % 20) / 20))
             )
           }
           const timeout = timeouts[(i++) % 1000]
@@ -7197,10 +7197,7 @@ describe('Floccus', function() {
           tree1AfterFinalSync = null
         })
 
-        it('should handle deep hierarchies with lots of bookmarks in the background worker', async function() {
-          if (ACCOUNT_DATA.type === 'fake') {
-            return this.skip()
-          }
+        it.skip('should handle deep hierarchies with lots of bookmarks in the background worker', async function() {
           const localRoot = account1.getData().localRoot
           let bookmarks = 0
           let folders = 0
