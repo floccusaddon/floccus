@@ -43,7 +43,8 @@ export default class SyncProcess {
   protected server: TAdapter
   protected cacheTreeRoot: Folder<typeof ItemLocation.LOCAL>|null
   protected canceled: boolean
-  protected progressCb: ThrottledFunction<[progress: number, actionsDone: number | undefined], void>
+  protected progressCb: (progress: number, actionsDone: number) => Promise<void>
+  protected throttledProgressCb: ThrottledFunction<[progress: number, actionsDone: number | undefined], void>
 
   // Stage -1
   protected localTreeRoot: Folder<typeof ItemLocation.LOCAL> = null
@@ -97,8 +98,8 @@ export default class SyncProcess {
     this.localTree = localTree
     this.server = server
 
-    const PROGRESS_INTERVAL = self.constructor.name === 'ServiceWorkerGlobalScope' ? 100 : 1500
-    this.progressCb = throttle(progressCb, PROGRESS_INTERVAL)
+    this.progressCb = progressCb
+    this.throttledProgressCb = throttle(progressCb, 1500)
     this.cancelPromise = new Promise<void>((resolve, reject) => {
       this.cancelCb = reject
     })
@@ -155,7 +156,7 @@ export default class SyncProcess {
     this.cancelCb(new CancelledSyncError())
     this.server.cancel()
     this.localTree.cancel()
-    this.progressCb.cancel()
+    this.throttledProgressCb.cancel()
   }
 
   async updateProgress():Promise<void> {
@@ -163,20 +164,33 @@ export default class SyncProcess {
       this.actionsDone = 0
     }
     this.actionsDone++
-    const promise = this.progressCb(
-      Math.min(
-        1,
-        0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
-      ),
-      this.actionsDone
-    ).catch((er) => {
-      if (er instanceof CanceledError) {
-        return
-      }
-      throw er
-    })
-    if (self.constructor.name === 'ServiceWorkerGlobalScope') {
-      await promise
+    // eslint-disable-next-line no-constant-condition
+    if (false && self.constructor.name === 'ServiceWorkerGlobalScope') {
+      await this.throttledProgressCb(
+        Math.min(
+          1,
+          0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
+        ),
+        this.actionsDone
+      ).catch((er) => {
+        if (er instanceof CanceledError) {
+          return
+        }
+        throw er
+      })
+    } else {
+      this.throttledProgressCb(
+        Math.min(
+          1,
+          0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
+        ),
+        this.actionsDone
+      ).catch((er) => {
+        if (er instanceof CanceledError) {
+          return
+        }
+        throw er
+      })
     }
     Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
   }
@@ -415,7 +429,7 @@ export default class SyncProcess {
       ])
     }
 
-    this.progressCb.cancel()
+    this.throttledProgressCb.cancel()
   }
 
   protected async prepareSync() {
