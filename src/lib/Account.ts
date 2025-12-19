@@ -432,14 +432,15 @@ export default class Account {
       return
     }
     if (actionsDone) {
+      const mappings = this.syncProcess.getMappingsInstance()
       if (this.server.isAtomic()) {
         const cache = (await this.localCachingResource.getCacheTree()).clone(false)
         this.syncProcess.filterOutUnacceptedBookmarks(cache)
         await this.storage.setCache(cache)
-        await this.syncProcess.getMappingsInstance().persist()
+        await mappings.persist()
       } else {
         await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
-        await this.syncProcess.getMappingsInstance().persist()
+        await mappings.persist()
       }
     }
   }
