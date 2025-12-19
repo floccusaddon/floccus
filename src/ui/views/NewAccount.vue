@@ -710,17 +710,16 @@ export default {
       padding-bottom: 8px;
     }
 
-    .v-stepper {
-      .v-stepper__content {
-        margin-left: 0;
-        margin-right: 0;
-        padding-left: 0;
-        padding-right: 0;
 
-        .v-form, .headline, .form-buttons  {
-          padding-left: 24px;
-          padding-right: 24px;
-        }
-      }
+    .v-stepper__content {
+      margin-left: 0;
+      margin-right: 0;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .v-stepper__content .v-form, .v-stepper__content .headline, .v-stepper__content .form-buttons  {
+      padding-left: 24px;
+      padding-right: 24px;
     }
 </style>
