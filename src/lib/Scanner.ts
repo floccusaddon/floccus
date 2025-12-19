@@ -3,6 +3,7 @@ import Diff, { ActionType, CreateAction, MoveAction, RemoveAction, ReorderAction
 import { Bookmark, Folder, ItemLocation, ItemType, TItem, TItemLocation } from './Tree'
 import Logger from './Logger'
 import { IHashSettings } from './interfaces/Resource'
+import { yieldToEventLoop } from './yieldToEventLoop'
 
 export interface ScanResult<L1 extends TItemLocation, L2 extends TItemLocation> {
   CREATE: Diff<L1, L2, CreateAction<L1, L2>>
@@ -51,7 +52,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
   async diffItem(oldItem:TItem<L1>, newItem:TItem<L2>):Promise<void> {
     // give the browser time to breathe
-    await Promise.resolve()
+    await yieldToEventLoop()
     Logger.log('Calculating diff for ', oldItem, newItem)
     if (oldItem.type === 'folder' && newItem.type === 'folder') {
       return this.diffFolder(oldItem, newItem)
@@ -293,13 +294,13 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         targets[action.payload.parentId] = true
       })
     // Give the browser time to breathe
-    await Promise.resolve()
+    await yieldToEventLoop()
     this.result.REMOVE.getActions()
       .forEach(action => {
         sources[action.payload.parentId] = true
       })
     // Give the browser time to breathe
-    await Promise.resolve()
+    await yieldToEventLoop()
     this.result.MOVE.getActions()
       .forEach(action => {
         targets[action.payload.parentId] = true
@@ -308,7 +309,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
     for (const folderId in sources) {
       // Give the browser time to breathe
-      await Promise.resolve()
+      await yieldToEventLoop()
       const oldFolder = this.oldTree.findItem(ItemType.FOLDER, folderId) as Folder<L1>
       if (!oldFolder) {
         // In case a MOVE's old parent was removed
@@ -322,7 +323,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
     for (const folderId in targets) {
       // Give the browser time to breathe
-      await Promise.resolve()
+      await yieldToEventLoop()
       const newFolder = this.newTree.findItem(ItemType.FOLDER, folderId) as Folder<L2>
       const duplicate = this.result.REORDER.getActions().find(a => String(a.payload.id) === String(newFolder.id))
       if (duplicate) {

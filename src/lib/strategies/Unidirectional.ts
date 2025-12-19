@@ -199,7 +199,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       await this.executeReorderings(target, this.revertReorders)
     }
 
-    this.progressCb.cancel()
+    this.throttledProgressCb.cancel()
   }
 
   async revertDiff<L1 extends TItemLocation, L2 extends TItemLocation>(
