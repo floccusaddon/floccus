@@ -122,7 +122,7 @@
           v-if="breadcrumbs.length > 1"
           :tree="tree"
           :items="breadcrumbs"
-          @click="currentFolderId = item.id" />
+          @click="currentFolderId = $event" />
       </v-card>
       <v-alert
         v-if="Boolean(syncError)"
