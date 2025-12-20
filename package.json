@@ -1,6 +1,6 @@
 {
   "name": "floccus",
-  "version": "5.8.2",
+  "version": "5.8.3",
   "description": "Sync your bookmarks privately across browsers and devices",
   "scripts": {
     "build": "NODE_OPTIONS=--max-old-space-size=12000 gulp",

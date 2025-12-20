@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.8.3] - 2025-12-20
+
+### Fixed
+fix(Logger): Trim logs regularly to avoid memory leak
+fix(Scanner): Remove Log spam
+fix(LocalTabs): Fix dummyTab workaround for tab group creation on firefox
+fix(LocalTabs): Do not parseInt(windowId)
+fix(css): Use proper css
+fix(Account#progressCallback): Prevent errors getting mappings after sync has finished
+fix: Multiple small hardenings
+fix(Account#sync): Do not re-init account if failsafe triggers
+fix: show warning on mobile if browser doesn't match
+fix(failsafe): be more precise about where bookmarks are added/deleted
+fix(WebDAV): Use includeCredentials option again
+fix(Chrome): Prevent chrome from killing our worker while it's syncing
+[native] fix: Make breadcrumbs clickable again
+
 ## [5.8.2]  - 2025-12-07
 
 ### Fixed
