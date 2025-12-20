@@ -84,7 +84,7 @@
     "message": "E028: Impossible de s'authentifier sur le serveur."
   },
   "Error029": {
-    "message": "E029 : Sécurité intégrée : L'exécution de la synchronisation actuelle supprimerait {0}% de vos liens. Refus d'exécution. Désactivez cette sécurité dans les paramètres du compte si vous voulez quand même continuer."
+    "message": "E029 : Sécurité intégrée : L'exécution de la synchronisation actuelle supprimerait {0}% de vos liens sur le serveur. Refus d'exécution. Désactivez cette sécurité dans les paramètres du profil si vous voulez quand même continuer."
   },
   "Error030": {
     "message": "E030: Le déchiffrement de votre fichier de signets a échoué. Le mot de passe est peut être erronée ou le fichier corrompu."
@@ -126,7 +126,7 @@
     "message": "E042: La taille du fichier de signets distant n'a pu être obtenue. Il est impossible de vérifier que le fichier de signet a été complètement téléchargé. Si cette erreur persiste, contactez l'administrateur du serveur."
   },
   "Error043": {
-    "message": "E043: Sécurité: La synchronisation en cours aurait ajouté {0}% à la quantité de vos signets. La synchronisation a été annulée. Désactivez la sécurité dans les paramètres de votre compte si vous souhaitez tout de même synchroniser."
+    "message": "E043 : Sécurité intégrée : L'exécution de la synchronisation actuelle augmenterait votre nombre de liens sur le serveur de {0}%. Refus d'exécution. Désactivez cette sécurité dans les paramètres du profil si vous voulez quand même continuer."
   },
   "Error044": {
     "message": "E044 : L'opération Git push a échoué : {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047 : Échec de l'analyse du fichier XBEL. Les données XBEL semblent corrompues ou incomplètes. Vous pouvez essayer de supprimer le fichier sur le serveur pour permettre à floccus de le recréer. Veillez à effectuer une sauvegarde au préalable."
+  },
+  "Error049": {
+    "message": "E049 : Sécurité intégrée : L'exécution de la synchronisation actuelle augmenterait le nombre de liens locaux dans ce profil de {0}%. Refus d'exécution. Désactivez cette sécurité dans les paramètres du profil si vous voulez quand même continuer."
+  },
+  "Error050": {
+    "message": "E050 : Sécurité intégrée : La synchronisation en cours supprimerait {0}% de vos liens locaux dans ce profil. Refus d'exécution. Désactivez cette sécurité dans les paramètres du profil si vous voulez quand même continuer."
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -532,7 +538,7 @@
     "message": "Sécurité"
   },
   "DescriptionFailsafe": {
-    "message": "Parfois, des erreurs de configuration ou des bogues logiciel peuvent causer la suppression involontaire de données, qui deviennent alors irrécupérables, ou la duplication involontaire de données, ce qui crée des conflits difficiles à résoudre. Pour empêcher cela, floccus n'effacera pas d'un seul coup plus de 20% de vos signets, ni n'ajoutera plus de 20% de la quantité de vos signet d'un seul coup, à moins que vous ne désactiviez la sécurité ici."
+    "message": "Parfois, des erreurs de configuration ou des bogues logiciels peuvent entraîner la suppression involontaire de données, qui sont alors perdues, ou la duplication involontaire de données, qui sont alors difficiles à trier. Pour éviter que cela ne se produise, floccus ne supprimera pas plus de 20 % de vos signets en une seule fois et n'ajoutera pas plus de 20 % à votre nombre de liens en une seule fois, à moins que vous ne désactiviez cette sécurité ici."
   },
   "LabelFailsafeon": {
     "message": "Activée. N'enlèvera ou n'ajoutera pas plus 20% de/à la quantité de vos signets locaux sans vous en demander d'abord l'autorisation. (Recommandé)"
