@@ -53,7 +53,6 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
   async diffItem(oldItem:TItem<L1>, newItem:TItem<L2>):Promise<void> {
     // give the browser time to breathe
     await yieldToEventLoop()
-    Logger.log('Calculating diff for ', oldItem, newItem)
     if (oldItem.type === 'folder' && newItem.type === 'folder') {
       return this.diffFolder(oldItem, newItem)
     } else if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
