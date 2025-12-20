@@ -84,7 +84,7 @@
     "message": "E028: Kunne ikke autentisere seg med serveren."
   },
   "Error029": {
-    "message": "E029: Feilsikring: Den nåværende synkroniseringskjøringen vil slette {0}% av koblingene dine. Nekter å utføre. Deaktiver denne feilsikringen i kontoinnstillingene hvis du vil fortsette likevel."
+    "message": "E029: Failsafe: Den nåværende synkroniseringskjøringen vil slette {0}% av koblingene dine på serveren. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel."
   },
   "Error030": {
     "message": "E030: Kunne ikke dekryptere bokmerkefilen. Passordfrasen kan være feil, eller filen kan være ødelagt."
@@ -126,7 +126,7 @@
     "message": "E042: Størrelsen på den eksterne bokmerkefilen kunne ikke hentes. Det er umulig å verifisere at bokmerkefilen ble lastet ned i sin helhet. Kontakt serveradministratoren hvis denne feilen vedvarer."
   },
   "Error043": {
-    "message": "E043: Failsafe: Den nåværende synkroniseringskjøringen vil øke antall bokmerker med {0}%. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel."
+    "message": "E043: Failsafe: Den nåværende synkroniseringskjøringen vil øke antall koblinger på serveren med {0}%. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel."
   },
   "Error044": {
     "message": "E044: Git-push-operasjonen mislyktes: {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047: XBEL-filen kunne ikke analyseres. XBEL-dataene ser ut til å være ødelagte eller ufullstendige. Du kan prøve å fjerne filen på serveren for å la floccus gjenskape den. Sørg for å ta en sikkerhetskopi først."
+  },
+  "Error049": {
+    "message": "E049: Feilsikker: Den nåværende synkroniseringskjøringen vil øke antallet lokale koblinger i denne profilen med {0}%. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel."
+  },
+  "Error050": {
+    "message": "E050: Failsafe: Den nåværende synkroniseringskjøringen vil slette {0}% av de lokale koblingene i denne profilen. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -532,7 +538,7 @@
     "message": "Failsafe"
   },
   "DescriptionFailsafe": {
-    "message": "Noen ganger kan konfigurasjonsfeil eller programvarefeil føre til utilsiktet fjerning av data, som da går tapt, eller utilsiktet duplisering av data, som da er vanskelig å sortere ut. For å forhindre at dette skjer, vil floccus ikke slette mer enn 20 % av bokmerkene dine på én gang, og vil heller ikke legge til mer enn 20 % av bokmerkene dine på én gang, med mindre du deaktiverer denne sikkerhetsfeilen her."
+    "message": "Noen ganger kan konfigurasjonsfeil eller programvarefeil føre til utilsiktet fjerning av data, som da går tapt, eller utilsiktet duplisering av data, som da er vanskelig å sortere ut. For å forhindre at dette skjer, vil floccus ikke slette mer enn 20 % av bokmerkene dine på én gang, og vil heller ikke legge til mer enn 20 % av koblingene dine på én gang, med mindre du deaktiverer denne sikkerhetsfeilen her."
   },
   "LabelFailsafeon": {
     "message": "Aktivert. Vil ikke slette eller legge til mer enn 20 % fra/til de lokale bokmerkene dine uten å spørre deg først. (Anbefalt)"
