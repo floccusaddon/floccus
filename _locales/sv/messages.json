@@ -84,7 +84,7 @@
     "message": "E028: Det gick inte att autentisera med servern."
   },
   "Error029": {
-    "message": "E029: Felsäker: Den aktuella synkroniseringskörningen skulle radera {0}% av dina länkar. Vägrar att utföra. Inaktivera denna felsäkerhet i kontoinställningarna om du vill fortsätta ändå."
+    "message": "E029: Felsäker: Den aktuella synkroniseringskörningen skulle radera {0}% av dina länkar på servern. Vägrar att utföra. Inaktivera denna felsäkerhet i profilinställningarna om du vill fortsätta ändå."
   },
   "Error030": {
     "message": "E030: Misslyckades med att dekryptera bokmärkesfilen. Lösenordet kan vara fel eller filen kan vara skadad."
@@ -126,7 +126,7 @@
     "message": "E042: Storleken på fjärrbokmärkesfilen kunde inte hämtas. Det är omöjligt att verifiera att bokmärkesfilen hämtades i sin helhet. Om detta fel kvarstår, kontakta serveradministratören."
   },
   "Error043": {
-    "message": "E043: Felsäker: Den aktuella synkroniseringskörningen skulle öka antalet bokmärken med {0}%. Vägrar att utföra. Inaktivera denna felsäkerhet i profilinställningarna om du vill fortsätta ändå."
+    "message": "E043: Felsäker: Den aktuella synkroniseringskörningen skulle öka antalet länkar på servern med {0}%. Vägrar att utföra. Inaktivera denna felsäkerhet i profilinställningarna om du vill fortsätta ändå."
   },
   "Error044": {
     "message": "E044: Git push-operationen misslyckades: {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047: Misslyckades med att analysera filen XBEL. XBEL-data verkar vara skadad eller ofullständig. Du kan försöka ta bort filen på servern för att låta floccus återskapa den. Se till att ta en säkerhetskopia först."
+  },
+  "Error049": {
+    "message": "E049: Felsäker: Den aktuella synkroniseringskörningen skulle öka antalet lokala länkar i den här profilen med {0}%. Vägrar att utföra. Inaktivera denna felsäkerhet i profilinställningarna om du vill fortsätta ändå."
+  },
+  "Error050": {
+    "message": "E050: Felsäker: Den aktuella synkroniseringskörningen skulle radera {0}% av dina lokala länkar i den här profilen. Vägrar att köra. Inaktivera denna felsäkerhet i profilinställningarna om du vill fortsätta ändå."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -532,7 +538,7 @@
     "message": "Felsäker"
   },
   "DescriptionFailsafe": {
-    "message": "Ibland kan konfigurationsfel eller programvarubuggar orsaka oavsiktlig borttagning av data, som sedan går förlorad, eller oavsiktlig duplicering av data, som sedan är svår att reda ut. För att förhindra detta kommer floccus inte att radera mer än 20% av dina bokmärken på en gång och inte heller lägga till mer än 20% till ditt bokmärkesantal på en gång, såvida du inte inaktiverar denna felsäkerhet här."
+    "message": "Ibland kan konfigurationsfel eller programvarubuggar orsaka oavsiktlig borttagning av data, som då går förlorad, eller oavsiktlig duplicering av data, som då är svår att reda ut. För att förhindra detta kommer floccus inte att radera mer än 20% av dina bokmärken på en gång och inte heller lägga till mer än 20% till ditt länkantal på en gång, såvida du inte inaktiverar denna felsäkerhet här."
   },
   "LabelFailsafeon": {
     "message": "Aktiverad. Kommer inte att ta bort eller lägga till mer än 20% från/till dina lokala bokmärken utan att fråga dig först. (Rekommenderas)"
