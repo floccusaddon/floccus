@@ -84,7 +84,7 @@
     "message": "E028: Sunucuyla doğrulama gerçekleştirilemedi."
   },
   "Error029": {
-    "message": "E029: Arıza güvenliği: Geçerli eşitleme çalıştırması bağlantılarınızın {0}%'sini silecektir. Yürütmeyi reddediyor. Yine de devam etmek istiyorsanız, hesap ayarlarında bu arıza güvenliğini devre dışı bırakın."
+    "message": "E029: Arıza güvenliği: Geçerli eşitleme çalıştırması sunucudaki bağlantılarınızın {0}%'sini silecektir. Yürütmeyi reddediyor. Yine de devam etmek istiyorsanız profil ayarlarında bu hata güvenliğini devre dışı bırakın."
   },
   "Error030": {
     "message": "E030: Yer imleri dosyasının şifresi çözülemedi. Parola yanlış olabilir veya dosya bozulmuş olabilir."
@@ -126,7 +126,7 @@
     "message": "E042: Uzaktan yer imleri dosya boyutu alınamadı. Yer imleri dosyasının tam olarak indirildiğini doğrulamak mümkün değil. Bu hata devam ederse lütfen sunucu yöneticisiyle iletişime geçin."
   },
   "Error043": {
-    "message": "E043: Arıza güvenliği: Geçerli eşitleme çalışması yer imi sayınızı {0}% oranında artıracaktır. Yürütmeyi reddediliyor. Yine de devam etmek istiyorsanız profil ayarlarında bu hata güvenliğini devre dışı bırakın."
+    "message": "E043: Arıza güvenliği: Mevcut senkronizasyon çalışması sunucudaki bağlantı sayınızı {0}% oranında artıracaktır. Yürütmeyi reddediyor. Yine de devam etmek istiyorsanız, profil ayarlarında bu arıza güvenliğini devre dışı bırakın."
   },
   "Error044": {
     "message": "E044: Git push işlemi başarısız oldu: {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047: XBEL dosyası ayrıştırılamadı. XBEL verileri bozuk veya eksik görünüyor. Floccus'un yeniden oluşturmasına izin vermek için sunucudaki dosyayı kaldırmayı deneyebilirsiniz. Önce bir yedek aldığınızdan emin olun."
+  },
+  "Error049": {
+    "message": "E049: Arıza güvenliği: Mevcut senkronizasyon çalışması bu profildeki yerel bağlantı sayınızı {0}% oranında artıracaktır. Yürütmeyi reddediyor. Yine de devam etmek istiyorsanız profil ayarlarında bu hata güvenliğini devre dışı bırakın."
+  },
+  "Error050": {
+    "message": "E050: Arıza güvenliği: Geçerli eşitleme çalışması bu profildeki yerel bağlantılarınızın {0}%'sini silecektir. Yürütmeyi reddediyor. Yine de devam etmek istiyorsanız profil ayarlarında bu hata güvenliğini devre dışı bırakın."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -532,7 +538,7 @@
     "message": "Arıza Güvencesi"
   },
   "DescriptionFailsafe": {
-    "message": "Bazen yapılandırma hataları veya yazılım hataları, verilerin istenmeyen şekilde silinmesine ve daha sonra kaybolmasına veya verilerin istenmeyen şekilde çoğaltılmasına ve daha sonra çözülmesinin zor olmasına neden olabilir. Bunun olmasını önlemek için, floccus tek seferde yer imlerinizin %20'sinden fazlasını silmeyecek ve bu güvenlik önlemini burada devre dışı bırakmadığınız sürece tek seferde yer imlerinizin sayısına %20'den fazlasını eklemeyecektir."
+    "message": "Bazen yapılandırma hataları ya da yazılım hataları verilerin istenmeden silinmesine ve bu nedenle kaybolmasına ya da verilerin istenmeden çoğaltılmasına ve bu nedenle de ayıklanmasının zor olmasına neden olabilir. Bunun olmasını önlemek için floccus, yer imlerinizin %20'sinden fazlasını tek seferde silmeyecek ve bu hata emniyetini burada devre dışı bırakmadığınız sürece bağlantı sayınıza tek seferde %20'den fazla eklemeyecektir."
   },
   "LabelFailsafeon": {
     "message": "Etkinleştirildi. Önce sizden istemeden yerel yer imlerinizden %20'den fazlasını silmeyecek veya eklemeyecektir. (Önerilen)"
