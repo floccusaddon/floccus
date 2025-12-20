@@ -84,7 +84,7 @@
     "message": "E028: Nu s-a putut autentifica cu serverul."
   },
   "Error029": {
-    "message": "E029: Failsafe: Actuala execuție de sincronizare ar șterge {0}% din link-uri. Refuză să execute. Dezactivați această măsură de siguranță în setările contului dacă doriți să continuați oricum."
+    "message": "E029: Failsafe: Actuala execuție de sincronizare ar șterge {0}% din link-urile dvs. de pe server. Refuză să execute. Dezactivați această măsură de siguranță în setările profilului dacă doriți să continuați oricum."
   },
   "Error030": {
     "message": "E030: A eșuat decriptarea fișierului de marcaje. Este posibil ca fraza de acces să fie greșită sau fișierul să fie corupt."
@@ -126,7 +126,7 @@
     "message": "E042: Dimensiunea fișierului de marcaje de la distanță nu a putut fi recuperată. Este imposibil să se verifice dacă fișierul de marcaje a fost descărcat în întregime. Dacă această eroare persistă, vă rugăm să contactați administratorul serverului."
   },
   "Error043": {
-    "message": "E043: Failsafe: Executarea curentă a sincronizării ar crește numărul de marcaje cu {0}%. Refuză să execute. Dezactivați această măsură de siguranță în setările profilului dacă doriți să continuați oricum."
+    "message": "E043: Failsafe: Actuala execuție de sincronizare ar crește numărul de legături pe server cu {0}%. Refuză să execute. Dezactivați această măsură de siguranță în setările profilului dacă doriți să continuați oricum."
   },
   "Error044": {
     "message": "E044: Operațiunea Git push a eșuat: {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047: A eșuat analizarea fișierului XBEL. Datele XBEL par a fi corupte sau incomplete. Puteți încerca să eliminați fișierul de pe server pentru a permite floccus să îl recreeze. Asigurați-vă că faceți mai întâi o copie de rezervă."
+  },
+  "Error049": {
+    "message": "E049: Failsafe: Execuția curentă de sincronizare ar crește numărul de legături locale în acest profil cu {0}%. Refuză să execute. Dezactivați această măsură de siguranță în setările profilului dacă doriți să continuați oricum."
+  },
+  "Error050": {
+    "message": "E050: Failsafe: Executarea curentă a sincronizării ar șterge {0}% din legăturile locale din acest profil. Refuză să execute. Dezactivați această măsură de siguranță în setările profilului dacă doriți să continuați oricum."
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -532,7 +538,7 @@
     "message": "Failsafe"
   },
   "DescriptionFailsafe": {
-    "message": "Uneori, erorile de configurare sau bug-urile software pot cauza eliminarea neintenționată a datelor, care sunt apoi pierdute, sau duplicarea neintenționată a datelor, care este apoi greu de rezolvat. Pentru a preveni acest lucru, floccus nu va șterge mai mult de 20% din marcajele dvs. dintr-o dată și, de asemenea, nu va adăuga mai mult de 20% la numărul dvs. de marcaje dintr-o dată, cu excepția cazului în care dezactivați această măsură de siguranță aici."
+    "message": "Uneori, erorile de configurare sau bug-urile software pot cauza eliminarea neintenționată a datelor, care sunt apoi pierdute, sau duplicarea neintenționată a datelor, care este apoi greu de rezolvat. Pentru a preveni acest lucru, floccus nu va șterge mai mult de 20% din marcajele dvs. dintr-o dată și, de asemenea, nu va adăuga mai mult de 20% la numărul de link-uri dintr-o dată, cu excepția cazului în care dezactivați această măsură de siguranță aici."
   },
   "LabelFailsafeon": {
     "message": "Activat. Nu va șterge sau adăuga mai mult de 20% din/la marcajele dvs. locale fără să vă întrebe mai întâi. (Recomandat)"
