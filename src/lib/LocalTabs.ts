@@ -312,7 +312,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
             } catch (e) {
               Logger.log('Failed to remove dummy tab', e)
             }
-          }, 2000)
+          }, 5000)
 
           return groupId
         })
