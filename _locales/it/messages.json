@@ -84,7 +84,7 @@
     "message": "E028: Impossibile autenticarsi con il server."
   },
   "Error029": {
-    "message": "E029: Failsafe: L'esecuzione corrente della sincronizzazione cancellerebbe {0}% dei collegamenti. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni dell'account se si vuole procedere comunque."
+    "message": "E029: Failsafe: L'esecuzione corrente della sincronizzazione cancellerebbe {0}% dei collegamenti sul server. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si vuole procedere comunque."
   },
   "Error030": {
     "message": "E030: Impossibile decriptare il file dei segnalibri. La frase d'accesso (passphrase) potrebbe essere errata o il file potrebbe essere danneggiato."
@@ -126,7 +126,7 @@
     "message": "E042: Non è stato possibile recuperare le dimensioni del file dei segnalibri remoti. È impossibile verificare che il file dei segnalibri sia stato scaricato per intero. Se l'errore persiste, contattare l'amministratore del server."
   },
   "Error043": {
-    "message": "E043: Failsafe: L'esecuzione corrente della sincronizzazione aumenterebbe il numero di segnalibri di {0}%. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si desidera procedere comunque."
+    "message": "E043: Failsafe: L'attuale esecuzione della sincronizzazione aumenterebbe il numero di collegamenti sul server di {0}%. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si vuole procedere comunque."
   },
   "Error044": {
     "message": "E044: Operazione Git push fallita: {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047: Impossibile analizzare il file XBEL. I dati XBEL sembrano essere danneggiati o incompleti. È possibile provare a rimuovere il file sul server per consentire a floccus di ricrearlo. Assicurarsi di eseguire prima un backup."
+  },
+  "Error049": {
+    "message": "E049: Failsafe: L'esecuzione corrente della sincronizzazione aumenterebbe il conteggio dei collegamenti locali in questo profilo di {0}%. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si vuole procedere comunque."
+  },
+  "Error050": {
+    "message": "E050: Failsafe: L'esecuzione corrente della sincronizzazione eliminerebbe {0}% dei collegamenti locali in questo profilo. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si vuole procedere comunque."
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -532,7 +538,7 @@
     "message": "Sistema di sicurezza"
   },
   "DescriptionFailsafe": {
-    "message": "A volte errori di configurazione o bug del software possono causare la rimozione involontaria di dati, che vanno quindi persi, o la duplicazione involontaria di dati, che è poi difficile da risolvere. Per evitare che ciò accada, floccus non cancellerà più del 20% dei vostri segnalibri in una sola volta e non aggiungerà più del 20% al vostro numero di segnalibri in una sola volta, a meno che non disattiviate questo failsafe qui."
+    "message": "A volte errori di configurazione o bug del software possono causare la rimozione involontaria di dati, che vanno persi, o la duplicazione involontaria di dati, che è poi difficile da risolvere. Per evitare che ciò accada, floccus non cancellerà più del 20% dei vostri segnalibri in una sola volta e non aggiungerà più del 20% al vostro numero di link in una sola volta, a meno che non disattiviate questo failsafe qui."
   },
   "LabelFailsafeon": {
     "message": "Abilitato. Non eliminerà o aggiungerà più del 20% dai/ai segnalibri locali senza chiedere prima all'utente. (consigliato)"
