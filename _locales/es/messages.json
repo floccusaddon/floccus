@@ -84,7 +84,7 @@
     "message": "E028: No se puede autenticar con el servidor."
   },
   "Error029": {
-    "message": "E029: A prueba de fallos: La ejecución actual de la sincronización borraría {0}% de sus enlaces. Se niega la ejecución. Desactive este failsafe en la configuración de la cuenta si desea continuar de todos modos."
+    "message": "E029: A prueba de fallos: La actual ejecución de sincronización borraría {0}% de sus enlaces en el servidor. Rechazando la ejecución. Desactiva esta prueba de fallos en la configuración del perfil si quieres continuar de todos modos."
   },
   "Error030": {
     "message": "E030: No se pudo descifrar el archivo de marcadores. Es posible que la frase de contraseña sea incorrecta o que el archivo esté corrupto."
@@ -126,7 +126,7 @@
     "message": "E042: No se ha podido recuperar el tamaño del archivo remoto de marcadores. Es imposible verificar que el archivo de marcadores se ha descargado en su totalidad. Si este error persiste, póngase en contacto con el administrador del servidor."
   },
   "Error043": {
-    "message": "E043: A prueba de fallos: La ejecución actual de la sincronización aumentaría su recuento de marcadores en {0}%. Rechazando la ejecución. Desactive este failsafe en la configuración del perfil si desea proceder de todas formas."
+    "message": "E043: A prueba de fallos: La ejecución de la sincronización actual aumentaría el recuento de enlaces en el servidor en {0}%. Rechazando la ejecución. Desactiva este failsafe en la configuración del perfil si quieres proceder de todas formas."
   },
   "Error044": {
     "message": "E044: Falló la operación Git push: {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047: Error al analizar el archivo XBEL. Los datos XBEL parecen estar dañados o incompletos. Puede intentar eliminar el archivo del servidor para que floccus lo vuelva a crear. Asegúrese de hacer primero una copia de seguridad."
+  },
+  "Error049": {
+    "message": "E049: A prueba de fallos: La ejecución de la sincronización actual aumentaría el recuento de enlaces locales en este perfil en {0}%. Rechazando la ejecución. Desactiva esta prueba de fallos en la configuración del perfil si quieres continuar de todos modos."
+  },
+  "Error050": {
+    "message": "E050: A prueba de fallos: La actual ejecución de sincronización eliminaría {0}% de sus enlaces locales en este perfil. Rechazando la ejecución. Desactiva esta prueba de fallos en la configuración del perfil si quieres continuar de todos modos."
   },
   "LabelWebdavurl": {
     "message": "URL de WebDAV"
@@ -532,7 +538,7 @@
     "message": "Mecanismo de seguridad"
   },
   "DescriptionFailsafe": {
-    "message": "A veces, errores de configuración o fallos del software pueden provocar la eliminación involuntaria de datos, que luego se pierden, o la duplicación involuntaria de datos, que luego es difícil de solucionar. Para evitar que esto ocurra, floccus no borrará más del 20% de sus marcadores de una sola vez y tampoco añadirá más del 20% a su recuento de marcadores de una sola vez, a menos que desactive esta medida de seguridad aquí."
+    "message": "A veces, errores de configuración o fallos de software pueden causar la eliminación involuntaria de datos, que se pierden, o la duplicación involuntaria de datos, que es difícil de resolver. Para evitar que esto ocurra, floccus no eliminará más del 20% de tus marcadores de una sola vez y tampoco añadirá más del 20% a tu cuenta de enlaces de una sola vez, a menos que desactives esta medida de seguridad aquí."
   },
   "LabelFailsafeon": {
     "message": "Activado. No borrará ni añadirá más del 20% de/a sus marcadores locales sin preguntarle antes. (Recomendado)"
