@@ -127,6 +127,6 @@ export default class Logger {
   }
 }
 
-const throttledTrimLogs = throttle(20000, Logger.trimLogs)
+const throttledTrimLogs = throttle(20000, () => Logger.trimLogs())
 
 Logger.messages = []
