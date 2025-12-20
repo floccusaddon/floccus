@@ -84,7 +84,7 @@
     "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen, stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
   },
   "Error029": {
-    "message": "E029: Löschsicherung: Die aktuelle Synchronisierung würde {0}% der Links löschen. Floccus weigert sich dies auszüführen. Falls Sie trotzdem fortfahren wollen, deaktivieren Sie die Löschsicherung in den Konto-Einstellungen."
+    "message": "E029: Failsafe: Der aktuelle Synchronisierungslauf würde {0}% Ihrer Links auf dem Server löschen. Ausführung verweigert. Deaktivieren Sie diese Failsafe-Funktion in den Profileinstellungen, wenn Sie trotzdem fortfahren möchten."
   },
   "Error030": {
     "message": "E030: Entschlüsseln der Lesezeichendatei fehlgeschlagen. Die Passphrase könnte falsch oder die Datei beschädigt sein."
@@ -126,7 +126,7 @@
     "message": "E042: Die Größe der Lesezeichen-Datei auf dem Server kontte nicht ermittelt werden. Es ist somit nicht möglich zu überprüfen, ob die Datei vollständig heruntergeladen wurde. Falls dieser Fehler bestehen bleibt kontaktieren Sie den Server-Administrator."
   },
   "Error043": {
-    "message": "E043: Löschsicherung: Die aktuelle Synchronisierung würde die Anzahl der Links um {0}% erhöhen. Floccus weigert sich dies auszuführen. Falls Sie trotzdem fortfahren wollen, deaktivieren Sie die Löschsicherung in den Konto-Einstellungen."
+    "message": "E043: Failsafe: Der aktuelle Sync-Lauf würde die Anzahl Ihrer Links auf dem Server um {0}% erhöhen. Ausführung verweigert. Deaktivieren Sie diese Failsafe-Funktion in den Profileinstellungen, wenn Sie trotzdem fortfahren möchten."
   },
   "Error044": {
     "message": "E044: Git push Operation fehlgeschlagen: {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047: XBEL-Datei konnte nicht geparst werden. Die XBEL-Daten scheinen beschädigt oder unvollständig zu sein. Sie können versuchen, die Datei auf dem Server zu löschen, damit Floccus sie neu erstellen kann. Stellen Sie sicher, dass Sie vorher ein Backup erstellen."
+  },
+  "Error049": {
+    "message": "E049: Failsafe: Der aktuelle Synchronisierungslauf würde die Anzahl Ihrer lokalen Links in diesem Profil um {0}% erhöhen. Ausführung verweigert. Deaktivieren Sie diese Failsafe-Funktion in den Profileinstellungen, wenn Sie trotzdem fortfahren möchten."
+  },
+  "Error050": {
+    "message": "E050: Ausfallsicher: Der aktuelle Synchronisierungslauf würde {0}% Ihrer lokalen Links in diesem Profil löschen. Ausführung verweigert. Deaktivieren Sie diese Failsafe-Funktion in den Profileinstellungen, wenn Sie trotzdem fortfahren möchten."
   },
   "LabelWebdavurl": {
     "message": "WebDAV-URL"
@@ -532,7 +538,7 @@
     "message": "Löschsicherung"
   },
   "DescriptionFailsafe": {
-    "message": "Manchmal können Konfigurationsfehler oder Programmfehler zur unerwünschte Löschung von Daten führen, die dann verloren sind, oder sogar zur unerwünschten Vervielfachung von Daten, die dann schwer wieder herauszufiltern sind. Um dies zu verhindern, wird Floccus nicht mehr als 20% Ihrer Lesezeichen in einem Schritt löschen und auch nicht mehr als 20% zu Ihren Lesezeichen in einem Schritt hinzufügen, solange sie diese Löschsicherung nicht hier ausschalten."
+    "message": "Manchmal können Konfigurationsfehler oder Software-Bugs dazu führen, dass Daten unbeabsichtigt gelöscht werden und dann verloren gehen, oder dass Daten unbeabsichtigt dupliziert werden und dann schwer zu sortieren sind. Um dies zu verhindern, löscht Floccus nicht mehr als 20 % Ihrer Lesezeichen auf einmal und fügt auch nicht mehr als 20 % Ihrer Links auf einmal hinzu, es sei denn, Sie deaktivieren diese Sicherheitsfunktion hier."
   },
   "LabelFailsafeon": {
     "message": "Eingeschaltet. Lösche nicht mehr als 20% und füge nicht mehr als 20% zu meinen lokalen Lesezeichen hinzu ohne mich vorher zu fragen (empfohlen)."
