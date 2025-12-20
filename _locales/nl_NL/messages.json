@@ -84,7 +84,7 @@
     "message": "E028: Kon niet aanmelden op de server."
   },
   "Error029": {
-    "message": "E029: Failsafe: De huidige synchronisatierun zou {0}% van uw koppelingen verwijderen. Weigert uit te voeren. Schakel deze failsafe uit in de accountinstellingen als je toch wilt doorgaan."
+    "message": "E029: Failsafe: De huidige synchronisatierun zou {0}% van uw koppelingen op de server verwijderen. Weigert uit te voeren. Schakel deze failsafe uit in de profielinstellingen als je toch wilt doorgaan."
   },
   "Error030": {
     "message": "E030: Het decoderen van het bladwijzerbestand is mislukt. De wachtwoordzin kan verkeerd zijn of het bestand kan beschadigd zijn."
@@ -126,7 +126,7 @@
     "message": "E042: De grootte van het bladwijzerbestand op afstand kon niet worden opgehaald. Het is onmogelijk om te controleren of het bladwijzerbestand volledig is gedownload. Neem contact op met de serverbeheerder als deze fout zich blijft voordoen."
   },
   "Error043": {
-    "message": "E043: Failsafe: De huidige synchronisatierun zou het aantal bladwijzers verhogen met {0}%. Weigert uit te voeren. Schakel deze failsafe uit in de profielinstellingen als u toch wilt doorgaan."
+    "message": "E043: Failsafe: De huidige synchronisatierun zou het aantal koppelingen op de server verhogen met {0}%. Weigert uit te voeren. Schakel deze failsafe uit in de profielinstellingen als je toch wilt doorgaan."
   },
   "Error044": {
     "message": "E044: Git push bewerking mislukt: {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047: Mislukt bij het parsen van XBEL-bestand. De XBEL-gegevens lijken corrupt of onvolledig te zijn. U kunt proberen het bestand op de server te verwijderen zodat floccus het opnieuw kan maken. Zorg ervoor dat u eerst een back-up maakt."
+  },
+  "Error049": {
+    "message": "E049: Failsafe: De huidige synchronisatierun zou het aantal lokale links in dit profiel verhogen met {0}%. Weigert uit te voeren. Schakel deze failsafe uit in de profielinstellingen als je toch wilt doorgaan."
+  },
+  "Error050": {
+    "message": "E050: Failsafe: De huidige synchronisatierun zou {0}% van je lokale links in dit profiel verwijderen. Weigert uit te voeren. Schakel deze failsafe uit in de profielinstellingen als je toch wilt doorgaan."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -532,7 +538,7 @@
     "message": "Voorzorgsmaatregel"
   },
   "DescriptionFailsafe": {
-    "message": "Soms kunnen configuratiefouten of softwarebugs leiden tot het onbedoeld verwijderen van gegevens, die dan verloren gaan, of het onbedoeld dupliceren van gegevens, die dan moeilijk uit te zoeken zijn. Om dit te voorkomen zal floccus niet meer dan 20% van uw bladwijzers in één keer verwijderen en ook niet meer dan 20% in één keer toevoegen aan uw aantal bladwijzers, tenzij u deze beveiliging hier uitschakelt."
+    "message": "Soms kunnen configuratiefouten of softwarebugs leiden tot het onbedoeld verwijderen van gegevens, die dan verloren gaan, of het onbedoeld dupliceren van gegevens, die dan moeilijk uit te zoeken zijn. Om dit te voorkomen zal floccus niet meer dan 20% van uw bladwijzers in één keer verwijderen en ook niet meer dan 20% toevoegen aan uw aantal links in één keer, tenzij u deze failsafe hier uitschakelt."
   },
   "LabelFailsafeon": {
     "message": "Ingeschakeld. Verwijdert of voegt niet meer dan 20% toe van/aan je lokale bladwijzers zonder het je eerst te vragen. (Aanbevolen)"
