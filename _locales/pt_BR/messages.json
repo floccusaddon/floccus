@@ -84,7 +84,7 @@
     "message": "E028: Não foi possível se autenticar com o servidor"
   },
   "Error029": {
-    "message": "E029: À prova de falhas: A execução da sincronização atual excluiria {0}% de seus links. Recusando-se a executar. Desative essa proteção contra falhas nas configurações da conta se você quiser continuar mesmo assim."
+    "message": "E029: Segurança contra falhas: A execução da sincronização atual excluiria {0}% de seus links no servidor. Recusando-se a executar. Desative essa proteção contra falhas nas configurações de perfil se você quiser continuar mesmo assim."
   },
   "Error030": {
     "message": "E030: Falha ao descriptografar o arquivo de favoritos. A senha pode estar errada ou o arquivo pode estar corrompido."
@@ -126,7 +126,7 @@
     "message": "E042: Não foi possível recuperar o tamanho do arquivo de favoritos remoto. É impossível verificar se o arquivo de favoritos foi baixado por completo. Se esse erro persistir, entre em contato com o administrador do servidor."
   },
   "Error043": {
-    "message": "E043: Segurança contra falhas: A execução da sincronização atual aumentaria sua contagem de favoritos em {0}%. Recusando-se a executar. Desative essa proteção contra falhas nas configurações de perfil se você quiser continuar mesmo assim."
+    "message": "E043: Segurança contra falhas: A execução da sincronização atual aumentaria sua contagem de links no servidor em {0}%. Recusando-se a executar. Desative essa proteção contra falhas nas configurações de perfil se você quiser continuar mesmo assim."
   },
   "Error044": {
     "message": "E044: Falha na operação de envio do Git: {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047: Falha ao analisar o arquivo XBEL. Os dados do XBEL parecem estar corrompidos ou incompletos. Você pode tentar remover o arquivo no servidor para permitir que o floccus o recrie. Certifique-se de fazer um backup primeiro."
+  },
+  "Error049": {
+    "message": "E049: Segurança contra falhas: A execução de sincronização atual aumentaria sua contagem de links locais neste perfil em {0}%. Recusando-se a executar. Desative essa proteção contra falhas nas configurações do perfil se você quiser continuar mesmo assim."
+  },
+  "Error050": {
+    "message": "E050: Failsafe: A execução da sincronização atual excluiria {0}% de seus links locais neste perfil. Recusando-se a executar. Desative essa proteção contra falhas nas configurações do perfil se você quiser continuar mesmo assim."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -532,7 +538,7 @@
     "message": "Mecanismo de proteção"
   },
   "DescriptionFailsafe": {
-    "message": "Às vezes, erros de configuração ou bugs de software podem causar a remoção não intencional de dados, que são perdidos, ou a duplicação não intencional de dados, que são difíceis de serem separados. Para evitar que isso aconteça, o floccus não excluirá mais de 20% dos seus favoritos de uma só vez e também não adicionará mais de 20% à sua contagem de favoritos de uma só vez, a menos que você desative essa proteção contra falhas aqui."
+    "message": "Às vezes, erros de configuração ou bugs de software podem causar a remoção não intencional de dados, que são perdidos, ou a duplicação não intencional de dados, que são difíceis de classificar. Para evitar que isso aconteça, o floccus não excluirá mais de 20% dos seus favoritos de uma só vez e também não adicionará mais de 20% à sua contagem de links de uma só vez, a menos que você desative essa proteção contra falhas aqui."
   },
   "LabelFailsafeon": {
     "message": "Ativado. Não excluirá nem adicionará mais de 20% de/para seus favoritos locais sem perguntar antes. (Recomendado)"
