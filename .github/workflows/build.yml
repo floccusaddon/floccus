@@ -54,7 +54,7 @@ jobs:
 
       - name: Static check if css is compatible with the required browsers
         run: |
-          npm run doiuse > doiuse-report.txt
+          npm run doiuse | sed 's/[^:]*://' > doiuse-report.txt
           cat doiuse-report.txt
           diff doiuse-report.txt doiuse-report.baseline.txt || (echo 'Problem: Build includes CSS that is not compatible with the required browsers. Please check the report above!' && exit 1)
 
