@@ -84,7 +84,7 @@
     "message": "E028: Tunnistautuminen palvelimelle epäonnistui."
   },
   "Error029": {
-    "message": "E029: Vikasietoinen: {0} % linkeistäsi. Kieltäytyy suorittamasta. Poista tämä vikasietoturva käytöstä tilin asetuksissa, jos haluat jatkaa joka tapauksessa."
+    "message": "E029: Vikasietoinen: {0} % palvelimella olevista linkeistäsi. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat kuitenkin jatkaa."
   },
   "Error030": {
     "message": "E030: Kirjanmerkkitiedoston salauksen purku epäonnistui. Salauslauseke ei ehkä ole oikein tai tiedosto on viallinen."
@@ -126,7 +126,7 @@
     "message": "E042: Kirjanmerkkitiedoston kokoa ei voitu hakea. On mahdotonta tarkistaa, että kirjanmerkkitiedosto on ladattu kokonaisuudessaan. Jos tämä virhe jatkuu, ota yhteys palvelimen ylläpitäjään."
   },
   "Error043": {
-    "message": "E043: Vikasietoinen: {0} %. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat jatkaa kuitenkin."
+    "message": "E043: Vikasietoinen: {0} %. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat kuitenkin jatkaa."
   },
   "Error044": {
     "message": "E044: Git-työntöoperaatio epäonnistui: {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047: XBEL-tiedoston jäsentäminen epäonnistui. XBEL-tiedot näyttävät olevan vioittuneita tai epätäydellisiä. Voit yrittää poistaa tiedoston palvelimelta, jotta floccus voi luoda sen uudelleen. Varmista, että otat varmuuskopion ensin."
+  },
+  "Error049": {
+    "message": "E049: Vikasietoinen: {0} %. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat jatkaa kuitenkin."
+  },
+  "Error050": {
+    "message": "E050: Failsafe: {0} % tämän profiilin paikallisista linkeistä. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat jatkaa kuitenkin."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL-osoite"
@@ -532,7 +538,7 @@
     "message": "Varmistus"
   },
   "DescriptionFailsafe": {
-    "message": "Joskus konfigurointivirheet tai ohjelmistovirheet voivat aiheuttaa tietojen tahattoman poistamisen, jolloin tiedot katoavat, tai tietojen tahattoman kopioimisen, jolloin niitä on vaikea selvittää. Tämän estämiseksi floccus ei poista kerralla yli 20 % kirjanmerkeistäsi eikä myöskään lisää kerralla yli 20 % kirjanmerkkien lukumäärääsi, ellet poista tätä vikasietoisuutta käytöstä tässä."
+    "message": "Joskus konfigurointivirheet tai ohjelmistovirheet voivat aiheuttaa tietojen tahattoman poistamisen, jolloin tiedot katoavat, tai tietojen tahattoman kopioimisen, jolloin niitä on vaikea selvittää. Tämän estämiseksi floccus ei poista kerralla yli 20 % kirjanmerkeistäsi eikä myöskään lisää kerralla yli 20 % linkkien lukumäärääsi, ellet poista tätä turvatoimintoa käytöstä täällä."
   },
   "LabelFailsafeon": {
     "message": "Käytössä. Ei poista tai lisää yli 20 % paikallisista kirjanmerkeistäsi kyselemättä sinulta ensin. (Suositellaan)"
