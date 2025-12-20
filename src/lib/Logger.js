@@ -5,6 +5,7 @@ import packageJson from '../../package.json'
 import Crypto from './Crypto'
 import { Share } from '@capacitor/share'
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
+import { throttle } from 'throttle-debounce'
 
 export default class Logger {
   static log() {
@@ -12,7 +13,12 @@ export default class Logger {
 
     // log to console
     DEBUG && console.log(util.format.apply(util, logMsg))
-    this.messages.push(util.format.apply(util, logMsg)) // TODO: Use a linked list here to get O(n)
+    this.messages.push(util.format.apply(util, logMsg))
+    throttledTrimLogs()
+  }
+
+  static trimLogs() {
+    this.messages = this.messages.slice(-1000)
   }
 
   static async persist() {
@@ -120,4 +126,7 @@ export default class Logger {
     }
   }
 }
+
+const throttledTrimLogs = throttle(20000, Logger.trimLogs)
+
 Logger.messages = []
