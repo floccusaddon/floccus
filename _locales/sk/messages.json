@@ -84,7 +84,7 @@
     "message": "E028: Nepodarilo sa overiť voči serveru."
   },
   "Error029": {
-    "message": "E029: Bezpečnostná poistka: súčasná synchronizácia by zmazala {0}% vašich záložiek. Vykonanie odmietnuté. Ak chcete napriek tomu pokračovať, zakážte v nastaveniach účtu túto bezpečnostnú poistku."
+    "message": "E029: Bezpečnosť pri poruche: Aktuálny beh synchronizácie by vymazal {0}% vašich odkazov na serveri. Odmieta sa vykonať. Ak chcete aj tak pokračovať, vypnite túto poistku proti zlyhaniu v nastaveniach profilu."
   },
   "Error030": {
     "message": "E030: Dešifrovanie súboru záložiek zlyhalo. Môže byť zlé heslo alebo súbor môže byť poškodený."
@@ -126,7 +126,7 @@
     "message": "E042: Nemohla byť získaná veľkosť súboru vzdialených záložiek. Je nemožné overiť, že súbor so záložkami bol plne stiahnutý. Ak táto chyba pretrváva, prosím kontaktujte správcu servera."
   },
   "Error043": {
-    "message": "E043: Bezpečnostná poistka: súčasná synchronizácia by zvýšila počet vašich záložiek o {0}%. Vykonanie odmietnuté. Ak chcete napriek tomu pokračovať, zakážte v nastaveniach účtu túto bezpečnostnú poistku."
+    "message": "E043: Bezpečnosť pri poruche: Aktuálny beh synchronizácie by zvýšil počet vašich odkazov na serveri o {0}%. Odmietnutie vykonania. Ak chcete aj tak pokračovať, vypnite túto poistku proti zlyhaniu v nastaveniach profilu."
   },
   "Error044": {
     "message": "E044: Operácia git push zlyhala: {0}"
@@ -139,6 +139,12 @@
   },
   "Error047": {
     "message": "E047: Nepodarilo sa analyzovať súbor XBEL. Zdá sa, že údaje XBEL sú poškodené alebo neúplné. Môžete skúsiť odstrániť súbor na serveri, aby ho floccus mohol znovu vytvoriť. Uistite sa, že ste si najprv urobili zálohu."
+  },
+  "Error049": {
+    "message": "E049: Bezpečnosť pri poruche: Aktuálny beh synchronizácie by zvýšil počet lokálnych odkazov v tomto profile o {0}%. Odmietnutie vykonania. Ak chcete aj tak pokračovať, vypnite túto poistku proti zlyhaniu v nastaveniach profilu."
+  },
+  "Error050": {
+    "message": "E050: Bezpečnosť pri poruche: Aktuálny beh synchronizácie by vymazal {0}% vašich miestnych odkazov v tomto profile. Odmietnutie vykonania. Ak chcete aj tak pokračovať, vypnite túto poistku proti zlyhaniu v nastaveniach profilu."
   },
   "LabelWebdavurl": {
     "message": "WebDAV adresa URL"
@@ -532,7 +538,7 @@
     "message": "Failsafe"
   },
   "DescriptionFailsafe": {
-    "message": "Niekedy môžu chyby v konfigurácii alebo softvérové chyby spôsobiť neúmyselné odstránenie údajov, ktoré sa potom stratia, alebo neúmyselné zdvojenie údajov, ktoré sa potom ťažko triedia. Aby k tomu nedošlo, aplikácia Floccus neodstráni viac ako 20 % vašich záložiek v jednom kroku a tiež nepridá viac ako 20 % k počtu záložiek v jednom kroku, pokiaľ tu túto poistku nevypnete."
+    "message": "Niekedy môžu chyby v konfigurácii alebo softvérové chyby spôsobiť neúmyselné odstránenie údajov, ktoré sa potom stratia, alebo neúmyselné zdvojenie údajov, ktoré sa potom ťažko triedia. Aby sa tomu zabránilo, floccus neodstráni viac ako 20 % vašich záložiek v jednom kroku a tiež nepridá viac ako 20 % k počtu odkazov v jednom kroku, pokiaľ tu túto poistku nevypnete."
   },
   "LabelFailsafeon": {
     "message": "Povolené. Neodstráni ani nepridá viac ako 20 % z/do vašich lokálnych záložiek bez toho, aby sa vás na to najprv opýtal. (Odporúčané)"
