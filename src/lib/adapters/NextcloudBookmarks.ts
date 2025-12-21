@@ -67,6 +67,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private server: NextcloudBookmarksConfig
   private fetchQueue: PQueue<{ concurrency: 12 }>
   private bookmarkLock: AsyncLock
+  private importLock: AsyncLock
   private list: Bookmark<typeof ItemLocation.SERVER>[]
   private tree: Folder<typeof ItemLocation.SERVER>
   private canceled = false
@@ -83,8 +84,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   constructor(server: NextcloudBookmarksConfig) {
     this.server = server
-    this.fetchQueue = new PQueue({ concurrency: 12 })
+    this.fetchQueue = new PQueue({ concurrency: 5 })
     this.bookmarkLock = new AsyncLock()
+    this.importLock = new AsyncLock()
   }
 
   static getDefaultValues(): NextcloudBookmarksConfig {
@@ -463,12 +465,14 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     const body = new FormData()
     body.append('bm_import', blob, 'upload.html')
 
-    const json = await this.sendRequest(
-      'POST',
-      `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/import`,
-      'multipart/form-data',
-      body
-    )
+    const json = this.importLock.acquire('import', async () => {
+      return this.sendRequest(
+        'POST',
+        `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/import`,
+        'multipart/form-data',
+        body
+      )
+    })
 
     const recurseChildren = (children, id, title, parentId) => {
       return new Folder({

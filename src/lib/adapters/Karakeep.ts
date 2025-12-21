@@ -38,7 +38,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
 
   constructor(server: KarakeepConfig) {
     this.server = server
-    this.fetchQueue = new PQueue({ concurrency: 12 })
+    this.fetchQueue = new PQueue({ concurrency: 5 })
     this.abortController = new AbortController()
     this.abortSignal = this.abortController.signal
   }

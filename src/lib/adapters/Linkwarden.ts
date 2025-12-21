@@ -37,7 +37,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
 
   constructor(server: LinkwardenConfig) {
     this.server = server
-    this.fetchQueue = new PQueue({ concurrency: 12 })
+    this.fetchQueue = new PQueue({ concurrency: 5 })
     this.abortController = new AbortController()
     this.abortSignal = this.abortController.signal
   }
