@@ -252,6 +252,7 @@ export default class Account {
           )
         } catch (e) {
           continuation = null
+          if (e.message) Logger.log(e.message)
           Logger.log('Failed to load pending continuation. Continuing with normal sync')
         }
       }
