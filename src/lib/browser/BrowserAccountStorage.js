@@ -18,7 +18,7 @@ export default class BrowserAccountStorage {
       let entry = await BrowserAccountStorage.getEntry(entryName, defaultVal)
       entry = fn(entry)
 
-      await browser.storage.local.set({ [entryName]: JSON.stringify(entry) })
+      await browser.storage.local.set({ [entryName]: entry })
     })
   }
 
