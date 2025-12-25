@@ -534,6 +534,11 @@ export default class SyncProcess {
           invalidBookmarks.push(child)
           return false
         }
+        // Moz-extension URLs cannot be added in chrome
+        if (!this.isFirefox && child.url.startsWith('moz-')) {
+          invalidBookmarks.push(child)
+          return false
+        }
         // Linkwarden supports bookmarks that have no URL eg. for directly uploaded files
         if (child.url === null) {
           invalidBookmarks.push(child)
