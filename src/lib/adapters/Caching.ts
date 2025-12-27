@@ -12,6 +12,7 @@ import {
   UnknownMoveTargetError
 } from '../../errors/Error'
 import { BulkImportResource, ICapabilities, IHashSettings } from '../interfaces/Resource'
+import { isTest } from '../isTest'
 
 export default class CachingAdapter implements Adapter, BulkImportResource<TItemLocation> {
   protected highestId: number
@@ -43,7 +44,26 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       return false
     }
     try {
-      return Boolean(['https:', 'http:', 'ftp:', 'data:', 'javascript:', 'file:', 'chrome:', 'edge:', 'about:', 'chrome-extension:', 'moz-extension:'].includes(
+      let schemes = [
+        'https:',
+        'http:',
+        'ftp:',
+        'data:',
+        'javascript:',
+        'file:',
+        'chrome:',
+        'edge:',
+        'about:'
+      ]
+
+      if (!isTest) {
+        schemes = schemes.concat([
+          'chrome-extension:',
+          'moz-extension:'
+        ])
+      }
+
+      return Boolean(schemes.includes(
         new URL(bm.url).protocol
       ))
     } catch (e) {
