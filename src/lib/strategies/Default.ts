@@ -106,31 +106,40 @@ export default class SyncProcess {
   }
 
   getMembersToPersist() {
-    return [
-      // Stage 0
-      'localScanResult',
-      'serverScanResult',
+    const members = []
+    // Stage 0
+    if (!this.serverPlanStage1 || !this.localPlanStage1) {
+      members.push('localScanResult')
+      members.push('serverScanResult')
+    }
 
-      // Stage 1
-      'localPlanStage1',
-      'serverPlanStage1',
+    // Stage 1
+    if (!this.serverPlanStage2 || !this.localPlanStage2) {
+      members.push('localPlanStage1')
+      members.push('serverPlanStage1')
+    }
 
-      // Stage 2
-      'localPlanStage2',
-      'serverPlanStage2',
+    // Stage 2
+    if (!this.planStage3Local || !this.planStage3Server) {
+      members.push('localPlanStage2')
+      members.push('serverPlanStage2')
+    }
 
-      // Stage 3
-      'planStage3Local',
-      'planStage3Server',
-      'localDonePlan',
-      'serverDonePlan',
-      'prelimLocalReorders',
-      'prelimServerReorders',
+    // Stage 3
+    if (this.actionsDone < this.actionsPlanned) {
+      members.push('planStage3Local')
+      members.push('planStage3Server')
+      members.push('localDonePlan')
+      members.push('serverDonePlan')
+      members.push('prelimLocalReorders')
+      members.push('prelimServerReorders')
+    }
 
-      // Stage 4
-      'localReorders',
-      'serverReorders',
-    ]
+    // Stage 4
+    members.push('localReorders')
+    members.push('serverReorders')
+
+    return members
   }
 
   getMappingsInstance(): Mappings {
@@ -224,7 +233,7 @@ export default class SyncProcess {
 
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
 
-    if (!this.localScanResult && !this.serverScanResult) {
+    if (!this.localScanResult && !this.serverScanResult && !this.localPlanStage1 && !this.serverPlanStage1 && !this.localPlanStage2 && !this.serverPlanStage2 && !this.planStage3Local && !this.planStage3Server) {
       const { localScanResult, serverScanResult } = await this.getDiffs()
       Logger.log({ localScanResult, serverScanResult })
       this.localScanResult = localScanResult
@@ -241,21 +250,14 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
-    if (!this.serverPlanStage1) {
+    if (!this.serverPlanStage1 && !this.localPlanStage1 && !this.serverPlanStage2 && !this.localPlanStage2 && !this.planStage3Local && !this.planStage3Server) {
       this.serverPlanStage1 = await this.reconcileDiffs(this.localScanResult, this.serverScanResult, ItemLocation.SERVER)
-    }
-
-    if (this.canceled) {
-      throw new CancelledSyncError()
-    }
-
-    if (!this.localPlanStage1) {
       this.localPlanStage1 = await this.reconcileDiffs(this.serverScanResult, this.localScanResult, ItemLocation.LOCAL)
     }
 
     let mappingsSnapshot: MappingSnapshot
 
-    if (!this.serverPlanStage2) {
+    if (!this.serverPlanStage2 && !this.localPlanStage2 && !this.planStage3Local && !this.planStage3Server) {
       // have to get snapshot after reconciliation, because of concurrent creation reconciliation
       mappingsSnapshot = this.mappings.getSnapshot()
       Logger.log('Mapping server plan')
@@ -267,15 +269,7 @@ export default class SyncProcess {
         REMOVE: this.serverPlanStage1.REMOVE.map(mappingsSnapshot, ItemLocation.SERVER),
         REORDER: this.serverPlanStage1.REORDER,
       }
-    }
 
-    if (this.canceled) {
-      throw new CancelledSyncError()
-    }
-
-    if (!this.localPlanStage2) {
-      // have to get snapshot after reconciliation, because of concurrent creation reconciliation
-      if (!mappingsSnapshot) mappingsSnapshot = this.mappings.getSnapshot()
       Logger.log('Mapping local plan')
 
       this.localPlanStage2 = {
@@ -293,10 +287,15 @@ export default class SyncProcess {
 
     Logger.log({localPlan: this.localPlanStage2, serverPlan: this.serverPlanStage2})
 
-    this.applyDeletionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.REMOVE)
-    this.applyAdditionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.CREATE)
-    this.applyDeletionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.REMOVE)
-    this.applyAdditionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.CREATE)
+    if (this.serverPlanStage2) {
+      this.applyDeletionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.REMOVE)
+      this.applyAdditionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.CREATE)
+    }
+
+    if (this.localPlanStage2) {
+      this.applyDeletionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.REMOVE)
+      this.applyAdditionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.CREATE)
+    }
 
     if (!this.localDonePlan) {
       this.localDonePlan = {
@@ -316,18 +315,20 @@ export default class SyncProcess {
       }
     }
 
-    if (!this.prelimLocalReorders) {
+    if (!this.prelimLocalReorders && this.localPlanStage2) {
       this.prelimLocalReorders = this.localPlanStage2.REORDER
       this.prelimServerReorders = this.serverPlanStage2.REORDER
     }
 
     if (!this.actionsPlanned) {
-      this.actionsPlanned = Object.values(this.serverPlanStage2).reduce((acc, diff) => diff.getActions().length + acc, 0) +
-        Object.values(this.localPlanStage2).reduce((acc, diff) => diff.getActions().length + acc, 0)
+      this.actionsPlanned = Object.values(this.serverPlanStage2 || this.planStage3Server).reduce((acc, diff) => diff.getActions().length + acc, 0) +
+        Object.values(this.localPlanStage2 || this.planStage3Local).reduce((acc, diff) => diff.getActions().length + acc, 0)
     }
 
-    Logger.log('Executing server stage2 plan')
-    await this.executeStage2(this.server, this.serverPlanStage2, ItemLocation.SERVER, this.serverDonePlan, this.prelimServerReorders)
+    if (this.serverPlanStage2) {
+      Logger.log('Executing server stage2 plan')
+      await this.executeStage2(this.server, this.serverPlanStage2, ItemLocation.SERVER, this.serverDonePlan, this.prelimServerReorders)
+    }
 
     if (!this.planStage3Server) {
       if (this.canceled) {
@@ -349,15 +350,19 @@ export default class SyncProcess {
       }
     }
 
-    Logger.log('Executing local stage 3 plan')
-    await this.executeStage3(this.server, this.planStage3Server, ItemLocation.SERVER, this.serverDonePlan)
+    if (this.planStage3Server) {
+      Logger.log('Executing server stage 3 plan')
+      await this.executeStage3(this.server, this.planStage3Server, ItemLocation.SERVER, this.serverDonePlan)
+    }
 
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
-    Logger.log('Executing local stage 2 plan')
-    await this.executeStage2(this.localTree, this.localPlanStage2, ItemLocation.LOCAL, this.localDonePlan, this.prelimLocalReorders)
+    if (this.localPlanStage2) {
+      Logger.log('Executing local stage 2 plan')
+      await this.executeStage2(this.localTree, this.localPlanStage2, ItemLocation.LOCAL, this.localDonePlan, this.prelimLocalReorders)
+    }
 
     if (!this.planStage3Local) {
       if (this.canceled) {
@@ -379,8 +384,10 @@ export default class SyncProcess {
       }
     }
 
-    Logger.log('Executing local stage 3 plan')
-    await this.executeStage3(this.localTree, this.planStage3Local, ItemLocation.LOCAL, this.localDonePlan)
+    if (this.planStage3Local) {
+      Logger.log('Executing local stage 3 plan')
+      await this.executeStage3(this.localTree, this.planStage3Local, ItemLocation.LOCAL, this.localDonePlan)
+    }
 
     // Remove mappings only after both plans have been executed
     await Parallel.map(this.localDonePlan.REMOVE.getActions(), async(action) =>

@@ -32,20 +32,24 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   }
 
   getMembersToPersist() {
-    return [
-      // Stage 0
-      'localScanResult',
-      'serverScanResult',
+    const members = []
+    // Stage 0
+    if (!this.revertPlan) {
+      members.push('localScanResult')
+      members.push('serverScanResult')
+    }
 
-      // Stage 1
-      'revertPlan',
-      'revertDonePlan',
+    // Stage 1
+    if (this.actionsDone < this.actionsPlanned) {
+      members.push('revertPlan')
+      members.push('revertDonePlan')
+    }
 
-      // Stage 2
-      'revertReorders',
+    // Stage 2
+    members.push('revertReorders')
 
-      'direction',
-    ]
+    members.push('direction')
+    return members
   }
 
   async getDiffs(): Promise<{
@@ -160,7 +164,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       cacheTreeRoot: this.cacheTreeRoot,
     })
 
-    if (!this.localScanResult && !this.serverScanResult) {
+    if (!this.localScanResult && !this.serverScanResult && !this.revertPlan) {
       const { localScanResult, serverScanResult } = await this.getDiffs()
       Logger.log({ localScanResult, serverScanResult })
       this.localScanResult = localScanResult
@@ -200,56 +204,64 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       throw new CancelledSyncError()
     }
 
-    this.actionsPlanned = Object.values(this.revertPlan).reduce(
-      (acc, diff) => diff.getActions().length + acc,
-      0
-    )
+    if (!this.actionsPlanned && this.revertPlan) {
+      this.actionsPlanned = Object.values(this.revertPlan).reduce(
+        (acc, diff) => diff.getActions().length + acc,
+        0
+      )
+    }
 
-    if (this.direction === ItemLocation.LOCAL) {
-      this.applyDeletionFailsafe(
-        ItemLocation.LOCAL,
-        this.localTreeRoot,
-        this.revertPlan.REMOVE
-      )
-      this.applyAdditionFailsafe(
-        ItemLocation.LOCAL,
-        this.localTreeRoot,
-        this.revertPlan.CREATE
-      )
-    } else {
-      this.applyDeletionFailsafe(
-        ItemLocation.SERVER,
-        this.serverTreeRoot,
-        this.revertPlan.REMOVE
-      )
-      this.applyAdditionFailsafe(
-        ItemLocation.SERVER,
-        this.serverTreeRoot,
-        this.revertPlan.CREATE
-      )
+    if (this.revertPlan) {
+      if (this.direction === ItemLocation.LOCAL) {
+        this.applyDeletionFailsafe(
+          ItemLocation.LOCAL,
+          this.localTreeRoot,
+          this.revertPlan.REMOVE
+        )
+        this.applyAdditionFailsafe(
+          ItemLocation.LOCAL,
+          this.localTreeRoot,
+          this.revertPlan.CREATE
+        )
+      } else {
+        this.applyDeletionFailsafe(
+          ItemLocation.SERVER,
+          this.serverTreeRoot,
+          this.revertPlan.REMOVE
+        )
+        this.applyAdditionFailsafe(
+          ItemLocation.SERVER,
+          this.serverTreeRoot,
+          this.revertPlan.CREATE
+        )
+      }
     }
 
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
-    Logger.log('Executing ' + this.direction + ' revert plan')
+    if (this.revertPlan) {
+      Logger.log('Executing ' + this.direction + ' revert plan')
 
-    this.revertDonePlan = {
-      CREATE: new Diff(),
-      UPDATE: new Diff(),
-      MOVE: new Diff(),
-      REMOVE: new Diff(),
-      REORDER: new Diff(),
+      if (!this.revertDonePlan) {
+        this.revertDonePlan = {
+          CREATE: new Diff(),
+          UPDATE: new Diff(),
+          MOVE: new Diff(),
+          REMOVE: new Diff(),
+          REORDER: new Diff(),
+        }
+      }
+
+      await this.executeRevert(
+        target,
+        this.revertPlan,
+        this.direction,
+        this.revertDonePlan,
+        sourceScanResult.REORDER
+      )
     }
-
-    await this.executeRevert(
-      target,
-      this.revertPlan,
-      this.direction,
-      this.revertDonePlan,
-      sourceScanResult.REORDER
-    )
 
     if (this.direction === ItemLocation.LOCAL) {
       this.revertDonePlan.REMOVE.getActions().forEach((action) =>
@@ -261,7 +273,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       )
     }
 
-    if ('orderFolder' in this.server && !this.revertReorders) {
+    if ('orderFolder' in target && !this.revertReorders) {
       const mappingsSnapshot = this.mappings.getSnapshot()
       Logger.log('Mapping reorderings')
       this.revertReorders = sourceScanResult.REORDER.map(
@@ -270,7 +282,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       )
     }
 
-    if ('orderFolder' in this.server && 'orderFolder' in target) {
+    if (this.revertReorders && 'orderFolder' in target) {
       await this.executeReorderings(target, this.revertReorders)
     }
 
