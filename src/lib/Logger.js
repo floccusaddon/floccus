@@ -6,6 +6,7 @@ import Crypto from './Crypto'
 import { Share } from '@capacitor/share'
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { throttle } from 'throttle-debounce'
+import asyncThrottle from '@jcoreio/async-throttle'
 
 export default class Logger {
   static log() {
@@ -15,6 +16,7 @@ export default class Logger {
     DEBUG && console.log(util.format.apply(util, logMsg))
     this.messages.push(util.format.apply(util, logMsg))
     throttledTrimLogs()
+    throttledIntermittentPersist()
   }
 
   static trimLogs() {
@@ -22,11 +24,13 @@ export default class Logger {
   }
 
   static async persist() {
-    const Storage = (IS_BROWSER) ? await import('./browser/BrowserAccountStorage') : await import('./native/NativeAccountStorage')
+    const Storage = IS_BROWSER
+      ? await import('./browser/BrowserAccountStorage')
+      : await import('./native/NativeAccountStorage')
     await Storage.default.changeEntry(
       'logs',
-      log => {
-        const messages = this.messages
+      () => {
+        const messages = this.messages.slice(-1000)
         this.messages = []
         return messages // only save the last sync run
       },
@@ -34,29 +38,49 @@ export default class Logger {
     )
   }
 
+  static async intermittentPersist() {
+    const Storage = IS_BROWSER
+      ? await import('./browser/BrowserAccountStorage')
+      : await import('./native/NativeAccountStorage')
+    await Storage.default.changeEntry(
+      'logs',
+      () => {
+        return this.messages.slice(-1000)
+      },
+      []
+    )
+  }
+
   static async getLogs() {
-    const Storage = (IS_BROWSER) ? await import('./browser/BrowserAccountStorage') : await import('./native/NativeAccountStorage')
+    const Storage = IS_BROWSER
+      ? await import('./browser/BrowserAccountStorage')
+      : await import('./native/NativeAccountStorage')
     return Storage.default.getEntry('logs', [])
   }
 
   static async anonymizeLogs(logs) {
     const regex = /\[(.*?)\]\((.*?)\)|\[(.*?)\]/g
-    const newLogs = await Parallel.map(logs, async(entry) => {
-      return Logger.replaceAsync(entry, regex, async(match, p1, p2, p3) => {
-        if (p1 && p2) {
-          const hash1 = await Crypto.sha256(p1)
-          const hash2 = await Crypto.sha256(p2)
-          return '[' + hash1 + ']' + '(' + hash2 + ')'
-        } else if (p3) {
-          const hash = await Crypto.sha256(p3)
-          return '[' + hash + ']'
-        }
-      })
-    }, 1)
+    const newLogs = await Parallel.map(
+      logs,
+      async(entry) => {
+        return Logger.replaceAsync(entry, regex, async(match, p1, p2, p3) => {
+          if (p1 && p2) {
+            const hash1 = await Crypto.sha256(p1)
+            const hash2 = await Crypto.sha256(p2)
+            return '[' + hash1 + ']' + '(' + hash2 + ')'
+          } else if (p3) {
+            const hash = await Crypto.sha256(p3)
+            return '[' + hash + ']'
+          }
+        })
+      },
+      1
+    )
     const regex2 = /url=https?%3A%2F%2F.*$|url=https?%3A%2F%2F[^ ]*/
     const regex3 = /https?:\/\/[^ /]*\//
-    return newLogs
-      .map(line => line.replace(regex2, '###url###').replace(regex3, '###server###'))
+    return newLogs.map((line) =>
+      line.replace(regex2, '###url###').replace(regex3, '###server###')
+    )
   }
 
   static async replaceAsync(str, regex, asyncFn) {
@@ -82,16 +106,16 @@ export default class Logger {
     }
     let blob = new Blob([logs.join('\n')], {
       type: 'text/plain',
-      endings: 'native'
+      endings: 'native',
     })
     this.download(
       'floccus-' +
-      packageJson.version +
-      '-' +
-      new Date().toISOString().slice(0, 10) +
-      '-' +
-      (anonymous ? 'redacted' : 'full') +
-      '.log',
+        packageJson.version +
+        '-' +
+        new Date().toISOString().slice(0, 10) +
+        '-' +
+        (anonymous ? 'redacted' : 'full') +
+        '.log',
       blob
     )
   }
@@ -112,12 +136,12 @@ export default class Logger {
       URL.revokeObjectURL(objectUrl)
       document.body.removeChild(element)
     } else {
-      const {uri: fileURI} = await Filesystem.writeFile({
+      const { uri: fileURI } = await Filesystem.writeFile({
         path: 'Downloads/' + filename,
         data: await blob.text(),
         encoding: Encoding.UTF8,
         directory: Directory.External,
-        recursive: true
+        recursive: true,
       })
       await Share.share({
         title: filename,
@@ -128,5 +152,6 @@ export default class Logger {
 }
 
 const throttledTrimLogs = throttle(20000, () => Logger.trimLogs())
+const throttledIntermittentPersist = asyncThrottle(async() => Logger.intermittentPersist(), 3000)
 
 Logger.messages = []
