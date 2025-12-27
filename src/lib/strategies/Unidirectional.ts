@@ -34,7 +34,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   getMembersToPersist() {
     const members = []
     // Stage 0
-    if (!this.revertPlan) {
+    if (!this.revertPlan && this.actionsPlanned === 0) {
       members.push('localScanResult')
       members.push('serverScanResult')
     }
@@ -308,7 +308,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     await Parallel.each(
       sourceScanResult.CREATE.getActions(),
-      async (action) => {
+      async(action) => {
         // recreate it on slave resource otherwise
         const payload = await this.translateCompleteItem(
           action.payload,
@@ -331,7 +331,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     await Parallel.each(
       targetScanResult.CREATE.getActions(),
-      async (action) => {
+      async(action) => {
         slavePlan.REMOVE.commit({ ...action, type: ActionType.REMOVE })
       },
       ACTION_CONCURRENCY
@@ -339,7 +339,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     await Parallel.each(
       targetScanResult.UPDATE.getActions(),
-      async (action) => {
+      async(action) => {
         const payload = action.oldItem.cloneWithLocation(
           false,
           action.payload.location
@@ -360,7 +360,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     await Parallel.each(
       targetScanResult.MOVE.getActions(),
-      async (action) => {
+      async(action) => {
         const payload = action.payload.cloneWithLocation(
           false,
           action.oldItem.location
@@ -389,7 +389,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     )
     if (newItem instanceof Folder) {
       const nonexistingItems = []
-      await newItem.traverse(async (child, parentFolder) => {
+      await newItem.traverse(async(child, parentFolder) => {
         child.id = Mappings.mapId(mappingsSnapshot, child, fakeLocation)
         if (typeof child.id === 'undefined') {
           nonexistingItems.push(child)

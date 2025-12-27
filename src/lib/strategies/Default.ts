@@ -108,19 +108,27 @@ export default class SyncProcess {
   getMembersToPersist() {
     const members = []
     // Stage 0
-    if (!this.serverPlanStage1 || !this.localPlanStage1) {
+    if (
+      (!this.serverPlanStage1 || !this.localPlanStage1) &&
+        (!this.serverPlanStage2 || !this.localPlanStage2) &&
+        (!this.planStage3Local || !this.planStage3Server) &&
+          this.actionsPlanned === 0
+    ) {
       members.push('localScanResult')
       members.push('serverScanResult')
     }
 
     // Stage 1
-    if (!this.serverPlanStage2 || !this.localPlanStage2) {
+    if (
+      (!this.serverPlanStage2 || !this.localPlanStage2) &&
+      (!this.planStage3Local || !this.planStage3Server) && this.actionsPlanned === 0
+    ) {
       members.push('localPlanStage1')
       members.push('serverPlanStage1')
     }
 
     // Stage 2
-    if (!this.planStage3Local || !this.planStage3Server) {
+    if ((!this.planStage3Local || !this.planStage3Server) && this.actionsPlanned === 0) {
       members.push('localPlanStage2')
       members.push('serverPlanStage2')
     }
