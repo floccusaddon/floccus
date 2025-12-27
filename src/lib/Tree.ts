@@ -32,7 +32,7 @@ interface IItemIndex<L extends TItemLocation> {
 export class Bookmark<L extends TItemLocation> {
   public type = ItemType.BOOKMARK
   public id: string | number
-  public parentId: string | number |null
+  public parentId: string | number | null
   public title: string
   public url: string
   public tags: string[]
@@ -40,7 +40,21 @@ export class Bookmark<L extends TItemLocation> {
   public isRoot = false
   private hashValue: Record<string, string>
 
-  constructor({ id, parentId, url, title, tags, location }: { id:string|number, parentId:string|number, url:string, title:string, tags?: string[], location: L }) {
+  constructor({
+    id,
+    parentId,
+    url,
+    title,
+    tags,
+    location,
+  }: {
+    id: string | number
+    parentId: string | number
+    url: string
+    title: string
+    tags?: string[]
+    location: L
+  }) {
     this.id = id
     this.parentId = parentId
     this.title = title
@@ -49,13 +63,16 @@ export class Bookmark<L extends TItemLocation> {
     // @ts-ignore
     this.location = location || ItemLocation.LOCAL
 
-    if (this.location !== ItemLocation.LOCAL && this.location !== ItemLocation.SERVER) {
+    if (
+      this.location !== ItemLocation.LOCAL &&
+      this.location !== ItemLocation.SERVER
+    ) {
       throw new Error('Location failed validation')
     }
 
     try {
       // not a regular bookmark
-      if (STRANGE_PROTOCOLS.some(proto => url.indexOf(proto) === 0)) {
+      if (STRANGE_PROTOCOLS.some((proto) => url.indexOf(proto) === 0)) {
         this.url = url
         return
       }
@@ -85,7 +102,12 @@ export class Bookmark<L extends TItemLocation> {
     this.hashValue[cacheKey] = value
   }
 
-  async hash({preserveOrder = false, hashFn = 'sha256'}: IHashSettings = {preserveOrder: false, hashFn: 'sha256'}):Promise<string> {
+  async hash(
+    { preserveOrder = false, hashFn = 'sha256' }: IHashSettings = {
+      preserveOrder: false,
+      hashFn: 'sha256',
+    }
+  ): Promise<string> {
     if (!this.hashValue) {
       this.hashValue = {}
     }
@@ -104,7 +126,7 @@ export class Bookmark<L extends TItemLocation> {
     return this.hashValue[hashFn]
   }
 
-  clone(withHash?: boolean):Bookmark<L> {
+  clone(withHash?: boolean): Bookmark<L> {
     const bookmark = Object.create(this)
     if (!withHash) {
       bookmark.hashValue = null
@@ -112,19 +134,25 @@ export class Bookmark<L extends TItemLocation> {
     return bookmark
   }
 
-  cloneWithLocation<L2 extends TItemLocation>(withHash:boolean, location: L2): Bookmark<L2> {
+  cloneWithLocation<L2 extends TItemLocation>(
+    withHash: boolean,
+    location: L2
+  ): Bookmark<L2> {
     const newBookmark = Object.create(this)
     newBookmark.location = location
     return newBookmark
   }
 
-  copy(withHash?: boolean):Bookmark<L> {
+  copy(withHash?: boolean): Bookmark<L> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new Bookmark(this.toJSON())
   }
 
-  copyWithLocation<L2 extends TItemLocation>(withHash:boolean, location: L2): Bookmark<L2> {
+  copyWithLocation<L2 extends TItemLocation>(
+    withHash: boolean,
+    location: L2
+  ): Bookmark<L2> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new Bookmark({
@@ -149,12 +177,29 @@ export class Bookmark<L extends TItemLocation> {
     return result
   }
 
-  createIndex():any {
+  async toJSONAsync(): Promise<any> {
+    // Flatten inherited properties for serialization
+    const result = {}
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let obj = this
+    while (obj instanceof Bookmark) {
+      await yieldToEventLoop()
+      Object.entries(obj).forEach(([key, value]) => {
+        if (!(key in result)) {
+          result[key] = value
+        }
+      })
+      obj = Object.getPrototypeOf(obj)
+    }
+    return result
+  }
+
+  createIndex(): any {
     return { [this.id]: this }
   }
 
   // TODO: Make this return the correct type based on the type param
-  findItem(type:TItemType, id:string|number):TItem<L>|null {
+  findItem(type: TItemType, id: string | number): TItem<L> | null {
     if (type === 'bookmark' && String(id) === String(this.id)) {
       return this
     }
@@ -162,18 +207,22 @@ export class Bookmark<L extends TItemLocation> {
   }
 
   // TODO: Make this return the correct type based on the type param
-  findItemFilter(type:TItemType, fn:(item:TItem<L>)=>boolean, prefer:(item: TItem<L>)=>number = () => 1):TItem<L>|null {
+  findItemFilter(
+    type: TItemType,
+    fn: (item: TItem<L>) => boolean,
+    prefer: (item: TItem<L>) => number = () => 1
+  ): TItem<L> | null {
     if (type === ItemType.BOOKMARK && fn(this)) {
       return this
     }
     return null
   }
 
-  count():number {
+  count(): number {
     return 1
   }
 
-  inspect(depth = 0):string {
+  inspect(depth = 0): string {
     return (
       Array(depth < 0 ? 0 : depth)
         .fill('  ')
@@ -182,7 +231,7 @@ export class Bookmark<L extends TItemLocation> {
     )
   }
 
-  visitCreate(resource: TResource<L>):Promise<number | string> {
+  visitCreate(resource: TResource<L>): Promise<number | string> {
     return resource.createBookmark(this)
   }
 
@@ -194,7 +243,7 @@ export class Bookmark<L extends TItemLocation> {
     return resource.removeBookmark(this)
   }
 
-  static hydrate<L2 extends TItemLocation>(obj: any):Bookmark<L2> {
+  static hydrate<L2 extends TItemLocation>(obj: any): Bookmark<L2> {
     return new Bookmark(obj)
   }
 }
@@ -205,51 +254,66 @@ export class Folder<L extends TItemLocation> {
   public title?: string
   public parentId: number | string
   public children: TItem<L>[]
-  public hashValue: Record<string,string>
+  public hashValue: Record<string, string>
   public isRoot = false
   public loaded = true
   public location: L
   private index: IItemIndex<L>
 
-  constructor({ id, parentId, title, children, hashValue, loaded, location, isRoot }
-  :{
-    id:number|string,
-    parentId?:number|string,
-    title?:string,
+  constructor({
+    id,
+    parentId,
+    title,
+    children,
+    hashValue,
+    loaded,
+    location,
+    isRoot,
+  }: {
+    id: number | string
+    parentId?: number | string
+    title?: string
     // eslint-disable-next-line no-use-before-define
-    children?: TItem<L>[],
-    hashValue?:Record<'true'|'false',string>,
-    loaded?: boolean,
-    location: L,
-    isRoot?: boolean,
+    children?: TItem<L>[]
+    hashValue?: Record<'true' | 'false', string>
+    loaded?: boolean
+    location: L
+    isRoot?: boolean
   }) {
     this.id = id
     this.parentId = parentId
     this.title = title
     this.children = children || []
-    this.hashValue = {...hashValue}
+    this.hashValue = { ...hashValue }
     this.loaded = loaded !== false
     this.isRoot = isRoot
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     this.location = location || ItemLocation.LOCAL
 
-    if (this.location !== ItemLocation.LOCAL && this.location !== ItemLocation.SERVER) {
+    if (
+      this.location !== ItemLocation.LOCAL &&
+      this.location !== ItemLocation.SERVER
+    ) {
       throw new Error('Location failed validation')
     }
   }
 
   // eslint-disable-next-line no-use-before-define
-  findItemFilter(type:TItemType, fn:(Item)=>boolean, prefer:(Item)=>number = () => 1):TItem<L>|null {
+  findItemFilter(
+    type: TItemType,
+    fn: (Item) => boolean,
+    prefer: (Item) => number = () => 1
+  ): TItem<L> | null {
     if (!this.index) {
       this.createIndex()
     }
     const candidates = Object.values(this.index[type]).filter(fn)
     // return the preferred match based on a preference measure
-    return candidates.sort((a,b) => prefer(a) - prefer(b)).pop()
+    return candidates.sort((a, b) => prefer(a) - prefer(b)).pop()
   }
 
-  findFolder(id:string|number): Folder<L> {
+  findFolder(id: string | number): Folder<L> {
     if (String(this.id) === String(id)) {
       return this
     }
@@ -260,33 +324,33 @@ export class Folder<L extends TItemLocation> {
 
     // traverse sub folders
     return this.children
-      .filter(child => child instanceof Folder)
-      .map(folder => folder as Folder<L>)
-      .map(folder => folder.findFolder(id))
-      .filter(folder => !!folder)[0]
+      .filter((child) => child instanceof Folder)
+      .map((folder) => folder as Folder<L>)
+      .map((folder) => folder.findFolder(id))
+      .filter((folder) => !!folder)[0]
   }
 
-  findBookmark(id:string|number):Bookmark<L> {
+  findBookmark(id: string | number): Bookmark<L> {
     if (this.index) {
       return this.index.bookmark[id]
     }
     const bookmarkFound = this.children
-      .filter(child => child instanceof Bookmark)
-      .map(child => child as Bookmark<L>)
-      .find(bm => String(bm.id) === String(id))
+      .filter((child) => child instanceof Bookmark)
+      .map((child) => child as Bookmark<L>)
+      .find((bm) => String(bm.id) === String(id))
     if (bookmarkFound) {
       return bookmarkFound
     }
     // traverse sub folders
     return this.children
-      .filter(child => child instanceof Folder)
-      .map(folder => folder as Folder<L>)
-      .map(folder => folder.findBookmark(id))
-      .filter(bookmark => !!bookmark)[0]
+      .filter((child) => child instanceof Folder)
+      .map((folder) => folder as Folder<L>)
+      .map((folder) => folder.findBookmark(id))
+      .filter((bookmark) => !!bookmark)[0]
   }
 
   // eslint-disable-next-line no-use-before-define
-  findItem(type:TItemType, id:string|number):TItem<L>|null {
+  findItem(type: TItemType, id: string | number): TItem<L> | null {
     if (type === ItemType.FOLDER) {
       return this.findFolder(id)
     } else {
@@ -294,15 +358,21 @@ export class Folder<L extends TItemLocation> {
     }
   }
 
-  async traverse(fn: (item:TItem<L>, folder: Folder<L>)=>void): Promise<void> {
-    await Parallel.each(this.children, async item => {
-      await fn(item, this)
-      if (item.type === 'folder') {
-        // give the browser time to breathe
-        await yieldToEventLoop()
-        await item.traverse(fn)
-      }
-    }, 10)
+  async traverse(
+    fn: (item: TItem<L>, folder: Folder<L>) => void
+  ): Promise<void> {
+    await Parallel.each(
+      this.children,
+      async (item) => {
+        await fn(item, this)
+        if (item.type === 'folder') {
+          // give the browser time to breathe
+          await yieldToEventLoop()
+          await item.traverse(fn)
+        }
+      },
+      10
+    )
   }
 
   // eslint-disable-next-line no-use-before-define
@@ -315,11 +385,15 @@ export class Folder<L extends TItemLocation> {
 
   childrenSimilarity<L2 extends TItemLocation>(otherItem: TItem<L2>): number {
     if (otherItem instanceof Folder) {
-      return this.children.reduce(
-        (count, item) =>
-          otherItem.children.find(i => i.title === item.title) ? count + 1 : count,
-        0
-      ) / Math.max(this.children.length, otherItem.children.length)
+      return (
+        this.children.reduce(
+          (count, item) =>
+            otherItem.children.find((i) => i.title === item.title)
+              ? count + 1
+              : count,
+          0
+        ) / Math.max(this.children.length, otherItem.children.length)
+      )
     }
     return 0
   }
@@ -330,14 +404,19 @@ export class Folder<L extends TItemLocation> {
     this.hashValue[cacheKey] = value
   }
 
-  async hash({preserveOrder = false, hashFn = 'sha256'}: IHashSettings = {preserveOrder: false, hashFn: 'sha256'}): Promise<string> {
+  async hash(
+    { preserveOrder = false, hashFn = 'sha256' }: IHashSettings = {
+      preserveOrder: false,
+      hashFn: 'sha256',
+    }
+  ): Promise<string> {
     const cacheKey = `${preserveOrder}-${hashFn}`
     if (this.hashValue && typeof this.hashValue[cacheKey] !== 'undefined') {
       return this.hashValue[cacheKey]
     }
 
     if (!this.loaded) {
-      throw new Error('Trying to calculate hash of a folder that isn\'t loaded')
+      throw new Error("Trying to calculate hash of a folder that isn't loaded")
     }
 
     const children = this.children.slice()
@@ -358,9 +437,9 @@ export class Folder<L extends TItemLocation> {
       title: this.title,
       children: await Parallel.map(
         children,
-        child => child.hash({preserveOrder, hashFn}),
+        (child) => child.hash({ preserveOrder, hashFn }),
         1
-      )
+      ),
     })
     if (hashFn === 'sha256') {
       this.hashValue[cacheKey] = await Crypto.sha256(json)
@@ -374,45 +453,55 @@ export class Folder<L extends TItemLocation> {
     return this.hashValue[cacheKey]
   }
 
-  copy(withHash?:boolean):Folder<L> {
+  copy(withHash?: boolean): Folder<L> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new Folder({
       ...this.toJSON(),
       ...(!withHash && { hashValue: null }),
-      children: this.children.map(child => child.copy(withHash))
+      children: this.children.map((child) => child.copy(withHash)),
     })
   }
 
-  copyWithLocation<L2 extends TItemLocation>(withHash:boolean, location: L2):Folder<L2> {
+  copyWithLocation<L2 extends TItemLocation>(
+    withHash: boolean,
+    location: L2
+  ): Folder<L2> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new Folder({
       ...this.toJSON(),
       location,
       ...(!withHash && { hashValue: null }),
-      children: this.children.map(child => child.copyWithLocation(withHash, location))
+      children: this.children.map((child) =>
+        child.copyWithLocation(withHash, location)
+      ),
     })
   }
 
-  clone(withHash?:boolean):Folder<L> {
+  clone(withHash?: boolean): Folder<L> {
     const newFolder = Object.create(this)
     newFolder.index = null
     if (!withHash) {
       newFolder.hashValue = {}
     }
-    newFolder.children = this.children.map(child => child.clone(withHash))
+    newFolder.children = this.children.map((child) => child.clone(withHash))
     return newFolder
   }
 
-  cloneWithLocation<L2 extends TItemLocation>(withHash:boolean, location: L2):Folder<L2> {
+  cloneWithLocation<L2 extends TItemLocation>(
+    withHash: boolean,
+    location: L2
+  ): Folder<L2> {
     const newFolder = Object.create(this)
     if (!withHash) {
       newFolder.hashValue = {}
     }
     newFolder.index = null
     newFolder.location = location
-    newFolder.children = this.children.map(child => child.cloneWithLocation(withHash, location))
+    newFolder.children = this.children.map((child) =>
+      child.cloneWithLocation(withHash, location)
+    )
     return newFolder
   }
 
@@ -433,57 +522,79 @@ export class Folder<L extends TItemLocation> {
     return result
   }
 
-  count():number {
+  async toJSONAsync(): Promise<Folder<L>> {
+    // Flatten inherited properties for serialization
+    const result: Folder<L> = {} as any as Folder<L>
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let obj = this
+    while (obj instanceof Folder) {
+      await yieldToEventLoop()
+      await Parallel.map(Object.entries(obj), async([key, value]) => {
+        if (key === 'index') return
+        if (!(key in result)) {
+          if (key === 'children') {
+            value = await Parallel.map(obj.children, async(child: TItem<L>) => child.toJSONAsync())
+          }
+          result[key] = value
+        }
+      }, 1)
+      obj = Object.getPrototypeOf(obj)
+    }
+    return result
+  }
+
+  count(): number {
     if (!this.index) {
       this.createIndex()
     }
     return Object.keys(this.index.bookmark).length
   }
 
-  countFolders():number {
+  countFolders(): number {
     if (!this.index) {
       this.createIndex()
     }
     return Object.keys(this.index.folder).length
   }
 
-  createIndex():IItemIndex<L> {
+  createIndex(): IItemIndex<L> {
     this.index = {
       folder: { [this.id]: this },
       bookmark: this.children
-        .filter(child => child instanceof Bookmark)
+        .filter((child) => child instanceof Bookmark)
         .reduce((obj, child) => {
           obj[child.id] = child
           return obj
-        }, {})
+        }, {}),
     }
 
     this.children
-      .filter(child => child instanceof Folder)
-      .map(child => child.createIndex())
-      .forEach(subIndex => {
+      .filter((child) => child instanceof Folder)
+      .map((child) => child.createIndex())
+      .forEach((subIndex) => {
         Object.assign(this.index.folder, subIndex.folder)
         Object.assign(this.index.bookmark, subIndex.bookmark)
       })
     return this.index
   }
 
-  inspect(depth = 0):string {
+  inspect(depth = 0): string {
     return (
       Array(depth < 0 ? 0 : depth)
         .fill('  ')
         .join('') +
-      `+ #${this.id}[${this.title}] parentId: ${this.parentId}, hash: ${Object.values(this
-        .hashValue)[0]}\n` +
+      `+ #${this.id}[${this.title}] parentId: ${this.parentId}, hash: ${
+        Object.values(this.hashValue)[0]
+      }\n` +
       this.children
-        .map(child =>
+        .map((child) =>
           child && child.inspect ? child.inspect(depth + 1) : String(child)
         )
         .join('\n')
     )
   }
 
-  visitCreate(resource: TResource<L>):Promise<number | string> {
+  visitCreate(resource: TResource<L>): Promise<number | string> {
     return resource.createFolder(this)
   }
 
@@ -495,23 +606,33 @@ export class Folder<L extends TItemLocation> {
     return resource.removeFolder(this)
   }
 
-  static hydrate<L2 extends TItemLocation>(obj: {id: string|number, parentId?: string|number, title?: string, location: L2, children: any[], isRoot: boolean}): Folder<L2> {
+  static hydrate<L2 extends TItemLocation>(obj: {
+    id: string | number
+    parentId?: string | number
+    title?: string
+    location: L2
+    children: any[]
+    isRoot: boolean
+  }): Folder<L2> {
     return new Folder({
       ...obj,
       children: obj.children
-        ? obj.children.map(child => {
-          // Firefox seems to set 'url' even for folders
-          if ('url' in child && typeof child.url === 'string') {
-            return Bookmark.hydrate(child)
-          } else {
-            return Folder.hydrate(child)
-          }
-        })
-        : null
+        ? obj.children.map((child) => {
+            // Firefox seems to set 'url' even for folders
+            if ('url' in child && typeof child.url === 'string') {
+              return Bookmark.hydrate(child)
+            } else {
+              return Folder.hydrate(child)
+            }
+          })
+        : null,
     })
   }
 
-  static getAncestorsOf<L2 extends TItemLocation>(item: TItem<L2>, tree: Folder<L2>): TItem<L2>[] {
+  static getAncestorsOf<L2 extends TItemLocation>(
+    item: TItem<L2>,
+    tree: Folder<L2>
+  ): TItem<L2>[] {
     const ancestors = [item]
     let parent = item
     while (String(parent.id) !== String(tree.id)) {

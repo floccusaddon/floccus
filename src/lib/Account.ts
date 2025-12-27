@@ -202,6 +202,7 @@ export default class Account {
         const needLock = (strategy || this.getData().strategy) !== 'slave'
         let status
         try {
+          Logger.log('Calling onSyncStart')
           status = await this.server.onSyncStart(needLock, forceSync)
         } catch (e) {
           // Resource locked
@@ -210,6 +211,7 @@ export default class Account {
             if (this.getData().lastSync < Date.now() - this.lockTimeout || forceSync) {
               // but if we've been waiting for the lock for more than 2h
               // start again without locking the resource
+              Logger.log('Calling onSyncStart, forcing sync')
               status = await this.server.onSyncStart(false, true)
             } else {
               await this.setData({
@@ -234,13 +236,22 @@ export default class Account {
       }
 
       // main sync steps:
-      mappings = await this.storage.getMappings()
-      const cacheTree = await this.storage.getCache()
 
+      Logger.log('Fetching mappings')
+      mappings = await this.storage.getMappings()
+      Logger.log('Fetched mappings')
+
+      Logger.log('Fetching cache')
+      const cacheTree = await this.storage.getCache()
+      Logger.log('Fetched cache')
+
+      Logger.log('Fetching pending continuation')
       let continuation = await this.storage.getCurrentContinuation()
+      Logger.log('Fetched pending continuation')
 
       if (typeof continuation !== 'undefined' && continuation !== null) {
         try {
+          Logger.log('Attempting to load pending continuation')
           this.syncProcess = await DefaultSyncProcess.fromJSON(
             mappings,
             this.localCachingResource,
@@ -250,6 +261,7 @@ export default class Account {
             },
             continuation
           )
+          Logger.log('Loaded pending continuation')
         } catch (e) {
           continuation = null
           if (e.message) Logger.log(e.message)
@@ -285,6 +297,7 @@ export default class Account {
             break
         }
 
+        Logger.log('Creating new sync process')
         this.syncProcess = new strategyClass(
           mappings,
           this.localCachingResource,
@@ -302,27 +315,35 @@ export default class Account {
         Logger.log('Found existing persisted pending continuation. Resuming last sync')
         // When resuming a continuation, the CachingTreeWrapper is usually not initialized yet, because the localTree is
         // set from the persisted continuation
+        Logger.log('Fetching local bookmarks tree')
+        this.syncProcess.setCacheTree(cacheTree)
         await this.localCachingResource.setCacheTree(await this.localCachingResource.getBookmarksTree())
       }
 
+      Logger.log('Starting sync process')
       await this.syncProcess.sync()
+      Logger.log('Ended sync process')
 
       await this.setData({ scheduled: false, syncing: 1 })
 
       // update cache
+      Logger.log('Storing cache')
       const cache = (await this.localCachingResource.getCacheTree()).clone(false)
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
       await this.storage.setCache(cache)
 
       if (this.server.onSyncComplete) {
+        Logger.log('Calling onSyncComplete')
         await this.server.onSyncComplete()
       }
 
       if (mappings) {
         // Remove superfluous items from mappings
         // as we don't remove items immediately for anymore (for Atomic adapters), due to possible interrupts
+        Logger.log('Removing superfluous mappings')
         await mappings.gc(cache)
         // store mappings
+        Logger.log('Storing mappings')
         await mappings.persist()
       }
 
@@ -435,12 +456,18 @@ export default class Account {
     if (actionsDone) {
       const mappings = this.syncProcess.getMappingsInstance()
       if (this.server.isAtomic()) {
+        Logger.log('progressCallback: Persisting cache')
         const cache = (await this.localCachingResource.getCacheTree()).clone(false)
         this.syncProcess.filterOutUnacceptedBookmarks(cache)
         await this.storage.setCache(cache)
+        Logger.log('progressCallback: Persisting mappings')
         await mappings.persist()
       } else {
-        await this.storage.setCurrentContinuation(this.syncProcess.toJSON())
+        Logger.log('progressCallback: Serializing continuation')
+        const cont = await this.syncProcess.toJSONAsync()
+        Logger.log('progressCallback: Persisting continuation')
+        await this.storage.setCurrentContinuation(cont)
+        Logger.log('progressCallback: Persisting mappings')
         await mappings.persist()
       }
     }

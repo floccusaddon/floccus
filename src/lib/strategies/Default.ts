@@ -383,8 +383,10 @@ export default class SyncProcess {
     await this.executeStage3(this.localTree, this.planStage3Local, ItemLocation.LOCAL, this.localDonePlan)
 
     // Remove mappings only after both plans have been executed
-    this.localDonePlan.REMOVE.getActions().forEach(action => this.removeMapping(this.localTree, action.payload))
-    this.serverDonePlan.REMOVE.getActions().forEach(action => this.removeMapping(this.server, action.payload))
+    await Parallel.map(this.localDonePlan.REMOVE.getActions(), async(action) =>
+      this.removeMapping(this.localTree, action.payload), 1)
+    await Parallel.map(this.serverDonePlan.REMOVE.getActions(), async(action) =>
+      this.removeMapping(this.server, action.payload), 1)
 
     if (this.canceled) {
       throw new CancelledSyncError()
@@ -649,7 +651,7 @@ export default class SyncProcess {
     Logger.log('Calculating diffs for local and server trees relative to cache tree')
     const localScanResult = await localScanner.run()
     const serverScanResult = await serverScanner.run()
-    await Parallel.map(newMappings, ([localItem, serverItem]) => this.addMapping(this.server, localItem, serverItem.id), 10)
+    await Parallel.map(newMappings, ([localItem, serverItem]) => this.addMapping(this.server, localItem, serverItem.id), 1)
     return {localScanResult, serverScanResult}
   }
 
@@ -1514,9 +1516,10 @@ export default class SyncProcess {
   toJSON(): ISerializedSyncProcess {
     if (!this.staticContinuation) {
       this.staticContinuation = {
-        localTreeRoot: this.localTreeRoot && this.localTreeRoot.clone(false),
-        cacheTreeRoot: this.cacheTreeRoot && this.cacheTreeRoot.clone(false),
-        serverTreeRoot: this.serverTreeRoot && this.serverTreeRoot.clone(false),
+        // Do not store these as the continuation size can get huge otherwise
+        localTreeRoot: null,
+        cacheTreeRoot: null,
+        serverTreeRoot: null,
       }
     }
     const membersToPersist = this.getMembersToPersist()
@@ -1525,6 +1528,38 @@ export default class SyncProcess {
       ...this.staticContinuation,
       ...(Object.fromEntries(Object.entries(this)
         .filter(([key]) => membersToPersist.includes(key)))
+      ),
+    }
+  }
+
+  async toJSONAsync(): Promise<ISerializedSyncProcess> {
+    if (!this.staticContinuation) {
+      this.staticContinuation = {
+        // Do not store these as the continuation size can get huge otherwise
+        localTreeRoot: null,
+        cacheTreeRoot: null,
+        serverTreeRoot: null,
+      }
+    }
+    const membersToPersist = this.getMembersToPersist()
+    return {
+      strategy: 'default',
+      ...this.staticContinuation,
+      ...(Object.fromEntries(
+        await Parallel.map(
+          Object.entries(this)
+            .filter(([key]) => membersToPersist.includes(key)),
+          async([key, value]) => {
+            if ('toJSONAsync' in value) {
+              return [key, await value.toJSONAsync()]
+            }
+            if ('toJSON' in value) {
+              await yieldToEventLoop()
+              return [key, value.toJSON()]
+            }
+            return [key, value]
+          }, 1)
+      )
       ),
     }
   }

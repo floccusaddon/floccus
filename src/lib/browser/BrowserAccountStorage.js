@@ -13,8 +13,14 @@ export default class BrowserAccountStorage {
     this.accountId = id
   }
 
-  static async changeEntry(entryName, fn, defaultVal) {
+  static async setEntry(entryName, value) {
     await storageLock.acquire(entryName, async() => {
+      await browser.storage.local.set({ [entryName]: value })
+    })
+  }
+
+  static async changeEntry(entryName, fn, defaultVal) {
+    await storageLock.acquire(entryName, async () => {
       let entry = await BrowserAccountStorage.getEntry(entryName, defaultVal)
       entry = fn(entry)
 
@@ -34,7 +40,9 @@ export default class BrowserAccountStorage {
         return defaultVal
       }
     } catch (e) {
-      Logger.log('Error while parsing BrowserAccountStorage entry value ' + e.message)
+      Logger.log(
+        'Error while parsing BrowserAccountStorage entry value ' + e.message
+      )
       console.error(e)
       return defaultVal
     }
@@ -54,12 +62,24 @@ export default class BrowserAccountStorage {
     let data = accounts[this.accountId]
     if (key) {
       if (data.iv) {
-        data.password = await DefunctCryptography.decryptAES(key, data.iv, data.password)
+        data.password = await DefunctCryptography.decryptAES(
+          key,
+          data.iv,
+          data.password
+        )
         delete data.iv
       } else {
-        data.password = await Cryptography.decryptAES(key, data.password, data.username)
+        data.password = await Cryptography.decryptAES(
+          key,
+          data.password,
+          data.username
+        )
         if (data.passphrase) {
-          data.passphrase = await Cryptography.decryptAES(key, data.passphrase, data.username)
+          data.passphrase = await Cryptography.decryptAES(
+            key,
+            data.passphrase,
+            data.username
+          )
         }
       }
     }
@@ -74,13 +94,23 @@ export default class BrowserAccountStorage {
       }
       encData = {
         ...data,
-        password: await Cryptography.encryptAES(key, data.password, data.username),
-        ...(data.passphrase && {passphrase: await Cryptography.encryptAES(key, data.passphrase, data.username)})
+        password: await Cryptography.encryptAES(
+          key,
+          data.password,
+          data.username
+        ),
+        ...(data.passphrase && {
+          passphrase: await Cryptography.encryptAES(
+            key,
+            data.passphrase,
+            data.username
+          ),
+        }),
       }
     }
     return BrowserAccountStorage.changeEntry(
       `accounts`,
-      accounts => {
+      (accounts) => {
         accounts[this.accountId] = encData
         return accounts
       },
@@ -89,7 +119,7 @@ export default class BrowserAccountStorage {
   }
 
   async deleteAccountData() {
-    await BrowserAccountStorage.changeEntry(`accounts`, accounts => {
+    await BrowserAccountStorage.changeEntry(`accounts`, (accounts) => {
       delete accounts[this.accountId]
       return accounts
     })
@@ -108,7 +138,9 @@ export default class BrowserAccountStorage {
     const data = await BrowserAccountStorage.getEntry(
       `bookmarks[${this.accountId}].cache`
     )
-    return Folder.hydrate(data && Object.keys(data).length ? data : {location: ItemLocation.LOCAL})
+    return Folder.hydrate(
+      data && Object.keys(data).length ? data : { location: ItemLocation.LOCAL }
+    )
   }
 
   async setCache(data) {
@@ -119,7 +151,9 @@ export default class BrowserAccountStorage {
   }
 
   async deleteCache() {
-    await BrowserAccountStorage.deleteEntry(`bookmarks[${this.accountId}].cache`)
+    await BrowserAccountStorage.deleteEntry(
+      `bookmarks[${this.accountId}].cache`
+    )
   }
 
   async initMappings() {
@@ -138,15 +172,15 @@ export default class BrowserAccountStorage {
       data && Object.keys(data).length
         ? data
         : {
-          bookmarks: {
-            ServerToLocal: {},
-            LocalToServer: {}
-          },
-          folders: {
-            ServerToLocal: {},
-            LocalToServer: {}
+            bookmarks: {
+              ServerToLocal: {},
+              LocalToServer: {},
+            },
+            folders: {
+              ServerToLocal: {},
+              LocalToServer: {},
+            },
           }
-        }
     )
   }
 
@@ -158,14 +192,21 @@ export default class BrowserAccountStorage {
   }
 
   async deleteMappings() {
-    await BrowserAccountStorage.deleteEntry(`bookmarks[${this.accountId}].mappings`)
+    await BrowserAccountStorage.deleteEntry(
+      `bookmarks[${this.accountId}].mappings`
+    )
   }
 
   async getCurrentContinuation() {
-    return BrowserAccountStorage.getEntry(`bookmarks[${this.accountId}].continuation`)
+    return BrowserAccountStorage.getEntry(
+      `bookmarks[${this.accountId}].continuation`
+    )
   }
 
   async setCurrentContinuation(continuation) {
-    await BrowserAccountStorage.changeEntry(`bookmarks[${this.accountId}].continuation`, (_) => ({...continuation, createdAt: Date.now()}), null)
+    await BrowserAccountStorage.setEntry(
+      `bookmarks[${this.accountId}].continuation`,
+      { ...continuation, createdAt: Date.now() }
+    )
   }
 }

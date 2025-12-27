@@ -4,6 +4,8 @@ import Ordering from './interfaces/Ordering'
 import batchingToposort from 'batching-toposort'
 import Logger from './Logger'
 import { MappingFailureError } from '../errors/Error'
+import * as Parallel from 'async-parallel'
+import { yieldToEventLoop } from './yieldToEventLoop'
 
 export const ActionType = {
   CREATE: 'CREATE',
@@ -277,10 +279,21 @@ export default class Diff<L1 extends TItemLocation, L2 extends TItemLocation, A 
     return this.getActions().map((action: A) => {
       return {
         ...action,
-        payload: action.payload.copy(false),
-        oldItem: action.oldItem && action.oldItem.copy(false),
+        payload: action.payload.clone(false).toJSON(),
+        oldItem: action.oldItem && action.oldItem.clone(false).toJSON(),
       }
     })
+  }
+
+  async toJSONAsync() {
+    return Parallel.map(this.getActions(), async(action: A) => {
+      await yieldToEventLoop()
+      return {
+        ...action,
+        payload: await action.payload.clone(false).toJSONAsync(),
+        oldItem: await action.oldItem && action.oldItem.clone(false).toJSONAsync(),
+      }
+    }, 1)
   }
 
   inspect(depth = 0):string {
