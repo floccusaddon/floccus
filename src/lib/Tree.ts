@@ -39,6 +39,7 @@ export class Bookmark<L extends TItemLocation> {
   public location: L
   public isRoot = false
   private hashValue: Record<string, string>
+  public index: IItemIndex<L>
 
   constructor({
     id,
@@ -194,8 +195,9 @@ export class Bookmark<L extends TItemLocation> {
     return result
   }
 
-  createIndex(): any {
-    return { [this.id]: this }
+  createIndex(): IItemIndex<L> {
+    this.index = { bookmark: {[this.id]: this}, folder: {} }
+    return this.index
   }
 
   // TODO: Make this return the correct type based on the type param
@@ -258,7 +260,7 @@ export class Folder<L extends TItemLocation> {
   public isRoot = false
   public loaded = true
   public location: L
-  private index: IItemIndex<L>
+  public index: IItemIndex<L>
 
   constructor({
     id,
@@ -363,7 +365,7 @@ export class Folder<L extends TItemLocation> {
   ): Promise<void> {
     await Parallel.each(
       this.children,
-      async (item) => {
+      async(item) => {
         await fn(item, this)
         if (item.type === 'folder') {
           // give the browser time to breathe
@@ -560,22 +562,41 @@ export class Folder<L extends TItemLocation> {
   createIndex(): IItemIndex<L> {
     this.index = {
       folder: { [this.id]: this },
-      bookmark: this.children
-        .filter((child) => child instanceof Bookmark)
-        .reduce((obj, child) => {
-          obj[child.id] = child
-          return obj
-        }, {}),
+      bookmark: {}
     }
 
-    this.children
-      .filter((child) => child instanceof Folder)
-      .map((child) => child.createIndex())
-      .forEach((subIndex) => {
+    for (const child of this.children) {
+      if (child instanceof Bookmark) {
+        this.index.bookmark[child.id] = child
+      } else if (child instanceof Folder) {
+        const subIndex = child.createIndex()
         Object.assign(this.index.folder, subIndex.folder)
         Object.assign(this.index.bookmark, subIndex.bookmark)
-      })
+      }
+    }
+
     return this.index
+  }
+
+  updateIndex(item: TItem<L>) {
+    const itemIndex = item.index || item.createIndex()
+    let currentItem = item
+    while (currentItem) {
+      Object.assign(currentItem.index.folder, itemIndex.folder)
+      Object.assign(currentItem.index.bookmark, itemIndex.bookmark)
+      currentItem = this.index.folder[currentItem.parentId]
+    }
+  }
+
+  removeFromIndex(item: TItem<L>) {
+    if (!item) return
+    if (item.parentId) {
+      let parentFolder = this.index.folder[item.parentId]
+      while (parentFolder) {
+        delete parentFolder.index[item.type][item.id]
+        parentFolder = this.index.folder[parentFolder.parentId]
+      }
+    }
   }
 
   inspect(depth = 0): string {
@@ -618,13 +639,13 @@ export class Folder<L extends TItemLocation> {
       ...obj,
       children: obj.children
         ? obj.children.map((child) => {
-            // Firefox seems to set 'url' even for folders
-            if ('url' in child && typeof child.url === 'string') {
-              return Bookmark.hydrate(child)
-            } else {
-              return Folder.hydrate(child)
-            }
-          })
+          // Firefox seems to set 'url' even for folders
+          if ('url' in child && typeof child.url === 'string') {
+            return Bookmark.hydrate(child)
+          } else {
+            return Folder.hydrate(child)
+          }
+        })
         : null,
     })
   }

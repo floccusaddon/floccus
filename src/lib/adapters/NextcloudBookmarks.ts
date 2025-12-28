@@ -408,7 +408,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
     folder.children = children
     folder.loaded = true
-    this.tree.createIndex()
+    folder.createIndex()
+    this.tree.updateIndex(folder)
     return folder.copy(true).children
   }
 
@@ -435,10 +436,14 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new UnexpectedServerResponseError()
     }
 
-    parentFolder.children.push(
-      new Folder({ id: json.item.id, title, parentId, location: ItemLocation.SERVER })
-    )
-    this.tree.createIndex()
+    const newFolder = new Folder({
+      id: json.item.id,
+      title,
+      parentId,
+      location: ItemLocation.SERVER,
+    })
+    parentFolder.children.push(newFolder)
+    this.tree.updateIndex(newFolder)
     return json.item.id
   }
 
@@ -500,7 +505,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
     const imported = recurseChildren(json.data, parentId, folder.title, folder.parentId)
     parentFolder.children = imported.copy(true).children
-    this.tree.createIndex()
+    parentFolder.createIndex()
+    this.tree.updateIndex(parentFolder)
     return imported
   }
 
@@ -536,9 +542,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new UnknownMoveTargetError()
     }
     newParentFolder.children.push(oldFolder)
+    this.tree.removeFromIndex(oldFolder)
     oldFolder.title = folder.title
     oldFolder.parentId = folder.parentId
-    this.tree.createIndex()
+    this.tree.updateIndex(oldFolder)
   }
 
   async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.SERVER>):Promise<void> {
@@ -573,7 +580,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       parent.children = parent.children.filter(
         (child) => String(child.id) !== String(id)
       )
-      this.tree.createIndex()
+      this.tree.removeFromIndex(oldFolder)
     }
   }
 
@@ -691,7 +698,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       this.list && this.list.push(upstreamMark)
       if (this.tree) {
         newParentFolder.children.push(upstreamMark)
-        this.tree.createIndex()
+        this.tree.updateIndex(upstreamMark)
       }
 
       return bm.id
@@ -742,11 +749,21 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         throw e
       }
 
+      if (oldParentId) {
+        const oldParentFolder = this.tree.findFolder(oldParentId)
+        const oldBm = oldParentFolder.findBookmark(newBm.id)
+        oldParentFolder.children = oldParentFolder.children.filter(
+          (item) => !(item.type === 'bookmark' && item.id === newBm.id)
+        )
+        if (oldBm && this.tree) {
+          this.tree.removeFromIndex(oldBm)
+        }
+      }
       if (!newFolder.children.find(item => String(item.id) === String(newBm.id) && item.type === 'bookmark')) {
         newFolder.children.push(newBm)
       }
       newBm.id = upstreamId + ';' + newBm.parentId
-      this.tree.createIndex()
+      this.tree.updateIndex(newBm)
 
       return newBm.id
     })
