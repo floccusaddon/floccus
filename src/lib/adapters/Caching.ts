@@ -133,7 +133,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       foundOldFolder.children.indexOf(foundBookmark),
       1
     )
-    this.bookmarksCache.removeFromIndex(bookmark)
+    this.bookmarksCache.removeFromIndex(foundBookmark)
   }
 
   async createFolder(folder:Folder<TItemLocation>): Promise<string|number> {
