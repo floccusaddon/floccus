@@ -465,7 +465,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     const body = new FormData()
     body.append('bm_import', blob, 'upload.html')
 
-    const json = this.importLock.acquire('import', async () => {
+    const json = await this.importLock.acquire('import', async() => {
       return this.sendRequest(
         'POST',
         `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/import`,
