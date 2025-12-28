@@ -113,7 +113,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     this.bookmarksCache.removeFromIndex(foundBookmark)
     foundNewFolder.children.push(foundBookmark)
     foundBookmark.parentId = newBm.parentId
-    this.bookmarksCache.updateIndex(newBm)
+    this.bookmarksCache.updateIndex(foundBookmark)
   }
 
   async removeBookmark(bookmark:Bookmark<TItemLocation>): Promise<void> {
