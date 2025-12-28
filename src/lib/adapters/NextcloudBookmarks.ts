@@ -766,7 +766,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         newFolder.children.push(oldBm)
       }
       oldBm.id = upstreamId + ';' + newBm.parentId
-      this.tree.updateIndex(newBm)
+      this.tree.updateIndex(oldBm)
 
       return newBm.id
     })
