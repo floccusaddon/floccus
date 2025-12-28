@@ -609,7 +609,7 @@ export class Folder<L extends TItemLocation> {
     }
     if (item.parentId) {
       let parentFolder = this.index.folder[item.parentId]
-      while (parentFolder) {
+      while (parentFolder && this.index.folder[parentFolder.parentId] !== parentFolder) {
         delete parentFolder.index[item.type][item.id]
         parentFolder = this.index.folder[parentFolder.parentId]
       }
