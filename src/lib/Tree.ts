@@ -587,7 +587,7 @@ export class Folder<L extends TItemLocation> {
       return
     }
     const itemIndex = item.index || item.createIndex()
-    let currentItem = item
+    let currentItem = this.index.folder[item.parentId]
     while (currentItem) {
       Object.assign(currentItem.index.folder, itemIndex.folder)
       Object.assign(currentItem.index.bookmark, itemIndex.bookmark)
