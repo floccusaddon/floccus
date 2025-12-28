@@ -29,6 +29,7 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
     this.cacheTree.bookmarksCache.removeFromIndex(cacheBookmark)
     cacheBookmark.id = id
     cacheBookmark.parentId = bookmark.parentId
+    cacheBookmark.createIndex()
     this.cacheTree.bookmarksCache.updateIndex(cacheBookmark)
     return id
   }
@@ -50,6 +51,7 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
     this.cacheTree.bookmarksCache.removeFromIndex(cacheFolder)
     cacheFolder.id = id
     cacheFolder.parentId = folder.parentId
+    cacheFolder.createIndex()
     this.cacheTree.bookmarksCache.updateIndex(cacheFolder)
     return id
   }
