@@ -578,7 +578,14 @@ export class Folder<L extends TItemLocation> {
     return this.index
   }
 
+  /**
+   * Update the index with the given item (this method should be called on the root folder)
+   */
   updateIndex(item: TItem<L>) {
+    if (!this.index) {
+      this.createIndex()
+      return
+    }
     const itemIndex = item.index || item.createIndex()
     let currentItem = item
     while (currentItem) {
@@ -588,8 +595,15 @@ export class Folder<L extends TItemLocation> {
     }
   }
 
+  /**
+   * Update the index by removing the given item (this method should be called on the root folder)
+   */
   removeFromIndex(item: TItem<L>) {
     if (!item) return
+    if (!this.index) {
+      this.createIndex()
+      return
+    }
     if (item.parentId) {
       let parentFolder = this.index.folder[item.parentId]
       while (parentFolder) {
