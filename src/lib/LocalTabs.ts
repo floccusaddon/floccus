@@ -15,6 +15,22 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     this.queue = new PQueue({ concurrency: 10 })
   }
 
+  private getWindowIdFromFolderId(folderId:string|number):number {
+    return parseInt(String(folderId).slice('window-'.length))
+  }
+
+  private getTabGroupIdFromFolderId(folderId:string|number):number {
+    return parseInt(String(folderId).slice('group-'.length))
+  }
+
+  private getFolderIdFromWindowId(windowId:number):string {
+    return 'window-' + windowId
+  }
+
+  private getFolderIdFromTabGroupId(tabGroupId:number):string {
+    return 'group-' + tabGroupId
+  }
+
   async getBookmarksTree():Promise<Folder<typeof ItemLocation.LOCAL>> {
     let tabs = await browser.tabs.query({
       windowType: 'normal' // no devtools or panels or popups
@@ -46,7 +62,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
             id: t.id,
             title: t.title,
             url: t.url,
-            parentId: windowId,
+            parentId: this.getFolderIdFromWindowId(windowId),
             location: ItemLocation.LOCAL,
           }))
 
@@ -63,7 +79,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
               id: t.id,
               title: t.title,
               url: t.url,
-              parentId: group.id,
+              parentId: this.getFolderIdFromTabGroupId(group.id),
               location: ItemLocation.LOCAL,
             }))
 
@@ -77,8 +93,8 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
           return {
             folder: new Folder({
               title: group.title || `Group ${group.id}`,
-              id: group.id,
-              parentId: windowId,
+              id: this.getFolderIdFromTabGroupId(group.id),
+              parentId: this.getFolderIdFromWindowId(windowId),
               location: ItemLocation.LOCAL,
               children: groupTabs
             }),
@@ -110,7 +126,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
 
         return new Folder({
           title: 'Window ' + i,
-          id: windowId,
+          id: this.getFolderIdFromWindowId(windowId),
           parentId: 'tabs',
           location: ItemLocation.LOCAL,
           children: sortedItems
@@ -134,11 +150,11 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       // Check if the parentId is a tab group by trying to get it
       let isTabGroup = false
       let windowId = null
-      try {
+      if (String(bookmark.parentId).split('-')[0] === 'group') {
         // Try to query the tab group to see if it exists
         if (typeof browser.tabGroups !== 'undefined') {
           const tabGroup = await this.queue.add(() =>
-            browser.tabGroups.get(bookmark.parentId)
+            browser.tabGroups.get(this.getTabGroupIdFromFolderId(bookmark.parentId))
           )
           if (tabGroup) {
             isTabGroup = true
@@ -146,9 +162,9 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
             Logger.log('Parent is a tab group', tabGroup)
           }
         }
-      } catch (e) {
+      } else {
         // If we get an error, it's not a tab group
-        Logger.log('Parent is not a tab group', e)
+        Logger.log('Parent is not a tab group')
         isTabGroup = false
       }
 
@@ -169,7 +185,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         await this.queue.add(() =>
           browser.tabs.group({
             tabIds: [node.id],
-            groupId: bookmark.parentId
+            groupId: this.getTabGroupIdFromFolderId(bookmark.parentId)
           })
         )
       }
@@ -209,7 +225,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         // Try to query the tab group to see if it exists
         if (typeof browser.tabGroups !== 'undefined') {
           const tabGroup = await this.queue.add(() =>
-            browser.tabGroups.get(bookmark.parentId)
+            browser.tabGroups.get(this.getTabGroupIdFromFolderId(bookmark.parentId))
           )
           isTabGroup = !!tabGroup
         }
@@ -225,7 +241,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         await this.queue.add(() =>
           browser.tabs.group({
             tabIds: [bookmark.id],
-            groupId: bookmark.parentId
+            groupId: this.getTabGroupIdFromFolderId(bookmark.parentId)
           })
         )
       } else {
@@ -240,7 +256,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         Logger.log('Moving tab to window', bookmark.parentId)
         await this.queue.add(() =>
           browser.tabs.move(bookmark.id, {
-            windowId: bookmark.parentId,
+            windowId: this.getWindowIdFromFolderId(bookmark.parentId),
             index: -1, // last
           })
         )
@@ -268,7 +284,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     await awaitTabsUpdated()
   }
 
-  async createFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<number> {
+  async createFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<string> {
     Logger.log('(tabs)CREATEFOLDER', folder)
 
     // If parentId is 'tabs', create a window
@@ -276,14 +292,14 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       const node = await this.queue.add(() =>
         browser.windows.create()
       )
-      return node.id
+      return this.getFolderIdFromWindowId(node.id)
     } else {
       // Otherwise, create a tab group
       try {
         const groupId = await this.queue.add(async() => {
           // Create a dummy tab in the parent window to hold the group
           const dummyTab = await browser.tabs.create({
-            windowId: folder.parentId,
+            windowId: this.getWindowIdFromFolderId(folder.parentId),
             url: 'about:blank',
             active: false
           })
@@ -292,8 +308,8 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
           const groupId = await browser.tabs.group({
             tabIds: [dummyTab.id],
             createProperties: {
-              windowId: folder.parentId
-            }
+              windowId: this.getWindowIdFromFolderId(folder.parentId),
+            },
           })
 
           // Update the tab group title
@@ -318,7 +334,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         })
 
         await awaitTabsUpdated()
-        return groupId
+        return this.getFolderIdFromTabGroupId(groupId)
       } catch (e) {
         Logger.log('Failed to create tab group', e)
         throw e
@@ -339,7 +355,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       if (tabGroupsSupported && id !== 'tabs') {
         try {
           // Try to get the tab group to see if it exists
-          const tabs = await this.queue.add(() => browser.tabs.query({groupId: id}))
+          const tabs = await this.queue.add(() => browser.tabs.query({groupId: this.getTabGroupIdFromFolderId(id)}))
           if (tabs.length) {
             isTabGroup = true
             // Get the tab group's current index
@@ -382,14 +398,14 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
               try {
                 if (tabGroupsSupported) {
                   await this.queue.add(() =>
-                    browser.tabGroups.move(folder.id, { index: currentIndex })
+                    browser.tabGroups.move(this.getTabGroupIdFromFolderId(folder.id), { index: currentIndex })
                   )
 
                   // Get the size of the folder (number of tabs in the group)
                   const folderTabs = await this.queue.add(() =>
                     browser.tabs.query({
                       windowType: 'normal',
-                      groupId: folder.id
+                      groupId: this.getTabGroupIdFromFolderId(folder.id)
                     })
                   )
 
@@ -431,7 +447,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       try {
         // Update the tab group title
         await this.queue.add(() =>
-          browser.tabGroups.update(folder.id, {
+          browser.tabGroups.update(this.getTabGroupIdFromFolderId(folder.id), {
             title: folder.title
           })
         )
@@ -453,7 +469,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     // If parentId is 'tabs', it's a window
     if (folder.parentId === 'tabs') {
       try {
-        await this.queue.add(() => browser.windows.remove(id))
+        await this.queue.add(() => browser.windows.remove(this.getWindowIdFromFolderId(id)))
       } catch (e) {
         Logger.log('Failed to remove window', e)
         // Don't throw error if the window doesn't exist anymore
@@ -467,7 +483,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         // Get all tabs in the group
         const tabs = await this.queue.add(() =>
           browser.tabs.query({
-            groupId: id
+            groupId: this.getTabGroupIdFromFolderId(id)
           })
         )
 
