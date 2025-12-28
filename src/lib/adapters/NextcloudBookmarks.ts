@@ -749,20 +749,23 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         throw e
       }
 
-      if (oldParentId) {
-        const oldParentFolder = this.tree.findFolder(oldParentId)
-        const oldBm = oldParentFolder.findBookmark(newBm.id)
-        oldParentFolder.children = oldParentFolder.children.filter(
-          (item) => !(item.type === 'bookmark' && item.id === newBm.id)
-        )
-        if (oldBm && this.tree) {
-          this.tree.removeFromIndex(oldBm)
-        }
+      const oldParentFolder = this.tree.findFolder(oldParentId)
+      if (!oldParentFolder) {
+        throw new UnknownFolderParentUpdateError()
       }
+      const oldBm = oldParentFolder.findBookmark(newBm.id)
+      oldParentFolder.children = oldParentFolder.children.filter(
+        (item) => !(item.type === 'bookmark' && item.id === newBm.id)
+      )
+      if (oldBm && this.tree) {
+        this.tree.removeFromIndex(oldBm)
+      }
+      oldBm.title = newBm.title
+      oldBm.parentId = newBm.parentId
       if (!newFolder.children.find(item => String(item.id) === String(newBm.id) && item.type === 'bookmark')) {
-        newFolder.children.push(newBm)
+        newFolder.children.push(oldBm)
       }
-      newBm.id = upstreamId + ';' + newBm.parentId
+      oldBm.id = upstreamId + ';' + newBm.parentId
       this.tree.updateIndex(newBm)
 
       return newBm.id
