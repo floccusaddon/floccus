@@ -16,16 +16,16 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   protected revertPlan: PlanStage1<
     TItemLocation,
     TOppositeLocation<TItemLocation>
-  >
+  > = null
   protected revertDonePlan: PlanRevert<
     TItemLocation,
     TOppositeLocation<TItemLocation>
-  >
+  > = null
   protected revertReorders: Diff<
     TItemLocation,
     TOppositeLocation<TItemLocation>,
     ReorderAction<TItemLocation, TOppositeLocation<TItemLocation>>
-  >
+  > = null
 
   setDirection(direction: TItemLocation): void {
     this.direction = direction
@@ -50,6 +50,61 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     members.push('direction')
     return members
+  }
+
+  async setProgress(json: any) {
+    const {actionsDone, actionsPlanned} = json
+    this.actionsDone = actionsDone
+    this.actionsPlanned = actionsPlanned
+    if (json.serverTreeRoot) {
+      this.serverTreeRoot = Folder.hydrate(json.serverTreeRoot)
+    }
+    if (json.localTreeRoot) {
+      this.localTreeRoot = Folder.hydrate(json.localTreeRoot)
+    }
+    if (json.cacheTreeRoot) {
+      this.cacheTreeRoot = Folder.hydrate(json.cacheTreeRoot)
+    }
+    if (json.localScanResult) {
+      this.localScanResult = {
+        CREATE: await Diff.fromJSONAsync(json.localScanResult.CREATE),
+        UPDATE: await Diff.fromJSONAsync(json.localScanResult.UPDATE),
+        MOVE: await Diff.fromJSONAsync(json.localScanResult.MOVE),
+        REMOVE: await Diff.fromJSONAsync(json.localScanResult.REMOVE),
+        REORDER: await Diff.fromJSONAsync(json.localScanResult.REORDER),
+      }
+    }
+    if (json.serverScanResult) {
+      this.serverScanResult = {
+        CREATE: await Diff.fromJSONAsync(json.serverScanResult.CREATE),
+        UPDATE: await Diff.fromJSONAsync(json.serverScanResult.UPDATE),
+        MOVE: await Diff.fromJSONAsync(json.serverScanResult.MOVE),
+        REMOVE: await Diff.fromJSONAsync(json.serverScanResult.REMOVE),
+        REORDER: await Diff.fromJSONAsync(json.serverScanResult.REORDER),
+      }
+    }
+    if (json.revertPlan) {
+      this.revertPlan = {
+        CREATE: await Diff.fromJSONAsync(json.revertPlan.CREATE),
+        UPDATE: await Diff.fromJSONAsync(json.revertPlan.UPDATE),
+        MOVE: await Diff.fromJSONAsync(json.revertPlan.MOVE),
+        REMOVE: await Diff.fromJSONAsync(json.revertPlan.REMOVE),
+        REORDER: await Diff.fromJSONAsync(json.revertPlan.REORDER),
+      }
+    }
+    if (json.revertDonePlan) {
+      this.revertDonePlan = {
+        CREATE: await Diff.fromJSONAsync(json.revertDonePlan.CREATE),
+        UPDATE: await Diff.fromJSONAsync(json.revertDonePlan.UPDATE),
+        MOVE: await Diff.fromJSONAsync(json.revertDonePlan.MOVE),
+        REMOVE: await Diff.fromJSONAsync(json.revertDonePlan.REMOVE),
+        REORDER: await Diff.fromJSONAsync(json.revertDonePlan.REORDER),
+      }
+    }
+    if (json.revertReorders) {
+      this.revertReorders = await Diff.fromJSONAsync(json.revertReorders)
+    }
+    this.direction = json.direction
   }
 
   async getDiffs(): Promise<{
@@ -164,7 +219,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       cacheTreeRoot: this.cacheTreeRoot,
     })
 
-    if (!this.localScanResult && !this.serverScanResult && !this.revertPlan) {
+    if ((!this.localScanResult || !this.serverScanResult) && !this.revertPlan) {
       const { localScanResult, serverScanResult } = await this.getDiffs()
       Logger.log({ localScanResult, serverScanResult })
       this.localScanResult = localScanResult
@@ -529,7 +584,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
   async toJSONAsync(): Promise<ISerializedSyncProcess> {
     return {
-      ...(await DefaultSyncProcess.prototype.toJSON.apply(this)),
+      ...(await DefaultSyncProcess.prototype.toJSONAsync.apply(this)),
       strategy: 'unidirectional',
     }
   }

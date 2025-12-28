@@ -54,24 +54,24 @@ export default class SyncProcess {
   protected serverScanResult: ScanResult<typeof ItemLocation.SERVER, TItemLocation> = null
 
   // Stage 1
-  private localPlanStage1: PlanStage1<typeof ItemLocation.SERVER, TItemLocation>
-  private serverPlanStage1: PlanStage1<typeof ItemLocation.LOCAL, TItemLocation>
+  private localPlanStage1: PlanStage1<typeof ItemLocation.SERVER, TItemLocation> = null
+  private serverPlanStage1: PlanStage1<typeof ItemLocation.LOCAL, TItemLocation> = null
 
   // Stage 2
-  private localPlanStage2: PlanStage2<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL>
+  private localPlanStage2: PlanStage2<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL> = null
   private serverPlanStage2: PlanStage2<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER>
 
   // Stage 3
-  private planStage3Local: PlanStage3<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL>
-  private planStage3Server: PlanStage3<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER>
-  private localDonePlan: PlanStage3<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL>
-  private serverDonePlan: PlanStage3<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER>
-  private prelimLocalReorders: Diff<typeof ItemLocation.SERVER, TItemLocation, ReorderAction<typeof ItemLocation.SERVER, TItemLocation>>
-  private prelimServerReorders: Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>>
+  private planStage3Local: PlanStage3<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL> = null
+  private planStage3Server: PlanStage3<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER> = null
+  private localDonePlan: PlanStage3<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL> = null
+  private serverDonePlan: PlanStage3<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER> = null
+  private prelimLocalReorders: Diff<typeof ItemLocation.SERVER, TItemLocation, ReorderAction<typeof ItemLocation.SERVER, TItemLocation>> = null
+  private prelimServerReorders: Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>> = null
 
   // Stage 4
-  private localReorders: Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>>
-  private serverReorders: Diff<typeof ItemLocation.SERVER, TItemLocation, ReorderAction<typeof ItemLocation.SERVER, TItemLocation>>
+  private localReorders: Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>> = null
+  private serverReorders: Diff<typeof ItemLocation.SERVER, TItemLocation, ReorderAction<typeof ItemLocation.SERVER, TItemLocation>> = null
 
   protected actionsDone = 0
   protected actionsPlanned = 0
@@ -194,20 +194,35 @@ export default class SyncProcess {
     Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
   }
 
-  setProgress({actionsDone, actionsPlanned}: {actionsDone: number, actionsPlanned: number}) {
+  async setProgress(json: any) {
+    const {actionsDone, actionsPlanned} = json
     this.actionsDone = actionsDone
     this.actionsPlanned = actionsPlanned
-    this.throttledProgressCb(
-      Math.min(
-        1,
-        0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
-      ),
-      this.actionsDone
-    ).catch((er) => {
-      if (er instanceof CanceledError) {
-        return
+    if (json.serverTreeRoot) {
+      this.serverTreeRoot = Folder.hydrate(json.serverTreeRoot)
+    }
+    if (json.localTreeRoot) {
+      this.localTreeRoot = Folder.hydrate(json.localTreeRoot)
+    }
+    if (json.cacheTreeRoot) {
+      this.cacheTreeRoot = Folder.hydrate(json.cacheTreeRoot)
+    }
+    Object.keys(json).forEach((member) => {
+      if (member in json) {
+        if (member.toLowerCase().includes('scanresult') || member.toLowerCase().includes('plan')) {
+          this[member] = {
+            CREATE: Diff.fromJSON(json[member].CREATE),
+            UPDATE: Diff.fromJSON(json[member].UPDATE),
+            MOVE: Diff.fromJSON(json[member].MOVE),
+            REMOVE: Diff.fromJSON(json[member].REMOVE),
+            REORDER: Diff.fromJSON(json[member].REORDER),
+          }
+        } else if (member.toLowerCase().includes('reorders')) {
+          this[member] = Diff.fromJSON(json[member])
+        } else {
+          this[member] = json[member]
+        }
       }
-      throw er
     })
   }
 
@@ -1565,10 +1580,10 @@ export default class SyncProcess {
           Object.entries(this)
             .filter(([key]) => membersToPersist.includes(key)),
           async([key, value]) => {
-            if ('toJSONAsync' in value) {
+            if (value.toJSONAsync) {
               return [key, await value.toJSONAsync()]
             }
-            if ('toJSON' in value) {
+            if (value.toJSON) {
               await yieldToEventLoop()
               return [key, value.toJSON()]
             }
@@ -1602,34 +1617,7 @@ export default class SyncProcess {
       default:
         throw new Error('Unknown strategy: ' + json.strategy)
     }
-    strategy.setProgress(json)
-    if (json.serverTreeRoot) {
-      strategy.serverTreeRoot = Folder.hydrate(json.serverTreeRoot)
-    }
-    if (json.localTreeRoot) {
-      strategy.localTreeRoot = Folder.hydrate(json.localTreeRoot)
-    }
-    if (json.cacheTreeRoot) {
-      strategy.cacheTreeRoot = Folder.hydrate(json.cacheTreeRoot)
-    }
-    strategy.getMembersToPersist().forEach((member) => {
-      if (member in json) {
-        if (member.toLowerCase().includes('scanresult') || member.toLowerCase().includes('plan')) {
-          strategy[member] = {
-            CREATE: Diff.fromJSON(json[member].CREATE),
-            UPDATE: Diff.fromJSON(json[member].UPDATE),
-            MOVE: Diff.fromJSON(json[member].MOVE),
-            REMOVE: Diff.fromJSON(json[member].REMOVE),
-            REORDER: Diff.fromJSON(json[member].REORDER),
-          }
-        } else if (member.toLowerCase().includes('reorders')) {
-          strategy[member] = Diff.fromJSON(json[member])
-        } else {
-          strategy[member] = json[member]
-        }
-      }
-    })
-
+    await strategy.setProgress(json)
     return strategy
   }
 }
