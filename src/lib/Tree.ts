@@ -582,6 +582,9 @@ export class Folder<L extends TItemLocation> {
    * Update the index with the given item (this method should be called on the root folder)
    */
   updateIndex(item: TItem<L>) {
+    if (!item) {
+      return
+    }
     if (!this.index) {
       this.createIndex()
       return

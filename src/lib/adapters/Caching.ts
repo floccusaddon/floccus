@@ -109,9 +109,10 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       foundOldFolder.children.indexOf(foundBookmark),
       1
     )
+
+    this.bookmarksCache.removeFromIndex(foundBookmark)
     foundNewFolder.children.push(foundBookmark)
     foundBookmark.parentId = newBm.parentId
-    this.bookmarksCache.removeFromIndex(foundBookmark)
     this.bookmarksCache.updateIndex(newBm)
   }
 
