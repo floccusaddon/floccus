@@ -53,13 +53,13 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
         'file:',
         'chrome:',
         'edge:',
-        'about:'
       ]
 
       if (!isTest) {
         schemes = schemes.concat([
           'chrome-extension:',
-          'moz-extension:'
+          'moz-extension:',
+          'about:'
         ])
       }
 
