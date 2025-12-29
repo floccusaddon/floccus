@@ -182,15 +182,12 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     if (!folder) {
       throw new UnknownFolderOrderError()
     }
+    let newChildren = []
     order.forEach(item => {
       const child = folder.findItem(item.type, item.id)
       if (!child || String(child.parentId) !== String(folder.id)) {
         throw new UnknownFolderItemOrderError(id + ':' + JSON.stringify(item))
       }
-    })
-    let newChildren = []
-    order.forEach(item => {
-      const child = folder.findItem(item.type, item.id)
       newChildren.push(child)
     })
     const diff = difference(folder.children.map(i => i.type + ':' + i.id), order.map(i => i.type + ':' + i.id))
@@ -201,8 +198,9 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       diff.forEach(item => {
         const [type, id] = item.split(':')
         const child = folder.findItem(type, id)
+        if (!child) return
         const index = folder.children.indexOf(child)
-        newChildren = newChildren.slice(0, index - 1).concat([child], newChildren.slice(index - 1))
+        newChildren = newChildren.slice(0, index).concat([child], newChildren.slice(index))
       })
     }
     folder.children = newChildren
