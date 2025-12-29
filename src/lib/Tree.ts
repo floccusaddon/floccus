@@ -602,7 +602,7 @@ export class Folder<L extends TItemLocation> {
   }
 
   /**
-   * Update the index by removing the given item (this method should be called on the root folder)
+   * Update the index by removing the given item and its children (this method should be called on the root folder)
    */
   removeFromIndex(item: TItem<L>) {
     if (!item) return
@@ -613,7 +613,16 @@ export class Folder<L extends TItemLocation> {
     if (item.parentId) {
       let parentFolder = this.index.folder[item.parentId]
       while (parentFolder && this.index.folder[parentFolder.parentId] !== parentFolder) {
-        delete parentFolder.index[item.type][item.id]
+        if (item instanceof Bookmark) {
+          delete parentFolder.index[item.type][item.id]
+        } else {
+          for (const folderId in item.index.folder) {
+            delete parentFolder.index.folder[folderId]
+          }
+          for (const bookmarkId in item.index.bookmark) {
+            delete parentFolder.index.bookmark[bookmarkId]
+          }
+        }
         parentFolder = this.index.folder[parentFolder.parentId]
       }
     }
