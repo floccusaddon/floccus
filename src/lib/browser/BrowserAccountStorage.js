@@ -146,7 +146,7 @@ export default class BrowserAccountStorage {
   async setCache(data) {
     await BrowserAccountStorage.setEntry(
       `bookmarks[${this.accountId}].cache`,
-      data
+      data.toJSON ? data.toJSON() : data
     )
   }
 

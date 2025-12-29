@@ -516,6 +516,9 @@ export class Folder<L extends TItemLocation> {
       Object.entries(obj).forEach(([key, value]) => {
         if (key === 'index') return
         if (!(key in result)) {
+          if (key === 'children') {
+            value = value.map((child) => child.toJSON())
+          }
           result[key] = value
         }
       })
