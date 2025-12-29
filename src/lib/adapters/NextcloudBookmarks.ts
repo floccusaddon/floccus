@@ -760,13 +760,11 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       if (oldBm && this.tree) {
         this.tree.removeFromIndex(oldBm)
       }
-      oldBm.title = newBm.title
-      oldBm.parentId = newBm.parentId
       if (!newFolder.children.find(item => String(item.id) === String(newBm.id) && item.type === 'bookmark')) {
-        newFolder.children.push(oldBm)
+        newFolder.children.push(newBm)
       }
-      oldBm.id = upstreamId + ';' + newBm.parentId
-      this.tree.updateIndex(oldBm)
+      newBm.id = upstreamId + ';' + newBm.parentId
+      this.tree.updateIndex(newBm)
 
       return newBm.id
     })
