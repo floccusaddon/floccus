@@ -366,7 +366,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
   }
 
   static async getIdPathFromLocalId(localId:string|null, path:string[] = []):Promise<string[]> {
-    if (typeof localId === 'undefined') {
+    if (typeof localId === 'undefined' || localId === null) {
       return path
     }
     path.unshift(localId)

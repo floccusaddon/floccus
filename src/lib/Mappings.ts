@@ -71,7 +71,7 @@ export default class Mappings {
   }
 
   private static add(mappings, { localId, remoteId }: { localId?:string|number, remoteId?:string|number }) {
-    if (typeof localId === 'undefined' || typeof remoteId === 'undefined') {
+    if (typeof localId === 'undefined' || typeof remoteId === 'undefined' || localId === null || remoteId === null) {
       throw new Error('Cannot add empty mapping')
     }
     mappings.LocalToServer[localId] = remoteId

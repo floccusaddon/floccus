@@ -357,7 +357,8 @@ export default class Diff<
           )
           if (
             typeof newAction.payload.parentId === 'undefined' &&
-            typeof action.payload.parentId !== 'undefined'
+            typeof action.payload.parentId !== 'undefined' &&
+            action.payload.parentId !== null
           ) {
             if (skipErroneousActions) {
               // simply ignore this action as it appears to be no longer valid

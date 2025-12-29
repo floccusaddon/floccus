@@ -28,7 +28,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     this.newTree = newTree
     this.mergeable = mergeable
     this.hashSettings = hashSettings
-    this.checkHashes = typeof checkHashes === 'undefined' ? true : checkHashes
+    this.checkHashes = typeof checkHashes === 'undefined' || checkHashes === null ? true : checkHashes
     this.hasCache = hasCache
     this.result = {
       CREATE: new Diff(),

@@ -446,7 +446,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       const nonexistingItems = []
       await newItem.traverse(async(child, parentFolder) => {
         child.id = Mappings.mapId(mappingsSnapshot, child, fakeLocation)
-        if (typeof child.id === 'undefined') {
+        if (typeof child.id === 'undefined' || child.id === null) {
           nonexistingItems.push(child)
         }
         child.parentId = parentFolder.id

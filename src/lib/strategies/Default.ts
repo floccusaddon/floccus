@@ -175,7 +175,7 @@ export default class SyncProcess {
   }
 
   async updateProgress():Promise<void> {
-    if (typeof this.actionsDone === 'undefined') {
+    if (typeof this.actionsDone === 'undefined' || this.actionsDone === null) {
       this.actionsDone = 0
     }
     this.actionsDone++
@@ -516,7 +516,11 @@ export default class SyncProcess {
     // Failsafe kicks in if more than 20% is deleted or more than 1k bookmarks
     if ((countTotal > 5 && countDeleted / countTotal > 0.2) || countDeleted > 1000) {
       const failsafe = this.server.getData().failsafe
-      if (failsafe !== false || typeof failsafe === 'undefined') {
+      if (
+        failsafe !== false ||
+        typeof failsafe === 'undefined' ||
+        failsafe === null
+      ) {
         const percentage = Math.ceil((countDeleted / countTotal) * 100)
         if (direction === ItemLocation.LOCAL) {
           throw new ClientsideDeletionFailsafeError(percentage)
@@ -535,7 +539,7 @@ export default class SyncProcess {
     // Failsafe kicks in if more than 20% is added or more than 1k bookmarks
     if (countTotal > 5 && ((countAdded >= 20 && countAdded / countTotal > 0.2) || countAdded > 1000)) {
       const failsafe = this.server.getData().failsafe
-      if (failsafe !== false || typeof failsafe === 'undefined') {
+      if (failsafe !== false || typeof failsafe === 'undefined' || failsafe === null) {
         const percentage = Math.ceil((countAdded / countTotal) * 100)
         if (direction === ItemLocation.LOCAL) {
           throw new ClientsideAdditionFailsafeError(percentage)
@@ -1041,7 +1045,7 @@ export default class SyncProcess {
       action.payload.visitCreate(resource),
       this.cancelPromise
     ])
-    if (typeof id === 'undefined') {
+    if (typeof id === 'undefined' || id === null) {
       // undefined means we couldn't create the item. we're ignoring it
       await done()
       return

@@ -112,7 +112,7 @@ export class Bookmark<L extends TItemLocation> {
     if (!this.hashValue) {
       this.hashValue = {}
     }
-    if (typeof this.hashValue[hashFn] === 'undefined') {
+    if (typeof this.hashValue[hashFn] === 'undefined' || this.hashValue[hashFn] === null) {
       const json = JSON.stringify({ title: this.title, url: this.url })
       if (hashFn === 'sha256') {
         this.hashValue[hashFn] = await Crypto.sha256(json)
