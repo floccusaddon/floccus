@@ -317,7 +317,8 @@ export default class Account {
         // set from the persisted continuation
         Logger.log('Fetching local bookmarks tree')
         this.syncProcess.setCacheTree(cacheTree)
-        await this.localCachingResource.setCacheTree(await this.localCachingResource.getBookmarksTree())
+        // Allow Caching of the local tree
+        await this.localCachingResource.getBookmarksTree()
       }
 
       Logger.log('Starting sync process')
