@@ -375,7 +375,7 @@ export default class Diff<
               diff.commit(action)
               Logger.log('Failed to map parentId of action ' + diff.inspect())
               Logger.log(JSON.stringify(mappingsSnapshot, null, '\t'))
-              throw new MappingFailureError(action.payload.parentId.toString())
+              throw new MappingFailureError(String(action.payload.parentId))
             }
           }
         }
