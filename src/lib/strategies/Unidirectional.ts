@@ -53,58 +53,36 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   }
 
   async setProgress(json: any) {
-    const {actionsDone, actionsPlanned} = json
-    this.actionsDone = actionsDone
-    this.actionsPlanned = actionsPlanned
     if (json.serverTreeRoot) {
       this.serverTreeRoot = Folder.hydrate(json.serverTreeRoot)
+      delete json.serverTreeRoot
     }
     if (json.localTreeRoot) {
       this.localTreeRoot = Folder.hydrate(json.localTreeRoot)
+      delete json.localTreeRoot
     }
     if (json.cacheTreeRoot) {
       this.cacheTreeRoot = Folder.hydrate(json.cacheTreeRoot)
+      delete json.cacheTreeRoot
     }
-    if (json.localScanResult) {
-      this.localScanResult = {
-        CREATE: await Diff.fromJSONAsync(json.localScanResult.CREATE),
-        UPDATE: await Diff.fromJSONAsync(json.localScanResult.UPDATE),
-        MOVE: await Diff.fromJSONAsync(json.localScanResult.MOVE),
-        REMOVE: await Diff.fromJSONAsync(json.localScanResult.REMOVE),
-        REORDER: await Diff.fromJSONAsync(json.localScanResult.REORDER),
+    for (const member of Object.keys(json)) {
+      if (
+        member.toLowerCase().includes('scanresult') ||
+        member.toLowerCase().includes('plan')
+      ) {
+        this[member] = {
+          CREATE: await Diff.fromJSONAsync(json[member].CREATE),
+          UPDATE: await Diff.fromJSONAsync(json[member].UPDATE),
+          MOVE: await Diff.fromJSONAsync(json[member].MOVE),
+          REMOVE: await Diff.fromJSONAsync(json[member].REMOVE),
+          REORDER: await Diff.fromJSONAsync(json[member].REORDER),
+        }
+      } else if (member.toLowerCase().includes('reorders')) {
+        this[member] = await Diff.fromJSONAsync(json[member])
+      } else {
+        this[member] = json[member]
       }
     }
-    if (json.serverScanResult) {
-      this.serverScanResult = {
-        CREATE: await Diff.fromJSONAsync(json.serverScanResult.CREATE),
-        UPDATE: await Diff.fromJSONAsync(json.serverScanResult.UPDATE),
-        MOVE: await Diff.fromJSONAsync(json.serverScanResult.MOVE),
-        REMOVE: await Diff.fromJSONAsync(json.serverScanResult.REMOVE),
-        REORDER: await Diff.fromJSONAsync(json.serverScanResult.REORDER),
-      }
-    }
-    if (json.revertPlan) {
-      this.revertPlan = {
-        CREATE: await Diff.fromJSONAsync(json.revertPlan.CREATE),
-        UPDATE: await Diff.fromJSONAsync(json.revertPlan.UPDATE),
-        MOVE: await Diff.fromJSONAsync(json.revertPlan.MOVE),
-        REMOVE: await Diff.fromJSONAsync(json.revertPlan.REMOVE),
-        REORDER: await Diff.fromJSONAsync(json.revertPlan.REORDER),
-      }
-    }
-    if (json.revertDonePlan) {
-      this.revertDonePlan = {
-        CREATE: await Diff.fromJSONAsync(json.revertDonePlan.CREATE),
-        UPDATE: await Diff.fromJSONAsync(json.revertDonePlan.UPDATE),
-        MOVE: await Diff.fromJSONAsync(json.revertDonePlan.MOVE),
-        REMOVE: await Diff.fromJSONAsync(json.revertDonePlan.REMOVE),
-        REORDER: await Diff.fromJSONAsync(json.revertDonePlan.REORDER),
-      }
-    }
-    if (json.revertReorders) {
-      this.revertReorders = await Diff.fromJSONAsync(json.revertReorders)
-    }
-    this.direction = json.direction
   }
 
   async getDiffs(): Promise<{

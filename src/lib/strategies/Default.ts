@@ -195,35 +195,33 @@ export default class SyncProcess {
   }
 
   async setProgress(json: any) {
-    const {actionsDone, actionsPlanned} = json
-    this.actionsDone = actionsDone
-    this.actionsPlanned = actionsPlanned
     if (json.serverTreeRoot) {
       this.serverTreeRoot = Folder.hydrate(json.serverTreeRoot)
+      delete json.serverTreeRoot
     }
     if (json.localTreeRoot) {
       this.localTreeRoot = Folder.hydrate(json.localTreeRoot)
+      delete json.localTreeRoot
     }
     if (json.cacheTreeRoot) {
       this.cacheTreeRoot = Folder.hydrate(json.cacheTreeRoot)
+      delete json.cacheTreeRoot
     }
-    Object.keys(json).forEach((member) => {
-      if (member in json) {
-        if (member.toLowerCase().includes('scanresult') || member.toLowerCase().includes('plan')) {
-          this[member] = {
-            CREATE: Diff.fromJSON(json[member].CREATE),
-            UPDATE: Diff.fromJSON(json[member].UPDATE),
-            MOVE: Diff.fromJSON(json[member].MOVE),
-            REMOVE: Diff.fromJSON(json[member].REMOVE),
-            REORDER: Diff.fromJSON(json[member].REORDER),
-          }
-        } else if (member.toLowerCase().includes('reorders')) {
-          this[member] = Diff.fromJSON(json[member])
-        } else {
-          this[member] = json[member]
+    for (const member of Object.keys(json)) {
+      if (member.toLowerCase().includes('scanresult') || member.toLowerCase().includes('plan')) {
+        this[member] = {
+          CREATE: await Diff.fromJSONAsync(json[member].CREATE),
+          UPDATE: await Diff.fromJSONAsync(json[member].UPDATE),
+          MOVE: await Diff.fromJSONAsync(json[member].MOVE),
+          REMOVE: await Diff.fromJSONAsync(json[member].REMOVE),
+          REORDER: await Diff.fromJSONAsync(json[member].REORDER),
         }
+      } else if (member.toLowerCase().includes('reorders')) {
+        this[member] = await Diff.fromJSONAsync(json[member])
+      } else {
+        this[member] = json[member]
       }
-    })
+    }
   }
 
   setDirection(direction:TItemLocation):void {
