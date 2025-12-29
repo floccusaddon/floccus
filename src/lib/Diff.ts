@@ -421,7 +421,7 @@ export default class Diff<
           ...action,
           payload: await action.payload.clone(false).toJSONAsync(),
           oldItem:
-            (await action.oldItem) && action.oldItem.clone(false).toJSONAsync(),
+            action.oldItem && await action.oldItem.clone(false).toJSONAsync(),
         }
       },
       1
