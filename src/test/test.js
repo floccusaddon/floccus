@@ -2674,7 +2674,7 @@ describe('Floccus', function() {
 
             await withSyncConnection(account, async() => {
               // move first separator
-              await account.server.updateBookmark({...tree.children[0].children[0].children[1], parentId: tree.children[0].id})
+              await account.server.updateBookmark(new Bookmark({...tree.children[0].children[0].children[1], parentId: tree.children[0].id}))
             })
 
             console.log('move done')
@@ -5768,7 +5768,7 @@ describe('Floccus', function() {
                 new Bookmark(serverMark2)
               )
 
-              await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: TEST_URL + '#test2', title: TEST_URL_TITLE, parentId: tree.children[0].id })
+              await adapter.updateBookmark(new Bookmark({ ...serverMark, id: serverMarkId, url: TEST_URL + '#test2', title: TEST_URL_TITLE, parentId: tree.children[0].id }))
             })
 
             await account.setData({ strategy: 'slave'})
@@ -5855,7 +5855,7 @@ describe('Floccus', function() {
                 new Bookmark(serverMark2)
               )
 
-              await adapter.updateBookmark({ ...serverMark, id: serverMarkId, url: TEST_URL + '#test2', title: TEST_URL_TITLE, parentId: tree.children[0].id })
+              await adapter.updateBookmark(new Bookmark({ ...serverMark, id: serverMarkId, url: TEST_URL + '#test2', title: TEST_URL_TITLE, parentId: tree.children[0].id }))
             })
 
             await browser.tabs.create({url: TEST_URL + '#test4'})
@@ -6853,10 +6853,10 @@ describe('Floccus', function() {
 
               // Move the bookmarks out of the group
               for (const bookmark of tabGroupFolder.children) {
-                await account.server.updateBookmark({
+                await account.server.updateBookmark(new Bookmark({
                   ...bookmark,
                   parentId: windowFolder.id
-                })
+                }))
               }
 
               // Remove the now-empty group folder
