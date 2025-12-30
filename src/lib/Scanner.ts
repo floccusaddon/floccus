@@ -228,7 +228,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         }`
 
       for (const action of removeActions) {
-        const indexSubtree = async (item: TItem<L1>) => {
+        const indexSubtree = async(item: TItem<L1>) => {
           const key = getFuzzyKey(item)
           removedFuzzyMap.set(
             key,
@@ -253,6 +253,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         }
       }
 
+      allCreatedItems
+        .sort((a, b) => b.item.count() - a.item.count())
+
       // 2. Match ALL created items (roots + descendants) against removed pool
       for (const createdEntry of allCreatedItems) {
         await yieldToEventLoop()
@@ -265,6 +268,12 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         const matches = potentialMatches.filter((m) =>
           this.mergeable(m.item, createdItem)
         )
+
+        // Heuristic: Prefer matches that have more descendants
+        matches.sort((a, b) => {
+          return b.item.count() - a.item.count()
+        })
+
         if (createdItem.type === 'folder' && !this.hasCache) {
           matches.sort(
             (a, b) =>
