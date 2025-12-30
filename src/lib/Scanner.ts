@@ -212,35 +212,32 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
       if (createActions.length === 0 || removeActions.length === 0) break
 
-      // 1. Build Fuzzy Indices for both REMOVE and CREATE subtrees (O(N))
-      const removedFuzzyMap = new Map<
-        string,
-        { rootAction: RemoveAction<L1, L2>; item: TItem<L1> }[]
-      >()
-      const allCreatedItems: {
-        rootAction: CreateAction<L2, L1>
-        item: TItem<L2>
-      }[] = []
+      // Build Multi-Signal Fuzzy Index (O(N))
+      const removedFuzzyMap = new Map<string, { rootAction: RemoveAction<L1, L2>; item: TItem<L1> }[]>()
+      const allCreatedItems: { rootAction: CreateAction<L2, L1>; item: TItem<L2> }[] = []
 
-      const getFuzzyKey = (item: TItem<TItemLocation>) =>
-        `${item.type}_${item.title}_${
-          item.type === 'bookmark' ? (item as Bookmark<TItemLocation>).url : ''
-        }`
+      const addToFuzzyIndex = (item: TItem<L1>, action: RemoveAction<L1, L2>) => {
+        const keys = new Set<string>()
+        // Signal 1: Full signature (Type + Title + URL)
+        keys.add(`${item.type}_${item.title}_${item.type === 'bookmark' ? (item as Bookmark<L1>).url : ''}`)
+
+        // Signal 2: Title only (Handles URL changes for bookmarks or ID changes for folders)
+        if (item.title) keys.add(`${item.type}_title_${item.title}`)
+
+        // Signal 3: URL only (Handles Title changes for bookmarks)
+        if (item instanceof Bookmark) keys.add(`bookmark_url_${item.url}`)
+
+        keys.add(item.type)
+
+        for (const key of keys) {
+          removedFuzzyMap.set(key, (removedFuzzyMap.get(key) || []).concat({ rootAction: action, item }))
+        }
+      }
 
       for (const action of removeActions) {
-        const indexSubtree = async(item: TItem<L1>) => {
-          const key = getFuzzyKey(item)
-          removedFuzzyMap.set(
-            key,
-            (removedFuzzyMap.get(key) || []).concat({
-              rootAction: action,
-              item,
-            })
-          )
-        }
-        await indexSubtree(action.payload)
+        await addToFuzzyIndex(action.payload, action)
         if (action.payload instanceof Folder) {
-          await action.payload.traverse(indexSubtree)
+          await action.payload.traverse((child) => addToFuzzyIndex(child, action))
         }
       }
 
@@ -260,27 +257,43 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       for (const createdEntry of allCreatedItems) {
         await yieldToEventLoop()
         const { rootAction: createRootAction, item: createdItem } = createdEntry
-        const fuzzyKey = getFuzzyKey(createdItem)
 
-        const potentialMatches = removedFuzzyMap.get(fuzzyKey)
-        if (!potentialMatches) continue
+        // Gather potential matches from all signals
+        const searchKeys = [
+          `${createdItem.type}_${createdItem.title}_${createdItem.type === 'bookmark' ? (createdItem as Bookmark<L2>).url : ''}`,
+          `${createdItem.type}_title_${createdItem.title}`,
+          ...(createdItem instanceof Bookmark ? [`bookmark_url_${createdItem.url}`] : []),
+          createdItem.type
+        ]
 
-        const matches = potentialMatches.filter((m) =>
+        // Collect unique potential matches from all signals
+        const potentialSet = new Set<{ rootAction: RemoveAction<L1, L2>; item: TItem<L1> }>()
+        for (const key of searchKeys) {
+          const list = removedFuzzyMap.get(key)
+          if (list && list.filter((m) => this.mergeable(m.item, createdItem)).length) {
+            list.forEach(m => potentialSet.add(m))
+            break
+          }
+        }
+
+        if (potentialSet.size === 0) {
+          continue
+        }
+
+        const matches = Array.from(potentialSet).filter((m) =>
           this.mergeable(m.item, createdItem)
         )
 
         // Heuristic: Prefer matches that have more descendants
+        // In case we have no cache: Calculate similarity and sore by it
         matches.sort((a, b) => {
+          if (createdItem.type === 'folder' && !this.hasCache) {
+            const simA = a.item.childrenSimilarity(createdItem)
+            const simB = b.item.childrenSimilarity(createdItem)
+            if (simA !== simB) return simB - simA
+          }
           return b.item.count() - a.item.count()
         })
-
-        if (createdItem.type === 'folder' && !this.hasCache) {
-          matches.sort(
-            (a, b) =>
-              b.item.childrenSimilarity(createdItem) -
-              a.item.childrenSimilarity(createdItem)
-          )
-        }
 
         if (matches.length === 0) {
           continue
