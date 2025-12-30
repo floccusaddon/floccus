@@ -392,15 +392,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     )
 
     await Parallel.each(
-      targetScanResult.MOVE.getActions(),
+      sourceScanResult.MOVE.getActions(),
       async(action) => {
-        const payload = action.payload.cloneWithLocation(
-          false,
-          action.oldItem.location
-        )
-        payload.id = action.oldItem.id
-        payload.parentId = action.oldItem.parentId
-
+        const payload = action.payload.clone(false)
         slavePlan.MOVE.commit({ type: ActionType.MOVE, payload }) // no oldItem, because we want to map the id after having executed the CREATEs
       },
       ACTION_CONCURRENCY
