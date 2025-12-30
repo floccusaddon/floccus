@@ -210,138 +210,132 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       const createActions = this.result.CREATE.getActions()
       const removeActions = this.result.REMOVE.getActions()
 
-      // Index REMOVE actions for O(1) lookups
-      // Build a multi-value Fuzzy Index of all REMOVE subtrees
+      if (createActions.length === 0 || removeActions.length === 0) break
+
+      // 1. Build Fuzzy Indices for both REMOVE and CREATE subtrees (O(N))
       const removedFuzzyMap = new Map<
         string,
         { rootAction: RemoveAction<L1, L2>; item: TItem<L1> }[]
       >()
+      const allCreatedItems: {
+        rootAction: CreateAction<L2, L1>
+        item: TItem<L2>
+      }[] = []
 
-      const addToMap = (item: TItem<L1>, action: RemoveAction<L1, L2>) => {
-        const key = `${item.type}_${item.title}_${
+      const getFuzzyKey = (item: TItem<TItemLocation>) =>
+        `${item.type}_${item.title}_${
           item.type === 'bookmark' ? (item as Bookmark<TItemLocation>).url : ''
         }`
-        const list = removedFuzzyMap.get(key) || []
-        list.push({ rootAction: action, item })
-        removedFuzzyMap.set(key, list)
-      }
 
       for (const action of removeActions) {
-        const rootItem = action.payload
-        addToMap(rootItem, action)
-
-        if (rootItem instanceof Folder) {
-          await rootItem.traverse((child) => addToMap(child, action))
+        const indexSubtree = async (item: TItem<L1>) => {
+          const key = getFuzzyKey(item)
+          removedFuzzyMap.set(
+            key,
+            (removedFuzzyMap.get(key) || []).concat({
+              rootAction: action,
+              item,
+            })
+          )
+        }
+        await indexSubtree(action.payload)
+        if (action.payload instanceof Folder) {
+          await action.payload.traverse(indexSubtree)
         }
       }
 
-      // Single pass over CREATE actions to find direct matches
-      for (const createAction of createActions) {
-        await yieldToEventLoop()
-        const createdItem = createAction.payload
-        const key = `${createdItem.type}_${createdItem.title}_${
-          createdItem.type === 'bookmark' ? (createdItem as Bookmark<TItemLocation>).url : ''
-        }`
-
-        const potentialRemovals = removedFuzzyMap.get(key)
-        if (!potentialRemovals) continue
-
-        const matchIndex = potentialRemovals.findIndex(
-          ({rootAction, item }) =>
-            item === rootAction.payload &&
-            this.mergeable(item, createdItem) &&
-            (rootAction.payload.type !== 'folder' ||
-              (!this.hasCache &&
-                item.childrenSimilarity(createdItem) > 0.8))
-        )
-
-        if (matchIndex !== -1) {
-          const {rootAction: removeAction} = potentialRemovals.splice(matchIndex, 1)[0]
-          const removedItem = removeAction.payload
-
-          this.result.CREATE.retract(createAction)
-          this.result.REMOVE.retract(removeAction)
-          this.result.MOVE.commit({
-            type: ActionType.MOVE,
-            payload: createdItem,
-            oldItem: removedItem,
-            index: createAction.index,
-            oldIndex: removeAction.index,
+      for (const action of createActions) {
+        allCreatedItems.push({ rootAction: action, item: action.payload })
+        if (action.payload instanceof Folder) {
+          await action.payload.traverse((child) => {
+            allCreatedItems.push({ rootAction: action, item: child })
           })
-
-          // Diff
-          await this.diffItem(removedItem, createdItem)
-          hasNewActions = true
-          break
         }
       }
 
-      if (hasNewActions) continue
-
-      // Process descendant matches
-      for (const createAction of createActions) {
+      // 2. Match ALL created items (roots + descendants) against removed pool
+      for (const createdEntry of allCreatedItems) {
         await yieldToEventLoop()
-        const createdItem = createAction.payload
-        const fuzzyKey = `${createdItem.type}_${createdItem.title}_${
-          createdItem.type === 'bookmark' ? (createdItem as Bookmark<TItemLocation>).url : ''
-        }`
+        const { rootAction: createRootAction, item: createdItem } = createdEntry
+        const fuzzyKey = getFuzzyKey(createdItem)
 
         const potentialMatches = removedFuzzyMap.get(fuzzyKey)
         if (!potentialMatches) continue
 
-        // Find the first match that satisfies mergeable logic
-        const matchIndex = potentialMatches.findIndex(
-          (match) =>
-            this.mergeable(match.item, createdItem) &&
-            (match.item.type !== 'folder' ||
-              (!this.hasCache &&
-                match.item.childrenSimilarity(createdItem) > 0.8))
+        const matches = potentialMatches.filter((m) =>
+          this.mergeable(m.item, createdItem)
         )
-
-        if (matchIndex !== -1) {
-          // Extract the specific match from the array
-          const { rootAction, item: oldItem } = potentialMatches.splice(
-            matchIndex,
-            1
-          )[0]
-          const removedItem = rootAction.payload
-          let oldIndex
-
-          this.result.CREATE.retract(createAction)
-
-          if (oldItem === removedItem) {
-            this.result.REMOVE.retract(rootAction)
-          } else {
-            const removedItemClone = removedItem.copy(true)
-            const oldParentClone = removedItemClone.findItem(
-              ItemType.FOLDER,
-              oldItem.parentId
-            ) as Folder<L1>
-            const oldItemClone = removedItemClone.findItem(
-              oldItem.type,
-              oldItem.id
-            )
-
-            if (oldParentClone && oldItemClone) {
-              oldIndex = oldParentClone.children.indexOf(oldItemClone)
-              oldParentClone.children.splice(oldIndex, 1)
-              rootAction.payload = removedItemClone
-              rootAction.payload.createIndex()
-            }
-          }
-
-          this.result.MOVE.commit({
-            type: ActionType.MOVE,
-            payload: createdItem,
-            oldItem,
-            index: createAction.index,
-            oldIndex: oldIndex ?? rootAction.index,
-          })
-
-          await this.diffItem(oldItem, createdItem)
-          hasNewActions = true
-          break
+        if (createdItem.type === 'folder' && !this.hasCache) {
+          matches.sort(
+            (a, b) =>
+              b.item.childrenSimilarity(createdItem) -
+              a.item.childrenSimilarity(createdItem)
+          )
         }
+
+        if (matches.length === 0) {
+          continue
+        }
+
+        const { rootAction: removeRootAction, item: oldItem } = matches[0]
+        const removedRoot = removeRootAction.payload
+        const createdRoot = createRootAction.payload
+
+        let oldIndex, newIndex
+
+        // Retract or Mutate "Old" (Removed) side
+        if (oldItem === removedRoot) {
+          this.result.REMOVE.retract(removeRootAction)
+        } else {
+          const removedRootClone = removedRoot.copy(true)
+          const oldParentClone = removedRootClone.findItem(
+            ItemType.FOLDER,
+            oldItem.parentId
+          ) as Folder<L1>
+          const oldItemClone = removedRootClone.findItem(
+            oldItem.type,
+            oldItem.id
+          )
+          if (oldParentClone && oldItemClone) {
+            oldIndex = oldParentClone.children.indexOf(oldItemClone)
+            oldParentClone.children.splice(oldIndex, 1)
+            removeRootAction.payload = removedRootClone
+            removeRootAction.payload.createIndex()
+          }
+        }
+
+        // Retract or Mutate "New" (Created) side
+        if (createdItem === createdRoot) {
+          this.result.CREATE.retract(createRootAction)
+        } else {
+          const createdRootClone = createdRoot.copy(true)
+          const newParentClone = createdRootClone.findItem(
+            ItemType.FOLDER,
+            createdItem.parentId
+          ) as Folder<L2>
+          const createdItemClone = createdRootClone.findItem(
+            createdItem.type,
+            createdItem.id
+          )
+          if (newParentClone && createdItemClone) {
+            newIndex = newParentClone.children.indexOf(createdItemClone)
+            newParentClone.children.splice(newIndex, 1)
+            createRootAction.payload = createdRootClone
+            createRootAction.payload.createIndex()
+          }
+        }
+
+        this.result.MOVE.commit({
+          type: ActionType.MOVE,
+          payload: createdItem,
+          oldItem,
+          index: newIndex ?? createRootAction.index,
+          oldIndex: oldIndex ?? removeRootAction.index,
+        })
+
+        await this.diffItem(oldItem, createdItem)
+        hasNewActions = true
+        break
       }
     }
 
