@@ -70,16 +70,32 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       }
     }
 
-    if (oldFolder.title !== newFolder.title && typeof oldFolder.parentId !== 'undefined' && typeof newFolder.parentId !== 'undefined') {
+    if (
+      oldFolder.title !== newFolder.title &&
+      typeof oldFolder.parentId !== 'undefined' &&
+      typeof newFolder.parentId !== 'undefined'
+    ) {
       // folder title changed and it's not the root folder
-      this.result.UPDATE.commit({type: ActionType.UPDATE, payload: newFolder, oldItem: oldFolder})
+      this.result.UPDATE.commit({
+        type: ActionType.UPDATE,
+        payload: newFolder,
+        oldItem: oldFolder,
+      })
     }
 
     // Generate REORDERS before diffing anything to make sure REORDERS are from top to bottom (necessary for tab sync)
     if (newFolder.children.length > 1) {
       let needReorder = false
-      for (let i = 0; i < Math.max(newFolder.children.length, oldFolder.children.length); i++) {
-        if (!oldFolder.children[i] || !newFolder.children[i] || !this.mergeable(oldFolder.children[i], newFolder.children[i])) {
+      for (
+        let i = 0;
+        i < Math.max(newFolder.children.length, oldFolder.children.length);
+        i++
+      ) {
+        if (
+          !oldFolder.children[i] ||
+          !newFolder.children[i] ||
+          !this.mergeable(oldFolder.children[i], newFolder.children[i])
+        ) {
           needReorder = true
           break
         }
@@ -88,40 +104,75 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         this.result.REORDER.commit({
           type: ActionType.REORDER,
           payload: newFolder,
-          order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
+          order: newFolder.children.map((i) => ({ type: i.type, id: i.id })),
         })
       }
     }
 
     // Preserved Items and removed Items
+    // Optimization: Use a Map for O(1) lookups
+    const unmatchedMap = new Map<string, TItem<L2>[]>()
+    for (const child of newFolder.children) {
+      const key = `${child.type}_${child.title}` // Or a better unique key based on mergeable logic
+      const list = unmatchedMap.get(key) || []
+      list.push(child)
+      unmatchedMap.set(key, list)
+    }
+    const stillUnmatched = new Set(newFolder.children)
+
     // (using map here, because 'each' doesn't provide indices)
-    const unmatchedChildren = newFolder.children.slice(0)
-    await Parallel.map(oldFolder.children, async(old, index) => {
-      const newItem = unmatchedChildren.find((child) => old.type === child.type && this.mergeable(old, child))
-      // we found an item in the new folder that matches the one in the old folder
-      if (newItem) {
-        await this.diffItem(old, newItem)
-        unmatchedChildren.splice(unmatchedChildren.indexOf(newItem), 1)
-        return
-      }
+    await Parallel.map(
+      oldFolder.children,
+      async(old, index) => {
+        const key = `${old.type}_${old.title}`
+        const potentialMatches = unmatchedMap.get(key)
+        let newItem = null
+        if (potentialMatches) {
+          const matchIndex = potentialMatches.findIndex((m) =>
+            this.mergeable(old, m)
+          )
+          if (matchIndex !== -1) {
+            newItem = potentialMatches.splice(matchIndex, 1)[0]
+            stillUnmatched.delete(newItem)
+          }
+        }
+        // we found an item in the new folder that matches the one in the old folder
+        if (newItem) {
+          await this.diffItem(old, newItem)
+          return
+        }
 
-      if (newFolder.isRoot && newFolder.location === ItemLocation.LOCAL) {
-        // We can't remove root folders locally
-        return
-      }
+        if (newFolder.isRoot && newFolder.location === ItemLocation.LOCAL) {
+          // We can't remove root folders locally
+          return
+        }
 
-      this.result.REMOVE.commit({type: ActionType.REMOVE, payload: old, index})
-    }, 1)
+        this.result.REMOVE.commit({
+          type: ActionType.REMOVE,
+          payload: old,
+          index,
+        })
+      },
+      1
+    )
 
     // created Items
     // (using map here, because 'each' doesn't provide indices)
-    await Parallel.map(unmatchedChildren, async(newChild) => {
-      if (oldFolder.isRoot && oldFolder.location === ItemLocation.LOCAL) {
-        // We can't create root folders locally
-        return
-      }
-      this.result.CREATE.commit({type: ActionType.CREATE, payload: newChild, index: newFolder.children.findIndex(child => child === newChild)})
-    }, 1)
+    await Parallel.map(
+      Array.from(stillUnmatched.values()),
+      async(newChild) => {
+        if (oldFolder.isRoot && oldFolder.location === ItemLocation.LOCAL) {
+          // We can't create root folders locally
+          return
+        }
+        this.result.CREATE.commit({
+          type: ActionType.CREATE,
+          payload: newChild,
+          index: newFolder.children.findIndex((child) => child === newChild),
+        })
+      },
+      1
+    )
   }
 
   async diffBookmark(oldBookmark:Bookmark<L1>, newBookmark:Bookmark<L2>):Promise<void> {
