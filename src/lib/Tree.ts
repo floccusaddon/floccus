@@ -416,6 +416,8 @@ export class Folder<L extends TItemLocation> {
       throw new Error("Trying to calculate hash of a folder that isn't loaded")
     }
 
+    await yieldToEventLoop()
+
     const children = this.children.slice()
     if (!preserveOrder) {
       // only re-sort unless we sync the order of the children as well
