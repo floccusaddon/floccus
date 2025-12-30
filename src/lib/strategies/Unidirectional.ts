@@ -13,6 +13,7 @@ const ACTION_CONCURRENCY = 12
 
 export default class UnidirectionalSyncProcess extends DefaultStrategy {
   protected direction: TItemLocation
+  protected scanResult: ScanResult<TItemLocation, TItemLocation>
   protected revertPlan: PlanStage1<
     TItemLocation,
     TOppositeLocation<TItemLocation>
@@ -35,8 +36,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     const members = []
     // Stage 0
     if (!this.revertPlan && this.actionsPlanned === 0) {
-      members.push('localScanResult')
-      members.push('serverScanResult')
+      members.push('scanResult')
     }
 
     // Stage 1
@@ -85,48 +85,28 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     }
   }
 
-  async getDiffs(): Promise<{
-    localScanResult: ScanResult<typeof ItemLocation.LOCAL, TItemLocation>
-    serverScanResult: ScanResult<typeof ItemLocation.SERVER, TItemLocation>
-  }> {
+  async getDiff(): Promise<ScanResult<TItemLocation, TItemLocation>> {
     const mappingsSnapshot = this.mappings.getSnapshot()
 
     const newMappings = []
-    const localScanner = new Scanner(
-      this.serverTreeRoot,
-      this.localTreeRoot,
+    const slaveTree =
+      this.direction === ItemLocation.SERVER
+        ? this.serverTreeRoot
+        : this.localTreeRoot
+    const masterTree =
+      this.direction === ItemLocation.SERVER
+        ? this.localTreeRoot
+        : this.serverTreeRoot
+    const scanner = new Scanner(
+      slaveTree,
+      masterTree,
       // We can't rely on a cacheTree, thus we have to accept canMergeWith results as well
-      (serverItem, localItem) => {
+      (slaveItem, masterItem) => {
+        const localItem =
+          this.direction === ItemLocation.SERVER ? masterItem : slaveItem
+        const serverItem =
+          this.direction === ItemLocation.SERVER ? slaveItem : masterItem
         if (localItem.type !== serverItem.type) {
-          return false
-        }
-        // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
-        if (
-          serverItem.type === 'bookmark' &&
-          localItem.type === 'bookmark' &&
-          serverItem.url !== localItem.url
-        ) {
-          return false
-        }
-        if (serverItem.canMergeWith(localItem)) {
-          newMappings.push([localItem, serverItem])
-          return true
-        }
-        if (Mappings.mappable(mappingsSnapshot, serverItem, localItem)) {
-          newMappings.push([localItem, serverItem])
-          return true
-        }
-        return false
-      },
-      this.hashSettings,
-      false,
-      false
-    )
-    const serverScanner = new Scanner(
-      this.localTreeRoot,
-      this.serverTreeRoot,
-      (localItem, serverItem) => {
-        if (serverItem.type !== localItem.type) {
           return false
         }
         // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
@@ -154,8 +134,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     Logger.log(
       'Unidirectional: Calculating the diff between local and server trees'
     )
-    const localScanResult = await localScanner.run()
-    const serverScanResult = await serverScanner.run()
+    const scanResult = await scanner.run()
     await Parallel.map(
       newMappings,
       ([localItem, serverItem]) => {
@@ -164,7 +143,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       1
     )
 
-    return { localScanResult, serverScanResult }
+    return scanResult
   }
 
   async loadChildren(
@@ -197,11 +176,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       cacheTreeRoot: this.cacheTreeRoot,
     })
 
-    if ((!this.localScanResult || !this.serverScanResult) && !this.revertPlan) {
-      const { localScanResult, serverScanResult } = await this.getDiffs()
-      Logger.log({ localScanResult, serverScanResult })
-      this.localScanResult = localScanResult
-      this.serverScanResult = serverScanResult
+    if (!this.scanResult && !this.revertPlan) {
+      this.scanResult = await this.getDiff()
+      Logger.log({ scanResult: this.scanResult })
       this.throttledProgressCb(0.45, 0)
     }
 
@@ -209,27 +186,17 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       throw new CancelledSyncError()
     }
 
-    let sourceScanResult: ScanResult<TItemLocation, TItemLocation>,
-      targetScanResult: ScanResult<TItemLocation, TItemLocation>,
-      target: TResource<TItemLocation>
+    let target: TResource<TItemLocation>
     if (this.direction === ItemLocation.SERVER) {
-      sourceScanResult = this.localScanResult
-      targetScanResult = this.serverScanResult
       target = this.server
     } else {
-      sourceScanResult = this.serverScanResult
-      targetScanResult = this.localScanResult
       target = this.localTree
     }
 
     // First revert slave modifications
 
     if (!this.revertPlan) {
-      this.revertPlan = await this.revertDiff(
-        targetScanResult,
-        sourceScanResult,
-        this.direction
-      )
+      this.revertPlan = await this.revertDiff(this.scanResult, this.direction)
       Logger.log({ revertPlan: this.revertPlan })
     }
 
@@ -292,7 +259,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
         this.revertPlan,
         this.direction,
         this.revertDonePlan,
-        sourceScanResult.REORDER
+        this.scanResult.REORDER
       )
     }
 
@@ -309,7 +276,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     if ('orderFolder' in target && !this.revertReorders) {
       const mappingsSnapshot = this.mappings.getSnapshot()
       Logger.log('Mapping reorderings')
-      this.revertReorders = sourceScanResult.REORDER.map(
+      this.revertReorders = this.scanResult.REORDER.map(
         mappingsSnapshot,
         this.direction
       )
@@ -323,8 +290,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   }
 
   async revertDiff<L1 extends TItemLocation, L2 extends TItemLocation>(
-    targetScanResult: ScanResult<L1, L2>,
-    sourceScanResult: ScanResult<L2, L1>,
+    scanResult: ScanResult<L2, L1>,
     targetLocation: L1
   ): Promise<PlanRevert<L1, L2>> {
     const mappingsSnapshot = this.mappings.getSnapshot()
@@ -334,13 +300,13 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       UPDATE: new Diff(),
       MOVE: new Diff(),
       REMOVE: new Diff(),
-      REORDER: targetScanResult.REORDER.clone(),
+      REORDER: scanResult.REORDER.clone(),
     }
 
-    // Prepare slave plan for reversing slave changes
+    // Prepare slave plan for matching master state
 
     await Parallel.each(
-      sourceScanResult.CREATE.getActions(),
+      scanResult.CREATE.getActions(),
       async(action) => {
         // recreate it on slave resource otherwise
         const payload = await this.translateCompleteItem(
@@ -363,7 +329,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     )
 
     await Parallel.each(
-      targetScanResult.CREATE.getActions(),
+      scanResult.REMOVE.getActions(),
       async(action) => {
         slavePlan.REMOVE.commit({ ...action, type: ActionType.REMOVE })
       },
@@ -371,28 +337,28 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     )
 
     await Parallel.each(
-      targetScanResult.UPDATE.getActions(),
+      scanResult.UPDATE.getActions(),
       async(action) => {
-        const payload = action.oldItem.cloneWithLocation(
-          false,
-          action.payload.location
-        )
-        payload.id = action.payload.id
-        payload.parentId = action.payload.parentId
-
-        const oldItem = action.payload.cloneWithLocation(
+        const payload = action.payload.cloneWithLocation(
           false,
           action.oldItem.location
         )
-        oldItem.id = action.oldItem.id
-        oldItem.parentId = action.oldItem.parentId
+        payload.id = action.oldItem.id
+        payload.parentId = action.oldItem.parentId
+
+        const oldItem = action.oldItem.cloneWithLocation(
+          false,
+          action.payload.location
+        )
+        oldItem.id = action.payload.id
+        oldItem.parentId = action.payload.parentId
         slavePlan.UPDATE.commit({ type: ActionType.UPDATE, payload, oldItem })
       },
       ACTION_CONCURRENCY
     )
 
     await Parallel.each(
-      sourceScanResult.MOVE.getActions(),
+      scanResult.MOVE.getActions(),
       async(action) => {
         const payload = action.payload.clone(false)
         slavePlan.MOVE.commit({ type: ActionType.MOVE, payload }) // no oldItem, because we want to map the id after having executed the CREATEs
