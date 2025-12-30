@@ -73,7 +73,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
 
   async createBookmark(bm:Bookmark<TItemLocation>):Promise<string|number> {
     Logger.log('CREATE', bm)
-    bm = bm.copy()
+    bm = bm.copyWithLocation(true, this.location)
     bm.id = ++this.highestId
     const foundFolder = this.bookmarksCache.findFolder(bm.parentId)
     if (!foundFolder) {
