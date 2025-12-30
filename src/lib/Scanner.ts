@@ -253,9 +253,14 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       allCreatedItems
         .sort((a, b) => b.item.count() - a.item.count())
 
-      // 2. Match ALL created items (roots + descendants) against removed pool
+      // Match ALL created items (roots + descendants) against removed pool
+      let i = 0
       for (const createdEntry of allCreatedItems) {
-        await yieldToEventLoop()
+        if (i === 100) {
+          i = 0
+          await yieldToEventLoop()
+        }
+        i++
         const { rootAction: createRootAction, item: createdItem } = createdEntry
 
         // Gather potential matches from all signals
