@@ -150,125 +150,108 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
   async findMoves():Promise<void> {
     Logger.log('Scanner: Finding moves')
-    let createActions
-    let removeActions
-    let reconciled = true
 
-    // As soon as one match is found, action list is updated and search is started with the new list
-    // repeat until no rewrites happen anymore
-    while (reconciled) {
-      reconciled = false
-      let createAction: CreateAction<L2, L1>, removeAction: RemoveAction<L1,L2>
+    const createActions = this.result.CREATE.getActions()
+    const removeActions = this.result.REMOVE.getActions()
 
-      // First find direct matches (avoids glitches when folders and their contents have been moved)
-      createActions = this.result.CREATE.getActions()
-      while (!reconciled && (createAction = createActions.shift())) {
-        // give the browser time to breathe
-        await Promise.resolve()
-        const createdItem = createAction.payload
-        removeActions = this.result.REMOVE.getActions()
-        while (!reconciled && (removeAction = removeActions.shift())) {
-          // give the browser time to breathe
-          await Promise.resolve()
-          const removedItem = removeAction.payload
+    // 1. Index REMOVE actions for O(1) lookups
+    // Using a Map where key is ItemType + Title/URL (or other mergeable criteria)
+    const removalsMap = new Map<string, RemoveAction<L1, L2>[]>()
+    for (const action of removeActions) {
+      const item = action.payload
+      const key = `${item.type}_${item.title}_${item.type === 'bookmark' ? (item as any).url : ''}`
+      const list = removalsMap.get(key) || []
+      list.push(action)
+      removalsMap.set(key, list)
+    }
 
-          if (this.mergeable(removedItem, createdItem) &&
-            (removedItem.type !== 'folder' ||
-              (!this.hasCache && removedItem.childrenSimilarity(createdItem) > 0.8))) {
-            this.result.CREATE.retract(createAction)
+    const pendingDiffs: [TItem<L1>, TItem<L2>][] = []
+
+    // 2. Single pass over CREATE actions to find direct matches
+    for (const createAction of createActions) {
+      await yieldToEventLoop()
+      const createdItem = createAction.payload
+      const key = `${createdItem.type}_${createdItem.title}_${createdItem.type === 'bookmark' ? (createdItem as any).url : ''}`
+
+      const potentialRemovals = removalsMap.get(key)
+      if (!potentialRemovals) continue
+
+      const matchIndex = potentialRemovals.findIndex(removeAction =>
+        this.mergeable(removeAction.payload, createdItem) &&
+        (removeAction.payload.type !== 'folder' || (!this.hasCache && removeAction.payload.childrenSimilarity(createdItem) > 0.8))
+      )
+
+      if (matchIndex !== -1) {
+        const removeAction = potentialRemovals.splice(matchIndex, 1)[0]
+        const removedItem = removeAction.payload
+
+        this.result.CREATE.retract(createAction)
+        this.result.REMOVE.retract(removeAction)
+        this.result.MOVE.commit({
+          type: ActionType.MOVE,
+          payload: createdItem,
+          oldItem: removedItem,
+          index: createAction.index,
+          oldIndex: removeAction.index
+        })
+
+        // Queue for diffing later to avoid breaking loop iterator/logic
+        pendingDiffs.push([removedItem, createdItem])
+      }
+    }
+
+    // 3. Process descendant matches (kept as a second pass for logic clarity)
+    const remainingCreates = this.result.CREATE.getActions()
+    const remainingRemoves = this.result.REMOVE.getActions()
+
+    for (const createAction of remainingCreates) {
+      await yieldToEventLoop()
+      const createdItem = createAction.payload
+
+      for (const removeAction of remainingRemoves) {
+        const removedItem = removeAction.payload
+
+        // Search within the removed subtree for the created item
+        const oldItem = removedItem.findItemFilter(
+          createdItem.type,
+          item => this.mergeable(item, createdItem),
+          item => item.childrenSimilarity(createdItem)
+        )
+
+        if (oldItem) {
+          let oldIndex
+          this.result.CREATE.retract(createAction)
+          if (oldItem === removedItem) {
             this.result.REMOVE.retract(removeAction)
-            this.result.MOVE.commit({
-              type: ActionType.MOVE,
-              payload: createdItem,
-              oldItem: removedItem,
-              index: createAction.index,
-              oldIndex: removeAction.index
-            })
-            reconciled = true
-            // Don't use the items from the action, but the ones in the actual tree to avoid using tree parts mutated by this algorithm (see below)
-            await this.diffItem(removedItem, createdItem)
-          }
-        }
-      }
-
-      // Then find descendant matches
-      createActions = this.result.CREATE.getActions()
-      while (!reconciled && (createAction = createActions.shift())) {
-        // give the browser time to breathe
-        await Promise.resolve()
-        const createdItem = createAction.payload
-        removeActions = this.result.REMOVE.getActions()
-        while (!reconciled && (removeAction = removeActions.shift())) {
-          // give the browser time to breathe
-          await Promise.resolve()
-          const removedItem = removeAction.payload
-          const oldItem = removedItem.findItemFilter(
-            createdItem.type,
-            item => this.mergeable(item, createdItem),
-            item => item.childrenSimilarity(createdItem)
-          )
-          if (oldItem) {
-            let oldIndex
-            this.result.CREATE.retract(createAction)
-            if (oldItem === removedItem) {
-              this.result.REMOVE.retract(removeAction)
-            } else {
-              // We clone the item here, because we don't want to mutate all copies of this tree (item)
-              const removedItemClone = removedItem.copy(true)
-              const oldParentClone = removedItemClone.findItem(ItemType.FOLDER, oldItem.parentId) as Folder<L1>
-              const oldItemClone = removedItemClone.findItem(oldItem.type, oldItem.id)
-              oldIndex = oldParentClone.children.indexOf(oldItemClone)
-              oldParentClone.children.splice(oldIndex, 1)
-              removeAction.payload = removedItemClone
-              removeAction.payload.createIndex()
-            }
-            this.result.MOVE.commit({
-              type: ActionType.MOVE,
-              payload: createdItem,
-              oldItem,
-              index: createAction.index,
-              oldIndex: oldIndex || removeAction.index
-            })
-            reconciled = true
-            if (oldItem.type === ItemType.FOLDER) { // TODO: Is this necessary?
-              await this.diffItem(oldItem, createdItem)
-            }
           } else {
-            const newItem = createdItem.findItemFilter(
-              removedItem.type,
-              item => this.mergeable(removedItem, item),
-              item => item.childrenSimilarity(removedItem)
-            )
-            let index
-            if (newItem) {
-              this.result.REMOVE.retract(removeAction)
-              if (newItem === createdItem) {
-                this.result.CREATE.retract(createAction)
-              } else {
-                // We clone the item here, because we don't want to mutate all copies of this tree (item)
-                const createdItemClone = createdItem.copy(true)
-                const newParentClone = createdItemClone.findItem(ItemType.FOLDER, newItem.parentId) as Folder<L2>
-                const newClonedItem = createdItemClone.findItem(newItem.type, newItem.id)
-                index = newParentClone.children.indexOf(newClonedItem)
-                newParentClone.children.splice(index, 1)
-                createAction.payload = createdItemClone
-                createAction.payload.createIndex()
-              }
-              this.result.MOVE.commit({
-                type: ActionType.MOVE,
-                payload: newItem,
-                oldItem: removedItem,
-                index: index || createAction.index,
-                oldIndex: removeAction.index
-              })
-              reconciled = true
-              if (removedItem.type === ItemType.FOLDER) {
-                await this.diffItem(removedItem, newItem)
-              }
-            }
+            const removedItemClone = removedItem.copy(true)
+            const oldParentClone = removedItemClone.findItem(ItemType.FOLDER, oldItem.parentId) as Folder<L1>
+            const oldItemClone = removedItemClone.findItem(oldItem.type, oldItem.id)
+            oldIndex = oldParentClone.children.indexOf(oldItemClone)
+            oldParentClone.children.splice(oldIndex, 1)
+            removeAction.payload = removedItemClone
+            removeAction.payload.createIndex()
           }
+
+          this.result.MOVE.commit({
+            type: ActionType.MOVE,
+            payload: createdItem,
+            oldItem,
+            index: createAction.index,
+            oldIndex: oldIndex || removeAction.index
+          })
+
+          if (oldItem.type === ItemType.FOLDER) {
+            pendingDiffs.push([oldItem, createdItem])
+          }
+          break // Move to next CreateAction
         }
       }
+    }
+
+    // 4. Execute deferred diffs
+    for (const [oldItem, newItem] of pendingDiffs) {
+      await this.diffItem(oldItem, newItem)
     }
 
     // Remove all UPDATEs that have already been handled by a MOVE
