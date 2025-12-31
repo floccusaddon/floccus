@@ -1,4 +1,3 @@
-import * as Parallel from 'async-parallel'
 import Diff, { ActionType, CreateAction, MoveAction, RemoveAction, ReorderAction, UpdateAction } from './Diff'
 import { Bookmark, Folder, ItemLocation, ItemType, TItem, TItemLocation } from './Tree'
 import Logger from './Logger'
@@ -121,58 +120,57 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     const stillUnmatched = new Set(newFolder.children)
 
     // (using map here, because 'each' doesn't provide indices)
-    await Parallel.map(
-      oldFolder.children,
-      async(old, index) => {
-        const key = `${old.type}_${old.title}`
-        const potentialMatches = unmatchedMap.get(key)
-        let newItem = null
-        if (potentialMatches) {
-          const matchIndex = potentialMatches.findIndex((m) =>
-            this.mergeable(old, m)
-          )
-          if (matchIndex !== -1) {
-            newItem = potentialMatches.splice(matchIndex, 1)[0]
-            stillUnmatched.delete(newItem)
-          }
+    let index = 0
+    for (const old of oldFolder.children) {
+      const key = `${old.type}_${old.title}`
+      const potentialMatches = unmatchedMap.get(key)
+      let newItem = null
+      if (potentialMatches) {
+        const matchIndex = potentialMatches.findIndex((m) =>
+          this.mergeable(old, m)
+        )
+        if (matchIndex !== -1) {
+          newItem = potentialMatches.splice(matchIndex, 1)[0]
+          stillUnmatched.delete(newItem)
         }
-        // we found an item in the new folder that matches the one in the old folder
-        if (newItem) {
-          await this.diffItem(old, newItem)
-          return
-        }
+      }
+      // we found an item in the new folder that matches the one in the old folder
+      if (newItem) {
+        await this.diffItem(old, newItem)
+        index++
+        continue
+      }
 
-        if (newFolder.isRoot && newFolder.location === ItemLocation.LOCAL) {
-          // We can't remove root folders locally
-          return
-        }
+      if (newFolder.isRoot && newFolder.location === ItemLocation.LOCAL) {
+        // We can't remove root folders locally
+        index++
+        continue
+      }
 
-        this.result.REMOVE.commit({
-          type: ActionType.REMOVE,
-          payload: old,
-          index,
-        })
-      },
-      1
-    )
+      this.result.REMOVE.commit({
+        type: ActionType.REMOVE,
+        payload: old,
+        index,
+      })
+
+      index++
+    }
 
     // created Items
-    // (using map here, because 'each' doesn't provide indices)
-    await Parallel.map(
-      Array.from(stillUnmatched.values()),
-      async(newChild) => {
-        if (oldFolder.isRoot && oldFolder.location === ItemLocation.LOCAL) {
-          // We can't create root folders locally
-          return
-        }
-        this.result.CREATE.commit({
-          type: ActionType.CREATE,
-          payload: newChild,
-          index: newFolder.children.findIndex((child) => child === newChild),
-        })
-      },
-      1
-    )
+    const childToIndex = new Map<TItem<L2>, number>()
+    newFolder.children.forEach((child, i) => childToIndex.set(child, i))
+
+    for (const newChild of stillUnmatched) {
+      if (oldFolder.isRoot && oldFolder.location === ItemLocation.LOCAL) {
+        // We can't create root folders locally
+        continue
+      }
+      this.result.CREATE.commit({
+        type: ActionType.CREATE,
+        payload: newChild,
+        index: childToIndex.get(newChild),
+      })
+    }
   }
 
   async diffBookmark(oldBookmark:Bookmark<L1>, newBookmark:Bookmark<L2>):Promise<void> {
@@ -229,8 +227,14 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
         keys.add(item.type)
 
+        const element = { rootAction: action, item } // outside the loop so we can later use Set#has
         for (const key of keys) {
-          removedFuzzyMap.set(key, (removedFuzzyMap.get(key) || []).concat({ rootAction: action, item }))
+          let list = removedFuzzyMap.get(key)
+          if (!list) {
+            list = []
+            removedFuzzyMap.set(key, list)
+          }
+          list.push(element)
         }
       }
 
@@ -275,8 +279,16 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         const potentialSet = new Set<{ rootAction: RemoveAction<L1, L2>; item: TItem<L1> }>()
         for (const key of searchKeys) {
           const list = removedFuzzyMap.get(key)
-          if (list && list.filter((m) => this.mergeable(m.item, createdItem)).length) {
-            list.forEach(m => potentialSet.add(m))
+          if (!list) continue
+          let hasMergeable = false
+          for (const m of list) {
+            if (this.mergeable(m.item, createdItem)) {
+              hasMergeable = true
+              break
+            }
+          }
+          if (hasMergeable) {
+            list.forEach((m) => potentialSet.add(m))
             break
           }
         }
