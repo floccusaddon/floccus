@@ -35,7 +35,7 @@ import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 import CachingAdapter from '../adapters/Caching'
 import { yieldToEventLoop } from '../yieldToEventLoop'
 
-const ACTION_CONCURRENCY = 12
+export const ACTION_CONCURRENCY = 5
 
 export default class SyncProcess {
   protected mappings: Mappings

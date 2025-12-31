@@ -7,9 +7,7 @@ import Logger from '../Logger'
 import { CancelledSyncError } from '../../errors/Error'
 import TResource from '../interfaces/Resource'
 import Scanner, { ScanResult } from '../Scanner'
-import DefaultSyncProcess from './Default'
-
-const ACTION_CONCURRENCY = 12
+import DefaultSyncProcess, { ACTION_CONCURRENCY } from './Default'
 
 export default class UnidirectionalSyncProcess extends DefaultStrategy {
   protected direction: TItemLocation
