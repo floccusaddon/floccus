@@ -200,121 +200,127 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
   async findMoves():Promise<void> {
     Logger.log('Scanner: Finding moves')
 
-    const handledRemovals = new Set<TItem<L1>>()
-    const handledCreations = new Set<TItem<L2>>()
-    const removedFuzzyMap = new Map<string, Set<{ rootAction: RemoveAction<L1, L2>; item: TItem<L1> }>>()
-    const creationQueue: { rootAction: CreateAction<L2, L1>; item: TItem<L2> }[] = []
+    let hasNewActions = true
 
-    // Initial Indexing
+    while (hasNewActions) {
+      hasNewActions = false
 
-    const addToRemovedFuzzyMap = (
-      action: RemoveAction<L1, L2>,
-      item: TItem<L1>
-    ) => {
-      const keys = new Set<string>()
-      // Signal 1: Full signature (Type + Title + URL)
-      keys.add(
-        `${item.type}_${item.title}_${
-          item.type === 'bookmark' ? (item as Bookmark<L1>).url : ''
-        }`
-      )
+      const createActions = this.result.CREATE.getActions()
+      const removeActions = this.result.REMOVE.getActions()
 
-      // Signal 2: Title only (Handles URL changes for bookmarks or ID changes for folders)
-      if (item.title) keys.add(`${item.type}_title_${item.title}`)
+      if (createActions.length === 0 || removeActions.length === 0) break
 
-      // Signal 3: URL only (Handles Title changes for bookmarks)
-      if (item instanceof Bookmark) keys.add(`bookmark_url_${item.url}`)
+      // Build Multi-Signal Fuzzy Index (O(N))
+      const removedFuzzyMap = new Map<string, { rootAction: RemoveAction<L1, L2>; item: TItem<L1> }[]>()
+      const allCreatedItems: { rootAction: CreateAction<L2, L1>; item: TItem<L2> }[] = []
 
-      keys.add(item.type)
+      const addToFuzzyIndex = (item: TItem<L1>, action: RemoveAction<L1, L2>) => {
+        const keys = new Set<string>()
+        // Signal 1: Full signature (Type + Title + URL)
+        keys.add(`${item.type}_${item.title}_${item.type === 'bookmark' ? (item as Bookmark<L1>).url : ''}`)
 
-      const element = { rootAction: action, item } // outside the loop so we can later use Set#has
-      for (const key of keys) {
-        let list = removedFuzzyMap.get(key)
-        if (!list) {
-          list = new Set()
-          removedFuzzyMap.set(key, list)
+        // Signal 2: Title only (Handles URL changes for bookmarks or ID changes for folders)
+        if (item.title) keys.add(`${item.type}_title_${item.title}`)
+
+        // Signal 3: URL only (Handles Title changes for bookmarks)
+        if (item instanceof Bookmark) keys.add(`bookmark_url_${item.url}`)
+
+        keys.add(item.type)
+
+        const element = { rootAction: action, item } // outside the loop so we can later use Set#has
+        for (const key of keys) {
+          let list = removedFuzzyMap.get(key)
+          if (!list) {
+            list = []
+            removedFuzzyMap.set(key, list)
+          }
+          list.push(element)
         }
-        list.add(element)
       }
-    }
 
-    for (const action of this.result.REMOVE.getActions()) {
-      addToRemovedFuzzyMap(action, action.payload)
-      if (action.payload instanceof Folder) {
-        await action.payload.traverse(item => addToRemovedFuzzyMap(action, item))
-      }
-    }
-
-    const enqueueNewCreations = async() => {
-      const currentActions = this.result.CREATE.getActions()
-      const newEntries: typeof creationQueue = []
-      for (const action of currentActions) {
-        // Only enqueue items we haven't seen before
-        if (handledCreations.has(action.payload)) continue
-
-        // We use a property check or external tracking to avoid re-enqueuing the same Action object
-        // but for simplicity here we assume the queue only grows from new diffItem calls
-        newEntries.push({ rootAction: action, item: action.payload })
+      for (const action of removeActions) {
+        await addToFuzzyIndex(action.payload, action)
         if (action.payload instanceof Folder) {
-          await action.payload.traverse(child => {
-            newEntries.push({ rootAction: action, item: child })
+          await action.payload.traverse((child) => addToFuzzyIndex(child, action))
+        }
+      }
+
+      for (const action of createActions) {
+        allCreatedItems.push({ rootAction: action, item: action.payload })
+        if (action.payload instanceof Folder) {
+          await action.payload.traverse((child) => {
+            allCreatedItems.push({ rootAction: action, item: child })
           })
         }
       }
-      creationQueue.push(...newEntries)
-      creationQueue.sort((a, b) => (b.item.countFolders() * 1000 + b.item.count()) - (a.item.countFolders() * 1000 + a.item.count()))
-    }
 
-    await enqueueNewCreations()
+      allCreatedItems
+        .sort((a, b) => b.item.count() - a.item.count())
 
-    // 2. Process queue in a single pass
-    let iterations = 0
-    while (creationQueue.length > 0) {
-      const entry = creationQueue.shift()
-      const { rootAction: createRootAction, item: createdItem } = entry
+      // Match ALL created items (roots + descendants) against removed pool
+      let iterations = 0
+      for (const createdEntry of allCreatedItems) {
+        if (++iterations % 1000 === 0) {
+          await yieldToEventLoop()
+        }
+        const { rootAction: createRootAction, item: createdItem } = createdEntry
 
-      if (handledCreations.has(createdItem)) continue
-      if (++iterations % 1000 === 0) await yieldToEventLoop()
+        // Gather potential matches from all signals
+        const searchKeys = [
+          `${createdItem.type}_${createdItem.title}_${createdItem.type === 'bookmark' ? (createdItem as Bookmark<L2>).url : ''}`,
+          `${createdItem.type}_title_${createdItem.title}`,
+          ...(createdItem instanceof Bookmark ? [`bookmark_url_${createdItem.url}`] : []),
+          createdItem.type
+        ]
 
-      const searchKeys = [
-        `${createdItem.type}_${createdItem.title}_${createdItem.type === 'bookmark' ? (createdItem as Bookmark<L2>).url : ''}`,
-        `${createdItem.type}_title_${createdItem.title}`,
-        ...(createdItem instanceof Bookmark ? [`bookmark_url_${createdItem.url}`] : []),
-        createdItem.type
-      ]
-
-      let bestMatch = null
-      for (const key of searchKeys) {
-        const list = removedFuzzyMap.get(key)
-        if (!list) continue
-        const matches = Array.from(list).filter(
-          (m) =>
-            !handledRemovals.has(m.item) && this.mergeable(m.item, createdItem)
-        )
-        if (matches.length > 0) {
-          // Heuristic: Prefer matches that have more descendants
-          // In case we have no cache: Calculate similarity and sore by it
-          matches.sort((a, b) => {
-            if (createdItem.type === 'folder' && !this.hasCache) {
-              const simA = a.item.childrenSimilarity(createdItem)
-              const simB = b.item.childrenSimilarity(createdItem)
-              if (simA !== simB) return simB - simA
+        // Collect unique potential matches from all signals
+        const potentialSet = new Set<{ rootAction: RemoveAction<L1, L2>; item: TItem<L1> }>()
+        for (const key of searchKeys) {
+          const list = removedFuzzyMap.get(key)
+          if (!list) continue
+          let hasMergeable = false
+          for (const m of list) {
+            if (this.mergeable(m.item, createdItem)) {
+              hasMergeable = true
+              break
             }
-            return (b.item.countFolders() * 1000 + b.item.count()) - (a.item.countFolders() * 1000 + a.item.count())
-          })
-          bestMatch = matches[0]
-          break
+          }
+          if (hasMergeable) {
+            list.forEach((m) => potentialSet.add(m))
+            break
+          }
         }
-      }
 
-      if (bestMatch) {
-        const { rootAction: removeRootAction, item: oldItem } = bestMatch
+        if (potentialSet.size === 0) {
+          continue
+        }
+
+        const matches = Array.from(potentialSet).filter((m) =>
+          this.mergeable(m.item, createdItem)
+        )
+
+        // Heuristic: Prefer matches that have more descendants
+        // In case we have no cache: Calculate similarity and sore by it
+        matches.sort((a, b) => {
+          if (createdItem.type === 'folder' && !this.hasCache) {
+            const simA = a.item.childrenSimilarity(createdItem)
+            const simB = b.item.childrenSimilarity(createdItem)
+            if (simA !== simB) return simB - simA
+          }
+          return (b.item.countFolders() * 1000 + b.item.count()) - (a.item.countFolders() * 1000 + a.item.count())
+        })
+
+        if (matches.length === 0) {
+          continue
+        }
+
+        const { rootAction: removeRootAction, item: oldItem } = matches[0]
         const removedRoot = removeRootAction.payload
         const createdRoot = createRootAction.payload
 
         let oldIndex, newIndex
 
-        // Handle the "Old" (Removed) side
+        // Retract or Mutate "Old" (Removed) side
         if (oldItem === removedRoot) {
           this.result.REMOVE.retract(removeRootAction)
         } else {
@@ -329,7 +335,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
           }
         }
 
-        // Handle the "New" (Created) side
+        // Retract or Mutate "New" (Created) side
         if (createdItem === createdRoot) {
           this.result.CREATE.retract(createRootAction)
         } else {
@@ -344,14 +350,6 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
           }
         }
 
-        // Mark matched branches as handled
-        const markHandled = async(item: TItem<any>, set: Set<TItem<any>>) => {
-          set.add(item)
-          if (item instanceof Folder) await item.traverse(child => set.add(child))
-        }
-        await markHandled(oldItem, handledRemovals)
-        await markHandled(createdItem, handledCreations)
-
         this.result.MOVE.commit({
           type: ActionType.MOVE,
           payload: createdItem,
@@ -360,13 +358,11 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
           oldIndex: oldIndex ?? removeRootAction.index,
         })
 
-        // Diff the matched items (which might discover more creates/removes)
-        const prevCreateCount = this.result.CREATE.getActions().length
         await this.diffItem(oldItem, createdItem)
-
-        if (this.result.CREATE.getActions().length > prevCreateCount) {
-          await enqueueNewCreations()
-        }
+        // After diffing we need to start from scratch
+        // to make sure we match the newly created actions
+        hasNewActions = true
+        break
       }
     }
 
