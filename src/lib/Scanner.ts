@@ -326,7 +326,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         if (oldItem === removedRoot) {
           this.result.REMOVE.retract(removeRootAction)
         } else {
-          const removedRootClone = removedRoot.copy(true)
+          const removedRootClone = removedRoot.clone(true)
           const oldParentClone = removedRootClone.findItem(
             ItemType.FOLDER,
             oldItem.parentId
@@ -347,7 +347,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         if (createdItem === createdRoot) {
           this.result.CREATE.retract(createRootAction)
         } else {
-          const createdRootClone = createdRoot.copy(true)
+          const createdRootClone = createdRoot.clone(true)
           const newParentClone = createdRootClone.findItem(
             ItemType.FOLDER,
             createdItem.parentId
@@ -373,6 +373,8 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         })
 
         await this.diffItem(oldItem, createdItem)
+        // After diffing we need to start from scratch
+        // to make sure we match the newly created actions
         hasNewActions = true
         break
       }
