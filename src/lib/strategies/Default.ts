@@ -1582,10 +1582,10 @@ export default class SyncProcess {
           Object.entries(this)
             .filter(([key]) => membersToPersist.includes(key)),
           async([key, value]) => {
-            if (value.toJSONAsync) {
+            if (value && value.toJSONAsync) {
               return [key, await value.toJSONAsync()]
             }
-            if (value.toJSON) {
+            if (value && value.toJSON) {
               await yieldToEventLoop()
               return [key, value.toJSON()]
             }
