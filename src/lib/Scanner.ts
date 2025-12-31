@@ -261,8 +261,8 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
           })
         }
       }
-      newEntries.sort((a, b) => b.item.count() - a.item.count())
       creationQueue.push(...newEntries)
+      creationQueue.sort((a, b) => b.item.count() - a.item.count())
     }
 
     await enqueueNewCreations()
