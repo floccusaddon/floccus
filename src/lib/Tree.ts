@@ -224,6 +224,10 @@ export class Bookmark<L extends TItemLocation> {
     return 1
   }
 
+  countFolders(): number {
+    return 0
+  }
+
   inspect(depth = 0): string {
     return (
       Array(depth < 0 ? 0 : depth)

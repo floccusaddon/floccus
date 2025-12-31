@@ -262,7 +262,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         }
       }
       creationQueue.push(...newEntries)
-      creationQueue.sort((a, b) => b.item.count() - a.item.count())
+      creationQueue.sort((a, b) => (b.item.countFolders() * 1000 + b.item.count()) - (a.item.countFolders() * 1000 + a.item.count()))
     }
 
     await enqueueNewCreations()
@@ -300,7 +300,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
               const simB = b.item.childrenSimilarity(createdItem)
               if (simA !== simB) return simB - simA
             }
-            return b.item.count() - a.item.count()
+            return (b.item.countFolders() * 1000 + b.item.count()) - (a.item.countFolders() * 1000 + a.item.count())
           })
           bestMatch = matches[0]
           break
