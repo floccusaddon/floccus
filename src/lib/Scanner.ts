@@ -249,6 +249,123 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         }
       }
 
+      // First pass: Try to find direct matches
+
+      // Match directly created items against removed pool
+      for (const createAction of createActions) {
+        if (++iterations % 1000 === 0) {
+          await yieldToEventLoop()
+        }
+
+        const createdItem = createAction.payload
+
+        // Gather potential matches from all signals
+        const searchKeys = [
+          `${createdItem.type}_${createdItem.title}_${
+            createdItem.type === 'bookmark'
+              ? (createdItem as Bookmark<L2>).url
+              : ''
+          }`,
+          `${createdItem.type}_title_${createdItem.title}`,
+          ...(createdItem instanceof Bookmark
+            ? [`bookmark_url_${createdItem.url}`]
+            : []),
+          createdItem.type,
+        ]
+
+        // Collect unique potential matches from all signals
+        const matchesSet = new Set<{
+          rootAction: RemoveAction<L1, L2>
+          item: TItem<L1>
+        }>()
+        for (const key of searchKeys) {
+          const list = removedFuzzyMap.get(key)
+          if (!list) continue
+          for (const m of list) {
+            if (this.mergeable(m.item, createdItem)) {
+              matchesSet.add(m)
+            }
+          }
+          if (matchesSet.size > 0) {
+            break
+          }
+        }
+
+        if (matchesSet.size === 0) {
+          continue
+        }
+
+        const matches = Array.from(matchesSet)
+
+        // Heuristic: Prefer matches that have more descendants
+        // In case we have no cache: Calculate similarity and sore by it
+        matches.sort((a, b) => {
+          if (createdItem.type === 'folder' && !this.hasCache) {
+            const simA = a.item.childrenSimilarity(createdItem)
+            const simB = b.item.childrenSimilarity(createdItem)
+            if (simA !== simB) return simB - simA
+          }
+          return (
+            b.item.countFolders() * 1000 +
+            b.item.count() -
+            (a.item.countFolders() * 1000 + a.item.count())
+          )
+        })
+
+        if (matches.length === 0) {
+          continue
+        }
+
+        const { rootAction: removeRootAction, item: oldItem } = matches[0]
+        const removedRoot = removeRootAction.payload
+
+        let oldIndex, newIndex
+
+        // Retract or Mutate "Old" (Removed) side
+        if (oldItem === removedRoot) {
+          this.result.REMOVE.retract(removeRootAction)
+        } else {
+          const clone = (removedRoot as Folder<L1>).clone(true)
+          const parentClone = clone.findItem(
+            ItemType.FOLDER,
+            oldItem.parentId
+          ) as Folder<L1>
+          const itemClone = clone.findItem(oldItem.type, oldItem.id)
+          if (parentClone && itemClone) {
+            oldIndex = parentClone.children.indexOf(itemClone)
+            parentClone.children.splice(oldIndex, 1)
+            clone.createIndex()
+            removeRootAction.payload = clone
+          }
+        }
+
+        // Retract Created side
+        this.result.CREATE.retract(createAction)
+
+        this.result.MOVE.commit({
+          type: ActionType.MOVE,
+          payload: createdItem,
+          oldItem,
+          index: newIndex ?? createAction.index,
+          oldIndex: oldIndex ?? removeRootAction.index,
+        })
+
+        await this.diffItem(oldItem, createdItem)
+        // After diffing we need to start from scratch
+        // to make sure we match the newly created actions
+        if (oldItem instanceof Folder) {
+          hasNewActions = true
+          break
+        }
+      }
+
+      if (hasNewActions) {
+        continue
+      }
+
+      // Then find subtree matches
+
+      // We enumerate all created items
       for (const action of createActions) {
         allCreatedItems.push({ rootAction: action, item: action.payload })
         if (action.payload instanceof Folder) {
@@ -277,30 +394,25 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         ]
 
         // Collect unique potential matches from all signals
-        const potentialSet = new Set<{ rootAction: RemoveAction<L1, L2>; item: TItem<L1> }>()
+        const matchesSet = new Set<{ rootAction: RemoveAction<L1, L2>; item: TItem<L1> }>()
         for (const key of searchKeys) {
           const list = removedFuzzyMap.get(key)
           if (!list) continue
-          let hasMergeable = false
           for (const m of list) {
             if (this.mergeable(m.item, createdItem)) {
-              hasMergeable = true
-              break
+              matchesSet.add(m)
             }
           }
-          if (hasMergeable) {
-            list.forEach((m) => potentialSet.add(m))
+          if (matchesSet.size > 0) {
             break
           }
         }
 
-        if (potentialSet.size === 0) {
+        if (matchesSet.size === 0) {
           continue
         }
 
-        const matches = Array.from(potentialSet).filter((m) =>
-          this.mergeable(m.item, createdItem)
-        )
+        const matches = Array.from(matchesSet)
 
         // Heuristic: Prefer matches that have more descendants
         // In case we have no cache: Calculate similarity and sore by it
@@ -364,8 +476,10 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         await this.diffItem(oldItem, createdItem)
         // After diffing we need to start from scratch
         // to make sure we match the newly created actions
-        hasNewActions = true
-        break
+        if (oldItem instanceof Folder) {
+          hasNewActions = true
+          break
+        }
       }
     }
 
