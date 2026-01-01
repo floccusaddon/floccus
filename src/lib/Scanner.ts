@@ -133,6 +133,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
           newItem = potentialMatches.splice(matchIndex, 1)[0]
           stillUnmatched.delete(newItem)
         }
+      } else {
+        newItem = newFolder.children.find((child) => old.type === child.type && this.mergeable(old, child))
+        if (newItem) stillUnmatched.delete(newItem)
       }
       // we found an item in the new folder that matches the one in the old folder
       if (newItem) {
@@ -201,6 +204,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     Logger.log('Scanner: Finding moves')
 
     let hasNewActions = true
+    let iterations = 0
 
     while (hasNewActions) {
       hasNewActions = false
@@ -258,7 +262,6 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         .sort((a, b) => b.item.count() - a.item.count())
 
       // Match ALL created items (roots + descendants) against removed pool
-      let iterations = 0
       for (const createdEntry of allCreatedItems) {
         if (++iterations % 1000 === 0) {
           await yieldToEventLoop()
