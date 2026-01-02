@@ -1381,6 +1381,7 @@ export default class SyncProcess {
     const isUsingTabs = await this.localTree.isUsingBrowserTabs?.()
 
     await Parallel.each(reorderings.getActions(), async(action) => {
+      await yieldToEventLoop()
       Logger.log('Executing reorder action', `${action.type} Payload: #${action.payload.id}[${action.payload.title}]${'url' in action.payload ? `(${action.payload.url})` : ''} parentId: ${action.payload.parentId}`)
       const item = action.payload
 
