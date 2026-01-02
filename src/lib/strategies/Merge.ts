@@ -363,16 +363,9 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
     ).children
   }
 
-  toJSON(): ISerializedSyncProcess {
-    return {
-      ...DefaultSyncProcess.prototype.toJSON.apply(this),
-      strategy: 'merge',
-    }
-  }
-
   async toJSONAsync(): Promise<ISerializedSyncProcess> {
     return {
-      ...(await DefaultSyncProcess.prototype.toJSON.apply(this)),
+      ...(await DefaultSyncProcess.prototype.toJSONAsync.apply(this)),
       strategy: 'merge',
     }
   }

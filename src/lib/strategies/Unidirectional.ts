@@ -1,5 +1,5 @@
-import DefaultStrategy, { ISerializedSyncProcess } from './Default'
-import Diff, { ActionType, PlanRevert, PlanStage1, PlanStage3, ReorderAction } from '../Diff'
+import DefaultStrategy, { ISerializedSyncProcess , ACTION_CONCURRENCY } from './Default'
+import Diff, { Action, ActionType, PlanRevert, PlanStage1, PlanStage3, ReorderAction } from '../Diff'
 import * as Parallel from 'async-parallel'
 import Mappings, { MappingSnapshot } from '../Mappings'
 import { Folder, ItemLocation, TItem, TItemLocation, TOppositeLocation } from '../Tree'
@@ -7,7 +7,7 @@ import Logger from '../Logger'
 import { CancelledSyncError } from '../../errors/Error'
 import TResource from '../interfaces/Resource'
 import Scanner, { ScanResult } from '../Scanner'
-import DefaultSyncProcess, { ACTION_CONCURRENCY } from './Default'
+import { yieldToEventLoop } from '../yieldToEventLoop'
 
 export default class UnidirectionalSyncProcess extends DefaultStrategy {
   protected direction: TItemLocation
@@ -511,17 +511,48 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     )
   }
 
-  toJSON(): ISerializedSyncProcess {
-    return {
-      ...DefaultSyncProcess.prototype.toJSON.apply(this),
-      strategy: 'unidirectional',
-    }
-  }
-
   async toJSONAsync(): Promise<ISerializedSyncProcess> {
+    if (!this.staticContinuation) {
+      this.staticContinuation = {
+        // Do not store these as the continuation size can get huge otherwise
+        localTreeRoot: null,
+        cacheTreeRoot: null,
+        serverTreeRoot: null,
+      }
+    }
+    const membersToPersist = this.getMembersToPersist()
     return {
-      ...(await DefaultSyncProcess.prototype.toJSONAsync.apply(this)),
       strategy: 'unidirectional',
+      ...this.staticContinuation,
+      ...(Object.fromEntries(
+        await Parallel.map(
+          Object.entries(this)
+            .filter(([key]) => membersToPersist.includes(key)),
+          async([key, value]) => {
+            if (value && value.CREATE && value.REMOVE && value.UPDATE && value.MOVE && value.REORDER) {
+              // property holds a Plan
+              return [key, Object.fromEntries(await Parallel.map(Object.entries(value), async([key, diff]: [string, Diff<TItemLocation, TItemLocation,Action<TItemLocation, TItemLocation>>]) => {
+                if (diff && diff.toJSONAsync) {
+                  return [key, await diff.toJSONAsync()]
+                }
+                if (diff && diff.toJSON) {
+                  await yieldToEventLoop()
+                  return [key, diff.toJSON()]
+                }
+                return [key, diff]
+              }))]
+            }
+            if (value && value.toJSONAsync) {
+              return [key, await value.toJSONAsync()]
+            }
+            if (value && value.toJSON) {
+              await yieldToEventLoop()
+              return [key, value.toJSON()]
+            }
+            return [key, value]
+          }, 1)
+      )
+      ),
     }
   }
 }
