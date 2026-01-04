@@ -596,8 +596,12 @@ export class Folder<L extends TItemLocation> {
     const itemIndex = item.index || item.createIndex()
     let currentItem = this.index.folder[item.parentId]
     while (currentItem) {
-      Object.assign(currentItem.index.folder, itemIndex.folder)
-      Object.assign(currentItem.index.bookmark, itemIndex.bookmark)
+      if (currentItem.index) {
+        Object.assign(currentItem.index.folder, itemIndex.folder)
+        Object.assign(currentItem.index.bookmark, itemIndex.bookmark)
+      } else {
+        currentItem.createIndex()
+      }
       currentItem = this.index.folder[currentItem.parentId]
     }
   }
@@ -611,11 +615,14 @@ export class Folder<L extends TItemLocation> {
       this.createIndex()
       return
     }
+    if (!item.index) {
+      item.createIndex()
+    }
     if (item.parentId) {
       let parentFolder = this.index.folder[item.parentId]
       while (parentFolder && this.index.folder[parentFolder.parentId] !== parentFolder) {
         if (item instanceof Bookmark) {
-          delete parentFolder.index[item.type][item.id]
+          delete parentFolder.index.bookmark[item.id]
         } else {
           for (const folderId in item.index.folder) {
             delete parentFolder.index.folder[folderId]
