@@ -595,7 +595,7 @@ export class Folder<L extends TItemLocation> {
     }
     const itemIndex = item.index || item.createIndex()
     let currentItem = this.index.folder[item.parentId]
-    while (currentItem) {
+    while (currentItem && currentItem !== this.index.folder[currentItem.parentId]) {
       if (currentItem.index) {
         Object.assign(currentItem.index.folder, itemIndex.folder)
         Object.assign(currentItem.index.bookmark, itemIndex.bookmark)
