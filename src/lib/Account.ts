@@ -17,7 +17,7 @@ import {
   ClientsideAdditionFailsafeError, ClientsideDeletionFailsafeError,
   InterruptedSyncError,
   NetworkError,
-  ServersideAdditionFailsafeError, ServersideDeletionFailsafeError,
+  ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, TransientError,
   UnexpectedFolderPathError
 } from '../errors/Error'
 
@@ -402,8 +402,11 @@ export default class Account {
 
       this.syncing = false
 
+      const isTransient = matchAllErrors(e, e => e instanceof TransientError)
+
       await this.setData({
         error: message,
+        isTransientError: isTransient,
         errorCount: this.getData().errorCount + 1,
         syncing: false,
         scheduled: false,

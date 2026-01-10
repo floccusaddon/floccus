@@ -1560,33 +1560,33 @@ export default class SyncProcess {
       strategy: 'unidirectional',
       ...this.staticContinuation,
       ...(Object.fromEntries(
-          await Parallel.map(
-            Object.entries(this)
-              .filter(([key]) => membersToPersist.includes(key)),
-            async([key, value]) => {
-              if (value && value.CREATE && value.REMOVE && value.UPDATE && value.MOVE && value.REORDER) {
-                // property holds a Plan
-                return [key, Object.fromEntries(await Parallel.map(Object.entries(value), async([key, diff]: [string, Diff<TItemLocation, TItemLocation,Action<TItemLocation, TItemLocation>>]) => {
-                  if (diff && diff.toJSONAsync) {
-                    return [key, await diff.toJSONAsync()]
-                  }
-                  if (diff && diff.toJSON) {
-                    await yieldToEventLoop()
-                    return [key, diff.toJSON()]
-                  }
-                  return [key, diff]
-                }))]
-              }
-              if (value && value.toJSONAsync) {
-                return [key, await value.toJSONAsync()]
-              }
-              if (value && value.toJSON) {
-                await yieldToEventLoop()
-                return [key, value.toJSON()]
-              }
-              return [key, value]
-            }, 1)
-        )
+        await Parallel.map(
+          Object.entries(this)
+            .filter(([key]) => membersToPersist.includes(key)),
+          async([key, value]) => {
+            if (value && value.CREATE && value.REMOVE && value.UPDATE && value.MOVE && value.REORDER) {
+              // property holds a Plan
+              return [key, Object.fromEntries(await Parallel.map(Object.entries(value), async([key, diff]: [string, Diff<TItemLocation, TItemLocation,Action<TItemLocation, TItemLocation>>]) => {
+                if (diff && diff.toJSONAsync) {
+                  return [key, await diff.toJSONAsync()]
+                }
+                if (diff && diff.toJSON) {
+                  await yieldToEventLoop()
+                  return [key, diff.toJSON()]
+                }
+                return [key, diff]
+              }))]
+            }
+            if (value && value.toJSONAsync) {
+              return [key, await value.toJSONAsync()]
+            }
+            if (value && value.toJSON) {
+              await yieldToEventLoop()
+              return [key, value.toJSON()]
+            }
+            return [key, value]
+          }, 1)
+      )
       ),
     }
   }
