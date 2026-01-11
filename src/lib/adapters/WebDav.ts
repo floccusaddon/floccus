@@ -182,11 +182,12 @@ export default class WebDavAdapter extends CachingAdapter {
             url: fullUrl,
             method: 'DELETE',
             headers: {
-              Authorization: 'Basic ' + authString
+              Authorization: 'Basic ' + authString,
             },
             webFetchExtra: {
               credentials: 'omit',
-            }
+            },
+            disableRedirects: !this.server.allowRedirects,
           })
         }
         lockFreed = res.status === 200 || res.status === 204 || res.status === 404
@@ -438,9 +439,10 @@ export default class WebDavAdapter extends CachingAdapter {
         method: 'PUT',
         headers: {
           'Content-Type': content_type,
-          Authorization: 'Basic ' + authString
+          Authorization: 'Basic ' + authString,
         },
-        data
+        data,
+        disableRedirects: !this.server.allowRedirects,
       })
     } catch (e) {
       Logger.log('Error Caught')
@@ -450,6 +452,11 @@ export default class WebDavAdapter extends CachingAdapter {
     if (res.status === 401 || res.status === 403) {
       throw new AuthenticationError()
     }
+
+    if (res.status < 400 && res.status >= 300) {
+      throw new RedirectError()
+    }
+
     if (res.status >= 300) {
       throw new HttpError(res.status, 'PUT')
     }
@@ -523,9 +530,10 @@ export default class WebDavAdapter extends CachingAdapter {
           Authorization: 'Basic ' + authString,
           Depth: '0',
           Pragma: 'no-cache',
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache',
         },
-        responseType: 'text'
+        responseType: 'text',
+        disableRedirects: !this.server.allowRedirects,
       })
     } catch (e) {
       Logger.log('Error Caught')
@@ -536,6 +544,11 @@ export default class WebDavAdapter extends CachingAdapter {
     if (res.status === 401 || res.status === 403) {
       throw new AuthenticationError()
     }
+
+    if (res.status < 400 && res.status >= 300) {
+      throw new RedirectError()
+    }
+
     if (res.status >= 300 && res.status !== 404) {
       throw new HttpError(res.status, 'PROPFIND')
     }
@@ -593,9 +606,10 @@ export default class WebDavAdapter extends CachingAdapter {
         headers: {
           Authorization: 'Basic ' + authString,
           Pragma: 'no-cache',
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache',
         },
-        responseType: 'text'
+        responseType: 'text',
+        disableRedirects: !this.server.allowRedirects,
       })
     } catch (e) {
       Logger.log('Error Caught')
@@ -606,6 +620,11 @@ export default class WebDavAdapter extends CachingAdapter {
     if (res.status === 401 || res.status === 403) {
       throw new AuthenticationError()
     }
+
+    if (res.status < 400 && res.status >= 300) {
+      throw new RedirectError()
+    }
+
     if (res.status >= 300 && res.status !== 404) {
       throw new HttpError(res.status, 'GET')
     }
