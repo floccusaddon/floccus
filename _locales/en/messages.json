@@ -326,6 +326,9 @@
   "LabelAdapterwebdav": {
     "message": "WebDAV share"
   },
+  "DescriptionAdapterwedavexamples": {
+    "message": "e.g. Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
+  },
   "DescriptionAdapterwebdav": {
     "message": "Sync your bookmarks by storing them in a file in the provided WebDAV share. There is no accompanying web UI for this option and you can use it with any WebDAV-compatible server, either selfhosted or in the cloud. It can sync http, ftp, data, file and javascript bookmarks. You can choose to use end-to-end encryption when using this option."
   },
@@ -920,5 +923,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Turning on time-based synchronization will automatically schedule a sync run of this profile every few minutes"
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "Predefined server URLs"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Select your service"
   }
 }

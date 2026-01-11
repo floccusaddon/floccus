@@ -44,6 +44,11 @@
                     </div>
                   </template>
                 </v-radio>
+                <div
+                  v-if="a.type === 'webdav'"
+                  class="caption pl-8 mb-2">
+                  {{ t('DescriptionAdapterwedavexamples') }}
+                </div>
                 <div class="caption pl-8 mb-5">
                   {{ a.description }}
                 </div>
@@ -211,6 +216,12 @@
               {{ t('LabelServersetup') }}
             </div>
             <v-form>
+              <v-select
+                :items="Object.keys(predefinedWebdavUrls)"
+                :label="t('LabelPredefinedwebdavurls')"
+                :placeholder="t('DescriptionPredefinedwebdavurls')"
+                persistent-placeholder
+                @change="server = predefinedWebdavUrls[$event]" />
               <v-text-field
                 v-model="server"
                 :rules="[validateUrl]"
@@ -514,6 +525,25 @@ export default {
       clickCountEnabled: false,
       label: '',
       adapter: 'nextcloud-bookmarks',
+      predefinedWebdavUrls: {
+        'Custom Server URL': 'https://',
+        '1&1 Online-Speicher (DSL)': 'https://sd2dav.1und1.de/',
+        '1&1 Online-Speicher (Webhosting)': 'https://webdav.office.1und1.de/',
+        'blaucloud': 'https://{username}.blaucloud.de/remote.php/webdav/',
+        'Disroot': 'https://cloud.disroot.org/remote.php/webdav/',
+        'freenetcloud': 'https://webmail.freenet.de/webdav/',
+        'GMX MediaCenter': 'https://webdav.mc.gmx.net/',
+        'HiDrive IONOS': 'https://webdav.hidrive.ionos.com/',
+        'HiDrive Strato': 'https://webdav.hidrive.strato.com/',
+        'IceDrive': 'https://webdav.icedrive.io/',
+        'kDrive': 'https://connect.drive.infomaniak.com/',
+        'Koofr': 'https://app.koofr.net/dav/Koofr/',
+        'MagentaCLOUD': 'https://magentacloud.de/remote.php/webdav/',
+        'Mailbox.org': 'https://dav.mailbox.org/servlet/webdav.infostore/',
+        'pCloud (EU)': 'https://ewebdav.pcloud.com/',
+        'pCloud (US)': 'https://webdav.pcloud.com/',
+        'WEB.DE Online-Speicher': 'https://webdav.smartdrive.web.de/',
+      },
       adapters: [
         {
           type: 'nextcloud-bookmarks',
@@ -720,5 +750,9 @@ export default {
     .v-stepper__content .v-form, .v-stepper__content .headline, .v-stepper__content .form-buttons  {
       padding-left: 24px;
       padding-right: 24px;
+    }
+
+    .headline {
+      margin-bottom: 16px;
     }
 </style>
