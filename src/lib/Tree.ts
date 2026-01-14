@@ -624,6 +624,9 @@ export class Folder<L extends TItemLocation> {
         if (item instanceof Bookmark) {
           delete parentFolder.index.bookmark[item.id]
         } else {
+          if (!parentFolder.index) {
+            parentFolder.createIndex()
+          }
           for (const folderId in item.index.folder) {
             delete parentFolder.index.folder[folderId]
           }
