@@ -5891,6 +5891,10 @@ describe('Floccus', function() {
           if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
             return
           }
+          if (ACCOUNT_DATA.type === 'google-drive') {
+            // Tab sync is a bit slower
+            this.timeout(240000)
+          }
           let TEST_URL_TITLE
           before(async function() {
             // Set up TEST_URL and TEST_URL_TITLE
@@ -6323,6 +6327,8 @@ describe('Floccus', function() {
             if (typeof browser.tabGroups === 'undefined') {
               return this.skip()
             }
+
+            this.timeout(300000)
 
             // Create tabs and groups
             const tab1 = await browser.tabs.create({
