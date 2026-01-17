@@ -84,19 +84,21 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
     // Generate REORDERS before diffing anything to make sure REORDERS are from top to bottom (necessary for tab sync)
     if (newFolder.children.length > 1) {
-      let needReorder = false
-      for (
-        let i = 0;
-        i < Math.max(newFolder.children.length, oldFolder.children.length);
-        i++
-      ) {
-        if (
-          !oldFolder.children[i] ||
-          !newFolder.children[i] ||
-          !this.mergeable(oldFolder.children[i], newFolder.children[i])
+      let needReorder = newFolder.children.length !== oldFolder.children.length
+      if (!needReorder) {
+        for (
+          let i = 0;
+          i < Math.max(newFolder.children.length, oldFolder.children.length);
+          i++
         ) {
-          needReorder = true
-          break
+          if (
+            !oldFolder.children[i] ||
+            !newFolder.children[i] ||
+            !this.mergeable(oldFolder.children[i], newFolder.children[i])
+          ) {
+            needReorder = true
+            break
+          }
         }
       }
       if (needReorder) {
