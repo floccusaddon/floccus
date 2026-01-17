@@ -469,6 +469,12 @@ export default class Account {
       } else {
         Logger.log('progressCallback: Serializing continuation')
         const cont = await this.syncProcess.toJSONAsync()
+        if (!this.syncing) {
+          return
+        }
+        if (!this.syncProcess) {
+          return
+        }
         Logger.log('progressCallback: Persisting continuation')
         await this.storage.setCurrentContinuation(cont)
         Logger.log('progressCallback: Persisting mappings')
