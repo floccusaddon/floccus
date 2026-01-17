@@ -46,6 +46,9 @@ class AlarmManager {
         await this.ctl.scheduleSync(accountId)
         continue
       }
+      if (data.error && !data.isTransientError) {
+        continue
+      }
       if (data.error && data.errorCount > 1) {
         if (Date.now() > this.getBackoffInterval(interval, data.errorCount, lastSync) + lastSync) {
           await this.ctl.scheduleSync(accountId)

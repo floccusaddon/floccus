@@ -39,6 +39,7 @@ export class Bookmark<L extends TItemLocation> {
   public location: L
   public isRoot = false
   private hashValue: Record<string, string>
+  public index: IItemIndex<L>
 
   constructor({
     id,
@@ -111,7 +112,7 @@ export class Bookmark<L extends TItemLocation> {
     if (!this.hashValue) {
       this.hashValue = {}
     }
-    if (typeof this.hashValue[hashFn] === 'undefined') {
+    if (typeof this.hashValue[hashFn] === 'undefined' || this.hashValue[hashFn] === null) {
       const json = JSON.stringify({ title: this.title, url: this.url })
       if (hashFn === 'sha256') {
         this.hashValue[hashFn] = await Crypto.sha256(json)
@@ -194,8 +195,9 @@ export class Bookmark<L extends TItemLocation> {
     return result
   }
 
-  createIndex(): any {
-    return { [this.id]: this }
+  createIndex(): IItemIndex<L> {
+    this.index = { bookmark: {[this.id]: this}, folder: {} }
+    return this.index
   }
 
   // TODO: Make this return the correct type based on the type param
@@ -220,6 +222,10 @@ export class Bookmark<L extends TItemLocation> {
 
   count(): number {
     return 1
+  }
+
+  countFolders(): number {
+    return 0
   }
 
   inspect(depth = 0): string {
@@ -258,7 +264,7 @@ export class Folder<L extends TItemLocation> {
   public isRoot = false
   public loaded = true
   public location: L
-  private index: IItemIndex<L>
+  public index: IItemIndex<L>
 
   constructor({
     id,
@@ -363,7 +369,7 @@ export class Folder<L extends TItemLocation> {
   ): Promise<void> {
     await Parallel.each(
       this.children,
-      async (item) => {
+      async(item) => {
         await fn(item, this)
         if (item.type === 'folder') {
           // give the browser time to breathe
@@ -385,15 +391,10 @@ export class Folder<L extends TItemLocation> {
 
   childrenSimilarity<L2 extends TItemLocation>(otherItem: TItem<L2>): number {
     if (otherItem instanceof Folder) {
-      return (
-        this.children.reduce(
-          (count, item) =>
-            otherItem.children.find((i) => i.title === item.title)
-              ? count + 1
-              : count,
-          0
-        ) / Math.max(this.children.length, otherItem.children.length)
-      )
+      const myChildrenTitles = new Set(this.children.map((child) => child.title))
+      const otherChildrenTitles = new Set(otherItem.children.map((child) => child.title))
+      const overlappingTitles = new Set([...myChildrenTitles].filter((title) => otherChildrenTitles.has(title)))
+      return overlappingTitles.size / Math.max(myChildrenTitles.size, otherChildrenTitles.size)
     }
     return 0
   }
@@ -418,6 +419,8 @@ export class Folder<L extends TItemLocation> {
     if (!this.loaded) {
       throw new Error("Trying to calculate hash of a folder that isn't loaded")
     }
+
+    await yieldToEventLoop()
 
     const children = this.children.slice()
     if (!preserveOrder) {
@@ -514,6 +517,9 @@ export class Folder<L extends TItemLocation> {
       Object.entries(obj).forEach(([key, value]) => {
         if (key === 'index') return
         if (!(key in result)) {
+          if (key === 'children') {
+            value = value.map((child) => child.toJSON())
+          }
           result[key] = value
         }
       })
@@ -560,22 +566,77 @@ export class Folder<L extends TItemLocation> {
   createIndex(): IItemIndex<L> {
     this.index = {
       folder: { [this.id]: this },
-      bookmark: this.children
-        .filter((child) => child instanceof Bookmark)
-        .reduce((obj, child) => {
-          obj[child.id] = child
-          return obj
-        }, {}),
+      bookmark: {}
     }
 
-    this.children
-      .filter((child) => child instanceof Folder)
-      .map((child) => child.createIndex())
-      .forEach((subIndex) => {
+    for (const child of this.children) {
+      if (child instanceof Bookmark) {
+        this.index.bookmark[child.id] = child
+      } else if (child instanceof Folder) {
+        const subIndex = child.createIndex()
         Object.assign(this.index.folder, subIndex.folder)
         Object.assign(this.index.bookmark, subIndex.bookmark)
-      })
+      }
+    }
+
     return this.index
+  }
+
+  /**
+   * Update the index with the given item (this method should be called on the root folder)
+   */
+  updateIndex(item: TItem<L>) {
+    if (!item) {
+      return
+    }
+    if (!this.index) {
+      this.createIndex()
+      return
+    }
+    const itemIndex = item.index || item.createIndex()
+    let currentItem = this.index.folder[item.parentId]
+    while (currentItem && currentItem !== this.index.folder[currentItem.parentId]) {
+      if (currentItem.index) {
+        Object.assign(currentItem.index.folder, itemIndex.folder)
+        Object.assign(currentItem.index.bookmark, itemIndex.bookmark)
+      } else {
+        currentItem.createIndex()
+      }
+      currentItem = this.index.folder[currentItem.parentId]
+    }
+  }
+
+  /**
+   * Update the index by removing the given item and its children (this method should be called on the root folder)
+   */
+  removeFromIndex(item: TItem<L>) {
+    if (!item) return
+    if (!this.index) {
+      this.createIndex()
+      return
+    }
+    if (!item.index) {
+      item.createIndex()
+    }
+    if (item.parentId) {
+      let parentFolder = this.index.folder[item.parentId]
+      while (parentFolder && this.index.folder[parentFolder.parentId] !== parentFolder) {
+        if (item instanceof Bookmark) {
+          delete parentFolder.index.bookmark[item.id]
+        } else {
+          if (!parentFolder.index) {
+            parentFolder.createIndex()
+          }
+          for (const folderId in item.index.folder) {
+            delete parentFolder.index.folder[folderId]
+          }
+          for (const bookmarkId in item.index.bookmark) {
+            delete parentFolder.index.bookmark[bookmarkId]
+          }
+        }
+        parentFolder = this.index.folder[parentFolder.parentId]
+      }
+    }
   }
 
   inspect(depth = 0): string {
@@ -618,13 +679,13 @@ export class Folder<L extends TItemLocation> {
       ...obj,
       children: obj.children
         ? obj.children.map((child) => {
-            // Firefox seems to set 'url' even for folders
-            if ('url' in child && typeof child.url === 'string') {
-              return Bookmark.hydrate(child)
-            } else {
-              return Folder.hydrate(child)
-            }
-          })
+          // Firefox seems to set 'url' even for folders
+          if ('url' in child && typeof child.url === 'string') {
+            return Bookmark.hydrate(child)
+          } else {
+            return Folder.hydrate(child)
+          }
+        })
         : null,
     })
   }

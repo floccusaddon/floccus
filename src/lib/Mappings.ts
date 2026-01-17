@@ -71,7 +71,7 @@ export default class Mappings {
   }
 
   private static add(mappings, { localId, remoteId }: { localId?:string|number, remoteId?:string|number }) {
-    if (typeof localId === 'undefined' || typeof remoteId === 'undefined') {
+    if (typeof localId === 'undefined' || typeof remoteId === 'undefined' || localId === null || remoteId === null) {
       throw new Error('Cannot add empty mapping')
     }
     mappings.LocalToServer[localId] = remoteId
@@ -80,14 +80,16 @@ export default class Mappings {
 
   private static remove(mappings, { localId, remoteId }: { localId?:string|number, remoteId?:string|number }):InternalItemTypeMapping {
     if (localId && remoteId && mappings.LocalToServer[localId] !== remoteId) {
-      mappings = this.remove(mappings, { localId })
-      return this.remove(mappings, { remoteId })
+      this.remove(mappings, { localId })
+      this.remove(mappings, { remoteId })
+      return
     }
 
     if (typeof localId !== 'undefined') {
       delete mappings.ServerToLocal[mappings.LocalToServer[localId]]
       delete mappings.LocalToServer[localId]
-    } else {
+    }
+    if (typeof remoteId !== 'undefined') {
       delete mappings.LocalToServer[mappings.ServerToLocal[remoteId]]
       delete mappings.ServerToLocal[remoteId]
     }

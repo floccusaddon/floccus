@@ -126,7 +126,6 @@
           @input="$emit('update:includeCredentials', $event)" />
         <OptionResetCache @click="$emit('reset')" />
         <OptionAllowRedirects
-          v-if="isBrowser"
           :value="allowRedirects"
           @input="$emit('update:allowRedirects', $event)" />
         <OptionFailsafe

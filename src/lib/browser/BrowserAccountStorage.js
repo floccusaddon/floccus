@@ -128,9 +128,9 @@ export default class BrowserAccountStorage {
   }
 
   async initCache() {
-    await BrowserAccountStorage.changeEntry(
+    await BrowserAccountStorage.setEntry(
       `bookmarks[${this.accountId}].cache`,
-      () => ({})
+      {}
     )
   }
 
@@ -144,9 +144,9 @@ export default class BrowserAccountStorage {
   }
 
   async setCache(data) {
-    await BrowserAccountStorage.changeEntry(
+    await BrowserAccountStorage.setEntry(
       `bookmarks[${this.accountId}].cache`,
-      () => data
+      data.toJSON ? data.toJSON() : data
     )
   }
 
@@ -157,9 +157,9 @@ export default class BrowserAccountStorage {
   }
 
   async initMappings() {
-    await BrowserAccountStorage.changeEntry(
+    await BrowserAccountStorage.setEntry(
       `bookmarks[${this.accountId}].mappings`,
-      () => ({})
+      {}
     )
   }
 
@@ -185,9 +185,9 @@ export default class BrowserAccountStorage {
   }
 
   async setMappings(data) {
-    await BrowserAccountStorage.changeEntry(
+    await BrowserAccountStorage.setEntry(
       `bookmarks[${this.accountId}].mappings`,
-      () => data
+      data
     )
   }
 

@@ -17,7 +17,8 @@ export interface IAccountData {
   label?: string
   errorCount?: number
   clickCountEnabled?: boolean
-  [p:string]: any
+  isTransientError?: boolean|null
+  [p: string]: any
 }
 
 export default interface IAccountStorage {

@@ -17,7 +17,7 @@ import {
   ClientsideAdditionFailsafeError, ClientsideDeletionFailsafeError,
   InterruptedSyncError,
   NetworkError,
-  ServersideAdditionFailsafeError, ServersideDeletionFailsafeError,
+  ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, TransientError,
   UnexpectedFolderPathError
 } from '../errors/Error'
 
@@ -317,7 +317,8 @@ export default class Account {
         // set from the persisted continuation
         Logger.log('Fetching local bookmarks tree')
         this.syncProcess.setCacheTree(cacheTree)
-        await this.localCachingResource.setCacheTree(await this.localCachingResource.getBookmarksTree())
+        // Allow Caching of the local tree
+        await this.localCachingResource.getBookmarksTree()
       }
 
       Logger.log('Starting sync process')
@@ -401,8 +402,11 @@ export default class Account {
 
       this.syncing = false
 
+      const isTransient = matchAllErrors(e, e => e instanceof TransientError)
+
       await this.setData({
         error: message,
+        isTransientError: isTransient,
         errorCount: this.getData().errorCount + 1,
         syncing: false,
         scheduled: false,
@@ -465,6 +469,12 @@ export default class Account {
       } else {
         Logger.log('progressCallback: Serializing continuation')
         const cont = await this.syncProcess.toJSONAsync()
+        if (!this.syncing) {
+          return
+        }
+        if (!this.syncProcess) {
+          return
+        }
         Logger.log('progressCallback: Persisting continuation')
         await this.storage.setCurrentContinuation(cont)
         Logger.log('progressCallback: Persisting mappings')

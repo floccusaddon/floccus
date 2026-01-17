@@ -152,7 +152,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
       return
     }
     try {
-      if (self.location.protocol === 'moz-extension:' && new URL(bookmark.url).hostname === 'separator.floccus.org') {
+      if (self.location.protocol === 'moz-extension:' && this.getHostname(bookmark.url) === 'separator.floccus.org') {
         const node = await this.queue.add(async() => {
           Logger.log('(local)CREATE: executing create ', bookmark)
           return browser.bookmarks.create({
@@ -183,7 +183,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
       return
     }
     try {
-      if (self.location.protocol === 'moz-extension:' && new URL(bookmark.url).hostname === 'separator.floccus.org') {
+      if (self.location.protocol === 'moz-extension:' && this.getHostname(bookmark.url) === 'separator.floccus.org') {
         // noop
       } else {
         await this.queue.add(async() => {
@@ -366,7 +366,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
   }
 
   static async getIdPathFromLocalId(localId:string|null, path:string[] = []):Promise<string[]> {
-    if (typeof localId === 'undefined') {
+    if (typeof localId === 'undefined' || localId === null) {
       return path
     }
     path.unshift(localId)
@@ -416,5 +416,13 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
 
   isAtomic(): boolean {
     return false
+  }
+
+  private getHostname(url: string): string {
+    try {
+      return new URL(url).hostname
+    } catch (e) {
+      return ''
+    }
   }
 }

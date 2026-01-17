@@ -35,7 +35,7 @@ import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 import CachingAdapter from '../adapters/Caching'
 import { yieldToEventLoop } from '../yieldToEventLoop'
 
-const ACTION_CONCURRENCY = 12
+export const ACTION_CONCURRENCY = 5
 
 export default class SyncProcess {
   protected mappings: Mappings
@@ -54,24 +54,24 @@ export default class SyncProcess {
   protected serverScanResult: ScanResult<typeof ItemLocation.SERVER, TItemLocation> = null
 
   // Stage 1
-  private localPlanStage1: PlanStage1<typeof ItemLocation.SERVER, TItemLocation>
-  private serverPlanStage1: PlanStage1<typeof ItemLocation.LOCAL, TItemLocation>
+  private localPlanStage1: PlanStage1<typeof ItemLocation.SERVER, TItemLocation> = null
+  private serverPlanStage1: PlanStage1<typeof ItemLocation.LOCAL, TItemLocation> = null
 
   // Stage 2
-  private localPlanStage2: PlanStage2<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL>
+  private localPlanStage2: PlanStage2<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL> = null
   private serverPlanStage2: PlanStage2<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER>
 
   // Stage 3
-  private planStage3Local: PlanStage3<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL>
-  private planStage3Server: PlanStage3<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER>
-  private localDonePlan: PlanStage3<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL>
-  private serverDonePlan: PlanStage3<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER>
-  private prelimLocalReorders: Diff<typeof ItemLocation.SERVER, TItemLocation, ReorderAction<typeof ItemLocation.SERVER, TItemLocation>>
-  private prelimServerReorders: Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>>
+  private planStage3Local: PlanStage3<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL> = null
+  private planStage3Server: PlanStage3<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER> = null
+  private localDonePlan: PlanStage3<typeof ItemLocation.SERVER, TItemLocation, typeof ItemLocation.LOCAL> = null
+  private serverDonePlan: PlanStage3<typeof ItemLocation.LOCAL, TItemLocation, typeof ItemLocation.SERVER> = null
+  private prelimLocalReorders: Diff<typeof ItemLocation.SERVER, TItemLocation, ReorderAction<typeof ItemLocation.SERVER, TItemLocation>> = null
+  private prelimServerReorders: Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>> = null
 
   // Stage 4
-  private localReorders: Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>>
-  private serverReorders: Diff<typeof ItemLocation.SERVER, TItemLocation, ReorderAction<typeof ItemLocation.SERVER, TItemLocation>>
+  private localReorders: Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>> = null
+  private serverReorders: Diff<typeof ItemLocation.SERVER, TItemLocation, ReorderAction<typeof ItemLocation.SERVER, TItemLocation>> = null
 
   protected actionsDone = 0
   protected actionsPlanned = 0
@@ -106,31 +106,48 @@ export default class SyncProcess {
   }
 
   getMembersToPersist() {
-    return [
-      // Stage 0
-      'localScanResult',
-      'serverScanResult',
+    const members = []
+    // Stage 0
+    if (
+      (!this.serverPlanStage1 || !this.localPlanStage1) &&
+        (!this.serverPlanStage2 || !this.localPlanStage2) &&
+        (!this.planStage3Local || !this.planStage3Server) &&
+          this.actionsPlanned === 0
+    ) {
+      members.push('localScanResult')
+      members.push('serverScanResult')
+    }
 
-      // Stage 1
-      'localPlanStage1',
-      'serverPlanStage1',
+    // Stage 1
+    if (
+      (!this.serverPlanStage2 || !this.localPlanStage2) &&
+      (!this.planStage3Local || !this.planStage3Server) && this.actionsPlanned === 0
+    ) {
+      members.push('localPlanStage1')
+      members.push('serverPlanStage1')
+    }
 
-      // Stage 2
-      'localPlanStage2',
-      'serverPlanStage2',
+    // Stage 2
+    if ((!this.planStage3Local || !this.planStage3Server) && this.actionsPlanned === 0) {
+      members.push('localPlanStage2')
+      members.push('serverPlanStage2')
+    }
 
-      // Stage 3
-      'planStage3Local',
-      'planStage3Server',
-      'localDonePlan',
-      'serverDonePlan',
-      'prelimLocalReorders',
-      'prelimServerReorders',
+    // Stage 3
+    if (this.actionsDone < this.actionsPlanned) {
+      members.push('planStage3Local')
+      members.push('planStage3Server')
+      members.push('localDonePlan')
+      members.push('serverDonePlan')
+      members.push('prelimLocalReorders')
+      members.push('prelimServerReorders')
+    }
 
-      // Stage 4
-      'localReorders',
-      'serverReorders',
-    ]
+    // Stage 4
+    members.push('localReorders')
+    members.push('serverReorders')
+
+    return members
   }
 
   getMappingsInstance(): Mappings {
@@ -158,7 +175,7 @@ export default class SyncProcess {
   }
 
   async updateProgress():Promise<void> {
-    if (typeof this.actionsDone === 'undefined') {
+    if (typeof this.actionsDone === 'undefined' || this.actionsDone === null) {
       this.actionsDone = 0
     }
     this.actionsDone++
@@ -177,21 +194,34 @@ export default class SyncProcess {
     Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
   }
 
-  setProgress({actionsDone, actionsPlanned}: {actionsDone: number, actionsPlanned: number}) {
-    this.actionsDone = actionsDone
-    this.actionsPlanned = actionsPlanned
-    this.throttledProgressCb(
-      Math.min(
-        1,
-        0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
-      ),
-      this.actionsDone
-    ).catch((er) => {
-      if (er instanceof CanceledError) {
-        return
+  async setProgress(json: any) {
+    if (json.serverTreeRoot) {
+      this.serverTreeRoot = Folder.hydrate(json.serverTreeRoot)
+      delete json.serverTreeRoot
+    }
+    if (json.localTreeRoot) {
+      this.localTreeRoot = Folder.hydrate(json.localTreeRoot)
+      delete json.localTreeRoot
+    }
+    if (json.cacheTreeRoot) {
+      this.cacheTreeRoot = Folder.hydrate(json.cacheTreeRoot)
+      delete json.cacheTreeRoot
+    }
+    for (const member of Object.keys(json)) {
+      if (member.toLowerCase().includes('scanresult') || member.toLowerCase().includes('plan')) {
+        this[member] = {
+          CREATE: await Diff.fromJSONAsync(json[member].CREATE),
+          UPDATE: await Diff.fromJSONAsync(json[member].UPDATE),
+          MOVE: await Diff.fromJSONAsync(json[member].MOVE),
+          REMOVE: await Diff.fromJSONAsync(json[member].REMOVE),
+          REORDER: await Diff.fromJSONAsync(json[member].REORDER),
+        }
+      } else if (member.toLowerCase().includes('reorders')) {
+        this[member] = await Diff.fromJSONAsync(json[member])
+      } else {
+        this[member] = json[member]
       }
-      throw er
-    })
+    }
   }
 
   setDirection(direction:TItemLocation):void {
@@ -224,7 +254,7 @@ export default class SyncProcess {
 
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
 
-    if (!this.localScanResult && !this.serverScanResult) {
+    if (!this.localScanResult && !this.serverScanResult && !this.localPlanStage1 && !this.serverPlanStage1 && !this.localPlanStage2 && !this.serverPlanStage2 && !this.planStage3Local && !this.planStage3Server) {
       const { localScanResult, serverScanResult } = await this.getDiffs()
       Logger.log({ localScanResult, serverScanResult })
       this.localScanResult = localScanResult
@@ -241,21 +271,14 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
-    if (!this.serverPlanStage1) {
+    if (!this.serverPlanStage1 && !this.localPlanStage1 && !this.serverPlanStage2 && !this.localPlanStage2 && !this.planStage3Local && !this.planStage3Server) {
       this.serverPlanStage1 = await this.reconcileDiffs(this.localScanResult, this.serverScanResult, ItemLocation.SERVER)
-    }
-
-    if (this.canceled) {
-      throw new CancelledSyncError()
-    }
-
-    if (!this.localPlanStage1) {
       this.localPlanStage1 = await this.reconcileDiffs(this.serverScanResult, this.localScanResult, ItemLocation.LOCAL)
     }
 
     let mappingsSnapshot: MappingSnapshot
 
-    if (!this.serverPlanStage2) {
+    if (!this.serverPlanStage2 && !this.localPlanStage2 && !this.planStage3Local && !this.planStage3Server) {
       // have to get snapshot after reconciliation, because of concurrent creation reconciliation
       mappingsSnapshot = this.mappings.getSnapshot()
       Logger.log('Mapping server plan')
@@ -267,15 +290,7 @@ export default class SyncProcess {
         REMOVE: this.serverPlanStage1.REMOVE.map(mappingsSnapshot, ItemLocation.SERVER),
         REORDER: this.serverPlanStage1.REORDER,
       }
-    }
 
-    if (this.canceled) {
-      throw new CancelledSyncError()
-    }
-
-    if (!this.localPlanStage2) {
-      // have to get snapshot after reconciliation, because of concurrent creation reconciliation
-      if (!mappingsSnapshot) mappingsSnapshot = this.mappings.getSnapshot()
       Logger.log('Mapping local plan')
 
       this.localPlanStage2 = {
@@ -293,10 +308,15 @@ export default class SyncProcess {
 
     Logger.log({localPlan: this.localPlanStage2, serverPlan: this.serverPlanStage2})
 
-    this.applyDeletionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.REMOVE)
-    this.applyAdditionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.CREATE)
-    this.applyDeletionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.REMOVE)
-    this.applyAdditionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.CREATE)
+    if (this.serverPlanStage2) {
+      this.applyDeletionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.REMOVE)
+      this.applyAdditionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.CREATE)
+    }
+
+    if (this.localPlanStage2) {
+      this.applyDeletionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.REMOVE)
+      this.applyAdditionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.CREATE)
+    }
 
     if (!this.localDonePlan) {
       this.localDonePlan = {
@@ -316,18 +336,20 @@ export default class SyncProcess {
       }
     }
 
-    if (!this.prelimLocalReorders) {
+    if (!this.prelimLocalReorders && this.localPlanStage2) {
       this.prelimLocalReorders = this.localPlanStage2.REORDER
       this.prelimServerReorders = this.serverPlanStage2.REORDER
     }
 
     if (!this.actionsPlanned) {
-      this.actionsPlanned = Object.values(this.serverPlanStage2).reduce((acc, diff) => diff.getActions().length + acc, 0) +
-        Object.values(this.localPlanStage2).reduce((acc, diff) => diff.getActions().length + acc, 0)
+      this.actionsPlanned = Object.values(this.serverPlanStage2 || this.planStage3Server).reduce((acc, diff) => diff.getActions().length + acc, 0) +
+        Object.values(this.localPlanStage2 || this.planStage3Local).reduce((acc, diff) => diff.getActions().length + acc, 0)
     }
 
-    Logger.log('Executing server stage2 plan')
-    await this.executeStage2(this.server, this.serverPlanStage2, ItemLocation.SERVER, this.serverDonePlan, this.prelimServerReorders)
+    if (this.serverPlanStage2) {
+      Logger.log('Executing server stage2 plan')
+      await this.executeStage2(this.server, this.serverPlanStage2, ItemLocation.SERVER, this.serverDonePlan, this.prelimServerReorders)
+    }
 
     if (!this.planStage3Server) {
       if (this.canceled) {
@@ -349,15 +371,19 @@ export default class SyncProcess {
       }
     }
 
-    Logger.log('Executing local stage 3 plan')
-    await this.executeStage3(this.server, this.planStage3Server, ItemLocation.SERVER, this.serverDonePlan)
+    if (this.planStage3Server) {
+      Logger.log('Executing server stage 3 plan')
+      await this.executeStage3(this.server, this.planStage3Server, ItemLocation.SERVER, this.serverDonePlan)
+    }
 
     if (this.canceled) {
       throw new CancelledSyncError()
     }
 
-    Logger.log('Executing local stage 2 plan')
-    await this.executeStage2(this.localTree, this.localPlanStage2, ItemLocation.LOCAL, this.localDonePlan, this.prelimLocalReorders)
+    if (this.localPlanStage2) {
+      Logger.log('Executing local stage 2 plan')
+      await this.executeStage2(this.localTree, this.localPlanStage2, ItemLocation.LOCAL, this.localDonePlan, this.prelimLocalReorders)
+    }
 
     if (!this.planStage3Local) {
       if (this.canceled) {
@@ -379,8 +405,10 @@ export default class SyncProcess {
       }
     }
 
-    Logger.log('Executing local stage 3 plan')
-    await this.executeStage3(this.localTree, this.planStage3Local, ItemLocation.LOCAL, this.localDonePlan)
+    if (this.planStage3Local) {
+      Logger.log('Executing local stage 3 plan')
+      await this.executeStage3(this.localTree, this.planStage3Local, ItemLocation.LOCAL, this.localDonePlan)
+    }
 
     // Remove mappings only after both plans have been executed
     await Parallel.map(this.localDonePlan.REMOVE.getActions(), async(action) =>
@@ -486,7 +514,11 @@ export default class SyncProcess {
     // Failsafe kicks in if more than 20% is deleted or more than 1k bookmarks
     if ((countTotal > 5 && countDeleted / countTotal > 0.2) || countDeleted > 1000) {
       const failsafe = this.server.getData().failsafe
-      if (failsafe !== false || typeof failsafe === 'undefined') {
+      if (
+        failsafe !== false ||
+        typeof failsafe === 'undefined' ||
+        failsafe === null
+      ) {
         const percentage = Math.ceil((countDeleted / countTotal) * 100)
         if (direction === ItemLocation.LOCAL) {
           throw new ClientsideDeletionFailsafeError(percentage)
@@ -505,7 +537,7 @@ export default class SyncProcess {
     // Failsafe kicks in if more than 20% is added or more than 1k bookmarks
     if (countTotal > 5 && ((countAdded >= 20 && countAdded / countTotal > 0.2) || countAdded > 1000)) {
       const failsafe = this.server.getData().failsafe
-      if (failsafe !== false || typeof failsafe === 'undefined') {
+      if (failsafe !== false || typeof failsafe === 'undefined' || failsafe === null) {
         const percentage = Math.ceil((countAdded / countTotal) * 100)
         if (direction === ItemLocation.LOCAL) {
           throw new ClientsideAdditionFailsafeError(percentage)
@@ -1011,7 +1043,7 @@ export default class SyncProcess {
       action.payload.visitCreate(resource),
       this.cancelPromise
     ])
-    if (typeof id === 'undefined') {
+    if (typeof id === 'undefined' || id === null) {
       // undefined means we couldn't create the item. we're ignoring it
       await done()
       return
@@ -1349,6 +1381,7 @@ export default class SyncProcess {
     const isUsingTabs = await this.localTree.isUsingBrowserTabs?.()
 
     await Parallel.each(reorderings.getActions(), async(action) => {
+      await yieldToEventLoop()
       Logger.log('Executing reorder action', `${action.type} Payload: #${action.payload.id}[${action.payload.title}]${'url' in action.payload ? `(${action.payload.url})` : ''} parentId: ${action.payload.parentId}`)
       const item = action.payload
 
@@ -1513,25 +1546,6 @@ export default class SyncProcess {
     parentReorder.order = parentReorder.order.filter(item => !(item.type === oldItem.type && String(Mappings.mapId(mappingsSnapshot, oldItem, parentReorder.payload.location)) === String(item.id)))
   }
 
-  toJSON(): ISerializedSyncProcess {
-    if (!this.staticContinuation) {
-      this.staticContinuation = {
-        // Do not store these as the continuation size can get huge otherwise
-        localTreeRoot: null,
-        cacheTreeRoot: null,
-        serverTreeRoot: null,
-      }
-    }
-    const membersToPersist = this.getMembersToPersist()
-    return {
-      strategy: 'default',
-      ...this.staticContinuation,
-      ...(Object.fromEntries(Object.entries(this)
-        .filter(([key]) => membersToPersist.includes(key)))
-      ),
-    }
-  }
-
   async toJSONAsync(): Promise<ISerializedSyncProcess> {
     if (!this.staticContinuation) {
       this.staticContinuation = {
@@ -1547,18 +1561,55 @@ export default class SyncProcess {
       ...this.staticContinuation,
       ...(Object.fromEntries(
         await Parallel.map(
-          Object.entries(this)
-            .filter(([key]) => membersToPersist.includes(key)),
-          async([key, value]) => {
-            if ('toJSONAsync' in value) {
+          membersToPersist,
+          async(key) => {
+            const value = this[key]
+            if (
+              value &&
+                value.CREATE &&
+                value.REMOVE &&
+                value.UPDATE &&
+                value.MOVE &&
+                value.REORDER
+            ) {
+              // property holds a Plan
+              return [
+                key,
+                Object.fromEntries(
+                  await Parallel.map(
+                    Object.entries(value),
+                    async([key, diff]: [
+                        string,
+                        Diff<
+                          TItemLocation,
+                          TItemLocation,
+                          Action<TItemLocation, TItemLocation>
+                        >
+                      ]) => {
+                      if (diff && diff.toJSONAsync) {
+                        return [key, await diff.toJSONAsync()]
+                      }
+                      if (diff && diff.toJSON) {
+                        await yieldToEventLoop()
+                        return [key, diff.toJSON()]
+                      }
+                      return [key, diff]
+                    }
+                  )
+                ),
+              ]
+            }
+            if (value && value.toJSONAsync) {
               return [key, await value.toJSONAsync()]
             }
-            if ('toJSON' in value) {
+            if (value && value.toJSON) {
               await yieldToEventLoop()
               return [key, value.toJSON()]
             }
             return [key, value]
-          }, 1)
+          },
+          1
+        )
       )
       ),
     }
@@ -1587,34 +1638,7 @@ export default class SyncProcess {
       default:
         throw new Error('Unknown strategy: ' + json.strategy)
     }
-    strategy.setProgress(json)
-    if (json.serverTreeRoot) {
-      strategy.serverTreeRoot = Folder.hydrate(json.serverTreeRoot)
-    }
-    if (json.localTreeRoot) {
-      strategy.localTreeRoot = Folder.hydrate(json.localTreeRoot)
-    }
-    if (json.cacheTreeRoot) {
-      strategy.cacheTreeRoot = Folder.hydrate(json.cacheTreeRoot)
-    }
-    strategy.getMembersToPersist().forEach((member) => {
-      if (member in json) {
-        if (member.toLowerCase().includes('scanresult') || member.toLowerCase().includes('plan')) {
-          strategy[member] = {
-            CREATE: Diff.fromJSON(json[member].CREATE),
-            UPDATE: Diff.fromJSON(json[member].UPDATE),
-            MOVE: Diff.fromJSON(json[member].MOVE),
-            REMOVE: Diff.fromJSON(json[member].REMOVE),
-            REORDER: Diff.fromJSON(json[member].REORDER),
-          }
-        } else if (member.toLowerCase().includes('reorders')) {
-          strategy[member] = Diff.fromJSON(json[member])
-        } else {
-          strategy[member] = json[member]
-        }
-      }
-    })
-
+    await strategy.setProgress(json)
     return strategy
   }
 }

@@ -2,11 +2,12 @@ import { Folder, ItemLocation, TItem, TItemLocation, TOppositeLocation } from '.
 import Diff, { CreateAction, MoveAction, PlanStage1 } from '../Diff'
 import Scanner, { ScanResult } from '../Scanner'
 import * as Parallel from 'async-parallel'
-import DefaultSyncProcess, { ISerializedSyncProcess } from './Default'
+import DefaultSyncProcess, {
+  ISerializedSyncProcess,
+  ACTION_CONCURRENCY,
+} from './Default'
 import Mappings from '../Mappings'
 import Logger from '../Logger'
-
-const ACTION_CONCURRENCY = 12
 
 export default class MergeSyncProcess extends DefaultSyncProcess {
   async getDiffs(): Promise<{
@@ -362,16 +363,9 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
     ).children
   }
 
-  toJSON(): ISerializedSyncProcess {
-    return {
-      ...DefaultSyncProcess.prototype.toJSON.apply(this),
-      strategy: 'merge',
-    }
-  }
-
   async toJSONAsync(): Promise<ISerializedSyncProcess> {
     return {
-      ...(await DefaultSyncProcess.prototype.toJSON.apply(this)),
+      ...(await DefaultSyncProcess.prototype.toJSONAsync.apply(this)),
       strategy: 'merge',
     }
   }

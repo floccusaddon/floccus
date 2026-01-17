@@ -53,13 +53,13 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
         'file:',
         'chrome:',
         'edge:',
-        'about:'
       ]
 
       if (!isTest) {
         schemes = schemes.concat([
           'chrome-extension:',
-          'moz-extension:'
+          'moz-extension:',
+          'about:'
         ])
       }
 
@@ -73,14 +73,14 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
 
   async createBookmark(bm:Bookmark<TItemLocation>):Promise<string|number> {
     Logger.log('CREATE', bm)
-    bm = bm.copy()
+    bm = bm.copyWithLocation(true, this.location)
     bm.id = ++this.highestId
     const foundFolder = this.bookmarksCache.findFolder(bm.parentId)
     if (!foundFolder) {
       throw new UnknownCreateTargetError()
     }
     foundFolder.children.push(bm)
-    this.bookmarksCache.createIndex()
+    this.bookmarksCache.updateIndex(bm)
     return bm.id
   }
 
@@ -109,9 +109,11 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       foundOldFolder.children.indexOf(foundBookmark),
       1
     )
+
+    this.bookmarksCache.removeFromIndex(foundBookmark)
     foundNewFolder.children.push(foundBookmark)
     foundBookmark.parentId = newBm.parentId
-    this.bookmarksCache.createIndex()
+    this.bookmarksCache.updateIndex(foundBookmark)
   }
 
   async removeBookmark(bookmark:Bookmark<TItemLocation>): Promise<void> {
@@ -131,7 +133,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       foundOldFolder.children.indexOf(foundBookmark),
       1
     )
-    this.bookmarksCache.createIndex()
+    this.bookmarksCache.removeFromIndex(foundBookmark)
   }
 
   async createFolder(folder:Folder<TItemLocation>): Promise<string|number> {
@@ -142,7 +144,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       throw new UnknownCreateTargetError()
     }
     foundParentFolder.children.push(newFolder)
-    this.bookmarksCache.createIndex()
+    this.bookmarksCache.updateIndex(newFolder)
     return newFolder.id
   }
 
@@ -167,9 +169,10 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     }
     foundOldParentFolder.children.splice(foundOldParentFolder.children.indexOf(oldFolder), 1)
     foundNewParentFolder.children.push(oldFolder)
+    this.bookmarksCache.removeFromIndex(oldFolder)
     oldFolder.title = folder.title
     oldFolder.parentId = folder.parentId
-    this.bookmarksCache.createIndex()
+    this.bookmarksCache.updateIndex(oldFolder)
   }
 
   async orderFolder(id:string|number, order:Ordering<TItemLocation>):Promise<void> {
@@ -179,15 +182,12 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     if (!folder) {
       throw new UnknownFolderOrderError()
     }
+    let newChildren = []
     order.forEach(item => {
       const child = folder.findItem(item.type, item.id)
       if (!child || String(child.parentId) !== String(folder.id)) {
         throw new UnknownFolderItemOrderError(id + ':' + JSON.stringify(item))
       }
-    })
-    let newChildren = []
-    order.forEach(item => {
-      const child = folder.findItem(item.type, item.id)
       newChildren.push(child)
     })
     const diff = difference(folder.children.map(i => i.type + ':' + i.id), order.map(i => i.type + ':' + i.id))
@@ -198,8 +198,9 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       diff.forEach(item => {
         const [type, id] = item.split(':')
         const child = folder.findItem(type, id)
+        if (!child) return
         const index = folder.children.indexOf(child)
-        newChildren = newChildren.slice(0, index - 1).concat([child], newChildren.slice(index - 1))
+        newChildren = newChildren.slice(0, index).concat([child], newChildren.slice(index))
       })
     }
     folder.children = newChildren
@@ -218,7 +219,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       return
     }
     foundOldFolder.children.splice(foundOldFolder.children.indexOf(oldFolder), 1)
-    this.bookmarksCache.createIndex()
+    this.bookmarksCache.removeFromIndex(oldFolder)
   }
 
   async bulkImportFolder(id:string|number, folder:Folder<TItemLocation>):Promise<Folder<TItemLocation>> {
@@ -237,7 +238,8 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     // insert into tree
     foundFolder.children = imported.children
     // good as new
-    this.bookmarksCache.createIndex()
+    foundFolder.createIndex()
+    this.bookmarksCache.updateIndex(foundFolder)
     return imported
   }
 
