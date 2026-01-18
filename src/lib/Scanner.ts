@@ -132,14 +132,13 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     // Optimization: Use a Map for O(1) lookups
     const unmatchedMap = new Map<string, TItem<L2>[]>()
     for (const child of newFolder.children) {
-      const key = `${child.type}_${child.title}` // Or a better unique key based on mergeable logic
+      const key = `${child.type}_${child.title}`
       const list = unmatchedMap.get(key) || []
       list.push(child)
       unmatchedMap.set(key, list)
     }
     const stillUnmatched = new Set(newFolder.children)
 
-    // (using map here, because 'each' doesn't provide indices)
     let index = 0
     for (const old of oldFolder.children) {
       const key = `${old.type}_${old.title}`
@@ -151,16 +150,16 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         )
         if (matchIndex !== -1) {
           newItem = potentialMatches.splice(matchIndex, 1)[0]
-          stillUnmatched.delete(newItem)
         }
-      } else {
+      }
+      if (!newItem) {
         newItem = newFolder.children.find(
           (child) => old.type === child.type && this.mergeable(old, child)
         )
-        if (newItem) stillUnmatched.delete(newItem)
       }
       // we found an item in the new folder that matches the one in the old folder
       if (newItem) {
+        stillUnmatched.delete(newItem)
         await this.diffItem(old, newItem)
         index++
         continue
@@ -378,7 +377,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         if (oldItem === removedRoot) {
           this.result.REMOVE.retract(removeRootAction)
         } else {
-          const clone = (removedRoot as Folder<L1>).clone(true)
+          const clone = (removedRoot as Folder<L1>).clone(false)
           const parentClone = clone.findItem(
             ItemType.FOLDER,
             oldItem.parentId
@@ -511,7 +510,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         if (oldItem === removedRoot) {
           this.result.REMOVE.retract(removeRootAction)
         } else {
-          const clone = (removedRoot as Folder<L1>).clone(true)
+          const clone = (removedRoot as Folder<L1>).clone(false)
           const parentClone = clone.findItem(
             ItemType.FOLDER,
             oldItem.parentId
@@ -529,7 +528,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         if (createdItem === createdRoot) {
           this.result.CREATE.retract(createRootAction)
         } else {
-          const clone = (createdRoot as Folder<L2>).clone(true)
+          const clone = (createdRoot as Folder<L2>).clone(false)
           const parentClone = clone.findItem(
             ItemType.FOLDER,
             createdItem.parentId
