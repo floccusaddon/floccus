@@ -51,8 +51,6 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
   }
 
   async diffItem(oldItem:TItem<L1>, newItem:TItem<L2>):Promise<void> {
-    // give the browser time to breathe
-    await yieldToEventLoop()
     if (oldItem.type === 'folder' && newItem.type === 'folder') {
       return this.diffFolder(oldItem, newItem)
     } else if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
@@ -63,6 +61,8 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
   }
 
   async diffFolder(oldFolder:Folder<L1>, newFolder:Folder<L2>):Promise<void> {
+    // give the browser time to breathe
+    await yieldToEventLoop()
     if (this.checkHashes) {
       const hasChanged = await this.folderHasChanged(oldFolder, newFolder)
       if (!hasChanged) {
@@ -153,6 +153,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     let createActions
     let removeActions
     let reconciled = true
+    let iterations = 0
 
     // As soon as one match is found, action list is updated and search is started with the new list
     // repeat until no rewrites happen anymore
@@ -163,8 +164,10 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       // First find direct matches (avoids glitches when folders and their contents have been moved)
       createActions = this.result.CREATE.getActions()
       while (!reconciled && (createAction = createActions.shift())) {
-        // give the browser time to breathe
-        await Promise.resolve()
+        if (++iterations % 1000 === 0) {
+          // give the browser time to breathe
+          await yieldToEventLoop()
+        }
         const createdItem = createAction.payload
         removeActions = this.result.REMOVE.getActions()
         while (!reconciled && (removeAction = removeActions.shift())) {
@@ -172,9 +175,12 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
           await Promise.resolve()
           const removedItem = removeAction.payload
 
-          if (this.mergeable(removedItem, createdItem) &&
+          if (
+            this.mergeable(removedItem, createdItem) &&
             (removedItem.type !== 'folder' ||
-              (!this.hasCache && removedItem.childrenSimilarity(createdItem) > 0.8))) {
+              (!this.hasCache &&
+                removedItem.childrenSimilarity(createdItem) > 0.8))
+          ) {
             this.result.CREATE.retract(createAction)
             this.result.REMOVE.retract(removeAction)
             this.result.MOVE.commit({
@@ -182,7 +188,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
               payload: createdItem,
               oldItem: removedItem,
               index: createAction.index,
-              oldIndex: removeAction.index
+              oldIndex: removeAction.index,
             })
             reconciled = true
             // Don't use the items from the action, but the ones in the actual tree to avoid using tree parts mutated by this algorithm (see below)
@@ -194,8 +200,10 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       // Then find descendant matches
       createActions = this.result.CREATE.getActions()
       while (!reconciled && (createAction = createActions.shift())) {
-        // give the browser time to breathe
-        await Promise.resolve()
+        if (++iterations % 1000 === 0) {
+          // give the browser time to breathe
+          await yieldToEventLoop()
+        }
         const createdItem = createAction.payload
         removeActions = this.result.REMOVE.getActions()
         while (!reconciled && (removeAction = removeActions.shift())) {
@@ -230,7 +238,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
               oldIndex: oldIndex || removeAction.index
             })
             reconciled = true
-            if (oldItem.type === ItemType.FOLDER) { // TODO: Is this necessary?
+            if (oldItem.type === ItemType.FOLDER) {
               await this.diffItem(oldItem, createdItem)
             }
           } else {
