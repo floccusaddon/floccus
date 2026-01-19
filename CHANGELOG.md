@@ -1,5 +1,30 @@
 # Changelog
 
+## [5.8.4]
+
+* feat(Logger): Persist logs intermittently
+* feat(NewAccount): Add predefined webdav service URLs
+* fix(Controller): Only schedule sync if current error is transient
+* fix: Display allowRedirects option on mobile
+* fix(SyncProcess): Fix serialization for continuation persistence
+* Fix: Reduce memory pressure by reducing ACTION_CONCURRENCY
+* fix(Unidirectional): Only do a single Scanner pass to improve performance
+* fix(childrenSimilarity): Make O(n) instead of O(n²)
+* fix: Fix typeof undefined checks to handle null
+* fix(Diff): Do not call .toString on null
+* fix(Folder#toJSON): Make sure children are properly serialized
+* fix(BrowserAccountStorage): Use setEntry instead of changeEntry
+* fix(Caching#orderFolder): Fix orderFolder algorithm
+* fix(LocalTabs): Properly distinguish between window IDs and group IDs
+* fix(continuation): Fix continuation loading
+* fix(index): Update index incrementally instead of recreating it every time
+* fix(SyncProcess): Reduce size of continuation on disk to prevent breaking sync with large amounts of bookmarks
+* fix(CachingAdapter): Whitelist more browser-specific URL schemes
+* fix(Non-Atomic adapters): Reduce HTTP request parallelism for better throughput
+* fix(Account): Add log statement for continuation loading error
+* fix(Mappings#remove): Correct logic to always handle both remote and local IDs
+* chore: Update dependencies
+
 ## [5.8.3] - 2025-12-20
 
 ### Fixed
