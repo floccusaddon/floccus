@@ -326,6 +326,9 @@
   "LabelAdapterwebdav": {
     "message": "WebDAV-jagamine"
   },
+  "DescriptionAdapterwedavexamples": {
+    "message": "nt. Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
+  },
   "DescriptionAdapterwebdav": {
     "message": "Sünkroonige oma järjehoidjad, salvestades need faili etteantud WebDAV-jagis. Selle valiku jaoks ei ole lisatud veebi kasutajaliidest ja seda saab kasutada mis tahes WebDAV-ühilduvusega serveriga, kas isehostitud või pilves. Sellega saab sünkroonida http-, ftp-, andme-, faili- ja javascripti järjehoidjaid. Selle valiku kasutamisel saate valida lõpuni kestva krüpteerimise."
   },
@@ -920,5 +923,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Ajapõhise sünkroonimise sisselülitamisel käivitub selle profiili sünkroonimine iga paari minuti järel"
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "Eelmääratletud serverite võrguaadressid"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Vali oma teenus"
   }
 }
