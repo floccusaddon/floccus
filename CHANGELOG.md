@@ -1,6 +1,12 @@
 # Changelog
 
-## [5.8.4]
+## [5.8.5] - 2026-01-20
+
+### Fixed
+
+- [native] fix: Properly serialize cache
+
+## [5.8.4] - 2026-01-19
 
 * feat(Logger): Persist logs intermittently
 * feat(NewAccount): Add predefined webdav service URLs
