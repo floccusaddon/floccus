@@ -331,7 +331,7 @@ export default class Account {
       Logger.log('Storing cache')
       const cache = (await this.localCachingResource.getCacheTree()).clone(false)
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
-      await this.storage.setCache(cache)
+      await this.storage.setCache(await cache.toJSONAsync())
 
       if (this.server.onSyncComplete) {
         Logger.log('Calling onSyncComplete')

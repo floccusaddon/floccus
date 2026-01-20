@@ -114,7 +114,7 @@ export default class NativeAccountStorage {
   async setCache(data) {
     await NativeAccountStorage.changeEntry(
       `bookmarks[${this.accountId}].cache`,
-      () => data
+      () => data.toJSON ? data.toJSON() : data
     )
   }
 

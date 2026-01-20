@@ -169,6 +169,7 @@ export class Bookmark<L extends TItemLocation> {
     let obj = this
     while (obj instanceof Bookmark) {
       Object.entries(obj).forEach(([key, value]) => {
+        if (key === 'index') return
         if (!(key in result)) {
           result[key] = value
         }
@@ -186,6 +187,7 @@ export class Bookmark<L extends TItemLocation> {
     while (obj instanceof Bookmark) {
       await yieldToEventLoop()
       Object.entries(obj).forEach(([key, value]) => {
+        if (key === 'index') return
         if (!(key in result)) {
           result[key] = value
         }
