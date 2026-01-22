@@ -591,21 +591,7 @@ export class Folder<L extends TItemLocation> {
     if (!item) {
       return
     }
-    if (!this.index) {
-      this.createIndex()
-      return
-    }
-    const itemIndex = item.index || item.createIndex()
-    let currentItem = this.index.folder[item.parentId]
-    while (currentItem && currentItem !== this.index.folder[currentItem.parentId]) {
-      if (currentItem.index) {
-        Object.assign(currentItem.index.folder, itemIndex.folder)
-        Object.assign(currentItem.index.bookmark, itemIndex.bookmark)
-      } else {
-        currentItem.createIndex()
-      }
-      currentItem = this.index.folder[currentItem.parentId]
-    }
+    this.createIndex()
   }
 
   /**
@@ -613,32 +599,7 @@ export class Folder<L extends TItemLocation> {
    */
   removeFromIndex(item: TItem<L>) {
     if (!item) return
-    if (!this.index) {
-      this.createIndex()
-      return
-    }
-    if (!item.index) {
-      item.createIndex()
-    }
-    if (item.parentId) {
-      let parentFolder = this.index.folder[item.parentId]
-      while (parentFolder && this.index.folder[parentFolder.parentId] !== parentFolder) {
-        if (item instanceof Bookmark) {
-          delete parentFolder.index.bookmark[item.id]
-        } else {
-          if (!parentFolder.index) {
-            parentFolder.createIndex()
-          }
-          for (const folderId in item.index.folder) {
-            delete parentFolder.index.folder[folderId]
-          }
-          for (const bookmarkId in item.index.bookmark) {
-            delete parentFolder.index.bookmark[bookmarkId]
-          }
-        }
-        parentFolder = this.index.folder[parentFolder.parentId]
-      }
-    }
+    this.createIndex()
   }
 
   inspect(depth = 0): string {
