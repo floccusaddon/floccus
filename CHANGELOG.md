@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.8.6] - 2026-01-23
+
+### Fixed
+
+- fix(Tree): Revert incremental index updates (Would break initial sync on Chrome)
+
 ## [5.8.5] - 2026-01-20
 
 ### Fixed
