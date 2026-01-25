@@ -326,6 +326,9 @@
   "LabelAdapterwebdav": {
     "message": "Partage WebDAV"
   },
+  "DescriptionAdapterwedavexamples": {
+    "message": "par exemple Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
+  },
   "DescriptionAdapterwebdav": {
     "message": "Synchronisez vos signets en les conservant dans un fichier situé dans le partage WebDAV. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur compatible WebDAV, hébergé sur votre serveur ou dans le cloud. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option supporte le chiffrement point à point."
   },
@@ -920,5 +923,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Activer la synchronisation périodique lancera une synchronisation de ce profil automatiquement à intervalle régulier."
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "Adresses de serveur prédéfinies"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Choisissez votre service"
   }
 }
