@@ -326,6 +326,9 @@
   "LabelAdapterwebdav": {
     "message": "Carpeta WebDAV"
   },
+  "DescriptionAdapterwedavexamples": {
+    "message": "por ejemplo: Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
+  },
   "DescriptionAdapterwebdav": {
     "message": "Sincronice sus marcadores almacenándolos en un archivo en el recurso compartido WebDAV proporcionado. No hay interfaz de usuario web de acompañamiento para esta opción y puede utilizarla con cualquier servidor compatible con WebDAV, ya sea autoalojado o en la nube. Puede sincronizar marcadores http, ftp, datos, archivos y javascript. Puede elegir utilizar el cifrado de extremo a extremo cuando utilice esta opción."
   },
@@ -920,5 +923,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Al activar la sincronización en función del tiempo, se programará automáticamente una sincronización de este perfil cada pocos minutos."
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "URLs por defecto del servidor"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Selecciona tu servicio"
   }
 }
