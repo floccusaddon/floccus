@@ -1,4 +1,5 @@
 import { Bookmark, TItemLocation } from '../lib/Tree'
+import { statusCodes } from '../lib/statusCodes'
 
 export class FloccusError extends Error {
   public readonly code: number
@@ -27,7 +28,7 @@ export class UnknownCreateTargetError extends FloccusError {
 
 export class UnknownBookmarkUpdateError extends TransientError {
   public readonly code = 2
-    constructor() {
+  constructor() {
     super("E002: Bookmark to update doesn't exist anymore")
     Object.setPrototypeOf(this, UnknownBookmarkUpdateError.prototype)
   }
@@ -35,7 +36,7 @@ export class UnknownBookmarkUpdateError extends TransientError {
 
 export class UnknownMoveOriginError extends TransientError {
   public readonly code = 3
-    constructor() {
+  constructor() {
     super("E003: Folder to move out of doesn't exist")
     Object.setPrototypeOf(this, UnknownMoveOriginError.prototype)
   }
@@ -51,7 +52,7 @@ export class UnknownMoveTargetError extends FloccusError {
 
 export class UnknownFolderParentUpdateError extends TransientError {
   public readonly code = 5
-    constructor() {
+  constructor() {
     super("E006: Parent of folder to update doesn't exist")
     Object.setPrototypeOf(this, UnknownFolderParentUpdateError.prototype)
   }
@@ -67,7 +68,7 @@ export class UnknownFolderUpdateError extends TransientError {
 
 export class UnknownFolderMoveError extends TransientError {
   public readonly code = 7
-    constructor() {
+  constructor() {
     super("E007: Folder to move doesn't exist")
     Object.setPrototypeOf(this, UnknownFolderMoveError.prototype)
   }
@@ -87,7 +88,7 @@ export class UnknownFolderOrderError extends TransientError {
 export class UnknownFolderItemOrderError extends FloccusError {
   public item: string
   public readonly code = 11
-    constructor(item: string) {
+  constructor(item: string) {
     super('E011: Item in folder ordering is not an actual child')
     this.item = item
     Object.setPrototypeOf(this, UnknownFolderItemOrderError.prototype)
@@ -158,12 +159,15 @@ export class HttpError extends TransientError {
   public readonly code = 19
   public status: number
   public method: string
+  public statusMessage: string
+
   constructor(status: number, method: string) {
     super(
-      `E019: HTTP status ${status}. Failed ${method} request. Check your server configuration and log.`
+      `E019: HTTP status ${status}. Failed ${method} request (${statusCodes[status]}). Check your server configuration and log.`
     )
     this.status = status
     this.method = method
+    this.statusMessage = statusCodes[status]
     Object.setPrototypeOf(this, HttpError.prototype)
   }
 }

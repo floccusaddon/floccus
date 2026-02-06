@@ -54,7 +54,7 @@
     "message": "E018: Couldn't authenticate with the server."
   },
   "Error019": {
-    "message": "E019: HTTP status {0}. Failed {1} request. Check your server configuration and log."
+    "message": "E019: HTTP status {0}. Failed {1} request: {2}. Check your server configuration and log."
   },
   "Error020": {
     "message": "E020: Could not parse server response."
