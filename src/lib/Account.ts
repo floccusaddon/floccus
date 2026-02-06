@@ -461,7 +461,12 @@ export default class Account {
       const mappings = this.syncProcess.getMappingsInstance()
       if (this.server.isAtomic()) {
         Logger.log('progressCallback: Persisting cache')
-        const cache = (await this.localCachingResource.getCacheTree()).clone(false)
+        if (!this.localCachingResource) {
+          return
+        }
+        const cache = (await this.localCachingResource.getCacheTree()).clone(
+          false
+        )
         this.syncProcess.filterOutUnacceptedBookmarks(cache)
         await this.storage.setCache(cache)
         Logger.log('progressCallback: Persisting mappings')
