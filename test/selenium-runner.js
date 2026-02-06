@@ -104,6 +104,10 @@ installConsoleHandler()
       testUrl += `&password=${process.env.GOOGLE_API_REFRESH_TOKEN}`
     }
 
+    if (process.env.FLOCCUS_TEST.includes('one-drive')) {
+      testUrl += `&password=${process.env.MICROSOFT_API_REFRESH_TOKEN}`
+    }
+
     if (process.env.FLOCCUS_TEST.includes('linkwarden')) {
       testUrl += `&username=mk`
       testUrl += `&password=${process.env.LINKWARDEN_TOKEN}`

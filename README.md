@@ -6,7 +6,7 @@
 [![Tests](https://github.com/marcelklehr/floccus/workflows/Tests/badge.svg)](https://github.com/marcelklehr/floccus/actions?query=workflow%3ATests) <img src="https://img.shields.io/chrome-web-store/users/fnaicdffflnofjppbagibeoednhnbjhg.svg"> <img src="https://img.shields.io/amo/users/floccus.svg">
 
 - 🔖 Syncs your real, native browser bookmarks directly
-- ☸ Sync via [Nextcloud Bookmarks](https://github.com/nextcloud/bookmarks), [Linkwarden](https://linkwarden.app/), [KaraKeep](https://karakeep.app/), Google Drive, any Git server (like GitHub, Gitlab, Gitea, etc.) or [any WebDAV-compatible service](https://community.cryptomator.org/t/webdav-urls-of-common-cloud-storage-services/75)
+- ☸ Sync via [Nextcloud Bookmarks](https://github.com/nextcloud/bookmarks), [Linkwarden](https://linkwarden.app/), [KaraKeep](https://karakeep.app/), Google Drive, OneDrive, any Git server (like GitHub, Gitlab, Gitea, etc.) or [any WebDAV-compatible service](https://community.cryptomator.org/t/webdav-urls-of-common-cloud-storage-services/75)
 - ⚛ Use any browser that supports Web extensions (e.g. Firefox, Chrome, Edge, Opera, Brave, Vivaldi, ...; Safari [not yet](https://github.com/floccusaddon/floccus/issues/23))
 - 📲 Install the floccus Android/iOS app to access your bookmarks on your phone (Most mobile browsers do not support floccus, sadly)
 - 💼 Create as many sync profiles as you need

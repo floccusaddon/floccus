@@ -100,6 +100,8 @@ jobs:
           - git-html
           - google-drive
           - google-drive-encrypted
+          - one-drive
+          - one-drive-encrypted
           - linkwarden
           - karakeep
         test-name:
@@ -286,6 +288,7 @@ jobs:
           FLOCCUS_TEST_SEED: ${{ github.sha }}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GOOGLE_API_REFRESH_TOKEN: ${{ secrets.GOOGLE_API_REFRESH_TOKEN }}
+          MICROSOFT_API_REFRESH_TOKEN: ${{ secrets.MICROSOFT_API_REFRESH_TOKEN }}
           LINKWARDEN_TOKEN: ${{ secrets.LINKWARDEN_TOKEN }}
           APP_VERSION: ${{ matrix.app-version }}
           KARAKEEP_TEST_HOST: 172.17.0.1:3000

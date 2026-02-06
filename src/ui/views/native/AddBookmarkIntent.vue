@@ -94,6 +94,7 @@ export default {
     accountIcon(type) {
       const icons = {
         'google-drive': 'mdi-google-drive',
+        'one-drive': 'mdi-onedrive',
         'nextcloud-bookmarks': 'mdi-cloud',
         'webdav': 'mdi-folder-network',
         'git': 'mdi-source-repository',

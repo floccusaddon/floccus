@@ -51,6 +51,11 @@
           v-bind.sync="data"
           @reset="onReset"
           @delete="onDelete" />
+        <OptionsOneDrive
+          v-if="data.type === 'one-drive'"
+          v-bind.sync="data"
+          @reset="onReset"
+          @delete="onDelete" />
         <OptionsGit
           v-if="data.type === 'git'"
           v-bind.sync="data"
@@ -69,13 +74,14 @@ import OptionsNextcloudBookmarks from '../../components/OptionsNextcloudBookmark
 import { actions } from '../../store/definitions'
 import { routes } from '../../NativeRouter'
 import OptionsGoogleDrive from '../../components/OptionsGoogleDrive'
+import OptionsOneDrive from '../../components/OptionsOneDrive'
 import OptionsGit from '../../components/OptionsGit.vue'
 import OptionsLinkwarden from '../../components/OptionsLinkwarden.vue'
 import OptionsKarakeep from '../../components/OptionsKarakeep.vue'
 
 export default {
   name: 'Options',
-  components: { OptionsLinkwarden, OptionsKarakeep, OptionsGit, OptionsGoogleDrive, OptionsNextcloudBookmarks, OptionsWebdav, OptionsFake },
+  components: { OptionsLinkwarden, OptionsKarakeep, OptionsGit, OptionsGoogleDrive, OptionsOneDrive, OptionsNextcloudBookmarks, OptionsWebdav, OptionsFake },
   data() {
     return {
       drawer: false,

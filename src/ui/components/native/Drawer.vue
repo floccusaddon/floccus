@@ -119,7 +119,8 @@ export default {
         'karakeep': 'mdi-bookmark-box',
         'webdav': 'mdi-folder-network',
         'git': 'mdi-source-repository',
-        'google-drive': 'mdi-google-drive'
+        'google-drive': 'mdi-google-drive',
+        'one-drive': 'mdi-onedrive'
       }
       return icons[type]
     },

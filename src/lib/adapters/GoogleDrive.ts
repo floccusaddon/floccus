@@ -8,7 +8,7 @@ import {
   DecryptionError, FileUnreadableError,
   GoogleDriveAuthenticationError, HttpError, CancelledSyncError, MissingPermissionsError,
   NetworkError,
-  OAuthTokenError, ResourceLockedError, GoogleDriveSearchError, RequestTimeoutError
+  GoogleOAuthTokenError, ResourceLockedError, GoogleDriveSearchError, RequestTimeoutError
 } from '../../errors/Error'
 import { OAuth2Client } from '@byteowls/capacitor-oauth2'
 import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
@@ -123,12 +123,12 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
       if (response.status !== 200) {
         Logger.log('Failed to retrieve refresh token from Google API: ' + await response.text())
-        throw new OAuthTokenError()
+        throw new GoogleOAuthTokenError()
       }
       const json = await response.json()
       if (!json.access_token || !json.refresh_token) {
         Logger.log('Failed to retrieve refresh token from Google API: ' + JSON.stringify(json))
-        throw new OAuthTokenError()
+        throw new GoogleOAuthTokenError()
       }
 
       const res = await fetch('https://www.googleapis.com/drive/v3/about?fields=user/displayName', {
@@ -162,7 +162,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     if (json.access_token) {
       return json.access_token
     } else {
-      throw new OAuthTokenError()
+      throw new GoogleOAuthTokenError()
     }
   }
 

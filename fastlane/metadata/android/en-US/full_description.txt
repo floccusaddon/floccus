@@ -1,4 +1,4 @@
-Manage and synchronize your bookmarks via Nextcloud, or any WebDAV service, or any Git service, or Google Drive, end-to-end encrypted, if you want.
+Manage and synchronize your bookmarks via Nextcloud, or any WebDAV service, or any Git service, or Google Drive, or OneDrive, end-to-end encrypted, if you want.
 
 This is the standalone bookmarks manager android app variant of floccus. You can also install floccus on your Desktop browsers to sync bookmarks with them. This App, due to technical reasons, cannot access bookmarks in your mobile browser apps directly, which is why you can only view them in the app or import and export them as a html file.
 

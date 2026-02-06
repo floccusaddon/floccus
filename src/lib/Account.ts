@@ -30,7 +30,8 @@ AdapterFactory.register('nextcloud-folders', async() => (await import('./adapter
 AdapterFactory.register('nextcloud-bookmarks', async() => (await import('./adapters/NextcloudBookmarks')).default)
 AdapterFactory.register('webdav', async() => (await import('./adapters/WebDav')).default)
 AdapterFactory.register('git', async() => (await import('./adapters/Git')).default)
-AdapterFactory.register('google-drive', async() => (await import('./adapters/GoogleDrive')).default)
+AdapterFactory.register('google-drive', async () => (await import('./adapters/GoogleDrive')).default)
+AdapterFactory.register('one-drive', async() => (await import('./adapters/OneDrive')).default)
 AdapterFactory.register('fake', async() => (await import('./adapters/Fake')).default)
 
 // 2h

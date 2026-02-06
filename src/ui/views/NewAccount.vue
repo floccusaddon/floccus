@@ -310,6 +310,27 @@
               </v-btn>
             </div>
           </template>
+
+          <template v-else-if="adapter === 'one-drive'">
+            <div class="headline">
+              {{ t('LabelOnedrivesetup') }}
+            </div>
+            <v-form class="mt-2">
+              <v-btn
+                color="primary"
+                @click="loginOneDrive">
+                {{ t('LabelLoginonedrive') }}
+              </v-btn>
+              <p class="mt-2">
+                {{ t('DescriptionLoginmicrosoft') }}
+              </p>
+            </v-form>
+            <div class="form-buttons">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
+            </div>
+          </template>
         </v-stepper-content>
 
         <v-stepper-content step="3">
@@ -401,6 +422,28 @@
                 :rules="[validateBookmarksFileGoogle]"
                 :label="t('LabelBookmarksfile')"
                 :hint="t('DescriptionBookmarksfilegoogle')"
+                :persistent-hint="true" />
+              <v-text-field
+                v-model="passphrase"
+                :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
+                :type="showPassphrase ? 'text' : 'password'"
+                class="mt-2"
+                :label="t('LabelPassphrase')"
+                :hint="t('DescriptionPassphrase')"
+                :persistent-hint="true"
+                @click:append="showPassphrase = !showPassphrase" />
+            </template>
+
+            <template v-if="adapter === 'one-drive'">
+              <div class="text-h6">
+                {{ t('LabelBookmarksfile') }}
+              </div>
+              <v-text-field
+                v-model="bookmark_file"
+                append-icon="mdi-file-document"
+                :rules="[validateBookmarksFileOneDrive]"
+                :label="t('LabelBookmarksfile')"
+                :hint="t('DescriptionBookmarksfileonedrive')"
                 :persistent-hint="true" />
               <v-text-field
                 v-model="passphrase"
@@ -574,6 +617,11 @@ export default {
           type: 'google-drive',
           label: this.t('LabelAdaptergoogledrive'),
           description: this.t('DescriptionAdaptergoogledrive')
+        },
+        {
+          type: 'one-drive',
+          label: this.t('LabelAdapteronedrive'),
+          description: this.t('DescriptionAdapteronedrive')
         }
       ],
     }
@@ -610,11 +658,13 @@ export default {
         ...(this.adapter === 'linkwarden' && {serverFolder: this.serverFolder}),
         ...(this.adapter === 'karakeep' && {serverFolder: this.serverFolder}),
         ...(this.adapter === 'git' && {branch: this.branch}),
-        ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'git') && {bookmark_file: this.bookmark_file}),
-        ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'git') && {bookmark_file_type: this.bookmark_file_type}),
+        ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'one-drive' || this.adapter === 'git') && {bookmark_file: this.bookmark_file}),
+        ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'one-drive' || this.adapter === 'git') && {bookmark_file_type: this.bookmark_file_type}),
         ...(this.adapter === 'google-drive' && {refreshToken: this.refreshToken}),
+        ...(this.adapter === 'one-drive' && {refreshToken: this.refreshToken}),
         ...(this.passphrase && {passphrase: this.passphrase}),
-        ...(this.adapter === 'google-drive' && this.passphrase && {password: this.passphrase}),
+        ...(this.adapter === 'google-drive' && this.passphrase && { password: this.passphrase }),
+        ...(this.adapter === 'one-drive' && this.passphrase && {password: this.passphrase}),
         ...(this.isBrowser && {localRoot: this.localRoot}),
         syncInterval: this.syncInterval,
         strategy: this.strategy,
@@ -688,6 +738,19 @@ export default {
         this.currentStep++
       }
     },
+    async loginOneDrive() {
+      if (this.isBrowser) {
+        await this.$store.dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
+      }
+      const OneDriveAdapter = (await import('../../lib/adapters/OneDrive')).default
+      const { refresh_token, username } = await OneDriveAdapter.authorize()
+      if (refresh_token) {
+        this.authorized = true
+        this.refreshToken = refresh_token
+        this.username = username
+        this.currentStep++
+      }
+    },
     async onFlowStart() {
       this.loginFlowError = null
       try {
@@ -717,6 +780,9 @@ export default {
       return path[0] !== '/' && path[path.length - 1] !== '/'
     },
     validateBookmarksFileGoogle(path) {
+      return !path.includes('/')
+    },
+    validateBookmarksFileOneDrive(path) {
       return !path.includes('/')
     },
     requestHistoryPermissions() {

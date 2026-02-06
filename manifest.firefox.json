@@ -31,7 +31,6 @@
 
   "browser_action": {
     "browser_style": false,
-    "chrome_style": false,
     "default_icon": {
       "48": "icons/logo.png"
     },
