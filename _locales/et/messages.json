@@ -54,7 +54,7 @@
     "message": "E018: Ei õnnestunud serveriga autentimine."
   },
   "Error019": {
-    "message": "E019: HTTP staatus {0}. Ebaõnnestunud {1} taotlus. Kontrollige oma serveri konfiguratsiooni ja logi."
+    "message": "E019: HTTP olekukood {0}. Ebaõnnestunud {1}-päring: {2}. Vaata oma logisid ja kontrolli oma serveri seadistusi."
   },
   "Error020": {
     "message": "E020: Serveri vastuse töötlemine ei õnnestunud."
