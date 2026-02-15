@@ -51,6 +51,11 @@
           v-bind.sync="data"
           @reset="onReset"
           @delete="onDelete" />
+        <OptionsDropbox
+          v-if="data.type === 'dropbox'"
+          v-bind.sync="data"
+          @reset="onReset"
+          @delete="onDelete" />
         <OptionsGit
           v-if="data.type === 'git'"
           v-bind.sync="data"
@@ -69,13 +74,14 @@ import OptionsNextcloudBookmarks from '../../components/OptionsNextcloudBookmark
 import { actions } from '../../store/definitions'
 import { routes } from '../../NativeRouter'
 import OptionsGoogleDrive from '../../components/OptionsGoogleDrive'
+import OptionsDropbox from '../../components/OptionsDropbox'
 import OptionsGit from '../../components/OptionsGit.vue'
 import OptionsLinkwarden from '../../components/OptionsLinkwarden.vue'
 import OptionsKarakeep from '../../components/OptionsKarakeep.vue'
 
 export default {
   name: 'Options',
-  components: { OptionsLinkwarden, OptionsKarakeep, OptionsGit, OptionsGoogleDrive, OptionsNextcloudBookmarks, OptionsWebdav, OptionsFake },
+  components: { OptionsLinkwarden, OptionsKarakeep, OptionsGit, OptionsGoogleDrive, OptionsDropbox, OptionsNextcloudBookmarks, OptionsWebdav, OptionsFake },
   data() {
     return {
       drawer: false,

@@ -168,6 +168,11 @@
                 v-bind.sync="data"
                 @reset="onReset"
                 @delete="onDelete" />
+              <OptionsDropbox
+                v-if="data.type === 'dropbox'"
+                v-bind.sync="data"
+                @reset="onReset"
+                @delete="onDelete" />
             </v-form>
             <div class="d-flex flex-row-reverse">
               <v-btn
@@ -208,11 +213,12 @@ import OptionsKarakeep from '../components/OptionsKarakeep'
 import OptionsWebdav from '../components/OptionsWebdav'
 import OptionsFake from '../components/OptionsFake'
 import OptionsGoogleDrive from '../components/OptionsGoogleDrive'
+import OptionsDropbox from '../components/OptionsDropbox'
 import OptionsGit from '../components/OptionsGit.vue'
 
 export default {
   name: 'AccountOptions',
-  components: { OptionsGit, OptionsGoogleDrive, OptionsFake, OptionsWebdav, OptionsNextcloudFolders, OptionsLinkwarden, OptionsKarakeep },
+  components: { OptionsGit, OptionsGoogleDrive, OptionsDropbox, OptionsFake, OptionsWebdav, OptionsNextcloudFolders, OptionsLinkwarden, OptionsKarakeep },
   data() {
     return {
       folderName: '',
