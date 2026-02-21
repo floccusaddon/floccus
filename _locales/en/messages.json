@@ -84,7 +84,7 @@
     "message": "E028: Couldn't authenticate with the server."
   },
   "Error029": {
-    "message": "E029: Failsafe: The current sync run would delete {0}% of your links on the server. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway."
+    "message": "E029: Failsafe: The current sync run would delete {0}% of your links on the server. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway. If you didn't cause this, you can use the manual sync buttons to override the local state on this device with the state on the server. If you believe this is a bug, please reach out to the developers with the debug log of this run."
   },
   "Error030": {
     "message": "E030: Failed to decrypt bookmarks file. The passphrase may be wrong or the file may be corrupted."
@@ -126,7 +126,7 @@
     "message": "E042: Remote bookmarks file size could not be retrieved. It is impossible to verify that the bookmarks file was downloaded in full. If this error persists please contact the server administrator."
   },
   "Error043": {
-    "message": "E043: Failsafe: The current sync run would increase your links count on the server by {0}%. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway."
+    "message": "E043: Failsafe: The current sync run would increase your links count on the server by {0}%. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway. If you didn't cause this, you can use the manual sync buttons to override the local state on this device with the state on the server. If you believe this is a bug, please reach out to the developers with the debug log of this run."
   },
   "Error044": {
     "message": "E044: Git push operation failed: {0}"
@@ -141,10 +141,10 @@
     "message": "E047: Failed to parse XBEL file. The XBEL data seems to be corrupted or incomplete. You can try removing the file on the server to let floccus recreate it. Make sure to take a backup first."
   },
   "Error049": {
-    "message": "E049: Failsafe: The current sync run would increase your local links count in this profile by {0}%. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway."
+    "message": "E049: Failsafe: The current sync run would increase your local links count in this profile by {0}%. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway. If you didn't cause this, you can use the manual sync buttons to override the server state with the local state on this device. If you believe this is a bug, please reach out to the developers with the debug log of this run."
   },
   "Error050": {
-    "message": "E050: Failsafe: The current sync run would delete {0}% of your local links in this profile. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway."
+    "message": "E050: Failsafe: The current sync run would delete {0}% of your local links in this profile. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway. If you didn't cause this, you can use the manual sync buttons to override the server state with the local state on this device. If you believe this is a bug, please reach out to the developers with the debug log of this run."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
