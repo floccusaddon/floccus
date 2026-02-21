@@ -664,7 +664,7 @@ export default {
         ...(this.adapter === 'one-drive' && {refreshToken: this.refreshToken}),
         ...(this.passphrase && {passphrase: this.passphrase}),
         ...(this.adapter === 'google-drive' && this.passphrase && { password: this.passphrase }),
-        ...(this.adapter === 'one-drive' && this.passphrase && {password: this.passphrase}),
+        ...(this.adapter === 'one-drive' && this.passphrase && { password: this.passphrase }),
         ...(this.isBrowser && {localRoot: this.localRoot}),
         syncInterval: this.syncInterval,
         strategy: this.strategy,

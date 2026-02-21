@@ -32,6 +32,7 @@
                 <data
                         android:host="@string/oauth_redirect_host"
                         android:scheme="@string/package_name" />
+                <data android:scheme="org.handmadeideas.floccus" android:host="auth" />
             </intent-filter>
         </activity>
 
@@ -46,7 +47,6 @@
 
                 <!-- Depending on your project, you can add here the type of data you wish to receive -->
                 <data android:mimeType="text/plain" />
-                <data android:scheme="org.handmadeideas.floccus" android:host="auth" />
             </intent-filter>
         </activity>
 

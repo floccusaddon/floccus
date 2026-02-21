@@ -317,7 +317,7 @@ export default class OneDriveAdapter extends CachingAdapter {
 
   static getDefaultValues() {
     return {
-      type: 'onedrive',
+      type: 'one-drive',
       username: '',
       password: '',
       refreshToken: null,
@@ -400,14 +400,16 @@ export default class OneDriveAdapter extends CachingAdapter {
       if (forceLock) {
         this.locked = await this.setLock()
       } else if (needLock) {
+        // Getting lock file data to check if file is locked or not, if locked then since when it is locked
+        // Data is in string format and we need to parse it to get locked date
         const lockFileData = await this.getLock()
         const data = JSON.parse(lockFileData)
         const lockedDate = data?.locked
         if (data !== null && lockedDate !== false && lockedDate !== null) {
-          if (!Number.isInteger(data)) {
+          if (!Number.isInteger(lockedDate)) {
             throw new ResourceLockedError()
           }
-          if (Date.now() - data < LOCK_TIMEOUT) {
+          if (Date.now() - lockedDate < LOCK_TIMEOUT) {
             throw new ResourceLockedError()
           }
         }
@@ -575,7 +577,7 @@ export default class OneDriveAdapter extends CachingAdapter {
   }
 
   /**
-   * Makes API calls to Dropbox and returns errors/results
+   * Makes calls to the Microsoft Graph API and returns errors/results
    * @param {string} method HTTP method
    * @param {string} url Url of API call
    * @param {any} body Body segment of API call
@@ -777,9 +779,7 @@ export default class OneDriveAdapter extends CachingAdapter {
         throw new HttpError(res.status, 'GET')
       }
 
-      const data = await res.json()
-
-      return data
+      return res.text()
     } catch {
       return null
     }
