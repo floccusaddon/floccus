@@ -1,12 +1,12 @@
-import CachingAdapter from './Caching'
-import XbelSerializer from '../serializers/Xbel'
-import Logger from '../Logger'
-import { Capacitor } from '@capacitor/core'
 import * as git from 'isomorphic-git'
 import http from 'isomorphic-git/http/web'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import FS from '@isomorphic-git/lightning-fs'
+import * as Parallel from 'async-parallel'
+import CachingAdapter from './Caching'
+import XbelSerializer from '../serializers/Xbel'
+import Logger from '../Logger'
 import Html from '../serializers/Html'
 import {
   FileUnreadableError, GitPushError,
@@ -191,7 +191,7 @@ export default class GitAdapter extends CachingAdapter {
     Logger.log('onSyncFail')
     clearInterval(this.lockingInterval)
     await this.freeLock()
-    indexedDB.deleteDatabase(this.hash)
+    await this.cleanupIndexedDB()
   }
 
   async onSyncComplete() {
@@ -230,6 +230,7 @@ export default class GitAdapter extends CachingAdapter {
       } catch (e) {
         if (e.code && e.code === git.Errors.PushRejectedError.code) {
           await this.freeLock() // Only clears the locks set in the current adapter instance
+          await this.cleanupIndexedDB()
           throw new ResourceLockedError
         }
         throw e
@@ -239,7 +240,50 @@ export default class GitAdapter extends CachingAdapter {
     }
 
     await this.freeLock()
-    indexedDB.deleteDatabase(this.hash)
+    await this.cleanupIndexedDB()
+  }
+
+  async cleanupIndexedDB() {
+    try {
+      // Give the FS instance time to close connections
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // Get all IndexedDB databases
+      Logger.log('Cleaning up all Lightning FS IndexedDB databases')
+      const databases = await indexedDB.databases()
+
+      // Delete all databases (Lightning FS uses hash-based names)
+      await Parallel.map(databases, async(dbInfo) => {
+        try {
+          Logger.log('Deleting IndexedDB: ' + dbInfo.name)
+          const deleteRequest = indexedDB.deleteDatabase(dbInfo.name)
+
+          await new Promise<void>((resolve) => {
+            deleteRequest.onsuccess = () => {
+              Logger.log('IndexedDB cleanup successful: ' + dbInfo.name)
+              resolve()
+            }
+            deleteRequest.onerror = () => {
+              Logger.log('IndexedDB cleanup error for ' + dbInfo.name + ': ' + deleteRequest.error)
+              resolve() // Don't reject, just log and continue
+            }
+            deleteRequest.onblocked = () => {
+              Logger.log('IndexedDB cleanup blocked: ' + dbInfo.name)
+              // Still resolve after a timeout even if blocked
+              setTimeout(() => resolve(), 1000)
+            }
+          })
+        } catch (e) {
+          Logger.log('Error deleting IndexedDB ' + dbInfo.name + ': ' + e)
+        }
+      }, 4)
+      Logger.log('IndexedDB cleanup completed')
+    } catch (e) {
+      Logger.log('Error during IndexedDB cleanup: ' + e)
+    }
+
+    // Clear the reference
+    this.fs = null
   }
 
   async obtainLock() {
