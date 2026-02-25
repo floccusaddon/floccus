@@ -103,6 +103,11 @@ export default class DropboxAdapter extends CachingAdapter {
         },
         body: JSON.stringify({account_id: result.access_token_response.additionalParameters.account_id})
       })
+
+      if (res.status !== 200) {
+        Logger.log('Failed to retrieve user information from Dropbox API: ' + JSON.stringify(await res.text()))
+        throw new HttpError(res.status, 'POST')
+      }
       
       let about: any
       try {
@@ -157,7 +162,6 @@ export default class DropboxAdapter extends CachingAdapter {
         },
         body: `code=${code}` +
           `&client_id=${Credentials.web.client_id}` +
-          `&client_secret=${Credentials.web.client_secret}` +
           `&redirect_uri=${encodeURIComponent(chrome.identity.getRedirectURL())}` +
           `&code_verifier=${challenge}` +
           '&grant_type=authorization_code'
@@ -187,6 +191,11 @@ export default class DropboxAdapter extends CachingAdapter {
         },
         body: JSON.stringify({account_id: json.account_id})
       })
+
+      if (res.status !== 200) {
+        Logger.log('Failed to retrieve user information from Dropbox API: ' + JSON.stringify(await res.text()))
+        throw new HttpError(res.status, 'POST')
+      }
       
       let about: any
       try {
@@ -210,7 +219,6 @@ export default class DropboxAdapter extends CachingAdapter {
       {
         refresh_token: refreshToken,
         client_id: Credentials[Capacitor.getPlatform()].client_id,
-        // ...(IS_BROWSER && {client_secret: Credentials.web.client_secret}),
         grant_type: 'refresh_token',
       },
       'application/x-www-form-urlencoded'
@@ -583,12 +591,12 @@ export default class DropboxAdapter extends CachingAdapter {
             "max_results": limit,
             "path": ""
         },
-        "query": encodeURIComponent(query)
+        "query": query
       },
       'application/json'
     )
     if (res.status >= 400) {
-      Logger.log('Dropbox API error: ' + JSON.stringify(res.text()))
+      Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
       throw new HttpError(res.status, 'POST')
     }
     let json = await res.json()
@@ -616,7 +624,7 @@ export default class DropboxAdapter extends CachingAdapter {
       'application/json'
     )
     if (res.status >= 400) {
-      Logger.log('Dropbox API error: ' + JSON.stringify(res.text()))
+      Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
       throw new HttpError(res.status, 'POST')
     }
 
@@ -664,7 +672,7 @@ export default class DropboxAdapter extends CachingAdapter {
       })
 
       if (res.status >= 400) {
-        Logger.log('Dropbox API error: ' + JSON.stringify(res.text()))
+        Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
         throw new HttpError(res.status, 'POST')
       }
 
@@ -684,7 +692,7 @@ export default class DropboxAdapter extends CachingAdapter {
       })
 
       if (res.status >= 400) {
-        Logger.log('Dropbox API error: ' + JSON.stringify(res.text()))
+        Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
         throw new HttpError(res.status, 'POST')
       }
 
@@ -701,11 +709,11 @@ export default class DropboxAdapter extends CachingAdapter {
     const res = await this.request('POST', url, null, null, extraHeaders)
 
     if (res.status >= 400) {
-      Logger.log('Dropbox API error: ' + JSON.stringify(res.text()))
+      Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
       throw new HttpError(res.status, 'POST')
     }
 
-    return res.text()
+    return await res.text()
   }
 
   /**
@@ -721,7 +729,7 @@ export default class DropboxAdapter extends CachingAdapter {
       'application/json'
     )
     if (res.status >= 400) {
-      Logger.log('Dropbox API error: ' + JSON.stringify(res.text()))
+      Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
       throw new HttpError(res.status, 'POST')
     }
 
@@ -777,7 +785,7 @@ export default class DropboxAdapter extends CachingAdapter {
       'application/json'
     )
     if (res.status >= 400) {
-      Logger.log('Dropbox API error: ' + JSON.stringify(res.text()))
+      Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
       throw new HttpError(res.status, 'POST')
     }
 
@@ -811,7 +819,7 @@ export default class DropboxAdapter extends CachingAdapter {
       json = await res.json()
     }
     if (res.status >= 400) {
-      Logger.log('Dropbox API error: ' + JSON.stringify(res.text()))
+      Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
       throw new HttpError(res.status, 'POST')
     }
     return json.template_ids
@@ -822,7 +830,7 @@ export default class DropboxAdapter extends CachingAdapter {
    * @param {string} templateId A unique template identifier
    * @returns {string} JSON value of template
    */
-  async getTemplate(templateId:string): Promise<void> {
+  async getTemplate(templateId:string): Promise<any> {
     const res = await this.request('POST', this.getUrl() + `/file_properties/templates/get_for_user`, 
       {
           "template_id": templateId
@@ -830,7 +838,7 @@ export default class DropboxAdapter extends CachingAdapter {
       'application/json'
     )
     if (res.status >= 400) {
-      Logger.log('Dropbox API error: ' + JSON.stringify(res.text()))
+      Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
       throw new HttpError(res.status, 'POST')
     }
 
@@ -861,7 +869,7 @@ export default class DropboxAdapter extends CachingAdapter {
     try {
       let templateIds = await this.getTemplates()
       
-      if (templateIds.length == 0) {
+      if (templateIds.length === 0) {
         // no templates as its first time so create our template for custom properties
         let template = await this.addTemplate()
         this.templateId = template.template_id
@@ -894,7 +902,9 @@ export default class DropboxAdapter extends CachingAdapter {
       this.templateId = template.template_id
       return this.templateId
     } catch (error) {
-      Logger.log('Dropbox API error: ' + error.message)
+      const message = error && (error as any).message ? (error as any).message : String(error)
+      Logger.log('Dropbox API error: ' + message)
+      throw error
     }
   }
 
@@ -928,7 +938,7 @@ export default class DropboxAdapter extends CachingAdapter {
       )
      
       if (res.status >= 400) {
-        Logger.log('Dropbox API error: ' + JSON.stringify(res.text()))
+        Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
         throw new HttpError(res.status, 'POST')
       }
         
@@ -993,7 +1003,7 @@ export default class DropboxAdapter extends CachingAdapter {
     )
     
     if (res.status >= 400) {
-      Logger.log('Dropbox API error: ' + JSON.stringify(res.text()))
+      Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
       throw new HttpError(res.status, 'POST')
     }
 
@@ -1027,7 +1037,7 @@ export default class DropboxAdapter extends CachingAdapter {
     )
     
     if (res.status >= 400) {
-      Logger.log('Dropbox API error: ' + JSON.stringify(res.text()))
+      Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
       throw new HttpError(res.status, 'POST')
     }
 

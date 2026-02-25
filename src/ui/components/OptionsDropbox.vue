@@ -148,7 +148,7 @@ import OptionSyncIntervalEnabled from './OptionSyncIntervalEnabled.vue'
 export default {
   name: 'OptionsDropbox',
   components: { OptionSyncIntervalEnabled, OptionAutoSync, OptionExportBookmarks, OptionPassphrase, OptionAllowNetwork, OptionDownloadLogs, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['username', 'password', 'refreshToken', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'enabled', 'label'],
+  props: ['username', 'password', 'refreshToken', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'bookmark_file', 'nestedSync', 'failsafe', 'enabled', 'label', 'syncIntervalEnabled'],
   data() {
     return {
       panels: [0, 1],
