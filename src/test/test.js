@@ -6013,7 +6013,7 @@ describe('Floccus', function() {
               }
             }
             if (ACCOUNT_DATA.type === 'dropbox') {
-              const fileList = await account.serverlistFiles(
+              const fileList = await account.server.listFiles(
                 ACCOUNT_DATA.bookmark_file,
                 100
               )
