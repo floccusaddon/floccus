@@ -9068,7 +9068,13 @@ function stringifyAccountData(ACCOUNT_DATA) {
   return `${ACCOUNT_DATA.type}${
     (ACCOUNT_DATA.noCache ? '-noCache' : '') +
     (typeof ACCOUNT_DATA.bookmark_file_type !== 'undefined' ? '-' + ACCOUNT_DATA.bookmark_file_type : '') +
-    ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase) ? '-encrypted' : '')
+    (
+      (ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) ||
+      (ACCOUNT_DATA.type === 'dropbox' && ACCOUNT_DATA.password) ||
+      (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase)
+        ? '-encrypted'
+        : ''
+    )
   }`
 }
 
