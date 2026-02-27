@@ -305,7 +305,9 @@ describe('Floccus', function() {
               })
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
-              const fileList = await account.server.listFiles('name = ' + "'" + account.server.bookmark_file + "'")
+              const fileList = await account.server.listFiles(
+                'name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'"
+              )
               const files = fileList.files
               for (const file of files) {
                 await account.server.deleteFile(file.id)
@@ -315,7 +317,7 @@ describe('Floccus', function() {
               }
             }
             if (ACCOUNT_DATA.type === 'dropbox') {
-              const fileList = await account.server.listFiles(account.server.bookmark_file)
+              const fileList = await account.server.listFiles(ACCOUNT_DATA.bookmark_file, 100)
               const files = fileList.matches
               for (const file of files) {
                 await account.server.deleteFile(file.metadata.metadata.id)
@@ -4008,7 +4010,7 @@ describe('Floccus', function() {
               })
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
-              const fileList = await account1.server.listFiles('name = ' + "'" + account1.server.bookmark_file + "'")
+              const fileList = await account1.server.listFiles('name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'")
               const files = fileList.files
               for (const file of files) {
                 await account1.server.deleteFile(file.id)
@@ -4018,7 +4020,7 @@ describe('Floccus', function() {
               }
             }
             if (ACCOUNT_DATA.type === 'dropbox') {
-              const fileList = await account1.server.listFiles(account1.server.bookmark_file)
+              const fileList = await account1.server.listFiles(ACCOUNT_DATA.bookmark_file, 100)
               const files = fileList.matches
               for (const file of files) {
                 await account1.server.deleteFile(file.metadata.metadata.id)
@@ -5599,7 +5601,7 @@ describe('Floccus', function() {
               })
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
-              const fileList = await account.server.listFiles('name = ' + "'" + account.server.bookmark_file + "'")
+              const fileList = await account.server.listFiles('name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'")
               const files = fileList.files
               for (const file of files) {
                 await account.server.deleteFile(file.id)
@@ -5609,7 +5611,7 @@ describe('Floccus', function() {
               }
             }
             if (ACCOUNT_DATA.type === 'dropbox') {
-              const fileList = await account.server.listFiles(account.server.bookmark_file)
+              const fileList = await account.server.listFiles(ACCOUNT_DATA.bookmark_file, 100)
               const files = fileList.matches
               for (const file of files) {
                 await account.server.deleteFile(file.metadata.metadata.id)
@@ -6001,7 +6003,7 @@ describe('Floccus', function() {
               })
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
-              const fileList = await account.server.listFiles('name = ' + "'" + account.server.bookmark_file + "'")
+              const fileList = await account.server.listFiles('name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'")
               const files = fileList.files
               for (const file of files) {
                 await account.server.deleteFile(file.id)
@@ -6011,7 +6013,10 @@ describe('Floccus', function() {
               }
             }
             if (ACCOUNT_DATA.type === 'dropbox') {
-              const fileList = await account.server.listFiles(account.server.bookmark_file)
+              const fileList = await account.serverlistFiles(
+                ACCOUNT_DATA.bookmark_file,
+                100
+              )
               const files = fileList.matches
               for (const file of files) {
                 await account.server.deleteFile(file.metadata.metadata.id)
@@ -7082,7 +7087,7 @@ describe('Floccus', function() {
             })
           }
           if (ACCOUNT_DATA.type === 'google-drive') {
-            const fileList = await account1.server.listFiles('name = ' + "'" + account1.server.bookmark_file + "'")
+            const fileList = await account1.server.listFiles('name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'")
             const files = fileList.files
             for (const file of files) {
               await account1.server.deleteFile(file.id)
@@ -7092,7 +7097,10 @@ describe('Floccus', function() {
             }
           }
           if (ACCOUNT_DATA.type === 'dropbox') {
-            const fileList = await account1.server.listFiles(account1.server.bookmark_file)
+            const fileList = await account1.server.listFiles(
+              ACCOUNT_DATA.bookmark_file,
+              100
+            )
             const files = fileList.matches
             for (const file of files) {
               await account1.server.deleteFile(file.metadata.metadata.id)
