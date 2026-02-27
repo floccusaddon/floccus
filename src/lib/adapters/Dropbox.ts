@@ -732,9 +732,7 @@ export default class DropboxAdapter extends CachingAdapter {
    */
   async deleteFile(id: string): Promise<any> {
     const res = await this.request('POST', this.getUrl() + `/files/delete_v2`,
-      {
-        'entries': [{ 'path': id }]
-      },
+      { 'path': id },
       'application/json'
     )
     if (res.status >= 400) {
