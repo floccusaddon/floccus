@@ -108,7 +108,7 @@ export default class DropboxAdapter extends CachingAdapter {
         Logger.log('Failed to retrieve user information from Dropbox API: ' + JSON.stringify(await res.text()))
         throw new HttpError(res.status, 'POST')
       }
-      
+
       let about: any
       try {
         about = await res.json()
@@ -177,7 +177,7 @@ export default class DropboxAdapter extends CachingAdapter {
       } catch (e) {
         throw new ParseResponseError(e.message)
       }
-        
+
       if (!json.access_token || !json.refresh_token) {
         Logger.log('Failed to retrieve refresh token from Dropbox API: ' + JSON.stringify(json))
         throw new DropboxOAuthTokenError()
@@ -196,7 +196,7 @@ export default class DropboxAdapter extends CachingAdapter {
         Logger.log('Failed to retrieve user information from Dropbox API: ' + JSON.stringify(await res.text()))
         throw new HttpError(res.status, 'POST')
       }
-      
+
       let about: any
       try {
         about = await res.json()
@@ -212,7 +212,7 @@ export default class DropboxAdapter extends CachingAdapter {
    * Authorizes webapp for subsequent requests to make changes on behalf of user
    * This method gets access token which can be used for subsequent requests to Dropbox API
    * @param {string} refreshToken A token used to get access token to authenticate on subsequent requests
-   * @returns 
+   * @returns
    */
   async getAccessToken(refreshToken:string) {
     const response = await this.request('POST', oAuthBaseUrl + '/token',
@@ -235,7 +235,7 @@ export default class DropboxAdapter extends CachingAdapter {
     } catch (e) {
       throw new ParseResponseError(e.message)
     }
-      
+
     if (json.access_token) {
       return json.access_token
     } else {
@@ -261,7 +261,7 @@ export default class DropboxAdapter extends CachingAdapter {
   getUrl() :string {
     return apiBaseUrl
   }
-    
+
   getContentUrl() :string {
     return contentUrl
   }
@@ -284,7 +284,7 @@ export default class DropboxAdapter extends CachingAdapter {
    * This method defines what should happen when sync starts.
    * @param {boolean} needLock If we need lock
    * @param {boolean} forceLock If lock needs to be forced
-   * @returns 
+   * @returns
    */
   async onSyncStart(needLock = true, forceLock = false) {
     Logger.log('onSyncStart: begin')
@@ -305,10 +305,19 @@ export default class DropboxAdapter extends CachingAdapter {
     }
 
     this.accessToken = await this.getAccessToken(this.server.refreshToken)
-    
-    const fileList = await this.listFiles(this.server.bookmark_file, 100)
-    if (!fileList.matches) {
-      throw new DropboxSearchError()
+
+    let fileList
+    for (let i = 0; i < 3; i++) {
+      fileList = await this.listFiles(this.server.bookmark_file, 100)
+      if (!fileList.matches) {
+        throw new DropboxSearchError()
+      }
+      if (fileList.matches.length > 0) {
+        break
+      }
+      // Try again 2 times after 2 seconds if the first time didn't yield anything
+      // as not all dropbox servers may know about the file yet (mostly useful for CI)
+      await this.timeout(2000)
     }
 
     const file = fileList.matches[0]
@@ -323,19 +332,19 @@ export default class DropboxAdapter extends CachingAdapter {
     }
     if (file && file.metadata.metadata.id) {
       this.fileId = file.metadata.metadata.id
-      
+
       // Get Floccus templateId for user or add one if not exists
       await this.setupTemplate()
-        
+
       if (forceLock) {
         this.locked = await this.setLock(this.fileId)
       } else if (needLock) {
         const data = await this.getFileMetadata(this.fileId)
-        // Here we know that we are trying to get property for "locked" as we set template_id to search for the same. 
+        // Here we know that we are trying to get property for "locked" as we set template_id to search for the same.
         // The value is either empty or epoch date as string
-        let lockedValue = data?.property_groups?.[0]?.fields?.[0]?.value
-        if (lockedValue !== "" && lockedValue !== undefined) {
-          let lockedDate = parseInt(lockedValue)
+        const lockedValue = data?.property_groups?.[0]?.fields?.[0]?.value
+        if (lockedValue !== '' && lockedValue !== undefined) {
+          const lockedDate = parseInt(lockedValue)
           if (!Number.isInteger(lockedDate)) {
             throw new ResourceLockedError()
           }
@@ -580,18 +589,18 @@ export default class DropboxAdapter extends CachingAdapter {
    * @returns {any} JSON list of files
    */
   async listFiles(query: string, limit = 1) : Promise<any> {
-    const res = await this.request('POST', this.getUrl() + `/files/search_v2?`, 
+    const res = await this.request('POST', this.getUrl() + `/files/search_v2?`,
       {
-        "match_field_options": {
-            "include_highlights": false
+        'match_field_options': {
+          'include_highlights': false
         },
-        "options": {
-            "file_status": "active",
-            "filename_only": false,
-            "max_results": limit,
-            "path": ""
+        'options': {
+          'file_status': 'active',
+          'filename_only': false,
+          'max_results': limit,
+          'path': ''
         },
-        "query": query
+        'query': query
       },
       'application/json'
     )
@@ -599,8 +608,8 @@ export default class DropboxAdapter extends CachingAdapter {
       Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
       throw new HttpError(res.status, 'POST')
     }
-    let json = await res.json()
-    
+    const json = await res.json()
+
     return json
   }
 
@@ -610,16 +619,16 @@ export default class DropboxAdapter extends CachingAdapter {
    * @returns {any} JSON format data with file metadata
    */
   async getFileMetadata(id: string): Promise<any> {
-    const res = await this.request('POST', this.getUrl() + `/files/get_metadata`, 
+    const res = await this.request('POST', this.getUrl() + `/files/get_metadata`,
       {
-          "include_deleted": false,
-          "include_has_explicit_shared_members": false,
-          "include_media_info": false,
-          "path": id,
-          "include_property_groups": {
-              ".tag": "filter_some",
-              "filter_some": [this.templateId]
-          }
+        'include_deleted': false,
+        'include_has_explicit_shared_members': false,
+        'include_media_info': false,
+        'path': id,
+        'include_property_groups': {
+          '.tag': 'filter_some',
+          'filter_some': [this.templateId]
+        }
       },
       'application/json'
     )
@@ -628,11 +637,11 @@ export default class DropboxAdapter extends CachingAdapter {
       throw new HttpError(res.status, 'POST')
     }
 
-    let json = await res.json()
+    const json = await res.json()
 
     return json
   }
-  
+
   /**
    * Download a file from Dropbox.
    *
@@ -722,9 +731,9 @@ export default class DropboxAdapter extends CachingAdapter {
    * @returns {boolean} true if 200 and false if other HTTP status
    */
   async deleteFile(id: string): Promise<any> {
-    const res = await this.request('POST', this.getUrl() + `/files/delete_v2`, 
+    const res = await this.request('POST', this.getUrl() + `/files/delete_v2`,
       {
-          "entries": [{ "path": id }]
+        'entries': [{ 'path': id }]
       },
       'application/json'
     )
@@ -743,7 +752,7 @@ export default class DropboxAdapter extends CachingAdapter {
   async setupTemplate() {
     // Checking if Floccus templateId is present in memory and matches Dropbox template pattern
     const templateIdMatches = templateIdRegex.test(this.templateId)
-    
+
     if (!templateIdMatches) {
       // case where this.templateId doesn't exists and we need to get template_id from Dropbox
       try {
@@ -755,32 +764,32 @@ export default class DropboxAdapter extends CachingAdapter {
       }
     }
   }
-    
+
   /**
    * Adds template to add 'locked' property to files
-   * 
+   *
    * A template needs to be added before we can add property groups to files
    * used lock_file_batch API call for locking but its giving error such as not supported by user as it is a business feature,
    * so reverting to custom user properties to determine lock status
-   * 
+   *
    * Getting/Setting up template for locked custom property is one off so its done only once per user.
    * All the subsequent times we can use this.templateId, if in case its not available then we have to call Dropbox API
-   * 
+   *
    * Number property isn't supported by Dropbox API in type
    * @returns {string} JSON value of template added
    */
   async addTemplate(): Promise<any> {
-    const res = await this.request('POST', this.getUrl() + `/file_properties/templates/add_for_user`, 
+    const res = await this.request('POST', this.getUrl() + `/file_properties/templates/add_for_user`,
       {
-          "description": "These properties describe Floccus app properties",
-          "fields": [
-              {
-                  "description": "Locked property",
-                  "name": "locked",
-                  "type": "string"
-              }
-          ],
-          "name": "locked"
+        'description': 'These properties describe Floccus app properties',
+        'fields': [
+          {
+            'description': 'Locked property',
+            'name': 'locked',
+            'type': 'string'
+          }
+        ],
+        'name': 'locked'
       },
       'application/json'
     )
@@ -789,7 +798,7 @@ export default class DropboxAdapter extends CachingAdapter {
       throw new HttpError(res.status, 'POST')
     }
 
-    let json = await res.json()
+    const json = await res.json()
 
     return json
   }
@@ -799,7 +808,7 @@ export default class DropboxAdapter extends CachingAdapter {
    * @returns {string[]} A list of template_id's
    */
   async getTemplates(): Promise<string[]> {
-    let url = this.getUrl() + `/file_properties/templates/list_for_user`
+    const url = this.getUrl() + `/file_properties/templates/list_for_user`
     let res
     let json
     // Mobile (Capacitor native)
@@ -831,9 +840,9 @@ export default class DropboxAdapter extends CachingAdapter {
    * @returns {string} JSON value of template
    */
   async getTemplate(templateId:string): Promise<any> {
-    const res = await this.request('POST', this.getUrl() + `/file_properties/templates/get_for_user`, 
+    const res = await this.request('POST', this.getUrl() + `/file_properties/templates/get_for_user`,
       {
-          "template_id": templateId
+        'template_id': templateId
       },
       'application/json'
     )
@@ -842,36 +851,36 @@ export default class DropboxAdapter extends CachingAdapter {
       throw new HttpError(res.status, 'POST')
     }
 
-    let json = await res.json()
+    const json = await res.json()
 
     return json
   }
 
   /**
    * Retrieves templateId to be used for metadata retrieval
-   * 
+   *
    * It could be lot easier if we can get metadata directly from file but Dropbox architecture different.
-   * 
+   *
    * The architecture:
    * A template is a schema in which we can store properties in a specific format
    * Then we can use template_id to store a custom property and it should adhere to its template schema
    * There can be multiple templates for an specific user and there are multiple properties
    * In order to get specific property we need to retrieve metadata with specific template_id
-   * 
-   * So in order to have custom property 'locked' we need to add a template with predetermined 
+   *
+   * So in order to have custom property 'locked' we need to add a template with predetermined
    * format for our data and then add the data as one of property groups.
-   * 
+   *
    * We get all templates and then find out if we have any template with name 'locked'
    * If present then return template_id otherwise create one and then return template_id
    * @returns {string} Template Id of template which has 'locked' property group
    */
   async getTemplateId(): Promise<string> {
     try {
-      let templateIds = await this.getTemplates()
-      
+      const templateIds = await this.getTemplates()
+
       if (templateIds.length === 0) {
         // no templates as its first time so create our template for custom properties
-        let template = await this.addTemplate()
+        const template = await this.addTemplate()
         this.templateId = template.template_id
         return this.templateId
       }
@@ -884,13 +893,13 @@ export default class DropboxAdapter extends CachingAdapter {
         })
       )
 
-      let foundTemplate:boolean = false
+      let foundTemplate = false
       Object.keys(templatesInfo).forEach((id) => {
-          if (templatesInfo[id].name === "locked") {
-            this.templateId = id
-            foundTemplate = true
-          }
+        if (templatesInfo[id].name === 'locked') {
+          this.templateId = id
+          foundTemplate = true
         }
+      }
       )
 
       if (foundTemplate) {
@@ -898,7 +907,7 @@ export default class DropboxAdapter extends CachingAdapter {
       }
 
       // templates exists but not our template so creating one named 'locked' for custom properties on files
-      let template = await this.addTemplate()
+      const template = await this.addTemplate()
       this.templateId = template.template_id
       return this.templateId
     } catch (error) {
@@ -919,29 +928,29 @@ export default class DropboxAdapter extends CachingAdapter {
     }
     let lockFreed, i = 0
     do {
-      const res = await this.request('POST', this.getUrl() + `/file_properties/properties/overwrite`, 
+      const res = await this.request('POST', this.getUrl() + `/file_properties/properties/overwrite`,
         {
-          "path": id,
-          "property_groups": [
+          'path': id,
+          'property_groups': [
             {
-              "fields": [
+              'fields': [
                 {
-                  "name": "locked",
-                  "value": ""
+                  'name': 'locked',
+                  'value': ''
                 }
               ],
-              "template_id": this.templateId
+              'template_id': this.templateId
             }
           ]
         },
         'application/json'
       )
-     
+
       if (res.status >= 400) {
         Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
         throw new HttpError(res.status, 'POST')
       }
-        
+
       lockFreed = res.status === 200 || res.status === 204
       if (!lockFreed) {
         await this.timeout(1000)
@@ -957,24 +966,24 @@ export default class DropboxAdapter extends CachingAdapter {
    * @returns {boolean} True if lock set on on bookmarks.xbel file and false if not
    */
   async setLock(id:string) {
-    this.lockingPromise = this.request('POST', this.getUrl() + `/file_properties/properties/overwrite`, 
+    this.lockingPromise = this.request('POST', this.getUrl() + `/file_properties/properties/overwrite`,
       {
-        "path": id,
-        "property_groups": [
+        'path': id,
+        'property_groups': [
           {
-            "fields": [
+            'fields': [
               {
-                "name": "locked",
-                "value": JSON.stringify(Date.now())
+                'name': 'locked',
+                'value': JSON.stringify(Date.now())
               }
             ],
-            "template_id": this.templateId
+            'template_id': this.templateId
           }
         ]
       },
       'application/json'
     )
-      
+
     const res = await this.lockingPromise
     return res.status === 200
   }
@@ -984,24 +993,24 @@ export default class DropboxAdapter extends CachingAdapter {
    * This happens when the profile is created
    * @param {string} xbel XBEL content to create bookmarks.xbel file
    * @param {string} path File path on Dropbox
-   * @returns 
+   * @returns
    */
-   async createFile(xbel: string, path:string) {
-    let extraHeaders = {
-      "Dropbox-API-Arg": JSON.stringify({
-        "autorename":false,
-        "mode":"add",
-        "mute":false,
-        "path":`/${path}`,
-        "strict_conflict":false
-        })
+  async createFile(xbel: string, path:string) {
+    const extraHeaders = {
+      'Dropbox-API-Arg': JSON.stringify({
+        'autorename': false,
+        'mode': 'add',
+        'mute': false,
+        'path': `/${path}`,
+        'strict_conflict': false
+      })
     }
-    const res = await this.request('POST', this.getContentUrl() + `/files/upload`, 
+    const res = await this.request('POST', this.getContentUrl() + `/files/upload`,
       xbel,
       'application/octet-stream',
       extraHeaders
     )
-    
+
     if (res.status >= 400) {
       Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
       throw new HttpError(res.status, 'POST')
@@ -1021,21 +1030,21 @@ export default class DropboxAdapter extends CachingAdapter {
    * @returns {boolean} True if file is upload and false if not
    */
   async uploadFile(id:string, xbel: string) {
-    let extraHeaders = {
-      "Dropbox-API-Arg": JSON.stringify({
-        "autorename":false,
-        "mode":"overwrite",
-        "mute":false,
-        "path":id,
-        "strict_conflict":false
-        })
+    const extraHeaders = {
+      'Dropbox-API-Arg': JSON.stringify({
+        'autorename': false,
+        'mode': 'overwrite',
+        'mute': false,
+        'path': id,
+        'strict_conflict': false
+      })
     }
-    const res = await this.request('POST', this.getContentUrl() + `/files/upload`, 
+    const res = await this.request('POST', this.getContentUrl() + `/files/upload`,
       xbel,
       'application/octet-stream',
       extraHeaders
     )
-    
+
     if (res.status >= 400) {
       Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
       throw new HttpError(res.status, 'POST')
