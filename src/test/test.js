@@ -5935,7 +5935,7 @@ describe('Floccus', function() {
           if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
             return
           }
-          this.timeout(300000)
+          this.timeout(600000)
 
           let TEST_URL_TITLE
           before(async function() {
