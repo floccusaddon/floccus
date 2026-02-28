@@ -36,6 +36,7 @@ body:
         - Linkwarden
         - WebDAV
         - Google Drive
+        - OneDrive
         - Git
     validations:
       required: true

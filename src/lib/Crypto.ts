@@ -101,4 +101,19 @@ export default class Crypto {
     crypto.getRandomValues(rand)
     return rand
   }
+
+  static base64UrlEncode(data: ArrayBuffer | Uint8Array) {
+    const bytes = data instanceof Uint8Array ? data : new Uint8Array(data)
+
+    return btoa(String.fromCharCode(...bytes))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '')
+  }
+
+  static async generatePKCECodeChallenge(verifier: string) {
+    const data = new TextEncoder().encode(verifier)
+    const digest = await crypto.subtle.digest('SHA-256', data)
+    return this.base64UrlEncode(digest)
+  }
 }

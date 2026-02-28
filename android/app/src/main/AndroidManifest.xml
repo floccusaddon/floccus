@@ -32,6 +32,7 @@
                 <data
                         android:host="@string/oauth_redirect_host"
                         android:scheme="@string/package_name" />
+                <data android:scheme="org.handmadeideas.floccus" android:host="auth" />
             </intent-filter>
         </activity>
 

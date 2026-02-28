@@ -25,13 +25,11 @@
 
   "options_ui": {
     "page": "dist/html/options.html",
-    "browser_style": false,
-    "chrome_style": false
+    "browser_style": false
   },
 
   "browser_action": {
     "browser_style": false,
-    "chrome_style": false,
     "default_icon": {
       "48": "icons/logo.png"
     },

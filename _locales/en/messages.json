@@ -146,6 +146,15 @@
   "Error050": {
     "message": "E050: Failsafe: The current sync run would delete {0}% of your local links in this profile. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway. If you didn't cause this, you can use the manual sync buttons to override the server state with the local state on this device. If you believe this is a bug, please reach out to the developers with the debug log of this run."
   },
+  "Error051": {
+    "message": "E051: Could not authenticate with OneDrive. Please connect floccus with your Microsoft account again."
+  },
+  "Error052": {
+    "message": "E052: OAuth error. Token validation error. Please reconnect your Microsoft Account."
+  },
+  "Error053": {
+    "message": "E053: Could not search for your file name in your OneDrive"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -169,6 +178,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "the file name of the bookmarks file that will reside in your Google Drive. Do not enter the full file path, only the file name. Make sure this name is unique in your Drive. e.g. mybookmarks.xbel"
+ },
+ "DescriptionBookmarksfileonedrive": {
+   "message": "the file name of the bookmarks file that will reside in your OneDrive. Do not enter the full file path, only the file name. Make sure this name is unique in your Drive. e.g. mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "a path to the bookmarks file relative to your Git repository root (all folders in the path must already exist). e.g. personal_stuff/bookmarks.xbel"
@@ -567,6 +579,21 @@
   "DescriptionLoggedingoogle": {
     "message": "You have connected your Google account to store the bookmark sync file in your Google Drive."
   },
+  "LabelAdapteronedrive": {
+    "message": "OneDrive"
+  },
+  "DescriptionAdapteronedrive": {
+    "message": "Sync bookmarks via an (optionally encrypted) file that is stored in your OneDrive. It can sync http, ftp, data, file and javascript bookmarks. You can choose to use end-to-end encryption when using this option."
+  },
+  "LabelLoginonedrive": {
+    "message": "Login with OneDrive"
+  },
+  "DescriptionLoginmicrosoft": {
+    "message": "Connect your Microsoft account to store the bookmark sync file in your OneDrive."
+  },
+  "DescriptionLoggedinmicrosoft": {
+    "message": "You have connected your Microsoft account to store the bookmark sync file in your OneDrive."
+  },
   "LabelPassphrase": {
     "message": "Passphrase"
   },
@@ -698,6 +725,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Login to Google Drive"
+  },
+  "LabelOnedrivesetup": {
+    "message": "Login to OneDrive"
   },
   "LabelSyncfoldersetup": {
     "message": "Which Folders do you want to sync?"

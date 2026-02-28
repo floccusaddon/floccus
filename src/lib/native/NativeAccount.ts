@@ -31,6 +31,7 @@ export default class NativeAccount extends Account {
 
   static async create(data: IAccountData):Promise<Account> {
     const id = '' + Date.now() + Math.random()
+    data.id = id
     const adapter = await AdapterFactory.factory(data)
     const storage = new NativeAccountStorage(id)
 

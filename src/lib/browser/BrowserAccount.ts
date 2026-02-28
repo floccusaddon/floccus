@@ -29,6 +29,7 @@ export default class BrowserAccount extends Account {
 
   static async create(data):Promise<Account> {
     const id = '' + Date.now() + Math.random()
+    data.id = id
     const adapter = await AdapterFactory.factory(data)
     const storage = new BrowserAccountStorage(id)
 
