@@ -295,6 +295,12 @@
               {{ t('LabelGoogledrivesetup') }}
             </div>
             <v-form class="mt-2">
+              <v-alert
+                v-if="loginFlowError"
+                dense
+                color="error">
+                {{ loginFlowError }}
+              </v-alert>
               <v-btn
                 color="primary"
                 @click="loginGoogleDrive">
@@ -316,6 +322,12 @@
               {{ t('LabelDropboxsetup') }}
             </div>
             <v-form class="mt-2">
+              <v-alert
+                v-if="loginFlowError"
+                dense
+                color="error">
+                {{ loginFlowError }}
+              </v-alert>
               <v-btn
                 color="primary"
                 @click="loginDropbox">
@@ -730,12 +742,16 @@ export default {
         await this.$store.dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
       }
       const GoogleDriveAdapter = (await import('../../lib/adapters/GoogleDrive')).default
-      const { refresh_token, username } = await GoogleDriveAdapter.authorize()
-      if (refresh_token) {
-        this.authorized = true
-        this.refreshToken = refresh_token
-        this.username = username
-        this.currentStep++
+      try {
+        const { refresh_token, username } = await GoogleDriveAdapter.authorize()
+        if (refresh_token) {
+          this.authorized = true
+          this.refreshToken = refresh_token
+          this.username = username
+          this.currentStep++
+        }
+      } catch (e) {
+        this.loginFlowError = e.message
       }
     },
     async loginDropbox() {
@@ -743,12 +759,16 @@ export default {
         await this.$store.dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
       }
       const DropboxAdapter = (await import('../../lib/adapters/Dropbox')).default
-      const { refresh_token, username } = await DropboxAdapter.authorize()
-      if (refresh_token) {
-        this.authorized = true
-        this.refreshToken = refresh_token
-        this.username = username
-        this.currentStep++
+      try {
+        const { refresh_token, username } = await DropboxAdapter.authorize()
+        if (refresh_token) {
+          this.authorized = true
+          this.refreshToken = refresh_token
+          this.username = username
+          this.currentStep++
+        }
+      } catch (e) {
+        this.loginFlowError = e.message
       }
     },
     async onFlowStart() {
