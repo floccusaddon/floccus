@@ -55,7 +55,7 @@ const OAuthConfig = {
   ios: {
     appId: Credentials.ios.client_id,
     responseType: 'code',
-    redirectUrl: Credentials.ios.redirect_uri,
+    redirectUrl: 'org.handmadeideas.floccus:/',
     pkceEnabled: true,
     logsEnabled: true
   }
@@ -101,7 +101,7 @@ export default class DropboxAdapter extends CachingAdapter {
           Authorization: 'Bearer ' + result.access_token_response.access_token,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({account_id: result.access_token_response.additionalParameters.account_id})
+        body: JSON.stringify({account_id: result.access_token_response.account_id})
       })
 
       if (res.status !== 200) {
