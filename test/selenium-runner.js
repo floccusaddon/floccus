@@ -104,6 +104,10 @@ installConsoleHandler()
       testUrl += `&password=${process.env.GOOGLE_API_REFRESH_TOKEN}`
     }
 
+    if (process.env.FLOCCUS_TEST.includes('dropbox')) {
+      testUrl += `&password=${process.env.DROPBOX_API_REFRESH_TOKEN}`
+    }
+
     if (process.env.FLOCCUS_TEST.includes('linkwarden')) {
       testUrl += `&username=mk`
       testUrl += `&password=${process.env.LINKWARDEN_TOKEN}`

@@ -287,11 +287,11 @@ export class GoogleDriveAuthenticationError extends FloccusError {
   }
 }
 
-export class OAuthTokenError extends FloccusError {
+export class GoogleOAuthTokenError extends FloccusError {
   public readonly code = 32
   constructor() {
     super('E032: OAuth error. Token validation error. Please reconnect your Google Account.')
-    Object.setPrototypeOf(this, OAuthTokenError.prototype)
+    Object.setPrototypeOf(this, GoogleOAuthTokenError.prototype)
   }
 }
 
@@ -465,5 +465,37 @@ export class ClientsideDeletionFailsafeError extends FloccusError {
     super(`E050: Failsafe: The current sync run would delete ${percent}% of your local links in this profile. Refusing to execute. Disable this failsafe in the profile settings if you want to proceed anyway.`)
     this.percent = percent
     Object.setPrototypeOf(this, ClientsideDeletionFailsafeError.prototype)
+  }
+}
+
+export class DropboxAuthenticationError extends FloccusError {
+  public readonly code = 51
+  constructor() {
+    super('E051: Could not authenticate with Dropbox. Please connect floccus with your Dropbox account again.')
+    Object.setPrototypeOf(this, DropboxAuthenticationError.prototype)
+  }
+}
+
+export class DropboxOAuthTokenError extends FloccusError {
+  public readonly code = 52
+  constructor() {
+    super('E052: OAuth error. Token validation error. Please reconnect your Dropbox Account.')
+    Object.setPrototypeOf(this, DropboxOAuthTokenError.prototype)
+  }
+}
+
+export class DropboxSearchError extends FloccusError {
+  public readonly code = 53
+  constructor() {
+    super('E053: Could not search for your file name in your Dropbox')
+    Object.setPrototypeOf(this, DropboxSearchError.prototype)
+  }
+}
+
+export class DropboxTemplateError extends FloccusError {
+  public readonly code = 54
+  constructor() {
+    super('E054: Could not get template for Dropbox')
+    Object.setPrototypeOf(this, DropboxTemplateError.prototype)
   }
 }

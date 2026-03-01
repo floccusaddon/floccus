@@ -166,6 +166,18 @@ describe('Floccus', function() {
       refreshToken: CREDENTIALS.password,
     },
     {
+      type: 'dropbox',
+      bookmark_file: Math.random() + '.xbel',
+      password: '',
+      refreshToken: CREDENTIALS.password,
+    },
+    {
+      type: 'dropbox',
+      bookmark_file: Math.random() + '.xbel',
+      password: random.float(),
+      refreshToken: CREDENTIALS.password,
+    },
+    {
       type: 'linkwarden',
       url: SERVER,
       serverFolder: 'Floccus-' + Math.random(),
@@ -293,13 +305,25 @@ describe('Floccus', function() {
               })
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
-              const fileList = await account.server.listFiles('name = ' + "'" + account.server.bookmark_file + "'")
+              const fileList = await account.server.listFiles(
+                'name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'"
+              )
               const files = fileList.files
               for (const file of files) {
                 await account.server.deleteFile(file.id)
               }
               if (files.length > 1) {
                 throw new Error('Google Drive sync left more than one file behind')
+              }
+            }
+            if (ACCOUNT_DATA.type === 'dropbox') {
+              const fileList = await account.server.listFiles(ACCOUNT_DATA.bookmark_file, 100)
+              const files = fileList.matches
+              for (const file of files) {
+                await account.server.deleteFile(file.metadata.metadata.id)
+              }
+              if (files.length > 1) {
+                throw new Error('Dropbox sync left more than one file behind')
               }
             }
             await account.delete()
@@ -3986,13 +4010,23 @@ describe('Floccus', function() {
               })
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
-              const fileList = await account1.server.listFiles('name = ' + "'" + account1.server.bookmark_file + "'")
+              const fileList = await account1.server.listFiles('name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'")
               const files = fileList.files
               for (const file of files) {
                 await account1.server.deleteFile(file.id)
               }
               if (files.length > 1) {
                 throw new Error('Google Drive sync left more than one file behind')
+              }
+            }
+            if (ACCOUNT_DATA.type === 'dropbox') {
+              const fileList = await account1.server.listFiles(ACCOUNT_DATA.bookmark_file, 100)
+              const files = fileList.matches
+              for (const file of files) {
+                await account1.server.deleteFile(file.metadata.metadata.id)
+              }
+              if (files.length > 1) {
+                throw new Error('Dropbox sync left more than one file behind')
               }
             }
             try {
@@ -5567,13 +5601,23 @@ describe('Floccus', function() {
               })
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
-              const fileList = await account.server.listFiles('name = ' + "'" + account.server.bookmark_file + "'")
+              const fileList = await account.server.listFiles('name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'")
               const files = fileList.files
               for (const file of files) {
                 await account.server.deleteFile(file.id)
               }
               if (files.length > 1) {
                 throw new Error('Google Drive sync left more than one file behind')
+              }
+            }
+            if (ACCOUNT_DATA.type === 'dropbox') {
+              const fileList = await account.server.listFiles(ACCOUNT_DATA.bookmark_file, 100)
+              const files = fileList.matches
+              for (const file of files) {
+                await account.server.deleteFile(file.metadata.metadata.id)
+              }
+              if (files.length > 1) {
+                throw new Error('Dropbox sync left more than one file behind')
               }
             }
             await account.delete()
@@ -5891,7 +5935,7 @@ describe('Floccus', function() {
           if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
             return
           }
-          this.timeout(300000)
+          this.timeout(600000)
 
           let TEST_URL_TITLE
           before(async function() {
@@ -5959,13 +6003,26 @@ describe('Floccus', function() {
               })
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
-              const fileList = await account.server.listFiles('name = ' + "'" + account.server.bookmark_file + "'")
+              const fileList = await account.server.listFiles('name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'")
               const files = fileList.files
               for (const file of files) {
                 await account.server.deleteFile(file.id)
               }
               if (files.length > 1) {
                 throw new Error('Google Drive sync left more than one file behind')
+              }
+            }
+            if (ACCOUNT_DATA.type === 'dropbox') {
+              const fileList = await account.server.listFiles(
+                ACCOUNT_DATA.bookmark_file,
+                100
+              )
+              const files = fileList.matches
+              for (const file of files) {
+                await account.server.deleteFile(file.metadata.metadata.id)
+              }
+              if (files.length > 1) {
+                throw new Error('Dropbox sync left more than one file behind')
               }
             }
             await account.delete()
@@ -7030,13 +7087,26 @@ describe('Floccus', function() {
             })
           }
           if (ACCOUNT_DATA.type === 'google-drive') {
-            const fileList = await account1.server.listFiles('name = ' + "'" + account1.server.bookmark_file + "'")
+            const fileList = await account1.server.listFiles('name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'")
             const files = fileList.files
             for (const file of files) {
               await account1.server.deleteFile(file.id)
             }
             if (files.length > 1) {
               throw new Error('Google Drive sync left more than one file behind')
+            }
+          }
+          if (ACCOUNT_DATA.type === 'dropbox') {
+            const fileList = await account1.server.listFiles(
+              ACCOUNT_DATA.bookmark_file,
+              100
+            )
+            const files = fileList.matches
+            for (const file of files) {
+              await account1.server.deleteFile(file.metadata.metadata.id)
+            }
+            if (files.length > 1) {
+              throw new Error('Dropbox sync left more than one file behind')
             }
           }
           await browser.bookmarks.removeTree(account1.getData().localRoot)
@@ -9006,7 +9076,13 @@ function stringifyAccountData(ACCOUNT_DATA) {
   return `${ACCOUNT_DATA.type}${
     (ACCOUNT_DATA.noCache ? '-noCache' : '') +
     (typeof ACCOUNT_DATA.bookmark_file_type !== 'undefined' ? '-' + ACCOUNT_DATA.bookmark_file_type : '') +
-    ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) || (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase) ? '-encrypted' : '')
+    (
+      (ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) ||
+      (ACCOUNT_DATA.type === 'dropbox' && ACCOUNT_DATA.password) ||
+      (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase)
+        ? '-encrypted'
+        : ''
+    )
   }`
 }
 

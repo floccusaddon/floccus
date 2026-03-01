@@ -295,6 +295,12 @@
               {{ t('LabelGoogledrivesetup') }}
             </div>
             <v-form class="mt-2">
+              <v-alert
+                v-if="loginFlowError"
+                dense
+                color="error">
+                {{ loginFlowError }}
+              </v-alert>
               <v-btn
                 color="primary"
                 @click="loginGoogleDrive">
@@ -302,6 +308,33 @@
               </v-btn>
               <p class="mt-2">
                 {{ t('DescriptionLogingoogle') }}
+              </p>
+            </v-form>
+            <div class="form-buttons">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
+            </div>
+          </template>
+
+          <template v-else-if="adapter === 'dropbox'">
+            <div class="headline">
+              {{ t('LabelDropboxsetup') }}
+            </div>
+            <v-form class="mt-2">
+              <v-alert
+                v-if="loginFlowError"
+                dense
+                color="error">
+                {{ loginFlowError }}
+              </v-alert>
+              <v-btn
+                color="primary"
+                @click="loginDropbox">
+                {{ t('LabelLogindropbox') }}
+              </v-btn>
+              <p class="mt-2">
+                {{ t('DescriptionLogindropbox') }}
               </p>
             </v-form>
             <div class="form-buttons">
@@ -401,6 +434,28 @@
                 :rules="[validateBookmarksFileGoogle]"
                 :label="t('LabelBookmarksfile')"
                 :hint="t('DescriptionBookmarksfilegoogle')"
+                :persistent-hint="true" />
+              <v-text-field
+                v-model="passphrase"
+                :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
+                :type="showPassphrase ? 'text' : 'password'"
+                class="mt-2"
+                :label="t('LabelPassphrase')"
+                :hint="t('DescriptionPassphrase')"
+                :persistent-hint="true"
+                @click:append="showPassphrase = !showPassphrase" />
+            </template>
+
+            <template v-if="adapter === 'dropbox'">
+              <div class="text-h6">
+                {{ t('LabelBookmarksfile') }}
+              </div>
+              <v-text-field
+                v-model="bookmark_file"
+                append-icon="mdi-file-document"
+                :rules="[validateBookmarksFileDropbox]"
+                :label="t('LabelBookmarksfile')"
+                :hint="t('DescriptionBookmarksfiledropbox')"
                 :persistent-hint="true" />
               <v-text-field
                 v-model="passphrase"
@@ -574,6 +629,11 @@ export default {
           type: 'google-drive',
           label: this.t('LabelAdaptergoogledrive'),
           description: this.t('DescriptionAdaptergoogledrive')
+        },
+        {
+          type: 'dropbox',
+          label: this.t('LabelAdapterdropbox'),
+          description: this.t('DescriptionAdapterdropbox')
         }
       ],
     }
@@ -610,11 +670,13 @@ export default {
         ...(this.adapter === 'linkwarden' && {serverFolder: this.serverFolder}),
         ...(this.adapter === 'karakeep' && {serverFolder: this.serverFolder}),
         ...(this.adapter === 'git' && {branch: this.branch}),
-        ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'git') && {bookmark_file: this.bookmark_file}),
-        ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'git') && {bookmark_file_type: this.bookmark_file_type}),
-        ...(this.adapter === 'google-drive' && {refreshToken: this.refreshToken}),
+        ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'dropbox' || this.adapter === 'git') && {bookmark_file: this.bookmark_file}),
+        ...((this.adapter === 'webdav' || this.adapter === 'google-drive' || this.adapter === 'dropbox' || this.adapter === 'git') && {bookmark_file_type: this.bookmark_file_type}),
+        ...(this.adapter === 'google-drive' && { refreshToken: this.refreshToken }),
+        ...(this.adapter === 'dropbox' && { refreshToken: this.refreshToken }),
         ...(this.passphrase && {passphrase: this.passphrase}),
-        ...(this.adapter === 'google-drive' && this.passphrase && {password: this.passphrase}),
+        ...(this.adapter === 'google-drive' && this.passphrase && { password: this.passphrase }),
+        ...(this.adapter === 'dropbox' && this.passphrase && { password: this.passphrase }),
         ...(this.isBrowser && {localRoot: this.localRoot}),
         syncInterval: this.syncInterval,
         strategy: this.strategy,
@@ -680,12 +742,33 @@ export default {
         await this.$store.dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
       }
       const GoogleDriveAdapter = (await import('../../lib/adapters/GoogleDrive')).default
-      const { refresh_token, username } = await GoogleDriveAdapter.authorize()
-      if (refresh_token) {
-        this.authorized = true
-        this.refreshToken = refresh_token
-        this.username = username
-        this.currentStep++
+      try {
+        const { refresh_token, username } = await GoogleDriveAdapter.authorize()
+        if (refresh_token) {
+          this.authorized = true
+          this.refreshToken = refresh_token
+          this.username = username
+          this.currentStep++
+        }
+      } catch (e) {
+        this.loginFlowError = e.message
+      }
+    },
+    async loginDropbox() {
+      if (this.isBrowser) {
+        await this.$store.dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
+      }
+      const DropboxAdapter = (await import('../../lib/adapters/Dropbox')).default
+      try {
+        const { refresh_token, username } = await DropboxAdapter.authorize()
+        if (refresh_token) {
+          this.authorized = true
+          this.refreshToken = refresh_token
+          this.username = username
+          this.currentStep++
+        }
+      } catch (e) {
+        this.loginFlowError = e.message
       }
     },
     async onFlowStart() {
@@ -717,6 +800,9 @@ export default {
       return path[0] !== '/' && path[path.length - 1] !== '/'
     },
     validateBookmarksFileGoogle(path) {
+      return !path.includes('/')
+    },
+    validateBookmarksFileDropbox(path) {
       return !path.includes('/')
     },
     requestHistoryPermissions() {

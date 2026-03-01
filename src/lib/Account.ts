@@ -31,6 +31,7 @@ AdapterFactory.register('nextcloud-bookmarks', async() => (await import('./adapt
 AdapterFactory.register('webdav', async() => (await import('./adapters/WebDav')).default)
 AdapterFactory.register('git', async() => (await import('./adapters/Git')).default)
 AdapterFactory.register('google-drive', async() => (await import('./adapters/GoogleDrive')).default)
+AdapterFactory.register('dropbox', async() => (await import('./adapters/Dropbox')).default)
 AdapterFactory.register('fake', async() => (await import('./adapters/Fake')).default)
 
 // 2h
