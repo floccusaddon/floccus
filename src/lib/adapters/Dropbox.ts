@@ -101,7 +101,9 @@ export default class DropboxAdapter extends CachingAdapter {
           Authorization: 'Bearer ' + result.access_token_response.access_token,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({account_id: result.access_token_response.account_id})
+        body: Capacitor.getPlatform() === 'ios'
+          ? JSON.stringify({account_id: result.access_token_response.account_id})
+          : JSON.stringify({account_id: result.access_token_response.additionalParameters.account_id})
       })
 
       if (res.status !== 200) {
