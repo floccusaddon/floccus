@@ -146,6 +146,18 @@
   "Error050": {
     "message": "E050:故障保险：当前同步运行会删除此配置文件中本地连接数的 {0}%。拒绝执行。如果仍要继续，在配置文件设置中禁用这个故障保险。如果没有发起该同步，可以用设备的本地状态覆盖服务器上的状态。如果相信这是个错误，请联系开发者，附上此同步运行的调试日志。"
   },
+  "Error051": {
+    "message": "E051：无法进行 Dropbox 身份认证。请再次将 floccus 与你的 Dropbox 账户相连接。"
+  },
+  "Error052": {
+    "message": "E052: OAuth 错误、令牌认证错误。请重新连接 Dropbox 账户。"
+  },
+  "Error053": {
+    "message": "E053: 无法在 Dropbox 中搜索你的文件名"
+  },
+  "Error054": {
+    "message": "E054：无法获得 Dropbox 模板"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "将存放在 Google Drive 中的书签文件的文件名。不要输入完整的文件路径，只输入文件名。确保该名称在驱动器中是唯一的。例如：mybookmarks.xbel"
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "待在 Dropbox 中的书签文件的名字。不要输入完整的文件路径，只输入文件名。确保该名字在你的 Dropbox 内唯一，如 mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "相对于你的 Git 存储库根目录的书签文件路径 (路径中的所有文件夹必须都已存在)。如，personal_stuff/bookmarks.xbel"
@@ -567,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "您已连接到您的Google帐户以将书签同步文件存储在您的Google Drive中。"
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "通过存储在 Dropbox 内的文件（可以加密）同步书签。它能同步 http、ftp、数据、文件和 javascript 书签。使用该选项时可选择使用端到端加密。"
+  },
+  "LabelLogindropbox": {
+    "message": "用 Dropbox 登录"
+  },
+  "DescriptionLogindropbox": {
+    "message": "连接到 Dropbox 账户在 Dropbox 中存储书签同步文件"
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "已经连接了 Dropbox 账户在 Dropbox 中存储书签同步文件"
+  },
   "LabelPassphrase": {
     "message": "密码短语"
   },
@@ -698,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "登录 Google Drive"
+  },
+  "LabelDropboxsetup": {
+    "message": "登录到 Dropbox"
   },
   "LabelSyncfoldersetup": {
     "message": "要同步哪些文件夹？"
