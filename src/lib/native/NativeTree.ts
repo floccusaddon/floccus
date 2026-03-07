@@ -3,7 +3,7 @@ import { Bookmark, Folder, ItemLocation, TItemLocation } from '../Tree'
 import Ordering from '../interfaces/Ordering'
 import CachingAdapter from '../adapters/Caching'
 import IAccountStorage from '../interfaces/AccountStorage'
-import { BulkImportResource } from '../interfaces/Resource'
+import { BulkImportResource, IHashSettings } from '../interfaces/Resource'
 
 export default class NativeTree extends CachingAdapter implements BulkImportResource<typeof ItemLocation.LOCAL> {
   protected location: TItemLocation = ItemLocation.LOCAL
@@ -11,6 +11,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   private storage: IAccountStorage
   private readonly accountId: string
   private saveTimeout: any
+  private loaded = false
 
   constructor(storage:IAccountStorage) {
     super({})
@@ -22,13 +23,28 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
     const {value: tree} = await Storage.get({key: `bookmarks[${this.accountId}].tree`})
     const {value: highestId} = await Storage.get({key: `bookmarks[${this.accountId}].highestId`})
     if (tree) {
-      const oldHash = this.bookmarksCache && await this.bookmarksCache.cloneWithLocation(false, this.location).hash(this.hashSettings)
+      // Make sure we use xxhash3 if we have to calculate hash for this
+      const hashSettings: IHashSettings = {
+        preserveOrder: true,
+        hashFn: 'xxhash3',
+      }
+      let oldHash
+      if (this.loaded && this.bookmarksCache) {
+        oldHash = await this.bookmarksCache.cloneWithLocation(false, this.location).hash(hashSettings)
+      }
       this.bookmarksCache = Folder.hydrate(JSON.parse(tree)).copy(false)
-      const newHash = await this.bookmarksCache.hash(this.hashSettings)
-      this.highestId = parseInt(highestId)
-      return oldHash && oldHash !== newHash
+      const parsedHighestId = parseInt(highestId ?? '0', 10)
+      this.highestId = Number.isNaN(parsedHighestId) ? 0 : parsedHighestId
+      if (oldHash && this.loaded) {
+        const newHash = await this.bookmarksCache.hash(hashSettings)
+        return oldHash !== newHash
+      } else {
+        this.loaded = true
+        return false
+      }
     } else {
       await this.save()
+      this.loaded = true
       return false
     }
   }
