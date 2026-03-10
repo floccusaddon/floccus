@@ -49,7 +49,7 @@ class AlarmManager {
       if (data.error && !data.isTransientError) {
         continue
       }
-      if (data.error && data.errorCount > 1) {
+      if (data.error && data.errorCount > 0) {
         if (Date.now() > this.getBackoffInterval(interval, data.errorCount, lastSync) + lastSync) {
           await this.ctl.scheduleSync(accountId)
           continue
