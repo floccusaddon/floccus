@@ -54,7 +54,7 @@
     "message": "E018: Impossible de s'authentifier sur le serveur."
   },
   "Error019": {
-    "message": "E019: HTTP status {0}. Échec de la requête {1}. Vérifiez la configuration de votre serveur et les journaux de débogage."
+    "message": "E019: HTTP status {0}. Échec de la requête {1}: {2}. Vérifiez la configuration de votre serveur et les journaux de débogage."
   },
   "Error020": {
     "message": "E020 : Impossible d'analyser la réponse du serveur."
@@ -84,7 +84,7 @@
     "message": "E028: Impossible de s'authentifier sur le serveur."
   },
   "Error029": {
-    "message": "E029 : Sécurité intégrée : L'exécution de la synchronisation actuelle supprimerait {0}% de vos liens sur le serveur. Refus d'exécution. Désactivez cette sécurité dans les paramètres du profil si vous voulez quand même continuer."
+    "message": "E029:  Sécurité: Cette action de synchronisation effacerait {0}% de vos signets sur le serveur. Je refuse de l'exécuter. Désactivez la sécurité dans les paramètres de ce profil si vous désirez vraiment effectuer cette action. Si cette situation n'est pas due à l'une de vos actions, vous pouvez lancer une synchronisation manuelle pour remplacer l'état local de cet appareil par celui du serveur. Si vous pensez qu'il s'agit d'un bogue, contactez les développeurs avec le journal de débogage."
   },
   "Error030": {
     "message": "E030: Le déchiffrement de votre fichier de signets a échoué. Le mot de passe est peut être erronée ou le fichier corrompu."
@@ -126,7 +126,7 @@
     "message": "E042: La taille du fichier de signets distant n'a pu être obtenue. Il est impossible de vérifier que le fichier de signet a été complètement téléchargé. Si cette erreur persiste, contactez l'administrateur du serveur."
   },
   "Error043": {
-    "message": "E043 : Sécurité intégrée : L'exécution de la synchronisation actuelle augmenterait votre nombre de liens sur le serveur de {0}%. Refus d'exécution. Désactivez cette sécurité dans les paramètres du profil si vous voulez quand même continuer."
+    "message": "E043: Sécurité: Cette action de synchronisation augmenterait le nombre de vos signets sur le serveur de {0}%. Je refuse de l'exécuter. Désactivez la sécurité dans les paramètres de ce profil si vous désirez vraiment effectuer cette action. Si cette situation n'est pas due à l'une de vos actions, vous pouvez lancer une synchronisation manuelle pour remplacer l'état local de cet appareil par celui du serveur. Si vous pensez qu'il s'agit d'un bogue, contactez les développeurs avec le journal de débogage."
   },
   "Error044": {
     "message": "E044 : L'opération Git push a échoué : {0}"
@@ -141,10 +141,22 @@
     "message": "E047 : Échec de l'analyse du fichier XBEL. Les données XBEL semblent corrompues ou incomplètes. Vous pouvez essayer de supprimer le fichier sur le serveur pour permettre à floccus de le recréer. Veillez à effectuer une sauvegarde au préalable."
   },
   "Error049": {
-    "message": "E049 : Sécurité intégrée : L'exécution de la synchronisation actuelle augmenterait le nombre de liens locaux dans ce profil de {0}%. Refus d'exécution. Désactivez cette sécurité dans les paramètres du profil si vous voulez quand même continuer."
+    "message": "E049: Sécurité: Cette action de synchronisation augmenterait le nombre de vos signets locaux pour ce profil de {0}%. Je refuse de l'exécuter. Désactivez la sécurité dans les paramètres de ce profil si vous désirez vraiment effectuer cette action. Si cette situation n'est pas due à l'une de vos actions, vous pouvez lancer une synchronisation manuelle pour remplacer l'état du serveur par l'état local de cet appareil. Si vous pensez qu'il s'agit d'un bogue, contactez les développeurs avec le journal de débogage."
   },
   "Error050": {
-    "message": "E050 : Sécurité intégrée : La synchronisation en cours supprimerait {0}% de vos liens locaux dans ce profil. Refus d'exécution. Désactivez cette sécurité dans les paramètres du profil si vous voulez quand même continuer."
+    "message": "E050: Sécurité: Cette action de synchronisation effacerait {0}% de vos signets locaux pour ce profil. Je refuse de l'exécuter. Désactivez la sécurité dans les paramètres de ce profil si vous désirez vraiment effectuer cette action. Si cette situation n'est pas due à l'une de vos actions, vous pouvez lancer une synchronisation manuelle pour remplacer l'état du serveur par l'état local de cet appareil. Si vous pensez qu'il s'agit d'un bogue, contactez les développeurs avec le journal de débogage."
+  },
+  "Error051": {
+    "message": "E051: Impossible de s'authentifier avec Dropbox. Connectez de nouveau floccus à votre compte Dropbox."
+  },
+  "Error052": {
+    "message": "E052: Erreur OAuth. Erreur de validation du jeton. Merci de vous reconnecter à votre compte Dropbox."
+  },
+  "Error053": {
+    "message": "E053: Impossible de rechercher ce nom de fichier sur votre Dropbox"
+  },
+  "Error054": {
+    "message": "E054: Impossible de trouver le modèle pour Dropbox"
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "le nom du fichier de signets qui résidera dans votre Google Drive. Ne saisissez pas le chemin d'accès complet, mais uniquement le nom du fichier. Veillez à ce que ce nom soit unique dans votre Drive. par exemple : mybookmarks.xbel"
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "le nom du fichier contenant vos signets qui sera stocké sur votre Dropbox. N'entrez pas le chemin complet, uniquement le nom du fichier. Assurez-vous qu'il soit unique sur votre Dropbox. Exemple: mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "un chemin d'accès vers le fichier de signets relatif à la racine de votre dépôt Git (tous les dossiers du chemin doivent déjà être existants). Ex : documents/favoris-signets.xbel"
@@ -567,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "Vous êtes connecté à votre compte Google. Le fichier permettant la synchronisation de vos signets est stocké sur votre Google Drive."
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Synchronise vos signets à l'aide d'un fichier (potentiellement chiffré) stocké sur votre Dropbox. Les signets HTTP, FTP, data, fichier ou JavaScript peuvent être synchronisés. Cette option supporte le chiffrement point à point."
+  },
+  "LabelLogindropbox": {
+    "message": "Se connecter avec Dropbox"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Connectez-vous à votre compte Dropbox afin de stocker le fichier permettant la synchronisation de vos signets sur votre Dropbox."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "Vous êtes connecté à votre compte Dropbox. Le fichier permettant la synchronisation de vos signets est stocké sur votre Dropbox."
+  },
   "LabelPassphrase": {
     "message": "Mot de passe"
   },
@@ -698,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Se connecter à Google Drive"
+  },
+  "LabelDropboxsetup": {
+    "message": "Connexion à Dropbox"
   },
   "LabelSyncfoldersetup": {
     "message": "Quels dossiers synchroniser ?"
