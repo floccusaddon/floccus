@@ -54,7 +54,7 @@
     "message": "E018: Konnte nicht am Server authentifiziert werden."
   },
   "Error019": {
-    "message": "E019: HTTP Status {0}. Anfrage vom Typ {1}  fehlgeschlagen. Überprüfen Sie die Server-Konfiguration und das Server-Log."
+    "message": "E019: HTTP-Status {0}. Fehlerhafte Anfrage {1}: {2}. Überprüfe die Serverkonfiguration und das Protokoll."
   },
   "Error020": {
     "message": "E020: Die Serverantwort konnte nicht geparst werden."
@@ -84,7 +84,7 @@
     "message": "E028: Konnte nicht am Server authentifiziert werden. Falls Sie 2FA nutzen, stellen Sie sicher auch Zugriff auf alle Dateien zu gewähren."
   },
   "Error029": {
-    "message": "E029: Failsafe: Der aktuelle Synchronisierungslauf würde {0}% Ihrer Links auf dem Server löschen. Ausführung verweigert. Deaktivieren Sie diese Failsafe-Funktion in den Profileinstellungen, wenn Sie trotzdem fortfahren möchten."
+    "message": "E029: Failsafe: Der aktuelle Synchronisierungslauf würde {0} % der Links auf dem Server löschen. Die Ausführung wird verweigert. Deaktiviere diese Sicherheitsvorkehrung in den Profileinstellungen, wenn Du trotzdem fortfahren möchtest. Wenn Du dies nicht verursacht hast, kann die Schaltfläche für die manuelle Synchronisierung verwendet werden, um den lokalen Status auf diesem Gerät mit dem Status auf dem Server zu überschreiben. Wenn Du glaubst, dass es sich um einen Fehler handelt, wenden Sie sich bitte mit dem Debug-Protokoll dieses Laufs an die Entwickler."
   },
   "Error030": {
     "message": "E030: Entschlüsseln der Lesezeichendatei fehlgeschlagen. Die Passphrase könnte falsch oder die Datei beschädigt sein."
@@ -126,7 +126,7 @@
     "message": "E042: Die Größe der Lesezeichen-Datei auf dem Server kontte nicht ermittelt werden. Es ist somit nicht möglich zu überprüfen, ob die Datei vollständig heruntergeladen wurde. Falls dieser Fehler bestehen bleibt kontaktieren Sie den Server-Administrator."
   },
   "Error043": {
-    "message": "E043: Failsafe: Der aktuelle Sync-Lauf würde die Anzahl Ihrer Links auf dem Server um {0}% erhöhen. Ausführung verweigert. Deaktivieren Sie diese Failsafe-Funktion in den Profileinstellungen, wenn Sie trotzdem fortfahren möchten."
+    "message": "E043: Failsafe: Der aktuelle Synchronisierungsvorgang würde die Anzahl der Links auf dem Server um {0} % erhöhen. Die Ausführung wird verweigert. Deaktiviere diesen Sicherheitsmechanismus in den Profileinstellungen, wenn du trotzdem fortfahren möchtest. Wenn du dies nicht verursacht hast, kannst du die Schaltflächen für die manuelle Synchronisierung verwenden, um den lokalen Status auf diesem Gerät mit dem Status auf dem Server zu überschreiben. Wenn Du glaubst, dass es sich um einen Fehler handelt, wende dich bitte mit dem Debug-Protokoll dieses Durchlaufs an die Entwickler."
   },
   "Error044": {
     "message": "E044: Git push Operation fehlgeschlagen: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: XBEL-Datei konnte nicht geparst werden. Die XBEL-Daten scheinen beschädigt oder unvollständig zu sein. Sie können versuchen, die Datei auf dem Server zu löschen, damit Floccus sie neu erstellen kann. Stellen Sie sicher, dass Sie vorher ein Backup erstellen."
   },
   "Error049": {
-    "message": "E049: Failsafe: Der aktuelle Synchronisierungslauf würde die Anzahl Ihrer lokalen Links in diesem Profil um {0}% erhöhen. Ausführung verweigert. Deaktivieren Sie diese Failsafe-Funktion in den Profileinstellungen, wenn Sie trotzdem fortfahren möchten."
+    "message": "E049: Failsafe: Der aktuelle Synchronisierungslauf würde die Anzahl der lokalen Verknüpfungen in diesem Profil um {0} % erhöhen. Die Ausführung wird verweigert. Deaktivieren Sie diese Sicherheitsvorkehrung in den Profileinstellungen, wenn Sie trotzdem fortfahren möchten. Wenn du dies nicht verursacht hast, kannst du die Schaltflächen für die manuelle Synchronisierung verwenden, um den lokalen Status auf diesem Gerät mit dem Status auf dem Server zu überschreiben. Wenn Du glaubst, dass es sich um einen Fehler handelt, wende dich bitte mit dem Debug-Protokoll dieses Durchlaufs an die Entwickler."
   },
   "Error050": {
-    "message": "E050: Ausfallsicher: Der aktuelle Synchronisierungslauf würde {0}% Ihrer lokalen Links in diesem Profil löschen. Ausführung verweigert. Deaktivieren Sie diese Failsafe-Funktion in den Profileinstellungen, wenn Sie trotzdem fortfahren möchten."
+    "message": "E050: Failsafe: Der aktuelle Synchronisierungslauf würde {0} % Ihrer lokalen Links in diesem Profil löschen. Ausführung wird verweigert. Deaktiviere diese Sicherheitsvorkehrung in den Profileinstellungen, wenn du trotzdem fortfahren möchten. Wenn du dies nicht verursacht hast, kannst du die Schaltflächen für die manuelle Synchronisierung verwenden, um den lokalen Status auf diesem Gerät mit dem Status auf dem Server zu überschreiben. Wenn du glaubst, dass es sich um einen Fehler handelt, wende dich bitte mit dem Debug-Protokoll dieses Durchlaufs an die Entwickler."
+  },
+  "Error051": {
+    "message": "E051: Die Authentifizierung bei Dropbox ist fehlgeschlagen. Bitte verbinde Floccus erneut mit dem Dropbox-Konto."
+  },
+  "Error052": {
+    "message": "E052: OAuth-Fehler. Fehler bei der Token-Überprüfung. Bitte verbinde dein Dropbox-Konto erneut."
+  },
+  "Error053": {
+    "message": "E053: Der Dateiname konnte in Deiner Dropbox nicht gefunden werden"
+  },
+  "Error054": {
+    "message": "E054: Vorlage für Dropbox konnte nicht abgerufen werden"
   },
   "LabelWebdavurl": {
     "message": "WebDAV-URL"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "Der Dateiname der Lesezeichendatei, die in Ihrem Google Drive gespeichert wird. Stellen Sie sicher, dass der Dateiname in Google Drive einzigartig ist. z.B. MeineLesezeichen.xbel"
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "Der Dateiname der Lesezeichen-Datei, die in deiner Dropbox gespeichert wird. Gib nicht den vollständigen Dateipfad ein, sondern nur den Dateinamen. Achte darauf, dass dieser Name in der Dropbox eindeutig ist. Z. B. mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "Pfad zur Lesezeichen-Datei, relativ zu deinem Git-Repository Wurzelverzeichnis (alle Verzeichnisse auf diesem Pfad müssen bereits existieren), z.B. personal_stuff/bookmarks.xbel"
@@ -285,7 +300,7 @@
     "message": "Führe lokale Änderungen immer mit denen von anderen Browsern zusammen (empfohlen)."
   },
   "LabelStrategyslave": {
-    "message": "Verwerfe lokale Änderungen und lade immer Änderungen von anderen Browsern herunter."
+    "message": "Verwirf lokale Änderungen und lade immer Änderungen von anderen Browsern herunter."
   },
   "LabelStrategyoverwrite": {
     "message": "Lade lokale Änderungen immer hoch und verwirf Änderungen von anderen Browsern."
@@ -325,6 +340,9 @@
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV-Freigabe"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "z.B.: Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
   },
   "DescriptionAdapterwebdav": {
     "message": "Synchronisieren Sie Ihre Lesezeichen indem Sie sie in einer Datei in einem konfigurierbaren WebDAV-Verzeichnis speichern. Es gibt keine dazugehörige Benutzeroberfläche im Web für diese Option, aber Sie können jeden beliebigen WebDAV-kompatiblen Server benutzen, ob selbst gehostet oder in der Cloud. Diese Option unterstützt HTTP, FTP, DATA, FILE und JavaScript Lesezeichen. Sie haben die Möglichkeit Ende-zu-Ende-Verschlüsselung zu nutzen, wenn sie diese Option wählen."
@@ -475,7 +493,7 @@
     "message": "Nein, ignoriere den Ordner dieses Profils in anderen Profilen."
   },
   "LabelNestedSyncYes": {
-    "message": "Ja, nehme den Ordner dieses Profils bei anderen Profilen hinzu."
+    "message": "Ja, nimm den Ordner dieses Profils bei anderen Profilen hinzu."
   },
   "LabelImportExport": {
     "message": "Profile importieren/exportieren"
@@ -563,6 +581,21 @@
   },
   "DescriptionLoggedingoogle": {
     "message": "Sie haben Ihr Google-Konto mit Floccus verbunden, um die Lesezeichen-Datei in ihrem Google-Drive zu speichern."
+  },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Synchronisiere Lesezeichen über eine (optional verschlüsselte) Datei, die in Ihrer Dropbox gespeichert ist. Es können HTTP-, FTP-, Daten-, Datei- und JavaScript-Lesezeichen synchronisiert werden. Bei dieser Option kann eine End-to-End-Verschlüsselung aktiviert werden."
+  },
+  "LabelLogindropbox": {
+    "message": "Login mit Dropbox"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Verbinde dein Dropbox-Konto, um die Datei zur Synchronisierung der Lesezeichen in deiner Dropbox zu speichern."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "Du hast dein Dropbox-Konto verknüpft, um die Datei zur Synchronisierung der Lesezeichen in Ihrer Dropbox zu speichern."
   },
   "LabelPassphrase": {
     "message": "Passphrase"
@@ -695,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Anmelden zu Google Drive"
+  },
+  "LabelDropboxsetup": {
+    "message": "Bei Dropbox anmelden"
   },
   "LabelSyncfoldersetup": {
     "message": "Welche Ordner möchten Sie synchronisieren?"
@@ -920,5 +956,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Wenn Sie die zeitbasierte Synchronisierung aktivieren, wird automatisch alle paar Minuten ein Synchronisierungslauf dieses Profils geplant."
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "Vordefinierte Server-URLs"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Wähle deinen Dienst aus"
   }
 }
