@@ -445,6 +445,13 @@ export default class SyncProcess {
   }
 
   protected async prepareSync() {
+    if (!this.localTree) {
+      throw new Error('localTree is not initialized. Cannot prepare sync.')
+    }
+    if (!this.server) {
+      throw new Error('server is not initialized. Cannot prepare sync.')
+    }
+
     // Negotiate capabilities
     const localCapabilities = await this.localTree.getCapabilities()
     const serverCapabilities = await this.server.getCapabilities()
@@ -1620,6 +1627,16 @@ export default class SyncProcess {
     server:TAdapter,
     progressCb:(progress:number, actionsDone:number)=>Promise<void>,
     json: any) {
+    if (!localTree) {
+      throw new Error('localTree cannot be null when restoring sync process')
+    }
+    if (!server) {
+      throw new Error('server cannot be null when restoring sync process')
+    }
+    if (!mappings) {
+      throw new Error('mappings cannot be null when restoring sync process')
+    }
+
     let strategy: SyncProcess
     switch (json.strategy) {
       case 'default':
