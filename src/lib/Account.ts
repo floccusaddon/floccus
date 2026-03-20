@@ -253,6 +253,14 @@ export default class Account {
       if (typeof continuation !== 'undefined' && continuation !== null) {
         try {
           Logger.log('Attempting to load pending continuation')
+
+          if (!this.localCachingResource) {
+            throw new Error('localCachingResource not initialized')
+          }
+          if (!this.server) {
+            throw new Error('server not initialized')
+          }
+
           this.syncProcess = await DefaultSyncProcess.fromJSON(
             mappings,
             this.localCachingResource,
