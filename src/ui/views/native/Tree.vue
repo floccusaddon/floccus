@@ -15,57 +15,52 @@
         @click="goBack">
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
+      <v-spacer />
       <v-text-field
+        v-if="showSearch"
+        autofocus
         :value="searchQuery"
-        :label="!tree || currentFolderId === tree.id? t('LabelSearch') : t('LabelSearchfolder', [currentFolder.title])"
+        :label="
+          !tree || currentFolderId === tree.id
+            ? t('LabelSearch')
+            : t('LabelSearchfolder', [currentFolder.title])
+        "
         solo
         flat
         dense
         clearable
         hide-details
         @input="onSearch" />
-      <v-spacer />
+      <v-btn
+        v-if="!showSearch"
+        icon
+        :disabled="Boolean(syncing) || Boolean(scheduled) || !currentAccount"
+        @click="onTriggerSync">
+        <v-icon :class="{'sync--active': Boolean(syncing)}">
+          {{ scheduled ? 'mdi-timer-sync-outline' : 'mdi-sync' }}
+        </v-icon>
+      </v-btn>
+      <v-btn
+        v-if="!showSearch"
+        icon
+        :disabled="Boolean(syncing) || Boolean(scheduled) || !currentAccount"
+        @click="onTriggerSync('up')">
+        <v-icon>mdi-arrow-up-bold</v-icon>
+      </v-btn>
+      <v-btn
+        v-if="!showSearch"
+        icon
+        :disabled="Boolean(syncing) || Boolean(scheduled) || !currentAccount"
+        @click="onTriggerSync('down')">
+        <v-icon>mdi-arrow-down-bold</v-icon>
+      </v-btn>
+      <v-btn
+        icon
+        @click="showSearch = !showSearch; searchQuery = ''">
+        <v-icon>mdi-magnify</v-icon>
+      </v-btn>
       <v-menu
-        bottom
-        left
-        open-on-hover
-        :open-delay="450"
-        :disabled="Boolean(syncing) || Boolean(scheduled) || !currentAccount">
-        <template #activator="{ on, attrs }">
-          <v-btn
-            icon
-            :disabled="!currentAccount"
-            :color="syncing || scheduled? 'primary' : ''"
-            v-bind="attrs"
-            :class="{'sync-dropdown-hint': !Boolean(syncing)}"
-            v-on="on"
-            @click="onTriggerSync">
-            <v-icon
-              :class="{'sync--active': Boolean(syncing)}">
-              {{ scheduled ? 'mdi-timer-sync-outline' : 'mdi-sync' }}
-            </v-icon>
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item @click="onTriggerSync('up')">
-            <v-list-item-avatar>
-              <v-icon>mdi-arrow-up-bold</v-icon>
-            </v-list-item-avatar>
-            <v-list-item-title>
-              {{ t('LabelSyncUpOnce') }}
-            </v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="onTriggerSync('down')">
-            <v-list-item-avatar>
-              <v-icon>mdi-arrow-down-bold</v-icon>
-            </v-list-item-avatar>
-            <v-list-item-title>
-              {{ t('LabelSyncDownOnce') }}
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-      <v-menu
+        v-if="!showSearch"
         bottom
         left>
         <template #activator="{ on, attrs }">
@@ -105,9 +100,12 @@
         </v-list>
       </v-menu>
       <v-btn
-        v-if="currentAccount"
+        v-if="currentAccount && !showSearch"
         icon
-        :to="{name: routes.ACCOUNT_OPTIONS, params:{accountId: currentAccount? currentAccount.id : 0}}">
+        :to="{
+          name: routes.ACCOUNT_OPTIONS,
+          params: { accountId: currentAccount ? currentAccount.id : 0 },
+        }">
         <v-icon>mdi-cog</v-icon>
       </v-btn>
     </v-app-bar>
@@ -123,6 +121,10 @@
           :tree="tree"
           :items="breadcrumbs"
           @click="currentFolderId = $event" />
+        <v-card-text v-else>
+          <v-icon>mdi-home</v-icon>
+          {{ currentAccount.label }}
+        </v-card-text>
       </v-card>
       <v-alert
         v-if="Boolean(syncError)"
@@ -157,28 +159,42 @@
       <v-list
         v-else-if="currentFolder && items && items.length"
         two-line
-        :class="{'pb-10': true, 'list-full-height': !(searchQuery && otherSearchItems && otherSearchItems.length)}">
+        :class="{
+          'pb-10': true,
+          'list-full-height': !(
+            searchQuery &&
+            otherSearchItems &&
+            otherSearchItems.length
+          ),
+        }">
         <template v-for="item in items">
           <Item
-            :key="item.type+item.id"
+            :key="item.type + item.id"
             :show-folder-path="!!searchQuery"
             :item="item"
             @click="clickItem(item)"
             @share="shareBookmark(item)"
             @edit="editItem(item)"
             @delete="deleteItem(item)" />
-          <v-divider
-            :key="String(item.id)+item.type+'divider'" />
+          <v-divider :key="String(item.id) + item.type + 'divider'" />
         </template>
       </v-list>
       <v-card
         v-else
         flat
         tile
-        :style="{height: '100%', width: '100vw', padding: '10vh auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}">
+        :style="{
+          height: '100%',
+          width: '100vw',
+          padding: '10vh auto',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }">
         <img
           src="icons/tree-swing.svg"
-          :style="{width: '95%', maxHeight: '40vh'}">
+          :style="{ width: '95%', maxHeight: '40vh' }">
         <h3 class="text-center headline mt-5">
           {{ t('LabelNobookmarks') }}
         </h3>
@@ -186,7 +202,10 @@
       <v-card class="pt-5">
         <v-list-item
           v-if="searchQuery && otherSearchItems && otherSearchItems.length">
-          <v-list-item-avatar><v-icon>mdi-select-search</v-icon></v-list-item-avatar> {{ t('LabelSearchresultsotherfolders') }}
+          <v-list-item-avatar>
+            <v-icon>mdi-select-search</v-icon>
+          </v-list-item-avatar>
+          {{ t('LabelSearchresultsotherfolders') }}
         </v-list-item>
       </v-card>
       <v-list
@@ -195,15 +214,14 @@
         class="list-full-height">
         <template v-for="item in otherSearchItems">
           <Item
-            :key="item.type+item.id"
+            :key="item.type + item.id"
             :show-folder-path="!!searchQuery"
             :item="item"
             @click="clickItem(item)"
             @share="shareBookmark(item)"
             @edit="editItem(item)"
             @delete="deleteItem(item)" />
-          <v-divider
-            :key="String(item.id)+item.type+'divider'" />
+          <v-divider :key="String(item.id) + item.type + 'divider'" />
         </template>
       </v-list>
       <v-speed-dial
@@ -303,7 +321,14 @@ import Item from '../../components/native/Item.vue'
 
 export default {
   name: 'Tree',
-  components: { Item, Breadcrumbs, DialogImportBookmarks, DialogEditBookmark, DialogEditFolder, Drawer },
+  components: {
+    Item,
+    Breadcrumbs,
+    DialogImportBookmarks,
+    DialogEditBookmark,
+    DialogEditFolder,
+    Drawer,
+  },
   data() {
     return {
       currentFolderId: 0,
@@ -321,10 +346,11 @@ export default {
       sortIcons: {
         title: 'mdi-sort-alphabetical-ascending',
         url: 'mdi-sort-bool-ascending',
-        index: 'mdi-sort-ascending'
+        index: 'mdi-sort-ascending',
       },
       sortBy: 'index',
       syncProgress: 0,
+      showSearch: false,
     }
   },
   computed: {
@@ -332,7 +358,12 @@ export default {
       return this.$route.params.accountId
     },
     loading() {
-      return (!this.$store.state.accounts[this.id] || !this.$store.state.accounts[this.id].data || !Object.keys(this.$store.state.accounts[this.id].data).length || !this.tree)
+      return (
+        !this.$store.state.accounts[this.id] ||
+        !this.$store.state.accounts[this.id].data ||
+        !Object.keys(this.$store.state.accounts[this.id].data).length ||
+        !this.tree
+      )
     },
     tree() {
       return this.$store.state.tree
@@ -361,34 +392,47 @@ export default {
       }
       let items
       if (this.searchQuery && this.searchQuery.trim().length >= 2) {
-        return this.search(this.searchQuery.toLowerCase().trim(), this.currentFolder)
+        return this.search(
+          this.searchQuery.toLowerCase().trim(),
+          this.currentFolder
+        )
       } else {
         items = this.currentFolder.children
       }
       if (this.sortBy !== 'index') {
-        return sortBy(items, [(item) => {
-          if (this.sortBy === 'url') {
-            if (item.url) {
-              try {
-                return new URL(item.url).hostname
-              } catch (e) {
-                return item.url.toLowerCase()
+        return sortBy(items, [
+          (item) => {
+            if (this.sortBy === 'url') {
+              if (item.url) {
+                try {
+                  return new URL(item.url).hostname
+                } catch (e) {
+                  return item.url.toLowerCase()
+                }
+              } else {
+                return '0000000' + item.title.toLowerCase() // folders to the top
               }
-            } else {
-              return '0000000' + item.title.toLowerCase() // folders to the top
             }
-          }
-          return item.type === 'folder' ? '0000000' + item.title.toLowerCase() : item[this.sortBy].toLowerCase()
-        }])
+            return item.type === 'folder'
+              ? '0000000' + item.title.toLowerCase()
+              : item[this.sortBy].toLowerCase()
+          },
+        ])
       } else {
         return items
       }
     },
     otherSearchItems() {
-      if (!this.currentFolder && (!this.searchQuery || this.searchQuery.trim().length < 2)) {
+      if (
+        !this.currentFolder &&
+        (!this.searchQuery || this.searchQuery.trim().length < 2)
+      ) {
         return []
       }
-      return this.search(this.searchQuery.toLowerCase().trim(), this.tree).filter(item => !this.items.includes(item))
+      return this.search(
+        this.searchQuery.toLowerCase().trim(),
+        this.tree
+      ).filter((item) => !this.items.includes(item))
     },
     routes() {
       return routes
@@ -405,28 +449,44 @@ export default {
   },
   watch: {
     async $route() {
-      await this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
+      await this.$store.dispatch(
+        actions.LOAD_TREE,
+        this.$route.params.accountId
+      )
       this.sortBy = this.$store.state.accounts[this.id].data.sortBy || 'index'
     },
     async syncing(current, previous) {
       if (!current && previous) {
         this.syncProgress = 1
-        setTimeout(() => { this.syncProgress = 0 }, 1000)
+        setTimeout(() => {
+          this.syncProgress = 0
+        }, 1000)
       } else {
         this.syncProgress = current
       }
       if (!current) {
-        await this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
+        await this.$store.dispatch(
+          actions.LOAD_TREE,
+          this.$route.params.accountId
+        )
       }
     },
     async sortBy(current) {
-      await this.$store.dispatch(actions.SET_SORTBY, {accountId: this.$route.params.accountId, sortBy: current})
-    }
+      await this.$store.dispatch(actions.SET_SORTBY, {
+        accountId: this.$route.params.accountId,
+        sortBy: current,
+      })
+    },
   },
   mounted() {
     this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
     this.sortBy = this.$store.state.accounts[this.id].data.sortBy || 'index'
-    App.addListener('resume', () => this.$store.dispatch(actions.LOAD_TREE_FROM_DISK, this.$route.params.accountId))
+    App.addListener('resume', () =>
+      this.$store.dispatch(
+        actions.LOAD_TREE_FROM_DISK,
+        this.$route.params.accountId
+      )
+    )
   },
   backButton() {
     this.goBack()
@@ -434,14 +494,23 @@ export default {
   methods: {
     getFolderPath(item) {
       const folders = [item]
-      while (this.tree && folders[folders.length - 1 ] && String(folders[folders.length - 1 ].id) !== String(this.tree.id)) {
-        folders.push(this.findItem(folders[folders.length - 1 ].parentId, this.tree))
+      while (
+        this.tree &&
+        folders[folders.length - 1] &&
+        String(folders[folders.length - 1].id) !== String(this.tree.id)
+      ) {
+        folders.push(
+          this.findItem(folders[folders.length - 1].parentId, this.tree)
+        )
       }
       return folders.reverse()
     },
     clickItem(item) {
       if (item.url) {
-        this.$store.dispatch(actions.COUNT_BOOKMARK_CLICK, {accountId: this.$route.params.accountId, bookmark: item})
+        this.$store.dispatch(actions.COUNT_BOOKMARK_CLICK, {
+          accountId: this.$route.params.accountId,
+          bookmark: item,
+        })
         window.location = item.url
       } else {
         this.searchQuery = ''
@@ -468,36 +537,105 @@ export default {
     },
     search(query, tree) {
       return Object.values(tree.index.folder)
-        .filter(item => {
-          const matchTitleFully = item.title ? query.split(' ').every(term => item.title.toLowerCase().split(' ').some(word => word === term)) : false
-          const matchTitlePartially = item.title ? query.split(' ').every(term => item.title.toLowerCase().includes(term)) : false
+        .filter((item) => {
+          const matchTitleFully = item.title
+            ? query.split(' ').every((term) =>
+              item.title
+                .toLowerCase()
+                .split(' ')
+                .some((word) => word === term)
+            )
+            : false
+          const matchTitlePartially = item.title
+            ? query
+              .split(' ')
+              .every((term) => item.title.toLowerCase().includes(term))
+            : false
           return matchTitleFully || matchTitlePartially
         })
         .sort((a, b) => {
-          const matchTitlePartiallyA = a.title ? query.split(' ').every(term => a.title.toLowerCase().includes(term)) : false
-          const matchTitlePartiallyB = b.title ? query.split(' ').every(term => b.title.toLowerCase().includes(term)) : false
+          const matchTitlePartiallyA = a.title
+            ? query
+              .split(' ')
+              .every((term) => a.title.toLowerCase().includes(term))
+            : false
+          const matchTitlePartiallyB = b.title
+            ? query
+              .split(' ')
+              .every((term) => b.title.toLowerCase().includes(term))
+            : false
           return matchTitlePartiallyA ? (matchTitlePartiallyB ? 0 : -1) : 1
         })
         .sort((a, b) => {
-          const matchTitleA = a.title ? query.split(' ').every(term => a.title.toLowerCase().split(' ').some(word => word === term)) : false
-          const matchTitleB = b.title ? query.split(' ').every(term => b.title.toLowerCase().split(' ').some(word => word === term)) : false
+          const matchTitleA = a.title
+            ? query.split(' ').every((term) =>
+              a.title
+                .toLowerCase()
+                .split(' ')
+                .some((word) => word === term)
+            )
+            : false
+          const matchTitleB = b.title
+            ? query.split(' ').every((term) =>
+              b.title
+                .toLowerCase()
+                .split(' ')
+                .some((word) => word === term)
+            )
+            : false
           return matchTitleA ? (matchTitleB ? 0 : -1) : 1
-        }).concat(
+        })
+        .concat(
           Object.values(tree.index.bookmark)
-            .filter(item => {
-              const matchTitleFully = item.title ? query.split(' ').every(term => item.title.toLowerCase().split(' ').some(word => word === term)) : false
-              const matchTitlePartially = item.title ? query.split(' ').every(term => item.title.toLowerCase().includes(term)) : false
-              const matchUrl = query.split(' ').every(term => item.url.toLowerCase().includes(term))
+            .filter((item) => {
+              const matchTitleFully = item.title
+                ? query.split(' ').every((term) =>
+                  item.title
+                    .toLowerCase()
+                    .split(' ')
+                    .some((word) => word === term)
+                )
+                : false
+              const matchTitlePartially = item.title
+                ? query
+                  .split(' ')
+                  .every((term) => item.title.toLowerCase().includes(term))
+                : false
+              const matchUrl = query
+                .split(' ')
+                .every((term) => item.url.toLowerCase().includes(term))
               return matchUrl || matchTitleFully || matchTitlePartially
             })
             .sort((a, b) => {
-              const matchTitlePartiallyA = a.title ? query.split(' ').every(term => a.title.toLowerCase().includes(term)) : false
-              const matchTitlePartiallyB = b.title ? query.split(' ').every(term => b.title.toLowerCase().includes(term)) : false
+              const matchTitlePartiallyA = a.title
+                ? query
+                  .split(' ')
+                  .every((term) => a.title.toLowerCase().includes(term))
+                : false
+              const matchTitlePartiallyB = b.title
+                ? query
+                  .split(' ')
+                  .every((term) => b.title.toLowerCase().includes(term))
+                : false
               return matchTitlePartiallyA ? (matchTitlePartiallyB ? 0 : -1) : 1
             })
             .sort((a, b) => {
-              const matchTitleA = a.title ? query.split(' ').every(term => a.title.toLowerCase().split(' ').some(word => word === term)) : false
-              const matchTitleB = b.title ? query.split(' ').every(term => b.title.toLowerCase().split(' ').some(word => word === term)) : false
+              const matchTitleA = a.title
+                ? query.split(' ').every((term) =>
+                  a.title
+                    .toLowerCase()
+                    .split(' ')
+                    .some((word) => word === term)
+                )
+                : false
+              const matchTitleB = b.title
+                ? query.split(' ').every((term) =>
+                  b.title
+                    .toLowerCase()
+                    .split(' ')
+                    .some((word) => word === term)
+                )
+                : false
               return matchTitleA ? (matchTitleB ? 0 : -1) : 1
             })
         )
@@ -545,12 +683,12 @@ export default {
       if (item.type === 'bookmark') {
         this.$store.dispatch(actions.DELETE_BOOKMARK, {
           accountId: this.id,
-          bookmark: item
+          bookmark: item,
         })
       } else {
         this.$store.dispatch(actions.DELETE_FOLDER, {
           accountId: this.id,
-          folder: item
+          folder: item,
         })
       }
     },
@@ -563,7 +701,11 @@ export default {
     createBookmark(props) {
       this.$store.dispatch(actions.CREATE_BOOKMARK, {
         accountId: this.id,
-        bookmark: new Bookmark({ id: null, parentId: this.currentFolderId, ...props })
+        bookmark: new Bookmark({
+          id: null,
+          parentId: this.currentFolderId,
+          ...props,
+        }),
       })
     },
     addFolder() {
@@ -572,19 +714,23 @@ export default {
     createFolder(props) {
       this.$store.dispatch(actions.CREATE_FOLDER, {
         accountId: this.id,
-        folder: new Folder({...props, id: null, parentId: this.currentFolderId})
+        folder: new Folder({
+          ...props,
+          id: null,
+          parentId: this.currentFolderId,
+        }),
       })
     },
     editFolder(props) {
       this.$store.dispatch(actions.EDIT_FOLDER, {
         accountId: this.id,
-        folder: new Folder({...this.currentlyEditedFolder, ...props})
+        folder: new Folder({ ...this.currentlyEditedFolder, ...props }),
       })
     },
     editBookmark(props) {
       this.$store.dispatch(actions.EDIT_BOOKMARK, {
         accountId: this.id,
-        bookmark: new Bookmark({...this.currentlyEditedBookmark, ...props})
+        bookmark: new Bookmark({ ...this.currentlyEditedBookmark, ...props }),
       })
     },
     shareBookmark(item) {
@@ -610,8 +756,8 @@ export default {
       if (confirm(this.t('DescriptionScheduledforcesync'))) {
         this.$store.dispatch(actions.FORCE_SYNC, this.id)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
