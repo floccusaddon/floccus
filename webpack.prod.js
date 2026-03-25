@@ -16,16 +16,18 @@ module.exports = common.map(common => merge(common, {
     new webpack.DefinePlugin({
       DEBUG: JSON.stringify(false)
     }),
-    sentryWebpackPlugin({
-      authToken: process.env.SENTRY_AUTH_TOKEN,
-      org: "marcel-klehr",
-      project: "floccus",
-      release: {
-        name: packageJSON.version
-      },
-      sourcemaps: {
-        disable: true,
-      }
-    }),
+    ...(process.env.SENTRY_AUTH_TOKEN ? [
+      sentryWebpackPlugin({
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        org: "marcel-klehr",
+        project: "floccus",
+        release: {
+          name: packageJSON.version
+        },
+        sourcemaps: {
+          disable: true,
+        }
+      })
+    ] : []),
   ]
 }))

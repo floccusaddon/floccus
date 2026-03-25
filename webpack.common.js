@@ -13,12 +13,6 @@ const common = {
   module: {
     rules: [
       {
-        test: /\.(js|vue)$/,
-        use: 'eslint-loader',
-        exclude: /node_modules/,
-        enforce: 'pre',
-      },
-      {
         test: /\.css$/,
         use: ['vue-style-loader', 'css-loader'],
       },
@@ -47,7 +41,12 @@ const common = {
       },
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true,
+          }
+        },
         exclude: /node_modules/,
       },
       {
@@ -56,6 +55,7 @@ const common = {
         use: {
           loader: 'babel-loader',
           options: {
+            cacheDirectory: true,
             presets: [
               [
                 '@babel/preset-env',
@@ -134,7 +134,12 @@ module.exports = [
         },
         {
           test: /\.tsx?$/,
-          use: 'ts-loader',
+          use: {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true,
+            }
+          },
           exclude: /node_modules/,
         },
         {
@@ -143,6 +148,7 @@ module.exports = [
           use: {
             loader: 'babel-loader',
             options: {
+              cacheDirectory: true,
               presets: [
                 [
                   '@babel/preset-env',

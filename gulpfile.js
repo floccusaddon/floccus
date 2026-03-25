@@ -104,7 +104,6 @@ const js = async function() {
       resolve()
     })
   )
-  await new Promise(resolve => setTimeout(resolve, 5000))
   statsJson.children.forEach(statsJson => html(statsJson))
   statsJson.children.forEach(statsJson => webpackCheck(statsJson))
 }
