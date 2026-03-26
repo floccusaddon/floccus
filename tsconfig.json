@@ -9,6 +9,7 @@
     "noImplicitThis": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "skipLibCheck": true,
     "lib": [
       "DOM",
       "es2019",

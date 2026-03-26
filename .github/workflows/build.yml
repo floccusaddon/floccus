@@ -44,6 +44,14 @@ jobs:
         run: |
           npm ci -f
 
+      - name: Lint code
+        run: |
+          npm run lint
+
+      - name: TypeScript check
+        run: |
+          npm run typecheck
+
       - name: Install dependencies & build
         run: |
           npm run build-release --if-present
