@@ -89,6 +89,7 @@ jobs:
         npm-version: [10.x]
         server-version: ['32']
         app-version: ['stable']
+        seed: ["${{ github.sha }}"]
         floccus-adapter:
           - fake
           - nextcloud-bookmarks
@@ -117,6 +118,7 @@ jobs:
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
+            seed: ${{ github.sha }}
           - app-version: master
             server-version: 32
             floccus-adapter: nextcloud-bookmarks
@@ -124,6 +126,7 @@ jobs:
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
+            seed: ${{ github.sha }}
           - app-version: master
             server-version: 32
             floccus-adapter: nextcloud-bookmarks
@@ -131,6 +134,7 @@ jobs:
             browsers: chrome
             node-version: 14.x
             npm-version: 7.x
+            seed: ${{ github.sha }}
           - app-version: stable
             server-version: 32
             floccus-adapter: fake-noCache
@@ -138,6 +142,7 @@ jobs:
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
+            seed: ${{ github.sha }}
           - app-version: master
             server-version: 32
             floccus-adapter: fake
@@ -145,6 +150,7 @@ jobs:
             browsers: firefox
             node-version: 14.x
             npm-version: 7.x
+            seed: ${{ github.sha }}
           - app-version: master
             server-version: 32
             floccus-adapter: fake
@@ -152,8 +158,49 @@ jobs:
             browsers: chrome
             node-version: 14.x
             npm-version: 7.x
+            seed: ${{ github.sha }}
+          - app-version: master
+            server-version: 32
+            floccus-adapter: fake
+            test-name: benchmark root
+            browsers: chrome
+            node-version: 14.x
+            npm-version: 7.x
+            seed: "3"
+          - app-version: master
+            server-version: 32
+            floccus-adapter: fake
+            test-name: benchmark root
+            browsers: chrome
+            node-version: 14.x
+            npm-version: 7.x
+            seed: "6"
+          - app-version: master
+            server-version: 32
+            floccus-adapter: fake
+            test-name: benchmark root
+            browsers: chrome
+            node-version: 14.x
+            npm-version: 7.x
+            seed: "0.5202964461460992"
+          - app-version: master
+            server-version: 32
+            floccus-adapter: fake
+            test-name: benchmark root
+            browsers: chrome
+            node-version: 14.x
+            npm-version: 7.x
+            seed: "12dd05da349df3d71c9e48e764f5d50ec2bbc88d"
+          - app-version: master
+            server-version: 32
+            floccus-adapter: fake
+            test-name: benchmark root
+            browsers: chrome
+            node-version: 14.x
+            npm-version: 7.x
+            seed: "cfc00c4b69afec232e3b26244c2bc98ed6d547b6"
 
-    name: ${{ matrix.browsers == 'firefox' && '🦊' || '🔵' }} ${{matrix.floccus-adapter}}:${{ matrix.test-name}} ⭐${{ matrix.app-version }}
+    name: ${{ matrix.browsers == 'firefox' && '🦊' || '🔵' }} ${{matrix.floccus-adapter}}:${{ matrix.test-name}} ⭐${{ matrix.app-version }} ${{ matrix.test-name == 'benchmark root' && matrix.seed != github.sha && '🌱' || ''}}${{ matrix.test-name == 'benchmark root' && matrix.seed != github.sha && matrix.seed || ''}}
 
     services:
       hub:
@@ -272,7 +319,7 @@ jobs:
         env:
           SELENIUM_BROWSER: ${{ matrix.browsers }}
           FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
-          FLOCCUS_TEST_SEED: ${{ github.sha }}
+          FLOCCUS_TEST_SEED: ${{matrix.seed}}
           TEST_HOST: 172.17.0.1:8174
         run: |
           npm run test
@@ -283,7 +330,7 @@ jobs:
         env:
           SELENIUM_BROWSER: ${{ matrix.browsers }}
           FLOCCUS_TEST: ${{matrix.floccus-adapter}} ${{ matrix.test-name}}
-          FLOCCUS_TEST_SEED: ${{ github.sha }}
+          FLOCCUS_TEST_SEED: ${{matrix.seed}}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GOOGLE_API_REFRESH_TOKEN: ${{ secrets.GOOGLE_API_REFRESH_TOKEN }}
           DROPBOX_API_REFRESH_TOKEN: ${{ secrets.DROPBOX_API_REFRESH_TOKEN }}
