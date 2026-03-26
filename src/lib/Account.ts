@@ -38,6 +38,7 @@ AdapterFactory.register('fake', async() => (await import('./adapters/Fake')).def
 const LOCK_TIMEOUT = 1000 * 60 * 60 * 2
 
 const dataLock = new AsyncLock()
+const accountLock = new AsyncLock()
 
 export default class Account {
   static cache = {}
@@ -56,13 +57,15 @@ export default class Account {
   }
 
   static async get(id:string):Promise<Account> {
-    if (this.cache[id]) {
-      await this.cache[id].updateFromStorage()
-      return this.cache[id]
-    }
-    const account = await (await this.getAccountClass()).get(id)
-    this.cache[id] = account
-    return account
+    return accountLock.acquire(id, async() => {
+      if (this.cache[id]) {
+        await this.cache[id].updateFromStorage()
+        return this.cache[id]
+      }
+      const account = await (await this.getAccountClass()).get(id)
+      this.cache[id] = account
+      return account
+    })
   }
 
   static async create(data: IAccountData):Promise<Account> {
