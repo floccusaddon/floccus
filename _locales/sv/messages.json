@@ -54,7 +54,7 @@
     "message": "E018: Det gick inte att verifiera med servern"
   },
   "Error019": {
-    "message": "E019: HTTP status {0}. Misslyckades med {1} begäran. Kontrollera dina serverinställningar och logg."
+    "message": "E019: HTTP-status {0}. Misslyckad {1} begäran: {2}. Kontrollera din serverkonfiguration och logg."
   },
   "Error020": {
     "message": "E020: Det gick inte att tolka serversvaret."
@@ -84,7 +84,7 @@
     "message": "E028: Det gick inte att autentisera med servern."
   },
   "Error029": {
-    "message": "E029: Felsäker: Den aktuella synkroniseringskörningen skulle radera {0}% av dina länkar på servern. Vägrar att utföra. Inaktivera denna felsäkerhet i profilinställningarna om du vill fortsätta ändå."
+    "message": "E029: Felsäker: Den aktuella synkroniseringskörningen skulle radera {0}% av dina länkar på servern. Vägrar att utföra. Inaktivera denna felsäkerhet i profilinställningarna om du vill fortsätta ändå. Om du inte orsakade detta kan du använda de manuella synkroniseringsknapparna för att åsidosätta det lokala tillståndet på den här enheten med tillståndet på servern. Om du tror att detta är en bugg, vänligen kontakta utvecklarna med felsökningsloggen för den här körningen."
   },
   "Error030": {
     "message": "E030: Misslyckades med att dekryptera bokmärkesfilen. Lösenordet kan vara fel eller filen kan vara skadad."
@@ -126,7 +126,7 @@
     "message": "E042: Storleken på fjärrbokmärkesfilen kunde inte hämtas. Det är omöjligt att verifiera att bokmärkesfilen hämtades i sin helhet. Om detta fel kvarstår, kontakta serveradministratören."
   },
   "Error043": {
-    "message": "E043: Felsäker: Den aktuella synkroniseringskörningen skulle öka antalet länkar på servern med {0}%. Vägrar att utföra. Inaktivera denna felsäkerhet i profilinställningarna om du vill fortsätta ändå."
+    "message": "E043: Felsäker: Den aktuella synkroniseringskörningen skulle öka antalet länkar på servern med {0}%. Vägrar att utföra. Inaktivera denna felsäkerhet i profilinställningarna om du vill fortsätta ändå. Om du inte orsakade detta kan du använda de manuella synkroniseringsknapparna för att åsidosätta det lokala tillståndet på den här enheten med tillståndet på servern. Om du tror att detta är en bugg, vänligen kontakta utvecklarna med felsökningsloggen för den här körningen."
   },
   "Error044": {
     "message": "E044: Git push-operationen misslyckades: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: Misslyckades med att analysera filen XBEL. XBEL-data verkar vara skadad eller ofullständig. Du kan försöka ta bort filen på servern för att låta floccus återskapa den. Se till att ta en säkerhetskopia först."
   },
   "Error049": {
-    "message": "E049: Felsäker: Den aktuella synkroniseringskörningen skulle öka antalet lokala länkar i den här profilen med {0}%. Vägrar att utföra. Inaktivera denna felsäkerhet i profilinställningarna om du vill fortsätta ändå."
+    "message": "E049: Felsäker: Den aktuella synkroniseringskörningen skulle öka antalet lokala länkar i den här profilen med {0}%. Vägrar att utföra. Inaktivera denna felsäkerhet i profilinställningarna om du vill fortsätta ändå. Om du inte orsakade detta kan du använda de manuella synkroniseringsknapparna för att åsidosätta servertillståndet med det lokala tillståndet på den här enheten. Om du tror att detta är ett fel, vänligen kontakta utvecklarna med felsökningsloggen för den här körningen."
   },
   "Error050": {
-    "message": "E050: Felsäker: Den aktuella synkroniseringskörningen skulle radera {0}% av dina lokala länkar i den här profilen. Vägrar att köra. Inaktivera denna felsäkerhet i profilinställningarna om du vill fortsätta ändå."
+    "message": "E050: Felsäker: Den aktuella synkroniseringskörningen skulle radera {0}% av dina lokala länkar i den här profilen. Vägrar att köra. Inaktivera denna felsäkerhet i profilinställningarna om du vill fortsätta ändå. Om du inte orsakade detta kan du använda de manuella synkroniseringsknapparna för att åsidosätta servertillståndet med det lokala tillståndet på den här enheten. Om du tror att detta är ett fel, vänligen kontakta utvecklarna med felsökningsloggen för den här körningen."
+  },
+  "Error051": {
+    "message": "E051: Det gick inte att autentisera med Dropbox. Anslut Floccus till ditt Dropbox-konto igen."
+  },
+  "Error052": {
+    "message": "E052: OAuth-fel. Fel vid validering av token. Återanslut ditt Dropbox-konto."
+  },
+  "Error053": {
+    "message": "E053: Det gick inte att söka efter ditt filnamn i din Dropbox"
+  },
+  "Error054": {
+    "message": "E054: Det gick inte att hämta mallen för Dropbox"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "filnamnet på bokmärkesfilen som kommer att finnas på din Google Drive. Ange inte hela sökvägen till filen, bara filnamnet. Se till att namnet är unikt i din Drive. t.ex. mybookmarks.xbel"
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "filnamnet på bokmärkesfilen som kommer att finnas i din Dropbox. Ange inte hela sökvägen till filen, bara filnamnet. Se till att namnet är unikt i din Dropbox. t.ex. mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "en sökväg till bokmärkesfilen i förhållande till roten för ditt Git-arkiv (alla mappar i sökvägen måste redan finnas). t.ex. personal_stuff/bookmarks.xbel"
@@ -325,6 +340,9 @@
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV-delning"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "t.ex. Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
   },
   "DescriptionAdapterwebdav": {
     "message": "Synkronisera dina bokmärken genom att lagra dem i en fil i den medföljande WebDAV-delningen. Det finns inget medföljande webbgränssnitt för det här alternativet och du kan använda det med vilken WebDAV-kompatibel server som helst, antingen självhostad eller i molnet. Det kan synkronisera http, ftp, data, fil- och javascriptbokmärken. Du kan välja att använda end-to-end-kryptering när du använder det här alternativet."
@@ -564,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "Du har anslutit ditt Google-konto för att lagra synkroniseringsfilen för bokmärken i din Google Drive."
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Synkronisera bokmärken via en (valfritt krypterad) fil som lagras i din Dropbox. Det kan synkronisera bokmärken för http, ftp, data, filer och javascript. Du kan välja att använda end-to-end-kryptering när du använder det här alternativet."
+  },
+  "LabelLogindropbox": {
+    "message": "Logga in med Dropbox"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Anslut ditt Dropbox-konto för att lagra synkroniseringsfilen för bokmärken i din Dropbox."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "Du har anslutit ditt Dropbox-konto för att lagra synkroniseringsfilen för bokmärken i din Dropbox."
+  },
   "LabelPassphrase": {
     "message": "Lösenord"
   },
@@ -695,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Logga in på Google Drive"
+  },
+  "LabelDropboxsetup": {
+    "message": "Logga in på Dropbox"
   },
   "LabelSyncfoldersetup": {
     "message": "Vilka mappar vill du synkronisera?"
@@ -920,5 +956,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Om du aktiverar tidsbaserad synkronisering schemaläggs automatiskt en synkroniseringskörning av den här profilen med några minuters mellanrum"
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "Fördefinierade server-URL:er"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Välj din tjänst"
   }
 }
