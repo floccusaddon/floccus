@@ -54,7 +54,7 @@
     "message": "E018: Palvelimelle ei voitu tunnistautua."
   },
   "Error019": {
-    "message": "E019: HTTP-tila {0}. Pyyntö {0} epäonnistui. Tarkista palvelinasetukset ja loki."
+    "message": "E019: HTTP-tila {0}. Epäonnistunut {1} pyyntö: {2}. Tarkista palvelimen kokoonpano ja loki."
   },
   "Error020": {
     "message": "E020: Palvelimen vastausta ei pystytty jäsentämään."
@@ -84,7 +84,7 @@
     "message": "E028: Tunnistautuminen palvelimelle epäonnistui."
   },
   "Error029": {
-    "message": "E029: Vikasietoinen: {0} % palvelimella olevista linkeistäsi. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat kuitenkin jatkaa."
+    "message": "E029: Vikasietoinen: {0} % palvelimella olevista linkeistäsi. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat jatkaa kuitenkin. Jos et aiheuttanut tätä, voit käyttää manuaalisia synkronointipainikkeita korvataksesi tämän laitteen paikallisen tilan palvelimen tilalla. Jos uskot, että kyseessä on vika, ota yhteyttä kehittäjiin ja lähetä tämän ajon virheenkorjausloki."
   },
   "Error030": {
     "message": "E030: Kirjanmerkkitiedoston salauksen purku epäonnistui. Salauslauseke ei ehkä ole oikein tai tiedosto on viallinen."
@@ -126,7 +126,7 @@
     "message": "E042: Kirjanmerkkitiedoston kokoa ei voitu hakea. On mahdotonta tarkistaa, että kirjanmerkkitiedosto on ladattu kokonaisuudessaan. Jos tämä virhe jatkuu, ota yhteys palvelimen ylläpitäjään."
   },
   "Error043": {
-    "message": "E043: Vikasietoinen: {0} %. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat kuitenkin jatkaa."
+    "message": "E043: Vikasietoinen: {0} %. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat kuitenkin jatkaa. Jos et aiheuttanut tätä, voit käyttää manuaalisia synkronointipainikkeita ohittaaksesi tämän laitteen paikallisen tilan palvelimen tilalla. Jos uskot, että kyseessä on vika, ota yhteyttä kehittäjiin ja lähetä tämän ajon virheenkorjausloki."
   },
   "Error044": {
     "message": "E044: Git-työntöoperaatio epäonnistui: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: XBEL-tiedoston jäsentäminen epäonnistui. XBEL-tiedot näyttävät olevan vioittuneita tai epätäydellisiä. Voit yrittää poistaa tiedoston palvelimelta, jotta floccus voi luoda sen uudelleen. Varmista, että otat varmuuskopion ensin."
   },
   "Error049": {
-    "message": "E049: Vikasietoinen: {0} %. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat jatkaa kuitenkin."
+    "message": "E049: Vikasietoinen: {0} %. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat jatkaa kuitenkin. Jos et aiheuttanut tätä, voit käyttää manuaalisia synkronointipainikkeita korvataksesi palvelimen tilan tämän laitteen paikallisella tilalla. Jos uskot, että kyseessä on vika, ota yhteyttä kehittäjiin ja lähetä tämän ajon virheenkorjausloki."
   },
   "Error050": {
-    "message": "E050: Failsafe: {0} % tämän profiilin paikallisista linkeistä. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat jatkaa kuitenkin."
+    "message": "E050: Failsafe: {0} % tämän profiilin paikallisista linkeistä. Kieltäytyy suorittamasta. Poista tämä vikasietoinen toiminto käytöstä profiilin asetuksissa, jos haluat jatkaa kuitenkin. Jos et aiheuttanut tätä, voit käyttää manuaalisen synkronoinnin painikkeita ohittaaksesi palvelimen tilan tämän laitteen paikallisella tilalla. Jos uskot, että kyseessä on vika, ota yhteyttä kehittäjiin ja lähetä tämän ajon virheenkorjausloki."
+  },
+  "Error051": {
+    "message": "E051: Ei onnistunut todennus Dropboxin kanssa. Ole hyvä ja yhdistä floccus uudelleen Dropbox-tiliisi."
+  },
+  "Error052": {
+    "message": "E052: OAuth-virhe. Tokenin validointivirhe. Yhdistä Dropbox-tilisi uudelleen."
+  },
+  "Error053": {
+    "message": "E053: Tiedoston nimeä ei voitu hakea Dropboxista."
+  },
+  "Error054": {
+    "message": "E054: Dropboxin mallia ei saatu käyttöön"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL-osoite"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "kirjanmerkkitiedoston tiedostonimi, joka tallennetaan Google Driveen. Älä kirjoita koko tiedostopolkua, ainoastaan tiedoston nimi. Varmista, että tämä nimi on ainutlaatuinen Drive-asemassasi. esim. mybookmarks.xbel."
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "kirjanmerkkitiedoston tiedostonimi, joka tallennetaan Dropboxiin. Älä anna koko tiedostopolkua, vaan ainoastaan tiedoston nimen. Varmista, että nimi on ainutlaatuinen Dropboxissa. esim. mybookmarks.xbel."
  },
   "DescriptionBookmarksfilegit": {
     "message": "Kirjanmerkkitiedoston sijainti suhteessa Git-arkistosi juureen (kaikkien sijainnin kansioiden on oltava jo olemassa). Esim. omat_tiedostot/kirjanmerkit.xbel."
@@ -325,6 +340,9 @@
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV-jako"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "esim. Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE, jne."
   },
   "DescriptionAdapterwebdav": {
     "message": "Synkronoi kirjanmerkit tallentamalla ne tiedostoksi määritettyyn WebDAV-jakoon. Tässä ei ole mahdollista käyttää verkkokäyttöliittymää, mutta voit käyttää sitä minkä tahansa WebDAV-yhteensopivan palvelimen kanssa. Tukee HTTP-, FTP-, tieto-, tiedosto- ja JavaScript-kirjanmerkkejä, sekä päästä päähän -salausta."
@@ -564,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "Olet yhdistänyt Google-tilisi kirjanmerkkien synkronointitiedoston tallentamiseksi Google Driveen."
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Synkronoi kirjanmerkit Dropboxiin tallennetun (valinnaisesti salatun) tiedoston kautta. Se voi synkronoida http-, ftp-, data-, tiedosto- ja javascript-kirjanmerkit. Tätä vaihtoehtoa käytettäessä voit valita päästä päähän -salauksen."
+  },
+  "LabelLogindropbox": {
+    "message": "Kirjautuminen Dropboxiin"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Yhdistä Dropbox-tilisi tallentaaksesi kirjanmerkkien synkronointitiedoston Dropboxiin."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "Olet yhdistänyt Dropbox-tilisi tallentaaksesi kirjanmerkkien synkronointitiedoston Dropboxiin."
+  },
   "LabelPassphrase": {
     "message": "Salauslauseke"
   },
@@ -695,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Kirjaudu Google Driveen"
+  },
+  "LabelDropboxsetup": {
+    "message": "Kirjaudu sisään Dropboxiin"
   },
   "LabelSyncfoldersetup": {
     "message": "Mitkä kansiot haluat synkronoida?"
@@ -920,5 +956,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Jos otat aikapohjaisen synkronoinnin käyttöön, tämän profiilin synkronointi ajoitetaan automaattisesti muutaman minuutin välein."
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "Ennalta määritellyt palvelimen URL-osoitteet"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Valitse palvelusi"
   }
 }
