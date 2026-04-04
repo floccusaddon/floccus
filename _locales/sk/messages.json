@@ -54,7 +54,7 @@
     "message": "E018: Nepodarilo sa overiť voči serveru."
   },
   "Error019": {
-    "message": "E019: Stav HTTP {0}. Zlyhalo {1} požiadaviek. Skontrolujte vaše nastavenie servera a záznam udalostí."
+    "message": "E019: Stav HTTP {0}. Neúspešná požiadavka {1}: {2}. Skontrolujte konfiguráciu servera a protokol."
   },
   "Error020": {
     "message": "E020: Nepodarilo sa analyzovať odpoveď servera."
@@ -84,7 +84,7 @@
     "message": "E028: Nepodarilo sa overiť voči serveru."
   },
   "Error029": {
-    "message": "E029: Bezpečnosť pri poruche: Aktuálny beh synchronizácie by vymazal {0}% vašich odkazov na serveri. Odmieta sa vykonať. Ak chcete aj tak pokračovať, vypnite túto poistku proti zlyhaniu v nastaveniach profilu."
+    "message": "E029: Bezpečnosť pri poruche: Aktuálny beh synchronizácie by vymazal {0}% vašich odkazov na serveri. Odmieta sa vykonať. Ak chcete aj tak pokračovať, vypnite túto poistku proti zlyhaniu v nastaveniach profilu. Ak ste to nespôsobili, môžete pomocou tlačidiel ručnej synchronizácie prepísať miestny stav na tomto zariadení stavom na serveri. Ak sa domnievate, že ide o chybu, obráťte sa na vývojárov s protokolom ladenia tohto spustenia."
   },
   "Error030": {
     "message": "E030: Dešifrovanie súboru záložiek zlyhalo. Môže byť zlé heslo alebo súbor môže byť poškodený."
@@ -126,7 +126,7 @@
     "message": "E042: Nemohla byť získaná veľkosť súboru vzdialených záložiek. Je nemožné overiť, že súbor so záložkami bol plne stiahnutý. Ak táto chyba pretrváva, prosím kontaktujte správcu servera."
   },
   "Error043": {
-    "message": "E043: Bezpečnosť pri poruche: Aktuálny beh synchronizácie by zvýšil počet vašich odkazov na serveri o {0}%. Odmietnutie vykonania. Ak chcete aj tak pokračovať, vypnite túto poistku proti zlyhaniu v nastaveniach profilu."
+    "message": "E043: Bezpečnosť pri poruche: Aktuálny beh synchronizácie by zvýšil počet vašich odkazov na serveri o {0}%. Odmietnutie vykonania. Ak chcete aj tak pokračovať, vypnite túto poistku proti zlyhaniu v nastaveniach profilu. Ak ste to nespôsobili, môžete pomocou tlačidiel ručnej synchronizácie prepísať miestny stav na tomto zariadení stavom na serveri. Ak sa domnievate, že ide o chybu, obráťte sa na vývojárov s protokolom ladenia tohto spustenia."
   },
   "Error044": {
     "message": "E044: Operácia git push zlyhala: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: Nepodarilo sa analyzovať súbor XBEL. Zdá sa, že údaje XBEL sú poškodené alebo neúplné. Môžete skúsiť odstrániť súbor na serveri, aby ho floccus mohol znovu vytvoriť. Uistite sa, že ste si najprv urobili zálohu."
   },
   "Error049": {
-    "message": "E049: Bezpečnosť pri poruche: Aktuálny beh synchronizácie by zvýšil počet lokálnych odkazov v tomto profile o {0}%. Odmietnutie vykonania. Ak chcete aj tak pokračovať, vypnite túto poistku proti zlyhaniu v nastaveniach profilu."
+    "message": "E049: Bezpečnosť pri poruche: Aktuálny beh synchronizácie by zvýšil počet lokálnych odkazov v tomto profile o {0}%. Odmietnutie vykonania. Ak chcete aj tak pokračovať, vypnite túto poistku proti zlyhaniu v nastaveniach profilu. Ak ste to nespôsobili, môžete pomocou tlačidiel ručnej synchronizácie prepísať stav servera miestnym stavom na tomto zariadení. Ak sa domnievate, že ide o chybu, obráťte sa na vývojárov s protokolom ladenia tohto spustenia."
   },
   "Error050": {
-    "message": "E050: Bezpečnosť pri poruche: Aktuálny beh synchronizácie by vymazal {0}% vašich miestnych odkazov v tomto profile. Odmietnutie vykonania. Ak chcete aj tak pokračovať, vypnite túto poistku proti zlyhaniu v nastaveniach profilu."
+    "message": "E050: Bezpečnosť pri poruche: Aktuálny beh synchronizácie by vymazal {0}% vašich miestnych odkazov v tomto profile. Odmietnutie vykonania. Ak chcete aj tak pokračovať, vypnite túto poistku proti zlyhaniu v nastaveniach profilu. Ak ste to nespôsobili, môžete pomocou tlačidiel ručnej synchronizácie prepísať stav servera miestnym stavom na tomto zariadení. Ak sa domnievate, že ide o chybu, obráťte sa na vývojárov s protokolom ladenia tohto spustenia."
+  },
+  "Error051": {
+    "message": "E051: Nepodarilo sa overiť pomocou služby Dropbox. Prosím, pripojte floccus k svojmu kontu Dropbox znova."
+  },
+  "Error052": {
+    "message": "E052: Chyba OAuth. Chyba validácie tokenu. Znovu pripojte svoje konto Dropbox."
+  },
+  "Error053": {
+    "message": "E053: V službe Dropbox sa nepodarilo vyhľadať názov súboru"
+  },
+  "Error054": {
+    "message": "E054: Nepodarilo sa získať šablónu pre službu Dropbox"
   },
   "LabelWebdavurl": {
     "message": "WebDAV adresa URL"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "názov súboru so záložkami, ktorý bude uložený vo vašom Google Drive. Nezadávajte plnú cestu, iba názov súboru. Uistite sa, že tento názov je jedinečný vo vašom Google Drive, napr. mojezáložky.xbel"
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "názov súboru záložiek, ktorý bude uložený v službe Dropbox. Nezadávajte celú cestu k súboru, iba jeho názov. Uistite sa, že tento názov je vo vašom Dropboxe jedinečný. napr. mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "relatívna cesta k súboru so záložkami vzhľadom ku koreňu Git repozitáru (všetky adresáre v ceste už musia existovať). napr. osobné_veci/záložky.xbel"
@@ -325,6 +340,9 @@
   },
   "LabelAdapterwebdav": {
     "message": "Zdieľanie WebDAV"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "napr. Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
   },
   "DescriptionAdapterwebdav": {
     "message": "Záložky môžete synchronizovať tak, že ich uložíte do súboru v poskytnutej zdieľanej lokalite WebDAV. Pre túto možnosť nie je k dispozícii žiadne sprievodné webové používateľské rozhranie a môžete ju používať s akýmkoľvek serverom kompatibilným s WebDAV, či už na vlastnom hostingu alebo v cloude. Môže synchronizovať záložky http, ftp, dátové, súborové a javascriptové. Pri používaní tejto možnosti si môžete vybrať, či chcete používať šifrovanie end-to-end."
@@ -564,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "Pripojili ste svoje konto Google a synchronizačný súbor záložiek ste uložili na Disk Google."
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Synchronizujte záložky prostredníctvom (voliteľne šifrovaného) súboru, ktorý je uložený v službe Dropbox. Môže synchronizovať záložky http, ftp, dátové, súborové a javascriptové. Pri používaní tejto možnosti si môžete vybrať, či chcete použiť šifrovanie end-to-end."
+  },
+  "LabelLogindropbox": {
+    "message": "Prihlásenie pomocou služby Dropbox"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Pripojte svoje konto Dropbox a uložte synchronizačný súbor záložiek do služby Dropbox."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "Pripojili ste svoje konto Dropbox a uložili ste synchronizačný súbor záložiek do služby Dropbox."
+  },
   "LabelPassphrase": {
     "message": "Fráza"
   },
@@ -695,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Prihlásenie do služby Disk Google"
+  },
+  "LabelDropboxsetup": {
+    "message": "Prihlásenie do služby Dropbox"
   },
   "LabelSyncfoldersetup": {
     "message": "Ktoré priečinky chcete synchronizovať?"
@@ -920,5 +956,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Zapnutím synchronizácie na základe času sa automaticky naplánuje synchronizácia tohto profilu každých niekoľko minút."
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "Preddefinované adresy URL servera"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Vyberte si službu"
   }
 }
