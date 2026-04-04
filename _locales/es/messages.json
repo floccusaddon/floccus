@@ -1,9 +1,9 @@
 {
   "Error001": {
-    "message": "E001: La carpeta en donde crearlo no existe"
+    "message": "E001: La carpeta donde crearlo no existe"
   },
   "Error002": {
-    "message": "E002: El marcador para actualizar ya no existe"
+    "message": "E002: El marcador que actualizar ya no existe"
   },
   "Error003": {
     "message": "E003: La carpeta desde donde mover no existe. Esto es una anomalía. Enhorabuena."
@@ -54,7 +54,7 @@
     "message": "E018: No se ha podido autenticar con el servidor"
   },
   "Error019": {
-    "message": "E019: estado HTTP {0} . Fallo en la petición {1}. Comprueba la configuración del servidor y el registro."
+    "message": "E019: Estado HTTP {0}. Solicitud {1} fallida: {2}. Compruebe la configuración y el registro de su servidor."
   },
   "Error020": {
     "message": "E020: No se pudo analizar la respuesta del servidor."
@@ -84,7 +84,7 @@
     "message": "E028: No se puede autenticar con el servidor."
   },
   "Error029": {
-    "message": "E029: A prueba de fallos: La actual ejecución de sincronización borraría {0}% de sus enlaces en el servidor. Rechazando la ejecución. Desactiva esta prueba de fallos en la configuración del perfil si quieres continuar de todos modos."
+    "message": "E029: A prueba de fallos: La actual ejecución de sincronización borraría {0}% de sus enlaces en el servidor. Rechazando la ejecución. Desactiva este error en la configuración del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para anular el estado local en este dispositivo con el estado en el servidor. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
   },
   "Error030": {
     "message": "E030: No se pudo descifrar el archivo de marcadores. Es posible que la frase de contraseña sea incorrecta o que el archivo esté corrupto."
@@ -126,7 +126,7 @@
     "message": "E042: No se ha podido recuperar el tamaño del archivo remoto de marcadores. Es imposible verificar que el archivo de marcadores se ha descargado en su totalidad. Si este error persiste, póngase en contacto con el administrador del servidor."
   },
   "Error043": {
-    "message": "E043: A prueba de fallos: La ejecución de la sincronización actual aumentaría el recuento de enlaces en el servidor en {0}%. Rechazando la ejecución. Desactiva este failsafe en la configuración del perfil si quieres proceder de todas formas."
+    "message": "E043: A prueba de fallos: La ejecución de la sincronización actual aumentaría el recuento de enlaces en el servidor en {0}%. Rechazando la ejecución. Desactiva este failsafe en la configuración del perfil si quieres proceder de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para anular el estado local en este dispositivo con el estado en el servidor. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
   },
   "Error044": {
     "message": "E044: Falló la operación Git push: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: Error al analizar el archivo XBEL. Los datos XBEL parecen estar dañados o incompletos. Puede intentar eliminar el archivo del servidor para que floccus lo vuelva a crear. Asegúrese de hacer primero una copia de seguridad."
   },
   "Error049": {
-    "message": "E049: A prueba de fallos: La ejecución de la sincronización actual aumentaría el recuento de enlaces locales en este perfil en {0}%. Rechazando la ejecución. Desactiva esta prueba de fallos en la configuración del perfil si quieres continuar de todos modos."
+    "message": "E049: A prueba de fallos: La ejecución de la sincronización actual aumentaría el recuento de enlaces locales en este perfil en {0}%. Rechazando la ejecución. Desactiva este failsafe en la configuración del perfil si quieres proceder de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para anular el estado del servidor con el estado local en este dispositivo. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
   },
   "Error050": {
-    "message": "E050: A prueba de fallos: La actual ejecución de sincronización eliminaría {0}% de sus enlaces locales en este perfil. Rechazando la ejecución. Desactiva esta prueba de fallos en la configuración del perfil si quieres continuar de todos modos."
+    "message": "E050: A prueba de fallos: La actual ejecución de sincronización eliminaría {0}% de sus enlaces locales en este perfil. Rechazando la ejecución. Desactiva este error en la configuración del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para anular el estado del servidor con el estado local en este dispositivo. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
+  },
+  "Error051": {
+    "message": "E051: No se pudo autenticar con Dropbox. Vuelve a conectar floccus con tu cuenta de Dropbox."
+  },
+  "Error052": {
+    "message": "E052: Error OAuth. Error de validación de token. Vuelve a conectar tu cuenta de Dropbox."
+  },
+  "Error053": {
+    "message": "E053: No se ha podido buscar el nombre del archivo en tu Dropbox"
+  },
+  "Error054": {
+    "message": "E054: No se pudo obtener la plantilla para Dropbox"
   },
   "LabelWebdavurl": {
     "message": "URL de WebDAV"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "el nombre del archivo de marcadores que residirá en su Google Drive. No introduzca la ruta completa del archivo, sólo el nombre del archivo. Asegúrese de que este nombre es único en su Drive. por ejemplo, mybookmarks.xbel"
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "el nombre del archivo de marcadores que residirá en tu Dropbox. No introduzcas la ruta completa del archivo, sólo el nombre. Asegúrate de que este nombre sea único en tu Dropbox. Por ejemplo, mybookmarks.xbel."
  },
   "DescriptionBookmarksfilegit": {
     "message": "una ruta al archivo de marcadores relativa a la raíz de su repositorio Git (todas las carpetas de la ruta deben existir ya). por ejemplo, personal_stuff/bookmarks.xbel"
@@ -567,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "Has conectado tu cuenta de Google para almacenar el archivo de sincronización de marcadores en tu Google Drive."
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Sincroniza marcadores a través de un archivo (opcionalmente encriptado) que se almacena en tu Dropbox. Puede sincronizar marcadores http, ftp, datos, archivos y javascript. Puedes elegir utilizar el cifrado de extremo a extremo cuando utilices esta opción."
+  },
+  "LabelLogindropbox": {
+    "message": "Iniciar sesión con Dropbox"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Conecta tu cuenta de Dropbox para almacenar el archivo de sincronización de favoritos en tu Dropbox."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "Has conectado tu cuenta de Dropbox para almacenar el archivo de sincronización de favoritos en tu Dropbox."
+  },
   "LabelPassphrase": {
     "message": "Frase de contraseña"
   },
@@ -698,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Iniciar sesión en Google Drive"
+  },
+  "LabelDropboxsetup": {
+    "message": "Iniciar sesión en Dropbox"
   },
   "LabelSyncfoldersetup": {
     "message": "¿Qué carpetas quieres sincronizar?"
