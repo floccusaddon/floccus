@@ -54,7 +54,7 @@
     "message": "E018：无法通过服务器进行身份验证。"
   },
   "Error019": {
-    "message": "E019：HTTP状态 {0}。 {1} 请求失败。检查您的服务器配置和日志。"
+    "message": "E019: HTTP 状态{0}.{1} 请求失败：{2} 。检查服务器配置和日志。"
   },
   "Error020": {
     "message": "E020: 无法解析服务器响应。"
@@ -84,7 +84,7 @@
     "message": "028：无法通过服务器进行身份验证。如果使用 2FA，请确保也授予对文件的访问权限。"
   },
   "Error029": {
-    "message": "E029: 错误防护：当前同步运行会删除服务器上链接数的 {0}%。拒绝执行同步。如果仍要继续，在配置文件设置中禁用这个错误防护。"
+    "message": "E029：故障安全：当前同步运行将删除服务器上{0}% 的链接。拒绝执行。如果想继续执行，请在配置文件设置中禁用此故障保护。如果这不是你造成的，你可以使用手动同步按钮用服务器上的状态覆盖该设备上的本地状态。如果您认为这是一个错误，请向开发人员提供这次运行的调试日志。"
   },
   "Error030": {
     "message": "E030：解密书签文件失败。密码短语可能错误，或者文件可能已损坏。"
@@ -126,7 +126,7 @@
     "message": "E042: 无法获取远程书签文件的大小。无法验证书签文件是否完整下载了该文件。如果这个错误持续，请联系服务器管理员。"
   },
   "Error043": {
-    "message": "E043: 错误防护：当前同步运行会让服务器上的链接数增加超过 {0}%. 拒绝执行同步。如果仍要继续，在配置文件设置中禁用此错误防护。"
+    "message": "E043：故障安全：当前同步运行将使服务器上的链接数增加{0}%。拒绝执行。如果想继续执行，请在配置文件设置中禁用此故障保护。如果这不是你造成的，你可以使用手动同步按钮用服务器上的状态覆盖该设备上的本地状态。如果您认为这是一个错误，请向开发人员提供这次运行的调试日志。"
   },
   "Error044": {
     "message": "E044: Git 推送操作失败: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: 解析 XBEL 文件失败。XBEL 数据似乎损坏或不完整。 可以试着删除服务器上的文件让 floccus 重新创建它。确保先进行备份。"
   },
   "Error049": {
-    "message": "E049: 错误防护： 当前同步运行会使这个配置中的本地链接数增加 {0}% .。拒绝执行同步。 如果仍要继续，在配置文件设置中禁用这个错误防护。"
+    "message": "E049：故障安全：当前同步运行将使您在此配置文件中的本地链接数增加{0}%。拒绝执行。如果您想继续同步，请在配置文件设置中禁用此故障保护。如果这不是您造成的，您可以使用手动同步按钮在此设备上用本地状态覆盖服务器状态。如果您认为这是一个错误，请向开发人员提供本次运行的调试日志。"
   },
   "Error050": {
-    "message": "E050: 错误防护：当前的同步运行会删除这个配置中本地链接的  {0}%。拒绝执行同步。如果仍要继续，在配置文件设置中禁用这个错误防护。"
+    "message": "E050:故障安全：当前同步运行将删除此配置文件中{0}% 的本地链接。拒绝执行。如果您想继续同步，请在配置文件设置中禁用此故障保护。如果这不是你造成的，你可以使用手动同步按钮在此设备上用本地状态覆盖服务器状态。如果您认为这是一个错误，请向开发人员提供本次运行的调试日志。"
+  },
+  "Error051": {
+    "message": "E051：无法通过 Dropbox 验证。请重新将 floccus 与您的 Dropbox 账户连接。"
+  },
+  "Error052": {
+    "message": "E052：OAuth 错误。令牌验证错误。请重新连接您的 Dropbox 帐户。"
+  },
+  "Error053": {
+    "message": "E053：无法在 Dropbox 中搜索到您的文件名"
+  },
+  "Error054": {
+    "message": "E054：无法获取 Dropbox 的模板"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "Google 云盘中的书签文件的文件名。不要输入完整文件路径，只输入文件名。请确保该文件名在你的云盘中是独有的。如，mybookmarks.xbel"
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "将存放在 Dropbox 中的书签文件的文件名。不要输入完整的文件路径，只输入文件名。确保该文件名在 Dropbox 中是唯一的。例如：mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "相对于你的 Git 存储库根目录的书签文件路径 (路径中的所有文件夹必须都已存在)。如，personal_stuff/bookmarks.xbel"
@@ -325,6 +340,9 @@
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV 分享"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "例如：Koofr、pCloud、IceDrive、kDrive、MagentaCLOUD、Disroot、Mailbox.org、Synology NAS、GMX、WEB.DE"
   },
   "DescriptionAdapterwebdav": {
     "message": "将书签存储在所提供 WebDAV 分享中的一个文件内来同步书签。此选项没有伴随的 web 用户界面，但任何兼容 WebDAV 的服务器都可，不管是自托管的还是托管的。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时你可以选择使用端到端加密。"
@@ -564,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "您已连接您的 Google 帐户以将书签同步文件存储在您的 Google Drive 中。"
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "通过存储在 Dropbox 中的文件（可选择加密）同步书签。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时，您可以选择使用端到端加密。"
+  },
+  "LabelLogindropbox": {
+    "message": "使用 Dropbox 登录"
+  },
+  "DescriptionLogindropbox": {
+    "message": "连接 Dropbox 账户，将书签同步文件存储到 Dropbox 中。"
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "您已连接 Dropbox 账户，可将书签同步文件存储在 Dropbox 中。"
+  },
   "LabelPassphrase": {
     "message": "密码"
   },
@@ -695,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "登录 Google Drive"
+  },
+  "LabelDropboxsetup": {
+    "message": "登录 Dropbox"
   },
   "LabelSyncfoldersetup": {
     "message": "要同步哪些文件夹？"
@@ -920,5 +956,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "打开基于时间的同步会每隔几分钟定期运行同步"
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "预定义服务器 URL"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "选择服务"
   }
 }
