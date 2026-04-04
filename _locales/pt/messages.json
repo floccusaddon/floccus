@@ -54,7 +54,7 @@
     "message": "E018: Não foi possível autenticar no servidor"
   },
   "Error019": {
-    "message": "E019: HTTP {0}. O pedido {1} falhou. Verifique a configuração do servidor."
+    "message": "E019: Estado HTTP {0}. Falha no pedido {1}: {2}. Verifique a configuração e o registo do seu servidor."
   },
   "Error020": {
     "message": "E020: Não foi possível analisar a resposta do servidor."
@@ -84,7 +84,7 @@
     "message": "Não foi possível autenticar com o servidor"
   },
   "Error029": {
-    "message": "E029: Segurança contra falhas: A execução da sincronização atual eliminaria {0}% das suas ligações no servidor. Recusa de execução. Desactive esta proteção contra falhas nas definições do perfil se quiser continuar na mesma."
+    "message": "E029: Segurança contra falhas: A execução da sincronização atual eliminaria {0}% das suas ligações no servidor. Recusa de execução. Desactive esta proteção contra falhas nas definições de perfil se quiser continuar na mesma. Se não foi a causa disto, pode utilizar os botões de sincronização manual para substituir o estado local neste dispositivo pelo estado no servidor. Se acredita que se trata de um erro, contacte os programadores com o registo de depuração desta execução."
   },
   "Error030": {
     "message": "E030: Falha ao desencriptar o ficheiro de favoritos. A frase-chave pode estar errada ou o ficheiro pode estar corrompido."
@@ -126,7 +126,7 @@
     "message": "E042: Não foi possível recuperar o tamanho do ficheiro de marcadores remotos. É impossível verificar se o ficheiro de favoritos foi transferido na totalidade. Se este erro persistir, contacte o administrador do servidor."
   },
   "Error043": {
-    "message": "E043: Segurança contra falhas: A execução da sincronização atual aumentaria a sua contagem de ligações no servidor em {0}%. Recusa de execução. Desactive esta proteção contra falhas nas definições do perfil se quiser continuar na mesma."
+    "message": "E043: Segurança contra falhas: A execução da sincronização atual aumentaria a sua contagem de ligações no servidor em {0}%. Recusa de execução. Desactive esta proteção contra falhas nas definições de perfil se quiser continuar na mesma. Se não tiveres causado isto, podes utilizar os botões de sincronização manual para substituir o estado local neste dispositivo pelo estado no servidor. Se acredita que se trata de um erro, contacte os programadores com o registo de depuração desta execução."
   },
   "Error044": {
     "message": "E044: Falha na operação de envio do Git: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: Falha ao analisar o ficheiro XBEL. Os dados XBEL parecem estar corrompidos ou incompletos. Pode tentar remover o ficheiro no servidor para permitir que o floccus o recrie. Certifique-se de que faz primeiro uma cópia de segurança."
   },
   "Error049": {
-    "message": "E049: Segurança contra falhas: A execução de sincronização atual aumentaria a contagem de ligações locais neste perfil em {0}%. Recusa de execução. Desactive esta proteção contra falhas nas definições do perfil se quiser continuar na mesma."
+    "message": "E049: Segurança contra falhas: A execução de sincronização atual aumentaria a contagem de ligações locais neste perfil em {0}%. Recusa de execução. Desactive esta proteção contra falhas nas definições do perfil se quiser continuar na mesma. Se não foi a causa disto, pode utilizar os botões de sincronização manual para substituir o estado do servidor pelo estado local neste dispositivo. Se acredita que isto é um erro, contacte os programadores com o registo de depuração desta execução."
   },
   "Error050": {
-    "message": "E050: Segurança contra falhas: A execução de sincronização atual eliminaria {0}% das suas ligações locais neste perfil. Recusa de execução. Desactive esta proteção contra falhas nas definições do perfil se quiser continuar na mesma."
+    "message": "E050: Segurança contra falhas: A execução de sincronização atual eliminaria {0}% das suas ligações locais neste perfil. Recusa de execução. Desactive esta proteção contra falhas nas definições do perfil se quiser continuar na mesma. Se não tiveres causado isto, podes utilizar os botões de sincronização manual para substituir o estado do servidor pelo estado local neste dispositivo. Se acredita que isto é um erro, contacte os programadores com o registo de depuração desta execução."
+  },
+  "Error051": {
+    "message": "E051: Não foi possível autenticar com o Dropbox. Conecte o floccus à sua conta do Dropbox novamente."
+  },
+  "Error052": {
+    "message": "E052: Erro OAuth. Erro de validação de token. Reconecte sua conta do Dropbox."
+  },
+  "Error053": {
+    "message": "E053: Não foi possível procurar o seu nome de ficheiro no seu Dropbox"
+  },
+  "Error054": {
+    "message": "E054: Não foi possível obter um modelo para o Dropbox"
   },
   "LabelWebdavurl": {
     "message": "URL do WebDAV"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "o nome do ficheiro dos marcadores que irá residir no seu Google Drive. Não introduza o caminho completo do ficheiro, apenas o nome do ficheiro. Certifique-se de que este nome é único no seu Drive. Por exemplo, mybookmarks.xbel"
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "o nome do arquivo de favoritos que ficará no seu Dropbox. Não digite o caminho completo do arquivo, apenas o nome do arquivo. Certifique-se de que esse nome seja único no seu Dropbox. Por exemplo, mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "um caminho para o ficheiro de favoritos relativo à raiz do seu repositório Git (todas as pastas no caminho já devem existir). por exemplo, personal_stuff/bookmarks.xbel"
@@ -325,6 +340,9 @@
   },
   "LabelAdapterwebdav": {
     "message": "Partilha WebDAV"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "Por exemplo, Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
   },
   "DescriptionAdapterwebdav": {
     "message": "Sincronize os seus marcadores armazenando-os num ficheiro na partilha WebDAV fornecida. Não existe uma IU da Web para esta opção e pode utilizá-la com qualquer servidor compatível com WebDAV, quer seja auto-hospedado ou na nuvem. Pode sincronizar http, ftp, dados, ficheiros e marcadores javascript. Pode optar por utilizar a encriptação de ponta a ponta quando utilizar esta opção."
@@ -564,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "Ligou a sua conta Google para armazenar o ficheiro de sincronização dos marcadores no seu Google Drive."
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Sincroniza marcadores através de um ficheiro (opcionalmente encriptado) que é armazenado na sua Dropbox. Ele pode sincronizar marcadores http, ftp, dados, arquivos e javascript. Você pode optar por usar criptografia de ponta a ponta ao usar essa opção."
+  },
+  "LabelLogindropbox": {
+    "message": "Iniciar sessão com o Dropbox"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Ligue a sua conta Dropbox para armazenar o ficheiro de sincronização de marcadores no seu Dropbox."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "Ligou a sua conta Dropbox para armazenar o ficheiro de sincronização de marcadores no seu Dropbox."
+  },
   "LabelPassphrase": {
     "message": "Palavra-passe"
   },
@@ -695,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Iniciar sessão com Google Drive"
+  },
+  "LabelDropboxsetup": {
+    "message": "Iniciar sessão no Dropbox"
   },
   "LabelSyncfoldersetup": {
     "message": "Quais pastas deseja sincronizar?"
@@ -920,5 +956,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Ao ativar a sincronização com base no tempo, será automaticamente agendada uma execução de sincronização deste perfil a cada poucos minutos"
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "URLs de servidor predefinidos"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Selecione o seu serviço"
   }
 }
