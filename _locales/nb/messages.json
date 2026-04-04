@@ -54,7 +54,7 @@
     "message": "E018: Kunne ikke autentisere seg med serveren."
   },
   "Error019": {
-    "message": "E019: HTTP status {0} - {1} forespørsel. Sjekk server-konfigurasjonen og loggene dine"
+    "message": "E019: HTTP-status {0}. Mislyktes {1} forespørsel: {2}. Kontroller serverkonfigurasjonen og loggen."
   },
   "Error020": {
     "message": "E020: Kunne ikke analysere serverrespons."
@@ -84,7 +84,7 @@
     "message": "E028: Kunne ikke autentisere seg med serveren."
   },
   "Error029": {
-    "message": "E029: Failsafe: Den nåværende synkroniseringskjøringen vil slette {0}% av koblingene dine på serveren. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel."
+    "message": "E029: Failsafe: Den nåværende synkroniseringskjøringen vil slette {0}% av koblingene dine på serveren. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel. Hvis du ikke forårsaket dette, kan du bruke de manuelle synkroniseringsknappene til å overstyre den lokale tilstanden på denne enheten med tilstanden på serveren. Hvis du tror dette er en feil, kan du kontakte utviklerne med feilsøkingsloggen for denne kjøringen."
   },
   "Error030": {
     "message": "E030: Kunne ikke dekryptere bokmerkefilen. Passordfrasen kan være feil, eller filen kan være ødelagt."
@@ -126,7 +126,7 @@
     "message": "E042: Størrelsen på den eksterne bokmerkefilen kunne ikke hentes. Det er umulig å verifisere at bokmerkefilen ble lastet ned i sin helhet. Kontakt serveradministratoren hvis denne feilen vedvarer."
   },
   "Error043": {
-    "message": "E043: Failsafe: Den nåværende synkroniseringskjøringen vil øke antall koblinger på serveren med {0}%. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel."
+    "message": "E043: Failsafe: Den nåværende synkroniseringskjøringen vil øke antall koblinger på serveren med {0}%. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel. Hvis du ikke forårsaket dette, kan du bruke de manuelle synkroniseringsknappene til å overstyre den lokale tilstanden på denne enheten med tilstanden på serveren. Hvis du tror dette er en feil, kan du kontakte utviklerne med feilsøkingsloggen for denne kjøringen."
   },
   "Error044": {
     "message": "E044: Git-push-operasjonen mislyktes: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: XBEL-filen kunne ikke analyseres. XBEL-dataene ser ut til å være ødelagte eller ufullstendige. Du kan prøve å fjerne filen på serveren for å la floccus gjenskape den. Sørg for å ta en sikkerhetskopi først."
   },
   "Error049": {
-    "message": "E049: Feilsikker: Den nåværende synkroniseringskjøringen vil øke antallet lokale koblinger i denne profilen med {0}%. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel."
+    "message": "E049: Feilsikker: Den nåværende synkroniseringskjøringen vil øke antallet lokale koblinger i denne profilen med {0}%. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel. Hvis du ikke forårsaket dette, kan du bruke de manuelle synkroniseringsknappene til å overstyre servertilstanden med den lokale tilstanden på denne enheten. Hvis du tror dette er en feil, kan du kontakte utviklerne med feilsøkingsloggen for denne kjøringen."
   },
   "Error050": {
-    "message": "E050: Failsafe: Den nåværende synkroniseringskjøringen vil slette {0}% av de lokale koblingene i denne profilen. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel."
+    "message": "E050: Failsafe: Den nåværende synkroniseringskjøringen vil slette {0}% av de lokale koblingene i denne profilen. Nekter å utføre. Deaktiver denne feilsikringen i profilinnstillingene hvis du vil fortsette likevel. Hvis du ikke forårsaket dette, kan du bruke de manuelle synkroniseringsknappene til å overstyre servertilstanden med den lokale tilstanden på denne enheten. Hvis du tror dette er en feil, kan du kontakte utviklerne med feilsøkingsloggen for denne kjøringen."
+  },
+  "Error051": {
+    "message": "E051: Kunne ikke autentisere med Dropbox. Vennligst koble floccus til Dropbox-kontoen din igjen."
+  },
+  "Error052": {
+    "message": "E052: OAuth-feil. Token-valideringsfeil. Vennligst koble til Dropbox-kontoen din på nytt."
+  },
+  "Error053": {
+    "message": "E053: Kunne ikke søke etter filnavnet ditt i Dropbox"
+  },
+  "Error054": {
+    "message": "E054: Kunne ikke hente mal for Dropbox"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "filnavnet på bokmerkefilen som skal ligge på Google Disk. Ikke skriv inn hele filbanen, bare filnavnet. Sørg for at dette navnet er unikt i Stasjonen, f.eks. mybookmarks.xbel."
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "filnavnet på bokmerkefilen som skal ligge i Dropboxen din. Ikke skriv inn hele filbanen, bare filnavnet. Sørg for at dette navnet er unikt i Dropboxen din. f.eks. mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "en sti til bokmerkefilen i forhold til roten til Git-arkivet ditt (alle mappene i stien må allerede finnes). f.eks. personal_stuff/bookmarks.xbel"
@@ -325,6 +340,9 @@
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV-deling"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "f.eks. Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
   },
   "DescriptionAdapterwebdav": {
     "message": "Synkroniser bokmerkene dine ved å lagre dem i en fil i den medfølgende WebDAV-delingen. Det er ikke noe medfølgende webgrensesnitt for dette alternativet, og du kan bruke det med en hvilken som helst WebDAV-kompatibel server, enten den er selvhostet eller i skyen. Den kan synkronisere http-, ftp-, data-, fil- og javascript-bokmerker. Du kan velge å bruke ende-til-ende-kryptering når du bruker dette alternativet."
@@ -564,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "Du har koblet til Google-kontoen din for å lagre bokmerkesynkroniseringsfilen i Google Disk."
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Synkroniser bokmerker via en (eventuelt kryptert) fil som lagres i Dropbox. Den kan synkronisere http-, ftp-, data-, fil- og javascript-bokmerker. Du kan velge å bruke ende-til-ende-kryptering når du bruker dette alternativet."
+  },
+  "LabelLogindropbox": {
+    "message": "Logg inn med Dropbox"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Koble til Dropbox-kontoen din for å lagre bokmerkesynkroniseringsfilen i Dropbox."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "Du har koblet til Dropbox-kontoen din for å lagre bokmerkesynkroniseringsfilen i Dropbox."
+  },
   "LabelPassphrase": {
     "message": "Passordfrase"
   },
@@ -695,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Logg inn på Google Disk"
+  },
+  "LabelDropboxsetup": {
+    "message": "Logg inn på Dropbox"
   },
   "LabelSyncfoldersetup": {
     "message": "Hvilke mapper ønsker du å synkronisere?"
@@ -920,5 +956,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Hvis du slår på tidsbasert synkronisering, planlegges det automatisk en synkroniseringskjøring av denne profilen med noen minutters mellomrom"
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "Forhåndsdefinerte server-URL-er"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Velg din tjeneste"
   }
 }
