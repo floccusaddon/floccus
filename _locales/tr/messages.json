@@ -54,7 +54,7 @@
     "message": "E018: Sunucuyla doğrulama gerçekleştirilemedi."
   },
   "Error019": {
-    "message": "E019: HTTP durumu {0}. {1} isteği başarısız oldu. Sunucu yapılandırmanızı ve günlüğünüzü kontrol edin."
+    "message": "E019: HTTP durumu {0}. Başarısız {1} isteği: {2}. Sunucu yapılandırmanızı ve günlüğünüzü kontrol edin."
   },
   "Error020": {
     "message": "E020: Sunucu yanıtı ayrıştırılamadı."
@@ -84,7 +84,7 @@
     "message": "E028: Sunucuyla doğrulama gerçekleştirilemedi."
   },
   "Error029": {
-    "message": "E029: Arıza güvenliği: Geçerli eşitleme çalıştırması sunucudaki bağlantılarınızın {0}%'sini silecektir. Yürütmeyi reddediyor. Yine de devam etmek istiyorsanız profil ayarlarında bu hata güvenliğini devre dışı bırakın."
+    "message": "E029: Arıza güvenliği: Geçerli eşitleme çalıştırması sunucudaki bağlantılarınızın {0}%'sini silecektir. Yürütmeyi reddediyor. Yine de devam etmek istiyorsanız profil ayarlarında bu arıza güvenliğini devre dışı bırakın. Buna siz neden olmadıysanız, bu cihazdaki yerel durumu sunucudaki durumla geçersiz kılmak için manuel senkronizasyon düğmelerini kullanabilirsiniz. Bunun bir hata olduğunu düşünüyorsanız, lütfen bu çalıştırmanın hata ayıklama günlüğü ile geliştiricilere ulaşın."
   },
   "Error030": {
     "message": "E030: Yer imleri dosyasının şifresi çözülemedi. Parola yanlış olabilir veya dosya bozulmuş olabilir."
@@ -126,7 +126,7 @@
     "message": "E042: Uzaktan yer imleri dosya boyutu alınamadı. Yer imleri dosyasının tam olarak indirildiğini doğrulamak mümkün değil. Bu hata devam ederse lütfen sunucu yöneticisiyle iletişime geçin."
   },
   "Error043": {
-    "message": "E043: Arıza güvenliği: Mevcut senkronizasyon çalışması sunucudaki bağlantı sayınızı {0}% oranında artıracaktır. Yürütmeyi reddediyor. Yine de devam etmek istiyorsanız, profil ayarlarında bu arıza güvenliğini devre dışı bırakın."
+    "message": "E043: Arıza güvenliği: Mevcut senkronizasyon çalışması sunucudaki bağlantı sayınızı {0}% oranında artıracaktır. Yürütmeyi reddediyor. Yine de devam etmek istiyorsanız profil ayarlarında bu arıza güvenliğini devre dışı bırakın. Buna siz neden olmadıysanız, bu cihazdaki yerel durumu sunucudaki durumla geçersiz kılmak için manuel senkronizasyon düğmelerini kullanabilirsiniz. Bunun bir hata olduğunu düşünüyorsanız, lütfen bu çalıştırmanın hata ayıklama günlüğü ile geliştiricilere ulaşın."
   },
   "Error044": {
     "message": "E044: Git push işlemi başarısız oldu: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: XBEL dosyası ayrıştırılamadı. XBEL verileri bozuk veya eksik görünüyor. Floccus'un yeniden oluşturmasına izin vermek için sunucudaki dosyayı kaldırmayı deneyebilirsiniz. Önce bir yedek aldığınızdan emin olun."
   },
   "Error049": {
-    "message": "E049: Arıza güvenliği: Mevcut senkronizasyon çalışması bu profildeki yerel bağlantı sayınızı {0}% oranında artıracaktır. Yürütmeyi reddediyor. Yine de devam etmek istiyorsanız profil ayarlarında bu hata güvenliğini devre dışı bırakın."
+    "message": "E049: Arıza güvenliği: Mevcut senkronizasyon çalışması bu profildeki yerel bağlantı sayınızı {0}% oranında artıracaktır. Yürütmeyi reddediyor. Yine de devam etmek istiyorsanız profil ayarlarında bu arıza güvenliğini devre dışı bırakın. Buna siz neden olmadıysanız, sunucu durumunu bu cihazdaki yerel durumla geçersiz kılmak için manuel senkronizasyon düğmelerini kullanabilirsiniz. Bunun bir hata olduğunu düşünüyorsanız, lütfen bu çalıştırmanın hata ayıklama günlüğü ile geliştiricilere ulaşın."
   },
   "Error050": {
-    "message": "E050: Arıza güvenliği: Geçerli eşitleme çalışması bu profildeki yerel bağlantılarınızın {0}%'sini silecektir. Yürütmeyi reddediyor. Yine de devam etmek istiyorsanız profil ayarlarında bu hata güvenliğini devre dışı bırakın."
+    "message": "E050: Arıza güvenliği: Geçerli eşitleme çalışması bu profildeki yerel bağlantılarınızın {0}%'sini silecektir. Yürütmeyi reddediyor. Yine de devam etmek istiyorsanız profil ayarlarında bu arıza güvenliğini devre dışı bırakın. Buna siz neden olmadıysanız, sunucu durumunu bu cihazdaki yerel durumla geçersiz kılmak için manuel senkronizasyon düğmelerini kullanabilirsiniz. Bunun bir hata olduğunu düşünüyorsanız, lütfen bu çalıştırmanın hata ayıklama günlüğü ile geliştiricilere ulaşın."
+  },
+  "Error051": {
+    "message": "E051: Dropbox ile kimlik doğrulaması yapılamadı. Lütfen floccus'u Dropbox hesabınızla tekrar bağlayın."
+  },
+  "Error052": {
+    "message": "E052: OAuth hatası. Belirteç doğrulama hatası. Lütfen Dropbox Hesabınızı yeniden bağlayın."
+  },
+  "Error053": {
+    "message": "E053: Dropbox'ınızda dosya adınız aranamadı"
+  },
+  "Error054": {
+    "message": "E054: Dropbox için şablon alınamadı"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "Google Drive'ınızda bulunacak yer imleri dosyasının dosya adı. Tam dosya yolunu girmeyin, sadece dosya adını girin. Bu adın Drive'ınızda benzersiz olduğundan emin olun. ör. mybookmarks.xbel"
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "Dropbox'ınızda bulunacak yer imleri dosyasının dosya adı. Tam dosya yolunu girmeyin, sadece dosya adını girin. Bu adın Dropbox'ınızda benzersiz olduğundan emin olun. ör. mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "Git deposu kökünüze göre yer işaretleri dosyasının yolu (yoldaki tüm klasörlerin zaten mevcut olması gerekir). örneğin dosyalarım/bookmarks.xbel"
@@ -325,6 +340,9 @@
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV paylaşımı"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "örneğin Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
   },
   "DescriptionAdapterwebdav": {
     "message": "Yer işaretlerinizi, sağlanan WebDAV paylaşımındaki bir dosyaya kaydederek senkronize edin. Bu seçeneğe eşlik eden bir web kullanıcı arayüzü yoktur ve bunu, kendi kendine barındırılan veya buluttaki WebDAV uyumlu herhangi bir sunucuyla kullanabilirsiniz. http, ftp, veri, dosya ve javascript yer imlerini senkronize edebilir. Bu seçeneği kullanırken uçtan uca şifrelemeyi kullanmayı seçebilirsiniz."
@@ -564,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "Yer imi senkronizasyon dosyasını Google Drive'ınızda saklamak için Google hesabınızı bağladınız."
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Dropbox'ınızda depolanan (isteğe bağlı olarak şifrelenmiş) bir dosya aracılığıyla yer imlerini senkronize edin. Http, ftp, veri, dosya ve javascript yer imlerini senkronize edebilir. Bu seçeneği kullanırken uçtan uca şifreleme kullanmayı seçebilirsiniz."
+  },
+  "LabelLogindropbox": {
+    "message": "Dropbox ile giriş yapın"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Yer imi senkronizasyon dosyasını Dropbox'ınızda saklamak için Dropbox hesabınızı bağlayın."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "Yer imi senkronizasyon dosyasını Dropbox'ınızda saklamak için Dropbox hesabınızı bağladınız."
+  },
   "LabelPassphrase": {
     "message": "Parola"
   },
@@ -695,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Google Drive'a giriş yapın"
+  },
+  "LabelDropboxsetup": {
+    "message": "Dropbox'a giriş yapın"
   },
   "LabelSyncfoldersetup": {
     "message": "Hangi Klasörleri senkronize etmek istiyorsunuz?"
@@ -920,5 +956,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Zamana dayalı senkronizasyonun açılması, bu profilin birkaç dakikada bir otomatik olarak senkronize edilmesini planlayacaktır"
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "Önceden tanımlanmış sunucu URL'leri"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Hizmetinizi seçin"
   }
 }
