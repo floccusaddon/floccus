@@ -54,7 +54,7 @@
     "message": "E018: Kon niet aanmelden op de server."
   },
   "Error019": {
-    "message": "E019: HTTP-status {0}. {1} verzoek mislukt. Controleer de serverconfiguratie en het logboek."
+    "message": "E019: HTTP-status {0}. Mislukt {1} verzoek: {2}. Controleer uw serverconfiguratie en logboek."
   },
   "Error020": {
     "message": "E020: Kon serverreactie niet parsen."
@@ -84,7 +84,7 @@
     "message": "E028: Kon niet aanmelden op de server."
   },
   "Error029": {
-    "message": "E029: Failsafe: De huidige synchronisatierun zou {0}% van uw koppelingen op de server verwijderen. Weigert uit te voeren. Schakel deze failsafe uit in de profielinstellingen als je toch wilt doorgaan."
+    "message": "E029: Failsafe: De huidige synchronisatierun zou {0}% van uw koppelingen op de server verwijderen. Weigert uit te voeren. Schakel deze failsafe uit in de profielinstellingen als je toch wilt doorgaan. Als je dit niet hebt veroorzaakt, kun je de handmatige synchronisatieknoppen gebruiken om de lokale status op dit apparaat op te heffen met de status op de server. Als u denkt dat dit een bug is, neem dan contact op met de ontwikkelaars met de debug log van deze run."
   },
   "Error030": {
     "message": "E030: Het decoderen van het bladwijzerbestand is mislukt. De wachtwoordzin kan verkeerd zijn of het bestand kan beschadigd zijn."
@@ -126,7 +126,7 @@
     "message": "E042: De grootte van het bladwijzerbestand op afstand kon niet worden opgehaald. Het is onmogelijk om te controleren of het bladwijzerbestand volledig is gedownload. Neem contact op met de serverbeheerder als deze fout zich blijft voordoen."
   },
   "Error043": {
-    "message": "E043: Failsafe: De huidige synchronisatierun zou het aantal koppelingen op de server verhogen met {0}%. Weigert uit te voeren. Schakel deze failsafe uit in de profielinstellingen als je toch wilt doorgaan."
+    "message": "E043: Failsafe: De huidige synchronisatierun zou het aantal koppelingen op de server verhogen met {0}%. Weigert uit te voeren. Schakel deze failsafe uit in de profielinstellingen als je toch wilt doorgaan. Als je dit niet hebt veroorzaakt, kun je de handmatige synchronisatieknoppen gebruiken om de lokale status op dit apparaat op te heffen met de status op de server. Als u denkt dat dit een bug is, neem dan contact op met de ontwikkelaars met de debug log van deze run."
   },
   "Error044": {
     "message": "E044: Git push bewerking mislukt: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: Mislukt bij het parsen van XBEL-bestand. De XBEL-gegevens lijken corrupt of onvolledig te zijn. U kunt proberen het bestand op de server te verwijderen zodat floccus het opnieuw kan maken. Zorg ervoor dat u eerst een back-up maakt."
   },
   "Error049": {
-    "message": "E049: Failsafe: De huidige synchronisatierun zou het aantal lokale links in dit profiel verhogen met {0}%. Weigert uit te voeren. Schakel deze failsafe uit in de profielinstellingen als je toch wilt doorgaan."
+    "message": "E049: Failsafe: De huidige synchronisatierun zou het aantal lokale links in dit profiel verhogen met {0}%. Weigert uit te voeren. Schakel deze failsafe uit in de profielinstellingen als je toch wilt doorgaan. Als je dit niet hebt veroorzaakt, kun je de handmatige synchronisatieknoppen gebruiken om de serverstatus op te heffen met de lokale status op dit apparaat. Als u denkt dat dit een bug is, neem dan contact op met de ontwikkelaars met de debug log van deze run."
   },
   "Error050": {
-    "message": "E050: Failsafe: De huidige synchronisatierun zou {0}% van je lokale links in dit profiel verwijderen. Weigert uit te voeren. Schakel deze failsafe uit in de profielinstellingen als je toch wilt doorgaan."
+    "message": "E050: Failsafe: De huidige synchronisatierun zou {0}% van je lokale links in dit profiel verwijderen. Weigert uit te voeren. Schakel deze failsafe uit in de profielinstellingen als je toch wilt doorgaan. Als je dit niet hebt veroorzaakt, kun je de handmatige synchronisatieknoppen gebruiken om de serverstatus op te heffen met de lokale status op dit apparaat. Als u denkt dat dit een bug is, neem dan contact op met de ontwikkelaars met de debug log van deze run."
+  },
+  "Error051": {
+    "message": "E051: Kan niet verifiëren met Dropbox. Maak opnieuw verbinding met je Dropbox-account."
+  },
+  "Error052": {
+    "message": "E052: OAuth-fout. Fout bij tokenvalidatie. Maak opnieuw verbinding met je Dropbox-account."
+  },
+  "Error053": {
+    "message": "E053: Kan je bestandsnaam niet zoeken in Dropbox"
+  },
+  "Error054": {
+    "message": "E054: Kan sjabloon voor Dropbox niet ophalen"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "de bestandsnaam van het bladwijzerbestand dat op je Google Drive komt te staan. Voer niet het volledige bestandspad in, alleen de bestandsnaam. Zorg ervoor dat deze naam uniek is in je Drive. bijv. mybookmarks.xbel"
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "de bestandsnaam van het bladwijzerbestand dat in je Dropbox komt te staan. Voer niet het volledige bestandspad in, alleen de bestandsnaam. Zorg ervoor dat deze naam uniek is in je Dropbox. bijv. mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "een pad naar het bladwijzerbestand relatief aan je Git repository root (alle mappen in het pad moeten al bestaan). bijv. personal_stuff/bookmarks.xbel"
@@ -325,6 +340,9 @@
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV netwerklocatie"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "bijv. Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
   },
   "DescriptionAdapterwebdav": {
     "message": "Synchroniseer je bladwijzers door ze op te slaan in een bestand in de meegeleverde WebDAV-share. Er is geen bijbehorende web UI voor deze optie en je kunt het gebruiken met elke WebDAV-compatibele server, zowel zelf gehost als in de cloud. Het kan http, ftp, gegevens, bestanden en javascript bladwijzers synchroniseren. Je kunt ervoor kiezen om end-to-end encryptie te gebruiken wanneer je deze optie gebruikt."
@@ -564,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "Je hebt je Google-account gekoppeld om het bladwijzersynchronisatiebestand op te slaan in je Google Drive."
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Synchroniseer bladwijzers via een (optioneel versleuteld) bestand dat is opgeslagen in je Dropbox. Het kan http-, ftp-, gegevens-, bestands- en javascriptbladwijzers synchroniseren. Je kunt ervoor kiezen om end-to-end-encryptie te gebruiken als je deze optie gebruikt."
+  },
+  "LabelLogindropbox": {
+    "message": "Inloggen met Dropbox"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Maak verbinding met je Dropbox-account om het bladwijzersynchronisatiebestand op te slaan in je Dropbox."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "Je hebt je Dropbox-account gekoppeld om het bladwijzersynchronisatiebestand op te slaan in je Dropbox."
+  },
   "LabelPassphrase": {
     "message": "Wachtwoordzin"
   },
@@ -695,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Aanmelden bij Google Drive"
+  },
+  "LabelDropboxsetup": {
+    "message": "Inloggen bij Dropbox"
   },
   "LabelSyncfoldersetup": {
     "message": "Welke mappen wil je synchroniseren?"
@@ -920,5 +956,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Als u tijdgerelateerde synchronisatie inschakelt, wordt er automatisch om de paar minuten een synchronisatierun van dit profiel gepland."
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "Vooraf gedefinieerde server URL's"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Selecteer uw service"
   }
 }
