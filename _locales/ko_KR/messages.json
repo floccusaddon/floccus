@@ -54,7 +54,7 @@
     "message": "E018: 서버로 인증할 수 없습니다."
   },
   "Error019": {
-    "message": "E019: HTTP 상태 {0} 실패 {1} 요청. 서버 환경 설정 및 로그를 확인하세요."
+    "message": "E019: HTTP 상태 {0}. 실패한 {1} 요청: {2}. 서버 구성과 로그를 확인하세요."
   },
   "Error020": {
     "message": "E020: 서버 응답을 구문 분석할 수 없습니다."
@@ -84,7 +84,7 @@
     "message": "E028: 서버와 인증할 수 없습니다."
   },
   "Error029": {
-    "message": "E029: 안전장치: 현재 동기화를 실행하면 서버에서 {0}%의 링크가 삭제됩니다. 실행을 거부합니다. 계속 진행하려면 프로필 설정에서 이 안전장치를 비활성화하세요."
+    "message": "E029: 안전장치: 현재 동기화를 실행하면 서버에서 {0}%의 링크가 삭제됩니다. 실행을 거부합니다. 계속 진행하려면 프로필 설정에서 이 안전장치를 비활성화하세요. 이 문제가 발생하지 않았다면 수동 동기화 버튼을 사용하여 이 디바이스의 로컬 상태를 서버의 상태로 재정의할 수 있습니다. 이 문제가 버그라고 생각되면 이 실행의 디버그 로그를 첨부하여 개발자에게 알려주세요."
   },
   "Error030": {
     "message": "E030: 북마크 파일을 해독하지 못했습니다. 패스프레이즈가 잘못 되었거나 파일이 손상되었을 수 있습니다."
@@ -126,7 +126,7 @@
     "message": "E042: 원격 북마크 파일 크기를 검색할 수 없습니다. 북마크 파일이 완전히 다운로드되었는지 확인할 수 없습니다. 이 오류가 계속 발생하면 서버 관리자에게 문의하세요."
   },
   "Error043": {
-    "message": "E043: 안전장치: 현재 동기화를 실행하면 서버의 링크 수가 {0}% 증가합니다. 실행을 거부합니다. 계속 진행하려면 프로필 설정에서 이 안전장치를 비활성화하세요."
+    "message": "E043: 안전장치: 현재 동기화를 실행하면 서버의 링크 수가 {0}% 증가합니다. 실행을 거부합니다. 계속 진행하려면 프로필 설정에서 이 안전장치를 비활성화하세요. 이 문제가 발생하지 않았다면 수동 동기화 버튼을 사용하여 이 디바이스의 로컬 상태를 서버의 상태로 재정의할 수 있습니다. 이 문제가 버그라고 생각되면 이 실행의 디버그 로그를 첨부하여 개발자에게 알려주세요."
   },
   "Error044": {
     "message": "E044: Git 푸시 작업이 실패했습니다: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: XBEL 파일을 구문 분석하지 못했습니다. XBEL 데이터가 손상되었거나 불완전한 것 같습니다. 서버에서 파일을 제거하여 다시 생성할 수 있습니다. 먼저 백업을 해두세요."
   },
   "Error049": {
-    "message": "E049: 안전장치: 현재 동기화를 실행하면 이 프로필의 로컬 링크 수가 {0}% 증가합니다. 실행을 거부합니다. 계속 진행하려면 프로필 설정에서 이 안전장치를 비활성화하세요."
+    "message": "E049: 안전장치: 현재 동기화를 실행하면 이 프로필의 로컬 링크 수가 {0}% 증가합니다. 실행을 거부합니다. 계속 진행하려면 프로필 설정에서 이 안전장치를 비활성화하세요. 이 문제가 발생하지 않았다면 수동 동기화 버튼을 사용하여 서버 상태를 이 디바이스의 로컬 상태로 재정의할 수 있습니다. 이 문제가 버그라고 생각되면 이 실행의 디버그 로그를 첨부하여 개발자에게 알려주세요."
   },
   "Error050": {
-    "message": "E050: 안전장치: 현재 동기화를 실행하면 이 프로필에서 로컬 링크의 {0}%가 삭제됩니다. 실행을 거부합니다. 계속 진행하려면 프로필 설정에서 이 안전장치를 비활성화하세요."
+    "message": "E050: 실패: 현재 동기화를 실행하면 이 프로필에서 로컬 링크의 {0}%가 삭제됩니다. 실행을 거부합니다. 계속 진행하려면 프로필 설정에서 이 안전장치를 비활성화하세요. 이 문제가 발생하지 않았다면 수동 동기화 버튼을 사용하여 서버 상태를 이 디바이스의 로컬 상태로 재정의할 수 있습니다. 이 문제가 버그라고 생각되면 이 실행의 디버그 로그를 첨부하여 개발자에게 알려주세요."
+  },
+  "Error051": {
+    "message": "E051: Dropbox로 인증할 수 없습니다. floccus를 Dropbox 계정에 다시 연결하세요."
+  },
+  "Error052": {
+    "message": "E052: OAuth 오류. 토큰 유효성 검사 오류입니다. Dropbox 계정에 다시 연결하세요."
+  },
+  "Error053": {
+    "message": "E053: Dropbox에서 파일 이름을 검색할 수 없습니다."
+  },
+  "Error054": {
+    "message": "E054: Dropbox용 템플릿을 가져올 수 없습니다."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "에 Google 드라이브에 저장될 북마크 파일의 파일 이름을 입력합니다. 전체 파일 경로를 입력하지 말고 파일 이름만 입력하세요. 이 이름이 드라이브에서 고유한 이름인지 확인하세요(예: mybookmarks.xbel)."
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "에 Dropbox에 저장될 북마크 파일의 파일 이름을 입력합니다. 전체 파일 경로를 입력하지 말고 파일 이름만 입력하세요. 이 이름은 Dropbox에서 고유한 이름이어야 합니다(예: mybookmarks.xbel)."
  },
   "DescriptionBookmarksfilegit": {
     "message": "Git 리포지토리 루트를 기준으로 북마크 파일의 경로(경로의 모든 폴더가 이미 존재해야 함). 예: personal_stuff/bookmarks.xbel"
@@ -325,6 +340,9 @@
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV 공유"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "예: Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
   },
   "DescriptionAdapterwebdav": {
     "message": "북마크를 제공된 WebDAV 공유에 있는 파일에 저장해 동기화합니다. 이 옵션에는 별도의 웹 UI가 제공되지 않으며 자체 호스팅 또는 클라우드의 모든 WebDAV 호환 서버에서 사용할 수 있습니다. http, ftp, 데이터, 파일 및 자바스크립트 북마크를 동기화할 수 있습니다. 이 옵션을 사용할 때 종단 간 암호화를 사용하도록 선택할 수 있습니다."
@@ -564,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "Google 계정을 연결하여 Google Drive에 북마크 동기화 파일을 저장했습니다."
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Dropbox에 저장된 (선택적으로 암호화된) 파일을 통해 북마크를 동기화하세요. http, ftp, 데이터, 파일, 자바스크립트 북마크를 동기화할 수 있습니다. 이 옵션을 사용할 때는 종단 간 암호화를 사용하도록 선택할 수 있습니다."
+  },
+  "LabelLogindropbox": {
+    "message": "Dropbox로 로그인"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Dropbox 계정을 연결하여 북마크 동기화 파일을 Dropbox에 저장하세요."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "북마크 동기화 파일을 Dropbox에 저장하기 위해 Dropbox 계정을 연결했습니다."
+  },
   "LabelPassphrase": {
     "message": "패스프레이즈"
   },
@@ -695,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Google Drive에 로그인"
+  },
+  "LabelDropboxsetup": {
+    "message": "Dropbox에 로그인"
   },
   "LabelSyncfoldersetup": {
     "message": "동기화할 폴더를 선택하십시오"
@@ -920,5 +956,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "시간 기반 동기화를 켜면 몇 분마다 이 프로필의 동기화 실행이 자동으로 예약됩니다."
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "미리 정의된 서버 URL"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "서비스 선택"
   }
 }
