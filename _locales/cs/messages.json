@@ -54,7 +54,7 @@
     "message": "E018: Nepodařilo se ověřit vůči serveru."
   },
   "Error019": {
-    "message": "E019: HTTP status {0}. Selhalo {1} požadavků. Zkontrolujte vaše nastavení serveru a záznam událostí."
+    "message": "E019: Stav HTTP {0}. Neúspěšný požadavek {1}: {2}. Zkontrolujte konfiguraci serveru a protokol."
   },
   "Error020": {
     "message": "E020: Nelze analyzovat odpověď serveru."
@@ -84,7 +84,7 @@
     "message": "E028: Nepodařilo se ověřit vůči serveru."
   },
   "Error029": {
-    "message": "E029: Zabezpečení proti selhání: Aktuální běh synchronizace by smazal {0}% vašich odkazů na serveru. Odmítá se provést. Pokud chcete přesto pokračovat, zakažte tuto pojistku proti selhání v nastavení profilu."
+    "message": "E029: Zabezpečení proti selhání: Aktuální běh synchronizace by smazal {0}% vašich odkazů na serveru. Odmítá se provést. Pokud chcete přesto pokračovat, zakažte tuto pojistku proti selhání v nastavení profilu. Pokud jste to nezpůsobili, můžete pomocí tlačítek ruční synchronizace přepsat místní stav na tomto zařízení stavem na serveru. Pokud se domníváte, že se jedná o chybu, obraťte se na vývojáře se záznamem ladění tohoto spuštění."
   },
   "Error030": {
     "message": "E030: Dešifrování souboru záložek selhalo. Heslo může být špatně, nebo soubor poškozený."
@@ -126,7 +126,7 @@
     "message": "E042: Nelze načíst velikost souboru vzdálených záložek. Nelze ověřit, zda byl soubor záložek stažen celý. Pokud tato chyba přetrvává, obraťte se na správce serveru."
   },
   "Error043": {
-    "message": "E043: Zabezpečení proti selhání: Aktuální spuštění synchronizace by zvýšilo počet vašich odkazů na serveru o {0}%. Odmítá se provést. Pokud chcete přesto pokračovat, zakažte tuto pojistku proti selhání v nastavení profilu."
+    "message": "E043: Zabezpečení proti selhání: Aktuální spuštění synchronizace by zvýšilo počet vašich odkazů na serveru o {0}%. Odmítá se provést. Pokud chcete přesto pokračovat, zakažte tuto pojistku proti selhání v nastavení profilu. Pokud jste to nezpůsobili, můžete pomocí tlačítek ruční synchronizace přepsat místní stav na tomto zařízení stavem na serveru. Pokud se domníváte, že se jedná o chybu, obraťte se na vývojáře se záznamem ladění tohoto spuštění."
   },
   "Error044": {
     "message": "E044: Operace Git push selhala: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: Nepodařilo se analyzovat soubor XBEL. Data XBEL jsou zřejmě poškozená nebo neúplná. Můžete zkusit soubor na serveru odstranit, aby jej floccus mohl znovu vytvořit. Nezapomeňte si nejprve vytvořit zálohu."
   },
   "Error049": {
-    "message": "E049: Zabezpečení proti selhání: Aktuální spuštění synchronizace by zvýšilo počet místních odkazů v tomto profilu o {0}%. Odmítá se provést. Pokud chcete přesto pokračovat, zakažte tuto pojistku proti selhání v nastavení profilu."
+    "message": "E049: Zabezpečení proti selhání: Aktuální spuštění synchronizace by zvýšilo počet místních odkazů v tomto profilu o {0}%. Odmítá se provést. Pokud chcete přesto pokračovat, zakažte tuto pojistku proti selhání v nastavení profilu. Pokud jste to nezpůsobili, můžete pomocí tlačítek ruční synchronizace přepsat stav serveru místním stavem na tomto zařízení. Pokud se domníváte, že se jedná o chybu, obraťte se na vývojáře se záznamem ladění tohoto spuštění."
   },
   "Error050": {
-    "message": "E050: Failsafe: Aktuální běh synchronizace by smazal {0}% vašich místních odkazů v tomto profilu. Odmítá se provést. Pokud chcete přesto pokračovat, zakažte tuto pojistku proti selhání v nastavení profilu."
+    "message": "E050: Failsafe: Aktuální běh synchronizace by smazal {0}% vašich místních odkazů v tomto profilu. Odmítá se provést. Pokud chcete přesto pokračovat, zakažte tuto pojistku proti selhání v nastavení profilu. Pokud jste to nezpůsobili, můžete pomocí tlačítek ruční synchronizace přepsat stav serveru místním stavem na tomto zařízení. Pokud se domníváte, že se jedná o chybu, obraťte se na vývojáře se záznamem ladění tohoto spuštění."
+  },
+  "Error051": {
+    "message": "E051: Nepodařilo se ověřit ve službě Dropbox. Znovu se prosím připojte k účtu Dropbox."
+  },
+  "Error052": {
+    "message": "E052: Chyba OAuth. Chyba validace tokenu. Znovu připojte svůj účet Dropbox."
+  },
+  "Error053": {
+    "message": "E053: Nelze vyhledat název souboru ve službě Dropbox."
+  },
+  "Error054": {
+    "message": "E054: Nepodařilo se získat šablonu pro Dropbox"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "název souboru záložek, který bude uložen na Disku Google. Nezadávejte celou cestu k souboru, pouze jeho název. Ujistěte se, že je tento název na vašem Disku jedinečný, např. mybookmarks.xbel."
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "název souboru záložek, který bude uložen ve službě Dropbox. Nezadávejte celou cestu k souboru, pouze jeho název. Ujistěte se, že je tento název ve vašem Dropboxu jedinečný. např. mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "cesta k souboru záložek relativní ke kořenu repozitáři Git (všechny složky cesty již musí existovat). Například personal_stuff/bookmarks.xbel"
@@ -325,6 +340,9 @@
   },
   "LabelAdapterwebdav": {
     "message": "WebDAV oddíl"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "např. Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE."
   },
   "DescriptionAdapterwebdav": {
     "message": "Záložky můžete synchronizovat uložením do souboru v poskytnuté sdílené složce WebDAV. Pro tuto možnost neexistuje žádné doprovodné webové uživatelské rozhraní a můžete ji použít s libovolným serverem kompatibilním s WebDAV, ať už vlastním, nebo v cloudu. Lze synchronizovat záložky http, ftp, datové, souborové a javascriptové. Při použití této možnosti můžete zvolit použití šifrování end-to-end."
@@ -564,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "Připojili jste váš Google účet pro ukládání synchronizačního souboru záložek na váš Google Drive."
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Synchronizace záložek prostřednictvím (volitelně šifrovaného) souboru uloženého ve službě Dropbox. Může synchronizovat záložky http, ftp, datové, souborové a javascriptové. Při použití této možnosti můžete zvolit použití koncového šifrování."
+  },
+  "LabelLogindropbox": {
+    "message": "Přihlášení pomocí služby Dropbox"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Připojte svůj účet Dropbox a uložte synchronizační soubor záložek do služby Dropbox."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "Připojili jste svůj účet Dropbox a uložili synchronizační soubor záložek do Dropboxu."
+  },
   "LabelPassphrase": {
     "message": "Přístupové heslo"
   },
@@ -695,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Přihlášení do Google Disk"
+  },
+  "LabelDropboxsetup": {
+    "message": "Přihlášení do služby Dropbox"
   },
   "LabelSyncfoldersetup": {
     "message": "Které složky chcete synchronizovat?"
@@ -920,5 +956,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Zapnutím synchronizace podle času se automaticky naplánuje synchronizace tohoto profilu každých několik minut."
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "Předdefinované adresy URL serverů"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Vyberte si službu"
   }
 }
