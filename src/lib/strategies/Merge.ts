@@ -152,11 +152,11 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
             this.hashSettings,
             false
           )
-          await subScanner.run()
+          const scanResult = await subScanner.run()
           newMappings.push([concurrentCreation.payload, action.payload.id])
           await Parallel.each(
             newMappings,
-            async([oldItem, newId]) => {
+            async ([oldItem, newId]) => {
               await this.addMapping(
                 action.payload.location === ItemLocation.LOCAL
                   ? this.localTree
@@ -167,7 +167,16 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
             },
             1
           )
-          // TODO: subScanner may contain residual CREATE/REMOVE actions that need to be added to mappings
+
+          // SubScanner may reveal residual CREATE/REMOVE actions that we add to the plan here
+          // We do not act on REMOVEs, only on CREATEs as we merge the two sides
+          scanResult.CREATE.getActions().forEach((action) =>
+            targetPlan.CREATE.commit({
+              type: action.type,
+              payload: action.payload,
+            })
+          )
+
           return
         }
 

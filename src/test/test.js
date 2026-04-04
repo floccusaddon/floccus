@@ -4476,6 +4476,77 @@ describe('Floccus', function() {
               false
             )
           })
+          it('should keep residual creates when merging concurrently created folders', async function() {
+            const localRoot1 = account1.getData().localRoot
+            const localRoot2 = account2.getData().localRoot
+
+            await browser.bookmarks.create({
+              title: 'unrelated',
+              parentId: localRoot1
+            })
+
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+
+            const folder1 = await browser.bookmarks.create({
+              title: 'shared',
+              parentId: localRoot1
+            })
+            await browser.bookmarks.create({
+              title: 'from account 1',
+              url: 'https://account1.example/',
+              parentId: folder1.id
+            })
+
+            const folder2 = await browser.bookmarks.create({
+              title: 'shared',
+              parentId: localRoot2
+            })
+            await browser.bookmarks.create({
+              title: 'from account 2',
+              url: 'https://account2.example/',
+              parentId: folder2.id
+            })
+
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+
+            const serverTree = await getAllBookmarks(account1)
+            expectTreeEqual(
+              serverTree,
+              new Folder({
+                title: serverTree.title,
+                children: [
+                  new Folder({
+                    title: 'unrelated',
+                    children: [],
+                  }),
+                  new Folder({
+                    title: 'shared',
+                    children: [
+                      new Bookmark({ title: 'from account 1', url: 'https://account1.example/' }),
+                      new Bookmark({ title: 'from account 2', url: 'https://account2.example/' }),
+                    ]
+                  })
+                ]
+              }),
+              false,
+              false
+            )
+
+            const tree1 = await account1.localTree.getBookmarksTree(true)
+            const tree2 = await account2.localTree.getBookmarksTree(true)
+            tree1.title = serverTree.title
+            tree2.title = serverTree.title
+            expectTreeEqual(tree1, serverTree, false, false)
+            expectTreeEqual(tree2, serverTree, false, false)
+          })
           it('should handle concurrent hierarchy reversals', async function() {
             const localRoot = account1.getData().localRoot
             const aFolder = await browser.bookmarks.create({
