@@ -54,7 +54,7 @@
     "message": "E018: Impossibile autenticarsi con il server."
   },
   "Error019": {
-    "message": "E019: Stato HTTP {0}. Richiesta {1} non riuscita. Controllare la configurazione e il registro del tuo server."
+    "message": "E019: stato HTTP {0}. Richiesta {1} fallita: {2}. Controllare la configurazione del server e il registro."
   },
   "Error020": {
     "message": "E020: Impossibile analizzare la risposta del server."
@@ -84,7 +84,7 @@
     "message": "E028: Impossibile autenticarsi con il server."
   },
   "Error029": {
-    "message": "E029: Failsafe: L'esecuzione corrente della sincronizzazione cancellerebbe {0}% dei collegamenti sul server. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si vuole procedere comunque."
+    "message": "E029: Failsafe: L'esecuzione corrente della sincronizzazione eliminerebbe {0}% dei collegamenti sul server. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si vuole procedere comunque. Se non è stata una causa, è possibile utilizzare i pulsanti di sincronizzazione manuale per sostituire lo stato locale del dispositivo con quello del server. Se si ritiene che si tratti di un bug, contattare gli sviluppatori con il log di debug di questa esecuzione."
   },
   "Error030": {
     "message": "E030: Impossibile decriptare il file dei segnalibri. La frase d'accesso (passphrase) potrebbe essere errata o il file potrebbe essere danneggiato."
@@ -126,7 +126,7 @@
     "message": "E042: Non è stato possibile recuperare le dimensioni del file dei segnalibri remoti. È impossibile verificare che il file dei segnalibri sia stato scaricato per intero. Se l'errore persiste, contattare l'amministratore del server."
   },
   "Error043": {
-    "message": "E043: Failsafe: L'attuale esecuzione della sincronizzazione aumenterebbe il numero di collegamenti sul server di {0}%. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si vuole procedere comunque."
+    "message": "E043: Failsafe: L'attuale esecuzione della sincronizzazione aumenterebbe il numero di collegamenti sul server di {0}%. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si vuole procedere comunque. Se non è stata una causa, è possibile utilizzare i pulsanti di sincronizzazione manuale per sostituire lo stato locale del dispositivo con quello del server. Se si ritiene che si tratti di un bug, contattare gli sviluppatori con il log di debug di questa esecuzione."
   },
   "Error044": {
     "message": "E044: Operazione Git push fallita: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: Impossibile analizzare il file XBEL. I dati XBEL sembrano essere danneggiati o incompleti. È possibile provare a rimuovere il file sul server per consentire a floccus di ricrearlo. Assicurarsi di eseguire prima un backup."
   },
   "Error049": {
-    "message": "E049: Failsafe: L'esecuzione corrente della sincronizzazione aumenterebbe il conteggio dei collegamenti locali in questo profilo di {0}%. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si vuole procedere comunque."
+    "message": "E049: Failsafe: L'esecuzione corrente della sincronizzazione aumenterebbe il conteggio dei collegamenti locali in questo profilo di {0}%. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si vuole procedere comunque. Se il problema non è stato causato da voi, potete usare i pulsanti di sincronizzazione manuale per sostituire lo stato del server con quello locale su questo dispositivo. Se si ritiene che si tratti di un bug, contattare gli sviluppatori con il log di debug di questa esecuzione."
   },
   "Error050": {
-    "message": "E050: Failsafe: L'esecuzione corrente della sincronizzazione eliminerebbe {0}% dei collegamenti locali in questo profilo. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si vuole procedere comunque."
+    "message": "E050: Failsafe: L'esecuzione corrente della sincronizzazione eliminerebbe {0}% dei collegamenti locali in questo profilo. Rifiuta l'esecuzione. Disattivare questo failsafe nelle impostazioni del profilo se si vuole procedere comunque. Se non è stata una causa, è possibile utilizzare i pulsanti di sincronizzazione manuale per sostituire lo stato del server con quello locale su questo dispositivo. Se si ritiene che si tratti di un bug, contattare gli sviluppatori con il log di debug di questa esecuzione."
+  },
+  "Error051": {
+    "message": "E051: Impossibile autenticarsi con Dropbox. Collegare nuovamente il floccus con l'account Dropbox."
+  },
+  "Error052": {
+    "message": "E052: Errore OAuth. Errore di convalida del token. Ricollegare l'account Dropbox."
+  },
+  "Error053": {
+    "message": "E053: Impossibile cercare il nome del file in Dropbox"
+  },
+  "Error054": {
+    "message": "E054: Impossibile ottenere il modello per Dropbox"
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "il nome del file dei segnalibri che risiederà in Google Drive. Non inserire il percorso completo del file, ma solo il nome del file. Assicurarsi che il nome sia unico in Drive, ad esempio mybookmarks.xbel."
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "il nome del file dei segnalibri che risiederà in Dropbox. Non inserire il percorso completo del file, ma solo il nome del file. Assicurarsi che il nome sia univoco in Dropbox, ad esempio mybookmarks.xbel."
  },
   "DescriptionBookmarksfilegit": {
     "message": "un percorso al file dei segnalibri relativo alla root del repository Git (tutte le cartelle nel percorso devono già esistere). per es. roba_personale/segnalibri.xbel"
@@ -325,6 +340,9 @@
   },
   "LabelAdapterwebdav": {
     "message": "Condivisione WebDAV"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "Ad es. Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
   },
   "DescriptionAdapterwebdav": {
     "message": "Sincronizzare i segnalibri memorizzandoli in un file nella condivisione WebDAV fornita. Questa opzione non è accompagnata da un'interfaccia utente web e può essere utilizzata con qualsiasi server compatibile con WebDAV, sia selfhosted che nel cloud. Può sincronizzare segnalibri http, ftp, dati, file e javascript. È possibile scegliere di utilizzare la crittografia end-to-end quando si utilizza questa opzione."
@@ -564,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "Hai collegato il tuo account Google per archiviare il file di sincronizzazione dei segnalibri nel tuo Google Drive."
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Sincronizza i segnalibri tramite un file (facoltativamente crittografato) memorizzato in Dropbox. Può sincronizzare segnalibri http, ftp, dati, file e javascript. È possibile scegliere di utilizzare la crittografia end-to-end quando si utilizza questa opzione."
+  },
+  "LabelLogindropbox": {
+    "message": "Accesso con Dropbox"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Collegare l'account Dropbox per memorizzare il file di sincronizzazione dei segnalibri in Dropbox."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "È stato collegato l'account Dropbox per memorizzare il file di sincronizzazione dei segnalibri in Dropbox."
+  },
   "LabelPassphrase": {
     "message": "Frase d'accesso"
   },
@@ -695,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Accedi a Google Drive"
+  },
+  "LabelDropboxsetup": {
+    "message": "Accesso a Dropbox"
   },
   "LabelSyncfoldersetup": {
     "message": "Quali cartelle si desidera sincronizzare?"
@@ -920,5 +956,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Se si attiva la sincronizzazione temporale, si pianifica automaticamente un'esecuzione di sincronizzazione di questo profilo ogni pochi minuti."
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "URL server predefiniti"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Selezionare il servizio"
   }
 }
