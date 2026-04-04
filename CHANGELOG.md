@@ -1,5 +1,27 @@
 # Changelog
 
+
+## [5.9.0] - 2026-04-04
+
+### New
+* feat: Dropbox sync backend integration (thanks to Aaryan Vangari)
+* feat: New language: Hindi
+* enh(messages): Give better instructions in case of failsafe
+* [native] perf(NativeTree): Don't calculate hash upon loading tree
+
+### Fixed
+* [native] fix(Dropbox,GDrive): Display error message if login fails
+* fix(Logger): Do not persist empty logs
+* fix(SyncProcess): Improve handling of residual CREATE/REMOVE actions from subordinate scanner runs
+* fix(Account): Use async lock for loading accounts
+* fix(Controller): Fix capped exponential backoff logic
+* fix(Continuation): Add null checks to prevent Cannot read properties of null (reading 'getCapabilities') errors
+* fix(Git): Clear indexedDB after sync
+* fix: Cannot read properties of null (reading 'getCacheTree')
+* fix: Report status message for HttpErrors
+* chore(deps): Update dependencies
+
+
 ## [5.8.6] - 2026-01-23
 
 ### Fixed
