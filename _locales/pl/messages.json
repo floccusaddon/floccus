@@ -54,7 +54,7 @@
     "message": "E018: Nie udało się uwierzytelnić na serwerze"
   },
   "Error019": {
-    "message": "E019: Status HTTP {0}. Nieudane {1} żądanie. Sprawdź konfigurację serwera i logi."
+    "message": "E019: Status HTTP {0}. Nieudane żądanie {1}: {2}. Sprawdź konfigurację serwera i dziennik."
   },
   "Error020": {
     "message": "E020: Nie można przeanalizować odpowiedzi serwera."
@@ -84,7 +84,7 @@
     "message": "E028: Nie udało się uwierzytelnić na serwerze"
   },
   "Error029": {
-    "message": "E029: Zabezpieczenie przed awarią: Bieżące uruchomienie synchronizacji spowodowałoby usunięcie {0}% linków na serwerze. Odmowa wykonania. Wyłącz to zabezpieczenie w ustawieniach profilu, jeśli mimo wszystko chcesz kontynuować."
+    "message": "E029: Zabezpieczenie przed awarią: Bieżące uruchomienie synchronizacji spowodowałoby usunięcie {0}% linków na serwerze. Odmowa wykonania. Wyłącz to zabezpieczenie w ustawieniach profilu, jeśli mimo wszystko chcesz kontynuować. Jeśli nie spowodowałeś tego, możesz użyć przycisków ręcznej synchronizacji, aby zastąpić stan lokalny na tym urządzeniu stanem na serwerze. Jeśli uważasz, że jest to błąd, skontaktuj się z programistami za pomocą dziennika debugowania tego uruchomienia."
   },
   "Error030": {
     "message": "E030: Nieudane odszyfrowanie pliku zakładek. Błędne hasło lub uszkodzony plik"
@@ -126,7 +126,7 @@
     "message": "E042: Nie można pobrać rozmiaru pliku zdalnych zakładek. Nie można zweryfikować, czy plik zakładek został pobrany w całości. Jeśli ten błąd będzie się powtarzał, skontaktuj się z administratorem serwera."
   },
   "Error043": {
-    "message": "E043: Failsafe: Bieżące uruchomienie synchronizacji zwiększyłoby liczbę łączy na serwerze o {0}%. Odmowa wykonania. Wyłącz to zabezpieczenie w ustawieniach profilu, jeśli mimo wszystko chcesz kontynuować."
+    "message": "E043: Failsafe: Bieżące uruchomienie synchronizacji zwiększyłoby liczbę łączy na serwerze o {0}%. Odmowa wykonania. Wyłącz to zabezpieczenie w ustawieniach profilu, jeśli mimo wszystko chcesz kontynuować. Jeśli nie spowodowałeś tego, możesz użyć przycisków ręcznej synchronizacji, aby zastąpić stan lokalny na tym urządzeniu stanem na serwerze. Jeśli uważasz, że jest to błąd, skontaktuj się z programistami za pomocą dziennika debugowania tego uruchomienia."
   },
   "Error044": {
     "message": "E044: Operacja Git push nie powiodła się: {0}"
@@ -141,10 +141,22 @@
     "message": "E047: Nie udało się przeanalizować pliku XBEL. Dane XBEL wydają się być uszkodzone lub niekompletne. Możesz spróbować usunąć plik na serwerze, aby floccus mógł go odtworzyć. Upewnij się, że najpierw wykonałeś kopię zapasową."
   },
   "Error049": {
-    "message": "E049: Zabezpieczenie przed awarią: Bieżące uruchomienie synchronizacji zwiększyłoby liczbę łączy lokalnych w tym profilu o {0}%. Odmowa wykonania. Wyłącz to zabezpieczenie w ustawieniach profilu, jeśli mimo wszystko chcesz kontynuować."
+    "message": "E049: Zabezpieczenie przed awarią: Bieżące uruchomienie synchronizacji zwiększyłoby liczbę łączy lokalnych w tym profilu o {0}%. Odmowa wykonania. Wyłącz to zabezpieczenie w ustawieniach profilu, jeśli mimo wszystko chcesz kontynuować. Jeśli nie spowodowałeś tego, możesz użyć przycisków ręcznej synchronizacji, aby zastąpić stan serwera stanem lokalnym na tym urządzeniu. Jeśli uważasz, że jest to błąd, skontaktuj się z programistami za pomocą dziennika debugowania tego uruchomienia."
   },
   "Error050": {
-    "message": "E050: Failsafe: Bieżące uruchomienie synchronizacji spowodowałoby usunięcie {0}% lokalnych łączy w tym profilu. Odmowa wykonania. Wyłącz to zabezpieczenie w ustawieniach profilu, jeśli mimo wszystko chcesz kontynuować."
+    "message": "E050: Failsafe: Bieżące uruchomienie synchronizacji spowodowałoby usunięcie {0}% lokalnych łączy w tym profilu. Odmowa wykonania. Wyłącz to zabezpieczenie w ustawieniach profilu, jeśli mimo wszystko chcesz kontynuować. Jeśli nie spowodowałeś tego, możesz użyć przycisków ręcznej synchronizacji, aby zastąpić stan serwera stanem lokalnym na tym urządzeniu. Jeśli uważasz, że jest to błąd, skontaktuj się z programistami za pomocą dziennika debugowania tego uruchomienia."
+  },
+  "Error051": {
+    "message": "E051: Nie można uwierzytelnić się w Dropbox. Połącz się ponownie z kontem Dropbox."
+  },
+  "Error052": {
+    "message": "E052: Błąd OAuth. Błąd walidacji tokenu. Połącz ponownie swoje konto Dropbox."
+  },
+  "Error053": {
+    "message": "E053: Nie można wyszukać nazwy pliku w Dropbox"
+  },
+  "Error054": {
+    "message": "E054: Nie można pobrać szablonu dla Dropbox"
   },
   "LabelWebdavurl": {
     "message": "Adres WebDAV"
@@ -169,6 +181,9 @@
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "nazwa pliku zakładek, który będzie znajdował się na Dysku Google. Nie wprowadzaj pełnej ścieżki do pliku, a jedynie jego nazwę. Upewnij się, że nazwa ta jest unikalna na Twoim Dysku. np. mybookmarks.xbel"
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "nazwa pliku zakładek, który będzie znajdować się w Dropbox. Nie wprowadzaj pełnej ścieżki do pliku, a jedynie jego nazwę. Upewnij się, że nazwa ta jest unikatowa w Twoim Dropbox. np. mybookmarks.xbel"
  },
   "DescriptionBookmarksfilegit": {
     "message": "Ścieżka do pliku z zakładkami w odniesieniu do głównego katalogu (roota) twojego repozytorium Git (wszystkie katalogi w ścieżce muszą istnieć), np. osobiste/bookmarks.xbel"
@@ -325,6 +340,9 @@
   },
   "LabelAdapterwebdav": {
     "message": "Udział WebDAV"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "np. Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
   },
   "DescriptionAdapterwebdav": {
     "message": "Metoda synchronizacji zakładek przy użyciu udziału WebDAV. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem zgodnym z WebDAV, na swoim własnym serwerze lub w chmurze. Można synchronizować zakładki typu http, ftp, data, javascript."
@@ -564,6 +582,21 @@
   "DescriptionLoggedingoogle": {
     "message": "Podłączyłeś konto Google aby przechowywać plik z zakładkami na Dysku Google."
   },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "Synchronizuje zakładki za pomocą (opcjonalnie zaszyfrowanego) pliku przechowywanego w Dropbox. Może synchronizować zakładki http, ftp, dane, pliki i javascript. Podczas korzystania z tej opcji można wybrać szyfrowanie typu end-to-end."
+  },
+  "LabelLogindropbox": {
+    "message": "Logowanie za pomocą Dropbox"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Połącz swoje konto Dropbox, aby zapisać plik synchronizacji zakładek w Dropbox."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "Połączyłeś swoje konto Dropbox, aby przechowywać plik synchronizacji zakładek w Dropbox."
+  },
   "LabelPassphrase": {
     "message": "Hasło"
   },
@@ -695,6 +728,9 @@
   },
   "LabelGoogledrivesetup": {
     "message": "Zaloguj do Dysku Google"
+  },
+  "LabelDropboxsetup": {
+    "message": "Zaloguj się do Dropbox"
   },
   "LabelSyncfoldersetup": {
     "message": "Które foldery chcesz synchronizować?"
@@ -920,5 +956,11 @@
   },
   "DescriptionSyncintervalenabled": {
     "message": "Włączenie synchronizacji czasowej automatycznie zaplanuje synchronizację tego profilu co kilka minut"
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "Predefiniowane adresy URL serwerów"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Wybierz usługę"
   }
 }
