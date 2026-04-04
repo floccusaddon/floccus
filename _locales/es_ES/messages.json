@@ -162,7 +162,7 @@
     "message": "URL de WebDAV"
   },
   "DescriptionWebdavurl": {
-    "message": "p. ej., con nextcoud: https://tudominio.com/remote.php/webdav/"
+    "message": "p. ej., con nextcoud: https://example.com/remote.php/webdav/"
   },
   "LabelNextcloudurl": {
     "message": "URL de Nextcloud"
