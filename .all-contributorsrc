@@ -253,6 +253,16 @@
         "ideas",
         "bug"
       ]
+    },
+    {
+      "login": "aaryanvangari",
+      "name": "aaryanvangari",
+      "avatar_url": "https://avatars.githubusercontent.com/u/247490833?v=4",
+      "profile": "https://github.com/aaryanvangari",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
     }
   ],
   "skipCi": true,
