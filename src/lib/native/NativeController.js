@@ -79,12 +79,7 @@ class AlarmManager {
    * @returns {number} - The calculated backoff interval in milliseconds.
    */
   getBackoffInterval(interval, errorCount, lastSync) {
-    const maxErrorCount = Math.log2(MAX_BACKOFF_INTERVAL / (interval * 1000 * 60))
-    if (errorCount < maxErrorCount || lastSync + MAX_BACKOFF_INTERVAL < Date.now()) {
-      return Math.min(MAX_BACKOFF_INTERVAL, interval * 1000 * 60 * Math.pow(2, errorCount))
-    } else {
-      return MAX_BACKOFF_INTERVAL + MAX_BACKOFF_INTERVAL * (errorCount - maxErrorCount)
-    }
+    return Math.min(MAX_BACKOFF_INTERVAL, interval * 1000 * 60 * Math.pow(2, errorCount))
   }
 }
 
