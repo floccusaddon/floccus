@@ -24,6 +24,7 @@ export default class Logger {
   }
 
   static async persist() {
+    if (this.messages.length === 0) return
     const Storage = IS_BROWSER
       ? await import('./browser/BrowserAccountStorage')
       : await import('./native/NativeAccountStorage')

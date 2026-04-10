@@ -158,16 +158,6 @@ export default class BrowserController {
       }
     })
 
-    // Remove old logs
-
-    BrowserAccountStorage.changeEntry(
-      'logs',
-      log => {
-        return []
-      },
-      []
-    )
-
     // do some cleaning if this is a new version
 
     browser.storage.local.get(['currentVersion', 'lastInterventionAt']).then(async d => {
