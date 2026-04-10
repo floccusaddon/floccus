@@ -17,6 +17,10 @@ class XbelSerializer implements Serializer {
       ignorePiTags: true,
       ignoreAttributes: false,
       parseTagValue: false,
+      processEntities: {
+        maxTotalExpansions: Infinity,
+        maxEntityCount: Infinity,
+      },
     })
     let xmlObj
     try {
