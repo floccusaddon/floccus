@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.9.1] - 2026-04-10
+
+### Fixed
+
+* fix: Don't clear logs when service worker restarts
+* fix(xml-parser): Use latest lib version and set limits to Infinity
+* fix: Fix getBackoffInterval logic in BrowserController and NativeController
 
 ## [5.9.0] - 2026-04-04
 
