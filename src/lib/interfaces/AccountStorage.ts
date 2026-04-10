@@ -15,6 +15,8 @@ export interface IAccountData {
   username?: string
   password?: string
   label?: string
+  lastSync?: number
+  lastAttempt?: number
   errorCount?: number
   clickCountEnabled?: boolean
   isTransientError?: boolean|null

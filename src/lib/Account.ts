@@ -188,7 +188,7 @@ export default class Account {
       Logger.log('Starting sync process for account ' + this.getLabel())
       setUser({ id: this.id })
       this.syncing = true
-      await this.setData({ syncing: 0.05, scheduled: false, error: null })
+      await this.setData({ syncing: 0.05, scheduled: false, error: null, lastAttempt: Date.now() })
 
       if (!(await this.isInitialized())) {
         await this.init()

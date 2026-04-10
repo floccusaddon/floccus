@@ -41,6 +41,7 @@ class AlarmManager {
       const account = await Account.get(accountId)
       const data = account.getData()
       const lastSync = data.lastSync || 0
+      const lastAttempt = data.lastAttempt || 0
       const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
       if (data.scheduled) {
         await this.ctl.scheduleSync(accountId)
@@ -50,7 +51,7 @@ class AlarmManager {
         continue
       }
       if (data.error && data.errorCount > 1) {
-        if (Date.now() > this.getBackoffInterval(interval, data.errorCount, lastSync) + lastSync) {
+        if (Date.now() > this.getBackoffInterval(interval, data.errorCount) + lastAttempt) {
           await this.ctl.scheduleSync(accountId)
           continue
         }
@@ -59,7 +60,7 @@ class AlarmManager {
       if (
         data.syncIntervalEnabled &&
         Date.now() >
-        interval * 1000 * 60 + data.lastSync
+        interval * 1000 * 60 + lastSync
       ) {
         await this.ctl.scheduleSync(accountId)
       }
@@ -75,10 +76,9 @@ class AlarmManager {
    *
    * @param {number} interval - The synchronization interval in minutes.
    * @param {number} errorCount - The number of consecutive errors encountered.
-   * @param {number} lastSync - The timestamp of when the last successful sync happened.
    * @returns {number} - The calculated backoff interval in milliseconds.
    */
-  getBackoffInterval(interval, errorCount, lastSync) {
+  getBackoffInterval(interval, errorCount) {
     return Math.min(MAX_BACKOFF_INTERVAL, interval * 1000 * 60 * Math.pow(2, errorCount))
   }
 }
