@@ -36,7 +36,7 @@
         icon
         :disabled="Boolean(syncing) || Boolean(scheduled) || !currentAccount"
         @click="onTriggerSync">
-        <v-icon :class="{'sync--active': Boolean(syncing)}">
+        <v-icon :class="{ 'sync--active': Boolean(syncing) }">
           {{ scheduled ? 'mdi-timer-sync-outline' : 'mdi-sync' }}
         </v-icon>
       </v-btn>
@@ -56,7 +56,10 @@
       </v-btn>
       <v-btn
         icon
-        @click="showSearch = !showSearch; searchQuery = ''">
+        @click="
+          showSearch = !showSearch
+          searchQuery = ''
+        ">
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
       <v-menu
@@ -115,7 +118,7 @@
         fixed
         :value="syncProgress * 100 || 0"
         color="blue darken-1" />
-      <v-card>
+      <v-card v-if="breadcrumbs.length > 1 || numAccounts > 1">
         <Breadcrumbs
           v-if="breadcrumbs.length > 1"
           :tree="tree"
@@ -364,6 +367,9 @@ export default {
         !Object.keys(this.$store.state.accounts[this.id].data).length ||
         !this.tree
       )
+    },
+    numAccounts() {
+      return Object.keys(this.$store.state.accounts).length
     },
     tree() {
       return this.$store.state.tree
