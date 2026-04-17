@@ -1,14 +1,13 @@
 <template>
-  <v-alert
-    v-if="!isBrowserSupported"
-    type="error">
+  <v-alert v-if="!isBrowserSupported" type="error">
     {{ 'This browser or WebView is not supported' }}
   </v-alert>
   <v-progress-circular
     v-else
     indeterminate
     color="blue darken-1"
-    class="ma-auto" />
+    class="ma-auto"
+  />
 </template>
 
 <script>
@@ -47,7 +46,7 @@ export default {
     } else if (Object.keys(this.$store.state.accounts).length) {
       const intentReceived = await this.checkForIntent()
       if (!intentReceived) {
-        const accountId = this.$store.state.lastAccount || Object.keys(this.$store.state.accounts)[0]
+        const accountId = Object.keys(this.$store.state.accounts).includes(this.$store.state.lastAccount) ? Object.keys(this.$store.state.accounts) : Object.keys(this.$store.state.accounts)[0]
         this.$router.push({ name: routes.TREE, params: { accountId } })
       }
     } else {
@@ -101,7 +100,7 @@ export default {
       this.$router.push({
         name: routes.ADD_BOOKMARK,
         params: {
-          accountId: this.$store.state.lastAccount || Object.keys(this.$store.state.accounts)[0],
+          accountId: Object.keys(this.$store.state.accounts).includes(this.$store.state.lastAccount) ? this.$store.state.lastAccount : Object.keys(this.$store.state.accounts)[0],
           url,
           title
         }
@@ -151,6 +150,4 @@ export default {
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
