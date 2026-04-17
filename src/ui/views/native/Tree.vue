@@ -663,7 +663,8 @@ export default {
         this.isEditingFolder = false
         return
       }
-      if (this.searchQuery) {
+      if (this.showSearch) {
+        this.showSearch = false
         this.searchQuery = ''
         return
       }
