@@ -56,11 +56,16 @@
       </v-btn>
       <v-btn
         icon
+        :class="{ 'search--active': Boolean(searching && showSearch) }"
         @click="
           showSearch = !showSearch
           searchQuery = ''
         ">
-        <v-icon>mdi-magnify</v-icon>
+        <v-icon>
+          {{
+            searching && showSearch ? 'mdi-loading' : 'mdi-magnify'
+          }}
+        </v-icon>
       </v-btn>
       <v-menu
         v-if="!showSearch"
@@ -183,7 +188,7 @@
         </template>
       </v-list>
       <v-card
-        v-else
+        v-else-if="!searching"
         flat
         tile
         :style="{
@@ -321,6 +326,7 @@ import sortBy from 'lodash/sortBy'
 import DialogImportBookmarks from '../../components/native/DialogImportBookmarks'
 import Breadcrumbs from '../../components/native/Breadcrumbs.vue'
 import Item from '../../components/native/Item.vue'
+import { yieldToEventLoop } from '../../../lib/yieldToEventLoop'
 
 export default {
   name: 'Tree',
@@ -354,6 +360,9 @@ export default {
       sortBy: 'index',
       syncProgress: 0,
       showSearch: false,
+      otherSearchItems: [],
+      searchItems: [],
+      searching: true,
     }
   },
   computed: {
@@ -397,11 +406,8 @@ export default {
         return []
       }
       let items
-      if (this.searchQuery && this.searchQuery.trim().length >= 2) {
-        return this.search(
-          this.searchQuery.toLowerCase().trim(),
-          this.currentFolder
-        )
+      if (this.searchQuery) {
+        return this.searchItems
       } else {
         items = this.currentFolder.children
       }
@@ -427,18 +433,6 @@ export default {
       } else {
         return items
       }
-    },
-    otherSearchItems() {
-      if (
-        !this.currentFolder &&
-        (!this.searchQuery || this.searchQuery.trim().length < 2)
-      ) {
-        return []
-      }
-      return this.search(
-        this.searchQuery.toLowerCase().trim(),
-        this.tree
-      ).filter((item) => !this.items.includes(item))
     },
     routes() {
       return routes
@@ -482,6 +476,34 @@ export default {
         accountId: this.$route.params.accountId,
         sortBy: current,
       })
+    },
+    async searchQuery(searchQuery) {
+      if (searchQuery.trim().length < 3) {
+        this.searchItems = []
+        this.otherSearchItems = []
+        return
+      }
+      this.searching = true
+      this.searchItems = []
+      this.otherSearchItems = []
+      await this.search(
+        this.searchItems,
+        searchQuery.toLowerCase().trim(),
+        this.currentFolder
+      )
+      await this.search(
+        this.otherSearchItems,
+        searchQuery.toLowerCase().trim(),
+        this.tree,
+        (item) => !this.searchItems.includes(item)
+      )
+      this.searching = false
+    },
+    showSearch(showSearch, previous) {
+      if (previous && !showSearch) {
+        this.searchItems = []
+        this.otherSearchItems = []
+      }
     },
   },
   mounted() {
@@ -541,110 +563,131 @@ export default {
         this.searchQuery = query
       }, 500)
     },
-    search(query, tree) {
-      return Object.values(tree.index.folder)
-        .filter((item) => {
-          const matchTitleFully = item.title
-            ? query.split(' ').every((term) =>
-              item.title
-                .toLowerCase()
-                .split(' ')
-                .some((word) => word === term)
-            )
-            : false
-          const matchTitlePartially = item.title
-            ? query
+    async search(results, query, tree, filterFunction = (item) => true) {
+      // Refactored to use for loops instead of Object.values/filter
+      const folderResults = results
+      for (const key in tree.index.folder) {
+        const item = tree.index.folder[key]
+        if (!filterFunction(item)) {
+          continue
+        }
+        let matchTitleFully = false
+        let matchTitlePartially = false
+        if (item.title) {
+          matchTitleFully = query.split(' ').every((term) =>
+            item.title
+              .toLowerCase()
               .split(' ')
-              .every((term) => item.title.toLowerCase().includes(term))
-            : false
-          return matchTitleFully || matchTitlePartially
-        })
-        .sort((a, b) => {
-          const matchTitlePartiallyA = a.title
-            ? query
+              .some((word) => word === term)
+          )
+          matchTitlePartially = query
+            .split(' ')
+            .every((term) => item.title.toLowerCase().includes(term))
+        }
+        if (matchTitleFully || matchTitlePartially) {
+          folderResults.push(item)
+        }
+      }
+
+      // Sort folderResults by partial match, then by full match
+      folderResults.sort((a, b) => {
+        const matchTitlePartiallyA = a.title
+          ? query
+            .split(' ')
+            .every((term) => a.title.toLowerCase().includes(term))
+          : false
+        const matchTitlePartiallyB = b.title
+          ? query
+            .split(' ')
+            .every((term) => b.title.toLowerCase().includes(term))
+          : false
+        return matchTitlePartiallyA ? (matchTitlePartiallyB ? 0 : -1) : 1
+      })
+      folderResults.sort((a, b) => {
+        const matchTitleA = a.title
+          ? query.split(' ').every((term) =>
+            a.title
+              .toLowerCase()
               .split(' ')
-              .every((term) => a.title.toLowerCase().includes(term))
-            : false
-          const matchTitlePartiallyB = b.title
-            ? query
+              .some((word) => word === term)
+          )
+          : false
+        const matchTitleB = b.title
+          ? query.split(' ').every((term) =>
+            b.title
+              .toLowerCase()
               .split(' ')
-              .every((term) => b.title.toLowerCase().includes(term))
-            : false
-          return matchTitlePartiallyA ? (matchTitlePartiallyB ? 0 : -1) : 1
-        })
-        .sort((a, b) => {
-          const matchTitleA = a.title
-            ? query.split(' ').every((term) =>
-              a.title
-                .toLowerCase()
-                .split(' ')
-                .some((word) => word === term)
-            )
-            : false
-          const matchTitleB = b.title
-            ? query.split(' ').every((term) =>
-              b.title
-                .toLowerCase()
-                .split(' ')
-                .some((word) => word === term)
-            )
-            : false
-          return matchTitleA ? (matchTitleB ? 0 : -1) : 1
-        })
-        .concat(
-          Object.values(tree.index.bookmark)
-            .filter((item) => {
-              const matchTitleFully = item.title
-                ? query.split(' ').every((term) =>
-                  item.title
-                    .toLowerCase()
-                    .split(' ')
-                    .some((word) => word === term)
-                )
-                : false
-              const matchTitlePartially = item.title
-                ? query
-                  .split(' ')
-                  .every((term) => item.title.toLowerCase().includes(term))
-                : false
-              const matchUrl = query
-                .split(' ')
-                .every((term) => item.url.toLowerCase().includes(term))
-              return matchUrl || matchTitleFully || matchTitlePartially
-            })
-            .sort((a, b) => {
-              const matchTitlePartiallyA = a.title
-                ? query
-                  .split(' ')
-                  .every((term) => a.title.toLowerCase().includes(term))
-                : false
-              const matchTitlePartiallyB = b.title
-                ? query
-                  .split(' ')
-                  .every((term) => b.title.toLowerCase().includes(term))
-                : false
-              return matchTitlePartiallyA ? (matchTitlePartiallyB ? 0 : -1) : 1
-            })
-            .sort((a, b) => {
-              const matchTitleA = a.title
-                ? query.split(' ').every((term) =>
-                  a.title
-                    .toLowerCase()
-                    .split(' ')
-                    .some((word) => word === term)
-                )
-                : false
-              const matchTitleB = b.title
-                ? query.split(' ').every((term) =>
-                  b.title
-                    .toLowerCase()
-                    .split(' ')
-                    .some((word) => word === term)
-                )
-                : false
-              return matchTitleA ? (matchTitleB ? 0 : -1) : 1
-            })
-        )
+              .some((word) => word === term)
+          )
+          : false
+        return matchTitleA ? (matchTitleB ? 0 : -1) : 1
+      })
+
+      const bookmarkResults = []
+      for (const key in tree.index.bookmark) {
+        const item = tree.index.bookmark[key]
+        if (!filterFunction(item)) {
+          continue
+        }
+        let matchTitleFully = false
+        let matchTitlePartially = false
+        let matchUrl = false
+        if (item.title) {
+          matchTitleFully = query.split(' ').every((term) =>
+            item.title
+              .toLowerCase()
+              .split(' ')
+              .some((word) => word === term)
+          )
+          matchTitlePartially = query
+            .split(' ')
+            .every((term) => item.title.toLowerCase().includes(term))
+        }
+        if (item.url) {
+          matchUrl = query
+            .split(' ')
+            .every((term) => item.url.toLowerCase().includes(term))
+        }
+        if (matchUrl || matchTitleFully || matchTitlePartially) {
+          bookmarkResults.push(item)
+        }
+      }
+
+      // Sort bookmarkResults by partial match, then by full match
+      bookmarkResults.sort((a, b) => {
+        const matchTitlePartiallyA = a.title
+          ? query
+            .split(' ')
+            .every((term) => a.title.toLowerCase().includes(term))
+          : false
+        const matchTitlePartiallyB = b.title
+          ? query
+            .split(' ')
+            .every((term) => b.title.toLowerCase().includes(term))
+          : false
+        return matchTitlePartiallyA ? (matchTitlePartiallyB ? 0 : -1) : 1
+      })
+      bookmarkResults.sort((a, b) => {
+        const matchTitleA = a.title
+          ? query.split(' ').every((term) =>
+            a.title
+              .toLowerCase()
+              .split(' ')
+              .some((word) => word === term)
+          )
+          : false
+        const matchTitleB = b.title
+          ? query.split(' ').every((term) =>
+            b.title
+              .toLowerCase()
+              .split(' ')
+              .some((word) => word === term)
+          )
+          : false
+        return matchTitleA ? (matchTitleB ? 0 : -1) : 1
+      })
+
+      return results.push.apply(results, bookmarkResults)
     },
     goBack() {
       if (this.isAddingBookmark) {
@@ -774,6 +817,10 @@ export default {
 }
 
 .sync--active {
+  animation: spin 2s infinite linear;
+}
+
+.search--active {
   animation: spin 2s infinite linear;
 }
 
