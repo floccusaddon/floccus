@@ -16,9 +16,17 @@
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
       <v-spacer />
+      <template v-if="searchQuery">
+        <v-progress-circular
+          v-if="searching"
+          color="white"
+          :size="20"
+          indeterminate />
+        <v-icon v-else>
+          mdi-magnify
+        </v-icon>
+      </template>
       <v-text-field
-        v-if="showSearch"
-        autofocus
         :value="searchQuery"
         :label="
           !tree || currentFolderId === tree.id
@@ -32,7 +40,7 @@
         hide-details
         @input="onSearch" />
       <v-btn
-        v-if="!showSearch"
+        v-if="!searchQuery"
         icon
         :disabled="Boolean(syncing) || Boolean(scheduled) || !currentAccount"
         @click="onTriggerSync">
@@ -40,35 +48,8 @@
           {{ scheduled ? 'mdi-timer-sync-outline' : 'mdi-sync' }}
         </v-icon>
       </v-btn>
-      <v-btn
-        v-if="!showSearch"
-        icon
-        :disabled="Boolean(syncing) || Boolean(scheduled) || !currentAccount"
-        @click="onTriggerSync('up')">
-        <v-icon>mdi-arrow-up-bold</v-icon>
-      </v-btn>
-      <v-btn
-        v-if="!showSearch"
-        icon
-        :disabled="Boolean(syncing) || Boolean(scheduled) || !currentAccount"
-        @click="onTriggerSync('down')">
-        <v-icon>mdi-arrow-down-bold</v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        :class="{ 'search--active': Boolean(searching && showSearch) }"
-        @click="
-          showSearch = !showSearch
-          searchQuery = ''
-        ">
-        <v-icon>
-          {{
-            searching && showSearch ? 'mdi-loading' : 'mdi-magnify'
-          }}
-        </v-icon>
-      </v-btn>
       <v-menu
-        v-if="!showSearch"
+        v-if="!searchQuery"
         bottom
         left>
         <template #activator="{ on, attrs }">
@@ -107,15 +88,56 @@
           </v-list-item>
         </v-list>
       </v-menu>
-      <v-btn
-        v-if="currentAccount && !showSearch"
-        icon
-        :to="{
-          name: routes.ACCOUNT_OPTIONS,
-          params: { accountId: currentAccount ? currentAccount.id : 0 },
-        }">
-        <v-icon>mdi-cog</v-icon>
-      </v-btn>
+      <v-menu
+        v-if="!searchQuery"
+        bottom
+        left>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            icon
+            v-bind="attrs"
+            v-on="on">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list>
+          <v-list-item
+            @click="
+              $router.push({
+                name: routes.ACCOUNT_OPTIONS,
+                params: { accountId: currentAccount ? currentAccount.id : 0 },
+              })
+            ">
+            <v-list-item-avatar>
+              <v-icon>mdi-cog</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-title>{{ t('LabelOptions') }}</v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            :disabled="
+              Boolean(syncing) || Boolean(scheduled) || !currentAccount
+            "
+            @click="onTriggerSync('up')">
+            <v-list-item-avatar>
+              <v-icon>mdi-arrow-up-bold</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-title>{{ t('LabelSyncUpOnce') }}</v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            :disabled="
+              Boolean(syncing) || Boolean(scheduled) || !currentAccount
+            "
+            @click="onTriggerSync('down')">
+            <v-list-item-avatar>
+              <v-icon>mdi-arrow-down-bold</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-title>
+              {{ t('LabelSyncDownOnce') }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-app-bar>
     <v-main>
       <v-progress-linear
@@ -359,10 +381,9 @@ export default {
       },
       sortBy: 'index',
       syncProgress: 0,
-      showSearch: false,
       otherSearchItems: [],
       searchItems: [],
-      searching: true,
+      searching: false,
     }
   },
   computed: {
@@ -484,6 +505,7 @@ export default {
         return
       }
       this.searching = true
+      await yieldToEventLoop()
       this.searchItems = []
       this.otherSearchItems = []
       await this.search(
@@ -565,9 +587,13 @@ export default {
     },
     async search(results, query, tree, filterFunction = (item) => true) {
       // Refactored to use for loops instead of Object.values/filter
+      let iterations = 0
       const folderResults = results
       for (const key in tree.index.folder) {
         const item = tree.index.folder[key]
+        if (++iterations % 500 === 0) {
+          await yieldToEventLoop()
+        }
         if (!filterFunction(item)) {
           continue
         }
@@ -626,6 +652,9 @@ export default {
       const bookmarkResults = []
       for (const key in tree.index.bookmark) {
         const item = tree.index.bookmark[key]
+        if (++iterations % 1000 === 0) {
+          await yieldToEventLoop()
+        }
         if (!filterFunction(item)) {
           continue
         }
@@ -706,8 +735,7 @@ export default {
         this.isEditingFolder = false
         return
       }
-      if (this.showSearch) {
-        this.showSearch = false
+      if (this.searchQuery) {
         this.searchQuery = ''
         return
       }
