@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import NewAccountContent from '../NewAccount'
+import NewAccountContent from '../NewAccount.vue'
 
 export default {
   name: 'NewAccount',
