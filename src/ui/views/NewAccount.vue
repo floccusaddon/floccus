@@ -654,6 +654,10 @@ export default {
     }
   },
   backButton() {
+    if (this.currentStep > 0) {
+      this.currentStep--
+      return true
+    }
     this.$router.push({ name: 'HOME' })
   },
   methods: {
