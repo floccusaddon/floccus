@@ -413,10 +413,13 @@ export default class Diff<
   }
 
   async toJSONAsync() {
+    let iterations = 0
     return Parallel.map(
       this.getActions(),
       async(action: A) => {
-        await yieldToEventLoop()
+        if (++iterations % 1000 === 0) {
+          await yieldToEventLoop()
+        }
         return {
           ...action,
           payload: await action.payload.clone(false).toJSONAsync(),
@@ -469,8 +472,11 @@ export default class Diff<
     A2 extends Action<L1, L2>
   >(json) {
     const diff: Diff<L1, L2, A2> = new Diff()
+    let iterations = 0
     await Parallel.map(json, async(action: A2): Promise<void> => {
-      await yieldToEventLoop()
+      if (++iterations % 1000 === 0) {
+        await yieldToEventLoop()
+      }
       action.payload = hydrate<L1>(action.payload)
       action.oldItem = action.oldItem && hydrate<L2>(action.oldItem)
       diff.commit(action)

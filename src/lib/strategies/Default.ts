@@ -87,6 +87,10 @@ export default class SyncProcess {
   protected cancelPromise: Promise<void>
   protected cancelCb: (error: any) => void
 
+  // We're counting the number of calls to addMappings so we can conditionally yieldToEventLoop every 1000th call
+  protected mappingIterations = 0
+  protected executeIterations = 0
+
   constructor(
     mappings:Mappings,
     localTree:TLocalTree,
@@ -1038,7 +1042,9 @@ export default class SyncProcess {
     donePlan: PlanStage3<TOppositeLocation<L1>, TItemLocation, L1>
   ): Promise<void> {
     // defer execution of actions to allow the this.canceled check below to work when cancelling in interrupt tests
-    await yieldToEventLoop()
+    if (++this.executeIterations % 1000 === 0) {
+      await yieldToEventLoop()
+    }
     Logger.log('Executing action ', action)
 
     if (this.canceled) {
@@ -1245,7 +1251,9 @@ export default class SyncProcess {
     donePlan: PlanStage3<TOppositeLocation<L1>, TItemLocation, L1>
   ): Promise<void> {
     // defer execution of actions to allow the this.canceled check below to work when cancelling in interrupt tests
-    await yieldToEventLoop()
+    if (++this.executeIterations % 1000 === 0) {
+      await yieldToEventLoop()
+    }
     Logger.log('Executing action ', action)
 
     if (this.canceled) {
@@ -1268,7 +1276,9 @@ export default class SyncProcess {
     diff: Diff<L1, TItemLocation, UpdateAction<L1, TItemLocation> | MoveAction<L1, TItemLocation>>,
     donePlan: PlanStage3<TItemLocation, TItemLocation, L1>): Promise<void> {
     // defer execution of actions to allow the this.canceled check below to work when cancelling in interrupt tests
-    await yieldToEventLoop()
+    if (++this.executeIterations % 1000 === 0) {
+      await yieldToEventLoop()
+    }
     Logger.log('Executing action ', action)
 
     if (this.canceled) {
@@ -1392,8 +1402,11 @@ export default class SyncProcess {
 
     const isUsingTabs = await this.localTree.isUsingBrowserTabs?.()
 
+    let iterations = 0
     await Parallel.each(reorderings.getActions(), async(action) => {
-      await yieldToEventLoop()
+      if (++iterations % 1000 === 0) {
+        await yieldToEventLoop()
+      }
       Logger.log('Executing reorder action', `${action.type} Payload: #${action.payload.id}[${action.payload.title}]${'url' in action.payload ? `(${action.payload.url})` : ''} parentId: ${action.payload.parentId}`)
       const item = action.payload
 
@@ -1433,7 +1446,9 @@ export default class SyncProcess {
   }
 
   async addMapping(resource:TResource<TItemLocation>, item:TItem<TItemLocation>, newId:string|number):Promise<void> {
-    await yieldToEventLoop()
+    if (++this.mappingIterations % 1000 === 0) {
+      await yieldToEventLoop()
+    }
     let localId, remoteId
     if (resource === this.server) {
       localId = item.id
@@ -1568,6 +1583,7 @@ export default class SyncProcess {
       }
     }
     const membersToPersist = this.getMembersToPersist()
+    let iterations = 0
     return {
       strategy: 'default',
       ...this.staticContinuation,
@@ -1602,7 +1618,9 @@ export default class SyncProcess {
                         return [key, await diff.toJSONAsync()]
                       }
                       if (diff && diff.toJSON) {
-                        await yieldToEventLoop()
+                        if (++iterations % 1000 === 0) {
+                          await yieldToEventLoop()
+                        }
                         return [key, diff.toJSON()]
                       }
                       return [key, diff]
@@ -1615,7 +1633,9 @@ export default class SyncProcess {
               return [key, await value.toJSONAsync()]
             }
             if (value && value.toJSON) {
-              await yieldToEventLoop()
+              if (++iterations % 1000 === 0) {
+                await yieldToEventLoop()
+              }
               return [key, value.toJSON()]
             }
             return [key, value]

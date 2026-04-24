@@ -20,6 +20,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
   private hashSettings: IHashSettings
   private checkHashes: boolean
   private hasCache: boolean
+  private iterations = 0
 
   private result: ScanResult<L2, L1>
 
@@ -62,7 +63,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
   async diffFolder(oldFolder:Folder<L1>, newFolder:Folder<L2>):Promise<void> {
     // give the browser time to breathe
-    await yieldToEventLoop()
+    if (++this.iterations % 1000 === 0) {
+      await yieldToEventLoop()
+    }
     if (this.checkHashes) {
       const hasChanged = await this.folderHasChanged(oldFolder, newFolder)
       if (!hasChanged) {
@@ -314,9 +317,12 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         sources[action.oldItem.parentId] = true
       })
 
+    let iterations = 0
     for (const folderId in sources) {
       // Give the browser time to breathe
-      await yieldToEventLoop()
+      if (++iterations % 1000 === 0) {
+        await yieldToEventLoop()
+      }
       const oldFolder = this.oldTree.findItem(ItemType.FOLDER, folderId) as Folder<L1>
       if (!oldFolder) {
         // In case a MOVE's old parent was removed
@@ -330,7 +336,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
     for (const folderId in targets) {
       // Give the browser time to breathe
-      await yieldToEventLoop()
+      if (++iterations % 1000 === 0) {
+        await yieldToEventLoop()
+      }
       const newFolder = this.newTree.findItem(ItemType.FOLDER, folderId) as Folder<L2>
       const duplicate = this.result.REORDER.getActions().find(a => String(a.payload.id) === String(newFolder.id))
       if (duplicate) {

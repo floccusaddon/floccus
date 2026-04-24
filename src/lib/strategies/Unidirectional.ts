@@ -521,6 +521,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       }
     }
     const membersToPersist = this.getMembersToPersist()
+    let iterations = 0
     return {
       strategy: 'unidirectional',
       ...this.staticContinuation,
@@ -555,7 +556,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
                         return [key, await diff.toJSONAsync()]
                       }
                       if (diff && diff.toJSON) {
-                        await yieldToEventLoop()
+                        if (++iterations % 1000 === 0) {
+                          await yieldToEventLoop()
+                        }
                         return [key, diff.toJSON()]
                       }
                       return [key, diff]
@@ -568,7 +571,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
               return [key, await value.toJSONAsync()]
             }
             if (value && value.toJSON) {
-              await yieldToEventLoop()
+              if (++iterations % 1000 === 0) {
+                await yieldToEventLoop()
+              }
               return [key, value.toJSON()]
             }
             return [key, value]

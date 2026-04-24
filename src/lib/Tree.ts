@@ -29,6 +29,8 @@ interface IItemIndex<L extends TItemLocation> {
   [ItemType.FOLDER]: Record<string|number,Folder<L>>,
 }
 
+let HASH_ITERATIONS = 0
+
 export class Bookmark<L extends TItemLocation> {
   public type = ItemType.BOOKMARK
   public id: string | number
@@ -184,8 +186,11 @@ export class Bookmark<L extends TItemLocation> {
     const result = {}
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let obj = this
+    let iterations = 1
     while (obj instanceof Bookmark) {
-      await yieldToEventLoop()
+      if (++iterations % 1000 === 0) {
+        await yieldToEventLoop()
+      }
       Object.entries(obj).forEach(([key, value]) => {
         if (key === 'index') return
         if (!(key in result)) {
@@ -369,13 +374,16 @@ export class Folder<L extends TItemLocation> {
   async traverse(
     fn: (item: TItem<L>, folder: Folder<L>) => void
   ): Promise<void> {
+    let iterations = 0
     await Parallel.each(
       this.children,
       async(item) => {
         await fn(item, this)
         if (item.type === 'folder') {
           // give the browser time to breathe
-          await yieldToEventLoop()
+          if (++iterations % 1000 === 0) {
+            await yieldToEventLoop()
+          }
           await item.traverse(fn)
         }
       },
@@ -422,7 +430,9 @@ export class Folder<L extends TItemLocation> {
       throw new Error("Trying to calculate hash of a folder that isn't loaded")
     }
 
-    await yieldToEventLoop()
+    if (++HASH_ITERATIONS % 1000 === 0) {
+      await yieldToEventLoop()
+    }
 
     const children = this.children.slice()
     if (!preserveOrder) {
@@ -535,8 +545,11 @@ export class Folder<L extends TItemLocation> {
     const result: Folder<L> = {} as any as Folder<L>
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let obj = this
+    let iterations = 1
     while (obj instanceof Folder) {
-      await yieldToEventLoop()
+      if (++iterations % 1000 === 0) {
+        await yieldToEventLoop()
+      }
       await Parallel.map(Object.entries(obj), async([key, value]) => {
         if (key === 'index') return
         if (!(key in result)) {
