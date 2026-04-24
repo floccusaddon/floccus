@@ -153,7 +153,7 @@
           @click="currentFolderId = $event" />
         <v-card-text v-else>
           <v-icon>mdi-home</v-icon>
-          {{ currentAccount.label }}
+          {{ currentAccount ? currentAccount.label : '' }}
         </v-card-text>
       </v-card>
       <v-alert
