@@ -99,7 +99,7 @@
     "@isomorphic-git/lightning-fs": "4.x",
     "@jcoreio/async-throttle": "1.6.1",
     "@sentry/browser": "10.x",
-    "@sentry/webpack-plugin": "2.x",
+    "@sentry/webpack-plugin": "5.x",
     "async-lock": "^1.2.8",
     "async-parallel": "^1.2.3",
     "batching-toposort": "^1.2.0",
