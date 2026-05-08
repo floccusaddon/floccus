@@ -182,7 +182,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
             this.mergeable(removedItem, createdItem) &&
             (removedItem.type !== 'folder' ||
               (!this.hasCache &&
-                removedItem.childrenSimilarity(createdItem) > 0.8))
+                removedItem.childrenSimilarity(createdItem) >= 0.5))
           ) {
             this.result.CREATE.retract(createAction)
             this.result.REMOVE.retract(removeAction)
