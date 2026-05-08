@@ -379,9 +379,16 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       throw new AuthenticationError()
     }
     if (res.status === 503 || res.status >= 400) {
+      let responseData: string
+      try {
+        responseData =
+          typeof res.data === 'string' ? res.data : JSON.stringify(res.data)
+      } catch (e) {
+        responseData = String(res.data)
+      }
       Logger.log(
         `${verb} ${url}: Server responded with ${res.status}: ` +
-          (await res.text()).substring(0, 250)
+          responseData.substring(0, 250)
       )
       throw new HttpError(res.status, verb, item)
     }
