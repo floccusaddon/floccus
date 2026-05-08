@@ -1087,7 +1087,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         `${verb} ${url}: Server responded with ${res.status}: ` +
           responseData.substring(0, 250)
       )
-      throw new HttpError(res.status, verb)
+      throw new HttpError(res.status, verb, item)
     }
     const json = res.data
     if (json.status !== 'success') {

@@ -164,7 +164,13 @@ export class HttpError extends TransientError {
 
   constructor(status: number, method: string, item?: TItem<TItemLocation>) {
     super(
-      `E019: HTTP status ${status}. Failed ${method} request (${statusCodes[status]})` + (item ? ` for item ${item.inspect()}` : '') + `. Check your server configuration and log.`
+      `E019: HTTP status ${status}. Failed ${method} request (${statusCodes[status]})` +
+        (item
+          ? ` for item #${item.id}[${item.title}]${'url' in item ? `(${item.url})` : ''} parentId: ${
+            item.parentId
+          }`
+          : '') +
+        `. Check your server configuration and log.`
     )
     this.status = status
     this.method = method
