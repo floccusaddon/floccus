@@ -1,5 +1,5 @@
 import Adapter from '../interfaces/Adapter'
-import { Bookmark, Folder, ItemLocation } from '../Tree'
+import { Bookmark, Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
 import PQueue from 'p-queue'
 import { ICapabilities, IHashSettings, IResource } from '../interfaces/Resource'
 import Logger from '../Logger'
@@ -118,7 +118,10 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
         collection: {
           id: bookmark.parentId,
         },
-      })
+      },
+      false,
+      bookmark,
+    )
     return response.id
   }
 
@@ -138,12 +141,15 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
           name: collection.name,
           ownerId: collection.ownerId,
         },
-      })
+      },
+      false,
+      bookmark,
+    )
   }
 
   async removeBookmark(bookmark: Bookmark<typeof ItemLocation.SERVER>): Promise<void> {
     Logger.log('(linkwarden)DELETE', {bookmark})
-    await this.sendRequest('DELETE', `/api/v1/links/${bookmark.id}`)
+    await this.sendRequest('DELETE', `/api/v1/links/${bookmark.id}`, undefined, undefined, false, bookmark)
   }
 
   async createFolder(folder: Folder<typeof ItemLocation.SERVER>): Promise<string | number> {
@@ -154,7 +160,10 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       {
         name: folder.title,
         parentId: folder.parentId,
-      })
+      },
+      false,
+      folder
+    )
     return response.id
   }
 
@@ -168,7 +177,10 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
         ...collection,
         name: folder.title,
         parentId: folder.parentId,
-      })
+      },
+      false,
+      folder,
+    )
   }
 
   async removeFolder(folder: Folder<typeof ItemLocation.SERVER>): Promise<void> {
@@ -178,7 +190,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     do {
       try {
         count++
-        await this.sendRequest('DELETE', `/api/v1/collections/${folder.id}`)
+        await this.sendRequest('DELETE', `/api/v1/collections/${folder.id}`, undefined, undefined, false, folder)
         success = true
       } catch (e) {
         if (e instanceof HttpError && e.status === 401) {
@@ -241,7 +253,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     return true
   }
 
-  async sendRequest(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false):Promise<any> {
+  async sendRequest(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false, item: TItem<TItemLocation> = null):Promise<any> {
     const url = this.server.url + relUrl
     let res
     let timedOut = false
@@ -259,7 +271,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     Logger.log(`QUEUING ${verb} ${url}`)
 
     if (!IS_BROWSER) {
-      return this.sendRequestNative(verb, url, type, body, returnRawResponse)
+      return this.sendRequestNative(verb, url, type, body, returnRawResponse, item)
     }
 
     try {
@@ -305,7 +317,11 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       throw new AuthenticationError()
     }
     if (res.status === 503 || res.status >= 400) {
-      throw new HttpError(res.status, verb)
+      Logger.log(
+        `${verb} ${url}: Server responded with ${res.status}: ` +
+          (await res.text()).substring(0, 250)
+      )
+      throw new HttpError(res.status, verb, item)
     }
     let json
     try {
@@ -317,7 +333,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     return json
   }
 
-  private async sendRequestNative(verb: string, url: string, type: string, body: any, returnRawResponse: boolean) {
+  private async sendRequestNative(verb: string, url: string, type: string, body: any, returnRawResponse: boolean, item: TItem<TItemLocation> = null) {
     let res
     let timedOut = false
     try {
@@ -363,7 +379,11 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       throw new AuthenticationError()
     }
     if (res.status === 503 || res.status >= 400) {
-      throw new HttpError(res.status, verb)
+      Logger.log(
+        `${verb} ${url}: Server responded with ${res.status}: ` +
+          (await res.text()).substring(0, 250)
+      )
+      throw new HttpError(res.status, verb, item)
     }
     const json = res.data
 

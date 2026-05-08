@@ -1,4 +1,4 @@
-import { Bookmark, TItemLocation } from '../lib/Tree'
+import { Bookmark, TItem, TItemLocation } from '../lib/Tree'
 import { statusCodes } from '../lib/statusCodes'
 
 export class FloccusError extends Error {
@@ -160,14 +160,16 @@ export class HttpError extends TransientError {
   public status: number
   public method: string
   public statusMessage: string
+  public item: TItem<TItemLocation>|undefined|null
 
-  constructor(status: number, method: string) {
+  constructor(status: number, method: string, item?: TItem<TItemLocation>) {
     super(
-      `E019: HTTP status ${status}. Failed ${method} request (${statusCodes[status]}). Check your server configuration and log.`
+      `E019: HTTP status ${status}. Failed ${method} request (${statusCodes[status]})` + (item ? ` for item ${item.inspect()}` : '') + `. Check your server configuration and log.`
     )
     this.status = status
     this.method = method
     this.statusMessage = statusCodes[status]
+    this.item = item
     Object.setPrototypeOf(this, HttpError.prototype)
   }
 }
