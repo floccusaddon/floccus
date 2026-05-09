@@ -335,6 +335,19 @@ export default class Diff<
             action.payload,
             targetLocation
           )
+          if (action.type !== ActionType.CREATE && typeof action.payload.id !== 'undefined' && typeof newAction.payload.id === 'undefined') {
+            Logger.log(
+              'payload.location = ' +
+              action.payload.location +
+              ' | targetLocation = ' +
+              targetLocation
+            )
+            const diff = new Diff()
+            diff.commit(action)
+            Logger.log('Failed to map id of action ' + diff.inspect())
+            Logger.log(JSON.stringify(mappingsSnapshot, null, '\t'))
+            throw new MappingFailureError(String(action.payload.id))
+          }
         }
 
         if (
@@ -395,6 +408,10 @@ export default class Diff<
               ][item.type][item.id],
             }
           })
+        }
+
+        if (action.type !== ActionType.REORDER) {
+          Logger.log('Mapped action', action, newAction)
         }
 
         newDiff.commit(newAction)
