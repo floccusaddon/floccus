@@ -263,6 +263,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
             reconciled = true
             if (oldItem.type === ItemType.FOLDER) {
               await this.diffItem(oldItem, createdItem)
+            } else if (this.createMappings) {
+              // Usually we let diffItem handle mapping creation but here we need to do it ourselves
+              await this.addMapping(oldItem, createdItem)
             }
           } else {
             const newItem = createdItem.findItemFilter(
@@ -295,6 +298,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
               reconciled = true
               if (removedItem.type === ItemType.FOLDER) {
                 await this.diffItem(removedItem, newItem)
+              } else if (this.createMappings) {
+                // Usually we let diffItem handle mapping creation but here we need to do it ourselves
+                await this.addMapping(removedItem, newItem)
               }
             }
           }
