@@ -2,7 +2,7 @@ import DefaultStrategy, { ISerializedSyncProcess , ACTION_CONCURRENCY } from './
 import Diff, { Action, ActionType, PlanRevert, PlanStage1, PlanStage3, ReorderAction } from '../Diff'
 import * as Parallel from 'async-parallel'
 import Mappings, { MappingSnapshot } from '../Mappings'
-import { Folder, ItemLocation, TItem, TItemLocation, TOppositeLocation } from '../Tree'
+import { Folder, ItemLocation, ItemType, TItem, TItemLocation, TOppositeLocation } from '../Tree'
 import Logger from '../Logger'
 import { CancelledSyncError } from '../../errors/Error'
 import TResource from '../interfaces/Resource'
@@ -86,7 +86,6 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   async getDiff(): Promise<ScanResult<TItemLocation, TItemLocation>> {
     const mappingsSnapshot = this.mappings.getSnapshot()
 
-    const newMappings = []
     const slaveTree =
       this.direction === ItemLocation.SERVER
         ? this.serverTreeRoot
@@ -96,6 +95,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
         ? this.localTreeRoot
         : this.serverTreeRoot
     const scanner = new Scanner(
+      this.mappings,
       slaveTree,
       masterTree,
       // We can't rely on a cacheTree, thus we have to accept canMergeWith results as well
@@ -116,30 +116,22 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
           return false
         }
         if (serverItem.canMergeWith(localItem)) {
-          newMappings.push([localItem, serverItem])
           return true
         }
         if (Mappings.mappable(mappingsSnapshot, serverItem, localItem)) {
-          newMappings.push([localItem, serverItem])
           return true
         }
         return false
       },
       this.hashSettings,
       false,
-      false
+      false,
+      true
     )
     Logger.log(
       'Unidirectional: Calculating the diff between local and server trees'
     )
     const scanResult = await scanner.run()
-    await Parallel.map(
-      newMappings,
-      ([localItem, serverItem]) => {
-        return this.addMapping(this.server, localItem, serverItem.id)
-      },
-      1
-    )
 
     return scanResult
   }
