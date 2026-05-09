@@ -5,7 +5,6 @@ import Logger from './Logger'
 import { IHashSettings } from './interfaces/Resource'
 import { yieldToEventLoop } from './yieldToEventLoop'
 import Mappings from './Mappings'
-import optionDownloadLogs from '../ui/components/OptionDownloadLogs.vue'
 
 export interface ScanResult<L1 extends TItemLocation, L2 extends TItemLocation> {
   CREATE: Diff<L1, L2, CreateAction<L1, L2>>
@@ -61,7 +60,6 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
   async run():Promise<ScanResult<L2, L1>> {
     await this.diffItem(this.oldTree, this.newTree)
-    Logger.log('Diff before findMoves', this.result)
     await this.findMoves()
     await this.addReorders()
     return this.result
