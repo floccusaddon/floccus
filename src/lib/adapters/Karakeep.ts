@@ -198,27 +198,36 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
 
     const [id, parentId] = this.parseBookmarkId(bookmark.id)
 
-    // Remove the bookmark from the list
-    await this.sendRequest(
-      'DELETE',
-      `/api/v1/lists/${parentId}/bookmarks/${id}`,
-      'application/json',
-      undefined,
-      true,
-      bookmark
-    )
-
-    // If the bookmark is not in any list, delete it from the server
-    const bookmarkLists = await this.getListsOfBookmark(id)
-    if (bookmarkLists.size === 0) {
+    try {
+      // Remove the bookmark from the list
       await this.sendRequest(
         'DELETE',
-        `/api/v1/bookmarks/${id}`,
+        `/api/v1/lists/${parentId}/bookmarks/${id}`,
         'application/json',
         undefined,
         true,
         bookmark
       )
+
+      // If the bookmark is not in any list, delete it from the server
+      const bookmarkLists = await this.getListsOfBookmark(id)
+      if (bookmarkLists.size === 0) {
+        await this.sendRequest(
+          'DELETE',
+          `/api/v1/bookmarks/${id}`,
+          'application/json',
+          undefined,
+          true,
+          bookmark
+        )
+      }
+    } catch (e) {
+      if (e instanceof HttpError) {
+        if (e.status === 404) {
+          return
+        }
+      }
+      throw e
     }
   }
 
@@ -318,14 +327,23 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
     await Promise.all([deleteListContent(), deleteListFolders()])
 
     // Delete the list itself "after" deleting all its content in case any failure occurs in the previous steps
-    await this.sendRequest(
-      'DELETE',
-      `/api/v1/lists/${folder.id}`,
-      'application/json',
-      undefined,
-      true,
-      folder
-    )
+    try {
+      await this.sendRequest(
+        'DELETE',
+        `/api/v1/lists/${folder.id}`,
+        'application/json',
+        undefined,
+        true,
+        folder
+      )
+    } catch (e) {
+      if (e instanceof HttpError) {
+        if (e.status === 404) {
+          return
+        }
+      }
+      throw e
+    }
   }
 
   async getBookmarksTree(

@@ -149,7 +149,16 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
 
   async removeBookmark(bookmark: Bookmark<typeof ItemLocation.SERVER>): Promise<void> {
     Logger.log('(linkwarden)DELETE', {bookmark})
-    await this.sendRequest('DELETE', `/api/v1/links/${bookmark.id}`, undefined, undefined, false, bookmark)
+    try {
+      await this.sendRequest('DELETE', `/api/v1/links/${bookmark.id}`, undefined, undefined, false, bookmark)
+    } catch (e) {
+      if (e instanceof HttpError) {
+        if (e.status === 404) {
+          return
+        }
+      }
+      throw e
+    }
   }
 
   async createFolder(folder: Folder<typeof ItemLocation.SERVER>): Promise<string | number> {
