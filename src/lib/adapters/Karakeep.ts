@@ -497,10 +497,6 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       throw new RedirectError()
     }
 
-    if (returnRawResponse) {
-      return res
-    }
-
     if (res.status === 403) {
       throw new AuthenticationError()
     }
@@ -511,6 +507,11 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       )
       throw new HttpError(res.status, verb, item)
     }
+
+    if (returnRawResponse) {
+      return res
+    }
+
     let json
     try {
       json = await res.json()
