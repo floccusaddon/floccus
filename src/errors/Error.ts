@@ -166,9 +166,9 @@ export class HttpError extends TransientError {
     super(
       `E019: HTTP status ${status}. Failed ${method} request (${statusCodes[status]})` +
         (item
-          ? ` for item #${item.id}[${item.title}]${'url' in item ? `(${item.url})` : ''} parentId: ${
-            item.parentId
-          }`
+          ? ` for item #${item.id}[${item.title.substring(0, 100)}]${
+            'url' in item ? `(${item.url.substring(0, 100)})` : ''
+          } parentId: ${item.parentId}`
           : '') +
         `. Check your server configuration and log.`
     )
