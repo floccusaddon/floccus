@@ -16,6 +16,7 @@ import {
   ClientsideDeletionFailsafeError,
   ServersideAdditionFailsafeError, ServersideDeletionFailsafeError
 } from '../errors/Error'
+import Logger from '../lib/Logger'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -72,7 +73,7 @@ describe('Floccus', function() {
   this.slow(20000) // 20s is slow
 
   const params = (new URL(window.location.href)).searchParams
-  let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION, SEED, BROWSER, RANDOM_MANIPULATION_ITERATIONS, TEST_URL
+  let SERVER, CREDENTIALS, ACCOUNTS, APP_VERSION, SEED, BROWSER, RANDOM_MANIPULATION_ITERATIONS, TEST_URL, IS_CI
   SERVER =
     params.get('server') ||
     'http://localhost'
@@ -83,12 +84,24 @@ describe('Floccus', function() {
   }
   APP_VERSION = params.get('app_version') || 'stable'
   BROWSER = params.get('browser') || 'firefox'
+  IS_CI = params.get('ci') === 'true'
 
   SEED = (new URL(window.location.href)).searchParams.get('seed') || Math.random() + ''
   console.log('RANDOMNESS SEED', SEED)
   random.use(seedrandom(SEED))
 
   RANDOM_MANIPULATION_ITERATIONS = 35
+
+  Logger.persist = () => Promise.resolve()
+  let DUMP_LOGS = function(currentTest) {
+    // Dump logs if test failed
+    if (IS_CI && currentTest && currentTest.isFailed()) {
+      for (const log of Logger.messages) {
+        console.log(log)
+      }
+      Logger.messages = []
+    }
+  }
 
   ACCOUNTS = [
     FakeAdapter.getDefaultValues(),
@@ -282,6 +295,7 @@ describe('Floccus', function() {
             }
           })
           afterEach('clean up account', async function() {
+            DUMP_LOGS(this.currentTest)
             if (!account) return
             try {
               await browser.bookmarks.removeTree(account.getData().localRoot)
@@ -294,8 +308,8 @@ describe('Floccus', function() {
               await account.setData({ serverRoot: null })
               account.lockTimeout = 0
               const tree = await getAllBookmarks(account)
-              await withSyncConnection(account, async() => {
-                await AsyncParallel.each(tree.children, async child => {
+              await withSyncConnection(account, async () => {
+                await AsyncParallel.each(tree.children, async (child) => {
                   if (child instanceof Folder) {
                     await account.server.removeFolder(child)
                   } else {
@@ -313,11 +327,16 @@ describe('Floccus', function() {
                 await account.server.deleteFile(file.id)
               }
               if (files.length > 1) {
-                throw new Error('Google Drive sync left more than one file behind')
+                throw new Error(
+                  'Google Drive sync left more than one file behind'
+                )
               }
             }
             if (ACCOUNT_DATA.type === 'dropbox') {
-              const fileList = await account.server.listFiles(ACCOUNT_DATA.bookmark_file, 100)
+              const fileList = await account.server.listFiles(
+                ACCOUNT_DATA.bookmark_file,
+                100
+              )
               const files = fileList.matches
               for (const file of files) {
                 await account.server.deleteFile(file.metadata.metadata.id)
@@ -3991,16 +4010,17 @@ describe('Floccus', function() {
             }
           })
           afterEach('clean up accounts', async function() {
+            DUMP_LOGS(this.currentTest)
             if (ACCOUNT_DATA.type === 'git') {
               await account1.server.clearServer()
             } else if (ACCOUNT_DATA.type !== 'fake') {
               await account1.setData({
-                serverRoot: null
+                serverRoot: null,
               })
               account1.lockTimeout = 0
-              await withSyncConnection(account1, async() => {
+              await withSyncConnection(account1, async () => {
                 const tree = await account1.server.getBookmarksTree(true)
-                await AsyncParallel.each(tree.children, async child => {
+                await AsyncParallel.each(tree.children, async (child) => {
                   if (child instanceof Folder) {
                     await account1.server.removeFolder(child)
                   } else {
@@ -4010,17 +4030,24 @@ describe('Floccus', function() {
               })
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
-              const fileList = await account1.server.listFiles('name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'")
+              const fileList = await account1.server.listFiles(
+                'name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'"
+              )
               const files = fileList.files
               for (const file of files) {
                 await account1.server.deleteFile(file.id)
               }
               if (files.length > 1) {
-                throw new Error('Google Drive sync left more than one file behind')
+                throw new Error(
+                  'Google Drive sync left more than one file behind'
+                )
               }
             }
             if (ACCOUNT_DATA.type === 'dropbox') {
-              const fileList = await account1.server.listFiles(ACCOUNT_DATA.bookmark_file, 100)
+              const fileList = await account1.server.listFiles(
+                ACCOUNT_DATA.bookmark_file,
+                100
+              )
               const files = fileList.matches
               for (const file of files) {
                 await account1.server.deleteFile(file.metadata.metadata.id)
@@ -5644,13 +5671,22 @@ describe('Floccus', function() {
             }
           })
           afterEach('clean up account', async function() {
+            DUMP_LOGS(this.currentTest)
             if (!account) return
             try {
               await awaitTabsUpdated()
               const tabs = await browser.tabs.query({
-                windowType: 'normal' // no devtools or panels or popups
+                windowType: 'normal', // no devtools or panels or popups
               })
-              await browser.tabs.remove(tabs.filter(tab => !tab.url.startsWith('chrome') && !tab.url.startsWith('moz')).map(tab => tab.id))
+              await browser.tabs.remove(
+                tabs
+                  .filter(
+                    (tab) =>
+                      !tab.url.startsWith('chrome') &&
+                      !tab.url.startsWith('moz')
+                  )
+                  .map((tab) => tab.id)
+              )
             } catch (e) {
               console.error(e)
             }
@@ -5661,8 +5697,8 @@ describe('Floccus', function() {
               await account.setData({ serverRoot: null })
               account.lockTimeout = 0
               const tree = await getAllBookmarks(account)
-              await withSyncConnection(account, async() => {
-                await AsyncParallel.each(tree.children, async child => {
+              await withSyncConnection(account, async () => {
+                await AsyncParallel.each(tree.children, async (child) => {
                   if (child instanceof Folder) {
                     await account.server.removeFolder(child)
                   } else {
@@ -5672,17 +5708,24 @@ describe('Floccus', function() {
               })
             }
             if (ACCOUNT_DATA.type === 'google-drive') {
-              const fileList = await account.server.listFiles('name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'")
+              const fileList = await account.server.listFiles(
+                'name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'"
+              )
               const files = fileList.files
               for (const file of files) {
                 await account.server.deleteFile(file.id)
               }
               if (files.length > 1) {
-                throw new Error('Google Drive sync left more than one file behind')
+                throw new Error(
+                  'Google Drive sync left more than one file behind'
+                )
               }
             }
             if (ACCOUNT_DATA.type === 'dropbox') {
-              const fileList = await account.server.listFiles(ACCOUNT_DATA.bookmark_file, 100)
+              const fileList = await account.server.listFiles(
+                ACCOUNT_DATA.bookmark_file,
+                100
+              )
               const files = fileList.matches
               for (const file of files) {
                 await account.server.deleteFile(file.metadata.metadata.id)
@@ -6046,6 +6089,7 @@ describe('Floccus', function() {
             }
           })
           afterEach('clean up account', async function() {
+            DUMP_LOGS(this.currentTest)
             if (!account) return
             try {
               await awaitTabsUpdated()
@@ -7139,16 +7183,17 @@ describe('Floccus', function() {
         afterEach('clean up accounts', async function() {
           RUN_INTERRUPTS = false
           stopInterrupts()
+          DUMP_LOGS(this.currentTest)
           if (ACCOUNT_DATA.type === 'git') {
             await account1.server.clearServer()
           } else if (ACCOUNT_DATA.type !== 'fake') {
             await account1.setData({
-              serverRoot: null
+              serverRoot: null,
             })
             account1.lockTimeout = 0
             const tree = await getAllBookmarks(account1)
-            await withSyncConnection(account1, async() => {
-              await AsyncParallel.each(tree.children, async child => {
+            await withSyncConnection(account1, async () => {
+              await AsyncParallel.each(tree.children, async (child) => {
                 if (child instanceof Folder) {
                   await account1.server.removeFolder(child)
                 } else {
@@ -7158,13 +7203,17 @@ describe('Floccus', function() {
             })
           }
           if (ACCOUNT_DATA.type === 'google-drive') {
-            const fileList = await account1.server.listFiles('name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'")
+            const fileList = await account1.server.listFiles(
+              'name = ' + "'" + ACCOUNT_DATA.bookmark_file + "'"
+            )
             const files = fileList.files
             for (const file of files) {
               await account1.server.deleteFile(file.id)
             }
             if (files.length > 1) {
-              throw new Error('Google Drive sync left more than one file behind')
+              throw new Error(
+                'Google Drive sync left more than one file behind'
+              )
             }
           }
           if (ACCOUNT_DATA.type === 'dropbox') {
