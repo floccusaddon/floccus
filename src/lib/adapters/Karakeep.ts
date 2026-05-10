@@ -149,7 +149,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       `/api/v1/lists/${bookmark.parentId}/bookmarks/${response.id}`,
       'application/json',
       undefined,
-      false,
+      true,
       bookmark
     )
     return `${response.id};${bookmark.parentId}`
@@ -177,7 +177,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
           `/api/v1/lists/${oldParentId}/bookmarks/${id}`,
           'application/json',
           undefined,
-          false,
+          true,
           bookmark
         ),
         this.sendRequest(
@@ -185,7 +185,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
           `/api/v1/lists/${bookmark.parentId}/bookmarks/${id}`,
           'application/json',
           undefined,
-          false,
+          true,
           bookmark
         ),
       ])
@@ -204,7 +204,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       `/api/v1/lists/${parentId}/bookmarks/${id}`,
       'application/json',
       undefined,
-      false,
+      true,
       bookmark
     )
 
@@ -216,7 +216,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
         `/api/v1/bookmarks/${id}`,
         'application/json',
         undefined,
-        false,
+        true,
         bookmark
       )
     }
@@ -323,7 +323,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       `/api/v1/lists/${folder.id}`,
       'application/json',
       undefined,
-      false,
+      true,
       folder
     )
   }
