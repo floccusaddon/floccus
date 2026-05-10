@@ -282,13 +282,15 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       await Promise.all(
         bookmarkIds.map((id) =>
           // create a dummy bookmark
-          this.removeBookmark(new Bookmark({
-            id: `${id};${folder.id}`,
-            parentId: folder.id,
-            url: '',
-            title: '',
-            location: ItemLocation.SERVER
-          }))
+          this.removeBookmark(
+            new Bookmark({
+              id: `${id};${folder.id}`,
+              parentId: folder.id,
+              url: 'about:blank',
+              title: '',
+              location: ItemLocation.SERVER,
+            })
+          )
         )
       )
     }
