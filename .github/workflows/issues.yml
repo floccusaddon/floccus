@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Assign to One Project
     steps:
-      - name: Assign new issues and pull requests to project 1 Backlog
-        uses: srggrs/assign-one-project-github-action@1.2.0
+      - name: Assign new issues and pull requests to project
+        uses: actions/add-to-project@v2
         with:
-          project: 'https://github.com/floccusaddon/floccus/projects/1'
-          column_name: 'Backlog'
+          project-url: https://github.com/orgs/floccusaddon/projects/1
+          github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
 
   first_comment:
     runs-on: ubuntu-latest
