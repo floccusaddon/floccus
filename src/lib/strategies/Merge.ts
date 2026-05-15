@@ -1,4 +1,4 @@
-import { Folder, ItemLocation, TItem, TItemLocation, TOppositeLocation } from '../Tree'
+import { Folder, ItemLocation, TItemLocation, TOppositeLocation } from '../Tree'
 import Diff, { CreateAction, MoveAction, PlanStage1 } from '../Diff'
 import Scanner, { ScanResult } from '../Scanner'
 import * as Parallel from 'async-parallel'
@@ -15,8 +15,8 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
     serverScanResult: ScanResult<typeof ItemLocation.SERVER, TItemLocation>
   }> {
     // If there's no cache, diff the two trees directly
-    const newMappings: TItem<TItemLocation>[][] = []
     const localScanner = new Scanner(
+      this.mappings,
       this.serverTreeRoot,
       this.localTreeRoot,
       (serverItem, localItem) => {
@@ -24,16 +24,17 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
           localItem.type === serverItem.type &&
           serverItem.canMergeWith(localItem)
         ) {
-          newMappings.push([localItem, serverItem])
           return true
         }
         return false
       },
       this.hashSettings,
       false,
-      false
+      false,
+      true
     )
     const serverScanner = new Scanner(
+      this.mappings,
       this.localTreeRoot,
       this.serverTreeRoot,
       (localItem, serverItem) => {
@@ -41,24 +42,17 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
           serverItem.type === localItem.type &&
           serverItem.canMergeWith(localItem)
         ) {
-          newMappings.push([localItem, serverItem])
           return true
         }
         return false
       },
       this.hashSettings,
       false,
-      false
+      false,
+      true
     )
     const localScanResult = await localScanner.run()
     const serverScanResult = await serverScanner.run()
-    await Parallel.map(
-      newMappings,
-      ([localItem, serverItem]) => {
-        return this.addMapping(this.server, localItem, serverItem.id)
-      },
-      1
-    )
 
     return { localScanResult, serverScanResult }
   }
@@ -119,7 +113,6 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
       REORDER: new Diff(),
     }
 
-    const findChainCacheForCreations = {}
     await Parallel.each(
       sourceScanResult.CREATE.getActions(),
       async(action) => {
@@ -134,8 +127,8 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
         )
         if (concurrentCreation) {
           // created on both the target and sourcely, try to reconcile
-          const newMappings = []
           const subScanner = new Scanner(
+            this.mappings,
             concurrentCreation.payload, // target tree
             action.payload, // source tree
             (oldItem, newItem) => {
@@ -144,7 +137,6 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
                 oldItem.canMergeWith(newItem)
               ) {
                 // if two items can be merged, we'll add mappings here directly
-                newMappings.push([oldItem, newItem.id])
                 return true
               }
               return false
@@ -153,19 +145,12 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
             false
           )
           const scanResult = await subScanner.run()
-          newMappings.push([concurrentCreation.payload, action.payload.id])
-          await Parallel.each(
-            newMappings,
-            async ([oldItem, newId]) => {
-              await this.addMapping(
-                action.payload.location === ItemLocation.LOCAL
-                  ? this.localTree
-                  : this.server,
-                oldItem,
-                newId
-              )
-            },
-            1
+          await this.addMapping(
+            action.payload.location === ItemLocation.LOCAL
+              ? this.localTree
+              : this.server,
+            concurrentCreation.payload,
+            action.payload.id
           )
 
           // SubScanner may reveal residual CREATE/REMOVE actions that we add to the plan here
@@ -320,7 +305,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
 
     await Parallel.each(
       sourceScanResult.UPDATE.getActions(),
-      async (action) => {
+      async(action) => {
         const concurrentUpdate = targetUpdates.find(
           (a) =>
             action.payload.type === a.payload.type &&
@@ -338,7 +323,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
 
     await Parallel.each(
       sourceScanResult.REORDER.getActions(),
-      async (action) => {
+      async(action) => {
         if (avoidTargetReorders[action.payload.id]) {
           return
         }

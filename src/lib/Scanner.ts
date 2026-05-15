@@ -4,6 +4,7 @@ import { Bookmark, Folder, ItemLocation, ItemType, TItem, TItemLocation } from '
 import Logger from './Logger'
 import { IHashSettings } from './interfaces/Resource'
 import { yieldToEventLoop } from './yieldToEventLoop'
+import Mappings from './Mappings'
 
 export interface ScanResult<L1 extends TItemLocation, L2 extends TItemLocation> {
   CREATE: Diff<L1, L2, CreateAction<L1, L2>>
@@ -14,23 +15,36 @@ export interface ScanResult<L1 extends TItemLocation, L2 extends TItemLocation> 
 }
 
 export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation> {
+  private mappings: Mappings
   private oldTree: TItem<L1>
   private newTree: TItem<L2>
   private mergeable: (i1: TItem<TItemLocation>, i2: TItem<TItemLocation>) => boolean
   private hashSettings: IHashSettings
   private checkHashes: boolean
   private hasCache: boolean
+  private createMappings: boolean
   private iterations = 0
 
   private result: ScanResult<L2, L1>
 
-  constructor(oldTree:TItem<L1>, newTree:TItem<L2>, mergeable:(i1:TItem<TItemLocation>, i2:TItem<TItemLocation>)=>boolean, hashSettings: IHashSettings, checkHashes = true, hasCache = true) {
+  constructor(
+    mappings: Mappings,
+    oldTree:TItem<L1>,
+    newTree:TItem<L2>,
+    mergeable:(i1:TItem<TItemLocation>, i2:TItem<TItemLocation>)=>boolean,
+    hashSettings: IHashSettings,
+    checkHashes = true,
+    hasCache = true,
+    createMappings = true,
+  ) {
+    this.mappings = mappings
     this.oldTree = oldTree
     this.newTree = newTree
     this.mergeable = mergeable
     this.hashSettings = hashSettings
     this.checkHashes = typeof checkHashes === 'undefined' ? true : checkHashes
     this.hasCache = hasCache
+    this.createMappings = createMappings
     this.result = {
       CREATE: new Diff(),
       UPDATE: new Diff(),
@@ -53,8 +67,14 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
   async diffItem(oldItem:TItem<L1>, newItem:TItem<L2>):Promise<void> {
     if (oldItem.type === 'folder' && newItem.type === 'folder') {
+      if (this.createMappings) {
+        await this.addMapping(oldItem, newItem)
+      }
       return this.diffFolder(oldItem, newItem)
     } else if (oldItem.type === 'bookmark' && newItem.type === 'bookmark') {
+      if (this.createMappings) {
+        await this.addMapping(oldItem, newItem)
+      }
       return this.diffBookmark(oldItem, newItem)
     } else {
       throw new Error('Mismatched diff items: ' + oldItem.type + ', ' + newItem.type)
@@ -182,7 +202,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
             this.mergeable(removedItem, createdItem) &&
             (removedItem.type !== 'folder' ||
               (!this.hasCache &&
-                removedItem.childrenSimilarity(createdItem) > 0.8))
+                removedItem.childrenSimilarity(createdItem) >= 0.8))
           ) {
             this.result.CREATE.retract(createAction)
             this.result.REMOVE.retract(removeAction)
@@ -243,6 +263,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
             reconciled = true
             if (oldItem.type === ItemType.FOLDER) {
               await this.diffItem(oldItem, createdItem)
+            } else if (this.createMappings) {
+              // Usually we let diffItem handle mapping creation but here we need to do it ourselves
+              await this.addMapping(oldItem, createdItem)
             }
           } else {
             const newItem = createdItem.findItemFilter(
@@ -275,6 +298,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
               reconciled = true
               if (removedItem.type === ItemType.FOLDER) {
                 await this.diffItem(removedItem, newItem)
+              } else if (this.createMappings) {
+                // Usually we let diffItem handle mapping creation but here we need to do it ourselves
+                await this.addMapping(removedItem, newItem)
               }
             }
           }
@@ -290,6 +316,30 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         this.result.UPDATE.retract(update)
       }
     })
+  }
+
+  async addMapping(oldItem: TItem<L1>, newItem: TItem<L2>): Promise<void> {
+    let localId, remoteId
+    if (
+      newItem.location === ItemLocation.SERVER &&
+      oldItem.location === ItemLocation.LOCAL
+    ) {
+      localId = oldItem.id
+      remoteId = newItem.id
+    } else if (
+      oldItem.location === ItemLocation.SERVER &&
+      newItem.location === ItemLocation.LOCAL
+    ) {
+      localId = newItem.id
+      remoteId = oldItem.id
+    } else {
+      return
+    }
+    if (newItem.type === 'folder') {
+      await this.mappings.addFolder({ localId, remoteId })
+    } else {
+      await this.mappings.addBookmark({ localId, remoteId })
+    }
   }
 
   async addReorders(): Promise<void> {

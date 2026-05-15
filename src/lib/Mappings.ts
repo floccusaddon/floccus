@@ -48,6 +48,7 @@ export default class Mappings {
   }
 
   async addFolder({ localId, remoteId }: { localId?:string|number, remoteId?:string|number }):Promise<void> {
+    Mappings.remove(this.folders, { localId, remoteId })
     Mappings.add(this.folders, { localId, remoteId })
   }
 
@@ -56,6 +57,7 @@ export default class Mappings {
   }
 
   async addBookmark({ localId, remoteId }: { localId?:string|number, remoteId?:string|number }):Promise<void> {
+    Mappings.remove(this.bookmarks, { localId, remoteId })
     Mappings.add(this.bookmarks, { localId, remoteId })
   }
 

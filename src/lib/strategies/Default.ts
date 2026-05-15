@@ -626,12 +626,11 @@ export default class SyncProcess {
   async getDiffs():Promise<{localScanResult:ScanResult<typeof ItemLocation.LOCAL, TItemLocation>, serverScanResult:ScanResult<typeof ItemLocation.SERVER, TItemLocation>}> {
     const mappingsSnapshot = this.mappings.getSnapshot()
 
-    const newMappings = []
-
     const isUsingTabs = await this.localTree.isUsingBrowserTabs?.()
 
     // Since we have the cache available, Diff cache and both trees..
     const localScanner = new Scanner(
+      this.mappings,
       this.cacheTreeRoot,
       this.localTreeRoot,
       (oldItem, newItem) => {
@@ -656,8 +655,11 @@ export default class SyncProcess {
         return false
       },
       this.hashSettings,
+      true,
+      false,
     )
     const serverScanner = new Scanner(
+      this.mappings,
       this.cacheTreeRoot,
       this.serverTreeRoot,
       (oldItem, newItem) => {
@@ -671,30 +673,28 @@ export default class SyncProcess {
 
         // The two are mappable, no-brainer...
         if (Mappings.mappable(mappingsSnapshot, oldItem, newItem)) {
-          newMappings.push([oldItem, newItem])
           return true
         }
 
         //  We also allow canMergeWith here for bookmarks, because e.g. for NextcloudFolders the id of moved bookmarks changes (because their id is "<bookmarkID>;<folderId>")
         if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.canMergeWith(newItem)) {
-          newMappings.push([oldItem, newItem])
           return true
         }
 
         // We also allow canMergeWith here for folders, if we're dealing with tabs, because Window IDs are not stable
         if (isUsingTabs && oldItem.type === 'folder' && newItem.type === 'folder' && oldItem.canMergeWith(newItem)) {
-          newMappings.push([oldItem, newItem])
           return true
         }
 
         return false
       },
       this.hashSettings,
+      true,
+      true,
     )
     Logger.log('Calculating diffs for local and server trees relative to cache tree')
     const localScanResult = await localScanner.run()
     const serverScanResult = await serverScanner.run()
-    await Parallel.map(newMappings, ([localItem, serverItem]) => this.addMapping(this.server, localItem, serverItem.id), 1)
     return {localScanResult, serverScanResult}
   }
 
@@ -765,26 +765,32 @@ export default class SyncProcess {
       ))
       if (concurrentCreation) {
         // created on both the target and sourcely, try to reconcile
-        const newMappings = []
         const subScanner = new Scanner(
+          this.mappings,
           concurrentCreation.payload, // target tree
           action.payload, // source tree
           (oldItem, newItem) => {
-            if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
-              // if two items can be merged, we'll add mappings here directly
-              newMappings.push([oldItem, newItem.id])
+            if (
+              oldItem.type === newItem.type &&
+              oldItem.canMergeWith(newItem)
+            ) {
               return true
             }
             return false
           },
           this.hashSettings,
-          false
+          false,
+          true,
+          true,
         )
         const scanResult = await subScanner.run()
-        newMappings.push([concurrentCreation.payload, action.payload.id])
-        await Parallel.each(newMappings, async([oldItem, newId]) => {
-          await this.addMapping(action.payload.location === ItemLocation.LOCAL ? this.localTree : this.server, oldItem, newId)
-        },1)
+        await this.addMapping(
+          action.payload.location === ItemLocation.LOCAL
+            ? this.localTree
+            : this.server,
+          concurrentCreation.payload,
+          action.payload.id
+        )
 
         // SubScanner may reveal residual CREATE/REMOVE actions that we add to the plan here
         // We do not act on REMOVEs, only on CREATEs as we merge the two sides
@@ -1098,25 +1104,25 @@ export default class SyncProcess {
           // Try bulk import with sub folders
           const imported = await resource.bulkImportFolder(id, action.oldItem.copyWithLocation(false, action.payload.location)) as Folder<typeof targetLocation>
           await done()
-          const newMappings = []
           const subScanner = new Scanner(
+            this.mappings,
             action.oldItem,
             imported,
             (oldItem, newItem) => {
-              if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
-                // if two items can be merged, we'll add mappings here directly
-                newMappings.push([oldItem, newItem.id])
+              if (
+                oldItem.type === newItem.type &&
+                oldItem.canMergeWith(newItem)
+              ) {
                 return true
               }
               return false
             },
             this.hashSettings,
             false,
+            true,
+            true,
           )
           await subScanner.run()
-          await Parallel.each(newMappings, async([oldItem, newId]: [TItem<TItemLocation>, string|number]) => {
-            await this.addMapping(resource, oldItem, newId)
-          }, 10)
 
           if ('orderFolder' in resource) {
             const mappingsSnapshot = this.mappings.getSnapshot()
@@ -1157,25 +1163,26 @@ export default class SyncProcess {
             Logger.log('Attempting chunked bulk import')
             tempItem.children = bookmarks.splice(0, 70)
             const imported = await resource.bulkImportFolder(action.payload.id, tempItem)
-            const newMappings = []
             const subScanner = new Scanner(
+              this.mappings,
               tempItem,
               imported,
               (oldItem, newItem) => {
-                if (oldItem.type === newItem.type && oldItem.canMergeWith(newItem)) {
+                if (
+                  oldItem.type === newItem.type &&
+                  oldItem.canMergeWith(newItem)
+                ) {
                   // if two items can be merged, we'll add mappings here directly
-                  newMappings.push([oldItem, newItem.id])
                   return true
                 }
                 return false
               },
               this.hashSettings,
               false,
+              true,
+              true,
             )
             await subScanner.run()
-            await Parallel.each(newMappings, async([oldItem, newId]: [TItem<TItemLocation>, string|number]) => {
-              await this.addMapping(resource, oldItem, newId)
-            }, 10)
           }
 
           // create sub plan for the folders
