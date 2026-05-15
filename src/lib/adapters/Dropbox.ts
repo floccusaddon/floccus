@@ -24,7 +24,6 @@ declare const IS_BROWSER: boolean
 
 const scopes = [
   'files.content.write', // upload, create files
-  'sharing.read', // get account details like email and display name
   'files.content.read', // download files
   'files.metadata.write', // get and set custom properties (property_groups) like locked and templates for users
   'account_info.read' // View basic information about your Dropbox account such as your username, email, and country
@@ -95,15 +94,12 @@ export default class DropboxAdapter extends CachingAdapter {
 
       // User details from Dropbox should be made using a POST request
       // Capacitor OAuth plugin supports only GET so handling details request separately
-      const res = await fetch(apiBaseUrl + '/users/get_account', {
+      const res = await fetch(apiBaseUrl + '/users/get_current_account', {
         method: 'POST',
         headers: {
           Authorization: 'Bearer ' + result.access_token_response.access_token,
           'Content-Type': 'application/json'
-        },
-        body: Capacitor.getPlatform() === 'ios'
-          ? JSON.stringify({account_id: result.access_token_response.account_id})
-          : JSON.stringify({account_id: result.access_token_response.additionalParameters.account_id})
+        }
       })
 
       if (res.status !== 200) {
@@ -185,13 +181,12 @@ export default class DropboxAdapter extends CachingAdapter {
         throw new DropboxOAuthTokenError()
       }
 
-      const res = await fetch(apiBaseUrl + '/users/get_account', {
+      const res = await fetch(apiBaseUrl + '/users/get_current_account', {
         method: 'POST',
         headers: {
           Authorization: 'Bearer ' + json.access_token,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({account_id: json.account_id})
       })
 
       if (res.status !== 200) {
