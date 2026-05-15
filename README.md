@@ -35,7 +35,7 @@ If you need help, talk to us via matrix ([`#floccus:matrix.org`](https://matrix.
 
 ### Troubleshooting
 
-- **Emojis**: MySQL doesn't support emojis out of the box, so if you're syncing to nextcloud and getting Error code 500 from nextcloud, check the nextcloud log for SQL errors and [proceed as explained in the nextcloud docs if you get charset errors](https://docs.nextcloud.com/server/stable/admin_manual/configuration_database/mysql_4byte_support.html).
+- **Emojis**: MySQL and MariaDB don't support emojis out of the box, so if you're syncing to nextcloud and getting Error code 500 from nextcloud, check the nextcloud log for SQL errors and [proceed as explained in the nextcloud docs if you get charset errors](https://docs.nextcloud.com/server/stable/admin_manual/configuration_database/mysql_4byte_support.html).
 
 If you need help sorting out problems, try the gitter chat room: <https://gitter.im/marcelklehr/floccus>
 
