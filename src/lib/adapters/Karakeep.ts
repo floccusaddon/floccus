@@ -1,5 +1,5 @@
 import Adapter from '../interfaces/Adapter'
-import { Bookmark, Folder, ItemLocation } from '../Tree'
+import { Bookmark, Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
 import PQueue from 'p-queue'
 import { ICapabilities, IHashSettings, IResource } from '../interfaces/Resource'
 import Logger from '../Logger'
@@ -118,12 +118,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
     }
   }
 
-  async createBookmark(bookmark: {
-    id: string | number
-    url: string
-    title: string
-    parentId: string | number
-  }): Promise<string | number> {
+  async createBookmark(bookmark: Bookmark<TItemLocation>): Promise<string | number> {
     Logger.log('(karakeep)CREATE', { bookmark })
     const response = await this.sendRequest(
       'POST',
@@ -133,7 +128,9 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
         type: 'link',
         url: bookmark.url,
         title: bookmark.title,
-      }
+      },
+      false,
+      bookmark
     )
     if (response.alreadyExists) {
       await this.sendRequest(
@@ -142,7 +139,9 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
         'application/json',
         {
           title: bookmark.title,
-        }
+        },
+        false,
+        bookmark
       )
     }
     await this.sendRequest(
@@ -150,17 +149,13 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       `/api/v1/lists/${bookmark.parentId}/bookmarks/${response.id}`,
       'application/json',
       undefined,
-      /* returnRawResponse */ true
+      true,
+      bookmark
     )
     return `${response.id};${bookmark.parentId}`
   }
 
-  async updateBookmark(bookmark: {
-    id: string | number
-    url: string
-    title: string
-    parentId: string | number
-  }): Promise<void> {
+  async updateBookmark(bookmark: Bookmark<TItemLocation>): Promise<void> {
     Logger.log('(karakeep)UPDATE', { bookmark })
     const [id, oldParentId] = this.parseBookmarkId(bookmark.id)
     await this.sendRequest(
@@ -170,7 +165,9 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       {
         url: bookmark.url,
         title: bookmark.title,
-      }
+      },
+      false,
+      bookmark
     )
 
     if (oldParentId !== bookmark.parentId) {
@@ -180,55 +177,61 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
           `/api/v1/lists/${oldParentId}/bookmarks/${id}`,
           'application/json',
           undefined,
-          /* returnRawResponse */ true
+          true,
+          bookmark
         ),
         this.sendRequest(
           'PUT',
           `/api/v1/lists/${bookmark.parentId}/bookmarks/${id}`,
           'application/json',
           undefined,
-          /* returnRawResponse */ true
+          true,
+          bookmark
         ),
       ])
     }
     bookmark.id = `${id};${bookmark.parentId}`
   }
 
-  async removeBookmark(bookmark: {
-    id: string | number
-    parentId: string | number
-  }): Promise<void> {
+  async removeBookmark(bookmark: Bookmark<TItemLocation>): Promise<void> {
     Logger.log('(karakeep)DELETE', { bookmark })
 
     const [id, parentId] = this.parseBookmarkId(bookmark.id)
 
-    // Remove the bookmark from the list
-    await this.sendRequest(
-      'DELETE',
-      `/api/v1/lists/${parentId}/bookmarks/${id}`,
-      'application/json',
-      undefined,
-      /* returnRawResponse */ true
-    )
-
-    // If the bookmark is not in any list, delete it from the server
-    const bookmarkLists = await this.getListsOfBookmark(id)
-    if (bookmarkLists.size === 0) {
+    try {
+      // Remove the bookmark from the list
       await this.sendRequest(
         'DELETE',
-        `/api/v1/bookmarks/${id}`,
+        `/api/v1/lists/${parentId}/bookmarks/${id}`,
         'application/json',
         undefined,
-        /* returnRawResponse */ true
+        true,
+        bookmark
       )
+
+      // If the bookmark is not in any list, delete it from the server
+      const bookmarkLists = await this.getListsOfBookmark(id)
+      if (bookmarkLists.size === 0) {
+        await this.sendRequest(
+          'DELETE',
+          `/api/v1/bookmarks/${id}`,
+          'application/json',
+          undefined,
+          true,
+          bookmark
+        )
+      }
+    } catch (e) {
+      if (e instanceof HttpError) {
+        if (e.status === 404) {
+          return
+        }
+      }
+      throw e
     }
   }
 
-  async createFolder(folder: {
-    id: string | number
-    title?: string
-    parentId: string | number
-  }): Promise<string | number> {
+  async createFolder(folder: Folder<TItemLocation>): Promise<string | number> {
     Logger.log('(karakeep)CREATEFOLDER', { folder })
     const response = await this.sendRequest(
       'POST',
@@ -239,16 +242,14 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
         icon: '📔',
         type: 'manual',
         parentId: folder.parentId,
-      }
+      },
+      false,
+      folder
     )
     return response.id
   }
 
-  async updateFolder(folder: {
-    id: string | number
-    title?: string
-    parentId: string | number
-  }): Promise<void> {
+  async updateFolder(folder: Folder<TItemLocation>): Promise<void> {
     Logger.log('(karakeep)UPDATEFOLDER', { folder })
     await this.sendRequest(
       'PATCH',
@@ -257,14 +258,16 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       {
         name: folder.title,
         parentId: folder.parentId,
-      }
+      },
+      false,
+      folder
     )
   }
 
   /**
    * Removes the list from karakeep, but also all its content recursively
    */
-  async removeFolder(folder: { id: string | number }): Promise<void> {
+  async removeFolder(folder: Folder<TItemLocation>): Promise<void> {
     Logger.log('(karakeep)DELETEFOLDER', { folder })
 
     const deleteListContent = async() => {
@@ -276,17 +279,27 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
           'GET',
           `/api/v1/lists/${folder.id}/bookmarks?includeContent=false&${
             nextCursor ? 'cursor=' + nextCursor : ''
-          }`
+          }`,
+          undefined,
+          undefined,
+          false,
+          folder
         )
         nextCursor = response.nextCursor
         bookmarkIds.push(...response.bookmarks.map((b) => b.id))
       } while (nextCursor !== null)
       await Promise.all(
         bookmarkIds.map((id) =>
-          this.removeBookmark({
-            id: `${id};${folder.id}`,
-            parentId: folder.id,
-          })
+          // create a dummy bookmark
+          this.removeBookmark(
+            new Bookmark({
+              id: `${id};${folder.id}`,
+              parentId: folder.id,
+              url: 'about:blank',
+              title: '',
+              location: ItemLocation.SERVER,
+            })
+          )
         )
       )
     }
@@ -300,9 +313,13 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
 
       await Promise.all(
         childrenListIds.map((listId) =>
-          this.removeFolder({
+          // create dummy folder
+          this.removeFolder(new Folder({
             id: listId,
-          })
+            parentId: folder.id,
+            title: '',
+            location: ItemLocation.SERVER,
+          }))
         )
       )
     }
@@ -310,13 +327,23 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
     await Promise.all([deleteListContent(), deleteListFolders()])
 
     // Delete the list itself "after" deleting all its content in case any failure occurs in the previous steps
-    await this.sendRequest(
-      'DELETE',
-      `/api/v1/lists/${folder.id}`,
-      'application/json',
-      undefined,
-      /* returnRawResponse */ true
-    )
+    try {
+      await this.sendRequest(
+        'DELETE',
+        `/api/v1/lists/${folder.id}`,
+        'application/json',
+        undefined,
+        true,
+        folder
+      )
+    } catch (e) {
+      if (e instanceof HttpError) {
+        if (e.status === 404) {
+          return
+        }
+      }
+      throw e
+    }
   }
 
   async getBookmarksTree(
@@ -428,7 +455,8 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
     relUrl: string,
     type: string = null,
     body: any = null,
-    returnRawResponse = false
+    returnRawResponse = false,
+    item: TItem<TItemLocation> = null
   ): Promise<any> {
     const url = this.server.url + relUrl
     let res
@@ -447,7 +475,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
     Logger.log(`QUEUING ${verb} ${url}`)
 
     if (!IS_BROWSER) {
-      return this.sendRequestNative(verb, url, type, body, returnRawResponse)
+      return this.sendRequestNative(verb, url, type, body, returnRawResponse, item)
     }
 
     try {
@@ -487,16 +515,21 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       throw new RedirectError()
     }
 
-    if (returnRawResponse) {
-      return res
-    }
-
     if (res.status === 403) {
       throw new AuthenticationError()
     }
     if (res.status === 503 || res.status >= 400) {
-      throw new HttpError(res.status, verb)
+      Logger.log(
+        `${verb} ${url}: Server responded with ${res.status}: ` +
+          (await res.text()).substring(0, 250)
+      )
+      throw new HttpError(res.status, verb, item)
     }
+
+    if (returnRawResponse) {
+      return res
+    }
+
     let json
     try {
       json = await res.json()
@@ -512,7 +545,8 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
     url: string,
     type: string,
     body: any,
-    returnRawResponse: boolean
+    returnRawResponse: boolean,
+    item: TItem<TItemLocation> = null
   ) {
     let res
     let timedOut = false
@@ -561,7 +595,18 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       throw new AuthenticationError()
     }
     if (res.status === 503 || res.status >= 400) {
-      throw new HttpError(res.status, verb)
+      let responseData: string
+      try {
+        responseData =
+          typeof res.data === 'string' ? res.data : JSON.stringify(res.data)
+      } catch (e) {
+        responseData = String(res.data)
+      }
+      Logger.log(
+        `${verb} ${url}: Server responded with ${res.status}: ` +
+          responseData.substring(0, 250)
+      )
+      throw new HttpError(res.status, verb, item)
     }
     const json = res.data
 

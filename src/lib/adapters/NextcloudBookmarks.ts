@@ -3,7 +3,7 @@ import { CapacitorHttp as Http } from '@capacitor/core'
 import Adapter from '../interfaces/Adapter'
 import HtmlSerializer from '../serializers/Html'
 import Logger from '../Logger'
-import { Bookmark, Folder, ItemLocation, TItem } from '../Tree'
+import { Bookmark, Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
 import { Base64 } from 'js-base64'
 import AsyncLock from 'async-lock'
 import * as Parallel from 'async-parallel'
@@ -430,7 +430,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       'POST',
       'index.php/apps/bookmarks/public/rest/v2/folder',
       'application/json',
-      body
+      body,
+      undefined,
+      undefined,
+      folder,
     )
     if (typeof json.item !== 'object') {
       throw new UnexpectedServerResponseError()
@@ -475,7 +478,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         'POST',
         `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/import`,
         'multipart/form-data',
-        body
+        body,
+        undefined,
+        undefined,
+        folder
       )
     })
 
@@ -528,7 +534,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       'PUT',
       `index.php/apps/bookmarks/public/rest/v2/folder/${id}`,
       'application/json',
-      body
+      body,
+      undefined,
+      undefined,
+      folder
     )
     const oldParentFolder = this.tree.findFolder(oldFolder.parentId)
     if (!oldParentFolder) {
@@ -573,7 +582,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
     await this.sendRequest(
       'DELETE',
-      `index.php/apps/bookmarks/public/rest/v2/folder/${id}`
+      `index.php/apps/bookmarks/public/rest/v2/folder/${id}`,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      folder,
     )
     const parent = this.tree.findFolder(oldFolder.parentId)
     if (parent) {
@@ -679,7 +693,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             'POST',
             'index.php/apps/bookmarks/public/rest/v2/bookmark',
             'application/json',
-            body
+            body,
+            undefined,
+            undefined,
+            bm
           )
         } catch (e) {
           if (e instanceof HttpError) {
@@ -740,7 +757,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           'PUT',
           `index.php/apps/bookmarks/public/rest/v2/bookmark/${upstreamId}`,
           'application/json',
-          body
+          body,
+          undefined,
+          undefined,
+          newBm,
         )
       } catch (e) {
         if (e instanceof HttpError) {
@@ -780,7 +800,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       try {
         await this.sendRequest(
           'DELETE',
-          `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/bookmarks/${upstreamId}`
+          `index.php/apps/bookmarks/public/rest/v2/folder/${parentId}/bookmarks/${upstreamId}`,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          bookmark,
         )
         // remove bookmark from the cached list
         const list = await this.getBookmarksList()
@@ -851,7 +876,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return json.ocs.data
   }
 
-  async sendRequest(verb:string, relUrl:string, type:string = null, originalBody:any = null, returnRawResponse = false, headers = {}):Promise<any> {
+  async sendRequest(verb:string, relUrl:string, type:string = null, originalBody:any = null, returnRawResponse = false, headers = {}, item: TItem<TItemLocation> = null):Promise<any> {
     const url = this.normalizeServerURL(this.server.url) + relUrl
     let res
     let timedOut = false
@@ -870,7 +895,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     Logger.log(`QUEUING ${verb} ${url}`)
 
     if (!IS_BROWSER) {
-      return this.sendRequestNative(verb, url, type, body, returnRawResponse, headers)
+      return this.sendRequestNative(verb, url, type, body, returnRawResponse, headers, item)
     }
 
     const authString = !this.ticket || this.ticketTimestamp + 60 * 60 * 1000 < Date.now()
@@ -920,7 +945,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     if ((res.status === 401 || res.status === 403 || res.status === 404) && authString.startsWith('Bearer')) {
       this.ticket = null
       this.ticketTimestamp = 0
-      return this.sendRequest(verb, relUrl, type, originalBody, returnRawResponse, headers)
+      return this.sendRequest(verb, relUrl, type, originalBody, returnRawResponse, headers, item)
     }
 
     if (returnRawResponse) {
@@ -932,7 +957,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
     if (res.status === 503 || res.status >= 400) {
       Logger.log(`${verb} ${url}: Server responded with ${res.status}: ` + (await res.text()).substring(0, 250))
-      throw new HttpError(res.status, verb)
+      throw new HttpError(res.status, verb, item)
     }
     let json
     try {
@@ -992,7 +1017,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return res.status === 200
   }
 
-  private async sendRequestNative(verb: string, url: string, type: string, body: any, returnRawResponse: boolean, headers = {}) {
+  private async sendRequestNative(verb: string, url: string, type: string, body: any, returnRawResponse: boolean, headers = {}, item: TItem<TItemLocation> = null) {
     let res
     let timedOut = false
     const authString = !this.ticket || this.ticketTimestamp + 60 * 60 * 1000 < Date.now()
@@ -1037,7 +1062,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     if ((res.status === 401 || res.status === 403 || res.status === 404) && authString.startsWith('Bearer')) {
       this.ticket = null
       this.ticketTimestamp = 0
-      return this.sendRequestNative(verb, url, type, body, returnRawResponse, headers)
+      return this.sendRequestNative(verb, url, type, body, returnRawResponse, headers, item)
     }
 
     if (returnRawResponse) {
@@ -1052,7 +1077,17 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       throw new AuthenticationError()
     }
     if (res.status === 503 || res.status >= 400) {
-      throw new HttpError(res.status, verb)
+      let responseData: string
+      try {
+        responseData = typeof res.data === 'string' ? res.data : JSON.stringify(res.data)
+      } catch (e) {
+        responseData = String(res.data)
+      }
+      Logger.log(
+        `${verb} ${url}: Server responded with ${res.status}: ` +
+          responseData.substring(0, 250)
+      )
+      throw new HttpError(res.status, verb, item)
     }
     const json = res.data
     if (json.status !== 'success') {

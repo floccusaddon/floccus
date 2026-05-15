@@ -1,13 +1,14 @@
 <template>
-  <v-alert v-if="!isBrowserSupported" type="error">
+  <v-alert
+    v-if="!isBrowserSupported"
+    type="error">
     {{ 'This browser or WebView is not supported' }}
   </v-alert>
   <v-progress-circular
     v-else
     indeterminate
     color="blue darken-1"
-    class="ma-auto"
-  />
+    class="ma-auto" />
 </template>
 
 <script>
