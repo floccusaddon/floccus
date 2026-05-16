@@ -84,6 +84,10 @@ export default class WebDavAdapter extends CachingAdapter {
     return this.getBookmarkURL() + '.lock'
   }
 
+  getBookmarkTempURL() {
+    return this.getBookmarkURL() + '.temp'
+  }
+
   async checkLock() {
     const fullURL = this.getBookmarkLockURL()
     Logger.log(fullURL)
@@ -160,37 +164,11 @@ export default class WebDavAdapter extends CachingAdapter {
 
     const fullUrl = this.getBookmarkLockURL()
 
-    const authString = Base64.encode(
-      this.server.username + ':' + this.server.password
-    )
-
     let res, lockFreed, i = 0
     try {
       do {
         Logger.log('Freeing lock: ' + fullUrl)
-        if (IS_BROWSER) {
-          res = await fetch(fullUrl, {
-            method: 'DELETE',
-            credentials: this.server.includeCredentials ? 'include' : 'omit',
-            headers: {
-              Authorization: 'Basic ' + authString
-            },
-            signal: this.abortSignal,
-            ...(!this.server.allowRedirects && {redirect: 'manual'}),
-          })
-        } else {
-          res = await Http.request({
-            url: fullUrl,
-            method: 'DELETE',
-            headers: {
-              Authorization: 'Basic ' + authString,
-            },
-            webFetchExtra: {
-              credentials: 'omit',
-            },
-            disableRedirects: !this.server.allowRedirects,
-          })
-        }
+        res = await this.deleteFile(fullUrl)
         lockFreed = res.status === 200 || res.status === 204 || res.status === 404
         if (!lockFreed) {
           await this.timeout(1000)
@@ -412,16 +390,20 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async uploadBookmarkFile(url, content_type, data) {
+    const tempUrl = this.getBookmarkTempURL()
     const expectedByteLength = this.getContentByteLength(data)
 
     for (let attempt = 0; attempt <= PUT_FILE_SIZE_RETRIES; attempt++) {
       try {
-        await this.uploadFile(url, content_type, data)
+        await this.uploadFile(tempUrl, content_type, data)
+        await this.verifyUploadedFileSize(tempUrl, expectedByteLength)
+        await this.moveFile(tempUrl, url)
         await this.verifyUploadedFileSize(url, expectedByteLength)
         return
       } catch (e) {
         const isLastAttempt = attempt === PUT_FILE_SIZE_RETRIES
         const shouldRetry = e instanceof FileSizeMismatch || e instanceof FileSizeUnknown
+        await this.deleteBookmarkTempFile(tempUrl)
         if (!shouldRetry || isLastAttempt) {
           throw e
         }
@@ -435,6 +417,37 @@ export default class WebDavAdapter extends CachingAdapter {
       return this.uploadFileWeb(url, content_type, data)
     } else {
       return this.uploadFileNative(url, content_type, data)
+    }
+  }
+
+  async deleteBookmarkFile(url) {
+    const res = await this.deleteFile(url)
+    if ((res.status < 200 || res.status >= 300) && res.status !== 404) {
+      throw new HttpError(res.status, 'DELETE')
+    }
+  }
+
+  async deleteBookmarkTempFile(url) {
+    try {
+      await this.deleteBookmarkFile(url)
+    } catch (e) {
+      Logger.log('Failed to clean up temporary bookmark file: ' + e.message)
+    }
+  }
+
+  async deleteFile(url) {
+    if (IS_BROWSER) {
+      return this.deleteFileWeb(url)
+    } else {
+      return this.deleteFileNative(url)
+    }
+  }
+
+  async moveFile(url, destinationUrl) {
+    if (IS_BROWSER) {
+      return this.moveFileWeb(url, destinationUrl)
+    } else {
+      return this.moveFileNative(url, destinationUrl)
     }
   }
 
@@ -504,6 +517,140 @@ export default class WebDavAdapter extends CachingAdapter {
     if (res.status >= 300) {
       throw new HttpError(res.status, 'PUT')
     }
+  }
+
+  async deleteFileWeb(url) {
+    const authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+    let res
+    try {
+      res = await fetch(url, {
+        method: 'DELETE',
+        credentials: this.server.includeCredentials ? 'include' : 'omit',
+        headers: {
+          Authorization: 'Basic ' + authString
+        },
+        signal: this.abortSignal,
+        ...(!this.server.allowRedirects && {redirect: 'manual'}),
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      if (this.abortSignal.aborted) throw new CancelledSyncError()
+      throw new NetworkError()
+    }
+    if (res.status === 0 && !this.server.allowRedirects) {
+      throw new RedirectError()
+    }
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    return res
+  }
+
+  async deleteFileNative(url) {
+    const authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+    let res
+    try {
+      res = await Http.request({
+        url,
+        method: 'DELETE',
+        headers: {
+          Authorization: 'Basic ' + authString,
+        },
+        webFetchExtra: {
+          credentials: 'omit',
+        },
+        disableRedirects: !this.server.allowRedirects,
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      throw new NetworkError()
+    }
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+
+    if (res.status < 400 && res.status >= 300) {
+      throw new RedirectError()
+    }
+
+    return res
+  }
+
+  async moveFileWeb(url, destinationUrl) {
+    const authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+    let res
+    try {
+      res = await fetch(url, {
+        method: 'MOVE',
+        credentials: this.server.includeCredentials ? 'include' : 'omit',
+        headers: {
+          Authorization: 'Basic ' + authString,
+          Destination: destinationUrl,
+          Overwrite: 'T',
+        },
+        signal: this.abortSignal,
+        ...(!this.server.allowRedirects && {redirect: 'manual'}),
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      if (this.abortSignal.aborted) throw new CancelledSyncError()
+      throw new NetworkError()
+    }
+    if (res.status === 0 && !this.server.allowRedirects) {
+      throw new RedirectError()
+    }
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+    if (res.status >= 300) {
+      throw new HttpError(res.status, 'MOVE')
+    }
+    return res
+  }
+
+  async moveFileNative(url, destinationUrl) {
+    const authString = Base64.encode(
+      this.server.username + ':' + this.server.password
+    )
+    let res
+    try {
+      res = await Http.request({
+        url,
+        method: 'MOVE',
+        headers: {
+          Authorization: 'Basic ' + authString,
+          Destination: destinationUrl,
+          Overwrite: 'T',
+        },
+        disableRedirects: !this.server.allowRedirects,
+      })
+    } catch (e) {
+      Logger.log('Error Caught')
+      Logger.log(e)
+      throw new NetworkError()
+    }
+    if (res.status === 401 || res.status === 403) {
+      throw new AuthenticationError()
+    }
+
+    if (res.status < 400 && res.status >= 300) {
+      throw new RedirectError()
+    }
+
+    if (res.status >= 300) {
+      throw new HttpError(res.status, 'MOVE')
+    }
+
+    return res
   }
 
   async downloadFile(url) {
