@@ -86,10 +86,7 @@ jobs:
           script: |
             adb install -r android/app/build/outputs/apk/debug/app-debug.apk
             appium --log-no-colors > appium.log 2>&1 &
-            until curl -sf http://127.0.0.1:4723/status > /dev/null; do
-              echo 'Waiting for Appium to start'
-              sleep 1
-            done
+            until curl -sf http://127.0.0.1:4723/status > /dev/null; do echo 'Waiting for Appium to start'; sleep 1; done
             npm run test:appium
 
       - name: Upload Appium log
