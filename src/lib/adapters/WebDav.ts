@@ -20,6 +20,7 @@ declare const IS_BROWSER: boolean
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
+const PUT_FILE_SIZE_RETRIES = 2
 export default class WebDavAdapter extends CachingAdapter {
   private lockingInterval: any
   private lockingPromise: Promise<any>
@@ -220,13 +221,7 @@ export default class WebDavAdapter extends CachingAdapter {
     if (response.status === 200) {
       let xmlDocText = response.data
       if (IS_BROWSER) {
-        let fileSize = null
-        try {
-          fileSize = await this.getFileSize(fullUrl)
-        } catch (e) {
-          console.warn(e)
-          Logger.log('Error getting file size: ' + e.message)
-        }
+        const fileSize = await this.getRemoteFileSizeOrNull(fullUrl)
 
         if (fileSize === null || Number.isNaN(fileSize)) {
           throw new FileSizeUnknown()
@@ -378,12 +373,61 @@ export default class WebDavAdapter extends CachingAdapter {
         const ciphertext = await Crypto.encryptAES(this.server.passphrase, xbel, salt)
         xbel = JSON.stringify({ciphertext, salt})
       }
-      await this.uploadFile(fullUrl, this.server.bookmark_file_type === 'xbel' ? 'application/xml' : 'text/html', xbel)
+      await this.uploadBookmarkFile(fullUrl, this.server.bookmark_file_type === 'xbel' ? 'application/xml' : 'text/html', xbel)
     } else {
       Logger.log('No changes to the server version necessary')
     }
 
     await this.freeLock()
+  }
+
+  async getRemoteFileSizeOrNull(url) {
+    try {
+      return await this.getFileSize(url)
+    } catch (e) {
+      if (e instanceof CancelledSyncError) {
+        throw e
+      }
+      console.warn(e)
+      Logger.log('Error getting file size: ' + e.message)
+      return null
+    }
+  }
+
+  getContentByteLength(data) {
+    return new TextEncoder().encode(data).length
+  }
+
+  async verifyUploadedFileSize(url, expectedByteLength) {
+    const fileSize = await this.getRemoteFileSizeOrNull(url)
+
+    if (fileSize === null || Number.isNaN(fileSize)) {
+      throw new FileSizeUnknown()
+    }
+
+    if (fileSize !== expectedByteLength) {
+      Logger.log('Uploaded file size mismatch: ' + fileSize + ' != ' + expectedByteLength)
+      throw new FileSizeMismatch()
+    }
+  }
+
+  async uploadBookmarkFile(url, content_type, data) {
+    const expectedByteLength = this.getContentByteLength(data)
+
+    for (let attempt = 0; attempt <= PUT_FILE_SIZE_RETRIES; attempt++) {
+      try {
+        await this.uploadFile(url, content_type, data)
+        await this.verifyUploadedFileSize(url, expectedByteLength)
+        return
+      } catch (e) {
+        const isLastAttempt = attempt === PUT_FILE_SIZE_RETRIES
+        const shouldRetry = e instanceof FileSizeMismatch || e instanceof FileSizeUnknown
+        if (!shouldRetry || isLastAttempt) {
+          throw e
+        }
+        Logger.log('Uploaded file size verification failed. Retrying upload (' + (attempt + 2) + '/' + (PUT_FILE_SIZE_RETRIES + 1) + ')')
+      }
+    }
   }
 
   async uploadFile(url, content_type, data) {
