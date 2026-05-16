@@ -10,6 +10,7 @@
     "watch": "NODE_OPTIONS=--max-old-space-size=4096 gulp watch",
     "watch-win": "SET NODE_OPTIONS=--max-old-space-size=4096 & gulp watch",
     "test": "node --unhandled-rejections=strict test/selenium-runner.js",
+    "test:appium": "node --unhandled-rejections=strict test/appium-runner.js",
     "lint": "eslint --ext .js,.vue src",
     "lint:fix": "eslint --ext .js,.vue src --fix",
     "typecheck": "tsc --noEmit",

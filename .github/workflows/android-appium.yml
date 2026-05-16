@@ -1,0 +1,97 @@
+name: Android Appium
+
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - master
+    paths:
+      - '.github/workflows/android-appium.yml'
+      - 'android/**'
+      - 'gulpfile.js'
+      - 'html/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/**'
+      - 'test/**'
+      - 'webpack*'
+
+concurrency:
+  group: floccus-android-appium-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  android-appium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+        java-version: [21]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Set up Java ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java-version }}
+          cache: gradle
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets and sync Capacitor
+        run: npm run build
+
+      - name: Build Android debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Install Appium and Android driver
+        run: |
+          npm install -g appium
+          appium driver install uiautomator2
+
+      - name: Run Android Appium smoke tests
+        uses: ReactiveCircus/android-emulator-runner@v2
+        env:
+          CI: true
+          FLOCCUS_TEST: '^(?=.*fake test root Account)(?=.*(should create local bookmarks on the server|should create empty local folders on the server|should update the server on local changes|should update the server on local removals)).*$'
+          FLOCCUS_TEST_SEED: ${{ github.sha }}
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_7
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+            appium --log-no-colors > appium.log 2>&1 &
+            until curl -sf http://127.0.0.1:4723/status > /dev/null; do
+              echo 'Waiting for Appium to start'
+              sleep 1
+            done
+            npm run test:appium
+
+      - name: Upload Appium log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-appium-log
+          path: appium.log
+          if-no-files-found: ignore
+          retention-days: 7
+
