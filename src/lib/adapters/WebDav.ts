@@ -359,6 +359,10 @@ export default class WebDavAdapter extends CachingAdapter {
     await this.freeLock()
   }
 
+  /**
+   * Gets the size of a remote file, returning null or NaN if it cannot be determined
+   * Likely won't work reliably on native because PROPFIND is not supported there
+   */
   async getRemoteFileSizeOrNull(url) {
     try {
       return await this.getFileSize(url)
@@ -377,6 +381,9 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async verifyUploadedFileSize(url, expectedByteLength) {
+    if (!IS_BROWSER) {
+      return
+    }
     const fileSize = await this.getRemoteFileSizeOrNull(url)
 
     if (fileSize === null || Number.isNaN(fileSize)) {
@@ -716,10 +723,9 @@ export default class WebDavAdapter extends CachingAdapter {
     try {
       res = await Http.request({
         url: url,
-        method: 'PROPFIND',
+        method: 'HEAD',
         headers: {
           Authorization: 'Basic ' + authString,
-          Depth: '0',
           Pragma: 'no-cache',
           'Cache-Control': 'no-cache',
         },
@@ -741,12 +747,11 @@ export default class WebDavAdapter extends CachingAdapter {
     }
 
     if (res.status >= 300 && res.status !== 404) {
-      throw new HttpError(res.status, 'PROPFIND')
+      throw new HttpError(res.status, 'HEAD')
     }
 
-    const xml = res.data
-    const match = xml.match(/<.*?:?getcontentlength[^>]*?>(.*?)</)
-    return match ? parseInt(match[1]) : null
+    const size = res.headers['Content-Length'] || res.headers['content-length']
+    return parseInt(size)
   }
 
   async downloadFileWeb(url) {
