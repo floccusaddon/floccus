@@ -1,5 +1,4 @@
 import util from 'util'
-import { createWebdriverAndHtmlReporter } from '../../test/reporter'
 import { installNativeBrowserApi } from './browser-api'
 
 function getAbsoluteAssetUrl(path) {
@@ -68,7 +67,7 @@ function installErrorBridge() {
 
   window.addEventListener('unhandledrejection', event => {
     const reason = event.reason
-    console.log(reason && (reason.stack || reason.message) || reason)
+    console.log((reason && (reason.stack || reason.message)) || reason)
   })
 }
 
@@ -96,6 +95,8 @@ export async function runNativeTests(routeQuery) {
     src: getAbsoluteAssetUrl('/js/mocha.js'),
     'data-native-test-asset': 'mocha.js',
   })
+
+  const { createWebdriverAndHtmlReporter } = await import('../../test/reporter')
 
   const params = new URL(window.location.href).searchParams
   mocha.setup('bdd')
