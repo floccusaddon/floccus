@@ -1,5 +1,4 @@
 import util from 'util'
-import { installNativeBrowserApi } from './browser-api'
 
 function getAbsoluteAssetUrl(path) {
   return window.location.origin + path
@@ -84,7 +83,6 @@ export async function runNativeTests(routeQuery) {
   }
 
   syncSearchParams(routeQuery)
-  installNativeBrowserApi()
 
   await loadAsset('link', {
     rel: 'stylesheet',
