@@ -1,9 +1,9 @@
 import Account from '../lib/Account'
 import { Bookmark, Folder, ItemLocation } from '../lib/Tree'
-import browser from '../lib/browser-api'
 import * as AsyncParallel from 'async-parallel'
 import Controller from '../lib/Controller'
 import {
+  clearLocalResource,
   DUMP_LOGS,
   expect,
   expectTreeEqual,
@@ -14,6 +14,8 @@ import {
 } from './utils'
 import random from 'random'
 import seedrandom from 'seedrandom'
+
+const browser = null
 
 describe('Floccus', function() {
   this.timeout(120000) // no test should run longer than 120s
@@ -63,11 +65,7 @@ describe('Floccus', function() {
           afterEach('clean up account', async function() {
             DUMP_LOGS(this.currentTest)
             if (!account) return
-            try {
-              await browser.bookmarks.removeTree(account.getData().localRoot)
-            } catch (e) {
-              console.error(e)
-            }
+            await clearLocalResource(account)
             if (ACCOUNT_DATA.type === 'git') {
               await account.server.clearServer()
             } else if (ACCOUNT_DATA.type !== 'fake') {
@@ -123,20 +121,17 @@ describe('Floccus', function() {
                 (await getAllBookmarks(account)).children
               ).to.have.lengthOf(0)
 
-              const localRoot = account.getData().localRoot
-              const fooFolder = await browser.bookmarks.create({
-                title: 'foo',
-                parentId: localRoot
-              })
-              const barFolder = await browser.bookmarks.create({
-                title: 'bar',
-                parentId: fooFolder.id
-              })
-              const bookmark = await browser.bookmarks.create({
-                title: 'url',
-                url: 'http://ur.l/',
-                parentId: barFolder.id
-              })
+              const localResource = await account.getResource()
+              const localRoot = (await localResource.getBookmarksTree()).id
+              let fooFolder
+              const fooFolderId = await localResource.createFolder(fooFolder = new Folder({
+                title: 'foo', parentId: localRoot}))
+              let barFolder
+              const barFolderId = await localResource.createFolder(barFolder = new Folder({
+                title: 'bar', parentId: fooFolderId}))
+              let bookmark
+              const bookmarkId = await localResource.createBookmark(bookmark = new Bookmark({
+                title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
               await account.sync()
               expect(account.getData().error).to.not.be.ok
 
@@ -170,20 +165,17 @@ describe('Floccus', function() {
                 (await getAllBookmarks(account)).children
               ).to.have.lengthOf(0)
 
-              const localRoot = account.getData().localRoot
-              const fooFolder = await browser.bookmarks.create({
-                title: 'foo',
-                parentId: localRoot
-              })
-              const barFolder = await browser.bookmarks.create({
-                title: 'bar',
-                parentId: fooFolder.id
-              })
-              const bookmark = await browser.bookmarks.create({
-                title: 'url',
-                url: 'http://ur.l/',
-                parentId: barFolder.id
-              })
+              const localResource = await account.getResource()
+              const localRoot = (await localResource.getBookmarksTree()).id
+              let fooFolder
+              const fooFolderId = await localResource.createFolder(fooFolder = new Folder({
+                title: 'foo', parentId: localRoot}))
+              let barFolder
+              const barFolderId = await localResource.createFolder(barFolder = new Folder({
+                title: 'bar', parentId: fooFolderId}))
+              let bookmark
+              const bookmarkId = await localResource.createBookmark(bookmark = new Bookmark({
+                title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
               await account.sync()
               expect(account.getData().error).to.not.be.ok
 
@@ -209,15 +201,13 @@ describe('Floccus', function() {
                 false
               )
 
-              const bazFolder = await browser.bookmarks.create({
-                title: 'baz',
-                parentId: localRoot
-              })
-              const barazFolder = await browser.bookmarks.create({
-                title: 'baraz',
-                parentId: bazFolder.id
-              })
-              await browser.bookmarks.move(barFolder.id, { parentId: barazFolder.id })
+              let bazFolder
+              const bazFolderId = await localResource.createFolder(bazFolder = new Folder({
+                title: 'baz', parentId: localRoot}))
+              let barazFolder
+              const barazFolderId = await localResource.createFolder(barazFolder = new Folder({
+                title: 'baraz', parentId: bazFolderId}))
+              await localResource.updateFolder(new Folder({...barFolder.toJSON(), id: barFolderId, parentId: barazFolderId}))
               await account.sync()
               expect(account.getData().error).to.not.be.ok
 
@@ -261,20 +251,17 @@ describe('Floccus', function() {
                 (await getAllBookmarks(account)).children
               ).to.have.lengthOf(0)
 
-              const localRoot = account.getData().localRoot
-              const fooFolder = await browser.bookmarks.create({
-                title: 'foo',
-                parentId: localRoot
-              })
-              const barFolder = await browser.bookmarks.create({
-                title: 'bar',
-                parentId: fooFolder.id
-              })
-              const bookmark = await browser.bookmarks.create({
-                title: 'url',
-                url: 'http://ur.l/',
-                parentId: barFolder.id
-              })
+              const localResource = await account.getResource()
+              const localRoot = (await localResource.getBookmarksTree()).id
+              let fooFolder
+              const fooFolderId = await localResource.createFolder(fooFolder = new Folder({
+                title: 'foo', parentId: localRoot}))
+              let barFolder
+              const barFolderId = await localResource.createFolder(barFolder = new Folder({
+                title: 'bar', parentId: fooFolderId}))
+              let bookmark
+              const bookmarkId = await localResource.createBookmark(bookmark = new Bookmark({
+                title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
               await account.sync() // propagate to server
               expect(account.getData().error).to.not.be.ok
 
@@ -283,7 +270,7 @@ describe('Floccus', function() {
               })
 
               const newData = { title: 'blah' }
-              await browser.bookmarks.update(bookmark.id, newData)
+              await localResource.updateBookmark(new Bookmark({...bookmark.toJSON(), id: bookmarkId, ...newData}))
               const originalTree = await account.localTree.getBookmarksTree(true)
               await account.sync() // update on server
               expect(account.getData().error).to.not.be.ok
@@ -301,20 +288,17 @@ describe('Floccus', function() {
                 (await getAllBookmarks(account)).children
               ).to.have.lengthOf(0)
 
-              const localRoot = account.getData().localRoot
-              const fooFolder = await browser.bookmarks.create({
-                title: 'foo',
-                parentId: localRoot
-              })
-              const barFolder = await browser.bookmarks.create({
-                title: 'bar',
-                parentId: fooFolder.id
-              })
-              const bookmark = await browser.bookmarks.create({
-                title: 'url',
-                url: 'http://ur.l/',
-                parentId: barFolder.id
-              })
+              const localResource = await account.getResource()
+              const localRoot = (await localResource.getBookmarksTree()).id
+              let fooFolder
+              const fooFolderId = await localResource.createFolder(fooFolder = new Folder({
+                title: 'foo', parentId: localRoot}))
+              let barFolder
+              const barFolderId = await localResource.createFolder(barFolder = new Folder({
+                title: 'bar', parentId: fooFolderId}))
+              let bookmark
+              const bookmarkId = await localResource.createBookmark(bookmark = new Bookmark({
+                title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
               await account.sync() // propagate to server
               expect(account.getData().error).to.not.be.ok
 
@@ -322,7 +306,7 @@ describe('Floccus', function() {
                 strategy: 'overwrite'
               })
 
-              await browser.bookmarks.remove(bookmark.id)
+              await localResource.removeBookmark(new Bookmark({...bookmark.toJSON(), id: bookmarkId}))
               const originalTree = await account.localTree.getBookmarksTree(true)
               await account.sync() // update on server
               expect(account.getData().error).to.not.be.ok
@@ -340,25 +324,24 @@ describe('Floccus', function() {
                 (await getAllBookmarks(account)).children
               ).to.have.lengthOf(0)
 
-              const localRoot = account.getData().localRoot
-              const fooFolder = await browser.bookmarks.create({
-                title: 'foo',
-                parentId: localRoot
-              })
-              await browser.bookmarks.create({
+              const localResource = await account.getResource()
+              const localRoot = (await localResource.getBookmarksTree()).id
+              let fooFolder
+              const fooFolderId = await localResource.createFolder(fooFolder = new Folder({
+                title: 'foo', parentId: localRoot}))
+              await localResource.createBookmark(new Bookmark({
                 title: 'test',
                 url: 'http://ureff.l/',
-                parentId: fooFolder.id
-              })
-              const barFolder = await browser.bookmarks.create({
-                title: 'bar',
-                parentId: fooFolder.id
-              })
-              await browser.bookmarks.create({
+                parentId: fooFolderId
+              }))
+              let barFolder
+              const barFolderId = await localResource.createFolder(barFolder = new Folder({
+                title: 'bar', parentId: fooFolderId}))
+              await localResource.createBookmark(new Bookmark({
                 title: 'url',
                 url: 'http://ur.l/',
-                parentId: barFolder.id
-              })
+                parentId: barFolderId
+              }))
               await account.sync() // propagate to server
               expect(account.getData().error).to.not.be.ok
 
@@ -366,9 +349,7 @@ describe('Floccus', function() {
                 strategy: 'overwrite'
               })
 
-              await browser.bookmarks.move(barFolder.id, {
-                parentId: localRoot
-              })
+              await localResource.updateFolder(new Folder({...barFolder.toJSON(), id: barFolderId, parentId: localRoot}))
               const originalTree = await account.localTree.getBookmarksTree(true)
               await account.sync() // update on server
               expect(account.getData().error).to.not.be.ok
@@ -524,55 +505,42 @@ describe('Floccus', function() {
               )
             })
             it('should move items without confusing folders', async function() {
-              const localRoot = account.getData().localRoot
+              const localResource = await account.getResource()
+              const localRoot = (await localResource.getBookmarksTree()).id
 
-              const folder1 = await browser.bookmarks.create({
-                title: 'a',
-                parentId: localRoot
-              })
-              const folder2 = await browser.bookmarks.create({
-                title: 'b',
-                parentId: folder1.id
-              })
-              const folder3 = await browser.bookmarks.create({
-                title: 'c',
-                parentId: folder2.id
-              })
-              const folder4 = await browser.bookmarks.create({
-                title: 'd',
-                parentId: localRoot
-              })
-              const folder5 = await browser.bookmarks.create({
-                title: 'e',
-                parentId: folder4.id,
-              })
-              const folder6 = await browser.bookmarks.create({
-                title: 'f',
-                parentId: folder5.id,
-              })
-              const folderX = await browser.bookmarks.create({
-                title: 'X',
-                parentId: folder3.id,
-              })
-              await browser.bookmarks.create({
+              let folder1
+              const folder1Id = await localResource.createFolder(folder1 = new Folder({
+                title: 'a', parentId: localRoot}))
+              let folder2
+              const folder2Id = await localResource.createFolder(folder2 = new Folder({
+                title: 'b', parentId: folder1Id}))
+              let folder3
+              const folder3Id = await localResource.createFolder(folder3 = new Folder({
+                title: 'c', parentId: folder2Id}))
+              let folder4
+              const folder4Id = await localResource.createFolder(folder4 = new Folder({
+                title: 'd', parentId: localRoot}))
+              let folder5
+              const folder5Id = await localResource.createFolder(folder5 = new Folder({
+                title: 'e', parentId: folder4Id}))
+              let folder6
+              const folder6Id = await localResource.createFolder(folder6 = new Folder({
+                title: 'f', parentId: folder5Id}))
+              let folderX
+              const folderXId = await localResource.createFolder(folderX = new Folder({
+                title: 'X', parentId: folder3Id}))
+              await localResource.createBookmark(new Bookmark({
                 title: 'url',
                 url: 'http://ur.l/',
-                parentId: folderX.id
-              })
-              const folderX2 = await browser.bookmarks.create({
-                title: 'X',
-                parentId: folder6.id,
-              })
-              await browser.bookmarks.create({
-                title: 'test',
-                url: 'http://urrr.l/',
-                parentId: folderX2.id
-              })
-              const test2Bm = await browser.bookmarks.create({
-                title: 'test2',
-                url: 'http://urrr2.l/',
-                parentId: folder1.id
-              })
+                parentId: folderXId
+              }))
+              let folderX2
+              const folderX2Id = await localResource.createFolder(folderX2 = new Folder({
+                title: 'X', parentId: folder6Id}))
+              await localResource.createBookmark(new Bookmark({title: 'test', url: 'http://urrr.l/', parentId: folderX2Id}))
+              let test2Bm
+              const test2BmId = await localResource.createBookmark(test2Bm = new Bookmark({
+                title: 'test2', url: 'http://urrr2.l/', parentId: folder1Id}))
 
               await account.sync() // propagate to server
               expect(account.getData().error).to.not.be.ok
@@ -582,9 +550,15 @@ describe('Floccus', function() {
 
               await account.init() // remove cache
 
-              await browser.bookmarks.move(folderX.id, { parentId: folder2.id })
-              await browser.bookmarks.move(folderX2.id, { parentId: folder5.id })
-              await browser.bookmarks.move(test2Bm.id, { parentId: folderX.id })
+              await localResource.updateFolder(new Folder({ ...folderX.toJSON(), id: folderXId, parentId: folder2Id }))
+              await localResource.updateFolder(new Folder({ ...folderX2.toJSON(), id: folderX2Id, parentId: folder5Id }))
+              await localResource.updateBookmark(
+                new Bookmark({
+                  ...test2Bm.toJSON(),
+                  id: test2BmId,
+                  parentId: folderXId,
+                })
+              )
 
               await account.sync() // propagate to server
               expect(account.getData().error).to.not.be.ok

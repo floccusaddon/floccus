@@ -1,15 +1,17 @@
 import random from 'random'
 import seedrandom from 'seedrandom'
 import Account from '../lib/Account'
-import { Folder } from '../lib/Tree'
-import browser from '../lib/browser-api'
+import { Bookmark, Folder } from '../lib/Tree'
 import * as AsyncParallel from 'async-parallel'
 import Controller from '../lib/Controller'
 import {
+  clearLocalResource,
   DUMP_LOGS,
   expect, expectTreeEqual, getAllBookmarks, getEnv, randomlyManipulateTree,
   randomlyManipulateTreeWithDeletions, stringifyAccountData, syncAccountWithInterrupts, withSyncConnection
 } from './utils'
+
+const browser = null
 
 describe('Floccus', function() {
   const { SEED, ACCOUNTS, RANDOM_MANIPULATION_ITERATIONS } = getEnv()
@@ -167,44 +169,59 @@ describe('Floccus', function() {
               throw new Error('Dropbox sync left more than one file behind')
             }
           }
-          await browser.bookmarks.removeTree(account1.getData().localRoot)
+          await clearLocalResource(account1)
           await account1.delete()
-          await browser.bookmarks.removeTree(account2.getData().localRoot)
+          await clearLocalResource(account2)
           await account2.delete()
         })
 
         it('should handle deep hierarchies with lots of bookmarks', async function() {
-          const localRoot = account1.getData().localRoot
+          const localResource1 = await account1.getResource()
+          const localRoot1 = (await localResource1.getBookmarksTree()).id
           let bookmarks = 0
           let folders = 0
           let magicFolder, magicBookmark
           const createTree = async(parentId, i, j) => {
             const len = Math.abs(i - j)
             for (let k = i; k < j; k++) {
-              const newBookmark = await browser.bookmarks.create({
-                title: 'url' + k,
-                url: 'http://ur.l/' + parentId + '/' + k,
-                parentId
-              })
+              let newBookmark
+              const newBookmarkId = await localResource1.createBookmark(
+                newBookmark = new Bookmark({
+                  title: 'url' + k,
+                  url: 'http://ur.l/' + parentId + '/' + k,
+                  parentId,
+                })
+              )
               bookmarks++
-              if (bookmarks === 33) magicBookmark = newBookmark
+              if (bookmarks === 33) {
+                magicBookmark = new Bookmark({
+                  ...newBookmark,
+                  id: newBookmarkId,
+                })
+              }
             }
 
             if (len < 4) return
 
             const step = Math.floor(len / 4)
             for (let k = i; k < j; k += step) {
-              const newFolder = await browser.bookmarks.create({
-                title: 'folder' + k,
-                parentId
-              })
+              let newFolder
+              const newFolderId = await localResource1.createFolder(
+                (newFolder = new Folder({
+                  title: 'folder' + k,
+                  parentId,
+                }))
+              )
+              newFolder.id = newFolderId
               folders++
-              if (folders === 33) magicFolder = newFolder
+              if (folders === 33) {
+                magicFolder = newFolder
+              }
               await createTree(newFolder.id, k, k + step)
             }
           }
 
-          await createTree(localRoot, 0, BENCHMARK_SIZE)
+          await createTree(localRoot1, 0, BENCHMARK_SIZE)
 
           const tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -244,9 +261,10 @@ describe('Floccus', function() {
           tree2AfterFirstSync = null
           console.log('First round ok')
 
-          await browser.bookmarks.move(magicBookmark.id, {
-            parentId: magicFolder.id
-          })
+          await localResource1.updateBookmark(new Bookmark({
+            ...magicBookmark,
+            parentId: magicFolder.id,
+          }))
           console.log('acc1: Moved bookmark')
 
           let tree1BeforeSecondSync = await account1.localTree.getBookmarksTree(
@@ -482,34 +500,47 @@ describe('Floccus', function() {
         })
 
         it('should handle fuzzed changes from one client', async function() {
-          const localRoot = account1.getData().localRoot
+          const localResource1 = await account1.getResource()
+          const localRoot1 = (await localResource1.getBookmarksTree()).id
           let bookmarks = []
           let folders = []
           const createTree = async(parentId, i, j) => {
             const len = Math.abs(i - j)
             for (let k = i; k < j; k++) {
-              const newBookmark = await browser.bookmarks.create({
-                title: 'url' + i + ':' + k + ':' + j,
-                url: 'http://ur.l/' + parentId + '/' + i + '/' + k + '/' + j,
-                parentId
-              })
-              bookmarks.push(newBookmark)
+              let newBookmark
+              const newBookmarkId = await localResource1.createBookmark(
+                new Bookmark({
+                  title: 'url' + i + ':' + k + ':' + j,
+                  url: 'http://ur.l/' + parentId + '/' + i + '/' + k + '/' + j,
+                  parentId,
+                })
+              )
+              bookmarks.push(new Bookmark({
+                ...newBookmark,
+                id: newBookmarkId,
+              }))
             }
 
             if (len < 4) return
 
             const step = Math.floor(len / 4)
             for (let k = i; k < j; k += step) {
-              const newFolder = await browser.bookmarks.create({
-                title: 'folder' + i + ':' + k + ':' + (k + step),
-                parentId
-              })
-              folders.push(newFolder)
-              await createTree(newFolder.id, k, k + step)
+              let newFolder
+              const newFolderId = await localResource1.createFolder(
+                newFolder = new Folder({
+                  title: 'folder' + i + ':' + k + ':' + (k + step),
+                  parentId,
+                })
+              )
+              folders.push(new Folder({
+                ...newFolder,
+                id: newFolderId,
+              }))
+              await createTree(newFolderId, k, k + step)
             }
           }
 
-          await createTree(localRoot, 0, BENCHMARK_SIZE)
+          await createTree(localRoot1, 0, BENCHMARK_SIZE)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -709,7 +740,8 @@ describe('Floccus', function() {
         })
 
         it('should handle fuzzed changes from two clients', async function() {
-          const localRoot = account1.getData().localRoot
+          const localResource1 = await account1.getResource()
+          const localRoot1 = (await localResource1.getBookmarksTree()).id
           let bookmarks1 = []
           let folders1 = []
 
@@ -719,28 +751,40 @@ describe('Floccus', function() {
           const createTree = async(parentId, i, j) => {
             const len = Math.abs(i - j)
             for (let k = i; k < j; k++) {
-              const newBookmark = await browser.bookmarks.create({
-                title: 'url' + i + ':' + j + ':' + k,
-                url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
-                parentId
-              })
-              bookmarks1.push(newBookmark)
+              let newBookmark
+              const newBookmarkId = await localResource1.createBookmark(
+                new Bookmark({
+                  title: 'url' + i + ':' + j + ':' + k,
+                  url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
+                  parentId,
+                })
+              )
+              bookmarks1.push(new Bookmark({
+                ...newBookmark,
+                id: newBookmarkId,
+              }))
             }
 
             if (len < 4) return
 
             const step = Math.floor(len / 4)
             for (let k = i; k < j; k += step) {
-              const newFolder = await browser.bookmarks.create({
-                title: 'folder' + i + ':' + k + ':' + (k + step),
-                parentId
-              })
-              folders1.push(newFolder)
-              await createTree(newFolder.id, k, k + step)
+              let newFolder
+              const newFolderId = await localResource1.createFolder(
+                newFolder = new Folder({
+                  title: 'folder' + i + ':' + k + ':' + (k + step),
+                  parentId,
+                })
+              )
+              folders1.push(new Folder({
+                ...newFolder,
+                id: newFolderId,
+              }))
+              await createTree(newFolderId, k, k + step)
             }
           }
 
-          await createTree(localRoot, 0, BENCHMARK_SIZE)
+          await createTree(localRoot1, 0, BENCHMARK_SIZE)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -951,38 +995,55 @@ describe('Floccus', function() {
         })
 
         it('should handle fuzzed changes with deletions from two clients (normal)', async function() {
-          const localRoot = account1.getData().localRoot
+          const localResource1 = await account1.getResource()
+          const localRoot1 = (await localResource1.getBookmarksTree()).id
           let bookmarks1 = []
           let folders1 = []
 
           let bookmarks2
           let folders2
 
-          const createTree = async(parentId, i, j) => {
+          const createTree = async (parentId, i, j) => {
             const len = Math.abs(i - j)
             for (let k = i; k < j; k++) {
-              const newBookmark = await browser.bookmarks.create({
-                title: 'url' + i + ':' + j + ':' + k,
-                url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
-                parentId
-              })
-              bookmarks1.push(newBookmark)
+              let newBookmark
+              const newBookmarkId = await localResource1.createBookmark(
+                new Bookmark({
+                  title: 'url' + i + ':' + j + ':' + k,
+                  url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
+                  parentId,
+                })
+              )
+              bookmarks1.push(
+                new Bookmark({
+                  ...newBookmark,
+                  id: newBookmarkId,
+                })
+              )
             }
 
             if (len < 4) return
 
             const step = Math.floor(len / 4)
             for (let k = i; k < j; k += step) {
-              const newFolder = await browser.bookmarks.create({
-                title: 'folder' + i + ':' + k + ':' + (k + step),
-                parentId
-              })
-              folders1.push(newFolder)
-              await createTree(newFolder.id, k, k + step)
+              let newFolder
+              const newFolderId = await localResource1.createFolder(
+                (newFolder = new Folder({
+                  title: 'folder' + i + ':' + k + ':' + (k + step),
+                  parentId,
+                }))
+              )
+              folders1.push(
+                new Folder({
+                  ...newFolder,
+                  id: newFolderId,
+                })
+              )
+              await createTree(newFolderId, k, k + step)
             }
           }
 
-          await createTree(localRoot, 0, BENCHMARK_SIZE)
+          await createTree(localRoot1, 0, BENCHMARK_SIZE)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -1189,38 +1250,55 @@ describe('Floccus', function() {
         })
         let interruptBenchmark
         it('should handle fuzzed changes with deletions from two clients with interrupts' + (ACCOUNT_DATA.type === 'fake' ? ' (with caching)' : ''), interruptBenchmark = async function() {
-          const localRoot = account1.getData().localRoot
+          const localResource1 = await account1.getResource()
+          const localRoot1 = (await localResource1.getBookmarksTree()).id
           let bookmarks1 = []
           let folders1 = []
 
           let bookmarks2
           let folders2
 
-          const createTree = async(parentId, i, j) => {
+          const createTree = async (parentId, i, j) => {
             const len = Math.abs(i - j)
             for (let k = i; k < j; k++) {
-              const newBookmark = await browser.bookmarks.create({
-                title: 'url' + i + ':' + j + ':' + k,
-                url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
-                parentId
-              })
-              bookmarks1.push(newBookmark)
+              let newBookmark
+              const newBookmarkId = await localResource1.createBookmark(
+                new Bookmark({
+                  title: 'url' + i + ':' + j + ':' + k,
+                  url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
+                  parentId,
+                })
+              )
+              bookmarks1.push(
+                new Bookmark({
+                  ...newBookmark,
+                  id: newBookmarkId,
+                })
+              )
             }
 
             if (len < 4) return
 
             const step = Math.floor(len / 4)
             for (let k = i; k < j; k += step) {
-              const newFolder = await browser.bookmarks.create({
-                title: 'folder' + i + ':' + k + ':' + (k + step),
-                parentId
-              })
-              folders1.push(newFolder)
-              await createTree(newFolder.id, k, k + step)
+              let newFolder
+              const newFolderId = await localResource1.createFolder(
+                (newFolder = new Folder({
+                  title: 'folder' + i + ':' + k + ':' + (k + step),
+                  parentId,
+                }))
+              )
+              folders1.push(
+                new Folder({
+                  ...newFolder,
+                  id: newFolderId,
+                })
+              )
+              await createTree(newFolderId, k, k + step)
             }
           }
 
-          await createTree(localRoot, 0, BENCHMARK_SIZE)
+          await createTree(localRoot1, 0, BENCHMARK_SIZE)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await syncAccountWithInterrupts(account1)
@@ -1446,38 +1524,56 @@ describe('Floccus', function() {
 
         it('unidirectional should handle fuzzed changes from two clients', async function() {
           await account2.setData({ strategy: 'slave'})
-          const localRoot = account1.getData().localRoot
+
+          const localResource1 = await account1.getResource()
+          const localRoot1 = (await localResource1.getBookmarksTree()).id
           let bookmarks1 = []
           let folders1 = []
 
           let bookmarks2
           let folders2
 
-          const createTree = async(parentId, i, j) => {
+          const createTree = async (parentId, i, j) => {
             const len = Math.abs(i - j)
             for (let k = i; k < j; k++) {
-              const newBookmark = await browser.bookmarks.create({
-                title: 'url' + i + ':' + j + ':' + k,
-                url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
-                parentId
-              })
-              bookmarks1.push(newBookmark)
+              let newBookmark
+              const newBookmarkId = await localResource1.createBookmark(
+                new Bookmark({
+                  title: 'url' + i + ':' + j + ':' + k,
+                  url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
+                  parentId,
+                })
+              )
+              bookmarks1.push(
+                new Bookmark({
+                  ...newBookmark,
+                  id: newBookmarkId,
+                })
+              )
             }
 
             if (len < 4) return
 
             const step = Math.floor(len / 4)
             for (let k = i; k < j; k += step) {
-              const newFolder = await browser.bookmarks.create({
-                title: 'folder' + i + ':' + k + ':' + (k + step),
-                parentId
-              })
-              folders1.push(newFolder)
-              await createTree(newFolder.id, k, k + step)
+              let newFolder
+              const newFolderId = await localResource1.createFolder(
+                (newFolder = new Folder({
+                  title: 'folder' + i + ':' + k + ':' + (k + step),
+                  parentId,
+                }))
+              )
+              folders1.push(
+                new Folder({
+                  ...newFolder,
+                  id: newFolderId,
+                })
+              )
+              await createTree(newFolderId, k, k + step)
             }
           }
 
-          await createTree(localRoot, 0, BENCHMARK_SIZE)
+          await createTree(localRoot1, 0, BENCHMARK_SIZE)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()
@@ -1690,38 +1786,56 @@ describe('Floccus', function() {
 
         it('unidirectional should handle fuzzed changes with deletions from two clients', async function() {
           await account2.setData({ strategy: 'slave'})
-          const localRoot = account1.getData().localRoot
+
+          const localResource1 = await account1.getResource()
+          const localRoot1 = (await localResource1.getBookmarksTree()).id
           let bookmarks1 = []
           let folders1 = []
 
           let bookmarks2
           let folders2
 
-          const createTree = async(parentId, i, j) => {
+          const createTree = async (parentId, i, j) => {
             const len = Math.abs(i - j)
             for (let k = i; k < j; k++) {
-              const newBookmark = await browser.bookmarks.create({
-                title: 'url' + i + ':' + j + ':' + k,
-                url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
-                parentId
-              })
-              bookmarks1.push(newBookmark)
+              let newBookmark
+              const newBookmarkId = await localResource1.createBookmark(
+                new Bookmark({
+                  title: 'url' + i + ':' + j + ':' + k,
+                  url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
+                  parentId,
+                })
+              )
+              bookmarks1.push(
+                new Bookmark({
+                  ...newBookmark,
+                  id: newBookmarkId,
+                })
+              )
             }
 
             if (len < 4) return
 
             const step = Math.floor(len / 4)
             for (let k = i; k < j; k += step) {
-              const newFolder = await browser.bookmarks.create({
-                title: 'folder' + i + ':' + k + ':' + (k + step),
-                parentId
-              })
-              folders1.push(newFolder)
-              await createTree(newFolder.id, k, k + step)
+              let newFolder
+              const newFolderId = await localResource1.createFolder(
+                (newFolder = new Folder({
+                  title: 'folder' + i + ':' + k + ':' + (k + step),
+                  parentId,
+                }))
+              )
+              folders1.push(
+                new Folder({
+                  ...newFolder,
+                  id: newFolderId,
+                })
+              )
+              await createTree(newFolderId, k, k + step)
             }
           }
 
-          await createTree(localRoot, 0, BENCHMARK_SIZE)
+          await createTree(localRoot1, 0, BENCHMARK_SIZE)
 
           let tree1Initial = await account1.localTree.getBookmarksTree(true)
           await account1.sync()

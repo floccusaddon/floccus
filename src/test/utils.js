@@ -1,10 +1,13 @@
+/* global IS_BROWSER */
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import { Bookmark } from '../lib/Tree'
+import { Bookmark, Folder } from '../lib/Tree'
 import Logger from '../lib/Logger'
 import FakeAdapter from '../lib/adapters/Fake'
 import random from 'random'
 import browser from '../lib/browser-api'
+
+const DEFAULT_SEED = Math.random() + ''
 
 export function getEnv() {
   const params = new URL(window.location.href).searchParams
@@ -28,7 +31,7 @@ export function getEnv() {
   IS_CI = params.get('ci') === 'true'
 
   SEED =
-    new URL(window.location.href).searchParams.get('seed') || Math.random() + ''
+    new URL(window.location.href).searchParams.get('seed') || DEFAULT_SEED
   console.log('RANDOMNESS SEED', SEED)
 
   RANDOM_MANIPULATION_ITERATIONS = 35
@@ -169,7 +172,7 @@ export const expectTreeEqual = function(
   expectTreeEqualRec(tree1, tree2, 0, ignoreEmptyFolders, checkOrder)
 }
 
-let expectTreeEqualRec = function (
+let expectTreeEqualRec = function(
   tree1,
   tree2,
   recDepth,
@@ -231,7 +234,7 @@ export function hasNoBookmarks(child) {
 
 export async function getAllBookmarks(account) {
   let tree
-  await withSyncConnection(account, async () => {
+  await withSyncConnection(account, async() => {
     tree = await account.server.getBookmarksTree(true)
   })
   return tree
@@ -252,84 +255,220 @@ export async function withSyncConnection(account, fn) {
 
 export async function randomlyManipulateTree(account, folders, bookmarks, iterations) {
   for (let i = 0; i < iterations; i++) {
-    let magicBookmark
-    let magicFolder1
-    let magicFolder2
-    let magicFolder3
-    let magicFolder4
-    let magicFolder5
-    try {
-      // Randomly move one bookmark
-      magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
-      magicFolder1 = folders[random.int(0, folders.length - 1)]
-      await browser.bookmarks.move(magicBookmark.id, {
-        parentId: magicFolder1.id,
-      })
-      console.log('Move ' + magicBookmark.title + ' to ' + magicFolder1.id)
+    await randomTreeManipulation(account, folders, bookmarks)
+  }
+}
 
-      // Randomly move two folders
-      magicFolder2 = folders[random.int(0, folders.length - 1)]
-      magicFolder3 = folders[random.int(0, folders.length - 1)]
-      if (magicFolder2 === magicFolder3) {
-        continue
-      }
-      const tree2 = (await browser.bookmarks.getSubTree(magicFolder2.id))[0]
-      const root = (
-        await browser.bookmarks.getSubTree(account.getData().localRoot)
-      )[0]
-      if (Folder.hydrate(tree2).findFolder(magicFolder3.id)) {
-        continue
-      }
-      if (!Folder.hydrate(root).findFolder(magicFolder3.id)) {
-        // This folder is not in our tree anymore for some reason
-        continue
-      }
-      await browser.bookmarks.move(magicFolder2.id, {
+async function randomTreeManipulation(account, folders, bookmarks) {
+  const localResource = await account.getResource()
+  let magicBookmark
+  let magicFolder1
+  let magicFolder2
+  let magicFolder3
+  let magicFolder4
+  let magicFolder5
+  try {
+    // Randomly move one bookmark
+    magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
+    magicFolder1 = folders[random.int(0, folders.length - 1)]
+    await browser.bookmarks.move(magicBookmark.id, {
+      parentId: magicFolder1.id,
+    })
+    await localResource.updateBookmark(new Bookmark({
+      ...magicBookmark,
+      parentId: magicFolder1.id,
+    }))
+    console.log('Move ' + magicBookmark.title + ' to ' + magicFolder1.id)
+
+    // Randomly move two folders
+    magicFolder2 = folders[random.int(0, folders.length - 1)]
+    magicFolder3 = folders[random.int(0, folders.length - 1)]
+    if (magicFolder2 === magicFolder3) {
+      return
+    }
+    const root = await localResource.getBookmarksTree()
+    const tree2 = root.findFolder(magicFolder2.id)
+
+    if (tree2.findFolder(magicFolder3.id)) {
+      return
+    }
+    if (!root.findFolder(magicFolder3.id)) {
+      // This folder is not in our tree anymore for some reason
+      return
+    }
+    await localResource.updateFolder(
+      new Folder({
+        ...magicFolder2,
         parentId: magicFolder3.id,
       })
-      console.log(
-        'Move #' +
-          magicFolder2.id +
-          '[' +
-          magicFolder2.title +
-          '] to ' +
-          magicFolder3.id
-      )
+    )
+    console.log(
+      'Move #' +
+      magicFolder2.id +
+      '[' +
+      magicFolder2.title +
+      '] to ' +
+      magicFolder3.id
+    )
 
-      // Randomly create a folder
-      magicFolder4 = folders[random.int(0, folders.length - 1)]
-      const newFolder = await browser.bookmarks.create({
+    // Randomly create a folder
+    magicFolder4 = folders[random.int(0, folders.length - 1)]
+    let newFolder
+    newFolder.id = await localResource.createFolder(
+      newFolder = new Folder({
         title: 'newFolder' + Math.random(),
         parentId: magicFolder4.id,
       })
-      folders.push(newFolder)
-      console.log(
-        'Created #' +
-          newFolder.id +
-          '[' +
-          newFolder.title +
-          '] in ' +
-          magicFolder4.id
-      )
+    )
+    folders.push(newFolder)
+    console.log(
+      'Created #' +
+      newFolder.id +
+      '[' +
+      newFolder.title +
+      '] in ' +
+      magicFolder4.id
+    )
 
-      magicFolder5 = folders[random.int(0, folders.length - 1)]
-      const newBookmark = await browser.bookmarks.create({
+    magicFolder5 = folders[random.int(0, folders.length - 1)]
+    let newBookmark
+    newBookmark.id = await localResource.createBookmark(
+      (newBookmark = new Bookmark({
         title: 'newBookmark' + Math.random(),
         url: 'http://ur.l/' + magicFolder5.id + '/' + Math.random(),
         parentId: magicFolder5.id,
-      })
-      bookmarks.push(newBookmark)
-      console.log(
-        'Created #' +
-          newBookmark.id +
-          '[' +
-          newBookmark.title +
-          '] in ' +
-          magicFolder5.id
-      )
-    } catch (e) {
-      console.log(e)
+      }))
+    )
+    bookmarks.push(newBookmark)
+    console.log(
+      'Created #' +
+      newBookmark.id +
+      '[' +
+      newBookmark.title +
+      '] in ' +
+      magicFolder5.id
+    )
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
+  const localResource = await account.getResource()
+  let magicBookmark
+  let magicFolder1
+  let magicFolder2
+  let magicFolder3
+  let magicFolder4
+  let magicFolder5
+  try {
+    // Randomly remove one bookmark
+    magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
+    await localResource.removeBookmark(magicBookmark)
+    bookmarks.splice(bookmarks.indexOf(magicBookmark), 1)
+    console.log('Remove ' + magicBookmark.title)
+
+    // Randomly rename one bookmark
+    magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
+    const newTitle = 'renamed' + Math.random()
+    await localResource.updateBookmark(new Bookmark({
+      ...magicBookmark,
+      title: newTitle,
+    }))
+    console.log(
+      'Rename #' +
+      magicBookmark.id +
+      '[' +
+      magicBookmark.title +
+      '] to ' +
+      newTitle
+    )
+
+    // randomly remove one folder
+    magicFolder1 = folders[random.int(0, folders.length - 1)]
+    await localResource.removeFolder(magicFolder1)
+    folders.splice(folders.indexOf(magicFolder1), 1)
+    console.log(
+      'Removed #' + magicFolder1.id + '[' + magicFolder1.title + ']'
+    )
+
+    // Randomly move one bookmark
+    magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
+    magicFolder1 = folders[random.int(0, folders.length - 1)]
+    await localResource.updateBookmark(new Bookmark({
+      ...magicBookmark,
+      parentId: magicFolder1.id,
+    }))
+    console.log('Move ' + magicBookmark.title + ' to ' + magicFolder1.id)
+
+    // Randomly move two folders
+    magicFolder2 = folders[random.int(0, folders.length - 1)]
+    magicFolder3 = folders[random.int(0, folders.length - 1)]
+    if (magicFolder2 === magicFolder3) {
+      return
     }
+    const root = await localResource.getBookmarksTree()
+    const tree2 = root.findFolder(magicFolder2.id)
+    if (tree2.findFolder(magicFolder3.id)) {
+      return
+    }
+    if (!root.findFolder(magicFolder3.id)) {
+      // This folder is not in our tree anymore for some reason
+      return
+    }
+    await localResource.updateBookmark(new Folder({
+      ...magicFolder2,
+      parentID: magicFolder3.id
+    }))
+    console.log(
+      'Move #' +
+      magicFolder2.id +
+      '[' +
+      magicFolder2.title +
+      '] to ' +
+      magicFolder3.id
+    )
+
+    // Randomly create a folder
+    magicFolder4 = folders[random.int(0, folders.length - 1)]
+    let newFolder
+    newFolder.id = await localResource.createFolder(
+      (newFolder = new Folder({
+        title: 'newFolder' + Math.random(),
+        parentId: magicFolder4.id,
+      }))
+    )
+    folders.push(newFolder)
+    console.log(
+      'Created #' +
+      newFolder.id +
+      '[' +
+      newFolder.title +
+      '] in ' +
+      magicFolder4.id
+    )
+
+    // Randomly create a bookmark
+    magicFolder5 = folders[random.int(0, folders.length - 1)]
+    let newBookmark
+    newBookmark.id = await localResource.createBookmark(
+      (newBookmark = new Bookmark({
+        title: 'newBookmark' + Math.random(),
+        url: 'http://ur.l/' + magicFolder5.id + '/' + Math.random(),
+        parentId: magicFolder5.id,
+      }))
+    )
+    bookmarks.push(newBookmark)
+    console.log(
+      'Created #' +
+      newBookmark.id +
+      '[' +
+      newBookmark.title +
+      '] in ' +
+      magicFolder5.id
+    )
+  } catch (e) {
+    console.log(e)
   }
 }
 
@@ -340,112 +479,7 @@ export async function randomlyManipulateTreeWithDeletions(
   iterations
 ) {
   for (let i = 0; i < iterations; i++) {
-    let magicBookmark
-    let magicFolder1
-    let magicFolder2
-    let magicFolder3
-    let magicFolder4
-    let magicFolder5
-    try {
-      // Randomly remove one bookmark
-      magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
-      await browser.bookmarks.remove(magicBookmark.id)
-      bookmarks.splice(bookmarks.indexOf(magicBookmark), 1)
-      console.log('Remove ' + magicBookmark.title)
-
-      // Randomly rename one bookmark
-      magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
-      const newTitle = 'renamed' + Math.random()
-      await browser.bookmarks.update(magicBookmark.id, { title: newTitle })
-      console.log(
-        'Rename #' +
-          magicBookmark.id +
-          '[' +
-          magicBookmark.title +
-          '] to ' +
-          newTitle
-      )
-
-      // randomly remove one folder
-      magicFolder1 = folders[random.int(0, folders.length - 1)]
-      await browser.bookmarks.removeTree(magicFolder1.id)
-      folders.splice(folders.indexOf(magicFolder1), 1)
-      console.log(
-        'Removed #' + magicFolder1.id + '[' + magicFolder1.title + ']'
-      )
-
-      // Randomly move one bookmark
-      magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
-      magicFolder1 = folders[random.int(0, folders.length - 1)]
-      await browser.bookmarks.move(magicBookmark.id, {
-        parentId: magicFolder1.id,
-      })
-      console.log('Move ' + magicBookmark.title + ' to ' + magicFolder1.id)
-
-      // Randomly move two folders
-      magicFolder2 = folders[random.int(0, folders.length - 1)]
-      magicFolder3 = folders[random.int(0, folders.length - 1)]
-      if (magicFolder2 === magicFolder3) {
-        continue
-      }
-      const tree2 = (await browser.bookmarks.getSubTree(magicFolder2.id))[0]
-      const root = (
-        await browser.bookmarks.getSubTree(account.getData().localRoot)
-      )[0]
-      if (Folder.hydrate(tree2).findFolder(magicFolder3.id)) {
-        continue
-      }
-      if (!Folder.hydrate(root).findFolder(magicFolder3.id)) {
-        // This folder is not in our tree anymore for some reason
-        continue
-      }
-      await browser.bookmarks.move(magicFolder2.id, {
-        parentId: magicFolder3.id,
-      })
-      console.log(
-        'Move #' +
-          magicFolder2.id +
-          '[' +
-          magicFolder2.title +
-          '] to ' +
-          magicFolder3.id
-      )
-
-      // Randomly create a folder
-      magicFolder4 = folders[random.int(0, folders.length - 1)]
-      const newFolder = await browser.bookmarks.create({
-        title: 'newFolder' + Math.random(),
-        parentId: magicFolder4.id,
-      })
-      folders.push(newFolder)
-      console.log(
-        'Created #' +
-          newFolder.id +
-          '[' +
-          newFolder.title +
-          '] in ' +
-          magicFolder4.id
-      )
-
-      // Randomly create a bookmark
-      magicFolder5 = folders[random.int(0, folders.length - 1)]
-      const newBookmark = await browser.bookmarks.create({
-        title: 'newBookmark' + Math.random(),
-        url: 'http://ur.l/' + magicFolder5.id + '/' + Math.random(),
-        parentId: magicFolder5.id,
-      })
-      bookmarks.push(newBookmark)
-      console.log(
-        'Created #' +
-          newBookmark.id +
-          '[' +
-          newBookmark.title +
-          '] in ' +
-          magicFolder5.id
-      )
-    } catch (e) {
-      console.log(e)
-    }
+    await randomTreeManipulationWithDeletion(account, folders, bookmarks)
   }
 }
 
@@ -502,4 +536,31 @@ export function filterBookmarksInTree(tree, fn) {
     }
   })
   return tree
+}
+
+export async function clearLocalResource(account) {
+  const resource = await account.getResource()
+  try {
+    const tree = await resource.getBookmarksTree(true)
+    for (const child of [...tree.children]) {
+      try {
+        if (child instanceof Folder) {
+          await resource.removeFolder(child)
+        } else {
+          await resource.removeBookmark(child)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    if (IS_BROWSER) {
+      try {
+        await resource.removeFolder(tree)
+      } catch (e) {
+        console.log(e)
+      }
+    }
+  } catch (e) {
+    console.log(e)
+  }
 }
