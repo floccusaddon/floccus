@@ -284,4 +284,3 @@ async function streamLogsUntilFinished(sessionId) {
     process.exit(1)
   }
 })()
-
