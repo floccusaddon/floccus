@@ -155,8 +155,8 @@ export const DUMP_LOGS = function(currentTest) {
     for (const log of Logger.messages) {
       console.log(log)
     }
-    Logger.messages = []
   }
+  Logger.messages = []
 }
 
 chai.use(chaiAsPromised)
