@@ -93,7 +93,6 @@ jobs:
     needs: init
 
     env:
-      TEST_HOST: nextcloud
       SERVER_BRANCH: ${{ matrix.server-version }}
       NC_APP_VERSION: ${{ matrix.app-version }}
       MYSQL_PASSWORD: root
@@ -121,6 +120,8 @@ jobs:
     services:
       nextcloud:
         image: nextcloud:${{ matrix.server-version }}
+        ports:
+          - 80:80
         env:
           NEXTCLOUD_ADMIN_USER: admin
           NEXTCLOUD_ADMIN_PASSWORD: admin
@@ -209,6 +210,7 @@ jobs:
           DROPBOX_API_REFRESH_TOKEN: ${{ secrets.DROPBOX_API_REFRESH_TOKEN }}
           LINKWARDEN_TOKEN: ${{ secrets.LINKWARDEN_TOKEN }}
           APP_VERSION: ${{ matrix.app-version }}
+          TEST_HOST: 172.17.0.1:80
           KARAKEEP_TEST_HOST: 172.17.0.1:3000
         with:
           api-level: 35
