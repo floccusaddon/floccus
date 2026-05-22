@@ -49,6 +49,11 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
     }
   }
 
+  async saveImmediately(): Promise<void> {
+    clearTimeout(this.saveTimeout)
+    await this.save()
+  }
+
   async save():Promise<void> {
     await Storage.set({key: `bookmarks[${this.accountId}].tree`, value: JSON.stringify(await this.bookmarksCache.cloneWithLocation(true, ItemLocation.LOCAL).toJSONAsync())})
     await Storage.set({key: `bookmarks[${this.accountId}].highestId`, value: this.highestId + ''})

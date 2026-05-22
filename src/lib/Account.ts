@@ -183,6 +183,19 @@ export default class Account {
 
       if (!(await this.server.isAvailable()) || !(await (await this.getResource()).isAvailable())) return
 
+      if (!IS_BROWSER) {
+        try {
+          const localResource = await this.getResource()
+          await localResource.saveImmediately()
+        } catch (e) {
+          Logger.log(
+            'Failed to persist unsaved changes from NativeTree before sync:',
+            e
+          )
+          Logger.log('Continuing anyway.')
+        }
+      }
+
       this.localCachingResource = new CachingTreeWrapper(await this.getResource())
 
       Logger.log('Starting sync process for account ' + this.getLabel())
