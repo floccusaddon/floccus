@@ -98,6 +98,8 @@ jobs:
       MYSQL_PASSWORD: root
 
     strategy:
+      # do not stop on another job's failure
+      fail-fast: false
       matrix:
         server-version: ['32']
         app-version: ['stable']
