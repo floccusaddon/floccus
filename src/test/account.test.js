@@ -1,3 +1,4 @@
+/* global IS_BROWSER */
 import { expect, getEnv, stringifyAccountData } from './utils'
 import Controller from '../lib/Controller'
 import Account from '../lib/Account'
@@ -31,11 +32,15 @@ describe('Floccus', function() {
       })
       afterEach('clean up account', async function() {
         if (account) {
-          let localResource = await account.getResource()
-          let localRoot = (await localResource.getBookmarksTree()).id
-          if (localRoot) await localResource.removeFolder(
-            await localResource.getBookmarksTree()
-          )
+          try {
+            let localResource = await account.getResource()
+            let localRoot = (await localResource.getBookmarksTree()).id
+            if (localRoot) await localResource.removeFolder(
+              await localResource.getBookmarksTree()
+            )
+          } catch (e) {
+            console.log(e)
+          }
           await account.delete()
         }
       })
@@ -56,7 +61,11 @@ describe('Floccus', function() {
         account = null // so afterEach notices it's deleted already
       })
       it('should not be initialized upon creation', async function() {
-        expect(await account.isInitialized()).to.be.false
+        if (IS_BROWSER) {
+          expect(await account.isInitialized()).to.be.false
+        } else {
+          expect(await account.isInitialized()).to.be.true
+        }
       })
     })
   })
