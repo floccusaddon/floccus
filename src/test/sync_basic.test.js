@@ -587,10 +587,10 @@ describe('Floccus', function() {
             const localResource = await account.getResource()
             const localRoot = (await localResource.getBookmarksTree(true)).id
             const fooFolder = await localResource.createFolder(new Folder({title: 'foo', parentId: localRoot}))
-            localResource.createBookmark(new Bookmark({title: 'test', url: 'http://ureff.l/', parentId: fooFolder}))
+            await localResource.createBookmark(new Bookmark({title: 'test', url: 'http://ureff.l/', parentId: fooFolder}))
             let barFolder
             const barFolderId = await localResource.createFolder(barFolder = new Folder({title: 'bar', parentId: fooFolder}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
             await account.sync() // propagate to server
             expect(account.getData().error).to.not.be.ok
 
@@ -820,11 +820,11 @@ describe('Floccus', function() {
             const localRoot = (await localResource.getBookmarksTree(true)).id
             const fooFolder = await localResource.createFolder(new Folder({title: 'foo', parentId: localRoot}))
             const barFolder = await localResource.createFolder(new Folder({title: 'bar', parentId: fooFolder}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolder}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolder}))
 
             const syncPromise = account.sync() // propagate to server
             await new Promise(resolve => setTimeout(resolve, 1000))
-            localResource.createBookmark(new Bookmark({title: 'url2', url: 'http://secondur.l/', parentId: fooFolder}))
+            await localResource.createBookmark(new Bookmark({title: 'url2', url: 'http://secondur.l/', parentId: fooFolder}))
             await syncPromise
 
             await account.sync() // update on server
@@ -1062,7 +1062,7 @@ describe('Floccus', function() {
             const bookmark1Id = await localResource.createBookmark(bookmark1 = new Bookmark({title: 'test', url: 'http://ureff.l/', parentId: fooFolderId}))
             let barFolder
             const barFolderId = await localResource.createFolder(barFolder = new Folder({title: 'bar', parentId: fooFolderId}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
             await account.sync() // propagate to server
             expect(account.getData().error).to.not.be.ok
 
@@ -1209,7 +1209,7 @@ describe('Floccus', function() {
             let fooFolder
             const fooFolderId = await localResource.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot}))
             const barFolder = await localResource.createFolder(new Folder({title: 'bar', parentId: fooFolderId}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolder}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolder}))
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
@@ -1241,7 +1241,7 @@ describe('Floccus', function() {
             const localRoot = (await localResource.getBookmarksTree(true)).id
             const fooFolder = await localResource.createFolder(new Folder({title: 'foo', parentId: localRoot}))
             const barFolder = await localResource.createFolder(new Folder({title: 'bar', parentId: fooFolder}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolder}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolder}))
             await account.sync()
             expect(account.getData().error).to.not.be.ok
 
@@ -1314,8 +1314,8 @@ describe('Floccus', function() {
             const localRoot = (await localResource.getBookmarksTree(true)).id
 
             const barFolder = await localResource.createFolder(new Folder({title: 'bar', parentId: localRoot}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolder}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolder}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolder}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolder}))
             await account.sync() // propagate to server
             expect(account.getData().error).to.not.be.ok
 
@@ -1433,7 +1433,7 @@ describe('Floccus', function() {
             const barFolderId = await localResource.createFolder(barFolder = new Folder({title: 'bar', parentId: localRoot}))
             let fooFolder
             const fooFolderId = await localResource.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
             await account.sync() // propagate to server
             expect(account.getData().error).to.not.be.ok
 
@@ -1527,7 +1527,7 @@ describe('Floccus', function() {
             let cFolder
             const cFolderId = await localResource.createFolder(cFolder = new Folder({title: 'c', parentId: bFolderId}))
             const dFolderId = await localResource.createFolder(new Folder({title: 'd', parentId: cFolderId}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: dFolderId}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: dFolderId}))
             await account.sync() // propagate to server
             expect(account.getData().error).to.not.be.ok
 
@@ -1639,7 +1639,7 @@ describe('Floccus', function() {
             const aFolderId = await localResource.createFolder(new Folder({title: 'a', parentId: localRoot}))
             let bFolder
             const bFolderId = await localResource.createFolder(bFolder = new Folder({title: 'b', parentId: localRoot}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: bFolderId}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: bFolderId}))
             await account.sync() // propagate to server
             expect(account.getData().error).to.not.be.ok
 
@@ -1706,10 +1706,10 @@ describe('Floccus', function() {
             const dFolderId = await localResource.createFolder(new Folder({title: 'd', parentId: localRoot}))
             let cFolder1
             const cFolder1Id = await localResource.createFolder(cFolder1 = new Folder({title: 'c', parentId: aFolderId}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: cFolder1Id}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: cFolder1Id}))
             let cFolder2
             const cFolder2Id = await localResource.createFolder(cFolder2 = new Folder({title: 'c', parentId: bFolderId}))
-            localResource.createBookmark(new Bookmark({title: 'test', url: 'http://urrr.l/', parentId: cFolder2Id}))
+            await localResource.createBookmark(new Bookmark({title: 'test', url: 'http://urrr.l/', parentId: cFolder2Id}))
 
             await account.sync() // propagate to server
             expect(account.getData().error).to.not.be.ok
@@ -1790,10 +1790,10 @@ describe('Floccus', function() {
             const folder6Id = await localResource.createFolder(new Folder({title: 'f', parentId: folder5Id}))
             let folderX
             const folderXId = await localResource.createFolder(folderX = new Folder({title: 'X', parentId: folder3Id}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: folderXId}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: folderXId}))
             let folderX2
             const folderX2Id = await localResource.createFolder(folderX2 = new Folder({title: 'X', parentId: folder6Id}))
-            localResource.createBookmark(new Bookmark({title: 'test', url: 'http://urrr.l/', parentId: folderX2Id}))
+            await localResource.createBookmark(new Bookmark({title: 'test', url: 'http://urrr.l/', parentId: folderX2Id}))
             let test2Bm
             const test2BmId = await localResource.createBookmark(test2Bm = new Bookmark({title: 'test2', url: 'http://urrr2.l/', parentId: folder1Id}))
 
@@ -2215,8 +2215,8 @@ describe('Floccus', function() {
 
             const barFolder = await localResource.createFolder(new Folder({title: 'bar', parentId: localRoot}))
             const fooFolder = await localResource.createFolder(new Folder({title: 'foo', parentId: barFolder}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolder}))
-            localResource.createBookmark(new Bookmark({title: 'url2', url: 'chrome://extensions/', parentId: fooFolder}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolder}))
+            await localResource.createBookmark(new Bookmark({title: 'url2', url: 'chrome://extensions/', parentId: fooFolder}))
             await account.sync() // propagate to server
             expect(account.getData().error).to.not.be.ok
 
@@ -2407,12 +2407,12 @@ describe('Floccus', function() {
             const localRoot = (await localResource.getBookmarksTree(true)).id
             const barFolder = await localResource.createFolder(new Folder({title: 'bar', parentId: localRoot}))
             const fooFolder = await localResource.createFolder(new Folder({title: 'foo', parentId: barFolder}))
-            localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: fooFolder}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: fooFolder}))
             await browser.bookmarks.create({
               type: 'separator',
               parentId: fooFolder
             })
-            localResource.createBookmark(new Bookmark({title: 'url2', url: 'http://ur2.l', parentId: fooFolder}))
+            await localResource.createBookmark(new Bookmark({title: 'url2', url: 'http://ur2.l', parentId: fooFolder}))
             await browser.bookmarks.create({
               type: 'separator',
               parentId: fooFolder
