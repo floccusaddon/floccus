@@ -1,6 +1,6 @@
+/* global IS_BROWSER */
 import Account from '../lib/Account'
 import { Bookmark, Folder, ItemLocation } from '../lib/Tree'
-import browser from '../lib/browser-api'
 import * as AsyncParallel from 'async-parallel'
 import Controller from '../lib/Controller'
 import {
@@ -40,12 +40,16 @@ describe('Floccus', function() {
     describe(`${stringifyAccountData(ACCOUNT_DATA)} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Sync`,
       function() {
         context('with tabs', function() {
+          if (!IS_BROWSER) {
+            return
+          }
           if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
             return
           }
-          let account
+          let account, browser
           let TEST_URL_TITLE
           before(async function() {
+            ({ default: browser } = await import('../lib/browser-api.js'))
             // Set up TEST_URL and TEST_URL_TITLE
             await browser.tabs.create({
               index: 1,

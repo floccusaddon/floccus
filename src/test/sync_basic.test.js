@@ -3,7 +3,6 @@ import Account from '../lib/Account'
 import { Bookmark, Folder, ItemLocation } from '../lib/Tree'
 import * as AsyncParallel from 'async-parallel'
 import Controller from '../lib/Controller'
-import BrowserTree from '../lib/browser/BrowserTree'
 import {
   ClientsideAdditionFailsafeError,
   ClientsideDeletionFailsafeError,
@@ -21,8 +20,6 @@ import {
 } from './utils'
 import random from 'random'
 import seedrandom from 'seedrandom'
-
-const browser = null
 
 describe('Floccus', function() {
   this.timeout(120000) // no test should run longer than 120s
@@ -2286,6 +2283,7 @@ describe('Floccus', function() {
             }
 
             const {default: browser} = await import('../lib/browser-api.js')
+            const {default: BrowserTree} = await import('../lib/browser/BrowserTree.ts')
 
             // Remove all nodes except the system nodes:
             const deleteNonSysNodes = async(delNodeId) => {

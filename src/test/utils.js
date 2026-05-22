@@ -5,7 +5,6 @@ import { Bookmark, Folder } from '../lib/Tree'
 import Logger from '../lib/Logger'
 import FakeAdapter from '../lib/adapters/Fake'
 import random from 'random'
-import browser from '../lib/browser-api'
 
 const DEFAULT_SEED = Math.random() + ''
 
@@ -271,9 +270,6 @@ async function randomTreeManipulation(account, folders, bookmarks) {
     // Randomly move one bookmark
     magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
     magicFolder1 = folders[random.int(0, folders.length - 1)]
-    await browser.bookmarks.move(magicBookmark.id, {
-      parentId: magicFolder1.id,
-    })
     await localResource.updateBookmark(new Bookmark({
       ...magicBookmark,
       parentId: magicFolder1.id,
@@ -515,7 +511,8 @@ export function stringifyAccountData(ACCOUNT_DATA) {
   }`
 }
 
-export function awaitTabsUpdated() {
+export async function awaitTabsUpdated() {
+  const {default: browser} = await import('../lib/browser-api.js')
   return Promise.race([
     new Promise((resolve) => {
       browser.tabs.onUpdated.addListener(function listener() {

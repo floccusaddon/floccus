@@ -1,7 +1,6 @@
 import { expect, getEnv, stringifyAccountData } from './utils'
 import Controller from '../lib/Controller'
 import Account from '../lib/Account'
-import browser from '../lib/browser-api'
 import random from 'random'
 import seedrandom from 'seedrandom'
 
@@ -32,8 +31,11 @@ describe('Floccus', function() {
       })
       afterEach('clean up account', async function() {
         if (account) {
-          let localRoot = account.getData().localRoot
-          if (localRoot) await browser.bookmarks.removeTree(localRoot)
+          let localResource = await account.getResource()
+          let localRoot = (await localResource.getBookmarksTree()).id
+          if (localRoot) await localResource.removeFolder(
+            await localResource.getBookmarksTree()
+          )
           await account.delete()
         }
       })
