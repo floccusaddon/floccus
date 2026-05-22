@@ -199,7 +199,7 @@ jobs:
           npm install -g appium
           appium driver install uiautomator2
 
-      - name: Run Android Appium smoke tests
+      - name: Run Android Appium tests
         uses: ReactiveCircus/android-emulator-runner@v2
         env:
           CI: true
@@ -218,10 +218,10 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: |
-            adb install -r floccus/android/app/build/outputs/apk/debug/app-debug.apk
+            cd floccus && adb install -r android/app/build/outputs/apk/debug/app-debug.apk
             appium --log-no-colors --allow-insecure uiautomator2:chromedriver_autodownload > appium.log 2>&1 &
             until curl -sf http://127.0.0.1:4723/status > /dev/null; do echo 'Waiting for Appium to start'; sleep 1; done
-            npm run test:appium
+            cd floccus && npm run test:appium
 
       - name: Upload Appium log
         if: always()
