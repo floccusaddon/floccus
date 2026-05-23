@@ -412,7 +412,7 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
       // This folder is not in our tree anymore for some reason
       return
     }
-    await localResource.updateBookmark(new Folder({
+    await localResource.updateBookmark(new Bookmark({
       ...magicFolder2,
       parentID: magicFolder3.id
     }))

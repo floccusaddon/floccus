@@ -1719,7 +1719,6 @@ describe('Floccus', function() {
 
             await account.init()
 
-            // move b into a in client
             await localResource.updateFolder(new Folder({...cFolder1.toJSON(), id: cFolder1Id, parentId: localRoot}))
             await localResource.updateFolder(new Folder({...cFolder2.toJSON(), id: cFolder2Id, parentId: dFolderId}))
 
@@ -1814,7 +1813,7 @@ describe('Floccus', function() {
               })
             )
             await localResource.updateBookmark(
-              new Folder({
+              new Bookmark({
                 ...test2Bm.toJSON(),
                 id: test2BmId,
                 parentId: folderXId,
