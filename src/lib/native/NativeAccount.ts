@@ -17,30 +17,6 @@ import Logger from '../Logger'
 import { i18n } from './I18n'
 
 export default class NativeAccount extends Account {
-  static getDefaultRootId(id:string): number {
-    const digits = String(id).replace(/\D/g, '')
-    const parsed = parseInt(digits.slice(-12) || Date.now().toString(), 10)
-    return Number.isNaN(parsed) ? Date.now() : parsed
-  }
-
-  async ensureLocalRoot(): Promise<void> {
-    const accountData = this.getData()
-    if (accountData.localRoot === 'tabs') {
-      return
-    }
-
-    const tree = new NativeTree(this.storage)
-    await tree.load()
-
-    const rootId = accountData.localRoot || NativeAccount.getDefaultRootId(this.id)
-    await tree.ensureRoot(rootId)
-    this.localTree = tree
-
-    if (String(accountData.localRoot) !== String(rootId) || accountData.rootPath !== '') {
-      await this.setData({ localRoot: String(rootId), rootPath: '' })
-    }
-  }
-
   static async get(id:string):Promise<Account> {
     const storage = new NativeAccountStorage(id)
     const data = await storage.getAccountData(null)
@@ -70,13 +46,8 @@ export default class NativeAccount extends Account {
 
   async init(): Promise<void> {
     console.log('initializing account ' + this.id)
-    await this.ensureLocalRoot()
     await this.storage.initMappings()
     await this.storage.initCache()
-    const nativeTree = new NativeTree(this.storage)
-    await nativeTree.load()
-    await nativeTree.ensureRoot(this.getData().localRoot)
-    this.localTree = nativeTree
   }
 
   async isInitialized(): Promise<boolean> {

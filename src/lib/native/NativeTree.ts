@@ -66,26 +66,6 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
     }, 500)
   }
 
-  async ensureRoot(rootId:string|number):Promise<void> {
-    const previousRootId = this.bookmarksCache.id
-    this.bookmarksCache.id = rootId
-    this.bookmarksCache.isRoot = true
-    this.bookmarksCache.parentId = undefined
-    this.bookmarksCache.children.forEach(child => {
-      if (String(child.parentId) === String(previousRootId)) {
-        child.parentId = rootId
-      }
-    })
-
-    const parsedRootId = parseInt(String(rootId), 10)
-    if (!Number.isNaN(parsedRootId)) {
-      this.highestId = Math.max(this.highestId, parsedRootId)
-    }
-
-    this.bookmarksCache.createIndex()
-    await this.save()
-  }
-
   async getBookmarksTree(): Promise<Folder<typeof ItemLocation.LOCAL>> {
     const tree = await super.getBookmarksTree()
     tree.createIndex()
