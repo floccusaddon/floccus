@@ -427,10 +427,41 @@ export default class SyncProcess {
     if ('orderFolder' in this.server && !this.localReorders) {
       // mappings have been updated, reload
       mappingsSnapshot = this.mappings.getSnapshot()
-      const localReorders = this.reconcileReorderings(this.prelimLocalReorders, this.localDonePlan, ItemLocation.LOCAL, mappingsSnapshot)
-      const serverReorders = this.reconcileReorderings(this.prelimServerReorders, this.serverDonePlan, ItemLocation.SERVER, mappingsSnapshot)
-      this.localReorders = this.reconcileReorderings(localReorders, this.serverDonePlan, ItemLocation.LOCAL, mappingsSnapshot).map(mappingsSnapshot, ItemLocation.LOCAL)
-      this.serverReorders = this.reconcileReorderings(serverReorders, this.localDonePlan, ItemLocation.SERVER, mappingsSnapshot).map(mappingsSnapshot, ItemLocation.SERVER)
+      const localReorders1 = this.reconcileConcurrentReorderings(
+        this.prelimLocalReorders,
+        this.prelimServerReorders,
+        ItemLocation.LOCAL,
+        mappingsSnapshot
+      )
+      const serverReorders1 = this.reconcileConcurrentReorderings(
+        this.prelimServerReorders,
+        this.prelimLocalReorders,
+        ItemLocation.SERVER,
+        mappingsSnapshot
+      )
+      console.log({localReorders1, serverReorders1})
+      const localReorders2 = this.reconcileReorderings(
+        localReorders1,
+        this.localDonePlan,
+        ItemLocation.LOCAL,
+        mappingsSnapshot
+      )
+      const serverReorders2 = this.reconcileReorderings(
+        serverReorders1,
+        this.serverDonePlan,
+        ItemLocation.SERVER,
+        mappingsSnapshot
+      )
+      console.log({localReorders2, serverReorders2})
+      this.localReorders = localReorders2.map(
+        mappingsSnapshot,
+        ItemLocation.LOCAL
+      )
+      this.serverReorders = serverReorders2.map(
+        mappingsSnapshot,
+        ItemLocation.SERVER
+      )
+      console.log({ localReorders: this.localReorders.clone(), serverReorders: this.serverReorders.clone() })
     }
 
     if (this.canceled) {
@@ -711,7 +742,6 @@ export default class SyncProcess {
     const targetRemovals = targetScanResult.REMOVE.getActions()
     const targetMoves = targetScanResult.MOVE.getActions()
     const targetUpdates = targetScanResult.UPDATE.getActions()
-    const targetReorders = targetScanResult.REORDER.getActions()
 
     const sourceCreations = sourceScanResult.CREATE.getActions()
     const sourceRemovals = sourceScanResult.REMOVE.getActions()
@@ -956,14 +986,6 @@ export default class SyncProcess {
     await Parallel.each(sourceScanResult.REORDER.getActions(), async(action) => {
       if (avoidTargetReorders[action.payload.id]) {
         return
-      }
-
-      if (targetLocation !== this.masterLocation) {
-        const concurrentReorder = targetReorders.find(a =>
-          action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload) && a.order.length > 0)
-        if (concurrentReorder) {
-          return
-        }
       }
 
       const findChainCache = {}
@@ -1333,6 +1355,7 @@ export default class SyncProcess {
         // clone action
         const reorderAction = {...oldReorderAction, order: oldReorderAction.order.slice()}
 
+        // Find removals of the main payload
         const removed = targetRemovals
           .filter(removal =>
             removal.payload.findItem(reorderAction.payload.type, reorderAction.payload.id) ||
@@ -1349,7 +1372,7 @@ export default class SyncProcess {
                   String(Mappings.mapRawId(mappingSnapshot, item.id, item.type, reorderAction.payload.location, move.payload.location)) === String(move.payload.id) && item.type === move.payload.type)
           )
 
-        // Find removals
+        // Find removals of sub items that are being reordered, we need to remove those from the order
         const concurrentRemovals = targetRemovals
           .filter(removal =>
             reorderAction.order.find(item =>
@@ -1404,6 +1427,55 @@ export default class SyncProcess {
           Logger.log('ReconcileReorders: Inserting moved item into order', {move: a, reorder: reorderAction})
           reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
         })
+
+        newReorders.commit(reorderAction)
+      })
+
+    return newReorders
+  }
+
+  reconcileConcurrentReorderings<L1 extends TItemLocation, L2 extends TItemLocation>(
+    targetReorders: Diff<L2, TItemLocation, ReorderAction<L2, TItemLocation>>,
+    sourceReorders: Diff<L1, TItemLocation, ReorderAction<L1, TItemLocation>>,
+    targetLocation: L1,
+    mappingSnapshot: MappingSnapshot
+  ) : Diff<L2, TItemLocation, ReorderAction<L2, TItemLocation>> {
+    Logger.log('Reconciling concurrent reorders from both reorder plans')
+    const sourceReorderActions = sourceReorders.getActions()
+
+    const newReorders = new Diff<L2, TItemLocation, ReorderAction<L2, TItemLocation>>
+
+    targetReorders
+      .getActions()
+      // MOVEs have oldItem from cacheTree and payload now mapped to their corresponding target tree
+      // REORDERs have payload in source tree
+      .forEach(oldReorderAction => {
+        // clone action
+        const reorderAction = {...oldReorderAction, order: oldReorderAction.order.slice()}
+
+        const concurrentSourceReorder = sourceReorderActions
+          .find(a => Mappings.mappable(mappingSnapshot, a.payload, reorderAction.payload))
+        if (concurrentSourceReorder) {
+          // Both source and target have a reorder for this item
+          if (targetLocation === this.masterLocation) {
+            newReorders.commit(reorderAction)
+          } else {
+            newReorders.commit({
+              ...reorderAction,
+              order: concurrentSourceReorder.order.map(({ type, id }) => ({
+                type,
+                id: Mappings.mapRawId(
+                  mappingSnapshot,
+                  id,
+                  type,
+                  concurrentSourceReorder.payload.location,
+                  reorderAction.payload.location
+                ),
+              })),
+            })
+          }
+          return
+        }
 
         newReorders.commit(reorderAction)
       })
