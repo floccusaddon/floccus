@@ -30,4 +30,3 @@ export default {
   padding: 16px;
 }
 </style>
-
