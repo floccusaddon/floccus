@@ -15,8 +15,6 @@ import {
 import random from 'random'
 import seedrandom from 'seedrandom'
 
-
-
 describe('Floccus', function() {
   this.timeout(120000) // no test should run longer than 120s
   this.slow(20000) // 20s is slow
@@ -205,7 +203,6 @@ describe('Floccus', function() {
                 }),
                 false
               )
-
 
               const bazFolderId = await localResource.createFolder(new Folder({
                 title: 'baz', parentId: localRoot
@@ -519,7 +516,6 @@ describe('Floccus', function() {
             it('should move items without confusing folders', async function() {
               const localResource = await account.getResource()
               const localRoot = (await localResource.getBookmarksTree()).id
-
 
               const folder1Id = await localResource.createFolder(new Folder({
                 title: 'a', parentId: localRoot
