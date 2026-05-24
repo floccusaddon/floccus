@@ -772,7 +772,7 @@ describe('Floccus', function() {
             )
             // ---
 
-            await localResource1.updateFolder(
+            await localResource2.updateFolder(
               new Folder({
                 ...tree2.children
                   .find((i) => i.title === 'a')
