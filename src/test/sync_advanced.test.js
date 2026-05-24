@@ -1,5 +1,5 @@
 import Account from '../lib/Account'
-import { Bookmark, Folder } from '../lib/Tree'
+import { Bookmark, Folder, ItemType } from '../lib/Tree'
 import * as AsyncParallel from 'async-parallel'
 import Controller from '../lib/Controller'
 import {
@@ -1388,8 +1388,11 @@ describe('Floccus', function() {
             localTree2.title = localTree1.title
             expectTreeEqual(localTree1, localTree2, true, true)
 
-            const localTree1Foo = localTree1.children.find(item => item.title === 'foo')
-            const localTree2Foo = localTree2.children.find(item => item.title === 'foo')
+            const localTree1Foo = localTree1.findItemFilter(
+              ItemType.FOLDER,
+              (item) => item.title === 'foo'
+            )
+            const localTree2Foo = localTree2.findItemFilter(ItemType.FOLDER, item => item.title === 'foo')
 
             let newBookmark1
             const newBookmark1Id = await localResource1.createBookmark(
@@ -1420,20 +1423,28 @@ describe('Floccus', function() {
             await localResource2.orderFolder(localTree2Foo.id, [
               {
                 type: 'folder',
-                id: localTree2Foo.find((item) => item.title === 'folder11').id,
+                id: localTree2Foo.children.find(
+                  (item) => item.title === 'folder11'
+                ).id,
               },
               {
                 type: 'folder',
-                id: localTree2Foo.find((item) => item.title === 'folder12').id,
+                id: localTree2Foo.children.find(
+                  (item) => item.title === 'folder12'
+                ).id,
               },
               {
                 type: 'bookmark',
-                id: localTree2Foo.find((item) => item.title === 'url11').id,
+                id: localTree2Foo.children.find(
+                  (item) => item.title === 'url11'
+                ).id,
               },
               { type: 'bookmark', id: newBookmark2Id },
               {
                 type: 'bookmark',
-                id: localTree2Foo.find((item) => item.title === 'url12').id,
+                id: localTree2Foo.children.find(
+                  (item) => item.title === 'url12'
+                ).id,
               },
             ])
 
