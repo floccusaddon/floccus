@@ -427,30 +427,33 @@ export default class SyncProcess {
     if ('orderFolder' in this.server && !this.localReorders) {
       // mappings have been updated, reload
       mappingsSnapshot = this.mappings.getSnapshot()
-      const localReorders1 = this.reconcileConcurrentReorderings(
+
+      const localReorders1 = this.reconcileReorderings(
         this.prelimLocalReorders,
-        this.prelimServerReorders,
-        ItemLocation.LOCAL,
-        mappingsSnapshot
-      )
-      const serverReorders1 = this.reconcileConcurrentReorderings(
-        this.prelimServerReorders,
-        this.prelimLocalReorders,
-        ItemLocation.SERVER,
-        mappingsSnapshot
-      )
-      const localReorders2 = this.reconcileReorderings(
-        localReorders1,
         this.localDonePlan,
         ItemLocation.LOCAL,
         mappingsSnapshot
       )
-      const serverReorders2 = this.reconcileReorderings(
-        serverReorders1,
+      const serverReorders1 = this.reconcileReorderings(
+        this.prelimServerReorders,
         this.serverDonePlan,
         ItemLocation.SERVER,
         mappingsSnapshot
       )
+
+      const localReorders2 = this.reconcileConcurrentReorderings(
+        localReorders1,
+        serverReorders1,
+        ItemLocation.LOCAL,
+        mappingsSnapshot
+      )
+      const serverReorders2 = this.reconcileConcurrentReorderings(
+        serverReorders1,
+        localReorders1,
+        ItemLocation.SERVER,
+        mappingsSnapshot
+      )
+
       this.localReorders = localReorders2.map(
         mappingsSnapshot,
         ItemLocation.LOCAL
