@@ -1452,6 +1452,12 @@ describe('Floccus', function() {
             await account1.sync()
             expect(account1.getData().error).to.not.be.ok
 
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+
             const secondLocalTree1 = await account1.localTree.getBookmarksTree(
               true
             )
@@ -1464,33 +1470,33 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'foo',
                     children: [
-                      new Bookmark({
-                        title: 'newBookmark1',
-                        url: newBookmark1.url
-                      }),
-                      new Bookmark({
-                        title: 'url12',
-                        url: bookmark12.url
-                      }),
-                      new Bookmark({
-                        title: 'url11',
-                        url: bookmark11.url
+                      new Folder({
+                        title: 'folder11',
+                        children: [],
                       }),
                       new Folder({
                         title: 'folder12',
-                        children: []
+                        children: [],
+                      }),
+                      new Bookmark({
+                        title: 'url11',
+                        url: bookmark11.url,
                       }),
                       new Bookmark({
                         title: 'newBookmark2',
-                        url: newBookmark2.url
+                        url: newBookmark2.url,
                       }),
-                      new Folder({
-                        title: 'folder11',
-                        children: []
+                      new Bookmark({
+                        title: 'url12',
+                        url: bookmark12.url,
                       }),
-                    ]
+                      new Bookmark({
+                        title: 'newBookmark1',
+                        url: newBookmark1.url,
+                      }),
+                    ],
                   }),
-                ]
+                ],
               }),
               true,
               true

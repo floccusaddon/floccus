@@ -1408,24 +1408,36 @@ export default class SyncProcess {
             !reorderAction.order.find(
               ({ type, id }) =>
                 type === creation.payload.type &&
-                String(id) === String(creation.payload.id)
+                String(id) === String(Mappings.mapId(mappingSnapshot, creation.payload, reorderAction.payload.location))
             )
         )
         concurrentCreations
           .forEach(a => {
             Logger.log('ReconcileReorders: Inserting created item into order', {creation: a, reorder: reorderAction})
-            reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
+            reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: Mappings.mapId(mappingSnapshot, a.payload, reorderAction.payload.location) })
           })
 
         // Find and insert moves at move target
-        const moves = targetMoves
-          .filter(move =>
-            String(reorderAction.payload.id) === String(move.payload.parentId) &&
-                  !reorderAction.order.find(item => String(item.id) === String(move.payload.id) && item.type === move.payload.type)
-          )
+        const moves = targetMoves.filter(
+          (move) =>
+            String(reorderAction.payload.id) ===
+              String(move.payload.parentId) &&
+            !reorderAction.order.find(
+              (item) =>
+                (item.type === move.payload.type &&
+                  String(item.id)) === String(Mappings.mapId(mappingSnapshot, move.payload, reorderAction.payload.location))
+            )
+        )
         moves.forEach(a => {
           Logger.log('ReconcileReorders: Inserting moved item into order', {move: a, reorder: reorderAction})
-          reorderAction.order.splice(a.index, 0, { type: a.payload.type, id: a.payload.id })
+          reorderAction.order.splice(a.index, 0, {
+            type: a.payload.type,
+            id: Mappings.mapId(
+              mappingSnapshot,
+              a.payload,
+              reorderAction.payload.location
+            ),
+          })
         })
 
         newReorders.commit(reorderAction)
@@ -1456,25 +1468,79 @@ export default class SyncProcess {
         const concurrentSourceReorder = sourceReorderActions
           .find(a => Mappings.mappable(mappingSnapshot, a.payload, reorderAction.payload))
         if (concurrentSourceReorder) {
-          // Both source and target have a reorder for this item
-          if (targetLocation !== this.masterLocation) {
-            newReorders.commit(reorderAction)
-          } else {
-            newReorders.commit({
-              ...reorderAction,
-              order: concurrentSourceReorder.order.map(({ type, id }) => ({
-                type,
+          // if the target location is master, then the reorder comes from non-master location and we need to reconcile
+          const newOrder = []
+          const targetOrder = reorderAction.order.slice()
+          const sourceOrder = concurrentSourceReorder.order.slice()
+          while (targetOrder.length || sourceOrder.length) {
+            if (!targetOrder.length) {
+              let sourceItem = sourceOrder.shift()
+              sourceItem = {
+                ...sourceItem,
                 id: Mappings.mapRawId(
                   mappingSnapshot,
-                  id,
-                  type,
+                  sourceItem.id,
+                  sourceItem.type,
                   concurrentSourceReorder.payload.location,
                   reorderAction.payload.location
-                ),
-              })),
-            })
+                )
+              }
+              if (newOrder.find(({type, id}) => type === sourceItem.type && id === sourceItem.id)) {
+                continue
+              }
+              newOrder.push(sourceItem)
+              continue
+            }
+            if (!sourceOrder.length) {
+              const targetItem = targetOrder.shift()
+              if (
+                newOrder.find(
+                  ({ type, id }) =>
+                    type === targetItem.type && id === targetItem.id
+                )
+              ) {
+                continue
+              }
+              newOrder.push(targetItem)
+              continue
+            }
+            if (
+              String(targetOrder[0].id) ===
+              String(Mappings.mapRawId(
+                mappingSnapshot,
+                sourceOrder[0].id,
+                sourceOrder[0].type,
+                concurrentSourceReorder.payload.location,
+                reorderAction.payload.location
+              ))
+            ) {
+              const targetItem = targetOrder.shift()
+              if (
+                newOrder.find(
+                  ({ type, id }) =>
+                    type === targetItem.type && id === targetItem.id
+                )
+              ) {
+                continue
+              }
+              newOrder.push(targetItem)
+              sourceOrder.shift()
+              continue
+            } else {
+              // first take the target item
+              const targetItem = targetOrder.shift()
+              if (
+                newOrder.find(
+                  ({ type, id }) =>
+                    type === targetItem.type && id === targetItem.id
+                )
+              ) {
+                continue
+              }
+              newOrder.push(targetItem)
+            }
           }
-          return
+          reorderAction.order = newOrder
         }
 
         newReorders.commit(reorderAction)
