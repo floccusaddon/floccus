@@ -123,7 +123,7 @@ jobs:
       nextcloud:
         image: nextcloud:${{ matrix.server-version }}
         ports:
-          - 80:80
+          - 8080:80
         env:
           NEXTCLOUD_ADMIN_USER: admin
           NEXTCLOUD_ADMIN_PASSWORD: admin
@@ -212,7 +212,7 @@ jobs:
           DROPBOX_API_REFRESH_TOKEN: ${{ secrets.DROPBOX_API_REFRESH_TOKEN }}
           LINKWARDEN_TOKEN: ${{ secrets.LINKWARDEN_TOKEN }}
           APP_VERSION: ${{ matrix.app-version }}
-          TEST_HOST: 172.17.0.1:80
+          TEST_HOST: 172.17.0.1:8080
           KARAKEEP_TEST_HOST: 172.17.0.1:3000
         with:
           api-level: 35
