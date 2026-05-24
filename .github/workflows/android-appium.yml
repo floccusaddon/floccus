@@ -131,7 +131,7 @@ jobs:
           MYSQL_USER: root
           MYSQL_PASSWORD: ${{env.MYSQL_PASSWORD}}
           MYSQL_HOST: mysql
-          NEXTCLOUD_TRUSTED_DOMAINS: nextcloud
+          NEXTCLOUD_TRUSTED_DOMAINS: 172.17.0.1:8080
         options: --name nextcloud
       mysql:
         image: mariadb:10.5 # see https://github.com/nextcloud/docker/issues/1536
