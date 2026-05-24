@@ -1902,10 +1902,18 @@ describe('Floccus', function() {
 
             const aFolder = await localResource.createFolder(new Folder({title: 'a', parentId: localRoot}))
             const bFolder = await localResource.createFolder(new Folder({title: 'b', parentId: aFolder}))
-            let bookmark1
-            const bookmark1LocalId = await localResource.createBookmark(bookmark1 = new Bookmark({title: 'url', url: 'http://ur.l/', parentId: aFolder}))
-            let bookmark2
-            const bookmark2LocalId = await localResource.createBookmark(bookmark2 = new Bookmark({title: 'url2', url: 'http://ur.l/dalfk', parentId: bFolder}))
+
+            const bookmark1LocalId = await localResource.createBookmark(new Bookmark({
+              title: 'url',
+              url: 'http://ur.l/',
+              parentId: aFolder
+            }))
+
+            const bookmark2LocalId = await localResource.createBookmark(new Bookmark({
+              title: 'url2',
+              url: 'http://ur.l/dalfk',
+              parentId: bFolder
+            }))
 
             let aFolderId, bookmark1Id, bFolderId, bookmark2Id
             await withSyncConnection(account, async() => {

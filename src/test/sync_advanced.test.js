@@ -15,8 +15,6 @@ import {
 import random from 'random'
 import seedrandom from 'seedrandom'
 
-const browser = null
-
 describe('Floccus', function() {
   this.timeout(120000) // no test should run longer than 120s
   this.slow(20000) // 20s is slow
@@ -123,10 +121,8 @@ describe('Floccus', function() {
             }
             const localResource1 = await account1.getResource()
             const localRoot1 = (await localResource1.getBookmarksTree()).id
-            let fooFolder
-            const fooFolderId = await localResource1.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot1}))
-            let barFolder
-            const barFolderId = await localResource1.createFolder(barFolder = new Folder({title: 'bar', parentId: fooFolderId}))
+            const fooFolderId = await localResource1.createFolder(new Folder({title: 'foo', parentId: localRoot1}))
+            const barFolderId = await localResource1.createFolder(new Folder({title: 'bar', parentId: fooFolderId}))
             await localResource1.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
 
             // Sync once first, so the file exists on GDrive and a lock can be set
@@ -162,10 +158,8 @@ describe('Floccus', function() {
             const localResource1 = await account1.getResource()
             const localResource2 = await account2.getResource()
             const localRoot1 = (await localResource1.getBookmarksTree()).id
-            let fooFolder
-            const fooFolderId = await localResource1.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot1}))
-            let barFolder
-            const barFolderId = await localResource1.createFolder(barFolder = new Folder({title: 'bar', parentId: fooFolderId}))
+            const fooFolderId = await localResource1.createFolder(new Folder({title: 'foo', parentId: localRoot1}))
+            const barFolderId = await localResource1.createFolder(new Folder({title: 'bar', parentId: fooFolderId}))
             let bookmark1
             const bookmark1Id = await localResource1.createBookmark(bookmark1 = new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
             await account1.sync()
@@ -241,10 +235,8 @@ describe('Floccus', function() {
           it('should overtake moves to a different client', async function() {
             const localResource1 = await account1.getResource()
             const localRoot1 = (await localResource1.getBookmarksTree()).id
-            let fooFolder
-            const fooFolderId = await localResource1.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot1}))
-            let barFolder
-            const barFolderId = await localResource1.createFolder(barFolder = new Folder({title: 'bar', parentId: fooFolderId}))
+            const fooFolderId = await localResource1.createFolder(new Folder({title: 'foo', parentId: localRoot1}))
+            const barFolderId = await localResource1.createFolder(new Folder({title: 'bar', parentId: fooFolderId}))
             let bookmark1
             const bookmark1Id = await localResource1.createBookmark(bookmark1 = new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
             const tree1 = await account1.localTree.getBookmarksTree(true)
@@ -348,10 +340,8 @@ describe('Floccus', function() {
             const localResource1 = await account1.getResource()
             const localResource2 = await account2.getResource()
             const localRoot1 = (await localResource1.getBookmarksTree()).id
-            let fooFolder
-            const fooFolderId = await localResource1.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot1}))
-            let barFolder
-            const barFolderId = await localResource1.createFolder(barFolder = new Folder({title: 'bar', parentId: fooFolderId}))
+            const fooFolderId = await localResource1.createFolder(new Folder({title: 'foo', parentId: localRoot1}))
+            const barFolderId = await localResource1.createFolder(new Folder({title: 'bar', parentId: fooFolderId}))
             await localResource1.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
             const tree1 = await account1.localTree.getBookmarksTree(true)
             await account1.sync()
@@ -463,18 +453,18 @@ describe('Floccus', function() {
 
             const localResource1 = await account1.getResource()
             const localRoot1 = (await localResource1.getBookmarksTree()).id
-            let fooFolder
-            const fooFolderId = await localResource1.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot1}))
-            let barFolder
-            const barFolderId = await localResource1.createFolder(barFolder = new Folder({title: 'bar', parentId: fooFolderId}))
+
+            const fooFolderId = await localResource1.createFolder(new Folder({ title: 'foo', parentId: localRoot1 }))
+
+            const barFolderId = await localResource1.createFolder(new Folder({ title: 'bar', parentId: fooFolderId }))
             await localResource1.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
 
             const localResource2 = await account2.getResource()
             const localRoot2 = (await localResource2.getBookmarksTree()).id
-            let fooFolder2
-            const fooFolder2Id = await localResource2.createFolder(fooFolder2 = new Folder({title: 'foo', parentId: localRoot2}))
-            let barFolder2
-            const barFolder2Id = await localResource2.createFolder(barFolder2 = new Folder({title: 'bar', parentId: fooFolder2Id}))
+
+            const fooFolder2Id = await localResource2.createFolder(new Folder({ title: 'foo', parentId: localRoot2 }))
+
+            const barFolder2Id = await localResource2.createFolder(new Folder({ title: 'bar', parentId: fooFolder2Id }))
 
             await account1.sync()
             expect(account1.getData().error).to.not.be.ok
@@ -537,12 +527,12 @@ describe('Floccus', function() {
             await account2.sync()
             expect(account2.getData().error).to.not.be.ok
 
-            let folder1
-            const folder1Id = await localResource1.createFolder(folder1 = new Folder({title: 'shared', parentId: localRoot1}))
+
+            const folder1Id = await localResource1.createFolder(new Folder({ title: 'shared', parentId: localRoot1 }))
             await localResource1.createBookmark(new Bookmark({title: 'from account 1', url: 'https://account1.example/', parentId: folder1Id}))
 
-            let folder2
-            const folder2Id = await localResource2.createFolder(folder2 = new Folder({title: 'shared', parentId: localRoot2}))
+
+            const folder2Id = await localResource2.createFolder(new Folder({ title: 'shared', parentId: localRoot2 }))
             await localResource2.createBookmark(new Bookmark({
               title: 'from account 2',
               url: 'https://account2.example/',
@@ -592,10 +582,10 @@ describe('Floccus', function() {
             const localRoot1 = (await localResource1.getBookmarksTree()).id
             let aFolder
             const aFolderId = await localResource1.createFolder(aFolder = new Folder({title: 'a', parentId: localRoot1}))
-            let bFolder
-            const bFolderId = await localResource1.createFolder(bFolder = new Folder({title: 'b', parentId: aFolderId}))
-            let cFolder
-            const cFolderId = await localResource1.createFolder(cFolder = new Folder({title: 'c', parentId: localRoot1}))
+
+            const bFolderId = await localResource1.createFolder(new Folder({ title: 'b', parentId: aFolderId }))
+
+            const cFolderId = await localResource1.createFolder(new Folder({ title: 'c', parentId: localRoot1 }))
             await localResource1.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: cFolderId}))
             await localResource1.createBookmark(new Bookmark({title: 'urlalala', url: 'http://ur.la/', parentId: bFolderId}))
             const tree1 = await account1.localTree.getBookmarksTree(true)
@@ -707,20 +697,20 @@ describe('Floccus', function() {
             const localRoot1 = (await localResource1.getBookmarksTree()).id
             let aFolder
             const aFolderId = await localResource1.createFolder(aFolder = new Folder({title: 'a', parentId: localRoot1}))
-            let bFolder
-            const bFolderId = await localResource1.createFolder(bFolder = new Folder({title: 'b', parentId: aFolderId}))
-            let cFolder
-            const cFolderId = await localResource1.createFolder(cFolder = new Folder({title: 'c', parentId: bFolderId}))
+
+            const bFolderId = await localResource1.createFolder(new Folder({ title: 'b', parentId: aFolderId }))
+
+            const cFolderId = await localResource1.createFolder(new Folder({ title: 'c', parentId: bFolderId }))
             let dFolder
             const dFolderId = await localResource1.createFolder(dFolder = new Folder({title: 'd', parentId: localRoot1}))
-            let eFolder
-            const eFolderId = await localResource1.createFolder(eFolder = new Folder({title: 'e', parentId: dFolderId}))
+
+            const eFolderId = await localResource1.createFolder(new Folder({ title: 'e', parentId: dFolderId }))
             await localResource1.createFolder(new Folder({
               title: 'f',
               parentId: dFolderId
             }))
-            let gFolder
-            const gFolderId = await localResource1.createFolder(gFolder = new Folder({title: 'g', parentId: localRoot1}))
+
+            const gFolderId = await localResource1.createFolder(new Folder({ title: 'g', parentId: localRoot1 }))
             await localResource1.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: bFolderId}))
             await localResource1.createBookmark(new Bookmark({title: 'urlalala', url: 'http://ur.la/', parentId: dFolderId}))
             await localResource1.createBookmark(new Bookmark({title: 'urlalala', url: 'http://ur2.l/', parentId: eFolderId}))
@@ -850,19 +840,19 @@ describe('Floccus', function() {
             const localResource1 = await account1.getResource()
             const localRoot1 = (await localResource1.getBookmarksTree()).id
             const localResource2 = await account2.getResource()
-            const localRoot2 = (await localResource2.getBookmarksTree()).id
+            (await localResource2.getBookmarksTree()).id
             let aFolder
             const aFolderId = await localResource1.createFolder(aFolder = new Folder({title: 'a', parentId: localRoot1}))
             let gFolder
             const gFolderId = await localResource1.createFolder(gFolder = new Folder({title: 'g', parentId: aFolderId}))
-            let bFolder
-            const bFolderId = await localResource1.createFolder(bFolder = new Folder({title: 'b', parentId: localRoot1}))
-            let cFolder
-            const cFolderId = await localResource1.createFolder(cFolder = new Folder({title: 'c', parentId: bFolderId}))
-            let dFolder
-            const dFolderId = await localResource1.createFolder(dFolder = new Folder({title: 'd', parentId: cFolderId}))
-            let eFolder
-            const eFolderId = await localResource1.createFolder(eFolder = new Folder({title: 'e', parentId: localRoot1}))
+
+            const bFolderId = await localResource1.createFolder(new Folder({ title: 'b', parentId: localRoot1 }))
+
+            const cFolderId = await localResource1.createFolder(new Folder({ title: 'c', parentId: bFolderId }))
+
+            const dFolderId = await localResource1.createFolder(new Folder({ title: 'd', parentId: cFolderId }))
+
+            const eFolderId = await localResource1.createFolder(new Folder({ title: 'e', parentId: localRoot1 }))
             await localResource1.createFolder(new Folder({title: 'f', parentId: eFolderId}))
             await localResource1.createFolder(new Folder({title: 'h', parentId: bFolderId}))
 
@@ -995,13 +985,13 @@ describe('Floccus', function() {
             const localResource1 = await account1.getResource()
             const localRoot1 = (await localResource1.getBookmarksTree()).id
             const localResource2 = await account2.getResource()
-            const localRoot2 = (await localResource2.getBookmarksTree()).id
+            (await localResource2.getBookmarksTree()).id
             let aFolder
             const aFolderId = await localResource1.createFolder(aFolder = new Folder({title: 'a', parentId: localRoot1}))
-            let bFolder
-            const bFolderId = await localResource1.createFolder(bFolder = new Folder({title: 'b', parentId: localRoot1}))
-            let cFolder
-            const cFolderId = await localResource1.createFolder(cFolder = new Folder({title: 'c', parentId: bFolderId}))
+
+            const bFolderId = await localResource1.createFolder(new Folder({ title: 'b', parentId: localRoot1 }))
+
+            const cFolderId = await localResource1.createFolder(new Folder({ title: 'c', parentId: bFolderId }))
             await localResource1.createFolder(new Folder({title: 'd', parentId: localRoot1}))
             let eFolder
             const eFolderId = await localResource1.createFolder(eFolder = new Folder({title: 'e', parentId: localRoot1}))
@@ -1061,8 +1051,8 @@ describe('Floccus', function() {
 
             // ---
 
-            let newFolder
-            const newFolderId = await localResource2.createFolder(newFolder = new Folder({
+
+            const newFolderId = await localResource2.createFolder(new Folder({
               title: 'new',
               parentId: tree2.children.find(i => i.title === 'e').id
             }))
@@ -1163,10 +1153,10 @@ describe('Floccus', function() {
             const zFolderId = await localResource1.createFolder(zFolder = new Folder({title: 'z', parentId: localRoot1}))
             let aFolder
             const aFolderId = await localResource1.createFolder(aFolder = new Folder({title: 'a', parentId: zFolderId}))
-            let bFolder
-            const bFolderId = await localResource1.createFolder(bFolder = new Folder({title: 'b', parentId: localRoot1}))
-            let cFolder
-            const cFolderId = await localResource1.createFolder(cFolder = new Folder({title: 'c', parentId: localRoot1}))
+
+            const bFolderId = await localResource1.createFolder(new Folder({ title: 'b', parentId: localRoot1 }))
+
+            const cFolderId = await localResource1.createFolder(new Folder({ title: 'c', parentId: localRoot1 }))
             await localResource1.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: aFolderId}))
             let bookmark2
             const bookmark2Id = await localResource1.createBookmark(bookmark2 = new Bookmark({title: 'urlalala', url: 'http://ur.la/', parentId: bFolderId}))
@@ -1207,8 +1197,8 @@ describe('Floccus', function() {
             )
             console.log('First round ok')
 
-            let newFolder
-            const newFolderId = await localResource1.createFolder(newFolder = new Folder({title: 'new', parentId: aFolderId}))
+
+            const newFolderId = await localResource1.createFolder(new Folder({ title: 'new', parentId: aFolderId }))
             await localResource1.updateBookmark(new Bookmark({...bookmark2, id: bookmark2Id, parentId: newFolderId}))
             await localResource1.updateFolder(new Folder({...aFolder, id: aFolderId, parentId: bFolderId}))
             await localResource1.updateFolder(new Folder({...zFolder, id: zFolderId, parentId: cFolderId}))
@@ -1277,12 +1267,12 @@ describe('Floccus', function() {
 
             const localResource1 = await account1.getResource()
             const localRoot1 = (await localResource1.getBookmarksTree()).id
-            let fooFolder
-            const fooFolderId = await localResource1.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot1}))
-            let folder1
-            const folder1Id = await localResource1.createFolder(folder1 = new Folder({title: 'folder1', parentId: fooFolderId}))
-            let folder2
-            const folder2Id = await localResource1.createFolder(folder2 = new Folder({title: 'folder2', parentId: fooFolderId}))
+
+            const fooFolderId = await localResource1.createFolder(new Folder({ title: 'foo', parentId: localRoot1 }))
+
+            const folder1Id = await localResource1.createFolder(new Folder({ title: 'folder1', parentId: fooFolderId }))
+
+            const folder2Id = await localResource1.createFolder(new Folder({ title: 'folder2', parentId: fooFolderId }))
             let bookmark1
             const bookmark1Id = await localResource1.createBookmark(bookmark1 = new Bookmark({title: 'url1', url: 'http://ur.l/', parentId: fooFolderId}))
             let bookmark2
@@ -1368,12 +1358,18 @@ describe('Floccus', function() {
             const localResource2 = await account2.getResource()
 
             const localRoot1 = (await localResource1.getBookmarksTree()).id
-            let fooFolder
-            const fooFolderId = await localResource1.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot1}))
-            let folder11
-            const folder11Id = await localResource1.createFolder(folder11 = new Folder({title: 'folder11', parentId: fooFolderId}))
-            let folder12
-            const folder12Id = await localResource1.createFolder(folder12 = new Folder({title: 'folder12', parentId: fooFolderId}))
+
+            const fooFolderId = await localResource1.createFolder(new Folder({ title: 'foo', parentId: localRoot1 }))
+
+            const folder11Id = await localResource1.createFolder(new Folder({
+              title: 'folder11',
+              parentId: fooFolderId
+            }))
+
+            const folder12Id = await localResource1.createFolder(new Folder({
+              title: 'folder12',
+              parentId: fooFolderId
+            }))
             let bookmark11
             const bookmark11Id = await localResource1.createBookmark(bookmark11 = new Bookmark({title: 'url11', url: 'http://ur.l/', parentId: fooFolderId}))
             let bookmark12
@@ -1513,10 +1509,10 @@ describe('Floccus', function() {
             const localResource2 = await account2.getResource()
             const localRoot2 = (await localResource2.getBookmarksTree()).id
 
-            let fooFolder
-            const fooFolderId = await localResource1.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot1}))
-            let barFolder
-            const barFolderId = await localResource1.createFolder(barFolder = new Folder({title: 'bar', parentId: fooFolderId}))
+
+            const fooFolderId = await localResource1.createFolder(new Folder({ title: 'foo', parentId: localRoot1 }))
+
+            const barFolderId = await localResource1.createFolder(new Folder({ title: 'bar', parentId: fooFolderId }))
             let bookmark1
             const bookmark1Id = await localResource1.createBookmark(bookmark1 = new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
 

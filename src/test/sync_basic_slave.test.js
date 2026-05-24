@@ -16,8 +16,6 @@ import {
 import random from 'random'
 import seedrandom from 'seedrandom'
 
-const browser = null
-
 describe('Floccus', function() {
   this.timeout(120000) // no test should run longer than 120s
   this.slow(20000) // 20s is slow
@@ -120,10 +118,10 @@ describe('Floccus', function() {
 
               const localResource = await account.getResource()
               const localRoot = (await localResource.getBookmarksTree(true)).id
-              let fooFolder
-              const fooFolderId = await localResource.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot}))
-              let barFolder
-              const barFolderId = await localResource.createFolder(barFolder = new Folder({title: 'bar', parentId: fooFolderId}))
+
+              const fooFolderId = await localResource.createFolder(new Folder({ title: 'foo', parentId: localRoot }))
+
+              const barFolderId = await localResource.createFolder(new Folder({ title: 'bar', parentId: fooFolderId }))
               await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
               await account.sync()
               expect(account.getData().error).to.not.be.ok
@@ -138,10 +136,10 @@ describe('Floccus', function() {
 
               const localResource = await account.getResource()
               const localRoot = (await localResource.getBookmarksTree(true)).id
-              let fooFolder
-              const fooFolderId = await localResource.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot}))
-              let barFolder
-              const barFolderId = await localResource.createFolder(barFolder = new Folder({title: 'bar', parentId: fooFolderId}))
+
+              const fooFolderId = await localResource.createFolder(new Folder({ title: 'foo', parentId: localRoot }))
+
+              const barFolderId = await localResource.createFolder(new Folder({ title: 'bar', parentId: fooFolderId }))
               let bookmark
               const bookmarkId = await localResource.createBookmark(bookmark = new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
               await account.sync() // propagate to server
@@ -169,10 +167,10 @@ describe('Floccus', function() {
 
               const localResource = await account.getResource()
               const localRoot = (await localResource.getBookmarksTree(true)).id
-              let fooFolder
-              const fooFolderId = await localResource.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot}))
-              let barFolder
-              const barFolderId = await localResource.createFolder(barFolder = new Folder({title: 'bar', parentId: fooFolderId}))
+
+              const fooFolderId = await localResource.createFolder(new Folder({ title: 'foo', parentId: localRoot }))
+
+              const barFolderId = await localResource.createFolder(new Folder({ title: 'bar', parentId: fooFolderId }))
               let bookmark
               const bookmarkId = await localResource.createBookmark(bookmark = new Bookmark({title: 'url', url: 'http://ur.l/', parentId: barFolderId}))
               await account.sync() // propagate to server
@@ -199,8 +197,8 @@ describe('Floccus', function() {
 
               const localResource = await account.getResource()
               const localRoot = (await localResource.getBookmarksTree(true)).id
-              let fooFolder
-              const fooFolderId = await localResource.createFolder(fooFolder = new Folder({title: 'foo', parentId: localRoot}))
+
+              const fooFolderId = await localResource.createFolder(new Folder({ title: 'foo', parentId: localRoot }))
               await localResource.createBookmark(new Bookmark({title: 'test', url: 'http://ureff.l/', parentId: fooFolderId}))
               let barFolder
               const barFolderId = await localResource.createFolder(barFolder = new Folder({title: 'bar', parentId: fooFolderId}))
