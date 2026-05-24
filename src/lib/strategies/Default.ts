@@ -1457,7 +1457,7 @@ export default class SyncProcess {
           .find(a => Mappings.mappable(mappingSnapshot, a.payload, reorderAction.payload))
         if (concurrentSourceReorder) {
           // Both source and target have a reorder for this item
-          if (targetLocation === this.masterLocation) {
+          if (targetLocation !== this.masterLocation) {
             newReorders.commit(reorderAction)
           } else {
             newReorders.commit({
