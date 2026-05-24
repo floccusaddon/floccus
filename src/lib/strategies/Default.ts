@@ -1378,8 +1378,16 @@ export default class SyncProcess {
         })
 
         // Find and insert creations
-        const concurrentCreations = targetCreations
-          .filter(creation => String(reorderAction.payload.id) === String(creation.payload.parentId))
+        const concurrentCreations = targetCreations.filter(
+          (creation) =>
+            String(reorderAction.payload.id) ===
+              String(creation.payload.parentId) &&
+            !reorderAction.order.find(
+              ({ type, id }) =>
+                type === creation.payload.type &&
+                String(id) === String(creation.payload.id)
+            )
+        )
         concurrentCreations
           .forEach(a => {
             Logger.log('ReconcileReorders: Inserting created item into order', {creation: a, reorder: reorderAction})
