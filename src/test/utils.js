@@ -5,6 +5,7 @@ import { Bookmark, Folder } from '../lib/Tree'
 import Logger from '../lib/Logger'
 import FakeAdapter from '../lib/adapters/Fake'
 import random from 'random'
+import seedrandom from 'seedrandom'
 
 const DEFAULT_SEED = Math.random() + ''
 
@@ -32,6 +33,9 @@ export function getEnv() {
   SEED =
     new URL(window.location.href).searchParams.get('seed') || DEFAULT_SEED
   console.log('RANDOMNESS SEED', SEED)
+
+  // needed for credentials below
+  random.use(seedrandom(SEED))
 
   RANDOM_MANIPULATION_ITERATIONS = 35
 
