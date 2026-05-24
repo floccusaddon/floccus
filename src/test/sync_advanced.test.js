@@ -1404,6 +1404,14 @@ describe('Floccus', function() {
               })
             )
 
+            await localResource1.orderFolder(localTree1Foo.id, [
+              { type: 'bookmark', id: newBookmark1Id },
+              { type: 'bookmark', id: bookmark12Id },
+              { type: 'bookmark', id: bookmark11Id },
+              { type: 'folder', id: folder12Id },
+              { type: 'folder', id: folder11Id },
+            ])
+
             let newBookmark2
             const newBookmark2Id = await localResource2.createBookmark(
               (newBookmark2 = new Bookmark({
@@ -1413,20 +1421,24 @@ describe('Floccus', function() {
               }))
             )
 
-            await localResource1.orderFolder(localTree1Foo.id, [
-              { type: 'bookmark', id: newBookmark1Id },
-              { type: 'bookmark', id: bookmark12Id },
-              { type: 'bookmark', id: bookmark11Id },
-              { type: 'folder', id: folder12Id },
-              { type: 'folder', id: folder11Id },
-            ])
-
             await localResource2.orderFolder(localTree2Foo.id, [
-              { type: 'folder', id: folder11Id },
-              { type: 'folder', id: folder12Id },
-              { type: 'bookmark', id: bookmark11Id },
+              {
+                type: 'folder',
+                id: localTree2Foo.find((item) => item.title === 'folder11').id,
+              },
+              {
+                type: 'folder',
+                id: localTree2Foo.find((item) => item.title === 'folder12').id,
+              },
+              {
+                type: 'bookmark',
+                id: localTree2Foo.find((item) => item.title === 'url11').id,
+              },
               { type: 'bookmark', id: newBookmark2Id },
-              { type: 'bookmark', id: bookmark12Id },
+              {
+                type: 'bookmark',
+                id: localTree2Foo.find((item) => item.title === 'url12').id,
+              },
             ])
 
             await account1.sync()
