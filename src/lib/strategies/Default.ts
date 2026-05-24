@@ -439,7 +439,6 @@ export default class SyncProcess {
         ItemLocation.SERVER,
         mappingsSnapshot
       )
-      console.log({localReorders1, serverReorders1})
       const localReorders2 = this.reconcileReorderings(
         localReorders1,
         this.localDonePlan,
@@ -452,7 +451,6 @@ export default class SyncProcess {
         ItemLocation.SERVER,
         mappingsSnapshot
       )
-      console.log({localReorders2, serverReorders2})
       this.localReorders = localReorders2.map(
         mappingsSnapshot,
         ItemLocation.LOCAL
@@ -461,7 +459,6 @@ export default class SyncProcess {
         mappingsSnapshot,
         ItemLocation.SERVER
       )
-      console.log({ localReorders: this.localReorders.clone(), serverReorders: this.serverReorders.clone() })
     }
 
     if (this.canceled) {
