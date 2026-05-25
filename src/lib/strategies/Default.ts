@@ -1009,7 +1009,7 @@ export default class SyncProcess {
     targetLocation:L1,
     donePlan: PlanStage3<TOppositeLocation<L1>, TItemLocation, L1>,
     reorders: Diff<TOppositeLocation<L1>, TItemLocation, ReorderAction<TOppositeLocation<L1>, TItemLocation>>): Promise<void> {
-    Logger.log('Executing ' + targetLocation + ' plan for ')
+    Logger.log('Executing ' + targetLocation + ' plan for stage 2')
 
     let createActions = planStage2.CREATE.getActions()
     while (createActions.length > 0) {
@@ -1047,9 +1047,16 @@ export default class SyncProcess {
     }
 
     Logger.log(targetLocation + ': executing MOVEs')
-    await Parallel.each(batches, batch => Parallel.each(batch, (action) => {
-      return this.executeUpdate(resource, action, targetLocation, planStage3.MOVE, donePlan)
-    }, ACTION_CONCURRENCY), 1)
+    await Parallel.each(
+      batches,
+      async(batch) => {
+        Logger.log('Starting new batch of concurrent MOVEs with size ' + batch.length)
+        return Parallel.each(batch, (action) => {
+          return this.executeUpdate(resource, action, targetLocation, planStage3.MOVE, donePlan)
+        }, ACTION_CONCURRENCY)
+      },
+      1
+    )
 
     if (this.canceled) {
       throw new CancelledSyncError()
