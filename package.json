@@ -13,7 +13,7 @@
     "test:appium": "node --unhandled-rejections=strict test/appium-runner.js",
     "lint": "eslint --ext .js,.vue src",
     "lint:fix": "eslint --ext .js,.vue src --fix",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "NODE_OPTIONS=--max-old-space-size=6096 tsc --noEmit",
     "doiuse": "doiuse dist/js/css/*.css",
     "supportedBrowsers": "echo \"module.exports = $(browserslist-useragent-regexp --allowHigherVersions);\" > supportedBrowsers.js"
   },
