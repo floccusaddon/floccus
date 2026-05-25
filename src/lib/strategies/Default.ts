@@ -1063,7 +1063,7 @@ export default class SyncProcess {
         Logger.log('Starting new batch of concurrent MOVEs with size ' + batch.length)
         return Parallel.each(batch, (action) => {
           return this.executeUpdate(resource, action, targetLocation, planStage3.MOVE, donePlan)
-        }, 1)
+        }, ACTION_CONCURRENCY)
       },
       1
     )
