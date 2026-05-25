@@ -1,13 +1,11 @@
 import { Preferences as Storage } from '@capacitor/preferences'
-import { Bookmark, Folder, ItemLocation, TItemLocation } from '../Tree'
+import { Bookmark, Folder, ItemLocation } from '../Tree'
 import Ordering from '../interfaces/Ordering'
 import CachingAdapter from '../adapters/Caching'
 import IAccountStorage from '../interfaces/AccountStorage'
 import { BulkImportResource, IHashSettings } from '../interfaces/Resource'
 
 export default class NativeTree extends CachingAdapter implements BulkImportResource<typeof ItemLocation.LOCAL> {
-  protected location: TItemLocation = ItemLocation.LOCAL
-
   private storage: IAccountStorage
   private readonly accountId: string
   private saveTimeout: any
@@ -15,6 +13,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
 
   constructor(storage:IAccountStorage) {
     super({})
+    this.location = ItemLocation.LOCAL
     this.storage = storage
     this.accountId = this.storage.accountId
   }
