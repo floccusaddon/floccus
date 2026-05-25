@@ -229,7 +229,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       throw new UnknownCreateTargetError()
     }
     // clone and adjust ids
-    const imported = folder.copy()
+    const imported = folder.copyWithLocation(true, this.location)
     imported.id = id
     await imported.traverse(async(item, parentFolder) => {
       item.id = ++this.highestId
