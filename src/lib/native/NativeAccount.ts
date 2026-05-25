@@ -63,6 +63,22 @@ export default class NativeAccount extends Account {
     }
   }
 
+  async sync(...args) {
+    try {
+      const localResource = await this.getResource()
+      if (localResource instanceof NativeTree) {
+        await localResource.saveImmediately()
+      }
+    } catch (e) {
+      Logger.log(
+        'Failed to persist unsaved changes from NativeTree before sync:',
+        e
+      )
+      Logger.log('Continuing anyway.')
+    }
+    await super.sync(...args)
+  }
+
   async updateFromStorage(): Promise<void> {
     // empty
   }
