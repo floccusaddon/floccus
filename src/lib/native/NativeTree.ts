@@ -31,7 +31,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
       if (this.loaded && this.bookmarksCache) {
         oldHash = await this.bookmarksCache.cloneWithLocation(false, this.location).hash(hashSettings)
       }
-      this.bookmarksCache = Folder.hydrate(JSON.parse(tree)).copy(false)
+      this.bookmarksCache = Folder.hydrate(JSON.parse(tree)).copyWithLocation(false, this.location)
       const parsedHighestId = parseInt(highestId ?? '0', 10)
       this.highestId = Number.isNaN(parsedHighestId) ? 0 : parsedHighestId
       if (oldHash && this.loaded) {
@@ -107,17 +107,8 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   }
 
   async bulkImportFolder(id: number|string, folder:Folder<typeof ItemLocation.LOCAL>):Promise<Folder<typeof ItemLocation.LOCAL>> {
-    await Promise.all(folder.children.map(async child => {
-      child.parentId = id
-      if (child instanceof Bookmark) {
-        await super.createBookmark(child)
-      }
-      if (child instanceof Folder) {
-        const folderId = await super.createFolder(child)
-        await this.bulkImportFolder(folderId, child)
-      }
-    }))
-    return this.bookmarksCache.findFolder(id) as Folder<typeof ItemLocation.LOCAL>
+    this.triggerSave()
+    return await super.bulkImportFolder(id, folder) as Folder<typeof ItemLocation.LOCAL>
   }
 
   isAvailable(): Promise<boolean> {
