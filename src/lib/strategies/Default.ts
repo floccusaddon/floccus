@@ -923,7 +923,8 @@ export default class SyncProcess {
       let findChainCache1 = {}, findChainCache2 = {}
       // Find concurrent moves that form a hierarchy reversal together with this one
       const concurrentHierarchyReversals = targetMoves.filter(targetMove => {
-        return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, targetMove.payload, action, findChainCache2)
+        return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetMove, findChainCache1) &&
+          Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, targetMove.payload, action, findChainCache2)
       })
       if (concurrentHierarchyReversals.length) {
         if (targetLocation !== this.masterLocation) {
