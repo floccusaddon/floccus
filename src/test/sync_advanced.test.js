@@ -1137,11 +1137,6 @@ describe('Floccus', function() {
             )
           })
           it('should handle complex move-remove interactions', async function() {
-            if (ACCOUNT_DATA.type === 'nextcloud-bookmarks') {
-              // Not sure why, but this fails sometimes. Likely because of the bookmark ID trick
-              this.skip()
-              return
-            }
             const localResource1 = await account1.getResource()
             const localResource2 = await account2.getResource()
             const localRoot1 = (await localResource1.getBookmarksTree()).id
