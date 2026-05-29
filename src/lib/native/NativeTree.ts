@@ -16,6 +16,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
     this.location = ItemLocation.LOCAL
     this.storage = storage
     this.accountId = this.storage.accountId
+    this.resetCache()
   }
 
   async load():Promise<boolean> {
