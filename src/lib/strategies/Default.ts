@@ -441,24 +441,37 @@ export default class SyncProcess {
         mappingsSnapshot
       )
 
-      const localReorders2 = this.reconcileConcurrentReorderings(
+      const localReorders2 = this.reconcileReorderings(
         localReorders1,
-        serverReorders1,
+        this.serverDonePlan,
         ItemLocation.LOCAL,
         mappingsSnapshot
       )
-      const serverReorders2 = this.reconcileConcurrentReorderings(
+      const serverReorders2 = this.reconcileReorderings(
         serverReorders1,
-        localReorders1,
+        this.localDonePlan,
         ItemLocation.SERVER,
         mappingsSnapshot
       )
 
-      this.localReorders = localReorders2.map(
+      const localReorders3 = this.reconcileConcurrentReorderings(
+        localReorders2,
+        serverReorders2,
+        ItemLocation.LOCAL,
+        mappingsSnapshot
+      )
+      const serverReorders3 = this.reconcileConcurrentReorderings(
+        serverReorders2,
+        localReorders2,
+        ItemLocation.SERVER,
+        mappingsSnapshot
+      )
+
+      this.localReorders = localReorders3.map(
         mappingsSnapshot,
         ItemLocation.LOCAL
       )
-      this.serverReorders = serverReorders2.map(
+      this.serverReorders = serverReorders3.map(
         mappingsSnapshot,
         ItemLocation.SERVER
       )
