@@ -7,6 +7,7 @@ export default class CacheTree extends CachingAdapter implements IResource<typeo
 
   constructor() {
     super({})
+    this.resetCache()
   }
 
   public setTree(tree: Folder<typeof ItemLocation.LOCAL>) {

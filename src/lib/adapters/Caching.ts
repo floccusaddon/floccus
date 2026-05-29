@@ -18,10 +18,11 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
   protected highestId: number
   public bookmarksCache: Folder<TItemLocation>
   protected server: any
-  protected location: TItemLocation = ItemLocation.SERVER
+  protected location: TItemLocation
   protected hashSettings: IHashSettings
 
   constructor(server: any) {
+    this.location = ItemLocation.SERVER
     this.resetCache()
   }
 
