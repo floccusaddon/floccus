@@ -1470,6 +1470,10 @@ describe('Floccus', function() {
                   new Folder({
                     title: 'foo',
                     children: [
+                      new Bookmark({
+                        title: 'newBookmark1',
+                        url: newBookmark1.url,
+                      }),
                       new Folder({
                         title: 'folder11',
                         children: [],
@@ -1489,10 +1493,6 @@ describe('Floccus', function() {
                       new Bookmark({
                         title: 'url12',
                         url: bookmark12.url,
-                      }),
-                      new Bookmark({
-                        title: 'newBookmark1',
-                        url: newBookmark1.url,
                       }),
                     ],
                   }),
