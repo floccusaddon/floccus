@@ -914,7 +914,7 @@ export default class SyncProcess {
           // Remove subitems that have been (re)moved already by other actions
           const newPayload = action.payload.copy()
           if (newPayload.type === ItemType.FOLDER) {
-            newPayload.traverse((item, folder) => {
+            await newPayload.traverse((item, folder) => {
               const removed = sourceRemovals.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload))
               const movedAway = sourceMoves.find(a => Mappings.mappable(mappingsSnapshot, item, a.payload))
               if (removed || (movedAway && Mappings.mapParentId(mappingsSnapshot, movedAway.payload, item.location) !== item.parentId)) {
