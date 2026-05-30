@@ -909,7 +909,12 @@ export default class SyncProcess {
         // moved sourcely but removed on the target, recreate it on the target
         if (targetLocation !== this.masterLocation) {
           // only when coming from master do we recreate
-          const originalCreation = sourceCreations.find(creation => creation.payload.findItem(ItemType.FOLDER, action.payload.parentId))
+          // check sourceCreations and targetPlan.CREATE, since we may have created an item along the way in this method already
+          const originalCreation = targetPlan.CREATE.getActions().find(creation =>
+            creation.payload.type === ItemType.FOLDER && creation.payload.findItem(ItemType.FOLDER, action.payload.parentId)
+          ) || sourceCreations.find(creation =>
+            creation.payload.type === ItemType.FOLDER && creation.payload.findItem(ItemType.FOLDER, action.payload.parentId)
+          )
 
           // Remove subitems that have been (re)moved already by other actions
           const newPayload = action.payload.copy()
