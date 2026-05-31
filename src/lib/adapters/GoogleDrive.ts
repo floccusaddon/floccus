@@ -5,7 +5,8 @@ import Crypto from '../Crypto'
 import Credentials from '../../../google-api.credentials.json'
 import {
   AuthenticationError,
-  DecryptionError, FileUnreadableError,
+  DecryptionError, DownloadFileSizeMismatch, FileUnreadableError,
+  FileSizeUnknown, UploadVerificationFileSizeMismatch,
   GoogleDriveAuthenticationError, HttpError, CancelledSyncError, MissingPermissionsError,
   NetworkError,
   GoogleOAuthTokenError, ResourceLockedError, GoogleDriveSearchError, RequestTimeoutError
@@ -238,12 +239,14 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     if (file && file.id) {
       this.fileId = file.id
+      let fileMetadata
       if (forceLock) {
         this.locked = await this.setLock(this.fileId)
+        fileMetadata = await this.getFileMetadata(this.fileId, 'size')
       } else if (needLock) {
-        const data = await this.getFileMetadata(this.fileId, 'appProperties')
-        if (data.appProperties && data.appProperties.locked && (data.appProperties.locked === true || JSON.parse(data.appProperties.locked))) {
-          const lockedDate = JSON.parse(data.appProperties.locked)
+        fileMetadata = await this.getFileMetadata(this.fileId, 'appProperties,size')
+        if (fileMetadata.appProperties && fileMetadata.appProperties.locked && (fileMetadata.appProperties.locked === true || JSON.parse(fileMetadata.appProperties.locked))) {
+          const lockedDate = JSON.parse(fileMetadata.appProperties.locked)
           if (!Number.isInteger(lockedDate)) {
             throw new ResourceLockedError()
           }
@@ -252,9 +255,13 @@ export default class GoogleDriveAdapter extends CachingAdapter {
           }
         }
         this.locked = await this.setLock(this.fileId)
+      } else {
+        fileMetadata = await this.getFileMetadata(this.fileId, 'size')
       }
+      const expectedFileSize = this.getRemoteFileSize(fileMetadata.size)
 
       let xmlDocText = await this.downloadFile(this.fileId)
+      this.ensureDownloadedFileContentMatchesSize(expectedFileSize, xmlDocText)
 
       if (this.server.password) {
         try {
@@ -358,6 +365,47 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
   cancel() {
     this.cancelCallback && this.cancelCallback()
+  }
+
+  getContentByteLength(content: string): number {
+    return new TextEncoder().encode(content).length
+  }
+
+  getRemoteFileSize(fileSize: string|number): number {
+    const parsedFileSize = Number(fileSize)
+    if (!Number.isFinite(parsedFileSize)) {
+      throw new FileSizeUnknown()
+    }
+    return parsedFileSize
+  }
+
+  ensureDownloadedFileContentMatchesSize(expectedFileSize: number, content: string): void {
+    const byteLength = this.getContentByteLength(content)
+    if (expectedFileSize !== byteLength) {
+      Logger.log('File size mismatch: ' + expectedFileSize + ' != ' + byteLength)
+      throw new DownloadFileSizeMismatch()
+    }
+  }
+
+  async verifyUploadedRemoteFileSize(id: string, expectedFileSize: number): Promise<void> {
+    const data = await this.getFileMetadata(id, 'size')
+    const actualFileSize = this.getRemoteFileSize(data.size)
+    if (actualFileSize !== expectedFileSize) {
+      Logger.log('File size mismatch: ' + expectedFileSize + ' != ' + actualFileSize)
+      throw new UploadVerificationFileSizeMismatch()
+    }
+  }
+
+  async verifyUploadedFileSize(id: string, xbel: string, retriesLeft = 2): Promise<void> {
+    try {
+      await this.verifyUploadedRemoteFileSize(id, this.getContentByteLength(xbel))
+    } catch (e) {
+      if (!(e instanceof UploadVerificationFileSizeMismatch) || retriesLeft <= 0) {
+        throw e
+      }
+      Logger.log('Uploaded file size mismatch. Retrying upload to Google Drive.')
+      await this.uploadFile(id, xbel, retriesLeft - 1)
+    }
   }
 
   async request(method: string, url: string, body: any = null, contentType: string = null) : Promise<CustomResponse> {
@@ -531,15 +579,20 @@ export default class GoogleDriveAdapter extends CachingAdapter {
       JSON.stringify({name: this.server.bookmark_file}),
       'application/json'
     )
-    return res.status === 200
+    if (res.status !== 200) {
+      return false
+    }
+    await this.verifyUploadedFileSize(this.fileId, xbel)
+    return true
   }
 
-  async uploadFile(id:string, xbel: string) {
+  async uploadFile(id:string, xbel: string, retriesLeft = 2) {
     const resp = await this.request('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/' + id, xbel, 'application/xml')
     if (resp.status >= 400) {
       Logger.log('Google API error: ' + JSON.stringify(resp.text()))
       throw new HttpError(resp.status, 'GET')
     }
+    await this.verifyUploadedFileSize(id, xbel, retriesLeft)
     return resp.status === 200
   }
 }

@@ -158,6 +158,12 @@
   "Error054": {
     "message": "E054: Could not get template for Dropbox"
   },
+  "Error055": {
+    "message": "E055: The downloaded Google Drive bookmarks file size differs from the size reported by the server. This might be a temporary network issue. If this error persists please try again later."
+  },
+  "Error056": {
+    "message": "E056: The uploaded Google Drive bookmarks file size differs from the size reported by the server after upload verification. floccus retried the upload but could not confirm the result. Please try again later."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
