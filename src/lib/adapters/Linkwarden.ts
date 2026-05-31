@@ -214,15 +214,27 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
 
   async getBookmarksTree(loadAll?: boolean): Promise<Folder<typeof ItemLocation.SERVER>> {
     const links = []
-    let data
-    do {
-      ({ data } = await this.sendRequest('GET', `/api/v1/search?searchQueryString=&cursor=${data?.nextCursor || ''}`))
+    let nextCursor = null
+    while (true) {
+      const params = new URLSearchParams({ searchQueryString: '' })
+      if (nextCursor) {
+        params.set('cursor', nextCursor)
+      }
+      const { data } = await this.sendRequest('GET', `/api/v1/search?${params.toString()}`)
       links.push(...data.links)
-    } while (data.links.length !== 0 && data.nextCursor !== null)
+
+      nextCursor = data.nextCursor
+        ? data.nextCursor
+        : null
+
+      if (!nextCursor) {
+        break
+      }
+    }
 
     const { response: collections } = await this.sendRequest('GET', `/api/v1/collections`)
 
-    let rootCollection = collections.find(collection => collection.name === this.server.serverFolder && collection.parentId === null)
+    let rootCollection = collections.find(collection => collection.name === this.server.serverFolder && collection.parentId == null)
     if (!rootCollection) {
       ({response: rootCollection} = await this.sendRequest(
         'POST', '/api/v1/collections',
@@ -233,17 +245,18 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     }
 
     const buildTree = (collection, isRoot = false) => {
+      const collectionId = String(collection.id)
       return new Folder({
         id: collection.id,
         title: collection.name,
-        parentId: collection.parentId,
+        parentId: collection.parentId ?? null,
         location: ItemLocation.SERVER,
         isRoot,
         children: collections
-          .filter(col => col.parentId === collection.id)
+          .filter(col => String(col.parentId) === collectionId)
           .map(buildTree).concat(
             links
-              .filter(link => link.collectionId === collection.id)
+              .filter(link => String(link.collectionId) === collectionId)
               .map(link => new Bookmark({
                 id: link.id,
                 title: link.name,
