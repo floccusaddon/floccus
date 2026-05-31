@@ -402,15 +402,21 @@ export default class WebDavAdapter extends CachingAdapter {
 
     for (let attempt = 0; attempt <= PUT_FILE_SIZE_RETRIES; attempt++) {
       try {
-        await this.uploadFile(tempUrl, content_type, data)
-        await this.verifyUploadedFileSize(tempUrl, expectedByteLength)
-        await this.moveFile(tempUrl, url)
+        if (IS_BROWSER) {
+          await this.uploadFile(tempUrl, content_type, data)
+          await this.verifyUploadedFileSize(tempUrl, expectedByteLength)
+          await this.moveFile(tempUrl, url)
+        } else {
+          await this.uploadFile(url, content_type, data)
+        }
         await this.verifyUploadedFileSize(url, expectedByteLength)
         return
       } catch (e) {
         const isLastAttempt = attempt === PUT_FILE_SIZE_RETRIES
         const shouldRetry = e instanceof FileSizeMismatch || e instanceof FileSizeUnknown
-        await this.deleteBookmarkTempFile(tempUrl)
+        if (IS_BROWSER) {
+          await this.deleteBookmarkTempFile(tempUrl)
+        }
         if (!shouldRetry || isLastAttempt) {
           throw e
         }
