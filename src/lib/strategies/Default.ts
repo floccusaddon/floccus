@@ -178,23 +178,27 @@ export default class SyncProcess {
     this.throttledProgressCb.cancel()
   }
 
-  async updateProgress():Promise<void> {
-    if (typeof this.actionsDone === 'undefined' || this.actionsDone === null) {
-      this.actionsDone = 0
-    }
-    this.actionsDone++
-    this.throttledProgressCb(
-      Math.min(
-        1,
-        0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
-      ),
-      this.actionsDone
-    ).catch((er) => {
+  protected queueProgressUpdate(progress: number, actionsDone?: number): void {
+    void this.throttledProgressCb(progress, actionsDone).catch((er) => {
       if (er instanceof CanceledError) {
         return
       }
       throw er
     })
+  }
+
+  async updateProgress():Promise<void> {
+    if (typeof this.actionsDone === 'undefined' || this.actionsDone === null) {
+      this.actionsDone = 0
+    }
+    this.actionsDone++
+    this.queueProgressUpdate(
+      Math.min(
+        1,
+        0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5
+      ),
+      this.actionsDone
+    )
     Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
   }
 
@@ -234,23 +238,13 @@ export default class SyncProcess {
 
   async sync(): Promise<void> {
     // onSyncStart is already executed at this point
-    this.throttledProgressCb(0.15, 0).catch((er) => {
-      if (er instanceof CanceledError) {
-        return
-      }
-      throw er
-    })
+    this.queueProgressUpdate(0.15, 0)
 
     this.masterLocation = ItemLocation.LOCAL
     await this.prepareSync()
 
     // trees are loaded at this point
-    this.throttledProgressCb(0.35, 0).catch((er) => {
-      if (er instanceof CanceledError) {
-        return
-      }
-      throw er
-    })
+    this.queueProgressUpdate(0.35, 0)
 
     if (this.canceled) {
       throw new CancelledSyncError()
@@ -263,12 +257,7 @@ export default class SyncProcess {
       Logger.log({ localScanResult, serverScanResult })
       this.localScanResult = localScanResult
       this.serverScanResult = serverScanResult
-      this.throttledProgressCb(0.45, 0).catch((er) => {
-        if (er instanceof CanceledError) {
-          return
-        }
-        throw er
-      })
+      this.queueProgressUpdate(0.45, 0)
     }
 
     if (this.canceled) {

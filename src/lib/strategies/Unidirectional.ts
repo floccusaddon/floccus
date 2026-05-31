@@ -146,7 +146,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
   }
 
   async sync(): Promise<void> {
-    this.throttledProgressCb(0.15, 0)
+    this.queueProgressUpdate(0.15, 0)
 
     this.masterLocation =
       this.direction === ItemLocation.SERVER
@@ -154,7 +154,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
         : ItemLocation.SERVER
     await this.prepareSync()
 
-    this.throttledProgressCb(0.35, 0)
+    this.queueProgressUpdate(0.35, 0)
 
     if (this.canceled) {
       throw new CancelledSyncError()
@@ -169,7 +169,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     if (!this.scanResult && !this.revertPlan) {
       this.scanResult = await this.getDiff()
       Logger.log({ scanResult: this.scanResult })
-      this.throttledProgressCb(0.45, 0)
+      this.queueProgressUpdate(0.45, 0)
     }
 
     if (this.canceled) {
