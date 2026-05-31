@@ -1,0 +1,248 @@
+name: Android Appium
+
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - master
+    paths:
+      - '.github/workflows/android-appium.yml'
+      - 'android/**'
+      - 'gulpfile.js'
+      - 'html/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/**'
+      - 'test/**'
+      - 'webpack*'
+
+concurrency:
+  group: floccus-android-appium-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  APP_NAME: bookmarks
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+
+    strategy:
+      # do not stop on another job's failure
+      fail-fast: false
+      matrix:
+        node-version: [ 20.x ]
+        npm-version: [ 10.x ]
+        java-version: [ 21 ]
+
+    steps:
+      - name: Checkout floccus
+        uses: actions/checkout@v2
+        with:
+          path: floccus
+
+      - name: Set up node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Set up npm ${{ matrix.npm-version }}
+        run: npm i -g npm@"${{ matrix.npm-version }}"
+
+      - name: Set up Java ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java-version }}
+          cache: gradle
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install dependencies & build
+        working-directory: floccus
+        run: |
+          npm ci
+          npm run build-release --if-present
+
+      - name: Build Android debug APK
+        working-directory: floccus/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Save context
+        uses: actions/cache/save@v4
+        with:
+          key: appium-context-${{ github.run_id }}
+          path: ./
+
+  android-appium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: init
+
+    env:
+      SERVER_BRANCH: ${{ matrix.server-version }}
+      NC_APP_VERSION: ${{ matrix.app-version }}
+      MYSQL_PASSWORD: root
+
+    strategy:
+      # do not stop on another job's failure
+      fail-fast: false
+      matrix:
+        server-version: ['32']
+        app-version: ['stable']
+        floccus-adapter:
+          - fake
+          - nextcloud-bookmarks
+          - webdav-xbel
+          - webdav-html
+          - webdav-html-encrypted
+          - webdav-xbel-encrypted
+          - google-drive
+          - google-drive-encrypted
+          - dropbox
+          - dropbox-encrypted
+          - linkwarden
+          - karakeep
+
+    name: 🤖 ${{matrix.floccus-adapter}}:test
+
+    services:
+      nextcloud:
+        image: nextcloud:${{ matrix.server-version }}
+        ports:
+          - 8080:80
+        env:
+          NEXTCLOUD_ADMIN_USER: admin
+          NEXTCLOUD_ADMIN_PASSWORD: admin
+          MYSQL_DATABASE: nextcloud
+          MYSQL_USER: root
+          MYSQL_PASSWORD: ${{env.MYSQL_PASSWORD}}
+          MYSQL_HOST: mysql
+          NEXTCLOUD_TRUSTED_DOMAINS: 172.17.0.1:8080
+        options: --name nextcloud
+      mysql:
+        image: mariadb:10.5 # see https://github.com/nextcloud/docker/issues/1536
+        env:
+          MYSQL_ROOT_PASSWORD: ${{env.MYSQL_PASSWORD}}
+      karakeep:
+        image: ghcr.io/karakeep-app/karakeep:release
+        ports:
+          - 3000:3000
+        volumes:
+          - data:/data
+        env:
+          NEXTAUTH_SECRET: super_random_string
+          NEXTAUTH_URL: http://localhost:3000
+          DATA_DIR: /data
+
+    steps:
+      - name: Restore context
+        uses: actions/cache/restore@v4
+        with:
+          fail-on-cache-miss: true
+          key: appium-context-${{ github.run_id }}
+          path: ./
+
+      - name: Checkout bookmarks app
+        uses: actions/checkout@v2
+        with:
+          repository: nextcloud/${{ env.APP_NAME }}
+          ref: ${{ matrix.app-version }}
+          path: ${{ env.APP_NAME }}
+        if: matrix.floccus-adapter == 'nextcloud-bookmarks' || matrix.floccus-adapter == 'nextcloud-bookmarks-old'
+
+      - name: Install bookmarks app
+        shell: bash
+        run: |
+          cd ${{ env.APP_NAME }}
+          composer install --ignore-platform-req=php --no-dev
+        if: matrix.floccus-adapter == 'nextcloud-bookmarks' || matrix.floccus-adapter == 'nextcloud-bookmarks-old'
+
+      - name: Enable bookmarks app
+        shell: bash
+        run: |
+          docker cp ${{env.APP_NAME}} nextcloud:/var/www/html/apps/
+          NEXT_WAIT_TIME=0
+          until [ $NEXT_WAIT_TIME -eq 25 ] || docker exec --user www-data nextcloud php occ app:enable ${{ env.APP_NAME }}; do
+              sleep $(( NEXT_WAIT_TIME++ ))
+          done
+          [ $NEXT_WAIT_TIME -lt 25 ]
+        if: matrix.floccus-adapter == 'nextcloud-bookmarks' || matrix.floccus-adapter == 'nextcloud-bookmarks-old'
+
+      - name: Enable APCu
+        run: |
+          NEXT_WAIT_TIME=0
+          until [ $NEXT_WAIT_TIME -eq 25 ] || docker exec --user www-data nextcloud php occ config:system:set --value "\\OC\\Memcache\\APCu" memcache.local; do
+              sleep $(( NEXT_WAIT_TIME++ ))
+          done
+          [ $NEXT_WAIT_TIME -lt 25 ]
+        if: matrix.floccus-adapter != 'fake'
+
+      - name: Enable KVM access
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install Appium and Android driver
+        run: |
+          npm install -g appium
+          appium driver install uiautomator2
+
+      - name: Run Android Appium tests
+        uses: ReactiveCircus/android-emulator-runner@v2
+        env:
+          CI: true
+          FLOCCUS_TEST: ${{ matrix.floccus-adapter }} test
+          FLOCCUS_TEST_SEED: ${{ github.sha }}
+          GOOGLE_API_REFRESH_TOKEN: ${{ secrets.GOOGLE_API_REFRESH_TOKEN }}
+          DROPBOX_API_REFRESH_TOKEN: ${{ secrets.DROPBOX_API_REFRESH_TOKEN }}
+          LINKWARDEN_TOKEN: ${{ secrets.LINKWARDEN_TOKEN }}
+          APP_VERSION: ${{ matrix.app-version }}
+          TEST_HOST: 172.17.0.1:8080
+          KARAKEEP_TEST_HOST: 172.17.0.1:3000
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_7
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            cd floccus && adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+            appium --log-no-colors --allow-insecure uiautomator2:chromedriver_autodownload > appium.log 2>&1 &
+            until curl -sf http://127.0.0.1:4723/status > /dev/null; do echo 'Waiting for Appium to start'; sleep 1; done
+            cd floccus && npm run test:appium
+
+      - name: Upload Appium log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-appium-log
+          path: appium.log
+          if-no-files-found: ignore
+          retention-days: 7
+  summary:
+    runs-on: ubuntu-latest
+    needs: [ init, android-appium ]
+
+    if: always()
+
+    name: appium-summary
+
+    steps:
+      - name: Summary status
+        run: if ${{ needs.init.result != 'success' || ( needs.android-appium.result != 'success' && needs.android-appium.result != 'skipped' ) }}; then exit 1; fi

@@ -1,0 +1,78 @@
+name: Nodejs Tests
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/nodejs-fake-test.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/**'
+      - 'test/**'
+      - 'tsconfig.json'
+      - 'webpack.node-tests.js'
+  push:
+    branches:
+      - develop
+      - master
+    paths:
+      - '.github/workflows/nodejs-fake-test.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/**'
+      - 'test/**'
+      - 'tsconfig.json'
+      - 'webpack.node-tests.js'
+
+concurrency:
+  group: floccus-nodejs-tests-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  APP_NAME: bookmarks
+
+jobs:
+  nodejs-tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      # do not stop on another job's failure
+      fail-fast: false
+      matrix:
+        node-version: [ 20.x ]
+        npm-version: [ 10.x ]
+
+    steps:
+      - name: Checkout floccus
+        uses: actions/checkout@v2
+        with:
+          path: floccus
+
+      - name: Set up node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Set up npm ${{ matrix.npm-version }}
+        run: npm i -g npm@"${{ matrix.npm-version }}"
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install dependencies & build
+        working-directory: floccus
+        run: |
+          npm ci
+
+      - name: Run node.js tests
+        working-directory: floccus
+        run: |
+          npm run test:node:fake

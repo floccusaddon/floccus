@@ -9,6 +9,7 @@ Vue.use(Router)
 export const routes = {
   HOME: 'HOME',
   TREE: 'TREE',
+  TEST: 'TEST',
   ACCOUNT_OPTIONS: 'ACCOUNT_OPTIONS',
   NEW_ACCOUNT: 'NEW_ACCOUNT',
   ADD_BOOKMARK: 'ADD_BOOKMARK',
@@ -28,6 +29,11 @@ export const router = new Router({
       path: '/',
       name: routes.HOME,
       component: Home,
+    },
+    {
+      path: '/test',
+      name: routes.TEST,
+      component: () => import(/* webpackPrefetch: true */ './views/native/TestRunner.vue')
     },
     {
       path: '/tree/:accountId',

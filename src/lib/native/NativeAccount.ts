@@ -48,9 +48,6 @@ export default class NativeAccount extends Account {
     console.log('initializing account ' + this.id)
     await this.storage.initMappings()
     await this.storage.initCache()
-    const nativeTree = new NativeTree(this.storage)
-    await nativeTree.load()
-    this.localTree = nativeTree
   }
 
   async isInitialized(): Promise<boolean> {
@@ -64,6 +61,22 @@ export default class NativeAccount extends Account {
       console.log('Apparently not initialized, because:', e)
       return false
     }
+  }
+
+  async sync(...args) {
+    try {
+      const localResource = await this.getResource()
+      if (localResource instanceof NativeTree) {
+        await localResource.saveImmediately()
+      }
+    } catch (e) {
+      Logger.log(
+        'Failed to persist unsaved changes from NativeTree before sync:',
+        e
+      )
+      Logger.log('Continuing anyway.')
+    }
+    await super.sync(...args)
   }
 
   async updateFromStorage(): Promise<void> {

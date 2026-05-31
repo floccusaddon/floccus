@@ -26,10 +26,8 @@ export const actionsDefinition = {
       })
     )
     await commit(mutations.LOAD_ACCOUNTS, accounts)
-    console.log(Object.keys(accounts))
     const lastAccount = await NativeAccountStorage.getEntry('lastAccount', null)
     if (lastAccount) await commit(mutations.SET_LAST_ACCOUNT, lastAccount)
-    console.log('lastAccount', lastAccount)
     const lastFolders = await NativeAccountStorage.getEntry('lastFolders', {})
     await Promise.all(Object.entries(lastFolders).map(async([accountId, folderId]) => {
       await commit(mutations.SET_LAST_FOLDER, {accountId, folderId})

@@ -14,3 +14,4 @@
 5:1794: CSS Appearance only partially supported by: QQ Browser (14.9) (css-appearance)
 5:1794: CSS Appearance only partially supported by: QQ Browser (14.9) (css-appearance)
 5:2008: CSS Appearance only partially supported by: QQ Browser (14.9) (css-appearance)
+3:1: CSS overflow property only partially supported by: Safari on iOS (15.6-15.8), QQ Browser (14.9) (css-overflow)
