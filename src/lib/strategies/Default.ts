@@ -932,6 +932,21 @@ export default class SyncProcess {
                 insertedCreation = true
               })
             }
+
+            const pendingMoves = sourceMoves.filter(move => move !== action)
+
+            let insertedMove = true
+            while (insertedMove) {
+              insertedMove = false
+              pendingMoves.forEach((move) => {
+                const parentFolder = newPayload.findFolder(move.payload.parentId)
+                if (!parentFolder || parentFolder.findItem(move.payload.type, move.payload.id)) {
+                  return
+                }
+                parentFolder.children.splice(move.index, 0, move.payload.copy())
+                insertedMove = true
+              })
+            }
           }
 
           if (originalCreation && originalCreation.payload.type === ItemType.FOLDER) {
