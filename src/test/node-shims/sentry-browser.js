@@ -46,4 +46,3 @@ export function setUser() {
 export function withScope(callback) {
   callback(createScope())
 }
-

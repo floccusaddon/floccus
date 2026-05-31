@@ -19,4 +19,3 @@ export const Preferences = {
     store.clear()
   },
 }
-

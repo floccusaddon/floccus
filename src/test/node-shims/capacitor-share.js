@@ -3,4 +3,3 @@ export const Share = {
     return {}
   },
 }
-
