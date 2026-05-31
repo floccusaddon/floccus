@@ -9,8 +9,48 @@ import seedrandom from 'seedrandom'
 
 const DEFAULT_SEED = Math.random() + ''
 
+function getSearchParams() {
+  if (typeof window !== 'undefined' && window.location?.href) {
+    return new URL(window.location.href).searchParams
+  }
+  return new URLSearchParams()
+}
+
+function getProcessEnv(name) {
+  if (typeof process === 'undefined' || !process?.env) {
+    return undefined
+  }
+  return process.env[name]
+}
+
+function filterAccounts(accounts, selector) {
+  if (!selector) {
+    return accounts
+  }
+
+  const selectedAccounts = new Set(
+    selector
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean)
+  )
+
+  const filteredAccounts = accounts.filter((account) =>
+    selectedAccounts.has(account.type) ||
+    selectedAccounts.has(stringifyAccountData(account))
+  )
+
+  if (!filteredAccounts.length) {
+    throw new Error(
+      `No test accounts matched FLOCCUS_TEST_ACCOUNTS/accounts filter: ${selector}`
+    )
+  }
+
+  return filteredAccounts
+}
+
 export function getEnv() {
-  const params = new URL(window.location.href).searchParams
+  const params = getSearchParams()
   let SERVER,
     CREDENTIALS,
     ACCOUNTS,
@@ -19,19 +59,29 @@ export function getEnv() {
     BROWSER,
     RANDOM_MANIPULATION_ITERATIONS,
     TEST_URL,
-    IS_CI
-  SERVER = params.get('server') || 'http://localhost'
-  TEST_URL = params.get('test_url') || 'https://example.org/'
+    IS_CI,
+    ACCOUNT_FILTER
+  SERVER =
+    params.get('server') ||
+    getProcessEnv('TEST_SERVER') ||
+    (getProcessEnv('TEST_HOST') ? `http://${getProcessEnv('TEST_HOST')}` : null) ||
+    'http://localhost'
+  TEST_URL = params.get('test_url') || getProcessEnv('TEST_URL') || 'https://example.org/'
   CREDENTIALS = {
-    username: params.get('username') || 'admin',
-    password: params.get('password') || 'admin',
+    username: params.get('username') || getProcessEnv('TEST_USERNAME') || 'admin',
+    password: params.get('password') || getProcessEnv('TEST_PASSWORD') || 'admin',
   }
-  APP_VERSION = params.get('app_version') || 'stable'
-  BROWSER = params.get('browser') || 'firefox'
-  IS_CI = params.get('ci') === 'true'
+  APP_VERSION = params.get('app_version') || getProcessEnv('APP_VERSION') || 'stable'
+  BROWSER =
+    params.get('browser') ||
+    getProcessEnv('SELENIUM_BROWSER') ||
+    getProcessEnv('FLOCCUS_TEST_BROWSER') ||
+    (typeof process !== 'undefined' ? 'node' : 'firefox')
+  IS_CI = params.get('ci') === 'true' || getProcessEnv('CI') === 'true'
+  ACCOUNT_FILTER = params.get('accounts') || getProcessEnv('FLOCCUS_TEST_ACCOUNTS')
 
   SEED =
-    new URL(window.location.href).searchParams.get('seed') || DEFAULT_SEED
+    params.get('seed') || getProcessEnv('FLOCCUS_TEST_SEED') || DEFAULT_SEED
   console.log('RANDOMNESS SEED', SEED)
 
   // needed for credentials below
@@ -39,7 +89,7 @@ export function getEnv() {
 
   RANDOM_MANIPULATION_ITERATIONS = 35
 
-  ACCOUNTS = [
+  ACCOUNTS = filterAccounts([
     FakeAdapter.getDefaultValues(),
     {
       ...FakeAdapter.getDefaultValues(),
@@ -138,7 +188,7 @@ export function getEnv() {
       serverFolder: 'Floccus-' + Math.random(),
       ...CREDENTIALS,
     },
-  ]
+  ], ACCOUNT_FILTER)
 
   return {
     SERVER,
