@@ -10,32 +10,41 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
   private queue: PQueue<{ concurrency: 10 }>
   private storage: unknown
 
-  constructor(storage:unknown) {
+  // see https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create#url
+  public static URL_SCHEME_BLACKLIST = [
+    'javascript:',
+    'file:',
+    'chrome:',
+    'data:',
+    'about:',
+  ]
+
+  constructor(storage: unknown) {
     this.storage = storage
     this.queue = new PQueue({ concurrency: 10 })
   }
 
-  private getWindowIdFromFolderId(folderId:string|number):number {
+  private getWindowIdFromFolderId(folderId: string | number): number {
     return parseInt(String(folderId).slice('window-'.length))
   }
 
-  private getTabGroupIdFromFolderId(folderId:string|number):number {
+  private getTabGroupIdFromFolderId(folderId: string | number): number {
     return parseInt(String(folderId).slice('group-'.length))
   }
 
-  private getFolderIdFromWindowId(windowId:number):string {
+  private getFolderIdFromWindowId(windowId: number): string {
     return 'window-' + windowId
   }
 
-  private getFolderIdFromTabGroupId(tabGroupId:number):string {
+  private getFolderIdFromTabGroupId(tabGroupId: number): string {
     return 'group-' + tabGroupId
   }
 
-  async getBookmarksTree():Promise<Folder<typeof ItemLocation.LOCAL>> {
+  async getBookmarksTree(): Promise<Folder<typeof ItemLocation.LOCAL>> {
     let tabs = await browser.tabs.query({
-      windowType: 'normal' // no devtools or panels or popups
+      windowType: 'normal', // no devtools or panels or popups
     })
-    tabs = tabs.filter(tab => !tab.incognito)
+    tabs = tabs.filter((tab) => !tab.incognito)
 
     // Get all tab groups
     let tabGroups = []
@@ -49,100 +58,127 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       title: '',
       id: 'tabs',
       location: ItemLocation.LOCAL,
-      children: await Promise.all(uniq(tabs.map(t => t.windowId)).map(async(windowId, i) => {
-        const windowTabs = tabs.filter(t => t.windowId === windowId)
+      children: await Promise.all(
+        uniq(tabs.map((t) => t.windowId)).map(async (windowId, i) => {
+          const windowTabs = tabs.filter((t) => t.windowId === windowId)
 
-        // Get tab groups for this window
-        const windowTabGroups = tabGroups.filter(g => g.windowId === windowId)
+          // Get tab groups for this window
+          const windowTabGroups = tabGroups.filter(
+            (g) => g.windowId === windowId
+          )
 
-        // Get tabs that are not in any group
-        const ungroupedTabs = windowTabs.filter(t => !t.groupId || t.groupId === -1)
-          .sort((t1, t2) => t1.index - t2.index)
-          .map(t => new Bookmark({
-            id: t.id,
-            title: t.title,
-            url: t.url,
-            parentId: this.getFolderIdFromWindowId(windowId),
-            location: ItemLocation.LOCAL,
-          }))
+          // Get tabs that are not in any group
+          const ungroupedTabs = windowTabs
+            .filter((t) => !t.groupId || t.groupId === -1)
+            .sort((t1, t2) => t1.index - t2.index)
+            .map(
+              (t) =>
+                new Bookmark({
+                  id: t.id,
+                  title: t.title,
+                  url: t.url,
+                  parentId: this.getFolderIdFromWindowId(windowId),
+                  location: ItemLocation.LOCAL,
+                })
+            )
 
-        // Create folders for each tab group
-        const groupFolders = await Promise.all(windowTabGroups.map(async group => {
-          const groupTabs = (
-            await browser.tabs.query({
-              windowType: 'normal', // no devtools or panels or popups
-              groupId: group.id
+          // Create folders for each tab group
+          const groupFolders = await Promise.all(
+            windowTabGroups.map(async (group) => {
+              const groupTabs = (
+                await browser.tabs.query({
+                  windowType: 'normal', // no devtools or panels or popups
+                  groupId: group.id,
+                })
+              )
+                .sort((t1, t2) => t1.index - t2.index)
+                .map(
+                  (t) =>
+                    new Bookmark({
+                      id: t.id,
+                      title: t.title,
+                      url: t.url,
+                      parentId: this.getFolderIdFromTabGroupId(group.id),
+                      location: ItemLocation.LOCAL,
+                    })
+                )
+
+              // Store the minimum index of tabs in this group to use for sorting
+              // If the group has no tabs (which shouldn't happen in practice, but handling for robustness),
+              // use a high index value so it appears at the end
+              const minTabIndex =
+                groupTabs.length > 0
+                  ? Math.min(
+                      ...groupTabs.map(
+                        (t) => windowTabs.find((tab) => tab.id === t.id).index
+                      )
+                    )
+                  : Number.MAX_SAFE_INTEGER
+
+              return {
+                folder: new Folder({
+                  title: group.title || `Group ${group.id}`,
+                  id: this.getFolderIdFromTabGroupId(group.id),
+                  parentId: this.getFolderIdFromWindowId(windowId),
+                  location: ItemLocation.LOCAL,
+                  children: groupTabs,
+                }),
+                index: minTabIndex, // Use the minimum index of tabs in the group for sorting
+              }
             })
           )
-            .sort((t1, t2) => t1.index - t2.index)
-            .map(t => new Bookmark({
-              id: t.id,
-              title: t.title,
-              url: t.url,
-              parentId: this.getFolderIdFromTabGroupId(group.id),
-              location: ItemLocation.LOCAL,
-            }))
 
-          // Store the minimum index of tabs in this group to use for sorting
-          // If the group has no tabs (which shouldn't happen in practice, but handling for robustness),
-          // use a high index value so it appears at the end
-          const minTabIndex = groupTabs.length > 0
-            ? Math.min(...groupTabs.map(t => windowTabs.find(tab => tab.id === t.id).index))
-            : Number.MAX_SAFE_INTEGER
+          // Create a combined array of ungrouped tabs and group folders
+          const combinedItems = [
+            // Map ungrouped tabs to objects with the tab and its index
+            ...ungroupedTabs.map((tab) => ({
+              item: tab,
+              index: windowTabs.find((t) => t.id === tab.id).index,
+              isTab: true,
+            })),
+            // Map group folders to objects with the folder and its index
+            ...groupFolders.map(({ folder, index }) => ({
+              item: folder,
+              index,
+              isTab: false,
+            })),
+          ]
 
-          return {
-            folder: new Folder({
-              title: group.title || `Group ${group.id}`,
-              id: this.getFolderIdFromTabGroupId(group.id),
-              parentId: this.getFolderIdFromWindowId(windowId),
-              location: ItemLocation.LOCAL,
-              children: groupTabs
-            }),
-            index: minTabIndex // Use the minimum index of tabs in the group for sorting
-          }
-        }))
+          // Sort the combined items by their index
+          combinedItems.sort((a, b) => a.index - b.index)
 
-        // Create a combined array of ungrouped tabs and group folders
-        const combinedItems = [
-          // Map ungrouped tabs to objects with the tab and its index
-          ...ungroupedTabs.map(tab => ({
-            item: tab,
-            index: windowTabs.find(t => t.id === tab.id).index,
-            isTab: true
-          })),
-          // Map group folders to objects with the folder and its index
-          ...groupFolders.map(({ folder, index }) => ({
-            item: folder,
-            index,
-            isTab: false
-          }))
-        ]
+          // Extract the sorted items
+          const sortedItems = combinedItems.map((item) => item.item)
 
-        // Sort the combined items by their index
-        combinedItems.sort((a, b) => a.index - b.index)
-
-        // Extract the sorted items
-        const sortedItems = combinedItems.map(item => item.item)
-
-        return new Folder({
-          title: 'Window ' + i,
-          id: this.getFolderIdFromWindowId(windowId),
-          parentId: 'tabs',
-          location: ItemLocation.LOCAL,
-          children: sortedItems
+          return new Folder({
+            title: 'Window ' + i,
+            id: this.getFolderIdFromWindowId(windowId),
+            parentId: 'tabs',
+            location: ItemLocation.LOCAL,
+            children: sortedItems,
+          })
         })
-      }))
+      ),
     })
   }
 
-  async createBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<string|number> {
+  async createBookmark(
+    bookmark: Bookmark<typeof ItemLocation.LOCAL>
+  ): Promise<string | number> {
     Logger.log('(tabs)CREATE', bookmark)
     if (bookmark.parentId === 'tabs') {
       Logger.log('Parent is "tabs", ignoring this one.')
       return
     }
-    if (self.location.protocol === 'moz-extension:' && new URL(bookmark.url).protocol === 'file:') {
-      Logger.log('URL is a file URL and we are on firefox, ignoring this one.')
+    if (
+      self.location.protocol === 'moz-extension:' &&
+      LocalTabs.URL_SCHEME_BLACKLIST.includes(new URL(bookmark.url).protocol)
+    ) {
+      Logger.log(
+        `URL is a ${
+          new URL(bookmark.url).protocol
+        } URL and we are on firefox, ignoring this one.`
+      )
       return
     }
 
@@ -154,7 +190,9 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         // Try to query the tab group to see if it exists
         if (typeof browser.tabGroups !== 'undefined') {
           const tabGroup = await this.queue.add(() =>
-            browser.tabGroups.get(this.getTabGroupIdFromFolderId(bookmark.parentId))
+            browser.tabGroups.get(
+              this.getTabGroupIdFromFolderId(bookmark.parentId)
+            )
           )
           if (tabGroup) {
             isTabGroup = true
@@ -174,7 +212,9 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
           windowId: windowId,
           url: bookmark.url,
           // Only firefox allows discarded prop
-          ...(typeof browser.BookmarkTreeNodeType !== 'undefined' && { discarded: true }),
+          ...(typeof browser.BookmarkTreeNodeType !== 'undefined' && {
+            discarded: true,
+          }),
           active: false,
         })
       )
@@ -185,7 +225,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         await this.queue.add(() =>
           browser.tabs.group({
             tabIds: [node.id],
-            groupId: this.getTabGroupIdFromFolderId(bookmark.parentId)
+            groupId: this.getTabGroupIdFromFolderId(bookmark.parentId),
           })
         )
       }
@@ -195,8 +235,11 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     } catch (e) {
       Logger.log('Failed to create tab', e)
       // Don't throw error if the tab group doesn't exist anymore
-      if (e.message && !e.message.includes('No tab group with id') &&
-          !e.message.includes('Invalid tab group id')) {
+      if (
+        e.message &&
+        !e.message.includes('No tab group with id') &&
+        !e.message.includes('Invalid tab group id')
+      ) {
         throw e
       }
       // If the tab group doesn't exist, return null
@@ -204,7 +247,9 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     }
   }
 
-  async updateBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>):Promise<void> {
+  async updateBookmark(
+    bookmark: Bookmark<typeof ItemLocation.LOCAL>
+  ): Promise<void> {
     Logger.log('(tabs)UPDATE', bookmark)
     if (bookmark.parentId === 'tabs') {
       Logger.log('Parent is "tabs", ignoring this one.')
@@ -214,7 +259,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     // Update the tab's URL
     await this.queue.add(() =>
       browser.tabs.update(bookmark.id, {
-        url: bookmark.url
+        url: bookmark.url,
       })
     )
 
@@ -225,7 +270,9 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         // Try to query the tab group to see if it exists
         if (typeof browser.tabGroups !== 'undefined') {
           const tabGroup = await this.queue.add(() =>
-            browser.tabGroups.get(this.getTabGroupIdFromFolderId(bookmark.parentId))
+            browser.tabGroups.get(
+              this.getTabGroupIdFromFolderId(bookmark.parentId)
+            )
           )
           isTabGroup = !!tabGroup
         }
@@ -241,16 +288,14 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         await this.queue.add(() =>
           browser.tabs.group({
             tabIds: [bookmark.id],
-            groupId: this.getTabGroupIdFromFolderId(bookmark.parentId)
+            groupId: this.getTabGroupIdFromFolderId(bookmark.parentId),
           })
         )
       } else {
         if (typeof browser.tabGroups !== 'undefined') {
           // Move tab out of any groups
           Logger.log('Moving tab out of any tab group', bookmark.id)
-          await this.queue.add(() =>
-            browser.tabs.ungroup([bookmark.id])
-          )
+          await this.queue.add(() => browser.tabs.ungroup([bookmark.id]))
         }
         // If it's a window, use tabs.move
         Logger.log('Moving tab to window', bookmark.parentId)
@@ -264,8 +309,11 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     } catch (e) {
       Logger.log('Failed to move tab', e)
       // Don't throw error if the tab group doesn't exist anymore
-      if (e.message && !e.message.includes('No tab group with id') &&
-          !e.message.includes('Invalid tab group id')) {
+      if (
+        e.message &&
+        !e.message.includes('No tab group with id') &&
+        !e.message.includes('Invalid tab group id')
+      ) {
         throw e
       }
     }
@@ -273,7 +321,9 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     await awaitTabsUpdated()
   }
 
-  async removeBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<void> {
+  async removeBookmark(
+    bookmark: Bookmark<typeof ItemLocation.LOCAL>
+  ): Promise<void> {
     const bookmarkId = bookmark.id
     Logger.log('(tabs)REMOVE', bookmark)
     if (bookmark.parentId === 'tabs') {
@@ -284,24 +334,24 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     await awaitTabsUpdated()
   }
 
-  async createFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<string> {
+  async createFolder(
+    folder: Folder<typeof ItemLocation.LOCAL>
+  ): Promise<string> {
     Logger.log('(tabs)CREATEFOLDER', folder)
 
     // If parentId is 'tabs', create a window
     if (folder.parentId === 'tabs') {
-      const node = await this.queue.add(() =>
-        browser.windows.create()
-      )
+      const node = await this.queue.add(() => browser.windows.create())
       return this.getFolderIdFromWindowId(node.id)
     } else {
       // Otherwise, create a tab group
       try {
-        const groupId = await this.queue.add(async() => {
+        const groupId = await this.queue.add(async () => {
           // Create a dummy tab in the parent window to hold the group
           const dummyTab = await browser.tabs.create({
             windowId: this.getWindowIdFromFolderId(folder.parentId),
             url: 'about:blank',
-            active: false
+            active: false,
           })
 
           // Create a tab group with the dummy tab
@@ -315,14 +365,14 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
           // Update the tab group title
           if (folder.title) {
             await browser.tabGroups.update(groupId, {
-              title: folder.title
+              title: folder.title,
             })
           }
 
           await awaitTabsUpdated()
 
           // Remove the dummy tab after a timeout
-          setTimeout(async() => {
+          setTimeout(async () => {
             try {
               await browser.tabs.remove(dummyTab.id)
             } catch (e) {
@@ -342,7 +392,10 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     }
   }
 
-  async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>):Promise<void> {
+  async orderFolder(
+    id: string | number,
+    order: Ordering<typeof ItemLocation.LOCAL>
+  ): Promise<void> {
     Logger.log('(tabs)ORDERFOLDER', { id, order })
     try {
       // Check if tab groups are supported
@@ -355,7 +408,9 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       if (tabGroupsSupported && id !== 'tabs') {
         try {
           // Try to get the tab group to see if it exists
-          const tabs = await this.queue.add(() => browser.tabs.query({groupId: this.getTabGroupIdFromFolderId(id)}))
+          const tabs = await this.queue.add(() =>
+            browser.tabs.query({ groupId: this.getTabGroupIdFromFolderId(id) })
+          )
           if (tabs.length) {
             isTabGroup = true
             // Get the tab group's current index
@@ -372,7 +427,10 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       try {
         if (isTabGroup) {
           // If it's a tab group, add the tab group's index as an offset to all child tabs
-          Logger.log('Ordering tabs within a tab group, adding offset', tabGroupIndex)
+          Logger.log(
+            'Ordering tabs within a tab group, adding offset',
+            tabGroupIndex
+          )
           for (let index = 0; index < order.length; index++) {
             const item = order[index]
             // For tab groups, all items should be tabs (bookmarks)
@@ -394,18 +452,26 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
           for (let i = 0; i < order.length; i++) {
             if (order[i].type === 'folder') {
               const folder = order[i]
-              Logger.log('Moving tab group', folder.id, 'to index', currentIndex)
+              Logger.log(
+                'Moving tab group',
+                folder.id,
+                'to index',
+                currentIndex
+              )
               try {
                 if (tabGroupsSupported) {
                   await this.queue.add(() =>
-                    browser.tabGroups.move(this.getTabGroupIdFromFolderId(folder.id), { index: currentIndex })
+                    browser.tabGroups.move(
+                      this.getTabGroupIdFromFolderId(folder.id),
+                      { index: currentIndex }
+                    )
                   )
 
                   // Get the size of the folder (number of tabs in the group)
                   const folderTabs = await this.queue.add(() =>
                     browser.tabs.query({
                       windowType: 'normal',
-                      groupId: this.getTabGroupIdFromFolderId(folder.id)
+                      groupId: this.getTabGroupIdFromFolderId(folder.id),
                     })
                   )
 
@@ -415,8 +481,11 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
               } catch (e) {
                 Logger.log('Failed to move tab group', e)
                 // Don't throw error if the tab group doesn't exist anymore
-                if (e.message && !e.message.includes('No tab group with id') &&
-                    !e.message.includes('Invalid tab group id')) {
+                if (
+                  e.message &&
+                  !e.message.includes('No tab group with id') &&
+                  !e.message.includes('Invalid tab group id')
+                ) {
                   throw e
                 }
               }
@@ -439,7 +508,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     await awaitTabsUpdated()
   }
 
-  async updateFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {
+  async updateFolder(folder: Folder<typeof ItemLocation.LOCAL>): Promise<void> {
     Logger.log('(tabs)UPDATEFOLDER', folder)
 
     // If parentId is not 'tabs', it's a tab group
@@ -448,7 +517,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         // Update the tab group title
         await this.queue.add(() =>
           browser.tabGroups.update(this.getTabGroupIdFromFolderId(folder.id), {
-            title: folder.title
+            title: folder.title,
           })
         )
       } catch (e) {
@@ -462,14 +531,16 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     // Otherwise it's a window, which we don't need to update
   }
 
-  async removeFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {
+  async removeFolder(folder: Folder<typeof ItemLocation.LOCAL>): Promise<void> {
     const id = folder.id
     Logger.log('(tabs)REMOVEFOLDER', id)
 
     // If parentId is 'tabs', it's a window
     if (folder.parentId === 'tabs') {
       try {
-        await this.queue.add(() => browser.windows.remove(this.getWindowIdFromFolderId(id)))
+        await this.queue.add(() =>
+          browser.windows.remove(this.getWindowIdFromFolderId(id))
+        )
       } catch (e) {
         Logger.log('Failed to remove window', e)
         // Don't throw error if the window doesn't exist anymore
@@ -483,20 +554,24 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         // Get all tabs in the group
         const tabs = await this.queue.add(() =>
           browser.tabs.query({
-            groupId: this.getTabGroupIdFromFolderId(id)
+            groupId: this.getTabGroupIdFromFolderId(id),
           })
         )
 
         // Remove all tabs in the group
         if (tabs.length > 0) {
-          await this.queue.add(() => browser.tabs.remove(tabs.map(t => t.id)))
+          await this.queue.add(() => browser.tabs.remove(tabs.map((t) => t.id)))
         }
 
         // The tab group will be automatically removed when all its tabs are removed
       } catch (e) {
         Logger.log('Failed to remove tab group', e)
         // Don't throw error if the tab group doesn't exist anymore
-        if (e.message && !e.message.includes('No tab group with id') && !e.message.includes('No tab with id')) {
+        if (
+          e.message &&
+          !e.message.includes('No tab group with id') &&
+          !e.message.includes('No tab with id')
+        ) {
           throw e
         }
       }
@@ -505,7 +580,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
 
   async isAvailable(): Promise<boolean> {
     const tabs = await browser.tabs.query({
-      windowType: 'normal' // no devtools or panels or popups
+      windowType: 'normal', // no devtools or panels or popups
     })
     return Boolean(tabs.length)
   }
@@ -517,7 +592,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
   async getCapabilities(): Promise<ICapabilities> {
     return {
       preserveOrder: true,
-      hashFn: ['xxhash3', 'murmur3', 'sha256']
+      hashFn: ['xxhash3', 'murmur3', 'sha256'],
     }
   }
 
