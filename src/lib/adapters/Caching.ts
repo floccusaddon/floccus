@@ -106,15 +106,16 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     if (!foundNewFolder) {
       throw new UnknownMoveTargetError()
     }
-    foundOldFolder.children.splice(
-      foundOldFolder.children.indexOf(foundBookmark),
-      1
-    )
-
-    this.bookmarksCache.removeFromIndex(foundBookmark)
-    foundNewFolder.children.push(foundBookmark)
-    foundBookmark.parentId = newBm.parentId
-    this.bookmarksCache.updateIndex(foundBookmark)
+    if (foundOldFolder.id !== foundNewFolder.id) {
+      foundOldFolder.children.splice(
+        foundOldFolder.children.indexOf(foundBookmark),
+        1
+      )
+      this.bookmarksCache.removeFromIndex(foundBookmark)
+      foundNewFolder.children.push(foundBookmark)
+      foundBookmark.parentId = newBm.parentId
+      this.bookmarksCache.updateIndex(foundBookmark)
+    }
   }
 
   async removeBookmark(bookmark:Bookmark<TItemLocation>): Promise<void> {
@@ -168,12 +169,17 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     if (oldFolder.findFolder(foundNewParentFolder.id)) {
       throw new Error('Detected creation of folder loop: Moving ' + id + ' to ' + folder.parentId + ', but it already contains the new parent node')
     }
-    foundOldParentFolder.children.splice(foundOldParentFolder.children.indexOf(oldFolder), 1)
-    foundNewParentFolder.children.push(oldFolder)
-    this.bookmarksCache.removeFromIndex(oldFolder)
     oldFolder.title = folder.title
-    oldFolder.parentId = folder.parentId
-    this.bookmarksCache.updateIndex(oldFolder)
+    if (foundOldParentFolder.id !== foundNewParentFolder.id) {
+      foundOldParentFolder.children.splice(
+        foundOldParentFolder.children.indexOf(oldFolder),
+        1
+      )
+      foundNewParentFolder.children.push(oldFolder)
+      this.bookmarksCache.removeFromIndex(oldFolder)
+      oldFolder.parentId = folder.parentId
+      this.bookmarksCache.updateIndex(oldFolder)
+    }
   }
 
   async orderFolder(id:string|number, order:Ordering<TItemLocation>):Promise<void> {
