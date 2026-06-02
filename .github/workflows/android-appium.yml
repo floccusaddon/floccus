@@ -208,7 +208,7 @@ jobs:
           CI: true
           FLOCCUS_TEST: ${{ matrix.floccus-adapter }} test
           FLOCCUS_TEST_SEED: ${{ github.sha }}
-          GOOGLE_API_REFRESH_TOKEN: ${{ secrets.GOOGLE_API_REFRESH_TOKEN }}
+          GOOGLE_API_REFRESH_TOKEN: ${{ secrets.ANDROID_GOOGLE_API_REFRESH_TOKEN }}
           DROPBOX_API_REFRESH_TOKEN: ${{ secrets.DROPBOX_API_REFRESH_TOKEN }}
           LINKWARDEN_TOKEN: ${{ secrets.LINKWARDEN_TOKEN }}
           APP_VERSION: ${{ matrix.app-version }}
