@@ -153,9 +153,12 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       await this.sendRequest('DELETE', `/api/v1/links/${bookmark.id}`, undefined, undefined, false, bookmark)
     } catch (e) {
       if (e instanceof HttpError) {
-        if (e.status === 404) {
+        if (e.status === 404 || e.status === 401 || e.status === 403) {
           return
         }
+      }
+      if (e instanceof AuthenticationError) {
+        return
       }
       throw e
     }
@@ -204,6 +207,8 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       } catch (e) {
         if (e instanceof HttpError && e.status === 401) {
           success = true
+        } else if (e instanceof AuthenticationError) {
+          return
         } else if (count > 3) {
           throw e
         }
