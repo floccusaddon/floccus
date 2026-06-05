@@ -40,7 +40,7 @@
                 text
                 class="white--text"
                 v-bind="attrs"
-                :to="{name: routes.DONATE}"
+                :to="{ name: routes.DONATE }"
                 target="_blank"
                 v-on="on">
                 <v-icon>mdi-heart-outline</v-icon>
@@ -55,10 +55,16 @@
                 text
                 class="white--text"
                 v-bind="attrs"
-                :to="{name: routes.TELEMETRY}"
+                :to="{ name: routes.TELEMETRY }"
                 target="_blank"
                 v-on="on">
-                <v-icon>{{ telemetryEnabled ? 'mdi-bug-play-outline' : 'mdi-bug-pause-outline' }}</v-icon>
+                <v-icon>
+                  {{
+                    telemetryEnabled
+                      ? 'mdi-bug-play-outline'
+                      : 'mdi-bug-pause-outline'
+                  }}
+                </v-icon>
               </v-btn>
             </template>
             <span>{{ t('LabelTelemetry') }}</span>
@@ -70,7 +76,7 @@
                 text
                 class="white--text"
                 v-bind="attrs"
-                :to="{name: routes.FEEDBACK}"
+                :to="{ name: routes.FEEDBACK }"
                 target="_blank"
                 v-on="on">
                 <v-icon>mdi-bullhorn-variant-outline</v-icon>
@@ -101,7 +107,9 @@
       :max-width="600"
       persistent>
       <v-card>
-        <v-card-title><v-icon>mdi-lock-outline</v-icon>{{ t('LabelUnlock') }}</v-card-title>
+        <v-card-title>
+          <v-icon>mdi-lock-outline</v-icon>{{ t('LabelUnlock') }}
+        </v-card-title>
         <v-card-text>
           <v-alert
             v-if="unlockError"
@@ -154,18 +162,18 @@ export default {
     },
     appStyle() {
       return {
-        background: this.$vuetify.theme.dark ? '#000' : '#e1f5fe'
+        background: this.$vuetify.theme.dark ? '#000' : '#e1f5fe',
       }
-    }
+    },
   },
   async created() {
     if (window.KAGI) {
-      browser.storage.local.set({'isOrion': true})
+      browser.storage.local.set({ isOrion: true })
     }
 
     await Promise.all([
       this.$store.dispatch(actions.LOAD_LOCKED),
-      this.$store.dispatch(actions.LOAD_ACCOUNTS)
+      this.$store.dispatch(actions.LOAD_ACCOUNTS),
     ])
     const controller = await Controller.getSingleton()
     const unregister = controller.onStatusChange(() =>
@@ -175,7 +183,9 @@ export default {
     window.addEventListener('beforeunload', unregister)
     window.addEventListener('unload', unregister)
     window.addEventListener('close', unregister)
-    const {telemetryEnabled} = await browser.storage.local.get({'telemetryEnabled': false})
+    const { telemetryEnabled } = await browser.storage.local.get({
+      telemetryEnabled: false,
+    })
     this.telemetryEnabled = telemetryEnabled
   },
   methods: {
@@ -188,14 +198,16 @@ export default {
       }
     },
     openInNewTab() {
-      browser.tabs.create({url: window.location.href})
-    }
-  }
+      browser.tabs.create({ url: window.location.href })
+    },
+  },
 }
 </script>
 
 <style>
-body {
-  min-width: 420px;
+@media screen and (min-device-width: 420px) {
+  body {
+    min-width: 420px;
+  }
 }
 </style>

@@ -12,7 +12,9 @@
         no-gutters
         class="flex-column">
         <v-col>
-          <v-row no-gutters>
+          <v-row
+            no-gutters
+            class="account-card__header">
             <v-col class="flex-grow-1">
               <div class="overline">
                 {{ account.data.type }}
@@ -27,22 +29,21 @@
                   v-else
                   color="primary">
                   mdi-folder
-                </v-icon> {{ folderName }}
+                </v-icon>
+                {{ folderName }}
               </div>
               <div class="caption">
                 {{ uri }}
               </div>
             </v-col>
-            <v-col
-              class="align-end flex-grow-0"
-              :style="{minWidth: 'max-content'}">
+            <v-col class="align-end flex-grow-0 account-card__statusColumn">
               <div class="pa-3 d-inline-block font-weight-light body-2">
                 <v-icon
                   :color="statusColor"
-                  :class="{spinning: account.data.syncing}">
+                  :class="{ spinning: account.data.syncing }">
                   {{ statusIcon }}
                 </v-icon>
-                <span :style="{color: statusColor}">{{ statusLabel }}</span>
+                <span :style="{ color: statusColor }">{{ statusLabel }}</span>
               </div>
             </v-col>
           </v-row>
@@ -55,7 +56,8 @@
             :icon="false"
             :type="statusType"
             class="pa-2 text-caption">
-            {{ statusDetail }} <template v-if="account.data.error">
+            {{ statusDetail }}
+            <template v-if="account.data.error">
               <v-btn
                 :color="statusType"
                 class="float-right ml-1 mt-1"
@@ -108,18 +110,21 @@
         <v-col>
           <v-row
             no-gutters
-            class="mt-2">
-            <v-col class="d-flex flex-row">
+            class="mt-2 account-card__footer">
+            <v-col class="d-flex flex-row account-card__options">
               <v-btn
                 small
                 class="ma-1"
-                :to="{ name: routes.ACCOUNT_OPTIONS, params: { accountId: account.id } }"
+                :to="{
+                  name: routes.ACCOUNT_OPTIONS,
+                  params: { accountId: account.id },
+                }"
                 target="_blank">
                 <v-icon>mdi-cog</v-icon>
                 {{ t('LabelOptions') }}
               </v-btn>
             </v-col>
-            <v-col class="d-flex flex-row justify-end">
+            <v-col class="d-flex flex-row justify-end account-card__actions">
               <v-btn
                 class="ma-1 ml-0"
                 small
@@ -175,8 +180,8 @@ export default {
   props: {
     account: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -193,14 +198,14 @@ export default {
         ok: 'mdi-check',
         error: 'mdi-sync-alert',
         syncing: 'mdi-sync',
-        scheduled: 'mdi-timer-sync-outline'
+        scheduled: 'mdi-timer-sync-outline',
       },
       statusLabels: {
         disabled: this.t('StatusDisabled'),
         ok: this.t('StatusAllgood'),
         error: this.t('StatusError'),
         syncing: this.t('StatusSyncing'),
-        scheduled: this.t('StatusScheduled')
+        scheduled: this.t('StatusScheduled'),
       },
       strategyIcons: {
         slave: 'mdi-arrow-down-bold',
@@ -217,7 +222,7 @@ export default {
         overwrite: this.t('DescriptionSyncUp'),
         default: this.t('DescriptionSyncNormal'),
       },
-      showDetails: false
+      showDetails: false,
     }
   },
   computed: {
@@ -243,7 +248,10 @@ export default {
       if (this.account.data.error) {
         return 'error'
       }
-      if (!this.account.data.enabled && !this.account.data.syncIntervalEnabled) {
+      if (
+        !this.account.data.enabled &&
+        !this.account.data.syncIntervalEnabled
+      ) {
         return 'disabled'
       }
       return 'ok'
@@ -265,14 +273,19 @@ export default {
     },
     statusDetail() {
       if (this.account.data.error) {
-        return this.account.data.error + ' | ' + this.t(
-          'StatusLastsynced',
-          [humanizeDuration(Date.now() - this.account.data.lastSync, {
-            largest: 1,
-            round: true,
-            language: navigator.language.split('-')[0],
-            fallbacks: navigator.languages.map(lang => lang.split('-')[0]).concat(['en'])
-          })]
+        return (
+          this.account.data.error +
+          ' | ' +
+          this.t('StatusLastsynced', [
+            humanizeDuration(Date.now() - this.account.data.lastSync, {
+              largest: 1,
+              round: true,
+              language: navigator.language.split('-')[0],
+              fallbacks: navigator.languages
+                .map((lang) => lang.split('-')[0])
+                .concat(['en']),
+            }),
+          ])
         )
       }
       if (this.account.data.syncing) {
@@ -282,40 +295,46 @@ export default {
         return this.t('DescriptionSyncscheduled')
       }
       if (this.account.data.lastSync) {
-        return this.t(
-          'StatusLastsynced',
-          [humanizeDuration(Date.now() - this.account.data.lastSync, {
+        return this.t('StatusLastsynced', [
+          humanizeDuration(Date.now() - this.account.data.lastSync, {
             largest: 1,
             round: true,
             language: navigator.language.split('-')[0],
-            fallbacks: navigator.languages.map(lang => lang.split('-')[0]).concat(['en'])
-          })]
-        )
+            fallbacks: navigator.languages
+              .map((lang) => lang.split('-')[0])
+              .concat(['en']),
+          }),
+        ])
       }
       return this.t('StatusNeversynced')
     },
     legacyWarning() {
-      if (this.account.data.type === 'nextcloud' ||
-          this.account.data.type === 'nextcloud-legacy') {
+      if (
+        this.account.data.type === 'nextcloud' ||
+        this.account.data.type === 'nextcloud-legacy'
+      ) {
         return this.t('LegacyAdapterDeprecation')
       }
       return null
     },
     routes() {
       return routes
-    }
+    },
   },
   watch: {
     async localRoot(localRoot) {
       this.rootPath = await BrowserTree.getPathFromLocalId(localRoot)
-    }
+    },
   },
   async created() {
     this.rootPath = await BrowserTree.getPathFromLocalId(this.localRoot)
   },
   methods: {
     onChangeStrategy() {
-      this.$store.dispatch(actions.STORE_ACCOUNT, {id: this.account.id, data: this.account.data})
+      this.$store.dispatch(actions.STORE_ACCOUNT, {
+        id: this.account.id,
+        data: this.account.data,
+      })
     },
     onTriggerSync() {
       this.$store.dispatch(actions.TRIGGER_SYNC, this.account.id)
@@ -330,7 +349,10 @@ export default {
       this.$store.dispatch(actions.CANCEL_SYNC, this.account.id)
     },
     onToggleEnabled() {
-      this.$store.dispatch(actions.STORE_ACCOUNT, {id: this.account.id, data: this.account.data})
+      this.$store.dispatch(actions.STORE_ACCOUNT, {
+        id: this.account.id,
+        data: this.account.data,
+      })
     },
     onGetLogs() {
       this.$store.dispatch(actions.DOWNLOAD_LOGS)
@@ -339,14 +361,38 @@ export default {
       if (confirm(this.t('DescriptionScheduledforcesync'))) {
         this.$store.dispatch(actions.FORCE_SYNC, this.account.id)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
 <style scoped>
 .spinning {
   animation: spin 2s infinite linear;
+}
+
+@media (min-width: 420px) {
+  .account-card__statusColumn {
+    min-width: max-content;
+  }
+}
+
+@media (max-width: 419px) {
+  .account-card__header {
+    flex-direction: column;
+  }
+  .account-card__footer {
+    flex-direction: column !important;
+  }
+  .account-card__actions {
+    flex-direction: column !important;
+  }
+  .account-card__actions .ml-0 {
+    margin-left: 4px !important;
+  }
+  .account-card__options {
+    flex-direction: column !important;
+  }
 }
 
 @keyframes spin {
