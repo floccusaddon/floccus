@@ -381,14 +381,14 @@ export default class Account {
 
       // Catch MappingFailureError and gracefully resume with reset cache
       if (matchAllErrors(e, e => e.code === 48)) {
-        Logger.log('Caught MappingFailureError: Gracefully resuming with reset cache')
+        Logger.log('Caught MappingFailureError: Gracefully resuming with reset cache and forceSync:true')
         await this.init()
         await this.storage.setCurrentContinuation(null)
         this.syncProcess = null
         this.localCachingResource = null
         await this.setData({ syncing: false })
         this.syncing = false
-        return this.sync(strategy, forceSync)
+        return this.sync(strategy, true)
       }
 
       console.error('Syncing failed with', message)
