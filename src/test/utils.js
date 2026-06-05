@@ -363,13 +363,14 @@ async function randomTreeManipulation(account, folders, bookmarks) {
 
     // Randomly create a folder
     magicFolder4 = folders[random.int(0, folders.length - 1)]
-    let newFolder
-    newFolder.id = await localResource.createFolder(
+    let newFolder, newFolderId
+    newFolderId = await localResource.createFolder(
       newFolder = new Folder({
         title: 'newFolder' + Math.random(),
         parentId: magicFolder4.id,
       })
     )
+    newFolder.id = newFolderId
     folders.push(newFolder)
     console.log(
       'Created #' +
@@ -381,14 +382,15 @@ async function randomTreeManipulation(account, folders, bookmarks) {
     )
 
     magicFolder5 = folders[random.int(0, folders.length - 1)]
-    let newBookmark
-    newBookmark.id = await localResource.createBookmark(
+    let newBookmark, newBookmarkId
+    newBookmarkId = await localResource.createBookmark(
       (newBookmark = new Bookmark({
         title: 'newBookmark' + Math.random(),
         url: 'http://ur.l/' + magicFolder5.id + '/' + Math.random(),
         parentId: magicFolder5.id,
       }))
     )
+    newBookmark.id = newBookmarkId
     bookmarks.push(newBookmark)
     console.log(
       'Created #' +
@@ -481,13 +483,14 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
 
     // Randomly create a folder
     magicFolder4 = folders[random.int(0, folders.length - 1)]
-    let newFolder
-    newFolder.id = await localResource.createFolder(
+    let newFolder, newFolderId
+    newFolderId = await localResource.createFolder(
       (newFolder = new Folder({
         title: 'newFolder' + Math.random(),
         parentId: magicFolder4.id,
       }))
     )
+    newFolder.id = newFolderId
     folders.push(newFolder)
     console.log(
       'Created #' +
@@ -500,14 +503,15 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
 
     // Randomly create a bookmark
     magicFolder5 = folders[random.int(0, folders.length - 1)]
-    let newBookmark
-    newBookmark.id = await localResource.createBookmark(
+    let newBookmark, newBookmarkId
+    newBookmarkId = await localResource.createBookmark(
       (newBookmark = new Bookmark({
         title: 'newBookmark' + Math.random(),
         url: 'http://ur.l/' + magicFolder5.id + '/' + Math.random(),
         parentId: magicFolder5.id,
       }))
     )
+    newBookmark.id = newBookmarkId
     bookmarks.push(newBookmark)
     console.log(
       'Created #' +
