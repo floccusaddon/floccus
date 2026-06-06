@@ -868,7 +868,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Sync your bookmarks with the open-source self-hosted Karakeep app. This option cannot make use of end-to-end encryption and does not support keeping the order of bookmarks across syncs."
+    "message": "Sync your bookmarks with the open-source self-hosted Karakeep app. It can only sync http bookmarks. This option cannot make use of end-to-end encryption and does not support keeping the order of bookmarks across syncs."
   },
   "LabelApiKey":  {
     "message": "API key"
