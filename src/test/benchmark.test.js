@@ -852,7 +852,7 @@ describe('Floccus', function() {
             for (let k = i; k < j; k++) {
               let newBookmark
               const newBookmarkId = await localResource1.createBookmark(
-                new Bookmark({
+                newBookmark = new Bookmark({
                   title: 'url' + i + ':' + j + ':' + k,
                   url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
                   parentId,
@@ -1107,7 +1107,7 @@ describe('Floccus', function() {
             for (let k = i; k < j; k++) {
               let newBookmark
               const newBookmarkId = await localResource1.createBookmark(
-                new Bookmark({
+                newBookmark = new Bookmark({
                   title: 'url' + i + ':' + j + ':' + k,
                   url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
                   parentId,
@@ -1382,7 +1382,7 @@ describe('Floccus', function() {
             for (let k = i; k < j; k++) {
               let newBookmark
               const newBookmarkId = await localResource1.createBookmark(
-                new Bookmark({
+                newBookmark = new Bookmark({
                   title: 'url' + i + ':' + j + ':' + k,
                   url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
                   parentId,
@@ -1644,7 +1644,7 @@ describe('Floccus', function() {
             for (let k = i; k < j; k++) {
               let newBookmark
               const newBookmarkId = await localResource1.createBookmark(
-                new Bookmark({
+                newBookmark = new Bookmark({
                   title: 'url' + i + ':' + j + ':' + k,
                   url: 'http://ur.l/' + parentId + '/' + i + '/' + j + '/' + k,
                   parentId,
