@@ -51,6 +51,7 @@
       <v-menu
         v-if="!searchQuery"
         bottom
+        offset-y
         left>
         <template #activator="{ on, attrs }">
           <v-btn
@@ -91,6 +92,7 @@
       <v-menu
         v-if="!searchQuery"
         bottom
+        offset-y
         left>
         <template #activator="{ on, attrs }">
           <v-btn

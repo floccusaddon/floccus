@@ -33,6 +33,7 @@
     <v-list-item-action>
       <v-menu
         bottom
+        offset-y
         left>
         <template #activator="{ on, attrs }">
           <v-btn
