@@ -105,9 +105,7 @@ All contributions, code, feedback and strategic advice, are welcome. If you have
 
 ### Translating
 
-Translations can now be provided over at [transifex](https://www.transifex.com/floccus/floccus/).
-
-![](https://www.transifex.com/projects/p/floccus/resource/messages-json--develop/chart/image_png)
+Translations can now be provided over at [transifex](https://explore.transifex.com/floccus/floccus/).
 
 ### Development
 
