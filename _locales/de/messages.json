@@ -198,7 +198,7 @@
     "message": "Beim Synchronisieren werden deine Lesezeichen in diesem Browser als Links in dieser Kollektion in Linkwarden gespeichert und nur Links in dieser Kollektion werden mit diesem Browser synchronisiert."
   },
   "DescriptionServerfolderkarakeep": {
-    "message": "Beim Synchronisieren werden deine Lesezeichen in diesem Browser als Links in dieser Kollektion in KaraKeep gespeichert und nur Links in dieser Kollektion werden mit diesem Browser synchronisiert."
+    "message": "Beim Synchronisieren werden deine Lesezeichen in diesem Browser als Links in dieser Kollektion in Karakeep gespeichert und nur Links in dieser Kollektion werden mit diesem Browser synchronisiert."
   },
   "LabelLocaltarget": {
     "message": "Lokales Ziel"
@@ -865,25 +865,25 @@
     "message": "Wenn du zu einem konkreten Problem direkt die Entwickler kontaktieren möchtest, dann kannst du das hier tun:"
   },
   "LabelAdapterKarakeep":  {
-    "message": "KaraKeep"
+    "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Synchronisieren Sie Ihre Lesezeichen mit der Open-Source selbst-gehosteten KaraKeep Anwendung. Diese Option unterstützt keine Ende-zu-Ende-Verschlüsselung und kann nicht die Reihenfolge Ihrer Lesezeichen synchronisieren."
+    "message": "Synchronisieren Sie Ihre Lesezeichen mit der Open-Source selbst-gehosteten Karakeep Anwendung. Es werden nur http-Lesezeichen synchronisiert. Diese Option unterstützt keine Ende-zu-Ende-Verschlüsselung und kann nicht die Reihenfolge Ihrer Lesezeichen synchronisieren."
   },
   "LabelApiKey":  {
     "message": "API-Schlüssel"
   },
   "LabelKarakeepurl":  {
-    "message": "Die URL Ihres KaraKeep-Servers"
+    "message": "Die URL Ihres Karakeep-Servers"
   },
   "LabelKarakeepconnectionerror": {
-    "message": "Verbindung zu KaraKeep-Server konnte nicht hergestellt werden"
+    "message": "Verbindung zu Karakeep-Server konnte nicht hergestellt werden"
   },
   "LabelAdapterlinkwarden":  {
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Synchronisieren SIe Ihre Lesezeichen mit der quelloffenen Linkwarden App, die auf deinem Server oder in der Cloud über cloud.linkwarden.app gehostet ist. Linkwarden kann nur http-, ftp- oder javascript-Lesezeichen synchronisieren. Diese Option unterstützt keine Ende-zu-Ende-Verschlüsselung und kann nicht die Reihenfolge Ihrer Lesezeichen synchronisieren."
+    "message": "Synchronisieren Sie Ihre Lesezeichen mit der quelloffenen Linkwarden App, die auf deinem Server oder in der Cloud über cloud.linkwarden.app gehostet ist. Linkwarden kann nur http-, ftp- oder javascript-Lesezeichen synchronisieren. Diese Option unterstützt keine Ende-zu-Ende-Verschlüsselung und kann nicht die Reihenfolge Ihrer Lesezeichen synchronisieren."
   },
   "LabelLinkwardenurl":  {
     "message": "Die URL deines Linkwarden-Servers"
