@@ -32,6 +32,10 @@ Note: All AI contributions will be carefully reviewed by the project maintainers
 - Release artifacts: `npm run build-release` -> zip/xpi/crx in `builds/`.
 - Static checks: `npm run lint`, `npm run typecheck`.
 - Selenium integration tests: `npm test` (expects Selenium server + env vars; runner in `test/selenium-runner.js`).
+- Node.js test harness: `npm run build:test-node` bundles `src/entries/test-node.js` to `dist/node-tests/fake-tests.js` via `webpack.node-tests.js`.
+- Node.js test execution: `npm run test:node:fake` runs the bundled Mocha suite without a browser/WebDriver. Defaults are `FLOCCUS_TEST_ACCOUNTS=fake,fake-noCache`, `FLOCCUS_TEST_BROWSER=node`, and `CI=true`; useful knobs include `FLOCCUS_TEST` (grep), `FLOCCUS_TEST_INVERT=true`, `FLOCCUS_TEST_ACCOUNTS=...`, `FLOCCUS_TEST_SEED=...`, and `FLOCCUS_NODE_INCLUDE_BENCHMARK=true` (`npm run test:node:fake:benchmark`).
+- Appium/native Android harness: `npm run test:appium` runs `test/appium-runner.js`, which waits for an Appium server, creates an Android `UiAutomator2` session, switches into the app's `WEBVIEW`, opens the native `#/test` route, and streams Mocha logs until a `FINISHED` marker is emitted.
+- Appium prerequisites: the Android app/APK must already be built and installed, and an Appium server with the `uiautomator2` driver must be running. Common env vars are `APPIUM_SERVER`, `APPIUM_DEVICE_NAME`, either `APPIUM_APP` or (`APPIUM_APP_PACKAGE` + `APPIUM_APP_ACTIVITY`), plus the same test-selection env used by the browser harness (`FLOCCUS_TEST`, `FLOCCUS_TEST_SEED`, `APP_VERSION`, `TEST_HOST`, adapter-specific credentials/tokens such as Google/Dropbox/Linkwarden/Karakeep).
 - Browser-local test mode is destructive to bookmarks unless using a dedicated profile (see `README.md` test section).
 
 ## Project conventions (specific to this repo)
