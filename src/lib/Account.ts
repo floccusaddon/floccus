@@ -14,7 +14,7 @@ import { setUser, setContext, withScope, captureException } from '@sentry/browse
 import AsyncLock from 'async-lock'
 import CachingTreeWrapper from './CachingTreeWrapper'
 import {
-  ClientsideAdditionFailsafeError, ClientsideDeletionFailsafeError,
+  ClientsideAdditionFailsafeError, ClientsideDeletionFailsafeError, FloccusError,
   InterruptedSyncError,
   NetworkError,
   ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, TransientError,
@@ -409,12 +409,20 @@ export default class Account {
       })
 
       if (this.server.onSyncFail) {
-        await this.server.onSyncFail()
+        try {
+          await this.server.onSyncFail()
+        } catch (e) {
+          console.log(e)
+          Logger.log('onSyncFail failed with ', e)
+        }
       }
 
       this.syncing = false
 
-      const isTransient = matchAllErrors(e, e => e instanceof TransientError)
+      const isTransient = matchAllErrors(
+        e,
+        (e) => e.list || !(e instanceof FloccusError) || e instanceof TransientError
+      )
 
       await this.setData({
         error: message,
