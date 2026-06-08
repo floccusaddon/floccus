@@ -246,6 +246,7 @@
                 :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassphrase ? 'text' : 'password'"
                 @click:append="showPassphrase = !showPassphrase" />
+              <OptionClientCert v-model="includeCredentials" class="mt-2" />
             </v-form>
             <div class="form-buttons">
               <v-btn @click="currentStep--">
@@ -548,10 +549,11 @@ import OptionNestedSync from '../components/OptionNestedSync'
 import OptionFileType from '../components/OptionFileType'
 import OptionSyncIntervalEnabled from '../components/OptionSyncIntervalEnabled.vue'
 import OptionAutoSync from '../components/OptionAutoSync.vue'
+import OptionClientCert from '../components/OptionClientCert.vue'
 
 export default {
   name: 'NewAccount',
-  components: { OptionAutoSync, OptionSyncIntervalEnabled, OptionFileType, OptionNestedSync, OptionSyncStrategy, OptionSyncInterval, OptionSyncFolder },
+  components: { OptionClientCert, OptionAutoSync, OptionSyncIntervalEnabled, OptionFileType, OptionNestedSync, OptionSyncStrategy, OptionSyncInterval, OptionSyncFolder },
   data() {
     return {
       currentStep: 0,
@@ -578,6 +580,7 @@ export default {
       showPassword: false,
       showPassphrase: false,
       clickCountEnabled: false,
+      includeCredentials: false,
       label: '',
       adapter: 'nextcloud-bookmarks',
       predefinedWebdavUrls: {
@@ -681,6 +684,7 @@ export default {
         ...(this.passphrase && {passphrase: this.passphrase}),
         ...(this.adapter === 'google-drive' && this.passphrase && { password: this.passphrase }),
         ...(this.adapter === 'dropbox' && this.passphrase && { password: this.passphrase }),
+        ...(this.adapter === 'webdav' && { includeCredentials: this.includeCredentials }),
         ...(this.isBrowser && {localRoot: this.localRoot}),
         syncInterval: this.syncInterval,
         strategy: this.strategy,
@@ -733,7 +737,7 @@ export default {
       this.isServerTestRunning = true
       this.serverTestError = ''
       try {
-        await this.$store.dispatch(actions.TEST_WEBDAV_SERVER, {rootUrl: this.server, username: this.username, password: this.password})
+        await this.$store.dispatch(actions.TEST_WEBDAV_SERVER, {rootUrl: this.server, username: this.username, password: this.password, includeCredentials: this.includeCredentials})
         this.serverTestSuccessful = true
         this.currentStep++
       } catch (e) {

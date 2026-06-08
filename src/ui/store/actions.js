@@ -112,11 +112,11 @@ export const actionsDefinition = {
   async [actions.DOWNLOAD_LOGS]({ commit, dispatch, state }, anonymous) {
     await Logger.downloadLogs(anonymous)
   },
-  async [actions.TEST_WEBDAV_SERVER]({commit, dispatch, state}, {rootUrl, username, password}) {
+  async [actions.TEST_WEBDAV_SERVER]({commit, dispatch, state}, {rootUrl, username, password, includeCredentials}) {
     await dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
     let res = await fetch(`${rootUrl}`, {
       method: 'PROPFIND',
-      credentials: 'omit',
+      credentials: includeCredentials ? 'include' : 'omit',
       headers: {
         'User-Agent': 'Floccus bookmarks sync',
         Depth: '0',
