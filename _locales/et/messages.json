@@ -868,7 +868,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Sünkroonige oma järjehoidjad avatud lähtekoodiga isehostitava rakendusega Karakeep. See valik ei saa kasutada otsast-otsani krüpteerimist ega toeta järjehoidjate järjekorra säilitamist sünkroonide vahel."
+    "message": "Sünkrooni oma järjehoidjad avatud lähtekoodiga omas serveris hallatava Karakeep-rakendusega. See suudab sünkroonida ainult HTTP-järjehoidjaid. See valik ei võimalda kasutada läbivat krüptimist ega toeta järjehoidjate järjekorra säilitamist sünkroonimise käigus."
   },
   "LabelApiKey":  {
     "message": "API võti"
