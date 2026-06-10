@@ -61,11 +61,7 @@ describe('Floccus', function() {
         account = null // so afterEach notices it's deleted already
       })
       it('should not be initialized upon creation', async function() {
-        if (IS_BROWSER) {
-          expect(await account.isInitialized()).to.be.false
-        } else {
-          expect(await account.isInitialized()).to.be.true
-        }
+        expect(await account.isInitialized()).to.be.false
       })
     })
   })
