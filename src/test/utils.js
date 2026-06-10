@@ -29,16 +29,13 @@ function filterAccounts(accounts, selector) {
     return accounts
   }
 
-  const selectedAccounts = new Set(
-    selector
-      .split(',')
-      .map((value) => value.trim())
-      .filter(Boolean)
-  )
+  const selectors = selector
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean)
 
   const filteredAccounts = accounts.filter((account) =>
-    selectedAccounts.has(account.type) ||
-    selectedAccounts.has(stringifyAccountData(account))
+    selectors.some((selector) => stringifyAccountData(account) === selector)
   )
 
   if (!filteredAccounts.length) {
