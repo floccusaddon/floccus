@@ -161,4 +161,8 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   isAvailable(): Promise<boolean> {
     return Promise.resolve(true)
   }
+
+  isAtomic(): boolean {
+    return false
+  }
 }
