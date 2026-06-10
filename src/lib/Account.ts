@@ -33,6 +33,10 @@ AdapterFactory.register('git', async() => (await import('./adapters/Git')).defau
 AdapterFactory.register('google-drive', async() => (await import('./adapters/GoogleDrive')).default)
 AdapterFactory.register('dropbox', async() => (await import('./adapters/Dropbox')).default)
 AdapterFactory.register('fake', async() => (await import('./adapters/Fake')).default)
+AdapterFactory.register(
+  'fake-nc-bookmarks',
+  async () => (await import('./adapters/FakeNcBookmarks')).default
+)
 
 // 2h
 const LOCK_TIMEOUT = 1000 * 60 * 60 * 2

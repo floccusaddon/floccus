@@ -6,6 +6,7 @@ import Logger from '../lib/Logger'
 import FakeAdapter from '../lib/adapters/Fake'
 import random from 'random'
 import seedrandom from 'seedrandom'
+import FakeNcBookmarksAdapter from '../lib/adapters/FakeNcBookmarks'
 
 const DEFAULT_SEED = Math.random() + ''
 
@@ -91,6 +92,7 @@ export function getEnv() {
 
   ACCOUNTS = filterAccounts([
     FakeAdapter.getDefaultValues(),
+    FakeNcBookmarksAdapter.getDefaultValues(),
     {
       ...FakeAdapter.getDefaultValues(),
       noCache: true,
@@ -238,6 +240,8 @@ let expectTreeEqualRec = function(
       expect(tree1.url).to.equal(tree2.url)
     } else {
       if (checkOrder === false) {
+        console.log(tree2)
+        console.log(tree2.children)
         tree2.children.sort((a, b) => {
           if (a.title < b.title) return -1
           if (a.title > b.title) return 1

@@ -74,7 +74,7 @@ describe('Floccus', function() {
           account2 = await Account.create({...ACCOUNT_DATA, failsafe: false})
           await account2.init()
 
-          if (ACCOUNT_DATA.type === 'fake') {
+          if (ACCOUNT_DATA.type.startsWith('fake')) {
             // Wire both accounts to the same fake db
             // We do not set the cache properties to the same object, because we want to only write onSynComplete
             let fakeServerDb = new Folder(
