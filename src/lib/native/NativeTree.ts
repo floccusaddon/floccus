@@ -92,7 +92,37 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   }
 
   async updateBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>):Promise<void> {
-    await super.updateBookmark(bookmark)
+    // This is a quickfix so we can pass url and title as undefined in the benchmark tests
+    const currentBookmark = this.bookmarksCache.findBookmark(bookmark.id)
+    const nextBookmark = currentBookmark
+      ? new Bookmark({
+        ...currentBookmark.toJSON(),
+        ...bookmark.toJSON(),
+        id:
+          typeof bookmark.id === 'undefined'
+            ? currentBookmark.id
+            : bookmark.id,
+        title:
+          typeof bookmark.title === 'undefined'
+            ? currentBookmark.title
+            : bookmark.title,
+        url:
+          typeof bookmark.url === 'undefined'
+            ? currentBookmark.url
+            : bookmark.url,
+        parentId:
+          typeof bookmark.parentId === 'undefined'
+            ? currentBookmark.parentId
+            : bookmark.parentId,
+        tags:
+          typeof bookmark.tags === 'undefined'
+            ? currentBookmark.tags
+            : bookmark.tags,
+        location: this.location,
+      })
+      : bookmark
+
+    await super.updateBookmark(nextBookmark)
     this.triggerSave()
   }
 
