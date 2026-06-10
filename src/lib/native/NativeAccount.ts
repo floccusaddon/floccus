@@ -45,15 +45,26 @@ export default class NativeAccount extends Account {
   }
 
   async init(): Promise<void> {
+    if (this.localTree instanceof NativeTree) {
+      // save tree on init
+      await this.localTree.saveImmediately()
+    }
+
     console.log('initializing account ' + this.id)
+
     await this.storage.initMappings()
     await this.storage.initCache()
+
+    // reload tree on init
+    const tree = new NativeTree(this.storage)
+    await tree.load()
+    this.localTree = tree
   }
 
   async isInitialized(): Promise<boolean> {
     try {
       return Boolean(
-        NativeAccountStorage.getEntry(
+        await NativeAccountStorage.getEntry(
           `bookmarks[${this.storage.accountId}].mappings`
         )
       )
@@ -64,8 +75,9 @@ export default class NativeAccount extends Account {
   }
 
   async sync(...args) {
+    let localResource
     try {
-      const localResource = await this.getResource()
+      localResource = await this.getResource()
       if (localResource instanceof NativeTree) {
         await localResource.saveImmediately()
       }
@@ -77,6 +89,9 @@ export default class NativeAccount extends Account {
       Logger.log('Continuing anyway.')
     }
     await super.sync(...args)
+    if (localResource instanceof NativeTree) {
+      await localResource.saveImmediately()
+    }
   }
 
   async updateFromStorage(): Promise<void> {
