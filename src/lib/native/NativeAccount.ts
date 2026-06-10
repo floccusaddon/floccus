@@ -45,20 +45,10 @@ export default class NativeAccount extends Account {
   }
 
   async init(): Promise<void> {
-    if (this.localTree instanceof NativeTree) {
-      // save tree on init
-      await this.localTree.saveImmediately()
-    }
-
     console.log('initializing account ' + this.id)
 
     await this.storage.initMappings()
     await this.storage.initCache()
-
-    // reload tree on init
-    const tree = new NativeTree(this.storage)
-    await tree.load()
-    this.localTree = tree
   }
 
   async isInitialized(): Promise<boolean> {
