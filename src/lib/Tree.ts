@@ -401,8 +401,17 @@ export class Folder<L extends TItemLocation> {
 
   childrenSimilarity<L2 extends TItemLocation>(otherItem: TItem<L2>): number {
     if (otherItem instanceof Folder) {
-      const myChildrenTitles = new Set(this.children.map((child) => child.title))
-      const otherChildrenTitles = new Set(otherItem.children.map((child) => child.title))
+      const myChildren = Array.isArray(this.children) ? this.children : []
+      const otherChildren = Array.isArray(otherItem.children)
+        ? otherItem.children
+        : []
+      const myChildrenTitles = new Set(myChildren.map((child) => child.title))
+      const otherChildrenTitles = new Set(
+        otherChildren.map((child) => child.title)
+      )
+      if (!myChildrenTitles.size && !otherChildrenTitles.size) {
+        return 1
+      }
       const overlappingTitles = new Set([...myChildrenTitles].filter((title) => otherChildrenTitles.has(title)))
       return overlappingTitles.size / Math.max(myChildrenTitles.size, otherChildrenTitles.size)
     }
