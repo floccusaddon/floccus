@@ -4,6 +4,7 @@ import Ordering from '../interfaces/Ordering'
 import CachingAdapter from '../adapters/Caching'
 import IAccountStorage from '../interfaces/AccountStorage'
 import { BulkImportResource, IHashSettings } from '../interfaces/Resource'
+import Logger from '../Logger'
 
 export default class NativeTree extends CachingAdapter implements BulkImportResource<typeof ItemLocation.LOCAL> {
   private static saveQueues = new Map<string, Promise<void>>()
@@ -138,7 +139,40 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   }
 
   async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>) :Promise<void> {
-    await super.orderFolder(id, order)
+    Logger.log('(local)ORDERFOLDER', { id, order })
+    const folder = this.bookmarksCache.findFolder(id)
+    if (!folder) {
+      return
+    }
+
+    let newChildren = []
+    order.forEach((item) => {
+      const child = folder.findItem(item.type, item.id)
+      if (!child || String(child.parentId) !== String(folder.id)) {
+        Logger.log('(local)ORDERFOLDER: skipping item ', item)
+        return
+      }
+      newChildren.push(child)
+    })
+
+    const missingChildren = folder.children.filter(
+      (child) => !newChildren.includes(child)
+    )
+
+    if (missingChildren.length) {
+      Logger.log(
+        '(local)ORDERFOLDER: restoring missing children',
+        missingChildren.map((child) => ({ type: child.type, id: child.id }))
+      )
+      missingChildren.forEach((child) => {
+        const index = folder.children.indexOf(child)
+        newChildren = newChildren
+          .slice(0, index)
+          .concat([child], newChildren.slice(index))
+      })
+    }
+
+    folder.children = newChildren
     this.triggerSave()
   }
 
