@@ -2,7 +2,6 @@ import { CachingResource, ICapabilities, IHashSettings, OrderFolderResource } fr
 import { Bookmark, Folder, ItemLocation } from './Tree'
 import CacheTree from './CacheTree'
 import Ordering from './interfaces/Ordering'
-import Logger from './Logger'
 
 export default class CachingTreeWrapper implements OrderFolderResource<typeof ItemLocation.LOCAL>, CachingResource<typeof ItemLocation.LOCAL> {
   private innerTree: OrderFolderResource<typeof ItemLocation.LOCAL>
@@ -64,15 +63,7 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
 
   async updateFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<void> {
     await this.innerTree.updateFolder(folder)
-    try {
-      await this.cacheTree.updateFolder(folder.copy(false))
-    } catch (error) {
-      Logger.log('CachingTreeWrapper: reloading cache tree after updateFolder mismatch', {
-        folder,
-        error,
-      })
-      this.cacheTree.setTree((await this.innerTree.getBookmarksTree()).copy())
-    }
+    await this.cacheTree.updateFolder(folder.copy(false))
   }
 
   async removeFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<void> {
