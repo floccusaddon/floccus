@@ -7,7 +7,7 @@ import difference from 'lodash/difference'
 import Ordering from '../interfaces/Ordering'
 import {
   UnknownBookmarkUpdateError,
-  UnknownCreateTargetError, UnknownFolderItemOrderError, UnknownFolderOrderError, UnknownFolderUpdateError,
+  UnknownCreateTargetError, UnknownFolderOrderError, UnknownFolderUpdateError,
   UnknownMoveOriginError,
   UnknownMoveTargetError
 } from '../../errors/Error'
@@ -193,7 +193,8 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     order.forEach(item => {
       const child = folder.findItem(item.type, item.id)
       if (!child || String(child.parentId) !== String(folder.id)) {
-        throw new UnknownFolderItemOrderError(id + ':' + JSON.stringify(item))
+        Logger.log('ORDERFOLDER: skipping item ', item)
+        return
       }
       newChildren.push(child)
     })
