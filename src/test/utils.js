@@ -313,8 +313,41 @@ export async function randomlyManipulateTree(account, folders, bookmarks, iterat
   }
 }
 
-async function randomTreeManipulation(account, folders, bookmarks) {
+async function refreshTreeCollections(account, folders, bookmarks) {
   const localResource = await account.getResource()
+  const root = await localResource.getBookmarksTree()
+  root.createIndex()
+
+  if (Array.isArray(folders)) {
+    const liveFolders = folders
+      .map((folder) => root.findFolder(folder.id))
+      .filter(Boolean)
+    folders.splice(0, folders.length, ...liveFolders)
+  }
+
+  if (Array.isArray(bookmarks)) {
+    const liveBookmarks = bookmarks
+      .map((bookmark) => root.findBookmark(bookmark.id))
+      .filter(Boolean)
+    bookmarks.splice(0, bookmarks.length, ...liveBookmarks)
+  }
+
+  return { localResource, root }
+}
+
+function pickRandomItem(items) {
+  if (!items.length) {
+    return null
+  }
+  return items[random.int(0, items.length - 1)]
+}
+
+async function randomTreeManipulation(account, folders, bookmarks) {
+  const { localResource, root } = await refreshTreeCollections(
+    account,
+    folders,
+    bookmarks
+  )
   let magicBookmark
   let magicFolder1
   let magicFolder2
@@ -322,28 +355,36 @@ async function randomTreeManipulation(account, folders, bookmarks) {
   let magicFolder4
   let magicFolder5
   try {
+    if (!bookmarks.length || !folders.length) {
+      return
+    }
+
     // Randomly move one bookmark
-    magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
-    magicFolder1 = folders[random.int(0, folders.length - 1)]
+    magicBookmark = pickRandomItem(bookmarks)
+    magicFolder1 = pickRandomItem(folders)
     await localResource.updateBookmark(new Bookmark({
       ...magicBookmark,
       parentId: magicFolder1.id,
     }))
+    magicBookmark.parentId = magicFolder1.id
     console.log('Move ' + magicBookmark.title + ' to ' + magicFolder1.id)
 
     // Randomly move two folders
-    magicFolder2 = folders[random.int(0, folders.length - 1)]
-    magicFolder3 = folders[random.int(0, folders.length - 1)]
+    magicFolder2 = pickRandomItem(folders)
+    magicFolder3 = pickRandomItem(folders)
     if (magicFolder2 === magicFolder3) {
       return
     }
-    const root = await localResource.getBookmarksTree()
     const tree2 = root.findFolder(magicFolder2.id)
+    if (!tree2) {
+      return
+    }
+    const targetFolder = root.findFolder(magicFolder3.id)
 
     if (tree2.findFolder(magicFolder3.id)) {
       return
     }
-    if (!root.findFolder(magicFolder3.id)) {
+    if (!targetFolder) {
       // This folder is not in our tree anymore for some reason
       return
     }
@@ -353,6 +394,7 @@ async function randomTreeManipulation(account, folders, bookmarks) {
         parentId: magicFolder3.id,
       })
     )
+    magicFolder2.parentId = magicFolder3.id
     console.log(
       'Move #' +
       magicFolder2.id +
@@ -363,7 +405,7 @@ async function randomTreeManipulation(account, folders, bookmarks) {
     )
 
     // Randomly create a folder
-    magicFolder4 = folders[random.int(0, folders.length - 1)]
+    magicFolder4 = pickRandomItem(folders)
     let newFolder, newFolderId
     newFolderId = await localResource.createFolder(
       newFolder = new Folder({
@@ -382,7 +424,7 @@ async function randomTreeManipulation(account, folders, bookmarks) {
       magicFolder4.id
     )
 
-    magicFolder5 = folders[random.int(0, folders.length - 1)]
+    magicFolder5 = pickRandomItem(folders)
     let newBookmark, newBookmarkId
     newBookmarkId = await localResource.createBookmark(
       (newBookmark = new Bookmark({
@@ -407,7 +449,7 @@ async function randomTreeManipulation(account, folders, bookmarks) {
 }
 
 async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
-  const localResource = await account.getResource()
+  let localResource
   let magicBookmark
   let magicFolder1
   let magicFolder2
@@ -415,19 +457,30 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
   let magicFolder4
   let magicFolder5
   try {
+    ({ localResource } = await refreshTreeCollections(account, folders, bookmarks))
+    if (!bookmarks.length || !folders.length) {
+      return
+    }
+
     // Randomly remove one bookmark
-    magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
+    magicBookmark = pickRandomItem(bookmarks)
     await localResource.removeBookmark(magicBookmark)
     bookmarks.splice(bookmarks.indexOf(magicBookmark), 1)
     console.log('Remove ' + magicBookmark.title)
 
+    await refreshTreeCollections(account, folders, bookmarks)
+    if (!bookmarks.length || !folders.length) {
+      return
+    }
+
     // Randomly rename one bookmark
-    magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
+    magicBookmark = pickRandomItem(bookmarks)
     const newTitle = 'renamed' + Math.random()
     await localResource.updateBookmark(new Bookmark({
       ...magicBookmark,
       title: newTitle,
     }))
+    magicBookmark.title = newTitle
     console.log(
       'Rename #' +
       magicBookmark.id +
@@ -438,41 +491,51 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
     )
 
     // randomly remove one folder
-    magicFolder1 = folders[random.int(0, folders.length - 1)]
+    magicFolder1 = pickRandomItem(folders)
     await localResource.removeFolder(magicFolder1)
-    folders.splice(folders.indexOf(magicFolder1), 1)
     console.log(
       'Removed #' + magicFolder1.id + '[' + magicFolder1.title + ']'
     )
 
+    await refreshTreeCollections(account, folders, bookmarks)
+    if (!bookmarks.length || !folders.length) {
+      return
+    }
+
     // Randomly move one bookmark
-    magicBookmark = bookmarks[random.int(0, bookmarks.length - 1)]
-    magicFolder1 = folders[random.int(0, folders.length - 1)]
+    magicBookmark = pickRandomItem(bookmarks)
+    magicFolder1 = pickRandomItem(folders)
     await localResource.updateBookmark(new Bookmark({
       ...magicBookmark,
       parentId: magicFolder1.id,
     }))
+    magicBookmark.parentId = magicFolder1.id
     console.log('Move ' + magicBookmark.title + ' to ' + magicFolder1.id)
 
     // Randomly move two folders
-    magicFolder2 = folders[random.int(0, folders.length - 1)]
-    magicFolder3 = folders[random.int(0, folders.length - 1)]
+    magicFolder2 = pickRandomItem(folders)
+    magicFolder3 = pickRandomItem(folders)
     if (magicFolder2 === magicFolder3) {
       return
     }
-    const root = await localResource.getBookmarksTree()
+    const root = (await refreshTreeCollections(account, folders, bookmarks)).root
     const tree2 = root.findFolder(magicFolder2.id)
+    if (!tree2) {
+      return
+    }
     if (tree2.findFolder(magicFolder3.id)) {
       return
     }
-    if (!root.findFolder(magicFolder3.id)) {
+    const targetFolder = root.findFolder(magicFolder3.id)
+    if (!targetFolder) {
       // This folder is not in our tree anymore for some reason
       return
     }
-    await localResource.updateBookmark(new Bookmark({
+    await localResource.updateFolder(new Folder({
       ...magicFolder2,
-      parentID: magicFolder3.id
+      parentId: magicFolder3.id,
     }))
+    magicFolder2.parentId = magicFolder3.id
     console.log(
       'Move #' +
       magicFolder2.id +
@@ -483,7 +546,7 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
     )
 
     // Randomly create a folder
-    magicFolder4 = folders[random.int(0, folders.length - 1)]
+    magicFolder4 = pickRandomItem(folders)
     let newFolder, newFolderId
     newFolderId = await localResource.createFolder(
       (newFolder = new Folder({
@@ -503,7 +566,7 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
     )
 
     // Randomly create a bookmark
-    magicFolder5 = folders[random.int(0, folders.length - 1)]
+    magicFolder5 = pickRandomItem(folders)
     let newBookmark, newBookmarkId
     newBookmarkId = await localResource.createBookmark(
       (newBookmark = new Bookmark({
