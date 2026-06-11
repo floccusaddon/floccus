@@ -246,7 +246,9 @@
                 :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassphrase ? 'text' : 'password'"
                 @click:append="showPassphrase = !showPassphrase" />
-              <OptionClientCert v-model="includeCredentials" class="mt-2" />
+              <OptionClientCert
+                v-model="includeCredentials"
+                class="mt-2" />
             </v-form>
             <div class="form-buttons">
               <v-btn @click="currentStep--">

@@ -1,4 +1,3 @@
-/* global IS_BROWSER */
 import { expect, getEnv, stringifyAccountData } from './utils'
 import Controller from '../lib/Controller'
 import Account from '../lib/Account'
