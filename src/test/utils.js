@@ -237,8 +237,6 @@ let expectTreeEqualRec = function(
       expect(tree1.url).to.equal(tree2.url)
     } else {
       if (checkOrder === false) {
-        console.log(tree2)
-        console.log(tree2.children)
         tree2.children.sort((a, b) => {
           if (a.title < b.title) return -1
           if (a.title > b.title) return 1
