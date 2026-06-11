@@ -200,6 +200,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
           if (
             this.mergeable(removedItem, createdItem) &&
+            !this.createsFolderLoop(removedItem, createdItem) &&
             (removedItem.type !== 'folder' ||
               (!this.hasCache &&
                 removedItem.childrenSimilarity(createdItem) >= 0.8))
@@ -240,6 +241,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
           )
           if (oldItem) {
             let oldIndex
+            if (this.createsFolderLoop(oldItem, createdItem)) {
+              continue
+            }
             this.result.CREATE.retract(createAction)
             if (oldItem === removedItem) {
               this.result.REMOVE.retract(removeAction)
@@ -248,6 +252,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
               const removedItemClone = removedItem.copy(true)
               const oldParentClone = removedItemClone.findItem(ItemType.FOLDER, oldItem.parentId) as Folder<L1>
               const oldItemClone = removedItemClone.findItem(oldItem.type, oldItem.id)
+              if (!oldParentClone || !oldItemClone) {
+                continue
+              }
               oldIndex = oldParentClone.children.indexOf(oldItemClone)
               oldParentClone.children.splice(oldIndex, 1)
               removeAction.payload = removedItemClone
@@ -275,6 +282,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
             )
             let index
             if (newItem) {
+              if (this.createsFolderLoop(removedItem, newItem)) {
+                continue
+              }
               this.result.REMOVE.retract(removeAction)
               if (newItem === createdItem) {
                 this.result.CREATE.retract(createAction)
@@ -283,6 +293,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
                 const createdItemClone = createdItem.copy(true)
                 const newParentClone = createdItemClone.findItem(ItemType.FOLDER, newItem.parentId) as Folder<L2>
                 const newClonedItem = createdItemClone.findItem(newItem.type, newItem.id)
+                if (!newParentClone || !newClonedItem) {
+                  continue
+                }
                 index = newParentClone.children.indexOf(newClonedItem)
                 newParentClone.children.splice(index, 1)
                 createAction.payload = createdItemClone
@@ -390,6 +403,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         await yieldToEventLoop()
       }
       const newFolder = this.newTree.findItem(ItemType.FOLDER, folderId) as Folder<L2>
+      if (!newFolder) {
+        continue
+      }
       const duplicate = this.result.REORDER.getActions().find(a => String(a.payload.id) === String(newFolder.id))
       if (duplicate) {
         this.result.REORDER.retract(duplicate)
@@ -403,5 +419,17 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
       })
     }
+  }
+
+  private createsFolderLoop(oldItem: TItem<L1>, newItem: TItem<L2>): boolean {
+    if (oldItem.type !== ItemType.FOLDER) {
+      return false
+    }
+
+    if (typeof newItem.parentId === 'undefined') {
+      return false
+    }
+
+    return Boolean(oldItem.findFolder(newItem.parentId))
   }
 }
