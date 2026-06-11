@@ -313,28 +313,6 @@ export async function randomlyManipulateTree(account, folders, bookmarks, iterat
   }
 }
 
-async function refreshTreeCollections(account, folders, bookmarks) {
-  const localResource = await account.getResource()
-  const root = await localResource.getBookmarksTree()
-  root.createIndex()
-
-  if (Array.isArray(folders)) {
-    const liveFolders = folders
-      .map((folder) => root.findFolder(folder.id))
-      .filter(Boolean)
-    folders.splice(0, folders.length, ...liveFolders)
-  }
-
-  if (Array.isArray(bookmarks)) {
-    const liveBookmarks = bookmarks
-      .map((bookmark) => root.findBookmark(bookmark.id))
-      .filter(Boolean)
-    bookmarks.splice(0, bookmarks.length, ...liveBookmarks)
-  }
-
-  return { localResource, root }
-}
-
 function pickRandomItem(items) {
   if (!items.length) {
     return null
@@ -343,11 +321,8 @@ function pickRandomItem(items) {
 }
 
 async function randomTreeManipulation(account, folders, bookmarks) {
-  const { localResource, root } = await refreshTreeCollections(
-    account,
-    folders,
-    bookmarks
-  )
+  const localResource = await account.getResource()
+  const root = await localResource.getBookmarksTree(true)
   let magicBookmark
   let magicFolder1
   let magicFolder2
@@ -449,7 +424,7 @@ async function randomTreeManipulation(account, folders, bookmarks) {
 }
 
 async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
-  let localResource
+  const localResource = await account.getResource()
   let magicBookmark
   let magicFolder1
   let magicFolder2
@@ -457,7 +432,6 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
   let magicFolder4
   let magicFolder5
   try {
-    ({ localResource } = await refreshTreeCollections(account, folders, bookmarks))
     if (!bookmarks.length || !folders.length) {
       return
     }
@@ -468,7 +442,6 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
     bookmarks.splice(bookmarks.indexOf(magicBookmark), 1)
     console.log('Remove ' + magicBookmark.title)
 
-    await refreshTreeCollections(account, folders, bookmarks)
     if (!bookmarks.length || !folders.length) {
       return
     }
@@ -497,7 +470,6 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
       'Removed #' + magicFolder1.id + '[' + magicFolder1.title + ']'
     )
 
-    await refreshTreeCollections(account, folders, bookmarks)
     if (!bookmarks.length || !folders.length) {
       return
     }
@@ -518,7 +490,7 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
     if (magicFolder2 === magicFolder3) {
       return
     }
-    const root = (await refreshTreeCollections(account, folders, bookmarks)).root
+    const root = await localResource.getBookmarksTree(true)
     const tree2 = root.findFolder(magicFolder2.id)
     if (!tree2) {
       return
