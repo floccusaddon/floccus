@@ -119,36 +119,35 @@ export default class Diff<
     itemTree: Folder<TItemLocation>,
     cache: Record<string, boolean>
   ): boolean {
+    // (location, type, id) uniquely identifies an item — use it directly rather
+    // than canonicalizing through mapId, so the key is collision-free even when
+    // ids contain separator chars or when mapId returns undefined for unmapped
+    // items.
     const cacheKey =
-      'contains:' +
-      Mappings.mapId(mappingsSnapshot, item2, ItemLocation.LOCAL) +
-      ':' +
-      Mappings.mapId(mappingsSnapshot, item2, ItemLocation.SERVER) +
-      '-' +
-      Mappings.mapId(mappingsSnapshot, item1, ItemLocation.LOCAL) +
-      ':' +
-      Mappings.mapId(mappingsSnapshot, item1, ItemLocation.SERVER)
+      `contains:${item1.location}:${item1.type}:${item1.id}|` +
+      `${item2.location}:${item2.type}:${item2.id}`
     if (typeof cache[cacheKey] !== 'undefined') {
       return cache[cacheKey]
     }
-    const item1InTree = itemTree.findItem(
-      item1.type,
-      Mappings.mapId(mappingsSnapshot, item1, itemTree.location)
-    )
+    const item1IdInTreeSpace = Mappings.mapId(mappingsSnapshot, item1, itemTree.location)
+    const item1InTree = typeof item1IdInTreeSpace !== 'undefined'
+      ? itemTree.findItem(item1.type, item1IdInTreeSpace)
+      : null
+    const item2ParentInItem1Space = Mappings.mapParentId(mappingsSnapshot, item2, item1.location)
+    const item2ParentInTreeSpace = Mappings.mapParentId(mappingsSnapshot, item2, itemTree.location)
+    const item1IdInItem2Space = Mappings.mapId(mappingsSnapshot, item1, item2.location)
     if (
-      item1.findItem(
-        ItemType.FOLDER,
-        Mappings.mapParentId(mappingsSnapshot, item2, item1.location)
-      ) ||
+      (typeof item2ParentInItem1Space !== 'undefined' &&
+        item1.findItem(ItemType.FOLDER, item2ParentInItem1Space)) ||
       (item1InTree &&
-        item1InTree.findItem(
-          ItemType.FOLDER,
-          Mappings.mapParentId(mappingsSnapshot, item2, itemTree.location)
-        )) ||
-      String(Mappings.mapId(mappingsSnapshot, item1, item2.location)) ===
-        String(item2.parentId) ||
-      String(Mappings.mapParentId(mappingsSnapshot, item2, item1.location)) ===
-        String(item1.id)
+        typeof item2ParentInTreeSpace !== 'undefined' &&
+        item1InTree.findItem(ItemType.FOLDER, item2ParentInTreeSpace)) ||
+      (typeof item1IdInItem2Space !== 'undefined' &&
+        typeof item2.parentId !== 'undefined' &&
+        String(item1IdInItem2Space) === String(item2.parentId)) ||
+      (typeof item2ParentInItem1Space !== 'undefined' &&
+        typeof item1.id !== 'undefined' &&
+        String(item2ParentInItem1Space) === String(item1.id))
     ) {
       cache[cacheKey] = true
       return true
@@ -166,27 +165,13 @@ export default class Diff<
     cache: Record<string, boolean> = {},
     chain: Action<TItemLocation, TItemLocation>[] = []
   ): boolean {
-    const currentItemLocalId = Mappings.mapId(
-      mappingsSnapshot,
-      currentItem,
-      ItemLocation.LOCAL
-    )
-    const currentItemServerId = Mappings.mapId(
-      mappingsSnapshot,
-      currentItem,
-      ItemLocation.SERVER
-    )
-    const targetPayloadLocalId = Mappings.mapId(
-      mappingsSnapshot,
-      targetAction.payload,
-      ItemLocation.LOCAL
-    )
-    const targetPayloadServerId = Mappings.mapId(
-      mappingsSnapshot,
-      targetAction.payload,
-      ItemLocation.SERVER
-    )
-    const cacheKey = `hasChain:${currentItemLocalId}:${currentItemServerId}-${targetPayloadLocalId}:${targetPayloadServerId}`
+    // (location, type, id) uniquely identifies an item — use it directly rather
+    // than canonicalizing through mapId, so the key is collision-free even when
+    // ids contain separator chars or when mapId returns undefined for unmapped
+    // items.
+    const cacheKey =
+      `hasChain:${currentItem.location}:${currentItem.type}:${currentItem.id}|` +
+      `${targetAction.payload.location}:${targetAction.payload.type}:${targetAction.payload.id}`
     if (typeof cache[cacheKey] !== 'undefined') {
       return cache[cacheKey]
     }
