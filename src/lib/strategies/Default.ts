@@ -689,7 +689,7 @@ export default class SyncProcess {
       },
       this.hashSettings,
       true,
-      false,
+      true,
     )
     const serverScanner = new Scanner(
       this.mappings,
