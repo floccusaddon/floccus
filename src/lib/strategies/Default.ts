@@ -27,7 +27,7 @@ import TResource, { IHashSettings, OrderFolderResource, TLocalTree } from '../in
 import { TAdapter } from '../interfaces/Adapter'
 import {
   CancelledSyncError, ClientsideAdditionFailsafeError,
-  ClientsideDeletionFailsafeError, ServersideAdditionFailsafeError,
+  ClientsideDeletionFailsafeError, FloccusError, ServersideAdditionFailsafeError,
   ServersideDeletionFailsafeError
 } from '../../errors/Error'
 
@@ -1146,9 +1146,8 @@ export default class SyncProcess {
       this.cancelPromise
     ])
     if (typeof id === 'undefined' || id === null) {
-      // undefined means we couldn't create the item. we're ignoring it
-      await done()
-      return
+      // undefined means we couldn't create the item
+      throw new FloccusError('Failed to create item on ' + targetLocation + ' : ' + action.payload.inspect())
     }
 
     action.payload = action.payload.copy()
