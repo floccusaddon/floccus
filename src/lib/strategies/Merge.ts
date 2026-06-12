@@ -134,7 +134,8 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
             (oldItem, newItem) => {
               if (
                 oldItem.type === newItem.type &&
-                oldItem.canMergeWith(newItem)
+                oldItem.canMergeWith(newItem) &&
+                !Mappings.wouldEvictUnrelatedMapping(mappingsSnapshot, oldItem, newItem)
               ) {
                 // if two items can be merged, we'll add mappings here directly
                 return true

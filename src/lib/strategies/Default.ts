@@ -804,7 +804,8 @@ export default class SyncProcess {
           (oldItem, newItem) => {
             if (
               oldItem.type === newItem.type &&
-              oldItem.canMergeWith(newItem)
+              oldItem.canMergeWith(newItem) &&
+              !Mappings.wouldEvictUnrelatedMapping(mappingsSnapshot, oldItem, newItem)
             ) {
               return true
             }
@@ -1181,6 +1182,7 @@ export default class SyncProcess {
           // Try bulk import with sub folders
           const imported = await resource.bulkImportFolder(id, action.oldItem.copyWithLocation(false, action.payload.location)) as Folder<typeof targetLocation>
           await done()
+          const bulkImportMappingsSnapshot = this.mappings.getSnapshot()
           const subScanner = new Scanner(
             this.mappings,
             action.oldItem,
@@ -1188,7 +1190,8 @@ export default class SyncProcess {
             (oldItem, newItem) => {
               if (
                 oldItem.type === newItem.type &&
-                oldItem.canMergeWith(newItem)
+                oldItem.canMergeWith(newItem) &&
+                !Mappings.wouldEvictUnrelatedMapping(bulkImportMappingsSnapshot, oldItem, newItem)
               ) {
                 return true
               }
@@ -1240,6 +1243,7 @@ export default class SyncProcess {
             Logger.log('Attempting chunked bulk import')
             tempItem.children = bookmarks.splice(0, 70)
             const imported = await resource.bulkImportFolder(action.payload.id, tempItem)
+            const chunkedBulkImportMappingsSnapshot = this.mappings.getSnapshot()
             const subScanner = new Scanner(
               this.mappings,
               tempItem,
@@ -1247,7 +1251,8 @@ export default class SyncProcess {
               (oldItem, newItem) => {
                 if (
                   oldItem.type === newItem.type &&
-                  oldItem.canMergeWith(newItem)
+                  oldItem.canMergeWith(newItem) &&
+                  !Mappings.wouldEvictUnrelatedMapping(chunkedBulkImportMappingsSnapshot, oldItem, newItem)
                 ) {
                   // if two items can be merged, we'll add mappings here directly
                   return true
