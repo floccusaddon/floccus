@@ -61,7 +61,7 @@ async function main() {
     reporter: process.env.MOCHA_REPORTER || 'spec',
     timeout: 120000,
     ui: 'bdd',
-    allowUncaught: true,
+    allowUncaught: false,
   })
 
   mocha.suite.emit('pre-require', globalThis, 'floccus-node-tests', mocha)
