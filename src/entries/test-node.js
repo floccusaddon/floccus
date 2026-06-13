@@ -5,7 +5,7 @@ import Controller from '../lib/Controller'
 import { registerNodeSuite } from '../test/node-suite'
 
 if (!process.env.FLOCCUS_TEST_ACCOUNTS) {
-    process.env.FLOCCUS_TEST_ACCOUNTS = 'fake'
+  process.env.FLOCCUS_TEST_ACCOUNTS = 'fake'
 }
 
 if (!process.env.FLOCCUS_TEST_BROWSER) {
