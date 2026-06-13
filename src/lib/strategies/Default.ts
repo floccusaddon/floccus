@@ -1242,6 +1242,12 @@ export default class SyncProcess {
           return
         } catch (e) {
           Logger.log('Bulk import failed, continuing with normal creation', e)
+          if (doneCalled) {
+            // Bulk import already committed the subtree to the target; the failure is
+            // in post-import bookkeeping. Falling through to per-child creation would
+            // re-create the same items and produce duplicates on the target.
+            return
+          }
         }
       } else {
         const importedBookmarkIds = new Set<string>()
@@ -1300,6 +1306,7 @@ export default class SyncProcess {
 
           if (!doneCalled) {
             await done()
+            doneCalled = true
           }
 
           if ('orderFolder' in resource) {
@@ -1316,6 +1323,12 @@ export default class SyncProcess {
           return
         } catch (e) {
           Logger.log('Bulk import failed, continuing with normal creation', e)
+          if (doneCalled) {
+            // Bookmarks were committed and the action retracted; the failure is in
+            // post-import bookkeeping. Falling through would re-commit CREATEs for
+            // the folders we already planned via diff.commit above.
+            return
+          }
           if (importedBookmarkIds.size > 0) {
             // A later chunk threw after earlier chunks had already imported their bookmarks. The per-child
             // fallback below would otherwise re-create those imported bookmarks and produce duplicates on the target.

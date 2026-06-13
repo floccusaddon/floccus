@@ -105,7 +105,10 @@ export default class Diff<
   }
 
   retract(action: A): void {
-    this.actions.splice(this.actions.indexOf(action), 1)
+    const idx = this.actions.indexOf(action)
+    if (idx !== -1) {
+      this.actions.splice(idx, 1)
+    }
   }
 
   getActions(): A[] {
