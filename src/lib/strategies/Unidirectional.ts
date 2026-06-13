@@ -32,8 +32,12 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
   getMembersToPersist() {
     const members = []
-    // Stage 0
-    if (!this.revertPlan && this.actionsPlanned === 0) {
+    // scanResult.REORDER is consumed by executeRevert (stage 1) and again
+    // when building revertReorders (start of stage 2). Keep persisting it
+    // until revertReorders is set, otherwise resume between those points
+    // throws TypeError on this.scanResult.REORDER (the line-169 guard does
+    // not recompute scanResult when revertPlan is already present).
+    if (!this.revertReorders) {
       members.push('scanResult')
     }
 
