@@ -276,7 +276,7 @@ export default class Diff<
     mappingsSnapshot: MappingSnapshot,
     targetLocation: L3,
     filter: (action: A) => boolean = () => true,
-    skipErroneousActions = false
+    skipErroneousActions = true
   ): Diff<L3, L1, MapLocation<A, L3>> {
     const newDiff: Diff<L3, L1, MapLocation<A, L3>> = new Diff()
 
@@ -301,8 +301,8 @@ export default class Diff<
           const newId = action.payload.id
           newAction = {
             ...action,
-            payload: action.payload.copyWithLocation(false, targetLocation),
-            oldItem: action.oldItem.copyWithLocation(
+            payload: action.payload.restampRoot(false, targetLocation),
+            oldItem: action.oldItem.restampRoot(
               false,
               action.payload.location
             ),
@@ -312,7 +312,7 @@ export default class Diff<
         } else {
           newAction = {
             ...action,
-            payload: action.payload.copyWithLocation(false, targetLocation),
+            payload: action.payload.restampRoot(false, targetLocation),
             oldItem: action.payload.copy(false),
           }
           newAction.payload.id = Mappings.mapId(
