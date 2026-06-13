@@ -703,23 +703,6 @@ export class Folder<L extends TItemLocation> {
         : null,
     })
   }
-
-  static getAncestorsOf<L2 extends TItemLocation>(
-    item: TItem<L2>,
-    tree: Folder<L2>
-  ): TItem<L2>[] {
-    const ancestors = [item]
-    let parent = item
-    while (String(parent.id) !== String(tree.id)) {
-      ancestors.push(parent)
-      parent = tree.findItem(ItemType.FOLDER, parent.parentId)
-      if (!parent) {
-        throw new Error('Item is not a descendant of the tree passed')
-      }
-    }
-    ancestors.reverse()
-    return ancestors
-  }
 }
 
 export type TItem<L extends TItemLocation> = Bookmark<L> | Folder<L>
