@@ -34,7 +34,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
       if (this.loaded && this.bookmarksCache) {
         oldHash = await this.bookmarksCache.cloneWithLocation(false, this.location).hash(hashSettings)
       }
-      this.bookmarksCache = Folder.hydrate(JSON.parse(tree)).copyWithLocation(false, this.location)
+      this.bookmarksCache = Folder.hydrate(JSON.parse(tree)).restampTree(false, this.location)
       const parsedHighestId = parseInt(highestId ?? '0', 10)
       this.highestId = Number.isNaN(parsedHighestId) ? 0 : parsedHighestId
       if (oldHash && this.loaded) {

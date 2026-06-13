@@ -301,8 +301,8 @@ export default class Diff<
           const newId = action.payload.id
           newAction = {
             ...action,
-            payload: action.payload.restampRoot(false, targetLocation),
-            oldItem: action.oldItem.restampRoot(
+            payload: action.payload.restampTree(false, targetLocation),
+            oldItem: action.oldItem.restampTree(
               false,
               action.payload.location
             ),
@@ -312,7 +312,7 @@ export default class Diff<
         } else {
           newAction = {
             ...action,
-            payload: action.payload.restampRoot(false, targetLocation),
+            payload: action.payload.restampTree(false, targetLocation),
             oldItem: action.payload.copy(false),
           }
           newAction.payload.id = Mappings.mapId(

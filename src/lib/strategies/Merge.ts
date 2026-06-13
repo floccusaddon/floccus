@@ -219,7 +219,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
             findChainCache2 = {}
             concurrentHierarchyReversals.forEach((a) => {
               // moved sourcely but moved in reverse hierarchical order on target
-              const payload = a.oldItem.copyWithLocation(
+              const payload = a.oldItem.restampRoot(
                 false,
                 action.payload.location
               )
@@ -233,7 +233,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
                 a.oldItem,
                 action.payload.location
               )
-              const oldItem = a.payload.copyWithLocation(
+              const oldItem = a.payload.restampRoot(
                 false,
                 action.oldItem.location
               )

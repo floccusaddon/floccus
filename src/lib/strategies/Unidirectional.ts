@@ -363,7 +363,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     L1 extends TItemLocation,
     L2 extends TItemLocation
   >(item: TItem<L1>, mappingsSnapshot: MappingSnapshot, fakeLocation: L2) {
-    const newItem = item.copyWithLocation(false, fakeLocation)
+    const newItem = item.restampTree(false, fakeLocation)
     newItem.id = Mappings.mapId(mappingsSnapshot, item, fakeLocation)
     newItem.parentId = Mappings.mapParentId(
       mappingsSnapshot,

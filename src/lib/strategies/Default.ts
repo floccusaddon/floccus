@@ -974,7 +974,7 @@ export default class SyncProcess {
           findChainCache2 = {}
           concurrentHierarchyReversals.forEach(a => {
             // moved sourcely but moved in reverse hierarchical order on target
-            const payload = a.oldItem.copyWithLocation(false, action.payload.location)
+            const payload = a.oldItem.restampRoot(false, action.payload.location)
             payload.id = Mappings.mapId(
               mappingsSnapshot,
               a.oldItem,
@@ -985,7 +985,7 @@ export default class SyncProcess {
               a.oldItem,
               action.payload.location
             )
-            const oldItem = a.payload.copyWithLocation(false, action.oldItem.location)
+            const oldItem = a.payload.restampRoot(false, action.oldItem.location)
             oldItem.id = Mappings.mapId(mappingsSnapshot, a.payload, action.oldItem.location)
             oldItem.parentId = Mappings.mapParentId(mappingsSnapshot, a.payload, action.oldItem.location)
 
@@ -1180,7 +1180,7 @@ export default class SyncProcess {
         Logger.log('Attempting full bulk import')
         try {
           // Try bulk import with sub folders
-          const imported = await resource.bulkImportFolder(id, action.oldItem.copyWithLocation(false, action.payload.location)) as Folder<typeof targetLocation>
+          const imported = await resource.bulkImportFolder(id, action.oldItem.restampTree(false, action.payload.location)) as Folder<typeof targetLocation>
           await done()
           const bulkImportMappingsSnapshot = this.mappings.getSnapshot()
           const subScanner = new Scanner(
@@ -1237,7 +1237,7 @@ export default class SyncProcess {
       } else {
         try {
           // Try bulk import without sub folders
-          const tempItem = action.oldItem.copyWithLocation(false, action.payload.location)
+          const tempItem = action.oldItem.restampTree(false, action.payload.location)
           const bookmarks = tempItem.children.filter(child => child instanceof Bookmark)
           while (bookmarks.length > 0) {
             Logger.log('Attempting chunked bulk import')

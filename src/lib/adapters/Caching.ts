@@ -74,7 +74,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
 
   async createBookmark(bm:Bookmark<TItemLocation>):Promise<string|number> {
     Logger.log('CREATE', bm)
-    bm = bm.copyWithLocation(true, this.location)
+    bm = bm.restampTree(true, this.location)
     bm.id = ++this.highestId
     const foundFolder = this.bookmarksCache.findFolder(bm.parentId)
     if (!foundFolder) {
@@ -237,7 +237,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       throw new UnknownCreateTargetError()
     }
     // clone and adjust ids
-    const imported = folder.copyWithLocation(true, this.location)
+    const imported = folder.restampTree(true, this.location)
     imported.id = id
     await imported.traverse(async(item, parentFolder) => {
       item.id = ++this.highestId

@@ -152,7 +152,7 @@ export class Bookmark<L extends TItemLocation> {
     return new Bookmark(this.toJSON())
   }
 
-  copyWithLocation<L2 extends TItemLocation>(
+  restampTree<L2 extends TItemLocation>(
     withHash: boolean,
     location: L2
   ): Bookmark<L2> {
@@ -162,6 +162,14 @@ export class Bookmark<L extends TItemLocation> {
       ...this.toJSON(),
       location,
     })
+  }
+
+  // For Bookmark this is equivalent to restampTree — no children to consider.
+  restampRoot<L2 extends TItemLocation>(
+    withHash: boolean,
+    location: L2
+  ): Bookmark<L2> {
+    return this.restampTree(withHash, location)
   }
 
   toJSON() {
@@ -487,7 +495,7 @@ export class Folder<L extends TItemLocation> {
     })
   }
 
-  copyWithLocation<L2 extends TItemLocation>(
+  restampTree<L2 extends TItemLocation>(
     withHash: boolean,
     location: L2
   ): Folder<L2> {
@@ -498,8 +506,29 @@ export class Folder<L extends TItemLocation> {
       location,
       ...(!withHash && { hashValue: null }),
       children: this.children.map((child) =>
-        child.copyWithLocation(withHash, location)
+        child.restampTree(withHash, location)
       ),
+    })
+  }
+
+  // Relabel the root only; children keep their original .location (and ids).
+  // Use this when the resulting folder represents "where to put it" but its
+  // descendants still hold identifiers in the source coordinate system that
+  // downstream code cross-references against an oldItem snapshot.
+  // Note: at the type level children appear as TItem<L2>, but at runtime
+  // they retain whatever location they were copied from. That asymmetry is
+  // the API's documented lie — see callers in Diff#map.
+  restampRoot<L2 extends TItemLocation>(
+    withHash: boolean,
+    location: L2
+  ): Folder<L2> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return new Folder({
+      ...this.toJSON(),
+      location,
+      ...(!withHash && { hashValue: null }),
+      children: this.children.map((child) => child.copy(withHash)) as unknown as TItem<L2>[],
     })
   }
 
