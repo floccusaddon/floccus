@@ -223,6 +223,16 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
                 false,
                 action.payload.location
               )
+              payload.id = Mappings.mapId(
+                mappingsSnapshot,
+                a.oldItem,
+                action.payload.location
+              )
+              payload.parentId = Mappings.mapParentId(
+                mappingsSnapshot,
+                a.oldItem,
+                action.payload.location
+              )
               const oldItem = a.payload.copyWithLocation(
                 false,
                 action.oldItem.location
