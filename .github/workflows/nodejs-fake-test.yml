@@ -32,6 +32,7 @@ env:
 
 jobs:
   nodejs-tests:
+    name: Node.js Tests
     runs-on: ubuntu-latest
 
     strategy:
@@ -76,3 +77,60 @@ jobs:
         working-directory: floccus
         run: |
           npm run test:node:fake
+
+  nodejs-benchmark:
+    name: Node.js Benchmark ${{ matrix.seed != github.sha && '🌱' || ''}}${{ matrix.seed != github.sha && matrix.seed || ''}}
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      # do not stop on another job's failure
+      fail-fast: false
+      matrix:
+        node-version: [ 20.x ]
+        npm-version: [ 10.x ]
+        seed:
+          - ${{ github.sha }}
+          - "3"
+          - "6"
+          - "0.5202964461460992"
+          - "cfc00c4b69afec232e3b26244c2bc98ed6d547b6"
+          - "12dd05da349df3d71c9e48e764f5d50ec2bbc88d"
+
+    steps:
+      - name: Checkout floccus
+        uses: actions/checkout@v2
+        with:
+          path: floccus
+
+      - name: Set up node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Set up npm ${{ matrix.npm-version }}
+        run: npm i -g npm@"${{ matrix.npm-version }}"
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install dependencies & build
+        working-directory: floccus
+        run: |
+          npm ci
+
+      - name: Run node.js tests
+        working-directory: floccus
+        env:
+          FLOCCUS_TEST_SEED: ${{ matrix.seed }}
+        run: |
+          npm run test:node:fake:benchmark
