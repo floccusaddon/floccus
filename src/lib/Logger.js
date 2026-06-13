@@ -20,7 +20,7 @@ export default class Logger {
   }
 
   static trimLogs() {
-    this.messages = this.messages.slice(-1000)
+    this.messages = this.messages.slice(-10000)
   }
 
   static async persist() {
