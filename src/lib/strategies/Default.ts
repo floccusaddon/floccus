@@ -1235,13 +1235,15 @@ export default class SyncProcess {
           Logger.log('Bulk import failed, continuing with normal creation', e)
         }
       } else {
+        const importedBookmarkIds = new Set<string>()
         try {
           // Try bulk import without sub folders
           const tempItem = action.oldItem.restampTree(false, action.payload.location)
           const bookmarks = tempItem.children.filter(child => child instanceof Bookmark)
           while (bookmarks.length > 0) {
             Logger.log('Attempting chunked bulk import')
-            tempItem.children = bookmarks.splice(0, 70)
+            const chunk = bookmarks.splice(0, 70)
+            tempItem.children = chunk
             const imported = await resource.bulkImportFolder(action.payload.id, tempItem)
             const chunkedBulkImportMappingsSnapshot = this.mappings.getSnapshot()
             const subScanner = new Scanner(
@@ -1265,6 +1267,7 @@ export default class SyncProcess {
               true,
             )
             await subScanner.run()
+            chunk.forEach(b => importedBookmarkIds.add(String(b.id)))
           }
 
           // create sub plan for the folders
@@ -1302,6 +1305,13 @@ export default class SyncProcess {
           return
         } catch (e) {
           Logger.log('Bulk import failed, continuing with normal creation', e)
+          if (importedBookmarkIds.size > 0) {
+            // A later chunk threw after earlier chunks had already imported their bookmarks. The per-child
+            // fallback below would otherwise re-create those imported bookmarks and produce duplicates on the target.
+            action.payload.children = action.payload.children.filter(
+              c => !(c instanceof Bookmark) || !importedBookmarkIds.has(String(c.id))
+            )
+          }
         }
       }
     }
