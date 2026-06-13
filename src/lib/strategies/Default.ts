@@ -1485,7 +1485,7 @@ export default class SyncProcess {
             !reorderAction.order.find(
               (item) =>
                 (item.type === move.payload.type &&
-                  String(item.id)) === String(Mappings.mapId(mappingSnapshot, move.payload, reorderAction.payload.location))
+                  String(item.id) === String(Mappings.mapId(mappingSnapshot, move.payload, reorderAction.payload.location)))
             )
         )
         moves.forEach(a => {
