@@ -358,7 +358,19 @@ export default class Account {
         // Remove superfluous items from mappings
         // as we don't remove items immediately for anymore (for Atomic adapters), due to possible interrupts
         Logger.log('Removing superfluous mappings')
-        await mappings.gc(cache)
+        // For atomic adapters the in-memory cache is a complete, post-sync server tree, so we
+        // can also drop mappings whose remote counterpart no longer exists. Non-atomic adapters
+        // return a sparse tree from getBookmarksTree(); using it for GC would erroneously drop
+        // mappings for unloaded items, so we skip the remote-side check there.
+        let serverTree
+        if (this.server.isAtomic()) {
+          try {
+            serverTree = await this.server.getBookmarksTree()
+          } catch (e) {
+            Logger.log('Could not fetch server tree for mapping GC, skipping remote-side cleanup', e)
+          }
+        }
+        await mappings.gc(cache, serverTree)
         // store mappings
         Logger.log('Storing mappings')
         await mappings.persist()

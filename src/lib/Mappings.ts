@@ -34,16 +34,35 @@ export default class Mappings {
     }
   }
 
-  async gc(tree: Folder<typeof ItemLocation.LOCAL>) {
-    const index = tree.createIndex()
+  async gc(
+    localTree: Folder<typeof ItemLocation.LOCAL>,
+    serverTree?: Folder<typeof ItemLocation.SERVER>
+  ) {
+    const localIndex = localTree.createIndex()
     for (const localId in this.bookmarks.LocalToServer) {
-      if (!(localId in index[ItemType.BOOKMARK])) {
+      if (!(localId in localIndex[ItemType.BOOKMARK])) {
         await this.removeBookmark({localId})
       }
     }
     for (const localId in this.folders.LocalToServer) {
-      if (!(localId in index[ItemType.FOLDER])) {
+      if (!(localId in localIndex[ItemType.FOLDER])) {
         await this.removeFolder({localId})
+      }
+    }
+    // Caller must only pass serverTree when it is complete and trusted (i.e. an atomic
+    // adapter's in-memory cache). A sparse tree would falsely drop mappings for unloaded
+    // items.
+    if (serverTree) {
+      const serverIndex = serverTree.createIndex()
+      for (const remoteId in this.bookmarks.ServerToLocal) {
+        if (!(remoteId in serverIndex[ItemType.BOOKMARK])) {
+          await this.removeBookmark({remoteId})
+        }
+      }
+      for (const remoteId in this.folders.ServerToLocal) {
+        if (!(remoteId in serverIndex[ItemType.FOLDER])) {
+          await this.removeFolder({remoteId})
+        }
       }
     }
   }
