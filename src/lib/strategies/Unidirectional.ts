@@ -359,10 +359,21 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     return slavePlan
   }
 
+  // Remap the root's id/parentId into fakeLocation's space and renumber each
+  // descendant's parentId to chain through the in-place tree. Descendant *ids*
+  // are intentionally left in their source coordinate system — executeCreate's
+  // sub-CREATE recursion (Default#executeCreate) cross-references
+  // payload.children[i].id against the oldItem committed alongside this payload
+  // (see callsite in revertDiff), which is the original source-space tree.
   private async translateCompleteItem<
     L1 extends TItemLocation,
     L2 extends TItemLocation
   >(item: TItem<L1>, mappingsSnapshot: MappingSnapshot, fakeLocation: L2) {
+    // restampTree (not restampRoot): this plan skips Diff#map and lands directly
+    // in executeCreate, whose bulk-import sub-CREATE loop calls mapParentId on
+    // every descendant. That call must short-circuit (item.location === target)
+    // so it preserves the parentId chain assigned in the traverse below;
+    // restampRoot would let it do a real lookup and clobber those parentIds.
     const newItem = item.restampTree(false, fakeLocation)
     newItem.id = Mappings.mapId(mappingsSnapshot, item, fakeLocation)
     newItem.parentId = Mappings.mapParentId(
@@ -371,20 +382,10 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       fakeLocation
     )
     if (newItem instanceof Folder) {
-      const nonexistingItems = []
       await newItem.traverse(async(child, parentFolder) => {
-        child.id = Mappings.mapId(mappingsSnapshot, child, fakeLocation)
-        if (typeof child.id === 'undefined' || child.id === null) {
-          nonexistingItems.push(child)
-        }
         child.parentId = parentFolder.id
       })
       newItem.createIndex()
-      // filter out all items that couldn't be mapped: These are creations from the slave side
-      nonexistingItems.forEach((item) => {
-        const folder = newItem.findFolder(item.parentId)
-        folder.children = folder.children.filter((i) => i.id)
-      })
     } else {
       newItem.createIndex()
     }
