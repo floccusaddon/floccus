@@ -1015,6 +1015,7 @@ export default class SyncProcess {
       targetPlan.MOVE.commit(action)
     }, 1)
 
+    const findChainCacheForUpdates = {}
     await Parallel.each(sourceScanResult.UPDATE.getActions(), async(action) => {
       const concurrentUpdate = targetUpdates.find(a =>
         action.payload.type === a.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, a.payload))
@@ -1024,7 +1025,11 @@ export default class SyncProcess {
       }
       const concurrentRemoval = targetRemovals.find(a =>
         a.payload.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, a.payload.location)) ||
-        a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location)))
+        a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location)) ||
+        // The findItem checks above only catch direct containment in the captured REMOVE subtree.
+        // findChain follows source-side MOVE|CREATE chains so an item moved into a deleted target folder
+        // is recognised as transitively removed and the UPDATE is skipped (avoids E002 at execution).
+        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, targetTree, action.payload, a, findChainCacheForUpdates))
       if (concurrentRemoval) {
         // Already deleted on target, do nothing.
         return
@@ -1033,14 +1038,16 @@ export default class SyncProcess {
       targetPlan.UPDATE.commit(action)
     }, ACTION_CONCURRENCY)
 
+    const findChainCacheForReorders = {}
     await Parallel.each(sourceScanResult.REORDER.getActions(), async(action) => {
       if (avoidTargetReorders[action.payload.id]) {
         return
       }
 
-      const findChainCache = {}
-      const concurrentRemoval = targetRemovals.find(targetRemoval =>
-        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval, findChainCache)
+      const concurrentRemoval = targetRemovals.find(a =>
+        a.payload.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, a.payload.location)) ||
+        a.payload.findItem(ItemType.FOLDER, Mappings.mapParentId(mappingsSnapshot, action.payload, a.payload.location)) ||
+        Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, a, findChainCacheForReorders)
       )
       if (concurrentRemoval) {
         // Already deleted on target, do nothing.
