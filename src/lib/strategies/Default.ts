@@ -1183,12 +1183,14 @@ export default class SyncProcess {
     })
     // We *know* that oldItem exists here, because actions are mapped before being executed
     if ('bulkImportFolder' in resource) {
+      let doneCalled = false
       if (action.payload.count() < 75 || this.server instanceof CachingAdapter) {
         Logger.log('Attempting full bulk import')
         try {
           // Try bulk import with sub folders
           const imported = await resource.bulkImportFolder(id, action.oldItem.restampTree(false, action.payload.location)) as Folder<typeof targetLocation>
           await done()
+          doneCalled = true
           const bulkImportMappingsSnapshot = this.mappings.getSnapshot()
           const subScanner = new Scanner(
             this.mappings,
@@ -1296,7 +1298,9 @@ export default class SyncProcess {
               diff.commit(newAction)
             })
 
-          await done()
+          if (!doneCalled) {
+            await done()
+          }
 
           if ('orderFolder' in resource) {
             // Order created items after the fact, as they've been created concurrently
