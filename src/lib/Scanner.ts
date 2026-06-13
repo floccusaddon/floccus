@@ -265,7 +265,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
               payload: createdItem,
               oldItem,
               index: createAction.index,
-              oldIndex: oldIndex || removeAction.index
+              oldIndex: typeof oldIndex !== 'undefined' ? oldIndex : removeAction.index,
             })
             reconciled = true
             if (oldItem.type === ItemType.FOLDER) {
@@ -305,7 +305,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
                 type: ActionType.MOVE,
                 payload: newItem,
                 oldItem: removedItem,
-                index: index || createAction.index,
+                index: typeof index !== 'undefined' ? index : createAction.index,
                 oldIndex: removeAction.index
               })
               reconciled = true
