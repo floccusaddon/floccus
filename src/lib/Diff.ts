@@ -284,7 +284,7 @@ export default class Diff<
     mappingsSnapshot: MappingSnapshot,
     targetLocation: L3,
     filter: (action: A) => boolean = () => true,
-    skipErroneousActions = true
+    skipErroneousActions = false
   ): Diff<L3, L1, MapLocation<A, L3>> {
     const newDiff: Diff<L3, L1, MapLocation<A, L3>> = new Diff()
 
