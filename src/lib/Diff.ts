@@ -293,8 +293,10 @@ export default class Diff<
         // needed because we set oldItem in the first section, so we wouldn't know anymore if it was set before
         const oldItem = action.oldItem
 
-        // We have two sections here, because we want to be able to take IDs from oldItem even for moves
-        // but not parentIds (which do change during moves, obviously)
+        // We have two sections because:
+        //  - For MOVE, payload.parentId is the NEW parent and oldItem.parentId is the OLD parent — they differ.
+        //  - For UPDATE/REMOVE/REORDER, payload and oldItem share a parent.
+        // Section 1 handles ids (which are stable across MOVE); section 2 handles parentIds.
 
         if (oldItem && targetLocation !== ItemLocation.SERVER) {
           const oldId = action.oldItem.id
@@ -347,7 +349,10 @@ export default class Diff<
             targetLocation
           )
         } else {
-          newAction.oldItem.parentId = action.payload.parentId
+          newAction.oldItem.parentId =
+            action.type === ActionType.MOVE && action.oldItem
+              ? action.oldItem.parentId
+              : action.payload.parentId
           newAction.payload.parentId = Mappings.mapParentId(
             mappingsSnapshot,
             action.payload,
