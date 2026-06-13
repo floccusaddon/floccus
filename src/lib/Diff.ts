@@ -211,11 +211,19 @@ export default class Diff<
             [...chain, newCurrentAction]
           )
         ) {
+          // Path existence is chain-independent: if a chain exists despite
+          // `chain` excluding some actions, it also exists without those
+          // exclusions. Safe to memoize.
+          cache[cacheKey] = true
           return true
         }
       }
     }
-    cache[cacheKey] = false
+    // Do NOT cache `false`: this result depends on which actions `chain`
+    // excluded from the search, but the cache key intentionally omits
+    // `chain` so it can be shared across call sites. Caching here would
+    // poison later calls whose (smaller) chain would have allowed a path
+    // through an excluded action.
     return false
   }
 
