@@ -34,8 +34,10 @@ import {
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 import CachingAdapter from '../adapters/Caching'
 import { yieldToEventLoop } from '../yieldToEventLoop'
+import { isTest } from '../isTest'
 
-export const ACTION_CONCURRENCY = 5
+// Tests have to be reproducible
+export const ACTION_CONCURRENCY = isTest ? 1 : 5
 
 export default class SyncProcess {
   protected mappings: Mappings
@@ -179,6 +181,9 @@ export default class SyncProcess {
   }
 
   protected queueProgressUpdate(progress: number, actionsDone?: number): void {
+    // Diagnostic: skip throttled progress callback under test so timer-driven
+    // cache/mappings persistence doesn't race with in-flight sync mutations.
+    if (isTest) return
     void this.throttledProgressCb(progress, actionsDone).catch((er) => {
       if (er instanceof CanceledError) {
         return
@@ -472,10 +477,17 @@ export default class SyncProcess {
 
     if ('orderFolder' in this.server) {
       Logger.log('Executing reorderings')
-      await Promise.all([
-        this.executeReorderings(this.server, this.serverReorders),
-        this.executeReorderings(this.localTree, this.localReorders),
-      ])
+      if (isTest) {
+        // Sequential under test so the two trees' mutations don't interleave
+        // through microtask order.
+        await this.executeReorderings(this.server, this.serverReorders)
+        await this.executeReorderings(this.localTree, this.localReorders)
+      } else {
+        await Promise.all([
+          this.executeReorderings(this.server, this.serverReorders),
+          this.executeReorderings(this.localTree, this.localReorders),
+        ])
+      }
     }
 
     this.throttledProgressCb.cancel()

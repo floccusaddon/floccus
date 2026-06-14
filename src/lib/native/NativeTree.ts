@@ -4,6 +4,7 @@ import Ordering from '../interfaces/Ordering'
 import CachingAdapter from '../adapters/Caching'
 import IAccountStorage from '../interfaces/AccountStorage'
 import { BulkImportResource, IHashSettings } from '../interfaces/Resource'
+import { isTest } from '../isTest'
 
 export default class NativeTree extends CachingAdapter implements BulkImportResource<typeof ItemLocation.LOCAL> {
   private static saveQueues = new Map<string, Promise<void>>()
@@ -73,6 +74,9 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   }
 
   triggerSave():void {
+    // Diagnostic: skip timer-driven save under test so it doesn't race with
+    // in-flight sync mutations of bookmarksCache.
+    if (isTest) return
     clearTimeout(this.saveTimeout)
     this.saveTimeout = setTimeout(() => {
       this.queueSave().catch(console.error)

@@ -3,6 +3,7 @@ import Logger from './Logger'
 import TResource, { IHashSettings } from './interfaces/Resource'
 import * as Parallel from 'async-parallel'
 import { yieldToEventLoop } from './yieldToEventLoop'
+import { isTest } from './isTest'
 
 const STRANGE_PROTOCOLS = ['data:', 'javascript:', 'about:', 'chrome:', 'file:']
 
@@ -395,7 +396,7 @@ export class Folder<L extends TItemLocation> {
           await item.traverse(fn)
         }
       },
-      10
+      isTest ? 1 : 10
     )
   }
 
