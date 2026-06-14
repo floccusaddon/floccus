@@ -1,8 +1,6 @@
-import { expect, getEnv, stringifyAccountData } from './utils'
+import { expect, getEnv, seedTestRandom, stringifyAccountData } from './utils'
 import Controller from '../lib/Controller'
 import Account from '../lib/Account'
-import random from 'random'
-import seedrandom from 'seedrandom'
 
 describe('Floccus', function() {
   this.timeout(120000) // no test should run longer than 120s
@@ -12,7 +10,7 @@ describe('Floccus', function() {
     ACCOUNTS,
     SEED,
   } = getEnv()
-  random.use(seedrandom(SEED))
+  seedTestRandom(SEED)
 
   before(async function() {
     const controller = await Controller.getSingleton()
