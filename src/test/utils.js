@@ -10,6 +10,14 @@ import FakeNcBookmarksAdapter from '../lib/adapters/FakeNcBookmarks'
 
 const DEFAULT_SEED = Math.random() + ''
 
+// Use a dedicated Random instance for the test suite so its state can't be
+// poisoned by anything else that imports `random` (chai, libraries, leaked
+// callers from prior tests). Reset via seedTestRandom(SEED) in beforeEach.
+export const testRandom = random.clone(seedrandom(DEFAULT_SEED))
+export function seedTestRandom(seed) {
+  testRandom.use(seedrandom(seed))
+}
+
 function getSearchParams() {
   if (typeof window !== 'undefined' && window.location?.href) {
     return new URL(window.location.href).searchParams
@@ -83,7 +91,7 @@ export function getEnv() {
   console.log('RANDOMNESS SEED', SEED)
 
   // needed for credentials below
-  random.use(seedrandom(SEED))
+  seedTestRandom(SEED)
 
   RANDOM_MANIPULATION_ITERATIONS = 35
 
@@ -117,7 +125,7 @@ export function getEnv() {
       url: `${SERVER}/remote.php/webdav/`,
       bookmark_file: 'bookmarks.xbel',
       bookmark_file_type: 'xbel',
-      passphrase: random.float(),
+      passphrase: testRandom.float(),
       ...CREDENTIALS,
     },
     {
@@ -132,7 +140,7 @@ export function getEnv() {
       url: `${SERVER}/remote.php/webdav/`,
       bookmark_file: 'bookmarks.html',
       bookmark_file_type: 'html',
-      passphrase: random.float(),
+      passphrase: testRandom.float(),
       ...CREDENTIALS,
     },
     {
@@ -160,7 +168,7 @@ export function getEnv() {
     {
       type: 'google-drive',
       bookmark_file: Math.random() + '.xbel',
-      password: random.float(),
+      password: testRandom.float(),
       refreshToken: CREDENTIALS.password,
     },
     {
@@ -172,7 +180,7 @@ export function getEnv() {
     {
       type: 'dropbox',
       bookmark_file: Math.random() + '.xbel',
-      password: random.float(),
+      password: testRandom.float(),
       refreshToken: CREDENTIALS.password,
     },
     {
@@ -315,7 +323,9 @@ function pickRandomItem(items) {
   if (!items.length) {
     return null
   }
-  return items[random.int(0, items.length - 1)]
+  const idx = testRandom.int(0, items.length - 1)
+  const item = items[idx]
+  return item
 }
 
 async function randomTreeManipulation(account, folders, bookmarks) {
