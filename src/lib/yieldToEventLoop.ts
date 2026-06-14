@@ -1,3 +1,3 @@
 export async function yieldToEventLoop() {
-  return Promise.resolve()
+  await new Promise(resolve => setTimeout(resolve, 0))
 }
