@@ -430,6 +430,19 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       return false
     }
 
-    return Boolean(oldItem.findFolder(newItem.parentId))
+    // newItem.parentId lives in newItem's namespace; oldItem.findFolder searches
+    // in oldItem's namespace. When the two trees are in different locations the
+    // ids are not comparable, so map newItem.parentId into oldItem's namespace
+    // first. Without a mapping we can't decide, so assume no loop.
+    const parentIdInOldSpace = Mappings.mapParentId(
+      this.mappings.getSnapshot(),
+      newItem,
+      oldItem.location
+    )
+    if (typeof parentIdInOldSpace === 'undefined') {
+      return false
+    }
+
+    return Boolean(oldItem.findFolder(parentIdInOldSpace))
   }
 }
