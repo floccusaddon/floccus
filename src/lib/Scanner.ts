@@ -200,23 +200,26 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
           if (
             this.mergeable(removedItem, createdItem) &&
-            !this.createsFolderLoop(removedItem, createdItem) &&
-            (removedItem.type !== 'folder' ||
-              (!this.hasCache &&
-                removedItem.childrenSimilarity(createdItem) >= 0.8))
+            !this.createsFolderLoop(removedItem, createdItem)
           ) {
-            this.result.CREATE.retract(createAction)
-            this.result.REMOVE.retract(removeAction)
-            this.result.MOVE.commit({
-              type: ActionType.MOVE,
-              payload: createdItem,
-              oldItem: removedItem,
-              index: createAction.index,
-              oldIndex: removeAction.index,
-            })
-            reconciled = true
-            // Don't use the items from the action, but the ones in the actual tree to avoid using tree parts mutated by this algorithm (see below)
-            await this.diffItem(removedItem, createdItem)
+            if (
+              this.hasCache ||
+              (!this.hasCache && removedItem.type === ItemType.BOOKMARK) ||
+              (!this.hasCache && removedItem.type === ItemType.FOLDER && removedItem.childrenSimilarity(createdItem) >= 0.8)
+            ) {
+              this.result.CREATE.retract(createAction)
+              this.result.REMOVE.retract(removeAction)
+              this.result.MOVE.commit({
+                type: ActionType.MOVE,
+                payload: createdItem,
+                oldItem: removedItem,
+                index: createAction.index,
+                oldIndex: removeAction.index,
+              })
+              reconciled = true
+              // Don't use the items from the action, but the ones in the actual tree to avoid using tree parts mutated by this algorithm (see below)
+              await this.diffItem(removedItem, createdItem)
+            }
           }
         }
       }
