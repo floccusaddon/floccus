@@ -470,6 +470,11 @@ export default class Diff<
     )
   }
 
+  // Honored by node.js' util.inspect (e.g. console.log) without requiring 'util'
+  [Symbol.for('nodejs.util.inspect.custom')](): string {
+    return this.inspect(0)
+  }
+
   static fromJSON<
     L1 extends TItemLocation,
     L2 extends TItemLocation,

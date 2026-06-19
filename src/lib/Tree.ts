@@ -253,6 +253,11 @@ export class Bookmark<L extends TItemLocation> {
     )
   }
 
+  // Honored by node.js' util.inspect (e.g. console.log) without requiring 'util'
+  [Symbol.for('nodejs.util.inspect.custom')](): string {
+    return this.inspect(0)
+  }
+
   visitCreate(resource: TResource<L>): Promise<number | string> {
     return resource.createBookmark(this)
   }
@@ -668,6 +673,11 @@ export class Folder<L extends TItemLocation> {
         )
         .join('\n')
     )
+  }
+
+  // Honored by node.js' util.inspect (e.g. console.log) without requiring 'util'
+  [Symbol.for('nodejs.util.inspect.custom')](): string {
+    return this.inspect(0)
   }
 
   visitCreate(resource: TResource<L>): Promise<number | string> {
