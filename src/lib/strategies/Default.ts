@@ -1047,14 +1047,20 @@ export default class SyncProcess {
         return
       }
 
-      // Make sure the item we're about to update still exists on the target.
       // Concurrent removals are normally captured as REMOVE actions and handled
-      // above, but a canMergeWith match in the target scan (or an otherwise stale
-      // mapping) can leave us with an UPDATE whose mapped target id points at an
-      // item that's already gone. Executing it would throw E002/E004; skip it
-      // instead and let the next sync round reconcile the divergence.
+      // above, but a canMergeWith match in the target scan can leave us with an
+      // UPDATE whose mapped target id points at an item that's already gone.
+      // Executing such an UPDATE would throw E002/E004, so skip it.
+      //
+      // IMPORTANT: only skip when the item is genuinely mapped to a *missing*
+      // target. A *missing mapping* (targetId undefined/null) is a different
+      // beast: Diff.map() is designed to raise MappingFailureError for it, which
+      // Account.sync() recovers from by resetting the cache and re-syncing. If we
+      // swallowed that case here, the inconsistency would never be reset and the
+      // two sides would diverge permanently (see the benchmark seed regression).
+      // So let unmapped UPDATEs fall through and surface the mapping failure.
       const targetId = Mappings.mapId(mappingsSnapshot, action.payload, targetLocation)
-      if (typeof targetId === 'undefined' || targetId === null || !targetTree.findItem(action.payload.type, targetId)) {
+      if (targetId != null && !targetTree.findItem(action.payload.type, targetId)) {
         return
       }
 
