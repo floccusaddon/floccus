@@ -52,3 +52,13 @@ Note: All AI contributions will be carefully reviewed by the project maintainers
 - If adding/changing adapters, implement `interfaces/Resource.ts` capabilities (`getCapabilities`, `isAtomic`, optional `orderFolder`/`bulkImportFolder`/`loadFolderChildren`) and verify strategy interactions.
 - i18n strings live in `_locales/en/messages.json`; UI text should use i18n helpers rather than hardcoded strings.
 
+## Sync algorithm internals (diff/reconcile)
+- `Scanner` (`src/lib/Scanner.ts`) diffs `cacheTreeRoot` (always local-located) against a live tree; its `mergeable` callback returns true if items are `Mappings.mappable` (known identity) OR `canMergeWith` (weak: bookmarks by URL, folders by title). The `mappable` check is already tried first per pair.
+- `canMergeWith` matches are self-healing for mappings: every match path calls `Scanner.addMapping`, which evicts the stale entry and re-points it at the matched item. So a wrong/weak pairing can't strand a mapping on a deleted id — don't assume a stale mapping originates here.
+- `reconcileDiffs` in `Default.ts` builds the per-target plan; it must never plan an `UPDATE`/`MOVE` against an item that's absent from the freshly-fetched target tree (executes as E002 `UnknownBookmarkUpdateError` / E004 `UnknownMoveTargetError`). Concurrent-removal detection via `REMOVE` actions + `Diff.findChain` is best-effort; a target-tree existence check (`targetTree.findItem(type, mapId(...))`) is the robust guard.
+
+## Debugging the node benchmark suite
+- The `fake-noCache` benchmark interrupt test simulates nextcloud-bookmarks: both accounts share one server `bookmarksCache` and `isAtomic() === false`; `setInterrupt()` aborts syncs mid-flight (recoverable errors are E026/E027 only — see `syncAccountWithInterrupts` in `src/test/utils.js`).
+- Logs are noisy and misleading: the fuzzers (`randomTreeManipulationWithDeletion`) wrap their own `NativeTree` mutations in try/catch and `console.log` the errors, so most `E001/E002/E004` lines (stack via `NativeTree.updateBookmark`) are expected noise. The real failure is the line `Syncing failed with ...` (stack through `FakeAdapter` + `SyncProcess`).
+- CI job logs interleave real-time stdout with a buffered `Logger` dump at the end, and `util.inspect` truncates trees/actions (`[Bookmark]`, `[Array]`) — scan-result/plan contents are not fully recoverable from logs; trace by item id and the `Mapping <server|local> plan` markers instead.
+
