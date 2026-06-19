@@ -1047,6 +1047,17 @@ export default class SyncProcess {
         return
       }
 
+      // Make sure the item we're about to update still exists on the target.
+      // Concurrent removals are normally captured as REMOVE actions and handled
+      // above, but a canMergeWith match in the target scan (or an otherwise stale
+      // mapping) can leave us with an UPDATE whose mapped target id points at an
+      // item that's already gone. Executing it would throw E002/E004; skip it
+      // instead and let the next sync round reconcile the divergence.
+      const targetId = Mappings.mapId(mappingsSnapshot, action.payload, targetLocation)
+      if (typeof targetId === 'undefined' || targetId === null || !targetTree.findItem(action.payload.type, targetId)) {
+        return
+      }
+
       targetPlan.UPDATE.commit(action)
     }, ACTION_CONCURRENCY)
 
