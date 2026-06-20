@@ -116,8 +116,9 @@ export default class GitAdapter extends CachingAdapter {
         http,
         fs: this.fs,
         dir: this.dir,
-        tags: true,
-        pruneTags: true,
+        ref: this.server.branch,
+        remoteRef: this.server.branch,
+        singleBranch: true,
         remote: 'origin',
         depth: 10,
         onAuth: () => this.onAuth()
@@ -287,8 +288,10 @@ export default class GitAdapter extends CachingAdapter {
   }
 
   async obtainLock() {
-    const tags = await git.listTags({ fs: this.fs, dir: this.dir })
-    const lockTag = tags.sort().reverse().find((tag) => tag.startsWith('floccus-lock-'))
+    // Lock tags live on the remote. With a shallow singleBranch fetch they are
+    // not fetched locally, so query the server directly instead of listTags.
+    const tags = await this.listServerLockTags()
+    const lockTag = tags.sort().reverse()[0]
     if (lockTag) {
       const dateLocked = Number(lockTag.slice('floccus-lock-'.length))
       if (Date.now() - dateLocked < LOCK_TIMEOUT) {
@@ -297,6 +300,18 @@ export default class GitAdapter extends CachingAdapter {
     }
 
     await this.setLock()
+  }
+
+  async listServerLockTags(): Promise<string[]> {
+    const refs = await git.listServerRefs({
+      http,
+      url: this.server.url,
+      prefix: 'refs/tags/floccus-lock-',
+      onAuth: () => this.onAuth(),
+    })
+    return refs
+      .map((ref) => ref.ref.replace('refs/tags/', ''))
+      .filter((tag) => tag.startsWith('floccus-lock-'))
   }
 
   async setLock() {
@@ -343,11 +358,24 @@ export default class GitAdapter extends CachingAdapter {
 
   async clearAllLocks(fs:FS = null): Promise<void> {
     fs = fs || this.fs
-    const tags = await git.listTags({ fs, dir: this.dir })
-    const lockTags = tags.filter(tag => tag.startsWith('floccus-lock-'))
-    for (const tag of lockTags) {
+    // Lock tags are not necessarily fetched locally (shallow singleBranch fetch),
+    // so discover them on the remote and delete them there. For a delete, push
+    // forces a zero oid and sends no objects, so the tag need not exist locally:
+    // we pass the commit SHA as `ref` (expand accepts a raw SHA) and the tag's
+    // full ref name as `remoteRef`.
+    const refs = await git.listServerRefs({
+      http,
+      url: this.server.url,
+      prefix: 'refs/tags/floccus-lock-',
+      onAuth: () => this.onAuth(),
+    })
+    for (const { ref, oid } of refs) {
+      if (!ref.replace('refs/tags/', '').startsWith('floccus-lock-')) {
+        continue
+      }
+      Logger.log('(git) push: delete tag ' + ref)
       // ignoring result.error
-      await git.push({ fs, http, dir: this.dir, ref: tag, delete: true, remote: 'origin', onAuth: () => this.onAuth() })
+      await git.push({ fs, http, dir: this.dir, ref: oid, remoteRef: ref, delete: true, remote: 'origin', onAuth: () => this.onAuth() })
     }
   }
 
@@ -438,16 +466,6 @@ export default class GitAdapter extends CachingAdapter {
     if (result.error) {
       throw new GitPushError(result.error)
     }
-    await git.fetch({
-      http,
-      fs,
-      dir: this.dir,
-      tags: true,
-      pruneTags: true,
-      remote: 'origin',
-      depth: 10,
-      onAuth: () => this.onAuth()
-    })
     await this.clearAllLocks(fs)
   }
 }
