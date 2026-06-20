@@ -507,3 +507,23 @@ export class DropboxTemplateError extends FloccusError {
     Object.setPrototypeOf(this, DropboxTemplateError.prototype)
   }
 }
+
+export class DownloadFileSizeMismatch extends TransientError {
+  public readonly code = 55
+  constructor() {
+    super(
+      'E055: The downloaded Google Drive bookmarks file size differs from the size reported by the server. This might be a temporary network issue. If this error persists please try again later.'
+    )
+    Object.setPrototypeOf(this, DownloadFileSizeMismatch.prototype)
+  }
+}
+
+export class UploadVerificationFileSizeMismatch extends TransientError {
+  public readonly code = 56
+  constructor() {
+    super(
+      'E056: The uploaded Google Drive bookmarks file size differs from the size reported by the server after upload verification. floccus retried the upload but could not confirm the result. Please try again later.'
+    )
+    Object.setPrototypeOf(this, UploadVerificationFileSizeMismatch.prototype)
+  }
+}
