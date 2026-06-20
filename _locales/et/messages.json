@@ -158,6 +158,12 @@
   "Error054": {
     "message": "E054: Dropboxi malli ei õnnestunud saada"
   },
+  "Error055": {
+    "message": "E055: Allalaaditud Google Drive’i järjehoidjate faili suurus erineb serveri poolt näidatud suurusest. Tegemist võib olla ajutise võrguühenduse probleemiga. Kui viga püsib, proovi palun hiljem uuesti."
+  },
+  "Error056": {
+    "message": "E056: Üleslaaditud Google Drive’i järjehoidjate faili suurus erineb suurusest, mille server pärast üleslaadimise kontrollimist näitas. floccus proovis üleslaadimist uuesti, kuid ei suutnud tulemust kinnitada. Palun proovi hiljem uuesti."
+  },
   "LabelWebdavurl": {
     "message": "WebDAVi võrguaadress"
   },
