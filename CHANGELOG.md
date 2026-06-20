@@ -1,5 +1,88 @@
 # Changelog
 
+## [5.9.2] - 2026-06-20
+
+### Fixed
+
+(Summary: Many sync correctness fixes especially for Android and iOS; a few UX improvements for iOS and Android; a fix for the Dropbox setup.)
+
+* perf: Optimize yieldToEventLoop calls to reduce unnecessary wait times
+* fix(GDrive): Verify file size
+* fix(Git): Fix "commit is not available locally"
+* fix(LocalTabs): Do not move tab to end of window if already in correct window
+* fix(Scanner): Fix direct findMoves match when cache exists
+* fix(CacheTree): Update highestId in setTree
+* fix(bulkImportFolder): More hardenings to prevent duplicates
+* fix(Default#executeCreate): Acoid calling done() multiple times
+* fix(Sync): run gc also against the server tree for atomic adapters
+* fix(SyncProcess): Expand UPDATE and REORDER conciliation checks with findChain
+* fix(bulkImport): Prevent duplicates from partial upload failures
+* fix(Unidirectional#getMembersToPersist): Fix continuation persistence rule for scanResult
+* fix(Diff#findChain): Fix caching
+* fix(Diff#map): Do not clobber oldItem.parentId for MOVEs
+* fix(Default): Fix paren placement in targetMoves filter
+* fix(Scanner): Dot not misorder position 0 items
+* fix(Unidirectional): Clean up translateCompleteItem mess
+* fix(Tree): Split copyWithLocation into restampTree and restampRoot
+* fix(Merge): Fix concurrentHierarchyReversals
+* fix(Diff): Fix findChain cache key construction
+* fix(Default): Set hasCache=true in localScanner
+* fix(Scanner#mergable): Don't evict unrelated mappings esp in bulkImport subscanners
+* fix(SyncProcess#executeCreate): Throw if CREATE returns undefined
+* fix(Caching): Be more fault-tolerant against wrong REORDER payloads
+* fix(Scanner): Harden against loops and null references
+* fix(Tree): Harden childrenSimilarity
+* fix(NativeTree): NativeTree is not atomic
+* fix(NativeAccount): Imitate BrowserTree more closely
+* fix(NewAccount/WebDAV): Offer includeCredentials option
+* fix: Harden Account#sync and fix transientError detection
+* fix(localization): Update Karakeep description to clarify supported protocols + typos (thanks to @codeshell)
+* [native] fix(ux): Offset v-menu properly to allow closing it easily
+* fix(benchmark-tests): Set forceSync:true when resuming with reset cache after mapping failure
+* fix(ui): Make account card responsive
+* fix(Linkwarden): Do not throw on auth error when removing items
+* fix(Linkwarden): Harden getBookmarksTree
+* fix(LocalTabs): Add more URL schemes to be ignored on firefox
+* fix(Caching#update): Do not change item position unless updating the parentId
+* fix(WebDAV): Don't verify file size in native app
+* feat(WebDAV): Use atomic MOVE to replace prod sync file only if upload succeeded
+* feat(WebDAV): Retry upload if the file size is unexpected
+* fix(Sync): Fix a complex move-remove interactions regression
+* fix: Prevent throttled invocation was canceled error
+* fix(Sync): Fix issue when recreating folders after concurrent removals
+* fix(Sync): Check target creations for original creation in concurrentTargetOriginRemoval case
+* fix(NativeTree): Queue saves to prevent problems
+* fix(Sync): Make sure to await Folder#traverse in concurrentTargetOriginRemoval
+* fix(Caching,CacheTree): Try to fix more location inconsistencies
+* fix(NativeTree): Make sure bookmarksCache location is Local
+* fix(NativeTree): Don't recreate bulkImportFolder
+* fix(NativeTree): Don't override location protected property
+* fix(Caching#bulkImportFolder): Use copyWithLocation(this.location) to avoid breaking NativeTree guarantees
+* fix(Default#reconcileConcurrentReorderings): Properly merge concurrent reorderings
+* fix(Default#reconcileConcurrentReorderings): Switch target location check
+* fix: Change the order of reordering reconciliation
+* fix(SyncProcess): Properly fix concurrent reorders
+* fix(Default#reconcileReorderings): Only insert missing concurrent creations into reorders
+* fix(tests): Make account tests work in appium
+* fix(Dropbox): Remove sharing.read scope and use get_current_user
+* fix(Scanner): Make sure to create mappings for moved bookmarks
+* fix: Throw MappingFailureError on failed id mapping
+* refactor(Scanner): Move mapping creation from mergeable fn to diffItem
+* fix(Unidirectional|Merge): Use lower similarity threshold for folder similarity
+* fix(Linkwarden|Karakeep): Fix item removal
+* fix(Karakeep): Make returnRawResponse=true still check response status code
+* fix(Karakeep): Avoid passing invalid URL to dummy bookmark
+* fix(Error): Improve error message for HttpError
+* feat(Adapters): Add item context to HTTP errors
+* [native] fix(Tree): Don't access currentAccount if it's not defined yet
+* [native] fix(NewAccount): Make sure back button works correctly
+* [native] fix: Make sure NewAccount component is found
+* [native] fix(Tree): Fix search UX
+* [native] fix(Tree): Refactor search to not crash the app
+* [native] fix(Tree): Make back button close search
+* [native] fix(Tree): Only show current profile label in tree view if there is more than one profile
+* [native] fix: Fix black screen after removing profile
+
 ## [5.9.1] - 2026-04-10
 
 ### Fixed
