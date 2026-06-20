@@ -292,19 +292,33 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
           })
         )
       } else {
+        let currentWindowId = null
+        try {
+          const tab = await this.queue.add(() => browser.tabs.get(bookmark.id))
+          currentWindowId = tab.windowId
+        } catch (e) {
+          Logger.log('Failed to get current tab info', e)
+        }
         if (typeof browser.tabGroups !== 'undefined') {
           // Move tab out of any groups
           Logger.log('Moving tab out of any tab group', bookmark.id)
           await this.queue.add(() => browser.tabs.ungroup([bookmark.id]))
         }
         // If it's a window, use tabs.move
-        Logger.log('Moving tab to window', bookmark.parentId)
-        await this.queue.add(() =>
-          browser.tabs.move(bookmark.id, {
-            windowId: this.getWindowIdFromFolderId(bookmark.parentId),
-            index: -1, // last
-          })
-        )
+        if (
+          currentWindowId === null ||
+          this.getWindowIdFromFolderId(bookmark.parentId) !== currentWindowId
+        ) {
+          // Do not move if we do not have to, since index -1 can mean that
+          // Firefox will put it into the last group in that window...
+          Logger.log('Moving tab to window', bookmark.parentId)
+          await this.queue.add(() =>
+            browser.tabs.move(bookmark.id, {
+              windowId: this.getWindowIdFromFolderId(bookmark.parentId),
+              index: -1, // last
+            })
+          )
+        }
       }
     } catch (e) {
       Logger.log('Failed to move tab', e)

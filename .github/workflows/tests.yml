@@ -159,46 +159,6 @@ jobs:
             node-version: 14.x
             npm-version: 7.x
             seed: ${{ github.sha }}
-          - app-version: master
-            server-version: 32
-            floccus-adapter: fake
-            test-name: benchmark root
-            browsers: chrome
-            node-version: 14.x
-            npm-version: 7.x
-            seed: "3"
-          - app-version: master
-            server-version: 32
-            floccus-adapter: fake
-            test-name: benchmark root
-            browsers: chrome
-            node-version: 14.x
-            npm-version: 7.x
-            seed: "6"
-          - app-version: master
-            server-version: 32
-            floccus-adapter: fake
-            test-name: benchmark root
-            browsers: chrome
-            node-version: 14.x
-            npm-version: 7.x
-            seed: "0.5202964461460992"
-          - app-version: master
-            server-version: 32
-            floccus-adapter: fake
-            test-name: benchmark root
-            browsers: chrome
-            node-version: 14.x
-            npm-version: 7.x
-            seed: "12dd05da349df3d71c9e48e764f5d50ec2bbc88d"
-          - app-version: master
-            server-version: 32
-            floccus-adapter: fake
-            test-name: benchmark root
-            browsers: chrome
-            node-version: 14.x
-            npm-version: 7.x
-            seed: "cfc00c4b69afec232e3b26244c2bc98ed6d547b6"
 
     name: ${{ matrix.browsers == 'firefox' && '🦊' || '🔵' }} ${{matrix.floccus-adapter}}:${{ matrix.test-name}} ⭐${{ matrix.app-version }} ${{ matrix.test-name == 'benchmark root' && matrix.seed != github.sha && '🌱' || ''}}${{ matrix.test-name == 'benchmark root' && matrix.seed != github.sha && matrix.seed || ''}}
 

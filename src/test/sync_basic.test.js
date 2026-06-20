@@ -15,11 +15,10 @@ import {
   expectTreeEqual,
   getAllBookmarks,
   getEnv,
+  seedTestRandom,
   stringifyAccountData,
   withSyncConnection
 } from './utils'
-import random from 'random'
-import seedrandom from 'seedrandom'
 
 describe('Floccus', function() {
   this.timeout(120000) // no test should run longer than 120s
@@ -27,7 +26,7 @@ describe('Floccus', function() {
 
   const { BROWSER, SEED, ACCOUNTS, APP_VERSION } = getEnv()
   beforeEach(function() {
-    random.use(seedrandom(SEED))
+    seedTestRandom(SEED)
   })
 
   before(async function() {

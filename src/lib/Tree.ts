@@ -3,6 +3,7 @@ import Logger from './Logger'
 import TResource, { IHashSettings } from './interfaces/Resource'
 import * as Parallel from 'async-parallel'
 import { yieldToEventLoop } from './yieldToEventLoop'
+import { isTest } from './isTest'
 
 const STRANGE_PROTOCOLS = ['data:', 'javascript:', 'about:', 'chrome:', 'file:']
 
@@ -152,7 +153,7 @@ export class Bookmark<L extends TItemLocation> {
     return new Bookmark(this.toJSON())
   }
 
-  copyWithLocation<L2 extends TItemLocation>(
+  restampTree<L2 extends TItemLocation>(
     withHash: boolean,
     location: L2
   ): Bookmark<L2> {
@@ -162,6 +163,14 @@ export class Bookmark<L extends TItemLocation> {
       ...this.toJSON(),
       location,
     })
+  }
+
+  // For Bookmark this is equivalent to restampTree — no children to consider.
+  restampRoot<L2 extends TItemLocation>(
+    withHash: boolean,
+    location: L2
+  ): Bookmark<L2> {
+    return this.restampTree(withHash, location)
   }
 
   toJSON() {
@@ -242,6 +251,11 @@ export class Bookmark<L extends TItemLocation> {
         .join('') +
       `- #${this.id}[${this.title}](${this.url}) parentId: ${this.parentId}`
     )
+  }
+
+  // Honored by node.js' util.inspect (e.g. console.log) without requiring 'util'
+  [Symbol.for('nodejs.util.inspect.custom')](): string {
+    return this.inspect(0)
   }
 
   visitCreate(resource: TResource<L>): Promise<number | string> {
@@ -387,7 +401,7 @@ export class Folder<L extends TItemLocation> {
           await item.traverse(fn)
         }
       },
-      10
+      isTest ? 1 : 10
     )
   }
 
@@ -401,8 +415,17 @@ export class Folder<L extends TItemLocation> {
 
   childrenSimilarity<L2 extends TItemLocation>(otherItem: TItem<L2>): number {
     if (otherItem instanceof Folder) {
-      const myChildrenTitles = new Set(this.children.map((child) => child.title))
-      const otherChildrenTitles = new Set(otherItem.children.map((child) => child.title))
+      const myChildren = Array.isArray(this.children) ? this.children : []
+      const otherChildren = Array.isArray(otherItem.children)
+        ? otherItem.children
+        : []
+      const myChildrenTitles = new Set(myChildren.map((child) => child.title))
+      const otherChildrenTitles = new Set(
+        otherChildren.map((child) => child.title)
+      )
+      if (!myChildrenTitles.size && !otherChildrenTitles.size) {
+        return 1
+      }
       const overlappingTitles = new Set([...myChildrenTitles].filter((title) => otherChildrenTitles.has(title)))
       return overlappingTitles.size / Math.max(myChildrenTitles.size, otherChildrenTitles.size)
     }
@@ -478,7 +501,7 @@ export class Folder<L extends TItemLocation> {
     })
   }
 
-  copyWithLocation<L2 extends TItemLocation>(
+  restampTree<L2 extends TItemLocation>(
     withHash: boolean,
     location: L2
   ): Folder<L2> {
@@ -489,8 +512,29 @@ export class Folder<L extends TItemLocation> {
       location,
       ...(!withHash && { hashValue: null }),
       children: this.children.map((child) =>
-        child.copyWithLocation(withHash, location)
+        child.restampTree(withHash, location)
       ),
+    })
+  }
+
+  // Relabel the root only; children keep their original .location (and ids).
+  // Use this when the resulting folder represents "where to put it" but its
+  // descendants still hold identifiers in the source coordinate system that
+  // downstream code cross-references against an oldItem snapshot.
+  // Note: at the type level children appear as TItem<L2>, but at runtime
+  // they retain whatever location they were copied from. That asymmetry is
+  // the API's documented lie — see callers in Diff#map.
+  restampRoot<L2 extends TItemLocation>(
+    withHash: boolean,
+    location: L2
+  ): Folder<L2> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return new Folder({
+      ...this.toJSON(),
+      location,
+      ...(!withHash && { hashValue: null }),
+      children: this.children.map((child) => child.copy(withHash)) as unknown as TItem<L2>[],
     })
   }
 
@@ -631,6 +675,11 @@ export class Folder<L extends TItemLocation> {
     )
   }
 
+  // Honored by node.js' util.inspect (e.g. console.log) without requiring 'util'
+  [Symbol.for('nodejs.util.inspect.custom')](): string {
+    return this.inspect(0)
+  }
+
   visitCreate(resource: TResource<L>): Promise<number | string> {
     return resource.createFolder(this)
   }
@@ -664,23 +713,6 @@ export class Folder<L extends TItemLocation> {
         })
         : null,
     })
-  }
-
-  static getAncestorsOf<L2 extends TItemLocation>(
-    item: TItem<L2>,
-    tree: Folder<L2>
-  ): TItem<L2>[] {
-    const ancestors = [item]
-    let parent = item
-    while (String(parent.id) !== String(tree.id)) {
-      ancestors.push(parent)
-      parent = tree.findItem(ItemType.FOLDER, parent.parentId)
-      if (!parent) {
-        throw new Error('Item is not a descendant of the tree passed')
-      }
-    }
-    ancestors.reverse()
-    return ancestors
   }
 }
 

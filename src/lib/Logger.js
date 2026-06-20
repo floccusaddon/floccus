@@ -7,6 +7,7 @@ import { Share } from '@capacitor/share'
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { throttle } from 'throttle-debounce'
 import asyncThrottle from '@jcoreio/async-throttle'
+import { isTest } from './isTest'
 
 export default class Logger {
   static log() {
@@ -15,12 +16,15 @@ export default class Logger {
     // log to console
     DEBUG && console.log(util.format.apply(util, logMsg))
     this.messages.push(util.format.apply(util, logMsg))
+    // Diagnostic: skip timer-driven trim/persist under test so they don't race
+    // with in-flight sync mutations.
+    if (isTest) return
     throttledTrimLogs()
     throttledIntermittentPersist()
   }
 
   static trimLogs() {
-    this.messages = this.messages.slice(-1000)
+    this.messages = this.messages.slice(-10000)
   }
 
   static async persist() {

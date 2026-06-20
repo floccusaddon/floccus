@@ -105,7 +105,10 @@ export default class Diff<
   }
 
   retract(action: A): void {
-    this.actions.splice(this.actions.indexOf(action), 1)
+    const idx = this.actions.indexOf(action)
+    if (idx !== -1) {
+      this.actions.splice(idx, 1)
+    }
   }
 
   getActions(): A[] {
@@ -119,36 +122,35 @@ export default class Diff<
     itemTree: Folder<TItemLocation>,
     cache: Record<string, boolean>
   ): boolean {
+    // (location, type, id) uniquely identifies an item — use it directly rather
+    // than canonicalizing through mapId, so the key is collision-free even when
+    // ids contain separator chars or when mapId returns undefined for unmapped
+    // items.
     const cacheKey =
-      'contains:' +
-      Mappings.mapId(mappingsSnapshot, item2, ItemLocation.LOCAL) +
-      ':' +
-      Mappings.mapId(mappingsSnapshot, item2, ItemLocation.SERVER) +
-      '-' +
-      Mappings.mapId(mappingsSnapshot, item1, ItemLocation.LOCAL) +
-      ':' +
-      Mappings.mapId(mappingsSnapshot, item1, ItemLocation.SERVER)
+      `contains:${item1.location}:${item1.type}:${item1.id}|` +
+      `${item2.location}:${item2.type}:${item2.id}`
     if (typeof cache[cacheKey] !== 'undefined') {
       return cache[cacheKey]
     }
-    const item1InTree = itemTree.findItem(
-      item1.type,
-      Mappings.mapId(mappingsSnapshot, item1, itemTree.location)
-    )
+    const item1IdInTreeSpace = Mappings.mapId(mappingsSnapshot, item1, itemTree.location)
+    const item1InTree = typeof item1IdInTreeSpace !== 'undefined'
+      ? itemTree.findItem(item1.type, item1IdInTreeSpace)
+      : null
+    const item2ParentInItem1Space = Mappings.mapParentId(mappingsSnapshot, item2, item1.location)
+    const item2ParentInTreeSpace = Mappings.mapParentId(mappingsSnapshot, item2, itemTree.location)
+    const item1IdInItem2Space = Mappings.mapId(mappingsSnapshot, item1, item2.location)
     if (
-      item1.findItem(
-        ItemType.FOLDER,
-        Mappings.mapParentId(mappingsSnapshot, item2, item1.location)
-      ) ||
+      (typeof item2ParentInItem1Space !== 'undefined' &&
+        item1.findItem(ItemType.FOLDER, item2ParentInItem1Space)) ||
       (item1InTree &&
-        item1InTree.findItem(
-          ItemType.FOLDER,
-          Mappings.mapParentId(mappingsSnapshot, item2, itemTree.location)
-        )) ||
-      String(Mappings.mapId(mappingsSnapshot, item1, item2.location)) ===
-        String(item2.parentId) ||
-      String(Mappings.mapParentId(mappingsSnapshot, item2, item1.location)) ===
-        String(item1.id)
+        typeof item2ParentInTreeSpace !== 'undefined' &&
+        item1InTree.findItem(ItemType.FOLDER, item2ParentInTreeSpace)) ||
+      (typeof item1IdInItem2Space !== 'undefined' &&
+        typeof item2.parentId !== 'undefined' &&
+        String(item1IdInItem2Space) === String(item2.parentId)) ||
+      (typeof item2ParentInItem1Space !== 'undefined' &&
+        typeof item1.id !== 'undefined' &&
+        String(item2ParentInItem1Space) === String(item1.id))
     ) {
       cache[cacheKey] = true
       return true
@@ -166,27 +168,13 @@ export default class Diff<
     cache: Record<string, boolean> = {},
     chain: Action<TItemLocation, TItemLocation>[] = []
   ): boolean {
-    const currentItemLocalId = Mappings.mapId(
-      mappingsSnapshot,
-      currentItem,
-      ItemLocation.LOCAL
-    )
-    const currentItemServerId = Mappings.mapId(
-      mappingsSnapshot,
-      currentItem,
-      ItemLocation.SERVER
-    )
-    const targetPayloadLocalId = Mappings.mapId(
-      mappingsSnapshot,
-      targetAction.payload,
-      ItemLocation.LOCAL
-    )
-    const targetPayloadServerId = Mappings.mapId(
-      mappingsSnapshot,
-      targetAction.payload,
-      ItemLocation.SERVER
-    )
-    const cacheKey = `hasChain:${currentItemLocalId}:${currentItemServerId}-${targetPayloadLocalId}:${targetPayloadServerId}`
+    // (location, type, id) uniquely identifies an item — use it directly rather
+    // than canonicalizing through mapId, so the key is collision-free even when
+    // ids contain separator chars or when mapId returns undefined for unmapped
+    // items.
+    const cacheKey =
+      `hasChain:${currentItem.location}:${currentItem.type}:${currentItem.id}|` +
+      `${targetAction.payload.location}:${targetAction.payload.type}:${targetAction.payload.id}`
     if (typeof cache[cacheKey] !== 'undefined') {
       return cache[cacheKey]
     }
@@ -226,11 +214,19 @@ export default class Diff<
             [...chain, newCurrentAction]
           )
         ) {
+          // Path existence is chain-independent: if a chain exists despite
+          // `chain` excluding some actions, it also exists without those
+          // exclusions. Safe to memoize.
+          cache[cacheKey] = true
           return true
         }
       }
     }
-    cache[cacheKey] = false
+    // Do NOT cache `false`: this result depends on which actions `chain`
+    // excluded from the search, but the cache key intentionally omits
+    // `chain` so it can be shared across call sites. Caching here would
+    // poison later calls whose (smaller) chain would have allowed a path
+    // through an excluded action.
     return false
   }
 
@@ -308,16 +304,18 @@ export default class Diff<
         // needed because we set oldItem in the first section, so we wouldn't know anymore if it was set before
         const oldItem = action.oldItem
 
-        // We have two sections here, because we want to be able to take IDs from oldItem even for moves
-        // but not parentIds (which do change during moves, obviously)
+        // We have two sections because:
+        //  - For MOVE, payload.parentId is the NEW parent and oldItem.parentId is the OLD parent — they differ.
+        //  - For UPDATE/REMOVE/REORDER, payload and oldItem share a parent.
+        // Section 1 handles ids (which are stable across MOVE); section 2 handles parentIds.
 
         if (oldItem && targetLocation !== ItemLocation.SERVER) {
           const oldId = action.oldItem.id
           const newId = action.payload.id
           newAction = {
             ...action,
-            payload: action.payload.copyWithLocation(false, targetLocation),
-            oldItem: action.oldItem.copyWithLocation(
+            payload: action.payload.restampTree(false, targetLocation),
+            oldItem: action.oldItem.restampTree(
               false,
               action.payload.location
             ),
@@ -327,7 +325,7 @@ export default class Diff<
         } else {
           newAction = {
             ...action,
-            payload: action.payload.copyWithLocation(false, targetLocation),
+            payload: action.payload.restampTree(false, targetLocation),
             oldItem: action.payload.copy(false),
           }
           newAction.payload.id = Mappings.mapId(
@@ -362,7 +360,10 @@ export default class Diff<
             targetLocation
           )
         } else {
-          newAction.oldItem.parentId = action.payload.parentId
+          newAction.oldItem.parentId =
+            action.type === ActionType.MOVE && action.oldItem
+              ? action.oldItem.parentId
+              : action.payload.parentId
           newAction.payload.parentId = Mappings.mapParentId(
             mappingsSnapshot,
             action.payload,
@@ -467,6 +468,11 @@ export default class Diff<
         })
         .join('\n')
     )
+  }
+
+  // Honored by node.js' util.inspect (e.g. console.log) without requiring 'util'
+  [Symbol.for('nodejs.util.inspect.custom')](): string {
+    return this.inspect(0)
   }
 
   static fromJSON<

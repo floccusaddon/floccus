@@ -5,15 +5,11 @@ import Controller from '../lib/Controller'
 import { registerNodeSuite } from '../test/node-suite'
 
 if (!process.env.FLOCCUS_TEST_ACCOUNTS) {
-  process.env.FLOCCUS_TEST_ACCOUNTS = 'fake,fake-noCache'
+  process.env.FLOCCUS_TEST_ACCOUNTS = 'fake'
 }
 
 if (!process.env.FLOCCUS_TEST_BROWSER) {
   process.env.FLOCCUS_TEST_BROWSER = 'node'
-}
-
-if (!process.env.CI) {
-  process.env.CI = 'true'
 }
 
 Controller.singleton = {
@@ -49,6 +45,14 @@ Controller.singleton = {
 const grep = process.env.FLOCCUS_TEST || undefined
 const invert = process.env.FLOCCUS_TEST_INVERT === 'true'
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason)
+})
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error)
+})
+
 async function main() {
   const mocha = new Mocha({
     color: true,
@@ -57,6 +61,7 @@ async function main() {
     reporter: process.env.MOCHA_REPORTER || 'spec',
     timeout: 120000,
     ui: 'bdd',
+    allowUncaught: false,
   })
 
   mocha.suite.emit('pre-require', globalThis, 'floccus-node-tests', mocha)

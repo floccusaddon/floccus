@@ -1,5 +1,3 @@
-import random from 'random'
-import seedrandom from 'seedrandom'
 import Account from '../lib/Account'
 import { Bookmark, Folder } from '../lib/Tree'
 import * as AsyncParallel from 'async-parallel'
@@ -8,13 +6,14 @@ import {
   clearLocalResource,
   DUMP_LOGS,
   expect, expectTreeEqual, getAllBookmarks, getEnv, randomlyManipulateTree,
-  randomlyManipulateTreeWithDeletions, stringifyAccountData, syncAccountWithInterrupts, withSyncConnection
+  randomlyManipulateTreeWithDeletions, seedTestRandom, stringifyAccountData,
+  syncAccountWithInterrupts, testRandom, withSyncConnection
 } from './utils'
 
 describe('Floccus', function() {
   const { SEED, ACCOUNTS, RANDOM_MANIPULATION_ITERATIONS } = getEnv()
   beforeEach(function() {
-    random.use(seedrandom(SEED))
+    seedTestRandom(SEED)
   })
 
   before(async function() {
@@ -41,9 +40,9 @@ describe('Floccus', function() {
             timeouts = new Array(1000).fill(0).map((_, index) =>
               ACCOUNT_DATA.type === 'nextcloud-bookmarks'
                 // Produce random numbers of timeouts between 30s and increasing numbers between 30s and 180s (increasing for stretches of 20 items, then going back to 30s)
-                ? random.int(30000, Math.round(30000 + (180000 - 30000) * (index % 20) / 20))
+                ? testRandom.int(30000, Math.round(30000 + (180000 - 30000) * (index % 20) / 20))
                 // Produce random numbers of timeouts between 4s and increasing numbers between 4s and 180s (increasing for stretches of 20 items, then going back to 4s)
-                : random.int(4000, Math.round(4000 + (180000 - 4000) * (index % 20) / 20))
+                : testRandom.int(4000, Math.round(4000 + (180000 - 4000) * (index % 20) / 20))
             )
           }
           const timeout = timeouts[(i++) % 1000]
@@ -66,7 +65,7 @@ describe('Floccus', function() {
           expectTreeEqual = (tree1, tree2, ignoreEmptyFolders, checkOrder) => _expectTreeEqual(tree1, tree2, ignoreEmptyFolders, !!checkOrder)
 
           // reset random seed
-          random.use(seedrandom(SEED))
+          seedTestRandom(SEED)
           stopInterrupts()
 
           account1 = await Account.create({...ACCOUNT_DATA, failsafe: false})
@@ -74,7 +73,7 @@ describe('Floccus', function() {
           account2 = await Account.create({...ACCOUNT_DATA, failsafe: false})
           await account2.init()
 
-          if (ACCOUNT_DATA.type === 'fake') {
+          if (ACCOUNT_DATA.type.startsWith('fake')) {
             // Wire both accounts to the same fake db
             // We do not set the cache properties to the same object, because we want to only write onSynComplete
             let fakeServerDb = new Folder(

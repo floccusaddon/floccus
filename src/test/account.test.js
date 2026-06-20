@@ -1,9 +1,6 @@
-/* global IS_BROWSER */
-import { expect, getEnv, stringifyAccountData } from './utils'
+import { expect, getEnv, seedTestRandom, stringifyAccountData } from './utils'
 import Controller from '../lib/Controller'
 import Account from '../lib/Account'
-import random from 'random'
-import seedrandom from 'seedrandom'
 
 describe('Floccus', function() {
   this.timeout(120000) // no test should run longer than 120s
@@ -13,7 +10,7 @@ describe('Floccus', function() {
     ACCOUNTS,
     SEED,
   } = getEnv()
-  random.use(seedrandom(SEED))
+  seedTestRandom(SEED)
 
   before(async function() {
     const controller = await Controller.getSingleton()
@@ -61,11 +58,7 @@ describe('Floccus', function() {
         account = null // so afterEach notices it's deleted already
       })
       it('should not be initialized upon creation', async function() {
-        if (IS_BROWSER) {
-          expect(await account.isInitialized()).to.be.false
-        } else {
-          expect(await account.isInitialized()).to.be.true
-        }
+        expect(await account.isInitialized()).to.be.false
       })
     })
   })
