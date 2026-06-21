@@ -90,6 +90,9 @@ export default class Account {
 
   public id: string
   public syncing: boolean
+  // Test-only hook: invoked with each freshly created sync process so benchmark
+  // tests can configure a deterministic, count-based interrupt.
+  public onSyncProcessCreated: ((syncProcess: DefaultSyncProcess) => void) | null = null
   protected syncProcess: DefaultSyncProcess
   protected storage: IAccountStorage
   protected server: TAdapter
@@ -335,6 +338,10 @@ export default class Account {
         this.syncProcess.setCacheTree(cacheTree)
         // Allow Caching of the local tree
         await this.localCachingResource.getBookmarksTree()
+      }
+
+      if (this.onSyncProcessCreated) {
+        this.onSyncProcessCreated(this.syncProcess)
       }
 
       Logger.log('Starting sync process')

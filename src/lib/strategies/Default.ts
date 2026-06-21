@@ -78,6 +78,10 @@ export default class SyncProcess {
   protected actionsDone = 0
   protected actionsPlanned = 0
 
+  // Test-only: when set, the sync self-cancels deterministically once this many
+  // actions have been executed, instead of relying on a wall-clock timer.
+  protected interruptAfterActions: number | null = null
+
   protected isFirefox: boolean
 
   protected staticContinuation: any = null
@@ -192,11 +196,23 @@ export default class SyncProcess {
     })
   }
 
+  setInterruptAfterActions(actions: number | null): void {
+    this.interruptAfterActions = actions
+  }
+
   async updateProgress():Promise<void> {
     if (typeof this.actionsDone === 'undefined' || this.actionsDone === null) {
       this.actionsDone = 0
     }
     this.actionsDone++
+    if (this.interruptAfterActions !== null && this.actionsDone >= this.interruptAfterActions) {
+      // Deterministic, count-based interrupt for benchmark tests: cancel exactly
+      // after the Nth executed action rather than after a wall-clock timeout, so the
+      // interrupt point is reproducible regardless of machine speed.
+      this.interruptAfterActions = null
+      Logger.log(`INTERRUPT! (after ${this.actionsDone} actions)`)
+      await this.cancel()
+    }
     this.queueProgressUpdate(
       Math.min(
         1,
