@@ -202,6 +202,7 @@ export function getEnv() {
     CREDENTIALS,
     ACCOUNTS,
     APP_VERSION,
+    SEED,
     BROWSER,
     IS_CI,
     TEST_URL,
