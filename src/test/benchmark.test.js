@@ -38,7 +38,7 @@ describe('Floccus', function() {
         // counts are precomputed once from the PRNG and then cycled through, so the
         // interrupt schedule is independent of how many random draws the tree
         // manipulations consume in between.
-        const MAX_INTERRUPT_ACTIONS = 300
+        const MAX_INTERRUPT_ACTIONS = 500
         let interruptCounts = []
         let i = 0
         const nextInterruptCount = () => {
