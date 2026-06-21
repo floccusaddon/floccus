@@ -79,7 +79,7 @@
     "selenium-webdriver": "4.x",
     "ts-loader": "^9.2.6",
     "typescript": "5.x",
-    "vue-loader": "^15.10.0",
+    "vue-loader": "^17.4.2",
     "vue-style-loader": "^4.1.3",
     "vuetify-loader": "1.x",
     "webpack": "5.x",
