@@ -184,6 +184,41 @@ export default class SyncProcess {
     this.throttledProgressCb.cancel()
   }
 
+  /**
+   * Await a resource mutation (create/update/move/remove) while honouring cancellation.
+   *
+   * Previously the executors did `Promise.race([op, this.cancelPromise])` directly. When
+   * the sync was cancelled mid-flight (e.g. a concurrent action triggered an interrupt),
+   * the race rejected and the executor threw *before* recording the action as done — yet
+   * on a non-atomic server (e.g. Nextcloud Bookmarks) the mutation had already been
+   * applied. A resumed sync then re-issued the same action, producing duplicates and
+   * other divergence.
+   *
+   * Instead we wait for the in-flight mutation to settle when cancelled: if it completed,
+   * `completed` is true and the caller records it (mapping/retract/donePlan) before the
+   * sync stops at the next cancellation checkpoint; if it failed/aborted with no side
+   * effect, `completed` is false and the action can be safely retried on resume.
+   */
+  protected async raceWithCancellation<T>(op: Promise<T>): Promise<{ completed: boolean, result?: T }> {
+    try {
+      const result = await Promise.race([op, this.cancelPromise]) as T
+      return { completed: true, result }
+    } catch (e) {
+      if (!this.canceled) {
+        // A genuine operation error (not a cancellation): propagate as before.
+        throw e
+      }
+      // Cancelled while the mutation was in flight: wait for it to settle so we know
+      // whether its side effect landed on the (possibly non-atomic) server.
+      try {
+        const result = await op
+        return { completed: true, result }
+      } catch (opErr) {
+        return { completed: false }
+      }
+    }
+  }
+
   protected queueProgressUpdate(progress: number, actionsDone?: number): void {
     // Diagnostic: skip throttled progress callback under test so timer-driven
     // cache/mappings persistence doesn't race with in-flight sync mutations.
@@ -1177,10 +1212,11 @@ export default class SyncProcess {
       await this.updateProgress()
     }
 
-    const id = await Promise.race([
-      action.payload.visitCreate(resource),
-      this.cancelPromise
-    ])
+    const { completed, result: id } = await this.raceWithCancellation(action.payload.visitCreate(resource))
+    if (!completed) {
+      // The create was cancelled before its side effect landed: let a resumed sync retry it.
+      throw new CancelledSyncError()
+    }
     if (typeof id === 'undefined' || id === null) {
       // undefined means we couldn't create the item
       throw new FloccusError('Failed to create item on ' + targetLocation + ' : ' + action.payload.inspect())
@@ -1411,10 +1447,11 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
-    await Promise.race([
-      action.payload.visitRemove(resource),
-      this.cancelPromise,
-    ])
+    const { completed } = await this.raceWithCancellation(action.payload.visitRemove(resource))
+    if (!completed) {
+      // The remove was cancelled before it took effect: let a resumed sync retry it.
+      throw new CancelledSyncError()
+    }
     diff.retract(action)
     donePlan.REMOVE.commit(action)
     await this.updateProgress()
@@ -1436,10 +1473,11 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
-    await Promise.race([
-      action.payload.visitUpdate(resource),
-      this.cancelPromise,
-    ])
+    const { completed } = await this.raceWithCancellation(action.payload.visitUpdate(resource))
+    if (!completed) {
+      // The update/move was cancelled before it took effect: let a resumed sync retry it.
+      throw new CancelledSyncError()
+    }
 
     await this.addMapping(resource, action.oldItem, action.payload.id)
     diff.retract(action)
