@@ -38,7 +38,7 @@ describe('Floccus', function() {
         // counts are precomputed once from the PRNG and then cycled through, so the
         // interrupt schedule is independent of how many random draws the tree
         // manipulations consume in between.
-        const MAX_INTERRUPT_ACTIONS = 500
+        const MAX_INTERRUPT_ACTIONS = 1000
         let interruptCounts = []
         let i = 0
         const nextInterruptCount = () => {
@@ -47,7 +47,7 @@ describe('Floccus', function() {
               // Allow between 1 action and an increasing bound (growing over stretches of
               // 20, then resetting). Draws larger than the remaining plan simply let that
               // sync complete uninterrupted, mirroring the old "long timeout" behaviour.
-              testRandom.int(1, Math.round(1 + (MAX_INTERRUPT_ACTIONS - 1) * (index % 20) / 20))
+              testRandom.int(1, Math.round(1 + (MAX_INTERRUPT_ACTIONS - 1) * ((index + 1) % 20) / 20))
             )
           }
           return interruptCounts[(i++) % 1000]
