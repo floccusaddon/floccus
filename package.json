@@ -13,7 +13,7 @@
     "test": "node --unhandled-rejections=strict test/selenium-runner.js",
     "test:node:fake": "npm run build:test-node && node dist/node-tests/fake-tests.js",
     "test:node:fake:full": "npm run build:test-node && node dist/node-tests/fake-tests.js",
-    "test:node:fake:benchmark": "npm run build:test-node && FLOCCUS_TEST=benchmark FLOCCUS_NODE_INCLUDE_BENCHMARK=true node dist/node-tests/fake-tests.js",
+    "test:node:fake:benchmark": "npm run build:test-node && NODE_OPTIONS=--max-old-space-size=4096 FLOCCUS_TEST=benchmark FLOCCUS_NODE_INCLUDE_BENCHMARK=true node dist/node-tests/fake-tests.js",
     "test:appium": "node --unhandled-rejections=strict test/appium-runner.js",
     "lint": "eslint --ext .js,.vue src",
     "lint:fix": "eslint --ext .js,.vue src --fix",
