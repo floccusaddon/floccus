@@ -291,7 +291,15 @@ export default class SyncProcess {
       delete json.cacheTreeRoot
     }
     for (const member of Object.keys(json)) {
-      if (member.toLowerCase().includes('scanresult') || member.toLowerCase().includes('plan')) {
+      if (json[member] === null || typeof json[member] === 'undefined') {
+        // The member was persisted as null because that stage hadn't been computed yet at
+        // the interrupt point (e.g. planStage3Local when the sync was interrupted during the
+        // server stage). Restore it as null so sync() recomputes it on resume — don't try to
+        // read .CREATE off it, which previously threw and made the whole continuation
+        // unloadable, forcing a from-scratch restart that re-applies already-committed
+        // actions (duplicates on non-atomic servers).
+        this[member] = json[member]
+      } else if (member.toLowerCase().includes('scanresult') || member.toLowerCase().includes('plan')) {
         this[member] = {
           CREATE: await Diff.fromJSONAsync(json[member].CREATE),
           UPDATE: await Diff.fromJSONAsync(json[member].UPDATE),
