@@ -437,7 +437,10 @@ export default class SyncProcess {
       this.planStage3Server = {
         CREATE: this.serverPlanStage2.CREATE,
         UPDATE: this.serverPlanStage2.UPDATE,
-        MOVE: this.serverPlanStage2.MOVE.map(mappingsSnapshot, ItemLocation.SERVER),
+        // skipErroneousActions: a MOVE whose item can no longer be mapped to the target is
+        // unapplyable; drop it instead of throwing MappingFailureError (which would force a
+        // cache reset + from-scratch resync that duplicates on non-atomic servers).
+        MOVE: this.serverPlanStage2.MOVE.map(mappingsSnapshot, ItemLocation.SERVER, () => true, true),
         REMOVE: this.serverPlanStage2.REMOVE,
         REORDER: this.serverPlanStage2.REORDER,
       }
@@ -471,7 +474,8 @@ export default class SyncProcess {
       this.planStage3Local = {
         CREATE: this.localPlanStage2.CREATE,
         UPDATE: this.localPlanStage2.UPDATE,
-        MOVE: this.localPlanStage2.MOVE.map(mappingsSnapshot, ItemLocation.LOCAL),
+        // skipErroneousActions: see the server stage 3 plan above.
+        MOVE: this.localPlanStage2.MOVE.map(mappingsSnapshot, ItemLocation.LOCAL, () => true, true),
         REMOVE: this.localPlanStage2.REMOVE,
         REORDER: this.localPlanStage2.REORDER,
       }
@@ -539,13 +543,21 @@ export default class SyncProcess {
         mappingsSnapshot
       )
 
+      // skipErroneousActions: a REORDER targeting a folder that can no longer be mapped is
+      // moot (the folder was moved/removed); drop it instead of throwing MappingFailureError,
+      // which would force a cache reset + from-scratch resync that duplicates on non-atomic
+      // servers.
       this.localReorders = localReorders3.map(
         mappingsSnapshot,
-        ItemLocation.LOCAL
+        ItemLocation.LOCAL,
+        () => true,
+        true
       )
       this.serverReorders = serverReorders3.map(
         mappingsSnapshot,
-        ItemLocation.SERVER
+        ItemLocation.SERVER,
+        () => true,
+        true
       )
     }
 

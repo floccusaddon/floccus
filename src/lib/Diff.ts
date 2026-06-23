@@ -334,6 +334,16 @@ export default class Diff<
             targetLocation
           )
           if (action.type !== ActionType.CREATE && typeof action.payload.id !== 'undefined' && typeof newAction.payload.id === 'undefined') {
+            if (skipErroneousActions) {
+              // The action references an item that has no counterpart on the target, so it
+              // can't be applied (e.g. a MOVE of an item that no longer exists there). Drop
+              // it rather than throwing — the alternative (MappingFailureError) triggers a
+              // reset-cache + forceSync recovery that re-applies already-committed actions
+              // and duplicates them on non-atomic servers. A subsequent sync reconciles the
+              // item afresh if it's still relevant.
+              Logger.log('Failed to map id: ' + action.payload.id + ' — dropping action from plan as no longer valid')
+              return
+            }
             Logger.log(
               'payload.location = ' +
               action.payload.location +
