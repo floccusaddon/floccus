@@ -46,6 +46,9 @@ export default class SyncProcess {
   protected cacheTreeRoot: Folder<typeof ItemLocation.LOCAL>|null
   protected canceled: boolean
   protected throttledProgressCb: ThrottledFunction<[progress: number, actionsDone: number | undefined], void>
+  // Un-throttled progress callback, used to persist the continuation synchronously at the
+  // exact interrupt point (see updateProgress) so a resumed sync continues from there.
+  protected progressCb: (progress: number, actionsDone?: number) => Promise<void>
 
   // Stage -1
   protected localTreeRoot: Folder<typeof ItemLocation.LOCAL> = null
@@ -107,6 +110,7 @@ export default class SyncProcess {
     this.localTree = localTree
     this.server = server
 
+    this.progressCb = progressCb
     this.throttledProgressCb = throttle(progressCb, 1500)
     this.cancelPromise = new Promise<void>((resolve, reject) => {
       this.cancelCb = reject
@@ -137,8 +141,12 @@ export default class SyncProcess {
       members.push('serverPlanStage1')
     }
 
-    // Stage 2
-    if ((!this.planStage3Local || !this.planStage3Server) && this.actionsPlanned === 0) {
+    // Stage 2 — keep persisting the stage 2 plans as long as either stage 3 plan hasn't
+    // been built yet. The stage 3 plans are built lazily (planStage3Local only after the
+    // server stage has run), so an interrupt during execution needs the stage 2 plans to
+    // rebuild the missing stage 3 plan on resume. Dropping them here (the old
+    // `actionsPlanned === 0` gate did) made such continuations unresumable.
+    if (!this.planStage3Local || !this.planStage3Server) {
       members.push('localPlanStage2')
       members.push('serverPlanStage2')
     }
@@ -151,6 +159,10 @@ export default class SyncProcess {
       members.push('serverDonePlan')
       members.push('prelimLocalReorders')
       members.push('prelimServerReorders')
+      // actionsPlanned must be restored so sync() doesn't recompute it from plans that may
+      // not exist yet on resume (Object.values(null)); actionsDone is intentionally not
+      // persisted so progress/interrupt counting restarts per resumed run.
+      members.push('actionsPlanned')
     }
 
     // Stage 4
@@ -246,6 +258,13 @@ export default class SyncProcess {
       // interrupt point is reproducible regardless of machine speed.
       this.interruptAfterActions = null
       Logger.log(`INTERRUPT! (after ${this.actionsDone} actions)`)
+      // Persist the continuation at the exact interrupt point *before* cancelling, so the
+      // resumed sync continues from here. Without this, the interrupted sync leaves no
+      // continuation (cancel() discards the pending throttled persistence and, under test,
+      // queueProgressUpdate is a no-op), so the retry restarts from scratch and re-applies
+      // actions that already committed to a non-atomic server — producing duplicates.
+      const progress = Math.min(1, 0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5)
+      await this.progressCb(progress, this.actionsDone)
       await this.cancel()
     }
     this.queueProgressUpdate(
