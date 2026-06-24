@@ -359,11 +359,17 @@ export default class SyncProcess {
       mappingsSnapshot = this.mappings.getSnapshot()
       Logger.log('Mapping server plan')
 
+      // skipErroneousActions on UPDATE/REMOVE: an UPDATE or REMOVE whose item can no longer
+      // be mapped to the target references something that doesn't exist there, so it's moot —
+      // drop it instead of throwing MappingFailureError (which forces a cache reset + from-scratch
+      // resync that re-applies already-committed actions and duplicates them on non-atomic servers).
+      // CREATE is deliberately left throwing: dropping an unmappable CREATE would silently lose
+      // the new item rather than being a no-op.
       this.serverPlanStage2 = {
         CREATE: this.serverPlanStage1.CREATE.map(mappingsSnapshot, ItemLocation.SERVER),
-        UPDATE: this.serverPlanStage1.UPDATE.map(mappingsSnapshot, ItemLocation.SERVER),
+        UPDATE: this.serverPlanStage1.UPDATE.map(mappingsSnapshot, ItemLocation.SERVER, () => true, true),
         MOVE: this.serverPlanStage1.MOVE,
-        REMOVE: this.serverPlanStage1.REMOVE.map(mappingsSnapshot, ItemLocation.SERVER),
+        REMOVE: this.serverPlanStage1.REMOVE.map(mappingsSnapshot, ItemLocation.SERVER, () => true, true),
         REORDER: this.serverPlanStage1.REORDER,
       }
 
@@ -371,9 +377,9 @@ export default class SyncProcess {
 
       this.localPlanStage2 = {
         CREATE: this.localPlanStage1.CREATE.map(mappingsSnapshot, ItemLocation.LOCAL),
-        UPDATE: this.localPlanStage1.UPDATE.map(mappingsSnapshot, ItemLocation.LOCAL),
+        UPDATE: this.localPlanStage1.UPDATE.map(mappingsSnapshot, ItemLocation.LOCAL, () => true, true),
         MOVE: this.localPlanStage1.MOVE,
-        REMOVE: this.localPlanStage1.REMOVE.map(mappingsSnapshot, ItemLocation.LOCAL),
+        REMOVE: this.localPlanStage1.REMOVE.map(mappingsSnapshot, ItemLocation.LOCAL, () => true, true),
         REORDER: this.localPlanStage1.REORDER,
       }
     }
