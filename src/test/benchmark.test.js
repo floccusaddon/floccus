@@ -80,7 +80,7 @@ describe('Floccus', function() {
           account1.onSyncProcessCreated = armInterrupt
           account2.onSyncProcessCreated = armInterrupt
 
-          if (ACCOUNT_DATA.type.startsWith('fake')) {
+          if (ACCOUNT_DATA.type === 'fake') {
             // Wire both accounts to the same fake db
             // We do not set the cache properties to the same object, because we want to only write onSynComplete
             let fakeServerDb = new Folder(
@@ -108,6 +108,36 @@ describe('Floccus', function() {
               account1.server.highestId = id
             })
             account2.server.__defineGetter__('highestId', () => account1.server.highestId)
+          }
+          if (ACCOUNT_DATA.type === 'fake-nc-bookmarks') {
+            // Wire both accounts to the same fake db
+            // We do not set the cache properties to the same object, because we want to only write onSynComplete
+            let fakeServerDb = new Folder({
+              id: '',
+              title: 'root',
+              location: 'Server',
+            })
+            account1.server.__defineSetter__('bookmarksCache', (db) => {
+              fakeServerDb = db
+            })
+            account2.server.__defineSetter__('bookmarksCache', (db) => {
+              fakeServerDb = db
+            })
+            account1.server.__defineGetter__(
+              'bookmarksCache',
+              () => fakeServerDb
+            )
+            account2.server.__defineGetter__(
+              'bookmarksCache',
+              () => fakeServerDb
+            )
+            account2.server.__defineSetter__('highestId', (id) => {
+              account1.server.highestId = id
+            })
+            account2.server.__defineGetter__(
+              'highestId',
+              () => account1.server.highestId
+            )
           }
           if (ACCOUNT_DATA.noCache) {
             account1.storage.setCache = () => {
@@ -1098,8 +1128,7 @@ describe('Floccus', function() {
             serverTreeAfterInit = null
           }
         })
-        let interruptBenchmark
-        it('should handle fuzzed changes with deletions from two clients with interrupts' + (ACCOUNT_DATA.type === 'fake' ? ' (with caching)' : ''), interruptBenchmark = async function() {
+        it('should handle fuzzed changes with deletions from two clients with interrupts', async function() {
           const localResource1 = await account1.getResource()
           const localRoot1 = (await localResource1.getBookmarksTree()).id
           let bookmarks1 = []
@@ -1354,21 +1383,6 @@ describe('Floccus', function() {
             serverTreeAfterInit = null
           }
         })
-
-        if (ACCOUNT_DATA.type === 'fake') {
-          it('should handle fuzzed changes with deletions from two clients with interrupts (no caching adapter)', async function() {
-            // Wire both accounts to the same fake db
-            // We set the cache properties to the same object, because we want to simulate nextcloud-bookmarks
-            const bmDb = account1.server.bookmarksCache = account2.server.bookmarksCache = new Folder(
-              { id: '', title: 'root', location: 'Server' }
-            )
-            account1.server.onSyncStart = function() { this.bookmarksCache = bmDb }
-            account1.server.isAtomic = () => false
-            account2.server.onSyncStart = function() { this.bookmarksCache = bmDb }
-            account2.server.isAtomic = () => false
-            await interruptBenchmark()
-          })
-        }
 
         it('unidirectional should handle fuzzed changes from two clients', async function() {
           await account2.setData({ strategy: 'slave'})
