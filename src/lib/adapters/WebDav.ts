@@ -457,10 +457,19 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   async moveFile(url, destinationUrl) {
-    if (IS_BROWSER) {
-      return this.moveFileWeb(url, destinationUrl)
-    } else {
-      return this.moveFileNative(url, destinationUrl)
+    const move = () => IS_BROWSER ? this.moveFileWeb(url, destinationUrl) : this.moveFileNative(url, destinationUrl)
+    try {
+      return await move()
+    } catch (e) {
+      // Some servers don't honor the `Overwrite: T` header and reject the MOVE
+      // with a 409 when the destination already exists. Recover by deleting the
+      // destination first and retrying the MOVE once.
+      if (e instanceof HttpError && e.status === 409) {
+        Logger.log('MOVE failed with 409, destination may already exist. Deleting destination and retrying MOVE.')
+        await this.deleteBookmarkFile(destinationUrl)
+        return await move()
+      }
+      throw e
     }
   }
 
