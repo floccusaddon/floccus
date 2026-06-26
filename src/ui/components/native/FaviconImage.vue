@@ -3,10 +3,12 @@
     v-if="src"
     ref="img"
     :src="src"
+    alt=""
     @error="onError">
   <v-icon
     v-else
-    large>
+    large
+    aria-hidden="true">
     mdi-star
   </v-icon>
 </template>

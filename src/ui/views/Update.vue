@@ -3,12 +3,18 @@
     <v-card
       class="options mt-3">
       <v-container class="pa-5">
-        <v-card-title>
+        <v-card-title
+          role="heading"
+          aria-level="1">
           <a
             href="https://floccus.org"
-            class="d-flex align-center"><img src="/dist/icons/logo_128.png"> Cross-browser bookmark syncing</a>
+            class="d-flex align-center"><img
+              src="/dist/icons/logo_128.png"
+              alt=""> Cross-browser bookmark syncing</a>
         </v-card-title>
-        <v-card-title>
+        <v-card-title
+          role="heading"
+          aria-level="2">
           {{ t("LabelUpdated") }}
         </v-card-title>
         <v-card-text>
@@ -23,7 +29,9 @@
           </v-btn>
         </v-card-text>
         <template v-if="donateOrReview">
-          <v-card-title>
+          <v-card-title
+            role="heading"
+            aria-level="2">
             {{ t("LabelWritereview") }}
           </v-card-title>
           <v-card-text>
@@ -40,7 +48,10 @@
                 class="mr-2 mb-2"
                 target="_blank"
                 :href="platform.href">
-                <v-card-title class="white--text">
+                <v-card-title
+                  class="white--text"
+                  role="heading"
+                  aria-level="3">
                   {{ platform.label }}
                 </v-card-title>
                 <v-card-text class="white--text">
@@ -51,7 +62,9 @@
           </v-card-text>
         </template>
         <template v-else>
-          <v-card-title>
+          <v-card-title
+            role="heading"
+            aria-level="2">
             {{ t("LabelFunddevelopment") }}
           </v-card-title>
           <v-card-text>
@@ -68,7 +81,10 @@
                 class="mr-2 mb-2"
                 target="_blank"
                 :href="processor.href">
-                <v-card-title class="white--text">
+                <v-card-title
+                  class="white--text"
+                  role="heading"
+                  aria-level="3">
                   {{ processor.label }}
                 </v-card-title>
                 <v-card-text class="white--text">
@@ -78,7 +94,9 @@
             </div>
           </v-card-text>
         </template>
-        <v-card-title>
+        <v-card-title
+          role="heading"
+          aria-level="2">
           {{ t("LabelTelemetry") }}
         </v-card-title>
         <v-card-text>

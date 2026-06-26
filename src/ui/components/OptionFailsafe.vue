@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div class="text-h6">
+    <div
+      class="text-h6"
+      role="heading"
+      aria-level="3">
       {{ t('LabelFailsafe') }}
     </div>
     <div class="caption">

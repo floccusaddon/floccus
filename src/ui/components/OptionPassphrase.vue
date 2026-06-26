@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div class="text-h6">
+    <div
+      class="text-h6"
+      role="heading"
+      aria-level="3">
       {{ t('LabelPassphrase') }}
     </div>
     <div class="caption">
@@ -25,10 +28,20 @@
       <v-text-field
         class="mt-2"
         :label="t('LabelPassphrase')"
-        :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
         :type="showPassphrase ? 'text' : 'password'"
-        @input="passphrase = $event"
-        @click:append="showPassphrase = !showPassphrase" />
+        @input="passphrase = $event">
+        <template #append>
+          <v-icon
+            role="button"
+            tabindex="0"
+            :aria-label="showPassphrase ? t('LabelHidepassword') : t('LabelShowpassword')"
+            @click="showPassphrase = !showPassphrase"
+            @keydown.enter="showPassphrase = !showPassphrase"
+            @keydown.space.prevent="showPassphrase = !showPassphrase">
+            {{ showPassphrase ? 'mdi-eye' : 'mdi-eye-off' }}
+          </v-icon>
+        </template>
+      </v-text-field>
       <v-btn
         color="primary"
         @click="$emit('input', passphrase); editing = false">

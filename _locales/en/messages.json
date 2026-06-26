@@ -968,5 +968,32 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Select your service"
+  },
+  "LabelShowpassword": {
+    "message": "Show password"
+  },
+  "LabelHidepassword": {
+    "message": "Hide password"
+  },
+  "LabelTitle": {
+    "message": "Title"
+  },
+  "LabelLink": {
+    "message": "Link"
+  },
+  "LabelParentfolder": {
+    "message": "Parent folder"
+  },
+  "LabelHome": {
+    "message": "Home"
+  },
+  "LabelMenu": {
+    "message": "Menu"
+  },
+  "LabelSortby": {
+    "message": "Sort by"
+  },
+  "LabelMoreactions": {
+    "message": "More actions"
   }
 }

@@ -3,7 +3,9 @@
     <v-card
       class="options mt-3">
       <v-container class="pa-5">
-        <v-card-title>
+        <v-card-title
+          role="heading"
+          aria-level="1">
           {{ t("LabelTelemetry") }}
         </v-card-title>
         <v-card-text>
@@ -29,7 +31,9 @@
             </v-radio>
           </v-radio-group>
         </v-card-text>
-        <v-card-title>
+        <v-card-title
+          role="heading"
+          aria-level="2">
           {{ t("LabelReportproblem") }}
         </v-card-title>
         <v-card-text>

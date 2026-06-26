@@ -3,24 +3,28 @@
     v-model="display"
     max-width="500px">
     <v-card>
-      <v-card-title class="text-h5">
+      <v-card-title
+        class="text-h5"
+        role="heading"
+        aria-level="2">
         {{ isNew? t('LabelAddfolder') : t('LabelEditfolder') }}
       </v-card-title>
       <v-card-text>
         <v-text-field
           v-model="temporaryTitle"
-          label="Title"
+          :label="t('LabelTitle')"
           hide-details />
         <v-text-field
           v-model="parentTitle"
           readonly
           :error="Boolean(parentError)"
           :error-messages="parentError"
-          label="Parent folder"
+          :label="t('LabelParentfolder')"
           @click="onTriggerFolderChooser">
           <template #append>
             <v-icon
               color="blue darken-1"
+              aria-hidden="true"
               @click="onTriggerFolderChooser">
               mdi-folder
             </v-icon>

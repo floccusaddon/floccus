@@ -27,7 +27,10 @@
 
       <v-stepper-items>
         <v-stepper-content step="0">
-          <div class="headline">
+          <div
+            class="headline"
+            role="heading"
+            aria-level="2">
             {{ t('LabelChooseadapter') }}
           </div>
           <v-form>
@@ -63,8 +66,9 @@
             </v-btn>
             <v-btn
               :to="{ name: 'IMPORTEXPORT' }"
+              :aria-label="t('LabelImportExport')"
               class="mr-2">
-              <v-icon>mdi-export</v-icon>
+              <v-icon aria-hidden="true">mdi-export</v-icon>
               <template v-if="isBrowser && true">
                 {{ t('LabelImportExport') }}
               </template>
@@ -73,7 +77,10 @@
         </v-stepper-content>
 
         <v-stepper-content step="1">
-          <div class="headline">
+          <div
+            class="headline"
+            role="heading"
+            aria-level="2">
             {{ t('LabelAccountlabel') }}
           </div>
           <v-form>
@@ -100,7 +107,10 @@
 
         <v-stepper-content step="2">
           <template v-if="adapter === 'nextcloud-bookmarks'">
-            <div class="headline">
+            <div
+              class="headline"
+              role="heading"
+              aria-level="2">
               {{ t('LabelServersetup') }}
             </div>
             <v-form>
@@ -116,7 +126,7 @@
                   <v-icon
                     v-if="serverTestSuccessful"
                     color="green"
-                    title="Server connection successful">
+                    aria-hidden="true">
                     mdi-check
                   </v-icon>
                 </template>
@@ -149,7 +159,10 @@
           </template>
 
           <template v-else-if="adapter === 'linkwarden'">
-            <div class="headline">
+            <div
+              class="headline"
+              role="heading"
+              aria-level="2">
               {{ t('LabelServersetup') }}
             </div>
             <v-form>
@@ -165,9 +178,19 @@
               <v-text-field
                 v-model="password"
                 :label="t('LabelAccesstoken')"
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showPassword ? 'text' : 'password'"
-                @click:append="showPassword = !showPassword" />
+                :type="showPassword ? 'text' : 'password'">
+                <template #append>
+                  <v-icon
+                    role="button"
+                    tabindex="0"
+                    :aria-label="showPassword ? t('LabelHidepassword') : t('LabelShowpassword')"
+                    @click="showPassword = !showPassword"
+                    @keydown.enter="showPassword = !showPassword"
+                    @keydown.space.prevent="showPassword = !showPassword">
+                    {{ showPassword ? 'mdi-eye' : 'mdi-eye-off' }}
+                  </v-icon>
+                </template>
+              </v-text-field>
             </v-form>
             <div class="form-buttons">
               <v-btn @click="currentStep--">
@@ -182,7 +205,10 @@
           </template>
 
           <template v-else-if="adapter === 'karakeep'">
-            <div class="headline">
+            <div
+              class="headline"
+              role="heading"
+              aria-level="2">
               {{ t('LabelServersetup') }}
             </div>
             <v-form>
@@ -195,9 +221,19 @@
               <v-text-field
                 v-model="password"
                 :label="t('LabelApiKey')"
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showPassword ? 'text' : 'password'"
-                @click:append="showPassword = !showPassword" />
+                :type="showPassword ? 'text' : 'password'">
+                <template #append>
+                  <v-icon
+                    role="button"
+                    tabindex="0"
+                    :aria-label="showPassword ? t('LabelHidepassword') : t('LabelShowpassword')"
+                    @click="showPassword = !showPassword"
+                    @keydown.enter="showPassword = !showPassword"
+                    @keydown.space.prevent="showPassword = !showPassword">
+                    {{ showPassword ? 'mdi-eye' : 'mdi-eye-off' }}
+                  </v-icon>
+                </template>
+              </v-text-field>
             </v-form>
             <div class="form-buttons">
               <v-btn @click="currentStep--">
@@ -212,7 +248,10 @@
           </template>
 
           <template v-else-if="adapter === 'webdav'">
-            <div class="headline">
+            <div
+              class="headline"
+              role="heading"
+              aria-level="2">
               {{ t('LabelServersetup') }}
             </div>
             <v-form>
@@ -234,18 +273,38 @@
               <v-text-field
                 v-model="password"
                 :label="t('LabelPassword')"
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showPassword ? 'text' : 'password'"
-                @click:append="showPassword = !showPassword" />
+                :type="showPassword ? 'text' : 'password'">
+                <template #append>
+                  <v-icon
+                    role="button"
+                    tabindex="0"
+                    :aria-label="showPassword ? t('LabelHidepassword') : t('LabelShowpassword')"
+                    @click="showPassword = !showPassword"
+                    @keydown.enter="showPassword = !showPassword"
+                    @keydown.space.prevent="showPassword = !showPassword">
+                    {{ showPassword ? 'mdi-eye' : 'mdi-eye-off' }}
+                  </v-icon>
+                </template>
+              </v-text-field>
               <v-text-field
                 v-model="passphrase"
                 class="mt-2"
                 :label="t('LabelPassphrase')"
                 :hint="t('DescriptionPassphrase')"
                 :persistent-hint="true"
-                :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showPassphrase ? 'text' : 'password'"
-                @click:append="showPassphrase = !showPassphrase" />
+                :type="showPassphrase ? 'text' : 'password'">
+                <template #append>
+                  <v-icon
+                    role="button"
+                    tabindex="0"
+                    :aria-label="showPassphrase ? t('LabelHidepassword') : t('LabelShowpassword')"
+                    @click="showPassphrase = !showPassphrase"
+                    @keydown.enter="showPassphrase = !showPassphrase"
+                    @keydown.space.prevent="showPassphrase = !showPassphrase">
+                    {{ showPassphrase ? 'mdi-eye' : 'mdi-eye-off' }}
+                  </v-icon>
+                </template>
+              </v-text-field>
               <OptionClientCert
                 v-model="includeCredentials"
                 class="mt-2" />
@@ -263,7 +322,10 @@
           </template>
 
           <template v-else-if="adapter === 'git'">
-            <div class="headline">
+            <div
+              class="headline"
+              role="heading"
+              aria-level="2">
               {{ t('LabelServersetup') }}
             </div>
             <v-form>
@@ -277,9 +339,19 @@
               <v-text-field
                 v-model="password"
                 :label="t('LabelPassword')"
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showPassword ? 'text' : 'password'"
-                @click:append="showPassword = !showPassword" />
+                :type="showPassword ? 'text' : 'password'">
+                <template #append>
+                  <v-icon
+                    role="button"
+                    tabindex="0"
+                    :aria-label="showPassword ? t('LabelHidepassword') : t('LabelShowpassword')"
+                    @click="showPassword = !showPassword"
+                    @keydown.enter="showPassword = !showPassword"
+                    @keydown.space.prevent="showPassword = !showPassword">
+                    {{ showPassword ? 'mdi-eye' : 'mdi-eye-off' }}
+                  </v-icon>
+                </template>
+              </v-text-field>
             </v-form>
             <div class="form-buttons">
               <v-btn @click="currentStep--">
@@ -294,7 +366,10 @@
           </template>
 
           <template v-else-if="adapter === 'google-drive'">
-            <div class="headline">
+            <div
+              class="headline"
+              role="heading"
+              aria-level="2">
               {{ t('LabelGoogledrivesetup') }}
             </div>
             <v-form class="mt-2">
@@ -321,7 +396,10 @@
           </template>
 
           <template v-else-if="adapter === 'dropbox'">
-            <div class="headline">
+            <div
+              class="headline"
+              role="heading"
+              aria-level="2">
               {{ t('LabelDropboxsetup') }}
             </div>
             <v-form class="mt-2">
@@ -349,12 +427,18 @@
         </v-stepper-content>
 
         <v-stepper-content step="3">
-          <div class="headline">
+          <div
+            class="headline"
+            role="heading"
+            aria-level="2">
             {{ t('LabelSyncfoldersetup') }}
           </div>
           <v-form>
             <template v-if="adapter === 'nextcloud-bookmarks'">
-              <div class="text-h6">
+              <div
+                class="text-h6"
+                role="heading"
+                aria-level="3">
                 {{ t('LabelServerfolder') }}
               </div>
               <div class="caption">
@@ -368,7 +452,10 @@
             </template>
 
             <template v-if="adapter === 'linkwarden'">
-              <div class="text-h6">
+              <div
+                class="text-h6"
+                role="heading"
+                aria-level="3">
                 {{ t('LabelServerfolder') }}
               </div>
               <div class="caption">
@@ -380,7 +467,10 @@
             </template>
 
             <template v-if="adapter === 'karakeep'">
-              <div class="text-h6">
+              <div
+                class="text-h6"
+                role="heading"
+                aria-level="3">
                 {{ t('LabelServerfolder') }}
               </div>
               <div class="caption">
@@ -392,7 +482,10 @@
             </template>
 
             <template v-if="adapter === 'webdav'">
-              <div class="text-h6">
+              <div
+                class="text-h6"
+                role="heading"
+                aria-level="3">
                 {{ t('LabelBookmarksfile') }}
               </div>
               <v-text-field
@@ -408,7 +501,10 @@
             </template>
 
             <template v-if="adapter === 'git'">
-              <div class="text-h6">
+              <div
+                class="text-h6"
+                role="heading"
+                aria-level="3">
                 {{ t('LabelBookmarksfile') }}
               </div>
               <v-text-field
@@ -428,7 +524,10 @@
             </template>
 
             <template v-if="adapter === 'google-drive'">
-              <div class="text-h6">
+              <div
+                class="text-h6"
+                role="heading"
+                aria-level="3">
                 {{ t('LabelBookmarksfile') }}
               </div>
               <v-text-field
@@ -440,17 +539,30 @@
                 :persistent-hint="true" />
               <v-text-field
                 v-model="passphrase"
-                :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassphrase ? 'text' : 'password'"
                 class="mt-2"
                 :label="t('LabelPassphrase')"
                 :hint="t('DescriptionPassphrase')"
-                :persistent-hint="true"
-                @click:append="showPassphrase = !showPassphrase" />
+                :persistent-hint="true">
+                <template #append>
+                  <v-icon
+                    role="button"
+                    tabindex="0"
+                    :aria-label="showPassphrase ? t('LabelHidepassword') : t('LabelShowpassword')"
+                    @click="showPassphrase = !showPassphrase"
+                    @keydown.enter="showPassphrase = !showPassphrase"
+                    @keydown.space.prevent="showPassphrase = !showPassphrase">
+                    {{ showPassphrase ? 'mdi-eye' : 'mdi-eye-off' }}
+                  </v-icon>
+                </template>
+              </v-text-field>
             </template>
 
             <template v-if="adapter === 'dropbox'">
-              <div class="text-h6">
+              <div
+                class="text-h6"
+                role="heading"
+                aria-level="3">
                 {{ t('LabelBookmarksfile') }}
               </div>
               <v-text-field
@@ -462,13 +574,23 @@
                 :persistent-hint="true" />
               <v-text-field
                 v-model="passphrase"
-                :append-icon="showPassphrase ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassphrase ? 'text' : 'password'"
                 class="mt-2"
                 :label="t('LabelPassphrase')"
                 :hint="t('DescriptionPassphrase')"
-                :persistent-hint="true"
-                @click:append="showPassphrase = !showPassphrase" />
+                :persistent-hint="true">
+                <template #append>
+                  <v-icon
+                    role="button"
+                    tabindex="0"
+                    :aria-label="showPassphrase ? t('LabelHidepassword') : t('LabelShowpassword')"
+                    @click="showPassphrase = !showPassphrase"
+                    @keydown.enter="showPassphrase = !showPassphrase"
+                    @keydown.space.prevent="showPassphrase = !showPassphrase">
+                    {{ showPassphrase ? 'mdi-eye' : 'mdi-eye-off' }}
+                  </v-icon>
+                </template>
+              </v-text-field>
             </template>
             <OptionSyncFolder
               v-if="isBrowser"
@@ -489,7 +611,10 @@
         </v-stepper-content>
 
         <v-stepper-content step="4">
-          <div class="headline">
+          <div
+            class="headline"
+            role="heading"
+            aria-level="2">
             {{ t('LabelSyncbehaviorsetup') }}
           </div>
           <v-form>
@@ -528,8 +653,11 @@
         </v-stepper-content>
 
         <v-stepper-content step="5">
-          <div class="headline">
-            {{ t('LabelAccountcreated') }} <v-icon>mdi-check</v-icon>
+          <div
+            class="headline"
+            role="heading"
+            aria-level="2">
+            {{ t('LabelAccountcreated') }} <v-icon aria-hidden="true">mdi-check</v-icon>
           </div>
           <v-form>
             <div v-if="isBrowser">

@@ -40,10 +40,11 @@
                 text
                 class="white--text"
                 v-bind="attrs"
+                :aria-label="t('LabelFunddevelopment')"
                 :to="{ name: routes.DONATE }"
                 target="_blank"
                 v-on="on">
-                <v-icon>mdi-heart-outline</v-icon>
+                <v-icon aria-hidden="true">mdi-heart-outline</v-icon>
               </v-btn>
             </template>
             <span>{{ t('LabelFunddevelopment') }}</span>
@@ -55,10 +56,11 @@
                 text
                 class="white--text"
                 v-bind="attrs"
+                :aria-label="t('LabelTelemetry')"
                 :to="{ name: routes.TELEMETRY }"
                 target="_blank"
                 v-on="on">
-                <v-icon>
+                <v-icon aria-hidden="true">
                   {{
                     telemetryEnabled
                       ? 'mdi-bug-play-outline'
@@ -76,10 +78,11 @@
                 text
                 class="white--text"
                 v-bind="attrs"
+                :aria-label="t('LabelGivefeedback')"
                 :to="{ name: routes.FEEDBACK }"
                 target="_blank"
                 v-on="on">
-                <v-icon>mdi-bullhorn-variant-outline</v-icon>
+                <v-icon aria-hidden="true">mdi-bullhorn-variant-outline</v-icon>
               </v-btn>
             </template>
             <span>{{ t('LabelGivefeedback') }}</span>
@@ -91,10 +94,11 @@
                 text
                 class="white--text"
                 v-bind="attrs"
+                :aria-label="t('LabelOpeninnewtab')"
                 target="_blank"
                 @click="openInNewTab"
                 v-on="on">
-                <v-icon>mdi-open-in-new</v-icon>
+                <v-icon aria-hidden="true">mdi-open-in-new</v-icon>
               </v-btn>
             </template>
             <span>{{ t('LabelOpeninnewtab') }}</span>
@@ -108,7 +112,7 @@
       persistent>
       <v-card>
         <v-card-title>
-          <v-icon>mdi-lock-outline</v-icon>{{ t('LabelUnlock') }}
+          <v-icon aria-hidden="true">mdi-lock-outline</v-icon>{{ t('LabelUnlock') }}
         </v-card-title>
         <v-card-text>
           <v-alert

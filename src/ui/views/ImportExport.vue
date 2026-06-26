@@ -3,7 +3,9 @@
     <v-card
       class="options">
       <v-container class="pa-5">
-        <v-card-title>
+        <v-card-title
+          role="heading"
+          aria-level="1">
           {{ t("LabelExport") }}
         </v-card-title>
         <v-card-text>
@@ -13,11 +15,15 @@
             :key="i">
             <v-row>
               <v-col class="flex-grow-0">
-                <v-checkbox v-model="selected[i]" />
+                <v-checkbox
+                  v-model="selected[i]"
+                  :aria-label="getFolderName(account.fullPath)" />
               </v-col>
               <v-col>
                 <div class="text-h6">
-                  <v-icon color="primary">
+                  <v-icon
+                    color="primary"
+                    aria-hidden="true">
                     {{ account.data.localRoot === 'tabs'? 'mdi-tab' : 'mdi-folder' }}
                   </v-icon> {{ getFolderName(account.fullPath) }}
                 </div>
@@ -31,7 +37,7 @@
             block
             :disabled="!Object.values(selected).some(Boolean)"
             @click="onTriggerExport">
-            <v-icon>mdi-export</v-icon>{{ t('LabelExport') }}
+            <v-icon aria-hidden="true">mdi-export</v-icon>{{ t('LabelExport') }}
           </v-btn>
         </v-card-text>
       </v-container>
@@ -39,7 +45,9 @@
     <v-card
       class="options mt-3 mb-9">
       <v-container class="pa-5">
-        <v-card-title>
+        <v-card-title
+          role="heading"
+          aria-level="2">
           {{ t("LabelImport") }}
         </v-card-title>
         <v-card-text>
@@ -53,7 +61,7 @@
           <v-btn
             block
             @click="onTriggerFilePicker">
-            <v-icon>mdi-import</v-icon>{{ t('LabelImport') }}
+            <v-icon aria-hidden="true">mdi-import</v-icon>{{ t('LabelImport') }}
           </v-btn>
         </v-card-text>
       </v-container>

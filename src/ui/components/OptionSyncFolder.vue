@@ -1,7 +1,10 @@
 <template>
   <div>
     <div>
-      <div class="text-h6">
+      <div
+        class="text-h6"
+        role="heading"
+        aria-level="3">
         {{ t('LabelLocaltarget') }}
       </div>
       <div class="caption">
@@ -17,10 +20,12 @@
               v-model="path"
               class="ml-2"
               readonly
+              :aria-label="t('LabelLocalfolder')"
               @click="onTriggerFinder">
               <template #append>
                 <v-icon
                   color="blue darken-1"
+                  aria-hidden="true"
                   @click="onTriggerFinder">
                   mdi-folder
                 </v-icon>
@@ -54,7 +59,7 @@
             <v-btn
               class="primary ma-2"
               @click="onSave">
-              save
+              {{ t('LabelSave') }}
             </v-btn>
           </v-col>
         </v-row>
@@ -70,7 +75,7 @@
           dense
           @update:active="onUpdateSelection">
           <template #prepend="{ open }">
-            <v-icon>
+            <v-icon aria-hidden="true">
               {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
             </v-icon>
           </template>

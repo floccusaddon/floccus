@@ -19,15 +19,20 @@
               <div class="overline">
                 {{ account.data.type }}
               </div>
-              <div class="text-h6">
+              <div
+                class="text-h6"
+                role="heading"
+                aria-level="2">
                 <v-icon
                   v-if="account.data.localRoot === 'tabs'"
-                  color="primary">
+                  color="primary"
+                  aria-hidden="true">
                   mdi-tab
                 </v-icon>
                 <v-icon
                   v-else
-                  color="primary">
+                  color="primary"
+                  aria-hidden="true">
                   mdi-folder
                 </v-icon>
                 {{ folderName }}
@@ -40,7 +45,8 @@
               <div class="pa-3 d-inline-block font-weight-light body-2">
                 <v-icon
                   :color="statusColor"
-                  :class="{ spinning: account.data.syncing }">
+                  :class="{ spinning: account.data.syncing }"
+                  aria-hidden="true">
                   {{ statusIcon }}
                 </v-icon>
                 <span :style="{ color: statusColor }">{{ statusLabel }}</span>
@@ -120,7 +126,7 @@
                   params: { accountId: account.id },
                 }"
                 target="_blank">
-                <v-icon>mdi-cog</v-icon>
+                <v-icon aria-hidden="true">mdi-cog</v-icon>
                 {{ t('LabelOptions') }}
               </v-btn>
             </v-col>
@@ -130,16 +136,18 @@
                 small
                 :disabled="account.data.syncing || account.data.scheduled"
                 :title="t('LabelSyncDownOnce')"
+                :aria-label="t('LabelSyncDownOnce')"
                 @click="onTriggerSyncDown">
-                <v-icon>mdi-arrow-down-bold</v-icon>
+                <v-icon aria-hidden="true">mdi-arrow-down-bold</v-icon>
               </v-btn>
               <v-btn
                 class="ma-1"
                 small
                 :disabled="account.data.syncing || account.data.scheduled"
                 :title="t('LabelSyncUpOnce')"
+                :aria-label="t('LabelSyncUpOnce')"
                 @click="onTriggerSyncUp">
-                <v-icon>mdi-arrow-up-bold</v-icon>
+                <v-icon aria-hidden="true">mdi-arrow-up-bold</v-icon>
               </v-btn>
               <v-btn
                 v-if="!account.data.syncing"
@@ -149,7 +157,7 @@
                 :title="t('LabelSyncnow')"
                 :aria-label="t('LabelSyncnow')"
                 @click="onTriggerSync">
-                <v-icon>mdi-sync</v-icon>
+                <v-icon aria-hidden="true">mdi-sync</v-icon>
               </v-btn>
               <v-btn
                 v-else
@@ -158,7 +166,7 @@
                 :title="t('LabelCancelsync')"
                 :aria-label="t('LabelCancelsync')"
                 @click="onCancelSync">
-                <v-icon>mdi-cancel</v-icon>
+                <v-icon aria-hidden="true">mdi-cancel</v-icon>
               </v-btn>
             </v-col>
           </v-row>
