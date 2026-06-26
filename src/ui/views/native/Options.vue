@@ -5,10 +5,13 @@
       app>
       <v-btn
         icon
+        :aria-label="t('LabelBack')"
         :to="{name: routes.TREE, params: {accountId: id}}">
-        <v-icon>mdi-arrow-left</v-icon>
+        <v-icon aria-hidden="true">mdi-arrow-left</v-icon>
       </v-btn>
-      <v-app-bar-title>{{ t('LabelOptions') }}</v-app-bar-title>
+      <v-app-bar-title
+        role="heading"
+        aria-level="1">{{ t('LabelOptions') }}</v-app-bar-title>
       <v-spacer />
       <v-btn
         color="blue darken-1"

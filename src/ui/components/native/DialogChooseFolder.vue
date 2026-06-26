@@ -9,7 +9,10 @@
       max-height="calc(100vh - 100px)">
       <!-- Fixed header row -->
       <div class="d-flex align-center justify-space-between px-4 py-2">
-        <span class="text-h6">{{ t('LabelChoosefolder') }}</span>
+        <span
+          class="text-h6"
+          role="heading"
+          aria-level="2">{{ t('LabelChoosefolder') }}</span>
         <v-btn
           color="primary"
           @click="onSave">
@@ -30,7 +33,7 @@
           dense
           @update:active="onUpdateSelection">
           <template #prepend="{ open }">
-            <v-icon>
+            <v-icon aria-hidden="true">
               {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
             </v-icon>
           </template>
@@ -41,8 +44,9 @@
             <v-btn
               small
               rounded
+              :aria-label="t('LabelAddfolder')"
               @click="onCreate(item.id)">
-              <v-icon>
+              <v-icon aria-hidden="true">
                 mdi-plus
               </v-icon>
             </v-btn>

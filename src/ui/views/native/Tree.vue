@@ -12,8 +12,9 @@
         v-else
         icon
         class="mr-2 ml-n2"
+        :aria-label="t('LabelBack')"
         @click="goBack">
-        <v-icon>mdi-arrow-left</v-icon>
+        <v-icon aria-hidden="true">mdi-arrow-left</v-icon>
       </v-btn>
       <v-spacer />
       <template v-if="searchQuery">
@@ -22,7 +23,9 @@
           color="white"
           :size="20"
           indeterminate />
-        <v-icon v-else>
+        <v-icon
+          v-else
+          aria-hidden="true">
           mdi-magnify
         </v-icon>
       </template>
@@ -42,9 +45,12 @@
       <v-btn
         v-if="!searchQuery"
         icon
+        :aria-label="t('LabelSyncnow')"
         :disabled="Boolean(syncing) || Boolean(scheduled) || !currentAccount"
         @click="onTriggerSync">
-        <v-icon :class="{ 'sync--active': Boolean(syncing) }">
+        <v-icon
+          aria-hidden="true"
+          :class="{ 'sync--active': Boolean(syncing) }">
           {{ scheduled ? 'mdi-timer-sync-outline' : 'mdi-sync' }}
         </v-icon>
       </v-btn>
@@ -56,16 +62,17 @@
         <template #activator="{ on, attrs }">
           <v-btn
             icon
+            :aria-label="t('LabelSortby')"
             v-bind="attrs"
             v-on="on">
-            <v-icon>{{ sortIcons[sortBy] }}</v-icon>
+            <v-icon aria-hidden="true">{{ sortIcons[sortBy] }}</v-icon>
           </v-btn>
         </template>
 
         <v-list>
           <v-list-item @click="sortBy = 'title'">
             <v-list-item-avatar>
-              <v-icon>{{ sortIcons['title'] }}</v-icon>
+              <v-icon aria-hidden="true">{{ sortIcons['title'] }}</v-icon>
             </v-list-item-avatar>
             <v-list-item-title>
               {{ t('LabelSorttitle') }}
@@ -73,7 +80,7 @@
           </v-list-item>
           <v-list-item @click="sortBy = 'url'">
             <v-list-item-avatar>
-              <v-icon>{{ sortIcons['url'] }}</v-icon>
+              <v-icon aria-hidden="true">{{ sortIcons['url'] }}</v-icon>
             </v-list-item-avatar>
             <v-list-item-title>
               {{ t('LabelSorturl') }}
@@ -81,7 +88,7 @@
           </v-list-item>
           <v-list-item @click="sortBy = 'index'">
             <v-list-item-avatar>
-              <v-icon>{{ sortIcons['index'] }}</v-icon>
+              <v-icon aria-hidden="true">{{ sortIcons['index'] }}</v-icon>
             </v-list-item-avatar>
             <v-list-item-title>
               {{ t('LabelSortcustom') }}
@@ -97,9 +104,10 @@
         <template #activator="{ on, attrs }">
           <v-btn
             icon
+            :aria-label="t('LabelMoreactions')"
             v-bind="attrs"
             v-on="on">
-            <v-icon>mdi-dots-vertical</v-icon>
+            <v-icon aria-hidden="true">mdi-dots-vertical</v-icon>
           </v-btn>
         </template>
 
@@ -112,7 +120,7 @@
               })
             ">
             <v-list-item-avatar>
-              <v-icon>mdi-cog</v-icon>
+              <v-icon aria-hidden="true">mdi-cog</v-icon>
             </v-list-item-avatar>
             <v-list-item-title>{{ t('LabelOptions') }}</v-list-item-title>
           </v-list-item>
@@ -122,7 +130,7 @@
             "
             @click="onTriggerSync('up')">
             <v-list-item-avatar>
-              <v-icon>mdi-arrow-up-bold</v-icon>
+              <v-icon aria-hidden="true">mdi-arrow-up-bold</v-icon>
             </v-list-item-avatar>
             <v-list-item-title>{{ t('LabelSyncUpOnce') }}</v-list-item-title>
           </v-list-item>
@@ -132,7 +140,7 @@
             "
             @click="onTriggerSync('down')">
             <v-list-item-avatar>
-              <v-icon>mdi-arrow-down-bold</v-icon>
+              <v-icon aria-hidden="true">mdi-arrow-down-bold</v-icon>
             </v-list-item-avatar>
             <v-list-item-title>
               {{ t('LabelSyncDownOnce') }}
@@ -154,7 +162,7 @@
           :items="breadcrumbs"
           @click="currentFolderId = $event" />
         <v-card-text v-else>
-          <v-icon>mdi-home</v-icon>
+          <v-icon aria-hidden="true">mdi-home</v-icon>
           {{ currentAccount ? currentAccount.label : '' }}
         </v-card-text>
       </v-card>
@@ -226,6 +234,7 @@
         }">
         <img
           src="icons/tree-swing.svg"
+          alt=""
           :style="{ width: '95%', maxHeight: '40vh' }">
         <h3 class="text-center headline mt-5">
           {{ t('LabelNobookmarks') }}
@@ -235,7 +244,7 @@
         <v-list-item
           v-if="searchQuery && otherSearchItems && otherSearchItems.length">
           <v-list-item-avatar>
-            <v-icon>mdi-select-search</v-icon>
+            <v-icon aria-hidden="true">mdi-select-search</v-icon>
           </v-list-item-avatar>
           {{ t('LabelSearchresultsotherfolders') }}
         </v-list-item>
@@ -266,11 +275,16 @@
             v-model="fab"
             color="blue darken-1"
             dark
-            fab>
-            <v-icon v-if="fab">
+            fab
+            :aria-label="t('LabelAdd')">
+            <v-icon
+              v-if="fab"
+              aria-hidden="true">
               mdi-close
             </v-icon>
-            <v-icon v-else>
+            <v-icon
+              v-else
+              aria-hidden="true">
               mdi-plus
             </v-icon>
           </v-btn>
@@ -280,24 +294,27 @@
           dark
           small
           fab
+          :aria-label="t('LabelAddfolder')"
           @click="addFolder">
-          <v-icon>mdi-folder</v-icon>
+          <v-icon aria-hidden="true">mdi-folder</v-icon>
         </v-btn>
         <v-btn
           color="blue darken-1"
           dark
           small
           fab
+          :aria-label="t('LabelAddbookmark')"
           @click="addBookmark">
-          <v-icon>mdi-star</v-icon>
+          <v-icon aria-hidden="true">mdi-star</v-icon>
         </v-btn>
         <v-btn
           color="blue darken-1"
           dark
           small
           fab
+          :aria-label="t('LabelImportbookmarks')"
           @click="importBookmarks">
-          <v-icon>mdi-import</v-icon>
+          <v-icon aria-hidden="true">mdi-import</v-icon>
         </v-btn>
       </v-speed-dial>
     </v-main>

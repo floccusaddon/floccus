@@ -14,9 +14,10 @@
           <template #activator="{ on }">
             <v-btn
               icon
+              :aria-label="t('LabelLoginFlowStart')"
               @click="onFlowStart"
               v-on="on">
-              <v-icon>mdi-account-circle</v-icon>
+              <v-icon aria-hidden="true">mdi-account-circle</v-icon>
             </v-btn>
           </template>
           <span>{{ t('LabelLoginFlowStart') }}</span>
@@ -27,9 +28,10 @@
           <template #activator="{ on }">
             <v-btn
               icon
+              :aria-label="t('LabelLoginFlowStop')"
               @click="onFlowStop"
               v-on="on">
-              <v-icon>mdi-cancel</v-icon>
+              <v-icon aria-hidden="true">mdi-cancel</v-icon>
             </v-btn>
           </template>
           <span>{{ t('LabelLoginFlowStop') }}</span>
@@ -37,11 +39,21 @@
       </template>
     </v-text-field>
     <v-text-field
-      :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
       :type="showPassword ? 'text' : 'password'"
       :label="t('LabelPassword')"
-      @click:append="showPassword = !showPassword"
-      @input="$emit('update:password', $event)" />
+      @input="$emit('update:password', $event)">
+      <template #append>
+        <v-icon
+          role="button"
+          tabindex="0"
+          :aria-label="showPassword ? t('LabelHidepassword') : t('LabelShowpassword')"
+          @click="showPassword = !showPassword"
+          @keydown.enter="showPassword = !showPassword"
+          @keydown.space.prevent="showPassword = !showPassword">
+          {{ showPassword ? 'mdi-eye' : 'mdi-eye-off' }}
+        </v-icon>
+      </template>
+    </v-text-field>
   </div>
 </template>
 

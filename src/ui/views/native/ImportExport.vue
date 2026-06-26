@@ -7,7 +7,9 @@
       <v-app-bar-nav-icon
         class="mr-2 ml-n2"
         @click="drawer = !drawer" />
-      <v-app-bar-title>{{ t('LabelImportExport') }}</v-app-bar-title>
+      <v-app-bar-title
+        role="heading"
+        aria-level="1">{{ t('LabelImportExport') }}</v-app-bar-title>
     </v-app-bar>
     <v-main>
       <ImportExportContent />

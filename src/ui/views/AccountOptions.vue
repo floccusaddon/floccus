@@ -8,7 +8,10 @@
       <div class="overline">
         {{ data.type }}
       </div>
-      <div class="headline">
+      <div
+        class="headline"
+        role="heading"
+        aria-level="1">
         {{ folderName || t('LabelUntitledfolder') }}
       </div>
       <v-list
@@ -18,7 +21,7 @@
           link
           @click="$vuetify.goTo('#server', {duration: 0.5})">
           <v-list-item-icon>
-            <v-icon>mdi-account-box</v-icon>
+            <v-icon aria-hidden="true">mdi-account-box</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title>{{ t('LabelOptionsServerDetails') }}</v-list-item-title>
@@ -28,7 +31,7 @@
           link
           @click="$vuetify.goTo('#folder', {duration: 0.5})">
           <v-list-item-icon>
-            <v-icon>mdi-folder-outline</v-icon>
+            <v-icon aria-hidden="true">mdi-folder-outline</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title>{{ t('LabelOptionsFolderMapping') }}</v-list-item-title>
@@ -38,7 +41,7 @@
           link
           @click="$vuetify.goTo('#sync', {duration: 0.5})">
           <v-list-item-icon>
-            <v-icon>mdi-sync-circle</v-icon>
+            <v-icon aria-hidden="true">mdi-sync-circle</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title>{{ t('LabelOptionsSyncBehavior') }}</v-list-item-title>
@@ -48,7 +51,7 @@
           link
           @click="$vuetify.goTo('#danger', {duration: 0.5})">
           <v-list-item-icon>
-            <v-icon>mdi-alert-circle</v-icon>
+            <v-icon aria-hidden="true">mdi-alert-circle</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title>{{ t('LabelOptionsDangerous') }}</v-list-item-title>
@@ -68,7 +71,10 @@
               <div class="overline">
                 {{ data.type }}
               </div>
-              <div class="headline">
+              <div
+                class="headline"
+                role="heading"
+                aria-level="1">
                 {{ folderName || t('LabelUntitledfolder') }}
               </div>
               <v-list
@@ -78,7 +84,7 @@
                   link
                   @click="$vuetify.goTo('#server', {duration: 0.5})">
                   <v-list-item-icon>
-                    <v-icon>mdi-account-box</v-icon>
+                    <v-icon aria-hidden="true">mdi-account-box</v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>{{ t('LabelOptionsServerDetails') }}</v-list-item-title>
@@ -88,7 +94,7 @@
                   link
                   @click="$vuetify.goTo('#folder', {duration: 0.5})">
                   <v-list-item-icon>
-                    <v-icon>mdi-folder-outline</v-icon>
+                    <v-icon aria-hidden="true">mdi-folder-outline</v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>{{ t('LabelOptionsFolderMapping') }}</v-list-item-title>
@@ -98,7 +104,7 @@
                   link
                   @click="$vuetify.goTo('#sync', {duration: 0.5})">
                   <v-list-item-icon>
-                    <v-icon>mdi-sync-circle</v-icon>
+                    <v-icon aria-hidden="true">mdi-sync-circle</v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>{{ t('LabelOptionsSyncBehavior') }}</v-list-item-title>
@@ -108,7 +114,7 @@
                   link
                   @click="$vuetify.goTo('#danger', {duration: 0.5})">
                   <v-list-item-icon>
-                    <v-icon>mdi-alert-circle</v-icon>
+                    <v-icon aria-hidden="true">mdi-alert-circle</v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>{{ t('LabelOptionsDangerous') }}</v-list-item-title>
@@ -126,7 +132,8 @@
               </v-btn>
               <v-icon
                 v-if="saved"
-                color="green">
+                color="green"
+                aria-hidden="true">
                 mdi-check
               </v-icon>
             </div>
@@ -182,7 +189,8 @@
               </v-btn>
               <v-icon
                 v-if="saved"
-                color="green">
+                color="green"
+                aria-hidden="true">
                 mdi-check
               </v-icon>
             </div>

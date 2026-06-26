@@ -6,7 +6,9 @@
     <template #item="{ item }">
       <v-breadcrumbs-item @click="$emit('click', item.id)">
         <template v-if="item.id === tree.id">
-          <v-icon>mdi-home</v-icon>
+          <v-icon
+            role="img"
+            :aria-label="t('LabelHome')">mdi-home</v-icon>
         </template>
         <template v-else>
           {{ item.title }}

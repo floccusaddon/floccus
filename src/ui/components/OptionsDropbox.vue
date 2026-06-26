@@ -13,8 +13,10 @@
     <v-card class="mb-4">
       <v-card-title
         id="server"
-        class="text-h5">
-        <v-icon>mdi-account-box</v-icon>
+        class="text-h5"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">mdi-account-box</v-icon>
         {{ t('LabelOptionsServerDetails') }}
       </v-card-title>
       <v-card-text>
@@ -55,8 +57,10 @@
       class="mb-4">
       <v-card-title
         id="folder"
-        class="text-h5">
-        <v-icon>mdi-folder-outline</v-icon>
+        class="text-h5"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">mdi-folder-outline</v-icon>
         {{ t('LabelOptionsFolderMapping') }}
       </v-card-title>
       <v-card-text>
@@ -71,8 +75,10 @@
       class="mb-4">
       <v-card-title
         id="mobile"
-        class="text-h5">
-        <v-icon>mdi-cellphone-settings</v-icon>
+        class="text-h5"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">mdi-cellphone-settings</v-icon>
         {{ t('LabelMobilesettings') }}
       </v-card-title>
       <v-card-text>
@@ -86,8 +92,10 @@
     <v-card class="mb-4">
       <v-card-title
         id="sync"
-        class="text-h5">
-        <v-icon>mdi-sync-circle</v-icon>
+        class="text-h5"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">mdi-sync-circle</v-icon>
         {{ t('LabelOptionsSyncBehavior') }}
       </v-card-title>
       <v-card-text>
@@ -114,8 +122,10 @@
     <v-card class="mb-4">
       <v-card-title
         id="danger"
-        class="text-h5">
-        <v-icon>mdi-alert-circle</v-icon>
+        class="text-h5"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">mdi-alert-circle</v-icon>
         {{ t('LabelOptionsDangerous') }}
       </v-card-title>
       <v-card-text>

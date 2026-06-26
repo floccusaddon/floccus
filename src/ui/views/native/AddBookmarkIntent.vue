@@ -3,14 +3,16 @@
     <v-app-bar
       fixed
       app>
-      <v-app-bar-title>Add Bookmark</v-app-bar-title>
+      <v-app-bar-title
+        role="heading"
+        aria-level="1">{{ t('LabelAddbookmark') }}</v-app-bar-title>
       <v-spacer />
       <v-btn
         color="blue darken-1"
         text
         elevation="1"
         @click="onSave">
-        Save
+        {{ t('LabelSave') }}
       </v-btn>
     </v-app-bar>
     <v-main>
@@ -32,10 +34,10 @@
             :items="accounts"
             @change="$router.push({name: routes.ADD_BOOKMARK, params: {url, accountId: $event}})">
             <template #prepend-inner>
-              <v-icon>{{ account.data.type | accountIcon }}</v-icon>
+              <v-icon aria-hidden="true">{{ account.data.type | accountIcon }}</v-icon>
             </template>
             <template #item="{item}">
-              <v-icon>{{ item.data.type | accountIcon }}</v-icon> {{ item.label }}
+              <v-icon aria-hidden="true">{{ item.data.type | accountIcon }}</v-icon> {{ item.label }}
             </template>
           </v-select>
           <v-alert
@@ -49,21 +51,22 @@
           </v-alert>
           <v-text-field
             v-model="title"
-            label="Title"
+            :label="t('LabelTitle')"
             hide-details />
           <v-text-field
             v-model="url"
             :error="Boolean(urlError)"
             :error-messages="urlError"
-            label="Link" />
+            :label="t('LabelLink')" />
           <v-text-field
             v-model="parentTitle"
             readonly
-            label="Parent folder"
+            :label="t('LabelParentfolder')"
             @click="onTriggerFolderChooser">
             <template #append>
               <v-icon
                 color="blue darken-1"
+                aria-hidden="true"
                 @click="onTriggerFolderChooser">
                 mdi-folder
               </v-icon>

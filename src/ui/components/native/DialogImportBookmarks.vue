@@ -3,7 +3,10 @@
     v-model="display"
     max-width="500px">
     <v-card>
-      <v-card-title class="text-h5">
+      <v-card-title
+        class="text-h5"
+        role="heading"
+        aria-level="2">
         {{ t('LabelImportbookmarks') }}
       </v-card-title>
       <v-card-text>
@@ -17,7 +20,7 @@
         <v-btn
           block
           @click="onTriggerFilePicker">
-          <v-icon>mdi-import</v-icon>{{ t('LabelImportbookmarks') }}
+          <v-icon aria-hidden="true">mdi-import</v-icon>{{ t('LabelImportbookmarks') }}
         </v-btn>
       </v-card-text>
       <v-card-actions>

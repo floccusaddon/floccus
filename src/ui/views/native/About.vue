@@ -7,13 +7,17 @@
       <v-app-bar-nav-icon
         class="mr-2 ml-n2"
         @click="drawer = !drawer" />
-      <v-app-bar-title>{{ t('LabelAbout') }}</v-app-bar-title>
+      <v-app-bar-title
+        role="heading"
+        aria-level="1">{{ t('LabelAbout') }}</v-app-bar-title>
     </v-app-bar>
     <v-main>
       <v-container>
         <v-card>
           <v-container class="pa-5">
-            <v-card-title>
+            <v-card-title
+              role="heading"
+              aria-level="2">
               {{ t("LabelCurrentversion") }}
             </v-card-title>
             <v-card-text>
@@ -25,7 +29,9 @@
         <v-card
           class="mt-3 mb-16">
           <v-container class="pa-5">
-            <v-card-title>
+            <v-card-title
+              role="heading"
+              aria-level="2">
               {{ t("LabelContributors") }}
             </v-card-title>
             <v-card-text>
