@@ -987,13 +987,13 @@
   "LabelHome": {
     "message": "Home"
   },
-  "LabelMenu": {
-    "message": "Menu"
-  },
   "LabelSortby": {
     "message": "Sort by"
   },
   "LabelMoreactions": {
     "message": "More actions"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Server connection successful"
   }
 }

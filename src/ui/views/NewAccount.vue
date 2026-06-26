@@ -126,7 +126,8 @@
                   <v-icon
                     v-if="serverTestSuccessful"
                     color="green"
-                    aria-hidden="true">
+                    role="img"
+                    :aria-label="t('LabelServerconnectionsuccessful')">
                     mdi-check
                   </v-icon>
                 </template>
