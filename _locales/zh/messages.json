@@ -162,7 +162,7 @@
     "message": "E055: 已下载的 Google Drive 书签文件大小和服务器报告的大小不一样。 t这可能是暂时的网络问题。如果此问题持续请稍后重试。"
   },
   "Error056": {
-    "message": "E056: 上传验证后发现上传的 Google Drive 书签文件大小和服务器报告的大小不同。floccus 重试了上传但无法确认结果。请稍后重试。"
+    "message": "E056: 上传的 Google Drive 书签文件大小和上传验证后服务器报告的大小不同。floccus 重试了上传但无法确认结果。请稍后重试。"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
