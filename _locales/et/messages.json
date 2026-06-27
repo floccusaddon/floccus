@@ -968,5 +968,32 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Vali oma teenus"
+  },
+  "LabelShowpassword": {
+    "message": "Näita salasõna"
+  },
+  "LabelHidepassword": {
+    "message": "Peida salasõna"
+  },
+  "LabelTitle": {
+    "message": "Pealkiri"
+  },
+  "LabelLink": {
+    "message": "Link"
+  },
+  "LabelParentfolder": {
+    "message": "Ülemkaust"
+  },
+  "LabelHome": {
+    "message": "Avaleht"
+  },
+  "LabelSortby": {
+    "message": "Järjestus"
+  },
+  "LabelMoreactions": {
+    "message": "Täiendavad tegevused"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Ühendamine serveriga õnnestus"
   }
 }
