@@ -90,6 +90,9 @@ export default class Account {
 
   public id: string
   public syncing: boolean
+  // Test-only hook: invoked with each freshly created sync process so benchmark
+  // tests can configure a deterministic, count-based interrupt.
+  public onSyncProcessCreated: ((syncProcess: DefaultSyncProcess) => void) | null = null
   protected syncProcess: DefaultSyncProcess
   protected storage: IAccountStorage
   protected server: TAdapter
@@ -337,6 +340,10 @@ export default class Account {
         await this.localCachingResource.getBookmarksTree()
       }
 
+      if (this.onSyncProcessCreated) {
+        this.onSyncProcessCreated(this.syncProcess)
+      }
+
       Logger.log('Starting sync process')
       await this.syncProcess.sync()
       Logger.log('Ended sync process')
@@ -495,19 +502,24 @@ export default class Account {
     }
     if (actionsDone) {
       const mappings = this.syncProcess.getMappingsInstance()
-      if (this.server.isAtomic()) {
-        Logger.log('progressCallback: Persisting cache')
-        if (!this.localCachingResource) {
-          return
-        }
-        const cache = (await this.localCachingResource.getCacheTree()).clone(
-          false
-        )
-        this.syncProcess.filterOutUnacceptedBookmarks(cache)
-        await this.storage.setCache(cache)
-        Logger.log('progressCallback: Persisting mappings')
-        await mappings.persist()
-      } else {
+      if (!this.localCachingResource) {
+        return
+      }
+      // Persist the cache incrementally in *both* the atomic and non-atomic cases.
+      // Previously the cache was only persisted here for atomic adapters; for non-atomic
+      // adapters it was written only on successful sync completion (see sync()). During a long
+      // run of interrupted (never-completed) syncs that left the stored cache stale, so the next
+      // fresh sync re-saw already-synced items as new creations and re-created them on the
+      // non-atomic server — accumulating duplicate folders whose mappings then collided
+      // (MappingFailureError -> reset+forceSync -> divergence). Mappings are already persisted at
+      // the interrupt point; the cache must be kept in step with them.
+      Logger.log('progressCallback: Persisting cache')
+      const cache = (await this.localCachingResource.getCacheTree()).clone(
+        false
+      )
+      this.syncProcess.filterOutUnacceptedBookmarks(cache)
+      await this.storage.setCache(cache)
+      if (!this.server.isAtomic()) {
         Logger.log('progressCallback: Serializing continuation')
         const cont = await this.syncProcess.toJSONAsync()
         if (!this.syncing) {
@@ -518,9 +530,9 @@ export default class Account {
         }
         Logger.log('progressCallback: Persisting continuation')
         await this.storage.setCurrentContinuation(cont)
-        Logger.log('progressCallback: Persisting mappings')
-        await mappings.persist()
       }
+      Logger.log('progressCallback: Persisting mappings')
+      await mappings.persist()
     }
   }
 

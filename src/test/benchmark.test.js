@@ -32,32 +32,36 @@ describe('Floccus', function() {
         this.timeout(120 * 60000) // timeout after 2h
         const BENCHMARK_SIZE = 1000
         let account1, account2, RUN_INTERRUPTS = false
-        let timeouts = []
+        // Deterministic, count-based interrupts: instead of cancelling the sync after a
+        // random wall-clock timeout (whose landing point depends on machine speed and so
+        // is not reproducible), we cancel after a seeded number of executed actions. The
+        // counts are precomputed once from the PRNG and then cycled through, so the
+        // interrupt schedule is independent of how many random draws the tree
+        // manipulations consume in between.
+        const MAX_INTERRUPT_ACTIONS = 1000
+        let interruptCounts = []
         let i = 0
-        let timer = null
-        const setInterrupt = () => {
-          if (!timeouts.length) {
-            timeouts = new Array(1000).fill(0).map((_, index) =>
-              ACCOUNT_DATA.type === 'nextcloud-bookmarks'
-                // Produce random numbers of timeouts between 30s and increasing numbers between 30s and 180s (increasing for stretches of 20 items, then going back to 30s)
-                ? testRandom.int(30000, Math.round(30000 + (180000 - 30000) * (index % 20) / 20))
-                // Produce random numbers of timeouts between 4s and increasing numbers between 4s and 180s (increasing for stretches of 20 items, then going back to 4s)
-                : testRandom.int(4000, Math.round(4000 + (180000 - 4000) * (index % 20) / 20))
+        const nextInterruptCount = () => {
+          if (!interruptCounts.length) {
+            interruptCounts = new Array(1000).fill(0).map((_, index) =>
+              // Allow between 1 action and an increasing bound (growing over stretches of
+              // 20, then resetting). Draws larger than the remaining plan simply let that
+              // sync complete uninterrupted, mirroring the old "long timeout" behaviour.
+              testRandom.int(1, Math.round(1 + (MAX_INTERRUPT_ACTIONS - 1) * ((index + 1) % 20) / 20))
             )
           }
-          const timeout = timeouts[(i++) % 1000]
-          timer = setTimeout(() => {
-            if (RUN_INTERRUPTS) {
-              console.log('INTERRUPT! (after ' + timeout + ')')
-              account1.cancelSync()
-              account2.cancelSync()
-            }
-            setInterrupt()
-          }, timeout)
+          return interruptCounts[(i++) % 1000]
+        }
+        // Arm the next interrupt on each freshly created sync process, but only while
+        // interrupts are enabled. Retries (after E026/E027) create new sync processes and
+        // therefore consume the next count, giving repeated deterministic interrupts.
+        const armInterrupt = (syncProcess) => {
+          if (RUN_INTERRUPTS) {
+            syncProcess.setInterruptAfterActions(nextInterruptCount())
+          }
         }
         const stopInterrupts = () => {
-          clearTimeout(timer)
-          timeouts = []
+          interruptCounts = []
           i = 0
         }
         let expectTreeEqual
@@ -73,7 +77,10 @@ describe('Floccus', function() {
           account2 = await Account.create({...ACCOUNT_DATA, failsafe: false})
           await account2.init()
 
-          if (ACCOUNT_DATA.type.startsWith('fake')) {
+          account1.onSyncProcessCreated = armInterrupt
+          account2.onSyncProcessCreated = armInterrupt
+
+          if (ACCOUNT_DATA.type === 'fake') {
             // Wire both accounts to the same fake db
             // We do not set the cache properties to the same object, because we want to only write onSynComplete
             let fakeServerDb = new Folder(
@@ -101,6 +108,36 @@ describe('Floccus', function() {
               account1.server.highestId = id
             })
             account2.server.__defineGetter__('highestId', () => account1.server.highestId)
+          }
+          if (ACCOUNT_DATA.type === 'fake-nc-bookmarks') {
+            // Wire both accounts to the same fake db
+            // We do not set the cache properties to the same object, because we want to only write onSynComplete
+            let fakeServerDb = new Folder({
+              id: '',
+              title: 'root',
+              location: 'Server',
+            })
+            account1.server.__defineSetter__('bookmarksCache', (db) => {
+              fakeServerDb = db
+            })
+            account2.server.__defineSetter__('bookmarksCache', (db) => {
+              fakeServerDb = db
+            })
+            account1.server.__defineGetter__(
+              'bookmarksCache',
+              () => fakeServerDb
+            )
+            account2.server.__defineGetter__(
+              'bookmarksCache',
+              () => fakeServerDb
+            )
+            account2.server.__defineSetter__('highestId', (id) => {
+              account1.server.highestId = id
+            })
+            account2.server.__defineGetter__(
+              'highestId',
+              () => account1.server.highestId
+            )
           }
           if (ACCOUNT_DATA.noCache) {
             account1.storage.setCache = () => {
@@ -1091,8 +1128,7 @@ describe('Floccus', function() {
             serverTreeAfterInit = null
           }
         })
-        let interruptBenchmark
-        it('should handle fuzzed changes with deletions from two clients with interrupts' + (ACCOUNT_DATA.type === 'fake' ? ' (with caching)' : ''), interruptBenchmark = async function() {
+        it('should handle fuzzed changes with deletions from two clients with interrupts', async function() {
           const localResource1 = await account1.getResource()
           const localRoot1 = (await localResource1.getBookmarksTree()).id
           let bookmarks1 = []
@@ -1184,8 +1220,6 @@ describe('Floccus', function() {
           tree1AfterFirstSync = null
           tree2AfterFirstSync = null
           console.log('Initial round ok')
-
-          setInterrupt()
 
           for (let j = 0; j < 4; j++) {
             console.log('STARTING LOOP ' + j)
@@ -1349,21 +1383,6 @@ describe('Floccus', function() {
             serverTreeAfterInit = null
           }
         })
-
-        if (ACCOUNT_DATA.type === 'fake') {
-          it('should handle fuzzed changes with deletions from two clients with interrupts (no caching adapter)', async function() {
-            // Wire both accounts to the same fake db
-            // We set the cache properties to the same object, because we want to simulate nextcloud-bookmarks
-            const bmDb = account1.server.bookmarksCache = account2.server.bookmarksCache = new Folder(
-              { id: '', title: 'root', location: 'Server' }
-            )
-            account1.server.onSyncStart = function() { this.bookmarksCache = bmDb }
-            account1.server.isAtomic = () => false
-            account2.server.onSyncStart = function() { this.bookmarksCache = bmDb }
-            account2.server.isAtomic = () => false
-            await interruptBenchmark()
-          })
-        }
 
         it('unidirectional should handle fuzzed changes from two clients', async function() {
           await account2.setData({ strategy: 'slave'})

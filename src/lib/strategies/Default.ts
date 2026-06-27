@@ -46,6 +46,9 @@ export default class SyncProcess {
   protected cacheTreeRoot: Folder<typeof ItemLocation.LOCAL>|null
   protected canceled: boolean
   protected throttledProgressCb: ThrottledFunction<[progress: number, actionsDone: number | undefined], void>
+  // Un-throttled progress callback, used to persist the continuation synchronously at the
+  // exact interrupt point (see updateProgress) so a resumed sync continues from there.
+  protected progressCb: (progress: number, actionsDone?: number) => Promise<void>
 
   // Stage -1
   protected localTreeRoot: Folder<typeof ItemLocation.LOCAL> = null
@@ -78,6 +81,10 @@ export default class SyncProcess {
   protected actionsDone = 0
   protected actionsPlanned = 0
 
+  // Test-only: when set, the sync self-cancels deterministically once this many
+  // actions have been executed, instead of relying on a wall-clock timer.
+  protected interruptAfterActions: number | null = null
+
   protected isFirefox: boolean
 
   protected staticContinuation: any = null
@@ -103,6 +110,7 @@ export default class SyncProcess {
     this.localTree = localTree
     this.server = server
 
+    this.progressCb = progressCb
     this.throttledProgressCb = throttle(progressCb, 1500)
     this.cancelPromise = new Promise<void>((resolve, reject) => {
       this.cancelCb = reject
@@ -133,8 +141,12 @@ export default class SyncProcess {
       members.push('serverPlanStage1')
     }
 
-    // Stage 2
-    if ((!this.planStage3Local || !this.planStage3Server) && this.actionsPlanned === 0) {
+    // Stage 2 — keep persisting the stage 2 plans as long as either stage 3 plan hasn't
+    // been built yet. The stage 3 plans are built lazily (planStage3Local only after the
+    // server stage has run), so an interrupt during execution needs the stage 2 plans to
+    // rebuild the missing stage 3 plan on resume. Dropping them here (the old
+    // `actionsPlanned === 0` gate did) made such continuations unresumable.
+    if (!this.planStage3Local || !this.planStage3Server) {
       members.push('localPlanStage2')
       members.push('serverPlanStage2')
     }
@@ -147,6 +159,10 @@ export default class SyncProcess {
       members.push('serverDonePlan')
       members.push('prelimLocalReorders')
       members.push('prelimServerReorders')
+      // actionsPlanned must be restored so sync() doesn't recompute it from plans that may
+      // not exist yet on resume (Object.values(null)); actionsDone is intentionally not
+      // persisted so progress/interrupt counting restarts per resumed run.
+      members.push('actionsPlanned')
     }
 
     // Stage 4
@@ -180,6 +196,41 @@ export default class SyncProcess {
     this.throttledProgressCb.cancel()
   }
 
+  /**
+   * Await a resource mutation (create/update/move/remove) while honouring cancellation.
+   *
+   * Previously the executors did `Promise.race([op, this.cancelPromise])` directly. When
+   * the sync was cancelled mid-flight (e.g. a concurrent action triggered an interrupt),
+   * the race rejected and the executor threw *before* recording the action as done — yet
+   * on a non-atomic server (e.g. Nextcloud Bookmarks) the mutation had already been
+   * applied. A resumed sync then re-issued the same action, producing duplicates and
+   * other divergence.
+   *
+   * Instead we wait for the in-flight mutation to settle when cancelled: if it completed,
+   * `completed` is true and the caller records it (mapping/retract/donePlan) before the
+   * sync stops at the next cancellation checkpoint; if it failed/aborted with no side
+   * effect, `completed` is false and the action can be safely retried on resume.
+   */
+  protected async raceWithCancellation<T>(op: Promise<T>): Promise<{ completed: boolean, result?: T }> {
+    try {
+      const result = await Promise.race([op, this.cancelPromise]) as T
+      return { completed: true, result }
+    } catch (e) {
+      if (!this.canceled) {
+        // A genuine operation error (not a cancellation): propagate as before.
+        throw e
+      }
+      // Cancelled while the mutation was in flight: wait for it to settle so we know
+      // whether its side effect landed on the (possibly non-atomic) server.
+      try {
+        const result = await op
+        return { completed: true, result }
+      } catch (opErr) {
+        return { completed: false }
+      }
+    }
+  }
+
   protected queueProgressUpdate(progress: number, actionsDone?: number): void {
     // Diagnostic: skip throttled progress callback under test so timer-driven
     // cache/mappings persistence doesn't race with in-flight sync mutations.
@@ -192,11 +243,30 @@ export default class SyncProcess {
     })
   }
 
+  setInterruptAfterActions(actions: number | null): void {
+    this.interruptAfterActions = actions
+  }
+
   async updateProgress():Promise<void> {
     if (typeof this.actionsDone === 'undefined' || this.actionsDone === null) {
       this.actionsDone = 0
     }
     this.actionsDone++
+    if (this.interruptAfterActions !== null && this.actionsDone >= this.interruptAfterActions) {
+      // Deterministic, count-based interrupt for benchmark tests: cancel exactly
+      // after the Nth executed action rather than after a wall-clock timeout, so the
+      // interrupt point is reproducible regardless of machine speed.
+      this.interruptAfterActions = null
+      Logger.log(`INTERRUPT! (after ${this.actionsDone} actions)`)
+      // Persist the continuation at the exact interrupt point *before* cancelling, so the
+      // resumed sync continues from here. Without this, the interrupted sync leaves no
+      // continuation (cancel() discards the pending throttled persistence and, under test,
+      // queueProgressUpdate is a no-op), so the retry restarts from scratch and re-applies
+      // actions that already committed to a non-atomic server — producing duplicates.
+      const progress = Math.min(1, 0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5)
+      await this.progressCb(progress, this.actionsDone)
+      await this.cancel()
+    }
     this.queueProgressUpdate(
       Math.min(
         1,
@@ -221,7 +291,15 @@ export default class SyncProcess {
       delete json.cacheTreeRoot
     }
     for (const member of Object.keys(json)) {
-      if (member.toLowerCase().includes('scanresult') || member.toLowerCase().includes('plan')) {
+      if (json[member] === null || typeof json[member] === 'undefined') {
+        // The member was persisted as null because that stage hadn't been computed yet at
+        // the interrupt point (e.g. planStage3Local when the sync was interrupted during the
+        // server stage). Restore it as null so sync() recomputes it on resume — don't try to
+        // read .CREATE off it, which previously threw and made the whole continuation
+        // unloadable, forcing a from-scratch restart that re-applies already-committed
+        // actions (duplicates on non-atomic servers).
+        this[member] = json[member]
+      } else if (member.toLowerCase().includes('scanresult') || member.toLowerCase().includes('plan')) {
         this[member] = {
           CREATE: await Diff.fromJSONAsync(json[member].CREATE),
           UPDATE: await Diff.fromJSONAsync(json[member].UPDATE),
@@ -359,7 +437,10 @@ export default class SyncProcess {
       this.planStage3Server = {
         CREATE: this.serverPlanStage2.CREATE,
         UPDATE: this.serverPlanStage2.UPDATE,
-        MOVE: this.serverPlanStage2.MOVE.map(mappingsSnapshot, ItemLocation.SERVER),
+        // skipErroneousActions: a MOVE whose item can no longer be mapped to the target is
+        // unapplyable; drop it instead of throwing MappingFailureError (which would force a
+        // cache reset + from-scratch resync that duplicates on non-atomic servers).
+        MOVE: this.serverPlanStage2.MOVE.map(mappingsSnapshot, ItemLocation.SERVER, () => true, true),
         REMOVE: this.serverPlanStage2.REMOVE,
         REORDER: this.serverPlanStage2.REORDER,
       }
@@ -393,7 +474,8 @@ export default class SyncProcess {
       this.planStage3Local = {
         CREATE: this.localPlanStage2.CREATE,
         UPDATE: this.localPlanStage2.UPDATE,
-        MOVE: this.localPlanStage2.MOVE.map(mappingsSnapshot, ItemLocation.LOCAL),
+        // skipErroneousActions: see the server stage 3 plan above.
+        MOVE: this.localPlanStage2.MOVE.map(mappingsSnapshot, ItemLocation.LOCAL, () => true, true),
         REMOVE: this.localPlanStage2.REMOVE,
         REORDER: this.localPlanStage2.REORDER,
       }
@@ -461,13 +543,21 @@ export default class SyncProcess {
         mappingsSnapshot
       )
 
+      // skipErroneousActions: a REORDER targeting a folder that can no longer be mapped is
+      // moot (the folder was moved/removed); drop it instead of throwing MappingFailureError,
+      // which would force a cache reset + from-scratch resync that duplicates on non-atomic
+      // servers.
       this.localReorders = localReorders3.map(
         mappingsSnapshot,
-        ItemLocation.LOCAL
+        ItemLocation.LOCAL,
+        () => true,
+        true
       )
       this.serverReorders = serverReorders3.map(
         mappingsSnapshot,
-        ItemLocation.SERVER
+        ItemLocation.SERVER,
+        () => true,
+        true
       )
     }
 
@@ -1161,10 +1251,11 @@ export default class SyncProcess {
       await this.updateProgress()
     }
 
-    const id = await Promise.race([
-      action.payload.visitCreate(resource),
-      this.cancelPromise
-    ])
+    const { completed, result: id } = await this.raceWithCancellation(action.payload.visitCreate(resource))
+    if (!completed) {
+      // The create was cancelled before its side effect landed: let a resumed sync retry it.
+      throw new CancelledSyncError()
+    }
     if (typeof id === 'undefined' || id === null) {
       // undefined means we couldn't create the item
       throw new FloccusError('Failed to create item on ' + targetLocation + ' : ' + action.payload.inspect())
@@ -1395,10 +1486,11 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
-    await Promise.race([
-      action.payload.visitRemove(resource),
-      this.cancelPromise,
-    ])
+    const { completed } = await this.raceWithCancellation(action.payload.visitRemove(resource))
+    if (!completed) {
+      // The remove was cancelled before it took effect: let a resumed sync retry it.
+      throw new CancelledSyncError()
+    }
     diff.retract(action)
     donePlan.REMOVE.commit(action)
     await this.updateProgress()
@@ -1420,10 +1512,11 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
-    await Promise.race([
-      action.payload.visitUpdate(resource),
-      this.cancelPromise,
-    ])
+    const { completed } = await this.raceWithCancellation(action.payload.visitUpdate(resource))
+    if (!completed) {
+      // The update/move was cancelled before it took effect: let a resumed sync retry it.
+      throw new CancelledSyncError()
+    }
 
     await this.addMapping(resource, action.oldItem, action.payload.id)
     diff.retract(action)

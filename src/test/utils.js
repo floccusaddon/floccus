@@ -202,6 +202,7 @@ export function getEnv() {
     CREDENTIALS,
     ACCOUNTS,
     APP_VERSION,
+    SEED,
     BROWSER,
     IS_CI,
     TEST_URL,
@@ -392,7 +393,7 @@ async function randomTreeManipulation(account, folders, bookmarks) {
     let newFolder, newFolderId
     newFolderId = await localResource.createFolder(
       newFolder = new Folder({
-        title: 'newFolder' + Math.random(),
+        title: 'newFolder' + testRandom.float(),
         parentId: magicFolder4.id,
       })
     )
@@ -411,8 +412,8 @@ async function randomTreeManipulation(account, folders, bookmarks) {
     let newBookmark, newBookmarkId
     newBookmarkId = await localResource.createBookmark(
       (newBookmark = new Bookmark({
-        title: 'newBookmark' + Math.random(),
-        url: 'http://ur.l/' + magicFolder5.id + '/' + Math.random(),
+        title: 'newBookmark' + testRandom.float(),
+        url: 'http://ur.l/' + magicFolder5.id + '/' + testRandom.float(),
         parentId: magicFolder5.id,
       }))
     )
@@ -456,7 +457,7 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
 
     // Randomly rename one bookmark
     magicBookmark = pickRandomItem(bookmarks)
-    const newTitle = 'renamed' + Math.random()
+    const newTitle = 'renamed' + testRandom.float()
     await localResource.updateBookmark(new Bookmark({
       ...magicBookmark,
       title: newTitle,
@@ -530,7 +531,7 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
     let newFolder, newFolderId
     newFolderId = await localResource.createFolder(
       (newFolder = new Folder({
-        title: 'newFolder' + Math.random(),
+        title: 'newFolder' + testRandom.float(),
         parentId: magicFolder4.id,
       }))
     )
@@ -550,8 +551,8 @@ async function randomTreeManipulationWithDeletion(account, folders, bookmarks) {
     let newBookmark, newBookmarkId
     newBookmarkId = await localResource.createBookmark(
       (newBookmark = new Bookmark({
-        title: 'newBookmark' + Math.random(),
-        url: 'http://ur.l/' + magicFolder5.id + '/' + Math.random(),
+        title: 'newBookmark' + testRandom.float(),
+        url: 'http://ur.l/' + magicFolder5.id + '/' + testRandom.float(),
         parentId: magicFolder5.id,
       }))
     )
