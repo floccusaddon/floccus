@@ -99,7 +99,8 @@ export default class DropboxAdapter extends CachingAdapter {
         headers: {
           Authorization: 'Bearer ' + result.access_token_response.access_token,
           'Content-Type': 'application/json'
-        }
+        },
+        body: 'null' // Dropbox needs this even if undocumented
       })
 
       if (res.status !== 200) {
@@ -187,6 +188,7 @@ export default class DropboxAdapter extends CachingAdapter {
           Authorization: 'Bearer ' + json.access_token,
           'Content-Type': 'application/json',
         },
+        body: 'null', // Dropbox needs this even if undocumented
       })
 
       if (res.status !== 200) {
