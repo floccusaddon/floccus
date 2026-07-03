@@ -40,6 +40,7 @@ export default class FakeNcBookmarksAdapter extends CachingAdapter {
     const [idFirstPart] = String(id).split(';')
     storedBm.id = `${idFirstPart};${storedBm.parentId}`
     this.bookmarksCache.createIndex()
+    newBm.id = storedBm.id
   }
 
   async bulkImportFolder(
