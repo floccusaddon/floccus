@@ -17,7 +17,9 @@
               :aria-label="t('LabelLoginFlowStart')"
               @click="onFlowStart"
               v-on="on">
-              <v-icon aria-hidden="true">mdi-account-circle</v-icon>
+              <v-icon aria-hidden="true">
+                mdi-account-circle
+              </v-icon>
             </v-btn>
           </template>
           <span>{{ t('LabelLoginFlowStart') }}</span>
@@ -31,7 +33,9 @@
               :aria-label="t('LabelLoginFlowStop')"
               @click="onFlowStop"
               v-on="on">
-              <v-icon aria-hidden="true">mdi-cancel</v-icon>
+              <v-icon aria-hidden="true">
+                mdi-cancel
+              </v-icon>
             </v-btn>
           </template>
           <span>{{ t('LabelLoginFlowStop') }}</span>

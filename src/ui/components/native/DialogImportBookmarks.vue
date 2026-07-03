@@ -20,7 +20,9 @@
         <v-btn
           block
           @click="onTriggerFilePicker">
-          <v-icon aria-hidden="true">mdi-import</v-icon>{{ t('LabelImportbookmarks') }}
+          <v-icon aria-hidden="true">
+            mdi-import
+          </v-icon>{{ t('LabelImportbookmarks') }}
         </v-btn>
       </v-card-text>
       <v-card-actions>

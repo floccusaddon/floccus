@@ -5,7 +5,9 @@
       app>
       <v-app-bar-title
         role="heading"
-        aria-level="1">{{ t('LabelAddbookmark') }}</v-app-bar-title>
+        aria-level="1">
+        {{ t('LabelAddbookmark') }}
+      </v-app-bar-title>
       <v-spacer />
       <v-btn
         color="blue darken-1"
@@ -34,10 +36,14 @@
             :items="accounts"
             @change="$router.push({name: routes.ADD_BOOKMARK, params: {url, accountId: $event}})">
             <template #prepend-inner>
-              <v-icon aria-hidden="true">{{ account.data.type | accountIcon }}</v-icon>
+              <v-icon aria-hidden="true">
+                {{ account.data.type | accountIcon }}
+              </v-icon>
             </template>
             <template #item="{item}">
-              <v-icon aria-hidden="true">{{ item.data.type | accountIcon }}</v-icon> {{ item.label }}
+              <v-icon aria-hidden="true">
+                {{ item.data.type | accountIcon }}
+              </v-icon> {{ item.label }}
             </template>
           </v-select>
           <v-alert

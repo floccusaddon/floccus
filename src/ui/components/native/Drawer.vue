@@ -32,7 +32,9 @@
           link
           :to="{name: routes.TREE, params: {accountId: account.id}}">
           <v-list-item-icon>
-            <v-icon aria-hidden="true">{{ account.data.type | accountIcon }}</v-icon>
+            <v-icon aria-hidden="true">
+              {{ account.data.type | accountIcon }}
+            </v-icon>
           </v-list-item-icon>
           <v-list-item-title>{{ account.label }}</v-list-item-title>
         </v-list-item>
@@ -42,7 +44,9 @@
         link
         :to="{ name: routes.NEW_ACCOUNT }">
         <v-list-item-icon>
-          <v-icon aria-hidden="true">mdi-plus</v-icon>
+          <v-icon aria-hidden="true">
+            mdi-plus
+          </v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
@@ -55,7 +59,9 @@
         link
         :to="{name: routes.IMPORTEXPORT}">
         <v-list-item-icon>
-          <v-icon aria-hidden="true">mdi-export</v-icon>
+          <v-icon aria-hidden="true">
+            mdi-export
+          </v-icon>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>{{ t('LabelImportExport') }}</v-list-item-title>
@@ -66,7 +72,9 @@
         link
         :to="{name: routes.FEEDBACK}">
         <v-list-item-icon>
-          <v-icon aria-hidden="true">mdi-bullhorn-variant-outline</v-icon>
+          <v-icon aria-hidden="true">
+            mdi-bullhorn-variant-outline
+          </v-icon>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>{{ t('LabelGivefeedback') }}</v-list-item-title>
@@ -77,7 +85,9 @@
         link
         href="https://github.com/floccusaddon/floccus/issues">
         <v-list-item-icon>
-          <v-icon aria-hidden="true">mdi-bug-outline</v-icon>
+          <v-icon aria-hidden="true">
+            mdi-bug-outline
+          </v-icon>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>{{ t('LabelReportproblem') }}</v-list-item-title>
@@ -88,7 +98,9 @@
         link
         :to="{name: routes.TELEMETRY}">
         <v-list-item-icon>
-          <v-icon aria-hidden="true">mdi-bug-play-outline</v-icon>
+          <v-icon aria-hidden="true">
+            mdi-bug-play-outline
+          </v-icon>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>{{ t('LabelTelemetry') }}</v-list-item-title>
@@ -99,7 +111,9 @@
         link
         :to="{name: routes.ABOUT}">
         <v-list-item-icon>
-          <v-icon aria-hidden="true">mdi-information-outline</v-icon>
+          <v-icon aria-hidden="true">
+            mdi-information-outline
+          </v-icon>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>{{ t('LabelAbout') }}</v-list-item-title>

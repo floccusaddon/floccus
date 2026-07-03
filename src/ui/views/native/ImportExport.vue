@@ -9,7 +9,9 @@
         @click="drawer = !drawer" />
       <v-app-bar-title
         role="heading"
-        aria-level="1">{{ t('LabelImportExport') }}</v-app-bar-title>
+        aria-level="1">
+        {{ t('LabelImportExport') }}
+      </v-app-bar-title>
     </v-app-bar>
     <v-main>
       <ImportExportContent />

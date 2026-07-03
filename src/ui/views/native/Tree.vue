@@ -14,7 +14,9 @@
         class="mr-2 ml-n2"
         :aria-label="t('LabelBack')"
         @click="goBack">
-        <v-icon aria-hidden="true">mdi-arrow-left</v-icon>
+        <v-icon aria-hidden="true">
+          mdi-arrow-left
+        </v-icon>
       </v-btn>
       <v-spacer />
       <template v-if="searchQuery">
@@ -65,14 +67,18 @@
             :aria-label="t('LabelSortby')"
             v-bind="attrs"
             v-on="on">
-            <v-icon aria-hidden="true">{{ sortIcons[sortBy] }}</v-icon>
+            <v-icon aria-hidden="true">
+              {{ sortIcons[sortBy] }}
+            </v-icon>
           </v-btn>
         </template>
 
         <v-list>
           <v-list-item @click="sortBy = 'title'">
             <v-list-item-avatar>
-              <v-icon aria-hidden="true">{{ sortIcons['title'] }}</v-icon>
+              <v-icon aria-hidden="true">
+                {{ sortIcons['title'] }}
+              </v-icon>
             </v-list-item-avatar>
             <v-list-item-title>
               {{ t('LabelSorttitle') }}
@@ -80,7 +86,9 @@
           </v-list-item>
           <v-list-item @click="sortBy = 'url'">
             <v-list-item-avatar>
-              <v-icon aria-hidden="true">{{ sortIcons['url'] }}</v-icon>
+              <v-icon aria-hidden="true">
+                {{ sortIcons['url'] }}
+              </v-icon>
             </v-list-item-avatar>
             <v-list-item-title>
               {{ t('LabelSorturl') }}
@@ -88,7 +96,9 @@
           </v-list-item>
           <v-list-item @click="sortBy = 'index'">
             <v-list-item-avatar>
-              <v-icon aria-hidden="true">{{ sortIcons['index'] }}</v-icon>
+              <v-icon aria-hidden="true">
+                {{ sortIcons['index'] }}
+              </v-icon>
             </v-list-item-avatar>
             <v-list-item-title>
               {{ t('LabelSortcustom') }}
@@ -107,7 +117,9 @@
             :aria-label="t('LabelMoreactions')"
             v-bind="attrs"
             v-on="on">
-            <v-icon aria-hidden="true">mdi-dots-vertical</v-icon>
+            <v-icon aria-hidden="true">
+              mdi-dots-vertical
+            </v-icon>
           </v-btn>
         </template>
 
@@ -120,7 +132,9 @@
               })
             ">
             <v-list-item-avatar>
-              <v-icon aria-hidden="true">mdi-cog</v-icon>
+              <v-icon aria-hidden="true">
+                mdi-cog
+              </v-icon>
             </v-list-item-avatar>
             <v-list-item-title>{{ t('LabelOptions') }}</v-list-item-title>
           </v-list-item>
@@ -130,7 +144,9 @@
             "
             @click="onTriggerSync('up')">
             <v-list-item-avatar>
-              <v-icon aria-hidden="true">mdi-arrow-up-bold</v-icon>
+              <v-icon aria-hidden="true">
+                mdi-arrow-up-bold
+              </v-icon>
             </v-list-item-avatar>
             <v-list-item-title>{{ t('LabelSyncUpOnce') }}</v-list-item-title>
           </v-list-item>
@@ -140,7 +156,9 @@
             "
             @click="onTriggerSync('down')">
             <v-list-item-avatar>
-              <v-icon aria-hidden="true">mdi-arrow-down-bold</v-icon>
+              <v-icon aria-hidden="true">
+                mdi-arrow-down-bold
+              </v-icon>
             </v-list-item-avatar>
             <v-list-item-title>
               {{ t('LabelSyncDownOnce') }}
@@ -162,7 +180,9 @@
           :items="breadcrumbs"
           @click="currentFolderId = $event" />
         <v-card-text v-else>
-          <v-icon aria-hidden="true">mdi-home</v-icon>
+          <v-icon aria-hidden="true">
+            mdi-home
+          </v-icon>
           {{ currentAccount ? currentAccount.label : '' }}
         </v-card-text>
       </v-card>
@@ -244,7 +264,9 @@
         <v-list-item
           v-if="searchQuery && otherSearchItems && otherSearchItems.length">
           <v-list-item-avatar>
-            <v-icon aria-hidden="true">mdi-select-search</v-icon>
+            <v-icon aria-hidden="true">
+              mdi-select-search
+            </v-icon>
           </v-list-item-avatar>
           {{ t('LabelSearchresultsotherfolders') }}
         </v-list-item>
@@ -296,7 +318,9 @@
           fab
           :aria-label="t('LabelAddfolder')"
           @click="addFolder">
-          <v-icon aria-hidden="true">mdi-folder</v-icon>
+          <v-icon aria-hidden="true">
+            mdi-folder
+          </v-icon>
         </v-btn>
         <v-btn
           color="blue darken-1"
@@ -305,7 +329,9 @@
           fab
           :aria-label="t('LabelAddbookmark')"
           @click="addBookmark">
-          <v-icon aria-hidden="true">mdi-star</v-icon>
+          <v-icon aria-hidden="true">
+            mdi-star
+          </v-icon>
         </v-btn>
         <v-btn
           color="blue darken-1"
@@ -314,7 +340,9 @@
           fab
           :aria-label="t('LabelImportbookmarks')"
           @click="importBookmarks">
-          <v-icon aria-hidden="true">mdi-import</v-icon>
+          <v-icon aria-hidden="true">
+            mdi-import
+          </v-icon>
         </v-btn>
       </v-speed-dial>
     </v-main>

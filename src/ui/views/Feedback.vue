@@ -5,7 +5,9 @@
         class="ml-0 pl-0"
         role="heading"
         aria-level="1">
-        <v-icon aria-hidden="true">mdi-bullhorn-variant-outline</v-icon>{{ t('LabelGivefeedback') }}
+        <v-icon aria-hidden="true">
+          mdi-bullhorn-variant-outline
+        </v-icon>{{ t('LabelGivefeedback') }}
       </v-card-title>
       <p>{{ t('DescriptionFeedbackhowto') }}</p>
       <v-text-field

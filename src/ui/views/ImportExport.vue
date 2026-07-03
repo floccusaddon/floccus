@@ -37,7 +37,9 @@
             block
             :disabled="!Object.values(selected).some(Boolean)"
             @click="onTriggerExport">
-            <v-icon aria-hidden="true">mdi-export</v-icon>{{ t('LabelExport') }}
+            <v-icon aria-hidden="true">
+              mdi-export
+            </v-icon>{{ t('LabelExport') }}
           </v-btn>
         </v-card-text>
       </v-container>
@@ -61,7 +63,9 @@
           <v-btn
             block
             @click="onTriggerFilePicker">
-            <v-icon aria-hidden="true">mdi-import</v-icon>{{ t('LabelImport') }}
+            <v-icon aria-hidden="true">
+              mdi-import
+            </v-icon>{{ t('LabelImport') }}
           </v-btn>
         </v-card-text>
       </v-container>

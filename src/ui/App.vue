@@ -44,7 +44,9 @@
                 :to="{ name: routes.DONATE }"
                 target="_blank"
                 v-on="on">
-                <v-icon aria-hidden="true">mdi-heart-outline</v-icon>
+                <v-icon aria-hidden="true">
+                  mdi-heart-outline
+                </v-icon>
               </v-btn>
             </template>
             <span>{{ t('LabelFunddevelopment') }}</span>
@@ -82,7 +84,9 @@
                 :to="{ name: routes.FEEDBACK }"
                 target="_blank"
                 v-on="on">
-                <v-icon aria-hidden="true">mdi-bullhorn-variant-outline</v-icon>
+                <v-icon aria-hidden="true">
+                  mdi-bullhorn-variant-outline
+                </v-icon>
               </v-btn>
             </template>
             <span>{{ t('LabelGivefeedback') }}</span>
@@ -98,7 +102,9 @@
                 target="_blank"
                 @click="openInNewTab"
                 v-on="on">
-                <v-icon aria-hidden="true">mdi-open-in-new</v-icon>
+                <v-icon aria-hidden="true">
+                  mdi-open-in-new
+                </v-icon>
               </v-btn>
             </template>
             <span>{{ t('LabelOpeninnewtab') }}</span>
@@ -112,7 +118,9 @@
       persistent>
       <v-card>
         <v-card-title>
-          <v-icon aria-hidden="true">mdi-lock-outline</v-icon>{{ t('LabelUnlock') }}
+          <v-icon aria-hidden="true">
+            mdi-lock-outline
+          </v-icon>{{ t('LabelUnlock') }}
         </v-card-title>
         <v-card-text>
           <v-alert

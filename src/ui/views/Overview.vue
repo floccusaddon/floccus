@@ -57,13 +57,17 @@
           :aria-label="t('LabelImportExport')"
           :to="{ name: routes.IMPORTEXPORT }"
           target="_blank">
-          <v-icon aria-hidden="true">mdi-export</v-icon>
+          <v-icon aria-hidden="true">
+            mdi-export
+          </v-icon>
         </v-btn>
         <v-btn
           :title="t('LabelSyncall')"
           :aria-label="t('LabelSyncall')"
           @click="clickSyncAll">
-          <v-icon aria-hidden="true">mdi-sync-circle</v-icon>
+          <v-icon aria-hidden="true">
+            mdi-sync-circle
+          </v-icon>
         </v-btn>
       </v-container>
     </template>

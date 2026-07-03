@@ -8,7 +8,9 @@
         <template v-if="item.id === tree.id">
           <v-icon
             role="img"
-            :aria-label="t('LabelHome')">mdi-home</v-icon>
+            :aria-label="t('LabelHome')">
+            mdi-home
+          </v-icon>
         </template>
         <template v-else>
           {{ item.title }}
