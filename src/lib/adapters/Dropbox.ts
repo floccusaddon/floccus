@@ -319,7 +319,7 @@ export default class DropboxAdapter extends CachingAdapter {
       await this.timeout(2000)
     }
 
-    const file = fileList.matches[0]
+    let file = fileList.matches[0]
 
     const filesToDelete = fileList.matches.slice(1)
     for (const fileToDelete of filesToDelete) {
@@ -329,6 +329,22 @@ export default class DropboxAdapter extends CachingAdapter {
         Logger.log('Failed to delete superfluous file: ' + e.message)
       }
     }
+
+    // The Dropbox search index (search_v2) is only eventually consistent, so a
+    // recently created/updated file can be missing from the results even after
+    // the retries above. If we trust that false negative, the sync process
+    // resets its cache (treating the profile as new) and onSyncComplete then
+    // tries to createFile() with mode 'add', which fails with
+    // "path/conflict/file" because the file actually exists. Fall back to a
+    // strongly consistent metadata lookup by path before giving up.
+    if (!file || !file.metadata?.metadata?.id) {
+      const metadata = await this.getFileMetadataByPath(`/${this.server.bookmark_file}`)
+      if (metadata && metadata.id) {
+        Logger.log('Dropbox search returned no matches, but the bookmarks file exists (found via get_metadata by path)')
+        file = { metadata: { metadata } }
+      }
+    }
+
     if (file && file.metadata.metadata.id) {
       this.fileId = file.metadata.metadata.id
 
@@ -642,6 +658,37 @@ export default class DropboxAdapter extends CachingAdapter {
   }
 
   /**
+   * Looks up file metadata by path (as opposed to by id).
+   *
+   * Unlike listFiles()/search_v2, get_metadata reflects the current state of
+   * the account without index-propagation delay, so it is a reliable way to
+   * check whether the bookmarks file exists.
+   * @param {string} path A Dropbox file path (e.g. "/bookmarks.xbel")
+   * @returns {any} JSON file metadata, or null if the file does not exist
+   */
+  async getFileMetadataByPath(path: string): Promise<any> {
+    const res = await this.request('POST', this.getUrl() + `/files/get_metadata`,
+      {
+        'include_deleted': false,
+        'include_has_explicit_shared_members': false,
+        'include_media_info': false,
+        'path': path,
+      },
+      'application/json'
+    )
+    if (res.status === 409) {
+      // path/not_found: the file does not exist
+      return null
+    }
+    if (res.status >= 400) {
+      Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
+      throw new HttpError(res.status, 'POST')
+    }
+
+    return res.json()
+  }
+
+  /**
    * Download a file from Dropbox.
    *
    * Platform notes:
@@ -684,7 +731,7 @@ export default class DropboxAdapter extends CachingAdapter {
         throw new HttpError(res.status, 'POST')
       }
 
-      return await res.text()
+      return res.text()
     }
 
     // ========= Android (Capacitor native) =========
@@ -721,7 +768,7 @@ export default class DropboxAdapter extends CachingAdapter {
       throw new HttpError(res.status, 'POST')
     }
 
-    return await res.text()
+    return res.text()
   }
 
   /**
