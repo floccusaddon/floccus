@@ -137,6 +137,9 @@ export default class Account {
     if (!('syncIntervalEnabled' in data) && 'enabled' in data) {
       data.syncIntervalEnabled = data.enabled
     }
+    if (!IS_BROWSER) {
+      data.syncIntervalEnabled = false
+    }
     if ('type' in data && data.type === 'nextcloud-folders') {
       data.type = 'nextcloud-bookmarks'
     }

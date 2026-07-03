@@ -650,10 +650,12 @@
           <v-form>
             <OptionAutoSync v-model="enabled" />
             <OptionSyncOnStartup v-model="syncOnStartupEnabled" />
-            <OptionSyncIntervalEnabled v-model="syncIntervalEnabled" />
-            <OptionSyncInterval
-              v-if="syncIntervalEnabled"
-              v-model="syncInterval" />
+            <template v-if="!isBrowser">
+              <OptionSyncIntervalEnabled v-model="syncIntervalEnabled" />
+              <OptionSyncInterval
+                v-if="syncIntervalEnabled"
+                v-model="syncInterval" />
+            </template>
             <OptionSyncStrategy v-model="strategy" />
             <OptionNestedSync
               v-if="isBrowser"
@@ -702,6 +704,7 @@
 </template>
 
 <script>
+/* globals IS_BROWSER */
 import { actions } from '../store/definitions'
 import OptionSyncFolder from '../components/OptionSyncFolder'
 import OptionSyncInterval from '../components/OptionSyncInterval'
@@ -747,7 +750,7 @@ export default {
       syncInterval: 15,
       strategy: 'default',
       enabled: true,
-      syncIntervalEnabled: true,
+      syncIntervalEnabled: IS_BROWSER,
       syncOnStartupEnabled: false,
       nestedSync: true,
       showPassword: false,
