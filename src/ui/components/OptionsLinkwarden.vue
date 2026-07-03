@@ -16,7 +16,9 @@
         class="text-h5"
         role="heading"
         aria-level="2">
-        <v-icon aria-hidden="true">mdi-account-box</v-icon>
+        <v-icon aria-hidden="true">
+          mdi-account-box
+        </v-icon>
         {{ t('LabelOptionsServerDetails') }}
       </v-card-text>
       <v-card-text>
@@ -37,7 +39,9 @@
             <v-icon
               role="button"
               tabindex="0"
-              :aria-label="showPassword ? t('LabelHidepassword') : t('LabelShowpassword')"
+              :aria-label="
+                showPassword ? t('LabelHidepassword') : t('LabelShowpassword')
+              "
               @click="showPassword = !showPassword"
               @keydown.enter="showPassword = !showPassword"
               @keydown.space.prevent="showPassword = !showPassword">
@@ -56,7 +60,9 @@
         class="text-h5"
         role="heading"
         aria-level="2">
-        <v-icon aria-hidden="true">mdi-folder-outline</v-icon>
+        <v-icon aria-hidden="true">
+          mdi-folder-outline
+        </v-icon>
         {{ t('LabelOptionsFolderMapping') }}
       </v-card-title>
       <v-card-text>
@@ -87,7 +93,9 @@
         class="text-h5"
         role="heading"
         aria-level="2">
-        <v-icon aria-hidden="true">mdi-cellphone-settings</v-icon>
+        <v-icon aria-hidden="true">
+          mdi-cellphone-settings
+        </v-icon>
         {{ t('LabelMobilesettings') }}
       </v-card-title>
       <v-card-text>
@@ -104,13 +112,18 @@
         class="text-h5"
         role="heading"
         aria-level="2">
-        <v-icon aria-hidden="true">mdi-sync-circle</v-icon>
+        <v-icon aria-hidden="true">
+          mdi-sync-circle
+        </v-icon>
         {{ t('LabelOptionsSyncBehavior') }}
       </v-card-title>
       <v-card-text>
         <OptionAutoSync
           :value="enabled"
           @input="$emit('update:enabled', $event)" />
+        <OptionSyncOnStartup
+          :value="syncOnStartupEnabled"
+          @input="$emit('update:syncOnStartupEnabled', $event)" />
         <OptionSyncIntervalEnabled
           :value="syncIntervalEnabled"
           @input="$emit('update:syncIntervalEnabled', $event)" />
@@ -134,7 +147,9 @@
         class="text-h5"
         role="heading"
         aria-level="2">
-        <v-icon aria-hidden="true">mdi-alert-circle</v-icon>
+        <v-icon aria-hidden="true">
+          mdi-alert-circle
+        </v-icon>
         {{ t('LabelOptionsDangerous') }}
       </v-card-title>
       <v-card-text>
@@ -171,11 +186,46 @@ import OptionAllowNetwork from './native/OptionAllowNetwork'
 import OptionExportBookmarks from './OptionExportBookmarks.vue'
 import OptionAutoSync from './OptionAutoSync.vue'
 import OptionSyncIntervalEnabled from './OptionSyncIntervalEnabled.vue'
+import OptionSyncOnStartup from './OptionSyncOnStartup.vue'
 
 export default {
   name: 'OptionsLinkwarden',
-  components: { OptionSyncIntervalEnabled, OptionAutoSync, OptionExportBookmarks, OptionAllowNetwork, OptionDownloadLogs, OptionAllowRedirects, OptionClientCert, OptionFailsafe, OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['url', 'username', 'password', 'serverFolder', 'includeCredentials', 'serverRoot', 'localRoot', 'allowNetwork', 'syncInterval', 'strategy', 'nestedSync', 'failsafe', 'allowRedirects', 'enabled', 'label', 'syncIntervalEnabled'],
+  components: {
+    OptionSyncOnStartup,
+    OptionSyncIntervalEnabled,
+    OptionAutoSync,
+    OptionExportBookmarks,
+    OptionAllowNetwork,
+    OptionDownloadLogs,
+    OptionAllowRedirects,
+    OptionClientCert,
+    OptionFailsafe,
+    OptionSyncFolder,
+    OptionDeleteAccount,
+    OptionSyncStrategy,
+    OptionResetCache,
+    OptionSyncInterval,
+    OptionNestedSync,
+  },
+  props: [
+    'url',
+    'username',
+    'password',
+    'serverFolder',
+    'includeCredentials',
+    'serverRoot',
+    'localRoot',
+    'allowNetwork',
+    'syncInterval',
+    'strategy',
+    'nestedSync',
+    'failsafe',
+    'allowRedirects',
+    'enabled',
+    'label',
+    'syncIntervalEnabled',
+    'syncOnStartupEnabled',
+  ],
   data() {
     return {
       panels: [0, 1],
@@ -192,9 +242,8 @@ export default {
         return false
       }
     },
-  }
+  },
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

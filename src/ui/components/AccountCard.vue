@@ -1,38 +1,28 @@
 <template>
-  <v-card
-    :loading="Boolean(account.data.syncing)"
-    color="light-blue-lighten-5">
+  <v-card :loading="Boolean(account.data.syncing)" color="light-blue-lighten-5">
     <template #progress>
       <v-progress-linear
         v-if="account.data.syncing"
-        :value="account.data.syncing * 100 || 0" />
+        :value="account.data.syncing * 100 || 0"
+      />
     </template>
     <v-container class="pa-4">
-      <v-row
-        no-gutters
-        class="flex-column">
+      <v-row no-gutters class="flex-column">
         <v-col>
-          <v-row
-            no-gutters
-            class="account-card__header">
+          <v-row no-gutters class="account-card__header">
             <v-col class="flex-grow-1">
               <div class="overline">
                 {{ account.data.type }}
               </div>
-              <div
-                class="text-h6"
-                role="heading"
-                aria-level="2">
+              <div class="text-h6" role="heading" aria-level="2">
                 <v-icon
                   v-if="account.data.localRoot === 'tabs'"
                   color="primary"
-                  aria-hidden="true">
+                  aria-hidden="true"
+                >
                   mdi-tab
                 </v-icon>
-                <v-icon
-                  v-else
-                  color="primary"
-                  aria-hidden="true">
+                <v-icon v-else color="primary" aria-hidden="true">
                   mdi-folder
                 </v-icon>
                 {{ folderName }}
@@ -46,7 +36,8 @@
                 <v-icon
                   :color="statusColor"
                   :class="{ spinning: account.data.syncing }"
-                  aria-hidden="true">
+                  aria-hidden="true"
+                >
                   {{ statusIcon }}
                 </v-icon>
                 <span :style="{ color: statusColor }">{{ statusLabel }}</span>
@@ -61,7 +52,8 @@
             outlined
             :icon="false"
             :type="statusType"
-            class="pa-2 text-caption">
+            class="pa-2 text-caption"
+          >
             {{ statusDetail }}
             <template v-if="account.data.error">
               <v-btn
@@ -69,7 +61,8 @@
                 class="float-right ml-1 mt-1"
                 x-small
                 target="_blank"
-                href="https://github.com/floccusaddon/floccus/issues">
+                href="https://github.com/floccusaddon/floccus/issues"
+              >
                 {{ t('LabelReportproblem') }}
               </v-btn>
               <v-btn
@@ -77,14 +70,16 @@
                 class="float-right ml-1 mt-1"
                 x-small
                 target="_blank"
-                href="https://floccus.org/faq/">
+                href="https://floccus.org/faq/"
+              >
                 {{ t('LabelFaq') }}
               </v-btn>
               <v-btn
                 :color="statusType"
                 class="float-right ml-1 mt-1"
                 x-small
-                @click="onGetLogs">
+                @click="onGetLogs"
+              >
                 {{ t('LabelDebuglogs') }}
               </v-btn>
             </template>
@@ -93,30 +88,26 @@
                 :color="statusType"
                 class="float-right"
                 x-small
-                @click="onForceSync">
+                @click="onForceSync"
+              >
                 {{ t('LabelScheduledforcesync') }}
               </v-btn>
             </template>
           </v-alert>
-          <v-alert
-            v-if="legacyWarning"
-            dense
-            outlined
-            :type="'warning'">
+          <v-alert v-if="legacyWarning" dense outlined :type="'warning'">
             {{ legacyWarning }}
           </v-alert>
           <v-alert
             v-if="!account.data.failsafe"
             dense
             outlined
-            :type="'warning'">
+            :type="'warning'"
+          >
             {{ t('StatusFailsafeoff') }}
           </v-alert>
         </v-col>
         <v-col>
-          <v-row
-            no-gutters
-            class="mt-2 account-card__footer">
+          <v-row no-gutters class="mt-2 account-card__footer">
             <v-col class="d-flex flex-row account-card__options">
               <v-btn
                 small
@@ -125,7 +116,8 @@
                   name: routes.ACCOUNT_OPTIONS,
                   params: { accountId: account.id },
                 }"
-                target="_blank">
+                target="_blank"
+              >
                 <v-icon aria-hidden="true">mdi-cog</v-icon>
                 {{ t('LabelOptions') }}
               </v-btn>
@@ -137,7 +129,8 @@
                 :disabled="account.data.syncing || account.data.scheduled"
                 :title="t('LabelSyncDownOnce')"
                 :aria-label="t('LabelSyncDownOnce')"
-                @click="onTriggerSyncDown">
+                @click="onTriggerSyncDown"
+              >
                 <v-icon aria-hidden="true">mdi-arrow-down-bold</v-icon>
               </v-btn>
               <v-btn
@@ -146,7 +139,8 @@
                 :disabled="account.data.syncing || account.data.scheduled"
                 :title="t('LabelSyncUpOnce')"
                 :aria-label="t('LabelSyncUpOnce')"
-                @click="onTriggerSyncUp">
+                @click="onTriggerSyncUp"
+              >
                 <v-icon aria-hidden="true">mdi-arrow-up-bold</v-icon>
               </v-btn>
               <v-btn
@@ -156,7 +150,8 @@
                 small
                 :title="t('LabelSyncnow')"
                 :aria-label="t('LabelSyncnow')"
-                @click="onTriggerSync">
+                @click="onTriggerSync"
+              >
                 <v-icon aria-hidden="true">mdi-sync</v-icon>
               </v-btn>
               <v-btn
@@ -165,7 +160,8 @@
                 small
                 :title="t('LabelCancelsync')"
                 :aria-label="t('LabelCancelsync')"
-                @click="onCancelSync">
+                @click="onCancelSync"
+              >
                 <v-icon aria-hidden="true">mdi-cancel</v-icon>
               </v-btn>
             </v-col>
@@ -258,7 +254,8 @@ export default {
       }
       if (
         !this.account.data.enabled &&
-        !this.account.data.syncIntervalEnabled
+        !this.account.data.syncIntervalEnabled &&
+        !this.account.data.syncOnStartupEnabled
       ) {
         return 'disabled'
       }

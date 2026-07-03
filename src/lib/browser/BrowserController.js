@@ -230,7 +230,7 @@ export default class BrowserController {
     })
 
     // Run some things on browser startup
-    browser.runtime.onStartup.addListener(this.onStartup)
+    browser.runtime.onStartup.addListener(() => this.onStartup())
   }
 
   async _receiveEvent(data, sendResponse) {
@@ -470,7 +470,14 @@ export default class BrowserController {
     }, STATUS_ALLGOOD)
 
     if (overallStatus === STATUS_ALLGOOD) {
-      if (accounts.every(account => !account.getData().enabled && !account.getData().syncIntervalEnabled)) {
+      if (
+        accounts.every(
+          (account) =>
+            !account.getData().enabled &&
+            !account.getData().syncIntervalEnabled &&
+            !account.getData().syncOnStartupEnabled
+        )
+      ) {
         // if status is allgood but no account is enabled, show disabled
         overallStatus = STATUS_DISABLED
       }
@@ -512,6 +519,9 @@ export default class BrowserController {
         }
         if (acc.getData().localRoot === 'tabs') {
           await acc.init()
+        }
+        if (acc.getData().syncOnStartupEnabled) {
+          this.scheduleSync(acc.id)
         }
       })
     )

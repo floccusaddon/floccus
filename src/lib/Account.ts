@@ -78,7 +78,7 @@ export default class Account {
 
   static async import(accounts:IAccountData[]):Promise<void> {
     for (const accountData of accounts) {
-      await this.create({...accountData, enabled: false, syncIntervalEnabled: false})
+      await this.create({...accountData, enabled: false, syncIntervalEnabled: false, syncOnStartupEnabled: false})
     }
   }
 
@@ -125,6 +125,7 @@ export default class Account {
       localRoot: null,
       strategy: 'default' as TAccountStrategy,
       syncInterval: 15,
+      syncOnStartupEnabled: false,
       nestedSync: false,
       failsafe: true,
       allowNetwork: false,

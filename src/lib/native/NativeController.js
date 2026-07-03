@@ -261,7 +261,7 @@ export default class NativeController {
     }, STATUS_ALLGOOD)
 
     if (overallStatus === STATUS_ALLGOOD) {
-      if (accounts.every(account => !account.getData().enabled && !account.getData().syncIntervalEnabled)) {
+      if (accounts.every(account => !account.getData().enabled && !account.getData().syncIntervalEnabled && !account.getData().syncOnStartupEnabled)) {
         overallStatus = STATUS_DISABLED
       }
     }
@@ -296,6 +296,9 @@ export default class NativeController {
             syncing: false,
             scheduled: false,
           })
+        }
+        if (acc.getData().syncOnStartupEnabled) {
+          this.scheduleSync(acc.id)
         }
       })
     )

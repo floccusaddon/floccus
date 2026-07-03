@@ -9,6 +9,7 @@ export interface IAccountData {
   localRoot?: string
   strategy?: TAccountStrategy
   syncIntervalEnabled?: boolean
+  syncOnStartupEnabled?: boolean
   syncInterval?: number
   nestedSync?: boolean
   failsafe?: boolean
@@ -19,7 +20,7 @@ export interface IAccountData {
   lastAttempt?: number
   errorCount?: number
   clickCountEnabled?: boolean
-  isTransientError?: boolean|null
+  isTransientError?: boolean | null
   [p: string]: any
 }
 

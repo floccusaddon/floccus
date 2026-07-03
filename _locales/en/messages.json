@@ -995,5 +995,11 @@
   },
   "LabelServerconnectionsuccessful": {
     "message": "Server connection successful"
+  },
+  "LabelSynconstartup": {
+    "message": "Sync on startup"
+  },
+  "DescriptionSynconstartup": {
+    "message": "If enabled, this profile will be synced on startup. This is useful if you want to sync your bookmarks on startup, but don't want to wait for the next scheduled sync."
   }
 }
