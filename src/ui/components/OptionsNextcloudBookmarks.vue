@@ -8,12 +8,16 @@
         :label="t('LabelAccountlabel')"
         :hint="t('DescriptionAccountlabel')"
         :persistent-hint="true"
-        @input="$emit('update:label', $event)"
-      />
+        @input="$emit('update:label', $event)" />
     </div>
     <v-card class="mb-4">
-      <v-card-title id="server" role="heading" aria-level="2">
-        <v-icon aria-hidden="true"> mdi-account-box </v-icon>
+      <v-card-title
+        id="server"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">
+          mdi-account-box
+        </v-icon>
         {{ t('LabelOptionsServerDetails') }}
       </v-card-title>
       <v-card-text>
@@ -21,25 +25,31 @@
           :value="url"
           :rules="[validateUrl]"
           :label="t('LabelNextcloudurl')"
-          @input="$emit('update:url', $event)"
-        />
+          @input="$emit('update:url', $event)" />
         <NextcloudLogin
           :username="username"
           :password="password"
           :server="url"
           @update:username="$emit('update:username', $event)"
-          @update:password="$emit('update:password', $event)"
-        />
+          @update:password="$emit('update:password', $event)" />
       </v-card-text>
     </v-card>
 
     <v-card class="mb-4">
-      <v-card-title id="folder" role="heading" aria-level="2">
-        <v-icon aria-hidden="true"> mdi-folder-outline </v-icon>
+      <v-card-title
+        id="folder"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">
+          mdi-folder-outline
+        </v-icon>
         {{ t('LabelOptionsFolderMapping') }}
       </v-card-title>
       <v-card-text>
-        <div class="text-h6" role="heading" aria-level="3">
+        <div
+          class="text-h6"
+          role="heading"
+          aria-level="3">
           {{ t('LabelServerfolder') }}
         </div>
         <div class="caption">
@@ -50,62 +60,67 @@
           :placeholder="'/'"
           :rules="[validateServerRoot]"
           :label="t('LabelServerfolder')"
-          @input="$emit('update:serverRoot', $event)"
-        />
+          @input="$emit('update:serverRoot', $event)" />
         <OptionSyncFolder
           v-if="isBrowser"
           :value="localRoot"
-          @input="$emit('update:localRoot', $event)"
-        />
+          @input="$emit('update:localRoot', $event)" />
       </v-card-text>
     </v-card>
 
-    <v-card v-if="!isBrowser" class="mb-4">
-      <v-card-title id="mobile" class="text-h5" role="heading" aria-level="2">
-        <v-icon aria-hidden="true"> mdi-cellphone-settings </v-icon>
+    <v-card
+      v-if="!isBrowser"
+      class="mb-4">
+      <v-card-title
+        id="mobile"
+        class="text-h5"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">
+          mdi-cellphone-settings
+        </v-icon>
         {{ t('LabelMobilesettings') }}
       </v-card-title>
       <v-card-text>
         <OptionAllowNetwork
           :value="allowNetwork"
-          @input="$emit('update:allowNetwork', $event)"
-        />
+          @input="$emit('update:allowNetwork', $event)" />
         <OptionExportBookmarks />
       </v-card-text>
     </v-card>
 
     <v-card class="mb-4">
-      <v-card-title id="sync" class="text-h5" role="heading" aria-level="2">
-        <v-icon aria-hidden="true"> mdi-sync-circle </v-icon>
+      <v-card-title
+        id="sync"
+        class="text-h5"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">
+          mdi-sync-circle
+        </v-icon>
         {{ t('LabelOptionsSyncBehavior') }}
       </v-card-title>
       <v-card-text>
         <OptionAutoSync
           :value="enabled"
-          @input="$emit('update:enabled', $event)"
-        />
+          @input="$emit('update:enabled', $event)" />
         <OptionSyncOnStartup
           :value="syncOnStartupEnabled"
-          @input="$emit('update:syncOnStartupEnabled', $event)"
-        />
+          @input="$emit('update:syncOnStartupEnabled', $event)" />
         <OptionSyncIntervalEnabled
           :value="syncIntervalEnabled"
-          @input="$emit('update:syncIntervalEnabled', $event)"
-        />
+          @input="$emit('update:syncIntervalEnabled', $event)" />
         <OptionSyncInterval
           v-if="syncIntervalEnabled"
           :value="syncInterval"
-          @input="$emit('update:syncInterval', $event)"
-        />
+          @input="$emit('update:syncInterval', $event)" />
         <OptionSyncStrategy
           :value="strategy"
-          @input="$emit('update:strategy', $event)"
-        />
+          @input="$emit('update:strategy', $event)" />
         <OptionNestedSync
           v-if="isBrowser"
           :value="nestedSync"
-          @input="$emit('update:nestedSync', $event)"
-        />
+          @input="$emit('update:nestedSync', $event)" />
         <v-switch
           :input-value="clickCountEnabled"
           :aria-label="t('LabelClickcount')"
@@ -117,14 +132,19 @@
           @change="
             $emit('update:clickCountEnabled', $event)
             requestHistoryPermissions()
-          "
-        />
+          " />
       </v-card-text>
     </v-card>
 
     <v-card class="mb-4">
-      <v-card-title id="danger" class="text-h5" role="heading" aria-level="2">
-        <v-icon aria-hidden="true"> mdi-alert-circle </v-icon>
+      <v-card-title
+        id="danger"
+        class="text-h5"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">
+          mdi-alert-circle
+        </v-icon>
         {{ t('LabelOptionsDangerous') }}
       </v-card-title>
       <v-card-text>
@@ -132,17 +152,14 @@
         <OptionClientCert
           v-if="isBrowser"
           :value="includeCredentials"
-          @input="$emit('update:includeCredentials', $event)"
-        />
+          @input="$emit('update:includeCredentials', $event)" />
         <OptionResetCache @click="$emit('reset')" />
         <OptionAllowRedirects
           :value="allowRedirects"
-          @input="$emit('update:allowRedirects', $event)"
-        />
+          @input="$emit('update:allowRedirects', $event)" />
         <OptionFailsafe
           :value="failsafe"
-          @input="$emit('update:failsafe', $event)"
-        />
+          @input="$emit('update:failsafe', $event)" />
         <OptionDeleteAccount @click="$emit('delete')" />
       </v-card-text>
     </v-card>
