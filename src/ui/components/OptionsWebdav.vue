@@ -125,7 +125,7 @@
         <OptionSyncOnStartup
           :value="syncOnStartupEnabled"
           @input="$emit('update:syncOnStartupEnabled', $event)" />
-        <template v-if="!isBrowser">
+        <template v-if="isBrowser">
           <OptionSyncIntervalEnabled
             :value="syncIntervalEnabled"
             @input="$emit('update:syncIntervalEnabled', $event)" />
