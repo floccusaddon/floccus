@@ -37,7 +37,8 @@ export default class FakeNcBookmarksAdapter extends CachingAdapter {
     await super.updateBookmark(newBm)
     const id = newBm.id
     const storedBm = this.bookmarksCache.findBookmark(id)
-    storedBm.id = `${id};${storedBm.parentId}`
+    const [idFirstPart] = String(id).split(';')
+    storedBm.id = `${idFirstPart};${storedBm.parentId}`
     this.bookmarksCache.createIndex()
   }
 
