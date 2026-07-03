@@ -1,6 +1,6 @@
 {
   "name": "floccus",
-  "version": "5.9.2",
+  "version": "5.10.0",
   "description": "Sync your bookmarks privately across browsers and devices",
   "scripts": {
     "build": "NODE_OPTIONS=--max-old-space-size=4096 gulp",
@@ -19,6 +19,7 @@
     "lint:fix": "eslint --ext .js,.vue src --fix",
     "typecheck": "NODE_OPTIONS=--max-old-space-size=6096 tsc --noEmit",
     "doiuse": "doiuse dist/js/css/*.css",
+    "doiuse:update-baseline": "npm run doiuse | sed 's/[^:]*:*//' | sed 's/> *//' > doiuse-report.baseline.txt",
     "supportedBrowsers": "echo \"module.exports = $(browserslist-useragent-regexp --allowHigherVersions);\" > supportedBrowsers.js"
   },
   "repository": {

@@ -1,5 +1,23 @@
 # Changelog
 
+## [5.10.0] - 2026-07-03
+
+### Summary
+Better support for screen readers, new option to sync on startup and fixed Dropbox account setup
+
+### New
+- feat(ui): Fix a11y issues
+- feat: Allow syncing on startup
+
+### Fixed
+- fix(Dropbox): Add missing body parameter
+- [native] fix: Do not expose sync interval settings on mobile (there is no bg sync yet, anyway)
+- fix(SyncProcess): Persist cache in progressCallback also for non-atomic adapters
+- fix(SyncProcess): Apply skipErroneousActions
+- fix(SyncProcess): Restore null values on continuation without breaking
+- fix(SyncProcess): Only throw CancelledSyncError when mutation did not complete
+- fix(WebDAV): Fallback to delete-then-move in case move-with-overwrite fails
+
 ## [5.9.2] - 2026-06-20
 
 ### Fixed
