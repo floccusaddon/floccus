@@ -995,5 +995,11 @@
   },
   "LabelServerconnectionsuccessful": {
     "message": "Ühendamine serveriga õnnestus"
+  },
+  "LabelSynconstartup": {
+    "message": "Sünkrooni käivitamisel"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Sisselülitamisel kuulub see profiil käivitamisel sünkroonimisele. Sobib olukorraks, kus sa ei taha oodata korralist sünkroonimist ja tahad, et järjehoidjad oleks kohe uuendatud."
   }
 }
