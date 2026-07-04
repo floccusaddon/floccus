@@ -968,5 +968,38 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "选择你的服务"
+  },
+  "LabelShowpassword": {
+    "message": "显示密码"
+  },
+  "LabelHidepassword": {
+    "message": "隐藏密码"
+  },
+  "LabelTitle": {
+    "message": "标题"
+  },
+  "LabelLink": {
+    "message": "链接"
+  },
+  "LabelParentfolder": {
+    "message": "主文件夹"
+  },
+  "LabelHome": {
+    "message": "首页"
+  },
+  "LabelSortby": {
+    "message": "排序依据"
+  },
+  "LabelMoreactions": {
+    "message": "更多操作"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "服务器连接成功"
+  },
+  "LabelSynconstartup": {
+    "message": "启动时同步"
+  },
+  "DescriptionSynconstartup": {
+    "message": "如启用，将在启动时同步该配置文件。如果要在启动时同步书签，不想等待下次定时同步，该功能会有用。"
   }
 }
