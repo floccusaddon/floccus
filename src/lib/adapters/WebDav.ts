@@ -88,6 +88,24 @@ export default class WebDavAdapter extends CachingAdapter {
     return this.getBookmarkURL() + '.temp'
   }
 
+  // Percent-encode the bookmark_file portion of a destination URL for use in the
+  // `Destination` header of a MOVE request. Unlike request URLs (which the fetch
+  // layer encodes automatically), header values are sent verbatim, so non-ASCII
+  // filenames must be encoded manually. Path separators are preserved so that
+  // subfolder paths keep working.
+  encodeDestinationURL(destinationUrl) {
+    const base = this.normalizeServerURL(this.server.url)
+    if (!destinationUrl.startsWith(base)) {
+      return destinationUrl
+    }
+    const filePart = destinationUrl.slice(base.length)
+    const encoded = filePart
+      .split('/')
+      .map((segment) => encodeURIComponent(segment))
+      .join('/')
+    return base + encoded
+  }
+
   async checkLock() {
     const fullURL = this.getBookmarkLockURL()
     Logger.log(fullURL)
@@ -615,7 +633,7 @@ export default class WebDavAdapter extends CachingAdapter {
         credentials: this.server.includeCredentials ? 'include' : 'omit',
         headers: {
           Authorization: 'Basic ' + authString,
-          Destination: destinationUrl,
+          Destination: this.encodeDestinationURL(destinationUrl),
           Overwrite: 'T',
         },
         signal: this.abortSignal,
@@ -650,7 +668,7 @@ export default class WebDavAdapter extends CachingAdapter {
         method: 'MOVE',
         headers: {
           Authorization: 'Basic ' + authString,
-          Destination: destinationUrl,
+          Destination: this.encodeDestinationURL(destinationUrl),
           Overwrite: 'T',
         },
         disableRedirects: !this.server.allowRedirects,
