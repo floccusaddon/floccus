@@ -716,9 +716,9 @@ export default class DropboxAdapter extends CachingAdapter {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          'Dropbox-API-Arg': JSON.stringify({ path }),
+          'Dropbox-API-Arg': httpHeaderSafeJson({ path }),
           'Content-Type': 'application/octet-stream',
-          'Connection': 'close',
+          Connection: 'close',
           'Cache-Control': 'no-cache',
         },
         // Important: forces a new upload task and prevents
@@ -740,10 +740,10 @@ export default class DropboxAdapter extends CachingAdapter {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          'Dropbox-API-Arg': JSON.stringify({ path }),
-          Accept: 'application/octet-stream'
+          'Dropbox-API-Arg': httpHeaderSafeJson({ path }),
+          Accept: 'application/octet-stream',
         },
-        body: new Uint8Array(0) // empty body prevents 400 error
+        body: new Uint8Array(0), // empty body prevents 400 error
       })
 
       if (res.status >= 400) {
@@ -758,7 +758,7 @@ export default class DropboxAdapter extends CachingAdapter {
 
     // ========= Web / Browser =========
     const extraHeaders = {
-      'Dropbox-API-Arg': JSON.stringify({ path }),
+      'Dropbox-API-Arg': httpHeaderSafeJson({ path }),
     }
 
     const res = await this.request('POST', url, null, null, extraHeaders)
@@ -1041,13 +1041,13 @@ export default class DropboxAdapter extends CachingAdapter {
    */
   async createFile(xbel: string, path:string) {
     const extraHeaders = {
-      'Dropbox-API-Arg': JSON.stringify({
-        'autorename': false,
-        'mode': 'add',
-        'mute': false,
-        'path': `/${path}`,
-        'strict_conflict': false
-      })
+      'Dropbox-API-Arg': httpHeaderSafeJson({
+        autorename: false,
+        mode: 'add',
+        mute: false,
+        path: `/${path}`,
+        strict_conflict: false,
+      }),
     }
     const res = await this.request('POST', this.getContentUrl() + `/files/upload`,
       xbel,
@@ -1075,13 +1075,13 @@ export default class DropboxAdapter extends CachingAdapter {
    */
   async uploadFile(id:string, xbel: string) {
     const extraHeaders = {
-      'Dropbox-API-Arg': JSON.stringify({
-        'autorename': false,
-        'mode': 'overwrite',
-        'mute': false,
-        'path': id,
-        'strict_conflict': false
-      })
+      'Dropbox-API-Arg': httpHeaderSafeJson({
+        autorename: false,
+        mode: 'overwrite',
+        mute: false,
+        path: id,
+        strict_conflict: false,
+      }),
     }
     const res = await this.request('POST', this.getContentUrl() + `/files/upload`,
       xbel,
@@ -1099,6 +1099,19 @@ export default class DropboxAdapter extends CachingAdapter {
 
     return res.status === 200
   }
+}
+
+// From https://www.dropbox.com/developers/reference/json-encoding:
+//
+// This function is simple and has OK performance compared to more
+// complicated ones: http://jsperf.com/json-escape-unicode/4
+const charsToEncode = /[\u007f-\uffff]/g
+function httpHeaderSafeJson(v) {
+  return JSON.stringify(v).replace(charsToEncode,
+    function(c) {
+      return '\\u' + ('000' + c.charCodeAt(0).toString(16)).slice(-4)
+    }
+  )
 }
 
 function createXBEL(rootFolder, highestId) {
