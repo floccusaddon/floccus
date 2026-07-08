@@ -77,7 +77,7 @@ export default class WebDavAdapter extends CachingAdapter {
   }
 
   getBookmarkURL() {
-    return this.normalizeServerURL(this.server.url) + this.server.bookmark_file
+    return this.normalizeServerURL(this.server.url) + encodeURIComponent(this.server.bookmark_file)
   }
 
   getBookmarkLockURL() {
