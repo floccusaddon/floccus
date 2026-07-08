@@ -615,7 +615,7 @@ export default class WebDavAdapter extends CachingAdapter {
         credentials: this.server.includeCredentials ? 'include' : 'omit',
         headers: {
           Authorization: 'Basic ' + authString,
-          Destination: destinationUrl,
+          Destination: encodeURI(destinationUrl),
           Overwrite: 'T',
         },
         signal: this.abortSignal,
@@ -650,7 +650,7 @@ export default class WebDavAdapter extends CachingAdapter {
         method: 'MOVE',
         headers: {
           Authorization: 'Basic ' + authString,
-          Destination: destinationUrl,
+          Destination: encodeURI(destinationUrl),
           Overwrite: 'T',
         },
         disableRedirects: !this.server.allowRedirects,
