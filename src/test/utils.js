@@ -95,107 +95,110 @@ export function getEnv() {
 
   RANDOM_MANIPULATION_ITERATIONS = 35
 
-  ACCOUNTS = filterAccounts([
-    FakeAdapter.getDefaultValues(),
-    FakeNcBookmarksAdapter.getDefaultValues(),
-    {
-      ...FakeAdapter.getDefaultValues(),
-      noCache: true,
-    },
-    {
-      type: 'nextcloud-bookmarks',
-      url: SERVER,
-      ...CREDENTIALS,
-    },
-    {
-      type: 'nextcloud-bookmarks',
-      url: SERVER,
-      serverRoot: '/my folder/some subfolder',
-      ...CREDENTIALS,
-    },
-    {
-      type: 'webdav',
-      url: `${SERVER}/remote.php/webdav/`,
-      bookmark_file: 'bookmarks.xbel',
-      bookmark_file_type: 'xbel',
-      ...CREDENTIALS,
-    },
-    {
-      type: 'webdav',
-      url: `${SERVER}/remote.php/webdav/`,
-      bookmark_file: 'bookmarks.xbel',
-      bookmark_file_type: 'xbel',
-      passphrase: testRandom.float(),
-      ...CREDENTIALS,
-    },
-    {
-      type: 'webdav',
-      url: `${SERVER}/remote.php/webdav/`,
-      bookmark_file: 'bookmarks.html',
-      bookmark_file_type: 'html',
-      ...CREDENTIALS,
-    },
-    {
-      type: 'webdav',
-      url: `${SERVER}/remote.php/webdav/`,
-      bookmark_file: 'bookmarks.html',
-      bookmark_file_type: 'html',
-      passphrase: testRandom.float(),
-      ...CREDENTIALS,
-    },
-    {
-      type: 'git',
-      url: `${SERVER}/test.git`,
-      branch: 'main',
-      bookmark_file: 'bookmarks.xbel',
-      bookmark_file_type: 'xbel',
-      ...CREDENTIALS,
-    },
-    {
-      type: 'git',
-      url: `${SERVER}/test.git`,
-      branch: 'main',
-      bookmark_file: 'bookmarks.html',
-      bookmark_file_type: 'html',
-      ...CREDENTIALS,
-    },
-    {
-      type: 'google-drive',
-      bookmark_file: Math.random() + '.xbel',
-      password: '',
-      refreshToken: CREDENTIALS.password,
-    },
-    {
-      type: 'google-drive',
-      bookmark_file: Math.random() + '.xbel',
-      password: testRandom.float(),
-      refreshToken: CREDENTIALS.password,
-    },
-    {
-      type: 'dropbox',
-      bookmark_file: Math.random() + '.xbel',
-      password: '',
-      refreshToken: CREDENTIALS.password,
-    },
-    {
-      type: 'dropbox',
-      bookmark_file: Math.random() + '.xbel',
-      password: testRandom.float(),
-      refreshToken: CREDENTIALS.password,
-    },
-    {
-      type: 'linkwarden',
-      url: SERVER,
-      serverFolder: 'Floccus-' + Math.random(),
-      ...CREDENTIALS,
-    },
-    {
-      type: 'karakeep',
-      url: SERVER,
-      serverFolder: 'Floccus-' + Math.random(),
-      ...CREDENTIALS,
-    },
-  ], ACCOUNT_FILTER)
+  ACCOUNTS = filterAccounts(
+    [
+      FakeAdapter.getDefaultValues(),
+      FakeNcBookmarksAdapter.getDefaultValues(),
+      {
+        ...FakeAdapter.getDefaultValues(),
+        noCache: true,
+      },
+      {
+        type: 'nextcloud-bookmarks',
+        url: SERVER,
+        ...CREDENTIALS,
+      },
+      {
+        type: 'nextcloud-bookmarks',
+        url: SERVER,
+        serverRoot: '/my folder/some subfolder',
+        ...CREDENTIALS,
+      },
+      {
+        type: 'webdav',
+        url: `${SERVER}/remote.php/webdav/`,
+        bookmark_file: 'bookmarks书签.xbel',
+        bookmark_file_type: 'xbel',
+        ...CREDENTIALS,
+      },
+      {
+        type: 'webdav',
+        url: `${SERVER}/remote.php/webdav/`,
+        bookmark_file: 'bookmarks书签.xbel',
+        bookmark_file_type: 'xbel',
+        passphrase: testRandom.float(),
+        ...CREDENTIALS,
+      },
+      {
+        type: 'webdav',
+        url: `${SERVER}/remote.php/webdav/`,
+        bookmark_file: 'bookmarks书签.html',
+        bookmark_file_type: 'html',
+        ...CREDENTIALS,
+      },
+      {
+        type: 'webdav',
+        url: `${SERVER}/remote.php/webdav/`,
+        bookmark_file: 'bookmarks书签.html',
+        bookmark_file_type: 'html',
+        passphrase: testRandom.float(),
+        ...CREDENTIALS,
+      },
+      {
+        type: 'git',
+        url: `${SERVER}/test.git`,
+        branch: 'main',
+        bookmark_file: 'bookmarks书签.xbel',
+        bookmark_file_type: 'xbel',
+        ...CREDENTIALS,
+      },
+      {
+        type: 'git',
+        url: `${SERVER}/test.git`,
+        branch: 'main',
+        bookmark_file: 'bookmarks书签.html',
+        bookmark_file_type: 'html',
+        ...CREDENTIALS,
+      },
+      {
+        type: 'google-drive',
+        bookmark_file: Math.random() + '_书签.xbel',
+        password: '',
+        refreshToken: CREDENTIALS.password,
+      },
+      {
+        type: 'google-drive',
+        bookmark_file: Math.random() + '_书签.xbel',
+        password: testRandom.float(),
+        refreshToken: CREDENTIALS.password,
+      },
+      {
+        type: 'dropbox',
+        bookmark_file: Math.random() + '_书签.xbel',
+        password: '',
+        refreshToken: CREDENTIALS.password,
+      },
+      {
+        type: 'dropbox',
+        bookmark_file: Math.random() + '_书签.xbel',
+        password: testRandom.float(),
+        refreshToken: CREDENTIALS.password,
+      },
+      {
+        type: 'linkwarden',
+        url: SERVER,
+        serverFolder: 'Floccus-' + Math.random(),
+        ...CREDENTIALS,
+      },
+      {
+        type: 'karakeep',
+        url: SERVER,
+        serverFolder: 'Floccus-' + Math.random(),
+        ...CREDENTIALS,
+      },
+    ],
+    ACCOUNT_FILTER
+  )
 
   return {
     SERVER,
