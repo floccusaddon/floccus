@@ -78,7 +78,7 @@
     "message": "E026: Se ha cancelado el proceso de sincronización"
   },
   "Error027": {
-    "message": "E027: El proceso de sincronización fue interrumpido"
+    "message": "E027: Se ha interrumpido el proceso de sincronización"
   },
   "Error028": {
     "message": "E028: No se puede autenticar con el servidor."
