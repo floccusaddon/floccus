@@ -63,7 +63,7 @@
     "message": "E021: Estado del servidor inconsistente. La carpeta se presenta en lista de orden de hijos, pero no en árbol de carpetas"
   },
   "Error022": {
-    "message": "E022: La carpeta {0} contiene supuestamente el marcador no existente {1}"
+    "message": "E022: La carpeta {0} contiene supuestamente un marcador no existente {1}"
   },
   "Error023": {
     "message": "E023: No se ha podido limpiar el archivo bloqueado, considera eliminar {0} manualmente."
