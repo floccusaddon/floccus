@@ -865,7 +865,7 @@
     "message": "Este marcador ya existe en el perfil seleccionado"
   },
   "LabelReportproblem": {
-    "message": "Informar del problema"
+    "message": "Informar de un problema"
   },
   "DescriptionReportproblem": {
     "message": "Si desea ponerse en contacto directamente con los desarrolladores para plantearles una cuestión concreta, puede hacerlo aquí:"
