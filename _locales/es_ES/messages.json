@@ -30,7 +30,7 @@
     "message": "E010: No se ha podido encontrar la carpeta para ordenarla"
   },
   "Error011": {
-    "message": "E011: El ítem en la ordenación de la carpeta no es un verdadero hijo: {0}"
+    "message": "E011: El elemento en la ordenación de la carpeta en realidad no es un hijo: {0}"
   },
   "Error012": {
     "message": "E012: A la ordenación de la carpeta le faltan algunos de los hijos de la carpeta"
@@ -45,13 +45,13 @@
     "message": "E015: Datos de respuesta del servidor inesperados"
   },
   "Error016": {
-    "message": "E016: La petición ha caducado. Comprueba la configuración del servidor"
+    "message": "E016: La petición ha caducado. Comprueba la configuración de tu servidor"
   },
   "Error017": {
-    "message": "E017: Error de red: Comprueba tu conexión de red, los detalles de tu cuenta y la configuración TLS/SSL."
+    "message": "E017: Error de red: Comprueba tu conexión de red, los detalles de tu cuenta y tus ajsutes de TLS/SSL."
   },
   "Error018": {
-    "message": "E018: No se ha podido autenticar con el servidor"
+    "message": "E018: No se ha podido autentificar con el servidor"
   },
   "Error019": {
     "message": "E019: Estado HTTP {0}. Petición {1} fallida: {2}. Comprueba la configuración de tu servidor y el registro."
@@ -157,6 +157,12 @@
   },
   "Error054": {
     "message": "E054: No se pudo obtener la plantilla para Dropbox"
+  },
+  "Error055": {
+    "message": "E055: El tamaño del archivo de marcadores descargado de Google Drove difiere del tamaño que informó el servidor. Puede tratarse de un problema temporal de la red. Si este error persiste inténtalo más tarde."
+  },
+  "Error056": {
+    "message": "E056: El tamaño del archivo de marcadores subido a Google Drove difiere 6del tamaño que informó el servidor después de la verificación. floccus a reintentado la subida pero no puede confirmar el resultado. Reinténtalo más tarde."
   },
   "LabelWebdavurl": {
     "message": "URL de WebDAV"
@@ -868,7 +874,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Sincronice sus marcadores con la aplicación de código abierto Karakeep. Esta opción no puede hacer uso del cifrado de extremo a extremo y no permite mantener el orden de los marcadores entre sincronizaciones."
+    "message": "Sincroniza tus marcadores con la aplicación de código abierto Karakeep. Esta opción no puede hacer uso del cifrado de extremo a extremo y no permite mantener el orden de los marcadores entre sincronizaciones."
   },
   "LabelApiKey":  {
     "message": "Clave API"
@@ -962,5 +968,38 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Selecciona tu servicio"
+  },
+  "LabelShowpassword": {
+    "message": "Mostrar contraseña"
+  },
+  "LabelHidepassword": {
+    "message": "Ocultar contraseña"
+  },
+  "LabelTitle": {
+    "message": "Título"
+  },
+  "LabelLink": {
+    "message": "Enlace"
+  },
+  "LabelParentfolder": {
+    "message": "Carpeta padre"
+  },
+  "LabelHome": {
+    "message": "Inicio"
+  },
+  "LabelSortby": {
+    "message": "Ordenar por"
+  },
+  "LabelMoreactions": {
+    "message": "Más acciones"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Conexión correcta al servidor"
+  },
+  "LabelSynconstartup": {
+    "message": "Sicronizar en el arranque"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Si se activa, este perfil se sincronizará al iniciar el programa. Esto resulta útil si quieres sincronizar tus marcadores al iniciar el programa, pero no quieres esperar a la próxima sincronización programada."
   }
 }
