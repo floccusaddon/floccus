@@ -880,7 +880,7 @@
     "message": "Clave de API"
   },
   "LabelKarakeepurl":  {
-    "message": "La URL de su servidor Karakeep"
+    "message": "La URL de tu servidor Karakeep"
   },
   "LabelKarakeepconnectionerror": {
     "message": "Fallo al conectar con su servidor Karakeep"
