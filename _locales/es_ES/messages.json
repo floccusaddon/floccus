@@ -877,7 +877,7 @@
     "message": "Sincroniza tus marcadores con la aplicación de código abierto Karakeep. Esta opción no puede hacer uso del cifrado de extremo a extremo y no permite mantener el orden de los marcadores entre sincronizaciones."
   },
   "LabelApiKey":  {
-    "message": "Clave API"
+    "message": "Clave de API"
   },
   "LabelKarakeepurl":  {
     "message": "La URL de su servidor Karakeep"
