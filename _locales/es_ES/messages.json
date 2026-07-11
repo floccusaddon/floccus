@@ -75,7 +75,7 @@
     "message": "E025: El archivo de configuración de marcadores no debe comenzar con una barra: '/'"
   },
   "Error026": {
-    "message": "E026: Se canceló el proceso de sincronización"
+    "message": "E026: Se ha cancelado el proceso de sincronización"
   },
   "Error027": {
     "message": "E027: El proceso de sincronización fue interrumpido"
