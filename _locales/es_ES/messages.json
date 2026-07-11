@@ -826,7 +826,7 @@
     "message": "Contar clics"
   },
   "DescriptionClickcount": {
-    "message": "Envía estadísticas sobre los marcadores que más visita a su servidor Nextcloud, para que pueda ordenarlos por número de clics"
+    "message": "Envía estadísticas sobre los marcadores que más visitas a tu servidor Nextcloud, para que puedas ordenarlos por número de clics"
   },
   "DescriptionGoogleplayreview": {
     "message": "Escribe una reseña en Google Play"
