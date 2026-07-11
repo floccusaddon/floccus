@@ -883,7 +883,7 @@
     "message": "La URL de tu servidor Karakeep"
   },
   "LabelKarakeepconnectionerror": {
-    "message": "Fallo al conectar con su servidor Karakeep"
+    "message": "Fallo al conectar con tu servidor Karakeep"
   },
   "LabelAdapterlinkwarden":  {
     "message": "Linkwarden"
