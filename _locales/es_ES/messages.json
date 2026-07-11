@@ -84,7 +84,7 @@
     "message": "E028: No se ha podido autentificar con el servidor."
   },
   "Error029": {
-    "message": "E029: A prueba de fallos: La actual ejecución de sincronización borraría {0}% de sus enlaces en el servidor. Rechazando la ejecución. Desactiva este error en la configuración del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para anular el estado local en este dispositivo con el estado en el servidor. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
+    "message": "E029: Protección: La actual ejecución de sincronización borraría {0}% de tus enlaces en el servidor. Rechazando la ejecución. Desactiva este error en la configuración del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para sobreecribir el estado local en este dispositivo con el estado en el servidor. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
   },
   "Error030": {
     "message": "E030: No se pudo descifrar el archivo de marcadores. Es posible que la frase de contraseña sea incorrecta o que el archivo esté corrupto."
