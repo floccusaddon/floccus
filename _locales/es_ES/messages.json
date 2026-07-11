@@ -81,7 +81,7 @@
     "message": "E027: Se ha interrumpido el proceso de sincronización"
   },
   "Error028": {
-    "message": "E028: No se puede autenticar con el servidor."
+    "message": "E028: No se ha podido autentificar con el servidor."
   },
   "Error029": {
     "message": "E029: A prueba de fallos: La actual ejecución de sincronización borraría {0}% de sus enlaces en el servidor. Rechazando la ejecución. Desactiva este error en la configuración del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para anular el estado local en este dispositivo con el estado en el servidor. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
