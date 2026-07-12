@@ -859,7 +859,7 @@
     "message": "Donar"
   },
   "DescriptionDisabledaftererror": {
-    "message": "Intentado 10 veces antes de desactivar este perfil"
+    "message": "Reintentado 10 veces antes de desactivar este perfil"
   },
   "DescriptionBookmarkexists": {
     "message": "Este marcador ya existe en el perfil seleccionado"
