@@ -126,7 +126,7 @@
     "message": "E042: No se ha podido recuperar el tamaño del archivo remoto de marcadores. Es imposible verificar que el archivo de marcadores se ha descargado en su totalidad. Si este error persiste, ponte en contacto con el administrador del servidor."
   },
   "Error043": {
-    "message": "E043: A prueba de fallos: La ejecución de la sincronización actual aumentaría el recuento de enlaces en el servidor en {0}%. Rechazando la ejecución. Desactiva este failsafe en la configuración del perfil si quieres proceder de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para anular el estado local en este dispositivo con el estado en el servidor. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
+    "message": "E043: Mecanismo de seguridad: La ejecución de la sincronización actual aumentaría el recuento de enlaces en el servidor un {0}%. Rechazando la ejecución. Desactiva este seguro en los ajustes del perfil si quieres proceder de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para anular el estado local en este dispositivo con el estado en el servidor. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
   },
   "Error044": {
     "message": "E044: Ha fallado la operación Git push: {0}"
