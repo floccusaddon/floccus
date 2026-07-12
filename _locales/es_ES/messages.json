@@ -150,7 +150,7 @@
     "message": "E051: No se ha podido identificar con Dropbox. Vuelve a conectar floccus con tu cuenta de Dropbox."
   },
   "Error052": {
-    "message": "E052: Error OAuth. Error de validación de token. Vuelve a conectar tu cuenta de Dropbox."
+    "message": "E052: Error de OAuth. Error de validación de token. Vuelve a conectar tu cuenta de Dropbox."
   },
   "Error053": {
     "message": "E053: No se ha podido buscar el nombre del archivo en tu Dropbox"
