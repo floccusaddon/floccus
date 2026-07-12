@@ -523,7 +523,7 @@
     "message": "Pestañas del navegador"
   },
   "DescriptionSyncTabs": {
-    "message": "Los enlaces que se almacenan en el servidor se abrirán como pestañas en tu navegador y las pestañas abiertas existentes se almacenan como enlaces en tu servidor. Tenga en cuenta que, dependiendo de cuántos enlaces se almacenen en el servidor, ya que todos se abrirán como pestañas en la próxima sincronización, esto podría abrumar posiblemente tu navegador."
+    "message": "Los enlaces que se almacenan en el servidor se abrirán como pestañas en tu navegador y las pestañas abiertas existentes se almacenan como enlaces en tu servidor. Ten en cuenta que, dependiendo de cuántos enlaces se almacenen en el servidor, ya que todos se abrirán como pestañas en la próxima sincronización, esto podría abrumar posiblemente tu navegador."
   },
   "LabelTabs": {
     "message": "Pestañas"
