@@ -393,7 +393,7 @@
     "message": "Intervalo de sincronización"
   },
   "DescriptionSyncinterval": {
-    "message": "El intervalo entre dos sincronizaciones se define en minutos. Por defecto, 15 minutos."
+    "message": "El intervalo entre sincronizaciones se define en minutos. Por defecto, 15 minutos."
   },
   "LabelChooseadapter": {
     "message": "¿Cómo quieres sincronizar?"
