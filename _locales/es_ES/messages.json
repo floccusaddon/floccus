@@ -889,7 +889,7 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Sincronice sus marcadores con la aplicación de código abierto Linkwarden, alojada en su propio servidor o en la nube en cloud.linkwarden.app. Sólo puede sincronizar marcadores http, ftp y javascript. Esta opción no puede hacer uso de la encriptación de extremo a extremo y no permite mantener el orden de los marcadores entre sincronizaciones."
+    "message": "Sincroniza tus marcadores con la aplicación de código abierto Linkwarden, alojada en tu propio servidor o en la nube en cloud.linkwarden.app. Sólo puedes sincronizar marcadores http, ftp y javascript. Esta opción no puede hacer uso de la encriptación de extremo a extremo y no permite mantener el orden de los marcadores entre sincronizaciones."
   },
   "LabelLinkwardenurl":  {
     "message": "La URL de tu servidor de Linkwarden"
