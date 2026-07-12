@@ -57,7 +57,7 @@
     "message": "E019: Estado HTTP {0}. Petición {1} fallida: {2}. Comprueba la configuración de tu servidor y el registro."
   },
   "Error020": {
-    "message": "E020: No se ha podido analizar la respuesta del servidor."
+    "message": "E020: No se ha podido procesar la respuesta del servidor."
   },
   "Error021": {
     "message": "E021: Estado del servidor inconsistente. La carpeta se presenta en lista de orden de hijos, pero no en árbol de carpetas"
