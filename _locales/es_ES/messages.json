@@ -294,7 +294,7 @@
     "message": "Acelerar sincronización"
   },
   "DescriptionParallelsync": {
-    "message": "Marca esta casilla para procesar múltiples careptas en paralelo para acelerar la sincronización. Esta característica es experimental y hace más difícil leer los registros de depuración."
+    "message": "Marca esta casilla para procesar múltiples carpetas en paralelo para acelerar la sincronización. Esta característica es experimental y hace más difícil leer los registros de depuración."
   },
   "LabelStrategy": {
     "message": "Estrategia de sincronización"
