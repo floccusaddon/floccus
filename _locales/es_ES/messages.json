@@ -213,7 +213,7 @@
     "message": "Elige aquí si quieres sincronizar los marcadores del navegador o las pestañas del navegador."
   },
   "LabelLocalfolder": {
-    "message": "carpeta de marcadores"
+    "message": "Carpeta de marcadores"
   },
   "DescriptionLocalfolder": {
     "message": "Los marcadores en esta carpeta de marcadores se almacenarán como enlaces en el servidor y los enlaces en el servidor se almacenarán como marcadores en esta carpeta de marcadores en este navegador."
