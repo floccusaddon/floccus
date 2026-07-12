@@ -958,7 +958,7 @@
     "message": "Error al sincronizar el perfil {0}"
   },
   "LabelSyncintervalenabled": {
-    "message": "Sincronización horaria"
+    "message": "Sincronización programada"
   },
   "DescriptionSyncintervalenabled": {
     "message": "Al activar la sincronización en función del tiempo, se programará automáticamente una sincronización de este perfil cada pocos minutos."
