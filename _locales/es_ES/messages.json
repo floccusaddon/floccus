@@ -144,7 +144,7 @@
     "message": "E049: Mecanismo de seguridad: La ejecución de la sincronización actual aumentaría el recuento de enlaces locales en este perfil un {0}%. Rechazando la ejecución. Desactiva este segur en los ajustes del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para sobreescribir el estado del servidor con el estado local en este dispositivo. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
   },
   "Error050": {
-    "message": "Mecanismo de seguridad: La actual ejecución de sincronización eliminaría un {0}% de los enlaces locales en este perfil. Rechazando la ejecución. Desactiva este seguro en los ajustes del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para aobreescribir el estado del servidor con el estado local en este dispositivo. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
+    "message": "E050: Mecanismo de seguridad: La actual ejecución de sincronización eliminaría un {0}% de los enlaces locales en este perfil. Rechazando la ejecución. Desactiva este seguro en los ajustes del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para aobreescribir el estado del servidor con el estado local en este dispositivo. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
   },
   "Error051": {
     "message": "E051: No se pudo autenticar con Dropbox. Vuelve a conectar floccus con tu cuenta de Dropbox."
