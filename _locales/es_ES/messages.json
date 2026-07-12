@@ -475,7 +475,7 @@
     "message": "Añada nuevos perfiles o importe perfiles desde un archivo y podrá empezar a sincronizar."
   },
   "LabelLoginFlowStart": {
-    "message": "Iniciar sesión con el mecanismo de entrada de Nextcloud"
+    "message": "Iniciar sesión con Nextcloud"
   },
   "LabelLoginFlowStop": {
     "message": "Abortar mecanismo de entrada de Nextcloud"
