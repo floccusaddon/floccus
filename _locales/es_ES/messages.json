@@ -676,7 +676,7 @@
     "message": "Permitir uso de red"
   },
   "DescriptionAllownetwork": {
-    "message": "Floccus puede utilizar la red aparte de conectarse a tu servidor de sincronización, para obtener información adicional sobre tus marcadores (como iconos, etc.). Aquí puedes habilitar dicho uso de la red."
+    "message": "Floccus puede utilizar la red aparte de para conectarse a tu servidor de sincronización, para obtener información adicional sobre tus marcadores (como iconos, etc.). Aquí puedes activar ese uso de la red."
   },
   "LabelMobilesettings": {
     "message": "Ajustes móviles"
