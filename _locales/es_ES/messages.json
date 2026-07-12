@@ -120,7 +120,7 @@
     "message": "E040: No se ha podido buscar el nombre de tu archivo en tu Google Drive"
   },
   "Error041": {
-    "message": "E041: El tamaño del archivo de marcadores remotos difiere del contenido que realmente se descargó del servidor. Puede tratarse de un problema temporal de la red. Si este error persiste, póngase en contacto con el administrador del servidor."
+    "message": "E041: El tamaño del archivo remoto de marcadores difiere del contenido que realmente se descargó del servidor. Puede tratarse de un problema temporal de la red. Si este error persiste, ponte en contacto con el administrador del servidor."
   },
   "Error042": {
     "message": "E042: No se ha podido recuperar el tamaño del archivo remoto de marcadores. Es imposible verificar que el archivo de marcadores se ha descargado en su totalidad. Si este error persiste, póngase en contacto con el administrador del servidor."
