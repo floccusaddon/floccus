@@ -664,7 +664,7 @@
     "message": "Registros redactados"
   },
   "DescriptionDownloadlogs": {
-    "message": "Floccus protocola todas sus acciones en un archivo de registro que puede examinar usted mismo o enviar a los desarrolladores con fines de depuración. En los protocles redactados, los nombres de las carpetas y marcadores, así como las URL, se codifican de forma irreversible utilizando una función de hash criptográfico. Al enviar registros redactados, asegúrese de verificar el archivo descargado en busca de datos sensibles que puedan no haber sido capturados por el proceso de anonimización."
+    "message": "Floccus registra todas sus acciones en un archivo de registro que puedes examinar o enviar a los desarrolladores con fines de depuración. En los registros redactados, los nombres de las carpetas y marcadores, así como las URL, se codifican de forma irreversible utilizando una función de hash criptográfico. Al enviar registros redactados, asegúrate de verificar el archivo descargado en busca de datos sensibles que puedan no haber sido capturados por el proceso de anonimización."
   },
   "ErrorFolderloopselected": {
     "message": "No se puede mover una carpeta dentro de sí misma."
