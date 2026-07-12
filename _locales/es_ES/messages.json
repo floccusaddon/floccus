@@ -351,7 +351,7 @@
     "message": "por ejemplo: Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Sincronice sus marcadores almacenándolos en un archivo en el recurso compartido WebDAV proporcionado. No hay interfaz de usuario web de acompañamiento para esta opción y puede utilizarla con cualquier servidor compatible con WebDAV, ya sea autoalojado o en la nube. Puede sincronizar marcadores http, ftp, datos, archivos y javascript. Puede elegir utilizar el cifrado de extremo a extremo cuando utilice esta opción."
+    "message": "Sincroniza tus marcadores almacenándolos en un archivo en el recurso compartido de WebDAV proporcionado. No hay interfaz de usuario web de acompañamiento para esta opción y puedes utilizarla con cualquier servidor compatible con WebDAV, ya sea autoalojado o en la nube. Puedes sincronizar marcadores http, ftp, datos, archivos y javascript. Puedes elegir utilizar el cifrado de extremo a extremo cuando utilices esta opción."
   },
   "LabelAddaccount": {
     "message": "Añadir perfil"
