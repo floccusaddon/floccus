@@ -138,7 +138,7 @@
     "message": "E046: URL no válida. `{0}` no es una URL válida."
   },
   "Error047": {
-    "message": "E047: Error al analizar el archivo XBEL. Los datos XBEL parecen estar dañados o incompletos. Puede intentar eliminar el archivo del servidor para que floccus lo vuelva a crear. Asegúrese de hacer primero una copia de seguridad."
+    "message": "E047: Error al analizar el archivo XBEL. Los datos del XBEL parecen estar dañados o incompletos. Puedes intentar eliminar el archivo del servidor para que floccus lo vuelva a crear. Asegúrate de hacer primero una copia de seguridad."
   },
   "Error049": {
     "message": "E049: Mecanismo de seguridad: La ejecución de la sincronización actual aumentaría el recuento de enlaces locales en este perfil un {0}%. Rechazando la ejecución. Desactiva este segur en los ajustes del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para sobreescribir el estado del servidor con el estado local en este dispositivo. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
