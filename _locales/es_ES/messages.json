@@ -931,7 +931,7 @@
     "message": "Enviar comentarios"
   },
   "DescriptionFeedbacklegal": {
-    "message": "Este formulario de comentarios está gestionado por Sentry. Al pulsar enviar acepta almacenar los datos introducidos en los servidores de Sentry. Ninguno de sus datos de favoritos será enviado a Sentry."
+    "message": "Este formulario de comentarios está gestionado por Sentry. Al pulsar enviar aceptas almacenar los datos introducidos en los servidores de Sentry. Ninguno de tus datos de marcadores será enviado a Sentry."
   },
   "DescriptionFeedbackhowto": {
     "message": "¡Gracias por tomarse el tiempo de dar su opinión a los desarrolladores de floccus! Si su comentario está relacionado con un problema, asegúrese de incluir los pasos que siguió, lo que esperaba y lo que ocurrió en su lugar. Si su comentario está relacionado con una solicitud de función, asegúrese de incluir el caso de uso o el problema que esta función le solucionaría. Si incluye su dirección de correo electrónico, es posible que nos pongamos en contacto con usted. Muchas gracias."
