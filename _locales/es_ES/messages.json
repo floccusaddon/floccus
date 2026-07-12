@@ -592,7 +592,7 @@
     "message": "Dropbox"
   },
   "DescriptionAdapterdropbox": {
-    "message": "Sincroniza marcadores a través de un archivo (opcionalmente encriptado) que se almacena en tu Dropbox. Puede sincronizar marcadores http, ftp, datos, archivos y javascript. Puedes elegir utilizar el cifrado de extremo a extremo cuando utilices esta opción."
+    "message": "Sincroniza marcadores a través de un archivo (opcionalmente encriptado) que se almacena en tu Dropbox. Puedes sincronizar marcadores http, ftp, datos, archivos y javascript. Puedes elegir utilizar el cifrado de extremo a extremo cuando utilices esta opción."
   },
   "LabelLogindropbox": {
     "message": "Iniciar sesión con Dropbox"
