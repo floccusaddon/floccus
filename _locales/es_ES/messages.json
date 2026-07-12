@@ -613,7 +613,7 @@
     "message": "Enviar credenciales del cliente"
   },
   "DescriptionClientcert": {
-    "message": "Active esta opción si su servidor requiere un certificado de cliente o cookies para la autenticación. Esto puede causar efectos secundarios no deseados, ya que floccus compartirá cookies con las sesiones normales de su navegador."
+    "message": "Active esta opción si tu servidor requiere un certificado de cliente o cookies para la autenticación. Esto puede causar efectos secundarios no deseados, ya que floccus compartirá cookies con las sesiones normales de tu navegador."
   },
   "LabelAllowredirects": {
     "message": "Permitir redirecciones en la URL del servidor."
