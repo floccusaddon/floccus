@@ -472,7 +472,7 @@
     "message": "Aún no hay perfiles"
   },
   "DescriptionNoAccount": {
-    "message": "Añada nuevos perfiles o importe perfiles desde un archivo y podrá empezar a sincronizar."
+    "message": "Añade nuevos perfiles o importa perfiles desde un archivo y podrás empezar a sincronizar."
   },
   "LabelLoginFlowStart": {
     "message": "Iniciar sesión con Nextcloud"
