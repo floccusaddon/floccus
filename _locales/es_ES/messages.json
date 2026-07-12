@@ -937,7 +937,7 @@
     "message": "¡Gracias por tomarse el tiempo de dar su opinión a los desarrolladores de floccus! Si su comentario está relacionado con un problema, asegúrese de incluir los pasos que siguió, lo que esperaba y lo que ocurrió en su lugar. Si su comentario está relacionado con una solicitud de función, asegúrese de incluir el caso de uso o el problema que esta función le solucionaría. Si incluye su dirección de correo electrónico, es posible que nos pongamos en contacto con usted. Muchas gracias."
   },
   "LabelFeedbacksent": {
-    "message": "Gracias por sus comentarios."
+    "message": "¡Gracias por tus comentarios!"
   },
   "LabelFaq":{
     "message": "Consulte las FAQ"
