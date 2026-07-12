@@ -216,7 +216,7 @@
     "message": "Carpeta de marcadores"
   },
   "DescriptionLocalfolder": {
-    "message": "Los marcadores en esta carpeta de marcadores se almacenarán como enlaces en el servidor y los enlaces en el servidor se almacenarán como marcadores en esta carpeta de marcadores en este navegador."
+    "message": "Los marcadores de esta carpeta de marcadores se almacenarán como enlaces en el servidor y los enlaces en el servidor se almacenarán como marcadores en esta carpeta de marcadores en este navegador."
   },
   "LabelRootfolder": {
     "message": "Carpeta raíz"
