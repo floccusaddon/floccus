@@ -111,7 +111,7 @@
     "message": "E037: El recurso está bloqueado"
   },
   "Error038": {
-    "message": "E038: No se pudo encontrar la carpeta local"
+    "message": "E038: No se ha podido encontrar la carpeta local"
   },
   "Error039": {
     "message": "E039: Fallo al actualizar el siguiente marcador en el servidor: {0}"
