@@ -616,7 +616,7 @@
     "message": "Active esta opción si su servidor requiere un certificado de cliente o cookies para la autenticación. Esto puede causar efectos secundarios no deseados, ya que floccus compartirá cookies con las sesiones normales de su navegador."
   },
   "LabelAllowredirects": {
-    "message": "Permitir redireccionamientos en la URL del servidor."
+    "message": "Permitir redirecciones en la URL del servidor."
   },
   "DescriptionAllowredirects": {
     "message": "Activa esta opción si recibes errores de redirección durante la sincronización que crees que son injustificados."
