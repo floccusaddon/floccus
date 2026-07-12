@@ -117,7 +117,7 @@
     "message": "E039: Fallo al actualizar el siguiente marcador en el servidor: {0}"
   },
   "Error040": {
-    "message": "E040: No se ha podido buscar el nombre del archivo en Google Drive"
+    "message": "E040: No se ha podido buscar el nombre de tu archivo en tu Google Drive"
   },
   "Error041": {
     "message": "E041: El tamaño del archivo de marcadores remotos difiere del contenido que realmente se descargó del servidor. Puede tratarse de un problema temporal de la red. Si este error persiste, póngase en contacto con el administrador del servidor."
