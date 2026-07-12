@@ -952,7 +952,7 @@
     "message": "Sincronizadon perfil {0}"
   },
   "NotificationSyncingsucceeded": {
-    "message": "La sincronización del perfil {0} se ha realizado correctamente"
+    "message": "Perfil {0} sincronizado correctamente"
   },
   "NotificationSyncingfailed": {
     "message": "Fallo al sincronizar el perfil {0}"
