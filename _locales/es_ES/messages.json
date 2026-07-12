@@ -955,7 +955,7 @@
     "message": "Perfil {0} sincronizado correctamente"
   },
   "NotificationSyncingfailed": {
-    "message": "Fallo al sincronizar el perfil {0}"
+    "message": "Error al sincronizar el perfil {0}"
   },
   "LabelSyncintervalenabled": {
     "message": "Sincronización horaria"
