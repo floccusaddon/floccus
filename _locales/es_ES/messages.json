@@ -273,7 +273,7 @@
     "message": "Elige una carpeta"
   },
   "DescriptionChoosefolder": {
-    "message": "Configura una carpeta existente para sincronizar"
+    "message": "Configura una carpeta existente que sincronizar"
   },
   "LabelRemoveaccount": {
     "message": "Eliminar perfil"
