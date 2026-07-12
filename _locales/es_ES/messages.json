@@ -907,7 +907,7 @@
     "message": "Forzar sincronización"
   },
   "DescriptionScheduledforcesync": {
-    "message": "¿Realmente desea forzar la sincronización? Sincronizar con dos dispositivos al mismo tiempo puede tener consecuencias imprevistas, incluida la corrupción de sus datos. Asegúrese de que ningún otro dispositivo está sincronizando en ese momento antes de confirmar."
+    "message": "¿Seguro que quieres forzar la sincronización? Sincronizar con dos dispositivos al mismo tiempo puede tener consecuencias imprevistas, incluida la corrupción de tus datos. Asegúrate de que ningún otro dispositivo está sincronizando en ese momento antes de confirmar."
   },
   "DescriptionAutosync": {
     "message": "Activando la sincronización basada en cambios te asegurarás de que se ejecuta una sincronización cada vez que realices cambios localmente."
