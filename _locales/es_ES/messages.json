@@ -619,7 +619,7 @@
     "message": "Permitir redireccionamientos en la URL del servidor."
   },
   "DescriptionAllowredirects": {
-    "message": "Habilita esta opción, si recibes errores de redirección durante la sincronización, que crees que son injustificados."
+    "message": "Activa esta opción si recibes errores de redirección durante la sincronización que crees que son injustificados."
   },
   "LabelSearch": {
     "message": "Buscar marcadores"
