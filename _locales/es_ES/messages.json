@@ -634,7 +634,7 @@
     "message": "Borrar"
   },
   "DescriptionReallydeleteitem": {
-    "message": "¿Realmente desea eliminar este elemento?"
+    "message": "¿De verdad quieres borrar este elemento?"
   },
   "LabelNobookmarks": {
     "message": "No hay marcadores aquí"
