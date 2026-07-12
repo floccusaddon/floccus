@@ -129,7 +129,7 @@
     "message": "E043: A prueba de fallos: La ejecución de la sincronización actual aumentaría el recuento de enlaces en el servidor en {0}%. Rechazando la ejecución. Desactiva este failsafe en la configuración del perfil si quieres proceder de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para anular el estado local en este dispositivo con el estado en el servidor. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
   },
   "Error044": {
-    "message": "E044: Falló la operación Git push: {0}"
+    "message": "E044: Ha fallado la operación Git push: {0}"
   },
   "Error045": {
     "message": "E045: Ruta de carpeta inesperada. La carpeta de sincronización local para este perfil solía estar en `{0}` pero ahora está en `{1}`. Por favor, asegúrese de que es correcto y vuelva a establecer la carpeta de sincronización local en la configuración del perfil."
