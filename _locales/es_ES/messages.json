@@ -607,7 +607,7 @@
     "message": "Contraseña"
   },
   "DescriptionPassphrase": {
-    "message": "Establezca una frase de contraseña para cifrar su archivo de marcadores. Si no establece una frase de contraseña, no se ejecutará ninguna encriptación."
+    "message": "Establece una contraseña para cifrar tu archivo de marcadores. Si no estableces una frase de contraseña, no se ejecutará ninguna encriptación."
   },
   "LabelClientcert": {
     "message": "Enviar credenciales del cliente"
