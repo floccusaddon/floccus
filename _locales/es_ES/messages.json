@@ -93,7 +93,7 @@
     "message": "E031: No se ha podido autentificar con Google Drive. Reconecta floccus con tu cuenta de Google."
   },
   "Error032": {
-    "message": "E032: Error de OAuth. Error de validación de token. Por favor, vuelva a conectar su cuenta de Google."
+    "message": "E032: Error de OAuth. Error de validación de token.Reconecta u cuenta de Google."
   },
   "Error033": {
     "message": "E033: Se ha detectado una redirección. Por favor, asegúrese de que el servidor admite el método de sincronización seleccionado y que la URL que ha introducido es correcta y no redirige a una ubicación diferente. Si la redirección forma parte de su configuración, puede desactivar esta comprobación en los ajustes."
