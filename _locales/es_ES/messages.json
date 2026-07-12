@@ -105,7 +105,7 @@
     "message": "E035: Error al crear el siguiente marcador en el servidor: {0} -- ¿Está actualizada la aplicación de marcadores?"
   },
   "Error036": {
-    "message": "E036: Permisos faltantes para acceder al servidor de sincronización"
+    "message": "E036: Faltan permisos para acceder al servidor de sincronización"
   },
   "Error037": {
     "message": "E037: El recurso está bloqueado"
