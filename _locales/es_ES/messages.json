@@ -442,7 +442,7 @@
     "message": "Este tipo de perfil vieja está obsoleto y pronto será eliminado. Por favor, cambie al nuevo método de sincronización de Nextcloud. Un rendimiento y precisión mejorados le esperan."
   },
   "LabelUpdated": {
-    "message": "⚡ Floccus fue actualizado"
+    "message": "⚡Se ha actualizado Floccus"
   },
   "DescriptionUpdated": {
     "message": "¡Enhorabuena, la última actualización de Floccus ha llegado a tu máquina! "
