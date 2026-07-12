@@ -805,7 +805,7 @@
     "message": "Informe automático de errores"
   },
   "DescriptionTelemetry": {
-    "message": "Floccus puede enviar automáticamente datos de errores a mí, el desarrollador. Esto es una gran ayuda para descubrir y resolver errores en floccus más rápidamente y ayudará a mejorar su experiencia con floccus a largo plazo. Aunque la notificación de errores esté activada, los desarrolladores de floccus nunca podrán ver sus marcadores."
+    "message": "Floccus puede enviarme automáticamente datos de errores a mí, el desarrollador. Esto es una gran ayuda para descubrir y resolver errores en floccus más rápidamente y ayudará a mejorar tu experiencia con floccus a largo plazo. Aunque el informe de errores esté activado, los desarrolladores de floccus nunca podrán ver tus marcadores."
   },
   "DescriptionTelemetrysyncmethod": {
     "message": "Nuevo: Además de la información de error, floccus ahora también envía información sobre qué método de sincronización está utilizando, si esta opción está activada. Esto nos ayuda a mejorar floccus y a asegurarnos de que los métodos de sincronización funcionan como se espera."
