@@ -189,7 +189,7 @@
    "message": "el nombre del archivo de marcadores que residirá en tu Google Drive. No introduzcas la ruta completa del archivo, sólo el nombre del archivo. Asegúrate de que este nombre es único en tu Drive. por ejemplo, mismarcadores.xbel"
  },
  "DescriptionBookmarksfiledropbox": {
-   "message": "el nombre del archivo de marcadores que residirá en tu Dropbox. No introduzcas la ruta completa del archivo, sólo el nombre. Asegúrate de que este nombre sea único en tu Dropbox. Por ejemplo, mybookmarks.xbel."
+   "message": "el nombre del archivo de marcadores que residirá en tu Dropbox. No introduzcas la ruta completa del archivo, sólo el nombre. Asegúrate de que este nombre sea único en tu Dropbox. Por ejemplo, mismarcadores.xbel."
  },
   "DescriptionBookmarksfilegit": {
     "message": "una ruta al archivo de marcadores relativa a la raíz de su repositorio Git (todas las carpetas de la ruta deben existir ya). por ejemplo, personal_stuff/bookmarks.xbel"
