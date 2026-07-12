@@ -799,7 +799,7 @@
     "message": "URL del repositorio mediante HTTP"
   },
   "LabelGitbranch": {
-    "message": "Rama Git"
+    "message": "Rama de Git"
   },
   "LabelTelemetry": {
     "message": "Notificación automática de errores"
