@@ -481,7 +481,7 @@
     "message": "Abortar inicio de sesión con Nextcloud"
   },
   "LabelLoginFlowError": {
-    "message": "Fallo del mecanismo de entrada de Nextcloud."
+    "message": "El inicio de sesión con Nextcloud ha fallado"
   },
   "LabelNewAccount": {
     "message": "Añadir perfil"
