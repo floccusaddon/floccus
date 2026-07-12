@@ -562,7 +562,7 @@
     "message": "Mecanismo de seguridad"
   },
   "DescriptionFailsafe": {
-    "message": "A veces, errores de configuración o fallos de software pueden causar la eliminación involuntaria de datos, que se pierden, o la duplicación involuntaria de datos, que es difícil de resolver. Para evitar que esto ocurra, floccus no eliminará más del 20% de tus marcadores de una sola vez y tampoco añadirá más del 20% a tu cuenta de enlaces de una sola vez, a menos que desactives esta medida de seguridad aquí."
+    "message": "A veces, errores de configuración o fallos de software pueden causar la eliminación involuntaria de datos, que se pierden, o la duplicación involuntaria de datos, que es difícil de resolver. Para evitar que esto ocurra, floccus no eliminará más del 20% de tus marcadores de una sola vez y tampoco añadirá más del 20% de tu número enlaces de una sola vez, a menos que desactives esta medida de seguridad aquí."
   },
   "LabelFailsafeon": {
     "message": "Activado. No borrará ni añadirá más del 20% de/a sus marcadores locales sin preguntarle antes. (Recomendado)"
