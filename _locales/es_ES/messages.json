@@ -336,7 +336,7 @@
     "message": "Marcadores de Nextcloud"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "Sincronice sus marcadores con la aplicación de código abierto Bookmarks para Nextcloud (una plataforma de colaboración de código abierto que puede alojar usted mismo u obtener una cuenta para una instancia en la nube de uno de los distintos hosters). Con Nextcloud Bookmarks sólo puede sincronizar marcadores http, ftp y javascript. Asegúrese de haber instalado la aplicación Marcadores de la tienda de aplicaciones Nextcloud en su Nextcloud. Esta opción no puede hacer uso del cifrado de extremo a extremo."
+    "message": "Sincroniza tus marcadores con la aplicación de código abierto Bookmarks para Nextcloud (una plataforma de colaboración de código abierto que puedes alojar tu mismo u obtener una cuenta para una instancia en la nube de uno de los distintos alojamientos). Con Nextcloud Bookmarks sólo puedes sincronizar marcadores http, ftp y javascript. Asegúrate de haber instalado la aplicación Marcadores de la tienda de aplicaciones Nextcloud en tu Nextcloud. Esta opción no puede hacer uso del cifrado de extremo a extremo."
   },
   "LabelAdapternextcloud": {
     "message": "Marcadores de Nextcloud (obsoleto)"
