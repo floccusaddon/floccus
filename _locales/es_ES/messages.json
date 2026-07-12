@@ -961,7 +961,7 @@
     "message": "Sincronización programada"
   },
   "DescriptionSyncintervalenabled": {
-    "message": "Al activar la sincronización en función del tiempo, se programará automáticamente una sincronización de este perfil cada pocos minutos."
+    "message": "Al activar la sincronización basada en tiempo, se programará automáticamente una sincronización de este perfil cada pocos minutos."
   },
   "LabelPredefinedwebdavurls": {
     "message": "URLs por defecto del servidor"
