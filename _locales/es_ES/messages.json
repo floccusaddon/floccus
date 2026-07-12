@@ -466,7 +466,7 @@
     "message": "Perfil borrado"
   },
   "DescriptionAccountDeleted": {
-    "message": "Este perfil fue eliminado"
+    "message": "Se ha borrado este perfil"
   },
   "LabelNoAccount": {
     "message": "Aún no hay perfiles"
