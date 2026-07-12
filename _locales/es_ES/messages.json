@@ -895,7 +895,7 @@
     "message": "La URL de su servidor Linkwarden"
   },
   "LabelAccesstoken":  {
-    "message": "Ficha de acceso"
+    "message": "Token de acceso"
   },
   "LabelLinkwardenconnectionerror": {
     "message": "Fallo al conectar con su servidor Linkwarden"
