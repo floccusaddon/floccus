@@ -90,7 +90,7 @@
     "message": "E030: No se pudo descifrar el archivo de marcadores. Es posible que la contraseña sea incorrecta o que el archivo esté corrupto."
   },
   "Error031": {
-    "message": "E031: No se pudo autenticar con Google Drive. Por favor, conecta floccus con tu cuenta de Google nuevamente."
+    "message": "E031: No se ha podido autentificar con Google Drive. Reconecta floccus con tu cuenta de Google."
   },
   "Error032": {
     "message": "E032: Error de OAuth. Error de validación de token. Por favor, vuelva a conectar su cuenta de Google."
