@@ -541,7 +541,7 @@
     "message": "Sube los cambios locales y sobrescribe los cambios de otros navegadores"
   },
   "LabelSyncDownOnce": {
-    "message": "Bajar una vez"
+    "message": "Descargar cambios (una vez)"
   },
   "LabelSyncUpOnce": {
     "message": "Empuja hacia arriba una vez"
