@@ -309,7 +309,7 @@
     "message": "Siempre deshacer los cambios locales y descargar los cambios de otros navegadores."
   },
   "LabelStrategyoverwrite": {
-    "message": "Siempre suba los cambios locales y deshaga los cambios de otros navegadores."
+    "message": "Siempre subir los cambios locales y deshacer los cambios de otros navegadores."
   },
   "LabelSave": {
     "message": "Guardar"
