@@ -198,7 +198,7 @@
     "message": "Objetivo en el servidor"
   },
   "DescriptionServerfolder": {
-    "message": "Cuando se sincronice, tus marcadores en este navegador se almacenarán como enlaces bajo esta ruta en el servidor. Ten en cuenta que esta ruta representa una carpeta en la aplicación de Marcadores de Nextcloud, no una carpeta en los archivos de Nextcloud. Deja esto vacío para simplemente colocar todos los enlaces en la carpeta superior del servidor."
+    "message": "Cuando se sincronicen, tus marcadores en este navegador se almacenarán como enlaces bajo esta ruta en el servidor. Ten en cuenta que esta ruta representa una carpeta en la aplicación de Marcadores de Nextcloud, no una carpeta en los archivos de Nextcloud. Deja esto vacío para simplemente colocar todos los enlaces en la carpeta superior del servidor."
   },
   "DescriptionServerfolderlinkwarden": {
     "message": "Al sincronizar, sus marcadores en este navegador se almacenarán como enlaces bajo esta colección y sólo los enlaces bajo esta colección se sincronizarán con este navegador."
