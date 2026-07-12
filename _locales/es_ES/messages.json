@@ -195,7 +195,7 @@
     "message": "una ruta al archivo de marcadores relativa a la raíz de tu repositorio Git (todas las carpetas de la ruta deben existir ya). por ejemplo, mis_cosas/marcadores.xbel"
   },
   "LabelServerfolder": {
-    "message": "Servidor objetivo"
+    "message": "Objetivo en el servidor"
   },
   "DescriptionServerfolder": {
     "message": "Cuando se sincroniza, sus marcadores en este navegador se almacenarán como enlaces bajo esta ruta en el servidor. Tenga en cuenta que esta ruta representa una carpeta en la aplicación de Marcadores de Nextcloud, no una carpeta en los Archivos de Nextcloud. Deje esto vacío para simplemente colocar todos los enlaces en la carpeta superior del servidor."
