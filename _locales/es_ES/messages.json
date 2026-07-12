@@ -769,7 +769,7 @@
     "message": "Importar marcadores"
   },
   "DescriptionImportbookmarks": {
-    "message": "Importar un archivo HTML que contenga marcadores en la carpeta actual"
+    "message": "Importar un archivo HTML de marcadores en la carpeta actual"
   },
   "LabelExportBookmarks": {
     "message": "Exportar Marcadores"
