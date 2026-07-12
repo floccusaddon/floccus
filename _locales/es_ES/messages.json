@@ -478,7 +478,7 @@
     "message": "Iniciar sesión con Nextcloud"
   },
   "LabelLoginFlowStop": {
-    "message": "Abortar mecanismo de entrada de Nextcloud"
+    "message": "Abortar inicio de sesión con Nextcloud"
   },
   "LabelLoginFlowError": {
     "message": "Fallo del mecanismo de entrada de Nextcloud."
