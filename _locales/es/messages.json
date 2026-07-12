@@ -30,7 +30,7 @@
     "message": "E010: No se ha podido encontrar la carpeta para ordenarla"
   },
   "Error011": {
-    "message": "E011: El ítem en la ordenación de la carpeta no es un verdadero hijo: {0}"
+    "message": "E011: El elemento en la ordenación de la carpeta en realidad no es un hijo: {0}"
   },
   "Error012": {
     "message": "E012: A la ordenación de la carpeta le faltan algunos de los hijos de la carpeta"
@@ -45,25 +45,25 @@
     "message": "E015: Datos de respuesta del servidor inesperados"
   },
   "Error016": {
-    "message": "E016: La petición ha caducado. Comprueba la configuración del servidor"
+    "message": "E016: La petición ha caducado. Comprueba la configuración de tu servidor"
   },
   "Error017": {
-    "message": "E017: Error de red: Comprueba tu conexión de red, los detalles de tu cuenta y la configuración TLS/SSL."
+    "message": "E017: Error de red: Comprueba tu conexión de red, los detalles de tu cuenta y tus ajsutes de TLS/SSL."
   },
   "Error018": {
-    "message": "E018: No se ha podido autenticar con el servidor"
+    "message": "E018: No se ha podido autentificar con el servidor"
   },
   "Error019": {
-    "message": "E019: Estado HTTP {0}. Solicitud {1} fallida: {2}. Compruebe la configuración y el registro de su servidor."
+    "message": "E019: Estado HTTP {0}. Petición {1} fallida: {2}. Comprueba la configuración de tu servidor y el registro."
   },
   "Error020": {
-    "message": "E020: No se pudo analizar la respuesta del servidor."
+    "message": "E020: No se ha podido procesar la respuesta del servidor."
   },
   "Error021": {
     "message": "E021: Estado del servidor inconsistente. La carpeta se presenta en lista de orden de hijos, pero no en árbol de carpetas"
   },
   "Error022": {
-    "message": "E022: La carpeta {0} contiene supuestamente el marcador no existente {1}"
+    "message": "E022: La carpeta {0} contiene supuestamente un marcador no existente {1}"
   },
   "Error023": {
     "message": "E023: No se ha podido limpiar el archivo bloqueado, considera eliminar {0} manualmente."
@@ -75,82 +75,82 @@
     "message": "E025: El archivo de configuración de marcadores no debe comenzar con una barra: '/'"
   },
   "Error026": {
-    "message": "E026: Se canceló el proceso de sincronización"
+    "message": "E026: Se ha cancelado el proceso de sincronización"
   },
   "Error027": {
-    "message": "E027: El proceso de sincronización fue interrumpido"
+    "message": "E027: Se ha interrumpido el proceso de sincronización"
   },
   "Error028": {
-    "message": "E028: No se puede autenticar con el servidor."
+    "message": "E028: No se ha podido autentificar con el servidor."
   },
   "Error029": {
-    "message": "E029: A prueba de fallos: La actual ejecución de sincronización borraría {0}% de sus enlaces en el servidor. Rechazando la ejecución. Desactiva este error en la configuración del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para anular el estado local en este dispositivo con el estado en el servidor. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
+    "message": "E029: Protección: La actual ejecución de sincronización borraría {0}% de tus enlaces en el servidor. Rechazando la ejecución. Desactiva este error en la configuración del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para sobreecribir el estado local en este dispositivo con el estado en el servidor. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
   },
   "Error030": {
-    "message": "E030: No se pudo descifrar el archivo de marcadores. Es posible que la frase de contraseña sea incorrecta o que el archivo esté corrupto."
+    "message": "E030: No se pudo descifrar el archivo de marcadores. Es posible que la contraseña sea incorrecta o que el archivo esté corrupto."
   },
   "Error031": {
-    "message": "E031: No se pudo autenticar con Google Drive. Por favor, conecta floccus con tu cuenta de Google nuevamente."
+    "message": "E031: No se ha podido autentificar con Google Drive. Reconecta floccus con tu cuenta de Google."
   },
   "Error032": {
-    "message": "E032: Error de OAuth. Error de validación de token. Por favor, vuelva a conectar su cuenta de Google."
+    "message": "E032: Error de OAuth. Error de validación de token.Reconecta u cuenta de Google."
   },
   "Error033": {
-    "message": "E033: Se ha detectado una redirección. Por favor, asegúrese de que el servidor admite el método de sincronización seleccionado y que la URL que ha introducido es correcta y no redirige a una ubicación diferente. Si la redirección forma parte de su configuración, puede desactivar esta comprobación en los ajustes."
+    "message": "E033: Se ha detectado una redirección. Asegúrate de que el servidor admite el método de sincronización seleccionado y que la URL que has introducido es correcta y no redirige a una ubicación diferente. Si la redirección forma parte de su configuración, puedes desactivar esta comprobación en los ajustes."
   },
   "Error034": {
-    "message": "E034: El archivo remoto de marcadores es ilegible. Tal vez olvidó establecer una frase de contraseña de cifrado, o estableció un formato de archivo incorrecto."
+    "message": "E034: El archivo remoto de marcadores es ilegible. Puede que olvidares establecer unacontraseña de cifrado, o que establecieras un formato de archivo incorrecto."
   },
   "Error035": {
     "message": "E035: Error al crear el siguiente marcador en el servidor: {0} -- ¿Está actualizada la aplicación de marcadores?"
   },
   "Error036": {
-    "message": "E036: Permisos faltantes para acceder al servidor de sincronización"
+    "message": "E036: Faltan permisos para acceder al servidor de sincronización"
   },
   "Error037": {
     "message": "E037: El recurso está bloqueado"
   },
   "Error038": {
-    "message": "E038: No se pudo encontrar la carpeta local"
+    "message": "E038: No se ha podido encontrar la carpeta local"
   },
   "Error039": {
     "message": "E039: Fallo al actualizar el siguiente marcador en el servidor: {0}"
   },
   "Error040": {
-    "message": "E040: No se ha podido buscar el nombre del archivo en Google Drive"
+    "message": "E040: No se ha podido buscar el nombre de tu archivo en tu Google Drive"
   },
   "Error041": {
-    "message": "E041: El tamaño del archivo de marcadores remotos difiere del contenido que realmente se descargó del servidor. Puede tratarse de un problema temporal de la red. Si este error persiste, póngase en contacto con el administrador del servidor."
+    "message": "E041: El tamaño del archivo remoto de marcadores difiere del contenido que realmente se descargó del servidor. Puede tratarse de un problema temporal de la red. Si este error persiste, ponte en contacto con el administrador del servidor."
   },
   "Error042": {
-    "message": "E042: No se ha podido recuperar el tamaño del archivo remoto de marcadores. Es imposible verificar que el archivo de marcadores se ha descargado en su totalidad. Si este error persiste, póngase en contacto con el administrador del servidor."
+    "message": "E042: No se ha podido recuperar el tamaño del archivo remoto de marcadores. Es imposible verificar que el archivo de marcadores se ha descargado en su totalidad. Si este error persiste, ponte en contacto con el administrador del servidor."
   },
   "Error043": {
-    "message": "E043: A prueba de fallos: La ejecución de la sincronización actual aumentaría el recuento de enlaces en el servidor en {0}%. Rechazando la ejecución. Desactiva este failsafe en la configuración del perfil si quieres proceder de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para anular el estado local en este dispositivo con el estado en el servidor. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
+    "message": "E043: Mecanismo de seguridad: La ejecución de la sincronización actual aumentaría el recuento de enlaces en el servidor un {0}%. Rechazando la ejecución. Desactiva este seguro en los ajustes del perfil si quieres proceder de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para sobreescribir el estado local en este dispositivo con el estado en el servidor. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
   },
   "Error044": {
-    "message": "E044: Falló la operación Git push: {0}"
+    "message": "E044: Ha fallado la operación Git push: {0}"
   },
   "Error045": {
-    "message": "E045: Ruta de carpeta inesperada. La carpeta de sincronización local para este perfil solía estar en `{0}` pero ahora está en `{1}`. Por favor, asegúrese de que es correcto y vuelva a establecer la carpeta de sincronización local en la configuración del perfil."
+    "message": "E045: Ruta de carpeta inesperada. La carpeta de sincronización local para este perfil solía estar en `{0}` pero ahora está en `{1}`. Por favor, asegúrese de que es correcto y vuelva a establecer la carpeta de sincronización local en los ajustes del perfil."
   },
   "Error046": {
     "message": "E046: URL no válida. `{0}` no es una URL válida."
   },
   "Error047": {
-    "message": "E047: Error al analizar el archivo XBEL. Los datos XBEL parecen estar dañados o incompletos. Puede intentar eliminar el archivo del servidor para que floccus lo vuelva a crear. Asegúrese de hacer primero una copia de seguridad."
+    "message": "E047: Error al analizar el archivo XBEL. Los datos del XBEL parecen estar dañados o incompletos. Puedes intentar eliminar el archivo del servidor para que floccus lo vuelva a crear. Asegúrate de hacer primero una copia de seguridad."
   },
   "Error049": {
-    "message": "E049: A prueba de fallos: La ejecución de la sincronización actual aumentaría el recuento de enlaces locales en este perfil en {0}%. Rechazando la ejecución. Desactiva este failsafe en la configuración del perfil si quieres proceder de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para anular el estado del servidor con el estado local en este dispositivo. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
+    "message": "E049: Mecanismo de seguridad: La ejecución de la sincronización actual aumentaría el recuento de enlaces locales en este perfil un {0}%. Rechazando la ejecución. Desactiva este segur en los ajustes del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para sobreescribir el estado del servidor con el estado local en este dispositivo. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
   },
   "Error050": {
-    "message": "E050: A prueba de fallos: La actual ejecución de sincronización eliminaría {0}% de sus enlaces locales en este perfil. Rechazando la ejecución. Desactiva este error en la configuración del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para anular el estado del servidor con el estado local en este dispositivo. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
+    "message": "E050: Mecanismo de seguridad: La actual ejecución de sincronización eliminaría un {0}% de los enlaces locales en este perfil. Rechazando la ejecución. Desactiva este seguro en los ajustes del perfil si quieres continuar de todas formas. Si no has causado esto, puedes usar los botones de sincronización manual para aobreescribir el estado del servidor con el estado local en este dispositivo. Si crees que se trata de un error, ponte en contacto con los desarrolladores con el registro de depuración de esta ejecución."
   },
   "Error051": {
-    "message": "E051: No se pudo autenticar con Dropbox. Vuelve a conectar floccus con tu cuenta de Dropbox."
+    "message": "E051: No se ha podido identificar con Dropbox. Vuelve a conectar floccus con tu cuenta de Dropbox."
   },
   "Error052": {
-    "message": "E052: Error OAuth. Error de validación de token. Vuelve a conectar tu cuenta de Dropbox."
+    "message": "E052: Error de OAuth. Error de validación de token. Vuelve a conectar tu cuenta de Dropbox."
   },
   "Error053": {
     "message": "E053: No se ha podido buscar el nombre del archivo en tu Dropbox"
@@ -158,11 +158,17 @@
   "Error054": {
     "message": "E054: No se pudo obtener la plantilla para Dropbox"
   },
+  "Error055": {
+    "message": "E055: El tamaño del archivo de marcadores descargado de Google Drove difiere del tamaño que informó el servidor. Puede tratarse de un problema temporal de la red. Si este error persiste inténtalo más tarde."
+  },
+  "Error056": {
+    "message": "E056: El tamaño del archivo de marcadores subido a Google Drove difiere 6del tamaño que informó el servidor después de la verificación. floccus a reintentado la subida pero no puede confirmar el resultado. Reinténtalo más tarde."
+  },
   "LabelWebdavurl": {
     "message": "URL de WebDAV"
   },
   "DescriptionWebdavurl": {
-    "message": "p. ej., con nextcoud: https://tudominio.com/remote.php/webdav/"
+    "message": "p. ej., con nextcoud: https://example.com/remote.php/webdav/"
   },
   "LabelNextcloudurl": {
     "message": "URL de Nextcloud"
@@ -177,28 +183,28 @@
     "message": "Archivo de marcadores"
   },
   "DescriptionBookmarksfile": {
-    "message": "una ruta a donde residirá el archivo de marcadores en el servidor, relativa a su URL WebDAV (todas las carpetas de la ruta deben existir ya). por ejemplo, personal_stuff/bookmarks.xbel"
+    "message": "una ruta a donde residirá el archivo de marcadores en el servidor, relativa a la URL de tu WebDAV (todas las carpetas de la ruta deben existir ya). por ejemplo, mis_cosas/marcadores.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
-   "message": "el nombre del archivo de marcadores que residirá en su Google Drive. No introduzca la ruta completa del archivo, sólo el nombre del archivo. Asegúrese de que este nombre es único en su Drive. por ejemplo, mybookmarks.xbel"
+   "message": "el nombre del archivo de marcadores que residirá en tu Google Drive. No introduzcas la ruta completa del archivo, sólo el nombre del archivo. Asegúrate de que este nombre es único en tu Drive. por ejemplo, mismarcadores.xbel"
  },
  "DescriptionBookmarksfiledropbox": {
-   "message": "el nombre del archivo de marcadores que residirá en tu Dropbox. No introduzcas la ruta completa del archivo, sólo el nombre. Asegúrate de que este nombre sea único en tu Dropbox. Por ejemplo, mybookmarks.xbel."
+   "message": "el nombre del archivo de marcadores que residirá en tu Dropbox. No introduzcas la ruta completa del archivo, sólo el nombre. Asegúrate de que este nombre sea único en tu Dropbox. Por ejemplo, mismarcadores.xbel."
  },
   "DescriptionBookmarksfilegit": {
-    "message": "una ruta al archivo de marcadores relativa a la raíz de su repositorio Git (todas las carpetas de la ruta deben existir ya). por ejemplo, personal_stuff/bookmarks.xbel"
+    "message": "una ruta al archivo de marcadores relativa a la raíz de tu repositorio Git (todas las carpetas de la ruta deben existir ya). por ejemplo, mis_cosas/marcadores.xbel"
   },
   "LabelServerfolder": {
-    "message": "Servidor objetivo"
+    "message": "Objetivo en el servidor"
   },
   "DescriptionServerfolder": {
-    "message": "Cuando se sincroniza, sus marcadores en este navegador se almacenarán como enlaces bajo esta ruta en el servidor. Tenga en cuenta que esta ruta representa una carpeta en la aplicación de Marcadores de Nextcloud, no una carpeta en los Archivos de Nextcloud. Deje esto vacío para simplemente colocar todos los enlaces en la carpeta superior del servidor."
+    "message": "Cuando se sincronicen, tus marcadores en este navegador se almacenarán como enlaces bajo esta ruta en el servidor. Ten en cuenta que esta ruta representa una carpeta en la aplicación de Marcadores de Nextcloud, no una carpeta en los archivos de Nextcloud. Deja esto vacío para simplemente colocar todos los enlaces en la carpeta superior del servidor."
   },
   "DescriptionServerfolderlinkwarden": {
-    "message": "Al sincronizar, sus marcadores en este navegador se almacenarán como enlaces bajo esta colección y sólo los enlaces bajo esta colección se sincronizarán con este navegador."
+    "message": "Cuando se sincronicen, tus marcadores en este navegador se almacenarán como enlaces bajo esta colección y sólo los enlaces bajo esta colección se sincronizarán con este navegador."
   },
   "DescriptionServerfolderkarakeep": {
-    "message": "Al sincronizar, sus marcadores en este navegador se almacenarán como enlaces bajo esta colección y sólo los enlaces bajo esta colección se sincronizarán con este navegador."
+    "message": "Cuando se sincronicen, tus marcadores en este navegador se almacenarán como enlaces bajo esta colección y sólo los enlaces bajo esta colección se sincronizarán con este navegador."
   },
   "LabelLocaltarget": {
     "message": "Objetivo local"
@@ -207,19 +213,19 @@
     "message": "Elige aquí si quieres sincronizar los marcadores del navegador o las pestañas del navegador."
   },
   "LabelLocalfolder": {
-    "message": "carpeta de marcadores"
+    "message": "Carpeta de marcadores"
   },
   "DescriptionLocalfolder": {
-    "message": "Los marcadores en esta carpeta de marcadores se almacenarán como enlaces en el servidor y los enlaces en el servidor se almacenarán como marcadores en esta carpeta de marcadores en este navegador."
+    "message": "Los marcadores de esta carpeta de marcadores se almacenarán como enlaces en el servidor y los enlaces en el servidor se almacenarán como marcadores en esta carpeta de marcadores en este navegador."
   },
   "LabelRootfolder": {
     "message": "Carpeta raíz"
   },
   "LabelNewfolder": {
-    "message": "Nueva carpeta creada"
+    "message": "Carpeta recién creada"
   },
   "LabelSelectfolder": {
-    "message": "Seleccione una carpeta"
+    "message": "Selecciona una carpeta"
   },
   "LabelOptions": {
     "message": "Opciones"
@@ -258,16 +264,16 @@
     "message": "Programado"
   },
   "LabelReset": {
-    "message": "Resetear"
+    "message": "Restablecer"
   },
   "DescriptionReset": {
-    "message": "Resetear carpeta sincronizada para crear una nueva"
+    "message": "Restablecer la carpeta sincronizada para crear una nueva"
   },
   "LabelChoosefolder": {
-    "message": "Escoge carpeta"
+    "message": "Elige una carpeta"
   },
   "DescriptionChoosefolder": {
-    "message": "Configura una carpeta existente para sincronizar"
+    "message": "Configura una carpeta existente que sincronizar"
   },
   "LabelRemoveaccount": {
     "message": "Eliminar perfil"
@@ -282,19 +288,19 @@
     "message": "Restablecer caché"
   },
   "DescriptionResetcache": {
-    "message": "Haga clic en este botón para restablecer la caché, de modo que se garantice que la siguiente ejecución de sincronización no borrará ningún dato y se limitará a fusionar los marcadores locales y del servidor."
+    "message": "Haz clic en este botón para restablecer la caché, de modo que se garantice que la siguiente ejecución de sincronización no borrará ningún dato y se limitará a fusionar los marcadores locales y del servidor."
   },
   "LabelParallelsync": {
     "message": "Acelerar sincronización"
   },
   "DescriptionParallelsync": {
-    "message": "Marca esta casilla para procesar múltiples careptas en paralelo para acelerar la sincronización. Esta característica es experimental y hace más difícil leer los registros de depuración."
+    "message": "Marca esta casilla para procesar múltiples carpetas en paralelo para acelerar la sincronización. Esta característica es experimental y hace más difícil leer los registros de depuración."
   },
   "LabelStrategy": {
     "message": "Estrategia de sincronización"
   },
   "DescriptionStrategy": {
-    "message": "Esta opción determina cómo sincronizar el árbol de marcadores en el servidor con el de este navegador. Normalmente querrás mantener los cambios a ambos árboles si son compatibles, pero en ocasiones puedes querer forzar la versión local sobre la del servidor o viceversa."
+    "message": "Esta opción determina cómo se sincronizan los marcadores en los distintos dispositivos. Normalmente, lo más recomendable es conservar los cambios de todas las fuentes si son compatibles, pero en ocasiones es posible que quieras sobrescribir los cambios (incluidas las adiciones y eliminaciones) de otros navegadores, o sobrescribir los cambios que hayas realizado localmente."
   },
   "LabelStrategydefault": {
     "message": "Combinar siempre los cambios locales con los cambios de otros navegadores (recomendado)"
@@ -303,7 +309,7 @@
     "message": "Siempre deshacer los cambios locales y descargar los cambios de otros navegadores."
   },
   "LabelStrategyoverwrite": {
-    "message": "Siempre suba los cambios locales y deshaga los cambios de otros navegadores."
+    "message": "Siempre subir los cambios locales y deshacer los cambios de otros navegadores."
   },
   "LabelSave": {
     "message": "Guardar"
@@ -321,7 +327,7 @@
     "message": "Cambiar"
   },
   "LabelRemove": {
-    "message": "Eliminar"
+    "message": "Borrar"
   },
   "LabelBack": {
     "message": "Atrás"
@@ -330,25 +336,25 @@
     "message": "Marcadores de Nextcloud"
   },
   "DescriptionAdapternextcloudfolders": {
-    "message": "Sincronice sus marcadores con la aplicación de código abierto Bookmarks para Nextcloud (una plataforma de colaboración de código abierto que puede alojar usted mismo u obtener una cuenta para una instancia en la nube de uno de los distintos hosters). Con Nextcloud Bookmarks sólo puede sincronizar marcadores http, ftp y javascript. Asegúrese de haber instalado la aplicación Marcadores de la tienda de aplicaciones Nextcloud en su Nextcloud. Esta opción no puede hacer uso del cifrado de extremo a extremo."
+    "message": "Sincroniza tus marcadores con la aplicación de código abierto Bookmarks para Nextcloud (una plataforma de colaboración de código abierto que puedes alojar tu mismo u obtener una cuenta para una instancia en la nube de uno de los distintos alojamientos). Con Nextcloud Bookmarks sólo puedes sincronizar marcadores http, ftp y javascript. Asegúrate de haber instalado la aplicación Marcadores de la tienda de aplicaciones Nextcloud en tu Nextcloud. Esta opción no puede hacer uso del cifrado de extremo a extremo."
   },
   "LabelAdapternextcloud": {
-    "message": "Marcadores de Nextcloud (antigua)"
+    "message": "Marcadores de Nextcloud (obsoleto)"
   },
   "DescriptionAdapternextcloud": {
-    "message": "La opción vieja es compatible con al menos la versión v0.11 de la aplicación Bookmarks. Emulará carpetas utilizando etiquetas que contienen la ruta de la carpeta. No se recomienda utilizar esto para perfiles nuevos."
+    "message": "La opción obsoleta es compatible con al menos la versión v0.11 de la aplicación Bookmarks. Emulará carpetas utilizando etiquetas que contienen la ruta de la carpeta. No se recomienda utilizar esto para perfiles nuevos."
   },
   "LabelAdapterwebdav": {
-    "message": "Carpeta WebDAV"
+    "message": "Compartido de WebDAV"
   },
   "DescriptionAdapterwedavexamples": {
     "message": "por ejemplo: Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
   },
   "DescriptionAdapterwebdav": {
-    "message": "Sincronice sus marcadores almacenándolos en un archivo en el recurso compartido WebDAV proporcionado. No hay interfaz de usuario web de acompañamiento para esta opción y puede utilizarla con cualquier servidor compatible con WebDAV, ya sea autoalojado o en la nube. Puede sincronizar marcadores http, ftp, datos, archivos y javascript. Puede elegir utilizar el cifrado de extremo a extremo cuando utilice esta opción."
+    "message": "Sincroniza tus marcadores almacenándolos en un archivo en el recurso compartido de WebDAV proporcionado. No hay interfaz de usuario web de acompañamiento para esta opción y puedes utilizarla con cualquier servidor compatible con WebDAV, ya sea autoalojado o en la nube. Puedes sincronizar marcadores http, ftp, datos, archivos y javascript. Puedes elegir utilizar el cifrado de extremo a extremo cuando utilices esta opción."
   },
   "LabelAddaccount": {
-    "message": "Agregar perfil"
+    "message": "Añadir perfil"
   },
   "LabelOpenintab": {
     "message": "Abrir en pestaña"
@@ -357,16 +363,16 @@
     "message": "Registros de depuración"
   },
   "LabelFunddevelopment": {
-    "message": "💸 Desarrollo de fondos"
+    "message": "💸 Financiar el desarrollo"
   },
   "DescriptionFunddevelopment": {
-    "message": "El trabajo en floccus es impulsado por un modelo de suscripción voluntaria. Si piensas que lo qué hago vale la pena y puedes permitirte contribuir un poco de dinero, te invito a hacerlo. También, considera darle a floccus una buena calificación en la tienda de aplicaciones de tu preferencia. ¡Gracias!💙"
+    "message": "El trabajo en floccus se mantiene por un modelo de suscripción voluntaria. Si piensas que lo que hago vale la pena y puedes permitirte contribuir un poco de dinero, te invito a hacerlo. También, considera darle a floccus una buena calificación en la tienda de aplicaciones de tu preferencia. ¡Gracias!💙"
   },
   "LabelUntitledfolder": {
     "message": "Carpeta sin título"
   },
   "LabelSetkeybutton": {
-    "message": "Establecer frase de contraseña"
+    "message": "Establecer contraseña"
   },
   "LabelKey": {
     "message": "Escribe tu contraseña"
@@ -378,7 +384,7 @@
     "message": "Desbloquear Floccus"
   },
   "LabelRemovekey": {
-    "message": "Eliminar frase de contraseña"
+    "message": "Eliminar contraseña"
   },
   "LabelRemovedkey": {
     "message": "Contraseña eliminada"
@@ -387,68 +393,68 @@
     "message": "Intervalo de sincronización"
   },
   "DescriptionSyncinterval": {
-    "message": "El intervalo entre dos sincronizaciones se define en minutos. Por defecto, 15 minutos."
+    "message": "El intervalo entre sincronizaciones se define en minutos. Por defecto, 15 minutos."
   },
   "LabelChooseadapter": {
     "message": "¿Cómo quieres sincronizar?"
   },
   "LabelOptionsscreen": {
-    "message": "{0} Opciones",
+    "message": "{0} opciones",
     "description": "Title of the options screen. The placeholder holds the profile type."
   },
   "LabelPaypal": {
     "message": "Paypal"
   },
   "DescriptionPaypal": {
-    "message": "Haga una donación única o periódica a través de paypal para apoyar el proyecto"
+    "message": "Haz una donación única o periódica a través de Paypal para apoyar el proyecto"
   },
   "LabelOpencollective": {
     "message": "OpenCollective"
   },
   "DescriptionOpencollective": {
-    "message": "Haz una donación periódica vía OpenCollective para apoyar el proyecto"
+    "message": "Haz una donación periódica a través de OpenCollective para apoyar el proyecto"
   },
   "LabelLiberapay": {
     "message": "Liberapay"
   },
   "DescriptionLiberapay": {
-    "message": "Haz una donación periódica vía Liberapay para apoyar el proyecto"
+    "message": "Haz una donación periódica a través de Liberapay para apoyar el proyecto"
   },
   "LabelGithubsponsors": {
     "message": "GitHub sponsors"
   },
   "DescriptionGithubsponsors": {
-    "message": "Haz una donación periódica vía GitHub sponsors para apoyar el proyecto"
+    "message": "Haz una donación periódica a través de GitHub sponsors para apoyar el proyecto"
   },
   "LabelPatreon": {
     "message": "Patreon"
   },
   "DescriptionPatreon": {
-    "message": "Haga una donación periódica a través de Patreon para apoyar el proyecto"
+    "message": "Haz una donación periódica a través de Patreon para apoyar el proyecto"
   },
   "LabelKofi": {
     "message": "Kofi"
   },
   "DescriptionKofi": {
-    "message": "Haga una donación periódica o puntual a través de Ko-fi para apoyar el proyecto"
+    "message": "Haz una donación periódica o puntual a través de Ko-fi para apoyar el proyecto"
   },
   "LegacyAdapterDeprecation": {
-    "message": "Este tipo de perfil vieja está obsoleto y pronto será eliminado. Por favor, cambie al nuevo método de sincronización de Nextcloud. Un rendimiento y precisión mejorados le esperan."
+    "message": "Este tipo de perfil está obsoleto y pronto será eliminado. Pásate al nuevo método de sincronización de Nextcloud. Un rendimiento y precisión mejorados te esperan."
   },
   "LabelUpdated": {
-    "message": "⚡ Floccus fue actualizado"
+    "message": "⚡Se ha actualizado Floccus"
   },
   "DescriptionUpdated": {
     "message": "¡Enhorabuena, la última actualización de Floccus ha llegado a tu máquina! "
   },
   "LabelReleaseNotes": {
-    "message": "Leer notas de publicación"
+    "message": "Lee las notas de la versión"
   },
   "LabelOptionsServerDetails": {
     "message": "Detalles del servidor"
   },
   "LabelOptionsFolderMapping": {
-    "message": "Mapeado de carpetas"
+    "message": "Asignación de carpetas"
   },
   "LabelOptionsSyncBehavior": {
     "message": "Comportamiento de sincronización"
@@ -457,25 +463,25 @@
     "message": "Acciones peligrosas"
   },
   "LabelAccountDeleted": {
-    "message": "Perfil eliminado"
+    "message": "Perfil borrado"
   },
   "DescriptionAccountDeleted": {
-    "message": "Este perfil fue eliminado"
+    "message": "Se ha borrado este perfil"
   },
   "LabelNoAccount": {
     "message": "Aún no hay perfiles"
   },
   "DescriptionNoAccount": {
-    "message": "Añada nuevos perfiles o importe perfiles desde un archivo y podrá empezar a sincronizar."
+    "message": "Añade nuevos perfiles o importa perfiles desde un archivo y podrás empezar a sincronizar."
   },
   "LabelLoginFlowStart": {
-    "message": "Iniciar sesión con el mecanismo de entrada de Nextcloud"
+    "message": "Iniciar sesión con Nextcloud"
   },
   "LabelLoginFlowStop": {
-    "message": "Abortar mecanismo de entrada de Nextcloud"
+    "message": "Abortar inicio de sesión con Nextcloud"
   },
   "LabelLoginFlowError": {
-    "message": "Fallo del mecanismo de entrada de Nextcloud."
+    "message": "El inicio de sesión con Nextcloud ha fallado"
   },
   "LabelNewAccount": {
     "message": "Añadir perfil"
@@ -487,7 +493,7 @@
     "message": "Perfiles anidados"
   },
   "DescriptionNestedSync": {
-    "message": "Puede anidar perfiles para que una carpeta principal pertenezca al perfil A y una subcarpeta al perfil A y B. ¿Desea permitir que otros perfiles sincronicen también la carpeta de este perfil?"
+    "message": "Puedes anidar perfiles para que una carpeta principal pertenezca al perfil A y una subcarpeta al perfil A y B. ¿Quieres permitir que otros perfiles sincronicen también la carpeta de este perfil?"
   },
   "LabelNestedSyncNo": {
     "message": "No, ignora la carpeta de este perfil en otros perfiles."
@@ -496,7 +502,7 @@
     "message": "Sí, incluye la carpeta de este perfil en otros perfiles."
   },
   "LabelImportExport": {
-    "message": "Importar/Exportar Perfiles"
+    "message": "Importar/exportar perfiles"
   },
   "LabelExport": {
     "message": "Exportar perfiles"
@@ -505,10 +511,10 @@
     "message": "Importar perfiles"
   },
   "DescriptionExport": {
-    "message": "Seleccione los perfiles a continuación que le gustaría exportar a un archivo, para que pueda recrear fácilmente los mismos perfiles en un dispositivo o navegador diferente."
+    "message": "Selecciona los perfiles que quieres exportar a un archivo, para que puedas recrear fácilmente los mismos perfiles en un dispositivo o navegador diferente."
   },
   "DescriptionImport": {
-    "message": "Importa un archivo con perfiles exportados aquí para volver a crear perfiles exportados en un dispositivo o navegador diferente. Por favor, asegúrate de configurar las carpetas de sincronización correctas nuevamente después de importar."
+    "message": "Importa aquí un archivo con perfiles exportados para volver a crear perfiles exportados desde un dispositivo o navegador diferente. Asegúrate de configurar las carpetas de sincronización correctas nuevamente después de importar."
   },
   "LabelFolderNotFound": {
     "message": "Carpeta no encontrada"
@@ -517,28 +523,28 @@
     "message": "Pestañas del navegador"
   },
   "DescriptionSyncTabs": {
-    "message": "Los enlaces que se almacenan en el servidor se abrirán como pestañas en tu navegador y las pestañas abiertas existentes se almacenan como enlaces en tu servidor. Tenga en cuenta que, dependiendo de cuántos enlaces se almacenen en el servidor, ya que todos se abrirán como pestañas en la próxima sincronización, esto podría abrumar posiblemente tu navegador."
+    "message": "Los enlaces que se almacenan en el servidor se abrirán como pestañas en tu navegador y las pestañas abiertas existentes se almacenan como enlaces en tu servidor. Ten en cuenta que, dependiendo de cuántos enlaces se almacenen en el servidor, ya que todos se abrirán como pestañas en la próxima sincronización, esto podría abrumar posiblemente tu navegador."
   },
   "LabelTabs": {
     "message": "Pestañas"
   },
   "LabelSyncDown": {
-    "message": "Bajar"
+    "message": "Descargar cambios"
   },
   "DescriptionSyncDown": {
     "message": "Descargar cambios de otros navegadores y sobrescribir cambios locales"
   },
   "LabelSyncUp": {
-    "message": "Empujar hacia arriba"
+    "message": "Subir cambios"
   },
   "DescriptionSyncUp": {
     "message": "Sube los cambios locales y sobrescribe los cambios de otros navegadores"
   },
   "LabelSyncDownOnce": {
-    "message": "Bajar una vez"
+    "message": "Descargar cambios (una vez)"
   },
   "LabelSyncUpOnce": {
-    "message": "Empuja hacia arriba una vez"
+    "message": "Subir cambios (una vez)"
   },
   "LabelSyncNormal": {
     "message": "Combinar"
@@ -556,25 +562,25 @@
     "message": "Mecanismo de seguridad"
   },
   "DescriptionFailsafe": {
-    "message": "A veces, errores de configuración o fallos de software pueden causar la eliminación involuntaria de datos, que se pierden, o la duplicación involuntaria de datos, que es difícil de resolver. Para evitar que esto ocurra, floccus no eliminará más del 20% de tus marcadores de una sola vez y tampoco añadirá más del 20% a tu cuenta de enlaces de una sola vez, a menos que desactives esta medida de seguridad aquí."
+    "message": "A veces, errores de configuración o fallos de software pueden causar la eliminación involuntaria de datos, que se pierden, o la duplicación involuntaria de datos, que es difícil de resolver. Para evitar que esto ocurra, floccus no eliminará más del 20% de tus marcadores de una sola vez y tampoco añadirá más del 20% de tu número enlaces de una sola vez, a menos que desactives esta medida de seguridad aquí."
   },
   "LabelFailsafeon": {
-    "message": "Activado. No borrará ni añadirá más del 20% de/a sus marcadores locales sin preguntarle antes. (Recomendado)"
+    "message": "Activado. No se borrará ni añadirá más del 20% de tus marcadores locales sin preguntarle antes. (Recomendado)"
   },
   "LabelFailsafeoff": {
-    "message": "Desactivado. Permitirá eliminar o añadir más del 20% de/a sus marcadores locales sin confirmarlo con usted."
+    "message": "Desactivado. Permitirá eliminar o añadir más del 20% de tus marcadores locales sin que puedas confirmar."
   },
   "StatusFailsafeoff": {
-    "message": "A prueba de fallos desactivado. Corre el riesgo de perder o duplicar datos involuntariamente. Se recomienda activar el failsafe en la configuración del perfil."
+    "message": "Mecanismo de seguridad desactivado. Corres el riesgo de perder o duplicar datos involuntariamente. Te recomendamos activarlo en los ajustes del perfil."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Sincroniza marcadores a través de un archivo (opcionalmente encriptado) que se almacena en su Google Drive. Puede sincronizar marcadores http, ftp, datos, archivos y javascript. Puede elegir utilizar el cifrado de extremo a extremo cuando utilice esta opción."
+    "message": "Sincroniza marcadores a través de un archivo (opcionalmente encriptado) que se almacena en tu Google Drive. Puedes sincronizar marcadores http, ftp, datos, archivos y javascript. Puedes elegir utilizar el cifrado de extremo a extremo cuando utilices esta opción."
   },
   "LabelLogingoogle": {
-    "message": "Conecta tu cuenta de Google"
+    "message": "Iniciar sesión con Google"
   },
   "DescriptionLogingoogle": {
     "message": "Conecta tu cuenta de Google para almacenar el archivo de sincronización de marcadores en tu Google Drive."
@@ -586,7 +592,7 @@
     "message": "Dropbox"
   },
   "DescriptionAdapterdropbox": {
-    "message": "Sincroniza marcadores a través de un archivo (opcionalmente encriptado) que se almacena en tu Dropbox. Puede sincronizar marcadores http, ftp, datos, archivos y javascript. Puedes elegir utilizar el cifrado de extremo a extremo cuando utilices esta opción."
+    "message": "Sincroniza marcadores a través de un archivo (opcionalmente encriptado) que se almacena en tu Dropbox. Puedes sincronizar marcadores http, ftp, datos, archivos y javascript. Puedes elegir utilizar el cifrado de extremo a extremo cuando utilices esta opción."
   },
   "LabelLogindropbox": {
     "message": "Iniciar sesión con Dropbox"
@@ -595,25 +601,25 @@
     "message": "Conecta tu cuenta de Dropbox para almacenar el archivo de sincronización de favoritos en tu Dropbox."
   },
   "DescriptionLoggedindropbox": {
-    "message": "Has conectado tu cuenta de Dropbox para almacenar el archivo de sincronización de favoritos en tu Dropbox."
+    "message": "Has conectado tu cuenta de Dropbox para almacenar tu archivo de sincronización de favoritos en tu Dropbox."
   },
   "LabelPassphrase": {
-    "message": "Frase de contraseña"
+    "message": "Contraseña"
   },
   "DescriptionPassphrase": {
-    "message": "Establezca una frase de contraseña para cifrar su archivo de marcadores. Si no establece una frase de contraseña, no se ejecutará ninguna encriptación."
+    "message": "Establece una contraseña para cifrar tu archivo de marcadores. Si no estableces una contraseña, no se ejecutará ninguna encriptación."
   },
   "LabelClientcert": {
     "message": "Enviar credenciales del cliente"
   },
   "DescriptionClientcert": {
-    "message": "Active esta opción si su servidor requiere un certificado de cliente o cookies para la autenticación. Esto puede causar efectos secundarios no deseados, ya que floccus compartirá cookies con las sesiones normales de su navegador."
+    "message": "Active esta opción si tu servidor requiere un certificado de cliente o cookies para la autenticación. Esto puede causar efectos secundarios no deseados, ya que floccus compartirá cookies con las sesiones normales de tu navegador."
   },
   "LabelAllowredirects": {
-    "message": "Permitir redireccionamientos en la URL del servidor."
+    "message": "Permitir redirecciones en la URL del servidor."
   },
   "DescriptionAllowredirects": {
-    "message": "Habilita esta opción, si recibes errores de redirección durante la sincronización, que crees que son injustificados."
+    "message": "Activa esta opción si recibes errores de redirección durante la sincronización que crees que son injustificados."
   },
   "LabelSearch": {
     "message": "Buscar marcadores"
@@ -625,22 +631,22 @@
     "message": "Editar"
   },
   "LabelDeleteitem": {
-    "message": "Eliminar"
+    "message": "Borrar"
   },
   "DescriptionReallydeleteitem": {
-    "message": "¿Realmente desea eliminar este elemento?"
+    "message": "¿De verdad quieres borrar este elemento?"
   },
   "LabelNobookmarks": {
     "message": "No hay marcadores aquí"
   },
   "LabelAddbookmark": {
-    "message": "Agregar marcador"
+    "message": "Añadir marcador"
   },
   "LabelEditbookmark": {
     "message": "Editar marcador"
   },
   "LabelAddfolder": {
-    "message": "Agregar carpeta"
+    "message": "Añadir carpeta"
   },
   "LabelEditfolder": {
     "message": "Editar carpeta"
@@ -649,16 +655,16 @@
     "message": "Sincronización privada de marcadores"
   },
   "LabelDownloadlogs": {
-    "message": "Descargar protocoles"
+    "message": "Descargar registros"
   },
   "LabelDownloadfulllogs": {
-    "message": "Protocoles completos"
+    "message": "Registros completos"
   },
   "LabelDownloadanonymizedlogs": {
-    "message": "Protocoles redactados"
+    "message": "Registros redactados"
   },
   "DescriptionDownloadlogs": {
-    "message": "Floccus protocola todas sus acciones en un archivo de registro que puede examinar usted mismo o enviar a los desarrolladores con fines de depuración. En los protocles redactados, los nombres de las carpetas y marcadores, así como las URL, se codifican de forma irreversible utilizando una función de hash criptográfico. Al enviar registros redactados, asegúrese de verificar el archivo descargado en busca de datos sensibles que puedan no haber sido capturados por el proceso de anonimización."
+    "message": "Floccus registra todas sus acciones en un archivo de registro que puedes examinar o enviar a los desarrolladores con fines de depuración. En los registros redactados, los nombres de las carpetas y marcadores, así como las URL, se codifican de forma irreversible utilizando una función de hash criptográfico. Al enviar registros redactados, asegúrate de verificar el archivo descargado en busca de datos sensibles que puedan no haber sido capturados por el proceso de anonimización."
   },
   "ErrorFolderloopselected": {
     "message": "No se puede mover una carpeta dentro de sí misma."
@@ -670,13 +676,13 @@
     "message": "Permitir uso de red"
   },
   "DescriptionAllownetwork": {
-    "message": "Floccus puede utilizar la red aparte de conectarse a tu servidor de sincronización, para obtener información adicional sobre tus marcadores (como iconos, etc.). Aquí puedes habilitar dicho uso de la red."
+    "message": "Floccus puede utilizar la red aparte de para conectarse a tu servidor de sincronización, para obtener información adicional sobre tus marcadores (como iconos, etc.). Aquí puedes activar ese uso de la red."
   },
   "LabelMobilesettings": {
-    "message": "Configuración móvil"
+    "message": "Ajustes móviles"
   },
   "LabelContinuefloccus":{
-    "message": "Continuar con floccus"
+    "message": "Continuar a floccus"
   },
   "LabelAbout":{
     "message": "Acerca de"
@@ -685,16 +691,16 @@
     "message": "Versión actual"
   },
   "DescriptionCurrentversion": {
-    "message": "Su versión instalada actualmente de floccus es:"
+    "message": "Tu versión instalada de floccus:"
   },
   "LabelContributors": {
-    "message": "Contribuidores"
+    "message": "Colaboradores"
   },
   "DescriptionContributors": {
     "message": "Estas personas han ayudado a hacer posible floccus."
   },
   "LabelSortcustom": {
-    "message": "Custom"
+    "message": "Personalizado"
   },
   "LabelSorturl": {
     "message": "Enlace"
@@ -724,13 +730,13 @@
     "message": "Conectar"
   },
   "LabelServersetup": {
-    "message": "¿A qué servidor quieres sincronizar?"
+    "message": "¿Con qué servidor quieres sincronizar?"
   },
   "LabelGoogledrivesetup": {
-    "message": "Iniciar sesión en Google Drive"
+    "message": "Iniciar sesión con Google Drive"
   },
   "LabelDropboxsetup": {
-    "message": "Iniciar sesión en Dropbox"
+    "message": "Iniciar sesión con Dropbox"
   },
   "LabelSyncfoldersetup": {
     "message": "¿Qué carpetas quieres sincronizar?"
@@ -742,16 +748,16 @@
     "message": "Perfil creado"
   },
   "DescriptionAccountcreated": {
-    "message": "Una cosa más: Sync no es una copia de seguridad. Asegúrate de tener copias de seguridad periódicas de tus marcadores.\n\nTambién ten en cuenta que combinar floccus con la sincronización de marcadores integrada en el navegador no es compatible y puedes acabar con duplicados."
+    "message": "Una cosa más: Sincronizar no es hacer una copia de seguridad. Asegúrate de tener copias de seguridad periódicas de tus marcadores.\n\nTambién ten en cuenta que combinar floccus con la sincronización de marcadores integrada en el navegador no es compatible y puedes acabar con duplicados."
   },
   "DescriptionNonhttps": {
-    "message": "Has ingresado a un servidor que utiliza un protocolo inseguro. Se recomienda utilizar solo servidores con soporte para HTTPS."
+    "message": "Has añadido un servidor que utiliza un protocolo inseguro. Se recomienda utilizar solo servidores que permitan HTTPS."
   },
   "LabelFiletype": {
     "message": "Formato de archivo"
   },
   "DescriptionFiletype": {
-    "message": "Puede elegir en qué formato de archivo desea almacenar los marcadores en la nube."
+    "message": "Puede elegir en qué formato de archivo quieres almacenar los marcadores en la nube."
   },
   "LabelFiletypehtml": {
     "message": "HTML, un formato ampliamente compatible y abierto (experimental)"
@@ -763,136 +769,136 @@
     "message": "Importar marcadores"
   },
   "DescriptionImportbookmarks": {
-    "message": "Importar un archivo HTML que contenga marcadores en la carpeta actual"
+    "message": "Importar un archivo HTML de marcadores en la carpeta actual"
   },
   "LabelExportBookmarks": {
-    "message": "Exportar Marcadores"
+    "message": "Exportar marcadores"
   },
   "DescriptionExportBookmarks" : {
-    "message": "Puede exportar todos los marcadores de este perfil como un archivo HTML compatible con todos los principales navegadores."
+    "message": "Puedes exportar todos los marcadores de este perfil como un archivo HTML compatible con los principales navegadores."
   },
   "LabelShareitem": {
     "message": "Compartir"
   },
   "LabelImportsuccessful": {
-    "message": "Perfil(es) importado(s) exitosamente"
+    "message": "Perfil/es importado/s correctamente"
   },
   "DescriptionSyncinprogress": {
     "message": "Sincronización en progreso."
   },
   "DescriptionSyncscheduled": {
-    "message": "Este perfil se sincronizará pronto. Estamos esperando que otros dispositivos tuyos, o otros perfiles en este dispositivo, terminen de sincronizarse."
+    "message": "Este perfil se sincronizará pronto. Estamos esperando que otros de tus dispositivos, u otros perfiles en este dispositivo, terminen de sincronizarse."
   },
   "LabelAdaptergit": {
     "message": "Git sobre HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "La opción Git sincroniza sus marcadores almacenándolos en un archivo en el repositorio Git proporcionado. No existe una interfaz de usuario web para esta opción, pero puede utilizarla con cualquier servidor de alojamiento Git, como Github, Gitlab, Gitea, etc. Puede sincronizar marcadores http, ftp, datos, archivos y javascript. No puede hacer uso de la encriptación de extremo a extremo cuando utilice esta opción. Esta opción no está disponible actualmente en la aplicación móvil."
+    "message": "La opción Git sincroniza sus marcadores almacenándolos en un archivo en el repositorio Git proporcionado. No existe una interfaz de usuario web para esta opción, pero puedes utilizarla con cualquier servidor de alojamiento Git, como Github, Gitlab, Gitea, etc. Puedes sincronizar marcadores http, ftp, datos, archivos y javascript. No puedes usar encriptación de extremo a extremo cuando utilices esta opción. Esta opción no está disponible actualmente en la aplicación móvil."
   },
   "LabelGiturl": {
     "message": "URL del repositorio mediante HTTP"
   },
   "LabelGitbranch": {
-    "message": "Rama Git"
+    "message": "Rama de Git"
   },
   "LabelTelemetry": {
-    "message": "Notificación automática de errores"
+    "message": "Informe automático de errores"
   },
   "DescriptionTelemetry": {
-    "message": "Floccus puede enviar automáticamente datos de errores a mí, el desarrollador. Esto es una gran ayuda para descubrir y resolver errores en floccus más rápidamente y ayudará a mejorar su experiencia con floccus a largo plazo. Aunque la notificación de errores esté activada, los desarrolladores de floccus nunca podrán ver sus marcadores."
+    "message": "Floccus puede enviarme automáticamente datos de errores a mí, el desarrollador. Esto es una gran ayuda para descubrir y resolver errores en floccus más rápidamente y ayudará a mejorar tu experiencia con floccus a largo plazo. Aunque el informe de errores esté activado, los desarrolladores de floccus nunca podrán ver tus marcadores."
   },
   "DescriptionTelemetrysyncmethod": {
-    "message": "Nuevo: Además de la información de error, floccus ahora también envía información sobre qué método de sincronización está utilizando, si esta opción está activada. Esto nos ayuda a mejorar floccus y a asegurarnos de que los métodos de sincronización funcionan como se espera."
+    "message": "Novedad: Además de la información de error, floccus ahora también envía información sobre qué método de sincronización está utilizando, si esta opción está activada. Esto nos ayuda a mejorar floccus y a asegurarnos de que los métodos de sincronización funcionan como se espera."
   },
   "LabelTelemetryenable": {
-    "message": "Envíe automáticamente a los desarrolladores de floccus los datos de error y la información sobre el método de sincronización que está utilizando"
+    "message": "Enviar automáticamente los datos de error y la información sobre el método de sincronización que estás utilizando a los desarrolladores de floccus"
   },
   "LabelTelemetrydisable": {
-    "message": "No envíe ningún dato a los desarrolladores de floccus"
+    "message": "No enviar ningún dato a los desarrolladores de floccus"
   },
   "LabelAccountlabel": {
-    "message": "Etiqueta de perfil"
+    "message": "Etiqueta del perfil"
   },
   "DescriptionAccountlabel": {
-    "message": "Dé un nombre a este perfil para que pueda reconocerlo más fácilmente"
+    "message": "Ponle un nombre a este perfil para poder reconocerlo más fácilmente"
   },
   "LabelClickcount": {
     "message": "Contar clics"
   },
   "DescriptionClickcount": {
-    "message": "Envía estadísticas sobre los marcadores que más visita a su servidor Nextcloud, para que pueda ordenarlos por número de clics"
+    "message": "Enviar estadísticas sobre los marcadores que más visitas a tu servidor Nextcloud, para que puedas ordenarlos por número de clics"
   },
   "DescriptionGoogleplayreview": {
-    "message": "Escriba un comentario en Google Play"
+    "message": "Escribe una reseña en Google Play"
   },
   "DescriptionAppstorereview": {
-    "message": "Escriba una reseña en la App Store"
+    "message": "Escribe una reseña en la App Store"
   },
   "DescriptionChromereview": {
-    "message": "Escriba un comentario sobre Chrome WebStore"
+    "message": "Escribe una reseña en la Chrome WebStore"
   },
   "DescriptionAlternativereview": {
-    "message": "Escriba un comentario para AlternativeTo.net"
+    "message": "Escribe una reseña enAlternativeTo.net"
   },
   "DescriptionMozillareview": {
-    "message": "Escriba un comentario para Mozilla Addons"
+    "message": "Escribe una reseña en Mozilla Addons"
   },
   "DescriptionEdgereview": {
-    "message": "Escriba un comentario para Edge Addons"
+    "message": "Escribe una reseña en Edge Addons"
   },
   "LabelWritereview": {
-    "message": "💙 ¡Comparta el amor!"
+    "message": "💙 ¡Comparte el amor!"
   },
   "DescriptionWritereview": {
-    "message": "Si está entusiasmado con el floccus, hágaselo saber al mundo dejando una valoración en una de las siguientes plataformas."
+    "message": "Si te encanta floccus, házselo saber al mundo dejando una valoración en una de las siguientes plataformas."
   },
   "DescriptionDonateintervention": {
-    "message": "¿Le gusta la sincronización de favoritos? ¡Apóyeme!"
+    "message": "¿Te gusta esta herramienta? ¡Ayúdame!"
   },
   "LabelDonate": {
-    "message": "Done a"
+    "message": "Donar"
   },
   "DescriptionDisabledaftererror": {
-    "message": "Intentado 10 veces antes de desactivar este perfil"
+    "message": "Reintentado 10 veces antes de desactivar este perfil"
   },
   "DescriptionBookmarkexists": {
     "message": "Este marcador ya existe en el perfil seleccionado"
   },
   "LabelReportproblem": {
-    "message": "Informar del problema"
+    "message": "Informar de un problema"
   },
   "DescriptionReportproblem": {
-    "message": "Si desea ponerse en contacto directamente con los desarrolladores para plantearles una cuestión concreta, puede hacerlo aquí:"
+    "message": "Si quieres ponerte en contacto directamente con los desarrolladores para plantearles una cuestión concreta, puedes hacerlo aquí:"
   },
   "LabelAdapterKarakeep":  {
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Sincronice sus marcadores con la aplicación de código abierto Karakeep. Esta opción no puede hacer uso del cifrado de extremo a extremo y no permite mantener el orden de los marcadores entre sincronizaciones."
+    "message": "Sincroniza tus marcadores con la aplicación de código abierto Karakeep. Esta opción no puede hacer uso del cifrado de extremo a extremo y no permite mantener el orden de los marcadores entre sincronizaciones."
   },
   "LabelApiKey":  {
-    "message": "Clave API"
+    "message": "Clave de API"
   },
   "LabelKarakeepurl":  {
-    "message": "La URL de su servidor Karakeep"
+    "message": "La URL de tu servidor Karakeep"
   },
   "LabelKarakeepconnectionerror": {
-    "message": "Fallo al conectar con su servidor Karakeep"
+    "message": "No se ha podido conectar con tu servidor de Karakeep"
   },
   "LabelAdapterlinkwarden":  {
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Sincronice sus marcadores con la aplicación de código abierto Linkwarden, alojada en su propio servidor o en la nube en cloud.linkwarden.app. Sólo puede sincronizar marcadores http, ftp y javascript. Esta opción no puede hacer uso de la encriptación de extremo a extremo y no permite mantener el orden de los marcadores entre sincronizaciones."
+    "message": "Sincroniza tus marcadores con la aplicación de código abierto Linkwarden, alojada en tu propio servidor o en la nube en cloud.linkwarden.app. Sólo puedes sincronizar marcadores http, ftp y javascript. Esta opción no puede hacer uso de la encriptación de extremo a extremo y no permite mantener el orden de los marcadores entre sincronizaciones."
   },
   "LabelLinkwardenurl":  {
-    "message": "La URL de su servidor Linkwarden"
+    "message": "La URL de tu servidor de Linkwarden"
   },
   "LabelAccesstoken":  {
-    "message": "Ficha de acceso"
+    "message": "Token de acceso"
   },
   "LabelLinkwardenconnectionerror": {
-    "message": "Fallo al conectar con su servidor Linkwarden"
+    "message": "No se ha podido conectar con tu servidor de Linkwarden"
   },
   "LabelSearchresultsotherfolders": {
     "message": "Resultados de otras carpetas"
@@ -901,7 +907,7 @@
     "message": "Forzar sincronización"
   },
   "DescriptionScheduledforcesync": {
-    "message": "¿Realmente desea forzar la sincronización? Sincronizar con dos dispositivos al mismo tiempo puede tener consecuencias imprevistas, incluida la corrupción de sus datos. Asegúrese de que ningún otro dispositivo está sincronizando en ese momento antes de confirmar."
+    "message": "¿Seguro que quieres forzar la sincronización? Sincronizar con dos dispositivos al mismo tiempo puede tener consecuencias imprevistas, incluida la corrupción de tus datos. Asegúrate de que ningún otro dispositivo está sincronizando en ese momento antes de confirmar."
   },
   "DescriptionAutosync": {
     "message": "Activando la sincronización basada en cambios te asegurarás de que se ejecuta una sincronización cada vez que realices cambios localmente."
@@ -910,57 +916,90 @@
     "message": "Abrir esta vista en una nueva pestaña"
   },
   "LabelGivefeedback": {
-    "message": "Dar su opinión"
+    "message": "Comentarios"
   },
   "LabelYourname": {
-    "message": "Su nombre"
+    "message": "Tu nombre"
   },
   "LabelYouremail": {
-    "message": "Su correo electrónico (opcional)"
+    "message": "Tu correo electrónico (opcional)"
   },
   "LabelYourmessage": {
-    "message": "Su mensaje de respuesta"
+    "message": "Tus comentarios"
   },
   "LabelSubmitfeedback": {
     "message": "Enviar comentarios"
   },
   "DescriptionFeedbacklegal": {
-    "message": "Este formulario de comentarios está gestionado por Sentry. Al pulsar enviar acepta almacenar los datos introducidos en los servidores de Sentry. Ninguno de sus datos de favoritos será enviado a Sentry."
+    "message": "Este formulario de comentarios está gestionado por Sentry. Al pulsar enviar aceptas almacenar los datos introducidos en los servidores de Sentry. Ninguno de tus datos de marcadores será enviado a Sentry."
   },
   "DescriptionFeedbackhowto": {
-    "message": "¡Gracias por tomarse el tiempo de dar su opinión a los desarrolladores de floccus! Si su comentario está relacionado con un problema, asegúrese de incluir los pasos que siguió, lo que esperaba y lo que ocurrió en su lugar. Si su comentario está relacionado con una solicitud de función, asegúrese de incluir el caso de uso o el problema que esta función le solucionaría. Si incluye su dirección de correo electrónico, es posible que nos pongamos en contacto con usted. Muchas gracias."
+    "message": "¡Gracias por tomarte el tiempo de dar tu opinión a los desarrolladores de floccus! Si tu comentario está relacionado con un problema, asegúrese de incluir los pasos que seguiste, lo que esperabas y lo que ocurrió en su lugar. Si tu comentario está relacionado con una solicitud de función, asegúrate de incluir el caso de uso o el problema que esta función le solucionaría. Si incluyes su dirección de correo electrónico, es posible que nos pongamos en contacto contigo. Muchas gracias."
   },
   "LabelFeedbacksent": {
-    "message": "Gracias por sus comentarios."
+    "message": "¡Gracias por tus comentarios!"
   },
   "LabelFaq":{
-    "message": "Consulte las FAQ"
+    "message": "Consulta las FAQ"
   },
   "StatusSyncingfailed": {
-    "message": "Error de sincronización"
+    "message": "La sincronización ha fallado"
   },
   "StatusSyncingcomplete": {
     "message": "Sincronización completa"
   },
   "NotificationSyncingprofile": {
-    "message": "Perfil de sincronización {0}"
+    "message": "Sincronizando perfil {0}"
   },
   "NotificationSyncingsucceeded": {
-    "message": "La sincronización del perfil {0} se ha realizado correctamente"
+    "message": "Perfil {0} sincronizado correctamente"
   },
   "NotificationSyncingfailed": {
-    "message": "Fallo al sincronizar el perfil {0}"
+    "message": "Error al sincronizar el perfil {0}"
   },
   "LabelSyncintervalenabled": {
-    "message": "Sincronización horaria"
+    "message": "Sincronización programada"
   },
   "DescriptionSyncintervalenabled": {
-    "message": "Al activar la sincronización en función del tiempo, se programará automáticamente una sincronización de este perfil cada pocos minutos."
+    "message": "Al activar la sincronización basada en tiempo, se programará automáticamente una sincronización de este perfil cada pocos minutos."
   },
   "LabelPredefinedwebdavurls": {
     "message": "URLs por defecto del servidor"
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Selecciona tu servicio"
+  },
+  "LabelShowpassword": {
+    "message": "Mostrar contraseña"
+  },
+  "LabelHidepassword": {
+    "message": "Ocultar contraseña"
+  },
+  "LabelTitle": {
+    "message": "Título"
+  },
+  "LabelLink": {
+    "message": "Enlace"
+  },
+  "LabelParentfolder": {
+    "message": "Carpeta padre"
+  },
+  "LabelHome": {
+    "message": "Inicio"
+  },
+  "LabelSortby": {
+    "message": "Ordenar por"
+  },
+  "LabelMoreactions": {
+    "message": "Más acciones"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Conexión correcta al servidor"
+  },
+  "LabelSynconstartup": {
+    "message": "Sicronizar en el arranque"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Si se activa, este perfil se sincronizará al iniciar el programa. Esto resulta útil si quieres sincronizar tus marcadores al iniciar el programa, pero no quieres esperar a la próxima sincronización programada."
   }
 }
