@@ -288,7 +288,7 @@
     "message": "Restablecer caché"
   },
   "DescriptionResetcache": {
-    "message": "Haga clic en este botón para restablecer la caché, de modo que se garantice que la siguiente ejecución de sincronización no borrará ningún dato y se limitará a fusionar los marcadores locales y del servidor."
+    "message": "Haz clic en este botón para restablecer la caché, de modo que se garantice que la siguiente ejecución de sincronización no borrará ningún dato y se limitará a fusionar los marcadores locales y del servidor."
   },
   "LabelParallelsync": {
     "message": "Acelerar sincronización"
