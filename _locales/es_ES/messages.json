@@ -529,7 +529,7 @@
     "message": "Pestañas"
   },
   "LabelSyncDown": {
-    "message": "Bajar"
+    "message": "Descargar cambios"
   },
   "DescriptionSyncDown": {
     "message": "Descargar cambios de otros navegadores y sobrescribir cambios locales"
