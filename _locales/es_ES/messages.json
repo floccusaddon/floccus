@@ -571,7 +571,7 @@
     "message": "Desactivado. Permitirá eliminar o añadir más del 20% de tus marcadores locales sin que puedas confirmar."
   },
   "StatusFailsafeoff": {
-    "message": "A prueba de fallos desactivado. Corre el riesgo de perder o duplicar datos involuntariamente. Se recomienda activar el failsafe en la configuración del perfil."
+    "message": "Mecanismo de seguridad desactivado. Corres el riesgo de perder o duplicar datos involuntariamente. Te recomendamos activarlo en los ajustes del perfil."
   },
   "LabelAdaptergoogledrive": {
     "message": "Google Drive"
