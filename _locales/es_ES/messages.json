@@ -132,7 +132,7 @@
     "message": "E044: Ha fallado la operación Git push: {0}"
   },
   "Error045": {
-    "message": "E045: Ruta de carpeta inesperada. La carpeta de sincronización local para este perfil solía estar en `{0}` pero ahora está en `{1}`. Por favor, asegúrese de que es correcto y vuelva a establecer la carpeta de sincronización local en la configuración del perfil."
+    "message": "E045: Ruta de carpeta inesperada. La carpeta de sincronización local para este perfil solía estar en `{0}` pero ahora está en `{1}`. Por favor, asegúrese de que es correcto y vuelva a establecer la carpeta de sincronización local en los ajustes del perfil."
   },
   "Error046": {
     "message": "E046: URL no válida. `{0}` no es una URL válida."
