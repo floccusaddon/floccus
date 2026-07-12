@@ -679,7 +679,7 @@
     "message": "Floccus puede utilizar la red aparte de conectarse a tu servidor de sincronización, para obtener información adicional sobre tus marcadores (como iconos, etc.). Aquí puedes habilitar dicho uso de la red."
   },
   "LabelMobilesettings": {
-    "message": "Configuración móvil"
+    "message": "Ajuste móviles"
   },
   "LabelContinuefloccus":{
     "message": "Continuar a floccus"
