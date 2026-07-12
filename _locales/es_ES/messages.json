@@ -577,7 +577,7 @@
     "message": "Google Drive"
   },
   "DescriptionAdaptergoogledrive": {
-    "message": "Sincroniza marcadores a través de un archivo (opcionalmente encriptado) que se almacena en su Google Drive. Puede sincronizar marcadores http, ftp, datos, archivos y javascript. Puede elegir utilizar el cifrado de extremo a extremo cuando utilice esta opción."
+    "message": "Sincroniza marcadores a través de un archivo (opcionalmente encriptado) que se almacena en tu Google Drive. Puedes sincronizar marcadores http, ftp, datos, archivos y javascript. Puedes elegir utilizar el cifrado de extremo a extremo cuando utilices esta opción."
   },
   "LabelLogingoogle": {
     "message": "Conecta tu cuenta de Google"
