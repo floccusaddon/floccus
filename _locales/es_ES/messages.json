@@ -183,7 +183,7 @@
     "message": "Archivo de marcadores"
   },
   "DescriptionBookmarksfile": {
-    "message": "una ruta a donde residirá el archivo de marcadores en el servidor, relativa a su URL WebDAV (todas las carpetas de la ruta deben existir ya). por ejemplo, personal_stuff/bookmarks.xbel"
+    "message": "una ruta a donde residirá el archivo de marcadores en el servidor, relativa a la URL de tu WebDAV (todas las carpetas de la ruta deben existir ya). por ejemplo, mis_cosas/bookmarks.xbel"
   },
  "DescriptionBookmarksfilegoogle": {
    "message": "el nombre del archivo de marcadores que residirá en su Google Drive. No introduzca la ruta completa del archivo, sólo el nombre del archivo. Asegúrese de que este nombre es único en su Drive. por ejemplo, mybookmarks.xbel"
