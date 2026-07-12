@@ -604,7 +604,7 @@
     "message": "Has conectado tu cuenta de Dropbox para almacenar tu archivo de sincronización de favoritos en tu Dropbox."
   },
   "LabelPassphrase": {
-    "message": "Frase de contraseña"
+    "message": "Contraseña"
   },
   "DescriptionPassphrase": {
     "message": "Establezca una frase de contraseña para cifrar su archivo de marcadores. Si no establece una frase de contraseña, no se ejecutará ninguna encriptación."
