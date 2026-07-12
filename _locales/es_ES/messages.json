@@ -580,7 +580,7 @@
     "message": "Sincroniza marcadores a través de un archivo (opcionalmente encriptado) que se almacena en tu Google Drive. Puedes sincronizar marcadores http, ftp, datos, archivos y javascript. Puedes elegir utilizar el cifrado de extremo a extremo cuando utilices esta opción."
   },
   "LabelLogingoogle": {
-    "message": "Conecta tu cuenta de Google"
+    "message": "Iniciar sesión con Google"
   },
   "DescriptionLogingoogle": {
     "message": "Conecta tu cuenta de Google para almacenar el archivo de sincronización de marcadores en tu Google Drive."
