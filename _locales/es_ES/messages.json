@@ -201,7 +201,7 @@
     "message": "Cuando se sincronicen, tus marcadores en este navegador se almacenarán como enlaces bajo esta ruta en el servidor. Ten en cuenta que esta ruta representa una carpeta en la aplicación de Marcadores de Nextcloud, no una carpeta en los archivos de Nextcloud. Deja esto vacío para simplemente colocar todos los enlaces en la carpeta superior del servidor."
   },
   "DescriptionServerfolderlinkwarden": {
-    "message": "Al sincronizar, sus marcadores en este navegador se almacenarán como enlaces bajo esta colección y sólo los enlaces bajo esta colección se sincronizarán con este navegador."
+    "message": "Cuando se sincronicen, tus marcadores en este navegador se almacenarán como enlaces bajo esta colección y sólo los enlaces bajo esta colección se sincronizarán con este navegador."
   },
   "DescriptionServerfolderkarakeep": {
     "message": "Al sincronizar, sus marcadores en este navegador se almacenarán como enlaces bajo esta colección y sólo los enlaces bajo esta colección se sincronizarán con este navegador."
