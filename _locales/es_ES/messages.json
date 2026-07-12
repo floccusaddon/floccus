@@ -949,7 +949,7 @@
     "message": "Sincronización completa"
   },
   "NotificationSyncingprofile": {
-    "message": "Perfil de sincronización {0}"
+    "message": "Sincronizadon perfil {0}"
   },
   "NotificationSyncingsucceeded": {
     "message": "La sincronización del perfil {0} se ha realizado correctamente"
