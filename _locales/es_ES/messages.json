@@ -793,7 +793,7 @@
     "message": "Git sobre HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "La opción Git sincroniza sus marcadores almacenándolos en un archivo en el repositorio Git proporcionado. No existe una interfaz de usuario web para esta opción, pero puede utilizarla con cualquier servidor de alojamiento Git, como Github, Gitlab, Gitea, etc. Puede sincronizar marcadores http, ftp, datos, archivos y javascript. No puede hacer uso de la encriptación de extremo a extremo cuando utilice esta opción. Esta opción no está disponible actualmente en la aplicación móvil."
+    "message": "La opción Git sincroniza sus marcadores almacenándolos en un archivo en el repositorio Git proporcionado. No existe una interfaz de usuario web para esta opción, pero puedes utilizarla con cualquier servidor de alojamiento Git, como Github, Gitlab, Gitea, etc. Puedes sincronizar marcadores http, ftp, datos, archivos y javascript. No puedes usar encriptación de extremo a extremo cuando utilices esta opción. Esta opción no está disponible actualmente en la aplicación móvil."
   },
   "LabelGiturl": {
     "message": "URL del repositorio mediante HTTP"
