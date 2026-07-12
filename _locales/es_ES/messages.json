@@ -345,7 +345,7 @@
     "message": "La opción vieja es compatible con al menos la versión v0.11 de la aplicación Bookmarks. Emulará carpetas utilizando etiquetas que contienen la ruta de la carpeta. No se recomienda utilizar esto para perfiles nuevos."
   },
   "LabelAdapterwebdav": {
-    "message": "Carpeta WebDAV"
+    "message": "Compartido de WebDAV"
   },
   "DescriptionAdapterwedavexamples": {
     "message": "por ejemplo: Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
