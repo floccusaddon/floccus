@@ -300,7 +300,7 @@
     "message": "Estrategia de sincronización"
   },
   "DescriptionStrategy": {
-    "message": "Esta opción determina cómo sincronizar el árbol de marcadores en el servidor con el de este navegador. Normalmente querrás mantener los cambios a ambos árboles si son compatibles, pero en ocasiones puedes querer forzar la versión local sobre la del servidor o viceversa."
+    "message": "Esta opción determina cómo se sincronizan los marcadores en los distintos dispositivos. Normalmente, lo más recomendable es conservar los cambios de todas las fuentes si son compatibles, pero en ocasiones es posible que quieras sobrescribir los cambios (incluidas las adiciones y eliminaciones) de otros navegadores, o sobrescribir los cambios que hayas realizado localmente."
   },
   "LabelStrategydefault": {
     "message": "Combinar siempre los cambios locales con los cambios de otros navegadores (recomendado)"
