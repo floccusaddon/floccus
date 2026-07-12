@@ -511,7 +511,7 @@
     "message": "Importar perfiles"
   },
   "DescriptionExport": {
-    "message": "Seleccione los perfiles a continuación que le gustaría exportar a un archivo, para que pueda recrear fácilmente los mismos perfiles en un dispositivo o navegador diferente."
+    "message": "Selecciona los perfiles que quieres exportar a un archivo, para que puedas recrear fácilmente los mismos perfiles en un dispositivo o navegador diferente."
   },
   "DescriptionImport": {
     "message": "Importa un archivo con perfiles exportados aquí para volver a crear perfiles exportados en un dispositivo o navegador diferente. Por favor, asegúrate de configurar las carpetas de sincronización correctas nuevamente después de importar."
