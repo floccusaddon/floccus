@@ -544,7 +544,7 @@
     "message": "Descargar cambios (una vez)"
   },
   "LabelSyncUpOnce": {
-    "message": "Empuja hacia arriba una vez"
+    "message": "Subir cambios (una vez)"
   },
   "LabelSyncNormal": {
     "message": "Combinar"
