@@ -802,7 +802,7 @@
     "message": "Rama de Git"
   },
   "LabelTelemetry": {
-    "message": "Notificación automática de errores"
+    "message": "Informe automático de errores"
   },
   "DescriptionTelemetry": {
     "message": "Floccus puede enviar automáticamente datos de errores a mí, el desarrollador. Esto es una gran ayuda para descubrir y resolver errores en floccus más rápidamente y ayudará a mejorar su experiencia con floccus a largo plazo. Aunque la notificación de errores esté activada, los desarrolladores de floccus nunca podrán ver sus marcadores."
