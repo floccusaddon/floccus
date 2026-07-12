@@ -787,7 +787,7 @@
     "message": "Sincronización en progreso."
   },
   "DescriptionSyncscheduled": {
-    "message": "Este perfil se sincronizará pronto. Estamos esperando que otros dispositivos tuyos, o otros perfiles en este dispositivo, terminen de sincronizarse."
+    "message": "Este perfil se sincronizará pronto. Estamos esperando que otros de tus dispositivos, u otros perfiles en este dispositivo, terminen de sincronizarse."
   },
   "LabelAdaptergit": {
     "message": "Git sobre HTTPS"
