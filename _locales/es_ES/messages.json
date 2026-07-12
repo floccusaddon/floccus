@@ -568,7 +568,7 @@
     "message": "Activado. No se borrará ni añadirá más del 20% de tus marcadores locales sin preguntarle antes. (Recomendado)"
   },
   "LabelFailsafeoff": {
-    "message": "Desactivado. Permitirá eliminar o añadir más del 20% de/a sus marcadores locales sin confirmarlo con usted."
+    "message": "Desactivado. Permitirá eliminar o añadir más del 20% de tus marcadores locales sin que puedas confirmar."
   },
   "StatusFailsafeoff": {
     "message": "A prueba de fallos desactivado. Corre el riesgo de perder o duplicar datos involuntariamente. Se recomienda activar el failsafe en la configuración del perfil."
