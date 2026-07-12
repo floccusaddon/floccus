@@ -436,7 +436,7 @@
     "message": "Kofi"
   },
   "DescriptionKofi": {
-    "message": "Haga una donación periódica o puntual a través de Ko-fi para apoyar el proyecto"
+    "message": "Haz una donación periódica o puntual a través de Ko-fi para apoyar el proyecto"
   },
   "LegacyAdapterDeprecation": {
     "message": "Este tipo de perfil vieja está obsoleto y pronto será eliminado. Por favor, cambie al nuevo método de sincronización de Nextcloud. Un rendimiento y precisión mejorados le esperan."
