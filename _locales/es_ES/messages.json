@@ -733,7 +733,7 @@
     "message": "¿Con qué servidor quieres sincronizar?"
   },
   "LabelGoogledrivesetup": {
-    "message": "Iniciar sesión en Google Drive"
+    "message": "Iniciar sesión con Google Drive"
   },
   "LabelDropboxsetup": {
     "message": "Iniciar sesión en Dropbox"
