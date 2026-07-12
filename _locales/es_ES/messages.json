@@ -814,7 +814,7 @@
     "message": "Envía automáticamente los datos de error y la información sobre el método de sincronización que estás utilizando a los desarrolladores de floccus"
   },
   "LabelTelemetrydisable": {
-    "message": "No envíe ningún dato a los desarrolladores de floccus"
+    "message": "No enviar ningún dato a los desarrolladores de floccus"
   },
   "LabelAccountlabel": {
     "message": "Etiqueta del perfil"
