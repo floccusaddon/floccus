@@ -772,7 +772,7 @@
     "message": "Importar un archivo HTML de marcadores en la carpeta actual"
   },
   "LabelExportBookmarks": {
-    "message": "Exportar Marcadores"
+    "message": "Exportar marcadores"
   },
   "DescriptionExportBookmarks" : {
     "message": "Puede exportar todos los marcadores de este perfil como un archivo HTML compatible con todos los principales navegadores."
