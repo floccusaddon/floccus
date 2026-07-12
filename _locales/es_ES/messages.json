@@ -757,7 +757,7 @@
     "message": "Formato de archivo"
   },
   "DescriptionFiletype": {
-    "message": "Puede elegir en qué formato de archivo desea almacenar los marcadores en la nube."
+    "message": "Puede elegir en qué formato de archivo quieres almacenar los marcadores en la nube."
   },
   "LabelFiletypehtml": {
     "message": "HTML, un formato ampliamente compatible y abierto (experimental)"
