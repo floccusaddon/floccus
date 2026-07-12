@@ -943,7 +943,7 @@
     "message": "Consulta las FAQ"
   },
   "StatusSyncingfailed": {
-    "message": "Error de sincronización"
+    "message": "La sincronización ha fallado"
   },
   "StatusSyncingcomplete": {
     "message": "Sincronización completa"
