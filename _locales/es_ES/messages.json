@@ -493,7 +493,7 @@
     "message": "Perfiles anidados"
   },
   "DescriptionNestedSync": {
-    "message": "Puede anidar perfiles para que una carpeta principal pertenezca al perfil A y una subcarpeta al perfil A y B. ¿Desea permitir que otros perfiles sincronicen también la carpeta de este perfil?"
+    "message": "Puedes anidar perfiles para que una carpeta principal pertenezca al perfil A y una subcarpeta al perfil A y B. ¿Quieres permitir que otros perfiles sincronicen también la carpeta de este perfil?"
   },
   "LabelNestedSyncNo": {
     "message": "No, ignora la carpeta de este perfil en otros perfiles."
