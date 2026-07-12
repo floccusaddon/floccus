@@ -99,7 +99,7 @@
     "message": "E033: Se ha detectado una redirección. Asegúrate de que el servidor admite el método de sincronización seleccionado y que la URL que has introducido es correcta y no redirige a una ubicación diferente. Si la redirección forma parte de su configuración, puedes desactivar esta comprobación en los ajustes."
   },
   "Error034": {
-    "message": "E034: El archivo remoto de marcadores es ilegible. Tal vez olvidó establecer una frase de contraseña de cifrado, o estableció un formato de archivo incorrecto."
+    "message": "E034: El archivo remoto de marcadores es ilegible. Puede que olvidares establecer unacontraseña de cifrado, o que establecieras un formato de archivo incorrecto."
   },
   "Error035": {
     "message": "E035: Error al crear el siguiente marcador en el servidor: {0} -- ¿Está actualizada la aplicación de marcadores?"
