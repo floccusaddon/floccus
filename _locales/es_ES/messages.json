@@ -658,7 +658,7 @@
     "message": "Descargar registros"
   },
   "LabelDownloadfulllogs": {
-    "message": "Protocoles completos"
+    "message": "Registros completos"
   },
   "LabelDownloadanonymizedlogs": {
     "message": "Protocoles redactados"
