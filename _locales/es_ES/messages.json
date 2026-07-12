@@ -601,7 +601,7 @@
     "message": "Conecta tu cuenta de Dropbox para almacenar el archivo de sincronización de favoritos en tu Dropbox."
   },
   "DescriptionLoggedindropbox": {
-    "message": "Has conectado tu cuenta de Dropbox para almacenar el archivo de sincronización de favoritos en tu Dropbox."
+    "message": "Has conectado tu cuenta de Dropbox para almacenar tu archivo de sincronización de favoritos en tu Dropbox."
   },
   "LabelPassphrase": {
     "message": "Frase de contraseña"
