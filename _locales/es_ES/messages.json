@@ -514,7 +514,7 @@
     "message": "Selecciona los perfiles que quieres exportar a un archivo, para que puedas recrear fácilmente los mismos perfiles en un dispositivo o navegador diferente."
   },
   "DescriptionImport": {
-    "message": "Importa un archivo con perfiles exportados aquí para volver a crear perfiles exportados en un dispositivo o navegador diferente. Por favor, asegúrate de configurar las carpetas de sincronización correctas nuevamente después de importar."
+    "message": "Importa aquí un archivo con perfiles exportados para volver a crear perfiles exportados desde un dispositivo o navegador diferente. Asegúrate de configurar las carpetas de sincronización correctas nuevamente después de importar."
   },
   "LabelFolderNotFound": {
     "message": "Carpeta no encontrada"
