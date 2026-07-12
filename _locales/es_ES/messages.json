@@ -192,7 +192,7 @@
    "message": "el nombre del archivo de marcadores que residirá en tu Dropbox. No introduzcas la ruta completa del archivo, sólo el nombre. Asegúrate de que este nombre sea único en tu Dropbox. Por ejemplo, mismarcadores.xbel."
  },
   "DescriptionBookmarksfilegit": {
-    "message": "una ruta al archivo de marcadores relativa a la raíz de su repositorio Git (todas las carpetas de la ruta deben existir ya). por ejemplo, personal_stuff/bookmarks.xbel"
+    "message": "una ruta al archivo de marcadores relativa a la raíz de tu repositorio Git (todas las carpetas de la ruta deben existir ya). por ejemplo, mis_cosas/marcadores.xbel"
   },
   "LabelServerfolder": {
     "message": "Servidor objetivo"
