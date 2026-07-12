@@ -730,7 +730,7 @@
     "message": "Conectar"
   },
   "LabelServersetup": {
-    "message": "¿A qué servidor quieres sincronizar?"
+    "message": "¿Con qué servidor quieres sincronizar?"
   },
   "LabelGoogledrivesetup": {
     "message": "Iniciar sesión en Google Drive"
