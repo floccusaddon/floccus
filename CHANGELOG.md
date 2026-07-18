@@ -1,6 +1,18 @@
 # Changelog
 
+## [5.10.2] - 2026-07-18
+
+### Fixed
+ - fix(Dropbox): encode JSON in request headers correctly
+ - fix(WebDAV): encode path components of MOVE request Destination header to handle non-ascii filenames correctly
+ - Translation updates
+
 ## [5.10.1] - 2026-07-03
+
+### Fixed
+
+- fix(ui): Fix mind-o in sync behavior settings display condition
+- fix(Dropbox): Fix intermittent 409 errors
 
 ## [5.10.0] - 2026-07-03
 
