@@ -5,6 +5,7 @@ import { ICapabilities, IHashSettings, IResource } from '../interfaces/Resource'
 import Logger from '../Logger'
 import {
   AuthenticationError,
+  UnknownFolderUpdateError,
   CancelledSyncError, HttpError, MissingPermissionsError,
   NetworkError, ParseResponseError,
   RedirectError,
@@ -244,10 +245,13 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     if (!rootCollection) {
       const segments = this.server.serverFolder.split('/').filter(seg => seg.length > 0)
 
+      if (segments.length === 0) {
+        throw new UnknownFolderUpdateError()
+      }
       let currentParentId = null
       let current = null
 
-       for (const segment of segments) {
+      for (const segment of segments) {
         const expectedParent = currentParentId == null ? null : String(currentParentId)
 
         current = collections.find(collection => {
