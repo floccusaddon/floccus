@@ -253,36 +253,28 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
 
       for (const segment of segments) {
         const expectedParent = currentParentId == null ? null : String(currentParentId)
-
         current = collections.find(collection => {
           const actualParent = collection.parentId == null ? null : String(collection.parentId)
           return collection.name === segment && actualParent === expectedParent
         })
-
-
         if (!current) {
-          const body: any = { name: segment }
+          const body: { name: string; parentId?: string | number } = { name: segment }
           if (currentParentId != null) {
             body.parentId = currentParentId
           }
-
           ({ response: current } = await this.sendRequest(
             'POST', '/api/v1/collections',
             'application/json',
             body
           ))
-
           collections.push(current)
         }
-
         currentParentId = current.id
-      }
-
+      }      
       if (current) {
         rootCollection = current
       }
     }
-    
 
     const buildTree = (collection, isRoot = false) => {
       const collectionId = String(collection.id)
