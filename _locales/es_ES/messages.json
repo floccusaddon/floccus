@@ -801,21 +801,6 @@
   "LabelGitbranch": {
     "message": "Rama de Git"
   },
-  "LabelTelemetry": {
-    "message": "Informe automático de errores"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus puede enviarme automáticamente datos de errores a mí, el desarrollador. Esto es una gran ayuda para descubrir y resolver errores en floccus más rápidamente y ayudará a mejorar tu experiencia con floccus a largo plazo. Aunque el informe de errores esté activado, los desarrolladores de floccus nunca podrán ver tus marcadores."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "Novedad: Además de la información de error, floccus ahora también envía información sobre qué método de sincronización está utilizando, si esta opción está activada. Esto nos ayuda a mejorar floccus y a asegurarnos de que los métodos de sincronización funcionan como se espera."
-  },
-  "LabelTelemetryenable": {
-    "message": "Enviar automáticamente los datos de error y la información sobre el método de sincronización que estás utilizando a los desarrolladores de floccus"
-  },
-  "LabelTelemetrydisable": {
-    "message": "No enviar ningún dato a los desarrolladores de floccus"
-  },
   "LabelAccountlabel": {
     "message": "Etiqueta del perfil"
   },
@@ -914,30 +899,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "Abrir esta vista en una nueva pestaña"
-  },
-  "LabelGivefeedback": {
-    "message": "Comentarios"
-  },
-  "LabelYourname": {
-    "message": "Tu nombre"
-  },
-  "LabelYouremail": {
-    "message": "Tu correo electrónico (opcional)"
-  },
-  "LabelYourmessage": {
-    "message": "Tus comentarios"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Enviar comentarios"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "Este formulario de comentarios está gestionado por Sentry. Al pulsar enviar aceptas almacenar los datos introducidos en los servidores de Sentry. Ninguno de tus datos de marcadores será enviado a Sentry."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "¡Gracias por tomarte el tiempo de dar tu opinión a los desarrolladores de floccus! Si tu comentario está relacionado con un problema, asegúrese de incluir los pasos que seguiste, lo que esperabas y lo que ocurrió en su lugar. Si tu comentario está relacionado con una solicitud de función, asegúrate de incluir el caso de uso o el problema que esta función le solucionaría. Si incluyes su dirección de correo electrónico, es posible que nos pongamos en contacto contigo. Muchas gracias."
-  },
-  "LabelFeedbacksent": {
-    "message": "¡Gracias por tus comentarios!"
   },
   "LabelFaq":{
     "message": "Consulta las FAQ"
