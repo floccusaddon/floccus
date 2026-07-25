@@ -11,6 +11,7 @@ import {
   InconsistentBookmarksExistenceError, InvalidUrlError, LockFileError,
   MissingItemOrderError,
   ParseResponseError, ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, UnexpectedFolderPathError,
+  UnexpectedServerFolder,
   UnknownFolderItemOrderError, UpdateBookmarkError
 } from '../../errors/Error'
 import Logger from '../Logger'
@@ -169,6 +170,11 @@ export default class NativeAccount extends Account {
     if (er instanceof InvalidUrlError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [
         er.url,
+      ])
+    }
+    if (er instanceof UnexpectedServerFolder) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [
+        er.serverFolder,
       ])
     }
     if (er instanceof FloccusError) {

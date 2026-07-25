@@ -5,11 +5,10 @@ import { ICapabilities, IHashSettings, IResource } from '../interfaces/Resource'
 import Logger from '../Logger'
 import {
   AuthenticationError,
-  UnknownFolderUpdateError,
   CancelledSyncError, HttpError, MissingPermissionsError,
   NetworkError, ParseResponseError,
   RedirectError,
-  RequestTimeoutError
+  RequestTimeoutError, UnexpectedServerFolder
 } from '../../errors/Error'
 import { CapacitorHttp as Http } from '@capacitor/core'
 
@@ -246,7 +245,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       const segments = this.server.serverFolder.split('/').filter(seg => seg.length > 0)
 
       if (segments.length === 0) {
-        throw new UnknownFolderUpdateError()
+        throw new UnexpectedServerFolder(this.server.serverFolder)
       }
       let currentParentId = null
       let current = null
@@ -270,7 +269,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
           collections.push(current)
         }
         currentParentId = current.id
-      }      
+      }
       if (current) {
         rootCollection = current
       }

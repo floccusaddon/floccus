@@ -11,6 +11,7 @@ import {
   InconsistentBookmarksExistenceError, InvalidUrlError, LockFileError,
   MissingItemOrderError,
   ParseResponseError, ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, UnexpectedFolderPathError,
+  UnexpectedServerFolder,
   UnknownFolderItemOrderError, UpdateBookmarkError
 } from '../../errors/Error'
 import {i18n} from '../native/I18n'
@@ -134,6 +135,9 @@ export default class BrowserAccount extends Account {
     }
     if (er instanceof InvalidUrlError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.url])
+    }
+    if (er instanceof UnexpectedServerFolder) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.serverFolder])
     }
     if (er instanceof FloccusError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))

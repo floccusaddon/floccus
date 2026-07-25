@@ -527,3 +527,13 @@ export class UploadVerificationFileSizeMismatch extends TransientError {
     Object.setPrototypeOf(this, UploadVerificationFileSizeMismatch.prototype)
   }
 }
+
+export class UnexpectedServerFolder extends FloccusError {
+  public readonly code = 57
+  public serverFolder: string
+  constructor(serverFolder: string) {
+    super(`E057: Unexpected server folder: ${serverFolder}`)
+    this.serverFolder = serverFolder
+    Object.setPrototypeOf(this, UnexpectedServerFolder.prototype)
+  }
+}
