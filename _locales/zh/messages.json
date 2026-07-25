@@ -801,21 +801,6 @@
   "LabelGitbranch": {
     "message": "Git 分支"
   },
-  "LabelTelemetry": {
-    "message": "自动错误报告"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus 可自动发送错误数据给我，也就是开发者。这对更快地发现并解决 floccus 故障帮助巨大并有助于改善在长时段内改善你的 floccus 体验。即使启用了错误报告，开发者也永远无法看到你的书签。"
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "新功能：除了错误信息外，如果启用了同步选项，floccus 现在还会发送有关您使用的同步方法的信息。这有助于我们改进 floccus，确保同步方法按预期运行。"
-  },
-  "LabelTelemetryenable": {
-    "message": "自动向 floccus 开发人员发送错误数据和同步方法的相关信息"
-  },
-  "LabelTelemetrydisable": {
-    "message": "不要向 floccus 开发人员发送任何数据"
-  },
   "LabelAccountlabel": {
     "message": "配置标签"
   },
@@ -914,30 +899,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "在新标签页中打开此视图"
-  },
-  "LabelGivefeedback": {
-    "message": "提供反馈"
-  },
-  "LabelYourname": {
-    "message": "您的姓名"
-  },
-  "LabelYouremail": {
-    "message": "您的电子邮件（可选）"
-  },
-  "LabelYourmessage": {
-    "message": "您的反馈信息"
-  },
-  "LabelSubmitfeedback": {
-    "message": "提交反馈"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "本反馈表由 Sentry 提供。按提交键即表示您同意将输入的数据存储在 Sentry 的服务器上。您的任何书签数据都不会发送给 Sentry。"
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "感谢您花时间向 floccus 开发人员提供反馈意见！如果您的反馈与问题有关，请务必说明您所采取的步骤、您的期望和结果。如果您的反馈与功能请求有关，请务必注明该功能将为您解决的用例或问题。如果您附上电子邮件，我们可能会给您回复。谢谢！"
-  },
-  "LabelFeedbacksent": {
-    "message": "感谢您的反馈！"
   },
   "LabelFaq":{
     "message": "查看常见问题"
