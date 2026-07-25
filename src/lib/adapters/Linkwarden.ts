@@ -5,6 +5,7 @@ import { ICapabilities, IHashSettings, IResource } from '../interfaces/Resource'
 import Logger from '../Logger'
 import {
   AuthenticationError,
+  UnknownFolderUpdateError,
   CancelledSyncError, HttpError, MissingPermissionsError,
   NetworkError, ParseResponseError,
   RedirectError,
@@ -240,13 +241,39 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     const { response: collections } = await this.sendRequest('GET', `/api/v1/collections`)
 
     let rootCollection = collections.find(collection => collection.name === this.server.serverFolder && collection.parentId == null)
+
     if (!rootCollection) {
-      ({response: rootCollection} = await this.sendRequest(
-        'POST', '/api/v1/collections',
-        'application/json',
-        {
-          name: this.server.serverFolder,
-        }))
+      const segments = this.server.serverFolder.split('/').filter(seg => seg.length > 0)
+
+      if (segments.length === 0) {
+        throw new UnknownFolderUpdateError()
+      }
+      let currentParentId = null
+      let current = null
+
+      for (const segment of segments) {
+        const expectedParent = currentParentId == null ? null : String(currentParentId)
+        current = collections.find(collection => {
+          const actualParent = collection.parentId == null ? null : String(collection.parentId)
+          return collection.name === segment && actualParent === expectedParent
+        })
+        if (!current) {
+          const body: { name: string; parentId?: string | number } = { name: segment }
+          if (currentParentId != null) {
+            body.parentId = currentParentId
+          }
+          ({ response: current } = await this.sendRequest(
+            'POST', '/api/v1/collections',
+            'application/json',
+            body
+          ))
+          collections.push(current)
+        }
+        currentParentId = current.id
+      }      
+      if (current) {
+        rootCollection = current
+      }
     }
 
     const buildTree = (collection, isRoot = false) => {
