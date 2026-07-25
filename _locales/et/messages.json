@@ -1,6 +1,6 @@
 {
   "Error001": {
-    "message": "E001: Seda kausta pole olemas, kus sa soovid sisu luua"
+    "message": "E001: Seda kausta pole olemas, kuhu sa soovid sisu luua"
   },
   "Error002": {
     "message": "E002: Uuendatavat järjehoidjat pole olemas"
@@ -163,6 +163,9 @@
   },
   "Error056": {
     "message": "E056: Üleslaaditud Google Drive’i järjehoidjate faili suurus erineb suurusest, mille server pärast üleslaadimise kontrollimist näitas. floccus proovis üleslaadimist uuesti, kuid ei suutnud tulemust kinnitada. Palun proovi hiljem uuesti."
+  },
+  "Error057": {
+    "message": "E057: Ootamatu kaust serveris: „{0}“. Palun kontrolli serverikaustade seadistusi.."
   },
   "LabelWebdavurl": {
     "message": "WebDAVi võrguaadress"
