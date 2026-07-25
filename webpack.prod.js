@@ -1,10 +1,6 @@
-const {
-  sentryWebpackPlugin
-} = require("@sentry/webpack-plugin")
 const merge = require('webpack-merge')
 const common = require('./webpack.common.js')
 const webpack = require('webpack')
-const packageJSON = require('./package.json')
 
 module.exports = common.map(common => merge(common, {
   mode: 'production',
@@ -16,18 +12,5 @@ module.exports = common.map(common => merge(common, {
     new webpack.DefinePlugin({
       DEBUG: JSON.stringify(false)
     }),
-    ...(process.env.SENTRY_AUTH_TOKEN ? [
-      sentryWebpackPlugin({
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-        org: "marcel-klehr",
-        project: "floccus",
-        release: {
-          name: packageJSON.version
-        },
-        sourcemaps: {
-          disable: true,
-        }
-      })
-    ] : []),
   ]
 }))

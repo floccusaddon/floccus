@@ -8,7 +8,6 @@ import BrowserAccountStorage from './BrowserAccountStorage'
 import uniqBy from 'lodash/uniqBy'
 import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
-import { initSharp } from '../sentry'
 import { onWakeUp } from '../on-wake-up'
 
 const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
@@ -528,12 +527,6 @@ export default class BrowserController {
   }
 
   async onLoad() {
-    browser.storage.local.get('telemetryEnabled').then(async d => {
-      if (!d.telemetryEnabled) {
-        return
-      }
-      initSharp()
-    })
     const accounts = await Account.getAllAccounts()
     await Promise.all(
       accounts.map(async acc => {

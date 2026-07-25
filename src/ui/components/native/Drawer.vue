@@ -68,19 +68,6 @@
         </v-list-item-content>
       </v-list-item>
       <v-list-item
-        key="feedback"
-        link
-        :to="{name: routes.FEEDBACK}">
-        <v-list-item-icon>
-          <v-icon aria-hidden="true">
-            mdi-bullhorn-variant-outline
-          </v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>{{ t('LabelGivefeedback') }}</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item
         key="bugs"
         link
         href="https://github.com/floccusaddon/floccus/issues">
@@ -91,19 +78,6 @@
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>{{ t('LabelReportproblem') }}</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item
-        key="telemetry"
-        link
-        :to="{name: routes.TELEMETRY}">
-        <v-list-item-icon>
-          <v-icon aria-hidden="true">
-            mdi-bug-play-outline
-          </v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>{{ t('LabelTelemetry') }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <v-list-item

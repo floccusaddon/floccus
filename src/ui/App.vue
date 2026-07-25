@@ -58,46 +58,6 @@
                 text
                 class="white--text"
                 v-bind="attrs"
-                :aria-label="t('LabelTelemetry')"
-                :to="{ name: routes.TELEMETRY }"
-                target="_blank"
-                v-on="on">
-                <v-icon aria-hidden="true">
-                  {{
-                    telemetryEnabled
-                      ? 'mdi-bug-play-outline'
-                      : 'mdi-bug-pause-outline'
-                  }}
-                </v-icon>
-              </v-btn>
-            </template>
-            <span>{{ t('LabelTelemetry') }}</span>
-          </v-tooltip>
-          <v-tooltip top>
-            <template #activator="{ on, attrs }">
-              <v-btn
-                x-small
-                text
-                class="white--text"
-                v-bind="attrs"
-                :aria-label="t('LabelGivefeedback')"
-                :to="{ name: routes.FEEDBACK }"
-                target="_blank"
-                v-on="on">
-                <v-icon aria-hidden="true">
-                  mdi-bullhorn-variant-outline
-                </v-icon>
-              </v-btn>
-            </template>
-            <span>{{ t('LabelGivefeedback') }}</span>
-          </v-tooltip>
-          <v-tooltip top>
-            <template #activator="{ on, attrs }">
-              <v-btn
-                x-small
-                text
-                class="white--text"
-                v-bind="attrs"
                 :aria-label="t('LabelOpeninnewtab')"
                 target="_blank"
                 @click="openInNewTab"
@@ -162,7 +122,6 @@ export default {
       VERSION,
       key: '',
       unlockError: null,
-      telemetryEnabled: false,
     }
   },
   computed: {
@@ -195,10 +154,6 @@ export default {
     window.addEventListener('beforeunload', unregister)
     window.addEventListener('unload', unregister)
     window.addEventListener('close', unregister)
-    const { telemetryEnabled } = await browser.storage.local.get({
-      telemetryEnabled: false,
-    })
-    this.telemetryEnabled = telemetryEnabled
   },
   methods: {
     async onUnlock() {

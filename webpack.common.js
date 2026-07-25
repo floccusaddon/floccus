@@ -88,10 +88,6 @@ const common = {
     new webpack.ProvidePlugin({
       process: 'process/browser.js',
     }),
-    new webpack.NormalModuleReplacementPlugin(
-      /@sentry\/browser\/.*?lazyLoadIntegration/,
-      path.resolve(__dirname, 'src/build-fixtures/lazyLoadIntegration.js')
-    ),
     new webpack.DefinePlugin({
       BROWSERSLIST_REGEX: require('./supportedBrowsers')
     })

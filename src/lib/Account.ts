@@ -10,7 +10,6 @@ import { OrderFolderResource, TLocalTree } from './interfaces/Resource'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
 import { isTest } from './isTest'
-import { setUser, setContext, withScope, captureException } from '@sentry/browser'
 import AsyncLock from 'async-lock'
 import CachingTreeWrapper from './CachingTreeWrapper'
 import {
@@ -197,7 +196,6 @@ export default class Account {
       this.localCachingResource = new CachingTreeWrapper(await this.getResource())
 
       Logger.log('Starting sync process for account ' + this.getLabel())
-      setUser({ id: this.id })
       this.syncing = true
       await this.setData({ syncing: 0.05, scheduled: false, error: null, lastAttempt: Date.now() })
 
@@ -420,20 +418,6 @@ export default class Account {
 
       console.error('Syncing failed with', message)
       Logger.log('Syncing failed with', message)
-      setContext('accountData', {
-        ...this.getData(),
-        username: 'SENSITIVEVALUEHIDDEN',
-        password: 'SENSITIVEVALUVALUEHIDDEN',
-        passphrase: 'SENSITIVEVALUVALUEHIDDEN'
-      })
-      withScope((scope) => {
-        scope.setTag('adapter', this.getData().type)
-        if (e.list) {
-          captureException(message)
-        } else {
-          captureException(e)
-        }
-      })
 
       if (this.server.onSyncFail) {
         try {

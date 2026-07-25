@@ -16,10 +16,8 @@ export const routes = {
   FUNDING: 'FUNDING',
   UPDATE: 'UPDATE',
   IMPORTEXPORT: 'IMPORTEXPORT',
-  FEEDBACK: 'FEEDBACK',
   DONATE: 'DONATE',
   ABOUT: 'ABOUT',
-  TELEMETRY: 'TELEMETRY',
 }
 
 export const router = new Router({
@@ -64,16 +62,6 @@ export const router = new Router({
       path: '/importexport',
       name: routes.IMPORTEXPORT,
       component: () => import(/* webpackPrefetch: true */ './views/native/ImportExport')
-    },
-    {
-      path: '/feedback',
-      name: routes.FEEDBACK,
-      component: () => import(/* webpackPrefetch: true */ './views/native/Feedback'),
-    },
-    {
-      path: '/telemetry',
-      name: routes.TELEMETRY,
-      component: () => import(/* webpackPrefetch: true */ './views/native/Telemetry'),
     },
     {
       path: '/about',

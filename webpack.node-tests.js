@@ -74,13 +74,6 @@ module.exports = {
         'node-shims',
         'capacitor-filesystem.js'
       ),
-      '@sentry/browser': path.resolve(
-        __dirname,
-        'src',
-        'test',
-        'node-shims',
-        'sentry-browser.js'
-      ),
     },
   },
   plugins: [

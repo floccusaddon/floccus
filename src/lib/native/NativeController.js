@@ -4,7 +4,6 @@ import Cryptography from '../Crypto'
 import NativeAccountStorage from './NativeAccountStorage'
 import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
-import { initSharp } from '../sentry'
 import { LocalNotifications } from '@capacitor/local-notifications'
 import { i18n } from './I18n'
 
@@ -280,10 +279,6 @@ export default class NativeController {
   }
 
   async onLoad() {
-    if (await NativeAccountStorage.getEntry('telemetryEnabled', false)) {
-      initSharp()
-    }
-
     if ((await LocalNotifications.checkPermissions()).display !== 'denied') {
       LocalNotifications.requestPermissions()
     }

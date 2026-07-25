@@ -94,37 +94,6 @@
             </div>
           </v-card-text>
         </template>
-        <v-card-title
-          role="heading"
-          aria-level="2">
-          {{ t("LabelTelemetry") }}
-        </v-card-title>
-        <v-card-text>
-          <div class="body-1">
-            {{ t("DescriptionTelemetry") }}
-          </div>
-          <v-alert type="info">
-            {{ t('DescriptionTelemetrysyncmethod') }}
-          </v-alert>
-          <v-radio-group
-            v-model="telemetry"
-            class="mt-4">
-            <v-radio :value="true">
-              <template #label>
-                <div class="heading">
-                  {{ t("LabelTelemetryenable") }}
-                </div>
-              </template>
-            </v-radio>
-            <v-radio :value="false">
-              <template #label>
-                <div class="heading">
-                  {{ t("LabelTelemetrydisable") }}
-                </div>
-              </template>
-            </v-radio>
-          </v-radio-group>
-        </v-card-text>
         <v-card-text v-if="!isBrowser">
           <v-btn
             class="primary mt-2"
@@ -141,7 +110,6 @@
 <script>
 import {version as VERSION} from '../../../package.json'
 import { routes } from '../NativeRouter'
-import browser from '../../lib/browser-api'
 
 export default {
   name: 'Update',
@@ -149,7 +117,6 @@ export default {
   data() {
     return {
       donateOrReview: Boolean(Math.round(Math.random())),
-      telemetry: false,
       paymentOptions: [
         {
           href: 'https://www.paypal.com/donate/?hosted_button_id=R3SDCC7AFSYZU',
@@ -193,14 +160,7 @@ export default {
       return routes
     }
   },
-  watch: {
-    telemetry(enabled) {
-      browser.storage.local.set({'telemetryEnabled': enabled})
-    }
-  },
   async created() {
-    const {telemetryEnabled} = await browser.storage.local.get({'telemetryEnabled': false})
-    this.telemetry = telemetryEnabled
     this.reviewOptions = (!this.isBrowser ? [
       {
         href: 'https://play.google.com/store/apps/details?id=org.handmadeideas.floccus',
