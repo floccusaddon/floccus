@@ -801,21 +801,6 @@
   "LabelGitbranch": {
     "message": "Git-haru"
   },
-  "LabelTelemetry": {
-    "message": "Automaatne veateavitus"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus saab automaatselt saata veaandmeid mulle, arendajale. See on tohutu abi floccuse vigade kiiremaks avastamiseks ja lahendamiseks ning aitab pikemas perspektiivis parandada teie kogemust floccusega. Isegi kui veateade on sisse lülitatud, ei näe floccuse arendajad kunagi teie järjehoidjaid."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "Uus: Lisaks veateabele saadab floccus nüüd ka teavet kasutatud sünkroonimismeetodi kohta (kui selline valik on sisse lülitatud). See aitab meil floccust arendada ja tagada, et sünkroonimimeetodid toimivad nii nagu vaja."
-  },
-  "LabelTelemetryenable": {
-    "message": "Saadab automaatselt veaandmed ja teabe selle kohta, millist sünkroonimismeetodit te kasutate, floccuse arendajatele."
-  },
-  "LabelTelemetrydisable": {
-    "message": "Ärge saatke andmeid floccuse arendajatele."
-  },
   "LabelAccountlabel": {
     "message": "Profiili silt"
   },
@@ -914,30 +899,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "Avage see vaade uues vahekaardis"
-  },
-  "LabelGivefeedback": {
-    "message": "Andke tagasisidet"
-  },
-  "LabelYourname": {
-    "message": "Teie nimi"
-  },
-  "LabelYouremail": {
-    "message": "Teie e-posti aadress (vabatahtlik)"
-  },
-  "LabelYourmessage": {
-    "message": "Teie tagasiside sõnum"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Tagasiside esitamine"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "See tagasiside vorm on Sentry poolt pakutav. Vajutades \"Saada\" nõustute sisestatud andmete salvestamisega Sentry serverites. Sentryle ei saadeta ühtegi teie järjehoidja andmestikku."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "Aitäh, et võtsite aega, et anda tagasisidet floccuse arendajatele! Kui teie tagasiside on seotud mõne probleemiga, lisage kindlasti, milliseid samme te võtsite, mida ootasite ja mis selle asemel juhtus. Kui teie tagasiside on seotud funktsioonitaotlusega, lisage kindlasti kasutusjuhtum või probleem, mida see funktsioon teie jaoks lahendaks. Kui lisate oma e-posti aadressi, võime teile vastata. Täname teid!"
-  },
-  "LabelFeedbacksent": {
-    "message": "Täname teid tagasiside eest!"
   },
   "LabelFaq":{
     "message": "Vaata KKK-dest"
