@@ -164,6 +164,9 @@
   "Error056": {
     "message": "E056: 上传的 Google Drive 书签文件大小和上传验证后服务器报告的大小不同。floccus 重试了上传但无法确认结果。请稍后重试。"
   },
+  "Error057": {
+    "message": "E057: 意外的服务器文件夹: `{0}`。请检查你的服务器文件夹配置。"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
