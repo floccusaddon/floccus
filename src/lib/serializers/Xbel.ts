@@ -5,7 +5,13 @@ import Logger from '../Logger'
 import { XbelParseError } from '../../errors/Error'
 
 class XbelSerializer implements Serializer {
-  private _nextFallbackId: number
+  private _nextId: number
+
+  // The highest id assigned during the last deserialize() call -- includes both the ids found in
+  // the document and any fallback ids handed out below. Callers that track their own id counter
+  // (e.g. adapters reading a "highestId" marker from the file) should adopt this value afterwards
+  // so ids they assign to newly created items don't collide with the fallback ids just issued.
+  highestId = 0
 
   serialize(folder: Folder<typeof ItemLocation.SERVER>) {
     const xbelObj = this._serializeFolder(folder)
@@ -13,7 +19,7 @@ class XbelSerializer implements Serializer {
     return xmlBuilder.build(xbelObj)
   }
 
-  deserialize(xbel: string) {
+  deserialize(xbel: string, highestId = 0) {
     const parser = new XMLParser({
       preserveOrder: true,
       ignorePiTags: true,
@@ -40,20 +46,29 @@ class XbelSerializer implements Serializer {
     try {
       // Items without a resolvable numeric id (e.g. missing/malformed @id attribute) must not be
       // parsed to NaN: NaN ids break identity matching against the cache/local tree on the next sync
-      // (duplicate folders, spurious delete+create diffs). Assign them fresh, unique negative ids instead,
-      // which can never collide with a real (positive, ever-incrementing) highestId-derived id.
-      this._nextFallbackId = -1
+      // (duplicate folders, spurious delete+create diffs). Assign them the next id in the same
+      // positive, ever-incrementing id space that's used for genuinely new items (see
+      // CachingAdapter), continuing from the caller's highestId, so they behave exactly like a
+      // freshly created bookmark instead of a separate id scheme.
+      this._nextId = highestId + 1
       this._parseFolder(xmlObj[0].xbel, rootFolder)
     } catch (e) {
       Logger.log('Parse Error: ' + e.message)
       throw new XbelParseError()
     }
+    this.highestId = this._nextId - 1
     return rootFolder
   }
 
   _parseId(rawId: string): number {
     const id = parseInt(rawId)
-    return Number.isNaN(id) ? this._nextFallbackId-- : id
+    if (Number.isNaN(id)) {
+      return this._nextId++
+    }
+    if (id >= this._nextId) {
+      this._nextId = id + 1
+    }
+    return id
   }
 
   _parseFolder(xbelObj, folder: Folder<typeof ItemLocation.SERVER>) {
