@@ -4,6 +4,77 @@ const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 const webpack = require('webpack')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
+const presetEnv = (options = {}) => [
+  '@babel/preset-env',
+  {
+    useBuiltIns: 'usage',
+    corejs: { version: '3.19', proposals: true },
+    shippedProposals: true,
+    ...options,
+  },
+]
+
+const scriptRules = [
+  {
+    test: /\.vue$/,
+    loader: 'vue-loader',
+    exclude: /node_modules/,
+  },
+  {
+    test: /\.tsx?$/,
+    use: {
+      loader: 'ts-loader',
+      options: {
+        transpileOnly: true,
+      }
+    },
+    exclude: /node_modules/,
+  },
+  {
+    test: /\.js$/,
+    exclude: /node_modules/,
+    use: {
+      loader: 'babel-loader',
+      options: {
+        cacheDirectory: true,
+        presets: [presetEnv()],
+      },
+    },
+  },
+  {
+    // Dependencies ship whatever syntax they were published with. Several of
+    // them (fast-xml-parser, @jcoreio/async-throttle, ...) emit optional
+    // chaining, nullish coalescing and class fields, which land in the initial
+    // chunk and make old WebViews fail to parse the bundle at all -- on Android
+    // that means the splash screen never goes away. So run node_modules through
+    // babel as well. See https://github.com/floccusaddon/floccus/issues/2333
+    test: /\.m?js$/,
+    include: /node_modules/,
+    // core-js must not be compiled against itself, and the babel helpers are
+    // already published in the syntax we're targeting.
+    exclude: /node_modules[/\\](core-js|core-js-pure|@babel[/\\]runtime|regenerator-runtime)[/\\]/,
+    resolve: {
+      // Dependencies commonly use extensionless relative imports
+      fullySpecified: false,
+    },
+    use: {
+      loader: 'babel-loader',
+      options: {
+        cacheDirectory: true,
+        // Don't pick up .babelrc files shipped inside dependencies
+        babelrc: false,
+        configFile: false,
+        // node_modules mixes ESM and CJS, sometimes within one package
+        sourceType: 'unambiguous',
+        compact: false,
+        // Leave module syntax alone so webpack keeps handling it (required for
+        // .mjs, which webpack refuses to treat as CommonJS)
+        presets: [presetEnv({ modules: false })],
+      },
+    },
+  },
+]
+
 const common = {
   output: {
     path: path.resolve(__dirname, 'dist', 'js'),
@@ -34,41 +105,7 @@ const common = {
           },
         ],
       },
-      {
-        test: /\.vue$/,
-        loader: 'vue-loader',
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.tsx?$/,
-        use: {
-          loader: 'ts-loader',
-          options: {
-            transpileOnly: true,
-          }
-        },
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            cacheDirectory: true,
-            presets: [
-              [
-                '@babel/preset-env',
-                {
-                  useBuiltIns: 'usage',
-                  corejs: { version: '3.19', proposals: true },
-                  shippedProposals: true,
-                },
-              ],
-            ],
-          },
-        },
-      },
+      ...scriptRules,
     ],
   },
   resolve: {
@@ -123,41 +160,7 @@ module.exports = [
             },
           ],
         },
-        {
-          test: /\.vue$/,
-          loader: 'vue-loader',
-          exclude: /node_modules/,
-        },
-        {
-          test: /\.tsx?$/,
-          use: {
-            loader: 'ts-loader',
-            options: {
-              transpileOnly: true,
-            }
-          },
-          exclude: /node_modules/,
-        },
-        {
-          test: /\.js$/,
-          exclude: /node_modules/,
-          use: {
-            loader: 'babel-loader',
-            options: {
-              cacheDirectory: true,
-              presets: [
-                [
-                  '@babel/preset-env',
-                  {
-                    useBuiltIns: 'usage',
-                    corejs: { version: '3.19', proposals: true },
-                    shippedProposals: true,
-                  },
-                ],
-              ],
-            },
-          },
-        },
+        ...scriptRules,
       ],
     },
     plugins: [
