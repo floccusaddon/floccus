@@ -43,4 +43,8 @@ export default class CacheTree extends CachingAdapter implements IResource<typeo
   isAvailable(): Promise<boolean> {
     return Promise.resolve(true)
   }
+
+  setHighestId(id: number) {
+    this.highestId = Math.max(this.highestId, id)
+  }
 }

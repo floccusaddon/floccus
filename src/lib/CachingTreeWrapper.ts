@@ -24,6 +24,9 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
 
   async createBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<string|number> {
     const id = await this.innerTree.createBookmark(bookmark)
+    // In case the browser uses positive int IDs, we need to reset the highestId counter here
+    // to avoid collisions with the cache tree's auto-generated IDs
+    this.cacheTree.setHighestId(Number(id) || 0)
     const cacheId = await this.cacheTree.createBookmark(bookmark.copy(false))
     const cacheBookmark = this.cacheTree.bookmarksCache.findBookmark(cacheId)
     this.cacheTree.bookmarksCache.removeFromIndex(cacheBookmark)
@@ -46,6 +49,9 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
 
   async createFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<string|number> {
     const id = await this.innerTree.createFolder(folder)
+    // In case the browser uses positive int IDs, we need to reset the highestId counter here
+    // to avoid collisions with the cache tree's auto-generated IDs
+    this.cacheTree.setHighestId(Number(id) || 0)
     const cacheId = await this.cacheTree.createFolder(folder.copy(false))
     const cacheFolder = this.cacheTree.bookmarksCache.findFolder(cacheId)
     this.cacheTree.bookmarksCache.removeFromIndex(cacheFolder)
