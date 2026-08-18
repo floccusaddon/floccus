@@ -23,6 +23,8 @@
   },
   "cordova": {},
   "android": {
-    "adjustMarginsForEdgeToEdge": "force"
+    "adjustMarginsForEdgeToEdge": "force",
+    "minWebViewVersion": 109,
+    "minHuaweiWebViewVersion": 12
   }
 }

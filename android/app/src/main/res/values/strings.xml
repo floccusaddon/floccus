@@ -4,4 +4,9 @@
     <string name="title_activity_main">floccus</string>
     <string name="package_name">org.handmadeideas.floccus</string>
     <string name="oauth_redirect_host">auth</string>
+    <string name="webview_error_title">floccus cannot start</string>
+    <string name="webview_error_message">floccus needs a newer version of the system WebView than this device currently has. Please update the WebView and start floccus again.</string>
+    <string name="webview_error_details">Installed WebView version: %1$s</string>
+    <string name="webview_error_version_unknown">unknown</string>
+    <string name="webview_error_update">Update WebView</string>
 </resources>

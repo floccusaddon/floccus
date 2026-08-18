@@ -36,6 +36,12 @@
         </activity>
 
         <activity
+            android:name="org.handmadeideas.floccus.WebViewErrorActivity"
+            android:exported="false"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme" />
+
+        <activity
             android:name="de.mindlib.sendIntent.SendIntentActivity"
             android:label="@string/app_name"
             android:exported="true"
