@@ -158,6 +158,15 @@
   "Error054": {
     "message": "E054: Nie można pobrać szablonu dla Dropbox"
   },
+  "Error055": {
+    "message": "E055: Wysłany na Google Drive plik z zakładkami różni się w porównaniu wielkością zwracaną przez serwer. To może być chwilowy problem z siecią. Spróbuj ponownie później."
+  },
+  "Error056": {
+    "message": "E056: Wysłany na Google Drive plik z zakładkami różni się wielkością zwracaną przez serwer, floccus ponowił wysłanie pliku ale nie może potwierdzić poprawności pliku. Spróbuj ponownie później,"
+  },
+  "Error057": {
+    "message": "E057: Nieoczekiwany folder na serwerze: `{0}`. Sprawdź konfigurację folderów na serwerze."
+  },
   "LabelWebdavurl": {
     "message": "Adres WebDAV"
   },
@@ -795,21 +804,6 @@
   "LabelGitbranch": {
     "message": "Gałąź Git"
   },
-  "LabelTelemetry": {
-    "message": "Automatyczne raportowanie błędów"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus może automatycznie zgłosić błędy do deweloperów. To znaczna pomoc dla szybkiego wykrywania i usuwania błędów, co w dłuższym okresie pomaga podnosić jakość Floccus. Nawet jeśli włączysz raportowanie błędów, deweloperzy nie będą mieli dostępu do Twoich zakładek."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "Nowość: Oprócz informacji o błędach, floccus wysyła teraz również informacje o używanej metodzie synchronizacji, jeśli ta opcja jest włączona. Pomaga nam to ulepszyć floccus i upewnić się, że metody synchronizacji działają zgodnie z oczekiwaniami."
-  },
-  "LabelTelemetryenable": {
-    "message": "Automatycznie wysyłaj dane o błędach i informacje o używanej metodzie synchronizacji do programistów floccus."
-  },
-  "LabelTelemetrydisable": {
-    "message": "Nie wysyłaj żadnych danych do deweloperów floccus"
-  },
   "LabelAccountlabel": {
     "message": "Etykieta profilu"
   },
@@ -868,7 +862,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Synchronizuj zakładki z samoobsługową aplikacją Karakeep o otwartym kodzie źródłowym. Ta opcja nie może korzystać z szyfrowania end-to-end i nie obsługuje zachowania kolejności zakładek podczas synchronizacji."
+    "message": "Synchronizuj swoje zakładki za pomocą aplikacji Karakeep o otwartym kodzie źródłowym, hostowanej na własnym serwerze. Może synchronizować tylko zakładki http. Ta opcja nie może korzystać z szyfrowania end-to-end i nie obsługuje zachowania kolejności zakładek podczas synchronizacji."
   },
   "LabelApiKey":  {
     "message": "Klucz API"
@@ -909,30 +903,6 @@
   "LabelOpeninnewtab": {
     "message": "Otwórz ten widok w nowej karcie"
   },
-  "LabelGivefeedback": {
-    "message": "Przekazywanie informacji zwrotnych"
-  },
-  "LabelYourname": {
-    "message": "Imię i nazwisko"
-  },
-  "LabelYouremail": {
-    "message": "Twój adres e-mail (opcjonalnie)"
-  },
-  "LabelYourmessage": {
-    "message": "Wiadomość zwrotna"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Prześlij opinię"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "Ten formularz opinii jest obsługiwany przez Sentry. Naciśnięcie przycisku Wyślij oznacza zgodę na przechowywanie wprowadzonych danych na serwerach Sentry. Żadne dane z Twojej zakładki nie zostaną wysłane do Sentry."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "Dziękujemy za poświęcenie czasu na przekazanie opinii twórcom floccus! Jeśli Twoja opinia dotyczy problemu, pamiętaj, aby uwzględnić podjęte kroki, czego oczekiwałeś i co się stało. Jeśli twoja opinia dotyczy prośby o funkcję, pamiętaj, aby dołączyć przypadek użycia lub problem, który ta funkcja mogłaby rozwiązać. Jeśli podasz swój adres e-mail, będziemy mogli się z Tobą skontaktować. Dziękujemy!"
-  },
-  "LabelFeedbacksent": {
-    "message": "Dziękujemy za opinię!"
-  },
   "LabelFaq":{
     "message": "Sprawdź FAQ"
   },
@@ -962,5 +932,38 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Wybierz usługę"
+  },
+  "LabelShowpassword": {
+    "message": "Pokaż hasło"
+  },
+  "LabelHidepassword": {
+    "message": "Ukryj hasło"
+  },
+  "LabelTitle": {
+    "message": "Nazwa"
+  },
+  "LabelLink": {
+    "message": "Link"
+  },
+  "LabelParentfolder": {
+    "message": "Folder nadrzędny"
+  },
+  "LabelHome": {
+    "message": "Ekran główny"
+  },
+  "LabelSortby": {
+    "message": "Sortuj po"
+  },
+  "LabelMoreactions": {
+    "message": "Więcej akcji"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Połączenie z serwerem powiodło się"
+  },
+  "LabelSynconstartup": {
+    "message": "Synchronizuj przy starcie"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Jeśli włączone, ten profil będzie synchronizowany po uruchomieniu. Przydatne, jeśli chcesz synchronizować po uruchomieniu bez czekania na następną zaplanowaną synchronizację."
   }
 }
