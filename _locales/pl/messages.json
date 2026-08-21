@@ -159,7 +159,7 @@
     "message": "E054: Nie można pobrać szablonu dla Dropbox"
   },
   "Error055": {
-    "message": "E055: Wysłany na Google Drive plik z zakładkami różni się w porównaniu wielkością zwracaną przez serwer. To może być chwilowy problem z siecią. Spróbuj ponownie później."
+    "message": "E055: Rozmiar pliku z zakładkami pobranego z Google Drive różni się w porównaniu z wielkością zwracaną przez serwer. To może być chwilowy problem z siecią. Spróbuj ponownie później."
   },
   "Error056": {
     "message": "E056: Rozmiar pliku z zakładkami wysłanego na Google Drive różni się w porównaniu z wielkością zwracaną przez serwer. Floccus ponowił wysłanie pliku ale nie może potwierdzić poprawności. Spróbuj ponownie później,"
