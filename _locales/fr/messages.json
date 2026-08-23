@@ -158,6 +158,15 @@
   "Error054": {
     "message": "E054: Impossible de trouver le modèle pour Dropbox"
   },
+  "Error055": {
+    "message": "E055: La taille du fichier de favoris provenant de Google Drive est différente de la taille retournée par le serveur. Une panne temporaire de réseau peut expliquée la cause. Si cette erreur persiste, merci de réessayer ultérieurement."
+  },
+  "Error056": {
+    "message": "E056: La taille du fichier de favoris téléversé sur Google Drive est différente de la taille retournée par le serveur après la vérification du téléversement. Floccus a réessayé le téléversement mais ne peut pas confirmer le résultat. Merci de réessayer ultérieurement."
+  },
+  "Error057": {
+    "message": "E057: Répertoire serveur inattendu: `{0}`. Merci de vérifier la configuration de votre serveur."
+  },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
   },
@@ -795,21 +804,6 @@
   "LabelGitbranch": {
     "message": "Branche"
   },
-  "LabelTelemetry": {
-    "message": "Surveillance d'erreur automatisée"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus peut automatiquement envoyer des rapports d'erreur aux développeurs. Ceci constitue une aide inestimable pour découvrir et résoudre les bogues de floccus plus rapidement, et améliorer votre expérience avec floccus à long terme. Même lorsque le rapport d'erreur est actif, les développeurs de floccus ne pourront jamais accéder à vos signets."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "Nouveauté: si cette option est activée, en plus d'informations relatives à l'erreur, floccus envoie maintenant des informations sur la méthode de synchronisation que vous utilisez. Cela nous permet d'améliorer floccus et de nous assurer que les méthodes de synchronisation fonctionnent comme prévu."
-  },
-  "LabelTelemetryenable": {
-    "message": "Envoyez automatiquement aux développeurs de floccus les données d'erreur et les informations sur la méthode de synchronisation que vous utilisez."
-  },
-  "LabelTelemetrydisable": {
-    "message": "N'envoyez pas de données aux développeurs de floccus"
-  },
   "LabelAccountlabel": {
     "message": "Étiquette du profil"
   },
@@ -868,7 +862,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Synchronisez vos signets avec l'application open-source auto-hébergée Karakeep. Cette option ne peut pas utiliser le chiffrement de bout en bout et ne permet pas de conserver l'ordre des signets lors des synchronisations."
+    "message": "Synchroniser vos favoris avec l'application open-source et auto-hébergée Karakeep. Elle peut ne synchroniser que les favoris http. Cette option ne peut pas utiliser le cryptage de bout-en-bout et ne permet pas de garder l'ordre des favoris entre les synchronisations."
   },
   "LabelApiKey":  {
     "message": "Clé d'API"
@@ -909,30 +903,6 @@
   "LabelOpeninnewtab": {
     "message": "Ouvrir cette vue dans un nouvel onglet"
   },
-  "LabelGivefeedback": {
-    "message": "Donnez votre avis"
-  },
-  "LabelYourname": {
-    "message": "Votre nom"
-  },
-  "LabelYouremail": {
-    "message": "Votre adresse électronique (facultatif)"
-  },
-  "LabelYourmessage": {
-    "message": "Votre message d'information"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Soumettre un retour d'information"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "Ce formulaire de retour d'information est alimenté par Sentry. En cliquant sur soumettre, vous acceptez que les données saisies soient stockées sur les serveurs de Sentry. Aucune de vos données de signets ne sera envoyée à Sentry."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "Merci d'avoir pris le temps de donner votre avis aux développeurs de floccus ! Si votre commentaire concerne un problème, assurez-vous d'inclure les étapes que vous avez suivies, ce que vous attendiez et ce qui s'est passé à la place. Si votre feedback concerne une demande de fonctionnalité, assurez-vous d'inclure le cas d'utilisation ou le problème que cette fonctionnalité résoudrait pour vous. Si vous indiquez votre adresse électronique, nous pourrons vous recontacter. Nous vous remercions de votre attention."
-  },
-  "LabelFeedbacksent": {
-    "message": "Merci pour vos commentaires !"
-  },
   "LabelFaq":{
     "message": "Consultez la FAQ"
   },
@@ -962,5 +932,38 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Choisissez votre service"
+  },
+  "LabelShowpassword": {
+    "message": "Voir le mot de passe"
+  },
+  "LabelHidepassword": {
+    "message": "Cacher le mot de passe"
+  },
+  "LabelTitle": {
+    "message": "Titre"
+  },
+  "LabelLink": {
+    "message": "Lien"
+  },
+  "LabelParentfolder": {
+    "message": "Répertoire parent"
+  },
+  "LabelHome": {
+    "message": "Accueil"
+  },
+  "LabelSortby": {
+    "message": "Trier par"
+  },
+  "LabelMoreactions": {
+    "message": "Plus d'actions"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Connexion au serveur avec succès"
+  },
+  "LabelSynconstartup": {
+    "message": "Synchronisation au démarrage"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Si activé, ce profil sera synchronisé au démarrage. C'est pratique si vous souhaitez synchroniser vos favoris au démarrage, et ne souhaitez pas attendre la prochaine synchronisation programmée."
   }
 }
