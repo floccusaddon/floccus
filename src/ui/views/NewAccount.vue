@@ -650,7 +650,7 @@
           <v-form>
             <OptionAutoSync v-model="enabled" />
             <OptionSyncOnStartup v-model="syncOnStartupEnabled" />
-            <template v-if="!isBrowser">
+            <template v-if="isBrowser">
               <OptionSyncIntervalEnabled v-model="syncIntervalEnabled" />
               <OptionSyncInterval
                 v-if="syncIntervalEnabled"
