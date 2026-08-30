@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.10.3] - 2026-08-30
+
+### New
+
+* feat(Linkwarden): resolve serverFolder as nested path with auto-creation (thanks to Clemens Eyhoff)
+
+### Fixed
+
+ * fix: Remove sentry integration
+ * fix(CachingTreeWrapper): Avoid collisions between Chromium IDs and CachingAdapter IDs
+ * [android] fix: Add a WebViewError activity that will be displayed if WebView is too old
+ * fix(NewAccount): Display sync interval option for browser users
+ * Translation updates
+
 ## [5.10.2] - 2026-07-18
 
 ### Fixed
