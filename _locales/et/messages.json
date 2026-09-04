@@ -266,6 +266,18 @@
   "StatusScheduled": {
     "message": "Ajastatud"
   },
+  "StatusAuthorizationneeded": {
+    "message": "Sisselogimine on nõutav"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "See profiil pole veel sinu kasutajakontoga seotud ja seega sünkroonimise toimimiseks pead seda esmalt tegema. Sisselogimiseks ava profiili valikud."
+  },
+  "LabelAuthorize": {
+    "message": "Logi sisse"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "Profiili(de) importimine õnnestus. Kasutajakontosid ja salasõna ei saa seadmete vahel ümber tõsta, seega kui kasutad Google Drive'i või Dropboxi, siis pead esmalt nendesse teenustesse sisse logima ja alles siis saab sünkroonimine toimida."
+  },
   "LabelReset": {
     "message": "Lähtesta"
   },
