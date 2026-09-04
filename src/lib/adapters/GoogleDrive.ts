@@ -144,15 +144,27 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   }
 
   async getAccessToken(refreshToken:string) {
-    const response = await this.request('POST', 'https://oauth2.googleapis.com/token',
-      {
-        refresh_token: refreshToken,
-        client_id: Credentials[Capacitor.getPlatform()].client_id,
-        ...(IS_BROWSER && {client_secret: Credentials.web.client_secret}),
-        grant_type: 'refresh_token',
-      },
-      'application/x-www-form-urlencoded'
-    )
+    let response
+    try {
+      response = await this.request('POST', 'https://oauth2.googleapis.com/token',
+        {
+          refresh_token: refreshToken,
+          client_id: Credentials[Capacitor.getPlatform()].client_id,
+          ...(IS_BROWSER && {client_secret: Credentials.web.client_secret}),
+          grant_type: 'refresh_token',
+        },
+        'application/x-www-form-urlencoded'
+      )
+    } catch (e) {
+      if (e instanceof AuthenticationError) {
+        // The token endpoint answers 401 unauthorized_client when the refresh token
+        // wasn't issued to the client_id we're presenting -- notably for profiles
+        // that were imported from a different platform. Point the user at the fix
+        // instead of leaving them with the generic E018.
+        throw new GoogleDriveAuthenticationError()
+      }
+      throw e
+    }
 
     if (response.status !== 200) {
       Logger.log('Failed to retrieve access token from Google API: ' + await response.text())

@@ -88,6 +88,19 @@
                 {{ t('LabelDebuglogs') }}
               </v-btn>
             </template>
+            <template v-if="needsAuthorization">
+              <v-btn
+                :color="statusType"
+                class="float-right ml-1 mt-1"
+                x-small
+                :to="{
+                  name: routes.ACCOUNT_OPTIONS,
+                  params: { accountId: account.id },
+                }"
+                target="_blank">
+                {{ t('LabelAuthorize') }}
+              </v-btn>
+            </template>
             <template v-if="status === 'scheduled'">
               <v-btn
                 :color="statusType"
@@ -192,6 +205,7 @@ import humanizeDuration from 'humanize-duration'
 import { actions } from '../store/definitions'
 import { routes } from '../router'
 import BrowserTree from '../../lib/browser/BrowserTree'
+import { needsAuthorization } from '../../lib/AccountAuthorization'
 
 export default {
   name: 'AccountCard',
@@ -208,6 +222,7 @@ export default {
         disabled: 'rgb(125, 114, 128)',
         ok: '#3d8e39',
         error: '#8e3939',
+        authorize: '#8e6739',
         syncing: '#2196F3',
         scheduled: '#2196F3',
       },
@@ -215,6 +230,7 @@ export default {
         disabled: 'mdi-sync-off',
         ok: 'mdi-check',
         error: 'mdi-sync-alert',
+        authorize: 'mdi-login-variant',
         syncing: 'mdi-sync',
         scheduled: 'mdi-timer-sync-outline',
       },
@@ -222,6 +238,7 @@ export default {
         disabled: this.t('StatusDisabled'),
         ok: this.t('StatusAllgood'),
         error: this.t('StatusError'),
+        authorize: this.t('StatusAuthorizationneeded'),
         syncing: this.t('StatusSyncing'),
         scheduled: this.t('StatusScheduled'),
       },
@@ -256,12 +273,18 @@ export default {
     uri() {
       return this.account.label
     },
+    needsAuthorization() {
+      return needsAuthorization(this.account.data)
+    },
     status() {
       if (this.account.data.syncing) {
         return 'syncing'
       }
       if (this.account.data.scheduled) {
         return 'scheduled'
+      }
+      if (this.needsAuthorization) {
+        return 'authorize'
       }
       if (this.account.data.error) {
         return 'error'
@@ -285,12 +308,18 @@ export default {
       return this.statusLabels[this.status]
     },
     statusType() {
+      if (this.needsAuthorization) {
+        return 'warning'
+      }
       if (this.account.data.error) {
         return 'error'
       }
       return 'info'
     },
     statusDetail() {
+      if (this.needsAuthorization) {
+        return this.t('DescriptionAuthorizationneeded')
+      }
       if (this.account.data.error) {
         return (
           this.account.data.error +

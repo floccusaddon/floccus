@@ -147,17 +147,16 @@ export const actionsDefinition = {
     return account.id
   },
   async [actions.IMPORT_ACCOUNTS]({commit, dispatch, state}, accounts) {
-    const filteredAccounts = accounts.filter(account => account.type !== 'google-drive')
-    await Account.import(filteredAccounts)
+    // Git is the only sync method that isn't available on mobile, yet. OAuth
+    // profiles can be imported just like in the browser: Account.import drops
+    // their refresh token and the user is sent to the options to log in again.
+    const filteredAccounts = accounts.filter(account => account.type !== 'git')
+    const ids = await Account.import(filteredAccounts)
     await dispatch(actions.LOAD_ACCOUNTS)
     if (filteredAccounts.length !== accounts.length) {
-      if (accounts.find(account => account.type === 'google-drive')) {
-        throw new Error('Cannot import Google Drive profiles on mobile. Please create the profile(s) manually.')
-      }
-      if (accounts.find(account => account.type === 'git')) {
-        throw new Error('Cannot import Git profiles on mobile. Git is not supported on mobile, yet.')
-      }
+      throw new Error('Cannot import Git profiles on mobile. Git is not supported on mobile, yet.')
     }
+    return ids
   },
   async [actions.EXPORT_ACCOUNTS]({commit, dispatch, state}, accountIds) {
     const data = await Account.export(accountIds)

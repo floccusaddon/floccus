@@ -46,8 +46,9 @@ export const actionsDefinition = {
     return account.id
   },
   async [actions.IMPORT_ACCOUNTS]({commit, dispatch, state}, accounts) {
-    await Account.import(accounts)
+    const ids = await Account.import(accounts)
     await dispatch(actions.LOAD_ACCOUNTS)
+    return ids
   },
   async [actions.EXPORT_ACCOUNTS]({commit, dispatch, state}, accountIds) {
     const data = await Account.export(accountIds)

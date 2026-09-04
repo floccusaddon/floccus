@@ -214,14 +214,26 @@ export default class DropboxAdapter extends CachingAdapter {
    * @returns
    */
   async getAccessToken(refreshToken:string) {
-    const response = await this.request('POST', oAuthBaseUrl + '/token',
-      {
-        refresh_token: refreshToken,
-        client_id: Credentials[Capacitor.getPlatform()].client_id,
-        grant_type: 'refresh_token',
-      },
-      'application/x-www-form-urlencoded'
-    )
+    let response
+    try {
+      response = await this.request('POST', oAuthBaseUrl + '/token',
+        {
+          refresh_token: refreshToken,
+          client_id: Credentials[Capacitor.getPlatform()].client_id,
+          grant_type: 'refresh_token',
+        },
+        'application/x-www-form-urlencoded'
+      )
+    } catch (e) {
+      if (e instanceof AuthenticationError) {
+        // The token endpoint rejects a refresh token that wasn't issued to the
+        // client_id we're presenting -- notably for profiles that were imported
+        // from a different platform. Point the user at the fix instead of leaving
+        // them with the generic E018.
+        throw new DropboxAuthenticationError()
+      }
+      throw e
+    }
 
     if (response.status !== 200) {
       Logger.log('Failed to retrieve access token from Dropbox API: ' + await response.text())

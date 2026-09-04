@@ -76,6 +76,7 @@
 <script>
 import PathHelper from '../../lib/PathHelper'
 import Vue from 'vue'
+import { needsAuthorization } from '../../lib/AccountAuthorization'
 
 export default {
   name: 'ImportExport',
@@ -128,7 +129,21 @@ export default {
       const file = this.$refs.filePicker.files[0]
       try {
         const accounts = JSON.parse(await file.text())
-        await this.$store.dispatch('IMPORT_ACCOUNTS', accounts)
+        const ids = await this.$store.dispatch('IMPORT_ACCOUNTS', accounts)
+        const unauthorized = (ids || []).filter(id => {
+          const account = this.$store.state.accounts[id]
+          return account && needsAuthorization(account.data)
+        })
+        if (unauthorized.length) {
+          // Logins cannot be imported, so send the user straight to the profile
+          // that needs to be connected again.
+          alert(this.t('DescriptionImportauthorizationneeded'))
+          this.$router.push({
+            name: 'ACCOUNT_OPTIONS',
+            params: { accountId: unauthorized[0] },
+          })
+          return
+        }
         alert(this.t('LabelImportsuccessful'))
       } catch (e) {
         alert(e.message)

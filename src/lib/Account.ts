@@ -12,6 +12,7 @@ import Mappings from './Mappings'
 import { isTest } from './isTest'
 import AsyncLock from 'async-lock'
 import CachingTreeWrapper from './CachingTreeWrapper'
+import { isOAuthAccount } from './AccountAuthorization'
 import {
   ClientsideAdditionFailsafeError, ClientsideDeletionFailsafeError, FloccusError,
   InterruptedSyncError,
@@ -75,16 +76,32 @@ export default class Account {
     return (await this.getAccountClass()).create(data)
   }
 
-  static async import(accounts:IAccountData[]):Promise<void> {
+  static async import(accounts:IAccountData[]):Promise<string[]> {
+    const ids = []
     for (const accountData of accounts) {
-      await this.create({...accountData, enabled: false, syncIntervalEnabled: false, syncOnStartupEnabled: false})
+      const account = await this.create({
+        ...accountData,
+        // OAuth refresh tokens are bound to the client_id that issued them, which
+        // differs between the browser extension and the mobile app, so an imported
+        // token would only ever yield E018. Make the user log in again instead.
+        ...(isOAuthAccount(accountData) && {refreshToken: null}),
+        enabled: false,
+        syncIntervalEnabled: false,
+        syncOnStartupEnabled: false
+      })
+      ids.push(account.id)
     }
+    return ids
   }
 
   static async export(accountIds:string[]):Promise<IAccountData[]> {
     return (await Promise.all(
       accountIds.map(id => Account.get(id))
     )).map(a => a.getData())
+      // Don't write OAuth refresh tokens into a file that people hand around and
+      // attach to bug reports: they are live credentials and importing them is a
+      // no-op anyway, since they're only valid for the platform that issued them.
+      .map(data => isOAuthAccount(data) ? {...data, refreshToken: null} : data)
   }
 
   public id: string

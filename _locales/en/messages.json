@@ -266,6 +266,18 @@
   "StatusScheduled": {
     "message": "Scheduled"
   },
+  "StatusAuthorizationneeded": {
+    "message": "Login required"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "This profile is not connected to your account, yet, and cannot sync until it is. Open the profile options to log in."
+  },
+  "LabelAuthorize": {
+    "message": "Log in"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "Successfully imported profile(s). Logins cannot be transferred between devices, so profiles syncing via Google Drive or Dropbox need you to log in again before they can sync."
+  },
   "LabelReset": {
     "message": "Reset"
   },
