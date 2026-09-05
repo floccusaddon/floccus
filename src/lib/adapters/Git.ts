@@ -408,7 +408,8 @@ export default class GitAdapter extends CachingAdapter {
     switch (this.server.bookmark_file_type) {
       case 'xbel':
         Logger.log('(git) parse XBEL')
-        this.bookmarksCache = XbelSerializer.deserialize(fileContents)
+        this.bookmarksCache = XbelSerializer.deserialize(fileContents, this.highestId)
+        this.highestId = XbelSerializer.highestId
         break
       case 'html':
         Logger.log('(git) parse HTML')

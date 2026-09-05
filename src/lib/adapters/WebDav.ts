@@ -267,7 +267,8 @@ export default class WebDavAdapter extends CachingAdapter {
           if (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
             throw new FileUnreadableError()
           }
-          this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
+          this.bookmarksCache = XbelSerializer.deserialize(xmlDocText, this.highestId)
+          this.highestId = XbelSerializer.highestId
           break
         case 'html':
           if (!xmlDocText.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>')) {
