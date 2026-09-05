@@ -3,7 +3,7 @@ import { Bookmark, Folder, ItemLocation } from '../Tree'
 import Ordering from '../interfaces/Ordering'
 import CachingAdapter from '../adapters/Caching'
 import IAccountStorage from '../interfaces/AccountStorage'
-import { BulkImportResource, IHashSettings } from '../interfaces/Resource'
+import { BulkImportResource, ICapabilities, IHashSettings } from '../interfaces/Resource'
 import { isTest } from '../isTest'
 
 export default class NativeTree extends CachingAdapter implements BulkImportResource<typeof ItemLocation.LOCAL> {
@@ -168,5 +168,13 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
 
   isAtomic(): boolean {
     return false
+  }
+
+  async getCapabilities(): Promise<ICapabilities> {
+    return {
+      ...(await super.getCapabilities()),
+      // Our own tree stores whatever we put into it, tags included
+      supportsTags: true,
+    }
   }
 }

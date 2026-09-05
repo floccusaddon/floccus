@@ -64,6 +64,19 @@
             :error="Boolean(urlError)"
             :error-messages="urlError"
             :label="t('LabelLink')" />
+          <v-combobox
+            v-if="supportsTags"
+            v-model="tags"
+            :items="allTags"
+            :label="t('LabelTags')"
+            :hint="t('DescriptionTags')"
+            persistent-hint
+            multiple
+            chips
+            deletable-chips
+            small-chips
+            hide-selected
+            prepend-inner-icon="mdi-tag-multiple" />
           <v-text-field
             v-model="parentTitle"
             readonly
@@ -116,6 +129,7 @@ export default {
       url: this.$route.params.url,
       urlError: this.checkUrl(this.$route.params.url),
       title: this.$route.params.title || '',
+      tags: [],
       temporaryParent: null,
       displayFolderChooser: false,
     }
@@ -151,7 +165,22 @@ export default {
     },
     exists() {
       return !this.loading && this.tree && this.tree.findItemFilter(ItemType.BOOKMARK, (bm) => bm.url === this.url)
-    }
+    },
+    supportsTags() {
+      return Boolean(this.$store.state.tagSupport[this.id])
+    },
+    allTags() {
+      if (!this.tree || !this.tree.index) {
+        return []
+      }
+      const tags = new Set()
+      for (const key in this.tree.index.bookmark) {
+        for (const tag of this.tree.index.bookmark[key].tags || []) {
+          tags.add(tag)
+        }
+      }
+      return [...tags].sort((tag1, tag2) => tag1.localeCompare(tag2))
+    },
   },
   watch: {
     loading() {
@@ -176,6 +205,8 @@ export default {
     if (this.tree) {
       const parentFolder = this.tree.findFolder(this.$store.state.lastFolders[this.id]) || this.tree.findFolder(this.tree.id)
       this.temporaryParent = parentFolder.id
+      // The tree may still be the previous account's, so ask about this one
+      this.$store.dispatch(actions.LOAD_TAG_SUPPORT, this.id)
     } else {
       this.$store.dispatch(actions.LOAD_TREE, this.id)
     }
@@ -187,7 +218,15 @@ export default {
       }
       await this.$store.dispatch(actions.CREATE_BOOKMARK, {
         accountId: this.id,
-        bookmark: new Bookmark({ id: null, parentId: this.temporaryParent, title: this.title, url: this.url })
+        bookmark: new Bookmark({
+          id: null,
+          parentId: this.temporaryParent,
+          title: this.title,
+          url: this.url,
+          ...(this.supportsTags && {
+            tags: this.tags.map((tag) => String(tag).trim()).filter(Boolean),
+          }),
+        })
       })
       SendIntent.finish()
       await this.$router.push({name: routes.TREE, params: {accountId: this.id}})

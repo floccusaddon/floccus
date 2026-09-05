@@ -23,4 +23,12 @@ export default class FakeAdapter extends CachingAdapter {
   getLabel() {
     return 'Fake account (floccus)'
   }
+
+  async getCapabilities() {
+    return {
+      ...(await super.getCapabilities()),
+      // The fake server stands in for tag-capable servers in the test suite
+      supportsTags: true,
+    }
+  }
 }

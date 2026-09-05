@@ -16,7 +16,9 @@ class HtmlSerializer implements Serializer {
       .map(child => {
         if (child instanceof Bookmark) {
           return (
-            `${indent}<DT><A HREF="${this._htmlentities_encode(child.url)}" TAGS="${''}" ID="${child.id}">${this._htmlentities_encode(child.title)}</A>\n`
+            // Netscape's TAGS attribute is comma separated; Nextcloud Bookmarks
+            // picks it up on import, so bulk imports don't lose their tags.
+            `${indent}<DT><A HREF="${this._htmlentities_encode(child.url)}" TAGS="${this._htmlentities_encode((child.tags || []).join(','))}" ID="${child.id}">${this._htmlentities_encode(child.title)}</A>\n`
           )
         } else if (child instanceof Folder) {
           const nextIndent = indent + '  '

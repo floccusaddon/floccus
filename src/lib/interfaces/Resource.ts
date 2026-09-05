@@ -6,11 +6,23 @@ export type THashFunction = 'sha256' | 'murmur3' | 'xxhash3'
 export interface ICapabilities {
   preserveOrder: boolean,
   hashFn: THashFunction[],
+  /**
+   * Whether this resource can store and return a bookmark's `tags`.
+   * Tags are only synced if *both* resources of a sync say yes -- otherwise
+   * the side that does support them keeps its tags untouched.
+   */
+  supportsTags: boolean,
 }
 
 export interface IHashSettings {
   preserveOrder: boolean,
   hashFn: THashFunction,
+  /**
+   * Negotiated from both resources' `supportsTags`. When true, tags take part
+   * in hashing (so that tag-only changes propagate up folder hashes) and are
+   * compared and written by the sync.
+   */
+  syncTags?: boolean,
 }
 
 export interface IResource<L extends TItemLocation> {

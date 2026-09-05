@@ -401,7 +401,9 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
   async getCapabilities(): Promise<ICapabilities> {
     return {
       preserveOrder: true,
-      hashFn: ['xxhash3', 'murmur3', 'sha256']
+      hashFn: ['xxhash3', 'murmur3', 'sha256'],
+      // The browsers' bookmark APIs have no notion of tags
+      supportsTags: false,
     }
   }
 

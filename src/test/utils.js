@@ -231,9 +231,10 @@ export const expectTreeEqual = function(
   tree1,
   tree2,
   ignoreEmptyFolders,
-  checkOrder = true
+  checkOrder = true,
+  checkTags = false
 ) {
-  expectTreeEqualRec(tree1, tree2, 0, ignoreEmptyFolders, checkOrder)
+  expectTreeEqualRec(tree1, tree2, 0, ignoreEmptyFolders, checkOrder, checkTags)
 }
 
 let expectTreeEqualRec = function(
@@ -241,12 +242,19 @@ let expectTreeEqualRec = function(
   tree2,
   recDepth,
   ignoreEmptyFolders,
-  checkOrder
+  checkOrder,
+  checkTags
 ) {
   try {
     expect(tree1.title).to.equal(tree2.title)
     if (tree2.url) {
       expect(tree1.url).to.equal(tree2.url)
+      if (checkTags) {
+        // Tags are a set, their order carries no meaning
+        expect([...(tree1.tags || [])].sort()).to.deep.equal(
+          [...(tree2.tags || [])].sort()
+        )
+      }
     } else {
       if (checkOrder === false) {
         tree2.children.sort((a, b) => {
@@ -277,7 +285,8 @@ let expectTreeEqualRec = function(
           child2,
           recDepth + 1,
           ignoreEmptyFolders,
-          checkOrder
+          checkOrder,
+          checkTags
         )
       })
     }
@@ -312,6 +321,10 @@ export async function withSyncConnection(account, fn) {
     adapter.setHashSettings({
       preserveOrder: capabilities.preserveOrder,
       hashFn: capabilities.hashFn[0],
+      // The local side of a native sync always supports tags, so this mirrors
+      // what a real sync would negotiate -- and makes the fetched tree carry
+      // tags for the assertions.
+      syncTags: capabilities.supportsTags,
     })
   await fn()
   if (adapter.onSyncComplete) await adapter.onSyncComplete()

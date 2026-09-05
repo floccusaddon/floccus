@@ -607,6 +607,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     return {
       preserveOrder: true,
       hashFn: ['xxhash3', 'murmur3', 'sha256'],
+      supportsTags: false,
     }
   }
 

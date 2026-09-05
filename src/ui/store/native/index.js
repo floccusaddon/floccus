@@ -12,6 +12,8 @@ export default new Store({
     locked: false,
     accounts: {},
     tree: null,
+    // accountId -> whether both ends of that account's sync can store tags
+    tagSupport: {},
     loginFlow: {
       isRunning: false
     },

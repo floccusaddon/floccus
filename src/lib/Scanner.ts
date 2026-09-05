@@ -1,6 +1,6 @@
 import * as Parallel from 'async-parallel'
 import Diff, { ActionType, CreateAction, MoveAction, RemoveAction, ReorderAction, UpdateAction } from './Diff'
-import { Bookmark, Folder, ItemLocation, ItemType, TItem, TItemLocation } from './Tree'
+import { Bookmark, Folder, ItemLocation, ItemType, tagsEqual, TItem, TItemLocation } from './Tree'
 import Logger from './Logger'
 import { IHashSettings } from './interfaces/Resource'
 import { yieldToEventLoop } from './yieldToEventLoop'
@@ -150,9 +150,13 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
   async diffBookmark(oldBookmark:Bookmark<L1>, newBookmark:Bookmark<L2>):Promise<void> {
     let hasChanged
     if (this.checkHashes) {
+      // With tag syncing on, the hash covers tags as well
       hasChanged = await this.bookmarkHasChanged(oldBookmark, newBookmark)
     } else {
-      hasChanged = oldBookmark.title !== newBookmark.title || oldBookmark.url !== newBookmark.url
+      hasChanged =
+        oldBookmark.title !== newBookmark.title ||
+        oldBookmark.url !== newBookmark.url ||
+        Boolean(this.hashSettings?.syncTags && !tagsEqual(oldBookmark.tags, newBookmark.tags))
     }
     if (hasChanged) {
       this.result.UPDATE.commit({ type: ActionType.UPDATE, payload: newBookmark, oldItem: oldBookmark })

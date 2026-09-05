@@ -110,6 +110,21 @@ class Resource {
   async removeFolder(id: int)
 
   /**
+   * @return Promise<ICapabilities> what this resource can do:
+   *   {
+   *     preserveOrder: boolean,          // can store the order of children
+   *     hashFn: ('sha256'|'murmur3'|'xxhash3')[], // supported hash functions
+   *     supportsTags: boolean,           // can store and return Bookmark#tags
+   *   }
+   *
+   * Tags are only synced if *both* resources of a sync report `supportsTags`.
+   * If they do, `Bookmark#tags` takes part in hashing, so tag-only changes bump
+   * folder hashes and aren't skipped over -- servers that compute folder hashes
+   * themselves have to include tags in them too (see NextcloudBookmarks#_getFolderHash).
+   */
+  async getCapabilities() : ICapabilities
+
+  /**
    * ------
    * The following methods are optional
    * ------
@@ -143,8 +158,12 @@ class Bookmark {
   public parentId: int
   public url: string
   public title: string
+  // Only meaningful for adapters that report `supportsTags: true`. `undefined`
+  // means "this resource has nothing to say about tags" and is never treated as
+  // "no tags", so an adapter without tag support can't wipe the other side's.
+  public tags: string[]|undefined
 
-  constructor({ id: int, parentId: int, url: string, title: string })
+  constructor({ id: int, parentId: int, url: string, title: string, tags?: string[] })
 
   clone() : Bookmark
 }

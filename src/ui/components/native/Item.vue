@@ -29,6 +29,20 @@
           :items="item.type === 'bookmark' ? getBookmarkPath(item) : getFolderPath(item)"
           :tree="tree" />
       </v-list-item-subtitle>
+      <v-list-item-subtitle v-if="tags.length">
+        <v-chip
+          v-for="tag in tags"
+          :key="tag"
+          class="mr-1 tag-chip"
+          x-small
+          label
+          outlined
+          color="blue darken-1"
+          :aria-label="t('LabelSearchbytag', [tag])"
+          @click.stop="$emit('tag', tag)">
+          {{ tag }}
+        </v-chip>
+      </v-list-item-subtitle>
     </v-list-item-content>
 
     <v-list-item-action>
@@ -130,6 +144,12 @@ export default {
       }
       return this.$store.state.accounts[this.accountId].data.allowNetwork
     },
+    tags() {
+      if (!this.item || this.item.type !== 'bookmark') {
+        return []
+      }
+      return this.item.tags || []
+    },
   },
   methods: {
     getFolderPath(item) {
@@ -166,5 +186,7 @@ export default {
 </script>
 
 <style scoped>
-
+.tag-chip {
+  height: 18px;
+}
 </style>

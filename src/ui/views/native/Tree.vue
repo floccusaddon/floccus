@@ -235,6 +235,7 @@
             @click="clickItem(item)"
             @share="shareBookmark(item)"
             @edit="editItem(item)"
+            @tag="searchByTag($event)"
             @delete="deleteItem(item)" />
           <v-divider :key="String(item.id) + item.type + 'divider'" />
         </template>
@@ -283,6 +284,7 @@
             @click="clickItem(item)"
             @share="shareBookmark(item)"
             @edit="editItem(item)"
+            @tag="searchByTag($event)"
             @delete="deleteItem(item)" />
           <v-divider :key="String(item.id) + item.type + 'divider'" />
         </template>
@@ -353,6 +355,8 @@
       :display.sync="isAddingBookmark"
       :tree="tree"
       :parent-folder="currentFolderId"
+      :supports-tags="supportsTags"
+      :tag-suggestions="allTags"
       @save="createBookmark($event)" />
     <DialogEditFolder
       v-if="isAddingFolder"
@@ -367,6 +371,8 @@
       :bookmark="currentlyEditedBookmark"
       :tree="tree"
       :display.sync="isEditingBookmark"
+      :supports-tags="supportsTags"
+      :tag-suggestions="allTags"
       @save="editBookmark($event)" />
     <DialogEditFolder
       v-if="isEditingFolder"
@@ -514,6 +520,21 @@ export default {
     breadcrumbs() {
       return this.getFolderPath(this.currentFolder)
     },
+    supportsTags() {
+      return Boolean(this.$store.state.tagSupport[this.id])
+    },
+    allTags() {
+      if (!this.tree || !this.tree.index) {
+        return []
+      }
+      const tags = new Set()
+      for (const key in this.tree.index.bookmark) {
+        for (const tag of this.tree.index.bookmark[key].tags || []) {
+          tags.add(tag)
+        }
+      }
+      return [...tags].sort((tag1, tag2) => tag1.localeCompare(tag2))
+    },
   },
   watch: {
     async $route() {
@@ -546,7 +567,9 @@ export default {
       })
     },
     async searchQuery(searchQuery) {
-      if (searchQuery.trim().length < 3) {
+      const trimmed = (searchQuery || '').trim()
+      // '#tag' searches only need a tag to go on, not three characters
+      if (trimmed.startsWith('#') ? trimmed.length < 2 : trimmed.length < 3) {
         this.searchItems = []
         this.otherSearchItems = []
         return
@@ -632,9 +655,19 @@ export default {
         this.searchQuery = query
       }, 500)
     },
+    searchByTag(tag) {
+      clearTimeout(this.searchDebounceTimer)
+      this.searchQuery = '#' + tag
+    },
     async search(results, query, tree, filterFunction = (item) => true) {
       // Refactored to use for loops instead of Object.values/filter
       let iterations = 0
+      // A '#…' query looks for tags only -- folders can't carry tags, so they
+      // are out of the running entirely.
+      const tagQuery = query.startsWith('#') ? query.slice(1).trim() : null
+      if (tagQuery) {
+        return this.searchByTagQuery(results, tagQuery, tree, filterFunction)
+      }
       const folderResults = results
       for (const key in tree.index.folder) {
         const item = tree.index.folder[key]
@@ -708,6 +741,7 @@ export default {
         let matchTitleFully = false
         let matchTitlePartially = false
         let matchUrl = false
+        let matchTags = false
         if (item.title) {
           matchTitleFully = query.split(' ').every((term) =>
             item.title
@@ -724,7 +758,13 @@ export default {
             .split(' ')
             .every((term) => item.url.toLowerCase().includes(term))
         }
-        if (matchUrl || matchTitleFully || matchTitlePartially) {
+        if (item.tags && item.tags.length) {
+          const tags = item.tags.map((tag) => tag.toLowerCase())
+          matchTags = query
+            .split(' ')
+            .every((term) => tags.some((tag) => tag.includes(term)))
+        }
+        if (matchUrl || matchTitleFully || matchTitlePartially || matchTags) {
           bookmarkResults.push(item)
         }
       }
@@ -764,6 +804,27 @@ export default {
       })
 
       return results.push.apply(results, bookmarkResults)
+    },
+    async searchByTagQuery(results, tagQuery, tree, filterFunction) {
+      let iterations = 0
+      const exactMatches = []
+      const partialMatches = []
+      for (const key in tree.index.bookmark) {
+        const item = tree.index.bookmark[key]
+        if (++iterations % 1000 === 0) {
+          await yieldToEventLoop()
+        }
+        if (!filterFunction(item) || !item.tags || !item.tags.length) {
+          continue
+        }
+        const tags = item.tags.map((tag) => tag.toLowerCase())
+        if (tags.includes(tagQuery)) {
+          exactMatches.push(item)
+        } else if (tags.some((tag) => tag.includes(tagQuery))) {
+          partialMatches.push(item)
+        }
+      }
+      return results.push.apply(results, exactMatches.concat(partialMatches))
     },
     goBack() {
       if (this.isAddingBookmark) {
