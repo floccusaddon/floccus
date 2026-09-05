@@ -33,8 +33,12 @@ describe('Floccus', function() {
   })
 
   ACCOUNTS.forEach(ACCOUNT_DATA => {
-    describe(`${stringifyAccountData(ACCOUNT_DATA)} Tag Sync`, function() {
+    // The ' test ' in the title is load-bearing: CI greps for '<adapter> test'
+    // (see .github/workflows/android-appium.yml), so a suite without it is
+    // silently filtered out of the Android and Selenium runs.
+    describe(`${stringifyAccountData(ACCOUNT_DATA)} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Tag Sync`, function() {
       let account
+      let tagsSupported
       beforeEach('set up account', async function() {
         account = await Account.create(ACCOUNT_DATA)
         if (ACCOUNT_DATA.type === 'fake') {
@@ -51,7 +55,8 @@ describe('Floccus', function() {
         // moot -- skip rather than assert the wrong thing.
         const localCapabilities = await (await account.getResource()).getCapabilities()
         const serverCapabilities = await account.server.getCapabilities()
-        if (!localCapabilities.supportsTags || !serverCapabilities.supportsTags) {
+        tagsSupported = Boolean(localCapabilities.supportsTags && serverCapabilities.supportsTags)
+        if (!tagsSupported) {
           this.skip()
         }
       })
@@ -59,7 +64,9 @@ describe('Floccus', function() {
         DUMP_LOGS(this.currentTest)
         if (!account) return
         await clearLocalResource(account)
-        if (ACCOUNT_DATA.type !== 'fake') {
+        // A skipped suite never got as far as touching the server, so don't
+        // spend a round trip per skipped test tearing down nothing
+        if (tagsSupported && ACCOUNT_DATA.type !== 'fake') {
           await account.setData({ serverRoot: null })
           account.lockTimeout = 0
           const tree = await getAllBookmarks(account)
