@@ -186,6 +186,28 @@
           {{ currentAccount ? currentAccount.label : '' }}
         </v-card-text>
       </v-card>
+      <template v-if="folderTags.length">
+        <v-sheet
+          class="tag-bar px-2 py-2"
+          role="group"
+          :aria-label="t('LabelTags')">
+          <v-chip
+            v-for="tag in folderTags"
+            :key="tag"
+            class="tag-bar__chip mr-2"
+            small
+            label
+            color="blue darken-1"
+            :dark="tag === activeTag"
+            :outlined="tag !== activeTag"
+            :aria-label="t('LabelSearchbytag', [tag])"
+            :aria-pressed="String(tag === activeTag)"
+            @click="toggleTagSearch(tag)">
+            {{ tag }}
+          </v-chip>
+        </v-sheet>
+        <v-divider />
+      </template>
       <v-alert
         v-if="Boolean(syncError)"
         dense
@@ -524,6 +546,29 @@ export default {
     supportsTags() {
       return Boolean(this.$store.state.tagSupport[this.id])
     },
+    /**
+     * Tags of everything below the current folder, most used first. The folder
+     * index covers the whole subtree, which is also what a '#tag' search from
+     * here looks through -- so every chip shown is guaranteed to find something.
+     */
+    folderTags() {
+      if (!this.currentFolder || !this.currentFolder.index) {
+        return []
+      }
+      const counts = new Map()
+      for (const key in this.currentFolder.index.bookmark) {
+        for (const tag of this.currentFolder.index.bookmark[key].tags || []) {
+          counts.set(tag, (counts.get(tag) || 0) + 1)
+        }
+      }
+      return [...counts.entries()]
+        .sort(([tag1, count1], [tag2, count2]) => count2 - count1 || tag1.localeCompare(tag2))
+        .map(([tag]) => tag)
+    },
+    activeTag() {
+      const query = (this.searchQuery || '').trim()
+      return query.startsWith('#') ? query.slice(1).trim() : null
+    },
     allTags() {
       if (!this.tree || !this.tree.index) {
         return []
@@ -646,6 +691,14 @@ export default {
     searchByTag(tag) {
       clearTimeout(this.searchDebounceTimer)
       this.searchQuery = '#' + tag
+    },
+    toggleTagSearch(tag) {
+      if (this.activeTag === tag) {
+        clearTimeout(this.searchDebounceTimer)
+        this.searchQuery = ''
+        return
+      }
+      this.searchByTag(tag)
     },
     async runSearch() {
       const query = (this.searchQuery || '').trim()
@@ -1006,5 +1059,23 @@ export default {
 .list-full-height {
   min-height: 95vh;
   margin-bottom: 60px;
+}
+
+.tag-bar {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  /* momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* the bar is dragged, not scrollbar-clicked */
+  scrollbar-width: none;
+}
+
+.tag-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.tag-bar__chip {
+  flex: 0 0 auto;
 }
 </style>
