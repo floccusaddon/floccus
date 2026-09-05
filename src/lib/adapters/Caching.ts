@@ -93,6 +93,11 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     }
     foundBookmark.url = newBm.url
     foundBookmark.title = newBm.title
+    // `undefined` means the caller doesn't know about tags (e.g. it came from a
+    // resource that doesn't support them) -- don't take that as "no tags".
+    if (typeof newBm.tags !== 'undefined') {
+      foundBookmark.tags = newBm.tags.slice()
+    }
     if (String(foundBookmark.parentId) === String(newBm.parentId)) {
       return
     }
@@ -284,6 +289,10 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     return {
       preserveOrder: true,
       hashFn: ['xxhash3', 'murmur3', 'sha256'],
+      // The in-memory tree could hold tags just fine, but the file-based
+      // adapters built on top of it serialize through formats that drop them,
+      // so subclasses opt in explicitly.
+      supportsTags: false,
     }
   }
 

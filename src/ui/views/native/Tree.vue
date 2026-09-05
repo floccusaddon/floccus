@@ -186,6 +186,28 @@
           {{ currentAccount ? currentAccount.label : '' }}
         </v-card-text>
       </v-card>
+      <template v-if="folderTags.length">
+        <v-sheet
+          class="tag-bar px-2 py-2"
+          role="group"
+          :aria-label="t('LabelTags')">
+          <v-chip
+            v-for="tag in folderTags"
+            :key="tag"
+            class="tag-bar__chip mr-2"
+            small
+            label
+            color="blue darken-1"
+            :dark="tag === activeTag"
+            :outlined="tag !== activeTag"
+            :aria-label="t('LabelSearchbytag', [tag])"
+            :aria-pressed="String(tag === activeTag)"
+            @click="toggleTagSearch(tag)">
+            {{ tag }}
+          </v-chip>
+        </v-sheet>
+        <v-divider />
+      </template>
       <v-alert
         v-if="Boolean(syncError)"
         dense
@@ -235,6 +257,7 @@
             @click="clickItem(item)"
             @share="shareBookmark(item)"
             @edit="editItem(item)"
+            @tag="searchByTag($event)"
             @delete="deleteItem(item)" />
           <v-divider :key="String(item.id) + item.type + 'divider'" />
         </template>
@@ -283,6 +306,7 @@
             @click="clickItem(item)"
             @share="shareBookmark(item)"
             @edit="editItem(item)"
+            @tag="searchByTag($event)"
             @delete="deleteItem(item)" />
           <v-divider :key="String(item.id) + item.type + 'divider'" />
         </template>
@@ -353,6 +377,8 @@
       :display.sync="isAddingBookmark"
       :tree="tree"
       :parent-folder="currentFolderId"
+      :supports-tags="supportsTags"
+      :tag-suggestions="allTags"
       @save="createBookmark($event)" />
     <DialogEditFolder
       v-if="isAddingFolder"
@@ -367,6 +393,8 @@
       :bookmark="currentlyEditedBookmark"
       :tree="tree"
       :display.sync="isEditingBookmark"
+      :supports-tags="supportsTags"
+      :tag-suggestions="allTags"
       @save="editBookmark($event)" />
     <DialogEditFolder
       v-if="isEditingFolder"
@@ -431,6 +459,7 @@ export default {
       otherSearchItems: [],
       searchItems: [],
       searching: false,
+      searchRun: 0,
     }
   },
   computed: {
@@ -514,6 +543,44 @@ export default {
     breadcrumbs() {
       return this.getFolderPath(this.currentFolder)
     },
+    supportsTags() {
+      return Boolean(this.$store.state.tagSupport[this.id])
+    },
+    /**
+     * Tags of everything below the current folder, most used first. The folder
+     * index covers the whole subtree, which is also what a '#tag' search from
+     * here looks through -- so every chip shown is guaranteed to find something.
+     */
+    folderTags() {
+      if (!this.currentFolder || !this.currentFolder.index) {
+        return []
+      }
+      const counts = new Map()
+      for (const key in this.currentFolder.index.bookmark) {
+        for (const tag of this.currentFolder.index.bookmark[key].tags || []) {
+          counts.set(tag, (counts.get(tag) || 0) + 1)
+        }
+      }
+      return [...counts.entries()]
+        .sort(([tag1, count1], [tag2, count2]) => count2 - count1 || tag1.localeCompare(tag2))
+        .map(([tag]) => tag)
+    },
+    activeTag() {
+      const query = (this.searchQuery || '').trim()
+      return query.startsWith('#') ? query.slice(1).trim() : null
+    },
+    allTags() {
+      if (!this.tree || !this.tree.index) {
+        return []
+      }
+      const tags = new Set()
+      for (const key in this.tree.index.bookmark) {
+        for (const tag of this.tree.index.bookmark[key].tags || []) {
+          tags.add(tag)
+        }
+      }
+      return [...tags].sort((tag1, tag2) => tag1.localeCompare(tag2))
+    },
   },
   watch: {
     async $route() {
@@ -545,28 +612,17 @@ export default {
         sortBy: current,
       })
     },
-    async searchQuery(searchQuery) {
-      if (searchQuery.trim().length < 3) {
-        this.searchItems = []
-        this.otherSearchItems = []
-        return
+    async searchQuery() {
+      await this.runSearch()
+    },
+    async tree() {
+      // Search results hold items of the tree they were collected from, so a
+      // replaced tree (after an edit or a sync) leaves them stale -- and since
+      // `items` renders them verbatim while searching, the list would keep
+      // showing pre-edit titles and tags. Collect them again.
+      if (this.searchQuery) {
+        await this.runSearch()
       }
-      this.searching = true
-      await yieldToEventLoop()
-      this.searchItems = []
-      this.otherSearchItems = []
-      await this.search(
-        this.searchItems,
-        searchQuery.toLowerCase().trim(),
-        this.currentFolder
-      )
-      await this.search(
-        this.otherSearchItems,
-        searchQuery.toLowerCase().trim(),
-        this.tree,
-        (item) => !this.searchItems.includes(item)
-      )
-      this.searching = false
     },
     showSearch(showSearch, previous) {
       if (previous && !showSearch) {
@@ -632,9 +688,65 @@ export default {
         this.searchQuery = query
       }, 500)
     },
+    searchByTag(tag) {
+      clearTimeout(this.searchDebounceTimer)
+      this.searchQuery = '#' + tag
+    },
+    toggleTagSearch(tag) {
+      if (this.activeTag === tag) {
+        clearTimeout(this.searchDebounceTimer)
+        this.searchQuery = ''
+        return
+      }
+      this.searchByTag(tag)
+    },
+    async runSearch() {
+      const query = (this.searchQuery || '').trim()
+      // '#tag' searches only need a tag to go on, not three characters
+      if (query.startsWith('#') ? query.length < 2 : query.length < 3) {
+        this.searchRun++
+        this.searchItems = []
+        this.otherSearchItems = []
+        this.searching = false
+        return
+      }
+      // The tree can be replaced while we're still collecting (a sync
+      // finishing, say). Each run owns its own arrays, so a superseded one
+      // keeps filling arrays nobody renders any more instead of interleaving
+      // its results into the current ones.
+      const run = ++this.searchRun
+      const searchItems = []
+      const otherSearchItems = []
+      this.searchItems = searchItems
+      this.otherSearchItems = otherSearchItems
+      this.searching = true
+      await yieldToEventLoop()
+      if (run !== this.searchRun) {
+        return
+      }
+      // Results are pushed into the arrays above as they are found, so they
+      // show up progressively rather than all at once at the end
+      await this.search(searchItems, query.toLowerCase(), this.currentFolder)
+      await this.search(
+        otherSearchItems,
+        query.toLowerCase(),
+        this.tree,
+        (item) => !searchItems.includes(item)
+      )
+      if (run !== this.searchRun) {
+        return
+      }
+      this.searching = false
+    },
     async search(results, query, tree, filterFunction = (item) => true) {
       // Refactored to use for loops instead of Object.values/filter
       let iterations = 0
+      // A '#…' query looks for tags only -- folders can't carry tags, so they
+      // are out of the running entirely.
+      const tagQuery = query.startsWith('#') ? query.slice(1).trim() : null
+      if (tagQuery) {
+        return this.searchByTagQuery(results, tagQuery, tree, filterFunction)
+      }
       const folderResults = results
       for (const key in tree.index.folder) {
         const item = tree.index.folder[key]
@@ -708,6 +820,7 @@ export default {
         let matchTitleFully = false
         let matchTitlePartially = false
         let matchUrl = false
+        let matchTags = false
         if (item.title) {
           matchTitleFully = query.split(' ').every((term) =>
             item.title
@@ -724,7 +837,13 @@ export default {
             .split(' ')
             .every((term) => item.url.toLowerCase().includes(term))
         }
-        if (matchUrl || matchTitleFully || matchTitlePartially) {
+        if (item.tags && item.tags.length) {
+          const tags = item.tags.map((tag) => tag.toLowerCase())
+          matchTags = query
+            .split(' ')
+            .every((term) => tags.some((tag) => tag.includes(term)))
+        }
+        if (matchUrl || matchTitleFully || matchTitlePartially || matchTags) {
           bookmarkResults.push(item)
         }
       }
@@ -764,6 +883,27 @@ export default {
       })
 
       return results.push.apply(results, bookmarkResults)
+    },
+    async searchByTagQuery(results, tagQuery, tree, filterFunction) {
+      let iterations = 0
+      const exactMatches = []
+      const partialMatches = []
+      for (const key in tree.index.bookmark) {
+        const item = tree.index.bookmark[key]
+        if (++iterations % 1000 === 0) {
+          await yieldToEventLoop()
+        }
+        if (!filterFunction(item) || !item.tags || !item.tags.length) {
+          continue
+        }
+        const tags = item.tags.map((tag) => tag.toLowerCase())
+        if (tags.includes(tagQuery)) {
+          exactMatches.push(item)
+        } else if (tags.some((tag) => tag.includes(tagQuery))) {
+          partialMatches.push(item)
+        }
+      }
+      return results.push.apply(results, exactMatches.concat(partialMatches))
     },
     goBack() {
       if (this.isAddingBookmark) {
@@ -919,5 +1059,23 @@ export default {
 .list-full-height {
   min-height: 95vh;
   margin-bottom: 60px;
+}
+
+.tag-bar {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  /* momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* the bar is dragged, not scrollbar-clicked */
+  scrollbar-width: none;
+}
+
+.tag-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.tag-bar__chip {
+  flex: 0 0 auto;
 }
 </style>

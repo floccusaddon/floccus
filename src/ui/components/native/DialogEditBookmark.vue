@@ -19,6 +19,19 @@
           :error="Boolean(urlError)"
           :error-messages="urlError"
           :label="t('LabelLink')" />
+        <v-combobox
+          v-if="supportsTags"
+          v-model="temporaryTags"
+          :items="tagSuggestions"
+          :label="t('LabelTags')"
+          :hint="t('DescriptionTags')"
+          persistent-hint
+          multiple
+          chips
+          deletable-chips
+          small-chips
+          hide-selected
+          prepend-inner-icon="mdi-tag-multiple" />
         <v-text-field
           v-model="parentTitle"
           readonly
@@ -81,6 +94,14 @@ export default {
     parentFolder: {
       type: Number,
       default: -1
+    },
+    supportsTags: {
+      type: Boolean,
+      default: false,
+    },
+    tagSuggestions: {
+      type: Array,
+      default: () => [],
     }
   },
   data() {
@@ -89,6 +110,7 @@ export default {
       temporaryUrl: '',
       urlError: null,
       temporaryParent: null,
+      temporaryTags: [],
       displayFolderChooser: false,
     }
   },
@@ -120,6 +142,7 @@ export default {
   mounted() {
     this.temporaryTitle = this.bookmark.title || ''
     this.temporaryUrl = this.bookmark.url || ''
+    this.temporaryTags = [...(this.bookmark.tags || [])]
     const parentFolder = this.tree.findFolder(this.bookmark.parentId) ||
         this.tree.findFolder(this.parentFolder) ||
         this.tree.findFolder(this.$store.state.lastFolders[this.$route.params.accountId]) ||
@@ -134,7 +157,18 @@ export default {
       if (!this.tree.findFolder(this.temporaryParent)) {
         return
       }
-      this.$emit('save', {title: this.temporaryTitle, url: this.temporaryUrl, parentId: this.temporaryParent})
+      this.$emit('save', {
+        title: this.temporaryTitle,
+        url: this.temporaryUrl,
+        parentId: this.temporaryParent,
+        // Leave tags alone entirely if this account can't sync them, so we
+        // don't clear tags that some other client set.
+        ...(this.supportsTags && {
+          tags: this.temporaryTags
+            .map((tag) => String(tag).trim())
+            .filter(Boolean),
+        }),
+      })
       this.$emit('update:display', false)
     },
     onTriggerFolderChooser() {

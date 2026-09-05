@@ -78,6 +78,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private locked = false
   private hasFeatureJavascriptLinks: boolean = null
   private hashSettings: IHashSettings
+  // The folder children endpoint doesn't return tags (they live in a separate
+  // table server-side), so we pull them from the flat bookmark list -- once per
+  // sync -- and stitch them onto the tree.
+  private tagsByBookmarkId: Record<string, string[]> = null
   private capabilities: any
   private ticket: string
   private ticketTimestamp: number
@@ -228,6 +232,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             id: bm.id as number | string,
             url: (bm.target || bm.url) as string,
             title: bm.title as string,
+            tags: bm.tags as string[],
             parentId: null,
             location: ItemLocation.SERVER,
           }
@@ -246,8 +251,28 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     })
   }
 
+  /**
+   * Map of upstream bookmark id -> tag names, lazily fetched once per sync.
+   * Only ever called when tag syncing is negotiated, so accounts that don't use
+   * tags don't pay for the extra listing.
+   */
+  async getTagsByBookmarkId():Promise<Record<string, string[]>> {
+    if (this.tagsByBookmarkId) {
+      return this.tagsByBookmarkId
+    }
+    const list = await this.getBookmarksList()
+    const tagsByBookmarkId = {}
+    for (const bookmark of list) {
+      // list ids are the plain upstream ids, no ';parentId' suffix
+      tagsByBookmarkId[String(bookmark.id)] = bookmark.tags || []
+    }
+    this.tagsByBookmarkId = tagsByBookmarkId
+    return tagsByBookmarkId
+  }
+
   async getBookmarksTree(loadAll = false):Promise<Folder<typeof ItemLocation.SERVER>> {
     this.list = null // clear cache before starting a new sync
+    this.tagsByBookmarkId = null
 
     if (!loadAll) {
       return this.getSparseBookmarksTree()
@@ -332,9 +357,16 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     if (this.capabilities && this.capabilities.bookmarks && this.capabilities.bookmarks['hash-function'] && !this.capabilities.bookmarks['hash-function'].includes[hashFn]) {
       throw new Error('Selected hash function is not supported by server')
     }
+    // The server hashes bookmarks as json_encode of the requested fields, in the
+    // requested order -- Bookmark#hash builds the very same JSON. Without
+    // fields[] the server defaults to title+url, which is what we want when tags
+    // aren't synced.
+    const fields = this.hashSettings.syncTags
+      ? '&fields[]=title&fields[]=url&fields[]=tags'
+      : ''
     return this.sendRequest(
       'GET',
-      `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/hash?hashFn=${hashFn}`
+      `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/hash?hashFn=${hashFn}${fields}`
     )
       .catch(() => {
         return { data: '0' } // fallback
@@ -349,6 +381,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       'GET',
       `index.php/apps/bookmarks/public/rest/v2/folder/${folderId}/children?layers=${layers}`
     )
+    const tagsByBookmarkId = this.hashSettings?.syncTags ? await this.getTagsByBookmarkId() : null
     const children = childrenJson.data
     const recurseChildren = (folderId, children) => {
       return children.map((item) => {
@@ -361,6 +394,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             title: item.title,
             parentId: folderId,
             url: item.target || item.url,
+            ...(tagsByBookmarkId && { tags: tagsByBookmarkId[String(item.id)] || [] }),
             location: ItemLocation.SERVER,
           })
         } else if (item.type === 'folder') {
@@ -685,6 +719,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           url: bm.url,
           title: bm.title,
           folders: [bm.parentId],
+          ...(this.hashSettings?.syncTags && { tags: bm.tags || [] }),
         }
 
         let json
@@ -749,7 +784,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
               (!this.tree.findFolder(parentId) || this.tree.findFolder(parentId).findItemFilter('bookmark', i => i.canMergeWith(newBm)) || !this.tree.findFolder(parentId).loaded)
           )
           .concat([newBm.parentId]),
-        tags: bms[0].tags,
+        // When we don't sync tags we still have to send the ones the server
+        // already has, since the endpoint replaces the whole tag list.
+        tags: this.hashSettings?.syncTags ? (newBm.tags || []) : bms[0].tags,
       }
 
       try {
@@ -1118,6 +1155,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return {
       preserveOrder: true,
       hashFn,
+      supportsTags: true,
     }
   }
 

@@ -598,6 +598,9 @@ export default class SyncProcess {
       preserveOrder: localCapabilities.preserveOrder && serverCapabilities.preserveOrder,
       // Find the first hFn that localTree supports as well, ie order matters
       hashFn: serverCapabilities.hashFn.find(hashFn => localCapabilities.hashFn.includes(hashFn)),
+      // Only sync tags if both ends can actually store them. If one side can't,
+      // the other side's tags are left alone rather than being wiped.
+      syncTags: Boolean(localCapabilities.supportsTags && serverCapabilities.supportsTags),
     }
     Logger.log(`using the following HashSettings: ${JSON.stringify(this.hashSettings)}`)
     this.localTree.setHashSettings(this.hashSettings)

@@ -39,7 +39,22 @@ export const actionsDefinition = {
     const tree = await account.getResource()
     const rootFolder = await tree.getBookmarksTree(true)
     await commit(mutations.LOAD_TREE, rootFolder)
+    await dispatch(actions.LOAD_TAG_SUPPORT, id)
     await dispatch(actions.SET_LAST_ACCOUNT, id)
+  },
+  async [actions.LOAD_TAG_SUPPORT]({ commit }, id) {
+    const account = await Account.get(id)
+    const [localTree, server] = [await account.getResource(), await account.getServer()]
+    // Both getCapabilities() implementations answer from local state, so this
+    // doesn't hit the network.
+    const [localCapabilities, serverCapabilities] = await Promise.all([
+      localTree.getCapabilities(),
+      server.getCapabilities(),
+    ])
+    await commit(mutations.SET_TAG_SUPPORT, {
+      accountId: id,
+      supportsTags: Boolean(localCapabilities.supportsTags && serverCapabilities.supportsTags),
+    })
   },
   async [actions.LOAD_TREE_FROM_DISK]({ commit, dispatch, state }, id) {
     const account = await Account.get(id)

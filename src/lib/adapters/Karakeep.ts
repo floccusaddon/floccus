@@ -152,7 +152,55 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       true,
       bookmark
     )
+    if (typeof bookmark.tags !== 'undefined') {
+      if (response.alreadyExists) {
+        await this.setBookmarkTags(response.id, bookmark.tags, bookmark)
+      } else {
+        await this.attachTags(response.id, bookmark.tags, bookmark)
+      }
+    }
     return `${response.id};${bookmark.parentId}`
+  }
+
+  async attachTags(id: string | number, tags: string[], item: TItem<TItemLocation> = null): Promise<void> {
+    if (!tags.length) {
+      return
+    }
+    await this.sendRequest(
+      'POST',
+      `/api/v1/bookmarks/${id}/tags`,
+      'application/json',
+      { tags: tags.map((tagName) => ({ tagName })) },
+      false,
+      item
+    )
+  }
+
+  async detachTags(id: string | number, tags: string[], item: TItem<TItemLocation> = null): Promise<void> {
+    if (!tags.length) {
+      return
+    }
+    await this.sendRequest(
+      'DELETE',
+      `/api/v1/bookmarks/${id}/tags`,
+      'application/json',
+      { tags: tags.map((tagName) => ({ tagName })) },
+      false,
+      item
+    )
+  }
+
+  /**
+   * Karakeep has no "replace all tags" call, so reconcile against what's there.
+   */
+  async setBookmarkTags(id: string | number, tags: string[], item: TItem<TItemLocation> = null): Promise<void> {
+    const response = await this.sendRequest(
+      'GET',
+      `/api/v1/bookmarks/${id}?includeContent=false`
+    )
+    const currentTags = (response.tags || []).map((tag) => tag.name)
+    await this.attachTags(id, tags.filter((tag) => !currentTags.includes(tag)), item)
+    await this.detachTags(id, currentTags.filter((tag) => !tags.includes(tag)), item)
   }
 
   async updateBookmark(bookmark: Bookmark<TItemLocation>): Promise<void> {
@@ -169,6 +217,10 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       false,
       bookmark
     )
+
+    if (typeof bookmark.tags !== 'undefined') {
+      await this.setBookmarkTags(id, bookmark.tags, bookmark)
+    }
 
     if (oldParentId !== bookmark.parentId) {
       await Promise.all([
@@ -417,6 +469,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
               title: b.title ?? b.content.title,
               parentId: listId,
               url: b.content.url,
+              tags: (b.tags || []).map((tag) => tag.name),
               location: ItemLocation.SERVER,
             })
         )
@@ -617,6 +670,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
     return {
       preserveOrder: false,
       hashFn: ['xxhash3', 'murmur3', 'sha256'],
+      supportsTags: true,
     }
   }
 

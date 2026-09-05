@@ -960,6 +960,15 @@
   "LabelParentfolder": {
     "message": "Parent folder"
   },
+  "LabelTags": {
+    "message": "Tags"
+  },
+  "DescriptionTags": {
+    "message": "Type a tag and press enter"
+  },
+  "LabelSearchbytag": {
+    "message": "Search bookmarks tagged {0}"
+  },
   "LabelHome": {
     "message": "Home"
   },

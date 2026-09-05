@@ -17,6 +17,9 @@ export const mutationsDefinition = {
   [mutations.LOAD_TREE](state, tree) {
     state.tree = tree
   },
+  [mutations.SET_TAG_SUPPORT](state, {accountId, supportsTags}) {
+    Vue.set(state.tagSupport, accountId, supportsTags)
+  },
   [mutations.SET_LOGIN_FLOW_STATE](state, running) {
     Vue.set(state.loginFlow, 'isRunning', running)
   },
