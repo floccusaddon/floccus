@@ -437,6 +437,7 @@ export default {
       otherSearchItems: [],
       searchItems: [],
       searching: false,
+      searchRun: 0,
     }
   },
   computed: {
@@ -566,30 +567,17 @@ export default {
         sortBy: current,
       })
     },
-    async searchQuery(searchQuery) {
-      const trimmed = (searchQuery || '').trim()
-      // '#tag' searches only need a tag to go on, not three characters
-      if (trimmed.startsWith('#') ? trimmed.length < 2 : trimmed.length < 3) {
-        this.searchItems = []
-        this.otherSearchItems = []
-        return
+    async searchQuery() {
+      await this.runSearch()
+    },
+    async tree() {
+      // Search results hold items of the tree they were collected from, so a
+      // replaced tree (after an edit or a sync) leaves them stale -- and since
+      // `items` renders them verbatim while searching, the list would keep
+      // showing pre-edit titles and tags. Collect them again.
+      if (this.searchQuery) {
+        await this.runSearch()
       }
-      this.searching = true
-      await yieldToEventLoop()
-      this.searchItems = []
-      this.otherSearchItems = []
-      await this.search(
-        this.searchItems,
-        searchQuery.toLowerCase().trim(),
-        this.currentFolder
-      )
-      await this.search(
-        this.otherSearchItems,
-        searchQuery.toLowerCase().trim(),
-        this.tree,
-        (item) => !this.searchItems.includes(item)
-      )
-      this.searching = false
     },
     showSearch(showSearch, previous) {
       if (previous && !showSearch) {
@@ -658,6 +646,44 @@ export default {
     searchByTag(tag) {
       clearTimeout(this.searchDebounceTimer)
       this.searchQuery = '#' + tag
+    },
+    async runSearch() {
+      const query = (this.searchQuery || '').trim()
+      // '#tag' searches only need a tag to go on, not three characters
+      if (query.startsWith('#') ? query.length < 2 : query.length < 3) {
+        this.searchRun++
+        this.searchItems = []
+        this.otherSearchItems = []
+        this.searching = false
+        return
+      }
+      // The tree can be replaced while we're still collecting (a sync
+      // finishing, say). Each run owns its own arrays, so a superseded one
+      // keeps filling arrays nobody renders any more instead of interleaving
+      // its results into the current ones.
+      const run = ++this.searchRun
+      const searchItems = []
+      const otherSearchItems = []
+      this.searchItems = searchItems
+      this.otherSearchItems = otherSearchItems
+      this.searching = true
+      await yieldToEventLoop()
+      if (run !== this.searchRun) {
+        return
+      }
+      // Results are pushed into the arrays above as they are found, so they
+      // show up progressively rather than all at once at the end
+      await this.search(searchItems, query.toLowerCase(), this.currentFolder)
+      await this.search(
+        otherSearchItems,
+        query.toLowerCase(),
+        this.tree,
+        (item) => !searchItems.includes(item)
+      )
+      if (run !== this.searchRun) {
+        return
+      }
+      this.searching = false
     },
     async search(results, query, tree, filterFunction = (item) => true) {
       // Refactored to use for loops instead of Object.values/filter
