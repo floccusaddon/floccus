@@ -145,5 +145,8 @@
     "not Safari >= 0",
     "not KaiOS >= 0",
     "not Samsung >= 0"
-  ]
+  ],
+  "overrides": {
+    "tar": "7.5.21"
+  }
 }
