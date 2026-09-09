@@ -28,7 +28,7 @@ import { TAdapter } from '../interfaces/Adapter'
 import {
   CancelledSyncError, ClientsideAdditionFailsafeError,
   ClientsideDeletionFailsafeError, FloccusError, ServersideAdditionFailsafeError,
-  ServersideDeletionFailsafeError
+  ServersideDeletionFailsafeError, RealtimeConflictError
 } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
@@ -340,6 +340,8 @@ export default class SyncProcess {
       Logger.log({ localScanResult, serverScanResult })
       this.localScanResult = localScanResult
       this.serverScanResult = serverScanResult
+      this.reconcileCompatibleRealtimeUpdates(localScanResult, serverScanResult)
+      await this.assertNoRealtimeConflicts(localScanResult, serverScanResult)
       this.queueProgressUpdate(0.45, 0)
     }
 
@@ -760,6 +762,7 @@ export default class SyncProcess {
 
   async getDiffs():Promise<{localScanResult:ScanResult<typeof ItemLocation.LOCAL, TItemLocation>, serverScanResult:ScanResult<typeof ItemLocation.SERVER, TItemLocation>}> {
     const mappingsSnapshot = this.mappings.getSnapshot()
+    const supportsUrlUpdates = this.server.getData().type === 'local-realtime'
 
     const isUsingTabs = await this.localTree.isUsingBrowserTabs?.()
 
@@ -774,7 +777,7 @@ export default class SyncProcess {
         }
 
         // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
-        if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
+        if (!supportsUrlUpdates && oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
           return false
         }
 
@@ -802,7 +805,7 @@ export default class SyncProcess {
           return false
         }
         // If a bookmark's URL has changed we want to recreate it instead of updating it, because of Nextcloud Bookmarks' uniqueness constraints
-        if (oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
+        if (!supportsUrlUpdates && oldItem.type === 'bookmark' && newItem.type === 'bookmark' && oldItem.url !== newItem.url) {
           return false
         }
 
@@ -831,6 +834,147 @@ export default class SyncProcess {
     const localScanResult = await localScanner.run()
     const serverScanResult = await serverScanner.run()
     return {localScanResult, serverScanResult}
+  }
+
+  private reconcileCompatibleRealtimeUpdates(
+    local: ScanResult<typeof ItemLocation.LOCAL, TItemLocation>,
+    server: ScanResult<typeof ItemLocation.SERVER, TItemLocation>
+  ): void {
+    if (this.server.getData().type !== 'local-realtime') return
+    const mappings = this.mappings.getSnapshot()
+    for (const localUpdate of local.UPDATE.getActions()) {
+      const remoteUpdate = server.UPDATE.getActions().find(candidate =>
+        localUpdate.payload.type === candidate.payload.type &&
+        Mappings.mappable(mappings, localUpdate.payload, candidate.payload)
+      )
+      if (!remoteUpdate || !localUpdate.oldItem || !remoteUpdate.oldItem) continue
+      const base = localUpdate.oldItem
+      const localTitleChanged = localUpdate.payload.title !== base.title
+      const remoteTitleChanged = remoteUpdate.payload.title !== base.title
+      if (localTitleChanged && remoteTitleChanged && localUpdate.payload.title !== remoteUpdate.payload.title) continue
+      const mergedTitle = localTitleChanged ? localUpdate.payload.title : remoteUpdate.payload.title
+      if (localUpdate.payload.type === ItemType.BOOKMARK && remoteUpdate.payload.type === ItemType.BOOKMARK && base.type === ItemType.BOOKMARK) {
+        const localUrlChanged = localUpdate.payload.url !== base.url
+        const remoteUrlChanged = remoteUpdate.payload.url !== base.url
+        if (localUrlChanged && remoteUrlChanged && localUpdate.payload.url !== remoteUpdate.payload.url) continue
+        const mergedUrl = localUrlChanged ? localUpdate.payload.url : remoteUpdate.payload.url
+        localUpdate.payload = new Bookmark({
+          id: localUpdate.payload.id,
+          parentId: localUpdate.payload.parentId,
+          title: mergedTitle,
+          url: mergedUrl,
+          tags: localUpdate.payload.tags,
+          location: localUpdate.payload.location,
+        })
+        remoteUpdate.payload = new Bookmark({
+          id: remoteUpdate.payload.id,
+          parentId: remoteUpdate.payload.parentId,
+          title: mergedTitle,
+          url: mergedUrl,
+          tags: remoteUpdate.payload.tags,
+          location: remoteUpdate.payload.location,
+        })
+      } else if (localUpdate.payload.type === ItemType.FOLDER && remoteUpdate.payload.type === ItemType.FOLDER) {
+        localUpdate.payload.title = mergedTitle
+        remoteUpdate.payload.title = mergedTitle
+      }
+    }
+  }
+
+  private async assertNoRealtimeConflicts(
+    local: ScanResult<typeof ItemLocation.LOCAL, TItemLocation>,
+    server: ScanResult<typeof ItemLocation.SERVER, TItemLocation>
+  ): Promise<void> {
+    if (this.server.getData().type !== 'local-realtime') return
+    const mappings = this.mappings.getSnapshot()
+    const key = (item: TItem<TItemLocation>):string => {
+      const mapped = Mappings.mapId(mappings, item, ItemLocation.LOCAL)
+      return `${item.type}:${typeof mapped === 'undefined' ? item.id : mapped}`
+    }
+    const label = (item: TItem<TItemLocation>):string => `“${item.title || item.id}” (${key(item)})`
+    const actions = (scan: ScanResult<TItemLocation, TItemLocation>) => ([] as Action<TItemLocation, TItemLocation>[])
+      .concat(scan.UPDATE.getActions(), scan.MOVE.getActions(), scan.REMOVE.getActions(), scan.REORDER.getActions(), scan.CREATE.getActions())
+    const anchor = (action: Action<TItemLocation, TItemLocation>):string => {
+      if (action.type === ActionType.UPDATE || action.type === ActionType.MOVE) return key(action.oldItem)
+      if (action.type === ActionType.REMOVE) return key(action.payload)
+      if (action.type === ActionType.REORDER) return key(action.payload)
+      const parent = this.cacheTreeRoot.findItem(ItemType.FOLDER, Mappings.mapParentId(mappings, action.payload, ItemLocation.LOCAL))
+      return parent ? key(parent) : `new-parent:${action.payload.parentId}`
+    }
+    const localActions = actions(local as ScanResult<TItemLocation, TItemLocation>)
+    const serverActions = actions(server as ScanResult<TItemLocation, TItemLocation>)
+    const conflicts = []
+    for (const left of localActions) {
+      for (const right of serverActions) {
+        const leftKey = anchor(left)
+        const rightKey = anchor(right)
+        if (leftKey !== rightKey) continue
+        if (left.type === ActionType.REMOVE && right.type === ActionType.REMOVE) continue
+        if (left.type === ActionType.REMOVE || right.type === ActionType.REMOVE) {
+          conflicts.push(`${label(left.payload)}: delete versus ${left.type === ActionType.REMOVE ? right.type.toLowerCase() : left.type.toLowerCase()}`)
+          continue
+        }
+        if (left.type === ActionType.UPDATE && right.type === ActionType.UPDATE && left.oldItem && right.oldItem) {
+          const base = left.oldItem
+          const titleConflict = left.payload.title !== base.title && right.payload.title !== base.title && left.payload.title !== right.payload.title
+          const urlConflict = left.payload.type === ItemType.BOOKMARK && right.payload.type === ItemType.BOOKMARK && base.type === ItemType.BOOKMARK &&
+            left.payload.url !== base.url && right.payload.url !== base.url && left.payload.url !== right.payload.url
+          if (titleConflict || urlConflict) conflicts.push(`${label(left.payload)}: both browsers changed ${[titleConflict && 'title', urlConflict && 'URL'].filter(Boolean).join(' and ')}`)
+        }
+        if (left.type === ActionType.MOVE && right.type === ActionType.MOVE) {
+          const leftParent = Mappings.mapParentId(mappings, left.payload, ItemLocation.LOCAL)
+          const rightParent = Mappings.mapParentId(mappings, right.payload, ItemLocation.LOCAL)
+          if (String(leftParent) !== String(rightParent)) conflicts.push(`${label(left.payload)}: moved to different folders`)
+        }
+      }
+    }
+    for (const left of local.REMOVE.getActions().filter(action => action.payload.type === ItemType.FOLDER)) {
+      const removedKeys = new Set<string>()
+      const collect = (item: TItem<TItemLocation>) => {
+        removedKeys.add(key(item))
+        if (item.type === ItemType.FOLDER) item.children.forEach(collect)
+      }
+      collect(left.payload)
+      for (const right of serverActions) {
+        if (right.type !== ActionType.REMOVE && removedKeys.has(anchor(right))) conflicts.push(`${label(left.payload)}: folder deleted locally but changed remotely`)
+      }
+    }
+    for (const right of server.REMOVE.getActions().filter(action => action.payload.type === ItemType.FOLDER)) {
+      const removedKeys = new Set<string>()
+      const collect = (item: TItem<TItemLocation>) => {
+        removedKeys.add(key(item))
+        if (item.type === ItemType.FOLDER) item.children.forEach(collect)
+      }
+      collect(right.payload)
+      for (const left of localActions) {
+        if (left.type !== ActionType.REMOVE && removedKeys.has(anchor(left))) conflicts.push(`${label(right.payload)}: folder deleted remotely but changed locally`)
+      }
+    }
+    for (const localReorder of local.REORDER.getActions()) {
+      const remoteReorder = server.REORDER.getActions().find(action => anchor(action) === anchor(localReorder))
+      if (!remoteReorder) continue
+      const localOrder = localReorder.order.map(item => `${item.type}:${item.id}`)
+      const remoteOrder = remoteReorder.order.map(item => {
+        const mapped = Mappings.mapId(mappings, { ...item, location: ItemLocation.SERVER } as TItem<typeof ItemLocation.SERVER>, ItemLocation.LOCAL)
+        return `${item.type}:${typeof mapped === 'undefined' ? item.id : mapped}`
+      })
+      const common = new Set(localOrder.filter(item => remoteOrder.includes(item)))
+      const localCommon = localOrder.filter(item => common.has(item))
+      const remoteCommon = remoteOrder.filter(item => common.has(item))
+      if (localCommon.length > 1 && localCommon.join('|') !== remoteCommon.join('|')) {
+        conflicts.push(`${label(localReorder.payload)}: both browsers sorted the folder differently`)
+      }
+    }
+    if (conflicts.length) {
+      const details = [...new Set(conflicts)].join('; ')
+      try {
+        await (this.server as TAdapter & { recordConflict?: (localTree:Folder<TItemLocation>, sharedTree:Folder<TItemLocation>, details:string)=>Promise<void> })
+          .recordConflict?.(this.localTreeRoot, this.serverTreeRoot, details)
+      } catch (error) {
+        Logger.log('Could not persist Floccus Local conflict snapshots', error)
+      }
+      throw new RealtimeConflictError(details)
+    }
   }
 
   // Note: Parts of this are duplicated to MergeSyncProcess!

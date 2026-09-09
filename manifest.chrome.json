@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "floccus bookmarks sync",
-  "short_name": "floccus",
+  "name": "Floccus Local",
+  "short_name": "Floccus Local",
   "version": "5.10.3",
+  "minimum_chrome_version": "116",
   "description": "__MSG_DescriptionExtension__",
   "icons": {
-    "48": "icons/logo.png",
-    "64": "icons/logo_64.png",
-    "128": "icons/logo_128.png"
+    "48": "icons/local_logo_48.png",
+    "64": "icons/local_logo_64.png",
+    "128": "icons/local_logo_128.png"
   },
 
   "default_locale": "en",
@@ -29,7 +30,7 @@
   "action": {
     "browser_style": false,
     "default_icon": {
-      "48": "icons/logo.png"
+      "48": "icons/local_logo_48.png"
     },
     "default_title": "Open Floccus options",
     "default_popup": "dist/html/options.html"

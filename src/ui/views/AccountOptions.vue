@@ -181,6 +181,11 @@
                 v-bind.sync="data"
                 @reset="onReset"
                 @delete="onDelete" />
+              <OptionsLocalRealtime
+                v-if="data.type === 'local-realtime'"
+                v-bind.sync="data"
+                @reset="onReset"
+                @delete="onDelete" />
               <OptionsFake
                 v-if="data.type === 'fake'"
                 v-bind.sync="data"
@@ -239,10 +244,11 @@ import OptionsFake from '../components/OptionsFake'
 import OptionsGoogleDrive from '../components/OptionsGoogleDrive'
 import OptionsDropbox from '../components/OptionsDropbox'
 import OptionsGit from '../components/OptionsGit.vue'
+import OptionsLocalRealtime from '../components/OptionsLocalRealtime.vue'
 
 export default {
   name: 'AccountOptions',
-  components: { OptionsGit, OptionsGoogleDrive, OptionsDropbox, OptionsFake, OptionsWebdav, OptionsNextcloudFolders, OptionsLinkwarden, OptionsKarakeep },
+  components: { OptionsLocalRealtime, OptionsGit, OptionsGoogleDrive, OptionsDropbox, OptionsFake, OptionsWebdav, OptionsNextcloudFolders, OptionsLinkwarden, OptionsKarakeep },
   data() {
     return {
       folderName: '',

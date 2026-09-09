@@ -167,6 +167,9 @@
   "Error057": {
     "message": "E057: Unexpected server folder: `{0}`. Please check your server folder configuration."
   },
+  "Error058": {
+    "message": "E058: Floccus Local paused because both browsers changed overlapping bookmarks. Open the profile settings to resolve the conflict."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -810,6 +813,31 @@
   "DescriptionAdaptergit": {
     "message": "The Git option syncs your bookmarks by storing them in a file in the provided Git repository. There is no accompanying web UI for this option, but you can use it with any Git hosting server, like Github, Gitlab, Gitea, etc. It can sync http, ftp, data, file and javascript bookmarks. You can not make use of end-to-end encryption when using this option. This option is currently not available in the mobile app."
   },
+  "LabelAdapterLocalRealtime": { "message": "Floccus Local realtime" },
+  "DescriptionAdapterLocalRealtime": { "message": "Synchronize the native bookmarks bars of Chrome and Edge through a loopback-only Windows service." },
+  "LabelLocalRealtimeSetup": { "message": "Connect to Floccus Local" },
+  "LabelLocalRealtimeUrl": { "message": "Local service URL" },
+  "LabelLocalPairingCode": { "message": "One-time pairing code" },
+  "DescriptionLocalPairingCode": { "message": "Run local-server/scripts/new-pair-code.ps1 and enter the six-digit code shown." },
+  "LabelLocalClientId": { "message": "Browser client ID" },
+  "LabelLocalAccessToken": { "message": "Local access token" },
+  "LabelLocalVersion": { "message": "Version" },
+  "LabelLocalHistory": { "message": "Local history and recovery" },
+  "DescriptionLocalConflict": { "message": "Automatic sync is paused because both browsers changed overlapping items. Review the details and choose which complete side should win. A history snapshot is retained on the service." },
+  "LabelLocalUseShared": { "message": "Use shared version" },
+  "LabelLocalUseLocal": { "message": "Use this browser" },
+  "ConfirmLocalUseShared": { "message": "Replace this browser's conflicting changes with the shared version? Review or create a history backup first." },
+  "ConfirmLocalUseLocal": { "message": "Replace the shared conflicting changes with this browser's version? The other browser will then download it." },
+  "LabelLocalRefreshHistory": { "message": "Refresh history" },
+  "LabelLocalCreateBackup": { "message": "Pin current backup" },
+  "LabelLocalReason": { "message": "Reason" },
+  "LabelLocalActions": { "message": "Actions" },
+  "LabelPreview": { "message": "Preview" },
+  "LabelLocalRestore": { "message": "Restore this version" },
+  "LabelLocalUnchecked": { "message": "Not checked" },
+  "LabelLocalConnected": { "message": "Local service connected" },
+  "LabelLocalOffline": { "message": "Local service offline" },
+  "DescriptionLocalRestorePreview": { "message": "Restore version {0}: add {1}, remove {2}, change {3}. A pinned backup of the current state will be created first." },
   "LabelGiturl": {
     "message": "Repository URL using HTTP"
   },

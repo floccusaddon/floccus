@@ -7,6 +7,7 @@
     "build-win": "SET NODE_OPTIONS=--max-old-space-size=4096 & gulp",
     "build-release": "NODE_OPTIONS=--max-old-space-size=4096 gulp release",
     "build-release-win": "SET NODE_OPTIONS=--max-old-space-size=4096 & gulp release",
+    "package-local": "gulp packageLocal",
     "build:test-node": "webpack --config webpack.node-tests.js",
     "watch": "NODE_OPTIONS=--max-old-space-size=4096 gulp watch",
     "watch-win": "SET NODE_OPTIONS=--max-old-space-size=4096 & gulp watch",

@@ -537,3 +537,13 @@ export class UnexpectedServerFolder extends FloccusError {
     Object.setPrototypeOf(this, UnexpectedServerFolder.prototype)
   }
 }
+
+export class RealtimeConflictError extends FloccusError {
+  public readonly code = 58
+  public details: string
+  constructor(details: string) {
+    super(`E058: Floccus Local paused because the shared bookmark library changed during this sync: ${details}`)
+    this.details = details
+    Object.setPrototypeOf(this, RealtimeConflictError.prototype)
+  }
+}

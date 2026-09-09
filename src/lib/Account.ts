@@ -30,12 +30,13 @@ AdapterFactory.register('nextcloud-folders', async() => (await import('./adapter
 AdapterFactory.register('nextcloud-bookmarks', async() => (await import('./adapters/NextcloudBookmarks')).default)
 AdapterFactory.register('webdav', async() => (await import('./adapters/WebDav')).default)
 AdapterFactory.register('git', async() => (await import('./adapters/Git')).default)
+AdapterFactory.register('local-realtime', async() => (await import('./adapters/LocalRealtime')).default)
 AdapterFactory.register('google-drive', async() => (await import('./adapters/GoogleDrive')).default)
 AdapterFactory.register('dropbox', async() => (await import('./adapters/Dropbox')).default)
 AdapterFactory.register('fake', async() => (await import('./adapters/Fake')).default)
 AdapterFactory.register(
   'fake-nc-bookmarks',
-  async () => (await import('./adapters/FakeNcBookmarks')).default
+  async() => (await import('./adapters/FakeNcBookmarks')).default
 )
 
 // 2h
@@ -205,8 +206,13 @@ export default class Account {
 
   async sync(strategy?:TAccountStrategy, forceSync = false):Promise<void> {
     let mappings: Mappings
+    let syncStrategy = strategy
     try {
-      if (this.getData().syncing || this.syncing) return
+      const initialData = this.getData()
+      if (initialData.syncing || this.syncing) return
+      if (initialData.type === 'local-realtime' && initialData.conflictPending) return
+
+      syncStrategy = strategy || initialData.localRealtimePending?.strategy || initialData.strategy
 
       if (!(await this.server.isAvailable()) || !(await (await this.getResource()).isAvailable())) return
 
@@ -229,7 +235,7 @@ export default class Account {
       }
 
       if (this.server.onSyncStart) {
-        const needLock = (strategy || this.getData().strategy) !== 'slave'
+        const needLock = syncStrategy !== 'slave'
         let status
         try {
           Logger.log('Calling onSyncStart')
@@ -238,7 +244,8 @@ export default class Account {
           // Resource locked
           if (e.code === 37) {
             // We got a resource locked error
-            if (this.getData().lastSync < Date.now() - this.lockTimeout || forceSync) {
+            if (this.getData().type !== 'local-realtime' &&
+              (this.getData().lastSync < Date.now() - this.lockTimeout || forceSync)) {
               // but if we've been waiting for the lock for more than 2h
               // start again without locking the resource
               Logger.log('Calling onSyncStart, forcing sync')
@@ -247,7 +254,7 @@ export default class Account {
               await this.setData({
                 error: null,
                 syncing: false,
-                scheduled: strategy || this.getData().strategy
+                scheduled: syncStrategy
               })
               this.syncing = false
               Logger.log(
@@ -263,6 +270,25 @@ export default class Account {
         if (status === false) {
           await this.init()
         }
+      }
+
+      const isLocalRealtime = this.server.getData().type === 'local-realtime'
+      if (isLocalRealtime) {
+        const recovered = (this.server as TAdapter & {
+          consumeRecoveredState?: () => { expectedCache:any, expectedMappings:any }|null
+        }).consumeRecoveredState?.()
+        if (recovered) {
+          await this.storage.setCache(recovered.expectedCache)
+          await this.storage.setMappings(recovered.expectedMappings)
+        }
+        const adapterData = this.server.getData()
+        await this.setData({
+          localRealtimePending: adapterData.localRealtimePending
+            ? { ...adapterData.localRealtimePending, strategy: syncStrategy }
+            : null,
+          localRealtimeVersion: adapterData.localRealtimeVersion,
+          localRealtimeUpdatedAt: adapterData.localRealtimeUpdatedAt,
+        })
       }
 
       // main sync steps:
@@ -307,13 +333,13 @@ export default class Account {
         }
       }
 
-      if (typeof continuation === 'undefined' || continuation === null || (typeof strategy !== 'undefined' && continuation.strategy !== strategy) || Date.now() - continuation.createdAt > 1000 * 60 * 30) {
+      if (typeof continuation === 'undefined' || continuation === null || (typeof strategy !== 'undefined' && continuation.strategy !== syncStrategy) || Date.now() - continuation.createdAt > 1000 * 60 * 30) {
         // If there is no pending continuation, we just sync normally
         // Same if the pending continuation was overridden by a different strategy
         // same if the continuation is older than half an hour. We don't want old zombie continuations
 
         let strategyClass: typeof DefaultSyncProcess|typeof MergeSyncProcess|typeof UnidirectionalSyncProcess, direction: TItemLocation
-        switch (strategy || this.getData().strategy) {
+        switch (syncStrategy) {
           case 'slave':
             Logger.log('Using "merge slave" strategy (no cache available)')
             strategyClass = UnidirectionalSyncProcess
@@ -373,11 +399,40 @@ export default class Account {
       Logger.log('Storing cache')
       const cache = (await this.localCachingResource.getCacheTree()).clone(false)
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
-      await this.storage.setCache(await cache.toJSONAsync())
+
+      if (isLocalRealtime && this.server.getData().localRealtimePending) {
+        const mappingSnapshot = mappings.getSnapshot()
+        await this.setData({
+          localRealtimePending: {
+            ...this.server.getData().localRealtimePending,
+            strategy: syncStrategy,
+            expectedTree: await (await this.server.getBookmarksTree()).toJSONAsync(),
+            expectedCache: await cache.toJSONAsync(),
+            expectedMappings: {
+              bookmarks: {
+                ServerToLocal: mappingSnapshot.ServerToLocal.bookmark,
+                LocalToServer: mappingSnapshot.LocalToServer.bookmark,
+              },
+              folders: {
+                ServerToLocal: mappingSnapshot.ServerToLocal.folder,
+                LocalToServer: mappingSnapshot.LocalToServer.folder,
+              },
+            },
+          },
+        })
+      }
+
+      if (!isLocalRealtime) {
+        await this.storage.setCache(await cache.toJSONAsync())
+      }
 
       if (this.server.onSyncComplete) {
         Logger.log('Calling onSyncComplete')
         await this.server.onSyncComplete()
+      }
+
+      if (isLocalRealtime) {
+        await this.storage.setCache(await cache.toJSONAsync())
       }
 
       if (mappings) {
@@ -404,15 +459,26 @@ export default class Account {
 
       this.syncing = false
 
+      await this.storage.setCurrentContinuation(null)
+
+      const completedAdapterData = this.server.getData()
       await this.setData({
         error: null,
         errorCount: 0,
         syncing: false,
         scheduled: false,
         lastSync: Date.now(),
+        ...(isLocalRealtime
+          ? {
+            conflictPending: false,
+            localRealtimeConflictId: null,
+            localRealtimeConflictBaseVersion: null,
+            localRealtimePending: null,
+            localRealtimeVersion: completedAdapterData.localRealtimeVersion,
+            localRealtimeUpdatedAt: completedAdapterData.localRealtimeUpdatedAt,
+          }
+          : {}),
       })
-
-      await this.storage.setCurrentContinuation(null)
 
       Logger.log(
         'Successfully ended sync process for account ' + this.getLabel()
@@ -430,7 +496,7 @@ export default class Account {
         this.localCachingResource = null
         await this.setData({ syncing: false })
         this.syncing = false
-        return this.sync(strategy, true)
+        return this.sync(syncStrategy, true)
       }
 
       console.error('Syncing failed with', message)
@@ -447,6 +513,9 @@ export default class Account {
 
       this.syncing = false
 
+      const adapterData = this.server.getData()
+      const recordedRealtimeConflict = adapterData.type === 'local-realtime' && adapterData.localRealtimeConflictRecorded
+
       const isTransient = matchAllErrors(
         e,
         (e) => e.list || !(e instanceof FloccusError) || e instanceof TransientError
@@ -458,10 +527,20 @@ export default class Account {
         errorCount: this.getData().errorCount + 1,
         syncing: false,
         scheduled: false,
+        ...(recordedRealtimeConflict
+          ? {
+            conflictPending: true,
+            localRealtimeConflictRecorded: false,
+            localRealtimePending: null,
+          }
+          : {}),
       })
-      if (matchAllErrors(e, e => ![
+      const preserveRealtimeState = adapterData.type === 'local-realtime' &&
+        (recordedRealtimeConflict || Boolean(adapterData.localRealtimePending))
+      if (!preserveRealtimeState && matchAllErrors(e, e => ![
         new InterruptedSyncError().code,
         new NetworkError().code,
+        58,
         new ServersideAdditionFailsafeError(0).code,
         new ServersideDeletionFailsafeError(0).code,
         new ClientsideAdditionFailsafeError(0).code,
@@ -506,6 +585,7 @@ export default class Account {
       return
     }
     if (actionsDone) {
+      if (this.server.getData().type === 'local-realtime') return
       const mappings = this.syncProcess.getMappingsInstance()
       if (!this.localCachingResource) {
         return

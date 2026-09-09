@@ -147,6 +147,7 @@
             </v-col>
             <v-col class="d-flex flex-row justify-end account-card__actions">
               <v-btn
+                v-if="account.data.type !== 'local-realtime'"
                 class="ma-1 ml-0"
                 small
                 :disabled="account.data.syncing || account.data.scheduled"
@@ -158,6 +159,7 @@
                 </v-icon>
               </v-btn>
               <v-btn
+                v-if="account.data.type !== 'local-realtime'"
                 class="ma-1"
                 small
                 :disabled="account.data.syncing || account.data.scheduled"

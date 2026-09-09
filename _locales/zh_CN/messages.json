@@ -158,6 +158,9 @@
   "Error054": {
     "message": "E054：无法获取 Dropbox 的模板"
   },
+  "Error058": {
+    "message": "E058：Floccus Local 检测到两个浏览器修改了相互重叠的收藏，已暂停自动同步。请打开配置设置处理冲突。"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -789,6 +792,31 @@
   "DescriptionAdaptergit": {
     "message": "Git 选项通过将书签存储在所提供的 Git 仓库中的一个文件内来进行书签同步。此选项没有伴随的 web 用户界面，但你可以通过任意 Git 托管服务器，比如 GitHub、Gitlab、Gitea 等使用它。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时，你无法使用端到端加密。此选项当前在手机应用上不可用。"
   },
+  "LabelAdapterLocalRealtime": { "message": "Floccus Local 本地实时同步" },
+  "DescriptionAdapterLocalRealtime": { "message": "通过仅限本机访问的 Windows 服务，实时同步 Chrome 与 Edge 的原生收藏栏。" },
+  "LabelLocalRealtimeSetup": { "message": "连接 Floccus Local" },
+  "LabelLocalRealtimeUrl": { "message": "本机服务地址" },
+  "LabelLocalPairingCode": { "message": "一次性配对码" },
+  "DescriptionLocalPairingCode": { "message": "运行 local-server/scripts/new-pair-code.ps1，并输入显示的六位配对码。" },
+  "LabelLocalClientId": { "message": "浏览器客户端 ID" },
+  "LabelLocalAccessToken": { "message": "本机访问令牌" },
+  "LabelLocalVersion": { "message": "版本" },
+  "LabelLocalHistory": { "message": "本地历史与恢复" },
+  "DescriptionLocalConflict": { "message": "两个浏览器修改了相互重叠的项目，自动同步已暂停。请查看详情，并选择哪一侧的完整版本为准；本机服务会保留历史快照。" },
+  "LabelLocalUseShared": { "message": "采用共享版本" },
+  "LabelLocalUseLocal": { "message": "采用当前浏览器" },
+  "ConfirmLocalUseShared": { "message": "确定用共享版本覆盖当前浏览器中的冲突更改吗？建议先查看或创建历史备份。" },
+  "ConfirmLocalUseLocal": { "message": "确定用当前浏览器版本覆盖共享版本中的冲突更改吗？随后另一浏览器会下载该版本。" },
+  "LabelLocalRefreshHistory": { "message": "刷新历史" },
+  "LabelLocalCreateBackup": { "message": "固定当前备份" },
+  "LabelLocalReason": { "message": "原因" },
+  "LabelLocalActions": { "message": "操作" },
+  "LabelPreview": { "message": "预览" },
+  "LabelLocalRestore": { "message": "恢复此版本" },
+  "LabelLocalUnchecked": { "message": "尚未检查" },
+  "LabelLocalConnected": { "message": "本机服务已连接" },
+  "LabelLocalOffline": { "message": "本机服务离线" },
+  "DescriptionLocalRestorePreview": { "message": "恢复版本 {0}：新增 {1} 项、删除 {2} 项、修改 {3} 项。恢复前会固定保存当前状态。" },
   "LabelGiturl": {
     "message": "使用 HTTP 的存储库 URL"
   },

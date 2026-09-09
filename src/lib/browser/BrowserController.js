@@ -11,6 +11,10 @@ import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '.
 import { onWakeUp } from '../on-wake-up'
 
 const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
+const LOCAL_INACTIVITY_TIMEOUT = 300
+const LOCAL_MAX_WAIT = 1000
+const REALTIME_RECONNECT_TIMEOUT = 1000
+const REALTIME_KEEPALIVE_INTERVAL = 20 * 1000
 const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
 const DEFAULT_SYNC_INTERVAL = 15 // 15 minutes
 const STALE_SYNC_TIME = 1000 * 60 * 60 * 24 * 2 // two days
@@ -26,6 +30,7 @@ class AlarmManager {
   }
 
   async checkSync() {
+    await this.ctl.refreshRealtimeConnections()
     const accounts = await BrowserAccountStorage.getAllAccounts()
     for (let accountId of accounts) {
       const account = await Account.get(accountId)
@@ -33,6 +38,7 @@ class AlarmManager {
       const lastSync = data.lastSync || 0
       const lastAttempt = data.lastAttempt || 0
       const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
+      if (data.conflictPending) continue
       if (data.scheduled) {
         await this.ctl.scheduleSync(accountId)
         continue
@@ -77,6 +83,11 @@ export default class BrowserController {
   constructor() {
     this.schedule = {}
     this.listeners = []
+    this.realtimeSockets = {}
+    this.realtimeReconnectTimers = {}
+    this.realtimeRetryCounts = {}
+    this.localChangeStartedAt = {}
+    this.pendingChangeCheck = false
 
     this.alarms = new AlarmManager(this)
 
@@ -194,6 +205,7 @@ export default class BrowserController {
 
     // Set correct badge after waiting a bit
     setTimeout(() => this.updateStatus(), 3000)
+    setTimeout(() => this.refreshRealtimeConnections(), 1000)
 
     // Setup service worker messaging
 
@@ -288,12 +300,16 @@ export default class BrowserController {
 
   async onchange(localId, details) {
     if (!this.enabled) {
+      this.pendingChangeCheck = true
       return
     }
     // Debounce this function
     this.setEnabled(false)
 
     const allAccounts = await BrowserAccount.getAllAccounts()
+    if (allAccounts.some(account => account.getData().syncing || account.syncing)) {
+      this.pendingChangeCheck = true
+    }
 
     // Check which accounts contain the bookmark and which used to contain (track) it
     const trackingAccountsFilter = await Promise.all(
@@ -371,15 +387,27 @@ export default class BrowserController {
       if (this.schedule[accountId]) {
         clearTimeout(this.schedule[accountId])
       }
-      console.log('scheduleSync: setting a timeout in ms :', INACTIVITY_TIMEOUT)
+      const account = await Account.get(accountId)
+      if (account.getData().conflictPending) return
+      let timeout = INACTIVITY_TIMEOUT
+      if (account.getData().type === 'local-realtime') {
+        const startedAt = this.localChangeStartedAt[accountId] || Date.now()
+        this.localChangeStartedAt[accountId] = startedAt
+        timeout = Math.min(LOCAL_INACTIVITY_TIMEOUT, Math.max(0, LOCAL_MAX_WAIT - (Date.now() - startedAt)))
+      }
+      console.log('scheduleSync: setting a timeout in ms :', timeout)
       this.schedule[accountId] = setTimeout(
-        () => this.scheduleSync(accountId),
-        INACTIVITY_TIMEOUT
+        () => {
+          delete this.localChangeStartedAt[accountId]
+          this.scheduleSync(accountId)
+        },
+        timeout
       )
       return
     }
 
     let account = await Account.get(accountId)
+    if (account.getData().conflictPending) return
     if (account.getData().syncing) {
       return
     }
@@ -400,6 +428,7 @@ export default class BrowserController {
   async scheduleAll() {
     const accounts = await Account.getAllAccounts()
     for (const account of accounts) {
+      if (account.getData().conflictPending) continue
       await account.setData({ scheduled: true })
     }
     this.updateStatus()
@@ -429,9 +458,103 @@ export default class BrowserController {
       await account.sync(strategy, forceSync)
     } catch (error) {
       console.error(error)
+    } finally {
+      clearInterval(interval)
+      if (this.pendingChangeCheck) {
+        this.pendingChangeCheck = false
+        const accounts = await Account.getAllAccounts()
+        accounts
+          .filter(account => account.getData().type === 'local-realtime' && account.getData().enabled)
+          .forEach(account => this.scheduleSync(account.id, true))
+      }
     }
-    clearInterval(interval)
     this.updateStatus()
+    await account.updateFromStorage()
+    return account.getData()
+  }
+
+  async refreshRealtimeConnections() {
+    const accounts = await Account.getAllAccounts()
+    const wanted = new Set(
+      accounts
+        .filter(account => account.getData().type === 'local-realtime' && account.getData().enabled)
+        .map(account => account.id)
+    )
+    Object.keys(this.realtimeSockets).forEach(accountId => {
+      if (!wanted.has(accountId)) this.closeRealtimeConnection(accountId)
+    })
+    for (const account of accounts) {
+      if (!wanted.has(account.id)) continue
+      const socket = this.realtimeSockets[account.id]
+      if (!socket || socket.readyState === WebSocket.CLOSED) {
+        this.connectRealtimeAccount(account)
+      }
+    }
+  }
+
+  closeRealtimeConnection(accountId) {
+    clearTimeout(this.realtimeReconnectTimers[accountId])
+    const socket = this.realtimeSockets[accountId]
+    if (socket) {
+      socket.intentionalClose = true
+      clearInterval(socket.keepalive)
+      socket.close()
+    }
+    delete this.realtimeSockets[accountId]
+    delete this.realtimeReconnectTimers[accountId]
+    delete this.realtimeRetryCounts[accountId]
+  }
+
+  connectRealtimeAccount(account) {
+    const accountId = account.id
+    const data = account.getData()
+    if (!data.url || !data.password) return
+    let socket
+    try {
+      const wsUrl = data.url.replace(/^http/, 'ws').replace(/\/$/, '') + '/api/v1/events'
+      socket = new WebSocket(wsUrl)
+    } catch (error) {
+      console.warn('Could not create Floccus Local realtime connection', error)
+      return
+    }
+    this.realtimeSockets[accountId] = socket
+    socket.onopen = () => {
+      this.realtimeRetryCounts[accountId] = 0
+      socket.send(JSON.stringify({
+        type: 'auth',
+        token: data.password,
+        clientId: data.username,
+        libraryId: data.libraryId || 'default',
+      }))
+      socket.keepalive = setInterval(() => {
+        if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'ping' }))
+      }, REALTIME_KEEPALIVE_INTERVAL)
+    }
+    socket.onmessage = event => {
+      try {
+        const message = JSON.parse(event.data)
+        if (message.type === 'ready' || message.type === 'version') {
+          this.scheduleSync(accountId)
+        }
+      } catch (error) {
+        console.warn('Invalid Floccus Local realtime message', error)
+      }
+    }
+    socket.onerror = error => console.warn('Floccus Local realtime connection failed', error)
+    socket.onclose = () => {
+      clearInterval(socket.keepalive)
+      if (this.realtimeSockets[accountId] === socket) delete this.realtimeSockets[accountId]
+      if (!socket.intentionalClose) {
+        clearTimeout(this.realtimeReconnectTimers[accountId])
+        const retryCount = (this.realtimeRetryCounts[accountId] || 0) + 1
+        this.realtimeRetryCounts[accountId] = retryCount
+        const reconnectDelay = Math.min(30_000, REALTIME_RECONNECT_TIMEOUT * Math.pow(2, retryCount - 1))
+        this.realtimeReconnectTimers[accountId] = setTimeout(
+          () => this.refreshRealtimeConnections(),
+          reconnectDelay
+        )
+      }
+    }
   }
 
   async updateStatus() {

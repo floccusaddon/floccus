@@ -220,6 +220,18 @@ const chromeZip = function() {
     .pipe(gulp.dest(paths.builds))
 }
 
+const localChromeZip = function() {
+  return gulp
+    .src(paths.chromeZip, { buffer: false, base: './' })
+    .pipe(rename((path) => {
+      if (path.basename.startsWith('manifest') && path.extname === '.json') {
+        path.basename = 'manifest'
+      }
+    }))
+    .pipe(gulpZip(`floccus-local-v${VERSION}-chrome-edge.zip`))
+    .pipe(gulp.dest(paths.builds))
+}
+
 const firefoxZip = function() {
   return gulp
     .src(paths.firefoxZip, { buffer: false, base: './' })
@@ -306,6 +318,7 @@ exports.publish = publish
 exports.build = build
 exports.native = native
 exports.package = gulp.series(gulp.parallel(firefoxZip, chromeZip, xpi), crx)
+exports.packageLocal = localChromeZip
 /*
  * Define default task that can be called by just running `gulp` from cli
  */

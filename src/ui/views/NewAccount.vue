@@ -39,7 +39,7 @@
                 v-for="a in adapters"
                 :key="a.type">
                 <v-radio
-                  :disabled="!isBrowser && a.type === 'git'"
+                  :disabled="!isBrowser && (a.type === 'git' || a.type === 'local-realtime')"
                   :value="a.type">
                   <template #label>
                     <div class="heading">
@@ -385,6 +385,42 @@
                 class="primary"
                 @click="currentStep++">
                 {{ t('LabelContinue') }}
+              </v-btn>
+            </div>
+          </template>
+
+          <template v-else-if="adapter === 'local-realtime'">
+            <div
+              class="headline"
+              role="heading"
+              aria-level="2">
+              {{ t('LabelLocalRealtimeSetup') }}
+            </div>
+            <v-form>
+              <v-text-field
+                v-model="server"
+                :rules="[validateUrl]"
+                :label="t('LabelLocalRealtimeUrl')"
+                :loading="isServerTestRunning"
+                :error-messages="serverTestError" />
+              <v-text-field
+                v-model="pairingCode"
+                :label="t('LabelLocalPairingCode')"
+                maxlength="6"
+                @keydown.enter.prevent="pairLocalRealtime" />
+            </v-form>
+            <div class="caption mb-4">
+              {{ t('DescriptionLocalPairingCode') }}
+            </div>
+            <div class="form-buttons">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
+              <v-btn
+                class="primary"
+                :disabled="pairingCode.length !== 6"
+                @click="pairLocalRealtime">
+                {{ t('LabelConnect') }}
               </v-btn>
             </div>
           </template>
@@ -738,6 +774,8 @@ export default {
       loginFlowError: '',
       server: 'https://',
       branch: 'main',
+      pairingCode: '',
+      libraryId: 'default',
       username: '',
       password: '',
       passphrase: '',
@@ -805,6 +843,11 @@ export default {
           description: this.t('DescriptionAdaptergit'),
         },
         {
+          type: 'local-realtime',
+          label: this.t('LabelAdapterLocalRealtime'),
+          description: this.t('DescriptionAdapterLocalRealtime'),
+        },
+        {
           type: 'google-drive',
           label: this.t('LabelAdaptergoogledrive'),
           description: this.t('DescriptionAdaptergoogledrive'),
@@ -828,6 +871,17 @@ export default {
     },
   },
   watch: {
+    adapter(value) {
+      if (value === 'local-realtime') {
+        this.server = 'http://127.0.0.1:32145'
+        this.enabled = true
+        this.syncIntervalEnabled = true
+        this.syncInterval = 1
+        this.syncOnStartupEnabled = true
+        this.strategy = 'default'
+        this.nestedSync = false
+      }
+    },
     clickCountEnabled() {
       if (this.clickCountEnabled) {
         this.requestHistoryPermissions()
@@ -842,6 +896,30 @@ export default {
     this.$router.push({ name: 'HOME' })
   },
   methods: {
+    async pairLocalRealtime() {
+      this.isServerTestRunning = true
+      this.serverTestError = ''
+      try {
+        const response = await fetch(this.server.replace(/\/$/, '') + '/api/v1/pair', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            code: this.pairingCode,
+            clientName: (navigator.userAgent.includes('Edg/') ? 'Edge' : 'Chrome') + ' - ' + this.label,
+          }),
+        })
+        const payload = await response.json()
+        if (!response.ok) throw new Error(payload.message || 'Pairing failed')
+        this.username = payload.clientId
+        this.password = payload.token
+        this.libraryId = payload.libraryId
+        this.currentStep++
+      } catch (error) {
+        this.serverTestError = error.message
+      } finally {
+        this.isServerTestRunning = false
+      }
+    },
     async onCreate() {
       const accountId = await this.$store.dispatch('CREATE_ACCOUNT', {
         type: this.adapter,
@@ -861,6 +939,7 @@ export default {
         }),
         ...(this.adapter === 'karakeep' && { serverFolder: this.serverFolder }),
         ...(this.adapter === 'git' && { branch: this.branch }),
+        ...(this.adapter === 'local-realtime' && { libraryId: this.libraryId }),
         ...((this.adapter === 'webdav' ||
           this.adapter === 'google-drive' ||
           this.adapter === 'dropbox' ||

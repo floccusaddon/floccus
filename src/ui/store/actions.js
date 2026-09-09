@@ -100,11 +100,11 @@ export const actionsDefinition = {
   },
   async [actions.TRIGGER_SYNC_DOWN]({ commit, dispatch, state }, accountId) {
     const controller = await Controller.getSingleton()
-    await controller.syncAccount(accountId, 'slave')
+    return controller.syncAccount(accountId, 'slave')
   },
   async [actions.TRIGGER_SYNC_UP]({ commit, dispatch, state }, accountId) {
     const controller = await Controller.getSingleton()
-    await controller.syncAccount(accountId, 'overwrite')
+    return controller.syncAccount(accountId, 'overwrite')
   },
   async [actions.CANCEL_SYNC]({ commit, dispatch, state }, accountId) {
     const controller = await Controller.getSingleton()

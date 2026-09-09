@@ -1,0 +1,19 @@
+{
+  "name": "floccus-local-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Loopback-only realtime bookmark service for Floccus Local",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "start": "node src/server.js start",
+    "pair-code": "node src/server.js pair-code",
+    "status": "node src/server.js status",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}
