@@ -1,4 +1,4 @@
-import { Preferences as Storage } from '@capacitor/preferences'
+import NativeStorage from './NativeStorage'
 import { Bookmark, Folder, ItemLocation } from '../Tree'
 import Ordering from '../interfaces/Ordering'
 import CachingAdapter from '../adapters/Caching'
@@ -23,8 +23,8 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   }
 
   async load():Promise<boolean> {
-    const {value: tree} = await Storage.get({key: `bookmarks[${this.accountId}].tree`})
-    const {value: highestId} = await Storage.get({key: `bookmarks[${this.accountId}].highestId`})
+    const tree = await NativeStorage.get(`bookmarks[${this.accountId}].tree`)
+    const highestId = await NativeStorage.get(`bookmarks[${this.accountId}].highestId`)
     if (tree) {
       // Make sure we use xxhash3 if we have to calculate hash for this
       const hashSettings: IHashSettings = {
@@ -35,7 +35,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
       if (this.loaded && this.bookmarksCache) {
         oldHash = await this.bookmarksCache.cloneWithLocation(false, this.location).hash(hashSettings)
       }
-      this.bookmarksCache = Folder.hydrate(JSON.parse(tree)).restampTree(false, this.location)
+      this.bookmarksCache = Folder.hydrate(typeof tree === 'string' ? JSON.parse(tree) : tree).restampTree(false, this.location)
       const parsedHighestId = parseInt(highestId ?? '0', 10)
       this.highestId = Number.isNaN(parsedHighestId) ? 0 : parsedHighestId
       if (oldHash && this.loaded) {
@@ -58,8 +58,11 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   }
 
   async save():Promise<void> {
-    await Storage.set({key: `bookmarks[${this.accountId}].tree`, value: JSON.stringify(await this.bookmarksCache.cloneWithLocation(true, ItemLocation.LOCAL).toJSONAsync())})
-    await Storage.set({key: `bookmarks[${this.accountId}].highestId`, value: this.highestId + ''})
+    await NativeStorage.set(
+      `bookmarks[${this.accountId}].tree`,
+      await this.bookmarksCache.cloneWithLocation(true, ItemLocation.LOCAL).toJSONAsync()
+    )
+    await NativeStorage.set(`bookmarks[${this.accountId}].highestId`, this.highestId + '')
   }
 
   private queueSave(): Promise<void> {
