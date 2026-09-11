@@ -1,4 +1,4 @@
-import { Preferences as Storage } from '@capacitor/preferences'
+import NativeStorage from './NativeStorage'
 import Cryptography from '../Crypto'
 import DefunctCryptography from '../DefunctCrypto'
 import Mappings from '../Mappings'
@@ -18,18 +18,18 @@ export default class NativeAccountStorage {
       let entry = await NativeAccountStorage.getEntry(entryName, defaultVal)
       entry = fn(entry)
 
-      await Storage.set({ key: entryName, value: JSON.stringify(entry) })
+      await NativeStorage.set(entryName, entry)
     })
   }
 
   static async getEntry(entryName, defaultVal) {
-    let entry = await Storage.get({key: entryName })
+    let entry = await NativeStorage.get(entryName)
     try {
-      if (entry.value) {
-        if (typeof entry.value === 'string') {
-          entry.value = JSON.parse(entry.value)
+      if (entry !== undefined) {
+        if (typeof entry === 'string') {
+          entry = JSON.parse(entry)
         }
-        return entry.value
+        return entry
       } else {
         return defaultVal
       }
@@ -41,7 +41,7 @@ export default class NativeAccountStorage {
   }
 
   static deleteEntry(entryName) {
-    return Storage.remove({key: entryName})
+    return NativeStorage.remove(entryName)
   }
 
   static async getAllAccounts() {
