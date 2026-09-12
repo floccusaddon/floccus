@@ -1,6 +1,6 @@
 import { expect } from './utils'
 import { Preferences as Storage } from '@capacitor/preferences'
-import { Bookmark, Folder, ItemLocation } from '../lib/Tree'
+import { Bookmark, Folder, hashCacheKey, ItemLocation } from '../lib/Tree'
 import NativeTree from '../lib/native/NativeTree'
 import NativeAccountStorage from '../lib/native/NativeAccountStorage'
 
@@ -259,6 +259,206 @@ describe('Native SQLite storage', function() {
       // The migrated tree must keep handing out fresh ids
       const newId = await migrated.createBookmark(bookmark(1, 'url3', 'http://ex.com/three'))
       expect(Number(newId)).to.be.above(3)
+    })
+  })
+
+  describe('folder hashes', function() {
+    const SETTINGS = { preserveOrder: true, hashFn: 'xxhash3', syncTags: true }
+    const CACHE_KEY = hashCacheKey(SETTINGS)
+
+    let accountId, tree, rootId
+
+    beforeEach('set up a hashed tree', async function() {
+      accountId = newAccountId()
+      tree = new NativeTree(accountStorageStub(accountId))
+      await tree.load()
+      tree.setHashSettings(SETTINGS)
+      rootId = (await tree.getBookmarksTree()).id
+    })
+
+    async function reload() {
+      const reloaded = new NativeTree(accountStorageStub(accountId))
+      await reloaded.load()
+      reloaded.setHashSettings(SETTINGS)
+      return reloaded
+    }
+
+    function bookmark(parentId, title, url, tags) {
+      return new Bookmark({ parentId, title, url, tags, location: ItemLocation.LOCAL })
+    }
+
+    async function setUpTree() {
+      const folderId = await tree.createFolder(
+        new Folder({ parentId: rootId, title: 'foo', location: ItemLocation.LOCAL })
+      )
+      const subFolderId = await tree.createFolder(
+        new Folder({ parentId: folderId, title: 'bar', location: ItemLocation.LOCAL })
+      )
+      const bookmarkId = await tree.createBookmark(bookmark(subFolderId, 'url1', 'http://ex.com/one'))
+      await tree.createBookmark(bookmark(rootId, 'url2', 'http://ex.com/two'))
+      await tree.save()
+      return { folderId, subFolderId, bookmarkId }
+    }
+
+    /**
+     * The stored hashes have to describe what is actually stored -- a hash that
+     * outlived a change would make the scanner believe nothing happened.
+     */
+    async function expectStoredHashesToBeCurrent() {
+      const stored = await (await reload()).getBookmarksTree()
+      // copy() drops the folder hashes, so this one has to compute them anew
+      const recomputed = stored.copy()
+      expect(await stored.hash(SETTINGS)).to.equal(await recomputed.hash(SETTINGS))
+    }
+
+    it('should store the hashes of all folders', async function() {
+      const { folderId, subFolderId } = await setUpTree()
+
+      const stored = await (await reload()).getBookmarksTree()
+      expect(stored.hashValue[CACHE_KEY]).to.be.a('string')
+      expect(stored.findFolder(folderId).hashValue[CACHE_KEY]).to.be.a('string')
+      expect(stored.findFolder(subFolderId).hashValue[CACHE_KEY]).to.be.a('string')
+      await expectStoredHashesToBeCurrent()
+    })
+
+    it('should not store hashes before any sync settled the hash settings', async function() {
+      const untouched = new NativeTree(accountStorageStub(newAccountId()))
+      await untouched.load()
+      await untouched.createFolder(new Folder({ parentId: 0, title: 'foo', location: ItemLocation.LOCAL }))
+      await untouched.save()
+
+      const stored = await untouched.getBookmarksTree()
+      expect(stored.hashValue[CACHE_KEY]).to.not.be.ok
+    })
+
+    it('should drop the hashes of a bookmark\'s ancestors when it is created', async function() {
+      const { subFolderId } = await setUpTree()
+
+      await tree.createBookmark(bookmark(subFolderId, 'url3', 'http://ex.com/three'))
+
+      const stored = await (await reload()).getBookmarksTree()
+      expect(stored.hashValue[CACHE_KEY]).to.not.be.ok
+      expect(stored.findFolder(subFolderId).hashValue[CACHE_KEY]).to.not.be.ok
+      await expectStoredHashesToBeCurrent()
+    })
+
+    it('should keep the hashes of untouched branches', async function() {
+      const { folderId, subFolderId } = await setUpTree()
+      const otherId = await tree.createFolder(
+        new Folder({ parentId: rootId, title: 'other', location: ItemLocation.LOCAL })
+      )
+      await tree.save()
+
+      await tree.createBookmark(bookmark(otherId, 'url3', 'http://ex.com/three'))
+
+      const stored = await (await reload()).getBookmarksTree()
+      // Changed: the new bookmark's parent and the root above it
+      expect(stored.hashValue[CACHE_KEY]).to.not.be.ok
+      expect(stored.findFolder(otherId).hashValue[CACHE_KEY]).to.not.be.ok
+      // Untouched: the other branch keeps what it had
+      expect(stored.findFolder(folderId).hashValue[CACHE_KEY]).to.be.a('string')
+      expect(stored.findFolder(subFolderId).hashValue[CACHE_KEY]).to.be.a('string')
+      await expectStoredHashesToBeCurrent()
+    })
+
+    it('should drop stale hashes on every kind of change', async function() {
+      const changes = {
+        'updating a bookmark': async({ bookmarkId, subFolderId }) => {
+          await tree.updateBookmark(new Bookmark({
+            id: bookmarkId,
+            parentId: subFolderId,
+            title: 'url1 (edited)',
+            url: 'http://ex.com/one',
+            location: ItemLocation.LOCAL,
+          }))
+        },
+        'moving a bookmark': async({ bookmarkId, folderId }) => {
+          await tree.updateBookmark(new Bookmark({
+            id: bookmarkId,
+            parentId: folderId,
+            title: 'url1',
+            url: 'http://ex.com/one',
+            location: ItemLocation.LOCAL,
+          }))
+        },
+        'removing a bookmark': async({ bookmarkId, subFolderId }) => {
+          await tree.removeBookmark(new Bookmark({
+            id: bookmarkId,
+            parentId: subFolderId,
+            title: 'url1',
+            url: 'http://ex.com/one',
+            location: ItemLocation.LOCAL,
+          }))
+        },
+        'renaming a folder': async({ subFolderId, folderId }) => {
+          await tree.updateFolder(new Folder({
+            id: subFolderId,
+            parentId: folderId,
+            title: 'bar (renamed)',
+            location: ItemLocation.LOCAL,
+          }))
+        },
+        'moving a folder': async({ subFolderId }) => {
+          await tree.updateFolder(new Folder({
+            id: subFolderId,
+            parentId: rootId,
+            title: 'bar',
+            location: ItemLocation.LOCAL,
+          }))
+        },
+        'removing a folder': async({ subFolderId, folderId }) => {
+          await tree.removeFolder(new Folder({
+            id: subFolderId,
+            parentId: folderId,
+            location: ItemLocation.LOCAL,
+          }))
+        },
+        'reordering a folder': async({ subFolderId }) => {
+          await tree.createBookmark(bookmark(subFolderId, 'url3', 'http://ex.com/three'))
+          await tree.save()
+          const folder = (await tree.getBookmarksTree()).findFolder(subFolderId)
+          await tree.orderFolder(subFolderId, folder.children.slice().reverse().map(
+            (child) => ({ type: child.type, id: child.id })
+          ))
+        },
+        'importing in bulk': async({ folderId }) => {
+          await tree.bulkImportFolder(folderId, new Folder({
+            id: folderId,
+            parentId: rootId,
+            title: 'foo',
+            location: ItemLocation.LOCAL,
+            children: [bookmark(folderId, 'imported', 'http://ex.com/imported')],
+          }))
+        },
+      }
+
+      for (const [name, change] of Object.entries(changes)) {
+        accountId = newAccountId()
+        tree = new NativeTree(accountStorageStub(accountId))
+        await tree.load()
+        tree.setHashSettings(SETTINGS)
+        rootId = (await tree.getBookmarksTree()).id
+
+        const ids = await setUpTree()
+        await change(ids)
+
+        const stored = await (await reload()).getBookmarksTree()
+        const recomputed = stored.copy()
+        expect(
+          await stored.hash(SETTINGS),
+          'stale stored hash after ' + name
+        ).to.equal(await recomputed.hash(SETTINGS))
+      }
+    })
+
+    it('should ignore hashes stored with different hash settings', async function() {
+      await setUpTree()
+
+      const reloaded = await reload()
+      const otherSettings = { preserveOrder: false, hashFn: 'sha256', syncTags: false }
+      const stored = await reloaded.getBookmarksTree()
+      const recomputed = stored.copy()
+      expect(await stored.hash(otherSettings)).to.equal(await recomputed.hash(otherSettings))
     })
   })
 

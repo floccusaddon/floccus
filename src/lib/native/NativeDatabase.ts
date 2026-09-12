@@ -13,6 +13,11 @@ const DB_VERSION = 1
  * without changing their JS type. Mapping rows are different -- the remote id
  * comes from whatever the server uses, so those columns are TEXT and carry a
  * flag that remembers whether the id was a JS number, see NativeMappingsStore.
+ *
+ * Folders carry their subtree hash, so a sync only has to hash what changed
+ * since the last one. `hash_settings` is the IHashSettings it was computed
+ * with -- they are negotiated per sync, and a hash computed with different
+ * settings is simply ignored.
  */
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS account_meta (
@@ -29,6 +34,8 @@ CREATE TABLE IF NOT EXISTS folders (
   parent_id INTEGER,
   title TEXT,
   position INTEGER NOT NULL DEFAULT 0,
+  hash TEXT,
+  hash_settings TEXT,
   PRIMARY KEY (account_id, id)
 );
 CREATE INDEX IF NOT EXISTS folders_by_parent ON folders (account_id, parent_id, position);
@@ -73,7 +80,22 @@ async function connect(): Promise<SQLiteDBConnection> {
     await db.open()
   }
   await db.execute(SCHEMA)
+  await addMissingColumns(db, 'folders', { hash: 'TEXT', hash_settings: 'TEXT' })
   return db
+}
+
+/**
+ * CREATE TABLE IF NOT EXISTS leaves a table that was created by an earlier
+ * version of this schema as it is, so columns added later have to be filled in.
+ */
+async function addMissingColumns(db: SQLiteDBConnection, table: string, columns: Record<string, string>): Promise<void> {
+  const info = await db.query(`PRAGMA table_info(${table})`)
+  const existing = (info.values || []).map((column) => column.name)
+  for (const [name, type] of Object.entries(columns)) {
+    if (!existing.includes(name)) {
+      await db.execute(`ALTER TABLE ${table} ADD COLUMN ${name} ${type};`)
+    }
+  }
 }
 
 function getDb(): Promise<SQLiteDBConnection> {

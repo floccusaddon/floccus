@@ -366,6 +366,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
     serverTreeRoot.children = (
       await this.server.getBookmarksTree(true)
     ).children
+    serverTreeRoot.invalidateHash()
   }
 
   async toJSONAsync(): Promise<ISerializedSyncProcess> {

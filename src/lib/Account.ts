@@ -371,7 +371,8 @@ export default class Account {
 
       // update cache
       Logger.log('Storing cache')
-      const cache = (await this.localCachingResource.getCacheTree()).clone(false)
+      // clone(true): the folder hashes are stored along with the cache
+      const cache = (await this.localCachingResource.getCacheTree()).clone(true)
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
       await this.storage.setCache(await cache.toJSONAsync())
 
@@ -520,7 +521,7 @@ export default class Account {
       // the interrupt point; the cache must be kept in step with them.
       Logger.log('progressCallback: Persisting cache')
       const cache = (await this.localCachingResource.getCacheTree()).clone(
-        false
+        true
       )
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
       await this.storage.setCache(cache)

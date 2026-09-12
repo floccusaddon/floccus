@@ -77,7 +77,7 @@ export function normalizeTags(tags?: string[]): string[] | undefined {
  * has to be part of it, or a sync that negotiated different settings would read
  * back a stale value.
  */
-function hashCacheKey({ preserveOrder, hashFn, syncTags }: IHashSettings): string {
+export function hashCacheKey({ preserveOrder, hashFn, syncTags }: IHashSettings): string {
   return `${preserveOrder}-${hashFn}-${Boolean(syncTags)}`
 }
 
@@ -171,6 +171,19 @@ export class Bookmark<L extends TItemLocation> {
     const cacheKey = hashCacheKey(hashSettings)
     if (!this.hashValue) this.hashValue = {}
     this.hashValue[cacheKey] = value
+  }
+
+  /**
+   * Drop the cached hashes of this item.
+   *
+   * Anything that changes an item's content has to call this, and a folder's
+   * hash covers its whole subtree, so every ancestor has to be invalidated as
+   * well -- see CachingAdapter#invalidateHashes. Trees that persist their
+   * hashes (NativeTree, and the sync cache) would otherwise report that nothing
+   * changed.
+   */
+  invalidateHash(): void {
+    this.hashValue = {}
   }
 
   async hash(
@@ -510,6 +523,44 @@ export class Folder<L extends TItemLocation> {
     const cacheKey = hashCacheKey(hashSettings)
     if (!this.hashValue) this.hashValue = {}
     this.hashValue[cacheKey] = value
+  }
+
+  /**
+   * Drop the cached hashes of this folder. See Bookmark#invalidateHash --
+   * for a folder this is needed whenever its title, its children or their
+   * order change, and for every one of its ancestors along with it.
+   */
+  invalidateHash(): void {
+    this.hashValue = {}
+  }
+
+  /**
+   * Drop the cached hashes of the given folder and of every folder above it,
+   * up to this one. Returns the ids that were invalidated.
+   *
+   * This is the whole point of the hash cache being safe to keep around: a
+   * folder's hash covers its subtree, so a change anywhere below invalidates
+   * the path to the root and nothing else.
+   */
+  invalidateHashUpwards(folderId: string | number): (string | number)[] {
+    const invalidated: (string | number)[] = []
+    const seen = new Set<string>()
+    let folder: Folder<L> | null =
+      typeof folderId === 'undefined' || folderId === null
+        ? null
+        : this.findFolder(folderId)
+    while (folder && !seen.has(String(folder.id))) {
+      seen.add(String(folder.id))
+      folder.invalidateHash()
+      invalidated.push(folder.id)
+      folder =
+        String(folder.id) === String(this.id) ||
+        typeof folder.parentId === 'undefined' ||
+        folder.parentId === null
+          ? null
+          : this.findFolder(folder.parentId)
+    }
+    return invalidated
   }
 
   async hash(

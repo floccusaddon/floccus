@@ -31,6 +31,32 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     this.bookmarksCache = new Folder({ id: 0, title: 'root', location: this.location })
   }
 
+  /**
+   * Drop the cached hashes of a folder and of all its ancestors.
+   *
+   * A folder's hash covers its whole subtree, so every change below it makes
+   * the hashes along the path to the root stale. In-memory that used to be
+   * harmless, because every consumer got a freshly copied, hash-less tree --
+   * but NativeTree and the sync cache persist their hashes now, and a stale one
+   * makes the scanner conclude that nothing changed at all.
+   */
+  protected invalidateHashes(folderId: string|number|null|undefined): void {
+    if (typeof folderId === 'undefined' || folderId === null) {
+      return
+    }
+    const invalidated = this.bookmarksCache.invalidateHashUpwards(folderId)
+    if (invalidated.length) {
+      this.onHashesInvalidated(invalidated)
+    }
+  }
+
+  /**
+   * Called with the ids of the folders whose hashes were just dropped, so that
+   * subclasses which store their hashes can drop them there as well.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+  protected onHashesInvalidated(folderIds: (string|number)[]): void { }
+
   getLabel():string {
     const data = this.getData()
     return data.label || data.username + '@' + new URL(data.url).hostname
@@ -82,6 +108,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     }
     foundFolder.children.push(bm)
     this.bookmarksCache.updateIndex(bm)
+    this.invalidateHashes(foundFolder.id)
     return bm.id
   }
 
@@ -98,6 +125,8 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     if (typeof newBm.tags !== 'undefined') {
       foundBookmark.tags = newBm.tags.slice()
     }
+    foundBookmark.invalidateHash()
+    this.invalidateHashes(foundBookmark.parentId)
     if (String(foundBookmark.parentId) === String(newBm.parentId)) {
       return
     }
@@ -120,6 +149,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       foundNewFolder.children.push(foundBookmark)
       foundBookmark.parentId = newBm.parentId
       this.bookmarksCache.updateIndex(foundBookmark)
+      this.invalidateHashes(foundNewFolder.id)
     }
   }
 
@@ -141,6 +171,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       1
     )
     this.bookmarksCache.removeFromIndex(foundBookmark)
+    this.invalidateHashes(foundOldFolder.id)
   }
 
   async createFolder(folder:Folder<TItemLocation>): Promise<string|number> {
@@ -152,6 +183,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     }
     foundParentFolder.children.push(newFolder)
     this.bookmarksCache.updateIndex(newFolder)
+    this.invalidateHashes(foundParentFolder.id)
     return newFolder.id
   }
 
@@ -175,6 +207,8 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       throw new Error('Detected creation of folder loop: Moving ' + id + ' to ' + folder.parentId + ', but it already contains the new parent node')
     }
     oldFolder.title = folder.title
+    // Start at the folder itself: its title is part of its own hash
+    this.invalidateHashes(oldFolder.id)
     if (foundOldParentFolder.id !== foundNewParentFolder.id) {
       foundOldParentFolder.children.splice(
         foundOldParentFolder.children.indexOf(oldFolder),
@@ -184,6 +218,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       this.bookmarksCache.removeFromIndex(oldFolder)
       oldFolder.parentId = folder.parentId
       this.bookmarksCache.updateIndex(oldFolder)
+      this.invalidateHashes(foundNewParentFolder.id)
     }
   }
 
@@ -217,6 +252,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       })
     }
     folder.children = newChildren
+    this.invalidateHashes(folder.id)
   }
 
   async removeFolder(folder:Folder<TItemLocation>):Promise<void> {
@@ -233,6 +269,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     }
     foundOldFolder.children.splice(foundOldFolder.children.indexOf(oldFolder), 1)
     this.bookmarksCache.removeFromIndex(oldFolder)
+    this.invalidateHashes(foundOldFolder.id)
   }
 
   async bulkImportFolder(id:string|number, folder:Folder<TItemLocation>):Promise<Folder<TItemLocation>> {
@@ -253,6 +290,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     // good as new
     foundFolder.createIndex()
     this.bookmarksCache.updateIndex(foundFolder)
+    this.invalidateHashes(foundFolder.id)
     return imported
   }
 

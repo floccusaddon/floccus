@@ -1,5 +1,6 @@
 import { Preferences as Storage } from '@capacitor/preferences'
-import { Bookmark, Folder, ItemLocation, TItem } from '../Tree'
+import { Bookmark, Folder, hashCacheKey, ItemLocation, TItem } from '../Tree'
+import { IHashSettings } from '../interfaces/Resource'
 import Logger from '../Logger'
 import NativeDatabase, { TStatement } from './NativeDatabase'
 
@@ -12,12 +13,17 @@ export interface ILoadedTree {
   highestId: number
 }
 
+export interface IFolderHash {
+  id: string | number
+  hash: string
+}
+
 const INSERT_FOLDER =
   'INSERT OR REPLACE INTO folders (account_id, id, parent_id, title, position) VALUES (?,?,?,?,?)'
 const INSERT_BOOKMARK =
   'INSERT OR REPLACE INTO bookmarks (account_id, id, parent_id, title, url, tags, position) VALUES (?,?,?,?,?,?,?)'
 
-const DELETE_CHUNK_SIZE = 200
+const ID_CHUNK_SIZE = 200
 
 const migrations: Record<string, Promise<void>> = {}
 
@@ -55,6 +61,8 @@ export default class NativeTreeStore {
   private scheduled: Promise<void> | null = null
   private tail: Promise<void> = Promise.resolve()
   private nextPosition = new Map<string, number>()
+  // What we know to be in the hash columns, as `${hashKey}\u0000${hash}`
+  private persistedHashes = new Map<string, string>()
 
   constructor(accountId: string) {
     this.accountId = accountId
@@ -78,7 +86,7 @@ export default class NativeTreeStore {
     }
 
     const folderRows = await NativeDatabase.query(
-      'SELECT id, parent_id, title, position FROM folders WHERE account_id = ? ORDER BY position ASC, rowid ASC',
+      'SELECT id, parent_id, title, position, hash, hash_settings FROM folders WHERE account_id = ? ORDER BY position ASC, rowid ASC',
       [this.accountId]
     )
     const bookmarkRows = await NativeDatabase.query(
@@ -98,6 +106,7 @@ export default class NativeTreeStore {
   async initialize(root: TLocalFolder, highestId: number): Promise<void> {
     await this.migrateFromPreferences()
     this.nextPosition.clear()
+    this.persistedHashes.clear()
     await this.enqueue([
       ...this.deleteAllStatements(),
       ...this.subtreeStatements(root, true),
@@ -239,6 +248,7 @@ export default class NativeTreeStore {
   async clear(): Promise<void> {
     await this.migrateFromPreferences()
     this.nextPosition.clear()
+    this.persistedHashes.clear()
     await this.enqueue([
       ...this.deleteAllStatements(),
       {
@@ -268,6 +278,7 @@ export default class NativeTreeStore {
       this.nextPosition.set(key, Math.max(this.nextPosition.get(key) ?? 0, position + 1))
     }
 
+    this.persistedHashes.clear()
     for (const row of folderRows) {
       const folder = new Folder<typeof ItemLocation.LOCAL>({
         id: row.id,
@@ -275,6 +286,7 @@ export default class NativeTreeStore {
         title: row.title ?? undefined,
         location: ItemLocation.LOCAL,
       })
+      this.restoreHash(folder, row)
       folders.set(String(row.id), folder)
       if (row.parent_id === null || typeof row.parent_id === 'undefined') {
         root = folder
@@ -316,6 +328,64 @@ export default class NativeTreeStore {
     }
 
     return root
+  }
+
+  /**
+   * Drop the stored hashes of the given folders, in the same batch as the write
+   * they belong to: a hash that outlived its folder's content would make the
+   * next sync believe that nothing changed.
+   */
+  invalidateHashes(folderIds: (string | number)[]): void {
+    const ids = folderIds.filter((id) => this.persistedHashes.delete(String(id)))
+    if (!ids.length) {
+      return
+    }
+    this.enqueue(
+      this.chunk(ids).map((chunk) => ({
+        statement: `UPDATE folders SET hash = NULL, hash_settings = NULL WHERE account_id = ? AND id IN (${chunk.map(() => '?').join(',')})`,
+        values: [this.accountId, ...chunk],
+      }))
+    ).catch((e) => {
+      // Also reported to whoever enqueued the accompanying write
+      Logger.log('Failed to drop stored hashes of account ' + this.accountId + ': ' + e.message)
+    })
+  }
+
+  /**
+   * Store the hashes that have been computed since the last time, so the next
+   * sync can skip the subtrees that didn't change.
+   */
+  persistHashes(hashes: IFolderHash[], settings: IHashSettings): Promise<void> {
+    const key = hashCacheKey(settings)
+    const serializedSettings = JSON.stringify(settings)
+    const statements: TStatement[] = []
+    for (const { id, hash } of hashes) {
+      const stored = key + '\u0000' + hash
+      if (this.persistedHashes.get(String(id)) === stored) {
+        continue
+      }
+      statements.push({
+        statement: 'UPDATE folders SET hash = ?, hash_settings = ? WHERE account_id = ? AND id = ?',
+        values: [hash, serializedSettings, this.accountId, id],
+      })
+      this.persistedHashes.set(String(id), stored)
+    }
+    return this.enqueue(statements)
+  }
+
+  private restoreHash(folder: TLocalFolder, row: any): void {
+    if (!row.hash || !row.hash_settings) {
+      return
+    }
+    let settings: IHashSettings
+    try {
+      settings = JSON.parse(row.hash_settings)
+    } catch (e) {
+      Logger.log('Failed to parse stored hash settings: ' + e.message)
+      return
+    }
+    folder.setHashCacheValue(settings, row.hash)
+    this.persistedHashes.set(String(row.id), hashCacheKey(settings) + '\u0000' + row.hash)
   }
 
   private takePosition(parentId: string | number | null): number {
@@ -407,15 +477,18 @@ export default class NativeTreeStore {
   }
 
   private deleteByIdStatements(table: string, ids: (string | number)[]): TStatement[] {
-    const statements: TStatement[] = []
-    for (let i = 0; i < ids.length; i += DELETE_CHUNK_SIZE) {
-      const chunk = ids.slice(i, i + DELETE_CHUNK_SIZE)
-      statements.push({
-        statement: `DELETE FROM ${table} WHERE account_id = ? AND id IN (${chunk.map(() => '?').join(',')})`,
-        values: [this.accountId, ...chunk],
-      })
+    return this.chunk(ids).map((chunk) => ({
+      statement: `DELETE FROM ${table} WHERE account_id = ? AND id IN (${chunk.map(() => '?').join(',')})`,
+      values: [this.accountId, ...chunk],
+    }))
+  }
+
+  private chunk(ids: (string | number)[]): (string | number)[][] {
+    const chunks = []
+    for (let i = 0; i < ids.length; i += ID_CHUNK_SIZE) {
+      chunks.push(ids.slice(i, i + ID_CHUNK_SIZE))
     }
-    return statements
+    return chunks
   }
 
   private deleteAllStatements(): TStatement[] {

@@ -1,9 +1,9 @@
-import { Bookmark, Folder, ItemLocation, TItem } from '../Tree'
+import { Bookmark, Folder, hashCacheKey, ItemLocation, TItem } from '../Tree'
 import Ordering from '../interfaces/Ordering'
 import CachingAdapter from '../adapters/Caching'
 import IAccountStorage from '../interfaces/AccountStorage'
 import { BulkImportResource, ICapabilities, IHashSettings } from '../interfaces/Resource'
-import NativeTreeStore from './NativeTreeStore'
+import NativeTreeStore, { IFolderHash } from './NativeTreeStore'
 
 export default class NativeTree extends CachingAdapter implements BulkImportResource<typeof ItemLocation.LOCAL> {
   private storage: IAccountStorage
@@ -50,10 +50,51 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
 
   /**
    * Every change is written to the database as it happens, so all that's left
-   * to do here is to wait for the writes still in flight.
+   * to do here is to store the hashes computed since the last time and to wait
+   * for the writes still in flight.
    */
   async save():Promise<void> {
+    await this.persistHashes()
     await this.store.flush()
+  }
+
+  /**
+   * Stored hashes let the next sync skip the subtrees that didn't change, so
+   * they have to go the moment their folder does.
+   */
+  protected onHashesInvalidated(folderIds: (string|number)[]): void {
+    this.store.invalidateHashes(folderIds)
+  }
+
+  /**
+   * Bring the stored folder hashes up to date. Hashing the cache is cheap
+   * here, because only the folders invalidated since the last run have to be
+   * recomputed -- all others still hold the hash they were loaded with.
+   *
+   * The hash settings are negotiated per sync, so before the first one there
+   * is nothing we could compute a hash for.
+   */
+  private async persistHashes(): Promise<void> {
+    if (!this.hashSettings || !this.loaded) {
+      return
+    }
+    await this.bookmarksCache.hash(this.hashSettings)
+    const cacheKey = hashCacheKey(this.hashSettings)
+    const hashes: IFolderHash[] = []
+    const stack: Folder<typeof ItemLocation.LOCAL>[] = [this.bookmarksCache as Folder<typeof ItemLocation.LOCAL>]
+    while (stack.length) {
+      const folder = stack.pop()
+      const hash = folder.hashValue && folder.hashValue[cacheKey]
+      if (hash) {
+        hashes.push({ id: folder.id, hash })
+      }
+      for (const child of folder.children) {
+        if (child instanceof Folder) {
+          stack.push(child)
+        }
+      }
+    }
+    await this.store.persistHashes(hashes, this.hashSettings)
   }
 
   async saveImmediately(): Promise<void> {
@@ -61,9 +102,11 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   }
 
   async getBookmarksTree(): Promise<Folder<typeof ItemLocation.LOCAL>> {
-    const tree = await super.getBookmarksTree()
+    // copy(true): hand out the folder hashes as well, so that the sync doesn't
+    // have to hash the subtrees that haven't changed since the last one
+    const tree = this.bookmarksCache.copy(true) as Folder<typeof ItemLocation.LOCAL>
     tree.createIndex()
-    return tree as Folder<typeof ItemLocation.LOCAL>
+    return tree
   }
 
   async createBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<string|number> {

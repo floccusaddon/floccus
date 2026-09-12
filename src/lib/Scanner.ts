@@ -264,6 +264,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
               }
               oldIndex = oldParentClone.children.indexOf(oldItemClone)
               oldParentClone.children.splice(oldIndex, 1)
+              ;(removedItemClone as Folder<L1>).invalidateHashUpwards(oldParentClone.id)
               removeAction.payload = removedItemClone
               removeAction.payload.createIndex()
             }
@@ -305,6 +306,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
                 }
                 index = newParentClone.children.indexOf(newClonedItem)
                 newParentClone.children.splice(index, 1)
+                ;(createdItemClone as Folder<L2>).invalidateHashUpwards(newParentClone.id)
                 createAction.payload = createdItemClone
                 createAction.payload.createIndex()
               }
