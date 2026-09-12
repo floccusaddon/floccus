@@ -5,12 +5,15 @@ import Mappings from '../Mappings'
 import { Folder, ItemLocation } from '../Tree'
 import AsyncLock from 'async-lock'
 import Logger from '../Logger'
+import NativeMappingsStore from './NativeMappingsStore'
+import NativeTreeStore from './NativeTreeStore'
 
 const storageLock = new AsyncLock()
 
 export default class NativeAccountStorage {
   constructor(id) {
     this.accountId = id
+    this.mappingsStore = new NativeMappingsStore(id)
   }
 
   static async changeEntry(entryName, fn, defaultVal) {
@@ -95,6 +98,13 @@ export default class NativeAccountStorage {
     })
     await this.deleteCache()
     await this.deleteMappings()
+    // Unlike the preferences keys of old, the rows of a deleted account would
+    // stay in the shared database forever, so drop the local tree as well
+    await new NativeTreeStore(this.accountId).clear()
+  }
+
+  async isMappingsInitialized() {
+    return this.mappingsStore.isInitialized()
   }
 
   async initCache() {
@@ -123,42 +133,19 @@ export default class NativeAccountStorage {
   }
 
   async initMappings() {
-    await NativeAccountStorage.changeEntry(
-      `bookmarks[${this.accountId}].mappings`,
-      () => ({})
-    )
+    await this.mappingsStore.init()
   }
 
   async getMappings() {
-    const data = await NativeAccountStorage.getEntry(
-      `bookmarks[${this.accountId}].mappings`
-    )
-    return new Mappings(
-      this,
-      data && Object.keys(data).length
-        ? data
-        : {
-          bookmarks: {
-            ServerToLocal: {},
-            LocalToServer: {}
-          },
-          folders: {
-            ServerToLocal: {},
-            LocalToServer: {}
-          }
-        }
-    )
+    return new Mappings(this, await this.mappingsStore.load())
   }
 
   async setMappings(data) {
-    await NativeAccountStorage.changeEntry(
-      `bookmarks[${this.accountId}].mappings`,
-      () => data
-    )
+    await this.mappingsStore.save(data)
   }
 
   async deleteMappings() {
-    await NativeAccountStorage.deleteEntry(`bookmarks[${this.accountId}].mappings`)
+    await this.mappingsStore.clear()
   }
 
   async getCurrentContinuation() {

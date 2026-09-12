@@ -78,6 +78,7 @@
     "sass-loader": "^12.3.0",
     "seedrandom": "3.x",
     "selenium-webdriver": "4.x",
+    "sql.js": "^1.14.2",
     "ts-loader": "^9.2.6",
     "typescript": "5.x",
     "vue-loader": "^15.10.0",
@@ -89,6 +90,7 @@
   },
   "dependencies": {
     "@byteowls/capacitor-oauth2": "5.x",
+    "@capacitor-community/sqlite": "^7.0.3",
     "@capacitor/android": "7.x",
     "@capacitor/app": "7.x",
     "@capacitor/browser": "7.x",

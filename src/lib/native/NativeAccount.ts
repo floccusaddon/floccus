@@ -1,4 +1,5 @@
 import NativeAccountStorage from './NativeAccountStorage'
+import NativeMappingsStore from './NativeMappingsStore'
 import NativeTree from './NativeTree'
 import AdapterFactory from '../AdapterFactory'
 import Account from '../Account'
@@ -54,11 +55,7 @@ export default class NativeAccount extends Account {
 
   async isInitialized(): Promise<boolean> {
     try {
-      return Boolean(
-        await NativeAccountStorage.getEntry(
-          `bookmarks[${this.storage.accountId}].mappings`
-        )
-      )
+      return await new NativeMappingsStore(this.storage.accountId).isInitialized()
     } catch (e) {
       console.log('Apparently not initialized, because:', e)
       return false

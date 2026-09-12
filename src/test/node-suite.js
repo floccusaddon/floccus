@@ -1,6 +1,7 @@
 export async function registerNodeSuite() {
   await import('./account.test.js')
   await import('./crypto.test.js')
+  await import('./native_storage.test.js')
   await import('./sync_basic.test.js')
   await import('./sync_basic_slave.test.js')
   await import('./sync_basic_overwrite.test.js')
