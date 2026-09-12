@@ -29,6 +29,7 @@
 	},
 	"packageClassList": [
 		"OAuth2ClientPlugin",
+		"CapacitorSQLitePlugin",
 		"AppPlugin",
 		"CAPBrowserPlugin",
 		"DevicePlugin",
