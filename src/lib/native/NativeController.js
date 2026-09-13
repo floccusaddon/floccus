@@ -91,13 +91,7 @@ export default class NativeController {
 
     // Remove old logs
 
-    NativeAccountStorage.changeEntry(
-      'logs',
-      log => {
-        return []
-      },
-      []
-    )
+    NativeAccountStorage.setEntry('logs', [])
 
     // lock accounts when locking is enabled
 

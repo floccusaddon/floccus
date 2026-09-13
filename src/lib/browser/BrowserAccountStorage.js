@@ -206,7 +206,10 @@ export default class BrowserAccountStorage {
   async setCurrentContinuation(continuation) {
     await BrowserAccountStorage.setEntry(
       `bookmarks[${this.accountId}].continuation`,
-      { ...continuation, createdAt: Date.now() }
+      // Clearing has to store null, not { createdAt }: Account#sync takes any
+      // non-null entry for a continuation and hands it to fromJSON, which then
+      // throws 'Unknown strategy: undefined' on every sync after a completed one
+      continuation && { ...continuation, createdAt: Date.now() }
     )
   }
 }

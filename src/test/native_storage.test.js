@@ -36,6 +36,112 @@ function simplify(item) {
   }
 }
 
+describe('NativeAccountStorage continuation', function() {
+  this.timeout(20000)
+
+  const STALE_AFTER = 1000 * 60 * 30
+
+  let accountId, storage
+
+  beforeEach('set up an account storage', async function() {
+    accountId = newAccountId()
+    storage = new NativeAccountStorage(accountId)
+  })
+
+  afterEach('drop the continuation', async function() {
+    await NativeAccountStorage.deleteEntry(`bookmarks[${accountId}].continuation`)
+  })
+
+  it('should hand back the continuation it was given', async function() {
+    await storage.setCurrentContinuation({ strategy: 'default', actionsPlanned: 7 })
+
+    const stored = await storage.getCurrentContinuation()
+    expect(stored.strategy).to.equal('default')
+    expect(stored.actionsPlanned).to.equal(7)
+  })
+
+  it('should stamp the continuation with the time it was stored', async function() {
+    // Account#sync discards continuations older than half an hour by this very
+    // field; an unstamped one compares as NaN and is resumed forever
+    const before = Date.now()
+    await storage.setCurrentContinuation({ strategy: 'default' })
+    const stored = await storage.getCurrentContinuation()
+
+    expect(stored.createdAt).to.be.a('number')
+    expect(stored.createdAt).to.be.at.least(before)
+    expect(stored.createdAt).to.be.at.most(Date.now())
+  })
+
+  it('should let the staleness check actually decide something', async function() {
+    await storage.setCurrentContinuation({ strategy: 'default' })
+    const fresh = await storage.getCurrentContinuation()
+    expect(Date.now() - fresh.createdAt > STALE_AFTER).to.equal(false)
+
+    // The same entry as it looks half an hour on
+    await NativeAccountStorage.setEntry(
+      `bookmarks[${accountId}].continuation`,
+      { ...fresh, createdAt: Date.now() - STALE_AFTER - 1000 }
+    )
+    const aged = await storage.getCurrentContinuation()
+    expect(Date.now() - aged.createdAt > STALE_AFTER).to.equal(true)
+  })
+
+  it('should store null when the continuation is cleared', async function() {
+    await storage.setCurrentContinuation({ strategy: 'default' })
+    await storage.setCurrentContinuation(null)
+
+    // Account#sync takes any non-null entry for a continuation and hands it to
+    // fromJSON, so a cleared one must not come back as a bare { createdAt }
+    expect(await storage.getCurrentContinuation()).to.equal(null)
+  })
+})
+
+describe('NativeAccountStorage preferences entries', function() {
+  this.timeout(20000)
+
+  let key
+
+  beforeEach('pick an entry', async function() {
+    key = 'test-entry-' + Date.now() + Math.random()
+  })
+
+  afterEach('drop the entry', async function() {
+    await NativeAccountStorage.deleteEntry(key)
+  })
+
+  it('should round-trip a value written with setEntry', async function() {
+    const value = { title: 'root', children: [{ title: 'a', url: 'http://example.com/' }] }
+    await NativeAccountStorage.setEntry(key, value)
+    expect(await NativeAccountStorage.getEntry(key)).to.deep.equal(value)
+  })
+
+  it('should replace the previous value rather than merge into it', async function() {
+    await NativeAccountStorage.setEntry(key, { before: true, gone: 'yes' })
+    await NativeAccountStorage.setEntry(key, { after: true })
+    expect(await NativeAccountStorage.getEntry(key)).to.deep.equal({ after: true })
+  })
+
+  it('should write what changeEntry writes, so either can read the other', async function() {
+    // setEntry is changeEntry without the read-back; the two have to agree on
+    // the stored representation or a fast-path write becomes unreadable
+    const value = { messages: ['one', 'two'], nested: { n: 1 } }
+    await NativeAccountStorage.setEntry(key, value)
+    const viaChangeEntry = await NativeAccountStorage.getEntry(key)
+
+    await NativeAccountStorage.changeEntry(key, () => value, null)
+    expect(await NativeAccountStorage.getEntry(key)).to.deep.equal(viaChangeEntry)
+  })
+
+  it('should round-trip an array, the shape the logs are stored in', async function() {
+    await NativeAccountStorage.setEntry(key, ['first', 'second'])
+    expect(await NativeAccountStorage.getEntry(key, [])).to.deep.equal(['first', 'second'])
+  })
+
+  it('should hand out the default for an entry that was never written', async function() {
+    expect(await NativeAccountStorage.getEntry(key, [])).to.deep.equal([])
+  })
+})
+
 describe('Native SQLite storage', function() {
   this.timeout(20000)
 

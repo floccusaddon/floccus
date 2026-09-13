@@ -32,15 +32,10 @@ export default class Logger {
     const Storage = IS_BROWSER
       ? await import('./browser/BrowserAccountStorage')
       : await import('./native/NativeAccountStorage')
-    await Storage.default.changeEntry(
-      'logs',
-      () => {
-        const messages = this.messages.slice(-1000)
-        this.messages = []
-        return messages // only save the last sync run
-      },
-      []
-    )
+    // only save the last sync run
+    const messages = this.messages.slice(-1000)
+    this.messages = []
+    await Storage.default.setEntry('logs', messages)
   }
 
   static async intermittentPersist() {
@@ -48,13 +43,7 @@ export default class Logger {
       ? await import('./browser/BrowserAccountStorage')
       : await import('./native/NativeAccountStorage')
     if (this.messages.length === 0) return
-    await Storage.default.changeEntry(
-      'logs',
-      () => {
-        return this.messages.slice(-1000)
-      },
-      []
-    )
+    await Storage.default.setEntry('logs', this.messages.slice(-1000))
   }
 
   static async getLogs() {

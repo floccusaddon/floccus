@@ -16,6 +16,19 @@ export default class NativeAccountStorage {
     this.mappingsStore = new NativeMappingsStore(id)
   }
 
+  /**
+   * changeEntry without the read, for the callers that replace an entry
+   * wholesale. Reading the old value back first means pulling a blob out of
+   * the preferences and parsing it only to throw it away -- which for the
+   * cache, the continuation and the logs of a large account is megabytes of
+   * JSON on every single persist, and those happen throughout a sync.
+   */
+  static async setEntry(entryName, value) {
+    await storageLock.acquire(entryName, async() => {
+      await Storage.set({ key: entryName, value: JSON.stringify(value) })
+    })
+  }
+
   static async changeEntry(entryName, fn, defaultVal) {
     await storageLock.acquire(entryName, async() => {
       let entry = await NativeAccountStorage.getEntry(entryName, defaultVal)
@@ -108,10 +121,7 @@ export default class NativeAccountStorage {
   }
 
   async initCache() {
-    await NativeAccountStorage.changeEntry(
-      `bookmarks[${this.accountId}].cache`,
-      () => ({})
-    )
+    await NativeAccountStorage.setEntry(`bookmarks[${this.accountId}].cache`, {})
   }
 
   async getCache() {
@@ -122,9 +132,9 @@ export default class NativeAccountStorage {
   }
 
   async setCache(data) {
-    await NativeAccountStorage.changeEntry(
+    await NativeAccountStorage.setEntry(
       `bookmarks[${this.accountId}].cache`,
-      () => data.toJSON ? data.toJSON() : data
+      data.toJSON ? data.toJSON() : data
     )
   }
 
@@ -153,6 +163,12 @@ export default class NativeAccountStorage {
   }
 
   async setCurrentContinuation(continuation) {
-    await NativeAccountStorage.changeEntry(`bookmarks[${this.accountId}].continuation`, (_) => continuation, null)
+    await NativeAccountStorage.setEntry(
+      `bookmarks[${this.accountId}].continuation`,
+      // Account#sync discards continuations older than half an hour by their
+      // createdAt; without one that check is `Date.now() - undefined > x`, i.e.
+      // NaN > x, i.e. false, and a zombie continuation is resumed forever
+      continuation && { ...continuation, createdAt: Date.now() }
+    )
   }
 }
