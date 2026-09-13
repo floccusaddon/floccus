@@ -440,8 +440,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       }
       await recurse(children)
     }
+    const oldChildren = folder.children
     folder.children = children
     folder.loaded = true
+    // Whatever was listed here before has to leave the index of the folders
+    // above, which still know about it
+    oldChildren.forEach((child) => this.tree.removeFromIndex(child))
     folder.createIndex()
     this.tree.updateIndex(folder)
     return folder.copy(true).children
@@ -544,7 +548,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       })
     }
     const imported = recurseChildren(json.data, parentId, folder.title, folder.parentId)
+    const oldChildren = parentFolder.children
     parentFolder.children = imported.copy(true).children
+    oldChildren.forEach((child) => this.tree.removeFromIndex(child))
     parentFolder.createIndex()
     this.tree.updateIndex(parentFolder)
     return imported

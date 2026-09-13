@@ -57,6 +57,15 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
   // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
   protected onHashesInvalidated(folderIds: (string|number)[]): void { }
 
+  /**
+   * A no-op unless FLOCCUS_VERIFY_INDEX=true, where it cross-checks the
+   * incrementally maintained index against a full rebuild. Every mutation ends
+   * with this, because that is where structure and index have to agree again.
+   */
+  private verifyIndex(operation: string): void {
+    this.bookmarksCache.assertIndexConsistent(operation)
+  }
+
   getLabel():string {
     const data = this.getData()
     return data.label || data.username + '@' + new URL(data.url).hostname
@@ -109,6 +118,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     foundFolder.children.push(bm)
     this.bookmarksCache.updateIndex(bm)
     this.invalidateHashes(foundFolder.id)
+    this.verifyIndex('createBookmark')
     return bm.id
   }
 
@@ -151,6 +161,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       this.bookmarksCache.updateIndex(foundBookmark)
       this.invalidateHashes(foundNewFolder.id)
     }
+    this.verifyIndex('updateBookmark')
   }
 
   async removeBookmark(bookmark:Bookmark<TItemLocation>): Promise<void> {
@@ -172,6 +183,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     )
     this.bookmarksCache.removeFromIndex(foundBookmark)
     this.invalidateHashes(foundOldFolder.id)
+    this.verifyIndex('removeBookmark')
   }
 
   async createFolder(folder:Folder<TItemLocation>): Promise<string|number> {
@@ -184,6 +196,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     foundParentFolder.children.push(newFolder)
     this.bookmarksCache.updateIndex(newFolder)
     this.invalidateHashes(foundParentFolder.id)
+    this.verifyIndex('createFolder')
     return newFolder.id
   }
 
@@ -220,6 +233,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       this.bookmarksCache.updateIndex(oldFolder)
       this.invalidateHashes(foundNewParentFolder.id)
     }
+    this.verifyIndex('updateFolder')
   }
 
   async orderFolder(id:string|number, order:Ordering<TItemLocation>):Promise<void> {
@@ -253,6 +267,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     }
     folder.children = newChildren
     this.invalidateHashes(folder.id)
+    this.verifyIndex('orderFolder')
   }
 
   async removeFolder(folder:Folder<TItemLocation>):Promise<void> {
@@ -270,6 +285,7 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     foundOldFolder.children.splice(foundOldFolder.children.indexOf(oldFolder), 1)
     this.bookmarksCache.removeFromIndex(oldFolder)
     this.invalidateHashes(foundOldFolder.id)
+    this.verifyIndex('removeFolder')
   }
 
   async bulkImportFolder(id:string|number, folder:Folder<TItemLocation>):Promise<Folder<TItemLocation>> {
@@ -286,11 +302,16 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
       item.parentId = parentFolder.id
     })
     // insert into tree
+    const oldChildren = foundFolder.children
     foundFolder.children = imported.children
+    // The replaced children have to leave the index of every folder above,
+    // which still lists them, before the imported ones are added
+    oldChildren.forEach((child) => this.bookmarksCache.removeFromIndex(child))
     // good as new
     foundFolder.createIndex()
     this.bookmarksCache.updateIndex(foundFolder)
     this.invalidateHashes(foundFolder.id)
+    this.verifyIndex('bulkImportFolder')
     return imported
   }
 

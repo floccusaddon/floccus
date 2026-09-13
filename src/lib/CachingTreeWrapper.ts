@@ -34,6 +34,7 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
     cacheBookmark.parentId = bookmark.parentId
     cacheBookmark.createIndex()
     this.cacheTree.bookmarksCache.updateIndex(cacheBookmark)
+    this.cacheTree.bookmarksCache.assertIndexConsistent('CachingTreeWrapper#createBookmark')
     return id
   }
 
@@ -59,6 +60,7 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
     cacheFolder.parentId = folder.parentId
     cacheFolder.createIndex()
     this.cacheTree.bookmarksCache.updateIndex(cacheFolder)
+    this.cacheTree.bookmarksCache.assertIndexConsistent('CachingTreeWrapper#createFolder')
     return id
   }
 
