@@ -63,6 +63,8 @@ export default class NativeTreeStore {
   private nextPosition = new Map<string, number>()
   // What we know to be in the hash columns, as `${hashKey}\u0000${hash}`
   private persistedHashes = new Map<string, string>()
+  // Written once per batch rather than once per created item
+  private pendingHighestId: number | null = null
 
   constructor(accountId: string) {
     this.accountId = accountId
@@ -107,7 +109,10 @@ export default class NativeTreeStore {
     await this.migrateFromPreferences()
     this.nextPosition.clear()
     this.persistedHashes.clear()
+    // This batch carries the highest id of the tree it writes
+    this.pendingHighestId = null
     await this.enqueue([
+      { statement: 'INSERT OR IGNORE INTO account_meta (account_id) VALUES (?)', values: [this.accountId] },
       ...this.deleteAllStatements(),
       ...this.subtreeStatements(root, true),
       ...this.highestIdStatements(highestId),
@@ -119,37 +124,33 @@ export default class NativeTreeStore {
   }
 
   createFolder(folder: TLocalFolder, highestId: number): Promise<void> {
-    return this.enqueue([
-      {
-        statement: INSERT_FOLDER,
-        values: [
-          this.accountId,
-          folder.id,
-          folder.parentId ?? null,
-          folder.title ?? null,
-          this.takePosition(folder.parentId),
-        ],
-      },
-      ...this.highestIdStatements(highestId),
-    ])
+    this.pendingHighestId = highestId
+    return this.enqueue([{
+      statement: INSERT_FOLDER,
+      values: [
+        this.accountId,
+        folder.id,
+        folder.parentId ?? null,
+        folder.title ?? null,
+        this.takePosition(folder.parentId),
+      ],
+    }])
   }
 
   createBookmark(bookmark: TLocalBookmark, highestId: number): Promise<void> {
-    return this.enqueue([
-      {
-        statement: INSERT_BOOKMARK,
-        values: [
-          this.accountId,
-          bookmark.id,
-          bookmark.parentId ?? null,
-          bookmark.title ?? null,
-          bookmark.url ?? null,
-          serializeTags(bookmark.tags),
-          this.takePosition(bookmark.parentId),
-        ],
-      },
-      ...this.highestIdStatements(highestId),
-    ])
+    this.pendingHighestId = highestId
+    return this.enqueue([{
+      statement: INSERT_BOOKMARK,
+      values: [
+        this.accountId,
+        bookmark.id,
+        bookmark.parentId ?? null,
+        bookmark.title ?? null,
+        bookmark.url ?? null,
+        serializeTags(bookmark.tags),
+        this.takePosition(bookmark.parentId),
+      ],
+    }])
   }
 
   updateBookmark(bookmark: TLocalBookmark, moved: boolean): Promise<void> {
@@ -238,10 +239,10 @@ export default class NativeTreeStore {
    * children it had before, `folder` is the folder as it is now.
    */
   bulkImport(oldChildren: TLocalItem[], folder: TLocalFolder, highestId: number): Promise<void> {
+    this.pendingHighestId = highestId
     return this.enqueue([
       ...oldChildren.flatMap((child) => this.itemDeleteStatements(child)),
       ...this.subtreeStatements(folder, false),
-      ...this.highestIdStatements(highestId),
     ])
   }
 
@@ -249,6 +250,7 @@ export default class NativeTreeStore {
     await this.migrateFromPreferences()
     this.nextPosition.clear()
     this.persistedHashes.clear()
+    this.pendingHighestId = null
     await this.enqueue([
       ...this.deleteAllStatements(),
       {
@@ -498,23 +500,25 @@ export default class NativeTreeStore {
     ]
   }
 
+  /**
+   * The account_meta row itself is created by #initialize and by the migration,
+   * both of which run before any item can be written.
+   */
   private highestIdStatements(highestId: number): TStatement[] {
-    return [
-      {
-        statement: 'INSERT OR IGNORE INTO account_meta (account_id) VALUES (?)',
-        values: [this.accountId],
-      },
-      {
-        statement: 'UPDATE account_meta SET highest_id = ? WHERE account_id = ?',
-        values: [highestId, this.accountId],
-      },
-    ]
+    return [{
+      statement: 'UPDATE account_meta SET highest_id = ? WHERE account_id = ?',
+      values: [highestId, this.accountId],
+    }]
   }
 
   /**
-   * Writes are collected and committed in one transaction per tick: a sync
-   * fires off many of them and they would otherwise each pay for their own
-   * transaction.
+   * Writes are collected and committed in one transaction per turn: the sync
+   * applies its actions in parallel, and they would otherwise each pay for
+   * their own transaction.
+   *
+   * This has to be a microtask, not a timer: setTimeout(0) is clamped to 1ms,
+   * and with one local change per await that adds up to minutes of an
+   * otherwise idle event loop over a large sync.
    */
   private enqueue(statements: TStatement[]): Promise<void> {
     if (!statements.length) {
@@ -522,11 +526,7 @@ export default class NativeTreeStore {
     }
     this.queue.push(...statements)
     if (!this.scheduled) {
-      this.scheduled = new Promise((resolve, reject) => {
-        setTimeout(() => {
-          this.flushNow().then(resolve, reject)
-        }, 0)
-      })
+      this.scheduled = Promise.resolve().then(() => this.flushNow())
       this.tail = this.scheduled.catch((e) => {
         // The error is passed on to whoever enqueued the failing write; this
         // branch only keeps #flush from rejecting a second time for it.
@@ -540,6 +540,10 @@ export default class NativeTreeStore {
     const statements = this.queue
     this.queue = []
     this.scheduled = null
+    if (this.pendingHighestId !== null) {
+      statements.push(...this.highestIdStatements(this.pendingHighestId))
+      this.pendingHighestId = null
+    }
     return NativeDatabase.batch(statements)
   }
 
