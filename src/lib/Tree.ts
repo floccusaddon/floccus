@@ -795,9 +795,11 @@ export class Folder<L extends TItemLocation> {
       this.createIndex()
       return
     }
-    if (!item.index) {
-      item.createIndex()
-    }
+    // Always rebuild the item's own index rather than trusting the one it
+    // carries: adapters rewrite ids after inserting an item (see
+    // FakeNcBookmarks/NextcloudBookmarks, whose bookmark ids embed the parent),
+    // and a stale index would file it under an id it no longer has.
+    item.createIndex()
     const ancestors = this.ancestorsOf(item)
     if (!ancestors) {
       this.createIndex()
