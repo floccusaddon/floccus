@@ -3,7 +3,7 @@ import { Preferences as Storage } from '@capacitor/preferences'
 import { Bookmark, Folder, hashCacheKey, ItemLocation } from '../lib/Tree'
 import NativeTree from '../lib/native/NativeTree'
 import NativeAccountStorage from '../lib/native/NativeAccountStorage'
-import NativeTreeQuery from '../lib/native/NativeTreeQuery'
+import NativeTreeQuery, { formatSearchToken, parseSearchQuery } from '../lib/native/NativeTreeQuery'
 import NativeDatabase from '../lib/native/NativeDatabase'
 
 function accountStorageStub(accountId) {
@@ -411,6 +411,87 @@ describe('Native SQLite storage', function() {
       const { folders, bookmarks } = await query.search('#holiday')
       expect(folders).to.deep.equal([])
       expect(bookmarks.map((b) => b.title)).to.deep.equal(['exactly tagged', 'partially tagged'])
+    })
+
+    it('should narrow the results down with every tag named', async function() {
+      await tree.createBookmark(bookmark(rootId, 'both', 'http://ex.com/one', ['holiday', 'beach']))
+      await tree.createBookmark(bookmark(rootId, 'only holiday', 'http://ex.com/two', ['holiday']))
+      await tree.createBookmark(bookmark(rootId, 'only beach', 'http://ex.com/three', ['beach']))
+      await tree.save()
+
+      expect((await query.search('#holiday')).bookmarks.map((b) => b.title).sort())
+        .to.deep.equal(['both', 'only holiday'])
+      expect((await query.search('#holiday #beach')).bookmarks.map((b) => b.title))
+        .to.deep.equal(['both'])
+      expect((await query.search('#holiday #beach #nonexistent')).bookmarks).to.deep.equal([])
+    })
+
+    it('should rank bookmarks carrying every tag exactly first', async function() {
+      await tree.createBookmark(bookmark(rootId, 'partial', 'http://ex.com/one', ['holidays', 'beaches']))
+      await tree.createBookmark(bookmark(rootId, 'exact', 'http://ex.com/two', ['holiday', 'beach']))
+      await tree.createBookmark(bookmark(rootId, 'half', 'http://ex.com/three', ['holiday', 'beaches']))
+      await tree.save()
+
+      expect((await query.search('#holiday #beach')).bookmarks.map((b) => b.title))
+        .to.deep.equal(['exact', 'half', 'partial'])
+    })
+
+    it('should combine tags with free text', async function() {
+      await tree.createBookmark(bookmark(rootId, 'Pasta carbonara', 'http://ex.com/one', ['recipes']))
+      await tree.createBookmark(bookmark(rootId, 'Pasta machine', 'http://ex.com/two', ['shopping']))
+      await tree.createBookmark(bookmark(rootId, 'Risotto', 'http://ex.com/three', ['recipes']))
+      await tree.save()
+
+      expect((await query.search('#recipes pasta')).bookmarks.map((b) => b.title))
+        .to.deep.equal(['Pasta carbonara'])
+      // Order doesn't matter
+      expect((await query.search('pasta #recipes')).bookmarks.map((b) => b.title))
+        .to.deep.equal(['Pasta carbonara'])
+    })
+
+    it('should let a term match a tag while another matches the title', async function() {
+      await tree.createBookmark(bookmark(rootId, 'Pasta carbonara', 'http://ex.com/one', ['recipes']))
+      await tree.createBookmark(bookmark(rootId, 'Pasta machine', 'http://ex.com/two', ['shopping']))
+      await tree.save()
+
+      expect((await query.search('recipes pasta')).bookmarks.map((b) => b.title))
+        .to.deep.equal(['Pasta carbonara'])
+    })
+
+    it('should return no folders for a query naming a tag', async function() {
+      await tree.createFolder(folder(rootId, 'holiday'))
+      await tree.createBookmark(bookmark(rootId, 'tagged', 'http://ex.com/one', ['holiday']))
+      await tree.save()
+
+      expect((await query.search('holiday')).folders.map((f) => f.title)).to.deep.equal(['holiday'])
+      expect((await query.search('#holiday')).folders).to.deep.equal([])
+    })
+
+    it('should take a quoted tag as one tag', async function() {
+      await tree.createBookmark(bookmark(rootId, 'saved', 'http://ex.com/one', ['read later']))
+      await tree.createBookmark(bookmark(rootId, 'later only', 'http://ex.com/two', ['later']))
+      await tree.save()
+
+      expect((await query.search('#"read later"')).bookmarks.map((b) => b.title))
+        .to.deep.equal(['saved'])
+      // Unquoted, 'later' is a term of its own -- which 'later only' has as a tag
+      expect((await query.search('#read later')).bookmarks.map((b) => b.title))
+        .to.deep.equal(['saved'])
+    })
+
+    it('should parse and format the tags of a query', function() {
+      expect(parseSearchQuery('#holiday #beach pictures')).to.deep.equal({
+        tags: ['holiday', 'beach'],
+        terms: ['pictures'],
+      })
+      expect(parseSearchQuery('pictures')).to.deep.equal({ tags: [], terms: ['pictures'] })
+      // Someone who has only just started typing
+      expect(parseSearchQuery('#')).to.deep.equal({ tags: [], terms: [] })
+      expect(parseSearchQuery('  ')).to.deep.equal({ tags: [], terms: [] })
+
+      expect(formatSearchToken('holiday', true)).to.equal('#holiday')
+      expect(formatSearchToken('read later', true)).to.equal('#"read later"')
+      expect(parseSearchQuery(formatSearchToken('read later', true)).tags).to.deep.equal(['read later'])
     })
 
     it('should keep the search up to date with edits', async function() {

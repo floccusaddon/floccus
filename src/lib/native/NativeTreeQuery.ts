@@ -158,86 +158,55 @@ export default class NativeTreeQuery {
   }
 
   /**
-   * Everything matching the query, ranked with the better title matches first.
+   * Everything matching the query.
    *
-   * A query starting with '#' looks for a tag and only ever returns bookmarks.
-   * Otherwise SQL narrows the rows down to those containing every term
-   * somewhere, and the exact per-field predicates are applied to those.
+   * A query is a mix of tags ('#holiday') and free text, in any order. Every
+   * tag has to be on the item -- they narrow the result down, the way the tag
+   * bar does -- and every free-text term has to turn up in the title, the url
+   * or one of the tags, each term on its own. So '#recipes pasta' finds the
+   * bookmarks tagged 'recipes' that have something to do with pasta, and a
+   * plain 'recipes pasta' also finds them if 'recipes' is only a tag.
+   *
+   * Only bookmarks carry tags, so a query naming one returns no folders.
+   *
+   * SQL narrows the rows down to those containing every tag and term somewhere
+   * in their search_text; the predicates above are then applied to those.
    */
   async search(query: string, limit: number = SEARCH_LIMIT): Promise<ISearchResults> {
-    const trimmed = (query || '').trim()
-    if (!trimmed) {
+    const { tags, terms } = parseSearchQuery(query)
+    if (!tags.length && !terms.length) {
       return { folders: [], bookmarks: [] }
     }
     await this.backfillSearchText()
 
-    if (trimmed.startsWith('#')) {
-      return { folders: [], bookmarks: await this.searchByTag(trimmed.slice(1).trim().toLowerCase(), limit) }
-    }
-
-    const query_ = trimmed.toLowerCase()
-    // Same splitting as the predicates below use, so that a doubled space
-    // behaves the way it always did
-    const terms = query_.split(' ')
-    const patterns = terms.filter(Boolean).map(likePattern)
-    if (!patterns.length) {
-      return { folders: [], bookmarks: [] }
-    }
+    const patterns = [...tags, ...terms].map(likePattern)
     const condition = patterns.map(() => 'search_text LIKE ? ESCAPE \'\\\'').join(' AND ')
+    const tagged = tags.length ? 'tags IS NOT NULL AND tags <> \'[]\' AND ' : ''
 
     const [folderRows, bookmarkRows] = await Promise.all([
+      tags.length
+        ? Promise.resolve([])
+        : NativeDatabase.query(
+          `SELECT id, parent_id, title FROM folders WHERE account_id = ? AND ${condition} LIMIT ?`,
+          [this.accountId, ...patterns, limit]
+        ),
       NativeDatabase.query(
-        `SELECT id, parent_id, title FROM folders WHERE account_id = ? AND ${condition} LIMIT ?`,
-        [this.accountId, ...patterns, limit]
-      ),
-      NativeDatabase.query(
-        `SELECT id, parent_id, title, url, tags FROM bookmarks WHERE account_id = ? AND ${condition} LIMIT ?`,
+        `SELECT id, parent_id, title, url, tags FROM bookmarks WHERE account_id = ? AND ${tagged}${condition} LIMIT ?`,
         [this.accountId, ...patterns, limit]
       ),
     ])
 
     const folders = folderRows
       .map((row) => this.hydrateFolder(row))
-      .filter((folder) => matchesTitleFully(folder, terms) || matchesTitlePartially(folder, terms))
+      .filter((folder) => matchesTitlePartially(folder, terms))
     const bookmarks = bookmarkRows
       .map((row) => this.hydrateBookmark(row))
-      .filter((bookmark) =>
-        matchesUrl(bookmark, terms) ||
-        matchesTitleFully(bookmark, terms) ||
-        matchesTitlePartially(bookmark, terms) ||
-        matchesTags(bookmark, terms)
-      )
+      .filter((bookmark) => matchesTags(bookmark, tags) && matchesTerms(bookmark, terms))
 
     return {
-      folders: rankByTitle(folders, terms),
-      bookmarks: rankByTitle(bookmarks, terms),
+      folders: rankResults(folders, tags, terms),
+      bookmarks: rankResults(bookmarks, tags, terms),
     }
-  }
-
-  /**
-   * Bookmarks carrying the tag, the ones tagged with it exactly before the ones
-   * that merely contain it.
-   */
-  private async searchByTag(tag: string, limit: number): Promise<TLocalBookmark[]> {
-    if (!tag) {
-      return []
-    }
-    const rows = await NativeDatabase.query(
-      'SELECT id, parent_id, title, url, tags FROM bookmarks WHERE account_id = ? AND tags IS NOT NULL AND tags <> \'[]\' AND search_text LIKE ? ESCAPE \'\\\' LIMIT ?',
-      [this.accountId, likePattern(tag), limit]
-    )
-    const exact: TLocalBookmark[] = []
-    const partial: TLocalBookmark[] = []
-    for (const row of rows) {
-      const bookmark = this.hydrateBookmark(row)
-      const tags = (bookmark.tags || []).map((t) => t.toLowerCase())
-      if (tags.includes(tag)) {
-        exact.push(bookmark)
-      } else if (tags.some((t) => t.includes(tag))) {
-        partial.push(bookmark)
-      }
-    }
-    return exact.concat(partial)
   }
 
   private hydrateFolder(row: any): TLocalFolder {
@@ -317,6 +286,73 @@ export default class NativeTreeQuery {
   }
 }
 
+export interface IParsedQuery {
+  /** Tag names, lowercased, '#' stripped */
+  tags: string[]
+  /** Free-text terms, lowercased */
+  terms: string[]
+}
+
+/**
+ * Split a search query into the tags it names and the free text around them.
+ *
+ * '#holiday #beach pictures' asks for the bookmarks tagged both 'holiday' and
+ * 'beach' that also have 'pictures' about them somewhere. Tags and terms may
+ * come in any order.
+ *
+ * Tags and terms can contain spaces if they are quoted ('#"read later"'), which
+ * is what #formatSearchToken produces for the tag bar -- an unquoted space
+ * always starts the next tag or term.
+ */
+export function parseSearchQuery(query: string): IParsedQuery {
+  const tags: string[] = []
+  const terms: string[] = []
+  for (const token of tokenize((query || '').toLowerCase())) {
+    if (token.startsWith('#')) {
+      const tag = token.slice(1)
+      // A lone '#' is someone who has only just started typing
+      if (tag) {
+        tags.push(tag)
+      }
+    } else {
+      terms.push(token)
+    }
+  }
+  return { tags, terms }
+}
+
+/**
+ * The way a tag or term has to be written to survive #parseSearchQuery.
+ */
+export function formatSearchToken(value: string, isTag: boolean): string {
+  const quoted = /\s|"/.test(value) ? '"' + value.replace(/"/g, '') + '"' : value
+  return isTag ? '#' + quoted : quoted
+}
+
+function tokenize(query: string): string[] {
+  const tokens: string[] = []
+  let current = ''
+  let quoted = false
+  for (const character of query) {
+    if (character === '"') {
+      quoted = !quoted
+      continue
+    }
+    if (!quoted && /\s/.test(character)) {
+      if (current) {
+        tokens.push(current)
+      }
+      current = ''
+      continue
+    }
+    current += character
+  }
+  if (current) {
+    tokens.push(current)
+  }
+  return tokens
+}
+
 /**
  * Recursive CTE listing the given folder and every folder below it. Takes the
  * folder id and the account id, in that order.
@@ -331,6 +367,10 @@ function subtreeCTE(): string {
 
 function likePattern(term: string): string {
   return '%' + term.replace(/[\\%_]/g, '\\$&') + '%'
+}
+
+function lowercaseTags(bookmark: TLocalBookmark): string[] {
+  return (bookmark.tags || []).map((tag) => tag.toLowerCase())
 }
 
 function matchesTitleFully(item: TLocalItem, terms: string[]): boolean {
@@ -349,28 +389,50 @@ function matchesTitlePartially(item: TLocalItem, terms: string[]): boolean {
   return terms.every((term) => title.includes(term))
 }
 
-function matchesUrl(bookmark: TLocalBookmark, terms: string[]): boolean {
-  if (!bookmark.url) {
-    return false
-  }
-  const url = bookmark.url.toLowerCase()
-  return terms.every((term) => url.includes(term))
-}
-
-function matchesTags(bookmark: TLocalBookmark, terms: string[]): boolean {
-  if (!bookmark.tags || !bookmark.tags.length) {
-    return false
-  }
-  const tags = bookmark.tags.map((tag) => tag.toLowerCase())
-  return terms.every((term) => tags.some((tag) => tag.includes(term)))
+/**
+ * Every tag the query named is on the bookmark -- as a tag of its own or as
+ * part of one, so that typing '#hol' already narrows things down.
+ */
+function matchesTags(bookmark: TLocalBookmark, tags: string[]): boolean {
+  const own = lowercaseTags(bookmark)
+  return tags.every((tag) => own.some((candidate) => candidate.includes(tag)))
 }
 
 /**
- * Whole-word title matches first, then partial title matches, then whatever
- * only matched on url or tags. Array#sort is stable, so items that rank the
- * same keep the order the database returned them in.
+ * Every free-text term turns up somewhere on the bookmark. Each term is judged
+ * on its own, so 'recipes pasta' also finds the bookmark tagged 'recipes' that
+ * has 'pasta' in its title.
  */
-function rankByTitle<T extends TLocalItem>(items: T[], terms: string[]): T[] {
-  const rank = (item: T) => matchesTitleFully(item, terms) ? 0 : (matchesTitlePartially(item, terms) ? 1 : 2)
-  return items.sort((a, b) => rank(a) - rank(b))
+function matchesTerms(bookmark: TLocalBookmark, terms: string[]): boolean {
+  const title = (bookmark.title || '').toLowerCase()
+  const url = (bookmark.url || '').toLowerCase()
+  const tags = lowercaseTags(bookmark)
+  return terms.every((term) =>
+    title.includes(term) ||
+    url.includes(term) ||
+    tags.some((tag) => tag.includes(term))
+  )
+}
+
+/**
+ * The more of the query's tags an item carries exactly rather than as part of
+ * a longer tag, the higher it ranks; within one tag rank the better title
+ * matches come first. Array#sort is stable, so items that rank the same keep
+ * the order the database returned them in.
+ */
+function rankResults<T extends TLocalItem>(items: T[], tags: string[], terms: string[]): T[] {
+  const tagRank = (item: T) => {
+    if (!tags.length || !(item instanceof Bookmark)) {
+      return 0
+    }
+    const own = lowercaseTags(item)
+    return tags.filter((tag) => !own.includes(tag)).length
+  }
+  const titleRank = (item: T) => {
+    if (!terms.length) {
+      return 0
+    }
+    return matchesTitleFully(item, terms) ? 0 : (matchesTitlePartially(item, terms) ? 1 : 2)
+  }
+  return items.sort((a, b) => tagRank(a) - tagRank(b) || titleRank(a) - titleRank(b))
 }

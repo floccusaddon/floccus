@@ -198,10 +198,10 @@
             small
             label
             color="blue darken-1"
-            :dark="tag === activeTag"
-            :outlined="tag !== activeTag"
+            :dark="isActiveTag(tag)"
+            :outlined="!isActiveTag(tag)"
             :aria-label="t('LabelSearchbytag', [tag])"
-            :aria-pressed="String(tag === activeTag)"
+            :aria-pressed="String(isActiveTag(tag))"
             @click="toggleTagSearch(tag)">
             {{ tag }}
           </v-chip>
@@ -423,6 +423,7 @@ import sortBy from 'lodash/sortBy'
 import DialogImportBookmarks from '../../components/native/DialogImportBookmarks'
 import Breadcrumbs from '../../components/native/Breadcrumbs.vue'
 import Item from '../../components/native/Item.vue'
+import { formatSearchToken, parseSearchQuery } from '../../../lib/native/NativeTreeQuery'
 
 export default {
   name: 'Tree',
@@ -553,9 +554,12 @@ export default {
     supportsTags() {
       return Boolean(this.$store.state.tagSupport[this.id])
     },
-    activeTag() {
-      const query = (this.searchQuery || '').trim()
-      return query.startsWith('#') ? query.slice(1).trim() : null
+    /**
+     * The tags the current query filters by, lowercased -- a query can name
+     * several, and every one of them narrows the results down further.
+     */
+    activeTags() {
+      return parseSearchQuery(this.searchQuery).tags
     },
   },
   watch: {
@@ -705,22 +709,36 @@ export default {
         this.searchQuery = query
       }, 500)
     },
+    isActiveTag(tag) {
+      return this.activeTags.includes(tag.toLowerCase())
+    },
     searchByTag(tag) {
-      clearTimeout(this.searchDebounceTimer)
-      this.searchQuery = '#' + tag
+      this.setTagSearch(tag, true)
     },
     toggleTagSearch(tag) {
-      if (this.activeTag === tag) {
-        clearTimeout(this.searchDebounceTimer)
-        this.searchQuery = ''
-        return
-      }
-      this.searchByTag(tag)
+      this.setTagSearch(tag, !this.isActiveTag(tag))
+    },
+    /**
+     * Add a tag to the query or take it out again, leaving the other tags and
+     * the free text of the query alone -- tapping one chip after the other
+     * narrows the results down step by step.
+     */
+    setTagSearch(tag, on) {
+      clearTimeout(this.searchDebounceTimer)
+      const lower = tag.toLowerCase()
+      const { tags, terms } = parseSearchQuery(this.searchQuery)
+      const nextTags = on
+        ? (tags.includes(lower) ? tags : [...tags, lower])
+        : tags.filter((candidate) => candidate !== lower)
+      this.searchQuery = [
+        ...nextTags.map((candidate) => formatSearchToken(candidate, true)),
+        ...terms.map((term) => formatSearchToken(term, false)),
+      ].join(' ')
     },
     async runSearch() {
       const query = (this.searchQuery || '').trim()
       // '#tag' searches only need a tag to go on, not three characters
-      if (query.startsWith('#') ? query.length < 2 : query.length < 3) {
+      if (!parseSearchQuery(query).tags.length && query.length < 3) {
         this.searchRun++
         this.searchItems = []
         this.otherSearchItems = []
