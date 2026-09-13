@@ -49,6 +49,16 @@ export interface CachingResource <L extends TItemLocation> extends IResource<L> 
 
 export interface BulkImportResource<L extends TItemLocation> extends IResource<L> {
   bulkImportFolder(id: number|string, folder:Folder<L>):Promise<Folder<L>>
+  /**
+   * Whether bulkImportFolder *adds* the given children to the folder rather
+   * than replacing whatever it held. Only such a resource may be handed a
+   * subtree in several chunks (see Default#executeCreate) -- a resource that
+   * replaces would keep nothing but the last chunk.
+   *
+   * CachingAdapter and everything built on it (NativeTree, and the
+   * CachingTreeWrapper around it) replaces, so this stays off there.
+   */
+  bulkImportAppendsChildren?: boolean
 }
 
 export interface LoadFolderChildrenResource<L extends TItemLocation> extends IResource<L> {

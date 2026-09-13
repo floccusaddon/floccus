@@ -488,6 +488,10 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     return json.item.id
   }
 
+  // The import endpoint adds to the folder, so a subtree too large for one
+  // request can be imported in chunks
+  bulkImportAppendsChildren = true
+
   async bulkImportFolder(parentId:string|number, folder:Folder<typeof ItemLocation.SERVER>):Promise<Folder<typeof ItemLocation.SERVER>> {
     if (folder.count() > 75) {
       throw new Error('Refusing to bulk import more than 75 bookmarks')

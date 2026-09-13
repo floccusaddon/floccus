@@ -32,7 +32,6 @@ import {
 } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
-import CachingAdapter from '../adapters/Caching'
 import { yieldToEventLoop } from '../yieldToEventLoop'
 import { isTest } from '../isTest'
 
@@ -1320,7 +1319,12 @@ export default class SyncProcess {
     // We *know* that oldItem exists here, because actions are mapped before being executed
     if ('bulkImportFolder' in resource) {
       let doneCalled = false
-      if (action.payload.count() < 75 || this.server instanceof CachingAdapter) {
+      // Chunking spreads the subtree over several bulkImportFolder calls, which
+      // only holds together where the import adds to the folder. A resource that
+      // replaces the folder's children instead -- NativeTree, via
+      // CachingTreeWrapper -- would keep nothing but the last chunk, so hand it
+      // the whole subtree in one go no matter how large.
+      if (action.payload.count() < 75 || !resource.bulkImportAppendsChildren) {
         Logger.log('Attempting full bulk import')
         try {
           // Try bulk import with sub folders
