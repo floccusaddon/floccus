@@ -147,6 +147,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     serverTreeRoot.children = (
       await this.server.getBookmarksTree(true)
     ).children
+    serverTreeRoot.invalidateHash()
   }
 
   async sync(): Promise<void> {

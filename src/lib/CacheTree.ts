@@ -11,7 +11,9 @@ export default class CacheTree extends CachingAdapter implements IResource<typeo
   }
 
   public setTree(tree: Folder<typeof ItemLocation.LOCAL>) {
-    this.bookmarksCache = tree.clone(false)
+    // Keep the folder hashes: they are persisted with the cache and let the
+    // next sync skip hashing the subtrees that didn't change
+    this.bookmarksCache = tree.clone(true)
     this.bookmarksCache.createIndex()
     // Reseed highestId from the tree so subsequent createFolder/createBookmark
     // don't reissue ids that collide with items already in the tree. A collision
@@ -35,9 +37,9 @@ export default class CacheTree extends CachingAdapter implements IResource<typeo
   }
 
   async getBookmarksTree(): Promise<Folder<typeof ItemLocation.LOCAL>> {
-    const tree = await super.getBookmarksTree()
+    const tree = this.bookmarksCache.copy(true) as Folder<typeof ItemLocation.LOCAL>
     tree.createIndex()
-    return tree as Folder<typeof ItemLocation.LOCAL>
+    return tree
   }
 
   isAvailable(): Promise<boolean> {

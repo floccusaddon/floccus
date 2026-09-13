@@ -46,10 +46,53 @@ describe('Floccus', function() {
             await account2.init()
 
             if (ACCOUNT_DATA.type === 'fake') {
-              // Wrire both accounts to the same fake db
-              account2.server.bookmarksCache = account1.server.bookmarksCache = new Folder(
+              // Wire both accounts to the same fake db. The fake adapter stands
+              // in for the file-based ones (WebDAV, Dropbox, Drive, git), which
+              // fetch the whole file when a sync starts and write it back when
+              // it completes -- so each account works on its own snapshot and
+              // only publishes it at the end, rather than sharing one live tree.
+              let fakeServerDb = new Folder(
                 { id: '', title: 'root', location: 'Server' }
               )
+              account1.server.bookmarksCache = new Folder(
+                { id: '', title: 'root', location: 'Server' }
+              )
+              account2.server.bookmarksCache = new Folder(
+                { id: '', title: 'root', location: 'Server' }
+              )
+              account1.server.onSyncStart = () => {
+                account1.server.bookmarksCache = fakeServerDb.copy(false)
+              }
+              account1.server.onSyncComplete = () => {
+                fakeServerDb = account1.server.bookmarksCache.copy(false)
+              }
+              account2.server.onSyncStart = () => {
+                account2.server.bookmarksCache = fakeServerDb.copy(false)
+              }
+              account2.server.onSyncComplete = () => {
+                fakeServerDb = account2.server.bookmarksCache.copy(false)
+              }
+              account2.server.__defineSetter__('highestId', (id) => {
+                account1.server.highestId = id
+              })
+              account2.server.__defineGetter__('highestId', () => account1.server.highestId)
+            }
+            if (ACCOUNT_DATA.type === 'fake-nc-bookmarks') {
+              // Wire both accounts to the same fake db. This adapter can't share
+              // the cache object itself the way the plain fake one does: it
+              // replaces bookmarksCache wholesale (see onSyncStart), so the
+              // accessors have to funnel through one variable.
+              let fakeServerDb = new Folder(
+                { id: '', title: 'root', location: 'Server' }
+              )
+              account1.server.__defineSetter__('bookmarksCache', (db) => {
+                fakeServerDb = db
+              })
+              account2.server.__defineSetter__('bookmarksCache', (db) => {
+                fakeServerDb = db
+              })
+              account1.server.__defineGetter__('bookmarksCache', () => fakeServerDb)
+              account2.server.__defineGetter__('bookmarksCache', () => fakeServerDb)
               account2.server.__defineSetter__('highestId', (id) => {
                 account1.server.highestId = id
               })
@@ -109,7 +152,8 @@ describe('Floccus', function() {
             await account2.delete()
           })
           it('should not sync two clients at the same time', async function() {
-            if (ACCOUNT_DATA.type === 'fake') {
+            // Neither fake adapter implements server-side locking
+            if (ACCOUNT_DATA.type === 'fake' || ACCOUNT_DATA.type === 'fake-nc-bookmarks') {
               return this.skip()
             }
             if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && ['v1.1.2', 'v2.3.4', 'stable3', 'stable4'].includes(APP_VERSION)) {

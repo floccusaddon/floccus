@@ -15,6 +15,8 @@ module.exports = {
   },
   externals: {
     mocha: 'commonjs mocha',
+    // Loaded at runtime so that sql.js can find its own wasm file
+    'sql.js': 'commonjs sql.js',
   },
   module: {
     rules: [
@@ -73,6 +75,13 @@ module.exports = {
         'test',
         'node-shims',
         'capacitor-filesystem.js'
+      ),
+      '@capacitor-community/sqlite': path.resolve(
+        __dirname,
+        'src',
+        'test',
+        'node-shims',
+        'capacitor-sqlite.js'
       ),
     },
   },

@@ -25,6 +25,16 @@ export default class FakeNcBookmarksAdapter extends CachingAdapter {
     return 'Fake Nextcloud Bookmarks account (floccus)'
   }
 
+  /**
+   * This adapter stands in for nextcloud-bookmarks, where every action hits the
+   * server as its own request: an interrupted sync leaves partial state behind
+   * and the next one has to resume from a continuation. CachingAdapter, which we
+   * inherit the tree handling from, is atomic instead -- so say so explicitly.
+   */
+  isAtomic(): boolean {
+    return false
+  }
+
   async createBookmark(bm: Bookmark<TItemLocation>): Promise<string | number> {
     const id = await super.createBookmark(bm)
     const storedBm = this.bookmarksCache.findBookmark(id)

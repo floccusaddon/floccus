@@ -697,18 +697,31 @@ export default class SyncProcess {
     }
   }
 
-  filterOutUnacceptedBookmarks(tree: Folder<TItemLocation>): void {
+  /**
+   * Returns whether anything was actually filtered out, so that the cached
+   * hashes of the folders above can be dropped -- these trees carry their
+   * hashes with them now (see CachingAdapter#invalidateHashes).
+   */
+  filterOutUnacceptedBookmarks(tree: Folder<TItemLocation>): boolean {
+    let changed = false
     tree.children = tree.children.filter(child => {
       if (child instanceof Bookmark) {
-        return this.server.acceptsBookmark(child)
+        const accepted = this.server.acceptsBookmark(child)
+        changed = changed || !accepted
+        return accepted
       } else {
-        this.filterOutUnacceptedBookmarks(child)
+        changed = this.filterOutUnacceptedBookmarks(child) || changed
         return true
       }
     })
+    if (changed) {
+      tree.invalidateHash()
+    }
+    return changed
   }
 
-  filterOutInvalidBookmarks(tree: Folder<TItemLocation>): void {
+  filterOutInvalidBookmarks(tree: Folder<TItemLocation>): boolean {
+    let changed = false
     const invalidBookmarks = []
     tree.children = tree.children.filter(child => {
       if (child instanceof Bookmark) {
@@ -728,20 +741,27 @@ export default class SyncProcess {
           return false
         }
       } else {
-        this.filterOutInvalidBookmarks(child)
+        changed = this.filterOutInvalidBookmarks(child) || changed
       }
       return true
     })
+    changed = changed || Boolean(invalidBookmarks.length)
+    if (changed) {
+      tree.invalidateHash()
+    }
     invalidBookmarks.length &&
     Logger.log(
       'Filtered out the following invalid bookmarks before syncing',
       invalidBookmarks
     )
+    return changed
   }
 
-  async filterOutDuplicatesInTheSameFolder(tree: Folder<TItemLocation>): Promise<void> {
+  async filterOutDuplicatesInTheSameFolder(tree: Folder<TItemLocation>): Promise<boolean> {
     const seenUrl = {}
     const duplicates = []
+    const subFolders: Folder<TItemLocation>[] = []
+    let changed = false
     tree.children = tree.children.filter(child => {
       if (child.type === ItemType.BOOKMARK) {
         if (seenUrl[child.url]) {
@@ -750,15 +770,25 @@ export default class SyncProcess {
         }
         seenUrl[child.url] = child
       } else {
-        this.filterOutDuplicatesInTheSameFolder(child)
+        subFolders.push(child as Folder<TItemLocation>)
       }
       return true
     })
+    // Recurse after filtering: the recursion is async, so it can't happen
+    // inside the filter callback
+    for (const subFolder of subFolders) {
+      changed = (await this.filterOutDuplicatesInTheSameFolder(subFolder)) || changed
+    }
+    changed = changed || Boolean(duplicates.length)
+    if (changed) {
+      tree.invalidateHash()
+    }
     duplicates.length &&
       Logger.log(
         'Filtered out the following duplicates before syncing',
         duplicates
       )
+    return changed
   }
 
   async getDiffs():Promise<{localScanResult:ScanResult<typeof ItemLocation.LOCAL, TItemLocation>, serverScanResult:ScanResult<typeof ItemLocation.SERVER, TItemLocation>}> {

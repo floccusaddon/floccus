@@ -77,7 +77,18 @@ export function normalizeTags(tags?: string[]): string[] | undefined {
  * has to be part of it, or a sync that negotiated different settings would read
  * back a stale value.
  */
-function hashCacheKey({ preserveOrder, hashFn, syncTags }: IHashSettings): string {
+// Opt-in self-check for the incremental index maintenance, see Folder#assertIndexConsistent
+export const VERIFY_INDEX = (() => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return typeof process !== 'undefined' && process.env && process.env.FLOCCUS_VERIFY_INDEX === 'true'
+  } catch (e) {
+    return false
+  }
+})()
+
+export function hashCacheKey({ preserveOrder, hashFn, syncTags }: IHashSettings): string {
   return `${preserveOrder}-${hashFn}-${Boolean(syncTags)}`
 }
 
@@ -171,6 +182,19 @@ export class Bookmark<L extends TItemLocation> {
     const cacheKey = hashCacheKey(hashSettings)
     if (!this.hashValue) this.hashValue = {}
     this.hashValue[cacheKey] = value
+  }
+
+  /**
+   * Drop the cached hashes of this item.
+   *
+   * Anything that changes an item's content has to call this, and a folder's
+   * hash covers its whole subtree, so every ancestor has to be invalidated as
+   * well -- see CachingAdapter#invalidateHashes. Trees that persist their
+   * hashes (NativeTree, and the sync cache) would otherwise report that nothing
+   * changed.
+   */
+  invalidateHash(): void {
+    this.hashValue = {}
   }
 
   async hash(
@@ -512,6 +536,44 @@ export class Folder<L extends TItemLocation> {
     this.hashValue[cacheKey] = value
   }
 
+  /**
+   * Drop the cached hashes of this folder. See Bookmark#invalidateHash --
+   * for a folder this is needed whenever its title, its children or their
+   * order change, and for every one of its ancestors along with it.
+   */
+  invalidateHash(): void {
+    this.hashValue = {}
+  }
+
+  /**
+   * Drop the cached hashes of the given folder and of every folder above it,
+   * up to this one. Returns the ids that were invalidated.
+   *
+   * This is the whole point of the hash cache being safe to keep around: a
+   * folder's hash covers its subtree, so a change anywhere below invalidates
+   * the path to the root and nothing else.
+   */
+  invalidateHashUpwards(folderId: string | number): (string | number)[] {
+    const invalidated: (string | number)[] = []
+    const seen = new Set<string>()
+    let folder: Folder<L> | null =
+      typeof folderId === 'undefined' || folderId === null
+        ? null
+        : this.findFolder(folderId)
+    while (folder && !seen.has(String(folder.id))) {
+      seen.add(String(folder.id))
+      folder.invalidateHash()
+      invalidated.push(folder.id)
+      folder =
+        String(folder.id) === String(this.id) ||
+        typeof folder.parentId === 'undefined' ||
+        folder.parentId === null
+          ? null
+          : this.findFolder(folder.parentId)
+    }
+    return invalidated
+  }
+
   async hash(
     { preserveOrder = false, hashFn = 'sha256', syncTags = false }: IHashSettings = {
       preserveOrder: false,
@@ -716,21 +778,147 @@ export class Folder<L extends TItemLocation> {
   }
 
   /**
-   * Update the index with the given item (this method should be called on the root folder)
+   * Add an item and everything below it to the index of this folder and of every
+   * folder between the two (this method should be called on the root folder).
+   *
+   * A folder's index covers its whole subtree, so an insertion concerns exactly
+   * the folders on the path from here to the item and no others -- rebuilding
+   * the whole index instead costs O(items x depth) on every single change.
+   * Anything we can't make sense of falls back to that full rebuild, which is
+   * always correct.
    */
   updateIndex(item: TItem<L>) {
     if (!item) {
       return
     }
-    this.createIndex()
+    if (!this.index) {
+      this.createIndex()
+      return
+    }
+    // Always rebuild the item's own index rather than trusting the one it
+    // carries: adapters rewrite ids after inserting an item (see
+    // FakeNcBookmarks/NextcloudBookmarks, whose bookmark ids embed the parent),
+    // and a stale index would file it under an id it no longer has.
+    item.createIndex()
+    const ancestors = this.ancestorsOf(item)
+    if (!ancestors) {
+      this.createIndex()
+      return
+    }
+    for (const ancestor of ancestors) {
+      Object.assign(ancestor.index[ItemType.FOLDER], item.index[ItemType.FOLDER])
+      Object.assign(ancestor.index[ItemType.BOOKMARK], item.index[ItemType.BOOKMARK])
+    }
   }
 
   /**
-   * Update the index by removing the given item and its children (this method should be called on the root folder)
+   * Remove an item and everything below it from the index of this folder and of
+   * every folder between the two (this method should be called on the root
+   * folder, before the item's parentId is changed).
    */
   removeFromIndex(item: TItem<L>) {
-    if (!item) return
+    if (!item) {
+      return
+    }
+    if (!this.index) {
+      this.createIndex()
+      return
+    }
+    const ancestors = this.ancestorsOf(item)
+    if (!ancestors) {
+      this.createIndex()
+      return
+    }
+    // Walk the item itself rather than its index: the index may have been built
+    // when the item still had a different id (see CachingTreeWrapper).
+    const folderIds: (string | number)[] = []
+    const bookmarkIds: (string | number)[] = []
+    const stack: TItem<L>[] = [item]
+    while (stack.length) {
+      const current = stack.pop()
+      if (current instanceof Folder) {
+        folderIds.push(current.id)
+        stack.push(...current.children)
+      } else {
+        bookmarkIds.push(current.id)
+      }
+    }
+    for (const ancestor of ancestors) {
+      for (const id of folderIds) {
+        delete ancestor.index[ItemType.FOLDER][id]
+      }
+      for (const id of bookmarkIds) {
+        delete ancestor.index[ItemType.BOOKMARK][id]
+      }
+    }
+  }
+
+  /**
+   * The folders whose index covers the given item, from its parent up to this
+   * one, or null if the item doesn't hang below this folder (or if any folder
+   * on the way lacks an index) -- in which case the caller has to rebuild.
+   */
+  private ancestorsOf(item: TItem<L>): Folder<L>[] | null {
+    const ancestors: Folder<L>[] = []
+    const seen = new Set<string>()
+    let parentId = item.parentId
+    while (typeof parentId !== 'undefined' && parentId !== null) {
+      if (seen.has(String(parentId))) {
+        // A loop -- rebuilding is still correct, spinning here wouldn't be
+        return null
+      }
+      seen.add(String(parentId))
+      const parent = this.index[ItemType.FOLDER][parentId]
+      if (!parent || !parent.index) {
+        return null
+      }
+      ancestors.push(parent)
+      if (parent === this) {
+        return ancestors
+      }
+      parentId = parent.parentId
+    }
+    return null
+  }
+
+  /**
+   * Opt-in cross-check (FLOCCUS_VERIFY_INDEX=true) that the incrementally
+   * maintained indexes of this tree agree with a full rebuild, for every folder
+   * in it. Throws if they don't.
+   *
+   * Call this where a mutation has run to completion -- in between, structure
+   * and index are legitimately out of step (a move hooks the item into its new
+   * parent before dropping it from the old one's index, a bulk import replaces
+   * a folder's children before reindexing them).
+   */
+  assertIndexConsistent(context: string): void {
+    if (!VERIFY_INDEX) {
+      return
+    }
+    const keysOf = (folder: Folder<L>) => folder.index && JSON.stringify({
+      folder: Object.keys(folder.index[ItemType.FOLDER]).sort(),
+      bookmark: Object.keys(folder.index[ItemType.BOOKMARK]).sort(),
+    })
+    const before = new Map<Folder<L>, string>()
+    const collect = (folder: Folder<L>) => {
+      before.set(folder, keysOf(folder))
+      for (const child of folder.children) {
+        if (child instanceof Folder) {
+          collect(child)
+        }
+      }
+    }
+    collect(this)
     this.createIndex()
+    for (const [folder, snapshot] of before) {
+      const rebuilt = keysOf(folder)
+      if (snapshot !== rebuilt) {
+        throw new Error(
+          `Index of folder ${folder.id} is out of sync after ${context}\n` +
+          `incremental: ${snapshot}\nrebuilt:     ${rebuilt}`
+        )
+      }
+    }
   }
 
   inspect(depth = 0): string {
