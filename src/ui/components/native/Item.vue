@@ -27,7 +27,7 @@
         <Breadcrumbs
           in-item
           :items="item.type === 'bookmark' ? getBookmarkPath(item) : getFolderPath(item)"
-          :tree="tree" />
+          :folder-tree="folderTree" />
       </v-list-item-subtitle>
       <v-list-item-subtitle v-if="tags.length">
         <v-chip
@@ -133,10 +133,10 @@ export default {
       return this.$route.params.accountId
     },
     loading() {
-      return (!this.$store.state.accounts[this.accountId] || !this.$store.state.accounts[this.accountId].data || !Object.keys(this.$store.state.accounts[this.accountId].data).length || !this.tree)
+      return (!this.$store.state.accounts[this.accountId] || !this.$store.state.accounts[this.accountId].data || !Object.keys(this.$store.state.accounts[this.accountId].data).length || !this.folderTree)
     },
-    tree() {
-      return this.$store.state.tree
+    folderTree() {
+      return this.$store.state.folderTree
     },
     useNetwork() {
       if (this.loading) {
@@ -154,16 +154,16 @@ export default {
   methods: {
     getFolderPath(item) {
       const folders = [item]
-      while (this.tree && folders[folders.length - 1 ] && String(folders[folders.length - 1 ].id) !== String(this.tree.id)) {
-        folders.push(this.findItem(folders[folders.length - 1 ].parentId, this.tree))
+      while (this.folderTree && folders[folders.length - 1 ] && String(folders[folders.length - 1 ].id) !== String(this.folderTree.id)) {
+        folders.push(this.findItem(folders[folders.length - 1 ].parentId, this.folderTree))
       }
       folders.pop() // remove last folder
       return folders.reverse()
     },
     getBookmarkPath(item) {
       const folders = [item]
-      while (this.tree && folders[folders.length - 1 ] && String(folders[folders.length - 1 ].id) !== String(this.tree.id)) {
-        folders.push(this.findItem(folders[folders.length - 1 ].parentId, this.tree))
+      while (this.folderTree && folders[folders.length - 1 ] && String(folders[folders.length - 1 ].id) !== String(this.folderTree.id)) {
+        folders.push(this.findItem(folders[folders.length - 1 ].parentId, this.folderTree))
       }
       folders.reverse()
       folders.pop() // remove bookmark

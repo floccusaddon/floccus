@@ -10,6 +10,26 @@ import Html from '../../../lib/serializers/Html'
 import { Bookmark, Folder } from '../../../lib/Tree'
 import { Browser } from '@capacitor/browser'
 import NativeAccountStorage from '../../../lib/native/NativeAccountStorage'
+import NativeTreeQuery from '../../../lib/native/NativeTreeQuery'
+
+/**
+ * The folder hierarchy of an account, straight from the database.
+ *
+ * An account that has never been opened has no rows yet: hydrating its tree
+ * once seeds them (see NativeTree#load), and the query finds a root folder
+ * from then on.
+ */
+async function loadFolderTree(accountId) {
+  const query = new NativeTreeQuery(accountId)
+  const folderTree = await query.getFolderTree()
+  if (folderTree) {
+    return folderTree
+  }
+  const tree = await (await Account.get(accountId)).getResource()
+  await tree.getBookmarksTree()
+  await tree.save()
+  return query.getFolderTree()
+}
 
 export const actionsDefinition = {
   async [actions.LOAD_ACCOUNTS]({ commit, dispatch, state }) {
@@ -34,13 +54,27 @@ export const actionsDefinition = {
     }))
     commit(mutations.LOADING_END, 'accounts')
   },
-  async [actions.LOAD_TREE]({ commit, dispatch, state }, id) {
-    const account = await Account.get(id)
-    const tree = await account.getResource()
-    const rootFolder = await tree.getBookmarksTree(true)
-    await commit(mutations.LOAD_TREE, rootFolder)
+  /**
+   * Everything the UI needs to render the hierarchy. Bookmarks are not part of
+   * it -- they are queried per folder (LOAD_CHILDREN) and per search
+   * (SEARCH_ITEMS), so that browsing doesn't cost a copy of the whole tree.
+   */
+  async [actions.LOAD_FOLDERS]({ commit, dispatch, state }, id) {
+    await commit(mutations.LOAD_FOLDERS, await loadFolderTree(id))
     await dispatch(actions.LOAD_TAG_SUPPORT, id)
     await dispatch(actions.SET_LAST_ACCOUNT, id)
+  },
+  async [actions.LOAD_CHILDREN]({ commit, dispatch, state }, { accountId, folderId }) {
+    return new NativeTreeQuery(accountId).getChildren(folderId)
+  },
+  async [actions.LOAD_TAGS]({ commit, dispatch, state }, { accountId, folderId = null }) {
+    return new NativeTreeQuery(accountId).getTags(folderId)
+  },
+  async [actions.SEARCH_ITEMS]({ commit, dispatch, state }, { accountId, query }) {
+    return new NativeTreeQuery(accountId).search(query)
+  },
+  async [actions.FIND_BOOKMARK_BY_URL]({ commit, dispatch, state }, { accountId, url }) {
+    return new NativeTreeQuery(accountId).findBookmarkByUrl(url)
   },
   async [actions.LOAD_TAG_SUPPORT]({ commit }, id) {
     const account = await Account.get(id)
@@ -56,15 +90,19 @@ export const actionsDefinition = {
       supportsTags: Boolean(localCapabilities.supportsTags && serverCapabilities.supportsTags),
     })
   },
-  async [actions.LOAD_TREE_FROM_DISK]({ commit, dispatch, state }, id) {
+  /**
+   * On resume the database may have been written to while we were away, so
+   * re-read it. This is the one read path that still hydrates the in-memory
+   * tree, because that is what tells us whether anything changed.
+   */
+  async [actions.LOAD_FOLDERS_FROM_DISK]({ commit, dispatch, state }, id) {
     const account = await Account.get(id)
     if (account.syncing) {
       return
     }
     const tree = await account.getResource()
     const changed = await tree.load()
-    const rootFolder = await tree.getBookmarksTree(true)
-    await commit(mutations.LOAD_TREE, rootFolder)
+    await commit(mutations.LOAD_FOLDERS, await loadFolderTree(id))
     if (changed) {
       await dispatch(actions.TRIGGER_SYNC, id)
     }
@@ -74,7 +112,7 @@ export const actionsDefinition = {
     const tree = await account.getResource()
     await tree.createBookmark(bookmark)
     await tree.save()
-    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
+    await commit(mutations.LOAD_FOLDERS, await loadFolderTree(accountId))
     const controller = await Controller.getSingleton()
     controller.scheduleSync(accountId, true)
   },
@@ -83,7 +121,7 @@ export const actionsDefinition = {
     const tree = await account.getResource()
     await tree.updateBookmark(bookmark)
     await tree.save()
-    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
+    await commit(mutations.LOAD_FOLDERS, await loadFolderTree(accountId))
   },
   async [actions.COUNT_BOOKMARK_CLICK]({state}, {accountId, bookmark}) {
     if (!state.accounts[accountId].data.clickCountEnabled) {
@@ -101,7 +139,7 @@ export const actionsDefinition = {
     const tree = await account.getResource()
     await tree.removeBookmark(bookmark)
     await tree.save()
-    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
+    await commit(mutations.LOAD_FOLDERS, await loadFolderTree(accountId))
     const controller = await Controller.getSingleton()
     controller.scheduleSync(accountId, true)
   },
@@ -116,7 +154,7 @@ export const actionsDefinition = {
     const tree = await account.getResource()
     await tree.createFolder(folder)
     await tree.save()
-    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
+    await commit(mutations.LOAD_FOLDERS, await loadFolderTree(accountId))
     const controller = await Controller.getSingleton()
     controller.scheduleSync(accountId, true)
   },
@@ -125,7 +163,7 @@ export const actionsDefinition = {
     const tree = await account.getResource()
     await tree.updateFolder(folder)
     await tree.save()
-    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
+    await commit(mutations.LOAD_FOLDERS, await loadFolderTree(accountId))
     const controller = await Controller.getSingleton()
     controller.scheduleSync(accountId, true)
   },
@@ -134,7 +172,7 @@ export const actionsDefinition = {
     const tree = await account.getResource()
     await tree.removeFolder(folder)
     await tree.save()
-    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
+    await commit(mutations.LOAD_FOLDERS, await loadFolderTree(accountId))
     const controller = await Controller.getSingleton()
     controller.scheduleSync(accountId, true)
   },
@@ -153,7 +191,7 @@ export const actionsDefinition = {
       }
     }))
     await tree.save()
-    await commit(mutations.LOAD_TREE, await tree.getBookmarksTree(true))
+    await commit(mutations.LOAD_FOLDERS, await loadFolderTree(accountId))
   },
   async [actions.CREATE_ACCOUNT]({commit, dispatch, state}, data) {
     const defaultData = await AdapterFactory.getDefaultValues(data.type)

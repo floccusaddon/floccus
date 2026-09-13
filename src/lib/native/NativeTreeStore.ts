@@ -19,9 +19,9 @@ export interface IFolderHash {
 }
 
 const INSERT_FOLDER =
-  'INSERT OR REPLACE INTO folders (account_id, id, parent_id, title, position) VALUES (?,?,?,?,?)'
+  'INSERT OR REPLACE INTO folders (account_id, id, parent_id, title, position, search_text) VALUES (?,?,?,?,?,?)'
 const INSERT_BOOKMARK =
-  'INSERT OR REPLACE INTO bookmarks (account_id, id, parent_id, title, url, tags, position) VALUES (?,?,?,?,?,?,?)'
+  'INSERT OR REPLACE INTO bookmarks (account_id, id, parent_id, title, url, tags, position, search_text) VALUES (?,?,?,?,?,?,?,?)'
 
 const ID_CHUNK_SIZE = 200
 
@@ -31,7 +31,22 @@ function serializeTags(tags?: string[]): string | null {
   return typeof tags === 'undefined' ? null : JSON.stringify(tags)
 }
 
-function parseTags(tags?: string | null): string[] | undefined {
+/**
+ * What the UI's search matches its terms against. Lowercasing happens here and
+ * not in SQL, because SQLite's lower() and LIKE only fold ASCII -- see the
+ * `search_text` note in NativeDatabase.
+ */
+export function folderSearchText(title?: string | null): string {
+  return (title ?? '').toLowerCase()
+}
+
+export function bookmarkSearchText(bookmark: { title?: string, url?: string, tags?: string[] }): string {
+  return [bookmark.title ?? '', bookmark.url ?? '', ...(bookmark.tags || [])]
+    .join('\n')
+    .toLowerCase()
+}
+
+export function parseTags(tags?: string | null): string[] | undefined {
   if (typeof tags !== 'string') {
     return undefined
   }
@@ -117,7 +132,8 @@ export default class NativeTreeStore {
       ...this.subtreeStatements(root, true),
       ...this.highestIdStatements(highestId),
       {
-        statement: 'UPDATE account_meta SET tree_initialized = 1 WHERE account_id = ?',
+        // Every row this batch writes carries its search_text already
+        statement: 'UPDATE account_meta SET tree_initialized = 1, search_backfilled = 1 WHERE account_id = ?',
         values: [this.accountId],
       },
     ])
@@ -133,6 +149,7 @@ export default class NativeTreeStore {
         folder.parentId ?? null,
         folder.title ?? null,
         this.takePosition(folder.parentId),
+        folderSearchText(folder.title),
       ],
     }])
   }
@@ -149,6 +166,7 @@ export default class NativeTreeStore {
         bookmark.url ?? null,
         serializeTags(bookmark.tags),
         this.takePosition(bookmark.parentId),
+        bookmarkSearchText(bookmark),
       ],
     }])
   }
@@ -156,24 +174,26 @@ export default class NativeTreeStore {
   updateBookmark(bookmark: TLocalBookmark, moved: boolean): Promise<void> {
     if (moved) {
       return this.enqueue([{
-        statement: 'UPDATE bookmarks SET parent_id = ?, title = ?, url = ?, tags = ?, position = ? WHERE account_id = ? AND id = ?',
+        statement: 'UPDATE bookmarks SET parent_id = ?, title = ?, url = ?, tags = ?, position = ?, search_text = ? WHERE account_id = ? AND id = ?',
         values: [
           bookmark.parentId ?? null,
           bookmark.title ?? null,
           bookmark.url ?? null,
           serializeTags(bookmark.tags),
           this.takePosition(bookmark.parentId),
+          bookmarkSearchText(bookmark),
           this.accountId,
           bookmark.id,
         ],
       }])
     }
     return this.enqueue([{
-      statement: 'UPDATE bookmarks SET title = ?, url = ?, tags = ? WHERE account_id = ? AND id = ?',
+      statement: 'UPDATE bookmarks SET title = ?, url = ?, tags = ?, search_text = ? WHERE account_id = ? AND id = ?',
       values: [
         bookmark.title ?? null,
         bookmark.url ?? null,
         serializeTags(bookmark.tags),
+        bookmarkSearchText(bookmark),
         this.accountId,
         bookmark.id,
       ],
@@ -183,19 +203,20 @@ export default class NativeTreeStore {
   updateFolder(folder: TLocalFolder, moved: boolean): Promise<void> {
     if (moved) {
       return this.enqueue([{
-        statement: 'UPDATE folders SET parent_id = ?, title = ?, position = ? WHERE account_id = ? AND id = ?',
+        statement: 'UPDATE folders SET parent_id = ?, title = ?, position = ?, search_text = ? WHERE account_id = ? AND id = ?',
         values: [
           folder.parentId ?? null,
           folder.title ?? null,
           this.takePosition(folder.parentId),
+          folderSearchText(folder.title),
           this.accountId,
           folder.id,
         ],
       }])
     }
     return this.enqueue([{
-      statement: 'UPDATE folders SET title = ? WHERE account_id = ? AND id = ?',
-      values: [folder.title ?? null, this.accountId, folder.id],
+      statement: 'UPDATE folders SET title = ?, search_text = ? WHERE account_id = ? AND id = ?',
+      values: [folder.title ?? null, folderSearchText(folder.title), this.accountId, folder.id],
     }])
   }
 
@@ -401,7 +422,7 @@ export default class NativeTreeStore {
     if (item instanceof Folder) {
       statements.push({
         statement: INSERT_FOLDER,
-        values: [this.accountId, item.id, item.parentId ?? null, item.title ?? null, position],
+        values: [this.accountId, item.id, item.parentId ?? null, item.title ?? null, position, folderSearchText(item.title)],
       })
     } else {
       statements.push({
@@ -414,6 +435,7 @@ export default class NativeTreeStore {
           item.url ?? null,
           serializeTags(item.tags),
           position,
+          bookmarkSearchText(item),
         ],
       })
     }
@@ -586,7 +608,7 @@ export default class NativeTreeStore {
         ...this.deleteAllStatements(),
         ...this.subtreeStatements(root, true),
         {
-          statement: 'UPDATE account_meta SET tree_initialized = 1, highest_id = ? WHERE account_id = ?',
+          statement: 'UPDATE account_meta SET tree_initialized = 1, highest_id = ?, search_backfilled = 1 WHERE account_id = ?',
           values: [Number.isNaN(parsedHighestId) ? 0 : parsedHighestId, this.accountId],
         }
       )

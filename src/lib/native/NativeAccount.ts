@@ -24,8 +24,10 @@ export default class NativeAccount extends Account {
     const data = await storage.getAccountData(null)
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
+    // The tree hydrates itself when something actually needs it in memory:
+    // the UI browses the database directly (NativeTreeQuery), so reading every
+    // row here would be wasted work on most paths, getAllAccounts() included.
     const tree = new NativeTree(storage)
-    await tree.load()
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new NativeAccount(id, storage, await AdapterFactory.factory(data), tree)
@@ -40,7 +42,6 @@ export default class NativeAccount extends Account {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const tree = new NativeTree(storage)
-    await tree.load()
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new NativeAccount(id, storage, adapter, tree)

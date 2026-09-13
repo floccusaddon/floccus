@@ -28,7 +28,7 @@
           :item-text="'title'"
           :item-key="'id'"
           :active="[value]"
-          :open="[tree.id]"
+          :open="[folderTree.id]"
           :items="[privateTree]"
           dense
           @update:active="onUpdateSelection">
@@ -73,7 +73,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    tree: {
+    folderTree: {
       type: Object,
       required: true,
     },
@@ -93,27 +93,29 @@ export default {
     }
   },
   watch: {
-    async tree(newTree, oldTree) {
+    async folderTree(newTree, oldTree) {
       if (await newTree.hash() === await oldTree.hash()) {
         return
       }
-      this.privateTree = this.filterOutBookmarks(newTree)
+      this.privateTree = this.toTreeviewItem(newTree)
     }
   },
   mounted() {
-    this.privateTree = this.filterOutBookmarks(this.tree)
+    this.privateTree = this.toTreeviewItem(this.folderTree)
   },
   methods: {
-    filterOutBookmarks(item) {
-      let children = item.children
-        .filter(child => !child.url)
-        .map(child => this.filterOutBookmarks(child))
+    /**
+     * v-treeview mutates what it is handed (it tracks open/active state on the
+     * nodes), so it gets plain copies rather than the store's folders.
+     */
+    toTreeviewItem(folder) {
+      let children = folder.children.map(child => this.toTreeviewItem(child))
       if (this.sortBy === 'title') {
         children = children.toSorted((a, b) =>
           a.title < b.title ? -1 : a.title > b.title ? 1 : 0)
       }
       return {
-        ...item,
+        ...folder,
         children,
       }
     },

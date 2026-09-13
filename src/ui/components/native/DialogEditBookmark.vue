@@ -67,7 +67,7 @@
     <DialogChooseFolder
       v-model="temporaryParent"
       :display.sync="displayFolderChooser"
-      :tree="tree" />
+      :folder-tree="folderTree" />
   </v-dialog>
 </template>
 
@@ -87,7 +87,7 @@ export default {
     isNew: {
       type: Boolean,
     },
-    tree: {
+    folderTree: {
       type: Object,
       required: true,
     },
@@ -119,7 +119,7 @@ export default {
       if (this.temporaryParent === null) {
         return ''
       }
-      const folder = this.tree.findFolder(this.temporaryParent)
+      const folder = this.folderTree.findFolder(this.temporaryParent)
       return folder ? folder.title || this.t('LabelUntitledfolder') : ''
     }
   },
@@ -143,10 +143,10 @@ export default {
     this.temporaryTitle = this.bookmark.title || ''
     this.temporaryUrl = this.bookmark.url || ''
     this.temporaryTags = [...(this.bookmark.tags || [])]
-    const parentFolder = this.tree.findFolder(this.bookmark.parentId) ||
-        this.tree.findFolder(this.parentFolder) ||
-        this.tree.findFolder(this.$store.state.lastFolders[this.$route.params.accountId]) ||
-        this.tree.findFolder(this.tree.id)
+    const parentFolder = this.folderTree.findFolder(this.bookmark.parentId) ||
+        this.folderTree.findFolder(this.parentFolder) ||
+        this.folderTree.findFolder(this.$store.state.lastFolders[this.$route.params.accountId]) ||
+        this.folderTree.findFolder(this.folderTree.id)
     this.temporaryParent = parentFolder.id
   },
   methods: {
@@ -154,7 +154,7 @@ export default {
       if (!this.temporaryUrl || this.urlError) {
         return
       }
-      if (!this.tree.findFolder(this.temporaryParent)) {
+      if (!this.folderTree.findFolder(this.temporaryParent)) {
         return
       }
       this.$emit('save', {

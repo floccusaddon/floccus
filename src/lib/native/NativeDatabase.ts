@@ -18,6 +18,11 @@ const DB_VERSION = 1
  * since the last one. `hash_settings` is the IHashSettings it was computed
  * with -- they are negotiated per sync, and a hash computed with different
  * settings is simply ignored.
+ *
+ * `search_text` is what the native UI's search runs its LIKE against. It holds
+ * the item's title (and, for bookmarks, its url and tags) lowercased in JS:
+ * SQLite's own lower()/LIKE only fold ASCII, so searching for 'apfel' would
+ * otherwise miss a bookmark titled 'Apfel' as soon as any letter is non-ASCII.
  */
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS account_meta (
@@ -26,7 +31,8 @@ CREATE TABLE IF NOT EXISTS account_meta (
   tree_initialized INTEGER NOT NULL DEFAULT 0,
   mappings_initialized INTEGER NOT NULL DEFAULT 0,
   tree_migrated INTEGER NOT NULL DEFAULT 0,
-  mappings_migrated INTEGER NOT NULL DEFAULT 0
+  mappings_migrated INTEGER NOT NULL DEFAULT 0,
+  search_backfilled INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS folders (
   account_id TEXT NOT NULL,
@@ -36,6 +42,7 @@ CREATE TABLE IF NOT EXISTS folders (
   position INTEGER NOT NULL DEFAULT 0,
   hash TEXT,
   hash_settings TEXT,
+  search_text TEXT,
   PRIMARY KEY (account_id, id)
 );
 CREATE INDEX IF NOT EXISTS folders_by_parent ON folders (account_id, parent_id, position);
@@ -47,6 +54,7 @@ CREATE TABLE IF NOT EXISTS bookmarks (
   url TEXT,
   tags TEXT,
   position INTEGER NOT NULL DEFAULT 0,
+  search_text TEXT,
   PRIMARY KEY (account_id, id)
 );
 CREATE INDEX IF NOT EXISTS bookmarks_by_parent ON bookmarks (account_id, parent_id, position);
@@ -80,7 +88,9 @@ async function connect(): Promise<SQLiteDBConnection> {
     await db.open()
   }
   await db.execute(SCHEMA)
-  await addMissingColumns(db, 'folders', { hash: 'TEXT', hash_settings: 'TEXT' })
+  await addMissingColumns(db, 'folders', { hash: 'TEXT', hash_settings: 'TEXT', search_text: 'TEXT' })
+  await addMissingColumns(db, 'bookmarks', { search_text: 'TEXT' })
+  await addMissingColumns(db, 'account_meta', { search_backfilled: 'INTEGER NOT NULL DEFAULT 0' })
   return db
 }
 

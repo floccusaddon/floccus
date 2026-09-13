@@ -5,7 +5,7 @@
     :style="{...(inItem && { marginLeft: '-1.5em', marginTop: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 0 })}">
     <template #item="{ item }">
       <v-breadcrumbs-item @click="$emit('click', item.id)">
-        <template v-if="item.id === tree.id">
+        <template v-if="item.id === folderTree.id">
           <v-icon
             role="img"
             :aria-label="t('LabelHome')">
@@ -29,7 +29,7 @@ export default {
       type: Array,
       default: undefined
     },
-    tree: {
+    folderTree: {
       type: Object,
       required: true,
     },

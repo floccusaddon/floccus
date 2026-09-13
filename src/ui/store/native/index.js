@@ -11,7 +11,9 @@ export default new Store({
   state: {
     locked: false,
     accounts: {},
-    tree: null,
+    // The account's folders, without any bookmarks in them: the UI needs the
+    // hierarchy while it renders, everything else it queries (NativeTreeQuery)
+    folderTree: null,
     // accountId -> whether both ends of that account's sync can store tags
     tagSupport: {},
     loginFlow: {

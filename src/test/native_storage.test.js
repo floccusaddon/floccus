@@ -3,6 +3,8 @@ import { Preferences as Storage } from '@capacitor/preferences'
 import { Bookmark, Folder, hashCacheKey, ItemLocation } from '../lib/Tree'
 import NativeTree from '../lib/native/NativeTree'
 import NativeAccountStorage from '../lib/native/NativeAccountStorage'
+import NativeTreeQuery from '../lib/native/NativeTreeQuery'
+import NativeDatabase from '../lib/native/NativeDatabase'
 
 function accountStorageStub(accountId) {
   return { accountId }
@@ -259,6 +261,191 @@ describe('Native SQLite storage', function() {
       // The migrated tree must keep handing out fresh ids
       const newId = await migrated.createBookmark(bookmark(1, 'url3', 'http://ex.com/three'))
       expect(Number(newId)).to.be.above(3)
+    })
+  })
+
+  describe('browsing and search', function() {
+    let accountId, tree, query, rootId
+
+    beforeEach('set up a tree to browse', async function() {
+      accountId = newAccountId()
+      tree = new NativeTree(accountStorageStub(accountId))
+      await tree.load()
+      query = new NativeTreeQuery(accountId)
+      rootId = (await tree.getBookmarksTree()).id
+    })
+
+    function bookmark(parentId, title, url, tags) {
+      return new Bookmark({ parentId, title, url, tags, location: ItemLocation.LOCAL })
+    }
+
+    function folder(parentId, title) {
+      return new Folder({ parentId, title, location: ItemLocation.LOCAL })
+    }
+
+    it('should hand out the folders without any bookmarks in them', async function() {
+      const fooId = await tree.createFolder(folder(rootId, 'foo'))
+      const barId = await tree.createFolder(folder(fooId, 'bar'))
+      await tree.createBookmark(bookmark(fooId, 'url1', 'http://ex.com/one'))
+      await tree.save()
+
+      const folders = await query.getFolderTree()
+      expect(String(folders.id)).to.equal(String(rootId))
+      expect(folders.children.map((child) => child.title)).to.deep.equal(['foo'])
+      const foo = folders.findFolder(fooId)
+      expect(foo.children.map((child) => child.title)).to.deep.equal(['bar'])
+      expect(String(folders.findFolder(barId).parentId)).to.equal(String(fooId))
+      // The index is what the UI looks folders up through while it renders
+      expect(Object.keys(foo.index.folder).map(String).sort()).to.deep.equal(
+        [fooId, barId].map(String).sort()
+      )
+    })
+
+    it('should have no folders for an account that was never opened', async function() {
+      expect(await new NativeTreeQuery(newAccountId()).getFolderTree()).to.equal(null)
+    })
+
+    it('should hand out a folder\'s children in the order they are stored in', async function() {
+      const first = await tree.createBookmark(bookmark(rootId, 'url1', 'http://ex.com/one'))
+      const second = await tree.createFolder(folder(rootId, 'foo'))
+      const third = await tree.createBookmark(bookmark(rootId, 'url3', 'http://ex.com/three'))
+      await tree.createBookmark(bookmark(second, 'url4', 'http://ex.com/four'))
+      await tree.save()
+
+      const children = await query.getChildren(rootId)
+      expect(children.map((child) => String(child.id))).to.deep.equal(
+        [first, second, third].map(String)
+      )
+      expect(children.map((child) => child.type)).to.deep.equal(['bookmark', 'folder', 'bookmark'])
+
+      await tree.orderFolder(rootId, [
+        { type: 'bookmark', id: third },
+        { type: 'folder', id: second },
+        { type: 'bookmark', id: first },
+      ])
+      await tree.save()
+      expect((await query.getChildren(rootId)).map((child) => String(child.id))).to.deep.equal(
+        [third, second, first].map(String)
+      )
+    })
+
+    it('should count the tags below a folder, most used first', async function() {
+      const fooId = await tree.createFolder(folder(rootId, 'foo'))
+      const barId = await tree.createFolder(folder(fooId, 'bar'))
+      await tree.createBookmark(bookmark(fooId, 'url1', 'http://ex.com/one', ['common', 'rare']))
+      await tree.createBookmark(bookmark(barId, 'url2', 'http://ex.com/two', ['common']))
+      await tree.createBookmark(bookmark(rootId, 'url3', 'http://ex.com/three', ['elsewhere']))
+      await tree.save()
+
+      expect(await query.getTags(fooId)).to.deep.equal(['common', 'rare'])
+      expect(await query.getTags(null)).to.deep.equal(['common', 'elsewhere', 'rare'])
+    })
+
+    it('should find a bookmark by its url', async function() {
+      const bookmarkId = await tree.createBookmark(bookmark(rootId, 'url1', 'http://ex.com/one'))
+      await tree.save()
+
+      expect(String((await query.findBookmarkByUrl('http://ex.com/one')).id)).to.equal(String(bookmarkId))
+      expect(await query.findBookmarkByUrl('http://ex.com/nope')).to.equal(null)
+    })
+
+    it('should find folders and bookmarks by title, url and tags', async function() {
+      const fooId = await tree.createFolder(folder(rootId, 'holiday pictures'))
+      await tree.createBookmark(bookmark(rootId, 'Trip report', 'http://ex.com/holiday'))
+      await tree.createBookmark(bookmark(rootId, 'Something else', 'http://ex.com/other', ['holiday']))
+      await tree.createBookmark(bookmark(rootId, 'Unrelated', 'http://ex.com/unrelated'))
+      await tree.save()
+
+      const { folders, bookmarks } = await query.search('holiday')
+      expect(folders.map((f) => String(f.id))).to.deep.equal([String(fooId)])
+      expect(bookmarks.map((b) => b.title).sort()).to.deep.equal(['Something else', 'Trip report'])
+    })
+
+    it('should rank whole-word title matches first', async function() {
+      await tree.createBookmark(bookmark(rootId, 'Something about rusty nails', 'http://ex.com/nails'))
+      await tree.createBookmark(bookmark(rootId, 'The rust book', 'http://ex.com/book'))
+      await tree.createBookmark(bookmark(rootId, 'Trusty tools', 'http://ex.com/tools'))
+      await tree.save()
+
+      const { bookmarks } = await query.search('rust')
+      expect(bookmarks.map((b) => b.title)).to.deep.equal([
+        'The rust book', // 'rust' is a word of its own
+        'Something about rusty nails', // only part of a word
+        'Trusty tools',
+      ])
+    })
+
+    it('should require every term to match', async function() {
+      await tree.createBookmark(bookmark(rootId, 'red green', 'http://ex.com/one'))
+      await tree.createBookmark(bookmark(rootId, 'red only', 'http://ex.com/two'))
+      await tree.save()
+
+      const { bookmarks } = await query.search('red green')
+      expect(bookmarks.map((b) => b.title)).to.deep.equal(['red green'])
+    })
+
+    it('should ignore case beyond ASCII', async function() {
+      await tree.createBookmark(bookmark(rootId, 'Äpfel und Birnen', 'http://ex.com/one'))
+      await tree.save()
+
+      expect((await query.search('äpfel')).bookmarks).to.have.length(1)
+      expect((await query.search('ÄPFEL')).bookmarks).to.have.length(1)
+    })
+
+    it('should take LIKE wildcards as literal characters', async function() {
+      await tree.createBookmark(bookmark(rootId, '100% cotton', 'http://ex.com/one'))
+      await tree.createBookmark(bookmark(rootId, 'plain', 'http://ex.com/two'))
+      await tree.save()
+
+      expect((await query.search('100%')).bookmarks.map((b) => b.title)).to.deep.equal(['100% cotton'])
+      expect((await query.search('%')).bookmarks.map((b) => b.title)).to.deep.equal(['100% cotton'])
+    })
+
+    it('should search tags only for a #query, exact matches first', async function() {
+      await tree.createFolder(folder(rootId, 'holiday'))
+      await tree.createBookmark(bookmark(rootId, 'partially tagged', 'http://ex.com/one', ['holidays']))
+      await tree.createBookmark(bookmark(rootId, 'exactly tagged', 'http://ex.com/two', ['holiday']))
+      await tree.createBookmark(bookmark(rootId, 'holiday in the title', 'http://ex.com/three'))
+      await tree.save()
+
+      const { folders, bookmarks } = await query.search('#holiday')
+      expect(folders).to.deep.equal([])
+      expect(bookmarks.map((b) => b.title)).to.deep.equal(['exactly tagged', 'partially tagged'])
+    })
+
+    it('should keep the search up to date with edits', async function() {
+      const bookmarkId = await tree.createBookmark(bookmark(rootId, 'before', 'http://ex.com/one'))
+      await tree.save()
+      expect((await query.search('before')).bookmarks).to.have.length(1)
+
+      await tree.updateBookmark(new Bookmark({
+        id: bookmarkId,
+        parentId: rootId,
+        title: 'after',
+        url: 'http://ex.com/one',
+        location: ItemLocation.LOCAL,
+      }))
+      await tree.save()
+
+      expect((await query.search('before')).bookmarks).to.have.length(0)
+      expect((await query.search('after')).bookmarks).to.have.length(1)
+    })
+
+    it('should build the search index for rows that were stored without one', async function() {
+      const fooId = await tree.createFolder(folder(rootId, 'Ölberg'))
+      await tree.createBookmark(bookmark(fooId, 'Ölmühle', 'http://ex.com/one', ['Öl']))
+      await tree.save()
+
+      // What an installation that predates the search_text column looks like
+      await NativeDatabase.batch([
+        { statement: 'UPDATE folders SET search_text = NULL WHERE account_id = ?', values: [accountId] },
+        { statement: 'UPDATE bookmarks SET search_text = NULL WHERE account_id = ?', values: [accountId] },
+        { statement: 'UPDATE account_meta SET search_backfilled = 0 WHERE account_id = ?', values: [accountId] },
+      ])
+
+      const { folders, bookmarks } = await query.search('öl')
+      expect(folders.map((f) => f.title)).to.deep.equal(['Ölberg'])
+      expect(bookmarks.map((b) => b.title)).to.deep.equal(['Ölmühle'])
     })
   })
 

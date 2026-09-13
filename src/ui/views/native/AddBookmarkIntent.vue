@@ -95,17 +95,17 @@
       </v-card>
     </v-main>
     <DialogChooseFolder
-      v-if="tree"
+      v-if="folderTree"
       v-model="temporaryParent"
       :display.sync="displayFolderChooser"
-      :tree="tree" />
+      :folder-tree="folderTree" />
   </div>
 </template>
 
 <script>
 import { routes } from '../../NativeRouter'
 import { actions } from '../../store/definitions'
-import { Bookmark, ItemType } from '../../../lib/Tree'
+import { Bookmark } from '../../../lib/Tree'
 import DialogChooseFolder from '../../components/native/DialogChooseFolder'
 import { SendIntent } from 'send-intent'
 
@@ -132,6 +132,8 @@ export default {
       tags: [],
       temporaryParent: null,
       displayFolderChooser: false,
+      exists: false,
+      allTags: [],
     }
   },
   computed: {
@@ -153,33 +155,18 @@ export default {
     routes() {
       return routes
     },
-    tree() {
-      return this.$store.state.tree
+    folderTree() {
+      return this.$store.state.folderTree
     },
     parentTitle() {
       if (this.temporaryParent === null) {
         return ''
       }
-      const folder = this.tree.findFolder(this.temporaryParent)
+      const folder = this.folderTree.findFolder(this.temporaryParent)
       return folder ? folder.title || this.t('LabelUntitledfolder') : ''
-    },
-    exists() {
-      return !this.loading && this.tree && this.tree.findItemFilter(ItemType.BOOKMARK, (bm) => bm.url === this.url)
     },
     supportsTags() {
       return Boolean(this.$store.state.tagSupport[this.id])
-    },
-    allTags() {
-      if (!this.tree || !this.tree.index) {
-        return []
-      }
-      const tags = new Set()
-      for (const key in this.tree.index.bookmark) {
-        for (const tag of this.tree.index.bookmark[key].tags || []) {
-          tags.add(tag)
-        }
-      }
-      return [...tags].sort((tag1, tag2) => tag1.localeCompare(tag2))
     },
   },
   watch: {
@@ -188,32 +175,36 @@ export default {
       this.data = this.$store.state.accounts[this.id].data
     },
     id() {
-      this.$store.dispatch(actions.LOAD_TREE, this.id)
+      this.$store.dispatch(actions.LOAD_FOLDERS, this.id)
     },
-    url() {
+    async url() {
       this.urlError = this.checkUrl(this.url)
+      await this.checkExists()
     },
-    tree() {
-      const parentFolder = this.tree.findFolder(this.$store.state.lastFolders[this.id]) || this.tree.findFolder(this.tree.id)
+    async folderTree() {
+      const parentFolder = this.folderTree.findFolder(this.$store.state.lastFolders[this.id]) || this.folderTree.findFolder(this.folderTree.id)
       this.temporaryParent = parentFolder.id
+      await Promise.all([this.loadAllTags(), this.checkExists()])
     },
   },
   created() {
     if (!this.loading) {
       this.data = this.$store.state.accounts[this.id].data
     }
-    if (this.tree) {
-      const parentFolder = this.tree.findFolder(this.$store.state.lastFolders[this.id]) || this.tree.findFolder(this.tree.id)
+    if (this.folderTree) {
+      const parentFolder = this.folderTree.findFolder(this.$store.state.lastFolders[this.id]) || this.folderTree.findFolder(this.folderTree.id)
       this.temporaryParent = parentFolder.id
-      // The tree may still be the previous account's, so ask about this one
+      // The folders may still be the previous account's, so ask about this one
       this.$store.dispatch(actions.LOAD_TAG_SUPPORT, this.id)
+      this.loadAllTags()
+      this.checkExists()
     } else {
-      this.$store.dispatch(actions.LOAD_TREE, this.id)
+      this.$store.dispatch(actions.LOAD_FOLDERS, this.id)
     }
   },
   methods: {
     async onSave() {
-      if (!this.tree.findFolder(this.temporaryParent) || this.urlError) {
+      if (!this.folderTree.findFolder(this.temporaryParent) || this.urlError) {
         return
       }
       await this.$store.dispatch(actions.CREATE_BOOKMARK, {
@@ -233,6 +224,24 @@ export default {
     },
     onTriggerFolderChooser() {
       this.displayFolderChooser = true
+    },
+    async loadAllTags() {
+      const tags = await this.$store.dispatch(actions.LOAD_TAGS, {
+        accountId: this.id,
+        folderId: null,
+      })
+      this.allTags = tags.sort((tag1, tag2) => tag1.localeCompare(tag2))
+    },
+    async checkExists() {
+      const url = this.url
+      const found = await this.$store.dispatch(actions.FIND_BOOKMARK_BY_URL, {
+        accountId: this.id,
+        url,
+      })
+      // The field is editable while we're querying
+      if (url === this.url) {
+        this.exists = Boolean(found)
+      }
     },
     checkUrl(url) {
       try {

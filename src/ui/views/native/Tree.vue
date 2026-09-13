@@ -5,7 +5,7 @@
       fixed
       app>
       <v-app-bar-nav-icon
-        v-if="!tree || currentFolderId === tree.id"
+        v-if="!folderTree || currentFolderId === folderTree.id"
         class="mr-2 ml-n2"
         @click="drawer = !drawer" />
       <v-btn
@@ -34,7 +34,7 @@
       <v-text-field
         :value="searchQuery"
         :label="
-          !tree || currentFolderId === tree.id
+          !folderTree || currentFolderId === folderTree.id
             ? t('LabelSearch')
             : t('LabelSearchfolder', [currentFolder.title])
         "
@@ -176,7 +176,7 @@
       <v-card v-if="breadcrumbs.length > 1 || numAccounts > 1">
         <Breadcrumbs
           v-if="breadcrumbs.length > 1"
-          :tree="tree"
+          :folder-tree="folderTree"
           :items="breadcrumbs"
           @click="currentFolderId = $event" />
         <v-card-text v-else>
@@ -375,7 +375,7 @@
       v-if="isAddingBookmark"
       :is-new="true"
       :display.sync="isAddingBookmark"
-      :tree="tree"
+      :folder-tree="folderTree"
       :parent-folder="currentFolderId"
       :supports-tags="supportsTags"
       :tag-suggestions="allTags"
@@ -384,14 +384,14 @@
       v-if="isAddingFolder"
       :is-new="true"
       :display.sync="isAddingFolder"
-      :tree="tree"
+      :folder-tree="folderTree"
       :parent-folder="currentFolderId"
       @save="createFolder($event)" />
     <DialogEditBookmark
       v-if="isEditingBookmark"
       :is-new="false"
       :bookmark="currentlyEditedBookmark"
-      :tree="tree"
+      :folder-tree="folderTree"
       :display.sync="isEditingBookmark"
       :supports-tags="supportsTags"
       :tag-suggestions="allTags"
@@ -401,7 +401,7 @@
       :is-new="false"
       :folder="currentlyEditedFolder"
       :display.sync="isEditingFolder"
-      :tree="tree"
+      :folder-tree="folderTree"
       @save="editFolder($event)" />
     <DialogImportBookmarks
       v-if="isImportingBookmarks"
@@ -423,7 +423,6 @@ import sortBy from 'lodash/sortBy'
 import DialogImportBookmarks from '../../components/native/DialogImportBookmarks'
 import Breadcrumbs from '../../components/native/Breadcrumbs.vue'
 import Item from '../../components/native/Item.vue'
-import { yieldToEventLoop } from '../../../lib/yieldToEventLoop'
 
 export default {
   name: 'Tree',
@@ -456,10 +455,16 @@ export default {
       },
       sortBy: 'index',
       syncProgress: 0,
+      // The current folder's children, queried from the database rather than
+      // held in memory as part of a tree (see LOAD_CHILDREN)
+      children: [],
+      childrenRun: 0,
       otherSearchItems: [],
       searchItems: [],
       searching: false,
       searchRun: 0,
+      folderTags: [],
+      allTags: [],
     }
   },
   computed: {
@@ -471,14 +476,18 @@ export default {
         !this.$store.state.accounts[this.id] ||
         !this.$store.state.accounts[this.id].data ||
         !Object.keys(this.$store.state.accounts[this.id].data).length ||
-        !this.tree
+        !this.folderTree
       )
     },
     numAccounts() {
       return Object.keys(this.$store.state.accounts).length
     },
-    tree() {
-      return this.$store.state.tree
+    /**
+     * The account's folders, without any bookmarks in them. Everything else is
+     * queried per folder (#loadChildren) or per search (#runSearch).
+     */
+    folderTree() {
+      return this.$store.state.folderTree
     },
     syncing() {
       if (this.loading) {
@@ -502,12 +511,10 @@ export default {
       if (!this.currentFolder) {
         return []
       }
-      let items
       if (this.searchQuery) {
         return this.searchItems
-      } else {
-        items = this.currentFolder.children
       }
+      const items = this.children
       if (this.sortBy !== 'index') {
         return sortBy(items, [
           (item) => {
@@ -538,7 +545,7 @@ export default {
       return this.$store.state.accounts[this.id]
     },
     currentFolder() {
-      return this.findItem(this.currentFolderId, this.tree)
+      return this.findItem(this.currentFolderId, this.folderTree)
     },
     breadcrumbs() {
       return this.getFolderPath(this.currentFolder)
@@ -546,46 +553,15 @@ export default {
     supportsTags() {
       return Boolean(this.$store.state.tagSupport[this.id])
     },
-    /**
-     * Tags of everything below the current folder, most used first. The folder
-     * index covers the whole subtree, which is also what a '#tag' search from
-     * here looks through -- so every chip shown is guaranteed to find something.
-     */
-    folderTags() {
-      if (!this.currentFolder || !this.currentFolder.index) {
-        return []
-      }
-      const counts = new Map()
-      for (const key in this.currentFolder.index.bookmark) {
-        for (const tag of this.currentFolder.index.bookmark[key].tags || []) {
-          counts.set(tag, (counts.get(tag) || 0) + 1)
-        }
-      }
-      return [...counts.entries()]
-        .sort(([tag1, count1], [tag2, count2]) => count2 - count1 || tag1.localeCompare(tag2))
-        .map(([tag]) => tag)
-    },
     activeTag() {
       const query = (this.searchQuery || '').trim()
       return query.startsWith('#') ? query.slice(1).trim() : null
-    },
-    allTags() {
-      if (!this.tree || !this.tree.index) {
-        return []
-      }
-      const tags = new Set()
-      for (const key in this.tree.index.bookmark) {
-        for (const tag of this.tree.index.bookmark[key].tags || []) {
-          tags.add(tag)
-        }
-      }
-      return [...tags].sort((tag1, tag2) => tag1.localeCompare(tag2))
     },
   },
   watch: {
     async $route() {
       await this.$store.dispatch(
-        actions.LOAD_TREE,
+        actions.LOAD_FOLDERS,
         this.$route.params.accountId
       )
       this.sortBy = this.$store.state.accounts[this.id].data.sortBy || 'index'
@@ -601,7 +577,7 @@ export default {
       }
       if (!current) {
         await this.$store.dispatch(
-          actions.LOAD_TREE,
+          actions.LOAD_FOLDERS,
           this.$route.params.accountId
         )
       }
@@ -615,14 +591,22 @@ export default {
     async searchQuery() {
       await this.runSearch()
     },
-    async tree() {
-      // Search results hold items of the tree they were collected from, so a
-      // replaced tree (after an edit or a sync) leaves them stale -- and since
-      // `items` renders them verbatim while searching, the list would keep
-      // showing pre-edit titles and tags. Collect them again.
-      if (this.searchQuery) {
-        await this.runSearch()
-      }
+    async currentFolderId() {
+      await Promise.all([this.loadChildren(), this.loadFolderTags()])
+    },
+    /**
+     * A new folder tree means the database changed under us -- after an edit or
+     * a sync. Everything we queried from it is stale then: the children we
+     * render, the tag bar, and any search results, which hold items of the tree
+     * they were collected from.
+     */
+    async folderTree() {
+      await Promise.all([
+        this.loadChildren(),
+        this.loadFolderTags(),
+        this.loadAllTags(),
+        this.searchQuery ? this.runSearch() : Promise.resolve(),
+      ])
     },
     showSearch(showSearch, previous) {
       if (previous && !showSearch) {
@@ -632,11 +616,11 @@ export default {
     },
   },
   mounted() {
-    this.$store.dispatch(actions.LOAD_TREE, this.$route.params.accountId)
+    this.$store.dispatch(actions.LOAD_FOLDERS, this.$route.params.accountId)
     this.sortBy = this.$store.state.accounts[this.id].data.sortBy || 'index'
     App.addListener('resume', () =>
       this.$store.dispatch(
-        actions.LOAD_TREE_FROM_DISK,
+        actions.LOAD_FOLDERS_FROM_DISK,
         this.$route.params.accountId
       )
     )
@@ -645,15 +629,48 @@ export default {
     this.goBack()
   },
   methods: {
+    async loadChildren() {
+      // Navigating on while a query is still running would otherwise show the
+      // folder we just left
+      const run = ++this.childrenRun
+      const children = await this.$store.dispatch(actions.LOAD_CHILDREN, {
+        accountId: this.id,
+        folderId: this.currentFolderId,
+      })
+      if (run === this.childrenRun) {
+        this.children = children
+      }
+    },
+    /**
+     * Tags of everything below the current folder, most used first. That is
+     * also what a '#tag' search from here looks through, so every chip shown is
+     * guaranteed to find something.
+     */
+    async loadFolderTags() {
+      const run = this.childrenRun
+      const tags = await this.$store.dispatch(actions.LOAD_TAGS, {
+        accountId: this.id,
+        folderId: this.currentFolderId,
+      })
+      if (run === this.childrenRun) {
+        this.folderTags = tags
+      }
+    },
+    async loadAllTags() {
+      this.allTags = await this.$store.dispatch(actions.LOAD_TAGS, {
+        accountId: this.id,
+        folderId: null,
+      })
+    },
     getFolderPath(item) {
       const folders = [item]
       while (
-        this.tree &&
+        this.folderTree &&
         folders[folders.length - 1] &&
-        String(folders[folders.length - 1].id) !== String(this.tree.id)
+        String(folders[folders.length - 1].id) !== String(this.folderTree.id)
       ) {
         folders.push(
-          this.findItem(folders[folders.length - 1].parentId, this.tree)
+          this.findItem(folders[folders.length - 1].parentId, this.folderTree)
         )
       }
       return folders.reverse()
@@ -710,200 +727,33 @@ export default {
         this.searching = false
         return
       }
-      // The tree can be replaced while we're still collecting (a sync
-      // finishing, say). Each run owns its own arrays, so a superseded one
-      // keeps filling arrays nobody renders any more instead of interleaving
-      // its results into the current ones.
+      // The database can be written to while the query is still running (a
+      // sync finishing, say), and then a later run supersedes this one.
       const run = ++this.searchRun
-      const searchItems = []
-      const otherSearchItems = []
-      this.searchItems = searchItems
-      this.otherSearchItems = otherSearchItems
       this.searching = true
-      await yieldToEventLoop()
-      if (run !== this.searchRun) {
-        return
-      }
-      // Results are pushed into the arrays above as they are found, so they
-      // show up progressively rather than all at once at the end
-      await this.search(searchItems, query.toLowerCase(), this.currentFolder)
-      await this.search(
-        otherSearchItems,
-        query.toLowerCase(),
-        this.tree,
-        (item) => !searchItems.includes(item)
+      const { folders, bookmarks } = await this.$store.dispatch(
+        actions.SEARCH_ITEMS,
+        { accountId: this.id, query }
       )
       if (run !== this.searchRun) {
         return
       }
+      // Results below the folder we're in come first, the rest is offered
+      // separately below them. A folder's own index covers its whole subtree.
+      const subtree =
+        (this.currentFolder && this.currentFolder.index &&
+          this.currentFolder.index.folder) || {}
+      const isBelowCurrentFolder = (item) =>
+        item.type === 'folder' ? item.id in subtree : item.parentId in subtree
+      this.searchItems = [
+        ...folders.filter(isBelowCurrentFolder),
+        ...bookmarks.filter(isBelowCurrentFolder),
+      ]
+      this.otherSearchItems = [
+        ...folders.filter((item) => !isBelowCurrentFolder(item)),
+        ...bookmarks.filter((item) => !isBelowCurrentFolder(item)),
+      ]
       this.searching = false
-    },
-    async search(results, query, tree, filterFunction = (item) => true) {
-      // Refactored to use for loops instead of Object.values/filter
-      let iterations = 0
-      // A '#…' query looks for tags only -- folders can't carry tags, so they
-      // are out of the running entirely.
-      const tagQuery = query.startsWith('#') ? query.slice(1).trim() : null
-      if (tagQuery) {
-        return this.searchByTagQuery(results, tagQuery, tree, filterFunction)
-      }
-      const folderResults = results
-      for (const key in tree.index.folder) {
-        const item = tree.index.folder[key]
-        if (++iterations % 500 === 0) {
-          await yieldToEventLoop()
-        }
-        if (!filterFunction(item)) {
-          continue
-        }
-        let matchTitleFully = false
-        let matchTitlePartially = false
-        if (item.title) {
-          matchTitleFully = query.split(' ').every((term) =>
-            item.title
-              .toLowerCase()
-              .split(' ')
-              .some((word) => word === term)
-          )
-          matchTitlePartially = query
-            .split(' ')
-            .every((term) => item.title.toLowerCase().includes(term))
-        }
-        if (matchTitleFully || matchTitlePartially) {
-          folderResults.push(item)
-        }
-      }
-
-      // Sort folderResults by partial match, then by full match
-      folderResults.sort((a, b) => {
-        const matchTitlePartiallyA = a.title
-          ? query
-            .split(' ')
-            .every((term) => a.title.toLowerCase().includes(term))
-          : false
-        const matchTitlePartiallyB = b.title
-          ? query
-            .split(' ')
-            .every((term) => b.title.toLowerCase().includes(term))
-          : false
-        return matchTitlePartiallyA ? (matchTitlePartiallyB ? 0 : -1) : 1
-      })
-      folderResults.sort((a, b) => {
-        const matchTitleA = a.title
-          ? query.split(' ').every((term) =>
-            a.title
-              .toLowerCase()
-              .split(' ')
-              .some((word) => word === term)
-          )
-          : false
-        const matchTitleB = b.title
-          ? query.split(' ').every((term) =>
-            b.title
-              .toLowerCase()
-              .split(' ')
-              .some((word) => word === term)
-          )
-          : false
-        return matchTitleA ? (matchTitleB ? 0 : -1) : 1
-      })
-
-      const bookmarkResults = []
-      for (const key in tree.index.bookmark) {
-        const item = tree.index.bookmark[key]
-        if (++iterations % 1000 === 0) {
-          await yieldToEventLoop()
-        }
-        if (!filterFunction(item)) {
-          continue
-        }
-        let matchTitleFully = false
-        let matchTitlePartially = false
-        let matchUrl = false
-        let matchTags = false
-        if (item.title) {
-          matchTitleFully = query.split(' ').every((term) =>
-            item.title
-              .toLowerCase()
-              .split(' ')
-              .some((word) => word === term)
-          )
-          matchTitlePartially = query
-            .split(' ')
-            .every((term) => item.title.toLowerCase().includes(term))
-        }
-        if (item.url) {
-          matchUrl = query
-            .split(' ')
-            .every((term) => item.url.toLowerCase().includes(term))
-        }
-        if (item.tags && item.tags.length) {
-          const tags = item.tags.map((tag) => tag.toLowerCase())
-          matchTags = query
-            .split(' ')
-            .every((term) => tags.some((tag) => tag.includes(term)))
-        }
-        if (matchUrl || matchTitleFully || matchTitlePartially || matchTags) {
-          bookmarkResults.push(item)
-        }
-      }
-
-      // Sort bookmarkResults by partial match, then by full match
-      bookmarkResults.sort((a, b) => {
-        const matchTitlePartiallyA = a.title
-          ? query
-            .split(' ')
-            .every((term) => a.title.toLowerCase().includes(term))
-          : false
-        const matchTitlePartiallyB = b.title
-          ? query
-            .split(' ')
-            .every((term) => b.title.toLowerCase().includes(term))
-          : false
-        return matchTitlePartiallyA ? (matchTitlePartiallyB ? 0 : -1) : 1
-      })
-      bookmarkResults.sort((a, b) => {
-        const matchTitleA = a.title
-          ? query.split(' ').every((term) =>
-            a.title
-              .toLowerCase()
-              .split(' ')
-              .some((word) => word === term)
-          )
-          : false
-        const matchTitleB = b.title
-          ? query.split(' ').every((term) =>
-            b.title
-              .toLowerCase()
-              .split(' ')
-              .some((word) => word === term)
-          )
-          : false
-        return matchTitleA ? (matchTitleB ? 0 : -1) : 1
-      })
-
-      return results.push.apply(results, bookmarkResults)
-    },
-    async searchByTagQuery(results, tagQuery, tree, filterFunction) {
-      let iterations = 0
-      const exactMatches = []
-      const partialMatches = []
-      for (const key in tree.index.bookmark) {
-        const item = tree.index.bookmark[key]
-        if (++iterations % 1000 === 0) {
-          await yieldToEventLoop()
-        }
-        if (!filterFunction(item) || !item.tags || !item.tags.length) {
-          continue
-        }
-        const tags = item.tags.map((tag) => tag.toLowerCase())
-        if (tags.includes(tagQuery)) {
-          exactMatches.push(item)
-        } else if (tags.some((tag) => tag.includes(tagQuery))) {
-          partialMatches.push(item)
-        }
-      }
-      return results.push.apply(results, exactMatches.concat(partialMatches))
     },
     goBack() {
       if (this.isAddingBookmark) {

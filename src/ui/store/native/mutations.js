@@ -14,8 +14,8 @@ export const mutationsDefinition = {
   [mutations.REMOVE_ACCOUNT](state, id) {
     Vue.delete(state.accounts, id)
   },
-  [mutations.LOAD_TREE](state, tree) {
-    state.tree = tree
+  [mutations.LOAD_FOLDERS](state, folderTree) {
+    state.folderTree = folderTree
   },
   [mutations.SET_TAG_SUPPORT](state, {accountId, supportsTags}) {
     Vue.set(state.tagSupport, accountId, supportsTags)

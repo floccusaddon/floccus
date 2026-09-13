@@ -10,6 +10,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   private readonly accountId: string
   private readonly store: NativeTreeStore
   private loaded = false
+  private loading: Promise<boolean> | null = null
 
   constructor(storage:IAccountStorage) {
     super({})
@@ -18,6 +19,25 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
     this.accountId = this.storage.accountId
     this.store = new NativeTreeStore(this.accountId)
     this.resetCache()
+  }
+
+  /**
+   * Hydrate the tree unless that has already happened. The native UI browses
+   * the database directly (see NativeTreeQuery), so an account is regularly
+   * around without anyone ever needing its tree in memory -- hydrating it in
+   * NativeAccount.get() would mean reading every row of every account on
+   * startup for nothing.
+   */
+  private async ensureLoaded():Promise<void> {
+    if (this.loaded) {
+      return
+    }
+    if (!this.loading) {
+      this.loading = this.load().finally(() => {
+        this.loading = null
+      })
+    }
+    await this.loading
   }
 
   async load():Promise<boolean> {
@@ -102,6 +122,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   }
 
   async getBookmarksTree(): Promise<Folder<typeof ItemLocation.LOCAL>> {
+    await this.ensureLoaded()
     // copy(true): hand out the folder hashes as well, so that the sync doesn't
     // have to hash the subtrees that haven't changed since the last one
     const tree = this.bookmarksCache.copy(true) as Folder<typeof ItemLocation.LOCAL>
@@ -110,12 +131,14 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   }
 
   async createBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<string|number> {
+    await this.ensureLoaded()
     const id = await super.createBookmark(bookmark)
     await this.store.createBookmark(this.bookmarksCache.findBookmark(id) as Bookmark<typeof ItemLocation.LOCAL>, this.highestId)
     return id
   }
 
   async updateBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>):Promise<void> {
+    await this.ensureLoaded()
     // This is a quickfix so we can pass url and title as undefined in the benchmark tests
     const currentBookmark = this.bookmarksCache.findBookmark(bookmark.id)
     const nextBookmark = currentBookmark
@@ -155,22 +178,26 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   }
 
   async removeBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<void> {
+    await this.ensureLoaded()
     await super.removeBookmark(bookmark)
     await this.store.removeBookmark(bookmark)
   }
 
   async createFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<string|number> {
+    await this.ensureLoaded()
     const id = await super.createFolder(folder)
     await this.store.createFolder(this.bookmarksCache.findFolder(id) as Folder<typeof ItemLocation.LOCAL>, this.highestId)
     return id
   }
 
   async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>) :Promise<void> {
+    await this.ensureLoaded()
     await super.orderFolder(id, order)
     await this.store.orderFolder(this.bookmarksCache.findFolder(id) as Folder<typeof ItemLocation.LOCAL>)
   }
 
   async updateFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {
+    await this.ensureLoaded()
     const oldFolder = this.bookmarksCache.findFolder(folder.id)
     const oldParentId = oldFolder && oldFolder.parentId
 
@@ -181,6 +208,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   }
 
   async removeFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {
+    await this.ensureLoaded()
     // Collect the rows to delete while the subtree is still in the cache
     const oldFolder = this.bookmarksCache.findFolder(folder.id) as Folder<typeof ItemLocation.LOCAL>
     await super.removeFolder(folder)
@@ -192,6 +220,7 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
   }
 
   async bulkImportFolder(id: number|string, folder:Folder<typeof ItemLocation.LOCAL>):Promise<Folder<typeof ItemLocation.LOCAL>> {
+    await this.ensureLoaded()
     const oldFolder = this.bookmarksCache.findFolder(id)
     const oldChildren = (oldFolder ? oldFolder.children.slice() : []) as TItem<typeof ItemLocation.LOCAL>[]
 
