@@ -631,7 +631,7 @@ export class Folder<L extends TItemLocation> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new Folder({
-      ...this.toJSON(),
+      ...this.flattenProperties(),
       ...(!withHash && { hashValue: null }),
       children: this.children.map((child) => child.copy(withHash)),
     })
@@ -644,7 +644,7 @@ export class Folder<L extends TItemLocation> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new Folder({
-      ...this.toJSON(),
+      ...this.flattenProperties(),
       location,
       ...(!withHash && { hashValue: null }),
       children: this.children.map((child) =>
@@ -667,7 +667,7 @@ export class Folder<L extends TItemLocation> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new Folder({
-      ...this.toJSON(),
+      ...this.flattenProperties(),
       location,
       ...(!withHash && { hashValue: null }),
       children: this.children.map((child) => child.copy(withHash)) as unknown as TItem<L2>[],
@@ -700,24 +700,42 @@ export class Folder<L extends TItemLocation> {
     return newFolder
   }
 
-  toJSON(): Folder<L> {
-    // Flatten inherited properties for serialization
-    const result: Folder<L> = {} as any as Folder<L>
+  /**
+   * Own and inherited properties flattened into a plain object, without
+   * `index` (derived) and without `children` (every caller supplies its own).
+   *
+   * The prototype walk is what makes this more than Object.assign: clone()
+   * hands out folders whose properties live on their prototype
+   * (Object.create(this)), so a plain own-key copy would lose most of them.
+   *
+   * Keeping `children` out is the point of having this separate from toJSON():
+   * copy(), restampTree() and restampRoot() all replace the children anyway, and
+   * going through toJSON() had them serialize the whole subtree at every level
+   * only to throw it away -- O(items x depth) work, and the tree is copied
+   * several times per sync.
+   */
+  private flattenProperties(): any {
+    const result: any = {}
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let obj = this
     while (obj instanceof Folder) {
-      Object.entries(obj).forEach(([key, value]) => {
-        if (key === 'index') return
+      for (const key of Object.keys(obj)) {
+        if (key === 'index' || key === 'children') continue
         if (!(key in result)) {
-          if (key === 'children') {
-            value = value.map((child) => child.toJSON())
-          }
-          result[key] = value
+          result[key] = obj[key]
         }
-      })
+      }
       obj = Object.getPrototypeOf(obj)
     }
     return result
+  }
+
+  toJSON(): Folder<L> {
+    // Flatten inherited properties for serialization
+    return {
+      ...this.flattenProperties(),
+      children: this.children.map((child) => child.toJSON()),
+    } as any as Folder<L>
   }
 
   async toJSONAsync(): Promise<Folder<L>> {

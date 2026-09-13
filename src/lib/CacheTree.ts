@@ -75,6 +75,20 @@ export default class CacheTree extends CachingAdapter implements IResource<typeo
     this.setHighestId(maxNumericId(imported))
   }
 
+  /**
+   * A private copy of the cached tree for the caller to filter and serialize.
+   *
+   * Unlike getBookmarksTree() this builds no index: the callers (the cache
+   * persist in Account#sync) only walk children, and an index rebuild is a
+   * whole extra pass over the tree -- on every progress tick, for a tree that
+   * can hold every bookmark of the account. Folder#findFolder/#findBookmark
+   * fall back to a traversal when there is no index, so a caller that does need
+   * one can still ask for it with createIndex().
+   */
+  public snapshot(): Folder<typeof ItemLocation.LOCAL> {
+    return this.bookmarksCache.copy(true) as Folder<typeof ItemLocation.LOCAL>
+  }
+
   async getBookmarksTree(): Promise<Folder<typeof ItemLocation.LOCAL>> {
     const tree = this.bookmarksCache.copy(true) as Folder<typeof ItemLocation.LOCAL>
     tree.createIndex()

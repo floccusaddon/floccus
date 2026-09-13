@@ -122,7 +122,9 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
   }
 
   getCacheTree(): Promise<Folder<typeof ItemLocation.LOCAL>> {
-    return this.cacheTree.getBookmarksTree()
+    // A fresh copy the caller owns, so it can filter it in place before
+    // serializing it -- see CacheTree#snapshot for why it carries no index
+    return Promise.resolve(this.cacheTree.snapshot())
   }
 
   getCapabilities(): Promise<ICapabilities> {

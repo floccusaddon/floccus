@@ -35,7 +35,7 @@ AdapterFactory.register('dropbox', async() => (await import('./adapters/Dropbox'
 AdapterFactory.register('fake', async() => (await import('./adapters/Fake')).default)
 AdapterFactory.register(
   'fake-nc-bookmarks',
-  async () => (await import('./adapters/FakeNcBookmarks')).default
+  async() => (await import('./adapters/FakeNcBookmarks')).default
 )
 
 // 2h
@@ -371,8 +371,9 @@ export default class Account {
 
       // update cache
       Logger.log('Storing cache')
-      // clone(true): the folder hashes are stored along with the cache
-      const cache = (await this.localCachingResource.getCacheTree()).clone(true)
+      // getCacheTree() already hands out a copy of our own, hashes included --
+      // they are stored along with the cache
+      const cache = await this.localCachingResource.getCacheTree()
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
       await this.storage.setCache(await cache.toJSONAsync())
 
@@ -520,10 +521,15 @@ export default class Account {
       // (MappingFailureError -> reset+forceSync -> divergence). Mappings are already persisted at
       // the interrupt point; the cache must be kept in step with them.
       Logger.log('progressCallback: Persisting cache')
-      const cache = (await this.localCachingResource.getCacheTree()).clone(
-        true
-      )
+      // getCacheTree() already hands out a copy of our own (hashes included),
+      // so there is nothing here to guard against with another one
+      const cache = await this.localCachingResource.getCacheTree()
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
+      // setCache serializes synchronously, and that is on purpose here: this
+      // runs every 1.5s throughout the sync, and toJSONAsync costs a good 2x
+      // the CPU of toJSON for the same bytes (the per-node Parallel.map), which
+      // on a tick that repeats is the wrong trade -- it would take a bigger
+      // bite out of the interval and make the sync itself longer.
       await this.storage.setCache(cache)
       if (!this.server.isAtomic()) {
         Logger.log('progressCallback: Serializing continuation')
