@@ -960,6 +960,15 @@
   "LabelParentfolder": {
     "message": "主文件夹"
   },
+  "LabelTags": {
+    "message": "标签"
+  },
+  "DescriptionTags": {
+    "message": "输入标签并按 enter"
+  },
+  "LabelSearchbytag": {
+    "message": "搜索标签为 {0} 的书签"
+  },
   "LabelHome": {
     "message": "首页"
   },
