@@ -393,6 +393,23 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     return this.getIdPathFromLocalId(bm.parentId, path)
   }
 
+  /**
+   * Whether this local bookmark folder is (still) around. Bookmark ids are only
+   * meaningful within one browser profile, so this is also how we tell that a
+   * profile imported from another device has nothing to sync into, yet.
+   */
+  static async folderExists(localId:string|null):Promise<boolean> {
+    if (!localId) {
+      return false
+    }
+    try {
+      await browser.bookmarks.get(localId)
+      return true
+    } catch (e) {
+      return false
+    }
+  }
+
   static async getAbsoluteRootFolder() {
     if (!absoluteRoot) {
       try {

@@ -1,6 +1,5 @@
 import BrowserAccountStorage from './BrowserAccountStorage'
 import BrowserTree from './BrowserTree'
-import browser from '../browser-api'
 import AdapterFactory from '../AdapterFactory'
 import Account from '../Account'
 import {
@@ -8,7 +7,7 @@ import {
   CreateBookmarkError,
   FloccusError, GitPushError,
   HttpError,
-  InconsistentBookmarksExistenceError, InvalidUrlError, LockFileError,
+  InconsistentBookmarksExistenceError, InvalidUrlError, LocalFolderNotFoundError, LockFileError,
   MissingItemOrderError,
   ParseResponseError, ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, UnexpectedFolderPathError,
   UnexpectedServerFolder,
@@ -44,15 +43,13 @@ export default class BrowserAccount extends Account {
     console.log('initializing account ' + this.id)
     const accData = this.getData()
     if (!(await this.isInitialized()) && accData.localRoot !== 'tabs') {
-      const parentNode = await BrowserTree.getAbsoluteRootFolder()
-      const bookmarksBar = (await browser.bookmarks.getChildren(parentNode.id))[0]
-      const node = await browser.bookmarks.create({
-        title: 'Floccus (' + this.getLabel() + ')',
-        parentId: bookmarksBar.id,
-      })
-      accData.localRoot = node.id
-      accData.rootPath = await BrowserTree.getPathFromLocalId(node.id)
-      await this.setData(accData)
+      // The local folder this profile syncs is gone: it was deleted, or the
+      // profile was imported from another device, where bookmark ids mean
+      // something else entirely. We used to quietly create a replacement folder
+      // on the bookmarks bar and sync into that, which is rarely what people
+      // expect -- they want the bookmarks where they put them. Ask for a folder
+      // instead of guessing one.
+      throw new LocalFolderNotFoundError()
     }
     await this.setData({rootPath: await BrowserTree.getPathFromLocalId(accData.localRoot)})
     await this.storage.initMappings()
@@ -61,17 +58,15 @@ export default class BrowserAccount extends Account {
   }
 
   async isInitialized():Promise<boolean> {
-    try {
-      const localRoot = this.getData().localRoot
-      if (localRoot === 'tabs') {
-        return true
-      }
-      await browser.bookmarks.get(localRoot)
+    const localRoot = this.getData().localRoot
+    if (localRoot === 'tabs') {
       return true
-    } catch (e) {
-      console.log('Apparently not initialized, because:', e)
-      return false
     }
+    const exists = await BrowserTree.folderExists(localRoot)
+    if (!exists) {
+      console.log('Apparently not initialized, because local folder ' + localRoot + ' does not exist')
+    }
+    return exists
   }
 
   async getResource():Promise<OrderFolderResource<typeof ItemLocation.LOCAL>> {

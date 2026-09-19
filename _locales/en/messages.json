@@ -111,7 +111,7 @@
     "message": "E037: Resource is locked"
   },
   "Error038": {
-    "message": "E038: Could not find local folder"
+    "message": "E038: Could not find the local folder of this profile. Please pick a folder to sync in the profile's settings."
   },
   "Error039": {
     "message": "E039: Failed to update the following bookmark on the server: {0}"
@@ -277,6 +277,9 @@
   },
   "DescriptionImportauthorizationneeded": {
     "message": "Successfully imported profile(s). Logins cannot be transferred between devices, so profiles syncing via Google Drive or Dropbox need you to log in again before they can sync."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "Successfully imported profile(s). Bookmark folders cannot be identified across devices, so please pick the local folder you would like this profile to sync."
   },
   "LabelReset": {
     "message": "Reset"

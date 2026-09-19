@@ -16,6 +16,7 @@ import { isOAuthAccount } from './AccountAuthorization'
 import {
   ClientsideAdditionFailsafeError, ClientsideDeletionFailsafeError, FloccusError,
   InterruptedSyncError,
+  LocalFolderNotFoundError,
   NetworkError,
   ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, TransientError,
   UnexpectedFolderPathError
@@ -43,6 +44,24 @@ const LOCK_TIMEOUT = 1000 * 60 * 60 * 2
 
 const dataLock = new AsyncLock()
 const accountLock = new AsyncLock()
+
+/**
+ * The bookkeeping of one running installation: where the last sync got to, and
+ * how it went. None of it means anything in a different profile, and carrying it
+ * over breaks the imported profile in ways that are hard to see -- a stale
+ * `error` keeps the scheduler from ever picking the profile up, a `syncing` flag
+ * left over from an export taken mid-sync makes sync() bail out every time, and
+ * an old `lastSync` immediately flags the profile as out of date.
+ */
+const VOLATILE_ACCOUNT_DATA = ['syncing', 'scheduled', 'error', 'isTransientError', 'errorCount', 'lastSync', 'lastAttempt'] as const
+
+function stripVolatileData(data: IAccountData): IAccountData {
+  const cleanData = {...data}
+  for (const key of VOLATILE_ACCOUNT_DATA) {
+    delete cleanData[key]
+  }
+  return cleanData
+}
 
 export default class Account {
   static cache = {}
@@ -80,14 +99,11 @@ export default class Account {
     const ids = []
     for (const accountData of accounts) {
       const account = await this.create({
-        ...accountData,
+        ...stripVolatileData(accountData),
         // OAuth refresh tokens are bound to the client_id that issued them, which
         // differs between the browser extension and the mobile app, so an imported
         // token would only ever yield E018. Make the user log in again instead.
         ...(isOAuthAccount(accountData) && {refreshToken: null}),
-        enabled: false,
-        syncIntervalEnabled: false,
-        syncOnStartupEnabled: false
       })
       ids.push(account.id)
     }
@@ -97,7 +113,7 @@ export default class Account {
   static async export(accountIds:string[]):Promise<IAccountData[]> {
     return (await Promise.all(
       accountIds.map(id => Account.get(id))
-    )).map(a => a.getData())
+    )).map(a => stripVolatileData(a.getData()))
       // Don't write OAuth refresh tokens into a file that people hand around and
       // attach to bug reports: they are live credentials and importing them is a
       // no-op anyway, since they're only valid for the platform that issued them.
@@ -426,12 +442,15 @@ export default class Account {
       // Catch MappingFailureError and gracefully resume with reset cache
       if (matchAllErrors(e, e => e.code === 48)) {
         Logger.log('Caught MappingFailureError: Gracefully resuming with reset cache and forceSync:true')
-        await this.init()
-        await this.storage.setCurrentContinuation(null)
+        // Clear the syncing flag first: init() can fail (e.g. when the local
+        // folder went away mid-sync) and a profile that is stuck on syncing:true
+        // never syncs again.
         this.syncProcess = null
         this.localCachingResource = null
         await this.setData({ syncing: false })
         this.syncing = false
+        await this.init()
+        await this.storage.setCurrentContinuation(null)
         return this.sync(strategy, true)
       }
 
@@ -464,6 +483,9 @@ export default class Account {
       if (matchAllErrors(e, e => ![
         new InterruptedSyncError().code,
         new NetworkError().code,
+        // Don't throw away cache and mappings over a folder that may well come
+        // back -- and init() would only throw this same error again anyway.
+        new LocalFolderNotFoundError().code,
         new ServersideAdditionFailsafeError(0).code,
         new ServersideDeletionFailsafeError(0).code,
         new ClientsideAdditionFailsafeError(0).code,
