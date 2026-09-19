@@ -101,7 +101,7 @@ jobs:
       # do not stop on another job's failure
       fail-fast: false
       matrix:
-        server-version: ['32']
+        server-version: ['35']
         app-version: ['stable']
         floccus-adapter:
           - fake
