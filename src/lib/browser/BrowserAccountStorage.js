@@ -5,12 +5,15 @@ import Mappings from '../Mappings'
 import { Folder, ItemLocation } from '../Tree'
 import AsyncLock from 'async-lock'
 import Logger from '../Logger'
+import BrowserContinuationStore from './BrowserContinuationStore'
+import { continuationUpdateToJSON } from '../Continuation'
 
 const storageLock = new AsyncLock()
 
 export default class BrowserAccountStorage {
   constructor(id) {
     this.accountId = id
+    this.continuationStore = new BrowserContinuationStore(id)
   }
 
   static async setEntry(entryName, value) {
@@ -125,6 +128,7 @@ export default class BrowserAccountStorage {
     })
     await this.deleteCache()
     await this.deleteMappings()
+    await this.setCurrentContinuation(null)
   }
 
   async initCache() {
@@ -197,13 +201,54 @@ export default class BrowserAccountStorage {
     )
   }
 
+  /**
+   * Continuations are stored as rows, one per action of the sync plan, so that a
+   * progress tick only writes what has changed since the last one instead of the
+   * whole plan -- see Continuation.ts. Only if IndexedDB can't be had do we fall
+   * back to the blob in extension storage that this used to be.
+   */
+  async canPersistContinuationIncrementally() {
+    if (typeof this.continuationIncremental === 'undefined') {
+      this.continuationIncremental = await BrowserContinuationStore.isAvailable()
+    }
+    return this.continuationIncremental
+  }
+
   async getCurrentContinuation() {
+    if (await this.canPersistContinuationIncrementally()) {
+      const stored = await this.continuationStore.load()
+      if (stored) {
+        return stored
+      }
+    }
+    // A continuation written before this account was moved to row storage, or
+    // by a version of floccus that didn't have it yet
     return BrowserAccountStorage.getEntry(
       `bookmarks[${this.accountId}].continuation`
     )
   }
 
+  async updateCurrentContinuation(update) {
+    if (!(await this.canPersistContinuationIncrementally())) {
+      // The update was built as a full one for exactly this case
+      await this.setCurrentContinuation(continuationUpdateToJSON(update))
+      return
+    }
+    await this.continuationStore.update(update)
+    if (!this.legacyContinuationCleared) {
+      // So that a blob from before the row storage can't outlive the rows and
+      // be resumed after they were cleared
+      await BrowserAccountStorage.deleteEntry(
+        `bookmarks[${this.accountId}].continuation`
+      )
+      this.legacyContinuationCleared = true
+    }
+  }
+
   async setCurrentContinuation(continuation) {
+    if (await this.canPersistContinuationIncrementally()) {
+      await this.continuationStore.clear()
+    }
     await BrowserAccountStorage.setEntry(
       `bookmarks[${this.accountId}].continuation`,
       // Clearing has to store null, not { createdAt }: Account#sync takes any

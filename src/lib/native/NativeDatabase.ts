@@ -19,6 +19,11 @@ const DB_VERSION = 1
  * with -- they are negotiated per sync, and a hash computed with different
  * settings is simply ignored.
  *
+ * A pending sync continuation lives in here as well: one row per action of the
+ * sync plan (continuation_actions), plus a single row holding the rest of it
+ * (continuations), so that a progress tick only writes the actions that were
+ * executed since the last one -- see Continuation.ts.
+ *
  * `search_text` is what the native UI's search runs its LIKE against. It holds
  * the item's title (and, for bookmarks, its url and tags) lowercased in JS:
  * SQLite's own lower()/LIKE only fold ASCII, so searching for 'apfel' would
@@ -58,6 +63,19 @@ CREATE TABLE IF NOT EXISTS bookmarks (
   PRIMARY KEY (account_id, id)
 );
 CREATE INDEX IF NOT EXISTS bookmarks_by_parent ON bookmarks (account_id, parent_id, position);
+CREATE TABLE IF NOT EXISTS continuations (
+  account_id TEXT PRIMARY KEY NOT NULL,
+  strategy TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  structure TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS continuation_actions (
+  account_id TEXT NOT NULL,
+  diff_id TEXT NOT NULL,
+  seq INTEGER NOT NULL,
+  action TEXT NOT NULL,
+  PRIMARY KEY (account_id, diff_id, seq)
+);
 CREATE TABLE IF NOT EXISTS mappings (
   account_id TEXT NOT NULL,
   type TEXT NOT NULL,

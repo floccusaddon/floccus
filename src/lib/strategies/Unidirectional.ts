@@ -509,6 +509,10 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     )
   }
 
+  protected getStrategyName(): ISerializedSyncProcess['strategy'] {
+    return 'unidirectional'
+  }
+
   async toJSONAsync(): Promise<ISerializedSyncProcess> {
     if (!this.staticContinuation) {
       this.staticContinuation = {

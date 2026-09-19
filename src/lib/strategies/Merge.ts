@@ -375,4 +375,8 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
       strategy: 'merge',
     }
   }
+
+  protected getStrategyName(): ISerializedSyncProcess['strategy'] {
+    return 'merge'
+  }
 }

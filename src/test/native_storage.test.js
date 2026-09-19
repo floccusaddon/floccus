@@ -5,6 +5,8 @@ import NativeTree from '../lib/native/NativeTree'
 import NativeAccountStorage from '../lib/native/NativeAccountStorage'
 import NativeTreeQuery, { formatSearchToken, parseSearchQuery } from '../lib/native/NativeTreeQuery'
 import NativeDatabase from '../lib/native/NativeDatabase'
+import DefaultSyncProcess from '../lib/strategies/Default'
+import Diff from '../lib/Diff'
 
 function accountStorageStub(accountId) {
   return { accountId }
@@ -93,6 +95,241 @@ describe('NativeAccountStorage continuation', function() {
     // Account#sync takes any non-null entry for a continuation and hands it to
     // fromJSON, so a cleared one must not come back as a bare { createdAt }
     expect(await storage.getCurrentContinuation()).to.equal(null)
+  })
+})
+
+describe('NativeAccountStorage incremental continuations', function() {
+  this.timeout(20000)
+
+  let accountId, storage, syncProcess
+
+  function bookmark(id) {
+    return new Bookmark({
+      id,
+      parentId: 1,
+      title: 'Bookmark ' + id,
+      url: 'http://example.com/' + id,
+      location: ItemLocation.LOCAL,
+    })
+  }
+
+  function emptyPlan() {
+    return {
+      CREATE: new Diff(),
+      UPDATE: new Diff(),
+      MOVE: new Diff(),
+      REMOVE: new Diff(),
+      REORDER: new Diff(),
+    }
+  }
+
+  function creation(id) {
+    return { type: 'CREATE', payload: bookmark(id) }
+  }
+
+  async function persist() {
+    const update = await syncProcess.toContinuationUpdateAsync()
+    await storage.updateCurrentContinuation(update)
+    syncProcess.markContinuationPersisted(update)
+    return update
+  }
+
+  function diffUpdate(update, diff) {
+    return update.diffs.find((entry) => entry.id === diff.id)
+  }
+
+  function storedIds(actions) {
+    return actions.map((action) => action.payload.id)
+  }
+
+  async function countRows() {
+    const [row] = await NativeDatabase.query(
+      'SELECT COUNT(*) AS count FROM continuation_actions WHERE account_id = ?',
+      [accountId]
+    )
+    return Number(row.count)
+  }
+
+  beforeEach('set up an account storage and a sync process', async function() {
+    accountId = newAccountId()
+    storage = new NativeAccountStorage(accountId)
+    // The strategy is only used as a bag of members here -- nothing is synced
+    syncProcess = new DefaultSyncProcess(null, null, null, async() => undefined)
+  })
+
+  afterEach('drop the continuation', async function() {
+    await storage.setCurrentContinuation(null)
+    await NativeAccountStorage.deleteEntry(`bookmarks[${accountId}].continuation`)
+  })
+
+  it('should hand back the actions it stored', async function() {
+    const scanResult = emptyPlan()
+    scanResult.CREATE.commit(creation(1))
+    scanResult.CREATE.commit(creation(2))
+    scanResult.REMOVE.commit({ type: 'REMOVE', payload: bookmark(3) })
+    syncProcess.localScanResult = scanResult
+
+    await persist()
+
+    const stored = await storage.getCurrentContinuation()
+    expect(stored.strategy).to.equal('default')
+    expect(stored.createdAt).to.be.a('number')
+    expect(storedIds(stored.localScanResult.CREATE)).to.deep.equal([1, 2])
+    expect(storedIds(stored.localScanResult.REMOVE)).to.deep.equal([3])
+    expect(stored.localScanResult.UPDATE).to.deep.equal([])
+    // Members that hadn't been computed at this point stay null, so that a
+    // resumed sync recomputes them instead of reading .CREATE off nothing
+    expect(stored.serverPlanStage2).to.equal(null)
+    // The trees are deliberately not part of a continuation
+    expect(stored.localTreeRoot).to.equal(null)
+  })
+
+  it('should only write the actions that changed since the last persist', async function() {
+    const scanResult = emptyPlan()
+    const first = creation(1)
+    scanResult.CREATE.commit(first)
+    scanResult.CREATE.commit(creation(2))
+    syncProcess.localScanResult = scanResult
+
+    const initial = await persist()
+    expect(diffUpdate(initial, scanResult.CREATE).added).to.have.length(2)
+
+    // Nothing happened since
+    const unchanged = await persist()
+    expect(diffUpdate(unchanged, scanResult.CREATE)).to.equal(undefined)
+
+    // What an executed action does: out of the plan, into the done plan
+    const [committed] = scanResult.CREATE.getActions()
+    scanResult.CREATE.retract(committed)
+    scanResult.CREATE.commit(creation(3))
+
+    const delta = await persist()
+    const diff = diffUpdate(delta, scanResult.CREATE)
+    expect(storedIds(diff.added.map(({ action }) => action))).to.deep.equal([3])
+    expect(diff.removed).to.have.length(1)
+
+    const stored = await storage.getCurrentContinuation()
+    expect(storedIds(stored.localScanResult.CREATE)).to.deep.equal([2, 3])
+    expect(await countRows()).to.equal(2)
+  })
+
+  it('should notice an action that was changed in place', async function() {
+    const reorders = new Diff()
+    const action = {
+      type: 'REORDER',
+      payload: bookmark(1),
+      order: [{ type: 'bookmark', id: 5 }, { type: 'bookmark', id: 6 }],
+    }
+    reorders.commit(action)
+    syncProcess.localReorders = reorders
+
+    await persist()
+
+    // Default#removeItemFromReorders rewrites the order of an action that stays
+    // in its diff, which commit()/retract() can't know about
+    const [stored] = reorders.getActions()
+    stored.order = stored.order.filter((item) => item.id !== 6)
+    reorders.markChanged(stored)
+
+    const update = await persist()
+    expect(diffUpdate(update, reorders).added).to.have.length(1)
+
+    const loaded = await storage.getCurrentContinuation()
+    expect(loaded.localReorders[0].order).to.deep.equal([{ type: 'bookmark', id: 5 }])
+  })
+
+  it('should drop the rows of members it no longer persists', async function() {
+    const scanResult = emptyPlan()
+    scanResult.CREATE.commit(creation(1))
+    syncProcess.localScanResult = scanResult
+
+    await persist()
+    expect(await countRows()).to.equal(1)
+
+    // Once both stage 3 plans exist, the scan results are no longer persisted
+    syncProcess.planStage3Local = emptyPlan()
+    syncProcess.planStage3Server = emptyPlan()
+    await persist()
+
+    const stored = await storage.getCurrentContinuation()
+    expect('localScanResult' in stored).to.equal(false)
+    expect(await countRows()).to.equal(0)
+  })
+
+  it('should store a diff shared by two members once and restore both', async function() {
+    const plan = emptyPlan()
+    plan.CREATE.commit(creation(1))
+    // planStage3Local is built from the very same diffs as localPlanStage2
+    syncProcess.localPlanStage2 = plan
+    syncProcess.planStage3Local = { ...plan }
+    syncProcess.actionsPlanned = 5
+
+    const update = await persist()
+    expect(update.diffIds).to.have.length(5)
+    expect(await countRows()).to.equal(1)
+
+    const stored = await storage.getCurrentContinuation()
+    expect(storedIds(stored.localPlanStage2.CREATE)).to.deep.equal([1])
+    expect(storedIds(stored.planStage3Local.CREATE)).to.deep.equal([1])
+    // Diff.fromJSON hydrates the actions in place, so each member needs its own
+    expect(stored.localPlanStage2.CREATE[0]).to.not.equal(stored.planStage3Local.CREATE[0])
+  })
+
+  it('should not adopt the rows of the run before it', async function() {
+    const previous = emptyPlan()
+    previous.CREATE.commit(creation(1))
+    previous.CREATE.commit(creation(2))
+    previous.CREATE.commit(creation(3))
+    syncProcess.localScanResult = previous
+    await persist()
+    expect(await countRows()).to.equal(3)
+
+    // What resuming after a restart looks like: a fresh sync process, with
+    // diffs of its own, persisting over the rows the interrupted run left --
+    // here with fewer actions in them, because some have since been executed
+    syncProcess = new DefaultSyncProcess(null, null, null, async() => undefined)
+    const resumed = emptyPlan()
+    resumed.CREATE.commit(creation(1))
+    syncProcess.localScanResult = resumed
+    await persist()
+
+    const stored = await storage.getCurrentContinuation()
+    expect(storedIds(stored.localScanResult.CREATE)).to.deep.equal([1])
+    expect(await countRows()).to.equal(1)
+  })
+
+  it('should resume a continuation that was stored as a blob', async function() {
+    // What a sync that was interrupted before the update to row storage left
+    await NativeAccountStorage.setEntry(`bookmarks[${accountId}].continuation`, {
+      strategy: 'default',
+      createdAt: Date.now(),
+      actionsPlanned: 7,
+    })
+
+    const legacy = await storage.getCurrentContinuation()
+    expect(legacy.actionsPlanned).to.equal(7)
+
+    // ... and it doesn't outlive the rows that replace it
+    syncProcess.localScanResult = emptyPlan()
+    await persist()
+
+    const stored = await storage.getCurrentContinuation()
+    expect(stored.actionsPlanned).to.equal(undefined)
+    expect(
+      await NativeAccountStorage.getEntry(`bookmarks[${accountId}].continuation`)
+    ).to.equal(undefined)
+  })
+
+  it('should clear the rows when the continuation is cleared', async function() {
+    const scanResult = emptyPlan()
+    scanResult.CREATE.commit(creation(1))
+    syncProcess.localScanResult = scanResult
+    await persist()
+
+    await storage.setCurrentContinuation(null)
+
+    expect(await storage.getCurrentContinuation()).to.equal(null)
+    expect(await countRows()).to.equal(0)
   })
 })
 

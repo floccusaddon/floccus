@@ -1,6 +1,7 @@
 import Mappings from '../Mappings'
 import { Folder, ItemLocation } from '../Tree'
 import { ISerializedSyncProcess } from '../strategies/Default'
+import { IContinuationUpdate } from '../Continuation'
 
 export type TAccountStrategy = 'default' | 'overwrite' | 'slave'
 
@@ -39,4 +40,7 @@ export default interface IAccountStorage {
   deleteMappings(): Promise<void>;
   getCurrentContinuation(): Promise<ISerializedSyncProcess|null>;
   setCurrentContinuation(continuation: ISerializedSyncProcess|null): Promise<void>;
+  /** Whether updates may carry only what changed since the last persist */
+  canPersistContinuationIncrementally(): Promise<boolean>;
+  updateCurrentContinuation(update: IContinuationUpdate): Promise<void>;
 }

@@ -34,6 +34,7 @@ import {
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 import { yieldToEventLoop } from '../yieldToEventLoop'
 import { isTest } from '../isTest'
+import type { IContinuationDiffUpdate, IContinuationUpdate, TContinuationMember } from '../Continuation'
 
 // Tests have to be reproducible
 export const ACTION_CONCURRENCY = isTest ? 1 : 5
@@ -87,6 +88,8 @@ export default class SyncProcess {
   protected isFirefox: boolean
 
   protected staticContinuation: any = null
+  /** The diffs the last continuation update was built from, by diff id */
+  private continuationDiffs: Map<string, Diff<TItemLocation, TItemLocation, Action<TItemLocation, TItemLocation>>> = new Map()
 
   // The location that has precedence in case of conflicts
   protected masterLocation: TItemLocation
@@ -1960,6 +1963,9 @@ export default class SyncProcess {
       return
     }
     parentReorder.order = parentReorder.order.filter(item => !(item.type === oldItem.type && String(Mappings.mapId(mappingsSnapshot, oldItem, parentReorder.payload.location)) === String(item.id)))
+    // The action stays in the diff, so the continuation store has no other way
+    // of knowing that its row is stale now
+    sourceReorders.markChanged(parentReorder)
   }
 
   async toJSONAsync(): Promise<ISerializedSyncProcess> {
@@ -2033,6 +2039,85 @@ export default class SyncProcess {
         )
       )
       ),
+    }
+  }
+
+  /** The name this strategy is persisted and restored under */
+  protected getStrategyName(): ISerializedSyncProcess['strategy'] {
+    return 'default'
+  }
+
+  /**
+   * What the continuation store has to write to catch up with this sync process.
+   *
+   * Unlike toJSONAsync() this doesn't serialize the whole process: the actions
+   * live in the store as rows, and all that is handed over here are the ones
+   * that changed since the last persist -- during execution that is the couple
+   * of actions that moved from their plan to the done plan, instead of every
+   * action of the sync. See Continuation.ts.
+   *
+   * `full` gives every action of every member, for a store that can't apply
+   * changes incrementally.
+   */
+  async toContinuationUpdateAsync({ full = false }: { full?: boolean } = {}): Promise<IContinuationUpdate> {
+    if (!this.staticContinuation) {
+      this.staticContinuation = {
+        // Do not store these as the continuation size can get huge otherwise
+        localTreeRoot: null,
+        cacheTreeRoot: null,
+        serverTreeRoot: null,
+      }
+    }
+    const diffs: IContinuationDiffUpdate[] = []
+    this.continuationDiffs = new Map()
+
+    const collect = async(value: any): Promise<TContinuationMember> => {
+      if (value === null || typeof value === 'undefined') {
+        return { kind: 'null' }
+      }
+      if (value instanceof Diff) {
+        // Diffs are shared between members -- planStage3Server.CREATE is the
+        // very same diff as serverPlanStage2.CREATE -- so their rows are keyed
+        // by the diff, and each one is only collected once
+        if (!this.continuationDiffs.has(value.id)) {
+          this.continuationDiffs.set(value.id, value)
+          diffs.push(await value.getPendingChangesAsync(full))
+        }
+        return { kind: 'diff', diff: value.id }
+      }
+      if (value.CREATE && value.REMOVE && value.UPDATE && value.MOVE && value.REORDER) {
+        // property holds a Plan
+        const slots: Record<string, TContinuationMember> = {}
+        for (const [slot, diff] of Object.entries(value)) {
+          slots[slot] = await collect(diff)
+        }
+        return { kind: 'plan', slots }
+      }
+      return { kind: 'value', value }
+    }
+
+    const members: Record<string, TContinuationMember> = {}
+    for (const key of this.getMembersToPersist()) {
+      members[key] = await collect(this[key])
+    }
+
+    return {
+      strategy: this.getStrategyName(),
+      meta: { ...this.staticContinuation },
+      members,
+      diffs: diffs.filter(diff => diff.replace || diff.added.length || diff.removed.length),
+      diffIds: [...this.continuationDiffs.keys()],
+    }
+  }
+
+  /**
+   * Take note that the store has written this update, so that the next one only
+   * carries what changed after it. Only to be called once the write went
+   * through -- what isn't acknowledged here is simply written again.
+   */
+  markContinuationPersisted(update: IContinuationUpdate): void {
+    for (const diff of update.diffs) {
+      this.continuationDiffs.get(diff.id)?.markPersisted(diff)
     }
   }
 
