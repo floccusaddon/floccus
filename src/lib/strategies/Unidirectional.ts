@@ -87,6 +87,59 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     }
   }
 
+  /**
+   * Forget the mappings of slave items that don't exist any more.
+   *
+   * The slave side is overwritten from the master here, so a mapping whose
+   * slave item is gone (it was deleted between syncs) has nothing left to say
+   * -- but it still claims the master item as taken, and that claim outlives
+   * the item: Scanner#addMapping's callers refuse to bind a master item that
+   * already maps elsewhere (Mappings#wouldEvictUnrelatedMapping), so when the
+   * item is re-created here -- in a bulk import, whose sub scanner is what
+   * records the mappings of everything it imported -- the re-created item
+   * stays unmapped and the dangling mapping survives. Anything that maps into
+   * the slave afterwards then aims at the deleted item: a MOVE into it fails
+   * the whole sync with 'Folder to move into doesn't exist'.
+   */
+  async dropMappingsOfVanishedSlaveItems(): Promise<void> {
+    const slaveTree =
+      this.direction === ItemLocation.SERVER
+        ? this.serverTreeRoot
+        : this.localTreeRoot
+    const slaveIsLocal = this.direction === ItemLocation.LOCAL
+    const snapshot = this.mappings.getSnapshot()
+    const slaveToMaster = slaveIsLocal
+      ? snapshot.LocalToServer
+      : snapshot.ServerToLocal
+
+    let dropped = 0
+    for (const [slaveId, masterId] of Object.entries(slaveToMaster.folder)) {
+      if (slaveTree.findFolder(slaveId)) {
+        continue
+      }
+      dropped++
+      await this.mappings.removeFolder(
+        slaveIsLocal
+          ? { localId: slaveId, remoteId: masterId }
+          : { localId: masterId, remoteId: slaveId }
+      )
+    }
+    for (const [slaveId, masterId] of Object.entries(slaveToMaster.bookmark)) {
+      if (slaveTree.findBookmark(slaveId)) {
+        continue
+      }
+      dropped++
+      await this.mappings.removeBookmark(
+        slaveIsLocal
+          ? { localId: slaveId, remoteId: masterId }
+          : { localId: masterId, remoteId: slaveId }
+      )
+    }
+    Logger.log(
+      'Unidirectional: Dropped ' + dropped + ' mappings of vanished ' + this.direction + ' items'
+    )
+  }
+
   async getDiff(): Promise<ScanResult<TItemLocation, TItemLocation>> {
     const mappingsSnapshot = this.mappings.getSnapshot()
 
@@ -172,6 +225,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     })
 
     if (!this.scanResult && !this.revertPlan) {
+      await this.dropMappingsOfVanishedSlaveItems()
       this.scanResult = await this.getDiff()
       Logger.log({ scanResult: this.scanResult })
       this.queueProgressUpdate(0.45, 0)

@@ -3,6 +3,7 @@ import {
   Folder,
   TItem,
   ItemType,
+  TItemType,
   ItemLocation,
   TItemLocation,
   TOppositeLocation,
@@ -119,6 +120,154 @@ export default class SyncProcess {
     })
     this.canceled = false
     this.isFirefox = self.location.protocol === 'moz-extension:'
+  }
+
+  /**
+   * Forget the mappings of local items that are gone for good.
+   *
+   * A mapping outlives the item it names: nothing removes it when an item
+   * disappears from the local tree without its deletion being synced -- an
+   * interrupted sync that had already removed it locally, say, while the
+   * server side was rolled back. It then still claims its server counterpart,
+   * and that claim is taken seriously: the sub scanner that records what a bulk
+   * import created refuses to bind an item that already maps elsewhere
+   * (Mappings#wouldEvictUnrelatedMapping). So the server item gets re-created
+   * locally but stays unmapped, the dead mapping survives, and everything that
+   * maps into it afterwards aims at the deleted item -- a MOVE into it fails
+   * the whole sync with 'Folder to move into doesn't exist'.
+   *
+   * An item that is only missing from the *tree* is a different matter: it was
+   * deleted locally since the last sync, and this sync still needs its mapping
+   * to find the server item to delete. Hence the cache: only what is in neither
+   * is past being of use to anyone.
+   */
+  async dropDeadMappings(): Promise<void> {
+    const snapshot = this.mappings.getSnapshot()
+    let dropped = 0
+
+    for (const [localId, remoteId] of Object.entries(snapshot.LocalToServer.folder)) {
+      if (this.localItemIsSpokenFor(ItemType.FOLDER, localId)) {
+        continue
+      }
+      dropped++
+      await this.mappings.removeFolder({ localId, remoteId })
+    }
+    for (const [localId, remoteId] of Object.entries(snapshot.LocalToServer.bookmark)) {
+      if (this.localItemIsSpokenFor(ItemType.BOOKMARK, localId)) {
+        continue
+      }
+      dropped++
+      await this.mappings.removeBookmark({ localId, remoteId })
+    }
+
+    Logger.log('Dropped ' + dropped + ' mappings of local items that no longer exist')
+  }
+
+  /**
+   * Point mappings whose server item is gone at the item that took its place.
+   *
+   * A server id is not always the stable thing it looks like: on Nextcloud
+   * Bookmarks a bookmark's id carries the folder it sits in
+   * ("<bookmarkId>;<folderId>"), so re-creating a folder renames every bookmark
+   * inside it. Our mappings then name ids the server doesn't know any more, and
+   * the scan is no help: it compares the two sides by content hash, which the
+   * rename doesn't touch, so it skips the subtree as unchanged and never looks
+   * at the ids. The first action that maps such an item fails the whole sync
+   * with 'Bookmark to update doesn't exist anymore'.
+   *
+   * So look the counterpart up where it must be -- in the server folder the
+   * item's parent maps to -- and re-map it. An item that isn't there any more
+   * loses its mapping instead; keeping one that names nothing only misdirects
+   * whatever maps through it next.
+   */
+  async repairServerMappings(): Promise<void> {
+    if ('loadFolderChildren' in this.server) {
+      // The server tree is loaded sparsely: an item that isn't in it may well
+      // be sitting in a folder we haven't loaded, and a live mapping must not
+      // be mistaken for a dead one
+      return
+    }
+
+    let repaired = 0
+    let dropped = 0
+
+    // Folders first: a bookmark is looked up in the folder its parent maps to,
+    // so those mappings want to be right before we get to them
+    for (const type of [ItemType.FOLDER, ItemType.BOOKMARK] as TItemType[]) {
+      const snapshot = this.mappings.getSnapshot()
+      const mapped = type === ItemType.FOLDER
+        ? snapshot.LocalToServer.folder
+        : snapshot.LocalToServer.bookmark
+      for (const [localId, remoteId] of Object.entries(mapped)) {
+        if (this.serverTreeRoot.findItem(type, remoteId)) {
+          continue
+        }
+        const localItem = (this.localTreeRoot.findItem(type, localId) ||
+          this.cacheTreeRoot?.findItem(type, localId)) as TItem<typeof ItemLocation.LOCAL>
+        const counterpart = localItem && this.findServerCounterpart(localItem, snapshot, localId)
+        if (counterpart) {
+          repaired++
+          await (type === ItemType.FOLDER
+            ? this.mappings.addFolder({ localId, remoteId: counterpart.id })
+            : this.mappings.addBookmark({ localId, remoteId: counterpart.id }))
+        } else {
+          dropped++
+          await (type === ItemType.FOLDER
+            ? this.mappings.removeFolder({ localId, remoteId })
+            : this.mappings.removeBookmark({ localId, remoteId }))
+        }
+      }
+    }
+
+    Logger.log('Re-mapped ' + repaired + ' and dropped ' + dropped + ' mappings naming server items that are gone')
+  }
+
+  /**
+   * The server item a local item stands for, found by where it sits rather than
+   * by the id we have on file: in the folder its parent maps to, the item it
+   * can be merged with. Only an item that isn't spoken for by another local
+   * item counts -- taking one that is would trade a wrong mapping for another.
+   */
+  private findServerCounterpart(
+    localItem: TItem<typeof ItemLocation.LOCAL>,
+    snapshot: MappingSnapshot,
+    localId: string
+  ): TItem<typeof ItemLocation.SERVER>|null {
+    const serverParentId = Mappings.mapParentId(snapshot, localItem, ItemLocation.SERVER)
+    if (typeof serverParentId === 'undefined' || serverParentId === null) {
+      return null
+    }
+    const serverParent = this.serverTreeRoot.findFolder(serverParentId)
+    if (!serverParent) {
+      return null
+    }
+    const candidates = serverParent.children.filter((child) => {
+      if (child.type !== localItem.type || !child.canMergeWith(localItem)) {
+        return false
+      }
+      const spokenFor = Mappings.mapId(snapshot, child, ItemLocation.LOCAL)
+      return typeof spokenFor === 'undefined' || String(spokenFor) === String(localId)
+    })
+    // Only when it is unambiguous: two same-titled folders side by side say
+    // nothing about which one used to be ours
+    return candidates.length === 1 ? candidates[0] as TItem<typeof ItemLocation.SERVER> : null
+  }
+
+  /** Whether anything in this sync can still have use for a local item's mapping */
+  protected localItemIsSpokenFor(type: TItemType, id: string|number): boolean {
+    const inTree = type === ItemType.FOLDER
+      ? this.localTreeRoot.findFolder(id)
+      : this.localTreeRoot.findBookmark(id)
+    if (inTree) {
+      return true
+    }
+    if (!this.cacheTreeRoot) {
+      return false
+    }
+    // Deleted locally, with the deletion still to be taken to the server
+    return Boolean(type === ItemType.FOLDER
+      ? this.cacheTreeRoot.findFolder(id)
+      : this.cacheTreeRoot.findBookmark(id))
   }
 
   getMembersToPersist() {
@@ -338,6 +487,8 @@ export default class SyncProcess {
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
 
     if (!this.localScanResult && !this.serverScanResult && !this.localPlanStage1 && !this.serverPlanStage1 && !this.localPlanStage2 && !this.serverPlanStage2 && !this.planStage3Local && !this.planStage3Server) {
+      await this.dropDeadMappings()
+      await this.repairServerMappings()
       const { localScanResult, serverScanResult } = await this.getDiffs()
       Logger.log({ localScanResult, serverScanResult })
       this.localScanResult = localScanResult
