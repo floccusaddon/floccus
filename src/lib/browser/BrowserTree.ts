@@ -194,6 +194,15 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
           })
         })
       }
+      const [currentBookmark] = await this.queue.add(async() => {
+        return browser.bookmarks.get(bookmark.id.toString())
+      })
+      if (currentBookmark && String(currentBookmark.parentId) === String(bookmark.parentId)) {
+        // Moving an item without specifying an index appends it to the end of the target folder,
+        // so don't move it at all if it's already in the right folder. (Its index is handled by REORDERs.)
+        Logger.log('(local)UPDATE: skipping move, bookmark is already in the target folder')
+        return
+      }
       await this.queue.add(async() => {
         Logger.log('(local)UPDATE: executing move ', bookmark)
         return browser.bookmarks.move(bookmark.id, {
@@ -304,6 +313,12 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     const oldFolder = (await browser.bookmarks.getSubTree(id))[0]
     if (Folder.hydrate(oldFolder).findFolder(parentId)) {
       throw new Error('Detected creation of folder loop. Moving ' + id + ' into its descendant ' + parentId)
+    }
+    if (String(oldFolder.parentId) === String(parentId)) {
+      // Moving an item without specifying an index appends it to the end of the target folder,
+      // so don't move it at all if it's already in the right folder. (Its index is handled by REORDERs.)
+      Logger.log('(local)UPDATEFOLDER: skipping move, folder is already in the target folder')
+      return
     }
     try {
       await this.queue.add(async() => {
