@@ -213,6 +213,46 @@ describe('NativeAccountStorage incremental continuations', function() {
     expect(await countRows()).to.equal(2)
   })
 
+  it('should drop the row of an action executed while the write was in flight', async function() {
+    const scanResult = emptyPlan()
+    scanResult.CREATE.commit(creation(1))
+    scanResult.CREATE.commit(creation(2))
+    syncProcess.localScanResult = scanResult
+
+    // The sync doesn't wait for the continuation to be written -- it goes on
+    // executing actions, which take themselves out of their plan, while the
+    // update that still holds them is on its way to the store
+    const update = await syncProcess.toContinuationUpdateAsync()
+    const [executed] = scanResult.CREATE.getActions()
+    scanResult.CREATE.retract(executed)
+    await storage.updateCurrentContinuation(update)
+    syncProcess.markContinuationPersisted(update)
+
+    // That row may have been written by this very update, so the next one has
+    // to take it out again: an executed action left behind in its plan is
+    // executed a second time by the sync that resumes from this continuation
+    await persist()
+
+    const stored = await storage.getCurrentContinuation()
+    expect(storedIds(stored.localScanResult.CREATE)).to.deep.equal([2])
+    expect(await countRows()).to.equal(1)
+  })
+
+  it('should write an unacknowledged action again', async function() {
+    const scanResult = emptyPlan()
+    scanResult.CREATE.commit(creation(1))
+    syncProcess.localScanResult = scanResult
+
+    // A write that fails is never acknowledged, so what it carried is still
+    // owed to the store
+    await syncProcess.toContinuationUpdateAsync()
+
+    await persist()
+
+    const stored = await storage.getCurrentContinuation()
+    expect(storedIds(stored.localScanResult.CREATE)).to.deep.equal([1])
+  })
+
   it('should notice an action that was changed in place', async function() {
     const reorders = new Diff()
     const action = {

@@ -114,8 +114,18 @@ export default class Diff<
   private changedSeqs: Set<number> = new Set()
   /** Rows in the store whose action is gone */
   private removedSeqs: Set<number> = new Set()
-  /** What we know the store to hold rows for */
-  private storedSeqs: Set<number> = new Set()
+  /**
+   * Rows the store may hold -- written, or handed over and not acknowledged
+   * yet. Deliberately generous: a DELETE for a row that never made it into the
+   * store is a no-op, while forgetting one leaves an executed action in its
+   * plan for the next sync to resume from and execute a second time.
+   */
+  private maybeStoredSeqs: Set<number> = new Set()
+  /**
+   * Handed to the store, not acknowledged yet. A write that never comes back
+   * leaves them here, and the next persist picks them up again.
+   */
+  private inFlightSeqs: Set<number> = new Set()
 
   constructor() {
     this.actions = []
@@ -147,7 +157,8 @@ export default class Diff<
       this.actions.splice(idx, 1)
       this.seqs.splice(idx, 1)
       this.changedSeqs.delete(seq)
-      if (this.storedSeqs.has(seq)) {
+      this.inFlightSeqs.delete(seq)
+      if (this.maybeStoredSeqs.has(seq)) {
         this.removedSeqs.add(seq)
       }
     }
@@ -175,22 +186,30 @@ export default class Diff<
   async getPendingChangesAsync(full = false): Promise<IContinuationDiffUpdate> {
     const added: { seq: number, action: any }[] = []
     let iterations = 0
-    // Actions may be committed and retracted while we yield below; anything we
-    // skip that way stays marked changed and is written on the next persist.
+    // The sync goes on executing actions while we serialize here, so the diff
+    // changes under us: anything committed in the meantime stays marked changed
+    // and is written by the next persist, and anything retracted is caught by
+    // the removals below -- the row for it may be written by this very update.
     for (let i = 0; i < this.actions.length; i++) {
       const seq = this.seqs[i]
-      if (!full && !this.changedSeqs.has(seq)) {
+      if (!full && !this.changedSeqs.has(seq) && !this.inFlightSeqs.has(seq)) {
         continue
       }
+      this.changedSeqs.delete(seq)
+      this.inFlightSeqs.add(seq)
+      this.maybeStoredSeqs.add(seq)
       if (++iterations % 1000 === 0) {
         await yieldToEventLoop()
       }
       added.push({ seq, action: await Diff.serializeActionAsync(this.actions[i]) })
     }
+    const removed = full ? [] : [...this.removedSeqs]
     return {
       id: this.id,
-      added,
-      removed: full ? [] : [...this.removedSeqs],
+      // An action executed while we serialized is stale before its row is even
+      // written, so leave it to the removals instead
+      added: added.filter(({ seq }) => !this.removedSeqs.has(seq)),
+      removed,
       replace: full,
     }
   }
@@ -200,18 +219,19 @@ export default class Diff<
    * the write went through -- anything left marked is simply written again.
    */
   markPersisted(update: IContinuationDiffUpdate): void {
+    const written = new Set(update.added.map(({ seq }) => seq))
     if (update.replace) {
-      // The store dropped every other row of this diff
-      this.storedSeqs = new Set()
-      this.removedSeqs.clear()
+      // The store dropped every row of this diff that this update didn't write
+      this.maybeStoredSeqs = new Set([...this.maybeStoredSeqs].filter(seq => written.has(seq)))
+      this.removedSeqs = new Set([...this.removedSeqs].filter(seq => written.has(seq)))
     }
-    for (const { seq } of update.added) {
-      this.changedSeqs.delete(seq)
-      this.storedSeqs.add(seq)
+    for (const seq of written) {
+      this.inFlightSeqs.delete(seq)
+      this.maybeStoredSeqs.add(seq)
     }
     for (const seq of update.removed) {
       this.removedSeqs.delete(seq)
-      this.storedSeqs.delete(seq)
+      this.maybeStoredSeqs.delete(seq)
     }
   }
 
