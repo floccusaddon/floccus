@@ -12,6 +12,15 @@ const META = 'meta'
 const ACTIONS = 'actions'
 
 let dbPromise: Promise<IDBDatabase> | null = null
+let openDb: IDBDatabase | null = null
+
+/** Drop a connection we no longer hold, so that the next call opens a new one */
+function forget(db: IDBDatabase): void {
+  if (openDb === db) {
+    openDb = null
+    dbPromise = null
+  }
+}
 
 function open(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -32,7 +41,20 @@ function open(): Promise<IDBDatabase> {
         db.createObjectStore(ACTIONS, { keyPath: ['accountId', 'diffId', 'seq'] })
       }
     }
-    request.onsuccess = () => resolve(request.result)
+    request.onsuccess = () => {
+      const db = request.result
+      // Something wants to delete or upgrade the database -- a git sync
+      // sweeping up its file systems, say. Keeping the connection open blocks
+      // that request, and a blocked delete stays pending for good, after which
+      // indexedDB.databases() never resolves again for anyone in this origin
+      db.onversionchange = () => {
+        db.close()
+        forget(db)
+      }
+      db.onclose = () => forget(db)
+      openDb = db
+      resolve(db)
+    }
     request.onerror = () => reject(request.error)
     request.onblocked = () => reject(new Error('Opening the continuation database is blocked'))
   })
