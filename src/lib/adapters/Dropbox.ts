@@ -71,12 +71,21 @@ declare const chrome: any
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every two minutes while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 15min after last time it was set
 const HTTP_TIMEOUT = 60000
+// A 5xx response doesn't tell us whether the server applied the request or not,
+// so retrying is only safe for calls that have no side effects when repeated.
+// The Dropbox API uses POST for everything, including reads, so unlike with other
+// adapters we cannot decide this by HTTP verb -- callers opt in via request()'s
+// retriable parameter instead.
+const SERVER_ERROR_RETRIES = 3
+const SERVER_ERROR_RETRY_DELAY = 1000
+
 export default class DropboxAdapter extends CachingAdapter {
   private initialTreeHash: string
   private fileId: string
   private templateId: string
   private accessToken: string
   private cancelCallback: () => void = null
+  private canceled = false
   private alwaysUpload = false
   private lockingInterval: any
   private locked = false
@@ -300,6 +309,8 @@ export default class DropboxAdapter extends CachingAdapter {
   async onSyncStart(needLock = true, forceLock = false) {
     Logger.log('onSyncStart: begin')
 
+    this.canceled = false
+
     if (IS_BROWSER) {
       const browser = (await import('../browser-api')).default
       let hasPermissions, error = false
@@ -494,6 +505,7 @@ export default class DropboxAdapter extends CachingAdapter {
   }
 
   cancel() {
+    this.canceled = true
     this.cancelCallback && this.cancelCallback()
   }
 
@@ -504,10 +516,26 @@ export default class DropboxAdapter extends CachingAdapter {
    * @param {any} body Body segment of API call
    * @param {string} contentType Determines how we want to send content to API
    * @param {any} extraHeaders Object consisting on headers necessary to download files
+   * @param {boolean} retriable Whether repeating this call has no side effects, so that it may be retried on server errors
    * @returns {any} Response status, text and JSON
    */
-  async request(method: string, url: string, body: any = null, contentType: string = null, extraHeaders: any = null) : Promise<CustomResponse> {
-    return this.requestNative(method, url, body, contentType, extraHeaders)
+  async request(method: string, url: string, body: any = null, contentType: string = null, extraHeaders: any = null, retriable = false) : Promise<CustomResponse> {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await this.requestNative(method, url, body, contentType, extraHeaders)
+      } catch (e) {
+        const isLastAttempt = attempt === SERVER_ERROR_RETRIES
+        const isServerError = e instanceof HttpError && e.status >= 500
+        if (!retriable || !isServerError || isLastAttempt || this.canceled) {
+          throw e
+        }
+        Logger.log(
+          `${method} ${url}: Server responded with ${e.status}. Retrying (` +
+            (attempt + 2) + '/' + (SERVER_ERROR_RETRIES + 1) + ')'
+        )
+        await this.timeout(SERVER_ERROR_RETRY_DELAY * Math.pow(2, attempt))
+      }
+    }
   }
 
   async requestWeb(method: string, url: string, body: any = null, contentType: string = null) : Promise<CustomResponse> {
@@ -629,7 +657,9 @@ export default class DropboxAdapter extends CachingAdapter {
         },
         'query': query
       },
-      'application/json'
+      'application/json',
+      null,
+      true
     )
     if (res.status >= 400) {
       Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
@@ -657,7 +687,9 @@ export default class DropboxAdapter extends CachingAdapter {
           'filter_some': [this.templateId]
         }
       },
-      'application/json'
+      'application/json',
+      null,
+      true
     )
     if (res.status >= 400) {
       Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
@@ -686,7 +718,9 @@ export default class DropboxAdapter extends CachingAdapter {
         'include_media_info': false,
         'path': path,
       },
-      'application/json'
+      'application/json',
+      null,
+      true
     )
     if (res.status === 409) {
       // path/not_found: the file does not exist
@@ -773,7 +807,7 @@ export default class DropboxAdapter extends CachingAdapter {
       'Dropbox-API-Arg': httpHeaderSafeJson({ path }),
     }
 
-    const res = await this.request('POST', url, null, null, extraHeaders)
+    const res = await this.request('POST', url, null, null, extraHeaders, true)
 
     if (res.status >= 400) {
       Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
@@ -880,7 +914,7 @@ export default class DropboxAdapter extends CachingAdapter {
       json = JSON.parse(await res.text())
     } else {
       // Web
-      res = await this.request('POST', url)
+      res = await this.request('POST', url, null, null, null, true)
       json = await res.json()
     }
     if (res.status >= 400) {
@@ -900,7 +934,9 @@ export default class DropboxAdapter extends CachingAdapter {
       {
         'template_id': templateId
       },
-      'application/json'
+      'application/json',
+      null,
+      true
     )
     if (res.status >= 400) {
       Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
@@ -999,7 +1035,9 @@ export default class DropboxAdapter extends CachingAdapter {
             }
           ]
         },
-        'application/json'
+        'application/json',
+        null,
+        true
       )
 
       if (res.status >= 400) {
@@ -1037,7 +1075,9 @@ export default class DropboxAdapter extends CachingAdapter {
           }
         ]
       },
-      'application/json'
+      'application/json',
+      null,
+      true
     )
 
     const res = await this.lockingPromise
@@ -1098,7 +1138,8 @@ export default class DropboxAdapter extends CachingAdapter {
     const res = await this.request('POST', this.getContentUrl() + `/files/upload`,
       xbel,
       'application/octet-stream',
-      extraHeaders
+      extraHeaders,
+      true
     )
 
     if (res.status >= 400) {
