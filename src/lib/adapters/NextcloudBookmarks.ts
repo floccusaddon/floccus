@@ -854,12 +854,21 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           undefined,
           bookmark,
         )
-        // remove bookmark from the cached list
-        const list = await this.getBookmarksList()
-        const listIndex = list.findIndex(
-          (bookmark) => String(bookmark.id) === String(upstreamId)
-        )
-        list.splice(listIndex, 1)
+        // Remove the bookmark from the cached list -- but only if we have one
+        // already: fetching it here would page through every bookmark in the
+        // account for the sake of a single splice (cf. createBookmark)
+        if (this.list) {
+          const listIndex = this.list.findIndex(
+            (bookmark) =>
+              String(bookmark.id) === String(upstreamId) &&
+              String(bookmark.parentId) === String(parentId)
+          )
+          // The list holds one entry per folder the bookmark sits in, so the
+          // entry to drop is the one for the folder we just removed it from
+          if (listIndex !== -1) {
+            this.list.splice(listIndex, 1)
+          }
+        }
       } catch (e) {
         Logger.log('Error removing bookmark from folder: ' + e.message + '\n Moving on.')
       }
