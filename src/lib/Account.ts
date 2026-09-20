@@ -389,10 +389,14 @@ export default class Account {
       // update cache
       Logger.log('Storing cache')
       // getCacheTree() already hands out a copy of our own, hashes included --
-      // they are stored along with the cache
+      // they are stored along with the cache. A Folder rather than the cheaper
+      // getCacheTreeJSON because Mappings#gc below indexes and walks it as a
+      // tree; this runs once per sync, so the extra copy doesn't matter here.
+      const cacheRevision = this.localCachingResource.getCacheRevision()
       const cache = await this.localCachingResource.getCacheTree()
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
       await this.storage.setCache(await cache.toJSONAsync())
+      this.localCachingResource.markCachePersisted(cacheRevision)
 
       if (this.server.onSyncComplete) {
         Logger.log('Calling onSyncComplete')
@@ -559,17 +563,30 @@ export default class Account {
       // non-atomic server — accumulating duplicate folders whose mappings then collided
       // (MappingFailureError -> reset+forceSync -> divergence). Mappings are already persisted at
       // the interrupt point; the cache must be kept in step with them.
-      Logger.log('progressCallback: Persisting cache')
-      // getCacheTree() already hands out a copy of our own (hashes included),
-      // so there is nothing here to guard against with another one
-      const cache = await this.localCachingResource.getCacheTree()
-      this.syncProcess.filterOutUnacceptedBookmarks(cache)
-      // setCache serializes synchronously, and that is on purpose here: this
-      // runs every 1.5s throughout the sync, and toJSONAsync costs a good 2x
-      // the CPU of toJSON for the same bytes (the per-node Parallel.map), which
-      // on a tick that repeats is the wrong trade -- it would take a bigger
-      // bite out of the interval and make the sync itself longer.
-      await this.storage.setCache(cache)
+      // Nothing has touched the cache since we last wrote it, so writing it
+      // again would store byte for byte what is already there -- for a large
+      // account a multi-megabyte serialization and storage write per tick, for
+      // nothing. Plenty of a sync (loading, diffing, reconciling, and every
+      // action that only concerns the server) changes no local item at all.
+      if (this.localCachingResource.isCacheDirty()) {
+        Logger.log('progressCallback: Persisting cache')
+        // Read before serializing: a change landing while the write is in
+        // flight has to leave the cache dirty for the next tick
+        const revision = this.localCachingResource.getCacheRevision()
+        // One pass over the tree rather than copy + filter + serialize, and it
+        // leaves the cache tree alone. It serializes synchronously, and that is
+        // on purpose here: this repeats throughout the sync, and toJSONAsync
+        // costs a good 2x the CPU of toJSON for the same bytes (the per-node
+        // Parallel.map), which on a tick that repeats is the wrong trade -- it
+        // would take a bigger bite out of the interval and make the sync itself
+        // longer.
+        await this.storage.setCache(
+          this.localCachingResource.getCacheTreeJSON((bm) => this.server.acceptsBookmark(bm))
+        )
+        this.localCachingResource.markCachePersisted(revision)
+      } else {
+        Logger.log('progressCallback: Cache unchanged since the last tick, not persisting')
+      }
       if (!this.server.isAtomic()) {
         // An update only carries what has changed since the last persist, so
         // two of them must not be built and written in parallel -- the sync

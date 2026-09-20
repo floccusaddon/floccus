@@ -1,7 +1,14 @@
 import CachingAdapter from './adapters/Caching'
 import { IResource } from './interfaces/Resource'
-import { Folder, ItemLocation, TItemLocation } from './Tree'
+import { Folder, ItemLocation, ItemType, TItemLocation } from './Tree'
 import { UnknownCreateTargetError } from '../errors/Error'
+
+/**
+ * Whether the server would take this bookmark -- see IAdapter#acceptsBookmark.
+ * Applied to the serialized tree rather than to items, so this only ever gets
+ * to see the plain properties (every implementation reads nothing but `url`).
+ */
+export type TBookmarkFilter = (bookmark: any) => boolean
 
 /**
  * The highest numeric id anywhere in the given subtree, so that ids handed to
@@ -25,9 +32,42 @@ function maxNumericId(folder: Folder<TItemLocation>): number {
 export default class CacheTree extends CachingAdapter implements IResource<typeof ItemLocation.LOCAL> {
   protected location: TItemLocation = ItemLocation.LOCAL
 
+  /**
+   * The mutation count that is in storage, so that an unchanged cache isn't
+   * serialized and written all over again.
+   *
+   * -1 until the first persist of this instance: whatever storage holds was put
+   * there by an earlier sync and says nothing about the tree we have here, so we
+   * start out dirty.
+   */
+  private persistedMutations = -1
+
   constructor() {
     super({})
     this.resetCache()
+  }
+
+  /** Whether anything has changed since the last #markPersisted */
+  public isDirty(): boolean {
+    return this.getMutationCount() !== this.persistedMutations
+  }
+
+  /**
+   * Take note that this revision of the tree is in storage. Pass the revision
+   * read *before* serializing: a mutation that lands while the write is in
+   * flight leaves the cache dirty for the next tick, as it must.
+   */
+  public markPersisted(mutations: number): void {
+    this.persistedMutations = mutations
+  }
+
+  /**
+   * Take note that the tree was changed from the outside -- CachingTreeWrapper
+   * rewrites the ids of what it has just created directly in bookmarksCache.
+   * Those callers check the index themselves.
+   */
+  public markChanged(): void {
+    this.mutated()
   }
 
   public setTree(tree: Folder<typeof ItemLocation.LOCAL>) {
@@ -43,6 +83,7 @@ export default class CacheTree extends CachingAdapter implements IResource<typeo
     // resolve to the wrong folder if the colliding existing folder is visited
     // later in the depth-first walk and overwrites the new folder's index slot.
     this.highestId = maxNumericId(this.bookmarksCache)
+    this.mutated()
   }
 
   /**
@@ -70,7 +111,7 @@ export default class CacheTree extends CachingAdapter implements IResource<typeo
     foundFolder.createIndex()
     this.bookmarksCache.updateIndex(foundFolder)
     this.invalidateHashes(foundFolder.id)
-    this.bookmarksCache.assertIndexConsistent('importSubtree')
+    this.endMutation('importSubtree')
     // Don't reissue the ids we just adopted
     this.setHighestId(maxNumericId(imported))
   }
@@ -87,6 +128,55 @@ export default class CacheTree extends CachingAdapter implements IResource<typeo
    */
   public snapshot(): Folder<typeof ItemLocation.LOCAL> {
     return this.bookmarksCache.copy(true) as Folder<typeof ItemLocation.LOCAL>
+  }
+
+  /**
+   * The cached tree as the plain JSON the storage takes.
+   *
+   * The progress tick used to take a Folder copy of the whole tree (#snapshot),
+   * filter that, and then have the copy serialized -- two full allocating walks
+   * of a tree that can hold every bookmark of the account, repeated throughout
+   * the sync. Here the copy *is* the JSON, and the filtering runs over the plain
+   * objects afterwards, which allocates nothing.
+   *
+   * Serializing the live tree rather than a copy is safe because Folder#toJSON
+   * is synchronous throughout: nothing the sync does can interleave with it, and
+   * unlike the old path this doesn't change the tree it walks.
+   *
+   * `accepts` drops the bookmarks the server would refuse. A folder that loses
+   * one loses its cached hash, and so does every folder above it -- a folder's
+   * hash covers its whole subtree, and a stale one would have the next sync's
+   * scanner conclude that nothing below it has changed.
+   */
+  public toStorageJSON(accepts: TBookmarkFilter = () => true): any {
+    const json = this.bookmarksCache.toJSON() as any
+    CacheTree.dropUnaccepted(json, accepts)
+    return json
+  }
+
+  /** Returns whether anything below this folder (itself included) was dropped */
+  private static dropUnaccepted(folder: any, accepts: TBookmarkFilter): boolean {
+    const children = folder.children || []
+    let changed = false
+    const kept = []
+    for (const child of children) {
+      if (child.type === ItemType.FOLDER) {
+        changed = CacheTree.dropUnaccepted(child, accepts) || changed
+        kept.push(child)
+      } else if (accepts(child)) {
+        kept.push(child)
+      } else {
+        changed = true
+      }
+    }
+    if (kept.length !== children.length) {
+      folder.children = kept
+    }
+    if (changed) {
+      // What Folder#invalidateHash does, in the serialized shape
+      folder.hashValue = {}
+    }
+    return changed
   }
 
   async getBookmarksTree(): Promise<Folder<typeof ItemLocation.LOCAL>> {

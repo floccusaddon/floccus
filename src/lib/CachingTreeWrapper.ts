@@ -1,6 +1,6 @@
 import { BulkImportResource, CachingResource, ICapabilities, IHashSettings, OrderFolderResource } from './interfaces/Resource'
 import { Bookmark, Folder, ItemLocation } from './Tree'
-import CacheTree from './CacheTree'
+import CacheTree, { TBookmarkFilter } from './CacheTree'
 import Logger from './Logger'
 import Ordering from './interfaces/Ordering'
 
@@ -69,6 +69,9 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
     cacheBookmark.createIndex()
     this.cacheTree.bookmarksCache.updateIndex(cacheBookmark)
     this.cacheTree.bookmarksCache.assertIndexConsistent('CachingTreeWrapper#createBookmark')
+    // The id we just wrote into the cache is part of the tree's contents, so it
+    // counts as a change of its own -- see CacheTree#markChanged
+    this.cacheTree.markChanged()
     return id
   }
 
@@ -95,6 +98,7 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
     cacheFolder.createIndex()
     this.cacheTree.bookmarksCache.updateIndex(cacheFolder)
     this.cacheTree.bookmarksCache.assertIndexConsistent('CachingTreeWrapper#createFolder')
+    this.cacheTree.markChanged()
     return id
   }
 
@@ -123,8 +127,26 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
 
   getCacheTree(): Promise<Folder<typeof ItemLocation.LOCAL>> {
     // A fresh copy the caller owns, so it can filter it in place before
-    // serializing it -- see CacheTree#snapshot for why it carries no index
+    // serializing it -- see CacheTree#snapshot for why it carries no index.
+    // Only for a caller that needs an actual tree (Mappings#gc); to persist the
+    // cache, use getCacheTreeJSON, which doesn't copy at all.
     return Promise.resolve(this.cacheTree.snapshot())
+  }
+
+  getCacheTreeJSON(accepts?: TBookmarkFilter): any {
+    return this.cacheTree.toStorageJSON(accepts)
+  }
+
+  getCacheRevision(): number {
+    return this.cacheTree.getMutationCount()
+  }
+
+  isCacheDirty(): boolean {
+    return this.cacheTree.isDirty()
+  }
+
+  markCachePersisted(revision: number): void {
+    this.cacheTree.markPersisted(revision)
   }
 
   getCapabilities(): Promise<ICapabilities> {
