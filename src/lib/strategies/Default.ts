@@ -42,6 +42,21 @@ import type { IContinuationDiffUpdate, IContinuationUpdate, TContinuationMember 
 export const ACTION_CONCURRENCY = isTest ? 1 : 5
 
 /**
+ * Up to this many bookmarks, a sparse server tree is fetched in one go.
+ *
+ * Descending into a sparse tree costs one children request per folder we walk
+ * into plus one hash request per folder we find there (see loadChildren and
+ * NextcloudBookmarks#loadFolderChildren), so any change at all quickly adds up
+ * to dozens of round trips -- where fetching the whole subtree is a single
+ * request. Below this size that single request is the cheaper deal; above it,
+ * the sparse descent pays off again, as it only ever loads what has changed.
+ *
+ * The untouched-tree case is unaffected either way: the root hash alone tells
+ * us nothing has changed, and we don't get here at all.
+ */
+export const SMALL_TREE_THRESHOLD = 350
+
+/**
  * How often the sync may persist its progress, in milliseconds.
  *
  * A tick writes the whole sync cache and the whole mappings table (see
@@ -96,6 +111,8 @@ export default class SyncProcess {
   // Stage -1
   protected localTreeRoot: Folder<typeof ItemLocation.LOCAL> = null
   protected serverTreeRoot: Folder<typeof ItemLocation.SERVER> = null
+  /** Whether to pull sparse server folders in whole, see SMALL_TREE_THRESHOLD */
+  protected loadServerTreeAtOnce = false
 
   // Stage 0
   protected localScanResult: ScanResult<typeof ItemLocation.LOCAL, TItemLocation> = null
@@ -917,6 +934,13 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
+    // generate hash tables to find items faster -- before loading the server
+    // tree, as loadChildren looks up every folder it walks into in both of them
+    Logger.log('Generating indices for local tree')
+    this.localTreeRoot.createIndex()
+    Logger.log('Generating indices for cache tree')
+    this.cacheTreeRoot.createIndex()
+
     if (!this.serverTreeRoot) {
       Logger.log('Retrieving server tree')
       const serverTreeRoot = await this.server.getBookmarksTree()
@@ -931,18 +955,19 @@ export default class SyncProcess {
       const mappingsSnapshot = this.mappings.getSnapshot()
 
       if ('loadFolderChildren' in this.server) {
-        Logger.log('Loading sparse tree as necessary')
+        // How big this account was at the end of the last sync is the best
+        // estimate we have of how big the server tree is now. An empty cache
+        // means a first sync, which loads every folder anyway -- and is thus
+        // always better off with a single request.
+        const cachedCount = this.cacheTreeRoot.count()
+        this.loadServerTreeAtOnce = cachedCount <= SMALL_TREE_THRESHOLD
+        Logger.log(`Loading sparse tree as necessary (${cachedCount} cached bookmarks, loading ${this.loadServerTreeAtOnce ? 'whole subtrees' : 'folder by folder'})`)
         // Load sparse tree
         await this.loadChildren(serverTreeRoot, mappingsSnapshot, true)
       }
       this.serverTreeRoot = serverTreeRoot
     }
 
-    // generate hash tables to find items faster
-    Logger.log('Generating indices for local tree')
-    this.localTreeRoot.createIndex()
-    Logger.log('Generating indices for cache tree')
-    this.cacheTreeRoot.createIndex()
     Logger.log('Generating indices for server tree')
     this.serverTreeRoot.createIndex()
 
@@ -2164,6 +2189,10 @@ export default class SyncProcess {
     }
     if (!(serverItem instanceof Folder)) return
     if (!('loadFolderChildren' in this.server)) return
+    if (serverItem.loaded) {
+      // A parent's load already pulled in this whole subtree
+      return
+    }
     let localItem, cacheItem
     if (isRoot) {
       localItem = this.localTreeRoot
@@ -2180,8 +2209,10 @@ export default class SyncProcess {
       return
     }
     Logger.log('LOADCHILDREN', serverItem)
-    // If we don't know this folder, yet, load the whole subtree (!localItem)
-    const children = await this.server.loadFolderChildren(serverItem.id, !localItem)
+    // If we don't know this folder, yet, load the whole subtree (!localItem) --
+    // just as we do for trees small enough that one request beats descending
+    // into them folder by folder (see SMALL_TREE_THRESHOLD)
+    const children = await this.server.loadFolderChildren(serverItem.id, !localItem || this.loadServerTreeAtOnce)
     if (!children) {
       return
     }
