@@ -234,8 +234,9 @@ export default class SyncProcess {
     // Every repair changes what the lookups after it have to go through, so this
     // one snapshot is kept in step as we go instead of being re-read: an item is
     // found in the folder its parent maps to, and for the items below a repaired
-    // folder that is the folder it maps to *now*
-    const snapshot = this.mappings.getSnapshot()
+    // folder that is the folder it maps to *now*. Hence a snapshot of our own --
+    // the one #getSnapshot hands out is shared and must not be written to.
+    const snapshot = this.mappings.getMutableSnapshot()
 
     let repaired = 0
     let dropped = 0

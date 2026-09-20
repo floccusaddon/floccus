@@ -14,6 +14,24 @@ export default class Mappings {
   private folders: InternalItemTypeMapping
   private bookmarks: InternalItemTypeMapping
   private storage: any
+  /**
+   * The snapshot handed out by #getSnapshot, kept until a mapping changes.
+   *
+   * Building one copies all four id maps, which for a large account is hundreds
+   * of thousands of properties -- and the sync asks for a snapshot constantly:
+   * once per created folder and once per bulk-import chunk (see
+   * Default#executeCreate), and once per candidate pair in Scanner#createsFolderLoop.
+   * Rebuilding it there made an initial sync spend minutes doing nothing but
+   * copying objects.
+   *
+   * Callers treat a snapshot as read-only and may hold on to one across
+   * mutations (Default#dropDeadMappings iterates one while dropping mappings),
+   * so this is a cache, not a live view: a mutation drops the cached snapshot
+   * rather than changing it, and whoever already holds it keeps seeing the state
+   * they asked for. A caller that does mean to change its snapshot asks for one
+   * of its own with #getMutableSnapshot.
+   */
+  private snapshot: MappingSnapshot|null = null
 
   constructor(storageAdapter:any, mappingsData:any) {
     this.storage = storageAdapter
@@ -22,6 +40,18 @@ export default class Mappings {
   }
 
   getSnapshot():MappingSnapshot {
+    if (!this.snapshot) {
+      this.snapshot = this.getMutableSnapshot()
+    }
+    return this.snapshot
+  }
+
+  /**
+   * A snapshot of this instance's own, for a caller that changes it as it goes.
+   * See Default#repairServerMappings, which re-maps the items below a repaired
+   * folder through the mapping it has just given that folder.
+   */
+  getMutableSnapshot():MappingSnapshot {
     return {
       ServerToLocal: {
         bookmark: {...this.bookmarks.ServerToLocal},
@@ -32,6 +62,11 @@ export default class Mappings {
         folder: {...this.folders.LocalToServer}
       }
     }
+  }
+
+  /** Whatever the cached snapshot says is no longer what the mappings say */
+  private invalidateSnapshot():void {
+    this.snapshot = null
   }
 
   async gc(
@@ -71,20 +106,24 @@ export default class Mappings {
     Mappings.logCollateralEviction('folder', this.folders, { localId, remoteId })
     Mappings.remove(this.folders, { localId, remoteId })
     Mappings.add(this.folders, { localId, remoteId })
+    this.invalidateSnapshot()
   }
 
   async removeFolder({ localId, remoteId }: { localId?:string|number, remoteId?:string|number }):Promise<void> {
     Mappings.remove(this.folders, { localId, remoteId })
+    this.invalidateSnapshot()
   }
 
   async addBookmark({ localId, remoteId }: { localId?:string|number, remoteId?:string|number }):Promise<void> {
     Mappings.logCollateralEviction('bookmark', this.bookmarks, { localId, remoteId })
     Mappings.remove(this.bookmarks, { localId, remoteId })
     Mappings.add(this.bookmarks, { localId, remoteId })
+    this.invalidateSnapshot()
   }
 
   async removeBookmark({ localId, remoteId }: { localId?:string|number, remoteId?:string|number }):Promise<void> {
     Mappings.remove(this.bookmarks, { localId, remoteId })
+    this.invalidateSnapshot()
   }
 
   async persist():Promise<void> {
