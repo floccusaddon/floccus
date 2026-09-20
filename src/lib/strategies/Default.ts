@@ -41,6 +41,35 @@ import type { IContinuationDiffUpdate, IContinuationUpdate, TContinuationMember 
 export const ACTION_CONCURRENCY = isTest ? 1 : 5
 
 /**
+ * How often the sync may persist its progress, in milliseconds.
+ *
+ * A tick writes the whole sync cache and the whole mappings table (see
+ * Account#progressCallback) -- work proportional to the account rather than to
+ * what has happened since the last tick. At 80k bookmarks that is a
+ * multi-megabyte serialization and storage write each time, so at a fixed 1.5s
+ * the checkpointing takes a sizeable bite out of the very sync it is
+ * checkpointing.
+ *
+ * What is bought with a longer interval is paid for in interrupt granularity:
+ * a sync that dies between two ticks resumes from the last one and re-executes
+ * what it did in between. Hence a cap rather than unbounded growth, and hence
+ * small accounts -- where a tick is cheap anyway -- keep the old 1.5s.
+ */
+export const PROGRESS_INTERVAL_MIN = 1500
+export const PROGRESS_INTERVAL_MAX = 10000
+export const PROGRESS_INTERVAL_PER_ITEM = 0.2
+
+export function progressInterval(itemCount: number): number {
+  if (!Number.isFinite(itemCount) || itemCount <= 0) {
+    return PROGRESS_INTERVAL_MIN
+  }
+  return Math.min(
+    PROGRESS_INTERVAL_MAX,
+    Math.max(PROGRESS_INTERVAL_MIN, Math.round(itemCount * PROGRESS_INTERVAL_PER_ITEM))
+  )
+}
+
+/**
  * Every item of a tree by id -- what Folder#createIndex builds, except that it
  * is handed to the caller instead of being hung onto the tree, so that nothing
  * afterwards has to keep it up to date.
@@ -57,6 +86,8 @@ export default class SyncProcess {
   protected cacheTreeRoot: Folder<typeof ItemLocation.LOCAL>|null
   protected canceled: boolean
   protected throttledProgressCb: ThrottledFunction<[progress: number, actionsDone: number | undefined], void>
+  /** The interval throttledProgressCb was built with, see #retuneProgressInterval */
+  private progressIntervalMs: number = PROGRESS_INTERVAL_MIN
   // Un-throttled progress callback, used to persist the continuation synchronously at the
   // exact interrupt point (see updateProgress) so a resumed sync continues from there.
   protected progressCb: (progress: number, actionsDone?: number) => Promise<void>
@@ -124,7 +155,7 @@ export default class SyncProcess {
     this.server = server
 
     this.progressCb = progressCb
-    this.throttledProgressCb = throttle(progressCb, 1500)
+    this.throttledProgressCb = throttle(progressCb, this.progressIntervalMs)
     this.cancelPromise = new Promise<void>((resolve, reject) => {
       this.cancelCb = reject
     })
@@ -460,6 +491,33 @@ export default class SyncProcess {
         return { completed: false }
       }
     }
+  }
+
+  /**
+   * Set the progress interval for the size of the trees we have just loaded.
+   *
+   * @jcoreio/async-throttle captures its interval when the throttled function is
+   * built, so this replaces the function rather than retuning it in place.
+   * Everything reads this.throttledProgressCb at call time, so the swap is only
+   * a matter of not leaving the old one's pending tick behind on its own
+   * schedule -- hence the cancel.
+   */
+  protected async retuneProgressInterval(): Promise<void> {
+    if (!this.localTreeRoot) {
+      return
+    }
+    const items = this.localTreeRoot.count() + this.localTreeRoot.countFolders()
+    const interval = progressInterval(items)
+    if (interval === this.progressIntervalMs) {
+      return
+    }
+    Logger.log(`Persisting sync progress every ${interval}ms (${items} local items)`)
+    this.progressIntervalMs = interval
+    const previous = this.throttledProgressCb
+    this.throttledProgressCb = throttle(this.progressCb, interval)
+    // Rejects whatever the old one still had pending with a CanceledError,
+    // which queueProgressUpdate swallows
+    await previous.cancel()
   }
 
   protected queueProgressUpdate(progress: number, actionsDone?: number): void {
@@ -886,6 +944,10 @@ export default class SyncProcess {
     this.cacheTreeRoot.createIndex()
     Logger.log('Generating indices for server tree')
     this.serverTreeRoot.createIndex()
+
+    // Now that we know how big this account is, how often we can afford to
+    // persist our progress
+    await this.retuneProgressInterval()
   }
 
   protected applyDeletionFailsafe(direction: TItemLocation, tree: Folder<TItemLocation>, removals: Diff<TItemLocation, TItemLocation, RemoveAction<TItemLocation, TItemLocation>>) {
