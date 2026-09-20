@@ -33,6 +33,24 @@ interface IItemIndex<L extends TItemLocation> {
 let HASH_ITERATIONS = 0
 
 /**
+ * Items serialized by toJSONAsync since this module was loaded, so that a walk
+ * of a whole tree gives the browser a breath every so often.
+ *
+ * Counted across calls and across items rather than per call, because the walk
+ * that has to be broken up is the recursion over the tree: a folder's own call
+ * returns almost immediately and hands the work to its children. Each of them
+ * ticks this, so the yields fall every 1000 items however the tree is shaped --
+ * where a per-call counter only ever saw the two or three steps of the item's
+ * own prototype chain, and never yielded at all.
+ */
+let SERIALIZE_ITERATIONS = 0
+
+/** Diagnostic, for the test that pins how often the counter above ticks */
+export function serializeIterations(): number {
+  return SERIALIZE_ITERATIONS
+}
+
+/**
  * Bring a bookmark's tags into canonical form: strings only, trimmed, no empty
  * entries, no duplicates, sorted.
  *
@@ -289,15 +307,15 @@ export class Bookmark<L extends TItemLocation> {
   }
 
   async toJSONAsync(): Promise<any> {
+    // give the browser time to breathe
+    if (++SERIALIZE_ITERATIONS % 1000 === 0) {
+      await yieldToEventLoop()
+    }
     // Flatten inherited properties for serialization
     const result = {}
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let obj = this
-    let iterations = 1
     while (obj instanceof Bookmark) {
-      if (++iterations % 1000 === 0) {
-        await yieldToEventLoop()
-      }
       Object.entries(obj).forEach(([key, value]) => {
         if (key === 'index') return
         if (!(key in result)) {
@@ -740,24 +758,34 @@ export class Folder<L extends TItemLocation> {
   }
 
   async toJSONAsync(): Promise<Folder<L>> {
+    // give the browser time to breathe
+    if (++SERIALIZE_ITERATIONS % 1000 === 0) {
+      await yieldToEventLoop()
+    }
     // Flatten inherited properties for serialization
     const result: Folder<L> = {} as any as Folder<L>
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let obj = this
-    let iterations = 1
     while (obj instanceof Folder) {
-      if (++iterations % 1000 === 0) {
-        await yieldToEventLoop()
-      }
-      await Parallel.map(Object.entries(obj), async([key, value]) => {
-        if (key === 'index') return
-        if (!(key in result)) {
-          if (key === 'children') {
-            value = await Parallel.map(obj.children, async(child: TItem<L>) => child.toJSONAsync())
+      for (const [key, value] of Object.entries(obj)) {
+        if (key === 'index' || key in result) {
+          continue
+        }
+        if (key === 'children') {
+          // The children used to go through Parallel.map with no concurrency
+          // given at all, which means one pool task per child started in a
+          // single burst -- every child of a folder in flight at once, each
+          // shifting off a shared array (O(n) apiece). There is no IO to overlap
+          // here, so one at a time does the same work without the promises.
+          const children = new Array(obj.children.length)
+          for (let i = 0; i < obj.children.length; i++) {
+            children[i] = await obj.children[i].toJSONAsync()
           }
+          result[key] = children
+        } else {
           result[key] = value
         }
-      }, 1)
+      }
       obj = Object.getPrototypeOf(obj)
     }
     return result

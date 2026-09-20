@@ -1,6 +1,6 @@
 import { expect } from './utils'
 import Diff, { ActionType } from '../lib/Diff'
-import { Bookmark, ItemLocation } from '../lib/Tree'
+import { Bookmark, Folder, ItemLocation, serializeIterations } from '../lib/Tree'
 
 function bookmark(id) {
   return new Bookmark({
@@ -166,5 +166,87 @@ describe('Diff', function() {
       })
       expect(after.added.map(({ action }) => action.payload.id)).to.deep.equal([1, 2, 3])
     })
+  })
+})
+
+describe('Tree serialization', function() {
+  function tree() {
+    let id = 0
+    return new Folder({
+      id: ++id,
+      title: 'root',
+      location: ItemLocation.LOCAL,
+      children: [
+        new Bookmark({ id: ++id, parentId: 1, title: 'a', url: 'http://example.com/a', location: ItemLocation.LOCAL }),
+        new Folder({
+          id: ++id,
+          parentId: 1,
+          title: 'sub',
+          location: ItemLocation.LOCAL,
+          children: [
+            new Bookmark({ id: ++id, parentId: 3, title: 'b', url: 'http://example.com/b', tags: ['x', 'y'], location: ItemLocation.LOCAL }),
+          ],
+        }),
+      ],
+    })
+  }
+
+  it('toJSONAsync agrees with toJSON', async function() {
+    const folder = tree()
+    expect(await folder.toJSONAsync()).to.deep.equal(folder.toJSON())
+  })
+
+  it('agrees on a folder carrying hashes and an index, too', async function() {
+    const folder = tree()
+    await folder.hash({ preserveOrder: false, hashFn: 'murmur3', syncTags: false })
+    folder.createIndex()
+    const json = await folder.toJSONAsync()
+    expect(json).to.deep.equal(folder.toJSON())
+    // the index is derived, and must not be dragged into storage with the rest
+    expect('index' in json).to.equal(false)
+  })
+
+  it('agrees on a clone, whose properties sit on its prototype', async function() {
+    // clone() hands out Object.create(this), so toJSONAsync has to walk the
+    // prototype chain to find anything at all
+    const folder = tree().clone(true)
+    expect(await folder.toJSONAsync()).to.deep.equal(folder.toJSON())
+    expect((await folder.toJSONAsync()).children).to.have.lengthOf(2)
+  })
+
+  function wide(count) {
+    let id = 0
+    return new Folder({
+      id: ++id,
+      title: 'root',
+      location: ItemLocation.LOCAL,
+      children: Array.from({ length: count }, (_, i) => new Bookmark({
+        id: ++id, parentId: 1, title: 'b' + i, url: 'http://example.com/' + i, location: ItemLocation.LOCAL,
+      })),
+    })
+  }
+
+  it('ticks its yield counter once per item, so the yields land every 1000', async function() {
+    // The counter used to be local to each call and count the steps of the
+    // item's own prototype chain -- two or three -- so `% 1000` never came up
+    // and a whole tree was serialized without ever giving the browser a breath
+    const folder = wide(250)
+    const before = serializeIterations()
+    await folder.toJSONAsync()
+    expect(serializeIterations() - before).to.equal(folder.count() + folder.countFolders())
+  })
+
+  it('ticks once per item for a clone, too, whatever its prototype chain', async function() {
+    const folder = wide(250).clone(true)
+    const before = serializeIterations()
+    await folder.toJSONAsync()
+    expect(serializeIterations() - before).to.equal(251)
+  })
+
+  it('keeps the children in order', async function() {
+    const folder = tree()
+    const json = await folder.toJSONAsync()
+    expect(json.children.map((child) => child.id)).to.deep.equal(folder.children.map((child) => child.id))
+    expect(json.children[1].children[0].title).to.equal('b')
   })
 })
