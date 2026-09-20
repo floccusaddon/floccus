@@ -40,6 +40,16 @@ import type { IContinuationDiffUpdate, IContinuationUpdate, TContinuationMember 
 // Tests have to be reproducible
 export const ACTION_CONCURRENCY = isTest ? 1 : 5
 
+/**
+ * Every item of a tree by id -- what Folder#createIndex builds, except that it
+ * is handed to the caller instead of being hung onto the tree, so that nothing
+ * afterwards has to keep it up to date.
+ */
+export interface ITreeIndex<L extends TItemLocation> {
+  folder: Map<string, Folder<L>>
+  bookmark: Map<string, TItem<L>>
+}
+
 export default class SyncProcess {
   protected mappings: Mappings
   protected localTree: TLocalTree
@@ -123,6 +133,34 @@ export default class SyncProcess {
   }
 
   /**
+   * Every item of a tree by id, each folder before the folders inside it.
+   *
+   * The trees the repairs below run on carry no index of their own at this
+   * point -- a hydrated cache, a CachingAdapter's copy(), the browser's local
+   * tree -- and Folder#findItem falls back to walking the whole tree when there
+   * is none. Looking every mapping up one by one would be one such walk per
+   * mapping; this is one walk, and a Map lookup per mapping.
+   */
+  protected static indexTree<L extends TItemLocation>(tree: Folder<L>): ITreeIndex<L> {
+    const index: ITreeIndex<L> = { folder: new Map(), bookmark: new Map() }
+    const stack: TItem<L>[] = [tree]
+    while (stack.length) {
+      const item = stack.pop()
+      if (item instanceof Folder) {
+        // Set before its children are even queued, so that the folder order of
+        // the index is parent-first -- repairServerMappings relies on it
+        index.folder.set(String(item.id), item)
+        for (const child of item.children) {
+          stack.push(child as TItem<L>)
+        }
+      } else {
+        index.bookmark.set(String(item.id), item)
+      }
+    }
+    return index
+  }
+
+  /**
    * Forget the mappings of local items that are gone for good.
    *
    * A mapping outlives the item it names: nothing removes it when an item
@@ -143,17 +181,19 @@ export default class SyncProcess {
    */
   async dropDeadMappings(): Promise<void> {
     const snapshot = this.mappings.getSnapshot()
+    const localIndex = SyncProcess.indexTree(this.localTreeRoot)
+    const cacheIndex = this.cacheTreeRoot ? SyncProcess.indexTree(this.cacheTreeRoot) : null
     let dropped = 0
 
     for (const [localId, remoteId] of Object.entries(snapshot.LocalToServer.folder)) {
-      if (this.localItemIsSpokenFor(ItemType.FOLDER, localId)) {
+      if (this.localItemIsSpokenFor(ItemType.FOLDER, localId, localIndex, cacheIndex)) {
         continue
       }
       dropped++
       await this.mappings.removeFolder({ localId, remoteId })
     }
     for (const [localId, remoteId] of Object.entries(snapshot.LocalToServer.bookmark)) {
-      if (this.localItemIsSpokenFor(ItemType.BOOKMARK, localId)) {
+      if (this.localItemIsSpokenFor(ItemType.BOOKMARK, localId, localIndex, cacheIndex)) {
         continue
       }
       dropped++
@@ -188,38 +228,79 @@ export default class SyncProcess {
       return
     }
 
+    const serverIndex = SyncProcess.indexTree(this.serverTreeRoot)
+    const localIndex = SyncProcess.indexTree(this.localTreeRoot)
+    const cacheIndex = this.cacheTreeRoot ? SyncProcess.indexTree(this.cacheTreeRoot) : null
+    // Every repair changes what the lookups after it have to go through, so this
+    // one snapshot is kept in step as we go instead of being re-read: an item is
+    // found in the folder its parent maps to, and for the items below a repaired
+    // folder that is the folder it maps to *now*
+    const snapshot = this.mappings.getSnapshot()
+
     let repaired = 0
     let dropped = 0
 
-    // Folders first: a bookmark is looked up in the folder its parent maps to,
-    // so those mappings want to be right before we get to them
+    // Folders first, and each folder before the ones inside it, for the same
+    // reason -- indexTree hands out its folders in that order
     for (const type of [ItemType.FOLDER, ItemType.BOOKMARK] as TItemType[]) {
-      const snapshot = this.mappings.getSnapshot()
-      const mapped = type === ItemType.FOLDER
-        ? snapshot.LocalToServer.folder
-        : snapshot.LocalToServer.bookmark
-      for (const [localId, remoteId] of Object.entries(mapped)) {
-        if (this.serverTreeRoot.findItem(type, remoteId)) {
+      const mapped = snapshot.LocalToServer[type]
+      const spokenFor = snapshot.ServerToLocal[type]
+      for (const localId of SyncProcess.mappedIdsInTreeOrder(mapped, localIndex[type], cacheIndex && cacheIndex[type])) {
+        const remoteId = mapped[localId]
+        if (serverIndex[type].has(String(remoteId))) {
           continue
         }
-        const localItem = (this.localTreeRoot.findItem(type, localId) ||
-          this.cacheTreeRoot?.findItem(type, localId)) as TItem<typeof ItemLocation.LOCAL>
-        const counterpart = localItem && this.findServerCounterpart(localItem, snapshot, localId)
+        const localItem = (localIndex[type].get(localId) ||
+          cacheIndex?.[type].get(localId)) as TItem<typeof ItemLocation.LOCAL>
+        const counterpart = localItem && this.findServerCounterpart(localItem, snapshot, serverIndex, localId)
+        delete spokenFor[remoteId]
         if (counterpart) {
           repaired++
           await (type === ItemType.FOLDER
             ? this.mappings.addFolder({ localId, remoteId: counterpart.id })
             : this.mappings.addBookmark({ localId, remoteId: counterpart.id }))
+          mapped[localId] = counterpart.id
+          spokenFor[counterpart.id] = localId
         } else {
           dropped++
           await (type === ItemType.FOLDER
             ? this.mappings.removeFolder({ localId, remoteId })
             : this.mappings.removeBookmark({ localId, remoteId }))
+          delete mapped[localId]
         }
       }
     }
 
     Logger.log('Re-mapped ' + repaired + ' and dropped ' + dropped + ' mappings naming server items that are gone')
+  }
+
+  /**
+   * The local ids of `mapped`, ordered by where their items sit: a folder
+   * before the folders inside it, and whatever is in none of the trees last --
+   * that one can't be looked up anyway, so it can only be dropped.
+   *
+   * Object.keys() would hand them out in insertion order instead, which says
+   * nothing about the tree, and a child repaired before its parent is looked up
+   * through a mapping that is still the stale one.
+   */
+  private static mappedIdsInTreeOrder(
+    mapped: Record<string, string|number>,
+    ...trees: (ReadonlyMap<string, unknown>|null)[]
+  ): string[] {
+    const order: string[] = []
+    const seen = new Set<string>()
+    const take = (id: string) => {
+      if (seen.has(id) || !(id in mapped)) {
+        return
+      }
+      seen.add(id)
+      order.push(id)
+    }
+    for (const tree of trees) {
+      tree && tree.forEach((item, id) => take(id))
+    }
+    Object.keys(mapped).forEach((id) => take(id))
+    return order
   }
 
   /**
@@ -231,13 +312,14 @@ export default class SyncProcess {
   private findServerCounterpart(
     localItem: TItem<typeof ItemLocation.LOCAL>,
     snapshot: MappingSnapshot,
+    serverIndex: ITreeIndex<typeof ItemLocation.SERVER>,
     localId: string
   ): TItem<typeof ItemLocation.SERVER>|null {
     const serverParentId = Mappings.mapParentId(snapshot, localItem, ItemLocation.SERVER)
     if (typeof serverParentId === 'undefined' || serverParentId === null) {
       return null
     }
-    const serverParent = this.serverTreeRoot.findFolder(serverParentId)
+    const serverParent = serverIndex.folder.get(String(serverParentId))
     if (!serverParent) {
       return null
     }
@@ -254,20 +336,17 @@ export default class SyncProcess {
   }
 
   /** Whether anything in this sync can still have use for a local item's mapping */
-  protected localItemIsSpokenFor(type: TItemType, id: string|number): boolean {
-    const inTree = type === ItemType.FOLDER
-      ? this.localTreeRoot.findFolder(id)
-      : this.localTreeRoot.findBookmark(id)
-    if (inTree) {
+  protected localItemIsSpokenFor(
+    type: TItemType,
+    id: string|number,
+    localIndex: ITreeIndex<typeof ItemLocation.LOCAL>,
+    cacheIndex: ITreeIndex<typeof ItemLocation.LOCAL>|null
+  ): boolean {
+    if (localIndex[type].has(String(id))) {
       return true
     }
-    if (!this.cacheTreeRoot) {
-      return false
-    }
     // Deleted locally, with the deletion still to be taken to the server
-    return Boolean(type === ItemType.FOLDER
-      ? this.cacheTreeRoot.findFolder(id)
-      : this.cacheTreeRoot.findBookmark(id))
+    return Boolean(cacheIndex && cacheIndex[type].has(String(id)))
   }
 
   getMembersToPersist() {

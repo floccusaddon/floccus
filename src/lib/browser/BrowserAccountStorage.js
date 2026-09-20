@@ -215,17 +215,23 @@ export default class BrowserAccountStorage {
   }
 
   async getCurrentContinuation() {
+    // A continuation written before this account was moved to row storage, by a
+    // version of floccus that didn't have it yet, or by a sync that fell back to
+    // the blob halfway through
+    const blob = await BrowserAccountStorage.getEntry(
+      `bookmarks[${this.accountId}].continuation`
+    )
     if (await this.canPersistContinuationIncrementally()) {
       const stored = await this.continuationStore.load()
-      if (stored) {
+      // Whichever describes the later point of the sync that wrote it. Rows and
+      // a blob can both be there when a sync fell back from one to the other,
+      // and preferring the rows outright would resume from a point that sync
+      // had already moved past.
+      if (stored && !(blob && blob.createdAt > stored.createdAt)) {
         return stored
       }
     }
-    // A continuation written before this account was moved to row storage, or
-    // by a version of floccus that didn't have it yet
-    return BrowserAccountStorage.getEntry(
-      `bookmarks[${this.accountId}].continuation`
-    )
+    return blob
   }
 
   async updateCurrentContinuation(update) {
@@ -234,7 +240,19 @@ export default class BrowserAccountStorage {
       await this.setCurrentContinuation(continuationUpdateToJSON(update))
       return
     }
-    await this.continuationStore.update(update)
+    try {
+      await this.continuationStore.update(update)
+    } catch (e) {
+      // IndexedDB can go away under us -- the database deleted or upgraded from
+      // elsewhere in this origin, storage evicted. This update carries only what
+      // changed, so it can't be written as a blob as it stands; give up on the
+      // rows instead, so that the next update is built as a full one and lands
+      // in extension storage.
+      Logger.log('Continuation store failed, falling back to extension storage: ' + e.message)
+      this.continuationIncremental = false
+      await this.clearContinuationStore()
+      throw e
+    }
     if (!this.legacyContinuationCleared) {
       // So that a blob from before the row storage can't outlive the rows and
       // be resumed after they were cleared
@@ -245,10 +263,25 @@ export default class BrowserAccountStorage {
     }
   }
 
-  async setCurrentContinuation(continuation) {
-    if (await this.canPersistContinuationIncrementally()) {
+  /**
+   * Best effort: throwing here would fail a sync that has otherwise gone
+   * through. Rows we can't drop are superseded by the newer stamp of whatever
+   * is written next, and Account#sync discards a continuation older than half
+   * an hour in any case.
+   */
+  async clearContinuationStore() {
+    try {
       await this.continuationStore.clear()
+    } catch (e) {
+      Logger.log('Could not clear the continuation store: ' + e.message)
     }
+  }
+
+  async setCurrentContinuation(continuation) {
+    // Unconditionally, not just while the rows are the storage in use: a sync
+    // that fell back to the blob halfway through has left rows behind, and they
+    // must not outlive it either
+    await this.clearContinuationStore()
     await BrowserAccountStorage.setEntry(
       `bookmarks[${this.accountId}].continuation`,
       // Clearing has to store null, not { createdAt }: Account#sync takes any

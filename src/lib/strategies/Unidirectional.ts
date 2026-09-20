@@ -111,10 +111,13 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     const slaveToMaster = slaveIsLocal
       ? snapshot.LocalToServer
       : snapshot.ServerToLocal
+    // One walk of the tree rather than the one Folder#findFolder falls back to
+    // for every single mapping -- the tree carries no index of its own here
+    const slaveIndex = DefaultStrategy.indexTree(slaveTree as Folder<TItemLocation>)
 
     let dropped = 0
     for (const [slaveId, masterId] of Object.entries(slaveToMaster.folder)) {
-      if (slaveTree.findFolder(slaveId)) {
+      if (slaveIndex.folder.has(String(slaveId))) {
         continue
       }
       dropped++
@@ -125,7 +128,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       )
     }
     for (const [slaveId, masterId] of Object.entries(slaveToMaster.bookmark)) {
-      if (slaveTree.findBookmark(slaveId)) {
+      if (slaveIndex.bookmark.has(String(slaveId))) {
         continue
       }
       dropped++

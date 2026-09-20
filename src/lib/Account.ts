@@ -415,7 +415,7 @@ export default class Account {
         lastSync: Date.now(),
       })
 
-      await this.storage.setCurrentContinuation(null)
+      await this.clearContinuation()
 
       Logger.log(
         'Successfully ended sync process for account ' + this.getLabel()
@@ -428,7 +428,7 @@ export default class Account {
       if (matchAllErrors(e, e => e.code === 48)) {
         Logger.log('Caught MappingFailureError: Gracefully resuming with reset cache and forceSync:true')
         await this.init()
-        await this.storage.setCurrentContinuation(null)
+        await this.clearContinuation()
         this.syncProcess = null
         this.localCachingResource = null
         await this.setData({ syncing: false })
@@ -470,7 +470,7 @@ export default class Account {
         new ClientsideAdditionFailsafeError(0).code,
         new ClientsideDeletionFailsafeError(0).code,
       ].includes(e.code) && (!isTest || e.code !== 26))) {
-        await this.storage.setCurrentContinuation(null)
+        await this.clearContinuation()
         await this.init()
       }
     }
@@ -498,6 +498,22 @@ export default class Account {
     if (this.syncProcess) {
       await this.syncProcess.cancel()
     }
+  }
+
+  /**
+   * Drop the stored continuation, under the same lock the persists in
+   * progressCallback take.
+   *
+   * The throttled progress callback is fire-and-forget, and it checks `syncing`
+   * before it writes rather than after, so one of its writes can still be in
+   * flight by the time we get here. Were the clear to go unlocked, that write
+   * could land after it and leave a finished sync's continuation behind, for
+   * the next sync to resume and execute its actions a second time.
+   */
+  private async clearContinuation(): Promise<void> {
+    await continuationLock.acquire(this.id, async() => {
+      await this.storage.setCurrentContinuation(null)
+    })
   }
 
   private async progressCallback(progress: number, actionsDone: number) {
@@ -554,10 +570,20 @@ export default class Account {
             return
           }
           Logger.log('progressCallback: Persisting continuation')
-          await this.storage.updateCurrentContinuation(update)
-          // Only now that the write has gone through: anything that isn't
-          // acknowledged here is simply written again with the next update
-          this.syncProcess.markContinuationPersisted(update)
+          try {
+            await this.storage.updateCurrentContinuation(update)
+            // Only now that the write has gone through: anything that isn't
+            // acknowledged here is simply written again with the next update
+            this.syncProcess.markContinuationPersisted(update)
+          } catch (e) {
+            // Letting this through takes the rest of the tick with it -- the
+            // mappings below included, which would then fall out of step with
+            // the cache that was just persisted, the very divergence that
+            // persisting the cache here exists to prevent. The update isn't
+            // acknowledged, so the next tick offers it again -- by which time
+            // the storage has had its chance to fall back to one that works.
+            Logger.log('progressCallback: Could not persist continuation', e)
+          }
         })
       }
       Logger.log('progressCallback: Persisting mappings')
