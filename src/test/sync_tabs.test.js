@@ -5,6 +5,7 @@ import * as AsyncParallel from 'async-parallel'
 import Controller from '../lib/Controller'
 import {
   awaitTabsUpdated, DUMP_LOGS, expect,
+  createTestLocalRoot,
   expectTreeEqual,
   getAllBookmarks,
   getEnv,
@@ -64,7 +65,7 @@ describe('Floccus', function() {
             await browser.tabs.remove(tab.id)
           })
           beforeEach('set up account', async function() {
-            account = await Account.create(ACCOUNT_DATA)
+            account = await Account.create({...ACCOUNT_DATA, ...(await createTestLocalRoot())})
             if (ACCOUNT_DATA.type === 'fake') {
               account.server.bookmarksCache = new Folder({
                 id: '',

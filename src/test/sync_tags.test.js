@@ -4,6 +4,7 @@ import * as AsyncParallel from 'async-parallel'
 import Controller from '../lib/Controller'
 import {
   clearLocalResource,
+  createTestLocalRoot,
   DUMP_LOGS,
   expect,
   expectTreeEqual,
@@ -53,7 +54,7 @@ describe('Floccus', function() {
         const slug = `${scope}-${this.currentTest.title}`.replace(/[^a-z0-9]+/gi, '-').toLowerCase()
         bookmarkUrl = `http://ur.l/${slug}/`
 
-        account = await Account.create(ACCOUNT_DATA)
+        account = await Account.create({...ACCOUNT_DATA, ...(await createTestLocalRoot())})
         if (ACCOUNT_DATA.type === 'fake') {
           account.server.bookmarksCache = new Folder({
             id: '',

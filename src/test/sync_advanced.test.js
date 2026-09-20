@@ -4,6 +4,7 @@ import * as AsyncParallel from 'async-parallel'
 import Controller from '../lib/Controller'
 import {
   clearLocalResource,
+  createTestLocalRoot,
   DUMP_LOGS,
   expect,
   expectTreeEqual,
@@ -40,9 +41,9 @@ describe('Floccus', function() {
           this.timeout(40 * 60000) // timeout after 20mins
           let account1, account2
           beforeEach('set up accounts', async function() {
-            account1 = await Account.create(ACCOUNT_DATA)
+            account1 = await Account.create({...ACCOUNT_DATA, ...(await createTestLocalRoot())})
             await account1.init()
-            account2 = await Account.create(ACCOUNT_DATA)
+            account2 = await Account.create({...ACCOUNT_DATA, ...(await createTestLocalRoot())})
             await account2.init()
 
             if (ACCOUNT_DATA.type === 'fake') {

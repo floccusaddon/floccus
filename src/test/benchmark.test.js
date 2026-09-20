@@ -4,6 +4,7 @@ import * as AsyncParallel from 'async-parallel'
 import Controller from '../lib/Controller'
 import {
   clearLocalResource,
+  createTestLocalRoot,
   DUMP_LOGS,
   expect, expectTreeEqual, getAllBookmarks, getEnv, randomlyManipulateTree,
   randomlyManipulateTreeWithDeletions, seedTestRandom, stringifyAccountData,
@@ -72,9 +73,9 @@ describe('Floccus', function() {
           seedTestRandom(SEED)
           stopInterrupts()
 
-          account1 = await Account.create({...ACCOUNT_DATA, failsafe: false})
+          account1 = await Account.create({...ACCOUNT_DATA, failsafe: false, ...(await createTestLocalRoot())})
           await account1.init()
-          account2 = await Account.create({...ACCOUNT_DATA, failsafe: false})
+          account2 = await Account.create({...ACCOUNT_DATA, failsafe: false, ...(await createTestLocalRoot())})
           await account2.init()
 
           account1.onSyncProcessCreated = armInterrupt

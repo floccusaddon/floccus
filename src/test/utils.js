@@ -630,6 +630,32 @@ export function stringifyAccountData(ACCOUNT_DATA) {
   }`
 }
 
+let testFolderCount = 0
+
+/**
+ * The account data a test account needs to have a local folder to sync into.
+ *
+ * In the browser, a profile syncs into the folder the user picked for it and
+ * floccus will not invent one (BrowserAccount#init throws
+ * LocalFolderNotFoundError when the folder is missing), so the tests have to
+ * play the user and put a fresh folder on the bookmarks bar for each account.
+ * Native accounts own their local tree, so there is nothing to pick.
+ */
+export async function createTestLocalRoot() {
+  if (!IS_BROWSER) {
+    return {}
+  }
+  const { default: browser } = await import('../lib/browser-api.js')
+  const BrowserTree = (await import('../lib/browser/BrowserTree')).default
+  const absoluteRoot = await BrowserTree.getAbsoluteRootFolder()
+  const bookmarksBar = (await browser.bookmarks.getChildren(absoluteRoot.id))[0]
+  const node = await browser.bookmarks.create({
+    title: 'Floccus test ' + ++testFolderCount,
+    parentId: bookmarksBar.id,
+  })
+  return { localRoot: node.id }
+}
+
 export async function awaitTabsUpdated() {
   const {default: browser} = await import('../lib/browser-api.js')
   return Promise.race([
