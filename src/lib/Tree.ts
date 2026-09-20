@@ -593,8 +593,9 @@ export class Folder<L extends TItemLocation> {
       await yieldToEventLoop()
     }
 
-    const children = this.children.slice()
+    let children = this.children
     if (!preserveOrder) {
+      children = children.slice()
       // only re-sort unless we sync the order of the children as well
       children.sort((c1, c2) => {
         if (c1.title < c2.title) {
@@ -607,13 +608,13 @@ export class Folder<L extends TItemLocation> {
       })
     }
     if (!this.hashValue) this.hashValue = {}
+    const childHashes: string[] = new Array(children.length)
+    for (let i = 0; i < children.length; i++) {
+      childHashes[i] = await children[i].hash({ preserveOrder, hashFn, syncTags })
+    }
     const json = JSON.stringify({
       title: this.title,
-      children: await Parallel.map(
-        children,
-        (child) => child.hash({ preserveOrder, hashFn, syncTags }),
-        1
-      ),
+      children: childHashes,
     })
     if (hashFn === 'sha256') {
       this.hashValue[cacheKey] = await Crypto.sha256(json)
