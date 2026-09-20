@@ -4,6 +4,10 @@
 		"classpath": "com.byteowls.capacitor.oauth2.OAuth2ClientPlugin"
 	},
 	{
+		"pkg": "@capacitor-community/keep-awake",
+		"classpath": "com.getcapacitor.community.keepawake.KeepAwakePlugin"
+	},
+	{
 		"pkg": "@capacitor-community/sqlite",
 		"classpath": "com.getcapacitor.community.database.sqlite.CapacitorSQLitePlugin"
 	},
