@@ -709,8 +709,8 @@ export default class SyncProcess {
     }
 
     if (!this.actionsPlanned) {
-      this.actionsPlanned = Object.values(this.serverPlanStage2 || this.planStage3Server).reduce((acc, diff) => diff.getActions().length + acc, 0) +
-        Object.values(this.localPlanStage2 || this.planStage3Local).reduce((acc, diff) => diff.getActions().length + acc, 0)
+      this.actionsPlanned = Object.values(this.serverPlanStage2 || this.planStage3Server).reduce((acc, diff) => diff.peekActions().length + acc, 0) +
+        Object.values(this.localPlanStage2 || this.planStage3Local).reduce((acc, diff) => diff.peekActions().length + acc, 0)
     }
 
     if (this.serverPlanStage2) {
@@ -952,7 +952,7 @@ export default class SyncProcess {
 
   protected applyDeletionFailsafe(direction: TItemLocation, tree: Folder<TItemLocation>, removals: Diff<TItemLocation, TItemLocation, RemoveAction<TItemLocation, TItemLocation>>) {
     const countTotal = tree.count()
-    const countDeleted = removals.getActions().reduce((count, action) => count + action.payload.count(), 0)
+    const countDeleted = removals.peekActions().reduce((count, action) => count + action.payload.count(), 0)
 
     Logger.log('Checking deletion failsafe: ' + countDeleted + '/' + countTotal + '=' + (countDeleted / countTotal))
     // Failsafe kicks in if more than 20% is deleted or more than 1k bookmarks
@@ -975,7 +975,7 @@ export default class SyncProcess {
 
   protected applyAdditionFailsafe(direction: TItemLocation, tree: Folder<TItemLocation>, creations: Diff<TItemLocation, TItemLocation, CreateAction<TItemLocation, TItemLocation>>) {
     const countTotal = tree.count()
-    const countAdded = creations.getActions().reduce((count, action) => count + action.payload.count(), 0)
+    const countAdded = creations.peekActions().reduce((count, action) => count + action.payload.count(), 0)
 
     Logger.log('Checking addition failsafe: ' + countAdded + '/' + countTotal + '=' + (countAdded / countTotal))
     // Failsafe kicks in if more than 20% is added or more than 1k bookmarks
@@ -1330,7 +1330,7 @@ export default class SyncProcess {
         if (targetLocation !== this.masterLocation) {
           // only when coming from master do we recreate
           // check sourceCreations and targetPlan.CREATE, since we may have created an item along the way in this method already
-          const originalCreation = targetPlan.CREATE.getActions().find(creation =>
+          const originalCreation = targetPlan.CREATE.peekActions().find(creation =>
             creation.payload.type === ItemType.FOLDER && creation.payload.findItem(ItemType.FOLDER, action.payload.parentId)
           ) || sourceCreations.find(creation =>
             creation.payload.type === ItemType.FOLDER && creation.payload.findItem(ItemType.FOLDER, action.payload.parentId)
@@ -1421,7 +1421,7 @@ export default class SyncProcess {
 
             if (
               // Don't create duplicates!
-              targetPlan.MOVE.getActions().find(move => String(move.payload.id) === String(payload.id)) ||
+              targetPlan.MOVE.peekActions().find(move => String(move.payload.id) === String(payload.id)) ||
               sourceMoves.find(move => String(move.payload.id) === String(payload.id)) ||
               // Don't move back into removed territory
               targetRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, remove, findChainCache1)) ||
@@ -2251,7 +2251,7 @@ export default class SyncProcess {
     mappingsSnapshot: MappingSnapshot,
     sourceReorders:Diff<TItemLocation, TItemLocation, ReorderAction<TItemLocation, TItemLocation>>,
     oldItem: TItem<TItemLocation>) {
-    const parentReorder = sourceReorders.getActions().find(action => String(Mappings.mapId(mappingsSnapshot, action.payload, oldItem.location)) === String(oldItem.parentId))
+    const parentReorder = sourceReorders.peekActions().find(action => String(Mappings.mapId(mappingsSnapshot, action.payload, oldItem.location)) === String(oldItem.parentId))
     if (!parentReorder) {
       return
     }

@@ -95,7 +95,20 @@ export default class Diff<
   L2 extends TItemLocation,
   A extends Action<L1, L2>
 > {
-  private readonly actions: A[]
+  /**
+   * The actions, in order, with a hole where one was retracted.
+   *
+   * retract() used to splice, which meant finding the action first (indexOf, a
+   * scan) and then moving everything behind it -- and Scanner#findMoves retracts
+   * inside a loop over every create/remove pair. Leaving a hole instead is O(1);
+   * the holes are squeezed out again the next time somebody asks for the actions
+   * (see #compact), so nothing outside this class ever sees one.
+   */
+  private readonly actions: (A|undefined)[]
+  /** Where each action sits in `actions`, so retract/markChanged need no scan */
+  private positions: Map<A, number> = new Map()
+  /** How many slots of `actions` are holes */
+  private holes = 0
 
   /**
    * The continuation store keeps one row per action, keyed by (diff id, seq),
@@ -134,7 +147,7 @@ export default class Diff<
 
   clone(filter: (action: A) => boolean = () => true): Diff<L1, L2, A> {
     const newDiff: Diff<L1, L2, A> = new Diff()
-    this.getActions().forEach((action: A) => {
+    this.peekActions().forEach((action: A) => {
       if (filter(action)) {
         newDiff.commit(action)
       }
@@ -144,18 +157,21 @@ export default class Diff<
   }
 
   commit(action: A): void {
-    this.actions.push({ ...action })
+    const stored = { ...action } as A
+    this.positions.set(stored, this.actions.length)
+    this.actions.push(stored)
     const seq = this.nextSeq++
     this.seqs.push(seq)
     this.changedSeqs.add(seq)
   }
 
   retract(action: A): void {
-    const idx = this.actions.indexOf(action)
-    if (idx !== -1) {
+    const idx = this.positions.get(action)
+    if (typeof idx !== 'undefined') {
       const seq = this.seqs[idx]
-      this.actions.splice(idx, 1)
-      this.seqs.splice(idx, 1)
+      this.positions.delete(action)
+      this.actions[idx] = undefined
+      this.holes++
       this.changedSeqs.delete(seq)
       this.inFlightSeqs.delete(seq)
       if (this.maybeStoredSeqs.has(seq)) {
@@ -165,13 +181,38 @@ export default class Diff<
   }
 
   /**
+   * Squeeze the holes retract() left out of `actions` (and out of `seqs` along
+   * with it -- the two are read in lockstep by #getPendingChangesAsync and must
+   * stay aligned).
+   */
+  private compact(): void {
+    if (!this.holes) {
+      return
+    }
+    let write = 0
+    for (let read = 0; read < this.actions.length; read++) {
+      const action = this.actions[read]
+      if (typeof action === 'undefined') {
+        continue
+      }
+      this.actions[write] = action
+      this.seqs[write] = this.seqs[read]
+      this.positions.set(action, write)
+      write++
+    }
+    this.actions.length = write
+    this.seqs.length = write
+    this.holes = 0
+  }
+
+  /**
    * Announce that an action's contents were changed in place, i.e. without
    * going through commit()/retract() -- see Default#removeItemFromReorders,
    * which rewrites the order of a reorder action that stays in its diff.
    */
   markChanged(action: A): void {
-    const idx = this.actions.indexOf(action)
-    if (idx !== -1) {
+    const idx = this.positions.get(action)
+    if (typeof idx !== 'undefined') {
       this.changedSeqs.add(this.seqs[idx])
     }
   }
@@ -191,6 +232,11 @@ export default class Diff<
     // and is written by the next persist, and anything retracted is caught by
     // the removals below -- the row for it may be written by this very update.
     for (let i = 0; i < this.actions.length; i++) {
+      const action = this.actions[i]
+      if (typeof action === 'undefined') {
+        // Retracted while we were serializing; the removals below carry it
+        continue
+      }
       const seq = this.seqs[i]
       if (!full && !this.changedSeqs.has(seq) && !this.inFlightSeqs.has(seq)) {
         continue
@@ -201,7 +247,7 @@ export default class Diff<
       if (++iterations % 1000 === 0) {
         await yieldToEventLoop()
       }
-      added.push({ seq, action: await Diff.serializeActionAsync(this.actions[i]) })
+      added.push({ seq, action: await Diff.serializeActionAsync(action) })
     }
     const removed = full ? [] : [...this.removedSeqs]
     return {
@@ -235,8 +281,31 @@ export default class Diff<
     }
   }
 
+  /**
+   * The actions, as a copy the caller owns.
+   *
+   * Only needed where the caller changes what it iterates -- either the array
+   * itself (Scanner#findMoves shifts off it) or the diff behind it (an executor
+   * retracting each action as it goes). Everything that only reads should take
+   * #peekActions instead and save the copy.
+   */
   getActions(): A[] {
-    return [].concat(this.actions)
+    this.compact()
+    return (this.actions as A[]).slice()
+  }
+
+  /**
+   * The actions as they are, without copying them out.
+   *
+   * This *is* the diff's own array, so it is only good for reading, and only
+   * until the next commit() or retract() -- a retract leaves a hole in it and a
+   * commit may reallocate it. Hold on to individual actions if you need them
+   * past that, never to the array. Where that can't be guaranteed, use
+   * #getActions.
+   */
+  peekActions(): readonly A[] {
+    this.compact()
+    return this.actions as A[]
   }
 
   static containsParent(
@@ -416,8 +485,7 @@ export default class Diff<
     const newDiff: Diff<L3, L1, MapLocation<A, L3>> = new Diff()
 
     // Map payloads
-    this.getActions()
-      .map((a) => a as A)
+    this.peekActions()
       .forEach((action) => {
         let newAction
 
@@ -571,7 +639,7 @@ export default class Diff<
   }
 
   toJSON() {
-    return this.getActions().map((action: A) => Diff.serializeAction(action))
+    return this.peekActions().map((action: A) => Diff.serializeAction(action))
   }
 
   async toJSONAsync() {
@@ -591,7 +659,7 @@ export default class Diff<
   inspect(depth = 0): string {
     return (
       'Diff\n' +
-      this.getActions()
+      this.peekActions()
         .map((action: A) => {
           return `\nAction: ${action.type}\nPayload: #${action.payload.id}[${
             action.payload.title

@@ -198,8 +198,6 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         const createdItem = createAction.payload
         removeActions = this.result.REMOVE.getActions()
         while (!reconciled && (removeAction = removeActions.shift())) {
-          // give the browser time to breathe
-          await Promise.resolve()
           const removedItem = removeAction.payload
 
           if (
@@ -238,8 +236,6 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         const createdItem = createAction.payload
         removeActions = this.result.REMOVE.getActions()
         while (!reconciled && (removeAction = removeActions.shift())) {
-          // give the browser time to breathe
-          await Promise.resolve()
           const removedItem = removeAction.payload
           const oldItem = removedItem.findItemFilter(
             createdItem.type,
@@ -331,7 +327,8 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     }
 
     // Remove all UPDATEs that have already been handled by a MOVE
-    const moves = this.result.MOVE.getActions()
+    const moves = this.result.MOVE.peekActions()
+    // A copy, because the loop below retracts from the very diff it walks
     const updates = this.result.UPDATE.getActions()
     updates.forEach(update => {
       if (moves.find(move => String(move.payload.id) === String(update.payload.id))) {
@@ -415,7 +412,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       if (!newFolder) {
         continue
       }
-      const duplicate = this.result.REORDER.getActions().find(a => String(a.payload.id) === String(newFolder.id))
+      const duplicate = this.result.REORDER.peekActions().find(a => String(a.payload.id) === String(newFolder.id))
       if (duplicate) {
         this.result.REORDER.retract(duplicate)
       }
