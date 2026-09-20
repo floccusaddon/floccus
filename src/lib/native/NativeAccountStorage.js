@@ -8,6 +8,7 @@ import Logger from '../Logger'
 import NativeMappingsStore from './NativeMappingsStore'
 import NativeTreeStore from './NativeTreeStore'
 import NativeContinuationStore from './NativeContinuationStore'
+import NativeLogStore from './NativeLogStore'
 
 const storageLock = new AsyncLock()
 
@@ -60,6 +61,22 @@ export default class NativeAccountStorage {
 
   static deleteEntry(entryName) {
     return Storage.remove({key: entryName})
+  }
+
+  /**
+   * The log is rows rather than an entry, so that adding to it doesn't mean
+   * rewriting it -- see NativeLogStore.
+   */
+  static appendLogs(messages) {
+    return NativeLogStore.append(messages)
+  }
+
+  static getLogs() {
+    return NativeLogStore.read()
+  }
+
+  static clearLogs() {
+    return NativeLogStore.clear()
   }
 
   static async getAllAccounts() {

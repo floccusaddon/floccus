@@ -9,6 +9,20 @@ import { throttle } from 'throttle-debounce'
 import asyncThrottle from '@jcoreio/async-throttle'
 import { isTest } from './isTest'
 
+/**
+ * How many lines of the log are kept around for #downloadLogs.
+ *
+ * The storages trim their end themselves, so this is what a reader gets to see
+ * -- not what a persist has to write.
+ */
+export const LOG_RETENTION = 1000
+
+/**
+ * How many lines may pile up unpersisted. A persist drains the buffer every few
+ * seconds, so this only ever bites when storage fails or falls behind.
+ */
+const MAX_PENDING = 10000
+
 export default class Logger {
   static log() {
     const logMsg = [new Date().toISOString(), ...arguments]
@@ -20,37 +34,48 @@ export default class Logger {
     // with in-flight sync mutations.
     if (isTest) return
     throttledTrimLogs()
-    throttledIntermittentPersist()
+    throttledPersist()
   }
 
   static trimLogs() {
-    this.messages = this.messages.slice(-10000)
+    this.messages = this.messages.slice(-MAX_PENDING)
   }
 
+  /**
+   * Hand the lines logged since the last time over to storage.
+   *
+   * Only those: the storage appends them and trims its own end, so a persist
+   * costs what has happened since the last one rather than a rewrite of the
+   * whole log. That used to be a multi-megabyte write every three seconds, and
+   * on Android -- where it went into the preferences, which are rewritten whole
+   * -- it took about seven seconds a time, which over a large sync added up to
+   * most of its wall clock.
+   */
   static async persist() {
     if (this.messages.length === 0) return
     const Storage = IS_BROWSER
       ? await import('./browser/BrowserAccountStorage')
       : await import('./native/NativeAccountStorage')
-    // only save the last sync run
-    const messages = this.messages.slice(-1000)
+    const messages = this.messages
     this.messages = []
-    await Storage.default.setEntry('logs', messages)
-  }
-
-  static async intermittentPersist() {
-    const Storage = IS_BROWSER
-      ? await import('./browser/BrowserAccountStorage')
-      : await import('./native/NativeAccountStorage')
-    if (this.messages.length === 0) return
-    await Storage.default.setEntry('logs', this.messages.slice(-1000))
+    try {
+      await Storage.default.appendLogs(messages)
+    } catch (e) {
+      // Put them back in front of whatever was logged in the meantime, so that
+      // the next persist gets another go at them
+      this.messages = messages.concat(this.messages).slice(-MAX_PENDING)
+      throw e
+    }
   }
 
   static async getLogs() {
     const Storage = IS_BROWSER
       ? await import('./browser/BrowserAccountStorage')
       : await import('./native/NativeAccountStorage')
-    return Storage.default.getEntry('logs', [])
+    // Whatever hasn't been persisted yet is part of the log the caller asked
+    // for -- and it's usually the most interesting part of it
+    await this.persist()
+    return Storage.default.getLogs()
   }
 
   static async anonymizeLogs(logs) {
@@ -147,6 +172,14 @@ export default class Logger {
 }
 
 const throttledTrimLogs = throttle(20000, () => Logger.trimLogs())
-const throttledIntermittentPersist = asyncThrottle(async() => Logger.intermittentPersist(), 3000)
+const throttledPersist = asyncThrottle(async() => {
+  try {
+    await Logger.persist()
+  } catch (e) {
+    // Nobody is waiting on this one, and failing to store the log is no reason
+    // to take down whatever was being logged
+    console.error(e)
+  }
+}, 3000)
 
 Logger.messages = []

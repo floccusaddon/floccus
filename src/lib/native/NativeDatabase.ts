@@ -24,6 +24,10 @@ const DB_VERSION = 1
  * (continuations), so that a progress tick only writes the actions that were
  * executed since the last one -- see Continuation.ts.
  *
+ * The debug log lives in here as well, one row per line -- the only table that
+ * isn't tied to an account, since the log is a single stream (see
+ * NativeLogStore).
+ *
  * `search_text` is what the native UI's search runs its LIKE against. It holds
  * the item's title (and, for bookmarks, its url and tags) lowercased in JS:
  * SQLite's own lower()/LIKE only fold ASCII, so searching for 'apfel' would
@@ -84,6 +88,10 @@ CREATE TABLE IF NOT EXISTS mappings (
   local_id_numeric INTEGER NOT NULL DEFAULT 0,
   remote_id_numeric INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (account_id, type, local_id)
+);
+CREATE TABLE IF NOT EXISTS logs (
+  seq INTEGER PRIMARY KEY,
+  message TEXT NOT NULL
 );
 `
 

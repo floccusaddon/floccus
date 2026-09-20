@@ -4,7 +4,7 @@ import DefunctCryptography from '../DefunctCrypto'
 import Mappings from '../Mappings'
 import { Folder, ItemLocation } from '../Tree'
 import AsyncLock from 'async-lock'
-import Logger from '../Logger'
+import Logger, { LOG_RETENTION } from '../Logger'
 import BrowserContinuationStore from './BrowserContinuationStore'
 import { continuationUpdateToJSON } from '../Continuation'
 
@@ -53,6 +53,34 @@ export default class BrowserAccountStorage {
 
   static deleteEntry(entryName) {
     return browser.storage.local.remove(entryName)
+  }
+
+  /**
+   * Add to the stored log and trim it back to the newest LOG_RETENTION lines.
+   *
+   * Unlike the native side this still rewrites the whole entry -- extension
+   * storage has no cheaper way to append -- but it is at least one read and one
+   * write of the capped log, rather than of everything that has been logged.
+   */
+  static async appendLogs(messages) {
+    if (!messages.length) {
+      return
+    }
+    await storageLock.acquire('logs', async() => {
+      const { logs } = await browser.storage.local.get('logs')
+      const stored = Array.isArray(logs) ? logs : []
+      await browser.storage.local.set({
+        logs: stored.concat(messages).slice(-LOG_RETENTION)
+      })
+    })
+  }
+
+  static async getLogs() {
+    return BrowserAccountStorage.getEntry('logs', [])
+  }
+
+  static async clearLogs() {
+    return BrowserAccountStorage.setEntry('logs', [])
   }
 
   static async getAllAccounts() {

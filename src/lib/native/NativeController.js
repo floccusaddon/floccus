@@ -89,9 +89,10 @@ export default class NativeController {
 
     this.alarms = new AlarmManager(this)
 
-    // Remove old logs
+    // Remove old logs. Only the stored ones: what this run has logged so far
+    // is still in Logger's buffer and belongs in the fresh log.
 
-    NativeAccountStorage.setEntry('logs', [])
+    NativeAccountStorage.clearLogs()
 
     // lock accounts when locking is enabled
 
