@@ -13,6 +13,7 @@ import {
   createTestLocalRoot,
   DUMP_LOGS,
   expect,
+  disableCachePersistence,
   expectTreeEqual,
   getAllBookmarks,
   getEnv,
@@ -55,9 +56,7 @@ describe('Floccus', function() {
             }
             await account.init()
             if (ACCOUNT_DATA.noCache) {
-              account.storage.setCache = () => {
-                // noop
-              }
+              disableCachePersistence(account)
               account.storage.setMappings = () => {
                 // noop
               }

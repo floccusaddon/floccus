@@ -53,6 +53,13 @@ export interface CachingResource <L extends TItemLocation> extends IResource<L> 
    */
   // eslint-disable-next-line no-use-before-define
   getCacheTreeJSON(accepts?: TBookmarkFilter):any
+  /**
+   * Hand everything that has changed since the last time to the cache store.
+   * `accepts` is only read by a store that keeps the cache as one blob rather
+   * than as rows -- see ICacheStore.
+   */
+  // eslint-disable-next-line no-use-before-define
+  saveCache(accepts?: TBookmarkFilter):Promise<void>
   /** How often the cached tree has been changed, see CachingAdapter */
   getCacheRevision():number
   /** Whether it has changed since the last markCachePersisted */

@@ -9,6 +9,7 @@ import {
   TOppositeLocation,
 } from '../Tree'
 import Logger from '../Logger'
+import { filterUnacceptedBookmarks } from '../CacheTree'
 import Diff, {
   Action,
   ActionType,
@@ -998,21 +999,7 @@ export default class SyncProcess {
    * hashes with them now (see CachingAdapter#invalidateHashes).
    */
   filterOutUnacceptedBookmarks(tree: Folder<TItemLocation>): boolean {
-    let changed = false
-    tree.children = tree.children.filter(child => {
-      if (child instanceof Bookmark) {
-        const accepted = this.server.acceptsBookmark(child)
-        changed = changed || !accepted
-        return accepted
-      } else {
-        changed = this.filterOutUnacceptedBookmarks(child) || changed
-        return true
-      }
-    })
-    if (changed) {
-      tree.invalidateHash()
-    }
-    return changed
+    return filterUnacceptedBookmarks(tree, (bm) => this.server.acceptsBookmark(bm))
   }
 
   filterOutInvalidBookmarks(tree: Folder<TItemLocation>): boolean {

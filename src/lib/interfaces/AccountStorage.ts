@@ -2,6 +2,7 @@ import Mappings from '../Mappings'
 import { Folder, ItemLocation } from '../Tree'
 import { ISerializedSyncProcess } from '../strategies/Default'
 import { IContinuationUpdate } from '../Continuation'
+import ICacheStore from './CacheStore'
 
 export type TAccountStrategy = 'default' | 'overwrite' | 'slave'
 
@@ -34,6 +35,11 @@ export default interface IAccountStorage {
   getCache(): Promise<Folder<typeof ItemLocation.LOCAL>>
   setCache(data): Promise<void>
   deleteCache(): Promise<void>
+  /**
+   * Where the sync cache is kept. The tree hands its changes to it as they
+   * happen, so that a persist costs what has changed -- see ICacheStore.
+   */
+  getCacheStore(): ICacheStore
   initMappings(): Promise<void>;
   getMappings(): Promise<Mappings>;
   setMappings(data): Promise<void>;

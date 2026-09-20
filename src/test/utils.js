@@ -1,5 +1,6 @@
 /* global IS_BROWSER */
 import chai from 'chai'
+import NullCacheStore from '../lib/NullCacheStore'
 import chaiAsPromised from 'chai-as-promised'
 import { Bookmark, Folder } from '../lib/Tree'
 import Logger from '../lib/Logger'
@@ -298,6 +299,19 @@ let expectTreeEqualRec = function(
     )
     throw e
   }
+}
+
+/**
+ * Take the sync cache away from an account, the way the `noCache` variants of
+ * the sync tests need it: the cache tree hands its changes to a store that
+ * keeps nothing, so every sync has to start from scratch.
+ */
+export function disableCachePersistence(account) {
+  const store = new NullCacheStore()
+  account.storage.getCacheStore = () => store
+  // Nothing in the sync writes the cache as one blob any more, but a storage
+  // that still could mustn't either
+  account.storage.setCache = () => Promise.resolve()
 }
 
 export function hasNoBookmarks(child) {

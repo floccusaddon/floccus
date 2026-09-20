@@ -6,6 +6,7 @@ import { Folder, ItemLocation } from '../Tree'
 import AsyncLock from 'async-lock'
 import Logger, { LOG_RETENTION } from '../Logger'
 import BrowserContinuationStore from './BrowserContinuationStore'
+import BrowserCacheStore from './BrowserCacheStore'
 import { continuationUpdateToJSON } from '../Continuation'
 
 const storageLock = new AsyncLock()
@@ -157,6 +158,16 @@ export default class BrowserAccountStorage {
     await this.deleteCache()
     await this.deleteMappings()
     await this.setCurrentContinuation(null)
+  }
+
+  /**
+   * The sync cache stays one JSON blob in the browser -- see BrowserCacheStore.
+   */
+  getCacheStore() {
+    if (!this.cacheStore) {
+      this.cacheStore = new BrowserCacheStore(this)
+    }
+    return this.cacheStore
   }
 
   async initCache() {

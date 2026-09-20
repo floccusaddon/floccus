@@ -27,7 +27,7 @@ const ID_CHUNK_SIZE = 200
 
 const migrations: Record<string, Promise<void>> = {}
 
-function serializeTags(tags?: string[]): string | null {
+export function serializeTags(tags?: string[]): string | null {
   return typeof tags === 'undefined' ? null : JSON.stringify(tags)
 }
 

@@ -12,6 +12,7 @@ import Mappings from './Mappings'
 import { isTest } from './isTest'
 import AsyncLock from 'async-lock'
 import CachingTreeWrapper from './CachingTreeWrapper'
+import { filterUnacceptedBookmarks } from './CacheTree'
 import { isOAuthAccount } from './AccountAuthorization'
 import {
   ClientsideAdditionFailsafeError, ClientsideDeletionFailsafeError, FloccusError,
@@ -227,7 +228,7 @@ export default class Account {
 
       if (!(await this.server.isAvailable()) || !(await (await this.getResource()).isAvailable())) return
 
-      this.localCachingResource = new CachingTreeWrapper(await this.getResource())
+      this.localCachingResource = new CachingTreeWrapper(await this.getResource(), this.storage.getCacheStore())
 
       Logger.log('Starting sync process for account ' + this.getLabel())
       this.syncing = true
@@ -290,6 +291,12 @@ export default class Account {
 
       Logger.log('Fetching cache')
       const cacheTree = await this.storage.getCache()
+      // The bookmarks the server would refuse were never on it, so they must be
+      // no part of the tree the scanner diffs against the local one -- which
+      // prepareSync filters the same way. The cache used to be filtered as it
+      // was written; it is rows now and holds the tree as it is, so this is
+      // where it happens.
+      filterUnacceptedBookmarks(cacheTree, (bm) => this.server.acceptsBookmark(bm))
       Logger.log('Fetched cache')
 
       Logger.log('Fetching pending continuation')
@@ -388,15 +395,16 @@ export default class Account {
 
       // update cache
       Logger.log('Storing cache')
-      // getCacheTree() already hands out a copy of our own, hashes included --
-      // they are stored along with the cache. A Folder rather than the cheaper
-      // getCacheTreeJSON because Mappings#gc below indexes and walks it as a
-      // tree; this runs once per sync, so the extra copy doesn't matter here.
+      // Read before storing: a change landing during the write has to leave the
+      // cache dirty
       const cacheRevision = this.localCachingResource.getCacheRevision()
+      await this.localCachingResource.saveCache((bm) => this.server.acceptsBookmark(bm))
+      this.localCachingResource.markCachePersisted(cacheRevision)
+
+      // A copy of our own for Mappings#gc below, which indexes and walks it as
+      // a tree. This runs once per sync, so the extra copy doesn't matter here.
       const cache = await this.localCachingResource.getCacheTree()
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
-      await this.storage.setCache(await cache.toJSONAsync())
-      this.localCachingResource.markCachePersisted(cacheRevision)
 
       if (this.server.onSyncComplete) {
         Logger.log('Calling onSyncComplete')
@@ -563,26 +571,20 @@ export default class Account {
       // non-atomic server — accumulating duplicate folders whose mappings then collided
       // (MappingFailureError -> reset+forceSync -> divergence). Mappings are already persisted at
       // the interrupt point; the cache must be kept in step with them.
-      // Nothing has touched the cache since we last wrote it, so writing it
-      // again would store byte for byte what is already there -- for a large
-      // account a multi-megabyte serialization and storage write per tick, for
-      // nothing. Plenty of a sync (loading, diffing, reconciling, and every
-      // action that only concerns the server) changes no local item at all.
+      // Nothing has touched the cache since we last wrote it, so there is
+      // nothing to hand to the store. Plenty of a sync (loading, diffing,
+      // reconciling, and every action that only concerns the server) changes no
+      // local item at all.
       if (this.localCachingResource.isCacheDirty()) {
         Logger.log('progressCallback: Persisting cache')
-        // Read before serializing: a change landing while the write is in
-        // flight has to leave the cache dirty for the next tick
+        // Read before storing: a change landing while the write is in flight
+        // has to leave the cache dirty for the next tick
         const revision = this.localCachingResource.getCacheRevision()
-        // One pass over the tree rather than copy + filter + serialize, and it
-        // leaves the cache tree alone. It serializes synchronously, and that is
-        // on purpose here: this repeats throughout the sync, and toJSONAsync
-        // costs a good 2x the CPU of toJSON for the same bytes (the per-node
-        // Parallel.map), which on a tick that repeats is the wrong trade -- it
-        // would take a bigger bite out of the interval and make the sync itself
-        // longer.
-        await this.storage.setCache(
-          this.localCachingResource.getCacheTreeJSON((bm) => this.server.acceptsBookmark(bm))
-        )
+        // What this costs is what the sync has changed since the last tick --
+        // the cache used to be serialized and written whole here, which for a
+        // large account was megabytes of JSON several times a minute (see
+        // ICacheStore).
+        await this.localCachingResource.saveCache((bm) => this.server.acceptsBookmark(bm))
         this.localCachingResource.markCachePersisted(revision)
       } else {
         Logger.log('progressCallback: Cache unchanged since the last tick, not persisting')
