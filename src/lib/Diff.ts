@@ -6,6 +6,7 @@ import Logger from './Logger'
 import { MappingFailureError } from '../errors/Error'
 import * as Parallel from 'async-parallel'
 import { yieldToEventLoop } from './yieldToEventLoop'
+import type { IContinuationDiffUpdate } from './Continuation'
 
 export const ActionType = {
   CREATE: 'CREATE',
@@ -78,6 +79,17 @@ export type MapLocation<A extends Action<TItemLocation, TItemLocation>, NewLocat
             ReorderAction<NewLocation, O>
             : never
 
+/**
+ * Diff ids key the rows of a continuation, which outlive the process that wrote
+ * them: a sync is interrupted, floccus is restarted, and the stored rows are
+ * read back by an entirely new set of Diffs. A plain counter would start over at
+ * 1 there and have the new diffs adopt the leftover rows of whatever diff held
+ * that number in the previous run, so ids carry a per-run prefix and the store
+ * can tell the two apart (and drop what is no longer referenced).
+ */
+const diffIdPrefix = Math.random().toString(36).slice(2, 10) + '-'
+let diffCounter = 0
+
 export default class Diff<
   L1 extends TItemLocation,
   L2 extends TItemLocation,
@@ -85,8 +97,39 @@ export default class Diff<
 > {
   private readonly actions: A[]
 
+  /**
+   * The continuation store keeps one row per action, keyed by (diff id, seq),
+   * so that a progress tick only writes what changed since the last one --
+   * which during execution is the handful of actions that moved from their plan
+   * to the done plan. commit() and retract() are the only structural mutators
+   * here, so the bookkeeping for that lives with them; an action whose contents
+   * are changed in place while it stays in the diff has to be announced with
+   * markChanged().
+   */
+  public readonly id: string = diffIdPrefix + (++diffCounter)
+  /** Sequence number of each action, parallel to `actions` */
+  private readonly seqs: number[]
+  private nextSeq = 0
+  /** Actions whose row has to be (re-)written on the next persist */
+  private changedSeqs: Set<number> = new Set()
+  /** Rows in the store whose action is gone */
+  private removedSeqs: Set<number> = new Set()
+  /**
+   * Rows the store may hold -- written, or handed over and not acknowledged
+   * yet. Deliberately generous: a DELETE for a row that never made it into the
+   * store is a no-op, while forgetting one leaves an executed action in its
+   * plan for the next sync to resume from and execute a second time.
+   */
+  private maybeStoredSeqs: Set<number> = new Set()
+  /**
+   * Handed to the store, not acknowledged yet. A write that never comes back
+   * leaves them here, and the next persist picks them up again.
+   */
+  private inFlightSeqs: Set<number> = new Set()
+
   constructor() {
     this.actions = []
+    this.seqs = []
   }
 
   clone(filter: (action: A) => boolean = () => true): Diff<L1, L2, A> {
@@ -102,12 +145,93 @@ export default class Diff<
 
   commit(action: A): void {
     this.actions.push({ ...action })
+    const seq = this.nextSeq++
+    this.seqs.push(seq)
+    this.changedSeqs.add(seq)
   }
 
   retract(action: A): void {
     const idx = this.actions.indexOf(action)
     if (idx !== -1) {
+      const seq = this.seqs[idx]
       this.actions.splice(idx, 1)
+      this.seqs.splice(idx, 1)
+      this.changedSeqs.delete(seq)
+      this.inFlightSeqs.delete(seq)
+      if (this.maybeStoredSeqs.has(seq)) {
+        this.removedSeqs.add(seq)
+      }
+    }
+  }
+
+  /**
+   * Announce that an action's contents were changed in place, i.e. without
+   * going through commit()/retract() -- see Default#removeItemFromReorders,
+   * which rewrites the order of a reorder action that stays in its diff.
+   */
+  markChanged(action: A): void {
+    const idx = this.actions.indexOf(action)
+    if (idx !== -1) {
+      this.changedSeqs.add(this.seqs[idx])
+    }
+  }
+
+  /**
+   * The rows the continuation store has to write to catch up with this diff.
+   *
+   * `full` asks for every action instead, for a store that can't apply changes
+   * incrementally (and for the first persist after a resume, where the store
+   * holds the rows of the *previous* run's diffs).
+   */
+  async getPendingChangesAsync(full = false): Promise<IContinuationDiffUpdate> {
+    const added: { seq: number, action: any }[] = []
+    let iterations = 0
+    // The sync goes on executing actions while we serialize here, so the diff
+    // changes under us: anything committed in the meantime stays marked changed
+    // and is written by the next persist, and anything retracted is caught by
+    // the removals below -- the row for it may be written by this very update.
+    for (let i = 0; i < this.actions.length; i++) {
+      const seq = this.seqs[i]
+      if (!full && !this.changedSeqs.has(seq) && !this.inFlightSeqs.has(seq)) {
+        continue
+      }
+      this.changedSeqs.delete(seq)
+      this.inFlightSeqs.add(seq)
+      this.maybeStoredSeqs.add(seq)
+      if (++iterations % 1000 === 0) {
+        await yieldToEventLoop()
+      }
+      added.push({ seq, action: await Diff.serializeActionAsync(this.actions[i]) })
+    }
+    const removed = full ? [] : [...this.removedSeqs]
+    return {
+      id: this.id,
+      // An action executed while we serialized is stale before its row is even
+      // written, so leave it to the removals instead
+      added: added.filter(({ seq }) => !this.removedSeqs.has(seq)),
+      removed,
+      replace: full,
+    }
+  }
+
+  /**
+   * Take note that the store has applied these changes. Only to be called once
+   * the write went through -- anything left marked is simply written again.
+   */
+  markPersisted(update: IContinuationDiffUpdate): void {
+    const written = new Set(update.added.map(({ seq }) => seq))
+    if (update.replace) {
+      // The store dropped every row of this diff that this update didn't write
+      this.maybeStoredSeqs = new Set([...this.maybeStoredSeqs].filter(seq => written.has(seq)))
+      this.removedSeqs = new Set([...this.removedSeqs].filter(seq => written.has(seq)))
+    }
+    for (const seq of written) {
+      this.inFlightSeqs.delete(seq)
+      this.maybeStoredSeqs.add(seq)
+    }
+    for (const seq of update.removed) {
+      this.removedSeqs.delete(seq)
+      this.maybeStoredSeqs.delete(seq)
     }
   }
 
@@ -430,14 +554,24 @@ export default class Diff<
     return newDiff
   }
 
+  static serializeAction<A extends Action<TItemLocation, TItemLocation>>(action: A) {
+    return {
+      ...action,
+      payload: action.payload.clone(false).toJSON(),
+      oldItem: action.oldItem && action.oldItem.clone(false).toJSON(),
+    }
+  }
+
+  static async serializeActionAsync<A extends Action<TItemLocation, TItemLocation>>(action: A) {
+    return {
+      ...action,
+      payload: await action.payload.clone(false).toJSONAsync(),
+      oldItem: action.oldItem && await action.oldItem.clone(false).toJSONAsync(),
+    }
+  }
+
   toJSON() {
-    return this.getActions().map((action: A) => {
-      return {
-        ...action,
-        payload: action.payload.clone(false).toJSON(),
-        oldItem: action.oldItem && action.oldItem.clone(false).toJSON(),
-      }
-    })
+    return this.getActions().map((action: A) => Diff.serializeAction(action))
   }
 
   async toJSONAsync() {
@@ -448,12 +582,7 @@ export default class Diff<
         if (++iterations % 1000 === 0) {
           await yieldToEventLoop()
         }
-        return {
-          ...action,
-          payload: await action.payload.clone(false).toJSONAsync(),
-          oldItem:
-            action.oldItem && await action.oldItem.clone(false).toJSONAsync(),
-        }
+        return Diff.serializeActionAsync(action)
       },
       1
     )

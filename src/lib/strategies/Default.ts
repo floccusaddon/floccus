@@ -3,6 +3,7 @@ import {
   Folder,
   TItem,
   ItemType,
+  TItemType,
   ItemLocation,
   TItemLocation,
   TOppositeLocation,
@@ -34,9 +35,20 @@ import {
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
 import { yieldToEventLoop } from '../yieldToEventLoop'
 import { isTest } from '../isTest'
+import type { IContinuationDiffUpdate, IContinuationUpdate, TContinuationMember } from '../Continuation'
 
 // Tests have to be reproducible
 export const ACTION_CONCURRENCY = isTest ? 1 : 5
+
+/**
+ * Every item of a tree by id -- what Folder#createIndex builds, except that it
+ * is handed to the caller instead of being hung onto the tree, so that nothing
+ * afterwards has to keep it up to date.
+ */
+export interface ITreeIndex<L extends TItemLocation> {
+  folder: Map<string, Folder<L>>
+  bookmark: Map<string, TItem<L>>
+}
 
 export default class SyncProcess {
   protected mappings: Mappings
@@ -87,6 +99,8 @@ export default class SyncProcess {
   protected isFirefox: boolean
 
   protected staticContinuation: any = null
+  /** The diffs the last continuation update was built from, by diff id */
+  private continuationDiffs: Map<string, Diff<TItemLocation, TItemLocation, Action<TItemLocation, TItemLocation>>> = new Map()
 
   // The location that has precedence in case of conflicts
   protected masterLocation: TItemLocation
@@ -116,6 +130,223 @@ export default class SyncProcess {
     })
     this.canceled = false
     this.isFirefox = self.location.protocol === 'moz-extension:'
+  }
+
+  /**
+   * Every item of a tree by id, each folder before the folders inside it.
+   *
+   * The trees the repairs below run on carry no index of their own at this
+   * point -- a hydrated cache, a CachingAdapter's copy(), the browser's local
+   * tree -- and Folder#findItem falls back to walking the whole tree when there
+   * is none. Looking every mapping up one by one would be one such walk per
+   * mapping; this is one walk, and a Map lookup per mapping.
+   */
+  protected static indexTree<L extends TItemLocation>(tree: Folder<L>): ITreeIndex<L> {
+    const index: ITreeIndex<L> = { folder: new Map(), bookmark: new Map() }
+    const stack: TItem<L>[] = [tree]
+    while (stack.length) {
+      const item = stack.pop()
+      if (item instanceof Folder) {
+        // Set before its children are even queued, so that the folder order of
+        // the index is parent-first -- repairServerMappings relies on it
+        index.folder.set(String(item.id), item)
+        for (const child of item.children) {
+          stack.push(child as TItem<L>)
+        }
+      } else {
+        index.bookmark.set(String(item.id), item)
+      }
+    }
+    return index
+  }
+
+  /**
+   * Forget the mappings of local items that are gone for good.
+   *
+   * A mapping outlives the item it names: nothing removes it when an item
+   * disappears from the local tree without its deletion being synced -- an
+   * interrupted sync that had already removed it locally, say, while the
+   * server side was rolled back. It then still claims its server counterpart,
+   * and that claim is taken seriously: the sub scanner that records what a bulk
+   * import created refuses to bind an item that already maps elsewhere
+   * (Mappings#wouldEvictUnrelatedMapping). So the server item gets re-created
+   * locally but stays unmapped, the dead mapping survives, and everything that
+   * maps into it afterwards aims at the deleted item -- a MOVE into it fails
+   * the whole sync with 'Folder to move into doesn't exist'.
+   *
+   * An item that is only missing from the *tree* is a different matter: it was
+   * deleted locally since the last sync, and this sync still needs its mapping
+   * to find the server item to delete. Hence the cache: only what is in neither
+   * is past being of use to anyone.
+   */
+  async dropDeadMappings(): Promise<void> {
+    const snapshot = this.mappings.getSnapshot()
+    const localIndex = SyncProcess.indexTree(this.localTreeRoot)
+    const cacheIndex = this.cacheTreeRoot ? SyncProcess.indexTree(this.cacheTreeRoot) : null
+    let dropped = 0
+
+    for (const [localId, remoteId] of Object.entries(snapshot.LocalToServer.folder)) {
+      if (this.localItemIsSpokenFor(ItemType.FOLDER, localId, localIndex, cacheIndex)) {
+        continue
+      }
+      dropped++
+      await this.mappings.removeFolder({ localId, remoteId })
+    }
+    for (const [localId, remoteId] of Object.entries(snapshot.LocalToServer.bookmark)) {
+      if (this.localItemIsSpokenFor(ItemType.BOOKMARK, localId, localIndex, cacheIndex)) {
+        continue
+      }
+      dropped++
+      await this.mappings.removeBookmark({ localId, remoteId })
+    }
+
+    Logger.log('Dropped ' + dropped + ' mappings of local items that no longer exist')
+  }
+
+  /**
+   * Point mappings whose server item is gone at the item that took its place.
+   *
+   * A server id is not always the stable thing it looks like: on Nextcloud
+   * Bookmarks a bookmark's id carries the folder it sits in
+   * ("<bookmarkId>;<folderId>"), so re-creating a folder renames every bookmark
+   * inside it. Our mappings then name ids the server doesn't know any more, and
+   * the scan is no help: it compares the two sides by content hash, which the
+   * rename doesn't touch, so it skips the subtree as unchanged and never looks
+   * at the ids. The first action that maps such an item fails the whole sync
+   * with 'Bookmark to update doesn't exist anymore'.
+   *
+   * So look the counterpart up where it must be -- in the server folder the
+   * item's parent maps to -- and re-map it. An item that isn't there any more
+   * loses its mapping instead; keeping one that names nothing only misdirects
+   * whatever maps through it next.
+   */
+  async repairServerMappings(): Promise<void> {
+    if ('loadFolderChildren' in this.server) {
+      // The server tree is loaded sparsely: an item that isn't in it may well
+      // be sitting in a folder we haven't loaded, and a live mapping must not
+      // be mistaken for a dead one
+      return
+    }
+
+    const serverIndex = SyncProcess.indexTree(this.serverTreeRoot)
+    const localIndex = SyncProcess.indexTree(this.localTreeRoot)
+    const cacheIndex = this.cacheTreeRoot ? SyncProcess.indexTree(this.cacheTreeRoot) : null
+    // Every repair changes what the lookups after it have to go through, so this
+    // one snapshot is kept in step as we go instead of being re-read: an item is
+    // found in the folder its parent maps to, and for the items below a repaired
+    // folder that is the folder it maps to *now*
+    const snapshot = this.mappings.getSnapshot()
+
+    let repaired = 0
+    let dropped = 0
+
+    // Folders first, and each folder before the ones inside it, for the same
+    // reason -- indexTree hands out its folders in that order
+    for (const type of [ItemType.FOLDER, ItemType.BOOKMARK] as TItemType[]) {
+      const mapped = snapshot.LocalToServer[type]
+      const spokenFor = snapshot.ServerToLocal[type]
+      for (const localId of SyncProcess.mappedIdsInTreeOrder(mapped, localIndex[type], cacheIndex && cacheIndex[type])) {
+        const remoteId = mapped[localId]
+        if (serverIndex[type].has(String(remoteId))) {
+          continue
+        }
+        const localItem = (localIndex[type].get(localId) ||
+          cacheIndex?.[type].get(localId)) as TItem<typeof ItemLocation.LOCAL>
+        const counterpart = localItem && this.findServerCounterpart(localItem, snapshot, serverIndex, localId)
+        delete spokenFor[remoteId]
+        if (counterpart) {
+          repaired++
+          await (type === ItemType.FOLDER
+            ? this.mappings.addFolder({ localId, remoteId: counterpart.id })
+            : this.mappings.addBookmark({ localId, remoteId: counterpart.id }))
+          mapped[localId] = counterpart.id
+          spokenFor[counterpart.id] = localId
+        } else {
+          dropped++
+          await (type === ItemType.FOLDER
+            ? this.mappings.removeFolder({ localId, remoteId })
+            : this.mappings.removeBookmark({ localId, remoteId }))
+          delete mapped[localId]
+        }
+      }
+    }
+
+    Logger.log('Re-mapped ' + repaired + ' and dropped ' + dropped + ' mappings naming server items that are gone')
+  }
+
+  /**
+   * The local ids of `mapped`, ordered by where their items sit: a folder
+   * before the folders inside it, and whatever is in none of the trees last --
+   * that one can't be looked up anyway, so it can only be dropped.
+   *
+   * Object.keys() would hand them out in insertion order instead, which says
+   * nothing about the tree, and a child repaired before its parent is looked up
+   * through a mapping that is still the stale one.
+   */
+  private static mappedIdsInTreeOrder(
+    mapped: Record<string, string|number>,
+    ...trees: (ReadonlyMap<string, unknown>|null)[]
+  ): string[] {
+    const order: string[] = []
+    const seen = new Set<string>()
+    const take = (id: string) => {
+      if (seen.has(id) || !(id in mapped)) {
+        return
+      }
+      seen.add(id)
+      order.push(id)
+    }
+    for (const tree of trees) {
+      tree && tree.forEach((item, id) => take(id))
+    }
+    Object.keys(mapped).forEach((id) => take(id))
+    return order
+  }
+
+  /**
+   * The server item a local item stands for, found by where it sits rather than
+   * by the id we have on file: in the folder its parent maps to, the item it
+   * can be merged with. Only an item that isn't spoken for by another local
+   * item counts -- taking one that is would trade a wrong mapping for another.
+   */
+  private findServerCounterpart(
+    localItem: TItem<typeof ItemLocation.LOCAL>,
+    snapshot: MappingSnapshot,
+    serverIndex: ITreeIndex<typeof ItemLocation.SERVER>,
+    localId: string
+  ): TItem<typeof ItemLocation.SERVER>|null {
+    const serverParentId = Mappings.mapParentId(snapshot, localItem, ItemLocation.SERVER)
+    if (typeof serverParentId === 'undefined' || serverParentId === null) {
+      return null
+    }
+    const serverParent = serverIndex.folder.get(String(serverParentId))
+    if (!serverParent) {
+      return null
+    }
+    const candidates = serverParent.children.filter((child) => {
+      if (child.type !== localItem.type || !child.canMergeWith(localItem)) {
+        return false
+      }
+      const spokenFor = Mappings.mapId(snapshot, child, ItemLocation.LOCAL)
+      return typeof spokenFor === 'undefined' || String(spokenFor) === String(localId)
+    })
+    // Only when it is unambiguous: two same-titled folders side by side say
+    // nothing about which one used to be ours
+    return candidates.length === 1 ? candidates[0] as TItem<typeof ItemLocation.SERVER> : null
+  }
+
+  /** Whether anything in this sync can still have use for a local item's mapping */
+  protected localItemIsSpokenFor(
+    type: TItemType,
+    id: string|number,
+    localIndex: ITreeIndex<typeof ItemLocation.LOCAL>,
+    cacheIndex: ITreeIndex<typeof ItemLocation.LOCAL>|null
+  ): boolean {
+    if (localIndex[type].has(String(id))) {
+      return true
+    }
+    // Deleted locally, with the deletion still to be taken to the server
+    return Boolean(cacheIndex && cacheIndex[type].has(String(id)))
   }
 
   getMembersToPersist() {
@@ -335,6 +566,8 @@ export default class SyncProcess {
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
 
     if (!this.localScanResult && !this.serverScanResult && !this.localPlanStage1 && !this.serverPlanStage1 && !this.localPlanStage2 && !this.serverPlanStage2 && !this.planStage3Local && !this.planStage3Server) {
+      await this.dropDeadMappings()
+      await this.repairServerMappings()
       const { localScanResult, serverScanResult } = await this.getDiffs()
       Logger.log({ localScanResult, serverScanResult })
       this.localScanResult = localScanResult
@@ -1960,6 +2193,9 @@ export default class SyncProcess {
       return
     }
     parentReorder.order = parentReorder.order.filter(item => !(item.type === oldItem.type && String(Mappings.mapId(mappingsSnapshot, oldItem, parentReorder.payload.location)) === String(item.id)))
+    // The action stays in the diff, so the continuation store has no other way
+    // of knowing that its row is stale now
+    sourceReorders.markChanged(parentReorder)
   }
 
   async toJSONAsync(): Promise<ISerializedSyncProcess> {
@@ -2033,6 +2269,85 @@ export default class SyncProcess {
         )
       )
       ),
+    }
+  }
+
+  /** The name this strategy is persisted and restored under */
+  protected getStrategyName(): ISerializedSyncProcess['strategy'] {
+    return 'default'
+  }
+
+  /**
+   * What the continuation store has to write to catch up with this sync process.
+   *
+   * Unlike toJSONAsync() this doesn't serialize the whole process: the actions
+   * live in the store as rows, and all that is handed over here are the ones
+   * that changed since the last persist -- during execution that is the couple
+   * of actions that moved from their plan to the done plan, instead of every
+   * action of the sync. See Continuation.ts.
+   *
+   * `full` gives every action of every member, for a store that can't apply
+   * changes incrementally.
+   */
+  async toContinuationUpdateAsync({ full = false }: { full?: boolean } = {}): Promise<IContinuationUpdate> {
+    if (!this.staticContinuation) {
+      this.staticContinuation = {
+        // Do not store these as the continuation size can get huge otherwise
+        localTreeRoot: null,
+        cacheTreeRoot: null,
+        serverTreeRoot: null,
+      }
+    }
+    const diffs: IContinuationDiffUpdate[] = []
+    this.continuationDiffs = new Map()
+
+    const collect = async(value: any): Promise<TContinuationMember> => {
+      if (value === null || typeof value === 'undefined') {
+        return { kind: 'null' }
+      }
+      if (value instanceof Diff) {
+        // Diffs are shared between members -- planStage3Server.CREATE is the
+        // very same diff as serverPlanStage2.CREATE -- so their rows are keyed
+        // by the diff, and each one is only collected once
+        if (!this.continuationDiffs.has(value.id)) {
+          this.continuationDiffs.set(value.id, value)
+          diffs.push(await value.getPendingChangesAsync(full))
+        }
+        return { kind: 'diff', diff: value.id }
+      }
+      if (value.CREATE && value.REMOVE && value.UPDATE && value.MOVE && value.REORDER) {
+        // property holds a Plan
+        const slots: Record<string, TContinuationMember> = {}
+        for (const [slot, diff] of Object.entries(value)) {
+          slots[slot] = await collect(diff)
+        }
+        return { kind: 'plan', slots }
+      }
+      return { kind: 'value', value }
+    }
+
+    const members: Record<string, TContinuationMember> = {}
+    for (const key of this.getMembersToPersist()) {
+      members[key] = await collect(this[key])
+    }
+
+    return {
+      strategy: this.getStrategyName(),
+      meta: { ...this.staticContinuation },
+      members,
+      diffs: diffs.filter(diff => diff.replace || diff.added.length || diff.removed.length),
+      diffIds: [...this.continuationDiffs.keys()],
+    }
+  }
+
+  /**
+   * Take note that the store has written this update, so that the next one only
+   * carries what changed after it. Only to be called once the write went
+   * through -- what isn't acknowledged here is simply written again.
+   */
+  markContinuationPersisted(update: IContinuationUpdate): void {
+    for (const diff of update.diffs) {
+      this.continuationDiffs.get(diff.id)?.markPersisted(diff)
     }
   }
 

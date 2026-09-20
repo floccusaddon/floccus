@@ -21,6 +21,9 @@ declare const IS_BROWSER: boolean
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
+// The name of a lightning-fs file system of ours: the sha256 of the account
+// config, followed by the millisecond the sync that created it started
+const FS_DB_NAME = /^[0-9a-f]{64}(\d{13})$/
 export default class GitAdapter extends CachingAdapter {
   private lockingInterval: any
   private lockingPromise: Promise<void>
@@ -249,11 +252,16 @@ export default class GitAdapter extends CachingAdapter {
       // Give the FS instance time to close connections
       await new Promise(resolve => setTimeout(resolve, 100))
 
-      // Get all IndexedDB databases
-      Logger.log('Cleaning up all Lightning FS IndexedDB databases')
-      const databases = await indexedDB.databases()
+      // Only our own file systems: the other databases of this origin belong
+      // to floccus itself -- the continuation store, say -- or to a sync of
+      // another account that is still running, and deleting one of those takes
+      // it down with it. A delete that an open connection blocks also stays
+      // pending for good, and while one is pending indexedDB.databases() never
+      // resolves again, so the next sync hangs before it has begun.
+      Logger.log('Cleaning up Lightning FS IndexedDB databases')
+      const databases = (await indexedDB.databases())
+        .filter(dbInfo => dbInfo.name && this.isDisposableFsDatabase(dbInfo.name))
 
-      // Delete all databases (Lightning FS uses hash-based names)
       await Parallel.map(databases, async(dbInfo) => {
         try {
           Logger.log('Deleting IndexedDB: ' + dbInfo.name)
@@ -285,6 +293,20 @@ export default class GitAdapter extends CachingAdapter {
 
     // Clear the reference
     this.fs = null
+  }
+
+  /**
+   * Whether a database is a lightning-fs file system of ours that nobody has
+   * use for any more: the one this sync created, or one a sync that died
+   * before it could clean up left behind. A file system younger than the lock
+   * timeout may well belong to a sync that is still running.
+   */
+  private isDisposableFsDatabase(name: string): boolean {
+    if (name === this.hash) {
+      return true
+    }
+    const match = FS_DB_NAME.exec(name)
+    return Boolean(match) && Date.now() - Number(match[1]) > LOCK_TIMEOUT
   }
 
   async obtainLock() {

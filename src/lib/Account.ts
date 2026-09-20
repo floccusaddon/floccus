@@ -43,6 +43,7 @@ AdapterFactory.register(
 const LOCK_TIMEOUT = 1000 * 60 * 60 * 2
 
 const dataLock = new AsyncLock()
+const continuationLock = new AsyncLock()
 const accountLock = new AsyncLock()
 
 /**
@@ -430,7 +431,7 @@ export default class Account {
         lastSync: Date.now(),
       })
 
-      await this.storage.setCurrentContinuation(null)
+      await this.clearContinuation()
 
       Logger.log(
         'Successfully ended sync process for account ' + this.getLabel()
@@ -450,7 +451,7 @@ export default class Account {
         await this.setData({ syncing: false })
         this.syncing = false
         await this.init()
-        await this.storage.setCurrentContinuation(null)
+        await this.clearContinuation()
         return this.sync(strategy, true)
       }
 
@@ -491,7 +492,7 @@ export default class Account {
         new ClientsideAdditionFailsafeError(0).code,
         new ClientsideDeletionFailsafeError(0).code,
       ].includes(e.code) && (!isTest || e.code !== 26))) {
-        await this.storage.setCurrentContinuation(null)
+        await this.clearContinuation()
         await this.init()
       }
     }
@@ -519,6 +520,22 @@ export default class Account {
     if (this.syncProcess) {
       await this.syncProcess.cancel()
     }
+  }
+
+  /**
+   * Drop the stored continuation, under the same lock the persists in
+   * progressCallback take.
+   *
+   * The throttled progress callback is fire-and-forget, and it checks `syncing`
+   * before it writes rather than after, so one of its writes can still be in
+   * flight by the time we get here. Were the clear to go unlocked, that write
+   * could land after it and leave a finished sync's continuation behind, for
+   * the next sync to resume and execute its actions a second time.
+   */
+  private async clearContinuation(): Promise<void> {
+    await continuationLock.acquire(this.id, async() => {
+      await this.storage.setCurrentContinuation(null)
+    })
   }
 
   private async progressCallback(progress: number, actionsDone: number) {
@@ -554,16 +571,42 @@ export default class Account {
       // bite out of the interval and make the sync itself longer.
       await this.storage.setCache(cache)
       if (!this.server.isAtomic()) {
-        Logger.log('progressCallback: Serializing continuation')
-        const cont = await this.syncProcess.toJSONAsync()
-        if (!this.syncing) {
-          return
-        }
-        if (!this.syncProcess) {
-          return
-        }
-        Logger.log('progressCallback: Persisting continuation')
-        await this.storage.setCurrentContinuation(cont)
+        // An update only carries what has changed since the last persist, so
+        // two of them must not be built and written in parallel -- the sync
+        // interrupt persists un-throttled while a throttled persist may still
+        // be in flight, and an older update landing last would put the actions
+        // executed in between back into their plan, to be executed twice by the
+        // sync that resumes from it.
+        await continuationLock.acquire(this.id, async() => {
+          Logger.log('progressCallback: Serializing continuation')
+          // Only what has changed since the last persist -- during execution that
+          // is the handful of actions that have moved from their plan to the done
+          // plan, rather than the whole sync plan, which is most of this account's
+          // bookmarks and used to be serialized here on every single tick.
+          const incremental = await this.storage.canPersistContinuationIncrementally()
+          const update = await this.syncProcess.toContinuationUpdateAsync({ full: !incremental })
+          if (!this.syncing) {
+            return
+          }
+          if (!this.syncProcess) {
+            return
+          }
+          Logger.log('progressCallback: Persisting continuation')
+          try {
+            await this.storage.updateCurrentContinuation(update)
+            // Only now that the write has gone through: anything that isn't
+            // acknowledged here is simply written again with the next update
+            this.syncProcess.markContinuationPersisted(update)
+          } catch (e) {
+            // Letting this through takes the rest of the tick with it -- the
+            // mappings below included, which would then fall out of step with
+            // the cache that was just persisted, the very divergence that
+            // persisting the cache here exists to prevent. The update isn't
+            // acknowledged, so the next tick offers it again -- by which time
+            // the storage has had its chance to fall back to one that works.
+            Logger.log('progressCallback: Could not persist continuation', e)
+          }
+        })
       }
       Logger.log('progressCallback: Persisting mappings')
       await mappings.persist()

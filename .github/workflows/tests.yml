@@ -87,7 +87,7 @@ jobs:
       matrix:
         node-version: [20.x]
         npm-version: [10.x]
-        server-version: ['32']
+        server-version: ['35']
         app-version: ['stable']
         seed: ["${{ github.sha }}"]
         floccus-adapter:
@@ -112,7 +112,7 @@ jobs:
           - chrome
         include:
           - app-version: master
-            server-version: 32
+            server-version: 35
             floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: firefox
@@ -120,7 +120,7 @@ jobs:
             npm-version: 7.x
             seed: ${{ github.sha }}
           - app-version: master
-            server-version: 32
+            server-version: 35
             floccus-adapter: nextcloud-bookmarks
             test-name: benchmark root
             browsers: firefox
@@ -128,7 +128,7 @@ jobs:
             npm-version: 7.x
             seed: ${{ github.sha }}
           - app-version: master
-            server-version: 32
+            server-version: 35
             floccus-adapter: nextcloud-bookmarks
             test-name: benchmark root
             browsers: chrome
@@ -136,7 +136,7 @@ jobs:
             npm-version: 7.x
             seed: ${{ github.sha }}
           - app-version: stable
-            server-version: 32
+            server-version: 35
             floccus-adapter: fake-noCache
             test-name: test
             browsers: firefox
@@ -144,7 +144,7 @@ jobs:
             npm-version: 7.x
             seed: ${{ github.sha }}
           - app-version: master
-            server-version: 32
+            server-version: 35
             floccus-adapter: fake
             test-name: benchmark root
             browsers: firefox
@@ -152,7 +152,7 @@ jobs:
             npm-version: 7.x
             seed: ${{ github.sha }}
           - app-version: master
-            server-version: 32
+            server-version: 35
             floccus-adapter: fake
             test-name: benchmark root
             browsers: chrome

@@ -7,6 +7,7 @@ import AsyncLock from 'async-lock'
 import Logger from '../Logger'
 import NativeMappingsStore from './NativeMappingsStore'
 import NativeTreeStore from './NativeTreeStore'
+import NativeContinuationStore from './NativeContinuationStore'
 
 const storageLock = new AsyncLock()
 
@@ -14,6 +15,7 @@ export default class NativeAccountStorage {
   constructor(id) {
     this.accountId = id
     this.mappingsStore = new NativeMappingsStore(id)
+    this.continuationStore = new NativeContinuationStore(id)
   }
 
   /**
@@ -111,6 +113,7 @@ export default class NativeAccountStorage {
     })
     await this.deleteCache()
     await this.deleteMappings()
+    await this.setCurrentContinuation(null)
     // Unlike the preferences keys of old, the rows of a deleted account would
     // stay in the shared database forever, so drop the local tree as well
     await new NativeTreeStore(this.accountId).clear()
@@ -158,11 +161,37 @@ export default class NativeAccountStorage {
     await this.mappingsStore.clear()
   }
 
+  /**
+   * Continuations are stored as rows, one per action of the sync plan, so that a
+   * progress tick only writes what has changed since the last one instead of the
+   * whole plan -- see Continuation.ts.
+   */
+  async canPersistContinuationIncrementally() {
+    return true
+  }
+
   async getCurrentContinuation() {
+    const stored = await this.continuationStore.load()
+    if (stored) {
+      return stored
+    }
+    // A continuation written before this account was moved to row storage, or
+    // by a version of floccus that didn't have it yet
     return NativeAccountStorage.getEntry(`bookmarks[${this.accountId}].continuation`)
   }
 
+  async updateCurrentContinuation(update) {
+    await this.continuationStore.update(update)
+    if (!this.legacyContinuationCleared) {
+      // So that a blob from before the row storage can't outlive the rows and
+      // be resumed after they were cleared
+      await NativeAccountStorage.deleteEntry(`bookmarks[${this.accountId}].continuation`)
+      this.legacyContinuationCleared = true
+    }
+  }
+
   async setCurrentContinuation(continuation) {
+    await this.continuationStore.clear()
     await NativeAccountStorage.setEntry(
       `bookmarks[${this.accountId}].continuation`,
       // Account#sync discards continuations older than half an hour by their

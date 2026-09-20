@@ -62,6 +62,7 @@
     "eslint-plugin-standard": "^4.1.0",
     "eslint-plugin-vue": "9.x",
     "execa": "^6.1.0",
+    "fake-indexeddb": "^6.2.5",
     "file-loader": "^6.2.0",
     "gulp": "4.x",
     "gulp-rename": "^2.0.0",
