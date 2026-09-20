@@ -2888,6 +2888,61 @@ describe('Floccus', function() {
               true
             )
           })
+          it('should not move a bookmark that was renamed on the server', async function() {
+            // A rename produces an UPDATE action, which used to move the bookmark
+            // into its (unchanged) parent folder without an index -- appending it to
+            // the end. See #2361.
+            if (ACCOUNT_DATA.noCache) {
+              return this.skip()
+            }
+            if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
+              return this.skip()
+            }
+
+            const localResource = await account.getResource()
+            const localRoot = (await localResource.getBookmarksTree(true)).id
+            const fooFolder = await localResource.createFolder(new Folder({title: 'foo', parentId: localRoot}))
+            await localResource.createBookmark(new Bookmark({title: 'url1', url: 'http://ur.l/', parentId: fooFolder}))
+            await localResource.createBookmark(new Bookmark({title: 'url2', url: 'http://ur.ll/', parentId: fooFolder}))
+            await localResource.createBookmark(new Bookmark({title: 'url3', url: 'http://ur.lll/', parentId: fooFolder}))
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            const serverTree = await getAllBookmarks(account)
+            const serverBookmark = serverTree.children[0].children[1]
+            expect(serverBookmark.title).to.equal('url2')
+
+            await withSyncConnection(account, async() => {
+              await account.server.updateBookmark(new Bookmark({
+                ...serverBookmark,
+                title: 'url2 renamed'
+              }))
+            })
+
+            await account.sync() // propagate the rename to the browser
+            expect(account.getData().error).to.not.be.ok
+
+            const localTree = await account.localTree.getBookmarksTree(true)
+            expectTreeEqual(
+              localTree,
+              new Folder({
+                title: localTree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: [
+                      new Bookmark({ title: 'url1', url: 'http://ur.l/' }),
+                      new Bookmark({ title: 'url2 renamed', url: 'http://ur.ll/' }),
+                      new Bookmark({ title: 'url3', url: 'http://ur.lll/' }),
+                    ]
+                  })
+                ]
+              }),
+              false,
+              Boolean(account.server.orderFolder)
+            )
+          })
           it('should not be confused by changes while syncing', async function() {
             if (ACCOUNT_DATA.noCache) {
               return this.skip()

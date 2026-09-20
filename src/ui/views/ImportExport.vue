@@ -130,17 +130,12 @@ export default {
       try {
         const accounts = JSON.parse(await file.text())
         const ids = await this.$store.dispatch('IMPORT_ACCOUNTS', accounts)
-        const unauthorized = (ids || []).filter(id => {
-          const account = this.$store.state.accounts[id]
-          return account && needsAuthorization(account.data)
-        })
-        if (unauthorized.length) {
-          // Logins cannot be imported, so send the user straight to the profile
-          // that needs to be connected again.
-          alert(this.t('DescriptionImportauthorizationneeded'))
+        const incomplete = await this.findIncompleteProfile(ids || [])
+        if (incomplete) {
+          alert(this.t(incomplete.description))
           this.$router.push({
             name: 'ACCOUNT_OPTIONS',
-            params: { accountId: unauthorized[0] },
+            params: { accountId: incomplete.accountId },
           })
           return
         }
@@ -148,6 +143,36 @@ export default {
       } catch (e) {
         alert(e.message)
       }
+    },
+
+    /**
+     * Imported profiles can arrive missing something only the user can supply:
+     * a login, which cannot travel in the file, or a local folder, because
+     * bookmark ids from another device mean nothing here. Point the user at the
+     * first such profile instead of letting them find out through a failed sync.
+     */
+    async findIncompleteProfile(ids) {
+      for (const accountId of ids) {
+        const account = this.$store.state.accounts[accountId]
+        if (!account) {
+          continue
+        }
+        if (needsAuthorization(account.data)) {
+          return { accountId, description: 'DescriptionImportauthorizationneeded' }
+        }
+        if (this.isBrowser && !(await this.hasLocalFolder(account.data))) {
+          return { accountId, description: 'DescriptionImportsyncfolderneeded' }
+        }
+      }
+      return null
+    },
+
+    async hasLocalFolder(data) {
+      if (data.localRoot === 'tabs') {
+        return true
+      }
+      const BrowserTree = (await import('../../lib/browser/BrowserTree')).default
+      return BrowserTree.folderExists(data.localRoot)
     }
   }
 }

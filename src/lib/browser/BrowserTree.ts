@@ -194,6 +194,15 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
           })
         })
       }
+      const [currentBookmark] = await this.queue.add(async() => {
+        return browser.bookmarks.get(bookmark.id.toString())
+      })
+      if (currentBookmark && String(currentBookmark.parentId) === String(bookmark.parentId)) {
+        // Moving an item without specifying an index appends it to the end of the target folder,
+        // so don't move it at all if it's already in the right folder. (Its index is handled by REORDERs.)
+        Logger.log('(local)UPDATE: skipping move, bookmark is already in the target folder')
+        return
+      }
       await this.queue.add(async() => {
         Logger.log('(local)UPDATE: executing move ', bookmark)
         return browser.bookmarks.move(bookmark.id, {
@@ -305,6 +314,12 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     if (Folder.hydrate(oldFolder).findFolder(parentId)) {
       throw new Error('Detected creation of folder loop. Moving ' + id + ' into its descendant ' + parentId)
     }
+    if (String(oldFolder.parentId) === String(parentId)) {
+      // Moving an item without specifying an index appends it to the end of the target folder,
+      // so don't move it at all if it's already in the right folder. (Its index is handled by REORDERs.)
+      Logger.log('(local)UPDATEFOLDER: skipping move, folder is already in the target folder')
+      return
+    }
     try {
       await this.queue.add(async() => {
         Logger.log('(local)CREATEFOLDER: executing move ', folder)
@@ -376,6 +391,23 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
       return path // might be that the root is circular
     }
     return this.getIdPathFromLocalId(bm.parentId, path)
+  }
+
+  /**
+   * Whether this local bookmark folder is (still) around. Bookmark ids are only
+   * meaningful within one browser profile, so this is also how we tell that a
+   * profile imported from another device has nothing to sync into, yet.
+   */
+  static async folderExists(localId:string|null):Promise<boolean> {
+    if (!localId) {
+      return false
+    }
+    try {
+      await browser.bookmarks.get(localId)
+      return true
+    } catch (e) {
+      return false
+    }
   }
 
   static async getAbsoluteRootFolder() {
