@@ -2189,10 +2189,6 @@ export default class SyncProcess {
     }
     if (!(serverItem instanceof Folder)) return
     if (!('loadFolderChildren' in this.server)) return
-    if (serverItem.loaded) {
-      // A parent's load already pulled in this whole subtree
-      return
-    }
     let localItem, cacheItem
     if (isRoot) {
       localItem = this.localTreeRoot
@@ -2208,16 +2204,22 @@ export default class SyncProcess {
     ) {
       return
     }
-    Logger.log('LOADCHILDREN', serverItem)
-    // If we don't know this folder, yet, load the whole subtree (!localItem) --
-    // just as we do for trees small enough that one request beats descending
-    // into them folder by folder (see SMALL_TREE_THRESHOLD)
-    const children = await this.server.loadFolderChildren(serverItem.id, !localItem || this.loadServerTreeAtOnce)
-    if (!children) {
-      return
+    // A parent's load may have pulled in this folder's children already -- but
+    // not necessarily those of its own children: the sparse listing marks a
+    // folder as loaded as soon as its children arrived, one layer at a time. So
+    // we skip the request here, not the descent below.
+    if (!serverItem.loaded) {
+      Logger.log('LOADCHILDREN', serverItem)
+      // If we don't know this folder, yet, load the whole subtree (!localItem) --
+      // just as we do for trees small enough that one request beats descending
+      // into them folder by folder (see SMALL_TREE_THRESHOLD)
+      const children = await this.server.loadFolderChildren(serverItem.id, !localItem || this.loadServerTreeAtOnce)
+      if (!children) {
+        return
+      }
+      serverItem.children = children
+      serverItem.loaded = true
     }
-    serverItem.children = children
-    serverItem.loaded = true
 
     // recurse
     await Parallel.each(
