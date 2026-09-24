@@ -111,7 +111,7 @@
     "message": "E037：资源已锁定"
   },
   "Error038": {
-    "message": "E038：找不到本地文件夹"
+    "message": "E038: 找不到此配置文件的本地文件夹。请在配置文件的设置中选一个要同步的文件夹。"
   },
   "Error039": {
     "message": "E039：更新服务器上的以下书签失败：{0}"
@@ -277,6 +277,9 @@
   },
   "DescriptionImportauthorizationneeded": {
     "message": "成功导入了配置文件。无法在设备间转移登录状态，因此通过 Google 云盘或 Dropbox 同步配置文件需要你再次登录才能同步。"
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "成功导入了配置文件。无法跨设备识别书签文件夹，因此请选择你希望该配置文件要同步的本地文件夹。"
   },
   "LabelReset": {
     "message": "重置"
