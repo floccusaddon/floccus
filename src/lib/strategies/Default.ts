@@ -677,13 +677,13 @@ export default class SyncProcess {
     Logger.log({localPlan: this.localPlanStage2, serverPlan: this.serverPlanStage2})
 
     if (this.serverPlanStage2) {
-      this.applyDeletionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.REMOVE)
-      this.applyAdditionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.CREATE)
+      await this.applyDeletionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.REMOVE)
+      await this.applyAdditionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.CREATE)
     }
 
     if (this.localPlanStage2) {
-      this.applyDeletionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.REMOVE)
-      this.applyAdditionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.CREATE)
+      await this.applyDeletionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.REMOVE)
+      await this.applyAdditionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.CREATE)
     }
 
     if (!this.localDonePlan) {
@@ -951,13 +951,27 @@ export default class SyncProcess {
     await this.retuneProgressInterval()
   }
 
-  protected applyDeletionFailsafe(direction: TItemLocation, tree: Folder<TItemLocation>, removals: Diff<TItemLocation, TItemLocation, RemoveAction<TItemLocation, TItemLocation>>) {
+  /**
+   * Open tabs are few and churn a lot -- closing one window out of three
+   * already removes a third of the tree -- so the percentage thresholds that
+   * guard bookmarks would trip on everyday use. For tabs the failsafe only
+   * catches wholesale wipes/floods of a sizeable set.
+   */
+  protected async getFailsafeThresholds(): Promise<{minTotal: number, minChanged: number, ratio: number, maxChanged: number}> {
+    if (await this.localTree.isUsingBrowserTabs?.()) {
+      return { minTotal: 5, minChanged: 50, ratio: 0.5, maxChanged: 1000 }
+    }
+    return { minTotal: 5, minChanged: 0, ratio: 0.2, maxChanged: 1000 }
+  }
+
+  protected async applyDeletionFailsafe(direction: TItemLocation, tree: Folder<TItemLocation>, removals: Diff<TItemLocation, TItemLocation, RemoveAction<TItemLocation, TItemLocation>>) {
     const countTotal = tree.count()
     const countDeleted = removals.peekActions().reduce((count, action) => count + action.payload.count(), 0)
+    const { minTotal, minChanged, ratio, maxChanged } = await this.getFailsafeThresholds()
 
     Logger.log('Checking deletion failsafe: ' + countDeleted + '/' + countTotal + '=' + (countDeleted / countTotal))
-    // Failsafe kicks in if more than 20% is deleted or more than 1k bookmarks
-    if ((countTotal > 5 && countDeleted / countTotal > 0.2) || countDeleted > 1000) {
+    // Failsafe kicks in if more than 20% (tabs: 50% and at least 50 items) is deleted or more than 1k items
+    if ((countTotal > minTotal && countDeleted >= minChanged && countDeleted / countTotal > ratio) || countDeleted > maxChanged) {
       const failsafe = this.server.getData().failsafe
       if (
         failsafe !== false ||
@@ -974,13 +988,14 @@ export default class SyncProcess {
     }
   }
 
-  protected applyAdditionFailsafe(direction: TItemLocation, tree: Folder<TItemLocation>, creations: Diff<TItemLocation, TItemLocation, CreateAction<TItemLocation, TItemLocation>>) {
+  protected async applyAdditionFailsafe(direction: TItemLocation, tree: Folder<TItemLocation>, creations: Diff<TItemLocation, TItemLocation, CreateAction<TItemLocation, TItemLocation>>) {
     const countTotal = tree.count()
     const countAdded = creations.peekActions().reduce((count, action) => count + action.payload.count(), 0)
+    const { minTotal, minChanged, ratio, maxChanged } = await this.getFailsafeThresholds()
 
     Logger.log('Checking addition failsafe: ' + countAdded + '/' + countTotal + '=' + (countAdded / countTotal))
-    // Failsafe kicks in if more than 20% is added or more than 1k bookmarks
-    if (countTotal > 5 && ((countAdded >= 20 && countAdded / countTotal > 0.2) || countAdded > 1000)) {
+    // Failsafe kicks in if more than 20% (tabs: 50%) is added, at least 20 (tabs: 50) items, or more than 1k items
+    if (countTotal > minTotal && ((countAdded >= Math.max(20, minChanged) && countAdded / countTotal > ratio) || countAdded > maxChanged)) {
       const failsafe = this.server.getData().failsafe
       if (failsafe !== false || typeof failsafe === 'undefined' || failsafe === null) {
         const percentage = Math.ceil((countAdded / countTotal) * 100)
