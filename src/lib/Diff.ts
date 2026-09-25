@@ -231,13 +231,18 @@ export default class Diff<
     // changes under us: anything committed in the meantime stays marked changed
     // and is written by the next persist, and anything retracted is caught by
     // the removals below -- the row for it may be written by this very update.
-    for (let i = 0; i < this.actions.length; i++) {
-      const action = this.actions[i]
-      if (typeof action === 'undefined') {
+    // Walk a snapshot, though: a compact() in the meantime shifts the live
+    // arrays under the index, and whatever it shifts past is skipped -- which
+    // for a `full` update means rows the store drops without a replacement.
+    const actions = this.actions.slice()
+    const seqs = this.seqs.slice()
+    for (let i = 0; i < actions.length; i++) {
+      const action = actions[i]
+      if (typeof action === 'undefined' || !this.positions.has(action)) {
         // Retracted while we were serializing; the removals below carry it
         continue
       }
-      const seq = this.seqs[i]
+      const seq = seqs[i]
       if (!full && !this.changedSeqs.has(seq) && !this.inFlightSeqs.has(seq)) {
         continue
       }
