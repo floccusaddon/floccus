@@ -327,6 +327,54 @@ describe('Floccus', function() {
         // The completed sync has cleared the unreadable rows along with it
         expect(await account.storage.getCurrentContinuation()).to.not.be.ok
       })
+
+      it('should not trip the deletion failsafe over removals a resumed sync has already executed', async function() {
+        const localResource = await account.getResource()
+        const localRoot = (await localResource.getBookmarksTree(true)).id
+        const titles = []
+        const ids = []
+        for (let i = 0; i < 30; i++) {
+          titles.push('bm' + String(i).padStart(2, '0'))
+          ids.push(await localResource.createBookmark(new Bookmark({
+            title: titles[i],
+            url: `http://bm${i}.example/`,
+            parentId: localRoot,
+            location: ItemLocation.LOCAL,
+          })))
+        }
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+
+        // 6 out of 30 is right at the failsafe's 20%, which it lets through
+        for (const id of ids.slice(0, 6)) {
+          await localResource.removeBookmark({ id })
+        }
+
+        // Interrupted after the first server REMOVE, then resumed and
+        // interrupted again after the other five -- both times before the local
+        // plan has reached stage 3, so the stage 2 plans are still part of the
+        // continuation. The first resume restores serverPlanStage2.REMOVE and
+        // planStage3Server.REMOVE as two diffs, and only the latter is drained
+        let interruptAfter = [1, 5]
+        account.onSyncProcessCreated = (syncProcess) => {
+          syncProcess.setInterruptAfterActions(interruptAfter.shift())
+        }
+        await account.sync()
+        expect(account.getData().error).to.contain('E026')
+        await account.sync()
+        expect(account.getData().error).to.contain('E026')
+        account.onSyncProcessCreated = null
+        interruptAfter = null
+
+        // The failsafe passed before anything was executed; checking it again
+        // here counts the five removals serverPlanStage2 still holds against
+        // the 24 bookmarks they left -- more than 20%
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+
+        const serverTree = await getAllBookmarks(account)
+        expect(serverTree.children.map(item => item.title).sort()).to.deep.equal(titles.slice(6))
+      })
     })
   })
 })

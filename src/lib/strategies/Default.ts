@@ -665,8 +665,12 @@ export default class SyncProcess {
     }
 
     let mappingsSnapshot: MappingSnapshot
+    // Whether the plans that are about to be executed were made by this run,
+    // rather than restored from a continuation
+    let plannedInThisRun = false
 
     if (!this.serverPlanStage2 && !this.localPlanStage2 && !this.planStage3Local && !this.planStage3Server) {
+      plannedInThisRun = true
       // have to get snapshot after reconciliation, because of concurrent creation reconciliation
       mappingsSnapshot = this.mappings.getSnapshot()
       Logger.log('Mapping server plan')
@@ -696,12 +700,17 @@ export default class SyncProcess {
 
     Logger.log({localPlan: this.localPlanStage2, serverPlan: this.serverPlanStage2})
 
-    if (this.serverPlanStage2) {
+    // Only for plans made by this run. A continuation's plans have passed the
+    // failsafes already: they run before anything is executed, and progress is
+    // only persisted once something has been. Checking them again isn't just
+    // redundant, it can be wrong -- a resumed sync restores diffs that were
+    // shared as separate copies (serverPlanStage2.REMOVE and
+    // planStage3Server.REMOVE, say) and drains only one of them, so the other
+    // counts removals that have already been executed against the tree they
+    // have already shrunk.
+    if (plannedInThisRun) {
       await this.applyDeletionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.REMOVE)
       await this.applyAdditionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.CREATE)
-    }
-
-    if (this.localPlanStage2) {
       await this.applyDeletionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.REMOVE)
       await this.applyAdditionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.CREATE)
     }
