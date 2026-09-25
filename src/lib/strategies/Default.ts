@@ -439,6 +439,11 @@ export default class SyncProcess {
     return members
   }
 
+  /** How many actions this run has executed -- a resumed run counts from 0 again */
+  getActionsDone(): number {
+    return this.actionsDone || 0
+  }
+
   getMappingsInstance(): Mappings {
     return this.mappings
   }

@@ -479,6 +479,22 @@ export default class Account {
         }
       }
 
+      const keepsContinuation = !matchAllErrors(e, e => ![
+        new InterruptedSyncError().code,
+        new NetworkError().code,
+        // Don't throw away cache and mappings over a folder that may well come
+        // back -- and init() would only throw this same error again anyway.
+        new LocalFolderNotFoundError().code,
+        new ServersideAdditionFailsafeError(0).code,
+        new ServersideDeletionFailsafeError(0).code,
+        new ClientsideAdditionFailsafeError(0).code,
+        new ClientsideDeletionFailsafeError(0).code,
+      ].includes(e.code) && (!isTest || e.code !== 26))
+
+      if (keepsContinuation) {
+        await this.persistFinalProgress()
+      }
+
       this.syncing = false
 
       const isTransient = matchAllErrors(
@@ -493,17 +509,7 @@ export default class Account {
         syncing: false,
         scheduled: false,
       })
-      if (matchAllErrors(e, e => ![
-        new InterruptedSyncError().code,
-        new NetworkError().code,
-        // Don't throw away cache and mappings over a folder that may well come
-        // back -- and init() would only throw this same error again anyway.
-        new LocalFolderNotFoundError().code,
-        new ServersideAdditionFailsafeError(0).code,
-        new ServersideDeletionFailsafeError(0).code,
-        new ClientsideAdditionFailsafeError(0).code,
-        new ClientsideDeletionFailsafeError(0).code,
-      ].includes(e.code) && (!isTest || e.code !== 26))) {
+      if (!keepsContinuation) {
         await this.clearContinuation()
         await this.init()
       }
@@ -559,77 +565,115 @@ export default class Account {
       return
     }
     if (actionsDone) {
-      const mappings = this.syncProcess.getMappingsInstance()
-      if (!this.localCachingResource) {
-        return
-      }
-      // Persist the cache incrementally in *both* the atomic and non-atomic cases.
-      // Previously the cache was only persisted here for atomic adapters; for non-atomic
-      // adapters it was written only on successful sync completion (see sync()). During a long
-      // run of interrupted (never-completed) syncs that left the stored cache stale, so the next
-      // fresh sync re-saw already-synced items as new creations and re-created them on the
-      // non-atomic server — accumulating duplicate folders whose mappings then collided
-      // (MappingFailureError -> reset+forceSync -> divergence). Mappings are already persisted at
-      // the interrupt point; the cache must be kept in step with them.
-      // Nothing has touched the cache since we last wrote it, so there is
-      // nothing to hand to the store. Plenty of a sync (loading, diffing,
-      // reconciling, and every action that only concerns the server) changes no
-      // local item at all.
-      if (this.localCachingResource.isCacheDirty()) {
-        Logger.log('progressCallback: Persisting cache')
-        // Read before storing: a change landing while the write is in flight
-        // has to leave the cache dirty for the next tick
-        const revision = this.localCachingResource.getCacheRevision()
-        // What this costs is what the sync has changed since the last tick --
-        // the cache used to be serialized and written whole here, which for a
-        // large account was megabytes of JSON several times a minute (see
-        // ICacheStore).
-        await this.localCachingResource.saveCache((bm) => this.server.acceptsBookmark(bm))
-        this.localCachingResource.markCachePersisted(revision)
-      } else {
-        Logger.log('progressCallback: Cache unchanged since the last tick, not persisting')
-      }
-      if (!this.server.isAtomic()) {
-        // An update only carries what has changed since the last persist, so
-        // two of them must not be built and written in parallel -- the sync
-        // interrupt persists un-throttled while a throttled persist may still
-        // be in flight, and an older update landing last would put the actions
-        // executed in between back into their plan, to be executed twice by the
-        // sync that resumes from it.
-        await continuationLock.acquire(this.id, async() => {
-          Logger.log('progressCallback: Serializing continuation')
-          // Only what has changed since the last persist -- during execution that
-          // is the handful of actions that have moved from their plan to the done
-          // plan, rather than the whole sync plan, which is most of this account's
-          // bookmarks and used to be serialized here on every single tick.
-          const incremental = await this.storage.canPersistContinuationIncrementally()
-          const update = await this.syncProcess.toContinuationUpdateAsync({ full: !incremental })
-          if (!this.syncing) {
-            return
-          }
-          if (!this.syncProcess) {
-            return
-          }
-          Logger.log('progressCallback: Persisting continuation')
-          try {
-            await this.storage.updateCurrentContinuation(update)
-            // Only now that the write has gone through: anything that isn't
-            // acknowledged here is simply written again with the next update
-            this.syncProcess.markContinuationPersisted(update)
-          } catch (e) {
-            // Letting this through takes the rest of the tick with it -- the
-            // mappings below included, which would then fall out of step with
-            // the cache that was just persisted, the very divergence that
-            // persisting the cache here exists to prevent. The update isn't
-            // acknowledged, so the next tick offers it again -- by which time
-            // the storage has had its chance to fall back to one that works.
-            Logger.log('progressCallback: Could not persist continuation', e)
-          }
-        })
-      }
-      Logger.log('progressCallback: Persisting mappings')
-      await mappings.persist()
+      await this.persistProgress()
     }
+  }
+
+  /**
+   * Persist where a failed sync got to, for the next one to resume from.
+   *
+   * The ticks that persist the progress otherwise are throttled (up to 10s
+   * apart, see progressInterval) and the last one is dropped with the failure,
+   * yet the sync goes on executing actions in between -- and the executors
+   * even wait for a mutation that was in flight when it failed (see
+   * SyncProcess#raceWithCancellation). Unless the continuation catches up with
+   * those, the resumed sync finds them still in its plan and executes them a
+   * second time, which on a non-atomic server means duplicates.
+   *
+   * Only for non-atomic servers: an atomic one hasn't taken any of this run's
+   * changes, so there is no continuation to resume, and the cache and mappings
+   * the ticks keep for it are as far as they should go.
+   */
+  private async persistFinalProgress(): Promise<void> {
+    if (!this.syncProcess || !this.server || this.server.isAtomic()) {
+      return
+    }
+    if (!this.syncProcess.getActionsDone()) {
+      // Nothing executed since the sync started (or resumed): the stored
+      // continuation, if any, is still accurate
+      return
+    }
+    try {
+      Logger.log('Persisting the progress of the failed sync')
+      await this.persistProgress()
+    } catch (e) {
+      // Don't let this mask the error the sync failed with
+      Logger.log('Could not persist the progress of the failed sync', e)
+    }
+  }
+
+  /** Persist cache, continuation and mappings as they are now */
+  private async persistProgress(): Promise<void> {
+    const mappings = this.syncProcess.getMappingsInstance()
+    if (!this.localCachingResource) {
+      return
+    }
+    // Persist the cache incrementally in *both* the atomic and non-atomic cases.
+    // Previously the cache was only persisted here for atomic adapters; for non-atomic
+    // adapters it was written only on successful sync completion (see sync()). During a long
+    // run of interrupted (never-completed) syncs that left the stored cache stale, so the next
+    // fresh sync re-saw already-synced items as new creations and re-created them on the
+    // non-atomic server — accumulating duplicate folders whose mappings then collided
+    // (MappingFailureError -> reset+forceSync -> divergence). Mappings are already persisted at
+    // the interrupt point; the cache must be kept in step with them.
+    // Nothing has touched the cache since we last wrote it, so there is
+    // nothing to hand to the store. Plenty of a sync (loading, diffing,
+    // reconciling, and every action that only concerns the server) changes no
+    // local item at all.
+    if (this.localCachingResource.isCacheDirty()) {
+      Logger.log('persistProgress: Persisting cache')
+      // Read before storing: a change landing while the write is in flight
+      // has to leave the cache dirty for the next tick
+      const revision = this.localCachingResource.getCacheRevision()
+      // What this costs is what the sync has changed since the last tick --
+      // the cache used to be serialized and written whole here, which for a
+      // large account was megabytes of JSON several times a minute (see
+      // ICacheStore).
+      await this.localCachingResource.saveCache((bm) => this.server.acceptsBookmark(bm))
+      this.localCachingResource.markCachePersisted(revision)
+    } else {
+      Logger.log('persistProgress: Cache unchanged since the last tick, not persisting')
+    }
+    if (!this.server.isAtomic()) {
+      // An update only carries what has changed since the last persist, so
+      // two of them must not be built and written in parallel -- the sync
+      // interrupt persists un-throttled while a throttled persist may still
+      // be in flight, and an older update landing last would put the actions
+      // executed in between back into their plan, to be executed twice by the
+      // sync that resumes from it.
+      await continuationLock.acquire(this.id, async() => {
+        Logger.log('persistProgress: Serializing continuation')
+        // Only what has changed since the last persist -- during execution that
+        // is the handful of actions that have moved from their plan to the done
+        // plan, rather than the whole sync plan, which is most of this account's
+        // bookmarks and used to be serialized here on every single tick.
+        const incremental = await this.storage.canPersistContinuationIncrementally()
+        const update = await this.syncProcess.toContinuationUpdateAsync({ full: !incremental })
+        if (!this.syncing) {
+          return
+        }
+        if (!this.syncProcess) {
+          return
+        }
+        Logger.log('persistProgress: Persisting continuation')
+        try {
+          await this.storage.updateCurrentContinuation(update)
+          // Only now that the write has gone through: anything that isn't
+          // acknowledged here is simply written again with the next update
+          this.syncProcess.markContinuationPersisted(update)
+        } catch (e) {
+          // Letting this through takes the rest of the tick with it -- the
+          // mappings below included, which would then fall out of step with
+          // the cache that was just persisted, the very divergence that
+          // persisting the cache here exists to prevent. The update isn't
+          // acknowledged, so the next tick offers it again -- by which time
+          // the storage has had its chance to fall back to one that works.
+          Logger.log('persistProgress: Could not persist continuation', e)
+        }
+      })
+    }
+    Logger.log('persistProgress: Persisting mappings')
+    await mappings.persist()
   }
 
   static async getAllAccounts():Promise<Account[]> {
