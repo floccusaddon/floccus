@@ -250,7 +250,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
 
               if (
                 // Don't create duplicates!
-                targetPlan.MOVE.getActions().find(
+                targetPlan.MOVE.peekActions().find(
                   (move) => String(move.payload.id) === String(payload.id)
                 ) ||
                 sourceMoves.find(

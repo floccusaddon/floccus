@@ -159,4 +159,121 @@ describe('CachingTreeWrapper', function() {
       expect(cache.findBookmark(bookmarkId).title).to.equal(titleAsImported)
     })
   })
+
+  describe('persisting the cache', function() {
+    /**
+     * What Account#sync used to do on every progress tick: copy the cache tree,
+     * filter it, serialize the copy. getCacheTreeJSON has to come out the same.
+     */
+    async function theOldWay(accepts) {
+      const cache = await wrapper.getCacheTree()
+      const filter = (folder) => {
+        let changed = false
+        folder.children = folder.children.filter((child) => {
+          if (child instanceof Bookmark) {
+            const accepted = accepts(child)
+            changed = changed || !accepted
+            return accepted
+          }
+          changed = filter(child) || changed
+          return true
+        })
+        if (changed) {
+          folder.invalidateHash()
+        }
+        return changed
+      }
+      filter(cache)
+      return cache.toJSON()
+    }
+
+    it('starts out dirty, because storage holds an earlier sync\'s cache', function() {
+      expect(wrapper.isCacheDirty()).to.equal(true)
+    })
+
+    it('is clean once the revision it was at has been persisted', async function() {
+      wrapper.markCachePersisted(wrapper.getCacheRevision())
+      expect(wrapper.isCacheDirty()).to.equal(false)
+    })
+
+    it('goes dirty again on every kind of change to the cached tree', async function() {
+      wrapper.markCachePersisted(wrapper.getCacheRevision())
+
+      const folderId = await wrapper.createFolder(new Folder({ id: 0, parentId: rootId, title: 'f', location: ItemLocation.LOCAL }))
+      expect(wrapper.isCacheDirty()).to.equal(true)
+
+      wrapper.markCachePersisted(wrapper.getCacheRevision())
+      const bookmarkId = await wrapper.createBookmark(new Bookmark({ id: 0, parentId: folderId, title: 'b', url: 'http://example.com/b', location: ItemLocation.LOCAL }))
+      expect(wrapper.isCacheDirty()).to.equal(true)
+
+      wrapper.markCachePersisted(wrapper.getCacheRevision())
+      await wrapper.updateBookmark(new Bookmark({ id: bookmarkId, parentId: folderId, title: 'b2', url: 'http://example.com/b', location: ItemLocation.LOCAL }))
+      expect(wrapper.isCacheDirty()).to.equal(true)
+
+      wrapper.markCachePersisted(wrapper.getCacheRevision())
+      await wrapper.bulkImportFolder(folderId, subtree(folderId, 1, 1))
+      expect(wrapper.isCacheDirty()).to.equal(true)
+
+      wrapper.markCachePersisted(wrapper.getCacheRevision())
+      await wrapper.removeFolder(new Folder({ id: folderId, parentId: rootId, title: 'f', location: ItemLocation.LOCAL }))
+      expect(wrapper.isCacheDirty()).to.equal(true)
+    })
+
+    it('stays dirty when the change landed after the revision being written was read', async function() {
+      // What Account#progressCallback does: read the revision, serialize, write,
+      // and only then record what went to storage. A change in between must not
+      // be swallowed by that record.
+      const revision = wrapper.getCacheRevision()
+      await wrapper.createFolder(new Folder({ id: 0, parentId: rootId, title: 'raced', location: ItemLocation.LOCAL }))
+      wrapper.markCachePersisted(revision)
+      expect(wrapper.isCacheDirty()).to.equal(true)
+    })
+
+    it('serializes to what the copy-filter-serialize path produced', async function() {
+      await wrapper.bulkImportFolder(rootId, subtree(rootId, 2, 3))
+      expect(wrapper.getCacheTreeJSON()).to.deep.equal(await theOldWay(() => true))
+    })
+
+    it('drops the bookmarks the server refuses, as the old path did', async function() {
+      await wrapper.bulkImportFolder(rootId, subtree(rootId, 2, 3))
+      const accepts = (bm) => !bm.url.endsWith('/0/0')
+
+      const json = wrapper.getCacheTreeJSON(accepts)
+      expect(json).to.deep.equal(await theOldWay(accepts))
+
+      const urls = []
+      const walk = (folder) => folder.children.forEach((child) => child.children ? walk(child) : urls.push(child.url))
+      walk(json)
+      expect(urls).to.have.lengthOf(5)
+      expect(urls.some((url) => url.endsWith('/0/0'))).to.equal(false)
+    })
+
+    it('drops the cached hash of every folder above a dropped bookmark', async function() {
+      await wrapper.bulkImportFolder(rootId, subtree(rootId, 2, 3))
+      // Give every folder a hash, the way a sync's scanner leaves them behind
+      const hashed = await wrapper.getCacheTree()
+      await hashed.hash({ preserveOrder: false, hashFn: 'murmur3' })
+      await wrapper.setCacheTree(hashed)
+
+      const json = wrapper.getCacheTreeJSON((bm) => !bm.url.endsWith('/0/0'))
+      // bulkImportFolder splices the subtree's children straight into the root
+      const touched = json.children[0]
+      const untouched = json.children[1]
+
+      // The folder that lost it, and every folder above it, up to the root
+      expect(touched.hashValue).to.deep.equal({})
+      expect(json.hashValue).to.deep.equal({})
+      // ...and nothing else: a sibling's subtree didn't change
+      expect(Object.keys(untouched.hashValue || {})).to.have.lengthOf.above(0)
+    })
+
+    it('leaves the cached tree alone, unlike the filtering it replaces', async function() {
+      await wrapper.bulkImportFolder(rootId, subtree(rootId, 1, 2))
+      const before = simplify(await wrapper.getCacheTree())
+
+      wrapper.getCacheTreeJSON(() => false)
+
+      expect(simplify(await wrapper.getCacheTree())).to.deep.equal(before)
+    })
+  })
 })

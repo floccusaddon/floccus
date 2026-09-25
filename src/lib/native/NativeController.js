@@ -6,6 +6,7 @@ import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
 import { LocalNotifications } from '@capacitor/local-notifications'
 import { i18n } from './I18n'
+import ScreenWakeLock from './ScreenWakeLock'
 
 const INACTIVITY_TIMEOUT = 1000 * 7
 const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
@@ -89,9 +90,10 @@ export default class NativeController {
 
     this.alarms = new AlarmManager(this)
 
-    // Remove old logs
+    // Remove old logs. Only the stored ones: what this run has logged so far
+    // is still in Logger's buffer and belongs in the fresh log.
 
-    NativeAccountStorage.setEntry('logs', [])
+    NativeAccountStorage.clearLogs()
 
     // lock accounts when locking is enabled
 
@@ -203,10 +205,13 @@ export default class NativeController {
         ]
       }))
     }
+    await ScreenWakeLock.acquire()
     try {
       await account.sync(strategy, forceSync)
     } catch (error) {
       console.error(error)
+    } finally {
+      await ScreenWakeLock.release()
     }
     if ((await LocalNotifications.checkPermissions()).display !== 'denied') {
       // Cancel the ongoing notification

@@ -265,23 +265,23 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     if (this.revertPlan) {
       if (this.direction === ItemLocation.LOCAL) {
-        this.applyDeletionFailsafe(
+        await this.applyDeletionFailsafe(
           ItemLocation.LOCAL,
           this.localTreeRoot,
           this.revertPlan.REMOVE
         )
-        this.applyAdditionFailsafe(
+        await this.applyAdditionFailsafe(
           ItemLocation.LOCAL,
           this.localTreeRoot,
           this.revertPlan.CREATE
         )
       } else {
-        this.applyDeletionFailsafe(
+        await this.applyDeletionFailsafe(
           ItemLocation.SERVER,
           this.serverTreeRoot,
           this.revertPlan.REMOVE
         )
-        this.applyAdditionFailsafe(
+        await this.applyAdditionFailsafe(
           ItemLocation.SERVER,
           this.serverTreeRoot,
           this.revertPlan.CREATE

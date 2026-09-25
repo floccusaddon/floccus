@@ -1,5 +1,6 @@
 import { Bookmark, Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
 import Ordering from './Ordering'
+import type { TBookmarkFilter } from '../CacheTree'
 
 export type THashFunction = 'sha256' | 'murmur3' | 'xxhash3'
 
@@ -45,6 +46,29 @@ export interface IResource<L extends TItemLocation> {
 export interface CachingResource <L extends TItemLocation> extends IResource<L> {
   getCacheTree():Promise<Folder<L>>
   setCacheTree(folder:Folder<L>):Promise<void>
+  /**
+   * The cached tree as the plain JSON the storage takes, already stripped of the
+   * bookmarks `accepts` refuses. One pass, unlike getCacheTree() + filter +
+   * serialize -- see CacheTree#toStorageJSON.
+   */
+  // eslint-disable-next-line no-use-before-define
+  getCacheTreeJSON(accepts?: TBookmarkFilter):any
+  /**
+   * Hand everything that has changed since the last time to the cache store.
+   * `accepts` is only read by a store that keeps the cache as one blob rather
+   * than as rows -- see ICacheStore.
+   */
+  // eslint-disable-next-line no-use-before-define
+  saveCache(accepts?: TBookmarkFilter):Promise<void>
+  /** How often the cached tree has been changed, see CachingAdapter */
+  getCacheRevision():number
+  /** Whether it has changed since the last markCachePersisted */
+  isCacheDirty():boolean
+  /**
+   * Take note that this revision is in storage. Pass the revision read *before*
+   * serializing, so that a change landing during the write leaves it dirty.
+   */
+  markCachePersisted(revision: number):void
 }
 
 export interface BulkImportResource<L extends TItemLocation> extends IResource<L> {

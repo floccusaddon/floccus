@@ -5,6 +5,8 @@ import NativeTree from '../lib/native/NativeTree'
 import NativeAccountStorage from '../lib/native/NativeAccountStorage'
 import NativeTreeQuery, { formatSearchToken, parseSearchQuery } from '../lib/native/NativeTreeQuery'
 import NativeDatabase from '../lib/native/NativeDatabase'
+import NativeCacheStore from '../lib/native/NativeCacheStore'
+import CachingTreeWrapper from '../lib/CachingTreeWrapper'
 import DefaultSyncProcess from '../lib/strategies/Default'
 import Diff from '../lib/Diff'
 
@@ -1192,5 +1194,300 @@ describe('Native SQLite storage', function() {
       expect(snapshot.ServerToLocal.bookmark[42]).to.equal(7)
       expect((await Storage.get({ key: `bookmarks[${legacyAccountId}].mappings` })).value).to.not.be.ok
     })
+  })
+})
+
+describe('Native SQLite sync cache', function() {
+  this.timeout(20000)
+
+  const SETTINGS = { preserveOrder: true, hashFn: 'xxhash3', syncTags: true }
+  const CACHE_KEY = hashCacheKey(SETTINGS)
+
+  let accountId, store, innerTree, wrapper, rootId
+
+  beforeEach('set up a wrapped tree with a cache store', async function() {
+    accountId = newAccountId()
+    store = new NativeCacheStore(accountId)
+    innerTree = new NativeTree(accountStorageStub(accountId))
+    await innerTree.load()
+    wrapper = new CachingTreeWrapper(innerTree, store)
+    // What the sync does first: this seeds the cache from the local tree
+    rootId = (await wrapper.getBookmarksTree()).id
+  })
+
+  function bookmark(parentId, title, url, tags) {
+    return new Bookmark({ parentId, title, url, tags, location: ItemLocation.LOCAL })
+  }
+
+  function folder(parentId, title) {
+    return new Folder({ parentId, title, location: ItemLocation.LOCAL })
+  }
+
+  /** What is actually in the rows, read by a store that knows nothing yet */
+  function stored() {
+    return new NativeCacheStore(accountId).load()
+  }
+
+  /**
+   * The cache statements of everything that runs inside -- the local tree
+   * writes rows of its own, and those aren't what this is about.
+   */
+  async function recordCacheWrites(fn) {
+    const original = NativeDatabase.batch
+    const statements = []
+    NativeDatabase.batch = function(batch) {
+      statements.push(...batch.filter((one) => one.statement.includes('cache_')))
+      return original.call(NativeDatabase, batch)
+    }
+    try {
+      await fn()
+    } finally {
+      NativeDatabase.batch = original
+    }
+    return statements
+  }
+
+  async function setUpTree() {
+    const folderId = await wrapper.createFolder(folder(rootId, 'foo'))
+    const subFolderId = await wrapper.createFolder(folder(folderId, 'bar'))
+    const bookmarkId = await wrapper.createBookmark(bookmark(subFolderId, 'url1', 'http://ex.com/one', ['a', 'b']))
+    await wrapper.createBookmark(bookmark(rootId, 'url2', 'http://ex.com/two'))
+    await wrapper.saveCache()
+    return { folderId, subFolderId, bookmarkId }
+  }
+
+  it('should hand back the tree it was given', async function() {
+    await setUpTree()
+
+    expect(simplify(await stored())).to.deep.equal(simplify(await wrapper.getCacheTree()))
+  })
+
+  it('should have no cache for an account that never synced', async function() {
+    expect(await new NativeCacheStore(newAccountId()).load()).to.equal(null)
+  })
+
+  it('should keep the order of a folder\'s children', async function() {
+    const first = await wrapper.createBookmark(bookmark(rootId, 'url1', 'http://ex.com/one'))
+    const second = await wrapper.createFolder(folder(rootId, 'foo'))
+    const third = await wrapper.createBookmark(bookmark(rootId, 'url3', 'http://ex.com/three'))
+
+    await wrapper.orderFolder(rootId, [
+      { type: 'bookmark', id: third },
+      { type: 'bookmark', id: first },
+      { type: 'folder', id: second },
+    ])
+    await wrapper.saveCache()
+
+    expect((await stored()).children.map((child) => String(child.id)))
+      .to.deep.equal([third, first, second].map(String))
+  })
+
+  it('should store nothing before the cache is saved', async function() {
+    const { folderId } = await setUpTree()
+
+    await wrapper.createBookmark(bookmark(folderId, 'url3', 'http://ex.com/three'))
+
+    // The sync persists the cache, the mappings and the continuation on the
+    // same tick; a cache that ran ahead of them would, after an interrupt,
+    // claim items the mappings know nothing about
+    expect((await stored()).findFolder(folderId).children.length).to.equal(1)
+    await wrapper.saveCache()
+    expect((await stored()).findFolder(folderId).children.length).to.equal(2)
+  })
+
+  it('should write only what changed since the last save', async function() {
+    const { folderId } = await setUpTree()
+
+    const written = await recordCacheWrites(async() => {
+      await wrapper.createBookmark(bookmark(folderId, 'url3', 'http://ex.com/three'))
+      await wrapper.saveCache()
+    })
+
+    // The bookmark itself, and the dropped hashes of the folders above it
+    expect(written.length).to.be.below(4)
+    expect(simplify(await stored())).to.deep.equal(simplify(await wrapper.getCacheTree()))
+  })
+
+  it('should write nothing for a tree that is handed to it unchanged', async function() {
+    await setUpTree()
+
+    const written = await recordCacheWrites(async() => {
+      // What the next sync starts with: the local tree, which nothing has
+      // touched since the last one
+      await wrapper.setCacheTree(await innerTree.getBookmarksTree())
+      await wrapper.saveCache()
+    })
+
+    expect(written).to.deep.equal([])
+  })
+
+  it('should drop the rows of items that the new tree no longer has', async function() {
+    const { folderId, subFolderId } = await setUpTree()
+
+    const trimmed = await innerTree.getBookmarksTree()
+    trimmed.findFolder(folderId).children = []
+    await wrapper.setCacheTree(trimmed)
+    await wrapper.saveCache()
+
+    const cache = await stored()
+    expect(cache.findFolder(subFolderId)).to.not.be.ok
+    expect(cache.findFolder(folderId).children).to.deep.equal([])
+  })
+
+  it('should remove a folder with everything below it', async function() {
+    const { folderId, subFolderId, bookmarkId } = await setUpTree()
+
+    await wrapper.removeFolder(new Folder({
+      id: folderId, parentId: rootId, title: 'foo', location: ItemLocation.LOCAL,
+    }))
+    await wrapper.saveCache()
+
+    const cache = await stored()
+    expect(cache.findFolder(folderId)).to.not.be.ok
+    expect(cache.findFolder(subFolderId)).to.not.be.ok
+    expect(cache.findBookmark(bookmarkId)).to.not.be.ok
+  })
+
+  it('should persist a moved and renamed bookmark', async function() {
+    const { folderId, subFolderId, bookmarkId } = await setUpTree()
+
+    await wrapper.updateBookmark(new Bookmark({
+      id: bookmarkId,
+      parentId: folderId,
+      title: 'renamed',
+      url: 'http://ex.com/moved',
+      tags: ['c'],
+      location: ItemLocation.LOCAL,
+    }))
+    await wrapper.saveCache()
+
+    const cache = await stored()
+    expect(cache.findFolder(subFolderId).children).to.deep.equal([])
+    const moved = cache.findBookmark(bookmarkId)
+    expect(moved.title).to.equal('renamed')
+    expect(moved.url).to.equal('http://ex.com/moved')
+    expect(moved.tags).to.deep.equal(['c'])
+    expect(String(moved.parentId)).to.equal(String(folderId))
+  })
+
+  it('should mirror a bulk import under the ids the live tree handed out', async function() {
+    await setUpTree()
+
+    await wrapper.bulkImportFolder(rootId, new Folder({
+      id: rootId,
+      title: 'imported',
+      location: ItemLocation.LOCAL,
+      children: [
+        folder(rootId, 'one'),
+        bookmark(rootId, 'url4', 'http://ex.com/four'),
+      ],
+    }))
+    await wrapper.saveCache()
+
+    expect(simplify(await stored())).to.deep.equal(simplify(await wrapper.getCacheTree()))
+  })
+
+  it('should carry the folder hashes the local tree handed it', async function() {
+    innerTree.setHashSettings(SETTINGS)
+    const { folderId } = await setUpTree()
+    await innerTree.save()
+
+    // A fresh sync, which seeds the cache from the local tree's stored hashes
+    const reloaded = new NativeTree(accountStorageStub(accountId))
+    await reloaded.load()
+    reloaded.setHashSettings(SETTINGS)
+    const next = new CachingTreeWrapper(reloaded, new NativeCacheStore(accountId))
+    await next.getBookmarksTree()
+    await next.saveCache()
+
+    const cache = await stored()
+    expect(cache.hashValue[CACHE_KEY]).to.be.a('string')
+    expect(cache.findFolder(folderId).hashValue[CACHE_KEY]).to.be.a('string')
+  })
+
+  it('should drop a stored hash as soon as its folder changes', async function() {
+    innerTree.setHashSettings(SETTINGS)
+    const { folderId, subFolderId } = await setUpTree()
+    await innerTree.save()
+
+    const reloaded = new NativeTree(accountStorageStub(accountId))
+    await reloaded.load()
+    reloaded.setHashSettings(SETTINGS)
+    const next = new CachingTreeWrapper(reloaded, new NativeCacheStore(accountId))
+    const nextRootId = (await next.getBookmarksTree()).id
+    await next.saveCache()
+    expect((await stored()).findFolder(subFolderId).hashValue[CACHE_KEY]).to.be.a('string')
+
+    await next.createBookmark(bookmark(subFolderId, 'url3', 'http://ex.com/three'))
+    await next.saveCache()
+
+    const cache = await stored()
+    expect(String(nextRootId)).to.equal(String(rootId))
+    expect(cache.hashValue[CACHE_KEY]).to.not.be.ok
+    expect(cache.findFolder(folderId).hashValue[CACHE_KEY]).to.not.be.ok
+    expect(cache.findFolder(subFolderId).hashValue[CACHE_KEY]).to.not.be.ok
+  })
+
+  it('should throw the cache away when it is cleared', async function() {
+    await setUpTree()
+
+    await new NativeAccountStorage(accountId).deleteCache()
+
+    expect(await stored()).to.equal(null)
+  })
+
+  it('should import a cache that is still stored as JSON in the preferences', async function() {
+    const legacyAccountId = newAccountId()
+    await Storage.set({
+      key: `bookmarks[${legacyAccountId}].cache`,
+      value: JSON.stringify({
+        type: 'folder',
+        id: 0,
+        title: 'root',
+        location: ItemLocation.LOCAL,
+        hashValue: { [CACHE_KEY]: 'abcdef' },
+        children: [
+          {
+            type: 'folder',
+            id: 1,
+            parentId: 0,
+            title: 'foo',
+            location: ItemLocation.LOCAL,
+            children: [{
+              type: 'bookmark',
+              id: 2,
+              parentId: 1,
+              title: 'url1',
+              url: 'http://ex.com/one',
+              tags: ['a'],
+              location: ItemLocation.LOCAL,
+            }],
+          },
+        ],
+      }),
+    })
+
+    const migrated = await new NativeAccountStorage(legacyAccountId).getCache()
+
+    expect(migrated.hashValue[CACHE_KEY]).to.equal('abcdef')
+    expect(simplify(migrated)).to.deep.equal({
+      type: 'folder',
+      id: 0,
+      title: 'root',
+      children: [{
+        type: 'folder',
+        id: 1,
+        title: 'foo',
+        children: [{
+          type: 'bookmark',
+          id: 2,
+          parentId: 1,
+          title: 'url1',
+          url: 'http://ex.com/one',
+          tags: ['a'],
+        }],
+      }],
+    })
+    expect((await Storage.get({ key: `bookmarks[${legacyAccountId}].cache` })).value).to.not.be.ok
   })
 })

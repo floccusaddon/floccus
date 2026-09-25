@@ -24,6 +24,15 @@ const DB_VERSION = 1
  * (continuations), so that a progress tick only writes the actions that were
  * executed since the last one -- see Continuation.ts.
  *
+ * The sync cache -- the tree the last sync agreed on -- is rows as well
+ * (cache_folders, cache_bookmarks), kept in lockstep with the tree the sync
+ * builds up, so that a progress tick writes what has changed rather than the
+ * whole tree; see NativeCacheStore.
+ *
+ * The debug log lives in here as well, one row per line -- the only table that
+ * isn't tied to an account, since the log is a single stream (see
+ * NativeLogStore).
+ *
  * `search_text` is what the native UI's search runs its LIKE against. It holds
  * the item's title (and, for bookmarks, its url and tags) lowercased in JS:
  * SQLite's own lower()/LIKE only fold ASCII, so searching for 'apfel' would
@@ -37,6 +46,7 @@ CREATE TABLE IF NOT EXISTS account_meta (
   mappings_initialized INTEGER NOT NULL DEFAULT 0,
   tree_migrated INTEGER NOT NULL DEFAULT 0,
   mappings_migrated INTEGER NOT NULL DEFAULT 0,
+  cache_migrated INTEGER NOT NULL DEFAULT 0,
   search_backfilled INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS folders (
@@ -63,6 +73,29 @@ CREATE TABLE IF NOT EXISTS bookmarks (
   PRIMARY KEY (account_id, id)
 );
 CREATE INDEX IF NOT EXISTS bookmarks_by_parent ON bookmarks (account_id, parent_id, position);
+CREATE TABLE IF NOT EXISTS cache_folders (
+  account_id TEXT NOT NULL,
+  id INTEGER NOT NULL,
+  parent_id INTEGER,
+  title TEXT,
+  position INTEGER NOT NULL DEFAULT 0,
+  hash_value TEXT,
+  is_root INTEGER NOT NULL DEFAULT 0,
+  loaded INTEGER NOT NULL DEFAULT 1,
+  PRIMARY KEY (account_id, id)
+);
+CREATE INDEX IF NOT EXISTS cache_folders_by_parent ON cache_folders (account_id, parent_id, position);
+CREATE TABLE IF NOT EXISTS cache_bookmarks (
+  account_id TEXT NOT NULL,
+  id INTEGER NOT NULL,
+  parent_id INTEGER,
+  title TEXT,
+  url TEXT,
+  tags TEXT,
+  position INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (account_id, id)
+);
+CREATE INDEX IF NOT EXISTS cache_bookmarks_by_parent ON cache_bookmarks (account_id, parent_id, position);
 CREATE TABLE IF NOT EXISTS continuations (
   account_id TEXT PRIMARY KEY NOT NULL,
   strategy TEXT NOT NULL,
@@ -84,6 +117,10 @@ CREATE TABLE IF NOT EXISTS mappings (
   local_id_numeric INTEGER NOT NULL DEFAULT 0,
   remote_id_numeric INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (account_id, type, local_id)
+);
+CREATE TABLE IF NOT EXISTS logs (
+  seq INTEGER PRIMARY KEY,
+  message TEXT NOT NULL
 );
 `
 
@@ -108,7 +145,10 @@ async function connect(): Promise<SQLiteDBConnection> {
   await db.execute(SCHEMA)
   await addMissingColumns(db, 'folders', { hash: 'TEXT', hash_settings: 'TEXT', search_text: 'TEXT' })
   await addMissingColumns(db, 'bookmarks', { search_text: 'TEXT' })
-  await addMissingColumns(db, 'account_meta', { search_backfilled: 'INTEGER NOT NULL DEFAULT 0' })
+  await addMissingColumns(db, 'account_meta', {
+    search_backfilled: 'INTEGER NOT NULL DEFAULT 0',
+    cache_migrated: 'INTEGER NOT NULL DEFAULT 0',
+  })
   return db
 }
 

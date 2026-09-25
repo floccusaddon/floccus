@@ -91,6 +91,7 @@
   },
   "dependencies": {
     "@byteowls/capacitor-oauth2": "5.x",
+    "@capacitor-community/keep-awake": "^7.1.0",
     "@capacitor-community/sqlite": "^7.0.3",
     "@capacitor/android": "7.x",
     "@capacitor/app": "7.x",

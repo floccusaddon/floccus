@@ -5,6 +5,7 @@ import Controller from '../lib/Controller'
 import {
   clearLocalResource,
   createTestLocalRoot,
+  disableCachePersistence,
   DUMP_LOGS,
   expect, expectTreeEqual, getAllBookmarks, getEnv, randomlyManipulateTree,
   randomlyManipulateTreeWithDeletions, seedTestRandom, stringifyAccountData,
@@ -141,15 +142,11 @@ describe('Floccus', function() {
             )
           }
           if (ACCOUNT_DATA.noCache) {
-            account1.storage.setCache = () => {
-              // noop
-            }
+            disableCachePersistence(account1)
             account1.storage.setMappings = () => {
               // noop
             }
-            account2.storage.setCache = () => {
-              // noop
-            }
+            disableCachePersistence(account2)
             account2.storage.setMappings = () => {
               // noop
             }

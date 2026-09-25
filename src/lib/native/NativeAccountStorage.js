@@ -8,6 +8,8 @@ import Logger from '../Logger'
 import NativeMappingsStore from './NativeMappingsStore'
 import NativeTreeStore from './NativeTreeStore'
 import NativeContinuationStore from './NativeContinuationStore'
+import NativeCacheStore from './NativeCacheStore'
+import NativeLogStore from './NativeLogStore'
 
 const storageLock = new AsyncLock()
 
@@ -16,6 +18,7 @@ export default class NativeAccountStorage {
     this.accountId = id
     this.mappingsStore = new NativeMappingsStore(id)
     this.continuationStore = new NativeContinuationStore(id)
+    this.cacheStore = new NativeCacheStore(id)
   }
 
   /**
@@ -60,6 +63,22 @@ export default class NativeAccountStorage {
 
   static deleteEntry(entryName) {
     return Storage.remove({key: entryName})
+  }
+
+  /**
+   * The log is rows rather than an entry, so that adding to it doesn't mean
+   * rewriting it -- see NativeLogStore.
+   */
+  static appendLogs(messages) {
+    return NativeLogStore.append(messages)
+  }
+
+  static getLogs() {
+    return NativeLogStore.read()
+  }
+
+  static clearLogs() {
+    return NativeLogStore.clear()
   }
 
   static async getAllAccounts() {
@@ -123,26 +142,40 @@ export default class NativeAccountStorage {
     return this.mappingsStore.isInitialized()
   }
 
+  /**
+   * The sync cache is rows, one per folder and bookmark, so that a progress
+   * tick writes what has changed rather than the whole tree -- see
+   * NativeCacheStore. There is one store per storage, and everything that
+   * reads or writes the cache goes through it, so that what it knows to be in
+   * the rows stays true.
+   */
+  getCacheStore() {
+    return this.cacheStore
+  }
+
   async initCache() {
-    await NativeAccountStorage.setEntry(`bookmarks[${this.accountId}].cache`, {})
+    await this.cacheStore.clear()
   }
 
   async getCache() {
-    const data = await NativeAccountStorage.getEntry(
-      `bookmarks[${this.accountId}].cache`
-    )
-    return Folder.hydrate(data && Object.keys(data).length ? data : {location: ItemLocation.LOCAL})
+    const root = await this.cacheStore.load()
+    // No cache stored: an empty root, which is what an account that has never
+    // synced has always been handed here
+    return root || Folder.hydrate({location: ItemLocation.LOCAL})
   }
 
   async setCache(data) {
-    await NativeAccountStorage.setEntry(
-      `bookmarks[${this.accountId}].cache`,
-      data.toJSON ? data.toJSON() : data
-    )
+    const json = data && data.toJSON ? data.toJSON() : data
+    if (!json || !Object.keys(json).length) {
+      await this.cacheStore.clear()
+      return
+    }
+    await this.cacheStore.setTree(Folder.hydrate(json))
+    await this.cacheStore.save()
   }
 
   async deleteCache() {
-    await NativeAccountStorage.deleteEntry(`bookmarks[${this.accountId}].cache`)
+    await this.cacheStore.clear()
   }
 
   async initMappings() {

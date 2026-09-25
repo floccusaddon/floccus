@@ -6,6 +6,7 @@ import Controller from '../lib/Controller'
 import {
   awaitTabsUpdated, DUMP_LOGS, expect,
   createTestLocalRoot,
+  disableCachePersistence,
   expectTreeEqual,
   getAllBookmarks,
   getEnv,
@@ -76,9 +77,7 @@ describe('Floccus', function() {
             await account.init()
             await account.setData({ localRoot: 'tabs', rootPath: 'Tabs' })
             if (ACCOUNT_DATA.noCache) {
-              account.storage.setCache = () => {
-                // noop
-              }
+              disableCachePersistence(account)
               account.storage.setMappings = () => {
                 // noop
               }

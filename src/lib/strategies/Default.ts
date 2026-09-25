@@ -9,6 +9,7 @@ import {
   TOppositeLocation,
 } from '../Tree'
 import Logger from '../Logger'
+import { filterUnacceptedBookmarks } from '../CacheTree'
 import Diff, {
   Action,
   ActionType,
@@ -41,6 +42,35 @@ import type { IContinuationDiffUpdate, IContinuationUpdate, TContinuationMember 
 export const ACTION_CONCURRENCY = isTest ? 1 : 5
 
 /**
+ * How often the sync may persist its progress, in milliseconds.
+ *
+ * A tick writes the whole sync cache and the whole mappings table (see
+ * Account#progressCallback) -- work proportional to the account rather than to
+ * what has happened since the last tick. At 80k bookmarks that is a
+ * multi-megabyte serialization and storage write each time, so at a fixed 1.5s
+ * the checkpointing takes a sizeable bite out of the very sync it is
+ * checkpointing.
+ *
+ * What is bought with a longer interval is paid for in interrupt granularity:
+ * a sync that dies between two ticks resumes from the last one and re-executes
+ * what it did in between. Hence a cap rather than unbounded growth, and hence
+ * small accounts -- where a tick is cheap anyway -- keep the old 1.5s.
+ */
+export const PROGRESS_INTERVAL_MIN = 1500
+export const PROGRESS_INTERVAL_MAX = 10000
+export const PROGRESS_INTERVAL_PER_ITEM = 0.2
+
+export function progressInterval(itemCount: number): number {
+  if (!Number.isFinite(itemCount) || itemCount <= 0) {
+    return PROGRESS_INTERVAL_MIN
+  }
+  return Math.min(
+    PROGRESS_INTERVAL_MAX,
+    Math.max(PROGRESS_INTERVAL_MIN, Math.round(itemCount * PROGRESS_INTERVAL_PER_ITEM))
+  )
+}
+
+/**
  * Every item of a tree by id -- what Folder#createIndex builds, except that it
  * is handed to the caller instead of being hung onto the tree, so that nothing
  * afterwards has to keep it up to date.
@@ -57,6 +87,8 @@ export default class SyncProcess {
   protected cacheTreeRoot: Folder<typeof ItemLocation.LOCAL>|null
   protected canceled: boolean
   protected throttledProgressCb: ThrottledFunction<[progress: number, actionsDone: number | undefined], void>
+  /** The interval throttledProgressCb was built with, see #retuneProgressInterval */
+  private progressIntervalMs: number = PROGRESS_INTERVAL_MIN
   // Un-throttled progress callback, used to persist the continuation synchronously at the
   // exact interrupt point (see updateProgress) so a resumed sync continues from there.
   protected progressCb: (progress: number, actionsDone?: number) => Promise<void>
@@ -124,7 +156,7 @@ export default class SyncProcess {
     this.server = server
 
     this.progressCb = progressCb
-    this.throttledProgressCb = throttle(progressCb, 1500)
+    this.throttledProgressCb = throttle(progressCb, this.progressIntervalMs)
     this.cancelPromise = new Promise<void>((resolve, reject) => {
       this.cancelCb = reject
     })
@@ -234,8 +266,9 @@ export default class SyncProcess {
     // Every repair changes what the lookups after it have to go through, so this
     // one snapshot is kept in step as we go instead of being re-read: an item is
     // found in the folder its parent maps to, and for the items below a repaired
-    // folder that is the folder it maps to *now*
-    const snapshot = this.mappings.getSnapshot()
+    // folder that is the folder it maps to *now*. Hence a snapshot of our own --
+    // the one #getSnapshot hands out is shared and must not be written to.
+    const snapshot = this.mappings.getMutableSnapshot()
 
     let repaired = 0
     let dropped = 0
@@ -461,6 +494,33 @@ export default class SyncProcess {
     }
   }
 
+  /**
+   * Set the progress interval for the size of the trees we have just loaded.
+   *
+   * @jcoreio/async-throttle captures its interval when the throttled function is
+   * built, so this replaces the function rather than retuning it in place.
+   * Everything reads this.throttledProgressCb at call time, so the swap is only
+   * a matter of not leaving the old one's pending tick behind on its own
+   * schedule -- hence the cancel.
+   */
+  protected async retuneProgressInterval(): Promise<void> {
+    if (!this.localTreeRoot) {
+      return
+    }
+    const items = this.localTreeRoot.count() + this.localTreeRoot.countFolders()
+    const interval = progressInterval(items)
+    if (interval === this.progressIntervalMs) {
+      return
+    }
+    Logger.log(`Persisting sync progress every ${interval}ms (${items} local items)`)
+    this.progressIntervalMs = interval
+    const previous = this.throttledProgressCb
+    this.throttledProgressCb = throttle(this.progressCb, interval)
+    // Rejects whatever the old one still had pending with a CanceledError,
+    // which queueProgressUpdate swallows
+    await previous.cancel()
+  }
+
   protected queueProgressUpdate(progress: number, actionsDone?: number): void {
     // Diagnostic: skip throttled progress callback under test so timer-driven
     // cache/mappings persistence doesn't race with in-flight sync mutations.
@@ -617,13 +677,13 @@ export default class SyncProcess {
     Logger.log({localPlan: this.localPlanStage2, serverPlan: this.serverPlanStage2})
 
     if (this.serverPlanStage2) {
-      this.applyDeletionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.REMOVE)
-      this.applyAdditionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.CREATE)
+      await this.applyDeletionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.REMOVE)
+      await this.applyAdditionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.CREATE)
     }
 
     if (this.localPlanStage2) {
-      this.applyDeletionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.REMOVE)
-      this.applyAdditionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.CREATE)
+      await this.applyDeletionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.REMOVE)
+      await this.applyAdditionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.CREATE)
     }
 
     if (!this.localDonePlan) {
@@ -650,8 +710,8 @@ export default class SyncProcess {
     }
 
     if (!this.actionsPlanned) {
-      this.actionsPlanned = Object.values(this.serverPlanStage2 || this.planStage3Server).reduce((acc, diff) => diff.getActions().length + acc, 0) +
-        Object.values(this.localPlanStage2 || this.planStage3Local).reduce((acc, diff) => diff.getActions().length + acc, 0)
+      this.actionsPlanned = Object.values(this.serverPlanStage2 || this.planStage3Server).reduce((acc, diff) => diff.peekActions().length + acc, 0) +
+        Object.values(this.localPlanStage2 || this.planStage3Local).reduce((acc, diff) => diff.peekActions().length + acc, 0)
     }
 
     if (this.serverPlanStage2) {
@@ -885,15 +945,33 @@ export default class SyncProcess {
     this.cacheTreeRoot.createIndex()
     Logger.log('Generating indices for server tree')
     this.serverTreeRoot.createIndex()
+
+    // Now that we know how big this account is, how often we can afford to
+    // persist our progress
+    await this.retuneProgressInterval()
   }
 
-  protected applyDeletionFailsafe(direction: TItemLocation, tree: Folder<TItemLocation>, removals: Diff<TItemLocation, TItemLocation, RemoveAction<TItemLocation, TItemLocation>>) {
+  /**
+   * Open tabs are few and churn a lot -- closing one window out of three
+   * already removes a third of the tree -- so the percentage thresholds that
+   * guard bookmarks would trip on everyday use. For tabs the failsafe only
+   * catches wholesale wipes/floods of a sizeable set.
+   */
+  protected async getFailsafeThresholds(): Promise<{minTotal: number, minChanged: number, ratio: number, maxChanged: number}> {
+    if (await this.localTree.isUsingBrowserTabs?.()) {
+      return { minTotal: 5, minChanged: 50, ratio: 0.5, maxChanged: 1000 }
+    }
+    return { minTotal: 5, minChanged: 0, ratio: 0.2, maxChanged: 1000 }
+  }
+
+  protected async applyDeletionFailsafe(direction: TItemLocation, tree: Folder<TItemLocation>, removals: Diff<TItemLocation, TItemLocation, RemoveAction<TItemLocation, TItemLocation>>) {
     const countTotal = tree.count()
-    const countDeleted = removals.getActions().reduce((count, action) => count + action.payload.count(), 0)
+    const countDeleted = removals.peekActions().reduce((count, action) => count + action.payload.count(), 0)
+    const { minTotal, minChanged, ratio, maxChanged } = await this.getFailsafeThresholds()
 
     Logger.log('Checking deletion failsafe: ' + countDeleted + '/' + countTotal + '=' + (countDeleted / countTotal))
-    // Failsafe kicks in if more than 20% is deleted or more than 1k bookmarks
-    if ((countTotal > 5 && countDeleted / countTotal > 0.2) || countDeleted > 1000) {
+    // Failsafe kicks in if more than 20% (tabs: 50% and at least 50 items) is deleted or more than 1k items
+    if ((countTotal > minTotal && countDeleted >= minChanged && countDeleted / countTotal > ratio) || countDeleted > maxChanged) {
       const failsafe = this.server.getData().failsafe
       if (
         failsafe !== false ||
@@ -910,13 +988,14 @@ export default class SyncProcess {
     }
   }
 
-  protected applyAdditionFailsafe(direction: TItemLocation, tree: Folder<TItemLocation>, creations: Diff<TItemLocation, TItemLocation, CreateAction<TItemLocation, TItemLocation>>) {
+  protected async applyAdditionFailsafe(direction: TItemLocation, tree: Folder<TItemLocation>, creations: Diff<TItemLocation, TItemLocation, CreateAction<TItemLocation, TItemLocation>>) {
     const countTotal = tree.count()
-    const countAdded = creations.getActions().reduce((count, action) => count + action.payload.count(), 0)
+    const countAdded = creations.peekActions().reduce((count, action) => count + action.payload.count(), 0)
+    const { minTotal, minChanged, ratio, maxChanged } = await this.getFailsafeThresholds()
 
     Logger.log('Checking addition failsafe: ' + countAdded + '/' + countTotal + '=' + (countAdded / countTotal))
-    // Failsafe kicks in if more than 20% is added or more than 1k bookmarks
-    if (countTotal > 5 && ((countAdded >= 20 && countAdded / countTotal > 0.2) || countAdded > 1000)) {
+    // Failsafe kicks in if more than 20% (tabs: 50%) is added, at least 20 (tabs: 50) items, or more than 1k items
+    if (countTotal > minTotal && ((countAdded >= Math.max(20, minChanged) && countAdded / countTotal > ratio) || countAdded > maxChanged)) {
       const failsafe = this.server.getData().failsafe
       if (failsafe !== false || typeof failsafe === 'undefined' || failsafe === null) {
         const percentage = Math.ceil((countAdded / countTotal) * 100)
@@ -935,21 +1014,7 @@ export default class SyncProcess {
    * hashes with them now (see CachingAdapter#invalidateHashes).
    */
   filterOutUnacceptedBookmarks(tree: Folder<TItemLocation>): boolean {
-    let changed = false
-    tree.children = tree.children.filter(child => {
-      if (child instanceof Bookmark) {
-        const accepted = this.server.acceptsBookmark(child)
-        changed = changed || !accepted
-        return accepted
-      } else {
-        changed = this.filterOutUnacceptedBookmarks(child) || changed
-        return true
-      }
-    })
-    if (changed) {
-      tree.invalidateHash()
-    }
-    return changed
+    return filterUnacceptedBookmarks(tree, (bm) => this.server.acceptsBookmark(bm))
   }
 
   filterOutInvalidBookmarks(tree: Folder<TItemLocation>): boolean {
@@ -1267,7 +1332,7 @@ export default class SyncProcess {
         if (targetLocation !== this.masterLocation) {
           // only when coming from master do we recreate
           // check sourceCreations and targetPlan.CREATE, since we may have created an item along the way in this method already
-          const originalCreation = targetPlan.CREATE.getActions().find(creation =>
+          const originalCreation = targetPlan.CREATE.peekActions().find(creation =>
             creation.payload.type === ItemType.FOLDER && creation.payload.findItem(ItemType.FOLDER, action.payload.parentId)
           ) || sourceCreations.find(creation =>
             creation.payload.type === ItemType.FOLDER && creation.payload.findItem(ItemType.FOLDER, action.payload.parentId)
@@ -1358,7 +1423,7 @@ export default class SyncProcess {
 
             if (
               // Don't create duplicates!
-              targetPlan.MOVE.getActions().find(move => String(move.payload.id) === String(payload.id)) ||
+              targetPlan.MOVE.peekActions().find(move => String(move.payload.id) === String(payload.id)) ||
               sourceMoves.find(move => String(move.payload.id) === String(payload.id)) ||
               // Don't move back into removed territory
               targetRemovals.find(remove => Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, remove, findChainCache1)) ||
@@ -2129,14 +2194,21 @@ export default class SyncProcess {
     ) {
       return
     }
-    Logger.log('LOADCHILDREN', serverItem)
-    // If we don't know this folder, yet, load the whole subtree (!localItem)
-    const children = await this.server.loadFolderChildren(serverItem.id, !localItem)
-    if (!children) {
-      return
+    // A parent's load may have pulled in this folder's children already -- but
+    // not necessarily those of its own children: the sparse listing marks a
+    // folder as loaded as soon as its children arrived, one layer at a time. So
+    // we skip the request here, not the descent below.
+    if (!serverItem.loaded) {
+      Logger.log('LOADCHILDREN', serverItem)
+      // If we don't know this folder, yet, load the whole subtree (!localItem)
+
+      const children = await this.server.loadFolderChildren(serverItem.id, !localItem )
+      if (!children) {
+        return
+      }
+      serverItem.children = children
+      serverItem.loaded = true
     }
-    serverItem.children = children
-    serverItem.loaded = true
 
     // recurse
     await Parallel.each(
@@ -2188,7 +2260,7 @@ export default class SyncProcess {
     mappingsSnapshot: MappingSnapshot,
     sourceReorders:Diff<TItemLocation, TItemLocation, ReorderAction<TItemLocation, TItemLocation>>,
     oldItem: TItem<TItemLocation>) {
-    const parentReorder = sourceReorders.getActions().find(action => String(Mappings.mapId(mappingsSnapshot, action.payload, oldItem.location)) === String(oldItem.parentId))
+    const parentReorder = sourceReorders.peekActions().find(action => String(Mappings.mapId(mappingsSnapshot, action.payload, oldItem.location)) === String(oldItem.parentId))
     if (!parentReorder) {
       return
     }

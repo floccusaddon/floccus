@@ -198,8 +198,6 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         const createdItem = createAction.payload
         removeActions = this.result.REMOVE.getActions()
         while (!reconciled && (removeAction = removeActions.shift())) {
-          // give the browser time to breathe
-          await Promise.resolve()
           const removedItem = removeAction.payload
 
           if (
@@ -238,8 +236,6 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         const createdItem = createAction.payload
         removeActions = this.result.REMOVE.getActions()
         while (!reconciled && (removeAction = removeActions.shift())) {
-          // give the browser time to breathe
-          await Promise.resolve()
           const removedItem = removeAction.payload
           const oldItem = removedItem.findItemFilter(
             createdItem.type,
@@ -331,7 +327,8 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     }
 
     // Remove all UPDATEs that have already been handled by a MOVE
-    const moves = this.result.MOVE.getActions()
+    const moves = this.result.MOVE.peekActions()
+    // A copy, because the loop below retracts from the very diff it walks
     const updates = this.result.UPDATE.getActions()
     updates.forEach(update => {
       if (moves.find(move => String(move.payload.id) === String(update.payload.id))) {
@@ -415,7 +412,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       if (!newFolder) {
         continue
       }
-      const duplicate = this.result.REORDER.getActions().find(a => String(a.payload.id) === String(newFolder.id))
+      const duplicate = this.result.REORDER.peekActions().find(a => String(a.payload.id) === String(newFolder.id))
       if (duplicate) {
         this.result.REORDER.retract(duplicate)
       }
@@ -452,6 +449,49 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       return false
     }
 
-    return Boolean(oldItem.findFolder(parentIdInOldSpace))
+    const newParentInOldTree = oldItem.findFolder(parentIdInOldSpace)
+    if (!newParentInOldTree) {
+      return false
+    }
+    return this.nestingSurvives(oldItem as Folder<L1>, newItem, newParentInOldTree)
+  }
+
+  /**
+   * Whether `descendant`, which sits inside oldItem in the old tree, still sits
+   * inside it in the new tree.
+   *
+   * A new parent inside oldItem only makes a loop as long as it stays there. One
+   * of the folders in between may have moved out, taking the new parent along
+   * (a > b > c becomes n > b > c > a): the new tree is a tree, so as soon as one
+   * link on the old path from the new parent up to oldItem is gone from it, the
+   * moves can be carried out one after the other (Diff.sortMoves sees to the
+   * order). Refusing to pair them would instead leave a REMOVE of oldItem and a
+   * CREATE of its new ancestor, which the planner reads as a deletion -- taking
+   * everything that was moved into oldItem down with it.
+   */
+  private nestingSurvives(oldItem: Folder<L1>, newItem: TItem<L2>, descendant: Folder<L1>): boolean {
+    const snapshot = this.mappings.getSnapshot()
+    const newTree = this.newTree as Folder<L2>
+    let item = descendant
+    while (String(item.id) !== String(oldItem.id)) {
+      const counterpartId = Mappings.mapId(snapshot, item, newItem.location)
+      const parentCounterpartId = String(item.parentId) === String(oldItem.id)
+        ? newItem.id
+        : Mappings.mapParentId(snapshot, item, newItem.location)
+      if (typeof counterpartId === 'undefined' || typeof parentCounterpartId === 'undefined') {
+        // Without a mapping we can't tell, so assume the nesting holds
+        return true
+      }
+      const counterpart = newTree.findFolder(counterpartId)
+      if (!counterpart || String(counterpart.parentId) !== String(parentCounterpartId)) {
+        return false
+      }
+      const parent = oldItem.findFolder(item.parentId)
+      if (!parent) {
+        return true
+      }
+      item = parent
+    }
+    return true
   }
 }

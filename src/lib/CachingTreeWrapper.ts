@@ -1,6 +1,8 @@
 import { BulkImportResource, CachingResource, ICapabilities, IHashSettings, OrderFolderResource } from './interfaces/Resource'
 import { Bookmark, Folder, ItemLocation } from './Tree'
-import CacheTree from './CacheTree'
+import CacheTree, { TBookmarkFilter } from './CacheTree'
+import ICacheStore from './interfaces/CacheStore'
+import NullCacheStore from './NullCacheStore'
 import Logger from './Logger'
 import Ordering from './interfaces/Ordering'
 
@@ -18,9 +20,9 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
    */
   bulkImportFolder?: (id: string|number, folder: Folder<typeof ItemLocation.LOCAL>) => Promise<Folder<typeof ItemLocation.LOCAL>>
 
-  constructor(innerTree: OrderFolderResource<typeof ItemLocation.LOCAL>) {
+  constructor(innerTree: OrderFolderResource<typeof ItemLocation.LOCAL>, cacheStore: ICacheStore = new NullCacheStore()) {
     this.innerTree = innerTree
-    this.cacheTree = new CacheTree()
+    this.cacheTree = new CacheTree(cacheStore)
     if ('bulkImportFolder' in innerTree) {
       // The cast is what the guard above establishes; keep the two together
       const bulkInnerTree = innerTree as OrderFolderResource<typeof ItemLocation.LOCAL> & BulkImportResource<typeof ItemLocation.LOCAL>
@@ -48,27 +50,19 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
 
   async getBookmarksTree(): Promise<Folder<typeof ItemLocation.LOCAL>> {
     const tree = await this.innerTree.getBookmarksTree()
-    this.cacheTree.setTree(tree.copy(true))
+    await this.cacheTree.setTree(tree.copy(true))
     return tree
   }
 
   async setCacheTree(tree: Folder<typeof ItemLocation.LOCAL>) {
-    this.cacheTree.setTree(tree.copy(true))
+    await this.cacheTree.setTree(tree.copy(true))
   }
 
   async createBookmark(bookmark:Bookmark<typeof ItemLocation.LOCAL>): Promise<string|number> {
     const id = await this.innerTree.createBookmark(bookmark)
-    // In case the browser uses positive int IDs, we need to reset the highestId counter here
-    // to avoid collisions with the cache tree's auto-generated IDs
-    this.cacheTree.setHighestId(Number(id) || 0)
-    const cacheId = await this.cacheTree.createBookmark(bookmark.copy(false))
-    const cacheBookmark = this.cacheTree.bookmarksCache.findBookmark(cacheId)
-    this.cacheTree.bookmarksCache.removeFromIndex(cacheBookmark)
-    cacheBookmark.id = id
-    cacheBookmark.parentId = bookmark.parentId
-    cacheBookmark.createIndex()
-    this.cacheTree.bookmarksCache.updateIndex(cacheBookmark)
-    this.cacheTree.bookmarksCache.assertIndexConsistent('CachingTreeWrapper#createBookmark')
+    // Under the very id the live tree just allocated, so that both sides talk
+    // about the same item -- see CacheTree#createBookmarkAs
+    await this.cacheTree.createBookmarkAs(bookmark.copy(false), id)
     return id
   }
 
@@ -84,17 +78,7 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
 
   async createFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<string|number> {
     const id = await this.innerTree.createFolder(folder)
-    // In case the browser uses positive int IDs, we need to reset the highestId counter here
-    // to avoid collisions with the cache tree's auto-generated IDs
-    this.cacheTree.setHighestId(Number(id) || 0)
-    const cacheId = await this.cacheTree.createFolder(folder.copy(false))
-    const cacheFolder = this.cacheTree.bookmarksCache.findFolder(cacheId)
-    this.cacheTree.bookmarksCache.removeFromIndex(cacheFolder)
-    cacheFolder.id = id
-    cacheFolder.parentId = folder.parentId
-    cacheFolder.createIndex()
-    this.cacheTree.bookmarksCache.updateIndex(cacheFolder)
-    this.cacheTree.bookmarksCache.assertIndexConsistent('CachingTreeWrapper#createFolder')
+    await this.cacheTree.createFolderAs(folder.copy(false), id)
     return id
   }
 
@@ -123,8 +107,35 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
 
   getCacheTree(): Promise<Folder<typeof ItemLocation.LOCAL>> {
     // A fresh copy the caller owns, so it can filter it in place before
-    // serializing it -- see CacheTree#snapshot for why it carries no index
+    // serializing it -- see CacheTree#snapshot for why it carries no index.
+    // Only for a caller that needs an actual tree (Mappings#gc); to persist the
+    // cache, use getCacheTreeJSON, which doesn't copy at all.
     return Promise.resolve(this.cacheTree.snapshot())
+  }
+
+  getCacheTreeJSON(accepts?: TBookmarkFilter): any {
+    return this.cacheTree.toStorageJSON(accepts)
+  }
+
+  /**
+   * Hand everything that has changed since the last time to the cache store.
+   * `accepts` is only read by a store that keeps the cache as one blob, see
+   * CacheTree#save.
+   */
+  saveCache(accepts?: TBookmarkFilter): Promise<void> {
+    return this.cacheTree.save(accepts)
+  }
+
+  getCacheRevision(): number {
+    return this.cacheTree.getMutationCount()
+  }
+
+  isCacheDirty(): boolean {
+    return this.cacheTree.isDirty()
+  }
+
+  markCachePersisted(revision: number): void {
+    this.cacheTree.markPersisted(revision)
   }
 
   getCapabilities(): Promise<ICapabilities> {

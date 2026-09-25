@@ -4,6 +4,8 @@ export async function registerNodeSuite() {
   await import('./native_storage.test.js')
   await import('./browser_continuation_store.test.js')
   await import('./caching_tree_wrapper.test.js')
+  await import('./progress_interval.test.js')
+  await import('./diff.test.js')
   await import('./sync_basic.test.js')
   await import('./sync_basic_slave.test.js')
   await import('./sync_basic_overwrite.test.js')
