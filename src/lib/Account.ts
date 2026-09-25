@@ -300,8 +300,19 @@ export default class Account {
       Logger.log('Fetched cache')
 
       Logger.log('Fetching pending continuation')
-      let continuation = await this.storage.getCurrentContinuation()
-      Logger.log('Fetched pending continuation')
+      let continuation = null
+      try {
+        continuation = await this.storage.getCurrentContinuation()
+        Logger.log('Fetched pending continuation')
+      } catch (e) {
+        // A continuation we can't read -- a corrupt row, IndexedDB gone away
+        // under us -- is as good as none, just like one that fails to load
+        // below. Letting this through would fail the sync with an error that
+        // re-initializes the account, wiping its cache and mappings over it.
+        // Whatever is left in storage is superseded by the next persist, or
+        // cleared when this sync completes.
+        Logger.log('Failed to fetch pending continuation. Continuing with normal sync', e)
+      }
 
       if (typeof continuation !== 'undefined' && continuation !== null) {
         try {

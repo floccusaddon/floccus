@@ -2,6 +2,7 @@ import Account from '../lib/Account'
 import { Bookmark, Folder, ItemLocation } from '../lib/Tree'
 import Controller from '../lib/Controller'
 import { NetworkError } from '../errors/Error'
+import NativeDatabase from '../lib/native/NativeDatabase'
 import {
   clearLocalResource,
   createTestLocalRoot,
@@ -271,6 +272,60 @@ describe('Floccus', function() {
         await interruptInReorderingStage('overwrite')
         // Overwriting local now is a different sync altogether
         expect(await syncCountingScans('slave')).to.equal(1)
+      })
+
+      it('should sync normally if the stored continuation cannot be read', async function() {
+        const localResource = await account.getResource()
+        const localRoot = (await localResource.getBookmarksTree(true)).id
+        await localResource.createBookmark(new Bookmark({
+          title: 'seed',
+          url: 'http://seed.example/',
+          parentId: localRoot,
+          location: ItemLocation.LOCAL,
+        }))
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+
+        // A continuation with an action row that isn't JSON any more
+        await NativeDatabase.batch([
+          {
+            statement: 'INSERT OR REPLACE INTO continuations (account_id, strategy, created_at, structure) VALUES (?,?,?,?)',
+            values: [account.id, 'default', Date.now(), JSON.stringify({
+              meta: {},
+              members: { serverReorders: { kind: 'diff', diff: 'corrupt' } },
+              diffIds: ['corrupt'],
+            })],
+          },
+          {
+            statement: 'INSERT OR REPLACE INTO continuation_actions (account_id, diff_id, seq, action) VALUES (?,?,?,?)',
+            values: [account.id, 'corrupt', 0, '{"type": "REORDER", '],
+          },
+        ])
+
+        // An unreadable continuation is as good as none -- it must not fail the
+        // sync, which would re-initialize the account and wipe its cache and
+        // mappings over it
+        const init = account.init.bind(account)
+        let inits = 0
+        account.init = async() => {
+          inits++
+          return init()
+        }
+        await localResource.createBookmark(new Bookmark({
+          title: 'second',
+          url: 'http://second.example/',
+          parentId: localRoot,
+          location: ItemLocation.LOCAL,
+        }))
+        await account.sync()
+        account.init = init
+        expect(account.getData().error).to.not.be.ok
+        expect(inits).to.equal(0)
+
+        const serverTree = await getAllBookmarks(account)
+        expect(serverTree.children.map(item => item.title).sort()).to.deep.equal(['second', 'seed'])
+        // The completed sync has cleared the unreadable rows along with it
+        expect(await account.storage.getCurrentContinuation()).to.not.be.ok
       })
     })
   })
