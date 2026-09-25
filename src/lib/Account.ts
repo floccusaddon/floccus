@@ -3,7 +3,7 @@ import Logger from './Logger'
 import { ItemLocation, TItemLocation } from './Tree'
 import UnidirectionalSyncProcess from './strategies/Unidirectional'
 import MergeSyncProcess from './strategies/Merge'
-import DefaultSyncProcess from './strategies/Default'
+import DefaultSyncProcess, { ISerializedSyncProcess } from './strategies/Default'
 import IAccountStorage, { IAccountData, TAccountStrategy } from './interfaces/AccountStorage'
 import { TAdapter } from './interfaces/Adapter'
 import { OrderFolderResource, TLocalTree } from './interfaces/Resource'
@@ -331,7 +331,7 @@ export default class Account {
         }
       }
 
-      if (typeof continuation === 'undefined' || continuation === null || (typeof strategy !== 'undefined' && continuation.strategy !== strategy) || Date.now() - continuation.createdAt > 1000 * 60 * 30) {
+      if (typeof continuation === 'undefined' || continuation === null || !continuationMatchesStrategy(continuation, strategy) || Date.now() - continuation.createdAt > 1000 * 60 * 30) {
         // If there is no pending continuation, we just sync normally
         // Same if the pending continuation was overridden by a different strategy
         // same if the continuation is older than half an hour. We don't want old zombie continuations
@@ -682,6 +682,34 @@ export default class Account {
 
   static async getAccountsContainingLocalId(localId:string, ancestors:string[], allAccounts:Account[]):Promise<Account[]> {
     return (await this.getAccountClass()).getAccountsContainingLocalId(localId, ancestors, allAccounts)
+  }
+}
+
+/**
+ * Whether a pending continuation is the sync that was asked for.
+ *
+ * The two don't use the same names: a sync is asked for by the account
+ * strategy (TAccountStrategy), while a continuation records the sync process
+ * that ran -- 'merge' is how the default strategy syncs with an empty cache,
+ * and 'slave' and 'overwrite' are both 'unidirectional', told apart by the
+ * direction they persist. Comparing the two directly never matched for
+ * 'slave' and 'overwrite', so an interrupted overwrite couldn't be resumed by
+ * asking for it again (as the retry scheduled after a locked server does).
+ *
+ * No strategy -- undefined, or null, which is what a forced sync passes --
+ * resumes whatever was interrupted.
+ */
+function continuationMatchesStrategy(continuation: ISerializedSyncProcess, strategy?: TAccountStrategy | null): boolean {
+  switch (strategy) {
+    case undefined:
+    case null:
+      return true
+    case 'slave':
+      return continuation.strategy === 'unidirectional' && continuation.direction === ItemLocation.LOCAL
+    case 'overwrite':
+      return continuation.strategy === 'unidirectional' && continuation.direction === ItemLocation.SERVER
+    default:
+      return continuation.strategy === 'default' || continuation.strategy === 'merge'
   }
 }
 

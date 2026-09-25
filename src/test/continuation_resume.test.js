@@ -188,83 +188,89 @@ describe('Floccus', function() {
         expectOrderedFolder(await (await account.getResource()).getBookmarksTree(true))
       }
 
-      it('should resume an interrupted reordering stage without planning the sync anew', async function() {
+      /**
+       * Run a sync with the given strategy that is interrupted in its
+       * reordering stage, and return the continuation it leaves behind
+       */
+      async function interruptInReorderingStage(strategy) {
         const localResource = await account.getResource()
         const localRoot = (await localResource.getBookmarksTree(true)).id
 
-        // A first sync, so that the cache isn't empty and the second one runs
-        // the default strategy rather than merge
-        await localResource.createBookmark(new Bookmark({
-          title: 'seed',
-          url: 'http://seed.example/',
-          parentId: localRoot,
-          location: ItemLocation.LOCAL,
-        }))
-        await account.sync()
-        expect(account.getData().error).to.not.be.ok
+        if (!strategy) {
+          // A first sync, so that the cache isn't empty and the second one runs
+          // the default strategy rather than merge
+          await localResource.createBookmark(new Bookmark({
+            title: 'seed',
+            url: 'http://seed.example/',
+            parentId: localRoot,
+            location: ItemLocation.LOCAL,
+          }))
+          await account.sync()
+          expect(account.getData().error).to.not.be.ok
+        }
 
         // Created on the server by a bulk import, which plans a REORDER for it
         await createFolderWithBookmarks(localResource, localRoot)
 
         account.onSyncProcessCreated = interruptAtFirstReorder
-        await account.sync()
+        await account.sync(strategy)
         account.onSyncProcessCreated = null
         expect(account.getData().error).to.contain('E026')
 
         const continuation = await account.storage.getCurrentContinuation()
         expect(continuation).to.be.ok
-        expect(continuation.serverReorders).to.be.ok
+        return continuation
+      }
 
+      /** Sync with the given arguments, and return how often it scanned */
+      async function syncCountingScans(...args) {
         let scans = 0
         account.onSyncProcessCreated = (syncProcess) => {
-          const getDiffs = syncProcess.getDiffs.bind(syncProcess)
-          syncProcess.getDiffs = async() => {
+          // The default strategies scan with getDiffs, unidirectional with getDiff
+          const method = 'getDiff' in syncProcess ? 'getDiff' : 'getDiffs'
+          const scan = syncProcess[method].bind(syncProcess)
+          syncProcess[method] = async() => {
             scans++
-            return getDiffs()
+            return scan()
           }
         }
-        await account.sync()
+        await account.sync(...args)
         account.onSyncProcessCreated = null
         expect(account.getData().error).to.not.be.ok
-        // Everything before the reorderings has been executed: scanning and
-        // planning again executes a sync of its own, whose reorders are
-        // dropped in favour of the stored ones
-        expect(scans).to.equal(0)
+        return scans
+      }
 
-        await expectTitlesInOrder(account)
+      const RESUMES = [
+        { interrupted: undefined, resumed: [], label: 'default, resumed by a plain sync' },
+        { interrupted: undefined, resumed: [null, true], label: 'default, resumed by a forced sync' },
+        { interrupted: undefined, resumed: ['default'], label: 'default, resumed by asking for it' },
+        { interrupted: 'overwrite', resumed: [], label: 'overwrite, resumed by a plain sync' },
+        { interrupted: 'overwrite', resumed: ['overwrite'], label: 'overwrite, resumed by asking for it' },
+      ]
+      RESUMES.forEach(({ interrupted, resumed, label }) => {
+        it(`should resume an interrupted reordering stage without planning the sync anew (${label})`, async function() {
+          const continuation = await interruptInReorderingStage(interrupted)
+          if (interrupted) {
+            expect(continuation.strategy).to.equal('unidirectional')
+            expect(continuation.revertReorders).to.be.ok
+          } else {
+            expect(continuation.strategy).to.equal('default')
+            expect(continuation.serverReorders).to.be.ok
+          }
+
+          // Everything before the reorderings has been executed: scanning and
+          // planning again executes a sync of its own, whose reorders are
+          // dropped in favour of the stored ones
+          expect(await syncCountingScans(...resumed)).to.equal(0)
+
+          await expectTitlesInOrder(account)
+        })
       })
 
-      it('should resume an interrupted unidirectional reordering stage without planning the sync anew', async function() {
-        const localResource = await account.getResource()
-        const localRoot = (await localResource.getBookmarksTree(true)).id
-
-        await createFolderWithBookmarks(localResource, localRoot)
-
-        account.onSyncProcessCreated = interruptAtFirstReorder
-        await account.sync('overwrite')
-        account.onSyncProcessCreated = null
-        expect(account.getData().error).to.contain('E026')
-
-        const continuation = await account.storage.getCurrentContinuation()
-        expect(continuation).to.be.ok
-        expect(continuation.strategy).to.equal('unidirectional')
-        expect(continuation.revertReorders).to.be.ok
-
-        let scans = 0
-        account.onSyncProcessCreated = (syncProcess) => {
-          const getDiff = syncProcess.getDiff.bind(syncProcess)
-          syncProcess.getDiff = async() => {
-            scans++
-            return getDiff()
-          }
-        }
-        // No strategy: an explicit one doesn't resume the continuation (#3)
-        await account.sync()
-        account.onSyncProcessCreated = null
-        expect(account.getData().error).to.not.be.ok
-        expect(scans).to.equal(0)
-
-        await expectTitlesInOrder(account)
+      it('should not resume an interrupted overwrite when asked for the opposite direction', async function() {
+        await interruptInReorderingStage('overwrite')
+        // Overwriting local now is a different sync altogether
+        expect(await syncCountingScans('slave')).to.equal(1)
       })
     })
   })
