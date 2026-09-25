@@ -1756,12 +1756,18 @@ describe('Floccus', function() {
                   }),
                 ]
               }),
-              false
+              false,
+              Boolean(account.server.orderFolder)
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
             localTree.title = tree.title
-            expectTreeEqual(localTree, tree, false)
+            expectTreeEqual(
+              localTree,
+              tree,
+              false,
+              Boolean(account.server.orderFolder)
+            )
           })
           it('should move items without confusing folders', async function() {
             const localResource = await account.getResource()
