@@ -1696,6 +1696,73 @@ describe('Floccus', function() {
               Boolean(account.server.orderFolder)
             )
           })
+          it('should move a folder into its own descendant once that has moved out', async function() {
+            const localResource = await account.getResource()
+            const localRoot = (await localResource.getBookmarksTree(true)).id
+
+            let aFolder, bFolder, dFolder
+            const aFolderId = await localResource.createFolder(aFolder = new Folder({title: 'a', parentId: localRoot}))
+            const bFolderId = await localResource.createFolder(bFolder = new Folder({title: 'b', parentId: aFolderId}))
+            const cFolderId = await localResource.createFolder(new Folder({title: 'c', parentId: bFolderId}))
+            await localResource.createBookmark(new Bookmark({title: 'url', url: 'http://ur.l/', parentId: cFolderId}))
+            const dFolderId = await localResource.createFolder(dFolder = new Folder({title: 'd', parentId: localRoot}))
+            await localResource.createBookmark(new Bookmark({title: 'url2', url: 'http://ur2.l/', parentId: dFolderId}))
+            await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
+
+            // a > b > c becomes n > b > c > a: c was inside a, but b takes it along
+            // out of a into a new folder n before a moves into c
+            const nFolderId = await localResource.createFolder(new Folder({title: 'n', parentId: localRoot}))
+            await localResource.updateFolder(new Folder({...bFolder, id: bFolderId, parentId: nFolderId}))
+            await localResource.updateFolder(new Folder({...aFolder, id: aFolderId, parentId: cFolderId}))
+            // and something else moves into a, which must survive the move of a
+            await localResource.updateFolder(new Folder({...dFolder, id: dFolderId, parentId: aFolderId}))
+
+            await account.sync()
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'n',
+                    children: [
+                      new Folder({
+                        title: 'b',
+                        children: [
+                          new Folder({
+                            title: 'c',
+                            children: [
+                              new Bookmark({title: 'url', url: 'http://ur.l/'}),
+                              new Folder({
+                                title: 'a',
+                                children: [
+                                  new Folder({
+                                    title: 'd',
+                                    children: [
+                                      new Bookmark({title: 'url2', url: 'http://ur2.l/'}),
+                                    ]
+                                  }),
+                                ]
+                              }),
+                            ]
+                          }),
+                        ]
+                      }),
+                    ]
+                  }),
+                ]
+              }),
+              false
+            )
+
+            const localTree = await account.localTree.getBookmarksTree(true)
+            localTree.title = tree.title
+            expectTreeEqual(localTree, tree, false)
+          })
           it('should move items without confusing folders', async function() {
             const localResource = await account.getResource()
             const localRoot = (await localResource.getBookmarksTree(true)).id
