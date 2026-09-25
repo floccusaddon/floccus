@@ -126,6 +126,146 @@ describe('Floccus', function() {
           .sort()
         expect(localTitles).to.deep.equal(titles)
       })
+
+      /**
+       * Interrupt the sync at the first reorder it executes, i.e. once
+       * everything before the reorderings is done and the continuation holds
+       * nothing but the reorders.
+       */
+      function interruptAtFirstReorder(syncProcess) {
+        const executeReorderings = syncProcess.executeReorderings.bind(syncProcess)
+        let armed = false
+        syncProcess.executeReorderings = async(resource, reorderings) => {
+          if (!armed && reorderings.peekActions().some(action => action.order.length > 1)) {
+            armed = true
+            syncProcess.setInterruptAfterActions(syncProcess.getActionsDone() + 1)
+          }
+          return executeReorderings(resource, reorderings)
+        }
+      }
+
+      async function createFolderWithBookmarks(localResource, parentId) {
+        const folderId = await localResource.createFolder(new Folder({
+          title: 'ordered',
+          parentId,
+          location: ItemLocation.LOCAL,
+        }))
+        for (const i of [1, 2, 3]) {
+          await localResource.createBookmark(new Bookmark({
+            title: 'bm' + i,
+            url: `http://bm${i}.example/`,
+            parentId: folderId,
+            location: ItemLocation.LOCAL,
+          }))
+        }
+        // A second REORDER with something to do, so that interrupting the
+        // first one leaves work behind -- an interrupt at the last one lets the
+        // sync finish as if nothing happened
+        const subFolderId = await localResource.createFolder(new Folder({
+          title: 'sub',
+          parentId: folderId,
+          location: ItemLocation.LOCAL,
+        }))
+        for (const i of [1, 2]) {
+          await localResource.createBookmark(new Bookmark({
+            title: 'sub' + i,
+            url: `http://sub${i}.example/`,
+            parentId: subFolderId,
+            location: ItemLocation.LOCAL,
+          }))
+        }
+      }
+
+      function expectOrderedFolder(tree) {
+        const folder = tree.children.find(item => item.title === 'ordered')
+        expect(folder.children.map(item => item.title)).to.deep.equal(['bm1', 'bm2', 'bm3', 'sub'])
+        const subFolder = folder.children.find(item => item.title === 'sub')
+        expect(subFolder.children.map(item => item.title)).to.deep.equal(['sub1', 'sub2'])
+      }
+
+      async function expectTitlesInOrder(account) {
+        expectOrderedFolder(await getAllBookmarks(account))
+        expectOrderedFolder(await (await account.getResource()).getBookmarksTree(true))
+      }
+
+      it('should resume an interrupted reordering stage without planning the sync anew', async function() {
+        const localResource = await account.getResource()
+        const localRoot = (await localResource.getBookmarksTree(true)).id
+
+        // A first sync, so that the cache isn't empty and the second one runs
+        // the default strategy rather than merge
+        await localResource.createBookmark(new Bookmark({
+          title: 'seed',
+          url: 'http://seed.example/',
+          parentId: localRoot,
+          location: ItemLocation.LOCAL,
+        }))
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+
+        // Created on the server by a bulk import, which plans a REORDER for it
+        await createFolderWithBookmarks(localResource, localRoot)
+
+        account.onSyncProcessCreated = interruptAtFirstReorder
+        await account.sync()
+        account.onSyncProcessCreated = null
+        expect(account.getData().error).to.contain('E026')
+
+        const continuation = await account.storage.getCurrentContinuation()
+        expect(continuation).to.be.ok
+        expect(continuation.serverReorders).to.be.ok
+
+        let scans = 0
+        account.onSyncProcessCreated = (syncProcess) => {
+          const getDiffs = syncProcess.getDiffs.bind(syncProcess)
+          syncProcess.getDiffs = async() => {
+            scans++
+            return getDiffs()
+          }
+        }
+        await account.sync()
+        account.onSyncProcessCreated = null
+        expect(account.getData().error).to.not.be.ok
+        // Everything before the reorderings has been executed: scanning and
+        // planning again executes a sync of its own, whose reorders are
+        // dropped in favour of the stored ones
+        expect(scans).to.equal(0)
+
+        await expectTitlesInOrder(account)
+      })
+
+      it('should resume an interrupted unidirectional reordering stage without planning the sync anew', async function() {
+        const localResource = await account.getResource()
+        const localRoot = (await localResource.getBookmarksTree(true)).id
+
+        await createFolderWithBookmarks(localResource, localRoot)
+
+        account.onSyncProcessCreated = interruptAtFirstReorder
+        await account.sync('overwrite')
+        account.onSyncProcessCreated = null
+        expect(account.getData().error).to.contain('E026')
+
+        const continuation = await account.storage.getCurrentContinuation()
+        expect(continuation).to.be.ok
+        expect(continuation.strategy).to.equal('unidirectional')
+        expect(continuation.revertReorders).to.be.ok
+
+        let scans = 0
+        account.onSyncProcessCreated = (syncProcess) => {
+          const getDiff = syncProcess.getDiff.bind(syncProcess)
+          syncProcess.getDiff = async() => {
+            scans++
+            return getDiff()
+          }
+        }
+        // No strategy: an explicit one doesn't resume the continuation (#3)
+        await account.sync()
+        account.onSyncProcessCreated = null
+        expect(account.getData().error).to.not.be.ok
+        expect(scans).to.equal(0)
+
+        await expectTitlesInOrder(account)
+      })
     })
   })
 })

@@ -632,6 +632,17 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
+    if (this.localReorders && this.serverReorders) {
+      // Resumed from a continuation persisted while the reorderings were being
+      // executed: everything before them is done, and the continuation holds
+      // nothing else any more (see getMembersToPersist). Scanning and planning
+      // again from here would execute a sync of its own -- whose reorders then
+      // lose out to the stored ones, which are only ever computed once.
+      Logger.log('Resuming with the reorderings, everything before them has been executed')
+      await this.executeReorderingStage()
+      return
+    }
+
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
 
     if (!this.localScanResult && !this.serverScanResult && !this.localPlanStage1 && !this.serverPlanStage1 && !this.localPlanStage2 && !this.serverPlanStage2 && !this.planStage3Local && !this.planStage3Server) {
@@ -862,6 +873,11 @@ export default class SyncProcess {
       )
     }
 
+    await this.executeReorderingStage()
+  }
+
+  /** Stage 4: execute the reorders computed from the done plans */
+  protected async executeReorderingStage(): Promise<void> {
     if (this.canceled) {
       throw new CancelledSyncError()
     }

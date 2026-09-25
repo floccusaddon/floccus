@@ -232,6 +232,27 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       cacheTreeRoot: this.cacheTreeRoot,
     })
 
+    let target: TResource<TItemLocation>
+    if (this.direction === ItemLocation.SERVER) {
+      target = this.server
+    } else {
+      target = this.localTree
+    }
+
+    if (this.revertReorders) {
+      // Resumed from a continuation persisted while the reorderings were being
+      // executed: the revert plan is done, and the continuation holds nothing
+      // else any more (see getMembersToPersist). Scanning again from here would
+      // execute a revert of its own -- whose reorders then lose out to the
+      // stored ones.
+      Logger.log('Resuming with the reorderings, the revert plan has been executed')
+      if ('orderFolder' in target) {
+        await this.executeReorderings(target, this.revertReorders)
+      }
+      this.throttledProgressCb.cancel()
+      return
+    }
+
     if (!this.scanResult && !this.revertPlan) {
       await this.dropMappingsOfVanishedSlaveItems()
       this.scanResult = await this.getDiff()
@@ -241,13 +262,6 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     if (this.canceled) {
       throw new CancelledSyncError()
-    }
-
-    let target: TResource<TItemLocation>
-    if (this.direction === ItemLocation.SERVER) {
-      target = this.server
-    } else {
-      target = this.localTree
     }
 
     // First revert slave modifications
