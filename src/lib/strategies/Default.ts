@@ -414,8 +414,12 @@ export default class SyncProcess {
       members.push('serverPlanStage2')
     }
 
-    // Stage 3
-    if (this.actionsDone < this.actionsPlanned) {
+    // Stage 3 -- needed until the reorders have been reconciled from the done
+    // plans. Not `actionsDone < actionsPlanned`: that counter restarts with every
+    // resumed run and lags behind the plans (a bulk import is done() before its
+    // REORDERs are counted), so it would drop these members for a tick and bring
+    // them back, and a diff that comes back only writes what changed since.
+    if (!this.localReorders || !this.serverReorders) {
       members.push('planStage3Local')
       members.push('planStage3Server')
       members.push('localDonePlan')

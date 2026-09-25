@@ -356,7 +356,8 @@ describe('NativeAccountStorage incremental continuations', function() {
     await persist()
 
     const stored = await storage.getCurrentContinuation()
-    expect(stored.actionsPlanned).to.equal(undefined)
+    // The fresh sync process's own count, not the blob's
+    expect(stored.actionsPlanned).to.equal(0)
     expect(
       await NativeAccountStorage.getEntry(`bookmarks[${accountId}].continuation`)
     ).to.equal(undefined)
