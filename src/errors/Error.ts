@@ -53,7 +53,7 @@ export class UnknownMoveTargetError extends FloccusError {
 export class UnknownFolderParentUpdateError extends TransientError {
   public readonly code = 5
   constructor() {
-    super("E006: Parent of folder to update doesn't exist")
+    super("E005: Parent of folder to update doesn't exist")
     Object.setPrototypeOf(this, UnknownFolderParentUpdateError.prototype)
   }
 }

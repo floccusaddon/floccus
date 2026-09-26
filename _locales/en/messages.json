@@ -12,7 +12,7 @@
     "message": "E004: Folder to move into doesn't exist"
   },
   "Error005": {
-    "message": "E005: Folder to create in doesn't exist"
+    "message": "E005: Parent of folder to update doesn't exist"
   },
   "Error006": {
     "message": "E006: Folder to update doesn't exist"
