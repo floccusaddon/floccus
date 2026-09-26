@@ -822,21 +822,33 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         throw e
       }
 
+      // The server has the update already. An old folder we don't know (any
+      // more) holds nothing to take the bookmark out of in our tree, so failing
+      // here would only fail a sync over a change that went through
       const oldParentFolder = this.tree.findFolder(oldParentId)
-      if (!oldParentFolder) {
-        throw new UnknownFolderParentUpdateError()
+      if (oldParentFolder) {
+        const oldBm = oldParentFolder.findBookmark(newBm.id)
+        oldParentFolder.children = oldParentFolder.children.filter(
+          (item) => !(item.type === 'bookmark' && item.id === newBm.id)
+        )
+        if (oldBm && this.tree) {
+          this.tree.removeFromIndex(oldBm)
+        }
+      } else {
+        Logger.log('(nextcloud-folders)UPDATE: old parent folder ' + oldParentId + ' is not in the tree, nothing to remove the bookmark from')
       }
-      const oldBm = oldParentFolder.findBookmark(newBm.id)
-      oldParentFolder.children = oldParentFolder.children.filter(
-        (item) => !(item.type === 'bookmark' && item.id === newBm.id)
-      )
-      if (oldBm && this.tree) {
-        this.tree.removeFromIndex(oldBm)
-      }
-      if (!newFolder.children.find(item => String(item.id) === String(newBm.id) && item.type === 'bookmark')) {
+      const newId = upstreamId + ';' + newBm.parentId
+      // Look for the id the bookmark will have in its new folder, too: it may
+      // be listed there already, under an id our stale one doesn't match
+      const existing = newFolder.children.find(item =>
+        item.type === 'bookmark' && (String(item.id) === String(newBm.id) || String(item.id) === newId))
+      if (existing && existing !== newBm) {
+        newFolder.children.splice(newFolder.children.indexOf(existing), 1, newBm)
+        this.tree.removeFromIndex(existing)
+      } else if (!existing) {
         newFolder.children.push(newBm)
       }
-      newBm.id = upstreamId + ';' + newBm.parentId
+      newBm.id = newId
       this.tree.updateIndex(newBm)
 
       return newBm.id
