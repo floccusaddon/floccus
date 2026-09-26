@@ -624,6 +624,57 @@ describe('Floccus', function() {
               false
             )
           })
+          it('should update the server on local moves of bulk imported bookmarks', async function() {
+            // More bookmarks than nextcloud-bookmarks takes per import request,
+            // so a server that appends on import gets them in several chunks
+            const BOOKMARK_COUNT = 150
+            const localResource = await account.getResource()
+            const localRoot = (await localResource.getBookmarksTree(true)).id
+            const fooFolderId = await localResource.createFolder(new Folder({title: 'foo', parentId: localRoot}))
+            const barFolderId = await localResource.createFolder(new Folder({title: 'bar', parentId: localRoot}))
+            await localResource.createBookmark(new Bookmark({title: 'bar', url: 'http://ur.l/bar', parentId: barFolderId}))
+            const bookmarks = []
+            for (let i = 0; i < BOOKMARK_COUNT; i++) {
+              const bookmark = new Bookmark({title: 'url' + i, url: 'http://ur.l/' + i, parentId: fooFolderId})
+              bookmark.id = await localResource.createBookmark(bookmark)
+              bookmarks.push(bookmark)
+            }
+            await account.sync() // propagate to server
+            expect(account.getData().error).to.not.be.ok
+
+            // one bookmark out of each chunk
+            const moved = [10, 80, 145]
+            for (const i of moved) {
+              await localResource.updateBookmark(new Bookmark({...bookmarks[i].toJSON(), parentId: barFolderId}))
+            }
+            await account.sync() // update on server
+            expect(account.getData().error).to.not.be.ok
+
+            const tree = await getAllBookmarks(account)
+            expectTreeEqual(
+              tree,
+              new Folder({
+                title: tree.title,
+                children: [
+                  new Folder({
+                    title: 'foo',
+                    children: bookmarks
+                      .filter((_, i) => !moved.includes(i))
+                      .map(bookmark => new Bookmark({ title: bookmark.title, url: bookmark.url }))
+                  }),
+                  new Folder({
+                    title: 'bar',
+                    children: [
+                      new Bookmark({ title: 'bar', url: 'http://ur.l/bar' }),
+                      ...moved.map(i => new Bookmark({ title: bookmarks[i].title, url: bookmarks[i].url })),
+                    ]
+                  })
+                ]
+              }),
+              false,
+              Boolean(account.server.orderFolder)
+            )
+          })
           it('should create server bookmarks locally', async function() {
             const adapter = account.server
             const serverTree = await getAllBookmarks(account)

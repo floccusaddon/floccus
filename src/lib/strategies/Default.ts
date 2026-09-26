@@ -1735,7 +1735,9 @@ export default class SyncProcess {
             const chunkedBulkImportMappingsSnapshot = this.mappings.getSnapshot()
             const subScanner = new Scanner(
               this.mappings,
-              tempItem,
+              // tempItem carries the target's location, but Scanner#addMapping only maps
+              // a pair of items from opposite locations -- scan the chunk under its own
+              tempItem.restampTree(false, action.oldItem.location),
               imported,
               (oldItem, newItem) => {
                 if (

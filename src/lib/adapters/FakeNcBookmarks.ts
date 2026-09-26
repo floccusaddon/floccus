@@ -53,23 +53,34 @@ export default class FakeNcBookmarksAdapter extends CachingAdapter {
     newBm.id = storedBm.id
   }
 
+  // Like nextcloud-bookmarks' import endpoint, bulkImportFolder adds to the
+  // folder, so Default#executeCreate imports large subtrees in chunks here too
+  bulkImportAppendsChildren = true
+
   async bulkImportFolder(
     id: number | string,
     folder: Folder<TItemLocation>
   ): Promise<Folder<TItemLocation>> {
+    const importedIds = new Set<string>()
     await Promise.all(
       folder.children.map(async(child) => {
         child.parentId = id
         if (child instanceof Bookmark) {
-          await this.createBookmark(child)
+          importedIds.add(String(await this.createBookmark(child)))
         }
         if (child instanceof Folder) {
           const folderId = await this.createFolder(child)
+          importedIds.add(String(folderId))
           await this.bulkImportFolder(folderId, child)
         }
       })
     )
     this.bookmarksCache.createIndex()
-    return this.bookmarksCache.findFolder(id)
+    // The endpoint answers with what it imported, not the whole folder
+    const imported = this.bookmarksCache.findFolder(id).copy(false)
+    imported.children = imported.children.filter(
+      (child) => importedIds.has(String(child.id))
+    )
+    return imported
   }
 }
