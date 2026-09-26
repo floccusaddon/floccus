@@ -1591,6 +1591,40 @@ export default class SyncProcess {
     }, ACTION_CONCURRENCY)
   }
 
+  /**
+   * Whether the scan after a bulk import may map `oldItem` to its imported copy
+   * `newItem`.
+   *
+   * Not if that evicts a mapping of either of them: a copy merely matching by
+   * url must not orphan the item something else is mapped to. There is one
+   * exception. When the import re-creates a folder, the old counterparts of its
+   * contents sit in the folder's old copy, which the folder itself no longer
+   * maps to, and which is going away. Refusing to map them would keep the
+   * contents mapped to items that are gone -- on Nextcloud Bookmarks an update
+   * then fails over the missing folder in the old id -- or leave them unmapped
+   * once the removal cleans up after itself.
+   */
+  static mayMapImportedItem<L1 extends TItemLocation, L2 extends TItemLocation>(
+    snapshot: MappingSnapshot,
+    supersededFolder: Folder<L2> | undefined,
+    oldItem: TItem<L1>,
+    newItem: TItem<L2>
+  ): boolean {
+    if (!Mappings.wouldEvictUnrelatedMapping(snapshot, oldItem, newItem)) {
+      return true
+    }
+    if (!supersededFolder) {
+      return false
+    }
+    const newItemCounterpart = Mappings.mapId(snapshot, newItem, oldItem.location)
+    if (typeof newItemCounterpart !== 'undefined' && String(newItemCounterpart) !== String(oldItem.id)) {
+      return false
+    }
+    const oldCounterpart = Mappings.mapId(snapshot, oldItem, newItem.location)
+    return typeof oldCounterpart !== 'undefined' &&
+      Boolean(supersededFolder.findItem(oldItem.type, oldCounterpart))
+  }
+
   async executeCreate<L1 extends TItemLocation>(
     resource: TResource<L1>,
     action: CreateAction<L1, TOppositeLocation<L1>>,
@@ -1624,6 +1658,15 @@ export default class SyncProcess {
       // undefined means we couldn't create the item
       throw new FloccusError('Failed to create item on ' + targetLocation + ' : ' + action.payload.inspect())
     }
+
+    // An item that is created although it's mapped already is being re-created,
+    // because its old counterpart goes away with a removed ancestor (see
+    // reconcileDiffs). The mapping below moves the item itself over to the new
+    // copy; what it contains is still mapped into the old one.
+    const supersededId = action.oldItem && Mappings.mapId(this.mappings.getSnapshot(), action.oldItem, targetLocation)
+    const supersededFolder = action.oldItem instanceof Folder && typeof supersededId !== 'undefined' && String(supersededId) !== String(id)
+      ? this.getTargetTree(targetLocation)?.findFolder(supersededId) as Folder<L1> | undefined
+      : undefined
 
     action.payload = action.payload.copy()
     action.payload.id = id
@@ -1672,7 +1715,7 @@ export default class SyncProcess {
               if (
                 oldItem.type === newItem.type &&
                 oldItem.canMergeWith(newItem) &&
-                !Mappings.wouldEvictUnrelatedMapping(bulkImportMappingsSnapshot, oldItem, newItem)
+                SyncProcess.mayMapImportedItem(bulkImportMappingsSnapshot, supersededFolder, oldItem, newItem)
               ) {
                 return true
               }
@@ -1743,7 +1786,7 @@ export default class SyncProcess {
                 if (
                   oldItem.type === newItem.type &&
                   oldItem.canMergeWith(newItem) &&
-                  !Mappings.wouldEvictUnrelatedMapping(chunkedBulkImportMappingsSnapshot, oldItem, newItem)
+                  SyncProcess.mayMapImportedItem(chunkedBulkImportMappingsSnapshot, supersededFolder, oldItem, newItem)
                 ) {
                   // if two items can be merged, we'll add mappings here directly
                   return true

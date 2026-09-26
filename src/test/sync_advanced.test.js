@@ -1291,6 +1291,58 @@ describe('Floccus', function() {
               false
             )
           })
+          it('should map the contents of a folder re-created because its origin was removed', async function() {
+            const localResource1 = await account1.getResource()
+            const localResource2 = await account2.getResource()
+            const localRoot1 = (await localResource1.getBookmarksTree()).id
+            const rFolderId = await localResource1.createFolder(new Folder({ title: 'r', parentId: localRoot1 }))
+            let xFolder
+            const xFolderId = await localResource1.createFolder(xFolder = new Folder({ title: 'x', parentId: localRoot1 }))
+            const yFolderId = await localResource1.createFolder(new Folder({ title: 'y', parentId: xFolderId }))
+            let fFolder
+            const fFolderId = await localResource1.createFolder(fFolder = new Folder({ title: 'f', parentId: yFolderId }))
+            await localResource1.createBookmark(new Bookmark({ title: 'b1', url: 'http://b1.example/', parentId: fFolderId }))
+            await localResource1.createBookmark(new Bookmark({ title: 'b2', url: 'http://b2.example/', parentId: fFolderId }))
+            const zFolderId = await localResource1.createFolder(new Folder({ title: 'z', parentId: localRoot1 }))
+
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+
+            // Client 2 removes r ...
+            const tree2 = await account2.localTree.getBookmarksTree(true)
+            await localResource2.removeFolder(new Folder({
+              ...tree2.children.find(i => i.title === 'r')
+            }))
+            await account2.sync()
+            expect(account2.getData().error).to.not.be.ok
+
+            // ... while client 1 moves x into r and f out of x. x follows r, so
+            // f's old place on the server goes away and f is created anew in z
+            await localResource1.updateFolder(new Folder({ ...xFolder, id: xFolderId, parentId: rFolderId }))
+            await localResource1.updateFolder(new Folder({ ...fFolder, id: fFolderId, parentId: zFolderId }))
+            await account1.sync()
+            expect(account1.getData().error).to.not.be.ok
+
+            // Everything in the re-created f has to be mapped to its new server
+            // copy, not to the one that went away with x
+            const serverTree = await getAllBookmarks(account1)
+            const localTree1 = await account1.localTree.getBookmarksTree(true)
+            const snapshot = (await account1.storage.getMappings()).getSnapshot()
+            const localF = localTree1.findFolder(fFolderId)
+            expect(localF.children).to.have.lengthOf(2)
+            for (const child of [localF, ...localF.children]) {
+              const serverId = snapshot.LocalToServer[child.type][child.id]
+              expect(serverId, `mapping of ${child.title}`).to.not.be.undefined
+              expect(serverTree.findItem(child.type, serverId), `server item ${serverId} of ${child.title}`).to.be.ok
+            }
+
+            const serverF = serverTree.findItem(ItemType.FOLDER, snapshot.LocalToServer.folder[fFolderId])
+            serverTree.title = localTree1.title
+            expectTreeEqual(serverTree, localTree1, false, Boolean(account1.server.orderFolder))
+            expect(serverF.children).to.have.lengthOf(2)
+          })
           it('should synchronize ordering', async function() {
             if (ACCOUNT_DATA.type === 'linkwarden' || ACCOUNT_DATA.type === 'karakeep') {
               return this.skip()
