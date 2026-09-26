@@ -261,7 +261,15 @@ export default class BrowserAccountStorage {
       `bookmarks[${this.accountId}].continuation`
     )
     if (await this.canPersistContinuationIncrementally()) {
-      const stored = await this.continuationStore.load()
+      let stored = null
+      try {
+        stored = await this.continuationStore.load()
+      } catch (e) {
+        // IndexedDB can go away under us (see updateCurrentContinuation); the
+        // blob, if there is one, is still good, and the next update finds out
+        // whether the rows are
+        Logger.log('Could not read the continuation store: ' + e.message)
+      }
       // Whichever describes the later point of the sync that wrote it. Rows and
       // a blob can both be there when a sync fell back from one to the other,
       // and preferring the rows outright would resume from a point that sync

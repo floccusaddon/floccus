@@ -356,7 +356,8 @@ describe('NativeAccountStorage incremental continuations', function() {
     await persist()
 
     const stored = await storage.getCurrentContinuation()
-    expect(stored.actionsPlanned).to.equal(undefined)
+    // The fresh sync process's own count, not the blob's
+    expect(stored.actionsPlanned).to.equal(0)
     expect(
       await NativeAccountStorage.getEntry(`bookmarks[${accountId}].continuation`)
     ).to.equal(undefined)
@@ -1258,6 +1259,37 @@ describe('Native SQLite sync cache', function() {
 
   it('should hand back the tree it was given', async function() {
     await setUpTree()
+
+    expect(simplify(await stored())).to.deep.equal(simplify(await wrapper.getCacheTree()))
+  })
+
+  it('should write a failed save again with the next one', async function() {
+    const { subFolderId } = await setUpTree()
+    await wrapper.createBookmark(bookmark(subFolderId, 'url3', 'http://ex.com/three'))
+
+    const original = NativeDatabase.batch
+    NativeDatabase.batch = function(batch) {
+      if (batch.some((one) => one.statement.includes('cache_'))) {
+        NativeDatabase.batch = original
+        return Promise.reject(new Error('disk I/O error'))
+      }
+      return original.call(NativeDatabase, batch)
+    }
+    try {
+      let failed = false
+      try {
+        await wrapper.saveCache()
+      } catch (e) {
+        failed = true
+      }
+      expect(failed).to.equal(true)
+    } finally {
+      NativeDatabase.batch = original
+    }
+
+    // A later change in the same folder, saved on its own
+    await wrapper.createBookmark(bookmark(subFolderId, 'url4', 'http://ex.com/four'))
+    await wrapper.saveCache()
 
     expect(simplify(await stored())).to.deep.equal(simplify(await wrapper.getCacheTree()))
   })

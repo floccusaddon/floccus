@@ -41,8 +41,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       members.push('scanResult')
     }
 
-    // Stage 1
-    if (this.actionsDone < this.actionsPlanned) {
+    // Stage 1 -- needed until stage 2 has begun (see Default#getMembersToPersist
+    // for why this doesn't go by actionsDone)
+    if (!this.revertReorders) {
       members.push('revertPlan')
       members.push('revertDonePlan')
     }
@@ -68,7 +69,11 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       delete json.cacheTreeRoot
     }
     for (const member of Object.keys(json)) {
-      if (
+      if (json[member] === null || typeof json[member] === 'undefined') {
+        // Not computed yet at the interrupt point, e.g. revertPlan while the
+        // sync was still scanning; sync() computes it on resume
+        this[member] = json[member]
+      } else if (
         member.toLowerCase().includes('scanresult') ||
         member.toLowerCase().includes('plan')
       ) {
@@ -227,6 +232,27 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       cacheTreeRoot: this.cacheTreeRoot,
     })
 
+    let target: TResource<TItemLocation>
+    if (this.direction === ItemLocation.SERVER) {
+      target = this.server
+    } else {
+      target = this.localTree
+    }
+
+    if (this.revertReorders) {
+      // Resumed from a continuation persisted while the reorderings were being
+      // executed: the revert plan is done, and the continuation holds nothing
+      // else any more (see getMembersToPersist). Scanning again from here would
+      // execute a revert of its own -- whose reorders then lose out to the
+      // stored ones.
+      Logger.log('Resuming with the reorderings, the revert plan has been executed')
+      if ('orderFolder' in target) {
+        await this.executeReorderings(target, this.revertReorders)
+      }
+      this.throttledProgressCb.cancel()
+      return
+    }
+
     if (!this.scanResult && !this.revertPlan) {
       await this.dropMappingsOfVanishedSlaveItems()
       this.scanResult = await this.getDiff()
@@ -236,13 +262,6 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     if (this.canceled) {
       throw new CancelledSyncError()
-    }
-
-    let target: TResource<TItemLocation>
-    if (this.direction === ItemLocation.SERVER) {
-      target = this.server
-    } else {
-      target = this.localTree
     }
 
     // First revert slave modifications

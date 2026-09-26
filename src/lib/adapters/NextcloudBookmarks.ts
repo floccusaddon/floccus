@@ -552,11 +552,17 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       })
     }
     const imported = recurseChildren(json.data, parentId, folder.title, folder.parentId)
-    const oldChildren = parentFolder.children
-    parentFolder.children = imported.copy(true).children
-    oldChildren.forEach((child) => this.tree.removeFromIndex(child))
-    parentFolder.createIndex()
-    this.tree.updateIndex(parentFolder)
+    // The endpoint adds to the folder and answers with just what it imported, so
+    // keep what the folder held already -- Default#executeCreate imports large
+    // subtrees in several chunks. A bookmark the folder contained before the
+    // import comes back under the id it already has there.
+    const existingIds = new Set(parentFolder.children.map((child) => child.type + ':' + child.id))
+    imported.copy(true).children
+      .filter((child) => !existingIds.has(child.type + ':' + child.id))
+      .forEach((child) => {
+        parentFolder.children.push(child)
+        this.tree.updateIndex(child)
+      })
     return imported
   }
 
