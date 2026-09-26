@@ -26,7 +26,6 @@ import {
   RequestTimeoutError, ResourceLockedError,
   UnexpectedServerResponseError,
   UnknownCreateTargetError,
-  UnknownFolderParentUpdateError,
   UnknownFolderUpdateError,
   UnknownMoveTargetError, UpdateBookmarkError, InvalidUrlError
 } from '../../errors/Error'
@@ -576,6 +575,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     if (oldFolder.findFolder(folder.parentId)) {
       throw new Error('Detected folder loop creation')
     }
+    // Check the target before sending anything: once the server has moved the
+    // folder, failing here would only fail a sync over a change that went through
+    const newParentFolder = this.tree.findFolder(folder.parentId)
+    if (!newParentFolder) {
+      throw new UnknownMoveTargetError()
+    }
     const body = {
       parent_folder: folder.parentId,
       title: folder.title,
@@ -589,19 +594,18 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       undefined,
       folder
     )
+    this.tree.removeFromIndex(oldFolder)
+    // An old parent we don't know (any more) holds nothing to take the folder
+    // out of in our tree
     const oldParentFolder = this.tree.findFolder(oldFolder.parentId)
-    if (!oldParentFolder) {
-      throw new UnknownFolderParentUpdateError()
-    }
-    oldParentFolder.children = oldParentFolder.children.filter(
-      (child) => String(child.id) !== String(id)
-    )
-    const newParentFolder = this.tree.findFolder(folder.parentId)
-    if (!newParentFolder) {
-      throw new UnknownMoveTargetError()
+    if (oldParentFolder) {
+      oldParentFolder.children = oldParentFolder.children.filter(
+        (child) => String(child.id) !== String(id)
+      )
+    } else {
+      Logger.log('(nextcloud-folders)UPDATEFOLDER: old parent folder ' + oldFolder.parentId + ' is not in the tree, nothing to remove the folder from')
     }
     newParentFolder.children.push(oldFolder)
-    this.tree.removeFromIndex(oldFolder)
     oldFolder.title = folder.title
     oldFolder.parentId = folder.parentId
     this.tree.updateIndex(oldFolder)
