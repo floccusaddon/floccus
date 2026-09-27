@@ -200,15 +200,10 @@ export const actionsDefinition = {
     return account.id
   },
   async [actions.IMPORT_ACCOUNTS]({commit, dispatch, state}, accounts) {
-    // Git is the only sync method that isn't available on mobile, yet. OAuth
-    // profiles can be imported just like in the browser: Account.import drops
-    // their refresh token and the user is sent to the options to log in again.
-    const filteredAccounts = accounts.filter(account => account.type !== 'git')
-    const ids = await Account.import(filteredAccounts)
+    // OAuth profiles can be imported just like in the browser: Account.import
+    // drops their refresh token and the user is sent to the options to log in again.
+    const ids = await Account.import(accounts)
     await dispatch(actions.LOAD_ACCOUNTS)
-    if (filteredAccounts.length !== accounts.length) {
-      throw new Error('Cannot import Git profiles on mobile. Git is not supported on mobile, yet.')
-    }
     return ids
   },
   async [actions.EXPORT_ACCOUNTS]({commit, dispatch, state}, accountIds) {

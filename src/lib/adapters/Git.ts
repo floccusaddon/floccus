@@ -1,5 +1,5 @@
 import * as git from 'isomorphic-git'
-import http from 'isomorphic-git/http/web'
+import webHttp from 'isomorphic-git/http/web'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import FS from '@isomorphic-git/lightning-fs'
@@ -16,8 +16,12 @@ import {
 } from '../../errors/Error'
 import Crypto from '../Crypto'
 import { Folder, TItemLocation } from '../Tree'
+import CapacitorGitHttp from '../native/CapacitorGitHttp'
 
 declare const IS_BROWSER: boolean
+
+// In the app, fetch can't reach git servers and can't carry packfiles
+const http = IS_BROWSER ? webHttp : CapacitorGitHttp
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set

@@ -304,7 +304,8 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
         isRoot,
         children: collections
           .filter(col => String(col.parentId) === collectionId)
-          .map(buildTree).concat(
+          // Not .map(buildTree): map's index would land in isRoot
+          .map((col) => buildTree(col)).concat(
             links
               .filter(link => String(link.collectionId) === collectionId)
               .map(link => new Bookmark({

@@ -414,8 +414,12 @@ export default class SyncProcess {
       members.push('serverPlanStage2')
     }
 
-    // Stage 3
-    if (this.actionsDone < this.actionsPlanned) {
+    // Stage 3 -- needed until the reorders have been reconciled from the done
+    // plans. Not `actionsDone < actionsPlanned`: that counter restarts with every
+    // resumed run and lags behind the plans (a bulk import is done() before its
+    // REORDERs are counted), so it would drop these members for a tick and bring
+    // them back, and a diff that comes back only writes what changed since.
+    if (!this.localReorders || !this.serverReorders) {
       members.push('planStage3Local')
       members.push('planStage3Server')
       members.push('localDonePlan')
@@ -433,6 +437,11 @@ export default class SyncProcess {
     members.push('serverReorders')
 
     return members
+  }
+
+  /** How many actions this run has executed -- a resumed run counts from 0 again */
+  getActionsDone(): number {
+    return this.actionsDone || 0
   }
 
   getMappingsInstance(): Mappings {
@@ -623,6 +632,17 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
+    if (this.localReorders && this.serverReorders) {
+      // Resumed from a continuation persisted while the reorderings were being
+      // executed: everything before them is done, and the continuation holds
+      // nothing else any more (see getMembersToPersist). Scanning and planning
+      // again from here would execute a sync of its own -- whose reorders then
+      // lose out to the stored ones, which are only ever computed once.
+      Logger.log('Resuming with the reorderings, everything before them has been executed')
+      await this.executeReorderingStage()
+      return
+    }
+
     Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
 
     if (!this.localScanResult && !this.serverScanResult && !this.localPlanStage1 && !this.serverPlanStage1 && !this.localPlanStage2 && !this.serverPlanStage2 && !this.planStage3Local && !this.planStage3Server) {
@@ -645,8 +665,12 @@ export default class SyncProcess {
     }
 
     let mappingsSnapshot: MappingSnapshot
+    // Whether the plans that are about to be executed were made by this run,
+    // rather than restored from a continuation
+    let plannedInThisRun = false
 
     if (!this.serverPlanStage2 && !this.localPlanStage2 && !this.planStage3Local && !this.planStage3Server) {
+      plannedInThisRun = true
       // have to get snapshot after reconciliation, because of concurrent creation reconciliation
       mappingsSnapshot = this.mappings.getSnapshot()
       Logger.log('Mapping server plan')
@@ -676,12 +700,17 @@ export default class SyncProcess {
 
     Logger.log({localPlan: this.localPlanStage2, serverPlan: this.serverPlanStage2})
 
-    if (this.serverPlanStage2) {
+    // Only for plans made by this run. A continuation's plans have passed the
+    // failsafes already: they run before anything is executed, and progress is
+    // only persisted once something has been. Checking them again isn't just
+    // redundant, it can be wrong -- a resumed sync restores diffs that were
+    // shared as separate copies (serverPlanStage2.REMOVE and
+    // planStage3Server.REMOVE, say) and drains only one of them, so the other
+    // counts removals that have already been executed against the tree they
+    // have already shrunk.
+    if (plannedInThisRun) {
       await this.applyDeletionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.REMOVE)
       await this.applyAdditionFailsafe(ItemLocation.SERVER, this.serverTreeRoot, this.serverPlanStage2.CREATE)
-    }
-
-    if (this.localPlanStage2) {
       await this.applyDeletionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.REMOVE)
       await this.applyAdditionFailsafe(ItemLocation.LOCAL, this.localTreeRoot, this.localPlanStage2.CREATE)
     }
@@ -853,6 +882,11 @@ export default class SyncProcess {
       )
     }
 
+    await this.executeReorderingStage()
+  }
+
+  /** Stage 4: execute the reorders computed from the done plans */
+  protected async executeReorderingStage(): Promise<void> {
     if (this.canceled) {
       throw new CancelledSyncError()
     }
@@ -1557,6 +1591,40 @@ export default class SyncProcess {
     }, ACTION_CONCURRENCY)
   }
 
+  /**
+   * Whether the scan after a bulk import may map `oldItem` to its imported copy
+   * `newItem`.
+   *
+   * Not if that evicts a mapping of either of them: a copy merely matching by
+   * url must not orphan the item something else is mapped to. There is one
+   * exception. When the import re-creates a folder, the old counterparts of its
+   * contents sit in the folder's old copy, which the folder itself no longer
+   * maps to, and which is going away. Refusing to map them would keep the
+   * contents mapped to items that are gone -- on Nextcloud Bookmarks an update
+   * then fails over the missing folder in the old id -- or leave them unmapped
+   * once the removal cleans up after itself.
+   */
+  static mayMapImportedItem<L1 extends TItemLocation, L2 extends TItemLocation>(
+    snapshot: MappingSnapshot,
+    supersededFolder: Folder<L2> | undefined,
+    oldItem: TItem<L1>,
+    newItem: TItem<L2>
+  ): boolean {
+    if (!Mappings.wouldEvictUnrelatedMapping(snapshot, oldItem, newItem)) {
+      return true
+    }
+    if (!supersededFolder) {
+      return false
+    }
+    const newItemCounterpart = Mappings.mapId(snapshot, newItem, oldItem.location)
+    if (typeof newItemCounterpart !== 'undefined' && String(newItemCounterpart) !== String(oldItem.id)) {
+      return false
+    }
+    const oldCounterpart = Mappings.mapId(snapshot, oldItem, newItem.location)
+    return typeof oldCounterpart !== 'undefined' &&
+      Boolean(supersededFolder.findItem(oldItem.type, oldCounterpart))
+  }
+
   async executeCreate<L1 extends TItemLocation>(
     resource: TResource<L1>,
     action: CreateAction<L1, TOppositeLocation<L1>>,
@@ -1590,6 +1658,15 @@ export default class SyncProcess {
       // undefined means we couldn't create the item
       throw new FloccusError('Failed to create item on ' + targetLocation + ' : ' + action.payload.inspect())
     }
+
+    // An item that is created although it's mapped already is being re-created,
+    // because its old counterpart goes away with a removed ancestor (see
+    // reconcileDiffs). The mapping below moves the item itself over to the new
+    // copy; what it contains is still mapped into the old one.
+    const supersededId = action.oldItem && Mappings.mapId(this.mappings.getSnapshot(), action.oldItem, targetLocation)
+    const supersededFolder = action.oldItem instanceof Folder && typeof supersededId !== 'undefined' && String(supersededId) !== String(id)
+      ? this.getTargetTree(targetLocation)?.findFolder(supersededId) as Folder<L1> | undefined
+      : undefined
 
     action.payload = action.payload.copy()
     action.payload.id = id
@@ -1638,7 +1715,7 @@ export default class SyncProcess {
               if (
                 oldItem.type === newItem.type &&
                 oldItem.canMergeWith(newItem) &&
-                !Mappings.wouldEvictUnrelatedMapping(bulkImportMappingsSnapshot, oldItem, newItem)
+                SyncProcess.mayMapImportedItem(bulkImportMappingsSnapshot, supersededFolder, oldItem, newItem)
               ) {
                 return true
               }
@@ -1701,13 +1778,15 @@ export default class SyncProcess {
             const chunkedBulkImportMappingsSnapshot = this.mappings.getSnapshot()
             const subScanner = new Scanner(
               this.mappings,
-              tempItem,
+              // tempItem carries the target's location, but Scanner#addMapping only maps
+              // a pair of items from opposite locations -- scan the chunk under its own
+              tempItem.restampTree(false, action.oldItem.location),
               imported,
               (oldItem, newItem) => {
                 if (
                   oldItem.type === newItem.type &&
                   oldItem.canMergeWith(newItem) &&
-                  !Mappings.wouldEvictUnrelatedMapping(chunkedBulkImportMappingsSnapshot, oldItem, newItem)
+                  SyncProcess.mayMapImportedItem(chunkedBulkImportMappingsSnapshot, supersededFolder, oldItem, newItem)
                 ) {
                   // if two items can be merged, we'll add mappings here directly
                   return true
@@ -1863,6 +1942,41 @@ export default class SyncProcess {
     await this.updateProgress()
   }
 
+  /**
+   * Whether the folder a REORDER is for has left the subtree a REMOVE takes with
+   * it. Diff#map only maps the root of a REMOVE's payload; below it is the
+   * source's picture from before this sync, so a folder moved out of the removed
+   * one is still listed there -- e.g. a folder re-created elsewhere because its
+   * old parent went away, whose REORDER would otherwise be dropped silently and
+   * leave the re-created children in whatever order their CREATEs finished in.
+   */
+  private hasLeftRemovedSubtree(
+    reorderAction: ReorderAction<TItemLocation, TItemLocation>,
+    removal: Action<TItemLocation, TItemLocation>,
+    mappingSnapshot: MappingSnapshot
+  ): boolean {
+    const location = reorderAction.payload.location
+    const tree = location === ItemLocation.LOCAL ? this.localTreeRoot : this.serverTreeRoot
+    // The mappings of executed removals are gone by now, but a mapped REMOVE
+    // keeps the item it was mapped from in oldItem
+    const removedItem = [removal.payload, removal.oldItem].find((item) => item && item.location === location)
+    const removedId = removedItem ? removedItem.id : Mappings.mapId(mappingSnapshot, removal.payload, location)
+    let current: Folder<TItemLocation> = tree && tree.findFolder(reorderAction.payload.id)
+    if (!current || typeof removedId === 'undefined') {
+      // We can't tell where the folder is now, so believe the removal
+      return false
+    }
+    while (current) {
+      if (String(current.id) === String(removedId)) {
+        return false
+      }
+      current = current.parentId !== null && typeof current.parentId !== 'undefined'
+        ? tree.findFolder(current.parentId)
+        : null
+    }
+    return true
+  }
+
   reconcileReorderings<L1 extends TItemLocation, L2 extends TItemLocation>(
     targetReorders: Diff<L2, TItemLocation, ReorderAction<L2, TItemLocation>>,
     targetOrSourceDonePlan: PlanStage3<TItemLocation, TItemLocation, TItemLocation>,
@@ -1892,8 +2006,11 @@ export default class SyncProcess {
         // Find removals of the main payload
         const removed = targetRemovals
           .filter(removal =>
-            removal.payload.findItem(reorderAction.payload.type, reorderAction.payload.id) ||
-            Diff.findChain(mappingSnapshot, targetCreationsAndMoves, targetTree, reorderAction.payload, removal, findChainCache))
+            (removal.payload.findItem(reorderAction.payload.type, reorderAction.payload.id) ||
+              Diff.findChain(mappingSnapshot, targetCreationsAndMoves, targetTree, reorderAction.payload, removal, findChainCache)) &&
+            // Both checks look at the removal's subtree, which (except for its
+            // root) holds the unmapped ids of an older picture of it
+            !this.hasLeftRemovedSubtree(reorderAction, removal, mappingSnapshot))
         if (removed.length) {
           return
         }

@@ -166,6 +166,19 @@ describe('Diff', function() {
       })
       expect(after.added.map(({ action }) => action.payload.id)).to.deep.equal([1, 2, 3])
     })
+
+    it('skips nothing when the diff is compacted while it serializes', async function() {
+      const diff = diffOf(4)
+      const first = diff.getActions()[0]
+      const pending = diff.getPendingChangesAsync(true)
+      // The first action is being serialized now; execute it and let the
+      // executor's next getActions() compact the diff under the running loop
+      diff.retract(first)
+      diff.getActions()
+
+      const update = await pending
+      expect(update.added.map(({ action }) => action.payload.id)).to.deep.equal([1, 2, 3])
+    })
   })
 })
 

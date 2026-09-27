@@ -26,7 +26,6 @@ import {
   RequestTimeoutError, ResourceLockedError,
   UnexpectedServerResponseError,
   UnknownCreateTargetError,
-  UnknownFolderParentUpdateError,
   UnknownFolderUpdateError,
   UnknownMoveTargetError, UpdateBookmarkError, InvalidUrlError
 } from '../../errors/Error'
@@ -63,6 +62,30 @@ interface IChildOrderItem {
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Set lock every two minutes while syncing
 
+/**
+ * The form in which CapacitorHttp takes a multipart body (dataType 'formData'),
+ * the same its patched fetch hands the native side: files as base64
+ */
+async function serializeFormDataForNative(formData: FormData): Promise<Record<string, string>[]> {
+  const pairs: [string, string | File][] = []
+  formData.forEach((value, key) => pairs.push([key, value]))
+  const entries = []
+  for (const [key, value] of pairs) {
+    if (typeof value === 'string') {
+      entries.push({ key, value, type: 'string' })
+    } else {
+      entries.push({
+        key,
+        value: Base64.fromUint8Array(new Uint8Array(await value.arrayBuffer())),
+        type: 'base64File',
+        contentType: value.type || 'application/octet-stream',
+        fileName: value.name || 'blob',
+      })
+    }
+  }
+  return entries
+}
+
 export default class NextcloudBookmarksAdapter implements Adapter, BulkImportResource<typeof ItemLocation.SERVER>, LoadFolderChildrenResource<typeof ItemLocation.SERVER>, OrderFolderResource<typeof ItemLocation.SERVER>, ClickCountResource<typeof ItemLocation.SERVER> {
   private server: NextcloudBookmarksConfig
   private fetchQueue: PQueue<{ concurrency: 12 }>
@@ -71,7 +94,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private list: Bookmark<typeof ItemLocation.SERVER>[]
   private tree: Folder<typeof ItemLocation.SERVER>
   private canceled = false
-  private cancelCallback: () => void = null
+  private cancelGeneration = 0
+  private inflightReads = new Set<() => void>()
   private lockingInterval: any
   private lockingPromise: Promise<boolean>
   private ended = false
@@ -163,6 +187,11 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
     this.canceled = false
     this.ended = false
+    // Those of the previous sync: getBookmarksTree builds new ones, and until
+    // then the javascript-links probe must not look for its folder in a stale
+    // tree (e.g. one rooted at the serverRoot, which doesn't contain -1)
+    this.tree = null
+    this.list = null
 
     this.capabilities = await this.getNextcloudCapabilities()
     await this.checkFeatureJavascriptLinks()
@@ -172,6 +201,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
 
     // if needLock -- we always need it
+    // Not the state of the previous sync: if acquiring throws, onSyncFail must
+    // not release a lock we don't hold
+    this.locked = false
     this.locked = await this.acquireLock()
     if (forceLock) {
       this.locked = true
@@ -200,8 +232,42 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   cancel() {
     this.canceled = true
-    this.fetchQueue.clear()
-    this.cancelCallback && this.cancelCallback()
+    // Don't clear the fetchQueue: p-queue drops cleared tasks without settling
+    // their promises, and the sync waits for in-flight mutations after a cancel
+    // (Default#raceWithCancellation). Requests queued so far reject instead once
+    // they're dequeued; the ones sent after this (releasing the lock) still go out
+    this.cancelGeneration++
+    // Reads in flight are given up on, too. Writes aren't: whether they landed
+    // on the server is what the sync waits to find out
+    this.inflightReads.forEach((abort) => abort())
+  }
+
+  /**
+   * Queue a request, rejecting it without sending anything if the sync is
+   * cancelled before it gets its turn. A read (GET/HEAD) is also given up on
+   * if the sync is cancelled while it's in flight: `abort` stops the request,
+   * where the platform allows that
+   */
+  private enqueueRequest<T>(verb: string, send: () => Promise<T>, abort: () => void = () => { /* pass */ }): Promise<T> {
+    const generation = this.cancelGeneration
+    return this.fetchQueue.add(() => {
+      if (generation !== this.cancelGeneration) {
+        return Promise.reject(new CancelledSyncError())
+      }
+      if (!['get', 'head'].includes(verb.toLowerCase())) {
+        return send()
+      }
+      let giveUp: () => void
+      const cancelled = new Promise<T>((resolve, reject) => {
+        giveUp = () => {
+          abort()
+          reject(new CancelledSyncError())
+        }
+      })
+      this.inflightReads.add(giveUp)
+      return Promise.race([send(), cancelled])
+        .finally(() => this.inflightReads.delete(giveUp))
+    })
   }
 
   async getBookmarksList():Promise<Bookmark<typeof ItemLocation.SERVER>[]> {
@@ -354,7 +420,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   async _getFolderHash(folderId:string|number):Promise<string> {
     const hashFn = {'sha256': 'sha256', 'murmur3': 'murmur3a', 'xxhash3': 'xxh32'}[this.hashSettings.hashFn]
-    if (this.capabilities && this.capabilities.bookmarks && this.capabilities.bookmarks['hash-function'] && !this.capabilities.bookmarks['hash-function'].includes[hashFn]) {
+    const supportedHashFns = this.capabilities?.bookmarks?.['hash-functions']
+    if (Array.isArray(supportedHashFns) && !supportedHashFns.includes(hashFn)) {
       throw new Error('Selected hash function is not supported by server')
     }
     // The server hashes bookmarks as json_encode of the requested fields, in the
@@ -552,11 +619,17 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       })
     }
     const imported = recurseChildren(json.data, parentId, folder.title, folder.parentId)
-    const oldChildren = parentFolder.children
-    parentFolder.children = imported.copy(true).children
-    oldChildren.forEach((child) => this.tree.removeFromIndex(child))
-    parentFolder.createIndex()
-    this.tree.updateIndex(parentFolder)
+    // The endpoint adds to the folder and answers with just what it imported, so
+    // keep what the folder held already -- Default#executeCreate imports large
+    // subtrees in several chunks. A bookmark the folder contained before the
+    // import comes back under the id it already has there.
+    const existingIds = new Set(parentFolder.children.map((child) => child.type + ':' + child.id))
+    imported.copy(true).children
+      .filter((child) => !existingIds.has(child.type + ':' + child.id))
+      .forEach((child) => {
+        parentFolder.children.push(child)
+        this.tree.updateIndex(child)
+      })
     return imported
   }
 
@@ -569,6 +642,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
     if (oldFolder.findFolder(folder.parentId)) {
       throw new Error('Detected folder loop creation')
+    }
+    // Check the target before sending anything: once the server has moved the
+    // folder, failing here would only fail a sync over a change that went through
+    const newParentFolder = this.tree.findFolder(folder.parentId)
+    if (!newParentFolder) {
+      throw new UnknownMoveTargetError()
     }
     const body = {
       parent_folder: folder.parentId,
@@ -583,19 +662,24 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       undefined,
       folder
     )
-    const oldParentFolder = this.tree.findFolder(oldFolder.parentId)
-    if (!oldParentFolder) {
-      throw new UnknownFolderParentUpdateError()
+    if (String(oldFolder.parentId) === String(folder.parentId)) {
+      // A rename: taking the folder out and appending it again would move it
+      // to the end of its parent
+      oldFolder.title = folder.title
+      return
     }
-    oldParentFolder.children = oldParentFolder.children.filter(
-      (child) => String(child.id) !== String(id)
-    )
-    const newParentFolder = this.tree.findFolder(folder.parentId)
-    if (!newParentFolder) {
-      throw new UnknownMoveTargetError()
+    this.tree.removeFromIndex(oldFolder)
+    // An old parent we don't know (any more) holds nothing to take the folder
+    // out of in our tree
+    const oldParentFolder = this.tree.findFolder(oldFolder.parentId)
+    if (oldParentFolder) {
+      oldParentFolder.children = oldParentFolder.children.filter(
+        (child) => String(child.id) !== String(id)
+      )
+    } else {
+      Logger.log('(nextcloud-folders)UPDATEFOLDER: old parent folder ' + oldFolder.parentId + ' is not in the tree, nothing to remove the folder from')
     }
     newParentFolder.children.push(oldFolder)
-    this.tree.removeFromIndex(oldFolder)
     oldFolder.title = folder.title
     oldFolder.parentId = folder.parentId
     this.tree.updateIndex(oldFolder)
@@ -753,14 +837,20 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           throw new UnexpectedServerResponseError()
         }
         bm.id = json.item.id + ';' + bm.parentId
+        // The tree uses the '<id>;<folderId>' ids of the children endpoint. An
+        // existing bookmark was put into the folder by updateBookmark already
+        if (this.tree) {
+          const treeMark = bm.copy()
+          newParentFolder.children.push(treeMark)
+          this.tree.updateIndex(treeMark)
+        }
       }
-      // add bookmark to cached list
+      // add bookmark to cached list, which uses the plain upstream ids
       const upstreamMark = bm.copy()
       upstreamMark.id = bm.id.split(';')[0]
-      this.list && this.list.push(upstreamMark)
-      if (this.tree) {
-        newParentFolder.children.push(upstreamMark)
-        this.tree.updateIndex(upstreamMark)
+      if (this.list && !this.list.some((item) =>
+        String(item.id) === String(upstreamMark.id) && String(item.parentId) === String(upstreamMark.parentId))) {
+        this.list.push(upstreamMark)
       }
 
       return bm.id
@@ -816,21 +906,37 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         throw e
       }
 
-      const oldParentFolder = this.tree.findFolder(oldParentId)
-      if (!oldParentFolder) {
-        throw new UnknownFolderParentUpdateError()
+      // The server has the update already. An old folder we don't know (any
+      // more) holds nothing to take the bookmark out of in our tree, so failing
+      // here would only fail a sync over a change that went through.
+      // A bookmark that stays in its folder is replaced in place below instead,
+      // so it keeps its position
+      if (String(oldParentId) !== String(newBm.parentId)) {
+        const oldParentFolder = this.tree.findFolder(oldParentId)
+        if (oldParentFolder) {
+          const oldBm = oldParentFolder.findBookmark(newBm.id)
+          oldParentFolder.children = oldParentFolder.children.filter(
+            (item) => !(item.type === 'bookmark' && item.id === newBm.id)
+          )
+          if (oldBm && this.tree) {
+            this.tree.removeFromIndex(oldBm)
+          }
+        } else {
+          Logger.log('(nextcloud-folders)UPDATE: old parent folder ' + oldParentId + ' is not in the tree, nothing to remove the bookmark from')
+        }
       }
-      const oldBm = oldParentFolder.findBookmark(newBm.id)
-      oldParentFolder.children = oldParentFolder.children.filter(
-        (item) => !(item.type === 'bookmark' && item.id === newBm.id)
-      )
-      if (oldBm && this.tree) {
-        this.tree.removeFromIndex(oldBm)
-      }
-      if (!newFolder.children.find(item => String(item.id) === String(newBm.id) && item.type === 'bookmark')) {
+      const newId = upstreamId + ';' + newBm.parentId
+      // Look for the id the bookmark will have in its new folder, too: it may
+      // be listed there already, under an id our stale one doesn't match
+      const existing = newFolder.children.find(item =>
+        item.type === 'bookmark' && (String(item.id) === String(newBm.id) || String(item.id) === newId))
+      if (existing && existing !== newBm) {
+        newFolder.children.splice(newFolder.children.indexOf(existing), 1, newBm)
+        this.tree.removeFromIndex(existing)
+      } else if (!existing) {
         newFolder.children.push(newBm)
       }
-      newBm.id = upstreamId + ';' + newBm.parentId
+      newBm.id = newId
       this.tree.updateIndex(newBm)
 
       return newBm.id
@@ -854,23 +960,41 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           undefined,
           bookmark,
         )
-        // Remove the bookmark from the cached list -- but only if we have one
-        // already: fetching it here would page through every bookmark in the
-        // account for the sake of a single splice (cf. createBookmark)
-        if (this.list) {
-          const listIndex = this.list.findIndex(
-            (bookmark) =>
-              String(bookmark.id) === String(upstreamId) &&
-              String(bookmark.parentId) === String(parentId)
-          )
-          // The list holds one entry per folder the bookmark sits in, so the
-          // entry to drop is the one for the folder we just removed it from
-          if (listIndex !== -1) {
-            this.list.splice(listIndex, 1)
-          }
-        }
       } catch (e) {
+        // Move on only if the bookmark is gone already (404) or we may not
+        // remove it (403, e.g. a read-only shared folder -- the next sync brings
+        // it back). Anything else (network error, cancellation, 5xx) would have
+        // the sync record a removal that never happened
+        if (!(e instanceof HttpError && e.status === 404) && !(e instanceof AuthenticationError)) {
+          throw e
+        }
         Logger.log('Error removing bookmark from folder: ' + e.message + '\n Moving on.')
+      }
+      // Remove the bookmark from the cached list -- but only if we have one
+      // already: fetching it here would page through every bookmark in the
+      // account for the sake of a single splice (cf. createBookmark)
+      if (this.list) {
+        const listIndex = this.list.findIndex(
+          (bookmark) =>
+            String(bookmark.id) === String(upstreamId) &&
+            String(bookmark.parentId) === String(parentId)
+        )
+        // The list holds one entry per folder the bookmark sits in, so the
+        // entry to drop is the one for the folder we just removed it from
+        if (listIndex !== -1) {
+          this.list.splice(listIndex, 1)
+        }
+      }
+      const parentFolder = this.tree && this.tree.findFolder(parentId)
+      if (parentFolder) {
+        const treeId = upstreamId + ';' + parentId
+        const oldBm = parentFolder.children.find(
+          (item) => item.type === 'bookmark' && String(item.id) === treeId
+        )
+        if (oldBm) {
+          this.tree.removeFromIndex(oldBm)
+          parentFolder.children = parentFolder.children.filter((item) => item !== oldBm)
+        }
       }
     })
   }
@@ -898,7 +1022,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         try {
           const url = `javascript:void(${Math.random()})`
           const id = await this.createBookmark(new Bookmark({id: null, parentId: '-1', title: 'floccus', url, location: ItemLocation.SERVER}))
+          // The server took the link, so a failing clean-up says nothing about the feature
           await this.removeBookmark(new Bookmark({id, parentId: '-1', title: 'floccus', url, location: ItemLocation.SERVER}))
+            .catch((e) => Logger.log('Failed to remove javascript link probe: ' + e.message))
         } catch (e) {
           this.hasFeatureJavascriptLinks = false
         }
@@ -928,6 +1054,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       json = await res.json()
     } catch (e) {
       throw new ParseResponseError(e.message)
+    }
+    if (!json || typeof json.ocs !== 'object') {
+      throw new UnexpectedServerResponseError()
     }
     return json.ocs.data
   }
@@ -962,7 +1091,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     const abortSignal = abortController.signal
 
     try {
-      res = await this.fetchQueue.add(() => {
+      res = await this.enqueueRequest(verb, () => {
         Logger.log(`FETCHING ${verb} ${url}`)
         return Promise.race([
           fetch(url, {
@@ -984,7 +1113,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             }, TIMEOUT)
           ),
         ])
-      })
+      }, () => abortController.abort())
     } catch (e) {
       if (timedOut) throw e
       if (this.canceled) throw new CancelledSyncError()
@@ -1057,20 +1186,28 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   private async releaseLock():Promise<boolean> {
     if (this.lockingPromise) {
-      await this.lockingPromise
+      // The periodic refresh swallows its errors, but this is the same promise:
+      // a refresh that failed mid-sync must not fail the sync now that it's over
+      await this.lockingPromise.catch(() => { /* pass */ })
     }
     if (!this.locked) {
-      return
+      return false
     }
-    const res = await this.sendRequest(
-      'DELETE',
-      'index.php/apps/bookmarks/public/rest/v2/lock',
-      null,
-      null,
-      true
-    )
-
-    return res.status === 200
+    this.locked = false
+    try {
+      const res = await this.sendRequest(
+        'DELETE',
+        'index.php/apps/bookmarks/public/rest/v2/lock',
+        null,
+        null,
+        true
+      )
+      return res.status === 200
+    } catch (e) {
+      // The server lets the lock expire on its own
+      Logger.log('Failed to release the lock: ' + e.message)
+      return false
+    }
   }
 
   private async sendRequestNative(verb: string, url: string, type: string, body: any, returnRawResponse: boolean, headers = {}, item: TItem<TItemLocation> = null) {
@@ -1079,8 +1216,22 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     const authString = !this.ticket || this.ticketTimestamp + 60 * 60 * 1000 < Date.now()
       ? 'Basic ' + Base64.encode(this.server.username + ':' + this.server.password)
       : 'Bearer ' + this.ticket
+    // CapacitorHttp only takes strings and JSON: a FormData would go out as an
+    // empty JSON object (the import endpoint then answers "No file provided for
+    // import"), so hand it the multipart entries the native side assembles
+    let data = body
+    let dataType: 'formData' | undefined
+    let contentType = type
+    if (typeof FormData !== 'undefined' && body instanceof FormData) {
+      data = await serializeFormDataForNative(body)
+      dataType = 'formData'
+      // Android reads the boundary from the header, it doesn't make one up
+      contentType = 'multipart/form-data; boundary=----floccus' + Math.random().toString(36).slice(2)
+    }
     try {
-      res = await this.fetchQueue.add(() => {
+      // CapacitorHttp can't abort a request, so a cancelled read only stops
+      // being waited for
+      res = await this.enqueueRequest(verb, () => {
         Logger.log(`FETCHING ${verb} ${url}`)
         return Promise.race([
           Http.request({
@@ -1088,12 +1239,13 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             method: verb,
             disableRedirects: !this.server.allowRedirects,
             headers: {
-              ...(type && type !== 'multipart/form-data' && { 'Content-type': type }),
+              ...(contentType && contentType !== 'multipart/form-data' && { 'Content-type': contentType }),
               Authorization: authString,
               ...headers,
             },
             responseType: 'json',
-            ...(body && !['get', 'head'].includes(verb.toLowerCase()) && { data: body }),
+            ...(data && !['get', 'head'].includes(verb.toLowerCase()) && { data }),
+            ...(dataType && { dataType }),
           }),
           new Promise((resolve, reject) =>
             setTimeout(() => {
@@ -1105,6 +1257,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       })
     } catch (e) {
       if (timedOut) throw e
+      if (this.canceled) throw new CancelledSyncError()
       console.log(e)
       throw new NetworkError()
     }
@@ -1122,10 +1275,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
 
     if (returnRawResponse) {
+      // Behave like a fetch Response: with responseType 'json' the plugin hands
+      // us a parsed object, or the raw string if the body wasn't JSON
       return {
         status: res.status,
-        text: () => res.data,
-        json: () => res.data,
+        text: () => typeof res.data === 'string' ? res.data : JSON.stringify(res.data),
+        json: () => typeof res.data === 'string' ? JSON.parse(res.data) : res.data,
       }
     }
 
@@ -1165,11 +1320,16 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   async getCapabilities(): Promise<ICapabilities> {
     let hashFn : THashFunction[] = ['sha256']
     if (this.capabilities && this.capabilities.bookmarks && typeof this.capabilities.bookmarks['hash-functions'] !== 'undefined') {
-      hashFn = this.capabilities.bookmarks['hash-functions'].map(hashFn => ({
+      const supported = this.capabilities.bookmarks['hash-functions'].map(hashFn => ({
         'sha256': 'sha256',
         'xxh32': 'xxhash3',
         'murmur3a': 'murmur3',
       }[hashFn]))
+        // Hash functions the server knows and we don't
+        .filter(Boolean)
+      if (supported.length) {
+        hashFn = supported
+      }
     }
     return {
       preserveOrder: true,

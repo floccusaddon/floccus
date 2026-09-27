@@ -264,10 +264,13 @@ export default class NativeCacheStore implements ICacheStore {
     try {
       await NativeDatabase.batch(statements)
     } catch (e) {
-      // The transaction rolled back, so what we believe the rows hold isn't
-      // what they hold. Forget it and read it back before the next diff; the
-      // next sync's setTree then writes whatever is missing.
-      this.dropIndex()
+      // The transaction rolled back, so put its statements back in front of
+      // whatever was recorded since: the next save writes them again. Dropping
+      // them instead would leave the rows behind for good -- later saves only
+      // write what is queued, and the next sync reads the rows back before
+      // setTree gets to fix them. The maps describe the rows as they will be
+      // once the queue is flushed, which the queue still gets them to.
+      this.queue = statements.concat(this.queue)
       throw e
     }
   }
@@ -408,13 +411,6 @@ export default class NativeCacheStore implements ICacheStore {
     }
     await this.migrateFromPreferences()
     await this.readIndex()
-  }
-
-  private dropIndex(): void {
-    this.folders.clear()
-    this.bookmarks.clear()
-    this.nextPosition.clear()
-    this.indexed = false
   }
 
   private async readIndex(): Promise<{ folderRows: any[], bookmarkRows: any[] }> {

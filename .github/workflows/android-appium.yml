@@ -116,6 +116,8 @@ jobs:
           - dropbox-encrypted
           - linkwarden
           - karakeep
+          - git-xbel
+          - git-html
 
     name: 🤖 ${{matrix.floccus-adapter}}:test
 
@@ -197,6 +199,16 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Setup git http server
+        run: |
+          mkdir __fixtures__
+          cd __fixtures__
+          git init --bare test.git -b main
+          npm i git-http-server
+          npx git-http-server &
+          npx htpasswd -cb test.git/.htpasswd admin admin
+        if: matrix.floccus-adapter == 'git-xbel' || matrix.floccus-adapter == 'git-html'
+
       - name: Install Appium and Android driver
         run: |
           npm install -g appium
@@ -212,7 +224,8 @@ jobs:
           DROPBOX_API_REFRESH_TOKEN: ${{ secrets.DROPBOX_API_REFRESH_TOKEN }}
           LINKWARDEN_TOKEN: ${{ secrets.LINKWARDEN_TOKEN }}
           APP_VERSION: ${{ matrix.app-version }}
-          TEST_HOST: 172.17.0.1:8080
+          # git-http-server listens on 8174, the rest talk to the nextcloud container
+          TEST_HOST: ${{ (matrix.floccus-adapter == 'git-xbel' || matrix.floccus-adapter == 'git-html') && '172.17.0.1:8174' || '172.17.0.1:8080' }}
           KARAKEEP_TEST_HOST: 172.17.0.1:3000
         with:
           api-level: 35

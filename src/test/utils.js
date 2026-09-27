@@ -340,6 +340,10 @@ export async function withSyncConnection(account, fn) {
       // tags for the assertions.
       syncTags: capabilities.supportsTags,
     })
+  // Like a sync, load the tree before touching anything: adapters check their
+  // mutations against the tree of the current connection (NextcloudBookmarks
+  // drops the previous one in onSyncStart)
+  await adapter.getBookmarksTree(true)
   await fn()
   if (adapter.onSyncComplete) await adapter.onSyncComplete()
 }
