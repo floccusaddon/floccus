@@ -162,6 +162,11 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
     this.canceled = false
     this.ended = false
+    // Those of the previous sync: getBookmarksTree builds new ones, and until
+    // then the javascript-links probe must not look for its folder in a stale
+    // tree (e.g. one rooted at the serverRoot, which doesn't contain -1)
+    this.tree = null
+    this.list = null
 
     this.capabilities = await this.getNextcloudCapabilities()
     await this.checkFeatureJavascriptLinks()
