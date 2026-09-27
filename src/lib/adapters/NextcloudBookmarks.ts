@@ -71,6 +71,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private tree: Folder<typeof ItemLocation.SERVER>
   private canceled = false
   private cancelGeneration = 0
+  private inflightReads = new Set<() => void>()
   private lockingInterval: any
   private lockingPromise: Promise<boolean>
   private ended = false
@@ -212,19 +213,36 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     // (Default#raceWithCancellation). Requests queued so far reject instead once
     // they're dequeued; the ones sent after this (releasing the lock) still go out
     this.cancelGeneration++
+    // Reads in flight are given up on, too. Writes aren't: whether they landed
+    // on the server is what the sync waits to find out
+    this.inflightReads.forEach((abort) => abort())
   }
 
   /**
    * Queue a request, rejecting it without sending anything if the sync is
-   * cancelled before it gets its turn
+   * cancelled before it gets its turn. A read (GET/HEAD) is also given up on
+   * if the sync is cancelled while it's in flight: `abort` stops the request,
+   * where the platform allows that
    */
-  private enqueueRequest<T>(send: () => Promise<T>): Promise<T> {
+  private enqueueRequest<T>(verb: string, send: () => Promise<T>, abort: () => void = () => { /* pass */ }): Promise<T> {
     const generation = this.cancelGeneration
     return this.fetchQueue.add(() => {
       if (generation !== this.cancelGeneration) {
         return Promise.reject(new CancelledSyncError())
       }
-      return send()
+      if (!['get', 'head'].includes(verb.toLowerCase())) {
+        return send()
+      }
+      let giveUp: () => void
+      const cancelled = new Promise<T>((resolve, reject) => {
+        giveUp = () => {
+          abort()
+          reject(new CancelledSyncError())
+        }
+      })
+      this.inflightReads.add(giveUp)
+      return Promise.race([send(), cancelled])
+        .finally(() => this.inflightReads.delete(giveUp))
     })
   }
 
@@ -1049,7 +1067,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     const abortSignal = abortController.signal
 
     try {
-      res = await this.enqueueRequest(() => {
+      res = await this.enqueueRequest(verb, () => {
         Logger.log(`FETCHING ${verb} ${url}`)
         return Promise.race([
           fetch(url, {
@@ -1071,7 +1089,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             }, TIMEOUT)
           ),
         ])
-      })
+      }, () => abortController.abort())
     } catch (e) {
       if (timedOut) throw e
       if (this.canceled) throw new CancelledSyncError()
@@ -1175,7 +1193,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       ? 'Basic ' + Base64.encode(this.server.username + ':' + this.server.password)
       : 'Bearer ' + this.ticket
     try {
-      res = await this.enqueueRequest(() => {
+      // CapacitorHttp can't abort a request, so a cancelled read only stops
+      // being waited for
+      res = await this.enqueueRequest(verb, () => {
         Logger.log(`FETCHING ${verb} ${url}`)
         return Promise.race([
           Http.request({
