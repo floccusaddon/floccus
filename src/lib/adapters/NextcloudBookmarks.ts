@@ -784,14 +784,20 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           throw new UnexpectedServerResponseError()
         }
         bm.id = json.item.id + ';' + bm.parentId
+        // The tree uses the '<id>;<folderId>' ids of the children endpoint. An
+        // existing bookmark was put into the folder by updateBookmark already
+        if (this.tree) {
+          const treeMark = bm.copy()
+          newParentFolder.children.push(treeMark)
+          this.tree.updateIndex(treeMark)
+        }
       }
-      // add bookmark to cached list
+      // add bookmark to cached list, which uses the plain upstream ids
       const upstreamMark = bm.copy()
       upstreamMark.id = bm.id.split(';')[0]
-      this.list && this.list.push(upstreamMark)
-      if (this.tree) {
-        newParentFolder.children.push(upstreamMark)
-        this.tree.updateIndex(upstreamMark)
+      if (this.list && !this.list.some((item) =>
+        String(item.id) === String(upstreamMark.id) && String(item.parentId) === String(upstreamMark.parentId))) {
+        this.list.push(upstreamMark)
       }
 
       return bm.id
