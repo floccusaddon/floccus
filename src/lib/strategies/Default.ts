@@ -1942,6 +1942,41 @@ export default class SyncProcess {
     await this.updateProgress()
   }
 
+  /**
+   * Whether the folder a REORDER is for has left the subtree a REMOVE takes with
+   * it. Diff#map only maps the root of a REMOVE's payload; below it is the
+   * source's picture from before this sync, so a folder moved out of the removed
+   * one is still listed there -- e.g. a folder re-created elsewhere because its
+   * old parent went away, whose REORDER would otherwise be dropped silently and
+   * leave the re-created children in whatever order their CREATEs finished in.
+   */
+  private hasLeftRemovedSubtree(
+    reorderAction: ReorderAction<TItemLocation, TItemLocation>,
+    removal: Action<TItemLocation, TItemLocation>,
+    mappingSnapshot: MappingSnapshot
+  ): boolean {
+    const location = reorderAction.payload.location
+    const tree = location === ItemLocation.LOCAL ? this.localTreeRoot : this.serverTreeRoot
+    // The mappings of executed removals are gone by now, but a mapped REMOVE
+    // keeps the item it was mapped from in oldItem
+    const removedItem = [removal.payload, removal.oldItem].find((item) => item && item.location === location)
+    const removedId = removedItem ? removedItem.id : Mappings.mapId(mappingSnapshot, removal.payload, location)
+    let current: Folder<TItemLocation> = tree && tree.findFolder(reorderAction.payload.id)
+    if (!current || typeof removedId === 'undefined') {
+      // We can't tell where the folder is now, so believe the removal
+      return false
+    }
+    while (current) {
+      if (String(current.id) === String(removedId)) {
+        return false
+      }
+      current = current.parentId !== null && typeof current.parentId !== 'undefined'
+        ? tree.findFolder(current.parentId)
+        : null
+    }
+    return true
+  }
+
   reconcileReorderings<L1 extends TItemLocation, L2 extends TItemLocation>(
     targetReorders: Diff<L2, TItemLocation, ReorderAction<L2, TItemLocation>>,
     targetOrSourceDonePlan: PlanStage3<TItemLocation, TItemLocation, TItemLocation>,
@@ -1971,8 +2006,11 @@ export default class SyncProcess {
         // Find removals of the main payload
         const removed = targetRemovals
           .filter(removal =>
-            removal.payload.findItem(reorderAction.payload.type, reorderAction.payload.id) ||
-            Diff.findChain(mappingSnapshot, targetCreationsAndMoves, targetTree, reorderAction.payload, removal, findChainCache))
+            (removal.payload.findItem(reorderAction.payload.type, reorderAction.payload.id) ||
+              Diff.findChain(mappingSnapshot, targetCreationsAndMoves, targetTree, reorderAction.payload, removal, findChainCache)) &&
+            // Both checks look at the removal's subtree, which (except for its
+            // root) holds the unmapped ids of an older picture of it
+            !this.hasLeftRemovedSubtree(reorderAction, removal, mappingSnapshot))
         if (removed.length) {
           return
         }
