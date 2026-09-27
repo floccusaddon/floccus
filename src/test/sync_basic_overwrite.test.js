@@ -378,27 +378,28 @@ describe('Floccus', function() {
               const originalTree = await account.localTree.getBookmarksTree(true)
               const serverTree = await getAllBookmarks(account)
 
-              if (adapter.onSyncStart) await adapter.onSyncStart()
-              const fooFolderId = await adapter.createFolder(new Folder({
-                parentId: serverTree.id,
-                title: 'foo',
-                location: ItemLocation.SERVER
-              }))
-              const barFolderId = await adapter.createFolder(new Folder({
-                parentId: fooFolderId,
-                title: 'bar',
-                location: ItemLocation.SERVER
-              }))
-              const serverMark = {
-                title: 'url',
-                url: 'http://ur.l/',
-                parentId: barFolderId,
-                location: ItemLocation.SERVER
-              }
-              await adapter.createBookmark(
-                new Bookmark(serverMark)
-              )
-              if (adapter.onSyncComplete) await adapter.onSyncComplete()
+              let fooFolderId, barFolderId, serverMark
+              await withSyncConnection(account, async() => {
+                fooFolderId = await adapter.createFolder(new Folder({
+                  parentId: serverTree.id,
+                  title: 'foo',
+                  location: ItemLocation.SERVER
+                }))
+                barFolderId = await adapter.createFolder(new Folder({
+                  parentId: fooFolderId,
+                  title: 'bar',
+                  location: ItemLocation.SERVER
+                }))
+                serverMark = {
+                  title: 'url',
+                  url: 'http://ur.l/',
+                  parentId: barFolderId,
+                  location: ItemLocation.SERVER
+                }
+                await adapter.createBookmark(
+                  new Bookmark(serverMark)
+                )
+              })
 
               await account.sync()
               expect(account.getData().error).to.not.be.ok
@@ -415,27 +416,28 @@ describe('Floccus', function() {
               const adapter = account.server
               const serverTree = await getAllBookmarks(account)
 
-              if (adapter.onSyncStart) await adapter.onSyncStart()
-              const fooFolderId = await adapter.createFolder(new Folder({
-                parentId: serverTree.id,
-                title: 'foo',
-                location: ItemLocation.SERVER
-              }))
-              const barFolderId = await adapter.createFolder(new Folder({
-                parentId: fooFolderId,
-                title: 'bar',
-                location: ItemLocation.SERVER
-              }))
-              const serverMark = {
-                title: 'url',
-                url: 'http://ur.l/',
-                parentId: barFolderId,
-                location: ItemLocation.SERVER
-              }
-              const serverMarkId = await adapter.createBookmark(
-                new Bookmark(serverMark)
-              )
-              if (adapter.onSyncComplete) await adapter.onSyncComplete()
+              let fooFolderId, barFolderId, serverMark, serverMarkId
+              await withSyncConnection(account, async() => {
+                fooFolderId = await adapter.createFolder(new Folder({
+                  parentId: serverTree.id,
+                  title: 'foo',
+                  location: ItemLocation.SERVER
+                }))
+                barFolderId = await adapter.createFolder(new Folder({
+                  parentId: fooFolderId,
+                  title: 'bar',
+                  location: ItemLocation.SERVER
+                }))
+                serverMark = {
+                  title: 'url',
+                  url: 'http://ur.l/',
+                  parentId: barFolderId,
+                  location: ItemLocation.SERVER
+                }
+                serverMarkId = await adapter.createBookmark(
+                  new Bookmark(serverMark)
+                )
+              })
 
               await account.sync() // propage creation
               expect(account.getData().error).to.not.be.ok
@@ -468,27 +470,28 @@ describe('Floccus', function() {
             it("shouldn't update local bookmarks on server removals", async function() {
               const adapter = account.server
               const serverTree = await getAllBookmarks(account)
-              if (adapter.onSyncStart) await adapter.onSyncStart()
-              const fooFolderId = await adapter.createFolder(new Folder({
-                parentId: serverTree.id,
-                title: 'foo',
-                location: ItemLocation.SERVER
-              }))
-              const barFolderId = await adapter.createFolder(new Folder({
-                parentId: fooFolderId,
-                title: 'bar',
-                location: ItemLocation.SERVER
-              }))
-              const serverMark = {
-                title: 'url',
-                url: 'http://ur.l/',
-                parentId: barFolderId,
-                location: ItemLocation.SERVER
-              }
-              const serverMarkId = await adapter.createBookmark(
-                new Bookmark(serverMark)
-              )
-              if (adapter.onSyncComplete) await adapter.onSyncComplete()
+              let fooFolderId, barFolderId, serverMark, serverMarkId
+              await withSyncConnection(account, async() => {
+                fooFolderId = await adapter.createFolder(new Folder({
+                  parentId: serverTree.id,
+                  title: 'foo',
+                  location: ItemLocation.SERVER
+                }))
+                barFolderId = await adapter.createFolder(new Folder({
+                  parentId: fooFolderId,
+                  title: 'bar',
+                  location: ItemLocation.SERVER
+                }))
+                serverMark = {
+                  title: 'url',
+                  url: 'http://ur.l/',
+                  parentId: barFolderId,
+                  location: ItemLocation.SERVER
+                }
+                serverMarkId = await adapter.createBookmark(
+                  new Bookmark(serverMark)
+                )
+              })
 
               await account.sync() // propage creation
               expect(account.getData().error).to.not.be.ok
