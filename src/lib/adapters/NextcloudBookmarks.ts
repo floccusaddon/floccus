@@ -998,6 +998,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     } catch (e) {
       throw new ParseResponseError(e.message)
     }
+    if (!json || typeof json.ocs !== 'object') {
+      throw new UnexpectedServerResponseError()
+    }
     return json.ocs.data
   }
 
@@ -1200,10 +1203,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
 
     if (returnRawResponse) {
+      // Behave like a fetch Response: with responseType 'json' the plugin hands
+      // us a parsed object, or the raw string if the body wasn't JSON
       return {
         status: res.status,
-        text: () => res.data,
-        json: () => res.data,
+        text: () => typeof res.data === 'string' ? res.data : JSON.stringify(res.data),
+        json: () => typeof res.data === 'string' ? JSON.parse(res.data) : res.data,
       }
     }
 
