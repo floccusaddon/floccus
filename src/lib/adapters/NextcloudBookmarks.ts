@@ -62,6 +62,30 @@ interface IChildOrderItem {
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Set lock every two minutes while syncing
 
+/**
+ * The form in which CapacitorHttp takes a multipart body (dataType 'formData'),
+ * the same its patched fetch hands the native side: files as base64
+ */
+async function serializeFormDataForNative(formData: FormData): Promise<Record<string, string>[]> {
+  const pairs: [string, string | File][] = []
+  formData.forEach((value, key) => pairs.push([key, value]))
+  const entries = []
+  for (const [key, value] of pairs) {
+    if (typeof value === 'string') {
+      entries.push({ key, value, type: 'string' })
+    } else {
+      entries.push({
+        key,
+        value: Base64.fromUint8Array(new Uint8Array(await value.arrayBuffer())),
+        type: 'base64File',
+        contentType: value.type || 'application/octet-stream',
+        fileName: value.name || 'blob',
+      })
+    }
+  }
+  return entries
+}
+
 export default class NextcloudBookmarksAdapter implements Adapter, BulkImportResource<typeof ItemLocation.SERVER>, LoadFolderChildrenResource<typeof ItemLocation.SERVER>, OrderFolderResource<typeof ItemLocation.SERVER>, ClickCountResource<typeof ItemLocation.SERVER> {
   private server: NextcloudBookmarksConfig
   private fetchQueue: PQueue<{ concurrency: 12 }>
@@ -1192,6 +1216,18 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     const authString = !this.ticket || this.ticketTimestamp + 60 * 60 * 1000 < Date.now()
       ? 'Basic ' + Base64.encode(this.server.username + ':' + this.server.password)
       : 'Bearer ' + this.ticket
+    // CapacitorHttp only takes strings and JSON: a FormData would go out as an
+    // empty JSON object (the import endpoint then answers "No file provided for
+    // import"), so hand it the multipart entries the native side assembles
+    let data = body
+    let dataType: 'formData' | undefined
+    let contentType = type
+    if (typeof FormData !== 'undefined' && body instanceof FormData) {
+      data = await serializeFormDataForNative(body)
+      dataType = 'formData'
+      // Android reads the boundary from the header, it doesn't make one up
+      contentType = 'multipart/form-data; boundary=----floccus' + Math.random().toString(36).slice(2)
+    }
     try {
       // CapacitorHttp can't abort a request, so a cancelled read only stops
       // being waited for
@@ -1203,12 +1239,13 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
             method: verb,
             disableRedirects: !this.server.allowRedirects,
             headers: {
-              ...(type && type !== 'multipart/form-data' && { 'Content-type': type }),
+              ...(contentType && contentType !== 'multipart/form-data' && { 'Content-type': contentType }),
               Authorization: authString,
               ...headers,
             },
             responseType: 'json',
-            ...(body && !['get', 'head'].includes(verb.toLowerCase()) && { data: body }),
+            ...(data && !['get', 'head'].includes(verb.toLowerCase()) && { data }),
+            ...(dataType && { dataType }),
           }),
           new Promise((resolve, reject) =>
             setTimeout(() => {
