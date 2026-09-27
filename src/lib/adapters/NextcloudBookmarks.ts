@@ -353,7 +353,8 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   async _getFolderHash(folderId:string|number):Promise<string> {
     const hashFn = {'sha256': 'sha256', 'murmur3': 'murmur3a', 'xxhash3': 'xxh32'}[this.hashSettings.hashFn]
-    if (this.capabilities && this.capabilities.bookmarks && this.capabilities.bookmarks['hash-function'] && !this.capabilities.bookmarks['hash-function'].includes[hashFn]) {
+    const supportedHashFns = this.capabilities?.bookmarks?.['hash-functions']
+    if (Array.isArray(supportedHashFns) && !supportedHashFns.includes(hashFn)) {
       throw new Error('Selected hash function is not supported by server')
     }
     // The server hashes bookmarks as json_encode of the requested fields, in the
@@ -1187,11 +1188,16 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   async getCapabilities(): Promise<ICapabilities> {
     let hashFn : THashFunction[] = ['sha256']
     if (this.capabilities && this.capabilities.bookmarks && typeof this.capabilities.bookmarks['hash-functions'] !== 'undefined') {
-      hashFn = this.capabilities.bookmarks['hash-functions'].map(hashFn => ({
+      const supported = this.capabilities.bookmarks['hash-functions'].map(hashFn => ({
         'sha256': 'sha256',
         'xxh32': 'xxhash3',
         'murmur3a': 'murmur3',
       }[hashFn]))
+        // Hash functions the server knows and we don't
+        .filter(Boolean)
+      if (supported.length) {
+        hashFn = supported
+      }
     }
     return {
       preserveOrder: true,
