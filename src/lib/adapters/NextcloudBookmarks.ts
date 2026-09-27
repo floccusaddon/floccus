@@ -615,6 +615,12 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       undefined,
       folder
     )
+    if (String(oldFolder.parentId) === String(folder.parentId)) {
+      // A rename: taking the folder out and appending it again would move it
+      // to the end of its parent
+      oldFolder.title = folder.title
+      return
+    }
     this.tree.removeFromIndex(oldFolder)
     // An old parent we don't know (any more) holds nothing to take the folder
     // out of in our tree
@@ -855,18 +861,22 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
       // The server has the update already. An old folder we don't know (any
       // more) holds nothing to take the bookmark out of in our tree, so failing
-      // here would only fail a sync over a change that went through
-      const oldParentFolder = this.tree.findFolder(oldParentId)
-      if (oldParentFolder) {
-        const oldBm = oldParentFolder.findBookmark(newBm.id)
-        oldParentFolder.children = oldParentFolder.children.filter(
-          (item) => !(item.type === 'bookmark' && item.id === newBm.id)
-        )
-        if (oldBm && this.tree) {
-          this.tree.removeFromIndex(oldBm)
+      // here would only fail a sync over a change that went through.
+      // A bookmark that stays in its folder is replaced in place below instead,
+      // so it keeps its position
+      if (String(oldParentId) !== String(newBm.parentId)) {
+        const oldParentFolder = this.tree.findFolder(oldParentId)
+        if (oldParentFolder) {
+          const oldBm = oldParentFolder.findBookmark(newBm.id)
+          oldParentFolder.children = oldParentFolder.children.filter(
+            (item) => !(item.type === 'bookmark' && item.id === newBm.id)
+          )
+          if (oldBm && this.tree) {
+            this.tree.removeFromIndex(oldBm)
+          }
+        } else {
+          Logger.log('(nextcloud-folders)UPDATE: old parent folder ' + oldParentId + ' is not in the tree, nothing to remove the bookmark from')
         }
-      } else {
-        Logger.log('(nextcloud-folders)UPDATE: old parent folder ' + oldParentId + ' is not in the tree, nothing to remove the bookmark from')
       }
       const newId = upstreamId + ';' + newBm.parentId
       // Look for the id the bookmark will have in its new folder, too: it may
