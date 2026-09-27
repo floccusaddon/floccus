@@ -903,23 +903,41 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
           undefined,
           bookmark,
         )
-        // Remove the bookmark from the cached list -- but only if we have one
-        // already: fetching it here would page through every bookmark in the
-        // account for the sake of a single splice (cf. createBookmark)
-        if (this.list) {
-          const listIndex = this.list.findIndex(
-            (bookmark) =>
-              String(bookmark.id) === String(upstreamId) &&
-              String(bookmark.parentId) === String(parentId)
-          )
-          // The list holds one entry per folder the bookmark sits in, so the
-          // entry to drop is the one for the folder we just removed it from
-          if (listIndex !== -1) {
-            this.list.splice(listIndex, 1)
-          }
-        }
       } catch (e) {
+        // Move on only if the bookmark is gone already (404) or we may not
+        // remove it (403, e.g. a read-only shared folder -- the next sync brings
+        // it back). Anything else (network error, cancellation, 5xx) would have
+        // the sync record a removal that never happened
+        if (!(e instanceof HttpError && e.status === 404) && !(e instanceof AuthenticationError)) {
+          throw e
+        }
         Logger.log('Error removing bookmark from folder: ' + e.message + '\n Moving on.')
+      }
+      // Remove the bookmark from the cached list -- but only if we have one
+      // already: fetching it here would page through every bookmark in the
+      // account for the sake of a single splice (cf. createBookmark)
+      if (this.list) {
+        const listIndex = this.list.findIndex(
+          (bookmark) =>
+            String(bookmark.id) === String(upstreamId) &&
+            String(bookmark.parentId) === String(parentId)
+        )
+        // The list holds one entry per folder the bookmark sits in, so the
+        // entry to drop is the one for the folder we just removed it from
+        if (listIndex !== -1) {
+          this.list.splice(listIndex, 1)
+        }
+      }
+      const parentFolder = this.tree && this.tree.findFolder(parentId)
+      if (parentFolder) {
+        const treeId = upstreamId + ';' + parentId
+        const oldBm = parentFolder.children.find(
+          (item) => item.type === 'bookmark' && String(item.id) === treeId
+        )
+        if (oldBm) {
+          this.tree.removeFromIndex(oldBm)
+          parentFolder.children = parentFolder.children.filter((item) => item !== oldBm)
+        }
       }
     })
   }
@@ -947,7 +965,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
         try {
           const url = `javascript:void(${Math.random()})`
           const id = await this.createBookmark(new Bookmark({id: null, parentId: '-1', title: 'floccus', url, location: ItemLocation.SERVER}))
+          // The server took the link, so a failing clean-up says nothing about the feature
           await this.removeBookmark(new Bookmark({id, parentId: '-1', title: 'floccus', url, location: ItemLocation.SERVER}))
+            .catch((e) => Logger.log('Failed to remove javascript link probe: ' + e.message))
         } catch (e) {
           this.hasFeatureJavascriptLinks = false
         }
