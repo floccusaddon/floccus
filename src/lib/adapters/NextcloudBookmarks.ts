@@ -70,7 +70,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   private list: Bookmark<typeof ItemLocation.SERVER>[]
   private tree: Folder<typeof ItemLocation.SERVER>
   private canceled = false
-  private cancelCallback: () => void = null
+  private cancelGeneration = 0
   private lockingInterval: any
   private lockingPromise: Promise<boolean>
   private ended = false
@@ -171,6 +171,9 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     }
 
     // if needLock -- we always need it
+    // Not the state of the previous sync: if acquiring throws, onSyncFail must
+    // not release a lock we don't hold
+    this.locked = false
     this.locked = await this.acquireLock()
     if (forceLock) {
       this.locked = true
@@ -199,8 +202,25 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   cancel() {
     this.canceled = true
-    this.fetchQueue.clear()
-    this.cancelCallback && this.cancelCallback()
+    // Don't clear the fetchQueue: p-queue drops cleared tasks without settling
+    // their promises, and the sync waits for in-flight mutations after a cancel
+    // (Default#raceWithCancellation). Requests queued so far reject instead once
+    // they're dequeued; the ones sent after this (releasing the lock) still go out
+    this.cancelGeneration++
+  }
+
+  /**
+   * Queue a request, rejecting it without sending anything if the sync is
+   * cancelled before it gets its turn
+   */
+  private enqueueRequest<T>(send: () => Promise<T>): Promise<T> {
+    const generation = this.cancelGeneration
+    return this.fetchQueue.add(() => {
+      if (generation !== this.cancelGeneration) {
+        return Promise.reject(new CancelledSyncError())
+      }
+      return send()
+    })
   }
 
   async getBookmarksList():Promise<Bookmark<typeof ItemLocation.SERVER>[]> {
@@ -985,7 +1005,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
     const abortSignal = abortController.signal
 
     try {
-      res = await this.fetchQueue.add(() => {
+      res = await this.enqueueRequest(() => {
         Logger.log(`FETCHING ${verb} ${url}`)
         return Promise.race([
           fetch(url, {
@@ -1080,20 +1100,28 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
 
   private async releaseLock():Promise<boolean> {
     if (this.lockingPromise) {
-      await this.lockingPromise
+      // The periodic refresh swallows its errors, but this is the same promise:
+      // a refresh that failed mid-sync must not fail the sync now that it's over
+      await this.lockingPromise.catch(() => { /* pass */ })
     }
     if (!this.locked) {
-      return
+      return false
     }
-    const res = await this.sendRequest(
-      'DELETE',
-      'index.php/apps/bookmarks/public/rest/v2/lock',
-      null,
-      null,
-      true
-    )
-
-    return res.status === 200
+    this.locked = false
+    try {
+      const res = await this.sendRequest(
+        'DELETE',
+        'index.php/apps/bookmarks/public/rest/v2/lock',
+        null,
+        null,
+        true
+      )
+      return res.status === 200
+    } catch (e) {
+      // The server lets the lock expire on its own
+      Logger.log('Failed to release the lock: ' + e.message)
+      return false
+    }
   }
 
   private async sendRequestNative(verb: string, url: string, type: string, body: any, returnRawResponse: boolean, headers = {}, item: TItem<TItemLocation> = null) {
@@ -1103,7 +1131,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       ? 'Basic ' + Base64.encode(this.server.username + ':' + this.server.password)
       : 'Bearer ' + this.ticket
     try {
-      res = await this.fetchQueue.add(() => {
+      res = await this.enqueueRequest(() => {
         Logger.log(`FETCHING ${verb} ${url}`)
         return Promise.race([
           Http.request({
@@ -1128,6 +1156,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
       })
     } catch (e) {
       if (timedOut) throw e
+      if (this.canceled) throw new CancelledSyncError()
       console.log(e)
       throw new NetworkError()
     }
