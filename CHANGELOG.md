@@ -1,5 +1,82 @@
 # Changelog
 
+## [5.11.0] - 2026-09-27
+
+### Summary
+- Over 60 small and larger performance and correctness fixes, especially for Android and iOS.
+- Support for tags on Android and iOS, for adapters that support them.
+- Git support on Android and iOS
+
+### New
+* [native] feat: Support tags on Android and iOS
+* [native] feat: Display tags of the current folder in a sheet below the top bar
+* [native] feat: Allow searching for multiple tags and allow matching tags by searches partially
+* [native] feat(git): Make git work on native
+* [native] feat: Don't let screen go dark during sync
+
+### Fixed
+* fix(OAuth): Prompt people to re-login if they do cross-device imports of OAuth profiles
+* [native] perf: Implement SQLite-backed tree storage
+* [native] perf: Move logs to sqlite
+* [native] perf: Move cache tree to sqlite
+* [native] perf(sqlite): Flush in a microtask instead of using setTimeout
+* [native] perf: Actually use NativeTree#bulkImportFolder during sync
+* perf: Use a global iterations counter for serializing the tree asynchronously to give the runtime breathing room
+* perf: Remove unnecessary Parallel.map(.., 1) call
+* perf: Optimize Diff usage
+* perf: Optimize cache persistence
+* perf: Scale progressInterval with tree size
+* perf(NextcloudBookmarks): Do not load all bookmarks just to delete a bookmark
+* perf: Track pending continuation in SQLite/IndexedDB
+* perf: Simple speed up of continuation serialization
+* perf(tree): Avoid rebuilding index on every mutation
+* [native] fix(NextcloudBookmarks): Fix bulkImport
+* [native] fix: Introduce preferences setters
+* [native] refactor: Make UI read from sqlite
+* [native] refactor: Keep & invalidate folder hashes rather than recomputing them
+* [native] fix: Update Podfile and cap config
+* [native] fix(tags): Sort tags in normalizeTags
+* [native] fix(tests): Use different URLs for each test and fix tags convergence
+* [native] tests(tags): Add tags tests to Appium test suite
+* [native] fix: Make sure search items are updated when the tree changes
+* fix(ui): Fix flickering redraws
+* fix(SyncProcess): Fix reorder reconciliation
+* fix(NextcloudBookmarks): Abort read requests on cancel
+* fix(NextcloudBookmarks): Fix handling of javascript bookmarks
+* fix(NextcloudBookmarks): Fix update{Bookmark,Folder} to not reorder without parent changes
+* fix(NextcloudBookmarks): Fix sendOCSRequest
+* fix(NextcloudBookmarks): Fix removeBookmark
+* fix(NextcloudBookmarks): correct createBookmark bookkeeping
+* fix(NextcloudBookmarks): Fix locking and cancel logic
+* fix(NextcloudBookmarks): Fix hash function handling
+* fix(NextcloudBookmarks): Don't fail if parent in update{Folder,Bookmark} can't be found
+* fix(NextcloudBookmarks): Don't fail if parent in updateBookmark can't be found
+* fix(SyncProcess): Make sure we map the contents of a folder re-created because its origin was removed
+* fix(Linkwarden): Do not leak isRoot flags for non-root folders
+* fix(NextcloudBookmarks#bulkImport): Make sure all chunked bulkImports get added to the target folder, not just the last
+* fix(bulkImport): Make sure chunked bulkImports get added to mappings
+* fix(Continuation): Don't apply failsafe for resumed sync runs
+* fix(Continuation): Don't fail sync if continuation can't be read
+* fix(Continuation): Check the right strategy when resuming
+* fix(Continuation): Resume at reorder stage if reorders are persisted
+* fix(Continuation): Persist continuation one last time upon sync failure
+* fix(NativeCacheStore): Don't drop statements when saving fails
+* fix(SyncProcess): Correct stage 3 members to persist condition
+* fix(Diff): Copy actions and seqs in getPendingChangesAsync
+* fix(tests): Make order check adapter dependent
+* fix(SyncProcess): Make failsafe less agressive for tab sync
+* fix(Scanner): Allow moving a folder into its own descendant iff it was moved out of the folder
+* fix(NextcloudBookmarks): Don't stop loading sparse tree too early
+* fix: enhance snapshot management in Mappings
+* fix: Introduce clearContinuation, resolve quadratic tree scans at sync start
+* fix: Throw LocalFolderNotFound instead of creating random folders, do not disable newly-imported profiles
+* fix(BrowserTree): Do not move bookmarks to end of folder upon rename
+* fix(Dropbox): Retry 500 errors
+* fix: Cleanup mappings for missing local and server items
+* fix: Fix race in SQLite/IndexedDB continuation code
+* fix(Tree#updateIndex): Rebuild item index to account for adapter ID rewriting
+* fix(Linkwarden): Retry requests for 5xx responses
+
 ## [5.10.3] - 2026-08-30
 
 ### New
