@@ -12,7 +12,7 @@
     "message": "E004: Seda kausta pole olemas, kuhu sa soovid liikuda"
   },
   "Error005": {
-    "message": "E005: Seda kausta pole olemas, kus sa soovid sisu luua"
+    "message": "E005: Uuendatavat kausta ülemkausta pole olemas"
   },
   "Error006": {
     "message": "E006: Uuendatavat kausta pole olemas"
@@ -111,7 +111,7 @@
     "message": "E037: Ressurss on lukustatud"
   },
   "Error038": {
-    "message": "E038: Ei õnnestunud leida kohalikku kausta"
+    "message": "E038: Selle profiili kohaliku kausta leidmine ei õnnestunud. Palun vali profiili seadistustest sünkroonitav kaust."
   },
   "Error039": {
     "message": "E039: Ei õnnestunud veebiserveris uuendada järgnevat järjehoidjat: {0}"
@@ -277,6 +277,9 @@
   },
   "DescriptionImportauthorizationneeded": {
     "message": "Profiili(de) importimine õnnestus. Kasutajakontosid ja salasõna ei saa seadmete vahel ümber tõsta, seega kui kasutad Google Drive'i või Dropboxi, siis pead esmalt nendesse teenustesse sisse logima ja alles siis saab sünkroonimine toimida."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "Profiili(de) importimine õnnestus. Profiilikaustu ei saa üle seadmete tuvastada, seega kohalik kaust, kuhu tahad selle profiili sünkroonida."
   },
   "LabelReset": {
     "message": "Lähtesta"
@@ -808,7 +811,7 @@
     "message": "Git üle HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Git-variant sünkroonib teie järjehoidjad, salvestades need faili etteantud Git-repositooriumis. Selle valikuga ei ole kaasas veebi kasutajaliidest, kuid seda saab kasutada mis tahes Git-hostinguserveriga, nagu Github, Gitlab, Gitea jne. See võib sünkroonida http-, ftp-, andme-, faili- ja javascript- järjehoidjaid. Selle valiku kasutamisel ei saa kasutada otsast lõpuni krüpteerimist. See valik ei ole praegu mobiilirakenduses saadaval."
+    "message": "Git-valik sünkroonib su järjehoidjad, salvestades need failina antud Git-hoidlasse. Sellel valikul puudub kaasnev veebiliides, kuid saad seda kasutada mis tahes Giti hostinguteenusega, nagu GitHub, GitLab, Gitea jne. See suudab sünkroonida http-, ftp-, andme-, faili- ja javascript-järjehoidjaid. Selle valiku kasutamisel ei saa kasutada läbivat krüptimist."
   },
   "LabelGiturl": {
     "message": "Hoiukoha URL, kasutades HTTP"
