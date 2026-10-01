@@ -12,7 +12,7 @@
     "message": "E004：要移动到的文件夹不存在"
   },
   "Error005": {
-    "message": "E005：要创建的文件夹不存在"
+    "message": "E005: 要更新的文件夹的最上层目录不存在"
   },
   "Error006": {
     "message": "E006：要更新的文件夹不存在"
@@ -811,7 +811,7 @@
     "message": "HTTPS 连接的 Git"
   },
   "DescriptionAdaptergit": {
-    "message": "Git 选项通过将书签存储在所提供的 Git 仓库中的文件中来同步书签。该选项没有配套的网页用户界面，但可以与任何 Git 托管服务器一起使用，如 Github、Gitlab、Gitea 等。它可以同步 http、ftp、数据、文件和 javascript 书签。使用该选项时，不能使用端到端加密。该选项目前不适用于手机应用。"
+    "message": "Git 选项通过将书签存储在所提供的 Git 仓库中的一个文件内来进行书签同步。此选项没有伴随的 web 用户界面，但你可以通过任意 Git 托管服务器，比如 GitHub、Gitlab、Gitea 等使用它。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时，你无法使用端到端加密。"
   },
   "LabelGiturl": {
     "message": "使用 HTTP 的存储库 URL"
