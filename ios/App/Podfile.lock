@@ -1,66 +1,91 @@
 PODS:
-  - ByteowlsCapacitorOauth2 (5.0.0):
+  - Capacitor (8.5.2):
+    - CapacitorCordova
+  - CapacitorApp (8.1.1):
+    - Capacitor
+  - CapacitorBrowser (8.0.4):
+    - Capacitor
+  - CapacitorCommunityGenericOauth2 (7.1.0):
     - Capacitor
     - OAuthSwift (= 2.2.0)
-  - Capacitor (7.1.0):
-    - CapacitorCordova
-  - CapacitorApp (7.0.0):
+  - CapacitorCommunityKeepAwake (8.0.1):
     - Capacitor
-  - CapacitorBrowser (7.0.0):
+  - CapacitorCommunitySqlite (8.1.1):
     - Capacitor
-  - CapacitorCordova (7.1.0)
-  - CapacitorDevice (7.0.0):
+    - SQLCipher
+    - ZIPFoundation
+  - CapacitorCordova (8.5.2)
+  - CapacitorDevice (8.0.3):
     - Capacitor
-  - CapacitorFilesystem (7.0.0):
+  - CapacitorFilesystem (8.1.3):
     - Capacitor
-  - CapacitorNetwork (7.0.0):
+    - IONFilesystemLib (~> 1.1.1)
+  - CapacitorLocalNotifications (8.3.1):
     - Capacitor
-  - CapacitorPreferences (7.0.0):
+  - CapacitorNetwork (8.0.1):
     - Capacitor
-  - CapacitorShare (7.0.0):
+  - CapacitorPreferences (8.0.1):
     - Capacitor
-  - CapacitorSplashScreen (7.0.0):
+  - CapacitorShare (8.0.2):
     - Capacitor
-  - CapacitorStatusBar (7.0.1):
+  - CapacitorSplashScreen (8.0.2):
     - Capacitor
+  - IONFilesystemLib (1.1.4)
   - OAuthSwift (2.2.0)
   - SendIntent (7.0.0):
     - Capacitor
+  - SQLCipher (4.10.0):
+    - SQLCipher/standard (= 4.10.0)
+  - SQLCipher/common (4.10.0)
+  - SQLCipher/standard (4.10.0):
+    - SQLCipher/common
+  - ZIPFoundation (0.9.20)
 
 DEPENDENCIES:
-  - "ByteowlsCapacitorOauth2 (from `../../node_modules/@byteowls/capacitor-oauth2`)"
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorBrowser (from `../../node_modules/@capacitor/browser`)"
+  - "CapacitorCommunityGenericOauth2 (from `../../node_modules/@capacitor-community/generic-oauth2`)"
+  - "CapacitorCommunityKeepAwake (from `../../node_modules/@capacitor-community/keep-awake`)"
+  - "CapacitorCommunitySqlite (from `../../node_modules/@capacitor-community/sqlite`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
   - "CapacitorFilesystem (from `../../node_modules/@capacitor/filesystem`)"
+  - "CapacitorLocalNotifications (from `../../node_modules/@capacitor/local-notifications`)"
   - "CapacitorNetwork (from `../../node_modules/@capacitor/network`)"
   - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
   - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
   - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
-  - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - SendIntent (from `../../node_modules/send-intent`)
 
 SPEC REPOS:
   trunk:
+    - IONFilesystemLib
     - OAuthSwift
+    - SQLCipher
+    - ZIPFoundation
 
 EXTERNAL SOURCES:
-  ByteowlsCapacitorOauth2:
-    :path: "../../node_modules/@byteowls/capacitor-oauth2"
   Capacitor:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorApp:
     :path: "../../node_modules/@capacitor/app"
   CapacitorBrowser:
     :path: "../../node_modules/@capacitor/browser"
+  CapacitorCommunityGenericOauth2:
+    :path: "../../node_modules/@capacitor-community/generic-oauth2"
+  CapacitorCommunityKeepAwake:
+    :path: "../../node_modules/@capacitor-community/keep-awake"
+  CapacitorCommunitySqlite:
+    :path: "../../node_modules/@capacitor-community/sqlite"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorDevice:
     :path: "../../node_modules/@capacitor/device"
   CapacitorFilesystem:
     :path: "../../node_modules/@capacitor/filesystem"
+  CapacitorLocalNotifications:
+    :path: "../../node_modules/@capacitor/local-notifications"
   CapacitorNetwork:
     :path: "../../node_modules/@capacitor/network"
   CapacitorPreferences:
@@ -69,27 +94,30 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/share"
   CapacitorSplashScreen:
     :path: "../../node_modules/@capacitor/splash-screen"
-  CapacitorStatusBar:
-    :path: "../../node_modules/@capacitor/status-bar"
   SendIntent:
     :path: "../../node_modules/send-intent"
 
 SPEC CHECKSUMS:
-  ByteowlsCapacitorOauth2: 9e7cdae2bf251463a6ad89493e27fb288bf694d7
-  Capacitor: 68ff8eabbcce387e69767c13b5fbcc1c5399eabc
-  CapacitorApp: 45cb7cbef4aa380b9236fd6980033eb5cde6fcd2
-  CapacitorBrowser: 352a66541b15ceadae1d703802b11979023705e3
-  CapacitorCordova: 866217f32c1d25b326c568a10ea3ed0c36b13e29
-  CapacitorDevice: 62066b65e148a133df7b8c5bf972ba835b329748
-  CapacitorFilesystem: 2881ad012b5c8d0ffbfed1216aadfc2cca16d5b5
-  CapacitorNetwork: cd17b98182841055ff58629213242a1f22f4a76b
-  CapacitorPreferences: e24a50a936f0e4f54a6b43be6121f923b4d91c27
-  CapacitorShare: 2fcf1758cd07e0558f6aed40d7437bf8a3a42297
-  CapacitorSplashScreen: f4e58cc02aafd91c7cbaf32a3d1b44d02a115125
-  CapacitorStatusBar: 275cbf2f4dfc00388f519ef80c7ec22edda342c9
+  Capacitor: 59aea4e8bd98b24b798919b4c55ae90c6ded1b0d
+  CapacitorApp: 9fd99482b6536ddf1a54721ce678145fc7fa3418
+  CapacitorBrowser: 553fcb154526484a5d12efc38093d3f781cb6a82
+  CapacitorCommunityGenericOauth2: 9fa772c355d0a2227934f5a6cef7fa686a4fc99d
+  CapacitorCommunityKeepAwake: 4eaeafc83573f2520fac18e136254ef34694f75b
+  CapacitorCommunitySqlite: c81d3d8e8081bf1e84a6924cb34295c2488bee29
+  CapacitorCordova: 5bec5648cbd09a176ce34ce5e7b6cdabb2c8a327
+  CapacitorDevice: e5599fa82274e59220170995826a16095ad20c40
+  CapacitorFilesystem: 8ad396fd0d680c15d018577f3d92dc1397f477de
+  CapacitorLocalNotifications: ab98bfae3fa8646b1fadd79485ce1be010dea21f
+  CapacitorNetwork: 7afc28ed4d9abe1d9801264fa485db32e4420546
+  CapacitorPreferences: 0fa33b3affebf12d96358b491ed7c2b39bec3270
+  CapacitorShare: fdeee71ebc13dca43967805adf2dea57871c216a
+  CapacitorSplashScreen: 120117d1b2264bba31a6e6f998f51e510144dd12
+  IONFilesystemLib: e6610c2b260d15e4b9cb9d5e37a87095479b669e
   OAuthSwift: 75efbb5bd9a4b2b71a37bd7e986bf3f55ddd54c6
   SendIntent: 1f4f65c7103eb423067c566682dfcda973b5fb29
+  SQLCipher: eb79c64049cb002b4e9fcb30edb7979bf4706dfc
+  ZIPFoundation: dfd3d681c4053ff7e2f7350bc4e53b5dba3f5351
 
-PODFILE CHECKSUM: 5f190d3cd506bedc6bc77c16b4323e26407cdc66
+PODFILE CHECKSUM: bcafade0ad83ed800c284ca5f677fa07d832dd86
 
 COCOAPODS: 1.16.2

@@ -10,6 +10,7 @@
 		1899960429CCBA1B00ABC3E8 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1899960329CCBA1B00ABC3E8 /* ShareViewController.swift */; };
 		1899960729CCBA1B00ABC3E8 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1899960529CCBA1B00ABC3E8 /* MainInterface.storyboard */; };
 		1899960B29CCBA1B00ABC3E8 /* Floccus New Bookmark.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1899960129CCBA1B00ABC3E8 /* Floccus New Bookmark.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		1F906E1B306F938C00F99E08 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F906E1A306F938700F99E08 /* SceneDelegate.swift */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
@@ -18,7 +19,6 @@
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		6B88521CD855DCA28EAC1BE5 /* Pods_Floccus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23FA6294FCBA0AC6DC143E4E /* Pods_Floccus.framework */; };
-		54B9BA8802F9418BB162F5A7 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A34F8F589644E79905C533 /* SceneDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +52,7 @@
 		1899960829CCBA1B00ABC3E8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1899961029CCBD1500ABC3E8 /* Floccus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Floccus.entitlements; sourceTree = "<group>"; };
 		1899961129CCBDC200ABC3E8 /* Floccus New Bookmark.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Floccus New Bookmark.entitlements"; sourceTree = "<group>"; };
+		1F906E1A306F938700F99E08 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		23FA6294FCBA0AC6DC143E4E /* Pods_Floccus.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Floccus.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
 		41DE44AD46A3CE4E928BF069 /* Pods-Floccus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Floccus.release.xcconfig"; path = "Pods/Target Support Files/Pods-Floccus/Pods-Floccus.release.xcconfig"; sourceTree = "<group>"; };
@@ -64,7 +65,6 @@
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
 		542E249E2135C33B327D918E /* Pods-Floccus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Floccus.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Floccus/Pods-Floccus.debug.xcconfig"; sourceTree = "<group>"; };
-		C5A34F8F589644E79905C533 /* SceneDelegate.swift */ = {isa = PBXFileReference; name = "SceneDelegate.swift"; path = "SceneDelegate.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +129,7 @@
 		504EC3061FED79650016851F /* App */ = {
 			isa = PBXGroup;
 			children = (
+				1F906E1A306F938700F99E08 /* SceneDelegate.swift */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
@@ -137,7 +138,6 @@
 				504EC3131FED79650016851F /* Info.plist */,
 				2FAD9762203C412B000D30F8 /* config.xml */,
 				50B271D01FEDC1A000F3C39B /* public */,
-				C5A34F8F589644E79905C533 /* SceneDelegate.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -305,7 +305,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
-				54B9BA8802F9418BB162F5A7 /* SceneDelegate.swift in Sources */,
+				1F906E1B306F938C00F99E08 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
