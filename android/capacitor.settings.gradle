@@ -2,8 +2,8 @@
 include ':capacitor-android'
 project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')
 
-include ':byteowls-capacitor-oauth2'
-project(':byteowls-capacitor-oauth2').projectDir = new File('../node_modules/@byteowls/capacitor-oauth2/android')
+include ':capacitor-community-generic-oauth2'
+project(':capacitor-community-generic-oauth2').projectDir = new File('../node_modules/@capacitor-community/generic-oauth2/android')
 
 include ':capacitor-community-keep-awake'
 project(':capacitor-community-keep-awake').projectDir = new File('../node_modules/@capacitor-community/keep-awake/android')
@@ -37,9 +37,6 @@ project(':capacitor-share').projectDir = new File('../node_modules/@capacitor/sh
 
 include ':capacitor-splash-screen'
 project(':capacitor-splash-screen').projectDir = new File('../node_modules/@capacitor/splash-screen/android')
-
-include ':capacitor-status-bar'
-project(':capacitor-status-bar').projectDir = new File('../node_modules/@capacitor/status-bar/android')
 
 include ':send-intent'
 project(':send-intent').projectDir = new File('../node_modules/send-intent/android')

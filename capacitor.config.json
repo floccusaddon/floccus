@@ -16,9 +16,6 @@
     },
     "CapacitorHttp": {
       "enabled": true
-    },
-    "StatusBar": {
-      "overlaysWebView": false
     }
   },
   "cordova": {},

@@ -16,9 +16,6 @@
 		},
 		"CapacitorHttp": {
 			"enabled": true
-		},
-		"StatusBar": {
-			"overlaysWebView": false
 		}
 	},
 	"cordova": {},
@@ -28,7 +25,7 @@
 		"minHuaweiWebViewVersion": 12
 	},
 	"packageClassList": [
-		"OAuth2ClientPlugin",
+		"GenericOAuth2Plugin",
 		"KeepAwakePlugin",
 		"CapacitorSQLitePlugin",
 		"AppPlugin",
@@ -40,7 +37,6 @@
 		"PreferencesPlugin",
 		"SharePlugin",
 		"SplashScreenPlugin",
-		"StatusBarPlugin",
 		"SendIntentPlugin"
 	]
 }

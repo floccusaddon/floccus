@@ -9,7 +9,7 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
-    implementation project(':byteowls-capacitor-oauth2')
+    implementation project(':capacitor-community-generic-oauth2')
     implementation project(':capacitor-community-keep-awake')
     implementation project(':capacitor-community-sqlite')
     implementation project(':capacitor-app')
@@ -21,7 +21,6 @@ dependencies {
     implementation project(':capacitor-preferences')
     implementation project(':capacitor-share')
     implementation project(':capacitor-splash-screen')
-    implementation project(':capacitor-status-bar')
     implementation project(':send-intent')
 
 }

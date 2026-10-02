@@ -1,7 +1,7 @@
 [
 	{
-		"pkg": "@byteowls/capacitor-oauth2",
-		"classpath": "com.byteowls.capacitor.oauth2.OAuth2ClientPlugin"
+		"pkg": "@capacitor-community/generic-oauth2",
+		"classpath": "com.getcapacitor.community.genericoauth2.GenericOAuth2Plugin"
 	},
 	{
 		"pkg": "@capacitor-community/keep-awake",
@@ -46,10 +46,6 @@
 	{
 		"pkg": "@capacitor/splash-screen",
 		"classpath": "com.capacitorjs.plugins.splashscreen.SplashScreenPlugin"
-	},
-	{
-		"pkg": "@capacitor/status-bar",
-		"classpath": "com.capacitorjs.plugins.statusbar.StatusBarPlugin"
 	},
 	{
 		"pkg": "send-intent",

@@ -13,7 +13,7 @@ import {
   DropboxTemplateError,
   ParseResponseError,
 } from '../../errors/Error'
-import { OAuth2Client } from '@byteowls/capacitor-oauth2'
+import { GenericOAuth2 as OAuth2Client } from '@capacitor-community/generic-oauth2'
 import { Capacitor, CapacitorHttp as Http } from '@capacitor/core'
 import { Folder, TItemLocation } from '../Tree'
 
