@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.11.1] - 2026-10-02
+
+### Fixed
+- fix: Update dependencies
+- chore: Upgrade to capacitor v8.5
+
 ## [5.11.0] - 2026-09-27
 
 ### Summary
