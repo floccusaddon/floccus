@@ -20,6 +20,18 @@ allprojects {
     }
 }
 
+// Some plugins (e.g. send-intent 7.x) hardcode an older compileSdk, which fails the
+// AAR metadata check against the androidx versions Capacitor 8 pulls in
+subprojects {
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin('com.android.library')) {
+            project.android {
+                compileSdkVersion rootProject.ext.compileSdkVersion
+            }
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
