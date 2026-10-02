@@ -29,8 +29,8 @@ jobs:
       # do not stop on another job's failure
       fail-fast: false
       matrix:
-        node-version: [ 20.x ]
-        npm-version: [ 10.x ]
+        node-version: [ 22.x ]
+        npm-version: [ 11.x ]
 
     steps:
       - name: Checkout floccus
@@ -85,8 +85,8 @@ jobs:
       # do not stop on another job's failure
       fail-fast: false
       matrix:
-        node-version: [20.x]
-        npm-version: [10.x]
+        node-version: [22.x]
+        npm-version: [11.x]
         server-version: ['35']
         app-version: ['stable']
         seed: ["${{ github.sha }}"]
@@ -116,48 +116,48 @@ jobs:
             floccus-adapter: nextcloud-bookmarks
             test-name: test
             browsers: firefox
-            node-version: 14.x
-            npm-version: 7.x
+            node-version: 22.x
+            npm-version: 11.x
             seed: ${{ github.sha }}
           - app-version: master
             server-version: 35
             floccus-adapter: nextcloud-bookmarks
             test-name: benchmark root
             browsers: firefox
-            node-version: 14.x
-            npm-version: 7.x
+            node-version: 22.x
+            npm-version: 11.x
             seed: ${{ github.sha }}
           - app-version: master
             server-version: 35
             floccus-adapter: nextcloud-bookmarks
             test-name: benchmark root
             browsers: chrome
-            node-version: 14.x
-            npm-version: 7.x
+            node-version: 22.x
+            npm-version: 11.x
             seed: ${{ github.sha }}
           - app-version: stable
             server-version: 35
             floccus-adapter: fake-noCache
             test-name: test
             browsers: firefox
-            node-version: 14.x
-            npm-version: 7.x
+            node-version: 22.x
+            npm-version: 11.x
             seed: ${{ github.sha }}
           - app-version: master
             server-version: 35
             floccus-adapter: fake
             test-name: benchmark root
             browsers: firefox
-            node-version: 14.x
-            npm-version: 7.x
+            node-version: 22.x
+            npm-version: 11.x
             seed: ${{ github.sha }}
           - app-version: master
             server-version: 35
             floccus-adapter: fake
             test-name: benchmark root
             browsers: chrome
-            node-version: 14.x
-            npm-version: 7.x
+            node-version: 22.x
+            npm-version: 11.x
             seed: ${{ github.sha }}
 
     name: ${{ matrix.browsers == 'firefox' && '🦊' || '🔵' }} ${{matrix.floccus-adapter}}:${{ matrix.test-name}} ⭐${{ matrix.app-version }} ${{ matrix.test-name == 'benchmark root' && matrix.seed != github.sha && '🌱' || ''}}${{ matrix.test-name == 'benchmark root' && matrix.seed != github.sha && matrix.seed || ''}}

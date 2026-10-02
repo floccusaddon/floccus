@@ -33,8 +33,8 @@ jobs:
       fail-fast: false
       matrix:
         language: [ 'javascript' ]
-        node-versions: [14.x]
-        npm-versions: [8.x]
+        node-versions: [12.x]
+        npm-versions: [11.x]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 
