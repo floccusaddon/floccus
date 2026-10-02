@@ -33,7 +33,7 @@ jobs:
       fail-fast: false
       matrix:
         language: [ 'javascript' ]
-        node-versions: [12.x]
+        node-versions: [22.x]
         npm-versions: [11.x]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
@@ -60,8 +60,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-versions }}
 
-    - name: Set up npm ${{ matrix.npm-version }}
-      run: npm i -g npm@"${{ matrix.npm-version }}"
+    - name: Set up npm ${{ matrix.npm-versions }}
+      run: npm i -g npm@"${{ matrix.npm-versions }}"
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
