@@ -1,6 +1,6 @@
 import UIKit
 import Capacitor
-import SendIntent
+import MindlibCapacitorSendIntent
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -33,10 +33,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if(titles.count > 0){
             for index in 0...titles.count-1 {
                 var shareItem: JSObject = JSObject()
-                shareItem["title"] = titles[index].value!.removingPercentEncoding
-                shareItem["description"] = descriptions[index].value!.removingPercentEncoding
-                shareItem["type"] = types[index].value!.removingPercentEncoding
-                shareItem["url"] = urls[index].value!.removingPercentEncoding
+                shareItem["title"] = titles[index].value!
+                shareItem["description"] = descriptions[index].value!
+                shareItem["type"] = types[index].value!
+                shareItem["url"] = urls[index].value!
                 store.shareItems.append(shareItem)
             }
         }

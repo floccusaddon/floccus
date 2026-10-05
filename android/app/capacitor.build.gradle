@@ -21,7 +21,7 @@ dependencies {
     implementation project(':capacitor-preferences')
     implementation project(':capacitor-share')
     implementation project(':capacitor-splash-screen')
-    implementation project(':send-intent')
+    implementation project(':mindlib-capacitor-send-intent')
 
 }
 

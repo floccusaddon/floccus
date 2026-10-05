@@ -123,7 +123,7 @@
     "p-queue": "^5.0.0",
     "punycode": "^2.1.1",
     "random": "^2.2.0",
-    "send-intent": "7.x",
+    "@mindlib-capacitor/send-intent": "8.x",
     "stream-browserify": "^3.0.0",
     "throttle-debounce": "^2.3.0",
     "ts-xxhash": "^1.0.6",

@@ -46,15 +46,28 @@ class ShareViewController: UIViewController {
     }
     
     fileprivate func createSharedFileUrl(_ url: URL?) -> String {
+        guard let sourceUrl = url else {
+            return ""
+        }
+
         let fileManager = FileManager.default
-        
-        let copyFileUrl =
-        fileManager.containerURL(forSecurityApplicationGroupIdentifier: "group.org.handmadeideas.floccus")!
-            .absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)! + url!
-            .lastPathComponent.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-        try? Data(contentsOf: url!).write(to: URL(string: copyFileUrl)!)
-        
-        return copyFileUrl
+        guard let containerUrl = fileManager.containerURL(
+            forSecurityApplicationGroupIdentifier: "group.org.handmadeideas.floccus"
+        ) else {
+            print("Failed to resolve app group container URL")
+            return ""
+        }
+
+        let sanitizedName = sourceUrl.lastPathComponent.replacingOccurrences(of: "/", with: "_")
+        let destinationUrl = containerUrl.appendingPathComponent("\(UUID().uuidString)_\(sanitizedName)")
+
+        do {
+            try fileManager.copyItem(at: sourceUrl, to: destinationUrl)
+            return destinationUrl.absoluteString
+        } catch {
+            print("Failed to copy shared file: \(error.localizedDescription)")
+            return ""
+        }
     }
     
     func saveScreenshot(_ image: UIImage, _ index: Int) -> String {
@@ -179,28 +192,15 @@ class ShareViewController: UIViewController {
         }
     }
     
-    @objc func openURL(_ url: URL) -> Bool {
+    @objc func openURL(_ url: URL) {
         var responder: UIResponder? = self
         while responder != nil {
             if let application = responder as? UIApplication {
-                if #available(iOS 10.0, *) {
-                    // Use the updated API for iOS 10 and later
-                    application.open(url, options: [:], completionHandler: { success in
-                        if success {
-                            print("URL opened successfully")
-                        } else {
-                            print("Failed to open URL")
-                        }
-                    })
-                    return true
-                } else {
-                    // Fallback for iOS 9 or earlier, if needed
-                    return application.openURL(url)
-                }
+                application.open(url, options: [:], completionHandler: nil)
+                return
             }
             responder = responder?.next
         }
-        return false
     }
     
 }

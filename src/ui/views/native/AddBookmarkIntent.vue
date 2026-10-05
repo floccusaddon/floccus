@@ -107,7 +107,7 @@ import { routes } from '../../NativeRouter'
 import { actions } from '../../store/definitions'
 import { Bookmark } from '../../../lib/Tree'
 import DialogChooseFolder from '../../components/native/DialogChooseFolder'
-import { SendIntent } from 'send-intent'
+import { SendIntent } from '@mindlib-capacitor/send-intent'
 
 export default {
   name: 'AddBookmarkIntent',
@@ -220,7 +220,6 @@ export default {
         })
       })
       SendIntent.finish()
-      await this.$router.push({name: routes.TREE, params: {accountId: this.id}})
     },
     onTriggerFolderChooser() {
       this.displayFolderChooser = true

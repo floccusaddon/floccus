@@ -31,9 +31,9 @@ PODS:
   - CapacitorSplashScreen (8.0.2):
     - Capacitor
   - IONFilesystemLib (1.1.4)
-  - OAuthSwift (2.2.0)
-  - SendIntent (7.0.0):
+  - MindlibCapacitorSendIntent (8.0.6):
     - Capacitor
+  - OAuthSwift (2.2.0)
   - SQLCipher (4.10.0):
     - SQLCipher/standard (= 4.10.0)
   - SQLCipher/common (4.10.0)
@@ -56,7 +56,7 @@ DEPENDENCIES:
   - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
   - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
   - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
-  - SendIntent (from `../../node_modules/send-intent`)
+  - "MindlibCapacitorSendIntent (from `../../node_modules/@mindlib-capacitor/send-intent`)"
 
 SPEC REPOS:
   trunk:
@@ -94,8 +94,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/share"
   CapacitorSplashScreen:
     :path: "../../node_modules/@capacitor/splash-screen"
-  SendIntent:
-    :path: "../../node_modules/send-intent"
+  MindlibCapacitorSendIntent:
+    :path: "../../node_modules/@mindlib-capacitor/send-intent"
 
 SPEC CHECKSUMS:
   Capacitor: 59aea4e8bd98b24b798919b4c55ae90c6ded1b0d
@@ -113,11 +113,11 @@ SPEC CHECKSUMS:
   CapacitorShare: fdeee71ebc13dca43967805adf2dea57871c216a
   CapacitorSplashScreen: 120117d1b2264bba31a6e6f998f51e510144dd12
   IONFilesystemLib: e6610c2b260d15e4b9cb9d5e37a87095479b669e
+  MindlibCapacitorSendIntent: 52a6928775bb07d92d2518842e73ecaf975f90fe
   OAuthSwift: 75efbb5bd9a4b2b71a37bd7e986bf3f55ddd54c6
-  SendIntent: 1f4f65c7103eb423067c566682dfcda973b5fb29
   SQLCipher: eb79c64049cb002b4e9fcb30edb7979bf4706dfc
   ZIPFoundation: dfd3d681c4053ff7e2f7350bc4e53b5dba3f5351
 
-PODFILE CHECKSUM: bcafade0ad83ed800c284ca5f677fa07d832dd86
+PODFILE CHECKSUM: 639b4c3e76ea7102be3f5b729988eb2956b90710
 
 COCOAPODS: 1.16.2

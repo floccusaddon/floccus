@@ -38,5 +38,5 @@ project(':capacitor-share').projectDir = new File('../node_modules/@capacitor/sh
 include ':capacitor-splash-screen'
 project(':capacitor-splash-screen').projectDir = new File('../node_modules/@capacitor/splash-screen/android')
 
-include ':send-intent'
-project(':send-intent').projectDir = new File('../node_modules/send-intent/android')
+include ':mindlib-capacitor-send-intent'
+project(':mindlib-capacitor-send-intent').projectDir = new File('../node_modules/@mindlib-capacitor/send-intent/android')
