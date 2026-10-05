@@ -18,7 +18,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if CAPBridge.handleOpenUrl(url, options) {
             success = ApplicationDelegateProxy.shared.application(app, open: url, options: options)
         }
-        
+        handleShareUrl(url)
+        return success
+    }
+
+    // With a UIScene lifecycle, iOS delivers URLs to the SceneDelegate instead of
+    // application(_:open:options:), so the SceneDelegate calls this as well
+    @discardableResult
+    func handleShareUrl(_ url: URL) -> Bool {
         guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
               let params = components.queryItems else {
                   return false
@@ -27,25 +34,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let descriptions = params.filter { $0.name == "description" }
         let types = params.filter { $0.name == "type" }
         let urls = params.filter { $0.name == "url" }
-        
+
         store.shareItems.removeAll()
-    
+
+        // The share extension percent-encodes each value before URLComponents encodes
+        // the query, so the values are still encoded once here
         if(titles.count > 0){
             for index in 0...titles.count-1 {
                 var shareItem: JSObject = JSObject()
-                shareItem["title"] = titles[index].value!
-                shareItem["description"] = descriptions[index].value!
-                shareItem["type"] = types[index].value!
-                shareItem["url"] = urls[index].value!
+                shareItem["title"] = titles[index].value?.removingPercentEncoding ?? ""
+                shareItem["description"] = descriptions.indices.contains(index) ? descriptions[index].value?.removingPercentEncoding ?? "" : ""
+                shareItem["type"] = types[index].value?.removingPercentEncoding ?? ""
+                shareItem["url"] = urls[index].value?.removingPercentEncoding ?? ""
                 store.shareItems.append(shareItem)
             }
         }
-        
+
         store.processed = false
         let nc = NotificationCenter.default
         nc.post(name: Notification.Name("triggerSendIntent"), object: nil )
-        
-        return success
+
+        return true
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
