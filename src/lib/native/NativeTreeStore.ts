@@ -283,8 +283,12 @@ export default class NativeTreeStore {
 
   /**
    * Wait for all writes handed to this store so far to have hit the database.
+   * Writes put back by a failed batch are attempted again here.
    */
   async flush(): Promise<void> {
+    if (this.queue.length) {
+      this.schedule()
+    }
     await this.tail
   }
 
@@ -547,8 +551,14 @@ export default class NativeTreeStore {
       return this.tail
     }
     this.queue.push(...statements)
+    return this.schedule()
+  }
+
+  private schedule(): Promise<void> {
     if (!this.scheduled) {
-      this.scheduled = Promise.resolve().then(() => this.flushNow())
+      // Chained to the previous batch, so that a failed one has put its
+      // statements back in front of the queue before the next one takes it
+      this.scheduled = this.tail.then(() => this.flushNow())
       this.tail = this.scheduled.catch((e) => {
         // The error is passed on to whoever enqueued the failing write; this
         // branch only keeps #flush from rejecting a second time for it.
@@ -566,7 +576,14 @@ export default class NativeTreeStore {
       statements.push(...this.highestIdStatements(this.pendingHighestId))
       this.pendingHighestId = null
     }
-    return NativeDatabase.batch(statements)
+    return NativeDatabase.batch(statements).catch((e) => {
+      // The transaction rolled back, so put its statements back in front of
+      // whatever was queued since: the next flush writes them again. Dropping
+      // them would leave the rows behind the in-memory tree for good -- the UI
+      // reads the rows, and the next load hydrates the tree from them.
+      this.queue = statements.concat(this.queue)
+      throw e
+    })
   }
 
   /**
