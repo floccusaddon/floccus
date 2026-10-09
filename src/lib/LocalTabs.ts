@@ -9,6 +9,11 @@ import uniq from 'lodash/uniq'
 export default class LocalTabs implements OrderFolderResource<typeof ItemLocation.LOCAL> {
   private queue: PQueue<{ concurrency: 10 }>
   private storage: unknown
+  // A tab group can't exist without a tab, so createFolder() puts a blank tab
+  // into each new group, which has to stay until the group's first real tab
+  // arrives: Chromium deletes a group the moment its last tab is closed.
+  // groupId -> placeholder tabId
+  private placeholderTabs: Map<number, number> = new Map()
 
   // see https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create#url
   public static URL_SCHEME_BLACKLIST = [
@@ -44,7 +49,10 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     let tabs = await browser.tabs.query({
       windowType: 'normal', // no devtools or panels or popups
     })
-    tabs = tabs.filter((tab) => !tab.incognito)
+    const placeholderTabIds = new Set(this.placeholderTabs.values())
+    tabs = tabs.filter(
+      (tab) => !tab.incognito && !placeholderTabIds.has(tab.id)
+    )
 
     // Get all tab groups
     let tabGroups = []
@@ -91,6 +99,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
                   groupId: group.id,
                 })
               )
+                .filter((t) => !placeholderTabIds.has(t.id))
                 .sort((t1, t2) => t1.index - t2.index)
                 .map(
                   (t) =>
@@ -228,6 +237,9 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
             groupId: this.getTabGroupIdFromFolderId(bookmark.parentId),
           })
         )
+        await this.removePlaceholderTab(
+          this.getTabGroupIdFromFolderId(bookmark.parentId)
+        )
       }
 
       await awaitTabsUpdated()
@@ -238,6 +250,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       if (
         e.message &&
         !e.message.includes('No tab group with id') &&
+        !e.message.includes('No group with id') &&
         !e.message.includes('Invalid tab group id')
       ) {
         throw e
@@ -291,6 +304,9 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
             groupId: this.getTabGroupIdFromFolderId(bookmark.parentId),
           })
         )
+        await this.removePlaceholderTab(
+          this.getTabGroupIdFromFolderId(bookmark.parentId)
+        )
       } else {
         let currentWindowId = null
         try {
@@ -326,6 +342,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       if (
         e.message &&
         !e.message.includes('No tab group with id') &&
+        !e.message.includes('No group with id') &&
         !e.message.includes('Invalid tab group id')
       ) {
         throw e
@@ -383,16 +400,12 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
             })
           }
 
-          await awaitTabsUpdated()
+          // The dummy tab is removed once the first real tab joins the group
+          // (see removePlaceholderTab): removing it on a timer deleted the
+          // group whenever its tabs were created later than that (#2366)
+          this.placeholderTabs.set(groupId, dummyTab.id)
 
-          // Remove the dummy tab after a timeout
-          setTimeout(async () => {
-            try {
-              await browser.tabs.remove(dummyTab.id)
-            } catch (e) {
-              Logger.log('Failed to remove dummy tab', e)
-            }
-          }, 5000)
+          await awaitTabsUpdated()
 
           return groupId
         })
@@ -498,6 +511,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
                 if (
                   e.message &&
                   !e.message.includes('No tab group with id') &&
+                  !e.message.includes('No group with id') &&
                   !e.message.includes('Invalid tab group id')
                 ) {
                   throw e
@@ -537,7 +551,11 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       } catch (e) {
         Logger.log('Failed to update tab group', e)
         // Don't throw error if the tab group doesn't exist anymore
-        if (e.message && !e.message.includes('No tab group with id')) {
+        if (
+          e.message &&
+          !e.message.includes('No tab group with id') &&
+          !e.message.includes('No group with id')
+        ) {
           throw e
         }
       }
@@ -578,17 +596,32 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         }
 
         // The tab group will be automatically removed when all its tabs are removed
+        this.placeholderTabs.delete(this.getTabGroupIdFromFolderId(id))
       } catch (e) {
         Logger.log('Failed to remove tab group', e)
         // Don't throw error if the tab group doesn't exist anymore
         if (
           e.message &&
           !e.message.includes('No tab group with id') &&
+          !e.message.includes('No group with id') &&
           !e.message.includes('No tab with id')
         ) {
           throw e
         }
       }
+    }
+  }
+
+  private async removePlaceholderTab(groupId: number): Promise<void> {
+    const tabId = this.placeholderTabs.get(groupId)
+    if (typeof tabId === 'undefined') {
+      return
+    }
+    this.placeholderTabs.delete(groupId)
+    try {
+      await this.queue.add(() => browser.tabs.remove(tabId))
+    } catch (e) {
+      Logger.log('Failed to remove placeholder tab', e)
     }
   }
 
