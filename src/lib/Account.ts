@@ -225,13 +225,24 @@ export default class Account {
     let mappings: Mappings
     try {
       if (this.getData().syncing || this.syncing) return
+      // Claim the sync before the first await. Account.get() hands out one
+      // shared instance per profile, and a second sync() slipping in while this
+      // one is still checking availability would share localCachingResource with
+      // it: whichever finishes first nulls it below, and the other then builds
+      // its sync process on null ("localTree is not initialized"), failing
+      // with an error that re-init()s the account -- wiping the cache and
+      // mappings the first one just stored. Tab sync, which schedules a sync for
+      // every burst of tab events, ran into this all the time.
+      this.syncing = true
 
-      if (!(await this.server.isAvailable()) || !(await (await this.getResource()).isAvailable())) return
+      if (!(await this.server.isAvailable()) || !(await (await this.getResource()).isAvailable())) {
+        this.syncing = false
+        return
+      }
 
       this.localCachingResource = new CachingTreeWrapper(await this.getResource(), this.storage.getCacheStore())
 
       Logger.log('Starting sync process for account ' + this.getLabel())
-      this.syncing = true
       await this.setData({ syncing: 0.05, scheduled: false, error: null, lastAttempt: Date.now() })
 
       if (!(await this.isInitialized())) {
