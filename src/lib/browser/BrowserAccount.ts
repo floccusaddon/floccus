@@ -73,8 +73,12 @@ export default class BrowserAccount extends Account {
     if (this.getData().localRoot !== 'tabs') {
       return this.localTree
     } else {
-      const LocalTabs = (await import('../LocalTabs')).default
-      this.localTabs = new LocalTabs(this.storage)
+      // Keep the one instance: cancelSync() cancels whatever this returns, and a
+      // fresh LocalTabs wouldn't stop the queue of the one that is syncing
+      if (!this.localTabs) {
+        const LocalTabs = (await import('../LocalTabs')).default
+        this.localTabs = new LocalTabs(this.storage)
+      }
       return this.localTabs
     }
   }
