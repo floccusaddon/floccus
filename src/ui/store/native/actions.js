@@ -327,7 +327,7 @@ export const actionsDefinition = {
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }
     let json = res.data
-    await Browser.open({ url: json.login, presentationStyle: 'popover' })
+    await Browser.open({ url: json.login })
     do {
       await new Promise(resolve => setTimeout(resolve, 1000))
       try {
