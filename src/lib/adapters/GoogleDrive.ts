@@ -308,7 +308,8 @@ export default class GoogleDriveAdapter extends CachingAdapter {
         }
       }
 
-      this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
+      this.bookmarksCache = XbelSerializer.deserialize(xmlDocText, this.highestId)
+      this.highestId = XbelSerializer.highestId
       if (this.lockingInterval) {
         clearInterval(this.lockingInterval)
       }
