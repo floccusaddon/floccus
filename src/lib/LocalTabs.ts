@@ -12,8 +12,11 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
   // A tab group can't exist without a tab, so createFolder() puts a blank tab
   // into each new group, which has to stay until the group's first real tab
   // arrives: Chromium deletes a group the moment its last tab is closed.
-  // groupId -> placeholder tabId
-  private placeholderTabs: Map<number, number> = new Map()
+  // groupId -> placeholder tabIds
+  private placeholderTabs: Map<number, number[]> = new Map()
+  // Opera dissolves a group with fewer than two tabs, so there createFolder()
+  // needs two placeholders and they may only go while the group keeps two tabs
+  private minGroupSize = 1
 
   // see https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create#url
   public static URL_SCHEME_BLACKLIST = [
@@ -49,7 +52,9 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     let tabs = await browser.tabs.query({
       windowType: 'normal', // no devtools or panels or popups
     })
-    const placeholderTabIds = new Set(this.placeholderTabs.values())
+    const placeholderTabIds = new Set(
+      [...this.placeholderTabs.values()].flat()
+    )
     tabs = tabs.filter(
       (tab) => !tab.incognito && !placeholderTabIds.has(tab.id)
     )
@@ -237,7 +242,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
             groupId: this.getTabGroupIdFromFolderId(bookmark.parentId),
           })
         )
-        await this.removePlaceholderTab(
+        await this.removePlaceholderTabs(
           this.getTabGroupIdFromFolderId(bookmark.parentId)
         )
       }
@@ -304,7 +309,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
             groupId: this.getTabGroupIdFromFolderId(bookmark.parentId),
           })
         )
-        await this.removePlaceholderTab(
+        await this.removePlaceholderTabs(
           this.getTabGroupIdFromFolderId(bookmark.parentId)
         )
       } else {
@@ -376,22 +381,27 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       return this.getFolderIdFromWindowId(node.id)
     } else {
       // Otherwise, create a tab group
+      const windowId = this.getWindowIdFromFolderId(folder.parentId)
+      const placeholderTabIds: number[] = []
       try {
         const groupId = await this.queue.add(async () => {
           // Create a dummy tab in the parent window to hold the group
-          const dummyTab = await browser.tabs.create({
-            windowId: this.getWindowIdFromFolderId(folder.parentId),
-            url: 'about:blank',
-            active: false,
+          placeholderTabIds.push(await this.createPlaceholderTab(windowId))
+          let groupId = await browser.tabs.group({
+            tabIds: placeholderTabIds,
+            createProperties: { windowId },
           })
 
-          // Create a tab group with the dummy tab
-          const groupId = await browser.tabs.group({
-            tabIds: [dummyTab.id],
-            createProperties: {
-              windowId: this.getWindowIdFromFolderId(folder.parentId),
-            },
-          })
+          if (!(await this.tabGroupExists(groupId))) {
+            // Opera has dissolved the one-tab group right away
+            Logger.log('Tab group with a single tab vanished, retrying with two')
+            this.minGroupSize = 2
+            placeholderTabIds.push(await this.createPlaceholderTab(windowId))
+            groupId = await browser.tabs.group({
+              tabIds: placeholderTabIds,
+              createProperties: { windowId },
+            })
+          }
 
           // Update the tab group title
           if (folder.title) {
@@ -400,10 +410,10 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
             })
           }
 
-          // The dummy tab is removed once the first real tab joins the group
-          // (see removePlaceholderTab): removing it on a timer deleted the
+          // The dummy tabs are removed once real tabs join the group
+          // (see removePlaceholderTabs): removing them on a timer deleted the
           // group whenever its tabs were created later than that (#2366)
-          this.placeholderTabs.set(groupId, dummyTab.id)
+          this.placeholderTabs.set(groupId, placeholderTabIds)
 
           await awaitTabsUpdated()
 
@@ -414,8 +424,33 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         return this.getFolderIdFromTabGroupId(groupId)
       } catch (e) {
         Logger.log('Failed to create tab group', e)
+        // Don't leave the dummy tabs behind: the next sync would take them for real tabs
+        if (placeholderTabIds.length) {
+          try {
+            await browser.tabs.remove(placeholderTabIds)
+          } catch (e) {
+            Logger.log('Failed to remove placeholder tabs', e)
+          }
+        }
         throw e
       }
+    }
+  }
+
+  private async createPlaceholderTab(windowId: number): Promise<number> {
+    const tab = await browser.tabs.create({
+      windowId,
+      url: 'about:blank',
+      active: false,
+    })
+    return tab.id
+  }
+
+  private async tabGroupExists(groupId: number): Promise<boolean> {
+    try {
+      return Boolean(await browser.tabGroups.get(groupId))
+    } catch (e) {
+      return false
     }
   }
 
@@ -612,16 +647,33 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     }
   }
 
-  private async removePlaceholderTab(groupId: number): Promise<void> {
-    const tabId = this.placeholderTabs.get(groupId)
-    if (typeof tabId === 'undefined') {
+  private async removePlaceholderTabs(groupId: number): Promise<void> {
+    if (!this.placeholderTabs.has(groupId)) {
       return
     }
-    this.placeholderTabs.delete(groupId)
     try {
-      await this.queue.add(() => browser.tabs.remove(tabId))
+      // Keep as many placeholders as the group needs to survive
+      const groupTabs = await this.queue.add(() =>
+        browser.tabs.query({ groupId })
+      )
+      // Read the placeholders only now: concurrent calls may have taken some
+      const tabIds = this.placeholderTabs.get(groupId)
+      if (typeof tabIds === 'undefined') {
+        return
+      }
+      const removable = Math.max(0, groupTabs.length - this.minGroupSize)
+      const toRemove = tabIds.slice(0, removable)
+      const remaining = tabIds.slice(toRemove.length)
+      if (remaining.length) {
+        this.placeholderTabs.set(groupId, remaining)
+      } else {
+        this.placeholderTabs.delete(groupId)
+      }
+      if (toRemove.length) {
+        await this.queue.add(() => browser.tabs.remove(toRemove))
+      }
     } catch (e) {
-      Logger.log('Failed to remove placeholder tab', e)
+      Logger.log('Failed to remove placeholder tabs', e)
     }
   }
 
