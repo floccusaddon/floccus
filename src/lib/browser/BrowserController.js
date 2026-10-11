@@ -9,10 +9,10 @@ import uniqBy from 'lodash/uniqBy'
 import Account from '../Account'
 import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
 import { onWakeUp } from '../on-wake-up'
+import { isSyncDue } from '../SyncSchedule'
 
 const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
-const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
-const DEFAULT_SYNC_INTERVAL = 15 // 15 minutes
+const NETWORK_SETTLE_TIMEOUT = 5 * 1000 // 5 seconds
 const STALE_SYNC_TIME = 1000 * 60 * 60 * 24 * 2 // two days
 const INTERVENTION_INTERVAL = 1000 * 60 * 60 * 24 * 182 // 182 days
 
@@ -25,52 +25,34 @@ class AlarmManager {
     // empty
   }
 
-  async checkSync() {
+  /**
+   * @param {boolean} networkRestored - the connection just came back, see isSyncDue
+   */
+  async checkSync(networkRestored = false) {
+    const online = isOnline()
+    // We may have missed the online event while the service worker was asleep.
+    // It doesn't survive that, so neither would a property on this object: keep
+    // the last state we saw in storage.
+    const { wasOnline } = await browser.storage.local.get({ wasOnline: true })
+    if (online && !wasOnline) {
+      networkRestored = true
+    }
+    if (online !== wasOnline) {
+      await browser.storage.local.set({ wasOnline: online })
+    }
     const accounts = await BrowserAccountStorage.getAllAccounts()
     for (let accountId of accounts) {
       const account = await Account.get(accountId)
-      const data = account.getData()
-      const lastSync = data.lastSync || 0
-      const lastAttempt = data.lastAttempt || 0
-      const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
-      if (data.scheduled) {
-        await this.ctl.scheduleSync(accountId)
-        continue
-      }
-      if (data.error && !data.isTransientError) {
-        continue
-      }
-      if (data.error && data.errorCount > 1) {
-        if (Date.now() > this.getBackoffInterval(interval, data.errorCount) + lastAttempt) {
-          await this.ctl.scheduleSync(accountId)
-          continue
-        }
-        continue
-      }
-      if (
-        data.syncIntervalEnabled &&
-        Date.now() >
-        interval * 1000 * 60 + lastSync
-      ) {
+      if (isSyncDue(account.getData(), Date.now(), online, networkRestored)) {
         await this.ctl.scheduleSync(accountId)
       }
     }
   }
+}
 
-  /**
-   * Calculates the backoff interval based on the synchronization interval and the error count.
-   *
-   * This method determines the delay before retrying a synchronization
-   * after one or more errors have occurred. It uses an exponential
-   * backoff algorithm with a cap at the maximum backoff interval.
-   *
-   * @param {number} interval - The synchronization interval in minutes.
-   * @param {number} errorCount - The number of consecutive errors encountered.
-   * @returns {number} - The calculated backoff interval in milliseconds.
-   */
-  getBackoffInterval(interval, errorCount) {
-    return Math.min(MAX_BACKOFF_INTERVAL, interval * 1000 * 60 * Math.pow(2, errorCount))
-  }
+function isOnline() {
+  // navigator.onLine can only tell us for certain that we're offline
+  return typeof navigator === 'undefined' || navigator.onLine !== false
 }
 
 export default class BrowserController {
@@ -146,6 +128,14 @@ export default class BrowserController {
     browser.alarms.onAlarm.addListener(async alarm => {
       await this.alarms[alarm.name]()
     })
+
+    // Retry failed syncs once the connection is back, instead of waiting out the backoff
+    if (typeof addEventListener !== 'undefined') {
+      addEventListener('online', () => {
+        // Give the network a moment to settle (DNS, captive portals, ...)
+        setTimeout(() => this.alarms.checkSync(true), NETWORK_SETTLE_TIMEOUT)
+      })
+    }
 
     // lock accounts when locking is enabled
 

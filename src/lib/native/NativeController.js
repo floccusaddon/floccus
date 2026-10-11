@@ -7,10 +7,10 @@ import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '.
 import { LocalNotifications } from '@capacitor/local-notifications'
 import { i18n } from './I18n'
 import ScreenWakeLock from './ScreenWakeLock'
+import { isSyncDue } from '../SyncSchedule'
 
 const INACTIVITY_TIMEOUT = 1000 * 7
-const MAX_BACKOFF_INTERVAL = 1000 * 60 * 60 // 1 hour
-const DEFAULT_SYNC_INTERVAL = 15
+const NETWORK_SETTLE_TIMEOUT = 1000 * 5
 
 class AlarmManager {
   constructor(ctl) {
@@ -21,7 +21,13 @@ class AlarmManager {
 
     Network.addListener('networkStatusChange', status => {
       if (status.connected) {
+        const restored = !this.backgroundSyncEnabled
         this.backgroundSyncEnabled = true
+        if (restored) {
+          // Retry failed syncs right away instead of waiting out the backoff,
+          // once the network had a moment to settle
+          setTimeout(() => this.checkSync(true), NETWORK_SETTLE_TIMEOUT)
+        }
       } else {
         this.backgroundSyncEnabled = false
       }
@@ -32,54 +38,20 @@ class AlarmManager {
     // empty
   }
 
-  async checkSync() {
+  /**
+   * @param {boolean} networkRestored - the connection just came back, see isSyncDue
+   */
+  async checkSync(networkRestored = false) {
     if (!this.backgroundSyncEnabled) {
       return
     }
     const accounts = await NativeAccountStorage.getAllAccounts()
     for (let accountId of accounts) {
       const account = await Account.get(accountId)
-      const data = account.getData()
-      const lastSync = data.lastSync || 0
-      const lastAttempt = data.lastAttempt || 0
-      const interval = data.syncInterval || DEFAULT_SYNC_INTERVAL
-      if (data.scheduled) {
-        await this.ctl.scheduleSync(accountId)
-        continue
-      }
-      if (data.error && !data.isTransientError) {
-        continue
-      }
-      if (data.error && data.errorCount > 1) {
-        if (Date.now() > this.getBackoffInterval(interval, data.errorCount) + lastAttempt) {
-          await this.ctl.scheduleSync(accountId)
-          continue
-        }
-        continue
-      }
-      if (
-        data.syncIntervalEnabled &&
-        Date.now() >
-        interval * 1000 * 60 + lastSync
-      ) {
+      if (isSyncDue(account.getData(), Date.now(), true, networkRestored)) {
         await this.ctl.scheduleSync(accountId)
       }
     }
-  }
-
-  /**
-   * Calculates the backoff interval based on the synchronization interval and the error count.
-   *
-   * This method determines the delay before retrying a synchronization
-   * after one or more errors have occurred. It uses an exponential
-   * backoff algorithm with a cap at the maximum backoff interval.
-   *
-   * @param {number} interval - The synchronization interval in minutes.
-   * @param {number} errorCount - The number of consecutive errors encountered.
-   * @returns {number} - The calculated backoff interval in milliseconds.
-   */
-  getBackoffInterval(interval, errorCount) {
-    return Math.min(MAX_BACKOFF_INTERVAL, interval * 1000 * 60 * Math.pow(2, errorCount))
   }
 }
 
