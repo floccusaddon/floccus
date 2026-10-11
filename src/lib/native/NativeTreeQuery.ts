@@ -1,7 +1,7 @@
 import { Bookmark, Folder, ItemLocation, TItem } from '../Tree'
 import Logger from '../Logger'
 import NativeDatabase, { TStatement } from './NativeDatabase'
-import { bookmarkSearchText, folderSearchText, parseTags } from './NativeTreeStore'
+import { bookmarkSearchText, folderSearchText, normalizeSearchText, parseTags } from './NativeTreeStore'
 
 type TLocalItem = TItem<typeof ItemLocation.LOCAL>
 type TLocalFolder = Folder<typeof ItemLocation.LOCAL>
@@ -307,7 +307,7 @@ export interface IParsedQuery {
 export function parseSearchQuery(query: string): IParsedQuery {
   const tags: string[] = []
   const terms: string[] = []
-  for (const token of tokenize((query || '').toLowerCase())) {
+  for (const token of tokenize(normalizeSearchText(query))) {
     if (token.startsWith('#')) {
       const tag = token.slice(1)
       // A lone '#' is someone who has only just started typing
@@ -370,14 +370,14 @@ function likePattern(term: string): string {
 }
 
 function lowercaseTags(bookmark: TLocalBookmark): string[] {
-  return (bookmark.tags || []).map((tag) => tag.toLowerCase())
+  return (bookmark.tags || []).map((tag) => normalizeSearchText(tag))
 }
 
 function matchesTitleFully(item: TLocalItem, terms: string[]): boolean {
   if (!item.title) {
     return false
   }
-  const words = item.title.toLowerCase().split(' ')
+  const words = normalizeSearchText(item.title).split(' ')
   return terms.every((term) => words.some((word) => word === term))
 }
 
@@ -385,7 +385,7 @@ function matchesTitlePartially(item: TLocalItem, terms: string[]): boolean {
   if (!item.title) {
     return false
   }
-  const title = item.title.toLowerCase()
+  const title = normalizeSearchText(item.title)
   return terms.every((term) => title.includes(term))
 }
 
@@ -404,7 +404,7 @@ function matchesTags(bookmark: TLocalBookmark, tags: string[]): boolean {
  * has 'pasta' in its title.
  */
 function matchesTerms(bookmark: TLocalBookmark, terms: string[]): boolean {
-  const title = (bookmark.title || '').toLowerCase()
+  const title = normalizeSearchText(bookmark.title || '')
   const url = (bookmark.url || '').toLowerCase()
   const tags = lowercaseTags(bookmark)
   return terms.every((term) =>

@@ -58,6 +58,16 @@ export default class I18n {
     }
   }
 
+  public getLocale(): string {
+    return this.locale
+  }
+
+  public isRTL(): boolean {
+    const rtlLocales = ['ar', 'fa', 'he', 'ur', 'dv', 'ps', 'sd', 'ug', 'yi']
+    const current = (this.locale || '').toLowerCase()
+    return rtlLocales.some((lang) => current === lang || current.startsWith(lang + '-') || current.startsWith(lang + '_'))
+  }
+
   /**
    * Get a formatted message with the given name
    */

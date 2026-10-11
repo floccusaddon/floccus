@@ -15,6 +15,12 @@ Vue.mixin(capacitor)
 const app = () => {
   i18n.setLocales(navigator.languages)
   i18n.load().then(() => {
+    const rtl = i18n.isRTL()
+    vuetify.framework.rtl = rtl
+    if (typeof document !== 'undefined') {
+      document.documentElement.dir = rtl ? 'rtl' : 'ltr'
+      document.documentElement.lang = i18n.getLocale() || (rtl ? 'ar' : 'en')
+    }
     window['floccus'] = global['Floccus'] = new Vue({
       el: '#app',
       router,
