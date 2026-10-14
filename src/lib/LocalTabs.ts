@@ -32,6 +32,15 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     this.queue = new PQueue({ concurrency: 10 })
   }
 
+  private isUnsupportedFirefoxUrl(url?: string): boolean {
+    if (!url || self.location.protocol !== 'moz-extension:') return false
+    try {
+      return LocalTabs.URL_SCHEME_BLACKLIST.includes(new URL(url).protocol)
+    } catch (e) {
+      return false
+    }
+  }
+
   private getWindowIdFromFolderId(folderId: string | number): number {
     return parseInt(String(folderId).slice('window-'.length))
   }
@@ -56,7 +65,8 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       [...this.placeholderTabs.values()].flat()
     )
     tabs = tabs.filter(
-      (tab) => !tab.incognito && !placeholderTabIds.has(tab.id)
+      (tab) => !tab.incognito && !placeholderTabIds.has(tab.id) &&
+        !this.isUnsupportedFirefoxUrl(tab.url)
     )
 
     // Get all tab groups
@@ -104,7 +114,8 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
                   groupId: group.id,
                 })
               )
-                .filter((t) => !placeholderTabIds.has(t.id))
+                .filter((t) => !placeholderTabIds.has(t.id) &&
+                  !this.isUnsupportedFirefoxUrl(t.url))
                 .sort((t1, t2) => t1.index - t2.index)
                 .map(
                   (t) =>
@@ -184,10 +195,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       Logger.log('Parent is "tabs", ignoring this one.')
       return
     }
-    if (
-      self.location.protocol === 'moz-extension:' &&
-      LocalTabs.URL_SCHEME_BLACKLIST.includes(new URL(bookmark.url).protocol)
-    ) {
+    if (this.isUnsupportedFirefoxUrl(bookmark.url)) {
       Logger.log(
         `URL is a ${
           new URL(bookmark.url).protocol
