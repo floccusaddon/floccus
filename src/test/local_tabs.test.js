@@ -2,15 +2,25 @@
 import { expect } from 'chai'
 
 describe('LocalTabs URL filtering', function() {
-  const urls = [
-    'https://example.com/',
+  const supportedUrl = 'https://example.com/'
+
+  const unsupportedFirefoxUrls = [
     'about:blank',
     'javascript:void(0)',
     'file:///tmp/example.html',
     'chrome://settings/',
     'data:text/plain,example',
+  ]
+
+  const unparseableUrls = [
     undefined,
     'not a URL',
+  ]
+
+  const urls = [
+    supportedUrl,
+    ...unsupportedFirefoxUrls,
+    ...unparseableUrls,
   ]
   let LocalTabs, originalBrowser, originalLocation
 
@@ -63,7 +73,7 @@ describe('LocalTabs URL filtering', function() {
   }
 
   it('excludes unsupported Firefox URLs from ungrouped and grouped tabs', async function() {
-    await expectUrls('moz-extension:', [urls[0], undefined, 'not a URL'])
+    await expectUrls('moz-extension:', [supportedUrl, ...unparseableUrls])
   })
 
   it('keeps Chromium URLs in ungrouped and grouped tabs unchanged', async function() {
