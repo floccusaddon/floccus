@@ -75,6 +75,8 @@ export default class NativeTreeStore {
   private queue: TStatement[] = []
   private scheduled: Promise<void> | null = null
   private tail: Promise<void> = Promise.resolve()
+  // The same batch as #tail, but still rejecting if it failed
+  private lastBatch: Promise<void> = Promise.resolve()
   private nextPosition = new Map<string, number>()
   // What we know to be in the hash columns, as `${hashKey}\u0000${hash}`
   private persistedHashes = new Map<string, string>()
@@ -91,8 +93,13 @@ export default class NativeTreeStore {
    */
   async load(): Promise<ILoadedTree | null> {
     await this.migrateFromPreferences()
-    // Anything we haven't written yet would be missing from what we read here
-    await this.flush()
+    // Anything we haven't written yet would be missing from what we read here,
+    // and would then be written on top of the tree we built from the rows. If
+    // it can't be written, this fails rather than replace the in-memory tree,
+    // which still has those changes.
+    do {
+      await this.flush()
+    } while (this.queue.length)
 
     const [meta] = await NativeDatabase.query(
       'SELECT highest_id, tree_initialized FROM account_meta WHERE account_id = ?',
@@ -283,9 +290,14 @@ export default class NativeTreeStore {
 
   /**
    * Wait for all writes handed to this store so far to have hit the database.
+   * Writes put back by a failed batch are attempted again here, and if that
+   * fails, too, so does this.
    */
   async flush(): Promise<void> {
-    await this.tail
+    if (this.queue.length) {
+      this.schedule()
+    }
+    await this.lastBatch
   }
 
   private buildTree(folderRows: any[], bookmarkRows: any[]): TLocalFolder {
@@ -547,11 +559,18 @@ export default class NativeTreeStore {
       return this.tail
     }
     this.queue.push(...statements)
+    return this.schedule()
+  }
+
+  private schedule(): Promise<void> {
     if (!this.scheduled) {
-      this.scheduled = Promise.resolve().then(() => this.flushNow())
+      // Chained to the previous batch, so that a failed one has put its
+      // statements back in front of the queue before the next one takes it
+      this.scheduled = this.tail.then(() => this.flushNow())
+      this.lastBatch = this.scheduled
       this.tail = this.scheduled.catch((e) => {
-        // The error is passed on to whoever enqueued the failing write; this
-        // branch only keeps #flush from rejecting a second time for it.
+        // The error is passed on to whoever enqueued the failing write and to
+        // #flush; this branch only keeps the next batch from failing with it.
         Logger.log('Failed to persist bookmarks of account ' + this.accountId + ': ' + e.message)
       })
     }
@@ -566,7 +585,14 @@ export default class NativeTreeStore {
       statements.push(...this.highestIdStatements(this.pendingHighestId))
       this.pendingHighestId = null
     }
-    return NativeDatabase.batch(statements)
+    return NativeDatabase.batch(statements).catch((e) => {
+      // The transaction rolled back, so put its statements back in front of
+      // whatever was queued since: the next flush writes them again. Dropping
+      // them would leave the rows behind the in-memory tree for good -- the UI
+      // reads the rows, and the next load hydrates the tree from them.
+      this.queue = statements.concat(this.queue)
+      throw e
+    })
   }
 
   /**
