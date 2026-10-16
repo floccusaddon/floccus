@@ -537,3 +537,13 @@ export class UnexpectedServerFolder extends FloccusError {
     Object.setPrototypeOf(this, UnexpectedServerFolder.prototype)
   }
 }
+
+export class DropboxAmbiguousFileError extends FloccusError {
+  public readonly code = 58
+  public paths: string[]
+  constructor(paths: string[]) {
+    super(`E058: Found multiple files with the name of your bookmarks file in your Dropbox: ${paths.join(', ')}`)
+    this.paths = paths
+    Object.setPrototypeOf(this, DropboxAmbiguousFileError.prototype)
+  }
+}

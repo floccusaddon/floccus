@@ -11,6 +11,7 @@ import {
   MissingItemOrderError,
   ParseResponseError, ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, UnexpectedFolderPathError,
   UnexpectedServerFolder,
+  DropboxAmbiguousFileError,
   UnknownFolderItemOrderError, UpdateBookmarkError
 } from '../../errors/Error'
 import {i18n} from '../native/I18n'
@@ -137,6 +138,9 @@ export default class BrowserAccount extends Account {
     }
     if (er instanceof UnexpectedServerFolder) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.serverFolder])
+    }
+    if (er instanceof DropboxAmbiguousFileError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.paths.join(', ')])
     }
     if (er instanceof FloccusError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))

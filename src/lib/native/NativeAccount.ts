@@ -13,6 +13,7 @@ import {
   MissingItemOrderError,
   ParseResponseError, ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, UnexpectedFolderPathError,
   UnexpectedServerFolder,
+  DropboxAmbiguousFileError,
   UnknownFolderItemOrderError, UpdateBookmarkError
 } from '../../errors/Error'
 import Logger from '../Logger'
@@ -173,6 +174,11 @@ export default class NativeAccount extends Account {
     if (er instanceof UnexpectedServerFolder) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [
         er.serverFolder,
+      ])
+    }
+    if (er instanceof DropboxAmbiguousFileError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [
+        er.paths.join(', '),
       ])
     }
     if (er instanceof FloccusError) {
