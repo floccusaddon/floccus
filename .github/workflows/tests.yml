@@ -73,6 +73,7 @@ jobs:
   selenium:
     runs-on: ubuntu-latest
     needs: init
+    timeout-minutes: 90
 
     env:
       SELENIUM_HUB_HOST: hub
