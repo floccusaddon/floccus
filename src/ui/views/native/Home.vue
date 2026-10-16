@@ -19,8 +19,6 @@ import { SplashScreen } from '@capacitor/splash-screen'
 import { SendIntent } from '@mindlib-capacitor/send-intent'
 import packageJson from '../../../../package.json'
 import { Preferences as Storage } from '@capacitor/preferences'
-import { CapacitorHttp as Http } from '@capacitor/core'
-import Logger from '../../../lib/Logger'
 
 export default {
   name: 'Home',
@@ -32,6 +30,7 @@ export default {
   async created() {
     SplashScreen.hide()
     await this.$store.dispatch(actions.LOAD_ACCOUNTS)
+    let intentChecked = false
 
     const { value: currentVersion } = await Storage.get({
       key: 'currentVersion',
@@ -50,6 +49,7 @@ export default {
         }
       }
     } else if (Object.keys(this.$store.state.accounts).length) {
+      intentChecked = true
       const intentReceived = await this.checkForIntent()
       if (!intentReceived) {
         const accountId = Object.keys(this.$store.state.accounts).includes(
@@ -64,7 +64,9 @@ export default {
     }
 
     window.addEventListener('sendIntentReceived', () => this.checkForIntent())
-    this.checkForIntent()
+    if (!intentChecked) {
+      this.checkForIntent()
+    }
   },
   methods: {
     async checkForIntent() {
@@ -75,7 +77,9 @@ export default {
         console.log(e)
         return false
       }
-      let url, title
+      // The title is fetched by AddBookmarkIntent once it is open, so an
+      // unreachable site doesn't keep us on the spinner
+      let url
       if (!result.url) {
         if (!result.additionalItems || !result.additionalItems.length) {
           return false
@@ -83,30 +87,9 @@ export default {
         result.additionalItems.forEach((share) => {
           if (!share.url) return
           url = share.url
-          title = ''
         })
       } else {
         url = this.findUrl(result.url)
-        title = ''
-      }
-
-      console.log(url)
-      try {
-        const response = await Http.get({
-          url,
-          headers: {
-            'user-agent': 'curl/8.6.0',
-          },
-        })
-        const parser = new DOMParser()
-        console.log(response.data)
-        const document = parser.parseFromString(response.data, 'text/html')
-        const titleElement = document.getElementsByTagName('title')[0]
-        if (titleElement) {
-          title = titleElement.textContent
-        }
-      } catch (e) {
-        Logger.log('Failed to fetch shared URL')
       }
 
       this.$router.push({
@@ -118,7 +101,6 @@ export default {
             ? this.$store.state.lastAccount
             : Object.keys(this.$store.state.accounts)[0],
           url,
-          title,
         },
       })
       return true

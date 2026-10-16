@@ -58,6 +58,7 @@
           <v-text-field
             v-model="title"
             :label="t('LabelTitle')"
+            :loading="fetchingTitle"
             hide-details />
           <v-text-field
             v-model="url"
@@ -108,6 +109,12 @@ import { actions } from '../../store/definitions'
 import { Bookmark } from '../../../lib/Tree'
 import DialogChooseFolder from '../../components/native/DialogChooseFolder'
 import { SendIntent } from '@mindlib-capacitor/send-intent'
+import { CapacitorHttp as Http } from '@capacitor/core'
+import Logger from '../../../lib/Logger'
+
+// Waiting longer than this for an unresponsive site isn't worth it: the user
+// can type a title themselves in the meantime
+const TITLE_FETCH_TIMEOUT = 3000
 
 export default {
   name: 'AddBookmarkIntent',
@@ -134,6 +141,7 @@ export default {
       displayFolderChooser: false,
       exists: false,
       allTags: [],
+      fetchingTitle: false,
     }
   },
   computed: {
@@ -188,6 +196,9 @@ export default {
     },
   },
   created() {
+    if (!this.title && !this.urlError) {
+      this.fetchTitle(this.url)
+    }
     if (!this.loading) {
       this.data = this.$store.state.accounts[this.id].data
     }
@@ -220,6 +231,34 @@ export default {
         })
       })
       SendIntent.finish()
+    },
+    async fetchTitle(url) {
+      this.fetchingTitle = true
+      let title = ''
+      try {
+        const response = await Http.get({
+          url,
+          headers: {
+            'user-agent': 'curl/8.6.0',
+          },
+          connectTimeout: TITLE_FETCH_TIMEOUT,
+          readTimeout: TITLE_FETCH_TIMEOUT,
+        })
+        const parser = new DOMParser()
+        const document = parser.parseFromString(response.data, 'text/html')
+        const titleElement = document.getElementsByTagName('title')[0]
+        if (titleElement) {
+          title = titleElement.textContent.trim()
+        }
+      } catch (e) {
+        Logger.log('Failed to fetch shared URL')
+      } finally {
+        this.fetchingTitle = false
+      }
+      // Don't overwrite what the user has entered while we were waiting
+      if (title && !this.title && url === this.url) {
+        this.title = title
+      }
     },
     onTriggerFolderChooser() {
       this.displayFolderChooser = true
