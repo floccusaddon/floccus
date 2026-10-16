@@ -6,6 +6,7 @@ export async function registerNodeSuite() {
   await import('./caching_tree_wrapper.test.js')
   await import('./progress_interval.test.js')
   await import('./sync_schedule.test.js')
+  await import('./local_tabs.test.js')
   await import('./diff.test.js')
   await import('./sync_basic.test.js')
   await import('./sync_basic_slave.test.js')
