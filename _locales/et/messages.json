@@ -167,6 +167,9 @@
   "Error057": {
     "message": "E057: Ootamatu kaust serveris: „{0}“. Palun kontrolli serverikaustade seadistusi.."
   },
+  "Error058": {
+    "message": "E058: Sinu järjehoidjate fail ei asu Dropboxi juurkaustas ning Dropboxis on mitu sama nimega faili: {0}. Floccus ei suuda kindlaks teha, millist neist kasutada. Paiguta õige fail Dropboxi juurkausta või muuda teiste nimesid."
+  },
   "LabelWebdavurl": {
     "message": "WebDAVi võrguaadress"
   },
