@@ -816,6 +816,26 @@ export default class DropboxAdapter extends CachingAdapter {
   }
 
   /**
+   * Delete file on Dropbox using file id
+   * Not used by the sync itself (floccus never deletes files on Dropbox, see
+   * findBookmarksFile); the tests use it to clean up after themselves.
+   * @param {string} id A unique file identifier
+   * @returns {boolean} true if 200 and false if other HTTP status
+   */
+  async deleteFile(id: string): Promise<any> {
+    const res = await this.request('POST', this.getUrl() + `/files/delete_v2`,
+      { 'path': id },
+      'application/json'
+    )
+    if (res.status >= 400) {
+      Logger.log('Dropbox API error: ' + JSON.stringify(await res.text()))
+      throw new HttpError(res.status, 'POST')
+    }
+
+    return res.status === 200
+  }
+
+  /**
    * Get template Id or create a new ones if not exists for setting up custom properties for files
    * A template for locking custom property is created once per user and we can reuse it in subsequent syncs
    */
