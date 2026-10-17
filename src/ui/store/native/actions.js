@@ -116,6 +116,17 @@ export const actionsDefinition = {
     const controller = await Controller.getSingleton()
     controller.scheduleSync(accountId, true)
   },
+  async [actions.CREATE_BOOKMARKS]({commit}, {accountId, bookmarks}) {
+    const account = await Account.get(accountId)
+    const tree = await account.getResource()
+    for (const bookmark of bookmarks) {
+      await tree.createBookmark(bookmark)
+    }
+    await tree.save()
+    await commit(mutations.LOAD_FOLDERS, await loadFolderTree(accountId))
+    const controller = await Controller.getSingleton()
+    controller.scheduleSync(accountId, true)
+  },
   async [actions.EDIT_BOOKMARK]({commit}, {accountId, bookmark}) {
     const account = await Account.get(accountId)
     const tree = await account.getResource()

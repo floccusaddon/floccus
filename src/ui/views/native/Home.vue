@@ -19,6 +19,7 @@ import { SplashScreen } from '@capacitor/splash-screen'
 import { SendIntent } from '@mindlib-capacitor/send-intent'
 import packageJson from '../../../../package.json'
 import { Preferences as Storage } from '@capacitor/preferences'
+import { extractSharedUrls } from '../../../lib/SharedUrls'
 
 export default {
   name: 'Home',
@@ -79,17 +80,12 @@ export default {
       }
       // The title is fetched by AddBookmarkIntent once it is open, so an
       // unreachable site doesn't keep us on the spinner
-      let url
-      if (!result.url) {
-        if (!result.additionalItems || !result.additionalItems.length) {
-          return false
-        }
-        result.additionalItems.forEach((share) => {
-          if (!share.url) return
-          url = share.url
-        })
-      } else {
-        url = this.findUrl(result.url)
+      const urls = [...new Set(
+        [result, ...(result.additionalItems || [])]
+          .flatMap((share) => extractSharedUrls(share && share.url))
+      )]
+      if (!urls.length) {
+        return false
       }
 
       this.$router.push({
@@ -100,49 +96,12 @@ export default {
           )
             ? this.$store.state.lastAccount
             : Object.keys(this.$store.state.accounts)[0],
-          url,
+          url: urls[0],
         },
+        // Several tabs shared at once are bookmarked together
+        ...(urls.length > 1 && { query: { urls } }),
       })
       return true
-    },
-    /**
-     * Check that the supplied string is a valid URL. If not, look for a
-     * URL at the end of the string, to match the input we see from the
-     * Share action in some apps.
-     */
-    findUrl(url) {
-      try {
-        // If we can parse this string as a URL, we are done.
-        // eslint-disable-next-line no-new
-        new URL(url)
-        return url
-      } catch (e1) {
-        // noop
-      }
-      // If not, see whether we can find a URL at the end of this string.
-      // This happens e.g. when we share from the Amazon Shopping app.
-      const lastWord = url.trim().split(' ').slice(-1)[0]
-      try {
-        // eslint-disable-next-line no-new
-        new URL(lastWord)
-        // The last word is a URL - return it
-        return lastWord
-      } catch (e2) {
-        // noop
-      }
-      const indexOfHttp = url.lastIndexOf('http')
-      if (indexOfHttp > 0) {
-        const couldBeUrl = url.substring(indexOfHttp)
-        try {
-          // eslint-disable-next-line no-new
-          new URL(couldBeUrl)
-          return couldBeUrl
-        } catch (e3) {
-          // noop
-        }
-      }
-      // We didn't find a valid URL - return our input unchanged
-      return url
     },
   },
 }
