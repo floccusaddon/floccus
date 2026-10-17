@@ -1,7 +1,8 @@
 import { Bookmark, Folder, ItemLocation, TItem } from '../Tree'
 import Logger from '../Logger'
 import NativeDatabase, { TStatement } from './NativeDatabase'
-import { bookmarkSearchText, folderSearchText, normalizeSearchText, parseTags } from './NativeTreeStore'
+import { bookmarkSearchText, folderSearchText, normalizeSearchText, parseTags, safeDecodeURI, SEARCH_INDEX_VERSION } from './NativeTreeStore'
+export { normalizeSearchText } from './NativeTreeStore'
 
 type TLocalItem = TItem<typeof ItemLocation.LOCAL>
 type TLocalFolder = Folder<typeof ItemLocation.LOCAL>
@@ -251,17 +252,17 @@ export default class NativeTreeQuery {
     )
     // No row at all means nothing has been stored for this account yet, and
     // whatever writes it first fills the column in as it goes
-    if (!meta || meta.search_backfilled) {
+    if (!meta || meta.search_backfilled >= SEARCH_INDEX_VERSION) {
       return
     }
     Logger.log('Building search index of account ' + this.accountId)
 
     const folderRows = await NativeDatabase.query(
-      'SELECT id, title FROM folders WHERE account_id = ? AND search_text IS NULL',
+      'SELECT id, title FROM folders WHERE account_id = ?',
       [this.accountId]
     )
     const bookmarkRows = await NativeDatabase.query(
-      'SELECT id, title, url, tags FROM bookmarks WHERE account_id = ? AND search_text IS NULL',
+      'SELECT id, title, url, tags FROM bookmarks WHERE account_id = ?',
       [this.accountId]
     )
     const statements: TStatement[] = [
@@ -278,8 +279,8 @@ export default class NativeTreeQuery {
         ],
       })),
       {
-        statement: 'UPDATE account_meta SET search_backfilled = 1 WHERE account_id = ?',
-        values: [this.accountId],
+        statement: 'UPDATE account_meta SET search_backfilled = ? WHERE account_id = ?',
+        values: [SEARCH_INDEX_VERSION, this.accountId],
       },
     ]
     await NativeDatabase.batch(statements)
@@ -405,7 +406,7 @@ function matchesTags(bookmark: TLocalBookmark, tags: string[]): boolean {
  */
 function matchesTerms(bookmark: TLocalBookmark, terms: string[]): boolean {
   const title = normalizeSearchText(bookmark.title || '')
-  const url = (bookmark.url || '').toLowerCase()
+  const url = normalizeSearchText(safeDecodeURI(bookmark.url || ''))
   const tags = lowercaseTags(bookmark)
   return terms.every((term) =>
     title.includes(term) ||

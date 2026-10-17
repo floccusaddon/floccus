@@ -172,8 +172,13 @@ export default {
 </script>
 
 <style>
-.v-application {
+[dir="rtl"] .v-application,
+[lang^="ar"] .v-application {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Cairo", Roboto, Tahoma, sans-serif !important;
+}
+
+[dir="rtl"] .v-icon.mdi-arrow-left {
+  transform: scaleX(-1);
 }
 
 @media screen and (min-device-width: 420px) {

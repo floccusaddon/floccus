@@ -936,6 +936,31 @@ describe('Native SQLite storage', function() {
       const tatweelRes = await query.search('مـوسـيـقـى')
       expect(tatweelRes.bookmarks.map((b) => b.title)).to.deep.equal(['مُوسِيقَى كْلَاسِيكِيَّة'])
     })
+
+    it('should rebuild the search index for rows stored under search_backfilled version 1', async function() {
+      const arabicFolderId = await tree.createFolder(folder(rootId, 'إِدَارَةُ الأَعْمَالِ'))
+      await tree.createBookmark(bookmark(arabicFolderId, 'إِدَارَةُ المَشَارِيع', 'http://ex.com/one', ['وَصَفَاتٌ']))
+      await tree.save()
+
+      // Simulate search index version 1 (unnormalized lowercase search_text)
+      await NativeDatabase.batch([
+        { statement: 'UPDATE folders SET search_text = lower(title) WHERE account_id = ?', values: [accountId] },
+        { statement: 'UPDATE bookmarks SET search_text = lower(title) WHERE account_id = ?', values: [accountId] },
+        { statement: 'UPDATE account_meta SET search_backfilled = 1 WHERE account_id = ?', values: [accountId] },
+      ])
+
+      const { folders, bookmarks } = await query.search('ادارة')
+      expect(folders.map((f) => f.title)).to.deep.equal(['إِدَارَةُ الأَعْمَالِ'])
+      expect(bookmarks.map((b) => b.title)).to.deep.equal(['إِدَارَةُ المَشَارِيع'])
+    })
+
+    it('should match Arabic text in bookmark URLs', async function() {
+      await tree.createBookmark(bookmark(rootId, 'Arabic URL', 'https://example.com/مُقَالَاتٌ'))
+      await tree.save()
+
+      const res = await query.search('مقالات')
+      expect(res.bookmarks.map((b) => b.title)).to.deep.equal(['Arabic URL'])
+    })
   })
 
   describe('folder hashes', function() {

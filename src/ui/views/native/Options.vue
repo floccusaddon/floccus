@@ -8,7 +8,7 @@
         :aria-label="t('LabelBack')"
         :to="{name: routes.TREE, params: {accountId: id}}">
         <v-icon aria-hidden="true">
-          {{ $vuetify.rtl ? 'mdi-arrow-right' : 'mdi-arrow-left' }}
+          mdi-arrow-left
         </v-icon>
       </v-btn>
       <v-app-bar-title

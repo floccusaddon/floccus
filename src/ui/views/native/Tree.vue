@@ -15,7 +15,7 @@
         :aria-label="t('LabelBack')"
         @click="goBack">
         <v-icon aria-hidden="true">
-          {{ $vuetify.rtl ? 'mdi-arrow-right' : 'mdi-arrow-left' }}
+          mdi-arrow-left
         </v-icon>
       </v-btn>
       <v-spacer />
@@ -423,7 +423,7 @@ import sortBy from 'lodash/sortBy'
 import DialogImportBookmarks from '../../components/native/DialogImportBookmarks'
 import Breadcrumbs from '../../components/native/Breadcrumbs.vue'
 import Item from '../../components/native/Item.vue'
-import { formatSearchToken, parseSearchQuery } from '../../../lib/native/NativeTreeQuery'
+import { formatSearchToken, normalizeSearchText, parseSearchQuery } from '../../../lib/native/NativeTreeQuery'
 
 export default {
   name: 'Tree',
@@ -710,7 +710,7 @@ export default {
       }, 500)
     },
     isActiveTag(tag) {
-      return this.activeTags.includes(tag.toLowerCase())
+      return this.activeTags.includes(normalizeSearchText(tag))
     },
     searchByTag(tag) {
       this.setTagSearch(tag, true)
@@ -725,11 +725,11 @@ export default {
      */
     setTagSearch(tag, on) {
       clearTimeout(this.searchDebounceTimer)
-      const lower = tag.toLowerCase()
+      const normalized = normalizeSearchText(tag)
       const { tags, terms } = parseSearchQuery(this.searchQuery)
       const nextTags = on
-        ? (tags.includes(lower) ? tags : [...tags, lower])
-        : tags.filter((candidate) => candidate !== lower)
+        ? (tags.includes(normalized) ? tags : [...tags, normalized])
+        : tags.filter((candidate) => candidate !== normalized)
       this.searchQuery = [
         ...nextTags.map((candidate) => formatSearchToken(candidate, true)),
         ...terms.map((term) => formatSearchToken(term, false)),
@@ -922,6 +922,11 @@ export default {
   font-size: 0.45em;
   top: 30px;
   left: 30px;
+}
+
+[dir="rtl"] .sync-dropdown-hint::after {
+  left: auto;
+  right: 30px;
 }
 
 .list-full-height {
