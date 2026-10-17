@@ -167,7 +167,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
         return browser.bookmarks.create({
           parentId: bookmark.parentId.toString(),
           title: bookmark.title,
-          url: bookmark.url
+          url: this.sanitizeBookmarkUrl(bookmark.url)
         })
       })
       return node.id
@@ -190,7 +190,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
           Logger.log('(local)UPDATE: executing update ', bookmark)
           return browser.bookmarks.update(bookmark.id, {
             title: bookmark.title,
-            url: bookmark.url
+            url: this.sanitizeBookmarkUrl(bookmark.url)
           })
         })
       }
@@ -458,5 +458,24 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     } catch (e) {
       return ''
     }
+  }
+
+  // bookmark.url comes from whichever sync adapter is configured (WebDAV,
+  // Google Drive, a Git repo, Nextcloud, ...), i.e. from a remote the user
+  // chose to trust with bookmark *data*, not with the ability to run code
+  // in their browser. `javascript:`/`vbscript:` bookmarklets execute in the
+  // context of whatever tab is active when the bookmark is clicked, and
+  // `data:` can carry an inline HTML document with its own script. Passing
+  // these straight to browser.bookmarks.create/update turns a compromised
+  // or malicious sync account into a way to plant a working bookmarklet in
+  // the victim's browser. Nextcloud's own javascript: support
+  // (hasFeatureJavascriptLinks) stays scoped to that adapter; this is a
+  // blanket backstop for every other adapter, which had no such gating.
+  private sanitizeBookmarkUrl(url: string): string {
+    if (/^\s*(javascript|vbscript|data):/i.test(url)) {
+      Logger.log('Refusing to create/update a local bookmark with an executable URL scheme', url)
+      return 'about:blank'
+    }
+    return url
   }
 }
