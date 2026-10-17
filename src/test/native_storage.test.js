@@ -993,6 +993,28 @@ describe('Native SQLite storage', function() {
       expect(folders.map((f) => f.title)).to.deep.equal(['Ölberg'])
       expect(bookmarks.map((b) => b.title)).to.deep.equal(['Ölmühle'])
     })
+
+    it('should normalize Arabic diacritics, tatweel, and letter variations', async function() {
+      const arabicFolderId = await tree.createFolder(folder(rootId, 'إِدَارَةُ الأَعْمَالِ'))
+      await tree.createBookmark(bookmark(arabicFolderId, 'مُوسِيقَى كْلَاسِيكِيَّة', 'http://ex.com/music', ['وَصَفَاتٌ']))
+      await tree.save()
+
+      // Searching without diacritics and with normalized Alef/Teh Marbuta
+      const folderRes = await query.search('ادارة')
+      expect(folderRes.folders.map((f) => f.title)).to.deep.equal(['إِدَارَةُ الأَعْمَالِ'])
+
+      // Searching with Alef Maksura / Ya variation
+      const musicRes = await query.search('موسيقي')
+      expect(musicRes.bookmarks.map((b) => b.title)).to.deep.equal(['مُوسِيقَى كْلَاسِيكِيَّة'])
+
+      // Searching tag without diacritics
+      const tagRes = await query.search('#وصفات')
+      expect(tagRes.bookmarks.map((b) => b.title)).to.deep.equal(['مُوسِيقَى كْلَاسِيكِيَّة'])
+
+      // Searching with Tatweel / Kashida
+      const tatweelRes = await query.search('مـوسـيـقـى')
+      expect(tatweelRes.bookmarks.map((b) => b.title)).to.deep.equal(['مُوسِيقَى كْلَاسِيكِيَّة'])
+    })
   })
 
   describe('folder hashes', function() {

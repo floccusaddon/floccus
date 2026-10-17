@@ -35,15 +35,26 @@ export function serializeTags(tags?: string[]): string | null {
  * What the UI's search matches its terms against. Lowercasing happens here and
  * not in SQL, because SQLite's lower() and LIKE only fold ASCII -- see the
  * `search_text` note in NativeDatabase.
+ * Also normalizes Arabic text (removing diacritics, tatweel, and unifying letter forms).
  */
+export function normalizeSearchText(text?: string | null): string {
+  return (text ?? '')
+    .toLowerCase()
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/\u0640/g, '')
+    .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627')
+    .replace(/\u0629/g, '\u0647')
+    .replace(/\u0649/g, '\u064A')
+}
+
 export function folderSearchText(title?: string | null): string {
-  return (title ?? '').toLowerCase()
+  return normalizeSearchText(title)
 }
 
 export function bookmarkSearchText(bookmark: { title?: string, url?: string, tags?: string[] }): string {
-  return [bookmark.title ?? '', bookmark.url ?? '', ...(bookmark.tags || [])]
-    .join('\n')
-    .toLowerCase()
+  return normalizeSearchText(
+    [bookmark.title ?? '', bookmark.url ?? '', ...(bookmark.tags || [])].join('\n')
+  )
 }
 
 export function parseTags(tags?: string | null): string[] | undefined {

@@ -15,7 +15,7 @@
         :aria-label="t('LabelBack')"
         @click="goBack">
         <v-icon aria-hidden="true">
-          mdi-arrow-left
+          {{ $vuetify.rtl ? 'mdi-arrow-right' : 'mdi-arrow-left' }}
         </v-icon>
       </v-btn>
       <v-spacer />

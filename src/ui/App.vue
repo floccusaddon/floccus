@@ -172,6 +172,10 @@ export default {
 </script>
 
 <style>
+.v-application {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Cairo", Roboto, Tahoma, sans-serif !important;
+}
+
 @media screen and (min-device-width: 420px) {
   body {
     min-width: 420px;
