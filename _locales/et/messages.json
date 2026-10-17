@@ -729,6 +729,9 @@
   "LabelSorttitle": {
     "message": "Pealkiri"
   },
+  "LabelSortadded": {
+    "message": "Lisamise kuupäev"
+  },
   "LabelSyncmethod": {
     "message": "Sünkroonimismeetod"
   },
