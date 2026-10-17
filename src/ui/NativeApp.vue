@@ -68,7 +68,6 @@ body {
   padding-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
   padding-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
   background: v-bind(background);
-  font-size: 0.45cm !important;
 }
 @media (prefers-color-scheme: dark) {
   html {
@@ -76,7 +75,7 @@ body {
   }
 }
 html {
-  font-size: 0.45cm !important;
+  font-size: 17px !important;
   position: absolute;
   top: 0;
   left: 0;
@@ -84,6 +83,12 @@ html {
   right: 0;
   overflow-x: hidden;
   overflow-y: hidden;
+}
+/* Follow the user's text size setting (Dynamic Type) on iOS; the UI is sized in rem */
+@supports (font: -apple-system-body) {
+  html {
+    font: -apple-system-body !important;
+  }
 }
 .v-navigation-drawer {
   top: var(--safe-area-inset-top, env(safe-area-inset-top)) !important;
