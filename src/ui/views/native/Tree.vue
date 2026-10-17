@@ -5,7 +5,7 @@
       fixed
       app>
       <v-app-bar-nav-icon
-        v-if="!folderTree || currentFolderId === folderTree.id"
+        v-if="!folderTree || !currentFolder || currentFolderId === folderTree.id"
         class="mr-2 ml-n2"
         @click="drawer = !drawer" />
       <v-btn
@@ -34,7 +34,7 @@
       <v-text-field
         :value="searchQuery"
         :label="
-          !folderTree || currentFolderId === folderTree.id
+          !folderTree || !currentFolder || currentFolderId === folderTree.id
             ? t('LabelSearch')
             : t('LabelSearchfolder', [currentFolder.title])
         "
@@ -421,7 +421,8 @@ export default {
   },
   data() {
     return {
-      currentFolderId: 0,
+      // null until the folder tree is there to restore the last viewed folder in
+      currentFolderId: null,
       drawer: false,
       searchQuery: '',
       isEditingFolder: false,
@@ -562,6 +563,8 @@ export default {
   },
   watch: {
     async $route() {
+      // Another account: its folder tree decides where we start (#folderTree)
+      this.currentFolderId = null
       await this.$store.dispatch(
         actions.LOAD_FOLDERS,
         this.$route.params.accountId
@@ -587,8 +590,18 @@ export default {
     async searchQuery() {
       await this.runSearch()
     },
-    async currentFolderId() {
-      await Promise.all([this.loadChildren(), this.loadFolderTags()])
+    async currentFolderId(folderId) {
+      if (folderId === null) {
+        return
+      }
+      await Promise.all([
+        this.loadChildren(),
+        this.loadFolderTags(),
+        this.$store.dispatch(actions.SET_LAST_VIEWED_FOLDER, {
+          accountId: this.id,
+          folderId,
+        }),
+      ])
     },
     /**
      * A new folder tree means the database changed under us -- after an edit or
@@ -596,7 +609,12 @@ export default {
      * render, the tag bar, and any search results, which hold items of the tree
      * they were collected from.
      */
-    async folderTree() {
+    async folderTree(folderTree) {
+      if (folderTree && !this.findItem(this.currentFolderId, folderTree)) {
+        // Either the account was just opened, or the folder we were in is gone
+        // after a sync or an edit. Changing currentFolderId loads its children.
+        await this.restoreFolder(folderTree)
+      }
       await Promise.all([
         this.loadChildren(),
         this.loadFolderTags(),
@@ -650,10 +668,29 @@ export default {
         sortDirection: this.sortDirection,
       })
     },
+    /**
+     * Open the folder last viewed in this account again, if it still exists,
+     * else the root
+     */
+    async restoreFolder(folderTree) {
+      const accountId = this.id
+      const lastViewed = await this.$store.dispatch(actions.LOAD_LAST_VIEWED_FOLDER, accountId)
+      if (accountId !== this.id || folderTree !== this.folderTree) {
+        // Superseded while we were reading
+        return
+      }
+      const folder = typeof lastViewed !== 'undefined' && this.findItem(lastViewed, folderTree)
+      this.currentFolderId = (folder || folderTree).id
+    },
     async loadChildren() {
       // Navigating on while a query is still running would otherwise show the
       // folder we just left
       const run = ++this.childrenRun
+      if (this.currentFolderId === null) {
+        // Still restoring the last viewed folder, which loads them again
+        this.children = []
+        return
+      }
       const children = await this.$store.dispatch(actions.LOAD_CHILDREN, {
         accountId: this.id,
         folderId: this.currentFolderId,
@@ -669,6 +706,10 @@ export default {
      */
     async loadFolderTags() {
       const run = this.childrenRun
+      if (this.currentFolderId === null) {
+        this.folderTags = []
+        return
+      }
       const tags = await this.$store.dispatch(actions.LOAD_TAGS, {
         accountId: this.id,
         folderId: this.currentFolderId,
@@ -811,7 +852,7 @@ export default {
         this.searchQuery = ''
         return
       }
-      if (typeof this.currentFolder.parentId !== 'undefined') {
+      if (this.currentFolder && typeof this.currentFolder.parentId !== 'undefined') {
         this.currentFolderId = this.currentFolder.parentId
         return
       }

@@ -376,10 +376,25 @@ export const actionsDefinition = {
     }, {})
     await commit(mutations.SET_LAST_FOLDER, {accountId, folderId})
   },
+  /**
+   * The folder the user last browsed in this account, which Tree.vue opens
+   * again. Not the same as lastFolders, which is where bookmarks were last
+   * saved to.
+   */
+  async [actions.LOAD_LAST_VIEWED_FOLDER](_, accountId) {
+    const lastViewedFolders = await NativeAccountStorage.getEntry('lastViewedFolders', {})
+    return lastViewedFolders[accountId]
+  },
+  async [actions.SET_LAST_VIEWED_FOLDER](_, {accountId, folderId}) {
+    await NativeAccountStorage.changeEntry('lastViewedFolders', (lastViewedFolders) => {
+      lastViewedFolders[accountId] = folderId
+      return lastViewedFolders
+    }, {})
+  },
   async [actions.SET_LAST_ACCOUNT]({commit}, accountId) {
     await NativeAccountStorage.changeEntry('lastAccount', () => {
       return accountId
     }, null)
-    await commit(mutations.SET_LAST_FOLDER, accountId)
+    await commit(mutations.SET_LAST_ACCOUNT, accountId)
   }
 }
