@@ -729,6 +729,9 @@
   "LabelSorttitle": {
     "message": "Title"
   },
+  "LabelSortadded": {
+    "message": "Date added"
+  },
   "LabelSyncmethod": {
     "message": "Sync method"
   },

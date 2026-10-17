@@ -354,9 +354,9 @@ export const actionsDefinition = {
   async [actions.STOP_LOGIN_FLOW]({commit}) {
     commit(mutations.SET_LOGIN_FLOW_STATE, false)
   },
-  async [actions.SET_SORTBY]({state}, {accountId, sortBy}) {
+  async [actions.SET_SORTBY]({state}, {accountId, sortBy, sortDirection}) {
     const account = await Account.get(accountId)
-    await account.setData({ sortBy })
+    await account.setData({ sortBy, sortDirection })
   },
   async [actions.SET_LAST_FOLDER]({commit}, {accountId, folderId}) {
     await NativeAccountStorage.changeEntry('lastFolders', (lastFolders) => {

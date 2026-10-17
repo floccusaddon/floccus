@@ -68,40 +68,24 @@
             v-bind="attrs"
             v-on="on">
             <v-icon aria-hidden="true">
-              {{ sortIcons[sortBy] }}
+              {{ sortIcons[sortBy][sortDirection] }}
             </v-icon>
           </v-btn>
         </template>
 
         <v-list>
-          <v-list-item @click="sortBy = 'title'">
+          <v-list-item
+            v-for="option in sortOptions"
+            :key="option.sortBy"
+            :input-value="option.sortBy === sortBy"
+            @click="selectSort(option.sortBy)">
             <v-list-item-avatar>
               <v-icon aria-hidden="true">
-                {{ sortIcons['title'] }}
+                {{ sortIcons[option.sortBy][option.sortBy === sortBy ? sortDirection : defaultSortDirection(option.sortBy)] }}
               </v-icon>
             </v-list-item-avatar>
             <v-list-item-title>
-              {{ t('LabelSorttitle') }}
-            </v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="sortBy = 'url'">
-            <v-list-item-avatar>
-              <v-icon aria-hidden="true">
-                {{ sortIcons['url'] }}
-              </v-icon>
-            </v-list-item-avatar>
-            <v-list-item-title>
-              {{ t('LabelSorturl') }}
-            </v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="sortBy = 'index'">
-            <v-list-item-avatar>
-              <v-icon aria-hidden="true">
-                {{ sortIcons['index'] }}
-              </v-icon>
-            </v-list-item-avatar>
-            <v-list-item-title>
-              {{ t('LabelSortcustom') }}
+              {{ t(option.label) }}
             </v-list-item-title>
           </v-list-item>
         </v-list>
@@ -449,12 +433,20 @@ export default {
       isImportingBookmarks: false,
       fab: false,
       searchDebounceTimer: null,
+      sortOptions: [
+        { sortBy: 'title', label: 'LabelSorttitle' },
+        { sortBy: 'url', label: 'LabelSorturl' },
+        { sortBy: 'added', label: 'LabelSortadded' },
+        { sortBy: 'index', label: 'LabelSortcustom' },
+      ],
       sortIcons: {
-        title: 'mdi-sort-alphabetical-ascending',
-        url: 'mdi-sort-bool-ascending',
-        index: 'mdi-sort-ascending',
+        title: { asc: 'mdi-sort-alphabetical-ascending', desc: 'mdi-sort-alphabetical-descending' },
+        url: { asc: 'mdi-sort-bool-ascending', desc: 'mdi-sort-bool-descending' },
+        added: { asc: 'mdi-sort-clock-ascending', desc: 'mdi-sort-clock-descending' },
+        index: { asc: 'mdi-sort-ascending', desc: 'mdi-sort-descending' },
       },
       sortBy: 'index',
+      sortDirection: 'asc',
       syncProgress: 0,
       // The current folder's children, queried from the database rather than
       // held in memory as part of a tree (see LOAD_CHILDREN)
@@ -516,28 +508,34 @@ export default {
         return this.searchItems
       }
       const items = this.children
-      if (this.sortBy !== 'index') {
-        return sortBy(items, [
-          (item) => {
-            if (this.sortBy === 'url') {
-              if (item.url) {
-                try {
-                  return new URL(item.url).hostname
-                } catch (e) {
-                  return item.url.toLowerCase()
-                }
-              } else {
-                return '0000000' + item.title.toLowerCase() // folders to the top
-              }
-            }
-            return item.type === 'folder'
-              ? '0000000' + item.title.toLowerCase()
-              : item[this.sortBy].toLowerCase()
-          },
-        ])
-      } else {
-        return items
+      const descending = this.sortDirection === 'desc'
+      if (this.sortBy === 'index') {
+        return descending ? items.slice().reverse() : items
       }
+      // Folders stay on top in either direction, so they are sorted on their own
+      const sortKey = (item) => {
+        if (this.sortBy === 'added') {
+          // Local ids are handed out in ascending order (NativeTree's highestId),
+          // so they tell the order in which items arrived on this device
+          return Number(item.id)
+        }
+        if (this.sortBy === 'url' && item.type !== 'folder') {
+          try {
+            return new URL(item.url).hostname
+          } catch (e) {
+            return item.url.toLowerCase()
+          }
+        }
+        return item.title.toLowerCase()
+      }
+      const sortItems = (list) => {
+        const sorted = sortBy(list, [sortKey])
+        return descending ? sorted.reverse() : sorted
+      }
+      return [
+        ...sortItems(items.filter(item => item.type === 'folder')),
+        ...sortItems(items.filter(item => item.type !== 'folder')),
+      ]
     },
     routes() {
       return routes
@@ -568,7 +566,7 @@ export default {
         actions.LOAD_FOLDERS,
         this.$route.params.accountId
       )
-      this.sortBy = this.$store.state.accounts[this.id].data.sortBy || 'index'
+      this.loadSort()
     },
     async syncing(current, previous) {
       if (!current && previous) {
@@ -585,12 +583,6 @@ export default {
           this.$route.params.accountId
         )
       }
-    },
-    async sortBy(current) {
-      await this.$store.dispatch(actions.SET_SORTBY, {
-        accountId: this.$route.params.accountId,
-        sortBy: current,
-      })
     },
     async searchQuery() {
       await this.runSearch()
@@ -621,7 +613,7 @@ export default {
   },
   mounted() {
     this.$store.dispatch(actions.LOAD_FOLDERS, this.$route.params.accountId)
-    this.sortBy = this.$store.state.accounts[this.id].data.sortBy || 'index'
+    this.loadSort()
     App.addListener('resume', () =>
       this.$store.dispatch(
         actions.LOAD_FOLDERS_FROM_DISK,
@@ -633,6 +625,31 @@ export default {
     this.goBack()
   },
   methods: {
+    loadSort() {
+      const data = this.$store.state.accounts[this.id].data
+      this.sortBy = this.sortIcons[data.sortBy] ? data.sortBy : 'index'
+      this.sortDirection = data.sortDirection || this.defaultSortDirection(this.sortBy)
+    },
+    defaultSortDirection(sortBy) {
+      // Sorting by date is for finding what was added last
+      return sortBy === 'added' ? 'desc' : 'asc'
+    },
+    /**
+     * Choosing the current sort order again reverses it
+     */
+    async selectSort(sortBy) {
+      if (sortBy === this.sortBy) {
+        this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'
+      } else {
+        this.sortBy = sortBy
+        this.sortDirection = this.defaultSortDirection(sortBy)
+      }
+      await this.$store.dispatch(actions.SET_SORTBY, {
+        accountId: this.$route.params.accountId,
+        sortBy: this.sortBy,
+        sortDirection: this.sortDirection,
+      })
+    },
     async loadChildren() {
       // Navigating on while a query is still running would otherwise show the
       // folder we just left
