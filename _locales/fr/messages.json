@@ -12,7 +12,7 @@
     "message": "E004: Le dossier de destination n'existe pas"
   },
   "Error005": {
-    "message": "E005: Le dossier dans lequel créer l'item n'existe pas"
+    "message": "E005: Le parent de ce dossier n'existe pas"
   },
   "Error006": {
     "message": "E006: Le dossier à mettre à jour n'existe pas"
@@ -111,7 +111,7 @@
     "message": "E037: Ressource verrouillée"
   },
   "Error038": {
-    "message": "E038: Impossible de trouver le dossier local"
+    "message": "E038: Impossible de trouver le dossier local pour ce profil. Choisissez un dossier de synchronisation dans les paramètres de ce profil."
   },
   "Error039": {
     "message": "E039: Impossible de mettre à jour le signet suivant sur le serveur: {0}"
@@ -166,6 +166,12 @@
   },
   "Error057": {
     "message": "E057: Répertoire serveur inattendu: `{0}`. Merci de vérifier la configuration de votre serveur."
+  },
+  "Error058": {
+    "message": "E058: Votre fichier de signets n'est pas situé à la racine de votre Dropbox, et plusieurs fichiers avec un nom identique existent dans votre Dropbox: {0}. Floccus ne peut pas déterminer lequel choisir. Déplacez le fichier correct à la racine de votre Dropbox, ou renommez les autres fichiers."
+  },
+  "Error059": {
+    "message": "E059: Votre fichier de signets contient des signets ou des dossiers sans les identifiants dont Floccus a besoin pour pouvoir les utiliser. Floccus ne peut synchroniser que les signets dont il a créé les identifiants. Pour utiliser les signets provenant d'un fichier existant, importez-les dans votre navigateur, et laissez Floccus créer un nouveau fichier de signets."
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -265,6 +271,21 @@
   },
   "StatusScheduled": {
     "message": "Planifié"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "Connexion nécessaire"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "Tant que ce profil n'est pas connecté à votre compte il ne peut pas synchroniser. Ouvrez les options du profil pour vous connecter."
+  },
+  "LabelAuthorize": {
+    "message": "Connexion"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "Profil(s) importé(s). Les informations de connexion ne peuvent pas être transférées entre appareils, par conséquent, si vous voulez synchroniser vos profils via Google Drive ou Dropbox, vous devez vous reconnecter."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "Profil(s) importé(s). Les dossiers de signets ne peuvent pas être identifiés entre appareils différents. Choisissez un dossier local que ce profil utilisera pour la synchronisation."
   },
   "LabelReset": {
     "message": "Réinitialisation"
@@ -711,6 +732,9 @@
   "LabelSorttitle": {
     "message": "Titre"
   },
+  "LabelSortadded": {
+    "message": "Date ajoutée"
+  },
   "LabelSyncmethod": {
     "message": "Méthode de synchronisation"
   },
@@ -796,7 +820,7 @@
     "message": "Git via HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "L'option Git synchronise vos signets en les conservant dans un fichier situé sur un dépôt Git. Il n'y a pas d'interface web accompagnant cette option, mais vous pouvez l'utiliser avec n'importe quel serveur Git, tel que Github, Gitlab, Gitea, etc. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option ne supporte pas le chiffrement point à point. Cette option n'est actuellement pas disponible pour l'application mobile."
+    "message": "Synchronisez vos signets en les conservant dans un fichier situé sur un dépôt Git. Il n'y a pas d'interface Web accompagnant cette option, et vous pouvez l'utiliser avec n'importe quel serveur Git, tel que Github, Gitlab, Gitea, etc. Elle permet de synchroniser des signets HTTP, FTP, données, fichier et JavaScript. Cette option ne supporte pas le chiffrement point à point."
   },
   "LabelGiturl": {
     "message": "URL du dépôt utilisant HTTP"
@@ -947,6 +971,15 @@
   },
   "LabelParentfolder": {
     "message": "Répertoire parent"
+  },
+  "LabelTags": {
+    "message": "Étiquettes"
+  },
+  "DescriptionTags": {
+    "message": "Entrez une étiquette"
+  },
+  "LabelSearchbytag": {
+    "message": "Recherche des signets étiquetés {0}"
   },
   "LabelHome": {
     "message": "Accueil"
