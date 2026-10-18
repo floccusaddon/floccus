@@ -181,7 +181,7 @@ export default class NativeAccount extends Account {
         er.paths.join(', '),
       ])
     }
-    if (er instanceof FloccusError) {
+    if (er instanceof FloccusError && typeof er.code !== 'undefined') {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))
     }
     if (er.list) {

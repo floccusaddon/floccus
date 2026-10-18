@@ -30,7 +30,7 @@ import { TAdapter } from '../interfaces/Adapter'
 import {
   CancelledSyncError, ClientsideAdditionFailsafeError,
   ClientsideDeletionFailsafeError, FloccusError, ServersideAdditionFailsafeError,
-  ServersideDeletionFailsafeError
+  ServersideDeletionFailsafeError, UnsupportedItemError
 } from '../../errors/Error'
 
 import NextcloudBookmarksAdapter from '../adapters/NextcloudBookmarks'
@@ -1649,7 +1649,19 @@ export default class SyncProcess {
       await this.updateProgress()
     }
 
-    const { completed, result: id } = await this.raceWithCancellation(action.payload.visitCreate(resource))
+    let completed: boolean, id: string | number
+    try {
+      ({ completed, result: id } = await this.raceWithCancellation(action.payload.visitCreate(resource)))
+    } catch (e) {
+      if (!(e instanceof UnsupportedItemError)) {
+        throw e
+      }
+      // Left out on purpose: unmapped and uncached, so the next sync offers it again
+      Logger.log('Skipping item the ' + targetLocation + ' tree cannot hold: ' + e.message)
+      diff.retract(action)
+      await this.updateProgress()
+      return
+    }
     if (!completed) {
       // The create was cancelled before its side effect landed: let a resumed sync retry it.
       throw new CancelledSyncError()

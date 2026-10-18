@@ -119,11 +119,15 @@ export default class BrowserController {
       )
     }
 
-    browser.permissions.contains({permissions: ['history']}).then((historyAllowed) => {
-      if (historyAllowed) {
-        browser.history.onVisited.addListener((historyItem) => this.onVisitUrl(historyItem))
-      }
-    })
+    try {
+      browser.permissions.contains({ permissions: ['history'] }).then((historyAllowed) => {
+        if (historyAllowed) {
+          browser.history.onVisited.addListener((historyItem) => this.onVisitUrl(historyItem))
+        }
+      })
+    } catch (error) {
+      console.warn('Could not set up history listener', error)
+    }
 
     // Set up the alarms
 

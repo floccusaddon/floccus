@@ -15,14 +15,15 @@ import {
   UnknownFolderItemOrderError, UpdateBookmarkError
 } from '../../errors/Error'
 import {i18n} from '../native/I18n'
-import { OrderFolderResource } from '../interfaces/Resource'
+import Resource, { OrderFolderResource } from '../interfaces/Resource'
 import { ItemLocation } from '../Tree'
 
 export default class BrowserAccount extends Account {
+
   static async get(id:string):Promise<Account> {
     const storage = new BrowserAccountStorage(id)
     const data = await storage.getAccountData(null)
-    const tree = new BrowserTree(storage, data.localRoot)
+    const tree = data.localRoot !== 'tabs' ? new BrowserTree(storage, data.localRoot) : null
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new BrowserAccount(id, storage, await AdapterFactory.factory(data), tree)
@@ -34,7 +35,7 @@ export default class BrowserAccount extends Account {
     const storage = new BrowserAccountStorage(id)
 
     await storage.setAccountData(data, null)
-    const tree = new BrowserTree(storage, data.localRoot)
+    const tree = data.localRoot !== 'tabs' ? new BrowserTree(storage, data.localRoot) : null
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new BrowserAccount(id, storage, adapter, tree)
@@ -146,7 +147,7 @@ export default class BrowserAccount extends Account {
     if (er instanceof DropboxAmbiguousFileError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.paths.join(', ')])
     }
-    if (er instanceof FloccusError) {
+    if (er instanceof FloccusError && typeof er.code !== 'undefined') {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))
     }
     if (er.list) {

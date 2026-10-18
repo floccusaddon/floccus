@@ -555,3 +555,15 @@ export class MissingItemIdsError extends FloccusError {
     Object.setPrototypeOf(this, MissingItemIdsError.prototype)
   }
 }
+
+/**
+ * Not a failure: thrown by a resource's create for an item it can't hold (e.g.
+ * a tab with a URL Firefox refuses to open). The sync leaves the item out --
+ * no mapping, nothing in the cache -- and offers it again next time.
+ */
+export class UnsupportedItemError extends Error {
+  constructor(message) {
+    super(message)
+    Object.setPrototypeOf(this, UnsupportedItemError.prototype)
+  }
+}
