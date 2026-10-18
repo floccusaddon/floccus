@@ -59,8 +59,7 @@ export default {
 }
 </script>
 <style>
-[dir="rtl"] .v-application,
-[lang^="ar"] .v-application {
+[dir="rtl"] .v-application {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Cairo", Roboto, Tahoma, sans-serif !important;
 }
 

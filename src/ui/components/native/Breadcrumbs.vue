@@ -2,7 +2,7 @@
   <v-breadcrumbs
     v-if="items.length > 1"
     :items="items"
-    :style="{...(inItem && { [($vuetify && $vuetify.rtl) ? 'marginRight' : 'marginLeft']: '-1.5em', marginTop: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 0 })}">
+    :style="{...(inItem && { marginInlineStart: '-1.5em', marginTop: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 0 })}">
     <template #item="{ item }">
       <v-breadcrumbs-item @click="$emit('click', item.id)">
         <template v-if="item.id === folderTree.id">

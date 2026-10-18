@@ -961,6 +961,14 @@ describe('Native SQLite storage', function() {
       const res = await query.search('مقالات')
       expect(res.bookmarks.map((b) => b.title)).to.deep.equal(['Arabic URL'])
     })
+
+    it('should match percent-encoded fragments in bookmark URLs', async function() {
+      await tree.createBookmark(bookmark(rootId, 'Space in URL', 'https://example.com/a%20b'))
+      await tree.save()
+
+      const res = await query.search('a%20b')
+      expect(res.bookmarks.map((b) => b.title)).to.deep.equal(['Space in URL'])
+    })
   })
 
   describe('folder hashes', function() {

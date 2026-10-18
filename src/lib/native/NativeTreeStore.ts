@@ -65,8 +65,11 @@ export function folderSearchText(title?: string | null): string {
 }
 
 export function bookmarkSearchText(bookmark: { title?: string, url?: string, tags?: string[] }): string {
+  const url = bookmark.url ?? ''
+  const decodedUrl = safeDecodeURI(url)
+  const urlEntries = decodedUrl !== url ? [url, decodedUrl] : [url]
   return normalizeSearchText(
-    [bookmark.title ?? '', safeDecodeURI(bookmark.url), ...(bookmark.tags || [])].join('\n')
+    [bookmark.title ?? '', ...urlEntries, ...(bookmark.tags || [])].join('\n')
   )
 }
 

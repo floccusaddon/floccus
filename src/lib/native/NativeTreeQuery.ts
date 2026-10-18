@@ -258,24 +258,25 @@ export default class NativeTreeQuery {
     Logger.log('Building search index of account ' + this.accountId)
 
     const folderRows = await NativeDatabase.query(
-      'SELECT id, title FROM folders WHERE account_id = ?',
+      'SELECT id, title, search_text FROM folders WHERE account_id = ?',
       [this.accountId]
     )
     const bookmarkRows = await NativeDatabase.query(
-      'SELECT id, title, url, tags FROM bookmarks WHERE account_id = ?',
+      'SELECT id, title, url, tags, search_text FROM bookmarks WHERE account_id = ?',
       [this.accountId]
     )
     const statements: TStatement[] = [
       ...folderRows.map((row) => ({
-        statement: 'UPDATE folders SET search_text = ? WHERE account_id = ? AND id = ?',
-        values: [folderSearchText(row.title), this.accountId, row.id],
+        statement: 'UPDATE folders SET search_text = ? WHERE account_id = ? AND id = ? AND search_text IS ?',
+        values: [folderSearchText(row.title), this.accountId, row.id, row.search_text ?? null],
       })),
       ...bookmarkRows.map((row) => ({
-        statement: 'UPDATE bookmarks SET search_text = ? WHERE account_id = ? AND id = ?',
+        statement: 'UPDATE bookmarks SET search_text = ? WHERE account_id = ? AND id = ? AND search_text IS ?',
         values: [
           bookmarkSearchText({ title: row.title ?? undefined, url: row.url ?? undefined, tags: parseTags(row.tags) }),
           this.accountId,
           row.id,
+          row.search_text ?? null,
         ],
       })),
       {
@@ -406,11 +407,13 @@ function matchesTags(bookmark: TLocalBookmark, tags: string[]): boolean {
  */
 function matchesTerms(bookmark: TLocalBookmark, terms: string[]): boolean {
   const title = normalizeSearchText(bookmark.title || '')
-  const url = normalizeSearchText(safeDecodeURI(bookmark.url || ''))
+  const rawUrl = normalizeSearchText(bookmark.url || '')
+  const decodedUrl = normalizeSearchText(safeDecodeURI(bookmark.url || ''))
   const tags = lowercaseTags(bookmark)
   return terms.every((term) =>
     title.includes(term) ||
-    url.includes(term) ||
+    rawUrl.includes(term) ||
+    decodedUrl.includes(term) ||
     tags.some((tag) => tag.includes(term))
   )
 }
