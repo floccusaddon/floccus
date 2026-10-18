@@ -19,3 +19,8 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Annotations referenced by Tink (via androidx.security:security-crypto, a
+# dependency of @capacitor-community/sqlite); only needed at compile time
+-dontwarn com.google.errorprone.annotations.**
+-dontwarn javax.annotation.**
