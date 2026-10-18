@@ -537,3 +537,33 @@ export class UnexpectedServerFolder extends FloccusError {
     Object.setPrototypeOf(this, UnexpectedServerFolder.prototype)
   }
 }
+
+export class DropboxAmbiguousFileError extends FloccusError {
+  public readonly code = 58
+  public paths: string[]
+  constructor(paths: string[]) {
+    super(`E058: Found multiple files with the name of your bookmarks file in your Dropbox: ${paths.join(', ')}`)
+    this.paths = paths
+    Object.setPrototypeOf(this, DropboxAmbiguousFileError.prototype)
+  }
+}
+
+export class MissingItemIdsError extends FloccusError {
+  public readonly code = 59
+  constructor() {
+    super('E059: The bookmarks file contains bookmarks or folders without an ID. Floccus can only sync bookmarks files that it created itself.')
+    Object.setPrototypeOf(this, MissingItemIdsError.prototype)
+  }
+}
+
+/**
+ * Not a failure: thrown by a resource's create for an item it can't hold (e.g.
+ * a tab with a URL Firefox refuses to open). The sync leaves the item out --
+ * no mapping, nothing in the cache -- and offers it again next time.
+ */
+export class UnsupportedItemError extends Error {
+  constructor(message) {
+    super(message)
+    Object.setPrototypeOf(this, UnsupportedItemError.prototype)
+  }
+}

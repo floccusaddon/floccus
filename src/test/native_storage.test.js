@@ -648,6 +648,85 @@ describe('Native SQLite storage', function() {
       const newId = await migrated.createBookmark(bookmark(1, 'url3', 'http://ex.com/three'))
       expect(Number(newId)).to.be.above(3)
     })
+
+    it('should write a failed batch again with the next flush', async function() {
+      const folderId = await tree.createFolder(
+        new Folder({ parentId: rootId, title: 'foo', location: ItemLocation.LOCAL })
+      )
+      await tree.save()
+
+      const original = NativeDatabase.batch
+      NativeDatabase.batch = function() {
+        NativeDatabase.batch = original
+        return Promise.reject(new Error('disk I/O error'))
+      }
+      try {
+        let failed = false
+        try {
+          await tree.createBookmark(bookmark(folderId, 'url1', 'http://ex.com/one'))
+        } catch (e) {
+          failed = true
+        }
+        expect(failed).to.equal(true)
+      } finally {
+        NativeDatabase.batch = original
+      }
+
+      // Nothing else queued: the flush alone has to write the failed batch
+      await tree.save()
+      const children = await new NativeTreeQuery(accountId).getChildren(folderId)
+      expect(children.map((child) => child.url)).to.deep.equal(['http://ex.com/one'])
+      await expectRoundTrip()
+    })
+
+    it('should not load over statements that could not be written', async function() {
+      const folderId = await tree.createFolder(
+        new Folder({ parentId: rootId, title: 'foo', location: ItemLocation.LOCAL })
+      )
+      await tree.save()
+
+      const original = NativeDatabase.batch
+      NativeDatabase.batch = function() {
+        return Promise.reject(new Error('disk I/O error'))
+      }
+      try {
+        let failed = false
+        try {
+          await tree.createBookmark(bookmark(folderId, 'url1', 'http://ex.com/one'))
+        } catch (e) {
+          failed = true
+        }
+        expect(failed).to.equal(true)
+
+        // The retry fails as well, and the flush has to say so
+        failed = false
+        try {
+          await tree.save()
+        } catch (e) {
+          failed = true
+        }
+        expect(failed).to.equal(true)
+
+        // Rebuilding from the rows would lose the bookmark from memory, too
+        failed = false
+        try {
+          await tree.load()
+        } catch (e) {
+          failed = true
+        }
+        expect(failed).to.equal(true)
+      } finally {
+        NativeDatabase.batch = original
+      }
+      const folder = (await tree.getBookmarksTree()).findFolder(folderId)
+      expect(folder.children.map((child) => child.url)).to.deep.equal(['http://ex.com/one'])
+
+      // Once the database works again, the next load writes them first
+      await tree.load()
+      const children = await new NativeTreeQuery(accountId).getChildren(folderId)
+      expect(children.map((child) => child.url)).to.deep.equal(['http://ex.com/one'])
+      await expectRoundTrip()
+    })
   })
 
   describe('browsing and search', function() {

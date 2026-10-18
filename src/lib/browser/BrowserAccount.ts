@@ -11,17 +11,19 @@ import {
   MissingItemOrderError,
   ParseResponseError, ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, UnexpectedFolderPathError,
   UnexpectedServerFolder,
+  DropboxAmbiguousFileError,
   UnknownFolderItemOrderError, UpdateBookmarkError
 } from '../../errors/Error'
 import {i18n} from '../native/I18n'
-import { OrderFolderResource } from '../interfaces/Resource'
+import Resource, { OrderFolderResource } from '../interfaces/Resource'
 import { ItemLocation } from '../Tree'
 
 export default class BrowserAccount extends Account {
+
   static async get(id:string):Promise<Account> {
     const storage = new BrowserAccountStorage(id)
     const data = await storage.getAccountData(null)
-    const tree = new BrowserTree(storage, data.localRoot)
+    const tree = data.localRoot !== 'tabs' ? new BrowserTree(storage, data.localRoot) : null
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new BrowserAccount(id, storage, await AdapterFactory.factory(data), tree)
@@ -33,7 +35,7 @@ export default class BrowserAccount extends Account {
     const storage = new BrowserAccountStorage(id)
 
     await storage.setAccountData(data, null)
-    const tree = new BrowserTree(storage, data.localRoot)
+    const tree = data.localRoot !== 'tabs' ? new BrowserTree(storage, data.localRoot) : null
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new BrowserAccount(id, storage, adapter, tree)
@@ -54,7 +56,9 @@ export default class BrowserAccount extends Account {
     await this.setData({rootPath: await BrowserTree.getPathFromLocalId(accData.localRoot)})
     await this.storage.initMappings()
     await this.storage.initCache()
-    this.localTree = new BrowserTree(this.storage, accData.localRoot)
+    if (this.getData().localRoot !== 'tabs') {
+      this.localTree = new BrowserTree(this.storage, accData.localRoot)
+    }
   }
 
   async isInitialized():Promise<boolean> {
@@ -86,7 +90,9 @@ export default class BrowserAccount extends Account {
   async updateFromStorage():Promise<void> {
     const data = await this.storage.getAccountData(null)
     this.server.setData(data)
-    this.localTree = new BrowserTree(this.storage, data.localRoot)
+    if (this.getData().localRoot !== 'tabs') {
+      this.localTree = new BrowserTree(this.storage, data.localRoot)
+    }
   }
 
   static async stringifyError(er:any):Promise<string> {
@@ -138,7 +144,10 @@ export default class BrowserAccount extends Account {
     if (er instanceof UnexpectedServerFolder) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.serverFolder])
     }
-    if (er instanceof FloccusError) {
+    if (er instanceof DropboxAmbiguousFileError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.paths.join(', ')])
+    }
+    if (er instanceof FloccusError && typeof er.code !== 'undefined') {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'))
     }
     if (er.list) {

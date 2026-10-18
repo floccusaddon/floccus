@@ -75,19 +75,6 @@ export default class BrowserController {
       })
     }
 
-    // set up change listener
-    browser.bookmarks.onChanged.addListener((localId, details) =>
-      this.onchange(localId, details)
-    )
-    browser.bookmarks.onMoved.addListener((localId, details) =>
-      this.onchange(localId, details)
-    )
-    browser.bookmarks.onRemoved.addListener((localId, details) =>
-      this.onchange(localId, details)
-    )
-    browser.bookmarks.onCreated.addListener((localId, details) =>
-      this.onchange(localId, details)
-    )
     browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) =>
       this.onTabsChanged(tabId)
     )
@@ -100,6 +87,7 @@ export default class BrowserController {
     browser.tabs.onDetached.addListener((tabId, changeInfo, tab) =>
       this.onTabsChanged(tabId)
     )
+
     if (typeof browser.tabGroups !== 'undefined') {
       browser.tabGroups.onCreated.addListener((tabId, changeInfo, tab) =>
         this.onTabsChanged(tabId)
@@ -115,11 +103,31 @@ export default class BrowserController {
       )
     }
 
-    browser.permissions.contains({permissions: ['history']}).then((historyAllowed) => {
-      if (historyAllowed) {
-        browser.history.onVisited.addListener((historyItem) => this.onVisitUrl(historyItem))
-      }
-    })
+    if (typeof browser.bookmarks !== 'undefined') {
+      // set up change listener
+      browser.bookmarks.onChanged.addListener((localId, details) =>
+        this.onchange(localId, details)
+      )
+      browser.bookmarks.onMoved.addListener((localId, details) =>
+        this.onchange(localId, details)
+      )
+      browser.bookmarks.onRemoved.addListener((localId, details) =>
+        this.onchange(localId, details)
+      )
+      browser.bookmarks.onCreated.addListener((localId, details) =>
+        this.onchange(localId, details)
+      )
+    }
+
+    try {
+      browser.permissions.contains({ permissions: ['history'] }).then((historyAllowed) => {
+        if (historyAllowed) {
+          browser.history.onVisited.addListener((historyItem) => this.onVisitUrl(historyItem))
+        }
+      })
+    } catch (error) {
+      console.warn('Could not set up history listener', error)
+    }
 
     // Set up the alarms
 

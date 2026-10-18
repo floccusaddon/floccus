@@ -10,6 +10,7 @@ import {
   NetworkError,
   DropboxOAuthTokenError, ResourceLockedError, RequestTimeoutError,
   DropboxSearchError,
+  DropboxAmbiguousFileError,
   DropboxTemplateError,
   ParseResponseError,
 } from '../../errors/Error'
@@ -328,48 +329,10 @@ export default class DropboxAdapter extends CachingAdapter {
 
     this.accessToken = await this.getAccessToken(this.server.refreshToken)
 
-    let fileList
-    for (let i = 0; i < 3; i++) {
-      fileList = await this.listFiles(this.server.bookmark_file, 100)
-      if (!fileList.matches) {
-        throw new DropboxSearchError()
-      }
-      if (fileList.matches.length > 0) {
-        break
-      }
-      // Try again 2 times after 2 seconds if the first time didn't yield anything
-      // as not all dropbox servers may know about the file yet (mostly useful for CI)
-      await this.timeout(2000)
-    }
+    const file = await this.findBookmarksFile()
 
-    let file = fileList.matches[0]
-
-    const filesToDelete = fileList.matches.slice(1)
-    for (const fileToDelete of filesToDelete) {
-      try {
-        await this.deleteFile(fileToDelete.metadata.metadata.id)
-      } catch (e) {
-        Logger.log('Failed to delete superfluous file: ' + e.message)
-      }
-    }
-
-    // The Dropbox search index (search_v2) is only eventually consistent, so a
-    // recently created/updated file can be missing from the results even after
-    // the retries above. If we trust that false negative, the sync process
-    // resets its cache (treating the profile as new) and onSyncComplete then
-    // tries to createFile() with mode 'add', which fails with
-    // "path/conflict/file" because the file actually exists. Fall back to a
-    // strongly consistent metadata lookup by path before giving up.
-    if (!file || !file.metadata?.metadata?.id) {
-      const metadata = await this.getFileMetadataByPath(`/${this.server.bookmark_file}`)
-      if (metadata && metadata.id) {
-        Logger.log('Dropbox search returned no matches, but the bookmarks file exists (found via get_metadata by path)')
-        file = { metadata: { metadata } }
-      }
-    }
-
-    if (file && file.metadata.metadata.id) {
-      this.fileId = file.metadata.metadata.id
+    if (file) {
+      this.fileId = file.id
 
       // Get Floccus templateId for user or add one if not exists
       await this.setupTemplate()
@@ -651,7 +614,8 @@ export default class DropboxAdapter extends CachingAdapter {
         },
         'options': {
           'file_status': 'active',
-          'filename_only': false,
+          // Matching file contents would turn up any file that merely mentions the name
+          'filename_only': true,
           'max_results': limit,
           'path': ''
         },
@@ -668,6 +632,40 @@ export default class DropboxAdapter extends CachingAdapter {
     const json = await res.json()
 
     return json
+  }
+
+  /**
+   * Finds the bookmarks file: createFile() puts it at the top level, so that
+   * is looked up first (get_metadata is strongly consistent, unlike
+   * search_v2). Only if it isn't there do we search for a file of that name
+   * elsewhere, in case the user moved it. Never deletes anything: search
+   * results are not guaranteed to be ours, and since Dropbox addresses files
+   * by path, floccus itself cannot have created duplicates.
+   * @returns {any} The file's metadata, or null if there is no such file
+   */
+  async findBookmarksFile(): Promise<any> {
+    const metadata = await this.getFileMetadataByPath(`/${this.server.bookmark_file}`)
+    if (metadata && metadata['.tag'] === 'file' && metadata.id) {
+      return metadata
+    }
+
+    const fileList = await this.listFiles(this.server.bookmark_file, 100)
+    if (!fileList.matches) {
+      throw new DropboxSearchError()
+    }
+    // search_v2 also returns fuzzy matches, so compare names exactly
+    const fileName = this.server.bookmark_file.toLowerCase()
+    const files = fileList.matches
+      .map(match => match.metadata?.metadata)
+      .filter(file => file && file['.tag'] === 'file' && file.id && file.name?.toLowerCase() === fileName)
+    if (files.length > 1) {
+      throw new DropboxAmbiguousFileError(files.map(file => file.path_display))
+    }
+    if (files.length === 1) {
+      Logger.log('Dropbox: Using bookmarks file found at ' + files[0].path_display)
+      return files[0]
+    }
+    return null
   }
 
   /**
@@ -819,6 +817,8 @@ export default class DropboxAdapter extends CachingAdapter {
 
   /**
    * Delete file on Dropbox using file id
+   * Not used by the sync itself (floccus never deletes files on Dropbox, see
+   * findBookmarksFile); the tests use it to clean up after themselves.
    * @param {string} id A unique file identifier
    * @returns {boolean} true if 200 and false if other HTTP status
    */

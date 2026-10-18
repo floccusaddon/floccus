@@ -167,6 +167,12 @@
   "Error057": {
     "message": "E057: Unexpected server folder: `{0}`. Please check your server folder configuration."
   },
+  "Error058": {
+    "message": "E058: Your bookmarks file is not at the top level of your Dropbox, and there are several files with its name in your Dropbox: {0}. Floccus cannot tell which one to use. Move the right one to the top level of your Dropbox or rename the others."
+  },
+  "Error059": {
+    "message": "E059: Your bookmarks file contains bookmarks or folders without an ID, which floccus needs to keep track of them. Floccus can only sync bookmarks files that it created itself. To use bookmarks from an existing file, import them into your browser and let floccus create a new file."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -725,6 +731,9 @@
   },
   "LabelSorttitle": {
     "message": "Title"
+  },
+  "LabelSortadded": {
+    "message": "Date added"
   },
   "LabelSyncmethod": {
     "message": "Sync method"

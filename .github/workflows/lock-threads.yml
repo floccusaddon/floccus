@@ -22,3 +22,4 @@ jobs:
             This issue has been automatically locked since there
             has not been any recent activity after it was closed.
             Please open a new issue for related bugs.
+          process-only: 'issues, prs'

@@ -5,6 +5,7 @@ import PQueue from 'p-queue'
 import { Bookmark, Folder, ItemLocation } from './Tree'
 import Ordering from './interfaces/Ordering'
 import uniq from 'lodash/uniq'
+import { UnsupportedItemError } from '../errors/Error'
 
 export default class LocalTabs implements OrderFolderResource<typeof ItemLocation.LOCAL> {
   private queue: PQueue<{ concurrency: 10 }>
@@ -17,6 +18,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
   // Opera dissolves a group with fewer than two tabs, so there createFolder()
   // needs two placeholders and they may only go while the group keeps two tabs
   private minGroupSize = 1
+  private flattenedFolderCount = 0
 
   // see https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create#url
   public static URL_SCHEME_BLACKLIST = [
@@ -30,6 +32,41 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
   constructor(storage: unknown) {
     this.storage = storage
     this.queue = new PQueue({ concurrency: 10 })
+  }
+
+  private isUnsupportedFirefoxUrl(url?: string): boolean {
+    if (!url || self.location.protocol !== 'moz-extension:') return false
+    try {
+      return LocalTabs.URL_SCHEME_BLACKLIST.includes(new URL(url).protocol)
+    } catch (e) {
+      return false
+    }
+  }
+
+  private static windowsSupported(): boolean {
+    return typeof browser.windows !== 'undefined'
+  }
+
+  private static tabGroupsSupported(): boolean {
+    return typeof browser.tabGroups !== 'undefined' &&
+      typeof browser.tabs.group === 'function'
+  }
+
+  /**
+   * A folder this browser has no API for -- a window on Firefox for Android,
+   * a tab group where there are no tab groups -- is not created at all: its
+   * id only lives on in the sync cache, and its tabs are opened wherever the
+   * browser puts them. The next sync finds the folder gone and its tabs moved
+   * out of it and passes that on, so the other devices' windows and groups end
+   * up merged into what this browser has.
+   */
+  private createFlattenedFolder(folder: Folder<typeof ItemLocation.LOCAL>): string {
+    Logger.log('This browser has no windows or tab groups to create this folder in, flattening it', folder)
+    return 'flattened-' + Date.now() + '-' + (++this.flattenedFolderCount)
+  }
+
+  private isFlattenedFolder(folderId: string | number): boolean {
+    return String(folderId).startsWith('flattened-')
   }
 
   private getWindowIdFromFolderId(folderId: string | number): number {
@@ -56,7 +93,8 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       [...this.placeholderTabs.values()].flat()
     )
     tabs = tabs.filter(
-      (tab) => !tab.incognito && !placeholderTabIds.has(tab.id)
+      (tab) => !tab.incognito && !placeholderTabIds.has(tab.id) &&
+        !this.isUnsupportedFirefoxUrl(tab.url)
     )
 
     // Get all tab groups
@@ -104,7 +142,8 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
                   groupId: group.id,
                 })
               )
-                .filter((t) => !placeholderTabIds.has(t.id))
+                .filter((t) => !placeholderTabIds.has(t.id) &&
+                  !this.isUnsupportedFirefoxUrl(t.url))
                 .sort((t1, t2) => t1.index - t2.index)
                 .map(
                   (t) =>
@@ -181,19 +220,12 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
   ): Promise<string | number> {
     Logger.log('(tabs)CREATE', bookmark)
     if (bookmark.parentId === 'tabs') {
-      Logger.log('Parent is "tabs", ignoring this one.')
-      return
+      throw new UnsupportedItemError('Tabs can only be opened in a window')
     }
-    if (
-      self.location.protocol === 'moz-extension:' &&
-      LocalTabs.URL_SCHEME_BLACKLIST.includes(new URL(bookmark.url).protocol)
-    ) {
-      Logger.log(
-        `URL is a ${
-          new URL(bookmark.url).protocol
-        } URL and we are on firefox, ignoring this one.`
+    if (this.isUnsupportedFirefoxUrl(bookmark.url)) {
+      throw new UnsupportedItemError(
+        `Firefox cannot open ${new URL(bookmark.url).protocol} URLs in a tab`
       )
-      return
     }
 
     try {
@@ -260,8 +292,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       ) {
         throw e
       }
-      // If the tab group doesn't exist, return null
-      return null
+      throw new UnsupportedItemError('The tab group to open this tab in is gone')
     }
   }
 
@@ -280,6 +311,12 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         url: bookmark.url,
       })
     )
+
+    if (this.isFlattenedFolder(bookmark.parentId)) {
+      Logger.log('Parent was flattened, not moving the tab')
+      await awaitTabsUpdated()
+      return
+    }
 
     try {
       // Check if the parentId is a tab group by trying to get it
@@ -325,11 +362,12 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
           Logger.log('Moving tab out of any tab group', bookmark.id)
           await this.queue.add(() => browser.tabs.ungroup([bookmark.id]))
         }
-        // If it's a window, use tabs.move
-        if (
+        // If it's a window, use tabs.move -- unless this browser has only the
+        // one window (Firefox for Android, which has no tabs.move either)
+        if (LocalTabs.windowsSupported() && (
           currentWindowId === null ||
           this.getWindowIdFromFolderId(bookmark.parentId) !== currentWindowId
-        ) {
+        )) {
           // Do not move if we do not have to, since index -1 can mean that
           // Firefox will put it into the last group in that window...
           Logger.log('Moving tab to window', bookmark.parentId)
@@ -374,6 +412,12 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     folder: Folder<typeof ItemLocation.LOCAL>
   ): Promise<string> {
     Logger.log('(tabs)CREATEFOLDER', folder)
+
+    if (folder.parentId === 'tabs'
+      ? !LocalTabs.windowsSupported()
+      : !LocalTabs.tabGroupsSupported() || this.isFlattenedFolder(folder.parentId)) {
+      return this.createFlattenedFolder(folder)
+    }
 
     // If parentId is 'tabs', create a window
     if (folder.parentId === 'tabs') {
@@ -459,6 +503,15 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     order: Ordering<typeof ItemLocation.LOCAL>
   ): Promise<void> {
     Logger.log('(tabs)ORDERFOLDER', { id, order })
+    if (this.isFlattenedFolder(id)) {
+      Logger.log('Folder was flattened, nothing to order')
+      return
+    }
+    if (typeof browser.tabs.move !== 'function') {
+      // Failing leaves the cache in the order the tabs are actually in, so the
+      // next sync doesn't take the other devices' order for a local change
+      throw new Error('This browser cannot reorder tabs')
+    }
     try {
       // Check if tab groups are supported
       const tabGroupsSupported = typeof browser.tabGroups !== 'undefined'
@@ -573,9 +626,13 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
 
   async updateFolder(folder: Folder<typeof ItemLocation.LOCAL>): Promise<void> {
     Logger.log('(tabs)UPDATEFOLDER', folder)
+    if (this.isFlattenedFolder(folder.id)) {
+      Logger.log('Folder was flattened, nothing to update')
+      return
+    }
 
     // If parentId is not 'tabs', it's a tab group
-    if (folder.parentId !== 'tabs') {
+    if (folder.parentId !== 'tabs' && LocalTabs.tabGroupsSupported()) {
       try {
         // Update the tab group title
         await this.queue.add(() =>
@@ -602,8 +659,26 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     const id = folder.id
     Logger.log('(tabs)REMOVEFOLDER', id)
 
-    // If parentId is 'tabs', it's a window
-    if (folder.parentId === 'tabs') {
+    if (this.isFlattenedFolder(id)) {
+      Logger.log('Folder was flattened, nothing to remove')
+      return
+    }
+
+    if (folder.parentId === 'tabs' && !LocalTabs.windowsSupported()) {
+      // Without browser.windows there is no closing the window, so close its tabs
+      const tabs = await this.queue.add(() =>
+        browser.tabs.query({ windowType: 'normal' })
+      )
+      const windowTabs = tabs.filter(
+        (tab) => tab.windowId === this.getWindowIdFromFolderId(id)
+      )
+      if (windowTabs.length) {
+        await this.queue.add(() =>
+          browser.tabs.remove(windowTabs.map((tab) => tab.id))
+        )
+      }
+    } else if (folder.parentId === 'tabs') {
+      // If parentId is 'tabs', it's a window
       try {
         await this.queue.add(() =>
           browser.windows.remove(this.getWindowIdFromFolderId(id))

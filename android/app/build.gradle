@@ -37,7 +37,7 @@ android {
             if (project.hasProperty('FLOCCUS_STORE_FILE') && project.hasProperty('FLOCCUS_STORE_PASSWORD') && project.hasProperty('FLOCCUS_KEY_ALIAS') && project.hasProperty('FLOCCUS_KEY_PASSWORD')) {
                 signingConfig signingConfigs.release
             }
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

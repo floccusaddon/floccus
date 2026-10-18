@@ -180,9 +180,20 @@ export default {
   transform: scaleX(-1);
 }
 
-@media screen and (min-device-width: 420px) {
+/*
+ * Extension popups are sized to their content, so the body needs a min-width
+ * or the popup collapses. Apply it by default and only lift it on small touch
+ * screens (mobile browsers open the popup as a full-width page): some desktop
+ * browsers (e.g. Samsung Internet on Windows) don't match device-width queries
+ * in popups, so the min-width must not depend on one matching.
+ */
+body {
+  min-width: 420px;
+}
+
+@media screen and (pointer: coarse) and (max-device-width: 419px) {
   body {
-    min-width: 420px;
+    min-width: 0;
   }
 }
 </style>

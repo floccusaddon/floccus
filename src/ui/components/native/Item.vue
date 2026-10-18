@@ -2,7 +2,6 @@
   <v-list-item
     :key="item.type+item.id"
     class="pl-3"
-    dense
     @click="$emit('click')">
     <v-list-item-avatar>
       <v-icon

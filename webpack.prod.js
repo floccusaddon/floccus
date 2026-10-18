@@ -10,7 +10,7 @@ module.exports = common.map(common => merge(common, {
   },
   plugins: [
     new webpack.DefinePlugin({
-      DEBUG: JSON.stringify(false)
+      DEBUG: JSON.stringify(true)
     }),
   ]
 }))

@@ -34,7 +34,7 @@
             item-text="label"
             item-value="id"
             :items="accounts"
-            @change="$router.push({name: routes.ADD_BOOKMARK, params: {url, accountId: $event}})">
+            @change="$router.push({name: routes.ADD_BOOKMARK, params: {url, accountId: $event}, query: $route.query})">
             <template #prepend-inner>
               <v-icon aria-hidden="true">
                 {{ account.data.type | accountIcon }}
@@ -46,24 +46,57 @@
               </v-icon> {{ item.label }}
             </template>
           </v-select>
-          <v-alert
-            v-if="exists"
-            dense
-            outlined
-            text
-            type="info"
-            class="mb-2">
-            {{ t('DescriptionBookmarkexists') }}
-          </v-alert>
-          <v-text-field
-            v-model="title"
-            :label="t('LabelTitle')"
-            hide-details />
-          <v-text-field
-            v-model="url"
-            :error="Boolean(urlError)"
-            :error-messages="urlError"
-            :label="t('LabelLink')" />
+          <template v-if="items.length">
+            <v-text-field
+              v-for="item in items"
+              :key="item.url"
+              v-model="item.title"
+              :label="t('LabelTitle')"
+              :loading="item.fetchingTitle"
+              :hint="item.url"
+              persistent-hint
+              class="mb-2">
+              <template #append>
+                <v-icon
+                  v-if="item.exists"
+                  color="blue darken-1"
+                  :title="t('DescriptionBookmarkexists')"
+                  :aria-label="t('DescriptionBookmarkexists')">
+                  mdi-bookmark-check
+                </v-icon>
+              </template>
+              <template #append-outer>
+                <v-icon
+                  v-if="items.length > 1"
+                  :title="t('LabelRemove')"
+                  :aria-label="t('LabelRemove')"
+                  @click="onRemoveItem(item)">
+                  mdi-close
+                </v-icon>
+              </template>
+            </v-text-field>
+          </template>
+          <template v-else>
+            <v-alert
+              v-if="exists"
+              dense
+              outlined
+              text
+              type="info"
+              class="mb-2">
+              {{ t('DescriptionBookmarkexists') }}
+            </v-alert>
+            <v-text-field
+              v-model="title"
+              :label="t('LabelTitle')"
+              :loading="fetchingTitle"
+              hide-details />
+            <v-text-field
+              v-model="url"
+              :error="Boolean(urlError)"
+              :error-messages="urlError"
+              :label="t('LabelLink')" />
+          </template>
           <v-combobox
             v-if="supportsTags"
             v-model="tags"
@@ -108,6 +141,12 @@ import { actions } from '../../store/definitions'
 import { Bookmark } from '../../../lib/Tree'
 import DialogChooseFolder from '../../components/native/DialogChooseFolder'
 import { SendIntent } from '@mindlib-capacitor/send-intent'
+import { CapacitorHttp as Http } from '@capacitor/core'
+import Logger from '../../../lib/Logger'
+
+// Waiting longer than this for an unresponsive site isn't worth it: the user
+// can type a title themselves in the meantime
+const TITLE_FETCH_TIMEOUT = 3000
 
 export default {
   name: 'AddBookmarkIntent',
@@ -134,6 +173,9 @@ export default {
       displayFolderChooser: false,
       exists: false,
       allTags: [],
+      fetchingTitle: false,
+      // Several URLs shared at once, e.g. tabs from Firefox for Android
+      items: this.sharedItems(),
     }
   },
   computed: {
@@ -165,6 +207,9 @@ export default {
       const folder = this.folderTree.findFolder(this.temporaryParent)
       return folder ? folder.title || this.t('LabelUntitledfolder') : ''
     },
+    sharedUrlsKey() {
+      return [].concat(this.$route.query.urls || []).join('\n')
+    },
     supportsTags() {
       return Boolean(this.$store.state.tagSupport[this.id])
     },
@@ -186,8 +231,19 @@ export default {
       this.temporaryParent = parentFolder.id
       await Promise.all([this.loadAllTags(), this.checkExists()])
     },
+    // A string, because switching accounts hands us a copy of the same list
+    sharedUrlsKey() {
+      this.items = this.sharedItems()
+      this.items.forEach((item) => this.fetchItemTitle(item))
+      this.checkExists()
+    },
   },
   created() {
+    if (this.items.length) {
+      this.items.forEach((item) => this.fetchItemTitle(item))
+    } else if (!this.title && !this.urlError) {
+      this.fetchTitle(this.url)
+    }
     if (!this.loading) {
       this.data = this.$store.state.accounts[this.id].data
     }
@@ -203,23 +259,87 @@ export default {
     }
   },
   methods: {
+    sharedItems() {
+      const urls = [].concat(this.$route.query.urls || [])
+      if (urls.length < 2) {
+        return []
+      }
+      return urls.map((url) => ({ url, title: '', fetchingTitle: false, exists: false }))
+    },
+    onRemoveItem(item) {
+      this.items = this.items.filter((i) => i !== item)
+    },
     async onSave() {
-      if (!this.folderTree.findFolder(this.temporaryParent) || this.urlError) {
+      if (!this.folderTree.findFolder(this.temporaryParent)) {
+        return
+      }
+      if (this.items.length) {
+        await this.$store.dispatch(actions.CREATE_BOOKMARKS, {
+          accountId: this.id,
+          bookmarks: this.items.map((item) => this.newBookmark(item.title, item.url)),
+        })
+        SendIntent.finish()
+        return
+      }
+      if (this.urlError) {
         return
       }
       await this.$store.dispatch(actions.CREATE_BOOKMARK, {
         accountId: this.id,
-        bookmark: new Bookmark({
-          id: null,
-          parentId: this.temporaryParent,
-          title: this.title,
-          url: this.url,
-          ...(this.supportsTags && {
-            tags: this.tags.map((tag) => String(tag).trim()).filter(Boolean),
-          }),
-        })
+        bookmark: this.newBookmark(this.title, this.url),
       })
       SendIntent.finish()
+    },
+    newBookmark(title, url) {
+      return new Bookmark({
+        id: null,
+        parentId: this.temporaryParent,
+        title,
+        url,
+        ...(this.supportsTags && {
+          tags: this.tags.map((tag) => String(tag).trim()).filter(Boolean),
+        }),
+      })
+    },
+    async fetchItemTitle(item) {
+      item.fetchingTitle = true
+      const title = await this.loadTitle(item.url)
+      item.fetchingTitle = false
+      // Don't overwrite what the user has entered while we were waiting
+      if (title && !item.title) {
+        item.title = title
+      }
+    },
+    async fetchTitle(url) {
+      this.fetchingTitle = true
+      const title = await this.loadTitle(url)
+      this.fetchingTitle = false
+      // Don't overwrite what the user has entered while we were waiting
+      if (title && !this.title && url === this.url) {
+        this.title = title
+      }
+    },
+    async loadTitle(url) {
+      let title = ''
+      try {
+        const response = await Http.get({
+          url,
+          headers: {
+            'user-agent': 'curl/8.6.0',
+          },
+          connectTimeout: TITLE_FETCH_TIMEOUT,
+          readTimeout: TITLE_FETCH_TIMEOUT,
+        })
+        const parser = new DOMParser()
+        const document = parser.parseFromString(response.data, 'text/html')
+        const titleElement = document.getElementsByTagName('title')[0]
+        if (titleElement) {
+          title = titleElement.textContent.trim()
+        }
+      } catch (e) {
+        Logger.log('Failed to fetch shared URL')
+      }
+      return title
     },
     onTriggerFolderChooser() {
       this.displayFolderChooser = true
@@ -232,6 +352,15 @@ export default {
       this.allTags = tags.sort((tag1, tag2) => tag1.localeCompare(tag2))
     },
     async checkExists() {
+      if (this.items.length) {
+        await Promise.all(this.items.map(async(item) => {
+          item.exists = Boolean(await this.$store.dispatch(actions.FIND_BOOKMARK_BY_URL, {
+            accountId: this.id,
+            url: item.url,
+          }))
+        }))
+        return
+      }
       const url = this.url
       const found = await this.$store.dispatch(actions.FIND_BOOKMARK_BY_URL, {
         accountId: this.id,
