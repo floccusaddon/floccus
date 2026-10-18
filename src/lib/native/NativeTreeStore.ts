@@ -30,20 +30,47 @@ const migrations: Record<string, Promise<void>> = {}
 export function serializeTags(tags?: string[]): string | null {
   return typeof tags === 'undefined' ? null : JSON.stringify(tags)
 }
+export const SEARCH_INDEX_VERSION = 2
 
 /**
+
  * What the UI's search matches its terms against. Lowercasing happens here and
  * not in SQL, because SQLite's lower() and LIKE only fold ASCII -- see the
  * `search_text` note in NativeDatabase.
+ * Also normalizes Arabic text (removing diacritics, tatweel, and unifying letter forms).
  */
+export function normalizeSearchText(text?: string | null): string {
+  return (text ?? '')
+    .toLowerCase()
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/\u0640/g, '')
+    .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627')
+    .replace(/\u0629/g, '\u0647')
+    .replace(/\u0649/g, '\u064A')
+}
+
+export function safeDecodeURI(url?: string | null): string {
+  if (!url) {
+    return ''
+  }
+  try {
+    return decodeURI(url)
+  } catch (e) {
+    return url
+  }
+}
+
 export function folderSearchText(title?: string | null): string {
-  return (title ?? '').toLowerCase()
+  return normalizeSearchText(title)
 }
 
 export function bookmarkSearchText(bookmark: { title?: string, url?: string, tags?: string[] }): string {
-  return [bookmark.title ?? '', bookmark.url ?? '', ...(bookmark.tags || [])]
-    .join('\n')
-    .toLowerCase()
+  const url = bookmark.url ?? ''
+  const decodedUrl = safeDecodeURI(url)
+  const urlEntries = decodedUrl !== url ? [url, decodedUrl] : [url]
+  return normalizeSearchText(
+    [bookmark.title ?? '', ...urlEntries, ...(bookmark.tags || [])].join('\n')
+  )
 }
 
 export function parseTags(tags?: string | null): string[] | undefined {
@@ -140,8 +167,8 @@ export default class NativeTreeStore {
       ...this.highestIdStatements(highestId),
       {
         // Every row this batch writes carries its search_text already
-        statement: 'UPDATE account_meta SET tree_initialized = 1, search_backfilled = 1 WHERE account_id = ?',
-        values: [this.accountId],
+        statement: 'UPDATE account_meta SET tree_initialized = 1, search_backfilled = ? WHERE account_id = ?',
+        values: [SEARCH_INDEX_VERSION, this.accountId],
       },
     ])
   }
@@ -634,8 +661,8 @@ export default class NativeTreeStore {
         ...this.deleteAllStatements(),
         ...this.subtreeStatements(root, true),
         {
-          statement: 'UPDATE account_meta SET tree_initialized = 1, highest_id = ?, search_backfilled = 1 WHERE account_id = ?',
-          values: [Number.isNaN(parsedHighestId) ? 0 : parsedHighestId, this.accountId],
+          statement: 'UPDATE account_meta SET tree_initialized = 1, highest_id = ?, search_backfilled = ? WHERE account_id = ?',
+          values: [Number.isNaN(parsedHighestId) ? 0 : parsedHighestId, SEARCH_INDEX_VERSION, this.accountId],
         }
       )
       // The tree we just wrote defines the positions; don't let the numbering

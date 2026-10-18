@@ -59,6 +59,14 @@ export default {
 }
 </script>
 <style>
+[dir="rtl"] .v-application {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Cairo", Roboto, Tahoma, sans-serif !important;
+}
+
+[dir="rtl"] .v-icon.mdi-arrow-left {
+  transform: scaleX(-1);
+}
+
 body {
   padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
   padding-bottom: var(

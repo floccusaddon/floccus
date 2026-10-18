@@ -1,7 +1,8 @@
 import { Bookmark, Folder, ItemLocation, TItem } from '../Tree'
 import Logger from '../Logger'
 import NativeDatabase, { TStatement } from './NativeDatabase'
-import { bookmarkSearchText, folderSearchText, parseTags } from './NativeTreeStore'
+import { bookmarkSearchText, folderSearchText, normalizeSearchText, parseTags, safeDecodeURI, SEARCH_INDEX_VERSION } from './NativeTreeStore'
+export { normalizeSearchText } from './NativeTreeStore'
 
 type TLocalItem = TItem<typeof ItemLocation.LOCAL>
 type TLocalFolder = Folder<typeof ItemLocation.LOCAL>
@@ -251,35 +252,36 @@ export default class NativeTreeQuery {
     )
     // No row at all means nothing has been stored for this account yet, and
     // whatever writes it first fills the column in as it goes
-    if (!meta || meta.search_backfilled) {
+    if (!meta || meta.search_backfilled >= SEARCH_INDEX_VERSION) {
       return
     }
     Logger.log('Building search index of account ' + this.accountId)
 
     const folderRows = await NativeDatabase.query(
-      'SELECT id, title FROM folders WHERE account_id = ? AND search_text IS NULL',
+      'SELECT id, title, search_text FROM folders WHERE account_id = ?',
       [this.accountId]
     )
     const bookmarkRows = await NativeDatabase.query(
-      'SELECT id, title, url, tags FROM bookmarks WHERE account_id = ? AND search_text IS NULL',
+      'SELECT id, title, url, tags, search_text FROM bookmarks WHERE account_id = ?',
       [this.accountId]
     )
     const statements: TStatement[] = [
       ...folderRows.map((row) => ({
-        statement: 'UPDATE folders SET search_text = ? WHERE account_id = ? AND id = ?',
-        values: [folderSearchText(row.title), this.accountId, row.id],
+        statement: 'UPDATE folders SET search_text = ? WHERE account_id = ? AND id = ? AND search_text IS ?',
+        values: [folderSearchText(row.title), this.accountId, row.id, row.search_text ?? null],
       })),
       ...bookmarkRows.map((row) => ({
-        statement: 'UPDATE bookmarks SET search_text = ? WHERE account_id = ? AND id = ?',
+        statement: 'UPDATE bookmarks SET search_text = ? WHERE account_id = ? AND id = ? AND search_text IS ?',
         values: [
           bookmarkSearchText({ title: row.title ?? undefined, url: row.url ?? undefined, tags: parseTags(row.tags) }),
           this.accountId,
           row.id,
+          row.search_text ?? null,
         ],
       })),
       {
-        statement: 'UPDATE account_meta SET search_backfilled = 1 WHERE account_id = ?',
-        values: [this.accountId],
+        statement: 'UPDATE account_meta SET search_backfilled = ? WHERE account_id = ?',
+        values: [SEARCH_INDEX_VERSION, this.accountId],
       },
     ]
     await NativeDatabase.batch(statements)
@@ -307,7 +309,7 @@ export interface IParsedQuery {
 export function parseSearchQuery(query: string): IParsedQuery {
   const tags: string[] = []
   const terms: string[] = []
-  for (const token of tokenize((query || '').toLowerCase())) {
+  for (const token of tokenize(normalizeSearchText(query))) {
     if (token.startsWith('#')) {
       const tag = token.slice(1)
       // A lone '#' is someone who has only just started typing
@@ -370,14 +372,14 @@ function likePattern(term: string): string {
 }
 
 function lowercaseTags(bookmark: TLocalBookmark): string[] {
-  return (bookmark.tags || []).map((tag) => tag.toLowerCase())
+  return (bookmark.tags || []).map((tag) => normalizeSearchText(tag))
 }
 
 function matchesTitleFully(item: TLocalItem, terms: string[]): boolean {
   if (!item.title) {
     return false
   }
-  const words = item.title.toLowerCase().split(' ')
+  const words = normalizeSearchText(item.title).split(' ')
   return terms.every((term) => words.some((word) => word === term))
 }
 
@@ -385,7 +387,7 @@ function matchesTitlePartially(item: TLocalItem, terms: string[]): boolean {
   if (!item.title) {
     return false
   }
-  const title = item.title.toLowerCase()
+  const title = normalizeSearchText(item.title)
   return terms.every((term) => title.includes(term))
 }
 
@@ -404,12 +406,14 @@ function matchesTags(bookmark: TLocalBookmark, tags: string[]): boolean {
  * has 'pasta' in its title.
  */
 function matchesTerms(bookmark: TLocalBookmark, terms: string[]): boolean {
-  const title = (bookmark.title || '').toLowerCase()
-  const url = (bookmark.url || '').toLowerCase()
+  const title = normalizeSearchText(bookmark.title || '')
+  const rawUrl = normalizeSearchText(bookmark.url || '')
+  const decodedUrl = normalizeSearchText(safeDecodeURI(bookmark.url || ''))
   const tags = lowercaseTags(bookmark)
   return terms.every((term) =>
     title.includes(term) ||
-    url.includes(term) ||
+    rawUrl.includes(term) ||
+    decodedUrl.includes(term) ||
     tags.some((tag) => tag.includes(term))
   )
 }

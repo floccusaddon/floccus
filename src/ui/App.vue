@@ -172,6 +172,14 @@ export default {
 </script>
 
 <style>
+[dir="rtl"] .v-application {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Cairo", Roboto, Tahoma, sans-serif !important;
+}
+
+[dir="rtl"] .v-icon.mdi-arrow-left {
+  transform: scaleX(-1);
+}
+
 /*
  * Extension popups are sized to their content, so the body needs a min-width
  * or the popup collapses. Apply it by default and only lift it on small touch
