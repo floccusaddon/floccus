@@ -87,7 +87,7 @@
     "message": "E029:  Sécurité: Cette action de synchronisation effacerait {0}% de vos signets sur le serveur. Je refuse de l'exécuter. Désactivez la sécurité dans les paramètres de ce profil si vous désirez vraiment effectuer cette action. Si cette situation n'est pas due à l'une de vos actions, vous pouvez lancer une synchronisation manuelle pour remplacer l'état local de cet appareil par celui du serveur. Si vous pensez qu'il s'agit d'un bogue, contactez les développeurs avec le journal de débogage."
   },
   "Error030": {
-    "message": "E030: Le déchiffrement de votre fichier de signets a échoué. Le mot de passe est peut être erronée ou le fichier corrompu."
+    "message": "E030: Le déchiffrement de votre fichier de signets a échoué. Le mot de passe est peut-être erronée ou le fichier corrompu."
   },
   "Error031": {
     "message": "E031: Impossible de s'authentifier avec Google Drive. Connectez de nouveau floccus à votre compte Google."
