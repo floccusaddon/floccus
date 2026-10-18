@@ -134,7 +134,6 @@ jobs:
 
       - name: Prepare build
         run: |
-          rm -rf dist/node-tests
           npx cap sync
           cd android
           chmod +x gradlew
