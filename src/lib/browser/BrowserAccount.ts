@@ -55,7 +55,9 @@ export default class BrowserAccount extends Account {
     await this.setData({rootPath: await BrowserTree.getPathFromLocalId(accData.localRoot)})
     await this.storage.initMappings()
     await this.storage.initCache()
-    this.localTree = new BrowserTree(this.storage, accData.localRoot)
+    if (this.getData().localRoot !== 'tabs') {
+      this.localTree = new BrowserTree(this.storage, accData.localRoot)
+    }
   }
 
   async isInitialized():Promise<boolean> {
@@ -87,7 +89,9 @@ export default class BrowserAccount extends Account {
   async updateFromStorage():Promise<void> {
     const data = await this.storage.getAccountData(null)
     this.server.setData(data)
-    this.localTree = new BrowserTree(this.storage, data.localRoot)
+    if (this.getData().localRoot !== 'tabs') {
+      this.localTree = new BrowserTree(this.storage, data.localRoot)
+    }
   }
 
   static async stringifyError(er:any):Promise<string> {

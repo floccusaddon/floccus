@@ -75,19 +75,6 @@ export default class BrowserController {
       })
     }
 
-    // set up change listener
-    browser.bookmarks.onChanged.addListener((localId, details) =>
-      this.onchange(localId, details)
-    )
-    browser.bookmarks.onMoved.addListener((localId, details) =>
-      this.onchange(localId, details)
-    )
-    browser.bookmarks.onRemoved.addListener((localId, details) =>
-      this.onchange(localId, details)
-    )
-    browser.bookmarks.onCreated.addListener((localId, details) =>
-      this.onchange(localId, details)
-    )
     browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) =>
       this.onTabsChanged(tabId)
     )
@@ -100,6 +87,7 @@ export default class BrowserController {
     browser.tabs.onDetached.addListener((tabId, changeInfo, tab) =>
       this.onTabsChanged(tabId)
     )
+
     if (typeof browser.tabGroups !== 'undefined') {
       browser.tabGroups.onCreated.addListener((tabId, changeInfo, tab) =>
         this.onTabsChanged(tabId)
@@ -112,6 +100,22 @@ export default class BrowserController {
       )
       browser.tabGroups.onUpdated.addListener((tabId, changeInfo, tab) =>
         this.onTabsChanged(tabId)
+      )
+    }
+
+    if (typeof browser.bookmarks !== 'undefined') {
+      // set up change listener
+      browser.bookmarks.onChanged.addListener((localId, details) =>
+        this.onchange(localId, details)
+      )
+      browser.bookmarks.onMoved.addListener((localId, details) =>
+        this.onchange(localId, details)
+      )
+      browser.bookmarks.onRemoved.addListener((localId, details) =>
+        this.onchange(localId, details)
+      )
+      browser.bookmarks.onCreated.addListener((localId, details) =>
+        this.onchange(localId, details)
       )
     }
 
