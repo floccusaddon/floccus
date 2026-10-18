@@ -547,3 +547,11 @@ export class DropboxAmbiguousFileError extends FloccusError {
     Object.setPrototypeOf(this, DropboxAmbiguousFileError.prototype)
   }
 }
+
+export class MissingItemIdsError extends FloccusError {
+  public readonly code = 59
+  constructor() {
+    super('E059: The bookmarks file contains bookmarks or folders without an ID. Floccus can only sync bookmarks files that it created itself.')
+    Object.setPrototypeOf(this, MissingItemIdsError.prototype)
+  }
+}

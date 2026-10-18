@@ -1,6 +1,7 @@
 import Serializer from '../interfaces/Serializer'
 import { Bookmark, Folder, ItemLocation, TItem } from '../Tree'
 import * as cheerio from 'cheerio'
+import { MissingItemIdsError } from '../../errors/Error'
 
 class HtmlSerializer implements Serializer {
   serialize(folder) {
@@ -34,8 +35,8 @@ class HtmlSerializer implements Serializer {
       .join('')
   }
 
-  deserialize(html): Folder<typeof ItemLocation.SERVER> {
-    const items: TItem<typeof ItemLocation.SERVER>[] = parseByString(html)
+  deserialize(html, { allowMissingIds = false } = {}): Folder<typeof ItemLocation.SERVER> {
+    const items: TItem<typeof ItemLocation.SERVER>[] = parseByString(html, allowMissingIds)
     items.forEach(f => { f.parentId = '0' })
     return new Folder({id: '0', title: 'root', children: items, location: ItemLocation.SERVER, isRoot: true})
   }
@@ -77,7 +78,7 @@ export const getRootFolder = (body: cheerio.Cheerio<any>) => {
   return body.children('dl').first()
 }
 
-export const parseByString = (content: string) => {
+export const parseByString = (content: string, allowMissingIds = false) => {
   const $ = cheerio.load(content)
 
   const body = $('body')
@@ -89,7 +90,13 @@ export const parseByString = (content: string) => {
     const eq0 = node.children().eq(0)
     const title = typeof eq0.text() !== 'undefined' ? eq0.text() : ''
     let url = ''
-    const id = typeof eq0.attr('id') !== 'undefined' ? eq0.attr('id') : idCounter++
+    const idAttr = eq0.attr('id')
+    if (!idAttr && !allowMissingIds) {
+      // Ids are what the mappings refer to; numbering items by their position
+      // would point them at other items as soon as the file is edited elsewhere
+      throw new MissingItemIdsError()
+    }
+    const id = idAttr || idCounter++
     let children: TItem<typeof ItemLocation.SERVER>[] = []
 
     switch (eq0[0].name) {
