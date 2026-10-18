@@ -1,5 +1,6 @@
 .*.sw*
 dist
+dist-native
 node_modules
 builds
 key.pem

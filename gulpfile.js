@@ -44,6 +44,8 @@ const paths = {
   icons: 'icons/*',
   dist: './dist/**',
   distJs: './dist/js',
+  // Capacitor's webDir: only what the native app loads, see webpack.common.js
+  distNative: './dist-native',
 }
 
 paths.chromeZip = [...paths.zip, 'manifest.chrome.json']
@@ -65,7 +67,9 @@ try {
 }
 
 const icons = function() {
-  return gulp.src(paths.icons).pipe(gulp.dest('./dist/icons/'))
+  return gulp.src(paths.icons)
+    .pipe(gulp.dest('./dist/icons/'))
+    .pipe(gulp.dest(paths.distNative + '/icons/'))
 }
 
 const devjs = function() {
@@ -86,6 +90,7 @@ const devjs = function() {
 
 const js = async function() {
   fs.mkdirSync(paths.distJs,{ recursive: true })
+  fs.mkdirSync(paths.distNative + '/js', { recursive: true })
   let statsJson
   await new Promise((resolve) =>
     webpack(config, (err, stats) => {
@@ -134,7 +139,7 @@ const html = function(statsJson) {
         assets = statsJson.entrypoints?.native?.assets
         scripts = assets.map(asset => `<script src="js/${asset.name}"></script>`).join('\n')
         html = html.replace('{{ scripts }}', scripts)
-        fs.writeFileSync('dist/' + htmlFile, html)
+        fs.writeFileSync(paths.distNative + '/' + htmlFile, html)
         break
       case 'options.html':
         if (!statsJson.entrypoints?.options) {
@@ -176,13 +181,17 @@ if ("undefined"!=typeof self && 'importScripts' in self) {
   })
 }
 
+// The native test runner (src/ui/native-tests/run.js) loads these, too
 const mochajs = function() {
-  return gulp.src('./node_modules/mocha/mocha.js').pipe(gulp.dest('./dist/js/'))
+  return gulp.src('./node_modules/mocha/mocha.js')
+    .pipe(gulp.dest('./dist/js/'))
+    .pipe(gulp.dest(paths.distNative + '/js/'))
 }
 const mochacss = function() {
   return gulp
     .src('./node_modules/mocha/mocha.css')
     .pipe(gulp.dest('./dist/css/'))
+    .pipe(gulp.dest(paths.distNative + '/css/'))
 }
 
 const native = async function() {
@@ -194,6 +203,11 @@ const native = async function() {
 const cleanJs = async function() {
   try {
     fs.rmSync(paths.distJs, { recursive: true })
+  } catch (e) {
+    // noop
+  }
+  try {
+    fs.rmSync(paths.distNative, { recursive: true })
   } catch (e) {
     // noop
   }
@@ -269,7 +283,7 @@ const publish = gulp.series(main, chromeZip, function() {
 
 const watch = function() {
   let jsWatcher = gulp.watch(paths.js, assets)
-  let nativeWatcher = gulp.watch(paths.dist, native)
+  let nativeWatcher = gulp.watch(paths.distNative + '/**', native)
 
   jsWatcher.on('change', onWatchEvent)
   nativeWatcher.on('change', onWatchEvent)

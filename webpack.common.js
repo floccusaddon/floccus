@@ -192,6 +192,12 @@ module.exports = [
   }, {
     /* NATIVE BUILD */
     ...common,
+    // Capacitor packages its whole webDir, so the native build gets a folder of its own
+    output: {
+      ...common.output,
+      path: path.resolve(__dirname, 'dist-native', 'js'),
+      publicPath: '/js/',
+    },
     entry: {
       native: path.join(__dirname, 'src', 'entries', 'native.js'),
     },
