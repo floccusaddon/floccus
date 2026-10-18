@@ -170,6 +170,9 @@
   "Error058": {
     "message": "E058: Sinu järjehoidjate fail ei asu Dropboxi juurkaustas ning Dropboxis on mitu sama nimega faili: {0}. Floccus ei suuda kindlaks teha, millist neist kasutada. Paiguta õige fail Dropboxi juurkausta või muuda teiste nimesid."
   },
+  "Error059": {
+    "message": "E059: Sinu järjehoidjate failis on ilma tunnuseta järjehoidjaid ja kaustu, aga floccus eeldab korrektseks arvepidamiseks tunnuse olemasolu. Floccus oskab sünkroonid vaid neid järjehoidjafaile, mille ta ise on loonud. Kui tahad kasutada olemasolevat välist faili, siis impordi ta oma veebibrauserisse ja lase floccusel sealt jätkata."
+  },
   "LabelWebdavurl": {
     "message": "WebDAVi võrguaadress"
   },
