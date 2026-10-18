@@ -49,6 +49,8 @@ export default {
           this.$router.push({ name: routes.UPDATE })
         }
       }
+    } else if (await this.$store.dispatch(actions.GET_PENDING_LOGIN_FLOW)) {
+      this.$router.push({ name: routes.NEW_ACCOUNT })
     } else if (Object.keys(this.$store.state.accounts).length) {
       intentChecked = true
       const intentReceived = await this.checkForIntent()

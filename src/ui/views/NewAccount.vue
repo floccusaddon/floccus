@@ -833,6 +833,23 @@ export default {
       }
     },
   },
+  async mounted() {
+    if (this.isBrowser) {
+      return
+    }
+    // The app may have been killed while the user logged in (#2393)
+    const pendingLoginFlow = await this.$store.dispatch(
+      actions.GET_PENDING_LOGIN_FLOW
+    )
+    if (!pendingLoginFlow) {
+      return
+    }
+    this.adapter = 'nextcloud-bookmarks'
+    this.server = pendingLoginFlow.server
+    this.serverTestSuccessful = true
+    this.currentStep = 2
+    await this.runLoginFlow(actions.RESUME_LOGIN_FLOW)
+  },
   backButton() {
     if (this.currentStep > 0) {
       this.currentStep--
@@ -992,13 +1009,13 @@ export default {
         this.loginFlowError = e.message
       }
     },
-    async onFlowStart() {
+    onFlowStart() {
+      return this.runLoginFlow(actions.START_LOGIN_FLOW)
+    },
+    async runLoginFlow(action) {
       this.loginFlowError = null
       try {
-        const credentials = await this.$store.dispatch(
-          actions.START_LOGIN_FLOW,
-          this.server
-        )
+        const credentials = await this.$store.dispatch(action, this.server)
         this.username = credentials.username
         this.password = credentials.password
         this.currentStep++

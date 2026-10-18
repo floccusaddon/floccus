@@ -9,6 +9,8 @@ import { Share } from '@capacitor/share'
 import Html from '../../../lib/serializers/Html'
 import { Bookmark, Folder } from '../../../lib/Tree'
 import { Browser } from '@capacitor/browser'
+import { App } from '@capacitor/app'
+import { Preferences } from '@capacitor/preferences'
 import NativeAccountStorage from '../../../lib/native/NativeAccountStorage'
 import NativeTreeQuery from '../../../lib/native/NativeTreeQuery'
 
@@ -29,6 +31,94 @@ async function loadFolderTree(accountId) {
   await tree.getBookmarksTree()
   await tree.save()
   return query.getFolderTree()
+}
+
+/*
+ * A Nextcloud login flow (v2) has no way back into the app: we can only poll
+ * for the result while the browser is in front. Android freezes or kills our
+ * process in the meantime (#2393), so the flow is persisted and picked up
+ * again when the app comes back.
+ */
+const PENDING_LOGIN_FLOW_KEY = 'pendingLoginFlow'
+// Nextcloud expires login flow tokens after 20 minutes
+const LOGIN_FLOW_TTL = 20 * 60 * 1000
+
+async function getPendingLoginFlow() {
+  let flow = null
+  try {
+    const { value } = await Preferences.get({ key: PENDING_LOGIN_FLOW_KEY })
+    flow = value ? JSON.parse(value) : null
+  } catch (e) {
+    flow = null
+  }
+  if (flow && Date.now() - flow.startedAt < LOGIN_FLOW_TTL) {
+    return flow
+  }
+  if (flow) {
+    await clearPendingLoginFlow()
+  }
+  return null
+}
+
+function clearPendingLoginFlow() {
+  return Preferences.remove({ key: PENDING_LOGIN_FLOW_KEY })
+}
+
+let runningLoginFlow = null
+
+async function pollLoginFlow(commit, state, flow) {
+  // Poll right away when the user comes back instead of waiting for the next tick
+  let wake = null
+  const onReturn = () => wake && wake()
+  const listeners = await Promise.all([
+    App.addListener('resume', onReturn),
+    Browser.addListener('browserFinished', onReturn),
+  ])
+  let res
+  try {
+    do {
+      await new Promise(resolve => {
+        const timeout = setTimeout(resolve, 1000)
+        wake = () => {
+          clearTimeout(timeout)
+          resolve()
+        }
+      })
+      wake = null
+      if (Date.now() - flow.startedAt >= LOGIN_FLOW_TTL) {
+        res = { status: 404 }
+        break
+      }
+      try {
+        const data = new URLSearchParams()
+        data.set('token', flow.token)
+        res = await Http.request({
+          url: flow.endpoint,
+          method: 'POST',
+          data: data.toString(),
+          headers: {'Content-type': 'application/x-www-form-urlencoded'}
+        })
+      } catch (e) {
+        res = { status: 404 }
+      }
+    } while ((res.status === 404 || !res.data.appPassword) && state.loginFlow.isRunning)
+  } finally {
+    await Promise.all(listeners.map(listener => listener.remove()))
+    commit(mutations.SET_LOGIN_FLOW_STATE, false)
+    await clearPendingLoginFlow()
+  }
+  await Browser.close()
+  if (res.status !== 200 || !res.data.appPassword) {
+    throw new Error(i18n.getMessage('LabelLoginFlowError'))
+  }
+  return {username: res.data.loginName, password: res.data.appPassword}
+}
+
+function runLoginFlow(commit, state, flow) {
+  runningLoginFlow = pollLoginFlow(commit, state, flow).finally(() => {
+    runningLoginFlow = null
+  })
+  return runningLoginFlow
 }
 
 export const actionsDefinition = {
@@ -337,33 +427,40 @@ export const actionsDefinition = {
       commit(mutations.SET_LOGIN_FLOW_STATE, false)
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }
-    let json = res.data
-    await Browser.open({ url: json.login })
-    do {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      try {
-        const data = new URLSearchParams()
-        data.set('token', json.poll.token)
-        res = await Http.request({
-          url: json.poll.endpoint,
-          method: 'POST',
-          data: data.toString(),
-          headers: {'Content-type': 'application/x-www-form-urlencoded'}
-        })
-      } catch (e) {
-        res = { status: 404 }
-      }
-    } while ((res.status === 404 || !res.data.appPassword) && state.loginFlow.isRunning)
-    commit(mutations.SET_LOGIN_FLOW_STATE, false)
-    await Browser.close()
-    if (res.status !== 200) {
+    const flow = {
+      server: rootUrl,
+      endpoint: res.data.poll.endpoint,
+      token: res.data.poll.token,
+      startedAt: Date.now(),
+    }
+    await Preferences.set({ key: PENDING_LOGIN_FLOW_KEY, value: JSON.stringify(flow) })
+    try {
+      await Browser.open({ url: res.data.login })
+    } catch (e) {
+      commit(mutations.SET_LOGIN_FLOW_STATE, false)
+      await clearPendingLoginFlow()
+      throw e
+    }
+    return runLoginFlow(commit, state, flow)
+  },
+  async [actions.GET_PENDING_LOGIN_FLOW]() {
+    const flow = await getPendingLoginFlow()
+    return flow ? { server: flow.server } : null
+  },
+  async [actions.RESUME_LOGIN_FLOW]({commit, state}) {
+    if (runningLoginFlow) {
+      return runningLoginFlow
+    }
+    const flow = await getPendingLoginFlow()
+    if (!flow) {
       throw new Error(i18n.getMessage('LabelLoginFlowError'))
     }
-    json = res.data
-    return {username: json.loginName, password: json.appPassword}
+    commit(mutations.SET_LOGIN_FLOW_STATE, true)
+    return runLoginFlow(commit, state, flow)
   },
   async [actions.STOP_LOGIN_FLOW]({commit}) {
     commit(mutations.SET_LOGIN_FLOW_STATE, false)
+    await clearPendingLoginFlow()
   },
   async [actions.SET_SORTBY]({state}, {accountId, sortBy, sortDirection}) {
     const account = await Account.get(accountId)
