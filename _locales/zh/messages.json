@@ -167,6 +167,12 @@
   "Error057": {
     "message": "E057: 意外的服务器文件夹: `{0}`。请检查你的服务器文件夹配置。"
   },
+  "Error058": {
+    "message": "E058: 你的书签文件在 Dropbox 顶层，你的 Dropbox 中有几个名称相同的文件: {0}。 Floccus 不知道要用哪个。 请将正确的文件移动到 Dropbox 顶层或者重命名其他文件。"
+  },
+  "Error059": {
+    "message": "E059: 你的书签文件包含没有 ID 的书签或文件夹，floccus 需要保留它们的痕迹。 Floccus 只能同步自己创建的书签。要使用现有文件的书签，请将它们导入你的浏览器并让 floccus 创建新的文件。"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -725,6 +731,9 @@
   },
   "LabelSorttitle": {
     "message": "标题"
+  },
+  "LabelSortadded": {
+    "message": "添加了日期"
   },
   "LabelSyncmethod": {
     "message": "同步方法"
