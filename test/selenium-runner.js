@@ -119,25 +119,25 @@ installConsoleHandler()
 
     if (process.env.FLOCCUS_TEST.includes('karakeep')) {
       // We need to create the user for karakeep first and get its API key
+      // Since v0.34 signup goes through better-auth, whose CSRF protection
+      // rejects requests without an Origin header (node's fetch sends none)
       const createUserResp = await fetch(
-        `${server}/api/trpc/users.create`,
+        `${server}/api/auth/sign-up/email`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Origin: server,
           },
           body: JSON.stringify({
-            json: {
-              name: 'floccus',
-              email: 'floccus@example.com',
-              password: '12345678',
-              confirmPassword: '12345678',
-            }
+            name: 'floccus',
+            email: 'floccus@example.com',
+            password: '12345678',
           }),
         }
       )
 
-      console.log('Created user', await createUserResp.json())
+      console.log('Created user', createUserResp.status, await createUserResp.text())
 
       const apiKeyResp = await fetch(
         `${server}/api/trpc/apiKeys.exchange`,

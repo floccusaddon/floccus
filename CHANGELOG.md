@@ -1,5 +1,32 @@
 # Changelog
 
+## [5.12.0] - 2026-10-23
+
+### New
+* [native] feat(Tree): Remember the last folder that the user viewed
+* [native] feat(sharing): Allow multiple incoming shared URLs Marcel
+* [native] feat(UI): Allow reverse sorting items and sorting by recently added
+
+### Fixed
+* [native] fix(nc-login-flow): Persist running flow while the user is granting access
+* [native] fix(build-size): Set minifyEnabled true
+* [native] fix(font-size): Scale font-size on iOS correctly
+* [native] fix(browser): Make browser popup work on iPad OS 27.x
+* fix(build-size): Do not package node-tests
+* fix(FirefoxForAndroid): Guard APIs that aren't available on FxA
+* fix(xbel,html): Do not allow missing IDs in sync files
+* fix(App): Fix body's min-width
+* fix(NativeTreeStore): A failed batch puts its statements back at the front of the queue
+* fix(Dropbox): Do not delete superfluous sync files
+* fix(AddBookmarkIntent): Apply HTTP timeout and defer page loading to after view is rendered
+* fix(LocalTabs): filter unsupported Firefox tab URLs (thanks to Hans Puac)
+* fix(Controller): Automatically retry failed profiles when network comes back + gentler exp backoff + retry on-change profiles
+* fix(LocalTabs): Fall back to two placeholder tabs if group is dissolved with one
+* fix(LocalTabs): Stop relying on timer to remove placeholder tabs
+* fix(BrowserAccount): Do keep handing out fresh LocalTabs instances
+* fix(Account): Fix race in sync()
+* fix(yieldToEventLoop): Use scheduler.yield(), MessageChannel and setTimeout only as a last resort
+
 ## [5.11.1] - 2026-10-02
 
 ### Fixed

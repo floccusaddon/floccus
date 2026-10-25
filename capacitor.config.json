@@ -3,7 +3,7 @@
   "appName": "floccus",
   "bundledWebRuntime": false,
   "npmClient": "npm",
-  "webDir": "dist",
+  "webDir": "dist-native",
   "loggingBehavior": "production",
   "server": {
     "androidScheme": "http"

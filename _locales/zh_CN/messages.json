@@ -12,7 +12,7 @@
     "message": "E004: 要移入的文件夹不存在"
   },
   "Error005": {
-    "message": "E005: 要创建的文件夹不存在"
+    "message": "E005: 要更新的文件夹的上层文件夹不存在"
   },
   "Error006": {
     "message": "E006: 要更新的文件夹不存在"
@@ -111,7 +111,7 @@
     "message": "E037: 资源被锁定"
   },
   "Error038": {
-    "message": "E038: 找不到本地文件夹"
+    "message": "E038: 找不到这个配置文件的本地文件夹。 请在配置文件设置中选择要同步的文件夹。"
   },
   "Error039": {
     "message": "E039: 未能在服务器上更新下列书签: {0}"
@@ -157,6 +157,21 @@
   },
   "Error054": {
     "message": "E054：无法获取 Dropbox 的模板"
+  },
+  "Error055": {
+    "message": "E055: 已下载的 Google Drive 书签文件大小和服务器报告的不同。这可能是暂时的网络问题。如果这个错误继续存在，请稍后再试。"
+  },
+  "Error056": {
+    "message": "E056: 上传验证后已上传的 Google Drive 书签文件大小和服务器报告的不同 。floccus 重新尝试了上传但无法确认结果。请稍后再试。"
+  },
+  "Error057": {
+    "message": "E057: 意外的服务器文件夹: `{0}`。请检查你的服务器文件夹配置。"
+  },
+  "Error058": {
+    "message": "E058: 你的书签文件在 Dropbox 顶层，你的 Dropbox 中有几个名称相同的文件: {0}。 Floccus 不知道要用哪个。 请将正确的文件移动到 Dropbox 顶层或者重命名其他文件。"
+  },
+  "Error059": {
+    "message": "E059: 你的书签文件包含没有 ID 的书签或文件夹，floccus 需要保留它们的痕迹。 Floccus 只能同步自己创建的书签。要使用现有文件的书签，请将它们导入你的浏览器并让 floccus 创建新的文件。"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -256,6 +271,21 @@
   },
   "StatusScheduled": {
     "message": "已安排时间"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "需要登录"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "此配置文件还未连接到你的账户，在连接到账户前无法同步。打开配置文件选项来登录。"
+  },
+  "LabelAuthorize": {
+    "message": "登录"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "成功导入了配置文件。登录无法在设备间传输，因此通过 Google Drive 或 Dropbox 的配置文件同步需要你再次登录才能进行同步。"
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "成功导入了配置文件。无法跨设备识别书签文件夹，因此请选择你希望这个配置文件同步的本地文件夹。"
   },
   "LabelReset": {
     "message": "重置"
@@ -702,6 +732,9 @@
   "LabelSorttitle": {
     "message": "标题"
   },
+  "LabelSortadded": {
+    "message": "添加了日期"
+  },
   "LabelSyncmethod": {
     "message": "同步方法"
   },
@@ -787,28 +820,13 @@
     "message": "HTTPS 连接的 Git"
   },
   "DescriptionAdaptergit": {
-    "message": "Git 选项通过将书签存储在所提供的 Git 仓库中的一个文件内来进行书签同步。此选项没有伴随的 web 用户界面，但你可以通过任意 Git 托管服务器，比如 GitHub、Gitlab、Gitea 等使用它。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时，你无法使用端到端加密。此选项当前在手机应用上不可用。"
+    "message": "Git 选项通过将书签存储在所提供的 Git 仓库中的一个文件内来进行书签同步。此选项没有伴随的 web 用户界面，但你可以通过任意 Git 托管服务器，比如 GitHub、Gitlab、Gitea 等使用它。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时，你无法使用端到端加密。"
   },
   "LabelGiturl": {
     "message": "使用 HTTP 的存储库 URL"
   },
   "LabelGitbranch": {
     "message": "Git 分支"
-  },
-  "LabelTelemetry": {
-    "message": "自动错误报告"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus 可自动发送错误数据给我，也就是开发者。这对更快地发现并解决 floccus 故障帮助巨大并有助于改善在长时段内改善你的 floccus 体验。即使启用了错误报告，开发者也永远无法看到你的书签。"
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "新：如果启用了该选项，那么除了错误信息，floccus 现在还发送你正在用的同步方式信息。这帮助我们改进 floccus 并确保同步方式正在如预期的那样工作。"
-  },
-  "LabelTelemetryenable": {
-    "message": "自动发送错误数据和您在使用的同步方式的信息给 floccus 开发者"
-  },
-  "LabelTelemetrydisable": {
-    "message": "不发送错任何数据给 floccus 开发者"
   },
   "LabelAccountlabel": {
     "message": "配置文件标签"
@@ -868,7 +886,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "用开源自托管的 Karakeep 应用同步你的书签。此选项无法利用端到端加密且不支持在同步间保持书签顺序。"
+    "message": "用开源的自托管应用 Karakeep 同步你的书签。它只能同步 http 书签。此选项无法使用端到端加密且不支持跨同步保留书签顺序。"
   },
   "LabelApiKey":  {
     "message": "API 密钥"
@@ -909,30 +927,6 @@
   "LabelOpeninnewtab": {
     "message": "在新标签中打开此视图"
   },
-  "LabelGivefeedback": {
-    "message": "给予反馈"
-  },
-  "LabelYourname": {
-    "message": "您的名字"
-  },
-  "LabelYouremail": {
-    "message": "您的电子邮箱（可选）"
-  },
-  "LabelYourmessage": {
-    "message": "您的反馈信息"
-  },
-  "LabelSubmitfeedback": {
-    "message": "提交反馈"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "此反馈表单由 Sentry 驱动。按下“提交”表示您同意在 Sentry 的服务器上存储输入的数据。您的书签数据不会被发送到 Sentry。"
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "感谢您花时间向 floccus 开发者提供反馈！如果您的反馈和问题有关，请确保包含所采取的步骤，预期的行为和实际发生了什么。如果您的反馈和功能请求有关，请确保包含使用案例或该功能会为您解决的具体问题。如果您在反馈中提供了电子邮箱，我们可能会和您联系。谢谢！"
-  },
-  "LabelFeedbacksent": {
-    "message": "谢谢您的反馈！"
-  },
   "LabelFaq":{
     "message": "查看常见问题解答"
   },
@@ -962,5 +956,47 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "选择服务"
+  },
+  "LabelShowpassword": {
+    "message": "显示密码"
+  },
+  "LabelHidepassword": {
+    "message": "隐藏密码"
+  },
+  "LabelTitle": {
+    "message": "标题"
+  },
+  "LabelLink": {
+    "message": "链接"
+  },
+  "LabelParentfolder": {
+    "message": "上层文件夹"
+  },
+  "LabelTags": {
+    "message": "标签"
+  },
+  "DescriptionTags": {
+    "message": "输入标签并按 enter"
+  },
+  "LabelSearchbytag": {
+    "message": "搜索标签为 {0} 的书签"
+  },
+  "LabelHome": {
+    "message": "Home"
+  },
+  "LabelSortby": {
+    "message": "排序依据"
+  },
+  "LabelMoreactions": {
+    "message": "更多操作"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "服务器连接成功"
+  },
+  "LabelSynconstartup": {
+    "message": "启动时同步"
+  },
+  "DescriptionSynconstartup": {
+    "message": "如启用，将在启动时同步这个配置文件。如果希望在启动时同步你的文件夹，但不想等待下一次定时同步，这会有用。"
   }
 }

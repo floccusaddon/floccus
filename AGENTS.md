@@ -77,6 +77,7 @@ Note: All AI contributions will be carefully reviewed by the project maintainers
 - Install/build: `npm install`, `npm run build`.
 - Dev watch loop: `npm run watch` (also syncs Capacitor assets; see `gulpfile.js`).
 - Release artifacts: `npm run build-release` -> zip/xpi/crx in `builds/`.
+- The native webpack build writes to `dist-native/` (Capacitor's `webDir`), not `dist/`: Capacitor packages its whole webDir, which used to put the browser bundles, source maps and `dist/node-tests` into the APK. `gulpfile.js` writes `index.html` there and copies `icons/` and mocha (the native test runner loads it); the native production build emits no source maps, and `ignoreAssetsPattern` in `android/app/build.gradle` drops `*.map` and `node-tests` as a backstop.
 - Static checks: `npm run lint`, `npm run typecheck`.
 - Selenium integration tests: `npm test` (expects Selenium server + env vars; runner in `test/selenium-runner.js`). CI (`.github/workflows/tests.yml`, also `android-appium.yml`) runs against Nextcloud 35.
 - Node.js test harness: `npm run build:test-node` bundles `src/entries/test-node.js` to `dist/node-tests/fake-tests.js` via `webpack.node-tests.js`.
