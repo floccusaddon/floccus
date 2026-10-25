@@ -1048,6 +1048,25 @@ describe('Native SQLite storage', function() {
       const res = await query.search('a%20b')
       expect(res.bookmarks.map((b) => b.title)).to.deep.equal(['Space in URL'])
     })
+
+    it('should normalize Hebrew niqqud and Persian/Urdu letter variations', async function() {
+      const hebrewTitle = 'שָׁלוֹם עֲלֵיכֶם'
+      const hebrewFolderId = await tree.createFolder(folder(rootId, hebrewTitle))
+      await tree.createBookmark(bookmark(hebrewFolderId, 'کتاب فارسی', 'http://ex.com/persian', ['راهنمای']))
+      await tree.save()
+
+      // Hebrew search without niqqud
+      const hebrewRes = await query.search('שלום')
+      expect(hebrewRes.folders.map((f) => f.title)).to.deep.equal([hebrewTitle])
+
+      // Persian Keheh (ک) matches Arabic Kaf (ك)
+      const kafRes = await query.search('كتاب')
+      expect(kafRes.bookmarks.map((b) => b.title)).to.deep.equal(['کتاب فارسی'])
+
+      // Persian Yeh (ی) in tag matches Arabic Yeh (ي)
+      const yehTagRes = await query.search('#راهنماي')
+      expect(yehTagRes.bookmarks.map((b) => b.title)).to.deep.equal(['کتاب فارسی'])
+    })
   })
 
   describe('folder hashes', function() {

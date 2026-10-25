@@ -37,16 +37,18 @@ export const SEARCH_INDEX_VERSION = 2
  * What the UI's search matches its terms against. Lowercasing happens here and
  * not in SQL, because SQLite's lower() and LIKE only fold ASCII -- see the
  * `search_text` note in NativeDatabase.
- * Also normalizes Arabic text (removing diacritics, tatweel, and unifying letter forms).
+ * Also normalizes RTL text (stripping combining marks like Arabic diacritics and Hebrew niqqud, and unifying letter forms across Arabic, Persian, and Urdu).
  */
 export function normalizeSearchText(text?: string | null): string {
   return (text ?? '')
     .toLowerCase()
-    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
     .replace(/\u0640/g, '')
     .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627')
     .replace(/\u0629/g, '\u0647')
-    .replace(/\u0649/g, '\u064A')
+    .replace(/[\u0649\u06CC]/g, '\u064A')
+    .replace(/\u06A9/g, '\u0643')
 }
 
 export function safeDecodeURI(url?: string | null): string {

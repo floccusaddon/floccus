@@ -371,7 +371,7 @@ function likePattern(term: string): string {
   return '%' + term.replace(/[\\%_]/g, '\\$&') + '%'
 }
 
-function lowercaseTags(bookmark: TLocalBookmark): string[] {
+function normalizeTags(bookmark: TLocalBookmark): string[] {
   return (bookmark.tags || []).map((tag) => normalizeSearchText(tag))
 }
 
@@ -396,7 +396,7 @@ function matchesTitlePartially(item: TLocalItem, terms: string[]): boolean {
  * part of one, so that typing '#hol' already narrows things down.
  */
 function matchesTags(bookmark: TLocalBookmark, tags: string[]): boolean {
-  const own = lowercaseTags(bookmark)
+  const own = normalizeTags(bookmark)
   return tags.every((tag) => own.some((candidate) => candidate.includes(tag)))
 }
 
@@ -409,7 +409,7 @@ function matchesTerms(bookmark: TLocalBookmark, terms: string[]): boolean {
   const title = normalizeSearchText(bookmark.title || '')
   const rawUrl = normalizeSearchText(bookmark.url || '')
   const decodedUrl = normalizeSearchText(safeDecodeURI(bookmark.url || ''))
-  const tags = lowercaseTags(bookmark)
+  const tags = normalizeTags(bookmark)
   return terms.every((term) =>
     title.includes(term) ||
     rawUrl.includes(term) ||
@@ -429,7 +429,7 @@ function rankResults<T extends TLocalItem>(items: T[], tags: string[], terms: st
     if (!tags.length || !(item instanceof Bookmark)) {
       return 0
     }
-    const own = lowercaseTags(item)
+    const own = normalizeTags(item)
     return tags.filter((tag) => !own.includes(tag)).length
   }
   const titleRank = (item: T) => {
