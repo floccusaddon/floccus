@@ -18,6 +18,16 @@ interface Messages {
   [key: string]: TranslationEntry;
 }
 
+export const RTL_LANGUAGES = new Set(['ar', 'fa', 'he', 'ur', 'dv', 'ps', 'sd', 'ug', 'yi'])
+
+export function isRtlLocale(locale?: string): boolean {
+  if (!locale) {
+    return false
+  }
+  const lang = locale.toLowerCase().split(/[-_]/)[0]
+  return RTL_LANGUAGES.has(lang)
+}
+
 export default class I18n {
   private locales: string[];
   private locale = 'en'
@@ -56,6 +66,14 @@ export default class I18n {
         console.warn(error)
       }
     }
+  }
+
+  public getLocale(): string {
+    return this.locale
+  }
+
+  public isRTL(): boolean {
+    return isRtlLocale(this.locale)
   }
 
   /**
