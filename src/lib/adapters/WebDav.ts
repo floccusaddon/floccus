@@ -124,8 +124,10 @@ export default class WebDavAdapter extends CachingAdapter {
   async obtainLock() {
     const res = await this.checkLock()
     if (res.status === 200) {
-      if (res.headers['Last-Modified']) {
-        const date = new Date(res.headers['Last-Modified'])
+      // fetch() hands out lower-case header names, CapacitorHttp the server's
+      const lastModified = res.headers['Last-Modified'] || res.headers['last-modified']
+      if (lastModified) {
+        const date = new Date(lastModified)
         const dateLocked = date.valueOf()
         if (dateLocked + LOCK_TIMEOUT > Date.now()) {
           throw new ResourceLockedError()
