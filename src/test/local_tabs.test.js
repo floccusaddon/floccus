@@ -253,3 +253,69 @@ describe('LocalTabs unsupported tabs', function() {
     await expectSkipped({ url: 'https://example.com/', parentId: 'tabs' })
   })
 })
+
+describe('LocalTabs after a browser start', function() {
+  let LocalTabs, waitForTabsToSettle, browser, originalApi, tabs
+
+  before(async function() {
+    if (globalThis.browser === undefined) {
+      globalThis.browser = {}
+    }
+    // browser-api holds on to the object it found first, so mock its members
+    browser = (await import('../lib/browser-api')).default
+    originalApi = { ...browser }
+    ;({ default: LocalTabs, waitForTabsToSettle } = await import('../lib/LocalTabs'))
+  })
+
+  beforeEach(function() {
+    tabs = [
+      // A restored tab that hasn't committed its URL yet
+      { id: 1, windowId: 7, groupId: -1, index: 0, title: 'One', url: '', pendingUrl: 'https://example.com/1', status: 'loading' },
+      { id: 2, windowId: 7, groupId: 30, index: 1, title: 'Two', url: 'https://example.com/2', status: 'complete' },
+    ].map((tab) => ({ incognito: false, ...tab }))
+    for (const key of Object.keys(browser)) {
+      delete browser[key]
+    }
+    Object.assign(browser, {
+      tabs: {
+        query: async(query) => tabs
+          .filter((tab) => query.groupId === undefined || tab.groupId === query.groupId)
+          .map((tab) => ({ ...tab })),
+        group: async() => undefined,
+      },
+      tabGroups: {
+        query: async() => [{ id: 30, windowId: 7, title: '' }],
+      },
+    })
+  })
+
+  after(function() {
+    for (const key of Object.keys(browser)) {
+      delete browser[key]
+    }
+    Object.assign(browser, originalApi)
+  })
+
+  it('reads the URL a tab is still loading', async function() {
+    const tree = await new LocalTabs().getBookmarksTree()
+    expect(tree.findBookmark(1).url).to.equal('https://example.com/1')
+  })
+
+  it('leaves an untitled group untitled', async function() {
+    // Group ids change with every browser start, a title made of one would never match again
+    const tree = await new LocalTabs().getBookmarksTree()
+    expect(tree.findFolder('group-30').title).to.equal('')
+  })
+
+  it('waits for tabs to stop loading', async function() {
+    this.timeout(10000)
+    setTimeout(() => {
+      tabs[0] = { ...tabs[0], url: tabs[0].pendingUrl, pendingUrl: undefined, status: 'complete' }
+    }, 1500)
+    const start = Date.now()
+    await waitForTabsToSettle()
+    // and then for the tabs to stay the same over the next polls
+    expect(Date.now() - start).to.be.at.least(1500 + 2000)
+    expect(tabs[0].status).to.equal('complete')
+  })
+})

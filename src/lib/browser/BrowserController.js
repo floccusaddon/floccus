@@ -417,6 +417,10 @@ export default class BrowserController {
       return
     }
     let account = await Account.get(accountId)
+    if (this.tabsReady && account.getData().localRoot === 'tabs') {
+      await this.tabsReady
+      account = await Account.get(accountId)
+    }
     if (account.getData().syncing) {
       return
     }
@@ -505,6 +509,8 @@ export default class BrowserController {
   }
 
   async onStartup() {
+    // Set before anything else, so that no tab sync slips through
+    this.tabsReady = this.prepareTabAccounts()
     const accounts = await Account.getAllAccounts()
     await Promise.all(
       accounts.map(async acc => {
@@ -514,14 +520,33 @@ export default class BrowserController {
             scheduled: acc.getData().enabled,
           })
         }
-        if (acc.getData().localRoot === 'tabs') {
-          await acc.init()
-        }
         if (acc.getData().syncOnStartupEnabled) {
           this.scheduleSync(acc.id)
         }
       })
     )
+  }
+
+  /**
+   * Tab, window and group ids don't survive a browser restart, so tab profiles
+   * start over with an empty cache and the next sync merges. That merge must
+   * not run while the session is still being restored: it would open the tabs
+   * that aren't back yet from the server, and the restore would then duplicate
+   * them (#2143). syncAccount waits for this.
+   */
+  async prepareTabAccounts() {
+    try {
+      const accounts = await Account.getAllAccounts()
+      const tabAccounts = accounts.filter(acc => acc.getData().localRoot === 'tabs')
+      if (!tabAccounts.length) {
+        return
+      }
+      await Promise.all(tabAccounts.map(acc => acc.init()))
+      const { waitForTabsToSettle } = await import('../LocalTabs')
+      await waitForTabsToSettle()
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   async onLoad() {

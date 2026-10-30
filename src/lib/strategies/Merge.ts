@@ -1,4 +1,4 @@
-import { Folder, ItemLocation, TItemLocation, TOppositeLocation } from '../Tree'
+import { Folder, ItemLocation, ItemType, TItem, TItemLocation, TOppositeLocation } from '../Tree'
 import Diff, { CreateAction, MoveAction, PlanStage1 } from '../Diff'
 import Scanner, { ScanResult } from '../Scanner'
 import * as Parallel from 'async-parallel'
@@ -10,10 +10,39 @@ import Mappings from '../Mappings'
 import Logger from '../Logger'
 
 export default class MergeSyncProcess extends DefaultSyncProcess {
+  /**
+   * With tabs, the merge is what runs after every browser start (the cache is
+   * reset then, because tab, window and group ids don't survive a restart), so
+   * windows and groups have to be recognized without their ids. A window's
+   * title is only its position ('Window <n>'), which needn't be the same on the
+   * next start, so any window may be merged with any other. Untitled tab groups
+   * may be merged with each other, and the 'Group <id>' placeholder older
+   * versions stored counts as untitled (canMergeWith already covers groups of
+   * the same title). Scanner#diffFolder picks the candidate with the most
+   * similar contents.
+   */
+  private tabFoldersMergeable(item1: TItem<TItemLocation>, item2: TItem<TItemLocation>): boolean {
+    if (item1.type !== ItemType.FOLDER || item2.type !== ItemType.FOLDER) {
+      return false
+    }
+    const isWindow1 = this.isWindow(item1)
+    if (isWindow1 !== this.isWindow(item2)) {
+      return false
+    }
+    return isWindow1 || (isUntitledTabGroup(item1) && isUntitledTabGroup(item2))
+  }
+
+  private isWindow(folder: Folder<TItemLocation>): boolean {
+    const root = folder.location === ItemLocation.LOCAL ? this.localTreeRoot : this.serverTreeRoot
+    return folder.parentId === root.id
+  }
+
   async getDiffs(): Promise<{
     localScanResult: ScanResult<typeof ItemLocation.LOCAL, TItemLocation>
     serverScanResult: ScanResult<typeof ItemLocation.SERVER, TItemLocation>
   }> {
+    const isUsingTabs = await this.localTree.isUsingBrowserTabs?.()
+
     // If there's no cache, diff the two trees directly
     const localScanner = new Scanner(
       this.mappings,
@@ -22,7 +51,8 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
       (serverItem, localItem) => {
         if (
           localItem.type === serverItem.type &&
-          serverItem.canMergeWith(localItem)
+          (serverItem.canMergeWith(localItem) ||
+            (isUsingTabs && this.tabFoldersMergeable(serverItem, localItem)))
         ) {
           return true
         }
@@ -40,7 +70,8 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
       (localItem, serverItem) => {
         if (
           serverItem.type === localItem.type &&
-          serverItem.canMergeWith(localItem)
+          (serverItem.canMergeWith(localItem) ||
+            (isUsingTabs && this.tabFoldersMergeable(localItem, serverItem)))
         ) {
           return true
         }
@@ -379,4 +410,11 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
   protected getStrategyName(): ISerializedSyncProcess['strategy'] {
     return 'merge'
   }
+}
+
+// Older versions titled untitled tab groups 'Group <groupId>'
+const LEGACY_GROUP_TITLE = /^Group \d+$/
+
+function isUntitledTabGroup(folder: Folder<TItemLocation>): boolean {
+  return !folder.title || LEGACY_GROUP_TITLE.test(folder.title)
 }
