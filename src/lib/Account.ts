@@ -415,6 +415,16 @@ export default class Account {
 
       await this.setData({ scheduled: false, syncing: 1 })
 
+      // Only once the server has the changes: an atomic one (WebDAV, Google
+      // Drive, ...) uploads them here, and a cache stored before an upload that
+      // then fails claims the server has items it doesn't -- the next sync
+      // takes that for changes made on the server and reverts the local ones
+      // (see persistProgress)
+      if (this.server.onSyncComplete) {
+        Logger.log('Calling onSyncComplete')
+        await this.server.onSyncComplete()
+      }
+
       // update cache
       Logger.log('Storing cache')
       // Read before storing: a change landing during the write has to leave the
@@ -427,11 +437,6 @@ export default class Account {
       // a tree. This runs once per sync, so the extra copy doesn't matter here.
       const cache = await this.localCachingResource.getCacheTree()
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
-
-      if (this.server.onSyncComplete) {
-        Logger.log('Calling onSyncComplete')
-        await this.server.onSyncComplete()
-      }
 
       if (mappings) {
         // Remove superfluous items from mappings
@@ -603,8 +608,8 @@ export default class Account {
    * second time, which on a non-atomic server means duplicates.
    *
    * Only for non-atomic servers: an atomic one hasn't taken any of this run's
-   * changes, so there is no continuation to resume, and the cache and mappings
-   * the ticks keep for it are as far as they should go.
+   * changes, so there is nothing to resume, and the cache and mappings have to
+   * stay as they were before the sync (see persistProgress).
    */
   private async persistFinalProgress(): Promise<void> {
     if (!this.syncProcess || !this.server || this.server.isAtomic()) {
@@ -630,14 +635,24 @@ export default class Account {
     if (!this.localCachingResource) {
       return
     }
-    // Persist the cache incrementally in *both* the atomic and non-atomic cases.
-    // Previously the cache was only persisted here for atomic adapters; for non-atomic
-    // adapters it was written only on successful sync completion (see sync()). During a long
-    // run of interrupted (never-completed) syncs that left the stored cache stale, so the next
-    // fresh sync re-saw already-synced items as new creations and re-created them on the
-    // non-atomic server — accumulating duplicate folders whose mappings then collided
-    // (MappingFailureError -> reset+forceSync -> divergence). Mappings are already persisted at
-    // the interrupt point; the cache must be kept in step with them.
+    if (this.server.isAtomic()) {
+      // An atomic server takes none of this run's changes before
+      // onSyncComplete, and a sync that fails or is killed before then leaves
+      // it as it was. The cache and mappings are the common ancestor of both
+      // sides, so persisting them now would record local changes as synced that
+      // the server never got: the next sync would see a new local bookmark
+      // missing from the server and remove it locally, and restore a locally
+      // removed one from the server (#2362). Left as they were, the changes this
+      // run did make locally merely show up as changes on both sides next time.
+      return
+    }
+    // A non-atomic server keeps every action as it is executed, so the cache
+    // has to advance with the mappings and the continuation. Written only on
+    // successful sync completion (see sync()), a long run of interrupted syncs
+    // left the stored cache stale, so the next fresh sync re-saw already-synced
+    // items as new creations and re-created them on the server -- accumulating
+    // duplicate folders whose mappings then collided (MappingFailureError ->
+    // reset+forceSync -> divergence).
     // Nothing has touched the cache since we last wrote it, so there is
     // nothing to hand to the store. Plenty of a sync (loading, diffing,
     // reconciling, and every action that only concerns the server) changes no
