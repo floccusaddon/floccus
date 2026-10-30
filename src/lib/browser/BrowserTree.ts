@@ -139,7 +139,8 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
       }
     }
     const processedTree = recurse(tree) as Folder<typeof ItemLocation.LOCAL>
-    if (!processedTree) {
+    // The id may name a bookmark now: some browsers renumber all bookmarks (#2090, #2114)
+    if (!(processedTree instanceof Folder)) {
       throw new LocalFolderNotFoundError()
     }
     return processedTree
@@ -403,8 +404,10 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
       return false
     }
     try {
-      await browser.bookmarks.get(localId)
-      return true
+      const [node] = await browser.bookmarks.get(localId)
+      // Some browsers renumber all bookmarks, so the id may name a bookmark or separator by now (#2090, #2114)
+      // Firefox has `type`, Chromium folders are the nodes without a url
+      return 'type' in node ? node.type === 'folder' : !node.url
     } catch (e) {
       return false
     }
