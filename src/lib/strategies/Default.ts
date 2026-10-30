@@ -1327,7 +1327,12 @@ export default class SyncProcess {
         return Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.payload, targetRemoval, findChainCache)
       })
       findChainCache = {}
-      const concurrentTargetOriginRemoval = targetRemovals.find(targetRemoval =>
+      // The item still being on the target means it was moved out of the
+      // removed folder there before the removal -- typically the very move we
+      // have here, done on both sides when an interrupted sync had already
+      // applied it locally. Recreating it would leave it on the target twice.
+      const survivesOnTarget = Boolean(targetTree.findItem(action.payload.type, Mappings.mapId(mappingsSnapshot, action.payload, targetLocation)))
+      const concurrentTargetOriginRemoval = !survivesOnTarget && targetRemovals.find(targetRemoval =>
         (action.payload.type === targetRemoval.payload.type && Mappings.mappable(mappingsSnapshot, action.payload, targetRemoval.payload)) ||
         Diff.findChain(mappingsSnapshot, allCreateAndMoveActions, sourceTree, action.oldItem, targetRemoval, findChainCache)
       )

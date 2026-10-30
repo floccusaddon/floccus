@@ -16,7 +16,7 @@ export async function registerNodeSuite() {
   await import('./sync_advanced.test.js')
   await import('./sync_tags.test.js')
   await import('./continuation_resume.test.js')
-  await import('./atomic_upload_failure.test.js')
+  await import('./atomic_interrupts.test.js')
 
   if (process.env.FLOCCUS_NODE_INCLUDE_BENCHMARK === 'true') {
     await import('./benchmark.test.js')
