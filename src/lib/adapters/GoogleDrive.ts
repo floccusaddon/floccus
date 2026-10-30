@@ -233,7 +233,9 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
     this.accessToken = await this.getAccessToken(this.server.refreshToken)
 
-    const fileList = await this.listFiles(`name = '${this.server.bookmark_file}'`, 100)
+    // Drive query strings escape ' and \ with a backslash
+    const escapedFileName = this.server.bookmark_file.replace(/[\\']/g, '\\$&')
+    const fileList = await this.listFiles(`name = '${escapedFileName}'`, 100)
     if (!fileList.files) {
       throw new GoogleDriveSearchError()
     }
