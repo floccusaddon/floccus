@@ -120,7 +120,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     // (using map here, because 'each' doesn't provide indices)
     const unmatchedChildren = newFolder.children.slice(0)
     await Parallel.map(oldFolder.children, async(old, index) => {
-      const newItem = unmatchedChildren.find((child) => old.type === child.type && this.mergeable(old, child))
+      const newItem = this.findMatchingChild(old, unmatchedChildren)
       // we found an item in the new folder that matches the one in the old folder
       if (newItem) {
         await this.diffItem(old, newItem)
@@ -145,6 +145,33 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       }
       this.result.CREATE.commit({type: ActionType.CREATE, payload: newChild, index: newFolder.children.findIndex(child => child === newChild)})
     }, 1)
+  }
+
+  /**
+   * When several folders could be merged with this one -- two folders of the
+   * same title, or, with tabs, any two windows (see MergeSyncProcess) -- take
+   * the one with the most similar contents rather than the first one.
+   * Bookmarks keep the first match: comparing them all would be quadratic in
+   * the size of a folder.
+   */
+  private findMatchingChild(old: TItem<L1>, candidates: TItem<L2>[]): TItem<L2> | undefined {
+    if (old.type !== ItemType.FOLDER) {
+      return candidates.find((child) => old.type === child.type && this.mergeable(old, child))
+    }
+    const matches = candidates.filter((child) => old.type === child.type && this.mergeable(old, child))
+    if (matches.length <= 1) {
+      return matches[0]
+    }
+    let best = matches[0]
+    let bestSimilarity = old.childrenSimilarity(best)
+    for (const match of matches.slice(1)) {
+      const similarity = old.childrenSimilarity(match)
+      if (similarity > bestSimilarity) {
+        best = match
+        bestSimilarity = similarity
+      }
+    }
+    return best
   }
 
   async diffBookmark(oldBookmark:Bookmark<L1>, newBookmark:Bookmark<L2>):Promise<void> {

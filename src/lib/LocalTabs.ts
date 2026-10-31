@@ -94,7 +94,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     )
     tabs = tabs.filter(
       (tab) => !tab.incognito && !placeholderTabIds.has(tab.id) &&
-        !this.isUnsupportedFirefoxUrl(tab.url)
+        !this.isUnsupportedFirefoxUrl(getTabUrl(tab))
     )
 
     // Get all tab groups
@@ -127,7 +127,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
                 new Bookmark({
                   id: t.id,
                   title: t.title,
-                  url: t.url,
+                  url: getTabUrl(t),
                   parentId: this.getFolderIdFromWindowId(windowId),
                   location: ItemLocation.LOCAL,
                 })
@@ -143,14 +143,14 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
                 })
               )
                 .filter((t) => !placeholderTabIds.has(t.id) &&
-                  !this.isUnsupportedFirefoxUrl(t.url))
+                  !this.isUnsupportedFirefoxUrl(getTabUrl(t)))
                 .sort((t1, t2) => t1.index - t2.index)
                 .map(
                   (t) =>
                     new Bookmark({
                       id: t.id,
                       title: t.title,
-                      url: t.url,
+                      url: getTabUrl(t),
                       parentId: this.getFolderIdFromTabGroupId(group.id),
                       location: ItemLocation.LOCAL,
                     })
@@ -170,7 +170,9 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
 
               return {
                 folder: new Folder({
-                  title: group.title || `Group ${group.id}`,
+                  // Not 'Group <id>': group ids change with every browser start,
+                  // so an untitled group would never be recognized again
+                  title: group.title || '',
                   id: this.getFolderIdFromTabGroupId(group.id),
                   parentId: this.getFolderIdFromWindowId(windowId),
                   location: ItemLocation.LOCAL,
@@ -783,6 +785,46 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
   isAtomic(): boolean {
     return false
   }
+}
+
+/**
+ * A tab that is still loading may not have committed its URL yet: Chromium
+ * then reports an empty url and the one it is loading as pendingUrl (Firefox
+ * has no pendingUrl). Tabs restored at browser start are such tabs.
+ */
+function getTabUrl(tab: { url?: string, pendingUrl?: string }): string | undefined {
+  return tab.pendingUrl || tab.url
+}
+
+const TABS_SETTLE_POLL_INTERVAL = 1000
+const TABS_SETTLE_QUIET_POLLS = 3
+const TABS_SETTLE_TIMEOUT = 60 * 1000
+
+/**
+ * Resolves once the browser has stopped opening and loading tabs, or after a
+ * minute at most. At browser start the session is restored tab by tab, and a
+ * sync in the middle of that takes the tabs that aren't back yet for tabs
+ * closed on this device and opens them again from the server -- which the
+ * restore then duplicates.
+ */
+export async function waitForTabsToSettle(): Promise<void> {
+  const deadline = Date.now() + TABS_SETTLE_TIMEOUT
+  let previous = null
+  let quietPolls = 0
+  while (Date.now() < deadline) {
+    const tabs = await browser.tabs.query({ windowType: 'normal' })
+    const snapshot = JSON.stringify(
+      tabs.map((tab) => [tab.id, tab.windowId, tab.groupId, getTabUrl(tab)])
+    )
+    const loading = tabs.some((tab) => tab.status === 'loading')
+    quietPolls = snapshot === previous && !loading ? quietPolls + 1 : 0
+    if (quietPolls >= TABS_SETTLE_QUIET_POLLS) {
+      return
+    }
+    previous = snapshot
+    await new Promise((resolve) => setTimeout(resolve, TABS_SETTLE_POLL_INTERVAL))
+  }
+  Logger.log('Tabs did not settle within ' + TABS_SETTLE_TIMEOUT + 'ms, syncing anyway')
 }
 
 function awaitTabsUpdated() {
