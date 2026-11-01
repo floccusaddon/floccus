@@ -8,6 +8,7 @@ import CachingAdapter from './Caching'
 import XbelSerializer from '../serializers/Xbel'
 import Logger from '../Logger'
 import Html from '../serializers/Html'
+import { IDeserializedFile } from '../interfaces/Serializer'
 import {
   FileUnreadableError, GitPushError,
   MissingPermissionsError,
@@ -34,6 +35,8 @@ export default class GitAdapter extends CachingAdapter {
   private locked: string[]
   private cancelCallback: () => void
   private initialTreeHash: string
+  // Write the file even if the tree hash didn't change, see mustPersistDerivedIds
+  private alwaysUpload = false
   private dir: string
   private hash: string
   private fs: FS|null
@@ -208,7 +211,8 @@ export default class GitAdapter extends CachingAdapter {
 
     this.bookmarksCache = this.bookmarksCache.clone(false)
     const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
-    if (newTreeHash !== this.initialTreeHash) {
+    if (newTreeHash !== this.initialTreeHash || this.alwaysUpload) {
+      this.alwaysUpload = false
       const fileContents = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)
       Logger.log('(git) writeFile ' + this.dir + '/' + this.server.bookmark_file)
       await this.fs.promises.writeFile(this.dir + '/' + this.server.bookmark_file, fileContents, {mode: 0o777, encoding: 'utf8'})
@@ -431,18 +435,21 @@ export default class GitAdapter extends CachingAdapter {
       }
     }
 
+    let file: IDeserializedFile
     switch (this.server.bookmark_file_type) {
       case 'xbel':
         Logger.log('(git) parse XBEL')
-        this.bookmarksCache = XbelSerializer.deserialize(fileContents)
+        file = XbelSerializer.deserializeFile(fileContents)
         break
       case 'html':
         Logger.log('(git) parse HTML')
-        this.bookmarksCache = Html.deserialize(fileContents)
+        file = Html.deserializeFile(fileContents)
         break
       default:
         throw new Error('Invalid bookmark file type')
     }
+    this.bookmarksCache = file.tree
+    this.alwaysUpload = file.persistIds
 
     // Found file, we can keep the cache from the previous run
     return true

@@ -1,7 +1,7 @@
-import Serializer from '../interfaces/Serializer'
+import Serializer, { IDeserializedFile } from '../interfaces/Serializer'
 import { Bookmark, Folder, ItemLocation, TItem } from '../Tree'
 import * as cheerio from 'cheerio'
-import { assignDerivedIds } from './DerivedIds'
+import { assignDerivedIds, mustPersistDerivedIds } from './DerivedIds'
 
 class HtmlSerializer implements Serializer {
   serialize(folder) {
@@ -36,11 +36,15 @@ class HtmlSerializer implements Serializer {
   }
 
   deserialize(html): Folder<typeof ItemLocation.SERVER> {
+    return this.deserializeFile(html).tree
+  }
+
+  deserializeFile(html): IDeserializedFile {
     const items: TItem<typeof ItemLocation.SERVER>[] = parseByString(html)
     items.forEach(f => { f.parentId = '0' })
     const root = new Folder({id: '0', title: 'root', children: items, location: ItemLocation.SERVER, isRoot: true})
-    assignDerivedIds(root)
-    return root
+    const stats = assignDerivedIds(root)
+    return { tree: root, persistIds: mustPersistDerivedIds(stats) }
   }
 }
 

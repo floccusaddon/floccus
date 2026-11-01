@@ -142,6 +142,39 @@ describe('Bookmark file serializers', function() {
         expect(idsByContent(roundTripped)).to.deep.equal(ids)
       })
 
+      it('asks for the file to be written only if some items had ids and others didn\'t', function() {
+        const persistIds = (items) => serializer.deserializeFile(wrap(items.join('\n'))).persistIds
+        // another program's file: it would strip the ids again anyway
+        expect(persistIds([
+          bookmark('A', 'https://a.example/'),
+          folder('F', [bookmark('B', 'https://b.example/')]),
+        ])).to.equal(false)
+        // floccus' own file: nothing to store
+        expect(persistIds([
+          bookmark('A', 'https://a.example/', '1'),
+          folder('F', [bookmark('B', 'https://b.example/', '3')], '2'),
+        ])).to.equal(false)
+        // floccus' file with items added by a program that keeps ids
+        expect(persistIds([
+          bookmark('A', 'https://a.example/', '1'),
+          folder('F', [bookmark('New', 'https://new.example/')], '2'),
+        ])).to.equal(true)
+        // deserialize() is the same tree
+        const items = [bookmark('A', 'https://a.example/', '1'), bookmark('New', 'https://new.example/')]
+        expect(idsByContent(serializer.deserialize(wrap(items.join('\n')))))
+          .to.deep.equal(idsByContent(serializer.deserializeFile(wrap(items.join('\n'))).tree))
+      })
+
+      it('needs no further write once the derived ids are stored', function() {
+        const tree = serializer.deserializeFile(wrap([
+          bookmark('A', 'https://a.example/', '1'),
+          folder('F', [bookmark('New', 'https://new.example/')], '2'),
+        ].join('\n'))).tree
+        const reread = serializer.deserializeFile(document(serializer.serialize(tree)))
+        expect(reread.persistIds).to.equal(false)
+        expect(idsByContent(reread.tree)).to.deep.equal(idsByContent(tree))
+      })
+
       it('derives the same ids again after another program strips them', function() {
         const items = [
           bookmark('A', 'https://a.example/'),
