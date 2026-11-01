@@ -170,9 +170,6 @@
   "Error058": {
     "message": "E058: Votre fichier de signets n'est pas situé à la racine de votre Dropbox, et plusieurs fichiers avec un nom identique existent dans votre Dropbox: {0}. Floccus ne peut pas déterminer lequel choisir. Déplacez le fichier correct à la racine de votre Dropbox, ou renommez les autres fichiers."
   },
-  "Error059": {
-    "message": "E059: Votre fichier de signets contient des signets ou des dossiers sans les identifiants dont Floccus a besoin pour pouvoir les utiliser. Floccus ne peut synchroniser que les signets dont il a créé les identifiants. Pour utiliser les signets provenant d'un fichier existant, importez-les dans votre navigateur, et laissez Floccus créer un nouveau fichier de signets."
-  },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
   },
