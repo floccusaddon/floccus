@@ -26,6 +26,8 @@ declare const IS_BROWSER: boolean
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Refresh the lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override a lock 0.25h after it was last refreshed
+const CONNECT_TIMEOUT = 30 * 1000 // native only
+const READ_TIMEOUT = 60 * 1000 // native only: max. silence while waiting for data
 
 interface IS3Response {
   status: number
@@ -221,6 +223,10 @@ export default class S3Adapter extends CachingAdapter {
           'Cache-Control': 'no-cache',
         },
         responseType: 'text',
+        // HttpURLConnection waits indefinitely by default, e.g. for an
+        // unreachable host; readTimeout limits inactivity, not the transfer
+        connectTimeout: CONNECT_TIMEOUT,
+        readTimeout: READ_TIMEOUT,
         ...(typeof body === 'string' && { data: body }),
         webFetchExtra: {
           credentials: 'omit',
