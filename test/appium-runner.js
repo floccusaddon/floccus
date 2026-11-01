@@ -198,6 +198,10 @@ async function buildTestRoute() {
     params.set('password', process.env.LINKWARDEN_TOKEN || '')
   }
 
+  if ((process.env.FLOCCUS_TEST || '').includes('s3-')) {
+    params.set('s3_server', `http://${process.env.S3_TEST_HOST}`)
+  }
+
   if (process.env.FLOCCUS_TEST_SEED) {
     params.set('seed', process.env.FLOCCUS_TEST_SEED)
   }

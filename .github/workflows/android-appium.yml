@@ -110,6 +110,10 @@ jobs:
           - webdav-html
           - webdav-html-encrypted
           - webdav-xbel-encrypted
+          - s3-xbel
+          - s3-html
+          - s3-xbel-encrypted
+          - s3-html-encrypted
           - google-drive
           - google-drive-encrypted
           - dropbox
@@ -209,6 +213,15 @@ jobs:
           npx htpasswd -cb test.git/.htpasswd admin admin
         if: matrix.floccus-adapter == 'git-xbel' || matrix.floccus-adapter == 'git-html'
 
+      - name: Start S3 server
+        if: startsWith(matrix.floccus-adapter, 's3-')
+        run: |
+          docker run -d --name minio -p 9000:9000 \
+            -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin \
+            cgr.dev/chainguard/minio:latest server /data
+          for i in $(seq 1 60); do curl -sf http://localhost:9000/minio/health/live && break; sleep 1; done
+          curl -sf --aws-sigv4 "aws:amz:us-east-1:s3" --user minioadmin:minioadmin -X PUT http://localhost:9000/floccus-test
+
       - name: Install Appium and Android driver
         run: |
           npm install -g appium
@@ -227,6 +240,7 @@ jobs:
           # git-http-server listens on 8174, the rest talk to the nextcloud container
           TEST_HOST: ${{ (matrix.floccus-adapter == 'git-xbel' || matrix.floccus-adapter == 'git-html') && '172.17.0.1:8174' || '172.17.0.1:8080' }}
           KARAKEEP_TEST_HOST: 172.17.0.1:3000
+          S3_TEST_HOST: 172.17.0.1:9000
         with:
           api-level: 35
           arch: x86_64
