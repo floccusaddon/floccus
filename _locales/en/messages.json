@@ -634,7 +634,7 @@
     "message": "S3 endpoint URL"
   },
   "DescriptionS3endpoint": {
-    "message": "The URL of your S3 service without the bucket name, e.g. https://s3.eu-central-1.amazonaws.com or https://<account id>.r2.cloudflarestorage.com"
+    "message": "The URL of your S3 service without the bucket name, e.g. https://s3.eu-central-1.amazonaws.com or https://ACCOUNT_ID.r2.cloudflarestorage.com"
   },
   "LabelS3region": {
     "message": "Region"
@@ -649,7 +649,7 @@
     "message": "Use path-style URLs"
   },
   "DescriptionS3pathstyle": {
-    "message": "Address the bucket as <endpoint>/<bucket> instead of <bucket>.<endpoint>. Most selfhosted S3 servers need this."
+    "message": "Address the bucket as ENDPOINT/BUCKET instead of BUCKET.ENDPOINT. Most selfhosted S3 servers need this."
   },
   "LabelS3accesskey": {
     "message": "Access key ID"
