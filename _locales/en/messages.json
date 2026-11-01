@@ -170,6 +170,12 @@
   "Error058": {
     "message": "E058: Your bookmarks file is not at the top level of your Dropbox, and there are several files with its name in your Dropbox: {0}. Floccus cannot tell which one to use. Move the right one to the top level of your Dropbox or rename the others."
   },
+  "Error060": {
+    "message": "E060: The bookmarks file on the server was changed by another device during this sync. Floccus will sync again to include those changes."
+  },
+  "Error061": {
+    "message": "E061: The S3 bucket `{0}` does not exist. Please check the bucket name, the endpoint URL and the region."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -614,6 +620,45 @@
   },
   "DescriptionAdapterdropbox": {
     "message": "Sync bookmarks via an (optionally encrypted) file that is stored in your Dropbox. It can sync http, ftp, data, file and javascript bookmarks. You can choose to use end-to-end encryption when using this option."
+  },
+  "LabelAdapters3": {
+    "message": "S3 bucket"
+  },
+  "DescriptionAdapters3": {
+    "message": "Sync your bookmarks by storing them in a file in an S3 bucket. It works with Amazon S3 and S3-compatible storage, either selfhosted or in the cloud. It can sync http, ftp, data, file and javascript bookmarks. You can choose to use end-to-end encryption when using this option."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "e.g. Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "S3 endpoint URL"
+  },
+  "DescriptionS3endpoint": {
+    "message": "The URL of your S3 service without the bucket name, e.g. https://s3.eu-central-1.amazonaws.com or https://<account id>.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Region"
+  },
+  "DescriptionS3region": {
+    "message": "The region your bucket is in, e.g. eu-central-1. Use auto for Cloudflare R2 and us-east-1 if your provider doesn't use regions."
+  },
+  "LabelS3bucket": {
+    "message": "Bucket"
+  },
+  "LabelS3pathstyle": {
+    "message": "Use path-style URLs"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Address the bucket as <endpoint>/<bucket> instead of <bucket>.<endpoint>. Most selfhosted S3 servers need this."
+  },
+  "LabelS3accesskey": {
+    "message": "Access key ID"
+  },
+  "LabelS3secretkey": {
+    "message": "Secret access key"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "The key of the bookmarks file in your bucket, e.g. personal_stuff/bookmarks.xbel"
   },
   "LabelLogindropbox": {
     "message": "Login with Dropbox"

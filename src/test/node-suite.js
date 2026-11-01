@@ -5,6 +5,8 @@ export async function registerNodeSuite() {
   await import('./browser_continuation_store.test.js')
   await import('./caching_tree_wrapper.test.js')
   await import('./progress_interval.test.js')
+  await import('./s3_signer.test.js')
+  await import('./s3.test.js')
   await import('./serializers.test.js')
   await import('./shared_urls.test.js')
   await import('./sync_schedule.test.js')

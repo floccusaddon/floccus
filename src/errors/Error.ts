@@ -548,6 +548,24 @@ export class DropboxAmbiguousFileError extends FloccusError {
   }
 }
 
+export class RemoteFileChangedError extends TransientError {
+  public readonly code = 60
+  constructor() {
+    super('E060: The bookmarks file on the server was changed by another device during this sync. Floccus will sync again to include those changes.')
+    Object.setPrototypeOf(this, RemoteFileChangedError.prototype)
+  }
+}
+
+export class S3BucketNotFoundError extends FloccusError {
+  public readonly code = 61
+  public bucket: string
+  constructor(bucket: string) {
+    super(`E061: The S3 bucket "${bucket}" does not exist.`)
+    this.bucket = bucket
+    Object.setPrototypeOf(this, S3BucketNotFoundError.prototype)
+  }
+}
+
 /**
  * Not a failure: thrown by a resource's create for an item it can't hold (e.g.
  * a tab with a URL Firefox refuses to open). The sync leaves the item out --

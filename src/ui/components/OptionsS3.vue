@@ -1,0 +1,277 @@
+<template>
+  <v-container>
+    <div>
+      <v-text-field
+        append-icon="mdi-label"
+        class="mt-2 mb-4"
+        :value="label"
+        :label="t('LabelAccountlabel')"
+        :hint="t('DescriptionAccountlabel')"
+        :persistent-hint="true"
+        @input="$emit('update:label', $event)" />
+    </div>
+    <v-card class="mb-4">
+      <v-card-text
+        id="server"
+        class="text-h5"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">
+          mdi-account-box
+        </v-icon>
+        {{ t('LabelOptionsServerDetails') }}
+      </v-card-text>
+      <v-card-text>
+        <v-text-field
+          :value="url"
+          :rules="[validateUrl]"
+          :label="t('LabelS3endpoint')"
+          :hint="t('DescriptionS3endpoint')"
+          :persistent-hint="true"
+          @input="$emit('update:url', $event)" />
+        <v-text-field
+          :value="region"
+          class="mt-2"
+          :label="t('LabelS3region')"
+          :hint="t('DescriptionS3region')"
+          :persistent-hint="true"
+          @input="$emit('update:region', $event)" />
+        <v-text-field
+          :value="bucket"
+          class="mt-2"
+          :rules="[validateBucket]"
+          :label="t('LabelS3bucket')"
+          @input="$emit('update:bucket', $event)" />
+        <v-switch
+          :input-value="pathStyle"
+          :label="t('LabelS3pathstyle')"
+          :hint="t('DescriptionS3pathstyle')"
+          :persistent-hint="true"
+          dense
+          class="mt-0 pt-0 mb-4"
+          @change="$emit('update:pathStyle', $event)" />
+        <v-text-field
+          :value="username"
+          :label="t('LabelS3accesskey')"
+          @input="$emit('update:username', $event)" />
+        <v-text-field
+          :label="t('LabelS3secretkey')"
+          :type="showPassword ? 'text' : 'password'"
+          @input="$emit('update:password', $event)">
+          <template #append>
+            <v-icon
+              role="button"
+              tabindex="0"
+              :aria-label="
+                showPassword ? t('LabelHidepassword') : t('LabelShowpassword')
+              "
+              @click="showPassword = !showPassword"
+              @keydown.enter="showPassword = !showPassword"
+              @keydown.space.prevent="showPassword = !showPassword">
+              {{ showPassword ? 'mdi-eye' : 'mdi-eye-off' }}
+            </v-icon>
+          </template>
+        </v-text-field>
+        <v-text-field
+          append-icon="mdi-file-document"
+          :value="bookmark_file"
+          :rules="[validateBookmarksFile]"
+          :label="t('LabelBookmarksfile')"
+          :hint="t('DescriptionBookmarksfiles3')"
+          :persistent-hint="true"
+          @input="$emit('update:bookmark_file', $event)" />
+        <OptionPassphrase
+          :value="passphrase"
+          @input="$emit('update:passphrase', $event)" />
+        <OptionFileType
+          :value="bookmark_file_type"
+          @input="$emit('update:bookmark_file_type', $event)" />
+      </v-card-text>
+    </v-card>
+
+    <v-card
+      v-if="isBrowser"
+      class="mb-4">
+      <v-card-title
+        id="folder"
+        class="text-h5"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">
+          mdi-folder-outline
+        </v-icon>
+        {{ t('LabelOptionsFolderMapping') }}
+      </v-card-title>
+      <v-card-text>
+        <OptionSyncFolder
+          :value="localRoot"
+          @input="$emit('update:localRoot', $event)" />
+      </v-card-text>
+    </v-card>
+
+    <v-card
+      v-if="!isBrowser"
+      class="mb-4">
+      <v-card-title
+        id="mobile"
+        class="text-h5"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">
+          mdi-cellphone-settings
+        </v-icon>
+        {{ t('LabelMobilesettings') }}
+      </v-card-title>
+      <v-card-text>
+        <OptionAllowNetwork
+          :value="allowNetwork"
+          @input="$emit('update:allowNetwork', $event)" />
+        <OptionExportBookmarks />
+      </v-card-text>
+    </v-card>
+
+    <v-card class="mb-4">
+      <v-card-title
+        id="sync"
+        class="text-h5"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">
+          mdi-sync-circle
+        </v-icon>
+        {{ t('LabelOptionsSyncBehavior') }}
+      </v-card-title>
+      <v-card-text>
+        <OptionAutoSync
+          :value="enabled"
+          @input="$emit('update:enabled', $event)" />
+        <OptionSyncOnStartup
+          :value="syncOnStartupEnabled"
+          @input="$emit('update:syncOnStartupEnabled', $event)" />
+        <template v-if="isBrowser">
+          <OptionSyncIntervalEnabled
+            :value="syncIntervalEnabled"
+            @input="$emit('update:syncIntervalEnabled', $event)" />
+          <OptionSyncInterval
+            v-if="syncIntervalEnabled"
+            :value="syncInterval"
+            @input="$emit('update:syncInterval', $event)" />
+        </template>
+        <OptionSyncStrategy
+          :value="strategy"
+          @input="$emit('update:strategy', $event)" />
+        <OptionNestedSync
+          v-if="isBrowser"
+          :value="nestedSync"
+          @input="$emit('update:nestedSync', $event)" />
+      </v-card-text>
+    </v-card>
+
+    <v-card class="mb-4">
+      <v-card-title
+        id="danger"
+        class="text-h5"
+        role="heading"
+        aria-level="2">
+        <v-icon aria-hidden="true">
+          mdi-alert-circle
+        </v-icon>
+        {{ t('LabelOptionsDangerous') }}
+      </v-card-title>
+      <v-card-text>
+        <OptionDownloadLogs />
+        <OptionResetCache @click="$emit('reset')" />
+        <OptionFailsafe
+          :value="failsafe"
+          @input="$emit('update:failsafe', $event)" />
+        <OptionDeleteAccount @click="$emit('delete')" />
+      </v-card-text>
+    </v-card>
+  </v-container>
+</template>
+
+<script>
+import OptionSyncInterval from './OptionSyncInterval'
+import OptionResetCache from './OptionResetCache'
+import OptionSyncStrategy from './OptionSyncStrategy'
+import OptionDeleteAccount from './OptionDeleteAccount'
+import OptionSyncFolder from './OptionSyncFolder'
+import OptionNestedSync from './OptionNestedSync'
+import OptionFailsafe from './OptionFailsafe'
+import OptionDownloadLogs from './OptionDownloadLogs'
+import OptionAllowNetwork from './native/OptionAllowNetwork'
+import OptionFileType from './OptionFileType'
+import OptionExportBookmarks from './OptionExportBookmarks.vue'
+import OptionPassphrase from './OptionPassphrase.vue'
+import OptionAutoSync from './OptionAutoSync.vue'
+import OptionSyncIntervalEnabled from './OptionSyncIntervalEnabled.vue'
+import OptionSyncOnStartup from './OptionSyncOnStartup.vue'
+
+export default {
+  name: 'OptionsS3',
+  components: {
+    OptionSyncOnStartup,
+    OptionSyncIntervalEnabled,
+    OptionAutoSync,
+    OptionExportBookmarks,
+    OptionAllowNetwork,
+    OptionDownloadLogs,
+    OptionFailsafe,
+    OptionSyncFolder,
+    OptionDeleteAccount,
+    OptionSyncStrategy,
+    OptionResetCache,
+    OptionSyncInterval,
+    OptionNestedSync,
+    OptionFileType,
+    OptionPassphrase,
+  },
+  props: [
+    'url',
+    'region',
+    'bucket',
+    'pathStyle',
+    'username',
+    'password',
+    'passphrase',
+    'serverRoot',
+    'localRoot',
+    'allowNetwork',
+    'syncInterval',
+    'strategy',
+    'bookmark_file',
+    'nestedSync',
+    'failsafe',
+    'bookmark_file_type',
+    'enabled',
+    'label',
+    'syncIntervalEnabled',
+    'syncOnStartupEnabled',
+  ],
+  data() {
+    return {
+      panels: [0, 1],
+      showPassword: false,
+      showPassphrase: false,
+    }
+  },
+  methods: {
+    validateUrl(str) {
+      try {
+        const u = new URL(str)
+        return Boolean(u) && u.protocol.startsWith('http')
+      } catch (e) {
+        return false
+      }
+    },
+    validateBucket(name) {
+      return Boolean(name) && !name.includes('/')
+    },
+    validateBookmarksFile(path) {
+      return path[0] !== '/' && path[path.length - 1] !== '/'
+    },
+  },
+}
+</script>
+
+<style scoped></style>

@@ -9,7 +9,7 @@ import {
   CreateBookmarkError,
   FloccusError, GitPushError,
   HttpError,
-  InconsistentBookmarksExistenceError, InvalidUrlError, LockFileError,
+  InconsistentBookmarksExistenceError, InvalidUrlError, S3BucketNotFoundError, LockFileError,
   MissingItemOrderError,
   ParseResponseError, ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, UnexpectedFolderPathError,
   UnexpectedServerFolder,
@@ -118,6 +118,9 @@ export default class NativeAccount extends Account {
         er.folder,
         er.bookmark,
       ])
+    }
+    if (er instanceof S3BucketNotFoundError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.bucket])
     }
     if (er instanceof LockFileError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [

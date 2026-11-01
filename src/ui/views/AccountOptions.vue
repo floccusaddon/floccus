@@ -176,6 +176,11 @@
                 v-bind.sync="data"
                 @reset="onReset"
                 @delete="onDelete" />
+              <OptionsS3
+                v-if="data.type === 's3'"
+                v-bind.sync="data"
+                @reset="onReset"
+                @delete="onDelete" />
               <OptionsGit
                 v-if="data.type === 'git'"
                 v-bind.sync="data"
@@ -235,6 +240,7 @@ import OptionsNextcloudFolders from '../components/OptionsNextcloudBookmarks'
 import OptionsLinkwarden from '../components/OptionsLinkwarden'
 import OptionsKarakeep from '../components/OptionsKarakeep'
 import OptionsWebdav from '../components/OptionsWebdav'
+import OptionsS3 from '../components/OptionsS3.vue'
 import OptionsFake from '../components/OptionsFake'
 import OptionsGoogleDrive from '../components/OptionsGoogleDrive'
 import OptionsDropbox from '../components/OptionsDropbox'
@@ -242,7 +248,7 @@ import OptionsGit from '../components/OptionsGit.vue'
 
 export default {
   name: 'AccountOptions',
-  components: { OptionsGit, OptionsGoogleDrive, OptionsDropbox, OptionsFake, OptionsWebdav, OptionsNextcloudFolders, OptionsLinkwarden, OptionsKarakeep },
+  components: { OptionsGit, OptionsGoogleDrive, OptionsDropbox, OptionsFake, OptionsWebdav, OptionsS3, OptionsNextcloudFolders, OptionsLinkwarden, OptionsKarakeep },
   data() {
     return {
       folderName: '',

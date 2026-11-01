@@ -48,6 +48,11 @@
           v-bind.sync="data"
           @reset="onReset"
           @delete="onDelete" />
+        <OptionsS3
+          v-if="data.type === 's3'"
+          v-bind.sync="data"
+          @reset="onReset"
+          @delete="onDelete" />
         <OptionsFake
           v-if="data.type === 'fake'"
           v-bind.sync="data"
@@ -77,6 +82,7 @@
 <script>
 import OptionsFake from '../../components/OptionsFake'
 import OptionsWebdav from '../../components/OptionsWebdav'
+import OptionsS3 from '../../components/OptionsS3.vue'
 import OptionsNextcloudBookmarks from '../../components/OptionsNextcloudBookmarks'
 import { actions } from '../../store/definitions'
 import { routes } from '../../NativeRouter'
@@ -88,7 +94,7 @@ import OptionsKarakeep from '../../components/OptionsKarakeep.vue'
 
 export default {
   name: 'Options',
-  components: { OptionsLinkwarden, OptionsKarakeep, OptionsGit, OptionsGoogleDrive, OptionsDropbox, OptionsNextcloudBookmarks, OptionsWebdav, OptionsFake },
+  components: { OptionsLinkwarden, OptionsKarakeep, OptionsGit, OptionsGoogleDrive, OptionsDropbox, OptionsNextcloudBookmarks, OptionsWebdav, OptionsS3, OptionsFake },
   data() {
     return {
       drawer: false,

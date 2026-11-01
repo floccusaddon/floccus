@@ -34,6 +34,7 @@ AdapterFactory.register('webdav', async() => (await import('./adapters/WebDav'))
 AdapterFactory.register('git', async() => (await import('./adapters/Git')).default)
 AdapterFactory.register('google-drive', async() => (await import('./adapters/GoogleDrive')).default)
 AdapterFactory.register('dropbox', async() => (await import('./adapters/Dropbox')).default)
+AdapterFactory.register('s3', async() => (await import('./adapters/S3')).default)
 AdapterFactory.register('fake', async() => (await import('./adapters/Fake')).default)
 AdapterFactory.register(
   'fake-nc-bookmarks',

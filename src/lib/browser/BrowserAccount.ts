@@ -7,7 +7,7 @@ import {
   CreateBookmarkError,
   FloccusError, GitPushError,
   HttpError,
-  InconsistentBookmarksExistenceError, InvalidUrlError, LocalFolderNotFoundError, LockFileError,
+  InconsistentBookmarksExistenceError, InvalidUrlError, S3BucketNotFoundError, LocalFolderNotFoundError, LockFileError,
   MissingItemOrderError,
   ParseResponseError, ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, UnexpectedFolderPathError,
   UnexpectedServerFolder,
@@ -110,6 +110,9 @@ export default class BrowserAccount extends Account {
     }
     if (er instanceof InconsistentBookmarksExistenceError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.folder, er.bookmark])
+    }
+    if (er instanceof S3BucketNotFoundError) {
+      return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.bucket])
     }
     if (er instanceof LockFileError) {
       return i18n.getMessage('Error' + String(er.code).padStart(3, '0'), [er.status, er.lockFile])
