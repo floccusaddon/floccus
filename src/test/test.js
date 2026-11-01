@@ -1,5 +1,7 @@
 import './account.test.js'
 import './crypto.test.js'
+import './s3_signer.test.js'
+import './s3.test.js'
 import './sync_basic.test.js'
 import './sync_basic_slave.test.js'
 import './sync_basic_overwrite.test.js'

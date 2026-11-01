@@ -377,6 +377,11 @@ export const actionsDefinition = {
     // noop, because capacitor Http doesn't support PROPFIND
     return true
   },
+  async [actions.TEST_S3_SERVER]({commit, dispatch, state}, data) {
+    const S3Adapter = (await import('../../../lib/adapters/S3')).default
+    await new S3Adapter(data).testConnection()
+    return true
+  },
   async [actions.TEST_LINKWARDEN_SERVER]({commit, dispatch, state}, {rootUrl, token}) {
     let res = await Http.request({
       url: `${rootUrl}/api/v1/collections`,

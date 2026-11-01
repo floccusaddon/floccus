@@ -159,6 +159,7 @@ export default {
         'nextcloud-bookmarks': 'mdi-cloud',
         'webdav': 'mdi-folder-network',
         'git': 'mdi-source-repository',
+        's3': 'mdi-bucket',
       }
       return icons[type]
     },

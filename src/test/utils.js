@@ -67,7 +67,8 @@ export function getEnv() {
     RANDOM_MANIPULATION_ITERATIONS,
     TEST_URL,
     IS_CI,
-    ACCOUNT_FILTER
+    ACCOUNT_FILTER,
+    S3
   SERVER =
     params.get('server') ||
     getProcessEnv('TEST_SERVER') ||
@@ -86,6 +87,16 @@ export function getEnv() {
     (typeof process !== 'undefined' ? 'node' : 'firefox')
   IS_CI = params.get('ci') === 'true' || getProcessEnv('CI') === 'true'
   ACCOUNT_FILTER = params.get('accounts') || getProcessEnv('FLOCCUS_TEST_ACCOUNTS')
+  // A MinIO instance by default, see .github/workflows/tests.yml
+  S3 = {
+    type: 's3',
+    url: params.get('s3_server') || getProcessEnv('S3_TEST_SERVER') || 'http://localhost:9000',
+    region: 'us-east-1',
+    bucket: params.get('s3_bucket') || getProcessEnv('S3_TEST_BUCKET') || 'floccus-test',
+    pathStyle: true,
+    username: params.get('s3_access_key') || getProcessEnv('S3_TEST_ACCESS_KEY') || 'minioadmin',
+    password: params.get('s3_secret_key') || getProcessEnv('S3_TEST_SECRET_KEY') || 'minioadmin',
+  }
 
   SEED =
     params.get('seed') || getProcessEnv('FLOCCUS_TEST_SEED') || DEFAULT_SEED
@@ -144,6 +155,28 @@ export function getEnv() {
         bookmark_file_type: 'html',
         passphrase: testRandom.float(),
         ...CREDENTIALS,
+      },
+      {
+        ...S3,
+        bookmark_file: 'floccus/bookmarks书签.xbel',
+        bookmark_file_type: 'xbel',
+      },
+      {
+        ...S3,
+        bookmark_file: 'floccus/bookmarks书签-encrypted.xbel',
+        bookmark_file_type: 'xbel',
+        passphrase: testRandom.float(),
+      },
+      {
+        ...S3,
+        bookmark_file: 'floccus/bookmarks书签.html',
+        bookmark_file_type: 'html',
+      },
+      {
+        ...S3,
+        bookmark_file: 'floccus/bookmarks书签-encrypted.html',
+        bookmark_file_type: 'html',
+        passphrase: testRandom.float(),
       },
       {
         type: 'git',
@@ -642,7 +675,8 @@ export function stringifyAccountData(ACCOUNT_DATA) {
       : '') +
     ((ACCOUNT_DATA.type === 'google-drive' && ACCOUNT_DATA.password) ||
     (ACCOUNT_DATA.type === 'dropbox' && ACCOUNT_DATA.password) ||
-    (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase)
+    (ACCOUNT_DATA.type === 'webdav' && ACCOUNT_DATA.passphrase) ||
+    (ACCOUNT_DATA.type === 's3' && ACCOUNT_DATA.passphrase)
       ? '-encrypted'
       : '')
   }`

@@ -51,6 +51,11 @@
                   class="caption pl-8 mb-2">
                   {{ t('DescriptionAdapterwedavexamples') }}
                 </div>
+                <div
+                  v-if="a.type === 's3'"
+                  class="caption pl-8 mb-2">
+                  {{ t('DescriptionAdapters3examples') }}
+                </div>
                 <div class="caption pl-8 mb-5">
                   {{ a.description }}
                 </div>
@@ -340,6 +345,99 @@
             </div>
           </template>
 
+          <template v-else-if="adapter === 's3'">
+            <div
+              class="headline"
+              role="heading"
+              aria-level="2">
+              {{ t('LabelServersetup') }}
+            </div>
+            <v-form>
+              <v-text-field
+                v-model="server"
+                :rules="[validateUrl]"
+                :label="t('LabelS3endpoint')"
+                :hint="t('DescriptionS3endpoint')"
+                :persistent-hint="true"
+                :loading="isServerTestRunning"
+                :error-messages="serverTestError || serverisNotHttps" />
+              <v-text-field
+                v-model="region"
+                class="mt-2"
+                :label="t('LabelS3region')"
+                :hint="t('DescriptionS3region')"
+                :persistent-hint="true" />
+              <v-text-field
+                v-model="bucket"
+                class="mt-2"
+                :rules="[validateBucket]"
+                :label="t('LabelS3bucket')" />
+              <v-switch
+                v-model="pathStyle"
+                :label="t('LabelS3pathstyle')"
+                :hint="t('DescriptionS3pathstyle')"
+                :persistent-hint="true"
+                dense
+                class="mt-0 pt-0 mb-4" />
+              <v-text-field
+                v-model="username"
+                :label="t('LabelS3accesskey')" />
+              <v-text-field
+                v-model="password"
+                :label="t('LabelS3secretkey')"
+                :type="showPassword ? 'text' : 'password'">
+                <template #append>
+                  <v-icon
+                    role="button"
+                    tabindex="0"
+                    :aria-label="
+                      showPassword
+                        ? t('LabelHidepassword')
+                        : t('LabelShowpassword')
+                    "
+                    @click="showPassword = !showPassword"
+                    @keydown.enter="showPassword = !showPassword"
+                    @keydown.space.prevent="showPassword = !showPassword">
+                    {{ showPassword ? 'mdi-eye' : 'mdi-eye-off' }}
+                  </v-icon>
+                </template>
+              </v-text-field>
+              <v-text-field
+                v-model="passphrase"
+                class="mt-2"
+                :label="t('LabelPassphrase')"
+                :hint="t('DescriptionPassphrase')"
+                :persistent-hint="true"
+                :type="showPassphrase ? 'text' : 'password'">
+                <template #append>
+                  <v-icon
+                    role="button"
+                    tabindex="0"
+                    :aria-label="
+                      showPassphrase
+                        ? t('LabelHidepassword')
+                        : t('LabelShowpassword')
+                    "
+                    @click="showPassphrase = !showPassphrase"
+                    @keydown.enter="showPassphrase = !showPassphrase"
+                    @keydown.space.prevent="showPassphrase = !showPassphrase">
+                    {{ showPassphrase ? 'mdi-eye' : 'mdi-eye-off' }}
+                  </v-icon>
+                </template>
+              </v-text-field>
+            </v-form>
+            <div class="form-buttons">
+              <v-btn @click="currentStep--">
+                {{ t('LabelBack') }}
+              </v-btn>
+              <v-btn
+                class="primary"
+                @click="testS3Server">
+                {{ t('LabelContinue') }}
+              </v-btn>
+            </div>
+          </template>
+
           <template v-else-if="adapter === 'git'">
             <div
               class="headline"
@@ -518,6 +616,24 @@
                 :rules="[validateBookmarksFile]"
                 :label="t('LabelBookmarksfile')"
                 :hint="t('DescriptionBookmarksfile')"
+                :persistent-hint="true" />
+              <OptionFileType v-model="bookmark_file_type" />
+            </template>
+
+            <template v-if="adapter === 's3'">
+              <div
+                class="text-h6"
+                role="heading"
+                aria-level="3">
+                {{ t('LabelBookmarksfile') }}
+              </div>
+              <v-text-field
+                v-model="bookmark_file"
+                class="mb-2"
+                append-icon="mdi-file-document"
+                :rules="[validateBookmarksFile]"
+                :label="t('LabelBookmarksfile')"
+                :hint="t('DescriptionBookmarksfiles3')"
                 :persistent-hint="true" />
               <OptionFileType v-model="bookmark_file_type" />
             </template>
@@ -737,6 +853,9 @@ export default {
       loginFlowError: '',
       server: 'https://',
       branch: 'main',
+      region: 'us-east-1',
+      bucket: '',
+      pathStyle: true,
       username: '',
       password: '',
       passphrase: '',
@@ -797,6 +916,11 @@ export default {
           type: 'webdav',
           label: this.t('LabelAdapterwebdav'),
           description: this.t('DescriptionAdapterwebdav'),
+        },
+        {
+          type: 's3',
+          label: this.t('LabelAdapters3'),
+          description: this.t('DescriptionAdapters3'),
         },
         {
           type: 'git',
@@ -877,11 +1001,18 @@ export default {
         }),
         ...(this.adapter === 'karakeep' && { serverFolder: this.serverFolder }),
         ...(this.adapter === 'git' && { branch: this.branch }),
+        ...(this.adapter === 's3' && {
+          region: this.region,
+          bucket: this.bucket,
+          pathStyle: this.pathStyle,
+        }),
         ...((this.adapter === 'webdav' ||
+          this.adapter === 's3' ||
           this.adapter === 'google-drive' ||
           this.adapter === 'dropbox' ||
           this.adapter === 'git') && { bookmark_file: this.bookmark_file }),
         ...((this.adapter === 'webdav' ||
+          this.adapter === 's3' ||
           this.adapter === 'google-drive' ||
           this.adapter === 'dropbox' ||
           this.adapter === 'git') && {
@@ -972,6 +1103,25 @@ export default {
       }
       this.isServerTestRunning = false
     },
+    async testS3Server() {
+      this.isServerTestRunning = true
+      this.serverTestError = ''
+      try {
+        await this.$store.dispatch(actions.TEST_S3_SERVER, {
+          url: this.server,
+          region: this.region,
+          bucket: this.bucket,
+          pathStyle: this.pathStyle,
+          username: this.username,
+          password: this.password,
+        })
+        this.serverTestSuccessful = true
+        this.currentStep++
+      } catch (e) {
+        this.serverTestError = e.message
+      }
+      this.isServerTestRunning = false
+    },
     async loginGoogleDrive() {
       if (this.isBrowser) {
         await this.$store.dispatch(actions.REQUEST_NETWORK_PERMISSIONS)
@@ -1043,6 +1193,9 @@ export default {
     },
     validateBookmarksFile(path) {
       return path[0] !== '/' && path[path.length - 1] !== '/'
+    },
+    validateBucket(name) {
+      return Boolean(name) && !name.includes('/')
     },
     validateBookmarksFileGoogle(path) {
       return !path.includes('/')

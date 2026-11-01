@@ -113,6 +113,10 @@ installConsoleHandler()
       testUrl += `&password=${process.env.LINKWARDEN_TOKEN}`
     }
 
+    if (process.env.FLOCCUS_TEST.includes('s3-')) {
+      testUrl += `&s3_server=http://${process.env.S3_TEST_HOST}`
+    }
+
     if (process.env.FLOCCUS_TEST_SEED) {
       testUrl += `&seed=${process.env.FLOCCUS_TEST_SEED}`
     }
