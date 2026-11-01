@@ -14,6 +14,7 @@ import {
 } from '../../errors/Error'
 import { CapacitorHttp as Http } from '@capacitor/core'
 import Html from '../serializers/Html'
+import { IDeserializedFile } from '../interfaces/Serializer'
 import { Folder, TItemLocation } from '../Tree'
 
 declare const IS_BROWSER: boolean
@@ -30,6 +31,8 @@ export default class WebDavAdapter extends CachingAdapter {
   private abortSignal: AbortSignal
   private cancelCallback: () => void
   private initialTreeHash: string
+  // Write the file even if the tree hash didn't change, see mustPersistDerivedIds
+  private alwaysUpload = false
   constructor(server) {
     super(server)
     this.server = server
@@ -264,22 +267,25 @@ export default class WebDavAdapter extends CachingAdapter {
         }
       }
 
+      let file: IDeserializedFile
       switch (this.server.bookmark_file_type) {
         case 'xbel':
           if (!xmlDocText.includes('<?xml version="1.0" encoding="UTF-8"?>')) {
             throw new FileUnreadableError()
           }
-          this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
+          file = XbelSerializer.deserializeFile(xmlDocText)
           break
         case 'html':
           if (!xmlDocText.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>')) {
             throw new FileUnreadableError()
           }
-          this.bookmarksCache = Html.deserialize(xmlDocText)
+          file = Html.deserializeFile(xmlDocText)
           break
         default:
           throw new Error('Invalid bookmark file type')
       }
+      this.bookmarksCache = file.tree
+      this.alwaysUpload = file.persistIds
     }
 
     return response
@@ -363,7 +369,8 @@ export default class WebDavAdapter extends CachingAdapter {
 
     this.bookmarksCache = this.bookmarksCache.clone(false)
     const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
-    if (newTreeHash !== this.initialTreeHash) {
+    if (newTreeHash !== this.initialTreeHash || this.alwaysUpload) {
+      this.alwaysUpload = false
       const fullUrl = this.getBookmarkURL()
       let xbel = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)
       if (this.server.passphrase) {

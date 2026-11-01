@@ -14,12 +14,23 @@ import { Folder, ItemLocation, TItem } from '../Tree'
  * plus the number of earlier id-less items with the same key, to tell
  * duplicates apart. Derived ids are negative, while the ids floccus hands out
  * itself (`CachingAdapter#highestId`) are positive, so the two never collide.
- * Once floccus writes the file, the derived ids are stored like any other; if
- * another program strips them again, they come out the same.
+ *
+ * Deriving the same id again on every read is what keeps the mappings valid;
+ * the ids need not be stored for that. They only come out the same for items
+ * that haven't changed, though: a bookmark whose URL changes, or a folder that
+ * is renamed or moved -- and with it every folder below it, since their keys
+ * contain its id -- gets a new id, which the sync sees as a removal plus a
+ * creation (bookmarks are paired up again by URL, folders aren't). That holds
+ * for the ids floccus wrote itself too, once another program strips them.
+ *
+ * Ids are not part of the tree hash, so the file adapters wouldn't write a file
+ * just because ids were derived for it. See `mustPersistDerivedIds` for when
+ * they do.
  */
-export function assignDerivedIds(root: Folder<typeof ItemLocation.SERVER>): void {
+export function assignDerivedIds(root: Folder<typeof ItemLocation.SERVER>): IDerivedIdStats {
   const used = new Set<string>()
   collectIds(root, used)
+  const stats: IDerivedIdStats = { explicit: used.size, derived: 0 }
   const occurrences = new Map<string, number>()
 
   const assign = (folder: Folder<typeof ItemLocation.SERVER>) => {
@@ -38,6 +49,7 @@ export function assignDerivedIds(root: Folder<typeof ItemLocation.SERVER>): void
         }
         used.add(String(id))
         child.id = id
+        stats.derived++
       }
       if (child instanceof Folder) {
         assign(child)
@@ -45,6 +57,32 @@ export function assignDerivedIds(root: Folder<typeof ItemLocation.SERVER>): void
     }
   }
   assign(root)
+  return stats
+}
+
+export interface IDerivedIdStats {
+  /** Items that already had an id in the file */
+  explicit: number
+  /** Items that got a derived id */
+  derived: number
+}
+
+/**
+ * Whether the file has to be written back so the derived ids get stored.
+ *
+ * A file that has ids for some items but not for others was written by
+ * floccus and then edited by a program that keeps ids but doesn't hand out any
+ * (e.g. a text editor). Writing it once stores the derived ids, so that program
+ * renaming a folder or changing a URL later on reaches the sync as an update
+ * rather than a removal plus a creation.
+ *
+ * A file without any ids is left alone: it most likely comes from a program
+ * that rewrites the whole file without ids (Via, a Linkwarden export, ...).
+ * The ids would be stripped again right away, and writing the file on every
+ * sync would only risk overwriting that program's concurrent changes.
+ */
+export function mustPersistDerivedIds(stats: IDerivedIdStats): boolean {
+  return stats.derived > 0 && stats.explicit > 0
 }
 
 function hasId(item: TItem<typeof ItemLocation.SERVER>): boolean {

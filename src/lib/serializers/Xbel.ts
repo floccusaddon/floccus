@@ -1,9 +1,9 @@
-import Serializer from '../interfaces/Serializer'
+import Serializer, { IDeserializedFile } from '../interfaces/Serializer'
 import { Bookmark, Folder, ItemLocation } from '../Tree'
 import { XMLParser, XMLBuilder } from 'fast-xml-parser'
 import Logger from '../Logger'
 import { XbelParseError } from '../../errors/Error'
-import { assignDerivedIds } from './DerivedIds'
+import { assignDerivedIds, mustPersistDerivedIds } from './DerivedIds'
 
 class XbelSerializer implements Serializer {
   serialize(folder: Folder<typeof ItemLocation.SERVER>) {
@@ -12,7 +12,11 @@ class XbelSerializer implements Serializer {
     return xmlBuilder.build(xbelObj)
   }
 
-  deserialize(xbel: string) {
+  deserialize(xbel: string): Folder<typeof ItemLocation.SERVER> {
+    return this.deserializeFile(xbel).tree
+  }
+
+  deserializeFile(xbel: string): IDeserializedFile {
     const parser = new XMLParser({
       preserveOrder: true,
       ignorePiTags: true,
@@ -43,8 +47,8 @@ class XbelSerializer implements Serializer {
       throw new XbelParseError()
     }
     // Items without an id (parsed as NaN) get one derived from their content
-    assignDerivedIds(rootFolder)
-    return rootFolder
+    const stats = assignDerivedIds(rootFolder)
+    return { tree: rootFolder, persistIds: mustPersistDerivedIds(stats) }
   }
 
   _parseFolder(xbelObj, folder: Folder<typeof ItemLocation.SERVER>) {

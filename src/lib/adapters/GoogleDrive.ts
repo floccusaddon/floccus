@@ -310,7 +310,12 @@ export default class GoogleDriveAdapter extends CachingAdapter {
         }
       }
 
-      this.bookmarksCache = XbelSerializer.deserialize(xmlDocText)
+      const parsed = XbelSerializer.deserializeFile(xmlDocText)
+      this.bookmarksCache = parsed.tree
+      if (parsed.persistIds) {
+        // Store the ids derived for some of the items, see mustPersistDerivedIds
+        this.alwaysUpload = true
+      }
       if (this.lockingInterval) {
         clearInterval(this.lockingInterval)
       }
