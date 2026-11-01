@@ -1,7 +1,7 @@
 import Serializer from '../interfaces/Serializer'
 import { Bookmark, Folder, ItemLocation, TItem } from '../Tree'
 import * as cheerio from 'cheerio'
-import { MissingItemIdsError } from '../../errors/Error'
+import { assignDerivedIds } from './DerivedIds'
 
 class HtmlSerializer implements Serializer {
   serialize(folder) {
@@ -35,10 +35,12 @@ class HtmlSerializer implements Serializer {
       .join('')
   }
 
-  deserialize(html, { allowMissingIds = false } = {}): Folder<typeof ItemLocation.SERVER> {
-    const items: TItem<typeof ItemLocation.SERVER>[] = parseByString(html, allowMissingIds)
+  deserialize(html): Folder<typeof ItemLocation.SERVER> {
+    const items: TItem<typeof ItemLocation.SERVER>[] = parseByString(html)
     items.forEach(f => { f.parentId = '0' })
-    return new Folder({id: '0', title: 'root', children: items, location: ItemLocation.SERVER, isRoot: true})
+    const root = new Folder({id: '0', title: 'root', children: items, location: ItemLocation.SERVER, isRoot: true})
+    assignDerivedIds(root)
+    return root
   }
 }
 
@@ -78,25 +80,19 @@ export const getRootFolder = (body: cheerio.Cheerio<any>) => {
   return body.children('dl').first()
 }
 
-export const parseByString = (content: string, allowMissingIds = false) => {
+export const parseByString = (content: string) => {
   const $ = cheerio.load(content)
 
   const body = $('body')
   const root: TItem<typeof ItemLocation.SERVER>[] = []
   const rdt = getRootFolder(body).children('dt')
-  let idCounter = 1
 
   const parseNode = (node: cheerio.Cheerio<any>, parentId?: string|number) => {
     const eq0 = node.children().eq(0)
     const title = typeof eq0.text() !== 'undefined' ? eq0.text() : ''
     let url = ''
-    const idAttr = eq0.attr('id')
-    if (!idAttr && !allowMissingIds) {
-      // Ids are what the mappings refer to; numbering items by their position
-      // would point them at other items as soon as the file is edited elsewhere
-      throw new MissingItemIdsError()
-    }
-    const id = idAttr || idCounter++
+    // Items without an id get one from assignDerivedIds once the tree is complete
+    const id = eq0.attr('id') || undefined
     let children: TItem<typeof ItemLocation.SERVER>[] = []
 
     switch (eq0[0].name) {

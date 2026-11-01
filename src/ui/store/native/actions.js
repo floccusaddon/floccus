@@ -278,7 +278,7 @@ export const actionsDefinition = {
     controller.scheduleSync(accountId, true)
   },
   async [actions.IMPORT_BOOKMARKS]({ commit }, {accountId, parentFolder, html}) {
-    const folder = Html.deserialize(html, { allowMissingIds: true })
+    const folder = Html.deserialize(html)
     const account = await Account.get(accountId)
     const tree = await account.getResource()
     await Promise.all(folder.children.map(async child => {

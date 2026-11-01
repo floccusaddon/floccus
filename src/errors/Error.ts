@@ -548,14 +548,6 @@ export class DropboxAmbiguousFileError extends FloccusError {
   }
 }
 
-export class MissingItemIdsError extends FloccusError {
-  public readonly code = 59
-  constructor() {
-    super('E059: The bookmarks file contains bookmarks or folders without an ID. Floccus can only sync bookmarks files that it created itself.')
-    Object.setPrototypeOf(this, MissingItemIdsError.prototype)
-  }
-}
-
 /**
  * Not a failure: thrown by a resource's create for an item it can't hold (e.g.
  * a tab with a URL Firefox refuses to open). The sync leaves the item out --
