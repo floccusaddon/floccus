@@ -5,7 +5,7 @@
       fixed
       app>
       <v-app-bar-nav-icon
-        class="mr-2 ml-n2"
+        class="me-2 ms-n2"
         @click="drawer = !drawer" />
       <v-app-bar-title
         role="heading"

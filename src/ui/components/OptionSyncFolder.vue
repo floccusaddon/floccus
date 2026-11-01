@@ -18,7 +18,7 @@
             {{ t('LabelLocalfolder') }}
             <v-text-field
               v-model="path"
-              class="ml-2"
+              class="ms-2"
               readonly
               :aria-label="t('LabelLocalfolder')"
               @click="onTriggerFinder">
@@ -33,13 +33,13 @@
             </v-text-field>
           </template>
         </v-radio>
-        <div class="caption ml-8 mb-6">
+        <div class="caption ms-8 mb-6">
           {{ t('DescriptionLocalfolder') }}
         </div>
         <v-radio
           :label="t('LabelSyncTabs')"
           value="tabs" />
-        <div class="caption ml-8 mb-2">
+        <div class="caption ms-8 mb-2">
           {{ t('DescriptionSyncTabs') }}
         </div>
       </v-radio-group>

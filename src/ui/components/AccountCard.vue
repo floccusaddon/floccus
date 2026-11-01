@@ -66,7 +66,7 @@
             <template v-if="account.data.error">
               <v-btn
                 :color="statusType"
-                class="float-right ml-1 mt-1"
+                class="float-end ms-1 mt-1"
                 x-small
                 target="_blank"
                 href="https://github.com/floccusaddon/floccus/issues">
@@ -74,7 +74,7 @@
               </v-btn>
               <v-btn
                 :color="statusType"
-                class="float-right ml-1 mt-1"
+                class="float-end ms-1 mt-1"
                 x-small
                 target="_blank"
                 href="https://floccus.org/faq/">
@@ -82,7 +82,7 @@
               </v-btn>
               <v-btn
                 :color="statusType"
-                class="float-right ml-1 mt-1"
+                class="float-end ms-1 mt-1"
                 x-small
                 @click="onGetLogs">
                 {{ t('LabelDebuglogs') }}
@@ -91,7 +91,7 @@
             <template v-if="needsAuthorization">
               <v-btn
                 :color="statusType"
-                class="float-right ml-1 mt-1"
+                class="float-end ms-1 mt-1"
                 x-small
                 :to="{
                   name: routes.ACCOUNT_OPTIONS,
@@ -104,7 +104,7 @@
             <template v-if="status === 'scheduled'">
               <v-btn
                 :color="statusType"
-                class="float-right"
+                class="float-end"
                 x-small
                 @click="onForceSync">
                 {{ t('LabelScheduledforcesync') }}
@@ -147,7 +147,7 @@
             </v-col>
             <v-col class="d-flex flex-row justify-end account-card__actions">
               <v-btn
-                class="ma-1 ml-0"
+                class="ma-1 ms-0"
                 small
                 :disabled="account.data.syncing || account.data.scheduled"
                 :title="t('LabelSyncDownOnce')"
@@ -182,7 +182,7 @@
               </v-btn>
               <v-btn
                 v-else
-                class="ma-1 mr-0"
+                class="ma-1 me-0"
                 small
                 :title="t('LabelCancelsync')"
                 :aria-label="t('LabelCancelsync')"
@@ -435,8 +435,8 @@ export default {
   .account-card__actions {
     flex-direction: column !important;
   }
-  .account-card__actions .ml-0 {
-    margin-left: 4px !important;
+  .account-card__actions .ms-0 {
+    margin-inline-start: 4px !important;
   }
   .account-card__options {
     flex-direction: column !important;

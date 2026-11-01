@@ -19,7 +19,7 @@
               tile
               flat
               :color="'light-blue'"
-              class="mr-2 mb-2"
+              class="me-2 mb-2"
               target="_blank"
               width="48%"
               :href="processor.href">

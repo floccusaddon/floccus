@@ -1,7 +1,7 @@
 <template>
   <v-list-item
     :key="item.type+item.id"
-    class="pl-3"
+    class="ps-3"
     @click="$emit('click')">
     <v-list-item-avatar>
       <v-icon
@@ -32,7 +32,7 @@
         <v-chip
           v-for="tag in tags"
           :key="tag"
-          class="mr-1 tag-chip"
+          class="me-1 tag-chip"
           x-small
           label
           outlined

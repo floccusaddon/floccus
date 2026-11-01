@@ -46,7 +46,7 @@
                   tile
                   flat
                   :color="'light-blue'"
-                  class="mr-2 mb-2"
+                  class="me-2 mb-2"
                   target="_blank"
                   :href="platform.href">
                   <v-card-title class="white--text">
@@ -76,7 +76,7 @@
                   tile
                   flat
                   :color="'light-blue'"
-                  class="mr-2 mb-2"
+                  class="me-2 mb-2"
                   target="_blank"
                   :href="processor.href">
                   <v-card-title class="white--text">

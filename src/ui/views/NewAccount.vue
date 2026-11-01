@@ -48,10 +48,10 @@
                 </v-radio>
                 <div
                   v-if="a.type === 'webdav'"
-                  class="caption pl-8 mb-2">
+                  class="caption ps-8 mb-2">
                   {{ t('DescriptionAdapterwedavexamples') }}
                 </div>
-                <div class="caption pl-8 mb-5">
+                <div class="caption ps-8 mb-5">
                   {{ a.description }}
                 </div>
               </div>
@@ -66,7 +66,7 @@
             <v-btn
               :to="{ name: 'IMPORTEXPORT' }"
               :aria-label="t('LabelImportExport')"
-              class="mr-2">
+              class="me-2">
               <v-icon aria-hidden="true">
                 mdi-export
               </v-icon>

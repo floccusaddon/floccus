@@ -105,6 +105,6 @@ export default {
 .fab {
   position: absolute;
   bottom: 0;
-  right: 20px;
+  inset-inline-end: 20px;
 }
 </style>

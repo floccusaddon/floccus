@@ -6,12 +6,12 @@
       app>
       <v-app-bar-nav-icon
         v-if="!folderTree || !currentFolder || currentFolderId === folderTree.id"
-        class="mr-2 ml-n2"
+        class="me-2 ms-n2"
         @click="drawer = !drawer" />
       <v-btn
         v-else
         icon
-        class="mr-2 ml-n2"
+        class="me-2 ms-n2"
         :aria-label="t('LabelBack')"
         @click="goBack">
         <v-icon aria-hidden="true">
@@ -178,7 +178,7 @@
           <v-chip
             v-for="tag in folderTags"
             :key="tag"
-            class="tag-bar__chip mr-2"
+            class="tag-bar__chip me-2"
             small
             label
             color="blue darken-1"
@@ -211,7 +211,7 @@
         {{ t('DescriptionSyncscheduled') }}
         <v-btn
           color="info"
-          class="float-right"
+          class="float-end"
           x-small
           @click="onForceSync">
           {{ t('LabelScheduledforcesync') }}
@@ -979,12 +979,7 @@ export default {
   position: absolute;
   font-size: 0.45em;
   top: 30px;
-  left: 30px;
-}
-
-[dir="rtl"] .sync-dropdown-hint::after {
-  left: auto;
-  right: 30px;
+  inset-inline-start: 30px;
 }
 
 .list-full-height {

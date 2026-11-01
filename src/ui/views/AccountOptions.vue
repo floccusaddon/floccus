@@ -311,7 +311,7 @@ export default {
         margin: 0 auto;
     }
     .v-form .v-icon {
-      margin-right: 10px;
+      margin-inline-end: 10px;
     }
 
     .text-h6 {
