@@ -170,9 +170,6 @@
   "Error058": {
     "message": "E058: Bokmärkesfilen ligger inte på den översta nivån i din Dropbox, och det finns flera filer med samma namn i din Dropbox: {0}. floccus kan inte avgöra vilken fil som ska användas. Flytta rätt fil till den översta nivån i din Dropbox eller byt namn på de andra filerna."
   },
-  "Error059": {
-    "message": "E059: Bokmärkesfilen innehåller bokmärken eller mappar som saknar ID:n. floccus behöver dessa ID:n för att kunna hålla reda på objekten. floccus kan bara synkronisera bokmärkesfiler som det självt har skapat. För att använda bokmärken från en befintlig fil importerar du dem till webbläsaren och låter floccus skapa en ny fil."
-  },
   "LabelWebdavurl": {
     "message": "WebDAV-URL"
   },
