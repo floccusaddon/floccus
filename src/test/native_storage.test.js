@@ -1067,6 +1067,26 @@ describe('Native SQLite storage', function() {
       const yehTagRes = await query.search('#راهنماي')
       expect(yehTagRes.bookmarks.map((b) => b.title)).to.deep.equal(['کتاب فارسی'])
     })
+
+    it('should keep combining marks of other scripts', async function() {
+      await tree.createBookmark(bookmark(rootId, 'किताब', 'http://ex.com/1'))
+      await tree.createBookmark(bookmark(rootId, 'काताब', 'http://ex.com/2'))
+      await tree.createBookmark(bookmark(rootId, 'がっこう', 'http://ex.com/3'))
+      await tree.createBookmark(bookmark(rootId, 'Café', 'http://ex.com/4'))
+      await tree.save()
+
+      // Hindi vowel signs distinguish words
+      const hindiRes = await query.search('किताब')
+      expect(hindiRes.bookmarks.map((b) => b.title)).to.deep.equal(['किताब'])
+
+      // Japanese dakuten is part of the letter
+      expect((await query.search('かっこう')).bookmarks).to.deep.equal([])
+      expect((await query.search('がっこう')).bookmarks.map((b) => b.title)).to.deep.equal(['がっこう'])
+
+      // Latin accents are kept, whether the query is composed or decomposed
+      expect((await query.search('cafe')).bookmarks).to.deep.equal([])
+      expect((await query.search('café')).bookmarks.map((b) => b.title)).to.deep.equal(['Café'])
+    })
   })
 
   describe('folder hashes', function() {

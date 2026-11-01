@@ -43,7 +43,11 @@ export function normalizeSearchText(text?: string | null): string {
   return (text ?? '')
     .toLowerCase()
     .normalize('NFD')
-    .replace(/\p{M}/gu, '')
+    // Strip only Arabic harakat/Quranic marks and Hebrew niqqud/cantillation: they are
+    // optional in everyday writing. Combining marks of other scripts carry meaning
+    // (Indic vowel signs, Japanese dakuten, Latin accents) and must survive.
+    .replace(/(?=\p{M})[\u0591-\u05c7\u0610-\u061a\u064b-\u065f\u0670\u06d6-\u06ed]/gu, '')
+    .normalize('NFC')
     .replace(/\u0640/g, '')
     .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627')
     .replace(/\u0629/g, '\u0647')
