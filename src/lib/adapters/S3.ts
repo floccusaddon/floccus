@@ -227,6 +227,12 @@ export default class S3Adapter extends CachingAdapter {
         },
       })
     } catch (e) {
+      // Android's HttpURLConnection throws instead of answering a 4xx without
+      // a body (any HEAD, an empty 404); CapacitorHttp passes that on as an error
+      const status = S3Adapter.statusOfNativeError(e)
+      if (status) {
+        return { status, data: '', headers: {} }
+      }
       Logger.log('Error Caught')
       Logger.log(e)
       throw new NetworkError()
@@ -240,6 +246,15 @@ export default class S3Adapter extends CachingAdapter {
       data: typeof res.data === 'string' ? res.data : (res.data ? JSON.stringify(res.data) : ''),
       headers: responseHeaders,
     }
+  }
+
+  static statusOfNativeError(e: any): number | null {
+    if (e && e.code === 'FileNotFoundException') {
+      // HttpURLConnection throws this for 404 and 410 only
+      return 404
+    }
+    const match = e && typeof e.message === 'string' && e.message.match(/response code: (\d{3})/)
+    return match ? parseInt(match[1]) : null
   }
 
   static getErrorCode(res: IS3Response): string | null {
@@ -314,8 +329,9 @@ export default class S3Adapter extends CachingAdapter {
   }
 
   async obtainLock() {
-    const res = await this.request('HEAD', this.getLockKey())
-    this.checkResponse(res, 'HEAD')
+    // GET rather than HEAD: an error with a body reaches us on every platform
+    const res = await this.request('GET', this.getLockKey())
+    this.checkResponse(res, 'GET')
     if (res.status === 200) {
       const lastModified = res.headers['last-modified']
       if (!lastModified || Date.parse(lastModified) + LOCK_TIMEOUT > Date.now()) {
