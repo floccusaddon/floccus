@@ -30,14 +30,22 @@ const migrations: Record<string, Promise<void>> = {}
 export function serializeTags(tags?: string[]): string | null {
   return typeof tags === 'undefined' ? null : JSON.stringify(tags)
 }
+
+/**
+ * Version of what #normalizeSearchText produces. `account_meta.search_backfilled`
+ * stores the version an account's search_text was built with, and
+ * NativeTreeQuery rebuilds it when that is older. Bump it whenever the
+ * normalization changes.
+ */
 export const SEARCH_INDEX_VERSION = 2
 
 /**
-
- * What the UI's search matches its terms against. Lowercasing happens here and
+ * What the UI's search matches its terms against. Normalization happens here and
  * not in SQL, because SQLite's lower() and LIKE only fold ASCII -- see the
  * `search_text` note in NativeDatabase.
- * Also normalizes RTL text (stripping combining marks like Arabic diacritics and Hebrew niqqud, and unifying letter forms across Arabic, Persian, and Urdu).
+ * Besides lowercasing, it strips Arabic diacritics and Hebrew niqqud (optional in
+ * everyday writing) and unifies letter forms across Arabic, Persian and Urdu.
+ * Queries go through the same function, so both sides always agree.
  */
 export function normalizeSearchText(text?: string | null): string {
   return (text ?? '')
@@ -49,7 +57,9 @@ export function normalizeSearchText(text?: string | null): string {
     .replace(/(?=\p{M})[\u0591-\u05c7\u0610-\u061a\u064b-\u065f\u0670\u06d6-\u06ed]/gu, '')
     .normalize('NFC')
     .replace(/\u0640/g, '')
-    .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627')
+    // Alef with madda/hamza above/below is already a bare Alef by now (NFD split
+    // the mark off and it was stripped above); Alef Wasla has no decomposition
+    .replace(/\u0671/g, '\u0627')
     .replace(/\u0629/g, '\u0647')
     .replace(/[\u0649\u06CC]/g, '\u064A')
     .replace(/\u06A9/g, '\u0643')

@@ -5,7 +5,7 @@ export function setupDirection(vuetify) {
   vuetify.framework.rtl = rtl
   if (typeof document !== 'undefined') {
     document.documentElement.dir = rtl ? 'rtl' : 'ltr'
-    document.documentElement.lang = i18n.getLocale() || (rtl ? 'ar' : 'en')
+    document.documentElement.lang = i18n.getLocale()
   }
 }
 

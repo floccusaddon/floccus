@@ -232,8 +232,9 @@ export default class NativeTreeQuery {
   }
 
   /**
-   * Rows written before this version have no search_text, so they would never
-   * match anything. Fill it in once per account, the first time it is searched.
+   * Rows written before the column existed have no search_text, and rows written
+   * under an older SEARCH_INDEX_VERSION hold text that normalized queries no
+   * longer match. Rebuild it once per account, the first time it is searched.
    */
   private backfillSearchText(): Promise<void> {
     if (!backfills[this.accountId]) {
@@ -289,9 +290,9 @@ export default class NativeTreeQuery {
 }
 
 export interface IParsedQuery {
-  /** Tag names, lowercased, '#' stripped */
+  /** Tag names, normalized (normalizeSearchText), '#' stripped */
   tags: string[]
-  /** Free-text terms, lowercased */
+  /** Free-text terms, normalized */
   terms: string[]
 }
 

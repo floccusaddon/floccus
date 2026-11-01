@@ -34,9 +34,11 @@ const DB_VERSION = 1
  * NativeLogStore).
  *
  * `search_text` is what the native UI's search runs its LIKE against. It holds
- * the item's title (and, for bookmarks, its url and tags) lowercased in JS:
- * SQLite's own lower()/LIKE only fold ASCII, so searching for 'apfel' would
- * otherwise miss a bookmark titled 'Apfel' as soon as any letter is non-ASCII.
+ * the item's title (and, for bookmarks, its url and tags) normalized in JS by
+ * normalizeSearchText (NativeTreeStore): SQLite's own lower()/LIKE only fold
+ * ASCII, so searching for 'apfel' would otherwise miss a bookmark titled 'Apfel'
+ * as soon as any letter is non-ASCII. `account_meta.search_backfilled` is not a
+ * flag but the SEARCH_INDEX_VERSION the account's search_text was built with.
  */
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS account_meta (
