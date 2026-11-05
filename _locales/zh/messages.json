@@ -170,6 +170,12 @@
   "Error058": {
     "message": "E058: 你的书签文件在 Dropbox 顶层，你的 Dropbox 中有几个名称相同的文件: {0}。 Floccus 不知道要用哪个。 请将正确的文件移动到 Dropbox 顶层或者重命名其他文件。"
   },
+  "Error060": {
+    "message": "E060: 此次同步期间另一台设备更改了该服务器上的书签文件。Floccus 会再次同步来包含这些更改。"
+  },
+  "Error061": {
+    "message": "E061: S3 存储桶 `{0}` 不存在。请检查存储桶名称、端点 URL 和区域。"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -614,6 +620,45 @@
   },
   "DescriptionAdapterdropbox": {
     "message": "通过存储在 Dropbox 内的文件（可以加密）同步书签。它能同步 http、ftp、数据、文件和 javascript 书签。使用该选项时可选择使用端到端加密。"
+  },
+  "LabelAdapters3": {
+    "message": "S3 存储桶"
+  },
+  "DescriptionAdapters3": {
+    "message": "将书签存储在 S3 存储桶内的文件中来同步书签。适用于 Amazon S3 和兼容 S3 的存储（自托管或云服务）。可以同步 http、ftp、数据、文件和 javascript 书签。使用该选项时可以选择使用端到端加密。"
+  },
+  "DescriptionAdapters3examples": {
+    "message": "如 Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "S3 端点 URL"
+  },
+  "DescriptionS3endpoint": {
+    "message": "不含存储桶名称的 S3 服务 URL，如 https://s3.eu-central-1.amazonaws.com 或 https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "区域"
+  },
+  "DescriptionS3region": {
+    "message": "存储桶所在的区域，如 eu-central-1。Cloudflare R2 使用 R2，如果提供商不使用区域则使用 us-east-1。"
+  },
+  "LabelS3bucket": {
+    "message": "存储桶"
+  },
+  "LabelS3pathstyle": {
+    "message": "使用路径样式 URL"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "存储桶地址格式应为 ENDPOINT/BUCKET 而不是 BUCKET.ENDPOINT。多数自托管 S3 服务器需要这个。"
+  },
+  "LabelS3accesskey": {
+    "message": "Access 密钥 ID"
+  },
+  "LabelS3secretkey": {
+    "message": "Secret access 密钥"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "存储桶内书签文件的键，如 personal_stuff/bookmarks.xbel"
   },
   "LabelLogindropbox": {
     "message": "用 Dropbox 登录"
