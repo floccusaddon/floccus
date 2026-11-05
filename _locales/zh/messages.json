@@ -655,7 +655,7 @@
     "message": "Access 密钥 ID"
   },
   "LabelS3secretkey": {
-    "message": "Secret access 密钥"
+    "message": "Secret 访问密钥"
   },
   "DescriptionBookmarksfiles3": {
     "message": "存储桶内书签文件的键，如 personal_stuff/bookmarks.xbel"
