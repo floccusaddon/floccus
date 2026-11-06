@@ -225,6 +225,7 @@ export default {
         authorize: '#8e6739',
         syncing: '#2196F3',
         scheduled: '#2196F3',
+        pending: '#d32f2f',
       },
       statusIcons: {
         disabled: 'mdi-sync-off',
@@ -233,6 +234,7 @@ export default {
         authorize: 'mdi-login-variant',
         syncing: 'mdi-sync',
         scheduled: 'mdi-timer-sync-outline',
+        pending: 'mdi-alert-circle-outline',
       },
       statusLabels: {
         disabled: this.t('StatusDisabled'),
@@ -241,6 +243,7 @@ export default {
         authorize: this.t('StatusAuthorizationneeded'),
         syncing: this.t('StatusSyncing'),
         scheduled: this.t('StatusScheduled'),
+        pending: this.t('StatusNeedssync'),
       },
       strategyIcons: {
         slave: 'mdi-arrow-down-bold',
@@ -289,6 +292,9 @@ export default {
       if (this.account.data.error) {
         return 'error'
       }
+      if (this.account.data.pendingChanges) {
+        return 'pending'
+      }
       if (
         !this.account.data.enabled &&
         !this.account.data.syncIntervalEnabled &&
@@ -313,6 +319,9 @@ export default {
       }
       if (this.account.data.error) {
         return 'error'
+      }
+      if (this.status === 'pending') {
+        return 'warning'
       }
       return 'info'
     },
@@ -341,6 +350,12 @@ export default {
       }
       if (this.account.data.scheduled) {
         return this.t('DescriptionSyncscheduled')
+      }
+      if (this.status === 'pending') {
+        const pending = this.account.data.pendingChanges
+        return pending.initial
+          ? this.t('DescriptionPendingInitialSync')
+          : this.t('DescriptionPendingChanges', [String(pending.local), String(pending.server)])
       }
       if (this.account.data.lastSync) {
         return this.t('StatusLastsynced', [

@@ -7,14 +7,16 @@ import packageJson from '../../../package.json'
 import BrowserAccountStorage from './BrowserAccountStorage'
 import uniqBy from 'lodash/uniqBy'
 import Account from '../Account'
-import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_SYNCING } from '../interfaces/Controller'
+import { STATUS_ALLGOOD, STATUS_DISABLED, STATUS_ERROR, STATUS_NEEDS_SYNC, STATUS_SYNCING } from '../interfaces/Controller'
 import { onWakeUp } from '../on-wake-up'
-import { isSyncDue } from '../SyncSchedule'
+import { i18n } from '../native/I18n'
+import { getDueAction, isNotifyOnly } from '../SyncSchedule'
 
 const INACTIVITY_TIMEOUT = 7 * 1000 // 7 seconds
 const NETWORK_SETTLE_TIMEOUT = 5 * 1000 // 5 seconds
 const STALE_SYNC_TIME = 1000 * 60 * 60 * 24 * 2 // two days
 const INTERVENTION_INTERVAL = 1000 * 60 * 60 * 24 * 182 // 182 days
+const PENDING_NOTIFICATION_PREFIX = 'floccus-pending-'
 
 class AlarmManager {
   constructor(ctl) {
@@ -43,11 +45,25 @@ class AlarmManager {
     const accounts = await BrowserAccountStorage.getAllAccounts()
     for (let accountId of accounts) {
       const account = await Account.get(accountId)
-      if (isSyncDue(account.getData(), Date.now(), online, networkRestored)) {
+      const action = getDueAction(account.getData(), Date.now(), online, networkRestored)
+      if (action === 'sync') {
         await this.ctl.scheduleSync(accountId)
+      } else if (action === 'check') {
+        await this.ctl.scheduleCheck(accountId)
       }
     }
   }
+}
+
+/**
+ * Whether two results of a check differ enough to tell the user again
+ *
+ * @param {import('../interfaces/AccountStorage').IPendingChanges|null|undefined} a
+ * @param {import('../interfaces/AccountStorage').IPendingChanges|null|undefined} b
+ */
+function samePendingChanges(a, b) {
+  if (!a || !b) return !a && !b
+  return a.local === b.local && a.server === b.server && Boolean(a.initial) === Boolean(b.initial)
 }
 
 function isOnline() {
@@ -117,6 +133,13 @@ export default class BrowserController {
       browser.bookmarks.onCreated.addListener((localId, details) =>
         this.onchange(localId, details)
       )
+    }
+
+    // The notifications API only exists once its optional permission was granted
+    this.notificationListenerAdded = false
+    this.addNotificationListener()
+    if (browser.permissions.onAdded) {
+      browser.permissions.onAdded.addListener(() => this.addNotificationListener())
     }
 
     try {
@@ -328,10 +351,8 @@ export default class BrowserController {
       // Filter out accounts that are syncing, because the event may stem from the sync run
       .filter(account => !account.getData().syncing)
 
-    // schedule a new sync for all accounts involved
-    accountsToSync.forEach(account => {
-      this.scheduleSync(account.id, true)
-    })
+    // schedule a new sync (or check) for all accounts involved
+    accountsToSync.forEach(account => this.scheduleSyncOrCheck(account, true))
 
     this.setEnabled(true)
   }
@@ -356,10 +377,8 @@ export default class BrowserController {
       // Filter out accounts that are syncing, because the event may stem from the sync run
       .filter(account => !account.getData().syncing)
 
-    // schedule a new sync for all accounts involved
-    accountsToSync.forEach(account => {
-      this.scheduleSync(account.id, true)
-    })
+    // schedule a new sync (or check) for all accounts involved
+    accountsToSync.forEach(account => this.scheduleSyncOrCheck(account, true))
 
     this.setEnabled(true)
   }
@@ -392,6 +411,140 @@ export default class BrowserController {
       await this.syncAccount(accountId)
     } else {
       await this.syncAccount(accountId, account.getData().scheduled)
+    }
+  }
+
+  /**
+   * What a profile's own triggers (local changes, startup) start: a sync, or
+   * for a notify-only profile a check for pending changes
+   */
+  scheduleSyncOrCheck(account, wait) {
+    if (isNotifyOnly(account.getData())) {
+      return this.scheduleCheck(account.id, wait)
+    }
+    return this.scheduleSync(account.id, wait)
+  }
+
+  async scheduleCheck(accountId, wait) {
+    const key = 'check:' + accountId
+    if (wait) {
+      if (this.schedule[key]) {
+        clearTimeout(this.schedule[key])
+      }
+      this.schedule[key] = setTimeout(
+        () => this.scheduleCheck(accountId),
+        INACTIVITY_TIMEOUT
+      )
+      return
+    }
+
+    let account = await Account.get(accountId)
+    if (account.getData().syncing) {
+      return
+    }
+
+    const status = await this.getStatus()
+    if (status === STATUS_SYNCING) {
+      // Check once the other profiles are done, see getDueAction
+      await account.setData({ checkScheduled: true })
+      return
+    }
+
+    await this.checkAccount(accountId)
+  }
+
+  async checkAccount(accountId) {
+    if (!this.enabled) {
+      return
+    }
+    let account = await Account.get(accountId)
+    if (account.getData().syncing) {
+      return
+    }
+    const before = account.getData().pendingChanges
+    // executes long-running async work without letting the service worker to die
+    const interval = setInterval(() => browser.tabs.getCurrent(), 2e4)
+    let pendingChanges
+    try {
+      pendingChanges = await account.detectChanges()
+    } catch (error) {
+      console.error(error)
+    }
+    clearInterval(interval)
+    if (typeof pendingChanges !== 'undefined') {
+      if (!pendingChanges) {
+        await this.clearPendingNotification(accountId)
+      } else if (!samePendingChanges(before, pendingChanges)) {
+        await this.showPendingNotification(account, pendingChanges)
+      }
+    }
+    this.updateStatus()
+  }
+
+  async hasNotificationPermission() {
+    try {
+      return await browser.permissions.contains({ permissions: ['notifications'] })
+    } catch (e) {
+      return false
+    }
+  }
+
+  async addNotificationListener() {
+    if (this.notificationListenerAdded || !browser.notifications || !(await this.hasNotificationPermission())) {
+      return
+    }
+    this.notificationListenerAdded = true
+    browser.notifications.onClicked.addListener(async(notificationId) => {
+      if (!notificationId.startsWith(PENDING_NOTIFICATION_PREFIX)) {
+        return
+      }
+      browser.notifications.clear(notificationId)
+      // Show the pending changes and leave syncing them to the user
+      try {
+        await (browser.action || browser.browserAction).openPopup()
+      } catch (e) {
+        // Not available everywhere, or not outside of a user action
+        await browser.tabs.create({ url: '/dist/html/options.html#/' })
+      }
+    })
+  }
+
+  async showPendingNotification(account, pendingChanges) {
+    const data = account.getData()
+    if (!data.notificationsEnabled || !browser.notifications || !(await this.hasNotificationPermission())) {
+      return
+    }
+    await this.addNotificationListener()
+    if (!this.i18nLoaded) {
+      // Nothing else in the background is shown to the user in their language
+      i18n.setLocales(navigator.languages)
+      this.i18nLoaded = i18n.load()
+    }
+    await this.i18nLoaded
+    const label = data.label || account.getLabel()
+    const message = pendingChanges.initial
+      ? i18n.getMessage('DescriptionPendingInitialSync')
+      : i18n.getMessage('DescriptionPendingChanges', [String(pendingChanges.local), String(pendingChanges.server)])
+    try {
+      await browser.notifications.create(PENDING_NOTIFICATION_PREFIX + account.id, {
+        type: 'basic',
+        iconUrl: browser.runtime.getURL('/icons/logo_128.png'),
+        title: i18n.getMessage('NotificationPendingChangesTitle', [label]),
+        message,
+      })
+    } catch (e) {
+      console.warn('Could not show notification', e)
+    }
+  }
+
+  async clearPendingNotification(accountId) {
+    if (!browser.notifications) {
+      return
+    }
+    try {
+      await browser.notifications.clear(PENDING_NOTIFICATION_PREFIX + accountId)
+    } catch (e) {
+      console.warn(e)
     }
   }
 
@@ -429,6 +582,9 @@ export default class BrowserController {
       console.error(error)
     }
     clearInterval(interval)
+    if (!account.getData().pendingChanges) {
+      await this.clearPendingNotification(accountId)
+    }
     this.updateStatus()
   }
 
@@ -457,9 +613,13 @@ export default class BrowserController {
       if (status === STATUS_SYNCING || accData.syncing || account.syncing) {
         // Show syncing symbol if any account is syncing
         return STATUS_SYNCING
-      } else if (status === STATUS_ERROR || (accData.error && !accData.syncing) || (accData.enabled && accData.lastSync < Date.now() - STALE_SYNC_TIME)) {
+      } else if (status === STATUS_ERROR || (accData.error && !accData.syncing) || (accData.enabled && !isNotifyOnly(accData) && accData.lastSync < Date.now() - STALE_SYNC_TIME)) {
         // Show error symbol if any account has an error and not currently syncing, or if any account is enabled but hasn't been synced for two days
+        // (a notify-only profile is synced when its user says so)
         return STATUS_ERROR
+      } else if (status === STATUS_NEEDS_SYNC || accData.pendingChanges) {
+        // A check found changes that wait for the user to sync them
+        return STATUS_NEEDS_SYNC
       } else {
         // show allgood symbol otherwise
         return STATUS_ALLGOOD
@@ -495,12 +655,23 @@ export default class BrowserController {
       [STATUS_DISABLED]: {path: '/icons/disabled_32.png'}
     }
 
+    const action = browser.action || browser.browserAction
+    if (!action) {
+      return
+    }
     if (icon[status]) {
-      if (browser.browserAction) {
-        await browser.browserAction.setIcon(icon[status])
-      } else if (browser.action) {
-        await browser.action.setIcon(icon[status])
+      await action.setIcon(icon[status])
+    }
+    if (status === STATUS_NEEDS_SYNC) {
+      // The normal icon with a red exclamation mark: changes are waiting
+      await action.setIcon(icon[STATUS_ALLGOOD])
+      await action.setBadgeBackgroundColor({ color: '#d32f2f' })
+      if (action.setBadgeTextColor) {
+        await action.setBadgeTextColor({ color: '#ffffff' })
       }
+      await action.setBadgeText({ text: '!' })
+    } else {
+      await action.setBadgeText({ text: '' })
     }
   }
 
@@ -509,16 +680,19 @@ export default class BrowserController {
     await Promise.all(
       accounts.map(async acc => {
         if (acc.getData().syncing) {
+          // A notify-only profile leaves the sync to its user: it just looks again
+          const notifyOnly = isNotifyOnly(acc.getData())
           await acc.setData({
             syncing: false,
-            scheduled: acc.getData().enabled,
+            scheduled: notifyOnly ? false : acc.getData().enabled,
+            checkScheduled: notifyOnly && Boolean(acc.getData().enabled),
           })
         }
         if (acc.getData().localRoot === 'tabs') {
           await acc.init()
         }
         if (acc.getData().syncOnStartupEnabled) {
-          this.scheduleSync(acc.id)
+          this.scheduleSyncOrCheck(acc)
         }
       })
     )
@@ -529,9 +703,12 @@ export default class BrowserController {
     await Promise.all(
       accounts.map(async acc => {
         if (acc.getData().syncing) {
+          // A notify-only profile leaves the sync to its user: it just looks again
+          const notifyOnly = isNotifyOnly(acc.getData())
           await acc.setData({
             syncing: false,
-            scheduled: acc.getData().enabled,
+            scheduled: notifyOnly ? false : acc.getData().enabled,
+            checkScheduled: notifyOnly && Boolean(acc.getData().enabled),
           })
         }
       })

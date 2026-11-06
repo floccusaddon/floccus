@@ -145,6 +145,10 @@ export default class SyncProcess {
   protected mappingIterations = 0
   protected executeIterations = 0
 
+  // A check for pending changes (#2403) stops as soon as it knows what the
+  // sync would do -- see setPlanOnly
+  protected planOnly = false
+
   constructor(
     mappings:Mappings,
     localTree:TLocalTree,
@@ -618,6 +622,47 @@ export default class SyncProcess {
     throw new Error('Unsupported method')
   }
 
+  /**
+   * Makes sync() stop once it has planned what to do, before the failsafes and
+   * before executing anything, for a profile that only wants to know whether
+   * it has changes to sync. It leaves the trees alone then, but not the
+   * in-memory mappings (pre-scan prunes, concurrent creations), so whoever
+   * calls this must not persist them -- nor the cache, nor a continuation.
+   * getPendingChanges() tells what was planned.
+   */
+  setPlanOnly(planOnly = true): void {
+    this.planOnly = planOnly
+  }
+
+  /**
+   * How many items the planned sync would change on either side. Reorders
+   * don't count -- they come with nearly every other change -- and a created
+   * or removed folder counts with everything in it.
+   */
+  getPendingChanges(): { local: number, server: number } {
+    return {
+      local: SyncProcess.countPlannedChanges(this.localPlanStage2),
+      server: SyncProcess.countPlannedChanges(this.serverPlanStage2),
+    }
+  }
+
+  protected static countPlannedChanges(plan: Partial<Record<'CREATE'|'UPDATE'|'MOVE'|'REMOVE', Diff<TItemLocation, TItemLocation, Action<TItemLocation, TItemLocation>>>> | null): number {
+    if (!plan) {
+      return 0
+    }
+    let count = 0
+    for (const type of [ActionType.CREATE, ActionType.REMOVE]) {
+      for (const action of plan[type]?.peekActions() || []) {
+        const item = action.payload
+        count += item.type === ItemType.FOLDER ? (item as Folder<TItemLocation>).count() + (item as Folder<TItemLocation>).countFolders() : 1
+      }
+    }
+    for (const type of [ActionType.UPDATE, ActionType.MOVE]) {
+      count += plan[type]?.peekActions().length || 0
+    }
+    return count
+  }
+
   async sync(): Promise<void> {
     // onSyncStart is already executed at this point
     this.queueProgressUpdate(0.15, 0)
@@ -699,6 +744,11 @@ export default class SyncProcess {
     }
 
     Logger.log({localPlan: this.localPlanStage2, serverPlan: this.serverPlanStage2})
+
+    if (this.planOnly) {
+      Logger.log('Only checking for changes, stopping before executing anything')
+      return
+    }
 
     // Only for plans made by this run. A continuation's plans have passed the
     // failsafes already: they run before anything is executed, and progress is

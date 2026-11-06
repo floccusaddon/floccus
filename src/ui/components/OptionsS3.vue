@@ -156,6 +156,11 @@
             v-if="syncIntervalEnabled"
             :value="syncInterval"
             @input="$emit('update:syncInterval', $event)" />
+          <OptionNotifyOnly
+            :notify-only="notifyOnly"
+            :notifications-enabled="notificationsEnabled"
+            @update:notifyOnly="$emit('update:notifyOnly', $event)"
+            @update:notificationsEnabled="$emit('update:notificationsEnabled', $event)" />
         </template>
         <OptionSyncStrategy
           :value="strategy"
@@ -206,11 +211,13 @@ import OptionPassphrase from './OptionPassphrase.vue'
 import OptionAutoSync from './OptionAutoSync.vue'
 import OptionSyncIntervalEnabled from './OptionSyncIntervalEnabled.vue'
 import OptionSyncOnStartup from './OptionSyncOnStartup.vue'
+import OptionNotifyOnly from './OptionNotifyOnly.vue'
 
 export default {
   name: 'OptionsS3',
   components: {
     OptionSyncOnStartup,
+    OptionNotifyOnly,
     OptionSyncIntervalEnabled,
     OptionAutoSync,
     OptionExportBookmarks,
@@ -247,6 +254,8 @@ export default {
     'label',
     'syncIntervalEnabled',
     'syncOnStartupEnabled',
+    'notifyOnly',
+    'notificationsEnabled',
   ],
   data() {
     return {

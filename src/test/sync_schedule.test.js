@@ -1,5 +1,5 @@
 import { expect } from './utils'
-import { getBackoffInterval, isSyncDue } from '../lib/SyncSchedule'
+import { getBackoffInterval, getDueAction, isSyncDue } from '../lib/SyncSchedule'
 
 const MINUTE = 1000 * 60
 
@@ -61,5 +61,44 @@ describe('SyncSchedule', function() {
 
   it('syncs scheduled accounts', function() {
     expect(isSyncDue(failed({ scheduled: true }), now, false)).to.equal(true)
+  })
+
+  describe('notify-only profiles', function() {
+    const notifyOnly = (data) => ({ notifyOnly: true, syncIntervalEnabled: true, syncInterval: 15, lastSync: now, ...data })
+
+    it('syncs like before when not notify-only', function() {
+      expect(getDueAction({ syncIntervalEnabled: true, syncInterval: 15, lastSync: now }, now + 16 * MINUTE)).to.equal('sync')
+      expect(getDueAction({ syncIntervalEnabled: true, syncInterval: 15, lastSync: now }, now + 10 * MINUTE)).to.equal(null)
+    })
+
+    it('checks instead of syncing by the interval', function() {
+      expect(getDueAction(notifyOnly(), now + 10 * MINUTE)).to.equal(null)
+      expect(getDueAction(notifyOnly(), now + 16 * MINUTE)).to.equal('check')
+      expect(getDueAction(notifyOnly({ syncIntervalEnabled: false }), now + 16 * MINUTE)).to.equal(null)
+    })
+
+    it('counts the interval from the last check, too', function() {
+      const data = notifyOnly({ lastSync: now - 60 * MINUTE, lastCheck: now })
+      expect(getDueAction(data, now + 10 * MINUTE)).to.equal(null)
+      expect(getDueAction(data, now + 16 * MINUTE)).to.equal('check')
+    })
+
+    it('still syncs when a sync was scheduled', function() {
+      expect(getDueAction(notifyOnly({ scheduled: true }), now)).to.equal('sync')
+      expect(getDueAction(notifyOnly({ scheduled: 'slave' }), now)).to.equal('sync')
+    })
+
+    it('runs a scheduled check', function() {
+      expect(getDueAction(notifyOnly({ checkScheduled: true }), now)).to.equal('check')
+    })
+
+    it('retries a transient error with a check', function() {
+      const data = failed({ notifyOnly: true, errorCount: 3 })
+      expect(getDueAction(data, now + 3 * MINUTE)).to.equal(null)
+      expect(getDueAction(data, now + 5 * MINUTE)).to.equal('check')
+      expect(getDueAction(data, now + 2 * MINUTE, false)).to.equal(null)
+      expect(getDueAction(data, now + MINUTE / 2, true, true)).to.equal('check')
+      expect(getDueAction({ ...data, isTransientError: false }, now + 120 * MINUTE)).to.equal(null)
+    })
   })
 })

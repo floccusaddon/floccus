@@ -1,10 +1,10 @@
 import AdapterFactory from './AdapterFactory'
 import Logger from './Logger'
-import { ItemLocation, TItemLocation } from './Tree'
+import { Folder, ItemLocation, TItemLocation } from './Tree'
 import UnidirectionalSyncProcess from './strategies/Unidirectional'
 import MergeSyncProcess from './strategies/Merge'
 import DefaultSyncProcess, { ISerializedSyncProcess } from './strategies/Default'
-import IAccountStorage, { IAccountData, TAccountStrategy } from './interfaces/AccountStorage'
+import IAccountStorage, { IAccountData, IPendingChanges, TAccountStrategy } from './interfaces/AccountStorage'
 import { TAdapter } from './interfaces/Adapter'
 import { OrderFolderResource, TLocalTree } from './interfaces/Resource'
 import IAccount from './interfaces/Account'
@@ -56,7 +56,7 @@ const accountLock = new AsyncLock()
  * left over from an export taken mid-sync makes sync() bail out every time, and
  * an old `lastSync` immediately flags the profile as out of date.
  */
-const VOLATILE_ACCOUNT_DATA = ['syncing', 'scheduled', 'error', 'isTransientError', 'errorCount', 'lastSync', 'lastAttempt'] as const
+const VOLATILE_ACCOUNT_DATA = ['syncing', 'scheduled', 'error', 'isTransientError', 'errorCount', 'lastSync', 'lastAttempt', 'pendingChanges', 'lastCheck', 'checkScheduled'] as const
 
 function stripVolatileData(data: IAccountData): IAccountData {
   const cleanData = {...data}
@@ -136,6 +136,8 @@ export default class Account {
   protected lockTimeout: number
 
   private localCachingResource: CachingTreeWrapper
+  // The check for pending changes that is running, if any (see detectChanges)
+  private checkPromise: Promise<IPendingChanges|null|undefined> | null = null
 
   constructor(id:string, storageAdapter:IAccountStorage, serverAdapter: TAdapter, treeAdapter:TLocalTree) {
     this.server = serverAdapter
@@ -235,6 +237,14 @@ export default class Account {
       // mappings the first one just stored. Tab sync, which schedules a sync for
       // every burst of tab events, ran into this all the time.
       this.syncing = true
+
+      if (this.checkPromise) {
+        // A check for pending changes is running: it shares the adapter with
+        // us, so let it finish first. The user's sync must not be dropped over
+        // it, and a check never starts while we are claimed.
+        Logger.log('Waiting for the running check for changes to finish')
+        await this.checkPromise.catch(() => { /* reported by the check */ })
+      }
 
       if (!(await this.server.isAvailable()) || !(await (await this.getResource()).isAvailable())) {
         this.syncing = false
@@ -359,28 +369,7 @@ export default class Account {
         // Same if the pending continuation was overridden by a different strategy
         // same if the continuation is older than half an hour. We don't want old zombie continuations
 
-        let strategyClass: typeof DefaultSyncProcess|typeof MergeSyncProcess|typeof UnidirectionalSyncProcess, direction: TItemLocation
-        switch (strategy || this.getData().strategy) {
-          case 'slave':
-            Logger.log('Using "merge slave" strategy (no cache available)')
-            strategyClass = UnidirectionalSyncProcess
-            direction = ItemLocation.LOCAL
-            break
-          case 'overwrite':
-            Logger.log('Using "merge overwrite" strategy (no cache available)')
-            strategyClass = UnidirectionalSyncProcess
-            direction = ItemLocation.SERVER
-            break
-          default:
-            if (!cacheTree.children?.length) {
-              Logger.log('Using "merge default" strategy (no cache available)')
-              strategyClass = MergeSyncProcess
-            } else {
-              Logger.log('Using "default" strategy')
-              strategyClass = DefaultSyncProcess
-            }
-            break
-        }
+        const { strategyClass, direction } = Account.chooseStrategy(strategy || this.getData().strategy, cacheTree)
 
         Logger.log('Creating new sync process')
         this.syncProcess = new strategyClass(
@@ -469,6 +458,9 @@ export default class Account {
         syncing: false,
         scheduled: false,
         lastSync: Date.now(),
+        // Whatever a check found has been synced now
+        pendingChanges: null,
+        checkScheduled: false,
       })
 
       await this.clearContinuation()
@@ -546,6 +538,145 @@ export default class Account {
     this.syncProcess = null
     this.localCachingResource = null
     await Logger.persist()
+  }
+
+  private static chooseStrategy(strategy: TAccountStrategy, cacheTree: Folder<typeof ItemLocation.LOCAL>): {
+    strategyClass: typeof DefaultSyncProcess|typeof MergeSyncProcess|typeof UnidirectionalSyncProcess,
+    direction?: TItemLocation
+  } {
+    switch (strategy) {
+      case 'slave':
+        Logger.log('Using "merge slave" strategy (no cache available)')
+        return { strategyClass: UnidirectionalSyncProcess, direction: ItemLocation.LOCAL }
+      case 'overwrite':
+        Logger.log('Using "merge overwrite" strategy (no cache available)')
+        return { strategyClass: UnidirectionalSyncProcess, direction: ItemLocation.SERVER }
+      default:
+        if (!cacheTree.children?.length) {
+          Logger.log('Using "merge default" strategy (no cache available)')
+          return { strategyClass: MergeSyncProcess }
+        }
+        Logger.log('Using "default" strategy')
+        return { strategyClass: DefaultSyncProcess }
+    }
+  }
+
+  /**
+   * Finds out what the next sync would do, without doing any of it (#2403):
+   * plans a sync with the profile's strategy, stops before executing the plan
+   * and stores how many changes it found as `pendingChanges`.
+   *
+   * Nothing may be persisted here but the account data: the mappings the
+   * planning touched, the cache, the continuation all stay as the last sync
+   * left them. The server isn't locked -- a check doesn't write to it, and a
+   * lock would keep other devices from syncing for as long as the check takes
+   * -- and onSyncComplete isn't called, since atomic adapters upload in it.
+   * A profile that never synced isn't planned at all: without a cache every
+   * single item would count as a change.
+   *
+   * @returns the pending changes (null if there are none), or undefined if
+   *   the check didn't run or failed
+   */
+  async detectChanges(): Promise<IPendingChanges|null|undefined> {
+    if (this.getData().syncing || this.syncing || this.checkPromise) return undefined
+    const check = this.runCheck()
+    this.checkPromise = check
+    try {
+      return await check
+    } finally {
+      this.checkPromise = null
+    }
+  }
+
+  private async runCheck(): Promise<IPendingChanges|null|undefined> {
+    let serverStarted = false
+    try {
+      if (!(await this.server.isAvailable()) || !(await (await this.getResource()).isAvailable())) {
+        return undefined
+      }
+
+      Logger.log('Checking account ' + this.getLabel() + ' for pending changes')
+      await this.setData({ checkScheduled: false, lastAttempt: Date.now() })
+
+      const strategy = this.getData().strategy
+      let pendingChanges: IPendingChanges|null
+
+      if (!(await this.isInitialized())) {
+        pendingChanges = { local: 0, server: 0, initial: true }
+      } else {
+        if (IS_BROWSER) {
+          const newPath = await (await import('./browser/BrowserTree')).default.getPathFromLocalId(this.getData().localRoot)
+          const oldPath = this.getData().rootPath
+          if (oldPath && newPath !== oldPath) {
+            throw new UnexpectedFolderPathError(oldPath, newPath)
+          }
+        }
+
+        const cacheTree = await this.storage.getCache()
+        filterUnacceptedBookmarks(cacheTree, (bm) => this.server.acceptsBookmark(bm))
+
+        let serverReset = false
+        if (this.server.onSyncStart) {
+          serverStarted = true
+          serverReset = (await this.server.onSyncStart(false, false)) === false
+        }
+
+        const { strategyClass, direction } = Account.chooseStrategy(strategy, cacheTree)
+        if (serverReset || strategyClass === MergeSyncProcess) {
+          // The server lost what it had (a sync would init() the account) or
+          // the profile never synced: a sync starts from scratch either way
+          pendingChanges = { local: 0, server: 0, initial: true }
+        } else {
+          const mappings = await this.storage.getMappings()
+          // Not storage.getCacheStore(): nothing of this may reach the stored cache
+          const localTree = new CachingTreeWrapper(await this.getResource())
+          const syncProcess = new strategyClass(mappings, localTree, this.server, async() => { /* persists nothing */ })
+          syncProcess.setCacheTree(cacheTree)
+          if (direction) {
+            syncProcess.setDirection(direction)
+          }
+          syncProcess.setPlanOnly()
+          await syncProcess.sync()
+          const { local, server } = syncProcess.getPendingChanges()
+          pendingChanges = local || server ? { local, server } : null
+        }
+      }
+
+      Logger.log('Pending changes for account ' + this.getLabel() + ': ' + JSON.stringify(pendingChanges))
+      await this.setData({
+        pendingChanges,
+        lastCheck: Date.now(),
+        error: null,
+        errorCount: 0,
+      })
+      return pendingChanges
+    } catch (e) {
+      console.log(e)
+      const message = await Account.stringifyError(e)
+      Logger.log('Checking for changes failed with', message)
+      const isTransient = matchAllErrors(
+        e,
+        (e) => e.list || !(e instanceof FloccusError) || e instanceof TransientError
+      )
+      await this.setData({
+        error: message,
+        isTransientError: isTransient,
+        errorCount: this.getData().errorCount + 1,
+      })
+      return undefined
+    } finally {
+      if (serverStarted && this.server.onSyncFail) {
+        // Not onSyncComplete, which uploads for atomic adapters. This only
+        // stops the lock refresh and cleans up; the lock we didn't take is left
+        // alone, every adapter only frees one it holds itself.
+        try {
+          await this.server.onSyncFail()
+        } catch (e) {
+          Logger.log('Cleaning up after checking for changes failed with', e)
+        }
+      }
+      await Logger.persist()
+    }
   }
 
   static async stringifyError(er:any):Promise<string> {

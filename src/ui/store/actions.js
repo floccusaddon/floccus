@@ -229,4 +229,12 @@ export const actionsDefinition = {
       console.warn(e)
     }
   },
+  async [actions.REQUEST_NOTIFICATION_PERMISSIONS]() {
+    try {
+      return await browser.permissions.request({ permissions: ['notifications'] })
+    } catch (e) {
+      console.warn(e)
+      return false
+    }
+  },
 }

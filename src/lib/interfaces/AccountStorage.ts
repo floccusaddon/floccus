@@ -6,6 +6,18 @@ import ICacheStore from './CacheStore'
 
 export type TAccountStrategy = 'default' | 'overwrite' | 'slave'
 
+/**
+ * The changes a sync would make, as counted by a check. `local` are the ones
+ * it would apply to the local bookmarks (coming from the server), `server` the
+ * ones it would apply to the server. `initial` marks a profile that hasn't
+ * synced yet: there is no cache to compare against, so everything would count.
+ */
+export interface IPendingChanges {
+  local: number
+  server: number
+  initial?: boolean
+}
+
 export interface IAccountData {
   enabled?: boolean
   localRoot?: string
@@ -23,6 +35,16 @@ export interface IAccountData {
   errorCount?: number
   clickCountEnabled?: boolean
   isTransientError?: boolean | null
+  /** Only look for changes by itself, and leave syncing them to the user (browser only) */
+  notifyOnly?: boolean
+  /** Show a system notification when a notify-only profile finds changes */
+  notificationsEnabled?: boolean
+  /** What the last check found would be done by the next sync; null if nothing */
+  pendingChanges?: IPendingChanges | null
+  /** When a notify-only profile was last checked for changes */
+  lastCheck?: number
+  /** A check is due as soon as no other profile is syncing */
+  checkScheduled?: boolean
   [p: string]: any
 }
 

@@ -13,7 +13,7 @@
   "default_locale": "en",
 
   "permissions": ["alarms", "bookmarks", "storage", "unlimitedStorage", "tabs", "tabGroups", "identity"],
-  "optional_permissions": ["history"],
+  "optional_permissions": ["history", "notifications"],
   "host_permissions": [
     "*://*/*"
   ],
