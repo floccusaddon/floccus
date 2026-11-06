@@ -180,6 +180,212 @@ describe('Diff', function() {
       expect(update.added.map(({ action }) => action.payload.id)).to.deep.equal([1, 2, 3])
     })
   })
+
+  describe('findChain', function() {
+    const L = ItemLocation.LOCAL
+    const S = ItemLocation.SERVER
+    const snapshot = (serverToLocalFolders = {}) => ({
+      LocalToServer: {
+        folder: Object.fromEntries(Object.entries(serverToLocalFolders).map(([s, l]) => [l, s])),
+        bookmark: {},
+      },
+      ServerToLocal: { folder: serverToLocalFolders, bookmark: {} },
+    })
+    const folder = (id, parentId, children = [], location = L) =>
+      new Folder({ id, parentId, title: 'folder' + id, location, children })
+    const bm = (id, parentId, location = L) =>
+      new Bookmark({ id, parentId, title: 'bookmark' + id, url: 'http://example.com/' + id, location })
+    const create = (payload) => ({ type: ActionType.CREATE, payload })
+    const move = (payload) => ({ type: ActionType.MOVE, payload })
+    const remove = (payload) => ({ type: ActionType.REMOVE, payload })
+    // A tree that knows none of the items, so only the payloads and the
+    // actions can tell where something is
+    const emptyTree = () => folder(0, undefined)
+
+    describe('without any actions', function() {
+      it('finds an item directly inside the removed folder', function() {
+        const removal = remove(folder(10, 1))
+        expect(Diff.findChain(snapshot(), [], emptyTree(), bm(20, 10), removal)).to.equal(true)
+      })
+
+      it('finds an item further down inside the removed folder', function() {
+        const removal = remove(folder(10, 1, [folder(11, 10, [folder(12, 11)])]))
+        expect(Diff.findChain(snapshot(), [], emptyTree(), bm(20, 12), removal)).to.equal(true)
+      })
+
+      it('does not find an item elsewhere', function() {
+        const removal = remove(folder(10, 1, [folder(11, 10)]))
+        expect(Diff.findChain(snapshot(), [], emptyTree(), bm(20, 13), removal)).to.equal(false)
+      })
+
+      it('does not count the removed folder itself', function() {
+        const removed = folder(10, 1)
+        // The folder's parent is outside of it
+        expect(Diff.findChain(snapshot(), [], emptyTree(), folder(10, 1), remove(removed))).to.equal(false)
+      })
+
+      it('looks the removed folder up in the tree when its payload has no children', function() {
+        const removal = remove(folder(10, 1))
+        const tree = folder(1, undefined, [folder(10, 1, [folder(11, 10)])])
+        expect(Diff.findChain(snapshot(), [], tree, bm(20, 11), removal)).to.equal(true)
+        // ... which is why callers pass an empty tree to ignore where things are now
+        expect(Diff.findChain(snapshot(), [], emptyTree(), bm(20, 11), removal)).to.equal(false)
+      })
+    })
+
+    describe('across locations', function() {
+      it('maps the item\'s parent to the location of the removed folder', function() {
+        const removal = remove(folder(10, 1, [folder(11, 10)]))
+        const serverBookmark = bm('s20', 's11', S)
+        expect(Diff.findChain(snapshot({ s11: 11 }), [], emptyTree(), serverBookmark, removal)).to.equal(true)
+      })
+
+      it('does not find an item whose parent has no mapping', function() {
+        const removal = remove(folder(10, 1, [folder(11, 10)]))
+        const serverBookmark = bm('s20', 's11', S)
+        expect(Diff.findChain(snapshot(), [], emptyTree(), serverBookmark, removal)).to.equal(false)
+      })
+
+      it('follows a chain through an action in the other location', function() {
+        // Locally removed folder 10; on the server, folder s30 (mapped to 30)
+        // was moved into s11 (mapped to 11, inside 10), and the bookmark
+        // created in s30
+        const removal = remove(folder(10, 1, [folder(11, 10)]))
+        const serverMove = move(folder('s30', 's11', [], S))
+        const serverBookmark = bm('s20', 's30', S)
+        const mappings = snapshot({ s11: 11, s30: 30 })
+        expect(Diff.findChain(mappings, [serverMove], emptyTree(), serverBookmark, removal)).to.equal(true)
+        expect(Diff.findChain(mappings, [], emptyTree(), serverBookmark, removal)).to.equal(false)
+      })
+    })
+
+    describe('through actions', function() {
+      it('follows a folder created inside the removed folder', function() {
+        const removal = remove(folder(10, 1))
+        const actions = [create(folder(30, 10))]
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), bm(20, 30), removal)).to.equal(true)
+      })
+
+      it('follows a chain of moves', function() {
+        // 32 moved into 31, 31 into 30, 30 into the removed folder
+        const removal = remove(folder(10, 1))
+        const actions = [move(folder(32, 31)), move(folder(31, 30)), move(folder(30, 10))]
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), bm(20, 32), removal)).to.equal(true)
+        // in any order
+        expect(Diff.findChain(snapshot(), actions.slice().reverse(), emptyTree(), bm(20, 32), removal)).to.equal(true)
+      })
+
+      it('does not follow a chain that leads elsewhere', function() {
+        const removal = remove(folder(10, 1))
+        const actions = [move(folder(32, 31)), move(folder(31, 30)), move(folder(30, 40))]
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), bm(20, 32), removal)).to.equal(false)
+      })
+
+      it('does not follow a chain with a missing link', function() {
+        const removal = remove(folder(10, 1))
+        const actions = [move(folder(32, 31)), move(folder(30, 10))]
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), bm(20, 32), removal)).to.equal(false)
+      })
+
+      it('follows a moved folder\'s subtree', function() {
+        // 30 was moved into the removed folder with 31 inside it
+        const removal = remove(folder(10, 1))
+        const actions = [move(folder(30, 10, [folder(31, 30)]))]
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), bm(20, 31), removal)).to.equal(true)
+      })
+
+      it('ignores actions that only move things out of the item\'s ancestors', function() {
+        const removal = remove(folder(10, 1))
+        // 30 holds the bookmark, its sibling 31 moved into the removed folder
+        const actions = [move(folder(31, 10)), move(folder(30, 1))]
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), bm(20, 30), removal)).to.equal(false)
+      })
+
+      it('terminates on a hierarchy reversal', function() {
+        // 30 moved into 31 and 31 into 30: each one's payload is a parent of the other
+        const removal = remove(folder(10, 1))
+        const actions = [move(folder(30, 31)), move(folder(31, 30))]
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), bm(20, 30), removal)).to.equal(false)
+        actions.push(move(folder(32, 10, [folder(31, 32)])))
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), bm(20, 30), removal)).to.equal(true)
+      })
+    })
+
+    describe('with a cache', function() {
+      it('keeps answers for different targets apart', function() {
+        const removal1 = remove(folder(10, 1, [folder(11, 10)]))
+        const removal2 = remove(folder(12, 1))
+        const item = bm(20, 30)
+        const actions = [move(folder(30, 11))]
+        const cache = {}
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), item, removal2, cache)).to.equal(false)
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), item, removal1, cache)).to.equal(true)
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), item, removal2, cache)).to.equal(false)
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), item, removal1, cache)).to.equal(true)
+      })
+
+      it('keeps answers for different items apart', function() {
+        const removal = remove(folder(10, 1))
+        const actions = [move(folder(30, 10)), move(folder(31, 40))]
+        const cache = {}
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), bm(20, 31), removal, cache)).to.equal(false)
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), bm(21, 30), removal, cache)).to.equal(true)
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), bm(22, 31), removal, cache)).to.equal(false)
+      })
+
+      it('reuses an item\'s chain for every target', function() {
+        // The chain from the bookmark runs through 30 and 31; asked about
+        // three removals, each of them on a different link
+        const actions = [move(folder(30, 31)), move(folder(31, 32))]
+        const item = bm(20, 30)
+        const cache = {}
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), item, remove(folder(40, 1)), cache)).to.equal(false)
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), item, remove(folder(30, 1)), cache)).to.equal(true)
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), item, remove(folder(31, 1)), cache)).to.equal(true)
+        expect(Diff.findChain(snapshot(), actions, emptyTree(), item, remove(folder(32, 1)), cache)).to.equal(true)
+      })
+    })
+
+    // The shape of the failing sync in 'should handle complex move-remove
+    // interactions': the cache has z(a(url)), locally a moved out of z into b
+    // and got a new subfolder, z moved into c, and the server removed z. The
+    // removal's payload and the MOVE's payload are both #603[z] -- one as it
+    // was in the cache (still holding a), one as it is now (empty).
+    describe('with two payloads of the same item', function() {
+      function scenario() {
+        const cacheZ = folder(603, 601, [folder(604, 603, [bm(607, 604)])])
+        const newFolder = folder(615, 604)
+        const movedA = folder(604, 605, [bm(607, 604), newFolder])
+        const movedZ = folder(603, 606)
+        const localTree = folder(601, undefined, [
+          folder(605, 601, [movedA]),
+          folder(606, 601, [movedZ]),
+        ])
+        localTree.createIndex()
+
+        const actions = [create(newFolder), move(movedZ), move(movedA)]
+        return { localTree, actions, removal: remove(cacheZ), newFolder }
+      }
+
+      it('tells them apart', function() {
+        const { localTree, actions, removal, newFolder } = scenario()
+        // a, new's parent, was inside z when the server removed it
+        expect(Diff.findChain(snapshot(), actions, localTree, newFolder, removal, {})).to.equal(true)
+      })
+
+      it('tells them apart with a cache shared across calls', function() {
+        const { localTree, actions, removal, newFolder } = scenario()
+        const cache = {}
+        // Ask about the MOVE of z first, which is z in its new, empty place
+        expect(Diff.findChain(snapshot(), actions, localTree, newFolder, actions[1], cache)).to.equal(false)
+        expect(Diff.findChain(snapshot(), actions, localTree, newFolder, removal, cache)).to.equal(true)
+        // ... and the other way round
+        const cache2 = {}
+        expect(Diff.findChain(snapshot(), actions, localTree, newFolder, removal, cache2)).to.equal(true)
+        expect(Diff.findChain(snapshot(), actions, localTree, newFolder, actions[1], cache2)).to.equal(false)
+      })
+    })
+  })
 })
 
 describe('Tree serialization', function() {

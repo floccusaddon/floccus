@@ -81,7 +81,23 @@ export type MapLocation<A extends Action<TItemLocation, TItemLocation>, NewLocat
 
 // Diff.findChain's per-item chain links, kept alongside the cache object the
 // caller passes in (and gone with it), so they share its lifetime and scope.
-const CHAIN_LINKS_CACHES = new WeakMap<Record<string, boolean>, Map<string, TItem<TItemLocation>[]>>()
+const CHAIN_LINKS_CACHES = new WeakMap<Record<string, boolean>, Map<number, TItem<TItemLocation>[]>>()
+
+// The cache keys of containsParent/findChain/chainLinks name item objects, not
+// items: the same item turns up in one action as it is now and in another as it
+// was in the cache (e.g. a REMOVE of folder z holding a, a MOVE of z without
+// it), and keyed by (location, type, id) the answer for one would be reused for
+// the other.
+const ITEM_KEYS = new WeakMap<TItem<TItemLocation>, number>()
+let nextItemKey = 0
+function itemKey(item: TItem<TItemLocation>): number {
+  let key = ITEM_KEYS.get(item)
+  if (typeof key === 'undefined') {
+    key = nextItemKey++
+    ITEM_KEYS.set(item, key)
+  }
+  return key
+}
 
 /**
  * Diff ids key the rows of a continuation, which outlive the process that wrote
@@ -324,13 +340,8 @@ export default class Diff<
     itemTree: Folder<TItemLocation>,
     cache: Record<string, boolean>
   ): boolean {
-    // (location, type, id) uniquely identifies an item — use it directly rather
-    // than canonicalizing through mapId, so the key is collision-free even when
-    // ids contain separator chars or when mapId returns undefined for unmapped
-    // items.
-    const cacheKey =
-      `contains:${item1.location}:${item1.type}:${item1.id}|` +
-      `${item2.location}:${item2.type}:${item2.id}`
+    // Keyed by the item objects (see itemKey)
+    const cacheKey = `contains:${itemKey(item1)}|${itemKey(item2)}`
     if (typeof cache[cacheKey] !== 'undefined') {
       return cache[cacheKey]
     }
@@ -383,13 +394,8 @@ export default class Diff<
     targetAction: Action<TItemLocation, TItemLocation>,
     cache: Record<string, boolean> = {}
   ): boolean {
-    // (location, type, id) uniquely identifies an item — use it directly rather
-    // than canonicalizing through mapId, so the key is collision-free even when
-    // ids contain separator chars or when mapId returns undefined for unmapped
-    // items.
-    const cacheKey =
-      `hasChain:${currentItem.location}:${currentItem.type}:${currentItem.id}|` +
-      `${targetAction.payload.location}:${targetAction.payload.type}:${targetAction.payload.id}`
+    // Keyed by the item objects (see itemKey)
+    const cacheKey = `hasChain:${itemKey(currentItem)}|${itemKey(targetAction.payload)}`
     if (typeof cache[cacheKey] !== 'undefined') {
       return cache[cacheKey]
     }
@@ -418,7 +424,7 @@ export default class Diff<
       linksCache = new Map()
       CHAIN_LINKS_CACHES.set(cache, linksCache)
     }
-    const key = `${currentItem.location}:${currentItem.type}:${currentItem.id}`
+    const key = itemKey(currentItem)
     const cached = linksCache.get(key)
     if (cached) {
       return cached
