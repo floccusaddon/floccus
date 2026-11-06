@@ -1040,5 +1040,29 @@
   },
   "DescriptionSynconstartup": {
     "message": "If enabled, this profile will be synced on startup. This is useful if you want to sync your bookmarks on startup, but don't want to wait for the next scheduled sync."
+  },
+  "LabelNotifyonly": {
+    "message": "Only notify me about changes"
+  },
+  "DescriptionNotifyonly": {
+    "message": "If enabled, the triggers above (local changes, startup, the interval) only check whether there is anything to sync, instead of syncing. The profile then shows how many changes are waiting and the floccus icon gets a red badge, and you decide when to sync."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Show a notification"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "If enabled, a system notification tells you when this profile has changes to sync. Your browser will ask you for permission to show notifications."
+  },
+  "StatusNeedssync": {
+    "message": "Needs sync"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Changes waiting to be synced: {0} from the server, {1} to the server"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "This profile has not been synced yet. Sync it to start."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} needs a sync"
   }
 }

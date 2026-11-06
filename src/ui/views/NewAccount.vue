@@ -770,6 +770,9 @@
               <OptionSyncInterval
                 v-if="syncIntervalEnabled"
                 v-model="syncInterval" />
+              <OptionNotifyOnly
+                :notify-only.sync="notifyOnly"
+                :notifications-enabled.sync="notificationsEnabled" />
             </template>
             <OptionSyncStrategy v-model="strategy" />
             <OptionNestedSync
@@ -830,11 +833,13 @@ import OptionSyncIntervalEnabled from '../components/OptionSyncIntervalEnabled.v
 import OptionAutoSync from '../components/OptionAutoSync.vue'
 import OptionClientCert from '../components/OptionClientCert.vue'
 import OptionSyncOnStartup from '../components/OptionSyncOnStartup.vue'
+import OptionNotifyOnly from '../components/OptionNotifyOnly.vue'
 
 export default {
   name: 'NewAccount',
   components: {
     OptionSyncOnStartup,
+    OptionNotifyOnly,
     OptionClientCert,
     OptionAutoSync,
     OptionSyncIntervalEnabled,
@@ -870,6 +875,8 @@ export default {
       enabled: true,
       syncIntervalEnabled: IS_BROWSER,
       syncOnStartupEnabled: false,
+      notifyOnly: false,
+      notificationsEnabled: false,
       nestedSync: true,
       showPassword: false,
       showPassphrase: false,
@@ -991,6 +998,8 @@ export default {
         enabled: this.enabled,
         syncIntervalEnabled: this.syncIntervalEnabled,
         syncOnStartupEnabled: this.syncOnStartupEnabled,
+        notifyOnly: this.notifyOnly,
+        notificationsEnabled: this.notificationsEnabled,
         label: this.label,
         ...(this.adapter === 'nextcloud-bookmarks' && {
           serverRoot: this.serverRoot,

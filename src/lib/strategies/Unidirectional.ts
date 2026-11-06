@@ -211,6 +211,13 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     serverTreeRoot.invalidateHash()
   }
 
+  getPendingChanges(): { local: number, server: number } {
+    const count = DefaultStrategy.countPlannedChanges(this.revertPlan)
+    return this.direction === ItemLocation.SERVER
+      ? { local: 0, server: count }
+      : { local: count, server: 0 }
+  }
+
   async sync(): Promise<void> {
     this.queueProgressUpdate(0.15, 0)
 
@@ -273,6 +280,11 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     if (this.canceled) {
       throw new CancelledSyncError()
+    }
+
+    if (this.planOnly) {
+      Logger.log('Only checking for changes, stopping before executing anything')
+      return
     }
 
     if (!this.actionsPlanned && this.revertPlan) {

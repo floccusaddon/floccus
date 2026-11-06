@@ -64,3 +64,51 @@ export function isSyncDue(data: IAccountData, now: number, online = true, networ
     now > (data.syncInterval || DEFAULT_SYNC_INTERVAL) * 1000 * 60 + (data.lastSync || 0)
   )
 }
+
+export type TDueAction = 'sync' | 'check' | null
+
+/**
+ * Whether the profile only looks for changes on its own and leaves syncing
+ * them to the user ("only notify me", #2403). Its triggers -- local changes,
+ * startup, the interval -- run a check instead of a sync.
+ */
+export function isNotifyOnly(data: IAccountData): boolean {
+  return Boolean(data.notifyOnly)
+}
+
+/**
+ * Like `isSyncDue`, but for profiles that may only want a check: decides
+ * whether the periodic check should sync this account, check it for pending
+ * changes, or leave it alone.
+ *
+ * A notify-only profile still syncs when a sync was scheduled explicitly --
+ * the user asked for it, or one of their syncs found the server locked and is
+ * waiting to try again. Everything it would otherwise have synced for by
+ * itself -- the interval, a retry after a transient error -- becomes a check.
+ * Its interval counts from the last sync or check, whichever was later, as a
+ * check doesn't move `lastSync`.
+ *
+ * @see isSyncDue for the parameters
+ */
+export function getDueAction(data: IAccountData, now: number, online = true, networkRestored = false): TDueAction {
+  if (!isNotifyOnly(data)) {
+    return isSyncDue(data, now, online, networkRestored) ? 'sync' : null
+  }
+  if (data.scheduled) {
+    return 'sync'
+  }
+  if (data.error) {
+    if (!isRetriable(data) || !online) {
+      return null
+    }
+    return networkRestored || now > (data.lastAttempt || 0) + getBackoffInterval(data) ? 'check' : null
+  }
+  if (data.checkScheduled) {
+    return 'check'
+  }
+  const lastRun = Math.max(data.lastSync || 0, data.lastCheck || 0)
+  if (data.syncIntervalEnabled && now > (data.syncInterval || DEFAULT_SYNC_INTERVAL) * 1000 * 60 + lastRun) {
+    return 'check'
+  }
+  return null
+}
