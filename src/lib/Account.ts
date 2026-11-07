@@ -169,6 +169,11 @@ export default class Account {
       label: '',
       errorCount: 0,
       clickCountEnabled: false,
+      // Must be present for the options UI: `v-bind.sync` assigns the
+      // account data's properties directly, and Vue 2 doesn't notice a
+      // property that wasn't there when the object was made reactive
+      notifyOnly: false,
+      notificationsEnabled: false,
       ...this.server.getData()
     }
     if (!('syncIntervalEnabled' in data) && 'enabled' in data) {
