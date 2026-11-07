@@ -665,9 +665,9 @@ export default class BrowserController {
     if (status === STATUS_NEEDS_SYNC) {
       // The normal icon with a red exclamation mark: changes are waiting
       await action.setIcon(icon[STATUS_ALLGOOD])
-      await action.setBadgeBackgroundColor({ color: '#d32f2f' })
+      await action.setBadgeBackgroundColor({ color: '#ffbe00' })
       if (action.setBadgeTextColor) {
-        await action.setBadgeTextColor({ color: '#ffffff' })
+        await action.setBadgeTextColor({ color: '#000000' })
       }
       await action.setBadgeText({ text: '!' })
     } else {
