@@ -79,6 +79,26 @@ export type MapLocation<A extends Action<TItemLocation, TItemLocation>, NewLocat
             ReorderAction<NewLocation, O>
             : never
 
+// Diff.findChain's per-item chain links, kept alongside the cache object the
+// caller passes in (and gone with it), so they share its lifetime and scope.
+const CHAIN_LINKS_CACHES = new WeakMap<Record<string, boolean>, Map<number, TItem<TItemLocation>[]>>()
+
+// The cache keys of containsParent/findChain/chainLinks name item objects, not
+// items: the same item turns up in one action as it is now and in another as it
+// was in the cache (e.g. a REMOVE of folder z holding a, a MOVE of z without
+// it), and keyed by (location, type, id) the answer for one would be reused for
+// the other.
+const ITEM_KEYS = new WeakMap<TItem<TItemLocation>, number>()
+let nextItemKey = 0
+function itemKey(item: TItem<TItemLocation>): number {
+  let key = ITEM_KEYS.get(item)
+  if (typeof key === 'undefined') {
+    key = nextItemKey++
+    ITEM_KEYS.set(item, key)
+  }
+  return key
+}
+
 /**
  * Diff ids key the rows of a continuation, which outlive the process that wrote
  * them: a sync is interrupted, floccus is restarted, and the stored rows are
@@ -320,13 +340,8 @@ export default class Diff<
     itemTree: Folder<TItemLocation>,
     cache: Record<string, boolean>
   ): boolean {
-    // (location, type, id) uniquely identifies an item — use it directly rather
-    // than canonicalizing through mapId, so the key is collision-free even when
-    // ids contain separator chars or when mapId returns undefined for unmapped
-    // items.
-    const cacheKey =
-      `contains:${item1.location}:${item1.type}:${item1.id}|` +
-      `${item2.location}:${item2.type}:${item2.id}`
+    // Keyed by the item objects (see itemKey)
+    const cacheKey = `contains:${itemKey(item1)}|${itemKey(item2)}`
     if (typeof cache[cacheKey] !== 'undefined') {
       return cache[cacheKey]
     }
@@ -357,75 +372,76 @@ export default class Diff<
     return false
   }
 
+  /**
+   * Whether `currentItem` ends up inside `targetAction`'s item: either
+   * directly, or through a chain of `actions` (CREATEs/MOVEs) each of which
+   * puts the previous link's parent into its own subtree.
+   *
+   * The links reachable from an item don't depend on the target, so they are
+   * collected once per item (see #chainLinks) and reused for every target
+   * asked about with the same cache. Callers ask this for every pair of, say,
+   * moves and removals, and walking the actions afresh for each pair made a
+   * sync after a long pause, with many moves and removals on the server, take
+   * minutes of solid CPU (#2409).
+   *
+   * The cache is only valid for one combination of `actions` and `itemTree`.
+   */
   static findChain(
     mappingsSnapshot: MappingSnapshot,
     actions: Action<TItemLocation, TItemLocation>[],
     itemTree: Folder<TItemLocation>,
     currentItem: TItem<TItemLocation>,
     targetAction: Action<TItemLocation, TItemLocation>,
-    cache: Record<string, boolean> = {},
-    chain: Action<TItemLocation, TItemLocation>[] = []
+    cache: Record<string, boolean> = {}
   ): boolean {
-    // (location, type, id) uniquely identifies an item — use it directly rather
-    // than canonicalizing through mapId, so the key is collision-free even when
-    // ids contain separator chars or when mapId returns undefined for unmapped
-    // items.
-    const cacheKey =
-      `hasChain:${currentItem.location}:${currentItem.type}:${currentItem.id}|` +
-      `${targetAction.payload.location}:${targetAction.payload.type}:${targetAction.payload.id}`
+    // Keyed by the item objects (see itemKey)
+    const cacheKey = `hasChain:${itemKey(currentItem)}|${itemKey(targetAction.payload)}`
     if (typeof cache[cacheKey] !== 'undefined') {
       return cache[cacheKey]
     }
-    if (
-      Diff.containsParent(
-        mappingsSnapshot,
-        targetAction.payload,
-        currentItem,
-        itemTree,
-        cache
-      )
-    ) {
-      cache[cacheKey] = true
-      return true
+    const result = Diff.chainLinks(mappingsSnapshot, actions, itemTree, currentItem, cache)
+      .some(item => Diff.containsParent(mappingsSnapshot, targetAction.payload, item, itemTree, cache))
+    cache[cacheKey] = result
+    return result
+  }
+
+  /**
+   * `currentItem` and every action payload reachable from it, where an action
+   * is reachable from an item if the action's payload contains the item's
+   * parent. A breadth-first search with a visited set: whether a chain exists
+   * doesn't depend on the path it takes, so each action is looked at once
+   * rather than once per path leading to it.
+   */
+  private static chainLinks(
+    mappingsSnapshot: MappingSnapshot,
+    actions: Action<TItemLocation, TItemLocation>[],
+    itemTree: Folder<TItemLocation>,
+    currentItem: TItem<TItemLocation>,
+    cache: Record<string, boolean>
+  ): TItem<TItemLocation>[] {
+    let linksCache = CHAIN_LINKS_CACHES.get(cache)
+    if (!linksCache) {
+      linksCache = new Map()
+      CHAIN_LINKS_CACHES.set(cache, linksCache)
     }
-    const newCurrentActions = actions.filter(
-      (newTargetAction) =>
-        !chain.includes(newTargetAction) &&
-        Diff.containsParent(
-          mappingsSnapshot,
-          newTargetAction.payload,
-          currentItem,
-          itemTree,
-          cache
-        )
-    )
-    if (newCurrentActions.length) {
-      for (const newCurrentAction of newCurrentActions) {
-        if (
-          Diff.findChain(
-            mappingsSnapshot,
-            actions,
-            itemTree,
-            newCurrentAction.payload,
-            targetAction,
-            cache,
-            [...chain, newCurrentAction]
-          )
-        ) {
-          // Path existence is chain-independent: if a chain exists despite
-          // `chain` excluding some actions, it also exists without those
-          // exclusions. Safe to memoize.
-          cache[cacheKey] = true
-          return true
+    const key = itemKey(currentItem)
+    const cached = linksCache.get(key)
+    if (cached) {
+      return cached
+    }
+    const links: TItem<TItemLocation>[] = [currentItem]
+    const visited = new Set<Action<TItemLocation, TItemLocation>>()
+    for (let i = 0; i < links.length; i++) {
+      for (const action of actions) {
+        if (visited.has(action)) continue
+        if (Diff.containsParent(mappingsSnapshot, action.payload, links[i], itemTree, cache)) {
+          visited.add(action)
+          links.push(action.payload)
         }
       }
     }
-    // Do NOT cache `false`: this result depends on which actions `chain`
-    // excluded from the search, but the cache key intentionally omits
-    // `chain` so it can be shared across call sites. Caching here would
-    // poison later calls whose (smaller) chain would have allowed a path
-    // through an excluded action.
-    return false
+    linksCache.set(key, links)
+    return links
   }
 
   static sortMoves<L1 extends TItemLocation, L2 extends TItemLocation>(
