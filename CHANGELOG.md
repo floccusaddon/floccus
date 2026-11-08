@@ -1,5 +1,24 @@
 # Changelog
 
+## [5.13.0] - 2026-11-07
+
+### New
+* feat: Notify-only mode
+* feat: Implement S3 sync backend
+* [native] feat: Support RTL languages in the native app
+
+### Fixed
+* fix(Diff#findChain): Distinguish between the same item in different plans
+* perf(Diff#findChain): Improve time complexity
+* fix(messages): Do not use angle brackets where not appropriate
+* fix: Always upload file when ID assignment was mixed in the downloaded file
+* fix: Allow files without bookmark IDs
+* fix(BrowserTree): Harden folderExists to not match bookmarks
+* fix(GDrive): Encode bookmark file name correctly
+* fix(concurrentTargetOriginRemoval): Do not duplicate a bookmark moved on both sides out of a folder removed on the server
+* fix(WebDAV): Fix reading of Last-Modified header
+* fix(Account): Make sure interrupted sync runs do not cause reverts of changes
+
 ## [5.12.0] - 2026-10-23
 
 ### New
