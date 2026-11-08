@@ -4,7 +4,9 @@
 
 108:1: CSS overflow property only partially supported by: QQ Browser (14.9) (css-overflow)
 112:1: CSS scrollbar styling not supported by: Safari on iOS (16.6-16.7,18.5-18.7) and only partially supported by: Chrome (109,119-120), Android Browser (154), QQ Browser (14.9) (css-scrollbar)
+21:1: CSS Logical Properties only partially supported by: QQ Browser (14.9) (css-logical-props)
 3:1: CSS overflow property only partially supported by: QQ Browser (14.9) (css-overflow)
+40:1: CSS Logical Properties only partially supported by: QQ Browser (14.9) (css-logical-props)
 5:1077: CSS overflow property only partially supported by: QQ Browser (14.9) (css-overflow)
 5:1077: CSS resize property not supported by: Safari on iOS (16.6-16.7,18.5-18.7,26.2,26.3,26.5,26.6,27) (css-resize)
 5:1193: CSS overflow property only partially supported by: QQ Browser (14.9) (css-overflow)
@@ -30,4 +32,6 @@
 5:63407: CSS overflow property only partially supported by: QQ Browser (14.9) (css-overflow)
 5:905: CSS Appearance only partially supported by: QQ Browser (14.9) (css-appearance)
 5:968: CSS Appearance only partially supported by: QQ Browser (14.9) (css-appearance)
+7:1: CSS Logical Properties only partially supported by: QQ Browser (14.9) (css-logical-props)
 7:1: Intrinsic & Extrinsic Sizing only partially supported by: Firefox (121,153-154,156-157) (intrinsic-width)
+99:1: CSS Logical Properties only partially supported by: QQ Browser (14.9) (css-logical-props)
