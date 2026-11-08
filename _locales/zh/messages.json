@@ -1040,5 +1040,29 @@
   },
   "DescriptionSynconstartup": {
     "message": "如启用，将在启动时同步该配置文件。如果要在启动时同步书签，不想等待下次定时同步，该功能会有用。"
+  },
+  "LabelNotifyonly": {
+    "message": "只提示我更改"
+  },
+  "DescriptionNotifyonly": {
+    "message": "如启用，上面的触发器（本地更改、启动、间隔）只检查是否有东西要同步，而不是有没有同步。配置文件显示有多少更改在等待，floccus 图标会显示红色标记，你决定何时同步。"
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "显示通知"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "如启用，一则系统会在这个配置文件有更改要同步时告诉你。浏览器会请求显示通知的权限。"
+  },
+  "StatusNeedssync": {
+    "message": "需要同步"
+  },
+  "DescriptionPendingChanges": {
+    "message": "等待同步的更改：{0} 个来自服务器，{1} 个到服务器"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "这个配置文件尚未同步。要开始请先同步"
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} 需要一个同步"
   }
 }
