@@ -307,6 +307,9 @@ let expectTreeEqualRec = function(
         )
       }
     } else {
+      // Sort copies: the trees passed in stay as they are
+      let children1 = tree1.children.slice()
+      let children2 = tree2.children.slice()
       if (checkOrder === 'bookmarks') {
         // Folders first, by title -- Array#sort is stable, so the bookmarks keep their order
         const foldersFirst = (a, b) => {
@@ -317,31 +320,24 @@ let expectTreeEqualRec = function(
           if (a.title > b.title) return 1
           return 0
         }
-        tree1.children.sort(foldersFirst)
-        tree2.children.sort(foldersFirst)
+        children1.sort(foldersFirst)
+        children2.sort(foldersFirst)
       }
       if (checkOrder === false) {
-        tree2.children.sort((a, b) => {
+        const byTitleAndUrl = (a, b) => {
           if (a.title < b.title) return -1
           if (a.title > b.title) return 1
           if ((a.url || '') < (b.url || '')) return -1
           if ((a.url || '') > (b.url || '')) return 1
           return 0
-        })
-        tree1.children.sort((a, b) => {
-          if (a.title < b.title) return -1
-          if (a.title > b.title) return 1
-          if ((a.url || '') < (b.url || '')) return -1
-          if ((a.url || '') > (b.url || '')) return 1
-          return 0
-        })
+        }
+        children1.sort(byTitleAndUrl)
+        children2.sort(byTitleAndUrl)
       }
-      let children1 = ignoreEmptyFolders
-        ? tree1.children.filter((child) => !hasNoBookmarks(child))
-        : tree1.children
-      let children2 = ignoreEmptyFolders
-        ? tree2.children.filter((child) => !hasNoBookmarks(child))
-        : tree2.children
+      if (ignoreEmptyFolders) {
+        children1 = children1.filter((child) => !hasNoBookmarks(child))
+        children2 = children2.filter((child) => !hasNoBookmarks(child))
+      }
       expect(children1).to.have.length(children2.length)
       children2.forEach((child2, i) => {
         expectTreeEqualRec(
