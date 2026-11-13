@@ -379,4 +379,10 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
   protected getStrategyName(): ISerializedSyncProcess['strategy'] {
     return 'merge'
   }
+
+  // Without a cache there's no telling which side's order is the one to keep,
+  // and another client may well have synced the server's order already
+  protected async getInitialServerReorders(): Promise<null> {
+    return null
+  }
 }

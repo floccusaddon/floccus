@@ -25,7 +25,7 @@ import * as Parallel from 'async-parallel'
 import throttle, { CanceledError } from '@jcoreio/async-throttle'
 import type { ThrottledFunction } from '@jcoreio/async-throttle'
 import Mappings, { MappingSnapshot } from '../Mappings'
-import TResource, { IHashSettings, OrderFolderResource, TLocalTree } from '../interfaces/Resource'
+import TResource, { CachingResource, IHashSettings, OrderFolderResource, TLocalTree } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
 import {
   CancelledSyncError, ClientsideAdditionFailsafeError,
@@ -901,18 +901,24 @@ export default class SyncProcess {
         mappingsSnapshot
       )
 
-      const localReorders3 = this.reconcileConcurrentReorderings(
+      let localReorders3 = this.reconcileConcurrentReorderings(
         localReorders2,
         serverReorders2,
         ItemLocation.LOCAL,
         mappingsSnapshot
       )
-      const serverReorders3 = this.reconcileConcurrentReorderings(
+      let serverReorders3 = this.reconcileConcurrentReorderings(
         serverReorders2,
         localReorders2,
         ItemLocation.SERVER,
         mappingsSnapshot
       )
+
+      const initialServerReorders = await this.getInitialServerReorders()
+      if (initialServerReorders) {
+        localReorders3 = new Diff()
+        serverReorders3 = initialServerReorders
+      }
 
       // skipErroneousActions: a REORDER targeting a folder that can no longer be mapped is
       // moot (the folder was moved/removed); drop it instead of throwing MappingFailureError,
@@ -933,6 +939,53 @@ export default class SyncProcess {
     }
 
     await this.executeReorderingStage()
+  }
+
+  /**
+   * A server whose order has never been synced (see
+   * OrderFolderResource#isOrderInitialized) holds an order nobody chose, and
+   * since it differs from the cache everywhere, the scan takes it for a
+   * reordering of every folder. Instead of applying that to the local tree,
+   * push the local order of every folder to the server, once.
+   * Returns null when the server's order is to be synced as usual.
+   */
+  protected async getInitialServerReorders(): Promise<Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>>|null> {
+    if (!('orderFolder' in this.server) || this.server.isOrderInitialized?.() !== false) {
+      return null
+    }
+    Logger.log('Server order has never been synced: pushing the local order instead of pulling the server\'s')
+    // The local tree has changed during this sync, so this.localTreeRoot is stale.
+    // The cache is the local tree as this sync left it -- reading the tree itself
+    // through the wrapper would reset the cache to it, and so swallow any change
+    // the user made meanwhile.
+    const localTreeRoot = 'getCacheTree' in this.localTree
+      ? await (this.localTree as unknown as CachingResource<typeof ItemLocation.LOCAL>).getCacheTree()
+      : await this.localTree.getBookmarksTree()
+    this.filterOutUnacceptedBookmarks(localTreeRoot)
+    const reorders = new Diff<typeof ItemLocation.LOCAL, TItemLocation, ReorderAction<typeof ItemLocation.LOCAL, TItemLocation>>()
+    const visit = (folder: Folder<typeof ItemLocation.LOCAL>) => {
+      if (folder.children.length > 1) {
+        reorders.commit({
+          type: ActionType.REORDER,
+          // The order says it all, and the action is persisted with the continuation
+          payload: new Folder({
+            id: folder.id,
+            parentId: folder.parentId,
+            title: folder.title,
+            location: ItemLocation.LOCAL,
+            children: [],
+          }),
+          order: folder.children.map(i => ({ type: i.type, id: i.id })),
+        })
+      }
+      folder.children.forEach(child => {
+        if (child instanceof Folder) {
+          visit(child)
+        }
+      })
+    }
+    visit(localTreeRoot)
+    return reorders
   }
 
   /** Stage 4: execute the reorders computed from the done plans */

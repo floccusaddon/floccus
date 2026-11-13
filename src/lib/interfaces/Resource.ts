@@ -91,6 +91,13 @@ export interface LoadFolderChildrenResource<L extends TItemLocation> extends IRe
 
 export interface OrderFolderResource<L extends TItemLocation> extends IResource<L> {
   orderFolder(id: number|string, order:Ordering<L>):Promise<void>
+  /**
+   * False while the resource holds an order that has never been synced -- a
+   * server that has only just started to keep one (Linkwarden >= 2.17) starts
+   * out with an order nobody chose. Default then pushes the local order to it
+   * instead of imposing that order on the local tree. Absent means true.
+   */
+  isOrderInitialized?(): boolean
 }
 
 export interface ClickCountResource<L extends TItemLocation> extends IResource<L> {

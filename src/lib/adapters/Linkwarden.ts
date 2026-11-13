@@ -11,6 +11,7 @@ import {
   RequestTimeoutError, UnexpectedServerFolder
 } from '../../errors/Error'
 import { CapacitorHttp as Http } from '@capacitor/core'
+import Ordering from '../interfaces/Ordering'
 
 declare const IS_BROWSER: boolean
 
@@ -24,6 +25,12 @@ export interface LinkwardenConfig {
   allowRedirects?: boolean
   allowNetwork?: boolean
   label?: string
+  /**
+   * Whether the custom link order of Linkwarden >= 2.17 has been synced once.
+   * Until it has, it is the order Linkwarden seeded (newest first), and the
+   * first sync pushes the local order rather than pulling that one.
+   */
+  customOrderInitialized?: boolean
 }
 
 const TIMEOUT = 300000
@@ -32,6 +39,24 @@ const SERVER_ERROR_RETRY_DELAY = 1000
 // Retrying is only safe for verbs that have no side effects when repeated:
 // A 5xx response doesn't tell us whether the server applied the request or not.
 const RETRIABLE_VERBS = ['GET', 'HEAD', 'OPTIONS', 'PUT', 'DELETE']
+// The first release with a custom order of the links in a collection
+const CUSTOM_ORDER_VERSION = [2, 17, 0]
+
+function parseVersion(version: unknown): number[]|null {
+  const match = typeof version === 'string' && version.trim().match(/^v?(\d+)\.(\d+)(?:\.(\d+))?/)
+  return match ? [Number(match[1]), Number(match[2]), Number(match[3] || 0)] : null
+}
+
+function isAtLeast(version: number[], minimum: number[]): boolean {
+  for (let i = 0; i < minimum.length; i++) {
+    if (version[i] !== minimum[i]) {
+      return version[i] > minimum[i]
+    }
+  }
+  return true
+}
+
+const folderTitleCollator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true })
 
 export default class LinkwardenAdapter implements Adapter, IResource<typeof ItemLocation.SERVER> {
   private server: LinkwardenConfig
@@ -39,6 +64,15 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
   private abortController: AbortController
   private abortSignal: AbortSignal
   private canceled: boolean
+  /**
+   * Linkwarden >= 2.17 keeps a custom order of the links in a collection, but
+   * none of the collections in it. The strategies detect ordering support with
+   * `'orderFolder' in server`, so this is only defined once onSyncStart has
+   * found a server that has one (see detectCustomOrder).
+   */
+  orderFolder?: (id: string|number, order: Ordering<typeof ItemLocation.SERVER>) => Promise<void>
+  /** Link ids per collection id, top to bottom, as the server has them */
+  private linkOrder: Map<string, (string|number)[]> = new Map()
 
   constructor(server: LinkwardenConfig) {
     this.server = server
@@ -87,7 +121,16 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
   }
 
   onSyncComplete(): Promise<void> {
+    // Persisted with the account data the next time Account#setData runs, which
+    // it does right after the sync
+    if (this.orderFolder && !this.server.customOrderInitialized) {
+      this.server.customOrderInitialized = true
+    }
     return Promise.resolve(undefined)
+  }
+
+  isOrderInitialized(): boolean {
+    return Boolean(this.server.customOrderInitialized)
   }
 
   onSyncFail(): Promise<void> {
@@ -110,6 +153,92 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
         throw new MissingPermissionsError()
       }
     }
+
+    if (await this.detectCustomOrder()) {
+      Logger.log('(linkwarden) Server keeps a custom link order, syncing it')
+      this.orderFolder = (id, order) => this.orderLinks(id, order)
+    } else {
+      delete this.orderFolder
+      // Should the server be upgraded again later, its order will be the seeded one
+      this.server.customOrderInitialized = false
+    }
+  }
+
+  private async detectCustomOrder(): Promise<boolean> {
+    try {
+      const { response } = await this.sendRequest('GET', '/api/v1/config')
+      const version = parseVersion(response?.INSTANCE_VERSION)
+      if (version) {
+        return isAtLeast(version, CUSTOM_ORDER_VERSION)
+      }
+    } catch (e) {
+      if (!(e instanceof HttpError || e instanceof ParseResponseError)) {
+        throw e
+      }
+      Logger.log('(linkwarden) Could not read the server version', e)
+    }
+    // INSTANCE_VERSION is a build-time value that not every deployment sets.
+    // Links come with their position from 2.17 on.
+    const { data } = await this.sendRequest('GET', '/api/v1/search?searchQueryString=')
+    return typeof data?.links?.[0]?.collectionOrder === 'number'
+  }
+
+  /**
+   * Linkwarden moves one link per request (`PUT /api/v1/links/:id/order`, below
+   * the link given as `beforeId`, or to the top without one), so only the links
+   * outside the longest run already in the right order are moved. Collections
+   * can't be ordered: they're always listed first, by title (getBookmarksTree).
+   */
+  private async orderLinks(id: string|number, order: Ordering<typeof ItemLocation.SERVER>): Promise<void> {
+    Logger.log('(linkwarden)ORDERFOLDER', { id, order })
+    const current = this.linkOrder.get(String(id))
+    if (!current) {
+      Logger.log('(linkwarden) Collection ' + id + ' is unknown, not ordering it')
+      return
+    }
+    const currentIds = new Set(current.map(String))
+    const wanted = order
+      .filter(item => item.type === 'bookmark' && currentIds.has(String(item.id)))
+      .map(item => String(item.id))
+    const wantedIds = new Set(wanted)
+    // Links the order doesn't mention (ones floccus doesn't accept) go below the rest
+    const target = wanted.concat(current.map(String).filter(linkId => !wantedIds.has(linkId)))
+
+    const keep = longestOrderedRun(current.map(String), target)
+    const top = current.slice()
+    for (let i = 0; i < target.length; i++) {
+      if (keep.has(target[i])) {
+        continue
+      }
+      await this.sendRequest(
+        'PUT', `/api/v1/links/${target[i]}/order`,
+        'application/json',
+        i === 0 ? {} : { beforeId: Number(target[i - 1]) },
+      )
+      const from = top.findIndex(linkId => String(linkId) === target[i])
+      const [moved] = top.splice(from, 1)
+      const to = i === 0 ? 0 : top.findIndex(linkId => String(linkId) === target[i - 1]) + 1
+      top.splice(to, 0, moved)
+    }
+    this.linkOrder.set(String(id), top)
+  }
+
+  private addToLinkOrder(collectionId: string|number, linkId: string|number) {
+    const links = this.linkOrder.get(String(collectionId))
+    if (links) {
+      // Linkwarden puts new links, and links moved into a collection, at the top
+      links.unshift(linkId)
+    }
+  }
+
+  private removeFromLinkOrder(linkId: string|number) {
+    for (const links of this.linkOrder.values()) {
+      const index = links.findIndex(id => String(id) === String(linkId))
+      if (index !== -1) {
+        links.splice(index, 1)
+        return
+      }
+    }
   }
 
   async createBookmark(bookmark: Bookmark<typeof ItemLocation.SERVER>): Promise<string | number> {
@@ -128,6 +257,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       false,
       bookmark,
     )
+    this.addToLinkOrder(bookmark.parentId, response.id)
     return response.id
   }
 
@@ -154,6 +284,11 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       false,
       bookmark,
     )
+    const siblings = this.linkOrder.get(String(bookmark.parentId))
+    if (siblings && !siblings.some(id => String(id) === String(bookmark.id))) {
+      this.removeFromLinkOrder(bookmark.id)
+      this.addToLinkOrder(bookmark.parentId, bookmark.id)
+    }
   }
 
   async getBookmarkTags(id: string | number): Promise<string[]> {
@@ -170,6 +305,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     Logger.log('(linkwarden)DELETE', {bookmark})
     try {
       await this.sendRequest('DELETE', `/api/v1/links/${bookmark.id}`, undefined, undefined, false, bookmark)
+      this.removeFromLinkOrder(bookmark.id)
     } catch (e) {
       if (e instanceof HttpError) {
         if (e.status === 404 || e.status === 401 || e.status === 403) {
@@ -195,6 +331,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       false,
       folder
     )
+    this.linkOrder.set(String(response.id), [])
     return response.id
   }
 
@@ -294,20 +431,30 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       }
     }
 
+    const ordered = Boolean(this.orderFolder)
+    this.linkOrder = new Map()
     const buildTree = (collection, isRoot = false) => {
       const collectionId = String(collection.id)
+      const subCollections = collections.filter(col => String(col.parentId) === collectionId)
+      const collectionLinks = links.filter(link => String(link.collectionId) === collectionId)
+      if (ordered) {
+        // Collections have no order of their own: keep them first, by title, so
+        // that the order we report stays the same from one sync to the next
+        subCollections.sort((a, b) => folderTitleCollator.compare(a.name, b.name) || a.id - b.id)
+        // As Linkwarden lists them
+        collectionLinks.sort((a, b) => (b.collectionOrder - a.collectionOrder) || (b.id - a.id))
+      }
+      this.linkOrder.set(collectionId, collectionLinks.map(link => link.id))
       return new Folder({
         id: collection.id,
         title: collection.name,
         parentId: collection.parentId ?? null,
         location: ItemLocation.SERVER,
         isRoot,
-        children: collections
-          .filter(col => String(col.parentId) === collectionId)
+        children: subCollections
           // Not .map(buildTree): map's index would land in isRoot
           .map((col) => buildTree(col)).concat(
-            links
-              .filter(link => String(link.collectionId) === collectionId)
+            collectionLinks
               .map(link => new Bookmark({
                 id: link.id,
                 title: link.name,
@@ -508,7 +655,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
 
   async getCapabilities(): Promise<ICapabilities> {
     return {
-      preserveOrder: false,
+      preserveOrder: Boolean(this.orderFolder),
       hashFn: ['xxhash3', 'murmur3', 'sha256'],
       supportsTags: true,
     }
@@ -522,4 +669,36 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
   setHashSettings(hashSettings: IHashSettings): void {
     // noop
   }
+}
+
+/**
+ * The items of `current` that can stay where they are on the way to `target`:
+ * the longest subsequence of `current` that `target` has in the same order.
+ * Both hold the same ids.
+ */
+function longestOrderedRun(current: string[], target: string[]): Set<string> {
+  const position = new Map(target.map((id, i) => [id, i]))
+  const positions = current.map(id => position.get(id))
+  // Patience sorting: tails[k] is the index into `positions` ending the best run of length k + 1
+  const tails: number[] = []
+  const previous: number[] = new Array(positions.length)
+  for (let i = 0; i < positions.length; i++) {
+    let lo = 0
+    let hi = tails.length
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1
+      if (positions[tails[mid]] < positions[i]) {
+        lo = mid + 1
+      } else {
+        hi = mid
+      }
+    }
+    previous[i] = lo > 0 ? tails[lo - 1] : -1
+    tails[lo] = i
+  }
+  const run = new Set<string>()
+  for (let i = tails.length ? tails[tails.length - 1] : -1; i !== -1; i = previous[i]) {
+    run.add(current[i])
+  }
+  return run
 }

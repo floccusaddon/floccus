@@ -9,6 +9,7 @@ import {
   expect,
   disableCachePersistence,
   expectTreeEqual,
+  orderCheck,
   getAllBookmarks,
   getEnv,
   seedTestRandom,
@@ -243,7 +244,7 @@ describe('Floccus', function() {
                   ]
                 }),
                 false,
-                Boolean(account.server.orderFolder)
+                orderCheck(account.server)
               )
             })
             it('should update the server on local changes', async function() {

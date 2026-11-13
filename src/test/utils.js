@@ -261,6 +261,22 @@ export const DUMP_LOGS = function(currentTest) {
 chai.use(chaiAsPromised)
 export const expect = chai.expect
 
+/**
+ * The `checkOrder` to compare a tree with what went through `server`:
+ * Linkwarden orders only the links in a collection and keeps its collections
+ * first, by title, so only the relative order of the bookmarks is compared there.
+ */
+export function orderCheck(server) {
+  if (!server.orderFolder) {
+    return false
+  }
+  return server.getData().type === 'linkwarden' ? 'bookmarks' : true
+}
+
+/**
+ * `checkOrder`: true compares the order of all children, false none, and
+ * 'bookmarks' only the order of the bookmarks among each other (see orderCheck)
+ */
 export const expectTreeEqual = function(
   tree1,
   tree2,
@@ -290,6 +306,19 @@ let expectTreeEqualRec = function(
         )
       }
     } else {
+      if (checkOrder === 'bookmarks') {
+        // Folders first, by title -- Array#sort is stable, so the bookmarks keep their order
+        const foldersFirst = (a, b) => {
+          if (a.url && b.url) return 0
+          if (a.url) return 1
+          if (b.url) return -1
+          if (a.title < b.title) return -1
+          if (a.title > b.title) return 1
+          return 0
+        }
+        tree1.children.sort(foldersFirst)
+        tree2.children.sort(foldersFirst)
+      }
       if (checkOrder === false) {
         tree2.children.sort((a, b) => {
           if (a.title < b.title) return -1
