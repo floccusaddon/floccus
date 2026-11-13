@@ -14,10 +14,6 @@
     "gecko": {
       "id": "floccus@handmadeideas.org",
       "strict_min_version": "58.0"
-    },
-    "gecko_android": {
-      "id": "floccus@handmadeideas.org",
-      "strict_min_version": "113.0"
     }
   },
 
