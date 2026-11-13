@@ -25,6 +25,13 @@ export interface LinkwardenConfig {
   allowRedirects?: boolean
   allowNetwork?: boolean
   label?: string
+  /**
+   * Sync the order of the links in a collection (Linkwarden >= 2.17). Off for
+   * profiles from before this option existed -- the first sync would impose
+   * Linkwarden's seeded order (newest first) on the local bookmarks -- so
+   * getDefaultValues says false and only new profiles are created with true.
+   */
+  syncOrder?: boolean
 }
 
 const TIMEOUT = 300000
@@ -85,6 +92,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       includeCredentials: false,
       allowRedirects: false,
       allowNetwork: false,
+      syncOrder: false,
     }
   }
 
@@ -139,7 +147,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       }
     }
 
-    if (await this.detectCustomOrder()) {
+    if (this.server.syncOrder && await this.detectCustomOrder()) {
       Logger.log('(linkwarden) Server keeps a custom link order, syncing it')
       this.orderFolder = (id, order) => this.orderLinks(id, order)
     } else {

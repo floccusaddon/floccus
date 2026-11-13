@@ -222,6 +222,7 @@ export function getEnv() {
         type: 'linkwarden',
         url: SERVER,
         serverFolder: 'Floccus-' + Math.random(),
+        syncOrder: true,
         ...CREDENTIALS,
       },
       {
