@@ -622,7 +622,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              orderCheck(account.server)
             )
           })
           it('should update the server on local moves of bulk imported bookmarks', async function() {
@@ -1037,8 +1038,15 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              orderCheck(account.server)
+              // The server decides the order of the links created on it: Linkwarden puts new ones on top
+              false
             )
+            // ...and whatever it is, both sides agree on it (the local URLs aren't normalized)
+            if (account.server.orderFolder) {
+              const localTree = await account.localTree.getBookmarksTree(true)
+              expect(localTree.children[0].children.map(item => item.title))
+                .to.deep.equal(tree.children[0].children.map(item => item.title))
+            }
           })
           it('should deduplicate unnormalized URLs without getting stuck', async function() {
             if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && (APP_VERSION !== 'stable' && APP_VERSION !== 'master' && APP_VERSION !== 'stable3')) {

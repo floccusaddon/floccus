@@ -368,7 +368,8 @@ describe('Floccus', function() {
               expectTreeEqual(
                 tree,
                 originalTree,
-                false
+                false,
+                orderCheck(account.server)
               )
             })
             it("shouldn't create server bookmarks locally", async function() {
