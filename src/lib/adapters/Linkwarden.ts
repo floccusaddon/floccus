@@ -25,12 +25,6 @@ export interface LinkwardenConfig {
   allowRedirects?: boolean
   allowNetwork?: boolean
   label?: string
-  /**
-   * Whether the custom link order of Linkwarden >= 2.17 has been synced once.
-   * Until it has, it is the order Linkwarden seeded (newest first), and the
-   * first sync pushes the local order rather than pulling that one.
-   */
-  customOrderInitialized?: boolean
 }
 
 const TIMEOUT = 300000
@@ -121,16 +115,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
   }
 
   onSyncComplete(): Promise<void> {
-    // Persisted with the account data the next time Account#setData runs, which
-    // it does right after the sync
-    if (this.orderFolder && !this.server.customOrderInitialized) {
-      this.server.customOrderInitialized = true
-    }
     return Promise.resolve(undefined)
-  }
-
-  isOrderInitialized(): boolean {
-    return Boolean(this.server.customOrderInitialized)
   }
 
   onSyncFail(): Promise<void> {
@@ -159,8 +144,6 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       this.orderFolder = (id, order) => this.orderLinks(id, order)
     } else {
       delete this.orderFolder
-      // Should the server be upgraded again later, its order will be the seeded one
-      this.server.customOrderInitialized = false
     }
   }
 
