@@ -13,6 +13,8 @@
         color="blue darken-1"
         text
         elevation="1"
+        :loading="saving"
+        :disabled="saving"
         @click="onSave">
         {{ t('LabelSave') }}
       </v-btn>
@@ -175,6 +177,7 @@ export default {
       exists: false,
       allTags: [],
       fetchingTitle: false,
+      saving: false,
       // Several URLs shared at once, e.g. tabs from Firefox for Android
       items: this.sharedItems(),
     }
@@ -208,6 +211,9 @@ export default {
       const folder = this.folderTree.findFolder(this.temporaryParent)
       return folder ? folder.title || this.t('LabelUntitledfolder') : ''
     },
+    sharedUrl() {
+      return [this.$route.params.url, this.$route.params.title]
+    },
     sharedUrlsKey() {
       return [].concat(this.$route.query.urls || []).join('\n')
     },
@@ -231,6 +237,21 @@ export default {
       const parentFolder = this.folderTree.findFolder(this.$store.state.lastFolders[this.id]) || this.folderTree.findFolder(this.folderTree.id)
       this.temporaryParent = parentFolder.id
       await Promise.all([this.loadAllTags(), this.checkExists()])
+    },
+    // Sharing something else while this view is open reuses this component
+    // (e.g. on iOS, where the app stays on this view after saving)
+    sharedUrl(newValue, oldValue) {
+      if (newValue[0] === oldValue[0] && newValue[1] === oldValue[1]) {
+        return
+      }
+      this.url = this.$route.params.url
+      this.urlError = this.checkUrl(this.url)
+      this.title = this.$route.params.title || ''
+      this.tags = []
+      this.checkExists()
+      if (!this.items.length && !this.title && !this.urlError) {
+        this.fetchTitle(this.url)
+      }
     },
     // A string, because switching accounts hands us a copy of the same list
     sharedUrlsKey() {
@@ -271,25 +292,41 @@ export default {
       this.items = this.items.filter((i) => i !== item)
     },
     async onSave() {
-      if (!this.folderTree.findFolder(this.temporaryParent)) {
+      if (this.saving || !this.folderTree.findFolder(this.temporaryParent)) {
         return
       }
-      if (this.items.length) {
-        await this.$store.dispatch(actions.CREATE_BOOKMARKS, {
-          accountId: this.id,
-          bookmarks: this.items.map((item) => this.newBookmark(item.title, item.url)),
-        })
-        SendIntent.finish()
+      if (!this.items.length && this.urlError) {
         return
       }
-      if (this.urlError) {
-        return
+      this.saving = true
+      try {
+        if (this.items.length) {
+          await this.$store.dispatch(actions.CREATE_BOOKMARKS, {
+            accountId: this.id,
+            bookmarks: this.items.map((item) => this.newBookmark(item.title, item.url)),
+          })
+        } else {
+          await this.$store.dispatch(actions.CREATE_BOOKMARK, {
+            accountId: this.id,
+            bookmark: this.newBookmark(this.title, this.url),
+          })
+        }
+      } finally {
+        this.saving = false
       }
-      await this.$store.dispatch(actions.CREATE_BOOKMARK, {
-        accountId: this.id,
-        bookmark: this.newBookmark(this.title, this.url),
-      })
-      SendIntent.finish()
+      this.finish()
+    },
+    finish() {
+      // Closes the share activity on Android. On iOS the share extension has
+      // already handed over to the app itself, which can't close itself, and
+      // the plugin's finish() does nothing -- so leave this view, or every
+      // further tap on Save adds another copy (#2413)
+      try {
+        Promise.resolve(SendIntent.finish()).catch((e) => Logger.log('SendIntent.finish failed', e))
+      } catch (e) {
+        // not implemented on this platform
+      }
+      this.$router.replace({ name: routes.TREE, params: { accountId: this.id } })
     },
     newBookmark(title, url) {
       return new Bookmark({
