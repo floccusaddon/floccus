@@ -120,6 +120,12 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
    * never counts them as already in place.
    */
   private unplacedLinks: Set<string> = new Set()
+  /**
+   * Whether the server keeps a link order, while that is still unknown: true or
+   * false once a link created in this sync has told us, null before. See
+   * detectCustomOrder.
+   */
+  private customOrderConfirmed: boolean|null = true
   /** Serializes the read-modify-write cycles of the user's collectionOrder */
   private collectionOrderLock = new AsyncLock()
 
@@ -195,8 +201,12 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       }
     }
 
-    if (this.server.syncOrder && await this.detectCustomOrder()) {
-      Logger.log('(linkwarden) Server keeps a custom link order, syncing it')
+    const customOrder = this.server.syncOrder ? await this.detectCustomOrder() : false
+    this.customOrderConfirmed = customOrder === 'unknown' ? null : customOrder
+    if (customOrder) {
+      Logger.log(customOrder === 'unknown'
+        ? '(linkwarden) Server has no links to tell whether it keeps a custom link order, assuming it does'
+        : '(linkwarden) Server keeps a custom link order, syncing it')
       this.orderFolder = async(id, order) => {
         await this.orderCollections(order)
         await this.orderLinks(id, order)
@@ -206,7 +216,15 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     }
   }
 
-  private async detectCustomOrder(): Promise<boolean> {
+  /**
+   * 'unknown' for a server that neither names its version nor has a link to show
+   * whether it keeps the order. Ordering is synced there anyway: if it turned on
+   * only once the server has links, at a later sync, the order Linkwarden gave
+   * them would replace the local one. Turning it off later is harmless, so the
+   * first link created settles it (see createBookmark) -- every link on such a
+   * server is one this sync created, and reorders run after the creations.
+   */
+  private async detectCustomOrder(): Promise<boolean|'unknown'> {
     try {
       const { response } = await this.sendRequest('GET', '/api/v1/config')
       const version = parseVersion(response?.INSTANCE_VERSION)
@@ -222,7 +240,10 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     // INSTANCE_VERSION is a build-time value that not every deployment sets.
     // Links come with their position from 2.17 on.
     const { data } = await this.sendRequest('GET', '/api/v1/search?searchQueryString=')
-    return typeof data?.links?.[0]?.collectionOrder === 'number'
+    if (!data?.links?.length) {
+      return 'unknown'
+    }
+    return typeof data.links[0].collectionOrder === 'number'
   }
 
   /**
@@ -234,6 +255,12 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
    */
   private async orderLinks(id: string|number, order: Ordering<typeof ItemLocation.SERVER>): Promise<void> {
     Logger.log('(linkwarden)ORDERFOLDER', { id, order })
+    if (this.customOrderConfirmed === false) {
+      // An older server: it has no endpoint to move links. Collections can still be
+      // ordered, and the next sync turns ordering off (detectCustomOrder).
+      Logger.log('(linkwarden) Server keeps no custom link order, not ordering collection ' + id)
+      return
+    }
     const current = this.linkOrder.get(String(id))
     if (!current) {
       Logger.log('(linkwarden) Collection ' + id + ' is unknown, not ordering it')
@@ -334,6 +361,10 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       false,
       bookmark,
     )
+    if (this.customOrderConfirmed === null) {
+      this.customOrderConfirmed = typeof response.collectionOrder === 'number'
+      Logger.log('(linkwarden) Server ' + (this.customOrderConfirmed ? 'keeps' : 'keeps no') + ' custom link order')
+    }
     this.addToLinkOrder(bookmark.parentId, response.id)
     return response.id
   }
