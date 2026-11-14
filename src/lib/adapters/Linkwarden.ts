@@ -413,18 +413,16 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     Logger.log('(linkwarden)DELETE', {bookmark})
     try {
       await this.sendRequest('DELETE', `/api/v1/links/${bookmark.id}`, undefined, undefined, false, bookmark)
-      this.removeFromLinkOrder(bookmark.id)
     } catch (e) {
-      if (e instanceof HttpError) {
-        if (e.status === 404 || e.status === 401 || e.status === 403) {
-          return
-        }
+      const isGone = (e instanceof HttpError && [404, 401, 403].includes(e.status)) ||
+        e instanceof AuthenticationError
+      if (!isGone) {
+        throw e
       }
-      if (e instanceof AuthenticationError) {
-        return
-      }
-      throw e
     }
+    // Also when the link was gone already: orderLinks would otherwise try to move it,
+    // and the 404 from that would fail the sync
+    this.removeFromLinkOrder(bookmark.id)
   }
 
   async createFolder(folder: Folder<typeof ItemLocation.SERVER>): Promise<string | number> {
