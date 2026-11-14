@@ -74,6 +74,14 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
   orderFolder?: (id: string|number, order: Ordering<typeof ItemLocation.SERVER>) => Promise<void>
   /** Link ids per collection id, top to bottom, as the server has them */
   private linkOrder: Map<string, (string|number)[]> = new Map()
+  /**
+   * Links created in or moved into a collection since the tree was loaded.
+   * Linkwarden puts each of them on top, but the strategies send these requests
+   * concurrently, so the order in which the server handled them -- and thus
+   * where they ended up among each other -- is unknown. orderLinks therefore
+   * never counts them as already in place.
+   */
+  private unplacedLinks: Set<string> = new Set()
 
   constructor(server: LinkwardenConfig) {
     this.server = server
@@ -177,7 +185,8 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
   /**
    * Linkwarden moves one link per request (`PUT /api/v1/links/:id/order`, below
    * the link given as `beforeId`, or to the top without one), so only the links
-   * outside the longest run already in the right order are moved. Collections
+   * outside the longest run already in the right order are moved -- a run that
+   * only counts links whose place we know (see unplacedLinks). Collections
    * can't be ordered: they're always listed first, by title (getBookmarksTree).
    */
   private async orderLinks(id: string|number, order: Ordering<typeof ItemLocation.SERVER>): Promise<void> {
@@ -195,7 +204,8 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     // Links the order doesn't mention (ones floccus doesn't accept) go below the rest
     const target = wanted.concat(current.map(String).filter(linkId => !wantedIds.has(linkId)))
 
-    const keep = longestOrderedRun(current.map(String), target)
+    const placed = current.map(String).filter(linkId => !this.unplacedLinks.has(linkId))
+    const keep = longestOrderedRun(placed, target)
     const top = current.slice()
     for (let i = 0; i < target.length; i++) {
       if (keep.has(target[i])) {
@@ -210,6 +220,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       const [moved] = top.splice(from, 1)
       const to = i === 0 ? 0 : top.findIndex(linkId => String(linkId) === target[i - 1]) + 1
       top.splice(to, 0, moved)
+      this.unplacedLinks.delete(target[i])
     }
     this.linkOrder.set(String(id), top)
   }
@@ -219,10 +230,12 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     if (links) {
       // Linkwarden puts new links, and links moved into a collection, at the top
       links.unshift(linkId)
+      this.unplacedLinks.add(String(linkId))
     }
   }
 
   private removeFromLinkOrder(linkId: string|number) {
+    this.unplacedLinks.delete(String(linkId))
     for (const links of this.linkOrder.values()) {
       const index = links.findIndex(id => String(id) === String(linkId))
       if (index !== -1) {
@@ -424,6 +437,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
 
     const ordered = Boolean(this.orderFolder)
     this.linkOrder = new Map()
+    this.unplacedLinks = new Set()
     const buildTree = (collection, isRoot = false) => {
       const collectionId = String(collection.id)
       const subCollections = collections.filter(col => String(col.parentId) === collectionId)
