@@ -145,6 +145,22 @@
           v-if="isBrowser"
           :value="nestedSync"
           @input="$emit('update:nestedSync', $event)" />
+        <div
+          class="text-h6"
+          role="heading"
+          aria-level="3">
+          {{ t('LabelSyncOrderLinkwarden') }}
+        </div>
+        <div class="caption">
+          {{ t('DescriptionSyncOrderLinkwarden') }}
+        </div>
+        <v-switch
+          :input-value="syncOrder"
+          :aria-label="t('LabelSyncOrderLinkwarden')"
+          :label="t('LabelSyncOrderLinkwarden')"
+          dense
+          class="mt-0 pt-0"
+          @change="$emit('update:syncOrder', $event)" />
       </v-card-text>
     </v-card>
 
@@ -236,6 +252,7 @@ export default {
     'syncOnStartupEnabled',
     'notifyOnly',
     'notificationsEnabled',
+    'syncOrder',
   ],
   data() {
     return {

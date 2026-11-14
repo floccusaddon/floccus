@@ -15,6 +15,7 @@ import {
   expect,
   disableCachePersistence,
   expectTreeEqual,
+  orderCheck,
   getAllBookmarks,
   getEnv,
   seedTestRandom,
@@ -250,7 +251,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
 
             let bookmark2
@@ -284,7 +285,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
           })
           it('should update the server on local changes', async function() {
@@ -621,7 +622,8 @@ describe('Floccus', function() {
                   })
                 ]
               }),
-              false
+              false,
+              orderCheck(account.server)
             )
           })
           it('should update the server on local moves of bulk imported bookmarks', async function() {
@@ -672,7 +674,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
           })
           it('should create server bookmarks locally', async function() {
@@ -954,7 +956,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
           })
           it('should deduplicate unnormalized URLs', async function() {
@@ -1036,8 +1038,15 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              // The server decides the order of the links created on it: Linkwarden puts new ones on top
+              false
             )
+            // ...and whatever it is, both sides agree on it (the local URLs aren't normalized)
+            if (account.server.orderFolder) {
+              const localTree = await account.localTree.getBookmarksTree(true)
+              expect(localTree.children[0].children.map(item => item.title))
+                .to.deep.equal(tree.children[0].children.map(item => item.title))
+            }
           })
           it('should deduplicate unnormalized URLs without getting stuck', async function() {
             if (ACCOUNT_DATA.type === 'nextcloud-bookmarks' && (APP_VERSION !== 'stable' && APP_VERSION !== 'master' && APP_VERSION !== 'stable3')) {
@@ -1098,7 +1107,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
           })
           it('should not fail when moving both folders and contents', async function() {
@@ -1150,7 +1159,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
           })
           it('should not fail when both moving folders and deleting their contents', async function() {
@@ -1209,7 +1218,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
           })
           it('should handle strange characters well', async function() {
@@ -1448,7 +1457,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1475,7 +1484,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
           })
           it('should move items successfully when mixing creation and moving (1)', async function() {
@@ -1531,7 +1540,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1567,7 +1576,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
           })
           it('should move items successfully when mixing creation and moving (2)', async function() {
@@ -1634,7 +1643,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1679,7 +1688,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
           })
           it('should move items without creating a folder loop', async function() {
@@ -1738,7 +1747,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1747,7 +1756,7 @@ describe('Floccus', function() {
               localTree,
               tree,
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
           })
           it('should move a folder into its own descendant once that has moved out', async function() {
@@ -1811,7 +1820,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
 
             const localTree = await account.localTree.getBookmarksTree(true)
@@ -1820,7 +1829,7 @@ describe('Floccus', function() {
               localTree,
               tree,
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
           })
           it('should move items without confusing folders', async function() {
@@ -3067,7 +3076,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
           })
           it('should not be confused by changes while syncing', async function() {
@@ -3136,7 +3145,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder),
+              orderCheck(account.server),
             )
             const localTree = await account.localTree.getBookmarksTree(true)
             expectTreeEqual(
@@ -3165,7 +3174,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder),
+              orderCheck(account.server),
             )
 
             // Sync again to check if bookmark 3 gets picked
@@ -3199,7 +3208,7 @@ describe('Floccus', function() {
                 ]
               }),
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
             const localTree2 = await account.localTree.getBookmarksTree(true)
             localTree2.title = tree2.title
@@ -3207,7 +3216,7 @@ describe('Floccus', function() {
               localTree2,
               tree2,
               false,
-              Boolean(account.server.orderFolder)
+              orderCheck(account.server)
             )
           })
         })
