@@ -18,7 +18,7 @@ export default class Controller implements IController {
         // otherwise load the proxy
         this.singleton = new Controller
       } else {
-        // If we're not on the web, laod the implementation directly
+        // If we're not on the web, load the implementation directly
         this.singleton = new (await import('./native/NativeController')).default
       }
     }

@@ -2295,7 +2295,7 @@ export default class SyncProcess {
         await Promise.race([
           resource.orderFolder(item.id, action.order
             // in rare situations the diff generates a REMOVE for an item that is still in the tree,
-            // make sure to sort out those failed mapings (value: undefined)
+            // make sure to sort out those failed mappings (value: undefined)
             // also make sure that items are unique
             .filter(item => {
               if (items[item.type + '' + item.id]) {

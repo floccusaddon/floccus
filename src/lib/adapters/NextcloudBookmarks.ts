@@ -791,7 +791,7 @@ export default class NextcloudBookmarksAdapter implements Adapter, BulkImportRes
   async createBookmark(bm:Bookmark<typeof ItemLocation.SERVER>):Promise<string|number> {
     Logger.log('(nextcloud-folders)CREATE', bm)
 
-    // We need this lock to avoid creating two boomarks with the same url
+    // We need this lock to avoid creating two bookmarks with the same url
     // in parallel
     return this.bookmarkLock.acquire(bm.url, async() => {
       let newParentFolder
