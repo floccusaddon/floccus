@@ -12,7 +12,7 @@
     "message": "E004: Dosarul în care urmează să se mute nu există"
   },
   "Error005": {
-    "message": "E005: Dosarul în care se creează nu există"
+    "message": "E005: Dosarul părinte al dosarului care trebuie actualizat nu există"
   },
   "Error006": {
     "message": "E006: Dosarul pentru actualizare nu există"
@@ -111,7 +111,7 @@
     "message": "E037: Resursa este blocată"
   },
   "Error038": {
-    "message": "E038: Nu s-a putut găsi folderul local"
+    "message": "E038: Nu s-a putut găsi folderul local al acestui profil. Vă rugăm să alegeți un folder pentru sincronizare din setările profilului."
   },
   "Error039": {
     "message": "E039: A eșuat actualizarea următorului marcaj de pe server: {0}"
@@ -157,6 +157,24 @@
   },
   "Error054": {
     "message": "E054: Nu s-a putut obține șablonul pentru Dropbox"
+  },
+  "Error055": {
+    "message": "E055: Dimensiunea fișierului cu marcajele din Google Drive descărcat diferă de cea indicată de server. Este posibil să fie vorba de o problemă temporară de rețea. Dacă această eroare persistă, vă rugăm să încercați din nou mai târziu."
+  },
+  "Error056": {
+    "message": "E056: Dimensiunea fișierului cu marcaje din Google Drive încărcat diferă de dimensiunea indicată de server după verificarea încărcării. floccus a încercat din nou încărcarea, dar nu a putut confirma rezultatul. Vă rugăm să încercați din nou mai târziu."
+  },
+  "Error057": {
+    "message": "E057: Dosar server neașteptat: `{0}`. Vă rugăm să verificați configurația dosarului serverului."
+  },
+  "Error058": {
+    "message": "E058: Fișierul cu marcajele tale nu se află la nivelul de bază al folderului Dropbox, iar în acest folder există mai multe fișiere cu același nume: {0}. Floccus nu poate stabili care dintre ele trebuie utilizat. Mută fișierul corect la nivelul de bază al folderului Dropbox sau redenumește celelalte fișiere."
+  },
+  "Error060": {
+    "message": "E060: Fișierul cu marcaje de pe server a fost modificat de un alt dispozitiv în timpul acestei sincronizări. Floccus va efectua din nou sincronizarea pentru a include aceste modificări."
+  },
+  "Error061": {
+    "message": "E061: Bucket-ul S3 `{0}` nu există. Vă rugăm să verificați numele bucket-ului, adresa URL a punctului de acces și regiunea."
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -256,6 +274,21 @@
   },
   "StatusScheduled": {
     "message": "Programat"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "Este necesară autentificarea"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "Acest profil nu este încă conectat la contul tău și nu se poate sincroniza până când nu va fi conectat. Deschide opțiunile profilului pentru a te autentifica."
+  },
+  "LabelAuthorize": {
+    "message": "Autentificare"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "Profilul (profilurile) a (au) fost importat(e) cu succes. Datele de autentificare nu pot fi transferate între dispozitive, așa că, în cazul profilurilor sincronizate prin Google Drive sau Dropbox, va trebui să te autentifici din nou înainte ca acestea să se poată sincroniza."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "Profilul (profilurile) a fost (au fost) importat(e) cu succes. Dosarele de marcaje nu pot fi identificate pe diferite dispozitive, așa că te rugăm să alegi dosarul local cu care dorești să se sincronizeze acest profil."
   },
   "LabelReset": {
     "message": "Resetare"
@@ -588,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Sincronizează marcajele prin intermediul unui fișier (criptat opțional) care este stocat în Dropbox. Se pot sincroniza marcaje http, ftp, date, fișiere și javascript. Puteți alege să utilizați criptarea end-to-end atunci când utilizați această opțiune."
   },
+  "LabelAdapters3": {
+    "message": "Bucket S3"
+  },
+  "DescriptionAdapters3": {
+    "message": "Sincronizați-vă marcajele salvându-le într-un fișier dintr-un bucket S3. Funcționează cu Amazon S3 și cu soluții de stocare compatibile cu S3, fie găzduite local, fie în cloud. Poate sincroniza marcaje de tip http, ftp, date, fișiere și javascript. Puteți opta pentru criptarea end-to-end atunci când utilizați această opțiune."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "de exemplu: Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "URL-ul punctului final S3"
+  },
+  "DescriptionS3endpoint": {
+    "message": "Adresa URL a serviciului tău S3 fără numele bucket-ului, de exemplu https://s3.eu-central-1.amazonaws.com sau https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Regiune"
+  },
+  "DescriptionS3region": {
+    "message": "Regiunea în care se află bucket-ul tău, de exemplu eu-central-1. Folosește „auto” pentru Cloudflare R2 și „us-east-1” dacă furnizorul tău nu utilizează regiuni."
+  },
+  "LabelS3bucket": {
+    "message": "Găleată"
+  },
+  "LabelS3pathstyle": {
+    "message": "Utilizați adrese URL de tip „path”"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Referiți-vă la bucket ca ENDPOINT/BUCKET în loc de BUCKET.ENDPOINT. Majoritatea serverelor S3 auto-găzduite necesită acest lucru."
+  },
+  "LabelS3accesskey": {
+    "message": "ID-ul tastei de acces"
+  },
+  "LabelS3secretkey": {
+    "message": "Cheie secretă de acces"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "Cheia fișierului cu marcaje din bucket-ul tău, de exemplu personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Conectați-vă cu Dropbox"
   },
@@ -702,6 +774,9 @@
   "LabelSorttitle": {
     "message": "Titlu"
   },
+  "LabelSortadded": {
+    "message": "Data adăugării"
+  },
   "LabelSyncmethod": {
     "message": "Metoda de sincronizare"
   },
@@ -787,28 +862,13 @@
     "message": "Git pe HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Opțiunea Git vă sincronizează marcajele prin stocarea acestora într-un fișier din depozitul Git furnizat. Nu există o interfață web însoțitoare pentru această opțiune, dar o puteți utiliza cu orice server de găzduire Git, precum Github, Gitlab, Gitea etc. Poate sincroniza http, ftp, date, fișiere și marcaje javascript. Nu puteți utiliza criptarea end-to-end atunci când utilizați această opțiune. Această opțiune nu este disponibilă în prezent în aplicația mobilă."
+    "message": "Opțiunea Git sincronizează marcajele dvs. stocându-le într-un fișier din depozitul Git furnizat. Această opțiune nu dispune de o interfață web asociată, dar o puteți utiliza cu orice server de găzduire Git, precum GitHub, GitLab, Gitea etc. Poate sincroniza marcaje de tip http, ftp, date, fișiere și JavaScript. Nu puteți utiliza criptarea end-to-end atunci când folosiți această opțiune."
   },
   "LabelGiturl": {
     "message": "URL-ul depozitului utilizând HTTP"
   },
   "LabelGitbranch": {
     "message": "Filială Git"
-  },
-  "LabelTelemetry": {
-    "message": "Raportare automată a erorilor"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus poate trimite automat date de eroare către mine, dezvoltatorul. Acesta este un ajutor extraordinar pentru descoperirea și rezolvarea mai rapidă a erorilor în floccus și va contribui la îmbunătățirea experienței dvs. cu floccus pe termen lung. Chiar și atunci când raportarea erorilor este activată, dezvoltatorii floccus nu vor putea niciodată să vă vadă marcajele."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "Nou: În plus față de informațiile despre erori, floccus trimite acum și informații despre metoda de sincronizare pe care o utilizați, dacă această opțiune este activată. Acest lucru ne ajută să îmbunătățim floccus și să ne asigurăm că metodele de sincronizare funcționează conform așteptărilor."
-  },
-  "LabelTelemetryenable": {
-    "message": "Trimiteți automat dezvoltatorilor floccus date de eroare și informații despre metoda de sincronizare pe care o utilizați"
-  },
-  "LabelTelemetrydisable": {
-    "message": "Nu trimiteți niciun fel de date dezvoltatorilor floccus"
   },
   "LabelAccountlabel": {
     "message": "Etichetă de profil"
@@ -868,7 +928,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Sincronizați marcajele dvs. cu aplicația Karakeep cu sursă deschisă, găzduită de sine. Această opțiune nu poate utiliza criptarea end-to-end și nu permite păstrarea ordinii marcajelor în timpul sincronizărilor."
+    "message": "Sincronizați-vă marcajele cu aplicația Karakeep, open-source și găzduită pe propriul server. Aceasta poate sincroniza doar marcajele de tip http. Această opțiune nu permite utilizarea criptării end-to-end și nu suportă păstrarea ordinii marcajelor între sincronizări."
   },
   "LabelApiKey":  {
     "message": "Cheie API"
@@ -883,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Sincronizați-vă marcajele cu aplicația open-source Linkwarden, găzduită pe propriul server sau în cloud la cloud.linkwarden.app. Aceasta poate sincroniza doar marcajele http, ftp și javascript. Această opțiune nu poate utiliza criptarea end-to-end și nu permite păstrarea ordinii marcajelor în timpul sincronizărilor."
+    "message": "Sincronizați-vă marcajele cu aplicația open-source Linkwarden, fie găzduită pe propriul server, fie în cloud la adresa cloud.linkwarden.app. Aceasta poate sincroniza doar marcaje de tip http, ftp și javascript. Această opțiune nu permite utilizarea criptării end-to-end. Păstrează ordinea marcajelor dvs. cu Linkwarden 2.17 sau o versiune ulterioară, cu folderele afișate întotdeauna deasupra marcajelor."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Sincronizează ordinea marcajelor"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Necesită Linkwarden 2.17 sau o versiune ulterioară. Linkwarden nu poate plasa colecții între linkuri, așa că folderele sunt întotdeauna afișate deasupra marcajelor, în ordinea din bara laterală a Linkwarden. Pentru a activa această opțiune pentru un profil existent, sincronizați încă o dată cu opțiunea dezactivată, apoi activați-o și utilizați opțiunea „Push up once” (Mută în sus o dată) la următoarea sincronizare. În caz contrar, ordinea stabilită de Linkwarden (cele mai recente mai întâi) va înlocui ordinea marcajelor dvs. locale. Acest lucru este necesar doar pe primul dispozitiv pe care activați această opțiune."
   },
   "LabelLinkwardenurl":  {
     "message": "Adresa URL a serverului Linkwarden"
@@ -908,30 +974,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "Deschideți această vizualizare într-o filă nouă"
-  },
-  "LabelGivefeedback": {
-    "message": "Oferiți feedback"
-  },
-  "LabelYourname": {
-    "message": "Numele dvs."
-  },
-  "LabelYouremail": {
-    "message": "Adresa dvs. de e-mail (opțional)"
-  },
-  "LabelYourmessage": {
-    "message": "Mesajul dvs. de feedback"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Trimiteți feedback"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "Acest formular de feedback este gestionat de Sentry. Prin apăsarea butonului Trimiteți sunteți de acord să stocați datele introduse pe serverele Sentry. Niciuna dintre datele dvs. de marcaj nu va fi trimisă către Sentry."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "Vă mulțumim pentru că v-ați făcut timp să oferiți feedback dezvoltatorilor floccus! Dacă feedback-ul dvs. este legat de o problemă, asigurați-vă că includeți pașii pe care i-ați urmat, ce v-ați așteptat și ce s-a întâmplat în schimb. Dacă feedback-ul dvs. se referă la o cerere de caracteristică, asigurați-vă că includeți cazul de utilizare sau problema pe care această caracteristică ar rezolva-o pentru dvs. Dacă vă includeți adresa de e-mail, este posibil să vă răspundem. Vă mulțumim!"
-  },
-  "LabelFeedbacksent": {
-    "message": "Vă mulțumim pentru feedback-ul dumneavoastră!"
   },
   "LabelFaq":{
     "message": "Consultați FAQ"
@@ -962,5 +1004,71 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Selectați serviciul dvs."
+  },
+  "LabelShowpassword": {
+    "message": "Afișează parola"
+  },
+  "LabelHidepassword": {
+    "message": "Ascunde parola"
+  },
+  "LabelTitle": {
+    "message": "Titlu"
+  },
+  "LabelLink": {
+    "message": "Link"
+  },
+  "LabelParentfolder": {
+    "message": "Dosarul părinte"
+  },
+  "LabelTags": {
+    "message": "Etichete"
+  },
+  "DescriptionTags": {
+    "message": "Introduceți o etichetă și apăsați tasta Enter"
+  },
+  "LabelSearchbytag": {
+    "message": "Căutare marcaje etichetate cu {0}"
+  },
+  "LabelHome": {
+    "message": "Acasă"
+  },
+  "LabelSortby": {
+    "message": "Sortează după"
+  },
+  "LabelMoreactions": {
+    "message": "Alte acțiuni"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Conexiunea la server s-a realizat cu succes"
+  },
+  "LabelSynconstartup": {
+    "message": "Sincronizare la pornire"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Dacă această opțiune este activată, profilul respectiv va fi sincronizat la pornire. Această funcție este utilă dacă doriți să vă sincronizați marcajele la pornire, dar nu doriți să așteptați următoarea sincronizare programată."
+  },
+  "LabelNotifyonly": {
+    "message": "Să fiu anunțat doar în cazul modificărilor"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Dacă sunt activate, declanșatoarele de mai sus (modificări locale, pornire, interval) verifică doar dacă există ceva de sincronizat, în loc să efectueze sincronizarea. Profilul afișează apoi câte modificări sunt în așteptare, iar pictograma Floccus primește o insignă roșie, iar tu decizi când să sincronizezi."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Afișează o notificare"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Dacă această opțiune este activată, o notificare de sistem te va informa când acest profil are modificări de sincronizat. Browserul tău îți va solicita permisiunea de a afișa notificări."
+  },
+  "StatusNeedssync": {
+    "message": "Necesită sincronizare"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Modificări care așteaptă să fie sincronizate: {0} de pe server, {1} către server"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Acest profil nu a fost încă sincronizat. Sincronizează-l pentru a începe."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} trebuie sincronizat"
   }
 }
