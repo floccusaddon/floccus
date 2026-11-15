@@ -263,6 +263,15 @@
         "code",
         "ideas"
       ]
+    },
+    {
+      "login": "hpuac",
+      "name": "Hans",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1850100?v=4",
+      "profile": "https://puac.de/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "skipCi": true,
