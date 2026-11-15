@@ -263,6 +263,15 @@
         "code",
         "ideas"
       ]
+    },
+    {
+      "login": "FaFre",
+      "name": "Fabian Freund",
+      "avatar_url": "https://avatars.githubusercontent.com/u/59543085?v=4",
+      "profile": "https://github.com/FaFre",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "skipCi": true,
