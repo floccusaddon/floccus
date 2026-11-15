@@ -12,7 +12,7 @@
     "message": "E004: Map waarnaar verplaatst moet worden bestaat niet"
   },
   "Error005": {
-    "message": "E005: Map waarin aangemaakt moet worden bestaat niet"
+    "message": "E005: De bovenliggende map van de map die moet worden bijgewerkt, bestaat niet"
   },
   "Error006": {
     "message": "E006: Map om bij te werken bestaat niet"
@@ -111,7 +111,7 @@
     "message": "E037: Hulpbron is vergrendeld"
   },
   "Error038": {
-    "message": "E038: Kan lokale map niet vinden"
+    "message": "E038: De lokale map van dit profiel kon niet worden gevonden. Kies een map om te synchroniseren in de instellingen van het profiel."
   },
   "Error039": {
     "message": "E039: Mislukt bij het bijwerken van de volgende bladwijzer op de server: {0}"
@@ -157,6 +157,24 @@
   },
   "Error054": {
     "message": "E054: Kan sjabloon voor Dropbox niet ophalen"
+  },
+  "Error055": {
+    "message": "E055: De bestandsgrootte van het gedownloade Google Drive-bladwijzerbestand wijkt af van de grootte die door de server wordt weergegeven. Dit kan een tijdelijk netwerkprobleem zijn. Probeer het later nog eens als deze fout blijft optreden."
+  },
+  "Error056": {
+    "message": "E056: De bestandsgrootte van het geüploade Google Drive-bladwijzerbestand wijkt af van de grootte die door de server wordt weergegeven na controle van de upload. floccus heeft de upload opnieuw geprobeerd, maar kon het resultaat niet bevestigen. Probeer het later nog eens."
+  },
+  "Error057": {
+    "message": "E057: Onverwachte servermap: `{0}`. Controleer de configuratie van je servermap."
+  },
+  "Error058": {
+    "message": "E058: Je bladwijzerbestand bevindt zich niet op het hoogste niveau van je Dropbox, en er staan meerdere bestanden met dezelfde naam in je Dropbox: {0}. Floccus kan niet bepalen welk bestand het moet gebruiken. Verplaats het juiste bestand naar het hoogste niveau van je Dropbox of hernoem de andere bestanden."
+  },
+  "Error060": {
+    "message": "E060: Het bladwijzerbestand op de server is tijdens deze synchronisatie door een ander apparaat gewijzigd. Floccus zal opnieuw synchroniseren om deze wijzigingen op te nemen."
+  },
+  "Error061": {
+    "message": "E061: De S3-bucket `{0}` bestaat niet. Controleer de naam van de bucket, de URL van het eindpunt en de regio."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -256,6 +274,21 @@
   },
   "StatusScheduled": {
     "message": "Gepland"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "Inloggen vereist"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "Dit profiel is nog niet gekoppeld aan je account en kan pas worden gesynchroniseerd zodra dat wel het geval is. Open de profielinstellingen om in te loggen."
+  },
+  "LabelAuthorize": {
+    "message": "Inloggen"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "Profiel(en) succesvol geïmporteerd. Inloggegevens kunnen niet tussen apparaten worden overgedragen, dus bij profielen die via Google Drive of Dropbox worden gesynchroniseerd, moet je opnieuw inloggen voordat ze kunnen worden gesynchroniseerd."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "Profiel(en) succesvol geïmporteerd. Bladwijzermappen kunnen niet op verschillende apparaten worden herkend, dus kies de lokale map waarmee je dit profiel wilt synchroniseren."
   },
   "LabelReset": {
     "message": "Opnieuw instellen"
@@ -588,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Synchroniseer bladwijzers via een (optioneel versleuteld) bestand dat is opgeslagen in je Dropbox. Het kan http-, ftp-, gegevens-, bestands- en javascriptbladwijzers synchroniseren. Je kunt ervoor kiezen om end-to-end-encryptie te gebruiken als je deze optie gebruikt."
   },
+  "LabelAdapters3": {
+    "message": "S3-bucket"
+  },
+  "DescriptionAdapters3": {
+    "message": "Synchroniseer je bladwijzers door ze op te slaan in een bestand in een S3-bucket. Dit werkt met Amazon S3 en S3-compatibele opslag, zowel zelf gehost als in de cloud. Het ondersteunt het synchroniseren van http-, ftp-, data-, bestands- en JavaScript-bladwijzers. Je kunt ervoor kiezen om end-to-end-versleuteling te gebruiken wanneer je deze optie kiest."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "bijv. Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "URL van het S3-eindpunt"
+  },
+  "DescriptionS3endpoint": {
+    "message": "De URL van je S3-service zonder de bucketnaam, bijvoorbeeld https://s3.eu-central-1.amazonaws.com of https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Regio"
+  },
+  "DescriptionS3region": {
+    "message": "De regio waarin je bucket zich bevindt, bijvoorbeeld eu-central-1. Gebruik ‘auto’ voor Cloudflare R2 en ‘us-east-1’ als je provider geen regio’s gebruikt."
+  },
+  "LabelS3bucket": {
+    "message": "Emmer"
+  },
+  "LabelS3pathstyle": {
+    "message": "Gebruik URL's in padstijl"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Verwijs naar de bucket als ENDPOINT/BUCKET in plaats van BUCKET.ENDPOINT. De meeste zelfgehoste S3-servers vereisen dit."
+  },
+  "LabelS3accesskey": {
+    "message": "Toegangssleutel-ID"
+  },
+  "LabelS3secretkey": {
+    "message": "Geheime toegangssleutel"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "De sleutel van het bladwijzerbestand in je bucket, bijvoorbeeld personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Inloggen met Dropbox"
   },
@@ -702,6 +774,9 @@
   "LabelSorttitle": {
     "message": "Titel"
   },
+  "LabelSortadded": {
+    "message": "Datum van toevoeging"
+  },
   "LabelSyncmethod": {
     "message": "Synchronisatiemethode"
   },
@@ -787,28 +862,13 @@
     "message": "Git over HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "De Git optie synchroniseert je bladwijzers door ze op te slaan in een bestand in de bijgeleverde Git repository. Er is geen bijbehorende web UI voor deze optie, maar je kunt het gebruiken met elke Git hosting server, zoals Github, Gitlab, Gitea, etc. Het kan http, ftp, data, bestand en javascript bladwijzers synchroniseren. Je kunt geen gebruik maken van end-to-end encryptie als je deze optie gebruikt. Deze optie is momenteel niet beschikbaar in de mobiele app."
+    "message": "De Git-optie synchroniseert je bladwijzers door ze op te slaan in een bestand in de opgegeven Git-repository. Er is geen bijbehorende webinterface voor deze optie, maar je kunt deze gebruiken met elke Git-hostingserver, zoals GitHub, GitLab, Gitea, enz. Deze optie kan http-, ftp-, data-, bestands- en JavaScript-bladwijzers synchroniseren. Je kunt bij het gebruik van deze optie geen gebruik maken van end-to-end-versleuteling."
   },
   "LabelGiturl": {
     "message": "URL voor archief via HTTP"
   },
   "LabelGitbranch": {
     "message": "Git tak"
-  },
-  "LabelTelemetry": {
-    "message": "Geautomatiseerde foutrapportage"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus kan automatisch foutgegevens naar mij, de ontwikkelaar, sturen. Dit is een enorme hulp voor het sneller ontdekken en oplossen van bugs in floccus en zal uw ervaring met floccus op de lange termijn verbeteren. Zelfs als foutrapportage is ingeschakeld, zullen de floccus ontwikkelaars nooit uw bladwijzers kunnen zien."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "Nieuw: Naast de foutinformatie stuurt floccus nu ook informatie over welke synchronisatiemethode u gebruikt, als deze optie is ingeschakeld. Dit helpt ons om floccus te verbeteren en om er zeker van te zijn dat de synchronisatiemethoden werken zoals verwacht."
-  },
-  "LabelTelemetryenable": {
-    "message": "Stuur automatisch foutgegevens en informatie over welke synchronisatiemethode u gebruikt naar floccus-ontwikkelaars"
-  },
-  "LabelTelemetrydisable": {
-    "message": "Stuur geen gegevens naar floccusontwikkelaars"
   },
   "LabelAccountlabel": {
     "message": "Profiel label"
@@ -868,7 +928,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Synchroniseer je bladwijzers met de open-source self-hosted Karakeep app. Deze optie kan geen gebruik maken van end-to-end encryptie en ondersteunt niet het bijhouden van de volgorde van bladwijzers over synchronisaties heen."
+    "message": "Synchroniseer je bladwijzers met de open-source, zelfgehoste Karakeep-app. Deze app kan alleen http-bladwijzers synchroniseren. Deze optie maakt geen gebruik van end-to-end-versleuteling en biedt geen ondersteuning voor het behoud van de volgorde van bladwijzers bij synchronisaties."
   },
   "LabelApiKey":  {
     "message": "API-sleutel"
@@ -883,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Synchroniseer je bladwijzers met de open-source Linkwarden app, gehost op je eigen server of in de cloud op cloud.linkwarden.app. Het kan alleen http, ftp en javascript bladwijzers synchroniseren. Deze optie kan geen gebruik maken van end-to-end encryptie en ondersteunt niet het behouden van de bladwijzervolgorde tussen synchronisaties."
+    "message": "Synchroniseer je bladwijzers met de open-source-app Linkwarden, die je op je eigen server of in de cloud op cloud.linkwarden.app kunt hosten. Deze app kan alleen http-, ftp- en javascript-bladwijzers synchroniseren. Deze optie maakt geen gebruik van end-to-end-versleuteling. De volgorde van je bladwijzers blijft behouden in Linkwarden 2.17 of hoger, waarbij mappen altijd boven de bladwijzers staan."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "De volgorde van de bladwijzers synchroniseren"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Vereist Linkwarden 2.17 of hoger. Linkwarden kan geen verzamelingen tussen links plaatsen, dus mappen worden altijd boven de bladwijzers weergegeven, in de volgorde van de zijbalk van Linkwarden. Om dit in te schakelen voor een bestaand profiel, synchroniseer je eerst nogmaals terwijl de functie is uitgeschakeld, schakel je deze vervolgens in en gebruik je „Eenmaal omhoog“ bij de volgende synchronisatie. Anders vervangt de volgorde van Linkwarden (nieuwste eerst) de volgorde van je lokale bladwijzers. Dit is alleen nodig op het eerste apparaat waarop je de functie inschakelt."
   },
   "LabelLinkwardenurl":  {
     "message": "De URL van je Linkwarden server"
@@ -908,30 +974,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "Open deze weergave in een nieuw tabblad"
-  },
-  "LabelGivefeedback": {
-    "message": "Feedback geven"
-  },
-  "LabelYourname": {
-    "message": "Uw naam"
-  },
-  "LabelYouremail": {
-    "message": "Je e-mailadres (optioneel)"
-  },
-  "LabelYourmessage": {
-    "message": "Uw feedbackbericht"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Feedback indienen"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "Dit feedbackformulier wordt aangestuurd door Sentry. Door op verzenden te drukken ga je akkoord met het opslaan van de ingevoerde gegevens op de servers van Sentry. Je bladwijzergegevens worden niet naar Sentry gestuurd."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "Bedankt voor het nemen van de tijd om feedback te geven aan de ontwikkelaars van floccus! Als uw feedback gerelateerd is aan een probleem, zorg er dan voor dat u de stappen die u nam, wat u verwachtte en wat er in plaats daarvan gebeurde, vermeldt. Als uw feedback over een functieverzoek gaat, zorg er dan voor dat u de use case of het probleem vermeldt dat deze functie voor u zou oplossen. Als je je e-mailadres vermeldt, kunnen we contact met je opnemen. Bedankt!"
-  },
-  "LabelFeedbacksent": {
-    "message": "Bedankt voor je feedback!"
   },
   "LabelFaq":{
     "message": "Bekijk de FAQ"
@@ -962,5 +1004,71 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Selecteer uw service"
+  },
+  "LabelShowpassword": {
+    "message": "Wachtwoord weergeven"
+  },
+  "LabelHidepassword": {
+    "message": "Wachtwoord verbergen"
+  },
+  "LabelTitle": {
+    "message": "Titel"
+  },
+  "LabelLink": {
+    "message": "Koppeling"
+  },
+  "LabelParentfolder": {
+    "message": "Bovenliggende map"
+  },
+  "LabelTags": {
+    "message": "Tags"
+  },
+  "DescriptionTags": {
+    "message": "Typ een tag en druk op Enter"
+  },
+  "LabelSearchbytag": {
+    "message": "Zoek bladwijzers met de tag {0}"
+  },
+  "LabelHome": {
+    "message": "Home"
+  },
+  "LabelSortby": {
+    "message": "Sorteren op"
+  },
+  "LabelMoreactions": {
+    "message": "Meer acties"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Verbinding met de server tot stand gebracht"
+  },
+  "LabelSynconstartup": {
+    "message": "Synchroniseren bij het opstarten"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Als deze optie is ingeschakeld, wordt dit profiel bij het opstarten gesynchroniseerd. Dit is handig als je je bladwijzers bij het opstarten wilt synchroniseren, maar niet wilt wachten tot de volgende geplande synchronisatie."
+  },
+  "LabelNotifyonly": {
+    "message": "Laat me alleen op de hoogte brengen van wijzigingen"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Indien ingeschakeld, controleren de bovenstaande triggers (lokale wijzigingen, opstarten, het interval) alleen of er iets is om te synchroniseren, in plaats van daadwerkelijk te synchroniseren. Het profiel geeft dan weer hoeveel wijzigingen er in de wachtrij staan en het Floccus-pictogram krijgt een rood vlaggetje; je bepaalt zelf wanneer je wilt synchroniseren."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Een melding weergeven"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Als deze functie is ingeschakeld, krijg je via een systeemmelding te zien wanneer er wijzigingen in dit profiel zijn die moeten worden gesynchroniseerd. Je browser zal je om toestemming vragen om meldingen weer te geven."
+  },
+  "StatusNeedssync": {
+    "message": "Moet worden gesynchroniseerd"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Wijzigingen die nog moeten worden gesynchroniseerd: {0} vanaf de server, {1} naar de server"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Dit profiel is nog niet gesynchroniseerd. Synchroniseer het om te beginnen."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} moet worden gesynchroniseerd"
   }
 }
