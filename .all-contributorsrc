@@ -265,6 +265,15 @@
       ]
     },
     {
+      "login": "austenstone",
+      "name": "Austen Stone",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22425467?v=4",
+      "profile": "http://austen.info",
+      "contributions": [
+        "infra"
+      ]
+    },
+    {
       "login": "hpuac",
       "name": "Hans",
       "avatar_url": "https://avatars.githubusercontent.com/u/1850100?v=4",
