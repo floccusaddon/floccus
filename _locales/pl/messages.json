@@ -12,7 +12,7 @@
     "message": "E004: Folder do przeniesienia nie istnieje"
   },
   "Error005": {
-    "message": "E005: Folder do utworzenia nie istnieje"
+    "message": "E005: Nie istnieje folder nadrzędny folderu, który ma zostać zaktualizowany"
   },
   "Error006": {
     "message": "E006: Folder do zaktualizowania nie istnieje"
@@ -111,7 +111,7 @@
     "message": "E037: Zasób jest zablokowany"
   },
   "Error038": {
-    "message": "E038: Nie można znaleźć lokalnego folderu"
+    "message": "E038: Nie udało się znaleźć lokalnego folderu tego profilu. Wybierz folder do synchronizacji w ustawieniach profilu."
   },
   "Error039": {
     "message": "E039: Nie udało się zaktualizować następującej zakładki na serwerze: {0}"
@@ -166,6 +166,15 @@
   },
   "Error057": {
     "message": "E057: Nieoczekiwany folder na serwerze: `{0}`. Sprawdź konfigurację folderów na serwerze."
+  },
+  "Error058": {
+    "message": "E058: Twój plik zakładek nie znajduje się w katalogu głównym folderu Dropbox, a w folderze tym znajduje się kilka plików o tej samej nazwie: {0}. Floccus nie może ustalić, który z nich ma zostać użyty. Przenieś właściwy plik do katalogu głównego folderu Dropbox lub zmień nazwy pozostałych plików."
+  },
+  "Error060": {
+    "message": "E060: Plik zakładek na serwerze został zmodyfikowany przez inne urządzenie podczas tej synchronizacji. Floccus przeprowadzi ponowną synchronizację, aby uwzględnić te zmiany."
+  },
+  "Error061": {
+    "message": "E061: Zbiornik S3 `{0}` nie istnieje. Sprawdź nazwę zbiornika, adres URL punktu końcowego oraz region."
   },
   "LabelWebdavurl": {
     "message": "Adres WebDAV"
@@ -265,6 +274,21 @@
   },
   "StatusScheduled": {
     "message": "Zaplanowane"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "Wymagane logowanie"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "Ten profil nie jest jeszcze powiązany z Twoim kontem i nie można go zsynchronizować, dopóki nie zostanie powiązany. Otwórz opcje profilu, aby się zalogować."
+  },
+  "LabelAuthorize": {
+    "message": "Zaloguj się"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "Profile zostały pomyślnie zaimportowane. Dane logowania nie mogą być przenoszone między urządzeniami, dlatego w przypadku profili synchronizowanych za pośrednictwem Google Drive lub Dropbox konieczne jest ponowne zalogowanie się przed rozpoczęciem synchronizacji."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "Profil(e) został(y) pomyślnie zaimportowany(e). Foldery zakładek nie mogą być rozpoznawane na różnych urządzeniach, dlatego wybierz lokalny folder, z którym chcesz zsynchronizować ten profil."
   },
   "LabelReset": {
     "message": "Reset"
@@ -597,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Synchronizuje zakładki za pomocą (opcjonalnie zaszyfrowanego) pliku przechowywanego w Dropbox. Może synchronizować zakładki http, ftp, dane, pliki i javascript. Podczas korzystania z tej opcji można wybrać szyfrowanie typu end-to-end."
   },
+  "LabelAdapters3": {
+    "message": "bucket w usłudze S3"
+  },
+  "DescriptionAdapters3": {
+    "message": "Zsynchronizuj swoje zakładki, zapisując je w pliku w zasobniku S3. Funkcja ta działa z usługą Amazon S3 oraz pamięcią masową zgodną ze standardem S3 — zarówno w wersji hostowanej samodzielnie, jak i w chmurze. Umożliwia synchronizację zakładek typu http, ftp, danych, plików oraz javascript. Korzystając z tej opcji, możesz zdecydować się na szyfrowanie typu end-to-end."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "np. Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "Adres URL punktu końcowego S3"
+  },
+  "DescriptionS3endpoint": {
+    "message": "Adres URL Twojej usługi S3 bez nazwy zasobnika, np. https://s3.eu-central-1.amazonaws.com lub https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Region"
+  },
+  "DescriptionS3region": {
+    "message": "Region, w którym znajduje się Twój bucket, np. eu-central-1. W przypadku Cloudflare R2 należy użyć opcji „auto”, a jeśli Twój dostawca nie korzysta z regionów – należy użyć us-east-1."
+  },
+  "LabelS3bucket": {
+    "message": "Wiadro"
+  },
+  "LabelS3pathstyle": {
+    "message": "Używaj adresów URL w formacie ścieżki"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Odwołuj się do zasobnika jako ENDPOINT/BUCKET zamiast BUCKET.ENDPOINT. Jest to wymagane w przypadku większości serwerów S3 hostowanych we własnym zakresie."
+  },
+  "LabelS3accesskey": {
+    "message": "Identyfikator klawisza dostępu"
+  },
+  "LabelS3secretkey": {
+    "message": "Tajny klucz dostępu"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "Klucz pliku zakładek znajdującego się w Twoim zasobniku, np. personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Logowanie za pomocą Dropbox"
   },
@@ -711,6 +774,9 @@
   "LabelSorttitle": {
     "message": "Nazwa"
   },
+  "LabelSortadded": {
+    "message": "Data dodania"
+  },
   "LabelSyncmethod": {
     "message": "Metoda synchronizacji"
   },
@@ -796,7 +862,7 @@
     "message": "Git przez HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Opcja Git synchronizuje zakładki, przechowując je w pliku w dostarczonym repozytorium Git. Dla tej opcji nie ma towarzyszącego interfejsu użytkownika, ale można jej używać z dowolnym serwerem hostingowym Git, takim jak Github, Gitlab, Gitea itp. Może synchronizować zakładki http, ftp, dane, pliki i javascript. Podczas korzystania z tej opcji nie można korzystać z szyfrowania end-to-end. Opcja ta nie jest obecnie dostępna w aplikacji mobilnej."
+    "message": "Metoda synchronizacji zakładek przy użyciu pliku znajdującego się w repozytorium Git. Ta opcja nie posiada interfejsu użytkownika po stronie serwera. Można używać z każdym serwerem Git, np. Github, Gitlab, Gitea. Można synchronizować zakładki typu http, ftp, data, javascript. Ta opcja nie może być użyta do szyfrowania typu end-to-end."
   },
   "LabelGiturl": {
     "message": "Adres HTTP repozytorium"
@@ -877,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Synchronizuj swoje zakładki za pomocą aplikacji Linkwarden o otwartym kodzie źródłowym, hostowanej na własnym serwerze lub w chmurze pod adresem cloud.linkwarden.app. Może synchronizować tylko zakładki http, ftp i javascript. Ta opcja nie może korzystać z szyfrowania end-to-end i nie obsługuje zachowania kolejności zakładek podczas synchronizacji."
+    "message": "Zsynchronizuj swoje zakładki z aplikacją Linkwarden typu open source, hostowaną na własnym serwerze lub w chmurze pod adresem cloud.linkwarden.app. Aplikacja umożliwia synchronizację wyłącznie zakładek typu http, ftp i javascript. Ta opcja nie pozwala na korzystanie z szyfrowania typu end-to-end. Zachowuje ona kolejność zakładek zgodną z wersją Linkwarden 2.17 lub nowszą, przy czym foldery zawsze znajdują się nad zakładkami."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Zsynchronizuj kolejność zakładek"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Wymagana jest wersja Linkwarden 2.17 lub nowsza. Linkwarden nie może umieszczać kolekcji pomiędzy linkami, więc foldery są zawsze wyświetlane powyżej zakładek, w kolejności zgodnej z paskiem bocznym Linkwarden. Aby włączyć tę funkcję dla istniejącego profilu, należy najpierw przeprowadzić synchronizację z wyłączoną opcją, a następnie ją włączyć i podczas kolejnej synchronizacji użyć opcji „Przesuń w górę raz”. W przeciwnym razie kolejność stosowana przez Linkwarden (najnowsze na początku) zastąpi kolejność lokalnych zakładek. Jest to konieczne tylko na pierwszym urządzeniu, na którym włączysz tę funkcję."
   },
   "LabelLinkwardenurl":  {
     "message": "Adres serwera Linkwarden"
@@ -948,6 +1020,15 @@
   "LabelParentfolder": {
     "message": "Folder nadrzędny"
   },
+  "LabelTags": {
+    "message": "Tagi"
+  },
+  "DescriptionTags": {
+    "message": "Wpisz tag i naciśnij klawisz Enter"
+  },
+  "LabelSearchbytag": {
+    "message": "Wyszukaj zakładki oznaczone tagiem {0}"
+  },
   "LabelHome": {
     "message": "Ekran główny"
   },
@@ -965,5 +1046,29 @@
   },
   "DescriptionSynconstartup": {
     "message": "Jeśli włączone, ten profil będzie synchronizowany po uruchomieniu. Przydatne, jeśli chcesz synchronizować po uruchomieniu bez czekania na następną zaplanowaną synchronizację."
+  },
+  "LabelNotifyonly": {
+    "message": "Powiadamiaj mnie tylko o zmianach"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Jeśli ta opcja jest włączona, powyższe wyzwalacze (zmiany lokalne, uruchomienie, interwał) sprawdzają jedynie, czy są jakieś dane do zsynchronizowania, zamiast przeprowadzać synchronizację. Profil pokazuje wówczas, ile zmian oczekuje na synchronizację, a ikona Floccus otrzymuje czerwoną plakietkę – to użytkownik decyduje, kiedy przeprowadzić synchronizację."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Pokaż powiadomienie"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Jeśli ta opcja jest włączona, powiadomienie systemowe poinformuje Cię, gdy w tym profilu pojawią się zmiany do zsynchronizowania. Przeglądarka poprosi Cię o zgodę na wyświetlanie powiadomień."
+  },
+  "StatusNeedssync": {
+    "message": "Wymaga synchronizacji"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Zmiany oczekujące na synchronizację: {0} z serwera, {1} na serwer"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Ten profil nie został jeszcze zsynchronizowany. Zsynchronizuj go, aby rozpocząć."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} wymaga synchronizacji"
   }
 }
