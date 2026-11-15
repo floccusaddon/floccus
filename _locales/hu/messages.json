@@ -1,0 +1,1074 @@
+{
+  "Error001": {
+    "message": "E001: A létrehozandó mappa nem létezik"
+  },
+  "Error002": {
+    "message": "E002: A frissítendő könyvjelző már nem létezik"
+  },
+  "Error003": {
+    "message": "E003: A mappát, amelyből át kell helyezni, nem létezik. Ez egy rendellenesség. Gratulálunk."
+  },
+  "Error004": {
+    "message": "E004: A célmappa nem létezik"
+  },
+  "Error005": {
+    "message": "E005: A frissítendő mappa szülőmappája nem létezik"
+  },
+  "Error006": {
+    "message": "E006: A frissítendő mappa nem létezik"
+  },
+  "Error007": {
+    "message": "E007: Az áthelyezendő mappa nem létezik"
+  },
+  "Error008": {
+    "message": "E008: A mappát, amelyből át kell helyezni, nem létezik"
+  },
+  "Error009": {
+    "message": "E009: A célmappa nem létezik"
+  },
+  "Error010": {
+    "message": "E010: Nem sikerült megtalálni a rendezéshez szükséges mappát"
+  },
+  "Error011": {
+    "message": "E011: A mappa sorrendjében szereplő elem nem valódi alelem: {0}"
+  },
+  "Error012": {
+    "message": "E012: A mappák sorrendjéből hiányoznak a mappa egyes almappái"
+  },
+  "Error013": {
+    "message": "E013: Az eltávolítandó mappa nem létezik"
+  },
+  "Error014": {
+    "message": "E014: A mappa eltávolításához szükséges szülőmappa nem létezik"
+  },
+  "Error015": {
+    "message": "E015: Váratlan válaszadatok a szerverről"
+  },
+  "Error016": {
+    "message": "E016: A kérés időtúllépése. Ellenőrizze a szerver beállításait"
+  },
+  "Error017": {
+    "message": "E017: Hálózati hiba: Ellenőrizze a hálózati kapcsolatot, a fiókadatait és a TLS/SSL-beállításokat."
+  },
+  "Error018": {
+    "message": "E018: Nem sikerült hitelesíteni a szerveren."
+  },
+  "Error019": {
+    "message": "E019: HTTP-állapotkód: {0}. A {1} kérés sikertelen: {2}. Ellenőrizze a szerver konfigurációját és a naplófájlokat."
+  },
+  "Error020": {
+    "message": "E020: Nem sikerült feldolgozni a szerver válaszát."
+  },
+  "Error021": {
+    "message": "E021: A szerver állapota nem konzisztens. A mappa szerepel a gyermekrendek listájában, de nem szerepel a mappafa-szerkezetben"
+  },
+  "Error022": {
+    "message": "E022: Az „ {0} ” mappa állítólag egy nem létező könyvjelzőt tartalmaz {1}"
+  },
+  "Error023": {
+    "message": "E023: A zárolási fájl törlése nem sikerült; fontolja meg a „ {0} ” fájl kézi törlését."
+  },
+  "Error024": {
+    "message": "E024: „ {0} ” HTTP-állapot a zárolási fájl állapotának megállapításakor {1}"
+  },
+  "Error025": {
+    "message": "E025: A könyvjelzők fájlnevének nem szabad perjeljel („/”) kezdődnie"
+  },
+  "Error026": {
+    "message": "E026: A szinkronizálási folyamat megszakadt"
+  },
+  "Error027": {
+    "message": "E027: A szinkronizálási folyamat megszakadt"
+  },
+  "Error028": {
+    "message": "E028: Nem sikerült hitelesíteni a szerveren."
+  },
+  "Error029": {
+    "message": "E029: Biztonsági védelem: A jelenlegi szinkronizálás a szerveren található linkjeid {0}%-át törölné. A művelet végrehajtása megtagadva. Ha ennek ellenére folytatni szeretnéd, tiltsd le ezt a biztonsági védelmet a profilbeállításokban. Ha nem Ön okozta ezt a helyzetet, a kézi szinkronizálási gombokkal felülírhatja az eszköz helyi állapotát a szerveren található állapotra. Ha úgy gondolja, hogy ez egy hiba, kérjük, lépjen kapcsolatba a fejlesztőkkel a futtatás hibakeresési naplójával."
+  },
+  "Error030": {
+    "message": "E030: A könyvjelzőfájl visszafejtése nem sikerült. Lehet, hogy a jelszó helytelen, vagy a fájl sérült."
+  },
+  "Error031": {
+    "message": "E031: Nem sikerült hitelesíteni a Google Drive-on. Kérjük, csatlakoztasd újra a Floccust a Google-fiókodhoz."
+  },
+  "Error032": {
+    "message": "E032: OAuth-hiba. Token-ellenőrzési hiba. Kérjük, csatlakoztassa újra a Google-fiókját."
+  },
+  "Error033": {
+    "message": "E033: Átirányítást észleltünk. Kérjük, győződjön meg arról, hogy a szerver támogatja a kiválasztott szinkronizálási módszert, és hogy a megadott URL helyes, illetve nem irányít át egy másik helyre. Ha az átirányítás a beállítások része, akkor a beállításokban letilthatja ezt az ellenőrzést."
+  },
+  "Error034": {
+    "message": "E034: A távoli könyvjelzők fájlja olvashatatlan. Lehet, hogy elfelejtette beállítani a titkosítási jelszót, vagy rossz fájlformátumot választott."
+  },
+  "Error035": {
+    "message": "E035: A következő könyvjelző létrehozása nem sikerült a szerveren: {0} -- A könyvjelző-alkalmazás frissítve van?"
+  },
+  "Error036": {
+    "message": "E036: Hiányoznak a szinkronizáló szerverhez való hozzáféréshez szükséges jogosultságok"
+  },
+  "Error037": {
+    "message": "E037: Az erőforrás zárolva van"
+  },
+  "Error038": {
+    "message": "E038: Nem sikerült megtalálni a profil helyi mappáját. Kérjük, válasszon ki egy mappát a szinkronizáláshoz a profil beállításaiban."
+  },
+  "Error039": {
+    "message": "E039: A következő könyvjelző frissítése nem sikerült a szerveren: {0}"
+  },
+  "Error040": {
+    "message": "E040: Nem sikerült megtalálni a fájlnevet a Google Drive-on"
+  },
+  "Error041": {
+    "message": "E041: A távoli könyvjelzők fájlmérete eltér a szerverről ténylegesen letöltött tartalom méretétől. Ez átmeneti hálózati probléma lehet. Ha a hiba továbbra is fennáll, kérjük, vegye fel a kapcsolatot a szerver rendszergazdájával."
+  },
+  "Error042": {
+    "message": "E042: A távoli könyvjelzőfájl mérete nem volt lekérhető. Nem lehet ellenőrizni, hogy a könyvjelzőfájl teljes egészében letöltődött-e. Ha a hiba továbbra is fennáll, kérjük, vegye fel a kapcsolatot a szerver rendszergazdájával."
+  },
+  "Error043": {
+    "message": "E043: Biztonsági intézkedés: A jelenlegi szinkronizálás a szerveren a linkek számát {0}%-kal növelné. A végrehajtás megtagadva. Ha ennek ellenére folytatni szeretnéd, tiltsd le ezt a biztonsági intézkedést a profilbeállításokban. Ha nem Ön okozta ezt, a kézi szinkronizálási gombokkal felülírhatja az eszköz helyi állapotát a szerveren található állapotra. Ha úgy gondolja, hogy ez egy hiba, kérjük, lépjen kapcsolatba a fejlesztőkkel a futtatás hibakeresési naplójával."
+  },
+  "Error044": {
+    "message": "E044: A Git push művelet sikertelen volt: {0}"
+  },
+  "Error045": {
+    "message": "E045: Váratlan mappaútvonal. Ennek a profilnak a helyi szinkronizálási mappája korábban a `{0}` címen volt, de most a `{1}` címen található. Kérjük, ellenőrizze, hogy ez valóban a kívánt beállítás-e, és állítsa be újra a helyi szinkronizálási mappát a profil beállításaiban."
+  },
+  "Error046": {
+    "message": "E046: Érvénytelen URL. A `{0}` nem érvényes URL."
+  },
+  "Error047": {
+    "message": "E047: Nem sikerült feldolgozni az XBEL-fájlt. Úgy tűnik, hogy az XBEL-adatok sérültek vagy hiányosak. Megpróbálhatja eltávolítani a fájlt a szerverről, hogy a floccus újra létrehozhassa azt. Ne felejtse el előbb biztonsági másolatot készíteni."
+  },
+  "Error049": {
+    "message": "E049: Biztonsági intézkedés: A jelenlegi szinkronizálás a profilban a helyi linkek számát {0}%-kal növelné. A végrehajtás megtagadva. Ha ennek ellenére folytatni szeretné, tiltsa le ezt a biztonsági intézkedést a profil beállításaiban. Ha nem Ön okozta ezt a helyzetet, a kézi szinkronizálási gombokkal felülírhatja a szerver állapotát az eszközön található helyi állapotra. Ha úgy gondolja, hogy ez egy hiba, kérjük, lépjen kapcsolatba a fejlesztőkkel a futtatás hibakeresési naplójával."
+  },
+  "Error050": {
+    "message": "E050: Biztonsági intézkedés: A jelenlegi szinkronizálás a profilban található helyi linkek {0}%-át törölné. A művelet végrehajtása megtagadva. Ha ennek ellenére folytatni szeretné a műveletet, tiltsa le ezt a biztonsági intézkedést a profil beállításaiban. Ha nem Ön okozta ezt a helyzetet, a kézi szinkronizálási gombokkal felülírhatja a szerver állapotát az eszközön található helyi állapotra. Ha úgy gondolja, hogy ez egy hiba, kérjük, lépjen kapcsolatba a fejlesztőkkel, és küldje el nekik a futtatás hibakeresési naplóját."
+  },
+  "Error051": {
+    "message": "E051: Nem sikerült hitelesíteni a Dropbox-fiókot. Kérjük, csatlakoztasd újra a Floccust a Dropbox-fiókodhoz."
+  },
+  "Error052": {
+    "message": "E052: OAuth-hiba. Token-ellenőrzési hiba. Kérjük, csatlakoztassa újra a Dropbox-fiókját."
+  },
+  "Error053": {
+    "message": "E053: Nem sikerült megtalálni a fájlnevet a Dropboxban"
+  },
+  "Error054": {
+    "message": "E054: Nem sikerült letölteni a Dropbox-sablont"
+  },
+  "Error055": {
+    "message": "E055: A letöltött Google Drive-könyvjelzőfájl mérete eltér a szerver által jelzett mérettől. Ez átmeneti hálózati probléma lehet. Ha a hiba továbbra is fennáll, kérjük, próbálja meg később újra."
+  },
+  "Error056": {
+    "message": "E056: A feltöltött Google Drive könyvjelzőfájl mérete eltér a szerver által a feltöltés ellenőrzése után jelzett mérettől. A floccus megismételte a feltöltést, de nem tudta megerősíteni az eredményt. Kérjük, próbálja meg később újra."
+  },
+  "Error057": {
+    "message": "E057: Nem várt szervermappa: `{0}`. Kérjük, ellenőrizze a szervermappa beállításait."
+  },
+  "Error058": {
+    "message": "E058: A könyvjelzők fájlja nem a Dropbox legfelső szintjén található, és a Dropboxban több, ezzel azonos nevű fájl is van: {0}. A Floccus nem tudja eldönteni, melyiket használja. Helyezd át a megfelelő fájlt a Dropbox legfelső szintjére, vagy nevezd át a többit."
+  },
+  "Error060": {
+    "message": "E060: A szerveren található könyvjelzőfájlt egy másik eszköz módosította a szinkronizálás során. A Floccus újra elvégzi a szinkronizálást, hogy beépítse ezeket a módosításokat."
+  },
+  "Error061": {
+    "message": "E061: Az `{0}` nevű S3-tároló nem létezik. Kérjük, ellenőrizze a tároló nevét, a végpont URL-jét és a régiót."
+  },
+  "LabelWebdavurl": {
+    "message": "WebDAV-URL"
+  },
+  "DescriptionWebdavurl": {
+    "message": "pl. a Nextcloud esetében: https://example.com/remote.php/webdav/"
+  },
+  "LabelNextcloudurl": {
+    "message": "Nextcloud URL"
+  },
+  "LabelUsername": {
+    "message": "Felhasználónév"
+  },
+  "LabelPassword": {
+    "message": "Jelszó"
+  },
+  "LabelBookmarksfile": {
+    "message": "Könyvjelzők fájl"
+  },
+  "DescriptionBookmarksfile": {
+    "message": "az a elérési út, ahol a könyvjelzőfájl a szerveren található majd, a WebDAV-URL-hez viszonyítva (az elérési útban szereplő összes mappának már léteznie kell). Például: personal_stuff/bookmarks.xbel"
+  },
+ "DescriptionBookmarksfilegoogle": {
+   "message": "a könyvjelzők fájljának neve, amely a Google Drive-on lesz tárolva. Ne írja be a teljes fájlútvonalat, csak a fájlnevet. Győződjön meg arról, hogy ez a név egyedi a Drive-on. Pl.: mybookmarks.xbel"
+ },
+ "DescriptionBookmarksfiledropbox": {
+   "message": "a könyvjelzők fájljának neve, amely a Dropbox-fiókodban lesz tárolva. Ne írd be a teljes fájlútvonalat, csak a fájlnevet. Győződj meg róla, hogy ez a név egyedi a Dropbox-fiókodban. Pl.: mybookmarks.xbel"
+ },
+  "DescriptionBookmarksfilegit": {
+    "message": "a könyvjelzőfájlhoz vezető elérési út a Git-tárhely gyökérkönyvtárához viszonyítva (az elérési útban szereplő összes mappának már léteznie kell). pl.: personal_stuff/bookmarks.xbel"
+  },
+  "LabelServerfolder": {
+    "message": "Kiszolgáló célja"
+  },
+  "DescriptionServerfolder": {
+    "message": "A szinkronizálás során a böngészőben található könyvjelzőid a szerveren ezen az elérési úton linkekként kerülnek tárolásra. Ne feledd, hogy ez az elérési út a Nextcloud Bookmarks alkalmazáson belüli mappát jelöli, nem pedig a Nextcloud Files alkalmazáson belüli mappát. Ha üresen hagyod, akkor az összes link a szerver legfelső mappájába kerül."
+  },
+  "DescriptionServerfolderlinkwarden": {
+    "message": "A szinkronizálás során a böngészőben található könyvjelzőid linkként kerülnek mentésre ebben a gyűjteményben, és csak az ebben a gyűjteményben található linkek kerülnek szinkronizálásra ezzel a böngészővel."
+  },
+  "DescriptionServerfolderkarakeep": {
+    "message": "A szinkronizálás során a böngészőben található könyvjelzőid linkként kerülnek mentésre ebben a gyűjteményben, és csak az ebben a gyűjteményben található linkek kerülnek szinkronizálásra ezzel a böngészővel."
+  },
+  "LabelLocaltarget": {
+    "message": "Helyi célpont"
+  },
+  "DescriptionLocaltarget": {
+    "message": "Itt válaszd ki, hogy a böngésző könyvjelzőit vagy a böngésző lapjait szeretnéd-e szinkronizálni."
+  },
+  "LabelLocalfolder": {
+    "message": "Könyvjelzők mappa"
+  },
+  "DescriptionLocalfolder": {
+    "message": "Az ebben a könyvjelzőmappában található könyvjelzők linkként kerülnek tárolásra a szerveren, a szerveren található linkek pedig könyvjelzőként kerülnek tárolásra ebben a könyvjelzőmappában ebben a böngészőben."
+  },
+  "LabelRootfolder": {
+    "message": "Gyökérmappa"
+  },
+  "LabelNewfolder": {
+    "message": "Újonnan létrehozott mappa"
+  },
+  "LabelSelectfolder": {
+    "message": "Válasszon ki egy mappát"
+  },
+  "LabelOptions": {
+    "message": "Beállítások"
+  },
+  "LabelSyncnow": {
+    "message": "Szinkronizálás most"
+  },
+  "LabelCancelsync": {
+    "message": "Szinkronizálás megszüntetése"
+  },
+  "LabelSyncall": {
+    "message": "Az összes profil szinkronizálása"
+  },
+  "LabelAutosync": {
+    "message": "Változásalapú szinkronizálás"
+  },
+  "StatusLastsynced": {
+    "message": "Utolsó szinkronizálás: {0} ezelőtt"
+  },
+  "StatusNeversynced": {
+    "message": "Még nincs szinkronizálva"
+  },
+  "StatusAllgood": {
+    "message": "Minden rendben"
+  },
+  "StatusDisabled": {
+    "message": "Fogyatékkal élők"
+  },
+  "StatusError": {
+    "message": "Hiba"
+  },
+  "StatusSyncing": {
+    "message": "Szinkronizálás"
+  },
+  "StatusScheduled": {
+    "message": "Tervezett"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "Bejelentkezés szükséges"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "Ez a profil egyelőre nincs összekapcsolva a fiókoddal, ezért addig nem tud szinkronizálódni, amíg ez meg nem történik. Nyisd meg a profilbeállításokat a bejelentkezéshez."
+  },
+  "LabelAuthorize": {
+    "message": "Bejelentkezés"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "A profil(ok) importálása sikeresen megtörtént. A bejelentkezési adatok nem vihetők át egyik eszközről a másikra, ezért a Google Drive-on vagy a Dropboxon keresztül szinkronizált profilok esetében a szinkronizálás előtt újra be kell jelentkezned."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "A profil(ok) importálása sikeresen megtörtént. A könyvjelző-mappákat nem lehet eszközök között azonosítani, ezért kérjük, válassza ki azt a helyi mappát, amelyet ezzel a profillal szinkronizálni szeretne."
+  },
+  "LabelReset": {
+    "message": "Visszaállítás"
+  },
+  "DescriptionReset": {
+    "message": "A szinkronizált mappa visszaállítása egy új mappa létrehozása érdekében"
+  },
+  "LabelChoosefolder": {
+    "message": "Válasszon ki egy mappát"
+  },
+  "DescriptionChoosefolder": {
+    "message": "Egy meglévő mappa szinkronizálásának beállítása"
+  },
+  "LabelRemoveaccount": {
+    "message": "Profil törlése"
+  },
+  "DescriptionRemoveaccount": {
+    "message": "Töröld ezt a profilt (ez nem törli a könyvjelzőidet)"
+  },
+  "LabelSyncfromscratch": {
+    "message": "A szinkronizálás elindítása a nulláról"
+  },
+  "LabelResetCache": {
+    "message": "A gyorsítótár visszaállítása"
+  },
+  "DescriptionResetcache": {
+    "message": "Kattintson erre a gombra a gyorsítótár visszaállításához, így biztosítva, hogy a következő szinkronizálás során semmilyen adat ne kerüljön törlésre, hanem csupán a szerver és a helyi könyvjelzők összevonására kerüljön sor"
+  },
+  "LabelParallelsync": {
+    "message": "A szinkronizálás felgyorsítása"
+  },
+  "DescriptionParallelsync": {
+    "message": "Jelölje be ezt a jelölőnégyzetet, ha több mappát párhuzamosan szeretne feldolgozni a szinkronizálás felgyorsítása érdekében. Ez a funkció kísérleti stádiumban van, és megnehezíti a hibakeresési naplófájlok értelmezését."
+  },
+  "LabelStrategy": {
+    "message": "Szinkronizálási stratégia"
+  },
+  "DescriptionStrategy": {
+    "message": "Ez a beállítás határozza meg, hogyan történjen a könyvjelzők szinkronizálása a különböző eszközök között. Általában célszerű minden oldalról megőrizni a módosításokat, ha azok összeegyeztethetők, de előfordulhat, hogy felül szeretnéd írni a többi böngészőből származó módosításokat (beleértve a hozzáadásokat és törléseket is), vagy a helyileg végzett módosításokat."
+  },
+  "LabelStrategydefault": {
+    "message": "A helyi módosításokat mindig egyesítsd a többi böngészőből származó módosításokkal (ajánlott)"
+  },
+  "LabelStrategyslave": {
+    "message": "Mindig vonja vissza a helyi módosításokat, és töltse le a többi böngészőből származó módosításokat"
+  },
+  "LabelStrategyoverwrite": {
+    "message": "Mindig töltsd fel a helyi módosításokat, és vonj vissza más böngészőkben végzett módosításokat"
+  },
+  "LabelSave": {
+    "message": "Mentés"
+  },
+  "LabelSelect": {
+    "message": "Kiválasztás"
+  },
+  "LabelCancel": {
+    "message": "Mégse"
+  },
+  "LabelAdd": {
+    "message": "Hozzáadás"
+  },
+  "LabelChange": {
+    "message": "Módosítás"
+  },
+  "LabelRemove": {
+    "message": "Eltávolítás"
+  },
+  "LabelBack": {
+    "message": "Vissza"
+  },
+  "LabelAdapternextcloudfolders": {
+    "message": "Nextcloud könyvjelzők"
+  },
+  "DescriptionAdapternextcloudfolders": {
+    "message": "Szinkronizáld a könyvjelzőidet a Nextcloudhoz készült nyílt forráskódú Bookmarks alkalmazással (a Nextcloud egy nyílt forráskódú együttműködési platform, amelyet akár saját szerveren is üzemeltethetsz, akár fiókot nyithatsz egy felhőalapú példányhoz valamelyik szolgáltatónál). A Nextcloud Bookmarks alkalmazással csak http, ftp és javascript könyvjelzőket szinkronizálhatsz. Győződjön meg arról, hogy telepítette a Nextcloud alkalmazásboltból származó Bookmarks alkalmazást a Nextcloud-ba. Ez az opció nem támogatja a végpontok közötti titkosítást."
+  },
+  "LabelAdapternextcloud": {
+    "message": "Nextcloud könyvjelzők (régi verzió)"
+  },
+  "DescriptionAdapternextcloud": {
+    "message": "A „legacy” opció legalább a Könyvjelzők alkalmazás v0.11-es verziójával kompatibilis. A mappákat a mappa elérési útját tartalmazó címkék segítségével emulálja. Új profilok esetében nem ajánlott ezt használni."
+  },
+  "LabelAdapterwebdav": {
+    "message": "WebDAV-megosztás"
+  },
+  "DescriptionAdapterwedavexamples": {
+    "message": "pl. Koofr, pCloud, IceDrive, kDrive, MagentaCLOUD, Disroot, Mailbox.org, Synology NAS, GMX, WEB.DE"
+  },
+  "DescriptionAdapterwebdav": {
+    "message": "Szinkronizálja a könyvjelzőit úgy, hogy azokat egy fájlban tárolja a megadott WebDAV-megosztásban. Ehhez az opcióhoz nincs hozzá tartozó webes felhasználói felület, és bármely WebDAV-kompatibilis szerveren használhatja, akár saját szerveren, akár a felhőben. Az opció http-, ftp-, adat-, fájl- és javascript-könyvjelzőket is szinkronizál. Az opció használata során választhatja a végpontok közötti titkosítást."
+  },
+  "LabelAddaccount": {
+    "message": "Profil hozzáadása"
+  },
+  "LabelOpenintab": {
+    "message": "Új lapon megnyitás"
+  },
+  "LabelDebuglogs": {
+    "message": "Hibakeresési naplófájlok"
+  },
+  "LabelFunddevelopment": {
+    "message": "💸 Alapfejlesztés"
+  },
+  "DescriptionFunddevelopment": {
+    "message": "A floccus fejlesztését önkéntes támogatási modell alapján finanszírozzuk. Ha úgy gondolod, hogy az általam végzett munka érdemes, és ha havonta néhány érmét könnyedén tudsz ráfordítani, kérlek, támogasd a munkámat. Kérlek, fontold meg azt is, hogy értékeljétek a floccust a választott kiegészítő-áruházban. Köszönöm!💙"
+  },
+  "LabelUntitledfolder": {
+    "message": "„Névtelen” mappa"
+  },
+  "LabelSetkeybutton": {
+    "message": "Jelszó beállítása"
+  },
+  "LabelKey": {
+    "message": "Írja be a feloldási jelszót"
+  },
+  "LabelKey2": {
+    "message": "Írja be a jelszavát még egyszer"
+  },
+  "LabelUnlock": {
+    "message": "A floccus feloldása"
+  },
+  "LabelRemovekey": {
+    "message": "A jelszó eltávolítása"
+  },
+  "LabelRemovedkey": {
+    "message": "A jelszó eltávolítva"
+  },
+  "LabelSyncinterval": {
+    "message": "Szinkronizálási intervallum"
+  },
+  "DescriptionSyncinterval": {
+    "message": "Két szinkronizálás közötti időtartam percben kifejezve. Az alapértelmezett érték 15 perc."
+  },
+  "LabelChooseadapter": {
+    "message": "Hogyan szeretnéd a szinkronizálást elvégezni?"
+  },
+  "LabelOptionsscreen": {
+    "message": "{0} beállítások",
+    "description": "Title of the options screen. The placeholder holds the profile type."
+  },
+  "LabelPaypal": {
+    "message": "PayPal"
+  },
+  "DescriptionPaypal": {
+    "message": "Támogasd a projektet egyszeri vagy rendszeres adománnyal a PayPal-en keresztül!"
+  },
+  "LabelOpencollective": {
+    "message": "OpenCollective"
+  },
+  "DescriptionOpencollective": {
+    "message": "Támogasd a projektet rendszeres adománnyal az OpenCollective-en keresztül!"
+  },
+  "LabelLiberapay": {
+    "message": "Liberapay"
+  },
+  "DescriptionLiberapay": {
+    "message": "Támogasd a projektet rendszeres adománnyal a Liberapay segítségével!"
+  },
+  "LabelGithubsponsors": {
+    "message": "A GitHub szponzorai"
+  },
+  "DescriptionGithubsponsors": {
+    "message": "Támogasd a projektet rendszeres adománnyal a GitHub Sponsors szolgáltatáson keresztül!"
+  },
+  "LabelPatreon": {
+    "message": "Patreon"
+  },
+  "DescriptionPatreon": {
+    "message": "Támogasd a projektet rendszeres adománnyal a Patreonon keresztül!"
+  },
+  "LabelKofi": {
+    "message": "Kofi"
+  },
+  "DescriptionKofi": {
+    "message": "Támogasd a projektet rendszeres vagy egyszeri adománnyal a Ko-fi-n keresztül"
+  },
+  "LegacyAdapterDeprecation": {
+    "message": "Ez a régi profil típus már nem támogatott, és hamarosan eltávolításra kerül. Kérjük, váltson át az új Nextcloud szinkronizálási módszerre! Jobb teljesítmény és nagyobb pontosság várja Önt."
+  },
+  "LabelUpdated": {
+    "message": "⚡ A Floccus frissült"
+  },
+  "DescriptionUpdated": {
+    "message": "Gratulálunk, a floccus legújabb frissítése már elérhető a számítógépeden!"
+  },
+  "LabelReleaseNotes": {
+    "message": "Olvassa el a kiadási megjegyzéseket"
+  },
+  "LabelOptionsServerDetails": {
+    "message": "A szerver adatai"
+  },
+  "LabelOptionsFolderMapping": {
+    "message": "Mappa-hozzárendelés"
+  },
+  "LabelOptionsSyncBehavior": {
+    "message": "Szinkronizálási viselkedés"
+  },
+  "LabelOptionsDangerous": {
+    "message": "Veszélyes cselekmények"
+  },
+  "LabelAccountDeleted": {
+    "message": "A profil törölve lett"
+  },
+  "DescriptionAccountDeleted": {
+    "message": "Ezt a profilt törölték"
+  },
+  "LabelNoAccount": {
+    "message": "Még nincsenek profilok"
+  },
+  "DescriptionNoAccount": {
+    "message": "Adjon hozzá új profilokat, vagy importáljon profilokat egy fájlból, majd kezdheti el a szinkronizálást."
+  },
+  "LabelLoginFlowStart": {
+    "message": "Bejelentkezés a Nextcloud segítségével"
+  },
+  "LabelLoginFlowStop": {
+    "message": "A Nextcloud-bejelentkezés megszakítása"
+  },
+  "LabelLoginFlowError": {
+    "message": "A Nextcloud-ba való bejelentkezés sikertelen volt"
+  },
+  "LabelNewAccount": {
+    "message": "Profil hozzáadása"
+  },
+  "LabelNewImport": {
+    "message": "Importálás"
+  },
+  "LabelNestedSync": {
+    "message": "Beágyazott profilok"
+  },
+  "DescriptionNestedSync": {
+    "message": "A profilokat egymásba ágyazhatja úgy, hogy egy szülőmappa az A profilhoz tartozzon, egy almappa pedig az A és a B profilhoz. Szeretné engedélyezni, hogy más profilok is szinkronizálhassák ennek a profilnak a mappáját?"
+  },
+  "LabelNestedSyncNo": {
+    "message": "Nem, más profilokban hagyja figyelmen kívül ezt a profil mappáját"
+  },
+  "LabelNestedSyncYes": {
+    "message": "Igen, ezt a profil mappáját vegyék fel a többi profilba"
+  },
+  "LabelImportExport": {
+    "message": "Profilok importálása/exportálása"
+  },
+  "LabelExport": {
+    "message": "Profilok exportálása"
+  },
+  "LabelImport": {
+    "message": "Profilok importálása"
+  },
+  "DescriptionExport": {
+    "message": "Válassza ki az alábbi profilok közül azokat, amelyeket fájlba szeretne exportálni, így könnyedén újra létrehozhatja ugyanazokat a profilokat egy másik eszközön vagy böngészőben."
+  },
+  "DescriptionImport": {
+    "message": "Itt importálhat egy fájlt az exportált profilokkal, hogy újra létrehozza a másik eszközön vagy böngészőben exportált profilokat. Kérjük, az importálás után feltétlenül állítsa be újra a megfelelő szinkronizálási mappákat."
+  },
+  "LabelFolderNotFound": {
+    "message": "A mappa nem található"
+  },
+  "LabelSyncTabs": {
+    "message": "Böngészőfülek"
+  },
+  "DescriptionSyncTabs": {
+    "message": "A szerveren tárolt linkek böngészőfülként nyílnak meg a böngészőben, míg a már megnyitott böngészőfülek linkként kerülnek tárolásra a szerveren. Ne feledje, hogy attól függően, hogy hány linket tárol a szerveren, mivel a következő szinkronizáláskor ezek mindegyike böngészőfülként nyílik meg, ez esetleg túlterhelheti a böngészőjét."
+  },
+  "LabelTabs": {
+    "message": "Fülök"
+  },
+  "LabelSyncDown": {
+    "message": "Legördülő menü"
+  },
+  "DescriptionSyncDown": {
+    "message": "Más böngészőkből származó módosítások letöltése és a helyi módosítások felülírása"
+  },
+  "LabelSyncUp": {
+    "message": "Fekvőtámasz"
+  },
+  "DescriptionSyncUp": {
+    "message": "Helyi módosítások feltöltése és más böngészőkből származó módosítások felülírása"
+  },
+  "LabelSyncDownOnce": {
+    "message": "Egyszer húzza le"
+  },
+  "LabelSyncUpOnce": {
+    "message": "Csinálj egy fekvőtámaszt"
+  },
+  "LabelSyncNormal": {
+    "message": "Összevonás"
+  },
+  "DescriptionSyncNormal": {
+    "message": "A helyi módosítások összevonása más böngészőkből származó módosításokkal"
+  },
+  "DescriptionFilesPermission": {
+    "message": "Győződj meg róla, hogy a Floccus alkalmazásnak nemcsak a könyvjelzők alkalmazás, hanem a Nextcloud fájlok alkalmazás használatára is engedélyt adsz."
+  },
+  "DescriptionExtension": {
+    "message": "A könyvjelzők titkos szinkronizálása a különböző böngészők és eszközök között"
+  },
+  "LabelFailsafe": {
+    "message": "Biztonsági rendszer"
+  },
+  "DescriptionFailsafe": {
+    "message": "Előfordulhat, hogy konfigurációs hibák vagy szoftverhibák miatt adatok véletlenül törlődnek – és így végleg elvesznek –, vagy véletlenül duplikálódnak, ami később nehezen rendezhető. Ennek megakadályozása érdekében a floccus egy alkalommal legfeljebb a könyvjelzők 20%-át törli, és egy alkalommal legfeljebb 20%-kal növeli a linkek számát, kivéve, ha itt kikapcsolod ezt a biztonsági funkciót."
+  },
+  "LabelFailsafeon": {
+    "message": "Engedélyezve. A helyi könyvjelzők közül legfeljebb 20%-ot töröl vagy ad hozzá anélkül, hogy előbb megkérdezné Önt. (Ajánlott)"
+  },
+  "LabelFailsafeoff": {
+    "message": "Letiltva. Lehetővé teszi, hogy a helyi könyvjelzők közül 20%-nál többet töröljön vagy adjon hozzá anélkül, hogy erről megerősítést kérne Öntől."
+  },
+  "StatusFailsafeoff": {
+    "message": "A biztonsági védelem ki van kapcsolva. Fennáll a nem szándékos adatvesztés vagy adatduplikáció kockázata. Javasoljuk, hogy a profilbeállításokban kapcsolja be a biztonsági védelmet."
+  },
+  "LabelAdaptergoogledrive": {
+    "message": "Google Drive"
+  },
+  "DescriptionAdaptergoogledrive": {
+    "message": "A könyvjelzők szinkronizálása a Google Drive-on tárolt (opcionálisan titkosított) fájl segítségével. A szinkronizálás kiterjed az http-, ftp-, adat-, fájl- és javascript-könyvjelzőkre. Ezen opció használata esetén választhatod a végpontok közötti titkosítást."
+  },
+  "LabelLogingoogle": {
+    "message": "Bejelentkezés a Google-fiókkal"
+  },
+  "DescriptionLogingoogle": {
+    "message": "Csatlakoztasd a Google-fiókodat, hogy a könyvjelzők szinkronizálási fájlját a Google Drive-on tárolhasd."
+  },
+  "DescriptionLoggedingoogle": {
+    "message": "Összekapcsolta Google-fiókját, hogy a könyvjelzők szinkronizálási fájlját a Google Drive-on tárolja."
+  },
+  "LabelAdapterdropbox": {
+    "message": "Dropbox"
+  },
+  "DescriptionAdapterdropbox": {
+    "message": "A könyvjelzők szinkronizálása a Dropbox-fiókodban tárolt (opcionálisan titkosított) fájl segítségével. A program képes szinkronizálni a http, ftp, data, file és javascript típusú könyvjelzőket. Ezen opció használata esetén választhatod a végpontok közötti titkosítást."
+  },
+  "LabelAdapters3": {
+    "message": "S3-tároló"
+  },
+  "DescriptionAdapters3": {
+    "message": "Szinkronizálja a könyvjelzőit úgy, hogy azokat egy S3-tárolóban lévő fájlba menti. A szolgáltatás az Amazon S3-mal és az S3-kompatibilis tárolókkal működik, akár saját szerveren, akár a felhőben. Az http-, ftp-, adat-, fájl- és javascript-könyvjelzőket is szinkronizálja. Ezen opció használata esetén választhatja a végpontok közötti titkosítást."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "pl. Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "Az S3 végpont URL-je"
+  },
+  "DescriptionS3endpoint": {
+    "message": "Az S3-szolgáltatás URL-címe a tároló neve nélkül, pl. https://s3.eu-central-1.amazonaws.com vagy https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Régió"
+  },
+  "DescriptionS3region": {
+    "message": "A tároló régiója, pl. eu-central-1. A Cloudflare R2 esetében használja az „auto” beállítást, a us-east-1-et pedig akkor, ha a szolgáltatója nem használ régiókat."
+  },
+  "LabelS3bucket": {
+    "message": "Vödör"
+  },
+  "LabelS3pathstyle": {
+    "message": "Használjon „path-style” URL-eket"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "A tárolóra ENDPOINT/BUCKET néven hivatkozz, a BUCKET.ENDPOINT helyett. A legtöbb saját üzemeltetésű S3-kiszolgálónál ez szükséges."
+  },
+  "LabelS3accesskey": {
+    "message": "Hozzáférési kulcs azonosítója"
+  },
+  "LabelS3secretkey": {
+    "message": "Titkos hozzáférési kulcs"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "A tárolódban található könyvjelzőfájl kódja, pl. personal_stuff/bookmarks.xbel"
+  },
+  "LabelLogindropbox": {
+    "message": "Bejelentkezés a Dropbox-szal"
+  },
+  "DescriptionLogindropbox": {
+    "message": "Csatlakoztasd a Dropbox-fiókodat, hogy a könyvjelző-szinkronizálási fájlt a Dropbox-ban tárolhasd."
+  },
+  "DescriptionLoggedindropbox": {
+    "message": "Összekapcsolta a Dropbox-fiókját, hogy a könyvjelző-szinkronizálási fájlt a Dropboxban tárolja."
+  },
+  "LabelPassphrase": {
+    "message": "Jelszó"
+  },
+  "DescriptionPassphrase": {
+    "message": "Állítson be jelszót a könyvjelzőfájl titkosításához; ha nem ad meg jelszót, a titkosítás nem kerül végrehajtásra."
+  },
+  "LabelClientcert": {
+    "message": "Az ügyfél hitelesítő adatainak elküldése"
+  },
+  "DescriptionClientcert": {
+    "message": "Kapcsold be ezt az opciót, ha a szervered hitelesítéshez kliens-tanúsítványt vagy cookie-kat igényel. Ez nem kívánt mellékhatásokhoz vezethet, mivel a floccus megosztja a cookie-kat a szokásos böngésző-munkameneteiddel."
+  },
+  "LabelAllowredirects": {
+    "message": "Az átirányítások engedélyezése a szerver URL-jében"
+  },
+  "DescriptionAllowredirects": {
+    "message": "Kapcsold be ezt az opciót, ha a szinkronizálás során olyan átirányítási hibákat kapsz, amelyekről úgy gondolod, hogy indokolatlanok."
+  },
+  "LabelSearch": {
+    "message": "Könyvjelzők keresése"
+  },
+  "LabelSearchfolder": {
+    "message": "Keresés {0}"
+  },
+  "LabelEdititem": {
+    "message": "Szerkesztés"
+  },
+  "LabelDeleteitem": {
+    "message": "Törlés"
+  },
+  "DescriptionReallydeleteitem": {
+    "message": "Tényleg törölni szeretné ezt az elemet?"
+  },
+  "LabelNobookmarks": {
+    "message": "Itt nincsenek könyvjelzők"
+  },
+  "LabelAddbookmark": {
+    "message": "Könyvjelző hozzáadása"
+  },
+  "LabelEditbookmark": {
+    "message": "Könyvjelző szerkesztése"
+  },
+  "LabelAddfolder": {
+    "message": "Mappa hozzáadása"
+  },
+  "LabelEditfolder": {
+    "message": "Mappa szerkesztése"
+  },
+  "LabelSlugline": {
+    "message": "Magánkönyvjelzők szinkronizálása"
+  },
+  "LabelDownloadlogs": {
+    "message": "Naplófájlok letöltése"
+  },
+  "LabelDownloadfulllogs": {
+    "message": "Teljes naplófájlok"
+  },
+  "LabelDownloadanonymizedlogs": {
+    "message": "Cenzúrázott naplófájlok"
+  },
+  "DescriptionDownloadlogs": {
+    "message": "A Floccus minden műveletét naplófájlba rögzíti, amelyet Ön is megtekinthet, vagy hibakeresés céljából elküldhet a fejlesztőknek. A szerkesztett naplófájlokban a mappa- és könyvjelzőnevek, valamint az URL-ek visszafordíthatatlanul kódolva vannak egy kriptográfiai hash-függvény segítségével. A szerkesztett naplófájlok elküldésekor mindenképpen ellenőrizze a letöltött fájlt olyan érzékeny adatok szempontjából, amelyeket az anonimizálási folyamat esetleg nem szűrt ki."
+  },
+  "ErrorFolderloopselected": {
+    "message": "Egy mappát nem lehet önmagába áthelyezni"
+  },
+  "ErrorNofolderselected": {
+    "message": "Nincs kiválasztott mappa"
+  },
+  "LabelAllownetwork": {
+    "message": "Hálózati hozzáférés engedélyezése"
+  },
+  "DescriptionAllownetwork": {
+    "message": "A Floccus a szinkronizáló szerverhez való csatlakozáson kívül is használhatja a hálózatot, hogy további információkat szerezzen a könyvjelzőkről (például ikonok stb.). Itt engedélyezheti ezt a hálózati használatot."
+  },
+  "LabelMobilesettings": {
+    "message": "Mobil beállítások"
+  },
+  "LabelContinuefloccus":{
+    "message": "Tovább a floccushoz"
+  },
+  "LabelAbout":{
+    "message": "Rólunk"
+  },
+  "LabelCurrentversion": {
+    "message": "Jelenlegi verzió"
+  },
+  "DescriptionCurrentversion": {
+    "message": "A floccus jelenleg telepített verziója:"
+  },
+  "LabelContributors": {
+    "message": "Közreműködők"
+  },
+  "DescriptionContributors": {
+    "message": "Ezek az emberek hozzájárultak a Floccus létrejöttéhez"
+  },
+  "LabelSortcustom": {
+    "message": "Egyedi"
+  },
+  "LabelSorturl": {
+    "message": "Link"
+  },
+  "LabelSorttitle": {
+    "message": "Cím"
+  },
+  "LabelSortadded": {
+    "message": "Felvétel dátuma"
+  },
+  "LabelSyncmethod": {
+    "message": "Szinkronizálási módszer"
+  },
+  "LabelSyncserver": {
+    "message": "Szinkronizáló szerver"
+  },
+  "LabelSyncfolders": {
+    "message": "Mappák szinkronizálása"
+  },
+  "LabelSyncbehavior": {
+    "message": "Szinkronizálási viselkedés"
+  },
+  "LabelContinue": {
+    "message": "Tovább"
+  },
+  "LabelDone": {
+    "message": "Kész"
+  },
+  "LabelConnect": {
+    "message": "Csatlakozás"
+  },
+  "LabelServersetup": {
+    "message": "Melyik szerverrel szeretnéd szinkronizálni?"
+  },
+  "LabelGoogledrivesetup": {
+    "message": "Jelentkezz be a Google Drive-ba"
+  },
+  "LabelDropboxsetup": {
+    "message": "Jelentkezz be a Dropboxba"
+  },
+  "LabelSyncfoldersetup": {
+    "message": "Melyik mappákat szeretnéd szinkronizálni?"
+  },
+  "LabelSyncbehaviorsetup": {
+    "message": "Hogyan szeretnéd, hogy a szinkronizálás működjön?"
+  },
+  "LabelAccountcreated": {
+    "message": "Profil létrehozva"
+  },
+  "DescriptionAccountcreated": {
+    "message": "Még egy dolog: a szinkronizálás nem egyenlő a biztonsági mentéssel. Gondoskodj róla, hogy rendszeresen készíts biztonsági másolatot a könyvjelzőidről.\n\nNe feledd továbbá, hogy a Floccus és a böngészőbe beépített könyvjelző-szinkronizálás együttes használata nem támogatott, és ez duplikátumok kialakulásához vezethet."
+  },
+  "DescriptionNonhttps": {
+    "message": "Olyan szerverre lépett be, amely nem biztonságos protokollt használ. Javasoljuk, hogy kizárólag olyan szervereket használjon, amelyek támogatják a HTTPS-t."
+  },
+  "LabelFiletype": {
+    "message": "Fájlformátum"
+  },
+  "DescriptionFiletype": {
+    "message": "Kiválaszthatod, hogy milyen fájlformátumban szeretnéd a könyvjelzőket a felhőben tárolni."
+  },
+  "LabelFiletypehtml": {
+    "message": "HTML, egy széles körben támogatott, nyílt formátum (kísérleti)"
+  },
+  "LabelFiletypexbel": {
+    "message": "XBEL, egy egyszerű, nyílt formátum"
+  },
+  "LabelImportbookmarks": {
+    "message": "Könyvjelzők importálása"
+  },
+  "DescriptionImportbookmarks": {
+    "message": "Hozz be egy könyvjelzőket tartalmazó HTML-fájlt az aktuális mappába"
+  },
+  "LabelExportBookmarks": {
+    "message": "Könyvjelzők exportálása"
+  },
+  "DescriptionExportBookmarks" : {
+    "message": "A profilban található összes könyvjelzőt exportálhatja egy, az összes főbb böngészővel kompatibilis HTML-fájlba."
+  },
+  "LabelShareitem": {
+    "message": "Megosztás"
+  },
+  "LabelImportsuccessful": {
+    "message": "A profil(ok) importálása sikeresen megtörtént"
+  },
+  "DescriptionSyncinprogress": {
+    "message": "A szinkronizálás folyamatban van."
+  },
+  "DescriptionSyncscheduled": {
+    "message": "Ez a profil hamarosan szinkronizálásra kerül. Jelenleg vagy az Ön többi eszközének, vagy ezen az eszközön található egyéb profilok szinkronizálásának befejezésére várunk."
+  },
+  "LabelAdaptergit": {
+    "message": "Git HTTPS-en keresztül"
+  },
+  "DescriptionAdaptergit": {
+    "message": "A „Git” opció a könyvjelzőket úgy szinkronizálja, hogy azokat a megadott Git-tárházban található fájlba menti. Ehhez az opcióhoz nincs hozzá tartozó webes felhasználói felület, de bármely Git-tárhelyszolgáltatóval használhatod, például a GitHubbal, a GitLabbal, a Giteával stb. Az opció képes szinkronizálni a http-, ftp-, data-, file- és javascript-könyvjelzőket. Ezen opció használata esetén nem vehető igénybe a végpontok közötti titkosítás."
+  },
+  "LabelGiturl": {
+    "message": "A tárhely URL-je HTTP-n keresztül"
+  },
+  "LabelGitbranch": {
+    "message": "Git-ág"
+  },
+  "LabelAccountlabel": {
+    "message": "Profilcímke"
+  },
+  "DescriptionAccountlabel": {
+    "message": "Adj nevet ennek a profilnak, hogy könnyebben felismerhesd!"
+  },
+  "LabelClickcount": {
+    "message": "Kattintások számlálása"
+  },
+  "DescriptionClickcount": {
+    "message": "Küldd el a Nextcloud-kiszolgálódra azokat a statisztikákat, amelyekből kiderül, mely könyvjelzőket látogatod meg leggyakrabban, így a kattintások száma szerint rendezheted őket"
+  },
+  "DescriptionGoogleplayreview": {
+    "message": "Írj véleményt a Google Playen"
+  },
+  "DescriptionAppstorereview": {
+    "message": "Írj értékelést az App Store-ban"
+  },
+  "DescriptionChromereview": {
+    "message": "Írj véleményt a Chrome WebStore-ban"
+  },
+  "DescriptionAlternativereview": {
+    "message": "Írj véleményt az AlternativeTo.net oldalra"
+  },
+  "DescriptionMozillareview": {
+    "message": "Írj véleményt a Mozilla Addons oldalon"
+  },
+  "DescriptionEdgereview": {
+    "message": "Írj véleményt az Edge Addons-ról"
+  },
+  "LabelWritereview": {
+    "message": "💙 Osszuk meg a szeretetet!"
+  },
+  "DescriptionWritereview": {
+    "message": "Ha tetszik neked a Floccus, oszd meg a véleményedet a világgal az alábbi platformok egyikén!"
+  },
+  "DescriptionDonateintervention": {
+    "message": "Tetszik a könyvjelzők szinkronizálása? Támogass engem!"
+  },
+  "LabelDonate": {
+    "message": "Adományozz"
+  },
+  "DescriptionDisabledaftererror": {
+    "message": "Ezt a profilt 10-szer próbáltam meg újra, mielőtt letiltottam volna"
+  },
+  "DescriptionBookmarkexists": {
+    "message": "Ez a könyvjelző már szerepel a kiválasztott profilban"
+  },
+  "LabelReportproblem": {
+    "message": "Probléma jelentése"
+  },
+  "DescriptionReportproblem": {
+    "message": "Ha konkrét problémával közvetlenül a fejlesztőkhöz szeretnél fordulni, itt teheted meg:"
+  },
+  "LabelAdapterKarakeep":  {
+    "message": "Karakeep"
+  },
+  "DescriptionAdapterKarakeep":  {
+    "message": "Szinkronizáld a könyvjelzőidet a nyílt forráskódú, saját szerveren futtatható Karakeep alkalmazással. Az alkalmazás kizárólag http-könyvjelzőket tud szinkronizálni. Ez az opció nem támogatja a végpontok közötti titkosítást, és nem biztosítja a könyvjelzők sorrendjének megőrzését a szinkronizálások során."
+  },
+  "LabelApiKey":  {
+    "message": "API-kulcs"
+  },
+  "LabelKarakeepurl":  {
+    "message": "A Karakeep-kiszolgálód URL-címe"
+  },
+  "LabelKarakeepconnectionerror": {
+    "message": "Nem sikerült csatlakozni a Karakeep-kiszolgálódhoz"
+  },
+  "LabelAdapterlinkwarden":  {
+    "message": "Linkwarden"
+  },
+  "DescriptionAdapterlinkwarden":  {
+    "message": "Szinkronizáld a könyvjelzőidet a nyílt forráskódú Linkwarden alkalmazással, akár a saját szervereden, akár a felhőben, a cloud.linkwarden.app oldalon. Az alkalmazás kizárólag http, ftp és javascript könyvjelzőket tud szinkronizálni. Ez az opció nem támogatja a végpontok közötti titkosítást. A Linkwarden 2.17 vagy újabb verzióival megőrzi a könyvjelzők sorrendjét, a mappák mindig a könyvjelzők felett jelennek meg."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "A könyvjelzők sorrendjének szinkronizálása"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "A Linkwarden 2.17-es vagy újabb verziója szükséges. A Linkwarden nem tud gyűjteményeket elhelyezni a linkek között, ezért a mappák mindig a könyvjelzők felett maradnak, a Linkwarden oldalsávjának sorrendjében. Ha ezt egy meglévő profilnál szeretnéd bekapcsolni, először kapcsold ki, majd szinkronizálj újra, végül kapcsold be, és a következő szinkronizáláskor használd a „Push up once” funkciót. Ellenkező esetben a Linkwarden sorrendje (a legújabbak előre) felülírja a helyi könyvjelzők sorrendjét. Erre csak az első eszközön van szükség, amelyen bekapcsolod."
+  },
+  "LabelLinkwardenurl":  {
+    "message": "A Linkwarden-kiszolgálód URL-címe"
+  },
+  "LabelAccesstoken":  {
+    "message": "Hozzáférési token"
+  },
+  "LabelLinkwardenconnectionerror": {
+    "message": "Nem sikerült csatlakozni a Linkwarden-kiszolgálóhoz"
+  },
+  "LabelSearchresultsotherfolders": {
+    "message": "Eredmények más mappákból"
+  },
+  "LabelScheduledforcesync": {
+    "message": "Kényszer szinkronizálás"
+  },
+  "DescriptionScheduledforcesync": {
+    "message": "Tényleg kényszeríteni szeretnéd a szinkronizálást? A két eszköz egyidejű szinkronizálása előre nem látható következményekkel járhat, beleértve az adatok sérülését is. Mielőtt megerősítenéd a műveletet, győződj meg arról, hogy jelenleg nincs más eszköz szinkronizálás alatt."
+  },
+  "DescriptionAutosync": {
+    "message": "A módosításalapú szinkronizálás bekapcsolásával biztosítható, hogy minden alkalommal, amikor helyi szinten módosítást hajt végre, a rendszer elvégzi a szinkronizálást."
+  },
+  "LabelOpeninnewtab": {
+    "message": "Nyisd meg ezt a nézetet egy új lapon"
+  },
+  "LabelFaq":{
+    "message": "Olvassa el a GYIK-et"
+  },
+  "StatusSyncingfailed": {
+    "message": "A szinkronizálás nem sikerült"
+  },
+  "StatusSyncingcomplete": {
+    "message": "A szinkronizálás befejeződött"
+  },
+  "NotificationSyncingprofile": {
+    "message": "Profil szinkronizálása {0}"
+  },
+  "NotificationSyncingsucceeded": {
+    "message": "A profil szinkronizálása {0} sikeresen megtörtént"
+  },
+  "NotificationSyncingfailed": {
+    "message": "A profil szinkronizálása nem sikerült {0}"
+  },
+  "LabelSyncintervalenabled": {
+    "message": "Időalapú szinkronizálás"
+  },
+  "DescriptionSyncintervalenabled": {
+    "message": "Az időalapú szinkronizálás bekapcsolásával a rendszer automatikusan beállítja, hogy ez a profil néhány percenként szinkronizálódjon"
+  },
+  "LabelPredefinedwebdavurls": {
+    "message": "Előre definiált szerver-URL-ek"
+  },
+  "DescriptionPredefinedwebdavurls": {
+    "message": "Válassza ki a szolgáltatást"
+  },
+  "LabelShowpassword": {
+    "message": "Jelszó megjelenítése"
+  },
+  "LabelHidepassword": {
+    "message": "Jelszó elrejtése"
+  },
+  "LabelTitle": {
+    "message": "Cím"
+  },
+  "LabelLink": {
+    "message": "Link"
+  },
+  "LabelParentfolder": {
+    "message": "Főmappa"
+  },
+  "LabelTags": {
+    "message": "Címkék"
+  },
+  "DescriptionTags": {
+    "message": "Írj be egy címkét, majd nyomd meg az Enter billentyűt"
+  },
+  "LabelSearchbytag": {
+    "message": "Keresés a címkével ellátott könyvjelzők között {0}"
+  },
+  "LabelHome": {
+    "message": "Főoldal"
+  },
+  "LabelSortby": {
+    "message": "Rendezés"
+  },
+  "LabelMoreactions": {
+    "message": "További műveletek"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "A szerverhez való csatlakozás sikeres volt"
+  },
+  "LabelSynconstartup": {
+    "message": "Szinkronizálás indításkor"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Ha engedélyezve van, ez a profil a program indításakor szinkronizálásra kerül. Ez akkor hasznos, ha a könyvjelzőket a program indításakor szeretnéd szinkronizálni, de nem akarsz megvárni a következő ütemezett szinkronizálást."
+  },
+  "LabelNotifyonly": {
+    "message": "Csak a változásokról értesítsen"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Ha ez be van kapcsolva, a fenti események (helyi módosítások, indítás, időköz) csak azt ellenőrzik, hogy van-e szinkronizálandó tartalom, a szinkronizálás helyett. A profil ekkor megmutatja, hány módosítás vár szinkronizálásra, a floccus ikonon pedig piros jelölés jelenik meg, és te döntheted el, mikor szeretnél szinkronizálni."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Értesítés megjelenítése"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Ha engedélyezve van, egy rendszerértesítés jelzi, ha ennek a profilnak szinkronizálandó változásai vannak. A böngésző engedélyt kér az értesítések megjelenítéséhez."
+  },
+  "StatusNeedssync": {
+    "message": "Szinkronizálás szükséges"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Szinkronizálásra váró módosítások: {0} a szerverről, {1} a szerverre"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Ez a profil még nem lett szinkronizálva. A kezdéshez szinkronizáld!"
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} szinkronizálásra van szükség"
+  }
+}
