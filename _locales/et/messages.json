@@ -170,6 +170,12 @@
   "Error058": {
     "message": "E058: Sinu järjehoidjate fail ei asu Dropboxi juurkaustas ning Dropboxis on mitu sama nimega faili: {0}. Floccus ei suuda kindlaks teha, millist neist kasutada. Paiguta õige fail Dropboxi juurkausta või muuda teiste nimesid."
   },
+  "Error060": {
+    "message": "E060: Selle sünkroonimise käigus muutis mõni teine seade serveris asuvat järjehoidjate faili. Floccus sünkroonib uuesti, et need muudatused arvesse võtta."
+  },
+  "Error061": {
+    "message": "E061: S3-salvestuspaik `{0}` ei ole olemas. Palun kontrollige salvestuspaiga nime, lõpppunkti URL-i ja piirkonda."
+  },
   "LabelWebdavurl": {
     "message": "WebDAVi võrguaadress"
   },
@@ -615,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Sünkroonige järjehoidjad Dropboxi salvestatud (valikuliselt krüpteeritud) faili kaudu. See võib sünkroonida http-, ftp-, andme-, faili- ja javascript-lesemärke. Selle valiku kasutamisel saate valida lõpuni krüpteerimise."
   },
+  "LabelAdapters3": {
+    "message": "S3-salvestuskoht"
+  },
+  "DescriptionAdapters3": {
+    "message": "Sünkroniseerige oma järjehoidjad, salvestades need failina S3-salvestusruumi. See toimib Amazon S3-ga ja S3-ga ühilduvate salvestusruumidega, olgu need siis isehostitud või pilves. See võimaldab sünkroniseerida http-, ftp-, andme-, faili- ja javascript-järjehoidjaid. Selle valiku kasutamisel saate valida läbipaistva krüpteerimise."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "nt: Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "S3-e otspunkti võrguaadress"
+  },
+  "DescriptionS3endpoint": {
+    "message": "Teie S3-teenuse URL ilma salvestuskonteineri nimeta, nt https://s3.eu-central-1.amazonaws.com või https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Piirkond"
+  },
+  "DescriptionS3region": {
+    "message": "Piirkond, kus asub teie bucket, nt eu-central-1. Kasutage Cloudflare R2 puhul väärtust „auto“ ja us-east-1, kui teie teenusepakkuja piirkondi ei kasuta."
+  },
+  "LabelS3bucket": {
+    "message": "Küna"
+  },
+  "LabelS3pathstyle": {
+    "message": "Kasuta asukohatüüpi võrguaadresse"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Viita salvestuspaigale nimetusega ENDPOINT/BUCKET, mitte BUCKET.ENDPOINT. Enamik isehostitavaid S3-servereid nõuab seda."
+  },
+  "LabelS3accesskey": {
+    "message": "Ligipääsuvõtme tunnus"
+  },
+  "LabelS3secretkey": {
+    "message": "Salajane ligipääsuvõti"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "Teie salvestusruumis asuva järjehoidjate faili võti, nt personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Dropboxiga sisselogimine"
   },
@@ -898,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Sünkroonige oma järjehoidjad avatud lähtekoodiga Linkwardeni rakendusega, mis asub kas teie enda serveris või pilves aadressil cloud.linkwarden.app. See saab sünkroonida ainult http-, ftp- ja javascript-lesemärke. See valik ei saa kasutada otsast lõpuni krüpteerimist ega toeta järjehoidjate järjekorra säilitamist sünkroonide vahel."
+    "message": "Sünkroniseeri oma järjehoidjad avatud lähtekoodiga rakendusega Linkwarden, mida saab kas oma serveris või pilves aadressil cloud.linkwarden.app. See suudab sünkroniseerida ainult http-, ftp- ja javascript-järjehoidjaid. See valik ei toeta otspunktidevahelist krüpteerimist. See säilitab su järjehoidjate järjekorra Linkwarden 2.17 või uuemate versioonide puhul, kus kaustad asuvad alati järjehoidjate kohal."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Sünkroniseeri järjehoidjate järjekord"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Nõuab Linkwarden versiooni 2.17 või uuemat. Linkwarden ei saa paigutada kogusid linkide vahele, seega asuvad kaustad alati järjehoidjate kohal, Linkwardeni külgriba järjekorras. Selle funktsiooni sisselülitamiseks olemasolevas profiilis sünkroniseeri veel kord, kui see on välja lülitatud, seejärel lülita see sisse ja kasuta järgmisel sünkroniseerimisel funktsiooni „Tõsta ühe koha võrra ülespoole”. Muidu asendab Linkwardeni järjekord (uusim esimesena) sinu kohalike järjehoidjate järjekorra. Seda on vaja teha ainult esimesel seadmel, kus sa selle funktsiooni sisse lülitad."
   },
   "LabelLinkwardenurl":  {
     "message": "Teie Linkwardeni serveri URL"
@@ -995,5 +1046,29 @@
   },
   "DescriptionSynconstartup": {
     "message": "Sisselülitamisel kuulub see profiil käivitamisel sünkroonimisele. Sobib olukorraks, kus sa ei taha oodata korralist sünkroonimist ja tahad, et järjehoidjad oleks kohe uuendatud."
+  },
+  "LabelNotifyonly": {
+    "message": "Teavita mind vaid muudatustest"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Sisselülitamisel kontrollivad eespool nimetatud käivitajad (kohalikud muudatused, käivitamine, ajavahemik) ainult seda, kas on midagi sünkroonitavat, selle asemel et sünkroonida. Profiilis kuvatakse seejärel, kui palju muudatusi ootab sünkroonimits ning floccuse ikoonile ilmub punane märge ja sa otsustad ise, millal sünkroonida."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Näita teavitust"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Sisselülitamisel, annab süsteemi teavitus sulle märku, kui selles profiilis on sünkroonitavaid muudatusi. Sinu veebibrauser küsib sinult luba teavituste kuvamiseks."
+  },
+  "StatusNeedssync": {
+    "message": "Vajab sünkroonimist"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Sünkroonimise ootel muudatused: serverist {0}, serverisse {1}"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "See profiil pole veel sünkroonitud. Alustamiseks sünkrooni."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "„{0}“ vajab sünkroonimist"
   }
 }
