@@ -335,6 +335,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "codeshell",
+      "name": "TMW",
+      "avatar_url": "https://avatars.githubusercontent.com/u/23580812?v=4",
+      "profile": "https://github.com/codeshell",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "skipCi": true,
