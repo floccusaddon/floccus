@@ -643,7 +643,7 @@
     "message": "Die Region, in der sich Ihr Bucket befindet, z. B. „eu-central-1“. Verwenden Sie „auto“ für Cloudflare R2 und „us-east-1“, wenn Ihr Anbieter keine Regionen verwendet."
   },
   "LabelS3bucket": {
-    "message": "Eimer"
+    "message": "Bucket"
   },
   "LabelS3pathstyle": {
     "message": "URLs im Pfadstil verwenden"
