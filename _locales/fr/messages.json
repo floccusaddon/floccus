@@ -170,6 +170,12 @@
   "Error058": {
     "message": "E058: Votre fichier de signets n'est pas situé à la racine de votre Dropbox, et plusieurs fichiers avec un nom identique existent dans votre Dropbox: {0}. Floccus ne peut pas déterminer lequel choisir. Déplacez le fichier correct à la racine de votre Dropbox, ou renommez les autres fichiers."
   },
+  "Error060": {
+    "message": "E060 : Le fichier des signets sur le serveur a été modifié par un autre appareil au cours de cette synchronisation. Floccus va effectuer une nouvelle synchronisation pour intégrer ces modifications."
+  },
+  "Error061": {
+    "message": "E061 : Le compartiment S3 «{0} » n'existe pas. Veuillez vérifier le nom du compartiment, l'URL du point de terminaison et la région."
+  },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
   },
@@ -615,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Synchronise vos signets à l'aide d'un fichier (potentiellement chiffré) stocké sur votre Dropbox. Les signets HTTP, FTP, data, fichier ou JavaScript peuvent être synchronisés. Cette option supporte le chiffrement point à point."
   },
+  "LabelAdapters3": {
+    "message": "compartiment S3"
+  },
+  "DescriptionAdapters3": {
+    "message": "Synchronisez vos favoris en les enregistrant dans un fichier situé dans un compartiment S3. Cette fonctionnalité est compatible avec Amazon S3 et les solutions de stockage compatibles S3, qu'elles soient hébergées en local ou dans le cloud. Elle permet de synchroniser les favoris de type http, ftp, données, fichiers et javascript. Vous pouvez choisir d'utiliser un chiffrement de bout en bout lorsque vous utilisez cette option."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "par exemple : Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "URL du point de terminaison S3"
+  },
+  "DescriptionS3endpoint": {
+    "message": "L'URL de votre service S3 sans le nom du compartiment, par exemple https://s3.eu-central-1.amazonaws.com ou https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Région"
+  },
+  "DescriptionS3region": {
+    "message": "La région dans laquelle se trouve votre « bucket », par exemple « eu-central-1 ». Utilisez « auto » pour Cloudflare R2 et « us-east-1 » si votre fournisseur n'utilise pas de régions."
+  },
+  "LabelS3bucket": {
+    "message": "Seau"
+  },
+  "LabelS3pathstyle": {
+    "message": "Utiliser des URL de type « chemin d'accès »"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Accédez au compartiment en utilisant la syntaxe ENDPOINT/BUCKET au lieu de BUCKET.ENDPOINT. La plupart des serveurs S3 auto-hébergés l'exigent."
+  },
+  "LabelS3accesskey": {
+    "message": "Identifiant de la touche d'accès"
+  },
+  "LabelS3secretkey": {
+    "message": "Clé d'accès secrète"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "La clé du fichier de signets situé dans votre compartiment, par exemple personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Se connecter avec Dropbox"
   },
@@ -898,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Synchronisez vos signets avec l'application open-source Linkwarden, hébergée sur votre propre serveur ou dans le nuage à cloud.linkwarden.app. Elle ne peut synchroniser que les signets http, ftp et javascript. Cette option ne peut pas utiliser le cryptage de bout en bout et ne permet pas de conserver l'ordre des signets lors des synchronisations."
+    "message": "Synchronisez vos signets avec l'application open source Linkwarden, qu'elle soit hébergée sur votre propre serveur ou dans le cloud à l'adresse cloud.linkwarden.app. Elle ne peut synchroniser que les signets http, ftp et javascript. Cette option ne permet pas d'utiliser le chiffrement de bout en bout. Elle conserve l'ordre de vos signets avec Linkwarden 2.17 ou une version ultérieure, les dossiers apparaissant toujours au-dessus des signets."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Synchroniser l'ordre des signets"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Nécessite Linkwarden 2.17 ou une version ultérieure. Linkwarden ne pouvant pas insérer de collections entre les liens, les dossiers sont toujours placés au-dessus des signets, dans l'ordre d'affichage de la barre latérale de Linkwarden. Pour activer cette fonctionnalité sur un profil existant, effectuez d'abord une synchronisation avec cette option désactivée, puis activez-la et utilisez l'option « Remonter d'une place » lors de la synchronisation suivante. Sinon, l'ordre défini par Linkwarden (le plus récent en premier) remplacera l'ordre de vos signets locaux. Cette opération n'est nécessaire que sur le premier appareil sur lequel vous activez cette fonctionnalité."
   },
   "LabelLinkwardenurl":  {
     "message": "L'URL de votre serveur Linkwarden"
@@ -995,5 +1046,29 @@
   },
   "DescriptionSynconstartup": {
     "message": "Si activé, ce profil sera synchronisé au démarrage. C'est pratique si vous souhaitez synchroniser vos favoris au démarrage, et ne souhaitez pas attendre la prochaine synchronisation programmée."
+  },
+  "LabelNotifyonly": {
+    "message": "Ne m'avertir qu'en cas de modifications"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Si cette option est activée, les déclencheurs ci-dessus (modifications locales, démarrage, intervalle) se contentent de vérifier s'il y a des données à synchroniser, sans procéder à la synchronisation. Le profil affiche alors le nombre de modifications en attente et l'icône Floccus s'affiche avec un badge rouge ; c'est vous qui décidez quand effectuer la synchronisation."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Afficher une notification"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Si cette option est activée, une notification système vous informera lorsque ce profil comporte des modifications à synchroniser. Votre navigateur vous demandera l'autorisation d'afficher des notifications."
+  },
+  "StatusNeedssync": {
+    "message": "Nécessite une synchronisation"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Modifications en attente de synchronisation : {0} depuis le serveur, {1} vers le serveur"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Ce profil n'a pas encore été synchronisé. Synchronisez-le pour commencer."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} nécessite une synchronisation"
   }
 }
