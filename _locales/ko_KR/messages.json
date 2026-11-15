@@ -12,7 +12,7 @@
     "message": "E004: 이동할 폴더가 존재하지 않습니다"
   },
   "Error005": {
-    "message": "E005: 생성할 폴더가 존재하지 않습니다"
+    "message": "E005: 업데이트할 폴더의 상위 폴더가 존재하지 않습니다."
   },
   "Error006": {
     "message": "E006: 업데이트할 폴더가 존재하지 않습니다"
@@ -111,7 +111,7 @@
     "message": "E037: 리소스가 잠겼습니다."
   },
   "Error038": {
-    "message": "E038: 로컬 폴더를 찾을 수 없습니다."
+    "message": "E038: 이 프로필의 로컬 폴더를 찾을 수 없습니다. 프로필 설정에서 동기화할 폴더를 선택해 주세요."
   },
   "Error039": {
     "message": "E039: 서버에서 다음 북마크를 업데이트하지 못했습니다: {0}"
@@ -157,6 +157,24 @@
   },
   "Error054": {
     "message": "E054: Dropbox용 템플릿을 가져올 수 없습니다."
+  },
+  "Error055": {
+    "message": "E055: 다운로드한 Google 드라이브 북마크 파일의 크기가 서버에서 표시된 크기와 다릅니다. 이는 일시적인 네트워크 문제일 수 있습니다. 이 오류가 계속 발생하면 나중에 다시 시도해 주세요."
+  },
+  "Error056": {
+    "message": "E056: 업로드된 Google 드라이브 북마크 파일의 크기가 업로드 확인 후 서버에서 보고된 크기와 다릅니다. floccus가 업로드를 다시 시도했으나 결과를 확인할 수 없었습니다. 나중에 다시 시도해 주세요."
+  },
+  "Error057": {
+    "message": "E057: 예상치 못한 서버 폴더: `{0}`. 서버 폴더 설정을 확인해 주십시오."
+  },
+  "Error058": {
+    "message": "E058: 북마크 파일이 Dropbox의 최상위 폴더에 있지 않으며, Dropbox 내에 동일한 이름을 가진 파일이 여러 개 있습니다: {0}. Floccus는 어떤 파일을 사용해야 할지 알 수 없습니다. 올바른 파일을 Dropbox의 최상위 폴더로 이동하거나, 나머지 파일들의 이름을 변경해 주세요."
+  },
+  "Error060": {
+    "message": "E060: 이번 동기화 과정에서 다른 기기가 서버의 북마크 파일을 변경했습니다. Floccus는 해당 변경 사항을 반영하기 위해 다시 동기화를 진행할 것입니다."
+  },
+  "Error061": {
+    "message": "E061: S3 버킷 `{0}`이(가) 존재하지 않습니다. 버킷 이름, 엔드포인트 URL 및 리전을 확인해 주십시오."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -256,6 +274,21 @@
   },
   "StatusScheduled": {
     "message": "예약됨"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "로그인이 필요합니다"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "이 프로필은 아직 귀하의 계정과 연결되어 있지 않으므로, 연결되기 전까지는 동기화할 수 없습니다. 프로필 설정을 열어 로그인하세요."
+  },
+  "LabelAuthorize": {
+    "message": "로그인"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "프로필을 성공적으로 가져왔습니다. 기기 간에 로그인 정보를 이전할 수 없으므로, Google 드라이브나 Dropbox를 통해 프로필을 동기화하려면 동기화를 시작하기 전에 다시 로그인해야 합니다."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "프로필을 성공적으로 가져왔습니다. 북마크 폴더는 기기 간에 식별할 수 없으므로, 이 프로필을 동기화할 로컬 폴더를 선택해 주세요."
   },
   "LabelReset": {
     "message": "초기화"
@@ -588,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Dropbox에 저장된 (선택적으로 암호화된) 파일을 통해 북마크를 동기화하세요. http, ftp, 데이터, 파일, 자바스크립트 북마크를 동기화할 수 있습니다. 이 옵션을 사용할 때는 종단 간 암호화를 사용하도록 선택할 수 있습니다."
   },
+  "LabelAdapters3": {
+    "message": "S3 버킷"
+  },
+  "DescriptionAdapters3": {
+    "message": "북마크를 S3 버킷 내의 파일에 저장하여 동기화하세요. 이 기능은 Amazon S3 및 S3 호환 스토리지(자체 호스팅 또는 클라우드 기반 모두)에서 작동합니다. http, ftp, 데이터, 파일 및 자바스크립트 북마크를 동기화할 수 있습니다. 이 옵션을 사용할 때 종단 간 암호화를 적용하도록 선택할 수 있습니다."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "예: Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner 객체 스토리지, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "S3 엔드포인트 URL"
+  },
+  "DescriptionS3endpoint": {
+    "message": "버킷 이름이 제외된 S3 서비스의 URL입니다. 예: https://s3.eu-central-1.amazonaws.com 또는 https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "지역"
+  },
+  "DescriptionS3region": {
+    "message": "버킷이 위치한 리전(예: eu-central-1). Cloudflare R2의 경우 ‘auto’를 사용하고, 제공업체에서 리전을 사용하지 않는다면 ‘us-east-1’을 사용하십시오."
+  },
+  "LabelS3bucket": {
+    "message": "버킷"
+  },
+  "LabelS3pathstyle": {
+    "message": "경로 형식의 URL 사용"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "버킷을 BUCKET.ENDPOINT 대신 ENDPOINT/BUCKET 형식으로 지정하십시오. 대부분의 자체 호스팅 S3 서버에서는 이 방식이 필요합니다."
+  },
+  "LabelS3accesskey": {
+    "message": "액세스 키 ID"
+  },
+  "LabelS3secretkey": {
+    "message": "비밀 액세스 키"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "버킷에 있는 북마크 파일의 키(예: personal_stuff/bookmarks.xbel)"
+  },
   "LabelLogindropbox": {
     "message": "Dropbox로 로그인"
   },
@@ -702,6 +774,9 @@
   "LabelSorttitle": {
     "message": "제목"
   },
+  "LabelSortadded": {
+    "message": "등록일"
+  },
   "LabelSyncmethod": {
     "message": "동기화 방법"
   },
@@ -787,28 +862,13 @@
     "message": "HTTPS를 통한 Git"
   },
   "DescriptionAdaptergit": {
-    "message": "Git 옵션은 북마크를 제공된 Git 저장소의 파일에 저장하여 동기화합니다. 이 옵션에는 별도의 웹 UI가 제공되지 않지만 Github, Gitlab, Gitea 등 모든 Git 호스팅 서버에서 사용할 수 있습니다. http, ftp, 데이터, 파일 및 자바스크립트 북마크를 동기화할 수 있습니다. 이 옵션을 사용할 때는 종단 간 암호화를 사용할 수 없습니다. 이 옵션은 현재 모바일 앱에서 사용할 수 없습니다."
+    "message": "Git 옵션은 제공된 Git 저장소의 파일에 북마크를 저장하여 동기화합니다. 이 옵션에는 전용 웹 UI가 없지만, GitHub, GitLab, Gitea 등과 같은 모든 Git 호스팅 서버에서 사용할 수 있습니다. 이 옵션은 http, ftp, data, file 및 javascript 북마크를 동기화할 수 있습니다. 이 옵션을 사용할 때는 종단 간 암호화를 이용할 수 없습니다."
   },
   "LabelGiturl": {
     "message": "HTTP를 사용한 리포지토리 URL"
   },
   "LabelGitbranch": {
     "message": "Git 브랜치"
-  },
-  "LabelTelemetry": {
-    "message": "자동화된 오류 보고"
-  },
-  "DescriptionTelemetry": {
-    "message": "플로커스는 오류 데이터를 개발자인 저에게 자동으로 전송할 수 있습니다. 이는 플로커스의 버그를 더 빨리 발견하고 해결하는 데 큰 도움이 되며 장기적으로 플로커스 사용 환경을 개선하는 데 도움이 될 것입니다. 오류 보고가 활성화되어 있어도 floccus 개발자는 사용자의 북마크를 볼 수 없습니다."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "신규: 이 옵션이 활성화된 경우 이제 오류 정보 외에 사용 중인 동기화 방법에 대한 정보도 플로커스에 전송합니다. 이를 통해 플로커스를 개선하고 동기화 방법이 예상대로 작동하는지 확인할 수 있습니다."
-  },
-  "LabelTelemetryenable": {
-    "message": "오류 데이터와 사용 중인 동기화 방법에 대한 정보를 자동으로 전송하여 개발자를 집중시킵니다."
-  },
-  "LabelTelemetrydisable": {
-    "message": "집중 개발자에게 데이터를 보내지 마세요."
   },
   "LabelAccountlabel": {
     "message": "프로필 레이블"
@@ -868,7 +928,7 @@
     "message": "카라킵"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "북마크를 오픈소스 자체 호스팅 Karakeep 앱과 동기화하세요. 이 옵션은 종단 간 암호화를 사용할 수 없으며 동기화 전반에서 북마크 순서 유지를 지원하지 않습니다."
+    "message": "오픈소스 자체 호스팅형 Karakeep 앱을 사용하여 북마크를 동기화하세요. 이 앱은 http 북마크만 동기화할 수 있습니다. 이 옵션은 종단 간 암호화를 사용할 수 없으며, 동기화 시 북마크의 순서를 유지하는 기능을 지원하지 않습니다."
   },
   "LabelApiKey":  {
     "message": "API 키"
@@ -883,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "북마크를 자체 서버에서 호스팅하거나 cloud.linkwarden.app에서 클라우드에 호스팅된 오픈 소스 Linkwarden 앱과 동기화하세요. 이 옵션은 http, ftp 및 자바스크립트 북마크만 동기화할 수 있습니다. 이 옵션은 종단 간 암호화를 사용할 수 없으며 동기화 전반에 걸쳐 북마크 순서를 유지하는 기능을 지원하지 않습니다."
+    "message": "자신의 서버에 호스팅하거나 cloud.linkwarden.app의 클라우드에 호스팅된 오픈소스 Linkwarden 앱과 북마크를 동기화하세요. 이 앱은 http, ftp 및 자바스크립트 북마크만 동기화할 수 있습니다. 이 옵션은 종단 간 암호화를 사용할 수 없습니다. Linkwarden 2.17 이상 버전과 북마크의 순서를 동일하게 유지하며, 폴더는 항상 북마크보다 위에 표시됩니다."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "북마크 순서 동기화"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Linkwarden 2.17 이상이 필요합니다. Linkwarden은 링크 사이에 컬렉션을 배치할 수 없으므로, 폴더는 항상 북마크 위에 Linkwarden 사이드바의 순서대로 표시됩니다. 기존 프로필에서 이 기능을 활성화하려면, 먼저 기능을 끄고 한 번 더 동기화한 다음, 기능을 켠 상태에서 다음 동기화 시 “한 번 위로 밀기”를 사용하십시오. 그렇지 않으면 Linkwarden의 정렬 순서(최신 순)가 로컬 북마크의 순서를 덮어씁니다. 이 작업은 이 기능을 처음 활성화하는 기기에서만 필요합니다."
   },
   "LabelLinkwardenurl":  {
     "message": "Linkwarden 서버의 URL"
@@ -908,30 +974,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "이 보기를 새 탭에서 엽니다."
-  },
-  "LabelGivefeedback": {
-    "message": "피드백 제공"
-  },
-  "LabelYourname": {
-    "message": "사용자 이름"
-  },
-  "LabelYouremail": {
-    "message": "이메일(선택 사항)"
-  },
-  "LabelYourmessage": {
-    "message": "피드백 메시지"
-  },
-  "LabelSubmitfeedback": {
-    "message": "피드백 제출"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "이 피드백 양식은 Sentry에서 제공합니다. 제출을 누르면 입력한 데이터를 Sentry 서버에 저장하는 데 동의하는 것입니다. 북마크 데이터는 Sentry로 전송되지 않습니다."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "시간을 내어 플로커스 개발자에게 피드백을 보내주셔서 감사합니다! 문제와 관련된 피드백인 경우, 수행한 단계, 예상했던 사항 및 대신 발생한 사항을 반드시 포함하세요. 기능 요청에 관한 피드백인 경우, 이 기능을 통해 해결될 수 있는 사용 사례나 문제를 반드시 포함하세요. 이메일을 포함해 주시면 다시 연락드릴 수 있습니다. 감사합니다!"
-  },
-  "LabelFeedbacksent": {
-    "message": "피드백을 보내 주셔서 감사합니다!"
   },
   "LabelFaq":{
     "message": "자주 묻는 질문 확인"
@@ -962,5 +1004,71 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "서비스 선택"
+  },
+  "LabelShowpassword": {
+    "message": "비밀번호 표시"
+  },
+  "LabelHidepassword": {
+    "message": "비밀번호 숨기기"
+  },
+  "LabelTitle": {
+    "message": "제목"
+  },
+  "LabelLink": {
+    "message": "링크"
+  },
+  "LabelParentfolder": {
+    "message": "상위 폴더"
+  },
+  "LabelTags": {
+    "message": "태그"
+  },
+  "DescriptionTags": {
+    "message": "태그를 입력하고 엔터 키를 누르세요"
+  },
+  "LabelSearchbytag": {
+    "message": "태그가 지정된 북마크 검색 {0}"
+  },
+  "LabelHome": {
+    "message": "홈"
+  },
+  "LabelSortby": {
+    "message": "정렬 기준"
+  },
+  "LabelMoreactions": {
+    "message": "더 많은 작업"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "서버 연결에 성공했습니다."
+  },
+  "LabelSynconstartup": {
+    "message": "시작 시 동기화"
+  },
+  "DescriptionSynconstartup": {
+    "message": "이 기능이 활성화되면, 이 프로필은 시작 시 동기화됩니다. 시작 시 북마크를 동기화하고 싶지만 다음 예정된 동기화 시간을 기다리고 싶지 않을 때 유용합니다."
+  },
+  "LabelNotifyonly": {
+    "message": "변경 사항만 알려주세요"
+  },
+  "DescriptionNotifyonly": {
+    "message": "이 기능이 활성화되면, 위의 트리거(로컬 변경 사항, 시작 시, 간격)는 실제로 동기화를 수행하는 대신 동기화할 항목이 있는지 여부만 확인합니다. 그러면 프로필에 대기 중인 변경 사항의 수가 표시되고 플록커스 아이콘에 빨간색 배지가 나타나며, 사용자는 언제 동기화할지 직접 결정할 수 있습니다."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "알림 표시"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "이 기능이 활성화되어 있으면, 이 프로필에 동기화할 변경 사항이 있을 때 시스템 알림이 표시됩니다. 브라우저에서 알림 표시 권한을 요청할 것입니다."
+  },
+  "StatusNeedssync": {
+    "message": "동기화가 필요합니다"
+  },
+  "DescriptionPendingChanges": {
+    "message": "동기화 대기 중인 변경 사항: 서버에서 {0}, 서버로 {1} "
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "이 프로필은 아직 동기화되지 않았습니다. 시작하려면 동기화하세요."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} 동기화가 필요합니다"
   }
 }
