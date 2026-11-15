@@ -12,7 +12,7 @@
     "message": "E004: A pasta para onde mover não existe"
   },
   "Error005": {
-    "message": "E005: A pasta onde criar não existe"
+    "message": "E005: A pasta pai da pasta a atualizar não existe"
   },
   "Error006": {
     "message": "E006: A pasta a atualizar não existe"
@@ -111,7 +111,7 @@
     "message": "E037: O recurso está bloqueado"
   },
   "Error038": {
-    "message": "E038: Não foi possível encontrar a pasta local"
+    "message": "E038: Não foi possível encontrar a pasta local deste perfil. Por favor, selecione uma pasta para sincronizar nas definições do perfil."
   },
   "Error039": {
     "message": "E039: Falha ao atualizar o seguinte marcador no servidor: {0}"
@@ -157,6 +157,24 @@
   },
   "Error054": {
     "message": "E054: Não foi possível obter um modelo para o Dropbox"
+  },
+  "Error055": {
+    "message": "E055: O tamanho do ficheiro de marcadores do Google Drive descarregado difere do tamanho indicado pelo servidor. Pode tratar-se de um problema temporário de rede. Se este erro persistir, tente novamente mais tarde."
+  },
+  "Error056": {
+    "message": "E056: O tamanho do ficheiro de marcadores do Google Drive carregado difere do tamanho indicado pelo servidor após a verificação do carregamento. O floccus tentou novamente o carregamento, mas não conseguiu confirmar o resultado. Por favor, tente novamente mais tarde."
+  },
+  "Error057": {
+    "message": "E057: Pasta do servidor inesperada: `{0}`. Verifique a configuração da pasta do servidor."
+  },
+  "Error058": {
+    "message": "E058: O seu ficheiro de marcadores não se encontra no nível superior da sua conta Dropbox e existem vários ficheiros com esse nome na sua conta Dropbox: {0}. O Floccus não consegue determinar qual deles deve utilizar. Mova o ficheiro correto para o nível superior da sua conta Dropbox ou renomeie os restantes."
+  },
+  "Error060": {
+    "message": "E060: O ficheiro de marcadores no servidor foi alterado por outro dispositivo durante esta sincronização. O Floccus irá sincronizar novamente para incluir essas alterações."
+  },
+  "Error061": {
+    "message": "E061: O bucket S3 `{0}` não existe. Verifique o nome do bucket, o URL do ponto de extremidade e a região."
   },
   "LabelWebdavurl": {
     "message": "URL do WebDAV"
@@ -256,6 +274,21 @@
   },
   "StatusScheduled": {
     "message": "Programado"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "É necessário iniciar sessão"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "Este perfil ainda não está associado à sua conta e não pode ser sincronizado até que isso aconteça. Abra as opções do perfil para iniciar sessão."
+  },
+  "LabelAuthorize": {
+    "message": "Iniciar sessão"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "Perfil(is) importado(s) com sucesso. Os dados de início de sessão não podem ser transferidos entre dispositivos; por isso, os perfis que são sincronizados através do Google Drive ou do Dropbox exigem que inicie sessão novamente antes de poderem ser sincronizados."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "O(s) perfil(is) foi(foram) importado(s) com sucesso. As pastas de favoritos não podem ser identificadas entre dispositivos; por isso, selecione a pasta local com a qual pretende que este perfil seja sincronizado."
   },
   "LabelReset": {
     "message": "Reset"
@@ -588,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Sincroniza marcadores através de um ficheiro (opcionalmente encriptado) que é armazenado na sua Dropbox. Ele pode sincronizar marcadores http, ftp, dados, arquivos e javascript. Você pode optar por usar criptografia de ponta a ponta ao usar essa opção."
   },
+  "LabelAdapters3": {
+    "message": "Bucket do S3"
+  },
+  "DescriptionAdapters3": {
+    "message": "Sincronize os seus favoritos guardando-os num ficheiro num bucket do S3. Funciona com o Amazon S3 e com armazenamento compatível com o S3, seja auto-hospedado ou na nuvem. Permite sincronizar favoritos http, ftp, de dados, de ficheiros e javascript. Pode optar por utilizar encriptação de ponta a ponta ao utilizar esta opção."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "por exemplo: Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "URL do ponto de extremidade do S3"
+  },
+  "DescriptionS3endpoint": {
+    "message": "O URL do seu serviço S3 sem o nome do bucket, por exemplo, https://s3.eu-central-1.amazonaws.com ou https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Região"
+  },
+  "DescriptionS3region": {
+    "message": "A região em que se encontra o seu bucket, por exemplo, eu-central-1. Utilize «auto» para o Cloudflare R2 e «us-east-1» se o seu fornecedor não utilizar regiões."
+  },
+  "LabelS3bucket": {
+    "message": "Balde"
+  },
+  "LabelS3pathstyle": {
+    "message": "Utilizar URLs no formato «path»"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Referir-se ao bucket como ENDPOINT/BUCKET em vez de BUCKET.ENDPOINT. A maioria dos servidores S3 auto-hospedados requer isto."
+  },
+  "LabelS3accesskey": {
+    "message": "ID da chave de acesso"
+  },
+  "LabelS3secretkey": {
+    "message": "Chave de acesso secreta"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "A chave do ficheiro de marcadores no seu bucket, por exemplo, personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Iniciar sessão com o Dropbox"
   },
@@ -702,6 +774,9 @@
   "LabelSorttitle": {
     "message": "Título"
   },
+  "LabelSortadded": {
+    "message": "Data de adição"
+  },
   "LabelSyncmethod": {
     "message": "Método de sincronização"
   },
@@ -787,28 +862,13 @@
     "message": "Git sobre HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "A opção Git sincroniza seus marcadores armazenando-os em um arquivo no repositório Git fornecido. Não existe uma interface da Web para esta opção, mas pode utilizá-la com qualquer servidor de alojamento Git, como o Github, o Gitlab, o Gitea, etc. Pode sincronizar http, ftp, dados, ficheiros e marcadores javascript. Não é possível utilizar a encriptação de ponta a ponta quando se utiliza esta opção. Esta opção não está atualmente disponível na aplicação móvel."
+    "message": "A opção Git sincroniza os seus marcadores, armazenando-os num ficheiro no repositório Git fornecido. Não existe uma interface de utilizador web associada a esta opção, mas pode utilizá-la com qualquer servidor de alojamento Git, como o GitHub, GitLab, Gitea, etc. Permite sincronizar marcadores http, ftp, de dados, de ficheiros e javascript. Não é possível utilizar encriptação de ponta a ponta ao utilizar esta opção."
   },
   "LabelGiturl": {
     "message": "URL do repositório utilizando HTTP"
   },
   "LabelGitbranch": {
     "message": "Ramo do Git"
-  },
-  "LabelTelemetry": {
-    "message": "Relatório de erros automatizado"
-  },
-  "DescriptionTelemetry": {
-    "message": "O floccus pode enviar automaticamente dados de erro para mim, o programador. Isto é uma ajuda tremenda para descobrir e resolver bugs no floccus mais rapidamente e irá ajudar a melhorar a sua experiência com o floccus a longo prazo. Mesmo quando o relatório de erros está ativado, os programadores do floccus nunca poderão ver os seus bookmarks."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "Novo: Para além da informação de erro, o floccus agora também envia informação sobre o método de sincronização que está a usar, se esta opção estiver activada. Isto ajuda-nos a melhorar o floccus e a certificarmo-nos de que os métodos de sincronização estão a funcionar como esperado."
-  },
-  "LabelTelemetryenable": {
-    "message": "Enviar automaticamente dados de erro e informações sobre o método de sincronização que está a utilizar para os programadores do floccus"
-  },
-  "LabelTelemetrydisable": {
-    "message": "Não enviar quaisquer dados para os programadores do floccus"
   },
   "LabelAccountlabel": {
     "message": "Etiqueta de perfil"
@@ -868,7 +928,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Sincronize os seus marcadores com a aplicação Karakeep de código aberto auto-hospedada. Esta opção não pode utilizar a encriptação de ponta a ponta e não suporta a manutenção da ordem dos marcadores nas sincronizações."
+    "message": "Sincronize os seus favoritos com a aplicação Karakeep, de código aberto e auto-hospedada. Esta aplicação só permite sincronizar favoritos http. Esta opção não permite utilizar encriptação de ponta a ponta e não suporta a manutenção da ordem dos favoritos entre sincronizações."
   },
   "LabelApiKey":  {
     "message": "Chave API"
@@ -883,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Sincronize seus favoritos com o aplicativo Linkwarden de código aberto, hospedado em seu próprio servidor ou na nuvem em cloud.linkwarden.app. Ele só pode sincronizar marcadores http, ftp e javascript. Esta opção não pode fazer uso de criptografia de ponta a ponta e não suporta a manutenção da ordem dos marcadores entre as sincronizações."
+    "message": "Sincronize os seus favoritos com a aplicação de código aberto Linkwarden, quer esteja alojada no seu próprio servidor, quer na nuvem em cloud.linkwarden.app. Esta opção só permite sincronizar favoritos http, ftp e javascript. Esta opção não permite utilizar encriptação de ponta a ponta. Mantém a ordem dos seus favoritos com o Linkwarden 2.17 ou posterior, com as pastas sempre acima dos favoritos."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Sincronizar a ordem dos marcadores"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Requer o Linkwarden 2.17 ou posterior. O Linkwarden não consegue colocar coleções entre os links, pelo que as pastas são sempre mantidas acima dos favoritos, na ordem da barra lateral do Linkwarden. Para ativar esta funcionalidade num perfil existente, sincronize mais uma vez com a funcionalidade desativada; em seguida, ative-a e utilize a opção «Subir uma vez» na sincronização seguinte. Caso contrário, a ordem do Linkwarden (da mais recente para a mais antiga) substituirá a ordem dos seus marcadores locais. Isto só é necessário no primeiro dispositivo em que ativar esta funcionalidade."
   },
   "LabelLinkwardenurl":  {
     "message": "O URL do seu servidor Linkwarden"
@@ -908,30 +974,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "Abrir esta vista num novo separador"
-  },
-  "LabelGivefeedback": {
-    "message": "Dar feedback"
-  },
-  "LabelYourname": {
-    "message": "O seu nome"
-  },
-  "LabelYouremail": {
-    "message": "O seu e-mail (opcional)"
-  },
-  "LabelYourmessage": {
-    "message": "A sua mensagem de feedback"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Enviar comentários"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "Este formulário de feedback é alimentado por Sentry. Ao premir enviar, concorda em armazenar os dados introduzidos nos servidores do Sentry. Nenhum dos seus dados de favoritos será enviado ao Sentry."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "Obrigado por dedicar algum tempo a dar feedback aos programadores do floccus! Se o seu feedback estiver relacionado com um problema, certifique-se de que inclui os passos que deu, o que esperava e o que aconteceu em vez disso. Se o seu feedback estiver relacionado com um pedido de funcionalidade, certifique-se de que inclui o caso de utilização ou o problema que essa funcionalidade resolveria para si. Se incluir o seu e-mail, poderemos entrar em contacto consigo. Obrigado!"
-  },
-  "LabelFeedbacksent": {
-    "message": "Obrigado pelo seu feedback!"
   },
   "LabelFaq":{
     "message": "Verificar as FAQ"
@@ -962,5 +1004,71 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Selecione o seu serviço"
+  },
+  "LabelShowpassword": {
+    "message": "Mostrar palavra-passe"
+  },
+  "LabelHidepassword": {
+    "message": "Ocultar palavra-passe"
+  },
+  "LabelTitle": {
+    "message": "Título"
+  },
+  "LabelLink": {
+    "message": "Endereço"
+  },
+  "LabelParentfolder": {
+    "message": "Pasta principal"
+  },
+  "LabelTags": {
+    "message": "Etiquetas"
+  },
+  "DescriptionTags": {
+    "message": "Digite uma etiqueta e prima Enter"
+  },
+  "LabelSearchbytag": {
+    "message": "Pesquisar marcadores com a etiqueta {0}"
+  },
+  "LabelHome": {
+    "message": "Página inicial"
+  },
+  "LabelSortby": {
+    "message": "Ordenar por"
+  },
+  "LabelMoreactions": {
+    "message": "Mais ações"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Ligação ao servidor bem-sucedida"
+  },
+  "LabelSynconstartup": {
+    "message": "Sincronizar ao iniciar"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Se estiver ativado, este perfil será sincronizado no arranque. Isto é útil se pretender sincronizar os seus favoritos no arranque, mas não quiser esperar pela próxima sincronização agendada."
+  },
+  "LabelNotifyonly": {
+    "message": "Avisar-me apenas sobre alterações"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Se estiverem ativados, os gatilhos acima (alterações locais, arranque, intervalo) limitam-se a verificar se há algo para sincronizar, em vez de procederem à sincronização. O perfil mostra então quantas alterações estão pendentes e o ícone do Floccus exibe um emblema vermelho, cabendo a si decidir quando efetuar a sincronização."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Mostrar uma notificação"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Se estiver ativada, uma notificação do sistema avisará quando este perfil tiver alterações para sincronizar. O seu navegador irá pedir-lhe autorização para mostrar notificações."
+  },
+  "StatusNeedssync": {
+    "message": "É necessário sincronizar"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Alterações pendentes de sincronização: {0} do servidor, {1} para o servidor"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Este perfil ainda não foi sincronizado. Sincronize-o para começar."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} precisa de uma sincronização"
   }
 }
