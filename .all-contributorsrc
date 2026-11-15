@@ -263,6 +263,15 @@
         "code",
         "ideas"
       ]
+    },
+    {
+      "login": "robertsilen",
+      "name": "Robert Silén",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6599142?v=4",
+      "profile": "https://github.com/robertsilen",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "skipCi": true,
