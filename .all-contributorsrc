@@ -265,6 +265,60 @@
       ]
     },
     {
+      "login": "FaFre",
+      "name": "Fabian Freund",
+      "avatar_url": "https://avatars.githubusercontent.com/u/59543085?v=4",
+      "profile": "https://github.com/FaFre",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "clemenstyp",
+      "name": "Clemens Eyhoff",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1587123?v=4",
+      "profile": "https://github.com/clemenstyp",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "simpleqt",
+      "name": "陈志谦",
+      "avatar_url": "https://avatars.githubusercontent.com/u/89645338?v=4",
+      "profile": "https://github.com/simpleqt",
+      "contributions": [
+        "infra"
+      ]
+    },
+    {
+      "login": "austenstone",
+      "name": "Austen Stone",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22425467?v=4",
+      "profile": "http://austen.info",
+      "contributions": [
+        "infra"
+      ]
+    },
+    {
+      "login": "hpuac",
+      "name": "Hans",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1850100?v=4",
+      "profile": "https://puac.de/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "vladdoster",
+      "name": "vladislav doster",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10052309?v=4",
+      "profile": "http://vdoster.com",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
       "login": "cooukiez",
       "name": "Ludw",
       "avatar_url": "https://avatars.githubusercontent.com/u/61082023?v=4",
