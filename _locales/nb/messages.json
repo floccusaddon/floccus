@@ -12,7 +12,7 @@
     "message": "E004: Mappen du flytter til, eksisterer ikke"
   },
   "Error005": {
-    "message": "E005: Mappen du lager i, finnes ikke"
+    "message": "E005: Overordnet mappe for mappen som skal oppdateres, finnes ikke"
   },
   "Error006": {
     "message": "E006: Mappen du oppdaterer, finnes ikke"
@@ -111,7 +111,7 @@
     "message": "E037: Ressursen er låst"
   },
   "Error038": {
-    "message": "E038: Fant ikke lokal mappe"
+    "message": "E038: Det var ikke mulig å finne den lokale mappen til denne profilen. Velg en mappe som skal synkroniseres i profilinnstillingene."
   },
   "Error039": {
     "message": "E039: Følgende bokmerke kunne ikke oppdateres på serveren: {0}"
@@ -157,6 +157,24 @@
   },
   "Error054": {
     "message": "E054: Kunne ikke hente mal for Dropbox"
+  },
+  "Error055": {
+    "message": "E055: Størrelsen på den nedlastede Google Drive-bokmerkfilen avviker fra størrelsen som oppgis av serveren. Dette kan skyldes et midlertidig nettverksproblem. Hvis feilen vedvarer, kan du prøve igjen senere."
+  },
+  "Error056": {
+    "message": "E056: Størrelsen på den opplastede Google Drive-bokmerkfilen avviker fra størrelsen som serveren oppgir etter bekreftelse av opplastingen. floccus prøvde å laste opp på nytt, men klarte ikke å bekrefte resultatet. Prøv igjen senere."
+  },
+  "Error057": {
+    "message": "E057: Uventet servermappe: `{0}`. Vennligst sjekk konfigurasjonen av servermappen."
+  },
+  "Error058": {
+    "message": "E058: Bokmerkfilen din ligger ikke på øverste nivå i Dropbox, og det finnes flere filer med samme navn i Dropbox: {0}. Floccus kan ikke avgjøre hvilken som skal brukes. Flytt den riktige filen til øverste nivå i Dropbox, eller gi de andre filene et nytt navn."
+  },
+  "Error060": {
+    "message": "E060: Bokmerkfilen på serveren ble endret av en annen enhet under denne synkroniseringen. Floccus vil synkronisere på nytt for å inkludere disse endringene."
+  },
+  "Error061": {
+    "message": "E061: S3-bucketet `{0}` finnes ikke. Kontroller navnet på bucketet, URL-adressen til endepunktet og regionen."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -256,6 +274,21 @@
   },
   "StatusScheduled": {
     "message": "Planlagt"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "Pålogging kreves"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "Denne profilen er foreløpig ikke koblet til kontoen din og kan ikke synkroniseres før den er det. Åpne profilinnstillingene for å logge inn."
+  },
+  "LabelAuthorize": {
+    "message": "Logg inn"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "Profilen(e) er importert. Påloggingsopplysningene kan ikke overføres mellom enheter, så hvis du synkroniserer profiler via Google Drive eller Dropbox, må du logge inn på nytt før synkroniseringen kan gjennomføres."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "Profilen(e) er importert. Bokmerkemapper kan ikke gjenkjennes på tvers av enheter, så velg den lokale mappen du ønsker at denne profilen skal synkroniseres med."
   },
   "LabelReset": {
     "message": "Tilbakestill"
@@ -588,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Synkroniser bokmerker via en (eventuelt kryptert) fil som lagres i Dropbox. Den kan synkronisere http-, ftp-, data-, fil- og javascript-bokmerker. Du kan velge å bruke ende-til-ende-kryptering når du bruker dette alternativet."
   },
+  "LabelAdapters3": {
+    "message": "S3-bucket"
+  },
+  "DescriptionAdapters3": {
+    "message": "Synkroniser bokmerkene dine ved å lagre dem i en fil i en S3-bucket. Funksjonen fungerer med Amazon S3 og S3-kompatibel lagring, enten på egen server eller i skyen. Den kan synkronisere http-, ftp-, data-, fil- og javascript-bokmerker. Du kan velge å bruke ende-til-ende-kryptering når du bruker dette alternativet."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "f.eks. Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "URL til S3-endepunkt"
+  },
+  "DescriptionS3endpoint": {
+    "message": "URL-adressen til S3-tjenesten din uten navnet på bøtta, f.eks. https://s3.eu-central-1.amazonaws.com eller https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Region"
+  },
+  "DescriptionS3region": {
+    "message": "Regionen der din bucket befinner seg, f.eks. eu-central-1. Bruk «auto» for Cloudflare R2 og «us-east-1» hvis leverandøren din ikke bruker regioner."
+  },
+  "LabelS3bucket": {
+    "message": "Bøtte"
+  },
+  "LabelS3pathstyle": {
+    "message": "Bruk URL-adresser i sti-format"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Henvis til bøtta som ENDPOINT/BUCKET i stedet for BUCKET.ENDPOINT. De fleste selvhostede S3-servere krever dette."
+  },
+  "LabelS3accesskey": {
+    "message": "Tilgangsnøkkel-ID"
+  },
+  "LabelS3secretkey": {
+    "message": "Hemmelig tilgangsnøkkel"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "Nøkkelen til bokmerkfilen i din bucket, f.eks. personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Logg inn med Dropbox"
   },
@@ -702,6 +774,9 @@
   "LabelSorttitle": {
     "message": "Tittel"
   },
+  "LabelSortadded": {
+    "message": "Dato for oppføring"
+  },
   "LabelSyncmethod": {
     "message": "Synkroniseringsmetode"
   },
@@ -787,28 +862,13 @@
     "message": "Git over HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Git-alternativet synkroniserer bokmerkene dine ved å lagre dem i en fil i det medfølgende Git-depotet. Det finnes ikke noe medfølgende webgrensesnitt for dette alternativet, men du kan bruke det med alle Git-hostingservere, som Github, Gitlab, Gitea osv. Den kan synkronisere http, ftp, data, fil- og javascript-bokmerker. Du kan ikke bruke ende-til-ende-kryptering når du bruker dette alternativet. Dette alternativet er for øyeblikket ikke tilgjengelig i mobilappen."
+    "message": "Git-alternativet synkroniserer bokmerkene dine ved å lagre dem i en fil i det angitte Git-depotet. Det finnes ikke noe tilhørende webgrensesnitt for dette alternativet, men du kan bruke det med hvilken som helst Git-hostingserver, for eksempel GitHub, GitLab, Gitea osv. Det kan synkronisere http-, ftp-, data-, fil- og JavaScript-bokmerker. Du kan ikke benytte deg av ende-til-ende-kryptering når du bruker dette alternativet."
   },
   "LabelGiturl": {
     "message": "URL til depotet ved hjelp av HTTP"
   },
   "LabelGitbranch": {
     "message": "Git-gren"
-  },
-  "LabelTelemetry": {
-    "message": "Automatisert feilrapportering"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus kan automatisk sende feildata til meg, utvikleren. Dette er til stor hjelp for å oppdage og løse feil i floccus raskere, og vil bidra til å forbedre opplevelsen din med floccus i det lange løp. Selv når feilrapportering er aktivert, vil floccus-utviklerne aldri kunne se bokmerkene dine."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "Nytt: I tillegg til feilinformasjonen sender floccus nå også informasjon om hvilken synkroniseringsmetode du bruker, hvis dette alternativet er aktivert. Dette hjelper oss med å forbedre floccus og sørge for at synkroniseringsmetodene fungerer som forventet."
-  },
-  "LabelTelemetryenable": {
-    "message": "Send automatisk feildata og informasjon om hvilken synkroniseringsmetode du bruker til floccus-utviklere"
-  },
-  "LabelTelemetrydisable": {
-    "message": "Ikke send data til floccus-utviklere"
   },
   "LabelAccountlabel": {
     "message": "Profiletikett"
@@ -868,7 +928,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Synkroniser bokmerkene dine med Karakeep-appen med åpen kildekode. Dette alternativet kan ikke bruke ende-til-ende-kryptering og støtter ikke opprettholdelse av rekkefølgen på bokmerkene på tvers av synkroniseringer."
+    "message": "Synkroniser bokmerkene dine med den åpne kildekode-baserte, selvhostede Karakeep-appen. Den kan kun synkronisere HTTP-bokmerker. Dette alternativet kan ikke benytte ende-til-ende-kryptering og støtter ikke å bevare rekkefølgen på bokmerkene ved synkronisering."
   },
   "LabelApiKey":  {
     "message": "API-nøkkel"
@@ -883,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Synkroniser bokmerkene dine med Linkwarden-appen med åpen kildekode, enten på din egen server eller i skyen på cloud.linkwarden.app. Den kan bare synkronisere http-, ftp- og javascript-bokmerker. Dette alternativet kan ikke bruke ende-til-ende-kryptering og støtter ikke bevaring av bokmerkerekkefølgen på tvers av synkroniseringer."
+    "message": "Synkroniser bokmerkene dine med den åpne kildekode-appen Linkwarden, enten den ligger på din egen server eller i skyen på cloud.linkwarden.app. Den kan kun synkronisere http-, ftp- og javascript-bokmerker. Dette alternativet støtter ikke ende-til-ende-kryptering. Det bevarer rekkefølgen på bokmerkene dine med Linkwarden 2.17 eller nyere, der mapper alltid vises over bokmerkene."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Synkroniser rekkefølgen på bokmerkene"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Krever Linkwarden 2.17 eller nyere. Linkwarden kan ikke plassere samlinger mellom lenker, så mapper vises alltid over bokmerkene, i samme rekkefølge som i Linkwardens sidepanel. For å aktivere dette for en eksisterende profil, må du synkronisere én gang til med funksjonen deaktivert, deretter aktivere den og bruke «Flytt opp én gang» ved neste synkronisering. Ellers erstatter rekkefølgen i Linkwarden (nyeste først) rekkefølgen på dine lokale bokmerker. Dette er kun nødvendig på den første enheten du aktiverer funksjonen på."
   },
   "LabelLinkwardenurl":  {
     "message": "URL-adressen til Linkwarden-serveren din"
@@ -908,30 +974,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "Åpne denne visningen i en ny fane"
-  },
-  "LabelGivefeedback": {
-    "message": "Gi tilbakemelding"
-  },
-  "LabelYourname": {
-    "message": "Ditt navn"
-  },
-  "LabelYouremail": {
-    "message": "E-postadressen din (valgfritt)"
-  },
-  "LabelYourmessage": {
-    "message": "Tilbakemeldingen din"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Send inn tilbakemelding"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "Dette tilbakemeldingsskjemaet drives av Sentry. Ved å trykke på send samtykker du til å lagre de oppgitte dataene på Sentrys servere. Ingen av dine bokmerkedata vil bli sendt til Sentry."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "Takk for at du tar deg tid til å gi tilbakemelding til utviklerne av floccus! Hvis tilbakemeldingen din er relatert til et problem, må du sørge for å inkludere trinnene du tok, hva du forventet og hva som skjedde i stedet. Hvis tilbakemeldingen din gjelder en funksjonsforespørsel, må du sørge for å inkludere brukstilfellet eller problemet som denne funksjonen vil løse for deg. Hvis du oppgir e-postadressen din, kan det hende at vi ringer deg tilbake. Takk skal du ha!"
-  },
-  "LabelFeedbacksent": {
-    "message": "Takk for din tilbakemelding!"
   },
   "LabelFaq":{
     "message": "Sjekk vanlige spørsmål"
@@ -962,5 +1004,71 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Velg din tjeneste"
+  },
+  "LabelShowpassword": {
+    "message": "Vis passord"
+  },
+  "LabelHidepassword": {
+    "message": "Skjul passord"
+  },
+  "LabelTitle": {
+    "message": "Tittel"
+  },
+  "LabelLink": {
+    "message": "Lenke"
+  },
+  "LabelParentfolder": {
+    "message": "Overordnet mappe"
+  },
+  "LabelTags": {
+    "message": "Tags"
+  },
+  "DescriptionTags": {
+    "message": "Skriv inn en tag og trykk Enter"
+  },
+  "LabelSearchbytag": {
+    "message": "Søk etter bokmerker merket med {0}"
+  },
+  "LabelHome": {
+    "message": "Hjem"
+  },
+  "LabelSortby": {
+    "message": "Sorter etter"
+  },
+  "LabelMoreactions": {
+    "message": "Flere handlinger"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Serverforbindelsen ble opprettet"
+  },
+  "LabelSynconstartup": {
+    "message": "Synkroniser ved oppstart"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Hvis denne innstillingen er aktivert, vil profilen synkroniseres ved oppstart. Dette er nyttig hvis du ønsker å synkronisere bokmerkene dine ved oppstart, men ikke vil vente til neste planlagte synkronisering."
+  },
+  "LabelNotifyonly": {
+    "message": "Gi meg kun beskjed om endringer"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Hvis denne funksjonen er aktivert, vil utløserne ovenfor (lokale endringer, oppstart, tidsintervallet) bare sjekke om det er noe å synkronisere, i stedet for å utføre selve synkroniseringen. Profilen viser da hvor mange endringer som venter, og floccus-ikonet får et rødt merke, og du bestemmer selv når du vil synkronisere."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Vis et varsel"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Hvis denne funksjonen er aktivert, vil du motta et systemvarsel når det er endringer i denne profilen som skal synkroniseres. Nettleseren din vil be om tillatelse til å vise varsler."
+  },
+  "StatusNeedssync": {
+    "message": "Må synkroniseres"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Endringer som venter på å bli synkronisert: {0} fra serveren, {1} til serveren"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Denne profilen er ikke synkronisert ennå. Synkroniser den for å komme i gang."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} må synkroniseres"
   }
 }
