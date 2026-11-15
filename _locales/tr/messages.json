@@ -12,7 +12,7 @@
     "message": "E004: İçine taşınılacak klasör mevcut değil"
   },
   "Error005": {
-    "message": "E005: İçinde oluşturulacak klasör mevcut değil"
+    "message": "E005: Güncellenecek klasörün üst klasörü mevcut değil"
   },
   "Error006": {
     "message": "E006: Güncellenecek klasör mevcut değil"
@@ -111,7 +111,7 @@
     "message": "E037: Kaynak kilitli"
   },
   "Error038": {
-    "message": "E038: Yerel klasör bulunamadı"
+    "message": "E038: Bu profilin yerel klasörü bulunamadı. Lütfen profil ayarlarından senkronize edilecek bir klasör seçin."
   },
   "Error039": {
     "message": "E039: Sunucudaki aşağıdaki yer işareti güncellenemedi: {0}"
@@ -157,6 +157,24 @@
   },
   "Error054": {
     "message": "E054: Dropbox için şablon alınamadı"
+  },
+  "Error055": {
+    "message": "E055: İndirilen Google Drive yer imleri dosyasının boyutu, sunucu tarafından bildirilen boyuttan farklıdır. Bu, geçici bir ağ sorunu olabilir. Bu hata devam ederse lütfen daha sonra tekrar deneyin."
+  },
+  "Error056": {
+    "message": "E056: Yüklenen Google Drive yer imleri dosyasının boyutu, yükleme doğrulamasının ardından sunucu tarafından bildirilen boyuttan farklıdır. floccus, yüklemeyi yeniden denedi ancak sonucu doğrulayamadı. Lütfen daha sonra tekrar deneyin."
+  },
+  "Error057": {
+    "message": "E057: Beklenmeyen sunucu klasörü: `{0}`. Lütfen sunucu klasörü yapılandırmanızı kontrol edin."
+  },
+  "Error058": {
+    "message": "E058: Yer imleri dosyanız Dropbox'ınızın en üst düzeyinde bulunmuyor ve Dropbox'ınızda bu adla birkaç dosya var: {0}. Floccus hangisini kullanacağını belirleyemiyor. Doğru dosyayı Dropbox'ınızın en üst düzeyine taşıyın veya diğer dosyaların adını değiştirin."
+  },
+  "Error060": {
+    "message": "E060: Bu senkronizasyon sırasında sunucudaki yer imleri dosyası başka bir cihaz tarafından değiştirildi. Floccus, bu değişiklikleri dahil etmek için yeniden senkronizasyon gerçekleştirecek."
+  },
+  "Error061": {
+    "message": "E061: `{0}` adlı S3 depolama kovası mevcut değil. Lütfen depolama kovası adını, uç nokta URL’sini ve bölgeyi kontrol edin."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -256,6 +274,21 @@
   },
   "StatusScheduled": {
     "message": "Planlanmış"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "Giriş yapılması gerekiyor"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "Bu profil henüz hesabınıza bağlı değil ve bağlanana kadar senkronize edilemez. Giriş yapmak için profil seçeneklerini açın."
+  },
+  "LabelAuthorize": {
+    "message": "Giriş yap"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "Profiller başarıyla içe aktarıldı. Oturum bilgileri cihazlar arasında aktarılamadığından, Google Drive veya Dropbox üzerinden senkronize edilen profillerin senkronize edilebilmesi için yeniden oturum açmanız gerekir."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "Profiller başarıyla içe aktarıldı. Yer imi klasörleri cihazlar arasında tanımlanamıyor; bu nedenle lütfen bu profilin senkronize edilmesini istediğiniz yerel klasörü seçin."
   },
   "LabelReset": {
     "message": "Sıfırla"
@@ -588,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Dropbox'ınızda depolanan (isteğe bağlı olarak şifrelenmiş) bir dosya aracılığıyla yer imlerini senkronize edin. Http, ftp, veri, dosya ve javascript yer imlerini senkronize edebilir. Bu seçeneği kullanırken uçtan uca şifreleme kullanmayı seçebilirsiniz."
   },
+  "LabelAdapters3": {
+    "message": "S3 depolama alanı"
+  },
+  "DescriptionAdapters3": {
+    "message": "Yer imlerinizi bir S3 kovasındaki bir dosyaya kaydederek senkronize edin. Bu özellik, Amazon S3 ve S3 uyumlu depolama alanlarıyla (ister kendi sunucunuzda ister bulutta olsun) çalışır. HTTP, FTP, veri, dosya ve JavaScript yer imlerini senkronize edebilir. Bu seçeneği kullanırken uçtan uca şifrelemeyi tercih edebilirsiniz."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "örn. Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Nesne Depolama, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "S3 uç nokta URL'si"
+  },
+  "DescriptionS3endpoint": {
+    "message": "Bucket adı hariç S3 hizmetinizin URL’si, örneğin https://s3.eu-central-1.amazonaws.com veya https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Bölge"
+  },
+  "DescriptionS3region": {
+    "message": "Bucket’ınızın bulunduğu bölge, örneğin eu-central-1. Sağlayıcınız bölge kullanmıyorsa, Cloudflare R2 için “auto” seçeneğini, us-east-1 seçeneğini kullanın."
+  },
+  "LabelS3bucket": {
+    "message": "Kova"
+  },
+  "LabelS3pathstyle": {
+    "message": "Yol biçimli URL’leri kullanın"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Kovaya BUCKET.ENDPOINT yerine ENDPOINT/BUCKET şeklinde başvurun. Çoğu kendi sunucusunda barındırılan S3 sunucusu için bu gereklidir."
+  },
+  "LabelS3accesskey": {
+    "message": "Erişim anahtarı kimliği"
+  },
+  "LabelS3secretkey": {
+    "message": "Gizli erişim anahtarı"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "Bucket’ınızdaki yer imleri dosyasının anahtarı, örneğin personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Dropbox ile giriş yapın"
   },
@@ -702,6 +774,9 @@
   "LabelSorttitle": {
     "message": "Başlık"
   },
+  "LabelSortadded": {
+    "message": "Eklenme tarihi"
+  },
   "LabelSyncmethod": {
     "message": "Senkronizasyon yöntemi"
   },
@@ -787,28 +862,13 @@
     "message": "HTTPS üzerinden Git"
   },
   "DescriptionAdaptergit": {
-    "message": "Git seçeneği, yer imlerinizi sağlanan Git deposundaki bir dosyada depolayarak senkronize eder. Bu seçenek için eşlik eden bir web kullanıcı arayüzü yoktur, ancak Github, Gitlab, Gitea, vb. gibi herhangi bir Git barındırma sunucusuyla kullanabilirsiniz. http, ftp, veri, dosya ve javascript yer imlerini senkronize edebilir. Bu seçeneği kullanırken uçtan uca şifrelemeyi kullanamazsınız. Bu seçenek şu anda mobil uygulamada mevcut değildir."
+    "message": "Git seçeneği, yer işaretlerinizi sağlanan Git deposundaki bir dosyada saklayarak senkronize eder. Bu seçeneğe eşlik eden bir web kullanıcı arayüzü yoktur, ancak bunu Github, Gitlab, Gitea vb. gibi herhangi bir Git barındırma sunucusuyla kullanabilirsiniz. http, ftp, veri, dosya ve javascript yer imlerini senkronize edebilir. Bu seçeneği kullanırken uçtan uca şifrelemeden yararlanamazsınız."
   },
   "LabelGiturl": {
     "message": "HTTP kullanan repo URL'si"
   },
   "LabelGitbranch": {
     "message": "Git dalı"
-  },
-  "LabelTelemetry": {
-    "message": "Otomatik Hata Raporlama"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus, hata verilerini geliştirici olarak bana otomatik olarak gönderebilir. Bu, floccus'taki hataları daha hızlı keşfedip çözmek için çok büyük bir yardımdır ve uzun vadede floccus deneyiminizi geliştirmenize yardımcı olacaktır. Hata raporlama etkinleştirildiğinde bile floccus geliştiricileri yer işaretlerinizi asla göremez."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "Yeni: Hata bilgilerine ek olarak, floccus artık, bu seçenek etkinleştirilmişse, hangi senkronizasyon yöntemini kullandığınız hakkında da bilgi gönderiyor. Bu, floccus'u geliştirmemize ve senkronizasyon yöntemlerinin beklendiği gibi çalıştığından emin olmamıza yardımcı olur."
-  },
-  "LabelTelemetryenable": {
-    "message": "Hata verilerini ve hangi senkronizasyon yöntemini kullandığınıza ilişkin bilgileri floccus geliştiricilerine otomatik olarak gönderin"
-  },
-  "LabelTelemetrydisable": {
-    "message": "Floccus geliştiricilerine herhangi bir veri göndermeyin"
   },
   "LabelAccountlabel": {
     "message": "Profil etiketi"
@@ -868,7 +928,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Yer imlerinizi açık kaynaklı, kendi kendine barındırılan Karakeep uygulaması ile senkronize edin. Bu seçenek uçtan uca şifrelemeyi kullanamaz ve senkronizasyonlar arasında yer imlerinin sırasını korumayı desteklemez."
+    "message": "Yer imlerinizi, açık kaynaklı ve kendi sunucunuzda barındırılan Karakeep uygulamasıyla senkronize edin. Bu uygulama yalnızca http yer imlerini senkronize edebilir. Bu seçenek uçtan uca şifreleme özelliğini kullanamaz ve senkronizasyonlar arasında yer imlerinin sırasını korumayı desteklemez."
   },
   "LabelApiKey":  {
     "message": "API anahtarı"
@@ -883,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Yer imlerinizi, kendi sunucunuzda veya cloud.linkwarden.app adresindeki bulutta barındırılan açık kaynaklı Linkwarden uygulamasıyla senkronize edin. Yalnızca http, ftp ve javascript yer imlerini senkronize edebilir. Bu seçenek uçtan uca şifrelemeyi kullanamaz ve senkronizasyonlar arasında yer imi sırasını korumayı desteklemez."
+    "message": "Yer imlerinizi, kendi sunucunuzda barındırılan ya da cloud.linkwarden.app adresinde bulutta bulunan açık kaynaklı Linkwarden uygulamasıyla senkronize edin. Bu uygulama yalnızca http, ftp ve javascript yer imlerini senkronize edebilir. Bu seçenek uçtan uca şifreleme özelliğini kullanamaz. Linkwarden 2.17 veya sonraki sürümlerinde yer imlerinizin sırasını korur; klasörler her zaman yer imlerinin üzerinde görünür."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Yer imlerinin sırasını senkronize et"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Linkwarden 2.17 veya daha yeni bir sürüm gereklidir. Linkwarden, bağlantılar arasına koleksiyonlar yerleştiremediğinden, klasörler her zaman yer imlerinin üzerinde, Linkwarden’ın kenar çubuğundaki sıraya göre tutulur. Mevcut bir profil için bu özelliği etkinleştirmek istiyorsanız, önce bu özelliği kapalıyken bir kez daha senkronize edin, ardından özelliği etkinleştirin ve bir sonraki senkronizasyonda \"Bir kez yukarı kaydır\" seçeneğini kullanın. Aksi takdirde, Linkwarden'ın sıralaması (en yenisi önce) yerel yer imlerinizin sıralamasının yerine geçer. Bu işlem, özelliği ilk kez etkinleştirdiğiniz cihazda gereklidir."
   },
   "LabelLinkwardenurl":  {
     "message": "Linkwarden sunucunuzun URL'si"
@@ -908,30 +974,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "Bu görünümü yeni bir sekmede aç"
-  },
-  "LabelGivefeedback": {
-    "message": "Geri bildirim verin"
-  },
-  "LabelYourname": {
-    "message": "Sizin adınız"
-  },
-  "LabelYouremail": {
-    "message": "E-posta adresiniz (isteğe bağlı)"
-  },
-  "LabelYourmessage": {
-    "message": "Geri bildirim mesajınız"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Geri bildirim gönderin"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "Bu geri bildirim formu Sentry tarafından desteklenmektedir. Gönder düğmesine basarak girilen verilerin Sentry'nin sunucularında saklanmasını kabul etmiş olursunuz. Yer imi verilerinizin hiçbiri Sentry'ye gönderilmeyecektir."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "floccus geliştiricilerine geri bildirimde bulunmak için zaman ayırdığınız için teşekkür ederiz! Geri bildiriminiz bir sorunla ilgiliyse, attığınız adımları, ne beklediğinizi ve bunun yerine ne olduğunu eklediğinizden emin olun. Geri bildiriminiz bir özellik talebiyle ilgiliyse, bu özelliğin sizin için çözeceği kullanım durumunu veya sorunu eklediğinizden emin olun. E-posta adresinizi de eklerseniz size geri dönüş yapabiliriz. Teşekkür ederiz!"
-  },
-  "LabelFeedbacksent": {
-    "message": "Geri bildiriminiz için teşekkür ederiz!"
   },
   "LabelFaq":{
     "message": "SSS bölümünü kontrol edin"
@@ -962,5 +1004,71 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Hizmetinizi seçin"
+  },
+  "LabelShowpassword": {
+    "message": "Şifreyi göster"
+  },
+  "LabelHidepassword": {
+    "message": "Şifreyi gizle"
+  },
+  "LabelTitle": {
+    "message": "Başlık"
+  },
+  "LabelLink": {
+    "message": "Bağlantı"
+  },
+  "LabelParentfolder": {
+    "message": "Üst klasör"
+  },
+  "LabelTags": {
+    "message": "Etiketler"
+  },
+  "DescriptionTags": {
+    "message": "Bir etiket yazın ve Enter tuşuna basın"
+  },
+  "LabelSearchbytag": {
+    "message": "\"Etiketli yer imlerini ara\" {0}"
+  },
+  "LabelHome": {
+    "message": "Ana Sayfa"
+  },
+  "LabelSortby": {
+    "message": "Şu kriterlere göre sırala"
+  },
+  "LabelMoreactions": {
+    "message": "Diğer işlemler"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Sunucuya bağlantı başarıyla kuruldu"
+  },
+  "LabelSynconstartup": {
+    "message": "Başlangıçta senkronize et"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Etkinleştirilirse, bu profil başlangıçta senkronize edilecektir. Bu, başlangıçta yer imlerinizi senkronize etmek, ancak bir sonraki planlanmış senkronizasyonu beklemek istemediğiniz durumlarda kullanışlıdır."
+  },
+  "LabelNotifyonly": {
+    "message": "Yalnızca değişiklikler hakkında beni bilgilendir"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Etkinleştirildiğinde, yukarıdaki tetikleyiciler (yerel değişiklikler, başlangıç, aralık) senkronizasyon işlemi yapmak yerine yalnızca senkronize edilecek bir şey olup olmadığını kontrol eder. Profilde bu durumda bekleyen değişikliklerin sayısı gösterilir ve floccus simgesinde kırmızı bir rozet belirir; senkronizasyonu ne zaman gerçekleştireceğinize siz karar verirsiniz."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Bir bildirim göster"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Bu özellik etkinleştirildiğinde, bu profilde senkronize edilecek değişiklikler olduğunda bir sistem bildirimi ile bilgilendirilirsiniz. Tarayıcınız, bildirimleri göstermek için sizden izin isteyecektir."
+  },
+  "StatusNeedssync": {
+    "message": "Senkronizasyon gerekiyor"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Senkronize edilmeyi bekleyen değişiklikler: Sunucudan gelen {0}, sunucuya gönderilen {1} "
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Bu profil henüz senkronize edilmemiştir. Başlamak için senkronize edin."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} senkronizasyon gerekiyor"
   }
 }
