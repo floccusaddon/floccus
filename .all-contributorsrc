@@ -263,6 +263,15 @@
         "code",
         "ideas"
       ]
+    },
+    {
+      "login": "cooukiez",
+      "name": "Ludw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/61082023?v=4",
+      "profile": "https://github.com/cooukiez",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "skipCi": true,
