@@ -263,6 +263,15 @@
         "code",
         "ideas"
       ]
+    },
+    {
+      "login": "vladdoster",
+      "name": "vladislav doster",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10052309?v=4",
+      "profile": "http://vdoster.com",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "skipCi": true,
