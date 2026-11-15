@@ -943,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Sync your bookmarks with the open-source Linkwarden app, either hosted on your own server or in the cloud at cloud.linkwarden.app. It can only sync http, ftp and javascript bookmarks. This option cannot make use of end-to-end encryption and does not support keeping the bookmark order across syncs."
+    "message": "Sync your bookmarks with the open-source Linkwarden app, either hosted on your own server or in the cloud at cloud.linkwarden.app. It can only sync http, ftp and javascript bookmarks. This option cannot make use of end-to-end encryption. It keeps the order of your bookmarks with Linkwarden 2.17 or later, with folders always above the bookmarks."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Sync the order of bookmarks"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Requires Linkwarden 2.17 or later. Linkwarden cannot place collections between links, so folders are always kept above the bookmarks, in the order of Linkwarden's sidebar. To turn this on for an existing profile, sync once more with it off, then turn it on and use \"Push up once\" for the next sync. Otherwise the order Linkwarden has (newest first) replaces the order of your local bookmarks. This is only needed on the first device you turn it on for."
   },
   "LabelLinkwardenurl":  {
     "message": "The URL of your Linkwarden server"

@@ -8,6 +8,7 @@ import {
   DUMP_LOGS,
   expect,
   expectTreeEqual,
+  orderCheck,
   getAllBookmarks,
   getEnv,
   seedTestRandom,
@@ -1340,7 +1341,7 @@ describe('Floccus', function() {
 
             const serverF = serverTree.findItem(ItemType.FOLDER, snapshot.LocalToServer.folder[fFolderId])
             serverTree.title = localTree1.title
-            expectTreeEqual(serverTree, localTree1, false, Boolean(account1.server.orderFolder))
+            expectTreeEqual(serverTree, localTree1, false, orderCheck(account1.server))
             expect(serverF.children).to.have.lengthOf(2)
           })
           it('should synchronize ordering', async function() {

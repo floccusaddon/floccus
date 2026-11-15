@@ -1007,6 +1007,8 @@ export default {
         }),
         ...(this.adapter === 'linkwarden' && {
           serverFolder: this.serverFolder,
+          // Existing profiles default to false, see LinkwardenConfig#syncOrder
+          syncOrder: true,
         }),
         ...(this.adapter === 'karakeep' && { serverFolder: this.serverFolder }),
         ...(this.adapter === 'git' && { branch: this.branch }),

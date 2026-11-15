@@ -222,6 +222,7 @@ export function getEnv() {
         type: 'linkwarden',
         url: SERVER,
         serverFolder: 'Floccus-' + Math.random(),
+        syncOrder: true,
         ...CREDENTIALS,
       },
       {
@@ -261,6 +262,23 @@ export const DUMP_LOGS = function(currentTest) {
 chai.use(chaiAsPromised)
 export const expect = chai.expect
 
+/**
+ * The `checkOrder` to compare a tree with what went through `server`:
+ * Linkwarden keeps its collections above the links, so there the folders' and the
+ * bookmarks' order are compared separately, not how the two are interleaved.
+ */
+export function orderCheck(server) {
+  if (!server.orderFolder) {
+    return false
+  }
+  return server.getData().type === 'linkwarden' ? 'foldersFirst' : true
+}
+
+/**
+ * `checkOrder`: true compares the order of all children, false none, and
+ * 'foldersFirst' the order of the folders and of the bookmarks among each other,
+ * but not where the folders sit between the bookmarks (see orderCheck)
+ */
 export const expectTreeEqual = function(
   tree1,
   tree2,
@@ -290,28 +308,30 @@ let expectTreeEqualRec = function(
         )
       }
     } else {
-      if (checkOrder === false) {
-        tree2.children.sort((a, b) => {
-          if (a.title < b.title) return -1
-          if (a.title > b.title) return 1
-          if ((a.url || '') < (b.url || '')) return -1
-          if ((a.url || '') > (b.url || '')) return 1
-          return 0
-        })
-        tree1.children.sort((a, b) => {
-          if (a.title < b.title) return -1
-          if (a.title > b.title) return 1
-          if ((a.url || '') < (b.url || '')) return -1
-          if ((a.url || '') > (b.url || '')) return 1
-          return 0
-        })
+      // Sort copies: the trees passed in stay as they are
+      let children1 = tree1.children.slice()
+      let children2 = tree2.children.slice()
+      if (checkOrder === 'foldersFirst') {
+        // Array#sort is stable: folders and bookmarks each keep their order
+        const foldersFirst = (a, b) => Number(Boolean(a.url)) - Number(Boolean(b.url))
+        children1.sort(foldersFirst)
+        children2.sort(foldersFirst)
       }
-      let children1 = ignoreEmptyFolders
-        ? tree1.children.filter((child) => !hasNoBookmarks(child))
-        : tree1.children
-      let children2 = ignoreEmptyFolders
-        ? tree2.children.filter((child) => !hasNoBookmarks(child))
-        : tree2.children
+      if (checkOrder === false) {
+        const byTitleAndUrl = (a, b) => {
+          if (a.title < b.title) return -1
+          if (a.title > b.title) return 1
+          if ((a.url || '') < (b.url || '')) return -1
+          if ((a.url || '') > (b.url || '')) return 1
+          return 0
+        }
+        children1.sort(byTitleAndUrl)
+        children2.sort(byTitleAndUrl)
+      }
+      if (ignoreEmptyFolders) {
+        children1 = children1.filter((child) => !hasNoBookmarks(child))
+        children2 = children2.filter((child) => !hasNoBookmarks(child))
+      }
       expect(children1).to.have.length(children2.length)
       children2.forEach((child2, i) => {
         expectTreeEqualRec(
