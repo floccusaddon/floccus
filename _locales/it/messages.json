@@ -12,7 +12,7 @@
     "message": "E004: La cartella in cui spostarsi non esiste"
   },
   "Error005": {
-    "message": "E005: La cartella da creare non esiste"
+    "message": "E005: La cartella principale della cartella da aggiornare non esiste"
   },
   "Error006": {
     "message": "E006: La cartella da aggiornare non esiste"
@@ -111,7 +111,7 @@
     "message": "E037: La risorsa è bloccata"
   },
   "Error038": {
-    "message": "E038: Impossibile trovare la cartella locale"
+    "message": "E038: Impossibile individuare la cartella locale di questo profilo. Scegli una cartella da sincronizzare nelle impostazioni del profilo."
   },
   "Error039": {
     "message": "E039: Non è stato possibile aggiornare il seguente segnalibro sul server: {0}"
@@ -157,6 +157,24 @@
   },
   "Error054": {
     "message": "E054: Impossibile ottenere il modello per Dropbox"
+  },
+  "Error055": {
+    "message": "E055: La dimensione del file dei segnalibri di Google Drive scaricato non corrisponde a quella indicata dal server. Potrebbe trattarsi di un problema temporaneo di rete. Se l'errore persiste, riprova più tardi."
+  },
+  "Error056": {
+    "message": "E056: La dimensione del file dei segnalibri di Google Drive caricato non corrisponde a quella indicata dal server dopo la verifica del caricamento. floccus ha riprovato a caricare il file, ma non è riuscito a confermare il risultato. Si prega di riprovare più tardi."
+  },
+  "Error057": {
+    "message": "E057: Cartella del server non prevista: `{0}`. Verificare la configurazione della cartella del server."
+  },
+  "Error058": {
+    "message": "E058: Il file dei segnalibri non si trova nella directory principale di Dropbox e nella cartella Dropbox sono presenti diversi file con lo stesso nome: {0}. Floccus non è in grado di stabilire quale utilizzare. Sposta il file corretto nella directory principale di Dropbox oppure rinomina gli altri."
+  },
+  "Error060": {
+    "message": "E060: Il file dei segnalibri sul server è stato modificato da un altro dispositivo durante questa sincronizzazione. Floccus eseguirà una nuova sincronizzazione per includere tali modifiche."
+  },
+  "Error061": {
+    "message": "E061: Il bucket S3 `{0}` non esiste. Verificare il nome del bucket, l'URL dell'endpoint e la regione."
   },
   "LabelWebdavurl": {
     "message": "URL WebDAV"
@@ -256,6 +274,21 @@
   },
   "StatusScheduled": {
     "message": "Programmato"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "È necessario effettuare l'accesso"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "Questo profilo non è ancora collegato al tuo account e non potrà essere sincronizzato finché non lo sarà. Apri le opzioni del profilo per effettuare l'accesso."
+  },
+  "LabelAuthorize": {
+    "message": "Accedi"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "I profili sono stati importati correttamente. Gli accessi non possono essere trasferiti da un dispositivo all'altro, pertanto, per sincronizzare i profili tramite Google Drive o Dropbox, è necessario effettuare nuovamente l'accesso prima che la sincronizzazione possa avvenire."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "I profili sono stati importati correttamente. Le cartelle dei segnalibri non possono essere identificate su dispositivi diversi, pertanto ti preghiamo di selezionare la cartella locale con cui desideri sincronizzare questo profilo."
   },
   "LabelReset": {
     "message": "Reimposta"
@@ -588,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Sincronizza i segnalibri tramite un file (facoltativamente crittografato) memorizzato in Dropbox. Può sincronizzare segnalibri http, ftp, dati, file e javascript. È possibile scegliere di utilizzare la crittografia end-to-end quando si utilizza questa opzione."
   },
+  "LabelAdapters3": {
+    "message": "bucket S3"
+  },
+  "DescriptionAdapters3": {
+    "message": "Sincronizza i tuoi segnalibri salvandoli in un file all'interno di un bucket S3. Funziona con Amazon S3 e con i servizi di archiviazione compatibili con S3, sia in proprio che nel cloud. È in grado di sincronizzare segnalibri http, ftp, dati, file e javascript. Quando utilizzi questa opzione, puoi scegliere di attivare la crittografia end-to-end."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "ad es. Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "URL dell'endpoint S3"
+  },
+  "DescriptionS3endpoint": {
+    "message": "L'URL del tuo servizio S3 senza il nome del bucket, ad esempio https://s3.eu-central-1.amazonaws.com oppure https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Regione"
+  },
+  "DescriptionS3region": {
+    "message": "La regione in cui si trova il tuo bucket, ad esempio eu-central-1. Utilizza \"auto\" per Cloudflare R2 e \"us-east-1\" se il tuo provider non utilizza le regioni."
+  },
+  "LabelS3bucket": {
+    "message": "Secchio"
+  },
+  "LabelS3pathstyle": {
+    "message": "Utilizza URL in formato percorso"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Indica il bucket come ENDPOINT/BUCKET anziché BUCKET.ENDPOINT. La maggior parte dei server S3 self-hosted richiede questa configurazione."
+  },
+  "LabelS3accesskey": {
+    "message": "ID chiave di accesso"
+  },
+  "LabelS3secretkey": {
+    "message": "Chiave di accesso segreta"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "La chiave del file dei segnalibri presente nel tuo bucket, ad esempio personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Accesso con Dropbox"
   },
@@ -702,6 +774,9 @@
   "LabelSorttitle": {
     "message": "Titolo"
   },
+  "LabelSortadded": {
+    "message": "Data di inserimento"
+  },
   "LabelSyncmethod": {
     "message": "Metodo di sincronizzazione"
   },
@@ -787,28 +862,13 @@
     "message": "Git su HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "L'opzione Git sincronizza i segnalibri memorizzandoli in un file nel repository Git fornito. Questa opzione non è accompagnata da un'interfaccia web, ma può essere utilizzata con qualsiasi server di hosting Git, come Github, Gitlab, Gitea, ecc. Può sincronizzare segnalibri http, ftp, dati, file e javascript. Non è possibile utilizzare la crittografia end-to-end quando si utilizza questa opzione. Questa opzione non è attualmente disponibile nell'app mobile."
+    "message": "L'opzione Git sincronizza i tuoi segnalibri salvandoli in un file all'interno del repository Git fornito. Non è prevista un'interfaccia web dedicata per questa opzione, ma puoi utilizzarla con qualsiasi server di hosting Git, come GitHub, GitLab, Gitea, ecc. È in grado di sincronizzare segnalibri http, ftp, dati, file e javascript. Non è possibile utilizzare la crittografia end-to-end quando si utilizza questa opzione."
   },
   "LabelGiturl": {
     "message": "URL del repository tramite HTTP"
   },
   "LabelGitbranch": {
     "message": "Branch di Git"
-  },
-  "LabelTelemetry": {
-    "message": "Segnalazione automatica degli errori"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus può inviare automaticamente i dati di errore a me, lo sviluppatore. Questo è di enorme aiuto per scoprire e risolvere più rapidamente i bug in floccus e aiuterà a migliorare la tua esperienza con floccus a lungo termine. Anche quando la segnalazione degli errori è abilitata, gli sviluppatori di floccus non saranno mai in grado di vedere i tuoi segnalibri."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "Novità: oltre alle informazioni sugli errori, floccus ora invia anche informazioni sul metodo di sincronizzazione utilizzato, se l'opzione è attivata. Questo ci aiuta a migliorare floccus e ad assicurarci che i metodi di sincronizzazione funzionino come previsto."
-  },
-  "LabelTelemetryenable": {
-    "message": "Inviare automaticamente agli sviluppatori di floccus i dati sugli errori e le informazioni sul metodo di sincronizzazione utilizzato."
-  },
-  "LabelTelemetrydisable": {
-    "message": "Non inviare alcun dato agli sviluppatori di floccus"
   },
   "LabelAccountlabel": {
     "message": "Etichetta del profilo"
@@ -868,7 +928,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Sincronizzare i segnalibri con l'applicazione open-source self-hosted Karakeep. Questa opzione non può utilizzare la crittografia end-to-end e non supporta il mantenimento dell'ordine dei segnalibri tra le varie sincronizzazioni."
+    "message": "Sincronizza i tuoi segnalibri con l'app Karakeep, open source e self-hosted. È in grado di sincronizzare solo i segnalibri http. Questa opzione non consente di utilizzare la crittografia end-to-end e non supporta il mantenimento dell'ordine dei segnalibri durante le sincronizzazioni."
   },
   "LabelApiKey":  {
     "message": "Chiave API"
@@ -883,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Sincronizzate i vostri segnalibri con l'applicazione open-source Linkwarden, ospitata sul vostro server o nel cloud all'indirizzo cloud.linkwarden.app. Può sincronizzare solo i segnalibri http, ftp e javascript. Questa opzione non può utilizzare la crittografia end-to-end e non supporta il mantenimento dell'ordine dei segnalibri tra le varie sincronizzazioni."
+    "message": "Sincronizza i tuoi segnalibri con l'app open source Linkwarden, ospitata sul tuo server o nel cloud all'indirizzo cloud.linkwarden.app. È in grado di sincronizzare solo segnalibri http, ftp e javascript. Questa opzione non supporta la crittografia end-to-end. Mantiene l'ordine dei segnalibri con Linkwarden 2.17 o versioni successive, con le cartelle sempre posizionate sopra i segnalibri."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Sincronizza l'ordine dei segnalibri"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Richiede Linkwarden 2.17 o versioni successive. Linkwarden non può inserire raccolte tra i link, quindi le cartelle vengono sempre mantenute sopra i segnalibri, nell’ordine della barra laterale di Linkwarden. Per attivare questa funzione su un profilo esistente, esegui nuovamente la sincronizzazione con l’opzione disattivata, quindi attivala e utilizza l’opzione “Sposta in alto una volta” per la sincronizzazione successiva. In caso contrario, l’ordine di Linkwarden (dal più recente al più vecchio) sostituirà l’ordine dei tuoi segnalibri locali. Questa operazione è necessaria solo sul primo dispositivo su cui attivi la funzione."
   },
   "LabelLinkwardenurl":  {
     "message": "L'URL del vostro server Linkwarden"
@@ -908,30 +974,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "Aprire questa vista in una nuova scheda"
-  },
-  "LabelGivefeedback": {
-    "message": "Dare un feedback"
-  },
-  "LabelYourname": {
-    "message": "Il tuo nome"
-  },
-  "LabelYouremail": {
-    "message": "Il vostro indirizzo e-mail (facoltativo)"
-  },
-  "LabelYourmessage": {
-    "message": "Il vostro messaggio di feedback"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Invia un feedback"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "Questo modulo di feedback è gestito da Sentry. Premendo l'invio, l'utente accetta di memorizzare i dati inseriti sui server di Sentry. Nessuno dei dati dei vostri segnalibri sarà inviato a Sentry."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "Grazie per aver dedicato del tempo a fornire un feedback agli sviluppatori di floccus! Se il vostro feedback riguarda un problema, assicuratevi di includere i passi che avete fatto, cosa vi aspettavate e cosa invece è successo. Se il vostro feedback riguarda una richiesta di funzionalità, assicuratevi di includere il caso d'uso o il problema che questa funzionalità risolverebbe per voi. Se includete il vostro indirizzo e-mail, potremo ricontattarvi. Grazie!"
-  },
-  "LabelFeedbacksent": {
-    "message": "Grazie per il vostro feedback!"
   },
   "LabelFaq":{
     "message": "Controllare le FAQ"
@@ -962,5 +1004,71 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Selezionare il servizio"
+  },
+  "LabelShowpassword": {
+    "message": "Mostra password"
+  },
+  "LabelHidepassword": {
+    "message": "Nascondi password"
+  },
+  "LabelTitle": {
+    "message": "Titolo"
+  },
+  "LabelLink": {
+    "message": "Link"
+  },
+  "LabelParentfolder": {
+    "message": "Cartella principale"
+  },
+  "LabelTags": {
+    "message": "Tag"
+  },
+  "DescriptionTags": {
+    "message": "Digita un tag e premi Invio"
+  },
+  "LabelSearchbytag": {
+    "message": "Cerca i segnalibri contrassegnati con {0}"
+  },
+  "LabelHome": {
+    "message": "Home"
+  },
+  "LabelSortby": {
+    "message": "Ordina per"
+  },
+  "LabelMoreactions": {
+    "message": "Altre azioni"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Connessione al server riuscita"
+  },
+  "LabelSynconstartup": {
+    "message": "Sincronizzazione all'avvio"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Se abilitato, questo profilo verrà sincronizzato all'avvio. Ciò è utile se desideri sincronizzare i tuoi segnalibri all'avvio, ma non vuoi attendere la successiva sincronizzazione programmata."
+  },
+  "LabelNotifyonly": {
+    "message": "Avvisami solo in caso di modifiche"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Se abilitati, i trigger sopra indicati (modifiche locali, avvio, intervallo) si limitano a verificare se ci sono elementi da sincronizzare, anziché eseguire la sincronizzazione. Il profilo mostra quindi quante modifiche sono in attesa e l'icona di Floccus viene contrassegnata da un badge rosso; sarai tu a decidere quando eseguire la sincronizzazione."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Mostra una notifica"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Se questa opzione è abilitata, una notifica di sistema ti avviserà quando questo profilo presenta modifiche da sincronizzare. Il browser ti chiederà l'autorizzazione per mostrare le notifiche."
+  },
+  "StatusNeedssync": {
+    "message": "Da sincronizzare"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Modifiche in attesa di sincronizzazione: {0} dal server, {1} verso il server"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Questo profilo non è ancora stato sincronizzato. Sincronizzalo per iniziare."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} richiede una sincronizzazione"
   }
 }
