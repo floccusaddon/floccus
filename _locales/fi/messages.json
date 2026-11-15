@@ -12,7 +12,7 @@
     "message": "E004: Kohdekansiota ei ole olemassa."
   },
   "Error005": {
-    "message": "E005: Kohdekansiota ei ole olemassa."
+    "message": "E005: Päivitettävän kansion yläkansio ei ole olemassa"
   },
   "Error006": {
     "message": "E006: Päivitettävää kansiota ei ole olemassa."
@@ -111,7 +111,7 @@
     "message": "E037: Resurssi on lukittu"
   },
   "Error038": {
-    "message": "E038: Paikallista kansiota ei löytynyt"
+    "message": "E038: Tämän profiilin paikallista kansiota ei löytynyt. Valitse synkronoitava kansio profiilin asetuksista."
   },
   "Error039": {
     "message": "E039: Palvelimen seuraavan kirjanmerkin päivittäminen epäonnistui: {0}"
@@ -157,6 +157,24 @@
   },
   "Error054": {
     "message": "E054: Dropboxin mallia ei saatu käyttöön"
+  },
+  "Error055": {
+    "message": "E055: Ladatun Google Drive -kirjanmerkkitiedoston koko eroaa palvelimen ilmoittamasta koosta. Kyseessä voi olla väliaikainen verkko-ongelma. Jos virhe jatkuu, yritä uudelleen myöhemmin."
+  },
+  "Error056": {
+    "message": "E056: Google Driveen ladatun kirjanmerkkitiedoston koko eroaa palvelimen ilmoittamasta koosta latauksen vahvistuksen jälkeen. floccus yritti ladata tiedoston uudelleen, mutta ei pystynyt vahvistamaan tulosta. Yritä myöhemmin uudelleen."
+  },
+  "Error057": {
+    "message": "E057: Odottamaton palvelinkansio: `{0}`. Tarkista palvelinkansion asetukset."
+  },
+  "Error058": {
+    "message": "E058: Kirjanmerkkitiedostosi ei ole Dropbox-kansion ylätasolla, ja Dropbox-kansiossasi on useita tiedostoja, joiden nimi on sama: {0}. Floccus ei osaa päättää, kumpaa tiedostoa sen pitäisi käyttää. Siirrä oikea tiedosto Dropbox-kansion ylätasolle tai nimeä muut tiedostot uudelleen."
+  },
+  "Error060": {
+    "message": "E060: Toinen laite muutti palvelimella olevaa kirjanmerkkitiedostoa tämän synkronoinnin aikana. Floccus suorittaa synkronoinnin uudelleen, jotta muutokset otetaan huomioon."
+  },
+  "Error061": {
+    "message": "E061: S3-säilytyspaikkaa `{0}` ei ole olemassa. Tarkista säilytyspaikan nimi, päätepisteen URL-osoite ja alue."
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL-osoite"
@@ -256,6 +274,21 @@
   },
   "StatusScheduled": {
     "message": "Ajoitettu"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "Kirjautuminen vaaditaan"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "Tämä profiili ei ole vielä liitetty tiliisi, eikä sitä voida synkronoida ennen kuin se on liitetty. Avaa profiilin asetukset kirjautuaksesi sisään."
+  },
+  "LabelAuthorize": {
+    "message": "Kirjaudu sisään"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "Profiilit on tuotu onnistuneesti. Kirjautumistietoja ei voi siirtää laitteiden välillä, joten Google Driven tai Dropboxin kautta synkronoitavien profiilien osalta sinun on kirjauduttava uudelleen sisään, ennen kuin synkronointi voi alkaa."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "Profiili(t) on tuotu onnistuneesti. Kirjanmerkki-kansioita ei voida tunnistaa eri laitteiden välillä, joten valitse paikallinen kansio, jonka haluat synkronoida tämän profiilin kanssa."
   },
   "LabelReset": {
     "message": "Nollaa"
@@ -588,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Synkronoi kirjanmerkit Dropboxiin tallennetun (valinnaisesti salatun) tiedoston kautta. Se voi synkronoida http-, ftp-, data-, tiedosto- ja javascript-kirjanmerkit. Tätä vaihtoehtoa käytettäessä voit valita päästä päähän -salauksen."
   },
+  "LabelAdapters3": {
+    "message": "S3-säilytyspaikka"
+  },
+  "DescriptionAdapters3": {
+    "message": "Synkronoi kirjanmerkkisi tallentamalla ne tiedostoon S3-säilytyspaikkaan. Toiminto toimii Amazon S3:n ja S3-yhteensopivien tallennusratkaisujen kanssa, olipa kyseessä sitten itse ylläpidetty ratkaisu tai pilvipalvelu. Se voi synkronoida http-, ftp-, data-, tiedosto- ja javascript-kirjanmerkkejä. Voit valita päästä päähän -salauksen käytön, kun käytät tätä vaihtoehtoa."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "esim. Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "S3-päätelaitteen URL-osoite"
+  },
+  "DescriptionS3endpoint": {
+    "message": "S3-palvelusi URL-osoite ilman säilytyspaikan nimeä, esim. https://s3.eu-central-1.amazonaws.com tai https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Alue"
+  },
+  "DescriptionS3region": {
+    "message": "Alue, jolla bucketisi sijaitsee, esim. eu-central-1. Käytä arvoa ”auto” Cloudflare R2:n tapauksessa ja ”us-east-1”, jos palveluntarjoajasi ei käytä alueita."
+  },
+  "LabelS3bucket": {
+    "message": "Kauha"
+  },
+  "LabelS3pathstyle": {
+    "message": "Käytä polkutyyppisiä URL-osoitteita"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Viittaa säilöön nimellä ENDPOINT/BUCKET sen sijaan, että käyttäisit muotoa BUCKET.ENDPOINT. Useimmat itse isännöidyt S3-palvelimet vaativat tätä."
+  },
+  "LabelS3accesskey": {
+    "message": "Pääsykoodin tunnus"
+  },
+  "LabelS3secretkey": {
+    "message": "Salainen pääsykoodi"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "Bucketissasi olevan kirjanmerkkitiedoston avain, esim. personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Kirjautuminen Dropboxiin"
   },
@@ -702,6 +774,9 @@
   "LabelSorttitle": {
     "message": "Nimi"
   },
+  "LabelSortadded": {
+    "message": "Lisäyspäivä"
+  },
   "LabelSyncmethod": {
     "message": "Synkronointitapa"
   },
@@ -787,28 +862,13 @@
     "message": "Git – HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Git-vaihtoehto synkronoi kirjanmerkkisi tallentamalla ne tiedostoon annetussa Git-arkistossa. Tähän vaihtoehtoon ei ole liitetty web-käyttöliittymää, mutta voit käyttää sitä minkä tahansa Git-hostauspalvelimen, kuten Githubin, Gitlabin, Gitean jne. kanssa. Se voi synkronoida http-, ftp-, data-, tiedosto- ja javascript-kirjanmerkit. Et voi käyttää päästä päähän -salausta tätä vaihtoehtoa käytettäessä. Tämä vaihtoehto ei ole tällä hetkellä käytettävissä mobiilisovelluksessa."
+    "message": "Git-vaihtoehto synkronoi kirjanmerkit tallentamalla ne tiedostoksi määritettyyn Git-arkistoon. Tässä ei ole mahdollista käyttää verkkokäyttöliittymää, mutta voit käyttää sitä minkä tahansa Git-palvelimen, kuten GitHubin, GitLabin, Gitean yms. kanssa. Tukee HTTP-, FTP-, tieto-, tiedosto- ja JavaScript-kirjanmerkkejä, muttei päästä päähän -salausta."
   },
   "LabelGiturl": {
     "message": "Arkiston HTTP URL -osoite"
   },
   "LabelGitbranch": {
     "message": "Git-haara"
-  },
-  "LabelTelemetry": {
-    "message": "Automatisoitu virheraportointi"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus voi lähettää automaattisesti virhetiedot kehittäjille. Tämä auttaa ja nopeuttaa Floccuksen virheiden havainnointia ja korjausta merkittävästi auttaen parantamaan käyttökokemustasi. Floccuksen kehittäjät eivät koskaan näe kirjanmerkkejäsi raportoinnin ollessa käytsössä."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "Uusi: Virhetietojen lisäksi floccus lähettää nyt myös tiedon siitä, mitä synkronointimenetelmää käytät, jos tämä vaihtoehto on käytössä. Tämä auttaa meitä parantamaan floccusta ja varmistamaan, että synkronointimenetelmät toimivat odotetulla tavalla."
-  },
-  "LabelTelemetryenable": {
-    "message": "Lähetä automaattisesti virhetiedot ja tiedot siitä, mitä synkronointimenetelmää käytät, floccus-kehittäjille."
-  },
-  "LabelTelemetrydisable": {
-    "message": "Älä lähetä mitään tietoja floccus-kehittäjille."
   },
   "LabelAccountlabel": {
     "message": "Profiilin nimi"
@@ -868,7 +928,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Synkronoi kirjanmerkkisi avoimen lähdekoodin Karakeep-sovelluksen kanssa. Tämä vaihtoehto ei voi käyttää päästä päähän -salausta, eikä se tue kirjanmerkkien järjestyksen säilyttämistä synkronointien välillä."
+    "message": "Synkronoi kirjanmerkkisi avoimen lähdekoodin Karakeep-sovelluksella, jonka voit itse isännöidä. Sovellus voi synkronoida vain http-kirjanmerkkejä. Tämä vaihtoehto ei tue päästä päähän -salausta eikä kirjanmerkkien järjestyksen säilyttämistä synkronointien välillä."
   },
   "LabelApiKey":  {
     "message": "API-avain"
@@ -883,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Synkronoi kirjanmerkkisi avoimen lähdekoodin Linkwarden-sovelluksella, joka on joko omalla palvelimellasi tai pilvessä osoitteessa cloud.linkwarden.app. Se voi synkronoida vain http-, ftp- ja javascript-kirjanmerkit. Tämä vaihtoehto ei voi käyttää päästä päähän -salausta eikä se tue kirjanmerkkien järjestyksen säilyttämistä synkronointien välillä."
+    "message": "Synkronoi kirjanmerkkisi avoimen lähdekoodin Linkwarden-sovelluksen avulla, joko omalla palvelimellasi tai pilvipalvelussa osoitteessa cloud.linkwarden.app. Sovellus voi synkronoida vain http-, ftp- ja javascript-kirjanmerkkejä. Tämä vaihtoehto ei tue päästä päähän -salausta. Se säilyttää kirjanmerkkien järjestyksen Linkwarden-versiossa 2.17 tai uudemmassa, jolloin kansiot näkyvät aina kirjanmerkkien yläpuolella."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Synkronoi kirjanmerkkien järjestys"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Vaatii Linkwarden-version 2.17 tai uudemman. Linkwarden ei voi sijoittaa kokoelmia linkkien väliin, joten kansiot pysyvät aina kirjanmerkkien yläpuolella Linkwardenin sivupalkin järjestyksessä. Voit ottaa tämän käyttöön olemassa olevassa profiilissa synkronoimalla ensin kerran, kun ominaisuus on pois päältä, ja ottamalla sen sitten käyttöön ja valitsemalla seuraavalla synkronointikerralla vaihtoehdon ”Siirrä ylöspäin kerran”. Muussa tapauksessa Linkwardenin järjestys (uusin ensin) korvaa paikallisten kirjanmerkkien järjestyksen. Tämä on tarpeen vain ensimmäisellä laitteella, jolla otat ominaisuuden käyttöön."
   },
   "LabelLinkwardenurl":  {
     "message": "Linkwarden-palvelimen URL-osoite"
@@ -908,30 +974,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "Avaa tämä näkymä uudessa välilehdessä"
-  },
-  "LabelGivefeedback": {
-    "message": "Anna palautetta"
-  },
-  "LabelYourname": {
-    "message": "Nimesi"
-  },
-  "LabelYouremail": {
-    "message": "Sähköpostiosoitteesi (valinnainen)"
-  },
-  "LabelYourmessage": {
-    "message": "Palauteviestisi"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Lähetä palautetta"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "Tämä palautelomake toimii Sentryn avulla. Painamalla lähetä hyväksyt, että syötetyt tiedot tallennetaan Sentryn palvelimille. Mitään kirjanmerkkisi tietoja ei lähetetä Sentrylle."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "Kiitos, että otit aikaa antaa palautetta floccuksen kehittäjille! Jos palautteesi liittyy ongelmaan, muista mainita, mitä teit, mitä odotit ja mitä sen sijaan tapahtui. Jos palautteesi koskee ominaisuutta koskevaa pyyntöä, muista sisällyttää käyttötapaus tai ongelma, jonka tämä ominaisuus ratkaisisi sinulle. Jos ilmoitat sähköpostiosoitteesi, saatamme ottaa sinuun yhteyttä. Kiitos!"
-  },
-  "LabelFeedbacksent": {
-    "message": "Kiitos palautteestasi!"
   },
   "LabelFaq":{
     "message": "Tarkista FAQ"
@@ -962,5 +1004,71 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Valitse palvelusi"
+  },
+  "LabelShowpassword": {
+    "message": "Näytä salasana"
+  },
+  "LabelHidepassword": {
+    "message": "Piilota salasana"
+  },
+  "LabelTitle": {
+    "message": "Nimi"
+  },
+  "LabelLink": {
+    "message": "Linkki"
+  },
+  "LabelParentfolder": {
+    "message": "Yläkansio"
+  },
+  "LabelTags": {
+    "message": "Tunnisteet"
+  },
+  "DescriptionTags": {
+    "message": "Kirjoita tunniste ja paina Enter-näppäintä"
+  },
+  "LabelSearchbytag": {
+    "message": "Hae merkittyjä kirjanmerkkejä {0}"
+  },
+  "LabelHome": {
+    "message": "Etusivu"
+  },
+  "LabelSortby": {
+    "message": "Lajittele"
+  },
+  "LabelMoreactions": {
+    "message": "Lisää toimintoja"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Yhteys palvelimeen muodostettiin onnistuneesti"
+  },
+  "LabelSynconstartup": {
+    "message": "Synkronoi käynnistyksen yhteydessä"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Jos tämä asetus on käytössä, profiili synkronoidaan käynnistyksen yhteydessä. Tämä on hyödyllistä, jos haluat synkronoida kirjanmerkkisi heti käynnistyksen yhteydessä, mutta et halua odottaa seuraavaa aikataulun mukaista synkronointia."
+  },
+  "LabelNotifyonly": {
+    "message": "Ilmoita minulle vain muutoksista"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Jos tämä toiminto on käytössä, edellä mainitut laukaisijat (paikalliset muutokset, käynnistys, aikaväli) tarkistavat vain, onko synkronoitavaa, eivätkä suorita varsinaista synkronointia. Profiilissa näkyy tällöin, kuinka monta muutosta odottaa synkronointia, ja floccus-kuvakkeeseen ilmestyy punainen merkki, ja sinä päätät, milloin synkronointi suoritetaan."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Näytä ilmoitus"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Jos tämä toiminto on käytössä, järjestelmäilmoitus kertoo, kun tässä profiilissa on synkronoitavia muutoksia. Selaimesi pyytää sinulta lupaa ilmoitusten näyttämiseen."
+  },
+  "StatusNeedssync": {
+    "message": "Vaatii synkronoinnin"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Synkronoitavat muutokset: {0} palvelimelta, {1} palvelimelle"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Tätä profiilia ei ole vielä synkronoitu. Synkronoi se aloittaaksesi."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} vaatii synkronoinnin"
   }
 }
