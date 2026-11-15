@@ -170,6 +170,12 @@
   "Error058": {
     "message": "E058: Bokmärkesfilen ligger inte på den översta nivån i din Dropbox, och det finns flera filer med samma namn i din Dropbox: {0}. floccus kan inte avgöra vilken fil som ska användas. Flytta rätt fil till den översta nivån i din Dropbox eller byt namn på de andra filerna."
   },
+  "Error060": {
+    "message": "E060: Bokmärkesfilen på servern ändrades av en annan enhet under denna synkronisering. Floccus kommer att synkronisera igen för att inkludera dessa ändringar."
+  },
+  "Error061": {
+    "message": "E061: S3-bucket `{0}` finns inte. Kontrollera bucketnamnet, slutpunktens URL och regionen."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV-URL"
   },
@@ -615,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Synkronisera bokmärken via en fil som lagras i din Dropbox och som du kan välja att kryptera. Det här alternativet kan synkronisera http-, ftp-, data-, file- och javascript-bokmärken. Du kan välja att använda end-to-end-kryptering."
   },
+  "LabelAdapters3": {
+    "message": "S3-bucket"
+  },
+  "DescriptionAdapters3": {
+    "message": "Synkronisera dina bokmärken genom att spara dem i en fil i en S3-bucket. Det fungerar med Amazon S3 och S3-kompatibla lagringslösningar, antingen på egen server eller i molnet. Det går att synkronisera http-, ftp-, data-, fil- och javascript-bokmärken. Du kan välja att använda end-to-end-kryptering när du använder det här alternativet."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "t.ex. Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "URL till S3-ändpunkt"
+  },
+  "DescriptionS3endpoint": {
+    "message": "URL:en till din S3-tjänst utan namnet på bucketen, t.ex. https://s3.eu-central-1.amazonaws.com eller https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Region"
+  },
+  "DescriptionS3region": {
+    "message": "Den region där din bucket finns, t.ex. eu-central-1. Använd ”auto” för Cloudflare R2 och ”us-east-1” om din leverantör inte använder regioner."
+  },
+  "LabelS3bucket": {
+    "message": "Hink"
+  },
+  "LabelS3pathstyle": {
+    "message": "Använd URL:er i sökvägsformat"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Ange bucketen som ENDPOINT/BUCKET istället för BUCKET.ENDPOINT. De flesta egenhostade S3-servrar kräver detta."
+  },
+  "LabelS3accesskey": {
+    "message": "Tillgångsnyckel-ID"
+  },
+  "LabelS3secretkey": {
+    "message": "Hemlig åtkomstnyckel"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "Nyckeln till bokmärkesfilen i din bucket, t.ex. personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Logga in med Dropbox"
   },
@@ -898,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Synkronisera dina bokmärken med Linkwarden-appen med öppen källkod, antingen på din egen server eller i molnet på cloud.linkwarden.app. Alternativet kan bara synkronisera http-, ftp- och javascript-bokmärken. Det här alternativet stöder inte end-to-end-kryptering eller bevarad bokmärkesordning mellan synkroniseringar."
+    "message": "Synkronisera dina bokmärken med den öppen källkodsbaserade appen Linkwarden, antingen på din egen server eller i molnet på cloud.linkwarden.app. Den kan endast synkronisera http-, ftp- och javascript-bokmärken. Det här alternativet stöder inte end-to-end-kryptering. Den behåller ordningen på dina bokmärken med Linkwarden 2.17 eller senare, där mappar alltid placeras ovanför bokmärkena."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Synkronisera bokmärkenas ordning"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Kräver Linkwarden 2.17 eller senare. Linkwarden kan inte placera samlingar mellan länkar, så mappar placeras alltid ovanför bokmärkena, i samma ordning som i Linkwardens sidofält. För att aktivera detta för en befintlig profil, synkronisera en gång till med funktionen avstängd, aktivera den sedan och använd ”Flytta upp en gång” vid nästa synkronisering. Annars ersätter Linkwardens ordning (nyaste först) ordningen på dina lokala bokmärken. Detta behövs endast på den första enheten du aktiverar funktionen för."
   },
   "LabelLinkwardenurl":  {
     "message": "URL-adressen till din Linkwarden-server"
@@ -995,5 +1046,29 @@
   },
   "DescriptionSynconstartup": {
     "message": "När alternativet är aktiverat synkroniseras den här profilen vid start. Då behöver du inte vänta på nästa schemalagda synkronisering för att få dina bokmärken synkroniserade."
+  },
+  "LabelNotifyonly": {
+    "message": "Meddela mig endast om ändringar"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Om funktionen är aktiverad kontrollerar ovanstående utlösare (lokala ändringar, vid uppstart, intervall) endast om det finns något att synkronisera, istället för att synkronisera. Profilen visar då hur många ändringar som väntar och floccus-ikonen får en röd markering, och du bestämmer själv när du vill synkronisera."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Visa ett meddelande"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Om funktionen är aktiverad får du ett systemmeddelande när det finns ändringar i den här profilen som ska synkroniseras. Din webbläsare kommer att be om tillstånd att visa meddelanden."
+  },
+  "StatusNeedssync": {
+    "message": "Måste synkroniseras"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Ändringar som väntar på att synkroniseras: {0} från servern, {1} till servern"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Den här profilen har inte synkroniserats än. Synkronisera den för att komma igång."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} måste synkroniseras"
   }
 }
