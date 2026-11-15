@@ -943,7 +943,7 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Sünkroniseeri oma järjehoidjad avatud lähtekoodiga rakendusega Linkwarden, mida saab kas oma serveris või pilves aadressil cloud.linkwarden.app. See suudab sünkroniseerida ainult http-, ftp- ja javascript-järjehoidjaid. See valik ei toeta otspunktidevahelist krüpteerimist. See säilitab su järjehoidjate järjekorra Linkwarden 2.17 või uuemate versioonide puhul, kus kaustad asuvad alati järjehoidjate kohal."
+    "message": "Sünkrooni oma järjehoidjad avatud lähtekoodiga rakendusega Linkwarden, mida saad kasutada kas oma serveris või pilves aadressil cloud.linkwarden.app. See suudab sünkroonida ainult http-, ftp- ja javascript-järjehoidjaid. See valik ei toeta läbivat krüptimist. See säilitab su järjehoidjate järjekorra Linkwarden 2.17 või uuemate versioonide puhul, kus kaustad asuvad alati järjehoidjate kohal."
   },
   "LabelSyncOrderLinkwarden": {
     "message": "Sünkroniseeri järjehoidjate järjekord"
