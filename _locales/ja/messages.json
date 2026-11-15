@@ -12,7 +12,7 @@
     "message": "E004: 移動先のフォルダーが存在しません"
   },
   "Error005": {
-    "message": "E005: 作成先のフォルダーが存在しません"
+    "message": "E005: 更新対象のフォルダの親フォルダが存在しません"
   },
   "Error006": {
     "message": "E006: 更新対象のフォルダーが存在しません"
@@ -111,7 +111,7 @@
     "message": "E037: リソースがロックされています"
   },
   "Error038": {
-    "message": "E038: ローカルフォルダーが見つかりません"
+    "message": "E038: このプロフィールのローカルフォルダが見つかりませんでした。プロファイルの設定で、同期するフォルダを選択してください。"
   },
   "Error039": {
     "message": "E039: 次のブックマークをサーバー上で更新できませんでした: {0}"
@@ -157,6 +157,24 @@
   },
   "Error054": {
     "message": "E054：Dropbox 用テンプレートを取得できませんでした"
+  },
+  "Error055": {
+    "message": "E055: ダウンロードしたGoogleドライブのブックマークファイルのサイズが、サーバーから報告されたサイズと異なります。これは一時的なネットワークの問題である可能性があります。このエラーが解消されない場合は、後ほど再度お試しください。"
+  },
+  "Error056": {
+    "message": "E056: アップロードされた Google ドライブのブックマークファイルのサイズが、アップロードの検証後にサーバーから報告されたサイズと異なります。floccus はアップロードを再試行しましたが、結果を確認できませんでした。後ほど再度お試しください。"
+  },
+  "Error057": {
+    "message": "E057: 予期しないサーバーフォルダ: `{0}`。サーバーフォルダの設定を確認してください。"
+  },
+  "Error058": {
+    "message": "E058: ブックマークファイルがDropboxの最上位ディレクトリにない上、Dropbox内に同じ名前のファイルが複数存在しています：{0} 。Floccusはどのファイルを使用すべきか判別できません。正しいファイルをDropboxの最上位ディレクトリに移動するか、他のファイルの名前を変更してください。"
+  },
+  "Error060": {
+    "message": "E060: この同期中に、サーバー上のブックマークファイルが別のデバイスによって変更されました。Floccusは、それらの変更を反映するために再度同期を行います。"
+  },
+  "Error061": {
+    "message": "E061: S3 バケット `{0}` は存在しません。バケット名、エンドポイント URL、およびリージョンをご確認ください。"
   },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
@@ -237,7 +255,7 @@
     "message": "変更ベースの同期"
   },
   "StatusLastsynced": {
-    "message": "最終同期: [0]前"
+    "message": "最終同期: {0}前"
   },
   "StatusNeversynced": {
     "message": "まだ同期していません"
@@ -256,6 +274,21 @@
   },
   "StatusScheduled": {
     "message": "設定済み"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "ログインが必要です"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "このプロフィールはまだあなたのアカウントと連携されていません。連携されるまでは同期できません。プロフィール設定を開いてログインしてください。"
+  },
+  "LabelAuthorize": {
+    "message": "ログイン"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "プロファイルのインポートに成功しました。ログイン情報はデバイス間で引き継ぐことができないため、Google ドライブや Dropbox 経由で同期するプロファイルについては、同期を行う前に再度ログインする必要があります。"
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "プロファイルのインポートに成功しました。ブックマークフォルダはデバイス間で識別できないため、このプロファイルを同期させたいローカルフォルダを選択してください。"
   },
   "LabelReset": {
     "message": "リセット"
@@ -588,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Dropboxに保存されている（オプションで暗号化された）ファイルを介してブックマークを同期します。http、ftp、データ、ファイル、javascriptのブックマークを同期できます。このオプションを使用する際、エンドツーエンドの暗号化を使用するかどうかを選択できます。"
   },
+  "LabelAdapters3": {
+    "message": "S3バケット"
+  },
+  "DescriptionAdapters3": {
+    "message": "ブックマークをS3バケット内のファイルに保存して同期します。Amazon S3およびS3互換のストレージ（自前サーバーまたはクラウド上のもの）に対応しています。http、ftp、データ、ファイル、javascriptの各ブックマークを同期できます。このオプションを使用する際は、エンドツーエンド暗号化を有効にするかどうかを選択できます。"
+  },
+  "DescriptionAdapters3examples": {
+    "message": "例：Amazon S3、Cloudflare R2、Backblaze B2、Wasabi、Hetzner Object Storage、MinIO、Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "S3エンドポイントURL"
+  },
+  "DescriptionS3endpoint": {
+    "message": "バケット名を除いた S3 サービスの URL。例：https://s3.eu-central-1.amazonaws.com またはhttps://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "地域"
+  },
+  "DescriptionS3region": {
+    "message": "バケットが配置されているリージョン（例：eu-central-1）。Cloudflare R2の場合は「auto」を指定し、プロバイダーがリージョンを使用していない場合は「us-east-1」を指定してください。"
+  },
+  "LabelS3bucket": {
+    "message": "バケツ"
+  },
+  "LabelS3pathstyle": {
+    "message": "パス形式のURLを使用する"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "バケットへの参照は、BUCKET.ENDPOINT ではなく ENDPOINT/BUCKET としてください。ほとんどのセルフホスト型 S3 サーバーでは、この設定が必要です。"
+  },
+  "LabelS3accesskey": {
+    "message": "アクセスキーID"
+  },
+  "LabelS3secretkey": {
+    "message": "秘密のアクセスキー"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "バケット内のブックマークファイルのキー。例：personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Dropboxでログイン"
   },
@@ -702,6 +774,9 @@
   "LabelSorttitle": {
     "message": "タイトル"
   },
+  "LabelSortadded": {
+    "message": "追加日"
+  },
   "LabelSyncmethod": {
     "message": "同期の方法"
   },
@@ -787,28 +862,13 @@
     "message": "Git over HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Git オプションでは、設定した Git リポジトリー内のファイルにブックマークを保存してブックマークを同期します。ウェブ UI はありませんが、Github、Gitlab、Gitea などの Git ホスティングサーバーを使用できます。http、ftp、データ、ファイル、javascript のブックマークを同期できます。このオプションでは、エンドツーエンド暗号化は選択できません。また、モバイルアプリでは現在利用できません。"
+    "message": "Git オプションは、提供された Git リポジトリー内のファイルにブックマークを保存して同期します。ウェブ UI はありませんが、Github、Gitlab、Gitea などのすべての Git ホスティングサーバーに対応しています。http、ftp、データ、ファイル、JavaScript のブックマークを同期できます。このオプションでは、エンドツーエンド暗号化は使用できません。 "
   },
   "LabelGiturl": {
     "message": "リポジトリーの URL (HTTP)"
   },
   "LabelGitbranch": {
     "message": "Git ブランチ"
-  },
-  "LabelTelemetry": {
-    "message": "自動エラーレポート"
-  },
-  "DescriptionTelemetry": {
-    "message": "floccus は開発者に自動でエラーデータを送信できます。エラーデータは floccus のバグの迅速な発見と解消に役立ち、長期的には floccus のユーザー体験を向上させます。エラーレポートを有効にしても、floccus の開発者はあなたのブックマークを閲覧できません。"
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "新機能: エラー情報に加えて、floccusはどの同期方法を使用しているかという情報も送信するようになりました。これはfloccusの改善や、同期方法が期待通りに動いているか確認するのに役立ちます。"
-  },
-  "LabelTelemetryenable": {
-    "message": "エラーデータと、使用している同期方法を自動的に floccus の開発者に送信する"
-  },
-  "LabelTelemetrydisable": {
-    "message": "floccus の開発者にデータを送信しない"
   },
   "LabelAccountlabel": {
     "message": "プロファイル ラベル"
@@ -868,7 +928,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "セルフホストしたオープンソースの Karakeep アプリとブックマークを同期します。このオプションでは、エンドツーエンド暗号化は選択できず、ブックマークの並び順の同期はサポートされていません。"
+    "message": "オープンソースのセルフホスト型アプリ「Karakeep」を使って、ブックマークを同期しましょう。同期できるのはHTTP形式のブックマークのみです。このオプションではエンドツーエンド暗号化を利用できず、同期後のブックマークの順序を維持することもできません。"
   },
   "LabelApiKey":  {
     "message": "API キー"
@@ -883,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "自分で用意したサーバーまたは cloud.linkwarden.app のクラウド上のオープンソースの Linkwarden アプリとブックマークを同期します。http、ftp、javascript ブックマークのみ同期できます。このオプションでは、エンドツーエンド暗号化は選択できず、ブックマークの並び順の同期はサポートされていません。"
+    "message": "ブックマークを、ご自身のサーバーでホストするか、cloud.linkwarden.app のクラウド上で利用可能なオープンソースアプリ「Linkwarden」と同期させることができます。このオプションでは、http、ftp、および JavaScript ブックマークのみを同期できます。 このオプションでは、エンドツーエンドの暗号化は利用できません。Linkwarden 2.17 以降では、ブックマークの順序が維持され、フォルダは常にブックマークの上部に表示されます。"
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "ブックマークの順序を同期する"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Linkwarden 2.17 以降が必要です。Linkwarden ではリンクの間にコレクションを配置できないため、フォルダは常にブックマークの上、Linkwarden のサイドバーの順序通りに表示されます。 既存のプロファイルでこの機能を有効にするには、まず機能をオフにした状態で一度同期を行い、その後機能をオンにして、次の同期時に「1回上に移動」を使用してください。そうしないと、Linkwardenの順序（新しいものから順）がローカルのブックマークの順序に上書きされてしまいます。この操作は、この機能を初めて有効にするデバイスでのみ必要です。"
   },
   "LabelLinkwardenurl":  {
     "message": "Linkwarden サーバーの URL"
@@ -908,30 +974,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "この表示を新しいタブで開く"
-  },
-  "LabelGivefeedback": {
-    "message": "Give feedback"
-  },
-  "LabelYourname": {
-    "message": "Your name"
-  },
-  "LabelYouremail": {
-    "message": "Your email (optional)"
-  },
-  "LabelYourmessage": {
-    "message": "Your feedback message"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Submit feedback"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "このフィードバックフォームは Sentry を使用しています。送信すると、入力したデータを Sentry のサーバーに保存することに同意したことになります。あなたのブックマークデータが Sentry に送信されることはありません。"
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "Thank you for taking the time to give feedback to the developers of floccus! If your feedback is related to a problem, make sure to include the steps you took, what you expected and what happened instead. If your feedback is about a feature request, make sure to include the use case or problem that this feature would solve for you. If you include your email, we may get back to you. Thank you!"
-  },
-  "LabelFeedbacksent": {
-    "message": "フィードバックありがとうございます！"
   },
   "LabelFaq":{
     "message": "よくある質問を確認"
@@ -962,5 +1004,71 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "サービスを選択"
+  },
+  "LabelShowpassword": {
+    "message": "パスワードを表示"
+  },
+  "LabelHidepassword": {
+    "message": "パスワードを非表示にする"
+  },
+  "LabelTitle": {
+    "message": "タイトル"
+  },
+  "LabelLink": {
+    "message": "リンク"
+  },
+  "LabelParentfolder": {
+    "message": "親フォルダ"
+  },
+  "LabelTags": {
+    "message": "タグ"
+  },
+  "DescriptionTags": {
+    "message": "タグを入力して、Enterキーを押してください"
+  },
+  "LabelSearchbytag": {
+    "message": "タグが付けられたブックマークを検索{0}"
+  },
+  "LabelHome": {
+    "message": "ホーム"
+  },
+  "LabelSortby": {
+    "message": "並べ替え"
+  },
+  "LabelMoreactions": {
+    "message": "その他の操作"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "サーバーへの接続に成功しました"
+  },
+  "LabelSynconstartup": {
+    "message": "起動時の同期"
+  },
+  "DescriptionSynconstartup": {
+    "message": "この設定を有効にすると、起動時にこのプロファイルが同期されます。起動時にブックマークを同期したいが、次回の定期同期を待たずに同期したい場合に便利です。"
+  },
+  "LabelNotifyonly": {
+    "message": "変更があった場合のみ通知する"
+  },
+  "DescriptionNotifyonly": {
+    "message": "この機能を有効にすると、上記のトリガー（ローカルの変更、起動時、一定間隔）は、同期を行うのではなく、同期すべき項目があるかどうかのみを確認します。その場合、プロファイルには待機中の変更件数が表示され、floccusのアイコンに赤いバッジが付きます。同期を行うタイミングはユーザーが決定します。"
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "通知を表示する"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "この機能を有効にすると、このプロファイルに同期すべき変更がある際に、システム通知が表示されます。ブラウザから、通知を表示する許可を求めるメッセージが表示されます。"
+  },
+  "StatusNeedssync": {
+    "message": "同期が必要"
+  },
+  "DescriptionPendingChanges": {
+    "message": "同期待ちの変更：サーバーからの「{0} 」、サーバーへの「{1} 」"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "このプロフィールはまだ同期されていません。同期して開始してください。"
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} 同期が必要"
   }
 }
