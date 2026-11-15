@@ -943,7 +943,13 @@
     "message": "林克沃登"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "使用开源的 Linkwarden 应用程序同步您的书签，该程序可托管在您自己的服务器上或云端 cloud.linkwarden.app。它只能同步 http、ftp 和 javascript 书签。此选项不能使用端到端加密，也不支持在同步时保持书签顺序。"
+    "message": "使用开源的 Linkwarden 应用同步您的书签，该应用既可以部署在您自己的服务器上，也可以通过 cloud.linkwarden.app 托管在云端。它仅支持同步 http、ftp 和 javascript 书签。 此选项无法使用端到端加密。它会保留您在 Linkwarden 2.17 或更高版本中的书签排序，其中文件夹始终位于书签之上。"
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "同步书签的顺序"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "需要 Linkwarden 2.17 或更高版本。由于 Linkwarden 无法在链接之间插入收藏集，因此文件夹始终位于书签上方，且按 Linkwarden 侧边栏的顺序排列。 若要为现有配置文件启用此功能，请先在关闭该功能的情况下同步一次，然后开启该功能，并在下次同步时使用“向上推一次”操作。否则，Linkwarden 的排序（最新项在前）将覆盖您本地书签的排序。此操作仅需在首次启用该功能的设备上执行。"
   },
   "LabelLinkwardenurl":  {
     "message": "Linkwarden 服务器的 URL"
